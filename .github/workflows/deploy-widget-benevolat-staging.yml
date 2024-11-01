@@ -1,0 +1,35 @@
+name: Deploy widget benevolat staging
+
+on:
+  workflow_dispatch:
+  # push:
+  #   branches:
+  #     - staging
+  #   paths:
+  #     - ".github/workflows/deploy-widget-benevolat-staging.yml"
+  # - "widget-benevolat/**"
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment: staging
+    steps:
+      - name: Connect and restart process
+        uses: appleboy/ssh-action@master
+        with:
+          host: mission.api-engagement-dev.fr
+          username: "root"
+          key: ${{ secrets.SCW_SSH_KEY }}
+          script: |
+            cd api-engagement/widget-benevolat
+            git checkout staging
+            git reset --hard
+            git pull
+            npm install
+            npm run build
+            npm run stop
+            npm run start

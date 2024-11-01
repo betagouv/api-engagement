@@ -1,0 +1,108 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@font-face {
+  font-display: swap;
+  font-family: "Marianne";
+  src: url("/font/Marianne-ExtraBold.woff2") format("woff2");
+  font-weight: 800;
+  font-style: normal;
+}
+
+@font-face {
+  font-display: swap;
+  font-family: "Marianne";
+  src: url("/font/Marianne-ExtraBold_Italic.woff2") format("woff2");
+  font-weight: 800;
+  font-style: italic;
+}
+@font-face {
+  font-display: swap;
+  font-family: "Marianne";
+  src: url("/font/Marianne-Bold.woff2") format("woff2");
+  font-weight: 700;
+  font-style: normal;
+}
+
+@font-face {
+  font-display: swap;
+  font-family: "Marianne";
+  src: url("/font/Marianne-Bold_Italic.woff2") format("woff2");
+  font-weight: 700;
+  font-style: italic;
+}
+
+@font-face {
+  font-display: swap;
+  font-family: "Marianne";
+  src: url("/font/Marianne-Medium.woff2") format("woff2");
+  font-weight: 500;
+  font-style: normal;
+}
+
+@font-face {
+  font-display: swap;
+  font-family: "Marianne";
+  src: url("/font/Marianne-Medium_Italic.woff2") format("woff2");
+  font-weight: 500;
+  font-style: italic;
+}
+
+@font-face {
+  font-display: swap;
+  font-family: "Marianne";
+  src: url("/font/Marianne-Regular.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+}
+
+@font-face {
+  font-display: swap;
+  font-family: "Marianne";
+  src: url("/font/Marianne-Regular_Italic.woff2") format("woff2");
+  font-weight: 400;
+  font-style: italic;
+}
+
+@font-face {
+  font-display: swap;
+  font-family: "Marianne";
+  src: url("/font/Marianne-Light.woff2") format("woff2");
+  font-weight: 300;
+  font-style: normal;
+}
+
+@font-face {
+  font-display: swap;
+  font-family: "Marianne";
+  src: url("/font/Marianne-Light_Italic.woff2") format("woff2");
+  font-weight: 300;
+  font-style: italic;
+}
+
+body {
+  background-color: white;
+  height: 100%;
+}
+
+#__next {
+  height: 100%;
+}
+
+.slick-slider .slick-dots {
+  bottom: -40px;
+}
+
+.slick-track {
+  display: flex !important;
+  justify-content: center;
+}
+
+.slick-slide {
+  height: inherit !important;
+}
+
+.slick-slide > div {
+  height: 100%;
+}

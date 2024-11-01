@@ -1,0 +1,3 @@
+Sitemap: https://app.api-engagement.beta.gouv.fr/sitemap.xml
+User-agent: *
+Allow: /

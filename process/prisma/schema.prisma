@@ -1,0 +1,373 @@
+generator client {
+    provider = "prisma-client-js"
+}
+
+datasource db {
+    provider = "postgresql"
+    url = env("PG_ENDPOINT")
+}
+
+model Mission {
+  id String @id @default(uuid())
+  old_id String @unique
+
+  client_id String?
+  title String?
+  description String?
+  description_html String?
+  tags String[]
+  tasks String[]
+  audience String[]
+  soft_skills String[]
+  close_to_transport String?
+  reduced_mobility_accessible String?
+  open_to_minors String?
+  remote String?
+  schedule String?
+  duration Int?
+  posted_at DateTime? @default(now())
+  start_at DateTime? @default(now())
+  end_at DateTime? @default(now())
+  priority String?
+  places Int?
+  metadata String?
+  domain String
+  activity String?
+  type MissionType?
+  snu Boolean?
+  snu_places Int?
+
+  address String?
+  city String?
+  postal_code String?
+  department_name  String?
+  department_code String?
+  region String?
+  country String?
+  latitude Float?
+  longitude Float?
+  geoloc_status String?
+
+  organization_id String?
+  organization_url String?
+  organization_name String?
+  organization_logo String?
+  organization_client_id String?
+  organization_description String?
+  organization_rna String?
+  organization_siren String?
+  organization_full_address String?
+  organization_city String?
+  organization_department String?
+  organization_postal_code String?
+  organization_status_juridique String?
+  organization_beneficiaries String[]
+  organization_reseaux String[]
+  organization_actions String[]
+  
+  // Later add association table in the database
+  association_id String?
+  association_rna String?
+  rna_status String?
+  
+  partner Partner? @relation(fields: [partner_id], references: [id])
+  partner_id String?
+  last_sync_at DateTime? @default(now())
+  status String?
+  status_comment String?
+
+  impressions Impression[]
+  clicks Click[]
+  applies Apply[]
+  accounts Account[]
+  widget_query WidgetQuery[] @relation("QueryWidgetMission")
+
+  jva_moderation_status String?
+  jva_moderation_comment String?
+  jva_moderation_title String?
+  jva_moderation_updated_at DateTime?
+
+  leboncoin_moderation_status String?
+  leboncoin_moderation_comment String?
+  leboncoin_moderation_url String?
+  leboncoin_moderation_updated_at DateTime?
+
+  deleted_at DateTime?
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  @@index([partner_id], name: "mission_partner_id")
+}
+
+enum MissionType {
+  benevolat
+  volontariat
+}
+
+model Partner {
+    id String @id @default (uuid())
+    old_id String @unique
+    name String?
+    diffuseur_api Boolean
+    diffuseur_widget Boolean
+    diffuseur_campaign Boolean
+    annonceur Boolean
+    api_key String?
+    partners String[]
+    missions Mission[]
+    annonceur_widget Widget[]
+    diffuseur_widgets Widget[] @relation("DiffuseurWidget")
+    annonceur_campaigns Campaign[] @relation(name: "AnnonceurCampaign")
+    diffuseur_campaigns Campaign[] @relation("DiffuseurCampaign")
+    users User[]
+    imports Import[]
+    apply_from Apply[] @relation("FromApply")
+    apply_to Apply[] @relation("ToApply")
+    click_from Click[] @relation("FromClick")
+    click_to Click[] @relation("ToClick")
+    account_from Account[] @relation("FromAccount")
+    account_to Account[] @relation("ToAccount")
+    impression_from Impression[] @relation("FromImpression")
+    impression_to Impression[] @relation("ToImpression")
+    created_at DateTime @default(now())
+    updated_at DateTime @updatedAt
+    deleted_at DateTime?
+}
+
+model Widget {
+  id String @id @default(uuid())
+  name String
+  old_id String @unique
+  diffuseur Partner @relation(name: "DiffuseurWidget", fields: [diffuseur_id], references: [id])
+  diffuseur_id String //fromPublisherId
+  annonceur Partner[]
+  mission_type MissionType?
+  active Boolean @default(true)
+  deleted_at DateTime?
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+  impressions Impression[]
+  applies Apply[]
+  clicks Click[]
+  accounts Account[]
+  query WidgetQuery[] @relation("QueryWidget")
+}
+
+model Campaign {
+  id String @id @default(uuid())
+  url String?
+  type String?
+  old_id String @unique
+  name String?
+  diffuseur Partner @relation(name: "DiffuseurCampaign", fields: [diffuseur_id], references: [id])
+  diffuseur_id String
+  annonceur Partner @relation(name: "AnnonceurCampaign", fields: [annonceur_id], references: [id])
+  annonceur_id String
+  active Boolean @default(true)
+  deleted_at DateTime?
+  reassigned_at DateTime?
+  reassigned_by_user_id String?
+  reassigned_by_user_name String?
+  created_at DateTime @default(now())
+  updated_at DateTime @default(now())
+  clicks Click[]
+  applies Apply[]
+  impressions Impression[]
+  accounts Account[]
+
+  @@index([diffuseur_id], name: "campaign_diffuseur_id")
+  @@index([annonceur_id], name: "campaign_annonceur_id")
+}
+
+model Impression {
+  id        String      @id @default(uuid())
+  mission   Mission?  @relation(fields: [mission_id], references: [id])
+  mission_id String?
+  to_partner Partner? @relation("ToImpression", fields: [to_partner_id], references: [id])
+  to_partner_id String?
+  from_partner Partner? @relation("FromImpression", fields: [from_partner_id], references: [id])
+  from_partner_id String?
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+  campaign Campaign? @relation(fields: [campaign_id], references: [id])
+  campaign_id String?
+  widget Widget? @relation(fields: [widget_id], references: [id])
+  widget_id String?
+  host String?
+  source SourceType?
+  source_id String?
+  old_id String @unique
+
+  @@index([mission_id], name: "impression_mission_id")
+  @@index([to_partner_id], name: "impression_to_partner_id")
+  @@index([from_partner_id], name: "impression_from_partner_id")
+  @@index([campaign_id], name: "impression_campaign_id")
+}
+
+enum SourceType {
+  api
+  widget
+  campaign
+  seo
+  jstag
+}
+
+model Click {
+  id        String      @id @default(uuid())
+  old_id String @unique
+  mission   Mission?  @relation(fields: [mission_id], references: [id])
+  mission_id String?
+  campaign Campaign? @relation(fields: [campaign_id], references: [id])
+  campaign_id String?
+  widget Widget? @relation(fields: [widget_id], references: [id])
+  widget_id String?
+  source SourceType?
+  source_id String?
+  host String?
+  from_partner Partner? @relation("FromClick", fields: [from_partner_id], references: [id])
+  from_partner_id String?
+  to_partner Partner? @relation("ToClick", fields: [to_partner_id], references: [id])
+  to_partner_id String?
+  tag String?
+  applies Apply[] @relation("ClickApplies")
+  accounts Account[] @relation("ClickAccounts")
+
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  @@index([mission_id], name: "click_mission_id")
+  @@index([campaign_id], name: "click_campaign_id")
+  @@index([widget_id], name: "click_widget_id")
+  @@index([from_partner_id], name: "click_from_partner_id")
+  @@index([to_partner_id], name: "click_to_partner_id")
+}
+
+model Apply {
+  id        String      @id @default(uuid())
+  old_id String @unique
+  mission   Mission?  @relation(fields: [mission_id], references: [id])
+  mission_id String?
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+  campaign Campaign? @relation(fields: [campaign_id], references: [id])
+  campaign_id String?
+  widget Widget? @relation(fields: [widget_id], references: [id])
+  widget_id String?
+  source SourceType?
+  source_id String?
+  host String?
+  from_partner Partner? @relation("FromApply", fields: [from_partner_id], references: [id])
+  from_partner_id String?
+  to_partner Partner? @relation("ToApply", fields: [to_partner_id], references: [id])
+  to_partner_id String?
+  tag String?
+  status String?
+  old_view_id String?
+  clicks Click[] @relation("ClickApplies")
+  click_id String?
+
+  @@index([mission_id], name: "apply_mission_id")
+  @@index([campaign_id], name: "apply_campaign_id")
+  @@index([widget_id], name: "apply_widget_id")
+  @@index([from_partner_id], name: "apply_from_partner_id")
+  @@index([to_partner_id], name: "apply_to_partner_id")
+
+}
+
+model User {
+  id String @id @default(uuid())
+  old_id String @unique
+  forgot_password_reset_token String?
+  role String?
+  password String?
+  email String
+  last_login_at DateTime? @default(now())
+  partners   Partner[]
+  first_name String?
+  last_name String?
+  invitation_completed_at DateTime? @default(now())
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+  deleted_at DateTime?
+  deleted Boolean @default(false)
+  login_history LoginHistory[]
+}
+
+
+model Import {
+  id String @id @default(uuid())
+  old_id String @unique
+  created_count Int?
+  deleted_count Int?
+  updated_count Int?
+  partner Partner @relation(fields: [partner_id], references: [id])
+  partner_id String
+  started_at DateTime @default(now())
+  ended_at DateTime @default(now())
+}
+
+model Account {
+  id        String      @id @default(uuid())
+  old_id String @unique
+  mission  Mission?  @relation(fields: [mission_id], references: [id])
+  mission_id String?
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+  campaign Campaign? @relation(fields: [campaign_id], references: [id])
+  campaign_id String?
+  widget Widget? @relation(fields: [widget_id], references: [id])
+  widget_id String?
+  source SourceType?
+  source_id String?
+  host String?
+  url String?
+  tag String?
+  from_partner Partner? @relation("FromAccount", fields: [from_partner_id], references: [id])
+  from_partner_id String?
+  to_partner Partner? @relation("ToAccount", fields: [to_partner_id], references: [id])
+  to_partner_id String?
+  old_view_id String?
+  clicks Click[] @relation("ClickAccounts")
+  click_id String?
+
+  @@index([mission_id], name: "account_mission_id")
+  @@index([campaign_id], name: "account_campaign_id")
+  @@index([widget_id], name: "account_widget_id")
+  @@index([from_partner_id], name: "account_from_partner_id")
+  @@index([to_partner_id], name: "account_to_partner_id")
+}
+
+model WidgetQuery {
+  id          String    @id @default(uuid())
+  old_id      String @unique
+  missions    Mission[] @relation("QueryWidgetMission")
+  widget      Widget @relation("QueryWidget", fields: [widget_id], references: [id])
+  widget_id   String
+  domain      String[]
+  organization String[]
+  department  String[]
+  schedule    String[]
+  remote      String[]
+  action      String[]
+  beneficiary String[]
+  country     String[]
+  minor       String[]
+  accessibility String[]
+  duration    Int?
+  start       DateTime?
+  search      String?
+  lat         Float?
+  lon         Float?
+  size        Int?
+  from        Int?
+  created_at  DateTime @default(now())
+}
+
+model LoginHistory {
+  id          String   @id @default(uuid())
+  user        User     @relation(fields: [user_id], references: [id])
+  user_id     String
+  login_at    DateTime @default(now())
+
+  @@index ([user_id], name: "login_history")
+}

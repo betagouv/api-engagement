@@ -1,0 +1,9 @@
+{
+  "arrowParens": "always",
+  "printWidth": 180,
+  "semi": true,
+  "doubleQuote": true,
+  "tabWidth": 2,
+  "jsxBracketSameLine": true,
+  "plugins": ["prettier-plugin-organize-imports"]
+}
