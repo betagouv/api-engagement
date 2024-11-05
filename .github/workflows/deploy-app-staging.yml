@@ -1,13 +1,12 @@
 name: Deploy app staging
 
 on:
-  workflow_dispatch
-  # push:
-  #   branches:
-  #     - staging
-  #   paths:
-  #     - ".github/workflows/deploy-app-staging.yml"
-  #     - "app/**"
+  push:
+    branches:
+      - staging
+    paths:
+      - ".github/workflows/deploy-app-staging.yml"
+      - "app/**"
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
