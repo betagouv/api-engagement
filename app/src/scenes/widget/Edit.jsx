@@ -62,7 +62,7 @@ const Edit = () => {
           name: res.data.name || "",
           type: res.data.type || "",
           url: res.data.url || "",
-          distance: res.data.distance || "",
+          distance: res.data.distance || "25km",
           publishers: res.data.publishers || [],
           moderations: res.data.moderations || [],
           rules: res.data.rules || [],
@@ -85,6 +85,15 @@ const Edit = () => {
         const query = new URLSearchParams();
         query.append("publisherId", publisher._id);
         query.append("jvaModeration", values.jvaModeration);
+
+        if (values.location) {
+          query.append("lat", values.location.lat);
+          query.append("lon", values.location.lon);
+        }
+
+        if (values.distance) {
+          query.append("distance", values.distance);
+        }
 
         values.rules.forEach((rule, index) => {
           query.append(`rules[${index}][field]`, rule.field);
@@ -135,9 +144,6 @@ const Edit = () => {
   };
 
   if (!widget) return <h2 className="p-3">Chargement...</h2>;
-
-  console.log("partners", partners);
-  console.log("values", values.publishers);
 
   return (
     <div className="space-y-6">

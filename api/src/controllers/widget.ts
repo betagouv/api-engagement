@@ -116,6 +116,9 @@ router.get("/partners", passport.authenticate("user", { session: false }), async
             }),
           )
           .optional(),
+        lat: zod.string().transform(Number).optional(),
+        lon: zod.string().transform(Number).optional(),
+        distance: zod.string().optional(),
       })
       .safeParse(req.query);
 
@@ -161,6 +164,18 @@ router.get("/partners", passport.authenticate("user", { session: false }), async
       if (builtQuery.bool.should && Array.isArray(builtQuery.bool.should)) {
         where.query.bool.filter.bool.should.push(...builtQuery.bool.should);
       }
+    }
+
+    if (query.data.lat && query.data.lon) {
+      where.query.bool.must.push({
+        geo_distance: {
+          distance: query.data.distance || "25km",
+          location: {
+            lat: query.data.lat,
+            lon: query.data.lon,
+          },
+        },
+      });
     }
 
     const response = await esClient.search({

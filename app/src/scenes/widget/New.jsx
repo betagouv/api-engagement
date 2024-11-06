@@ -59,6 +59,23 @@ const New = () => {
         const query = new URLSearchParams();
         query.append("publisherId", publisher._id);
         query.append("jvaModeration", values.jvaModeration);
+
+        if (values.location) {
+          query.append("lat", values.location.lat);
+          query.append("lon", values.location.lon);
+        }
+
+        if (values.distance) {
+          query.append("distance", values.distance);
+        }
+
+        values.rules.forEach((rule, index) => {
+          query.append(`rules[${index}][field]`, rule.field);
+          query.append(`rules[${index}][operator]`, rule.operator);
+          query.append(`rules[${index}][value]`, rule.value);
+          query.append(`rules[${index}][combinator]`, rule.combinator);
+        });
+
         const res = await api.get(`/widget/partners?${query.toString()}`);
 
         if (!res.ok) throw res;
@@ -76,7 +93,7 @@ const New = () => {
       }
     };
     fetchData();
-  }, [publisher._id, values.jvaModeration]);
+  }, [publisher._id, values.jvaModeration, values.location, values.distance, values.rules]);
 
   const handleSubmit = async () => {
     const errors = {};
@@ -367,6 +384,12 @@ const Settings = ({ values, setValues, errors, partners }) => {
       )}
       <div className="mt-6 flex flex-col gap-2">
         <div>Filtrer les missions à afficher</div>
+        <span className="text-gray-dark">
+          {values.rules.length === 0
+            ? `Aucun filtre appliqué - ${partners.filter((p) => values.publishers.includes(p._id)).reduce((total, p) => total + p.count, 0)} missions affichées`
+            : `${partners.filter((p) => values.publishers.includes(p._id)).reduce((total, p) => total + p.count, 0)} missions affichées`}
+        </span>
+
         <QueryBuilder
           fields={[
             { label: "Nom de l'organisation", value: "organizationName", type: "text" },
