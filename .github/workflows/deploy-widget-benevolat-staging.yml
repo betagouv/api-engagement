@@ -22,7 +22,7 @@ jobs:
         with:
           host: mission.api-engagement-dev.fr
           username: "root"
-          key: ${{ secrets.SSH_KEY }}
+          key: ${{ secrets.SSH_KEY_STAGING }}
           script: |
             cd api-engagement/widget-benevolat
             git checkout staging
