@@ -201,14 +201,14 @@ const Settings = ({ widget, values, setValues, partners }) => {
 
       <div className="grid grid-cols-2 gap-10">
         <div className="flex flex-col">
-          <label className="mb-2 text-sm" htmlFor="name">
+          <label className="mb-2" htmlFor="name">
             Nom du widget<span className="ml-1 text-red-main">*</span>
           </label>
           <input className="input mb-2  border-b-black" name="name" value={values.name} onChange={(e) => setValues({ ...values, name: e.target.value })} disabled={!widget.new} />
         </div>
 
         <div className="flex flex-col">
-          <label className="mb-2 flex items-center text-sm" htmlFor="url">
+          <label className="mb-2 flex items-center" htmlFor="url">
             URL de la page où le widget est intégré
           </label>
           <input className="input mb-2 border-b-black" id="url" name="url" value={values.url} onChange={(e) => setValues({ ...values, url: e.target.value })} />
@@ -220,7 +220,7 @@ const Settings = ({ widget, values, setValues, partners }) => {
       <h2 className="text-2xl font-bold">Missions à diffuser</h2>
       <div className="grid grid-cols-2 gap-10">
         <div className="flex flex-col">
-          <label className="mb-2 text-sm" htmlFor="name">
+          <label className="mb-2" htmlFor="name">
             Type de mission<span className="ml-1 text-red-main">*</span>
           </label>
           <div className="flex items-center justify-between">
@@ -271,7 +271,7 @@ const Settings = ({ widget, values, setValues, partners }) => {
       <div>
         <div className="grid grid-cols-2 gap-10 mb-10">
           <div className="flex flex-col">
-            <label className="mb-2 text-sm" htmlFor="location">
+            <label className="mb-2" htmlFor="location">
               Ville ou code postal
             </label>
             <LocationSearch selected={values.location} onChange={(v) => setValues({ ...values, location: v })} />
@@ -281,7 +281,7 @@ const Settings = ({ widget, values, setValues, partners }) => {
             </div>
           </div>
           <div className="flex flex-col">
-            <label className="mb-2 text-sm" htmlFor="distance">
+            <label className="mb-2" htmlFor="distance">
               Rayon de recherche
             </label>
             <select
@@ -332,7 +332,7 @@ const Settings = ({ widget, values, setValues, partners }) => {
                     </div>
 
                     <div className="flex flex-col truncate">
-                      <span className={`line-clamp-2 truncate text-sm ${values.publishers.includes(p._id) ? "text-blue-dark" : "text-gray-dark"}`}>{p.name}</span>
+                      <span className={`line-clamp-2 truncate text-sm ${values.publishers.includes(p._id) ? "text-blue-dark" : "text-black"}`}>{p.name}</span>
                       <div className={`flex ${values.type === "volontariat" ? "text-[#929292]" : "text-gray-dark"}`}>
                         <span className="text-xs">{p.count > 1 ? `${p.count.toLocaleString("fr")} missions` : `${p.count} mission`}</span>
                         {p.moderation && p.moderation.length && (
@@ -431,7 +431,7 @@ const Settings = ({ widget, values, setValues, partners }) => {
 
       <div className="grid grid-cols-2 gap-10">
         <div className="flex flex-col gap-2">
-          <label className="mb-2 text-sm" htmlFor="style">
+          <label className="mb-2" htmlFor="style">
             Mode d'affichage<span className="ml-1 text-red-main">*</span>
           </label>
           <div className="flex items-center justify-between mr-10">
@@ -462,7 +462,7 @@ const Settings = ({ widget, values, setValues, partners }) => {
         </div>
 
         <div className="flex flex-col">
-          <label className="mb-2 text-sm" htmlFor="color">
+          <label className="mb-2" htmlFor="color">
             Code hexadécimal couleur<span className="ml-1 text-red-main">*</span>
           </label>
           <div className="flex items-center gap-4">
@@ -515,7 +515,7 @@ const Frame = ({ widget }) => {
   return (
     <div className="bg-white p-12 space-y-10 shadow-lg">
       <div className="flex flex-col gap-2">
-        <h2 className="text-3xl font-bold">Aperçu du widget</h2>
+        <h2 className="text-2xl font-bold">Aperçu du widget</h2>
         <span>Enregistrez le widget pour mettre à jour l'aperçu</span>
       </div>
 
@@ -561,7 +561,7 @@ const Code = ({ widget }) => {
 
   return (
     <div className="bg-white p-12 space-y-12 shadow-lg">
-      <h2 className="text-3xl font-bold">Code à intégrer</h2>
+      <h2 className="text-2xl font-bold">Code à intégrer</h2>
       <div className="flex items-center justify-between">
         <p>Vous n’avez plus qu’à intégrer ce code pour afficher le widget sur votre site</p>
         <button className="empty-button flex items-center" onClick={handleCopy}>

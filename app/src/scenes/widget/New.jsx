@@ -179,7 +179,7 @@ const Settings = ({ values, setValues, errors, partners }) => {
       </div>
       <div className="grid grid-cols-2 gap-10">
         <div className="flex flex-col">
-          <label className="mb-2 text-sm" htmlFor="name">
+          <label className="mb-2" htmlFor="name">
             Nom du widget<span className="ml-1 text-red-main">*</span>
           </label>
           <input
@@ -197,7 +197,7 @@ const Settings = ({ values, setValues, errors, partners }) => {
         </div>
 
         <div className="flex flex-col">
-          <label className="mb-2 flex items-center text-sm" htmlFor="url">
+          <label className="mb-2 flex items-center" htmlFor="url">
             URL de la page où le widget est intégré
           </label>
           <input
@@ -221,7 +221,7 @@ const Settings = ({ values, setValues, errors, partners }) => {
       <h2 className="text-2xl font-bold">Missions à diffuser</h2>
       <div className="grid grid-cols-2 gap-10">
         <div className="flex flex-col">
-          <label className="mb-2 text-sm" htmlFor="name">
+          <label className="mb-2" htmlFor="name">
             Type de mission<span className="ml-1 text-red-main">*</span>
           </label>
           <div className="flex items-center justify-between">
@@ -271,7 +271,7 @@ const Settings = ({ values, setValues, errors, partners }) => {
 
       <div className="grid grid-cols-2 gap-10 mb-10">
         <div className="flex flex-col">
-          <label className="mb-2 text-sm" htmlFor="location">
+          <label className="mb-2" htmlFor="location">
             Ville ou code postal
           </label>
           <LocationSearch selected={values.location} onChange={(v) => setValues({ ...values, location: v })} />
@@ -281,7 +281,7 @@ const Settings = ({ values, setValues, errors, partners }) => {
           </div>
         </div>
         <div className="flex flex-col">
-          <label className="mb-2 text-sm" htmlFor="distance">
+          <label className="mb-2" htmlFor="distance">
             Rayon de recherche
           </label>
           <select
@@ -416,7 +416,7 @@ const Settings = ({ values, setValues, errors, partners }) => {
       </div>
       <div className="grid grid-cols-2 gap-10">
         <div className="flex flex-col gap-2">
-          <label className="mb-2 text-sm" htmlFor="style">
+          <label className="mb-2" htmlFor="style">
             Mode d'affichage<span className="ml-1 text-red-main">*</span>
           </label>
           <div className="flex items-center justify-between mr-10">
@@ -447,7 +447,7 @@ const Settings = ({ values, setValues, errors, partners }) => {
         </div>
 
         <div className="flex flex-col">
-          <label className="mb-2 text-sm" htmlFor="color">
+          <label className="mb-2 " htmlFor="color">
             Code hexadécimal couleur<span className="ml-1 text-red-main">*</span>
           </label>
           <div className="flex items-center gap-4">
