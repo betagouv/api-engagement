@@ -341,7 +341,7 @@ const Edit = () => {
               </label>
               <Autocomplete
                 placeholder="Organisation"
-                options={organizations.map((o) => ({ label: o.key, value: o.key, doc_count: o.doc_count }))}
+                options={organizations.filter((o) => !values.excludeOrganisations.includes(o.key)).map((o) => ({ label: o.key, value: o.key, doc_count: o.doc_count }))}
                 value={searchOrga}
                 onChange={setSearchOrga}
                 onSelect={(e) => setValues({ ...values, excludeOrganisations: [...values.excludeOrganisations, e.value] })}
