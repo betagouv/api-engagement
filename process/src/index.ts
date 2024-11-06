@@ -213,7 +213,7 @@ const rnaJob = new CronJob(
 
 // Every first Tuesday of the month at 10:00 AM
 const reportJob = new CronJob(
-  "15 10 * * 2",
+  "0 10 2 * *",
   async () => {
     // if not the first Tuesday of the month, return
     const date = new Date();
