@@ -226,7 +226,7 @@ const importPublisher = async (publisher: Publisher, start: Date) => {
       const missionXML = missionsXML[j];
       promises.push(buildData(obj.startedAt, publisher, missionXML));
 
-      if (j % 50 === 0) {
+      if (j % 50 === 0 || j === missionsXML.length - 1) {
         const res = await Promise.all(promises);
         res.filter((e) => e !== undefined).forEach((e: Mission) => missions.push(e));
         promises.length = 0;
@@ -272,50 +272,6 @@ const importPublisher = async (publisher: Publisher, start: Date) => {
 
     // BULK WRITE
     await bulkDB(missions, publisher, obj);
-
-    // WRITE IN ES
-    // const bulk = [] as (BulkOperationContainer | BulkUpdateAction | Mission)[];
-    // missions.forEach((m) => {
-    //   const geoloc = resultGeoloc ? resultGeoloc.find((r) => r.clientId.toString() === m.doc.clientId.toString()) : null;
-    //   const rna = resultRNA.find((r) => r.clientId.toString() === m.doc.clientId.toString());
-    //   m.doc = { ...m.doc, ...rna, ...geoloc };
-    //   if (m.type === "INSERT") {
-    //     bulk.push({ index: { _index: MISSION_INDEX, _id: uuidv4() } });
-    //     bulk.push(m.doc);
-    //     obj.createdCount++;
-    //   } else if (m.doc._id) {
-    //     const doc = { ...m.doc, _id: undefined };
-    //     bulk.push({ update: { _index: MISSION_INDEX, _id: m.doc._id.toString() } });
-    //     bulk.push({ doc });
-    //     obj.updatedCount++;
-    //   }
-    // });
-    // console.log(`[${publisher.name}] Bulking... ${bulk.length / 2} missions, ${obj.createdCount} to create, ${obj.updatedCount} to update`);
-    // for (let i = 0; i < bulk.length; i += 1000) {
-    //   const chunk = bulk.slice(i, i + 1000);
-    //   const { body } = await esClient.bulk({ refresh: true, body: chunk });
-    //   if (body.errors) {
-    //     const errors = body.items.filter((e: any) => e.index.error);
-    //     errors.forEach((e: any) => {
-    //       console.error(JSON.stringify(e, null, 2));
-    //     });
-    //     captureException(`ES bulk failed`, JSON.stringify(errors, null, 2));
-    //     obj.failed.data.push(...errors);
-    //     obj.status = "FAILED";
-    //     return obj;
-    //   }
-    // }
-
-    // // CLEAN DB
-    // console.log(`[${publisher.name}] Cleaning mission from ${obj.startedAt.toLocaleDateString()}...`);
-    // const cleanRes = await esClient.updateByQuery({
-    //   index: MISSION_INDEX,
-    //   body: {
-    //     query: { bool: { must: [{ term: { "publisherId.keyword": publisher._id } }, { term: { deleted: false } }, { range: { updatedAt: { lt: obj.startedAt } } }] } },
-    //     script: { source: "ctx._source.deleted = params.deleted; ctx._source.deletedAt = params.deletedAt", params: { deleted: true, deletedAt: obj.startedAt } },
-    //   },
-    // });
-    // console.log(`[${publisher.name}] ES cleaning deleted ${cleanRes.body.updated}`);
 
     // STATS
     const resMissionCount = await esClient.count({
@@ -365,13 +321,3 @@ const handler = async (publisherId?: string) => {
 };
 
 export default { handler };
-
-const a = {
-  update: {
-    _index: "mission",
-    _type: "_doc",
-    _id: "6703e5d9e7f46a4b2adc9615",
-    status: 404,
-    error: { type: "document_missing_exception", reason: "[_doc][6703e5d9e7f46a4b2adc9615]: document missing", index_uuid: "4DufnbsnR9ClJwSMoyHRvg", shard: "1", index: "mission" },
-  },
-};

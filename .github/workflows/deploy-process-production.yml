@@ -1,13 +1,13 @@
 name: Deploy process production
 
 on:
-  workflow_dispatch:
-  # push:
-  #   branches:
-  #     - main
-  #   paths:
-  #     - ".github/workflows/deploy-process-production.yml"
-  #     - "process/**"
+  # workflow_dispatch:
+  push:
+    branches:
+      - main
+    paths:
+      - ".github/workflows/deploy-process-production.yml"
+      - "process/**"
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}

@@ -4,11 +4,11 @@ import prisma from "../../db/postgres";
 import { STATS_INDEX } from "../../config";
 import { captureException } from "../../error";
 import { Stats } from "../../types";
-import { PgClick } from "../../types/postgres";
+import { Click } from "@prisma/client";
 
 const BATCH_SIZE = 5000;
 
-const buildData = (
+const buildData = async (
   doc: Stats,
   partners: { [key: string]: string },
   missions: { [key: string]: string },
@@ -27,11 +27,15 @@ const buildData = (
   }
 
   let missionId;
-  if (doc.missionId) {
-    missionId = missions[doc.missionId?.toString()];
+  if (doc.missionClientId && doc.toPublisherId) {
+    missionId = missions[`${doc.missionClientId}-${doc.toPublisherId}`];
     if (!missionId) {
-      console.log(`[Clicks] Mission ${doc.missionId?.toString()} not found for doc ${doc._id.toString()}`);
-      return null;
+      const m = await prisma.mission.findFirst({ where: { old_id: doc.missionId?.toString() }, select: { id: true } });
+      if (m) {
+        missionId = m.id;
+      } else {
+        console.log(`[Clicks] Mission ${doc.missionId?.toString()} not found for doc ${doc._id.toString()}`);
+      }
     }
   }
 
@@ -50,6 +54,7 @@ const buildData = (
   const obj = {
     old_id: doc._id,
     mission_id: missionId ? missionId : null,
+    mission_old_id: doc.missionId ? doc.missionId : null,
     created_at: new Date(doc.createdAt),
     host: doc.host,
     tag: doc.tag,
@@ -59,7 +64,7 @@ const buildData = (
     widget_id: sourceId && doc.source === "widget" ? sourceId : null,
     to_partner_id: partnerToId,
     from_partner_id: partnerFromId,
-  } as PgClick;
+  } as Click;
 
   return obj;
 };
@@ -75,7 +80,9 @@ const handler = async () => {
     console.log(`[Clicks] Found ${stored} docs in database.`);
 
     const missions = {} as { [key: string]: string };
-    await prisma.mission.findMany({ select: { id: true, old_id: true } }).then((data) => data.forEach((d) => (missions[d.old_id] = d.id)));
+    await prisma.mission
+      .findMany({ select: { id: true, client_id: true, partner: { select: { old_id: true } } } })
+      .then((data) => data.forEach((d) => (missions[`${d.client_id}-${d.partner?.old_id}`] = d.id)));
     const partners = {} as { [key: string]: string };
     await prisma.partner.findMany({ select: { id: true, old_id: true } }).then((data) => data.forEach((d) => (partners[d.old_id] = d.id)));
     const campaigns = {} as { [key: string]: string };
@@ -109,7 +116,7 @@ const handler = async () => {
                   {
                     range: {
                       createdAt: {
-                        gte: "now-7d/d",
+                        gte: "now-14d/d",
                         lte: "now/d",
                       },
                     },
@@ -131,7 +138,7 @@ const handler = async () => {
 
       const dataToCreate = [];
       for (const hit of data) {
-        const obj = buildData({ _id: hit._id, ...hit._source }, partners, missions, campaigns, widgets);
+        const obj = await buildData({ _id: hit._id, ...hit._source }, partners, missions, campaigns, widgets);
         if (!obj) continue;
 
         dataToCreate.push(obj);

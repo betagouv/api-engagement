@@ -132,8 +132,8 @@ export type Import = {
 
 export interface Mission {
   _id: Schema.Types.ObjectId;
-  _old_id?: string;
-  _old_ids?: string[];
+  _old_id: string | undefined;
+  _old_ids: string[] | undefined;
 
   publisherId: string;
   publisherName: string;

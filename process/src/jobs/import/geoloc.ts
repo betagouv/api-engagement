@@ -81,7 +81,7 @@ export const enrichWithGeoloc = async (publisher: Publisher, missions: Mission[]
           obj.departmentName = DEPARTMENTS[context[0].trim()][0];
           obj.region = DEPARTMENTS[context[0].trim()][1];
         }
-        obj.geolocStatus === "ENRICHED";
+        obj.geolocStatus = "ENRICHED";
         found++;
       }
 
