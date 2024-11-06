@@ -6,7 +6,7 @@ on:
       - staging
     paths:
       - ".github/workflows/deploy-widget-benevolat-staging.yml"
-  - "widget-benevolat/**"
+      - "widget-benevolat/**"
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
