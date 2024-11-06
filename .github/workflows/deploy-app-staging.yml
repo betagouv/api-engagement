@@ -15,14 +15,13 @@ concurrency:
 jobs:
   deploy:
     runs-on: ubuntu-latest
-    environment: production
     steps:
       - name: Connect and restart process
         uses: appleboy/ssh-action@master
         with:
           host: app.api-engagement-dev.fr
           username: "root"
-          key: ${{ secrets.SCW_SSH_KEY }}
+          key: ${{ secrets.SSH_KEY_STAGING }}
           script: |
             cd api-engagement/app
             git checkout staging
