@@ -1,24 +1,21 @@
-import { Combobox, ComboboxInput, ComboboxOption, ComboboxOptions, Transition } from "@headlessui/react";
+import { Combobox, Transition } from "@headlessui/react";
 import { Fragment, useEffect, useState } from "react";
 import { BiSolidInfoSquare } from "react-icons/bi";
-import { RiArrowLeftLine, RiCodeSSlashFill } from "react-icons/ri";
-import { Link, useNavigate, useParams } from "react-router-dom";
+import { RiArrowLeftLine } from "react-icons/ri";
+import { Link, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 
 import JvaLogoSvg from "@/assets/svg/jva-logo.svg";
 import RadioInput from "@/components/RadioInput";
 import Toggle from "@/components/Toggle";
 import api from "@/services/api";
-import { BENEVOLAT_URL, VOLONTARIAT_URL } from "@/services/config";
 import { captureError } from "@/services/error";
 import useStore from "@/services/store";
 import QueryBuilder from "./components/QueryBuilder";
 
-const Edit = () => {
-  const navigate = useNavigate();
+const New = () => {
   const { publisher } = useStore();
-  const { id } = useParams();
-  const [widget, setWidget] = useState(null);
+  const navigate = useNavigate();
   const [values, setValues] = useState({
     name: "",
     type: "",
@@ -28,7 +25,11 @@ const Edit = () => {
     moderations: [],
     rules: [],
     jvaModeration: false,
+    color: "#000091",
+    style: "page",
+    fromPublisherId: publisher._id.toString(),
   });
+  const [errors, setErrors] = useState({});
   const [stickyVisible, setStickyVisible] = useState(false);
   const [saveButton, setSaveButton] = useState(null);
   const [partners, setPartners] = useState([]);
@@ -55,73 +56,51 @@ const Edit = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const res = await api.get(`/widget/${id}`);
-        if (!res.ok) throw res;
-        setWidget(res.data);
-        setValues({
-          name: res.data.name || "",
-          type: res.data.type || "",
-          url: res.data.url || "",
-          distance: res.data.distance || "",
-          publishers: res.data.publishers || [],
-          moderations: res.data.moderations || [],
-          rules: res.data.rules || [],
-          jvaModeration: res.data.jvaModeration,
-          color: res.data.color || "",
-          style: res.data.style || "",
-          location: res.data.location || null,
-        });
-      } catch (error) {
-        captureError(error, "Une erreur est survenue lors de la récupération du widget");
-        navigate("/broadcast/widgets");
-      }
-    };
-    fetchData();
-  }, [id]);
-
-  useEffect(() => {
-    const fetchPartners = async () => {
-      try {
         const query = new URLSearchParams();
         query.append("publisherId", publisher._id);
         query.append("jvaModeration", values.jvaModeration);
-
-        values.rules.forEach((rule, index) => {
-          query.append(`rules[${index}][field]`, rule.field);
-          query.append(`rules[${index}][operator]`, rule.operator);
-          query.append(`rules[${index}][value]`, rule.value);
-          query.append(`rules[${index}][combinator]`, rule.combinator);
-        });
-
         const res = await api.get(`/widget/partners?${query.toString()}`);
+
         if (!res.ok) throw res;
         setPartners(res.data);
+
+        if (res.data.some((p) => p.mission_type === "benevolat") && res.data.some((p) => p.mission_type === "volontariat")) {
+          setValues((v) => ({ ...v, type: "" }));
+        } else if (res.data.some((p) => p.mission_type === "benevolat")) {
+          setValues((v) => ({ ...v, type: "benevolat" }));
+        } else if (res.data.some((p) => p.mission_type === "volontariat")) {
+          setValues((v) => ({ ...v, type: "volontariat", publishers: [res.data.filter((p) => p.mission_type === "volontariat")[0]._id] }));
+        }
       } catch (error) {
         captureError(error, "Une erreur est survenue lors de la récupération des partenaires");
       }
     };
-    fetchPartners();
-  }, [widget, values]);
+    fetchData();
+  }, [publisher._id, values.jvaModeration]);
 
   const handleSubmit = async () => {
-    try {
-      const res = await api.put(`/widget/${widget._id}`, values);
-      if (!res.ok) throw res;
-      setWidget(res.data);
+    const errors = {};
+    if (!values.name) errors.name = "Le nom est requis";
+    setErrors(errors);
+    if (Object.keys(errors).length > 0) return;
 
-      toast.success("Widget mis à jour");
-    } catch (error) {
-      captureError(error, "Erreur lors de la mise à jour du widget");
-    }
-  };
-
-  const handleActivate = async (value) => {
     try {
-      const res = await api.put(`/widget/${widget._id.toString()}`, { active: value });
-      if (!res.ok) throw res;
-      setWidget(res.data);
+      const res = await api.post(`/widget`, values);
+      if (!res.ok) {
+        if (res.code === "RESSOURCE_ALREADY_EXIST") {
+          setErrors((prev) => ({
+            ...prev,
+            name: "Un widget avec ce nom existe déjà",
+          }));
+        } else {
+          throw res;
+        }
+      } else {
+        toast.success("Widget créé avec succès");
+        navigate("/broadcast/widgets");
+      }
     } catch (error) {
-      captureError(error, "Erreur lors de la mise à jour des données");
+      captureError(error, "Erreur lors de la création du widget");
     }
   };
 
@@ -131,17 +110,17 @@ const Edit = () => {
         return false;
       }
     }
+    if (values.name.length < 3) {
+      return false;
+    }
     return true;
   };
 
-  if (!widget) return <h2 className="p-3">Chargement...</h2>;
-
-  console.log("partners", partners);
-  console.log("values", values.publishers);
+  console.log("values", values);
 
   return (
     <div className="space-y-6">
-      <StickyBar onEdit={handleSubmit} visible={stickyVisible} widget={widget} handleActivate={handleActivate} canSubmit={canSubmit} />
+      <StickyBar onEdit={handleSubmit} visible={stickyVisible} canSubmit={canSubmit} />
       <div className="flex">
         <Link to={`/broadcast/widgets`} className="flex items-center space-x-1 text-blue-dark">
           <RiArrowLeftLine />
@@ -150,29 +129,18 @@ const Edit = () => {
       </div>
 
       <div className="flex items-center justify-between align-baseline">
-        <div>
-          <h1 className="text-4xl font-bold">Modifier un widget</h1>
-          <span className="text-gray-dark">Créé le {new Date(widget.createdAt).toLocaleDateString("fr")}</span>
-        </div>
-        <div className="flex items-center gap-6">
-          <div className="flex flex-col items-end">
-            <Toggle checked={widget.active} setChecked={(value) => handleActivate(value)} />
-            <label className="text-blue-dark text-xs">{widget.active ? "Actif" : "Inactif"}</label>
-          </div>
-          <button type="submit" className="filled-button" onClick={handleSubmit} ref={(node) => setSaveButton(node)} disabled={!canSubmit()}>
-            Enregistrer
-          </button>
-        </div>
+        <h1 className="text-4xl font-bold">Créer un widget</h1>
+        <button type="submit" className="filled-button" onClick={handleSubmit} ref={(node) => setSaveButton(node)} disabled={!canSubmit()}>
+          Créer le widget
+        </button>
       </div>
 
-      <Settings widget={widget} setWidget={setWidget} values={values} setValues={setValues} partners={partners} />
-      <Frame widget={widget} setWidget={setWidget} />
-      <Code widget={widget} />
+      <Settings values={values} setValues={setValues} errors={errors} partners={partners} />
     </div>
   );
 };
 
-const Settings = ({ widget, values, setValues, partners }) => {
+const Settings = ({ values, setValues, errors, partners }) => {
   const JVA_ID = "5f5931496c7ea514150a818f";
   const [showAll, setShowAll] = useState(false);
 
@@ -192,20 +160,42 @@ const Settings = ({ widget, values, setValues, partners }) => {
       <div className="flex justify-between gap-4">
         <h2 className="text-2xl font-bold">Informations générales</h2>
       </div>
-
       <div className="grid grid-cols-2 gap-10">
         <div className="flex flex-col">
           <label className="mb-2 text-sm" htmlFor="name">
             Nom du widget<span className="ml-1 text-red-main">*</span>
           </label>
-          <input className="input mb-2  border-b-black" name="name" value={values.name} onChange={(e) => setValues({ ...values, name: e.target.value })} disabled={!widget.new} />
+          <input
+            className={`input mb-2 ${errors.name ? "border-b-red-main" : "border-b-black"}`}
+            name="name"
+            value={values.name}
+            onChange={(e) => setValues({ ...values, name: e.target.value })}
+          />
+          {errors.name && (
+            <div className="flex items-center text-sm text-red-main">
+              <BiSolidInfoSquare className="mr-2" />
+              {errors.name}
+            </div>
+          )}
         </div>
 
         <div className="flex flex-col">
           <label className="mb-2 flex items-center text-sm" htmlFor="url">
             URL de la page où le widget est intégré
           </label>
-          <input className="input mb-2 border-b-black" id="url" name="url" value={values.url} onChange={(e) => setValues({ ...values, url: e.target.value })} />
+          <input
+            className={`input mb-2 ${errors.url ? "border-b-red-main" : "border-b-black"}`}
+            id="url"
+            name="url"
+            value={values.url}
+            onChange={(e) => setValues({ ...values, url: e.target.value })}
+          />
+          {errors.url && (
+            <div className="flex items-center text-sm text-red-main">
+              <BiSolidInfoSquare className="mr-2" />
+              {errors.url}
+            </div>
+          )}
         </div>
       </div>
 
@@ -262,38 +252,37 @@ const Settings = ({ widget, values, setValues, partners }) => {
         </div>
       </div>
 
-      <div>
-        <div className="grid grid-cols-2 gap-10 mb-10">
-          <div className="flex flex-col">
-            <label className="mb-2 text-sm" htmlFor="location">
-              Ville ou code postal
-            </label>
-            <LocationSearch selected={values.location} onChange={(v) => setValues({ ...values, location: v })} />
-            <div className="flex items-center gap-2 text-[#0063CB]">
-              <BiSolidInfoSquare className="text-sm" />
-              <span className="text-xs">Laisser vide pour afficher les missions de toute la France</span>
-            </div>
-          </div>
-          <div className="flex flex-col">
-            <label className="mb-2 text-sm" htmlFor="distance">
-              Rayon de recherche
-            </label>
-            <select
-              className="select mb-2 border-b-black"
-              id="distance"
-              name="distance"
-              value={values.distance || "25km"}
-              onChange={(e) => setValues({ ...values, distance: e.target.value })}
-            >
-              {["1km", "5km", "25km", "50km", "100km"].map((d, i) => (
-                <option key={i} value={d}>
-                  {d}
-                </option>
-              ))}
-            </select>
+      <div className="grid grid-cols-2 gap-10 mb-10">
+        <div className="flex flex-col">
+          <label className="mb-2 text-sm" htmlFor="location">
+            Ville ou code postal
+          </label>
+          <LocationSearch selected={values.location} onChange={(v) => setValues({ ...values, location: v })} />
+          <div className="flex items-center gap-2 text-[#0063CB]">
+            <BiSolidInfoSquare className="text-sm" />
+            <span className="text-xs">Laisser vide pour afficher les missions de toute la France</span>
           </div>
         </div>
-
+        <div className="flex flex-col">
+          <label className="mb-2 text-sm" htmlFor="distance">
+            Rayon de recherche
+          </label>
+          <select
+            className={`select mb-2 ${errors.distance ? "border-b-red-main" : "border-b-black"}`}
+            id="distance"
+            name="distance"
+            value={values.distance || "25km"}
+            onChange={(e) => setValues({ ...values, distance: e.target.value })}
+          >
+            {["1km", "5km", "25km", "50km", "100km"].map((d, i) => (
+              <option key={i} value={d}>
+                {d}
+              </option>
+            ))}
+          </select>
+        </div>
+      </div>
+      <div>
         <div>
           <h2 className="">Diffuser des missions de</h2>
           {partners.filter((p) => p.mission_type === values.type) === 0 ? (
@@ -305,10 +294,7 @@ const Settings = ({ widget, values, setValues, partners }) => {
               {(showAll ? partners : partners.slice(0, 16))
                 .filter((p) => p.mission_type === values.type)
                 .map((p, i) => (
-                  <label
-                    key={i}
-                    className={`flex gap-4 border p-4 rounded cursor-pointer hover:border-blue-dark ${values.publishers.includes(p._id) ? "border-blue-dark" : "border-gray-300"}`}
-                  >
+                  <label key={i} className={`flex gap-4 border p-4 rounded-sm cursor-pointer`}>
                     <div className="flex items-center gap-2">
                       <input
                         type="checkbox"
@@ -326,13 +312,11 @@ const Settings = ({ widget, values, setValues, partners }) => {
                     </div>
 
                     <div className="flex flex-col truncate">
-                      <span className={`line-clamp-2 truncate text-sm ${values.publishers.includes(p._id) ? "text-blue-dark" : "text-gray-dark"}`}>{p.name}</span>
+                      <span className="line-clamp-2 truncate text-sm">{p.name}</span>
                       <div className={`flex ${values.type === "volontariat" ? "text-[#929292]" : "text-gray-dark"}`}>
-                        <span className="text-xs">{p.count > 1 ? `${p.count.toLocaleString("fr")} missions` : `${p.count} mission`}</span>
+                        <span className="text-xs">{p.count > 1 ? `${p.count} missions` : `${p.count} mission`}</span>
                         {p.moderation && p.moderation.length && (
-                          <span className="text-xs p-1 rounded bg-blue-100 text-blue-800">
-                            + {p.moderation.reduce((acc, curr) => acc + curr.count, 0).toLocaleString("fr")} mission modérées
-                          </span>
+                          <span className="text-xs p-1 rounded bg-blue-100 text-blue-800"> + {p.moderation.reduce((acc, curr) => acc + curr.count, 0)} mission modérées</span>
                         )}
                       </div>
                     </div>
@@ -354,7 +338,7 @@ const Settings = ({ widget, values, setValues, partners }) => {
                               }}
                             />
                             <label className="line-clamp-2 truncate text-xs" htmlFor={`${j}-moderation`}>
-                              {m.name} - {m.count > 1 ? `${m.count.toLocaleString("fr")} missions` : `${m.count.toLocaleString("fr")} mission`}
+                              {m.name} - {m.count > 1 ? `${m.count} missions` : `${m.count} mission`}
                             </label>
                           </div>
                         ))}
@@ -365,13 +349,13 @@ const Settings = ({ widget, values, setValues, partners }) => {
             </div>
           )}
         </div>
-        {partners.length > 16 && values.type === "benevolat" && (
+
+        {partners.length > 16 && (
           <button className="mt-6 border border-blue-dark p-2 text-blue-dark" onClick={() => setShowAll(!showAll)}>
             {showAll ? "Masquer les annonceurs" : "Afficher tous les annonceurs"}
           </button>
         )}
       </div>
-
       {values.publishers.includes(JVA_ID) && values.type === "benevolat" && (
         <div className="mt-6 flex items-center justify-between w-[50%]">
           <div> Afficher uniquement les missions modérées par JeVeuxAider.gouv.fr</div>
@@ -381,21 +365,8 @@ const Settings = ({ widget, values, setValues, partners }) => {
           </div>
         </div>
       )}
-
       <div className="mt-6 flex flex-col gap-2">
         <div>Filtrer les missions à afficher</div>
-        <span className="text-gray-dark">
-          {values.rules.length === 0
-            ? `Aucun filtre appliqué - ${partners
-                .filter((p) => values.publishers.includes(p._id))
-                .reduce((total, p) => total + p.count, 0)
-                .toLocaleString("fr")} missions affichées`
-            : `${partners
-                .filter((p) => values.publishers.includes(p._id))
-                .reduce((total, p) => total + p.count, 0)
-                .toLocaleString("fr")} missions affichées`}
-        </span>
-
         <QueryBuilder
           fields={[
             { label: "Nom de l'organisation", value: "organizationName", type: "text" },
@@ -416,13 +387,10 @@ const Settings = ({ widget, values, setValues, partners }) => {
           className="mt-5"
         />
       </div>
-
       <div className="my-6 border-b border-gray-border" />
-
       <div className="flex justify-between gap-4">
         <h2 className="text-2xl font-bold">Personnalisation</h2>
       </div>
-
       <div className="grid grid-cols-2 gap-10">
         <div className="flex flex-col gap-2">
           <label className="mb-2 text-sm" htmlFor="style">
@@ -460,116 +428,15 @@ const Settings = ({ widget, values, setValues, partners }) => {
             Code hexadécimal couleur<span className="ml-1 text-red-main">*</span>
           </label>
           <div className="flex items-center gap-4">
-            <div className="h-9 w-9 rounded" style={{ backgroundColor: values.color }} />
+            <div className="h-9 w-9 rounded" style={{ backgroundColor: values.color || "#000091" }} />
 
-            <input className="input flex-1 border-b-black" name="color" value={values.color} onChange={(e) => setValues({ ...values, color: e.target.value })} />
+            <input className="input flex-1 border-b-black" name="color" value={values.color || "#000091"} onChange={(e) => setValues({ ...values, color: e.target.value })} />
           </div>
           <div className="flex items-center gap-2 text-[#0063CB] mt-2">
             <BiSolidInfoSquare className="text-sm" />
             <span className="text-xs">Exemple: #000091</span>
           </div>
         </div>
-      </div>
-    </div>
-  );
-};
-
-const Frame = ({ widget }) => {
-  const [iframeKey, setIFrameKey] = useState(0);
-
-  useEffect(() => {
-    setIFrameKey(iframeKey + 1);
-  }, [widget]);
-
-  const handleLoad = (e) => {
-    let height = 0;
-    const width = e.target.offsetWidth;
-    if (widget.type === "volontariat") {
-      if (widget.style === "carousel") {
-        if (width < 768) height = "670px";
-        else height = "600px";
-      } else {
-        if (width < 640) height = "2200px";
-        else if (width < 1024) height = "1350px";
-        else height = "1050px";
-      }
-    } else {
-      if (widget.style === "carousel") {
-        if (width < 768) height = "780px";
-        else height = "686px";
-      } else {
-        if (width < 640) height = "3424px";
-        else if (width < 1024) height = "1862px";
-        else height = "1314px";
-      }
-    }
-    e.target.style.height = height;
-  };
-
-  return (
-    <div className="bg-white p-12 space-y-10 shadow-lg">
-      <div className="flex flex-col gap-2">
-        <h2 className="text-3xl font-bold">Aperçu du widget</h2>
-        <span>Enregistrez le widget pour mettre à jour l'aperçu</span>
-      </div>
-
-      <div className="my-10 border-b border-gray-border shadow-lg" />
-      <iframe
-        key={iframeKey}
-        border="0"
-        width="100%"
-        style={{ border: "none", margin: "0", padding: "0" }}
-        loading="lazy"
-        allowFullScreen
-        allow="geolocation"
-        onLoad={handleLoad}
-        src={`${widget.type === "volontariat" ? VOLONTARIAT_URL : BENEVOLAT_URL}?widget=${widget._id}`}
-      />
-    </div>
-  );
-};
-
-const IFRAMES = {
-  benevolat: {
-    carousel: `<iframe border="0" frameborder="0" style="display:block; width:100%;" loading="lazy" allowfullscreen allow="geolocation" src="${BENEVOLAT_URL}?widget={{widgetId}}" onload="this.style.height=this.offsetWidth < 768 ? '780px': '686px'"></iframe>`,
-    page: `<iframe border="0" frameborder="0" style="display:block; width:100%;" loading="lazy" allowfullscreen allow="geolocation" src="${BENEVOLAT_URL}?widget={{widgetId}}" onload="this.style.height=this.offsetWidth < 640 ? '3424px': this.offsetWidth < 1024 ? '1862px': '1314px'"></iframe>`,
-  },
-  volontariat: {
-    carousel: `<iframe border="0" frameborder="0" style="display:block; width:100%;" loading="lazy" allowfullscreen allow="geolocation" src="${VOLONTARIAT_URL}?widget={{widgetId}}" onload="this.style.height=this.offsetWidth < 768 ? '670px': '600px'"></iframe>`,
-    page: `<iframe border="0" frameborder="0" style="display:block; width:100%;" loading="lazy" allowfullscreen allow="geolocation" src="${VOLONTARIAT_URL}?widget={{widgetId}}" onload="this.style.height=this.offsetWidth < 640 ? '2200px': this.offsetWidth < 1024 ? '1350px': '1050px'"></iframe>`,
-  },
-};
-
-const JVA_LOGO = `<div style="padding:10px; display:flex;">
-  <img src="https://apicivique.s3.eu-west-3.amazonaws.com/jvalogo.svg"/>
-  <div style="color:#A5A5A5; font-style:normal; font-size:13px; padding:8px;">Proposé par la plateforme publique du bénévolat
-    <a href="https://www.jeveuxaider.gouv.fr/" target="_blank">JeVeuxAider.gouv.fr</a>
-  </div>
-</div>`;
-
-const Code = ({ widget }) => {
-  const handleCopy = () => {
-    navigator.clipboard.writeText(`${IFRAMES[widget.type][widget.style].replace("{{widgetId}}", widget._id)}${widget.type === "benevolat" ? `\n\n${JVA_LOGO}` : ""}`);
-    toast.success("Lien copié");
-  };
-
-  return (
-    <div className="bg-white p-12 space-y-12 shadow-lg">
-      <h2 className="text-3xl font-bold">Code à intégrer</h2>
-      <div className="flex items-center justify-between">
-        <p>Vous n’avez plus qu’à intégrer ce code pour afficher le widget sur votre site</p>
-        <button className="empty-button flex items-center" onClick={handleCopy}>
-          <RiCodeSSlashFill className="mr-2" />
-          Copier le code
-        </button>
-      </div>
-      <div className="mt-6 w-full">
-        <textarea
-          className="px-4 py-2 text-base rounded-none disabled:opacity-80 w-full bg-[#F5F5FE] border border-[#E3E3FD]"
-          rows={widget.type === "benevolat" ? 11 : 4}
-          disabled={true}
-          value={`${IFRAMES[widget.type][widget.style].replace("{{widgetId}}", widget._id)}${widget.type === "benevolat" ? `\n\n${JVA_LOGO}` : ""}`}
-        />
       </div>
     </div>
   );
@@ -606,7 +473,7 @@ const LocationSearch = ({ selected, onChange }) => {
   return (
     <Combobox as={Fragment} value={selected} onChange={onChange}>
       <div className="relative w-full">
-        <ComboboxInput
+        <Combobox.Input
           className="input mb-2 w-full border-b-black"
           displayValue={(location) => location?.label || search || selected?.label || ""}
           placeholder="Localisation"
@@ -614,38 +481,32 @@ const LocationSearch = ({ selected, onChange }) => {
         />
 
         <Transition as={Fragment} leave="transition ease-in duration-100" leaveFrom="opacity-100" leaveTo="opacity-0">
-          <ComboboxOptions className="absolute max-h-60 w-full divide-y divide-gray-border overflow-auto bg-white text-base shadow-lg focus:outline-none">
+          <Combobox.Options className="absolute max-h-60 w-80 divide-y divide-gray-border overflow-auto bg-white text-base shadow-lg focus:outline-none">
             {options.map((option) => (
-              <ComboboxOption key={option.value} value={option} className={({ active }) => `cursor-default select-none p-3 ${active ? "bg-gray-hover" : "bg-white"}`}>
+              <Combobox.Option key={option.value} value={option} className={({ active }) => `cursor-default select-none p-3 ${active ? "bg-gray-hover" : "bg-white"}`}>
                 <span className={`truncate text-sm text-black ${selected?.label === option.label ? "text-blue-dark" : ""}`}>{option.label}</span>
-              </ComboboxOption>
+              </Combobox.Option>
             ))}
-          </ComboboxOptions>
+          </Combobox.Options>
         </Transition>
       </div>
     </Combobox>
   );
 };
 
-const StickyBar = ({ onEdit, visible, widget, handleActivate, canSubmit }) => {
+const StickyBar = ({ onEdit, visible, canSubmit }) => {
   if (!visible) return null;
 
   return (
     <div className="fixed top-0 left-0 bg-white w-full shadow-lg py-4 items-center z-50">
       <div className="flex items-center justify-between w-[90%] m-auto">
-        <h1 className="text-2xl font-bold">Modifier un widget</h1>
-        <div className="flex items-center gap-6">
-          <div className="flex flex-col items-end">
-            <Toggle checked={widget.active} setChecked={(value) => handleActivate(value)} />
-            <label className="text-blue-dark text-xs">{widget.active ? "Actif" : "Inactif"}</label>
-          </div>
-          <button type="button" className="filled-button" onClick={onEdit} disabled={!canSubmit()}>
-            Enregistrer
-          </button>
-        </div>
+        <h1 className="text-2xl font-bold">Créer un widget</h1>
+        <button type="button" className="filled-button" onClick={onEdit} disabled={!canSubmit()}>
+          Créer le widget
+        </button>
       </div>
     </div>
   );
 };
 
-export default Edit;
+export default New;

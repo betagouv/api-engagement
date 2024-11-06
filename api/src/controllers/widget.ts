@@ -9,6 +9,7 @@ import { FORBIDDEN, INVALID_BODY, INVALID_PARAMS, INVALID_QUERY, NOT_FOUND, RESS
 import PublisherModel from "../models/publisher";
 import WidgetModel from "../models/widget";
 import { UserRequest } from "../types/passport";
+import { buildQuery } from "../utils";
 
 const router = Router();
 
@@ -96,6 +97,94 @@ router.get("/", passport.authenticate("user", { session: false }), async (req: U
   }
 });
 
+router.get("/partners", passport.authenticate("user", { session: false }), async (req: UserRequest, res: Response, next: NextFunction) => {
+  try {
+    const query = zod
+      .object({
+        publisherId: zod.string().regex(/^[0-9a-fA-F]{24}$/),
+        jvaModeration: zod
+          .enum(["true", "false"])
+          .transform((value) => value === "true")
+          .optional(),
+        rules: zod
+          .array(
+            zod.object({
+              field: zod.string(),
+              operator: zod.string(),
+              value: zod.string().optional(),
+              combinator: zod.enum(["and", "or"]),
+            }),
+          )
+          .optional(),
+      })
+      .safeParse(req.query);
+
+    if (!query.success) return res.status(400).send({ ok: false, code: INVALID_QUERY, message: query.error });
+
+    // Add itself if the publisher is a promoteur
+    const where: any = {
+      query: {
+        bool: {
+          must: [{ term: { "statusCode.keyword": "ACCEPTED" } }, { term: { deleted: false } }],
+          filter: { bool: { should: [] } },
+        } as { must: any[]; filter: any },
+      },
+      aggs: { partners: { terms: { field: "publisherId.keyword", size: 10000 } } },
+    };
+
+    const publisher = await PublisherModel.findById(query.data.publisherId);
+
+    if (!publisher) return res.status(404).send({ ok: false, code: NOT_FOUND, message: "Widget's publisher not found" });
+    if (req.user.role !== "admin" && !req.user.publishers.includes(publisher._id.toString())) return res.status(403).send({ ok: false, code: FORBIDDEN, message: "Not allowed" });
+
+    if (query.data.jvaModeration) {
+      where.query.bool.filter.bool.should.push({ term: { "publisherId.keyword": JVA_ID } });
+      publisher.publishers.forEach((p) =>
+        where.query.bool.filter.bool.should.push({
+          bool: {
+            must: [{ term: { "publisherId.keyword": p.publisher } }, { term: { [`moderation_${JVA_ID}_status.keyword`]: "ACCEPTED" } }],
+          },
+        }),
+      );
+    } else {
+      publisher.publishers.forEach((p) => where.query.bool.filter.bool.should.push({ term: { "publisherId.keyword": p.publisher } }));
+      if (publisher.role_promoteur) where.query.bool.filter.bool.should.push({ term: { "publisherId.keyword": publisher._id.toString() } });
+      if (where.query.bool.filter.bool.should.length === 0) return res.status(200).send({ ok: true, data: [], total: 0 });
+    }
+
+    const rules = query.data.rules || [];
+    if (rules.length > 0) {
+      const builtQuery = buildQuery(rules as any);
+      if (builtQuery.bool.must && Array.isArray(builtQuery.bool.must)) {
+        where.query.bool.must.push(...builtQuery.bool.must);
+      }
+      if (builtQuery.bool.should && Array.isArray(builtQuery.bool.should)) {
+        where.query.bool.filter.bool.should.push(...builtQuery.bool.should);
+      }
+    }
+
+    const response = await esClient.search({
+      index: MISSION_INDEX,
+      body: where,
+      track_total_hits: true,
+      size: 0,
+    });
+
+    const publishers = await PublisherModel.find().select("_id name mission_type").lean();
+    const data = response.body.aggregations.partners.buckets.map((b: { key: string; doc_count: number }) => {
+      const p = publishers.find((p) => p._id.toString() === b.key);
+      if (!p) return null;
+      return { _id: b.key, name: p.name, count: b.doc_count, mission_type: p.mission_type };
+    });
+
+    const total = response.body.hits.total.value;
+    // Send only the partners that have at least one mission
+    return res.status(200).send({ ok: true, data, total });
+  } catch (error) {
+    next(error);
+  }
+});
+
 router.get("/:id", passport.authenticate("user", { session: false }), async (req: UserRequest, res: Response, next: NextFunction) => {
   try {
     const params = zod
@@ -116,106 +205,75 @@ router.get("/:id", passport.authenticate("user", { session: false }), async (req
   }
 });
 
-router.get("/:id/partners", passport.authenticate("user", { session: false }), async (req: UserRequest, res: Response, next: NextFunction) => {
-  try {
-    const params = zod
-      .object({
-        id: zod.string(),
-      })
-      .safeParse(req.params);
-
-    const query = zod
-      .object({
-        jvaModeration: zod
-          .enum(["true", "false"])
-          .transform((value) => value === "true")
-          .optional(),
-      })
-      .safeParse(req.query);
-
-    if (!params.success) return res.status(400).send({ ok: false, code: INVALID_PARAMS, message: params.error });
-    if (!query.success) return res.status(400).send({ ok: false, code: INVALID_QUERY, message: query.error });
-
-    const widget = await WidgetModel.findById(params.data.id);
-    if (!widget) return res.status(404).send({ ok: false, code: NOT_FOUND });
-
-    // Add itself if the publisher is a promoteur
-    const where = {
-      query: {
-        bool: {
-          must: [{ term: { "statusCode.keyword": "ACCEPTED" } }, { term: { deleted: false } }],
-          filter: { bool: { should: [] } },
-        } as { must: any[]; filter: any },
-      },
-      aggs: { partners: { terms: { field: "publisherId.keyword", size: 10000 } } },
-    };
-
-    const publisher = await PublisherModel.findById(widget.fromPublisherId);
-    if (!publisher) return res.status(404).send({ ok: false, code: NOT_FOUND, message: "Widget's publisher not found" });
-    if (req.user.role !== "admin" && !req.user.publishers.includes(publisher._id.toString())) return res.status(403).send({ ok: false, code: FORBIDDEN, message: "Not allowed" });
-
-    if (query.data.jvaModeration) {
-      where.query.bool.filter.bool.should.push({ term: { "publisherId.keyword": JVA_ID } });
-      publisher.publishers.forEach((p) =>
-        where.query.bool.filter.bool.should.push({
-          bool: {
-            must: [{ term: { "publisherId.keyword": p.publisher } }, { term: { [`moderation_${JVA_ID}_status.keyword`]: "ACCEPTED" } }],
-          },
-        }),
-      );
-    } else {
-      publisher.publishers.forEach((p) => where.query.bool.filter.bool.should.push({ term: { "publisherId.keyword": p.publisher } }));
-      if (publisher.role_promoteur) where.query.bool.filter.bool.should.push({ term: { "publisherId.keyword": publisher._id.toString() } });
-      if (where.query.bool.filter.bool.should.length === 0) return res.status(200).send({ ok: true, data: [], total: 0 });
-    }
-
-    const response = await esClient.search({
-      index: MISSION_INDEX,
-      body: where,
-      track_total_hits: true,
-      size: 0,
-    });
-
-    const publishers = await PublisherModel.find().select("_id name mission_type").lean();
-    const data = response.body.aggregations.partners.buckets
-      .map((b: { key: string; doc_count: number }) => {
-        const p = publishers.find((p) => p._id.toString() === b.key);
-        if (!p) return null;
-        return { _id: b.key, name: p.name, count: b.doc_count, mission_type: p.mission_type };
-      })
-      .filter((e: any | null) => e);
-
-    const total = response.body.hits.total.value;
-    // Send only the partners that have at least one mission
-    return res.status(200).send({ ok: true, data, total });
-  } catch (error) {
-    next(error);
-  }
-});
-
 router.post("/", passport.authenticate("admin", { session: false }), async (req: UserRequest, res: Response, next: NextFunction) => {
   try {
-    const { error: bodyError, value: body } = Joi.object({
-      name: Joi.string().required(),
-      publisherId: Joi.string().required(),
-      color: Joi.string().optional(),
-    }).validate(req.body);
+    const body = zod
+      .object({
+        fromPublisherId: zod.string(),
+        distance: zod.string().optional(),
+        name: zod.string().optional(),
+        url: zod.string().optional(),
+        rules: zod
+          .array(
+            zod
+              .object({
+                combinator: zod.enum(["and", "or"]),
+                field: zod.string(),
+                fieldType: zod.string().optional(),
+                operator: zod.string(),
+                value: zod.string().min(1),
+              })
+              .passthrough(),
+          )
+          .optional(),
 
-    if (bodyError) return res.status(400).send({ ok: false, code: INVALID_BODY, message: bodyError.details });
+        style: zod.enum(["carousel", "page"]).optional(),
+        color: zod.string().optional(),
+        type: zod.enum(["benevolat", "volontariat"]).optional(),
+        active: zod.coerce.boolean().optional(),
+        publishers: zod.array(zod.string()).optional(),
+        jvaModeration: zod.coerce.boolean().optional(),
+        location: zod
+          .object({
+            lat: zod.coerce.number(),
+            lon: zod.coerce.number(),
+            city: zod.string(),
+            label: zod.string(),
+            postcode: zod.string(),
+            name: zod.string(),
+          })
+          .nullable()
+          .optional(),
+      })
+      .passthrough()
+      .safeParse(req.body);
 
-    const exists = await WidgetModel.findOne({ name: body.name });
-    if (exists) return res.status(409).send({ ok: false, code: RESSOURCE_ALREADY_EXIST, message: `Widget ${body.name} already exist` });
+    if (!body.success) return res.status(400).send({ ok: false, code: INVALID_BODY, error: body.error });
 
-    const fromPublisher = await PublisherModel.findById(body.publisherId);
-    if (!fromPublisher) return res.status(404).send({ ok: false, code: NOT_FOUND, message: `Publisher ${body.publisherId} not found` });
+    const exists = await WidgetModel.findOne({ name: body.data.name });
+    if (exists) return res.status(409).send({ ok: false, code: RESSOURCE_ALREADY_EXIST, message: `Widget ${body.data.name} already exist` });
+
+    const fromPublisher = await PublisherModel.findById(body.data.fromPublisherId);
+    if (!fromPublisher) return res.status(404).send({ ok: false, code: NOT_FOUND, message: `Publisher ${body.data.fromPublisherId} not found` });
 
     const obj = {
-      name: body.name,
+      name: body.data.name,
       fromPublisherId: fromPublisher._id.toString(),
       fromPublisherName: fromPublisher.name,
+      type: body.data.type,
+      distance: body.data.distance,
+      url: body.data.url,
+      rules: body.data.rules,
+      style: body.data.style,
+      color: body.data.color,
+      active: body.data.active,
+      publishers: body.data.publishers,
+      jvaModeration: body.data.jvaModeration,
+      location: body.data.location,
     };
 
     const data = await WidgetModel.create(obj);
+
     return res.status(200).send({ ok: true, data });
   } catch (error) {
     next(error);

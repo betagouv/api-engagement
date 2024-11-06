@@ -82,8 +82,8 @@ const App = () => {
             <Route path="/my-account" element={<Account />} />
 
             <Route element={<AdminLayout />}>
-              <Route path="/campaign/*" element={<Campaign />} />
-              <Route path="/widget/*" element={<Widget />} />
+              <Route path="/broadcast/campaign/*" element={<Campaign />} />
+              <Route path="/broadcast/widget/*" element={<Widget />} />
               <Route path="/publisher/*" element={<Publisher />} />
               <Route path="/user/*" element={<User />} />
               <Route path="/admin-mission/*" element={<AdminMissions />} />
