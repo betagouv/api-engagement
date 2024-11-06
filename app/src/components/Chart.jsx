@@ -95,7 +95,7 @@ export const LineChart = ({ data, dataKey = ["value"], nameKey = "name", color =
     <ResponsiveContainer width="100%" height="100%">
       <LineChartRechart data={data}>
         <CartesianGrid strokeDasharray="3 3" />
-        <XAxis dataKey={nameKey} />
+        <XAxis dataKey={nameKey} style={{ fontSize: "12px", color: "#666666" }} />
         <YAxis />
         <Tooltip content={<LineChartTooltip />} />
         {legend && <Legend />}
