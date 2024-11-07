@@ -210,7 +210,7 @@ export const buildMission = (publisher: Publisher, missionXML: MissionXML) => {
     organizationRNA: parseString(missionXML.organizationRNA) || parseString(missionXML.organizationRna) || "",
     organizationSiren: parseString(missionXML.organizationSiren) || missionXML.organizationSiren || "",
     organizationUrl: parseString(missionXML.organizationUrl),
-    organizationLogo: parseString(missionXML.organizationLogo || publisher.logo),
+    organizationLogo: parseString(missionXML.organizationLogo || ""),
     organizationDescription: parseString(missionXML.organizationDescription),
     organizationClientId: parseString(missionXML.organizationClientId),
     organizationStatusJuridique: parseString(missionXML.organizationStatusJuridique) || "",
