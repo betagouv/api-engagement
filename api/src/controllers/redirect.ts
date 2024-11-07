@@ -14,7 +14,6 @@ import PublisherModel from "../models/publisher";
 import WidgetModel from "../models/widget";
 import { Mission, Stats } from "../types";
 import { slugify } from "../utils";
-import StatsModel from "../models/stats";
 
 const router = Router();
 
@@ -69,10 +68,10 @@ router.get("/apply", cors({ origin: "*" }), async (req: Request, res: Response) 
         captureMessage(`[Apply] Click not found`, `click ${query.data.view}`);
       }
     }
-    // if (!click) return; 
+    if (!click) return;
 
     if (query.data.mission) {
-      mission = await MissionModel.findOne({ clientId: query.data.mission, publisherId: query.data.publisher || click?.toPublisherId });
+      mission = await MissionModel.findOne({ clientId: query.data.mission, publisherId: query.data.publisher || click.toPublisherId });
       if (!mission) captureMessage(`[Apply] Mission not found`, `mission ${query.data.mission}`);
     }
 
@@ -84,8 +83,6 @@ router.get("/apply", cors({ origin: "*" }), async (req: Request, res: Response) 
       type: "apply",
       createdAt: new Date(),
       missionClientId: query.data.mission || "",
-      clickId: query.data.view || "",
-      tag: "with-issue",
     } as Stats;
 
     if (mission) {
@@ -122,10 +119,8 @@ router.get("/apply", cors({ origin: "*" }), async (req: Request, res: Response) 
       obj1.toPublisherName = click.toPublisherName;
     }
 
-    // const response = await esClient.index({ index: STATS_INDEX, body: obj1 });
-    const response = await StatsModel.create(obj1);
-
-    return res.status(200).send({ ok: true, id: response._id });
+    const response = await esClient.index({ index: STATS_INDEX, body: obj1 });
+    return res.status(200).send({ ok: true, id: response.body._id });
   } catch (error) {
     captureException(error);
   }
@@ -173,14 +168,14 @@ router.get("/account", cors({ origin: "*" }), async (req: Request, res: Response
         captureMessage(`[Account] Click not found`, `click ${query.data.view}`);
       }
     }
-    // if (!click) return;
+    if (!click) return;
 
     if (query.data.mission) {
-      mission = await MissionModel.findOne({ clientId: query.data.mission, publisherId: query.data.publisher || click?.toPublisherId });
+      mission = await MissionModel.findOne({ clientId: query.data.mission, publisherId: query.data.publisher || click.toPublisherId });
       if (!mission) captureMessage(`[Account] Mission not found`, `mission ${query.data.mission}`);
     }
 
-    const obj = {
+    const obj1 = {
       referer: identity.referer,
       user: identity.user,
       host: req.get("host") || "",
@@ -188,47 +183,44 @@ router.get("/account", cors({ origin: "*" }), async (req: Request, res: Response
       type: "account",
       createdAt: new Date(),
       missionClientId: query.data.mission || "",
-      clickId: query.data.view || "",
-      tag: "with-issue",
     } as Stats;
 
     if (mission) {
-      obj.missionId = mission._id.toString();
-      obj.missionClientId = mission.clientId;
-      obj.missionDomain = mission.domain;
-      obj.missionTitle = mission.title;
-      obj.missionPostalCode = mission.postalCode;
-      obj.missionDepartmentName = mission.departmentName;
-      obj.missionOrganizationName = mission.organizationName;
-      obj.missionOrganizationId = mission.organizationId;
-      obj.toPublisherId = mission.publisherId;
-      obj.toPublisherName = mission.publisherName;
+      obj1.missionId = mission._id.toString();
+      obj1.missionClientId = mission.clientId;
+      obj1.missionDomain = mission.domain;
+      obj1.missionTitle = mission.title;
+      obj1.missionPostalCode = mission.postalCode;
+      obj1.missionDepartmentName = mission.departmentName;
+      obj1.missionOrganizationName = mission.organizationName;
+      obj1.missionOrganizationId = mission.organizationId;
+      obj1.toPublisherId = mission.publisherId;
+      obj1.toPublisherName = mission.publisherName;
     }
     if (click) {
-      obj.clickId = click._id;
-      obj.source = click.source || "publisher";
-      obj.sourceName = click.sourceName || "";
-      obj.sourceId = click.sourceId || "";
-      obj.fromPublisherId = click.fromPublisherId || "";
-      obj.fromPublisherName = click.fromPublisherName || "";
+      obj1.clickId = click._id;
+      obj1.source = click.source || "publisher";
+      obj1.sourceName = click.sourceName || "";
+      obj1.sourceId = click.sourceId || "";
+      obj1.fromPublisherId = click.fromPublisherId || "";
+      obj1.fromPublisherName = click.fromPublisherName || "";
     }
 
     if (click && !mission) {
-      obj.missionId = click.missionId;
-      obj.missionClientId = click.missionClientId;
-      obj.missionDomain = click.missionDomain;
-      obj.missionTitle = click.missionTitle;
-      obj.missionPostalCode = click.missionPostalCode;
-      obj.missionDepartmentName = click.missionDepartmentName;
-      obj.missionOrganizationName = click.missionOrganizationName;
-      obj.missionOrganizationId = click.missionOrganizationId;
-      obj.toPublisherId = click.toPublisherId;
-      obj.toPublisherName = click.toPublisherName;
+      obj1.missionId = click.missionId;
+      obj1.missionClientId = click.missionClientId;
+      obj1.missionDomain = click.missionDomain;
+      obj1.missionTitle = click.missionTitle;
+      obj1.missionPostalCode = click.missionPostalCode;
+      obj1.missionDepartmentName = click.missionDepartmentName;
+      obj1.missionOrganizationName = click.missionOrganizationName;
+      obj1.missionOrganizationId = click.missionOrganizationId;
+      obj1.toPublisherId = click.toPublisherId;
+      obj1.toPublisherName = click.toPublisherName;
     }
 
-    // const response = await esClient.index({ index: STATS_INDEX, body: obj });
-    const response = await StatsModel.create(obj);
-    return res.status(200).send({ ok: true, id: response._id });
+    const response = await esClient.index({ index: STATS_INDEX, body: obj1 });
+    return res.status(200).send({ ok: true, id: response.body._id });
   } catch (error: any) {
     captureException(error);
   }
@@ -268,7 +260,7 @@ router.get("/campaign/:id", cors({ origin: "*" }), async (req, res) => {
     const identity = identify(req);
     if (!identity) return res.redirect(302, campaign.url);
 
-    const obj = {
+    const obj1 = {
       type: "click",
       user: identity?.user,
       referer: identity?.referer,
@@ -283,9 +275,8 @@ router.get("/campaign/:id", cors({ origin: "*" }), async (req, res) => {
       fromPublisherId: campaign.fromPublisherId,
       fromPublisherName: campaign.fromPublisherName,
     } as Stats;
-    // const click = await esClient.index({ index: STATS_INDEX, body: obj });
-    const click = await StatsModel.create(obj); 
-    console.log("click", click._id);
+    const click = await esClient.index({ index: STATS_INDEX, body: obj1 });
+    console.log("click", click.body._id);
 
     const url = new URL(campaign.url);
 
@@ -300,7 +291,7 @@ router.get("/campaign/:id", cors({ origin: "*" }), async (req, res) => {
         url.searchParams.set("utm_campaign", slugify(campaign.name));
       }
     }
-    url.searchParams.set("apiengagement_id", click._id);
+    url.searchParams.set("apiengagement_id", click.body._id);
 
     res.redirect(302, url.href);
   } catch (error) {
@@ -349,19 +340,14 @@ const findMissionTemp = async (missionId: string) => {
     return mission;
   }
 
-  try {
-    
-    const response2 = await esClient.search({ index: STATS_INDEX, body: { query: { term: { "missionId.keyword": missionId } }, size: 1 } });
-    if (response2.body.hits.total.value > 0) {
-      const stats = { _id: response2.body.hits.hits[0]._id, ...response2.body.hits.hits[0]._source } as Stats;
-      const mission = await MissionModel.findOne({ clientId: stats.missionClientId?.toString(), publisherId: stats.toPublisherId });
-      if (mission) {
-        captureMessage("[Temp] Mission found with click", `mission ${missionId}`);
-        return mission;
-      }
+  const response2 = await esClient.search({ index: STATS_INDEX, body: { query: { term: { "missionId.keyword": missionId } }, size: 1 } });
+  if (response2.body.hits.total.value > 0) {
+    const stats = { _id: response2.body.hits.hits[0]._id, ...response2.body.hits.hits[0]._source } as Stats;
+    const mission = await MissionModel.findOne({ clientId: stats.missionClientId?.toString(), publisherId: stats.toPublisherId });
+    if (mission) {
+      captureMessage("[Temp] Mission found with click", `mission ${missionId}`);
+      return mission;
     }
-  } catch (error) {
-    captureException(error);
   }
   return null;
 };
@@ -433,17 +419,15 @@ router.get("/widget/:id", cors({ origin: "*" }), async (req: Request, res: Respo
       fromPublisherId: widget.fromPublisherId,
       fromPublisherName: widget.fromPublisherName,
     } as Stats;
-    // const click = await esClient.index({ index: STATS_INDEX, body: obj1 });
-    // console.log("click", click.body._id);
-    const click = await StatsModel.create(obj1);
-    console.log("click", click._id);
+    const click = await esClient.index({ index: STATS_INDEX, body: obj1 });
+    console.log("click", click.body._id);
 
     if (mission.applicationUrl.indexOf("http://") === -1 && mission.applicationUrl.indexOf("https://") === -1) {
       mission.applicationUrl = "https://" + mission.applicationUrl;
     }
 
     const url = new URL(mission.applicationUrl || JVA_URL);
-    url.searchParams.set("apiengagement_id", click._id);
+    url.searchParams.set("apiengagement_id", click.body._id);
 
     // Service ask for mtm
     if (mission.publisherId === SC_ID) {
@@ -511,13 +495,12 @@ router.get("/seo/:id", cors({ origin: "*" }), async (req: Request, res: Response
       fromPublisherName: "API Engagement",
     } as Stats;
 
-    // const click = await esClient.index({ index: STATS_INDEX, body: obj });
-    const click = await StatsModel.create(obj);
-    console.log("click", click._id);
+    const click = await esClient.index({ index: STATS_INDEX, body: obj });
+    console.log("click", click.body._id);
 
     const url = new URL(mission.applicationUrl || JVA_URL);
 
-    url.searchParams.set("apiengagement_id", click._id);
+    url.searchParams.set("apiengagement_id", click.body._id);
     url.searchParams.set("utm_source", "api_engagement");
     url.searchParams.set("utm_medium", "google");
     url.searchParams.set("utm_campaign", "seo");
@@ -610,17 +593,14 @@ router.get("/:missionId/:publisherId", cors({ origin: "*" }), async function tra
       fromPublisherName: fromPublisher && fromPublisher.name,
     } as Stats;
 
-    // const click = await esClient.index({ index: STATS_INDEX, body: obj });
-    // console.log("click", click.body._id);
-    const click = await StatsModel.create(obj);
-    console.log("click", click._id);
-
+    const click = await esClient.index({ index: STATS_INDEX, body: obj });
+    console.log("click", click.body._id);
     if (mission.applicationUrl.indexOf("http://") === -1 && mission.applicationUrl.indexOf("https://") === -1) {
       mission.applicationUrl = "https://" + mission.applicationUrl;
     }
 
     const url = new URL(mission.applicationUrl || JVA_URL);
-    url.searchParams.set("apiengagement_id", click._id);
+    url.searchParams.set("apiengagement_id", click.body._id);
 
     // Service ask for mtm
     if (mission.publisherId === "5f99dbe75eb1ad767733b206") {
@@ -688,10 +668,9 @@ router.get("/impression/campaign/:campaignId", cors({ origin: "*" }), async (req
       sourceName: campaign.name,
     } as Stats;
 
-    // const print = await esClient.index({ index: STATS_INDEX, body: obj });
-    // console.log("print", print.body._id);
-    const print = await StatsModel.create(obj);
-    res.status(200).send({ ok: true, data: { ...obj, _id: print._id } });
+    const print = await esClient.index({ index: STATS_INDEX, body: obj });
+    console.log("print", print.body._id);
+    res.status(200).send({ ok: true, data: { ...obj, _id: print.body._id } });
   } catch (error) {
     captureException(error);
   }
@@ -776,11 +755,10 @@ router.get("/impression/:missionId/:publisherId", cors({ origin: "*" }), async (
       fromPublisherName: fromPublisher.name,
     } as Stats;
 
-    // const print = await esClient.index({ index: STATS_INDEX, body: obj });
-    // console.log("print", print.body._id);
-    const print = await StatsModel.create(obj);
+    const print = await esClient.index({ index: STATS_INDEX, body: obj });
+    console.log("print", print.body._id);
 
-    res.status(200).send({ ok: true, data: { ...obj, _id: print._id } });
+    res.status(200).send({ ok: true, data: { ...obj, _id: print.body._id } });
   } catch (error: any) {
     captureException(error);
     return res.status(500).send({ ok: false, code: SERVER_ERROR });
