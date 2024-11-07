@@ -81,7 +81,7 @@ router.post("/search", passport.authenticate("user", { session: false }), async 
       .limit(body.data.size);
 
     const facets = await MissionModel.aggregate([
-      // { $match: where },
+      { $match: where },
       {
         $facet: {
           status: [{ $group: { _id: "$statusCode", count: { $sum: 1 } } }, { $sort: { count: -1 } }],
