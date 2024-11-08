@@ -20,7 +20,7 @@ const New = () => {
     name: "",
     type: "",
     url: "",
-    distance: "",
+    distance: "25km",
     publishers: [],
     moderations: [],
     rules: [],
@@ -32,7 +32,8 @@ const New = () => {
   const [errors, setErrors] = useState({});
   const [stickyVisible, setStickyVisible] = useState(false);
   const [saveButton, setSaveButton] = useState(null);
-  const [partners, setPartners] = useState([]);
+  const [missions, setMissions] = useState([]);
+  const [rulesMissions, setRulesMissions] = useState([]);
 
   useEffect(() => {
     if (!saveButton) return;
@@ -54,46 +55,38 @@ const New = () => {
   }, [saveButton]);
 
   useEffect(() => {
-    const fetchData = async () => {
+    const fetchMissions = async () => {
       try {
-        const query = new URLSearchParams();
-        query.append("publisherId", publisher._id);
-        query.append("jvaModeration", values.jvaModeration);
+        const publisherIds = publisher.publishers.map((p) => p.publisher);
 
-        if (values.location) {
-          query.append("lat", values.location.lat);
-          query.append("lon", values.location.lon);
-        }
+        const query = {
+          publishers: publisherIds,
+          lat: values.location?.lat,
+          lon: values.location?.lon,
+          distance: values.distance,
+          jvaModeration: values.jvaModeration,
+        };
+        const resM = await api.post("/mission/search", query);
+        if (!resM.ok) throw resM;
 
-        if (values.distance) {
-          query.append("distance", values.distance);
-        }
+        setMissions(resM.aggs.partners);
 
-        values.rules.forEach((rule, index) => {
-          query.append(`rules[${index}][field]`, rule.field);
-          query.append(`rules[${index}][operator]`, rule.operator);
-          query.append(`rules[${index}][value]`, rule.value);
-          query.append(`rules[${index}][combinator]`, rule.combinator);
-        });
+        if (values.rules.length > 0) {
+          query.rules = values.rules;
 
-        const res = await api.get(`/widget/partners?${query.toString()}`);
+          const resR = await api.post("/mission/search", query);
+          if (!resR.ok) throw resR;
 
-        if (!res.ok) throw res;
-        setPartners(res.data);
-
-        if (res.data.some((p) => p.mission_type === "benevolat") && res.data.some((p) => p.mission_type === "volontariat")) {
-          setValues((v) => ({ ...v, type: "" }));
-        } else if (res.data.some((p) => p.mission_type === "benevolat")) {
-          setValues((v) => ({ ...v, type: "benevolat" }));
-        } else if (res.data.some((p) => p.mission_type === "volontariat")) {
-          setValues((v) => ({ ...v, type: "volontariat", publishers: [res.data.filter((p) => p.mission_type === "volontariat")[0]._id] }));
+          setRulesMissions(resR.aggs.partners);
+        } else {
+          setRulesMissions(resM.aggs.partners);
         }
       } catch (error) {
-        captureError(error, "Une erreur est survenue lors de la récupération des partenaires");
+        captureError(error, "Une erreur est survenue lors de la récupération des missions");
       }
     };
-    fetchData();
-  }, [publisher._id, values.jvaModeration, values.location, values.distance, values.rules]);
+    fetchMissions();
+  }, [values]);
 
   const handleSubmit = async () => {
     const errors = {};
@@ -133,8 +126,6 @@ const New = () => {
     return true;
   };
 
-  console.log("values", values);
-
   return (
     <div className="space-y-6">
       <StickyBar onEdit={handleSubmit} visible={stickyVisible} canSubmit={canSubmit} />
@@ -152,18 +143,21 @@ const New = () => {
         </button>
       </div>
 
-      <Settings values={values} setValues={setValues} errors={errors} partners={partners} />
+      <Settings values={values} setValues={setValues} errors={errors} missions={missions} publisher={publisher} rulesMissions={rulesMissions} />
     </div>
   );
 };
 
-const Settings = ({ values, setValues, errors, partners }) => {
+const Settings = ({ values, setValues, errors, missions, publisher, rulesMissions }) => {
   const JVA_ID = "5f5931496c7ea514150a818f";
+  const SC_ID = "5f99dbe75eb1ad767733b206";
+
   const [showAll, setShowAll] = useState(false);
 
-  const handleSearch = async (field, search) => {
+  const handleSearch = async (field, search, currentValues) => {
     try {
-      const res = await api.get(`/mission/autocomplete?field=${field}&search=${search}&${values.publishers.map((p) => `publishers[]=${p}`).join("&")}`);
+      const publishers = currentValues.publishers.map((p) => `publishers[]=${p}`).join("&");
+      const res = await api.get(`/mission/autocomplete?field=${field}&search=${search}&${publishers}`);
       if (!res.ok) throw res;
       return res.data;
     } catch (error) {
@@ -225,17 +219,17 @@ const Settings = ({ values, setValues, errors, partners }) => {
             Type de mission<span className="ml-1 text-red-main">*</span>
           </label>
           <div className="flex items-center justify-between">
-            {partners.some((p) => p.mission_type === "volontariat") && !partners.some((p) => p.mission_type === "benevolat") ? (
+            {publisher.publishers && publisher.publishers.some((p) => p.publisher === SC_ID) && publisher.publishers.length === 1 ? (
               <RadioInput
                 id="type-volontariat"
                 name="type"
                 value="volontariat"
                 label="Volontariat"
                 checked={values.type === "volontariat"}
-                onChange={() => setValues({ ...values, type: "volontariat", publishers: [partners.find((p) => p.mission_type === "volontariat")?._id] })}
+                onChange={() => setValues({ ...values, type: "volontariat", publishers: [missions.find((p) => p.mission_type === "volontariat")?._id] })}
                 disabled={true}
               />
-            ) : partners.some((p) => p.mission_type === "benevolat") && !partners.some((p) => p.mission_type === "volontariat") ? (
+            ) : publisher.publishers && !publisher.publishers.some((p) => p.publisher === SC_ID) && publisher.publishers.length > 0 ? (
               <RadioInput
                 id="type-benevolat"
                 name="type"
@@ -261,7 +255,7 @@ const Settings = ({ values, setValues, errors, partners }) => {
                   value="volontariat"
                   label="Volontariat"
                   checked={values.type === "volontariat"}
-                  onChange={() => setValues({ ...values, type: "volontariat", publishers: [partners.find((p) => p.mission_type === "volontariat")?._id] })}
+                  onChange={() => setValues({ ...values, type: "volontariat", jvaModeration: false, publishers: [SC_ID] })}
                 />
               </>
             )}
@@ -302,13 +296,13 @@ const Settings = ({ values, setValues, errors, partners }) => {
       <div>
         <div>
           <h2 className="">Diffuser des missions de</h2>
-          {partners.filter((p) => p.mission_type === values.type) === 0 ? (
+          {missions.filter((p) => p.mission_type === values.type) === 0 ? (
             <div className="mt-5">
               <span className="text-sm text-gray-dark">Aucun partenaire disponible</span>
             </div>
           ) : (
             <div className={`mt-5 grid grid-cols-3 gap-x-6 gap-y-3 ${values.type === "volontariat" ? "text-[#929292]" : ""}`}>
-              {(showAll ? partners : partners.slice(0, 16))
+              {(showAll ? missions : missions.slice(0, 16))
                 .filter((p) => p.mission_type === values.type)
                 .map((p, i) => (
                   <label key={i} className={`flex gap-4 border p-4 rounded-sm cursor-pointer`}>
@@ -367,7 +361,7 @@ const Settings = ({ values, setValues, errors, partners }) => {
           )}
         </div>
 
-        {partners.length > 16 && (
+        {missions.length > 16 && (
           <button className="mt-6 border border-blue-dark p-2 text-blue-dark" onClick={() => setShowAll(!showAll)}>
             {showAll ? "Masquer les annonceurs" : "Afficher tous les annonceurs"}
           </button>
@@ -386,8 +380,14 @@ const Settings = ({ values, setValues, errors, partners }) => {
         <div>Filtrer les missions à afficher</div>
         <span className="text-gray-dark">
           {values.rules.length === 0
-            ? `Aucun filtre appliqué - ${partners.filter((p) => values.publishers.includes(p._id)).reduce((total, p) => total + p.count, 0)} missions affichées`
-            : `${partners.filter((p) => values.publishers.includes(p._id)).reduce((total, p) => total + p.count, 0)} missions affichées`}
+            ? `Aucun filtre appliqué - ${rulesMissions
+                .filter((p) => values.publishers.includes(p._id))
+                .reduce((total, p) => total + p.count, 0)
+                .toLocaleString("fr")} missions affichées`
+            : `${rulesMissions
+                .filter((p) => values.publishers.includes(p._id))
+                .reduce((total, p) => total + p.count, 0)
+                .toLocaleString("fr")} missions affichées`}
         </span>
 
         <QueryBuilder
@@ -406,7 +406,7 @@ const Settings = ({ values, setValues, errors, partners }) => {
           ]}
           rules={values.rules || []}
           setRules={(rules) => setValues({ ...values, rules })}
-          onSearch={handleSearch}
+          onSearch={(field, search) => handleSearch(field, search, values)}
           className="mt-5"
         />
       </div>
