@@ -1,13 +1,12 @@
 name: Deploy pdf production
 
 on:
-  workflow_dispatch:
-  # push:
-  #   branches:
-  #     - main
-  #   paths:
-  #     - ".github/workflows/deploy-pdf-production.yml"
-  #     - "pdf-next/**"
+  push:
+    branches:
+      - main
+    paths:
+      - ".github/workflows/deploy-pdf-production.yml"
+      - "pdf-next/**"
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
