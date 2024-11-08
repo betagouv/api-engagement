@@ -116,8 +116,6 @@ router.post("/search", passport.authenticate("user", { session: false }), async 
 
     if (body.data.publishers) {
       where.publisherId = { $in: body.data.publishers };
-      where.statusCode = "ACCEPTED";
-      where.deleted = false;
     }
 
     if (body.data.jvaModeration) {
@@ -142,16 +140,7 @@ router.post("/search", passport.authenticate("user", { session: false }), async 
           organizations: [{ $group: { _id: "$organizationName", count: { $sum: 1 } } }, { $sort: { count: -1 } }],
           activities: [{ $group: { _id: "$activity", count: { $sum: 1 } } }, { $sort: { count: -1 } }],
           cities: [{ $group: { _id: "$city", count: { $sum: 1 } } }, { $sort: { count: -1 } }],
-          partners: [
-            {
-              $group: {
-                _id: "$publisherId",
-                publisherName: { $first: "$publisherName" },
-                count: { $sum: 1 },
-              },
-            },
-            { $sort: { count: -1 } },
-          ],
+          partners: [{ $group: { _id: "$publisherId", publisherName: { $first: "$publisherName" }, count: { $sum: 1 } } }, { $sort: { count: -1 } }],
         },
       },
     ]);
@@ -189,11 +178,11 @@ router.get("/autocomplete", passport.authenticate("admin", { session: false }), 
 
     if (!query.success) return res.status(400).send({ ok: false, code: INVALID_QUERY, error: query.error });
 
-    const match: any = { deleted: false, statusCode: "ACCEPTED" };
-    if (query.data.publishers) match.publisherId = { $in: query.data.publishers };
+    const where: { [key: string]: any } = { deleted: false, statusCode: "ACCEPTED" };
+    if (query.data.publishers) where.publisherId = { $in: query.data.publishers };
 
     const aggs = await MissionModel.aggregate([
-      { $match: match },
+      { $match: where },
       { $unwind: `$${query.data.field}` },
       { $group: { _id: `$${query.data.field}`, count: { $sum: 1 } } },
       { $match: { _id: { $regex: query.data.search, $options: "i" } } },

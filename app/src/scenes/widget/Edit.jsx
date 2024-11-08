@@ -16,7 +16,6 @@ import QueryBuilder from "./components/QueryBuilder";
 
 const Edit = () => {
   const navigate = useNavigate();
-  const { publisher } = useStore();
   const { id } = useParams();
   const [widget, setWidget] = useState(null);
   const [values, setValues] = useState({
@@ -31,8 +30,6 @@ const Edit = () => {
   });
   const [stickyVisible, setStickyVisible] = useState(false);
   const [saveButton, setSaveButton] = useState(null);
-  const [missions, setMissions] = useState([]);
-  const [rulesMissions, setRulesMissions] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -81,40 +78,6 @@ const Edit = () => {
     };
     fetchData();
   }, [id]);
-
-  useEffect(() => {
-    const fetchMissions = async () => {
-      if (loading) return;
-      try {
-        const publisherIds = publisher.publishers.map((p) => p.publisher);
-
-        const query = {
-          publishers: publisherIds,
-          lat: values.location?.lat,
-          lon: values.location?.lon,
-          distance: values.distance,
-          jvaModeration: values.jvaModeration,
-        };
-
-        const resM = await api.post("/mission/search", query);
-        if (!resM.ok) throw resM;
-        setMissions(resM.aggs.partners);
-
-        if (values.rules && values.rules.length) {
-          query.rules = values.rules;
-
-          const resR = await api.post("/mission/search", query);
-          if (!resR.ok) throw resR;
-          setRulesMissions(resR.aggs.partners);
-        } else {
-          setRulesMissions(resM.aggs.partners);
-        }
-      } catch (error) {
-        captureError(error, "Erreur lors de la récupération des missions");
-      }
-    };
-    fetchMissions();
-  }, [loading, publisher, values]);
 
   const handleSubmit = async () => {
     try {
@@ -175,18 +138,70 @@ const Edit = () => {
         </div>
       </div>
 
-      <Settings widget={widget} setWidget={setWidget} values={values} setValues={setValues} missions={missions} rulesMissions={rulesMissions} publisher={publisher} />
+      <Settings widget={widget} setWidget={setWidget} values={values} setValues={setValues} loading={loading} />
       <Frame widget={widget} setWidget={setWidget} />
       <Code widget={widget} />
     </div>
   );
 };
 
-const Settings = ({ widget, values, setValues, missions, rulesMissions, publisher }) => {
+const Settings = ({ widget, values, setValues, loading }) => {
+  const { publisher } = useStore();
   const JVA_ID = "5f5931496c7ea514150a818f";
   const SC_ID = "5f99dbe75eb1ad767733b206";
+  const [missions, setMissions] = useState([]);
+  const [filteredMissions, setFilteredMissions] = useState([]);
 
   const [showAll, setShowAll] = useState(false);
+
+  useEffect(() => {
+    const fetchMissions = async () => {
+      if (loading) return;
+      try {
+        const query = {
+          publishers: publisher.publishers.map((p) => p.publisher),
+          lat: values.location?.lat,
+          lon: values.location?.lon,
+          distance: values.distance,
+          jvaModeration: values.jvaModeration,
+          status: "ACCEPTED",
+        };
+
+        const res = await api.post("/mission/search", query);
+        if (!res.ok) throw res;
+        setMissions(res.aggs.partners);
+      } catch (error) {
+        captureError(error, "Erreur lors de la récupération des missions");
+      }
+    };
+    fetchMissions();
+  }, [loading, publisher, values.location, values.distance, values.jvaModeration]);
+
+  useEffect(() => {
+    const fetchFilteredMissions = async () => {
+      if (loading) return;
+      try {
+        const query = {
+          publishers: values.publishers,
+          lat: values.location?.lat,
+          lon: values.location?.lon,
+          distance: values.distance,
+          jvaModeration: values.jvaModeration,
+          rules: values.rules,
+          status: "ACCEPTED",
+        };
+
+        const res = await api.post("/mission/search", query);
+        if (!res.ok) throw res;
+        setFilteredMissions(res.aggs.partners);
+      } catch (error) {
+        captureError(error, "Erreur lors de la récupération des missions");
+      }
+    };
+    fetchFilteredMissions();
+  }, [loading, values.publishers, values.location, values.distance, values.jvaModeration, values.rules]);
+
+  console.log("missions", missions);
 
   const handleSearch = async (field, search, currentValues) => {
     try {
@@ -400,11 +415,11 @@ const Settings = ({ widget, values, setValues, missions, rulesMissions, publishe
         <div>Filtrer les missions à afficher</div>
         <span className="text-gray-dark">
           {values.rules.length === 0
-            ? `Aucun filtre appliqué - ${rulesMissions
+            ? `Aucun filtre appliqué - ${missions
                 .filter((p) => values.publishers.includes(p._id))
                 .reduce((total, p) => total + p.count, 0)
                 .toLocaleString("fr")} missions affichées`
-            : `${rulesMissions
+            : `${filteredMissions
                 .filter((p) => values.publishers.includes(p._id))
                 .reduce((total, p) => total + p.count, 0)
                 .toLocaleString("fr")} missions affichées`}

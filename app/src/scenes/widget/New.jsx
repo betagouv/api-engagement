@@ -32,8 +32,6 @@ const New = () => {
   const [errors, setErrors] = useState({});
   const [stickyVisible, setStickyVisible] = useState(false);
   const [saveButton, setSaveButton] = useState(null);
-  const [missions, setMissions] = useState([]);
-  const [rulesMissions, setRulesMissions] = useState([]);
 
   useEffect(() => {
     if (!saveButton) return;
@@ -53,40 +51,6 @@ const New = () => {
       }
     };
   }, [saveButton]);
-
-  useEffect(() => {
-    const fetchMissions = async () => {
-      try {
-        const publisherIds = publisher.publishers.map((p) => p.publisher);
-
-        const query = {
-          publishers: publisherIds,
-          lat: values.location?.lat,
-          lon: values.location?.lon,
-          distance: values.distance,
-          jvaModeration: values.jvaModeration,
-        };
-        const resM = await api.post("/mission/search", query);
-        if (!resM.ok) throw resM;
-
-        setMissions(resM.aggs.partners);
-
-        if (values.rules.length > 0) {
-          query.rules = values.rules;
-
-          const resR = await api.post("/mission/search", query);
-          if (!resR.ok) throw resR;
-
-          setRulesMissions(resR.aggs.partners);
-        } else {
-          setRulesMissions(resM.aggs.partners);
-        }
-      } catch (error) {
-        captureError(error, "Une erreur est survenue lors de la récupération des missions");
-      }
-    };
-    fetchMissions();
-  }, [values]);
 
   const handleSubmit = async () => {
     const errors = {};
@@ -143,16 +107,63 @@ const New = () => {
         </button>
       </div>
 
-      <Settings values={values} setValues={setValues} errors={errors} missions={missions} publisher={publisher} rulesMissions={rulesMissions} />
+      <Settings values={values} setValues={setValues} errors={errors} />
     </div>
   );
 };
 
-const Settings = ({ values, setValues, errors, missions, publisher, rulesMissions }) => {
+const Settings = ({ values, setValues, errors }) => {
+  const { publisher } = useStore();
   const JVA_ID = "5f5931496c7ea514150a818f";
   const SC_ID = "5f99dbe75eb1ad767733b206";
-
   const [showAll, setShowAll] = useState(false);
+  const [missions, setMissions] = useState([]);
+  const [filteredMissions, setFilteredMissions] = useState([]);
+
+  useEffect(() => {
+    const fetchMissions = async () => {
+      try {
+        const query = {
+          publishers: publisher.publishers.map((p) => p.publisher),
+          lat: values.location?.lat,
+          lon: values.location?.lon,
+          distance: values.distance,
+          jvaModeration: values.jvaModeration,
+          status: "ACCEPTED",
+        };
+
+        const res = await api.post("/mission/search", query);
+        if (!res.ok) throw res;
+        setMissions(res.aggs.partners);
+      } catch (error) {
+        captureError(error, "Une erreur est survenue lors de la récupération des missions");
+      }
+    };
+    fetchMissions();
+  }, [values]);
+
+  useEffect(() => {
+    const fetchFilteredMissions = async () => {
+      try {
+        const query = {
+          publishers: publisher.publishers.map((p) => p.publisher),
+          lat: values.location?.lat,
+          lon: values.location?.lon,
+          distance: values.distance,
+          jvaModeration: values.jvaModeration,
+          status: "ACCEPTED",
+          rules: values.rules,
+        };
+
+        const res = await api.post("/mission/search", query);
+        if (!res.ok) throw res;
+        setFilteredMissions(res.aggs.partners);
+      } catch (error) {
+        captureError(error, "Une erreur est survenue lors de la récupération des missions");
+      }
+    };
+    fetchFilteredMissions();
+  }, [publisher, values.location, values.distance, values.jvaModeration, values.rules]);
 
   const handleSearch = async (field, search, currentValues) => {
     try {
@@ -380,11 +391,11 @@ const Settings = ({ values, setValues, errors, missions, publisher, rulesMission
         <div>Filtrer les missions à afficher</div>
         <span className="text-gray-dark">
           {values.rules.length === 0
-            ? `Aucun filtre appliqué - ${rulesMissions
+            ? `Aucun filtre appliqué - ${missions
                 .filter((p) => values.publishers.includes(p._id))
                 .reduce((total, p) => total + p.count, 0)
                 .toLocaleString("fr")} missions affichées`
-            : `${rulesMissions
+            : `${filteredMissions
                 .filter((p) => values.publishers.includes(p._id))
                 .reduce((total, p) => total + p.count, 0)
                 .toLocaleString("fr")} missions affichées`}
