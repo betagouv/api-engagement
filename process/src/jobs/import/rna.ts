@@ -158,7 +158,7 @@ const findByName = async (names: string[]) => {
     index: RNA_INDEX,
     body: {
       query: {
-        terms: { title: names },
+        terms: { "title.keyword": names },
       },
       size: 10000,
     },
