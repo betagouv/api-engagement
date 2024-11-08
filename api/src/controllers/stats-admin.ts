@@ -274,7 +274,6 @@ router.get("/publishers-views", passport.authenticate("user", { session: false }
       .object({
         from: zod.coerce.date().optional(),
         to: zod.coerce.date().optional(),
-        size: zod.coerce.number().int().min(0).max(10000).default(50),
         broadcaster: zod.string().optional(),
         announcer: zod.string().optional(),
         type: zod.enum(["volontariat", "benevolat", ""]).optional(),
@@ -314,10 +313,10 @@ router.get("/publishers-views", passport.authenticate("user", { session: false }
     if (query.data.source) viewQuery.bool.filter.push({ term: { "source.keyword": query.data.source } });
 
     const viewAggs = {
-      clickFrom: { filter: { term: { type: "click" } }, aggs: { data: { terms: { field: "fromPublisherName.keyword", size: query.data.size } } } },
-      clickTo: { filter: { term: { type: "click" } }, aggs: { data: { terms: { field: "toPublisherName.keyword", size: 10000 } } } },
-      applyFrom: { filter: { term: { type: "apply" } }, aggs: { data: { terms: { field: "fromPublisherName.keyword", size: query.data.size } } } },
-      applyTo: { filter: { term: { type: "apply" } }, aggs: { data: { terms: { field: "toPublisherName.keyword", size: 10000 } } } },
+      clickFrom: { filter: { term: { type: "click" } }, aggs: { data: { terms: { field: "fromPublisherName.keyword", size: 1000 } } } },
+      clickTo: { filter: { term: { type: "click" } }, aggs: { data: { terms: { field: "toPublisherName.keyword", size: 1000 } } } },
+      applyFrom: { filter: { term: { type: "apply" } }, aggs: { data: { terms: { field: "fromPublisherName.keyword", size: 1000 } } } },
+      applyTo: { filter: { term: { type: "apply" } }, aggs: { data: { terms: { field: "toPublisherName.keyword", size: 1000 } } } },
       totalClick: { filter: { term: { type: "click" } } },
       totalApply: { filter: { term: { type: "apply" } } },
     };
