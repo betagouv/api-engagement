@@ -18,7 +18,7 @@ const New = () => {
   const navigate = useNavigate();
   const [values, setValues] = useState({
     name: "",
-    type: "",
+    type: "benevolat",
     url: "",
     distance: "25km",
     publishers: [],
@@ -118,7 +118,7 @@ const Settings = ({ values, setValues, errors }) => {
   const SC_ID = "5f99dbe75eb1ad767733b206";
   const [showAll, setShowAll] = useState(false);
   const [missions, setMissions] = useState([]);
-  const [filteredMissions, setFilteredMissions] = useState([]);
+  const [total, setTotal] = useState(0);
 
   useEffect(() => {
     const fetchMissions = async () => {
@@ -134,36 +134,39 @@ const Settings = ({ values, setValues, errors }) => {
 
         const res = await api.post("/mission/search", query);
         if (!res.ok) throw res;
+
         setMissions(res.aggs.partners);
       } catch (error) {
         captureError(error, "Une erreur est survenue lors de la récupération des missions");
       }
     };
     fetchMissions();
-  }, [values]);
+  }, [publisher, values.location, values.distance, values.jvaModeration]);
 
   useEffect(() => {
     const fetchFilteredMissions = async () => {
       try {
         const query = {
-          publishers: publisher.publishers.map((p) => p.publisher),
+          publishers: values.publishers,
           lat: values.location?.lat,
           lon: values.location?.lon,
           distance: values.distance,
           jvaModeration: values.jvaModeration,
-          status: "ACCEPTED",
           rules: values.rules,
+          status: "ACCEPTED",
+          size: 0,
         };
 
         const res = await api.post("/mission/search", query);
         if (!res.ok) throw res;
-        setFilteredMissions(res.aggs.partners);
+        setTotal(res.total);
+        "filtered missions called", query;
       } catch (error) {
         captureError(error, "Une erreur est survenue lors de la récupération des missions");
       }
     };
     fetchFilteredMissions();
-  }, [publisher, values.location, values.distance, values.jvaModeration, values.rules]);
+  }, [publisher, values.location, values.distance, values.jvaModeration, values.rules, values.publishers]);
 
   const handleSearch = async (field, search, currentValues) => {
     try {
@@ -304,80 +307,93 @@ const Settings = ({ values, setValues, errors }) => {
           </select>
         </div>
       </div>
+
       <div>
         <div>
-          <h2 className="">Diffuser des missions de</h2>
-          {missions.filter((p) => p.mission_type === values.type) === 0 ? (
+          <h2>Diffuser des missions de</h2>
+          {publisher.publishers.length === 0 ? (
             <div className="mt-5">
               <span className="text-sm text-gray-dark">Aucun partenaire disponible</span>
             </div>
           ) : (
             <div className={`mt-5 grid grid-cols-3 gap-x-6 gap-y-3 ${values.type === "volontariat" ? "text-[#929292]" : ""}`}>
-              {(showAll ? missions : missions.slice(0, 16))
-                .filter((p) => p.mission_type === values.type)
-                .map((p, i) => (
-                  <label key={i} className={`flex gap-4 border p-4 rounded-sm cursor-pointer`}>
+              {(showAll ? publisher.publishers : publisher.publishers.slice(0, 16))
+                .filter((pub) => (values.type === "benevolat" ? pub.publisher !== SC_ID : pub.publisher === SC_ID))
+                .map((pub, i) => (
+                  <label
+                    key={i}
+                    className={`flex gap-4 border p-4 rounded cursor-pointer hover:border-blue-dark ${values.publishers.includes(pub.publisher) ? "border-blue-dark" : "border-gray-300"}`}
+                  >
                     <div className="flex items-center gap-2">
                       <input
                         type="checkbox"
                         className="checkbox"
                         id={`${i}-publishers`}
                         name={`${i}-publishers`}
-                        value={p.count}
                         disabled={values.type === "volontariat"}
-                        checked={values.publishers.includes(p._id) || values.type === "volontariat"}
+                        checked={values.publishers.includes(pub.publisher) || values.type === "volontariat"}
                         onChange={(e) => {
-                          if (e.target.checked) setValues({ ...values, publishers: [...values.publishers, p._id] });
-                          else setValues({ ...values, publishers: values.publishers.filter((id) => id !== p._id) });
+                          if (e.target.checked) {
+                            setValues({ ...values, publishers: [...values.publishers, pub.publisher] });
+                          } else {
+                            setValues({ ...values, publishers: values.publishers.filter((id) => id !== pub.publisher) });
+                          }
                         }}
                       />
                     </div>
 
                     <div className="flex flex-col truncate">
-                      <span className="line-clamp-2 truncate text-sm">{p.name}</span>
+                      <span className={`line-clamp-2 truncate text-sm ${values.publishers.includes(pub.publisher) ? "text-blue-dark" : "text-black"}`}>{pub.publisherName}</span>
                       <div className={`flex ${values.type === "volontariat" ? "text-[#929292]" : "text-gray-dark"}`}>
-                        <span className="text-xs">{p.count > 1 ? `${p.count} missions` : `${p.count} mission`}</span>
-                        {p.moderation && p.moderation.length && (
-                          <span className="text-xs p-1 rounded bg-blue-100 text-blue-800"> + {p.moderation.reduce((acc, curr) => acc + curr.count, 0)} mission modérées</span>
-                        )}
+                        <span className="text-xs">
+                          {(missions.find((mission) => mission._id === pub.publisher)?.count || 0).toLocaleString("fr")}{" "}
+                          {missions.find((mission) => mission._id === pub.publisher)?.count > 1 ? "missions" : "mission"}
+                        </span>
                       </div>
                     </div>
 
-                    {p.moderation && p.moderation.length && values.publishers.includes(p._id) && (
-                      <div className="pl-8">
-                        {p.moderation.map((m, j) => (
-                          <div key={j} className="flex items-center gap-2 py-1">
-                            <input
-                              type="checkbox"
-                              className="checkbox"
-                              id={`${j}-moderation`}
-                              name={`${j}-moderation`}
-                              value={p.count}
-                              checked={!!values.moderations.some((id) => id.moderatorId === p._id && id.publisherId === m._id)}
-                              onChange={(e) => {
-                                if (e.target.checked) setValues({ ...values, moderations: [...values.moderations, { moderatorId: p._id, publisherId: m._id }] });
-                                else setValues({ ...values, moderations: values.moderations.filter((id) => id.moderatorId !== p._id && id.publisherId !== m._id) });
-                              }}
-                            />
-                            <label className="line-clamp-2 truncate text-xs" htmlFor={`${j}-moderation`}>
-                              {m.name} - {m.count > 1 ? `${m.count} missions` : `${m.count} mission`}
-                            </label>
-                          </div>
-                        ))}
-                      </div>
-                    )}
+                    {missions.find((mission) => mission._id === pub.publisher)?.moderation &&
+                      missions.find((mission) => mission._id === pub.publisher).moderation.length > 0 &&
+                      values.publishers.includes(pub.publisher) && (
+                        <div className="pl-8">
+                          {missions
+                            .find((mission) => mission._id === pub.publisher)
+                            .moderation.map((m, j) => (
+                              <div key={j} className="flex items-center gap-2 py-1">
+                                <input
+                                  type="checkbox"
+                                  className="checkbox"
+                                  id={`${j}-moderation`}
+                                  name={`${j}-moderation`}
+                                  checked={!!values.moderations.some((id) => id.moderatorId === pub.publisher && id.publisherId === m._id)}
+                                  onChange={(e) => {
+                                    if (e.target.checked) {
+                                      setValues({ ...values, moderations: [...values.moderations, { moderatorId: pub.publisher, publisherId: m._id }] });
+                                    } else {
+                                      setValues({ ...values, moderations: values.moderations.filter((id) => id.moderatorId !== pub.publisher || id.publisherId !== m._id) });
+                                    }
+                                  }}
+                                />
+                                <label className="line-clamp-2 truncate text-xs" htmlFor={`${j}-moderation`}>
+                                  {m.name} - {m.count > 1 ? `${m.count.toLocaleString("fr")} missions` : `${m.count} mission`}
+                                </label>
+                              </div>
+                            ))}
+                        </div>
+                      )}
                   </label>
                 ))}
             </div>
           )}
         </div>
 
-        {missions.length > 16 && (
+        {publisher.publishers.length > 16 && (
           <button className="mt-6 border border-blue-dark p-2 text-blue-dark" onClick={() => setShowAll(!showAll)}>
             {showAll ? "Masquer les annonceurs" : "Afficher tous les annonceurs"}
           </button>
         )}
       </div>
+
       {values.publishers.includes(JVA_ID) && values.type === "benevolat" && (
         <div className="mt-6 flex items-center justify-between w-[50%]">
           <div> Afficher uniquement les missions modérées par JeVeuxAider.gouv.fr</div>
@@ -387,19 +403,10 @@ const Settings = ({ values, setValues, errors }) => {
           </div>
         </div>
       )}
+
       <div className="mt-6 flex flex-col gap-2">
         <div>Filtrer les missions à afficher</div>
-        <span className="text-gray-dark">
-          {values.rules.length === 0
-            ? `Aucun filtre appliqué - ${missions
-                .filter((p) => values.publishers.includes(p._id))
-                .reduce((total, p) => total + p.count, 0)
-                .toLocaleString("fr")} missions affichées`
-            : `${filteredMissions
-                .filter((p) => values.publishers.includes(p._id))
-                .reduce((total, p) => total + p.count, 0)
-                .toLocaleString("fr")} missions affichées`}
-        </span>
+        <span className="text-gray-dark">{total.toLocaleString("fr")} missions affichées</span>
 
         <QueryBuilder
           fields={[
