@@ -6,7 +6,7 @@ import { JVA_ID } from "../config";
 import { FORBIDDEN, INVALID_BODY, INVALID_PARAMS, INVALID_QUERY, NOT_FOUND } from "../error";
 import MissionModel from "../models/mission";
 import { UserRequest } from "../types/passport";
-import { buildQueryMongo, diacriticSensitiveRegex, getDistanceKm } from "../utils";
+import { buildQueryMongo, diacriticSensitiveRegex, EARTH_RADIUS, getDistanceKm } from "../utils";
 
 const router = Router();
 
@@ -49,26 +49,19 @@ router.post("/search", passport.authenticate("user", { session: false }), async 
 
     if (!body.success) return res.status(400).send({ ok: false, code: INVALID_BODY, error: body.error });
 
-    let geoMissionIds = [] as any[];
+    const where = {} as { [key: string]: any };
 
-    if (body.data.lat && body.data.lon && body.data.distance) {
-      const distance = getDistanceKm(body.data.distance !== "Aucun" ? body.data.distance : "25km");
-      const geoFilter = {
-        geoPoint: {
-          $nearSphere: {
-            $geometry: { type: "Point", coordinates: [body.data.lon, body.data.lat] },
-            $maxDistance: distance * 1000,
+    if (body.data.lat && body.data.lon) {
+      const distance = getDistanceKm(body.data.distance && body.data.distance !== "Aucun" ? body.data.distance : "25km");
+      where.geoPoint = {
+        $nearSphere: {
+          $geometry: {
+            type: "Point",
+            coordinates: [body.data.lon, body.data.lat],
           },
+          $maxDistance: distance * 1000,
         },
       };
-
-      const geoMissions = await MissionModel.find(geoFilter, { _id: 1 }).lean();
-      geoMissionIds = geoMissions.map((mission) => mission._id);
-    }
-
-    const where = {} as { [key: string]: any };
-    if (geoMissionIds.length > 0) {
-      where._id = { $in: geoMissionIds };
     }
 
     if (body.data.rules && body.data.rules.length > 0) {
@@ -122,7 +115,16 @@ router.post("/search", passport.authenticate("user", { session: false }), async 
       where.$or = [{ publisherId: JVA_ID }, { [`moderation_${JVA_ID}_status`]: "ACCEPTED" }];
     }
 
-    const total = await MissionModel.countDocuments(where);
+    const whereAggs = { ...where };
+    if (whereAggs.geoPoint) {
+      whereAggs.geoPoint = {
+        $geoWithin: {
+          $centerSphere: [[body.data.lon, body.data.lat], getDistanceKm(body.data.distance || "50km") / EARTH_RADIUS],
+        },
+      };
+    }
+
+    const total = await MissionModel.countDocuments(whereAggs);
 
     if (body.data.size === 0) return res.status(200).send({ ok: true, data: [], total });
 
@@ -132,7 +134,7 @@ router.post("/search", passport.authenticate("user", { session: false }), async 
       .limit(body.data.size);
 
     const facets = await MissionModel.aggregate([
-      { $match: where },
+      { $match: whereAggs },
       {
         $facet: {
           status: [{ $group: { _id: "$statusCode", count: { $sum: 1 } } }, { $sort: { count: -1 } }],
