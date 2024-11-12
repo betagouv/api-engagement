@@ -138,7 +138,7 @@ router.get("/:id", passport.authenticate("user", { session: false }), async (req
   try {
     const params = zod
       .object({
-        id: zod.string(),
+        id: zod.string().regex(/^[0-9a-fA-F]{24}$/),
       })
       .safeParse(req.params);
 
