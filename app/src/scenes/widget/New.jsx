@@ -178,7 +178,7 @@ const Settings = ({ values, setValues, errors }) => {
 
   useEffect(() => {
     if (publisher.publishers.length === 1 && publisher.publishers[0].publisher === SC_ID) {
-      setValues({ ...values, type: "volontariat" });
+      setValues({ ...values, type: "volontariat", publishers: [SC_ID] });
     } else if (publisher.publishers.length > 0 && publisher.publishers.some((p) => p.publisher !== SC_ID)) {
       setValues({ ...values, type: "benevolat" });
     } else {
@@ -201,6 +201,8 @@ const Settings = ({ values, setValues, errors }) => {
     }
     return [];
   };
+
+  console.log("values", values);
 
   return (
     <div className="bg-white p-12 space-y-12 shadow-lg">
