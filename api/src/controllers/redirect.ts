@@ -363,7 +363,10 @@ router.get("/widget/:id", cors({ origin: "*" }), async (req: Request, res: Respo
 
     const query = zod
       .object({
-        widgetId: zod.string().optional(),
+        widgetId: zod
+          .string()
+          .regex(/^[0-9a-fA-F]{24}$/)
+          .optional(),
         requestId: zod.string().optional(),
       })
       .safeParse(req.query);
