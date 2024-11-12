@@ -330,7 +330,11 @@ const Settings = ({ widget, values, setValues, loading }) => {
         </div>
 
         <div>
-          <h2>Diffuser des missions de</h2>
+          <div className="flex">
+            <h2>Diffuser des missions de</h2>
+            <span className="ml-1 text-red-main">*</span>
+          </div>
+
           {values.type === "benevolat" ? (
             <button
               className="text-blue-dark underline mt-2"
