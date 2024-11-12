@@ -3,13 +3,10 @@ import Joi from "joi";
 import passport from "passport";
 import zod from "zod";
 
-import { JVA_ID, MISSION_INDEX } from "../config";
-import esClient from "../db/elastic";
 import { FORBIDDEN, INVALID_BODY, INVALID_PARAMS, INVALID_QUERY, NOT_FOUND, RESSOURCE_ALREADY_EXIST } from "../error";
 import PublisherModel from "../models/publisher";
 import WidgetModel from "../models/widget";
 import { UserRequest } from "../types/passport";
-import { buildQuery } from "../utils";
 
 const router = Router();
 
@@ -91,109 +88,6 @@ router.get("/", passport.authenticate("user", { session: false }), async (req: U
         .filter((p) => p),
     }));
 
-    return res.status(200).send({ ok: true, data, total });
-  } catch (error) {
-    next(error);
-  }
-});
-
-router.get("/partners", passport.authenticate("user", { session: false }), async (req: UserRequest, res: Response, next: NextFunction) => {
-  try {
-    const query = zod
-      .object({
-        publisherId: zod.string().regex(/^[0-9a-fA-F]{24}$/),
-        jvaModeration: zod
-          .enum(["true", "false"])
-          .transform((value) => value === "true")
-          .optional(),
-        rules: zod
-          .array(
-            zod.object({
-              field: zod.string(),
-              operator: zod.string(),
-              value: zod.string().optional(),
-              combinator: zod.enum(["and", "or"]),
-            }),
-          )
-          .optional(),
-        lat: zod.string().transform(Number).optional(),
-        lon: zod.string().transform(Number).optional(),
-        distance: zod.string().optional(),
-      })
-      .safeParse(req.query);
-
-    if (!query.success) return res.status(400).send({ ok: false, code: INVALID_QUERY, message: query.error });
-
-    // Add itself if the publisher is a promoteur
-    const where: any = {
-      query: {
-        bool: {
-          must: [{ term: { "statusCode.keyword": "ACCEPTED" } }, { term: { deleted: false } }],
-          filter: { bool: { should: [] } },
-        } as { must: any[]; filter: any },
-      },
-      aggs: { partners: { terms: { field: "publisherId.keyword", size: 10000 } } },
-    };
-
-    const publisher = await PublisherModel.findById(query.data.publisherId);
-
-    if (!publisher) return res.status(404).send({ ok: false, code: NOT_FOUND, message: "Widget's publisher not found" });
-    if (req.user.role !== "admin" && !req.user.publishers.includes(publisher._id.toString())) return res.status(403).send({ ok: false, code: FORBIDDEN, message: "Not allowed" });
-
-    if (query.data.jvaModeration) {
-      where.query.bool.filter.bool.should.push({ term: { "publisherId.keyword": JVA_ID } });
-      publisher.publishers.forEach((p) =>
-        where.query.bool.filter.bool.should.push({
-          bool: {
-            must: [{ term: { "publisherId.keyword": p.publisher } }, { term: { [`moderation_${JVA_ID}_status.keyword`]: "ACCEPTED" } }],
-          },
-        }),
-      );
-    } else {
-      publisher.publishers.forEach((p) => where.query.bool.filter.bool.should.push({ term: { "publisherId.keyword": p.publisher } }));
-      if (publisher.role_promoteur) where.query.bool.filter.bool.should.push({ term: { "publisherId.keyword": publisher._id.toString() } });
-      if (where.query.bool.filter.bool.should.length === 0) return res.status(200).send({ ok: true, data: [], total: 0 });
-    }
-
-    const rules = query.data.rules || [];
-    if (rules.length > 0) {
-      const builtQuery = buildQuery(rules as any);
-      if (builtQuery.bool.must && Array.isArray(builtQuery.bool.must)) {
-        where.query.bool.must.push(...builtQuery.bool.must);
-      }
-      if (builtQuery.bool.should && Array.isArray(builtQuery.bool.should)) {
-        where.query.bool.filter.bool.should.push(...builtQuery.bool.should);
-      }
-    }
-
-    if (query.data.lat && query.data.lon) {
-      where.query.bool.must.push({
-        geo_distance: {
-          distance: query.data.distance || "25km",
-          location: {
-            lat: query.data.lat,
-            lon: query.data.lon,
-          },
-        },
-      });
-    }
-
-    const response = await esClient.search({
-      index: MISSION_INDEX,
-      body: where,
-      track_total_hits: true,
-      size: 0,
-    });
-
-    const publishers = await PublisherModel.find().select("_id name mission_type").lean();
-    const data = response.body.aggregations.partners.buckets.map((b: { key: string; doc_count: number }) => {
-      const p = publishers.find((p) => p._id.toString() === b.key);
-      if (!p) return null;
-      return { _id: b.key, name: p.name, count: b.doc_count, mission_type: p.mission_type };
-    });
-
-    const total = response.body.hits.total.value;
-    // Send only the partners that have at least one mission
     return res.status(200).send({ ok: true, data, total });
   } catch (error) {
     next(error);
