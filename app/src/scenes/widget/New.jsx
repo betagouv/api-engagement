@@ -84,6 +84,11 @@ const New = () => {
         return false;
       }
     }
+
+    if (values.publishers.length === 0) {
+      return false;
+    }
+
     if (values.name.length < 3) {
       return false;
     }
@@ -119,6 +124,7 @@ const Settings = ({ values, setValues, errors }) => {
   const [showAll, setShowAll] = useState(false);
   const [missions, setMissions] = useState([]);
   const [total, setTotal] = useState(0);
+  const [selectAll, setSelectAll] = useState(false);
 
   useEffect(() => {
     const fetchMissions = async () => {
@@ -311,6 +317,24 @@ const Settings = ({ values, setValues, errors }) => {
       <div>
         <div>
           <h2>Diffuser des missions de</h2>
+          {values.type === "benevolat" ? (
+            <button
+              className="text-blue-dark underline mt-2"
+              onClick={(e) => {
+                if (selectAll) {
+                  setValues({ ...values, publishers: [] });
+                } else {
+                  setValues({ ...values, publishers: publisher.publishers.filter((p) => p.publisher !== SC_ID).map((p) => p.publisher) });
+                }
+                setSelectAll(!selectAll);
+              }}
+            >
+              {selectAll ? "Tout déselectionner" : "Tout sélectionner"}
+            </button>
+          ) : (
+            <div></div>
+          )}
+
           {publisher.publishers.length === 0 ? (
             <div className="mt-5">
               <span className="text-sm text-gray-dark">Aucun partenaire disponible</span>
