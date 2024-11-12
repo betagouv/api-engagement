@@ -455,6 +455,21 @@ export interface Stats {
   user?: string;
 }
 
+export interface Kpi {
+  _id: Schema.Types.ObjectId;
+
+  date: Date;
+  benevolatAvailableMissionCount: number;
+  volontariatAvailableMissionCount: number;
+
+  availablePlaceCount: number;
+  availableMissionCount: number;
+  activeMissionCount: number;
+
+  createdAt: Date;
+  updatedAt: Date;
+}
+
 export type View = {
   _id?: string;
   url?: string;
