@@ -18,7 +18,7 @@ const New = () => {
   const navigate = useNavigate();
   const [values, setValues] = useState({
     name: "",
-    type: "benevolat",
+    type: "",
     url: "",
     distance: "25km",
     publishers: [],
@@ -126,6 +126,8 @@ const Settings = ({ values, setValues, errors }) => {
   const [total, setTotal] = useState(0);
   const [selectAll, setSelectAll] = useState(false);
 
+  console.log("publisher", publisher);
+
   useEffect(() => {
     const fetchMissions = async () => {
       try {
@@ -173,6 +175,20 @@ const Settings = ({ values, setValues, errors }) => {
     };
     fetchFilteredMissions();
   }, [publisher, values.location, values.distance, values.jvaModeration, values.rules, values.publishers]);
+
+  useEffect(() => {
+    if (publisher.publishers.length === 1 && publisher.publishers[0].publisher === SC_ID) {
+      setValues({ ...values, type: "volontariat" });
+    } else if (publisher.publishers.length > 0 && publisher.publishers.some((p) => p.publisher !== SC_ID)) {
+      setValues({ ...values, type: "benevolat" });
+    } else {
+      return;
+    }
+  }, [publisher]);
+
+  useEffect(() => {
+    setSelectAll(values.type === "benevolat" && values.publishers.length === publisher.publishers.filter((p) => p.publisher !== SC_ID).length);
+  }, [values.publishers, values.type, publisher.publishers]);
 
   const handleSearch = async (field, search, currentValues) => {
     try {
@@ -341,7 +357,7 @@ const Settings = ({ values, setValues, errors }) => {
             </div>
           ) : (
             <div className={`mt-5 grid grid-cols-3 gap-x-6 gap-y-3 ${values.type === "volontariat" ? "text-[#929292]" : ""}`}>
-              {(showAll ? publisher.publishers : publisher.publishers.slice(0, 16))
+              {(showAll ? publisher.publishers : publisher.publishers.slice(0, 15))
                 .filter((pub) => (values.type === "benevolat" ? pub.publisher !== SC_ID : pub.publisher === SC_ID))
                 .map((pub, i) => (
                   <label

@@ -207,12 +207,8 @@ const Settings = ({ widget, values, setValues, loading }) => {
   }, [loading, values.publishers, values.location, values.distance, values.jvaModeration, values.rules]);
 
   useEffect(() => {
-    if (values.publishers.length === publisher.publishers.length - 1) {
-      setSelectAll(true);
-    } else {
-      setSelectAll(false);
-    }
-  }, [values.publishers, publisher.publishers.length]);
+    setSelectAll(values.type === "benevolat" && values.publishers.length === publisher.publishers.filter((p) => p.publisher !== SC_ID).length);
+  }, [values.publishers, values.type, publisher.publishers]);
 
   const handleSearch = async (field, search, currentValues) => {
     try {
@@ -338,7 +334,7 @@ const Settings = ({ widget, values, setValues, loading }) => {
           {values.type === "benevolat" ? (
             <button
               className="text-blue-dark underline mt-2"
-              onClick={(e) => {
+              onClick={() => {
                 if (selectAll) {
                   setValues({ ...values, publishers: [] });
                 } else {
@@ -359,7 +355,7 @@ const Settings = ({ widget, values, setValues, loading }) => {
             </div>
           ) : (
             <div className={`mt-5 grid grid-cols-3 gap-x-6 gap-y-3 ${values.type === "volontariat" ? "text-[#929292]" : ""}`}>
-              {(showAll ? publisher.publishers : publisher.publishers.slice(0, 16))
+              {(showAll ? publisher.publishers : publisher.publishers.slice(0, 15))
                 .filter((pub) => (values.type === "benevolat" ? pub.publisher !== SC_ID : pub.publisher === SC_ID))
                 .map((pub, i) => (
                   <label
