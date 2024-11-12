@@ -126,8 +126,6 @@ const Settings = ({ values, setValues, errors }) => {
   const [total, setTotal] = useState(0);
   const [selectAll, setSelectAll] = useState(false);
 
-  console.log("publisher", publisher);
-
   useEffect(() => {
     const fetchMissions = async () => {
       try {
@@ -201,8 +199,6 @@ const Settings = ({ values, setValues, errors }) => {
     }
     return [];
   };
-
-  console.log("values", values);
 
   return (
     <div className="bg-white p-12 space-y-12 shadow-lg">
