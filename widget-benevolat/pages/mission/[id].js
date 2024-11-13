@@ -84,14 +84,14 @@ export const getServerSideProps = async (context) => {
   const userAgent = context.req.headers["user-agent"] || "";
   const isBot = /bot|crawler|spider|crawling/i.test(userAgent);
 
-  //   if (!isBot && mission.applicationUrl) {
-  //     return {
-  //       redirect: {
-  //         destination: mission.applicationUrl,
-  //         permanent: false,
-  //       },
-  //     };
-  //   }
+  if (!isBot && mission.applicationUrl) {
+    return {
+      redirect: {
+        destination: mission.applicationUrl,
+        permanent: false,
+      },
+    };
+  }
 
   return { props: { mission } };
 };
