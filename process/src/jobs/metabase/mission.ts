@@ -82,7 +82,7 @@ const buildData = (doc: Mission, partners: { [key: string]: string }) => {
     jva_moderation_status: doc["moderation_5f5931496c7ea514150a818f_status"],
     jva_moderation_comment: doc["moderation_5f5931496c7ea514150a818f_comment"],
     jva_moderation_title: doc["moderation_5f5931496c7ea514150a818f_title"],
-    jva_moderation_updated_at: doc["moderation_5f5931496c7ea514150a818f_date"] ? new Date() : undefined,
+    jva_moderation_updated_at: doc["moderation_5f5931496c7ea514150a818f_date"] ? new Date(doc["moderation_5f5931496c7ea514150a818f_date"]) : undefined,
 
     leboncoin_moderation_status: doc.leboncoinStatus,
     leboncoin_moderation_comment: doc.leboncoinComment,
@@ -111,10 +111,9 @@ const handler = async () => {
     const partners = {} as { [key: string]: string };
     await prisma.partner.findMany({ select: { id: true, old_id: true } }).then((data) => data.forEach((d) => (partners[d.old_id] = d.id)));
 
-    // const fourteenDaysAgo = new Date();
-    // fourteenDaysAgo.setDate(fourteenDaysAgo.getDate() - 14);
-    // const where = { createdAt : { $gte: fourteenDaysAgo } };
-    const where = {};
+    const fourteenDaysAgo = new Date();
+    fourteenDaysAgo.setDate(fourteenDaysAgo.getDate() - 14);
+    const where = { createdAt: { $gte: fourteenDaysAgo } };
 
     while (true) {
       const data = await MissionModel.find(where).limit(BULK_SIZE).skip(offset).lean();

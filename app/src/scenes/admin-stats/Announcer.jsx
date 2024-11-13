@@ -36,7 +36,6 @@ const Announcer = () => {
   const [loading, setLoading] = useState(false);
   const [exporting, setExporting] = useState(false);
   const [partners, setPartners] = useState([]);
-  const [sort, setSort] = useState({ field: "applicationTo", order: "asc" });
   const { setPublisher } = useStore();
 
   const navigate = useNavigate();
@@ -105,6 +104,7 @@ const Announcer = () => {
       const csv =
         "Id;Nom du partenaire;Nombre de redirections;Nombre de candidatures;Taux de conversion\n" +
         res.data
+          .filter((item) => item.role_promoteur)
           .map((item) => `${item._id};${item.name};${item.clickTo};${item.applyTo};${item.clickTo === 0 ? "0 %" : ((item.applyTo / item.clickTo) * 100).toFixed(1) + " %"}`)
           .join("\n");
 

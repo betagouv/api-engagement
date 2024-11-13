@@ -5,16 +5,17 @@ import { STATS_INDEX } from "../../config";
 import { captureException } from "../../error";
 import { Stats } from "../../types";
 import { PgAccount } from "../../types/postgres";
+import { Account } from "@prisma/client";
 
 const BATCH_SIZE = 5000;
 
-const buildData = (
+const buildData = async (
   doc: Stats,
   partners: { [key: string]: string },
   missions: { [key: string]: string },
   campaigns: { [key: string]: string },
   widgets: { [key: string]: string },
-  clicks: { [key: string]: string },
+  clickId: string | undefined,
 ) => {
   const partnerFromId = partners[doc.fromPublisherId?.toString()];
   if (!partnerFromId) {
@@ -27,19 +28,15 @@ const buildData = (
     return null;
   }
   let missionId;
-  if (doc.missionId) {
-    missionId = missions[doc.missionId?.toString()];
+  if (doc.missionClientId && doc.toPublisherId) {
+    missionId = missions[`${doc.missionClientId}-${doc.toPublisherId}`];
     if (!missionId) {
-      console.log(`[Accounts] Mission ${doc.missionId?.toString()} not found for doc ${doc._id.toString()}`);
-      return null;
-    }
-  }
-
-  let clickId;
-  if (doc.clickId) {
-    clickId = clicks[doc.clickId];
-    if (!clickId) {
-      console.log(`[Accounts] Click ${doc.clickId} not found for doc ${doc._id.toString()}`);
+      const m = await prisma.mission.findFirst({ where: { old_id: doc.missionId?.toString() }, select: { id: true } });
+      if (m) {
+        missionId = m.id;
+      } else {
+        console.log(`[Accounts] Mission ${doc.missionId?.toString()} not found for doc ${doc._id.toString()}`);
+      }
     }
   }
 
@@ -59,6 +56,7 @@ const buildData = (
     old_id: doc._id,
     old_view_id: doc.clickId,
     mission_id: missionId ? missionId : null,
+    mission_old_id: doc.missionId ? doc.missionId : null,
     created_at: new Date(doc.createdAt),
     host: doc.host,
     tag: doc.tag,
@@ -69,7 +67,7 @@ const buildData = (
     widget_id: sourceId && doc.source === "widget" ? sourceId : null,
     to_partner_id: partnerToId,
     from_partner_id: partnerFromId,
-  } as PgAccount;
+  } as Account;
 
   return obj;
 };
@@ -88,7 +86,9 @@ const handler = async () => {
     const clicks = {} as { [key: string]: string };
     await prisma.click.findMany({ where: whereClicks, select: { id: true, old_id: true } }).then((data) => data.forEach((d) => (clicks[d.old_id] = d.id)));
     const missions = {} as { [key: string]: string };
-    await prisma.mission.findMany({ select: { id: true, old_id: true } }).then((data) => data.forEach((d) => (missions[d.old_id] = d.id)));
+    await prisma.mission
+      .findMany({ select: { id: true, client_id: true, partner: { select: { old_id: true } } } })
+      .then((data) => data.forEach((d) => (missions[`${d.client_id}-${d.partner?.old_id}`] = d.id)));
     const partners = {} as { [key: string]: string };
     await prisma.partner.findMany({ select: { id: true, old_id: true } }).then((data) => data.forEach((d) => (partners[d.old_id] = d.id)));
     const campaigns = {} as { [key: string]: string };
@@ -122,7 +122,7 @@ const handler = async () => {
                   {
                     range: {
                       createdAt: {
-                        gte: "now-7d/d",
+                        gte: "now-14d/d",
                         lte: "now/d",
                       },
                     },
@@ -144,7 +144,20 @@ const handler = async () => {
 
       const dataToCreate = [];
       for (const hit of data) {
-        const obj = buildData({ _id: hit._id, ...hit._source }, partners, missions, clicks, campaigns, widgets);
+        let clickId;
+        if (hit._source.clickId) {
+          clickId = clicks[hit._source.clickId];
+          if (!clickId) {
+            const res = await prisma.click.findFirst({ where: { old_id: hit._source.clickId }, select: { id: true } });
+            if (res) {
+              clickId = res.id;
+              clicks[hit._source.clickId] = clickId;
+            } else {
+              console.log(`[Accounts] Click ${hit._source.clickId} not found for doc ${hit._id.toString()}`);
+            }
+          }
+        }
+        const obj = await buildData({ _id: hit._id, ...hit._source }, partners, missions, campaigns, widgets, clickId);
         if (!obj) continue;
 
         dataToCreate.push(obj);

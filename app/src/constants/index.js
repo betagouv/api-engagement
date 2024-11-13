@@ -131,7 +131,7 @@ export const DEPARTMENT_NAMES = {
 };
 
 export const DAYS = ["Dimanche", "Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi", "Samedi"];
-export const MONTHS = ["Janvier", "Février", "Mars", "Avril", "Mai", "Juin", "Juillet", "Août", "Septembre", "Octobre", "Novembre", "Décembre"];
+export const MONTHS = ["Jan", "Fév", "Mar", "Avr", "Mai", "Jui", "Juil", "Aoû", "Sept", "Oct", "Nov", "Déc"];
 export const YEARS = [2021, 2022, 2023, 2024];
 
 export const WARNINGS = {

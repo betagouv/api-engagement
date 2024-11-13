@@ -159,9 +159,10 @@ router.post("/:id/image", passport.authenticate("user", { session: false }), upl
     const publisher = await PublisherModel.findById(params.data.id);
     if (!publisher) return res.status(404).send({ ok: false, code: NOT_FOUND, message: "Publisher not found" });
 
-    const objectName = `publishers/${publisher._id}/logo`;
     const files = req.files as Express.Multer.File[];
     if (files.length === 0) return res.status(400).send({ ok: false, code: INVALID_BODY, message: "No file uploaded" });
+    const objectName = `publishers/${publisher._id}/${files[0].originalname}`;
+
     const response = await putObject(objectName, files[0].buffer, { ACL: OBJECT_ACL.PUBLIC_READ });
 
     publisher.logo = response.Location;

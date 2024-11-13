@@ -3,6 +3,18 @@ import { Schema, model } from "mongoose";
 import { Mission } from "../types";
 
 const MODELNAME = "mission";
+
+const geoPointSchema = new Schema({
+  type: {
+    type: String,
+    enum: ["Point"],
+    default: "Point",
+  },
+  coordinates: {
+    type: [Number],
+  },
+});
+
 const schema = new Schema<Mission>({
   // Identifiers
   _old_id: { type: String },
@@ -50,16 +62,7 @@ const schema = new Schema<Mission>({
     lat: { type: Number },
     lon: { type: Number },
   },
-  geoPoint: {
-    type: {
-      type: String,
-      enum: ["Point"],
-      default: "Point",
-    },
-    coordinates: {
-      type: [Number],
-    },
-  },
+  geoPoint: { type: geoPointSchema, default: null },
 
   // Organisation
   organizationId: { type: String },

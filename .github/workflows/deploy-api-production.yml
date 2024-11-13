@@ -1,13 +1,12 @@
 name: Deploy api production
 
 on:
-  workflow_dispatch:
-  # push:
-  #   branches:
-  #     - main
-  #   paths:
-  #     - ".github/workflows/deploy-api-production.yml"
-  #     - "api/**"
+  push:
+    branches:
+      - main
+    paths:
+      - ".github/workflows/deploy-api-production.yml"
+      - "api/**"
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}

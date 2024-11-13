@@ -105,6 +105,7 @@ const Broacaster = () => {
       const csv =
         "Id;Nom du partenaire;Nombre de redirections;Nombre de candidatures;Taux de conversion\n" +
         res.data
+          .filter((item) => item.role_annonceur_api || item.role_annonceur_campagne || item.role_annonceur_widget)
           .map(
             (item) => `${item._id};${item.name};${item.clickFrom};${item.applyFrom};${item.clickFrom === 0 ? "0 %" : ((item.applyFrom / item.clickFrom) * 100).toFixed(1) + " %"}`,
           )

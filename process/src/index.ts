@@ -211,9 +211,9 @@ const rnaJob = new CronJob(
   "Europe/Paris",
 );
 
-// Every first Tuesday of the month at 09:00 AM
+// Every first Tuesday of the month at 10:00 AM
 const reportJob = new CronJob(
-  "0 9 2 * *",
+  "0 10 2 * *",
   async () => {
     // if not the first Tuesday of the month, return
     const date = new Date();

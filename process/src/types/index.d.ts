@@ -635,12 +635,14 @@ export interface MissionXML {
   departmentCode: string;
   departmentName: string;
   region: string;
-  lonlat?: string; // Old
-  lonLat?: string; // Partner makes errors but we save them cause we're cool
-  location: {
-    lon: number;
-    lat: number;
-  }?;
+  lonlat: string | undefined; // Old
+  lonLat: string | undefined; // Partner makes errors but we save them cause we're cool
+  location:
+    | {
+        lon: number;
+        lat: number;
+      }
+    | undefined;
   activity: string;
   tags: { value: string[] | string } | string;
   domain: string;

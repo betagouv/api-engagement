@@ -1,13 +1,12 @@
 name: Deploy widget benevolat production
 
 on:
-  workflow_dispatch:
-  # push:
-  #   branches:
-  #     - main
-  #   paths:
-  #     - ".github/workflows/deploy-widget-benevolat-production.yml"
-  #     - "widget-benevolat/**"
+  push:
+    branches:
+      - main
+    paths:
+      - ".github/workflows/deploy-widget-benevolat-production.yml"
+      - "widget-benevolat/**"
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}

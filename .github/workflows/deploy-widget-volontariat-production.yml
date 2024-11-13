@@ -1,13 +1,12 @@
 name: Deploy widget volontariat production
 
 on:
-  workflow_dispatch
-  # push:
-  #   branches:
-  #     - main
-  #   paths:
-  #     - ".github/workflows/deploy-widget-volontariat-production.yml"
-  #     - "widget-volontariat/**"
+  push:
+    branches:
+      - main
+    paths:
+      - ".github/workflows/deploy-widget-volontariat-production.yml"
+      - "widget-volontariat/**"
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
