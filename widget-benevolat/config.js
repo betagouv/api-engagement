@@ -1,6 +1,7 @@
 const ENV = process.env.ENV || "development";
 const API_URL = process.env.API_URL || "http://localhost:4000";
 const SENTRY_DSN = process.env.SENTRY_DSN || "";
+const GOOGLE_FOR_JOB_KEY = process.env.GOOGLE_FOR_JOB_KEY || "";
 
 const DOMAINES = {
   environnement: "Environnement",
@@ -24,4 +25,5 @@ module.exports = {
   API_URL,
   SENTRY_DSN,
   DOMAINES,
+  GOOGLE_FOR_JOB_KEY,
 };
