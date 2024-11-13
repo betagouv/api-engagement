@@ -7,10 +7,10 @@ import Loader from "../../components/Loader";
 import Select from "../../components/NewSelect";
 import TablePagination from "../../components/NewTablePagination";
 import SearchInput from "../../components/SearchInput";
+import { LEBONCOIN_STATUS, STATUS_PLR } from "../../constants";
 import api from "../../services/api";
 import { captureError } from "../../services/error";
 import exportCSV from "../../services/utils";
-import { STATUS_PLR } from "../broadcast/moderation/components/Constants";
 
 const TABLE_HEADER = [
   { title: "Mission", key: "title.keyword", colSpan: 4 },
@@ -195,7 +195,7 @@ const AdminMission = () => {
             placeholder="Organisation"
           />
           <Select
-            options={options.leboncoinStatus.filter((e) => Boolean(e.key)).map((e) => ({ value: e.key, label: STATUS_PLR[e.key], count: e.doc_count }))}
+            options={options.leboncoinStatus.filter((e) => Boolean(e.key)).map((e) => ({ value: e.key, label: LEBONCOIN_STATUS[e.key], count: e.doc_count }))}
             value={filters.leboncoinStatus}
             onChange={(e) => setFilters({ ...filters, leboncoinStatus: e.value })}
             placeholder="Statut leboncoin"
