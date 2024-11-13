@@ -43,9 +43,9 @@ const STATUS_MAP = {
   ad_online: "ACCEPTED",
   ad_edited: "EDITED",
   ad_deleted: "DELETED",
-  ad_rejected_technical: "REFUSED_TECHNICAL",
-  ad_rejected_moderation: "REFUSED_MODERATION",
-} as { [key: string]: "ACCEPTED" | "EDITED" | "DELETED" | "REFUSED_TECHNICAL" | "REFUSED_MODERATION" };
+  ad_rejected_technical: "REFUSED",
+  ad_rejected_moderation: "REFUSED",
+} as { [key: string]: "ACCEPTED" | "EDITED" | "DELETED" | "REFUSED" };
 
 router.post("/feedback", passport.authenticate(["leboncoin"], { session: false }), async (req: PublisherRequest, res: Response, next: NextFunction) => {
   try {
@@ -77,7 +77,7 @@ router.post("/feedback", passport.authenticate(["leboncoin"], { session: false }
       return res.status(404).send({ ok: false, code: NOT_FOUND, message: "Mission not found" });
     }
 
-    if (STATUS_MAP[body.data.status].includes("REFUSED") && STATUS_MAP[body.data.status] !== mission.leboncoinStatus) {
+    if (STATUS_MAP[body.data.status] !== mission.leboncoinStatus) {
       await postMessage(
         {
           title: `Mission refusée sur Leboncoin`,

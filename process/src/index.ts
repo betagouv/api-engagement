@@ -23,11 +23,12 @@ import "./db/postgres";
 
 import imports from "./jobs/import";
 import moderations from "./jobs/moderation";
+import leboncoin from "./jobs/leboncoin";
 import linkedin from "./jobs/linkedin";
 import linkedinStats from "./jobs/linkedin-stats";
-import warnings from "./jobs/warnings";
 import metabase from "./jobs/metabase";
 import rna from "./jobs/rna";
+import warnings from "./jobs/warnings";
 import { captureException } from "./error";
 import report from "./jobs/report";
 
@@ -38,6 +39,7 @@ const runnings = {
   linkedin: false,
   linkedinStats: false,
   metabase: false,
+  leboncoin: false,
   rna: false,
   report: false,
 };
@@ -211,6 +213,37 @@ const rnaJob = new CronJob(
   "Europe/Paris",
 );
 
+// Every day at 10:00 AM
+const leboncoinJob = new CronJob(
+  "0 10 * * *",
+  async () => {
+    if (runnings.leboncoin) return;
+    runnings.leboncoin = true;
+    const checkInId = Sentry.captureCheckIn({
+      monitorSlug: "leboncoin",
+      status: "in_progress",
+    });
+    try {
+      await leboncoin.handler();
+      Sentry.captureCheckIn({
+        checkInId,
+        monitorSlug: "leboncoin",
+        status: "ok",
+      });
+    } catch (error) {
+      Sentry.captureException(error);
+      Sentry.captureCheckIn({
+        checkInId,
+        monitorSlug: "leboncoin",
+        status: "error",
+      });
+    }
+  },
+  null,
+  true,
+  "Europe/Paris",
+);
+
 // Every first Tuesday of the month at 10:00 AM
 const reportJob = new CronJob(
   "0 10 2 * *",
@@ -292,6 +325,14 @@ app.get("/tasks", async (req, res) => {
         lastRun: rnaJob.lastDate(),
         nextRun: rnaJob.nextDate(),
         running: runnings.rna,
+      },
+      {
+        name: "Update Leboncoin",
+        schedule: leboncoinJob.cronTime.source,
+        started: leboncoinJob.running,
+        lastRun: leboncoinJob.lastDate(),
+        nextRun: leboncoinJob.nextDate(),
+        running: runnings.leboncoin,
       },
       {
         name: "Generate reports",

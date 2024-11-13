@@ -1,7 +1,7 @@
 import esClient from "../../db/elastic";
 import WarningModel from "../../models/warning";
 import { postMessage } from "../../services/slack";
-import { STATS_INDEX } from "../../config";
+import { SLACK_WARNING_CHANNEL_ID, STATS_INDEX } from "../../config";
 import { Publisher } from "../../types";
 
 const TRACKING_WARNING = "TRACKING_WARNING";
@@ -35,10 +35,7 @@ export const checkTracking = async (publishers: Publisher[]) => {
     if (!stats) continue;
     console.log(`[${publisher.name}] ${stats.click} clicks and ${stats.apply} applies`);
 
-    // Check application null but redirection > 30
     const statsWarning = await WarningModel.findOne({ publisherId: publisher._id.toString(), type: TRACKING_WARNING, fixed: false }, null, { sort: { createdAt: -1 } });
-    // Fake data
-    // if (Math.random() < 1) {
     if (stats.apply === 0 && stats.click >= 70) {
       console.log(`[${publisher.name}] No application but more than 70 redirections`);
       if (statsWarning) {
@@ -55,7 +52,7 @@ export const checkTracking = async (publishers: Publisher[]) => {
           publisherLogo: publisher.logo,
         };
         await WarningModel.create(obj);
-        const res = await postMessage({ text: `Alerte détectée: ${publisher.name} - Problème de tracking` });
+        const res = await postMessage({ text: `Alerte détectée: ${publisher.name} - Problème de tracking` }, SLACK_WARNING_CHANNEL_ID);
         if (res.error) console.error(res.error);
         else console.log("Slack message sent");
         continue;
