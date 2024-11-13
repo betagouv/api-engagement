@@ -359,23 +359,14 @@ const Settings = ({ widget, values, setValues, loading }) => {
             </div>
           ) : (
             <div className={`mt-5 grid grid-cols-3 gap-x-6 gap-y-3 ${values.type === "volontariat" ? "text-[#929292]" : ""}`}>
-              {(showAll
-                ? publisher.publishers
-                    .filter((pub) => (values.type === "benevolat" ? pub.publisher !== SC_ID : pub.publisher === SC_ID))
-                    .sort((a, b) => {
-                      const countA = missions.find((mission) => mission._id === a.publisher)?.count || 0;
-                      const countB = missions.find((mission) => mission._id === b.publisher)?.count || 0;
-                      return countB - countA;
-                    })
-                : publisher.publishers
-                    .filter((pub) => (values.type === "benevolat" ? pub.publisher !== SC_ID : pub.publisher === SC_ID))
-                    .sort((a, b) => {
-                      const countA = missions.find((mission) => mission._id === a.publisher)?.count || 0;
-                      const countB = missions.find((mission) => mission._id === b.publisher)?.count || 0;
-                      return countB - countA;
-                    })
-              )
-                .slice(0, 15)
+              {publisher.publishers
+                .filter((pub) => (values.type === "benevolat" ? pub.publisher !== SC_ID : pub.publisher === SC_ID))
+                .sort((a, b) => {
+                  const countA = missions.find((mission) => mission._id === a.publisher)?.count || 0;
+                  const countB = missions.find((mission) => mission._id === b.publisher)?.count || 0;
+                  return countB - countA;
+                })
+                .slice(0, showAll ? publisher.publishers.length : 15)
                 .map((pub, i) => (
                   <label
                     key={i}
@@ -444,7 +435,7 @@ const Settings = ({ widget, values, setValues, loading }) => {
           )}
         </div>
 
-        {publisher.publishers.length > 16 && (
+        {publisher.publishers.length > 15 && values.type !== "volontariat" && (
           <button className="mt-6 border border-blue-dark p-2 text-blue-dark" onClick={() => setShowAll(!showAll)}>
             {showAll ? "Masquer les annonceurs" : "Afficher tous les annonceurs"}
           </button>
