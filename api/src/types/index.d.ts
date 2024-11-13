@@ -243,6 +243,11 @@ export interface Mission {
   leboncoinUrl: string | undefined;
   leboncoinComment: string | undefined;
   leboncoinUpdatedAt: Date | undefined;
+
+  jobteaserStatus: "ACCEPTED" | "PENDING" | "DELETED" | "REFUSED" | undefined;
+  jobteaserUrl: string | undefined;
+  jobteaserComment: string | undefined;
+  jobteaserUpdatedAt: Date | undefined;
 }
 
 export type ModerationEvent = {

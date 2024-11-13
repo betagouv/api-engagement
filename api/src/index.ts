@@ -53,6 +53,7 @@ import MyMissionV0Controller from "./v0/mymission";
 import ViewV0Controller from "./v0/view";
 import AssociationV1Controller from "./v1/association";
 import ActivityV2Controller from "./v2/activity";
+import JobTeaserV2Controller from "./v2/jobteaser";
 import LeboncoinV2Controller from "./v2/leboncoin";
 import MissionV2Controller from "./v2/mission";
 
@@ -126,6 +127,7 @@ app.use("/v1/association", AssociationV1Controller);
 app.use("/v2/mission", cors({ origin: "*" }), MissionV2Controller);
 app.use("/v2/activity", cors({ origin: "*" }), ActivityV2Controller);
 app.use("/v2/leboncoin", cors({ origin: "*" }), LeboncoinV2Controller);
+app.use("/v2/jobteaser", cors({ origin: "*" }), JobTeaserV2Controller);
 app.use("/brevo-webhook", cors({ origin: "*" }), BrevoWebhookController);
 
 // Interal routes

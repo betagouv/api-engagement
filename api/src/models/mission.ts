@@ -134,6 +134,12 @@ const schema = new Schema<Mission>({
   leboncoinComment: { type: String },
   leboncoinUpdatedAt: { type: Date },
 
+  // JobTeaser
+  jobteaserStatus: { type: String },
+  jobteaserUrl: { type: String },
+  jobteaserComment: { type: String },
+  jobteaserUpdatedAt: { type: Date },
+
   createdAt: { type: Date, default: Date.now },
   updatedAt: { type: Date, default: Date.now },
 });
