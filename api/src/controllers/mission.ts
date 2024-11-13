@@ -76,19 +76,30 @@ router.post("/search", passport.authenticate("user", { session: false }), async 
       else where.publisherId = body.data.publisherId;
     } else if (req.user.role !== "admin") return res.status(403).send({ ok: false, code: FORBIDDEN });
 
-    if (body.data.status) {
+    if (body.data.status === "none") where.$or = [{ statusCode: "" }, { statusCode: null }];
+    else if (body.data.status) {
       if (Array.isArray(body.data.status)) where.statusCode = { $in: body.data.status };
       else where.statusCode = body.data.status;
     }
 
-    if (body.data.domain) {
+    if (body.data.leboncoinStatus === "none") where.$or = [{ leboncoinStatus: "" }, { leboncoinStatus: null }];
+    else if (body.data.leboncoinStatus) where.leboncoinStatus = body.data.leboncoinStatus;
+
+    if (body.data.domain === "none") where.$or = [{ domain: "" }, { domain: null }];
+    else if (body.data.domain) {
       if (Array.isArray(body.data.domain)) where.domain = { $in: body.data.domain };
       else where.domain = body.data.domain;
     }
 
-    if (body.data.organization) where.organizationName = body.data.organization;
-    if (body.data.activity) where.activity = body.data.activity;
-    if (body.data.city) where.city = body.data.city;
+    if (body.data.organization === "none") where.$or = [{ organizationName: "" }, { organizationName: null }];
+    else if (body.data.organization) where.organizationName = body.data.organization;
+
+    if (body.data.activity === "none") where.$or = [{ activity: "" }, { activity: null }];
+    else if (body.data.activity) where.activity = body.data.activity;
+
+    if (body.data.city === "none") where.$or = [{ city: "" }, { city: null }];
+    else if (body.data.city) where.city = body.data.city;
+
     if (body.data.search)
       where.$or = [
         { title: { $regex: diacriticSensitiveRegex(body.data.search), $options: "i" } },
@@ -143,6 +154,8 @@ router.post("/search", passport.authenticate("user", { session: false }), async 
           activities: [{ $group: { _id: "$activity", count: { $sum: 1 } } }, { $sort: { count: -1 } }],
           cities: [{ $group: { _id: "$city", count: { $sum: 1 } } }, { $sort: { count: -1 } }],
           partners: [{ $group: { _id: "$publisherId", publisherName: { $first: "$publisherName" }, count: { $sum: 1 } } }, { $sort: { count: -1 } }],
+          leboncoinStatus: [{ $group: { _id: "$leboncoinStatus", count: { $sum: 1 } } }, { $sort: { count: -1 } }],
+
         },
       },
     ]);
@@ -159,6 +172,7 @@ router.post("/search", passport.authenticate("user", { session: false }), async 
         name: b.publisherName,
         mission_type: b.publisherName === "Service Civique" ? "volontariat" : "benevolat",
       })),
+      leboncoinStatus: facets[0].leboncoinStatus.map((b: { _id: string; count: number }) => ({ key: b._id, doc_count: b.count })),
     };
 
     return res.status(200).send({ ok: true, data, total, aggs });
