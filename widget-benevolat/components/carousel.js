@@ -137,7 +137,7 @@ export const Carousel = ({ widget, missions, color, request }) => {
     <main className="w-full">
       <Slider {...settings}>
         {missions.slice(0, 60).map((mission, i) => (
-          <div role="group" key={i} id={mission._id} aria-labelledby={mission._id}>
+          <div role="group" key={i} id={mission._id} aria-labelledby={mission._id} style={{ display: "inline-block", width: "100%" }}>
             <Card widget={widget} mission={mission} color={color} request={request} />
           </div>
         ))}
