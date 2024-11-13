@@ -5,10 +5,11 @@ import { Kpi } from "../types";
 const MODELNAME = "kpi";
 const schema = new Schema<Kpi>(
   {
-    date: { type: Date, required: true },
+    date: { type: Date, required: true, unique: true },
     benevolatAvailableMissionCount: { type: Number, required: true },
     volontariatAvailableMissionCount: { type: Number, required: true },
     availablePlaceCount: { type: Number, required: true },
+    availableOriginalPlaceCount: { type: Number, required: true },
     availableMissionCount: { type: Number, required: true },
     activeMissionCount: { type: Number, required: true },
   },

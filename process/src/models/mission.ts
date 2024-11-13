@@ -40,6 +40,7 @@ const schema = new Schema<Mission>({
   endAt: { type: Date },
   priority: { type: String },
   places: { type: Number },
+  originalPlaces: { type: Number },
   metadata: { type: String },
   domain: { type: String },
   domainOriginal: { type: String },

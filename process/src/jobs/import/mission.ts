@@ -203,6 +203,7 @@ export const buildMission = (publisher: Publisher, missionXML: MissionXML) => {
     priority: parseString(missionXML.priority) || "",
     tags: parseArray(missionXML.tags) || [],
     places: parseNumber(missionXML.places) || 1,
+    originalPlaces: parseNumber(missionXML.places) || undefined,
     snu: parseString(missionXML.snu) === "yes",
     snuPlaces: parseNumber(missionXML.snuPlaces),
     metadata: parseString(missionXML.metadata),

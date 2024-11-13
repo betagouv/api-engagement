@@ -159,6 +159,7 @@ export interface Mission {
   geolocStatus: "ENRICHED_BY_PUBLISHER" | "ENRICHED" | "NOT_FOUND" | "NO_DATA" | "SHOULD_ENRICH" | "FAILED";
   rnaStatus: "ENRICHED_BY_DATA_SUBVENTION" | "ENRICHED" | "NEED_VERIFY" | "NOT_FOUND" | "NO_DATA" | "SHOULD_ENRICH" | "FAILED";
   places: number;
+  originalPlaces: number | undefined;
   domain: string;
   domainOriginal: string | undefined;
   domainLogo: string;
@@ -463,6 +464,8 @@ export interface Kpi {
   volontariatAvailableMissionCount: number;
 
   availablePlaceCount: number;
+  availableOriginalPlaceCount: number;
+
   availableMissionCount: number;
   activeMissionCount: number;
 
