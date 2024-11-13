@@ -73,6 +73,7 @@ const Flux = () => {
 
   useEffect(() => {
     // Debounce search
+    const controller = new AbortController();
     const fetchData = async () => {
       setLoading(true);
       try {
@@ -88,7 +89,7 @@ const Flux = () => {
         if (filters.organization) query.organization = filters.organization;
         if (filters.search) query.search = filters.search;
         if (filters.sortBy) query.sort = filters.sortBy;
-        const res = await api.post("/mission/search", { ...query });
+        const res = await api.post("/mission/search", { ...query }, { signal: controller.signal });
 
         if (!res.ok) throw res;
         setData(res.data);
@@ -106,12 +107,14 @@ const Flux = () => {
         if (filters.search) newSearchParams.append("search", filters.search);
         setSearchParams(newSearchParams);
       } catch (error) {
+        if (error.name === "AbortError") return;
         captureError(error, "Erreur lors de la récupération des données");
       }
       setLoading(false);
     };
 
     fetchData();
+    return () => controller.abort();
   }, [filters]);
 
   const handleExport = async () => {

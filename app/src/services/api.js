@@ -29,6 +29,7 @@ class APIHandler {
         ...this.headers,
         ...options.headers,
       },
+      signal: options.signal,
       body: JSON.stringify(data),
       credentials: "include",
     });
