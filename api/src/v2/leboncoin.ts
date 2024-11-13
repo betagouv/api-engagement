@@ -6,7 +6,6 @@ import { HydratedDocument } from "mongoose";
 import { captureMessage, INVALID_BODY, NOT_FOUND } from "../error";
 import MissionModel from "../models/mission";
 import RequestModel from "../models/request";
-import { postMessage } from "../services/slack";
 import { Mission } from "../types";
 import { PublisherRequest } from "../types/passport";
 
@@ -75,16 +74,6 @@ router.post("/feedback", passport.authenticate(["leboncoin"], { session: false }
     if (!mission) {
       captureMessage("Mission not found", JSON.stringify(body.data, null, 2));
       return res.status(404).send({ ok: false, code: NOT_FOUND, message: "Mission not found" });
-    }
-
-    if (STATUS_MAP[body.data.status] !== mission.leboncoinStatus) {
-      await postMessage(
-        {
-          title: `Mission refusée sur Leboncoin`,
-          text: `La mission ${mission.title} (${mission._id}) a été refusée sur Leboncoin\n\turl: https://app.api-engagement.beta.gouv.fr/mission/${mission._id}\n\tstatut: ${body.data.status}\n\traison: ${body.data.note}`,
-        },
-        "C07SPFG724V",
-      );
     }
 
     mission.leboncoinStatus = STATUS_MAP[body.data.status];
