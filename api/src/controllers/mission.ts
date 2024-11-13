@@ -2,10 +2,11 @@ import { NextFunction, Response, Router } from "express";
 import passport from "passport";
 import zod from "zod";
 
+import { JVA_ID } from "../config";
 import { FORBIDDEN, INVALID_BODY, INVALID_PARAMS, INVALID_QUERY, NOT_FOUND } from "../error";
 import MissionModel from "../models/mission";
 import { UserRequest } from "../types/passport";
-import { diacriticSensitiveRegex } from "../utils";
+import { buildQueryMongo, diacriticSensitiveRegex, EARTH_RADIUS, getDistanceKm } from "../utils";
 
 const router = Router();
 
@@ -25,6 +26,23 @@ router.post("/search", passport.authenticate("user", { session: false }), async 
         size: zod.coerce.number().int().min(0).default(25),
         from: zod.coerce.number().int().min(0).default(0),
         sort: zod.string().optional(),
+
+        publishers: zod.array(zod.string()).optional(),
+        jvaModeration: zod.boolean().optional(),
+        lat: zod.coerce.number().min(-90).max(90).optional(),
+        lon: zod.coerce.number().min(-180).max(180).optional(),
+        location: zod.string().optional(),
+        distance: zod.string().optional(),
+        rules: zod
+          .array(
+            zod.object({
+              field: zod.string(),
+              operator: zod.string(),
+              value: zod.string(),
+              combinator: zod.string(),
+            }),
+          )
+          .optional(),
       })
       .passthrough()
       .safeParse(req.body);
@@ -32,6 +50,26 @@ router.post("/search", passport.authenticate("user", { session: false }), async 
     if (!body.success) return res.status(400).send({ ok: false, code: INVALID_BODY, error: body.error });
 
     const where = {} as { [key: string]: any };
+
+    if (body.data.lat && body.data.lon) {
+      const distance = getDistanceKm(body.data.distance && body.data.distance !== "Aucun" ? body.data.distance : "25km");
+      where.geoPoint = {
+        $nearSphere: {
+          $geometry: {
+            type: "Point",
+            coordinates: [body.data.lon, body.data.lat],
+          },
+          $maxDistance: distance * 1000,
+        },
+      };
+    }
+
+    if (body.data.rules && body.data.rules.length > 0) {
+      const rulesQuery = buildQueryMongo(body.data.rules as any);
+
+      if (rulesQuery.$and.length > 0) where.$and = [...(where.$and || []), ...rulesQuery.$and];
+      if (rulesQuery.$or.length > 0) where.$or = [...(where.$or || []), ...rulesQuery.$or];
+    }
 
     if (body.data.publisherId) {
       if (req.user.role !== "admin" && !req.user.publishers.includes(body.data.publisherId)) return res.status(403).send({ ok: false, code: FORBIDDEN });
@@ -69,12 +107,10 @@ router.post("/search", passport.authenticate("user", { session: false }), async 
       ];
 
     if (body.data.availableFrom) {
-      // Mission deleted after availableFrom or not deleted
       where.$or = [{ deletedAt: { $gte: body.data.availableFrom } }, { deleted: false }];
     }
 
     if (body.data.availableTo) {
-      // Mission created before availableTo
       where.createdAt = { $lte: body.data.availableTo };
     }
 
@@ -82,7 +118,24 @@ router.post("/search", passport.authenticate("user", { session: false }), async 
       where.deleted = false;
     }
 
-    const total = await MissionModel.countDocuments(where);
+    if (body.data.publishers) {
+      where.publisherId = { $in: body.data.publishers };
+    }
+
+    if (body.data.jvaModeration) {
+      where.$or = [{ publisherId: JVA_ID }, { [`moderation_${JVA_ID}_status`]: "ACCEPTED" }];
+    }
+
+    const whereAggs = { ...where };
+    if (whereAggs.geoPoint) {
+      whereAggs.geoPoint = {
+        $geoWithin: {
+          $centerSphere: [[body.data.lon, body.data.lat], getDistanceKm(body.data.distance || "50km") / EARTH_RADIUS],
+        },
+      };
+    }
+
+    const total = await MissionModel.countDocuments(whereAggs);
 
     if (body.data.size === 0) return res.status(200).send({ ok: true, data: [], total });
 
@@ -92,7 +145,7 @@ router.post("/search", passport.authenticate("user", { session: false }), async 
       .limit(body.data.size);
 
     const facets = await MissionModel.aggregate([
-      { $match: where },
+      { $match: whereAggs },
       {
         $facet: {
           status: [{ $group: { _id: "$statusCode", count: { $sum: 1 } } }, { $sort: { count: -1 } }],
@@ -100,7 +153,9 @@ router.post("/search", passport.authenticate("user", { session: false }), async 
           organizations: [{ $group: { _id: "$organizationName", count: { $sum: 1 } } }, { $sort: { count: -1 } }],
           activities: [{ $group: { _id: "$activity", count: { $sum: 1 } } }, { $sort: { count: -1 } }],
           cities: [{ $group: { _id: "$city", count: { $sum: 1 } } }, { $sort: { count: -1 } }],
+          partners: [{ $group: { _id: "$publisherId", publisherName: { $first: "$publisherName" }, count: { $sum: 1 } } }, { $sort: { count: -1 } }],
           leboncoinStatus: [{ $group: { _id: "$leboncoinStatus", count: { $sum: 1 } } }, { $sort: { count: -1 } }],
+
         },
       },
     ]);
@@ -111,6 +166,12 @@ router.post("/search", passport.authenticate("user", { session: false }), async 
       organizations: facets[0].organizations.map((b: { _id: string; count: number }) => ({ key: b._id, doc_count: b.count })),
       activities: facets[0].activities.map((b: { _id: string; count: number }) => ({ key: b._id, doc_count: b.count })),
       cities: facets[0].cities.map((b: { _id: string; count: number }) => ({ key: b._id, doc_count: b.count })),
+      partners: facets[0].partners.map((b: { _id: string; count: number; publisherName: string }) => ({
+        _id: b._id,
+        count: b.count,
+        name: b.publisherName,
+        mission_type: b.publisherName === "Service Civique" ? "volontariat" : "benevolat",
+      })),
       leboncoinStatus: facets[0].leboncoinStatus.map((b: { _id: string; count: number }) => ({ key: b._id, doc_count: b.count })),
     };
 
@@ -133,8 +194,11 @@ router.get("/autocomplete", passport.authenticate("admin", { session: false }), 
 
     if (!query.success) return res.status(400).send({ ok: false, code: INVALID_QUERY, error: query.error });
 
+    const where: { [key: string]: any } = { deleted: false, statusCode: "ACCEPTED" };
+    if (query.data.publishers) where.publisherId = { $in: query.data.publishers };
+
     const aggs = await MissionModel.aggregate([
-      { $match: { deleted: false, statusCode: "ACCEPTED" } },
+      { $match: where },
       { $unwind: `$${query.data.field}` },
       { $group: { _id: `$${query.data.field}`, count: { $sum: 1 } } },
       { $match: { _id: { $regex: query.data.search, $options: "i" } } },
