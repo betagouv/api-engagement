@@ -239,10 +239,15 @@ export interface Mission {
   [key: `moderation_${string}_note`]: string | undefined;
   [key: `moderation_${string}_date`]: Date | undefined;
 
-  leboncoinStatus: "ACCEPTED" | "EDITED" | "DELETED" | "REFUSED_TECHNICAL" | "REFUSED_MODERATION" | undefined;
+  leboncoinStatus: "ACCEPTED" | "EDITED" | "DELETED" | "REFUSED" | undefined;
   leboncoinUrl: string | undefined;
   leboncoinComment: string | undefined;
   leboncoinUpdatedAt: Date | undefined;
+
+  jobteaserStatus: "ACCEPTED" | "PENDING" | "DELETED" | "REFUSED" | undefined;
+  jobteaserUrl: string | undefined;
+  jobteaserComment: string | undefined;
+  jobteaserUpdatedAt: Date | undefined;
 }
 
 export type ModerationEvent = {

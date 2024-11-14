@@ -1,3 +1,4 @@
+import { SLACK_WARNING_CHANNEL_ID } from "../../config";
 import ImportModel from "../../models/import";
 import WarningModel from "../../models/warning";
 import { postMessage } from "../../services/slack";
@@ -18,17 +19,13 @@ export const checkImports = async (publishers: Publisher[]) => {
       continue;
     }
 
-    // If never imported, don't check
     if (!lastImport) {
       console.log(`[${publisher.name}] Never imported`);
       continue;
     }
     console.log(`[${publisher.name}] Last import at ${lastImport.doc.startedAt}`);
 
-    // Check error while importing
     const errorWarning = await WarningModel.findOne({ publisherId: publisher._id.toString(), type: ERROR_WARNING, fixed: false }, null, { sort: { createdAt: -1 } });
-    // Fake data
-    // if (Math.random() < 0.8) {
     if (lastImport.doc.status === "FAILED") {
       console.log(`[${publisher.name}] Error while importing`);
       if (errorWarning) {
@@ -46,7 +43,7 @@ export const checkImports = async (publishers: Publisher[]) => {
           publisherLogo: publisher.logo,
         };
         await WarningModel.create(obj);
-        const res = await postMessage({ text: `Alerte détectée: ${publisher.name} - Erreur de flux` });
+        const res = await postMessage({ text: `Alerte détectée: ${publisher.name} - Erreur de flux` }, SLACK_WARNING_CHANNEL_ID);
         if (res.error) console.error(res.error);
         else console.log("Slack message sent");
         continue;
@@ -60,10 +57,7 @@ export const checkImports = async (publishers: Publisher[]) => {
       }
     }
 
-    // Check no mission imported
     const importWarning = await WarningModel.findOne({ publisherId: publisher._id.toString(), type: EMPTY_WARNING, fixed: false }, null, { sort: { createdAt: -1 } });
-    // Fake data
-    // if (Math.random() < 0.8) {
     if (lastImport.doc.missionCount === 0) {
       console.log(`[${publisher.name}] No mission imported`);
       if (importWarning) {
@@ -82,7 +76,7 @@ export const checkImports = async (publishers: Publisher[]) => {
           publisherLogo: publisher.logo,
         };
         await WarningModel.create(obj);
-        const res = await postMessage({ text: `Alerte détectée: ${publisher.name} - Flux vide` });
+        const res = await postMessage({ text: `Alerte détectée: ${publisher.name} - Flux vide` }, SLACK_WARNING_CHANNEL_ID);
         if (res.error) console.error(res.error);
         else console.log("Slack message sent");
         continue;
@@ -96,12 +90,9 @@ export const checkImports = async (publishers: Publisher[]) => {
       }
     }
 
-    // Check too much refused missions
     const validationWarning = await WarningModel.findOne({ publisherId: publisher._id.toString(), type: VALIDATION_WARNING, fixed: false }, null, {
       sort: { createdAt: -1 },
     });
-    // Fake data
-    // if (Math.random() < 0.8) {
     if (lastImport.doc.refusedCount / lastImport.doc.missionCount > 0.75) {
       console.log(`[${publisher.name}] ${Math.round((lastImport.doc.refusedCount / lastImport.doc.missionCount) * 100)}% of missions refused`);
       if (validationWarning) {
@@ -120,7 +111,7 @@ export const checkImports = async (publishers: Publisher[]) => {
           publisherLogo: publisher.logo,
         };
         await WarningModel.create(obj);
-        const res = await postMessage({ text: `Alerte détectée: ${publisher.name} - Taux de validation critique` });
+        const res = await postMessage({ text: `Alerte détectée: ${publisher.name} - Taux de validation critique` }, SLACK_WARNING_CHANNEL_ID);
         if (res.error) console.error(res.error);
         else console.log("Slack message sent");
         continue;

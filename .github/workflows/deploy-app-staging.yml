@@ -1,13 +1,12 @@
 name: Deploy app staging
 
 on:
-  workflow_dispatch
-  # push:
-  #   branches:
-  #     - staging
-  #   paths:
-  #     - ".github/workflows/deploy-app-staging.yml"
-  #     - "app/**"
+  push:
+    branches:
+      - staging
+    paths:
+      - ".github/workflows/deploy-app-staging.yml"
+      - "app/**"
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -23,7 +22,7 @@ jobs:
         with:
           host: app.api-engagement-dev.fr
           username: "root"
-          key: ${{ secrets.SCW_SSH_KEY }}
+          key: ${{ secrets.SSH_KEY_STAGING }}
           script: |
             cd api-engagement/app
             git checkout staging

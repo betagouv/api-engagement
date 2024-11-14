@@ -1,12 +1,12 @@
 import prisma from "../../db/postgres";
 import { captureException } from "../../error";
-import { Mission } from "../../types";
+import { Mission as MongoMission } from "../../types";
 import { Mission as PrismaMission } from "@prisma/client";
 import MissionModel from "../../models/mission";
 
 const BULK_SIZE = 5000;
 
-const buildData = (doc: Mission, partners: { [key: string]: string }) => {
+const buildData = (doc: MongoMission, partners: { [key: string]: string }) => {
   const partnerId = partners[doc.publisherId?.toString()];
   if (!partnerId) {
     console.log(`[Mission] Partner ${doc.publisherId?.toString()} not found for mission ${doc._id?.toString()}`);
@@ -97,6 +97,8 @@ const buildData = (doc: Mission, partners: { [key: string]: string }) => {
   return obj;
 };
 
+const isDateEqual = (a: Date, b: Date) => new Date(a).getTime() === new Date(b).getTime();
+
 const handler = async () => {
   try {
     const start = new Date();
@@ -105,15 +107,14 @@ const handler = async () => {
     let updated = 0;
     let offset = 0;
 
-    const stored = {} as { [key: string]: { old_id: string; updated_at: Date } };
-    await prisma.mission.findMany({ select: { old_id: true, updated_at: true } }).then((data) => data.forEach((d) => (stored[d.old_id] = d)));
-    console.log(`[Missions] Found ${Object.keys(stored).length} docs in database.`);
+    const count = await prisma.mission.count();
+    console.log(`[Missions] Found ${count} docs in database.`);
     const partners = {} as { [key: string]: string };
     await prisma.partner.findMany({ select: { id: true, old_id: true } }).then((data) => data.forEach((d) => (partners[d.old_id] = d.id)));
 
     const fourteenDaysAgo = new Date();
     fourteenDaysAgo.setDate(fourteenDaysAgo.getDate() - 14);
-    const where = { createdAt: { $gte: fourteenDaysAgo } };
+    const where = { $or: [{ createdAt: { $gte: fourteenDaysAgo } }, { updatedAt: { $gte: fourteenDaysAgo } }] };
 
     while (true) {
       const data = await MissionModel.find(where).limit(BULK_SIZE).skip(offset).lean();
@@ -122,13 +123,23 @@ const handler = async () => {
       const dataToCreate = [] as PrismaMission[];
       const dataToUpdate = [] as PrismaMission[];
       console.log(`[Missions] Processing ${data.length} docs.`);
+
+      // Fetch all existing missions in one go
+      const stored = {} as { [key: string]: PrismaMission };
+      await prisma.mission
+        .findMany({
+          where: { old_id: { in: data.map((hit) => hit._id.toString()) } },
+        })
+        .then((data) => data.forEach((d) => (stored[d.old_id] = d)));
+
       for (const hit of data) {
-        const exists = stored[hit._id.toString()];
         const obj = buildData(hit, partners);
         if (!obj) continue;
-        if (exists && new Date(exists.updated_at).getTime() !== obj.updated_at.getTime()) dataToUpdate.push(obj);
-        else if (!exists) dataToCreate.push(obj);
+
+        if (stored[hit._id.toString()] && !isDateEqual(stored[hit._id.toString()].updated_at, obj.updated_at)) dataToUpdate.push(obj);
+        else if (!stored[hit._id.toString()]) dataToCreate.push(obj);
       }
+
       console.log(`[Missions] ${dataToCreate.length} docs to create, ${dataToUpdate.length} docs to update.`);
 
       // Create data

@@ -1,13 +1,12 @@
 name: Deploy widget volontariat staging
 
 on:
-  workflow_dispatch:
-  # push:
-  #   branches:
-  #     - staging
-  #   paths:
-  #     - ".github/workflows/deploy-widget-volontariat-staging.yml"
-  #     - "widget-volontariat/**"
+  push:
+    branches:
+      - staging
+    paths:
+      - ".github/workflows/deploy-widget-volontariat-staging.yml"
+      - "widget-volontariat/**"
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -23,7 +22,7 @@ jobs:
         with:
           host: sc.api-engagement-dev.fr
           username: "root"
-          key: ${{ secrets.SCW_SSH_KEY }}
+          key: ${{ secrets.SSH_KEY_STAGING }}
           script: |
             cd api-engagement/widget-volontariat
             git checkout staging

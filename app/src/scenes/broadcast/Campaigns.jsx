@@ -101,7 +101,7 @@ const Campaigns = () => {
         </div>
         <div className="flex items-center gap-4">
           {user.role === "admin" && (
-            <Link to="/campaign/new" className="button flex items-center bg-blue-dark text-white hover:bg-blue-main">
+            <Link to="/broadcast/campaign/new" className="button flex items-center bg-blue-dark text-white hover:bg-blue-main">
               Nouvelle campagne <RiAddFill className="ml-2" />
             </Link>
           )}
@@ -144,7 +144,7 @@ const Campaigns = () => {
           renderItem={(item) => (
             <>
               {user.role === "admin" ? (
-                <Link to={`/campaign/${item._id}`} className={`flex-1 px-3 text-blue-dark ${item.active ? "opacity-100" : "opacity-50"}`}>
+                <Link to={`/broadcast/campaign/${item._id}`} className={`flex-1 px-3 text-blue-dark ${item.active ? "opacity-100" : "opacity-50"}`}>
                   {item.name}
                 </Link>
               ) : (

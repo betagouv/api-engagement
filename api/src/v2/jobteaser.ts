@@ -2,11 +2,10 @@ import { NextFunction, Response, Router } from "express";
 import passport from "passport";
 import zod from "zod";
 
-import { HydratedDocument } from "mongoose";
 import { captureMessage, INVALID_BODY, NOT_FOUND } from "../error";
 import MissionModel from "../models/mission";
 import RequestModel from "../models/request";
-import { Mission } from "../types";
+import { postMessage } from "../services/slack";
 import { PublisherRequest } from "../types/passport";
 
 const router = Router();
@@ -24,7 +23,7 @@ router.use(async (req: PublisherRequest, res: Response, next: NextFunction) => {
       method: req.method,
       key: req.headers["x-api-key"] || req.headers["apikey"],
       header: req.headers,
-      route: `/v2/leboncoin${req.route.path}`,
+      route: `/v2/jobteaser${req.route.path}`,
       query: req.query,
       params: req.params,
       body: req.body,
@@ -38,23 +37,14 @@ router.use(async (req: PublisherRequest, res: Response, next: NextFunction) => {
   next();
 });
 
-const STATUS_MAP = {
-  ad_online: "ACCEPTED",
-  ad_edited: "EDITED",
-  ad_deleted: "DELETED",
-  ad_rejected_technical: "REFUSED",
-  ad_rejected_moderation: "REFUSED",
-} as { [key: string]: "ACCEPTED" | "EDITED" | "DELETED" | "REFUSED" };
-
-router.post("/feedback", passport.authenticate(["leboncoin"], { session: false }), async (req: PublisherRequest, res: Response, next: NextFunction) => {
+router.post("/feedback", passport.authenticate(["jobteaser"], { session: false }), async (req: PublisherRequest, res: Response, next: NextFunction) => {
   try {
     const body = zod
       .object({
-        partner_unique_reference: zod.string(),
-        site: zod.string(),
-        status: zod.string(),
+        missionId: zod.string(),
+        status: zod.enum(["ACCEPTED", "PENDING", "DELETED", "REFUSED"]),
         url: zod.string().optional(),
-        note: zod.string().optional(),
+        comment: zod.string().optional(),
       })
       .passthrough()
       .safeParse(req.body);
@@ -64,26 +54,30 @@ router.post("/feedback", passport.authenticate(["leboncoin"], { session: false }
       return res.status(400).send({ ok: false, code: INVALID_BODY, message: body.error });
     }
 
-    let mission = null as HydratedDocument<Mission> | null;
-    if (body.data.partner_unique_reference.length === 24) {
-      mission = await MissionModel.findOne({ _id: body.data.partner_unique_reference });
-    } else {
-      mission = await MissionModel.findOne({ _old_id: body.data.partner_unique_reference });
-    }
-
+    const mission = await MissionModel.findOne({ _id: body.data.missionId });
     if (!mission) {
       captureMessage("Mission not found", JSON.stringify(body.data, null, 2));
       return res.status(404).send({ ok: false, code: NOT_FOUND, message: "Mission not found" });
     }
 
-    mission.leboncoinStatus = STATUS_MAP[body.data.status];
-    mission.leboncoinUrl = body.data.url;
-    mission.leboncoinComment = body.data.note;
-    mission.leboncoinUpdatedAt = new Date();
+    if (body.data.status === "REFUSED") {
+      await postMessage(
+        {
+          title: `Mission refusée sur JobTeaser`,
+          text: `La mission ${mission.title} (${mission._id}) a été refusée sur JobTeaser\n\turl: https://app.api-engagement.beta.gouv.fr/mission/${mission._id}\n\tstatut: ${body.data.status}\n\traison: ${body.data.comment}`,
+        },
+        "C080H9MH56W",
+      );
+    }
+
+    mission.jobteaserStatus = body.data.status;
+    mission.jobteaserUrl = body.data.url;
+    mission.jobteaserComment = body.data.comment;
+    mission.jobteaserUpdatedAt = new Date();
 
     await mission.save();
 
-    return res.status(200).send({ result: { code: 200, message: "Success, ad status recorded" } });
+    return res.status(200).send({ ok: true });
   } catch (error) {
     next(error);
   }

@@ -1,3 +1,17 @@
+export const STATUS_PLR = {
+  PENDING: "À modérer",
+  ONGOING: "En cours de traitement",
+  ACCEPTED: "Acceptées",
+  REFUSED: "Refusées",
+};
+
+export const LEBONCOIN_STATUS = {
+  ACCEPTED: "Acceptées",
+  EDITED: "Modifiées",
+  DELETED: "Supprimées",
+  REFUSED: "Refusées",
+};
+
 export const DOMAINS = {
   environnement: "Environnement",
   nature: "Environnement",
