@@ -159,6 +159,7 @@ export interface Mission {
   geolocStatus: "ENRICHED_BY_PUBLISHER" | "ENRICHED" | "NOT_FOUND" | "NO_DATA" | "SHOULD_ENRICH" | "FAILED";
   rnaStatus: "ENRICHED_BY_DATA_SUBVENTION" | "ENRICHED" | "NEED_VERIFY" | "NOT_FOUND" | "NO_DATA" | "SHOULD_ENRICH" | "FAILED";
   places: number;
+  placesStatus: "ATTRIBUTED_BY_API" | "GIVEN_BY_PARTNER";
   originalPlaces: number | undefined;
   domain: string;
   domainOriginal: string | undefined;
@@ -460,14 +461,33 @@ export interface Kpi {
   _id: Schema.Types.ObjectId;
 
   date: Date;
+
   benevolatAvailableMissionCount: number;
   volontariatAvailableMissionCount: number;
 
-  availablePlaceCount: number;
-  availableOriginalPlaceCount: number;
+  availableBenevolatPlaceGivenCount: number;
+  availableVolontariatPlaceGivenCount: number;
 
-  availableMissionCount: number;
-  activeMissionCount: number;
+  availableBenevolatPlaceAttributedCount: number;
+  availableVolontariatPlaceAttributedCount: number;
+
+  percentageBenevolatPlacesGiven: number;
+  percentageVolontariatPlacesGiven: number;
+
+  percentageBenevolatPlacesAttributed: number;
+  percentageVolontariatPlacesAttributed: number;
+
+  benevolatPrintMissionCount: number;
+  volontariatPrintMissionCount: number;
+
+  benevolatClickMissionCount: number;
+  volontariatClickMissionCount: number;
+
+  benevolatApplyMissionCount: number;
+  volontariatApplyMissionCount: number;
+
+  benevolatAccountMissionCount: number;
+  volontariatAccountMissionCount: number;
 
   createdAt: Date;
   updatedAt: Date;
