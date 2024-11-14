@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { Helmet } from "react-helmet-async";
 import { HiLink } from "react-icons/hi";
 import { RiAddFill, RiFileCopyLine } from "react-icons/ri";
 import { Link } from "react-router-dom";
@@ -81,6 +82,9 @@ const Campaigns = () => {
 
   return (
     <div className="space-y-12 p-12">
+      <Helmet>
+        <title>Diffuser des missions - Campagnes - API Engagement</title>
+      </Helmet>
       <div className="flex items-center gap-32 justify-between">
         <div className="flex items-center gap-4 flex-1">
           <input className="input flex-1" placeholder="Chercher par nom" onChange={handleSearch} />

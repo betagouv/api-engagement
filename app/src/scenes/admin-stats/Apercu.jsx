@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { Helmet } from "react-helmet-async";
 import { HiChevronRight } from "react-icons/hi";
 import { Link, useSearchParams } from "react-router-dom";
 
@@ -27,6 +28,9 @@ const Apercu = () => {
 
   return (
     <div className="space-y-12 p-12">
+      <Helmet>
+        <title>Administration - Statistiques - Aperçu - API Engagement</title>
+      </Helmet>
       <div className="flex items-end gap-4">
         <div className="space-y-2">
           <label className="text-sm text-gray-dark uppercase font-semibold">Période</label>

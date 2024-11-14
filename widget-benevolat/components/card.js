@@ -17,7 +17,7 @@ const Card = ({ widget, mission, color, request }) => {
       <div className="h-48">
         <Image
           src={mission.domainLogo}
-          alt={""}
+          alt={mission.title}
           style={{
             width: "100%",
             height: "100%",

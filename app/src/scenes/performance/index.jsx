@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { Helmet } from "react-helmet-async";
 import { Link, Route, Routes, useLocation, useSearchParams } from "react-router-dom";
 
 import useStore from "../../services/store";
@@ -27,6 +28,9 @@ const Performance = () => {
 
   return (
     <div className="space-y-12">
+      <Helmet>
+        <title>Performance - Au global - API Engagement</title>
+      </Helmet>
       <h1 className="text-4xl font-bold">Votre activité {flux === "from" ? "de diffuseur" : "d'annonceur"}</h1>
 
       <div>

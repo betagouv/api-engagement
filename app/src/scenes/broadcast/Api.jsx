@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { Helmet } from "react-helmet-async";
 import { RiBookletFill, RiFileCopyFill } from "react-icons/ri";
 import { toast } from "react-toastify";
 
@@ -47,6 +48,9 @@ const Api = () => {
 
   return (
     <div className="space-y-12 p-12">
+      <Helmet>
+        <title>Diffuser des missions - Flux par API - API Engagement</title>
+      </Helmet>
       <div className="flex items-center justify-between">
         <div className="space-y-2">
           <h2 className="text-3xl font-bold">Diffuser des missions partenaires par API</h2>

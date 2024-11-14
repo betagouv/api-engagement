@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { Helmet } from "react-helmet-async";
 import { RiFileDownloadLine } from "react-icons/ri";
 import { useNavigate, useSearchParams } from "react-router-dom";
 
@@ -126,6 +127,9 @@ const Broacaster = () => {
 
   return (
     <div className="space-y-12 p-12">
+      <Helmet>
+        <title>Administration - Statistiques - Diffuseurs - API Engagement</title>
+      </Helmet>
       <div className="flex justify-between">
         <h2 className="text-2xl font-bold">{total.broadcasters} diffuseurs</h2>
         <button className="py-2 px-4 flex items-center text-blue-900 hover:bg-gray-hover border transition delay-50 " onClick={handleExport} disabled={exporting}>

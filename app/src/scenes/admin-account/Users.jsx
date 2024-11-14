@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { Helmet } from "react-helmet-async";
 import { HiOutlinePlus } from "react-icons/hi";
 import { RiInformationLine, RiLoginBoxLine } from "react-icons/ri";
 import { Link } from "react-router-dom";
@@ -65,6 +66,9 @@ const Users = () => {
 
   return (
     <div className="space-y-12 p-12">
+      <Helmet>
+        <title>Administration - Utilisateurs - API Engagement</title>
+      </Helmet>
       <div className="flex items-center justify-between">
         <div>
           <h2 className="text-3xl font-bold">Liste des utilisateurs</h2>

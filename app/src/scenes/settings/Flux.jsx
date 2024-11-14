@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { Helmet } from "react-helmet-async";
 import { RiCheckboxCircleFill, RiCloseCircleFill, RiCloseFill } from "react-icons/ri";
 import { toast } from "react-toastify";
 
@@ -56,6 +57,9 @@ const Flux = () => {
 
   return (
     <div className="space-y-12 p-12">
+      <Helmet>
+        <title>Paramètres - Flux de missions - API Engagement</title>
+      </Helmet>
       <div className="border border-gray-border p-8 space-y-8">
         <h2 className="text-3xl font-bold">Configurer votre flux de missions</h2>
 
