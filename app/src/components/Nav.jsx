@@ -166,28 +166,27 @@ const PublisherMenu = ({ options, value, onChange }) => {
   return (
     <div className="relative h-full" ref={ref}>
       <button
-        className="flex h-full cursor-pointer items-center justify-between gap-4 px-4 text-sm data-[focus]:bg-gray-hover hover:bg-gray-hover"
+        className="flex h-full cursor-pointer items-center justify-between gap-4 px-4 text-sm hover:bg-gray-hover focus:outline-none focus-visible:ring-2 focus-visible:ring-[#015fcc]"
         onClick={() => setIsOpen(!isOpen)}
       >
         <span className="font-semibold">{value.name}</span>
         <RiArrowDownSLine className={`text-lg ${isOpen ? "transform rotate-180" : ""}`} />
       </button>
 
-      <div className={`absolute z-10 origin-top-right mt-1 transition duration-200 ease-in-out ${isOpen ? "" : "scale-95 opacity-0"}`}>
+      <div className={`absolute z-10 origin-top-right mt-1 transition duration-200 ease-in-out ${isOpen ? "" : "scale-95 opacity-0 pointer-events-none"}`}>
         {isOpen && (
           <div className={`w-72 bg-white border border-gray-border shadow-lg focus:outline-none`}>
-            <div className="flex items-center gap-4 p-3 border-b border-gray-border">
+            <div className="flex items-center gap-4 p-3 border-b border-gray-border focus-visible:ring-2 focus-visible:ring-[#015fcc]">
               <RiSearchLine />
-              <input className="w-full focus-visible:outline-none" onChange={(e) => setSearch(e.target.value)} />
+              <input className="w-full focus:outline-none rounded" onChange={(e) => setSearch(e.target.value)} />
             </div>
-            <div className="max-h-80 divide-y divide-gray-border overflow-y-scroll" tabIndex={0} onBlur={() => setIsOpen(false)}>
+            <div className="max-h-80 divide-y divide-gray-border overflow-y-scroll">
               {options
                 .filter((option) => option.name.toLowerCase().includes(search.toLowerCase()))
                 .map((option, index) => (
                   <button
                     key={index}
-                    tabIndex={-1}
-                    className="w-full p-4 text-sm text-left hover:bg-gray-hover flex items-center justify-between"
+                    className="w-full p-4 text-sm text-left hover:bg-gray-hover focus:outline-none focus-visible:ring-2 focus-visible:ring-[#015fcc] flex items-center justify-between"
                     onClick={() => {
                       setSearch("");
                       setIsOpen(false);
