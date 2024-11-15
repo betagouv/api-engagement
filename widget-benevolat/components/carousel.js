@@ -30,6 +30,16 @@ export const Carousel = ({ widget, missions, color, request }) => {
     setCurrentSlide((prev) => Math.max(prev - slidesToShow, 0));
   };
 
+  if (missions.length === 0) {
+    return (
+      <div className="w-full">
+        <div className="flex items-center justify-center py-4">
+          <p className="text-lg font-semibold">Aucune mission ne correspond à vos critères de recherche</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <main className="w-full relative">
       <div className="overflow-hidden">

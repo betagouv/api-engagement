@@ -102,11 +102,7 @@ const Home = ({ widget, missions, options, total, request, environment }) => {
   if (!widget) return <div className="w-full h-full flex items-center justify-center">Erreur lors du chargement du widget</div>;
 
   return (
-    <div
-      className={`md:px-12 h-full flex flex-col justify-around items-center gap-6 py-6 ${
-        widget.style === "carousel" ? "max-h-[780px] md:max-h-[686px]" : "max-h-[3424px] sm:max-h-[1862px] lg:max-h-[1314px]"
-      }`}
-    >
+    <div className="md:px-12 h-auto flex flex-col justify-start items-center gap-6 py-6">
       <header className="max-w-[72rem] w-full space-y-4 md:space-y-8">
         <div className="flex flex-col md:flex-row md:justify-between">
           <h1 className="font-bold text-3xl py-2 md:p-0">Trouvez une mission de bénévolat</h1>

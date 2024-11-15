@@ -27,7 +27,6 @@ import LogoSC from "../public/images/logo-sc.png";
  */
 
 const Home = ({ widget, missions, options, total, request, environment }) => {
-  const carousel = widget?.style === "carousel";
   const router = useRouter();
   const [filters, setFilters] = useState({
     start: null,
@@ -40,7 +39,7 @@ const Home = ({ widget, missions, options, total, request, environment }) => {
     beneficiary: [],
     country: [],
     location: null,
-    size: carousel ? 40 : 6,
+    size: widget?.style === "carousel" ? 40 : 6,
     page: 1,
   });
   const [showFilters, setShowFilters] = useState(false);
@@ -113,10 +112,7 @@ const Home = ({ widget, missions, options, total, request, environment }) => {
   if (!widget) return <div className="w-full h-full flex items-center justify-center">Erreur lors du chargement du widget</div>;
 
   return (
-    <div
-      className={`pt-4 md:pt-6 overflow-hidden flex flex-col justify-around items-center gap-6 py-6 h-full
-    ${carousel ? `md:px-12 max-h-[670px] md:max-h-[600px]` : `max-h-[2400px] sm:max-h-[1350px] lg:max-h-[1050px]`}`}
-    >
+    <div className="md:px-12 h-auto flex flex-col justify-start items-center gap-6 py-6">
       <header className="w-full max-w-[72rem]">
         <div className="flex flex-col md:flex-row md:justify-between mb-3 md:mb-8">
           <h1 className="font-bold text-3xl py-2 md:p-0">Trouvez une mission de Service Civique</h1>
@@ -138,8 +134,8 @@ const Home = ({ widget, missions, options, total, request, environment }) => {
         </div>
       </header>
 
-      <div className={`w-full max-w-[72rem] ${showFilters ? (carousel ? "hidden" : "opacity-40") : ""}`}>
-        {carousel ? (
+      <div className={`w-full max-w-[72rem] ${showFilters ? (widget?.style === "carousel" ? "hidden" : "opacity-40") : ""}`}>
+        {widget?.style === "carousel" ? (
           <Carousel widget={widget} missions={missions} color={color} total={total} request={request} />
         ) : (
           <Grid
