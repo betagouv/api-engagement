@@ -19,23 +19,24 @@ const handler = async () => {
       captureException(`Report generation with failure`, `Errors while genrating report`);
     }
 
-    console.log(`[Report] Sending report for ${year}-${month}`);
-    const sendingRes = await send(year, month);
-    console.log(`[Report] Sent ${sendingRes.count} report, ${sendingRes.skipped.length} skipped and ${sendingRes.errors.length} errors`);
-    if (sendingRes.errors.length > 0) {
-      console.error(`[Report] Errors`, JSON.stringify(sendingRes.errors, null, 2));
-      captureException(`Report sending with failure`, `Errors while sending report`);
-    }
+    // Wait to see generation before sending
 
-    console.log(`[Report] Sending slack message for ${year}-${month}`);
+    // console.log(`[Report] Sending report for ${year}-${month}`);
+    // const sendingRes = await send(year, month);
+    // console.log(`[Report] Sent ${sendingRes.count} report, ${sendingRes.skipped.length} skipped and ${sendingRes.errors.length} errors`);
+    // if (sendingRes.errors.length > 0) {
+    //   console.error(`[Report] Errors`, JSON.stringify(sendingRes.errors, null, 2));
+    //   captureException(`Report sending with failure`, `Errors while sending report`);
+    // }
+    // console.log(`[Report] Sending slack message for ${year}-${month}`);
 
-    await postMessage(
-      {
-        title: `Rapports d'impact du ${month + 1 < 10 ? `0${month + 1}` : month + 1}/${year} générés et envoyés`,
-        text: `Rapport générés: ${generationRes.count}, emails envoyés: ${sendingRes.count}, non envoyés: ${sendingRes.skipped.length}, erreurs: ${generationRes.errors.length + sendingRes.errors.length}\n\nListe des rapports d'impact du mois [ici](https://app.api-engagement.beta.gouv.fr/admin-report?month=${month}&year=${year})`,
-      },
-      SLACK_PRODUCT_CHANNEL_ID,
-    );
+    // await postMessage(
+    //   {
+    //     title: `Rapports d'impact du ${month + 1 < 10 ? `0${month + 1}` : month + 1}/${year} générés et envoyés`,
+    //     text: `Rapport générés: ${generationRes.count}, emails envoyés: ${sendingRes.count}, non envoyés: ${sendingRes.skipped.length}, erreurs: ${generationRes.errors.length + sendingRes.errors.length}\n\nListe des rapports d'impact du mois [ici](https://app.api-engagement.beta.gouv.fr/admin-report?month=${month}&year=${year})`,
+    //   },
+    //   SLACK_PRODUCT_CHANNEL_ID,
+    // );
   } catch (error: any) {
     console.error(error);
     captureException(`Report generation failed`, `${error.message} while generating report`);

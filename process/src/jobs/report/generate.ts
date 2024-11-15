@@ -1,5 +1,5 @@
-import fs from "fs";
 import puppeteer, { Browser } from "puppeteer";
+import { exec } from "child_process";
 
 import PublisherModel from "../../models/publisher";
 import ReportModel from "../../models/report";
@@ -18,6 +18,43 @@ const fetchData = async (publisher: Publisher, year: number, month: number) => {
     console.log(`[${publisher.name}] Error fetching data`);
     return null;
   }
+};
+
+const startNextAppWithPM2 = async () => {
+  return new Promise((resolve, reject) => {
+    exec("npx pm2 start pdf", (error, stdout, stderr) => {
+      if (error) {
+        console.error(`Error starting Next.js app with PM2: ${error.message}`);
+        reject(error);
+      }
+      if (stderr) {
+        console.error(`PM2 stderr: ${stderr}`);
+      }
+      console.log(`PM2 stdout: ${stdout}`);
+      resolve(stdout);
+    });
+  });
+};
+
+const stopNextAppWithPM2 = async () => {
+  return new Promise((resolve, reject) => {
+    exec("npx pm2 stop pdf", (error, stdout, stderr) => {
+      if (error) {
+        console.error(`Error stopping Next.js app with PM2: ${error.message}`);
+        reject(error);
+      }
+      if (stderr) {
+        console.error(`PM2 stderr: ${stderr}`);
+      }
+      console.log(`PM2 stdout: ${stdout}`);
+      resolve(stdout);
+    });
+  });
+};
+
+const pingNextApp = async () => {
+  const response = await fetch("http://localhost:3000/");
+  return response.ok;
 };
 
 const pdfGeneration = async (browser: Browser, publisher: Publisher, year: number, month: number) => {
@@ -126,12 +163,20 @@ const pdfGeneration = async (browser: Browser, publisher: Publisher, year: numbe
 };
 
 export const generate = async (year: number, month: number) => {
+  await startNextAppWithPM2();
+  // wait 10 seconds
+  await new Promise((resolve) => setTimeout(resolve, 10000));
+  const isNextAppReady = await pingNextApp();
+  if (!isNextAppReady) {
+    console.log(`[Report] Next.js app is not ready`);
+    return { count: 0, errors: [] };
+  }
+
   const browser = await puppeteer.launch({ headless: true, args: ["--no-sandbox", "--disable-setuid-sandbox"] });
   const publishers = await PublisherModel.find({ automated_report: true });
-  // const publishers = await PublisherModel.find({ _id: "5f5931496c7ea514150a818f" });
 
   let count = 0;
-  const errors = [];
+  const errors = [] as { id: string; name: string; error: string }[];
 
   for (let i = 0; i < publishers.length; i++) {
     const publisher = publishers[i];
@@ -140,5 +185,8 @@ export const generate = async (year: number, month: number) => {
     count += 1;
     errors.push(...res.errors);
   }
+
+  await stopNextAppWithPM2();
+
   return { count, errors };
 };
