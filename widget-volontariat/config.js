@@ -11,7 +11,7 @@ const DOMAINS = {
   "solidarite-insertion": {
     label: "Solidarité",
     icon: "",
-    color: "#c65800",
+    color: "#BC5401",
   },
   sante: {
     label: "Santé",
@@ -26,7 +26,7 @@ const DOMAINS = {
   education: {
     label: "Éducation pour tous",
     icon: "",
-    color: "#00829c",
+    color: "#007C94",
   },
   sport: {
     label: "Sport",
