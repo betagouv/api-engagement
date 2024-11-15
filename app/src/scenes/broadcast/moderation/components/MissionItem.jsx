@@ -49,7 +49,10 @@ const MissionItem = ({ data, history, selected, onChange, onSelect, onFilter }) 
   return (
     <>
       <span className="flex w-[5%] items-center">
-        <input type="checkbox" className="checkbox" onChange={handleSelectModeration} checked={selected} />
+        <label htmlFor="moderation-select" className="sr-only">
+          Sélectionner la mission
+        </label>
+        <input type="checkbox" className="checkbox" name="moderation-select" onChange={handleSelectModeration} checked={selected} />
       </span>
       <div className="flex flex-1 flex-col justify-between">
         <div className="my-2 line-clamp-3 flex items-center text-base font-semibold hover:cursor-pointer hover:text-blue-dark" onClick={handleMissionClick}>

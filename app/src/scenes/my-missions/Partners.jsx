@@ -58,7 +58,10 @@ const PublishersTab = () => {
         </div>
 
         <div className="flex overflow-hidden rounded-t border-b border-b-blue-dark">
-          <input className="input flex-1" placeholder="Chercher par nom" onChange={handleSearch} />
+          <label htmlFor="search-partner" className="sr-only">
+            Chercher par nom
+          </label>
+          <input className="input flex-1" name="search-partner" placeholder="Chercher par nom" onChange={handleSearch} />
         </div>
       </div>
       <div className="grid grid-cols-4 gap-10">

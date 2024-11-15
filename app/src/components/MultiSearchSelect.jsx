@@ -32,7 +32,11 @@ const MultiSearchSelect = ({ options, value, onChange, placeholder, className, l
   return (
     <div className="relative w-full " ref={ref}>
       <div className="relative w-full">
+        <label htmlFor="multi-search-select" className="sr-only">
+          {placeholder}
+        </label>
         <input
+          name="multi-search-select"
           className={`input w-full ${selected.length ? "pr-16 placeholder:text-black" : "pr-8"}`}
           onChange={(e) => setSearch(e.target.value)}
           placeholder={selected.length > 0 ? `${selected.length} sélections` : placeholder}

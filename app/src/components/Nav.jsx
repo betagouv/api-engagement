@@ -178,7 +178,10 @@ const PublisherMenu = ({ options, value, onChange }) => {
           <div className={`w-72 bg-white border border-gray-border shadow-lg focus:outline-none`}>
             <div className="flex items-center gap-4 p-3 border-b border-gray-border focus-visible:ring-2 focus-visible:ring-[#015fcc]">
               <RiSearchLine />
-              <input className="w-full focus:outline-none rounded" onChange={(e) => setSearch(e.target.value)} />
+              <label htmlFor="publisher-search" className="sr-only">
+                Rechercher un partenaire
+              </label>
+              <input name="publisher-search" className="w-full focus:outline-none rounded" onChange={(e) => setSearch(e.target.value)} />
             </div>
             <div className="max-h-80 divide-y divide-gray-border overflow-y-scroll">
               {options

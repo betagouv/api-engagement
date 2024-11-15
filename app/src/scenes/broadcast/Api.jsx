@@ -65,7 +65,10 @@ const Api = () => {
       <div className="border border-gray-border p-6">
         <div className="flex items-center justify-between gap-4 border-b border-b-gray-main pb-6">
           <p className="w-1/4 font-semibold">Votre clé API</p>
-          <input className="input flex-1" disabled={true} value={publisher.apikey || ""} />
+          <label htmlFor="apikey" className="sr-only">
+            Votre clé API
+          </label>
+          <input className="input flex-1" name="apikey" disabled={true} value={publisher.apikey || ""} />
           <button className="flex cursor-pointer items-center border border-blue-dark p-2 text-blue-dark" onClick={handleCopy}>
             <RiFileCopyFill />
           </button>

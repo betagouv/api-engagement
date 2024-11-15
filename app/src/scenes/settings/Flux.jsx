@@ -65,7 +65,6 @@ const Flux = () => {
 
         <div className="flex justify-between gap-6 items-center">
           <label className="font-semibold flex-none w-[35%]">Lien du fichier XML à synchroniser</label>
-
           <div className="flex flex-1 gap-2">
             <input className="input disabled:opacity-80 w-full bg-[#F5F5FE] border border-[#E3E3FD]" value={publisher.feed} disabled={true} />
             {user.role === "admin" && (
@@ -83,7 +82,6 @@ const Flux = () => {
 
         <div className="flex justify-between gap-6 items-center">
           <label className="font-semibold w-[35%]">Dernière synchronisation</label>
-
           <div className="flex flex-1 gap-2">
             {imports.length > 0 && lastSync < new Date(Date.now() - 24 * 60 * 60 * 1000) ? (
               <div className="items-center">

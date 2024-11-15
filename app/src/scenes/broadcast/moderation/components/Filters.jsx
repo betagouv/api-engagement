@@ -17,8 +17,12 @@ const Filters = ({ filters, onChange, options }) => {
       <div className="mb-4 flex w-full justify-start">
         <div className="flex w-[40%] overflow-hidden rounded-t border-b border-b-blue-dark">
           <div className="flex items-center w-full bg-gray-light px-3 py-2 text-sm">
+            <label htmlFor="moderation-search" className="sr-only">
+              Rechercher
+            </label>
             <input
               className="flex-1 bg-gray-light focus:outline-none"
+              name="moderation-search"
               placeholder="Rechercher"
               value={(filters.search || "").toString()}
               onChange={(e) => onChange({ ...filters, search: e.target.value })}

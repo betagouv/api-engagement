@@ -128,8 +128,10 @@ const Publishers = () => {
       <div className="border border-gray-border p-6">
         <div className="mb-6 flex items-center gap-4">
           <p className="font-semibold">{`${displayedPublishers.length} partenaire${displayedPublishers.length > 1 ? "s" : ""}`}</p>
-
-          <input className="input flex-1" placeholder="Chercher par nom" onChange={handleSearch} />
+          <label htmlFor="publisher-search" className="sr-only">
+            Rechercher par nom
+          </label>
+          <input name="publisher-search" className="input flex-1" placeholder="Chercher par nom" onChange={handleSearch} />
 
           <select className="input w-[20%]" value={filters.role} onChange={(e) => setFilters({ ...filters, role: e.target.value })}>
             <option value="">Tous les rôles</option>

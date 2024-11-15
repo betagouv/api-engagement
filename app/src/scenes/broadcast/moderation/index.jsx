@@ -201,7 +201,11 @@ const Moderation = () => {
           renderHeader={() => (
             <>
               <h4 className="flex w-[5%] items-center">
+                <label htmlFor="moderation-select-all" className="sr-only">
+                  Sélectionner toutes les missions
+                </label>
                 <input
+                  name="moderation-select-all"
                   type="checkbox"
                   className="checkbox"
                   checked={selected.length === data.length}

@@ -201,10 +201,13 @@ const Edit = () => {
               {values.role_promoteur === true && (
                 <>
                   <div className="flex items-center gap-3">
+                    <label htmlFor="mission_type_benevolat" className="sr-only">
+                      Bénévolat
+                    </label>
                     <input
                       type="radio"
                       className="checkbox"
-                      name="mission_type"
+                      name="mission_type_benevolat"
                       value="benevolat"
                       onChange={(e) => setValues({ ...values, mission_type: e.target.value })}
                       checked={values.mission_type === "benevolat"}
@@ -212,10 +215,13 @@ const Edit = () => {
                     <span>Bénévolat</span>
                   </div>
                   <div className="flex items-center gap-3">
+                    <label htmlFor="mission_type_volontariat" className="sr-only">
+                      Volontariat
+                    </label>
                     <input
                       type="radio"
                       className="checkbox"
-                      name="mission_type"
+                      name="mission_type_volontariat"
                       value="volontariat"
                       onChange={(e) => setValues({ ...values, mission_type: e.target.value })}
                       checked={values.mission_type === "volontariat"}
@@ -231,6 +237,9 @@ const Edit = () => {
             <label className="mb-2 text-sm">Diffuseur</label>
             <div className="mb-2 flex items-center gap-12">
               <div className="flex items-center gap-3">
+                <label htmlFor="role_annonceur_api" className="sr-only">
+                  API
+                </label>
                 <input
                   type="checkbox"
                   className="checkbox"
@@ -241,6 +250,9 @@ const Edit = () => {
                 <span>API</span>
               </div>
               <div className="flex items-center gap-3">
+                <label htmlFor="role_annonceur_widget" className="sr-only">
+                  Widget
+                </label>
                 <input
                   type="checkbox"
                   className="checkbox"
@@ -251,6 +263,9 @@ const Edit = () => {
                 <span>Widget</span>
               </div>
               <div className="flex items-center gap-3">
+                <label htmlFor="role_annonceur_campagne" className="sr-only">
+                  Campagne
+                </label>
                 <input
                   type="checkbox"
                   className="checkbox"
@@ -289,7 +304,11 @@ const Edit = () => {
                     return (
                       <>
                         <div className="w-24 pl-3">
+                          <label htmlFor="publishers" className="sr-only">
+                            Diffuser des missions de {item.name}
+                          </label>
                           <input
+                            name="publishers"
                             type="checkbox"
                             className="checkbox"
                             onChange={(e) => {
@@ -388,6 +407,9 @@ const Edit = () => {
                     <span className="flex-1 truncate">{item.email}</span>
                     {values.automated_report && (
                       <div className="flex-1 text-center">
+                        <label htmlFor="send_report_to" className="sr-only">
+                          Envoyer le rapport
+                        </label>
                         <input
                           className="checkbox "
                           type="checkbox"
@@ -417,7 +439,9 @@ const Edit = () => {
             </label>
             <div className="border border-gray-border px-6">
               <div className="flex h-12 w-full items-center border-b border-gray-border px-4 py-2">
-                <span className="w-1/4">Rapport automatisé</span>
+                <label className="w-1/4" htmlFor="automated_report">
+                  Rapport automatisé
+                </label>
                 <div className="flex w-3/4 justify-between">
                   <input
                     className="checkbox"
@@ -429,7 +453,9 @@ const Edit = () => {
                 </div>
               </div>
               <div className="flex h-12 w-full items-center px-4 py-2">
-                <span className="w-1/4">Créateur</span>
+                <label className="w-1/4" htmlFor="lead">
+                  Créateur
+                </label>
                 <div className="flex w-3/4 justify-between">
                   <input className="border-none px-0" type="text" name="lead" value={values.lead} onChange={(e) => setValues({ ...values, lead: e.target.value })} />
                 </div>

@@ -117,11 +117,24 @@ const Create = () => {
                 <span>Annonceur</span>
               </div>
               <div className="flex items-center gap-3">
-                <input type="radio" className="checkbox" name="mission_type" value="benevolat" onChange={handleChange} checked={values.mission_type === "benevolat"} />
+                <label htmlFor="mission_type_benevolat" className="sr-only">
+                  Bénévolat
+                </label>
+                <input type="radio" className="checkbox" name="mission_type_benevolat" value="benevolat" onChange={handleChange} checked={values.mission_type === "benevolat"} />
                 <span>Bénévolat</span>
               </div>
               <div className="flex items-center gap-3">
-                <input type="radio" className="checkbox" name="mission_type" value="volontariat" onChange={handleChange} checked={values.mission_type === "volontariat"} />
+                <label htmlFor="mission_type_volontariat" className="sr-only">
+                  Volontariat
+                </label>
+                <input
+                  type="radio"
+                  className="checkbox"
+                  name="mission_type_volontariat"
+                  value="volontariat"
+                  onChange={handleChange}
+                  checked={values.mission_type === "volontariat"}
+                />
                 <span>Volontariat</span>
               </div>
             </div>
@@ -131,14 +144,23 @@ const Create = () => {
             <label className="mb-2 text-sm">Diffuseur</label>
             <div className="mb-2 flex items-center gap-12">
               <div className="flex items-center gap-3">
+                <label htmlFor="role_annonceur_api" className="sr-only">
+                  API
+                </label>
                 <input type="checkbox" className="checkbox" name="role_annonceur_api" onChange={handleChange} checked={values.role_annonceur_api} />
                 <span>API</span>
               </div>
               <div className="flex items-center gap-3">
+                <label htmlFor="role_annonceur_widget" className="sr-only">
+                  Widget
+                </label>
                 <input type="checkbox" className="checkbox" name="role_annonceur_widget" onChange={handleChange} checked={values.role_annonceur_widget} />
                 <span>Widget</span>
               </div>
               <div className="flex items-center gap-3">
+                <label htmlFor="role_annonceur_campagne" className="sr-only">
+                  Campagne
+                </label>
                 <input type="checkbox" className="checkbox" name="role_annonceur_campagne" onChange={handleChange} checked={values.role_annonceur_campagne} />
                 <span>Campagne</span>
               </div>

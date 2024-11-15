@@ -87,7 +87,10 @@ const Campaigns = () => {
       </Helmet>
       <div className="flex items-center gap-32 justify-between">
         <div className="flex items-center gap-4 flex-1">
-          <input className="input flex-1" placeholder="Chercher par nom" onChange={handleSearch} />
+          <label htmlFor="campaign-search" className="sr-only">
+            Chercher par nom
+          </label>
+          <input className="input flex-1" name="campaign-search" placeholder="Chercher par nom" onChange={handleSearch} />
           <select className="select flex-1" value={filters.toPublisherId} onChange={(e) => setFilters({ ...filters, toPublisherId: e.target.value, page: 1 })}>
             <option className="px-2" value="">
               Tous les annonceurs
