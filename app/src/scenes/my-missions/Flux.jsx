@@ -3,12 +3,13 @@ import { RiCheckboxCircleFill, RiFileDownloadLine, RiInformationLine } from "rea
 import { Link, useSearchParams } from "react-router-dom";
 
 import ErrorIconSvg from "../../assets/svg/error-icon.svg?react";
-import Autocomplete from "../../components/Autocomplete";
 import InfoAlert from "../../components/InfoAlert";
 import Loader from "../../components/Loader";
 import Select from "../../components/NewSelect";
 import TablePagination from "../../components/NewTablePagination";
 import SearchInput from "../../components/SearchInput";
+import SelectCity from "../../components/SelectCity";
+import SelectOrganization from "../../components/SelectOrganization";
 import { STATUS_PLR } from "../../constants";
 import api from "../../services/api";
 import { captureError } from "../../services/error";
@@ -183,8 +184,8 @@ const Flux = () => {
             placeholder="Activité"
             loading={loading}
           />
-          <SelectCity publisherId={publisher._id} value={filters.city} onChange={(city) => setFilters({ ...filters, city })} />
-          <SelectOrganization publisherId={publisher._id} value={filters.organization} onChange={(organization) => setFilters({ ...filters, organization })} />
+          <SelectCity value={filters.city} onChange={(city) => setFilters({ ...filters, city })} />
+          <SelectOrganization value={filters.organization} onChange={(organization) => setFilters({ ...filters, organization })} />
         </div>
       </div>
 
@@ -274,139 +275,6 @@ const Flux = () => {
         </TablePagination>
       </div>
     </div>
-  );
-};
-const SelectOrganization = ({ publisherId, onChange }) => {
-  const [values, setValues] = useState("");
-  const [options, setOptions] = useState([]);
-
-  useEffect(() => {
-    const fetchOptions = async () => {
-      try {
-        if (values === "") {
-          const res = await api.get(`/mission/autocomplete?field=organizationName&search=&publisherId=${publisherId}`);
-          if (!res.ok) throw res;
-          setOptions(
-            res.data.map((org) => ({
-              label: org.key === "" ? "Non renseignée" : org.key,
-              value: org.key,
-            })),
-          );
-        }
-      } catch (error) {
-        captureError(error, "Erreur lors de la récupération des organisations");
-      }
-    };
-
-    fetchOptions();
-  }, [values, publisherId]);
-
-  const handleSearch = async (search) => {
-    if (search.length < 3) {
-      setOptions([]);
-      return;
-    }
-    try {
-      const res = await api.get(`/mission/autocomplete?field=organizationName&search=${search}&publisherId=${publisherId}`);
-      if (!res.ok) throw res;
-      setOptions(
-        res.data.map((org) => ({
-          label: org.key === "" ? "Non renseignée" : org.key,
-          value: org.key,
-        })),
-      );
-    } catch (error) {
-      captureError(error, "Erreur lors de la recherche");
-    }
-  };
-
-  return (
-    <Autocomplete
-      value={values}
-      onChange={(search) => {
-        setValues(search);
-        handleSearch(search);
-      }}
-      onSelect={(org) => {
-        setValues(org ? org.label : "");
-        onChange(org ? org.value : null);
-        setOptions([]);
-      }}
-      options={options}
-      onClear={() => {
-        setValues("");
-        onChange(null);
-      }}
-      placeholder="Organisation"
-      className="w-96"
-    />
-  );
-};
-
-const SelectCity = ({ publisherId, onChange }) => {
-  const [values, setValues] = useState("");
-  const [options, setOptions] = useState([]);
-
-  useEffect(() => {
-    const fetchOptions = async () => {
-      try {
-        if (values === "") {
-          const res = await api.get(`/mission/autocomplete?field=city&search=&publisherId=${publisherId}`);
-          if (!res.ok) throw res;
-          setOptions(
-            res.data.map((city) => ({
-              label: city.key === "" ? "Non renseignée" : city.key,
-              value: city.key,
-            })),
-          );
-        }
-      } catch (error) {
-        captureError(error, "Erreur lors de la récupération des villes");
-      }
-    };
-
-    fetchOptions();
-  }, [values, publisherId]);
-
-  const handleSearch = async (search) => {
-    if (search.length < 3) {
-      setOptions([]);
-      return;
-    }
-    try {
-      const res = await api.get(`/mission/autocomplete?field=city&search=${search}&publisherId=${publisherId}`);
-      if (!res.ok) throw res;
-      setOptions(
-        res.data.map((city) => ({
-          label: city.key === "" ? "Non renseignée" : city.key,
-          value: city.key,
-        })),
-      );
-    } catch (error) {
-      captureError(error, "Erreur lors de la recherche");
-    }
-  };
-
-  return (
-    <Autocomplete
-      value={values}
-      onChange={(search) => {
-        setValues(search);
-        handleSearch(search);
-      }}
-      onSelect={(city) => {
-        setValues(city ? city.label : "");
-        onChange(city ? city.value : null);
-        setOptions([]);
-      }}
-      options={options}
-      onClear={() => {
-        setValues("");
-        onChange(null);
-      }}
-      placeholder="Ville"
-      className="w-96"
-    />
   );
 };
 
