@@ -3,6 +3,7 @@ import { RiCheckboxCircleFill, RiFileDownloadLine, RiInformationLine } from "rea
 import { Link, useSearchParams } from "react-router-dom";
 
 import ErrorIconSvg from "../../assets/svg/error-icon.svg?react";
+import Autocomplete from "../../components/Autocomplete";
 import InfoAlert from "../../components/InfoAlert";
 import Loader from "../../components/Loader";
 import Select from "../../components/NewSelect";
@@ -40,9 +41,9 @@ const Flux = () => {
     status: [],
     domains: [],
     activities: [],
-    cities: [],
-    organizations: [],
   });
+  const [autocompleteValues, setAutocompleteValues] = useState({ city: "", organization: "" });
+  const [autocompleteOptions, setAutocompleteOptions] = useState({ city: [], organization: [] });
   const [lastImport, setLastImport] = useState();
   const [moderators, setModerators] = useState();
   const [data, setData] = useState([]);
@@ -116,6 +117,51 @@ const Flux = () => {
     return () => controller.abort();
   }, [filters]);
 
+  useEffect(() => {
+    const fetchAutocompleteOptions = async () => {
+      try {
+        if (autocompleteValues.city === "") {
+          const resC = await api.get(`/mission/autocomplete?field=city&search=&publisherId=${publisher._id}`);
+          if (!resC.ok) throw resC;
+          setAutocompleteOptions((values) => ({
+            ...values,
+            city: resC.data.map((city) => ({ label: city.key === "" ? "Non renseignée" : city.key, value: city.key })),
+          }));
+        }
+
+        if (autocompleteValues.organization === "") {
+          const resO = await api.get(`/mission/autocomplete?field=organizationName&search=&publisherId=${publisher._id}`);
+          if (!resO.ok) throw resO;
+          setAutocompleteOptions((values) => ({
+            ...values,
+            organization: resO.data.map((org) => ({ label: org.key === "" ? "Non renseignée" : org.key, value: org.key })),
+          }));
+        }
+      } catch (error) {
+        captureError(error, "Erreur lors de la récupération des options initiales");
+      }
+    };
+
+    fetchAutocompleteOptions();
+  }, [autocompleteValues.city, autocompleteValues.organization, publisher._id]);
+
+  const handleAutocompleteSearch = async (field, search) => {
+    if (search.length < 3) {
+      setAutocompleteOptions((values) => ({ ...values, [field]: [] }));
+      return;
+    }
+    try {
+      const res = await api.get(`/mission/autocomplete?field=${field}&search=${search}&publisherId=${publisher._id}`);
+      if (!res.ok) throw res;
+      setAutocompleteOptions((values) => ({
+        ...values,
+        [field]: res.data.map((item) => ({ label: item.key === "" ? "Non renseignée" : item.key, value: item.key })),
+      }));
+    } catch (error) {
+      captureError(error, "Erreur lors de la recherche");
+    }
+  };
+
   const handleExport = async () => {
     setExporting(true);
     try {
@@ -175,6 +221,8 @@ const Flux = () => {
             placeholder="Domaine"
             loading={loading}
           />
+        </div>
+        <div className="flex items-center gap-4">
           <Select
             options={options.activities.map((e) => ({ value: e.key === "" ? "none" : e.key, label: e.key === "" ? "Non renseignée" : e.key, count: e.doc_count }))}
             value={filters.activity}
@@ -182,19 +230,43 @@ const Flux = () => {
             placeholder="Activité"
             loading={loading}
           />
-          <Select
-            options={options.cities.map((e) => ({ value: e.key === "" ? "none" : e.key, label: e.key === "" ? "Non renseignée" : e.key, count: e.doc_count }))}
-            value={filters.city}
-            onChange={(e) => setFilters({ ...filters, city: e.value })}
+          <Autocomplete
+            value={autocompleteValues.city}
+            onChange={(search) => {
+              setAutocompleteValues((values) => ({ ...values, city: search }));
+              handleAutocompleteSearch("city", search);
+            }}
+            onSelect={(c) => {
+              setAutocompleteValues((values) => ({ ...values, city: c ? c.label : "" }));
+              setFilters({ ...filters, city: c ? c.value : null });
+              setAutocompleteOptions((values) => ({ ...values, city: [] }));
+            }}
+            options={autocompleteOptions.city}
+            onClear={() => {
+              setAutocompleteValues((values) => ({ ...values, city: "" }));
+              setFilters((values) => ({ ...values, city: null }));
+            }}
             placeholder="Ville"
-            loading={loading}
+            className="w-96"
           />
-          <Select
-            options={options.organizations.map((e) => ({ value: e.key === "" ? "none" : e.key, label: e.key === "" ? "Non renseignée" : e.key, count: e.doc_count }))}
-            value={filters.organization}
-            onChange={(e) => setFilters({ ...filters, organization: e.value })}
+          <Autocomplete
+            value={autocompleteValues.organization}
+            onChange={(search) => {
+              setAutocompleteValues((values) => ({ ...values, organization: search }));
+              handleAutocompleteSearch("organization", search);
+            }}
+            onSelect={(o) => {
+              setAutocompleteValues((values) => ({ ...values, organization: o ? o.label : "" }));
+              setFilters({ ...filters, organization: o ? o.value : null });
+              setAutocompleteOptions((values) => ({ ...values, organization: [] }));
+            }}
+            options={autocompleteOptions.organization}
+            onClear={() => {
+              setAutocompleteValues((values) => ({ ...values, organization: "" }));
+              setFilters((values) => ({ ...values, organization: null }));
+            }}
             placeholder="Organisation"
-            loading={loading}
+            className="w-96"
           />
         </div>
       </div>
