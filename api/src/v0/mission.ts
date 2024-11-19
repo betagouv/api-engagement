@@ -411,6 +411,7 @@ router.post("/search", async (req: PublisherRequest, res: Response, next: NextFu
 const buildData = (data: Mission, publisherId: string, moderator: boolean = false) => {
   return {
     _id: data._id,
+    id: data._id,
     clientId: data.clientId,
     publisherId: data.publisherId,
     activity: data.activity,
