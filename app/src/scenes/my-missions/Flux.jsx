@@ -42,8 +42,6 @@ const Flux = () => {
     domains: [],
     activities: [],
   });
-  const [autocompleteValues, setAutocompleteValues] = useState({ city: "", organization: "" });
-  const [autocompleteOptions, setAutocompleteOptions] = useState({ city: [], organization: [] });
   const [lastImport, setLastImport] = useState();
   const [moderators, setModerators] = useState();
   const [data, setData] = useState([]);
@@ -117,51 +115,6 @@ const Flux = () => {
     return () => controller.abort();
   }, [filters]);
 
-  useEffect(() => {
-    const fetchAutocompleteOptions = async () => {
-      try {
-        if (autocompleteValues.city === "") {
-          const resC = await api.get(`/mission/autocomplete?field=city&search=&publisherId=${publisher._id}`);
-          if (!resC.ok) throw resC;
-          setAutocompleteOptions((values) => ({
-            ...values,
-            city: resC.data.map((city) => ({ label: city.key === "" ? "Non renseignée" : city.key, value: city.key })),
-          }));
-        }
-
-        if (autocompleteValues.organization === "") {
-          const resO = await api.get(`/mission/autocomplete?field=organizationName&search=&publisherId=${publisher._id}`);
-          if (!resO.ok) throw resO;
-          setAutocompleteOptions((values) => ({
-            ...values,
-            organization: resO.data.map((org) => ({ label: org.key === "" ? "Non renseignée" : org.key, value: org.key })),
-          }));
-        }
-      } catch (error) {
-        captureError(error, "Erreur lors de la récupération des options initiales");
-      }
-    };
-
-    fetchAutocompleteOptions();
-  }, [autocompleteValues.city, autocompleteValues.organization, publisher._id]);
-
-  const handleAutocompleteSearch = async (field, search) => {
-    if (search.length < 3) {
-      setAutocompleteOptions((values) => ({ ...values, [field]: [] }));
-      return;
-    }
-    try {
-      const res = await api.get(`/mission/autocomplete?field=${field}&search=${search}&publisherId=${publisher._id}`);
-      if (!res.ok) throw res;
-      setAutocompleteOptions((values) => ({
-        ...values,
-        [field]: res.data.map((item) => ({ label: item.key === "" ? "Non renseignée" : item.key, value: item.key })),
-      }));
-    } catch (error) {
-      captureError(error, "Erreur lors de la recherche");
-    }
-  };
-
   const handleExport = async () => {
     setExporting(true);
     try {
@@ -230,44 +183,8 @@ const Flux = () => {
             placeholder="Activité"
             loading={loading}
           />
-          <Autocomplete
-            value={autocompleteValues.city}
-            onChange={(search) => {
-              setAutocompleteValues((values) => ({ ...values, city: search }));
-              handleAutocompleteSearch("city", search);
-            }}
-            onSelect={(c) => {
-              setAutocompleteValues((values) => ({ ...values, city: c ? c.label : "" }));
-              setFilters({ ...filters, city: c ? c.value : null });
-              setAutocompleteOptions((values) => ({ ...values, city: [] }));
-            }}
-            options={autocompleteOptions.city}
-            onClear={() => {
-              setAutocompleteValues((values) => ({ ...values, city: "" }));
-              setFilters((values) => ({ ...values, city: null }));
-            }}
-            placeholder="Ville"
-            className="w-96"
-          />
-          <Autocomplete
-            value={autocompleteValues.organization}
-            onChange={(search) => {
-              setAutocompleteValues((values) => ({ ...values, organization: search }));
-              handleAutocompleteSearch("organization", search);
-            }}
-            onSelect={(o) => {
-              setAutocompleteValues((values) => ({ ...values, organization: o ? o.label : "" }));
-              setFilters({ ...filters, organization: o ? o.value : null });
-              setAutocompleteOptions((values) => ({ ...values, organization: [] }));
-            }}
-            options={autocompleteOptions.organization}
-            onClear={() => {
-              setAutocompleteValues((values) => ({ ...values, organization: "" }));
-              setFilters((values) => ({ ...values, organization: null }));
-            }}
-            placeholder="Organisation"
-            className="w-96"
-          />
+          <SelectCity publisherId={publisher._id} value={filters.city} onChange={(city) => setFilters({ ...filters, city })} />
+          <SelectOrganization publisherId={publisher._id} value={filters.organization} onChange={(organization) => setFilters({ ...filters, organization })} />
         </div>
       </div>
 
@@ -357,6 +274,139 @@ const Flux = () => {
         </TablePagination>
       </div>
     </div>
+  );
+};
+const SelectOrganization = ({ publisherId, onChange }) => {
+  const [values, setValues] = useState("");
+  const [options, setOptions] = useState([]);
+
+  useEffect(() => {
+    const fetchOptions = async () => {
+      try {
+        if (values === "") {
+          const res = await api.get(`/mission/autocomplete?field=organizationName&search=&publisherId=${publisherId}`);
+          if (!res.ok) throw res;
+          setOptions(
+            res.data.map((org) => ({
+              label: org.key === "" ? "Non renseignée" : org.key,
+              value: org.key,
+            })),
+          );
+        }
+      } catch (error) {
+        captureError(error, "Erreur lors de la récupération des organisations");
+      }
+    };
+
+    fetchOptions();
+  }, [values, publisherId]);
+
+  const handleSearch = async (search) => {
+    if (search.length < 3) {
+      setOptions([]);
+      return;
+    }
+    try {
+      const res = await api.get(`/mission/autocomplete?field=organizationName&search=${search}&publisherId=${publisherId}`);
+      if (!res.ok) throw res;
+      setOptions(
+        res.data.map((org) => ({
+          label: org.key === "" ? "Non renseignée" : org.key,
+          value: org.key,
+        })),
+      );
+    } catch (error) {
+      captureError(error, "Erreur lors de la recherche");
+    }
+  };
+
+  return (
+    <Autocomplete
+      value={values}
+      onChange={(search) => {
+        setValues(search);
+        handleSearch(search);
+      }}
+      onSelect={(org) => {
+        setValues(org ? org.label : "");
+        onChange(org ? org.value : null);
+        setOptions([]);
+      }}
+      options={options}
+      onClear={() => {
+        setValues("");
+        onChange(null);
+      }}
+      placeholder="Organisation"
+      className="w-96"
+    />
+  );
+};
+
+const SelectCity = ({ publisherId, onChange }) => {
+  const [values, setValues] = useState("");
+  const [options, setOptions] = useState([]);
+
+  useEffect(() => {
+    const fetchOptions = async () => {
+      try {
+        if (values === "") {
+          const res = await api.get(`/mission/autocomplete?field=city&search=&publisherId=${publisherId}`);
+          if (!res.ok) throw res;
+          setOptions(
+            res.data.map((city) => ({
+              label: city.key === "" ? "Non renseignée" : city.key,
+              value: city.key,
+            })),
+          );
+        }
+      } catch (error) {
+        captureError(error, "Erreur lors de la récupération des villes");
+      }
+    };
+
+    fetchOptions();
+  }, [values, publisherId]);
+
+  const handleSearch = async (search) => {
+    if (search.length < 3) {
+      setOptions([]);
+      return;
+    }
+    try {
+      const res = await api.get(`/mission/autocomplete?field=city&search=${search}&publisherId=${publisherId}`);
+      if (!res.ok) throw res;
+      setOptions(
+        res.data.map((city) => ({
+          label: city.key === "" ? "Non renseignée" : city.key,
+          value: city.key,
+        })),
+      );
+    } catch (error) {
+      captureError(error, "Erreur lors de la recherche");
+    }
+  };
+
+  return (
+    <Autocomplete
+      value={values}
+      onChange={(search) => {
+        setValues(search);
+        handleSearch(search);
+      }}
+      onSelect={(city) => {
+        setValues(city ? city.label : "");
+        onChange(city ? city.value : null);
+        setOptions([]);
+      }}
+      options={options}
+      onClear={() => {
+        setValues("");
+        onChange(null);
+      }}
+      placeholder="Ville"
+      className="w-96"
+    />
   );
 };
 
