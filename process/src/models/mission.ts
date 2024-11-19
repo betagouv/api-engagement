@@ -41,6 +41,7 @@ const schema = new Schema<Mission>(
     endAt: { type: Date },
     priority: { type: String },
     places: { type: Number },
+    placesStatus: { type: String, enum: ["ATTRIBUTED_BY_API", "GIVEN_BY_PARTNER"], default: "ATTRIBUTED_BY_API" },
     metadata: { type: String },
     domain: { type: String },
     domainOriginal: { type: String },
