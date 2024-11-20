@@ -1,11 +1,9 @@
 import cors from "cors";
 import { Request, Response, Router } from "express";
-import { isbot } from "isbot";
-import hash from "object-hash";
 import zod from "zod";
 
 import { HydratedDocument } from "mongoose";
-import { ENV, JVA_URL, SC_ID, STATS_INDEX } from "../config";
+import { JVA_URL, SC_ID, STATS_INDEX } from "../config";
 import esClient from "../db/elastic";
 import { INVALID_PARAMS, INVALID_QUERY, NOT_FOUND, SERVER_ERROR, captureException, captureMessage } from "../error";
 import CampaignModel from "../models/campaign";
@@ -13,19 +11,9 @@ import MissionModel from "../models/mission";
 import PublisherModel from "../models/publisher";
 import WidgetModel from "../models/widget";
 import { Mission, Stats } from "../types";
-import { slugify } from "../utils";
+import { identify, slugify } from "../utils";
 
 const router = Router();
-
-const identify = (req: Request) => {
-  const userAgent = req.get("user-agent");
-  if (isbot(userAgent) && ENV !== "development") return;
-
-  const ip = req.ip;
-  const referer = req.header("referer") || "not_defined";
-  const user = hash([ip, referer, userAgent]);
-  return { user, referer: referer.includes("?") ? referer.split("?")[0] : referer };
-};
 
 router.get("/apply", cors({ origin: "*" }), async (req: Request, res: Response) => {
   try {
@@ -75,8 +63,9 @@ router.get("/apply", cors({ origin: "*" }), async (req: Request, res: Response) 
       if (!mission) captureMessage(`[Apply] Mission not found`, `mission ${query.data.mission}`);
     }
 
-    const obj1 = {
+    const obj = {
       referer: identity.referer,
+      userAgent: identity.userAgent,
       user: identity.user,
       host: req.get("host") || "",
       origin: req.get("origin") || "",
@@ -86,40 +75,40 @@ router.get("/apply", cors({ origin: "*" }), async (req: Request, res: Response) 
     } as Stats;
 
     if (mission) {
-      obj1.missionId = mission._id.toString();
-      obj1.missionClientId = mission.clientId;
-      obj1.missionDomain = mission.domain;
-      obj1.missionTitle = mission.title;
-      obj1.missionPostalCode = mission.postalCode;
-      obj1.missionDepartmentName = mission.departmentName;
-      obj1.missionOrganizationName = mission.organizationName;
-      obj1.missionOrganizationId = mission.organizationId;
-      obj1.toPublisherId = mission.publisherId;
-      obj1.toPublisherName = mission.publisherName;
+      obj.missionId = mission._id.toString();
+      obj.missionClientId = mission.clientId;
+      obj.missionDomain = mission.domain;
+      obj.missionTitle = mission.title;
+      obj.missionPostalCode = mission.postalCode;
+      obj.missionDepartmentName = mission.departmentName;
+      obj.missionOrganizationName = mission.organizationName;
+      obj.missionOrganizationId = mission.organizationId;
+      obj.toPublisherId = mission.publisherId;
+      obj.toPublisherName = mission.publisherName;
     }
     if (click) {
-      obj1.clickId = click._id;
-      obj1.source = click.source || "publisher";
-      obj1.sourceName = click.sourceName || "";
-      obj1.sourceId = click.sourceId || "";
-      obj1.fromPublisherId = click.fromPublisherId || "";
-      obj1.fromPublisherName = click.fromPublisherName || "";
+      obj.clickId = click._id;
+      obj.source = click.source || "publisher";
+      obj.sourceName = click.sourceName || "";
+      obj.sourceId = click.sourceId || "";
+      obj.fromPublisherId = click.fromPublisherId || "";
+      obj.fromPublisherName = click.fromPublisherName || "";
     }
 
     if (click && !mission) {
-      obj1.missionId = click.missionId;
-      obj1.missionClientId = click.missionClientId;
-      obj1.missionDomain = click.missionDomain;
-      obj1.missionTitle = click.missionTitle;
-      obj1.missionPostalCode = click.missionPostalCode;
-      obj1.missionDepartmentName = click.missionDepartmentName;
-      obj1.missionOrganizationName = click.missionOrganizationName;
-      obj1.missionOrganizationId = click.missionOrganizationId;
-      obj1.toPublisherId = click.toPublisherId;
-      obj1.toPublisherName = click.toPublisherName;
+      obj.missionId = click.missionId;
+      obj.missionClientId = click.missionClientId;
+      obj.missionDomain = click.missionDomain;
+      obj.missionTitle = click.missionTitle;
+      obj.missionPostalCode = click.missionPostalCode;
+      obj.missionDepartmentName = click.missionDepartmentName;
+      obj.missionOrganizationName = click.missionOrganizationName;
+      obj.missionOrganizationId = click.missionOrganizationId;
+      obj.toPublisherId = click.toPublisherId;
+      obj.toPublisherName = click.toPublisherName;
     }
 
-    const response = await esClient.index({ index: STATS_INDEX, body: obj1 });
+    const response = await esClient.index({ index: STATS_INDEX, body: obj });
     return res.status(200).send({ ok: true, id: response.body._id });
   } catch (error) {
     captureException(error);
@@ -175,8 +164,9 @@ router.get("/account", cors({ origin: "*" }), async (req: Request, res: Response
       if (!mission) captureMessage(`[Account] Mission not found`, `mission ${query.data.mission}`);
     }
 
-    const obj1 = {
+    const obj = {
       referer: identity.referer,
+      userAgent: identity.userAgent,
       user: identity.user,
       host: req.get("host") || "",
       origin: req.get("origin") || "",
@@ -186,40 +176,40 @@ router.get("/account", cors({ origin: "*" }), async (req: Request, res: Response
     } as Stats;
 
     if (mission) {
-      obj1.missionId = mission._id.toString();
-      obj1.missionClientId = mission.clientId;
-      obj1.missionDomain = mission.domain;
-      obj1.missionTitle = mission.title;
-      obj1.missionPostalCode = mission.postalCode;
-      obj1.missionDepartmentName = mission.departmentName;
-      obj1.missionOrganizationName = mission.organizationName;
-      obj1.missionOrganizationId = mission.organizationId;
-      obj1.toPublisherId = mission.publisherId;
-      obj1.toPublisherName = mission.publisherName;
+      obj.missionId = mission._id.toString();
+      obj.missionClientId = mission.clientId;
+      obj.missionDomain = mission.domain;
+      obj.missionTitle = mission.title;
+      obj.missionPostalCode = mission.postalCode;
+      obj.missionDepartmentName = mission.departmentName;
+      obj.missionOrganizationName = mission.organizationName;
+      obj.missionOrganizationId = mission.organizationId;
+      obj.toPublisherId = mission.publisherId;
+      obj.toPublisherName = mission.publisherName;
     }
     if (click) {
-      obj1.clickId = click._id;
-      obj1.source = click.source || "publisher";
-      obj1.sourceName = click.sourceName || "";
-      obj1.sourceId = click.sourceId || "";
-      obj1.fromPublisherId = click.fromPublisherId || "";
-      obj1.fromPublisherName = click.fromPublisherName || "";
+      obj.clickId = click._id;
+      obj.source = click.source || "publisher";
+      obj.sourceName = click.sourceName || "";
+      obj.sourceId = click.sourceId || "";
+      obj.fromPublisherId = click.fromPublisherId || "";
+      obj.fromPublisherName = click.fromPublisherName || "";
     }
 
     if (click && !mission) {
-      obj1.missionId = click.missionId;
-      obj1.missionClientId = click.missionClientId;
-      obj1.missionDomain = click.missionDomain;
-      obj1.missionTitle = click.missionTitle;
-      obj1.missionPostalCode = click.missionPostalCode;
-      obj1.missionDepartmentName = click.missionDepartmentName;
-      obj1.missionOrganizationName = click.missionOrganizationName;
-      obj1.missionOrganizationId = click.missionOrganizationId;
-      obj1.toPublisherId = click.toPublisherId;
-      obj1.toPublisherName = click.toPublisherName;
+      obj.missionId = click.missionId;
+      obj.missionClientId = click.missionClientId;
+      obj.missionDomain = click.missionDomain;
+      obj.missionTitle = click.missionTitle;
+      obj.missionPostalCode = click.missionPostalCode;
+      obj.missionDepartmentName = click.missionDepartmentName;
+      obj.missionOrganizationName = click.missionOrganizationName;
+      obj.missionOrganizationId = click.missionOrganizationId;
+      obj.toPublisherId = click.toPublisherId;
+      obj.toPublisherName = click.toPublisherName;
     }
 
-    const response = await esClient.index({ index: STATS_INDEX, body: obj1 });
+    const response = await esClient.index({ index: STATS_INDEX, body: obj });
     return res.status(200).send({ ok: true, id: response.body._id });
   } catch (error: any) {
     captureException(error);
@@ -262,8 +252,9 @@ router.get("/campaign/:id", cors({ origin: "*" }), async (req, res) => {
 
     const obj1 = {
       type: "click",
-      user: identity?.user,
-      referer: identity?.referer,
+      user: identity.user,
+      referer: identity.referer,
+      userAgent: identity.userAgent,
       host: req.get("host") || "",
       origin: req.get("origin") || "",
       source: "campaign",
@@ -276,7 +267,6 @@ router.get("/campaign/:id", cors({ origin: "*" }), async (req, res) => {
       fromPublisherName: campaign.fromPublisherName,
     } as Stats;
     const click = await esClient.index({ index: STATS_INDEX, body: obj1 });
-    console.log("click", click.body._id);
 
     const url = new URL(campaign.url);
 
@@ -397,10 +387,11 @@ router.get("/widget/:id", cors({ origin: "*" }), async (req: Request, res: Respo
       return res.redirect(302, mission.applicationUrl);
     }
 
-    const obj1 = {
+    const obj = {
       type: "click",
-      user: identity?.user,
-      referer: identity?.referer,
+      user: identity.user,
+      referer: identity.referer,
+      userAgent: identity.userAgent,
       host: req.get("host") || "",
       origin: req.get("origin") || "",
       requestId: query.data.requestId,
@@ -422,8 +413,7 @@ router.get("/widget/:id", cors({ origin: "*" }), async (req: Request, res: Respo
       fromPublisherId: widget.fromPublisherId,
       fromPublisherName: widget.fromPublisherName,
     } as Stats;
-    const click = await esClient.index({ index: STATS_INDEX, body: obj1 });
-    console.log("click", click.body._id);
+    const click = await esClient.index({ index: STATS_INDEX, body: obj });
 
     if (mission.applicationUrl.indexOf("http://") === -1 && mission.applicationUrl.indexOf("https://") === -1) {
       mission.applicationUrl = "https://" + mission.applicationUrl;
@@ -478,6 +468,7 @@ router.get("/seo/:id", cors({ origin: "*" }), async (req: Request, res: Response
       host: req.get("host") || "",
       origin: req.get("origin") || "",
       referer: identity.referer,
+      userAgent: identity.userAgent,
       user: identity.user,
       createdAt: new Date(),
       source: "seo",
@@ -499,8 +490,6 @@ router.get("/seo/:id", cors({ origin: "*" }), async (req: Request, res: Response
     } as Stats;
 
     const click = await esClient.index({ index: STATS_INDEX, body: obj });
-    console.log("click", click.body._id);
-
     const url = new URL(mission.applicationUrl || JVA_URL);
 
     url.searchParams.set("apiengagement_id", click.body._id);
@@ -575,6 +564,7 @@ router.get("/:missionId/:publisherId", cors({ origin: "*" }), async function tra
       host: req.get("host") || "",
       origin: req.get("origin") || "",
       referer: identity.referer,
+      userAgent: identity.userAgent,
       user: identity.user,
       source: "publisher",
       sourceId: fromPublisher?._id || "",
@@ -597,7 +587,7 @@ router.get("/:missionId/:publisherId", cors({ origin: "*" }), async function tra
     } as Stats;
 
     const click = await esClient.index({ index: STATS_INDEX, body: obj });
-    console.log("click", click.body._id);
+
     if (mission.applicationUrl.indexOf("http://") === -1 && mission.applicationUrl.indexOf("https://") === -1) {
       mission.applicationUrl = "https://" + mission.applicationUrl;
     }
@@ -656,6 +646,7 @@ router.get("/impression/campaign/:campaignId", cors({ origin: "*" }), async (req
       host: req.get("host") || "",
       origin: req.get("origin") || "",
       referer: identity.referer,
+      userAgent: identity.userAgent,
       user: identity.user,
       createdAt: new Date(),
       tag: "link",
@@ -672,7 +663,6 @@ router.get("/impression/campaign/:campaignId", cors({ origin: "*" }), async (req
     } as Stats;
 
     const print = await esClient.index({ index: STATS_INDEX, body: obj });
-    console.log("print", print.body._id);
     res.status(200).send({ ok: true, data: { ...obj, _id: print.body._id } });
   } catch (error) {
     captureException(error);
@@ -735,6 +725,7 @@ router.get("/impression/:missionId/:publisherId", cors({ origin: "*" }), async (
       host: req.get("host") || "",
       origin: req.get("origin") || "",
       referer: identity.referer,
+      userAgent: identity.userAgent,
       user: identity.user,
       createdAt: new Date(),
       tag: query.data.tracker,
@@ -759,7 +750,6 @@ router.get("/impression/:missionId/:publisherId", cors({ origin: "*" }), async (
     } as Stats;
 
     const print = await esClient.index({ index: STATS_INDEX, body: obj });
-    console.log("print", print.body._id);
 
     res.status(200).send({ ok: true, data: { ...obj, _id: print.body._id } });
   } catch (error: any) {
