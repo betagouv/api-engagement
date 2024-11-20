@@ -34,7 +34,7 @@ const handler = async () => {
     }
   });
 
-  text += `\n\nVoir et exporter les missions refusées: https://app.api-engagement.beta.gouv.fr/admin-missions?leboncoinStatus=REFUSED`;
+  text += `\n\nVoir et exporter les missions refusées: https://app.api-engagement.beta.gouv.fr/admin-mission?leboncoinStatus=REFUSED`;
 
   await postMessage({ text }, SLACK_LBC_CHANNEL_ID);
   console.log(`[Leboncoin] Ended at ${new Date().toISOString()} in ${(Date.now() - start.getTime()) / 1000}s`);

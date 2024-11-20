@@ -161,6 +161,7 @@ router.get("/:clientId/stats", passport.authenticate(["apikey", "api"], { sessio
 const buildData = (data: Mission) => {
   return {
     _id: data._id,
+    id: data._id,
     clientId: data.clientId,
     publisherId: data.publisherId,
     activity: data.activity,
