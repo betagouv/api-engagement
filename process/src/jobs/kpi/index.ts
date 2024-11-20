@@ -22,33 +22,46 @@ const handler = async (start?: Date) => {
     createdAt: { $lt: endDate },
   };
 
-  const whereBenevolatAvailable = { ...whereMissionAvailable, publisherName: "Service Civique" };
-  const whereVolontariatAvailable = { ...whereMissionAvailable, publisherName: { $ne: "Service Civique" } };
+  const whereBenevolatAvailable = { ...whereMissionAvailable, publisherName: { $ne: "Service Civique" } };
+  const whereVolontariatAvailable = { ...whereMissionAvailable, publisherName: "Service Civique" };
 
-  const benevolatAvailableMissionCount = await MissionModel.countDocuments(whereBenevolatAvailable);
-  const volontariatAvailableMissionCount = await MissionModel.countDocuments(whereVolontariatAvailable);
+  const availableBenevolatMissionCount = await MissionModel.countDocuments(whereBenevolatAvailable);
+  const availableVolontariatMissionCount = await MissionModel.countDocuments(whereVolontariatAvailable);
 
   const aggs = await MissionModel.aggregate([
-    { $match: whereMissionAvailable },
     {
       $facet: {
-        benevolat_given: [{ $match: { ...whereBenevolatAvailable, placesStatus: "GIVEN_BY_PARTNER" } }, { $group: { _id: null, total: { $sum: "$places" } } }],
-        volontariat_given: [{ $match: { ...whereVolontariatAvailable, placesStatus: "GIVEN_BY_PARTNER" } }, { $group: { _id: null, total: { $sum: "$places" } } }],
-        benevolat_attributed: [{ $match: { ...whereBenevolatAvailable, placesStatus: "ATTRIBUTED_BY_API" } }, { $group: { _id: null, total: { $sum: "$places" } } }],
-        volontariat_attributed: [{ $match: { ...whereVolontariatAvailable, placesStatus: "ATTRIBUTED_BY_API" } }, { $group: { _id: null, total: { $sum: "$places" } } }],
+        benevolat_given: [{ $match: { ...whereBenevolatAvailable, placesStatus: "GIVEN_BY_PARTNER" } }, { $group: { _id: null, count: { $sum: 1 }, total: { $sum: "$places" } } }],
+        volontariat_given: [
+          { $match: { ...whereVolontariatAvailable, placesStatus: "GIVEN_BY_PARTNER" } },
+          { $group: { _id: null, count: { $sum: 1 }, total: { $sum: "$places" } } },
+        ],
+        benevolat_attributed: [
+          { $match: { ...whereBenevolatAvailable, placesStatus: "ATTRIBUTED_BY_API" } },
+          { $group: { _id: null, count: { $sum: 1 }, total: { $sum: "$places" } } },
+        ],
+        volontariat_attributed: [
+          { $match: { ...whereVolontariatAvailable, placesStatus: "ATTRIBUTED_BY_API" } },
+          { $group: { _id: null, count: { $sum: 1 }, total: { $sum: "$places" } } },
+        ],
       },
     },
   ]);
 
-  const availableBenevolatPlaceGivenCount = aggs.length ? aggs[0].benevolat_given.total : 0;
-  const availableVolontariatPlaceGivenCount = aggs.length ? aggs[0].volontariat_given.total : 0;
-  const availableBenevolatPlaceAttributedCount = aggs.length ? aggs[0].benevolat_attributed.total : 0;
-  const availableVolontariatPlaceAttributedCount = aggs.length ? aggs[0].volontariat_attributed.total : 0;
+  const availableBenevolatGivenPlaceCount = aggs.length ? aggs[0].benevolat_given[0]?.total || 0 : 0;
+  const availableVolontariatGivenPlaceCount = aggs.length ? aggs[0].volontariat_given[0]?.total || 0 : 0;
+  const availableBenevolatAttributedPlaceCount = aggs.length ? aggs[0].benevolat_attributed[0]?.total || 0 : 0;
+  const availableVolontariatAttributedPlaceCount = aggs.length ? aggs[0].volontariat_attributed[0]?.total || 0 : 0;
 
-  const percentageBenevolatPlacesGiven = availableBenevolatPlaceGivenCount / benevolatAvailableMissionCount;
-  const percentageVolontariatPlacesGiven = availableVolontariatPlaceGivenCount / volontariatAvailableMissionCount;
-  const percentageBenevolatPlacesAttributed = availableBenevolatPlaceAttributedCount / benevolatAvailableMissionCount;
-  const percentageVolontariatPlacesAttributed = availableVolontariatPlaceAttributedCount / volontariatAvailableMissionCount;
+  const availableBenevolatGivenMissionCount = aggs.length ? aggs[0].benevolat_given[0]?.count || 0 : 0;
+  const availableVolontariatGivenMissionCount = aggs.length ? aggs[0].volontariat_given[0]?.count || 0 : 0;
+  const availableBenevolatAttributedMissionCount = aggs.length ? aggs[0].benevolat_attributed[0]?.count || 0 : 0;
+  const availableVolontariatAttributedMissionCount = aggs.length ? aggs[0].volontariat_attributed[0]?.count || 0 : 0;
+
+  const percentageBenevolatGivenPlaces = availableBenevolatGivenMissionCount / availableBenevolatMissionCount;
+  const percentageVolontariatGivenPlaces = availableVolontariatGivenMissionCount / availableVolontariatMissionCount;
+  const percentageBenevolatAttributedPlaces = availableBenevolatAttributedMissionCount / availableBenevolatMissionCount;
+  const percentageVolontariatAttributedPlaces = availableVolontariatAttributedMissionCount / availableVolontariatMissionCount;
 
   const statsBenevolatAggs = await esClient.search({
     index: STATS_INDEX,
@@ -56,7 +69,7 @@ const handler = async (start?: Date) => {
       query: {
         bool: {
           must_not: {
-            term: { "publisherName.keyword": "Service Civique" },
+            term: { "toPublisherName.keyword": "Service Civique" },
           },
           filter: [{ range: { createdAt: { gte: date, lt: endDate } } }],
         },
@@ -65,25 +78,27 @@ const handler = async (start?: Date) => {
         print: {
           filter: { term: { "type.keyword": "print" } },
           aggs: {
-            cardinality: { field: "missionId.keyword" },
+            data: {
+              cardinality: { field: "missionId.keyword" },
+            },
           },
         },
         click: {
           filter: { term: { "type.keyword": "click" } },
           aggs: {
-            cardinality: { field: "missionId.keyword" },
+            data: { cardinality: { field: "missionId.keyword" } },
           },
         },
         apply: {
           filter: { term: { "type.keyword": "apply" } },
           aggs: {
-            cardinality: { field: "missionId.keyword" },
+            data: { cardinality: { field: "missionId.keyword" } },
           },
         },
         account: {
           filter: { term: { "type.keyword": "account" } },
           aggs: {
-            cardinality: { field: "missionId.keyword" },
+            data: { cardinality: { field: "missionId.keyword" } },
           },
         },
       },
@@ -94,59 +109,60 @@ const handler = async (start?: Date) => {
     body: {
       query: {
         bool: {
-          filter: [{ term: { "publisherName.keyword": "Service Civique" } }, { range: { createdAt: { gte: date, lt: endDate } } }],
+          filter: [{ term: { "toPublisherName.keyword": "Service Civique" } }, { range: { createdAt: { gte: date, lt: endDate } } }],
         },
       },
       aggs: {
         print: {
           filter: { term: { "type.keyword": "print" } },
           aggs: {
-            cardinality: { field: "missionId.keyword" },
+            data: { cardinality: { field: "missionId.keyword" } },
           },
         },
         click: {
           filter: { term: { "type.keyword": "click" } },
           aggs: {
-            cardinality: { field: "missionId.keyword" },
+            data: { cardinality: { field: "missionId.keyword" } },
           },
         },
         apply: {
           filter: { term: { "type.keyword": "apply" } },
           aggs: {
-            cardinality: { field: "missionId.keyword" },
+            data: { cardinality: { field: "missionId.keyword" } },
           },
         },
         account: {
           filter: { term: { "type.keyword": "account" } },
           aggs: {
-            cardinality: { field: "missionId.keyword" },
+            data: { cardinality: { field: "missionId.keyword" } },
           },
         },
       },
     },
   });
-  const printBenevolat = statsBenevolatAggs.body.aggregations.print.cardinality.value || 0;
-  const clickBenevolat = statsBenevolatAggs.body.aggregations.click.cardinality.value || 0;
-  const applyBenevolat = statsBenevolatAggs.body.aggregations.apply.cardinality.value || 0;
-  const accountBenevolat = statsBenevolatAggs.body.aggregations.account.cardinality.value || 0;
 
-  const printVolontariat = statsVolontariatAggs.body.aggregations.print.cardinality.value || 0;
-  const clickVolontariat = statsVolontariatAggs.body.aggregations.click.cardinality.value || 0;
-  const applyVolontariat = statsVolontariatAggs.body.aggregations.apply.cardinality.value || 0;
-  const accountVolontariat = statsVolontariatAggs.body.aggregations.account.cardinality.value || 0;
+  const printBenevolat = statsBenevolatAggs.body.aggregations.print.data.value || 0;
+  const clickBenevolat = statsBenevolatAggs.body.aggregations.click.data.value || 0;
+  const applyBenevolat = statsBenevolatAggs.body.aggregations.apply.data.value || 0;
+  const accountBenevolat = statsBenevolatAggs.body.aggregations.account.data.value || 0;
 
-  kpi.benevolatAvailableMissionCount = benevolatAvailableMissionCount;
-  kpi.volontariatAvailableMissionCount = volontariatAvailableMissionCount;
+  const printVolontariat = statsVolontariatAggs.body.aggregations.print.data.value || 0;
+  const clickVolontariat = statsVolontariatAggs.body.aggregations.click.data.value || 0;
+  const applyVolontariat = statsVolontariatAggs.body.aggregations.apply.data.value || 0;
+  const accountVolontariat = statsVolontariatAggs.body.aggregations.account.data.value || 0;
 
-  kpi.availableBenevolatPlaceGivenCount = availableBenevolatPlaceGivenCount;
-  kpi.availableVolontariatPlaceGivenCount = availableVolontariatPlaceGivenCount;
-  kpi.availableBenevolatPlaceAttributedCount = availableBenevolatPlaceAttributedCount;
-  kpi.availableVolontariatPlaceAttributedCount = availableVolontariatPlaceAttributedCount;
+  kpi.availableBenevolatMissionCount = availableBenevolatMissionCount;
+  kpi.availableVolontariatMissionCount = availableVolontariatMissionCount;
 
-  kpi.percentageBenevolatPlacesGiven = percentageBenevolatPlacesGiven;
-  kpi.percentageVolontariatPlacesGiven = percentageVolontariatPlacesGiven;
-  kpi.percentageBenevolatPlacesAttributed = percentageBenevolatPlacesAttributed;
-  kpi.percentageVolontariatPlacesAttributed = percentageVolontariatPlacesAttributed;
+  kpi.availableBenevolatGivenPlaceCount = availableBenevolatGivenPlaceCount;
+  kpi.availableVolontariatGivenPlaceCount = availableVolontariatGivenPlaceCount;
+  kpi.availableBenevolatAttributedPlaceCount = availableBenevolatAttributedPlaceCount;
+  kpi.availableVolontariatAttributedPlaceCount = availableVolontariatAttributedPlaceCount;
+
+  kpi.percentageBenevolatGivenPlaces = percentageBenevolatGivenPlaces;
+  kpi.percentageVolontariatGivenPlaces = percentageVolontariatGivenPlaces;
+  kpi.percentageBenevolatAttributedPlaces = percentageBenevolatAttributedPlaces;
+  kpi.percentageVolontariatAttributedPlaces = percentageVolontariatAttributedPlaces;
 
   kpi.benevolatPrintMissionCount = printBenevolat;
   kpi.volontariatPrintMissionCount = printVolontariat;

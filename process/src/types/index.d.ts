@@ -461,20 +461,20 @@ export interface Kpi {
 
   date: Date;
 
-  benevolatAvailableMissionCount: number;
-  volontariatAvailableMissionCount: number;
+  availableBenevolatMissionCount: number;
+  availableVolontariatMissionCount: number;
 
-  availableBenevolatPlaceGivenCount: number;
-  availableVolontariatPlaceGivenCount: number;
+  availableBenevolatGivenPlaceCount: number;
+  availableVolontariatGivenPlaceCount: number;
 
-  availableBenevolatPlaceAttributedCount: number;
-  availableVolontariatPlaceAttributedCount: number;
+  availableBenevolatAttributedPlaceCount: number;
+  availableVolontariatAttributedPlaceCount: number;
 
-  percentageBenevolatPlacesGiven: number;
-  percentageVolontariatPlacesGiven: number;
+  percentageBenevolatGivenPlaces: number;
+  percentageVolontariatGivenPlaces: number;
 
-  percentageBenevolatPlacesAttributed: number;
-  percentageVolontariatPlacesAttributed: number;
+  percentageBenevolatAttributedPlaces: number;
+  percentageVolontariatAttributedPlaces: number;
 
   benevolatPrintMissionCount: number;
   volontariatPrintMissionCount: number;
