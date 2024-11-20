@@ -183,13 +183,13 @@ const PublisherMenu = ({ options, value, onChange }) => {
               </label>
               <input name="publisher-search" className="w-full focus:outline-none rounded" onChange={(e) => setSearch(e.target.value)} />
             </div>
-            <div className="max-h-80 divide-y divide-gray-border overflow-y-scroll">
+            <div className="max-h-80 overflow-y-scroll">
               {options
                 .filter((option) => option.name.toLowerCase().includes(search.toLowerCase()))
                 .map((option, index) => (
                   <button
                     key={index}
-                    className="w-full p-4 text-sm text-left hover:bg-gray-hover focus:outline-none focus-visible:ring-2 focus-visible:ring-[#015fcc] flex items-center justify-between"
+                    className="w-full border-b border-gray-border p-4 text-sm text-left hover:bg-gray-hover focus:outline-none focus-visible:bg-gray-hover focus-visible:ring-1 focus-visible:ring-[#015fcc] flex items-center justify-between"
                     onClick={() => {
                       setSearch("");
                       setIsOpen(false);
