@@ -181,7 +181,7 @@ const PublisherMenu = ({ options, value, onChange }) => {
               <label htmlFor="publisher-search" className="sr-only">
                 Rechercher un partenaire
               </label>
-              <input name="publisher-search" className="w-full focus:outline-none rounded" onChange={(e) => setSearch(e.target.value)} />
+              <input id="publisher-search" name="publisher-search" className="w-full focus:outline-none rounded" onChange={(e) => setSearch(e.target.value)} />
             </div>
             <div className="max-h-80 overflow-y-scroll">
               {options

@@ -36,6 +36,7 @@ const MultiSearchSelect = ({ options, value, onChange, placeholder, className, l
           {placeholder}
         </label>
         <input
+          id="multi-search-select"
           name="multi-search-select"
           className={`input w-full ${selected.length ? "pr-16 placeholder:text-black" : "pr-8"}`}
           onChange={(e) => setSearch(e.target.value)}

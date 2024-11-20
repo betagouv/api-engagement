@@ -21,6 +21,7 @@ const Filters = ({ filters, onChange, options }) => {
               Rechercher
             </label>
             <input
+              id="moderation-search"
               className="flex-1 bg-gray-light focus:outline-none"
               name="moderation-search"
               placeholder="Rechercher"

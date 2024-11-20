@@ -135,6 +135,7 @@ const SignupForm = ({ user }) => {
           Prénom
         </label>
         <input
+          id="firstname"
           className={`input mb-2 ${submitted && errors.firstname ? "border-b-red-main" : "border-b-black"}`}
           name="firstname"
           value={values.firstname}
@@ -151,7 +152,13 @@ const SignupForm = ({ user }) => {
         <label className="mb-2" htmlFor="lastname">
           Nom de famille
         </label>
-        <input className={`input mb-2 ${submitted && errors.lastname ? "border-b-red-main" : "border-b-black"}`} name="lastname" value={values.lastname} onChange={handleChange} />
+        <input
+          id="lastname"
+          className={`input mb-2 ${submitted && errors.lastname ? "border-b-red-main" : "border-b-black"}`}
+          name="lastname"
+          value={values.lastname}
+          onChange={handleChange}
+        />
         {submitted && errors.lastname && (
           <div className="flex items-center text-sm text-red-main">
             <RiErrorWarningFill className="mr-2" />
@@ -170,6 +177,7 @@ const SignupForm = ({ user }) => {
           </div>
         </div>
         <input
+          id="password"
           className={`input mb-2 ${submitted && errors.password ? "border-2 border-b-red-main" : "border-b-black"}`}
           name="password"
           type={show ? "text" : "password"}
@@ -203,7 +211,7 @@ const SignupForm = ({ user }) => {
       </div>
       <div className="flex flex-col mt-4">
         <div className="flex justify-between">
-          <label className="mb-1" htmlFor="confirmPassword">
+          <label className="mb-1" htmlFor="confirm-password">
             Confirmation du mot de passe
           </label>
           <div className="flex items-center gap-1 cursor-pointer" onClick={() => setShowConfirm(!showConfirm)}>
@@ -212,8 +220,9 @@ const SignupForm = ({ user }) => {
           </div>
         </div>
         <input
+          id="confirm-password"
           className={`input mb-2 ${submitted && errors.confirmPassword ? "border-2 border-b-red-main" : "border-b-black"}`}
-          name="confirmPassword"
+          name="confirm-password"
           type={showConfirm ? "text" : "password"}
           value={values.confirmPassword}
           onChange={handleChange}

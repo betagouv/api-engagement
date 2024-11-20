@@ -65,7 +65,7 @@ const Widgets = () => {
           <label htmlFor="widget-search" className="sr-only">
             Chercher par nom
           </label>
-          <input className="input w-full pl-4 pr-10 italic" name="widget-search" placeholder="Chercher par nom" onChange={handleSearch} />
+          <input id="widget-search" className="input w-full pl-4 pr-10 italic" name="widget-search" placeholder="Chercher par nom" onChange={handleSearch} />
           <RiSearchLine className="absolute right-3 top-1/2 transform -translate-y-1/2" />
         </div>
         {user.role === "admin" && (

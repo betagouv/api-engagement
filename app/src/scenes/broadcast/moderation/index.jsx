@@ -205,6 +205,7 @@ const Moderation = () => {
                   Sélectionner toutes les missions
                 </label>
                 <input
+                  id="moderation-select-all"
                   name="moderation-select-all"
                   type="checkbox"
                   className="checkbox"

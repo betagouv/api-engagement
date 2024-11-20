@@ -119,7 +119,7 @@ const ResetPasswordForm = ({ user, token }) => {
         <label className="mb-2 mt-6 text-sm" htmlFor="email">
           Email
         </label>
-        <input className="input mb-2" name="email" type="email" value={values.email} disabled />
+        <input id="email" className="input mb-2" name="email" type="email" value={values.email} disabled />
         <div className="flex justify-between mt-6">
           <label className="mb-2 text-sm" htmlFor="password">
             Nouveau mot de passe
@@ -131,6 +131,7 @@ const ResetPasswordForm = ({ user, token }) => {
         </div>
 
         <input
+          id="password"
           className={`input mb-2 ${submitted && errors.password ? "border-2 border-b-red-main" : "border-b-black"}`}
           name="password"
           type={show ? "text" : "password"}
@@ -168,7 +169,7 @@ const ResetPasswordForm = ({ user, token }) => {
 
       <div className="flex flex-col mt-4">
         <div className="flex justify-between mt-6">
-          <label className="mb-2 text-sm" htmlFor="confirmPassword">
+          <label className="mb-2 text-sm" htmlFor="confirm-password">
             Confirmez ce mot de passe
           </label>
           <div className="flex items-center gap-1 cursor-pointer" onClick={() => setShowConfirm(!showConfirm)}>
@@ -177,8 +178,9 @@ const ResetPasswordForm = ({ user, token }) => {
           </div>
         </div>
         <input
+          id="confirm-password"
           className={`input mb-2 ${submitted && errors.confirmPassword ? "border-b-red-main" : "border-b-black"}`}
-          name="confirmPassword"
+          name="confirm-password"
           type={showConfirm ? "text" : "password"}
           value={values.confirmPassword}
           onChange={handleChange}

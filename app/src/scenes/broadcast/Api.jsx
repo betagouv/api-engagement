@@ -68,7 +68,7 @@ const Api = () => {
           <label htmlFor="apikey" className="sr-only">
             Votre clé API
           </label>
-          <input className="input flex-1" name="apikey" disabled={true} value={publisher.apikey || ""} />
+          <input id="apikey" className="input flex-1" name="apikey" disabled={true} value={publisher.apikey || ""} />
           <button className="flex cursor-pointer items-center border border-blue-dark p-2 text-blue-dark" onClick={handleCopy}>
             <RiFileCopyFill />
           </button>

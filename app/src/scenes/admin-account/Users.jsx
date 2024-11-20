@@ -81,7 +81,7 @@ const Users = () => {
           <label htmlFor="user-search" className="sr-only">
             Rechercher par nom ou par email
           </label>
-          <input name="user-search" className="input flex-1" placeholder="Chercher par nom ou par email" onChange={handleSearch} />
+          <input id="user-search" name="user-search" className="input flex-1" placeholder="Chercher par nom ou par email" onChange={handleSearch} />
           <Link to="/user/new" className="button flex items-center border bg-blue-dark text-white">
             Nouvel utilisateur <HiOutlinePlus className="ml-2" />
           </Link>

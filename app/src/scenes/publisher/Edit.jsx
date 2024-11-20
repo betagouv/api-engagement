@@ -154,37 +154,50 @@ const Edit = () => {
             <label className="mb-2 text-sm" htmlFor="name">
               Nom
             </label>
-            <input className="input mb-2" name="name" disabled={true} value={values.name} onChange={(e) => setValues({ ...values, name: e.target.value })} />
+            <input id="name" className="input mb-2" name="name" disabled={true} value={values.name} onChange={(e) => setValues({ ...values, name: e.target.value })} />
           </div>
 
           <div className="flex flex-col">
             <label className="mb-2 text-sm" htmlFor="email">
               Email de contact
             </label>
-            <input className="input mb-2" name="email" value={values.email} onChange={(e) => setValues({ ...values, email: e.target.value })} />
+            <input id="email" className="input mb-2" name="email" value={values.email} onChange={(e) => setValues({ ...values, email: e.target.value })} />
           </div>
           <div className="flex flex-col">
             <label className="mb-2 text-sm" htmlFor="url">
               URL
             </label>
-            <input className="input mb-2" name="url" value={values.url} onChange={(e) => setValues({ ...values, url: e.target.value })} />
+            <input id="url" className="input mb-2" name="url" value={values.url} onChange={(e) => setValues({ ...values, url: e.target.value })} />
           </div>
           <div className="flex flex-col">
             <label className="mb-2 text-sm" htmlFor="documentation">
               Documentation
             </label>
-            <input className="input mb-2" name="documentation" value={values.documentation} onChange={(e) => setValues({ ...values, documentation: e.target.value })} />
+            <input
+              id="documentation"
+              className="input mb-2"
+              name="documentation"
+              value={values.documentation}
+              onChange={(e) => setValues({ ...values, documentation: e.target.value })}
+            />
           </div>
 
           <div className="row-span-2 flex flex-col">
             <label className="mb-2 text-sm" htmlFor="documentation">
               Description
             </label>
-            <textarea rows={4} className="input mb-2" name="description" value={values.description} onChange={(e) => setValues({ ...values, description: e.target.value })} />
+            <textarea
+              id="description"
+              rows={4}
+              className="input mb-2"
+              name="description"
+              value={values.description}
+              onChange={(e) => setValues({ ...values, description: e.target.value })}
+            />
           </div>
 
           <div className="flex flex-col">
-            <label className="mb-2 text-sm" htmlFor="role_promoteur">
+            <label className="mb-2 text-sm" htmlFor="role-promoteur">
               Annonceur
             </label>
             <div className="mb-2 flex items-center gap-12">
@@ -192,7 +205,8 @@ const Edit = () => {
                 <input
                   type="checkbox"
                   className="checkbox"
-                  name="role_promoteur"
+                  id="role-promoteur"
+                  name="role-promoteur"
                   onChange={(e) => setValues({ ...values, role_promoteur: e.target.checked })}
                   checked={values.role_promoteur}
                 />
@@ -201,13 +215,14 @@ const Edit = () => {
               {values.role_promoteur === true && (
                 <>
                   <div className="flex items-center gap-3">
-                    <label htmlFor="mission_type_benevolat" className="sr-only">
+                    <label htmlFor="mission-type-benevolat" className="sr-only">
                       Bénévolat
                     </label>
                     <input
+                      id="mission-type-benevolat"
                       type="radio"
                       className="checkbox"
-                      name="mission_type_benevolat"
+                      name="mission-type-benevolat"
                       value="benevolat"
                       onChange={(e) => setValues({ ...values, mission_type: e.target.value })}
                       checked={values.mission_type === "benevolat"}
@@ -215,13 +230,14 @@ const Edit = () => {
                     <span>Bénévolat</span>
                   </div>
                   <div className="flex items-center gap-3">
-                    <label htmlFor="mission_type_volontariat" className="sr-only">
+                    <label htmlFor="mission-type-volontariat" className="sr-only">
                       Volontariat
                     </label>
                     <input
                       type="radio"
                       className="checkbox"
-                      name="mission_type_volontariat"
+                      id="mission-type-volontariat"
+                      name="mission-type-volontariat"
                       value="volontariat"
                       onChange={(e) => setValues({ ...values, mission_type: e.target.value })}
                       checked={values.mission_type === "volontariat"}
@@ -237,39 +253,42 @@ const Edit = () => {
             <label className="mb-2 text-sm">Diffuseur</label>
             <div className="mb-2 flex items-center gap-12">
               <div className="flex items-center gap-3">
-                <label htmlFor="role_annonceur_api" className="sr-only">
+                <label htmlFor="role-annonceur-api" className="sr-only">
                   API
                 </label>
                 <input
                   type="checkbox"
                   className="checkbox"
-                  name="role_annonceur_api"
+                  id="role-annonceur-api"
+                  name="role-annonceur-api"
                   onChange={(e) => setValues({ ...values, role_annonceur_api: e.target.checked })}
                   checked={values.role_annonceur_api}
                 />
                 <span>API</span>
               </div>
               <div className="flex items-center gap-3">
-                <label htmlFor="role_annonceur_widget" className="sr-only">
+                <label htmlFor="role-annonceur-widget" className="sr-only">
                   Widget
                 </label>
                 <input
                   type="checkbox"
                   className="checkbox"
-                  name="role_annonceur_widget"
+                  id="role-annonceur-widget"
+                  name="role-annonceur-widget"
                   onChange={(e) => setValues({ ...values, role_annonceur_widget: e.target.checked })}
                   checked={values.role_annonceur_widget}
                 />
                 <span>Widget</span>
               </div>
               <div className="flex items-center gap-3">
-                <label htmlFor="role_annonceur_campagne" className="sr-only">
+                <label htmlFor="role-annonceur-campagne" className="sr-only">
                   Campagne
                 </label>
                 <input
                   type="checkbox"
                   className="checkbox"
-                  name="role_annonceur_campagne"
+                  id="role-annonceur-campagne"
+                  name="role-annonceur-campagne"
                   onChange={(e) => setValues({ ...values, role_annonceur_campagne: e.target.checked })}
                   checked={values.role_annonceur_campagne}
                 />
@@ -308,6 +327,7 @@ const Edit = () => {
                             Diffuser des missions de {item.name}
                           </label>
                           <input
+                            id="publishers"
                             name="publishers"
                             type="checkbox"
                             className="checkbox"
@@ -407,13 +427,14 @@ const Edit = () => {
                     <span className="flex-1 truncate">{item.email}</span>
                     {values.automated_report && (
                       <div className="flex-1 text-center">
-                        <label htmlFor="send_report_to" className="sr-only">
+                        <label htmlFor="send-report-to" className="sr-only">
                           Envoyer le rapport
                         </label>
                         <input
+                          id="send-report-to"
                           className="checkbox "
                           type="checkbox"
-                          name="send_report_to"
+                          name="send-report-to"
                           checked={values.send_report_to.find((u) => u === item._id.toString()) !== undefined}
                           onChange={(e) => {
                             if (e.target.checked) setValues({ ...values, send_report_to: [...values.send_report_to, item._id.toString()] });
@@ -434,19 +455,20 @@ const Edit = () => {
           </div>
 
           <div className="col-span-2 flex flex-col">
-            <label className="mb-2 text-sm" htmlFor="role_promoteur">
+            <label className="mb-2 text-sm" htmlFor="role-promoteur">
               Administration
             </label>
             <div className="border border-gray-border px-6">
               <div className="flex h-12 w-full items-center border-b border-gray-border px-4 py-2">
-                <label className="w-1/4" htmlFor="automated_report">
+                <label className="w-1/4" htmlFor="automated-report">
                   Rapport automatisé
                 </label>
                 <div className="flex w-3/4 justify-between">
                   <input
+                    id="automated-report"
                     className="checkbox"
                     type="checkbox"
-                    name="automated_report"
+                    name="automated-report"
                     checked={values.automated_report}
                     onChange={(e) => setValues({ ...values, automated_report: e.target.checked })}
                   />
@@ -457,7 +479,7 @@ const Edit = () => {
                   Créateur
                 </label>
                 <div className="flex w-3/4 justify-between">
-                  <input className="border-none px-0" type="text" name="lead" value={values.lead} onChange={(e) => setValues({ ...values, lead: e.target.value })} />
+                  <input id="lead" className="border-none px-0" type="text" name="lead" value={values.lead} onChange={(e) => setValues({ ...values, lead: e.target.value })} />
                 </div>
               </div>
             </div>

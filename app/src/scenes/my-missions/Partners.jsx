@@ -61,7 +61,7 @@ const PublishersTab = () => {
           <label htmlFor="search-partner" className="sr-only">
             Chercher par nom
           </label>
-          <input className="input flex-1" name="search-partner" placeholder="Chercher par nom" onChange={handleSearch} />
+          <input id="search-partner" className="input flex-1" name="search-partner" placeholder="Chercher par nom" onChange={handleSearch} />
         </div>
       </div>
       <div className="grid grid-cols-4 gap-10">

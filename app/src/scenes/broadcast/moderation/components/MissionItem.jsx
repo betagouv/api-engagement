@@ -52,7 +52,7 @@ const MissionItem = ({ data, history, selected, onChange, onSelect, onFilter }) 
         <label htmlFor="moderation-select" className="sr-only">
           Sélectionner la mission
         </label>
-        <input type="checkbox" className="checkbox" name="moderation-select" onChange={handleSelectModeration} checked={selected} />
+        <input id="moderation-select" type="checkbox" className="checkbox" name="moderation-select" onChange={handleSelectModeration} checked={selected} />
       </span>
       <div className="flex flex-1 flex-col justify-between">
         <div className="my-2 line-clamp-3 flex items-center text-base font-semibold hover:cursor-pointer hover:text-blue-dark" onClick={handleMissionClick}>
@@ -241,7 +241,7 @@ const UpdateNoteModal = ({ isOpen, onChange, onClose, data }) => {
               <label htmlFor="note" className="text-sm">
                 Note
               </label>
-              <textarea className="input" rows={4} name="note" value={note} onChange={(e) => setNote(e.target.value)} required />
+              <textarea id="note" className="input" rows={4} name="note" value={note} onChange={(e) => setNote(e.target.value)} required />
               <div className="mt-6 flex justify-end">
                 <button className="filled-button w-full" type="submit">
                   Enregistrer
