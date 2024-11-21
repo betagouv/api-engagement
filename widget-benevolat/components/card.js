@@ -16,7 +16,7 @@ const Card = ({ widget, mission, color, request }) => {
       className="border min-h-[500px] w-full max-w-[90%] mx-auto flex flex-col border-neutral-grey-950 rounded-xl overflow-hidden focus:outline-none focus-visible:ring focus-visible:ring-blue-800"
     >
       <div className="h-48">
-        <Image src={mission.domainLogo} alt={mission.title} className="w-full h-full object-cover" width={500} height={500} />
+        <Image src={mission.domainLogo} alt={mission.title} priority={true} className="w-full h-full object-cover" width={500} height={500} />
       </div>
       <div className="flex-1 flex flex-col p-6 justify-between">
         <div className="h-40">
