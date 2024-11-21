@@ -1,5 +1,7 @@
 import { useEffect, useState } from "react";
+import { Helmet } from "react-helmet-async";
 import { useSearchParams } from "react-router-dom";
+
 import Pie from "../../components/Chart";
 import Loader from "../../components/Loader";
 import DateRangePicker from "../../components/NewDateRangePicker";
@@ -56,6 +58,9 @@ const StatsModeration = () => {
 
   return (
     <div className="space-y-12 p-12">
+      <Helmet>
+        <title>Vos Missions - Statistiques de modération - API Engagement</title>
+      </Helmet>
       <div className="space-y-2">
         <label className="text-sm text-gray-dark uppercase font-semibold">Période</label>
         <DateRangePicker value={filters} onChange={(value) => setFilters({ ...filters, ...value })} />

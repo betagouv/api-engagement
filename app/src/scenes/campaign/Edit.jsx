@@ -253,10 +253,11 @@ const Edit = () => {
 
           <div className="flex gap-4">
             <div className="flex flex-col flex-1">
-              <label className="mb-2 text-sm" htmlFor="toPublisherId">
+              <label className="mb-2 text-sm" htmlFor="type">
                 Type de campagne
               </label>
               <select
+                id="type"
                 className={`input ${errors.type ? "border-b-red-main" : "border-b-black"}`}
                 value={values.type}
                 onChange={(e) => {
@@ -278,10 +279,11 @@ const Edit = () => {
               )}
             </div>
             <div className="flex flex-col flex-1">
-              <label className="mb-2 text-sm" htmlFor="toPublisherId">
+              <label className="mb-2 text-sm" htmlFor="to-publisher-id">
                 Diffuse les missions de
               </label>
               <SearchSelect
+                id="to-publisher-id"
                 options={publishers.map((e) => ({ value: e._id, label: e.name }))}
                 value={values.toPublisherId}
                 onChange={(e) => setValues({ ...values, toPublisherId: e.value })}
@@ -300,7 +302,7 @@ const Edit = () => {
             <label className="mb-2 flex items-center text-sm" htmlFor="url">
               Lien de la page web de la campagne
             </label>
-            <input className={`input mb-2 ${errors.url ? "border-b-red-main" : "border-b-black"}`} name="url" value={values.url} onChange={(e) => handleUrlChange(e)} />
+            <input id="url" className={`input mb-2 ${errors.url ? "border-b-red-main" : "border-b-black"}`} name="url" value={values.url} onChange={(e) => handleUrlChange(e)} />
             {errors.url && (
               <div className="flex items-center text-sm text-red-main">
                 <RiErrorWarningFill className="mr-2" />

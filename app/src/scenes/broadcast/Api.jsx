@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { Helmet } from "react-helmet-async";
 import { RiBookletFill, RiFileCopyFill } from "react-icons/ri";
 import { toast } from "react-toastify";
 
@@ -47,6 +48,9 @@ const Api = () => {
 
   return (
     <div className="space-y-12 p-12">
+      <Helmet>
+        <title>Diffuser des missions - Flux par API - API Engagement</title>
+      </Helmet>
       <div className="flex items-center justify-between">
         <div className="space-y-2">
           <h2 className="text-3xl font-bold">Diffuser des missions partenaires par API</h2>
@@ -61,7 +65,10 @@ const Api = () => {
       <div className="border border-gray-border p-6">
         <div className="flex items-center justify-between gap-4 border-b border-b-gray-main pb-6">
           <p className="w-1/4 font-semibold">Votre clé API</p>
-          <input className="input flex-1" disabled={true} value={publisher.apikey || ""} />
+          <label htmlFor="apikey" className="sr-only">
+            Votre clé API
+          </label>
+          <input id="apikey" className="input flex-1" name="apikey" disabled={true} value={publisher.apikey || ""} />
           <button className="flex cursor-pointer items-center border border-blue-dark p-2 text-blue-dark" onClick={handleCopy}>
             <RiFileCopyFill />
           </button>

@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { Helmet } from "react-helmet-async";
 import { RiAddFill, RiEditFill, RiEyeFill, RiSearchLine } from "react-icons/ri";
 import { Link } from "react-router-dom";
 
@@ -56,9 +57,15 @@ const Widgets = () => {
 
   return (
     <div className="space-y-6 p-12">
+      <Helmet>
+        <title>Diffuser des missions - Widgets - API Engagement</title>
+      </Helmet>
       <div className="mb-10 flex items-center justify-between gap-4">
         <div className="relative flex-1">
-          <input className="input w-full pl-4 pr-10 italic" placeholder="Chercher par nom" onChange={handleSearch} />
+          <label htmlFor="widget-search" className="sr-only">
+            Chercher par nom
+          </label>
+          <input id="widget-search" className="input w-full pl-4 pr-10 italic" name="widget-search" placeholder="Chercher par nom" onChange={handleSearch} />
           <RiSearchLine className="absolute right-3 top-1/2 transform -translate-y-1/2" />
         </div>
         {user.role === "admin" && (

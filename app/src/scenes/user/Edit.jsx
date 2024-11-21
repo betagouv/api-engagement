@@ -131,7 +131,13 @@ const Edit = () => {
             <label className="mb-2 text-sm" htmlFor="firstname">
               Prénom
             </label>
-            <input className={`input mb-2 ${errors.firstname ? "border-b-red-main" : "border-b-black"}`} name="firstname" value={values.firstname} onChange={handleChange} />
+            <input
+              id="firstname"
+              className={`input mb-2 ${errors.firstname ? "border-b-red-main" : "border-b-black"}`}
+              name="firstname"
+              value={values.firstname}
+              onChange={handleChange}
+            />
             {errors.firstname && (
               <div className="flex items-center text-sm text-red-main">
                 <RiErrorWarningFill className="mr-2" />
@@ -144,7 +150,13 @@ const Edit = () => {
             <label className="mb-2 text-sm" htmlFor="lastname">
               Nom de famille
             </label>
-            <input className={`input mb-2 ${errors.lastname ? "border-b-red-main" : "border-b-black"}`} name="lastname" value={values.lastname} onChange={handleChange} />
+            <input
+              id="lastname"
+              className={`input mb-2 ${errors.lastname ? "border-b-red-main" : "border-b-black"}`}
+              name="lastname"
+              value={values.lastname}
+              onChange={handleChange}
+            />
             {errors.lastname && (
               <div className="flex items-center text-sm text-red-main">
                 <RiErrorWarningFill className="mr-2" />
@@ -157,7 +169,7 @@ const Edit = () => {
             <label className="mb-2 text-sm" htmlFor="email">
               E-mail
             </label>
-            <input className={`input mb-2 ${errors.email ? "border-b-red-main" : "border-b-black"}`} name="email" value={values.email} onChange={handleChange} />
+            <input id="email" className={`input mb-2 ${errors.email ? "border-b-red-main" : "border-b-black"}`} name="email" value={values.email} onChange={handleChange} />
             {errors.email && (
               <div className="flex items-center text-sm text-red-main">
                 <RiErrorWarningFill className="mr-2" />
@@ -170,7 +182,7 @@ const Edit = () => {
               Rôle
             </label>
 
-            <select className={`input mb-2 ${errors.role ? "border-b-red-main" : "border-b-black"}`} value={values.role} onChange={handleChange} name="role">
+            <select id="role" className={`input mb-2 ${errors.role ? "border-b-red-main" : "border-b-black"}`} value={values.role} onChange={handleChange} name="role">
               <option value="user">Utilisateur</option>
               <option value="admin">Admin</option>
             </select>
@@ -191,7 +203,13 @@ const Edit = () => {
               Partenaires
             </label>
 
-            <input className="w-64 mb-4 input flex-1 bg-gray-light px-3 py-2 text-sm" placeholder="Rechercher" value={search} onChange={(e) => setSearch(e.target.value)} />
+            <input
+              id="publishers"
+              className="w-64 mb-4 input flex-1 bg-gray-light px-3 py-2 text-sm"
+              placeholder="Rechercher"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+            />
 
             {values.publishers.length > 0 && (
               <div className="mb-2 flex flex-wrap gap-2">

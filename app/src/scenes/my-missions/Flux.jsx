@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { Helmet } from "react-helmet-async";
 import { RiCheckboxCircleFill, RiFileDownloadLine, RiInformationLine } from "react-icons/ri";
 import { Link, useSearchParams } from "react-router-dom";
 
@@ -158,6 +159,9 @@ const Flux = () => {
 
   return (
     <div className="space-y-12 p-12">
+      <Helmet>
+        <title>Vos Missions - Missions partagées - API Engagement</title>
+      </Helmet>
       <div className="space-y-4">
         <SearchInput className="w-96" value={filters.search} onChange={(search) => setFilters({ ...filters, search })} placeholder="Rechercher par mot-clé" />
         <div className="flex items-center gap-4">

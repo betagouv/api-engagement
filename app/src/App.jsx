@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { HelmetProvider } from "react-helmet-async";
 import { BrowserRouter, Navigate, Outlet, Route, Routes, useNavigate } from "react-router-dom";
 import { ToastContainer } from "react-toastify";
 
@@ -58,45 +59,47 @@ const App = () => {
         position="top-right"
         autoClose={5000}
       />
-      <BrowserRouter>
-        <Routes>
-          <Route element={<AuthLayout />}>
-            <Route path="/login" element={<Login />} />
-            <Route path="/signup" element={<Signup />} />
-            <Route path="/forgot-password" element={<ForgotPassword />} />
-            <Route path="/reset-password" element={<ResetPassword />} />
-            <Route path="/connect" element={<LoginAs />} />
-          </Route>
-
-          <Route element={<StatsLayout />}>
-            <Route path="/public-stats" element={<PublicStats />} />
-          </Route>
-          <Route element={<ProtectedLayout />}>
-            <Route path="/performance/*" element={<Performance />} />
-            <Route path="/broadcast/*" element={<Broadcast />} />
-            <Route path="/my-missions/*" element={<MyMissions />} />
-            <Route path="/settings/*" element={<Settings />} />
-            <Route path="/cgu" element={<CGU />} />
-            <Route path="/mission/*" element={<Mission />} />
-            <Route path="/warning/*" element={<Warnings />} />
-            <Route path="/my-account" element={<Account />} />
-
-            <Route element={<AdminLayout />}>
-              <Route path="/broadcast/campaign/*" element={<Campaign />} />
-              <Route path="/broadcast/widget/*" element={<Widget />} />
-              <Route path="/publisher/*" element={<Publisher />} />
-              <Route path="/user/*" element={<User />} />
-              <Route path="/admin-mission/*" element={<AdminMissions />} />
-              <Route path="/admin-rna/*" element={<AdminRna />} />
-              <Route path="/admin-account/*" element={<AdminAccounts />} />
-              <Route path="/admin-stats/*" element={<AdminStats />} />
-              <Route path="/admin-warning/*" element={<AdminWarnings />} />
-              <Route path="/admin-report/*" element={<AdminReport />} />
+      <HelmetProvider>
+        <BrowserRouter>
+          <Routes>
+            <Route element={<AuthLayout />}>
+              <Route path="/login" element={<Login />} />
+              <Route path="/signup" element={<Signup />} />
+              <Route path="/forgot-password" element={<ForgotPassword />} />
+              <Route path="/reset-password" element={<ResetPassword />} />
+              <Route path="/connect" element={<LoginAs />} />
             </Route>
-          </Route>
-          <Route path="*" element={<Navigate to="/performance" />} />
-        </Routes>
-      </BrowserRouter>
+
+            <Route element={<StatsLayout />}>
+              <Route path="/public-stats" element={<PublicStats />} />
+            </Route>
+            <Route element={<ProtectedLayout />}>
+              <Route path="/performance/*" element={<Performance />} />
+              <Route path="/broadcast/*" element={<Broadcast />} />
+              <Route path="/my-missions/*" element={<MyMissions />} />
+              <Route path="/settings/*" element={<Settings />} />
+              <Route path="/cgu" element={<CGU />} />
+              <Route path="/mission/*" element={<Mission />} />
+              <Route path="/warning/*" element={<Warnings />} />
+              <Route path="/my-account" element={<Account />} />
+
+              <Route element={<AdminLayout />}>
+                <Route path="/broadcast/campaign/*" element={<Campaign />} />
+                <Route path="/broadcast/widget/*" element={<Widget />} />
+                <Route path="/publisher/*" element={<Publisher />} />
+                <Route path="/user/*" element={<User />} />
+                <Route path="/admin-mission/*" element={<AdminMissions />} />
+                <Route path="/admin-rna/*" element={<AdminRna />} />
+                <Route path="/admin-account/*" element={<AdminAccounts />} />
+                <Route path="/admin-stats/*" element={<AdminStats />} />
+                <Route path="/admin-warning/*" element={<AdminWarnings />} />
+                <Route path="/admin-report/*" element={<AdminReport />} />
+              </Route>
+            </Route>
+            <Route path="*" element={<Navigate to="/performance" />} />
+          </Routes>
+        </BrowserRouter>
+      </HelmetProvider>
     </>
   );
 };

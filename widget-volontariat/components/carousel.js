@@ -1,113 +1,33 @@
-import React from "react";
-import Slider from "react-slick";
+import React, { useState, useEffect } from "react";
 import { RiArrowLeftLine, RiArrowRightLine } from "react-icons/ri";
-
-import "slick-carousel/slick/slick.css";
-import "slick-carousel/slick/slick-theme.css";
-
 import Card from "./card";
 
 export const Carousel = ({ widget, missions, color, request }) => {
-  const DesktopPrevArrow = ({ onClick, currentSlide }) => {
-    const disabled = currentSlide === 0;
-    return (
-      <div className="absolute top-1/2 translate-x-1/2 -left-16">
-        <button
-          className="flex justify-center items-center w-10 h-10 rounded-full text-lg disabled:bg-grey-400 disabled:hover:bg-grey-400 disabled:cursor-default"
-          onClick={onClick}
-          disabled={disabled}
-          aria-label="Diapositive précédente"
-          style={{ backgroundColor: disabled ? "#e5e5e5" : color, color: disabled ? "#929292" : "white" }}
-        >
-          <RiArrowLeftLine />
-        </button>
-      </div>
-    );
-  };
-  const DesktopNextArrow = ({ onClick, currentSlide, slideCount }) => {
-    const disabled = currentSlide >= slideCount - 3;
-    return (
-      <div className="absolute top-1/2 translate-x-1/2 -right-6">
-        <button
-          className="flex justify-center items-center w-10 h-10 rounded-full text-lg disabled:bg-grey-400 disabled:hover:bg-grey-400 disabled:cursor-default"
-          onClick={onClick}
-          disabled={disabled}
-          aria-label="Diapositive suivante"
-          style={{ backgroundColor: disabled ? "#e5e5e5" : color, color: disabled ? "#929292" : "white" }}
-        >
-          <RiArrowRightLine />
-        </button>
-      </div>
-    );
-  };
-  const MobilePrevArrow = ({ onClick, currentSlide }) => {
-    const disabled = currentSlide === 0;
-    return (
-      <div className="absolute left-[35%] top-[105%]">
-        <button
-          className="flex justify-center items-center w-10 h-10 bg-white border border-neutral-grey-950 text-black text-lg disabled:opacity-40 disabled:cursor-default"
-          onClick={onClick}
-          aria-label="Diapositive précédente"
-          disabled={disabled}
-        >
-          <RiArrowLeftLine />
-        </button>
-      </div>
-    );
-  };
-  const MobileNextArrow = ({ onClick, currentSlide, slideCount }) => {
-    const disabled = currentSlide >= slideCount - 3;
-    return (
-      <div className="absolute right-[35%] top-[105%]">
-        <button
-          className="flex justify-center items-center w-10 h-10 bg-white border border-neutral-grey-950 text-black text-lg disabled:opacity-40 disabled:cursor-default"
-          onClick={onClick}
-          aria-label="Diapositive suivante"
-          disabled={disabled}
-        >
-          <RiArrowRightLine />
-        </button>
-      </div>
-    );
+  const [currentSlide, setCurrentSlide] = useState(0);
+  const [slidesToShow, setSlidesToShow] = useState(3);
+
+  useEffect(() => {
+    const getSlidesToShow = () => {
+      if (window.innerWidth < 640) return 1;
+      if (window.innerWidth < 768) return 2;
+      return 3;
+    };
+
+    const breakpoint = () => {
+      setSlidesToShow(getSlidesToShow());
+    };
+
+    breakpoint();
+    window.addEventListener("resize", breakpoint);
+    return () => window.removeEventListener("resize", breakpoint);
+  }, []);
+
+  const nextPage = () => {
+    setCurrentSlide((prev) => Math.min(prev + slidesToShow, missions.length - slidesToShow));
   };
 
-  const settings = {
-    speed: 500,
-    slidesToShow: 3,
-    slidesToScroll: 3,
-    initialSlide: 0,
-    prevArrow: <DesktopPrevArrow />,
-    nextArrow: <DesktopNextArrow />,
-    responsive: [
-      {
-        breakpoint: 639,
-        settings: {
-          slidesToShow: 1,
-          slidesToScroll: 1,
-          initialSlide: 0,
-          prevArrow: <MobilePrevArrow />,
-          nextArrow: <MobileNextArrow />,
-        },
-      },
-      {
-        breakpoint: 767,
-        settings: {
-          slidesToShow: 2,
-          slidesToScroll: 2,
-          initialSlide: 0,
-          prevArrow: <MobilePrevArrow />,
-          nextArrow: <MobileNextArrow />,
-        },
-      },
-      {
-        breakpoint: 1023,
-        settings: {
-          slidesToShow: 2,
-          slidesToScroll: 2,
-          initialSlide: 0,
-        },
-      },
-    ],
+  const prevPage = () => {
+    setCurrentSlide((prev) => Math.max(prev - slidesToShow, 0));
   };
 
   if (missions.length === 0) {
@@ -120,29 +40,77 @@ export const Carousel = ({ widget, missions, color, request }) => {
     );
   }
 
-  if (missions.length <= 3) {
-    return (
-      <main className="w-full">
-        <div className="flex justify-center sm:mx-2 gap-y-4 md:gap-y-12 gap-x-4">
-          {missions.map((mission, i) => (
-            <div role="group" key={i} id={mission._id} aria-labelledby={mission._id}>
+  return (
+    <main className="w-full relative">
+      <div className="overflow-hidden">
+        <div className="flex transition-transform duration-500 ease-in-out" style={{ transform: `translateX(-${currentSlide * (100 / slidesToShow)}%)` }}>
+          {missions.slice(0, 60).map((mission, i) => (
+            <div role="group" key={i} id={mission._id} aria-labelledby={mission._id} className={`flex-shrink-0 w-full sm:w-1/2 lg:w-1/3 px-2`}>
               <Card widget={widget} mission={mission} color={color} request={request} />
             </div>
           ))}
         </div>
-      </main>
-    );
-  }
+      </div>
 
-  return (
-    <main className="w-full">
-      <Slider {...settings}>
-        {missions.slice(0, 60).map((mission, i) => (
-          <div role="group" key={i} id={mission._id} aria-labelledby={mission._id}>
-            <Card widget={widget} mission={mission} color={color} request={request} />
-          </div>
-        ))}
-      </Slider>
+      <button
+        onClick={prevPage}
+        disabled={currentSlide === 0}
+        className="p-2 rounded-full absolute top-1/2 -translate-y-1/2 -left-10 hidden lg:flex"
+        style={{
+          backgroundColor: currentSlide === 0 ? "#e5e5e5" : color,
+          color: currentSlide === 0 ? "#929292" : "white",
+        }}
+        aria-label="Diapositive précédente"
+      >
+        <RiArrowLeftLine />
+      </button>
+
+      <button
+        onClick={nextPage}
+        disabled={currentSlide >= missions.length - slidesToShow}
+        className="p-2 rounded-full absolute top-1/2 -translate-y-1/2 -right-10 hidden lg:flex"
+        style={{
+          backgroundColor: currentSlide >= missions.length - slidesToShow ? "#e5e5e5" : color,
+          color: currentSlide >= missions.length - slidesToShow ? "#929292" : "white",
+        }}
+        aria-label="Diapositive suivante"
+      >
+        <RiArrowRightLine />
+      </button>
+
+      <div className="flex flex-col items-center mt-4 lg:hidden">
+        <div className="flex justify-center items-center gap-4 mb-2">
+          <button
+            onClick={prevPage}
+            disabled={currentSlide === 0}
+            className="p-2 rounded-full flex items-center justify-center"
+            style={{
+              backgroundColor: currentSlide === 0 ? "#e5e5e5" : color,
+              color: currentSlide === 0 ? "#929292" : "white",
+            }}
+            aria-label="Diapositive précédente"
+          >
+            <RiArrowLeftLine size={20} />
+          </button>
+
+          <span className="text-sm text-gray-500">
+            {Math.floor(currentSlide / slidesToShow) + 1} / {Math.ceil(missions.length / slidesToShow)}
+          </span>
+
+          <button
+            onClick={nextPage}
+            disabled={currentSlide >= missions.length - slidesToShow}
+            className="p-2 rounded-full flex items-center justify-center"
+            style={{
+              backgroundColor: currentSlide >= missions.length - slidesToShow ? "#e5e5e5" : color,
+              color: currentSlide >= missions.length - slidesToShow ? "#929292" : "white",
+            }}
+            aria-label="Diapositive suivante"
+          >
+            <RiArrowRightLine size={20} />
+          </button>
+        </div>
+      </div>
     </main>
   );
 };

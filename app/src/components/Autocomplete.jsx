@@ -3,7 +3,7 @@ import { RiArrowDownSLine, RiCloseLine } from "react-icons/ri";
 
 import Loader from "./Loader";
 
-const Autocomplete = ({ options, value, onChange, onSelect, loading = false, placeholder, className }) => {
+const Autocomplete = ({ options, value, onChange, onSelect, loading = false, placeholder, className, id }) => {
   const [isOpen, setIsOpen] = useState(false);
   const ref = useRef(null);
 
@@ -20,7 +20,12 @@ const Autocomplete = ({ options, value, onChange, onSelect, loading = false, pla
   return (
     <div className="relative w-full" ref={ref}>
       <div className="relative w-full">
+        <label htmlFor="autocomplete" className="sr-only">
+          {placeholder}
+        </label>
         <input
+          id="autocomplete"
+          name="autocomplete"
           className="input w-full"
           onChange={(e) => {
             setIsOpen(true);

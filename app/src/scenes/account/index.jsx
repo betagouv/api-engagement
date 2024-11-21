@@ -76,7 +76,13 @@ const Account = () => {
             <label className="mb-2 text-sm" htmlFor="firstname">
               Prénom
             </label>
-            <input className={`input mb-2 ${errors.firstname ? "border-b-red-main" : "border-b-black"}`} name="firstname" value={values.firstname} onChange={handleChange} />
+            <input
+              id="firstname"
+              className={`input mb-2 ${errors.firstname ? "border-b-red-main" : "border-b-black"}`}
+              name="firstname"
+              value={values.firstname}
+              onChange={handleChange}
+            />
             {errors.firstname && (
               <div className="flex items-center text-sm text-red-main">
                 <RiErrorWarningFill className="mr-2" />
@@ -89,13 +95,19 @@ const Account = () => {
             <label className="mb-2 text-sm" htmlFor="lastname">
               Nom de famille
             </label>
-            <input className={`input mb-2 ${errors.lastname ? "border-b-red-main" : "border-b-black"}`} name="lastname" value={values.lastname} onChange={handleChange} />
+            <input
+              id="lastname"
+              className={`input mb-2 ${errors.lastname ? "border-b-red-main" : "border-b-black"}`}
+              name="lastname"
+              value={values.lastname}
+              onChange={handleChange}
+            />
           </div>
           <div className="col-span-2 flex flex-col">
             <label className="mb-2 text-sm" htmlFor="email">
               E-mail
             </label>
-            <input className="input mb-2 border-b-black" name="email" disabled value={values.email} />
+            <input id="email" className="input mb-2 border-b-black" name="email" disabled value={values.email} />
           </div>
 
           <div className="col-span-2 flex justify-end gap-4">
@@ -184,12 +196,13 @@ const ResetPasswordModal = ({ open, setOpen }) => {
         <h2 className="mb-12">Changement du mot de passe</h2>
         <form onSubmit={handleSubmit} className="flex flex-col">
           <div className="flex flex-col">
-            <label className="mb-2 text-sm" htmlFor="oldPassword">
+            <label className="mb-2 text-sm" htmlFor="old-password">
               Ancien mot de passe
             </label>
             <input
+              id="old-password"
               className={`input mb-2 ${errors.oldPassword ? "border-b-red-main" : "border-b-black"}`}
-              name="oldPassword"
+              name="old-password"
               type="password"
               value={values.oldPassword}
               onChange={handleChange}
@@ -203,7 +216,7 @@ const ResetPasswordModal = ({ open, setOpen }) => {
           </div>
           <div className="flex flex-col mt-4">
             <div className="flex justify-between">
-              <label className="mb-2 text-sm" htmlFor="newPassword">
+              <label className="mb-2 text-sm" htmlFor="new-password">
                 Nouveau mot de passe
               </label>
               <div className="flex items-center gap-1 cursor-pointer" onClick={() => setShowNewPassword(!showNewPassword)}>
@@ -212,8 +225,9 @@ const ResetPasswordModal = ({ open, setOpen }) => {
               </div>
             </div>
             <input
+              id="new-password"
               className={`input mb-2 ${errors.newPassword ? "border-b-red-main" : "border-b-black"}`}
-              name="newPassword"
+              name="new-password"
               type={showNewPassword ? "text" : "password"}
               value={values.newPassword}
               onChange={handleChange}
@@ -228,7 +242,7 @@ const ResetPasswordModal = ({ open, setOpen }) => {
           </div>
           <div className="flex flex-col mt-4">
             <div className="flex justify-between">
-              <label className="mb-2 text-sm" htmlFor="confirmPassword">
+              <label className="mb-2 text-sm" htmlFor="confirm-password">
                 Confirmez le nouveau mot de passe
               </label>
               <div className="flex items-center gap-1 cursor-pointer" onClick={() => setShowConfirmPassword(!showConfirmPassword)}>
@@ -237,8 +251,9 @@ const ResetPasswordModal = ({ open, setOpen }) => {
               </div>
             </div>
             <input
+              id="confirm-password"
               className={`input mb-2 ${errors.confirmPassword ? "border-b-red-main" : "border-b-black"}`}
-              name="confirmPassword"
+              name="confirm-password"
               type={showConfirmPassword ? "text" : "password"}
               value={values.confirmPassword}
               onChange={handleChange}

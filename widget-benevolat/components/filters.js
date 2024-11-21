@@ -1,4 +1,4 @@
-import React, { useState, Fragment } from "react";
+import React, { useState, Fragment, useRef } from "react";
 import { Listbox, Combobox, Transition } from "@headlessui/react";
 import { RiSearchLine, RiSubtractLine, RiAddLine, RiArrowDownSLine, RiCheckboxFill, RiCheckboxBlankLine, RiMapPin2Fill, RiCloseFill } from "react-icons/ri";
 
@@ -101,6 +101,7 @@ export const Filters = ({ options, filters, setFilters, color, disabledLocation 
           selectedOptions={filters.remote}
           onChange={(f) => setFilters({ ...filters, remote: f })}
           placeholder="Présentiel / Distance"
+          aria-label="remote-filter"
           color={color}
         />
       </div>
@@ -133,6 +134,7 @@ export const Filters = ({ options, filters, setFilters, color, disabledLocation 
 const SelectFilter = ({ options, selectedOptions, onChange, color, placeholder = "Choissiez une option", position = "left-0", width = "w-80" }) => {
   const [keyboardNav, setKeyboardNav] = useState(false);
   const [search, setSearch] = useState("");
+  const searchRef = useRef(null);
   const searchOptions = options && options.filter ? options.filter((o) => o.label?.toLowerCase().includes(search.toLowerCase())) : [];
   const handleKeyDown = () => {
     setKeyboardNav(true);
@@ -148,6 +150,7 @@ const SelectFilter = ({ options, selectedOptions, onChange, color, placeholder =
     <Listbox as={Fragment} value={selectedOptions || []} onChange={onChange} by="value" multiple>
       <div className="relative w-full min-w-[6rem]">
         <Listbox.Button
+          aria-label={placeholder}
           className="rounded-lg border w-full border-neutral-grey-950 p-3 focus:outline-none focus-visible:ring focus-visible:ring-blue-800 flex items-center justify-between"
           onKeyDown={handleKeyDown}
         >
@@ -164,12 +167,13 @@ const SelectFilter = ({ options, selectedOptions, onChange, color, placeholder =
             </>
           )}
         </Listbox.Button>
-        <Transition as={Fragment} leave="transition ease-in duration-100" leaveFrom="opacity-100" leaveTo="opacity-0">
+        <Transition as={Fragment} leave="transition ease-in duration-100" leaveFrom="opacity-100" leaveTo="opacity-0" afterEnter={() => searchRef.current?.focus()}>
           <Listbox.Options className={`absolute ${position} mt-1 z-50 ${width} border border-neutral-grey-950 rounded-lg bg-white text-base focus:outline-none`}>
             <div className="p-2">
               <div className="rounded-lg border w-full border-neutral-grey-950 p-2 focus:outline-none flex items-center justify-between">
                 <RiSearchLine className="text-disabled-grey-700" />
                 <input
+                  ref={searchRef}
                   onKeyDown={(e) => {
                     if (e.code === "Space") {
                       e.stopPropagation();
@@ -271,6 +275,7 @@ const LocationFilter = ({ selected, onChange, color, disabled = false, width = "
             ) : (
               <>
                 <Combobox.Input
+                  aria-label="localisation"
                   className="pl-3 w-full text-sm ring-0 focus:ring-0 focus:outline-none min-w-[6rem]"
                   displayValue={(location) => location?.label}
                   placeholder="Localisation"

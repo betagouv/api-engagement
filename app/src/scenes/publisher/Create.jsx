@@ -72,7 +72,7 @@ const Create = () => {
                 Le nom ne peut pas être modifié une fois le compte créé
               </span>
             </label>
-            <input className={`input mb-2 ${errors.name ? "border-b-red-main" : "border-b-black"}`} name="name" value={values.name} onChange={handleChange} />
+            <input id="name" className={`input mb-2 ${errors.name ? "border-b-red-main" : "border-b-black"}`} name="name" value={values.name} onChange={handleChange} />
             {errors.name && (
               <div className="flex items-center text-sm text-red-main">
                 <RiErrorWarningFill className="mr-2" />
@@ -85,43 +85,65 @@ const Create = () => {
             <label className="mb-2 text-sm" htmlFor="email">
               Email de contact
             </label>
-            <input className="input mb-2" name="email" value={values.email} onChange={handleChange} />
+            <input id="email" className="input mb-2" name="email" value={values.email} onChange={handleChange} />
           </div>
           <div className="flex flex-col">
             <label className="mb-2 text-sm" htmlFor="url">
               URL
             </label>
-            <input className="input mb-2" name="url" value={values.url} onChange={handleChange} />
+            <input id="url" className="input mb-2" name="url" value={values.url} onChange={handleChange} />
           </div>
           <div className="flex flex-col">
             <label className="mb-2 text-sm" htmlFor="documentation">
               Documentation
             </label>
-            <input className="input mb-2" name="documentation" value={values.documentation} onChange={handleChange} />
+            <input id="documentation" className="input mb-2" name="documentation" value={values.documentation} onChange={handleChange} />
           </div>
 
           <div className="row-span-2 flex flex-col">
             <label className="mb-2 text-sm" htmlFor="description">
               Description
             </label>
-            <textarea rows={4} className="input mb-2" name="description" value={values.description} onChange={handleChange} />
+            <textarea id="description" rows={4} className="input mb-2" name="description" value={values.description} onChange={handleChange} />
           </div>
 
           <div className="flex flex-col">
-            <label className="mb-2 text-sm" htmlFor="role_promoteur">
+            <label className="mb-2 text-sm" htmlFor="role-promoteur">
               Annonceur
             </label>
             <div className="mb-2 flex items-center gap-12">
               <div className="flex items-center gap-3">
-                <input type="checkbox" className="checkbox" name="role_promoteur" onChange={handleChange} checked={values.role_promoteur} />
+                <input id="role-promoteur" type="checkbox" className="checkbox" name="role_promoteur" onChange={handleChange} checked={values.role_promoteur} />
                 <span>Annonceur</span>
               </div>
               <div className="flex items-center gap-3">
-                <input type="radio" className="checkbox" name="mission_type" value="benevolat" onChange={handleChange} checked={values.mission_type === "benevolat"} />
+                <label htmlFor="mission-type-benevolat" className="sr-only">
+                  Bénévolat
+                </label>
+                <input
+                  id="mission-type-benevolat"
+                  type="radio"
+                  className="checkbox"
+                  name="mission-type-benevolat"
+                  value="benevolat"
+                  onChange={handleChange}
+                  checked={values.mission_type === "benevolat"}
+                />
                 <span>Bénévolat</span>
               </div>
               <div className="flex items-center gap-3">
-                <input type="radio" className="checkbox" name="mission_type" value="volontariat" onChange={handleChange} checked={values.mission_type === "volontariat"} />
+                <label htmlFor="mission-type-volontariat" className="sr-only">
+                  Volontariat
+                </label>
+                <input
+                  id="mission-type-volontariat"
+                  type="radio"
+                  className="checkbox"
+                  name="mission-type-volontariat"
+                  value="volontariat"
+                  onChange={handleChange}
+                  checked={values.mission_type === "volontariat"}
+                />
                 <span>Volontariat</span>
               </div>
             </div>
@@ -131,15 +153,38 @@ const Create = () => {
             <label className="mb-2 text-sm">Diffuseur</label>
             <div className="mb-2 flex items-center gap-12">
               <div className="flex items-center gap-3">
-                <input type="checkbox" className="checkbox" name="role_annonceur_api" onChange={handleChange} checked={values.role_annonceur_api} />
+                <label htmlFor="role-annonceur-api" className="sr-only">
+                  API
+                </label>
+                <input id="role-annonceur-api" type="checkbox" className="checkbox" name="role-annonceur-api" onChange={handleChange} checked={values.role_annonceur_api} />
                 <span>API</span>
               </div>
               <div className="flex items-center gap-3">
-                <input type="checkbox" className="checkbox" name="role_annonceur_widget" onChange={handleChange} checked={values.role_annonceur_widget} />
+                <label htmlFor="role-annonceur-widget" className="sr-only">
+                  Widget
+                </label>
+                <input
+                  id="role-annonceur-widget"
+                  type="checkbox"
+                  className="checkbox"
+                  name="role-annonceur-widget"
+                  onChange={handleChange}
+                  checked={values.role_annonceur_widget}
+                />
                 <span>Widget</span>
               </div>
               <div className="flex items-center gap-3">
-                <input type="checkbox" className="checkbox" name="role_annonceur_campagne" onChange={handleChange} checked={values.role_annonceur_campagne} />
+                <label htmlFor="role-annonceur-campagne" className="sr-only">
+                  Campagne
+                </label>
+                <input
+                  id="role-annonceur-campagne"
+                  type="checkbox"
+                  className="checkbox"
+                  name="role-annonceur-campagne"
+                  onChange={handleChange}
+                  checked={values.role_annonceur_campagne}
+                />
                 <span>Campagne</span>
               </div>
             </div>

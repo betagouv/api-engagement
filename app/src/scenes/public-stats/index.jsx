@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { Helmet } from "react-helmet-async";
 import { RiQuestionLine } from "react-icons/ri";
 
 import { useSearchParams } from "react-router-dom";
@@ -166,6 +167,9 @@ const PublicStats = () => {
 
   return (
     <div className="flex w-full flex-col bg-white shadow-lg">
+      <Helmet>
+        <title>Statistiques - API Engagement</title>
+      </Helmet>
       <div className="mx-auto my-14 w-4/5 max-w-[1200px] flex-1">
         <div className="flex justify-between">
           <div className="flex flex-col">

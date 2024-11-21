@@ -211,6 +211,7 @@ const Settings = ({ values, setValues, errors }) => {
             Nom du widget<span className="ml-1 text-red-main">*</span>
           </label>
           <input
+            id="name"
             className={`input mb-2 ${errors.name ? "border-b-red-main" : "border-b-black"}`}
             name="name"
             value={values.name}
@@ -249,32 +250,45 @@ const Settings = ({ values, setValues, errors }) => {
       <h2 className="text-2xl font-bold">Missions à diffuser</h2>
       <div className="grid grid-cols-2 gap-10">
         <div className="flex flex-col">
-          <label className="mb-2" htmlFor="name">
+          <label className="mb-2" htmlFor="type">
             Type de mission<span className="ml-1 text-red-main">*</span>
           </label>
           <div className="flex items-center justify-between">
             {publisher.publishers && publisher.publishers.some((p) => p.publisher === SC_ID) && publisher.publishers.length === 1 ? (
-              <RadioInput
-                id="type-volontariat"
-                name="type"
-                value="volontariat"
-                label="Volontariat"
-                checked={values.type === "volontariat"}
-                onChange={() => setValues({ ...values, type: "volontariat", publishers: [missions.find((p) => p.mission_type === "volontariat")?._id] })}
-                disabled={true}
-              />
+              <>
+                <label htmlFor="type-volontariat" className="sr-only">
+                  Volontariat
+                </label>
+                <RadioInput
+                  id="type-volontariat"
+                  name="type"
+                  value="volontariat"
+                  label="Volontariat"
+                  checked={values.type === "volontariat"}
+                  onChange={() => setValues({ ...values, type: "volontariat", publishers: [missions.find((p) => p.mission_type === "volontariat")?._id] })}
+                  disabled={true}
+                />
+              </>
             ) : publisher.publishers && !publisher.publishers.some((p) => p.publisher === SC_ID) && publisher.publishers.length > 0 ? (
-              <RadioInput
-                id="type-benevolat"
-                name="type"
-                value="benevolat"
-                label="Bénévolat"
-                checked={values.type === "benevolat"}
-                onChange={() => setValues({ ...values, type: "benevolat", publishers: [] })}
-                disabled={true}
-              />
+              <>
+                <label htmlFor="type-benevolat" className="sr-only">
+                  Bénévolat
+                </label>
+                <RadioInput
+                  id="type-benevolat"
+                  name="type"
+                  value="benevolat"
+                  label="Bénévolat"
+                  checked={values.type === "benevolat"}
+                  onChange={() => setValues({ ...values, type: "benevolat", publishers: [] })}
+                  disabled={true}
+                />
+              </>
             ) : (
               <>
+                <label htmlFor="type-benevolat" className="sr-only">
+                  Bénévolat
+                </label>
                 <RadioInput
                   id="type-benevolat"
                   name="type"
@@ -283,6 +297,9 @@ const Settings = ({ values, setValues, errors }) => {
                   checked={values.type === "benevolat"}
                   onChange={() => setValues({ ...values, type: "benevolat", publishers: [] })}
                 />
+                <label htmlFor="type-volontariat" className="sr-only">
+                  Volontariat
+                </label>
                 <RadioInput
                   id="type-volontariat"
                   name="type"

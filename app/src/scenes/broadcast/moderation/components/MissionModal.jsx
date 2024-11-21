@@ -205,12 +205,13 @@ const MissionTab = ({ data, onChange }) => {
     <form className="flex divide-x pb-4" onSubmit={handleSubmit}>
       <div className="flex flex-col gap-4 p-8 w-full">
         <div className="flex flex-col">
-          <label className="mb-2 text-sm" htmlFor="newMissionTitle">
+          <label className="mb-2 text-sm" htmlFor="new-mission-title">
             Nom de la mission
           </label>
           <input
             className={`input mb-2 ${error ? "border-b-red-main" : "border-b-black"}`}
-            name="newMissionTitle"
+            id="new-mission-title"
+            name="new-mission-title"
             placeholder={data.title}
             value={newTitle}
             onChange={(e) => setNewTitle(e.target.value)}
@@ -311,26 +312,33 @@ const OrganizationTab = ({ data, onChange }) => {
     <form className="flex h-full divide-x" onSubmit={handleSubmit}>
       <div className="flex flex-1 flex-col gap-2 p-8">
         <div className="flex flex-col gap-2">
-          <label className="text-sm" htmlFor="associationName">
+          <label className="text-sm" htmlFor="association-name">
             Nom de l'organisation
           </label>
-          <input className="input mb-2" disabled name="associationName" defaultValue={data.organizationName} />
+          <input id="association-name" className="input mb-2" disabled name="association-name" defaultValue={data.organizationName} />
         </div>
         <div className="flex flex-col gap-2 py-2">
-          <label className="text-sm" htmlFor="associationSiren">
+          <label className="text-sm" htmlFor="association-siren">
             SIRET
           </label>
-          <input className="input mb-2" name="associationSiren" placeholder={data.associationSiren} value={siren} onChange={(e) => setSiren(e.target.value)} />
+          <input
+            id="association-siren"
+            className="input mb-2"
+            name="association-siren"
+            placeholder={data.associationSiren}
+            value={siren}
+            onChange={(e) => setSiren(e.target.value)}
+          />
           <p className="text-xs text-gray-dark">
             <span className="mr-1 font-semibold">SIRET d'origine:</span>
             {data.associationSiren ? data.associationSiren : "/"}
           </p>
         </div>
         <div className="flex flex-col space-y-2 py-2">
-          <label className="text-sm" htmlFor="associationRNA">
+          <label className="text-sm" htmlFor="association-rna">
             RNA
           </label>
-          <input className="input mb-2" name="associationRNA" placeholder={data.associationRNA} value={rna} onChange={(e) => setRna(e.target.value)} />
+          <input id="association-rna" className="input mb-2" name="association-rna" placeholder={data.associationRNA} value={rna} onChange={(e) => setRna(e.target.value)} />
           <p className="text-xs text-gray-dark">
             <span className="mr-1 font-semibold">RNA d'origine:</span>
             {data.associationRNA ? data.associationRNA : "/"}

@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { Helmet } from "react-helmet-async";
 import { RiAlertFill, RiInformationFill } from "react-icons/ri";
 import { Link } from "react-router-dom";
 
@@ -76,6 +77,9 @@ const GlobalDiffuseur = ({ filters, onFiltersChange }) => {
 
   return (
     <div className="space-y-12 p-12">
+      <Helmet>
+        <title>Performance - Au global - API Engagement</title>
+      </Helmet>
       <div className="space-y-2">
         <label className="text-sm text-gray-dark uppercase font-semibold">Période</label>
         <DateRangePicker value={filters} onChange={(value) => onFiltersChange({ ...filters, ...value })} />
