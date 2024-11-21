@@ -11,9 +11,6 @@ import { Carousel } from "../components/carousel";
 import { Grid } from "../components/grid";
 import { Filters, MobileFilters } from "../components/filters";
 
-import AdemeMission from "../public/json/mission.json";
-import { WIDGET, filter, getAggregations } from "../ademe";
-
 /**
  * Layout widget --> max-width: 1152px
  * 1 : CAROUSEL
@@ -60,22 +57,26 @@ const Home = ({ widget, missions, options, total, request, environment }) => {
 
   useEffect(() => {
     if (!widget) return;
-    const query = { widget: widget._id };
 
-    if (filters.domain && filters.domain.length) query.domain = JSON.stringify(filters.domain.filter((item) => item && item.value).map((item) => item.value));
-    if (filters.organization && filters.organization.length)
-      query.organization = JSON.stringify(filters.organization.filter((item) => item && item.value).map((item) => item.value));
-    if (filters.department && filters.department.length) query.department = JSON.stringify(filters.department.filter((item) => item && item.value).map((item) => item.value));
-    if (filters.remote && filters.remote.length) query.remote = JSON.stringify(filters.remote.filter((item) => item && item.value).map((item) => item.value));
-    if (filters.size) query.size = filters.size;
-    if (filters.page > 1) query.from = (filters.page - 1) * filters.size;
-    if (filters.location && filters.location.lat && filters.location.lon) {
-      query.lat = filters.location.lat;
-      query.lon = filters.location.lon;
-    }
+    // Timeout to prevent multiple rapid router pushes
+    const timeoutId = setTimeout(() => {
+      const query = { widget: widget._id };
 
-    router.push({ pathname: "/", query });
-  }, [filters]);
+      if (filters.domain?.length) query.domain = JSON.stringify(filters.domain.filter((item) => item && item.value).map((item) => item.value));
+      if (filters.organization?.length) query.organization = JSON.stringify(filters.organization.filter((item) => item && item.value).map((item) => item.value));
+      if (filters.department?.length) query.department = JSON.stringify(filters.department.filter((item) => item && item.value).map((item) => item.value));
+      if (filters.remote?.length) query.remote = JSON.stringify(filters.remote.filter((item) => item && item.value).map((item) => item.value));
+      if (filters.size) query.size = filters.size;
+      if (filters.page > 1) query.from = (filters.page - 1) * filters.size;
+      if (filters.location?.lat && filters.location?.lon) {
+        query.lat = filters.location.lat;
+        query.lon = filters.location.lon;
+      }
+
+      router.push({ pathname: "/", query });
+    }, 100);
+    return () => clearTimeout(timeoutId);
+  }, [filters, widget?._id]);
 
   const fetchLocation = async (lat, lon) => {
     try {
