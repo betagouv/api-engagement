@@ -66,25 +66,30 @@ const Home = ({ widget, missions, options, total, request, environment }) => {
 
   useEffect(() => {
     if (!widget) return;
-    const query = { widget: widget._id };
 
-    if (filters.schedule && filters.schedule.length) query.schedule = JSON.stringify(filters.schedule.filter((item) => item && item.value).map((item) => item.value));
-    if (filters.minor && filters.minor.length) query.minor = JSON.stringify(filters.minor.filter((item) => item && item.value).map((item) => item.value));
-    if (filters.accessibility && filters.accessibility.length)
-      query.accessibility = JSON.stringify(filters.accessibility.filter((item) => item && item.value).map((item) => item.value));
-    if (filters.domain && filters.domain.length) query.domain = JSON.stringify(filters.domain.filter((item) => item && item.value).map((item) => item.value));
-    if (filters.action && filters.action.length) query.action = JSON.stringify(filters.action.filter((item) => item && item.value).map((item) => item.value));
-    if (filters.beneficiary && filters.beneficiary.length) query.beneficiary = JSON.stringify(filters.beneficiary.filter((item) => item && item.value).map((item) => item.value));
-    if (filters.country && filters.country.length) query.country = JSON.stringify(filters.country.filter((item) => item && item.value).map((item) => item.value));
-    if (filters.start) query.start = filters.start.value.toISOString();
-    if (filters.duration) query.duration = filters.duration.value;
-    if (filters.size) query.size = filters.size;
-    if (filters.page > 1) query.from = (filters.page - 1) * filters.size;
-    if (filters.location && filters.location.lat && filters.location.lon) {
-      query.lat = filters.location.lat;
-      query.lon = filters.location.lon;
-    }
-    router.push({ pathname: "/", query });
+    // Timeout to prevent multiple rapid router pushes
+    const timeoutId = setTimeout(() => {
+      const query = { widget: widget._id };
+
+      if (filters.schedule && filters.schedule.length) query.schedule = JSON.stringify(filters.schedule.filter((item) => item && item.value).map((item) => item.value));
+      if (filters.minor && filters.minor.length) query.minor = JSON.stringify(filters.minor.filter((item) => item && item.value).map((item) => item.value));
+      if (filters.accessibility && filters.accessibility.length)
+        query.accessibility = JSON.stringify(filters.accessibility.filter((item) => item && item.value).map((item) => item.value));
+      if (filters.domain && filters.domain.length) query.domain = JSON.stringify(filters.domain.filter((item) => item && item.value).map((item) => item.value));
+      if (filters.action && filters.action.length) query.action = JSON.stringify(filters.action.filter((item) => item && item.value).map((item) => item.value));
+      if (filters.beneficiary && filters.beneficiary.length) query.beneficiary = JSON.stringify(filters.beneficiary.filter((item) => item && item.value).map((item) => item.value));
+      if (filters.country && filters.country.length) query.country = JSON.stringify(filters.country.filter((item) => item && item.value).map((item) => item.value));
+      if (filters.start) query.start = filters.start.value.toISOString();
+      if (filters.duration) query.duration = filters.duration.value;
+      if (filters.size) query.size = filters.size;
+      if (filters.page > 1) query.from = (filters.page - 1) * filters.size;
+      if (filters.location && filters.location.lat && filters.location.lon) {
+        query.lat = filters.location.lat;
+        query.lon = filters.location.lon;
+      }
+      router.push({ pathname: "/", query });
+    }, 100);
+    return () => clearTimeout(timeoutId);
   }, [filters]);
 
   const fetchLocation = async (lat, lon) => {
