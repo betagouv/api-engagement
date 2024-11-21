@@ -88,6 +88,7 @@ model Mission {
 
   @@index([partner_id], map: "mission_partner_id")
   @@index([client_id], map: "mission_client_id")
+  @@index([old_id], map: "mission_old_id")
 }
 
 model Partner {

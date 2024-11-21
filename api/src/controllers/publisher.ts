@@ -44,12 +44,7 @@ router.get("/", passport.authenticate("user", { session: false }), async (req: U
       }
     } else if (user.role !== "admin") where._id = { $in: user.publishers };
 
-    let data = await PublisherModel.find(where).lean();
-
-    if (query.partnersOf) {
-      // remove API Enagagement from the list of partners
-      data = data.filter((e) => e._id.toString() !== "63da29db7d356a87a4e35d4a");
-    }
+    const data = await PublisherModel.find(where).lean();
 
     return res.status(200).send({ ok: true, data });
   } catch (error) {
@@ -77,12 +72,12 @@ router.post("/search", passport.authenticate("user", { session: false }), async 
     if (body.data.ids) where._id = { $in: body.data.ids };
 
     if (body.data.partnersOf) {
-      if (req.user.role !== "admin" && !req.user.publishers.find((e: string) => e === body.data.partnersOf))
-        return res.status(403).send({ ok: false, code: FORBIDDEN, message: `Not allowed` });
-      else where["publishers.publisher"] = body.data.partnersOf;
+      if (req.user.role === "admin" || (req.user.role !== "admin" && req.user.publishers.some((e: string) => e === body.data.partnersOf)))
+        where["publishers.publisher"] = body.data.partnersOf;
+      else return res.status(403).send({ ok: false, code: FORBIDDEN, message: `Not allowed` });
     }
 
-    if ((!where._id || !where["publishers.publisher"]) && req.user.role !== "admin") where._id = { $in: req.user.publishers };
+    if (!where._id && !where["publishers.publisher"] && req.user.role !== "admin") where._id = { $in: req.user.publishers };
 
     const data = await PublisherModel.find(where);
     const total = await PublisherModel.countDocuments(where);

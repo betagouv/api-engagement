@@ -8,11 +8,11 @@ import Loader from "../../components/Loader";
 import Select from "../../components/NewSelect";
 import TablePagination from "../../components/NewTablePagination";
 import SearchInput from "../../components/SearchInput";
+import { STATUS_PLR } from "../../constants";
 import api from "../../services/api";
 import { captureError } from "../../services/error";
 import useStore from "../../services/store";
 import exportCSV from "../../services/utils";
-import { STATUS } from "../broadcast/moderation/components/Constants";
 
 const TABLE_HEADER = [
   { title: "Mission", key: "title.keyword", colSpan: 4 },
@@ -72,7 +72,6 @@ const Flux = () => {
   }, []);
 
   useEffect(() => {
-    // Debounce search
     const controller = new AbortController();
     const fetchData = async () => {
       setLoading(true);
@@ -163,35 +162,35 @@ const Flux = () => {
         <SearchInput className="w-96" value={filters.search} onChange={(search) => setFilters({ ...filters, search })} placeholder="Rechercher par mot-clé" />
         <div className="flex items-center gap-4">
           <Select
-            options={options.status.map((e) => ({ value: e.key, label: STATUS[e.key], count: e.doc_count }))}
+            options={options.status.map((e) => ({ value: e.key, label: STATUS_PLR[e.key], count: e.doc_count }))}
             value={filters.status}
             onChange={(e) => setFilters({ ...filters, status: e.value })}
             placeholder="Statut"
             loading={loading}
           />
           <Select
-            options={options.domains.map((e) => ({ value: e.key, label: e.key, count: e.doc_count }))}
+            options={options.domains.map((e) => ({ value: e.key === "" ? "none" : e.key, label: e.key === "" ? "Non renseignée" : e.key, count: e.doc_count }))}
             value={filters.domain}
             onChange={(e) => setFilters({ ...filters, domain: e.value })}
             placeholder="Domaine"
             loading={loading}
           />
           <Select
-            options={options.activities.map((e) => ({ value: e.key, label: e.key, count: e.doc_count }))}
+            options={options.activities.map((e) => ({ value: e.key === "" ? "none" : e.key, label: e.key === "" ? "Non renseignée" : e.key, count: e.doc_count }))}
             value={filters.activity}
             onChange={(e) => setFilters({ ...filters, activity: e.value })}
             placeholder="Activité"
             loading={loading}
           />
           <Select
-            options={options.cities.map((e) => ({ value: e.key, label: e.key, count: e.doc_count }))}
+            options={options.cities.map((e) => ({ value: e.key === "" ? "none" : e.key, label: e.key === "" ? "Non renseignée" : e.key, count: e.doc_count }))}
             value={filters.city}
             onChange={(e) => setFilters({ ...filters, city: e.value })}
             placeholder="Ville"
             loading={loading}
           />
           <Select
-            options={options.organizations.map((e) => ({ value: e.key, label: e.key, count: e.doc_count }))}
+            options={options.organizations.map((e) => ({ value: e.key === "" ? "none" : e.key, label: e.key === "" ? "Non renseignée" : e.key, count: e.doc_count }))}
             value={filters.organization}
             onChange={(e) => setFilters({ ...filters, organization: e.value })}
             placeholder="Organisation"
