@@ -25,7 +25,6 @@ router.get("/", passport.authenticate("user", { session: false }), async (req: U
       .unknown(true)
       .validate(req.query);
     const user = req.user;
-    user.role = "user";
 
     if (errorQuery) return res.status(400).send({ ok: false, code: INVALID_QUERY, message: errorQuery.details });
 
@@ -73,13 +72,12 @@ router.post("/search", passport.authenticate("user", { session: false }), async 
     if (body.data.ids) where._id = { $in: body.data.ids };
 
     if (body.data.partnersOf) {
-      console.log(req.user.publishers);
       if (req.user.role === "admin" || (req.user.role !== "admin" && req.user.publishers.some((e: string) => e === body.data.partnersOf)))
         where["publishers.publisher"] = body.data.partnersOf;
       else return res.status(403).send({ ok: false, code: FORBIDDEN, message: `Not allowed` });
     }
 
-    if ((!where._id || !where["publishers.publisher"]) && req.user.role !== "admin") where._id = { $in: req.user.publishers };
+    if (!where._id && !where["publishers.publisher"] && req.user.role !== "admin") where._id = { $in: req.user.publishers };
 
     const data = await PublisherModel.find(where);
     const total = await PublisherModel.countDocuments(where);
