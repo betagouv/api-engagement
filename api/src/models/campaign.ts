@@ -82,5 +82,8 @@ const schema = new Schema<Campaign>({
   },
 });
 
+schema.index({ _id: 1 }, { unique: true });
+schema.index({ name: 1, fromPublisherId: 1 }, { unique: true, partialFilterExpression: { deletedAt: null } });
+
 const CampaingModel = model<Campaign>(MODELNAME, schema);
 export default CampaingModel;
