@@ -5,20 +5,19 @@ import MissionModel from "../../models/mission";
 import { Kpi } from "../../types";
 
 // Cron that create a kpi doc every with the data available
-const handler = async (start?: Date) => {
-  if (!start) start = new Date();
+const buildDayKpi = async (start: Date) => {
   console.log(`[KPI] Starting at ${start.toISOString()}`);
 
   // Get the previous day
-  const date = new Date(start.getFullYear(), start.getMonth(), start.getDate() - 1);
+  const fromDate = new Date(start.getFullYear(), start.getMonth(), start.getDate() - 1);
   const endDate = new Date(start.getFullYear(), start.getMonth(), start.getDate());
 
   const kpi = {
-    date,
+    date: start,
   } as Kpi;
 
   const whereMissionAvailable = {
-    $or: [{ deletedAt: { $gte: date } }, { deleted: false }],
+    $or: [{ deletedAt: { $gte: fromDate } }, { deleted: false }],
     createdAt: { $lt: endDate },
   };
 
@@ -71,7 +70,7 @@ const handler = async (start?: Date) => {
           must_not: {
             term: { "toPublisherName.keyword": "Service Civique" },
           },
-          filter: [{ range: { createdAt: { gte: date, lt: endDate } } }],
+          filter: [{ range: { createdAt: { gte: fromDate, lt: endDate } } }],
         },
       },
       aggs: {
@@ -109,7 +108,7 @@ const handler = async (start?: Date) => {
     body: {
       query: {
         bool: {
-          filter: [{ term: { "toPublisherName.keyword": "Service Civique" } }, { range: { createdAt: { gte: date, lt: endDate } } }],
+          filter: [{ term: { "toPublisherName.keyword": "Service Civique" } }, { range: { createdAt: { gte: fromDate, lt: endDate } } }],
         },
       },
       aggs: {
@@ -179,6 +178,19 @@ const handler = async (start?: Date) => {
   await KpiModel.create(kpi);
 
   console.log(`[KPI] Created kpi for ${start.toISOString()}`);
+};
+
+const handler = async () => {
+  const today = new Date();
+  const yesterday = new Date(today.getFullYear(), today.getMonth(), today.getDate() - 1);
+
+  // build kpi for the last 7 days if not already exists
+  for (let i = 0; i < 7; i++) {
+    const fromDate = new Date(yesterday.getFullYear(), yesterday.getMonth(), yesterday.getDate() - i);
+    const kpi = await KpiModel.findOne({ date: fromDate });
+    if (!kpi) await buildDayKpi(fromDate);
+    else console.log(`[KPI] KPI already exists for ${fromDate.toISOString()}`);
+  }
 };
 
 export default { handler };
