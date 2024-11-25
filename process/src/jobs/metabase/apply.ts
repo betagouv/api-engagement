@@ -67,6 +67,7 @@ const buildData = async (
     widget_id: sourceId && doc.source === "widget" ? sourceId : null,
     to_partner_id: partnerToId,
     from_partner_id: partnerFromId,
+    status: doc.status,
   } as Apply;
 
   return obj;
@@ -77,14 +78,11 @@ const handler = async () => {
     const start = new Date();
     console.log(`[Applies] Started at ${start.toISOString()}.`);
     let created = 0;
+    let updated = 0;
     let scrollId = null;
 
-    const stored = await prisma.apply.count();
-    console.log(`[Applies] Found ${stored} docs in database.`);
-    // Select clicks from the last 2 months
-    const whereClicks = { created_at: { gte: new Date(Date.now() - 1000 * 60 * 60 * 24 * 62) } };
-    const clicks = {} as { [key: string]: string };
-    await prisma.click.findMany({ where: whereClicks, select: { id: true, old_id: true } }).then((data) => data.forEach((d) => (clicks[d.old_id] = d.id)));
+    const count = await prisma.apply.count();
+    console.log(`[Applies] Found ${count} docs in database.`);
     const missions = {} as { [key: string]: string };
     await prisma.mission
       .findMany({ select: { id: true, client_id: true, partner: { select: { old_id: true } } } })
@@ -97,7 +95,7 @@ const handler = async () => {
     await prisma.widget.findMany({ select: { id: true, old_id: true } }).then((data) => data.forEach((d) => (widgets[d.old_id] = d.id)));
 
     while (true) {
-      let data = [];
+      let data: { _id: string; _source: Stats }[] = [];
 
       if (scrollId) {
         const { body } = await esClient.scroll({
@@ -110,30 +108,11 @@ const handler = async () => {
           index: STATS_INDEX,
           scroll: "20m",
           size: BATCH_SIZE,
-          body: {
-            query: {
-              bool: {
-                must: [
-                  {
-                    term: {
-                      "type.keyword": "apply",
-                    },
-                  },
-                  {
-                    range: {
-                      createdAt: {
-                        gte: "now-14d/d",
-                      },
-                    },
-                  },
-                ],
-              },
-            },
-          },
+          body: { query: { term: { "type.keyword": "apply" } } },
           track_total_hits: true,
         });
         scrollId = body._scroll_id;
-        data = body.hits.hits as { _id: string; _source: Stats }[];
+        data = body.hits.hits;
         console.log(`[Applies] Total hits ${body.hits.total.value}, scrollId ${scrollId}`);
       }
 
@@ -141,7 +120,24 @@ const handler = async () => {
         break;
       }
 
-      const dataToCreate = [];
+      const stored = {} as { [key: string]: { status: string | null; click_id: string | null } };
+      await prisma.apply
+        .findMany({
+          where: { old_id: { in: data.map((hit) => hit._id.toString()) } },
+          select: { old_id: true, status: true, click_id: true },
+        })
+        .then((data) => data.forEach((d) => (stored[d.old_id] = d)));
+
+      const clicks = {} as { [key: string]: string };
+      const clickIds: string[] = [];
+      data.forEach((hit) => hit._source.clickId && clickIds.push(hit._source.clickId));
+      if (clickIds.length) {
+        await prisma.click.findMany({ where: { old_id: { in: clickIds } }, select: { id: true, old_id: true } }).then((data) => data.forEach((d) => (clicks[d.old_id] = d.id)));
+      }
+
+      const dataToCreate = [] as Apply[];
+      const dataToUpdate = [] as Apply[];
+
       for (const hit of data) {
         let clickId;
         if (hit._source.clickId) {
@@ -156,17 +152,33 @@ const handler = async () => {
             }
           }
         }
-        const obj = await buildData({ _id: hit._id, ...hit._source }, partners, missions, campaigns, widgets, clickId);
+        const obj = await buildData({ ...hit._source, _id: hit._id }, partners, missions, campaigns, widgets, clickId);
         if (!obj) continue;
-        dataToCreate.push(obj);
+        if (stored[hit._id.toString()] && stored[hit._id.toString()].status !== obj.status && stored[hit._id.toString()].click_id !== obj.click_id) dataToUpdate.push(obj);
+        else if (!stored[hit._id.toString()]) dataToCreate.push(obj);
       }
 
-      // Create data
+      console.log(`[Applies] ${dataToCreate.length} docs to create, ${dataToUpdate.length} docs to update.`);
+
       if (dataToCreate.length) {
+        console.log(`[Applies] Creating ${dataToCreate.length} docs.`);
         const res = await prisma.apply.createMany({ data: dataToCreate, skipDuplicates: true });
         created += res.count;
         console.log(`[Applies] Created ${res.count} docs, ${created} created so far.`);
       }
+
+      if (dataToUpdate.length) {
+        console.log(`[Applies] Updating ${dataToUpdate.length} docs.`);
+        const transactions = [];
+        for (const obj of dataToUpdate) {
+          transactions.push(prisma.apply.update({ where: { old_id: obj.old_id }, data: obj }));
+        }
+        for (let i = 0; i < transactions.length; i += 100) {
+          await prisma.$transaction(transactions.slice(i, i + 100));
+        }
+      }
+      updated += dataToUpdate.length;
+      console.log(`[Applies] Updated ${dataToUpdate.length} docs, ${updated} updated so far.`);
     }
 
     console.log(`[Applies] Ended at ${new Date().toISOString()} in ${(Date.now() - start.getTime()) / 1000}s.`);
