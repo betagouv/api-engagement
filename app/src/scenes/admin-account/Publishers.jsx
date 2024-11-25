@@ -103,7 +103,7 @@ const Publishers = () => {
   return (
     <div className="space-y-12 p-12">
       <Helmet>
-        <title>Administration - Partenaires - API Engagement</title>
+        <title> Partenaires - Administration - API Engagement</title>
       </Helmet>
       <div className="flex items-center justify-between">
         <div>

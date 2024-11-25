@@ -83,7 +83,7 @@ const Campaigns = () => {
   return (
     <div className="space-y-12 p-12">
       <Helmet>
-        <title>Diffuser des missions - Campagnes - API Engagement</title>
+        <title>Campagnes - Diffuser des missions - API Engagement</title>
       </Helmet>
       <div className="flex items-center gap-32 justify-between">
         <div className="flex items-center gap-4 flex-1">

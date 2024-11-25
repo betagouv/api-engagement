@@ -29,7 +29,7 @@ const Performance = () => {
   return (
     <div className="space-y-12">
       <Helmet>
-        <title>Performance - Au global - API Engagement</title>
+        <title>Au global - Performance - API Engagement</title>
       </Helmet>
       <h1 className="text-4xl font-bold">Votre activité {flux === "from" ? "de diffuseur" : "d'annonceur"}</h1>
 

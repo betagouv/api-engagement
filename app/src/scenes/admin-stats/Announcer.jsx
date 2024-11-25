@@ -125,7 +125,7 @@ const Announcer = () => {
   return (
     <div className="space-y-12 p-12">
       <Helmet>
-        <title>Administration - Statistiques - Annonceurs - API Engagement</title>
+        <title>Annonceurs - Statistiques - Administration - API Engagement</title>
       </Helmet>
       <div className="flex justify-between">
         <h2 className="text-2xl font-bold">{total.announcers} annonceurs</h2>

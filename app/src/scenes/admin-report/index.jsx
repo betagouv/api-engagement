@@ -60,7 +60,7 @@ const AdminReport = () => {
   return (
     <div className="bg-white shadow-lg p-12 space-y-12">
       <Helmet>
-        <title>Administration - Rapports d'impacts - API Engagement</title>
+        <title>Rapports d'impacts - Administration - API Engagement</title>
       </Helmet>
       <div className="flex items-center justify-between">
         <h2 className="text-2xl font-semibold flex-1">{total.toLocaleString("fr")} rapports d'impacts</h2>

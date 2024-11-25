@@ -78,7 +78,7 @@ const GlobalDiffuseur = ({ filters, onFiltersChange }) => {
   return (
     <div className="space-y-12 p-12">
       <Helmet>
-        <title>Performance - Au global - API Engagement</title>
+        <title>Au global - Performance - API Engagement</title>
       </Helmet>
       <div className="space-y-2">
         <label className="text-sm text-gray-dark uppercase font-semibold">Période</label>

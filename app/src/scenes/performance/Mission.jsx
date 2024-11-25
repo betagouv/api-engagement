@@ -42,7 +42,7 @@ const Mission = ({ filters, onFiltersChange }) => {
   return (
     <div className="space-y-12 p-12">
       <Helmet>
-        <title>Performance - Missions - API Engagement</title>
+        <title>Missions - Performance - API Engagement</title>
       </Helmet>
       <div className="space-y-2">
         <label className="text-sm text-gray-dark uppercase font-semibold">Période</label>

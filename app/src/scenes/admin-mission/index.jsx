@@ -161,7 +161,7 @@ const AdminMission = () => {
   return (
     <div className="space-y-12 p-12 bg-white shadow-lg">
       <Helmet>
-        <title>Administration - Missions - API Engagement</title>
+        <title>Missions - Administration - API Engagement</title>
       </Helmet>
       <div className="space-y-4">
         <SearchInput className="w-96" value={filters.search} onChange={(search) => setFilters({ ...filters, search })} placeholder="Rechercher par mot-clé" />

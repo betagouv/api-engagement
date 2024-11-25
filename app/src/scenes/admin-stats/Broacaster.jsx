@@ -128,7 +128,7 @@ const Broacaster = () => {
   return (
     <div className="space-y-12 p-12">
       <Helmet>
-        <title>Administration - Statistiques - Diffuseurs - API Engagement</title>
+        <title>Diffuseurs - Statistiques - Administration - API Engagement</title>
       </Helmet>
       <div className="flex justify-between">
         <h2 className="text-2xl font-bold">{total.broadcasters} diffuseurs</h2>

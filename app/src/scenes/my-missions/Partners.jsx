@@ -49,7 +49,7 @@ const PublishersTab = () => {
   return (
     <div className="space-y-12 p-12">
       <Helmet>
-        <title>Vos Missions - Partenaires diffuseurs - API Engagement</title>
+        <title>Partenaires diffuseurs - Vos Missions - API Engagement</title>
       </Helmet>
       <div className="flex items-center justify-between">
         <div className="space-y-2">

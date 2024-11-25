@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { Helmet } from "react-helmet-async";
 import { Link, Route, Routes, useLocation } from "react-router-dom";
 
 import useStore from "../../services/store";
@@ -13,6 +14,9 @@ const Settings = () => {
   if (flux === "from")
     return (
       <div className="space-y-12">
+        <Helmet>
+          <title>Paramètres de tracking - API Engagement</title>
+        </Helmet>
         <div className="space-y-4">
           <h1 className="text-4xl font-bold">Paramètres de tracking</h1>
           <p className="text-base text-gray-dark">

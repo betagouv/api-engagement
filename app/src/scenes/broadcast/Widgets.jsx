@@ -58,7 +58,7 @@ const Widgets = () => {
   return (
     <div className="space-y-6 p-12">
       <Helmet>
-        <title>Diffuser des missions - Widgets - API Engagement</title>
+        <title>Widgets - Diffuser des missions - API Engagement</title>
       </Helmet>
       <div className="mb-10 flex items-center justify-between gap-4">
         <div className="relative flex-1">

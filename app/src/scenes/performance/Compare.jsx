@@ -123,7 +123,7 @@ const Compare = () => {
   return (
     <div className="space-y-12 p-12">
       <Helmet>
-        <title>Performance - Comparer des périodes - API Engagement</title>
+        <title>Comparer des périodes - Performance - API Engagement</title>
       </Helmet>
       <div className="flex items-center gap-8">
         <div className="space-y-2">

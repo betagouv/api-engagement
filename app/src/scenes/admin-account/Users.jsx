@@ -67,7 +67,7 @@ const Users = () => {
   return (
     <div className="space-y-12 p-12">
       <Helmet>
-        <title>Administration - Utilisateurs - API Engagement</title>
+        <title>Utilisateurs - Administration - API Engagement</title>
       </Helmet>
       <div className="flex items-center justify-between">
         <div>

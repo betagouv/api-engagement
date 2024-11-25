@@ -53,7 +53,7 @@ const RealTime = () => {
   return (
     <div className="space-y-12 p-12">
       <Helmet>
-        <title>Paramètres - Événements en temps réel - API Engagement</title>
+        <title>Événements en temps réel - Paramètres - API Engagement</title>
       </Helmet>
       <div className="border border-gray-border p-8 space-y-8">
         <div className="flex items-center justify-between gap-4">

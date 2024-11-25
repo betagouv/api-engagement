@@ -58,7 +58,7 @@ const List = () => {
   return (
     <div className="bg-white shadow-lg p-12 space-y-12">
       <Helmet>
-        <title>Administration - RNA - API Engagement</title>
+        <title>RNA - Administration - API Engagement</title>
       </Helmet>
       <div className="flex items-center justify-between">
         <h2 className="text-2xl font-semibold flex-1">{total.toLocaleString("fr")} d'associations référencées</h2>

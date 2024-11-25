@@ -29,7 +29,7 @@ const Apercu = () => {
   return (
     <div className="space-y-12 p-12">
       <Helmet>
-        <title>Administration - Statistiques - Aperçu - API Engagement</title>
+        <title>Aperçu - Statistiques - Administration - API Engagement</title>
       </Helmet>
       <div className="flex items-end gap-4">
         <div className="space-y-2">

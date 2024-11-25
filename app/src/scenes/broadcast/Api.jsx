@@ -49,7 +49,7 @@ const Api = () => {
   return (
     <div className="space-y-12 p-12">
       <Helmet>
-        <title>Diffuser des missions - Flux par API - API Engagement</title>
+        <title>Flux par API - Diffuser des missions - API Engagement</title>
       </Helmet>
       <div className="flex items-center justify-between">
         <div className="space-y-2">
