@@ -3,7 +3,7 @@ import { RiArrowDownSLine, RiCloseLine } from "react-icons/ri";
 
 import Loader from "./Loader";
 
-const Autocomplete = ({ options, value, onChange, onSelect, loading = false, placeholder, className }) => {
+const Autocomplete = ({ options, value, onChange, onSelect, onClear, loading = false, placeholder, className }) => {
   const [isOpen, setIsOpen] = useState(false);
   const ref = useRef(null);
 
@@ -35,6 +35,7 @@ const Autocomplete = ({ options, value, onChange, onSelect, loading = false, pla
             className="absolute inset-y-2 right-4 flex items-center pr-2"
             onClick={() => {
               onChange("");
+              onClear();
               setIsOpen(false);
             }}
           >
