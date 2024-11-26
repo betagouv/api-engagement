@@ -219,7 +219,7 @@ router.get("/evolution", async (req: UserRequest, res: Response, next: NextFunct
 
     const where = { bool: { must: [], must_not: [], should: [], filter: [] } } as EsQuery;
 
-    where.bool.must_not.push({ term: { user: "d746d1caad9776c354db56fc433b165ae4b0161c" } });
+    // where.bool.must_not.push({ term: { user: "d746d1caad9776c354db56fc433b165ae4b0161c" } });
 
     if (query.data.publisherId) where.bool.filter.push({ term: { [`${query.data.flux}PublisherId.keyword`]: query.data.publisherId } });
     if (query.data.from && query.data.to) where.bool.filter.push({ range: { createdAt: { gte: query.data.from, lte: query.data.to } } });
