@@ -140,16 +140,6 @@ const buildDayKpi = async (start: Date) => {
     },
   });
 
-  const printBenevolat = statsBenevolatAggs.body.aggregations.print.data.value || 0;
-  const clickBenevolat = statsBenevolatAggs.body.aggregations.click.data.value || 0;
-  const applyBenevolat = statsBenevolatAggs.body.aggregations.apply.data.value || 0;
-  const accountBenevolat = statsBenevolatAggs.body.aggregations.account.data.value || 0;
-
-  const printVolontariat = statsVolontariatAggs.body.aggregations.print.data.value || 0;
-  const clickVolontariat = statsVolontariatAggs.body.aggregations.click.data.value || 0;
-  const applyVolontariat = statsVolontariatAggs.body.aggregations.apply.data.value || 0;
-  const accountVolontariat = statsVolontariatAggs.body.aggregations.account.data.value || 0;
-
   kpi.availableBenevolatMissionCount = availableBenevolatMissionCount;
   kpi.availableVolontariatMissionCount = availableVolontariatMissionCount;
 
@@ -163,17 +153,29 @@ const buildDayKpi = async (start: Date) => {
   kpi.percentageBenevolatAttributedPlaces = percentageBenevolatAttributedPlaces;
   kpi.percentageVolontariatAttributedPlaces = percentageVolontariatAttributedPlaces;
 
-  kpi.benevolatPrintMissionCount = printBenevolat;
-  kpi.volontariatPrintMissionCount = printVolontariat;
+  kpi.benevolatPrintMissionCount = statsBenevolatAggs.body.aggregations.print.data.value || 0;
+  kpi.volontariatPrintMissionCount = statsVolontariatAggs.body.aggregations.print.data.value || 0;
 
-  kpi.benevolatClickMissionCount = clickBenevolat;
-  kpi.volontariatClickMissionCount = clickVolontariat;
+  kpi.benevolatClickMissionCount = statsBenevolatAggs.body.aggregations.click.data.value || 0;
+  kpi.volontariatClickMissionCount = statsVolontariatAggs.body.aggregations.click.data.value || 0;
 
-  kpi.benevolatApplyMissionCount = applyBenevolat;
-  kpi.volontariatApplyMissionCount = applyVolontariat;
+  kpi.benevolatApplyMissionCount = statsBenevolatAggs.body.aggregations.apply.data.value || 0;
+  kpi.volontariatApplyMissionCount = statsVolontariatAggs.body.aggregations.apply.data.value || 0;
 
-  kpi.benevolatAccountMissionCount = accountBenevolat;
-  kpi.volontariatAccountMissionCount = accountVolontariat;
+  kpi.benevolatAccountMissionCount = statsBenevolatAggs.body.aggregations.account.data.value || 0;
+  kpi.volontariatAccountMissionCount = statsVolontariatAggs.body.aggregations.account.data.value || 0;
+
+  kpi.benevolatPrintCount = statsBenevolatAggs.body.aggregations.print.doc_count || 0;
+  kpi.volontariatPrintCount = statsVolontariatAggs.body.aggregations.print.doc_count || 0;
+
+  kpi.benevolatClickCount = statsBenevolatAggs.body.aggregations.click.doc_count || 0;
+  kpi.volontariatClickCount = statsVolontariatAggs.body.aggregations.click.doc_count || 0;
+
+  kpi.benevolatApplyCount = statsBenevolatAggs.body.aggregations.apply.doc_count || 0;
+  kpi.volontariatApplyCount = statsVolontariatAggs.body.aggregations.apply.doc_count || 0;
+
+  kpi.benevolatAccountCount = statsBenevolatAggs.body.aggregations.account.doc_count || 0;
+  kpi.volontariatAccountCount = statsVolontariatAggs.body.aggregations.account.doc_count || 0;
 
   await KpiModel.create(kpi);
 
@@ -185,7 +187,7 @@ const handler = async () => {
   const yesterday = new Date(today.getFullYear(), today.getMonth(), today.getDate() - 1);
 
   // build kpi for the last 7 days if not already exists
-  for (let i = 0; i < 7; i++) {
+  for (let i = 0; i < 10; i++) {
     const fromDate = new Date(yesterday.getFullYear(), yesterday.getMonth(), yesterday.getDate() - i);
     const kpi = await KpiModel.findOne({ date: fromDate });
     if (!kpi) await buildDayKpi(fromDate);

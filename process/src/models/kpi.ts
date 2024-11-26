@@ -32,6 +32,18 @@ const schema = new Schema<Kpi>(
 
     benevolatAccountMissionCount: { type: Number },
     volontariatAccountMissionCount: { type: Number },
+
+    benevolatPrintCount: { type: Number },
+    volontariatPrintCount: { type: Number },
+
+    benevolatClickCount: { type: Number },
+    volontariatClickCount: { type: Number },
+
+    benevolatApplyCount: { type: Number },
+    volontariatApplyCount: { type: Number },
+
+    benevolatAccountCount: { type: Number },
+    volontariatAccountCount: { type: Number },
   },
   { timestamps: true },
 );

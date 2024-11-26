@@ -489,6 +489,18 @@ export interface Kpi {
   benevolatAccountMissionCount: number;
   volontariatAccountMissionCount: number;
 
+  benevolatPrintCount: number;
+  volontariatPrintCount: number;
+
+  benevolatClickCount: number;
+  volontariatClickCount: number;
+
+  benevolatApplyCount: number;
+  volontariatApplyCount: number;
+
+  benevolatAccountCount: number;
+  volontariatAccountCount: number;
+
   createdAt: Date;
   updatedAt: Date;
 }
