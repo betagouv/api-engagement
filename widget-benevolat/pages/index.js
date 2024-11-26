@@ -5,11 +5,13 @@ import iso from "i18n-iso-countries";
 import isoFR from "i18n-iso-countries/langs/fr.json";
 import { useRouter } from "next/router";
 iso.registerLocale(isoFR);
+import Image from "next/image";
 
 import { API_URL, DOMAINES, ENV } from "../config";
 import { Carousel } from "../components/carousel";
 import { Grid } from "../components/grid";
 import { Filters, MobileFilters } from "../components/filters";
+import LogoJVA from "../public/images/LogoJVA.svg";
 
 /**
  * Layout widget --> max-width: 1152px
@@ -103,11 +105,11 @@ const Home = ({ widget, missions, options, total, request, environment }) => {
   if (!widget) return <div className="w-full h-full flex items-center justify-center">Erreur lors du chargement du widget</div>;
 
   return (
-    <div className="md:px-12 h-auto flex flex-col justify-start items-center gap-6 py-6">
+    <div className="p-6 h-auto flex flex-col justify-start items-center gap-4 py-6">
       <header className="max-w-[72rem] w-full space-y-4 md:space-y-8">
         <div className="flex flex-col md:flex-row md:justify-between">
           <h1 className="font-bold text-3xl py-2 md:p-0">Trouvez une mission de bénévolat</h1>
-          <p className="text-mention-grey text-xl text-right font-light">{total > 1 ? `${total.toLocaleString("fr")} missions` : `${total} mission`}</p>
+          <p className="text-[#666] text-xl">{total > 1 ? `${total.toLocaleString("fr")} missions` : `${total} mission`}</p>
         </div>
         <div className="w-full flex md:hidden flex-col items-center gap-4">
           <MobileFilters
@@ -141,6 +143,15 @@ const Home = ({ widget, missions, options, total, request, environment }) => {
         )}
       </div>
       {environment === "production" && <Script src="https://app.api-engagement.beta.gouv.fr/jstag.js" />}
+      <div className="flex w-full justify-center items-center gap-4 px-4 mt-2">
+        <Image src={LogoJVA} style={{ width: "41px", height: "32px" }} alt="Logo de JeVeuxAider.gouv.fr" />
+        <p className=" text-xs text-[#666]">
+          Proposé par la plateforme publique du bénévolat{" "}
+          <a href="https://www.jeveuxaider.gouv.fr" target="_blank" className="underline text-[#000091] text-center">
+            JeVeuxAider.gouv.fr
+          </a>
+        </p>
+      </div>
     </div>
   );
 };

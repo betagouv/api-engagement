@@ -1,6 +1,6 @@
 import React, { useState, Fragment, useRef } from "react";
 import { Listbox, Combobox, Transition } from "@headlessui/react";
-import { RiSearchLine, RiSubtractLine, RiAddLine, RiArrowDownSLine, RiCheckboxFill, RiCheckboxBlankLine, RiMapPin2Fill, RiCloseFill } from "react-icons/ri";
+import { RiSearchLine, RiArrowUpSLine, RiArrowDownSLine, RiCheckboxFill, RiCheckboxBlankLine, RiMapPin2Fill, RiCloseFill } from "react-icons/ri";
 
 export const MobileFilters = ({ options, filters, setFilters, color, showFilters, setShowFilters, disabledLocation = false, carousel }) => {
   if (!Object.keys(options).length) return null;
@@ -22,68 +22,73 @@ export const MobileFilters = ({ options, filters, setFilters, color, showFilters
       <div className="w-full mb-2">
         <LocationFilter selected={filters.location} onChange={(l) => setFilters({ ...filters, location: l })} disabled={disabledLocation} color={color} width="w-full" />
       </div>
-      <div className="w-full border-y border-neutral-grey-950">
-        <button
-          className="flex items-center justify-between w-full px-4 py-2 bg-white font-semibold focus:outline-none focus-visible:ring focus-visible:ring-blue-800"
-          onClick={() => setShowFilters(!showFilters)}
-        >
-          Filtrer les missions
-          {showFilters ? <RiSubtractLine className="font-semibold" /> : <RiAddLine className="font-semibold" />}
-        </button>
+      <button
+        className="flex border-y items-center justify-between text-[#3633A1] w-full px-4 py-2 focus:outline-none focus-visible:ring focus-visible:ring-blue-800"
+        onClick={() => setShowFilters(!showFilters)}
+      >
+        Filtrer les missions
+        {showFilters ? <RiArrowUpSLine className="font-semibold text-[#3633A1]" /> : <RiArrowDownSLine className="font-semibold text-[#3633A1]" />}
+      </button>
 
-        {showFilters && (
-          <div className="w-full p-0">
-            <div className="w-full mb-2">
-              <SelectFilter
-                options={options.remote}
-                selectedOptions={filters.remote}
-                onChange={(f) => setFilters({ ...filters, remote: f })}
-                placeholder="Présentiel / Distance"
-                width="w-full"
-                color={color}
-              />
-            </div>
-            <div className="w-full mb-2">
-              <SelectFilter
-                options={options.domains}
-                selectedOptions={filters.domain}
-                onChange={(v) => setFilters({ ...filters, domain: v })}
-                placeholder="Domaines"
-                width="w-full"
-                color={color}
-              />
-            </div>
-            <div className="w-full mb-2">
-              <SelectFilter
-                options={options.departments}
-                selectedOptions={filters.department}
-                onChange={(v) => setFilters({ ...filters, department: v })}
-                placeholder="Départements"
-                width="w-full"
-                color={color}
-              />
-            </div>
-            <div className="w-full mb-2">
-              <SelectFilter
-                options={options.organizations}
-                selectedOptions={filters.organization}
-                onChange={(v) => setFilters({ ...filters, organization: v })}
-                placeholder="Organisations"
-                width="w-full"
-                color={color}
-              />
-            </div>
-            <button
-              aria-label="Réinitialiser"
-              className="w-full p-3 text-center border-none bg-transparent text-sm focus:outline-none focus-visible:ring focus-visible:ring-blue-800"
-              style={{ color }}
-              onClick={handleReset}
-            >
-              Réinitialiser
-            </button>
+      {showFilters && (
+        <div className="w-full mt-2">
+          <div className="w-full mb-4">
+            <SelectFilter
+              options={options.remote}
+              selectedOptions={filters.remote}
+              onChange={(f) => setFilters({ ...filters, remote: f })}
+              placeholder="Présentiel / Distance"
+              width="w-full"
+              color={color}
+            />
           </div>
-        )}
-      </div>
+          <div className="w-full mb-4">
+            <SelectFilter
+              options={options.domains}
+              selectedOptions={filters.domain}
+              onChange={(v) => setFilters({ ...filters, domain: v })}
+              placeholder="Domaines"
+              width="w-full"
+              color={color}
+            />
+          </div>
+          <div className="w-full mb-4">
+            <SelectFilter
+              options={options.departments}
+              selectedOptions={filters.department}
+              onChange={(v) => setFilters({ ...filters, department: v })}
+              placeholder="Départements"
+              width="w-full"
+              color={color}
+            />
+          </div>
+          <div className="w-full mb-4">
+            <SelectFilter
+              options={options.organizations}
+              selectedOptions={filters.organization}
+              onChange={(v) => setFilters({ ...filters, organization: v })}
+              placeholder="Organisations"
+              width="w-full"
+              color={color}
+            />
+          </div>
+          <button
+            aria-label="Voir les missions"
+            className="w-full p-3 text-center border-none bg-[#3633A1] text-white text-sm focus:outline-none focus-visible:ring focus-visible:ring-blue-800"
+            onClick={() => setShowFilters(false)}
+          >
+            Voir les missions
+          </button>
+          <button
+            aria-label="Réinitialiser les filtres"
+            className="w-full p-3 text-center border-none bg-transparent text-sm focus:outline-none focus-visible:ring focus-visible:ring-blue-800"
+            style={{ color }}
+            onClick={handleReset}
+          >
+            Réinitialiser les filtres
+          </button>
+        </div>
+      )}
     </>
   );
 };
@@ -151,7 +156,7 @@ const SelectFilter = ({ options, selectedOptions, onChange, color, placeholder =
       <div className="relative w-full min-w-[6rem]">
         <Listbox.Button
           aria-label={placeholder}
-          className="rounded-lg border w-full border-neutral-grey-950 p-3 focus:outline-none focus-visible:ring focus-visible:ring-blue-800 flex items-center justify-between"
+          className="w-full bg-[#EEE] border-b-2 border-[#3A3A3A] p-3 focus:outline-none focus-visible:ring focus-visible:ring-blue-800 flex items-center justify-between"
           onKeyDown={handleKeyDown}
         >
           {({ open }) => (
@@ -168,9 +173,9 @@ const SelectFilter = ({ options, selectedOptions, onChange, color, placeholder =
           )}
         </Listbox.Button>
         <Transition as={Fragment} leave="transition ease-in duration-100" leaveFrom="opacity-100" leaveTo="opacity-0" afterEnter={() => searchRef.current?.focus()}>
-          <Listbox.Options className={`absolute ${position} mt-1 z-50 ${width} border border-neutral-grey-950 rounded-lg bg-white text-base focus:outline-none`}>
+          <Listbox.Options className={`absolute ${position} z-50 ${width}  bg-[#EEE] text-base focus:outline-none`}>
             <div className="p-2">
-              <div className="rounded-lg border w-full border-neutral-grey-950 p-2 focus:outline-none flex items-center justify-between">
+              <div className="rounded-lg border w-full border-[#3A3A3A] p-2 focus:outline-none flex items-center justify-between">
                 <RiSearchLine className="text-disabled-grey-700" />
                 <input
                   ref={searchRef}
@@ -183,7 +188,7 @@ const SelectFilter = ({ options, selectedOptions, onChange, color, placeholder =
                   value={search}
                   onChange={handleSearch}
                   placeholder="Rechercher"
-                  className="w-full text-sm rounded-lg pl-3 focus:outline-none"
+                  className="w-full bg-[#EEE] text-sm rounded-lg pl-3 focus:outline-none"
                 />
               </div>
             </div>
@@ -267,7 +272,7 @@ const LocationFilter = ({ selected, onChange, color, disabled = false, width = "
         <div className="relative w-full">
           <div
             tabIndex={0}
-            className="rounded-lg border w-full border-neutral-grey-950 p-3 focus:outline-none focus-visible:ring focus-visible:ring-blue-800 flex items-center justify-between"
+            className="bg-[#EEE] border-b-2 border-[#3A3A3A] p-3 focus:outline-none focus-visible:ring focus-visible:ring-blue-800 flex items-center justify-between"
           >
             <RiMapPin2Fill className="text-disabled-grey-700" />
             {disabled ? (
@@ -276,7 +281,7 @@ const LocationFilter = ({ selected, onChange, color, disabled = false, width = "
               <>
                 <Combobox.Input
                   aria-label="localisation"
-                  className="pl-3 w-full text-sm ring-0 focus:ring-0 focus:outline-none min-w-[6rem]"
+                  className="pl-3 w-full text-sm ring-0 focus:ring-0 bg-[#EEE] focus:outline-none min-w-[6rem]"
                   displayValue={(location) => location?.label}
                   placeholder="Localisation"
                   onChange={handleInputChange}

@@ -45,7 +45,7 @@ export const Carousel = ({ widget, missions, color, request }) => {
       <div className="overflow-hidden">
         <div className="flex transition-transform duration-500 ease-in-out" style={{ transform: `translateX(-${currentSlide * (100 / slidesToShow)}%)` }}>
           {missions.slice(0, 60).map((mission, i) => (
-            <div role="group" key={i} id={mission._id} aria-labelledby={mission._id} className={`flex-shrink-0 w-full sm:w-1/2 lg:w-1/3 px-2`}>
+            <div role="group" key={i} id={mission._id} aria-labelledby={mission._id} className={`flex-shrink-0 w-full sm:w-1/2 lg:w-1/3 md:px-2`}>
               <Card widget={widget} mission={mission} color={color} request={request} />
             </div>
           ))}
@@ -92,10 +92,6 @@ export const Carousel = ({ widget, missions, color, request }) => {
           >
             <RiArrowLeftLine size={20} />
           </button>
-
-          <span className="text-sm text-gray-500">
-            {Math.floor(currentSlide / slidesToShow) + 1} / {Math.ceil(missions.length / slidesToShow)}
-          </span>
 
           <button
             onClick={nextPage}
