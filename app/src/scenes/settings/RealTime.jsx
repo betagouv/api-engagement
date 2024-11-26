@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
-
+import { Helmet } from "react-helmet-async";
 import { useSearchParams } from "react-router-dom";
+
 import TablePagination from "../../components/NewTablePagination";
 import RadioInput from "../../components/RadioInput";
 import api from "../../services/api";
@@ -51,6 +52,9 @@ const RealTime = () => {
 
   return (
     <div className="space-y-12 p-12">
+      <Helmet>
+        <title>Événements en temps réel - Paramètres - API Engagement</title>
+      </Helmet>
       <div className="border border-gray-border p-8 space-y-8">
         <div className="flex items-center justify-between gap-4">
           <div className="space-y-2 w-[40%]">

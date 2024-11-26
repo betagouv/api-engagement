@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { Helmet } from "react-helmet-async";
 import { RiArrowRightSLine } from "react-icons/ri";
 import { Link } from "react-router-dom";
 
@@ -47,6 +48,9 @@ const PublishersTab = () => {
 
   return (
     <div className="space-y-12 p-12">
+      <Helmet>
+        <title>Partenaires diffuseurs - Vos Missions - API Engagement</title>
+      </Helmet>
       <div className="flex items-center justify-between">
         <div className="space-y-2">
           <h2 className="text-3xl font-bold">Mes partenaires diffuseurs</h2>
@@ -54,7 +58,10 @@ const PublishersTab = () => {
         </div>
 
         <div className="flex overflow-hidden rounded-t border-b border-b-blue-dark">
-          <input className="input flex-1" placeholder="Chercher par nom" onChange={handleSearch} />
+          <label htmlFor="search-partner" className="sr-only">
+            Chercher par nom
+          </label>
+          <input id="search-partner" className="input flex-1" name="search-partner" placeholder="Chercher par nom" onChange={handleSearch} />
         </div>
       </div>
       <div className="grid grid-cols-4 gap-10">

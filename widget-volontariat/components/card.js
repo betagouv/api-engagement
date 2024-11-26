@@ -15,7 +15,7 @@ const Card = ({ widget, mission, request }) => {
       tabIndex={0}
       href={mission.url}
       target="_blank"
-      className="border h-[311px] w-full max-w-[90%] md:max-w-full flex flex-col focus:outline-none focus-visible:ring focus-visible:ring-blue-800 border-grey-400 bg-white rounded-xl overflow-hidden mx-auto"
+      className="border min-h-[311px] w-full max-w-[90%] md:max-w-full flex flex-col focus:outline-none focus-visible:ring focus-visible:ring-blue-800 border-grey-400 bg-white rounded-xl overflow-hidden mx-auto"
     >
       <div className="flex-1 flex flex-col p-6 justify-between">
         <div className="h-32">

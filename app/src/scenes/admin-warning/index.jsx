@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { Helmet } from "react-helmet-async";
 import { RiCheckboxCircleFill, RiCloseFill } from "react-icons/ri";
 
 import APILogo from "../../assets/svg/logo.svg";
@@ -127,6 +128,9 @@ const Index = () => {
 
   return (
     <div className="space-y-12">
+      <Helmet>
+        <title>Alertes - Administration - API Engagement</title>
+      </Helmet>
       <div className="space-y-10">
         <h1 className="text-4xl font-bold">État du service</h1>
 

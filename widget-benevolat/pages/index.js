@@ -11,9 +11,6 @@ import { Carousel } from "../components/carousel";
 import { Grid } from "../components/grid";
 import { Filters, MobileFilters } from "../components/filters";
 
-import AdemeMission from "../public/json/mission.json";
-import { WIDGET, filter, getAggregations } from "../ademe";
-
 /**
  * Layout widget --> max-width: 1152px
  * 1 : CAROUSEL
@@ -60,22 +57,26 @@ const Home = ({ widget, missions, options, total, request, environment }) => {
 
   useEffect(() => {
     if (!widget) return;
-    const query = { widget: widget._id };
 
-    if (filters.domain && filters.domain.length) query.domain = JSON.stringify(filters.domain.filter((item) => item && item.value).map((item) => item.value));
-    if (filters.organization && filters.organization.length)
-      query.organization = JSON.stringify(filters.organization.filter((item) => item && item.value).map((item) => item.value));
-    if (filters.department && filters.department.length) query.department = JSON.stringify(filters.department.filter((item) => item && item.value).map((item) => item.value));
-    if (filters.remote && filters.remote.length) query.remote = JSON.stringify(filters.remote.filter((item) => item && item.value).map((item) => item.value));
-    if (filters.size) query.size = filters.size;
-    if (filters.page > 1) query.from = (filters.page - 1) * filters.size;
-    if (filters.location && filters.location.lat && filters.location.lon) {
-      query.lat = filters.location.lat;
-      query.lon = filters.location.lon;
-    }
+    // Timeout to prevent multiple rapid router pushes
+    const timeoutId = setTimeout(() => {
+      const query = { widget: widget._id };
 
-    router.push({ pathname: "/", query });
-  }, [filters]);
+      if (filters.domain?.length) query.domain = JSON.stringify(filters.domain.filter((item) => item && item.value).map((item) => item.value));
+      if (filters.organization?.length) query.organization = JSON.stringify(filters.organization.filter((item) => item && item.value).map((item) => item.value));
+      if (filters.department?.length) query.department = JSON.stringify(filters.department.filter((item) => item && item.value).map((item) => item.value));
+      if (filters.remote?.length) query.remote = JSON.stringify(filters.remote.filter((item) => item && item.value).map((item) => item.value));
+      if (filters.size) query.size = filters.size;
+      if (filters.page > 1) query.from = (filters.page - 1) * filters.size;
+      if (filters.location?.lat && filters.location?.lon) {
+        query.lat = filters.location.lat;
+        query.lon = filters.location.lon;
+      }
+
+      router.push({ pathname: "/", query });
+    }, 100);
+    return () => clearTimeout(timeoutId);
+  }, [filters, widget?._id]);
 
   const fetchLocation = async (lat, lon) => {
     try {
@@ -102,11 +103,7 @@ const Home = ({ widget, missions, options, total, request, environment }) => {
   if (!widget) return <div className="w-full h-full flex items-center justify-center">Erreur lors du chargement du widget</div>;
 
   return (
-    <div
-      className={`md:px-12 h-full flex flex-col justify-around items-center gap-6 py-6 ${
-        widget.style === "carousel" ? "max-h-[780px] md:max-h-[686px]" : "max-h-[3424px] sm:max-h-[1862px] lg:max-h-[1314px]"
-      }`}
-    >
+    <div className="md:px-12 h-auto flex flex-col justify-start items-center gap-6 py-6">
       <header className="max-w-[72rem] w-full space-y-4 md:space-y-8">
         <div className="flex flex-col md:flex-row md:justify-between">
           <h1 className="font-bold text-3xl py-2 md:p-0">Trouvez une mission de bénévolat</h1>

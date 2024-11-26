@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { Helmet } from "react-helmet-async";
 import DateRangePicker from "../../components/NewDateRangePicker";
 import useStore from "../../services/store";
 
@@ -80,6 +81,9 @@ const Mean = ({ filters, onFiltersChange }) => {
 
   return (
     <div className="space-y-12 p-12">
+      <Helmet>
+        <title>Moyens de diffusion - Performance - API Engagement</title>
+      </Helmet>
       <div className="flex items-center justify-between">
         <div className="space-y-2">
           <label className="text-sm text-gray-dark uppercase font-semibold">Période</label>
@@ -89,8 +93,10 @@ const Mean = ({ filters, onFiltersChange }) => {
           <>
             <div className="h-16 w-px mx-10 bg-gray-border" />
             <div className="space-y-2 flex-1">
-              <label className="text-sm text-gray-dark uppercase font-semibold">Moyen de diffusion</label>
-              <select className="select w-full" value={source} onChange={(e) => setSource(e.target.value)}>
+              <label htmlFor="mean-of-diffusion" className="text-sm text-gray-dark uppercase font-semibold">
+                Moyen de diffusion
+              </label>
+              <select id="mean-of-diffusion" className="select w-full" value={source} onChange={(e) => setSource(e.target.value)}>
                 {options.map((option, i) => (
                   <option key={i} value={option.value}>
                     {option.label}

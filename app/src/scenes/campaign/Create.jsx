@@ -132,6 +132,7 @@ const Create = () => {
               Nom de la campagne
             </label>
             <input
+              id="name"
               className={`input mb-2 ${errors.name ? "border-b-red-main" : "border-b-black"}`}
               name="name"
               value={values.name}
@@ -154,6 +155,7 @@ const Create = () => {
                 Type de campagne
               </label>
               <select
+                id="type"
                 className={`input ${errors.type ? "border-b-red-main" : "border-b-black"} ${!values.type ? " text-gray-dark" : ""}`}
                 value={values.type}
                 onChange={(e) => {
@@ -177,10 +179,11 @@ const Create = () => {
               )}
             </div>
             <div className="flex flex-col flex-1">
-              <label className="mb-2 text-sm" htmlFor="toPublisherId">
+              <label className="mb-2 text-sm" htmlFor="to-publisher-id">
                 Diffuse les missions de
               </label>
               <SearchSelect
+                id="to-publisher-id"
                 options={publishers.map((e) => ({ value: e._id, label: e.name }))}
                 placeholder="Sélectionner un annonceur"
                 value={values.toPublisherId}
@@ -200,6 +203,7 @@ const Create = () => {
               Lien de la page web de la campagne
             </label>
             <input
+              id="url"
               className={`input mb-2 ${errors.url ? "border-b-red-main" : "border-b-black"}`}
               name="url"
               value={values.url}

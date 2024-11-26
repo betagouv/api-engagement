@@ -49,14 +49,19 @@ const Header = ({ total, data, size, sort, selected, onSize, onSort, onSelect, o
       <h2 className="text-xl font-semibold">{total.toLocaleString("fr")} missions diffusables</h2>
 
       <div className="flex gap-2 items-center">
-        <span className="text-xs text-gray-dark">Missions affichées par page</span>
-        <select className="input w-18" value={size} onChange={(e) => onSize(Number(e.target.value))}>
+        <label htmlFor="missions-per-page" className="text-xs text-gray-dark">
+          Missions affichées par page
+        </label>
+        <select id="missions-per-page" className="input w-18" value={size} onChange={(e) => onSize(Number(e.target.value))}>
           <option value={25}>25</option>
           <option value={50}>50</option>
           <option value={75}>75</option>
           <option value={100}>100</option>
         </select>
-        <select className="input w-60" value={sort} onChange={(e) => onSort(e.target.value)}>
+        <label htmlFor="sort-by" className="text-xs text-gray-dark sr-only">
+          Trier par
+        </label>
+        <select id="sort-by" className="input w-60" value={sort} onChange={(e) => onSort(e.target.value)}>
           <option value="">Trier par</option>
           <option value="desc">Mission la plus récente</option>
           <option value="asc">Mission la plus ancienne</option>
@@ -110,6 +115,7 @@ const ManyUpdateModal = ({ onClose, selected, onChange }) => {
                   Statut<span className="ml-1 text-red-main">*</span>
                 </label>
                 <select
+                  id="status"
                   className="select w-full"
                   style={{ borderBottomColor: STATUS_COLORS[status] }}
                   name="status"
@@ -129,7 +135,7 @@ const ManyUpdateModal = ({ onClose, selected, onChange }) => {
                     <label htmlFor="comment" className="text-sm">
                       Motif<span className="ml-1 text-red-main">*</span>
                     </label>
-                    <select className="select" name="comment" value={comment} onChange={(e) => setComment(e.target.value)} required>
+                    <select id="comment" className="select" name="comment" value={comment} onChange={(e) => setComment(e.target.value)} required>
                       <option value="">Sélectionner un motif</option>
                       {COMMENTS.map((value, key) => (
                         <option key={key} value={value}>
@@ -144,7 +150,7 @@ const ManyUpdateModal = ({ onClose, selected, onChange }) => {
                 <label htmlFor="note" className="text-sm">
                   Note
                 </label>
-                <textarea className="input" rows={4} name="note" value={note} onChange={(e) => setNote(e.target.value)} />
+                <textarea id="note" className="input" rows={4} name="note" value={note} onChange={(e) => setNote(e.target.value)} />
                 <div className="mt-6 flex justify-end">
                   <button className="filled-button w-full flex justify-center" type="submit" disabled={!status || (status === "REFUSED" && !comment) || loading}>
                     {loading ? <Loader className="w-6 h-6" /> : "Enregistrer"}

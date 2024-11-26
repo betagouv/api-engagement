@@ -1,9 +1,33 @@
-import "./global.css";
-import "slick-carousel/slick/slick.css";
-import "slick-carousel/slick/slick-theme.css";
+import localFont from "next/font/local";
 
-function MyApp({ Component, pageProps }) {
-  return <Component {...pageProps} />;
-}
+import "./global.css";
+
+const font = localFont({
+  src: [
+    {
+      path: "../fonts/Marianne-Bold.woff2",
+      weight: "700",
+      style: "normal",
+    },
+    {
+      path: "../fonts/Marianne-Regular.woff2",
+      weight: "400",
+      style: "normal",
+    },
+    {
+      path: "../fonts/Marianne-Medium.woff2",
+      weight: "500",
+      style: "normal",
+    },
+  ],
+});
+
+const MyApp = ({ Component, pageProps }) => {
+  return (
+    <main className={font.className}>
+      <Component {...pageProps} />
+    </main>
+  );
+};
 
 export default MyApp;

@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { Helmet } from "react-helmet-async";
 import { HiChevronRight } from "react-icons/hi";
 import { Link, useSearchParams } from "react-router-dom";
 
@@ -27,12 +28,18 @@ const Apercu = () => {
 
   return (
     <div className="space-y-12 p-12">
+      <Helmet>
+        <title>Aperçu - Statistiques - Administration - API Engagement</title>
+      </Helmet>
       <div className="flex items-end gap-4">
         <div className="space-y-2">
           <label className="text-sm text-gray-dark uppercase font-semibold">Période</label>
           <DateRangePicker value={filters} onChange={(value) => setFilters({ ...filters, from: value.from, to: value.to })} />
         </div>
-        <select className="select w-80" value={filters.type} onChange={(e) => setFilters({ ...filters, type: e.target.value })}>
+        <label htmlFor="mission-type" className="sr-only">
+          Type de mission
+        </label>
+        <select id="mission-type" className="select w-80" value={filters.type} onChange={(e) => setFilters({ ...filters, type: e.target.value })}>
           <option value="">Tous les types de missions</option>
           <option value="benevolat">Toutes les missions de bénévolat</option>
           <option value="volontariat">Toutes les missions de volontariat</option>

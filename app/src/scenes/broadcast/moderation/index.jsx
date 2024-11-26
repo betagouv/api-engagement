@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { Helmet } from "react-helmet-async";
 import { useNavigate, useSearchParams } from "react-router-dom";
 
 import ModerationAutoIcon from "../../../assets/svg/moderation-auto.svg";
@@ -142,6 +143,9 @@ const Moderation = () => {
 
   return (
     <div className="space-y-12 py-12">
+      <Helmet>
+        <title>Modération - Diffuser des missions - API Engagement</title>
+      </Helmet>
       <MissionModal
         onChange={() => {
           fetchData();
@@ -197,7 +201,12 @@ const Moderation = () => {
           renderHeader={() => (
             <>
               <h4 className="flex w-[5%] items-center">
+                <label htmlFor="moderation-select-all" className="sr-only">
+                  Sélectionner toutes les missions
+                </label>
                 <input
+                  id="moderation-select-all"
+                  name="moderation-select-all"
                   type="checkbox"
                   className="checkbox"
                   checked={selected.length === data.length}

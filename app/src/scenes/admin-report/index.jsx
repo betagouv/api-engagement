@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { Helmet } from "react-helmet-async";
 import { Link, useSearchParams } from "react-router-dom";
 
 import { RiDownload2Line } from "react-icons/ri";
@@ -58,6 +59,9 @@ const AdminReport = () => {
 
   return (
     <div className="bg-white shadow-lg p-12 space-y-12">
+      <Helmet>
+        <title>Rapports d'impacts - Administration - API Engagement</title>
+      </Helmet>
       <div className="flex items-center justify-between">
         <h2 className="text-2xl font-semibold flex-1">{total.toLocaleString("fr")} rapports d'impacts</h2>
       </div>

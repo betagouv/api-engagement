@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { Helmet } from "react-helmet-async";
 import { useSearchParams } from "react-router-dom";
 import { DateInput } from "../../components/NewDateRangePicker";
 import Table from "../../components/NewTable";
@@ -121,6 +122,9 @@ const Compare = () => {
 
   return (
     <div className="space-y-12 p-12">
+      <Helmet>
+        <title>Comparer des périodes - Performance - API Engagement</title>
+      </Helmet>
       <div className="flex items-center gap-8">
         <div className="space-y-2">
           <label className="text-sm text-[#666] uppercase font-semibold">Comparer la période</label>

@@ -1,7 +1,7 @@
 import { Fragment, useEffect, useRef, useState } from "react";
 import { RiArrowDownSLine, RiCloseFill } from "react-icons/ri";
 
-const SearchSelect = ({ options, value, onChange, placeholder, className, loading = false }) => {
+const SearchSelect = ({ id, options, value, onChange, placeholder, className, loading = false }) => {
   const ref = useRef(null);
   const [isOpen, setIsOpen] = useState(false);
   const [search, setSearch] = useState("");
@@ -33,6 +33,7 @@ const SearchSelect = ({ options, value, onChange, placeholder, className, loadin
     <div className="relative w-full " ref={ref}>
       <div className="relative w-full">
         <input
+          id={id}
           className={`input w-full ${selected ? "pr-16 placeholder:text-black" : ""}`}
           onChange={(e) => setSearch(e.target.value)}
           placeholder={selected ? selected.label : placeholder}

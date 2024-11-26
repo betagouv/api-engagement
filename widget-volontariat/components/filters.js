@@ -167,6 +167,7 @@ export const Filters = ({ options, filters, setFilters, color, disabledLocation 
           />
         ) : (
           <button
+            aria-label="plus de filtres"
             className="rounded-lg border w-full bg-white border-grey-400 py-2 px-4 focus:outline-none focus-visible:ring focus-visible:ring-blue-800 text-sm text-[#252baa]"
             onClick={() => setMoreFilters(true)}
           >
@@ -236,7 +237,10 @@ const DateFilter = ({ selected, onChange, color, position = "left-0", width = "w
   return (
     <Popover as={Fragment}>
       <div className="relative w-full min-w-[6rem]">
-        <Popover.Button className="rounded-lg border bg-white w-full border-neutral-grey-950 py-2 px-4 focus:outline-none focus-visible:ring focus-visible:ring-blue-800 flex items-center justify-between">
+        <Popover.Button
+          aria-label="date"
+          className="rounded-lg border bg-white w-full border-neutral-grey-950 py-2 px-4 focus:outline-none focus-visible:ring focus-visible:ring-blue-800 flex items-center justify-between"
+        >
           {({ open }) => (
             <>
               <span className="pr-3 text-sm truncate max-w-60" style={{ color: selected > 0 ? color : "black" }}>
@@ -316,6 +320,7 @@ const DurationFilter = ({ selected, onChange, color, position = "left-0", width 
     <Listbox as={Fragment} value={selected} onChange={onChange} by="value">
       <div className="relative w-full min-w-[6rem]">
         <Listbox.Button
+          aria-label="durée"
           onKeyDown={handleKeyDown}
           className="rounded-lg border w-full bg-white border-neutral-grey-950 py-2 px-4 focus:outline-none focus-visible:ring focus-visible:ring-blue-800 flex items-center justify-between"
         >
@@ -375,6 +380,7 @@ const DurationFilter = ({ selected, onChange, color, position = "left-0", width 
 
 const SelectFilter = ({ options, selectedOptions, onChange, color, placeholder = "Choissiez une option", position = "left-0", width = "w-80" }) => {
   const [keyboardNav, setKeyboardNav] = useState(false);
+
   const handleKeyDown = () => {
     setKeyboardNav(true);
   };
@@ -386,6 +392,7 @@ const SelectFilter = ({ options, selectedOptions, onChange, color, placeholder =
     <Listbox as={Fragment} value={selectedOptions || []} onChange={onChange} by="value" multiple>
       <div className="relative w-full min-w-[6rem]">
         <Listbox.Button
+          aria-label={placeholder}
           onKeyDown={handleKeyDown}
           tabIndex={0}
           className="rounded-lg border w-full bg-white border-neutral-grey-950 py-2 px-4 focus:outline-none focus-visible:ring focus-visible:ring-blue-800 flex items-center justify-between"
@@ -490,6 +497,7 @@ const LocationFilter = ({ selected, onChange, color, disabled = false, width = "
             ) : (
               <>
                 <Combobox.Input
+                  aria-label="localisation"
                   className="pl-3 w-full text-sm ring-0 focus:ring-0 focus:outline-none min-w-[6rem]"
                   displayValue={(location) => location?.label}
                   placeholder="Localisation"

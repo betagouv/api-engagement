@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { Helmet } from "react-helmet-async";
 import { HiOutlinePlus } from "react-icons/hi";
 import { RiInformationLine, RiLoginBoxLine } from "react-icons/ri";
 import { Link } from "react-router-dom";
@@ -65,6 +66,9 @@ const Users = () => {
 
   return (
     <div className="space-y-12 p-12">
+      <Helmet>
+        <title>Utilisateurs - Administration - API Engagement</title>
+      </Helmet>
       <div className="flex items-center justify-between">
         <div>
           <h2 className="text-3xl font-bold">Liste des utilisateurs</h2>
@@ -74,7 +78,10 @@ const Users = () => {
 
       <div className="border border-gray-border p-6">
         <div className="mb-6 flex items-center gap-4">
-          <input className="input flex-1" placeholder="Chercher par nom ou par email" onChange={handleSearch} />
+          <label htmlFor="user-search" className="sr-only">
+            Rechercher par nom ou par email
+          </label>
+          <input id="user-search" name="user-search" className="input flex-1" placeholder="Chercher par nom ou par email" onChange={handleSearch} />
           <Link to="/user/new" className="button flex items-center border bg-blue-dark text-white">
             Nouvel utilisateur <HiOutlinePlus className="ml-2" />
           </Link>

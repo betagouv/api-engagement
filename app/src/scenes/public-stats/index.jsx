@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { Helmet } from "react-helmet-async";
 import { RiQuestionLine } from "react-icons/ri";
 
 import { useSearchParams } from "react-router-dom";
@@ -166,6 +167,9 @@ const PublicStats = () => {
 
   return (
     <div className="flex w-full flex-col bg-white shadow-lg">
+      <Helmet>
+        <title>Statistiques - API Engagement</title>
+      </Helmet>
       <div className="mx-auto my-14 w-4/5 max-w-[1200px] flex-1">
         <div className="flex justify-between">
           <div className="flex flex-col">
@@ -215,14 +219,20 @@ const PublicStats = () => {
 
             <div className="flex">
               <div className="ml-4 flex items-center gap-4">
-                <select className="input w-48" value={filters.year} onChange={(e) => setFilters({ ...filters, year: parseInt(e.target.value, 10) })}>
+                <label htmlFor="year" className="sr-only">
+                  Année
+                </label>
+                <select id="year" className="input w-48" value={filters.year} onChange={(e) => setFilters({ ...filters, year: parseInt(e.target.value, 10) })}>
                   <option value={2020}>2020</option>
                   <option value={2021}>2021</option>
                   <option value={2022}>2022</option>
                   <option value={2023}>2023</option>
                   <option value={2024}>2024</option>
                 </select>
-                <select className="input w-48" value={filters.department} onChange={(e) => setFilters({ ...filters, department: e.target.value })}>
+                <label htmlFor="department" className="sr-only">
+                  Département
+                </label>
+                <select id="department" className="input w-48" value={filters.department} onChange={(e) => setFilters({ ...filters, department: e.target.value })}>
                   <option value="">Départements</option>
                   {departmentStats.departments
                     .map((department) => {
@@ -238,7 +248,10 @@ const PublicStats = () => {
                       </option>
                     ))}
                 </select>
-                <select className="input w-48" value={filters.type} onChange={(e) => setFilters({ ...filters, type: e.target.value })}>
+                <label htmlFor="mission-type" className="sr-only">
+                  Type de mission
+                </label>
+                <select id="mission-type" className="input w-48" value={filters.type} onChange={(e) => setFilters({ ...filters, type: e.target.value })}>
                   <option value="">Type de mission</option>
                   <option value="benevolat">Bénévolat</option>
                   <option value="volontariat">Volontariat</option>
@@ -321,14 +334,20 @@ const PublicStats = () => {
 
             <div className="flex">
               <div className="ml-4 flex items-center gap-4">
-                <select className="input w-48" value={filters.year} onChange={(e) => setFilters({ ...filters, year: parseInt(e.target.value, 10) })}>
+                <label htmlFor="year" className="sr-only">
+                  Année
+                </label>
+                <select id="year" className="input w-48" value={filters.year} onChange={(e) => setFilters({ ...filters, year: parseInt(e.target.value, 10) })}>
                   <option value={2020}>2020</option>
                   <option value={2021}>2021</option>
                   <option value={2022}>2022</option>
                   <option value={2023}>2023</option>
                   <option value={2024}>2024</option>
                 </select>
-                <select className="input w-48" value={filters.department} onChange={(e) => setFilters({ ...filters, department: e.target.value })}>
+                <label htmlFor="department" className="sr-only">
+                  Département
+                </label>
+                <select id="department" className="input w-48" value={filters.department} onChange={(e) => setFilters({ ...filters, department: e.target.value })}>
                   <option value="">Départements</option>
                   {departmentStats.departments
                     .map((department) => {
@@ -344,7 +363,10 @@ const PublicStats = () => {
                       </option>
                     ))}
                 </select>
-                <select className="input w-48" value={filters.type} onChange={(e) => setFilters({ ...filters, type: e.target.value })}>
+                <label htmlFor="mission-type" className="sr-only">
+                  Type de mission
+                </label>
+                <select id="mission-type" className="input w-48" value={filters.type} onChange={(e) => setFilters({ ...filters, type: e.target.value })}>
                   <option value="">Type de mission</option>
                   <option value="benevolat">Bénévolat</option>
                   <option value="volontariat">Volontariat</option>

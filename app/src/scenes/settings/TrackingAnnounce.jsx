@@ -1,5 +1,7 @@
-import { BiSolidInfoSquare } from "react-icons/bi";
+import { Helmet } from "react-helmet-async";
 import { toast } from "react-toastify";
+
+import { BiSolidInfoSquare } from "react-icons/bi";
 
 import useStore from "../../services/store";
 
@@ -24,6 +26,9 @@ const TrackingAnnounce = () => {
 
   return (
     <div className="space-y-12 p-12">
+      <Helmet>
+        <title>Tracking des événements - Paramètres - API Engagement</title>
+      </Helmet>
       <div className="border border-gray-border p-8 space-y-8">
         <h2 className="text-2xl font-bold">Tracking des événements</h2>
 

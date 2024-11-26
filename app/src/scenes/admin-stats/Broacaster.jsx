@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { Helmet } from "react-helmet-async";
 import { RiFileDownloadLine } from "react-icons/ri";
 import { useNavigate, useSearchParams } from "react-router-dom";
 
@@ -126,6 +127,9 @@ const Broacaster = () => {
 
   return (
     <div className="space-y-12 p-12">
+      <Helmet>
+        <title>Diffuseurs - Statistiques - Administration - API Engagement</title>
+      </Helmet>
       <div className="flex justify-between">
         <h2 className="text-2xl font-bold">{total.broadcasters} diffuseurs</h2>
         <button className="py-2 px-4 flex items-center text-blue-900 hover:bg-gray-hover border transition delay-50 " onClick={handleExport} disabled={exporting}>
@@ -142,14 +146,20 @@ const Broacaster = () => {
         <div className="flex gap-2 justify-between">
           <DateInput value={{ from: filters.from, to: filters.to }} onChange={(v) => setFilters({ ...filters, from: v.from, to: v.to })} />
           <MultiSearchSelect options={partners} value={filters.publishers} onChange={(e) => setFilters({ ...filters, publishers: e.value })} placeholder="Partenaires" />
-          <select className="select w-[18em]" value={filters.type} onChange={(e) => setFilters({ ...filters, type: e.target.value })}>
+          <label htmlFor="mission-type" className="sr-only">
+            Type de mission
+          </label>
+          <select className="select w-[18em]" id="mission-type" value={filters.type} onChange={(e) => setFilters({ ...filters, type: e.target.value })}>
             <option className="text-sm" value="">
               Type de mission
             </option>
             <option value="benevolat">Toutes les missions de bénévolat</option>
             <option value="volontariat">Toutes les missions de volontariat</option>
           </select>
-          <select className="select w-[18em]" value={filters.source} onChange={(e) => setFilters({ ...filters, source: e.target.value })}>
+          <label htmlFor="source" className="sr-only">
+            Moyen de diffusion
+          </label>
+          <select className="select w-[18em]" id="source" value={filters.source} onChange={(e) => setFilters({ ...filters, source: e.target.value })}>
             <option className="text-sm" value="">
               Moyen de diffusion
             </option>

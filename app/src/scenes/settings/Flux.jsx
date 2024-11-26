@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { Helmet } from "react-helmet-async";
 import { RiCheckboxCircleFill, RiCloseCircleFill, RiCloseFill } from "react-icons/ri";
 import { toast } from "react-toastify";
 
@@ -56,12 +57,14 @@ const Flux = () => {
 
   return (
     <div className="space-y-12 p-12">
+      <Helmet>
+        <title>Flux de missions - Paramètres - API Engagement</title>
+      </Helmet>
       <div className="border border-gray-border p-8 space-y-8">
         <h2 className="text-3xl font-bold">Configurer votre flux de missions</h2>
 
         <div className="flex justify-between gap-6 items-center">
           <label className="font-semibold flex-none w-[35%]">Lien du fichier XML à synchroniser</label>
-
           <div className="flex flex-1 gap-2">
             <input className="input disabled:opacity-80 w-full bg-[#F5F5FE] border border-[#E3E3FD]" value={publisher.feed} disabled={true} />
             {user.role === "admin" && (
@@ -79,7 +82,6 @@ const Flux = () => {
 
         <div className="flex justify-between gap-6 items-center">
           <label className="font-semibold w-[35%]">Dernière synchronisation</label>
-
           <div className="flex flex-1 gap-2">
             {imports.length > 0 && lastSync < new Date(Date.now() - 24 * 60 * 60 * 1000) ? (
               <div className="items-center">
