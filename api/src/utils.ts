@@ -1,5 +1,8 @@
 import { Request } from "express";
 import geoip from "geoip-lite";
+import { isbot } from "isbot";
+import hash from "object-hash";
+import { ENV } from "./config";
 import { EsQuery } from "./types";
 
 export const slugify = (value: string) => {
@@ -131,4 +134,15 @@ export const getDistanceFromLatLonInKm = (lat1?: number, lon1?: number, lat2?: n
   const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
 
   return r * c; // Distance in kilometers
+};
+
+export const identify = (req: Request) => {
+  const userAgent = req.get("user-agent");
+
+  if (isbot(userAgent) && ENV !== "development") return null;
+
+  const ip = req.ip;
+  const referer = req.header("referer") || "not_defined";
+  const user = hash([ip, referer, userAgent]);
+  return { user, userAgent, referer: referer.includes("?") ? referer.split("?")[0] : referer };
 };

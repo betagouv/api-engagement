@@ -454,6 +454,7 @@ export interface Stats {
   tag?: string;
   type: "print" | "apply" | "click" | "view";
   user?: string;
+  status?: string;
 }
 
 export interface Kpi {

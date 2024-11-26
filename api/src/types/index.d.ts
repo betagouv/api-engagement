@@ -463,6 +463,7 @@ export interface Stats {
   requestId?: string;
   origin: string;
   referer: string;
+  userAgent: string;
   host: string;
   user?: string;
   createdAt: Date;
