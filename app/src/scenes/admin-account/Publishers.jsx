@@ -133,7 +133,10 @@ const Publishers = () => {
           </label>
           <input id="publisher-search" name="publisher-search" className="input flex-1" placeholder="Chercher par nom" onChange={handleSearch} />
 
-          <select className="input w-[20%]" value={filters.role} onChange={(e) => setFilters({ ...filters, role: e.target.value })}>
+          <label htmlFor="publisher-role" className="sr-only">
+            Filtrer par rôle
+          </label>
+          <select id="publisher-role" name="publisher-role" className="input w-[20%]" value={filters.role} onChange={(e) => setFilters({ ...filters, role: e.target.value })}>
             <option value="">Tous les rôles</option>
             <option value="announce">Tous les annonceurs</option>
             <option value="broadcast">Tous les diffuseurs</option>
@@ -141,12 +144,23 @@ const Publishers = () => {
             <option value="widget">Tous les diffuseurs widget</option>
             <option value="campaign">Tous les diffuseurs campagne</option>
           </select>
-          <select className="input w-[20%] truncate" defaultValue="" onChange={(e) => setFilters({ ...filters, automated_report: e.target.value })}>
+          <label htmlFor="publisher-automated-report" className="sr-only">
+            Filtrer par rapport d'impact
+          </label>
+          <select className="input w-[20%] truncate" defaultValue="" id="publisher-automated-report" onChange={(e) => setFilters({ ...filters, automated_report: e.target.value })}>
             <option value="">Avec et sans rapport d'impact</option>
             <option value="true">Avec rapport d'impact</option>
             <option value="false">Sans rapport d'impact</option>
           </select>
-          <select className="input w-[20%] truncate" value={filters.mission_type} onChange={(e) => setFilters({ ...filters, mission_type: e.target.value })}>
+          <label htmlFor="publisher-mission-type" className="sr-only">
+            Filtrer par type de mission
+          </label>
+          <select
+            className="input w-[20%] truncate"
+            id="publisher-mission-type"
+            value={filters.mission_type}
+            onChange={(e) => setFilters({ ...filters, mission_type: e.target.value })}
+          >
             <option value="">Type de mission</option>
             <option value="benevolat">Missions de bénévolat</option>
             <option value="volontariat">Missions de volontariat</option>

@@ -143,7 +143,10 @@ const Announcer = () => {
         <div className="flex gap-2 justify-between w-full">
           <DateInput value={{ from: filters.from, to: filters.to }} onChange={(v) => setFilters({ ...filters, from: v.from, to: v.to })} />
           <MultiSearchSelect options={partners} value={filters.publishers} onChange={(e) => setFilters({ ...filters, publishers: e.value })} placeholder="Partenaires" />
-          <select className="select min-w-[27.5em]" value={filters.type} onChange={(e) => setFilters({ ...filters, type: e.target.value })}>
+          <label htmlFor="mission-type" className="sr-only">
+            Type de mission
+          </label>
+          <select id="mission-type" className="select min-w-[27.5em]" value={filters.type} onChange={(e) => setFilters({ ...filters, type: e.target.value })}>
             <option value="">Type de mission</option>
             <option value="benevolat">Toutes les missions de bénévolat</option>
             <option value="volontariat">Toutes les missions de volontariat</option>

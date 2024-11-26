@@ -93,8 +93,10 @@ const Mean = ({ filters, onFiltersChange }) => {
           <>
             <div className="h-16 w-px mx-10 bg-gray-border" />
             <div className="space-y-2 flex-1">
-              <label className="text-sm text-gray-dark uppercase font-semibold">Moyen de diffusion</label>
-              <select className="select w-full" value={source} onChange={(e) => setSource(e.target.value)}>
+              <label htmlFor="mean-of-diffusion" className="text-sm text-gray-dark uppercase font-semibold">
+                Moyen de diffusion
+              </label>
+              <select id="mean-of-diffusion" className="select w-full" value={source} onChange={(e) => setSource(e.target.value)}>
                 {options.map((option, i) => (
                   <option key={i} value={option.value}>
                     {option.label}

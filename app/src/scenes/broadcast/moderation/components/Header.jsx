@@ -49,14 +49,19 @@ const Header = ({ total, data, size, sort, selected, onSize, onSort, onSelect, o
       <h2 className="text-xl font-semibold">{total.toLocaleString("fr")} missions diffusables</h2>
 
       <div className="flex gap-2 items-center">
-        <span className="text-xs text-gray-dark">Missions affichées par page</span>
-        <select className="input w-18" value={size} onChange={(e) => onSize(Number(e.target.value))}>
+        <label htmlFor="missions-per-page" className="text-xs text-gray-dark">
+          Missions affichées par page
+        </label>
+        <select id="missions-per-page" className="input w-18" value={size} onChange={(e) => onSize(Number(e.target.value))}>
           <option value={25}>25</option>
           <option value={50}>50</option>
           <option value={75}>75</option>
           <option value={100}>100</option>
         </select>
-        <select className="input w-60" value={sort} onChange={(e) => onSort(e.target.value)}>
+        <label htmlFor="sort-by" className="text-xs text-gray-dark sr-only">
+          Trier par
+        </label>
+        <select id="sort-by" className="input w-60" value={sort} onChange={(e) => onSort(e.target.value)}>
           <option value="">Trier par</option>
           <option value="desc">Mission la plus récente</option>
           <option value="asc">Mission la plus ancienne</option>

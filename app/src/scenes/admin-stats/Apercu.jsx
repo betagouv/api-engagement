@@ -36,7 +36,10 @@ const Apercu = () => {
           <label className="text-sm text-gray-dark uppercase font-semibold">Période</label>
           <DateRangePicker value={filters} onChange={(value) => setFilters({ ...filters, from: value.from, to: value.to })} />
         </div>
-        <select className="select w-80" value={filters.type} onChange={(e) => setFilters({ ...filters, type: e.target.value })}>
+        <label htmlFor="mission-type" className="sr-only">
+          Type de mission
+        </label>
+        <select id="mission-type" className="select w-80" value={filters.type} onChange={(e) => setFilters({ ...filters, type: e.target.value })}>
           <option value="">Tous les types de missions</option>
           <option value="benevolat">Toutes les missions de bénévolat</option>
           <option value="volontariat">Toutes les missions de volontariat</option>
