@@ -31,6 +31,7 @@ import rna from "./jobs/rna";
 import warnings from "./jobs/warnings";
 import { captureException } from "./error";
 import report from "./jobs/report";
+import kpi from "./jobs/kpi";
 
 const app = express();
 
@@ -42,6 +43,7 @@ const runnings = {
   leboncoin: false,
   rna: false,
   report: false,
+  kpi: false,
 };
 
 // https://crontab.guru/#0_*/3_*_*_*
@@ -112,6 +114,37 @@ const linkedinCron = new CronJob(
       });
     }
     runnings.linkedin = false;
+  },
+  null,
+  true,
+  "Europe/Paris",
+);
+// Every day at 1:30 AM
+const kpiJob = new CronJob(
+  "30 1 * * *",
+  async () => {
+    if (runnings.kpi) return;
+    runnings.kpi = true;
+    const checkInId = Sentry.captureCheckIn({
+      monitorSlug: "kpi",
+      status: "in_progress",
+    });
+    try {
+      await kpi.handler();
+      Sentry.captureCheckIn({
+        checkInId,
+        monitorSlug: "kpi",
+        status: "ok",
+      });
+    } catch (error) {
+      captureException(error);
+      Sentry.captureCheckIn({
+        checkInId,
+        monitorSlug: "kpi",
+        status: "error",
+      });
+    }
+    runnings.kpi = false;
   },
   null,
   true,
@@ -341,6 +374,14 @@ app.get("/tasks", async (req, res) => {
         lastRun: reportJob.lastDate(),
         nextRun: reportJob.nextDate(),
         running: runnings.report,
+      },
+      {
+        name: "Generate KPI",
+        schedule: kpiJob.cronTime.source,
+        started: kpiJob.running,
+        lastRun: kpiJob.lastDate(),
+        nextRun: kpiJob.nextDate(),
+        running: runnings.kpi,
       },
     ];
 

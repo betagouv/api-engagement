@@ -454,6 +454,55 @@ export interface Stats {
   tag?: string;
   type: "print" | "apply" | "click" | "view";
   user?: string;
+  status?: string;
+}
+
+export interface Kpi {
+  _id: Schema.Types.ObjectId;
+
+  date: Date;
+
+  availableBenevolatMissionCount: number;
+  availableVolontariatMissionCount: number;
+
+  availableBenevolatGivenPlaceCount: number;
+  availableVolontariatGivenPlaceCount: number;
+
+  availableBenevolatAttributedPlaceCount: number;
+  availableVolontariatAttributedPlaceCount: number;
+
+  percentageBenevolatGivenPlaces: number;
+  percentageVolontariatGivenPlaces: number;
+
+  percentageBenevolatAttributedPlaces: number;
+  percentageVolontariatAttributedPlaces: number;
+
+  benevolatPrintMissionCount: number;
+  volontariatPrintMissionCount: number;
+
+  benevolatClickMissionCount: number;
+  volontariatClickMissionCount: number;
+
+  benevolatApplyMissionCount: number;
+  volontariatApplyMissionCount: number;
+
+  benevolatAccountMissionCount: number;
+  volontariatAccountMissionCount: number;
+
+  benevolatPrintCount: number;
+  volontariatPrintCount: number;
+
+  benevolatClickCount: number;
+  volontariatClickCount: number;
+
+  benevolatApplyCount: number;
+  volontariatApplyCount: number;
+
+  benevolatAccountCount: number;
+  volontariatAccountCount: number;
+
+  createdAt: Date;
+  updatedAt: Date;
 }
 
 export type View = {

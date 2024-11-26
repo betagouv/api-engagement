@@ -9,6 +9,8 @@ import Loader from "../../components/Loader";
 import Select from "../../components/NewSelect";
 import TablePagination from "../../components/NewTablePagination";
 import SearchInput from "../../components/SearchInput";
+import SelectCity from "../../components/SelectCity";
+import SelectOrganization from "../../components/SelectOrganization";
 import { STATUS_PLR } from "../../constants";
 import api from "../../services/api";
 import { captureError } from "../../services/error";
@@ -41,8 +43,6 @@ const Flux = () => {
     status: [],
     domains: [],
     activities: [],
-    cities: [],
-    organizations: [],
   });
   const [lastImport, setLastImport] = useState();
   const [moderators, setModerators] = useState();
@@ -179,6 +179,8 @@ const Flux = () => {
             placeholder="Domaine"
             loading={loading}
           />
+        </div>
+        <div className="flex items-center gap-4">
           <Select
             options={options.activities.map((e) => ({ value: e.key === "" ? "none" : e.key, label: e.key === "" ? "Non renseignée" : e.key, count: e.doc_count }))}
             value={filters.activity}
@@ -186,20 +188,8 @@ const Flux = () => {
             placeholder="Activité"
             loading={loading}
           />
-          <Select
-            options={options.cities.map((e) => ({ value: e.key === "" ? "none" : e.key, label: e.key === "" ? "Non renseignée" : e.key, count: e.doc_count }))}
-            value={filters.city}
-            onChange={(e) => setFilters({ ...filters, city: e.value })}
-            placeholder="Ville"
-            loading={loading}
-          />
-          <Select
-            options={options.organizations.map((e) => ({ value: e.key === "" ? "none" : e.key, label: e.key === "" ? "Non renseignée" : e.key, count: e.doc_count }))}
-            value={filters.organization}
-            onChange={(e) => setFilters({ ...filters, organization: e.value })}
-            placeholder="Organisation"
-            loading={loading}
-          />
+          <SelectCity value={filters.city} onChange={(city) => setFilters({ ...filters, city })} />
+          <SelectOrganization value={filters.organization} onChange={(organization) => setFilters({ ...filters, organization })} />
         </div>
       </div>
 

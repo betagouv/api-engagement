@@ -125,10 +125,11 @@ const handler = async () => {
       console.log(`[Missions] Processing ${data.length} docs.`);
 
       // Fetch all existing missions in one go
-      const stored = {} as { [key: string]: PrismaMission };
+      const stored = {} as { [key: string]: { updated_at: Date } };
       await prisma.mission
         .findMany({
           where: { old_id: { in: data.map((hit) => hit._id.toString()) } },
+          select: { old_id: true, updated_at: true },
         })
         .then((data) => data.forEach((d) => (stored[d.old_id] = d)));
 
