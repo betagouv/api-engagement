@@ -3,7 +3,6 @@ import prisma from "../../db/postgres";
 import { STATS_INDEX } from "../../config";
 import { captureException } from "../../error";
 import { Stats } from "../../types";
-import { PgImpression } from "../../types/postgres";
 import { Impression } from "@prisma/client";
 
 const BATCH_SIZE = 5000;
@@ -153,6 +152,7 @@ const handler = async () => {
     }
 
     console.log(`[Prints] Ended at ${new Date().toISOString()} in ${(Date.now() - start.getTime()) / 1000}s.`);
+    return { created };
   } catch (error) {
     captureException(error, "[Prints] Error while syncing docs.");
   }

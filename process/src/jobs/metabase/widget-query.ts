@@ -2,7 +2,7 @@ import prisma from "../../db/postgres";
 import RequestWidgetModel from "../../models/request-widget";
 import { captureException } from "../../error";
 import { RequestWidget } from "../../types";
-import { PgWidgetQuery } from "../../types/postgres";
+import { WidgetQuery as PgWidgetQuery } from "@prisma/client";
 
 const BATCH_SIZE = 5000;
 
@@ -82,6 +82,7 @@ const handler = async () => {
     }
 
     console.log(`[Widget-Requests] Ended at ${new Date().toISOString()} in ${(Date.now() - start.getTime()) / 1000}s.`);
+    return { created };
   } catch (error) {
     captureException(error, "[Widget-Requests] Error while syncing docs.");
   }
