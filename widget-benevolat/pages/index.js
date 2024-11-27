@@ -105,8 +105,12 @@ const Home = ({ widget, missions, options, total, request, environment }) => {
   if (!widget) return <div className="w-full h-full flex items-center justify-center">Erreur lors du chargement du widget</div>;
 
   return (
-    <div className="p-6 h-auto flex flex-col justify-start items-center gap-4 py-6">
-      <header className="max-w-[72rem] w-full space-y-4 md:space-y-8">
+    <div
+      className={`p-6 ${
+        widget?.style === "carousel" ? "h-[852px] md:max-h-[740px] md:max-w-[1056px]" : "h-[3428px] md:max-h-[1328px] md:max-w-[1200px]"
+      } flex flex-col justify-start mx-auto items-center gap-6 py-6`}
+    >
+      <header className={`w-full space-y-4 md:space-y-8`}>
         <div className="flex flex-col md:flex-row md:justify-between">
           <h1 className="font-bold text-3xl py-2 md:p-0">Trouvez une mission de bénévolat</h1>
           <p className="text-[#666] text-xl">{total > 1 ? `${total.toLocaleString("fr")} missions` : `${total} mission`}</p>
@@ -122,7 +126,7 @@ const Home = ({ widget, missions, options, total, request, environment }) => {
             setShowFilters={setShowFilters}
           />
         </div>
-        <div className="hidden md:flex w-full items-center justify-between">
+        <div className="hidden md:flex m-auto items-center justify-between">
           <Filters options={options} filters={filters} setFilters={(newFilters) => setFilters({ ...filters, ...newFilters })} color={color} disabledLocation={!!widget.location} />
         </div>
       </header>

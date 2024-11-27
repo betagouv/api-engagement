@@ -13,10 +13,17 @@ const Card = ({ widget, mission, request }) => {
       tabIndex={0}
       href={mission.url}
       target="_blank"
-      className="border min-h-[500px] w-full mx-auto flex flex-col border-neutral-grey-950 overflow-hidden focus:outline-none focus-visible:ring focus-visible:ring-blue-800"
+      className="group border min-h-[500px] w-full mx-auto flex flex-col border-neutral-grey-950 overflow-hidden focus:outline-none focus-visible:ring focus-visible:ring-blue-800 hover:shadow-lg transition-shadow duration-300"
     >
-      <div className="h-[200px]">
-        <Image src={mission.domainLogo} alt={mission.title} priority={true} className="w-full h-full object-cover" width={500} height={500} />
+      <div className="min-h-[200px] overflow-hidden">
+        <Image
+          src={mission.domainLogo}
+          alt={mission.title}
+          priority={true}
+          className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110"
+          width={500}
+          height={500}
+        />
       </div>
 
       <div className="flex-1 flex flex-col p-6 justify-between">
@@ -29,7 +36,7 @@ const Card = ({ widget, mission, request }) => {
         </div>
 
         <div className="flex flex-col gap-3">
-          <h2 className="font-semibold line-clamp-3 text-xl">{mission.title}</h2>
+          <h2 className="font-semibold line-clamp-3 text-xl group-hover:text-[#000091] transition-colors duration-300">{mission.title}</h2>
           <span className="text-sm truncate text-[#3A3A3A]">
             {mission.remote === "full" ? "À distance" : `${mission.city} ${mission.postalCode}${mission.country !== "FR" ? `- ${iso.getName(mission.country, "fr")}` : ""}`}
           </span>
