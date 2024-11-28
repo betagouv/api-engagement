@@ -167,7 +167,7 @@ const SelectFilter = ({ options, selectedOptions, onChange, color, placeholder =
     <div className="relative w-full min-w-[6rem]" ref={dropdownRef}>
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="w-full bg-[#EEE] border-b-2 border-[#3A3A3A] p-3 focus:outline-none focus-visible:ring focus-visible:ring-blue-800 flex items-center justify-between"
+        className="w-full rounded-t-md bg-[#EEE] border-b-2 border-[#3A3A3A] p-3 focus:outline-none focus-visible:ring focus-visible:ring-blue-800 flex items-center justify-between"
       >
         <span className="pr-3 text-sm truncate max-w-60" style={{ color: selectedOptions?.length > 0 ? color : "black" }}>
           {!selectedOptions || selectedOptions.some((o) => o === undefined)
@@ -281,7 +281,7 @@ const LocationFilter = ({ selected, onChange, color, disabled = false, width = "
 
   return (
     <div className="relative w-full" ref={dropdownRef}>
-      <div className="bg-[#EEE] border-b-2 border-[#3A3A3A] p-3 focus:outline-none focus-visible:ring focus-visible:ring-blue-800 flex items-center justify-between">
+      <div className="bg-[#EEE] rounded-t-md border-b-2 border-[#3A3A3A] p-3 focus:outline-none focus-visible:ring focus-visible:ring-blue-800 flex items-center justify-between">
         <RiMapPin2Fill className="text-disabled-grey-700" />
         {disabled ? (
           <input className="pl-3 w-full text-sm ring-0 focus:ring-0 focus:outline-none min-w-[6rem] opacity-75" value={selected?.label || ""} disabled />
@@ -357,7 +357,7 @@ const RemoteFilter = ({ options, selectedOptions, onChange, color, placeholder =
     <div className="relative w-full min-w-[6rem]" ref={dropdownRef}>
       <button
         aria-label={placeholder}
-        className="w-full bg-[#EEE] border-b-2 border-[#3A3A3A] p-3 focus:outline-none focus-visible:ring focus-visible:ring-blue-800 flex items-center justify-between"
+        className="w-full bg-[#EEE] rounded-t-md border-b-2 border-[#3A3A3A] p-3 focus:outline-none focus-visible:ring focus-visible:ring-blue-800 flex items-center justify-between"
         onClick={() => setIsOpen(!isOpen)}
       >
         <span className="pr-3 text-sm truncate max-w-60" style={{ color: selectedOptions?.length > 0 ? color : "black" }}>

@@ -106,11 +106,11 @@ const Home = ({ widget, missions, options, total, request, environment }) => {
 
   return (
     <div
-      className={`p-6 ${
-        widget?.style === "carousel" ? "h-[852px] md:max-h-[740px] md:max-w-[1056px]" : "h-[3428px] md:max-h-[1328px] md:max-w-[1200px]"
-      } flex flex-col justify-start mx-auto items-center gap-6 py-6`}
+      className={`p-6 lg:px-0 ${
+        widget?.style === "carousel" ? "h-[852px] md:max-h-[740px] md:max-w-[1200px]" : "h-[3428px] md:max-h-[1328px] md:max-w-[1200px]"
+      } flex flex-col justify-start mx-auto items-center gap-6`}
     >
-      <header className={`w-full space-y-4 md:space-y-8`}>
+      <header className={`w-full space-y-4 md:space-y-8 ${widget?.style === "carousel" ? "max-w-[1056px]" : ""}`}>
         <div className="flex flex-col md:flex-row md:justify-between">
           <h1 className="font-bold text-3xl py-2 md:p-0">Trouvez une mission de bénévolat</h1>
           <p className="text-[#666] text-xl">{total > 1 ? `${total.toLocaleString("fr")} missions` : `${total} mission`}</p>
@@ -126,12 +126,12 @@ const Home = ({ widget, missions, options, total, request, environment }) => {
             setShowFilters={setShowFilters}
           />
         </div>
-        <div className="hidden md:flex m-auto items-center justify-between">
+        <div className={`hidden md:flex m-auto items-center justify-between }`}>
           <Filters options={options} filters={filters} setFilters={(newFilters) => setFilters({ ...filters, ...newFilters })} color={color} disabledLocation={!!widget.location} />
         </div>
       </header>
 
-      <div className={`max-w-[72rem] w-full ${showFilters ? (widget?.style === "carousel" ? "hidden" : "opacity-40") : ""}`}>
+      <div className={`w-full lg:max-w-[75rem] ${showFilters ? (widget?.style === "carousel" ? "hidden" : "opacity-40") : ""}`}>
         {widget?.style === "carousel" ? (
           <Carousel widget={widget} missions={missions} color={color} total={total} request={request} />
         ) : (

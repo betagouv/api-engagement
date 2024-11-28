@@ -13,7 +13,7 @@ const Card = ({ widget, mission, request }) => {
       tabIndex={0}
       href={mission.url}
       target="_blank"
-      className="group border min-h-[500px] w-full mx-auto flex flex-col border-neutral-grey-950 overflow-hidden focus:outline-none focus-visible:ring focus-visible:ring-blue-800 hover:shadow-lg transition-shadow duration-300"
+      className="group border h-full w-full mx-auto flex flex-col border-neutral-grey-950 overflow-hidden focus:outline-none focus-visible:ring focus-visible:ring-blue-800 hover:shadow-lg transition-shadow duration-300"
     >
       <div className="min-h-[200px] overflow-hidden">
         <Image
@@ -26,7 +26,7 @@ const Card = ({ widget, mission, request }) => {
         />
       </div>
 
-      <div className="flex-1 flex flex-col p-6 justify-between">
+      <div className="flex-1 flex flex-col p-6 justify-between gap-4">
         <div className="flex flex-col gap-3">
           <span className="text-xs bg-[#EEE] w-fit py-0.5 px-2 rounded-full">{DOMAINES[mission.domain] || mission.domain}</span>
           <div className="flex gap-2 text-[#666]">

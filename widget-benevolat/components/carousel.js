@@ -42,7 +42,7 @@ export const Carousel = ({ widget, missions, color, request }) => {
 
   return (
     <main className="w-full relative">
-      <div className="overflow-hidden">
+      <div className="overflow-hidden lg:max-w-[1056px] mx-auto">
         <div
           className="flex py-2 transition-transform duration-500 ease-in-out"
           style={{ margin: "0 -0.75rem", transform: `translateX(-${currentSlide * (100 / slidesToShow)}%)` }}
@@ -58,7 +58,7 @@ export const Carousel = ({ widget, missions, color, request }) => {
       <button
         onClick={prevPage}
         disabled={currentSlide === 0}
-        className="p-2 rounded-full absolute top-1/2 -translate-y-1/2 -left-10 hidden lg:flex"
+        className="p-2 h-12 w-12 rounded-full absolute top-1/2 -translate-y-1/2 left-0 hidden lg:flex items-center justify-center"
         style={{
           backgroundColor: currentSlide === 0 ? "#e5e5e5" : color,
           color: currentSlide === 0 ? "#929292" : "white",
@@ -71,7 +71,7 @@ export const Carousel = ({ widget, missions, color, request }) => {
       <button
         onClick={nextPage}
         disabled={currentSlide >= missions.length - slidesToShow}
-        className="p-2 rounded-full absolute top-1/2 -translate-y-1/2 -right-10 hidden lg:flex"
+        className="p-2 h-12 w-12 rounded-full absolute top-1/2 -translate-y-1/2 right-0 hidden lg:flex items-center justify-center"
         style={{
           backgroundColor: currentSlide >= missions.length - slidesToShow ? "#e5e5e5" : color,
           color: currentSlide >= missions.length - slidesToShow ? "#929292" : "white",
@@ -86,7 +86,7 @@ export const Carousel = ({ widget, missions, color, request }) => {
           <button
             onClick={prevPage}
             disabled={currentSlide === 0}
-            className="p-2 rounded-full flex items-center justify-center"
+            className="p-2 h-12 w-12 rounded-full flex items-center justify-center"
             style={{
               backgroundColor: currentSlide === 0 ? "#e5e5e5" : color,
               color: currentSlide === 0 ? "#929292" : "white",
@@ -103,7 +103,7 @@ export const Carousel = ({ widget, missions, color, request }) => {
           <button
             onClick={nextPage}
             disabled={currentSlide >= missions.length - slidesToShow}
-            className="p-2 rounded-full flex items-center justify-center"
+            className="p-2 h-12 w-12 rounded-full flex items-center justify-center"
             style={{
               backgroundColor: currentSlide >= missions.length - slidesToShow ? "#e5e5e5" : color,
               color: currentSlide >= missions.length - slidesToShow ? "#929292" : "white",

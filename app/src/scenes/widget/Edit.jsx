@@ -567,6 +567,7 @@ const Frame = ({ widget }) => {
   const handleLoad = (e) => {
     let height = 0;
     const width = e.target.offsetWidth;
+    console.log(width);
     if (widget.type === "volontariat") {
       if (widget.style === "carousel") {
         if (width < 768) height = "670px";
@@ -579,10 +580,10 @@ const Frame = ({ widget }) => {
     } else {
       if (widget.style === "carousel") {
         if (width < 768) height = "780px";
-        else height = "686px";
+        else height = "740px";
       } else {
-        if (width < 640) height = "3424px";
-        else if (width < 1024) height = "1862px";
+        if (width < 640) height = "3428px";
+        else if (width < 1200) height = "1862px";
         else height = "1314px";
       }
     }
@@ -590,7 +591,7 @@ const Frame = ({ widget }) => {
   };
 
   return (
-    <div className="bg-white p-12 space-y-10 shadow-lg">
+    <div className="bg-white p-16 space-y-10 shadow-lg">
       <div className="flex flex-col gap-2">
         <h2 className="text-2xl font-bold">Aperçu du widget</h2>
         <span>Enregistrez le widget pour mettre à jour l'aperçu</span>
