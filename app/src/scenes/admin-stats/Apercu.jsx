@@ -447,7 +447,7 @@ const Patners = ({ filters }) => {
   );
   const announcePie = buildPie(
     data.filter((d) => d.role_promoteur),
-    "applyFrom",
+    "applyTo",
   );
 
   return (
