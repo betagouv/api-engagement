@@ -17,7 +17,7 @@ const Card = ({ widget, mission, request }) => {
       target="_blank"
       className="border h-full w-full mx-auto flex flex-col focus:outline-none focus-visible:ring focus-visible:ring-blue-800 border-grey-400 bg-white overflow-hidden group hover:shadow-lg transition-shadow duration-300"
     >
-      <div className="flex-1 flex flex-col p-6 justify-between">
+      <div className="flex-1 flex flex-col p-8 gap-4 justify-between">
         <div className="mb-1 flex items-center">
           <div>
             <div className="w-10 h-10 rounded-full flex items-center justify-center text-white text-2xl" style={{ background: domain.color }} data-icon={domain.icon} />

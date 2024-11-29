@@ -148,7 +148,7 @@ export const Filters = ({ options, filters, setFilters, disabledLocation = false
         ) : (
           <button
             aria-label="plus de filtres"
-            className="border w-full bg-white border-grey-400 py-2 px-4 h-[40px] focus:outline-none focus-visible:ring focus-visible:ring-blue-800 font-medium"
+            className="border truncate w-full bg-white border-grey-400 py-2 px-4 h-[40px] focus:outline-none focus-visible:ring focus-visible:ring-blue-800 font-medium"
             onClick={() => setMoreFilters(true)}
           >
             Plus de filtres

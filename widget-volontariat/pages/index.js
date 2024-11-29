@@ -119,13 +119,13 @@ const Home = ({ widget, missions, options, total, request, environment }) => {
   return (
     <div
       className={`p-4 lg:px-0 ${
-        widget?.style === "carousel" ? "h-[674px] md:max-h-[600px] md:max-w-[1200px]" : "h-[2200px] md:h-[1010px] md:max-w-[1200px]"
-      } flex flex-col justify-start items-center gap-4 lg:gap-8 mx-auto`}
+        widget?.style === "carousel" ? "h-[674px] md:max-h-[600px] md:max-w-[1200px]" : "h-[2200px] md:max-h-[1010px] md:max-w-[1200px]"
+      } flex flex-col justify-start items-center gap-4 lg:gap-6 mx-auto`}
     >
-      <header className="max-w-[1056px]">
-        <div className="flex flex-col md:flex-row md:justify-between items-center mb-3 md:mb-8">
-          <h1 className="font-bold text-[28px] py-2 md:p-0">Trouvez une mission de Service Civique</h1>
-          <p className="text-mention-grey text-[18px] text-left md:text-right font-light">{total > 1 ? `${total.toLocaleString("fr")} missions` : `${total} mission`}</p>
+      <header className={`w-full space-y-4 md:space-y-8 ${widget?.style === "carousel" ? "max-w-[1056px]" : "max-w-[1200px]"}`}>
+        <div className="flex flex-col md:flex-row md:justify-between">
+          <h1 className="font-bold text-3xl py-2 md:p-0">Trouvez une mission de Service Civique</h1>
+          <p className="text-[#666] text-xl">{total > 1 ? `${total.toLocaleString("fr")} missions` : `${total} mission`}</p>
         </div>
         <div className="w-full flex md:hidden flex-col items-center gap-4 md:mb-14">
           <MobileFilters
@@ -143,7 +143,7 @@ const Home = ({ widget, missions, options, total, request, environment }) => {
         </div>
       </header>
 
-      <div className={`w-full max-w-[75rem] ${showFilters ? (widget?.style === "carousel" ? "hidden" : "opacity-40") : ""}`}>
+      <div className={`w-full ${showFilters ? "opacity-40 pointer-events-none" : ""}`}>
         {widget?.style === "carousel" ? (
           <Carousel widget={widget} missions={missions} color={color} total={total} request={request} />
         ) : (
@@ -160,7 +160,7 @@ const Home = ({ widget, missions, options, total, request, environment }) => {
       </div>
       {environment === "production" && <Script src="https://app.api-engagement.beta.gouv.fr/jstag.js" />}
       {widget._id !== "6633a45e87fb728a6da205da" && (
-        <div className="flex w-full justify-center items-center gap-4 mt-2 px-4">
+        <div className={`flex w-full justify-center items-center gap-4 mt-2 px-4 ${showFilters ? "opacity-40 pointer-events-none" : ""}`}>
           <Image src={LogoSC} width="100" height="0" style={{ width: "53px", height: "auto" }} alt="Logo du Service Civique" />
           <p className=" text-xs text-[#666]">
             Proposé par l'Agence du Service Civique{" "}
