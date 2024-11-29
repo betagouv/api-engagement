@@ -96,10 +96,6 @@ export const Carousel = ({ widget, missions, color, request }) => {
             <RiArrowLeftLine size={20} />
           </button>
 
-          <span className="text-sm text-gray-500">
-            {Math.floor(currentSlide / slidesToShow) + 1} / {Math.ceil(missions.length / slidesToShow)}
-          </span>
-
           <button
             onClick={nextPage}
             disabled={currentSlide >= missions.length - slidesToShow}

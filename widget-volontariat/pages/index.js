@@ -11,7 +11,7 @@ import { ACCESSIBILITIES, ACTIONS, API_URL, BENEFICIARIES, DOMAINS, ENV, MINORS,
 import { Grid } from "../components/grid";
 import { Carousel } from "../components/carousel";
 import { Filters, MobileFilters } from "../components/filters";
-import LogoSC from "../public/images/logo-sc.png";
+import LogoSC from "../public/images/logo-sc.svg";
 
 /**
  * Layout widget --> max-width: 1152px
@@ -117,13 +117,17 @@ const Home = ({ widget, missions, options, total, request, environment }) => {
   if (!widget) return <div className="w-full h-full flex items-center justify-center">Erreur lors du chargement du widget</div>;
 
   return (
-    <div className="md:px-12 h-auto flex flex-col justify-start items-center gap-6 py-6">
-      <header className="w-full max-w-[72rem]">
-        <div className="flex flex-col md:flex-row md:justify-between mb-3 md:mb-8">
-          <h1 className="font-bold text-3xl py-2 md:p-0">Trouvez une mission de Service Civique</h1>
-          <p className="text-mention-grey text-xl text-left md:text-right font-light">{total > 1 ? `${total.toLocaleString("fr")} missions` : `${total} mission`}</p>
+    <div
+      className={`p-4 lg:px-0 ${
+        widget?.style === "carousel" ? "h-[674px] md:max-h-[600px] md:max-w-[1200px]" : "h-[2200px] md:h-[1010px] md:max-w-[1200px]"
+      } flex flex-col justify-start items-center gap-4 lg:gap-8 mx-auto`}
+    >
+      <header className="max-w-[1056px]">
+        <div className="flex flex-col md:flex-row md:justify-between items-center mb-3 md:mb-8">
+          <h1 className="font-bold text-[28px] py-2 md:p-0">Trouvez une mission de Service Civique</h1>
+          <p className="text-mention-grey text-[18px] text-left md:text-right font-light">{total > 1 ? `${total.toLocaleString("fr")} missions` : `${total} mission`}</p>
         </div>
-        <div className="w-full flex md:hidden flex-col items-center gap-4 mb-8 md:mb-14">
+        <div className="w-full flex md:hidden flex-col items-center gap-4 md:mb-14">
           <MobileFilters
             options={options}
             filters={filters}
@@ -139,7 +143,7 @@ const Home = ({ widget, missions, options, total, request, environment }) => {
         </div>
       </header>
 
-      <div className={`w-full max-w-[72rem] ${showFilters ? (widget?.style === "carousel" ? "hidden" : "opacity-40") : ""}`}>
+      <div className={`w-full max-w-[75rem] ${showFilters ? (widget?.style === "carousel" ? "hidden" : "opacity-40") : ""}`}>
         {widget?.style === "carousel" ? (
           <Carousel widget={widget} missions={missions} color={color} total={total} request={request} />
         ) : (
@@ -156,9 +160,9 @@ const Home = ({ widget, missions, options, total, request, environment }) => {
       </div>
       {environment === "production" && <Script src="https://app.api-engagement.beta.gouv.fr/jstag.js" />}
       {widget._id !== "6633a45e87fb728a6da205da" && (
-        <div className="hidden lg:flex w-full justify-center items-center mt-4 px-4">
-          <Image src={LogoSC} width="100" height="0" style={{ width: "100px", height: "auto" }} alt="Logo du Service Civique" />
-          <p className="pl-4">
+        <div className="flex w-full justify-center items-center gap-4 mt-2 px-4">
+          <Image src={LogoSC} width="100" height="0" style={{ width: "53px", height: "auto" }} alt="Logo du Service Civique" />
+          <p className=" text-xs text-[#666]">
             Proposé par l'Agence du Service Civique{" "}
             <a href="https://www.service-civique.gouv.fr/" target="_blank" className="underline text-[#000091] text-center">
               service-civique.gouv.fr

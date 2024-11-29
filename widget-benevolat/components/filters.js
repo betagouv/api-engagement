@@ -289,7 +289,7 @@ const LocationFilter = ({ selected, onChange, color, disabled = false, width = "
           <>
             <input
               className="pl-3 w-full text-sm ring-0 focus:ring-0 bg-[#EEE] focus:outline-none min-w-[6rem]"
-              value={inputValue}
+              value={selected?.label}
               placeholder="Localisation"
               onChange={handleInputChange}
             />

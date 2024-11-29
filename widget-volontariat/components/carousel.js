@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { RiArrowLeftLine, RiArrowRightLine } from "react-icons/ri";
 import Card from "./card";
 
-export const Carousel = ({ widget, missions, color, request }) => {
+export const Carousel = ({ widget, missions, request }) => {
   const [currentSlide, setCurrentSlide] = useState(0);
   const [slidesToShow, setSlidesToShow] = useState(3);
 
@@ -42,11 +42,14 @@ export const Carousel = ({ widget, missions, color, request }) => {
 
   return (
     <main className="w-full relative">
-      <div className="overflow-hidden">
-        <div className="flex transition-transform duration-500 ease-in-out" style={{ transform: `translateX(-${currentSlide * (100 / slidesToShow)}%)` }}>
+      <div className="overflow-hidden md:max-w-[1056px] mx-auto">
+        <div
+          className="flex h-[311px] transition-transform duration-500 ease-in-out"
+          style={{ margin: "0 -0.75rem", transform: `translateX(-${currentSlide * (100 / slidesToShow)}%)` }}
+        >
           {missions.slice(0, 60).map((mission, i) => (
-            <div role="group" key={i} id={mission._id} aria-labelledby={mission._id} className={`flex-shrink-0 w-full sm:w-1/2 lg:w-1/3 px-2`}>
-              <Card widget={widget} mission={mission} color={color} request={request} />
+            <div role="group" key={i} id={mission._id} aria-labelledby={mission._id} className={`flex-shrink-0 w-full sm:w-1/2 lg:w-1/3 px-3`}>
+              <Card widget={widget} mission={mission} request={request} />
             </div>
           ))}
         </div>
@@ -55,9 +58,9 @@ export const Carousel = ({ widget, missions, color, request }) => {
       <button
         onClick={prevPage}
         disabled={currentSlide === 0}
-        className="p-2 rounded-full absolute top-1/2 -translate-y-1/2 -left-10 hidden lg:flex"
+        className="p-2 h-12 w-12 rounded-full absolute top-1/2 -translate-y-1/2 left-0 hidden lg:flex items-center justify-center"
         style={{
-          backgroundColor: currentSlide === 0 ? "#e5e5e5" : color,
+          backgroundColor: currentSlide === 0 ? "#e5e5e5" : "black",
           color: currentSlide === 0 ? "#929292" : "white",
         }}
         aria-label="Diapositive précédente"
@@ -68,9 +71,9 @@ export const Carousel = ({ widget, missions, color, request }) => {
       <button
         onClick={nextPage}
         disabled={currentSlide >= missions.length - slidesToShow}
-        className="p-2 rounded-full absolute top-1/2 -translate-y-1/2 -right-10 hidden lg:flex"
+        className="p-2 h-12 w-12 rounded-full absolute top-1/2 -translate-y-1/2 right-0 hidden lg:flex items-center justify-center"
         style={{
-          backgroundColor: currentSlide >= missions.length - slidesToShow ? "#e5e5e5" : color,
+          backgroundColor: currentSlide >= missions.length - slidesToShow ? "#e5e5e5" : "black",
           color: currentSlide >= missions.length - slidesToShow ? "#929292" : "white",
         }}
         aria-label="Diapositive suivante"
@@ -83,9 +86,9 @@ export const Carousel = ({ widget, missions, color, request }) => {
           <button
             onClick={prevPage}
             disabled={currentSlide === 0}
-            className="p-2 rounded-full flex items-center justify-center"
+            className="p-2 h-12 w-12 rounded-full flex items-center justify-center"
             style={{
-              backgroundColor: currentSlide === 0 ? "#e5e5e5" : color,
+              backgroundColor: currentSlide === 0 ? "#e5e5e5" : "black",
               color: currentSlide === 0 ? "#929292" : "white",
             }}
             aria-label="Diapositive précédente"
@@ -93,16 +96,12 @@ export const Carousel = ({ widget, missions, color, request }) => {
             <RiArrowLeftLine size={20} />
           </button>
 
-          <span className="text-sm text-gray-500">
-            {Math.floor(currentSlide / slidesToShow) + 1} / {Math.ceil(missions.length / slidesToShow)}
-          </span>
-
           <button
             onClick={nextPage}
             disabled={currentSlide >= missions.length - slidesToShow}
-            className="p-2 rounded-full flex items-center justify-center"
+            className="p-2 h-12 w-12 rounded-full flex items-center justify-center"
             style={{
-              backgroundColor: currentSlide >= missions.length - slidesToShow ? "#e5e5e5" : color,
+              backgroundColor: currentSlide >= missions.length - slidesToShow ? "#e5e5e5" : "black",
               color: currentSlide >= missions.length - slidesToShow ? "#929292" : "white",
             }}
             aria-label="Diapositive suivante"

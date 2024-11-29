@@ -15,26 +15,9 @@ const Card = ({ widget, mission, request }) => {
       tabIndex={0}
       href={mission.url}
       target="_blank"
-      className="border min-h-[311px] w-full max-w-[90%] md:max-w-full flex flex-col focus:outline-none focus-visible:ring focus-visible:ring-blue-800 border-grey-400 bg-white rounded-xl overflow-hidden mx-auto"
+      className="border h-full w-full mx-auto flex flex-col focus:outline-none focus-visible:ring focus-visible:ring-blue-800 border-grey-400 bg-white overflow-hidden group hover:shadow-lg transition-shadow duration-300"
     >
       <div className="flex-1 flex flex-col p-6 justify-between">
-        <div className="h-32">
-          <div className="w-full text-center">
-            <span name="tracker_counter" data-id={mission._id} data-publisher={widget.fromPublisherId.toString()} data-source={widget._id.toString()} data-request={request} />
-          </div>
-
-          <h2 className="font-semibold line-clamp-3 my-2 text-xl">{mission.title}</h2>
-          <span className="text-sm truncate text-default-grey">
-            {mission.remote === "full" ? "À distance" : `${mission.city} ${mission.postalCode}${mission.country !== "FR" ? ` - ${iso.getName(mission.country, "fr")}` : ""}`}
-          </span>
-        </div>
-        <div className="mb-2 flex items-center">
-          {mission.tags?.includes("Service Civique Écologique") ? (
-            <Image src={LogoSCE} width="0" height="0" style={{ width: "228px", height: "19px" }} alt="logo service civique écologique" />
-          ) : (
-            ""
-          )}
-        </div>
         <div className="mb-1 flex items-center">
           <div>
             <div className="w-10 h-10 rounded-full flex items-center justify-center text-white text-2xl" style={{ background: domain.color }} data-icon={domain.icon} />
@@ -49,6 +32,26 @@ const Card = ({ widget, mission, request }) => {
             </div>
           </div>
         </div>
+
+        <div className="h-32">
+          <div className="w-full text-center">
+            <span name="tracker_counter" data-id={mission._id} data-publisher={widget.fromPublisherId.toString()} data-source={widget._id.toString()} data-request={request} />
+          </div>
+
+          <h2 className="font-semibold line-clamp-3 my-2 text-xl group-hover:text-[#000091] transition-colors duration-300">{mission.title}</h2>
+          <span className="text-sm truncate text-default-grey">
+            {mission.remote === "full" ? "À distance" : `${mission.city} ${mission.postalCode}${mission.country !== "FR" ? ` - ${iso.getName(mission.country, "fr")}` : ""}`}
+          </span>
+        </div>
+
+        <div className="mb-2 flex items-center">
+          {mission.tags?.includes("Service Civique Écologique") ? (
+            <Image src={LogoSCE} width="0" height="0" style={{ width: "228px", height: "19px" }} alt="logo service civique écologique" />
+          ) : (
+            ""
+          )}
+        </div>
+
         <div className="flex justify-between items-center text-mention-grey">
           <div className="flex items-center">
             <RiCalendarEventFill className="h-4" />
@@ -57,6 +60,7 @@ const Card = ({ widget, mission, request }) => {
           <RiArrowRightLine aria-label="Accéder à la mission" className="text-3xl" />
         </div>
       </div>
+
       <div className="h-[0.3125rem] w-full" style={{ backgroundColor: domain.color }} />
     </a>
   );
