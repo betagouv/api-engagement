@@ -57,9 +57,14 @@ router.get("/broadcast-preview", passport.authenticate("user", { session: false 
             },
           },
         },
-        totalMission: {
-          cardinality: {
-            field: "missionId.keyword",
+        totalMissionClick: {
+          filter: { term: { type: "click" } },
+          aggs: {
+            missions: {
+              cardinality: {
+                field: "missionId.keyword",
+              },
+            },
           },
         },
       },
@@ -73,7 +78,7 @@ router.get("/broadcast-preview", passport.authenticate("user", { session: false 
       totalPrint: response.body.aggregations.totalPrint.doc_count,
       totalAccount: response.body.aggregations.totalAccount.doc_count,
       totalMissionApply: response.body.aggregations.totalMissionApply.missions.value,
-      totalMission: response.body.aggregations.totalMission.value,
+      totalMissionClick: response.body.aggregations.totalMissionClick.missions.value,
     };
 
     return res.status(200).send({ ok: true, data });

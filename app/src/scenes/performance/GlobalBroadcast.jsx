@@ -33,7 +33,7 @@ const COLORS = ["rgba(250,117,117,255)", "rgba(252,205,109,255)", "rgba(251,146,
 
 const GlobalDiffuseur = ({ filters, onFiltersChange }) => {
   const { publisher } = useStore();
-  const [data, setData] = useState({ totalMission: 0, totalMissionApply: 0, totalPrint: 0, totalClick: 0, totalAccount: 0, totalApply: 0 });
+  const [data, setData] = useState({ totalMissionClick: 0, totalMissionApply: 0, totalPrint: 0, totalClick: 0, totalAccount: 0, totalApply: 0 });
   const [loading, setLoading] = useState(true);
   const [trackingWarning, setTrackingWarning] = useState(false);
 
@@ -111,8 +111,8 @@ const GlobalDiffuseur = ({ filters, onFiltersChange }) => {
           <div className="grid gap-4 mt-4">
             <div className="grid grid-cols-2 gap-4">
               <div className="border p-6">
-                <p className="font-bold text-[28px]">{data.totalMission.toLocaleString("fr")}</p>
-                <p className="text-base">missions diffusées</p>
+                <p className="font-bold text-[28px]">{data.totalMissionClick.toLocaleString("fr")}</p>
+                <p className="text-base">missions ayant généré au moins une redirection</p>
               </div>
               <div className="border p-6">
                 <p className="font-bold text-[28px]">{data.totalMissionApply.toLocaleString("fr")}</p>
