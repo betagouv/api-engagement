@@ -46,7 +46,7 @@ export const Carousel = ({ widget, missions, request }) => {
         <button
           onClick={prevPage}
           disabled={currentSlide === 0}
-          className="p-2 h-12 w-12 rounded-full hidden lg:flex items-center justify-center flex-shrink-0"
+          className="p-2 h-12 w-12 rounded-full hidden xl:flex items-center justify-center flex-shrink-0"
           style={{
             backgroundColor: currentSlide === 0 ? "#e5e5e5" : "black",
             color: currentSlide === 0 ? "#929292" : "white",
@@ -72,7 +72,7 @@ export const Carousel = ({ widget, missions, request }) => {
         <button
           onClick={nextPage}
           disabled={currentSlide >= missions.length - slidesToShow}
-          className="p-2 h-12 w-12 rounded-full hidden lg:flex items-center justify-center flex-shrink-0"
+          className="p-2 h-12 w-12 rounded-full hidden xl:flex items-center justify-center flex-shrink-0"
           style={{
             backgroundColor: currentSlide >= missions.length - slidesToShow ? "#e5e5e5" : "black",
             color: currentSlide >= missions.length - slidesToShow ? "#929292" : "white",
@@ -83,7 +83,7 @@ export const Carousel = ({ widget, missions, request }) => {
         </button>
       </div>
 
-      <div className="flex justify-center mt-4 lg:hidden">
+      <div className="flex justify-center mt-4 xl:hidden">
         <div className="flex gap-4">
           <button
             onClick={prevPage}

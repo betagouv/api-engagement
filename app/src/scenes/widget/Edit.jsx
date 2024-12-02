@@ -579,7 +579,7 @@ const Frame = ({ widget }) => {
       }
     } else {
       if (widget.style === "carousel") {
-        if (width < 768) height = "780px";
+        if (width < 768) height = "852px";
         else height = "740px";
       } else {
         if (width < 640) height = "3428px";

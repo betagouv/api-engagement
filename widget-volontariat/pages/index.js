@@ -118,7 +118,7 @@ const Home = ({ widget, missions, options, total, request, environment }) => {
 
   return (
     <div
-      className={`p-4 lg:px-0 ${
+      className={`p-4 xl:px-0 ${
         widget?.style === "carousel" ? "h-[674px] md:max-h-[600px] md:max-w-[1200px]" : "h-[2200px] md:max-h-[1010px] md:max-w-[1200px]"
       } flex flex-col justify-start items-center gap-4 lg:gap-6 mx-auto`}
     >

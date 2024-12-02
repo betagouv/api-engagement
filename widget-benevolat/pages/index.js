@@ -106,7 +106,7 @@ const Home = ({ widget, missions, options, total, request, environment }) => {
 
   return (
     <div
-      className={`p-6 lg:px-0 ${
+      className={`p-6 xl:px-0 ${
         widget?.style === "carousel" ? "h-[852px] md:max-h-[740px] md:max-w-[1200px]" : "h-[3428px] md:max-h-[1328px] md:max-w-[1200px]"
       } flex flex-col justify-start mx-auto items-center gap-6`}
     >
@@ -131,7 +131,7 @@ const Home = ({ widget, missions, options, total, request, environment }) => {
         </div>
       </header>
 
-      <div className={`w-full lg:max-w-[75rem] ${showFilters ? (widget?.style === "carousel" ? "hidden" : "opacity-40") : ""}`}>
+      <div className={`w-full ${showFilters ? (widget?.style === "carousel" ? "hidden" : "opacity-40") : ""}`}>
         {widget?.style === "carousel" ? (
           <Carousel widget={widget} missions={missions} color={color} total={total} request={request} />
         ) : (
