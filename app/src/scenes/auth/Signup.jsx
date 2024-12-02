@@ -222,7 +222,7 @@ const SignupForm = ({ user }) => {
         <input
           id="confirm-password"
           className={`input mb-2 ${submitted && errors.confirmPassword ? "border-2 border-b-red-main" : "border-b-black"}`}
-          name="confirm-password"
+          name="confirmPassword"
           type={showConfirm ? "text" : "password"}
           value={values.confirmPassword}
           onChange={handleChange}

@@ -202,7 +202,7 @@ const ResetPasswordModal = ({ open, setOpen }) => {
             <input
               id="old-password"
               className={`input mb-2 ${errors.oldPassword ? "border-b-red-main" : "border-b-black"}`}
-              name="old-password"
+              name="oldPassword"
               type="password"
               value={values.oldPassword}
               onChange={handleChange}
@@ -227,7 +227,7 @@ const ResetPasswordModal = ({ open, setOpen }) => {
             <input
               id="new-password"
               className={`input mb-2 ${errors.newPassword ? "border-b-red-main" : "border-b-black"}`}
-              name="new-password"
+              name="newPassword"
               type={showNewPassword ? "text" : "password"}
               value={values.newPassword}
               onChange={handleChange}
@@ -253,7 +253,7 @@ const ResetPasswordModal = ({ open, setOpen }) => {
             <input
               id="confirm-password"
               className={`input mb-2 ${errors.confirmPassword ? "border-b-red-main" : "border-b-black"}`}
-              name="confirm-password"
+              name="confirmPassword"
               type={showConfirmPassword ? "text" : "password"}
               value={values.confirmPassword}
               onChange={handleChange}
