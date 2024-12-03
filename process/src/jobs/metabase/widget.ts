@@ -2,7 +2,7 @@ import prisma from "../../db/postgres";
 import WidgetModel from "../../models/widget";
 import { captureException } from "../../error";
 import { Widget } from "../../types";
-import { PgWidget } from "../../types/postgres";
+import { Widget as PgWidget } from "@prisma/client";
 
 interface WidgetUpdate extends PgWidget {
   annonceur: { connect: { id: string }[] };
@@ -75,6 +75,7 @@ const handler = async () => {
     }
 
     console.log(`[Widgets] Ended at ${new Date().toISOString()} in ${(Date.now() - start.getTime()) / 1000}s.`);
+    return { created: dataToCreate.length, updated: dataToUpdate.length };
   } catch (error) {
     captureException(error, "[Widgets] Error while syncing docs.");
   }

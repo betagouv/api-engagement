@@ -2,7 +2,7 @@ import prisma from "../../db/postgres";
 import UserModel from "../../models/user";
 import { captureException } from "../../error";
 import { User } from "../../types";
-import { PgUser } from "../../types/postgres";
+import { User as PgUser } from "@prisma/client";
 
 interface UserUpdate extends PgUser {
   partners: { connect: { id: string }[] };
@@ -85,6 +85,7 @@ const handler = async () => {
     }
 
     console.log(`[Users] Ended at ${new Date().toISOString()} in ${(Date.now() - start.getTime()) / 1000}s.`);
+    return { created: dataToCreate.length, updated: dataToUpdate.length };
   } catch (error) {
     captureException(error, "[Users] Error while syncing docs.");
   }
