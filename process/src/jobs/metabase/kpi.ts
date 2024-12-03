@@ -79,6 +79,7 @@ const handler = async () => {
     }
 
     console.log(`[KPI] Ended at ${new Date().toISOString()} in ${(Date.now() - start.getTime()) / 1000}s.`);
+    return { created: dataToCreate.length };
   } catch (error) {
     captureException(error, "[KPI] Error while syncing docs.");
   }

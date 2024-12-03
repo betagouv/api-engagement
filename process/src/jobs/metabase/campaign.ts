@@ -44,7 +44,7 @@ const handler = async () => {
 
     const stored = {} as { [key: string]: { old_id: string; updated_at: Date } };
     await prisma.campaign.findMany({ select: { old_id: true, updated_at: true } }).then((data) => data.forEach((d) => (stored[d.old_id] = d)));
-    console.log(`[Campaigns] Found ${stored.length} docs in database.`);
+    console.log(`[Campaigns] Found ${Object.keys(stored).length} docs in database.`);
     const partners = {} as { [key: string]: string };
     await prisma.partner.findMany({ select: { id: true, old_id: true } }).then((data) => data.forEach((d) => (partners[d.old_id] = d.id)));
 
@@ -77,6 +77,7 @@ const handler = async () => {
     }
 
     console.log(`[Campaigns] Ended at ${new Date().toISOString()} in ${(Date.now() - start.getTime()) / 1000}s.`);
+    return { created: dataToCreate.length, updated: dataToUpdate.length };
   } catch (error) {
     captureException(error, "[Campaigns] Error while syncing docs.");
   }

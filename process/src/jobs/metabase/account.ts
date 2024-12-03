@@ -184,6 +184,7 @@ const handler = async () => {
     }
 
     console.log(`[Accounts] Ended at ${new Date().toISOString()} in ${(Date.now() - start.getTime()) / 1000}s.`);
+    return { created, updated };
   } catch (error) {
     captureException(error, "[Accounts] Error while syncing docs.");
   }

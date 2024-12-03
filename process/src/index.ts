@@ -279,7 +279,7 @@ const leboncoinJob = new CronJob(
 
 // Every first Tuesday of the month at 10:00 AM
 const reportJob = new CronJob(
-  "0 10 2 * *",
+  "10 16 * * 2",
   async () => {
     // if not the first Tuesday of the month, return
     const date = new Date();
@@ -392,4 +392,4 @@ app.get("/tasks", async (req, res) => {
   }
 });
 
-app.listen(PORT, () => console.log("Listening on port ", PORT, "at", new Date().toISOString()));
+app.listen(PORT, () => console.log(`Listening on port ${PORT} at ${new Date().toISOString()}`));

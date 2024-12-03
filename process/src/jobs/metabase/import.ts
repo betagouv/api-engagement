@@ -70,6 +70,7 @@ const handler = async () => {
     }
 
     console.log(`[Imports] Ended at ${new Date().toISOString()} in ${(Date.now() - start.getTime()) / 1000}s.`);
+    return { created };
   } catch (error) {
     captureException(error, "[Imports] Error while syncing docs.");
   }

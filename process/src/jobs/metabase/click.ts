@@ -153,6 +153,7 @@ const handler = async () => {
     }
 
     console.log(`[Clicks] Ended at ${new Date().toISOString()} in ${(Date.now() - start.getTime()) / 1000}s.`);
+    return { created };
   } catch (error) {
     captureException(error, "[Clicks] Error while syncing docs.");
   }

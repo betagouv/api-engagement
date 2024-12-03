@@ -1,13 +1,13 @@
 import prisma from "../../db/postgres";
 import UserModel from "../../models/user";
 import { captureException } from "../../error";
-import { PgLoginHistory } from "../../types/postgres";
+import { LoginHistory } from "@prisma/client";
 
 const buildData = (userId: string, loginTime: Date) => {
   return {
     user_id: userId,
     login_at: loginTime,
-  } as PgLoginHistory;
+  } as LoginHistory;
 };
 
 const handler = async () => {
@@ -32,7 +32,7 @@ const handler = async () => {
       .then((data) => data.forEach((e) => (logins[e.user_id] = e._max.login_at)));
     console.log(`[LoginHistory] Fetched latest login times for ${Object.keys(logins).length} users.`);
 
-    const dataToCreate = [] as PgLoginHistory[];
+    const dataToCreate = [] as LoginHistory[];
     for (const user of data) {
       const userId = users[user._id.toString()];
       const latestLoginAt = logins[userId];
@@ -58,6 +58,7 @@ const handler = async () => {
     }
 
     console.log(`[LoginHistory] Ended at ${new Date().toISOString()} in ${(Date.now() - start.getTime()) / 1000}s.`);
+    return { created: dataToCreate.length };
   } catch (error) {
     captureException(error, "[LoginHistory] Error while syncing login history.");
   }

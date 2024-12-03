@@ -67,7 +67,7 @@ const buildData = async (
     widget_id: sourceId && doc.source === "widget" ? sourceId : null,
     to_partner_id: partnerToId,
     from_partner_id: partnerFromId,
-    status: doc.status,
+    status: doc.status || null,
   } as Apply;
 
   return obj;
@@ -154,8 +154,13 @@ const handler = async () => {
         }
         const obj = await buildData({ ...hit._source, _id: hit._id }, partners, missions, campaigns, widgets, clickId);
         if (!obj) continue;
-        if (stored[hit._id.toString()] && stored[hit._id.toString()].status !== obj.status && stored[hit._id.toString()].click_id !== obj.click_id) dataToUpdate.push(obj);
-        else if (!stored[hit._id.toString()]) dataToCreate.push(obj);
+
+        if (stored[hit._id.toString()] && (stored[hit._id.toString()].status !== obj.status || stored[hit._id.toString()].click_id !== obj.click_id)) {
+          console.log("UPDATE");
+          console.log("status", stored[hit._id.toString()].status !== obj.status, stored[hit._id.toString()].status, obj.status);
+          console.log("click_id", stored[hit._id.toString()].click_id !== obj.click_id, stored[hit._id.toString()].click_id, obj.click_id);
+          dataToUpdate.push(obj);
+        } else if (!stored[hit._id.toString()]) dataToCreate.push(obj);
       }
 
       console.log(`[Applies] ${dataToCreate.length} docs to create, ${dataToUpdate.length} docs to update.`);
@@ -180,8 +185,8 @@ const handler = async () => {
       updated += dataToUpdate.length;
       console.log(`[Applies] Updated ${dataToUpdate.length} docs, ${updated} updated so far.`);
     }
-
     console.log(`[Applies] Ended at ${new Date().toISOString()} in ${(Date.now() - start.getTime()) / 1000}s.`);
+    return { created, updated };
   } catch (error) {
     captureException(error, "[Applies] Error while syncing docs.");
   }

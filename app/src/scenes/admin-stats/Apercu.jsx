@@ -13,6 +13,9 @@ import { captureError } from "../../services/error";
 
 const Apercu = () => {
   const [searchParams, setSearchParams] = useSearchParams();
+  const [stickyVisible, setStickyVisible] = useState(false);
+  const [filterSection, setFilterSection] = useState(null);
+
   const [filters, setFilters] = useState({
     from: searchParams.has("from") ? new Date(searchParams.get("from")) : new Date(new Date().getFullYear() - 1, new Date().getMonth(), new Date().getDate()),
     to: searchParams.has("to") ? new Date(searchParams.get("to")) : new Date(new Date().getFullYear(), new Date().getMonth(), new Date().getDate() + 1, 0, 0, 0, -1),
@@ -26,24 +29,64 @@ const Apercu = () => {
     setSearchParams(query);
   }, [filters, location.pathname]);
 
+  useEffect(() => {
+    if (!filterSection) return;
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        setStickyVisible(!entry.isIntersecting);
+      },
+      { threshold: 0 },
+    );
+
+    observer.observe(filterSection);
+
+    return () => {
+      if (filterSection) {
+        observer.unobserve(filterSection);
+      }
+    };
+  }, [filterSection]);
+
   return (
     <div className="space-y-12 p-12">
       <Helmet>
         <title>Aperçu - Statistiques - Administration - API Engagement</title>
       </Helmet>
-      <div className="flex items-end gap-4">
-        <div className="space-y-2">
-          <label className="text-sm text-gray-dark uppercase font-semibold">Période</label>
-          <DateRangePicker value={filters} onChange={(value) => setFilters({ ...filters, from: value.from, to: value.to })} />
+
+      {stickyVisible && (
+        <div className="fixed top-0 left-0 w-full bg-white shadow-lg z-50 px-48 items-center justify-center py-4">
+          <div className="flex items-end gap-4">
+            <div className="space-y-2 flex-1">
+              <DateRangePicker value={filters} onChange={(value) => setFilters({ ...filters, from: value.from, to: value.to })} />
+            </div>
+            <label htmlFor="mission-type-sticky" className="sr-only">
+              Type de mission
+            </label>
+            <select id="mission-type-sticky" className="select w-80" value={filters.type} onChange={(e) => setFilters({ ...filters, type: e.target.value })}>
+              <option value="">Tous les types de missions</option>
+              <option value="benevolat">Toutes les missions de bénévolat</option>
+              <option value="volontariat">Toutes les missions de volontariat</option>
+            </select>
+          </div>
         </div>
-        <label htmlFor="mission-type" className="sr-only">
-          Type de mission
-        </label>
-        <select id="mission-type" className="select w-80" value={filters.type} onChange={(e) => setFilters({ ...filters, type: e.target.value })}>
-          <option value="">Tous les types de missions</option>
-          <option value="benevolat">Toutes les missions de bénévolat</option>
-          <option value="volontariat">Toutes les missions de volontariat</option>
-        </select>
+      )}
+
+      <div ref={(node) => setFilterSection(node)}>
+        <div className="flex items-end gap-4">
+          <div className="space-y-2 flex-1">
+            <label className="text-sm text-gray-dark uppercase font-semibold">Période</label>
+            <DateRangePicker value={filters} onChange={(value) => setFilters({ ...filters, from: value.from, to: value.to })} />
+          </div>
+          <label htmlFor="mission-type" className="sr-only">
+            Type de mission
+          </label>
+          <select id="mission-type" className="select w-80" value={filters.type} onChange={(e) => setFilters({ ...filters, type: e.target.value })}>
+            <option value="">Tous les types de missions</option>
+            <option value="benevolat">Toutes les missions de bénévolat</option>
+            <option value="volontariat">Toutes les missions de volontariat</option>
+          </select>
+        </div>
       </div>
       <div className="border-b border-b-gray-border" />
 
@@ -447,7 +490,7 @@ const Patners = ({ filters }) => {
   );
   const announcePie = buildPie(
     data.filter((d) => d.role_promoteur),
-    "applyFrom",
+    "applyTo",
   );
 
   return (

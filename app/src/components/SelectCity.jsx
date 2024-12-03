@@ -12,7 +12,8 @@ const SelectCity = ({ onChange }) => {
   useEffect(() => {
     const fetchOptions = async () => {
       try {
-        if (search.length > 0 && search.length < 3) {
+        if (search.length === 0) {
+          onChange(null);
           setOptions([]);
           return;
         }

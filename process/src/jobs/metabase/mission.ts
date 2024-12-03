@@ -1,7 +1,7 @@
 import prisma from "../../db/postgres";
 import { captureException } from "../../error";
 import { Mission as MongoMission } from "../../types";
-import { Mission as PrismaMission } from "@prisma/client";
+import { Mission as PgMission } from "@prisma/client";
 import MissionModel from "../../models/mission";
 
 const BULK_SIZE = 5000;
@@ -92,7 +92,7 @@ const buildData = (doc: MongoMission, partners: { [key: string]: string }) => {
     created_at: new Date(doc.createdAt),
     updated_at: new Date(doc.updatedAt),
     deleted_at: doc.deletedAt ? new Date(doc.deletedAt) : null,
-  } as PrismaMission;
+  } as PgMission;
 
   return obj;
 };
@@ -115,13 +115,15 @@ const handler = async () => {
     const fourteenDaysAgo = new Date();
     fourteenDaysAgo.setDate(fourteenDaysAgo.getDate() - 14);
     const where = { $or: [{ createdAt: { $gte: fourteenDaysAgo } }, { updatedAt: { $gte: fourteenDaysAgo } }] };
+    const countToSync = await MissionModel.countDocuments(where);
+    console.log(`[Missions] Found ${countToSync} docs to sync.`);
 
     while (true) {
       const data = await MissionModel.find(where).limit(BULK_SIZE).skip(offset).lean();
       if (data.length === 0) break;
 
-      const dataToCreate = [] as PrismaMission[];
-      const dataToUpdate = [] as PrismaMission[];
+      const dataToCreate = [] as PgMission[];
+      const dataToUpdate = [] as PgMission[];
       console.log(`[Missions] Processing ${data.length} docs.`);
 
       // Fetch all existing missions in one go
@@ -166,6 +168,7 @@ const handler = async () => {
     }
 
     console.log(`[Missions] Ended at ${new Date().toISOString()} in ${(Date.now() - start.getTime()) / 1000}s.`);
+    return { created, updated };
   } catch (error) {
     captureException(error, "[Missions] Error while syncing docs.");
   }

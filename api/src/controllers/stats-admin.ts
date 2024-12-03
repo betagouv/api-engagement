@@ -344,8 +344,19 @@ router.get("/publishers-views", passport.authenticate("user", { session: false }
 
     const total = {
       publishers: publishers.length,
-      announcers: publishers.filter((e) => e.role_promoteur).length,
-      broadcasters: publishers.filter((e) => e.role_annonceur_api || e.role_annonceur_campagne || e.role_annonceur_widget).length,
+      announcers: publishers.filter((e) => {
+        if (!e.role_promoteur) return false;
+        if (query.data.type === "volontariat") return e.name === "Service Civique";
+        if (query.data.type === "benevolat") return e.name !== "Service Civique";
+        return true;
+      }).length,
+      broadcasters: publishers.filter((e) => {
+        const isBroadcaster = e.role_annonceur_api || e.role_annonceur_campagne || e.role_annonceur_widget;
+        if (!isBroadcaster) return false;
+        if (query.data.type === "volontariat") return e.publishers?.some((p) => p.publisherName === "Service Civique");
+        if (query.data.type === "benevolat") return e.publishers?.some((p) => p.publisherName !== "Service Civique");
+        return true;
+      }).length,
       clicks: response.body.aggregations.totalClick.doc_count,
       applys: response.body.aggregations.totalApply.doc_count,
     };

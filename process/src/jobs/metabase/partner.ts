@@ -2,7 +2,7 @@ import prisma from "../../db/postgres";
 import PublisherModel from "../../models/publisher";
 import { captureException } from "../../error";
 import { Publisher } from "../../types";
-import { PgPartner } from "../../types/postgres";
+import { Partner as PgPartner } from "@prisma/client";
 
 const buildData = (doc: Publisher) => {
   const obj = {
@@ -59,6 +59,7 @@ const handler = async () => {
     }
 
     console.log(`[Partners] Ended at ${new Date().toISOString()} in ${(Date.now() - start.getTime()) / 1000}s.`);
+    return { created: dataToCreate.length, updated: dataToUpdate.length };
   } catch (error) {
     captureException(error, "[Partners] Error while syncing docs.");
   }
