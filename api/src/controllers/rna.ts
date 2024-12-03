@@ -48,7 +48,7 @@ router.get("/", passport.authenticate("user", { session: false }), async (req: U
     const response = await esClient.search({ index: RNA_INDEX, body: esBody });
     const total = response.body.hits.total.value;
     const data = {
-      hits: response.body.hits.hits.map((h: { _id: string; _source: Mission }) => ({ _id: h._id, ...h._source })),
+      hits: response.body.hits.hits.map((h: { _id: string; _source: Mission }) => ({ ...h._source, _id: h._id })),
       aggs: {
         departments: response.body.aggregations.departements.buckets,
         cities: response.body.aggregations.cities.buckets,
