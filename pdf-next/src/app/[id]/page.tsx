@@ -10,8 +10,15 @@ const Page = async ({ params, searchParams }: { params: { id: string }; searchPa
   const id = params.id;
   const year = searchParams?.year ? Number(searchParams?.year) : new Date().getFullYear();
   const month = searchParams?.month ? Number(searchParams?.month) : new Date().getMonth();
+  const apiKey = searchParams?.apiKey as string;
 
-  const res = await api.get<{ data: StatsReport; publisher: Publisher }>(`/stats-report?year=${year}&month=${month}&publisherId=${id}`);
+  if (!apiKey) return null;
+
+  const res = await api.get<{ data: StatsReport; publisher: Publisher }>(`/stats-report?year=${year}&month=${month}&publisherId=${id}`, {
+    headers: {
+      "x-api-key": apiKey,
+    },
+  });
   if (!res.data) return null;
   return (
     <>
