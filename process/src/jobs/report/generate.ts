@@ -144,7 +144,6 @@ export const generate = async (year: number, month: number) => {
     const res = await pdfGeneration(browser, publisher, year, month);
     count += 1;
     errors.push(...res.errors);
-    break;
   }
 
   await browser.close();
