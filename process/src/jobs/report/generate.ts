@@ -1,6 +1,6 @@
 import puppeteer, { Browser } from "puppeteer";
 import { exec } from "child_process";
-
+import path from "path";
 import PublisherModel from "../../models/publisher";
 import ReportModel from "../../models/report";
 import { putObject, OBJECT_ACL, BUCKET_URL } from "../../services/s3";
@@ -20,9 +20,16 @@ const fetchData = async (publisher: Publisher, year: number, month: number) => {
   }
 };
 
+const cleanPM2 = async () => {
+  return new Promise((resolve, reject) => {
+    exec("npx pm2 delete pdf", (error, stdout, stderr) => resolve(true));
+  });
+};
+
 const startNextAppWithPM2 = async () => {
   return new Promise((resolve, reject) => {
-    exec("npx pm2 start pdf", (error, stdout, stderr) => {
+    const directory = path.join(process.cwd(), "../pdf-next");
+    exec(`cd ${directory} && npm run start`, (error, stdout, stderr) => {
       if (error) {
         console.error(`Error starting Next.js app with PM2: ${error.message}`);
         reject(error);
@@ -31,11 +38,8 @@ const startNextAppWithPM2 = async () => {
         console.error(`PM2 stderr: ${stderr}`);
       }
       console.log(`PM2 stdout: ${stdout}`);
-      if (stdout.includes("Process successfully started")) {
-        resolve(stdout);
-      } else {
-        reject(new Error("Failed to start Next.js app with PM2"));
-      }
+
+      resolve(stdout);
     });
   });
 };
@@ -171,8 +175,9 @@ const pdfGeneration = async (browser: Browser, publisher: Publisher, year: numbe
 };
 
 export const generate = async (year: number, month: number) => {
+  await cleanPM2();
+  await new Promise((resolve) => setTimeout(resolve, 2000));
   await startNextAppWithPM2();
-  // wait 10 seconds
   await new Promise((resolve) => setTimeout(resolve, 10000));
   if (!(await pingNextApp())) {
     console.log(`[Report] Next.js app is not ready`);
@@ -192,6 +197,8 @@ export const generate = async (year: number, month: number) => {
     count += 1;
     errors.push(...res.errors);
   }
+
+  await browser.close();
 
   await stopNextAppWithPM2();
 
