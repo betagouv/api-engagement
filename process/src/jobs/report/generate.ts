@@ -31,7 +31,11 @@ const startNextAppWithPM2 = async () => {
         console.error(`PM2 stderr: ${stderr}`);
       }
       console.log(`PM2 stdout: ${stdout}`);
-      resolve(stdout);
+      if (stdout.includes("Process successfully started")) {
+        resolve(stdout);
+      } else {
+        reject(new Error("Failed to start Next.js app with PM2"));
+      }
     });
   });
 };
@@ -53,8 +57,12 @@ const stopNextAppWithPM2 = async () => {
 };
 
 const pingNextApp = async () => {
-  const response = await fetch("http://localhost:3000/");
-  return response.ok;
+  try {
+    const response = await fetch("http://localhost:3000/");
+    return response.ok;
+  } catch (err) {
+    return false;
+  }
 };
 
 const pdfGeneration = async (browser: Browser, publisher: Publisher, year: number, month: number) => {
@@ -166,8 +174,7 @@ export const generate = async (year: number, month: number) => {
   await startNextAppWithPM2();
   // wait 10 seconds
   await new Promise((resolve) => setTimeout(resolve, 10000));
-  const isNextAppReady = await pingNextApp();
-  if (!isNextAppReady) {
+  if (!(await pingNextApp())) {
     console.log(`[Report] Next.js app is not ready`);
     return { count: 0, errors: [] };
   }
