@@ -6,6 +6,7 @@ import { Link, useNavigate, useParams } from "react-router-dom";
 import { toast } from "react-toastify";
 
 import Autocomplete from "../../components/Autocomplete";
+import RadioInput from "../../components/RadioInput";
 import { Table } from "../../components/Table";
 import api from "../../services/api";
 import { captureError } from "../../services/error";
@@ -213,38 +214,25 @@ const Edit = () => {
                 <span>Annonceur</span>
               </div>
               {values.role_promoteur === true && (
-                <>
-                  <div className="flex items-center gap-3">
-                    <label htmlFor="mission-type-benevolat" className="sr-only">
-                      Bénévolat
-                    </label>
-                    <input
-                      id="mission-type-benevolat"
-                      type="radio"
-                      className="checkbox"
-                      name="mission-type-benevolat"
-                      value="benevolat"
-                      onChange={(e) => setValues({ ...values, mission_type: e.target.value })}
-                      checked={values.mission_type === "benevolat"}
-                    />
-                    <span>Bénévolat</span>
-                  </div>
-                  <div className="flex items-center gap-3">
-                    <label htmlFor="mission-type-volontariat" className="sr-only">
-                      Volontariat
-                    </label>
-                    <input
-                      type="radio"
-                      className="checkbox"
-                      id="mission-type-volontariat"
-                      name="mission-type-volontariat"
-                      value="volontariat"
-                      onChange={(e) => setValues({ ...values, mission_type: e.target.value })}
-                      checked={values.mission_type === "volontariat"}
-                    />
-                    <span>Volontariat</span>
-                  </div>
-                </>
+                <div className="flex items-center gap-3">
+                  <RadioInput
+                    id="mission-type-benevolat"
+                    name="mission-type"
+                    value="benevolat"
+                    label="Bénévolat"
+                    checked={values.mission_type === "benevolat"}
+                    onChange={() => setValues({ ...values, mission_type: "benevolat" })}
+                  />
+
+                  <RadioInput
+                    id="mission-type-volontariat"
+                    name="mission-type"
+                    value="volontariat"
+                    label="Volontariat"
+                    checked={values.mission_type === "volontariat"}
+                    onChange={() => setValues({ ...values, mission_type: "volontariat" })}
+                  />
+                </div>
               )}
             </div>
           </div>
@@ -253,9 +241,6 @@ const Edit = () => {
             <label className="mb-2 text-sm">Diffuseur</label>
             <div className="mb-2 flex items-center gap-12">
               <div className="flex items-center gap-3">
-                <label htmlFor="role-annonceur-api" className="sr-only">
-                  API
-                </label>
                 <input
                   type="checkbox"
                   className="checkbox"
@@ -264,12 +249,9 @@ const Edit = () => {
                   onChange={(e) => setValues({ ...values, role_annonceur_api: e.target.checked })}
                   checked={values.role_annonceur_api}
                 />
-                <span>API</span>
+                <label htmlFor="role-annonceur-api">API</label>
               </div>
               <div className="flex items-center gap-3">
-                <label htmlFor="role-annonceur-widget" className="sr-only">
-                  Widget
-                </label>
                 <input
                   type="checkbox"
                   className="checkbox"
@@ -278,12 +260,9 @@ const Edit = () => {
                   onChange={(e) => setValues({ ...values, role_annonceur_widget: e.target.checked })}
                   checked={values.role_annonceur_widget}
                 />
-                <span>Widget</span>
+                <label htmlFor="role-annonceur-widget">Widget</label>
               </div>
               <div className="flex items-center gap-3">
-                <label htmlFor="role-annonceur-campagne" className="sr-only">
-                  Campagne
-                </label>
                 <input
                   type="checkbox"
                   className="checkbox"
@@ -292,7 +271,7 @@ const Edit = () => {
                   onChange={(e) => setValues({ ...values, role_annonceur_campagne: e.target.checked })}
                   checked={values.role_annonceur_campagne}
                 />
-                <span>Campagne</span>
+                <label htmlFor="role-annonceur-campagne">Campagne</label>
               </div>
             </div>
           </div>
