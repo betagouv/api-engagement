@@ -13,9 +13,11 @@ const Card = ({ widget, mission, request }) => {
       tabIndex={0}
       href={mission.url}
       target="_blank"
-      className="group border h-full w-full mx-auto flex flex-col border-neutral-grey-950 overflow-hidden focus:outline-none focus-visible:ring focus-visible:ring-blue-800 hover:shadow-lg transition-shadow duration-300"
+      className={`${
+        widget.style === "carousel" ? "max-w-[336px] max-h-[456px]" : "w-full"
+      } group border h-full mx-auto flex flex-col border-neutral-grey-950 overflow-hidden focus:outline-none focus-visible:ring focus-visible:ring-blue-800 hover:shadow-lg transition-shadow duration-300`}
     >
-      <div className="min-h-[200px] overflow-hidden">
+      <div className="h-[200px] overflow-hidden">
         <Image
           src={mission.domainLogo}
           alt={mission.title}
@@ -31,7 +33,7 @@ const Card = ({ widget, mission, request }) => {
           <span className="text-xs bg-[#EEE] w-fit py-0.5 px-2 rounded-full">{DOMAINES[mission.domain] || mission.domain}</span>
           <div className="flex gap-2 text-[#666]">
             <RiBuildingFill />
-            <span className="text-xs">{mission.organizationName}</span>
+            <span className="text-xs line-clamp-2">{mission.organizationName}</span>
           </div>
         </div>
 

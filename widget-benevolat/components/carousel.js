@@ -59,7 +59,13 @@ export const Carousel = ({ widget, missions, color, request }) => {
         <div className="overflow-hidden md:max-w-[1056px] mx-auto">
           <div className="flex transition-transform duration-500 ease-in-out" style={{ margin: "0 -0.75rem", transform: `translateX(-${currentSlide * (100 / slidesToShow)}%)` }}>
             {missions.slice(0, 60).map((mission, i) => (
-              <div role="group" key={i} id={mission._id} aria-labelledby={mission._id} className={`flex-shrink-0 w-full sm:w-1/2 lg:w-1/3 px-3`}>
+              <div
+                role="group"
+                key={i}
+                id={mission._id}
+                aria-labelledby={mission._id}
+                className={`flex-shrink-0 ${missions.length <= 2 ? "w-full lg:w-auto sm:w-1/2 flex-shrink-0" : "w-full sm:w-1/2 lg:w-1/3"} px-3`}
+              >
                 <Card widget={widget} mission={mission} color={color} request={request} />
               </div>
             ))}

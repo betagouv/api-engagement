@@ -26,12 +26,12 @@ export const MobileFilters = ({ options, filters, setFilters, showFilters, setSh
 
   return (
     <>
-      <div className="w-full mb-2">
+      <div className="w-full">
         <LocationFilter selected={filters.location} onChange={(l) => setFilters({ ...filters, location: l })} disabled={disabledLocation} />
       </div>
-      <div className="w-full border-y p-4 border-[#DDD]">
+      <div className="w-full border-y border-[#DDD]">
         <button
-          className="flex items-center justify-between w-full bg-white font-semibold focus:outline-none focus-visible:ring focus-visible:ring-blue-800"
+          className="flex h-[40px] items-center justify-between w-full bg-white font-semibold focus:outline-none focus-visible:ring focus-visible:ring-blue-800"
           onClick={() => setShowFilters(!showFilters)}
         >
           Filtrer les missions
@@ -198,7 +198,7 @@ export const Filters = ({ options, filters, setFilters, disabledLocation = false
 
           <button
             aria-label="moins de filtres"
-            className="border w-full bg-white border-grey-400 py-2 px-4 h-[40px] focus:outline-none focus-visible:ring focus-visible:ring-blue-800 font-medium"
+            className="border truncate w-full bg-white border-grey-400 py-2 px-4 h-[40px] focus:outline-none focus-visible:ring focus-visible:ring-blue-800 font-medium"
             onClick={() => setMoreFilters(false)}
           >
             Moins de filtres
@@ -225,7 +225,11 @@ const DateFilter = ({ selected, onChange, position = "left-0", width = "w-80" })
 
   return (
     <div className="relative w-full min-w-[6rem]" ref={ref}>
+      <label htmlFor="date" className="sr-only">
+        Date
+      </label>
       <button
+        id="date"
         aria-label="date"
         className="w-full rounded-t-md bg-[#EEE] h-[40px] border-b-2 border-[#3A3A3A] p-3 focus:outline-none focus-visible:ring focus-visible:ring-blue-800 flex items-center justify-between"
         onClick={() => setIsOpen(!isOpen)}
@@ -309,7 +313,11 @@ const DurationFilter = ({ selected, onChange, position = "left-0", width = "w-80
 
   return (
     <div className="relative w-full min-w-[6rem]" ref={ref}>
+      <label htmlFor="duration" className="sr-only">
+        Durée
+      </label>
       <button
+        id="duration"
         aria-label="durée"
         onKeyDown={handleKeyDown}
         className="w-full rounded-t-md h-[40px] bg-[#EEE] border-b-2 border-[#3A3A3A] p-3 focus:outline-none focus-visible:ring focus-visible:ring-blue-800 flex items-center justify-between"
@@ -381,8 +389,7 @@ const SelectFilter = ({ options, selectedOptions, onChange, placeholder = "Chois
 
   const toggleOption = (option) => {
     if (!selectedOptions) return onChange([option]);
-    const exists = selectedOptions.find((o) => o.value === option.value);
-    if (exists) {
+    if (selectedOptions.some((o) => o.value === option.value)) {
       onChange(selectedOptions.filter((o) => o.value !== option.value));
     } else {
       onChange([...selectedOptions, option]);
@@ -391,7 +398,11 @@ const SelectFilter = ({ options, selectedOptions, onChange, placeholder = "Chois
 
   return (
     <div className="relative w-full min-w-[6rem]" ref={ref}>
+      <label htmlFor={placeholder} className="sr-only">
+        {placeholder}
+      </label>
       <button
+        id={placeholder}
         aria-label={placeholder}
         className="w-full rounded-t-md bg-[#EEE] h-[40px] border-b-2 border-[#3A3A3A] p-3 focus:outline-none focus-visible:ring focus-visible:ring-blue-800 flex items-center justify-between"
         onClick={() => setIsOpen(!isOpen)}
@@ -450,6 +461,10 @@ const LocationFilter = ({ selected, onChange, disabled = false, width = "w-80" }
   const ref = useRef(null);
 
   useEffect(() => {
+    setInputValue(selected?.label || "");
+  }, [selected]);
+
+  useEffect(() => {
     const handleClickOutside = (event) => {
       if (ref.current && !ref.current.contains(event.target)) {
         setIsOpen(false);
@@ -463,8 +478,8 @@ const LocationFilter = ({ selected, onChange, disabled = false, width = "w-80" }
   const handleInputChange = async (e) => {
     const search = e.target.value;
     setInputValue(search);
+
     if (search?.length > 3) {
-      setIsOpen(true);
       const res = await fetch(`https://api-adresse.data.gouv.fr/search?q=${search}&type=municipality&autocomplete=1&limit=6`).then((r) => r.json());
       if (!res.features) return;
       setOptions(
@@ -478,20 +493,20 @@ const LocationFilter = ({ selected, onChange, disabled = false, width = "w-80" }
           name: f.properties.name,
         }))
       );
-    } else if (search?.length === 0) {
+      setIsOpen(true);
+    } else {
       setOptions([]);
       setIsOpen(false);
     }
   };
 
-  const handleOptionSelect = (option) => {
-    onChange(option);
-    setIsOpen(false);
-    setOptions([]);
-  };
+  console.log("selected", selected);
 
   return (
     <div className="relative w-full" ref={ref}>
+      <label htmlFor="location" className="sr-only">
+        Localisation
+      </label>
       <div className="bg-[#EEE] rounded-t-md border-b-2 border-[#3A3A3A] p-3 focus:outline-none focus-visible:ring focus-visible:ring-blue-800 flex items-center justify-between h-[40px]">
         <RiMapPin2Fill className="text-disabled-grey-700" />
         {disabled ? (
@@ -499,9 +514,10 @@ const LocationFilter = ({ selected, onChange, disabled = false, width = "w-80" }
         ) : (
           <>
             <input
-              value={selected?.label}
+              id="location"
               aria-label="localisation"
               className="pl-3 w-full ring-0 focus:ring-0 bg-[#EEE] focus:outline-none min-w-[6rem]"
+              value={inputValue}
               placeholder="Localisation"
               onChange={handleInputChange}
             />
@@ -523,7 +539,15 @@ const LocationFilter = ({ selected, onChange, disabled = false, width = "w-80" }
       {options.length > 0 && isOpen && (
         <div className={`absolute z-50 mt-1 max-h-60 ${width} overflow-auto border border-neutral-grey-950 bg-white py-1 shadow-[0_0_12px_rgba(0,0,0,0.15)]`}>
           {options.map((option) => (
-            <div key={option.value} className="cursor-pointer flex items-center justify-between py-2 px-3" onClick={() => handleOptionSelect(option)}>
+            <div
+              key={option.value}
+              className="cursor-pointer flex items-center justify-between py-2 px-3"
+              onClick={() => {
+                onChange(option);
+                setInputValue(option.label);
+                setIsOpen(false);
+              }}
+            >
               <span className="block text-sm truncate font-normal">{option.label}</span>
             </div>
           ))}

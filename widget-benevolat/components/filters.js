@@ -18,11 +18,11 @@ export const MobileFilters = ({ options, filters, setFilters, color, showFilters
 
   return (
     <>
-      <div className="w-full mb-2">
+      <div className="w-full">
         <LocationFilter selected={filters.location} onChange={(l) => setFilters({ ...filters, location: l })} disabled={disabledLocation} color={color} width="w-full" />
       </div>
       <button
-        className="flex border-y items-center justify-between text-[#3633A1] w-full px-4 py-2 focus:outline-none focus-visible:ring focus-visible:ring-blue-800"
+        className="flex h-[40px] border-y items-center justify-between text-[#3633A1] w-full px-4 py-2 focus:outline-none focus-visible:ring focus-visible:ring-blue-800"
         onClick={() => setShowFilters(!showFilters)}
       >
         Filtrer les missions
@@ -138,14 +138,12 @@ export const Filters = ({ options, filters, setFilters, color, disabledLocation 
 const SelectFilter = ({ options, selectedOptions, onChange, color, placeholder = "Choissiez une option", position = "left-0", width = "w-80" }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [search, setSearch] = useState("");
-  const dropdownRef = useRef(null);
+  const ref = useRef(null);
   const searchRef = useRef(null);
-
-  const searchOptions = options?.filter((o) => o.label?.toLowerCase().includes(search.toLowerCase())) || [];
 
   useEffect(() => {
     const handleClickOutside = (event) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+      if (ref.current && !ref.current.contains(event.target)) {
         setIsOpen(false);
       }
     };
@@ -155,8 +153,7 @@ const SelectFilter = ({ options, selectedOptions, onChange, color, placeholder =
 
   const toggleOption = (option) => {
     if (!selectedOptions) return onChange([option]);
-    const exists = selectedOptions.find((o) => o.value === option.value);
-    if (exists) {
+    if (selectedOptions.some((o) => o.value === option.value)) {
       onChange(selectedOptions.filter((o) => o.value !== option.value));
     } else {
       onChange([...selectedOptions, option]);
@@ -164,12 +161,16 @@ const SelectFilter = ({ options, selectedOptions, onChange, color, placeholder =
   };
 
   return (
-    <div className="relative w-full min-w-[6rem]" ref={dropdownRef}>
+    <div className="relative w-full min-w-[6rem]" ref={ref}>
+      <label htmlFor={placeholder} className="sr-only">
+        {placeholder}
+      </label>
       <button
+        id={placeholder}
         onClick={() => setIsOpen(!isOpen)}
-        className="w-full rounded-t-md bg-[#EEE] border-b-2 border-[#3A3A3A] p-3 focus:outline-none focus-visible:ring focus-visible:ring-blue-800 flex items-center justify-between"
+        className="w-full rounded-t-md h-[40px] bg-[#EEE] border-b-2 border-[#3A3A3A] p-3 focus:outline-none focus-visible:ring focus-visible:ring-blue-800 flex items-center justify-between"
       >
-        <span className="pr-3 text-sm truncate max-w-60" style={{ color: selectedOptions?.length > 0 ? color : "black" }}>
+        <span className="pr-3 truncate max-w-60" style={{ color: selectedOptions?.length > 0 ? color : "black" }}>
           {!selectedOptions || selectedOptions.some((o) => o === undefined)
             ? placeholder
             : selectedOptions.length > 0
@@ -196,28 +197,30 @@ const SelectFilter = ({ options, selectedOptions, onChange, color, placeholder =
           </div>
 
           <div className="py-3 w-full overflow-auto max-h-60">
-            {searchOptions?.length === 0 ? (
+            {!options?.filter((o) => o.label?.toLowerCase().includes(search.toLowerCase()))?.length ? (
               <div className="text-sm text-center">Aucune option disponible</div>
             ) : (
-              searchOptions?.map((o) => {
-                const isSelected = selectedOptions?.some((so) => so.value === o.value);
-                return (
-                  <div
-                    key={o.value}
-                    onClick={() => toggleOption(o)}
-                    className="cursor-pointer w-full flex items-center justify-between text-sm py-2 pl-3 pr-4 hover:bg-gray-100"
-                    style={{
-                      color: isSelected ? color : "black",
-                    }}
-                  >
-                    <div className="flex items-center w-[90%]">
-                      <div className="text-sm">{isSelected ? <RiCheckboxFill /> : <RiCheckboxBlankLine />}</div>
-                      <span className="block text-sm mx-2 truncate font-normal">{o.label}</span>
+              options
+                ?.filter((o) => o.label?.toLowerCase().includes(search.toLowerCase()))
+                ?.map((o) => {
+                  const isSelected = selectedOptions?.some((so) => so.value === o.value);
+                  return (
+                    <div
+                      key={o.value}
+                      onClick={() => toggleOption(o)}
+                      className="cursor-pointer w-full flex items-center justify-between text-sm py-2 pl-3 pr-4 hover:bg-gray-100"
+                      style={{
+                        color: isSelected ? color : "black",
+                      }}
+                    >
+                      <div className="flex items-center w-[90%]">
+                        <div className="text-sm">{isSelected ? <RiCheckboxFill /> : <RiCheckboxBlankLine />}</div>
+                        <span className="block text-sm mx-2 truncate font-normal">{o.label}</span>
+                      </div>
+                      {o.count && <span className="text-sm text-neutral-grey-500">{o.count}</span>}
                     </div>
-                    {o.count && <span className="text-sm text-neutral-grey-500">{o.count}</span>}
-                  </div>
-                );
-              })
+                  );
+                })
             )}
           </div>
 
@@ -238,15 +241,19 @@ const SelectFilter = ({ options, selectedOptions, onChange, color, placeholder =
   );
 };
 
-const LocationFilter = ({ selected, onChange, color, disabled = false, width = "w-80" }) => {
+const LocationFilter = ({ selected, onChange, disabled = false, width = "w-80" }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [options, setOptions] = useState([]);
   const [inputValue, setInputValue] = useState(selected?.label || "");
-  const dropdownRef = useRef(null);
+  const ref = useRef(null);
+
+  useEffect(() => {
+    setInputValue(selected?.label || "");
+  }, [selected]);
 
   useEffect(() => {
     const handleClickOutside = (event) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+      if (ref.current && !ref.current.contains(event.target)) {
         setIsOpen(false);
       }
     };
@@ -280,16 +287,20 @@ const LocationFilter = ({ selected, onChange, color, disabled = false, width = "
   };
 
   return (
-    <div className="relative w-full" ref={dropdownRef}>
-      <div className="bg-[#EEE] rounded-t-md border-b-2 border-[#3A3A3A] p-3 focus:outline-none focus-visible:ring focus-visible:ring-blue-800 flex items-center justify-between">
+    <div className="relative w-full" ref={ref}>
+      <label htmlFor="Localisation" className="sr-only">
+        Localisation
+      </label>
+      <div className="bg-[#EEE] h-[40px] rounded-t-md border-b-2 border-[#3A3A3A] p-3 focus:outline-none focus-visible:ring focus-visible:ring-blue-800 flex items-center justify-between">
         <RiMapPin2Fill className="text-disabled-grey-700" />
         {disabled ? (
-          <input className="pl-3 w-full text-sm ring-0 focus:ring-0 focus:outline-none min-w-[6rem] opacity-75" value={selected?.label || ""} disabled />
+          <input id="Localisation" className="pl-3 w-full ring-0 focus:ring-0 focus:outline-none min-w-[6rem] opacity-75" value={selected?.label || ""} disabled />
         ) : (
           <>
             <input
-              className="pl-3 w-full text-sm ring-0 focus:ring-0 bg-[#EEE] focus:outline-none min-w-[6rem]"
-              value={selected?.label}
+              id="Localisation"
+              className="pl-3 w-full ring-0 focus:ring-0 bg-[#EEE] focus:outline-none min-w-[6rem]"
+              value={inputValue}
               placeholder="Localisation"
               onChange={handleInputChange}
             />
@@ -331,11 +342,11 @@ const LocationFilter = ({ selected, onChange, color, disabled = false, width = "
 
 const RemoteFilter = ({ options, selectedOptions, onChange, color, placeholder = "Choissiez une option", position = "left-0", width = "w-80" }) => {
   const [isOpen, setIsOpen] = useState(false);
-  const dropdownRef = useRef(null);
+  const ref = useRef(null);
 
   useEffect(() => {
     const handleClickOutside = (event) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+      if (ref.current && !ref.current.contains(event.target)) {
         setIsOpen(false);
       }
     };
@@ -354,13 +365,17 @@ const RemoteFilter = ({ options, selectedOptions, onChange, color, placeholder =
   };
 
   return (
-    <div className="relative w-full min-w-[6rem]" ref={dropdownRef}>
+    <div className="relative w-full min-w-[6rem]" ref={ref}>
+      <label htmlFor={placeholder} className="sr-only">
+        {placeholder}
+      </label>
       <button
+        id={placeholder}
         aria-label={placeholder}
-        className="w-full bg-[#EEE] rounded-t-md border-b-2 border-[#3A3A3A] p-3 focus:outline-none focus-visible:ring focus-visible:ring-blue-800 flex items-center justify-between"
+        className="w-full bg-[#EEE] h-[40px] rounded-t-md border-b-2 border-[#3A3A3A] p-3 focus:outline-none focus-visible:ring focus-visible:ring-blue-800 flex items-center justify-between"
         onClick={() => setIsOpen(!isOpen)}
       >
-        <span className="pr-3 text-sm truncate max-w-60" style={{ color: selectedOptions?.length > 0 ? color : "black" }}>
+        <span className="pr-3 truncate max-w-60" style={{ color: selectedOptions?.length > 0 ? color : "black" }}>
           {!selectedOptions || selectedOptions.some((o) => o === undefined)
             ? placeholder
             : selectedOptions.length > 0

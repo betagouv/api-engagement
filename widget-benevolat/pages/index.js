@@ -66,7 +66,8 @@ const Home = ({ widget, missions, options, total, request, environment }) => {
 
       if (filters.domain?.length) query.domain = JSON.stringify(filters.domain.filter((item) => item && item.value).map((item) => item.value));
       if (filters.organization?.length) query.organization = JSON.stringify(filters.organization.filter((item) => item && item.value).map((item) => item.value));
-      if (filters.department?.length) query.department = JSON.stringify(filters.department.filter((item) => item && item.value).map((item) => item.value));
+      if (filters.department?.length)
+        query.department = JSON.stringify(filters.department.filter((item) => item && item.value).map((item) => (item.value === "" ? "none" : item.value)));
       if (filters.remote?.length) query.remote = JSON.stringify(filters.remote.filter((item) => item && item.value).map((item) => item.value));
       if (filters.size) query.size = filters.size;
       if (filters.page > 1) query.from = (filters.page - 1) * filters.size;
@@ -111,11 +112,11 @@ const Home = ({ widget, missions, options, total, request, environment }) => {
       } flex flex-col justify-start mx-auto items-center gap-6`}
     >
       <header className={`w-full space-y-4 md:space-y-8 ${widget?.style === "carousel" ? "max-w-[1056px]" : ""}`}>
-        <div className="flex flex-col md:flex-row md:justify-between">
-          <h1 className="font-bold text-3xl py-2 md:p-0">Trouvez une mission de bénévolat</h1>
-          <p className="text-[#666] text-xl">{total > 1 ? `${total.toLocaleString("fr")} missions` : `${total} mission`}</p>
+        <div className="flex flex-col gap-2 md:items-center md:flex-row md:justify-between">
+          <h1 className="font-bold text-[28px] leading-[36px] md:p-0">Trouvez une mission de bénévolat</h1>
+          <p className="text-[#666] text-[18px] leading-[28px]">{total > 1 ? `${total.toLocaleString("fr")} missions` : `${total} mission`}</p>
         </div>
-        <div className="w-full flex md:hidden flex-col items-center gap-4">
+        <div className="w-full flex md:hidden flex-col items-center gap-2">
           <MobileFilters
             options={options}
             filters={filters}
@@ -179,7 +180,11 @@ export const getServerSideProps = async (context) => {
 
     if (context.query.domain) JSON.parse(context.query.domain).forEach((item) => searchParams.append("domain", item));
     if (context.query.organization) JSON.parse(context.query.organization).forEach((item) => searchParams.append("organization", item));
-    if (context.query.department) JSON.parse(context.query.department).forEach((item) => searchParams.append("department", item));
+    if (context.query.department) {
+      JSON.parse(context.query.department).forEach((item) => {
+        searchParams.append("department", item === "" ? "none" : item);
+      });
+    }
     if (context.query.remote) JSON.parse(context.query.remote).forEach((item) => searchParams.append("remote", item));
     if (context.query.size) searchParams.append("size", context.query.size);
     if (context.query.from) searchParams.append("from", context.query.from);
@@ -196,13 +201,16 @@ export const getServerSideProps = async (context) => {
     const newOptions = {
       organizations: response.data.aggs.organization.map((b) => ({ value: b.key, count: b.doc_count, label: b.key })),
       domains: response.data.aggs.domain.map((b) => ({ value: b.key, count: b.doc_count, label: DOMAINES[b.key] || b.key })),
-      departments: response.data.aggs.department.map((b) => ({ value: b.key, count: b.doc_count, label: b.key })),
+      departments: response.data.aggs.department.map((b) => ({
+        value: b.key === "" ? "none" : b.key,
+        count: b.doc_count,
+        label: b.key === "" ? "Non renseigné" : b.key,
+      })),
       remote: [
         { value: "no", label: "Présentiel", count: presentiel.reduce((acc, b) => acc + b.doc_count, 0) },
         { value: "yes", label: "Distance", count: remote.reduce((acc, b) => acc + b.doc_count, 0) },
       ],
     };
-
     const query = new URLSearchParams({
       widgetId: widget._id,
       requestId: response.request,

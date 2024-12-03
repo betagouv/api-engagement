@@ -58,11 +58,17 @@ export const Carousel = ({ widget, missions, request }) => {
 
         <div className="overflow-hidden md:max-w-[1056px] mx-auto">
           <div
-            className="flex h-[311px] transition-transform duration-500 ease-in-out"
-            style={{ margin: "0 -0.75rem", transform: `translateX(-${currentSlide * (100 / slidesToShow)}%)` }}
+            className={`flex h-[311px] transition-transform duration-500 ease-in-out ${missions.length < slidesToShow ? "justify-center" : ""}`}
+            style={{ margin: "0 -0.75rem", transform: missions.length < slidesToShow ? "none" : `translateX(-${currentSlide * (100 / slidesToShow)}%)` }}
           >
             {missions.slice(0, 60).map((mission, i) => (
-              <div role="group" key={i} id={mission._id} aria-labelledby={mission._id} className={`flex-shrink-0 w-full sm:w-1/2 lg:w-1/3 px-3`}>
+              <div
+                role="group"
+                key={i}
+                id={mission._id}
+                aria-labelledby={mission._id}
+                className={`${missions.length <= 2 ? "w-full lg:w-auto sm:w-1/2 flex-shrink-0" : "flex-shrink-0 w-full sm:w-1/2 lg:w-1/3"} px-3`}
+              >
                 <Card widget={widget} mission={mission} request={request} />
               </div>
             ))}
@@ -88,7 +94,7 @@ export const Carousel = ({ widget, missions, request }) => {
           <button
             onClick={prevPage}
             disabled={currentSlide === 0}
-            className="p-2 h-12 w-12 rounded-full flex items-center justify-center"
+            className={`p-2 h-10 w-10 md:h-12 md:w-12 rounded-full flex items-center justify-center`}
             style={{
               backgroundColor: currentSlide === 0 ? "#e5e5e5" : "black",
               color: currentSlide === 0 ? "#929292" : "white",
@@ -101,7 +107,7 @@ export const Carousel = ({ widget, missions, request }) => {
           <button
             onClick={nextPage}
             disabled={currentSlide >= missions.length - slidesToShow}
-            className="p-2 h-12 w-12 rounded-full flex items-center justify-center"
+            className={`p-2 h-10 w-10 md:h-12 md:w-12 rounded-full flex items-center justify-center`}
             style={{
               backgroundColor: currentSlide >= missions.length - slidesToShow ? "#e5e5e5" : "black",
               color: currentSlide >= missions.length - slidesToShow ? "#929292" : "white",
