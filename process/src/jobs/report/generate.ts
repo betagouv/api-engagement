@@ -35,6 +35,8 @@ const pdfGeneration = async (browser: Browser, publisher: Publisher, year: numbe
       return { errors };
     }
 
+    const existing = await ReportModel.findOne({ publisherId: publisher._id, year, month });
+
     if (!data.send?.hasStats && !data.receive?.hasStats) {
       console.log(`[${publisher.name}] No data to generate report`);
       const obj = {
@@ -56,7 +58,14 @@ const pdfGeneration = async (browser: Browser, publisher: Publisher, year: numbe
         error: "Données insuffisantes pour générer le rapport",
         data,
       } as Report;
-      await ReportModel.create(obj);
+
+      if (existing) {
+        await ReportModel.updateOne({ _id: existing._id }, obj);
+        console.log(`[${publisher.name}] Report object updated`);
+      } else {
+        await ReportModel.create(obj);
+        console.log(`[${publisher.name}] Report object created`);
+      }
 
       return { errors };
     }
@@ -111,7 +120,6 @@ const pdfGeneration = async (browser: Browser, publisher: Publisher, year: numbe
       data,
     };
 
-    const existing = await ReportModel.findOne({ publisherId: publisher._id, year, month });
     if (existing) {
       await ReportModel.updateOne({ _id: existing._id }, obj);
       console.log(`[${publisher.name}] Report object updated`);

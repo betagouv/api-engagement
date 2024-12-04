@@ -279,7 +279,7 @@ const leboncoinJob = new CronJob(
 
 // Every first Tuesday of the month at 10:00 AM
 const reportJob = new CronJob(
-  "39 9 * * 3",
+  "58 9 * * 3",
   async () => {
     // if not the first Tuesday of the month, return
     const date = new Date();
