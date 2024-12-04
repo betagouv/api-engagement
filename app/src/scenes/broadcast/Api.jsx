@@ -64,8 +64,7 @@ const Api = () => {
       </div>
       <div className="border border-gray-border p-6">
         <div className="flex items-center justify-between gap-4 border-b border-b-gray-main pb-6">
-          <p className="w-1/4 font-semibold">Votre clé API</p>
-          <label htmlFor="apikey" className="sr-only">
+          <label htmlFor="apikey" className="w-1/4 font-semibold">
             Votre clé API
           </label>
           <input id="apikey" className="input flex-1" name="apikey" disabled={true} value={publisher.apikey || ""} />

@@ -163,9 +163,6 @@ const Create = () => {
             <label className="mb-2 text-sm">Diffuseur</label>
             <div className="mb-2 flex items-center gap-12">
               <div className="flex items-center gap-3">
-                <label htmlFor="role-annonceur-api" className="sr-only">
-                  API
-                </label>
                 <input
                   id="role-annonceur-api"
                   type="checkbox"
@@ -177,9 +174,6 @@ const Create = () => {
                 <label htmlFor="role-annonceur-api">API</label>
               </div>
               <div className="flex items-center gap-3">
-                <label htmlFor="role-annonceur-widget" className="sr-only">
-                  Widget
-                </label>
                 <input
                   id="role-annonceur-widget"
                   type="checkbox"
@@ -191,9 +185,6 @@ const Create = () => {
                 <label htmlFor="role-annonceur-widget">Widget</label>
               </div>
               <div className="flex items-center gap-3">
-                <label htmlFor="role-annonceur-campagne" className="sr-only">
-                  Campagne
-                </label>
                 <input
                   id="role-annonceur-campagne"
                   type="checkbox"
