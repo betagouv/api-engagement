@@ -120,7 +120,7 @@ const Home = ({ widget, missions, options, total, request, environment }) => {
     <div
       className={`p-4 xl:px-0 ${
         widget?.style === "carousel" ? "h-[674px] md:max-h-[600px] md:max-w-[1200px]" : "h-[2200px] md:max-h-[1010px] md:max-w-[1200px]"
-      } flex flex-col justify-start items-center gap-4 lg:gap-6 mx-auto`}
+      } flex flex-col justify-start items-center gap-4 lg:gap-4 mx-auto`}
     >
       <header className={`w-full space-y-4 md:space-y-8 ${widget?.style === "carousel" ? "max-w-[1056px]" : "max-w-[1200px]"}`}>
         <div className="flex flex-col gap-2 md:flex-row md:justify-between">

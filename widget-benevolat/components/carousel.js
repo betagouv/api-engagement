@@ -56,7 +56,7 @@ export const Carousel = ({ widget, missions, color, request }) => {
           <RiArrowLeftLine />
         </button>
 
-        <div className="overflow-hidden md:max-w-[1056px] mx-auto">
+        <div className="overflow-hidden md:max-w-[1056px] py-4 mx-auto">
           <div className="flex transition-transform duration-500 ease-in-out" style={{ margin: "0 -0.75rem", transform: `translateX(-${currentSlide * (100 / slidesToShow)}%)` }}>
             {missions.slice(0, 60).map((mission, i) => (
               <div

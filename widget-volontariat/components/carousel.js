@@ -56,7 +56,7 @@ export const Carousel = ({ widget, missions, request }) => {
           <RiArrowLeftLine />
         </button>
 
-        <div className="overflow-hidden md:max-w-[1056px] mx-auto">
+        <div className="overflow-hidden md:max-w-[1056px] py-4 mx-auto">
           <div
             className={`flex h-[311px] transition-transform duration-500 ease-in-out ${missions.length < slidesToShow ? "justify-center" : ""}`}
             style={{ margin: "0 -0.75rem", transform: missions.length < slidesToShow ? "none" : `translateX(-${currentSlide * (100 / slidesToShow)}%)` }}

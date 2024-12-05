@@ -567,7 +567,6 @@ const Frame = ({ widget }) => {
   const handleLoad = (e) => {
     let height = 0;
     const width = e.target.offsetWidth;
-    console.log(width);
     if (widget.type === "volontariat") {
       if (widget.style === "carousel") {
         if (width < 768) height = "670px";
@@ -579,11 +578,11 @@ const Frame = ({ widget }) => {
       }
     } else {
       if (widget.style === "carousel") {
-        if (width < 768) height = "852px";
-        else height = "740px";
+        if (width < 768) height = "780px";
+        else height = "686px";
       } else {
-        if (width < 640) height = "3428px";
-        else if (width < 1200) height = "1862px";
+        if (width < 640) height = "3424px";
+        else if (width < 1024) height = "1862px";
         else height = "1314px";
       }
     }
@@ -626,7 +625,7 @@ const IFRAMES = {
 
 const JVA_LOGO = `<div style="padding:10px; display:flex;">
   <img src="https://apicivique.s3.eu-west-3.amazonaws.com/jvalogo.svg"/>
-  <div style="color:#A5A5A5; font-style:normal; font-size:13px; padding:8px;">Proposé par la plateforme publique du bénévolat
+  <div style="color:#666666; font-style:normal; font-size:13px; padding:8px;">Proposé par la plateforme publique du bénévolat
     <a href="https://www.jeveuxaider.gouv.fr/" target="_blank">JeVeuxAider.gouv.fr</a>
   </div>
 </div>`;

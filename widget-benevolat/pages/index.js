@@ -109,7 +109,7 @@ const Home = ({ widget, missions, options, total, request, environment }) => {
     <div
       className={`p-6 xl:px-0 ${
         widget?.style === "carousel" ? "h-[852px] md:max-h-[740px] md:max-w-[1200px]" : "h-[3428px] md:max-h-[1328px] md:max-w-[1200px]"
-      } flex flex-col justify-start mx-auto items-center gap-6`}
+      } flex flex-col justify-start mx-auto items-center gap-4`}
     >
       <header className={`w-full space-y-4 md:space-y-8 ${widget?.style === "carousel" ? "max-w-[1056px]" : ""}`}>
         <div className="flex flex-col gap-2 md:items-center md:flex-row md:justify-between">
@@ -148,15 +148,6 @@ const Home = ({ widget, missions, options, total, request, environment }) => {
         )}
       </div>
       {environment === "production" && <Script src="https://app.api-engagement.beta.gouv.fr/jstag.js" />}
-      <div className="flex w-full justify-center items-center gap-4 px-4 mt-2">
-        <Image src={LogoJVA} style={{ width: "41px", height: "32px" }} alt="Logo de JeVeuxAider.gouv.fr" />
-        <p className=" text-xs text-[#666]">
-          Proposé par la plateforme publique du bénévolat{" "}
-          <a href="https://www.jeveuxaider.gouv.fr" target="_blank" className="underline text-[#000091] text-center">
-            JeVeuxAider.gouv.fr
-          </a>
-        </p>
-      </div>
     </div>
   );
 };
