@@ -500,8 +500,6 @@ const LocationFilter = ({ selected, onChange, disabled = false, width = "w-80" }
     }
   };
 
-  console.log("selected", selected);
-
   return (
     <div className="relative w-full" ref={ref}>
       <label htmlFor="location" className="sr-only">
