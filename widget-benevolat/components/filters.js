@@ -1,6 +1,5 @@
-import React, { useState, Fragment, useRef } from "react";
-import { Listbox, Combobox, Transition } from "@headlessui/react";
-import { RiSearchLine, RiSubtractLine, RiAddLine, RiArrowDownSLine, RiCheckboxFill, RiCheckboxBlankLine, RiMapPin2Fill, RiCloseFill } from "react-icons/ri";
+import React, { useState, Fragment, useRef, useEffect } from "react";
+import { RiSearchLine, RiArrowUpSLine, RiArrowDownSLine, RiCheckboxFill, RiCheckboxBlankLine, RiMapPin2Fill, RiCloseFill } from "react-icons/ri";
 
 export const MobileFilters = ({ options, filters, setFilters, color, showFilters, setShowFilters, disabledLocation = false, carousel }) => {
   if (!Object.keys(options).length) return null;
@@ -19,71 +18,76 @@ export const MobileFilters = ({ options, filters, setFilters, color, showFilters
 
   return (
     <>
-      <div className="w-full mb-2">
+      <div className="w-full">
         <LocationFilter selected={filters.location} onChange={(l) => setFilters({ ...filters, location: l })} disabled={disabledLocation} color={color} width="w-full" />
       </div>
-      <div className="w-full border-y border-neutral-grey-950">
-        <button
-          className="flex items-center justify-between w-full px-4 py-2 bg-white font-semibold focus:outline-none focus-visible:ring focus-visible:ring-blue-800"
-          onClick={() => setShowFilters(!showFilters)}
-        >
-          Filtrer les missions
-          {showFilters ? <RiSubtractLine className="font-semibold" /> : <RiAddLine className="font-semibold" />}
-        </button>
+      <button
+        className="flex h-[40px] border-y items-center justify-between text-[#3633A1] w-full px-4 py-2 focus:outline-none focus-visible:ring focus-visible:ring-blue-800"
+        onClick={() => setShowFilters(!showFilters)}
+      >
+        Filtrer les missions
+        {showFilters ? <RiArrowUpSLine className="font-semibold text-[#3633A1]" /> : <RiArrowDownSLine className="font-semibold text-[#3633A1]" />}
+      </button>
 
-        {showFilters && (
-          <div className="w-full p-0">
-            <div className="w-full mb-2">
-              <SelectFilter
-                options={options.remote}
-                selectedOptions={filters.remote}
-                onChange={(f) => setFilters({ ...filters, remote: f })}
-                placeholder="Présentiel / Distance"
-                width="w-full"
-                color={color}
-              />
-            </div>
-            <div className="w-full mb-2">
-              <SelectFilter
-                options={options.domains}
-                selectedOptions={filters.domain}
-                onChange={(v) => setFilters({ ...filters, domain: v })}
-                placeholder="Domaines"
-                width="w-full"
-                color={color}
-              />
-            </div>
-            <div className="w-full mb-2">
-              <SelectFilter
-                options={options.departments}
-                selectedOptions={filters.department}
-                onChange={(v) => setFilters({ ...filters, department: v })}
-                placeholder="Départements"
-                width="w-full"
-                color={color}
-              />
-            </div>
-            <div className="w-full mb-2">
-              <SelectFilter
-                options={options.organizations}
-                selectedOptions={filters.organization}
-                onChange={(v) => setFilters({ ...filters, organization: v })}
-                placeholder="Organisations"
-                width="w-full"
-                color={color}
-              />
-            </div>
-            <button
-              aria-label="Réinitialiser"
-              className="w-full p-3 text-center border-none bg-transparent text-sm focus:outline-none focus-visible:ring focus-visible:ring-blue-800"
-              style={{ color }}
-              onClick={handleReset}
-            >
-              Réinitialiser
-            </button>
+      {showFilters && (
+        <div className="w-full mt-2">
+          <div className="w-full mb-4">
+            <RemoteFilter
+              options={options.remote}
+              selectedOptions={filters.remote}
+              onChange={(f) => setFilters({ ...filters, remote: f })}
+              placeholder="Présentiel / Distance"
+              width="w-full"
+              color={color}
+            />
           </div>
-        )}
-      </div>
+          <div className="w-full mb-4">
+            <SelectFilter
+              options={options.domains}
+              selectedOptions={filters.domain}
+              onChange={(v) => setFilters({ ...filters, domain: v })}
+              placeholder="Domaines"
+              width="w-full"
+              color={color}
+            />
+          </div>
+          <div className="w-full mb-4">
+            <SelectFilter
+              options={options.departments}
+              selectedOptions={filters.department}
+              onChange={(v) => setFilters({ ...filters, department: v })}
+              placeholder="Départements"
+              width="w-full"
+              color={color}
+            />
+          </div>
+          <div className="w-full mb-4">
+            <SelectFilter
+              options={options.organizations}
+              selectedOptions={filters.organization}
+              onChange={(v) => setFilters({ ...filters, organization: v })}
+              placeholder="Organisations"
+              width="w-full"
+              color={color}
+            />
+          </div>
+          <button
+            aria-label="Voir les missions"
+            className="w-full p-3 text-center border-none bg-[#3633A1] text-white text-sm focus:outline-none focus-visible:ring focus-visible:ring-blue-800"
+            onClick={() => setShowFilters(false)}
+          >
+            Voir les missions
+          </button>
+          <button
+            aria-label="Réinitialiser les filtres"
+            className="w-full p-3 text-center border-none bg-transparent text-sm focus:outline-none focus-visible:ring focus-visible:ring-blue-800"
+            style={{ color }}
+            onClick={handleReset}
+          >
+            Réinitialiser les filtres
+          </button>
+        </div>
+      )}
     </>
   );
 };
@@ -96,7 +100,7 @@ export const Filters = ({ options, filters, setFilters, color, disabledLocation 
         <LocationFilter selected={filters.location} onChange={(l) => setFilters({ ...filters, location: l })} disabled={disabledLocation} color={color} />
       </div>
       <div className="w-[20%] px-2">
-        <SelectFilter
+        <RemoteFilter
           options={options.remote}
           selectedOptions={filters.remote}
           onChange={(f) => setFilters({ ...filters, remote: f })}
@@ -132,116 +136,135 @@ export const Filters = ({ options, filters, setFilters, color, disabledLocation 
 };
 
 const SelectFilter = ({ options, selectedOptions, onChange, color, placeholder = "Choissiez une option", position = "left-0", width = "w-80" }) => {
-  const [keyboardNav, setKeyboardNav] = useState(false);
+  const [isOpen, setIsOpen] = useState(false);
   const [search, setSearch] = useState("");
+  const ref = useRef(null);
   const searchRef = useRef(null);
-  const searchOptions = options && options.filter ? options.filter((o) => o.label?.toLowerCase().includes(search.toLowerCase())) : [];
-  const handleKeyDown = () => {
-    setKeyboardNav(true);
-  };
-  const handleMouseOver = () => {
-    setKeyboardNav(false);
-  };
-  const handleSearch = (e) => {
-    setSearch(e.target.value);
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (ref.current && !ref.current.contains(event.target)) {
+        setIsOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  const toggleOption = (option) => {
+    if (!selectedOptions) return onChange([option]);
+    if (selectedOptions.some((o) => o.value === option.value)) {
+      onChange(selectedOptions.filter((o) => o.value !== option.value));
+    } else {
+      onChange([...selectedOptions, option]);
+    }
   };
 
   return (
-    <Listbox as={Fragment} value={selectedOptions || []} onChange={onChange} by="value" multiple>
-      <div className="relative w-full min-w-[6rem]">
-        <Listbox.Button
-          aria-label={placeholder}
-          className="rounded-lg border w-full border-neutral-grey-950 p-3 focus:outline-none focus-visible:ring focus-visible:ring-blue-800 flex items-center justify-between"
-          onKeyDown={handleKeyDown}
-        >
-          {({ open }) => (
-            <>
-              <span className="pr-3 text-sm truncate max-w-60" style={{ color: selectedOptions?.length > 0 ? color : "black" }}>
-                {!selectedOptions || selectedOptions.some((o) => o === undefined)
-                  ? (onChange([]), placeholder)
-                  : selectedOptions.length > 0
-                  ? `${selectedOptions[0].label}${selectedOptions.length > 1 ? ` +${selectedOptions.length - 1}` : ""}`
-                  : placeholder}
-              </span>
-              {open ? <RiArrowDownSLine className="text-xl transform rotate-180" /> : <RiArrowDownSLine className="text-xl" />}
-            </>
-          )}
-        </Listbox.Button>
-        <Transition as={Fragment} leave="transition ease-in duration-100" leaveFrom="opacity-100" leaveTo="opacity-0" afterEnter={() => searchRef.current?.focus()}>
-          <Listbox.Options className={`absolute ${position} mt-1 z-50 ${width} border border-neutral-grey-950 rounded-lg bg-white text-base focus:outline-none`}>
-            <div className="p-2">
-              <div className="rounded-lg border w-full border-neutral-grey-950 p-2 focus:outline-none flex items-center justify-between">
-                <RiSearchLine className="text-disabled-grey-700" />
-                <input
-                  ref={searchRef}
-                  onKeyDown={(e) => {
-                    if (e.code === "Space") {
-                      e.stopPropagation();
-                    }
-                  }}
-                  type="text"
-                  value={search}
-                  onChange={handleSearch}
-                  placeholder="Rechercher"
-                  className="w-full text-sm rounded-lg pl-3 focus:outline-none"
-                />
-              </div>
+    <div className="relative w-full min-w-[6rem]" ref={ref}>
+      <label htmlFor={placeholder} className="sr-only">
+        {placeholder}
+      </label>
+      <button
+        id={placeholder}
+        onClick={() => setIsOpen(!isOpen)}
+        className="w-full rounded-t-md h-[40px] bg-[#EEE] border-b-2 border-[#3A3A3A] p-3 focus:outline-none focus-visible:ring focus-visible:ring-blue-800 flex items-center justify-between"
+      >
+        <span className="pr-3 truncate max-w-60" style={{ color: selectedOptions?.length > 0 ? color : "black" }}>
+          {!selectedOptions || selectedOptions.some((o) => o === undefined)
+            ? placeholder
+            : selectedOptions.length > 0
+            ? `${selectedOptions[0].label}${selectedOptions.length > 1 ? ` +${selectedOptions.length - 1}` : ""}`
+            : placeholder}
+        </span>
+        {isOpen ? <RiArrowDownSLine className="text-xl transform rotate-180" /> : <RiArrowDownSLine className="text-xl" />}
+      </button>
+
+      {isOpen && (
+        <div className={`absolute ${position} z-50 ${width} bg-white text-base focus:outline-none shadow-[0_0_12px_rgba(0,0,0,0.15)]`}>
+          <div className="p-2">
+            <div className="border w-full border-gray-300 p-2 focus:outline-none flex items-center justify-between">
+              <RiSearchLine className="text-disabled-grey-700" />
+              <input
+                ref={searchRef}
+                type="text"
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                placeholder="Rechercher"
+                className="w-full text-sm rounded-lg pl-3 focus:outline-none"
+              />
             </div>
-            <div className="py-3 w-full overflow-auto max-h-60">
-              {searchOptions?.length === 0 ? (
-                <div className="text-sm text-center">Aucune option disponible</div>
-              ) : (
-                searchOptions?.map((o) => {
+          </div>
+
+          <div className="py-3 w-full overflow-auto max-h-60">
+            {!options?.filter((o) => o.label?.toLowerCase().includes(search.toLowerCase()))?.length ? (
+              <div className="text-sm text-center">Aucune option disponible</div>
+            ) : (
+              options
+                ?.filter((o) => o.label?.toLowerCase().includes(search.toLowerCase()))
+                ?.map((o) => {
+                  const isSelected = selectedOptions?.some((so) => so.value === o.value);
                   return (
-                    <Listbox.Option key={o.value} value={o} as={Fragment}>
-                      {({ active, selected }) => (
-                        <div
-                          className="cursor-default w-full flex items-center justify-between text-sm py-2 pl-3 pr-4"
-                          style={{
-                            color: selected || active ? color : "black",
-                          }}
-                        >
-                          <div className="flex items-center w-[90%]">
-                            <div className={`text-sm ${active && keyboardNav ? "border-2 border-blue-800 rounded" : ""}`} onMouseOver={handleMouseOver}>
-                              {selected ? <RiCheckboxFill /> : <RiCheckboxBlankLine />}
-                            </div>
-                            <span className="block text-sm mx-2 truncate font-normal">{o.label}</span>
-                          </div>
-                          {o.count && <span className="text-sm text-neutral-grey-500">{o.count}</span>}
-                        </div>
-                      )}
-                    </Listbox.Option>
+                    <div
+                      key={o.value}
+                      onClick={() => toggleOption(o)}
+                      className="cursor-pointer w-full flex items-center justify-between text-sm py-2 pl-3 pr-4 hover:bg-gray-100"
+                      style={{
+                        color: isSelected ? color : "black",
+                      }}
+                    >
+                      <div className="flex items-center w-[90%]">
+                        <div className="text-sm">{isSelected ? <RiCheckboxFill /> : <RiCheckboxBlankLine />}</div>
+                        <span className="block text-sm mx-2 truncate font-normal">{o.label}</span>
+                      </div>
+                      {o.count && <span className="text-sm text-neutral-grey-500">{o.count}</span>}
+                    </div>
                   );
                 })
-              )}
-            </div>
-            <Listbox.Option as={Fragment}>
-              {({ active }) => (
-                <div className="pt-2 pb-1 px-6 w-full flex justify-end border-t border-neutral-grey-950 focus:outline-none focus-visible:ring focus-visible:ring-blue-800">
-                  <button
-                    className={`text-sm ${active && keyboardNav ? "border-2 border-blue-800 rounded" : ""}`}
-                    style={{ color }}
-                    onClick={() => onChange(null)}
-                    onMouseOver={handleMouseOver}
-                  >
-                    Effacer
-                  </button>
-                </div>
-              )}
-            </Listbox.Option>
-          </Listbox.Options>
-        </Transition>
-      </div>
-    </Listbox>
+            )}
+          </div>
+
+          <div className="p-2 w-full flex justify-end border-t border-gray-300">
+            <button
+              className="text-[#3633A1] text-sm hover:underline"
+              onClick={() => {
+                onChange([]);
+                setIsOpen(false);
+              }}
+            >
+              Effacer
+            </button>
+          </div>
+        </div>
+      )}
+    </div>
   );
 };
 
-const LocationFilter = ({ selected, onChange, color, disabled = false, width = "w-80" }) => {
+const LocationFilter = ({ selected, onChange, disabled = false, width = "w-80" }) => {
+  const [isOpen, setIsOpen] = useState(false);
   const [options, setOptions] = useState([]);
+  const [inputValue, setInputValue] = useState(selected?.label || "");
+  const ref = useRef(null);
+
+  useEffect(() => {
+    setInputValue(selected?.label || "");
+  }, [selected]);
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (ref.current && !ref.current.contains(event.target)) {
+        setIsOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
 
   const handleInputChange = async (e) => {
-    e.preventDefault();
     const search = e.target.value;
+    setInputValue(search);
+
     if (search?.length > 3) {
       const res = await fetch(`https://api-adresse.data.gouv.fr/search?q=${search}&type=municipality&autocomplete=1&limit=6`).then((r) => r.json());
       if (!res.features) return;
@@ -256,59 +279,152 @@ const LocationFilter = ({ selected, onChange, color, disabled = false, width = "
           name: f.properties.name,
         }))
       );
-    } else if (search?.length === 0) {
+      setIsOpen(true);
+    } else {
       setOptions([]);
+      setIsOpen(false);
     }
   };
 
   return (
-    <Combobox as={Fragment} value={selected} onChange={onChange} disabled={disabled}>
-      {({ disabled }) => (
-        <div className="relative w-full">
-          <div
-            tabIndex={0}
-            className="rounded-lg border w-full border-neutral-grey-950 p-3 focus:outline-none focus-visible:ring focus-visible:ring-blue-800 flex items-center justify-between"
-          >
-            <RiMapPin2Fill className="text-disabled-grey-700" />
-            {disabled ? (
-              <input className="pl-3 w-full text-sm ring-0 focus:ring-0 focus:outline-none min-w-[6rem] opacity-75" defaultValue={selected?.label} disabled />
-            ) : (
-              <>
-                <Combobox.Input
-                  aria-label="localisation"
-                  className="pl-3 w-full text-sm ring-0 focus:ring-0 focus:outline-none min-w-[6rem]"
-                  displayValue={(location) => location?.label}
-                  placeholder="Localisation"
-                  onChange={handleInputChange}
-                />
-                {selected && (
-                  <button className="text-sm text-neutral-grey-700" onClick={() => onChange(null)}>
-                    <RiCloseFill />
-                  </button>
-                )}
-              </>
-            )}
-          </div>
-
-          {options.length > 0 && (
-            <Transition as={Fragment} leave="transition ease-in duration-100" leaveFrom="opacity-100" leaveTo="opacity-0">
-              <Combobox.Options
-                className={`absolute z-50 mt-1 max-h-60 ${width} overflow-auto border border-neutral-grey-950 rounded-lg bg-white py-1 text-base focus:outline-none`}
+    <div className="relative w-full" ref={ref}>
+      <label htmlFor="Localisation" className="sr-only">
+        Localisation
+      </label>
+      <div className="bg-[#EEE] h-[40px] rounded-t-md border-b-2 border-[#3A3A3A] p-3 focus:outline-none focus-visible:ring focus-visible:ring-blue-800 flex items-center justify-between">
+        <RiMapPin2Fill className="text-disabled-grey-700" />
+        {disabled ? (
+          <input id="Localisation" className="pl-3 w-full ring-0 focus:ring-0 focus:outline-none min-w-[6rem] opacity-75" value={selected?.label || ""} disabled />
+        ) : (
+          <>
+            <input
+              id="Localisation"
+              className="pl-3 w-full ring-0 focus:ring-0 bg-[#EEE] focus:outline-none min-w-[6rem]"
+              value={inputValue}
+              placeholder="Localisation"
+              onChange={handleInputChange}
+            />
+            {selected && (
+              <button
+                className="text-sm text-neutral-grey-700"
+                onClick={() => {
+                  onChange(null);
+                  setInputValue("");
+                }}
               >
-                {options.map((option) => (
-                  <Combobox.Option key={option.value} value={option} as={Fragment}>
-                    {({ active }) => (
-                      <div className="cursor-default flex items-center justify-between py-2 px-3" style={{ color: active ? color : "black" }}>
-                        <span className="block text-sm truncate font-normal">{option.label}</span>
-                      </div>
-                    )}
-                  </Combobox.Option>
-                ))}
-              </Combobox.Options>
-            </Transition>
-          )}
+                <RiCloseFill />
+              </button>
+            )}
+          </>
+        )}
+      </div>
+
+      {isOpen && options.length > 0 && (
+        <div className={`absolute z-50 mt-1 max-h-60 ${width} overflow-auto border border-neutral-grey-950 rounded-lg bg-white py-1 text-base focus:outline-none`}>
+          {options.map((option) => (
+            <div
+              key={option.value}
+              className="cursor-pointer flex items-center justify-between py-2 px-3 hover:bg-gray-100"
+              onClick={() => {
+                onChange(option);
+                setInputValue(option.label);
+                setIsOpen(false);
+              }}
+            >
+              <span className="block text-sm truncate font-normal">{option.label}</span>
+            </div>
+          ))}
         </div>
       )}
-    </Combobox>
+    </div>
+  );
+};
+
+const RemoteFilter = ({ options, selectedOptions, onChange, color, placeholder = "Choissiez une option", position = "left-0", width = "w-80" }) => {
+  const [isOpen, setIsOpen] = useState(false);
+  const ref = useRef(null);
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (ref.current && !ref.current.contains(event.target)) {
+        setIsOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  const toggleOption = (option) => {
+    if (!selectedOptions) return onChange([option]);
+    const exists = selectedOptions.find((o) => o.value === option.value);
+    if (exists) {
+      onChange(selectedOptions.filter((o) => o.value !== option.value));
+    } else {
+      onChange([...selectedOptions, option]);
+    }
+  };
+
+  return (
+    <div className="relative w-full min-w-[6rem]" ref={ref}>
+      <label htmlFor={placeholder} className="sr-only">
+        {placeholder}
+      </label>
+      <button
+        id={placeholder}
+        aria-label={placeholder}
+        className="w-full bg-[#EEE] h-[40px] rounded-t-md border-b-2 border-[#3A3A3A] p-3 focus:outline-none focus-visible:ring focus-visible:ring-blue-800 flex items-center justify-between"
+        onClick={() => setIsOpen(!isOpen)}
+      >
+        <span className="pr-3 truncate max-w-60" style={{ color: selectedOptions?.length > 0 ? color : "black" }}>
+          {!selectedOptions || selectedOptions.some((o) => o === undefined)
+            ? placeholder
+            : selectedOptions.length > 0
+            ? `${selectedOptions[0].label}${selectedOptions.length > 1 ? ` +${selectedOptions.length - 1}` : ""}`
+            : placeholder}
+        </span>
+        {isOpen ? <RiArrowDownSLine className="text-xl transform rotate-180" /> : <RiArrowDownSLine className="text-xl" />}
+      </button>
+
+      {isOpen && (
+        <div className={`absolute ${position} z-50 ${width} bg-white text-base focus:outline-none shadow-[0_0_12px_rgba(0,0,0,0.15)]`}>
+          <div className="py-3 w-full overflow-auto max-h-60">
+            {options?.length === 0 ? (
+              <div className="text-sm text-center">Aucune option disponible</div>
+            ) : (
+              options?.map((o) => {
+                const isSelected = selectedOptions?.some((so) => so.value === o.value);
+                return (
+                  <div
+                    key={o.value}
+                    onClick={() => toggleOption(o)}
+                    className="cursor-pointer w-full flex items-center justify-between text-sm py-2 pl-3 pr-4 hover:bg-gray-100"
+                    style={{
+                      color: isSelected ? color : "black",
+                    }}
+                  >
+                    <div className="flex items-center w-[90%]">
+                      <div className="text-sm">{isSelected ? <RiCheckboxFill /> : <RiCheckboxBlankLine />}</div>
+                      <span className="block text-sm mx-2 truncate font-normal">{o.label}</span>
+                    </div>
+                    {o.count && <span className="text-sm text-neutral-grey-500">{o.count}</span>}
+                  </div>
+                );
+              })
+            )}
+          </div>
+          <div className="p-2 w-full flex justify-end border-t border-gray-300">
+            <button
+              className="text-[#3633A1] text-sm hover:underline"
+              onClick={() => {
+                onChange([]);
+                setIsOpen(false);
+              }}
+            >
+              Effacer
+            </button>
+          </div>
+        </div>
+      )}
+    </div>
   );
 };

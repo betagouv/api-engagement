@@ -108,7 +108,10 @@ router.get("/widget/:widgetId/msearch", async (req: Request, res: Response, next
     } as { [key: string]: any };
 
     if (query.data.domain) where.domain = Array.isArray(query.data.domain) ? { $in: query.data.domain } : query.data.domain;
-    if (query.data.department) where.departmentName = Array.isArray(query.data.department) ? { $in: query.data.department } : query.data.department;
+
+    if (query.data.department === "none") where.$or = [{ departmentName: "" }, { departmentName: null }];
+    else if (query.data.department) where.departmentName = Array.isArray(query.data.department) ? { $in: query.data.department } : query.data.department;
+
     if (query.data.organization) where.organizationName = Array.isArray(query.data.organization) ? { $in: query.data.organization } : query.data.organization;
     if (query.data.schedule) where.schedule = Array.isArray(query.data.schedule) ? { $in: query.data.schedule } : query.data.schedule;
     if (query.data.action) where.organizationActions = Array.isArray(query.data.action) ? { $in: query.data.action } : query.data.action;
@@ -157,7 +160,13 @@ router.get("/widget/:widgetId/msearch", async (req: Request, res: Response, next
       if (key !== "domain" && query.data.domain) filters.domain = Array.isArray(query.data.domain) ? { $in: query.data.domain } : query.data.domain;
       if (key !== "organization" && query.data.organization)
         filters.organizationName = Array.isArray(query.data.organization) ? { $in: query.data.organization } : query.data.organization;
-      if (key !== "department" && query.data.department) filters.departmentName = Array.isArray(query.data.department) ? { $in: query.data.department } : query.data.department;
+      if (key !== "department" && query.data.department) {
+        if (query.data.department === "none") {
+          filters.departmentName = { $in: ["", null] };
+        } else {
+          filters.departmentName = Array.isArray(query.data.department) ? { $in: query.data.department } : query.data.department;
+        }
+      }
       if (key !== "schedule" && query.data.schedule) filters.schedule = Array.isArray(query.data.schedule) ? { $in: query.data.schedule } : query.data.schedule;
       if (key !== "action" && query.data.action) filters.organizationActions = Array.isArray(query.data.action) ? { $in: query.data.action } : query.data.action;
       if (key !== "beneficiary" && query.data.beneficiary)

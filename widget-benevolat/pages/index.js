@@ -5,11 +5,13 @@ import iso from "i18n-iso-countries";
 import isoFR from "i18n-iso-countries/langs/fr.json";
 import { useRouter } from "next/router";
 iso.registerLocale(isoFR);
+import Image from "next/image";
 
 import { API_URL, DOMAINES, ENV } from "../config";
 import { Carousel } from "../components/carousel";
 import { Grid } from "../components/grid";
 import { Filters, MobileFilters } from "../components/filters";
+import LogoJVA from "../public/images/LogoJVA.svg";
 
 /**
  * Layout widget --> max-width: 1152px
@@ -64,7 +66,8 @@ const Home = ({ widget, missions, options, total, request, environment }) => {
 
       if (filters.domain?.length) query.domain = JSON.stringify(filters.domain.filter((item) => item && item.value).map((item) => item.value));
       if (filters.organization?.length) query.organization = JSON.stringify(filters.organization.filter((item) => item && item.value).map((item) => item.value));
-      if (filters.department?.length) query.department = JSON.stringify(filters.department.filter((item) => item && item.value).map((item) => item.value));
+      if (filters.department?.length)
+        query.department = JSON.stringify(filters.department.filter((item) => item && item.value).map((item) => (item.value === "" ? "none" : item.value)));
       if (filters.remote?.length) query.remote = JSON.stringify(filters.remote.filter((item) => item && item.value).map((item) => item.value));
       if (filters.size) query.size = filters.size;
       if (filters.page > 1) query.from = (filters.page - 1) * filters.size;
@@ -103,13 +106,17 @@ const Home = ({ widget, missions, options, total, request, environment }) => {
   if (!widget) return <div className="w-full h-full flex items-center justify-center">Erreur lors du chargement du widget</div>;
 
   return (
-    <div className="md:px-12 h-auto flex flex-col justify-start items-center gap-6 py-6">
-      <header className="max-w-[72rem] w-full space-y-4 md:space-y-8">
-        <div className="flex flex-col md:flex-row md:justify-between">
-          <h1 className="font-bold text-3xl py-2 md:p-0">Trouvez une mission de bénévolat</h1>
-          <p className="text-mention-grey text-xl text-right font-light">{total > 1 ? `${total.toLocaleString("fr")} missions` : `${total} mission`}</p>
+    <div
+      className={`p-6 xl:px-0 ${
+        widget?.style === "carousel" ? "h-[852px] md:max-h-[740px] md:max-w-[1200px]" : "h-[3428px] md:max-h-[1328px] md:max-w-[1200px]"
+      } flex flex-col justify-start mx-auto items-center gap-4`}
+    >
+      <header className={`w-full space-y-4 md:space-y-8 ${widget?.style === "carousel" ? "max-w-[1056px]" : ""}`}>
+        <div className="flex flex-col gap-2 md:items-center md:flex-row md:justify-between">
+          <h1 className="font-bold text-[28px] leading-[36px] md:p-0">Trouvez une mission de bénévolat</h1>
+          <p className="text-[#666] text-[18px] leading-[28px]">{total > 1 ? `${total.toLocaleString("fr")} missions` : `${total} mission`}</p>
         </div>
-        <div className="w-full flex md:hidden flex-col items-center gap-4">
+        <div className="w-full flex md:hidden flex-col items-center gap-2">
           <MobileFilters
             options={options}
             filters={filters}
@@ -120,12 +127,12 @@ const Home = ({ widget, missions, options, total, request, environment }) => {
             setShowFilters={setShowFilters}
           />
         </div>
-        <div className="hidden md:flex w-full items-center justify-between">
+        <div className={`hidden md:flex m-auto items-center justify-between }`}>
           <Filters options={options} filters={filters} setFilters={(newFilters) => setFilters({ ...filters, ...newFilters })} color={color} disabledLocation={!!widget.location} />
         </div>
       </header>
 
-      <div className={`max-w-[72rem] w-full ${showFilters ? (widget?.style === "carousel" ? "hidden" : "opacity-40") : ""}`}>
+      <div className={`w-full ${showFilters ? (widget?.style === "carousel" ? "hidden" : "opacity-40") : ""}`}>
         {widget?.style === "carousel" ? (
           <Carousel widget={widget} missions={missions} color={color} total={total} request={request} />
         ) : (
@@ -164,7 +171,11 @@ export const getServerSideProps = async (context) => {
 
     if (context.query.domain) JSON.parse(context.query.domain).forEach((item) => searchParams.append("domain", item));
     if (context.query.organization) JSON.parse(context.query.organization).forEach((item) => searchParams.append("organization", item));
-    if (context.query.department) JSON.parse(context.query.department).forEach((item) => searchParams.append("department", item));
+    if (context.query.department) {
+      JSON.parse(context.query.department).forEach((item) => {
+        searchParams.append("department", item === "" ? "none" : item);
+      });
+    }
     if (context.query.remote) JSON.parse(context.query.remote).forEach((item) => searchParams.append("remote", item));
     if (context.query.size) searchParams.append("size", context.query.size);
     if (context.query.from) searchParams.append("from", context.query.from);
@@ -181,13 +192,16 @@ export const getServerSideProps = async (context) => {
     const newOptions = {
       organizations: response.data.aggs.organization.map((b) => ({ value: b.key, count: b.doc_count, label: b.key })),
       domains: response.data.aggs.domain.map((b) => ({ value: b.key, count: b.doc_count, label: DOMAINES[b.key] || b.key })),
-      departments: response.data.aggs.department.map((b) => ({ value: b.key, count: b.doc_count, label: b.key })),
+      departments: response.data.aggs.department.map((b) => ({
+        value: b.key === "" ? "none" : b.key,
+        count: b.doc_count,
+        label: b.key === "" ? "Non renseigné" : b.key,
+      })),
       remote: [
         { value: "no", label: "Présentiel", count: presentiel.reduce((acc, b) => acc + b.doc_count, 0) },
         { value: "yes", label: "Distance", count: remote.reduce((acc, b) => acc + b.doc_count, 0) },
       ],
     };
-
     const query = new URLSearchParams({
       widgetId: widget._id,
       requestId: response.request,
