@@ -5,13 +5,11 @@ import iso from "i18n-iso-countries";
 import isoFR from "i18n-iso-countries/langs/fr.json";
 import { useRouter } from "next/router";
 iso.registerLocale(isoFR);
-import Image from "next/image";
 
 import { API_URL, DOMAINES, ENV } from "../config";
 import { Carousel } from "../components/carousel";
 import { Grid } from "../components/grid";
 import { Filters, MobileFilters } from "../components/filters";
-import LogoJVA from "../public/images/LogoJVA.svg";
 
 /**
  * Layout widget --> max-width: 1152px
