@@ -233,9 +233,9 @@ const getData = async (year: number, month: number, publisher: Publisher) => {
   const data = {
     publisherName: publisher.name,
     publisherLogo: publisher.logo,
-    month: month + 1,
+    year,
+    month,
     monthName: MONTHS[month],
-    year: year,
     id: publisher._id.toString(),
   } as StatsReport;
 

@@ -1,20 +1,22 @@
 import puppeteer, { Browser } from "puppeteer";
+
 import PublisherModel from "../../models/publisher";
 import ReportModel from "../../models/report";
+
 import { putObject, OBJECT_ACL, BUCKET_URL } from "../../services/s3";
 import { Publisher, Report, StatsReport } from "../../types";
 import api from "../../services/api";
+import server from "./server";
 import { API_KEY, PDF_URL } from "../../config";
 
 const MONTHS = ["Janvier", "Février", "Mars", "Avril", "Mai", "Juin", "Juillet", "Août", "Septembre", "Octobre", "Novembre", "Décembre"];
 
-const fetchData = async (publisher: Publisher, year: number, month: number) => {
+export const fetchData = async (publisherId: string, year: number, month: number) => {
   try {
-    const response = await api.get<{ data: StatsReport; publisher: Publisher }>(`/stats-report?year=${year}&month=${month}&publisherId=${publisher._id}`);
+    const response = await api.get<{ data: StatsReport; publisher: Publisher }>(`/stats-report?year=${year}&month=${month}&publisherId=${publisherId}`);
     if (!response.data) return null;
-    return response.data.data as StatsReport;
+    return response.data as { data: StatsReport; publisher: Publisher };
   } catch (err) {
-    console.log(`[${publisher.name}] Error fetching data`);
     return null;
   }
 };
@@ -23,9 +25,9 @@ const pdfGeneration = async (browser: Browser, publisher: Publisher, year: numbe
   const errors = [] as { id: string; name: string; error: string }[];
   try {
     console.log(`[${publisher.name}] Recovering data`);
-    const data = await fetchData(publisher, year, month);
+    const result = await fetchData(publisher._id.toString(), year, month);
 
-    if (!data) {
+    if (!result) {
       console.log(`[${publisher.name}] Error fetching data`);
       errors.push({
         id: publisher._id.toString(),
@@ -34,6 +36,7 @@ const pdfGeneration = async (browser: Browser, publisher: Publisher, year: numbe
       });
       return { errors };
     }
+    const { data } = result;
 
     const existing = await ReportModel.findOne({ publisherId: publisher._id, year, month });
 
@@ -72,7 +75,7 @@ const pdfGeneration = async (browser: Browser, publisher: Publisher, year: numbe
 
     console.log(`[${publisher.name}] Downloading PDF...`);
     const page = await browser.newPage();
-    await page.goto(`${PDF_URL}/${publisher._id}?year=${year}&month=${month}&apiKey=${API_KEY}`, { waitUntil: "networkidle0" });
+    await page.goto(`http://localhost:3000/report/${publisher._id}?year=${year}&month=${month}&apiKey=${API_KEY}`, { waitUntil: "networkidle0" });
 
     const pdf = await page.pdf({
       width: 1360,
@@ -139,23 +142,37 @@ const pdfGeneration = async (browser: Browser, publisher: Publisher, year: numbe
   return { errors };
 };
 
-export const generate = async (year: number, month: number) => {
-  const browser = await puppeteer.launch({ headless: true, args: ["--no-sandbox", "--disable-setuid-sandbox"] });
-  const publishers = await PublisherModel.find({ automated_report: true });
+const startServer = async () => {
+  return new Promise((resolve) => {
+    server.listen(3000, () => resolve(true));
+  });
+};
 
+export const generate = async (year: number, month: number) => {
+  const publishers = await PublisherModel.find({ automated_report: true });
   let count = 0;
   const errors = [] as { id: string; name: string; error: string }[];
 
+  await startServer();
+  const browser = await puppeteer.launch({
+    headless: true,
+    args: [
+      "--no-sandbox",
+      "--disable-setuid-sandbox",
+      "--disable-dev-shm-usage",
+      "--disable-gpu",
+      "--font-render-hinting=none",
+      "--force-color-profile=srgb",
+      "--disable-web-security",
+    ],
+  });
   for (let i = 0; i < publishers.length; i++) {
     const publisher = publishers[i];
 
     const res = await pdfGeneration(browser, publisher, year, month);
     count += 1;
     errors.push(...res.errors);
-    // sleep 1 second
-    await new Promise((resolve) => setTimeout(resolve, 1000));
   }
-
   await browser.close();
 
   return { count, errors };
