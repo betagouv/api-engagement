@@ -14,8 +14,9 @@ const ReactApp = ({ data, publisher, year, month }: { data: StatsReport; publish
         <meta charSet="UTF-8" />
         <title>API Engagement</title>
         <link rel="stylesheet" href="/css/style.css" />
-        <script src="/js/chart.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
         <script src="https://cdn.tailwindcss.com"></script>
+        <script src="/js/chart.js"></script>
       </head>
       <body className="w-[1360px] bg-[#F6F6F6]">
         <div className="w-full flex flex-col h-[1116px]">

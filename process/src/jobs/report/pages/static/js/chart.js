@@ -63,6 +63,9 @@ document.addEventListener("DOMContentLoaded", function () {
             beginAtZero: true,
           },
         },
+        animation: {
+          duration: 0,
+        },
       },
     });
   });
@@ -103,6 +106,9 @@ document.addEventListener("DOMContentLoaded", function () {
             stacked: true,
             beginAtZero: true,
           },
+        },
+        animation: {
+          duration: 0,
         },
       },
     });
