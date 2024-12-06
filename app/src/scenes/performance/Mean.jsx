@@ -214,8 +214,8 @@ const Bar = ({ value, height = BAR_HEIGHT }) => {
   );
 };
 
-const TABLE_HEADER = [
-  { title: "Nom du widget", key: "name", position: "left", colSpan: 2 },
+const TABLE_HEADER = (source) => [
+  { title: `Nom ${source === "widget" ? "du widget" : "de la campagne"}`, key: "name", position: "left", colSpan: 2 },
   { title: "Impressions", key: "printCount", position: "right" },
   { title: "Redirections", key: "clickCount", position: "right" },
   { title: "Créations de compte", key: "accountCount", position: "right" },
@@ -228,7 +228,7 @@ const SourcePerformance = ({ data, source }) => {
   return (
     <div className="border p-6 space-y-4">
       <h3 className="text-2xl font-semibold">Performance par {source === "widget" ? "widget" : "campagne"}</h3>
-      <Table header={TABLE_HEADER} total={data.length} sortBy={sortBy} onSort={setSortBy}>
+      <Table header={TABLE_HEADER(source)} total={data.length} sortBy={sortBy} onSort={setSortBy}>
         {data
           .sort((a, b) => (sortBy === "name" ? (a.name || "").localeCompare(b.name) : b[sortBy] - a[sortBy]))
           .map((item, i) => (
