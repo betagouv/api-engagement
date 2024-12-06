@@ -9,7 +9,7 @@ export const Carousel = ({ widget, missions, color, request }) => {
   useEffect(() => {
     const getSlidesToShow = () => {
       if (window.innerWidth < 640) return 1;
-      if (window.innerWidth < 1400) return 2;
+      if (window.innerWidth < 768) return 2;
       return 3;
     };
 
