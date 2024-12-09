@@ -119,8 +119,8 @@ const Home = ({ widget, missions, options, total, request, environment }) => {
   return (
     <div
       className={`p-4 xl:px-0 ${
-        widget?.style === "carousel" ? "h-[674px] md:max-h-[600px] md:max-w-[1200px]" : "h-[2200px] md:max-h-[1010px] md:max-w-[1200px]"
-      } flex flex-col justify-start items-center gap-4 lg:gap-4 mx-auto`}
+        widget?.style === "carousel" ? "h-[674px] md:max-h-[600px] md:max-w-[1200px] gap-4" : "h-[2200px] md:max-h-[1010px] md:max-w-[1200px] gap-8"
+      } flex flex-col justify-start items-center mx-auto`}
     >
       <header className={`w-full space-y-4 md:space-y-8 ${widget?.style === "carousel" ? "max-w-[1056px]" : "max-w-[1200px]"}`}>
         <div className="flex flex-col gap-2 md:flex-row md:justify-between">
@@ -160,7 +160,7 @@ const Home = ({ widget, missions, options, total, request, environment }) => {
       </div>
       {environment === "production" && <Script src="https://app.api-engagement.beta.gouv.fr/jstag.js" />}
       {widget._id !== "6633a45e87fb728a6da205da" && (
-        <div className={`flex w-full justify-center items-center gap-4 mt-2 px-4 ${showFilters ? "opacity-40 pointer-events-none" : ""}`}>
+        <div className={`flex w-full justify-center items-center gap-4 px-4 ${showFilters ? "opacity-40 pointer-events-none" : ""}`}>
           <Image src={LogoSC} width="100" height="0" style={{ width: "53px", height: "auto" }} alt="Logo du Service Civique" />
           <p className=" text-xs text-[#666]">
             Proposé par l'Agence du Service Civique{" "}
