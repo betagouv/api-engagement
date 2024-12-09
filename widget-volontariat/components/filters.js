@@ -130,7 +130,7 @@ export const Filters = ({ options, filters, setFilters, disabledLocation = false
   if (!Object.keys(options).length) return null;
 
   return (
-    <div className="flex-1">
+    <div className="flex-1 pb-4">
       <div className="grid grid-cols-5 gap-4 h-10">
         <LocationFilter selected={filters.location} onChange={(l) => setFilters({ ...filters, location: l })} disabled={disabledLocation} />
         <DateFilter selected={filters.start} onChange={(f) => setFilters({ ...filters, start: f })} />
