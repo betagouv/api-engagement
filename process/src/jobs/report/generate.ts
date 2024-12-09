@@ -7,7 +7,7 @@ import { putObject, OBJECT_ACL, BUCKET_URL } from "../../services/s3";
 import { Publisher, Report, StatsReport } from "../../types";
 import api from "../../services/api";
 import server from "./server";
-import { API_KEY, PDF_URL } from "../../config";
+import { API_KEY } from "../../config";
 
 const MONTHS = ["Janvier", "Février", "Mars", "Avril", "Mai", "Juin", "Juillet", "Août", "Septembre", "Octobre", "Novembre", "Décembre"];
 

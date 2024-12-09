@@ -8,10 +8,8 @@ const handler = async () => {
   const start = new Date();
   console.log(`[Report] Starting at ${start.toISOString()}`);
   try {
-    // const year = new Date().getFullYear();
-    // const month = new Date().getMonth() - 1;
     const year = new Date().getFullYear();
-    const month = 8;
+    const month = new Date().getMonth() - 1;
 
     console.log(`[Report] Generating report for ${year}-${month}`);
     const generationRes = await generate(year, month);
@@ -32,14 +30,14 @@ const handler = async () => {
     // }
     // console.log(`[Report] Sending slack message for ${year}-${month}`);
 
-    await postMessage(
-      {
-        title: `Rapports d'impact du ${month + 1 < 10 ? `0${month + 1}` : month + 1}/${year} générés et envoyés`,
-        // text: `Rapport générés: ${generationRes.count}, emails envoyés: ${sendingRes.count}, non envoyés: ${sendingRes.skipped.length}, erreurs: ${generationRes.errors.length + sendingRes.errors.length}\n\nListe des rapports d'impact du mois [ici](https://app.api-engagement.beta.gouv.fr/admin-report?month=${month}&year=${year})`,
-        text: `Rapport générés: 171, emails envoyés: 158, non envoyés: 102, erreurs: 0\n\nListe des rapports d'impact du mois [ici](https://app.api-engagement.beta.gouv.fr/admin-report?month=${month}&year=${year})`,
-      },
-      SLACK_PRODUCT_CHANNEL_ID,
-    );
+    // await postMessage(
+    //   {
+    //     title: `Rapports d'impact du ${month + 1 < 10 ? `0${month + 1}` : month + 1}/${year} générés et envoyés`,
+    //     // text: `Rapport générés: ${generationRes.count}, emails envoyés: ${sendingRes.count}, non envoyés: ${sendingRes.skipped.length}, erreurs: ${generationRes.errors.length + sendingRes.errors.length}\n\nListe des rapports d'impact du mois [ici](https://app.api-engagement.beta.gouv.fr/admin-report?month=${month}&year=${year})`,
+    //     text: `Rapport générés: 171, emails envoyés: 158, non envoyés: 102, erreurs: 0\n\nListe des rapports d'impact du mois [ici](https://app.api-engagement.beta.gouv.fr/admin-report?month=${month}&year=${year})`,
+    //   },
+    //   SLACK_PRODUCT_CHANNEL_ID,
+    // );
   } catch (error: any) {
     console.error(error);
     captureException(`Report generation failed`, `${error.message} while generating report`);
