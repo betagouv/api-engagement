@@ -62,10 +62,10 @@ const pdfGeneration = async (browser: Browser, publisher: Publisher, year: numbe
         data,
       } as Report;
 
-      if (existing) {
+      if (existing && !existing.sent) {
         await ReportModel.updateOne({ _id: existing._id }, obj);
         console.log(`[${publisher.name}] Report object updated`);
-      } else {
+      } else if (!existing) {
         await ReportModel.create(obj);
         console.log(`[${publisher.name}] Report object created`);
       }
@@ -123,10 +123,10 @@ const pdfGeneration = async (browser: Browser, publisher: Publisher, year: numbe
       data,
     };
 
-    if (existing) {
+    if (existing && !existing.sent) {
       await ReportModel.updateOne({ _id: existing._id }, obj);
       console.log(`[${publisher.name}] Report object updated`);
-    } else {
+    } else if (!existing) {
       await ReportModel.create(obj);
       console.log(`[${publisher.name}] Report object created`);
     }
