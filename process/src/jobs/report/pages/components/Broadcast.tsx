@@ -1,10 +1,9 @@
-"use client";
-import { StatsReport } from "@/types";
-import { CartesianGrid, Line, LineChart as LineChartRechart, BarChart as BarChartRechart, ResponsiveContainer, XAxis, YAxis, Bar } from "recharts";
-
-const compare = (a: number, b: number) => (a - b) / (a || 1);
+import React from "react";
+import { StatsReport } from "../../../../types";
 
 const COLORS = ["#000091", "#FB955D", "#F96666", "#54D669", "#FF6FF1"];
+
+const compare = (a: number, b: number) => (a - b) / (a || 1);
 
 const Broadcast = ({ data, year }: { data: StatsReport; year: number }) => {
   const clickRaise = compare(data.send.click, data.send.clickLastMonth);
@@ -132,61 +131,19 @@ const Broadcast = ({ data, year }: { data: StatsReport; year: number }) => {
   );
 };
 
-const MONTHS = ["janv.", "fév.", "mars", "avr.", "mai", "juin", "juil.", "août", "sept.", "oct.", "nov.", "déc."];
-
 const LineChart = ({ data }: { data: { month: Date; click: number; clickLastYear: number; apply: number; applyLastYear: number }[] }) => {
-  data.sort((a, b) => new Date(a.month).getTime() - new Date(b.month).getTime());
-
   return (
-    <ResponsiveContainer width="100%" height={300}>
-      <LineChartRechart
-        width={500}
-        height={300}
-        data={data.map((d) => ({ ...d, name: MONTHS[new Date(d.month).getMonth()] }))}
-        margin={{
-          top: 5,
-          right: 30,
-          left: 20,
-          bottom: 5,
-        }}
-      >
-        <CartesianGrid strokeDasharray="3 3" />
-        <XAxis dataKey="name" />
-        <YAxis />
-        <Line type="monotone" dataKey="click" stroke="#000091" activeDot={{ r: 8 }} isAnimationActive={false} />
-        <Line type="monotone" dataKey="clickLastYear" stroke="#B3B3DE" activeDot={{ r: 8 }} isAnimationActive={false} />
-        <Line type="monotone" dataKey="apply" stroke="#FA7A35" isAnimationActive={false} />
-        <Line type="monotone" dataKey="applyLastYear" stroke="#FDD7C2" isAnimationActive={false} />
-      </LineChartRechart>
-    </ResponsiveContainer>
+    <div style={{ height: "100%" }}>
+      <canvas data-chart="line" data-chart-data={JSON.stringify(data)} />
+    </div>
   );
 };
 
 const BarChart = ({ data }: { data: { [key: string]: number | Date }[] }) => {
-  data.sort((a, b) => new Date(a.month).getTime() - new Date(b.month).getTime());
-
   return (
-    <ResponsiveContainer width="100%" height={300}>
-      <BarChartRechart
-        width={500}
-        height={300}
-        data={data.map((d) => ({ ...d, name: MONTHS[new Date(d.month).getMonth()] }))}
-        margin={{
-          top: 20,
-          right: 30,
-          left: 20,
-          bottom: 5,
-        }}
-      >
-        <XAxis dataKey="name" />
-        <YAxis />
-        {Object.keys(data[0])
-          .filter((key) => key !== "month")
-          .map((key, i) => (
-            <Bar key={i} stackId="a" dataKey={key} fill={COLORS[i]} isAnimationActive={false} />
-          ))}
-      </BarChartRechart>
-    </ResponsiveContainer>
+    <div style={{ height: "100%" }}>
+      <canvas data-chart="bar" data-chart-data={JSON.stringify(data)} />
+    </div>
   );
 };
 

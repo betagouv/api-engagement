@@ -1,6 +1,5 @@
-"use client";
-
-import { Publisher } from "@/types";
+import React from "react";
+import { Publisher } from "../../../../types";
 
 const MONTHS = ["janvier", "février", "mars", "avril", "mai", "juin", "juillet", "août", "septembre", "octobre", "novembre", "décembre"];
 
@@ -12,7 +11,7 @@ const Header = ({ publisher, month, year, page, pages }: { publisher: Publisher;
       </div>
       <div className="flex-1">
         <div className="flex items-center gap-4 mb-3">
-          <img src="/assets/svg/logo.svg" className="w-12" />
+          <img src="/svg/logo.svg" className="w-12" />
           <h2 className="text-xl font-bold">API Engagement x {publisher.name}</h2>
         </div>
         <h1 className="text-3xl font-bold mb-1">
