@@ -64,7 +64,7 @@ export const Carousel = ({ widget, missions, color, request }) => {
                 key={i}
                 id={mission._id}
                 aria-labelledby={mission._id}
-                className={`flex-shrink-0 ${missions.length <= 2 ? "w-full lg:w-auto sm:w-1/2 flex-shrink-0" : "w-full sm:w-1/2 lg:w-1/3"} px-3`}
+                className={`flex-shrink-0 ${missions.length <= 2 ? "w-full lg:w-auto sm:w-1/2 flex-shrink-0" : "w-full sm:w-1/2 md:w-1/3"} px-3`}
               >
                 <Card widget={widget} mission={mission} color={color} request={request} />
               </div>

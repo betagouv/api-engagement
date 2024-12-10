@@ -22,11 +22,12 @@ export const MobileFilters = ({ options, filters, setFilters, color, showFilters
         <LocationFilter selected={filters.location} onChange={(l) => setFilters({ ...filters, location: l })} disabled={disabledLocation} color={color} width="w-full" />
       </div>
       <button
-        className="flex h-[40px] border-y items-center justify-between text-[#3633A1] w-full px-4 py-2 focus:outline-none focus-visible:ring focus-visible:ring-blue-800"
+        className="flex h-[40px] border-y items-center justify-between w-full px-4 py-2 focus:outline-none focus-visible:ring focus-visible:ring-blue-800"
         onClick={() => setShowFilters(!showFilters)}
+        style={{ color: color }}
       >
         Filtrer les missions
-        {showFilters ? <RiArrowUpSLine className="font-semibold text-[#3633A1]" /> : <RiArrowDownSLine className="font-semibold text-[#3633A1]" />}
+        {showFilters ? <RiArrowUpSLine className="font-semibold" style={{ color: color }} /> : <RiArrowDownSLine className="font-semibold" style={{ color: color }} />}
       </button>
 
       {showFilters && (
@@ -73,8 +74,9 @@ export const MobileFilters = ({ options, filters, setFilters, color, showFilters
           </div>
           <button
             aria-label="Voir les missions"
-            className="w-full p-3 text-center border-none bg-[#3633A1] text-white text-sm focus:outline-none focus-visible:ring focus-visible:ring-blue-800"
+            className="w-full p-3 text-center border-none text-white text-sm focus:outline-none focus-visible:ring focus-visible:ring-blue-800"
             onClick={() => setShowFilters(false)}
+            style={{ backgroundColor: color }}
           >
             Voir les missions
           </button>

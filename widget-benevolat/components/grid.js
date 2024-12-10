@@ -59,7 +59,7 @@ const Pagination = ({ page, setPage, end, color }) => {
                 <button
                   key={p}
                   className="flex h-8 w-8 rounded items-center justify-center hover:bg-gray-hover"
-                  style={p === page ? { backgroundColor: color, color: "white" } : {}}
+                  style={p === page ? { backgroundColor: color, color: "white", borderRadius: "9999px" } : {}}
                   onClick={() => setPage(p)}
                 >
                   {p}
@@ -80,7 +80,7 @@ const Pagination = ({ page, setPage, end, color }) => {
                 <button
                   key={p}
                   className="flex h-8 w-8 rounded items-center justify-center hover:bg-gray-hover"
-                  style={p === page ? { backgroundColor: color, color: "white" } : {}}
+                  style={p === page ? { backgroundColor: color, color: "white", borderRadius: "9999px" } : {}}
                   onClick={() => setPage(p)}
                 >
                   {p}
@@ -97,7 +97,7 @@ const Pagination = ({ page, setPage, end, color }) => {
                 <button
                   key={p}
                   className="flex h-8 w-8 rounded items-center justify-center hover:bg-gray-hover"
-                  style={p === page ? { backgroundColor: color, color: "white" } : {}}
+                  style={p === page ? { backgroundColor: color, color: "white", borderRadius: "9999px" } : {}}
                   onClick={() => setPage(p)}
                 >
                   {p}
@@ -116,7 +116,7 @@ const Pagination = ({ page, setPage, end, color }) => {
             <button
               key={p}
               className="flex h-8 w-8 rounded items-center justify-center hover:bg-gray-hover"
-              style={p === page ? { backgroundColor: color, color: "white" } : {}}
+              style={p === page ? { backgroundColor: color, color: "white", borderRadius: "9999px" } : {}}
               onClick={() => setPage(p)}
             >
               {p}
@@ -170,7 +170,7 @@ export const MobilePagination = ({ page, setPage, end, color }) => {
                 <button
                   key={p}
                   className="flex h-8 min-w-[2rem] p-1 rounded items-center justify-center hover:bg-gray-hover focus:outline-none focus-visible:ring focus-visible:ring-blue-800"
-                  style={p === page ? { backgroundColor: color, color: "white" } : {}}
+                  style={p === page ? { backgroundColor: color, color: "white", borderRadius: "9999px" } : {}}
                   onClick={() => setPage(p)}
                 >
                   {p}
@@ -201,7 +201,7 @@ export const MobilePagination = ({ page, setPage, end, color }) => {
                 <button
                   key={p}
                   className="flex h-8 min-w-[2rem] p-1 rounded items-center justify-center hover:bg-gray-hover focus:outline-none focus-visible:ring focus-visible:ring-blue-800"
-                  style={p === page ? { backgroundColor: color, color: "white" } : {}}
+                  style={p === page ? { backgroundColor: color, color: "white", borderRadius: "9999px" } : {}}
                   onClick={() => setPage(p)}
                 >
                   {p}
@@ -214,7 +214,7 @@ export const MobilePagination = ({ page, setPage, end, color }) => {
                 <button
                   key={p}
                   className="flex h-8 min-w-[2rem] p-1 rounded items-center justify-center hover:bg-gray-hover focus:outline-none focus-visible:ring focus-visible:ring-blue-800"
-                  style={p === page ? { backgroundColor: color, color: "white" } : {}}
+                  style={p === page ? { backgroundColor: color, color: "white", borderRadius: "9999px" } : {}}
                   onClick={() => setPage(p)}
                 >
                   {p}
@@ -239,7 +239,7 @@ export const MobilePagination = ({ page, setPage, end, color }) => {
             <button
               key={p}
               className="flex h-8 w-8 rounded items-center justify-center hover:bg-gray-hover focus:outline-none focus-visible:ring focus-visible:ring-blue-800"
-              style={p === page ? { backgroundColor: color, color: "white" } : {}}
+              style={p === page ? { backgroundColor: color, color: "white", borderRadius: "9999px" } : {}}
               onClick={() => setPage(p)}
             >
               {p}

@@ -231,7 +231,9 @@ const DateFilter = ({ selected, onChange, position = "left-0", width = "w-80" })
       <button
         id="date"
         aria-label="date"
-        className="w-full rounded-t-md bg-[#EEE] h-[40px] border-b-2 border-[#3A3A3A] p-3 focus:outline-none focus-visible:ring focus-visible:ring-blue-800 flex items-center justify-between"
+        className={`w-full rounded-t-md bg-[#EEE] h-[40px] border-b-2 border-[#3A3A3A] p-3 focus:outline-none focus-visible:ring focus-visible:ring-blue-800 flex items-center justify-between ${
+          !selected ? "text-[#666666]" : "text-[#161616]"
+        }`}
         onClick={() => setIsOpen(!isOpen)}
       >
         <span className="pr-3 truncate max-w-60">{selected ? selected.label : "Date"}</span>
@@ -320,7 +322,9 @@ const DurationFilter = ({ selected, onChange, position = "left-0", width = "w-80
         id="duration"
         aria-label="durée"
         onKeyDown={handleKeyDown}
-        className="w-full rounded-t-md h-[40px] bg-[#EEE] border-b-2 border-[#3A3A3A] p-3 focus:outline-none focus-visible:ring focus-visible:ring-blue-800 flex items-center justify-between"
+        className={`w-full rounded-t-md h-[40px] bg-[#EEE] border-b-2 border-[#3A3A3A] p-3 focus:outline-none focus-visible:ring focus-visible:ring-blue-800 flex items-center justify-between ${
+          !selected ? "text-[#666666]" : "text-[#161616]"
+        }`}
         onClick={() => setIsOpen(!isOpen)}
       >
         <span className="pr-3 truncate max-w-60">{selected ? selected.label : "Durée"}</span>
@@ -404,7 +408,9 @@ const SelectFilter = ({ options, selectedOptions, onChange, placeholder = "Chois
       <button
         id={placeholder}
         aria-label={placeholder}
-        className="w-full rounded-t-md bg-[#EEE] h-[40px] border-b-2 border-[#3A3A3A] p-3 focus:outline-none focus-visible:ring focus-visible:ring-blue-800 flex items-center justify-between"
+        className={`w-full rounded-t-md bg-[#EEE] h-[40px] border-b-2 border-[#3A3A3A] p-3 focus:outline-none focus-visible:ring focus-visible:ring-blue-800 flex items-center justify-between ${
+          !selectedOptions || selectedOptions.length === 0 ? "text-[#666666]" : "text-[#161616]"
+        }`}
         onClick={() => setIsOpen(!isOpen)}
       >
         <span className="pr-3 truncate max-w-60">
@@ -514,7 +520,7 @@ const LocationFilter = ({ selected, onChange, disabled = false, width = "w-80" }
             <input
               id="location"
               aria-label="localisation"
-              className="pl-3 w-full ring-0 focus:ring-0 bg-[#EEE] focus:outline-none min-w-[6rem]"
+              className={`pl-3 w-full ring-0 focus:ring-0 bg-[#EEE] focus:outline-none min-w-[6rem] ${!selected ? "text-[#666666]" : "text-[#161616]"}`}
               value={inputValue}
               placeholder="Localisation"
               onChange={handleInputChange}
