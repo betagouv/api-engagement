@@ -2,12 +2,12 @@ import esClient from "../../db/elastic";
 import { postMessage } from "../../services/slack";
 import { SLACK_WARNING_CHANNEL_ID, STATS_INDEX } from "../../config";
 
-const countApply = async (userId: string) => {
+const countApply = async (user: string) => {
   const res = await esClient.count({
     body: {
       query: {
         bool: {
-          must: [{ term: { "type.keyword": "apply" } }, { term: { "clickUser.keyword": userId } }],
+          must: [{ term: { "type.keyword": "apply" } }, { term: { "clickUser.keyword": user } }],
         },
       },
     },
@@ -16,12 +16,12 @@ const countApply = async (userId: string) => {
   return res.body.count;
 };
 
-const countAccount = async (userId: string) => {
+const countAccount = async (user: string) => {
   const res = await esClient.count({
     body: {
       query: {
         bool: {
-          must: [{ term: { "type.keyword": "account" } }, { term: { "clickUser.keyword": userId } }],
+          must: [{ term: { "type.keyword": "account" } }, { term: { "clickUser.keyword": user } }],
         },
       },
     },
