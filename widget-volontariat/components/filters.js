@@ -5,7 +5,7 @@ import { RiArrowUpSLine, RiArrowDownSLine, RiCheckboxFill, RiCheckboxBlankLine, 
 
 import "react-day-picker/dist/style.css";
 
-export const MobileFilters = ({ options, filters, setFilters, showFilters, setShowFilters, disabledLocation = false, carousel }) => {
+export const MobileFilters = ({ options, filters, setFilters, showFilters, setShowFilters, disabledLocation = false, carousel, color }) => {
   if (!Object.keys(options).length) return null;
 
   const handleReset = () => {
@@ -33,6 +33,9 @@ export const MobileFilters = ({ options, filters, setFilters, showFilters, setSh
         <button
           className="flex h-[40px] items-center justify-between w-full bg-white font-semibold focus:outline-none focus-visible:ring focus-visible:ring-blue-800"
           onClick={() => setShowFilters(!showFilters)}
+          style={{
+            color,
+          }}
         >
           Filtrer les missions
           {showFilters ? <RiArrowUpSLine className="font-semibold" /> : <RiArrowDownSLine className="font-semibold" />}
@@ -53,6 +56,7 @@ export const MobileFilters = ({ options, filters, setFilters, showFilters, setSh
                 onChange={(v) => setFilters({ ...filters, domain: v })}
                 placeholder="Domaines"
                 width="w-full"
+                color={color}
               />
             </div>
             <div className="w-full ">
@@ -104,6 +108,10 @@ export const MobileFilters = ({ options, filters, setFilters, showFilters, setSh
               aria-label="Voir les missions"
               className="w-full p-3 text-center border-none bg-black text-white focus:outline-none focus-visible:ring focus-visible:ring-blue-800"
               onClick={() => setShowFilters(false)}
+              style={{
+                backgroundColor: color,
+                color: "white",
+              }}
             >
               Voir les missions
             </button>
@@ -117,7 +125,7 @@ export const MobileFilters = ({ options, filters, setFilters, showFilters, setSh
   );
 };
 
-export const Filters = ({ options, filters, setFilters, disabledLocation = false }) => {
+export const Filters = ({ options, filters, setFilters, disabledLocation = false, color }) => {
   const [moreFilters, setMoreFilters] = useState(false);
   const missionsAbroad = useRef(null);
 
@@ -135,7 +143,7 @@ export const Filters = ({ options, filters, setFilters, disabledLocation = false
         <LocationFilter selected={filters.location} onChange={(l) => setFilters({ ...filters, location: l })} disabled={disabledLocation} />
         <DateFilter selected={filters.start} onChange={(f) => setFilters({ ...filters, start: f })} />
         <DurationFilter selected={filters.duration} onChange={(v) => setFilters({ ...filters, duration: v })} />
-        <SelectFilter options={options.domain} selectedOptions={filters.domain} onChange={(v) => setFilters({ ...filters, domain: v })} placeholder="Thèmes" />
+        <SelectFilter options={options.domain} selectedOptions={filters.domain} onChange={(v) => setFilters({ ...filters, domain: v })} placeholder="Thèmes" color={color} />
 
         {moreFilters ? (
           <SelectFilter
@@ -150,6 +158,10 @@ export const Filters = ({ options, filters, setFilters, disabledLocation = false
             aria-label="plus de filtres"
             className="border truncate w-full bg-white border-grey-400 py-2 px-4 h-[40px] focus:outline-none focus-visible:ring focus-visible:ring-blue-800 font-medium"
             onClick={() => setMoreFilters(true)}
+            style={{
+              backgroundColor: color,
+              color: "white",
+            }}
           >
             Plus de filtres
           </button>
@@ -164,6 +176,7 @@ export const Filters = ({ options, filters, setFilters, disabledLocation = false
             onChange={(v) => setFilters({ ...filters, schedule: v })}
             placeholder="Horaires"
             position="left-0"
+            color={color}
           />
           <SelectFilter
             options={options.accessibility}
@@ -171,6 +184,7 @@ export const Filters = ({ options, filters, setFilters, disabledLocation = false
             onChange={(v) => setFilters({ ...filters, accessibility: v })}
             placeholder="Accessibilité"
             position="right-0"
+            color={color}
           />
           <SelectFilter
             options={options.beneficiary}
@@ -178,6 +192,7 @@ export const Filters = ({ options, filters, setFilters, disabledLocation = false
             onChange={(v) => setFilters({ ...filters, beneficiary: v })}
             placeholder="Public bénéficiaire"
             position="right-0"
+            color={color}
           />
           <SelectFilter
             options={options.action}
@@ -185,6 +200,7 @@ export const Filters = ({ options, filters, setFilters, disabledLocation = false
             onChange={(v) => setFilters({ ...filters, action: v })}
             placeholder="Actions clés"
             position="right-0"
+            color={color}
           />
           {missionsAbroad.current && (
             <SelectFilter
@@ -193,6 +209,7 @@ export const Filters = ({ options, filters, setFilters, disabledLocation = false
               onChange={(v) => setFilters({ ...filters, country: v })}
               placeholder="France / Etranger"
               position="right-0"
+              color={color}
             />
           )}
 
@@ -200,6 +217,10 @@ export const Filters = ({ options, filters, setFilters, disabledLocation = false
             aria-label="moins de filtres"
             className="border truncate w-full bg-white border-grey-400 py-2 px-4 h-[40px] focus:outline-none focus-visible:ring focus-visible:ring-blue-800 font-medium"
             onClick={() => setMoreFilters(false)}
+            style={{
+              backgroundColor: color,
+              color: "white",
+            }}
           >
             Moins de filtres
           </button>
@@ -377,7 +398,7 @@ const DurationFilter = ({ selected, onChange, position = "left-0", width = "w-80
   );
 };
 
-const SelectFilter = ({ options, selectedOptions, onChange, placeholder = "Choissiez une option", position = "left-0", width = "w-80" }) => {
+const SelectFilter = ({ options, selectedOptions, onChange, placeholder = "Choissiez une option", position = "left-0", width = "w-80", color }) => {
   const [isOpen, setIsOpen] = useState(false);
   const ref = useRef(null);
 
@@ -434,7 +455,19 @@ const SelectFilter = ({ options, selectedOptions, onChange, placeholder = "Chois
                 return (
                   <div key={o.value} className="cursor-pointer w-full flex items-center justify-between text-sm py-2 pl-3 pr-4" onClick={() => toggleOption(o)}>
                     <div className="flex items-center w-[90%]">
-                      <div className="text-sm">{isSelected ? <RiCheckboxFill /> : <RiCheckboxBlankLine />}</div>
+                      <div className="text-sm">
+                        {isSelected ? (
+                          <RiCheckboxFill
+                            style={{
+                              height: "16px",
+                              width: "16px",
+                              color: color,
+                            }}
+                          />
+                        ) : (
+                          <RiCheckboxBlankLine />
+                        )}
+                      </div>
                       <span className="block text-sm mx-2 truncate font-normal">{o.label}</span>
                     </div>
                     {o.count && <span className="text-sm text-neutral-grey-500">{o.count}</span>}

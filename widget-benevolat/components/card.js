@@ -14,7 +14,7 @@ const Card = ({ widget, mission, request }) => {
       href={mission.url}
       target="_blank"
       className={`${
-        widget.style === "carousel" ? "max-w-[336px] max-h-[460px] xl:max-h-[500px]" : "w-full"
+        widget.style === "carousel" ? "max-w-[336px] max-h-[460px] xl:max-h-[500px]" : "w-full lg:h-[500px] min-h-[492px]"
       } group border h-full mx-auto flex flex-col border-neutral-grey-950 overflow-hidden focus:outline-none focus-visible:ring focus-visible:ring-blue-800 hover:shadow-lg transition-shadow duration-300`}
     >
       <div className="min-h-[188px] max-h-[188px] xl:min-h-[200px] xl:max-h-[200px] overflow-hidden">

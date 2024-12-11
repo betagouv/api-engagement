@@ -17,9 +17,9 @@ const Card = ({ widget, mission, request }) => {
       target="_blank"
       className={`${
         widget.style === "carousel" ? "md:max-w-[336px]" : "w-full"
-      } border min-h-[311px] flex flex-col focus:outline-none focus-visible:ring focus-visible:ring-blue-800 border-grey-400 bg-white overflow-hidden group hover:shadow-lg transition-shadow duration-300`}
+      } border h-[290px] md:h-[311px] flex flex-col focus:outline-none focus-visible:ring focus-visible:ring-blue-800 border-grey-400 bg-white group hover:shadow-lg transition-shadow duration-300`}
     >
-      <div className="flex-1 flex flex-col p-8 gap-3">
+      <div className="flex-1 flex flex-col p-4 md:p-8 gap-3">
         <div className="flex items-center">
           <div>
             <div className="w-10 h-10 rounded-full flex items-center justify-center text-white text-2xl" style={{ background: domain.color }} data-icon={domain.icon} />
@@ -33,7 +33,7 @@ const Card = ({ widget, mission, request }) => {
           </div>
         </div>
 
-        <div className="flex flex-col gap-3">
+        <div className="flex flex-col gap-3 flex-grow">
           <div className="w-full text-center">
             <span name="tracker_counter" data-id={mission._id} data-publisher={widget.fromPublisherId.toString()} data-source={widget._id.toString()} data-request={request} />
           </div>
@@ -44,7 +44,7 @@ const Card = ({ widget, mission, request }) => {
           </span>
         </div>
 
-        <div className="min-h-[19px] flex items-center">
+        <div className="min-h-[19px] flex items-center mt-auto">
           {mission.tags?.includes("Service Civique Écologique") ? (
             <Image src={LogoSCE} width="0" height="0" style={{ width: "228px", height: "19px" }} alt="logo service civique écologique" />
           ) : (
@@ -59,7 +59,7 @@ const Card = ({ widget, mission, request }) => {
           </div>
         </div>
       </div>
-      <div className="h-[0.3125rem] w-full" style={{ backgroundColor: domain.color }} />
+      <div className="h-[0.3125rem] w-full flex-shrink-0" style={{ backgroundColor: domain.color }} />
     </a>
   );
 };

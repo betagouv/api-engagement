@@ -53,7 +53,7 @@ export const Carousel = ({ widget, missions, color, request }) => {
           }}
           aria-label="Diapositive précédente"
         >
-          <RiArrowLeftLine />
+          <RiArrowLeftLine size={20} />
         </button>
 
         <div className="overflow-hidden md:max-w-[1056px] py-4 mx-auto">
@@ -82,11 +82,11 @@ export const Carousel = ({ widget, missions, color, request }) => {
           }}
           aria-label="Diapositive suivante"
         >
-          <RiArrowRightLine />
+          <RiArrowRightLine size={20} />
         </button>
       </div>
 
-      <div className="flex justify-center mt-2 xl:hidden">
+      <div className="flex justify-center xl:hidden">
         <div className="flex gap-4">
           <button
             onClick={prevPage}

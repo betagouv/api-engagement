@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { RiArrowLeftLine, RiArrowRightLine } from "react-icons/ri";
 import Card from "./card";
 
-export const Carousel = ({ widget, missions, request }) => {
+export const Carousel = ({ widget, missions, request, color }) => {
   const [currentSlide, setCurrentSlide] = useState(0);
   const [slidesToShow, setSlidesToShow] = useState(3);
 
@@ -48,15 +48,15 @@ export const Carousel = ({ widget, missions, request }) => {
           disabled={currentSlide === 0}
           className="p-2 h-12 w-12 rounded-full hidden xl:flex items-center justify-center flex-shrink-0"
           style={{
-            backgroundColor: currentSlide === 0 ? "#e5e5e5" : "black",
+            backgroundColor: currentSlide === 0 ? "#e5e5e5" : color,
             color: currentSlide === 0 ? "#929292" : "white",
           }}
           aria-label="Diapositive précédente"
         >
-          <RiArrowLeftLine />
+          <RiArrowLeftLine size={20} />
         </button>
 
-        <div className="overflow-hidden md:max-w-[1056px] py-4 mx-auto">
+        <div className="overflow-hidden md:max-w-[1056px] md:py-4 mx-auto">
           <div
             className={`flex h-[311px] transition-transform duration-500 ease-in-out ${missions.length < slidesToShow ? "justify-center" : ""}`}
             style={{ margin: "0 -0.75rem", transform: missions.length < slidesToShow ? "none" : `translateX(-${currentSlide * (100 / slidesToShow)}%)` }}
@@ -67,7 +67,7 @@ export const Carousel = ({ widget, missions, request }) => {
                 key={i}
                 id={mission._id}
                 aria-labelledby={mission._id}
-                className={`${missions.length <= 2 ? "w-full lg:w-auto sm:w-1/2 flex-shrink-0" : "flex-shrink-0 w-full sm:w-1/2 lg:w-1/3"} px-3`}
+                className={`${missions.length <= 2 ? "w-full lg:w-auto sm:w-1/2 flex-shrink-0" : "flex-shrink-0 w-full sm:w-1/2 md:w-1/3"} px-3`}
               >
                 <Card widget={widget} mission={mission} request={request} />
               </div>
@@ -80,12 +80,12 @@ export const Carousel = ({ widget, missions, request }) => {
           disabled={currentSlide >= missions.length - slidesToShow}
           className="p-2 h-12 w-12 rounded-full hidden xl:flex items-center justify-center flex-shrink-0"
           style={{
-            backgroundColor: currentSlide >= missions.length - slidesToShow ? "#e5e5e5" : "black",
+            backgroundColor: currentSlide >= missions.length - slidesToShow ? "#e5e5e5" : color,
             color: currentSlide >= missions.length - slidesToShow ? "#929292" : "white",
           }}
           aria-label="Diapositive suivante"
         >
-          <RiArrowRightLine />
+          <RiArrowRightLine size={20} />
         </button>
       </div>
 
@@ -94,9 +94,9 @@ export const Carousel = ({ widget, missions, request }) => {
           <button
             onClick={prevPage}
             disabled={currentSlide === 0}
-            className={`p-2 h-12 w-12 rounded-full flex items-center justify-center`}
+            className={`p-2 h-10 w-10 rounded-full flex items-center justify-center`}
             style={{
-              backgroundColor: currentSlide === 0 ? "#e5e5e5" : "black",
+              backgroundColor: currentSlide === 0 ? "#e5e5e5" : color,
               color: currentSlide === 0 ? "#929292" : "white",
             }}
             aria-label="Diapositive précédente"
@@ -107,9 +107,9 @@ export const Carousel = ({ widget, missions, request }) => {
           <button
             onClick={nextPage}
             disabled={currentSlide >= missions.length - slidesToShow}
-            className={`p-2 h-12 w-12 rounded-full flex items-center justify-center`}
+            className={`p-2 h-10 w-10 rounded-full flex items-center justify-center`}
             style={{
-              backgroundColor: currentSlide >= missions.length - slidesToShow ? "#e5e5e5" : "black",
+              backgroundColor: currentSlide >= missions.length - slidesToShow ? "#e5e5e5" : color,
               color: currentSlide >= missions.length - slidesToShow ? "#929292" : "white",
             }}
             aria-label="Diapositive suivante"
