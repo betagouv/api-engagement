@@ -41,7 +41,7 @@ export const Carousel = ({ widget, missions, color, request }) => {
   }
 
   return (
-    <div className="w-full">
+    <div className="w-full flex flex-col gap-4">
       <div className="relative flex items-center gap-4">
         <button
           onClick={prevPage}
@@ -56,7 +56,7 @@ export const Carousel = ({ widget, missions, color, request }) => {
           <RiArrowLeftLine size={20} />
         </button>
 
-        <div className="overflow-hidden md:max-w-[1056px] py-4 mx-auto">
+        <div className="overflow-hidden md:max-w-[1056px] md:py-4 mx-auto">
           <div className="flex transition-transform duration-500 ease-in-out" style={{ margin: "0 -0.75rem", transform: `translateX(-${currentSlide * (100 / slidesToShow)}%)` }}>
             {missions.slice(0, 60).map((mission, i) => (
               <div
