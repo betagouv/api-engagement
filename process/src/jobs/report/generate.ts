@@ -62,13 +62,13 @@ const pdfGeneration = async (browser: Browser, publisher: Publisher, year: numbe
         data,
       } as Report;
 
-      if (existing && !existing.sent) {
-        await ReportModel.updateOne({ _id: existing._id }, obj);
-        console.log(`[${publisher.name}] Report object updated`);
-      } else if (!existing) {
-        await ReportModel.create(obj);
-        console.log(`[${publisher.name}] Report object created`);
-      }
+      // if (existing && !existing.sent) {
+      //   await ReportModel.updateOne({ _id: existing._id }, obj);
+      //   console.log(`[${publisher.name}] Report object updated`);
+      // } else if (!existing) {
+      //   await ReportModel.create(obj);
+      //   console.log(`[${publisher.name}] Report object created`);
+      // }
 
       return { errors };
     }
@@ -86,7 +86,8 @@ const pdfGeneration = async (browser: Browser, publisher: Publisher, year: numbe
     console.log(`[${publisher.name}] PDF Downloaded`);
     console.log(`[${publisher.name}] Uploading pdf to S3...`);
 
-    const objectName = `publishers/${publisher._id}/reports/${year}${month + 1 < 10 ? `0${month + 1}` : month + 1}.pdf`;
+    // const objectName = `publishers/${publisher._id}/reports/${year}${month + 1 < 10 ? `0${month + 1}` : month + 1}.pdf`;
+    const objectName = `publishers-test/${publisher.name}/reports/${year}${month + 1 < 10 ? `0${month + 1}` : month + 1}.pdf`;
 
     const buffer = Buffer.from(pdf);
     const res = await putObject(objectName, buffer, { ACL: OBJECT_ACL.PUBLIC_READ });
@@ -123,20 +124,20 @@ const pdfGeneration = async (browser: Browser, publisher: Publisher, year: numbe
       data,
     };
 
-    if (existing && !existing.sent) {
-      await ReportModel.updateOne({ _id: existing._id }, obj);
-      console.log(`[${publisher.name}] Report object updated`);
-    } else if (!existing) {
-      await ReportModel.create(obj);
-      console.log(`[${publisher.name}] Report object created`);
-    }
-  } catch (err) {
-    console.log(`[${publisher.name}] ERROR - catch ${err}`);
-    console.error(err);
+    // if (existing && !existing.sent) {
+    //   await ReportModel.updateOne({ _id: existing._id }, obj);
+    //   console.log(`[${publisher.name}] Report object updated`);
+    // } else if (!existing) {
+    //   await ReportModel.create(obj);
+    //   console.log(`[${publisher.name}] Report object created`);
+    // }
+  } catch (error) {
+    console.log(`[${publisher.name}] ERROR - catch ${error}`);
+    console.error(error);
     errors.push({
       id: publisher._id.toString(),
       name: publisher.name,
-      error: `Error durring pdf generation ${JSON.stringify(err)}`,
+      error: `Error durring pdf generation ${JSON.stringify(error)}`,
     });
   }
   return { errors };
