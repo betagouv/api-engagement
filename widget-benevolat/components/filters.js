@@ -72,22 +72,24 @@ export const MobileFilters = ({ options, filters, setFilters, color, showFilters
               color={color}
             />
           </div>
-          <button
-            aria-label="Voir les missions"
-            className="w-full p-3 text-center border-none text-white text-sm focus:outline-none focus-visible:ring focus-visible:ring-blue-800"
-            onClick={() => setShowFilters(false)}
-            style={{ backgroundColor: color }}
-          >
-            Voir les missions
-          </button>
-          <button
-            aria-label="Réinitialiser les filtres"
-            className="w-full p-3 text-center border-none bg-transparent text-sm focus:outline-none focus-visible:ring focus-visible:ring-blue-800"
-            style={{ color }}
-            onClick={handleReset}
-          >
-            Réinitialiser les filtres
-          </button>
+          <div className="w-full flex flex-col gap-2">
+            <button
+              aria-label="Voir les missions"
+              className="w-full p-3 text-center border-none text-white text-sm focus:outline-none focus-visible:ring focus-visible:ring-blue-800"
+              onClick={() => setShowFilters(false)}
+              style={{ backgroundColor: color }}
+            >
+              Voir les missions
+            </button>
+            <button
+              aria-label="Réinitialiser les filtres"
+              className="w-full p-3 text-center border-none bg-transparent text-sm focus:outline-none focus-visible:ring focus-visible:ring-blue-800"
+              style={{ color }}
+              onClick={handleReset}
+            >
+              Réinitialiser les filtres
+            </button>
+          </div>
         </div>
       )}
     </>
@@ -170,9 +172,11 @@ const SelectFilter = ({ options, selectedOptions, onChange, color, placeholder =
       <button
         id={placeholder}
         onClick={() => setIsOpen(!isOpen)}
-        className="w-full rounded-t-md h-[40px] bg-[#EEE] border-b-2 border-[#3A3A3A] p-3 focus:outline-none focus-visible:ring focus-visible:ring-blue-800 flex items-center justify-between"
+        className={`w-full rounded-t-md h-[40px] bg-[#EEE] border-b-2 border-[#3A3A3A] p-3 focus:outline-none focus-visible:ring focus-visible:ring-blue-800 flex items-center justify-between ${
+          !selectedOptions?.length ? "text-[#666666]" : "text-[#161616]"
+        }`}
       >
-        <span className="pr-3 truncate max-w-60" style={{ color: selectedOptions?.length > 0 ? color : "black" }}>
+        <span className="pr-3 truncate max-w-60">
           {!selectedOptions || selectedOptions.some((o) => o === undefined)
             ? placeholder
             : selectedOptions.length > 0
@@ -293,7 +297,11 @@ const LocationFilter = ({ selected, onChange, disabled = false, width = "w-80" }
       <label htmlFor="Localisation" className="sr-only">
         Localisation
       </label>
-      <div className="bg-[#EEE] h-[40px] rounded-t-md border-b-2 border-[#3A3A3A] p-3 focus:outline-none focus-visible:ring focus-visible:ring-blue-800 flex items-center justify-between">
+      <div
+        className={`bg-[#EEE] h-[40px] rounded-t-md border-b-2 border-[#3A3A3A] p-3 focus:outline-none focus-visible:ring focus-visible:ring-blue-800 flex items-center justify-between ${
+          !selected ? "text-[#666666]" : "text-[#161616]"
+        }`}
+      >
         <RiMapPin2Fill className="text-disabled-grey-700" />
         {disabled ? (
           <input id="Localisation" className="pl-3 w-full ring-0 focus:ring-0 focus:outline-none min-w-[6rem] opacity-75" value={selected?.label || ""} disabled />
@@ -366,6 +374,8 @@ const RemoteFilter = ({ options, selectedOptions, onChange, color, placeholder =
     }
   };
 
+  console.log(selectedOptions);
+
   return (
     <div className="relative w-full min-w-[6rem]" ref={ref}>
       <label htmlFor={placeholder} className="sr-only">
@@ -374,10 +384,12 @@ const RemoteFilter = ({ options, selectedOptions, onChange, color, placeholder =
       <button
         id={placeholder}
         aria-label={placeholder}
-        className="w-full bg-[#EEE] h-[40px] rounded-t-md border-b-2 border-[#3A3A3A] p-3 focus:outline-none focus-visible:ring focus-visible:ring-blue-800 flex items-center justify-between"
+        className={`w-full bg-[#EEE] h-[40px] rounded-t-md border-b-2 border-[#3A3A3A] p-3 focus:outline-none focus-visible:ring focus-visible:ring-blue-800 flex items-center justify-between ${
+          !selectedOptions?.length ? "text-[#666666]" : "text-[#161616]"
+        }`}
         onClick={() => setIsOpen(!isOpen)}
       >
-        <span className="pr-3 truncate max-w-60" style={{ color: selectedOptions?.length > 0 ? color : "black" }}>
+        <span className="pr-3 truncate max-w-60">
           {!selectedOptions || selectedOptions.some((o) => o === undefined)
             ? placeholder
             : selectedOptions.length > 0

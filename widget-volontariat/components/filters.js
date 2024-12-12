@@ -115,7 +115,7 @@ export const MobileFilters = ({ options, filters, setFilters, showFilters, setSh
             >
               Voir les missions
             </button>
-            <button className="w-full p-3 text-center bg-transparent focus:outline-none focus-visible:ring focus-visible:ring-blue-800" onClick={handleReset}>
+            <button className="w-full p-3 text-center bg-transparent focus:outline-none focus-visible:ring focus-visible:ring-blue-800" onClick={handleReset} style={{ color }}>
               Réinitialiser
             </button>
           </div>
@@ -140,7 +140,7 @@ export const Filters = ({ options, filters, setFilters, disabledLocation = false
   return (
     <div className="flex-1">
       <div className="grid grid-cols-5 gap-4 h-10">
-        <LocationFilter selected={filters.location} onChange={(l) => setFilters({ ...filters, location: l })} disabled={disabledLocation} />
+        <LocationFilter selected={filters.location} onChange={(l) => setFilters({ ...filters, location: l })} disabled={disabledLocation} color={color} />
         <DateFilter selected={filters.start} onChange={(f) => setFilters({ ...filters, start: f })} />
         <DurationFilter selected={filters.duration} onChange={(v) => setFilters({ ...filters, duration: v })} />
         <SelectFilter options={options.domain} selectedOptions={filters.domain} onChange={(v) => setFilters({ ...filters, domain: v })} placeholder="Thèmes" color={color} />
@@ -159,8 +159,8 @@ export const Filters = ({ options, filters, setFilters, disabledLocation = false
             className="border truncate w-full bg-white border-grey-400 py-2 px-4 h-[40px] focus:outline-none focus-visible:ring focus-visible:ring-blue-800 font-medium"
             onClick={() => setMoreFilters(true)}
             style={{
-              backgroundColor: color,
-              color: "white",
+              backgroundColor: "white",
+              color: color,
             }}
           >
             Plus de filtres
@@ -218,8 +218,8 @@ export const Filters = ({ options, filters, setFilters, disabledLocation = false
             className="border truncate w-full bg-white border-grey-400 py-2 px-4 h-[40px] focus:outline-none focus-visible:ring focus-visible:ring-blue-800 font-medium"
             onClick={() => setMoreFilters(false)}
             style={{
-              backgroundColor: color,
-              color: "white",
+              backgroundColor: "white",
+              color: color,
             }}
           >
             Moins de filtres
@@ -553,7 +553,7 @@ const LocationFilter = ({ selected, onChange, disabled = false, width = "w-80" }
             <input
               id="location"
               aria-label="localisation"
-              className={`pl-3 w-full ring-0 focus:ring-0 bg-[#EEE] focus:outline-none min-w-[6rem] ${!selected ? "text-[#666666]" : "text-[#161616]"}`}
+              className={`pl-3 w-full ring-0 focus:ring-0 bg-[#EEE] focus:outline-none min-w-[6rem] ${!selected ? "text-[#666666] placeholder-[#666666]" : "text-[#161616]"}`}
               value={inputValue}
               placeholder="Localisation"
               onChange={handleInputChange}

@@ -122,7 +122,7 @@ const Home = ({ widget, missions, options, total, request, environment }) => {
         widget?.style === "carousel" ? "max-h-[674px] md:max-h-[600px] md:max-w-[1200px] gap-4" : "h-[2200px] md:max-h-[1010px] md:max-w-[1200px] gap-6 lg:gap-8"
       } flex flex-col justify-start items-center mx-auto`}
     >
-      <header className={`w-full space-y-2 md:space-y-8 ${widget?.style === "carousel" ? "max-w-[1056px]" : "max-w-[1200px]"}`}>
+      <header className={`w-full space-y-4 md:space-y-8 ${widget?.style === "carousel" ? "max-w-[1056px]" : "max-w-[1200px]"}`}>
         <div className="flex flex-col gap-2 md:flex-row md:justify-between">
           <h1 className="font-bold text-[28px] leading-[36px] md:p-0">Trouvez une mission de Service Civique</h1>
           <p className="text-[#666] text-[18px] leading-[28px]">{total > 1 ? `${total.toLocaleString("fr")} missions` : `${total} mission`}</p>

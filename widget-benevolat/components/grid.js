@@ -15,7 +15,7 @@ export const Grid = ({ widget, missions, color, total, page, handlePageChange, r
   }
   return (
     <div className="w-full mx-auto pt-4">
-      <main className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-y-4 md:gap-y-6 gap-x-6">
+      <main className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-y-6 md:gap-y-6 gap-x-6 overflow-x-hidden">
         {missions.map((mission, i) => (
           <div key={i} className="flex justify-center">
             <Card widget={widget} mission={mission} color={color} request={request} />

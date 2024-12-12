@@ -16,16 +16,16 @@ const Card = ({ widget, mission, request }) => {
       href={mission.url}
       target="_blank"
       className={`${
-        widget.style === "carousel" ? "md:max-w-[336px]" : "w-full"
-      } border h-[290px] md:h-[311px] flex flex-col focus:outline-none focus-visible:ring focus-visible:ring-blue-800 border-grey-400 bg-white group hover:shadow-lg transition-shadow duration-300`}
+        widget.style === "carousel" ? "w-full lg:max-w-[336px]" : "w-full"
+      } border min-h-[290px] md:min-h-[311px] flex flex-col focus:outline-none focus-visible:ring focus-visible:ring-blue-800 border-grey-400 bg-white group hover:shadow-lg transition-shadow duration-300 overflow-hidden`}
     >
       <div className="flex-1 flex flex-col p-4 md:p-8 gap-3">
-        <div className="flex items-center">
-          <div>
+        <div className="flex items-start min-w-0">
+          <div className="flex-shrink-0">
             <div className="w-10 h-10 rounded-full flex items-center justify-center text-white text-2xl" style={{ background: domain.color }} data-icon={domain.icon} />
           </div>
           <div className="ml-3 flex-1 min-w-0" style={{ color: domain.color }}>
-            <span className="uppercase font-bold text-sm whitespace-nowrap tracking-wider block">{domain.label || mission.domain}</span>
+            <span className="uppercase font-bold text-sm whitespace-nowrap truncate tracking-wider block">{domain.label || mission.domain}</span>
             <div className="text-mention-grey flex items-center">
               <RiBuildingFill className="text-sm flex-shrink-0" />
               <span className="ml-2 text-xs line-clamp-1">{mission.organizationName}</span>
