@@ -10,9 +10,9 @@ import importApplies from "./apply";
 import importAccounts from "./account";
 import importRequestWidgets from "./widget-query";
 import importLoginHistory from "./login-history";
-// import importKpi from "./kpi";
+import importKpi from "./kpi";
 import { postMessage } from "../../services/slack";
-import { SLACK_PRODUCT_CHANNEL_ID } from "../../config";
+import { SLACK_PRODUCT_TEAM_CHANNEL_ID } from "../../config";
 
 const handler = async () => {
   const stats = {
@@ -61,8 +61,8 @@ const handler = async () => {
   stats.requests.created += requests?.created || 0;
   const login_history = await importLoginHistory();
   stats.login_history.created += login_history?.created || 0;
-  // const kpi = await importKpi();
-  // stats.kpi.created += kpi?.created || 0;
+  const kpi = await importKpi();
+  stats.kpi.created += kpi?.created || 0;
 
   // Send message to slack
   const text = `${Object.entries(stats)
@@ -75,7 +75,7 @@ const handler = async () => {
       title: `Metabase Sync completed`,
       text,
     },
-    SLACK_PRODUCT_CHANNEL_ID,
+    SLACK_PRODUCT_TEAM_CHANNEL_ID,
   );
   return stats;
 };
