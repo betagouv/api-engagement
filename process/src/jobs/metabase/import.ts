@@ -31,8 +31,8 @@ const handler = async () => {
     let created = 0;
     let page = 0;
 
-    // Get data from one month ago
-    const where = { createdAt: { $gte: new Date(Date.now() - 1000 * 60 * 60 * 24 * 7) } };
+    // Get data from 7 days ago
+    const where = { startedAt: { $gte: new Date(Date.now() - 1000 * 60 * 60 * 24 * 7) } };
 
     const total = await ImportModel.countDocuments(where);
     let data = await ImportModel.find(where)
