@@ -1,8 +1,8 @@
 import prisma from "../../db/postgres";
 import CampaignModel from "../../models/campaign";
 import { captureException } from "../../error";
+import { Campaign as PrismaCampaign } from "@prisma/client";
 import { Campaign } from "../../types";
-import { PgCampaign } from "../../types/postgres";
 
 const buildData = (doc: Campaign, partners: { [key: string]: string }) => {
   const annonceurId = partners[doc.fromPublisherId?.toString()];
@@ -30,7 +30,7 @@ const buildData = (doc: Campaign, partners: { [key: string]: string }) => {
     deleted_at: doc.deletedAt ? new Date(doc.deletedAt) : null,
     created_at: doc.createdAt,
     updated_at: doc.updatedAt,
-  } as PgCampaign;
+  } as PrismaCampaign;
   return obj;
 };
 

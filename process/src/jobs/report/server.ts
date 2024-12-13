@@ -4,7 +4,7 @@ import { renderToString } from "react-dom/server";
 import path from "path";
 
 import { fetchData } from "./generate";
-import ReactApp from "./pages";
+// import ReactApp from "./pages";
 
 const app = express();
 app.use(express.static(path.join(__dirname, "pages/static")));
@@ -20,9 +20,10 @@ app.get("/report/:id", async (req, res) => {
     res.status(404).send("Data not found");
     return;
   }
-  const element = React.createElement(ReactApp, { data: result.data, publisher: result.publisher, year, month });
-  const html = renderToString(element);
-  res.send(html);
+  // const element = React.createElement(ReactApp, { data: result.data, publisher: result.publisher, year, month });
+  // const html = renderToString(element);
+  // res.send(html);
+  res.send("ok");
 });
 
 export default app;

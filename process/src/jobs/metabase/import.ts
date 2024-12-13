@@ -1,9 +1,8 @@
-import { Import } from "../../types";
-
 import prisma from "../../db/postgres";
 import ImportModel from "../../models/import";
 import { captureException } from "../../error";
-import { PgImport } from "../../types/postgres";
+import { Import } from "../../types";
+import { Import as PrismaImport } from "@prisma/client";
 
 const BATCH_SIZE = 5000;
 
@@ -21,7 +20,7 @@ const buildData = (doc: Import, partners: { [key: string]: string }) => {
     partner_id: partnerId,
     started_at: doc.startedAt,
     ended_at: doc.endedAt,
-  } as PgImport;
+  } as PrismaImport;
   return obj;
 };
 

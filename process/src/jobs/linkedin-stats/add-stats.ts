@@ -133,7 +133,7 @@ const parseRow = async (row: (string | number)[], from: Date, to: Date, sourceId
         source: "publisher",
         sourceName: "Linkedin Report",
         sourceId,
-        missionId: mission._id,
+        missionId: mission._id.toString(),
         missionClientId: mission.clientId,
         missionDomain: mission.domain,
         missionTitle: mission.title,
