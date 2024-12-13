@@ -1,5 +1,4 @@
 import express from "express";
-import morgan from "morgan";
 import path from "path";
 import { fileURLToPath } from "url";
 
@@ -8,7 +7,6 @@ const port = process.env.PORT || 8080;
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
-app.use(morgan("tiny"));
 app.use(express.static(path.join(__dirname, "../dist")));
 
 app.get("/linkedin.xml", function (req, res) {

@@ -80,7 +80,7 @@ app.use(bodyParser.json({ limit: "50mb" }));
 app.use(bodyParser.text({ type: "application/x-ndjson" }));
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(cookieParser());
-app.use(morgan("tiny"));
+app.use(morgan(":date[iso] :method :url :status :res[content-length] - :response-time ms"));
 app.use(passport.initialize());
 
 app.use(
