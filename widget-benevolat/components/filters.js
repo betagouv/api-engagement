@@ -211,17 +211,10 @@ const SelectFilter = ({ options, selectedOptions, onChange, color, placeholder =
                 ?.map((o) => {
                   const isSelected = selectedOptions?.some((so) => so.value === o.value);
                   return (
-                    <div
-                      key={o.value}
-                      onClick={() => toggleOption(o)}
-                      className="cursor-pointer w-full flex items-center justify-between text-sm py-2 pl-3 pr-4 hover:bg-gray-100"
-                      style={{
-                        color: isSelected ? color : "black",
-                      }}
-                    >
+                    <div key={o.value} onClick={() => toggleOption(o)} className="cursor-pointer w-full flex items-center justify-between text-sm py-2 pl-3 pr-4 hover:bg-gray-100">
                       <div className="flex items-center w-[90%]">
-                        <div className="text-sm">{isSelected ? <RiCheckboxFill /> : <RiCheckboxBlankLine />}</div>
-                        <span className="block text-sm mx-2 truncate font-normal">{o.label}</span>
+                        <div className="text-sm">{isSelected ? <RiCheckboxFill style={{ height: "16px", width: "16px", color }} /> : <RiCheckboxBlankLine />}</div>
+                        <span className="block text-sm mx-2 truncate font-normal text-[#161616]">{o.label}</span>
                       </div>
                       {o.count && <span className="text-sm text-neutral-grey-500">{o.count}</span>}
                     </div>
@@ -292,24 +285,25 @@ const LocationFilter = ({ selected, onChange, disabled = false, width = "w-80" }
     }
   };
 
+  console.log("selected", selected);
+
   return (
     <div className="relative w-full" ref={ref}>
-      <label htmlFor="Localisation" className="sr-only">
+      <label htmlFor="location" className="sr-only">
         Localisation
       </label>
       <div
-        className={`bg-[#EEE] h-[40px] rounded-t-md border-b-2 border-[#3A3A3A] p-3 focus:outline-none focus-visible:ring focus-visible:ring-blue-800 flex items-center justify-between ${
-          !selected ? "text-[#666666]" : "text-[#161616]"
-        }`}
+        className={`bg-[#EEE] h-[40px] rounded-t-md border-b-2 border-[#3A3A3A] p-3 focus:outline-none focus-visible:ring focus-visible:ring-blue-800 flex items-center justify-between`}
       >
         <RiMapPin2Fill className="text-disabled-grey-700" />
         {disabled ? (
-          <input id="Localisation" className="pl-3 w-full ring-0 focus:ring-0 focus:outline-none min-w-[6rem] opacity-75" value={selected?.label || ""} disabled />
+          <input id="location" className="pl-3 w-full ring-0 focus:ring-0 focus:outline-none min-w-[6rem] opacity-75" value={selected?.label} disabled />
         ) : (
           <>
             <input
-              id="Localisation"
-              className="pl-3 w-full ring-0 focus:ring-0 bg-[#EEE] focus:outline-none min-w-[6rem]"
+              id="location"
+              aria-label="localisation"
+              className={`pl-3 w-full ring-0 focus:ring-0 bg-[#EEE] focus:outline-none min-w-[6rem] ${!selected ? "text-[#666666] placeholder-[#666666]" : "text-[#161616]"}`}
               value={inputValue}
               placeholder="Localisation"
               onChange={handleInputChange}
