@@ -124,7 +124,7 @@ const Home = ({ widget, missions, options, total, request, environment }) => {
     >
       <header className={`w-full space-y-4 md:space-y-8 ${widget?.style === "carousel" ? "max-w-[1056px]" : "max-w-[1200px]"}`}>
         <div className="flex flex-col gap-2 md:flex-row md:justify-between">
-          <h1 className="font-bold text-[28px] leading-[36px] md:p-0">Trouvez une mission de Service Civique</h1>
+          <h1 className="font-bold text-[28px] leading-[36px] md:p-0">Trouver une mission de Service Civique</h1>
           <p className="text-[#666] text-[18px] leading-[28px]">{total > 1 ? `${total.toLocaleString("fr")} missions` : `${total} mission`}</p>
         </div>
         <div className="w-full flex md:hidden flex-col items-center gap-2 md:mb-14">

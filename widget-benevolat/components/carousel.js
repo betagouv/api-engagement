@@ -7,6 +7,10 @@ export const Carousel = ({ widget, missions, color, request }) => {
   const [slidesToShow, setSlidesToShow] = useState(3);
 
   useEffect(() => {
+    setCurrentSlide(0);
+  }, [missions]);
+
+  useEffect(() => {
     const getSlidesToShow = () => {
       if (window.innerWidth < 640) return 1;
       if (window.innerWidth < 768) return 2;
