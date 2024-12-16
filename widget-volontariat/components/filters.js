@@ -141,8 +141,8 @@ export const Filters = ({ options, filters, setFilters, disabledLocation = false
     <div className="flex-1">
       <div className="grid grid-cols-5 gap-4 h-10">
         <LocationFilter selected={filters.location} onChange={(l) => setFilters({ ...filters, location: l })} disabled={disabledLocation} color={color} />
-        <DateFilter selected={filters.start} onChange={(f) => setFilters({ ...filters, start: f })} />
-        <DurationFilter selected={filters.duration} onChange={(v) => setFilters({ ...filters, duration: v })} />
+        <DateFilter selected={filters.start} onChange={(f) => setFilters({ ...filters, start: f })} color={color} />
+        <DurationFilter selected={filters.duration} onChange={(v) => setFilters({ ...filters, duration: v })} color={color} />
         <SelectFilter options={options.domain} selectedOptions={filters.domain} onChange={(v) => setFilters({ ...filters, domain: v })} placeholder="Thèmes" color={color} />
 
         {moreFilters ? (
@@ -230,7 +230,7 @@ export const Filters = ({ options, filters, setFilters, disabledLocation = false
   );
 };
 
-const DateFilter = ({ selected, onChange, position = "left-0", width = "w-80" }) => {
+const DateFilter = ({ selected, onChange, position = "left-0", width = "w-80", color }) => {
   const [isOpen, setIsOpen] = useState(false);
   const ref = useRef(null);
 
@@ -280,7 +280,7 @@ const DateFilter = ({ selected, onChange, position = "left-0", width = "w-80" })
             }}
             modifiersStyles={{
               selected: {
-                backgroundColor: "black",
+                backgroundColor: color,
               },
             }}
           />
@@ -311,7 +311,7 @@ const DURATION_OPTIONS = [
   { label: "12 mois", value: 12 },
 ];
 
-const DurationFilter = ({ selected, onChange, position = "left-0", width = "w-80" }) => {
+const DurationFilter = ({ selected, onChange, position = "left-0", width = "w-80", color }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [keyboardNav, setKeyboardNav] = useState(false);
   const ref = useRef(null);
@@ -371,7 +371,7 @@ const DurationFilter = ({ selected, onChange, position = "left-0", width = "w-80
                 >
                   <div className="flex items-center w-[90%]">
                     <div className={`text-sm ${keyboardNav ? "border-2 border-blue-800 rounded" : ""}`} onMouseOver={handleMouseOver}>
-                      {selected?.value === o.value ? <RiRadioButtonLine /> : <RiCircleLine />}
+                      {selected?.value === o.value ? <RiRadioButtonLine style={{ color }} /> : <RiCircleLine />}
                     </div>
                     <span className="block text-sm mx-2 truncate font-normal">{o.label}</span>
                   </div>

@@ -285,8 +285,6 @@ const LocationFilter = ({ selected, onChange, disabled = false, width = "w-80" }
     }
   };
 
-  console.log("selected", selected);
-
   return (
     <div className="relative w-full" ref={ref}>
       <label htmlFor="location" className="sr-only">
@@ -402,16 +400,9 @@ const RemoteFilter = ({ options, selectedOptions, onChange, color, placeholder =
               options?.map((o) => {
                 const isSelected = selectedOptions?.some((so) => so.value === o.value);
                 return (
-                  <div
-                    key={o.value}
-                    onClick={() => toggleOption(o)}
-                    className="cursor-pointer w-full flex items-center justify-between text-sm py-2 pl-3 pr-4 hover:bg-gray-100"
-                    style={{
-                      color: isSelected ? color : "black",
-                    }}
-                  >
+                  <div key={o.value} onClick={() => toggleOption(o)} className="cursor-pointer w-full flex items-center justify-between text-sm py-2 pl-3 pr-4 hover:bg-gray-100">
                     <div className="flex items-center w-[90%]">
-                      <div className="text-sm">{isSelected ? <RiCheckboxFill /> : <RiCheckboxBlankLine />}</div>
+                      <div className="text-sm">{isSelected ? <RiCheckboxFill style={{ height: "16px", width: "16px", color }} /> : <RiCheckboxBlankLine />}</div>
                       <span className="block text-sm mx-2 truncate font-normal">{o.label}</span>
                     </div>
                     {o.count && <span className="text-sm text-neutral-grey-500">{o.count}</span>}
