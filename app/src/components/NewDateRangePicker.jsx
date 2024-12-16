@@ -72,37 +72,43 @@ export const DateInput = ({ value, onChange }) => {
         <div className="flex gap-6">
           <div className="flex w-44 flex-col gap-4 overflow-x-scroll text-base">
             <button
-              className="w-full cursor-pointer px-3 py-1.5 hover:bg-gray-hover text-left text-base"
+              className="w-full cursor-pointer px-3 py-1 hover:bg-gray-hover text-left text-base"
               onClick={() => handleChange([new Date(NOW.getFullYear(), NOW.getMonth(), NOW.getDate() - 7), NOW])}
             >
               Depuis 7 jours
             </button>
             <button
-              className="w-full cursor-pointer px-3 py-1.5 hover:bg-gray-hover text-left text-base"
+              className="w-full cursor-pointer px-3 py-1 hover:bg-gray-hover text-left text-base"
               onClick={() => handleChange([new Date(NOW.getFullYear(), NOW.getMonth() - 1, NOW.getDate()), NOW])}
             >
               Depuis 30 jours
             </button>
             <button
-              className="w-full cursor-pointer px-3 py-1.5 hover:bg-gray-hover text-left text-base"
+              className="w-full cursor-pointer px-3 py-1 hover:bg-gray-hover text-left text-base"
               onClick={() => handleChange([new Date(NOW.getFullYear() - 1, NOW.getMonth(), NOW.getDate()), NOW])}
             >
               Depuis 1 an
             </button>
-            <button className="w-full cursor-pointer px-3 py-1.5 hover:bg-gray-hover text-left text-base" onClick={() => handleChange([new Date(2020, 0, 1), NOW])}>
+            <button className="w-full cursor-pointer px-3 py-1 hover:bg-gray-hover text-left text-base" onClick={() => handleChange([new Date(2020, 0, 1), NOW])}>
               Depuis toujours
             </button>
             <button
-              className="w-full cursor-pointer px-3 py-1.5 hover:bg-gray-hover text-left text-base"
+              className="w-full cursor-pointer px-3 py-1 hover:bg-gray-hover text-left text-base"
+              onClick={() => handleChange([new Date(NOW.getFullYear(), NOW.getMonth(), 1), NOW])}
+            >
+              Ce mois-ci
+            </button>
+            <button
+              className="w-full cursor-pointer px-3 py-1 hover:bg-gray-hover text-left text-base"
               onClick={() => handleChange([new Date(NOW.getFullYear(), NOW.getMonth() - 1, 1), new Date(NOW.getFullYear(), NOW.getMonth(), 1, 0, 0, 0, -1)])}
             >
               Le mois dernier
             </button>
-            <button className="w-full cursor-pointer px-3 py-1.5 hover:bg-gray-hover text-left text-base" onClick={() => handleChange([new Date(NOW.getFullYear(), 0, 1), NOW])}>
+            <button className="w-full cursor-pointer px-3 py-1 hover:bg-gray-hover text-left text-base" onClick={() => handleChange([new Date(NOW.getFullYear(), 0, 1), NOW])}>
               Cette année
             </button>
             <button
-              className="w-full cursor-pointer px-3 py-1.5 hover:bg-gray-hover text-left text-base"
+              className="w-full cursor-pointer px-3 py-1 hover:bg-gray-hover text-left text-base"
               onClick={() => handleChange([new Date(NOW.getFullYear() - 1, 0, 1), new Date(NOW.getFullYear(), 0, 1, 0, 0, 0, -1)])}
             >
               L'année dernière
