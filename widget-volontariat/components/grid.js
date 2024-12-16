@@ -15,18 +15,18 @@ export const Grid = ({ widget, missions, color, total, page, request, handlePage
   }
 
   return (
-    <div className="w-full">
-      <main className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
+    <div className="w-full mx-auto">
+      <main className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-y-4 md:gap-y-6 gap-x-6">
         {missions.map((mission, i) => (
-          <div key={i} className="flex justify-center">
+          <div key={i}>
             <Card widget={widget} mission={mission} color={color} request={request} />
           </div>
         ))}
       </main>
-      <footer className="flex md:hidden items-center justify-center py-4">
+      <footer className="flex md:hidden items-center justify-center pt-4">
         <MobilePagination page={page} setPage={handlePageChange} end={parseInt(total / 6) + (total % 6 !== 0 && 1)} color={color} />
       </footer>
-      <footer className="md:flex hidden items-center justify-center pt-10">
+      <footer className="md:flex hidden items-center justify-center pt-8">
         <Pagination page={page} setPage={handlePageChange} end={parseInt(total / 6) + (total % 6 !== 0 && 1)} color={color} />
       </footer>
     </div>
@@ -58,18 +58,18 @@ const Pagination = ({ page, setPage, end, color }) => {
               {pages.slice(0, 4).map((p) => (
                 <button
                   key={p}
-                  className="flex h-8 w-8 rounded items-center justify-center hover:bg-gray-hover focus:outline-none focus-visible:ring focus-visible:ring-blue-800"
+                  className="flex h-8 w-8 rounded-full items-center justify-center hover:bg-gray-hover focus:outline-none focus-visible:ring focus-visible:ring-blue-800"
                   style={{ backgroundColor: p === page ? color : "", color: p === page ? "white" : "" }}
                   onClick={() => setPage(p)}
                 >
                   {p}
                 </button>
               ))}
-              <button className="flex h-8 w-8 rounded items-center justify-center hover:bg-gray-hover focus:outline-none focus-visible:ring focus-visible:ring-blue-800">
+              <button className="flex h-8 w-8 rounded-full items-center justify-center hover:bg-gray-hover focus:outline-none focus-visible:ring focus-visible:ring-blue-800">
                 ...
               </button>
               <button
-                className="flex h-8 w-8 rounded items-center justify-center hover:bg-gray-hover focus:outline-none focus-visible:ring focus-visible:ring-blue-800"
+                className="flex h-8 w-8 rounded-full items-center justify-center hover:bg-gray-hover focus:outline-none focus-visible:ring focus-visible:ring-blue-800"
                 onClick={() => setPage(end)}
               >
                 {end}
@@ -78,18 +78,18 @@ const Pagination = ({ page, setPage, end, color }) => {
           ) : page > end - 3 ? (
             <>
               <button
-                className="flex h-8 w-8 rounded items-center justify-center hover:bg-gray-hover focus:outline-none focus-visible:ring focus-visible:ring-blue-800"
+                className="flex h-8 w-8 rounded-full items-center justify-center hover:bg-gray-hover focus:outline-none focus-visible:ring focus-visible:ring-blue-800"
                 onClick={() => setPage(1)}
               >
                 1
               </button>
-              <button className="flex h-8 w-8 rounded items-center justify-center hover:bg-gray-hover focus:outline-none focus-visible:ring focus-visible:ring-blue-800">
+              <button className="flex h-8 w-8 rounded-full items-center justify-center hover:bg-gray-hover focus:outline-none focus-visible:ring focus-visible:ring-blue-800">
                 ...
               </button>
               {pages.slice(end - 4, end).map((p) => (
                 <button
                   key={p}
-                  className="flex h-8 w-8 rounded items-center justify-center hover:bg-gray-hover focus:outline-none focus-visible:ring focus-visible:ring-blue-800"
+                  className="flex h-8 w-8 rounded-full items-center justify-center hover:bg-gray-hover focus:outline-none focus-visible:ring focus-visible:ring-blue-800"
                   style={{ backgroundColor: p === page ? color : "", color: p === page ? "white" : "" }}
                   onClick={() => setPage(p)}
                 >
@@ -100,18 +100,18 @@ const Pagination = ({ page, setPage, end, color }) => {
           ) : (
             <>
               <button
-                className="flex h-8 w-8 rounded items-center justify-center hover:bg-gray-hover focus:outline-none focus-visible:ring focus-visible:ring-blue-800"
+                className="flex h-8 w-8 rounded-full items-center justify-center hover:bg-gray-hover focus:outline-none focus-visible:ring focus-visible:ring-blue-800"
                 onClick={() => setPage(1)}
               >
                 1
               </button>
-              <button className="flex h-8 w-8 rounded items-center justify-center hover:bg-gray-hover focus:outline-none focus-visible:ring focus-visible:ring-blue-800">
+              <button className="flex h-8 w-8 rounded-full items-center justify-center hover:bg-gray-hover focus:outline-none focus-visible:ring focus-visible:ring-blue-800">
                 ...
               </button>
               {pages.slice(page - 2, page + 1).map((p) => (
                 <button
                   key={p}
-                  className="flex h-8 w-8 rounded items-center justify-center hover:bg-gray-hover focus:outline-none focus-visible:ring focus-visible:ring-blue-800"
+                  className="flex h-8 w-8 rounded-full items-center justify-center hover:bg-gray-hover focus:outline-none focus-visible:ring focus-visible:ring-blue-800"
                   style={{ backgroundColor: p === page ? color : "", color: p === page ? "white" : "" }}
                   onClick={() => setPage(p)}
                 >
@@ -119,13 +119,13 @@ const Pagination = ({ page, setPage, end, color }) => {
                 </button>
               ))}
               <button
-                className="flex h-8 w-8 rounded items-center justify-center hover:bg-gray-hover focus:outline-none focus-visible:ring focus-visible:ring-blue-800"
+                className="flex h-8 w-8 rounded-full items-center justify-center hover:bg-gray-hover focus:outline-none focus-visible:ring focus-visible:ring-blue-800"
                 disabled={true}
               >
                 ...
               </button>
               <button
-                className="flex h-8 w-8 rounded items-center justify-center hover:bg-gray-hover focus:outline-none focus-visible:ring focus-visible:ring-blue-800"
+                className="flex h-8 w-8 rounded-full items-center justify-center hover:bg-gray-hover focus:outline-none focus-visible:ring focus-visible:ring-blue-800"
                 onClick={() => setPage(end)}
               >
                 {end}
@@ -136,7 +136,7 @@ const Pagination = ({ page, setPage, end, color }) => {
           pages.map((p) => (
             <button
               key={p}
-              className="flex h-8 w-8 rounded items-center justify-center hover:bg-gray-hover focus:outline-none focus-visible:ring focus-visible:ring-blue-800"
+              className="flex h-8 w-8 rounded-full items-center justify-center hover:bg-gray-hover focus:outline-none focus-visible:ring focus-visible:ring-blue-800"
               style={{ backgroundColor: p === page ? color : "", color: p === page ? "white" : "" }}
               onClick={() => setPage(p)}
             >
@@ -197,11 +197,11 @@ const MobilePagination = ({ page, setPage, end, color }) => {
                   {p}
                 </button>
               ))}
-              <button className="flex h-8 w-8 rounded items-center justify-center hover:bg-gray-hover focus:outline-none focus-visible:ring focus-visible:ring-blue-800">
+              <button className="flex h-8 w-8 rounded-full items-center justify-center hover:bg-gray-hover focus:outline-none focus-visible:ring focus-visible:ring-blue-800">
                 ...
               </button>
               <button
-                className="flex h-8 min-w-[2rem] p-1 rounded items-center justify-center hover:bg-gray-hover focus:outline-none focus-visible:ring focus-visible:ring-blue-800"
+                className="flex h-8 min-w-[2rem] p-1 rounded-full items-center justify-center hover:bg-gray-hover focus:outline-none focus-visible:ring focus-visible:ring-blue-800"
                 onClick={() => setPage(end)}
               >
                 {end}
@@ -210,12 +210,12 @@ const MobilePagination = ({ page, setPage, end, color }) => {
           ) : page > end - 3 ? (
             <>
               <button
-                className="flex h-8 w-8 rounded items-center justify-center hover:bg-gray-hover focus:outline-none focus-visible:ring focus-visible:ring-blue-800"
+                className="flex h-8 w-8 rounded-full items-center justify-center hover:bg-gray-hover focus:outline-none focus-visible:ring focus-visible:ring-blue-800"
                 onClick={() => setPage(1)}
               >
                 1
               </button>
-              <button className="flex h-8 w-8 rounded items-center justify-center hover:bg-gray-hover focus:outline-none focus-visible:ring focus-visible:ring-blue-800">
+              <button className="flex h-8 w-8 rounded-full items-center justify-center hover:bg-gray-hover focus:outline-none focus-visible:ring focus-visible:ring-blue-800">
                 ...
               </button>
               {pages.slice(end - 3, end).map((p) => (
@@ -242,13 +242,13 @@ const MobilePagination = ({ page, setPage, end, color }) => {
                 </button>
               ))}
               <button
-                className="flex h-8 w-8 rounded items-center justify-center hover:bg-gray-hover focus:outline-none focus-visible:ring focus-visible:ring-blue-800"
+                className="flex h-8 w-8 rounded-full items-center justify-center hover:bg-gray-hover focus:outline-none focus-visible:ring focus-visible:ring-blue-800"
                 disabled={true}
               >
                 ...
               </button>
               <button
-                className="flex h-8 min-w-[2rem] rounded items-center justify-center hover:bg-gray-hover focus:outline-none focus-visible:ring focus-visible:ring-blue-800"
+                className="flex h-8 min-w-[2rem] rounded-full items-center justify-center hover:bg-gray-hover focus:outline-none focus-visible:ring focus-visible:ring-blue-800"
                 onClick={() => setPage(end)}
               >
                 {end}
@@ -259,7 +259,7 @@ const MobilePagination = ({ page, setPage, end, color }) => {
           pages.map((p) => (
             <button
               key={p}
-              className="flex h-8 w-8 rounded items-center justify-center hover:bg-gray-hover focus:outline-none focus-visible:ring focus-visible:ring-blue-800"
+              className="flex h-8 w-8 rounded-full items-center justify-center hover:bg-gray-hover focus:outline-none focus-visible:ring focus-visible:ring-blue-800"
               style={{ backgroundColor: p === page ? color : "", color: p === page ? "white" : "" }}
               onClick={() => setPage(p)}
             >
@@ -269,7 +269,7 @@ const MobilePagination = ({ page, setPage, end, color }) => {
         )}
       </div>
       <button
-        className="flex h-8 w-8 items-center justify-center rounded focus:outline-none focus-visible:ring focus-visible:ring-blue-800"
+        className="flex h-8 w-8 items-center justify-center rounded-full focus:outline-none focus-visible:ring focus-visible:ring-blue-800"
         onClick={() => setPage(page + 1)}
         disabled={page === end}
         aria-label="Page suivante"
@@ -277,7 +277,7 @@ const MobilePagination = ({ page, setPage, end, color }) => {
         <RiArrowRightSLine />
       </button>
       <button
-        className="flex h-8 w-8 items-center justify-center rounded focus:outline-none focus-visible:ring focus-visible:ring-blue-800"
+        className="flex h-8 w-8 items-center justify-center rounded-full focus:outline-none focus-visible:ring focus-visible:ring-blue-800"
         onClick={() => setPage(end)}
         disabled={page === end}
         aria-label="Dernière page"

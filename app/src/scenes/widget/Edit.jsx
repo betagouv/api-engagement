@@ -590,7 +590,7 @@ const Frame = ({ widget }) => {
   };
 
   return (
-    <div className="bg-white p-12 space-y-10 shadow-lg">
+    <div className="bg-white p-16 space-y-10 shadow-lg">
       <div className="flex flex-col gap-2">
         <h2 className="text-2xl font-bold">Aperçu du widget</h2>
         <span>Enregistrez le widget pour mettre à jour l'aperçu</span>
@@ -623,9 +623,9 @@ const IFRAMES = {
   },
 };
 
-const JVA_LOGO = `<div style="padding:10px; display:flex;">
+const JVA_LOGO = `<div style="padding:10px; display:flex; justify-content:center; align-items:center;">
   <img src="https://apicivique.s3.eu-west-3.amazonaws.com/jvalogo.svg"/>
-  <div style="color:#A5A5A5; font-style:normal; font-size:13px; padding:8px;">Proposé par la plateforme publique du bénévolat
+  <div style="color:#666666; font-style:normal; font-size:13px; padding:8px;">Proposé par la plateforme publique du bénévolat
     <a href="https://www.jeveuxaider.gouv.fr/" target="_blank">JeVeuxAider.gouv.fr</a>
   </div>
 </div>`;
