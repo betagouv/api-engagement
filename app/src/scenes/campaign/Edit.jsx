@@ -3,7 +3,6 @@ import { AiFillWarning } from "react-icons/ai";
 import { BiSolidInfoSquare } from "react-icons/bi";
 import { RiCloseFill, RiDeleteBin6Line, RiErrorWarningFill, RiFileTransferLine } from "react-icons/ri";
 import { Link, useNavigate, useParams } from "react-router-dom";
-import validator from "validator";
 
 import { toast } from "react-toastify";
 
@@ -15,6 +14,7 @@ import WarningAlert from "../../components/WarningAlert";
 import api from "../../services/api";
 import { API_URL } from "../../services/config";
 import { captureError } from "../../services/error";
+import { isValidUrl } from "../../services/utils";
 
 const Edit = () => {
   const { id } = useParams();
@@ -91,7 +91,7 @@ const Edit = () => {
     if (!values.type) errors.type = "Le type de campagne est requis";
     if (!values.toPublisherId) errors.toPublisherId = "Le partenaire est requis";
     if (!values.url) errors.url = "L'url est requis";
-    if (!validator.isURL(values.url)) errors.url = "L'url n'est pas valide";
+    if (!isValidUrl(values.url)) errors.url = "L'url n'est pas valide";
 
     if (errors.name || errors.type || errors.toPublisherId || errors.url) {
       setErrors(errors);
@@ -102,7 +102,10 @@ const Edit = () => {
       values.trackers = values.trackers.filter((t) => t.key && t.value);
 
       const res = await api.put(`/campaign/${id}`, values);
-      if (!res.ok) throw res;
+      if (!res.ok) {
+        if (res.status === 409) return toast.error("Une campagne avec ce nom existe déjà");
+        else throw res;
+      }
       toast.success("Campagne mise à jour");
       setCampaign(res.data);
       setValues({ ...values, ...res.data });
@@ -115,7 +118,10 @@ const Edit = () => {
   const handleArchive = async (activation) => {
     try {
       const res = await api.put(`/campaign/${id}`, { deleted: !activation });
-      if (!res.ok) throw res;
+      if (!res.ok) {
+        if (res.status === 409) return toast.error("Une campagne avec ce nom existe déjà");
+        else throw res;
+      }
       setActivated(activation);
       toast.success(activation ? "Campagne activée" : "Campagne désactivée");
       setCampaign(res.data);
