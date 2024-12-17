@@ -69,7 +69,10 @@ const Home = ({ widget, missions, options, total, request, environment }) => {
 
     // Timeout to prevent multiple rapid router pushes
     const timeoutId = setTimeout(() => {
-      const query = { widget: widget._id };
+      const query = {
+        widget: widget._id,
+        ...(router.query.notrack && { notrack: router.query.notrack }),
+      };
 
       if (filters.schedule && filters.schedule.length) query.schedule = JSON.stringify(filters.schedule.filter((item) => item && item.value).map((item) => item.value));
       if (filters.minor && filters.minor.length) query.minor = JSON.stringify(filters.minor.filter((item) => item && item.value).map((item) => item.value));
@@ -234,6 +237,14 @@ export const getServerSideProps = async (context) => {
       widgetId: widget._id,
       requestId: response.request,
     });
+
+    if (context.query.notrack) {
+      const missions = response.data.hits.map((h) => ({
+        ...h,
+        url: `${API_URL}/r/notrack/${h._id}?${query.toString()}`,
+      }));
+      return { props: { widget, missions, total: response.total, options: newOptions, request: response.request, environment: ENV } };
+    }
 
     const missions = response.data.hits.map((h) => ({
       ...h,
