@@ -1,17 +1,13 @@
-import React, { useEffect, useState } from "react";
 import Image from "next/image";
 import iso from "i18n-iso-countries";
+import { useRouter } from "next/router";
 
 import { RiBuildingFill, RiCalendarEventFill } from "react-icons/ri";
 import { DOMAINS } from "../config";
 import LogoSCE from "../public/images/logo-sce.svg";
 
 const Card = ({ widget, mission, request }) => {
-  const [client, setClient] = useState(false);
-
-  useEffect(() => {
-    setClient(true);
-  }, []);
+  const router = useRouter();
 
   if (!mission) return null;
 
@@ -40,7 +36,7 @@ const Card = ({ widget, mission, request }) => {
         </div>
 
         <div className="flex flex-col gap-3 flex-grow">
-          {client && !window.location.search.includes("notrack") && (
+          {!router.query.notrack && (
             <div className="w-full text-center">
               <span name="tracker_counter" data-id={mission._id} data-publisher={widget.fromPublisherId.toString()} data-source={widget._id.toString()} data-request={request} />
             </div>

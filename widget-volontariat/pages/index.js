@@ -243,7 +243,7 @@ export const getServerSideProps = async (context) => {
         ...h,
         url: `${API_URL}/r/notrack/${h._id}?${query.toString()}`,
       }));
-      return { props: { widget, missions, total: response.total, options: newOptions, request: response.request, environment: ENV } };
+      return { props: { widget, missions, total: response.total, options: newOptions } };
     }
 
     const missions = response.data.hits.map((h) => ({

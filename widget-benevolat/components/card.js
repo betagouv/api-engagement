@@ -1,16 +1,12 @@
-import React, { useEffect, useState } from "react";
 import Image from "next/image";
 import iso from "i18n-iso-countries";
 import { RiBuildingFill } from "react-icons/ri";
+import { useRouter } from "next/router";
 
 import { DOMAINES } from "../config";
 
 const Card = ({ widget, mission, request }) => {
-  const [client, setClient] = useState(false);
-
-  useEffect(() => {
-    setClient(true);
-  }, []);
+  const router = useRouter();
 
   if (!mission) return null;
 
@@ -49,7 +45,7 @@ const Card = ({ widget, mission, request }) => {
             {mission.remote === "full" ? "À distance" : `${mission.city} ${mission.postalCode}${mission.country !== "FR" ? `- ${iso.getName(mission.country, "fr")}` : ""}`}
           </span>
           <div className="w-full text-center mb-1">
-            {client && !window.location.search.includes("notrack") && (
+            {!router.query.notrack && (
               <span name="tracker_counter" data-id={mission._id} data-publisher={widget.fromPublisherId.toString()} data-source={widget._id.toString()} data-request={request} />
             )}
           </div>
