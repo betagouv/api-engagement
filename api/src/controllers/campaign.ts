@@ -2,7 +2,7 @@ import { NextFunction, Response, Router } from "express";
 import passport from "passport";
 import zod from "zod";
 
-import { FORBIDDEN, INVALID_BODY, INVALID_PARAMS, INVALID_QUERY, NOT_FOUND } from "../error";
+import { FORBIDDEN, INVALID_BODY, INVALID_PARAMS, INVALID_QUERY, NOT_FOUND, RESSOURCE_ALREADY_EXIST } from "../error";
 import CampaignModel from "../models/campaign";
 import PublisherModel from "../models/publisher";
 import { reassignStats } from "../services/reassign-stats";
@@ -139,7 +139,8 @@ router.post("/", passport.authenticate("admin", { session: false }), async (req:
 
     const data = await CampaignModel.create(newCampaign);
     return res.status(200).send({ ok: true, data });
-  } catch (error) {
+  } catch (error: any) {
+    if (error.code === 11000) return res.status(409).send({ ok: false, code: RESSOURCE_ALREADY_EXIST, error: "Campaign already exists" });
     next(error);
   }
 });
@@ -172,7 +173,8 @@ router.post("/:id/duplicate", passport.authenticate("admin", { session: false })
 
     const data = await CampaignModel.create(newCampaign);
     return res.status(200).send({ ok: true, data });
-  } catch (error) {
+  } catch (error: any) {
+    if (error.code === 11000) return res.status(409).send({ ok: false, code: RESSOURCE_ALREADY_EXIST, error: "Campaign already exists" });
     next(error);
   }
 });
@@ -259,7 +261,8 @@ router.put("/:id", passport.authenticate("admin", { session: false }), async (re
 
     await campaign.save();
     return res.status(200).send({ ok: true, data: campaign });
-  } catch (error) {
+  } catch (error: any) {
+    if (error.code === 11000) return res.status(409).send({ ok: false, code: RESSOURCE_ALREADY_EXIST, error: "Campaign already exists" });
     next(error);
   }
 });

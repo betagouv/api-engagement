@@ -4,7 +4,6 @@ import { BiSolidInfoSquare } from "react-icons/bi";
 import { RiCloseFill, RiDeleteBin6Line, RiErrorWarningFill } from "react-icons/ri";
 import { Link, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
-import validator from "validator";
 import Modal from "../../components/New-Modal";
 import SearchSelect from "../../components/SearchSelect";
 
@@ -13,16 +12,13 @@ import api from "../../services/api";
 import { API_URL } from "../../services/config";
 import { captureError } from "../../services/error";
 import useStore from "../../services/store";
+import { isValidUrl } from "../../services/utils";
 
 const Create = () => {
   const { publisher } = useStore();
   const [publishers, setPulishers] = useState([]);
   const [isCopyModalOpen, setIsCopyModalOpen] = useState(false);
   const [campaignId, setCampaignId] = useState(null);
-  const [filters, setFilters] = useState({
-    role_promoteur: true,
-    name: "",
-  });
   const [values, setValues] = useState({
     name: "",
     type: "",
@@ -37,7 +33,7 @@ const Create = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const res = await api.post("/publisher/search", filters);
+        const res = await api.post("/publisher/search", { role_promoteur: true, name: "" });
         if (!res.ok) throw res;
         setPulishers(res.data.sort((a, b) => a.name.localeCompare(b.name)).map((p) => ({ ...p, label: p.name })));
       } catch (error) {
@@ -46,7 +42,7 @@ const Create = () => {
       }
     };
     fetchData();
-  }, [filters]);
+  }, []);
 
   const handleSubmit = async () => {
     const errors = {};
@@ -55,7 +51,7 @@ const Create = () => {
     if (!values.type) errors.type = "Le type de campagne est requis";
     if (!values.toPublisherId) errors.toPublisherId = "Le partenaire est requis";
     if (!values.url) errors.url = "L'url est requis";
-    if (!validator.isURL(values.url)) errors.url = "L'url n'est pas valide";
+    if (!isValidUrl(values.url)) errors.url = "L'url n'est pas valide";
 
     if (errors.name || errors.type || errors.toPublisherId || errors.url) {
       setErrors(errors);
@@ -66,7 +62,11 @@ const Create = () => {
       values.trackers = values.trackers.filter((t) => t.key && t.value);
 
       const res = await api.post("/campaign", values);
-      if (!res.ok) throw res;
+      console.log(res);
+      if (!res.ok) {
+        if (res.status === 409) return toast.error("Une campagne avec ce nom existe déjà");
+        else throw res;
+      }
       setCampaignId(res.data._id);
       setIsCopyModalOpen(true);
     } catch (error) {

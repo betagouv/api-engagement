@@ -37,7 +37,8 @@ class APIHandler {
       window.location = "/login";
       return { ok: false, status: 401, error: "Unauthorized" };
     }
-    return await response.json();
+    const res = await response.json();
+    return { ...res, status: response.status };
   }
 
   async postFormData(endpoint, data) {
@@ -69,24 +70,8 @@ class APIHandler {
       window.location = "/login";
       return { ok: false, status: 401, error: "Unauthorized" };
     }
-    return await response.json();
-  }
-
-  async patch(endpoint, data, options = {}) {
-    const response = await fetch(`${this.baseUrl}${endpoint}`, {
-      method: "PATCH",
-      headers: {
-        ...this.headers,
-        ...options.headers,
-      },
-      body: JSON.stringify(data),
-      credentials: "include",
-    });
-    if (response.status === 401) {
-      window.location = "/login";
-      return { ok: false, status: 401, error: "Unauthorized" };
-    }
-    return await response.json();
+    const res = await response.json();
+    return { ...res, status: response.status };
   }
 
   async put(endpoint, data, options = {}) {
@@ -103,7 +88,8 @@ class APIHandler {
       window.location = "/login";
       return { ok: false, status: 401, error: "Unauthorized" };
     }
-    return await response.json();
+    const res = await response.json();
+    return { ...res, status: response.status };
   }
 
   async delete(endpoint, options = {}) {
@@ -119,7 +105,8 @@ class APIHandler {
       window.location = "/login";
       return { ok: false, status: 401, error: "Unauthorized" };
     }
-    return await response.json();
+    const res = await response.json();
+    return { ...res, status: response.status };
   }
 }
 
