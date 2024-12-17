@@ -165,8 +165,16 @@ app.use(async (err: any, req: Request, res: Response, _: NextFunction) => {
   try {
     console.log(`Error on request ${req.method} ${req.url}`);
     console.error(err);
-    if (ENV !== "development") captureException(err);
-    else console.error(err);
+
+    // Filter out socket hang up errors from Sentry reporting
+    const isSocketHangUp = err.code === "ECONNRESET" || (err.message && err.message.includes("socket hang up"));
+
+    if (ENV !== "development" && !isSocketHangUp) {
+      captureException(err);
+    } else {
+      console.error(err);
+    }
+
     res.status(500).send({ ok: false, code: SERVER_ERROR });
   } catch (error) {
     captureException(error);
