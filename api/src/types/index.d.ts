@@ -459,6 +459,7 @@ export type User = {
 
 export interface Stats {
   _id: string;
+  clickUser?: string;
   clickId?: string;
   requestId?: string;
   origin: string;

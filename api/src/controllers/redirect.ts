@@ -87,6 +87,7 @@ router.get("/apply", cors({ origin: "*" }), async (req: Request, res: Response) 
       obj.toPublisherName = mission.publisherName;
     }
     if (click) {
+      obj.clickUser = click.user;
       obj.clickId = click._id;
       obj.source = click.source || "publisher";
       obj.sourceName = click.sourceName || "";
@@ -188,6 +189,7 @@ router.get("/account", cors({ origin: "*" }), async (req: Request, res: Response
       obj.toPublisherName = mission.publisherName;
     }
     if (click) {
+      obj.clickUser = click.user;
       obj.clickId = click._id;
       obj.source = click.source || "publisher";
       obj.sourceName = click.sourceName || "";
