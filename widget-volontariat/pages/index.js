@@ -250,7 +250,7 @@ export const getServerSideProps = async (context) => {
       ...h,
       url: `${API_URL}/r/widget/${h._id}?${query.toString()}`,
     }));
-    return { props: { widget, missions, total: response.total, options: newOptions, request: response.request, environment: ENV } };
+    return { props: { widget, missions, total: response.total, options: newOptions } };
   } catch (error) {
     console.error(error);
     Sentry.captureException(error);
