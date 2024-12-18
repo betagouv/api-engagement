@@ -1,12 +1,14 @@
-import React from "react";
 import Image from "next/image";
 import iso from "i18n-iso-countries";
+import { useRouter } from "next/router";
 
 import { RiBuildingFill, RiCalendarEventFill } from "react-icons/ri";
 import { DOMAINS } from "../config";
 import LogoSCE from "../public/images/logo-sce.svg";
 
 const Card = ({ widget, mission, request }) => {
+  const router = useRouter();
+
   if (!mission) return null;
 
   const domain = DOMAINS[mission.domain] || DOMAINS.autre;

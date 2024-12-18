@@ -60,7 +60,10 @@ const Home = ({ widget, missions, options, total, request, environment }) => {
 
     // Timeout to prevent multiple rapid router pushes
     const timeoutId = setTimeout(() => {
-      const query = { widget: widget._id };
+      const query = {
+        widget: widget._id,
+        ...(router.query.notrack && { notrack: router.query.notrack }),
+      };
 
       if (filters.domain?.length) query.domain = JSON.stringify(filters.domain.filter((item) => item && item.value).map((item) => item.value));
       if (filters.organization?.length) query.organization = JSON.stringify(filters.organization.filter((item) => item && item.value).map((item) => item.value));
@@ -144,7 +147,7 @@ const Home = ({ widget, missions, options, total, request, environment }) => {
           />
         )}
       </div>
-      {environment === "production" && <Script src="https://app.api-engagement.beta.gouv.fr/jstag.js" />}
+      {environment === "production" && !router.query.notrack && <Script src="https://app.api-engagement.beta.gouv.fr/jstag.js" />}
     </div>
   );
 };
@@ -207,7 +210,7 @@ export const getServerSideProps = async (context) => {
 
     const missions = response.data.hits.map((h) => ({
       ...h,
-      url: `${API_URL}/r/widget/${h._id}?${query.toString()}`,
+      url: `${API_URL}/r/${context.query.notrack ? "notrack" : "widget"}/${h._id}?${query.toString()}`,
     }));
     return { props: { widget, missions, total: response.total, options: newOptions, request: response.request, environment: ENV } };
   } catch (error) {

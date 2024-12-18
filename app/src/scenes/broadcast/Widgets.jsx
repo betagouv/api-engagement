@@ -113,7 +113,7 @@ const Widgets = () => {
                   </Link>
                   <a
                     className="cursor-pointer border border-blue-dark p-2"
-                    href={`${item.type === "volontariat" ? VOLONTARIAT_URL : BENEVOLAT_URL}?widget=${item._id}`}
+                    href={`${item.type === "volontariat" ? VOLONTARIAT_URL : BENEVOLAT_URL}?widget=${item._id}&notrack=true`}
                     target="_blank"
                     rel="noopener noreferrer"
                   >

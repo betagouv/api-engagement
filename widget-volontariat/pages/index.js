@@ -69,7 +69,10 @@ const Home = ({ widget, missions, options, total, request, environment }) => {
 
     // Timeout to prevent multiple rapid router pushes
     const timeoutId = setTimeout(() => {
-      const query = { widget: widget._id };
+      const query = {
+        widget: widget._id,
+        ...(router.query.notrack && { notrack: router.query.notrack }),
+      };
 
       if (filters.schedule && filters.schedule.length) query.schedule = JSON.stringify(filters.schedule.filter((item) => item && item.value).map((item) => item.value));
       if (filters.minor && filters.minor.length) query.minor = JSON.stringify(filters.minor.filter((item) => item && item.value).map((item) => item.value));
@@ -158,7 +161,7 @@ const Home = ({ widget, missions, options, total, request, environment }) => {
           />
         )}
       </div>
-      {environment === "production" && <Script src="https://app.api-engagement.beta.gouv.fr/jstag.js" />}
+      {environment === "production" && !router.query.notrack && <Script src="https://app.api-engagement.beta.gouv.fr/jstag.js" />}
       {widget._id !== "6633a45e87fb728a6da205da" && (
         <div className={`flex w-full justify-center items-center gap-4 px-4 ${showFilters ? "opacity-40 pointer-events-none" : ""}`}>
           <Image src={LogoSC} width="100" height="0" style={{ width: "53px", height: "auto" }} alt="Logo du Service Civique" />
@@ -238,7 +241,7 @@ export const getServerSideProps = async (context) => {
 
     const missions = response.data.hits.map((h) => ({
       ...h,
-      url: `${API_URL}/r/widget/${h._id}?${query.toString()}`,
+      url: `${API_URL}/r/${context.query.notrack ? "notrack" : "widget"}/${h._id}?${query.toString()}`,
     }));
     return { props: { widget, missions, total: response.total, options: newOptions, request: response.request, environment: ENV } };
   } catch (error) {
