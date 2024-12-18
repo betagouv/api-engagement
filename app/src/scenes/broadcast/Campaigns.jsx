@@ -4,51 +4,46 @@ import { HiLink } from "react-icons/hi";
 import { RiAddFill, RiFileCopyLine } from "react-icons/ri";
 import { Link } from "react-router-dom";
 import { toast } from "react-toastify";
-import { Tooltip } from "react-tooltip";
 
-import { TablePaginator } from "../../components/Table";
+import TablePagination from "../../components/NewTablePagination";
 import Toggle from "../../components/Toggle";
 import api from "../../services/api";
 import { API_URL } from "../../services/config";
 import { captureError } from "../../services/error";
 import useStore from "../../services/store";
 
+const TABLE_HEADER = [
+  { title: "Nom", colSpan: 3 },
+  { title: "Diffuse des missions de", colSpan: 2 },
+  { title: "Crée le", colSpan: 1 },
+  { title: "Actions", colSpan: 1 },
+  { title: "Actif", colSpan: 1 },
+];
+
 const Campaigns = () => {
-  const pageSize = 25;
   const { user, publisher } = useStore();
-  const [campaigns, setCampaigns] = useState([]);
-  const [showAll, setShowAll] = useState(false);
+  const [data, setData] = useState([]);
   const [filters, setFilters] = useState({
     fromPublisherId: publisher?._id || "",
     toPublisherId: "",
     search: "",
-    active: !showAll,
     page: 1,
+    active: true,
+    pageSize: 10,
   });
 
   useEffect(() => {
     fetchData();
-  }, [filters, showAll]);
+  }, [filters]);
 
   const fetchData = async () => {
     try {
-      const res = await api.post(`/campaign/search`, {
-        ...filters,
-        active: showAll ? undefined : true,
-      });
+      const res = await api.post(`/campaign/search`, filters);
       if (!res.ok) throw res;
-      setCampaigns(res.data || []);
+      setData(res.data || []);
     } catch (error) {
       captureError(error, "Erreur lors du chargement des données");
     }
-  };
-
-  const handleSearch = (e) => {
-    setFilters({ ...filters, search: e.target.value, page: 1 });
-  };
-
-  const handlePageChange = (page) => {
-    setFilters({ ...filters, page });
   };
 
   const handleDuplicate = async (id) => {
@@ -56,7 +51,7 @@ const Campaigns = () => {
       const res = await api.post(`/campaign/${id}/duplicate`);
       if (!res.ok) throw res;
 
-      setCampaigns([res.data, ...campaigns]);
+      setData([res.data, ...data]);
       toast.success("Campagne dupliquée");
     } catch (error) {
       captureError(error, "Erreur lors de la duplication de la campagne");
@@ -72,13 +67,13 @@ const Campaigns = () => {
     try {
       const res = await api.put(`/campaign/${item._id}`, { active: value });
       if (!res.ok) throw res;
-      setCampaigns((campaigns) => campaigns.map((c) => (c._id === res.data._id ? res.data : c)));
+      setData((campaigns) => campaigns.map((c) => (c._id === res.data._id ? res.data : c)));
     } catch (error) {
       captureError(error, "Erreur lors de la mise à jour des données");
     }
   };
 
-  if (!campaigns) return <h2 className="p-3">Chargement...</h2>;
+  if (!data) return <h2 className="p-3">Chargement...</h2>;
 
   return (
     <div className="space-y-12 p-12">
@@ -90,7 +85,13 @@ const Campaigns = () => {
           <label htmlFor="campaign-search" className="sr-only">
             Chercher par nom
           </label>
-          <input id="campaign-search" className="input flex-1" name="campaign-search" placeholder="Chercher par nom" onChange={handleSearch} />
+          <input
+            id="campaign-search"
+            className="input flex-1"
+            name="campaign-search"
+            placeholder="Chercher par nom"
+            onChange={(e) => setFilters({ ...filters, search: e.target.value, page: 1 })}
+          />
           <label htmlFor="campaign-to-publisher" className="sr-only">
             Filtrer par annonceur
           </label>
@@ -103,7 +104,7 @@ const Campaigns = () => {
             <option className="px-2" value="">
               Tous les annonceurs
             </option>
-            {campaigns
+            {data
               .map((c) => ({ id: c.toPublisherId, name: c.toPublisherName }))
               .filter((c, i, s) => s.findIndex((e) => e.id === c.id) === i)
               .sort((a, b) => (a.name || "").localeCompare(b.name))
@@ -124,72 +125,47 @@ const Campaigns = () => {
       </div>
       <div className="space-y-6">
         <div className="flex items-center justify-between">
-          <h2 className="text-xl font-semibold">{campaigns.length > 1 ? `${campaigns.length} campagnes` : `${campaigns.length} campagne`} </h2>
+          <h2 className="text-xl font-semibold">{data.length > 1 ? `${data.length} campagnes` : `${data.length} campagne`} </h2>
           <div>
             {user.role === "admin" && (
               <div className="mt-3 flex items-center">
-                <Toggle
-                  checked={showAll}
-                  setChecked={(checked) => {
-                    setShowAll(checked);
-                    setFilters({ ...filters, active: !checked, page: 1 });
-                  }}
-                />
+                <Toggle checked={!filters.active} setChecked={(checked) => setFilters({ ...filters, active: !checked, page: 1 })} />
                 <label className="ml-2">Afficher les campagnes désactivées</label>
               </div>
             )}
           </div>
         </div>
 
-        <TablePaginator
-          data={campaigns.slice((filters.page - 1) * pageSize, filters.page * pageSize)}
-          length={campaigns.length}
-          onPageChange={handlePageChange}
-          pageSize={pageSize}
-          renderHeader={() => (
-            <>
-              <h4 className="flex-1 pl-3">Nom</h4>
-              <h4 className="w-1/6">Type</h4>
-              <h4 className="w-1/5">Diffuse des missions de</h4>
-              <h4 className="w-1/6">Créée le</h4>
-              <h4 className="w-1/6 text-center">Actions</h4>
-              {user.role === "admin" && <h4 className="w-[8%] text-center">Active</h4>}
-            </>
-          )}
-          renderItem={(item) => (
-            <>
-              {user.role === "admin" ? (
-                <Link to={`/broadcast/campaign/${item._id}`} className={`flex-1 px-3 text-blue-dark ${item.active ? "opacity-100" : "opacity-50"}`}>
+        <TablePagination header={TABLE_HEADER} page={filters.page} pageSize={filters.pageSize} onPageChange={(page) => setFilters({ ...filters, page })} total={data.length}>
+          {data.slice((filters.page - 1) * filters.pageSize, filters.page * filters.pageSize).map((item, i) => (
+            <tr key={i} className={`${i % 2 === 0 ? "bg-gray-100" : "bg-gray-50"} table-item`}>
+              <td className="px-4" colSpan={3}>
+                <Link to={`/broadcast/campaign/${item._id}`} className="text-blue-dark truncate">
                   {item.name}
                 </Link>
-              ) : (
-                <span className={`flex-1 px-3 ${item.active ? "opacity-100" : "opacity-50"}`}>{item.name}</span>
-              )}
-              <span className={`w-1/6 ${item.active ? "opacity-100" : "opacity-50"}`}>{item.type ? item.type.charAt(0).toUpperCase() + item.type.slice(1).toLowerCase() : ""}</span>{" "}
-              <span className={`w-1/5 ${item.active ? "opacity-100" : "opacity-50"}`}>{item.toPublisherName}</span>
-              <span className={`w-1/6 ${item.active ? "opacity-100" : "opacity-50"}`}>{new Date(item.createdAt).toLocaleDateString("fr")}</span>
-              <div className={`flex justify-center w-1/6 gap-3 text-lg ${item.active ? "opacity-100" : "opacity-50"}`}>
-                <button data-tooltip-id="copy-link-btn" className="border border-blue-dark p-2 text-blue-dark" onClick={() => handleCopy(item._id)}>
-                  <HiLink />
-                </button>
-                <Tooltip id="copy-link-btn" className="text-sm">
-                  Copier le lien
-                </Tooltip>
-                <button data-tooltip-id="duplicate-btn" className="border border-blue-dark p-2 text-blue-dark" onClick={() => handleDuplicate(item._id)}>
-                  <RiFileCopyLine />
-                </button>
-                <Tooltip id="duplicate-btn" className="text-sm">
-                  Dupliquer la campagne
-                </Tooltip>
-              </div>
-              {user.role === "admin" && (
-                <div className="flex w-[8%] items-center justify-center">
-                  <Toggle checked={item.active} setChecked={(v) => handleActivate(v, item)} />
+              </td>
+              <td className={`px-4 ${!item.active ? "opacity-50" : "opacity-100"}`} colSpan={2}>
+                {item.toPublisherName}
+              </td>
+              <td className={`px-4 ${!item.active ? "opacity-50" : "opacity-100"}`}>{new Date(item.createdAt).toLocaleDateString("fr")}</td>
+              <td className="px-4">
+                <div className="flex gap-2 text-lg">
+                  <button className="cursor-pointer border border-blue-dark p-2" onClick={() => handleCopy(item._id)}>
+                    <HiLink className="text-blue-dark" />
+                  </button>
+                  <button className="cursor-pointer border border-blue-dark p-2" onClick={() => handleDuplicate(item._id)}>
+                    <RiFileCopyLine className="text-blue-dark" />
+                  </button>
                 </div>
+              </td>
+              {user.role === "admin" && (
+                <td className="px-4">
+                  <Toggle checked={item.active} setChecked={(v) => handleActivate(v, item)} />
+                </td>
               )}
-            </>
-          )}
-        />
+            </tr>
+          ))}
+        </TablePagination>
       </div>
     </div>
   );

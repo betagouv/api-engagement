@@ -34,8 +34,6 @@ router.post("/search", passport.authenticate("user", { session: false }), async 
       else where.fromPublisherId = body.data.fromPublisherId;
     } else if (req.user.role !== "admin") where.fromPublisherId = { $in: req.user.publishers };
 
-    if (body.data.active !== undefined) where.active = body.data.active;
-
     if (body.data.toPublisherId) where.toPublisherId = body.data.toPublisherId;
 
     if (body.data.search) {
