@@ -1,11 +1,10 @@
 import { parse } from "csv-parse/sync";
 import streamPackage from "stream";
 
-import esClient from "../../db/elastic";
-import { RNA_INDEX } from "../../config";
 import { DEPARTMENTS } from "../../constants/departments";
 import { DataGouvRnaRecord } from "../../types/data-gouv";
-import { Association } from "../../types";
+import { RNA } from "../../types";
+import RnaModel from "../../models/rna";
 
 const findStatus = (position: string) => {
   if (position === "A") return "ACTIVE";
@@ -53,73 +52,71 @@ const writeData = async (data: DataGouvRnaRecord[]) => {
   let count = 0;
 
   for (const doc of data) {
-    const id = doc.id;
-
     const department = findDepartment(doc.adrs_codepostal);
     const obj = {
       rna: doc.id,
       siret: doc.siret,
-      rup_mi: doc.rup_mi,
+      rupMi: doc.rup_mi,
       gestion: doc.gestion,
       status: findStatus(doc.position),
-      created_at: new Date(doc.date_creat),
-      last_declared_at: new Date(doc.date_decla),
-      published_at: new Date(doc.date_publi),
-      dissolved_at: new Date(doc.date_disso),
-      updated_at: new Date(doc.maj_time),
+      createdAt: new Date(doc.date_creat),
+      lastDeclaredAt: new Date(doc.date_decla),
+      publishedAt: new Date(doc.date_publi),
+      dissolvedAt: new Date(doc.date_disso),
+      updatedAt: new Date(doc.maj_time),
       nature: doc.nature,
       groupement: findGroupement(doc.groupement),
       title: doc.titre,
-      short_title: doc.titre_court,
-      title_slug: slugify(doc.titre),
-      short_title_slug: slugify(doc.titre_court),
+      shortTitle: doc.titre_court,
+      titleSlug: slugify(doc.titre),
+      shortTitleSlug: slugify(doc.titre_court),
       object: doc.objet,
-      social_object1: doc.objet_social1,
-      social_object2: doc.objet_social2,
-      address_complement: doc.adrs_complement,
-      address_number: doc.adrs_numvoie,
-      address_repetition: doc.adrs_repetition,
-      address_type: doc.adrs_typevoie,
-      address_street: doc.adrs_libvoie,
-      address_distribution: doc.adrs_distrib,
-      address_insee_code: doc.adrs_codeinsee,
-      address_postal_code: doc.adrs_codepostal,
-      address_department_code: department.code,
-      address_department_name: department.department,
-      address_region: department.region,
-      address_city: doc.adrs_libcommune,
-      management_declarant: doc.adrg_declarant,
-      management_complement: doc.adrg_complemgeo,
-      management_street: doc.adrg_libvoie,
-      management_distribution: doc.adrg_distrib,
-      management_postal_code: doc.adrg_codepostal,
-      management_city: doc.adrg_achemine,
-      management_country: doc.adrg_pays,
-      director_civility: doc.dir_civilite,
+      socialObject1: doc.objet_social1,
+      socialObject2: doc.objet_social2,
+      addressComplement: doc.adrs_complement,
+      addressNumber: doc.adrs_numvoie,
+      addressRepetition: doc.adrs_repetition,
+      addressType: doc.adrs_typevoie,
+      addressStreet: doc.adrs_libvoie,
+      addressDistribution: doc.adrs_distrib,
+      addressInseeCode: doc.adrs_codeinsee,
+      addressPostalCode: doc.adrs_codepostal,
+      addressDepartmentCode: department.code,
+      addressDepartmentName: department.department,
+      addressRegion: department.region,
+      addressCity: doc.adrs_libcommune,
+      managementDeclarant: doc.adrg_declarant,
+      managementComplement: doc.adrg_complemgeo,
+      managementStreet: doc.adrg_libvoie,
+      managementDistribution: doc.adrg_distrib,
+      managementPostalCode: doc.adrg_codepostal,
+      managementCity: doc.adrg_achemine,
+      managementCountry: doc.adrg_pays,
+      directorCivility: doc.dir_civilite,
       website: doc.siteweb,
       observation: doc.observation,
-      sync_at: new Date(),
-    } as Association;
+      syncAt: new Date(),
+    } as RNA;
 
-    bulk.push({ index: { _index: RNA_INDEX, _id: id } });
-    bulk.push(obj);
-    count++;
-  }
+    bulk.push({ updateOne: { filter: { rna: doc.id }, update: obj, upsert: true } });
 
-  // cut bulk in smaller chunks
-  for (let i = 0; i < bulk.length; i += 1000) {
-    const chunk = bulk.slice(i, i + 1000);
-    const { body } = await esClient.bulk({ refresh: true, body: chunk });
-
-    if (body.errors) {
-      const errors = body.items.filter((e: any) => e.index.error);
-      console.error("Error in bulk transfer:");
-      errors.forEach((e: any) => {
-        console.error(JSON.stringify(e, null, 2));
-      });
-      count -= errors.length;
+    if (bulk.length === 5000) {
+      const res = await RnaModel.bulkWrite(bulk);
+      console.log(res);
+      bulk.length = 0;
     }
   }
+
+  // const { body } = await esClient.bulk({ refresh: true, body: chunk });
+
+  // if (body.errors) {
+  //   const errors = body.items.filter((e: any) => e.index.error);
+  //   console.error("Error in bulk transfer:");
+  //   errors.forEach((e: any) => {
+  //     console.error(JSON.stringify(e, null, 2));
+  //   });
+  //   count -= errors.length;
+  // }
 
   return count;
 };

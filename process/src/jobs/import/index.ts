@@ -64,16 +64,6 @@ const shouldEnrichGeoloc = (missionXML: MissionXML, mission: Mission, missionDB?
   return "SHOULD_ENRICH";
 };
 
-const shouldEnrichRNA = (missionXML: MissionXML, mission: Mission, missionDB?: Mission) => {
-  if (!missionXML.organizationRNA && !missionXML.organizationName) return "NO_DATA";
-  // If organization changed, need to search
-  if (missionDB && (missionDB.organizationName !== mission.organizationName || missionDB.organizationRNA !== mission.organizationRNA)) return "SHOULD_ENRICH";
-  // If organization is given, don't need to search
-  if (missionDB && ["ENRICHED", "NOT_FOUND"].includes(missionDB.rnaStatus)) return missionDB.rnaStatus;
-
-  return "SHOULD_ENRICH";
-};
-
 // const buildData = (startTime: Date, publisher: Publisher, missionXML: MissionXML, missionDB?: ShortMission) => {
 const buildData = async (startTime: Date, publisher: Publisher, missionXML: MissionXML) => {
   try {
@@ -89,6 +79,8 @@ const buildData = async (startTime: Date, publisher: Publisher, missionXML: Miss
     mission.publisherLogo = publisher.logo;
     mission.publisherUrl = publisher.url;
     mission.updatedAt = new Date();
+
+    mission.organizationVerificationStatus = missionDB?.organizationVerificationStatus;
     if (missionDB && missionDB.statusCommentHistoric && Array.isArray(missionDB.statusCommentHistoric)) {
       if (missionDB.statusCode !== mission.statusCode) {
         mission.statusCommentHistoric = [...missionDB.statusCommentHistoric, { status: mission.statusCode, comment: mission.statusComment, date: mission.updatedAt }];
@@ -98,7 +90,6 @@ const buildData = async (startTime: Date, publisher: Publisher, missionXML: Miss
     }
 
     mission.geolocStatus = shouldEnrichGeoloc(missionXML, mission, missionDB);
-    mission.rnaStatus = shouldEnrichRNA(missionXML, mission, missionDB);
 
     // Add previous moderation temporary
     mission.moderation_5f5931496c7ea514150a818f_status = missionDB?.moderation_5f5931496c7ea514150a818f_status;
@@ -252,13 +243,14 @@ const importPublisher = async (publisher: Publisher, start: Date) => {
     });
 
     // RNA
-    const rnaShould = missions.filter((m) => m.rnaStatus === "SHOULD_ENRICH").map((m) => m);
-    const resultRNA = await enrichWithRNA(publisher, rnaShould);
+    const resultRNA = await enrichWithRNA(publisher, missions);
     resultRNA.forEach((r) => {
       const mission = missions.find((m) => m.clientId.toString() === r.clientId.toString());
       if (mission) {
+        mission.associationId = r.associationId;
         mission.associationRNA = r.associationRNA;
         mission.associationSiren = r.associationSiren;
+        mission.associationSiret = r.associationSiret;
         mission.associationName = r.associationName;
         mission.associationAddress = r.associationAddress;
         mission.associationCity = r.associationCity;
@@ -266,7 +258,7 @@ const importPublisher = async (publisher: Publisher, start: Date) => {
         mission.associationDepartmentCode = r.associationDepartmentCode;
         mission.associationDepartmentName = r.associationDepartmentName;
         mission.associationRegion = r.associationRegion;
-        mission.rnaStatus = r.rnaStatus;
+        mission.organizationVerificationStatus = r.organizationVerificationStatus;
       }
     });
 

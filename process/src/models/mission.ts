@@ -68,6 +68,7 @@ const schema = new Schema<Mission>(
     geolocStatus: { type: String, enum: ["ENRICHED_BY_PUBLISHER", "ENRICHED", "NOT_FOUND", "NO_DATA", "SHOULD_ENRICH", "FAILED"], default: "NO_DATA" },
 
     // Organisation
+    organizationVerificationStatus: { type: String },
     organizationId: { type: String },
     organizationUrl: { type: String },
     organizationName: { type: String },
@@ -109,6 +110,7 @@ const schema = new Schema<Mission>(
     associationId: { type: String },
     associationName: { type: String },
     associationSiren: { type: String },
+    associationSiret: { type: String },
     associationRNA: { type: String },
     associationSources: { type: [String] },
     associationReseaux: { type: [String] },
@@ -119,7 +121,6 @@ const schema = new Schema<Mission>(
     associationDepartmentCode: { type: String },
     associationDepartmentName: { type: String },
     associationRegion: { type: String },
-    rnaStatus: { type: String, enum: ["ENRICHED_BY_DATA_SUBVENTION", "ENRICHED", "NEED_VERIFY", "NOT_FOUND", "NO_DATA", "SHOULD_ENRICH", "FAILED"], default: "NO_DATA" },
 
     // Metadata
     deleted: { type: Boolean, default: false },

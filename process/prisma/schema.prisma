@@ -7,6 +7,59 @@ datasource db {
   url      = env("PG_ENDPOINT")
 }
 
+model Association {
+  id String @id @default(uuid())
+  old_id String @unique
+  rna String
+  siren String
+  siret String
+  rup_mi String
+  gestion String
+  status String
+  created_at DateTime @default(now())
+  last_declared_at DateTime
+  published_at DateTime
+  dissolved_at DateTime
+  updated_at DateTime @updatedAt
+  nature String
+  groupement String
+  title String
+  short_title String
+  title_slug String
+  short_title_slug String
+  names String[]
+  object String
+  social_object1 String
+  social_object2 String
+  address_complement String
+  address_number String
+  address_repetition String
+  address_type String
+  address_street String
+  address_distribution String
+  address_insee_code String
+  address_postal_code String
+  address_department_code String
+  address_department_name String
+  address_region String
+  address_city String
+  management_declarant String
+  management_complement String
+  management_street String
+  management_distribution String
+  management_postal_code String
+  management_city String
+  management_country String
+  director_civility String
+  website String
+  observation String
+  sync_at DateTime
+  source String
+
+  missions Mission[]
+}
+
+
 model Mission {
   id                              String        @id @default(uuid())
   title                           String?
@@ -37,6 +90,11 @@ model Mission {
   organization_status_juridique   String?
   organization_url                String?
   organization_full_address       String?
+  organization_client_id          String?
+  organization_department         String?
+  organization_verification_status String?
+  association                     Association? @relation(fields: [association_id], references: [id])
+  association_id                  String 
   schedule                        String?
   remote                          String?
   last_sync_at                    DateTime?     @default(now())
@@ -51,17 +109,12 @@ model Mission {
   updated_at                      DateTime      @updatedAt
   audience                        String[]
   geoloc_status                   String?
-  rna_status                      String?
   snu                             Boolean?
   snu_places                      Int?
   tags                            String[]
   jva_moderation_comment          String?
   jva_moderation_status           String?
   jva_moderation_title            String?
-  organization_client_id          String?
-  organization_department         String?
-  association_id                  String?
-  association_rna                 String?
   city                            String?
   client_id                       String?
   description_html                String?
