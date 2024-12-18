@@ -8,7 +8,8 @@
     "start": "pm2 start server/index.js --name app",
     "stop": "pm2 stop app",
     "build": "vite build",
-    "prettier": "prettier --write ."
+    "prettier": "prettier --write .",
+    "reload": "pm2 reload app"
   },
   "devDependencies": {
     "@vitejs/plugin-react": "^4.3.1",
