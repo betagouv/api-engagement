@@ -120,7 +120,7 @@ router.post("/invite", passport.authenticate("admin", { session: false }), async
     if (bodyError) return res.status(400).send({ ok: false, code: INVALID_BODY, message: bodyError.details });
 
     const exists = await UserModel.findOne({ email: body.email });
-    if (exists) return res.status(409).send({ ok: false, code: RESSOURCE_ALREADY_EXIST, message: `User already exists` });
+    if (exists) return res.status(409).send({ ok: false, code: RESSOURCE_ALREADY_EXIST, message: `User already exists !` });
 
     const user = new UserModel({
       firstname: body.firstname,
