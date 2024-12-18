@@ -22,33 +22,22 @@ const Campaigns = () => {
     fromPublisherId: publisher?._id || "",
     toPublisherId: "",
     search: "",
-    active: !showAll,
     page: 1,
+    active: true,
   });
 
   useEffect(() => {
     fetchData();
-  }, [filters, showAll]);
+  }, [filters]);
 
   const fetchData = async () => {
     try {
-      const res = await api.post(`/campaign/search`, {
-        ...filters,
-        active: showAll ? undefined : true,
-      });
+      const res = await api.post(`/campaign/search`, filters);
       if (!res.ok) throw res;
       setCampaigns(res.data || []);
     } catch (error) {
       captureError(error, "Erreur lors du chargement des données");
     }
-  };
-
-  const handleSearch = (e) => {
-    setFilters({ ...filters, search: e.target.value, page: 1 });
-  };
-
-  const handlePageChange = (page) => {
-    setFilters({ ...filters, page });
   };
 
   const handleDuplicate = async (id) => {
@@ -90,7 +79,13 @@ const Campaigns = () => {
           <label htmlFor="campaign-search" className="sr-only">
             Chercher par nom
           </label>
-          <input id="campaign-search" className="input flex-1" name="campaign-search" placeholder="Chercher par nom" onChange={handleSearch} />
+          <input
+            id="campaign-search"
+            className="input flex-1"
+            name="campaign-search"
+            placeholder="Chercher par nom"
+            onChange={(e) => setFilters({ ...filters, search: e.target.value, page: 1 })}
+          />
           <label htmlFor="campaign-to-publisher" className="sr-only">
             Filtrer par annonceur
           </label>
@@ -144,7 +139,7 @@ const Campaigns = () => {
         <TablePaginator
           data={campaigns.slice((filters.page - 1) * pageSize, filters.page * pageSize)}
           length={campaigns.length}
-          onPageChange={handlePageChange}
+          onPageChange={(page) => setFilters({ ...filters, page })}
           pageSize={pageSize}
           renderHeader={() => (
             <>
