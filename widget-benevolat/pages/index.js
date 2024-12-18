@@ -147,7 +147,7 @@ const Home = ({ widget, missions, options, total, request, environment }) => {
           />
         )}
       </div>
-      {environment === "production" && !context.query.notrack && <Script src="https://app.api-engagement.beta.gouv.fr/jstag.js" />}
+      {environment === "production" && !router.query.notrack && <Script src="https://app.api-engagement.beta.gouv.fr/jstag.js" />}
     </div>
   );
 };
