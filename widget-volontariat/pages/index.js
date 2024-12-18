@@ -242,7 +242,7 @@ export const getServerSideProps = async (context) => {
       ...h,
       url: `${API_URL}/r/${context.query.notrack ? "notrack" : "widget"}/${h._id}?${query.toString()}`,
     }));
-    return { props: { widget, missions, total: response.total, options: newOptions } };
+    return { props: { widget, missions, total: response.total, options: newOptions, request: response.request, environment: ENV } };
   } catch (error) {
     console.error(error);
     Sentry.captureException(error);
