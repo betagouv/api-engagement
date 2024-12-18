@@ -130,7 +130,10 @@ router.post("/search", passport.authenticate("user", { session: false }), async 
     if (whereAggs.geoPoint) {
       whereAggs.geoPoint = {
         $geoWithin: {
-          $centerSphere: [[body.data.lon, body.data.lat], getDistanceKm(body.data.distance || "50km") / EARTH_RADIUS],
+          $centerSphere: [
+            [Number(body.data.lon), Number(body.data.lat)],
+            body.data.distance && body.data.distance !== "Aucun" ? getDistanceKm(body.data.distance) : getDistanceKm("50km") / EARTH_RADIUS,
+          ],
         },
       };
     }
@@ -155,7 +158,6 @@ router.post("/search", passport.authenticate("user", { session: false }), async 
           cities: [{ $group: { _id: "$city", count: { $sum: 1 } } }, { $sort: { count: -1 } }],
           partners: [{ $group: { _id: "$publisherId", publisherName: { $first: "$publisherName" }, count: { $sum: 1 } } }, { $sort: { count: -1 } }],
           leboncoinStatus: [{ $group: { _id: "$leboncoinStatus", count: { $sum: 1 } } }, { $sort: { count: -1 } }],
-
         },
       },
     ]);
