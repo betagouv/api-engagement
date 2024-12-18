@@ -36,11 +36,9 @@ const Card = ({ widget, mission, request }) => {
         </div>
 
         <div className="flex flex-col gap-3 flex-grow">
-          {!router.query.notrack && (
-            <div className="w-full text-center">
-              <span name="tracker_counter" data-id={mission._id} data-publisher={widget.fromPublisherId.toString()} data-source={widget._id.toString()} data-request={request} />
-            </div>
-          )}
+          <div className="w-full text-center">
+            <span name="tracker_counter" data-id={mission._id} data-publisher={widget.fromPublisherId.toString()} data-source={widget._id.toString()} data-request={request} />
+          </div>
 
           <h2 className="font-semibold line-clamp-3 text-xl group-hover:text-[#000091] transition-colors duration-300">{mission.title}</h2>
           <span className="text-sm truncate text-default-grey">

@@ -45,9 +45,7 @@ const Card = ({ widget, mission, request }) => {
             {mission.remote === "full" ? "À distance" : `${mission.city} ${mission.postalCode}${mission.country !== "FR" ? `- ${iso.getName(mission.country, "fr")}` : ""}`}
           </span>
           <div className="w-full text-center mb-1">
-            {!router.query.notrack && (
-              <span name="tracker_counter" data-id={mission._id} data-publisher={widget.fromPublisherId.toString()} data-source={widget._id.toString()} data-request={request} />
-            )}
+            <span name="tracker_counter" data-id={mission._id} data-publisher={widget.fromPublisherId.toString()} data-source={widget._id.toString()} data-request={request} />
           </div>
         </div>
 

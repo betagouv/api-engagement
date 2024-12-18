@@ -161,7 +161,7 @@ const Home = ({ widget, missions, options, total, request, environment }) => {
           />
         )}
       </div>
-      {environment === "production" && <Script src="https://app.api-engagement.beta.gouv.fr/jstag.js" />}
+      {environment === "production" && !context.query.notrack && <Script src="https://app.api-engagement.beta.gouv.fr/jstag.js" />}
       {widget._id !== "6633a45e87fb728a6da205da" && (
         <div className={`flex w-full justify-center items-center gap-4 px-4 ${showFilters ? "opacity-40 pointer-events-none" : ""}`}>
           <Image src={LogoSC} width="100" height="0" style={{ width: "53px", height: "auto" }} alt="Logo du Service Civique" />
