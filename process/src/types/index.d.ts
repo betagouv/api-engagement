@@ -596,7 +596,7 @@ export type Account = {
   created_at?: Date;
 };
 
-export type Warning = {
+export interface Warning {
   _id: Schema.Types.ObjectId;
   type: string;
   title: string;
@@ -610,7 +610,21 @@ export type Warning = {
   occurrences: number;
   createdAt: Date;
   updatedAt: Date;
-};
+}
+
+export interface WarningBot {
+  _id: Schema.Types.ObjectId;
+  hash: string;
+  userAgent: string;
+  printCount: number;
+  clickCount: number;
+  applyCount: number;
+  accountCount: number;
+  publisherId: string;
+  publisherName: string;
+  createdAt: Date;
+  updatedAt: Date;
+}
 
 export type Widget = {
   _id: Schema.Types.ObjectId;

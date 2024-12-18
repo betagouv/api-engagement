@@ -1,6 +1,23 @@
 import esClient from "../../db/elastic";
 import { postMessage } from "../../services/slack";
 import { SLACK_WARNING_CHANNEL_ID, STATS_INDEX } from "../../config";
+import WarningBotModel from "../../models/warning-bot";
+import PublisherModel from "../../models/publisher";
+import { WarningBot } from "../../types";
+
+const countClick = async (user: string) => {
+  const res = await esClient.count({
+    body: {
+      query: {
+        bool: {
+          must: [{ term: { "type.keyword": "click" } }, { term: { "user.keyword": user } }],
+        },
+      },
+    },
+    index: STATS_INDEX,
+  });
+  return res.body.count;
+};
 
 const countApply = async (user: string) => {
   const res = await esClient.count({
@@ -88,14 +105,36 @@ export const checkBotClicks = async () => {
   }
 
   if (suspiciousUsers.length > 0) {
-    const message = `*Potentiel bot activity detecté*\n\n${suspiciousUsers
-      .map((bucket: any) => {
-        const publisher = bucket.publishers.buckets[0];
-        const userAgent = bucket.userAgent.buckets[0];
-        return `• User \`${bucket.key}\` a fait ${bucket.clicks.doc_count} clicks avec 0 candidatures en 24h (tous depuis le publisher \`${publisher.key}\`)\n\t- User Agent: \`${userAgent.key}\``;
-      })
-      .join("\n")}`;
+    const newWarnings: WarningBot[] = [];
+    for (const bucket of suspiciousUsers) {
+      const publisherId = bucket.publishers.buckets[0];
+      const userAgent = bucket.userAgent.buckets[0];
+      const exists = await WarningBotModel.findOne({ hash: bucket.key });
+      if (!exists) {
+        const publisher = await PublisherModel.findOne({ name: publisherId.key });
+        if (!publisher) continue;
+        const newWarning = await WarningBotModel.create({
+          hash: bucket.key,
+          userAgent: userAgent.key,
+          clickCount: bucket.clicks.doc_count,
+          publisherId: publisher._id.toString(),
+          publisherName: publisher.name,
+        });
+        newWarnings.push(newWarning);
+      } else {
+        exists.clickCount = await countClick(bucket.key);
+        await exists.save();
+      }
+    }
 
-    await postMessage({ text: message }, SLACK_WARNING_CHANNEL_ID);
+    if (newWarnings.length > 0) {
+      const message = `*Potentiel bot activity detecté*\n\n${newWarnings
+        .map((warning: WarningBot) => {
+          return `• User \`${warning.hash}\` a fait ${warning.clickCount} clicks avec 0 candidatures en 24h (tous depuis le publisher \`${warning.publisherName}\`)\n\t- User Agent: \`${warning.userAgent}\``;
+        })
+        .join("\n")}`;
+
+      await postMessage({ text: message }, SLACK_WARNING_CHANNEL_ID);
+    }
   }
 };
