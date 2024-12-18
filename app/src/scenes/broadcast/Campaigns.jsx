@@ -69,6 +69,9 @@ const Campaigns = () => {
 
   if (!campaigns) return <h2 className="p-3">Chargement...</h2>;
 
+  console.log("active", filters.active);
+  console.log("filters", filters);
+
   return (
     <div className="space-y-12 p-12">
       <Helmet>

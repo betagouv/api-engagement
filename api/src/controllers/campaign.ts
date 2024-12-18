@@ -27,14 +27,12 @@ router.post("/search", passport.authenticate("user", { session: false }), async 
 
     if (!body.success) return res.status(400).send({ ok: false, code: INVALID_QUERY, error: body.error });
 
-    const where = { deletedAt: null } as { [key: string]: any };
+    const where = { deletedAt: null, active: body.data.active } as { [key: string]: any };
 
     if (body.data.fromPublisherId) {
       if (req.user.role !== "admin" && !req.user.publishers.includes(body.data.fromPublisherId)) return res.status(403).send({ ok: false, code: FORBIDDEN });
       else where.fromPublisherId = body.data.fromPublisherId;
     } else if (req.user.role !== "admin") where.fromPublisherId = { $in: req.user.publishers };
-
-    if (body.data.active) where.active = body.data.active;
 
     if (body.data.toPublisherId) where.toPublisherId = body.data.toPublisherId;
 
