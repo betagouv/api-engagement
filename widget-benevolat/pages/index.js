@@ -156,6 +156,7 @@ export const getServerSideProps = async (context) => {
   try {
     const q = context.query.widget ? `id=${context.query.widget}` : `name=${context.query.widgetName}`;
     const response = await fetch(`${API_URL}/iframe/widget?${q}`).then((e) => e.json());
+    if (!response.ok) throw response;
     widget = response.data;
   } catch (e) {
     console.error("error", e);
@@ -174,11 +175,11 @@ export const getServerSideProps = async (context) => {
       });
     }
     if (context.query.remote) JSON.parse(context.query.remote).forEach((item) => searchParams.append("remote", item));
-    if (context.query.size) searchParams.append("size", context.query.size);
-    if (context.query.from) searchParams.append("from", context.query.from);
+    if (context.query.size) searchParams.append("size", parseInt(context.query.size, 10));
+    if (context.query.from) searchParams.append("from", parseInt(context.query.from, 10));
     if (context.query.lat && context.query.lon) {
-      searchParams.append("lat", context.query.lat);
-      searchParams.append("lon", context.query.lon);
+      searchParams.append("lat", parseFloat(context.query.lat));
+      searchParams.append("lon", parseFloat(context.query.lon));
     }
 
     const response = await fetch(`${API_URL}/iframe/widget/${widget._id}/msearch?${searchParams.toString()}`).then((res) => res.json());
