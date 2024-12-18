@@ -38,7 +38,7 @@ export const Carousel = ({ widget, missions, color, request }) => {
     return (
       <div className="w-full">
         <div className="flex items-center justify-center py-4">
-          <p className="text-lg font-semibold">Aucune mission ne correspond à vos critères de recherche !</p>
+          <p className="text-lg font-semibold">Aucune mission ne correspond à vos critères de recherche</p>
         </div>
       </div>
     );

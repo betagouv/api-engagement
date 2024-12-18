@@ -87,7 +87,7 @@ const Edit = () => {
 
       toast.success("Widget mis à jour");
     } catch (error) {
-      captureError(error, "Erreur lors de la mise à jour du widget !");
+      captureError(error, "Erreur lors de la mise à jour du widget");
     }
   };
 
