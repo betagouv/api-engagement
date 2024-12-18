@@ -31,5 +31,4 @@ jobs:
             git pull
             npm install
             npm run build
-            npm run stop
-            npm run start
+            npm run reload

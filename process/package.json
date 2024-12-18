@@ -10,7 +10,8 @@
     "build": "prisma generate && tsc",
     "dev": "tsx watch src/index.ts",
     "stop": "pm2 stop process",
-    "start": "pm2 start dist/index.js --name process"
+    "start": "pm2 start dist/index.js --name process",
+    "reload": "pm2 reload process"
   },
   "prettier": {
     "printWidth": 180
