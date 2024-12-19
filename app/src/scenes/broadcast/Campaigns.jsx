@@ -139,8 +139,8 @@ const Campaigns = () => {
         <TablePagination header={TABLE_HEADER} page={filters.page} pageSize={filters.pageSize} onPageChange={(page) => setFilters({ ...filters, page })} total={data.length}>
           {data.slice((filters.page - 1) * filters.pageSize, filters.page * filters.pageSize).map((item, i) => (
             <tr key={i} className={`${i % 2 === 0 ? "bg-gray-100" : "bg-gray-50"} table-item`}>
-              <td className="px-4" colSpan={3}>
-                <Link to={`/broadcast/campaign/${item._id}`} className="text-blue-dark truncate">
+              <td className="px-4 truncate" colSpan={3}>
+                <Link to={`/broadcast/campaign/${item._id}`} className="text-blue-dark">
                   {item.name}
                 </Link>
               </td>
