@@ -158,12 +158,15 @@ export const getServerSideProps = async (context) => {
   let widget = null;
   try {
     const q = context.query.widget ? `id=${context.query.widget}` : `name=${context.query.widgetName}`;
-    const response = await fetch(`${API_URL}/iframe/widget?${q}`).then((e) => e.json());
-    if (!response.ok) throw response;
-    widget = response.data;
-  } catch (e) {
-    console.error("error", e);
-    Sentry.captureException(e);
+    const res = await fetch(`${API_URL}/iframe/widget?${q}`).then((e) => e.json());
+    if (!res.ok) {
+      if (res.code === "NOT_FOUND") return { props: { widget: null } };
+      throw res;
+    }
+    widget = res.data;
+  } catch (error) {
+    console.error("error", error);
+    Sentry.captureException(error);
     return { props: { widget: null } };
   }
 
