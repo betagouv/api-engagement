@@ -68,8 +68,6 @@ const schema = new Schema<Mission>(
     geolocStatus: { type: String, enum: ["ENRICHED_BY_PUBLISHER", "ENRICHED", "NOT_FOUND", "NO_DATA", "SHOULD_ENRICH", "FAILED"], default: "NO_DATA" },
 
     // Organisation
-    organizationVerificationStatus: { type: String },
-    organizationId: { type: String },
     organizationUrl: { type: String },
     organizationName: { type: String },
     organizationType: { type: String },
@@ -86,6 +84,21 @@ const schema = new Schema<Mission>(
     organizationBeneficiaries: { type: [String] },
     organizationActions: { type: [String] },
     organizationReseaux: { type: [String] },
+
+    // Organization verification
+    organizationVerificationStatus: { type: String },
+    organizationId: { type: String },
+    organisationIsRUP: { type: Boolean },
+    organizationNameVerified: { type: String },
+    organizationRNAVerified: { type: String },
+    organizationSirenVerified: { type: String },
+    organizationSiretVerified: { type: String },
+    organizationAddressVerified: { type: String },
+    organizationCityVerified: { type: String },
+    organizationPostalCodeVerified: { type: String },
+    organizationDepartmentCodeVerified: { type: String },
+    organizationDepartmentNameVerified: { type: String },
+    organizationRegionVerified: { type: String },
 
     // Publisher (added by the API)
     publisherId: { type: String, required: true },

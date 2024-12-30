@@ -8,7 +8,7 @@ import esClient from "../../db/elastic";
 import { MISSION_INDEX } from "../../config";
 
 import { buildMission } from "./mission";
-import { enrichWithRNA } from "./rna";
+import { verifyOrganization } from "./organization";
 import { enrichWithGeoloc } from "./geoloc";
 import { Import, Mission, MissionXML, Publisher } from "../../types";
 import MissionModel from "../../models/mission";
@@ -243,21 +243,22 @@ const importPublisher = async (publisher: Publisher, start: Date) => {
     });
 
     // RNA
-    const resultRNA = await enrichWithRNA(publisher, missions);
+    const resultRNA = await verifyOrganization(missions);
     resultRNA.forEach((r) => {
       const mission = missions.find((m) => m.clientId.toString() === r.clientId.toString());
       if (mission) {
-        mission.associationId = r.associationId;
-        mission.associationRNA = r.associationRNA;
-        mission.associationSiren = r.associationSiren;
-        mission.associationSiret = r.associationSiret;
-        mission.associationName = r.associationName;
-        mission.associationAddress = r.associationAddress;
-        mission.associationCity = r.associationCity;
-        mission.associationPostalCode = r.associationPostalCode;
-        mission.associationDepartmentCode = r.associationDepartmentCode;
-        mission.associationDepartmentName = r.associationDepartmentName;
-        mission.associationRegion = r.associationRegion;
+        mission.organizationId = r.organizationId;
+        mission.organizationNameVerified = r.organizationNameVerified;
+        mission.organizationRNAVerified = r.organizationRNAVerified;
+        mission.organizationSirenVerified = r.organizationSirenVerified;
+        mission.organizationSiretVerified = r.organizationSiretVerified;
+        mission.organizationAddressVerified = r.organizationAddressVerified;
+        mission.organizationCityVerified = r.organizationCityVerified;
+        mission.organizationPostalCodeVerified = r.organizationPostalCodeVerified;
+        mission.organizationDepartmentCodeVerified = r.organizationDepartmentCodeVerified;
+        mission.organizationDepartmentNameVerified = r.organizationDepartmentNameVerified;
+        mission.organizationRegionVerified = r.organizationRegionVerified;
+        mission.organisationIsRUP = r.organisationIsRUP;
         mission.organizationVerificationStatus = r.organizationVerificationStatus;
       }
     });

@@ -7,7 +7,7 @@ datasource db {
   url      = env("PG_ENDPOINT")
 }
 
-model Association {
+model Organization {
   id String @id @default(uuid())
   old_id String @unique
   rna String
@@ -57,6 +57,7 @@ model Association {
   source String
 
   missions Mission[]
+	@@map("Association")
 }
 
 
@@ -81,7 +82,6 @@ model Mission {
   organization_beneficiaries      String[]
   organization_city               String?
   organization_description        String?
-  organization_id                 String?
   organization_logo               String?
   organization_name               String?
   organization_rna                String?
@@ -93,8 +93,8 @@ model Mission {
   organization_client_id          String?
   organization_department         String?
   organization_verification_status String?
-  association                     Association? @relation(fields: [association_id], references: [id])
-  association_id                  String 
+  organization                     Organization? @relation(fields: [organization_id], references: [id])
+  organization_id                  String 
   schedule                        String?
   remote                          String?
   last_sync_at                    DateTime?     @default(now())

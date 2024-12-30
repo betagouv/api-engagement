@@ -27,7 +27,7 @@ import leboncoin from "./jobs/leboncoin";
 import linkedin from "./jobs/linkedin";
 import linkedinStats from "./jobs/linkedin-stats";
 import metabase from "./jobs/metabase";
-import rna from "./jobs/rna";
+import organization from "./jobs/organization";
 import warnings from "./jobs/warnings";
 import { captureException } from "./error";
 import report from "./jobs/report";
@@ -41,7 +41,7 @@ const runnings = {
   linkedinStats: false,
   metabase: false,
   leboncoin: false,
-  rna: false,
+  organization: false,
   report: false,
   kpi: false,
 };
@@ -216,30 +216,30 @@ const linkedinStatsJob = new CronJob(
 );
 
 // Every 2nd of the month at 00:00 AM
-const rnaJob = new CronJob(
+const organizationJob = new CronJob(
   "0 0 2 * *",
   async () => {
-    runnings.rna = true;
+    runnings.organization = true;
     const checkInId = Sentry.captureCheckIn({
-      monitorSlug: "rna",
+      monitorSlug: "organization",
       status: "in_progress",
     });
     try {
-      await rna.handler();
+      await organization.handler();
       Sentry.captureCheckIn({
         checkInId,
-        monitorSlug: "rna",
+        monitorSlug: "organization",
         status: "ok",
       });
     } catch (error) {
       Sentry.captureException(error);
       Sentry.captureCheckIn({
         checkInId,
-        monitorSlug: "rna",
+        monitorSlug: "organization",
         status: "error",
       });
     }
-    runnings.rna = false;
+    runnings.organization = false;
   },
   null,
   true,
@@ -352,12 +352,12 @@ app.get("/tasks", async (req, res) => {
         running: runnings.metabase,
       },
       {
-        name: "Update RNA",
-        schedule: rnaJob.cronTime.source,
-        started: rnaJob.running,
-        lastRun: rnaJob.lastDate(),
-        nextRun: rnaJob.nextDate(),
-        running: runnings.rna,
+        name: "Update Organization",
+        schedule: organizationJob.cronTime.source,
+        started: organizationJob.running,
+        lastRun: organizationJob.lastDate(),
+        nextRun: organizationJob.nextDate(),
+        running: runnings.organization,
       },
       {
         name: "Update Leboncoin",

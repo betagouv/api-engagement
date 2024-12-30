@@ -1,6 +1,6 @@
 import { Schema } from "mongoose";
 
-export interface RNA {
+export interface Organization {
   _id: Schema.Types.ObjectId;
   esId: string;
   rna: string;
@@ -49,6 +49,17 @@ export interface RNA {
   syncAt?: Date;
   source?: string;
 }
+
+export interface OrganizationNameMatch {
+  _id: Schema.Types.ObjectId;
+  name: string;
+  organizationIds: string[];
+  organizationNames: string[];
+  missionIds: string[];
+  createdAt: Date;
+  updatedAt: Date;
+}
+
 export interface Association {
   _id?: string;
   rna: string;
@@ -131,7 +142,7 @@ export interface Import {
   failed: any;
 }
 export interface Mission {
-  _id: Schema.Types.ObjectId | undefined;
+  _id: Schema.Types.ObjectId;
   _old_id?: string;
   _old_ids?: string[];
 
@@ -156,17 +167,16 @@ export interface Mission {
   tasks: string[];
   audience: string[];
   soft_skills: string[];
-  organizationVerificationStatus: string | undefined;
-  organizationId: string | undefined;
+  organizationClientId: string | undefined;
   organizationUrl: string | undefined;
   organizationName: string | undefined;
+  organizationRNA: string | undefined;
+  organizationSiren: string | undefined;
+  organizationSiret: string | undefined;
   organizationType: string | undefined;
   organizationLogo: string | undefined;
   organizationDescription: string | undefined;
-  organizationClientId: string | undefined;
   organizationFullAddress: string | undefined;
-  organizationRNA: string | undefined;
-  organizationSiren: string | undefined;
   organizationDepartment: string | undefined;
   organizationPostCode: string | undefined;
   organizationCity: string | undefined;
@@ -174,6 +184,21 @@ export interface Mission {
   organizationBeneficiaries: string[] | undefined;
   organizationActions: string[] | undefined;
   organizationReseaux: string[] | undefined;
+
+  organizationId: string | undefined;
+  organizationNameVerified: string | undefined;
+  organizationRNAVerified: string | undefined;
+  organizationSirenVerified: string | undefined;
+  organizationSiretVerified: string | undefined;
+  organizationAddressVerified: string | undefined;
+  organizationCityVerified: string | undefined;
+  organizationPostalCodeVerified: string | undefined;
+  organizationDepartmentCodeVerified: string | undefined;
+  organizationDepartmentNameVerified: string | undefined;
+  organizationRegionVerified: string | undefined;
+  organisationIsRUP: boolean | undefined;
+  organizationVerificationStatus: string | undefined;
+
   associationId: string | undefined;
   associationName: string | undefined;
   associationSiret: string | undefined;

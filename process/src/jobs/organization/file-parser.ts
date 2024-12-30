@@ -3,8 +3,9 @@ import streamPackage from "stream";
 
 import { DEPARTMENTS } from "../../constants/departments";
 import { DataGouvRnaRecord } from "../../types/data-gouv";
-import { RNA } from "../../types";
-import RnaModel from "../../models/rna";
+import { Organization } from "../../types";
+import OrganizationModel from "../../models/organization";
+import { slugify } from "../../utils";
 
 const findStatus = (position: string) => {
   if (position === "A") return "ACTIVE";
@@ -31,27 +32,14 @@ const findDepartment = (postalCode: string) => {
   return { code, department: department ? department[0] : "UNKNOWN", region: department ? department[1] : "UNKNOWN" };
 };
 
-const slugify = (value: string) => {
-  const a = "àáäâãåăæçèéëêǵḧìíïîḿńǹñòóöôœṕŕßśșțùúüûǘẃẍÿź·/_,:;";
-  const b = "aaaaaaaaceeeeghiiiimnnnoooooprssstuuuuuwxyz------";
-  const p = new RegExp(a.split("").join("|"), "g");
-  return value
-    .toString()
-    .toLowerCase()
-    .replace(/\s+/g, "-") // Replace spaces with -
-    .replace(p, (c) => b.charAt(a.indexOf(c))) // Replace special characters
-    .replace(/&/g, "-and-") // Replace & with 'and'
-    .replace(/[^\w\-]+/g, "") // Remove all non-word characters
-    .replace(/\-\-+/g, "-") // Replace multiple - with single -
-    .replace(/^-+/, "") // Trim - from start of text
-    .replace(/-+$/, ""); // Trim - from end of text
-};
-
 const writeData = async (data: DataGouvRnaRecord[]) => {
   const bulk = [];
   let count = 0;
 
   for (const doc of data) {
+    // Remove header
+    if (doc.id === "id") continue;
+
     const department = findDepartment(doc.adrs_codepostal);
     const obj = {
       rna: doc.id,
@@ -96,12 +84,12 @@ const writeData = async (data: DataGouvRnaRecord[]) => {
       website: doc.siteweb,
       observation: doc.observation,
       syncAt: new Date(),
-    } as RNA;
+    } as Organization;
 
     bulk.push({ updateOne: { filter: { rna: doc.id }, update: obj, upsert: true } });
 
     if (bulk.length === 5000) {
-      const res = await RnaModel.bulkWrite(bulk);
+      const res = await OrganizationModel.bulkWrite(bulk);
       console.log(res);
       bulk.length = 0;
     }

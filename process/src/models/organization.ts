@@ -1,9 +1,10 @@
 import { Schema, model } from "mongoose";
 
-import { RNA } from "../types";
+import { Organization } from "../types";
 
-const MODELNAME = "rna";
-const schema = new Schema<RNA>(
+const MODELNAME = "organization";
+
+const schema = new Schema<Organization>(
   {
     esId: { type: String, description: "ES ID" },
     rna: { type: String, required: true, description: "RNA" },
@@ -53,5 +54,9 @@ const schema = new Schema<RNA>(
   { timestamps: true },
 );
 
-const RnaModel = model<RNA>(MODELNAME, schema);
-export default RnaModel;
+schema.index({ rna: 1 }, { unique: true });
+schema.index({ title: 1 });
+schema.index({ siret: 1 });
+
+const OrganizationModel = model<Organization>(MODELNAME, schema);
+export default OrganizationModel;
