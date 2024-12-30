@@ -13,7 +13,7 @@ export interface Organization {
   lastDeclaredAt?: Date;
   publishedAt?: Date;
   dissolvedAt?: Date;
-  updatedAt?: Date;
+  updatedAt: Date;
   nature?: string;
   groupement?: string;
   title: string;

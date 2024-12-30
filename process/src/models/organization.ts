@@ -56,6 +56,7 @@ const schema = new Schema<Organization>(
 
 schema.index({ rna: 1 }, { unique: true });
 schema.index({ title: 1 });
+schema.index({ titleSlug: 1 });
 schema.index({ siret: 1 });
 
 const OrganizationModel = model<Organization>(MODELNAME, schema);
