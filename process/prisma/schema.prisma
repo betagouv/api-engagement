@@ -55,8 +55,6 @@ model Organization {
   observation String?
   sync_at DateTime?
   source String?
-
-  missions Mission[]
 }
 
 
@@ -90,7 +88,6 @@ model Mission {
   organization_url                String?
   organization_full_address       String?
   organization_id                 String?
-  organization                    Organization? @relation(fields: [organization_id], references: [id])
 
   schedule                        String?
   remote                          String?
