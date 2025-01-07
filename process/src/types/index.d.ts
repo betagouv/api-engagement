@@ -318,7 +318,7 @@ export interface StatsReport {
       applyLastYear: number;
     }[];
     organizationHistogram: {
-      month: Date;
+      month: number;
       [key: string]: number;
     }[];
   };
@@ -352,8 +352,8 @@ export interface StatsReport {
       applyLastYear: number;
     }[];
     organizationHistogram: {
-      month: Date;
       [key: string]: number;
+      month: number;
     }[];
   };
 }

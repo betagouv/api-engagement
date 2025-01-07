@@ -9,7 +9,8 @@ const handler = async () => {
   console.log(`[Report] Starting at ${start.toISOString()}`);
   try {
     const year = new Date().getFullYear();
-    const month = new Date().getMonth() - 1;
+    // const month = new Date().getMonth() - 1;
+    const month = 8;
 
     console.log(`[Report] Generating report for ${year}-${month}`);
     const generationRes = await generate(year, month);
