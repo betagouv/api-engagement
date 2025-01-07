@@ -376,7 +376,7 @@ export interface Report {
   applyFrom: number;
   applyTo: number;
   data: StatsReport;
-  error: string;
+  error: string | null;
   createdAt: Date;
   updatedAt: Date;
 }

@@ -1,6 +1,6 @@
 import { jsPDF } from "jspdf";
 import { StatsReport } from "../../../types";
-import { COLORS, drawBoxText, drawText, PAGE_WIDTH, TEXT_BODY_LINE_HEIGHT, TOP_COLORS, drawLineChart, drawBarChart } from "./utils";
+import { COLORS, drawBoxText, drawText, PAGE_WIDTH, TEXT_BODY_LINE_HEIGHT, TOP_COLORS, drawLineChart, drawBarChart, formatNumber } from "./utils";
 
 const CONTAINER_PADDING = 32;
 
@@ -28,9 +28,9 @@ const drawTopOrganizationsTable = (doc: jsPDF, data: StatsReport, x: number, y: 
       const item = data.receive.topOrganizations[i];
       drawText(doc, `${i + 1}.`, currentX, currentY, { fontSize: 12, color: TOP_COLORS[i] || COLORS.primary });
 
-      drawText(doc, item.key, currentX + 24, currentY, { fontSize: 12, color: TOP_COLORS[i] || COLORS.primary });
+      drawText(doc, item.key.length > 48 ? `${item.key.substring(0, 48)}...` : item.key, currentX + 24, currentY, { fontSize: 12, color: TOP_COLORS[i] || COLORS.primary });
 
-      const statsText = `${item.doc_count.toLocaleString("fr")} redirections`;
+      const statsText = `${formatNumber(item.doc_count)} redirections`;
       drawText(doc, statsText, currentX + 350, currentY, { fontSize: 12, color: COLORS.textGrey });
 
       const percentText = `${(item.doc_count / data.receive.click).toLocaleString("fr", {
@@ -118,7 +118,7 @@ const drawMainContainer = (doc: jsPDF, data: StatsReport, x: number, y: number, 
     fontSize: 14,
     color: COLORS.primary,
   });
-  clickY = drawText(doc, data.receive.click.toLocaleString("fr"), currentX, clickY, {
+  clickY = drawText(doc, formatNumber(data.receive.click), currentX, clickY, {
     fontWeight: "bold",
     fontSize: 16,
   });
@@ -134,7 +134,7 @@ const drawMainContainer = (doc: jsPDF, data: StatsReport, x: number, y: number, 
     fontSize: 14,
     color: COLORS.primary,
   });
-  clickY = drawText(doc, data.receive.clickYear.toLocaleString("fr"), currentX, clickY, {
+  clickY = drawText(doc, formatNumber(data.receive.clickYear), currentX, clickY, {
     fontWeight: "bold",
     fontSize: 16,
   });
@@ -155,7 +155,7 @@ const drawMainContainer = (doc: jsPDF, data: StatsReport, x: number, y: number, 
     fontSize: 14,
     color: COLORS.secondary,
   });
-  applyY = drawText(doc, data.receive.apply.toLocaleString("fr"), currentX, applyY, {
+  applyY = drawText(doc, formatNumber(data.receive.apply), currentX, applyY, {
     fontWeight: "bold",
     fontSize: 16,
   });
@@ -172,7 +172,7 @@ const drawMainContainer = (doc: jsPDF, data: StatsReport, x: number, y: number, 
     fontSize: 14,
     color: COLORS.secondary,
   });
-  applyY = drawText(doc, data.receive.applyYear.toLocaleString("fr"), currentX, applyY, {
+  applyY = drawText(doc, formatNumber(data.receive.applyYear), currentX, applyY, {
     fontWeight: "bold",
     fontSize: 16,
   });
@@ -188,7 +188,7 @@ const drawMainContainer = (doc: jsPDF, data: StatsReport, x: number, y: number, 
   return Math.max(currentY, applyY);
 };
 
-export const generateAnnounce = (doc: jsPDF, data: StatsReport, year: number) => {
+export const generateAnnounce = (doc: jsPDF, data: StatsReport) => {
   // Title
   let currentY = 224 + CONTAINER_PADDING;
   let currentX = CONTAINER_PADDING;

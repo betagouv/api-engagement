@@ -16,6 +16,10 @@ export const COLORS = {
 
 export const TOP_COLORS = ["#000091", "#FB955D", "#F96666", "#54D669", "#FF6FF1"];
 
+export const formatNumber = (number: number) => {
+  return number.toLocaleString("fr").replace(/\s/g, " ");
+};
+
 export const drawText = (
   doc: jsPDF,
   text: string,
@@ -65,11 +69,14 @@ export const drawBoxText = (
   backgroundColor: string,
   options?: { fontSize?: number; fontWeight?: string; color?: string; lineHeight?: number; lineHeightFactor?: number; width?: number },
 ) => {
+  doc.setFont("Marianne", options?.fontWeight || "normal");
+  doc.setFontSize((options?.fontSize || 12) * TEXT_SIZE_FACTOR);
+  doc.setTextColor(options?.color || "#000000");
   const textWidth = doc.getTextWidth(text);
   doc.setFillColor(backgroundColor);
-  doc.rect(x, y + 2, textWidth, 20, "F");
-  const height = drawText(doc, text, x + 6, y - 1, { fontWeight: "bold", fontSize: 12, color: options?.color || "#000000" }) + 2;
-  return { width: textWidth, height };
+  doc.rect(x, y + 4, textWidth + 6, 20, "F");
+  doc.text(text, x + 3, y + TEXT_BODY_LINE_HEIGHT - 6);
+  return { width: textWidth + 6, height: 20 };
 };
 
 interface Point {

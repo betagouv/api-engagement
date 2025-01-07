@@ -8,9 +8,8 @@ const handler = async () => {
   const start = new Date();
   console.log(`[Report] Starting at ${start.toISOString()}`);
   try {
-    const year = new Date().getFullYear();
-    // const month = new Date().getMonth() - 1;
-    const month = 8;
+    const month = new Date().getMonth() !== 0 ? new Date().getMonth() - 1 : 11;
+    const year = month === 11 ? new Date().getFullYear() - 1 : new Date().getFullYear();
 
     console.log(`[Report] Generating report for ${year}-${month}`);
     const generationRes = await generate(year, month);

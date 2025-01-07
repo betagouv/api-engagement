@@ -1,6 +1,6 @@
 import { jsPDF } from "jspdf";
 import { StatsReport } from "../../../types";
-import { drawSVG, drawBoxText, drawText, PAGE_WIDTH } from "./utils";
+import { drawSVG, drawBoxText, drawText, PAGE_WIDTH, formatNumber } from "./utils";
 
 // import eyeIcon from "../assets/eye.svg";
 // import clickIcon from "../assets/click.svg";
@@ -65,7 +65,7 @@ const drawStatBox = ({ doc, x, y, width, icon, title, value, compareValue }: Sta
   let currentX = x + BOX_STATS_HEIGHT + BOX_PADDING;
 
   // Title
-  currentY = drawText(doc, `${value.toLocaleString("fr")} ${title}`, currentX, currentY, { fontWeight: "bold", fontSize: 16 });
+  currentY = drawText(doc, `${formatNumber(value)} ${title}`, currentX, currentY, { fontWeight: "bold", fontSize: 16 });
 
   // Comparison
   const raise = compare(value, compareValue);
@@ -100,7 +100,7 @@ const drawTopBox = ({ doc, x, y, width, title, value }: TopBoxProps) => {
 
   // Top publishers
   const topPublishers = value.slice(0, 3).map((top: { key: string; doc_count: number }, index: number) => {
-    return `${index + 1}. ${top.key} - ${top.doc_count.toLocaleString("fr")} redirections`;
+    return `${index + 1}. ${top.key} - ${formatNumber(top.doc_count)} redirections`;
   });
 
   for (const top of topPublishers) {
@@ -111,7 +111,7 @@ const drawTopBox = ({ doc, x, y, width, title, value }: TopBoxProps) => {
 const generateOverviewSection = (doc: jsPDF, data: StatsReport, x: number, width: number, isAnnounce: boolean, useSingleColumn: boolean = false) => {
   // White container with padding
   doc.setFillColor(255, 255, 255);
-  doc.rect(x, 224, width, useSingleColumn ? 520 : 838, "F");
+  doc.rect(x, 224, width, useSingleColumn ? 838 : 520, "F");
 
   let currentY = 224 + CONTAINER_PADDING;
   let currentX = x + CONTAINER_PADDING;
@@ -289,7 +289,7 @@ const generateOverviewSection = (doc: jsPDF, data: StatsReport, x: number, width
       x: x + CONTAINER_PADDING + colWidth + BOX_GAP,
       y: currentY,
       width: colWidth,
-      title: "Vos top diffuseurs",
+      title: isAnnounce ? "Vos top diffuseurs" : "Vos top annonceurs",
       value: stats.topPublishers,
     });
   }
