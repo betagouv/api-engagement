@@ -97,7 +97,7 @@ const SignupForm = ({ user }) => {
     if (values.firstname.trim() === "") {
       errors.firstname = "Le prénom est requis";
     }
-    if (values.password.length < 12 || !/[a-zA-Z]/.test(values.password) || !/[0-9]/.test(values.password) || !/[!@#$%^&*(),.?":{}|<>]/.test(values.password)) {
+    if (!isPasswordValid(values.password)) {
       errors.password = "Le mot de passe ne respecte pas les critères de sécurité";
     }
     if (values.password === values.email) {
@@ -205,8 +205,8 @@ const SignupForm = ({ user }) => {
           <span className={`align-middle text-sm ${/[0-9]/.test(values.password) ? "text-green-600" : "text-gray-600"}`}>Au moins un chiffre</span>
         </div>
         <div className="flex gap-2 items-center">
-          {/[!@#$%^&*(),.?":{}|<>]/.test(values.password) ? <AiFillCloseCircle className="text-green-700" /> : <AiFillCloseCircle className="text-gray-600" />}
-          <span className={`align-middle text-sm ${/[!@#$%^&*(),.?":{}|<>]/.test(values.password) ? "text-green-600" : "text-gray-600"}`}>Au moins un caractère spécial</span>
+          {/[!-@#$%^&*(),.?":{}|<>]/.test(values.password) ? <AiFillCloseCircle className="text-green-700" /> : <AiFillCloseCircle className="text-gray-600" />}
+          <span className={`align-middle text-sm ${/[!-@#$%^&*(),.?":{}|<>]/.test(values.password) ? "text-green-600" : "text-gray-600"}`}>Au moins un caractère spécial</span>
         </div>
       </div>
       <div className="flex flex-col mt-4">

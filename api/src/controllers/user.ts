@@ -316,16 +316,21 @@ router.put("/change-password", passport.authenticate("user", { session: false })
     const body = zod
       .object({
         oldPassword: zod.string(),
-        newPassword: zod
-          .string()
-          .min(12)
-          .max(100)
-          .regex(/^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*#?&])[A-Za-z\d@$!%*#?&]{12,30}$/),
+        newPassword: zod.string(),
       })
       .required()
       .safeParse(req.body);
 
     if (!body.success) return res.status(400).send({ ok: false, code: INVALID_BODY, message: body.error });
+
+    if (
+      body.data.newPassword.length < 12 ||
+      !/[a-zA-Z]/.test(body.data.newPassword) ||
+      !/[0-9]/.test(body.data.newPassword) ||
+      !/[!-@#$%^&*(),.?":{}|<>]/.test(body.data.newPassword)
+    ) {
+      return res.status(400).send({ ok: false, code: "INVALID_PASSWORD" });
+    }
 
     const match = await req.user.comparePassword(body.data.oldPassword);
     if (!match) return res.status(400).send({ ok: false, code: INVALID_QUERY, message: `Old password is not correct` });
