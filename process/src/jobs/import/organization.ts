@@ -232,9 +232,9 @@ const findByName = async (names: string[]) => {
     const name = names[i];
     if (i % 50 === 0) console.log(`[Organization] Fetching ${i + 1} / ${names.length} names`);
 
-    const exactMatch = await OrganizationModel.findOne({ titleSlug: slugify(name) });
-    if (exactMatch) {
-      res.exact[name] = exactMatch;
+    const exactMatch = await OrganizationModel.find({ titleSlug: slugify(name) });
+    if (exactMatch.length === 1) {
+      res.exact[name] = exactMatch[0];
       continue;
     }
 

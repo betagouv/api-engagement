@@ -258,7 +258,7 @@ const importPublisher = async (publisher: Publisher, start: Date) => {
         mission.organizationDepartmentCodeVerified = r.organizationDepartmentCodeVerified;
         mission.organizationDepartmentNameVerified = r.organizationDepartmentNameVerified;
         mission.organizationRegionVerified = r.organizationRegionVerified;
-        mission.organisationIsRUP = r.organisationIsRUP;
+        // mission.organisationIsRUP = r.organisationIsRUP;
         mission.organizationVerificationStatus = r.organizationVerificationStatus;
       }
     });
