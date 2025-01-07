@@ -111,7 +111,7 @@ const drawTopBox = ({ doc, x, y, width, title, value }: TopBoxProps) => {
 const generateOverviewSection = (doc: jsPDF, data: StatsReport, x: number, width: number, isAnnounce: boolean, useSingleColumn: boolean = false) => {
   // White container with padding
   doc.setFillColor(255, 255, 255);
-  doc.rect(x, 224, width, 838, "F");
+  doc.rect(x, 224, width, useSingleColumn ? 520 : 838, "F");
 
   let currentY = 224 + CONTAINER_PADDING;
   let currentX = x + CONTAINER_PADDING;
