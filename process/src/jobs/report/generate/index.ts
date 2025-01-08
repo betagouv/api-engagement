@@ -64,7 +64,7 @@ export const generateReport = async (publisher: Publisher, year: number, month: 
     // Save and upload file
     const objectName = `publishers/${publisher._id}/reports/${year}${month + 1 < 10 ? `0${month + 1}` : month + 1}.pdf`;
     const buffer = Buffer.from(doc.output("arraybuffer"));
-    await putObject(objectName, buffer, OBJECT_ACL.PUBLIC_READ);
+    await putObject(objectName, buffer, { ACL: OBJECT_ACL.PUBLIC_READ });
     fs.writeFileSync(`rapports/${publisher._id}.pdf`, buffer);
 
     return {
@@ -118,6 +118,7 @@ export const generate = async (year: number, month: number) => {
       obj.clicksFrom = res.data.send ? res.data.send.click : 0;
       obj.applyTo = res.data.receive ? res.data.receive.apply : 0;
       obj.applyFrom = res.data.send ? res.data.send.apply : 0;
+      obj.dataTemplate = res.data.send ? "SEND" : "RECEIVE";
     }
     const existing = await ReportModel.findOne({ publisherId: publisher._id, year, month });
     if (existing) {

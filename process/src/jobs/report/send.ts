@@ -51,7 +51,6 @@ const sendReport = async (report: Report) => {
 };
 
 export const send = async (year: number, month: number) => {
-  // const publishers = await PublisherModel.find({ _id: "5f5931496c7ea514150a818f" });
   const publishers = await PublisherModel.find({ automated_report: true });
   const users = await UserModel.find({});
 
