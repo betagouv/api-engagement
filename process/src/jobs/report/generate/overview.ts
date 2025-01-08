@@ -2,9 +2,6 @@ import { jsPDF } from "jspdf";
 import { StatsReport } from "../../../types";
 import { drawSVG, drawBoxText, drawText, PAGE_WIDTH, formatNumber } from "./utils";
 
-// import eyeIcon from "../assets/eye.svg";
-// import clickIcon from "../assets/click.svg";
-
 const CONTAINER_PADDING = 32;
 const BOX_STATS_HEIGHT = 82;
 const BOX_TOP_HEIGHT = 130;

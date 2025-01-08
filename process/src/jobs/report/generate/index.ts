@@ -2,7 +2,7 @@ import { jsPDF } from "jspdf";
 import fs from "fs";
 
 import { putObject, OBJECT_ACL, BUCKET_URL } from "../../../services/s3";
-import { Publisher, Report, StatsReport } from "../../../types";
+import { Publisher, Report } from "../../../types";
 import PublisherModel from "../../../models/publisher";
 
 import Marianne from "../fonts/Marianne";
@@ -80,7 +80,6 @@ export const generateReport = async (publisher: Publisher, year: number, month: 
 
 export const generate = async (year: number, month: number) => {
   const publishers = await PublisherModel.find({ automated_report: true });
-  // const publishers = await PublisherModel.find({ _id: "5f5931496c7ea514150a818f" });
   let count = 0;
   const errors = [] as { id: string; name: string; error: string }[];
 
