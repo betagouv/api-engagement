@@ -1,5 +1,4 @@
 import { jsPDF } from "jspdf";
-import fs from "fs";
 
 import { putObject, OBJECT_ACL, BUCKET_URL } from "../../../services/s3";
 import { Publisher, Report } from "../../../types";
@@ -65,7 +64,6 @@ export const generateReport = async (publisher: Publisher, year: number, month: 
     const objectName = `publishers/${publisher._id}/reports/${year}${month + 1 < 10 ? `0${month + 1}` : month + 1}.pdf`;
     const buffer = Buffer.from(doc.output("arraybuffer"));
     await putObject(objectName, buffer, { ACL: OBJECT_ACL.PUBLIC_READ });
-    fs.writeFileSync(`rapports/${publisher._id}.pdf`, buffer);
 
     return {
       data,
@@ -118,7 +116,7 @@ export const generate = async (year: number, month: number) => {
       obj.clicksFrom = res.data.send ? res.data.send.click : 0;
       obj.applyTo = res.data.receive ? res.data.receive.apply : 0;
       obj.applyFrom = res.data.send ? res.data.send.apply : 0;
-      obj.dataTemplate = res.data.send ? "SEND" : "RECEIVE";
+      obj.dataTemplate = res.data.receive?.hasStats && res.data.send?.hasStats ? "BOTH" : res.data.receive?.hasStats ? "RECEIVE" : "SEND";
     }
     const existing = await ReportModel.findOne({ publisherId: publisher._id, year, month });
     if (existing) {
