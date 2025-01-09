@@ -141,6 +141,7 @@ const schema = new Schema<Report>(
       documentation: {
         description: "Error message",
       },
+      default: null,
     },
   },
   {

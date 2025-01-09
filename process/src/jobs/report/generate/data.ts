@@ -1,41 +1,8 @@
-import { NextFunction, Response, Router } from "express";
-import passport from "passport";
-import zod from "zod";
+import { STATS_INDEX } from "../../../config";
+import esClient from "../../../db/elastic";
+import { Publisher, StatsReport } from "../../../types";
 
-import { STATS_INDEX } from "../config";
-import esClient from "../db/elastic";
-import { INVALID_QUERY } from "../error";
-import PublisherModel from "../models/publisher";
-import { Publisher, StatsReport } from "../types";
-import { UserRequest } from "../types/passport";
-
-const router = Router();
-
-router.get("/", passport.authenticate("process", { session: false }), async (req: UserRequest, res: Response, next: NextFunction) => {
-  try {
-    const query = zod
-      .object({
-        year: zod.coerce.number().min(2000).max(2100).optional(),
-        month: zod.coerce.number().min(0).max(11).optional(),
-        publisherId: zod.string(),
-      })
-      .safeParse(req.query);
-
-    if (!query.success) return res.status(400).send({ ok: false, code: INVALID_QUERY, message: query.error });
-
-    const month = query.data.month || new Date().getMonth();
-    const year = query.data.year || new Date().getFullYear();
-
-    const publisher = await PublisherModel.findById(query.data.publisherId);
-    if (!publisher) return res.status(404).send({ ok: false, message: "Publisher not found" });
-
-    const data = await getData(year, month, publisher);
-
-    return res.status(200).send({ ok: true, data: { data, publisher } });
-  } catch (error) {
-    next(error);
-  }
-});
+export const MONTHS = ["Janvier", "Février", "Mars", "Avril", "Mai", "Juin", "Juillet", "Août", "Septembre", "Octobre", "Novembre", "Décembre"];
 
 const search = async (id: string, month: number, year: number, flux: string) => {
   // timezone remove
@@ -182,8 +149,6 @@ const search = async (id: string, month: number, year: number, flux: string) => 
   return data;
 };
 
-const MONTHS = ["Janvier", "Février", "Mars", "Avril", "Mai", "Juin", "Juillet", "Août", "Septembre", "Octobre", "Novembre", "Décembre"];
-
 const buildGraph = (
   clickBucket: { key: string; doc_count: number }[],
   clickLastYearBucket: { key: string; doc_count: number }[],
@@ -229,7 +194,7 @@ const buildHistogram = (buckets: any[], topOrganizations: { key: string }[]) => 
   return data;
 };
 
-const getData = async (year: number, month: number, publisher: Publisher) => {
+export const getData = async (year: number, month: number, publisher: Publisher) => {
   const data = {
     publisherName: publisher.name,
     publisherLogo: publisher.logo,
@@ -248,5 +213,3 @@ const getData = async (year: number, month: number, publisher: Publisher) => {
 
   return data;
 };
-
-export default router;

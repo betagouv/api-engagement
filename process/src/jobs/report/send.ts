@@ -51,7 +51,6 @@ const sendReport = async (report: Report) => {
 };
 
 export const send = async (year: number, month: number) => {
-  // const publishers = await PublisherModel.find({ _id: "5f5931496c7ea514150a818f" });
   const publishers = await PublisherModel.find({ automated_report: true });
   const users = await UserModel.find({});
 
@@ -83,7 +82,7 @@ export const send = async (year: number, month: number) => {
       continue;
     }
 
-    if (report.error === "Low traffic") {
+    if (report.error === "Données insuffisantes pour générer le rapport") {
       console.log(`[${publisher.name}] Report not sent because of low traffic`);
       skipped.push({
         name: publisher.name,
@@ -103,8 +102,6 @@ export const send = async (year: number, month: number) => {
 
     const receivers = users.filter((user) => publisher.send_report_to.includes(user._id.toString()));
     report.sentTo = receivers.map((r) => r.email);
-    // report.sentTo = ["theo.lemagueresse@selego.co", "quentin.dallery.beta@gmail.com", "nicolas.gouard.beta@gmail.com"];
-    // report.sentTo = ["theo.lemagueresse@selego.co"];
 
     console.log(`[${publisher.name}] Sending report to ${report.sentTo.map((e) => e).join(", ")}`);
     const res = await sendReport(report);
@@ -119,6 +116,7 @@ export const send = async (year: number, month: number) => {
       await report.save();
       continue;
     }
+
     report.sent = true;
     report.sentAt = new Date();
     await report.save();

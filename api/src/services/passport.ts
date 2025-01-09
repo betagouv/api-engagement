@@ -91,25 +91,6 @@ passport.use(
 );
 
 passport.use(
-  "process",
-  new HeaderAPIKeyStrategy({ header: "x-api-key", prefix: "" }, false, async (apikey, done) => {
-    try {
-      const publisher = await PublisherModel.findOne({ apikey, name: "API Engagement" });
-      if (publisher) {
-        Sentry.setUser({ id: publisher._id.toString(), username: publisher.name, email: publisher.email });
-        publisher.lastFetchAt = new Date();
-        await publisher.save();
-        return done(null, publisher);
-      }
-    } catch (error: any) {
-      captureException(error);
-      return done(error, false);
-    }
-    return done(null, false);
-  }),
-);
-
-passport.use(
   "leboncoin",
   new HeaderAPIKeyStrategy({ header: "Authorization", prefix: "" }, false, async (apikey, done) => {
     try {

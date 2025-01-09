@@ -279,11 +279,11 @@ const leboncoinJob = new CronJob(
 
 // Every first Tuesday of the month at 10:00 AM
 const reportJob = new CronJob(
-  "58 9 * * 3",
+  "0 10 * * 2",
   async () => {
     // if not the first Tuesday of the month, return
     const date = new Date();
-    if (date.getDay() !== 3 || date.getDate() > 7) return;
+    if (date.getDay() !== 2 || date.getDate() > 7) return;
 
     runnings.report = true;
     const checkInId = Sentry.captureCheckIn({
