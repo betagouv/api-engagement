@@ -42,8 +42,8 @@ const Filters = ({ filters, onChange, options }) => {
 
         <Select
           options={options.publishers.map((e) => ({ value: e.key, label: e.label, count: e.doc_count }))}
-          value={filters.publisher}
-          onChange={(e) => onChange({ ...filters, publisher: e.value })}
+          value={filters.publisherId}
+          onChange={(e) => onChange({ ...filters, publisherId: e.value })}
           placeholder="Annonceur"
         />
         <Select
@@ -94,7 +94,7 @@ const Filters = ({ filters, onChange, options }) => {
 
       <div className="flex flex-wrap gap-3">
         <Badge label="Statut" value={STATUS[filters.status]} onDelete={() => onChange({ ...filters, status: "" })} />
-        <Badge label="Annonceur" value={options.publishers.find((p) => p.key === filters.publisher)?.label} onDelete={() => onChange({ ...filters, publisher: "" })} />
+        <Badge label="Annonceur" value={options.publishers.find((p) => p.key === filters.publisherId)?.label} onDelete={() => onChange({ ...filters, publisherId: "" })} />
         <Badge label="Organisation" value={filters.organization} onDelete={() => onChange({ ...filters, organization: "" })} />
         <Badge
           label="Département"

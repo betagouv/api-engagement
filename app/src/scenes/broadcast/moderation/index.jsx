@@ -25,7 +25,7 @@ const Moderation = () => {
     size: 25,
     status: searchParams.get("status") || "",
     comment: searchParams.get("comment") || "",
-    publisher: searchParams.get("publisher") || "",
+    publisherId: searchParams.get("publisher") || "",
     organization: searchParams.get("organization") || "",
     department: searchParams.get("department") || "",
     city: searchParams.get("city") || "",
@@ -84,7 +84,7 @@ const Moderation = () => {
         moderatorId: publisher._id,
         status: filters.status,
         comment: filters.comment,
-        publisher: filters.publisher,
+        publisherId: filters.publisherId,
         city: filters.city,
         domain: filters.domain,
         department: filters.department,
@@ -108,7 +108,7 @@ const Moderation = () => {
       const newSearchParams = new URLSearchParams();
       if (filters.status) newSearchParams.set("status", filters.status);
       if (filters.comment) newSearchParams.set("comment", filters.comment);
-      if (filters.publisher) newSearchParams.set("publisher", filters.publisher);
+      if (filters.publisherId) newSearchParams.set("publisher", filters.publisherId);
       if (filters.organization) newSearchParams.set("organization", filters.organization);
       if (filters.department) newSearchParams.set("department", filters.department);
       if (filters.city) newSearchParams.set("city", filters.city);
