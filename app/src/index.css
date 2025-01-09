@@ -213,8 +213,7 @@ select {
   color: #666666 !important;
   margin: 0 !important;
 }
-.react-datepicker__day,
-.react-datepicker__day:not(.react-datepicker__day--disabled):hover {
+.react-datepicker__day {
   width: 40px;
   height: 40px;
   display: inline-flex;
@@ -227,7 +226,6 @@ select {
   padding-top: 6px;
   color: #000091;
 }
-
 .react-datepicker__day:not(.react-datepicker__day--disabled):hover {
   background: #1212ff;
   color: white;
@@ -247,25 +245,97 @@ select {
   background: #f5f5fe !important;
   color: #000091 !important;
 }
-.react-datepicker__day--keyboard-selected:not(.react-datepicker__day--outside-month),
-.react-datepicker__day--selecting-range-start:not(.react-datepicker__day--outside-month),
-.react-datepicker__day--selecting-range-start:hover,
-.react-datepicker__day--selecting-range-start:hover,
-.react-datepicker__day--range-end:not(.react-datepicker__day--outside-month),
-.react-datepicker__day--range-start:not(.react-datepicker__day--outside-month) {
+
+.react-datepicker__day--keyboard-selected:not(.react-datepicker__day--outside-month) {
+  background: transparent !important;
+  color: #000091 !important;
+}
+
+.react-datepicker__month .react-datepicker__day--range-start:not(.react-datepicker__day--outside-month),
+.react-datepicker__month .react-datepicker__day--range-end:not(.react-datepicker__day--outside-month) {
   background: #000091 !important;
   color: white !important;
   border-radius: 0 !important;
 }
 
-.react-datepicker__day--keyboard-selected,
-.react-datepicker__day--in-range,
+/* Ensure outside month dates stay gray */
 .react-datepicker__day--outside-month {
-  background: transparent !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+}
+
+/* Additional overrides for keyboard and mouse interactions NOT THIS */
+.react-datepicker__day--keyboard-selected.react-datepicker__day--range-end,
+.react-datepicker__day--selected.react-datepicker__day--range-end,
+.react-datepicker__day--in-selecting-range.react-datepicker__day--range-end {
+  background: #000091 !important;
+  color: white !important;
+}
+
+/* Only allow highlighting in the correct month */
+.react-datepicker__month--selected .react-datepicker__day--range-end:not(.react-datepicker__day--outside-month) {
+  background: #000091 !important;
+  color: white !important;
+}
+
+/* Then add specific styling only for the current month's range start/end */
+.react-datepicker__month--selected .react-datepicker__day--range-start:not(.react-datepicker__day--outside-month),
+.react-datepicker__month--selected .react-datepicker__day--range-end:not(.react-datepicker__day--outside-month) {
+  background: #000091 !important;
+  color: white !important;
+  border-radius: 0 !important;
+}
+
+/* Style for when selecting range */
+.react-datepicker__day--in-selecting-range:not(.react-datepicker__day--outside-month) {
+  background: #f5f5fe !important;
   color: #000091 !important;
+}
+
+/* Style for selected range start/end */
+.react-datepicker__day--selecting-range-start:not(.react-datepicker__day--outside-month),
+.react-datepicker__day--selecting-range-end:not(.react-datepicker__day--outside-month) {
+  background: #000091 !important;
+  color: white !important;
+  border-radius: 0 !important;
 }
 
 .react-datepicker__day--disabled {
   background: transparent !important;
   color: #929292 !important;
+  cursor: default;
+}
+
+.react-datepicker__day--in-selecting-range,
+.react-datepicker__day--in-range:not(.react-datepicker__day--range-end, .react-datepicker__day--range-start, .react-datepicker__day--outside-month) {
+  background: #f5f5fe !important;
+  color: #000091 !important;
+}
+
+.react-datepicker__day--keyboard-selected.react-datepicker__day--range-end,
+.react-datepicker__day--selected.react-datepicker__day--range-end,
+.react-datepicker__day--in-selecting-range.react-datepicker__day--range-end {
+  background: #000091 !important;
+  color: white !important;
+}
+
+.react-datepicker__day--range-end:not(.react-datepicker__day--outside-month) {
+  background: #000091 !important;
+  color: white !important;
+  border-radius: 0 !important;
+}
+
+/* Update range selection rules */
+.react-datepicker__day--in-selecting-range:not(.react-datepicker__day--outside-month),
+.react-datepicker__day--in-range:not(.react-datepicker__day--outside-month) {
+  background: #f5f5fe !important;
+  color: #000091 !important;
+}
+
+.react-datepicker__day--selecting-range-start:not(.react-datepicker__day--outside-month),
+.react-datepicker__day--selecting-range-end:not(.react-datepicker__day--outside-month),
+.react-datepicker__day--range-start:not(.react-datepicker__day--outside-month),
+.react-datepicker__day--range-end:not(.react-datepicker__day--outside-month) {
+  background: #000091 !important;
+  color: white !important;
 }
