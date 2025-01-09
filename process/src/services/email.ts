@@ -46,19 +46,6 @@ const api = async (path: string, body = {}, method = "POST") => {
   return { ok: res.ok, data: res };
 };
 
-// const api = async (path: string, body = {}) => {
-
-//   const res = await fetch(`https://api.sendinblue.com/v3${path}`, {
-//     method: "POST",
-//     headers: {
-//       "api-key": SENDINBLUE_APIKEY,
-//       "Content-Type": "application/json",
-//     },
-//     body: JSON.stringify(body),
-//   });
-//   return { ok: res.ok, data: await res.json() };
-// };
-
 export const sendTemplate = async (templateId: number, options: EmailOptions) => {
   try {
     const body = {
@@ -72,17 +59,17 @@ export const sendTemplate = async (templateId: number, options: EmailOptions) =>
     if (options.attachment) body.attachment = options.attachment;
     if (options.tags) body.tags = options.tags;
 
-    // if (ENVIRONMENT === "development") {
-    //   console.log(`---- EMAIL ----`);
-    //   console.log(`[to]: ${JSON.stringify(body.to, null, 2)}`);
-    //   console.log(`[template]: ${body.templateId}`);
-    //   console.log(`[subject]: ${body.subject}`);
-    //   console.log(`[params]: ${JSON.stringify(body.params, null, 2)}`);
-    //   console.log(`---- EMAIL ----`);
-    //   return { ok: true };
-    // } else {
-    return await api("/smtp/email", body);
-    // }
+    if (ENVIRONMENT === "development") {
+      console.log(`---- EMAIL ----`);
+      console.log(`[to]: ${JSON.stringify(body.to, null, 2)}`);
+      console.log(`[template]: ${body.templateId}`);
+      console.log(`[subject]: ${body.subject}`);
+      console.log(`[params]: ${JSON.stringify(body.params, null, 2)}`);
+      console.log(`---- EMAIL ----`);
+      return { ok: true };
+    } else {
+      return await api("/smtp/email", body);
+    }
   } catch (e) {
     captureException(e, "sendTemplate");
     return { ok: false };
