@@ -33,16 +33,7 @@ const Moderation = () => {
     domain: searchParams.get("domain") || "",
     search: searchParams.get("search") || "",
   });
-  const [options, setOptions] = useState({
-    status: [],
-    comments: [],
-    publishers: [],
-    activities: [],
-    domains: [],
-    departments: [],
-    organizations: [],
-    cities: [],
-  });
+  const [reloadFilters, setReloadFilters] = useState(false);
   const [data, setData] = useState([]);
   const [sort, setSort] = useState("");
   const [size, setSize] = useState(25);
@@ -61,10 +52,51 @@ const Moderation = () => {
   }, []);
 
   useEffect(() => {
-    const timeout = setTimeout(() => {
-      fetchData();
-    }, 300);
-    return () => clearTimeout(timeout);
+    const fetchData = async () => {
+      setLoading(true);
+      try {
+        const query = {
+          moderatorId: publisher._id,
+          status: filters.status,
+          comment: filters.comment,
+          publisherId: filters.publisherId,
+          city: filters.city,
+          domain: filters.domain,
+          department: filters.department,
+          organization: filters.organization,
+          activity: filters.activity,
+          search: filters.search,
+          from: (filters.page - 1) * filters.size,
+          size: size,
+          sort: sort,
+        };
+
+        if (query.page > 1) query.from = (query.page - 1) * query.size;
+
+        const resM = await api.post("/moderation/search", query);
+
+        if (!resM.ok) throw resM;
+        setData(resM.data);
+        setTotal(resM.total);
+
+        const newSearchParams = new URLSearchParams();
+        if (filters.status) newSearchParams.set("status", filters.status);
+        if (filters.comment) newSearchParams.set("comment", filters.comment);
+        if (filters.publisherId) newSearchParams.set("publisher", filters.publisherId);
+        if (filters.organization) newSearchParams.set("organization", filters.organization);
+        if (filters.department) newSearchParams.set("department", filters.department);
+        if (filters.city) newSearchParams.set("city", filters.city);
+        if (filters.activity) newSearchParams.set("activity", filters.activity);
+        if (filters.domain) newSearchParams.set("domain", filters.domain);
+        if (filters.search) newSearchParams.set("search", filters.search);
+        if (searchParams.has("mission")) newSearchParams.set("mission", searchParams.get("mission"));
+        setSearchParams(newSearchParams);
+      } catch (error) {
+        captureError(error, "Une erreur est survenue");
+      }
+      setLoading(false);
+    };
+    fetchData();
   }, [filters, sort, size]);
 
   const fetchHistory = async () => {
@@ -75,52 +107,6 @@ const Moderation = () => {
     } catch (error) {
       captureError(error, "Une erreur est survenue");
     }
-  };
-
-  const fetchData = async () => {
-    setLoading(true);
-    try {
-      const query = {
-        moderatorId: publisher._id,
-        status: filters.status,
-        comment: filters.comment,
-        publisherId: filters.publisherId,
-        city: filters.city,
-        domain: filters.domain,
-        department: filters.department,
-        organization: filters.organization,
-        activity: filters.activity,
-        search: filters.search,
-        from: (filters.page - 1) * filters.size,
-        size: size,
-        sort: sort,
-      };
-
-      if (query.page > 1) query.from = (query.page - 1) * query.size;
-
-      const res = await api.post("/moderation/search", query);
-
-      if (!res.ok) throw res;
-      setData(res.data);
-      setTotal(res.total);
-      setOptions(res.aggs);
-
-      const newSearchParams = new URLSearchParams();
-      if (filters.status) newSearchParams.set("status", filters.status);
-      if (filters.comment) newSearchParams.set("comment", filters.comment);
-      if (filters.publisherId) newSearchParams.set("publisher", filters.publisherId);
-      if (filters.organization) newSearchParams.set("organization", filters.organization);
-      if (filters.department) newSearchParams.set("department", filters.department);
-      if (filters.city) newSearchParams.set("city", filters.city);
-      if (filters.activity) newSearchParams.set("activity", filters.activity);
-      if (filters.domain) newSearchParams.set("domain", filters.domain);
-      if (filters.search) newSearchParams.set("search", filters.search);
-      if (searchParams.has("mission")) newSearchParams.set("mission", searchParams.get("mission"));
-      setSearchParams(newSearchParams);
-    } catch (error) {
-      captureError(error, "Une erreur est survenue");
-    }
-    setLoading(false);
   };
 
   const handlePageChange = (page) => {
@@ -147,8 +133,8 @@ const Moderation = () => {
         <title>Modération - Diffuser des missions - API Engagement</title>
       </Helmet>
       <MissionModal
-        onChange={() => {
-          fetchData();
+        onChange={(values) => {
+          setData(data.map((d) => (d._id === values._id ? { ...d, ...values } : d)));
           fetchHistory();
         }}
       />
@@ -172,7 +158,7 @@ const Moderation = () => {
         <div className="h-px w-full bg-gray-border" />
       </div>
 
-      <Filters filters={filters} onChange={setFilters} options={options} searchParams={searchParams} />
+      <Filters filters={filters} onChange={setFilters} searchParams={searchParams} reload={reloadFilters} />
       <div className="px-12">
         <div className="h-px w-full bg-gray-border" />
       </div>
@@ -185,8 +171,14 @@ const Moderation = () => {
         onSize={setSize}
         onSort={setSort}
         onSelect={setSelected}
-        onChange={() => {
-          fetchData();
+        onChange={(values) => {
+          const newData = data.map((d) => {
+            const changed = values.find((v) => v._id === d._id);
+            if (changed) return { ...d, ...changed };
+            return d;
+          });
+          setData(newData);
+          setReloadFilters(!reloadFilters);
           fetchHistory();
         }}
       />
@@ -229,9 +221,10 @@ const Moderation = () => {
                 data={item}
                 history={history.organization[item.organizationName] || { ACCEPTED: 0, REFUSED: 0 }}
                 selected={selected.includes(item._id)}
-                onChange={() => {
-                  fetchData();
+                onChange={(values) => {
+                  setData(data.map((d) => (d._id === item._id ? { ...d, ...values } : d)));
                   fetchHistory();
+                  setReloadFilters(!reloadFilters);
                 }}
                 onSelect={() => setSelected(selected.includes(item._id) ? selected.filter((id) => id !== item._id) : [...selected, item._id])}
                 onFilter={(v) => setFilters({ ...filters, organization: v, page: 1 })}

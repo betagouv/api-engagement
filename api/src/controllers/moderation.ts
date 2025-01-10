@@ -73,6 +73,64 @@ router.post("/search", passport.authenticate("user", { session: false }), async 
       .limit(body.data.size)
       .skip(body.data.from);
 
+    return res.status(200).send({ ok: true, data: data.map((h: Mission) => buildData(h, body.data.moderatorId)), total });
+  } catch (error) {
+    next(error);
+  }
+});
+
+router.post("/aggs", passport.authenticate("user", { session: false }), async (req: UserRequest, res: Response, next: NextFunction) => {
+  try {
+    const body = zod
+      .object({
+        status: zod.enum(["ACCEPTED", "REFUSED", "PENDING", "ONGOING", ""]).optional(),
+        publisherId: zod.string().optional(),
+        moderatorId: zod.string(),
+        comment: zod.string().nullable().optional(),
+        domain: zod.string().nullable().optional(),
+        city: zod.string().nullable().optional(),
+        department: zod.string().nullable().optional(),
+        organization: zod.string().nullable().optional(),
+        search: zod.string().nullable().optional(),
+        activity: zod.string().nullable().optional(),
+      })
+      .safeParse(req.body);
+
+    if (!body.success) return res.status(400).send({ ok: false, code: INVALID_QUERY, error: body.error });
+
+    if (req.user.role !== "admin" && !req.user.publishers.includes(body.data.publisherId) && !req.user.publishers.includes(body.data.moderatorId))
+      return res.status(403).send({ ok: false, code: FORBIDDEN });
+
+    const moderator = await PublisherModel.findById(body.data.moderatorId);
+    if (!moderator || !moderator.moderator) return res.status(403).send({ ok: false, code: FORBIDDEN });
+
+    const where = { deleted: false, statusCode: "ACCEPTED", [`moderation_${body.data.moderatorId}_status`]: { $exists: true } } as any;
+
+    if (body.data.status) where[`moderation_${body.data.moderatorId}_status`] = body.data.status;
+    if (body.data.comment) where[`moderation_${body.data.moderatorId}_comment`] = body.data.comment;
+    if (body.data.publisherId) where.publisherId = body.data.publisherId;
+    else where.publisherId = { $in: moderator.publishers.map((p) => p.publisher) };
+    if (body.data.organization === "none") where.$or = [{ organizationName: "" }, { organizationName: null }];
+    else if (body.data.organization) where.organizationName = body.data.organization;
+
+    if (body.data.domain === "none") where.$or = [{ domain: "" }, { domain: null }];
+    else if (body.data.domain) where.domain = body.data.domain;
+
+    if (body.data.department === "none") where.$or = [{ departmentCode: "" }, { departmentCode: null }];
+    else if (body.data.department) where.departmentCode = body.data.department;
+
+    if (body.data.city === "none") where.$or = [{ city: "" }, { city: null }];
+    else if (body.data.city) where.city = body.data.city;
+
+    if (body.data.activity === "none") where.$or = [{ activity: "" }, { activity: null }];
+    else if (body.data.activity) where.activity = body.data.activity;
+    if (body.data.search)
+      where.$or = [
+        { title: { $regex: diacriticSensitiveRegex(body.data.search), $options: "i" } },
+        { organizationName: { $regex: diacriticSensitiveRegex(body.data.search), $options: "i" } },
+        { [`moderation_${body.data.moderatorId}_title`]: { $regex: diacriticSensitiveRegex(body.data.search), $options: "i" } },
+      ];
+
     const facets = await MissionModel.aggregate([
       { $match: where },
       {
@@ -91,7 +149,7 @@ router.post("/search", passport.authenticate("user", { session: false }), async 
 
     const publishers = await PublisherModel.find({}, { _id: 1, name: 1 });
 
-    const aggs = {
+    const data = {
       status: facets[0].status.map((b: { _id: string; count: number }) => ({ key: b._id, doc_count: b.count })),
       comments: facets[0].comments.filter((b: { _id: string }) => b._id).map((b: { _id: string; count: number }) => ({ key: b._id, doc_count: b.count })),
       publishers: facets[0].publishers.map((b: { _id: string; count: number }) => ({
@@ -110,7 +168,7 @@ router.post("/search", passport.authenticate("user", { session: false }), async 
       activities: facets[0].activities.map((b: { _id: string; count: number }) => ({ key: b._id, doc_count: b.count })),
     };
 
-    return res.status(200).send({ ok: true, data: data.map((h: Mission) => buildData(h, body.data.moderatorId)), total, aggs });
+    return res.status(200).send({ ok: true, data });
   } catch (error) {
     next(error);
   }

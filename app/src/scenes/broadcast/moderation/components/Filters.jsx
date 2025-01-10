@@ -1,11 +1,59 @@
-import { RiCloseFill, RiSearchLine } from "react-icons/ri";
+import { useEffect, useState } from "react";
+import { RiCloseFill } from "react-icons/ri";
 
 import ModerationManualIcon from "../../../../assets/svg/moderation-manual.svg";
 import Select from "../../../../components/NewSelect";
+import SearchInput from "../../../../components/SearchInput";
 import SearchSelect from "../../../../components/SearchSelect";
+import api from "../../../../services/api";
+import { captureError } from "../../../../services/error";
+import useStore from "../../../../services/store";
 import STATUS, { DEPARTMENT_LABELS, STATUS_PLR } from "./Constants";
 
-const Filters = ({ filters, onChange, options }) => {
+const Filters = ({ filters, onChange, reload }) => {
+  const { publisher } = useStore();
+  const [options, setOptions] = useState({
+    status: [],
+    comments: [],
+    publishers: [],
+    activities: [],
+    domains: [],
+    departments: [],
+    organizations: [],
+    cities: [],
+  });
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    const fetchOptions = async () => {
+      setLoading(true);
+      try {
+        const query = {
+          moderatorId: publisher._id,
+          status: filters.status,
+          comment: filters.comment,
+          publisherId: filters.publisherId,
+          city: filters.city,
+          domain: filters.domain,
+          department: filters.department,
+          organization: filters.organization,
+          activity: filters.activity,
+          search: filters.search,
+        };
+
+        const res = await api.post("/moderation/aggs", query);
+
+        if (!res.ok) throw res;
+        setOptions(res.data);
+      } catch (error) {
+        captureError(error, "Une erreur est survenue");
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchOptions();
+  }, [filters, reload]);
+
   return (
     <div className="mx-12">
       <div className="flex items-center justify-between">
@@ -15,22 +63,7 @@ const Filters = ({ filters, onChange, options }) => {
         </div>
       </div>
       <div className="mb-4 flex w-full justify-start">
-        <div className="flex w-[40%] overflow-hidden rounded-t border-b border-b-blue-dark">
-          <div className="flex items-center w-full bg-gray-light px-3 py-2 text-sm">
-            <label htmlFor="moderation-search" className="sr-only">
-              Rechercher
-            </label>
-            <input
-              id="moderation-search"
-              className="flex-1 bg-gray-light focus:outline-none"
-              name="moderation-search"
-              placeholder="Rechercher"
-              value={(filters.search || "").toString()}
-              onChange={(e) => onChange({ ...filters, search: e.target.value })}
-            />
-            <RiSearchLine className="text-disabled-grey-700" />
-          </div>
-        </div>
+        <SearchInput value={filters.search} onChange={(e) => onChange({ ...filters, search: e })} placeholder="Rechercher" className="w-[40%]" />
       </div>
       <div className="flex items-center gap-4 pb-4">
         <Select
@@ -38,6 +71,7 @@ const Filters = ({ filters, onChange, options }) => {
           value={filters.status}
           onChange={(e) => onChange({ ...filters, status: e.value })}
           placeholder="Statut"
+          loading={loading}
         />
 
         <Select
@@ -45,12 +79,14 @@ const Filters = ({ filters, onChange, options }) => {
           value={filters.publisherId}
           onChange={(e) => onChange({ ...filters, publisherId: e.value })}
           placeholder="Annonceur"
+          loading={loading}
         />
         <Select
           options={options.domains.map((e) => ({ value: e.key === "" ? "none" : e.key, label: e.key === "" ? "Non renseignée" : e.key, count: e.doc_count }))}
           value={filters.domain}
           onChange={(e) => onChange({ ...filters, domain: e.value })}
           placeholder="Domaine"
+          loading={loading}
         />
         <SearchSelect
           placeholder="Organisation"
@@ -58,6 +94,7 @@ const Filters = ({ filters, onChange, options }) => {
           value={filters.organization}
           onChange={(e) => onChange({ ...filters, organization: e.value })}
           className="w-80 right-0"
+          loading={loading}
         />
       </div>
       <div className="flex items-center gap-4 pb-6">
@@ -66,6 +103,7 @@ const Filters = ({ filters, onChange, options }) => {
           value={filters.comment}
           onChange={(e) => onChange({ ...filters, comment: e.value })}
           placeholder="Motif de refus"
+          loading={loading}
         />
         <Select
           options={options.departments.map((e) => ({
@@ -76,6 +114,7 @@ const Filters = ({ filters, onChange, options }) => {
           value={filters.department}
           onChange={(e) => onChange({ ...filters, department: e.value })}
           placeholder="Département"
+          loading={loading}
         />
         <SearchSelect
           placeholder="Ville"
@@ -83,12 +122,14 @@ const Filters = ({ filters, onChange, options }) => {
           value={filters.city}
           onChange={(e) => onChange({ ...filters, city: e.value })}
           className="w-80 right-0"
+          loading={loading}
         />
         <Select
           options={options.activities.map((e) => ({ value: e.key === "" ? "none" : e.key, label: e.key === "" ? "Non renseignée" : e.key, count: e.doc_count }))}
           value={filters.activity}
           onChange={(e) => onChange({ ...filters, activity: e.value })}
           placeholder="Activité"
+          loading={loading}
         />
       </div>
 
