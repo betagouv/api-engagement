@@ -78,7 +78,7 @@ const MissionModal = ({ onChange }) => {
       setData(res.data);
       onChange(res.data);
 
-      if (doc.status === "REFUSED" && doc.comment.includes("L'organisation") && history.PENDING) setIsOrganizationRefusedOpen(true);
+      if (doc.status === "REFUSED" && doc.comment.includes("L'organisation")) setIsOrganizationRefusedOpen(true);
     } catch (error) {
       captureError(error, "Erreur lors de la mise à jour de la mission", {
         position: "bottom-right",
