@@ -88,35 +88,22 @@ export const generate = async (year: number, month: number) => {
       name: `Rapport ${MONTHS[month]} ${year}`,
       month,
       year,
-      objectName: null,
-      url: null,
       publisherId: publisher._id.toString(),
       publisherName: publisher.name,
-      sent: false,
-      sentAt: null,
-      sentTo: [] as string[],
-      dataTemplate: "NONE",
       data: res.data,
     } as Report;
 
     if (res.error) {
-      obj.error = "Erreur lors de la génération du rapport";
-      errors.push({ id: publisher._id.toString(), name: publisher.name, error: obj.error });
+      obj.status = "NOT_GENERATED_ERROR_GENERATION";
+      errors.push({ id: publisher._id.toString(), name: publisher.name, error: "Erreur lors de la génération du rapport" });
     } else if (!res.objectName) {
-      obj.error = "Données insuffisantes pour générer le rapport";
-      errors.push({ id: publisher._id.toString(), name: publisher.name, error: obj.error });
+      obj.status = "NOT_GENERATED_NO_DATA";
+      errors.push({ id: publisher._id.toString(), name: publisher.name, error: "Données insuffisantes pour générer le rapport" });
     } else {
       obj.objectName = res.objectName;
       obj.url = res.url;
-      obj.sent = true;
-      obj.sentAt = new Date();
-      obj.sentTo = [];
-
-      obj.clicksTo = res.data.receive ? res.data.receive.click : 0;
-      obj.clicksFrom = res.data.send ? res.data.send.click : 0;
-      obj.applyTo = res.data.receive ? res.data.receive.apply : 0;
-      obj.applyFrom = res.data.send ? res.data.send.apply : 0;
       obj.dataTemplate = res.data.receive?.hasStats && res.data.send?.hasStats ? "BOTH" : res.data.receive?.hasStats ? "RECEIVE" : "SEND";
+      obj.status = "GENERATED";
     }
     const existing = await ReportModel.findOne({ publisherId: publisher._id, year, month });
     if (existing) {

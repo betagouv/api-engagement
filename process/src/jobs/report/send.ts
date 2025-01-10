@@ -77,12 +77,12 @@ export const send = async (year: number, month: number) => {
         name: publisher.name,
         error: `Aucun email de contact renseigné`,
       });
-      report.error = "Aucun email de contact renseigné";
+      report.status = "NOT_SENT_NO_RECIPIENT";
       await report.save();
       continue;
     }
 
-    if (report.error === "Données insuffisantes pour générer le rapport") {
+    if (report.status === "NOT_GENERATED_NO_DATA") {
       console.log(`[${publisher.name}] Report not sent because of low traffic`);
       skipped.push({
         name: publisher.name,
@@ -97,6 +97,8 @@ export const send = async (year: number, month: number) => {
         name: publisher.name,
         error: `Rapport non envoyé car URL manquante`,
       });
+      report.status = "NOT_SENT_MISSING_URL";
+      await report.save();
       continue;
     }
 
@@ -112,12 +114,12 @@ export const send = async (year: number, month: number) => {
         name: publisher.name,
         error: `Error sending report ${res}`,
       });
-      report.error = "Could not send report";
+      report.status = "NOT_SENT_ERROR_SENDING";
       await report.save();
       continue;
     }
 
-    report.sent = true;
+    report.status = "SENT";
     report.sentAt = new Date();
     await report.save();
     count += report.sentTo.length;

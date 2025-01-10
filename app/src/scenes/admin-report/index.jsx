@@ -6,11 +6,11 @@ import { RiDownload2Line } from "react-icons/ri";
 import Select from "../../components/NewSelect";
 import TablePagination from "../../components/NewTablePagination";
 import SearchSelect from "../../components/SearchSelect";
-import { MONTHS, YEARS } from "../../constants";
+import { MONTHS, REPORT_STATUS, YEARS } from "../../constants";
 import api from "../../services/api";
 import { captureError } from "../../services/error";
 
-const TABLE_HEADER = [{ title: "Partenaire", key: "publisherName" }, { title: "Envoie", key: "sentAt" }, { title: "Stat" }];
+const TABLE_HEADER = [{ title: "Partenaire", key: "publisherName" }, { title: "Statut", key: "status" }, { title: "Stat" }];
 
 const AdminReport = () => {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -24,7 +24,7 @@ const AdminReport = () => {
   });
   const [options, setOptions] = useState({
     publishers: [],
-    errors: [],
+    status: [],
   });
   const [data, setData] = useState([]);
   const [total, setTotal] = useState(0);
@@ -84,10 +84,10 @@ const AdminReport = () => {
           />
           <Select options={YEARS.map((e) => ({ value: e, label: e }))} value={filters.year} onChange={(e) => setFilters({ ...filters, year: e.value })} placeholder="Année" />
           <SearchSelect
-            options={options.errors.sort((a, b) => b.count - a.count).map((e) => ({ value: e._id, label: e._id, count: e.count }))}
-            value={filters.error}
-            onChange={(e) => setFilters({ ...filters, error: e.value })}
-            placeholder="Erreur"
+            options={options.status.sort((a, b) => b.count - a.count).map((e) => ({ value: e._id, label: REPORT_STATUS[e._id] || e._id, count: e.count }))}
+            value={filters.status}
+            onChange={(e) => setFilters({ ...filters, status: e.value })}
+            placeholder="Statut"
             loading={loading}
           />
         </div>
@@ -103,8 +103,8 @@ const AdminReport = () => {
         >
           {data.map((item, i) => (
             <tr key={i} className={`${i % 2 === 0 ? "bg-gray-100" : "bg-gray-50"} table-item`}>
-              <td className="p-4 space-y-2">
-                <Link className="font-bold text-lg link" to={`/publisher/${item.publisherId}`}>
+              <td className="p-4 space-y-1">
+                <Link className="font-bold text-base link" to={`/publisher/${item.publisherId}`}>
                   {item.publisherName}
                 </Link>
                 <div className="flex items-center gap-2">
@@ -117,26 +117,25 @@ const AdminReport = () => {
                 </div>
               </td>
               <td className="px-4">
-                {item.sentAt ? (
-                  <div className="space-y-1">
+                {item.status === "SENT" ? (
+                  <>
                     <div className="flex items-center gap-2">
                       <div className="h-2 w-2 bg-green-500 rounded-full" />
-                      <p>
-                        {new Date(item.createdAt).toLocaleDateString("fr")} à {new Date(item.createdAt).toLocaleTimeString("fr")}
-                      </p>
+                      <p className="flex-1 text-sm font-bold">Envoyé le {new Date(item.sentAt).toLocaleDateString("fr")}</p>
                     </div>
-                    <p>{item.sentTo.length ? item.sentTo.join(", ") : "Aucun destinataire"}</p>
-                  </div>
+                    <p className="text-xs">{item.sentTo.length ? item.sentTo.join(", ") : "Aucun destinataire"}</p>
+                  </>
                 ) : (
-                  <div className="space-y-1">
+                  <>
                     <div className="flex items-center gap-2">
                       <div className="h-2 w-2 bg-red-500 rounded-full" />
-                      <p>Non envoyé</p>
+                      <p className="flex-1 text-sm font-bold">Non envoyé</p>
                     </div>
-                    <p>{item.error}</p>
-                  </div>
+                    <p className="flex-1 text-xs">{REPORT_STATUS[item.status] || item.status}</p>
+                  </>
                 )}
               </td>
+
               <td className="p-4">
                 <div className="flex items-center gap-4">
                   <div className="flex-1 grid grid-cols-2 gap-2">

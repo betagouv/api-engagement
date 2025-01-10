@@ -146,7 +146,7 @@ export const DEPARTMENT_NAMES = {
 
 export const DAYS = ["Dimanche", "Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi", "Samedi"];
 export const MONTHS = ["Jan", "Fév", "Mar", "Avr", "Mai", "Jui", "Juil", "Aoû", "Sept", "Oct", "Nov", "Déc"];
-export const YEARS = [2021, 2022, 2023, 2024];
+export const YEARS = [2021, 2022, 2023, 2024, 2025, 2026];
 
 export const WARNINGS = {
   EMPTY_WARNING: {
@@ -169,4 +169,14 @@ export const WARNINGS = {
     name: "Problème de tracking",
     advice: "Pour monitorer les candidatures, le script doit être ajouté. Nous vous recommandons de le vérifier.",
   },
+};
+
+export const REPORT_STATUS = {
+  NOT_GENERATED_ERROR_GENERATION: "Erreur lors de la génération du rapport",
+  NOT_GENERATED_NO_DATA: "Données insuffisantes pour générer le rapport",
+  GENERATED: "Généré",
+  NOT_SENT_NO_RECIPIENT: "Aucun email de contact renseigné",
+  NOT_SENT_MISSING_URL: "URL manquante",
+  NOT_SENT_ERROR_SENDING: "Erreur lors de l'envoi du rapport",
+  SENT: "Envoyé",
 };

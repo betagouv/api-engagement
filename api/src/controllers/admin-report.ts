@@ -39,14 +39,14 @@ router.post("/search", passport.authenticate("admin", { session: false }), async
       {
         $facet: {
           publishers: [{ $group: { _id: "$publisherId", count: { $sum: 1 }, name: { $first: "$publisherName" } } }],
-          errors: [{ $group: { _id: "$error", count: { $sum: 1 } } }],
+          status: [{ $group: { _id: "$status", count: { $sum: 1 } } }],
         },
       },
     ]);
 
     const aggs = {
       publishers: facets[0].publishers,
-      errors: facets[0].errors.filter((e: any) => e._id),
+      status: facets[0].status.filter((e: any) => e._id),
     };
 
     return res.status(200).send({ ok: true, data, aggs, total });
