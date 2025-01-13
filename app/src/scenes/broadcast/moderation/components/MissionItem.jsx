@@ -10,11 +10,13 @@ import api from "../../../../services/api";
 import { captureError } from "../../../../services/error";
 import useStore from "../../../../services/store";
 import { COMMENTS, STATUS, STATUS_COLORS } from "./Constants";
+import OrganizationRefusedModal from "./OrganizationRefusedModal";
 
 const MissionItem = ({ data, history, selected, onChange, onSelect, onFilter }) => {
   const { publisher } = useStore();
   const [searchParams, setSearchParams] = useSearchParams();
   const [values, setValues] = useState(data);
+  const [isOrganizationRefusedOpen, setIsOrganizationRefusedOpen] = useState(false);
 
   useEffect(() => {
     setValues(data);
@@ -35,6 +37,8 @@ const MissionItem = ({ data, history, selected, onChange, onSelect, onFilter }) 
       if (!res.ok) throw res;
       toast.success("La mission a été modérée avec succès");
       onChange(res.data);
+
+      if (v.status === "REFUSED" && v.comment.includes("L'organisation")) setIsOrganizationRefusedOpen(true);
     } catch (error) {
       captureError(error, "Une erreur est survenue");
     }
@@ -48,6 +52,13 @@ const MissionItem = ({ data, history, selected, onChange, onSelect, onFilter }) 
 
   return (
     <>
+      <OrganizationRefusedModal
+        isOpen={isOrganizationRefusedOpen}
+        onClose={() => setIsOrganizationRefusedOpen(false)}
+        organizationName={data.organizationName}
+        comment={values.comment}
+        onChange={onChange}
+      />
       <span className="flex w-[5%] items-center">
         <label htmlFor="moderation-select" className="sr-only">
           Sélectionner la mission
