@@ -35,7 +35,7 @@ const AdminReport = () => {
       setLoading(true);
       try {
         const query = {};
-        if (filters.error) query.error = filters.error;
+        if (filters.status) query.status = filters.status;
         if (filters.publisherId) query.publisherId = filters.publisherId;
         if (filters.year) query.year = filters.year;
         if (filters.month) query.month = filters.month;

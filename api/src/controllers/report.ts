@@ -25,7 +25,6 @@ router.get("/pdf/:publisherId", async (req: Request, res: Response, next: NextFu
     if (!params.success) return res.status(400).send({ ok: false, code: INVALID_PARAMS, message: params.error });
     if (!query.success) return res.status(400).send({ ok: false, code: INVALID_QUERY, message: query.error });
 
-    console.log(params.data.publisherId, query.data.month, query.data.year);
     const report = await ReportModel.findOne({ publisherId: params.data.publisherId, month: query.data.month, year: query.data.year });
     if (!report) return res.status(404).send({ ok: false, code: NOT_FOUND, message: "Report not found" });
     if (!report.url) {
@@ -42,7 +41,7 @@ router.get("/:id", async (req: Request, res: Response, next: NextFunction) => {
   try {
     const params = zod
       .object({
-        id: zod.string(),
+        id: zod.string().regex(/^[0-9a-fA-F]{24}$/),
       })
       .safeParse(req.params);
 
