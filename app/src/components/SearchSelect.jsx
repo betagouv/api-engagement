@@ -1,11 +1,17 @@
 import { Fragment, useEffect, useRef, useState } from "react";
 import { RiArrowDownSLine, RiCloseFill } from "react-icons/ri";
+import Loader from "./Loader";
 
 const SearchSelect = ({ id, options, value, onChange, placeholder, className, loading = false }) => {
   const ref = useRef(null);
   const [isOpen, setIsOpen] = useState(false);
   const [search, setSearch] = useState("");
-  const selected = options.find((option) => option.value === value);
+  const [selected, setSelected] = useState(null);
+
+  useEffect(() => {
+    const selected = options.find((option) => option.value === value);
+    setSelected(selected || null);
+  }, [value, loading]);
 
   useEffect(() => {
     const handleClickOutside = (event) => {

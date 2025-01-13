@@ -4,8 +4,13 @@ import Loader from "./Loader";
 
 const Select = ({ options, value, onChange, className, placeholder = "Sélectionner une option", loading = false }) => {
   const [isOpen, setIsOpen] = useState(false);
+  const [selected, setSelected] = useState(null);
   const ref = useRef(null);
-  const selected = options.find((option) => option.value === value);
+
+  useEffect(() => {
+    const selected = options.find((option) => option.value === value);
+    setSelected(selected || null);
+  }, [value, loading]);
 
   const handleClear = (e) => {
     e.stopPropagation();

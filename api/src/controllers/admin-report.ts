@@ -11,7 +11,7 @@ router.post("/search", passport.authenticate("admin", { session: false }), async
   try {
     const body = zod
       .object({
-        error: zod.string().optional(),
+        status: zod.string().optional(),
         publisherId: zod.string().optional(),
         month: zod.coerce.number().optional(),
         year: zod.coerce.number().optional(),
@@ -24,7 +24,7 @@ router.post("/search", passport.authenticate("admin", { session: false }), async
     if (!body.success) return res.status(400).send({ ok: false, code: INVALID_BODY, message: body.error.errors });
 
     const where = {} as any;
-    if (body.data.error) where.error = body.data.error;
+    if (body.data.status) where.status = body.data.status;
     if (body.data.publisherId) where.publisherId = body.data.publisherId;
     if (body.data.month) where.month = body.data.month;
     if (body.data.year) where.year = body.data.year;
@@ -39,14 +39,14 @@ router.post("/search", passport.authenticate("admin", { session: false }), async
       {
         $facet: {
           publishers: [{ $group: { _id: "$publisherId", count: { $sum: 1 }, name: { $first: "$publisherName" } } }],
-          errors: [{ $group: { _id: "$error", count: { $sum: 1 } } }],
+          status: [{ $group: { _id: "$status", count: { $sum: 1 } } }],
         },
       },
     ]);
 
     const aggs = {
       publishers: facets[0].publishers,
-      errors: facets[0].errors.filter((e: any) => e._id),
+      status: facets[0].status.filter((e: any) => e._id),
     };
 
     return res.status(200).send({ ok: true, data, aggs, total });

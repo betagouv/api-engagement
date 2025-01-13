@@ -370,13 +370,9 @@ export interface Report {
   sent: boolean;
   sentAt: Date | null;
   sentTo: string[];
-  dataTemplate: "BOTH" | "RECEIVE" | "SEND" | "NONE";
-  clicksFrom: number;
-  clicksTo: number;
-  applyFrom: number;
-  applyTo: number;
+  dataTemplate: "BOTH" | "RECEIVE" | "SEND";
   data: StatsReport;
-  error: string | null;
+  status: string;
   createdAt: Date;
   updatedAt: Date;
 }

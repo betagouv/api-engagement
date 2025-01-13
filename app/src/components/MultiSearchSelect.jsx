@@ -5,7 +5,12 @@ const MultiSearchSelect = ({ options, value, onChange, placeholder, className, l
   const ref = useRef(null);
   const [isOpen, setIsOpen] = useState(false);
   const [search, setSearch] = useState("");
-  const selected = options.filter((option) => value.includes(option.value)).map((option) => option.value);
+  const [selected, setSelected] = useState([]);
+
+  useEffect(() => {
+    const selected = options.filter((option) => value.includes(option.value)).map((option) => option.value);
+    setSelected(selected);
+  }, [value, loading]);
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -87,32 +92,6 @@ const MultiSearchSelect = ({ options, value, onChange, placeholder, className, l
         </ul>
       )}
     </div>
-
-    // <Combobox value={selected} onChange={onSelect} onClose={() => setSearch("")} multiple by={(a, b) => a.value === b.value}>
-    //   <div className="relative">
-    //     <ComboboxInput aria-label={placeholder} onChange={(event) => setSearch(event.target.value)} placeholder={placeholder} className="select w-full" />
-    //     <ComboboxButton className="absolute inset-y-2 right-0 flex items-center pr-2">
-    //       <RiArrowDownSLine className="text-sm" />
-    //     </ComboboxButton>
-    //   </div>
-    //   <ComboboxOptions anchor="bottom" className={`border empty:invisible max-h-80 overflow-y-scroll transition duration-100 ease-in bg-white shadow-lg ${className || "w-56"}`}>
-    //     {options
-    //       .filter((option) => (search ? option.label.toLowerCase().includes(search.toLowerCase()) : true))
-    //       .map((option, i) => (
-    //         <Fragment key={i}>
-    //           {i !== 0 ? <div className="h-px mx-4 bg-gray-100" /> : null}
-    //           <ComboboxOption
-    //             key={option.value}
-    //             value={option}
-    //             className="group relative px-6 py-3 text-sm data-[focus]:bg-gray-100 data-[focus]:text-blue-dark bg-white text-black data-[selected]:text-blue-dark"
-    //           >
-    //             <RiCheckLine className="absolute left-1 top-1/2 -translate-y-1/2 text-sm opacity-0 text-blue-dark group-data-[selected]:opacity-100" />
-    //             {option.label}
-    //           </ComboboxOption>
-    //         </Fragment>
-    //       ))}
-    //   </ComboboxOptions>
-    // </Combobox>
   );
 };
 
