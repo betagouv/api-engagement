@@ -273,7 +273,11 @@ const MissionTab = ({ data, onChange }) => {
             Lien de la mission
           </label>
           <div className="flex items-center gap-2">
-            <Link to={`${data.applicationUrl}`} className="text-sm text-blue-dark underline w-fit" target="_blank">
+            <Link
+              to={data.applicationUrl.includes("http") ? data.applicationUrl : `https://${data.applicationUrl}`}
+              className="text-sm text-blue-dark underline w-fit"
+              target="_blank"
+            >
               Ouvrir le lien de la mission
             </Link>
             <RiExternalLinkLine />
