@@ -6,12 +6,14 @@ import "react-datepicker/dist/react-datepicker.css";
 import { RiArrowDownSLine, RiArrowLeftSLine, RiArrowRightSLine } from "react-icons/ri";
 
 const NOW = new Date();
+const YESTERDAY = new Date(NOW.getFullYear(), NOW.getMonth(), NOW.getDate() - 1);
+
 const RANGES = [
-  { label: "7 jours", from: new Date(NOW.getFullYear(), NOW.getMonth(), NOW.getDate() - 7), to: NOW },
-  { label: "30 jours", from: new Date(NOW.getFullYear(), NOW.getMonth(), NOW.getDate() - 30), to: NOW },
-  { label: "6 mois", from: new Date(NOW.getFullYear(), NOW.getMonth() - 6, NOW.getDate()), to: NOW },
-  { label: "12 mois", from: new Date(NOW.getFullYear() - 1, NOW.getMonth(), NOW.getDate()), to: NOW },
-  { label: "Total", from: new Date(2020, 0, 1), to: NOW },
+  { label: "7 jours", from: new Date(NOW.getFullYear(), NOW.getMonth(), NOW.getDate() - 7), to: YESTERDAY },
+  { label: "30 jours", from: new Date(NOW.getFullYear(), NOW.getMonth(), NOW.getDate() - 30), to: YESTERDAY },
+  { label: "6 mois", from: new Date(NOW.getFullYear(), NOW.getMonth() - 6, NOW.getDate()), to: YESTERDAY },
+  { label: "12 mois", from: new Date(NOW.getFullYear() - 1, NOW.getMonth(), NOW.getDate()), to: YESTERDAY },
+  { label: "Total", from: new Date(2020, 0, 1), to: YESTERDAY },
 ];
 
 const DateRangePicker = ({ value, onChange }) => {
@@ -73,28 +75,28 @@ export const DateInput = ({ value, onChange }) => {
           <div className="flex w-44 flex-col gap-4 overflow-x-scroll text-base">
             <button
               className="w-full cursor-pointer px-3 py-1 hover:bg-gray-hover text-left text-base"
-              onClick={() => handleChange([new Date(NOW.getFullYear(), NOW.getMonth(), NOW.getDate() - 7), NOW])}
+              onClick={() => handleChange([new Date(NOW.getFullYear(), NOW.getMonth(), NOW.getDate() - 7), YESTERDAY])}
             >
               Depuis 7 jours
             </button>
             <button
               className="w-full cursor-pointer px-3 py-1 hover:bg-gray-hover text-left text-base"
-              onClick={() => handleChange([new Date(NOW.getFullYear(), NOW.getMonth() - 1, NOW.getDate()), NOW])}
+              onClick={() => handleChange([new Date(NOW.getFullYear(), NOW.getMonth(), NOW.getDate() - 30), YESTERDAY])}
             >
               Depuis 30 jours
             </button>
             <button
               className="w-full cursor-pointer px-3 py-1 hover:bg-gray-hover text-left text-base"
-              onClick={() => handleChange([new Date(NOW.getFullYear() - 1, NOW.getMonth(), NOW.getDate()), NOW])}
+              onClick={() => handleChange([new Date(NOW.getFullYear() - 1, NOW.getMonth(), NOW.getDate()), YESTERDAY])}
             >
               Depuis 1 an
             </button>
-            <button className="w-full cursor-pointer px-3 py-1 hover:bg-gray-hover text-left text-base" onClick={() => handleChange([new Date(2020, 0, 1), NOW])}>
+            <button className="w-full cursor-pointer px-3 py-1 hover:bg-gray-hover text-left text-base" onClick={() => handleChange([new Date(2020, 0, 1), YESTERDAY])}>
               Depuis toujours
             </button>
             <button
               className="w-full cursor-pointer px-3 py-1 hover:bg-gray-hover text-left text-base"
-              onClick={() => handleChange([new Date(NOW.getFullYear(), NOW.getMonth(), 1), NOW])}
+              onClick={() => handleChange([new Date(NOW.getFullYear(), NOW.getMonth(), 1), YESTERDAY])}
             >
               Ce mois-ci
             </button>
@@ -104,7 +106,10 @@ export const DateInput = ({ value, onChange }) => {
             >
               Le mois dernier
             </button>
-            <button className="w-full cursor-pointer px-3 py-1 hover:bg-gray-hover text-left text-base" onClick={() => handleChange([new Date(NOW.getFullYear(), 0, 1), NOW])}>
+            <button
+              className="w-full cursor-pointer px-3 py-1 hover:bg-gray-hover text-left text-base"
+              onClick={() => handleChange([new Date(NOW.getFullYear(), 0, 1), YESTERDAY])}
+            >
               Cette année
             </button>
             <button
