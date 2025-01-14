@@ -6,6 +6,17 @@ generator client {
     provider = "postgresql"
     url      = env("PG_ENDPOINT")
   }
+
+  model OrganizationNameMatch {
+    id String @id @default(uuid())
+    old_id String @unique
+    name String
+    organization_ids String[]
+    organization_names String[]
+    mission_ids String[]
+    created_at DateTime @default(now())
+    updated_at DateTime @updatedAt
+  }
   
   model Organization {
     id String @id @default(uuid())
