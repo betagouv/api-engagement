@@ -8,7 +8,7 @@ import esClient from "../../db/elastic";
 import { MISSION_INDEX } from "../../config";
 
 import { buildMission } from "./mission";
-import { enrichWithRNA } from "./rna";
+import { verifyOrganization } from "./organization";
 import { enrichWithGeoloc } from "./geoloc";
 import { Import, Mission, MissionXML, Publisher } from "../../types";
 import MissionModel from "../../models/mission";
@@ -64,16 +64,6 @@ const shouldEnrichGeoloc = (missionXML: MissionXML, mission: Mission, missionDB?
   return "SHOULD_ENRICH";
 };
 
-const shouldEnrichRNA = (missionXML: MissionXML, mission: Mission, missionDB?: Mission) => {
-  if (!missionXML.organizationRNA && !missionXML.organizationName) return "NO_DATA";
-  // If organization changed, need to search
-  if (missionDB && (missionDB.organizationName !== mission.organizationName || missionDB.organizationRNA !== mission.organizationRNA)) return "SHOULD_ENRICH";
-  // If organization is given, don't need to search
-  if (missionDB && ["ENRICHED", "NOT_FOUND"].includes(missionDB.rnaStatus)) return missionDB.rnaStatus;
-
-  return "SHOULD_ENRICH";
-};
-
 // const buildData = (startTime: Date, publisher: Publisher, missionXML: MissionXML, missionDB?: ShortMission) => {
 const buildData = async (startTime: Date, publisher: Publisher, missionXML: MissionXML) => {
   try {
@@ -89,6 +79,8 @@ const buildData = async (startTime: Date, publisher: Publisher, missionXML: Miss
     mission.publisherLogo = publisher.logo;
     mission.publisherUrl = publisher.url;
     mission.updatedAt = new Date();
+
+    mission.organizationVerificationStatus = missionDB?.organizationVerificationStatus;
     if (missionDB && missionDB.statusCommentHistoric && Array.isArray(missionDB.statusCommentHistoric)) {
       if (missionDB.statusCode !== mission.statusCode) {
         mission.statusCommentHistoric = [...missionDB.statusCommentHistoric, { status: mission.statusCode, comment: mission.statusComment, date: mission.updatedAt }];
@@ -98,7 +90,6 @@ const buildData = async (startTime: Date, publisher: Publisher, missionXML: Miss
     }
 
     mission.geolocStatus = shouldEnrichGeoloc(missionXML, mission, missionDB);
-    mission.rnaStatus = shouldEnrichRNA(missionXML, mission, missionDB);
 
     // Add previous moderation temporary
     mission.moderation_5f5931496c7ea514150a818f_status = missionDB?.moderation_5f5931496c7ea514150a818f_status;
@@ -252,21 +243,23 @@ const importPublisher = async (publisher: Publisher, start: Date) => {
     });
 
     // RNA
-    const rnaShould = missions.filter((m) => m.rnaStatus === "SHOULD_ENRICH").map((m) => m);
-    const resultRNA = await enrichWithRNA(publisher, rnaShould);
+    const resultRNA = await verifyOrganization(missions);
     resultRNA.forEach((r) => {
       const mission = missions.find((m) => m.clientId.toString() === r.clientId.toString());
       if (mission) {
-        mission.associationRNA = r.associationRNA;
-        mission.associationSiren = r.associationSiren;
-        mission.associationName = r.associationName;
-        mission.associationAddress = r.associationAddress;
-        mission.associationCity = r.associationCity;
-        mission.associationPostalCode = r.associationPostalCode;
-        mission.associationDepartmentCode = r.associationDepartmentCode;
-        mission.associationDepartmentName = r.associationDepartmentName;
-        mission.associationRegion = r.associationRegion;
-        mission.rnaStatus = r.rnaStatus;
+        mission.organizationId = r.organizationId;
+        mission.organizationNameVerified = r.organizationNameVerified;
+        mission.organizationRNAVerified = r.organizationRNAVerified;
+        mission.organizationSirenVerified = r.organizationSirenVerified;
+        mission.organizationSiretVerified = r.organizationSiretVerified;
+        mission.organizationAddressVerified = r.organizationAddressVerified;
+        mission.organizationCityVerified = r.organizationCityVerified;
+        mission.organizationPostalCodeVerified = r.organizationPostalCodeVerified;
+        mission.organizationDepartmentCodeVerified = r.organizationDepartmentCodeVerified;
+        mission.organizationDepartmentNameVerified = r.organizationDepartmentNameVerified;
+        mission.organizationRegionVerified = r.organizationRegionVerified;
+        // mission.organisationIsRUP = r.organisationIsRUP;
+        mission.organizationVerificationStatus = r.organizationVerificationStatus;
       }
     });
 

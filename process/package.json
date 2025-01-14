@@ -22,7 +22,7 @@
     "@babel/preset-react": "^7.26.3",
     "@babel/register": "^7.25.9",
     "@elastic/elasticsearch": "^7.17.14",
-    "@prisma/client": "^5.20.0",
+    "@prisma/client": "^6.1.0",
     "@sentry/node": "^7.119.0",
     "@types/node": "^22.10.1",
     "@types/react-dom": "^19.0.0",
@@ -39,7 +39,6 @@
     "jspdf": "^2.5.2",
     "mongoose": "^8.7.0",
     "pm2": "^5.4.2",
-    "prisma": "^5.20.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "sharp": "^0.33.5",
@@ -56,6 +55,7 @@
     "@types/react": "^19.0.0",
     "@types/uuid": "^10.0.0",
     "@types/yauzl": "^2.10.3",
-    "prettier-plugin-organize-imports": "^4.1.0"
+    "prettier-plugin-organize-imports": "^4.1.0",
+    "prisma": "^6.1.0"
   }
 }
