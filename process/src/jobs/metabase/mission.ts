@@ -6,14 +6,12 @@ import MissionModel from "../../models/mission";
 
 const BULK_SIZE = 5000;
 
-const buildData = async (doc: MongoMission, partners: { [key: string]: string }) => {
+const buildData = (doc: MongoMission, partners: { [key: string]: string }) => {
   const partnerId = partners[doc.publisherId?.toString()];
   if (!partnerId) {
     console.log(`[Mission] Partner ${doc.publisherId?.toString()} not found for mission ${doc._id?.toString()}`);
     return null;
   }
-
-  const organization = doc.organizationId ? await prisma.organization.findUnique({ where: { id: doc.organizationId } }) : null;
 
   const obj = {
     old_id: doc._id?.toString(),
@@ -72,7 +70,8 @@ const buildData = async (doc: MongoMission, partners: { [key: string]: string })
     organization_reseaux: doc.organizationReseaux,
     organization_actions: doc.organizationActions || [],
 
-    organization_id: organization?.id,
+    association_id: doc.associationId,
+    association_rna: doc.associationRNA,
     rna_status: doc.rnaStatus,
 
     partner_id: partnerId,
