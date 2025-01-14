@@ -46,11 +46,9 @@ export const verifyOrganization = async (missions: Mission[]) => {
     );
     const resRna = organizationsRNAs.length !== 0 ? await findByRNA(organizationsRNAs) : {};
     const resSiret = organizationsSirets.length !== 0 ? await findBySiret(organizationsSirets) : {};
-    const resNames = organizationsNames.length !== 0 ? await findByName(organizationsNames) : { exact: {}, approximate: {} };
+    const resNames = organizationsNames.length !== 0 ? await findByName(organizationsNames) : { exact: {} /*, approximate: {}*/ };
 
-    console.log(
-      `[Organization] RNA Found for ${Object.keys(resRna).length} RNA, ${Object.keys(resSiret).length} sirets and ${Object.keys(resNames.exact).length} names and ${Object.keys(resNames.approximate).length} approximate names`,
-    );
+    console.log(`[Organization] RNA Found for ${Object.keys(resRna).length} RNA, ${Object.keys(resSiret).length} sirets and ${Object.keys(resNames.exact).length} names`);
     const updates = [] as Mission[];
 
     for (const mission of missions) {
@@ -116,12 +114,15 @@ export const verifyOrganization = async (missions: Mission[]) => {
           obj.organizationRegionVerified = data.addressRegion;
           // obj.organisationIsRUP = data.isRUP;
           obj.organizationVerificationStatus = "NAME_EXACT_MATCHED_WITH_DB";
-        } else if (resNames.approximate[mission.organizationName]) {
+        } else {
+          /* 
+        else if (resNames.approximate[mission.organizationName]) {
           obj.organizationVerificationStatus = "NAME_APPROXIMATE_MATCHED_WITH_DB";
           const match = resNames.approximate[mission.organizationName];
           match.missionIds = [...new Set([...match.missionIds, mission._id.toString()])];
           await match.save();
-        } else {
+        }
+        */
           obj.organizationVerificationStatus = "NAME_NOT_MATCHED";
         }
       } else {
@@ -224,10 +225,10 @@ const findBySiret = async (sirets: string[]) => {
 const findByName = async (names: string[]) => {
   const res = {
     exact: {} as { [key: string]: Organization },
-    approximate: {} as { [key: string]: HydratedDocument<OrganizationNameMatch> },
+    // approximate: {} as { [key: string]: HydratedDocument<OrganizationNameMatch> },
   };
 
-  console.log(`[Organization] Fetching ${names.length} names with approximate match`);
+  // console.log(`[Organization] Fetching ${names.length} names with approximate match`);
   for (let i = 0; i < names.length; i++) {
     const name = names[i];
     if (i % 50 === 0) console.log(`[Organization] Fetching ${i + 1} / ${names.length} names`);
@@ -238,6 +239,7 @@ const findByName = async (names: string[]) => {
       continue;
     }
 
+    /*
     // Try approximate match using case-insensitive regex
     const approximateMatch = await OrganizationModel.find({
       title: {
@@ -259,8 +261,9 @@ const findByName = async (names: string[]) => {
       }
       continue;
     }
+    */
   }
-  console.log(`[Organization] Found ${Object.keys(res.exact).length} exact matches and ${Object.keys(res.approximate).length} approximate matches`);
+  console.log(`[Organization] Found ${Object.keys(res.exact).length} exact matches`);
 
   return res;
 };
