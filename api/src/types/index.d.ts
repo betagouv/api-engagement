@@ -463,6 +463,7 @@ export interface Stats {
   userAgent: string;
   host: string;
   user?: string;
+  isBot: boolean;
   createdAt: Date;
   fromPublisherId: string;
   fromPublisherName: string;
@@ -483,6 +484,17 @@ export interface Stats {
   type: "print" | "apply" | "click" | "account";
   status: "PENDING" | "VALIDATED" | "CANCEL" | "CANCELED" | "REFUSED" | "CARRIED_OUT" | undefined;
 }
+
+export type StatsBot = {
+  _id: Schema.Types.ObjectId;
+  origin?: string;
+  referer?: string;
+  userAgent?: string;
+  host?: string;
+  user: string;
+  createdAt: Date;
+  updatedAt: Date;
+};
 
 export type View = {
   _id?: string;

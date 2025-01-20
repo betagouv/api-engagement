@@ -51,6 +51,7 @@ router.get("/stats", passport.authenticate(["apikey", "api"], { session: false }
     const where = {
       query: {
         bool: {
+          must_not: [{ term: { "isBot.keyword": true } }],
           must: [],
           should: [{ term: { "toPublisherId.keyword": req.user._id } }, { term: { "fromPublisherId.keyword": req.user._id } }],
           filter: [],

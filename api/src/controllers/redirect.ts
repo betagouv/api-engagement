@@ -9,6 +9,7 @@ import { INVALID_PARAMS, INVALID_QUERY, NOT_FOUND, SERVER_ERROR, captureExceptio
 import CampaignModel from "../models/campaign";
 import MissionModel from "../models/mission";
 import PublisherModel from "../models/publisher";
+import StatsBotModel from "../models/stats-bot";
 import WidgetModel from "../models/widget";
 import { Mission, Stats } from "../types";
 import { identify, slugify } from "../utils";
@@ -63,6 +64,8 @@ router.get("/apply", cors({ origin: "*" }), async (req: Request, res: Response) 
       if (!mission) captureMessage(`[Apply] Mission not found`, `mission ${query.data.mission}`);
     }
 
+    const statBot = await StatsBotModel.findOne({ user: identity.user });
+
     const obj = {
       referer: identity.referer,
       userAgent: identity.userAgent,
@@ -72,6 +75,7 @@ router.get("/apply", cors({ origin: "*" }), async (req: Request, res: Response) 
       type: "apply",
       createdAt: new Date(),
       missionClientId: query.data.mission || "",
+      isBot: statBot ? true : false,
     } as Stats;
 
     if (mission) {
@@ -165,6 +169,8 @@ router.get("/account", cors({ origin: "*" }), async (req: Request, res: Response
       if (!mission) captureMessage(`[Account] Mission not found`, `mission ${query.data.mission}`);
     }
 
+    const statBot = await StatsBotModel.findOne({ user: identity.user });
+
     const obj = {
       referer: identity.referer,
       userAgent: identity.userAgent,
@@ -174,6 +180,7 @@ router.get("/account", cors({ origin: "*" }), async (req: Request, res: Response
       type: "account",
       createdAt: new Date(),
       missionClientId: query.data.mission || "",
+      isBot: statBot ? true : false,
     } as Stats;
 
     if (mission) {
@@ -252,7 +259,7 @@ router.get("/campaign/:id", cors({ origin: "*" }), async (req, res) => {
     const identity = identify(req);
     if (!identity) return res.redirect(302, campaign.url);
 
-    const obj1 = {
+    const obj = {
       type: "click",
       user: identity.user,
       referer: identity.referer,
@@ -267,9 +274,10 @@ router.get("/campaign/:id", cors({ origin: "*" }), async (req, res) => {
       toPublisherName: campaign.toPublisherName,
       fromPublisherId: campaign.fromPublisherId,
       fromPublisherName: campaign.fromPublisherName,
+      isBot: false,
     } as Stats;
-    const click = await esClient.index({ index: STATS_INDEX, body: obj1 });
 
+    const click = await esClient.index({ index: STATS_INDEX, body: obj });
     const url = new URL(campaign.url);
 
     if (!url.search) {
@@ -286,6 +294,10 @@ router.get("/campaign/:id", cors({ origin: "*" }), async (req, res) => {
     url.searchParams.set("apiengagement_id", click.body._id);
 
     res.redirect(302, url.href);
+
+    // Update stats just created to add isBot (do it after redirect to avoid delay)
+    const statBot = await StatsBotModel.findOne({ user: identity.user });
+    if (statBot) await esClient.update({ index: STATS_INDEX, id: click.body._id, body: { doc: { isBot: true } } });
   } catch (error) {
     captureException(error);
     return res.redirect(302, JVA_URL);
@@ -409,11 +421,11 @@ router.get("/widget/:id", cors({ origin: "*" }), async (req: Request, res: Respo
       missionDepartmentName: mission.departmentName || "",
       missionOrganizationName: mission.organizationName || "",
       missionOrganizationId: mission.organizationId || "",
-
       toPublisherId: mission.publisherId,
       toPublisherName: mission.publisherName,
       fromPublisherId: widget.fromPublisherId,
       fromPublisherName: widget.fromPublisherName,
+      isBot: false,
     } as Stats;
     const click = await esClient.index({ index: STATS_INDEX, body: obj });
 
@@ -436,6 +448,10 @@ router.get("/widget/:id", cors({ origin: "*" }), async (req: Request, res: Respo
     }
 
     res.redirect(302, url.href);
+
+    // Update stats just created to add isBot (do it after redirect to avoid delay)
+    const statBot = await StatsBotModel.findOne({ user: identity.user });
+    if (statBot) await esClient.update({ index: STATS_INDEX, id: click.body._id, body: { doc: { isBot: true } } });
   } catch (error: any) {
     captureException(error);
     res.status(500).send({ ok: false, code: SERVER_ERROR, message: error.message });
@@ -489,6 +505,7 @@ router.get("/seo/:id", cors({ origin: "*" }), async (req: Request, res: Response
 
       fromPublisherId: "63da29db7d356a87a4e35d4a",
       fromPublisherName: "API Engagement",
+      isBot: false,
     } as Stats;
 
     const click = await esClient.index({ index: STATS_INDEX, body: obj });
@@ -499,6 +516,10 @@ router.get("/seo/:id", cors({ origin: "*" }), async (req: Request, res: Response
     url.searchParams.set("utm_medium", "google");
     url.searchParams.set("utm_campaign", "seo");
     res.redirect(302, url.href);
+
+    // Update stats just created to add isBot (do it after redirect to avoid delay)
+    const statBot = await StatsBotModel.findOne({ user: identity.user });
+    if (statBot) await esClient.update({ index: STATS_INDEX, id: click.body._id, body: { doc: { isBot: true } } });
   } catch (error: any) {
     captureException(error);
     res.status(500).send({ ok: false, code: SERVER_ERROR, message: error.message });
@@ -586,6 +607,7 @@ router.get("/:missionId/:publisherId", cors({ origin: "*" }), async function tra
 
       fromPublisherId: fromPublisher && fromPublisher._id.toString(),
       fromPublisherName: fromPublisher && fromPublisher.name,
+      isBot: false,
     } as Stats;
 
     const click = await esClient.index({ index: STATS_INDEX, body: obj });
@@ -609,6 +631,10 @@ router.get("/:missionId/:publisherId", cors({ origin: "*" }), async function tra
     }
 
     res.redirect(302, url.href);
+
+    // Update stats just created to add isBot (do it after redirect to avoid delay)
+    const statBot = await StatsBotModel.findOne({ user: identity.user });
+    if (statBot) await esClient.update({ index: STATS_INDEX, id: click.body._id, body: { doc: { isBot: true } } });
   } catch (error: any) {
     captureException(error);
     res.status(500).send({ ok: false, code: SERVER_ERROR, message: error.message });
@@ -643,6 +669,8 @@ router.get("/impression/campaign/:campaignId", cors({ origin: "*" }), async (req
       return res.status(404).send({ ok: false, code: NOT_FOUND });
     }
 
+    const statBot = await StatsBotModel.findOne({ user: identity.user });
+
     const obj = {
       type: "print",
       host: req.get("host") || "",
@@ -662,6 +690,7 @@ router.get("/impression/campaign/:campaignId", cors({ origin: "*" }), async (req
       source: "campaign",
       sourceId: campaign._id.toString(),
       sourceName: campaign.name,
+      isBot: statBot ? true : false,
     } as Stats;
 
     const print = await esClient.index({ index: STATS_INDEX, body: obj });
@@ -721,6 +750,7 @@ router.get("/impression/:missionId/:publisherId", cors({ origin: "*" }), async (
     const source = query.data.sourceId ? await WidgetModel.findById(query.data.sourceId) : null;
     if (!source && query.data.sourceId) captureMessage(`[Impression] Source not found`, `source ${query.data.sourceId}`);
 
+    const statBot = await StatsBotModel.findOne({ user: identity.user });
     const obj = {
       type: "print",
       requestId: query.data.requestId,
@@ -749,6 +779,8 @@ router.get("/impression/:missionId/:publisherId", cors({ origin: "*" }), async (
 
       fromPublisherId: fromPublisher._id.toString(),
       fromPublisherName: fromPublisher.name,
+
+      isBot: statBot ? true : false,
     } as Stats;
 
     const print = await esClient.index({ index: STATS_INDEX, body: obj });

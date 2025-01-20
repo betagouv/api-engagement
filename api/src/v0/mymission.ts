@@ -77,7 +77,7 @@ router.get("/:clientId", passport.authenticate(["apikey", "api"], { session: fal
     if (!mission) return res.status(404).send({ ok: false, code: NOT_FOUND });
 
     const query = {
-      query: { bool: { must: [{ term: { "missionId.keyword": mission._id } }] } },
+      query: { bool: { must_not: [{ term: { "isBot.keyword": true } }], must: [{ term: { "missionId.keyword": mission._id } }] } },
       aggs: {
         apply: {
           filter: { term: { type: "apply" } },
@@ -127,13 +127,13 @@ router.get("/:clientId/stats", passport.authenticate(["apikey", "api"], { sessio
     if (!mission) return res.status(404).send({ ok: false, code: NOT_FOUND });
 
     const clicks = {
-      query: { bool: { must: [{ term: { "missionId.keyword": mission._id } }, { term: { "type.keyword": "click" } }] } },
+      query: { bool: { must_not: [{ term: { "isBot.keyword": true } }], must: [{ term: { "missionId.keyword": mission._id } }, { term: { "type.keyword": "click" } }] } },
       aggs: { mission: { terms: { field: "fromPublisherName.keyword" } } },
       size: 0,
     };
 
     const applications = {
-      query: { bool: { must: [{ term: { "missionId.keyword": mission._id } }, { term: { "type.keyword": "apply" } }] } },
+      query: { bool: { must_not: [{ term: { "isBot.keyword": true } }], must: [{ term: { "missionId.keyword": mission._id } }, { term: { "type.keyword": "apply" } }] } },
       aggs: { mission: { terms: { field: "fromPublisherName.keyword" } } },
       size: 0,
     };
