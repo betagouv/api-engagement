@@ -290,33 +290,46 @@ CREATE TABLE "LoginHistory" (
 );
 
 -- CreateTable
-CREATE TABLE "_QueryWidgetMission" (
-    "A" TEXT NOT NULL,
-    "B" TEXT NOT NULL
+CREATE TABLE "Kpi" (
+    "id" TEXT NOT NULL,
+    "old_id" TEXT NOT NULL,
+    "date" TIMESTAMP(3) NOT NULL,
+    "available_benevolat_mission_count" INTEGER NOT NULL,
+    "available_volontariat_mission_count" INTEGER NOT NULL,
+    "available_benevolat_given_by_partner_place_count" INTEGER NOT NULL,
+    "available_volontariat_given_by_partner_place_count" INTEGER NOT NULL,
+    "available_benevolat_attributed_by_api_place_count" INTEGER NOT NULL,
+    "available_volontariat_attributed_by_api_place_count" INTEGER NOT NULL,
+    "percentage_benevolat_given_by_partner_places" DOUBLE PRECISION NOT NULL,
+    "percentage_volontariat_given_by_partner_places" DOUBLE PRECISION NOT NULL,
+    "percentage_benevolat_attributed_by_api_places" DOUBLE PRECISION NOT NULL,
+    "percentage_volontariat_attributed_by_api_places" DOUBLE PRECISION NOT NULL,
+    "benevolat_print_mission_count" INTEGER NOT NULL,
+    "volontariat_print_mission_count" INTEGER NOT NULL,
+    "benevolat_click_mission_count" INTEGER NOT NULL,
+    "volontariat_click_mission_count" INTEGER NOT NULL,
+    "benevolat_apply_mission_count" INTEGER NOT NULL,
+    "volontariat_apply_mission_count" INTEGER NOT NULL,
+    "benevolat_account_mission_count" INTEGER NOT NULL,
+    "volontariat_account_mission_count" INTEGER NOT NULL,
+    "benevolat_print_count" INTEGER NOT NULL,
+    "volontariat_print_count" INTEGER NOT NULL,
+    "benevolat_click_count" INTEGER NOT NULL,
+    "volontariat_click_count" INTEGER NOT NULL,
+    "benevolat_apply_count" INTEGER NOT NULL,
+    "volontariat_apply_count" INTEGER NOT NULL,
+    "benevolat_account_count" INTEGER NOT NULL,
+    "volontariat_account_count" INTEGER NOT NULL,
+
+    CONSTRAINT "Kpi_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
 CREATE TABLE "_PartnerToUser" (
     "A" TEXT NOT NULL,
-    "B" TEXT NOT NULL
-);
+    "B" TEXT NOT NULL,
 
--- CreateTable
-CREATE TABLE "_PartnerToWidget" (
-    "A" TEXT NOT NULL,
-    "B" TEXT NOT NULL
-);
-
--- CreateTable
-CREATE TABLE "_ClickApplies" (
-    "A" TEXT NOT NULL,
-    "B" TEXT NOT NULL
-);
-
--- CreateTable
-CREATE TABLE "_ClickAccounts" (
-    "A" TEXT NOT NULL,
-    "B" TEXT NOT NULL
+    CONSTRAINT "_PartnerToUser_AB_pkey" PRIMARY KEY ("A","B")
 );
 
 -- CreateIndex
@@ -425,34 +438,13 @@ CREATE UNIQUE INDEX "WidgetQuery_old_id_key" ON "WidgetQuery"("old_id");
 CREATE INDEX "login_history" ON "LoginHistory"("user_id");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "_QueryWidgetMission_AB_unique" ON "_QueryWidgetMission"("A", "B");
+CREATE UNIQUE INDEX "Kpi_old_id_key" ON "Kpi"("old_id");
 
 -- CreateIndex
-CREATE INDEX "_QueryWidgetMission_B_index" ON "_QueryWidgetMission"("B");
-
--- CreateIndex
-CREATE UNIQUE INDEX "_PartnerToUser_AB_unique" ON "_PartnerToUser"("A", "B");
+CREATE UNIQUE INDEX "Kpi_date_key" ON "Kpi"("date");
 
 -- CreateIndex
 CREATE INDEX "_PartnerToUser_B_index" ON "_PartnerToUser"("B");
-
--- CreateIndex
-CREATE UNIQUE INDEX "_PartnerToWidget_AB_unique" ON "_PartnerToWidget"("A", "B");
-
--- CreateIndex
-CREATE INDEX "_PartnerToWidget_B_index" ON "_PartnerToWidget"("B");
-
--- CreateIndex
-CREATE UNIQUE INDEX "_ClickApplies_AB_unique" ON "_ClickApplies"("A", "B");
-
--- CreateIndex
-CREATE INDEX "_ClickApplies_B_index" ON "_ClickApplies"("B");
-
--- CreateIndex
-CREATE UNIQUE INDEX "_ClickAccounts_AB_unique" ON "_ClickAccounts"("A", "B");
-
--- CreateIndex
-CREATE INDEX "_ClickAccounts_B_index" ON "_ClickAccounts"("B");
 
 -- AddForeignKey
 ALTER TABLE "Mission" ADD CONSTRAINT "Mission_partner_id_fkey" FOREIGN KEY ("partner_id") REFERENCES "Partner"("id") ON DELETE SET NULL ON UPDATE CASCADE;
@@ -500,6 +492,9 @@ ALTER TABLE "Click" ADD CONSTRAINT "Click_widget_id_fkey" FOREIGN KEY ("widget_i
 ALTER TABLE "Apply" ADD CONSTRAINT "Apply_campaign_id_fkey" FOREIGN KEY ("campaign_id") REFERENCES "Campaign"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
+ALTER TABLE "Apply" ADD CONSTRAINT "Apply_click_id_fkey" FOREIGN KEY ("click_id") REFERENCES "Click"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
 ALTER TABLE "Apply" ADD CONSTRAINT "Apply_from_partner_id_fkey" FOREIGN KEY ("from_partner_id") REFERENCES "Partner"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
@@ -516,6 +511,9 @@ ALTER TABLE "Import" ADD CONSTRAINT "Import_partner_id_fkey" FOREIGN KEY ("partn
 
 -- AddForeignKey
 ALTER TABLE "Account" ADD CONSTRAINT "Account_campaign_id_fkey" FOREIGN KEY ("campaign_id") REFERENCES "Campaign"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "Account" ADD CONSTRAINT "Account_click_id_fkey" FOREIGN KEY ("click_id") REFERENCES "Click"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "Account" ADD CONSTRAINT "Account_from_partner_id_fkey" FOREIGN KEY ("from_partner_id") REFERENCES "Partner"("id") ON DELETE SET NULL ON UPDATE CASCADE;
@@ -536,32 +534,8 @@ ALTER TABLE "WidgetQuery" ADD CONSTRAINT "WidgetQuery_widget_id_fkey" FOREIGN KE
 ALTER TABLE "LoginHistory" ADD CONSTRAINT "LoginHistory_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "User"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "_QueryWidgetMission" ADD CONSTRAINT "_QueryWidgetMission_A_fkey" FOREIGN KEY ("A") REFERENCES "Mission"("id") ON DELETE CASCADE ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE "_QueryWidgetMission" ADD CONSTRAINT "_QueryWidgetMission_B_fkey" FOREIGN KEY ("B") REFERENCES "WidgetQuery"("id") ON DELETE CASCADE ON UPDATE CASCADE;
-
--- AddForeignKey
 ALTER TABLE "_PartnerToUser" ADD CONSTRAINT "_PartnerToUser_A_fkey" FOREIGN KEY ("A") REFERENCES "Partner"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "_PartnerToUser" ADD CONSTRAINT "_PartnerToUser_B_fkey" FOREIGN KEY ("B") REFERENCES "User"("id") ON DELETE CASCADE ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE "_PartnerToWidget" ADD CONSTRAINT "_PartnerToWidget_A_fkey" FOREIGN KEY ("A") REFERENCES "Partner"("id") ON DELETE CASCADE ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE "_PartnerToWidget" ADD CONSTRAINT "_PartnerToWidget_B_fkey" FOREIGN KEY ("B") REFERENCES "Widget"("id") ON DELETE CASCADE ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE "_ClickApplies" ADD CONSTRAINT "_ClickApplies_A_fkey" FOREIGN KEY ("A") REFERENCES "Apply"("id") ON DELETE CASCADE ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE "_ClickApplies" ADD CONSTRAINT "_ClickApplies_B_fkey" FOREIGN KEY ("B") REFERENCES "Click"("id") ON DELETE CASCADE ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE "_ClickAccounts" ADD CONSTRAINT "_ClickAccounts_A_fkey" FOREIGN KEY ("A") REFERENCES "Account"("id") ON DELETE CASCADE ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE "_ClickAccounts" ADD CONSTRAINT "_ClickAccounts_B_fkey" FOREIGN KEY ("B") REFERENCES "Click"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
