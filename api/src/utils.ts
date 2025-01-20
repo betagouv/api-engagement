@@ -1,7 +1,6 @@
 import { Request } from "express";
 import geoip from "geoip-lite";
 import { isbot } from "isbot";
-import hash from "object-hash";
 import { ENV } from "./config";
 import { EsQuery } from "./types";
 
@@ -143,6 +142,7 @@ export const identify = (req: Request) => {
 
   const ip = req.ip;
   const referer = req.header("referer") || "not_defined";
-  const user = hash([ip, referer, userAgent]);
+  // const user = hash([ip, referer, userAgent]);
+  const user = "d746d1caad9776c354db56fc433b165ae4b0161c";
   return { user, userAgent, referer: referer.includes("?") ? referer.split("?")[0] : referer };
 };

@@ -28,8 +28,9 @@ router.get("/mission-performance", passport.authenticate("user", { session: fals
 
     if (!query.success) return res.status(400).send({ ok: false, code: INVALID_QUERY, error: query.error });
 
-    const where = { bool: { must: [], must_not: [{ term: { "missionId.keyword": "" } }], should: [], filter: [{ exists: { field: "missionId" } }] } } as EsQuery;
-    // const where = { bool: { must: [], must_not: [], should: [], filter: [] } } as EsQuery;
+    const where = {
+      bool: { must: [], must_not: [{ term: { "missionId.keyword": "" } }, { term: { "isBot.keyword": true } }], should: [], filter: [{ exists: { field: "missionId" } }] },
+    } as EsQuery;
 
     where.bool.filter.push({ term: { [`${query.data.flux}PublisherId.keyword`]: query.data.publisherId } });
     if (query.data.from && query.data.to) where.bool.filter.push({ range: { createdAt: { gte: query.data.from, lte: query.data.to } } });
@@ -137,7 +138,7 @@ router.get("/organisation-performance", passport.authenticate("user", { session:
 
     if (!query.success) return res.status(400).send({ ok: false, code: INVALID_QUERY, error: query.error });
 
-    const where = { bool: { must: [], must_not: [], should: [], filter: [] } } as EsQuery;
+    const where = { bool: { must: [], must_not: [{ term: { "isBot.keyword": true } }], should: [], filter: [] } } as EsQuery;
 
     where.bool.filter.push({ term: { [`${query.data.flux}PublisherId.keyword`]: query.data.publisherId } });
     if (query.data.from && query.data.to) where.bool.filter.push({ range: { createdAt: { gte: query.data.from, lte: query.data.to } } });
@@ -218,7 +219,7 @@ router.get("/domain-performance", passport.authenticate("user", { session: false
 
     if (!query.success) return res.status(400).send({ ok: false, code: INVALID_QUERY, error: query.error });
 
-    const where = { bool: { must: [], must_not: [], should: [], filter: [] } } as EsQuery;
+    const where = { bool: { must: [], must_not: [{ term: { "isBot.keyword": true } }], should: [], filter: [] } } as EsQuery;
 
     where.bool.filter.push({ term: { [`${query.data.flux}PublisherId.keyword`]: query.data.publisherId } });
     if (query.data.from && query.data.to) where.bool.filter.push({ range: { createdAt: { gte: query.data.from, lte: query.data.to } } });
@@ -285,7 +286,7 @@ router.get("/domain-distribution", passport.authenticate("user", { session: fals
 
     if (!query.success) return res.status(400).send({ ok: false, code: INVALID_QUERY, error: query.error });
 
-    const where = { bool: { must: [], must_not: [], should: [], filter: [] } } as EsQuery;
+    const where = { bool: { must: [], must_not: [{ term: { "isBot.keyword": true } }], should: [], filter: [] } } as EsQuery;
 
     where.bool.filter.push({ term: { [`${query.data.flux}PublisherId.keyword`]: query.data.publisherId } });
     if (query.data.from && query.data.to) where.bool.filter.push({ range: { createdAt: { gte: query.data.from, lte: query.data.to } } });
