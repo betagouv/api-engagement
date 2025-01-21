@@ -8,60 +8,60 @@ datasource db {
 }
 
 model Organization {
-  id String @id @default(uuid())
-  old_id String @unique
-  rna String
-  siren String?
-  siret String?
-  rup_mi String?
-  gestion String?
-  status String?
-  created_at DateTime @default(now())
-  last_declared_at DateTime?
-  published_at DateTime?
-  dissolved_at DateTime?
-  updated_at DateTime @updatedAt
-  nature String?
-  groupement String?
-  title String
-  short_title String?
-  title_slug String
-  short_title_slug String
-  names String[]
-  object String?
-  social_object1 String?
-  social_object2 String?
-  address_complement String?
-  address_number String?
-  address_repetition String?
-  address_type String?
-  address_street String?
-  address_distribution String?
-  address_insee_code String?
-  address_postal_code String?
+  id                      String    @id @default(uuid())
+  old_id                  String    @unique
+  rna                     String
+  siren                   String?
+  siret                   String?
+  rup_mi                  String?
+  gestion                 String?
+  status                  String?
+  created_at              DateTime  @default(now())
+  last_declared_at        DateTime?
+  published_at            DateTime?
+  dissolved_at            DateTime?
+  updated_at              DateTime  @updatedAt
+  nature                  String?
+  groupement              String?
+  title                   String
+  short_title             String?
+  title_slug              String
+  short_title_slug        String
+  names                   String[]
+  object                  String?
+  social_object1          String?
+  social_object2          String?
+  address_complement      String?
+  address_number          String?
+  address_repetition      String?
+  address_type            String?
+  address_street          String?
+  address_distribution    String?
+  address_insee_code      String?
+  address_postal_code     String?
   address_department_code String?
   address_department_name String?
-  address_region String?
-  address_city String?
-  management_declarant String?
-  management_complement String?
-  management_street String?
+  address_region          String?
+  address_city            String?
+  management_declarant    String?
+  management_complement   String?
+  management_street       String?
   management_distribution String?
-  management_postal_code String?
-  management_city String?
-  management_country String?
-  director_civility String?
-  website String?
-  observation String?
-  sync_at DateTime?
-  source String?
+  management_postal_code  String?
+  management_city         String?
+  management_country      String?
+  director_civility       String?
+  website                 String?
+  observation             String?
+  sync_at                 DateTime?
+  source                  String?
+  missions                Mission[]
 }
 
-
 model Mission {
-  id                              String       @id @default(uuid())
+  id                              String        @id @default(uuid())
   title                           String?
-  old_id                          String       @unique
+  old_id                          String        @unique
   department_name                 String?
   department_code                 String?
   address                         String?
@@ -87,20 +87,18 @@ model Mission {
   organization_status_juridique   String?
   organization_url                String?
   organization_full_address       String?
-  organization_id                 String?
-
   schedule                        String?
   remote                          String?
-  last_sync_at                    DateTime?    @default(now())
+  last_sync_at                    DateTime?     @default(now())
   status                          String?
   status_comment                  String?
-  posted_at                       DateTime?    @default(now())
+  posted_at                       DateTime?     @default(now())
   close_to_transport              String?
   reduced_mobility_accessible     String?
-  start_at                        DateTime?    @default(now())
-  end_at                          DateTime?    @default(now())
-  created_at                      DateTime     @default(now())
-  updated_at                      DateTime     @updatedAt
+  start_at                        DateTime?     @default(now())
+  end_at                          DateTime?     @default(now())
+  created_at                      DateTime      @default(now())
+  updated_at                      DateTime      @updatedAt
   audience                        String[]
   geoloc_status                   String?
   rna_status                      String?
@@ -131,14 +129,17 @@ model Mission {
   soft_skills                     String[]
   tasks                           String[]
   places                          Int?
+  matched_organization_id         String?
   accounts                        Account[]
   applies                         Apply[]
   clicks                          Click[]
   impressions                     Impression[]
-  partner                         Partner?     @relation(fields: [partner_id], references: [id])
+  organization                    Organization? @relation(fields: [matched_organization_id], references: [id])
+  partner                         Partner?      @relation(fields: [partner_id], references: [id])
 
   @@index([partner_id], map: "mission_partner_id")
   @@index([client_id], map: "mission_client_id")
+  @@index([matched_organization_id], map: "mission_matched_organization_id")
 }
 
 model Partner {
@@ -257,13 +258,13 @@ model Click {
   tag             String?
   source_id       String?
   mission_old_id  String?
+  accounts        Account[]
+  applies         Apply[]
   campaign        Campaign?   @relation(fields: [campaign_id], references: [id])
   from_partner    Partner?    @relation("FromClick", fields: [from_partner_id], references: [id])
   mission         Mission?    @relation(fields: [mission_id], references: [id])
   to_partner      Partner?    @relation("ToClick", fields: [to_partner_id], references: [id])
   widget          Widget?     @relation(fields: [widget_id], references: [id])
-  applies         Apply[]
-  accounts        Account[]
 
   @@index([mission_id], map: "click_mission_id")
   @@index([campaign_id], map: "click_campaign_id")
@@ -288,10 +289,10 @@ model Apply {
   status          String?
   old_view_id     String?
   click_id        String?
-  click           Click?     @relation(fields: [click_id], references: [id])
   source_id       String?
   mission_old_id  String?
   campaign        Campaign?   @relation(fields: [campaign_id], references: [id])
+  click           Click?      @relation(fields: [click_id], references: [id])
   from_partner    Partner?    @relation("FromApply", fields: [from_partner_id], references: [id])
   mission         Mission?    @relation(fields: [mission_id], references: [id])
   to_partner      Partner?    @relation("ToApply", fields: [to_partner_id], references: [id])
@@ -320,7 +321,7 @@ model User {
   deleted_at                  DateTime?
   deleted                     Boolean        @default(false)
   login_history               LoginHistory[]
-  partners                     Partner[]      @relation("PartnerToUser")
+  partners                    Partner[]      @relation("PartnerToUser")
 }
 
 model Import {
@@ -349,12 +350,12 @@ model Account {
   to_partner_id   String?
   old_view_id     String?
   click_id        String?
-  click           Click?     @relation(fields: [click_id], references: [id])
   source_id       String?
   host            String?
   tag             String?
   mission_old_id  String?
   campaign        Campaign?   @relation(fields: [campaign_id], references: [id])
+  click           Click?      @relation(fields: [click_id], references: [id])
   from_partner    Partner?    @relation("FromAccount", fields: [from_partner_id], references: [id])
   mission         Mission?    @relation(fields: [mission_id], references: [id])
   to_partner      Partner?    @relation("ToAccount", fields: [to_partner_id], references: [id])
