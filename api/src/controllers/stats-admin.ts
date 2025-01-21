@@ -25,7 +25,7 @@ router.get("/views", passport.authenticate("user", { session: false }), async (r
 
     if (!query.success) return res.status(400).send({ ok: false, code: INVALID_QUERY, error: query.error });
 
-    const where = { bool: { must: [], must_not: [{ term: { "isBot.keyword": true } }], should: [], filter: [] } } as EsQuery;
+    const where = { bool: { must: [], must_not: [{ term: { isBot: true } }], should: [], filter: [] } } as EsQuery;
 
     if (query.data.from && query.data.to) where.bool.filter.push({ range: { createdAt: { gte: query.data.from, lte: query.data.to } } });
     else if (query.data.from) where.bool.filter.push({ range: { createdAt: { gte: query.data.from } } });
@@ -283,7 +283,7 @@ router.get("/publishers-views", passport.authenticate("user", { session: false }
 
     if (!query.success) return res.status(400).send({ ok: false, code: INVALID_QUERY, error: query.error });
 
-    const viewQuery = { bool: { must_not: [{ term: { "isBot.keyword": true } }], filter: [] } as { [key: string]: any } };
+    const viewQuery = { bool: { must_not: [{ term: { isBot: true } }], filter: [] } as { [key: string]: any } };
 
     if (query.data.from && query.data.to) viewQuery.bool.filter.push({ range: { createdAt: { gte: query.data.from, lte: query.data.to } } });
     else if (query.data.from) viewQuery.bool.filter.push({ range: { createdAt: { gte: query.data.from } } });

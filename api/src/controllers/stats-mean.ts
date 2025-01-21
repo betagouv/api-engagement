@@ -24,7 +24,7 @@ router.get("/", passport.authenticate("user", { session: false }), async (req: U
 
     if (!query.success) return res.status(400).send({ ok: false, code: INVALID_QUERY, error: query.error });
 
-    const where = { bool: { must: [], must_not: [{ term: { "isBot.keyword": true } }], should: [], filter: [] } } as EsQuery;
+    const where = { bool: { must: [], must_not: [{ term: { isBot: true } }], should: [], filter: [] } } as EsQuery;
 
     if (query.data.publisherId) where.bool.filter.push({ term: { "fromPublisherId.keyword": query.data.publisherId } });
     if (query.data.from && query.data.to) where.bool.filter.push({ range: { createdAt: { gte: query.data.from, lte: query.data.to } } });

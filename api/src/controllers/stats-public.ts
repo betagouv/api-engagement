@@ -35,7 +35,7 @@ router.get("/graphs", async (req: Request, res: Response, next: NextFunction) =>
 
     if (!query.success) return res.status(400).send({ ok: false, code: INVALID_QUERY, error: query.error });
 
-    const viewQuery = { bool: { must_not: [{ term: { "isBot.keyword": true } }], filter: [] } as { [key: string]: any } };
+    const viewQuery = { bool: { must_not: [{ term: { isBot: true } }], filter: [] } as { [key: string]: any } };
     const whereMissions = {} as { [key: string]: any };
 
     if (query.data.department) {
@@ -186,7 +186,7 @@ router.get("/domains", async (req: Request, res: Response, next: NextFunction) =
       track_total_hits: true,
       query: {
         bool: {
-          must_not: [{ term: { "isBot.keyword": true } }],
+          must_not: [{ term: { isBot: true } }],
           must: filters.length > 0 ? filters : [{ match_all: {} }],
         },
       },
