@@ -243,10 +243,14 @@ const importPublisher = async (publisher: Publisher, start: Date) => {
     });
 
     // RNA
+    console.log(`\n[Organization] Starting organization verification for ${missions.length} missions`);
     const resultRNA = await verifyOrganization(missions);
+    console.log(`[Organization] Received ${resultRNA.length} verification results`);
+
     resultRNA.forEach((r) => {
       const mission = missions.find((m) => m.clientId.toString() === r.clientId.toString());
       if (mission) {
+        // console.log(`[Organization Update] Mission ${r.clientId} - Status: ${r.organizationVerificationStatus}`);
         mission.organizationId = r.organizationId;
         mission.organizationNameVerified = r.organizationNameVerified;
         mission.organizationRNAVerified = r.organizationRNAVerified;
@@ -258,10 +262,12 @@ const importPublisher = async (publisher: Publisher, start: Date) => {
         mission.organizationDepartmentCodeVerified = r.organizationDepartmentCodeVerified;
         mission.organizationDepartmentNameVerified = r.organizationDepartmentNameVerified;
         mission.organizationRegionVerified = r.organizationRegionVerified;
-        // mission.organisationIsRUP = r.organisationIsRUP;
         mission.organizationVerificationStatus = r.organizationVerificationStatus;
+      } else {
+        console.log(`[Organization Warning] Could not find mission for clientId: ${r.clientId}`);
       }
     });
+    console.log(`[Organization] Finished updating missions with verification results\n`);
 
     // BULK WRITE
     await bulkDB(missions, publisher, obj);

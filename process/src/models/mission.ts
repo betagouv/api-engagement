@@ -86,6 +86,34 @@ const schema = new Schema<Mission>(
     organizationActions: { type: [String] },
     organizationReseaux: { type: [String] },
 
+    // Organization verification
+    organizationVerificationStatus: {
+      type: String,
+      enum: [
+        "RNA_MATCHED_WITH_DATA_SUBVENTION",
+        "RNA_MATCHED_WITH_DATA_DB",
+        "RNA_NOT_MATCHED",
+        "SIRET_MATCHED_WITH_DATA_SUBVENTION",
+        "SIRET_MATCHED_WITH_DATA_DB",
+        "SIRET_NOT_MATCHED",
+        "NAME_EXACT_MATCHED_WITH_DB",
+        "NAME_NOT_MATCHED",
+        "NO_DATA",
+        "FAILED",
+      ],
+      default: "NO_DATA",
+    },
+    organizationNameVerified: { type: String },
+    organizationRNAVerified: { type: String },
+    organizationSirenVerified: { type: String },
+    organizationSiretVerified: { type: String },
+    organizationAddressVerified: { type: String },
+    organizationCityVerified: { type: String },
+    organizationPostalCodeVerified: { type: String },
+    organizationDepartmentCodeVerified: { type: String },
+    organizationDepartmentNameVerified: { type: String },
+    organizationRegionVerified: { type: String },
+
     // Publisher (added by the API)
     publisherId: { type: String, required: true },
     publisherName: { type: String, required: true },
