@@ -153,8 +153,7 @@ const kpiJob = new CronJob(
 
 // Every day at 02:00 AM
 const metabaseJob = new CronJob(
-  // "0 2 * * *",
-  "0 14 * * *",
+  "0 2 * * *",
   async () => {
     if (runnings.metabase) return;
     runnings.metabase = true;

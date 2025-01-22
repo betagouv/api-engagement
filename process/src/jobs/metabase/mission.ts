@@ -13,7 +13,7 @@ const buildData = async (doc: MongoMission, partners: { [key: string]: string })
     return null;
   }
 
-  const organization = doc.organizationId ? await prisma.organization.findUnique({ where: { id: doc.organizationId } }) : null;
+  const organization = doc.organizationId ? await prisma.organization.findUnique({ where: { old_id: doc.organizationId } }) : null;
 
   const obj = {
     old_id: doc._id?.toString(),
@@ -55,7 +55,7 @@ const buildData = async (doc: MongoMission, partners: { [key: string]: string })
     longitude: doc.location?.lon || null,
     geoloc_status: doc.geolocStatus,
 
-    // organization_id: doc.organizationId,
+    matched_organization_id: organization?.id,
     organization_url: doc.organizationUrl,
     organization_name: doc.organizationName,
     organization_logo: doc.organizationLogo,
@@ -71,8 +71,6 @@ const buildData = async (doc: MongoMission, partners: { [key: string]: string })
     organization_beneficiaries: doc.organizationBeneficiaries,
     organization_reseaux: doc.organizationReseaux,
     organization_actions: doc.organizationActions || [],
-
-    organization_id: organization?.id,
     rna_status: doc.rnaStatus,
 
     partner_id: partnerId,
@@ -137,7 +135,7 @@ const handler = async () => {
         .then((data) => data.forEach((d) => (stored[d.old_id] = d)));
 
       for (const hit of data) {
-        const obj = buildData(hit, partners);
+        const obj = await buildData(hit, partners);
         if (!obj) continue;
 
         if (stored[hit._id.toString()] && !isDateEqual(stored[hit._id.toString()].updated_at, obj.updated_at)) dataToUpdate.push(obj);
