@@ -367,6 +367,8 @@ model Partner {
   impression_to       Impression[] @relation("ToImpression")
   missions            Mission[]
   diffuseur_widgets   Widget[]     @relation("DiffuseurWidget")
+  annonceur_widget PartnerToWidget[]
+  users PartnerToUser[]
 }
 
 model User {
@@ -385,6 +387,7 @@ model User {
   deleted_at                  DateTime?
   deleted                     Boolean        @default(false)
   login_history               LoginHistory[]
+  partners PartnerToUser[]
 }
 
 model Widget {
@@ -403,6 +406,7 @@ model Widget {
   impressions  Impression[]
   diffuseur    Partner       @relation("DiffuseurWidget", fields: [diffuseur_id], references: [id])
   query        WidgetQuery[] @relation("QueryWidget")
+  partners PartnerToWidget[]
 }
 
 model WidgetQuery {
@@ -428,6 +432,30 @@ model WidgetQuery {
   from          Int?
   created_at    DateTime  @default(now())
   widget        Widget    @relation("QueryWidget", fields: [widget_id], references: [id])
+}
+
+model PartnerToUser {
+  id         String   @id @default(uuid())
+  user_id    String
+  partner_id String
+  user       User     @relation(fields: [user_id], references: [id])
+  partner    Partner  @relation(fields: [partner_id], references: [id])
+
+  @@unique([partner_id, user_id])
+  @@index([partner_id])
+  @@index([user_id])
+}
+
+model PartnerToWidget {
+  id         String   @id @default(uuid())
+  widget_id  String
+  partner_id String
+  widget     Widget   @relation(fields: [widget_id], references: [id])
+  partner    Partner  @relation(fields: [partner_id], references: [id])
+
+  @@unique([partner_id, widget_id])
+  @@index([partner_id])
+  @@index([widget_id])
 }
 
 enum MissionType {

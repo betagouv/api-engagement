@@ -5,7 +5,7 @@ import { User } from "../../types";
 import { User as PgUser } from "@prisma/client";
 
 interface UserUpdate extends PgUser {
-  partners: { connect: { id: string }[] };
+  partners: { create: { partner_id: string }[] };
 }
 
 const buildData = (doc: User, partners: { [key: string]: string }) => {
@@ -13,7 +13,7 @@ const buildData = (doc: User, partners: { [key: string]: string }) => {
     .map((p) => {
       const partnerId = partners[p.toString()];
       if (!partnerId) return null;
-      return { id: partnerId };
+      return { partner_id: partnerId };
     })
     .filter((p) => p);
 
@@ -32,7 +32,7 @@ const buildData = (doc: User, partners: { [key: string]: string }) => {
     last_name: doc.lastname,
     invitation_completed_at: doc.invitationCompletedAt,
     partners: {
-      connect: connections,
+      create: connections,
     },
   } as UserUpdate;
 
@@ -68,17 +68,35 @@ const handler = async () => {
       console.log(`[Users] Creating ${dataToCreate.length} docs...`);
       const transactions = [];
       for (const obj of dataToCreate) {
-        transactions.push(prisma.user.create({ data: obj }));
+        const { partners, ...userData } = obj;
+        transactions.push(
+          prisma.user.create({
+            data: {
+              ...userData,
+              partners: partners,
+            },
+          }),
+        );
       }
       const res = await prisma.$transaction(transactions);
       console.log(`[Users] Created ${res.length} docs.`);
     }
+
     // Update data
     if (dataToUpdate.length) {
       console.log(`[Users] Updating ${dataToUpdate.length} docs...`);
       const transactions = [];
       for (const obj of dataToUpdate) {
-        transactions.push(prisma.user.update({ where: { old_id: obj.old_id }, data: obj }));
+        const { partners, ...userData } = obj;
+        transactions.push(
+          prisma.user.update({
+            where: { old_id: obj.old_id },
+            data: {
+              ...userData,
+              partners: partners,
+            },
+          }),
+        );
       }
       const res = await prisma.$transaction(transactions);
       console.log(`[Users] Updated ${res.length} docs.`);

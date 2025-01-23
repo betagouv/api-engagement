@@ -5,14 +5,14 @@ import { Widget } from "../../types";
 import { Widget as PgWidget } from "@prisma/client";
 
 interface WidgetUpdate extends PgWidget {
-  annonceur: { connect: { id: string }[] };
+  partners: { create: { partner_id: string }[] };
 }
 
 const buildData = (doc: Widget, partners: { id: string; old_id: string }[]) => {
   const annonceurs = partners.filter((p) => doc.publishers.includes(p.old_id));
   const diffuseur = partners.find((p) => p.old_id === doc.fromPublisherId.toString());
   if (!diffuseur) {
-    console.log(`[Widgets] Diffuseur ${doc.fromPublisherId.toString()} not found for campaign ${doc._id.toString()}`);
+    console.log(`[Widgets] Diffuseur ${doc.fromPublisherId.toString()} not found for widget ${doc._id.toString()}`);
     return null;
   }
   const obj = {
@@ -20,7 +20,9 @@ const buildData = (doc: Widget, partners: { id: string; old_id: string }[]) => {
     name: doc.name,
     mission_type: doc.type,
     active: doc.active,
-    annonceur: { connect: annonceurs.map((a) => ({ id: a.id })) },
+    partners: {
+      create: annonceurs.map((a) => ({ partner_id: a.id })),
+    },
     diffuseur_id: diffuseur.id,
     deleted_at: doc.deleted ? new Date(doc.updatedAt) : null,
     created_at: doc.createdAt,
@@ -58,7 +60,15 @@ const handler = async () => {
       console.log(`[Widgets] Creating ${dataToCreate.length} docs...`);
       const transactions = [];
       for (const obj of dataToCreate) {
-        transactions.push(prisma.widget.create({ data: obj }));
+        const { partners, ...widgetData } = obj;
+        transactions.push(
+          prisma.widget.create({
+            data: {
+              ...widgetData,
+              partners: partners,
+            },
+          }),
+        );
       }
       const res = await prisma.$transaction(transactions);
       console.log(`[Widgets] Created ${res.length} docs.`);
@@ -68,10 +78,19 @@ const handler = async () => {
       console.log(`[Widgets] Updating ${dataToUpdate.length} docs...`);
       const transactions = [];
       for (const obj of dataToUpdate) {
-        transactions.push(prisma.widget.update({ where: { old_id: obj.old_id }, data: obj }));
+        const { partners, ...widgetData } = obj;
+        transactions.push(
+          prisma.widget.update({
+            where: { old_id: obj.old_id },
+            data: {
+              ...widgetData,
+              partners: partners,
+            },
+          }),
+        );
       }
-      await prisma.$transaction(transactions);
-      console.log(`[Widgets] Updated ${dataToUpdate.length} docs.`);
+      const res = await prisma.$transaction(transactions);
+      console.log(`[Widgets] Updated ${res.length} docs.`);
     }
 
     console.log(`[Widgets] Ended at ${new Date().toISOString()} in ${(Date.now() - start.getTime()) / 1000}s.`);
