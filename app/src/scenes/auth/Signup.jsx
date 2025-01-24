@@ -10,6 +10,7 @@ import ErrorAlert from "../../components/ErrorAlert";
 import WarningAlert from "../../components/WarningAlert";
 import api from "../../services/api";
 import { captureError } from "../../services/error";
+import { hasLetter, hasNumber, hasSpecialChar } from "../../services/utils";
 
 const Signup = () => {
   const [searchParams] = useSearchParams();
@@ -97,7 +98,7 @@ const SignupForm = ({ user }) => {
     if (values.firstname.trim() === "") {
       errors.firstname = "Le prénom est requis";
     }
-    if (!isPasswordValid(values.password)) {
+    if (values.password.length < 12 || !hasLetter(values.password) || !hasNumber(values.password) || !hasSpecialChar(values.password)) {
       errors.password = "Le mot de passe ne respecte pas les critères de sécurité";
     }
     if (values.password === values.email) {
@@ -115,7 +116,10 @@ const SignupForm = ({ user }) => {
     setLoading(true);
     try {
       const res = await api.post("/user/signup", { ...values, id: user._id.toString() });
-      if (!res.ok) throw res;
+      if (!res.ok) {
+        if (res.code === "INVALID_PASSWORD") setErrors({ password: "Le mot de passe ne respecte pas les critères de sécurité" });
+        else throw res;
+      }
       toast.success("Compte créé avec succès");
       navigate("/login");
     } catch (error) {
@@ -197,16 +201,17 @@ const SignupForm = ({ user }) => {
           <span className={`align-middle text-sm ${values.password.length >= 12 ? "text-green-600" : "text-gray-600"}`}>Au moins 12 caractères</span>
         </div>
         <div className="flex gap-2 items-center">
-          {/[a-zA-Z]/.test(values.password) ? <AiFillCloseCircle className="text-green-700" /> : <AiFillCloseCircle className="text-gray-600" />}
-          <span className={`align-middle text-sm ${/[a-zA-Z]/.test(values.password) ? "text-green-600" : "text-gray-600"}`}>Au moins une lettre</span>
+          {hasLetter(values.password) ? <AiFillCloseCircle className="text-green-700" /> : <AiFillCloseCircle className="text-gray-600" />}
+          <span className={`align-middle text-sm ${hasLetter(values.password) ? "text-green-600" : "text-gray-600"}`}>Au moins une lettre</span>
         </div>
         <div className="flex gap-2 items-center">
-          {/[0-9]/.test(values.password) ? <AiFillCloseCircle className="text-green-700" /> : <AiFillCloseCircle className="text-gray-600" />}
-          <span className={`align-middle text-sm ${/[0-9]/.test(values.password) ? "text-green-600" : "text-gray-600"}`}>Au moins un chiffre</span>
+          {hasNumber(values.password) ? <AiFillCloseCircle className="text-green-700" /> : <AiFillCloseCircle className="text-gray-600" />}
+          <span className={`align-middle text-sm ${hasNumber(values.password) ? "text-green-600" : "text-gray-600"}`}>Au moins un chiffre</span>
         </div>
+
         <div className="flex gap-2 items-center">
-          {/[!-@#$%^&*(),.?":{}|<>]/.test(values.password) ? <AiFillCloseCircle className="text-green-700" /> : <AiFillCloseCircle className="text-gray-600" />}
-          <span className={`align-middle text-sm ${/[!-@#$%^&*(),.?":{}|<>]/.test(values.password) ? "text-green-600" : "text-gray-600"}`}>Au moins un caractère spécial</span>
+          {hasSpecialChar(values.password) ? <AiFillCloseCircle className="text-green-700" /> : <AiFillCloseCircle className="text-gray-600" />}
+          <span className={`align-middle text-sm ${hasSpecialChar(values.password) ? "text-green-600" : "text-gray-600"}`}>Au moins un caractère spécial</span>
         </div>
       </div>
       <div className="flex flex-col mt-4">

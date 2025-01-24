@@ -75,3 +75,15 @@ export const isValidUrl = (url) => {
     return false;
   }
 };
+
+export const hasSpecialChar = (string) => {
+  return /[$&+,:;=?@#|'<>.^*()%!-]/.test(string);
+};
+
+export const hasNumber = (string) => {
+  return /[0-9]/.test(string);
+};
+
+export const hasLetter = (string) => {
+  return /[a-zA-Z]/.test(string);
+};

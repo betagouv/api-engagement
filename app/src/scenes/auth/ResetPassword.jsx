@@ -9,6 +9,7 @@ import ErrorAlert from "../../components/ErrorAlert";
 import WarningAlert from "../../components/WarningAlert";
 import api from "../../services/api";
 import { captureError } from "../../services/error";
+import { hasLetter, hasNumber, hasSpecialChar } from "../../services/utils";
 
 const ResetPassword = () => {
   const [searchParams] = useSearchParams();
@@ -83,9 +84,9 @@ const ResetPasswordForm = ({ user, token }) => {
     setSubmitted(true);
 
     const errors = {};
-    // if (values.password.length < 12 || !/[a-zA-Z]/.test(values.password) || !/[0-9]/.test(values.password) || !/[!@#$%^&*(),.?":{}|<>]/.test(values.password)) {
-    //   errors.password = "Le mot de passe ne respecte pas les critères de sécurité";
-    // }
+    if (values.password.length < 12 || !hasLetter(values.password) || !hasNumber(values.password) || !hasSpecialChar(values.password)) {
+      errors.password = "Le mot de passe ne respecte pas les critères de sécurité";
+    }
     if (values.password === user.email) {
       errors.password = "Le mot de passe ne peut pas être identique à l'adresse email";
     }
@@ -99,7 +100,7 @@ const ResetPasswordForm = ({ user, token }) => {
     try {
       const res = await api.put("/user/reset-password", { token, password: values.password });
       if (!res.ok) {
-        if (res.status === 404) setErrors({ expired: "Réinitialisation expirée" });
+        if (res.code === "REQUEST_EXPIRED") setErrors({ expired: "Réinitialisation expirée" });
         else throw res;
       }
       setDone(true);
@@ -152,18 +153,16 @@ const ResetPasswordForm = ({ user, token }) => {
           <span className={`align-middle text-sm ${values.password && (values.password || "").length >= 12 ? "text-green-600" : "text-gray-600"}`}>Au moins 12 caractères</span>
         </div>
         <div className="flex gap-2 items-center">
-          {/[a-zA-Z]/.test(values.password) ? <AiFillCloseCircle className="text-green-700" /> : <AiFillCloseCircle className="text-gray-600" />}
-          <span className={`align-middle text-sm ${values.password && /[a-zA-Z]/.test(values.password) ? "text-green-600" : "text-gray-600"}`}>Au moins une lettre</span>
+          {hasLetter(values.password) ? <AiFillCloseCircle className="text-green-700" /> : <AiFillCloseCircle className="text-gray-600" />}
+          <span className={`align-middle text-sm ${values.password && hasLetter(values.password) ? "text-green-600" : "text-gray-600"}`}>Au moins une lettre</span>
         </div>
         <div className="flex gap-2 items-center">
-          {/[0-9]/.test(values.password) ? <AiFillCloseCircle className="text-green-700" /> : <AiFillCloseCircle className="text-gray-600" />}
-          <span className={`align-middle text-sm ${values.password && /[0-9]/.test(values.password) ? "text-green-600" : "text-gray-600"}`}>Au moins un chiffre</span>
+          {hasNumber(values.password) ? <AiFillCloseCircle className="text-green-700" /> : <AiFillCloseCircle className="text-gray-600" />}
+          <span className={`align-middle text-sm ${values.password && hasNumber(values.password) ? "text-green-600" : "text-gray-600"}`}>Au moins un chiffre</span>
         </div>
         <div className="flex gap-2 items-center">
-          {/[!@#$%^&*(),.?":{}|<>]/.test(values.password) ? <AiFillCloseCircle className="text-green-700" /> : <AiFillCloseCircle className="text-gray-600" />}
-          <span className={`align-middle text-sm ${values.password && /[!@#$%^&*(),.?":{}|<>]/.test(values.password) ? "text-green-600" : "text-gray-600"}`}>
-            Au moins un caractère spécial
-          </span>
+          {hasSpecialChar(values.password) ? <AiFillCloseCircle className="text-green-700" /> : <AiFillCloseCircle className="text-gray-600" />}
+          <span className={`align-middle text-sm ${values.password && hasSpecialChar(values.password) ? "text-green-600" : "text-gray-600"}`}>Au moins un caractère spécial</span>
         </div>
       </div>
 

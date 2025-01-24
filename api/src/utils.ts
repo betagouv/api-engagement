@@ -146,3 +146,15 @@ export const identify = (req: Request) => {
   const user = hash([ip, referer, userAgent]);
   return { user, userAgent, referer: referer.includes("?") ? referer.split("?")[0] : referer };
 };
+
+export const hasSpecialChar = (string: string) => {
+  return /[$&+,:;=?@#|'<>.^*()%!-]/.test(string);
+};
+
+export const hasNumber = (string: string) => {
+  return /[0-9]/.test(string);
+};
+
+export const hasLetter = (string: string) => {
+  return /[a-zA-Z]/.test(string);
+};
