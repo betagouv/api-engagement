@@ -174,6 +174,7 @@ const parseArray = (value: string | { value: string[] | string } | undefined) =>
   if (typeof value === "object") return Array.isArray(value.value) ? value.value : [value.value];
   if (Array.isArray(value)) return value;
   if (value.includes(",")) return value.split(",").map((i) => i.trim());
+  if (value.includes(" ")) return value.split(" ").map((i) => i.trim());
   return [value];
 };
 
