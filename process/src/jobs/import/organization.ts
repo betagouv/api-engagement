@@ -48,7 +48,7 @@ export const verifyOrganization = async (missions: Mission[]) => {
 
     const resRna = organizationsRNAs.length !== 0 ? await findByRNA(organizationsRNAs) : {};
     const resSiret = organizationsSirets.length !== 0 ? await findBySiret(organizationsSirets) : {};
-    const resNames = organizationsNames.length !== 0 ? await findByName(organizationsNames) : { exact: {} };
+    const resNames = organizationsNames.length !== 0 ? await findByName(organizationsNames) : { exact: {}, approximate: {} };
 
     console.log(`\n[Organization Verification] Results:`);
     console.log(`- RNA matches: ${Object.keys(resRna).length}`);
@@ -118,11 +118,15 @@ export const verifyOrganization = async (missions: Mission[]) => {
           obj.organizationRegionVerified = data.addressRegion;
           // obj.organisationIsRUP = data.isRUP;
           obj.organizationVerificationStatus = "NAME_EXACT_MATCHED_WITH_DB";
+        } else if (resNames.approximate[mission.organizationName]) {
+          obj.organizationVerificationStatus = "NAME_APPROXIMATE_MATCHED_WITH_DB";
+          const match = resNames.approximate[mission.organizationName];
+          match.missionIds = [...new Set([...match.missionIds, mission._id.toString()])];
+          await match.save();
         } else {
           obj.organizationVerificationStatus = "NAME_NOT_MATCHED";
         }
       } else {
-        console.log(`[Organization No Data] Mission ${mission.clientId} - Status: NO_DATA`);
         obj.organizationVerificationStatus = "NO_DATA";
       }
 
@@ -194,14 +198,23 @@ const findBySiret = async (sirets: string[]) => {
 
   const siretsToFetch = sirets.filter((siret) => !response.find((r) => r.siret === siret));
   console.log(`[Organization API] Fetching ${siretsToFetch.length} SIRETs from datasubvention`);
-  for (const siret of siretsToFetch) {
-    try {
-      await new Promise((resolve) => setTimeout(resolve, 1000));
 
-      const data = await apiDatasubvention.get(`/association/${siret}`);
-      console.log(`[Organization] DATA:`, JSON.stringify(data, null, 2));
-      if (data?.association?.rna?.[0]?.value && data?.association?.rna?.[0]?.provider === "RNA" && data?.association?.denomination_rna?.[0]?.value) {
+  const batchSize = 10;
+  const delay = 1000;
+
+  for (let i = 0; i < siretsToFetch.length; i += batchSize) {
+    const batch = siretsToFetch.slice(i, i + batchSize);
+    const promises = batch.map(async (siret) => {
+      try {
+        await new Promise((resolve) => setTimeout(resolve, delay));
+        const data = await apiDatasubvention.get(`/association/${siret}`);
+
+        if (!data?.association?.rna?.[0]?.value || data?.association?.rna?.[0]?.provider !== "RNA" || !data?.association?.denomination_rna?.[0]?.value) {
+          return null;
+        }
+
         const departement = data.association.adresse_siege_rna ? getDepartement(data.association.adresse_siege_rna[0].value?.code_postal) : null;
+
         const obj = {
           rna: data.association.rna[0].value,
           title: data.association.denomination_rna[0].value,
@@ -221,35 +234,34 @@ const findBySiret = async (sirets: string[]) => {
           source: "DATA_SUBVENTION",
         } as Organization;
 
-        // First check if organization with this RNA already exists
+        // Check for existing RNA
         const existsRNA = await OrganizationModel.findOne({ rna: obj.rna });
         if (existsRNA) {
           if (!existsRNA.siret && obj.siret) {
             existsRNA.siret = obj.siret;
             await existsRNA.save();
-            console.log(`[Organization] Updated existing organization (RNA: ${obj.rna}) with SIRET ${obj.siret}`);
-            response.push(existsRNA);
-          } else {
-            console.log(`[Organization] Organization with RNA ${obj.rna} already exists`);
-            response.push(existsRNA);
+            return existsRNA;
           }
-        } else {
-          const newRNA = await OrganizationModel.create(obj);
-          console.log(`[Organization] Successfully created new organization in database with SIRET ${siret}`);
-          response.push(newRNA);
+          return existsRNA;
         }
-      } else {
-        console.log(`[Organization] No valid RNA data found for siret ${siret}`);
+
+        const newRNA = await OrganizationModel.create(obj);
+        return newRNA;
+      } catch (error: any) {
+        console.log(`[Organization] Error fetching siret ${siret}:`, error.message);
+        return null;
       }
-    } catch (error: any) {
-      console.log(`[Organization] Error fetching siret ${siret}:`, error.message);
-      continue;
-    }
+    });
+
+    const results = await Promise.all(promises);
+    response.push(...results.filter((result): result is HydratedDocument<Organization> => result !== null));
+
+    console.log(`[Organization] Processed ${Math.min(i + batchSize, siretsToFetch.length)}/${siretsToFetch.length} SIRETs`);
   }
 
   const res = {} as { [key: string]: Organization };
   response.forEach((item) => {
-    res[item.rna] = item;
+    if (item?.rna) res[item.rna] = item;
   });
 
   return res;
@@ -258,10 +270,10 @@ const findBySiret = async (sirets: string[]) => {
 const findByName = async (names: string[]) => {
   const res = {
     exact: {} as { [key: string]: Organization },
-    // approximate: {} as { [key: string]: HydratedDocument<OrganizationNameMatch> },
+    approximate: {} as { [key: string]: HydratedDocument<OrganizationNameMatch> },
   };
 
-  // console.log(`[Organization] Fetching ${names.length} names with approximate match`);
+  console.log(`[Organization] Fetching ${names.length} names with approximate match`);
   for (let i = 0; i < names.length; i++) {
     const name = names[i];
     if (i % 50 === 0) console.log(`[Organization] Fetching ${i + 1} / ${names.length} names`);
@@ -272,29 +284,27 @@ const findByName = async (names: string[]) => {
       continue;
     }
 
-    /*
-    // Try approximate match using case-insensitive regex
-    const approximateMatch = await OrganizationModel.find({
-      title: {
-        $regex: `^${name.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, "\\$&")}$`,
-        $options: "i",
-      },
-    });
+    // // Try approximate match using case-insensitive regex
+    // const approximateMatch = await OrganizationModel.find({
+    //   title: {
+    //     $regex: `^${name.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, "\\$&")}$`,
+    //     $options: "i",
+    //   },
+    // });
 
-    if (approximateMatch.length > 0) {
-      const match = await OrganizationNameMatchModel.findOne({ name });
-      if (match) {
-        match.organizationIds = [...new Set([...match.organizationIds, ...approximateMatch.map((m) => m._id.toString())])];
-        match.organizationNames = [...new Set([...match.organizationNames, name])];
-        await match.save();
-        res.approximate[name] = match;
-      } else {
-        const newMatch = await OrganizationNameMatchModel.create({ name, organizationIds: approximateMatch.map((m) => m._id.toString()), organizationNames: [name] });
-        res.approximate[name] = newMatch;
-      }
-      continue;
-    }
-    */
+    // if (approximateMatch.length > 0) {
+    //   const match = await OrganizationNameMatchModel.findOne({ name });
+    //   if (match) {
+    //     match.organizationIds = [...new Set([...match.organizationIds, ...approximateMatch.map((m) => m._id.toString())])];
+    //     match.organizationNames = [...new Set([...match.organizationNames, name])];
+    //     await match.save();
+    //     res.approximate[name] = match;
+    //   } else {
+    //     const newMatch = await OrganizationNameMatchModel.create({ name, organizationIds: approximateMatch.map((m) => m._id.toString()), organizationNames: [name] });
+    //     res.approximate[name] = newMatch;
+    //   }
+    //   continue;
+    // }
   }
   console.log(`[Organization] Found ${Object.keys(res.exact).length} exact matches`);
 

@@ -50,7 +50,7 @@ const runnings = {
 // Every 3 hours
 const missionJob = new CronJob(
   // "0 */3 * * *",
-  "29 9 * * *",
+  "58 9 * * *",
   async () => {
     const checkInId = Sentry.captureCheckIn({
       monitorSlug: "mission-updates",
