@@ -54,6 +54,7 @@ const AGGS_KEYS = {
   accessibility: ["reducedMobilityAccessible", "closeToTransport"],
 } as { [key: string]: string | string[] };
 
+// TODO: split mission search and aggs search in two different requests
 router.get("/widget/:widgetId/msearch", async (req: Request, res: Response, next: NextFunction) => {
   try {
     const params = zod
@@ -265,7 +266,7 @@ router.get("/widget/:widgetId/msearch", async (req: Request, res: Response, next
     if (!whereAggs.$and.length) delete whereAggs.$and;
     if (!whereAggs.$or.length) delete whereAggs.$or;
 
-    const missions = await MissionModel.find(where).limit(query.data.size).skip(query.data.from).lean();
+    const missions = await MissionModel.find(where).sort({ remote: -1 }).limit(query.data.size).skip(query.data.from).lean();
 
     if (where.geoPoint) where.geoPoint = whereAggs.geoPoint; // $nearSphere is not supported in countDocuments
     const total = await MissionModel.countDocuments(where);
@@ -312,35 +313,3 @@ router.get("/widget/:widgetId/msearch", async (req: Request, res: Response, next
 });
 
 export default router;
-
-const a = {
-  $and: [
-    {
-      $or: [
-        {
-          deletedAt: {
-            $gte: new Date("2023-12-31T23:00:00.000Z"),
-          },
-        },
-        {
-          deleted: false,
-        },
-      ],
-    },
-    {
-      createdAt: {
-        $lt: new Date("2024-10-31T23:00:00.000Z"),
-      },
-      $or: [
-        {
-          deletedAt: {
-            $gte: new Date("2024-09-30T22:00:00.000Z"),
-          },
-        },
-        {
-          deleted: false,
-        },
-      ],
-    },
-  ],
-};
