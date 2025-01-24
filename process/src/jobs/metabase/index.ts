@@ -2,6 +2,7 @@ import importPartners from "./partner";
 import importUsers from "./user";
 import importCampaigns from "./campaign";
 import importWidgets from "./widget";
+import importOrganizations from "./organization";
 import importMissions from "./mission";
 import importImports from "./import";
 import importImpressions from "./print";
@@ -20,7 +21,9 @@ const handler = async () => {
     users: { created: 0, updated: 0 },
     campaigns: { created: 0, updated: 0 },
     widgets: { created: 0, updated: 0 },
+    organizations: { created: 0, updated: 0 },
     missions: { created: 0, updated: 0 },
+    organization_name_matches: { created: 0, updated: 0 },
     imports: { created: 0, updated: null },
     prints: { created: 0, updated: null },
     clicks: { created: 0, updated: null },
@@ -43,6 +46,9 @@ const handler = async () => {
   const widgets = await importWidgets();
   stats.widgets.created += widgets?.created || 0;
   stats.widgets.updated += widgets?.updated || 0;
+  const organizations = await importOrganizations();
+  stats.organizations.created += organizations?.created || 0;
+  stats.organizations.updated += organizations?.updated || 0;
   const missions = await importMissions();
   stats.missions.created += missions?.created || 0;
   stats.missions.updated += missions?.updated || 0;

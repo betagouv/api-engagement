@@ -7,187 +7,68 @@ datasource db {
   url      = env("PG_ENDPOINT")
 }
 
-model Organization {
-  id String @id @default(uuid())
-  old_id String @unique
-  rna String
-  siren String?
-  siret String?
-  rup_mi String?
-  gestion String?
-  status String?
-  created_at DateTime @default(now())
-  last_declared_at DateTime?
-  published_at DateTime?
-  dissolved_at DateTime?
-  updated_at DateTime @updatedAt
-  nature String?
-  groupement String?
-  title String
-  short_title String?
-  title_slug String
-  short_title_slug String
-  names String[]
-  object String?
-  social_object1 String?
-  social_object2 String?
-  address_complement String?
-  address_number String?
-  address_repetition String?
-  address_type String?
-  address_street String?
-  address_distribution String?
-  address_insee_code String?
-  address_postal_code String?
-  address_department_code String?
-  address_department_name String?
-  address_region String?
-  address_city String?
-  management_declarant String?
-  management_complement String?
-  management_street String?
-  management_distribution String?
-  management_postal_code String?
-  management_city String?
-  management_country String?
-  director_civility String?
-  website String?
-  observation String?
-  sync_at DateTime?
-  source String?
+model Account {
+  id              String      @id @default(uuid())
+  old_id          String      @unique
+  mission_id      String?
+  created_at      DateTime    @default(now())
+  updated_at      DateTime    @updatedAt
+  campaign_id     String?
+  widget_id       String?
+  source          SourceType?
+  url             String?
+  from_partner_id String?
+  to_partner_id   String?
+  old_view_id     String?
+  click_id        String?
+  source_id       String?
+  host            String?
+  tag             String?
+  mission_old_id  String?
+  campaign        Campaign?   @relation(fields: [campaign_id], references: [id])
+  click           Click?      @relation(fields: [click_id], references: [id])
+  from_partner    Partner?    @relation("FromAccount", fields: [from_partner_id], references: [id])
+  mission         Mission?    @relation(fields: [mission_id], references: [id])
+  to_partner      Partner?    @relation("ToAccount", fields: [to_partner_id], references: [id])
+  widget          Widget?     @relation(fields: [widget_id], references: [id])
+
+  @@index([mission_id], map: "account_mission_id")
+  @@index([campaign_id], map: "account_campaign_id")
+  @@index([widget_id], map: "account_widget_id")
+  @@index([from_partner_id], map: "account_from_partner_id")
+  @@index([to_partner_id], map: "account_to_partner_id")
 }
 
+model Apply {
+  id              String      @id @default(uuid())
+  old_id          String      @unique
+  mission_id      String?
+  created_at      DateTime    @default(now())
+  updated_at      DateTime    @updatedAt
+  campaign_id     String?
+  widget_id       String?
+  source          SourceType?
+  host            String?
+  from_partner_id String?
+  to_partner_id   String?
+  tag             String?
+  status          String?
+  old_view_id     String?
+  click_id        String?
+  source_id       String?
+  mission_old_id  String?
+  campaign        Campaign?   @relation(fields: [campaign_id], references: [id])
+  click           Click?      @relation(fields: [click_id], references: [id])
+  from_partner    Partner?    @relation("FromApply", fields: [from_partner_id], references: [id])
+  mission         Mission?    @relation(fields: [mission_id], references: [id])
+  to_partner      Partner?    @relation("ToApply", fields: [to_partner_id], references: [id])
+  widget          Widget?     @relation(fields: [widget_id], references: [id])
 
-model Mission {
-  id                              String       @id @default(uuid())
-  title                           String?
-  old_id                          String       @unique
-  department_name                 String?
-  department_code                 String?
-  address                         String?
-  domain                          String
-  activity                        String?
-  region                          String?
-  country                         String?
-  partner_id                      String?
-  description                     String?
-  type                            MissionType?
-  duration                        Int?
-  deleted_at                      DateTime?
-  open_to_minors                  String?
-  organization_actions            String[]
-  organization_beneficiaries      String[]
-  organization_city               String?
-  organization_description        String?
-  organization_logo               String?
-  organization_name               String?
-  organization_rna                String?
-  organization_reseaux            String[]
-  organization_siren              String?
-  organization_status_juridique   String?
-  organization_url                String?
-  organization_full_address       String?
-  organization_id                 String?
-
-  schedule                        String?
-  remote                          String?
-  last_sync_at                    DateTime?    @default(now())
-  status                          String?
-  status_comment                  String?
-  posted_at                       DateTime?    @default(now())
-  close_to_transport              String?
-  reduced_mobility_accessible     String?
-  start_at                        DateTime?    @default(now())
-  end_at                          DateTime?    @default(now())
-  created_at                      DateTime     @default(now())
-  updated_at                      DateTime     @updatedAt
-  audience                        String[]
-  geoloc_status                   String?
-  rna_status                      String?
-  snu                             Boolean?
-  snu_places                      Int?
-  tags                            String[]
-  jva_moderation_comment          String?
-  jva_moderation_status           String?
-  jva_moderation_title            String?
-  organization_client_id          String?
-  organization_department         String?
-  association_id                  String?
-  association_rna                 String?
-  city                            String?
-  client_id                       String?
-  description_html                String?
-  jva_moderation_updated_at       DateTime?
-  latitude                        Float?
-  leboncoin_moderation_comment    String?
-  leboncoin_moderation_status     String?
-  leboncoin_moderation_updated_at DateTime?
-  leboncoin_moderation_url        String?
-  longitude                       Float?
-  metadata                        String?
-  organization_postal_code        String?
-  postal_code                     String?
-  priority                        String?
-  soft_skills                     String[]
-  tasks                           String[]
-  places                          Int?
-  accounts                        Account[]
-  applies                         Apply[]
-  clicks                          Click[]
-  impressions                     Impression[]
-  partner                         Partner?     @relation(fields: [partner_id], references: [id])
-
-  @@index([partner_id], map: "mission_partner_id")
-  @@index([client_id], map: "mission_client_id")
-}
-
-model Partner {
-  id                  String       @id @default(uuid())
-  old_id              String       @unique
-  name                String?
-  diffuseur_api       Boolean
-  diffuseur_widget    Boolean
-  diffuseur_campaign  Boolean
-  annonceur           Boolean
-  api_key             String?
-  partners            String[]
-  created_at          DateTime     @default(now())
-  updated_at          DateTime     @updatedAt
-  deleted_at          DateTime?
-  account_from        Account[]    @relation("FromAccount")
-  account_to          Account[]    @relation("ToAccount")
-  apply_from          Apply[]      @relation("FromApply")
-  apply_to            Apply[]      @relation("ToApply")
-  annonceur_campaigns Campaign[]   @relation("AnnonceurCampaign")
-  diffuseur_campaigns Campaign[]   @relation("DiffuseurCampaign")
-  click_from          Click[]      @relation("FromClick")
-  click_to            Click[]      @relation("ToClick")
-  imports             Import[]
-  impression_from     Impression[] @relation("FromImpression")
-  impression_to       Impression[] @relation("ToImpression")
-  missions            Mission[]
-  diffuseur_widgets   Widget[]     @relation("DiffuseurWidget")
-  users               User[]       @relation("PartnerToUser")
-  annonceur_widget    Widget[]     @relation("PartnerToWidget")
-}
-
-model Widget {
-  id           String        @id @default(uuid())
-  name         String
-  old_id       String        @unique
-  diffuseur_id String
-  mission_type MissionType?
-  active       Boolean       @default(true)
-  deleted_at   DateTime?
-  created_at   DateTime      @default(now())
-  updated_at   DateTime      @updatedAt
-  accounts     Account[]
-  applies      Apply[]
-  clicks       Click[]
-  impressions  Impression[]
-  diffuseur    Partner       @relation("DiffuseurWidget", fields: [diffuseur_id], references: [id])
-  query        WidgetQuery[] @relation("QueryWidget")
-  annonceur    Partner[]     @relation("PartnerToWidget")
+  @@index([mission_id], map: "apply_mission_id")
+  @@index([campaign_id], map: "apply_campaign_id")
+  @@index([widget_id], map: "apply_widget_id")
+  @@index([from_partner_id], map: "apply_from_partner_id")
+  @@index([to_partner_id], map: "apply_to_partner_id")
 }
 
 model Campaign {
@@ -216,6 +97,48 @@ model Campaign {
   @@index([annonceur_id], map: "campaign_annonceur_id")
 }
 
+model Click {
+  id              String      @id @default(uuid())
+  old_id          String      @unique
+  mission_id      String?
+  created_at      DateTime    @default(now())
+  updated_at      DateTime    @updatedAt
+  campaign_id     String?
+  widget_id       String?
+  source          SourceType?
+  host            String?
+  from_partner_id String?
+  to_partner_id   String?
+  tag             String?
+  source_id       String?
+  mission_old_id  String?
+  accounts        Account[]
+  applies         Apply[]
+  campaign        Campaign?   @relation(fields: [campaign_id], references: [id])
+  from_partner    Partner?    @relation("FromClick", fields: [from_partner_id], references: [id])
+  mission         Mission?    @relation(fields: [mission_id], references: [id])
+  to_partner      Partner?    @relation("ToClick", fields: [to_partner_id], references: [id])
+  widget          Widget?     @relation(fields: [widget_id], references: [id])
+
+  @@index([mission_id], map: "click_mission_id")
+  @@index([campaign_id], map: "click_campaign_id")
+  @@index([widget_id], map: "click_widget_id")
+  @@index([from_partner_id], map: "click_from_partner_id")
+  @@index([to_partner_id], map: "click_to_partner_id")
+}
+
+model Import {
+  id            String   @id @default(uuid())
+  old_id        String   @unique
+  created_count Int?
+  deleted_count Int?
+  updated_count Int?
+  partner_id    String
+  started_at    DateTime @default(now())
+  ended_at      DateTime @default(now())
+  partner       Partner  @relation(fields: [partner_id], references: [id])
+}
+
 model Impression {
   id              String      @id @default(uuid())
   mission_id      String?
@@ -240,165 +163,6 @@ model Impression {
   @@index([to_partner_id], map: "impression_to_partner_id")
   @@index([from_partner_id], map: "impression_from_partner_id")
   @@index([campaign_id], map: "impression_campaign_id")
-}
-
-model Click {
-  id              String      @id @default(uuid())
-  old_id          String      @unique
-  mission_id      String?
-  created_at      DateTime    @default(now())
-  updated_at      DateTime    @updatedAt
-  campaign_id     String?
-  widget_id       String?
-  source          SourceType?
-  host            String?
-  from_partner_id String?
-  to_partner_id   String?
-  tag             String?
-  source_id       String?
-  mission_old_id  String?
-  campaign        Campaign?   @relation(fields: [campaign_id], references: [id])
-  from_partner    Partner?    @relation("FromClick", fields: [from_partner_id], references: [id])
-  mission         Mission?    @relation(fields: [mission_id], references: [id])
-  to_partner      Partner?    @relation("ToClick", fields: [to_partner_id], references: [id])
-  widget          Widget?     @relation(fields: [widget_id], references: [id])
-  applies         Apply[]
-  accounts        Account[]
-
-  @@index([mission_id], map: "click_mission_id")
-  @@index([campaign_id], map: "click_campaign_id")
-  @@index([widget_id], map: "click_widget_id")
-  @@index([from_partner_id], map: "click_from_partner_id")
-  @@index([to_partner_id], map: "click_to_partner_id")
-}
-
-model Apply {
-  id              String      @id @default(uuid())
-  old_id          String      @unique
-  mission_id      String?
-  created_at      DateTime    @default(now())
-  updated_at      DateTime    @updatedAt
-  campaign_id     String?
-  widget_id       String?
-  source          SourceType?
-  host            String?
-  from_partner_id String?
-  to_partner_id   String?
-  tag             String?
-  status          String?
-  old_view_id     String?
-  click_id        String?
-  click           Click?     @relation(fields: [click_id], references: [id])
-  source_id       String?
-  mission_old_id  String?
-  campaign        Campaign?   @relation(fields: [campaign_id], references: [id])
-  from_partner    Partner?    @relation("FromApply", fields: [from_partner_id], references: [id])
-  mission         Mission?    @relation(fields: [mission_id], references: [id])
-  to_partner      Partner?    @relation("ToApply", fields: [to_partner_id], references: [id])
-  widget          Widget?     @relation(fields: [widget_id], references: [id])
-
-  @@index([mission_id], map: "apply_mission_id")
-  @@index([campaign_id], map: "apply_campaign_id")
-  @@index([widget_id], map: "apply_widget_id")
-  @@index([from_partner_id], map: "apply_from_partner_id")
-  @@index([to_partner_id], map: "apply_to_partner_id")
-}
-
-model User {
-  id                          String         @id @default(uuid())
-  old_id                      String         @unique
-  forgot_password_reset_token String?
-  role                        String?
-  password                    String?
-  email                       String
-  last_login_at               DateTime?      @default(now())
-  first_name                  String?
-  last_name                   String?
-  invitation_completed_at     DateTime?      @default(now())
-  created_at                  DateTime       @default(now())
-  updated_at                  DateTime       @updatedAt
-  deleted_at                  DateTime?
-  deleted                     Boolean        @default(false)
-  login_history               LoginHistory[]
-  partners                     Partner[]      @relation("PartnerToUser")
-}
-
-model Import {
-  id            String   @id @default(uuid())
-  old_id        String   @unique
-  created_count Int?
-  deleted_count Int?
-  updated_count Int?
-  partner_id    String
-  started_at    DateTime @default(now())
-  ended_at      DateTime @default(now())
-  partner       Partner  @relation(fields: [partner_id], references: [id])
-}
-
-model Account {
-  id              String      @id @default(uuid())
-  old_id          String      @unique
-  mission_id      String?
-  created_at      DateTime    @default(now())
-  updated_at      DateTime    @updatedAt
-  campaign_id     String?
-  widget_id       String?
-  source          SourceType?
-  url             String?
-  from_partner_id String?
-  to_partner_id   String?
-  old_view_id     String?
-  click_id        String?
-  click           Click?     @relation(fields: [click_id], references: [id])
-  source_id       String?
-  host            String?
-  tag             String?
-  mission_old_id  String?
-  campaign        Campaign?   @relation(fields: [campaign_id], references: [id])
-  from_partner    Partner?    @relation("FromAccount", fields: [from_partner_id], references: [id])
-  mission         Mission?    @relation(fields: [mission_id], references: [id])
-  to_partner      Partner?    @relation("ToAccount", fields: [to_partner_id], references: [id])
-  widget          Widget?     @relation(fields: [widget_id], references: [id])
-
-  @@index([mission_id], map: "account_mission_id")
-  @@index([campaign_id], map: "account_campaign_id")
-  @@index([widget_id], map: "account_widget_id")
-  @@index([from_partner_id], map: "account_from_partner_id")
-  @@index([to_partner_id], map: "account_to_partner_id")
-}
-
-model WidgetQuery {
-  id            String    @id @default(uuid())
-  old_id        String    @unique
-  widget_id     String
-  domain        String[]
-  organization  String[]
-  department    String[]
-  schedule      String[]
-  remote        String[]
-  action        String[]
-  beneficiary   String[]
-  country       String[]
-  minor         String[]
-  accessibility String[]
-  duration      Int?
-  start         DateTime?
-  search        String?
-  lat           Float?
-  lon           Float?
-  size          Int?
-  from          Int?
-  created_at    DateTime  @default(now())
-  widget        Widget    @relation("QueryWidget", fields: [widget_id], references: [id])
-}
-
-model LoginHistory {
-  id       String   @id @default(uuid())
-  user_id  String
-  login_at DateTime @default(now())
-  user     User     @relation(fields: [user_id], references: [id])
-
-  @@index([user_id], map: "login_history")
 }
 
 model Kpi {
@@ -431,6 +195,267 @@ model Kpi {
   volontariat_apply_count                             Int
   benevolat_account_count                             Int
   volontariat_account_count                           Int
+}
+
+model LoginHistory {
+  id       String   @id @default(uuid())
+  user_id  String
+  login_at DateTime @default(now())
+  user     User     @relation(fields: [user_id], references: [id])
+
+  @@index([user_id], map: "login_history")
+}
+
+model Mission {
+  id                              String        @id @default(uuid())
+  title                           String?
+  old_id                          String        @unique
+  department_name                 String?
+  department_code                 String?
+  address                         String?
+  domain                          String
+  activity                        String?
+  region                          String?
+  country                         String?
+  partner_id                      String?
+  description                     String?
+  type                            MissionType?
+  duration                        Int?
+  deleted_at                      DateTime?
+  open_to_minors                  String?
+  organization_actions            String[]
+  organization_beneficiaries      String[]
+  organization_city               String?
+  organization_description        String?
+  organization_logo               String?
+  organization_name               String?
+  organization_rna                String?
+  organization_reseaux            String[]
+  organization_siren              String?
+  organization_status_juridique   String?
+  organization_url                String?
+  organization_full_address       String?
+  schedule                        String?
+  remote                          String?
+  last_sync_at                    DateTime?     @default(now())
+  status                          String?
+  status_comment                  String?
+  posted_at                       DateTime?     @default(now())
+  close_to_transport              String?
+  reduced_mobility_accessible     String?
+  start_at                        DateTime?     @default(now())
+  end_at                          DateTime?     @default(now())
+  created_at                      DateTime      @default(now())
+  updated_at                      DateTime      @updatedAt
+  audience                        String[]
+  geoloc_status                   String?
+  rna_status                      String?
+  snu                             Boolean?
+  snu_places                      Int?
+  tags                            String[]
+  jva_moderation_comment          String?
+  jva_moderation_status           String?
+  jva_moderation_title            String?
+  organization_client_id          String?
+  organization_department         String?
+  association_id                  String?
+  association_rna                 String?
+  city                            String?
+  client_id                       String?
+  description_html                String?
+  jva_moderation_updated_at       DateTime?
+  latitude                        Float?
+  leboncoin_moderation_comment    String?
+  leboncoin_moderation_status     String?
+  leboncoin_moderation_updated_at DateTime?
+  leboncoin_moderation_url        String?
+  longitude                       Float?
+  metadata                        String?
+  organization_postal_code        String?
+  postal_code                     String?
+  priority                        String?
+  soft_skills                     String[]
+  tasks                           String[]
+  places                          Int?
+  matched_organization_id         String?
+  accounts                        Account[]
+  applies                         Apply[]
+  clicks                          Click[]
+  impressions                     Impression[]
+  organization                    Organization? @relation(fields: [matched_organization_id], references: [id])
+  partner                         Partner?      @relation(fields: [partner_id], references: [id])
+
+  @@index([client_id], map: "mission_client_id")
+  @@index([matched_organization_id], map: "mission_matched_organization_id")
+  @@index([partner_id], map: "mission_partner_id")
+}
+
+model Organization {
+  id                      String    @id
+  old_id                  String    @unique
+  rna                     String
+  siren                   String?
+  siret                   String?
+  rup_mi                  String?
+  gestion                 String?
+  status                  String?
+  created_at              DateTime  @default(now())
+  last_declared_at        DateTime?
+  published_at            DateTime?
+  dissolved_at            DateTime?
+  updated_at              DateTime
+  nature                  String?
+  groupement              String?
+  title                   String
+  short_title             String?
+  title_slug              String
+  short_title_slug        String
+  names                   String[]
+  object                  String?
+  social_object1          String?
+  social_object2          String?
+  address_complement      String?
+  address_number          String?
+  address_repetition      String?
+  address_type            String?
+  address_street          String?
+  address_distribution    String?
+  address_insee_code      String?
+  address_postal_code     String?
+  address_department_code String?
+  address_department_name String?
+  address_region          String?
+  address_city            String?
+  management_declarant    String?
+  management_complement   String?
+  management_street       String?
+  management_distribution String?
+  management_postal_code  String?
+  management_city         String?
+  management_country      String?
+  director_civility       String?
+  website                 String?
+  observation             String?
+  sync_at                 DateTime?
+  source                  String?
+  missions                Mission[]
+}
+
+model Partner {
+  id                  String       @id @default(uuid())
+  old_id              String       @unique
+  name                String?
+  diffuseur_api       Boolean
+  diffuseur_widget    Boolean
+  diffuseur_campaign  Boolean
+  annonceur           Boolean
+  api_key             String?
+  partners            String[]
+  created_at          DateTime     @default(now())
+  updated_at          DateTime     @updatedAt
+  deleted_at          DateTime?
+  account_from        Account[]    @relation("FromAccount")
+  account_to          Account[]    @relation("ToAccount")
+  apply_from          Apply[]      @relation("FromApply")
+  apply_to            Apply[]      @relation("ToApply")
+  annonceur_campaigns Campaign[]   @relation("AnnonceurCampaign")
+  diffuseur_campaigns Campaign[]   @relation("DiffuseurCampaign")
+  click_from          Click[]      @relation("FromClick")
+  click_to            Click[]      @relation("ToClick")
+  imports             Import[]
+  impression_from     Impression[] @relation("FromImpression")
+  impression_to       Impression[] @relation("ToImpression")
+  missions            Mission[]
+  diffuseur_widgets   Widget[]     @relation("DiffuseurWidget")
+  annonceur_widget PartnerToWidget[]
+  users PartnerToUser[]
+}
+
+model User {
+  id                          String         @id @default(uuid())
+  old_id                      String         @unique
+  forgot_password_reset_token String?
+  role                        String?
+  password                    String?
+  email                       String
+  last_login_at               DateTime?      @default(now())
+  first_name                  String?
+  last_name                   String?
+  invitation_completed_at     DateTime?      @default(now())
+  created_at                  DateTime       @default(now())
+  updated_at                  DateTime       @updatedAt
+  deleted_at                  DateTime?
+  deleted                     Boolean        @default(false)
+  login_history               LoginHistory[]
+  partners PartnerToUser[]
+}
+
+model Widget {
+  id           String        @id @default(uuid())
+  name         String
+  old_id       String        @unique
+  diffuseur_id String
+  mission_type MissionType?
+  active       Boolean       @default(true)
+  deleted_at   DateTime?
+  created_at   DateTime      @default(now())
+  updated_at   DateTime      @updatedAt
+  accounts     Account[]
+  applies      Apply[]
+  clicks       Click[]
+  impressions  Impression[]
+  diffuseur    Partner       @relation("DiffuseurWidget", fields: [diffuseur_id], references: [id])
+  query        WidgetQuery[] @relation("QueryWidget")
+  partners PartnerToWidget[]
+}
+
+model WidgetQuery {
+  id            String    @id @default(uuid())
+  old_id        String    @unique
+  widget_id     String
+  domain        String[]
+  organization  String[]
+  department    String[]
+  schedule      String[]
+  remote        String[]
+  action        String[]
+  beneficiary   String[]
+  country       String[]
+  minor         String[]
+  accessibility String[]
+  duration      Int?
+  start         DateTime?
+  search        String?
+  lat           Float?
+  lon           Float?
+  size          Int?
+  from          Int?
+  created_at    DateTime  @default(now())
+  widget        Widget    @relation("QueryWidget", fields: [widget_id], references: [id])
+}
+
+model PartnerToUser {
+  id         String   @id @default(uuid())
+  user_id    String
+  partner_id String
+  user       User     @relation(fields: [user_id], references: [id])
+  partner    Partner  @relation(fields: [partner_id], references: [id])
+
+  @@unique([partner_id, user_id])
+  @@index([partner_id])
+  @@index([user_id])
+}
+
+model PartnerToWidget {
+  id         String   @id @default(uuid())
+  widget_id  String
+  partner_id String
+  widget     Widget   @relation(fields: [widget_id], references: [id])
+  partner    Partner  @relation(fields: [partner_id], references: [id])
+
+  @@unique([partner_id, widget_id])
+  @@index([partner_id])
+  @@index([widget_id])
 }
 
 enum MissionType {
