@@ -395,7 +395,7 @@ export interface StatsReport {
       applyLastYear: number;
     }[];
     organizationHistogram: {
-      month: number;
+      month: Date;
       [key: string]: number;
     }[];
   };
@@ -429,8 +429,8 @@ export interface StatsReport {
       applyLastYear: number;
     }[];
     organizationHistogram: {
+      month: Date;
       [key: string]: number;
-      month: number;
     }[];
   };
 }
@@ -447,9 +447,13 @@ export interface Report {
   sent: boolean;
   sentAt: Date | null;
   sentTo: string[];
-  dataTemplate: "BOTH" | "RECEIVE" | "SEND";
+  dataTemplate: "BOTH" | "RECEIVE" | "SEND" | "NONE";
+  clicksFrom: number;
+  clicksTo: number;
+  applyFrom: number;
+  applyTo: number;
   data: StatsReport;
-  status: string;
+  error: string;
   createdAt: Date;
   updatedAt: Date;
 }

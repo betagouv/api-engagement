@@ -5,6 +5,7 @@ import { STATS_INDEX } from "../config";
 import esClient from "../db/elastic";
 import { INVALID_QUERY } from "../error";
 import MissionModel from "../models/mission";
+import { EsQuery } from "../types";
 
 const router = Router();
 
@@ -23,7 +24,7 @@ const buildMonthFacets = (year: number) => {
   return facets;
 };
 
-router.get("/graphs", async (req: Request, res: Response, next: NextFunction) => {
+router.get("/graph-stats", async (req: Request, res: Response, next: NextFunction) => {
   try {
     const query = zod
       .object({
@@ -35,20 +36,16 @@ router.get("/graphs", async (req: Request, res: Response, next: NextFunction) =>
 
     if (!query.success) return res.status(400).send({ ok: false, code: INVALID_QUERY, error: query.error });
 
-    const viewQuery = { bool: { must_not: [{ term: { "isBot.keyword": true } }], filter: [] } as { [key: string]: any } };
-    const whereMissions = {} as { [key: string]: any };
+    const viewQuery = { bool: { must_not: [{ term: { isBot: true } }], filter: [] } as { [key: string]: any } };
 
     if (query.data.department) {
       viewQuery.bool.filter.push({ term: { "missionDepartmentName.keyword": query.data.department } });
-      whereMissions.departmentName = query.data.department;
     }
 
     if (query.data.type === "volontariat") {
       viewQuery.bool.filter.push({ term: { "toPublisherName.keyword": "Service Civique" } });
-      whereMissions.publisherName = "Service Civique";
     } else if (query.data.type === "benevolat") {
       viewQuery.bool.filter.push({ bool: { must_not: { term: { "toPublisherName.keyword": "Service Civique" } } } });
-      whereMissions.publisherName = { $ne: "Service Civique" };
     }
 
     if (query.data.year) {
@@ -57,24 +54,12 @@ router.get("/graphs", async (req: Request, res: Response, next: NextFunction) =>
           createdAt: { gte: new Date(query.data.year, 0, 1).toISOString(), lte: new Date(query.data.year, 11, 31).toISOString() },
         },
       });
-      whereMissions.$or = [{ deletedAt: { $gte: new Date(query.data.year, 0, 1) } }, { deleted: false }];
     }
 
     const viewBody = {
       track_total_hits: true,
       query: viewQuery,
       aggs: {
-        years: {
-          date_histogram: { field: "createdAt", calendar_interval: "year" },
-          aggs: {
-            click: {
-              filter: { term: { "type.keyword": "click" } },
-            },
-            apply: {
-              filter: { term: { "type.keyword": "apply" } },
-            },
-          },
-        },
         months: {
           date_histogram: { field: "createdAt", calendar_interval: "month", format: "yyyy-MM" },
           aggs: {
@@ -113,33 +98,21 @@ router.get("/graphs", async (req: Request, res: Response, next: NextFunction) =>
     const viewResponse = await esClient.search({ index: STATS_INDEX, body: viewBody });
     if (viewResponse.statusCode !== 200) next(viewResponse.body.error);
 
-    const $facet = buildMonthFacets(query.data.year);
-
-    const missionFacets = await MissionModel.aggregate([{ $match: whereMissions }, { $facet }]);
-    const totalMissions = await MissionModel.countDocuments(whereMissions);
-    const missionsData = Object.entries(missionFacets[0]).map(([m, value]) => {
-      const month = parseInt(m, 10);
-      return {
-        key: `${query.data.year}-${month < 9 ? "0" : ""}${month + 1}`,
-        doc_count: Array.isArray(value) && value.length ? value[0].doc_count || 0 : 0,
-      };
-    });
-
     const data = {
-      redirections: viewResponse.body.aggregations.months.buckets
+      clicks: viewResponse.body.aggregations.months.buckets
         .filter((bucket: { key_as_string: string }) => bucket.key_as_string.startsWith(query.data.year.toString()))
         .map((bucket: { key_as_string: string; click: { doc_count: number } }) => ({
           key: bucket.key_as_string,
           doc_count: bucket.click.doc_count,
         })),
-      totalRedirections: viewResponse.body.aggregations.months.buckets.reduce((acc: number, bucket: { click: { doc_count: number } }) => acc + bucket.click.doc_count, 0),
-      applications: viewResponse.body.aggregations.months.buckets
+      totalClicks: viewResponse.body.aggregations.months.buckets.reduce((acc: number, bucket: { click: { doc_count: number } }) => acc + bucket.click.doc_count, 0),
+      applies: viewResponse.body.aggregations.months.buckets
         .filter((bucket: { key_as_string: string }) => bucket.key_as_string.startsWith(query.data.year.toString()))
         .map((bucket: { key_as_string: string; apply: { doc_count: number } }) => ({
           key: bucket.key_as_string,
           doc_count: bucket.apply.doc_count,
         })),
-      totalApplications: viewResponse.body.aggregations.months.buckets.reduce((acc: number, bucket: { apply: { doc_count: number } }) => acc + bucket.apply.doc_count, 0),
+      totalApplies: viewResponse.body.aggregations.months.buckets.reduce((acc: number, bucket: { apply: { doc_count: number } }) => acc + bucket.apply.doc_count, 0),
 
       organizations: viewResponse.body.aggregations.organizations.buckets
         .filter((bucket: { key_as_string: string }) => bucket.key_as_string.startsWith(query.data.year.toString()))
@@ -148,11 +121,55 @@ router.get("/graphs", async (req: Request, res: Response, next: NextFunction) =>
           doc_count: bucket.unique_organizations.value,
         })),
       totalOrganizations: viewResponse.body.aggregations.organizations_count.value,
-      totalMissions,
-      missions: missionsData,
     };
 
     return res.status(200).send({ ok: true, data });
+  } catch (error) {
+    next(error);
+  }
+});
+
+router.get("/graph-missions", async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const query = zod
+      .object({
+        department: zod.string().optional(),
+        type: zod.string().optional(),
+        year: zod.coerce.number().optional().default(new Date().getFullYear()),
+      })
+      .safeParse(req.query);
+
+    if (!query.success) return res.status(400).send({ ok: false, code: INVALID_QUERY, error: query.error });
+
+    const whereMissions = {} as { [key: string]: any };
+
+    if (query.data.department) {
+      whereMissions.departmentName = query.data.department;
+    }
+
+    if (query.data.type === "volontariat") {
+      whereMissions.publisherName = "Service Civique";
+    } else if (query.data.type === "benevolat") {
+      whereMissions.publisherName = { $ne: "Service Civique" };
+    }
+
+    if (query.data.year) {
+      whereMissions.$or = [{ deletedAt: { $gte: new Date(query.data.year, 0, 1) } }, { deleted: false }];
+    }
+
+    const $facet = buildMonthFacets(query.data.year);
+
+    const missionFacets = await MissionModel.aggregate([{ $match: whereMissions }, { $facet }]);
+    const total = await MissionModel.countDocuments(whereMissions);
+    const data = Object.entries(missionFacets[0]).map(([m, value]) => {
+      const month = parseInt(m, 10);
+      return {
+        key: `${query.data.year}-${month < 9 ? "0" : ""}${month + 1}`,
+        doc_count: Array.isArray(value) && value.length ? value[0].doc_count || 0 : 0,
+      };
+    });
+
+    return res.status(200).send({ ok: true, data, total });
   } catch (error) {
     next(error);
   }
@@ -170,7 +187,9 @@ router.get("/domains", async (req: Request, res: Response, next: NextFunction) =
 
     if (!query.success) return res.status(400).send({ ok: false, code: INVALID_QUERY, error: query.error });
 
-    const filters = [];
+    const filters = [
+      { range: { createdAt: { gte: new Date(query.data.year, 0, 1).toISOString(), lte: new Date(query.data.year, 11, 31).toISOString() } } },
+    ] as EsQuery["bool"]["filter"];
 
     if (query.data.department) {
       filters.push({ term: { "missionDepartmentName.keyword": query.data.department } });
@@ -186,7 +205,7 @@ router.get("/domains", async (req: Request, res: Response, next: NextFunction) =
       track_total_hits: true,
       query: {
         bool: {
-          must_not: [{ term: { "isBot.keyword": true } }],
+          must_not: [{ term: { isBot: true } }],
           must: filters.length > 0 ? filters : [{ match_all: {} }],
         },
       },
@@ -242,33 +261,50 @@ router.get("/domains", async (req: Request, res: Response, next: NextFunction) =
 
 router.get("/departments", async (req: Request, res: Response, next: NextFunction) => {
   try {
+    const query = zod
+      .object({
+        year: zod.coerce.number().optional().default(new Date().getFullYear()),
+        type: zod.string().optional(),
+      })
+
+      .safeParse(req.query);
+
+    if (!query.success) return res.status(400).send({ ok: false, code: INVALID_QUERY, error: query.error });
+
+    const filter = [
+      { range: { createdAt: { gte: new Date(query.data.year, 0, 1).toISOString(), lte: new Date(query.data.year, 11, 31).toISOString() } } },
+    ] as EsQuery["bool"]["filter"];
+
+    if (query.data.type === "volontariat") {
+      filter.push({ term: { "toPublisherName.keyword": "Service Civique" } });
+    } else if (query.data.type === "benevolat") {
+      filter.push({ bool: { must_not: { term: { "toPublisherName.keyword": "Service Civique" } } } });
+    }
     const aggBody = {
       size: 0,
+      query: {
+        bool: {
+          must_not: [{ term: { isBot: true } }],
+          filter,
+        },
+      },
       aggs: {
-        per_year: {
-          date_histogram: {
-            field: "createdAt",
-            calendar_interval: "year",
+        departments: {
+          terms: {
+            field: "missionPostalCode.keyword",
+            size: 120,
           },
           aggs: {
-            departments: {
-              terms: {
-                field: "missionPostalCode.keyword",
-                size: 120,
+            unique_missions: {
+              cardinality: {
+                field: "missionId.keyword",
               },
-              aggs: {
-                unique_missions: {
-                  cardinality: {
-                    field: "missionId.keyword",
-                  },
-                },
-                clicks: {
-                  filter: { term: { "type.keyword": "click" } },
-                },
-                applies: {
-                  filter: { term: { "type.keyword": "apply" } },
-                },
-              },
+            },
+            clicks: {
+              filter: { term: { "type.keyword": "click" } },
+            },
+            applies: {
+              filter: { term: { "type.keyword": "apply" } },
             },
           },
         },
@@ -277,15 +313,14 @@ router.get("/departments", async (req: Request, res: Response, next: NextFunctio
 
     const response = await esClient.search({ index: STATS_INDEX, body: aggBody });
 
-    const data = response.body.aggregations.per_year.buckets.map((yearBucket: { key: string; departments: { buckets: any[] } }) => ({
-      year: new Date(yearBucket.key).getFullYear(),
-      departments: yearBucket.departments.buckets.map((deptBucket) => ({
-        key: deptBucket.key,
-        doc_count: deptBucket.unique_missions.value,
-        click: deptBucket.clicks.doc_count,
-        apply: deptBucket.applies.doc_count,
-      })),
-    }));
+    const data = response.body.aggregations.departments.buckets.map(
+      (b: { key: string; unique_missions: { value: number }; clicks: { doc_count: number }; applies: { doc_count: number } }) => ({
+        key: b.key,
+        mission_count: b.unique_missions.value,
+        click_count: b.clicks.doc_count,
+        apply_count: b.applies.doc_count,
+      }),
+    );
 
     return res.status(200).send({ ok: true, data });
   } catch (error) {

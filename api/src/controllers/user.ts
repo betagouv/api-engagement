@@ -11,6 +11,7 @@ import PublisherModel from "../models/publisher";
 import UserModel from "../models/user";
 import { sendTemplate } from "../services/email";
 import { UserRequest } from "../types/passport";
+import { hasLetter, hasNumber, hasSpecialChar } from "../utils";
 
 const FORGET_PASSWORD_EXPIRATION = 1000 * 60 * 60 * 2; // 2 hours
 const AUTH_TOKEN_EXPIRATION = 1000 * 60 * 60 * 24 * 7; // 7 day
@@ -147,15 +148,16 @@ router.post("/invite", passport.authenticate("admin", { session: false }), async
 
 router.post("/verify-token", async (req: UserRequest, res: Response, next: NextFunction) => {
   try {
-    const { error: bodyError, value: body } = Joi.object({
-      token: Joi.string().required(),
-    })
-      .unknown()
-      .validate(req.body);
+    const body = zod
+      .object({
+        token: zod.string(),
+      })
+      .required()
+      .safeParse(req.body);
 
-    if (bodyError) return res.status(400).send({ ok: false, code: INVALID_BODY, message: bodyError.details });
+    if (!body.success) return res.status(400).send({ ok: false, code: INVALID_BODY, message: body.error.errors });
 
-    const user = await UserModel.findOne({ invitationToken: body.token });
+    const user = await UserModel.findOne({ invitationToken: body.data.token });
     if (!user) return res.status(404).send({ ok: false, code: NOT_FOUND, message: `User not found` });
     if (!user.invitationExpiresAt || user.invitationExpiresAt < new Date()) return res.status(403).send({ ok: false, code: REQUEST_EXPIRED, message: `Token expired` });
 
@@ -167,15 +169,16 @@ router.post("/verify-token", async (req: UserRequest, res: Response, next: NextF
 
 router.post("/verify-reset-password-token", async (req: UserRequest, res: Response, next: NextFunction) => {
   try {
-    const { error: bodyError, value: body } = Joi.object({
-      token: Joi.string().required(),
-    })
-      .unknown()
-      .validate(req.body);
+    const body = zod
+      .object({
+        token: zod.string(),
+      })
+      .required()
+      .safeParse(req.body);
 
-    if (bodyError) return res.status(400).send({ ok: false, code: INVALID_BODY, message: bodyError.details });
+    if (!body.success) return res.status(400).send({ ok: false, code: INVALID_BODY, message: body.error.errors });
 
-    const user = await UserModel.findOne({ forgot_password_reset_token: body.token });
+    const user = await UserModel.findOne({ forgot_password_reset_token: body.data.token });
     if (!user) return res.status(404).send({ ok: false, code: NOT_FOUND, message: `User not found` });
 
     if (!user.forgot_password_reset_expires || user.forgot_password_reset_expires < new Date()) {
@@ -190,27 +193,28 @@ router.post("/verify-reset-password-token", async (req: UserRequest, res: Respon
 
 router.post("/signup", async (req: UserRequest, res: Response, next: NextFunction) => {
   try {
-    const { error: bodyError, value: body } = Joi.object({
-      id: Joi.string().required(),
-      firstname: Joi.string().required(),
-      lastname: Joi.string(),
-      password: Joi.string()
-        .required()
-        .min(12)
-        .max(100)
-        .regex(/^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*#?&])[A-Za-z\d@$!%*#?&]{12,30}$/),
-    })
-      .unknown()
-      .validate(req.body);
+    const body = zod
+      .object({
+        id: zod.string(),
+        firstname: zod.string(),
+        lastname: zod.string(),
+        password: zod.string(),
+      })
+      .required()
+      .safeParse(req.body);
 
-    if (bodyError) return res.status(400).send({ ok: false, code: INVALID_BODY, message: bodyError.details });
+    if (!body.success) return res.status(400).send({ ok: false, code: INVALID_BODY, message: body.error.errors });
 
-    const user = await UserModel.findById(body.id);
+    if (body.data.password.length < 12 || !hasLetter(body.data.password) || !hasNumber(body.data.password) || !hasSpecialChar(body.data.password)) {
+      return res.status(400).send({ ok: false, code: "INVALID_PASSWORD" });
+    }
+
+    const user = await UserModel.findById(body.data.id);
     if (!user) return res.status(404).send({ ok: false, code: NOT_FOUND, message: `User not found` });
 
-    user.firstname = body.firstname;
-    user.lastname = body.lastname;
-    user.password = body.password;
+    user.firstname = body.data.firstname;
+    user.lastname = body.data.lastname;
+    user.password = body.data.password;
     user.invitationToken = null;
     user.invitationExpiresAt = null;
     user.invitationCompletedAt = new Date();
@@ -323,12 +327,7 @@ router.put("/change-password", passport.authenticate("user", { session: false })
 
     if (!body.success) return res.status(400).send({ ok: false, code: INVALID_BODY, message: body.error });
 
-    if (
-      body.data.newPassword.length < 12 ||
-      !/[a-zA-Z]/.test(body.data.newPassword) ||
-      !/[0-9]/.test(body.data.newPassword) ||
-      !/[!-@#$%^&*(),.?":{}|<>]/.test(body.data.newPassword)
-    ) {
+    if (body.data.newPassword.length < 12 || !hasLetter(body.data.newPassword) || !hasNumber(body.data.newPassword) || !hasSpecialChar(body.data.newPassword)) {
       return res.status(400).send({ ok: false, code: "INVALID_PASSWORD" });
     }
 
@@ -346,22 +345,27 @@ router.put("/change-password", passport.authenticate("user", { session: false })
 
 router.put("/reset-password", async (req: UserRequest, res: Response, next: NextFunction) => {
   try {
-    const { error: bodyError, value: body } = Joi.object({
-      token: Joi.string().required(),
-      password: Joi.string().required(),
-    })
-      .unknown()
-      .validate(req.body);
+    const body = zod
+      .object({
+        token: zod.string(),
+        password: zod.string(),
+      })
+      .required()
+      .safeParse(req.body);
 
-    if (bodyError) return res.status(400).send({ ok: false, code: INVALID_BODY, message: bodyError.details });
+    if (!body.success) return res.status(400).send({ ok: false, code: INVALID_BODY, message: body.error.errors });
 
-    const user = await UserModel.findOne({ forgot_password_reset_token: body.token });
+    const user = await UserModel.findOne({ forgot_password_reset_token: body.data.token });
     if (!user) return res.status(404).send({ ok: false, code: NOT_FOUND, message: `User not found` });
 
     if (!user.forgot_password_reset_expires || user.forgot_password_reset_expires < new Date())
       return res.status(403).send({ ok: false, code: REQUEST_EXPIRED, message: `Token expired` });
 
-    user.password = body.password;
+    if (body.data.password.length < 12 || !hasLetter(body.data.password) || !hasNumber(body.data.password) || !hasSpecialChar(body.data.password)) {
+      return res.status(400).send({ ok: false, code: "INVALID_PASSWORD" });
+    }
+
+    user.password = body.data.password;
     user.forgot_password_reset_token = null;
     user.forgot_password_reset_expires = null;
     await user.save();

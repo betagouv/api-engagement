@@ -68,7 +68,6 @@ const schema = new Schema<Mission>(
     geolocStatus: { type: String, enum: ["ENRICHED_BY_PUBLISHER", "ENRICHED", "NOT_FOUND", "NO_DATA", "SHOULD_ENRICH", "FAILED"], default: "NO_DATA" },
 
     // Organisation
-    organizationId: { type: String },
     organizationUrl: { type: String },
     organizationName: { type: String },
     organizationType: { type: String },
@@ -87,22 +86,10 @@ const schema = new Schema<Mission>(
     organizationReseaux: { type: [String] },
 
     // Organization verification
-    organizationVerificationStatus: {
-      type: String,
-      enum: [
-        "RNA_MATCHED_WITH_DATA_SUBVENTION",
-        "RNA_MATCHED_WITH_DATA_DB",
-        "RNA_NOT_MATCHED",
-        "SIRET_MATCHED_WITH_DATA_SUBVENTION",
-        "SIRET_MATCHED_WITH_DATA_DB",
-        "SIRET_NOT_MATCHED",
-        "NAME_EXACT_MATCHED_WITH_DB",
-        "NAME_NOT_MATCHED",
-        "NO_DATA",
-        "FAILED",
-      ],
-      default: "NO_DATA",
-    },
+
+    organizationVerificationStatus: { type: String },
+    organizationId: { type: String },
+    organisationIsRUP: { type: Boolean },
     organizationNameVerified: { type: String },
     organizationRNAVerified: { type: String },
     organizationSirenVerified: { type: String },
@@ -137,6 +124,7 @@ const schema = new Schema<Mission>(
     associationId: { type: String },
     associationName: { type: String },
     associationSiren: { type: String },
+    associationSiret: { type: String },
     associationRNA: { type: String },
     associationSources: { type: [String] },
     associationReseaux: { type: [String] },
@@ -147,7 +135,6 @@ const schema = new Schema<Mission>(
     associationDepartmentCode: { type: String },
     associationDepartmentName: { type: String },
     associationRegion: { type: String },
-    rnaStatus: { type: String, enum: ["ENRICHED_BY_DATA_SUBVENTION", "ENRICHED", "NEED_VERIFY", "NOT_FOUND", "NO_DATA", "SHOULD_ENRICH", "FAILED"], default: "NO_DATA" },
 
     // Metadata
     deleted: { type: Boolean, default: false },

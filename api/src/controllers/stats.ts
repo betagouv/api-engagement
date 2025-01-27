@@ -27,7 +27,7 @@ router.post("/search", passport.authenticate("user", { session: false }), async 
     if (!body.success) return res.status(400).send({ ok: false, code: INVALID_BODY, error: body.error });
     if (!body.data.fromPublisherId && !body.data.toPublisherId) return res.status(400).send({ ok: false, code: INVALID_BODY, error: "Missing fromPublisherId or toPublisherId" });
 
-    const where = { bool: { must: [], must_not: [{ term: { "isBot.keyword": true } }], should: [], filter: [] } } as EsQuery;
+    const where = { bool: { must: [], must_not: [{ term: { isBot: true } }], should: [], filter: [] } } as EsQuery;
 
     if (body.data.fromPublisherId) where.bool.filter.push({ term: { fromPublisherId: body.data.fromPublisherId } });
     if (body.data.toPublisherId) where.bool.filter.push({ term: { toPublisherId: body.data.toPublisherId } });
