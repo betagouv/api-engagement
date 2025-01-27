@@ -41,11 +41,6 @@ export const verifyOrganization = async (missions: Mission[]) => {
       }
     });
 
-    console.log(`\n[Organization Verification] Starting verification for:`);
-    console.log(`- ${organizationsRNAs.length} RNAs`);
-    console.log(`- ${organizationsSirets.length} SIRETs`);
-    console.log(`- ${organizationsNames.length} Names\n`);
-
     const resRna = organizationsRNAs.length !== 0 ? await findByRNA(organizationsRNAs) : {};
     const resSiret = organizationsSirets.length !== 0 ? await findBySiret(organizationsSirets) : {};
     const resNames = organizationsNames.length !== 0 ? await findByName(organizationsNames) : { exact: {}, approximate: {} };
@@ -63,7 +58,8 @@ export const verifyOrganization = async (missions: Mission[]) => {
         const data = resRna[rna];
         if (data) {
           obj.organizationId = data._id.toString();
-          obj.organizationNameVerified = data.rna;
+          obj.organizationNameVerified = data.title;
+          obj.organizationRNAVerified = data.rna;
           obj.organizationSirenVerified = data.siren;
           obj.organizationSiretVerified = data.siret;
           obj.organizationAddressVerified = `${data.addressNumber || ""} ${data.addressRepetition || ""} ${data.addressType || ""} ${data.addressStreet || ""}`
@@ -141,16 +137,33 @@ export const verifyOrganization = async (missions: Mission[]) => {
 };
 
 const findByRNA = async (rnas: string[]) => {
+  console.log("\n=== RNA Verification Details ===");
+  console.log("Input RNAs:", rnas);
+
   const response = await OrganizationModel.find({ rna: { $in: rnas } });
   console.log(`[Organization DB] Found ${response.length} RNAs in database`);
+  console.log(
+    "Database matches:",
+    response.map((r) => ({ rna: r.rna, title: r.title })),
+  );
 
   const rnasToFetch = rnas.filter((rna) => !response.find((r) => r.rna === rna));
-  console.log(`[Organization API] Fetching ${rnasToFetch.length} RNAs from datasubvention`);
+  console.log(`[Organization API] Need to fetch ${rnasToFetch.length} RNAs from datasubvention`);
+  if (rnasToFetch.length > 0) {
+    console.log("RNAs to fetch:", rnasToFetch);
+  }
+
   for (const rna of rnasToFetch) {
     try {
       await new Promise((resolve) => setTimeout(resolve, 1000));
+      console.log(`\nAttempting to fetch RNA: ${rna} from DATA_SUBVENTION`);
 
       const data = await apiDatasubvention.get(`/association/${rna}`);
+      console.log(
+        `API Response received for RNA ${rna}:`,
+        data?.association?.rna?.[0]?.value ? "Has RNA" : "No RNA",
+        data?.association?.denomination_rna?.[0]?.value ? "Has Name" : "No Name",
+      );
       if (data?.association?.rna?.[0]?.value && data?.association?.rna?.[0]?.provider === "RNA" && data?.association?.denomination_rna?.[0]?.value) {
         const departement = data.association.adresse_siege_rna ? getDepartement(data.association.adresse_siege_rna[0]?.value?.code_postal) : null;
         const obj = {
@@ -273,10 +286,17 @@ const findByName = async (names: string[]) => {
     approximate: {} as { [key: string]: HydratedDocument<OrganizationNameMatch> },
   };
 
-  console.log(`[Organization] Fetching ${names.length} names with approximate match`);
+  console.log(`\n[Organization] Starting name matching for ${names.length} organizations`);
+
   for (let i = 0; i < names.length; i++) {
     const name = names[i];
-    if (i % 50 === 0) console.log(`[Organization] Fetching ${i + 1} / ${names.length} names`);
+    if (i % 50 === 0) console.log(`[Organization] Processing ${i + 1} / ${names.length} names`);
+
+    const existingMatches = await OrganizationNameMatchModel.find({ name });
+    if (existingMatches.length > 0) {
+      res.approximate[name] = existingMatches[0];
+      continue;
+    }
 
     const exactMatch = await OrganizationModel.find({ titleSlug: slugify(name) });
     if (exactMatch.length === 1) {
@@ -284,29 +304,57 @@ const findByName = async (names: string[]) => {
       continue;
     }
 
-    // // Try approximate match using case-insensitive regex
-    // const approximateMatch = await OrganizationModel.find({
-    //   title: {
-    //     $regex: `^${name.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, "\\$&")}$`,
-    //     $options: "i",
-    //   },
-    // });
+    // Try approximate match using case-insensitive regex
+    const approximateMatchCount = await OrganizationModel.countDocuments({
+      title: {
+        $regex: `^${name.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, "\\$&")}$`,
+        $options: "i",
+      },
+    });
 
-    // if (approximateMatch.length > 0) {
-    //   const match = await OrganizationNameMatchModel.findOne({ name });
-    //   if (match) {
-    //     match.organizationIds = [...new Set([...match.organizationIds, ...approximateMatch.map((m) => m._id.toString())])];
-    //     match.organizationNames = [...new Set([...match.organizationNames, name])];
-    //     await match.save();
-    //     res.approximate[name] = match;
-    //   } else {
-    //     const newMatch = await OrganizationNameMatchModel.create({ name, organizationIds: approximateMatch.map((m) => m._id.toString()), organizationNames: [name] });
-    //     res.approximate[name] = newMatch;
-    //   }
-    //   continue;
-    // }
+    if (approximateMatchCount > 0) {
+      const match = await OrganizationNameMatchModel.findOne({ name });
+
+      if (approximateMatchCount > 20) {
+        if (match) {
+          match.matchCount = approximateMatchCount;
+          match.missionIds = [...new Set([...match.missionIds])];
+          await match.save();
+          res.approximate[name] = match;
+        } else {
+          const newMatch = await OrganizationNameMatchModel.create({
+            name,
+            matchCount: approximateMatchCount,
+            missionIds: [],
+          });
+          res.approximate[name] = newMatch;
+        }
+      } else {
+        const approximateMatches = await OrganizationModel.find({
+          title: {
+            $regex: `^${name.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, "\\$&")}$`,
+            $options: "i",
+          },
+        });
+
+        if (match) {
+          match.organizationIds = [...new Set([...match.organizationIds, ...approximateMatches.map((m) => m._id.toString())])];
+          match.organizationNames = [...new Set([...match.organizationNames, name])];
+          match.matchCount = approximateMatchCount;
+          await match.save();
+          res.approximate[name] = match;
+        } else {
+          const newMatch = await OrganizationNameMatchModel.create({
+            name,
+            organizationIds: approximateMatches.map((m) => m._id.toString()),
+            organizationNames: [name],
+            matchCount: approximateMatchCount,
+          });
+          res.approximate[name] = newMatch;
+        }
+      }
+    }
   }
-  console.log(`[Organization] Found ${Object.keys(res.exact).length} exact matches`);
 
   return res;
 };

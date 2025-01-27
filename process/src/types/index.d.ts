@@ -56,6 +56,7 @@ export interface OrganizationNameMatch {
   organizationIds: string[];
   organizationNames: string[];
   missionIds: string[];
+  matchCount: number;
   createdAt: Date;
   updatedAt: Date;
 }
