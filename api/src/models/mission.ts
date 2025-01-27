@@ -151,6 +151,7 @@ schema.index({ _old_ids: 1 });
 schema.index({ publisherId: 1 });
 schema.index({ clientId: 1, publisherId: 1 }, { unique: true });
 schema.index({ createdAt: 1 });
+schema.index({ publisherName: 1 });
 schema.index({ startAt: 1 });
 schema.index({ duration: 1 });
 schema.index({ deleted: 1 });
