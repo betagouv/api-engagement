@@ -66,8 +66,8 @@ const missionJob = new CronJob(
     runnings.mission = true;
     try {
       await imports.handler();
-      // await moderations.handler();
-      // await warnings.handler();
+      await moderations.handler();
+      await warnings.handler();
       Sentry.captureCheckIn({
         checkInId,
         monitorSlug: "mission-updates",
