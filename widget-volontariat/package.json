@@ -5,8 +5,8 @@
   "scripts": {
     "dev": "next dev -p 3001",
     "build": "next build",
-    "start-dev": "next start -p 8080",
-    "start": "pm2 start npx --name widget-volontariat -- next -p 8080",
+    "start-dev": "next start",
+    "start": "export $(cat .env) && pm2 start npx --name widget-volontariat -- next -p ${PORT:-8080}",
     "stop": "pm2 stop widget-volontariat",
     "reload": "pm2 reload widget-volontariat"
   },
