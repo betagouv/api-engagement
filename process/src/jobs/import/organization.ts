@@ -45,13 +45,14 @@ export const verifyOrganization = async (missions: Mission[]) => {
     const resSiret = organizationsSirets.length !== 0 ? await findBySiret(organizationsSirets) : {};
     const resNames = organizationsNames.length !== 0 ? await findByName(organizationsNames) : { exact: {}, approximate: {} };
 
-    console.log(`\n[Organization Verification] Results:`);
+    console.log(`[Organization Verification] Results:`);
     console.log(`- RNA matches: ${Object.keys(resRna).length}`);
     console.log(`- SIRET matches: ${Object.keys(resSiret).length}`);
     console.log(`- Name exact matches: ${Object.keys(resNames.exact).length}\n`);
 
     for (const mission of missions) {
       const rna = (mission.organizationRNA || "").replace(/[^a-zA-Z0-9]/g, "").toUpperCase();
+
       const obj = { clientId: mission.clientId } as Mission;
 
       if (rna && isValidRNA(rna)) {
@@ -70,7 +71,7 @@ export const verifyOrganization = async (missions: Mission[]) => {
           obj.organizationDepartmentCodeVerified = data.addressDepartmentCode;
           obj.organizationDepartmentNameVerified = data.addressDepartmentName;
           obj.organizationRegionVerified = data.addressRegion;
-          // obj.organisationIsRUP = data.isRUP;
+          obj.organisationIsRUP = data.isRUP;
           obj.organizationVerificationStatus = data.source === "DATA_SUBVENTION" ? "RNA_MATCHED_WITH_DATA_SUBVENTION" : "RNA_MATCHED_WITH_DATA_DB";
         } else {
           obj.organizationVerificationStatus = "RNA_NOT_MATCHED";
@@ -91,7 +92,7 @@ export const verifyOrganization = async (missions: Mission[]) => {
           obj.organizationDepartmentCodeVerified = data.addressDepartmentCode;
           obj.organizationDepartmentNameVerified = data.addressDepartmentName;
           obj.organizationRegionVerified = data.addressRegion;
-          // obj.organisationIsRUP = data.isRUP;
+          obj.organisationIsRUP = data.isRUP;
           obj.organizationVerificationStatus = data.source === "DATA_SUBVENTION" ? "SIRET_MATCHED_WITH_DATA_SUBVENTION" : "SIRET_MATCHED_WITH_DATA_DB";
         } else {
           obj.organizationVerificationStatus = "SIRET_NOT_MATCHED";
@@ -112,7 +113,7 @@ export const verifyOrganization = async (missions: Mission[]) => {
           obj.organizationDepartmentCodeVerified = data.addressDepartmentCode;
           obj.organizationDepartmentNameVerified = data.addressDepartmentName;
           obj.organizationRegionVerified = data.addressRegion;
-          // obj.organisationIsRUP = data.isRUP;
+          obj.organisationIsRUP = data.isRUP;
           obj.organizationVerificationStatus = "NAME_EXACT_MATCHED_WITH_DB";
         } else if (resNames.approximate[mission.organizationName]) {
           obj.organizationVerificationStatus = "NAME_APPROXIMATE_MATCHED_WITH_DB";
@@ -137,40 +138,25 @@ export const verifyOrganization = async (missions: Mission[]) => {
 };
 
 const findByRNA = async (rnas: string[]) => {
-  console.log("\n=== RNA Verification Details ===");
-  console.log("Input RNAs:", rnas);
-
   const response = await OrganizationModel.find({ rna: { $in: rnas } });
-  console.log(`[Organization DB] Found ${response.length} RNAs in database`);
-  console.log(
-    "Database matches:",
-    response.map((r) => ({ rna: r.rna, title: r.title })),
-  );
+  console.log(`[Organization DB] Found ${response.length} RNAs in database:`);
 
   const rnasToFetch = rnas.filter((rna) => !response.find((r) => r.rna === rna));
-  console.log(`[Organization API] Need to fetch ${rnasToFetch.length} RNAs from datasubvention`);
-  if (rnasToFetch.length > 0) {
-    console.log("RNAs to fetch:", rnasToFetch);
-  }
+  console.log(`[Organization API] Fetching ${rnasToFetch.length} RNAs from datasubvention`);
 
   for (const rna of rnasToFetch) {
     try {
       await new Promise((resolve) => setTimeout(resolve, 1000));
-      console.log(`\nAttempting to fetch RNA: ${rna} from DATA_SUBVENTION`);
 
       const data = await apiDatasubvention.get(`/association/${rna}`);
-      console.log(
-        `API Response received for RNA ${rna}:`,
-        data?.association?.rna?.[0]?.value ? "Has RNA" : "No RNA",
-        data?.association?.denomination_rna?.[0]?.value ? "Has Name" : "No Name",
-      );
+
       if (data?.association?.rna?.[0]?.value && data?.association?.rna?.[0]?.provider === "RNA" && data?.association?.denomination_rna?.[0]?.value) {
         const departement = data.association.adresse_siege_rna ? getDepartement(data.association.adresse_siege_rna[0]?.value?.code_postal) : null;
         const obj = {
           rna: data.association.rna[0].value,
           title: data.association.denomination_rna[0].value,
           siren: data.association.siren?.[0]?.value || data.association.siret?.[0]?.value?.slice(0, 9),
-          siret: data.association.siret?.[0]?.value,
+          siret: data.association.etablisements_siret[0]?.value[0],
           addressNumber: data.association.adresse_siege_rna[0]?.value?.numero,
           addressType: data.association.adresse_siege_rna[0]?.value?.type_voie,
           addressStreet: data.association.adresse_siege_rna[0]?.value?.voie,
@@ -179,6 +165,7 @@ const findByRNA = async (rnas: string[]) => {
           addressDepartmentCode: departement?.code,
           addressDepartmentName: departement?.name,
           addressRegion: departement?.region,
+          isRUP: data.association.rup?.[0]?.value,
           createdAt: data.association.date_creation_rna?.[0] ? new Date(data.association.date_creation_rna[0].value) : undefined,
           updatedAt: data.association.date_modification_rna?.[0] ? new Date(data.association.date_modification_rna[0].value) : undefined,
           object: data.association.objet_social?.[0]?.value,
@@ -186,7 +173,6 @@ const findByRNA = async (rnas: string[]) => {
         } as Organization;
 
         const newRna = await OrganizationModel.create(obj);
-        console.log(`[Organization] Successfully created new organization in database with RNA ${rna}`);
         response.push(newRna);
       } else {
         console.log(`[Organization] No valid RNA data found for rna ${rna}`);
@@ -212,22 +198,14 @@ const findBySiret = async (sirets: string[]) => {
   const siretsToFetch = sirets.filter((siret) => !response.find((r) => r.siret === siret));
   console.log(`[Organization API] Fetching ${siretsToFetch.length} SIRETs from datasubvention`);
 
-  const batchSize = 10;
-  const delay = 1000;
+  for (const siret of siretsToFetch) {
+    try {
+      await new Promise((resolve) => setTimeout(resolve, 1000));
 
-  for (let i = 0; i < siretsToFetch.length; i += batchSize) {
-    const batch = siretsToFetch.slice(i, i + batchSize);
-    const promises = batch.map(async (siret) => {
-      try {
-        await new Promise((resolve) => setTimeout(resolve, delay));
-        const data = await apiDatasubvention.get(`/association/${siret}`);
+      const data = await apiDatasubvention.get(`/association/${siret}`);
 
-        if (!data?.association?.rna?.[0]?.value || data?.association?.rna?.[0]?.provider !== "RNA" || !data?.association?.denomination_rna?.[0]?.value) {
-          return null;
-        }
-
-        const departement = data.association.adresse_siege_rna ? getDepartement(data.association.adresse_siege_rna[0].value?.code_postal) : null;
-
+      if (data?.association?.rna?.[0]?.value && data?.association?.rna?.[0]?.provider === "RNA" && data?.association?.denomination_rna?.[0]?.value) {
+        const departement = data.association.adresse_siege_rna ? getDepartement(data.association.adresse_siege_rna[0]?.value?.code_postal) : null;
         const obj = {
           rna: data.association.rna[0].value,
           title: data.association.denomination_rna[0].value,
@@ -241,40 +219,41 @@ const findBySiret = async (sirets: string[]) => {
           addressDepartmentCode: departement?.code,
           addressDepartmentName: departement?.name,
           addressRegion: departement?.region,
+          isRUP: data.association.rup?.[0]?.value,
           createdAt: data.association.date_creation_rna?.[0] ? new Date(data.association.date_creation_rna[0].value) : undefined,
           updatedAt: data.association.date_modification_rna?.[0] ? new Date(data.association.date_modification_rna[0].value) : undefined,
           object: data.association.objet_social?.[0]?.value,
           source: "DATA_SUBVENTION",
         } as Organization;
 
-        // Check for existing RNA
         const existsRNA = await OrganizationModel.findOne({ rna: obj.rna });
         if (existsRNA) {
-          if (!existsRNA.siret && obj.siret) {
-            existsRNA.siret = obj.siret;
+          if (existsRNA.siret === obj.siret) {
+            existsRNA.source = "DATA_SUBVENTION";
             await existsRNA.save();
-            return existsRNA;
+            response.push(existsRNA);
+          } else {
+            existsRNA.siret = obj.siret;
+            existsRNA.source = "DATA_SUBVENTION";
+            await existsRNA.save();
+            response.push(existsRNA);
           }
-          return existsRNA;
+        } else {
+          const newRNA = await OrganizationModel.create(obj);
+          response.push(newRNA);
         }
-
-        const newRNA = await OrganizationModel.create(obj);
-        return newRNA;
-      } catch (error: any) {
-        console.log(`[Organization] Error fetching siret ${siret}:`, error.message);
-        return null;
+      } else {
+        console.log(`[Organization] No valid RNA data found for SIRET ${siret}`);
       }
-    });
-
-    const results = await Promise.all(promises);
-    response.push(...results.filter((result): result is HydratedDocument<Organization> => result !== null));
-
-    console.log(`[Organization] Processed ${Math.min(i + batchSize, siretsToFetch.length)}/${siretsToFetch.length} SIRETs`);
+    } catch (error: any) {
+      captureException(error, `[Organization] Error F SIRET ${siret}`);
+      continue;
+    }
   }
 
   const res = {} as { [key: string]: Organization };
   response.forEach((item) => {
-    if (item?.rna) res[item.rna] = item;
+    if (item?.siret) res[item.siret] = item;
   });
 
   return res;
@@ -285,8 +264,6 @@ const findByName = async (names: string[]) => {
     exact: {} as { [key: string]: Organization },
     approximate: {} as { [key: string]: HydratedDocument<OrganizationNameMatch> },
   };
-
-  console.log(`\n[Organization] Starting name matching for ${names.length} organizations`);
 
   for (let i = 0; i < names.length; i++) {
     const name = names[i];
@@ -304,56 +281,44 @@ const findByName = async (names: string[]) => {
       continue;
     }
 
+    /*
     // Try approximate match using case-insensitive regex
-    const approximateMatchCount = await OrganizationModel.countDocuments({
+    const matchCount = await OrganizationModel.countDocuments({
       title: {
         $regex: `^${name.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, "\\$&")}$`,
         $options: "i",
       },
     });
 
-    if (approximateMatchCount > 0) {
+    if (matchCount > 0) {
       const match = await OrganizationNameMatchModel.findOne({ name });
 
-      if (approximateMatchCount > 20) {
-        if (match) {
-          match.matchCount = approximateMatchCount;
-          match.missionIds = [...new Set([...match.missionIds])];
-          await match.save();
-          res.approximate[name] = match;
-        } else {
-          const newMatch = await OrganizationNameMatchModel.create({
-            name,
-            matchCount: approximateMatchCount,
-            missionIds: [],
-          });
-          res.approximate[name] = newMatch;
-        }
-      } else {
-        const approximateMatches = await OrganizationModel.find({
-          title: {
-            $regex: `^${name.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, "\\$&")}$`,
-            $options: "i",
-          },
-        });
+      const approximateMatches = await OrganizationModel.find({
+        title: {
+          $regex: `^${name.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, "\\$&")}$`,
+          $options: "i",
+        },
+      }).limit(20);
 
-        if (match) {
-          match.organizationIds = [...new Set([...match.organizationIds, ...approximateMatches.map((m) => m._id.toString())])];
-          match.organizationNames = [...new Set([...match.organizationNames, name])];
-          match.matchCount = approximateMatchCount;
-          await match.save();
-          res.approximate[name] = match;
-        } else {
-          const newMatch = await OrganizationNameMatchModel.create({
-            name,
-            organizationIds: approximateMatches.map((m) => m._id.toString()),
-            organizationNames: [name],
-            matchCount: approximateMatchCount,
-          });
-          res.approximate[name] = newMatch;
-        }
+      if (match) {
+        match.organizationIds = [...new Set([...match.organizationIds, ...approximateMatches.map((m) => m._id.toString())])];
+        match.organizationNames = [...new Set([...match.organizationNames, name])];
+        match.matchCount = matchCount;
+        match.missionIds = [...new Set([...match.missionIds])];
+        await match.save();
+        res.approximate[name] = match;
+      } else {
+        const newMatch = await OrganizationNameMatchModel.create({
+          name,
+          organizationIds: approximateMatches.map((m) => m._id.toString()),
+          organizationNames: [name],
+          matchCount: matchCount,
+          missionIds: [],
+        });
+        res.approximate[name] = newMatch;
       }
     }
+    */
   }
 
   return res;

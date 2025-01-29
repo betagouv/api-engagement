@@ -48,6 +48,7 @@ export interface Organization {
   observation?: string;
   syncAt?: Date;
   source?: string;
+  isRUP?: boolean;
 }
 
 export interface OrganizationNameMatch {
