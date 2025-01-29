@@ -243,7 +243,10 @@ const importPublisher = async (publisher: Publisher, start: Date) => {
     });
 
     // RNA
+    console.log(`[Organization] Starting organization verification for ${missions.length} missions`);
     const resultRNA = await verifyOrganization(missions);
+    console.log(`[Organization] Received ${resultRNA.length} verification results`);
+
     resultRNA.forEach((r) => {
       const mission = missions.find((m) => m.clientId.toString() === r.clientId.toString());
       if (mission) {
@@ -258,8 +261,9 @@ const importPublisher = async (publisher: Publisher, start: Date) => {
         mission.organizationDepartmentCodeVerified = r.organizationDepartmentCodeVerified;
         mission.organizationDepartmentNameVerified = r.organizationDepartmentNameVerified;
         mission.organizationRegionVerified = r.organizationRegionVerified;
-        // mission.organisationIsRUP = r.organisationIsRUP;
         mission.organizationVerificationStatus = r.organizationVerificationStatus;
+      } else {
+        console.log(`[Organization Warning] Could not find mission for clientId: ${r.clientId}`);
       }
     });
 

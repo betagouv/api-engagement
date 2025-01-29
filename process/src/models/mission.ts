@@ -86,6 +86,7 @@ const schema = new Schema<Mission>(
     organizationReseaux: { type: [String] },
 
     // Organization verification
+
     organizationVerificationStatus: { type: String },
     organizationId: { type: String },
     organisationIsRUP: { type: Boolean },

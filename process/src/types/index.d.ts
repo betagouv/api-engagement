@@ -48,6 +48,7 @@ export interface Organization {
   observation?: string;
   syncAt?: Date;
   source?: string;
+  isRUP?: boolean;
 }
 
 export interface OrganizationNameMatch {
@@ -56,6 +57,7 @@ export interface OrganizationNameMatch {
   organizationIds: string[];
   organizationNames: string[];
   missionIds: string[];
+  matchCount: number;
   createdAt: Date;
   updatedAt: Date;
 }
