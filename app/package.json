@@ -4,8 +4,8 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "start-dev": "node server/index.js",
-    "start": "pm2 start server/index.js --name app",
+    "start-dev": "node server.js",
+    "start": "pm2 start server.js --name app",
     "stop": "pm2 stop app",
     "build": "vite build",
     "prettier": "prettier --write .",
@@ -14,7 +14,7 @@
   "devDependencies": {
     "@vitejs/plugin-react": "^4.3.1",
     "autoprefixer": "^10.4.20",
-    "dotenv": "^16.4.5",
+    "dotenv": "^16.4.7",
     "express": "^4.21.0",
     "hsts": "^2.2.0",
     "postcss": "^8.4.45",
