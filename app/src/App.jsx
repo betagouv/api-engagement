@@ -29,8 +29,8 @@ import Warnings from "./scenes/warnings";
 import Widget from "./scenes/widget";
 
 import image from "./assets/img/background-connexion.jpg";
+import AdminOrganization from "./scenes/admin-organization";
 import AdminReport from "./scenes/admin-report";
-import AdminRna from "./scenes/admin-rna";
 import PublicStats from "./scenes/public-stats";
 import Publisher from "./scenes/publisher";
 import User from "./scenes/user";
@@ -89,7 +89,7 @@ const App = () => {
                 <Route path="/publisher/*" element={<Publisher />} />
                 <Route path="/user/*" element={<User />} />
                 <Route path="/admin-mission/*" element={<AdminMissions />} />
-                <Route path="/admin-rna/*" element={<AdminRna />} />
+                <Route path="/admin-organization/*" element={<AdminOrganization />} />
                 <Route path="/admin-account/*" element={<AdminAccounts />} />
                 <Route path="/admin-stats/*" element={<AdminStats />} />
                 <Route path="/admin-warning/*" element={<AdminWarnings />} />

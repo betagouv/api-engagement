@@ -1,6 +1,57 @@
 import { Schema } from "mongoose";
 import { BrevoInboundEmail } from "./brevo";
 
+export interface Organization {
+  _id: Schema.Types.ObjectId;
+  esId: string;
+  rna: string;
+  siren?: string;
+  siret?: string;
+  rupMi?: string;
+  gestion?: string;
+  status?: string;
+  createdAt?: Date;
+  lastDeclaredAt?: Date;
+  publishedAt?: Date;
+  dissolvedAt?: Date;
+  updatedAt: Date;
+  nature?: string;
+  groupement?: string;
+  title: string;
+  names: string[];
+  shortTitle?: string;
+  titleSlug?: string;
+  shortTitleSlug?: string;
+  object?: string;
+  socialObject1?: string;
+  socialObject2?: string;
+  addressComplement?: string;
+  addressNumber: string | undefined;
+  addressRepetition: string | undefined;
+  addressType: string | undefined;
+  addressStreet?: string;
+  addressDistribution?: string;
+  addressInseeCode?: string;
+  addressPostalCode: string | undefined;
+  addressDepartmentCode: string | undefined;
+  addressDepartmentName: string | undefined;
+  addressRegion: string | undefined;
+  addressCity: string | undefined;
+  managementDeclarant?: string;
+  managementComplement?: string;
+  managementStreet?: string;
+  managementDistribution?: string;
+  managementPostalCode?: string;
+  managementCity?: string;
+  managementCountry?: string;
+  directorCivility?: string;
+  website?: string;
+  observation?: string;
+  syncAt?: Date;
+  source?: string;
+  isRUP?: boolean;
+}
+
 export type Association = {
   _id?: Schema.Types.ObjectId | string;
   score?: number;
