@@ -169,11 +169,12 @@ const parseNumber = (value: number | string | undefined) => {
   return Number(value);
 };
 
-const parseArray = (value: string | { value: string[] | string } | undefined) => {
+const parseArray = (value: string | { value: string[] | string } | undefined, includeSpace = false) => {
   if (!value) return undefined;
   if (typeof value === "object") return Array.isArray(value.value) ? value.value : [value.value];
   if (Array.isArray(value)) return value;
   if (value.includes(",")) return value.split(",").map((i) => i.trim());
+  if (includeSpace && value.includes(" ")) return value.split(" ").map((i) => i.trim());
   return [value];
 };
 
@@ -216,12 +217,12 @@ export const buildMission = (publisher: Publisher, missionXML: MissionXML) => {
     organizationClientId: parseString(missionXML.organizationId),
     organizationStatusJuridique: parseString(missionXML.organizationStatusJuridique) || "",
     organizationType: parseString(missionXML.organizationType) || "",
-    organizationActions: parseArray(missionXML.keyActions) || [],
+    organizationActions: parseArray(missionXML.keyActions, true) || [],
     organizationFullAddress: parseString(missionXML.organizationFullAddress),
     organizationPostCode: parseString(missionXML.organizationPostCode),
     organizationCity: parseString(missionXML.organizationCity),
-    organizationBeneficiaries: parseArray(missionXML.organizationBeneficiaries || missionXML.organizationBeneficiaires || missionXML.publicBeneficiaries) || [],
-    organizationReseaux: parseArray(missionXML.organizationReseaux) || [],
+    organizationBeneficiaries: parseArray(missionXML.organizationBeneficiaries || missionXML.organizationBeneficiaires || missionXML.publicBeneficiaries, true) || [],
+    organizationReseaux: parseArray(missionXML.organizationReseaux, true) || [],
   } as Mission;
 
   mission.domainLogo = missionXML.image || getImageDomain(mission.domain, mission.title);
