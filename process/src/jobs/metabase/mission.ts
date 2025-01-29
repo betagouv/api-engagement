@@ -73,6 +73,23 @@ const buildData = async (doc: MongoMission, partners: { [key: string]: string })
     organization_actions: doc.organizationActions || [],
     rna_status: doc.rnaStatus,
 
+    organization_verification_status: doc.organizationVerificationStatus,
+    organization_name_verified: doc.organizationNameVerified,
+    organization_rna_verified: doc.organizationRNAVerified,
+    organization_siren_verified: doc.organizationSirenVerified,
+    organization_siret_verified: doc.organizationSiretVerified,
+    organization_address_verified: doc.organizationAddressVerified,
+    organization_city_verified: doc.organizationCityVerified,
+    organization_postal_code_verified: doc.organizationPostalCodeVerified,
+    organization_department_code_verified: doc.organizationDepartmentCodeVerified,
+    organization_department_name_verified: doc.organizationDepartmentNameVerified,
+    organization_region_verified: doc.organizationRegionVerified,
+    organization_is_rup: doc.organisationIsRUP,
+
+    is_rna_verified: doc.organizationRNAVerified ? true : false,
+    is_siren_verified: doc.organizationSirenVerified ? true : false,
+    is_siret_verified: doc.organizationSiretVerified ? true : false,
+
     partner_id: partnerId,
     last_sync_at: new Date(doc.lastSyncAt || doc.updatedAt),
     status: doc.statusCode,
