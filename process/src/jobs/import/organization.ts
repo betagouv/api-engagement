@@ -146,6 +146,7 @@ const findByRNA = async (rnas: string[]) => {
 
   for (const rna of rnasToFetch) {
     try {
+      // limited to 80 requests per minute
       await new Promise((resolve) => setTimeout(resolve, 1000));
 
       const data = await apiDatasubvention.get(`/association/${rna}`);
@@ -200,6 +201,7 @@ const findBySiret = async (sirets: string[]) => {
 
   for (const siret of siretsToFetch) {
     try {
+      // limited to 80 requests per minute
       await new Promise((resolve) => setTimeout(resolve, 1000));
 
       const data = await apiDatasubvention.get(`/association/${siret}`);
