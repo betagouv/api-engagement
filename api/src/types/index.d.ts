@@ -434,7 +434,7 @@ export type Request = {
 export type User = {
   _id: Schema.Types.ObjectId;
   firstname: string;
-  lastname: string;
+  lastname: string | undefined;
   publishers: string[];
   email: string;
   password: string | null;

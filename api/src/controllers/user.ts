@@ -1,6 +1,5 @@
 import crypto from "crypto";
 import { NextFunction, Response, Router } from "express";
-import Joi from "joi";
 import jwt from "jsonwebtoken";
 import passport from "passport";
 import zod from "zod";
@@ -18,20 +17,21 @@ const AUTH_TOKEN_EXPIRATION = 1000 * 60 * 60 * 24 * 7; // 7 day
 
 const router = Router();
 
+// TODO: POST /search
 router.get("/", passport.authenticate("admin", { session: false }), async (req: UserRequest, res: Response, next: NextFunction) => {
   try {
-    const { error: queryError, value: query } = Joi.object({
-      email: Joi.string().email(),
-      publisherId: Joi.string(),
-    })
-      .unknown()
-      .validate(req.query);
+    const query = zod
+      .object({
+        email: zod.string().email().optional(),
+        publisherId: zod.string().optional(),
+      })
+      .safeParse(req.query);
 
-    if (queryError) return res.status(400).send({ ok: false, code: INVALID_QUERY, message: queryError.details });
+    if (!query.success) return res.status(400).send({ ok: false, code: INVALID_QUERY, message: query.error.errors });
 
     const where = {} as { [key: string]: any };
-    if (query.email) where.email = query.email;
-    if (query.publisherId) where.publishers = { $in: query.publisherId };
+    if (query.data.email) where.email = query.data.email;
+    if (query.data.publisherId) where.publishers = { $in: query.data.publisherId };
     const users = await UserModel.find(where).sort("-last_login_at");
     return res.status(200).send({ ok: true, data: users });
   } catch (error) {
@@ -68,32 +68,36 @@ router.get("/refresh", passport.authenticate("user", { session: false }), async 
   }
 });
 
-router.get("/:userId", passport.authenticate("user", { session: false }), async (req: UserRequest, res: Response, next: NextFunction) => {
+router.get("/:id", passport.authenticate("user", { session: false }), async (req: UserRequest, res: Response, next: NextFunction) => {
   try {
-    const { error: paramsError, value: params } = Joi.object({
-      userId: Joi.string().required(),
-    }).validate(req.params);
+    const params = zod
+      .object({
+        id: zod.string(),
+      })
+      .safeParse(req.params);
 
-    if (paramsError) return res.status(400).send({ ok: false, code: INVALID_PARAMS, message: paramsError.details });
+    if (!params.success) return res.status(400).send({ ok: false, code: INVALID_PARAMS, message: params.error.errors });
 
-    if (req.user.role !== "admin" && req.user._id.toString() !== params.userId) return res.status(403).send({ ok: false, code: FORBIDDEN, message: `Not allowed` });
+    if (req.user.role !== "admin" && req.user._id.toString() !== params.data.id) return res.status(403).send({ ok: false, code: FORBIDDEN, message: `Not allowed` });
 
-    const data = await UserModel.findById(params.userId);
+    const data = await UserModel.findById(params.data.id);
     return res.status(200).send({ ok: true, data });
   } catch (error) {
     next(error);
   }
 });
 
-router.get("/loginas/:userId", passport.authenticate("admin", { session: false }), async (req: UserRequest, res: Response, next: NextFunction) => {
+router.get("/loginas/:id", passport.authenticate("admin", { session: false }), async (req: UserRequest, res: Response, next: NextFunction) => {
   try {
-    const { error: paramsError, value: params } = Joi.object({
-      userId: Joi.string().required(),
-    }).validate(req.params);
+    const params = zod
+      .object({
+        id: zod.string(),
+      })
+      .safeParse(req.params);
 
-    if (paramsError) return res.status(400).send({ ok: false, code: INVALID_PARAMS, message: paramsError.details });
+    if (!params.success) return res.status(400).send({ ok: false, code: INVALID_PARAMS, message: params.error.errors });
 
-    const user = await UserModel.findById(params.userId);
+    const user = await UserModel.findById(params.data.id);
     if (!user) return res.status(404).send({ ok: false, code: NOT_FOUND, message: `User not found` });
 
     const publisher = await PublisherModel.findById(user.publishers[0]);
@@ -108,27 +112,28 @@ router.get("/loginas/:userId", passport.authenticate("admin", { session: false }
 
 router.post("/invite", passport.authenticate("admin", { session: false }), async (req: UserRequest, res: Response, next: NextFunction) => {
   try {
-    const { error: bodyError, value: body } = Joi.object({
-      firstname: Joi.string().required(),
-      lastname: Joi.string(),
-      email: Joi.string().email().required(),
-      publishers: Joi.array().items(Joi.string()).min(1).required(),
-      role: Joi.string().valid("admin", "user").default("user"),
-    })
-      .unknown()
-      .validate(req.body);
+    const body = zod
+      .object({
+        firstname: zod.string(),
+        lastname: zod.string().optional(),
+        email: zod.string().email(),
+        publishers: zod.array(zod.string()).min(1),
+        role: zod.enum(["admin", "user"]).default("user"),
+      })
+      .safeParse(req.body);
 
-    if (bodyError) return res.status(400).send({ ok: false, code: INVALID_BODY, message: bodyError.details });
+    if (!body.success) return res.status(400).send({ ok: false, code: INVALID_BODY, message: body.error.errors });
 
-    const exists = await UserModel.findOne({ email: body.email });
+    const email = body.data.email.toLowerCase().trim();
+    const exists = await UserModel.findOne({ email });
     if (exists) return res.status(409).send({ ok: false, code: RESSOURCE_ALREADY_EXIST, message: `User already exists` });
 
     const user = new UserModel({
-      firstname: body.firstname,
-      lastname: body.lastname,
-      email: body.email,
-      publishers: body.publishers,
-      role: body.role,
+      email,
+      firstname: body.data.firstname,
+      lastname: body.data.lastname,
+      publishers: body.data.publishers,
+      role: body.data.role,
       invitedAt: new Date(),
       invitationToken: crypto.randomBytes(20).toString("hex"),
       invitationExpiresAt: Date.now() + 1000 * 60 * 60 * 72, // 72 hours
@@ -228,18 +233,20 @@ router.post("/signup", async (req: UserRequest, res: Response, next: NextFunctio
 
 router.post("/login", async (req: UserRequest, res: Response, next: NextFunction) => {
   try {
-    const { error: bodyError, value: body } = Joi.object({
-      email: Joi.string().email().required(),
-      password: Joi.string().required(),
-    })
-      .unknown()
-      .validate(req.body);
+    const body = zod
+      .object({
+        email: zod.string().email(),
+        password: zod.string(),
+      })
+      .safeParse(req.body);
 
-    if (bodyError) return res.status(404).send({ ok: false, code: INVALID_BODY, message: bodyError.details });
+    if (!body.success) return res.status(404).send({ ok: false, code: INVALID_BODY, message: body.error.errors });
 
     const start = Date.now();
-    const user = await UserModel.findOne({ email: body.email });
-    const match = user ? await user.comparePassword(body.password) : false;
+    const email = body.data.email.toLowerCase().trim();
+    console.log(email);
+    const user = await UserModel.findOne({ email });
+    const match = user ? await user.comparePassword(body.data.password) : false;
     const delay = 1000 - (Date.now() - start);
 
     setTimeout(
@@ -296,17 +303,17 @@ router.post("/forgot-password", async (req: UserRequest, res: Response, next: Ne
 
 router.put("/", passport.authenticate("user", { session: false }), async (req: UserRequest, res: Response, next: NextFunction) => {
   try {
-    const { error: bodyError, value: body } = Joi.object({
-      firstname: Joi.string().required(),
-      lastname: Joi.string(),
-    })
-      .unknown()
-      .validate(req.body);
+    const body = zod
+      .object({
+        firstname: zod.string(),
+        lastname: zod.string().optional(),
+      })
+      .safeParse(req.body);
 
-    if (bodyError) return res.status(400).send({ ok: false, code: INVALID_BODY, message: bodyError.details });
+    if (!body.success) return res.status(400).send({ ok: false, code: INVALID_BODY, message: body.error.errors });
 
-    req.user.lastname = body.lastname;
-    req.user.firstname = body.firstname;
+    req.user.lastname = body.data.lastname;
+    req.user.firstname = body.data.firstname;
     await req.user.save();
 
     res.status(200).send({ ok: true, data: req.user });
@@ -376,14 +383,17 @@ router.put("/reset-password", async (req: UserRequest, res: Response, next: Next
   }
 });
 
-router.put("/:userId/reset-password", passport.authenticate("admin", { session: false }), async (req: UserRequest, res: Response, next: NextFunction) => {
+router.put("/:id/reset-password", passport.authenticate("admin", { session: false }), async (req: UserRequest, res: Response, next: NextFunction) => {
   try {
-    const { error: paramsError, value: params } = Joi.object({
-      userId: Joi.string().required(),
-    }).validate(req.params);
+    const params = zod
+      .object({
+        id: zod.string(),
+      })
+      .safeParse(req.params);
 
-    if (paramsError) return res.status(400).send({ ok: false, code: INVALID_BODY, message: paramsError.details });
-    const user = await UserModel.findById(params.userId);
+    if (!params.success) return res.status(400).send({ ok: false, code: INVALID_PARAMS, message: params.error.errors });
+
+    const user = await UserModel.findById(params.data.id);
     if (!user) return res.status(404).send({ ok: false, code: NOT_FOUND, message: `User not found` });
     const password = Math.random().toString(36).slice(-8);
     user.password = password;
@@ -395,15 +405,17 @@ router.put("/:userId/reset-password", passport.authenticate("admin", { session: 
   }
 });
 
-router.put("/:userId/invite-again", passport.authenticate("admin", { session: false }), async (req: UserRequest, res: Response, next: NextFunction) => {
+router.put("/:id/invite-again", passport.authenticate("admin", { session: false }), async (req: UserRequest, res: Response, next: NextFunction) => {
   try {
-    const { error: paramsError, value: params } = Joi.object({
-      userId: Joi.string().required(),
-    }).validate(req.params);
+    const params = zod
+      .object({
+        id: zod.string(),
+      })
+      .safeParse(req.params);
 
-    if (paramsError) return res.status(400).send({ ok: false, code: INVALID_BODY, message: paramsError.details });
+    if (!params.success) return res.status(400).send({ ok: false, code: INVALID_PARAMS, message: params.error.errors });
 
-    const user = await UserModel.findById(params.userId);
+    const user = await UserModel.findById(params.data.id);
     if (!user) return res.status(404).send({ ok: false, code: NOT_FOUND, message: `User not found` });
 
     user.password = null;
@@ -423,33 +435,35 @@ router.put("/:userId/invite-again", passport.authenticate("admin", { session: fa
   }
 });
 
-router.put("/:userId", passport.authenticate("admin", { session: false }), async (req: UserRequest, res: Response, next: NextFunction) => {
+router.put("/:id", passport.authenticate("admin", { session: false }), async (req: UserRequest, res: Response, next: NextFunction) => {
   try {
-    const { error: paramsError, value: params } = Joi.object({
-      userId: Joi.string().required(),
-    }).validate(req.params);
+    const params = zod
+      .object({
+        id: zod.string(),
+      })
+      .safeParse(req.params);
 
-    const { error: bodyError, value: body } = Joi.object({
-      firstname: Joi.string().allow("").optional(),
-      lastname: Joi.string().allow("").optional(),
-      email: Joi.string().email().allow("").optional(),
-      publishers: Joi.array().items(Joi.string()).min(1).optional(),
-      role: Joi.string().valid("admin", "user").default("user"),
-    })
-      .unknown()
-      .validate(req.body);
+    const body = zod
+      .object({
+        firstname: zod.string().optional(),
+        lastname: zod.string().optional(),
+        email: zod.string().email().optional(),
+        publishers: zod.array(zod.string()).min(1).optional(),
+        role: zod.enum(["admin", "user"]).optional(),
+      })
+      .safeParse(req.body);
 
-    if (paramsError) return res.status(400).send({ ok: false, code: INVALID_PARAMS, message: paramsError.details });
-    if (bodyError) return res.status(400).send({ ok: false, code: INVALID_BODY, message: bodyError.details });
+    if (!params.success) return res.status(400).send({ ok: false, code: INVALID_PARAMS, message: params.error.errors });
+    if (!body.success) return res.status(400).send({ ok: false, code: INVALID_BODY, message: body.error.errors });
 
-    const user = await UserModel.findById(params.userId);
+    const user = await UserModel.findById(params.data.id);
     if (!user) return res.status(404).send({ ok: false, code: NOT_FOUND, message: `User not found` });
 
-    user.lastname = body.lastname;
-    if (body.firstname) user.firstname = body.firstname;
-    if (body.email) user.email = body.email;
-    if (body.publishers) user.publishers = body.publishers;
-    if (body.role) user.role = body.role;
+    user.lastname = body.data.lastname;
+    if (body.data.firstname) user.firstname = body.data.firstname;
+    if (body.data.email) user.email = body.data.email;
+    if (body.data.publishers) user.publishers = body.data.publishers;
+    if (body.data.role) user.role = body.data.role;
     await user.save();
 
     res.status(200).send({ ok: true, data: user });
@@ -458,15 +472,17 @@ router.put("/:userId", passport.authenticate("admin", { session: false }), async
   }
 });
 
-router.delete("/:userId", passport.authenticate("admin", { session: false }), async (req: UserRequest, res: Response, next: NextFunction) => {
+router.delete("/:id", passport.authenticate("admin", { session: false }), async (req: UserRequest, res: Response, next: NextFunction) => {
   try {
-    const { error: paramsError, value: params } = Joi.object({
-      userId: Joi.string().required(),
-    }).validate(req.params);
+    const params = zod
+      .object({
+        id: zod.string(),
+      })
+      .safeParse(req.params);
 
-    if (paramsError) return res.status(400).send({ ok: false, code: INVALID_BODY, message: paramsError.details });
+    if (!params.success) return res.status(400).send({ ok: false, code: INVALID_PARAMS, message: params.error.errors });
 
-    const user = await UserModel.findById(params.userId);
+    const user = await UserModel.findById(params.data.id);
     if (!user) return res.status(404).send({ ok: false, code: NOT_FOUND, message: `User not found` });
 
     user.deleted = true;
