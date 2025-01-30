@@ -7,7 +7,7 @@ const MODELNAME = "organization";
 const schema = new Schema<Organization>(
   {
     esId: { type: String, description: "ES ID" },
-    rna: { type: String, required: true, description: "RNA" },
+    rna: { type: String, description: "RNA" },
     siren: { type: String, description: "Siren" },
     siret: { type: String, description: "Siret" },
     rupMi: { type: String, description: "RUP/MI" },
@@ -54,7 +54,6 @@ const schema = new Schema<Organization>(
   { timestamps: true },
 );
 
-schema.index({ rna: 1 }, { unique: true });
 schema.index({ title: 1 });
 schema.index({ titleSlug: 1 });
 schema.index({ siret: 1 });

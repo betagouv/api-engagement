@@ -245,10 +245,43 @@ const findBySiret = async (sirets: string[]) => {
           response.push(newRNA);
         }
       } else {
-        console.log(`[Organization] No valid RNA data found for SIRET ${siret}`);
+        if (data?.association?.siren?.[0]?.value && data?.association?.siren?.[0]?.provider === "SIREN" && data?.association?.denomination_siren?.[0]?.value) {
+          const departement = data.association.adresse_siege_siren ? getDepartement(data.association.adresse_siege_siren[0]?.value?.code_postal) : null;
+          const obj = {
+            title: data.association.denomination_siren[0].value,
+            siren: data.association.siren[0].value,
+            siret: data.association.etablisements_siret[0]?.value[0],
+            addressNumber: data.association.adresse_siege_siren[0]?.value?.numero,
+            addressType: data.association.adresse_siege_siren[0]?.value?.type_voie,
+            addressStreet: data.association.adresse_siege_siren[0]?.value?.voie,
+            addressCity: data.association.adresse_siege_siren[0]?.value?.commune,
+            addressPostalCode: data.association.adresse_siege_siren[0]?.value?.code_postal,
+            addressDepartmentCode: departement?.code,
+            addressDepartmentName: departement?.name,
+            addressRegion: departement?.region,
+            isRUP: data.association.rup?.[0]?.value,
+            createdAt: data.association.date_creation_siren?.[0] ? new Date(data.association.date_creation_siren[0].value) : undefined,
+            updatedAt: data.association.date_modification_siren?.[0] ? new Date(data.association.date_modification_siren[0].value) : undefined,
+            object: data.association.objet_social?.[0]?.value,
+            source: "DATA_SUBVENTION",
+          } as Organization;
+
+          const existsSiret = await OrganizationModel.findOne({ siret: obj.siret });
+          if (existsSiret && !existsSiret.siren) {
+            existsSiret.siren = obj.siren;
+            existsSiret.source = "DATA_SUBVENTION";
+            await existsSiret.save();
+            response.push(existsSiret);
+          } else {
+            const newSiret = await OrganizationModel.create(obj);
+            response.push(newSiret);
+          }
+        } else {
+          console.log(`[Organization] No valid RNA or SIREN data found for SIRET ${siret}`);
+        }
       }
     } catch (error: any) {
-      captureException(error, `[Organization] Error F SIRET ${siret}`);
+      captureException(error, `[Organization] Error fetching SIRET ${siret}`);
       continue;
     }
   }
