@@ -244,7 +244,6 @@ router.post("/login", async (req: UserRequest, res: Response, next: NextFunction
 
     const start = Date.now();
     const email = body.data.email.toLowerCase().trim();
-    console.log(email);
     const user = await UserModel.findOne({ email });
     const match = user ? await user.comparePassword(body.data.password) : false;
     const delay = 1000 - (Date.now() - start);
