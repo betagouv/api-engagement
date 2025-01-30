@@ -15,7 +15,7 @@ const View = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const res = await api.get(`/rna/${id}`);
+        const res = await api.get(`/organization/${id}`);
         if (!res.ok) throw res;
         setData(res.data);
       } catch (error) {
@@ -50,13 +50,13 @@ const View = () => {
           )}
           <div className="flex items-center gap-2 text-base text-gray-dark">
             <HiLocationMarker className="ml-2" />
-            {data.address_department_name && <span>{data.address_department_name}</span>}
-            {data.address_city && (
+            {data.addressDepartmentName && <span>{data.addressDepartmentName}</span>}
+            {data.addressCity && (
               <>
                 <span className="mx-2">-</span>
-                <span>{data.address_city}</span>
+                <span>{data.addressCity}</span>
                 <span className="mx-2">-</span>
-                <span>{data.address_postal_code}</span>
+                <span>{data.addressPostalCode}</span>
               </>
             )}
           </div>
@@ -68,7 +68,7 @@ const View = () => {
           <p>
             RNA: <b>{data.rna}</b>
           </p>
-          <p>Assocation créée le {data.created_at ? new Date(data.created_at).toLocaleDateString("fr") : "N/A"}</p>
+          <p>Assocation créée le {data.createdAt ? new Date(data.createdAt).toLocaleDateString("fr") : "N/A"}</p>
         </div>
         <div className="flex justify-between mb-6">
           <p>
@@ -86,31 +86,31 @@ const View = () => {
           <div className="w-1/3">
             <p className="text-xl font-semibold">Adresse complète</p>
             <p className="mt-4">
-              Numero: <b>{data.address_number}</b>
+              Numero: <b>{data.addressNumber}</b>
             </p>
             <p className="mt-4">
-              Répetition: <b>{data.address_repetition}</b>
+              Répetition: <b>{data.addressRepetition}</b>
             </p>
             <p className="mt-4">
-              Type de voie: <b>{data.address_type}</b>
+              Type de voie: <b>{data.addressType}</b>
             </p>
             <p className="mt-4">
-              Nom de voie: <b>{data.address_street}</b>
+              Nom de voie: <b>{data.addressStreet}</b>
             </p>
             <p className="mt-4">
-              Ville: <b>{data.address_city}</b>
+              Ville: <b>{data.addressCity}</b>
             </p>
             <p className="mt-4">
-              Code postal: <b>{data.address_postal_code}</b>
+              Code postal: <b>{data.addressPostalCode}</b>
             </p>
             <p className="mt-4">
               Département:{" "}
               <b>
-                {data.address_department_name}, {data.address_department_code}
+                {data.addressDepartmentName}, {data.addressDepartmentCode}
               </b>
             </p>
             <p className="mt-4">
-              Région: <b>{data.address_region_name}</b>
+              Région: <b>{data.addressRegionName}</b>
             </p>
           </div>
         </div>

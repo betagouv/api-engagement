@@ -34,7 +34,6 @@ export const TablePaginator = ({
   headerHeight = "h-12",
   headerBackground = "bg-gray-100",
   itemHeight = "h-16",
-  itemBackground = "bg-gray-100",
   pageSize = 10,
   loading = false,
 }) => {

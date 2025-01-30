@@ -7,7 +7,7 @@ const Pagination = ({ page, setPage, end }) => {
 
   useEffect(() => {
     if (page < 1) setPage(1);
-    if (page > end) setPage(end);
+    if (page > end && end > 0) setPage(end);
     setPages([...Array(end).keys()].map((i) => i + 1));
   }, [end]);
 

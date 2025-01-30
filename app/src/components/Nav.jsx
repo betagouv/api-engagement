@@ -232,8 +232,8 @@ const AdminMenu = () => (
             </Link>
           </MenuItem>
           <MenuItem>
-            <Link to="/admin-rna" className="block w-full p-4 text-sm data-[focus]:bg-gray-hover">
-              RNA
+            <Link to="/admin-organization" className="block w-full p-4 text-sm data-[focus]:bg-gray-hover">
+              Organisations
             </Link>
           </MenuItem>
           <MenuItem>
