@@ -3,8 +3,8 @@ import { Helmet } from "react-helmet-async";
 import { RiCheckboxCircleFill, RiCloseCircleFill } from "react-icons/ri";
 import { Link, useSearchParams } from "react-router-dom";
 
+import TablePagination from "../../components/NewTablePagination";
 import SearchInput from "../../components/SearchInput";
-import { TablePaginator } from "../../components/Table";
 import api from "../../services/api";
 import { captureError } from "../../services/error";
 
@@ -59,45 +59,42 @@ const List = () => {
       </div>
 
       <div className="border border-gray-border p-6">
-        <TablePaginator
-          data={data}
+        <TablePagination
+          header={[{ title: "Titre de l'organisation", colSpan: 3 }, { title: "RNA" }, { title: "SIRET" }, { title: "Créée le" }, { title: "Statut" }]}
+          page={filters.from}
           pageSize={filters.size}
-          length={total}
           onPageChange={(page) => setFilters({ ...filters, from: (page - 1) * filters.size })}
+          length={total}
           loading={loading}
-          renderHeader={() => (
-            <>
-              <h4 className="flex-1 pl-3">Titre de l'association</h4>
-              <h4 className="w-1/5">RNA</h4>
-              <h4 className="w-1/5">SIRET</h4>
-              <h4 className="w-1/5">Créée le</h4>
-              <h4 className="w-16">Statut</h4>
-            </>
-          )}
-          renderItem={(item) => (
-            <>
-              <Link to={`/admin-organization/${item._id}`} className="line-clamp-3 max-w-xl flex-1 px-2 text-blue-dark">
-                {item.title}
-              </Link>
-              <span className="w-1/5">{item.rna}</span>
-              <span className="w-1/5">{item.siret}</span>
-              <span className="w-1/5">{new Date(item.created_at).toLocaleDateString("fr")}</span>
-              <div className="flex w-16 items-center">
-                {item.status === "ACTIVE" ? (
-                  <div className="flex items-center gap-2">
-                    <p>Active</p>
-                    <RiCheckboxCircleFill className="text-green-main" />
-                  </div>
-                ) : (
-                  <div className="flex items-center gap-2">
-                    <p>Inactive</p>
-                    <RiCloseCircleFill className="text-red-main" />
-                  </div>
-                )}
-              </div>
-            </>
-          )}
-        />
+        >
+          {data.map((item, i) => (
+            <tr key={i} className={`${i % 2 === 0 ? "bg-gray-100" : "bg-gray-50"} table-item`}>
+              <td className="p-4" colSpan={3}>
+                <Link to={`/admin-organization/${item._id}`} className="line-clamp-3 max-w-xl flex-1 px-2 text-blue-dark">
+                  {item.title}
+                </Link>
+              </td>
+              <td className="px-4">{item.rna}</td>
+              <td className="px-4">{item.siret}</td>
+              <td className="px-4">{new Date(item.created_at).toLocaleDateString("fr")}</td>
+              <td className="px-6">
+                <div className="flex w-16 items-center">
+                  {item.status === "ACTIVE" ? (
+                    <div className="flex items-center gap-2">
+                      <p>Active</p>
+                      <RiCheckboxCircleFill className="text-green-main" />
+                    </div>
+                  ) : (
+                    <div className="flex items-center gap-2">
+                      <p>Inactive</p>
+                      <RiCloseCircleFill className="text-red-main" />
+                    </div>
+                  )}
+                </div>
+              </td>
+            </tr>
+          ))}
+        </TablePagination>
       </div>
     </div>
   );
