@@ -76,7 +76,7 @@ const List = () => {
               </td>
               <td className="px-4">{item.rna}</td>
               <td className="px-4">{item.siret}</td>
-              <td className="px-4">{new Date(item.created_at).toLocaleDateString("fr")}</td>
+              <td className="px-4">{item.createdAt ? new Date(item.createdAt).toLocaleDateString("fr") : "-"}</td>
               <td className="px-6">
                 <div className="flex w-16 items-center">
                   {item.status === "ACTIVE" ? (
