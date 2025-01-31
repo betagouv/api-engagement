@@ -92,10 +92,8 @@ const Moderation = () => {
           const res = await api.post("/moderation/search", query);
           if (!res.ok) throw res;
           setData(res.data);
-          setOptions(res.aggs);
 
           setTotal(res.total);
-          buildStats(res.aggs);
           return;
         } catch (error) {
           captureError(error, "Erreur lors de la récupération des missions");
@@ -103,6 +101,34 @@ const Moderation = () => {
       }, 500);
 
       return () => clearTimeout(timeout);
+    };
+
+    fetchData();
+  }, [filters, moderatorId, publisher._id]);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      const query = {
+        moderatorId,
+        publisherId: publisher._id,
+        status: filters.status?.key,
+        comment: filters.comment?.key,
+        domain: filters.domain?.key,
+        department: filters.department?.key,
+        organization: filters.organization?.key,
+        search: filters.search,
+      };
+
+      try {
+        const res = await api.post("/moderation/aggs", query);
+        if (!res.ok) throw res;
+        setOptions(res.data);
+        if (res.data) {
+          buildStats(res.data);
+        }
+      } catch (error) {
+        captureError(error, "Erreur lors de la récupération des statistiques");
+      }
     };
 
     fetchData();
