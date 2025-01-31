@@ -78,11 +78,11 @@ const Moderation = () => {
         const query = {
           moderatorId,
           publisherId: publisher._id,
-          status: filters.status?.key,
-          comment: filters.comment?.key,
-          domain: filters.domain?.key,
-          department: filters.department?.key,
-          organization: filters.organization?.key,
+          status: filters.status,
+          comment: filters.comment,
+          domain: filters.domain,
+          department: filters.department,
+          organization: filters.organization,
           search: filters.search,
           from: (filters.page - 1) * pageSize,
           size: pageSize,
@@ -111,11 +111,11 @@ const Moderation = () => {
       const query = {
         moderatorId,
         publisherId: publisher._id,
-        status: filters.status?.key,
-        comment: filters.comment?.key,
-        domain: filters.domain?.key,
-        department: filters.department?.key,
-        organization: filters.organization?.key,
+        status: filters.status,
+        comment: filters.comment,
+        domain: filters.domain,
+        department: filters.department,
+        organization: filters.organization,
         search: filters.search,
       };
 
