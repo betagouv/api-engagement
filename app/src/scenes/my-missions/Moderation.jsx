@@ -74,33 +74,29 @@ const Moderation = () => {
 
   useEffect(() => {
     const fetchData = async () => {
-      const timeout = setTimeout(async () => {
-        const query = {
-          moderatorId,
-          publisherId: publisher._id,
-          status: filters.status,
-          comment: filters.comment,
-          domain: filters.domain,
-          department: filters.department,
-          organization: filters.organization,
-          search: filters.search,
-          from: (filters.page - 1) * pageSize,
-          size: pageSize,
-        };
+      const query = {
+        moderatorId,
+        publisherId: publisher._id,
+        status: filters.status,
+        comment: filters.comment,
+        domain: filters.domain,
+        department: filters.department,
+        organization: filters.organization,
+        search: filters.search,
+        from: (filters.page - 1) * pageSize,
+        size: pageSize,
+      };
 
-        try {
-          const res = await api.post("/moderation/search", query);
-          if (!res.ok) throw res;
-          setData(res.data);
+      try {
+        const res = await api.post("/moderation/search", query);
+        if (!res.ok) throw res;
+        setData(res.data);
 
-          setTotal(res.total);
-          return;
-        } catch (error) {
-          captureError(error, "Erreur lors de la récupération des missions");
-        }
-      }, 500);
-
-      return () => clearTimeout(timeout);
+        setTotal(res.total);
+        return;
+      } catch (error) {
+        captureError(error, "Erreur lors de la récupération des missions");
+      }
     };
 
     fetchData();
