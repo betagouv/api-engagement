@@ -50,24 +50,13 @@ export const syncContact = async () => {
 
       if (user.publishers.length > 0) {
         const publisher = publishers.find((publisher) => publisher.id === user.publishers[0]);
-        if (publisher && !contact.attributes.ENTREPRISE) attributes.ENTREPRISE = publisher.name;
-
-        let isAnnonceur = false;
-        let isDiffuseur = false;
-
-        if (user.publishers.length > 1) {
-          for (const publisher of user.publishers) {
-            const p = publishers.find((p) => p.id === publisher);
-            if (p?.role_promoteur) isAnnonceur = true;
-            if (p?.role_annonceur_api || p?.role_annonceur_campagne || p?.role_annonceur_widget) isDiffuseur = true;
-          }
-        } else {
-          if (publisher?.role_promoteur) isAnnonceur = true;
-          if (publisher?.role_annonceur_api || publisher?.role_annonceur_campagne || publisher?.role_annonceur_widget) isDiffuseur = true;
+        if (publisher) {
+          if (!contact.attributes.ENTREPRISE) attributes.ENTREPRISE = publisher.name;
+          if (publisher?.role_promoteur && (publisher?.role_annonceur_api || publisher?.role_annonceur_campagne || publisher?.role_annonceur_widget))
+            attributes.ROLE = "Annonceur & Diffuseur";
+          else if (publisher?.role_promoteur) attributes.ROLE = "Annonceur";
+          else if (publisher?.role_annonceur_api || publisher?.role_annonceur_campagne || publisher?.role_annonceur_widget) attributes.ROLE = "Diffuseur";
         }
-        if (isAnnonceur && isDiffuseur && contact.attributes.ROLE !== "Annonceur & Diffuseur") attributes.ROLE = "Annonceur & Diffuseur";
-        else if (isAnnonceur && contact.attributes.ROLE !== "Annonceur") attributes.ROLE = "Annonceur";
-        else if (isDiffuseur && contact.attributes.ROLE !== "Diffuseur") attributes.ROLE = "Diffuseur";
       }
 
       if (updates.ext_id || Object.keys(attributes).length > 0) {
@@ -94,23 +83,13 @@ export const syncContact = async () => {
 
       if (user.publishers.length > 0) {
         const publisher = publishers.find((publisher) => publisher.id === user.publishers[0]);
-        if (publisher) body.attributes.ENTREPRISE = publisher.name;
-        let isAnnonceur = false;
-        let isDiffuseur = false;
-
-        if (user.publishers.length > 1) {
-          for (const publisher of user.publishers) {
-            const p = publishers.find((p) => p.id === publisher);
-            if (p?.role_promoteur) isAnnonceur = true;
-            if (p?.role_annonceur_api || p?.role_annonceur_campagne || p?.role_annonceur_widget) isDiffuseur = true;
-          }
-        } else {
-          if (publisher?.role_promoteur) isAnnonceur = true;
-          if (publisher?.role_annonceur_api || publisher?.role_annonceur_campagne || publisher?.role_annonceur_widget) isDiffuseur = true;
+        if (publisher) {
+          body.attributes.ENTREPRISE = publisher.name;
+          if (publisher?.role_promoteur && (publisher?.role_annonceur_api || publisher?.role_annonceur_campagne || publisher?.role_annonceur_widget))
+            body.attributes.ROLE = "Annonceur & Diffuseur";
+          else if (publisher?.role_promoteur) body.attributes.ROLE = "Annonceur";
+          else if (publisher?.role_annonceur_api || publisher?.role_annonceur_campagne || publisher?.role_annonceur_widget) body.attributes.ROLE = "Diffuseur";
         }
-        if (isAnnonceur && isDiffuseur) body.attributes.ROLE = "Annonceur & Diffuseur";
-        else if (isAnnonceur) body.attributes.ROLE = "Annonceur";
-        else if (isDiffuseur) body.attributes.ROLE = "Diffuseur";
       }
 
       const res = await Brevo.api(`/contacts`, body, "POST");
@@ -126,10 +105,9 @@ export const syncContact = async () => {
     let deleted = 0;
     for (const contact of toDelete) {
       console.log(`[Brevo Contacts] Deleting ${contact.email} ${contact.id}`);
-      // Waiting for Quentin response
-      //   const res = await Brevo.api(`/contacts/${contact.id}`, {}, "DELETE");
-      //   if (!res.ok) throw res;
-      //   deleted++;
+      const res = await Brevo.api(`/contacts/${contact.id}`, {}, "DELETE");
+      if (!res.ok) throw res;
+      deleted++;
     }
     console.log(`[Brevo Contacts] Deleted ${deleted} contacts`);
   } catch (error) {
