@@ -2,10 +2,11 @@ export interface BrevoContact {
   id: number;
   email: string;
   attributes: {
-    PRENOM: string;
-    NOM: string;
-    ENTREPRISE: string;
+    PRENOM?: string;
+    NOM?: string;
+    ENTREPRISE?: string;
     EXT_ID: string;
+    ROLE?: string;
   };
   emailBlacklisted: boolean;
   smsBlacklisted: boolean;
