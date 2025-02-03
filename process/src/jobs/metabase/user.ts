@@ -88,12 +88,32 @@ const handler = async () => {
       const transactions = [];
       for (const obj of dataToUpdate) {
         const { partners, ...userData } = obj;
+
+        const user = await prisma.user.findUnique({
+          where: { old_id: obj.old_id },
+          select: { id: true },
+        });
+
+        if (!user) {
+          console.log(`[Users] User ${obj.old_id} not found in database.`);
+          continue;
+        }
+
+        const existsPartnerToUser = await prisma.partnerToUser.findMany({
+          where: { user_id: user.id },
+          select: { partner_id: true },
+        });
+
+        const existsPartnerIds = new Set(existsPartnerToUser.map((p) => p.partner_id));
+
         transactions.push(
           prisma.user.update({
             where: { old_id: obj.old_id },
             data: {
               ...userData,
-              partners: partners,
+              partners: {
+                create: partners.create.filter((p) => !existsPartnerIds.has(p.partner_id)),
+              },
             },
           }),
         );
