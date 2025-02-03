@@ -290,8 +290,6 @@ model Mission {
   jva_moderation_title            String?
   organization_client_id          String?
   organization_department         String?
-  association_id                  String?
-  association_rna                 String?
   city                            String?
   client_id                       String?
   description_html                String?
