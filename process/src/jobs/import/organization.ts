@@ -118,8 +118,10 @@ export const verifyOrganization = async (missions: Mission[]) => {
         } else if (resNames.approximate[mission.organizationName]) {
           obj.organizationVerificationStatus = "NAME_APPROXIMATE_MATCHED_WITH_DB";
           const match = resNames.approximate[mission.organizationName];
-          match.missionIds = [...new Set([...match.missionIds, mission._id.toString()])];
-          await match.save();
+          if (match && mission._id) {
+            match.missionIds = [...new Set([...match.missionIds, mission._id.toString()])];
+            await match.save();
+          }
         } else {
           obj.organizationVerificationStatus = "NAME_NOT_MATCHED";
         }
