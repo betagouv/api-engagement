@@ -118,6 +118,8 @@ const schema = new Schema<User>({
       description: "Date of singup completion",
     },
   },
+
+  brevoContactId: { type: Number, default: null },
 });
 
 const UserModel = model<User>(MODELNAME, schema);

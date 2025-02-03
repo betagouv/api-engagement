@@ -504,6 +504,7 @@ export type User = {
   invitationExpiresAt: Date | null;
   invitationCompletedAt: Date | null;
   comparePassword: (password: string) => Promise<boolean>;
+  brevoContactId: number | null;
 };
 
 export interface Stats {
