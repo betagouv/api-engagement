@@ -104,7 +104,7 @@ const handler = async () => {
           select: { partner_id: true },
         });
 
-        const existsPartnerIds = new Set(existsPartnerToUser.map((p) => p.partner_id));
+        const existsPartnerIds = existsPartnerToUser.map((p) => p.partner_id);
 
         transactions.push(
           prisma.user.update({
@@ -112,7 +112,11 @@ const handler = async () => {
             data: {
               ...userData,
               partners: {
-                create: partners.create.filter((p) => !existsPartnerIds.has(p.partner_id)),
+                deleteMany: {
+                  user_id: user.id,
+                  partner_id: { in: existsPartnerIds.filter((id) => !partners.create.map((p) => p.partner_id).includes(id)) },
+                },
+                create: partners.create.filter((p) => !existsPartnerIds.includes(p.partner_id)),
               },
             },
           }),
