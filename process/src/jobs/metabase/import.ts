@@ -48,7 +48,7 @@ const handler = async () => {
     while (data && data.length) {
       const dataToCreate = [];
       for (const doc of data) {
-        const obj = buildData(doc, partners);
+        const obj = buildData(doc as Import, partners);
         if (!obj) continue;
         dataToCreate.push(obj);
       }

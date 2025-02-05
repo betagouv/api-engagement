@@ -58,7 +58,7 @@ const handler = async () => {
     const dataToUpdate = [];
     for (const doc of data) {
       const exists = stored[doc._id.toString()];
-      const obj = buildData(doc, partners);
+      const obj = buildData(doc as User, partners);
       if (exists && new Date(exists.updated_at).getTime() !== obj.updated_at.getTime()) dataToUpdate.push(obj);
       else if (!exists) dataToCreate.push(obj);
     }

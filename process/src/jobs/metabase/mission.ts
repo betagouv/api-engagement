@@ -151,12 +151,12 @@ const handler = async () => {
         })
         .then((data) => data.forEach((d) => (stored[d.old_id] = d)));
 
-      for (const hit of data) {
-        const obj = await buildData(hit, partners);
+      for (const doc of data) {
+        const obj = await buildData(doc as MongoMission, partners);
         if (!obj) continue;
 
-        if (stored[hit._id.toString()] && !isDateEqual(stored[hit._id.toString()].updated_at, obj.updated_at)) dataToUpdate.push(obj);
-        else if (!stored[hit._id.toString()]) dataToCreate.push(obj);
+        if (stored[doc._id.toString()] && !isDateEqual(stored[doc._id.toString()].updated_at, obj.updated_at)) dataToUpdate.push(obj);
+        else if (!stored[doc._id.toString()]) dataToCreate.push(obj);
       }
 
       console.log(`[Missions] ${dataToCreate.length} docs to create, ${dataToUpdate.length} docs to update.`);

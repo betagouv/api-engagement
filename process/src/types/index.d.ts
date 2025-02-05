@@ -144,7 +144,7 @@ export interface Import {
   failed: any;
 }
 export interface Mission {
-  _id: Schema.Types.ObjectId;
+  _id?: Schema.Types.ObjectId;
   _old_id?: string;
   _old_ids?: string[];
 
@@ -396,7 +396,7 @@ export interface StatsReport {
       applyLastYear: number;
     }[];
     organizationHistogram: {
-      month: Date;
+      month: number;
       [key: string]: number;
     }[];
   };
@@ -430,7 +430,7 @@ export interface StatsReport {
       applyLastYear: number;
     }[];
     organizationHistogram: {
-      month: Date;
+      month: number;
       [key: string]: number;
     }[];
   };
