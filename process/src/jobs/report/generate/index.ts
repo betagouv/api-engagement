@@ -102,7 +102,6 @@ export const generateReports = async (year: number, month: number) => {
     } else if (!res.objectName) {
       console.error(`[Report] No data for ${year}-${month} for ${publisher.name}`);
       obj.status = "NOT_GENERATED_NO_DATA";
-      errors.push({ id: publisher._id.toString(), name: publisher.name, error: "Données insuffisantes pour générer le rapport" });
     } else {
       console.log(`[Report] Report generated for ${year}-${month} for ${publisher.name}`);
       obj.objectName = res.objectName;
