@@ -80,7 +80,7 @@ export const generate = async (year: number, month: number) => {
   const publishers = await PublisherModel.find({ automated_report: true });
   let count = 0;
   const errors = [] as { id: string; name: string; error: string }[];
-
+  console.log(`[Report] Generating report for ${year}-${month} for ${publishers.length} publishers`);
   for (let i = 0; i < publishers.length; i++) {
     const publisher = publishers[i];
     console.log(`[Report] Generating report for ${year}-${month} for ${publisher.name}`);
