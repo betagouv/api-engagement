@@ -445,16 +445,16 @@ export interface Report {
   objectName: string | null;
   publisherId: string;
   publisherName: string;
-  sent: boolean;
+
+  dataTemplate: "BOTH" | "RECEIVE" | "SEND" | "NONE";
+
   sentAt: Date | null;
   sentTo: string[];
-  dataTemplate: "BOTH" | "RECEIVE" | "SEND" | "NONE";
-  clicksFrom: number;
-  clicksTo: number;
-  applyFrom: number;
-  applyTo: number;
+
+  status: string;
+
   data: StatsReport;
-  error: string;
+
   createdAt: Date;
   updatedAt: Date;
 }
