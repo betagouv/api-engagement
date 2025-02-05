@@ -4,7 +4,6 @@
   "description": "",
   "main": "src/index.js",
   "scripts": {
-    "migrate": "prisma migrate dev --name init",
     "build": "npx tsc --build --clean && npx tsc",
     "dev": "nodemon",
     "start-dev": "ts-node src/index.ts",
