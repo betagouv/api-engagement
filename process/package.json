@@ -7,7 +7,7 @@
   "scripts": {
     "migrate": "prisma migrate dev --name init",
     "generate": "prisma generate",
-    "build": "prisma generate && tsc",
+    "build": "prisma generate && tsc --build --clean",
     "dev": "nodemon",
     "stop": "pm2 stop process",
     "start-dev": "ts-node src/index.ts",

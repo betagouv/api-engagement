@@ -50,7 +50,7 @@ const sendReport = async (report: Report) => {
   }
 };
 
-export const send = async (year: number, month: number) => {
+export const sendReports = async (year: number, month: number) => {
   const publishers = await PublisherModel.find({ automated_report: true });
   const users = await UserModel.find({});
 
