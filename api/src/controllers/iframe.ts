@@ -1,5 +1,4 @@
 import { NextFunction, Request, Response, Router } from "express";
-import Joi from "joi";
 import zod from "zod";
 
 import { JVA_ID } from "../config";
@@ -14,25 +13,26 @@ const router = Router();
 
 router.get("/widget", async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const { error: queryError, value: query } = Joi.object({
-      id: Joi.string()
-        .regex(/^[0-9a-fA-F]{24}$/, "object Id")
-        .allow(null, "")
-        .optional(),
-      name: Joi.string().optional(),
-    })
-      .unknown()
-      .validate(req.query);
+    const query = zod
+      .object({
+        id: zod.string().optional(),
+        name: zod.string().optional(),
+      })
+      .safeParse(req.query);
 
-    if (queryError) return res.status(400).send({ ok: false, code: INVALID_QUERY, message: queryError.details });
-    if (!query.id && !query.name) return res.status(400).send({ ok: false, code: INVALID_QUERY, message: "Missing id or name" });
+    if (!query.success) return res.status(400).send({ ok: false, code: INVALID_QUERY, message: query.error });
 
-    if (query.id) {
-      const widget = await WidgetModel.findById(query.id);
+    // Clean id if it's too long (partners can add / or else is the widget id)
+    if (query.data.id && query.data.id.length > 24) query.data.id = query.data.id.slice(0, 24);
+
+    if (!query.data.id && !query.data.name) return res.status(400).send({ ok: false, code: INVALID_QUERY, message: "Missing id or name" });
+
+    if (query.data.id) {
+      const widget = await WidgetModel.findById(query.data.id);
       if (!widget) return res.status(404).send({ ok: false, code: NOT_FOUND });
       return res.status(200).send({ ok: true, data: widget });
     } else {
-      const widget = await WidgetModel.findOne({ name: query.name });
+      const widget = await WidgetModel.findOne({ name: query.data.name });
       if (!widget) return res.status(404).send({ ok: false, code: NOT_FOUND });
       return res.status(200).send({ ok: true, data: widget });
     }
