@@ -1,4 +1,4 @@
-import React, { useState, Fragment, useRef, useEffect } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { RiSearchLine, RiArrowUpSLine, RiArrowDownSLine, RiCheckboxFill, RiCheckboxBlankLine, RiMapPin2Fill, RiCloseFill } from "react-icons/ri";
 
 export const MobileFilters = ({ options, filters, setFilters, color, showFilters, setShowFilters, disabledLocation = false, carousel }) => {
@@ -22,7 +22,7 @@ export const MobileFilters = ({ options, filters, setFilters, color, showFilters
         <LocationFilter selected={filters.location} onChange={(l) => setFilters({ ...filters, location: l })} disabled={disabledLocation} color={color} width="w-full" />
       </div>
       <button
-        className="flex h-[40px] border-y items-center justify-between w-full px-4 py-2 focus:outline-none focus-visible:ring focus-visible:ring-blue-800"
+        className="flex h-[40px] border-y items-center justify-between w-full px-4 py-2 focus:outline-none focus-visible:ring focus-visible:ring-blue-800 plausible-event-name--Filters+opened"
         onClick={() => setShowFilters(!showFilters)}
         style={{ color: color }}
       >
@@ -34,6 +34,7 @@ export const MobileFilters = ({ options, filters, setFilters, color, showFilters
         <div className="w-full mt-2">
           <div className="w-full mb-4">
             <RemoteFilter
+              id="remote"
               options={options.remote}
               selectedOptions={filters.remote}
               onChange={(f) => setFilters({ ...filters, remote: f })}
@@ -44,6 +45,7 @@ export const MobileFilters = ({ options, filters, setFilters, color, showFilters
           </div>
           <div className="w-full mb-4">
             <SelectFilter
+              id="domain"
               options={options.domains}
               selectedOptions={filters.domain}
               onChange={(v) => setFilters({ ...filters, domain: v })}
@@ -54,6 +56,7 @@ export const MobileFilters = ({ options, filters, setFilters, color, showFilters
           </div>
           <div className="w-full mb-4">
             <SelectFilter
+              id="department"
               options={options.departments}
               selectedOptions={filters.department}
               onChange={(v) => setFilters({ ...filters, department: v })}
@@ -64,6 +67,7 @@ export const MobileFilters = ({ options, filters, setFilters, color, showFilters
           </div>
           <div className="w-full mb-4">
             <SelectFilter
+              id="organization"
               options={options.organizations}
               selectedOptions={filters.organization}
               onChange={(v) => setFilters({ ...filters, organization: v })}
@@ -75,7 +79,7 @@ export const MobileFilters = ({ options, filters, setFilters, color, showFilters
           <div className="w-full flex flex-col gap-2">
             <button
               aria-label="Voir les missions"
-              className="w-full p-3 text-center border-none text-white text-sm focus:outline-none focus-visible:ring focus-visible:ring-blue-800"
+              className="w-full p-3 text-center border-none text-white text-sm focus:outline-none focus-visible:ring focus-visible:ring-blue-800 plausible-event-name--Filters+closed"
               onClick={() => setShowFilters(false)}
               style={{ backgroundColor: color }}
             >
@@ -83,7 +87,7 @@ export const MobileFilters = ({ options, filters, setFilters, color, showFilters
             </button>
             <button
               aria-label="Réinitialiser les filtres"
-              className="w-full p-3 text-center border-none bg-transparent text-sm focus:outline-none focus-visible:ring focus-visible:ring-blue-800"
+              className="w-full p-3 text-center border-none bg-transparent text-sm focus:outline-none focus-visible:ring focus-visible:ring-blue-800 plausible-event-name--Filters+reset"
               style={{ color }}
               onClick={handleReset}
             >
@@ -105,19 +109,27 @@ export const Filters = ({ options, filters, setFilters, color, disabledLocation 
       </div>
       <div className="w-[20%] px-2">
         <RemoteFilter
+          id="remote"
           options={options.remote}
           selectedOptions={filters.remote}
           onChange={(f) => setFilters({ ...filters, remote: f })}
           placeholder="Présentiel / Distance"
-          aria-label="remote-filter"
           color={color}
         />
       </div>
       <div className="w-[20%] px-2">
-        <SelectFilter options={options.domains} selectedOptions={filters.domain} onChange={(v) => setFilters({ ...filters, domain: v })} placeholder="Domaines" color={color} />
+        <SelectFilter
+          id="domain"
+          options={options.domains}
+          selectedOptions={filters.domain}
+          onChange={(v) => setFilters({ ...filters, domain: v })}
+          placeholder="Domaines"
+          color={color}
+        />
       </div>
       <div className="w-[20%] px-2">
         <SelectFilter
+          id="department"
           options={options.departments}
           selectedOptions={filters.department}
           onChange={(v) => setFilters({ ...filters, department: v })}
@@ -127,6 +139,7 @@ export const Filters = ({ options, filters, setFilters, color, disabledLocation 
       </div>
       <div className="w-[20%] pl-2">
         <SelectFilter
+          id="organization"
           options={options.organizations}
           selectedOptions={filters.organization}
           onChange={(v) => setFilters({ ...filters, organization: v })}
@@ -139,7 +152,7 @@ export const Filters = ({ options, filters, setFilters, color, disabledLocation 
   );
 };
 
-const SelectFilter = ({ options, selectedOptions, onChange, color, placeholder = "Choissiez une option", position = "left-0", width = "w-80" }) => {
+const SelectFilter = ({ options, selectedOptions, onChange, color, id, placeholder = "Choissiez une option", position = "left-0", width = "w-80" }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [search, setSearch] = useState("");
   const ref = useRef(null);
@@ -166,11 +179,11 @@ const SelectFilter = ({ options, selectedOptions, onChange, color, placeholder =
 
   return (
     <div className="relative w-full min-w-[6rem]" ref={ref}>
-      <label htmlFor={placeholder} className="sr-only">
+      <label htmlFor={id} className="sr-only">
         {placeholder}
       </label>
       <button
-        id={placeholder}
+        id={id}
         onClick={() => setIsOpen(!isOpen)}
         className={`w-full rounded-t-md h-[40px] bg-[#EEE] border-b-2 border-[#3A3A3A] p-3 focus:outline-none focus-visible:ring focus-visible:ring-blue-800 flex items-center justify-between ${
           !selectedOptions?.length ? "text-[#666666]" : "text-[#161616]"
@@ -211,13 +224,17 @@ const SelectFilter = ({ options, selectedOptions, onChange, color, placeholder =
                 ?.map((o) => {
                   const isSelected = selectedOptions?.some((so) => so.value === o.value);
                   return (
-                    <div key={o.value} onClick={() => toggleOption(o)} className="cursor-pointer w-full flex items-center justify-between text-sm py-2 pl-3 pr-4 hover:bg-gray-100">
+                    <button
+                      key={o.value}
+                      onClick={() => toggleOption(o)}
+                      className={`cursor-pointer w-full flex items-center justify-between text-sm py-2 pl-3 pr-4 hover:bg-gray-100 plausible-event-name--Filter+${id}+selected`}
+                    >
                       <div className="flex items-center w-[90%]">
                         <div className="text-sm">{isSelected ? <RiCheckboxFill style={{ height: "16px", width: "16px", color }} /> : <RiCheckboxBlankLine />}</div>
                         <span className="block text-sm mx-2 truncate font-normal text-[#161616]">{o.label}</span>
                       </div>
                       {o.count && <span className="text-sm text-neutral-grey-500">{o.count}</span>}
-                    </div>
+                    </button>
                   );
                 })
             )}
@@ -225,7 +242,7 @@ const SelectFilter = ({ options, selectedOptions, onChange, color, placeholder =
 
           <div className="p-2 w-full flex justify-end border-t border-gray-300">
             <button
-              className="text-[#3633A1] text-sm hover:underline"
+              className={`text-[#3633A1] text-sm hover:underline plausible-event-name--Filter+${id}+erased`}
               onClick={() => {
                 onChange([]);
                 setIsOpen(false);
@@ -308,7 +325,7 @@ const LocationFilter = ({ selected, onChange, disabled = false, width = "w-80" }
             />
             {selected && (
               <button
-                className="text-sm text-neutral-grey-700"
+                className="text-sm text-neutral-grey-700 plausible-event-name--Localisation+erased"
                 onClick={() => {
                   onChange(null);
                   setInputValue("");
@@ -326,7 +343,7 @@ const LocationFilter = ({ selected, onChange, disabled = false, width = "w-80" }
           {options.map((option) => (
             <div
               key={option.value}
-              className="cursor-pointer flex items-center justify-between py-2 px-3 hover:bg-gray-100"
+              className="cursor-pointer flex items-center justify-between py-2 px-3 hover:bg-gray-100 plausible-event-name--Localisation+selected"
               onClick={() => {
                 onChange(option);
                 setInputValue(option.label);
@@ -342,7 +359,7 @@ const LocationFilter = ({ selected, onChange, disabled = false, width = "w-80" }
   );
 };
 
-const RemoteFilter = ({ options, selectedOptions, onChange, color, placeholder = "Choissiez une option", position = "left-0", width = "w-80" }) => {
+const RemoteFilter = ({ options, selectedOptions, onChange, color, id, placeholder = "Choissiez une option", position = "left-0", width = "w-80" }) => {
   const [isOpen, setIsOpen] = useState(false);
   const ref = useRef(null);
 
@@ -366,15 +383,13 @@ const RemoteFilter = ({ options, selectedOptions, onChange, color, placeholder =
     }
   };
 
-  console.log(selectedOptions);
-
   return (
     <div className="relative w-full min-w-[6rem]" ref={ref}>
-      <label htmlFor={placeholder} className="sr-only">
+      <label htmlFor={id} className="sr-only">
         {placeholder}
       </label>
       <button
-        id={placeholder}
+        id={id}
         aria-label={placeholder}
         className={`w-full bg-[#EEE] h-[40px] rounded-t-md border-b-2 border-[#3A3A3A] p-3 focus:outline-none focus-visible:ring focus-visible:ring-blue-800 flex items-center justify-between ${
           !selectedOptions?.length ? "text-[#666666]" : "text-[#161616]"
@@ -400,20 +415,24 @@ const RemoteFilter = ({ options, selectedOptions, onChange, color, placeholder =
               options?.map((o) => {
                 const isSelected = selectedOptions?.some((so) => so.value === o.value);
                 return (
-                  <div key={o.value} onClick={() => toggleOption(o)} className="cursor-pointer w-full flex items-center justify-between text-sm py-2 pl-3 pr-4 hover:bg-gray-100">
+                  <button
+                    key={o.value}
+                    onClick={() => toggleOption(o)}
+                    className="cursor-pointer w-full flex items-center justify-between text-sm py-2 pl-3 pr-4 hover:bg-gray-100 plausible-event-name--Filter+remote+selected"
+                  >
                     <div className="flex items-center w-[90%]">
                       <div className="text-sm">{isSelected ? <RiCheckboxFill style={{ height: "16px", width: "16px", color }} /> : <RiCheckboxBlankLine />}</div>
                       <span className="block text-sm mx-2 truncate font-normal">{o.label}</span>
                     </div>
                     {o.count && <span className="text-sm text-neutral-grey-500">{o.count}</span>}
-                  </div>
+                  </button>
                 );
               })
             )}
           </div>
           <div className="p-2 w-full flex justify-end border-t border-gray-300">
             <button
-              className="text-[#3633A1] text-sm hover:underline"
+              className="text-[#3633A1] text-sm hover:underline plausible-event-name--Filter+remote+erased"
               onClick={() => {
                 onChange([]);
                 setIsOpen(false);
