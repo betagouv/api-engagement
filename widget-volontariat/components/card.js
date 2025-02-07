@@ -1,22 +1,44 @@
 import Image from "next/image";
 import iso from "i18n-iso-countries";
 import { useRouter } from "next/router";
+import { useState, useEffect } from "react";
 
 import { RiBuildingFill, RiCalendarEventFill } from "react-icons/ri";
 import { DOMAINS } from "../config";
 import LogoSCE from "../public/images/logo-sce.svg";
 
 const Card = ({ widget, mission, request }) => {
-  const router = useRouter();
+  const [showAllCities, setShowAllCities] = useState(false);
+  const [isTextTruncated, setIsTextTruncated] = useState(false);
+
+  useEffect(() => {
+    if (mission.addresses?.length > 1) {
+      const addressesString = mission.addresses.map((address) => address.city).join(", ");
+      setIsTextTruncated(addressesString.length > 50);
+    }
+  }, [mission.addresses]);
+
+  const formatAddresses = () => {
+    const addresses = mission.addresses.map((address) => address.city).join(", ");
+    return isTextTruncated
+      ? mission.addresses
+          .slice(0, 8)
+          .map((address) => address.city)
+          .join(", ") + "..."
+      : addresses;
+  };
 
   if (!mission) return null;
 
   const domain = DOMAINS[mission.domain] || DOMAINS.autre;
+
   return (
     <a
       tabIndex={0}
       href={mission.url}
       target="_blank"
+      onMouseEnter={() => setShowAllCities(true)}
+      onMouseLeave={() => setShowAllCities(false)}
       className={`${
         widget.style === "carousel" ? "w-full lg:max-w-[336px]" : "w-full"
       } border min-h-[290px] md:min-h-[311px] flex flex-col focus:outline-none focus-visible:ring focus-visible:ring-blue-800 border-grey-400 bg-white group hover:shadow-lg transition-shadow duration-300 overflow-hidden`}
@@ -41,9 +63,20 @@ const Card = ({ widget, mission, request }) => {
           </div>
 
           <h2 className="font-semibold line-clamp-3 text-xl group-hover:text-[#000091] transition-colors duration-300">{mission.title}</h2>
-          <span className="text-sm truncate text-default-grey">
-            {mission.remote === "full" ? "À distance" : `${mission.city} ${mission.postalCode}${mission.country !== "FR" ? ` - ${iso.getName(mission.country, "fr")}` : ""}`}
-          </span>
+          {mission.addresses?.length > 1 ? (
+            <div className="relative h-5">
+              <div className={`w-full absolute transition-all duration-500 ${showAllCities ? "opacity-0" : "opacity-100"}`}>
+                <span className="text-sm truncate text-default-grey block">{mission.addresses.map((address) => address.city).join(", ")}</span>
+              </div>
+              <div className={`w-full absolute transition-all duration-500 ${showAllCities ? "opacity-100" : "opacity-0"}`}>
+                <span className="text-sm text-default-grey block">{formatAddresses()}</span>
+              </div>
+            </div>
+          ) : (
+            <span className="text-sm truncate text-default-grey">
+              {mission.remote === "full" ? "À distance" : `${mission.city} ${mission.postalCode}${mission.country !== "FR" ? ` - ${iso.getName(mission.country, "fr")}` : ""}`}
+            </span>
+          )}
         </div>
 
         <div className="min-h-[19px] flex items-center mt-auto">
@@ -55,7 +88,11 @@ const Card = ({ widget, mission, request }) => {
         </div>
 
         <div className="flex justify-between items-center text-mention-grey">
-          <div className="flex items-center min-w-[120px]">
+          <div
+            className={`flex items-center min-w-[120px] transition-opacity duration-500 ${
+              mission.addresses?.length <= 1 || !isTextTruncated || !showAllCities ? "opacity-100" : "opacity-0"
+            }`}
+          >
             <RiCalendarEventFill className="h-4 flex-shrink-0" />
             <span className="text-xs ml-2 whitespace-nowrap">Dès que possible</span>
           </div>

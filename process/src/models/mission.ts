@@ -15,6 +15,22 @@ const geoPointSchema = new Schema({
   },
 });
 
+const addressesSchema = new Schema({
+  address: { type: String },
+  city: { type: String },
+  postalCode: { type: String },
+  departmentName: { type: String },
+  departmentCode: { type: String },
+  region: { type: String },
+  country: { type: String },
+  location: {
+    lat: { type: Number },
+    lon: { type: Number },
+  },
+  geoPoint: { type: geoPointSchema, default: null },
+  geolocStatus: { type: String, enum: ["ENRICHED_BY_PUBLISHER", "ENRICHED", "NOT_FOUND", "NO_DATA", "SHOULD_ENRICH", "FAILED"], default: "NO_DATA" },
+});
+
 const schema = new Schema<Mission>(
   {
     // Identifiers
@@ -66,6 +82,7 @@ const schema = new Schema<Mission>(
     },
     geoPoint: { type: geoPointSchema, default: null },
     geolocStatus: { type: String, enum: ["ENRICHED_BY_PUBLISHER", "ENRICHED", "NOT_FOUND", "NO_DATA", "SHOULD_ENRICH", "FAILED"], default: "NO_DATA" },
+    addresses: { type: [addressesSchema], default: [] },
 
     // Organisation
     organizationUrl: { type: String },

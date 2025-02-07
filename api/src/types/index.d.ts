@@ -226,6 +226,25 @@ export interface Mission {
         coordinates: [number, number];
       }
     | undefined;
+
+  addresses: {
+    address: string | undefined;
+    postalCode: string | undefined;
+    departmentName: string | undefined;
+    departmentCode: string | undefined;
+    city: string | undefined;
+    region: string | undefined;
+    country: string | undefined;
+    location: {
+      lat: number | undefined;
+      lon: number | undefined;
+    };
+    geoPoint: {
+      type: "Point";
+      coordinates: [number, number] | undefined;
+    };
+  }[];
+
   snu: boolean | undefined;
   snuPlaces: number | undefined;
   remote: "no" | "possible" | "full";

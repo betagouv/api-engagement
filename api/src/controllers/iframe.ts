@@ -229,36 +229,50 @@ router.get("/widget/:widgetId/msearch", async (req: Request, res: Response, next
     // If location is set in widget, show only missions in this location
     if (widget.location && widget.location.lat && widget.location.lon) {
       const distance = getDistanceKm(widget.distance && widget.distance !== "Aucun" ? widget.distance : "50km");
-      where.geoPoint = { $nearSphere: { $geometry: { type: "Point", coordinates: [widget.location.lon, widget.location.lat] }, $maxDistance: distance * 1000 } };
-      whereAggs.geoPoint = { $geoWithin: { $centerSphere: [[widget.location.lon, widget.location.lat], distance / EARTH_RADIUS] } };
-      // If location is set in query, check if remote is set or no
+      where.$or = [
+        { geoPoint: { $nearSphere: { $geometry: { type: "Point", coordinates: [widget.location.lon, widget.location.lat] }, $maxDistance: distance * 1000 } } },
+        { "addresses.geoPoint": { $nearSphere: { $geometry: { type: "Point", coordinates: [widget.location.lon, widget.location.lat] }, $maxDistance: distance * 1000 } } },
+      ];
+      whereAggs.$or = [
+        { geoPoint: { $geoWithin: { $centerSphere: [[widget.location!.lon, widget.location!.lat], distance / EARTH_RADIUS] } } },
+        { "addresses.geoPoint": { $geoWithin: { $centerSphere: [[widget.location!.lon, widget.location!.lat], distance / EARTH_RADIUS] } } },
+      ];
     } else if (query.data.lat && query.data.lon) {
       const distance = getDistanceKm("50km");
       // For the aggs, we don't need to check if the remote is set or no, we want all the remote facets
       whereAggs.$and.push({
-        $or: [{ geoPoint: { $geoWithin: { $centerSphere: [[query.data.lon, query.data.lat], distance / EARTH_RADIUS] } } }, { remote: "full" }],
+        $or: [
+          { geoPoint: { $geoWithin: { $centerSphere: [[query.data.lon, query.data.lat], distance / EARTH_RADIUS] } } },
+          { "addresses.geoPoint": { $geoWithin: { $centerSphere: [[query.data.lon, query.data.lat], distance / EARTH_RADIUS] } } },
+          { remote: "full" },
+        ],
       });
       // If remote is set to no, show only missions in this location
       if (query.data.remote && query.data.remote.includes("no") && !query.data.remote.includes("yes")) {
-        where.geoPoint = { $nearSphere: { $geometry: { type: "Point", coordinates: [query.data.lon, query.data.lat] }, $maxDistance: distance * 1000 } };
-        // If remote is set to yes, show only remote missions
+        where.$or = [
+          { geoPoint: { $nearSphere: { $geometry: { type: "Point", coordinates: [query.data.lon, query.data.lat] }, $maxDistance: distance * 1000 } } },
+          { "addresses.geoPoint": { $nearSphere: { $geometry: { type: "Point", coordinates: [query.data.lon, query.data.lat] }, $maxDistance: distance * 1000 } } },
+        ];
       } else if (query.data.remote && query.data.remote.includes("yes") && !query.data.remote.includes("no")) {
         where.remote = "full";
         // Else show missions in this location and remote once
       } else {
-        // $near not accepted in $and or $or
         where.$and.push({
-          $or: [{ geoPoint: { $geoWithin: { $centerSphere: [[query.data.lon, query.data.lat], distance / EARTH_RADIUS] } } }, { remote: "full" }],
+          $or: [
+            { geoPoint: { $geoWithin: { $centerSphere: [[query.data.lon, query.data.lat], distance / EARTH_RADIUS] } } },
+            { "addresses.geoPoint": { $geoWithin: { $centerSphere: [[query.data.lon, query.data.lat], distance / EARTH_RADIUS] } } },
+            { remote: "full" },
+          ],
         });
       }
-      // No location set, check if remote is set or no
-    } else {
-      if (query.data.remote && query.data.remote.includes("yes") && !query.data.remote.includes("no")) {
-        where.remote = "full";
-      }
-      if (query.data.remote && query.data.remote.includes("no") && !query.data.remote.includes("yes")) {
-        where.$and.push({ $or: [{ remote: "no" }, { remote: "possible" }] });
-      }
+    }
+
+    // When converting geoPoint for count
+    if (where.geoPoint || where["addresses.geoPoint"]) {
+      const geoWithin = whereAggs.$or ? whereAggs.$or : [{ geoPoint: whereAggs.geoPoint }, { "addresses.geoPoint": whereAggs["addresses.geoPoint"] }];
+      delete where.geoPoint;
+      delete where["addresses.geoPoint"];
+      where.$or = geoWithin;
     }
 
     if (!where.$and.length) delete where.$and;
@@ -266,11 +280,20 @@ router.get("/widget/:widgetId/msearch", async (req: Request, res: Response, next
     if (!whereAggs.$and.length) delete whereAggs.$and;
     if (!whereAggs.$or.length) delete whereAggs.$or;
 
+    // log all the where and whereAggs
+    console.log("where", JSON.stringify(where, null, 2));
+    console.log("whereAggs", JSON.stringify(whereAggs, null, 2));
+
+    console.log(`query: ${JSON.stringify(query.data, null, 2)}`);
+
     const missions = await MissionModel.find(where).sort({ remote: -1 }).limit(query.data.size).skip(query.data.from).lean();
 
     if (where.geoPoint) where.geoPoint = whereAggs.geoPoint; // $nearSphere is not supported in countDocuments
     const total = await MissionModel.countDocuments(where);
     const facets = await MissionModel.aggregate([{ $match: whereAggs }, { $facet }]);
+
+    console.log("facets", JSON.stringify(facets, null, 2));
+    console.log("missions", JSON.stringify(missions, null, 2));
 
     const data = {
       hits: missions.map((e: Mission) => ({
@@ -285,6 +308,7 @@ router.get("/widget/:widgetId/msearch", async (req: Request, res: Response, next
         postalCode: e.postalCode,
         places: e.places,
         tags: e.tags,
+        addresses: e.addresses,
       })),
       aggs: {},
     } as { [key: string]: any };
