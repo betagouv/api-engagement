@@ -6,6 +6,23 @@ import { COUNTRIES } from "../../constants/countries";
 import { DOMAINS } from "../../constants/domains";
 import { Mission, MissionXML, Publisher } from "../../types";
 
+interface AddressItem {
+  address: string | undefined;
+  city: string | undefined;
+  postalCode: string | undefined;
+  departmentName: string | undefined;
+  departmentCode: string | undefined;
+  region: string | undefined;
+  country: string | undefined;
+  location: { lon: number; lat: number } | undefined;
+  geoPoint: { type: "Point"; coordinates: [number, number] } | null;
+}
+
+const parseString = (value: string | undefined) => {
+  if (!value) return "";
+  return String(value);
+};
+
 const getImageDomain = (domain: string, title: string) => {
   const StringToInt = (str: string = "", len: number) => {
     let total = 0;
@@ -56,6 +73,53 @@ const getDepartement = (code?: string) => (code && code in DEPARTMENTS && DEPART
 const getRegion = (code?: string) => (code && code in DEPARTMENTS && DEPARTMENTS[code][1]) || "";
 
 const getAddress = (mission: Mission, missionXML: MissionXML) => {
+  if (missionXML.addresses && Array.isArray(missionXML.addresses) && missionXML.addresses.length > 0) {
+    const addresses: AddressItem[] = [];
+
+    for (const address of missionXML.addresses) {
+      const addressItem: AddressItem = {
+        address: parseString(address.address),
+        city: parseString(address.city),
+        postalCode: "",
+        departmentName: "",
+        departmentCode: "",
+        region: "",
+        country: parseString(address.country),
+        location: undefined,
+        geoPoint: null,
+      };
+
+      if (addressItem.country === "France") addressItem.country = "FR";
+
+      if (address.location && address.location.lon && address.location.lat) {
+        addressItem.location = address.location;
+        addressItem.geoPoint = {
+          type: "Point",
+          coordinates: [address.location.lon, address.location.lat],
+        };
+      }
+
+      if (addressItem.country !== "FR") {
+        addressItem.postalCode = parseString(address.postalCode);
+        addressItem.departmentCode = parseString(address.departmentCode);
+        addressItem.departmentName = parseString(address.departmentName);
+        addressItem.region = parseString(address.region);
+      } else {
+        addressItem.postalCode = formatPostalCode(parseString(address.postalCode));
+        if (addressItem.postalCode) {
+          const departmentCode = getDepartmentCode(address.departmentCode, addressItem.postalCode);
+          addressItem.departmentCode = departmentCode;
+          addressItem.departmentName = getDepartement(departmentCode) || parseString(address.departmentName);
+          addressItem.region = getRegion(departmentCode) || parseString(address.region);
+        }
+      }
+
+      addresses.push(addressItem);
+    }
+
+    mission.addresses = addresses;
+  }
+
   mission.country = parseString(missionXML.country || missionXML.countryCode);
   if (mission.country === "France") mission.country = "FR";
 
@@ -156,11 +220,6 @@ const parseBool = (value: string | undefined) => {
 const parseDate = (value: string | undefined) => {
   if (!value) return null;
   return new Date(value);
-};
-
-const parseString = (value: string | undefined) => {
-  if (!value) return "";
-  return String(value);
 };
 
 const parseNumber = (value: number | string | undefined) => {

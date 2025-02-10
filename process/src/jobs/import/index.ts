@@ -52,6 +52,8 @@ const parseXML = (xmlString: string) => {
 };
 
 const shouldEnrichGeoloc = (missionXML: MissionXML, mission: Mission, missionDB?: Mission) => {
+  // need to add multiple address logic
+
   // If location changed, need to search
   if (missionDB && (missionDB.address !== mission.address || missionDB.city !== mission.city || missionDB.postalCode !== mission.postalCode)) return "SHOULD_ENRICH";
   // If location is already stored in database, and , don't need to search
