@@ -65,11 +65,26 @@ const Home = ({ widget, missions, options, total, request, environment }) => {
         ...(router.query.notrack && { notrack: router.query.notrack }),
       };
 
-      if (filters.domain?.length) query.domain = JSON.stringify(filters.domain.filter((item) => item && item.value).map((item) => item.value));
-      if (filters.organization?.length) query.organization = JSON.stringify(filters.organization.filter((item) => item && item.value).map((item) => item.value));
+      if (filters.domain?.length)
+        query.domain = filters.domain
+          .filter((item) => item && item.value)
+          .map((item) => item.value)
+          .join(",");
+      if (filters.organization?.length)
+        query.organization = filters.organization
+          .filter((item) => item && item.value)
+          .map((item) => item.value)
+          .join(",");
       if (filters.department?.length)
-        query.department = JSON.stringify(filters.department.filter((item) => item && item.value).map((item) => (item.value === "" ? "none" : item.value)));
-      if (filters.remote?.length) query.remote = JSON.stringify(filters.remote.filter((item) => item && item.value).map((item) => item.value));
+        query.department = filters.department
+          .filter((item) => item && item.value)
+          .map((item) => (item.value === "" ? "none" : item.value))
+          .join(",");
+      if (filters.remote?.length)
+        query.remote = filters.remote
+          .filter((item) => item && item.value)
+          .map((item) => item.value)
+          .join(",");
       if (filters.size) query.size = filters.size;
       if (filters.page > 1) query.from = (filters.page - 1) * filters.size;
       if (filters.location?.lat && filters.location?.lon) {
@@ -173,14 +188,14 @@ export const getServerSideProps = async (context) => {
   try {
     const searchParams = new URLSearchParams();
 
-    if (context.query.domain) JSON.parse(context.query.domain).forEach((item) => searchParams.append("domain", item));
-    if (context.query.organization) JSON.parse(context.query.organization).forEach((item) => searchParams.append("organization", item));
+    if (context.query.domain) context.query.domain.split(",").forEach((item) => searchParams.append("domain", item));
+    if (context.query.organization) context.query.organization.split(",").forEach((item) => searchParams.append("organization", item));
     if (context.query.department) {
-      JSON.parse(context.query.department).forEach((item) => {
+      context.query.department.split(",").forEach((item) => {
         searchParams.append("department", item === "" ? "none" : item);
       });
     }
-    if (context.query.remote) JSON.parse(context.query.remote).forEach((item) => searchParams.append("remote", item));
+    if (context.query.remote) context.query.remote.split(",").forEach((item) => searchParams.append("remote", item));
     if (context.query.size) searchParams.append("size", parseInt(context.query.size, 10));
     if (context.query.from) searchParams.append("from", parseInt(context.query.from, 10));
     if (context.query.lat && context.query.lon) {

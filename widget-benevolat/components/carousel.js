@@ -50,7 +50,7 @@ export const Carousel = ({ widget, missions, color, request }) => {
         <button
           onClick={prevPage}
           disabled={currentSlide === 0}
-          className="p-2 h-12 w-12 rounded-full hidden xl:flex items-center justify-center flex-shrink-0"
+          className="p-2 h-12 w-12 rounded-full hidden xl:flex items-center justify-center flex-shrink-0 plausible-event-name--Slide"
           style={{
             backgroundColor: currentSlide === 0 ? "#e5e5e5" : color,
             color: currentSlide === 0 ? "#929292" : "white",
@@ -79,7 +79,7 @@ export const Carousel = ({ widget, missions, color, request }) => {
         <button
           onClick={nextPage}
           disabled={currentSlide >= missions.length - slidesToShow}
-          className="p-2 h-12 w-12 rounded-full hidden xl:flex items-center justify-center flex-shrink-0"
+          className="p-2 h-12 w-12 rounded-full hidden xl:flex items-center justify-center flex-shrink-0 plausible-event-name--Slide"
           style={{
             backgroundColor: currentSlide >= missions.length - slidesToShow ? "#e5e5e5" : color,
             color: currentSlide >= missions.length - slidesToShow ? "#929292" : "white",
@@ -95,7 +95,7 @@ export const Carousel = ({ widget, missions, color, request }) => {
           <button
             onClick={prevPage}
             disabled={currentSlide === 0}
-            className="p-2 h-10 w-10 rounded-full flex items-center justify-center"
+            className="p-2 h-10 w-10 rounded-full flex items-center justify-center plausible-event-name--Slide"
             style={{
               backgroundColor: currentSlide === 0 ? "#e5e5e5" : color,
               color: currentSlide === 0 ? "#929292" : "white",
@@ -108,7 +108,7 @@ export const Carousel = ({ widget, missions, color, request }) => {
           <button
             onClick={nextPage}
             disabled={currentSlide >= missions.length - slidesToShow}
-            className="p-2 h-10 w-10 rounded-full flex items-center justify-center"
+            className="p-2 h-10 w-10 rounded-full flex items-center justify-center plausible-event-name--Slide"
             style={{
               backgroundColor: currentSlide >= missions.length - slidesToShow ? "#e5e5e5" : color,
               color: currentSlide >= missions.length - slidesToShow ? "#929292" : "white",
