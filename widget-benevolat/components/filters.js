@@ -1,7 +1,9 @@
+import { usePlausible } from "next-plausible";
 import React, { useState, useRef, useEffect } from "react";
 import { RiSearchLine, RiArrowUpSLine, RiArrowDownSLine, RiCheckboxFill, RiCheckboxBlankLine, RiMapPin2Fill, RiCloseFill } from "react-icons/ri";
 
 export const MobileFilters = ({ options, filters, setFilters, color, showFilters, setShowFilters, disabledLocation = false, carousel }) => {
+  const plausible = usePlausible();
   if (!Object.keys(options).length) return null;
 
   const handleReset = () => {
@@ -22,8 +24,11 @@ export const MobileFilters = ({ options, filters, setFilters, color, showFilters
         <LocationFilter selected={filters.location} onChange={(l) => setFilters({ ...filters, location: l })} disabled={disabledLocation} color={color} width="w-full" />
       </div>
       <button
-        className="flex h-[40px] border-y items-center justify-between w-full px-4 py-2 focus:outline-none focus-visible:ring focus-visible:ring-blue-800 plausible-event-name--Filters+opened"
-        onClick={() => setShowFilters(!showFilters)}
+        className="flex h-[40px] border-y items-center justify-between w-full px-4 py-2 focus:outline-none focus-visible:ring focus-visible:ring-blue-800"
+        onClick={() => {
+          setShowFilters(!showFilters);
+          plausible("Filters opened");
+        }}
         style={{ color: color }}
       >
         Filtrer les missions
@@ -79,17 +84,23 @@ export const MobileFilters = ({ options, filters, setFilters, color, showFilters
           <div className="w-full flex flex-col gap-2">
             <button
               aria-label="Voir les missions"
-              className="w-full p-3 text-center border-none text-white text-sm focus:outline-none focus-visible:ring focus-visible:ring-blue-800 plausible-event-name--Filters+closed"
-              onClick={() => setShowFilters(false)}
+              className="w-full p-3 text-center border-none text-white text-sm focus:outline-none focus-visible:ring focus-visible:ring-blue-800"
+              onClick={() => {
+                setShowFilters(false);
+                plausible("Filters closed");
+              }}
               style={{ backgroundColor: color }}
             >
               Voir les missions
             </button>
             <button
               aria-label="Réinitialiser les filtres"
-              className="w-full p-3 text-center border-none bg-transparent text-sm focus:outline-none focus-visible:ring focus-visible:ring-blue-800 plausible-event-name--Filters+reset"
+              className="w-full p-3 text-center border-none bg-transparent text-sm focus:outline-none focus-visible:ring focus-visible:ring-blue-800"
               style={{ color }}
-              onClick={handleReset}
+              onClick={() => {
+                handleReset();
+                plausible("Filters reset");
+              }}
             >
               Réinitialiser les filtres
             </button>
@@ -153,6 +164,7 @@ export const Filters = ({ options, filters, setFilters, color, disabledLocation 
 };
 
 const SelectFilter = ({ options, selectedOptions, onChange, color, id, placeholder = "Choissiez une option", position = "left-0", width = "w-80" }) => {
+  const plausible = usePlausible();
   const [isOpen, setIsOpen] = useState(false);
   const [search, setSearch] = useState("");
   const ref = useRef(null);
@@ -226,8 +238,11 @@ const SelectFilter = ({ options, selectedOptions, onChange, color, id, placehold
                   return (
                     <button
                       key={o.value}
-                      onClick={() => toggleOption(o)}
-                      className={`cursor-pointer w-full flex items-center justify-between text-sm py-2 pl-3 pr-4 hover:bg-gray-100 plausible-event-name--Filter+${id}+selected`}
+                      onClick={() => {
+                        toggleOption(o);
+                        plausible(`Filter ${id} selected`, { props: { filter: o.label } });
+                      }}
+                      className={`cursor-pointer w-full flex items-center justify-between text-sm py-2 pl-3 pr-4 hover:bg-gray-100`}
                     >
                       <div className="flex items-center w-[90%]">
                         <div className="text-sm">{isSelected ? <RiCheckboxFill style={{ height: "16px", width: "16px", color }} /> : <RiCheckboxBlankLine />}</div>
@@ -242,10 +257,11 @@ const SelectFilter = ({ options, selectedOptions, onChange, color, id, placehold
 
           <div className="p-2 w-full flex justify-end border-t border-gray-300">
             <button
-              className={`text-[#3633A1] text-sm hover:underline plausible-event-name--Filter+${id}+erased`}
+              className={`text-[#3633A1] text-sm hover:underline`}
               onClick={() => {
                 onChange([]);
                 setIsOpen(false);
+                plausible(`Filter ${id} erased`);
               }}
             >
               Effacer
@@ -258,6 +274,7 @@ const SelectFilter = ({ options, selectedOptions, onChange, color, id, placehold
 };
 
 const LocationFilter = ({ selected, onChange, disabled = false, width = "w-80" }) => {
+  const plausible = usePlausible();
   const [isOpen, setIsOpen] = useState(false);
   const [options, setOptions] = useState([]);
   const [inputValue, setInputValue] = useState(selected?.label || "");
@@ -325,10 +342,11 @@ const LocationFilter = ({ selected, onChange, disabled = false, width = "w-80" }
             />
             {selected && (
               <button
-                className="text-sm text-neutral-grey-700 plausible-event-name--Localisation+erased"
+                className="text-sm text-neutral-grey-700"
                 onClick={() => {
                   onChange(null);
                   setInputValue("");
+                  plausible("Localisation erased");
                 }}
               >
                 <RiCloseFill />
@@ -343,11 +361,12 @@ const LocationFilter = ({ selected, onChange, disabled = false, width = "w-80" }
           {options.map((option) => (
             <div
               key={option.value}
-              className="cursor-pointer flex items-center justify-between py-2 px-3 hover:bg-gray-100 plausible-event-name--Localisation+selected"
+              className="cursor-pointer flex items-center justify-between py-2 px-3 hover:bg-gray-100"
               onClick={() => {
                 onChange(option);
                 setInputValue(option.label);
                 setIsOpen(false);
+                plausible("Localisation selected", { props: { location: option.label } });
               }}
             >
               <span className="block text-sm truncate font-normal">{option.label}</span>
@@ -360,6 +379,7 @@ const LocationFilter = ({ selected, onChange, disabled = false, width = "w-80" }
 };
 
 const RemoteFilter = ({ options, selectedOptions, onChange, color, id, placeholder = "Choissiez une option", position = "left-0", width = "w-80" }) => {
+  const plausible = usePlausible();
   const [isOpen, setIsOpen] = useState(false);
   const ref = useRef(null);
 
@@ -417,8 +437,11 @@ const RemoteFilter = ({ options, selectedOptions, onChange, color, id, placehold
                 return (
                   <button
                     key={o.value}
-                    onClick={() => toggleOption(o)}
-                    className="cursor-pointer w-full flex items-center justify-between text-sm py-2 pl-3 pr-4 hover:bg-gray-100 plausible-event-name--Filter+remote+selected"
+                    onClick={() => {
+                      toggleOption(o);
+                      plausible("Remote filter selected", { props: { remote: o.label } });
+                    }}
+                    className="cursor-pointer w-full flex items-center justify-between text-sm py-2 pl-3 pr-4 hover:bg-gray-100"
                   >
                     <div className="flex items-center w-[90%]">
                       <div className="text-sm">{isSelected ? <RiCheckboxFill style={{ height: "16px", width: "16px", color }} /> : <RiCheckboxBlankLine />}</div>
@@ -432,10 +455,11 @@ const RemoteFilter = ({ options, selectedOptions, onChange, color, id, placehold
           </div>
           <div className="p-2 w-full flex justify-end border-t border-gray-300">
             <button
-              className="text-[#3633A1] text-sm hover:underline plausible-event-name--Filter+remote+erased"
+              className="text-[#3633A1] text-sm hover:underline"
               onClick={() => {
                 onChange([]);
                 setIsOpen(false);
+                plausible("Remote filter erased");
               }}
             >
               Effacer
