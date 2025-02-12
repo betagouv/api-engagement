@@ -9,13 +9,13 @@ import Loader from "../../components/Loader";
 import Select from "../../components/NewSelect";
 import TablePagination from "../../components/NewTablePagination";
 import SearchInput from "../../components/SearchInput";
-import SelectCity from "../../components/SelectCity";
-import SelectOrganization from "../../components/SelectOrganization";
 import { STATUS_PLR } from "../../constants";
 import api from "../../services/api";
 import { captureError } from "../../services/error";
 import useStore from "../../services/store";
 import exportCSV from "../../services/utils";
+import SelectCity from "./components/SelectCity";
+import SelectOrganization from "./components/SelectOrganization";
 
 const TABLE_HEADER = [
   { title: "Mission", key: "title.keyword", colSpan: 4 },

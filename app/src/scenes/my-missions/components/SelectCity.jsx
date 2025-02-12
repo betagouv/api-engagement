@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
-import api from "../services/api";
-import { captureError } from "../services/error";
-import useStore from "../services/store";
-import Autocomplete from "./Autocomplete";
+import Autocomplete from "../../../components/Autocomplete";
+import api from "../../../services/api";
+import { captureError } from "../../../services/error";
+import useStore from "../../../services/store";
 
 const SelectCity = ({ onChange }) => {
   const { publisher } = useStore();
