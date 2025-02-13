@@ -26,6 +26,7 @@ const font = localFont({
 const MyApp = ({ Component, pageProps }) => {
   const domain = process.env.NODE_ENV === "production" ? "mission.api-engagement.beta.gouv.fr" : "localhost:3001";
 
+  console.log("process.env.NODE_ENV", process.env.NODE_ENV);
   console.log("domain", domain);
   return (
     <main className={font.className}>

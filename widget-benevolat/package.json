@@ -5,8 +5,8 @@
   "scripts": {
     "dev": "next dev -p 3001",
     "build": "next build",
-    "start-dev": "next start -p 8080",
-    "start": "pm2 start npx --name widget-benevolat -- next -p 8080",
+    "start": "next start -p 8080",
+    "start-pm2": "pm2 start npm --name widget-benevolat -- start",
     "stop": "pm2 stop widget-benevolat",
     "reload": "pm2 reload widget-benevolat"
   },
