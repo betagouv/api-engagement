@@ -280,20 +280,11 @@ router.get("/widget/:widgetId/msearch", async (req: Request, res: Response, next
     if (!whereAggs.$and.length) delete whereAggs.$and;
     if (!whereAggs.$or.length) delete whereAggs.$or;
 
-    // log all the where and whereAggs
-    console.log("where", JSON.stringify(where, null, 2));
-    console.log("whereAggs", JSON.stringify(whereAggs, null, 2));
-
-    console.log(`query: ${JSON.stringify(query.data, null, 2)}`);
-
     const missions = await MissionModel.find(where).sort({ remote: -1 }).limit(query.data.size).skip(query.data.from).lean();
 
     if (where.geoPoint) where.geoPoint = whereAggs.geoPoint; // $nearSphere is not supported in countDocuments
     const total = await MissionModel.countDocuments(where);
     const facets = await MissionModel.aggregate([{ $match: whereAggs }, { $facet }]);
-
-    console.log("facets", JSON.stringify(facets, null, 2));
-    console.log("missions", JSON.stringify(missions, null, 2));
 
     const data = {
       hits: missions.map((e: Mission) => ({
