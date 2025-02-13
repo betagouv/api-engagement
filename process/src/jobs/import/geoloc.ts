@@ -32,7 +32,7 @@ export const enrichWithGeoloc = async (publisher: Publisher, missions: Mission[]
   if (!missions.length) return [];
   try {
     console.log(`[${publisher.name}] Enriching with geoloc ${missions.length} missions...`);
-    const csv = ["clientid;address;city;postcode;departmentcode"];
+    const csv = ["clientid;addressindex;address;city;postcode;departmentcode"];
 
     missions.forEach((mission) => {
       mission.addresses.forEach((addressItem, addressIndex) => {
@@ -46,7 +46,7 @@ export const enrichWithGeoloc = async (publisher: Publisher, missions: Mission[]
           const city = (addressItem.city || "").replace(/[^a-zA-Z0-9]/g, " ") || "";
           const postcode = addressItem.postalCode || "";
           const departmentCode = addressItem.departmentCode || "";
-          csv.push(`${clientId};${address};${city};${postcode};${departmentCode}`);
+          csv.push(`${clientId};${addressIndex};${address};${city};${postcode};${departmentCode}`);
         }
       });
     });
@@ -67,7 +67,8 @@ export const enrichWithGeoloc = async (publisher: Publisher, missions: Mission[]
     let found = 0;
     for (let i = 0; i < data.length; i++) {
       const line = data[i];
-      const [clientId, addressIndex] = line[headerIndex.clientid]?.toString().split("_");
+      const clientId = line[headerIndex.clientid];
+      const addressIndex = line[headerIndex.addressindex];
       const mission = missions.find((m) => m.clientId.toString() === clientId);
 
       if (!mission) continue;

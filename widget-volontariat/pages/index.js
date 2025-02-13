@@ -12,6 +12,7 @@ import { Grid } from "../components/grid";
 import { Carousel } from "../components/carousel";
 import { Filters, MobileFilters } from "../components/filters";
 import LogoSC from "../public/images/logo-sc.svg";
+import { calculateDistance } from "../utils";
 
 /**
  * Layout widget --> max-width: 1152px
@@ -272,16 +273,5 @@ export const getServerSideProps = async (context) => {
   }
   return { props: { widget, missions: [], total: 0, options: {} } };
 };
-
-const calculateDistance = (lat1, lon1, lat2, lon2) => {
-  const R = 6371;
-  const dLat = toRad(lat2 - lat1);
-  const dLon = toRad(lon2 - lon1);
-  const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) + Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.sin(dLon / 2) * Math.sin(dLon / 2);
-  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-  return R * c;
-};
-
-const toRad = (value) => (value * Math.PI) / 180;
 
 export default Home;

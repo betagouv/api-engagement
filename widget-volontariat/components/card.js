@@ -8,15 +8,13 @@ import LogoSCE from "../public/images/logo-sce.svg";
 const Card = ({ widget, mission, request }) => {
   if (!mission) return null;
 
-  const addressCharLength = (
+  const address = (
     mission.remote === "full"
       ? "À distance"
       : mission.addresses?.length > 1
       ? mission.addresses.map((a) => a.city).join(", ")
       : `${mission.city} ${mission.postalCode}${mission.country !== "FR" ? `- ${iso.getName(mission.country, "fr")}` : ""}`
   ).length;
-
-  const showAddresses = addressCharLength > 60;
 
   const domain = DOMAINS[mission.domain] || DOMAINS.autre;
   return (
@@ -65,7 +63,7 @@ const Card = ({ widget, mission, request }) => {
           )}
         </div>
 
-        <div className={`flex justify-between items-center text-mention-grey ${showAddresses ? "group-hover:hidden" : ""}`}>
+        <div className={`flex justify-between items-center text-mention-grey ${address > 60 ? "group-hover:hidden" : ""}`}>
           <div className="flex items-center min-w-[120px]">
             <RiCalendarEventFill className="h-4 flex-shrink-0" />
             <span className="text-xs ml-2 whitespace-nowrap">Dès que possible</span>

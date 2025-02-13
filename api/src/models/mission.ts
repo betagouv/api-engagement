@@ -78,7 +78,6 @@ const schema = new Schema<Mission>(
       lat: { type: Number },
       lon: { type: Number },
     },
-    geoPoint: { type: geoPointSchema, default: null },
     addresses: { type: [addressesSchema], default: [] },
 
     // Organisation

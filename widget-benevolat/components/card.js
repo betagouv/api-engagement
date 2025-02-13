@@ -7,15 +7,13 @@ import { DOMAINES } from "../config";
 const Card = ({ widget, mission, request }) => {
   if (!mission) return null;
 
-  const addressCharLength = (
+  const address = (
     mission.remote === "full"
       ? "À distance"
       : mission.addresses?.length > 1
       ? mission.addresses.map((a) => a.city).join(", ")
       : `${mission.city} ${mission.postalCode}${mission.country !== "FR" ? `- ${iso.getName(mission.country, "fr")}` : ""}`
   ).length;
-
-  const showAddresses = addressCharLength > 60;
 
   return (
     <a
@@ -60,7 +58,7 @@ const Card = ({ widget, mission, request }) => {
           </div>
         </div>
 
-        <div className={`mt-auto flex items-center ${showAddresses ? "group-hover:hidden" : ""}`}>
+        <div className={`mt-auto flex items-center ${address > 60 ? "group-hover:hidden" : ""}`}>
           <span className="text-xs text-mention-grey">{`${mission.places} ${mission.places > 1 ? "bénévoles recherchés" : "bénévole recherché"}`}</span>
         </div>
       </div>

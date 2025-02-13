@@ -76,14 +76,6 @@ const buildData = async (startTime: Date, publisher: Publisher, missionXML: Miss
       mission.statusCommentHistoric = [{ status: mission.statusCode, comment: mission.statusComment, date: mission.updatedAt }];
     }
 
-    // remove this shit
-    // mission.addresses.forEach((address, i) => {
-    //   const statuses = shouldEnrichGeoloc(missionXML, mission, missionDB);
-    //   address.geolocStatus = (statuses[i] || "NO_DATA") as "FAILED" | "ENRICHED_BY_PUBLISHER" | "ENRICHED" | "NOT_FOUND" | "NO_DATA" | "SHOULD_ENRICH";
-    // });
-
-    // mission.geolocStatus = mission.addresses[0].geolocStatus;
-
     // Add previous moderation temporary
     mission.moderation_5f5931496c7ea514150a818f_status = missionDB?.moderation_5f5931496c7ea514150a818f_status;
     mission.moderation_5f5931496c7ea514150a818f_comment = missionDB?.moderation_5f5931496c7ea514150a818f_comment;
