@@ -346,7 +346,7 @@ const LocationFilter = ({ selected, onChange, disabled = false, width = "w-80" }
                 onClick={() => {
                   onChange(null);
                   setInputValue("");
-                  plausible("Localisation erased");
+                  plausible("Location erased");
                 }}
               >
                 <RiCloseFill />
@@ -366,7 +366,7 @@ const LocationFilter = ({ selected, onChange, disabled = false, width = "w-80" }
                 onChange(option);
                 setInputValue(option.label);
                 setIsOpen(false);
-                plausible("Localisation selected", { props: { location: option.label } });
+                plausible("Location selected", { props: { location: option.label } });
               }}
             >
               <span className="block text-sm truncate font-normal">{option.label}</span>

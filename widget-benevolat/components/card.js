@@ -1,13 +1,10 @@
 import Image from "next/image";
 import iso from "i18n-iso-countries";
 import { RiBuildingFill } from "react-icons/ri";
-import { useRouter } from "next/router";
 
 import { DOMAINES } from "../config";
 
 const Card = ({ widget, mission, request }) => {
-  const router = useRouter();
-
   if (!mission) return null;
 
   return (
