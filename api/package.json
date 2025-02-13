@@ -9,7 +9,7 @@
     "dev": "nodemon",
     "start-dev": "ts-node src/index.ts",
     "stop": "pm2 stop api",
-    "start": "pm2 start dist/index.js --name api",
+    "start": "npm run build && pm2 start dist/index.js --name api",
     "prettier": "prettier --write . --plugin=prettier-plugin-organize-imports",
     "reload": "pm2 reload api"
   },
