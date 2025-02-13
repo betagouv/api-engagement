@@ -4,19 +4,7 @@ import { convert } from "html-to-text";
 import { DEPARTMENTS } from "../../constants/departments";
 import { COUNTRIES } from "../../constants/countries";
 import { DOMAINS } from "../../constants/domains";
-import { Mission, MissionXML, Publisher } from "../../types";
-
-interface AddressItem {
-  address: string | undefined;
-  city: string | undefined;
-  postalCode: string | undefined;
-  departmentName: string | undefined;
-  departmentCode: string | undefined;
-  region: string | undefined;
-  country: string | undefined;
-  location: { lon: number; lat: number } | undefined;
-  geoPoint: { type: "Point"; coordinates: [number, number] } | null;
-}
+import { AddressItem, Mission, MissionXML, Publisher } from "../../types";
 
 const parseString = (value: string | undefined) => {
   if (!value) return "";
@@ -73,53 +61,6 @@ const getDepartement = (code?: string) => (code && code in DEPARTMENTS && DEPART
 const getRegion = (code?: string) => (code && code in DEPARTMENTS && DEPARTMENTS[code][1]) || "";
 
 const getAddress = (mission: Mission, missionXML: MissionXML) => {
-  if (missionXML.addresses && Array.isArray(missionXML.addresses) && missionXML.addresses.length > 0) {
-    const addresses: AddressItem[] = [];
-
-    for (const address of missionXML.addresses) {
-      const addressItem: AddressItem = {
-        address: parseString(address.address),
-        city: parseString(address.city),
-        postalCode: "",
-        departmentName: "",
-        departmentCode: "",
-        region: "",
-        country: parseString(address.country),
-        location: undefined,
-        geoPoint: null,
-      };
-
-      if (addressItem.country === "France") addressItem.country = "FR";
-
-      if (address.location && address.location.lon && address.location.lat) {
-        addressItem.location = address.location;
-        addressItem.geoPoint = {
-          type: "Point",
-          coordinates: [address.location.lon, address.location.lat],
-        };
-      }
-
-      if (addressItem.country !== "FR") {
-        addressItem.postalCode = parseString(address.postalCode);
-        addressItem.departmentCode = parseString(address.departmentCode);
-        addressItem.departmentName = parseString(address.departmentName);
-        addressItem.region = parseString(address.region);
-      } else {
-        addressItem.postalCode = formatPostalCode(parseString(address.postalCode));
-        if (addressItem.postalCode) {
-          const departmentCode = getDepartmentCode(address.departmentCode, addressItem.postalCode);
-          addressItem.departmentCode = departmentCode;
-          addressItem.departmentName = getDepartement(departmentCode) || parseString(address.departmentName);
-          addressItem.region = getRegion(departmentCode) || parseString(address.region);
-        }
-      }
-
-      addresses.push(addressItem);
-    }
-
-    mission.addresses = addresses;
-  }
-
   mission.country = parseString(missionXML.country || missionXML.countryCode);
   if (mission.country === "France") mission.country = "FR";
 
@@ -181,6 +122,88 @@ const getAddress = (mission: Mission, missionXML: MissionXML) => {
       mission.region = parseString(missionXML.region);
     }
   }
+
+  // add to new field
+  mission.addresses = [
+    {
+      address: mission.address,
+      city: mission.city,
+      postalCode: mission.postalCode,
+      departmentName: mission.departmentName,
+      departmentCode: mission.departmentCode,
+      region: mission.region,
+      country: mission.country,
+      location: mission.location,
+      geoPoint: mission.geoPoint,
+      geolocStatus: "NOT_FOUND",
+    },
+  ];
+};
+
+const getAddresses = (mission: Mission, missionXML: MissionXML) => {
+  mission.addresses = [];
+
+  for (const address of missionXML.addresses) {
+    const addressItem: AddressItem = {
+      address: parseString(address.address),
+      city: parseString(address.city),
+      postalCode: "",
+      departmentName: "",
+      departmentCode: "",
+      region: "",
+      country: parseString(address.country),
+      location: undefined,
+      geoPoint: null,
+      geolocStatus: "NOT_FOUND",
+    };
+    if (address.country === "France") {
+      address.country = "FR";
+    }
+
+    if (address.location && address.location?.lon && address.location?.lat) {
+      addressItem.location = {
+        lon: address.location.lon,
+        lat: address.location.lat,
+      };
+      addressItem.geoPoint = { type: "Point", coordinates: [address.location.lon, address.location.lat] };
+    }
+
+    if (address.country !== "FR") {
+      addressItem.postalCode = parseString(address.postalCode);
+      addressItem.departmentCode = parseString(address.departmentCode);
+      addressItem.departmentName = parseString(address.departmentName);
+      addressItem.region = parseString(address.region);
+    } else {
+      addressItem.postalCode = formatPostalCode(parseString(address.postalCode));
+      if (addressItem.postalCode) {
+        const departmentCode = getDepartmentCode(address.departmentCode, addressItem.postalCode.toString());
+        addressItem.departmentCode = departmentCode;
+        addressItem.departmentName = getDepartement(departmentCode) || parseString(address.departmentName);
+        addressItem.region = getRegion(departmentCode) || parseString(address.region);
+      } else {
+        addressItem.departmentCode = parseString(address.departmentCode);
+        addressItem.departmentName = parseString(address.departmentName);
+        addressItem.region = parseString(address.region);
+      }
+    }
+    mission.addresses.push(addressItem);
+  }
+  // add to old fields
+  mission.address = mission.addresses[0].address;
+  mission.city = mission.addresses[0].city;
+  mission.country = mission.addresses[0].country;
+  mission.postalCode = mission.addresses[0].postalCode;
+  mission.departmentCode = mission.addresses[0].departmentCode;
+  mission.departmentName = mission.addresses[0].departmentName;
+  mission.region = mission.addresses[0].region;
+  mission.location = mission.addresses[0].location
+    ? {
+        lat: Number(mission.addresses[0].location.lat),
+        lon: Number(mission.addresses[0].location.lon),
+      }
+    : undefined;
+  mission.geoPoint = mission.addresses[0].geoPoint;
+  mission.geolocStatus = mission.addresses[0].geolocStatus;
 };
 
 const hasEncodageIssue = (str = "") => {
@@ -286,13 +309,11 @@ export const buildMission = (publisher: Publisher, missionXML: MissionXML) => {
   mission.domainLogo = missionXML.image || getImageDomain(mission.domain, mission.title);
 
   // Address
-  if (missionXML.autonomyZips) {
-    const firstAddress = Array.isArray(missionXML.autonomyZips.item) ? missionXML.autonomyZips.item[0] : missionXML.autonomyZips.item;
-    missionXML.postalCode = firstAddress.zip;
-    missionXML.city = firstAddress.city;
-    missionXML.lonlat = `${firstAddress.longitude},${firstAddress.latitude}`;
+  if (missionXML.addresses && Array.isArray(missionXML.addresses) && missionXML.addresses.length > 0) {
+    getAddresses(mission, missionXML);
+  } else {
+    getAddress(mission, missionXML);
   }
-  getAddress(mission, missionXML);
 
   // Moderation except Service Civique (already moderated)
   mission.statusComment = "";

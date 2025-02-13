@@ -1,5 +1,19 @@
 import { Schema } from "mongoose";
 
+export interface AddressItem {
+  _id?: Schema.Types.ObjectId;
+  address: string | undefined;
+  city: string | undefined;
+  postalCode: string | undefined;
+  departmentName: string | undefined;
+  departmentCode: string | undefined;
+  region: string | undefined;
+  country: string | undefined;
+  location: { lon: number; lat: number } | undefined;
+  geoPoint: { type: "Point"; coordinates: [number, number] } | null;
+  geolocStatus: "NOT_FOUND" | "FAILED" | "ENRICHED_BY_PUBLISHER" | "ENRICHED" | "NO_DATA" | "SHOULD_ENRICH";
+}
+
 export interface Organization {
   _id: Schema.Types.ObjectId;
   esId: string;
@@ -270,7 +284,7 @@ export interface Mission {
       type: "Point";
       coordinates: [number, number];
     } | null;
-    // geolocStatus: "ENRICHED_BY_PUBLISHER" | "ENRICHED" | "NOT_FOUND" | "NO_DATA" | "SHOULD_ENRICH" | "FAILED";
+    geolocStatus: "ENRICHED_BY_PUBLISHER" | "ENRICHED" | "NOT_FOUND" | "NO_DATA" | "SHOULD_ENRICH" | "FAILED";
   }[];
 
   snu: boolean | undefined;

@@ -8,6 +8,7 @@ import { Mission, Publisher } from "../../types";
 
 export interface GeolocResult {
   clientId: string;
+  addressIndex: number;
   address: string | undefined;
   city: string | undefined;
   postalCode: string | undefined;
@@ -34,13 +35,20 @@ export const enrichWithGeoloc = async (publisher: Publisher, missions: Mission[]
     const csv = ["clientid;address;city;postcode;departmentcode"];
 
     missions.forEach((mission) => {
-      const clientId = mission.clientId || "";
-      // replace all non alphanumeric characters by space
-      const address = (mission.address || "").replace(/[^a-zA-Z0-9]/g, " ") || "";
-      const city = (mission.city || "").replace(/[^a-zA-Z0-9]/g, " ") || "";
-      const postcode = mission.postalCode || "";
-      const departmentCode = mission.departmentCode || "";
-      csv.push(`${clientId};${address};${city};${postcode};${departmentCode}`);
+      mission.addresses.forEach((addressItem, addressIndex) => {
+        // if lat lon is given --> set to enriched by publisher
+        if (addressItem.location && addressItem.location.lat && addressItem.location.lon) {
+          addressItem.geolocStatus = "ENRICHED_BY_PUBLISHER";
+        } else {
+          // if no lat lon then call api adresse
+          const clientId = `${mission.clientId}_${addressIndex}`;
+          const address = (addressItem.address || "").replace(/[^a-zA-Z0-9]/g, " ") || "";
+          const city = (addressItem.city || "").replace(/[^a-zA-Z0-9]/g, " ") || "";
+          const postcode = addressItem.postalCode || "";
+          const departmentCode = addressItem.departmentCode || "";
+          csv.push(`${clientId};${address};${city};${postcode};${departmentCode}`);
+        }
+      });
     });
 
     const csvString = csv.join("\n");
@@ -59,11 +67,17 @@ export const enrichWithGeoloc = async (publisher: Publisher, missions: Mission[]
     let found = 0;
     for (let i = 0; i < data.length; i++) {
       const line = data[i];
-      const mission = missions.find((m) => m.clientId.toString() === line[headerIndex.clientid]?.toString());
+      const [clientId, addressIndex] = line[headerIndex.clientid]?.toString().split("_");
+      const mission = missions.find((m) => m.clientId.toString() === clientId);
 
       if (!mission) continue;
 
-      const obj = { clientId: mission.clientId, geolocStatus: "NOT_FOUND", geoPoint: null } as GeolocResult;
+      const obj = {
+        clientId: mission.clientId,
+        addressIndex: Number(addressIndex),
+        geolocStatus: "NOT_FOUND",
+        geoPoint: null,
+      } as GeolocResult;
 
       if (parseFloat(line[headerIndex.result_score]) > 0.4) {
         if (line[headerIndex.result_name]) obj.address = line[headerIndex.result_name];
@@ -94,6 +108,12 @@ export const enrichWithGeoloc = async (publisher: Publisher, missions: Mission[]
     return updates;
   } catch (error) {
     captureException(error, `[${publisher.name}] Failure during geoloc enrichment`);
-    return missions.map((m) => ({ clientId: m.clientId, geolocStatus: "FAILED" })) as Mission[];
+    return missions.flatMap((m) =>
+      m.addresses.map((_, index) => ({
+        clientId: m.clientId,
+        addressIndex: index,
+        geolocStatus: "FAILED",
+      })),
+    ) as GeolocResult[];
   }
 };

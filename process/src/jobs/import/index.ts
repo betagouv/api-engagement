@@ -51,21 +51,6 @@ const parseXML = (xmlString: string) => {
   return unique;
 };
 
-const shouldEnrichGeoloc = (missionXML: MissionXML, mission: Mission, missionDB?: Mission) => {
-  // need to add multiple address logic
-
-  // If location changed, need to search
-  if (missionDB && (missionDB.address !== mission.address || missionDB.city !== mission.city || missionDB.postalCode !== mission.postalCode)) return "SHOULD_ENRICH";
-  // If location is already stored in database, and , don't need to search
-  if (missionDB && ["ENRICHED_BY_PUBLISHER", "ENRICHED", "NOT_FOUND"].includes(missionDB.geolocStatus)) return missionDB.geolocStatus;
-  // If location is given, don't need to search
-  if (mission.location && mission.location.lon && mission.location.lat) return "ENRICHED_BY_PUBLISHER";
-  // If no address is given, don't need to search
-  if (!(missionXML.adresse || missionXML.address) && !missionXML.city && !missionXML.postalCode) return "NO_DATA";
-
-  return "SHOULD_ENRICH";
-};
-
 // const buildData = (startTime: Date, publisher: Publisher, missionXML: MissionXML, missionDB?: ShortMission) => {
 const buildData = async (startTime: Date, publisher: Publisher, missionXML: MissionXML) => {
   try {
@@ -91,7 +76,13 @@ const buildData = async (startTime: Date, publisher: Publisher, missionXML: Miss
       mission.statusCommentHistoric = [{ status: mission.statusCode, comment: mission.statusComment, date: mission.updatedAt }];
     }
 
-    mission.geolocStatus = shouldEnrichGeoloc(missionXML, mission, missionDB);
+    // remove this shit
+    // mission.addresses.forEach((address, i) => {
+    //   const statuses = shouldEnrichGeoloc(missionXML, mission, missionDB);
+    //   address.geolocStatus = (statuses[i] || "NO_DATA") as "FAILED" | "ENRICHED_BY_PUBLISHER" | "ENRICHED" | "NOT_FOUND" | "NO_DATA" | "SHOULD_ENRICH";
+    // });
+
+    // mission.geolocStatus = mission.addresses[0].geolocStatus;
 
     // Add previous moderation temporary
     mission.moderation_5f5931496c7ea514150a818f_status = missionDB?.moderation_5f5931496c7ea514150a818f_status;
@@ -227,20 +218,32 @@ const importPublisher = async (publisher: Publisher, start: Date) => {
     }
 
     // GEOLOC
-    const geolocShould = missions.filter((m) => m.geolocStatus === "SHOULD_ENRICH").map((m) => m);
-    const resultGeoloc = await enrichWithGeoloc(publisher, geolocShould);
+    const resultGeoloc = await enrichWithGeoloc(publisher, missions);
     resultGeoloc.forEach((r) => {
       const mission = missions.find((m) => m.clientId.toString() === r.clientId.toString());
-      if (mission) {
-        mission.address = r.address;
-        mission.city = r.city;
-        mission.postalCode = r.postalCode;
-        mission.departmentCode = r.departmentCode;
-        mission.departmentName = r.departmentName;
-        mission.region = r.region;
-        mission.location = r.location;
-        mission.geoPoint = r.geoPoint;
-        mission.geolocStatus = r.geolocStatus;
+      if (mission && r.addressIndex < mission.addresses.length) {
+        const address = mission.addresses[r.addressIndex];
+        address.address = r.address;
+        address.city = r.city;
+        address.postalCode = r.postalCode;
+        address.departmentCode = r.departmentCode;
+        address.departmentName = r.departmentName;
+        address.region = r.region;
+        address.location = r.location?.lat && r.location?.lon ? { lat: r.location.lat, lon: r.location.lon } : undefined;
+        address.geoPoint = r.geoPoint;
+        address.geolocStatus = r.geolocStatus as "NOT_FOUND" | "FAILED" | "ENRICHED_BY_PUBLISHER" | "ENRICHED" | "NO_DATA" | "SHOULD_ENRICH";
+
+        // update the old fields with the first addressin addresses
+        if (r.addressIndex === 0) {
+          mission.address = r.address;
+          mission.city = r.city;
+          mission.postalCode = r.postalCode;
+          mission.departmentCode = r.departmentCode;
+          mission.departmentName = r.departmentName;
+          mission.region = r.region;
+          mission.location = r.location?.lat && r.location?.lon ? { lat: r.location.lat, lon: r.location.lon } : undefined;
+          mission.geoPoint = r.geoPoint;
+        }
       }
     });
 

@@ -215,6 +215,25 @@ export const getServerSideProps = async (context) => {
       ...h,
       url: `${API_URL}/r/${context.query.notrack ? "notrack" : "widget"}/${h._id}?${query.toString()}`,
     }));
+
+    if (context.query.lat && context.query.lon) {
+      missions.forEach((mission) => {
+        if (mission.addresses && mission.addresses.length > 1) {
+          mission.addresses.sort((a, b) => {
+            if (!a.location || !b.location) return 0;
+
+            const lat = parseFloat(context.query.lat);
+            const lon = parseFloat(context.query.lon);
+
+            const distA = calculateDistance(lat, lon, a.location.lat, a.location.lon);
+            const distB = calculateDistance(lat, lon, b.location.lat, b.location.lon);
+
+            return distA - distB;
+          });
+        }
+      });
+    }
+
     return { props: { widget, missions, total: response.total, options: newOptions, request: response.request, environment: ENV } };
   } catch (error) {
     console.error(error);
@@ -222,5 +241,16 @@ export const getServerSideProps = async (context) => {
   }
   return { props: { widget, missions: [], total: 0, options: {} } };
 };
+
+const calculateDistance = (lat1, lon1, lat2, lon2) => {
+  const R = 6371;
+  const dLat = toRad(lat2 - lat1);
+  const dLon = toRad(lon2 - lon1);
+  const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) + Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.sin(dLon / 2) * Math.sin(dLon / 2);
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  return R * c;
+};
+
+const toRad = (value) => (value * Math.PI) / 180;
 
 export default Home;
