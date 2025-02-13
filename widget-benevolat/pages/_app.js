@@ -24,9 +24,11 @@ const font = localFont({
 });
 
 const MyApp = ({ Component, pageProps }) => {
+  const domain = process.env.NODE_ENV === "production" ? "mission.api-engagement.beta.gouv.fr" : "localhost:3001";
+
   return (
     <main className={font.className}>
-      <PlausibleProvider domain="mission.api-engagement.beta.gouv.fr">
+      <PlausibleProvider domain={domain} enabled={domain.indexOf("localhost") !== -1 || undefined} trackLocalhost={domain.indexOf("localhost") !== -1} trackOutboundLinks>
         <Component {...pageProps} />
       </PlausibleProvider>
     </main>

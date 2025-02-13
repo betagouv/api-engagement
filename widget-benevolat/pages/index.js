@@ -10,6 +10,7 @@ import { API_URL, DOMAINES, ENV } from "../config";
 import { Carousel } from "../components/carousel";
 import { Grid } from "../components/grid";
 import { Filters, MobileFilters } from "../components/filters";
+import { usePlausible } from "next-plausible";
 
 /**
  * Layout widget --> max-width: 1152px
@@ -24,6 +25,7 @@ import { Filters, MobileFilters } from "../components/filters";
  */
 const Home = ({ widget, missions, options, total, request, environment }) => {
   const router = useRouter();
+  const plausible = usePlausible();
   const [filters, setFilters] = useState({
     domain: [],
     organization: [],
@@ -38,6 +40,10 @@ const Home = ({ widget, missions, options, total, request, environment }) => {
 
   useEffect(() => {
     if (!widget) return;
+
+    const url = new URL(location.href);
+    plausible("pageview", { u: `${url.protocol}//${url.hostname}/${widget.style === "page" ? "catalogue" : "carousel"}` });
+
     if (widget.location) return setFilters((f) => ({ ...f, location: widget.location }));
 
     if (navigator.geolocation) {
