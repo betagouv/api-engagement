@@ -1,15 +1,19 @@
 import Image from "next/image";
 import iso from "i18n-iso-countries";
-import { useRouter } from "next/router";
 
 import { RiBuildingFill, RiCalendarEventFill } from "react-icons/ri";
 import { DOMAINS } from "../config";
 import LogoSCE from "../public/images/logo-sce.svg";
 
 const Card = ({ widget, mission, request }) => {
-  const router = useRouter();
-
   if (!mission) return null;
+
+  const address =
+    mission.remote === "full"
+      ? "À distance"
+      : mission.addresses?.length > 1
+      ? mission.addresses.map((a) => a.city).join(", ")
+      : `${mission.city} ${mission.postalCode}${mission.country !== "FR" ? `- ${iso.getName(mission.country, "fr")}` : ""}`;
 
   const domain = DOMAINS[mission.domain] || DOMAINS.autre;
   return (
@@ -17,9 +21,9 @@ const Card = ({ widget, mission, request }) => {
       tabIndex={0}
       href={mission.url}
       target="_blank"
-      className={`${
+      className={`relative ${
         widget.style === "carousel" ? "w-full lg:max-w-[336px]" : "w-full"
-      } border min-h-[290px] md:min-h-[311px] flex flex-col focus:outline-none focus-visible:ring focus-visible:ring-blue-800 border-grey-400 bg-white group hover:shadow-lg transition-shadow duration-300 overflow-hidden`}
+      } border min-h-[290px] max-h-[290px] md:min-h-[311px] md:max-h-[311px] flex flex-col focus:outline-none focus-visible:ring focus-visible:ring-blue-800 border-grey-400 bg-white group hover:shadow-lg transition-shadow duration-300 overflow-hidden`}
     >
       <div className="flex-1 flex flex-col p-4 md:p-8 gap-3">
         <div className="flex items-start min-w-0">
@@ -40,10 +44,8 @@ const Card = ({ widget, mission, request }) => {
             <span name="tracker_counter" data-id={mission._id} data-publisher={widget.fromPublisherId.toString()} data-source={widget._id.toString()} data-request={request} />
           </div>
 
-          <h2 className="font-semibold line-clamp-3 text-xl group-hover:text-[#000091] transition-colors duration-300">{mission.title}</h2>
-          <span className="text-sm truncate text-default-grey">
-            {mission.remote === "full" ? "À distance" : `${mission.city} ${mission.postalCode}${mission.country !== "FR" ? ` - ${iso.getName(mission.country, "fr")}` : ""}`}
-          </span>
+          <h2 className="font-semibold line-clamp-2 text-xl group-hover:text-[#000091] transition-colors duration-300">{mission.title}</h2>
+          <span className="text-sm line-clamp-1 group-hover:line-clamp-6 text-default-grey">{address}</span>
         </div>
 
         <div className="min-h-[19px] flex items-center mt-auto">
@@ -54,14 +56,14 @@ const Card = ({ widget, mission, request }) => {
           )}
         </div>
 
-        <div className="flex justify-between items-center text-mention-grey">
+        <div className={`flex justify-between items-center text-mention-grey ${address.length > 60 ? "group-hover:hidden" : ""}`}>
           <div className="flex items-center min-w-[120px]">
             <RiCalendarEventFill className="h-4 flex-shrink-0" />
             <span className="text-xs ml-2 whitespace-nowrap">Dès que possible</span>
           </div>
         </div>
       </div>
-      <div className="h-[0.3125rem] w-full flex-shrink-0" style={{ backgroundColor: domain.color }} />
+      <div className="h-[0.3125rem] w-full absolute bottom-0 left-0 flex-shrink-0" style={{ backgroundColor: domain.color }} />
     </a>
   );
 };

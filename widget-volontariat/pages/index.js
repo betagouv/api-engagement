@@ -12,6 +12,7 @@ import { Grid } from "../components/grid";
 import { Carousel } from "../components/carousel";
 import { Filters, MobileFilters } from "../components/filters";
 import LogoSC from "../public/images/logo-sc.svg";
+import { calculateDistance } from "../utils";
 
 /**
  * Layout widget --> max-width: 1152px
@@ -246,6 +247,25 @@ export const getServerSideProps = async (context) => {
       ...h,
       url: `${API_URL}/r/${context.query.notrack ? "notrack" : "widget"}/${h._id}?${query.toString()}`,
     }));
+
+    if (context.query.lat && context.query.lon) {
+      missions.forEach((mission) => {
+        if (mission.addresses && mission.addresses.length > 1) {
+          mission.addresses.sort((a, b) => {
+            if (!a.location || !b.location) return 0;
+
+            const lat = parseFloat(context.query.lat);
+            const lon = parseFloat(context.query.lon);
+
+            const distA = calculateDistance(lat, lon, a.location.lat, a.location.lon);
+            const distB = calculateDistance(lat, lon, b.location.lat, b.location.lon);
+
+            return distA - distB;
+          });
+        }
+      });
+    }
+
     return { props: { widget, missions, total: response.total, options: newOptions, request: response.request, environment: ENV } };
   } catch (error) {
     console.error(error);

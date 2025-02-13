@@ -1,10 +1,15 @@
 import he from "he";
 import { convert } from "html-to-text";
 
-import { DEPARTMENTS } from "../../constants/departments";
 import { COUNTRIES } from "../../constants/countries";
 import { DOMAINS } from "../../constants/domains";
 import { Mission, MissionXML, Publisher } from "../../types";
+import { getAddress, getAddresses } from "./utils/address";
+
+const parseString = (value: string | undefined) => {
+  if (!value) return "";
+  return String(value);
+};
 
 const getImageDomain = (domain: string, title: string) => {
   const StringToInt = (str: string = "", len: number) => {
@@ -27,96 +32,6 @@ const getMonthDifference = (startDate: Date, endDate: Date) => {
   const d = endDate.getMonth() - startDate.getMonth() + 12 * (endDate.getFullYear() - startDate.getFullYear());
   if (isNaN(d)) return undefined;
   else return d;
-};
-
-const formatPostalCode = (postalCode: string) => {
-  if (!postalCode) return "";
-  const postalCodeString = postalCode;
-  if (postalCodeString.length === 5) return postalCodeString;
-  if (postalCodeString.length === 4) return "0" + postalCodeString;
-  if (postalCodeString.length === 3) return "00" + postalCodeString;
-  if (postalCodeString.length === 2) return "000" + postalCodeString;
-  if (postalCodeString.length === 1) return "0000" + postalCodeString;
-  return "";
-};
-
-const getDepartmentCode = (departmentCode: string, postalCode: string) => {
-  if (departmentCode && DEPARTMENTS.hasOwnProperty(departmentCode)) return departmentCode;
-
-  let code;
-  if (postalCode.length === 5) code = postalCode.slice(0, 2);
-  else if (postalCode.length === 4) code = postalCode.slice(0, 1);
-  else return "";
-  if (code === "97" || code === "98") code = postalCode.slice(0, 3);
-  if (DEPARTMENTS.hasOwnProperty(code)) return code;
-  else return "";
-};
-
-const getDepartement = (code?: string) => (code && code in DEPARTMENTS && DEPARTMENTS[code][0]) || "";
-const getRegion = (code?: string) => (code && code in DEPARTMENTS && DEPARTMENTS[code][1]) || "";
-
-const getAddress = (mission: Mission, missionXML: MissionXML) => {
-  mission.country = parseString(missionXML.country || missionXML.countryCode);
-  if (mission.country === "France") mission.country = "FR";
-
-  // Dirty because reading a doc is too boring for some people
-  let location = undefined;
-  if (missionXML.lonLat) {
-    // Service Civique use lonLat as field and have this format [lat, lon] --> stupid but eh...
-    const lat = parseFloat(missionXML.lonLat.split(",")[0]) || undefined;
-    const lon = parseFloat(missionXML.lonLat.split(",")[1]) || undefined;
-    if (lat && lon) location = { lon, lat };
-  }
-  if (missionXML.lonlat) {
-    const a = parseFloat(missionXML.lonlat.split(",")[0]) || undefined; // supposed lon
-    const b = parseFloat(missionXML.lonlat.split(",")[1]) || undefined; // supposed lat
-    if (a && b) {
-      location = {} as { lon: number; lat: number };
-      const little = a < b ? a : b;
-      const big = a > b ? a : b;
-      if (4.3 < little && little < 8) {
-        // France
-        location.lon = little;
-        location.lat = big;
-      } else if (b < -90 || 90 < b) {
-        // lat should be betweem -90 and 90, if outside, consider its the lon
-        location.lon = b;
-        location.lat = a;
-      } else {
-        location.lon = a;
-        location.lat = b;
-      }
-    }
-  } else if (missionXML.location && missionXML.location.lon && missionXML.location.lat) {
-    location = missionXML.location;
-  }
-  if (location && location.lon && location.lat && -90 <= location.lat && location.lat <= 90 && -180 <= location.lon && location.lon <= 180) mission.location = location;
-
-  if (mission.location) mission.geoPoint = { type: "Point", coordinates: [mission.location.lon, mission.location.lat] };
-  else mission.geoPoint = null;
-
-  mission.address = parseString(missionXML.address || missionXML.adresse);
-  mission.city = parseString(missionXML.city);
-
-  if (mission.country !== "FR") {
-    mission.postalCode = parseString(missionXML.postalCode);
-    mission.departmentCode = parseString(missionXML.departmentCode);
-    mission.departmentName = parseString(missionXML.departmentName);
-    mission.region = parseString(missionXML.region);
-    return;
-  } else {
-    mission.postalCode = formatPostalCode(parseString(missionXML.postalCode));
-    if (mission.postalCode) {
-      const departmentCode = getDepartmentCode(missionXML.departmentCode, mission.postalCode.toString());
-      mission.departmentCode = departmentCode;
-      mission.departmentName = getDepartement(departmentCode) || parseString(missionXML.departmentName);
-      mission.region = getRegion(departmentCode) || parseString(missionXML.region);
-    } else {
-      mission.departmentCode = parseString(missionXML.departmentCode);
-      mission.departmentName = parseString(missionXML.departmentName);
-      mission.region = parseString(missionXML.region);
-    }
-  }
 };
 
 const hasEncodageIssue = (str = "") => {
@@ -156,11 +71,6 @@ const parseBool = (value: string | undefined) => {
 const parseDate = (value: string | undefined) => {
   if (!value) return null;
   return new Date(value);
-};
-
-const parseString = (value: string | undefined) => {
-  if (!value) return "";
-  return String(value);
 };
 
 const parseNumber = (value: number | string | undefined) => {
@@ -227,13 +137,11 @@ export const buildMission = (publisher: Publisher, missionXML: MissionXML) => {
   mission.domainLogo = missionXML.image || getImageDomain(mission.domain, mission.title);
 
   // Address
-  if (missionXML.autonomyZips) {
-    const firstAddress = Array.isArray(missionXML.autonomyZips.item) ? missionXML.autonomyZips.item[0] : missionXML.autonomyZips.item;
-    missionXML.postalCode = firstAddress.zip;
-    missionXML.city = firstAddress.city;
-    missionXML.lonlat = `${firstAddress.longitude},${firstAddress.latitude}`;
+  if (missionXML.addresses && Array.isArray(missionXML.addresses) && missionXML.addresses.length > 0) {
+    getAddresses(mission, missionXML);
+  } else {
+    getAddress(mission, missionXML);
   }
-  getAddress(mission, missionXML);
 
   // Moderation except Service Civique (already moderated)
   mission.statusComment = "";
