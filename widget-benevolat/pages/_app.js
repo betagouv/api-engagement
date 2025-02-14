@@ -28,7 +28,13 @@ const MyApp = ({ Component, pageProps }) => {
 
   return (
     <main className={font.className}>
-      <PlausibleProvider domain={domain} enabled={domain.indexOf("localhost") !== -1 || undefined} trackLocalhost={domain.indexOf("localhost") !== -1} trackOutboundLinks>
+      <PlausibleProvider
+        manualPageviews
+        domain={domain}
+        enabled={domain.indexOf("localhost") !== -1 || undefined}
+        trackLocalhost={domain.indexOf("localhost") !== -1}
+        trackOutboundLinks
+      >
         <Component {...pageProps} />
       </PlausibleProvider>
     </main>
