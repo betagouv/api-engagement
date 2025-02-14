@@ -6,7 +6,7 @@
     "dev": "vite",
     "start-dev": "node server.js",
     "build": "vite build",
-    "start": "npm run build && node server.js",
+    "start": "node server.js",
     "stop": "pm2 stop app",
     "prettier": "prettier --write .",
     "reload": "pm2 reload app"
