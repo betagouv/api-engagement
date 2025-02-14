@@ -12,6 +12,7 @@ import { Grid } from "../components/grid";
 import { Carousel } from "../components/carousel";
 import { Filters, MobileFilters } from "../components/filters";
 import LogoSC from "../public/images/logo-sc.svg";
+import { usePlausible } from "next-plausible";
 
 /**
  * Layout widget --> max-width: 1152px
@@ -28,6 +29,7 @@ import LogoSC from "../public/images/logo-sc.svg";
 
 const Home = ({ widget, missions, options, total, request, environment }) => {
   const router = useRouter();
+  const plausible = usePlausible();
   const [filters, setFilters] = useState({
     start: null,
     duration: null,
@@ -48,6 +50,9 @@ const Home = ({ widget, missions, options, total, request, environment }) => {
   useEffect(() => {
     if (!widget) return;
     if (widget.location) return setFilters((f) => ({ ...f, location: widget.location }));
+
+    const url = new URL(location.href);
+    plausible("pageview", { u: `${url.protocol}//${url.hostname}/${widget.style === "page" ? "catalogue" : "carousel"}` });
 
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(

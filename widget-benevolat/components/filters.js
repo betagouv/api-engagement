@@ -27,7 +27,7 @@ export const MobileFilters = ({ options, filters, setFilters, color, showFilters
         className="flex h-[40px] border-y items-center justify-between w-full px-4 py-2 focus:outline-none focus-visible:ring focus-visible:ring-blue-800"
         onClick={() => {
           setShowFilters(!showFilters);
-          plausible("Filters opened");
+          plausible(showFilters ? "Filters closed" : "Filters opened");
         }}
         style={{ color: color }}
       >

@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
+import { usePlausible } from "next-plausible";
 import { DayPicker } from "react-day-picker";
 import fr from "date-fns/locale/fr";
 import { RiArrowUpSLine, RiArrowDownSLine, RiCheckboxFill, RiCheckboxBlankLine, RiRadioButtonLine, RiCircleLine, RiMapPin2Fill, RiCloseFill } from "react-icons/ri";
@@ -6,6 +7,7 @@ import { RiArrowUpSLine, RiArrowDownSLine, RiCheckboxFill, RiCheckboxBlankLine, 
 import "react-day-picker/dist/style.css";
 
 export const MobileFilters = ({ options, filters, setFilters, showFilters, setShowFilters, disabledLocation = false, carousel, color }) => {
+  const plausible = usePlausible();
   if (!Object.keys(options).length) return null;
 
   const handleReset = () => {
@@ -32,7 +34,10 @@ export const MobileFilters = ({ options, filters, setFilters, showFilters, setSh
       <div className="w-full border-y border-[#DDD]">
         <button
           className="flex h-[40px] items-center justify-between w-full bg-white font-semibold focus:outline-none focus-visible:ring focus-visible:ring-blue-800"
-          onClick={() => setShowFilters(!showFilters)}
+          onClick={() => {
+            setShowFilters(!showFilters);
+            plausible(showFilters ? "Filters closed" : "Filters opened");
+          }}
           style={{
             color,
           }}
@@ -107,7 +112,10 @@ export const MobileFilters = ({ options, filters, setFilters, showFilters, setSh
             <button
               aria-label="Voir les missions"
               className="w-full p-3 text-center border-none bg-black text-white focus:outline-none focus-visible:ring focus-visible:ring-blue-800"
-              onClick={() => setShowFilters(false)}
+              onClick={() => {
+                setShowFilters(false);
+                plausible("Filters closed");
+              }}
               style={{
                 backgroundColor: color,
                 color: "white",
@@ -115,7 +123,14 @@ export const MobileFilters = ({ options, filters, setFilters, showFilters, setSh
             >
               Voir les missions
             </button>
-            <button className="w-full p-3 text-center bg-transparent focus:outline-none focus-visible:ring focus-visible:ring-blue-800" onClick={handleReset} style={{ color }}>
+            <button
+              className="w-full p-3 text-center bg-transparent focus:outline-none focus-visible:ring focus-visible:ring-blue-800"
+              onClick={() => {
+                handleReset();
+                plausible("Filters reset");
+              }}
+              style={{ color }}
+            >
               Réinitialiser
             </button>
           </div>
@@ -126,6 +141,7 @@ export const MobileFilters = ({ options, filters, setFilters, showFilters, setSh
 };
 
 export const Filters = ({ options, filters, setFilters, disabledLocation = false, color }) => {
+  const plausible = usePlausible();
   const [moreFilters, setMoreFilters] = useState(false);
   const missionsAbroad = useRef(null);
 
@@ -143,8 +159,14 @@ export const Filters = ({ options, filters, setFilters, disabledLocation = false
         <LocationFilter selected={filters.location} onChange={(l) => setFilters({ ...filters, location: l })} disabled={disabledLocation} color={color} />
         <DateFilter selected={filters.start} onChange={(f) => setFilters({ ...filters, start: f })} color={color} />
         <DurationFilter selected={filters.duration} onChange={(v) => setFilters({ ...filters, duration: v })} color={color} />
-        <SelectFilter options={options.domain} selectedOptions={filters.domain} onChange={(v) => setFilters({ ...filters, domain: v })} placeholder="Thèmes" color={color} />
-
+        <SelectFilter
+          options={options.domain}
+          selectedOptions={filters.domain}
+          onChange={(v) => setFilters({ ...filters, domain: v })}
+          placeholder="Thèmes"
+          color={color}
+          id="domain"
+        />
         {moreFilters ? (
           <SelectFilter
             options={options.minor}
@@ -152,12 +174,17 @@ export const Filters = ({ options, filters, setFilters, disabledLocation = false
             onChange={(v) => setFilters({ ...filters, minor: v })}
             placeholder="Accès aux mineurs"
             position="right-0"
+            color={color}
+            id="minor"
           />
         ) : (
           <button
             aria-label="plus de filtres"
             className="border truncate w-full bg-white border-grey-400 py-2 px-4 h-[40px] focus:outline-none focus-visible:ring focus-visible:ring-blue-800 font-medium"
-            onClick={() => setMoreFilters(true)}
+            onClick={() => {
+              setMoreFilters(true);
+              plausible("More filters");
+            }}
             style={{
               backgroundColor: "white",
               color: color,
@@ -177,6 +204,7 @@ export const Filters = ({ options, filters, setFilters, disabledLocation = false
             placeholder="Horaires"
             position="left-0"
             color={color}
+            id="schedule"
           />
           <SelectFilter
             options={options.accessibility}
@@ -185,6 +213,7 @@ export const Filters = ({ options, filters, setFilters, disabledLocation = false
             placeholder="Accessibilité"
             position="right-0"
             color={color}
+            id="accessibility"
           />
           <SelectFilter
             options={options.beneficiary}
@@ -193,6 +222,7 @@ export const Filters = ({ options, filters, setFilters, disabledLocation = false
             placeholder="Public bénéficiaire"
             position="right-0"
             color={color}
+            id="beneficiary"
           />
           <SelectFilter
             options={options.action}
@@ -201,6 +231,7 @@ export const Filters = ({ options, filters, setFilters, disabledLocation = false
             placeholder="Actions clés"
             position="right-0"
             color={color}
+            id="action"
           />
           {missionsAbroad.current && (
             <SelectFilter
@@ -210,6 +241,7 @@ export const Filters = ({ options, filters, setFilters, disabledLocation = false
               placeholder="France / Etranger"
               position="right-0"
               color={color}
+              id="country"
             />
           )}
 
@@ -231,6 +263,7 @@ export const Filters = ({ options, filters, setFilters, disabledLocation = false
 };
 
 const DateFilter = ({ selected, onChange, position = "left-0", width = "w-80", color }) => {
+  const plausible = usePlausible();
   const [isOpen, setIsOpen] = useState(false);
   const ref = useRef(null);
 
@@ -273,6 +306,7 @@ const DateFilter = ({ selected, onChange, position = "left-0", width = "w-80", c
             onDayClick={(date) => {
               onChange({ label: date.toLocaleDateString("fr"), value: date });
               setIsOpen(false);
+              plausible("Date selected", { props: { date: date.toLocaleDateString("fr") } });
             }}
             className="w-full flex justify-center border-none"
             modifiers={{
@@ -290,6 +324,7 @@ const DateFilter = ({ selected, onChange, position = "left-0", width = "w-80", c
               onClick={() => {
                 onChange(null);
                 setIsOpen(false);
+                plausible("Date erased");
               }}
             >
               Effacer
@@ -312,6 +347,7 @@ const DURATION_OPTIONS = [
 ];
 
 const DurationFilter = ({ selected, onChange, position = "left-0", width = "w-80", color }) => {
+  const plausible = usePlausible();
   const [isOpen, setIsOpen] = useState(false);
   const [keyboardNav, setKeyboardNav] = useState(false);
   const ref = useRef(null);
@@ -367,6 +403,7 @@ const DurationFilter = ({ selected, onChange, position = "left-0", width = "w-80
                     onChange(o);
                     setIsOpen(false);
                     setKeyboardNav(false);
+                    plausible(`Filter duration selected`, { props: { filter: o.label } });
                   }}
                 >
                   <div className="flex items-center w-[90%]">
@@ -386,6 +423,7 @@ const DurationFilter = ({ selected, onChange, position = "left-0", width = "w-80
                 onChange(null);
                 setIsOpen(false);
                 setKeyboardNav(false);
+                plausible("Filter duration erased");
               }}
               onMouseOver={handleMouseOver}
             >
@@ -398,7 +436,8 @@ const DurationFilter = ({ selected, onChange, position = "left-0", width = "w-80
   );
 };
 
-const SelectFilter = ({ options, selectedOptions, onChange, placeholder = "Choissiez une option", position = "left-0", width = "w-80", color }) => {
+const SelectFilter = ({ options, selectedOptions, onChange, id, placeholder = "Choissiez une option", position = "left-0", width = "w-80", color }) => {
+  const plausible = usePlausible();
   const [isOpen, setIsOpen] = useState(false);
   const ref = useRef(null);
 
@@ -423,11 +462,11 @@ const SelectFilter = ({ options, selectedOptions, onChange, placeholder = "Chois
 
   return (
     <div className="relative w-full min-w-[6rem]" ref={ref}>
-      <label htmlFor={placeholder} className="sr-only">
+      <label htmlFor={id} className="sr-only">
         {placeholder}
       </label>
       <button
-        id={placeholder}
+        id={id}
         aria-label={placeholder}
         className={`w-full rounded-t-md bg-[#EEE] h-[40px] border-b-2 border-[#3A3A3A] p-3 focus:outline-none focus-visible:ring focus-visible:ring-blue-800 flex items-center justify-between ${
           !selectedOptions || selectedOptions.length === 0 ? "text-[#666666]" : "text-[#161616]"
@@ -453,7 +492,14 @@ const SelectFilter = ({ options, selectedOptions, onChange, placeholder = "Chois
               options.map((o) => {
                 const isSelected = selectedOptions?.some((so) => so.value === o.value);
                 return (
-                  <div key={o.value} className="cursor-pointer w-full flex items-center justify-between text-sm py-2 pl-3 pr-4" onClick={() => toggleOption(o)}>
+                  <div
+                    key={o.value}
+                    className="cursor-pointer w-full flex items-center justify-between text-sm py-2 pl-3 pr-4"
+                    onClick={() => {
+                      toggleOption(o);
+                      plausible(`Filter ${id} selected`, { props: { filter: o.label } });
+                    }}
+                  >
                     <div className="flex items-center w-[90%]">
                       <div className="text-sm">
                         {isSelected ? (
@@ -482,6 +528,7 @@ const SelectFilter = ({ options, selectedOptions, onChange, placeholder = "Chois
               onClick={() => {
                 onChange([]);
                 setIsOpen(false);
+                plausible(`Filter ${id} erased`);
               }}
             >
               Effacer
@@ -494,6 +541,7 @@ const SelectFilter = ({ options, selectedOptions, onChange, placeholder = "Chois
 };
 
 const LocationFilter = ({ selected, onChange, disabled = false, width = "w-80" }) => {
+  const plausible = usePlausible();
   const [isOpen, setIsOpen] = useState(false);
   const [options, setOptions] = useState([]);
   const [inputValue, setInputValue] = useState(selected?.label || "");
@@ -564,6 +612,7 @@ const LocationFilter = ({ selected, onChange, disabled = false, width = "w-80" }
                 onClick={() => {
                   onChange(null);
                   setInputValue("");
+                  plausible("Location erased");
                 }}
               >
                 <RiCloseFill />
@@ -583,6 +632,7 @@ const LocationFilter = ({ selected, onChange, disabled = false, width = "w-80" }
                 onChange(option);
                 setInputValue(option.label);
                 setIsOpen(false);
+                plausible("Location selected", { props: { location: option.label } });
               }}
             >
               <span className="block text-sm truncate font-normal">{option.label}</span>

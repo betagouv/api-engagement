@@ -42,7 +42,6 @@ const Home = ({ widget, missions, options, total, request, environment }) => {
     if (!widget) return;
 
     const url = new URL(location.href);
-    console.log(`${url.protocol}//${url.hostname}/${widget.style === "page" ? "catalogue" : "carousel"}`);
     plausible("pageview", { u: `${url.protocol}//${url.hostname}/${widget.style === "page" ? "catalogue" : "carousel"}` });
 
     if (widget.location) return setFilters((f) => ({ ...f, location: widget.location }));
