@@ -73,6 +73,12 @@ const Distribution = ({ filters, onFiltersChange }) => {
         const res = await api.get(`/stats-public/domains?${query.toString()}`);
         if (!res.ok) throw new Error("Erreur lors de la récupération des statistiques");
 
+        if (res.data?.length === 0) {
+          setDomainStats({ domains: [] });
+          setLoading(false);
+          return;
+        }
+
         const domainByYear = res.data.find((stat) => stat.year === parseInt(filters.year, 10));
         domainByYear.domains = domainByYear.domains.reduce((acc, d) => {
           const domainName = DOMAINS[d.key];
