@@ -5,7 +5,7 @@
   "scripts": {
     "dev": "vite",
     "start-dev": "node server.js",
-    "start": "pm2 start server.js --name app",
+    "start": "npm run build && node server.js",
     "stop": "pm2 stop app",
     "build": "vite build",
     "prettier": "prettier --write .",
