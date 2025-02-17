@@ -35,7 +35,7 @@ const Card = ({ widget, mission, request }) => {
       </div>
 
       <div className="flex-1 flex flex-col p-6 gap-5">
-        <div className="flex flex-col gap-3">
+        <div className="flex flex-col gap-2">
           <span className="text-xs bg-[#EEE] w-fit py-0.5 px-2 rounded-full">{DOMAINES[mission.domain] || mission.domain}</span>
           <div className="flex gap-2 text-[#666]">
             <RiBuildingFill />
@@ -44,8 +44,8 @@ const Card = ({ widget, mission, request }) => {
         </div>
 
         <div className="flex flex-col gap-2">
-          <h2 className="font-semibold line-clamp-2 text-xl group-hover:text-[#000091] transition-colors duration-300">{mission.title}</h2>
-          <span className="text-sm line-clamp-1 group-hover:line-clamp-5 text-[#3A3A3A]">{address}</span>
+          <h2 className="font-semibold line-clamp-3 text-xl group-hover:text-[#000091] transition-colors duration-300">{mission.title}</h2>
+          <span className="text-sm line-clamp-1 group-hover:line-clamp-4 xl:group-hover:line-clamp-5 text-[#3A3A3A]">{address}</span>
           <div className="w-full text-center mb-1">
             <span name="tracker_counter" data-id={mission._id} data-publisher={widget.fromPublisherId.toString()} data-source={widget._id.toString()} data-request={request} />
           </div>
