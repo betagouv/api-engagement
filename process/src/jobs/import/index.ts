@@ -29,6 +29,10 @@ const parseXML = (xmlString: string) => {
     parseTrueNumberOnly: false,
     arrayMode: false, //"strict"
     stopNodes: ["parse-me-as-string"],
+    isArray: (name: string, jpath: string, isLeafNode: boolean, isAttribute: boolean) => {
+      if (jpath === "source.mission.addresses.address") return true;
+      return false;
+    },
   };
 
   const res = parser.parse(xmlString, options);
@@ -36,15 +40,21 @@ const parseXML = (xmlString: string) => {
   if (!res.source || !res.source.mission) return;
   if (res.source.mission && !Array.isArray(res.source.mission)) res.source.mission = [res.source.mission];
 
-  const data = res.source.mission as MissionXML[];
-
   // Remove duplicates clientId
   const clientId = new Set();
   const unique = [] as MissionXML[];
-  data.forEach((e) => {
-    if (!clientId.has(e.clientId)) {
-      clientId.add(e.clientId);
-      unique.push(e);
+  const data = res.source.mission as MissionXML[];
+
+  data.forEach((mission) => {
+    if (!clientId.has(mission.clientId)) {
+      const addresses = mission.addresses as any;
+      if (addresses?.address && Array.isArray(addresses.address)) {
+        mission.addresses = addresses.address;
+      } else if (addresses?.address) {
+        mission.addresses = [addresses.address];
+      }
+      clientId.add(mission.clientId);
+      unique.push(mission);
     }
   });
 
@@ -215,27 +225,17 @@ const importPublisher = async (publisher: Publisher, start: Date) => {
       const mission = missions.find((m) => m.clientId.toString() === r.clientId.toString());
       if (mission && r.addressIndex < mission.addresses.length) {
         const address = mission.addresses[r.addressIndex];
-        address.address = r.address;
+        address.street = r.street;
         address.city = r.city;
         address.postalCode = r.postalCode;
         address.departmentCode = r.departmentCode;
         address.departmentName = r.departmentName;
         address.region = r.region;
-        address.location = r.location?.lat && r.location?.lon ? { lat: r.location.lat, lon: r.location.lon } : undefined;
-        address.geoPoint = r.geoPoint;
-        address.geolocStatus = r.geolocStatus as "NOT_FOUND" | "FAILED" | "ENRICHED_BY_PUBLISHER" | "ENRICHED" | "NO_DATA" | "SHOULD_ENRICH";
-
-        // update the old fields with the first addressin addresses
-        if (r.addressIndex === 0) {
-          mission.address = r.address;
-          mission.city = r.city;
-          mission.postalCode = r.postalCode;
-          mission.departmentCode = r.departmentCode;
-          mission.departmentName = r.departmentName;
-          mission.region = r.region;
-          mission.location = r.location?.lat && r.location?.lon ? { lat: r.location.lat, lon: r.location.lon } : undefined;
-          mission.geoPoint = r.geoPoint;
+        if (r.location?.lat && r.location?.lon) {
+          address.location = { lat: r.location.lat, lon: r.location.lon };
+          address.geoPoint = r.geoPoint;
         }
+        address.geolocStatus = r.geolocStatus;
       }
     });
 

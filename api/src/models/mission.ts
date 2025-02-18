@@ -16,7 +16,7 @@ const geoPointSchema = new Schema({
 });
 
 const addressesSchema = new Schema({
-  address: { type: String },
+  street: { type: String },
   postalCode: { type: String },
   departmentName: { type: String },
   departmentCode: { type: String },

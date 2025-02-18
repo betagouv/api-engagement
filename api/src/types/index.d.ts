@@ -228,7 +228,7 @@ export interface Mission {
     | undefined;
 
   addresses: {
-    address: string | undefined;
+    street: string | undefined;
     postalCode: string | undefined;
     departmentName: string | undefined;
     departmentCode: string | undefined;

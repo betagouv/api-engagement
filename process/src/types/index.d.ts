@@ -2,7 +2,7 @@ import { Schema } from "mongoose";
 
 export interface AddressItem {
   _id?: Schema.Types.ObjectId;
-  address: string | undefined;
+  street: string | undefined;
   city: string | undefined;
   postalCode: string | undefined;
   departmentName: string | undefined;
@@ -267,7 +267,7 @@ export interface Mission {
     coordinates: [number, number];
   } | null;
   addresses: {
-    address: string | undefined;
+    street: string | undefined;
     city: string | undefined;
     postalCode: string | undefined;
     departmentName: string | undefined;
@@ -831,7 +831,7 @@ export interface MissionXML {
     | undefined;
 
   addresses: {
-    address: string;
+    street: string;
     city: string;
     postalCode: string;
     departmentName: string;

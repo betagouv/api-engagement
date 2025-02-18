@@ -67,7 +67,10 @@ export const getAddress = (mission: Mission, missionXML: MissionXML) => {
   } else if (missionXML.location && missionXML.location.lon && missionXML.location.lat) {
     location = missionXML.location;
   }
-  if (location && location.lon && location.lat && -90 <= location.lat && location.lat <= 90 && -180 <= location.lon && location.lon <= 180) mission.location = location;
+  if (location && location.lon && location.lat && -90 <= location.lat && location.lat <= 90 && -180 <= location.lon && location.lon <= 180) {
+    mission.location = location;
+    mission.geolocStatus = "ENRICHED_BY_PUBLISHER";
+  }
 
   if (mission.location) mission.geoPoint = { type: "Point", coordinates: [mission.location.lon, mission.location.lat] };
   else mission.geoPoint = null;
@@ -80,7 +83,6 @@ export const getAddress = (mission: Mission, missionXML: MissionXML) => {
     mission.departmentCode = parseString(missionXML.departmentCode);
     mission.departmentName = parseString(missionXML.departmentName);
     mission.region = parseString(missionXML.region);
-    return;
   } else {
     mission.postalCode = formatPostalCode(parseString(missionXML.postalCode));
     if (mission.postalCode) {
@@ -95,21 +97,22 @@ export const getAddress = (mission: Mission, missionXML: MissionXML) => {
     }
   }
 
-  // add to new field
-  mission.addresses = [
-    {
-      address: mission.address,
-      city: mission.city,
-      postalCode: mission.postalCode,
-      departmentName: mission.departmentName,
-      departmentCode: mission.departmentCode,
-      region: mission.region,
-      country: mission.country,
-      location: mission.location,
-      geoPoint: mission.geoPoint,
-      geolocStatus: "NOT_FOUND",
-    },
-  ];
+  if (!mission.addresses || mission.addresses.length === 0) {
+    mission.addresses = [
+      {
+        street: mission.address,
+        city: mission.city,
+        postalCode: mission.postalCode,
+        departmentName: mission.departmentName,
+        departmentCode: mission.departmentCode,
+        region: mission.region,
+        country: mission.country,
+        location: mission.location,
+        geoPoint: mission.geoPoint,
+        geolocStatus: mission.geolocStatus || "NO_DATA",
+      },
+    ];
+  }
 };
 
 export const getAddresses = (mission: Mission, missionXML: MissionXML) => {
@@ -117,27 +120,29 @@ export const getAddresses = (mission: Mission, missionXML: MissionXML) => {
 
   for (const address of missionXML.addresses) {
     const addressItem: AddressItem = {
-      address: parseString(address.address),
+      street: parseString(address.street),
       city: parseString(address.city),
       postalCode: "",
       departmentName: "",
       departmentCode: "",
       region: "",
       country: parseString(address.country),
-      location: undefined,
+      location: address.location
+        ? {
+            lon: address.location.lon,
+            lat: address.location.lat,
+          }
+        : undefined,
       geoPoint: null,
-      geolocStatus: "NOT_FOUND",
+      geolocStatus: address.location ? "ENRICHED_BY_PUBLISHER" : "NO_DATA",
     };
-    if (address.country === "France") {
-      address.country = "FR";
+
+    if (addressItem.location && addressItem.location.lon && addressItem.location.lat) {
+      addressItem.geoPoint = { type: "Point", coordinates: [addressItem.location.lon, addressItem.location.lat] };
     }
 
-    if (address.location && address.location?.lon && address.location?.lat) {
-      addressItem.location = {
-        lon: address.location.lon,
-        lat: address.location.lat,
-      };
-      addressItem.geoPoint = { type: "Point", coordinates: [address.location.lon, address.location.lat] };
+    if (address.country === "France") {
+      addressItem.country = "FR";
     }
 
     if (address.country !== "FR") {
@@ -160,20 +165,21 @@ export const getAddresses = (mission: Mission, missionXML: MissionXML) => {
     }
     mission.addresses.push(addressItem);
   }
+
   // add to old fields
-  mission.address = mission.addresses[0].address;
-  mission.city = mission.addresses[0].city;
-  mission.country = mission.addresses[0].country;
-  mission.postalCode = mission.addresses[0].postalCode;
-  mission.departmentCode = mission.addresses[0].departmentCode;
-  mission.departmentName = mission.addresses[0].departmentName;
-  mission.region = mission.addresses[0].region;
+  mission.address = mission.addresses[0].street || "";
+  mission.city = mission.addresses[0].city || "";
+  mission.country = mission.addresses[0].country || "";
+  mission.postalCode = mission.addresses[0].postalCode || "";
+  mission.departmentCode = mission.addresses[0].departmentCode || "";
+  mission.departmentName = mission.addresses[0].departmentName || "";
+  mission.region = mission.addresses[0].region || "";
   mission.location = mission.addresses[0].location
     ? {
         lat: Number(mission.addresses[0].location.lat),
         lon: Number(mission.addresses[0].location.lon),
       }
     : undefined;
-  mission.geoPoint = mission.addresses[0].geoPoint;
-  mission.geolocStatus = mission.addresses[0].geolocStatus;
+  mission.geoPoint = mission.addresses[0].geoPoint || null;
+  mission.geolocStatus = mission.addresses[0].geolocStatus || "NO_DATA";
 };
