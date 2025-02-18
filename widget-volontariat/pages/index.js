@@ -13,6 +13,7 @@ import { Carousel } from "../components/carousel";
 import { Filters, MobileFilters } from "../components/filters";
 import LogoSC from "../public/images/logo-sc.svg";
 import { usePlausible } from "next-plausible";
+import useStore from "../store";
 
 /**
  * Layout widget --> max-width: 1152px
@@ -29,6 +30,7 @@ import { usePlausible } from "next-plausible";
 
 const Home = ({ widget, missions, options, total, request, environment }) => {
   const router = useRouter();
+  const { setUrl, setColor } = useStore();
   const plausible = usePlausible();
   const [filters, setFilters] = useState({
     start: null,
@@ -52,7 +54,10 @@ const Home = ({ widget, missions, options, total, request, environment }) => {
     if (widget.location) return setFilters((f) => ({ ...f, location: widget.location }));
 
     const url = new URL(location.href);
-    plausible("pageview", { u: `${url.protocol}//${url.hostname}/${widget.style === "page" ? "catalogue" : "carousel"}` });
+    const u = `${url.protocol}//${url.hostname}/${widget.style === "page" ? "catalogue" : "carousel"}`;
+    setUrl(u);
+    setColor(widget.color ? widget.color : "#71A246");
+    plausible("pageview", { u });
 
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
