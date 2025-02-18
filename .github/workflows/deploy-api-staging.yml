@@ -1,0 +1,33 @@
+name: Deploy api staging
+
+on:
+  push:
+    branches:
+      - staging
+    paths:
+      - ".github/workflows/deploy-api-staging.yml"
+      - "api/**"
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment: staging
+    steps:
+      - name: Connect and restart process
+        uses: appleboy/ssh-action@master
+        with:
+          host: api.api-engagement-dev.fr
+          username: "root"
+          key: ${{ secrets.SSH_KEY_STAGING }}
+          script: |
+            cd api-engagement/api
+            git checkout staging
+            git reset --hard
+            git pull
+            npm install
+            npm run build
+            npm run reload
