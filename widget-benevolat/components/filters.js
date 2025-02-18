@@ -1,8 +1,12 @@
-import { usePlausible } from "next-plausible";
 import React, { useState, useRef, useEffect } from "react";
+import { usePlausible } from "next-plausible";
 import { RiSearchLine, RiArrowUpSLine, RiArrowDownSLine, RiCheckboxFill, RiCheckboxBlankLine, RiMapPin2Fill, RiCloseFill } from "react-icons/ri";
 
-export const MobileFilters = ({ options, filters, setFilters, color, showFilters, setShowFilters, disabledLocation = false, carousel }) => {
+import useStore from "../store";
+
+export const MobileFilters = ({ options, filters, setFilters, showFilters, setShowFilters, disabledLocation = false, carousel }) => {
+  const { url, color } = useStore();
+
   const plausible = usePlausible();
   if (!Object.keys(options).length) return null;
 
@@ -27,7 +31,7 @@ export const MobileFilters = ({ options, filters, setFilters, color, showFilters
         className="flex h-[40px] border-y items-center justify-between w-full px-4 py-2 focus:outline-none focus-visible:ring focus-visible:ring-blue-800"
         onClick={() => {
           setShowFilters(!showFilters);
-          plausible(showFilters ? "Filters closed" : "Filters opened");
+          plausible(showFilters ? "Filters closed" : "Filters opened", { u: url });
         }}
         style={{ color: color }}
       >
@@ -87,7 +91,7 @@ export const MobileFilters = ({ options, filters, setFilters, color, showFilters
               className="w-full p-3 text-center border-none text-white text-sm focus:outline-none focus-visible:ring focus-visible:ring-blue-800"
               onClick={() => {
                 setShowFilters(false);
-                plausible("Filters closed");
+                plausible("Filters closed", { u: url });
               }}
               style={{ backgroundColor: color }}
             >
@@ -99,7 +103,7 @@ export const MobileFilters = ({ options, filters, setFilters, color, showFilters
               style={{ color }}
               onClick={() => {
                 handleReset();
-                plausible("Filters reset");
+                plausible("Filters reset", { u: url });
               }}
             >
               Réinitialiser les filtres
@@ -111,7 +115,8 @@ export const MobileFilters = ({ options, filters, setFilters, color, showFilters
   );
 };
 
-export const Filters = ({ options, filters, setFilters, color, disabledLocation = false }) => {
+export const Filters = ({ options, filters, setFilters, disabledLocation = false }) => {
+  const { color } = useStore();
   if (!Object.keys(options).length) return null;
   return (
     <>
@@ -163,7 +168,8 @@ export const Filters = ({ options, filters, setFilters, color, disabledLocation 
   );
 };
 
-const SelectFilter = ({ options, selectedOptions, onChange, color, id, placeholder = "Choissiez une option", position = "left-0", width = "w-80" }) => {
+const SelectFilter = ({ options, selectedOptions, onChange, id, placeholder = "Choissiez une option", position = "left-0", width = "w-80" }) => {
+  const { url, color } = useStore();
   const plausible = usePlausible();
   const [isOpen, setIsOpen] = useState(false);
   const [search, setSearch] = useState("");
@@ -240,7 +246,7 @@ const SelectFilter = ({ options, selectedOptions, onChange, color, id, placehold
                       key={o.value}
                       onClick={() => {
                         toggleOption(o);
-                        plausible(`Filter ${id} selected`, { props: { filter: o.label } });
+                        plausible(`Filter ${id} selected`, { props: { filter: o.label }, u: url });
                       }}
                       className={`cursor-pointer w-full flex items-center justify-between text-sm py-2 pl-3 pr-4 hover:bg-gray-100`}
                     >
@@ -261,7 +267,7 @@ const SelectFilter = ({ options, selectedOptions, onChange, color, id, placehold
               onClick={() => {
                 onChange([]);
                 setIsOpen(false);
-                plausible(`Filter ${id} erased`);
+                plausible(`Filter ${id} erased`, { u: url });
               }}
             >
               Effacer
@@ -274,6 +280,7 @@ const SelectFilter = ({ options, selectedOptions, onChange, color, id, placehold
 };
 
 const LocationFilter = ({ selected, onChange, disabled = false, width = "w-80" }) => {
+  const { url } = useStore();
   const plausible = usePlausible();
   const [isOpen, setIsOpen] = useState(false);
   const [options, setOptions] = useState([]);
@@ -346,7 +353,7 @@ const LocationFilter = ({ selected, onChange, disabled = false, width = "w-80" }
                 onClick={() => {
                   onChange(null);
                   setInputValue("");
-                  plausible("Location erased");
+                  plausible("Location erased", { u: url });
                 }}
               >
                 <RiCloseFill />
@@ -366,7 +373,7 @@ const LocationFilter = ({ selected, onChange, disabled = false, width = "w-80" }
                 onChange(option);
                 setInputValue(option.label);
                 setIsOpen(false);
-                plausible("Location selected", { props: { location: option.label } });
+                plausible("Location selected", { props: { location: option.label }, u: url });
               }}
             >
               <span className="block text-sm truncate font-normal">{option.label}</span>
@@ -378,7 +385,8 @@ const LocationFilter = ({ selected, onChange, disabled = false, width = "w-80" }
   );
 };
 
-const RemoteFilter = ({ options, selectedOptions, onChange, color, id, placeholder = "Choissiez une option", position = "left-0", width = "w-80" }) => {
+const RemoteFilter = ({ options, selectedOptions, onChange, id, placeholder = "Choissiez une option", position = "left-0", width = "w-80" }) => {
+  const { url, color } = useStore();
   const plausible = usePlausible();
   const [isOpen, setIsOpen] = useState(false);
   const ref = useRef(null);
@@ -439,7 +447,7 @@ const RemoteFilter = ({ options, selectedOptions, onChange, color, id, placehold
                     key={o.value}
                     onClick={() => {
                       toggleOption(o);
-                      plausible("Remote filter selected", { props: { remote: o.label } });
+                      plausible("Remote filter selected", { props: { remote: o.label }, u: url });
                     }}
                     className="cursor-pointer w-full flex items-center justify-between text-sm py-2 pl-3 pr-4 hover:bg-gray-100"
                   >
@@ -459,7 +467,7 @@ const RemoteFilter = ({ options, selectedOptions, onChange, color, id, placehold
               onClick={() => {
                 onChange([]);
                 setIsOpen(false);
-                plausible("Remote filter erased");
+                plausible("Remote filter erased", { u: url });
               }}
             >
               Effacer

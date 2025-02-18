@@ -1,8 +1,13 @@
 import React, { useState, useEffect } from "react";
 import { RiArrowLeftLine, RiArrowRightLine } from "react-icons/ri";
-import Card from "./card";
+import { usePlausible } from "next-plausible";
 
-export const Carousel = ({ widget, missions, color, request }) => {
+import Card from "./card";
+import useStore from "../store";
+
+export const Carousel = ({ widget, missions, request }) => {
+  const { url, color } = useStore();
+  const plausible = usePlausible();
   const [currentSlide, setCurrentSlide] = useState(0);
   const [slidesToShow, setSlidesToShow] = useState(3);
 
@@ -28,10 +33,12 @@ export const Carousel = ({ widget, missions, color, request }) => {
 
   const nextPage = () => {
     setCurrentSlide((prev) => Math.min(prev + slidesToShow, missions.length - slidesToShow));
+    plausible("Slide changed", { u: url });
   };
 
   const prevPage = () => {
     setCurrentSlide((prev) => Math.max(prev - slidesToShow, 0));
+    plausible("Slide changed", { u: url });
   };
 
   if (missions.length === 0) {
@@ -50,7 +57,7 @@ export const Carousel = ({ widget, missions, color, request }) => {
         <button
           onClick={prevPage}
           disabled={currentSlide === 0}
-          className="p-2 h-12 w-12 rounded-full hidden xl:flex items-center justify-center flex-shrink-0 plausible-event-name--Slide"
+          className="p-2 h-12 w-12 rounded-full hidden xl:flex items-center justify-center flex-shrink-0"
           style={{
             backgroundColor: currentSlide === 0 ? "#e5e5e5" : color,
             color: currentSlide === 0 ? "#929292" : "white",
@@ -79,7 +86,7 @@ export const Carousel = ({ widget, missions, color, request }) => {
         <button
           onClick={nextPage}
           disabled={currentSlide >= missions.length - slidesToShow}
-          className="p-2 h-12 w-12 rounded-full hidden xl:flex items-center justify-center flex-shrink-0 plausible-event-name--Slide"
+          className="p-2 h-12 w-12 rounded-full hidden xl:flex items-center justify-center flex-shrink-0"
           style={{
             backgroundColor: currentSlide >= missions.length - slidesToShow ? "#e5e5e5" : color,
             color: currentSlide >= missions.length - slidesToShow ? "#929292" : "white",
@@ -95,7 +102,7 @@ export const Carousel = ({ widget, missions, color, request }) => {
           <button
             onClick={prevPage}
             disabled={currentSlide === 0}
-            className="p-2 h-10 w-10 rounded-full flex items-center justify-center plausible-event-name--Slide"
+            className="p-2 h-10 w-10 rounded-full flex items-center justify-center"
             style={{
               backgroundColor: currentSlide === 0 ? "#e5e5e5" : color,
               color: currentSlide === 0 ? "#929292" : "white",
@@ -108,7 +115,7 @@ export const Carousel = ({ widget, missions, color, request }) => {
           <button
             onClick={nextPage}
             disabled={currentSlide >= missions.length - slidesToShow}
-            className="p-2 h-10 w-10 rounded-full flex items-center justify-center plausible-event-name--Slide"
+            className="p-2 h-10 w-10 rounded-full flex items-center justify-center"
             style={{
               backgroundColor: currentSlide >= missions.length - slidesToShow ? "#e5e5e5" : color,
               color: currentSlide >= missions.length - slidesToShow ? "#929292" : "white",

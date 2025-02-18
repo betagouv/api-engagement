@@ -11,6 +11,7 @@ import { Carousel } from "../components/carousel";
 import { Grid } from "../components/grid";
 import { Filters, MobileFilters } from "../components/filters";
 import { usePlausible } from "next-plausible";
+import useStore from "../store";
 
 /**
  * Layout widget --> max-width: 1152px
@@ -25,6 +26,7 @@ import { usePlausible } from "next-plausible";
  */
 const Home = ({ widget, missions, options, total, request, environment }) => {
   const router = useRouter();
+  const { setUrl, setColor } = useStore();
   const plausible = usePlausible();
   const [filters, setFilters] = useState({
     domain: [],
@@ -42,7 +44,10 @@ const Home = ({ widget, missions, options, total, request, environment }) => {
     if (!widget) return;
 
     const url = new URL(location.href);
-    plausible("pageview", { u: `${url.protocol}//${url.hostname}/${widget.style === "page" ? "catalogue" : "carousel"}` });
+    const u = `${url.protocol}//${url.hostname}/${widget.style === "page" ? "catalogue" : "carousel"}`;
+    setUrl(u);
+    setColor(widget.color ? widget.color : "#71A246");
+    plausible("pageview", { u });
 
     if (widget.location) return setFilters((f) => ({ ...f, location: widget.location }));
 
@@ -143,19 +148,18 @@ const Home = ({ widget, missions, options, total, request, environment }) => {
             options={options}
             filters={filters}
             setFilters={(newFilters) => setFilters({ ...filters, ...newFilters })}
-            color={color}
             disabledLocation={!!widget.location}
             showFilters={showFilters}
             setShowFilters={setShowFilters}
           />
         </div>
         <div className={`hidden md:flex m-auto items-center justify-between }`}>
-          <Filters options={options} filters={filters} setFilters={(newFilters) => setFilters({ ...filters, ...newFilters })} color={color} disabledLocation={!!widget.location} />
+          <Filters options={options} filters={filters} setFilters={(newFilters) => setFilters({ ...filters, ...newFilters })} disabledLocation={!!widget.location} />
         </div>
       </header>
       <div className={`w-full ${showFilters ? (widget?.style === "carousel" ? "hidden" : "opacity-40") : "h-auto overflow-x-hidden"}`}>
         {widget?.style === "carousel" ? (
-          <Carousel widget={widget} missions={missions} color={color} total={total} request={request} />
+          <Carousel widget={widget} missions={missions} total={total} request={request} />
         ) : (
           <Grid
             widget={widget}

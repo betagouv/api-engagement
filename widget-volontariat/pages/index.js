@@ -47,7 +47,6 @@ const Home = ({ widget, missions, options, total, request, environment }) => {
     page: 1,
   });
   const [showFilters, setShowFilters] = useState(false);
-  const color = widget?.color ? widget.color : "#71A246";
 
   useEffect(() => {
     if (!widget) return;
@@ -145,30 +144,21 @@ const Home = ({ widget, missions, options, total, request, environment }) => {
             options={options}
             filters={filters}
             setFilters={(newFilters) => setFilters({ ...filters, ...newFilters })}
-            color={color}
             disabledLocation={!!widget.location}
             showFilters={showFilters}
             setShowFilters={setShowFilters}
           />
         </div>
         <div className="hidden md:block w-full mb-8 md:mb-2">
-          <Filters options={options} filters={filters} setFilters={(newFilters) => setFilters({ ...filters, ...newFilters })} color={color} disabledLocation={!!widget.location} />
+          <Filters options={options} filters={filters} setFilters={(newFilters) => setFilters({ ...filters, ...newFilters })} disabledLocation={!!widget.location} />
         </div>
       </header>
 
       <div className={`w-full ${showFilters ? "opacity-40 pointer-events-none" : ""}`}>
         {widget?.style === "carousel" ? (
-          <Carousel widget={widget} missions={missions} color={color} total={total} request={request} />
+          <Carousel widget={widget} missions={missions} total={total} request={request} />
         ) : (
-          <Grid
-            widget={widget}
-            missions={missions}
-            color={color}
-            total={total}
-            request={request}
-            page={filters.page}
-            handlePageChange={(page) => setFilters({ ...filters, page })}
-          />
+          <Grid widget={widget} missions={missions} total={total} request={request} page={filters.page} handlePageChange={(page) => setFilters({ ...filters, page })} />
         )}
       </div>
       {environment === "production" && !router.query.notrack && <Script src="https://app.api-engagement.beta.gouv.fr/jstag.js" />}

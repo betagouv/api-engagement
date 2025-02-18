@@ -1,9 +1,13 @@
 import React, { useEffect, useState } from "react";
 import { RiArrowRightSLine, RiArrowLeftSLine, RiSkipRightLine, RiSkipLeftLine } from "react-icons/ri";
+import { usePlausible } from "next-plausible";
 
 import Card from "./card";
+import useStore from "../store";
 
-export const Grid = ({ widget, missions, color, total, page, handlePageChange, request }) => {
+export const Grid = ({ widget, missions, total, page, handlePageChange, request }) => {
+  const { color } = useStore();
+
   if (total === 0) {
     return (
       <div className="w-full">
@@ -18,12 +22,12 @@ export const Grid = ({ widget, missions, color, total, page, handlePageChange, r
       <main className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-y-6 md:gap-y-6 gap-x-6 overflow-x-hidden">
         {missions.map((mission, i) => (
           <div key={i} className="flex justify-center">
-            <Card widget={widget} mission={mission} color={color} request={request} />
+            <Card widget={widget} mission={mission} request={request} />
           </div>
         ))}
       </main>
       <footer className="flex md:hidden items-center justify-center py-4">
-        <MobilePagination page={page} setPage={handlePageChange} end={parseInt(total / 6) + (total % 6 !== 0 && 1)} color={color} />
+        <MobilePagination page={page} setPage={handlePageChange} end={parseInt(total / 6) + (total % 6 !== 0 && 1)} />
       </footer>
       <footer className="md:flex hidden items-center justify-center pt-10">
         <Pagination page={page} setPage={handlePageChange} end={parseInt(total / 6) + (total % 6 !== 0 && 1)} color={color} />
@@ -32,7 +36,9 @@ export const Grid = ({ widget, missions, color, total, page, handlePageChange, r
   );
 };
 
-const Pagination = ({ page, setPage, end, color }) => {
+const Pagination = ({ page, setPage, end }) => {
+  const { url, color } = useStore();
+  const plausible = usePlausible();
   const [pages, setPages] = useState([...Array(end).keys()].map((i) => i + 1));
 
   useEffect(() => {
@@ -44,8 +50,11 @@ const Pagination = ({ page, setPage, end, color }) => {
   return (
     <div className="flex flex-row items-center justify-center gap-1">
       <button
-        className="mr-4 flex items-center rounded-lg py-2 px-3 hover:bg-light-grey disabled:opacity-50 disabled:bg-transparent disabled:cursor-default plausible-event-name--Page+changed"
-        onClick={() => setPage(page - 1)}
+        className="mr-4 flex items-center rounded-lg py-2 px-3 hover:bg-light-grey disabled:opacity-50 disabled:bg-transparent disabled:cursor-default"
+        onClick={() => {
+          setPage(page - 1);
+          plausible("Page changed", { u: url });
+        }}
         disabled={page === 1}
       >
         <RiArrowLeftSLine className="mr-2" />
@@ -58,30 +67,42 @@ const Pagination = ({ page, setPage, end, color }) => {
               {pages.slice(0, 4).map((p) => (
                 <button
                   key={p}
-                  className="flex h-8 w-8 rounded-full items-center justify-center hover:bg-gray-hover plausible-event-name--Page+changed"
+                  className="flex h-8 w-8 rounded-full items-center justify-center hover:bg-gray-hover"
                   style={p === page ? { backgroundColor: color, color: "white" } : {}}
-                  onClick={() => setPage(p)}
+                  onClick={() => {
+                    setPage(p);
+                    plausible("Page changed", { u: url });
+                  }}
                 >
                   {p}
                 </button>
               ))}
               <button className="flex h-8 w-8 rounded-full items-center justify-center hover:bg-gray-hover">...</button>
-              <button className="flex h-8 w-8 rounded-full items-center justify-center hover:bg-gray-hover plausible-event-name--Page+changed" onClick={() => setPage(end)}>
+              <button
+                className="flex h-8 w-8 rounded-full items-center justify-center hover:bg-gray-hover"
+                onClick={() => {
+                  setPage(end);
+                  plausible("Page changed", { u: url });
+                }}
+              >
                 {end}
               </button>
             </>
           ) : page > end - 3 ? (
             <>
-              <button className="flex h-8 w-8 rounded-full items-center justify-center hover:bg-gray-hover plausible-event-name--Page+changed" onClick={() => setPage(1)}>
+              <button className="flex h-8 w-8 rounded-full items-center justify-center hover:bg-gray-hover" onClick={() => setPage(1)}>
                 1
               </button>
               <button className="flex h-8 w-8 rounded-full items-center justify-center hover:bg-gray-hover">...</button>
               {pages.slice(end - 4, end).map((p) => (
                 <button
                   key={p}
-                  className="flex h-8 w-8 rounded-full items-center justify-center hover:bg-gray-hover plausible-event-name--Page+changed"
+                  className="flex h-8 w-8 rounded-full items-center justify-center hover:bg-gray-hover"
                   style={p === page ? { backgroundColor: color, color: "white" } : {}}
-                  onClick={() => setPage(p)}
+                  onClick={() => {
+                    setPage(p);
+                    plausible("Page changed", { u: url });
+                  }}
                 >
                   {p}
                 </button>
@@ -89,16 +110,19 @@ const Pagination = ({ page, setPage, end, color }) => {
             </>
           ) : (
             <>
-              <button className="flex h-8 w-8 rounded-full items-center justify-center hover:bg-gray-hover plausible-event-name--Page+changed" onClick={() => setPage(1)}>
+              <button className="flex h-8 w-8 rounded-full items-center justify-center hover:bg-gray-hover" onClick={() => setPage(1)}>
                 1
               </button>
               <button className="flex h-8 w-8 rounded-full items-center justify-center hover:bg-gray-hover">...</button>
               {pages.slice(page - 2, page + 1).map((p) => (
                 <button
                   key={p}
-                  className="flex h-8 w-8 rounded-full items-center justify-center hover:bg-gray-hover plausible-event-name--Page+changed"
+                  className="flex h-8 w-8 rounded-full items-center justify-center hover:bg-gray-hover"
                   style={p === page ? { backgroundColor: color, color: "white" } : {}}
-                  onClick={() => setPage(p)}
+                  onClick={() => {
+                    setPage(p);
+                    plausible("Page changed", { u: url });
+                  }}
                 >
                   {p}
                 </button>
@@ -106,7 +130,7 @@ const Pagination = ({ page, setPage, end, color }) => {
               <button className="flex h-8 w-8 rounded-full items-center justify-center hover:bg-gray-hover" disabled={true}>
                 ...
               </button>
-              <button className="flex h-8 w-8 rounded-full items-center justify-center hover:bg-gray-hover plausible-event-name--Page+changed" onClick={() => setPage(end)}>
+              <button className="flex h-8 w-8 rounded-full items-center justify-center hover:bg-gray-hover" onClick={() => setPage(end)}>
                 {end}
               </button>
             </>
@@ -115,9 +139,12 @@ const Pagination = ({ page, setPage, end, color }) => {
           pages.map((p) => (
             <button
               key={p}
-              className="flex h-8 w-8 rounded-full items-center justify-center hover:bg-gray-hover plausible-event-name--Page+changed"
+              className="flex h-8 w-8 rounded-full items-center justify-center hover:bg-gray-hover"
               style={p === page ? { backgroundColor: color, color: "white" } : {}}
-              onClick={() => setPage(p)}
+              onClick={() => {
+                setPage(p);
+                plausible("Page changed", { u: url });
+              }}
             >
               {p}
             </button>
@@ -125,8 +152,11 @@ const Pagination = ({ page, setPage, end, color }) => {
         )}
       </div>
       <button
-        className="ml-4 flex items-center rounded-lg py-2 px-3 hover:bg-light-grey disabled:opacity-50 disabled:cursor-default plausible-event-name--Page+changed"
-        onClick={() => setPage(page + 1)}
+        className="ml-4 flex items-center rounded-lg py-2 px-3 hover:bg-light-grey disabled:opacity-50 disabled:cursor-default"
+        onClick={() => {
+          setPage(page + 1);
+          plausible("Page changed", { u: url });
+        }}
         disabled={page === end}
       >
         Suivante
@@ -136,7 +166,9 @@ const Pagination = ({ page, setPage, end, color }) => {
   );
 };
 
-export const MobilePagination = ({ page, setPage, end, color }) => {
+export const MobilePagination = ({ page, setPage, end }) => {
+  const { url, color } = useStore();
+  const plausible = usePlausible();
   const [pages, setPages] = useState([...Array(end).keys()].map((i) => i + 1));
 
   useEffect(() => {
@@ -147,16 +179,22 @@ export const MobilePagination = ({ page, setPage, end, color }) => {
   return (
     <div className="flex flex-row items-center justify-between">
       <button
-        className="flex h-8 w-8 items-center rounded justify-center focus:outline-none focus-visible:ring focus-visible:ring-blue-800 plausible-event-name--Page+changed"
-        onClick={() => setPage(1)}
+        className="flex h-8 w-8 items-center rounded justify-center focus:outline-none focus-visible:ring focus-visible:ring-blue-800"
+        onClick={() => {
+          setPage(1);
+          plausible("Page changed", { u: url });
+        }}
         disabled={page === 1}
         aria-label="Retour première page"
       >
         <RiSkipLeftLine />
       </button>
       <button
-        className="flex h-8 w-8 items-center rounded justify-center focus:outline-none focus-visible:ring focus-visible:ring-blue-800 plausible-event-name--Page+changed"
-        onClick={() => setPage(page - 1)}
+        className="flex h-8 w-8 items-center rounded justify-center focus:outline-none focus-visible:ring focus-visible:ring-blue-800"
+        onClick={() => {
+          setPage(page - 1);
+          plausible("Page changed", { u: url });
+        }}
         disabled={page === 1}
         aria-label="Page précédente"
       >
@@ -169,9 +207,12 @@ export const MobilePagination = ({ page, setPage, end, color }) => {
               {pages.slice(0, 3).map((p) => (
                 <button
                   key={p}
-                  className="flex h-8 min-w-[2rem] p-1 rounded-full items-center justify-center hover:bg-gray-hover focus:outline-none focus-visible:ring focus-visible:ring-blue-800 plausible-event-name--Page+changed"
+                  className="flex h-8 min-w-[2rem] p-1 rounded-full items-center justify-center hover:bg-gray-hover focus:outline-none focus-visible:ring focus-visible:ring-blue-800"
                   style={p === page ? { backgroundColor: color, color: "white" } : {}}
-                  onClick={() => setPage(p)}
+                  onClick={() => {
+                    setPage(p);
+                    plausible("Page changed", { u: url });
+                  }}
                 >
                   {p}
                 </button>
@@ -180,8 +221,11 @@ export const MobilePagination = ({ page, setPage, end, color }) => {
                 ...
               </button>
               <button
-                className="flex h-8 min-w-[2rem] p-1 rounded-full items-center justify-center hover:bg-gray-hover focus:outline-none focus-visible:ring focus-visible:ring-blue-800 plausible-event-name--Page+changed"
-                onClick={() => setPage(end)}
+                className="flex h-8 min-w-[2rem] p-1 rounded-full items-center justify-center hover:bg-gray-hover focus:outline-none focus-visible:ring focus-visible:ring-blue-800"
+                onClick={() => {
+                  setPage(end);
+                  plausible("Page changed", { u: url });
+                }}
               >
                 {end}
               </button>
@@ -189,8 +233,11 @@ export const MobilePagination = ({ page, setPage, end, color }) => {
           ) : page > end - 3 ? (
             <>
               <button
-                className="flex h-8 w-8 rounded-full items-center justify-center hover:bg-gray-hover focus:outline-none focus-visible:ring focus-visible:ring-blue-800 plausible-event-name--Page+changed"
-                onClick={() => setPage(1)}
+                className="flex h-8 w-8 rounded-full items-center justify-center hover:bg-gray-hover focus:outline-none focus-visible:ring focus-visible:ring-blue-800"
+                onClick={() => {
+                  setPage(1);
+                  plausible("Page changed", { u: url });
+                }}
               >
                 1
               </button>
@@ -200,9 +247,12 @@ export const MobilePagination = ({ page, setPage, end, color }) => {
               {pages.slice(end - 3, end).map((p) => (
                 <button
                   key={p}
-                  className="flex h-8 min-w-[2rem] p-1 rounded-full items-center justify-center hover:bg-gray-hover focus:outline-none focus-visible:ring focus-visible:ring-blue-800 plausible-event-name--Page+changed"
+                  className="flex h-8 min-w-[2rem] p-1 rounded-full items-center justify-center hover:bg-gray-hover focus:outline-none focus-visible:ring focus-visible:ring-blue-800"
                   style={p === page ? { backgroundColor: color, color: "white" } : {}}
-                  onClick={() => setPage(p)}
+                  onClick={() => {
+                    setPage(p);
+                    plausible("Page changed", { u: url });
+                  }}
                 >
                   {p}
                 </button>
@@ -213,9 +263,12 @@ export const MobilePagination = ({ page, setPage, end, color }) => {
               {pages.slice(page - 3, page).map((p) => (
                 <button
                   key={p}
-                  className="flex h-8 min-w-[2rem] p-1 rounded-full items-center justify-center hover:bg-gray-hover focus:outline-none focus-visible:ring focus-visible:ring-blue-800 plausible-event-name--Page+changed"
+                  className="flex h-8 min-w-[2rem] p-1 rounded-full items-center justify-center hover:bg-gray-hover focus:outline-none focus-visible:ring focus-visible:ring-blue-800"
                   style={p === page ? { backgroundColor: color, color: "white" } : {}}
-                  onClick={() => setPage(p)}
+                  onClick={() => {
+                    setPage(p);
+                    plausible("Page changed", { u: url });
+                  }}
                 >
                   {p}
                 </button>
@@ -227,8 +280,11 @@ export const MobilePagination = ({ page, setPage, end, color }) => {
                 ...
               </button>
               <button
-                className="flex h-8 min-w-[2rem] rounded items-center justify-center hover:bg-gray-hover focus:outline-none focus-visible:ring focus-visible:ring-blue-800 plausible-event-name--Page+changed"
-                onClick={() => setPage(end)}
+                className="flex h-8 min-w-[2rem] rounded items-center justify-center hover:bg-gray-hover focus:outline-none focus-visible:ring focus-visible:ring-blue-800"
+                onClick={() => {
+                  setPage(end);
+                  plausible("Page changed", { u: url });
+                }}
               >
                 {end}
               </button>
@@ -238,9 +294,12 @@ export const MobilePagination = ({ page, setPage, end, color }) => {
           pages.map((p) => (
             <button
               key={p}
-              className="flex h-8 w-8 rounded-full items-center justify-center hover:bg-gray-hover focus:outline-none focus-visible:ring focus-visible:ring-blue-800 plausible-event-name--Page+changed"
+              className="flex h-8 w-8 rounded-full items-center justify-center hover:bg-gray-hover focus:outline-none focus-visible:ring focus-visible:ring-blue-800"
               style={p === page ? { backgroundColor: color, color: "white" } : {}}
-              onClick={() => setPage(p)}
+              onClick={() => {
+                setPage(p);
+                plausible("Page changed", { u: url });
+              }}
             >
               {p}
             </button>
@@ -248,16 +307,22 @@ export const MobilePagination = ({ page, setPage, end, color }) => {
         )}
       </div>
       <button
-        className="flex h-8 w-8 items-center rounded justify-center focus:outline-none focus-visible:ring focus-visible:ring-blue-800 plausible-event-name--Page+changed"
-        onClick={() => setPage(page + 1)}
+        className="flex h-8 w-8 items-center rounded justify-center focus:outline-none focus-visible:ring focus-visible:ring-blue-800"
+        onClick={() => {
+          setPage(page + 1);
+          plausible("Page changed", { u: url });
+        }}
         aria-label="Page suivante"
         disabled={page === end}
       >
         <RiArrowRightSLine />
       </button>
       <button
-        className="flex h-8 w-8 items-center rounded justify-center focus:outline-none focus-visible:ring focus-visible:ring-blue-800 plausible-event-name--Page+changed"
-        onClick={() => setPage(end)}
+        className="flex h-8 w-8 items-center rounded justify-center focus:outline-none focus-visible:ring focus-visible:ring-blue-800"
+        onClick={() => {
+          setPage(end);
+          plausible("Page changed", { u: url });
+        }}
         aria-label="Dernière page"
         disabled={page === end}
       >
