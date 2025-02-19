@@ -262,6 +262,13 @@ router.get("/widget/:widgetId/msearch", async (req: Request, res: Response, next
           $or: [{ "addresses.geoPoint": { $geoWithin: { $centerSphere: [[query.data.lon, query.data.lat], distance / EARTH_RADIUS] } } }, { remote: "full" }],
         });
       }
+    } else {
+      if (query.data.remote && query.data.remote.includes("yes") && !query.data.remote.includes("no")) {
+        where.$and.push({ $or: [{ remote: "full" }, { remote: "possible" }] });
+      }
+      if (query.data.remote && query.data.remote.includes("no") && !query.data.remote.includes("yes")) {
+        where.remote = "no";
+      }
     }
 
     // When converting geoPoint for count

@@ -13,7 +13,7 @@ const Card = ({ widget, mission, request }) => {
       ? "À distance"
       : mission.addresses?.length > 1
       ? mission.addresses.map((a) => a.city).join(", ")
-      : `${mission.city} ${mission.postalCode}${mission.country !== "FR" ? `- ${iso.getName(mission.country, "fr")}` : ""}`;
+      : `${mission.city} ${mission.country !== "FR" ? `- ${iso.getName(mission.country, "fr")}` : ""}`;
 
   const domain = DOMAINS[mission.domain] || DOMAINS.autre;
   return (
@@ -44,8 +44,8 @@ const Card = ({ widget, mission, request }) => {
             <span name="tracker_counter" data-id={mission._id} data-publisher={widget.fromPublisherId.toString()} data-source={widget._id.toString()} data-request={request} />
           </div>
 
-          <h2 className="font-semibold line-clamp-2 text-xl group-hover:text-[#000091] transition-colors duration-300">{mission.title}</h2>
-          <span className="text-sm line-clamp-1 group-hover:line-clamp-6 text-default-grey">{address}</span>
+          <h2 className="font-semibold line-clamp-3 text-xl group-hover:text-[#000091] transition-colors duration-300">{mission.title}</h2>
+          <span className="text-sm line-clamp-1 group-hover:line-clamp-4 text-default-grey">{address}</span>
         </div>
 
         <div className="min-h-[19px] flex items-center mt-auto">
@@ -56,7 +56,7 @@ const Card = ({ widget, mission, request }) => {
           )}
         </div>
 
-        <div className={`flex justify-between items-center text-mention-grey ${address.length > 60 ? "group-hover:hidden" : ""}`}>
+        <div className={`flex justify-between items-center text-mention-grey ${address.length > 40 ? "group-hover:hidden" : ""}`}>
           <div className="flex items-center min-w-[120px]">
             <RiCalendarEventFill className="h-4 flex-shrink-0" />
             <span className="text-xs ml-2 whitespace-nowrap">Dès que possible</span>
