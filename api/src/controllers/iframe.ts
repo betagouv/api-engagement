@@ -248,6 +248,7 @@ router.get("/widget/:widgetId/msearch", async (req: Request, res: Response, next
       });
       // If remote is set to no, show only missions in this location
       if (query.data.remote && query.data.remote.includes("no") && !query.data.remote.includes("yes")) {
+        where.remote = "no";
         where["addresses.geoPoint"] = {
           $nearSphere: {
             $geometry: { type: "Point", coordinates: [query.data.lon, query.data.lat] },
