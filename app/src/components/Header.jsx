@@ -14,7 +14,7 @@ const Header = () => {
   return (
     <header className="flex w-full justify-center border-b border-b-[#ddd] bg-white">
       <div className="w-full max-w-[78rem] flex items-center justify-between py-3">
-        <Link className="flex items-center gap-4 p-4 hover:bg-gray-hover" to="/">
+        <Link className="flex items-center gap-4 p-4 hover:bg-gray-hover" to={user ? "/" : "/login"}>
           <div className="h-24 flex items-center justify-center">
             <p className="gouv-logo text-xs font-bold uppercase leading-3 text-black">
               République
@@ -313,7 +313,7 @@ const AccountMenu = () => {
   const { user, publisher, setAuth } = useStore();
 
   const handleLogout = async () => {
-    localStorage.removeItem("token");
+    api.removeToken();
     setAuth(null, null);
   };
 

@@ -53,7 +53,7 @@ const Account = () => {
           <div
             className="flex cursor-pointer items-center text-sm text-red-main"
             onClick={() => {
-              localStorage.removeItem("token");
+              api.removeToken();
               setAuth(null, null);
             }}
           >
