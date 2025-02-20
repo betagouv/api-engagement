@@ -105,13 +105,13 @@ router.get("/", passport.authenticate(["apikey", "api"], { session: false }), as
 
     if (query.data.city) {
       if (!Array.isArray(query.data.city) && query.data.city.includes(",")) query.data.city = query.data.city.split(",").map((e: string) => e.trim());
-      where.city = Array.isArray(query.data.city) ? { $in: query.data.city } : query.data.city;
+      where["addresses.city"] = Array.isArray(query.data.city) ? { $in: query.data.city } : query.data.city;
     }
 
     if (query.data.departmentName) {
       if (!Array.isArray(query.data.departmentName) && query.data.departmentName.includes(","))
         query.data.departmentName = query.data.departmentName.split(",").map((e: string) => e.trim());
-      where.departmentName = Array.isArray(query.data.departmentName) ? { $in: query.data.departmentName } : query.data.departmentName;
+      where["addresses.departmentName"] = Array.isArray(query.data.departmentName) ? { $in: query.data.departmentName } : query.data.departmentName;
     }
     if (query.data.remote) {
       if (!Array.isArray(query.data.remote) && query.data.remote.includes(",")) query.data.remote = query.data.remote.split(",").map((e: string) => e.trim());
@@ -228,13 +228,9 @@ router.get("/search", passport.authenticate(["apikey", "api"], { session: false 
 
     if (query.data.lat && query.data.lon) {
       if (query.data.distance && (query.data.distance === "0" || query.data.distance === "0km")) query.data.distance = "10km";
-      where.geoPoint = {
-        $nearSphere: {
-          $geometry: {
-            type: "Point",
-            coordinates: [query.data.lon, query.data.lat],
-          },
-          $maxDistance: getDistanceKm(query.data.distance || "50km") * 1000,
+      where["addresses.geoPoint"] = {
+        $geoWithin: {
+          $centerSphere: [[query.data.lon, query.data.lat], getDistanceKm(query.data.distance || "50km") / EARTH_RADIUS],
         },
       };
     }
@@ -245,7 +241,7 @@ router.get("/search", passport.authenticate(["apikey", "api"], { session: false 
     if (query.data.remote) where.remote = { $in: query.data.remote.split(",") };
     if (query.data.clientId) where.clientId = query.data.clientId;
     if (query.data.activity) where.activity = query.data.activity;
-    if (query.data.departmentName) where.departmentName = query.data.departmentName;
+    if (query.data.departmentName) where["addresses.departmentName"] = query.data.departmentName;
 
     if (query.data.createdAt) {
       if (query.data.createdAt.startsWith("gt:")) where.createdAt = { $gt: new Date(query.data.createdAt.replace("gt:", "")) };
