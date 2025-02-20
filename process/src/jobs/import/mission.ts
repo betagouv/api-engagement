@@ -70,7 +70,7 @@ const parseBool = (value: string | undefined) => {
 
 const parseDate = (value: string | undefined) => {
   if (!value) return null;
-  return new Date(value);
+  return isNaN(new Date(value).getTime()) ? null : new Date(value);
 };
 
 const parseNumber = (value: number | string | undefined) => {

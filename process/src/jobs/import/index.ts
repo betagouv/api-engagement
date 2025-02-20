@@ -1,5 +1,7 @@
 import { XMLParser } from "fast-xml-parser";
 import { BulkOperationContainer, BulkUpdateAction } from "@elastic/elasticsearch/api/types";
+import fs from "fs";
+import path from "path";
 
 import { captureException } from "../../error";
 import PublisherModel from "../../models/publisher";
@@ -158,7 +160,7 @@ const bulkDB = async (bulk: Mission[], publisher: Publisher, importDoc: Import) 
 };
 
 const importPublisher = async (publisher: Publisher, start: Date) => {
-  if (!publisher || !publisher.feed) return;
+  if (!publisher) return;
 
   const obj = {
     name: `${publisher.name}`,
@@ -175,12 +177,17 @@ const importPublisher = async (publisher: Publisher, start: Date) => {
   } as Import;
 
   try {
-    const headers = new Headers();
-
-    if (publisher.feed_username && publisher.feed_password) {
-      headers.set("Authorization", `Basic ${btoa(`${publisher.feed_username}:${publisher.feed_password}`)}`);
+    let xml;
+    // if api engagement id use test xml
+    if (publisher._id.toString() === "63da29db7d356a87a4e35d4a") {
+      xml = fs.readFileSync(path.join(__dirname, "./xml/test.xml"), "utf8");
+    } else {
+      const headers = new Headers();
+      if (publisher.feed_username && publisher.feed_password) {
+        headers.set("Authorization", `Basic ${btoa(`${publisher.feed_username}:${publisher.feed_password}`)}`);
+      }
+      xml = await fetch(publisher.feed!, { headers }).then((response) => response.text());
     }
-    const xml = await fetch(publisher.feed, { headers }).then((response) => response.text());
 
     // PARSE XML
     console.log(`[${publisher.name}] Parse xml from ${publisher.feed}`);
@@ -210,6 +217,7 @@ const importPublisher = async (publisher: Publisher, start: Date) => {
     const promises = [] as Promise<Mission | undefined>[];
     for (let j = 0; j < missionsXML.length; j++) {
       const missionXML = missionsXML[j];
+
       promises.push(buildData(obj.startedAt, publisher, missionXML));
 
       if (j % 50 === 0 || j === missionsXML.length - 1) {
@@ -240,25 +248,25 @@ const importPublisher = async (publisher: Publisher, start: Date) => {
     });
 
     // RNA
-    const resultRNA = await verifyOrganization(missions);
-    resultRNA.forEach((r) => {
-      const mission = missions.find((m) => m.clientId.toString() === r.clientId.toString());
-      if (mission) {
-        mission.organizationId = r.organizationId;
-        mission.organizationNameVerified = r.organizationNameVerified;
-        mission.organizationRNAVerified = r.organizationRNAVerified;
-        mission.organizationSirenVerified = r.organizationSirenVerified;
-        mission.organizationSiretVerified = r.organizationSiretVerified;
-        mission.organizationAddressVerified = r.organizationAddressVerified;
-        mission.organizationCityVerified = r.organizationCityVerified;
-        mission.organizationPostalCodeVerified = r.organizationPostalCodeVerified;
-        mission.organizationDepartmentCodeVerified = r.organizationDepartmentCodeVerified;
-        mission.organizationDepartmentNameVerified = r.organizationDepartmentNameVerified;
-        mission.organizationRegionVerified = r.organizationRegionVerified;
-        // mission.organisationIsRUP = r.organisationIsRUP;
-        mission.organizationVerificationStatus = r.organizationVerificationStatus;
-      }
-    });
+    // const resultRNA = await verifyOrganization(missions);
+    // resultRNA.forEach((r) => {
+    //   const mission = missions.find((m) => m.clientId.toString() === r.clientId.toString());
+    //   if (mission) {
+    //     mission.organizationId = r.organizationId;
+    //     mission.organizationNameVerified = r.organizationNameVerified;
+    //     mission.organizationRNAVerified = r.organizationRNAVerified;
+    //     mission.organizationSirenVerified = r.organizationSirenVerified;
+    //     mission.organizationSiretVerified = r.organizationSiretVerified;
+    //     mission.organizationAddressVerified = r.organizationAddressVerified;
+    //     mission.organizationCityVerified = r.organizationCityVerified;
+    //     mission.organizationPostalCodeVerified = r.organizationPostalCodeVerified;
+    //     mission.organizationDepartmentCodeVerified = r.organizationDepartmentCodeVerified;
+    //     mission.organizationDepartmentNameVerified = r.organizationDepartmentNameVerified;
+    //     mission.organizationRegionVerified = r.organizationRegionVerified;
+    //     // mission.organisationIsRUP = r.organisationIsRUP;
+    //     mission.organizationVerificationStatus = r.organizationVerificationStatus;
+    //   }
+    // });
 
     // BULK WRITE
     await bulkDB(missions, publisher, obj);
