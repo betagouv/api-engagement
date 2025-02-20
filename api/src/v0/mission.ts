@@ -412,6 +412,7 @@ const buildData = (data: Mission, publisherId: string, moderator: boolean = fals
     publisherId: data.publisherId,
     activity: data.activity,
     address: data.address,
+    addresses: data.addresses,
     applicationUrl: `${API_URL}/r/${data._id}/${publisherId}`,
     associationLogo: data.associationLogo,
     associationAddress: data.associationAddress,
