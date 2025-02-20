@@ -313,7 +313,7 @@ const AccountMenu = () => {
   const { user, publisher, setAuth } = useStore();
 
   const handleLogout = async () => {
-    localStorage.removeItem("token");
+    api.removeToken();
     setAuth(null, null);
   };
 
