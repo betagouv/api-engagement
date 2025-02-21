@@ -13,7 +13,7 @@ const getImageDomain = (domain: string, title: string) => {
     return (total % len) + 1;
   };
   if (domain === "education") return `https://apicivique.s3.eu-west-3.amazonaws.com/missions/2_${StringToInt(title, 3)}.jpg`;
-  if (domain === "sante") return `https://apicivique.s3.eu-west-3.amazonaws.com/missions/3_${StringToInt(title, 3)}.jpg`;
+  if (domain === "sante") return `https://apicivique.s3.eu-west-3.amazonaws.com/missions/3_${StringToInt(title, 3) === 2 ? 1 : StringToInt(title, 3)}.jpg`;
   if (domain === "environnement") return `https://apicivique.s3.eu-west-3.amazonaws.com/missions/4_${StringToInt(title, 3)}.jpg`;
   if (domain === "solidarite-insertion") return `https://apicivique.s3.eu-west-3.amazonaws.com/missions/6_${StringToInt(title, 3)}.jpg`;
   if (domain === "sport") return `https://apicivique.s3.eu-west-3.amazonaws.com/missions/7_${StringToInt(title, 3)}.jpg`;
