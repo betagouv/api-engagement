@@ -566,10 +566,17 @@ router.get("/:missionId/:publisherId", cors({ origin: "*" }), async function tra
       })
       .safeParse(req.params);
 
+    const query = zod
+      .object({
+        tags: zod.string().optional(),
+      })
+      .safeParse(req.query);
+
     if (!params.success) {
       captureMessage(`[Redirection Publisher] Invalid params`, JSON.stringify(params.error, null, 2));
       return res.redirect(302, "https://www.service-civique.gouv.fr/"); // While issue
     }
+
     const identity = identify(req);
 
     const mission = await findMissionTemp(params.data.missionId);
@@ -608,6 +615,7 @@ router.get("/:missionId/:publisherId", cors({ origin: "*" }), async function tra
       fromPublisherId: fromPublisher && fromPublisher._id.toString(),
       fromPublisherName: fromPublisher && fromPublisher.name,
       isBot: false,
+      tags: query.data?.tags ? (query.data.tags.includes(",") ? query.data.tags.split(",").map((tag) => tag.trim()) : [query.data.tags]) : undefined,
     } as Stats;
 
     const click = await esClient.index({ index: STATS_INDEX, body: obj });
