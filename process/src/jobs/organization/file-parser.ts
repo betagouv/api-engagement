@@ -90,22 +90,15 @@ const writeData = async (data: DataGouvRnaRecord[]) => {
 
     if (bulk.length === 5000) {
       const res = await OrganizationModel.bulkWrite(bulk);
-      console.log(res);
+      console.log(`[Organizations] Imported ${res.upsertedCount} organizations`);
       bulk.length = 0;
     }
   }
 
-  // const { body } = await esClient.bulk({ refresh: true, body: chunk });
-
-  // if (body.errors) {
-  //   const errors = body.items.filter((e: any) => e.index.error);
-  //   console.error("Error in bulk transfer:");
-  //   errors.forEach((e: any) => {
-  //     console.error(JSON.stringify(e, null, 2));
-  //   });
-  //   count -= errors.length;
-  // }
-
+  if (bulk.length > 0) {
+    const res = await OrganizationModel.bulkWrite(bulk);
+    console.log(`[Organizations] Imported ${res.upsertedCount} organizations`);
+  }
   return count;
 };
 

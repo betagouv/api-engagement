@@ -1,13 +1,8 @@
 import { XMLParser } from "fast-xml-parser";
-import { BulkOperationContainer, BulkUpdateAction } from "@elastic/elasticsearch/api/types";
-import fs from "fs";
-import path from "path";
 
 import { captureException } from "../../error";
 import PublisherModel from "../../models/publisher";
 import ImportModel from "../../models/import";
-import esClient from "../../db/elastic";
-import { MISSION_INDEX } from "../../config";
 
 import { buildMission } from "./mission";
 import { verifyOrganization } from "./organization";
@@ -63,7 +58,6 @@ const parseXML = (xmlString: string) => {
   return unique;
 };
 
-// const buildData = (startTime: Date, publisher: Publisher, missionXML: MissionXML, missionDB?: ShortMission) => {
 const buildData = async (startTime: Date, publisher: Publisher, missionXML: MissionXML) => {
   try {
     const missionDB = (await MissionModel.findOne({ publisherId: publisher._id, clientId: missionXML.clientId }).lean()) as Mission;
@@ -102,8 +96,6 @@ const buildData = async (startTime: Date, publisher: Publisher, missionXML: Miss
 };
 
 const bulkDB = async (bulk: Mission[], publisher: Publisher, importDoc: Import) => {
-  const index = "mission";
-
   // Write in mongo
   const mongoBulk = bulk.filter((e) => e).map((e) => ({ updateOne: { filter: { publisherId: publisher._id, clientId: e.clientId }, update: { $set: e }, upsert: true } }));
   const mongoUpdateRes = await MissionModel.bulkWrite(mongoBulk);
@@ -120,43 +112,6 @@ const bulkDB = async (bulk: Mission[], publisher: Publisher, importDoc: Import) 
   );
   importDoc.deletedCount = mongoDeleteRes.modifiedCount;
   console.log(`[${publisher.name}] Mongo cleaning removed ${importDoc.deletedCount}`);
-
-  // Write in ES
-  const chunkSize = 1000;
-  let esUpadtedCount = 0;
-  for (let i = 0; i < bulk.length; i += chunkSize) {
-    const missions = await MissionModel.find({ publisherId: publisher._id, deleted: false }).skip(i).limit(chunkSize).lean();
-
-    const esChunk = [] as (BulkOperationContainer | BulkUpdateAction | Mission)[];
-    missions.forEach((m) => {
-      esChunk.push({ index: { _index: index, _id: m._id?.toString() || "" } });
-      esChunk.push({ ...m, _id: undefined });
-    });
-
-    const esUpdateRes = await esClient.bulk({ refresh: true, body: esChunk });
-    esUpadtedCount += esUpdateRes.body.items.length;
-
-    if (esUpdateRes.body.errors) {
-      console.log(JSON.stringify(esUpdateRes.body.items, null, 2));
-      const errors = esUpdateRes.body.items.filter((e: any) => e.index?.error || e.update?.error);
-      esUpadtedCount -= errors.length;
-      errors.forEach((e: any) => importDoc.failed.data.push({ id: e.index?._id || e.update?._id, reason: e.index?.error.reason || e.update?.error.reason }));
-      captureException("ES bulk failed", JSON.stringify(errors));
-    }
-    console.log(`[${publisher.name}] ES bulk write ${i} on ${bulk.length}`);
-  }
-  console.log(`[${publisher.name}] ES bulk write finished, updated ${esUpadtedCount} `);
-
-  // clean ES
-  console.log(`[${publisher.name}] Cleaning ES missions...`);
-  const cleanRes = await esClient.updateByQuery({
-    index: MISSION_INDEX,
-    body: {
-      query: { bool: { must: [{ term: { "publisherId.keyword": publisher._id } }, { term: { deleted: false } }, { range: { updatedAt: { lt: importDoc.startedAt } } }] } },
-      script: { source: "ctx._source.deleted = params.deleted; ctx._source.deletedAt = params.deletedAt", params: { deleted: true, deletedAt: importDoc.startedAt } },
-    },
-  });
-  console.log(`[${publisher.name}] ES cleaning deleted ${cleanRes.body.updated}`);
 };
 
 const importPublisher = async (publisher: Publisher, start: Date) => {
@@ -177,32 +132,22 @@ const importPublisher = async (publisher: Publisher, start: Date) => {
   } as Import;
 
   try {
-    let xml;
-    // if api engagement id use test xml
-    if (publisher._id.toString() === "63da29db7d356a87a4e35d4a") {
-      xml = fs.readFileSync(path.join(__dirname, "./xml/test.xml"), "utf8");
-    } else {
-      const headers = new Headers();
-      if (publisher.feed_username && publisher.feed_password) {
-        headers.set("Authorization", `Basic ${btoa(`${publisher.feed_username}:${publisher.feed_password}`)}`);
-      }
-      xml = await fetch(publisher.feed!, { headers }).then((response) => response.text());
+    const headers = new Headers();
+
+    if (publisher.feed_username && publisher.feed_password) {
+      headers.set("Authorization", `Basic ${btoa(`${publisher.feed_username}:${publisher.feed_password}`)}`);
     }
+    const xml = await fetch(publisher.feed, { headers }).then((response) => response.text());
 
     // PARSE XML
     console.log(`[${publisher.name}] Parse xml from ${publisher.feed}`);
     const missionsXML = parseXML(xml);
     if (!missionsXML || !missionsXML.length) {
       console.log(`[${publisher.name}] Empty xml`);
-      console.log(`[${publisher.name}] ES cleaning...`);
-      const esRes = await esClient.updateByQuery({
-        index: MISSION_INDEX,
-        body: {
-          query: { bool: { must: [{ term: { "publisherId.keyword": publisher._id } }, { term: { deleted: false } }, { range: { updatedAt: { lt: start } } }] } },
-          script: { source: "ctx._source.deleted = params.deleted; ctx._source.deletedAt = params.deletedAt", params: { deleted: true, deletedAt: new Date() } },
-        },
-      });
-      console.log(`[${publisher.name}] ES cleaning deleted ${esRes.body.updated}`);
+
+      console.log(`[${publisher.name}] Mongo cleaning...`);
+      const mongoRes = await MissionModel.updateMany({ publisherId: publisher._id, deletedAt: null, updatedAt: { $lt: start } }, { deleted: true, deletedAt: new Date() });
+      console.log(`[${publisher.name}] Mongo cleaning deleted ${mongoRes.modifiedCount}`);
       obj.endedAt = new Date();
       return obj;
     }
@@ -276,17 +221,8 @@ const importPublisher = async (publisher: Publisher, start: Date) => {
     await bulkDB(missions, publisher, obj);
 
     // STATS
-    const resMissionCount = await esClient.count({
-      index: MISSION_INDEX,
-      body: { query: { bool: { filter: [{ term: { "publisherId.keyword": publisher._id } }, { term: { deleted: false } }] } } },
-    });
-    obj.missionCount = resMissionCount.body.count;
-
-    const resMissionRefused = await esClient.count({
-      index: MISSION_INDEX,
-      body: { query: { bool: { filter: [{ term: { "publisherId.keyword": publisher._id } }, { term: { deleted: true } }, { term: { statusCode: "REFUSED" } }] } } },
-    });
-    obj.refusedCount = resMissionRefused.body.count;
+    obj.missionCount = await MissionModel.countDocuments({ publisherId: publisher._id, deletedAt: null });
+    obj.refusedCount = await MissionModel.countDocuments({ publisherId: publisher._id, deletedAt: null, statusCode: "REFUSED" });
   } catch (error) {
     captureException(error, `Error while importing publisher ${publisher.name}`);
     console.error(JSON.stringify(error, null, 2));
