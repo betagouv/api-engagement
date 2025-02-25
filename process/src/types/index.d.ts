@@ -532,6 +532,7 @@ export interface Stats {
   sourceId: string;
   sourceName: string;
   tag?: string;
+  tags?: string[];
   type: "print" | "apply" | "click" | "view";
   user?: string;
   status?: string;
