@@ -4,6 +4,7 @@ import * as Sentry from "@sentry/nextjs";
 import iso from "i18n-iso-countries";
 import isoFR from "i18n-iso-countries/langs/fr.json";
 import { useRouter } from "next/router";
+import { usePlausible } from "next-plausible";
 iso.registerLocale(isoFR);
 
 import { API_URL, DOMAINES, ENV } from "../config";
@@ -11,6 +12,8 @@ import { Carousel } from "../components/carousel";
 import { Grid } from "../components/grid";
 import { Filters, MobileFilters } from "../components/filters";
 import { calculateDistance } from "../utils";
+import useStore from "../store";
+
 /**
  * Layout widget --> max-width: 1152px
  * 1 : CAROUSEL
@@ -24,6 +27,8 @@ import { calculateDistance } from "../utils";
  */
 const Home = ({ widget, missions, options, total, request, environment }) => {
   const router = useRouter();
+  const { setUrl, setColor } = useStore();
+  const plausible = usePlausible();
   const [filters, setFilters] = useState({
     domain: [],
     organization: [],
@@ -38,6 +43,13 @@ const Home = ({ widget, missions, options, total, request, environment }) => {
 
   useEffect(() => {
     if (!widget) return;
+
+    const url = new URL(location.href);
+    const u = `${url.protocol}//${url.hostname}/${widget.style === "page" ? "catalogue" : "carousel"}`;
+    setUrl(u);
+    setColor(widget.color ? widget.color : "#71A246");
+    plausible("pageview", { u });
+
     if (widget.location) return setFilters((f) => ({ ...f, location: widget.location }));
 
     if (navigator.geolocation) {
@@ -65,11 +77,26 @@ const Home = ({ widget, missions, options, total, request, environment }) => {
         ...(router.query.notrack && { notrack: router.query.notrack }),
       };
 
-      if (filters.domain?.length) query.domain = JSON.stringify(filters.domain.filter((item) => item && item.value).map((item) => item.value));
-      if (filters.organization?.length) query.organization = JSON.stringify(filters.organization.filter((item) => item && item.value).map((item) => item.value));
+      if (filters.domain?.length)
+        query.domain = filters.domain
+          .filter((item) => item && item.value)
+          .map((item) => item.value)
+          .join(",");
+      if (filters.organization?.length)
+        query.organization = filters.organization
+          .filter((item) => item && item.value)
+          .map((item) => item.value)
+          .join(",");
       if (filters.department?.length)
-        query.department = JSON.stringify(filters.department.filter((item) => item && item.value).map((item) => (item.value === "" ? "none" : item.value)));
-      if (filters.remote?.length) query.remote = JSON.stringify(filters.remote.filter((item) => item && item.value).map((item) => item.value));
+        query.department = filters.department
+          .filter((item) => item && item.value)
+          .map((item) => (item.value === "" ? "none" : item.value))
+          .join(",");
+      if (filters.remote?.length)
+        query.remote = filters.remote
+          .filter((item) => item && item.value)
+          .map((item) => item.value)
+          .join(",");
       if (filters.size) query.size = filters.size;
       if (filters.page > 1) query.from = (filters.page - 1) * filters.size;
       if (filters.location?.lat && filters.location?.lon) {
@@ -122,19 +149,18 @@ const Home = ({ widget, missions, options, total, request, environment }) => {
             options={options}
             filters={filters}
             setFilters={(newFilters) => setFilters({ ...filters, ...newFilters })}
-            color={color}
             disabledLocation={!!widget.location}
             showFilters={showFilters}
             setShowFilters={setShowFilters}
           />
         </div>
         <div className={`hidden md:flex m-auto items-center justify-between }`}>
-          <Filters options={options} filters={filters} setFilters={(newFilters) => setFilters({ ...filters, ...newFilters })} color={color} disabledLocation={!!widget.location} />
+          <Filters options={options} filters={filters} setFilters={(newFilters) => setFilters({ ...filters, ...newFilters })} disabledLocation={!!widget.location} />
         </div>
       </header>
       <div className={`w-full ${showFilters ? (widget?.style === "carousel" ? "hidden" : "opacity-40") : "h-auto overflow-x-hidden"}`}>
         {widget?.style === "carousel" ? (
-          <Carousel widget={widget} missions={missions} color={color} total={total} request={request} />
+          <Carousel widget={widget} missions={missions} total={total} request={request} />
         ) : (
           <Grid
             widget={widget}
@@ -173,14 +199,14 @@ export const getServerSideProps = async (context) => {
   try {
     const searchParams = new URLSearchParams();
 
-    if (context.query.domain) JSON.parse(context.query.domain).forEach((item) => searchParams.append("domain", item));
-    if (context.query.organization) JSON.parse(context.query.organization).forEach((item) => searchParams.append("organization", item));
+    if (context.query.domain) context.query.domain.split(",").forEach((item) => searchParams.append("domain", item));
+    if (context.query.organization) context.query.organization.split(",").forEach((item) => searchParams.append("organization", item));
     if (context.query.department) {
-      JSON.parse(context.query.department).forEach((item) => {
+      context.query.department.split(",").forEach((item) => {
         searchParams.append("department", item === "" ? "none" : item);
       });
     }
-    if (context.query.remote) JSON.parse(context.query.remote).forEach((item) => searchParams.append("remote", item));
+    if (context.query.remote) context.query.remote.split(",").forEach((item) => searchParams.append("remote", item));
     if (context.query.size) searchParams.append("size", parseInt(context.query.size, 10));
     if (context.query.from) searchParams.append("from", parseInt(context.query.from, 10));
     if (context.query.lat && context.query.lon) {

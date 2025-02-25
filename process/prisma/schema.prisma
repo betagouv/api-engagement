@@ -110,6 +110,7 @@ model Click {
   from_partner_id String?
   to_partner_id   String?
   tag             String?
+  tags            String[]
   source_id       String?
   mission_old_id  String?
   accounts        Account[]
@@ -290,8 +291,6 @@ model Mission {
   jva_moderation_title            String?
   organization_client_id          String?
   organization_department         String?
-  association_id                  String?
-  association_rna                 String?
   city                            String?
   client_id                       String?
   description_html                String?
@@ -310,6 +309,21 @@ model Mission {
   tasks                           String[]
   places                          Int?
   matched_organization_id         String?
+  organization_verification_status String?
+  organization_name_verified      String?
+  organization_rna_verified       String?
+  organization_siren_verified     String?
+  organization_siret_verified      String?
+  organization_address_verified   String?
+  organization_city_verified      String?
+  organization_postal_code_verified String?
+  organization_department_code_verified String?
+  organization_department_name_verified String?
+  organization_region_verified    String?
+  organization_is_rup             Boolean?
+  is_siren_verified               Boolean?
+  is_siret_verified              Boolean?
+  is_rna_verified                 Boolean?
   accounts                        Account[]
   applies                         Apply[]
   clicks                          Click[]

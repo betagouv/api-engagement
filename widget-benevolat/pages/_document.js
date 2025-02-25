@@ -9,9 +9,7 @@ class MyDocument extends Document {
   render() {
     return (
       <Html>
-        <Head>
-          <script defer data-domain="mission.api-engagement.beta.gouv.fr" src="https://plausible.io/js/script.js"></script>
-        </Head>
+        <Head />
         <body>
           <Main />
           <NextScript />

@@ -32,6 +32,7 @@ import warnings from "./jobs/warnings";
 import { captureException } from "./error";
 import report from "./jobs/report";
 import kpi from "./jobs/kpi";
+import brevo from "./jobs/brevo";
 
 const app = express();
 
@@ -44,6 +45,7 @@ const runnings = {
   organization: false,
   report: false,
   kpi: false,
+  brevo: false,
 };
 
 // https://crontab.guru/#0_*/3_*_*_*
@@ -146,6 +148,38 @@ const kpiJob = new CronJob(
       });
     }
     runnings.kpi = false;
+  },
+  null,
+  true,
+  "Europe/Paris",
+);
+
+// Every day at 1 AM
+const brevoJob = new CronJob(
+  "0 1 * * *",
+  async () => {
+    if (runnings.brevo) return;
+    runnings.brevo = true;
+    const checkInId = Sentry.captureCheckIn({
+      monitorSlug: "brevo",
+      status: "in_progress",
+    });
+    try {
+      await brevo.handler();
+      Sentry.captureCheckIn({
+        checkInId,
+        monitorSlug: "brevo",
+        status: "ok",
+      });
+    } catch (error) {
+      captureException(error);
+      Sentry.captureCheckIn({
+        checkInId,
+        monitorSlug: "brevo",
+        status: "error",
+      });
+    }
+    runnings.brevo = false;
   },
   null,
   true,
@@ -280,11 +314,13 @@ const leboncoinJob = new CronJob(
 
 // Every first Tuesday of the month at 10:00 AM
 const reportJob = new CronJob(
-  "0 10 * * 2",
+  // "0 10 * * 2",
+  "0 10 * * 4",
   async () => {
     // if not the first Tuesday of the month, return
     const date = new Date();
-    if (date.getDay() !== 2 || date.getDate() > 7) return;
+    // if (date.getDay() !== 2 || date.getDate() > 7) return;
+    if (date.getDay() !== 4 || date.getDate() > 7) return; // Temporary to Thursday
 
     runnings.report = true;
     const checkInId = Sentry.captureCheckIn({
@@ -383,6 +419,14 @@ app.get("/tasks", async (req, res) => {
         lastRun: kpiJob.lastDate(),
         nextRun: kpiJob.nextDate(),
         running: runnings.kpi,
+      },
+      {
+        name: "Sync Brevo",
+        schedule: brevoJob.cronTime.source,
+        started: brevoJob.running,
+        lastRun: brevoJob.lastDate(),
+        nextRun: brevoJob.nextDate(),
+        running: runnings.brevo,
       },
     ];
 

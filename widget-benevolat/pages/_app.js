@@ -1,4 +1,5 @@
 import localFont from "next/font/local";
+import PlausibleProvider from "next-plausible";
 
 import "./global.css";
 
@@ -23,9 +24,19 @@ const font = localFont({
 });
 
 const MyApp = ({ Component, pageProps }) => {
+  const domain = process.env.NODE_ENV === "production" ? "mission.api-engagement.beta.gouv.fr" : "localhost:3001";
+
   return (
     <main className={font.className}>
-      <Component {...pageProps} />
+      <PlausibleProvider
+        manualPageviews
+        domain={domain}
+        enabled={domain.indexOf("localhost") !== -1 || undefined}
+        trackLocalhost={domain.indexOf("localhost") !== -1}
+        trackOutboundLinks
+      >
+        <Component {...pageProps} />
+      </PlausibleProvider>
     </main>
   );
 };

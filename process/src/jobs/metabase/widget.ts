@@ -49,7 +49,7 @@ const handler = async () => {
     const dataToUpdate = [];
     for (const doc of data) {
       const exists = stored[doc._id.toString()];
-      const obj = buildData(doc, partners);
+      const obj = buildData(doc as Widget, partners);
       if (!obj) continue;
       if (exists && new Date(exists.updated_at).getTime() !== obj.updated_at.getTime()) dataToUpdate.push(obj);
       else if (!exists) dataToCreate.push(obj);
@@ -79,12 +79,36 @@ const handler = async () => {
       const transactions = [];
       for (const obj of dataToUpdate) {
         const { partners, ...widgetData } = obj;
+
+        const widget = await prisma.widget.findUnique({
+          where: { old_id: obj.old_id },
+          select: { id: true },
+        });
+
+        if (!widget) {
+          console.log(`[Widgets] Widget ${obj.old_id} not found`);
+          continue;
+        }
+
+        const existsPartnerToWidget = await prisma.partnerToWidget.findMany({
+          where: { widget_id: widget.id },
+          select: { partner_id: true },
+        });
+
+        const existsPartnerIds = existsPartnerToWidget.map((p) => p.partner_id);
+
         transactions.push(
           prisma.widget.update({
             where: { old_id: obj.old_id },
             data: {
               ...widgetData,
-              partners: partners,
+              partners: {
+                deleteMany: {
+                  widget_id: widget.id,
+                  partner_id: { in: existsPartnerIds.filter((id) => !partners.create.map((p) => p.partner_id).includes(id)) },
+                },
+                create: partners.create.filter((p) => !existsPartnerIds.includes(p.partner_id)),
+              },
             },
           }),
         );

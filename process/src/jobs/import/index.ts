@@ -248,25 +248,29 @@ const importPublisher = async (publisher: Publisher, start: Date) => {
     });
 
     // RNA
-    // const resultRNA = await verifyOrganization(missions);
-    // resultRNA.forEach((r) => {
-    //   const mission = missions.find((m) => m.clientId.toString() === r.clientId.toString());
-    //   if (mission) {
-    //     mission.organizationId = r.organizationId;
-    //     mission.organizationNameVerified = r.organizationNameVerified;
-    //     mission.organizationRNAVerified = r.organizationRNAVerified;
-    //     mission.organizationSirenVerified = r.organizationSirenVerified;
-    //     mission.organizationSiretVerified = r.organizationSiretVerified;
-    //     mission.organizationAddressVerified = r.organizationAddressVerified;
-    //     mission.organizationCityVerified = r.organizationCityVerified;
-    //     mission.organizationPostalCodeVerified = r.organizationPostalCodeVerified;
-    //     mission.organizationDepartmentCodeVerified = r.organizationDepartmentCodeVerified;
-    //     mission.organizationDepartmentNameVerified = r.organizationDepartmentNameVerified;
-    //     mission.organizationRegionVerified = r.organizationRegionVerified;
-    //     // mission.organisationIsRUP = r.organisationIsRUP;
-    //     mission.organizationVerificationStatus = r.organizationVerificationStatus;
-    //   }
-    // });
+    console.log(`[Organization] Starting organization verification for ${missions.length} missions`);
+    const resultRNA = await verifyOrganization(missions);
+    console.log(`[Organization] Received ${resultRNA.length} verification results`);
+
+    resultRNA.forEach((r) => {
+      const mission = missions.find((m) => m.clientId.toString() === r.clientId.toString());
+      if (mission) {
+        mission.organizationId = r.organizationId;
+        mission.organizationNameVerified = r.organizationNameVerified;
+        mission.organizationRNAVerified = r.organizationRNAVerified;
+        mission.organizationSirenVerified = r.organizationSirenVerified;
+        mission.organizationSiretVerified = r.organizationSiretVerified;
+        mission.organizationAddressVerified = r.organizationAddressVerified;
+        mission.organizationCityVerified = r.organizationCityVerified;
+        mission.organizationPostalCodeVerified = r.organizationPostalCodeVerified;
+        mission.organizationDepartmentCodeVerified = r.organizationDepartmentCodeVerified;
+        mission.organizationDepartmentNameVerified = r.organizationDepartmentNameVerified;
+        mission.organizationRegionVerified = r.organizationRegionVerified;
+        mission.organizationVerificationStatus = r.organizationVerificationStatus;
+      } else {
+        console.log(`[Organization Warning] Could not find mission for clientId: ${r.clientId}`);
+      }
+    });
 
     // BULK WRITE
     await bulkDB(missions, publisher, obj);

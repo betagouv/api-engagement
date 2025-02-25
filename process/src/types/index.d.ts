@@ -20,6 +20,7 @@ export interface Organization {
   rna: string;
   siren?: string;
   siret?: string;
+  sirets: string[];
   rupMi?: string;
   gestion?: string;
   status?: string;
@@ -62,6 +63,7 @@ export interface Organization {
   observation?: string;
   syncAt?: Date;
   source?: string;
+  isRUP?: boolean;
 }
 
 export interface OrganizationNameMatch {
@@ -70,6 +72,7 @@ export interface OrganizationNameMatch {
   organizationIds: string[];
   organizationNames: string[];
   missionIds: string[];
+  matchCount: number;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -156,7 +159,7 @@ export interface Import {
   failed: any;
 }
 export interface Mission {
-  _id: Schema.Types.ObjectId;
+  _id?: Schema.Types.ObjectId;
   _old_id?: string;
   _old_ids?: string[];
 
@@ -429,7 +432,7 @@ export interface StatsReport {
       applyLastYear: number;
     }[];
     organizationHistogram: {
-      month: Date;
+      month: number;
       [key: string]: number;
     }[];
   };
@@ -463,7 +466,7 @@ export interface StatsReport {
       applyLastYear: number;
     }[];
     organizationHistogram: {
-      month: Date;
+      month: number;
       [key: string]: number;
     }[];
   };
@@ -478,16 +481,16 @@ export interface Report {
   objectName: string | null;
   publisherId: string;
   publisherName: string;
-  sent: boolean;
+
+  dataTemplate: "BOTH" | "RECEIVE" | "SEND" | "NONE";
+
   sentAt: Date | null;
   sentTo: string[];
-  dataTemplate: "BOTH" | "RECEIVE" | "SEND" | "NONE";
-  clicksFrom: number;
-  clicksTo: number;
-  applyFrom: number;
-  applyTo: number;
+
+  status: string;
+
   data: StatsReport;
-  error: string;
+
   createdAt: Date;
   updatedAt: Date;
 }
@@ -537,6 +540,7 @@ export type User = {
   invitationExpiresAt: Date | null;
   invitationCompletedAt: Date | null;
   comparePassword: (password: string) => Promise<boolean>;
+  brevoContactId: number | null;
 };
 
 export interface Stats {
@@ -563,6 +567,7 @@ export interface Stats {
   sourceId: string;
   sourceName: string;
   tag?: string;
+  tags?: string[];
   type: "print" | "apply" | "click" | "view";
   user?: string;
   status?: string;

@@ -76,14 +76,16 @@ export const generateReport = async (publisher: Publisher, year: number, month: 
   }
 };
 
-export const generate = async (year: number, month: number) => {
+export const generateReports = async (year: number, month: number) => {
   const publishers = await PublisherModel.find({ automated_report: true });
   let count = 0;
   const errors = [] as { id: string; name: string; error: string }[];
-
+  console.log(`[Report] Generating report for ${year}-${month} for ${publishers.length} publishers`);
   for (let i = 0; i < publishers.length; i++) {
     const publisher = publishers[i];
+    console.log(`[Report] Generating report for ${year}-${month} for ${publisher.name}`);
     const res = await generateReport(publisher, year, month);
+
     const obj = {
       name: `Rapport ${MONTHS[month]} ${year}`,
       month,
@@ -94,12 +96,14 @@ export const generate = async (year: number, month: number) => {
     } as Report;
 
     if (res.error) {
+      console.error(`[Report] Error generating report for ${year}-${month} for ${publisher.name}:`, res.error);
       obj.status = "NOT_GENERATED_ERROR_GENERATION";
       errors.push({ id: publisher._id.toString(), name: publisher.name, error: "Erreur lors de la génération du rapport" });
     } else if (!res.objectName) {
+      console.error(`[Report] No data for ${year}-${month} for ${publisher.name}`);
       obj.status = "NOT_GENERATED_NO_DATA";
-      errors.push({ id: publisher._id.toString(), name: publisher.name, error: "Données insuffisantes pour générer le rapport" });
     } else {
+      console.log(`[Report] Report generated for ${year}-${month} for ${publisher.name}`);
       obj.objectName = res.objectName;
       obj.url = res.url;
       obj.dataTemplate = res.data.receive?.hasStats && res.data.send?.hasStats ? "BOTH" : res.data.receive?.hasStats ? "RECEIVE" : "SEND";

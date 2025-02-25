@@ -67,7 +67,7 @@ const handler = async () => {
     for (const doc of data) {
       const exists = stored.includes(doc._id.toString());
       if (exists) continue;
-      const obj = buildData(doc);
+      const obj = buildData(doc as Kpi);
       dataToCreate.push(obj);
     }
 

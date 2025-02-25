@@ -74,35 +74,57 @@ const Moderation = () => {
 
   useEffect(() => {
     const fetchData = async () => {
-      const timeout = setTimeout(async () => {
-        const query = {
-          moderatorId,
-          publisherId: publisher._id,
-          status: filters.status?.key,
-          comment: filters.comment?.key,
-          domain: filters.domain?.key,
-          department: filters.department?.key,
-          organization: filters.organization?.key,
-          search: filters.search,
-          from: (filters.page - 1) * pageSize,
-          size: pageSize,
-        };
+      const query = {
+        moderatorId,
+        publisherId: publisher._id,
+        status: filters.status,
+        comment: filters.comment,
+        domain: filters.domain,
+        department: filters.department,
+        organization: filters.organization,
+        search: filters.search,
+        from: (filters.page - 1) * pageSize,
+        size: pageSize,
+      };
 
-        try {
-          const res = await api.post("/moderation/search", query);
-          if (!res.ok) throw res;
-          setData(res.data);
-          setOptions(res.aggs);
+      try {
+        const res = await api.post("/moderation/search", query);
+        if (!res.ok) throw res;
+        setData(res.data);
 
-          setTotal(res.total);
-          buildStats(res.aggs);
-          return;
-        } catch (error) {
-          captureError(error, "Erreur lors de la récupération des missions");
+        setTotal(res.total);
+        return;
+      } catch (error) {
+        captureError(error, "Erreur lors de la récupération des missions");
+      }
+    };
+
+    fetchData();
+  }, [filters, moderatorId, publisher._id]);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      const query = {
+        moderatorId,
+        publisherId: publisher._id,
+        status: filters.status,
+        comment: filters.comment,
+        domain: filters.domain,
+        department: filters.department,
+        organization: filters.organization,
+        search: filters.search,
+      };
+
+      try {
+        const res = await api.post("/moderation/aggs", query);
+        if (!res.ok) throw res;
+        setOptions(res.data);
+        if (res.data) {
+          buildStats(res.data);
         }
-      }, 500);
-
-      return () => clearTimeout(timeout);
+      } catch (error) {
+        captureError(error, "Erreur lors de la récupération des statistiques");
+      }
     };
 
     fetchData();

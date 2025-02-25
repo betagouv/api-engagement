@@ -61,7 +61,7 @@ const handler = async () => {
     while (data && data.length) {
       const dataToCreate = [];
       for (const doc of data) {
-        const obj = buildData(doc, widgets);
+        const obj = buildData(doc as RequestWidget, widgets);
         if (!obj) continue;
         dataToCreate.push(obj);
       }

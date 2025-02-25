@@ -29,8 +29,8 @@ import Warnings from "./scenes/warnings";
 import Widget from "./scenes/widget";
 
 import image from "./assets/img/background-connexion.jpg";
+import AdminOrganization from "./scenes/admin-organization";
 import AdminReport from "./scenes/admin-report";
-import AdminRna from "./scenes/admin-rna";
 import PublicStats from "./scenes/public-stats";
 import Publisher from "./scenes/publisher";
 import User from "./scenes/user";
@@ -70,15 +70,15 @@ const App = () => {
               <Route path="/connect" element={<LoginAs />} />
             </Route>
 
-            <Route element={<StatsLayout />}>
+            <Route element={<PublicLayout />}>
               <Route path="/public-stats" element={<PublicStats />} />
+              <Route path="/cgu" element={<CGU />} />
             </Route>
             <Route element={<ProtectedLayout />}>
               <Route path="/performance/*" element={<Performance />} />
               <Route path="/broadcast/*" element={<Broadcast />} />
               <Route path="/my-missions/*" element={<MyMissions />} />
               <Route path="/settings/*" element={<Settings />} />
-              <Route path="/cgu" element={<CGU />} />
               <Route path="/mission/*" element={<Mission />} />
               <Route path="/warning/*" element={<Warnings />} />
               <Route path="/my-account" element={<Account />} />
@@ -89,7 +89,7 @@ const App = () => {
                 <Route path="/publisher/*" element={<Publisher />} />
                 <Route path="/user/*" element={<User />} />
                 <Route path="/admin-mission/*" element={<AdminMissions />} />
-                <Route path="/admin-rna/*" element={<AdminRna />} />
+                <Route path="/admin-organization/*" element={<AdminOrganization />} />
                 <Route path="/admin-account/*" element={<AdminAccounts />} />
                 <Route path="/admin-stats/*" element={<AdminStats />} />
                 <Route path="/admin-warning/*" element={<AdminWarnings />} />
@@ -184,7 +184,7 @@ const AdminLayout = () => {
   return !user || user.role !== "admin" ? <Navigate to="/login" /> : <Outlet />;
 };
 
-const StatsLayout = () => {
+const PublicLayout = () => {
   const { user } = useStore();
   return (
     <div className="min-w-768 flex min-h-screen w-screen flex-col bg-beige">

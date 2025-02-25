@@ -1,8 +1,13 @@
 import React, { useState, useEffect } from "react";
 import { RiArrowLeftLine, RiArrowRightLine } from "react-icons/ri";
-import Card from "./card";
+import { usePlausible } from "next-plausible";
 
-export const Carousel = ({ widget, missions, color, request }) => {
+import Card from "./card";
+import useStore from "../store";
+
+export const Carousel = ({ widget, missions, request }) => {
+  const { url, color } = useStore();
+  const plausible = usePlausible();
   const [currentSlide, setCurrentSlide] = useState(0);
   const [slidesToShow, setSlidesToShow] = useState(3);
 
@@ -28,10 +33,12 @@ export const Carousel = ({ widget, missions, color, request }) => {
 
   const nextPage = () => {
     setCurrentSlide((prev) => Math.min(prev + slidesToShow, missions.length - slidesToShow));
+    plausible("Slide changed", { u: url });
   };
 
   const prevPage = () => {
     setCurrentSlide((prev) => Math.max(prev - slidesToShow, 0));
+    plausible("Slide changed", { u: url });
   };
 
   if (missions.length === 0) {

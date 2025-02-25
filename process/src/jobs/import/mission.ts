@@ -6,11 +6,6 @@ import { DOMAINS } from "../../constants/domains";
 import { Mission, MissionXML, Publisher } from "../../types";
 import { getAddress, getAddresses } from "./utils/address";
 
-const parseString = (value: string | undefined) => {
-  if (!value) return "";
-  return String(value);
-};
-
 const getImageDomain = (domain: string, title: string) => {
   const StringToInt = (str: string = "", len: number) => {
     let total = 0;
@@ -18,7 +13,7 @@ const getImageDomain = (domain: string, title: string) => {
     return (total % len) + 1;
   };
   if (domain === "education") return `https://apicivique.s3.eu-west-3.amazonaws.com/missions/2_${StringToInt(title, 3)}.jpg`;
-  if (domain === "sante") return `https://apicivique.s3.eu-west-3.amazonaws.com/missions/3_${StringToInt(title, 3)}.jpg`;
+  if (domain === "sante") return `https://apicivique.s3.eu-west-3.amazonaws.com/missions/3_${StringToInt(title, 3) === 2 ? 1 : StringToInt(title, 3)}.jpg`;
   if (domain === "environnement") return `https://apicivique.s3.eu-west-3.amazonaws.com/missions/4_${StringToInt(title, 3)}.jpg`;
   if (domain === "solidarite-insertion") return `https://apicivique.s3.eu-west-3.amazonaws.com/missions/6_${StringToInt(title, 3)}.jpg`;
   if (domain === "sport") return `https://apicivique.s3.eu-west-3.amazonaws.com/missions/7_${StringToInt(title, 3)}.jpg`;
@@ -63,6 +58,11 @@ const getModeration = (mission: Mission) => {
   mission.statusComment = statusComment || "";
 };
 
+const parseString = (value: string | undefined) => {
+  if (!value) return "";
+  return String(value);
+};
+
 const parseBool = (value: string | undefined) => {
   if (!value || value === "no") return "no";
   return "yes";
@@ -79,11 +79,12 @@ const parseNumber = (value: number | string | undefined) => {
   return Number(value);
 };
 
-const parseArray = (value: string | { value: string[] | string } | undefined) => {
+const parseArray = (value: string | { value: string[] | string } | undefined, includeSpace = false) => {
   if (!value) return undefined;
   if (typeof value === "object") return Array.isArray(value.value) ? value.value : [value.value];
   if (Array.isArray(value)) return value;
   if (value.includes(",")) return value.split(",").map((i) => i.trim());
+  if (includeSpace && value.includes(" ")) return value.split(" ").map((i) => i.trim());
   return [value];
 };
 
@@ -126,12 +127,12 @@ export const buildMission = (publisher: Publisher, missionXML: MissionXML) => {
     organizationClientId: parseString(missionXML.organizationId),
     organizationStatusJuridique: parseString(missionXML.organizationStatusJuridique) || "",
     organizationType: parseString(missionXML.organizationType) || "",
-    organizationActions: parseArray(missionXML.keyActions) || [],
+    organizationActions: parseArray(missionXML.keyActions, true) || [],
     organizationFullAddress: parseString(missionXML.organizationFullAddress),
     organizationPostCode: parseString(missionXML.organizationPostCode),
     organizationCity: parseString(missionXML.organizationCity),
-    organizationBeneficiaries: parseArray(missionXML.organizationBeneficiaries || missionXML.organizationBeneficiaires || missionXML.publicBeneficiaries) || [],
-    organizationReseaux: parseArray(missionXML.organizationReseaux) || [],
+    organizationBeneficiaries: parseArray(missionXML.organizationBeneficiaries || missionXML.organizationBeneficiaires || missionXML.publicBeneficiaries, true) || [],
+    organizationReseaux: parseArray(missionXML.organizationReseaux, true) || [],
   } as Mission;
 
   mission.domainLogo = missionXML.image || getImageDomain(mission.domain, mission.title);

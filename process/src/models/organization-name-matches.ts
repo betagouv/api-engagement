@@ -10,6 +10,7 @@ const schema = new Schema<OrganizationNameMatch>(
     organizationIds: { type: [String], description: "Organization matched ids", ref: "organizations" },
     organizationNames: { type: [String], description: "Organization matched names" },
     missionIds: { type: [String], description: "Mission matched ids", ref: "missions" },
+    matchCount: { type: Number, description: "Match count" },
   },
   { timestamps: true },
 );

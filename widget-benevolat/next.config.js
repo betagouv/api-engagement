@@ -1,4 +1,5 @@
 const { withSentryConfig } = require("@sentry/nextjs");
+const { withPlausibleProxy } = require("next-plausible");
 
 const nextConfig = {
   reactStrictMode: false,
@@ -12,7 +13,7 @@ const nextConfig = {
   },
 };
 
-module.exports = withSentryConfig(nextConfig, {
+module.exports = withSentryConfig(withPlausibleProxy()(nextConfig), {
   // For all available options, see:
   // https://github.com/getsentry/sentry-webpack-plugin#options
   org: "sentry",

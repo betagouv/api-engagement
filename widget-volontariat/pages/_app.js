@@ -1,4 +1,5 @@
 import localFont from "next/font/local";
+import PlausibleProvider from "next-plausible";
 
 import "./global.css";
 
@@ -30,9 +31,21 @@ const icomoon = localFont({
 });
 
 const MyApp = ({ Component, pageProps }) => {
+  const domain = process.env.NODE_ENV === "production" ? "sc.api-engagement.beta.gouv.fr" : "localhost:3001";
+
+  console.log("domain", domain, domain.indexOf("localhost") !== -1 || undefined);
+
   return (
     <main className={`${font.className} ${icomoon.variable}`}>
-      <Component {...pageProps} />
+      <PlausibleProvider
+        manualPageviews
+        domain={domain}
+        enabled={domain.indexOf("localhost") !== -1 || undefined}
+        trackLocalhost={domain.indexOf("localhost") !== -1}
+        trackOutboundLinks
+      >
+        <Component {...pageProps} />
+      </PlausibleProvider>
     </main>
   );
 };

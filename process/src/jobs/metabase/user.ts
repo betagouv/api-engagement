@@ -58,7 +58,7 @@ const handler = async () => {
     const dataToUpdate = [];
     for (const doc of data) {
       const exists = stored[doc._id.toString()];
-      const obj = buildData(doc, partners);
+      const obj = buildData(doc as User, partners);
       if (exists && new Date(exists.updated_at).getTime() !== obj.updated_at.getTime()) dataToUpdate.push(obj);
       else if (!exists) dataToCreate.push(obj);
     }
@@ -88,12 +88,36 @@ const handler = async () => {
       const transactions = [];
       for (const obj of dataToUpdate) {
         const { partners, ...userData } = obj;
+
+        const user = await prisma.user.findUnique({
+          where: { old_id: obj.old_id },
+          select: { id: true },
+        });
+
+        if (!user) {
+          console.log(`[Users] User ${obj.old_id} not found in database.`);
+          continue;
+        }
+
+        const existsPartnerToUser = await prisma.partnerToUser.findMany({
+          where: { user_id: user.id },
+          select: { partner_id: true },
+        });
+
+        const existsPartnerIds = existsPartnerToUser.map((p) => p.partner_id);
+
         transactions.push(
           prisma.user.update({
             where: { old_id: obj.old_id },
             data: {
               ...userData,
-              partners: partners,
+              partners: {
+                deleteMany: {
+                  user_id: user.id,
+                  partner_id: { in: existsPartnerIds.filter((id) => !partners.create.map((p) => p.partner_id).includes(id)) },
+                },
+                create: partners.create.filter((p) => !existsPartnerIds.includes(p.partner_id)),
+              },
             },
           }),
         );

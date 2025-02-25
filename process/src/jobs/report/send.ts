@@ -2,7 +2,7 @@ import { Report } from "../../types";
 import PublisherModel from "../../models/publisher";
 import UserModel from "../../models/user";
 import ReportModel from "../../models/report";
-import { sendTemplate } from "../../services/email";
+import { sendTemplate } from "../../services/brevo";
 import { captureException } from "../../error";
 
 const ANNOUNCE_TEMPLATE_ID = 20;
@@ -50,7 +50,7 @@ const sendReport = async (report: Report) => {
   }
 };
 
-export const send = async (year: number, month: number) => {
+export const sendReports = async (year: number, month: number) => {
   const publishers = await PublisherModel.find({ automated_report: true });
   const users = await UserModel.find({});
 
