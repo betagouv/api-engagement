@@ -1,16 +1,15 @@
 import { NextFunction, Response, Router } from "express";
-import Joi from "joi";
 import passport from "passport";
 import zod from "zod";
 
-import { API_URL, MISSION_INDEX, STATS_INDEX } from "../config";
+import { API_URL, STATS_INDEX } from "../config";
 import esClient from "../db/elastic";
-import { captureMessage, INVALID_BODY, INVALID_PARAMS, INVALID_QUERY, NOT_FOUND } from "../error";
+import { captureMessage, INVALID_PARAMS, INVALID_QUERY, NOT_FOUND } from "../error";
 import MissionModel from "../models/mission";
 import RequestModel from "../models/request";
 import { Mission, Stats } from "../types";
 import { PublisherRequest } from "../types/passport";
-import { diacriticSensitiveRegex, EARTH_RADIUS, geoFromIp, getDistanceFromLatLonInKm, getDistanceKm } from "../utils";
+import { diacriticSensitiveRegex, EARTH_RADIUS, getDistanceFromLatLonInKm, getDistanceKm } from "../utils";
 
 const NO_PARTNER = "NO_PARTNER";
 const NO_PARTNER_MESSAGE = "Vous n'avez pas encore accès à des missions. Contactez margot.quettelart@beta.gouv.fr pour vous donner accès aux missions";
@@ -100,7 +99,7 @@ router.get("/", passport.authenticate(["apikey", "api"], { session: false }), as
 
     if (query.data.country) {
       if (!Array.isArray(query.data.country) && query.data.country.includes(",")) query.data.country = query.data.country.split(",").map((e: string) => e.trim());
-      where.country = Array.isArray(query.data.country) ? { $in: query.data.country } : query.data.country;
+      where["addresses.country"] = Array.isArray(query.data.country) ? { $in: query.data.country } : query.data.country;
     }
 
     if (query.data.city) {
@@ -277,7 +276,7 @@ router.get("/search", passport.authenticate(["apikey", "api"], { session: false 
         $facet: {
           domain: [{ $group: { _id: "$domain", count: { $sum: 1 } } }, { $sort: { count: -1 } }],
           activity: [{ $group: { _id: "$activity", count: { $sum: 1 } } }, { $sort: { count: -1 } }],
-          departmentName: [{ $group: { _id: "$departmentName", count: { $sum: 1 } } }, { $sort: { count: -1 } }],
+          departmentName: [{ $group: { _id: "$addresses.departmentName", count: { $sum: 1 } } }, { $sort: { count: -1 } }],
         },
       },
     ]);
@@ -349,69 +348,21 @@ router.get("/:id", passport.authenticate(["apikey", "api"], { session: false }),
   }
 });
 
-// TODO DELETE
-// router.post("/search",  passport.authenticate(["apikey", "api"], { session: false }), async (req: PublisherRequest, res: Response, next: NextFunction) => {
-router.post("/search", async (req: PublisherRequest, res: Response, next: NextFunction) => {
-  try {
-    const { error: queryError, value: query } = Joi.object({
-      geoloc: Joi.boolean().default(false),
-    }).validate(req.query);
-
-    const { error: bodyError, value: body } = Joi.object({
-      query: Joi.object({
-        bool: Joi.object({
-          must: Joi.array().items(Joi.object()).optional(),
-          filter: Joi.array().items(Joi.object()).optional(),
-          should: Joi.array().items(Joi.object()).optional(),
-          minimum_should_match: Joi.number().optional(),
-        }).optional(),
-      }).default({ bool: { must: [], filter: [], should: [] } }),
-      size: Joi.number().min(0).max(10000).default(25),
-      from: Joi.number().min(0).default(0),
-      sort: Joi.array().items(Joi.object()).optional(),
-    })
-      .unknown()
-      .validate(req.body);
-
-    if (queryError) return res.status(400).send({ ok: false, code: INVALID_QUERY, message: queryError.details });
-    if (bodyError) return res.status(400).send({ ok: false, code: INVALID_BODY, message: bodyError.details });
-
-    if (body.query?.bool.filter) {
-      body.query.bool.filter.push({ term: { "statusCode.keyword": "ACCEPTED" } });
-      body.query.bool.filter.push({ term: { deleted: false } });
-    } else {
-      body.query.bool.filter = [{ term: { "statusCode.keyword": "ACCEPTED" } }, { term: { deleted: false } }];
-    }
-
-    // only if no sort and asking for hits
-    if (query.geoloc && !body.sort && body.size) {
-      const geoloc = await geoFromIp(req);
-      if (geoloc && geoloc.ll && geoloc.ll[0] !== null && geoloc.ll[1] !== null) {
-        body.sort = [{ _geo_distance: { location: [geoloc.ll[1], geoloc.ll[0]], order: "asc", unit: "km", mode: "min" } }];
-      }
-    } else if (query.geoloc && body.sort) {
-      const s = body.sort.find((e: any) => e._geo_distance);
-      if (s && s._geo_distance && s._geo_distance.location && (!s._geo_distance.location[0] || !s._geo_distance.location[1])) {
-        // if bad geo, remove _geo_distance from sort
-        body.sort = body.sort.filter((e: any) => !e._geo_distance);
-      }
-    }
-    const response = await esClient.search({ index: MISSION_INDEX, body });
-    res.locals = { total: response.body.hits.total.value };
-    return res.status(200).send(response.body);
-  } catch (error) {
-    next(error);
-  }
-});
-
 const buildData = (data: Mission, publisherId: string, moderator: boolean = false) => {
+  const address = data.addresses[0];
   return {
     _id: data._id,
     id: data._id,
     clientId: data.clientId,
     publisherId: data.publisherId,
     activity: data.activity,
-    address: data.address,
+    address: address ? address.street : undefined,
+    city: address ? address.city : undefined,
+    postalCode: address ? address.postalCode : undefined,
+    departmentCode: address ? address.departmentCode : undefined,
+    departmentName: address ? address.departmentName : undefined,
+    country: address ? address.country : undefined,
+    location: address ? address.location : undefined,
     addresses: data.addresses,
     applicationUrl: `${API_URL}/r/${data._id}/${publisherId}`,
     associationLogo: data.associationLogo,
@@ -428,14 +379,10 @@ const buildData = (data: Mission, publisherId: string, moderator: boolean = fals
     associationSiren: data.associationSiren,
     associationSources: data.associationSources,
     audience: data.audience,
-    city: data.city,
     closeToTransport: data.closeToTransport,
-    country: data.country,
     createdAt: data.createdAt,
     deleted: data.deleted,
     deletedAt: data.deletedAt,
-    departmentCode: data.departmentCode,
-    departmentName: data.departmentName,
     description: data.description,
     descriptionHtml: data.descriptionHtml,
     domain: data.domain,
@@ -443,7 +390,6 @@ const buildData = (data: Mission, publisherId: string, moderator: boolean = fals
     duration: data.duration,
     endAt: data.endAt,
     lastSyncAt: data.lastSyncAt,
-    location: data.location,
     metadata: data.metadata,
     openToMinors: data.openToMinors,
     organizationActions: data.organizationActions,
@@ -463,7 +409,6 @@ const buildData = (data: Mission, publisherId: string, moderator: boolean = fals
     organizationType: data.organizationType,
     organizationUrl: data.organizationUrl,
     places: data.places,
-    postalCode: data.postalCode,
     postedAt: data.postedAt,
     priority: data.priority,
     publisherLogo: data.publisherLogo,
