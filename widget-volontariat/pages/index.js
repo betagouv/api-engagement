@@ -29,7 +29,7 @@ import useStore from "../store";
  *  --> desktop (1024px->) height = 1050px, frame = (3x3) bottom pagination
  */
 
-const Home = ({ widget, missions, total, request, environment }) => {
+const Home = ({ widget, apiUrl, missions, total, request, environment }) => {
   const router = useRouter();
   const { setUrl, setColor } = useStore();
   const plausible = usePlausible();
@@ -169,6 +169,7 @@ const Home = ({ widget, missions, total, request, environment }) => {
         </div>
         <Filters
           widget={widget}
+          apiUrl={apiUrl}
           values={filters}
           onChange={(newFilters) => setFilters({ ...filters, ...newFilters })}
           disabledLocation={!!widget.location}
@@ -288,7 +289,7 @@ export const getServerSideProps = async (context) => {
       });
     }
 
-    return { props: { widget, missions, total: response.total, options: {}, request: response.request, environment: ENV } };
+    return { props: { widget, missions, total: response.total, apiUrl: API_URL, request: response.request, environment: ENV } };
   } catch (error) {
     console.error(error);
     Sentry.captureException(error);

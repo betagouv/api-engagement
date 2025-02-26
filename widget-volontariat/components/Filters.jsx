@@ -6,16 +6,16 @@ import { RiArrowUpSLine, RiArrowDownSLine, RiCheckboxFill, RiCheckboxBlankLine, 
 
 import "react-day-picker/dist/style.css";
 import useStore from "../store";
-import { ACCESSIBILITIES, ACTIONS, API_URL, BENEFICIARIES, DOMAINS, MINORS, SCHEDULES } from "../config";
+import { ACCESSIBILITIES, ACTIONS, BENEFICIARIES, DOMAINS, MINORS, SCHEDULES } from "../config";
 
 const getAPI = async (path) => {
-  const response = await fetch(`${API_URL}/${path}`, { method: "GET" });
+  const response = await fetch(path, { method: "GET" });
 
   if (!response.ok) throw response;
   return response.json();
 };
 
-const Filters = ({ widget, values, onChange, show, onShow }) => {
+const Filters = ({ widget, apiUrl, values, onChange, show, onShow }) => {
   const [options, setOptions] = useState({});
   const [isMobile, setIsMobile] = useState(false);
 
@@ -44,7 +44,7 @@ const Filters = ({ widget, values, onChange, show, onShow }) => {
           searchParams.append("lon", values.location.lon);
         }
 
-        const { ok, data } = await getAPI(`iframe/${widget._id}/aggs?${searchParams.toString()}`);
+        const { ok, data } = await getAPI(`${apiUrl}/iframe/${widget._id}/aggs?${searchParams.toString()}`);
 
         if (!ok) throw Error("Error fetching aggs");
         const france = data.country.reduce((acc, c) => acc + (c.key === "FR" ? c.doc_count : 0), 0);
