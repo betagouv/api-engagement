@@ -92,7 +92,7 @@ router.get("/", passport.authenticate(["apikey", "api"], { session: false }), as
       $facet.statusCode = [{ $group: { _id: "$statusCode", count: { $sum: 1 } } }, { $sort: { count: -1 } }];
       $facet.domain = [{ $group: { _id: "$domain", count: { $sum: 1 } } }, { $sort: { count: -1 } }];
       $facet.activity = [{ $group: { _id: "$activity", count: { $sum: 1 } } }, { $sort: { count: -1 } }];
-      $facet.departmentName = [{ $group: { _id: "$departmentName", count: { $sum: 1 } } }, { $sort: { count: -1 } }];
+      $facet.departmentName = [{ $group: { _id: "$addresses.departmentName", count: { $sum: 1 } } }, { $sort: { count: -1 } }];
     }
 
     const total = await MissionModel.countDocuments(where);
@@ -143,12 +143,21 @@ router.get("/:id", passport.authenticate(["apikey", "api"], { session: false }),
 });
 
 const buildData = (data: Mission, publisherId: string, moderator: boolean = false) => {
+  const address = data.addresses[0];
   return {
     _id: data._id,
     clientId: data.clientId,
     publisherId: data.publisherId,
     activity: data.activity,
-    address: data.address,
+    address: address ? address.street : undefined,
+    city: address ? address.city : undefined,
+    postalCode: address ? address.postalCode : undefined,
+    departmentCode: address ? address.departmentCode : undefined,
+    departmentName: address ? address.departmentName : undefined,
+    region: address ? address.region : undefined,
+    country: address ? address.country : undefined,
+    location: address ? address.location : undefined,
+    addresses: data.addresses,
     applicationUrl: `${API_URL}/r/${data._id}/${publisherId}`,
     associationLogo: data.associationLogo,
     associationAddress: data.associationAddress,
@@ -164,14 +173,10 @@ const buildData = (data: Mission, publisherId: string, moderator: boolean = fals
     associationSiren: data.associationSiren,
     associationSources: data.associationSources,
     audience: data.audience,
-    city: data.city,
     closeToTransport: data.closeToTransport,
-    country: data.country,
     createdAt: data.createdAt,
     deleted: data.deleted,
     deletedAt: data.deletedAt,
-    departmentCode: data.departmentCode,
-    departmentName: data.departmentName,
     description: data.description,
     descriptionHtml: data.descriptionHtml,
     domain: data.domain,
@@ -179,7 +184,6 @@ const buildData = (data: Mission, publisherId: string, moderator: boolean = fals
     duration: data.duration,
     endAt: data.endAt,
     lastSyncAt: data.lastSyncAt,
-    location: data.location,
     metadata: data.metadata,
     openToMinors: data.openToMinors,
     organizationActions: data.organizationActions,
@@ -199,14 +203,12 @@ const buildData = (data: Mission, publisherId: string, moderator: boolean = fals
     organizationType: data.organizationType,
     organizationUrl: data.organizationUrl,
     places: data.places,
-    postalCode: data.postalCode,
     postedAt: data.postedAt,
     priority: data.priority,
     publisherLogo: data.publisherLogo,
     publisherName: data.publisherName,
     publisherUrl: data.publisherUrl,
     reducedMobilityAccessible: data.reducedMobilityAccessible,
-    region: data.region,
     remote: data.remote,
     schedule: data.schedule,
     snu: data.snu,
