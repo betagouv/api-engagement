@@ -1,7 +1,5 @@
-import esClient from "../../db/elastic";
 import { captureException } from "../../error";
 import PublisherModel from "../../models/publisher";
-import { MISSION_INDEX } from "../../config";
 import { Mission, Publisher } from "../../types";
 import MissionModel from "../../models/mission";
 
@@ -79,15 +77,7 @@ const createModerations = async (missions: Mission[], moderator: Publisher) => {
 
   // MongoDB bulk update
   await MissionModel.bulkWrite(bulkBody.map((b) => ({ updateOne: { filter: { _id: b._id }, update: { $set: { ...b, _id: undefined } } } })));
-  const resEs = await esClient.bulk({ refresh: true, body: bulkBody.flatMap((b) => [{ update: { _index: MISSION_INDEX, _id: b._id } }, { doc: { ...b, _id: undefined } }]) });
 
-  if (resEs.body.errors) {
-    resEs.body.items
-      .filter((e: any) => e.update && e.update.error)
-      .forEach((e: any) => {
-        console.log("error", e.update.error);
-      });
-  }
   return { inserted, updated };
 };
 

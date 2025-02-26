@@ -7,10 +7,10 @@ import PublisherModel from "../../models/publisher";
 import { captureException } from "../../error";
 import { putObject, OBJECT_ACL } from "../../services/s3";
 
-import esClient from "../../db/elastic";
-import { ENVIRONMENT, MISSION_INDEX } from "../../config";
+import { ENVIRONMENT } from "../../config";
 import { Import, Mission } from "../../types";
 import { LinkedInJob } from "../../types/linkedin";
+import MissionModel from "../../models/mission";
 // only works for promoted slots
 
 /**
@@ -33,50 +33,15 @@ const ECTI = "619faeb97d373e07aea8be24";
 const ADIE = "619fb52a7d373e07aea8be35";
 const PARTNERS = [BENEVOLT, FONDATION_RAOUL_FOLLEREAU, VILLE_DE_NANTES, VACANCES_ET_FAMILLES, PREVENTION_ROUTIERE, MEDECINS_DU_MONDE, EGEE, ECTI, ADIE];
 
-const getJVAMissions = async (limit: number) => {
-  const query = {
-    bool: {
-      must: [{ term: { deleted: false } }, { term: { "statusCode.keyword": "ACCEPTED" } }, { term: { "publisherId.keyword": JVA } }],
-    },
-  };
-  const body = {
-    size: limit || 10000,
-    query,
-    sort: [{ createdAt: "asc" }],
-  };
-
-  const res = await esClient.search({ index: MISSION_INDEX, body });
-  const missions = res.body.hits.hits.map((e: { _id: string; _source: Mission }) => ({
-    ...e._source,
-    _id: e._id,
-    applicationUrl: `https://api.api-engagement.beta.gouv.fr/r/${e._id}/${LINKEDIN}`,
-  }));
-  return missions;
-};
-
-const getModeratedMissions = async (limit: number) => {
-  const query = {
-    bool: {
-      must: [{ term: { deleted: false } }, { term: { [`moderation_${JVA}_status.keyword`]: "ACCEPTED" } }],
-      should: PARTNERS.map((e) => ({ term: { "publisherId.keyword": e } })),
-      minimum_should_match: 1,
-    },
-  };
-
-  const body = {
-    size: limit || 10000,
-    query,
-    sort: [{ createdAt: "asc" }],
-  };
-
-  const res = await esClient.search({ index: MISSION_INDEX, body });
-  const missions = res.body.hits.hits.map((e: { _id: string; _source: Mission }) => ({
-    ...e._source,
-    _id: e._id,
-    title: e._source[`moderation_${JVA}_title`] || e._source.title,
-    applicationUrl: `https://api.api-engagement.beta.gouv.fr/r/${e._id}/${LINKEDIN}`,
-  }));
-  return missions;
+const getMissions = async (where: { [key: string]: any }) => {
+  const missions = await MissionModel.find(where).sort({ createdAt: "asc" }).limit(10000).lean();
+  return missions.map(
+    (e) =>
+      ({
+        ...e,
+        applicationUrl: `https://api.api-engagement.beta.gouv.fr/r/${e._id}/${LINKEDIN}`,
+      }) as Mission,
+  );
 };
 
 const handler = async () => {
@@ -109,7 +74,7 @@ const handler = async () => {
     queryMission.$or = (linkedin.publishers || []).map((e) => ({ publisherId: e.publisher }));
 
     console.log(`[Linkedin] Querying missions of JeVeuxAider.gouv.fr`);
-    const JVAMissions = await getJVAMissions(10000);
+    const JVAMissions = await getMissions({ deletedAt: null, statusCode: "ACCEPTED", publisherId: JVA });
     console.log(`[Linkedin] ${JVAMissions.length} JVA missions found`);
     let expired = 0;
     for (let i = 0; i < JVAMissions.length; i++) {
@@ -128,7 +93,7 @@ const handler = async () => {
     importDoc.createdCount += jobs.length;
     console.log(`[Linkedin] ${jobs.length} missions added to the feed from JVA`);
 
-    const moderatedMission = await getModeratedMissions(10000);
+    const moderatedMission = await getMissions({ deletedAt: null, [`moderation_${JVA}_status`]: "ACCEPTED", publisherId: { $in: PARTNERS } });
     console.log(`[Linkedin] ${moderatedMission.length} moderated missions found`);
     // let linkedinSlot = moderatedMission.filter((e) => e.metadata === "jobslotlinkedin").length;
 
@@ -150,14 +115,13 @@ const handler = async () => {
     const xml = generateXML(jobs);
 
     if (ENVIRONMENT === "development") {
-      fs.writeFileSync("linkedin.xml", xml);
+      fs.writeFileSync("linkedin-after.xml", xml);
     } else {
       await putObject("xml/linkedin.xml", xml, { ContentType: "application/xml", ACL: OBJECT_ACL.PUBLIC_READ });
+      console.log(`[Linkedin] Create import, created=${importDoc.createdCount}, updated=${importDoc.updatedCount}, deleted=${importDoc.deletedCount}`);
+      importDoc.endedAt = new Date();
+      await ImportModel.create(importDoc);
     }
-
-    console.log(`[Linkedin] Create import, created=${importDoc.createdCount}, updated=${importDoc.updatedCount}, deleted=${importDoc.deletedCount}`);
-    importDoc.endedAt = new Date();
-    await ImportModel.create(importDoc);
   } catch (error: any) {
     console.error(`[Linkedin] Error for Linkedin`, error);
     captureException(`Import linkedin flux failed`, `${error.message} while creating Linkedin flux`);

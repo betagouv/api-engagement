@@ -8,7 +8,6 @@ export const ES_ENDPOINT = process.env.ES_ENDPOINT;
 export const DB_ENDPOINT = process.env.DB_ENDPOINT;
 export const STATS_INDEX = "stats";
 export const MISSION_INDEX = "mission";
-export const RNA_INDEX = "rna";
 
 export const SENTRY_DSN = process.env.SENTRY_DSN;
 

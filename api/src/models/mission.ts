@@ -15,6 +15,21 @@ const geoPointSchema = new Schema({
   },
 });
 
+const addressesSchema = new Schema({
+  street: { type: String },
+  postalCode: { type: String },
+  departmentName: { type: String },
+  departmentCode: { type: String },
+  city: { type: String },
+  region: { type: String },
+  country: { type: String },
+  location: {
+    lat: { type: Number },
+    lon: { type: Number },
+  },
+  geoPoint: { type: geoPointSchema, default: null },
+});
+
 const schema = new Schema<Mission>(
   {
     // Identifiers
@@ -63,7 +78,7 @@ const schema = new Schema<Mission>(
       lat: { type: Number },
       lon: { type: Number },
     },
-    geoPoint: { type: geoPointSchema, default: null },
+    addresses: { type: [addressesSchema], default: [] },
 
     // Organisation
     organizationId: { type: String },
@@ -175,6 +190,7 @@ schema.index({ departmentName: 1 });
 schema.index({ organizationName: 1 });
 schema.index({ organizationRNA: 1 });
 schema.index({ geoPoint: "2dsphere" });
+schema.index({ "addresses.geoPoint": "2dsphere" });
 
 const MissionModel = model<Mission>(MODELNAME, schema);
 export default MissionModel;

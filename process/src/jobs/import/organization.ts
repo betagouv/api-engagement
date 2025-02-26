@@ -165,7 +165,7 @@ const findByRNA = async (rnas: string[]) => {
 
       if (data.association) {
         const departement = data.association.adresse_siege_rna ? getDepartement(data.association.adresse_siege_rna[0]?.value?.code_postal) : null;
-        const siret = data.association.etablisements_siret?.[0]?.value;
+        const siret = Array.isArray(data.association.etablisements_siret) ? data.association.etablisements_siret[0]?.value[0] : data.association.etablisements_siret?.value;
         const siren = data.association.siren?.[0]?.value || siret?.slice(0, 9);
         const obj = {
           rna,

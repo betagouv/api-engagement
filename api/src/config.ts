@@ -15,7 +15,6 @@ export const ADMIN_SNU_URL = "https://admin.snu.gouv.fr";
 export const ES_ENDPOINT = process.env.ES_ENDPOINT;
 export const DB_ENDPOINT = process.env.DB_ENDPOINT;
 export const MISSION_INDEX = "mission";
-export const RNA_INDEX = "rna";
 export const ASSOS_INDEX = "association";
 export const STATS_INDEX = "stats";
 
