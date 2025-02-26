@@ -6,8 +6,6 @@ import { fileURLToPath } from "url";
 const app = express();
 const port = process.env.PORT || 8080;
 
-console.log(process.env);
-
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 app.use(express.static(path.join(__dirname, "../dist")));

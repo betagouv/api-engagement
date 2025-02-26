@@ -51,8 +51,7 @@ const runnings = {
 // https://crontab.guru/#0_*/3_*_*_*
 // Every 3 hours
 const missionJob = new CronJob(
-  // "0 */3 * * *",
-  "19 11 * * *",
+  "0 */3 * * *",
   async () => {
     const checkInId = Sentry.captureCheckIn({
       monitorSlug: "mission-updates",
@@ -69,8 +68,8 @@ const missionJob = new CronJob(
     runnings.mission = true;
     try {
       await imports.handler();
-      // await moderations.handler();
-      // await warnings.handler();
+      await moderations.handler();
+      await warnings.handler();
       Sentry.captureCheckIn({
         checkInId,
         monitorSlug: "mission-updates",
@@ -314,13 +313,11 @@ const leboncoinJob = new CronJob(
 
 // Every first Tuesday of the month at 10:00 AM
 const reportJob = new CronJob(
-  // "0 10 * * 2",
-  "0 10 * * 4",
+  "0 10 * * 2",
   async () => {
     // if not the first Tuesday of the month, return
     const date = new Date();
-    // if (date.getDay() !== 2 || date.getDate() > 7) return;
-    if (date.getDay() !== 4 || date.getDate() > 7) return; // Temporary to Thursday
+    if (date.getDay() !== 2 || date.getDate() > 7) return;
 
     runnings.report = true;
     const checkInId = Sentry.captureCheckIn({

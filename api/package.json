@@ -9,6 +9,7 @@
     "start-dev": "ts-node src/index.ts",
     "stop": "pm2 stop api",
     "start": "npm run build && node dist/index.js",
+    "start-pm2": "pm2 start dist/index.js --name api",
     "prettier": "prettier --write . --plugin=prettier-plugin-organize-imports",
     "reload": "pm2 reload api"
   },

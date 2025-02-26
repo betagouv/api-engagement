@@ -4,9 +4,9 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "start-dev": "node server.js",
     "build": "vite build",
     "start": "node server/index.js",
+    "start-pm2": "pm2 start server/index.js --name app",
     "stop": "pm2 stop app",
     "prettier": "prettier --write .",
     "reload": "pm2 reload app"
