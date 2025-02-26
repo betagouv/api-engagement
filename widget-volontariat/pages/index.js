@@ -259,25 +259,6 @@ export const getServerSideProps = async (context) => {
     const response = await fetch(`${API_URL}/iframe/${widget._id}/search?${searchParams.toString()}`).then((res) => res.json());
 
     if (!response.ok) throw response;
-    // const france = response.data.aggs.country.reduce((acc, c) => acc + (c.key === "FR" ? c.doc_count : 0), 0);
-    // const abroad = response.data.aggs.country.reduce((acc, c) => acc + (c.key !== "FR" ? c.doc_count : 0), 0);
-    // const country = [];
-    // country.push({ value: "FR", count: france, label: "France" });
-    // country.push({ value: "NOT_FR", count: abroad, label: "Etranger" });
-
-    // const newOptions = {
-    //   schedule: response.data.aggs.schedule.map((b) => ({ value: b.key, count: b.doc_count, label: SCHEDULES[b.key] || b.key })),
-    //   domain: response.data.aggs.domain.map((b) => ({
-    //     value: b.key,
-    //     count: b.doc_count,
-    //     label: DOMAINS[b.key] ? DOMAINS[b.key].label : b.key,
-    //   })),
-    //   action: response.data.aggs.action.map((b) => ({ value: b.key, count: b.doc_count, label: ACTIONS[b.key] || b.key })),
-    //   beneficiary: response.data.aggs.beneficiary.map((b) => ({ value: b.key, count: b.doc_count, label: BENEFICIARIES[b.key] || b.key })),
-    //   accessibility: response.data.aggs.accessibility.map((b) => ({ value: b.key, count: b.doc_count, label: ACCESSIBILITIES[b.key] || b.key })),
-    //   minor: response.data.aggs.minor.map((b) => ({ value: b.key, count: b.doc_count, label: MINORS[b.key] || b.key })),
-    //   country,
-    // };
 
     const query = new URLSearchParams({
       widgetId: widget._id,

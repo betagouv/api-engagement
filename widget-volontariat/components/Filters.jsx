@@ -147,7 +147,7 @@ const MobileFilters = ({ options, values, onChange, show, onShow, disabledLocati
             <div className="w-full">
               <SelectFilter
                 id="domain"
-                options={options.domain}
+                options={options.domain || []}
                 selectedOptions={values.domain}
                 onChange={(v) => onChange({ ...values, domain: v })}
                 placeholder="Domaines"
@@ -158,7 +158,7 @@ const MobileFilters = ({ options, values, onChange, show, onShow, disabledLocati
             <div className="w-full ">
               <SelectFilter
                 id="schedule"
-                options={options.schedule}
+                options={options.schedule || []}
                 selectedOptions={values.schedule}
                 onChange={(v) => onChange({ ...values, schedule: v })}
                 placeholder="Horaires"
@@ -168,7 +168,7 @@ const MobileFilters = ({ options, values, onChange, show, onShow, disabledLocati
             <div className="w-full">
               <SelectFilter
                 id="accessibility"
-                options={options.accessibility}
+                options={options.accessibility || []}
                 selectedOptions={values.accessibility}
                 onChange={(v) => onChange({ ...values, accessibility: v })}
                 placeholder="Accessibilité"
@@ -178,7 +178,7 @@ const MobileFilters = ({ options, values, onChange, show, onShow, disabledLocati
             <div className="w-full">
               <SelectFilter
                 id="beneficiary"
-                options={options.beneficiary}
+                options={options.beneficiary || []}
                 selectedOptions={values.beneficiary}
                 onChange={(v) => onChange({ ...values, beneficiary: v })}
                 placeholder="Public bénéficiaire"
@@ -188,7 +188,7 @@ const MobileFilters = ({ options, values, onChange, show, onShow, disabledLocati
             <div className="w-full">
               <SelectFilter
                 id="action"
-                options={options.action}
+                options={options.action || []}
                 selectedOptions={values.action}
                 onChange={(v) => onChange({ ...values, action: v })}
                 placeholder="Actions clés"
@@ -198,7 +198,7 @@ const MobileFilters = ({ options, values, onChange, show, onShow, disabledLocati
             <div className="w-full">
               <SelectFilter
                 id="country"
-                options={options.country}
+                options={options.country || []}
                 selectedOptions={values.country}
                 onChange={(v) => onChange({ ...values, country: v })}
                 placeholder="France / Etranger"
@@ -256,7 +256,7 @@ const DesktopFilters = ({ options, values, onChange, disabledLocation = false })
         <DurationFilter selected={values.duration} onChange={(v) => onChange({ ...values, duration: v })} color={color} />
         <SelectFilter
           id="domain"
-          options={options.domain}
+          options={options.domain || []}
           selectedOptions={values.domain}
           onChange={(v) => onChange({ ...values, domain: v })}
           placeholder="Thèmes"
@@ -265,7 +265,7 @@ const DesktopFilters = ({ options, values, onChange, disabledLocation = false })
         {moreFilters ? (
           <SelectFilter
             id="minor"
-            options={options.minor}
+            options={options.minor || []}
             selectedOptions={values.minor}
             onChange={(v) => onChange({ ...values, minor: v })}
             placeholder="Accès aux mineurs"
@@ -294,7 +294,7 @@ const DesktopFilters = ({ options, values, onChange, disabledLocation = false })
         <div className={missionsAbroad.current ? "grid grid-cols-6 gap-4 mt-4" : "grid grid-cols-5 gap-4 mt-4"}>
           <SelectFilter
             id="schedule"
-            options={options.schedule}
+            options={options.schedule || []}
             selectedOptions={values.schedule}
             onChange={(v) => onChange({ ...values, schedule: v })}
             placeholder="Horaires"
@@ -303,7 +303,7 @@ const DesktopFilters = ({ options, values, onChange, disabledLocation = false })
           />
           <SelectFilter
             id="accessibility"
-            options={options.accessibility}
+            options={options.accessibility || []}
             selectedOptions={values.accessibility}
             onChange={(v) => onChange({ ...values, accessibility: v })}
             placeholder="Accessibilité"
@@ -312,7 +312,7 @@ const DesktopFilters = ({ options, values, onChange, disabledLocation = false })
           />
           <SelectFilter
             id="beneficiary"
-            options={options.beneficiary}
+            options={options.beneficiary || []}
             selectedOptions={values.beneficiary}
             onChange={(v) => onChange({ ...values, beneficiary: v })}
             placeholder="Public bénéficiaire"
@@ -321,7 +321,7 @@ const DesktopFilters = ({ options, values, onChange, disabledLocation = false })
           />
           <SelectFilter
             id="action"
-            options={options.action}
+            options={options.action || []}
             selectedOptions={values.action}
             onChange={(v) => onChange({ ...values, action: v })}
             placeholder="Actions clés"
@@ -331,7 +331,7 @@ const DesktopFilters = ({ options, values, onChange, disabledLocation = false })
           {missionsAbroad.current && (
             <SelectFilter
               id="country"
-              options={options.country}
+              options={options.country || []}
               selectedOptions={values.country}
               onChange={(v) => onChange({ ...values, country: v })}
               placeholder="France / Etranger"

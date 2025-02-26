@@ -1,3 +1,4 @@
+import cors from "cors";
 import { NextFunction, Request, Response, Router } from "express";
 import zod from "zod";
 
@@ -516,7 +517,7 @@ router.get("/:id/search", async (req: Request, res: Response, next: NextFunction
   }
 });
 
-router.get("/:id/aggs", async (req: Request, res: Response, next: NextFunction) => {
+router.get("/:id/aggs", cors({ origin: "*" }), async (req: Request, res: Response, next: NextFunction) => {
   try {
     const params = zod
       .object({
