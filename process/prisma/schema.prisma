@@ -110,6 +110,7 @@ model Click {
   from_partner_id String?
   to_partner_id   String?
   tag             String?
+  tags            String[]
   source_id       String?
   mission_old_id  String?
   accounts        Account[]

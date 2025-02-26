@@ -5,7 +5,7 @@
   "scripts": {
     "dev": "next dev -p 3001",
     "build": "next build",
-    "start": "next start -p 8080",
+    "start": "next start -p ${PORT:-8080}",
     "start-pm2": "pm2 start npm --name widget-volontariat -- start",
     "stop": "pm2 stop widget-volontariat",
     "reload": "pm2 reload widget-volontariat"

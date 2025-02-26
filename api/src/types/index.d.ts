@@ -551,6 +551,7 @@ export interface Stats {
   sourceId: string;
   sourceName: string;
   tag?: string;
+  tags?: string[];
   type: "print" | "apply" | "click" | "account";
   status: "PENDING" | "VALIDATED" | "CANCEL" | "CANCELED" | "REFUSED" | "CARRIED_OUT" | undefined;
 }

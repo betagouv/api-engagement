@@ -58,6 +58,7 @@ const buildData = async (
     created_at: new Date(doc.createdAt),
     host: doc.host,
     tag: doc.tag,
+    tags: doc.tags,
     source: !doc.source || doc.source === "publisher" ? "api" : doc.source,
     source_id: sourceId ? sourceId : null,
     campaign_id: sourceId && doc.source === "campaign" ? sourceId : null,

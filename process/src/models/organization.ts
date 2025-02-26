@@ -10,6 +10,7 @@ const schema = new Schema<Organization>(
     rna: { type: String, description: "RNA" },
     siren: { type: String, description: "Siren" },
     siret: { type: String, description: "Siret" },
+    sirets: { type: [String], description: "Sirets" },
     rupMi: { type: String, description: "RUP/MI" },
     gestion: { type: String, description: "Gestion" },
     status: { type: String, description: "Status" },
@@ -18,7 +19,7 @@ const schema = new Schema<Organization>(
     dissolvedAt: { type: Date, description: "Dissolved at" },
     nature: { type: String, description: "Nature" },
     groupement: { type: String, description: "Groupement" },
-    title: { type: String, required: true, description: "Title" },
+    title: { type: String, description: "Title" },
     names: { type: [String], description: "Names found when associated to the RNA" },
     shortTitle: { type: String, description: "Short title" },
     titleSlug: { type: String, description: "Title slug" },
@@ -58,6 +59,6 @@ schema.index({ rna: 1 });
 schema.index({ title: 1 });
 schema.index({ titleSlug: 1 });
 schema.index({ siret: 1 });
-
+schema.index({ sirets: 1 });
 const OrganizationModel = model<Organization>(MODELNAME, schema);
 export default OrganizationModel;
