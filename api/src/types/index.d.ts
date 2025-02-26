@@ -294,8 +294,8 @@ export interface Mission {
       type: "Point";
       coordinates: [number, number] | undefined;
     };
+    geolocStatus: "ENRICHED_BY_PUBLISHER" | "ENRICHED" | "NOT_FOUND" | "NO_DATA" | "SHOULD_ENRICH" | "FAILED";
   }[];
-
   snu: boolean | undefined;
   snuPlaces: number | undefined;
   remote: "no" | "possible" | "full";
