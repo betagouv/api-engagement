@@ -248,6 +248,10 @@ const handler = async (publisherId?: string) => {
   for (let i = 0; i < publishers.length; i++) {
     const publisher = publishers[i];
     try {
+      if (!publisher.feed) {
+        console.log(`[Import XML] Publisher ${publisher.name} has no feed`);
+        continue;
+      }
       const res = await importPublisher(publisher, start);
       if (!res) continue;
       await ImportModel.create(res);

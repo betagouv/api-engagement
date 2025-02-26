@@ -7,7 +7,7 @@ import MissionModel from "../models/mission";
 import RequestWidget from "../models/request-widget";
 import WidgetModel from "../models/widget";
 import { Mission } from "../types";
-import { buildQueryMongo, diacriticSensitiveRegex, EARTH_RADIUS, getDistanceKm } from "../utils";
+import { buildQueryMongo, diacriticSensitiveRegex, EARTH_RADIUS, getDistanceKm, isValidObjectId } from "../utils";
 
 const router = Router();
 
@@ -23,11 +23,13 @@ router.get("/widget", async (req: Request, res: Response, next: NextFunction) =>
     if (!query.success) return res.status(400).send({ ok: false, code: INVALID_QUERY, message: query.error });
 
     // Clean id if it's too long (partners can add / or else is the widget id)
-    if (query.data.id && query.data.id.length > 24) query.data.id = query.data.id.slice(0, 24);
 
     if (!query.data.id && !query.data.name) return res.status(400).send({ ok: false, code: INVALID_QUERY, message: "Missing id or name" });
 
     if (query.data.id) {
+      if (query.data.id && query.data.id.length > 24) query.data.id = query.data.id.slice(0, 24);
+      if (!isValidObjectId(query.data.id)) return res.status(400).send({ ok: false, code: INVALID_QUERY, message: "Invalid id" });
+
       const widget = await WidgetModel.findById(query.data.id);
       if (!widget) return res.status(404).send({ ok: false, code: NOT_FOUND });
       return res.status(200).send({ ok: true, data: widget });

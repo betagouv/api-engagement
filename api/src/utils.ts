@@ -158,3 +158,7 @@ export const hasNumber = (string: string) => {
 export const hasLetter = (string: string) => {
   return /[a-zA-Z]/.test(string);
 };
+
+export const isValidObjectId = (id: string) => {
+  return /^[0-9a-fA-F]{24}$/.test(id);
+};

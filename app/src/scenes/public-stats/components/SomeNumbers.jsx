@@ -101,7 +101,7 @@ const SomeNumbers = ({ filters, onFiltersChange }) => {
             <label htmlFor="mission-type" className="sr-only">
               Type de mission
             </label>
-            <select id="mission-type" className="input w-48" value={filters.type} onChange={(e) => setFilters({ ...filters, type: e.target.value })}>
+            <select id="mission-type" className="input w-48" value={filters.type} onChange={(e) => onFiltersChange({ ...filters, type: e.target.value })}>
               <option value="">Type de mission</option>
               <option value="benevolat">Bénévolat</option>
               <option value="volontariat">Volontariat</option>
