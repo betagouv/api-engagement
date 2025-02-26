@@ -7,11 +7,11 @@ import isoFR from "i18n-iso-countries/langs/fr.json";
 import { useRouter } from "next/router";
 iso.registerLocale(isoFR);
 
-import { ACCESSIBILITIES, ACTIONS, API_URL, BENEFICIARIES, DOMAINS, ENV, MINORS, SCHEDULES } from "../config";
-import { Grid } from "../components/grid";
-import { Carousel } from "../components/carousel";
-import { Filters, MobileFilters } from "../components/filters";
 import LogoSC from "../public/images/logo-sc.svg";
+import { API_URL, ENV } from "../config";
+import Grid from "../components/Grid";
+import Carousel from "../components/Carousel";
+import Filters from "../components/Filters";
 import { calculateDistance } from "../utils";
 import { usePlausible } from "next-plausible";
 import useStore from "../store";
@@ -29,7 +29,7 @@ import useStore from "../store";
  *  --> desktop (1024px->) height = 1050px, frame = (3x3) bottom pagination
  */
 
-const Home = ({ widget, missions, options, total, request, environment }) => {
+const Home = ({ widget, missions, total, request, environment }) => {
   const router = useRouter();
   const { setUrl, setColor } = useStore();
   const plausible = usePlausible();
@@ -84,16 +84,43 @@ const Home = ({ widget, missions, options, total, request, environment }) => {
         ...(router.query.notrack && { notrack: router.query.notrack }),
       };
 
-      if (filters.schedule && filters.schedule.length) query.schedule = JSON.stringify(filters.schedule.filter((item) => item && item.value).map((item) => item.value));
-      if (filters.minor && filters.minor.length) query.minor = JSON.stringify(filters.minor.filter((item) => item && item.value).map((item) => item.value));
       if (filters.accessibility && filters.accessibility.length)
-        query.accessibility = JSON.stringify(filters.accessibility.filter((item) => item && item.value).map((item) => item.value));
-      if (filters.domain && filters.domain.length) query.domain = JSON.stringify(filters.domain.filter((item) => item && item.value).map((item) => item.value));
-      if (filters.action && filters.action.length) query.action = JSON.stringify(filters.action.filter((item) => item && item.value).map((item) => item.value));
-      if (filters.beneficiary && filters.beneficiary.length) query.beneficiary = JSON.stringify(filters.beneficiary.filter((item) => item && item.value).map((item) => item.value));
-      if (filters.country && filters.country.length) query.country = JSON.stringify(filters.country.filter((item) => item && item.value).map((item) => item.value));
-      if (filters.start) query.start = filters.start.value.toISOString();
+        query.accessibility = filters.accessibility
+          .filter((item) => item && item.value)
+          .map((item) => item.value)
+          .join(",");
+      if (filters.action && filters.action.length)
+        query.action = filters.action
+          .filter((item) => item && item.value)
+          .map((item) => item.value)
+          .join(",");
+      if (filters.beneficiary && filters.beneficiary.length)
+        query.beneficiary = filters.beneficiary
+          .filter((item) => item && item.value)
+          .map((item) => item.value)
+          .join(",");
+      if (filters.country && filters.country.length)
+        query.country = filters.country
+          .filter((item) => item && item.value)
+          .map((item) => item.value)
+          .join(",");
+      if (filters.domain && filters.domain.length)
+        query.domain = filters.domain
+          .filter((item) => item && item.value)
+          .map((item) => item.value)
+          .join(",");
       if (filters.duration) query.duration = filters.duration.value;
+      if (filters.minor && filters.minor.length)
+        query.minor = filters.minor
+          .filter((item) => item && item.value)
+          .map((item) => item.value)
+          .join(",");
+      if (filters.schedule && filters.schedule.length)
+        query.schedule = filters.schedule
+          .filter((item) => item && item.value)
+          .map((item) => item.value)
+          .join(",");
+      if (filters.start) query.start = filters.start.value.toISOString();
       if (filters.size) query.size = filters.size;
       if (filters.page > 1) query.from = (filters.page - 1) * filters.size;
       if (filters.location && filters.location.lat && filters.location.lon) {
@@ -140,7 +167,15 @@ const Home = ({ widget, missions, options, total, request, environment }) => {
           <h1 className="font-bold text-[28px] leading-[36px] md:p-0">Trouver une mission de Service Civique</h1>
           <p className="text-[#666] text-[18px] leading-[28px]">{total > 1 ? `${total.toLocaleString("fr")} missions` : `${total} mission`}</p>
         </div>
-        <div className="w-full flex md:hidden flex-col items-center gap-2 md:mb-14">
+        <Filters
+          widget={widget}
+          values={filters}
+          onChange={(newFilters) => setFilters({ ...filters, ...newFilters })}
+          disabledLocation={!!widget.location}
+          show={showFilters}
+          onShow={setShowFilters}
+        />
+        {/* <div className="w-full flex md:hidden flex-col items-center gap-2 md:mb-14">
           <MobileFilters
             options={options}
             filters={filters}
@@ -151,8 +186,14 @@ const Home = ({ widget, missions, options, total, request, environment }) => {
           />
         </div>
         <div className="hidden md:block w-full mb-8 md:mb-2">
-          <Filters options={options} filters={filters} setFilters={(newFilters) => setFilters({ ...filters, ...newFilters })} disabledLocation={!!widget.location} />
-        </div>
+          <DesktopFilters
+            widget={widget}
+            options={options}
+            filters={filters}
+            setFilters={(newFilters) => setFilters({ ...filters, ...newFilters })}
+            disabledLocation={!!widget.location}
+          />
+        </div> */}
       </header>
 
       <div className={`w-full ${showFilters ? "opacity-40 pointer-events-none" : ""}`}>
@@ -199,13 +240,13 @@ export const getServerSideProps = async (context) => {
   try {
     const searchParams = new URLSearchParams();
 
-    if (context.query.domain) JSON.parse(context.query.domain).forEach((item) => searchParams.append("domain", item));
-    if (context.query.schedule) JSON.parse(context.query.schedule).forEach((item) => searchParams.append("schedule", item));
-    if (context.query.accessibility) JSON.parse(context.query.accessibility).forEach((item) => searchParams.append("accessibility", item));
-    if (context.query.minor) JSON.parse(context.query.minor).forEach((item) => searchParams.append("minor", item));
-    if (context.query.action) JSON.parse(context.query.action).forEach((item) => searchParams.append("action", item));
-    if (context.query.beneficiary) JSON.parse(context.query.beneficiary).forEach((item) => searchParams.append("beneficiary", item));
-    if (context.query.country) JSON.parse(context.query.country).forEach((item) => searchParams.append("country", item));
+    if (context.query.domain) context.query.domain.split(",").forEach((item) => searchParams.append("domain", item));
+    if (context.query.schedule) context.query.schedule.split(",").forEach((item) => searchParams.append("schedule", item));
+    if (context.query.accessibility) context.query.accessibility.split(",").forEach((item) => searchParams.append("accessibility", item));
+    if (context.query.minor) context.query.minor.split(",").forEach((item) => searchParams.append("minor", item));
+    if (context.query.action) context.query.action.split(",").forEach((item) => searchParams.append("action", item));
+    if (context.query.beneficiary) context.query.beneficiary.split(",").forEach((item) => searchParams.append("beneficiary", item));
+    if (context.query.country) context.query.country.split(",").forEach((item) => searchParams.append("country", item));
     if (context.query.start) searchParams.append("start", context.query.start);
     if (context.query.duration) searchParams.append("duration", context.query.duration);
     if (context.query.size) searchParams.append("size", parseInt(context.query.size, 10));
@@ -215,28 +256,28 @@ export const getServerSideProps = async (context) => {
       searchParams.append("lon", parseFloat(context.query.lon));
     }
 
-    const response = await fetch(`${API_URL}/iframe/widget/${widget._id}/msearch?${searchParams.toString()}`).then((res) => res.json());
+    const response = await fetch(`${API_URL}/iframe/${widget._id}/search?${searchParams.toString()}`).then((res) => res.json());
 
     if (!response.ok) throw response;
-    const france = response.data.aggs.country.reduce((acc, c) => acc + (c.key === "FR" ? c.doc_count : 0), 0);
-    const abroad = response.data.aggs.country.reduce((acc, c) => acc + (c.key !== "FR" ? c.doc_count : 0), 0);
-    const country = [];
-    country.push({ value: "FR", count: france, label: "France" });
-    country.push({ value: "NOT_FR", count: abroad, label: "Etranger" });
+    // const france = response.data.aggs.country.reduce((acc, c) => acc + (c.key === "FR" ? c.doc_count : 0), 0);
+    // const abroad = response.data.aggs.country.reduce((acc, c) => acc + (c.key !== "FR" ? c.doc_count : 0), 0);
+    // const country = [];
+    // country.push({ value: "FR", count: france, label: "France" });
+    // country.push({ value: "NOT_FR", count: abroad, label: "Etranger" });
 
-    const newOptions = {
-      schedule: response.data.aggs.schedule.map((b) => ({ value: b.key, count: b.doc_count, label: SCHEDULES[b.key] || b.key })),
-      domain: response.data.aggs.domain.map((b) => ({
-        value: b.key,
-        count: b.doc_count,
-        label: DOMAINS[b.key] ? DOMAINS[b.key].label : b.key,
-      })),
-      action: response.data.aggs.action.map((b) => ({ value: b.key, count: b.doc_count, label: ACTIONS[b.key] || b.key })),
-      beneficiary: response.data.aggs.beneficiary.map((b) => ({ value: b.key, count: b.doc_count, label: BENEFICIARIES[b.key] || b.key })),
-      accessibility: response.data.aggs.accessibility.map((b) => ({ value: b.key, count: b.doc_count, label: ACCESSIBILITIES[b.key] || b.key })),
-      minor: response.data.aggs.minor.map((b) => ({ value: b.key, count: b.doc_count, label: MINORS[b.key] || b.key })),
-      country,
-    };
+    // const newOptions = {
+    //   schedule: response.data.aggs.schedule.map((b) => ({ value: b.key, count: b.doc_count, label: SCHEDULES[b.key] || b.key })),
+    //   domain: response.data.aggs.domain.map((b) => ({
+    //     value: b.key,
+    //     count: b.doc_count,
+    //     label: DOMAINS[b.key] ? DOMAINS[b.key].label : b.key,
+    //   })),
+    //   action: response.data.aggs.action.map((b) => ({ value: b.key, count: b.doc_count, label: ACTIONS[b.key] || b.key })),
+    //   beneficiary: response.data.aggs.beneficiary.map((b) => ({ value: b.key, count: b.doc_count, label: BENEFICIARIES[b.key] || b.key })),
+    //   accessibility: response.data.aggs.accessibility.map((b) => ({ value: b.key, count: b.doc_count, label: ACCESSIBILITIES[b.key] || b.key })),
+    //   minor: response.data.aggs.minor.map((b) => ({ value: b.key, count: b.doc_count, label: MINORS[b.key] || b.key })),
+    //   country,
+    // };
 
     const query = new URLSearchParams({
       widgetId: widget._id,
@@ -266,7 +307,7 @@ export const getServerSideProps = async (context) => {
       });
     }
 
-    return { props: { widget, missions, total: response.total, options: newOptions, request: response.request, environment: ENV } };
+    return { props: { widget, missions, total: response.total, options: {}, request: response.request, environment: ENV } };
   } catch (error) {
     console.error(error);
     Sentry.captureException(error);

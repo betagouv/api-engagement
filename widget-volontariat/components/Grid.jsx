@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from "react";
 import { RiArrowRightSLine, RiArrowLeftSLine, RiSkipRightLine, RiSkipLeftLine } from "react-icons/ri";
 
-import Card from "./card";
+import Card from "./Card";
 import { usePlausible } from "next-plausible";
 import useStore from "../store";
 
-export const Grid = ({ widget, missions, total, page, request, handlePageChange }) => {
+const Grid = ({ widget, missions, total, page, request, handlePageChange }) => {
   if (total === 0) {
     return (
       <div className="w-full">
@@ -356,3 +356,5 @@ const MobilePagination = ({ page, setPage, end }) => {
     </div>
   );
 };
+
+export default Grid;

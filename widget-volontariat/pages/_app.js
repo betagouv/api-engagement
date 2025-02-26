@@ -32,9 +32,6 @@ const icomoon = localFont({
 
 const MyApp = ({ Component, pageProps }) => {
   const domain = process.env.NODE_ENV === "production" ? "sc.api-engagement.beta.gouv.fr" : "localhost:3001";
-
-  console.log("domain", domain, domain.indexOf("localhost") !== -1 || undefined);
-
   return (
     <main className={`${font.className} ${icomoon.variable}`}>
       <PlausibleProvider

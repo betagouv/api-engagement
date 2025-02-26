@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef } from "react";
 import { usePlausible } from "next-plausible";
 import { DayPicker } from "react-day-picker";
 import fr from "date-fns/locale/fr";
@@ -6,15 +6,104 @@ import { RiArrowUpSLine, RiArrowDownSLine, RiCheckboxFill, RiCheckboxBlankLine, 
 
 import "react-day-picker/dist/style.css";
 import useStore from "../store";
+import { ACCESSIBILITIES, ACTIONS, API_URL, BENEFICIARIES, DOMAINS, MINORS, SCHEDULES } from "../config";
 
-export const MobileFilters = ({ options, filters, setFilters, showFilters, setShowFilters, disabledLocation = false }) => {
+const getAPI = async (path) => {
+  const response = await fetch(`${API_URL}/${path}`, { method: "GET" });
+
+  if (!response.ok) throw response;
+  return response.json();
+};
+
+const Filters = ({ widget, values, onChange, show, onShow }) => {
+  const [options, setOptions] = useState({});
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    setIsMobile(window.innerWidth < 768);
+    window.addEventListener("resize", () => setIsMobile(window.innerWidth < 768));
+    return () => window.removeEventListener("resize", () => {});
+  }, []);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const searchParams = new URLSearchParams();
+
+        if (values.accessibility && values.accessibility.length) values.accessibility.forEach((o) => searchParams.append("accessibility", o.value));
+        if (values.action && values.action.length) values.action.forEach((o) => searchParams.append("action", o.value));
+        if (values.beneficiary && values.beneficiary.length) values.beneficiary.forEach((o) => searchParams.append("beneficiary", o.value));
+        if (values.country && values.country.length) values.country.forEach((o) => searchParams.append("country", o.value));
+        if (values.domain && values.domain.length) values.domain.forEach((o) => searchParams.append("domain", o.value));
+        if (values.duration) searchParams.append("duration", values.duration.value);
+        if (values.minor && values.minor.length) values.minor.forEach((o) => searchParams.append("minor", o.value));
+        if (values.schedule && values.schedule.length) values.schedule.forEach((o) => searchParams.append("schedule", o.value));
+        if (values.start) searchParams.append("start", values.start.value.toISOString());
+        if (values.location && values.location.lat && values.location.lon) {
+          searchParams.append("lat", values.location.lat);
+          searchParams.append("lon", values.location.lon);
+        }
+
+        const { ok, data } = await getAPI(`iframe/${widget._id}/aggs?${searchParams.toString()}`);
+
+        if (!ok) throw Error("Error fetching aggs");
+        const france = data.country.reduce((acc, c) => acc + (c.key === "FR" ? c.doc_count : 0), 0);
+        const abroad = data.country.reduce((acc, c) => acc + (c.key !== "FR" ? c.doc_count : 0), 0);
+        const country = [];
+        country.push({ value: "FR", count: france, label: "France" });
+        country.push({ value: "NOT_FR", count: abroad, label: "Etranger" });
+
+        const newOptions = {
+          schedule: data.schedule.map((b) => ({ value: b.key, count: b.doc_count, label: SCHEDULES[b.key] || b.key })),
+          domain: data.domain.map((b) => ({
+            value: b.key,
+            count: b.doc_count,
+            label: DOMAINS[b.key] ? DOMAINS[b.key].label : b.key,
+          })),
+          action: data.action.map((b) => ({ value: b.key, count: b.doc_count, label: ACTIONS[b.key] || b.key })),
+          beneficiary: data.beneficiary.map((b) => ({ value: b.key, count: b.doc_count, label: BENEFICIARIES[b.key] || b.key })),
+          accessibility: data.accessibility.map((b) => ({ value: b.key, count: b.doc_count, label: ACCESSIBILITIES[b.key] || b.key })),
+          minor: data.minor.map((b) => ({ value: b.key, count: b.doc_count, label: MINORS[b.key] || b.key })),
+          country,
+        };
+        setOptions(newOptions);
+      } catch (error) {
+        console.error(error);
+      }
+    };
+    fetchData();
+  }, [widget, values]);
+
+  if (isMobile) {
+    return (
+      <div className="w-full flex flex-col items-center gap-2 md:mb-14">
+        <MobileFilters
+          options={options}
+          values={values}
+          onChange={(newFilters) => onChange({ ...values, ...newFilters })}
+          disabledLocation={!!widget.location}
+          show={show}
+          onShow={onShow}
+        />
+      </div>
+    );
+  }
+
+  return (
+    <div className="w-full mb-8 md:mb-2">
+      <DesktopFilters options={options} values={values} onChange={(v) => onChange({ ...values, ...v })} disabledLocation={!!widget.location} />
+    </div>
+  );
+};
+
+const MobileFilters = ({ options, values, onChange, show, onShow, disabledLocation = false }) => {
   const { url, color } = useStore();
 
   const plausible = usePlausible();
   if (!Object.keys(options).length) return null;
 
   const handleReset = () => {
-    setFilters({
+    onChange({
       start: null,
       duration: null,
       schedule: [],
@@ -32,35 +121,35 @@ export const MobileFilters = ({ options, filters, setFilters, showFilters, setSh
   return (
     <>
       <div className="w-full">
-        <LocationFilter selected={filters.location} onChange={(l) => setFilters({ ...filters, location: l })} disabled={disabledLocation} />
+        <LocationFilter selected={values.location} onChange={(l) => onChange({ ...values, location: l })} disabled={disabledLocation} />
       </div>
       <div className="w-full border-y border-[#DDD]">
         <button
           className="flex h-[40px] items-center justify-between w-full bg-white font-semibold focus:outline-none focus-visible:ring focus-visible:ring-blue-800"
           onClick={() => {
-            setShowFilters(!showFilters);
-            plausible(showFilters ? "Filters closed" : "Filters opened", { u: url });
+            onShow(!show);
+            plausible(show ? "Filters closed" : "Filters opened", { u: url });
           }}
           style={{ color }}
         >
           Filtrer les missions
-          {showFilters ? <RiArrowUpSLine className="font-semibold" /> : <RiArrowDownSLine className="font-semibold" />}
+          {show ? <RiArrowUpSLine className="font-semibold" /> : <RiArrowDownSLine className="font-semibold" />}
         </button>
 
-        {showFilters && (
+        {show && (
           <div className="w-full flex flex-col mt-4 gap-4">
             <div className="w-full">
-              <DateFilter selected={filters.start} onChange={(f) => setFilters({ ...filters, start: f })} width="w-full" />
+              <DateFilter selected={values.start} onChange={(f) => onChange({ ...values, start: f })} width="w-full" />
             </div>
             <div className="w-full">
-              <DurationFilter selected={filters.duration} onChange={(v) => setFilters({ ...filters, duration: v })} width="w-full" />
+              <DurationFilter selected={values.duration} onChange={(v) => onChange({ ...values, duration: v })} width="w-full" />
             </div>
             <div className="w-full">
               <SelectFilter
                 id="domain"
                 options={options.domain}
-                selectedOptions={filters.domain}
-                onChange={(v) => setFilters({ ...filters, domain: v })}
+                selectedOptions={values.domain}
+                onChange={(v) => onChange({ ...values, domain: v })}
                 placeholder="Domaines"
                 width="w-full"
                 color={color}
@@ -70,8 +159,8 @@ export const MobileFilters = ({ options, filters, setFilters, showFilters, setSh
               <SelectFilter
                 id="schedule"
                 options={options.schedule}
-                selectedOptions={filters.schedule}
-                onChange={(v) => setFilters({ ...filters, schedule: v })}
+                selectedOptions={values.schedule}
+                onChange={(v) => onChange({ ...values, schedule: v })}
                 placeholder="Horaires"
                 width="w-full"
               />
@@ -80,8 +169,8 @@ export const MobileFilters = ({ options, filters, setFilters, showFilters, setSh
               <SelectFilter
                 id="accessibility"
                 options={options.accessibility}
-                selectedOptions={filters.accessibility}
-                onChange={(v) => setFilters({ ...filters, accessibility: v })}
+                selectedOptions={values.accessibility}
+                onChange={(v) => onChange({ ...values, accessibility: v })}
                 placeholder="Accessibilité"
                 width="w-full"
               />
@@ -90,8 +179,8 @@ export const MobileFilters = ({ options, filters, setFilters, showFilters, setSh
               <SelectFilter
                 id="beneficiary"
                 options={options.beneficiary}
-                selectedOptions={filters.beneficiary}
-                onChange={(v) => setFilters({ ...filters, beneficiary: v })}
+                selectedOptions={values.beneficiary}
+                onChange={(v) => onChange({ ...values, beneficiary: v })}
                 placeholder="Public bénéficiaire"
                 width="w-full"
               />
@@ -100,8 +189,8 @@ export const MobileFilters = ({ options, filters, setFilters, showFilters, setSh
               <SelectFilter
                 id="action"
                 options={options.action}
-                selectedOptions={filters.action}
-                onChange={(v) => setFilters({ ...filters, action: v })}
+                selectedOptions={values.action}
+                onChange={(v) => onChange({ ...values, action: v })}
                 placeholder="Actions clés"
                 width="w-full"
               />
@@ -110,8 +199,8 @@ export const MobileFilters = ({ options, filters, setFilters, showFilters, setSh
               <SelectFilter
                 id="country"
                 options={options.country}
-                selectedOptions={filters.country}
-                onChange={(v) => setFilters({ ...filters, country: v })}
+                selectedOptions={values.country}
+                onChange={(v) => onChange({ ...values, country: v })}
                 placeholder="France / Etranger"
                 position="right-0"
               />
@@ -120,7 +209,7 @@ export const MobileFilters = ({ options, filters, setFilters, showFilters, setSh
               aria-label="Voir les missions"
               className="w-full p-3 text-center border-none bg-black text-white focus:outline-none focus-visible:ring focus-visible:ring-blue-800"
               onClick={() => {
-                setShowFilters(false);
+                onShow(false);
                 plausible("Filters closed", { u: url });
               }}
               style={{
@@ -147,7 +236,7 @@ export const MobileFilters = ({ options, filters, setFilters, showFilters, setSh
   );
 };
 
-export const Filters = ({ options, filters, setFilters, disabledLocation = false }) => {
+const DesktopFilters = ({ options, values, onChange, disabledLocation = false }) => {
   const { url, color } = useStore();
   const plausible = usePlausible();
   const [moreFilters, setMoreFilters] = useState(false);
@@ -159,19 +248,17 @@ export const Filters = ({ options, filters, setFilters, disabledLocation = false
     }
   }, [options.country]);
 
-  if (!Object.keys(options).length) return null;
-
   return (
     <div className="flex-1">
       <div className="grid grid-cols-5 gap-4 h-10">
-        <LocationFilter selected={filters.location} onChange={(l) => setFilters({ ...filters, location: l })} disabled={disabledLocation} color={color} />
-        <DateFilter selected={filters.start} onChange={(f) => setFilters({ ...filters, start: f })} color={color} />
-        <DurationFilter selected={filters.duration} onChange={(v) => setFilters({ ...filters, duration: v })} color={color} />
+        <LocationFilter selected={values.location} onChange={(l) => onChange({ ...values, location: l })} disabled={disabledLocation} color={color} />
+        <DateFilter selected={values.start} onChange={(f) => onChange({ ...values, start: f })} color={color} />
+        <DurationFilter selected={values.duration} onChange={(v) => onChange({ ...values, duration: v })} color={color} />
         <SelectFilter
           id="domain"
           options={options.domain}
-          selectedOptions={filters.domain}
-          onChange={(v) => setFilters({ ...filters, domain: v })}
+          selectedOptions={values.domain}
+          onChange={(v) => onChange({ ...values, domain: v })}
           placeholder="Thèmes"
           color={color}
         />
@@ -179,8 +266,8 @@ export const Filters = ({ options, filters, setFilters, disabledLocation = false
           <SelectFilter
             id="minor"
             options={options.minor}
-            selectedOptions={filters.minor}
-            onChange={(v) => setFilters({ ...filters, minor: v })}
+            selectedOptions={values.minor}
+            onChange={(v) => onChange({ ...values, minor: v })}
             placeholder="Accès aux mineurs"
             position="right-0"
             color={color}
@@ -208,8 +295,8 @@ export const Filters = ({ options, filters, setFilters, disabledLocation = false
           <SelectFilter
             id="schedule"
             options={options.schedule}
-            selectedOptions={filters.schedule}
-            onChange={(v) => setFilters({ ...filters, schedule: v })}
+            selectedOptions={values.schedule}
+            onChange={(v) => onChange({ ...values, schedule: v })}
             placeholder="Horaires"
             position="left-0"
             color={color}
@@ -217,8 +304,8 @@ export const Filters = ({ options, filters, setFilters, disabledLocation = false
           <SelectFilter
             id="accessibility"
             options={options.accessibility}
-            selectedOptions={filters.accessibility}
-            onChange={(v) => setFilters({ ...filters, accessibility: v })}
+            selectedOptions={values.accessibility}
+            onChange={(v) => onChange({ ...values, accessibility: v })}
             placeholder="Accessibilité"
             position="right-0"
             color={color}
@@ -226,8 +313,8 @@ export const Filters = ({ options, filters, setFilters, disabledLocation = false
           <SelectFilter
             id="beneficiary"
             options={options.beneficiary}
-            selectedOptions={filters.beneficiary}
-            onChange={(v) => setFilters({ ...filters, beneficiary: v })}
+            selectedOptions={values.beneficiary}
+            onChange={(v) => onChange({ ...values, beneficiary: v })}
             placeholder="Public bénéficiaire"
             position="right-0"
             color={color}
@@ -235,8 +322,8 @@ export const Filters = ({ options, filters, setFilters, disabledLocation = false
           <SelectFilter
             id="action"
             options={options.action}
-            selectedOptions={filters.action}
-            onChange={(v) => setFilters({ ...filters, action: v })}
+            selectedOptions={values.action}
+            onChange={(v) => onChange({ ...values, action: v })}
             placeholder="Actions clés"
             position="right-0"
             color={color}
@@ -245,8 +332,8 @@ export const Filters = ({ options, filters, setFilters, disabledLocation = false
             <SelectFilter
               id="country"
               options={options.country}
-              selectedOptions={filters.country}
-              onChange={(v) => setFilters({ ...filters, country: v })}
+              selectedOptions={values.country}
+              onChange={(v) => onChange({ ...values, country: v })}
               placeholder="France / Etranger"
               position="right-0"
               color={color}
@@ -658,3 +745,5 @@ const LocationFilter = ({ selected, onChange, disabled = false, width = "w-80" }
     </div>
   );
 };
+
+export default Filters;
