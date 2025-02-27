@@ -112,6 +112,8 @@ export const getAddress = (mission: Mission, missionXML: MissionXML) => {
         geolocStatus: mission.geolocStatus || "NO_DATA",
       },
     ];
+  } else {
+    mission.addresses = [];
   }
 };
 

@@ -36,7 +36,7 @@ export const enrichWithGeoloc = async (publisher: Publisher, missions: Mission[]
     const updates: GeolocResult[] = [];
 
     missions.forEach((mission) => {
-      mission.addresses.forEach((addressItem, addressIndex) => {
+      (mission.addresses || []).forEach((addressItem, addressIndex) => {
         if (addressItem.geolocStatus === "ENRICHED_BY_PUBLISHER" || addressItem.geolocStatus === "ENRICHED_BY_API") return;
         const clientId = mission.clientId;
         const street = (addressItem.street || "").replace(/[^a-zA-Z0-9]/g, " ") || "";
