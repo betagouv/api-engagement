@@ -97,7 +97,7 @@ export const getAddress = (mission: Mission, missionXML: MissionXML) => {
     }
   }
 
-  if (!mission.addresses || mission.addresses.length === 0) {
+  if (mission.address || mission.city || mission.postalCode || mission.country) {
     mission.addresses = [
       {
         street: mission.address,
