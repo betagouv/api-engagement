@@ -1,19 +1,5 @@
 import { Schema } from "mongoose";
 
-export interface AddressItem {
-  _id?: Schema.Types.ObjectId;
-  street: string | undefined;
-  city: string | undefined;
-  postalCode: string | undefined;
-  departmentName: string | undefined;
-  departmentCode: string | undefined;
-  region: string | undefined;
-  country: string | undefined;
-  location: { lon: number; lat: number } | undefined;
-  geoPoint: { type: "Point"; coordinates: [number, number] } | null;
-  geolocStatus: "NOT_FOUND" | "FAILED" | "ENRICHED_BY_PUBLISHER" | "ENRICHED" | "NO_DATA" | "SHOULD_ENRICH";
-}
-
 export interface Organization {
   _id: Schema.Types.ObjectId;
   esId: string;
@@ -249,7 +235,7 @@ export interface Mission {
   city: string | undefined;
   region: string | undefined;
   country: string | undefined;
-  geolocStatus: "ENRICHED_BY_PUBLISHER" | "ENRICHED" | "NOT_FOUND" | "NO_DATA" | "SHOULD_ENRICH" | "FAILED";
+  geolocStatus: "ENRICHED_BY_PUBLISHER" | "ENRICHED_BY_API" | "NOT_FOUND" | "NO_DATA" | "SHOULD_ENRICH" | "FAILED";
   rnaStatus: "ENRICHED_BY_DATA_SUBVENTION" | "ENRICHED" | "NEED_VERIFY" | "NOT_FOUND" | "NO_DATA" | "SHOULD_ENRICH" | "FAILED";
   places: number;
   placesStatus: "ATTRIBUTED_BY_API" | "GIVEN_BY_PARTNER";
@@ -269,26 +255,7 @@ export interface Mission {
     type: "Point";
     coordinates: [number, number];
   } | null;
-  addresses: {
-    street: string | undefined;
-    city: string | undefined;
-    postalCode: string | undefined;
-    departmentName: string | undefined;
-    departmentCode: string | undefined;
-    region: string | undefined;
-    country: string | undefined;
-    location:
-      | {
-          lat: number | undefined;
-          lon: number | undefined;
-        }
-      | undefined;
-    geoPoint: {
-      type: "Point";
-      coordinates: [number, number];
-    } | null;
-    geolocStatus: "ENRICHED_BY_PUBLISHER" | "ENRICHED" | "NOT_FOUND" | "NO_DATA" | "SHOULD_ENRICH" | "FAILED";
-  }[];
+  addresses: AddressItem[];
 
   snu: boolean | undefined;
   snuPlaces: number | undefined;
@@ -309,6 +276,19 @@ export interface Mission {
   leboncoinUpdatedAt: Date | undefined;
 }
 
+export interface AddressItem {
+  _id?: Schema.Types.ObjectId;
+  street: string | undefined;
+  city: string | undefined;
+  postalCode: string | undefined;
+  departmentName: string | undefined;
+  departmentCode: string | undefined;
+  region: string | undefined;
+  country: string | undefined;
+  location: { lon: number; lat: number } | undefined;
+  geoPoint: { type: "Point"; coordinates: [number, number] } | null;
+  geolocStatus: "NOT_FOUND" | "FAILED" | "ENRICHED_BY_PUBLISHER" | "ENRICHED_BY_API" | "NO_DATA" | "SHOULD_ENRICH";
+}
 export interface ShortMission {
   _id: string;
   clientId: string;

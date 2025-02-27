@@ -25,7 +25,7 @@ export interface GeolocResult {
     type: "Point";
     coordinates: [number, number];
   } | null;
-  geolocStatus: "NOT_FOUND" | "FAILED" | "ENRICHED_BY_PUBLISHER" | "ENRICHED" | "NO_DATA" | "SHOULD_ENRICH";
+  geolocStatus: "NOT_FOUND" | "FAILED" | "ENRICHED_BY_PUBLISHER" | "ENRICHED_BY_API" | "NO_DATA" | "SHOULD_ENRICH";
 }
 
 export const enrichWithGeoloc = async (publisher: Publisher, missions: Mission[]): Promise<GeolocResult[]> => {
@@ -37,7 +37,7 @@ export const enrichWithGeoloc = async (publisher: Publisher, missions: Mission[]
 
     missions.forEach((mission) => {
       mission.addresses.forEach((addressItem, addressIndex) => {
-        if (addressItem.geolocStatus === "ENRICHED_BY_PUBLISHER" || addressItem.geolocStatus === "ENRICHED") return;
+        if (addressItem.geolocStatus === "ENRICHED_BY_PUBLISHER" || addressItem.geolocStatus === "ENRICHED_BY_API") return;
         const clientId = mission.clientId;
         const street = (addressItem.street || "").replace(/[^a-zA-Z0-9]/g, " ") || "";
         const city = (addressItem.city || "").replace(/[^a-zA-Z0-9]/g, " ") || "";
@@ -105,7 +105,7 @@ export const enrichWithGeoloc = async (publisher: Publisher, missions: Mission[]
               obj.departmentName = obj.departmentCode;
             }
           }
-          obj.geolocStatus = "ENRICHED";
+          obj.geolocStatus = "ENRICHED_BY_API";
           found++;
         }
 

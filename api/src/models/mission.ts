@@ -28,6 +28,7 @@ const addressesSchema = new Schema({
     lon: { type: Number },
   },
   geoPoint: { type: geoPointSchema, default: null },
+  geolocStatus: { type: String, default: "NOT_FOUND" },
 });
 
 const schema = new Schema<Mission>(

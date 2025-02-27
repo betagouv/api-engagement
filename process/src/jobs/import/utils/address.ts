@@ -134,7 +134,7 @@ export const getAddresses = (mission: Mission, missionXML: MissionXML) => {
           }
         : undefined,
       geoPoint: null,
-      geolocStatus: address.location ? "ENRICHED_BY_PUBLISHER" : "NO_DATA",
+      geolocStatus: address.location ? "ENRICHED_BY_PUBLISHER" : "SHOULD_ENRICH",
     };
 
     if (addressItem.location && addressItem.location.lon && addressItem.location.lat) {
