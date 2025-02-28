@@ -1,23 +1,136 @@
-import React, { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect } from "react";
 import { usePlausible } from "next-plausible";
 import { RiSearchLine, RiArrowUpSLine, RiArrowDownSLine, RiCheckboxFill, RiCheckboxBlankLine, RiMapPin2Fill, RiCloseFill } from "react-icons/ri";
 
 import useStore from "../store";
+import { DOMAINES } from "../config";
 
-export const MobileFilters = ({ options, filters, setFilters, showFilters, setShowFilters, disabledLocation = false, carousel }) => {
+const getAPI = async (path) => {
+  const response = await fetch(path, { method: "GET" });
+
+  if (!response.ok) throw response;
+  return response.json();
+};
+
+const Filters = ({ widget, apiUrl, values, onChange, show, onShow }) => {
+  const [options, setOptions] = useState({});
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    setIsMobile(window.innerWidth < 768);
+    window.addEventListener("resize", () => setIsMobile(window.innerWidth < 768));
+    return () => window.removeEventListener("resize", () => {});
+  }, []);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const searchParams = new URLSearchParams();
+
+        // if (values.accessibility && values.accessibility.length) values.accessibility.forEach((o) => searchParams.append("accessibility", o.value));
+        // if (values.action && values.action.length) values.action.forEach((o) => searchParams.append("action", o.value));
+        // if (values.beneficiary && values.beneficiary.length) values.beneficiary.forEach((o) => searchParams.append("beneficiary", o.value));
+        // if (values.country && values.country.length) values.country.forEach((o) => searchParams.append("country", o.value));
+        // if (values.domain && values.domain.length) values.domain.forEach((o) => searchParams.append("domain", o.value));
+        // if (values.duration) searchParams.append("duration", values.duration.value);
+        // if (values.minor && values.minor.length) values.minor.forEach((o) => searchParams.append("minor", o.value));
+        // if (values.schedule && values.schedule.length) values.schedule.forEach((o) => searchParams.append("schedule", o.value));
+        // if (values.start) searchParams.append("start", values.start.value.toISOString());
+
+        if (values.domain && values.domain.length) values.domain.forEach((item) => searchParams.append("domain", item.value));
+        if (values.organization && values.organization.length) values.organization.forEach((item) => searchParams.append("organization", item.value));
+        if (values.department && values.department.length) values.department.forEach((item) => searchParams.append("department", item.value === "" ? "none" : item.value));
+        if (values.remote && values.remote.length) values.remote.forEach((item) => searchParams.append("remote", item.value));
+
+        if (values.location && values.location.lat && values.location.lon) {
+          searchParams.append("lat", values.location.lat);
+          searchParams.append("lon", values.location.lon);
+        }
+        ["domain", "organization", "department", "remote"].forEach((key) => searchParams.append("aggs", key));
+
+        const { ok, data } = await getAPI(`${apiUrl}/iframe/${widget._id}/aggs?${searchParams.toString()}`);
+
+        if (!ok) throw Error("Error fetching aggs");
+        // const france = data.country.reduce((acc, c) => acc + (c.key === "FR" ? c.doc_count : 0), 0);
+        // const abroad = data.country.reduce((acc, c) => acc + (c.key !== "FR" ? c.doc_count : 0), 0);
+        // const country = [];
+        // country.push({ value: "FR", count: france, label: "France" });
+        // country.push({ value: "NOT_FR", count: abroad, label: "Etranger" });
+
+        // const newOptions = {
+        //   schedule: data.schedule.map((b) => ({ value: b.key, count: b.doc_count, label: SCHEDULES[b.key] || b.key })),
+        //   domain: data.domain.map((b) => ({
+        //     value: b.key,
+        //     count: b.doc_count,
+        //     label: DOMAINS[b.key] ? DOMAINS[b.key].label : b.key,
+        //   })),
+        //   action: data.action.map((b) => ({ value: b.key, count: b.doc_count, label: ACTIONS[b.key] || b.key })),
+        //   beneficiary: data.beneficiary.map((b) => ({ value: b.key, count: b.doc_count, label: BENEFICIARIES[b.key] || b.key })),
+        //   accessibility: data.accessibility.map((b) => ({ value: b.key, count: b.doc_count, label: ACCESSIBILITIES[b.key] || b.key })),
+        //   minor: data.minor.map((b) => ({ value: b.key, count: b.doc_count, label: MINORS[b.key] || b.key })),
+        //   country,
+        // };
+
+        const remote = data.remote.filter((b) => b.key === "full" || b.key === "possible");
+        const presentiel = data.remote.filter((b) => b.key === "no");
+        const newOptions = {
+          organizations: data.organization.map((b) => ({ value: b.key, count: b.doc_count, label: b.key })),
+          domains: data.domain.map((b) => ({ value: b.key, count: b.doc_count, label: DOMAINES[b.key] || b.key })),
+          departments: data.department.map((b) => ({
+            value: b.key === "" ? "none" : b.key,
+            count: b.doc_count,
+            label: b.key === "" ? "Non renseigné" : b.key,
+          })),
+          remote: [
+            { value: "no", label: "Présentiel", count: presentiel.reduce((acc, b) => acc + b.doc_count, 0) },
+            { value: "yes", label: "Distance", count: remote.reduce((acc, b) => acc + b.doc_count, 0) },
+          ],
+        };
+        setOptions(newOptions);
+      } catch (error) {
+        console.error(error);
+      }
+    };
+    fetchData();
+  }, [widget, values]);
+
+  console.log("isMobile", isMobile);
+
+  if (isMobile) {
+    return (
+      <div className="w-full flex flex-col items-center gap-2">
+        <MobileFilters
+          options={options}
+          values={values}
+          onChange={(newFilters) => onChange({ ...values, ...newFilters })}
+          disabledLocation={!!widget.location}
+          show={show}
+          onShow={onShow}
+        />
+      </div>
+    );
+  }
+
+  return (
+    <div className="flex m-auto items-center justify-between">
+      <DesktopFilters options={options} values={values} onChange={(v) => onChange({ ...values, ...v })} disabledLocation={!!widget.location} />
+    </div>
+  );
+};
+
+const MobileFilters = ({ options, values, onChange, show, onShow, disabledLocation = false }) => {
   const { url, color } = useStore();
 
   const plausible = usePlausible();
   if (!Object.keys(options).length) return null;
 
   const handleReset = () => {
-    setFilters({
+    onChange({
       domain: [],
       organization: [],
       department: [],
       remote: [],
       location: null,
-      size: carousel ? 40 : 6,
       page: 1,
     });
   };
@@ -25,28 +138,28 @@ export const MobileFilters = ({ options, filters, setFilters, showFilters, setSh
   return (
     <>
       <div className="w-full">
-        <LocationFilter selected={filters.location} onChange={(l) => setFilters({ ...filters, location: l })} disabled={disabledLocation} color={color} width="w-full" />
+        <LocationFilter selected={values.location} onChange={(l) => onChange({ ...values, location: l })} disabled={disabledLocation} color={color} width="w-full" />
       </div>
       <button
         className="flex h-[40px] border-y items-center justify-between w-full px-4 py-2 focus:outline-none focus-visible:ring focus-visible:ring-blue-800"
         onClick={() => {
-          setShowFilters(!showFilters);
-          plausible(showFilters ? "Filters closed" : "Filters opened", { u: url });
+          onShow(!show);
+          plausible(show ? "Filters closed" : "Filters opened", { u: url });
         }}
         style={{ color: color }}
       >
         Filtrer les missions
-        {showFilters ? <RiArrowUpSLine className="font-semibold" style={{ color: color }} /> : <RiArrowDownSLine className="font-semibold" style={{ color: color }} />}
+        {show ? <RiArrowUpSLine className="font-semibold" style={{ color: color }} /> : <RiArrowDownSLine className="font-semibold" style={{ color: color }} />}
       </button>
 
-      {showFilters && (
+      {show && (
         <div className="w-full mt-2">
           <div className="w-full mb-4">
             <RemoteFilter
               id="remote"
               options={options.remote}
-              selectedOptions={filters.remote}
-              onChange={(f) => setFilters({ ...filters, remote: f })}
+              selectedOptions={values.remote}
+              onChange={(f) => onChange({ ...values, remote: f })}
               placeholder="Présentiel / Distance"
               width="w-full"
               color={color}
@@ -56,8 +169,8 @@ export const MobileFilters = ({ options, filters, setFilters, showFilters, setSh
             <SelectFilter
               id="domain"
               options={options.domains}
-              selectedOptions={filters.domain}
-              onChange={(v) => setFilters({ ...filters, domain: v })}
+              selectedOptions={values.domain}
+              onChange={(v) => onChange({ ...values, domain: v })}
               placeholder="Domaines"
               width="w-full"
               color={color}
@@ -67,8 +180,8 @@ export const MobileFilters = ({ options, filters, setFilters, showFilters, setSh
             <SelectFilter
               id="department"
               options={options.departments}
-              selectedOptions={filters.department}
-              onChange={(v) => setFilters({ ...filters, department: v })}
+              selectedOptions={values.department}
+              onChange={(v) => onChange({ ...values, department: v })}
               placeholder="Départements"
               width="w-full"
               color={color}
@@ -78,8 +191,8 @@ export const MobileFilters = ({ options, filters, setFilters, showFilters, setSh
             <SelectFilter
               id="organization"
               options={options.organizations}
-              selectedOptions={filters.organization}
-              onChange={(v) => setFilters({ ...filters, organization: v })}
+              selectedOptions={values.organization}
+              onChange={(v) => onChange({ ...values, organization: v })}
               placeholder="Organisations"
               width="w-full"
               color={color}
@@ -90,7 +203,7 @@ export const MobileFilters = ({ options, filters, setFilters, showFilters, setSh
               aria-label="Voir les missions"
               className="w-full p-3 text-center border-none text-white text-sm focus:outline-none focus-visible:ring focus-visible:ring-blue-800"
               onClick={() => {
-                setShowFilters(false);
+                onShow(false);
                 plausible("Filters closed", { u: url });
               }}
               style={{ backgroundColor: color }}
@@ -115,20 +228,20 @@ export const MobileFilters = ({ options, filters, setFilters, showFilters, setSh
   );
 };
 
-export const Filters = ({ options, filters, setFilters, disabledLocation = false }) => {
+const DesktopFilters = ({ options, values, onChange, disabledLocation = false }) => {
   const { color } = useStore();
   if (!Object.keys(options).length) return null;
   return (
     <>
       <div className="w-[20%] pr-2">
-        <LocationFilter selected={filters.location} onChange={(l) => setFilters({ ...filters, location: l })} disabled={disabledLocation} color={color} />
+        <LocationFilter selected={values.location} onChange={(l) => onChange({ ...values, location: l })} disabled={disabledLocation} color={color} />
       </div>
       <div className="w-[20%] px-2">
         <RemoteFilter
           id="remote"
           options={options.remote}
-          selectedOptions={filters.remote}
-          onChange={(f) => setFilters({ ...filters, remote: f })}
+          selectedOptions={values.remote}
+          onChange={(f) => onChange({ ...values, remote: f })}
           placeholder="Présentiel / Distance"
           color={color}
         />
@@ -137,8 +250,8 @@ export const Filters = ({ options, filters, setFilters, disabledLocation = false
         <SelectFilter
           id="domain"
           options={options.domains}
-          selectedOptions={filters.domain}
-          onChange={(v) => setFilters({ ...filters, domain: v })}
+          selectedOptions={values.domain}
+          onChange={(v) => onChange({ ...values, domain: v })}
           placeholder="Domaines"
           color={color}
         />
@@ -147,8 +260,8 @@ export const Filters = ({ options, filters, setFilters, disabledLocation = false
         <SelectFilter
           id="department"
           options={options.departments}
-          selectedOptions={filters.department}
-          onChange={(v) => setFilters({ ...filters, department: v })}
+          selectedOptions={values.department}
+          onChange={(v) => onChange({ ...values, department: v })}
           placeholder="Départements"
           color={color}
         />
@@ -157,8 +270,8 @@ export const Filters = ({ options, filters, setFilters, disabledLocation = false
         <SelectFilter
           id="organization"
           options={options.organizations}
-          selectedOptions={filters.organization}
-          onChange={(v) => setFilters({ ...filters, organization: v })}
+          selectedOptions={values.organization}
+          onChange={(v) => onChange({ ...values, organization: v })}
           placeholder="Organisations"
           position="right-0"
           color={color}
@@ -478,3 +591,5 @@ const RemoteFilter = ({ options, selectedOptions, onChange, id, placeholder = "C
     </div>
   );
 };
+
+export default Filters;

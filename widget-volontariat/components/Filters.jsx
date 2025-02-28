@@ -43,6 +43,7 @@ const Filters = ({ widget, apiUrl, values, onChange, show, onShow }) => {
           searchParams.append("lat", values.location.lat);
           searchParams.append("lon", values.location.lon);
         }
+        ["schedule", "domain", "action", "beneficiary", "accessibility", "minor", "country"].forEach((key) => searchParams.append("aggs", key));
 
         const { ok, data } = await getAPI(`${apiUrl}/iframe/${widget._id}/aggs?${searchParams.toString()}`);
 
@@ -76,7 +77,7 @@ const Filters = ({ widget, apiUrl, values, onChange, show, onShow }) => {
 
   if (isMobile) {
     return (
-      <div className="w-full flex flex-col items-center gap-2 md:mb-14">
+      <div className="w-full flex flex-col items-center gap-2">
         <MobileFilters
           options={options}
           values={values}
@@ -90,7 +91,7 @@ const Filters = ({ widget, apiUrl, values, onChange, show, onShow }) => {
   }
 
   return (
-    <div className="w-full mb-8 md:mb-2">
+    <div className="w-full mb-2">
       <DesktopFilters options={options} values={values} onChange={(v) => onChange({ ...values, ...v })} disabledLocation={!!widget.location} />
     </div>
   );

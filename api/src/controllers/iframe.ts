@@ -527,6 +527,7 @@ router.get("/:id/aggs", cors({ origin: "*" }), async (req: Request, res: Respons
 
     const query = zod
       .object({
+        aggs: zod.array(zod.string()).default(["domain", "organization", "department", "schedule", "remote", "action", "beneficiary", "country", "minor", "accessibility"]),
         domain: zod.union([zod.string(), zod.array(zod.string())]).optional(),
         organization: zod.union([zod.string(), zod.array(zod.string())]).optional(),
         department: zod.union([zod.string(), zod.array(zod.string())]).optional(),
@@ -613,7 +614,8 @@ router.get("/:id/aggs", cors({ origin: "*" }), async (req: Request, res: Respons
     if (!whereAggs.$or.length) delete whereAggs.$or;
 
     const $facet = {} as { [key: string]: any };
-    Object.entries(AGGS_KEYS).forEach(([key, value]) => {
+    query.data.aggs.forEach((key) => {
+      const fieldKey = AGGS_KEYS[key];
       const filters = {} as { [key: string]: any };
       if (key !== "remote" && query.data.remote) filters.remote = buildRemoteQuery(query.data.remote);
       if (key !== "domain" && query.data.domain) filters.domain = buildQuery(query.data.domain);
@@ -638,20 +640,26 @@ router.get("/:id/aggs", cors({ origin: "*" }), async (req: Request, res: Respons
           },
         ];
       } else if (key === "beneficiary" || key === "action") {
-        $facet[key] = [{ $match: filters }, { $unwind: `$${value}` }, { $group: { _id: `$${value}`, count: { $sum: 1 } } }, { $sort: { count: -1 } }];
+        $facet[key] = [{ $match: filters }, { $unwind: `$${fieldKey}` }, { $group: { _id: `$${fieldKey}`, count: { $sum: 1 } } }, { $sort: { count: -1 } }];
       } else {
-        $facet[key] = [{ $match: filters }, { $group: { _id: `$${value}`, count: { $sum: 1 } } }, { $sort: { count: -1 } }];
+        $facet[key] = [{ $match: filters }, { $group: { _id: `$${fieldKey}`, count: { $sum: 1 } } }, { $sort: { count: -1 } }];
       }
     });
 
+    console.log(query.data.aggs);
+    console.log(JSON.stringify($facet, null, 2));
+
     const facets = await MissionModel.aggregate([{ $match: whereAggs }, { $facet }]);
+    console.log(JSON.stringify(facets, null, 2));
 
     const data = {} as { [key: string]: any };
 
-    Object.entries(AGGS_KEYS).forEach(([key, value]) => {
-      if (Array.isArray(value)) {
+    // Object.entries(AGGS_KEYS).forEach(([key, value]) => {
+    query.data.aggs.forEach((key) => {
+      const fieldKey = AGGS_KEYS[key];
+      if (Array.isArray(fieldKey)) {
         data[key] = [];
-        value.forEach((k) => data[key].push({ key: k, doc_count: facets[0][key].length ? facets[0][key][0][k] || 0 : 0 }));
+        fieldKey.forEach((k) => data[key].push({ key: k, doc_count: facets[0][key].length ? facets[0][key][0][k] || 0 : 0 }));
       } else {
         data[key] = facets[0][key].map((e: { _id: string; count: number }) => ({ key: e._id, doc_count: e.count }));
       }

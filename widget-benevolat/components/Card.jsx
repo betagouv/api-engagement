@@ -14,8 +14,6 @@ const Card = ({ widget, mission, request }) => {
       ? mission.addresses.map((a) => a.city).join(", ")
       : `${mission.city} ${mission.country !== "FR" ? `- ${iso.getName(mission.country, "fr")}` : ""}`;
 
-  console.log("mission", mission);
-
   return (
     <a
       tabIndex={0}
