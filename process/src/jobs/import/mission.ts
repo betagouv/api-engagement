@@ -51,6 +51,8 @@ const getModeration = (mission: Mission) => {
   if (mission.remote && !["no", "possible", "full"].includes(mission.remote)) statusComment = "Valeur remote non valide (no, possible ou full)";
   if (mission.places && mission.places <= 0) statusComment = "Nombre de places invalide (doit être supérieur à 0)";
   // if (mission.activity && !ACTIVITIES.includes(mission.activity)) statusComment =  "Activity is not valid";
+
+  if (mission.domain === "mémoire et citoyenneté") mission.domain = "memoire-et-citoyennete";
   if (mission.domain && !DOMAINS.includes(mission.domain)) statusComment = `Domaine non valide : "${mission.domain}"`;
   if (hasEncodageIssue(mission.organizationName)) statusComment = "Problème d'encodage dans le nom de l'organisation";
 

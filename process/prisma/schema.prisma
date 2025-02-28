@@ -243,13 +243,21 @@ model Mission {
   id                              String        @id @default(uuid())
   title                           String?
   old_id                          String        @unique
+  // Address
+  address                         String?
   department_name                 String?
   department_code                 String?
-  address                         String?
+  city                            String?
+  postal_code                     String?
+  country                         String?
+  region                          String?
+  latitude                        Float?
+  longitude                       Float?
+  geoloc_status                  String?
+  addresses                       Address[]
+
   domain                          String
   activity                        String?
-  region                          String?
-  country                         String?
   partner_id                      String?
   description                     String?
   type                            MissionType?
@@ -281,7 +289,6 @@ model Mission {
   created_at                      DateTime      @default(now())
   updated_at                      DateTime      @updatedAt
   audience                        String[]
-  geoloc_status                   String?
   rna_status                      String?
   snu                             Boolean?
   snu_places                      Int?
@@ -291,19 +298,15 @@ model Mission {
   jva_moderation_title            String?
   organization_client_id          String?
   organization_department         String?
-  city                            String?
   client_id                       String?
   description_html                String?
   jva_moderation_updated_at       DateTime?
-  latitude                        Float?
   leboncoin_moderation_comment    String?
   leboncoin_moderation_status     String?
   leboncoin_moderation_updated_at DateTime?
   leboncoin_moderation_url        String?
-  longitude                       Float?
   metadata                        String?
   organization_postal_code        String?
-  postal_code                     String?
   priority                        String?
   soft_skills                     String[]
   tasks                           String[]
@@ -334,6 +337,27 @@ model Mission {
   @@index([client_id], map: "mission_client_id")
   @@index([matched_organization_id], map: "mission_matched_organization_id")
   @@index([partner_id], map: "mission_partner_id")
+  @@index([old_id], map: "mission_old_id")
+}
+
+model Address {
+  id String @id @default(uuid())
+  old_id String
+  street String?
+  city String?
+  postal_code String?
+  country String?
+  department_code String?
+  department_name String?
+  region String?
+  latitude Float?
+  longitude Float?
+  geoloc_status String @default("NOT_FOUND")
+  mission_id String
+  mission Mission @relation(fields: [mission_id], references: [id])
+
+  @@index([mission_id], map: "address_mission_id")
+  @@index([old_id], map: "address_old_id")
 }
 
 model Organization {

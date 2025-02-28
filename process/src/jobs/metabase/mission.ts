@@ -1,12 +1,12 @@
 import prisma from "../../db/postgres";
 import { captureException } from "../../error";
 import { Mission as MongoMission } from "../../types";
-import { Mission as PgMission } from "@prisma/client";
+import { Address as PgAddress, Mission as PgMission } from "@prisma/client";
 import MissionModel from "../../models/mission";
 
 const BULK_SIZE = 5000;
 
-const buildData = async (doc: MongoMission, partners: { [key: string]: string }) => {
+const buildData = async (doc: MongoMission, partners: { [key: string]: string }): Promise<{ mission: PgMission; addresses: PgAddress[] } | null> => {
   const partnerId = partners[doc.publisherId?.toString()];
   if (!partnerId) {
     console.log(`[Mission] Partner ${doc.publisherId?.toString()} not found for mission ${doc._id?.toString()}`);
@@ -110,7 +110,24 @@ const buildData = async (doc: MongoMission, partners: { [key: string]: string })
     deleted_at: doc.deletedAt ? new Date(doc.deletedAt) : null,
   } as PgMission;
 
-  return obj;
+  const addresses: PgAddress[] = doc.addresses.map(
+    (address) =>
+      ({
+        old_id: address._id?.toString(),
+        street: address.street,
+        city: address.city,
+        postal_code: address.postalCode,
+        department_code: address.departmentCode,
+        department_name: address.departmentName,
+        region: address.region,
+        country: address.country,
+        latitude: address.location?.lat || null,
+        longitude: address.location?.lon || null,
+        geoloc_status: address.geolocStatus,
+      }) as PgAddress,
+  );
+
+  return { mission: obj, addresses };
 };
 
 const isDateEqual = (a: Date, b: Date) => new Date(a).getTime() === new Date(b).getTime();
@@ -131,6 +148,7 @@ const handler = async () => {
     const fourteenDaysAgo = new Date();
     fourteenDaysAgo.setDate(fourteenDaysAgo.getDate() - 14);
     const where = { $or: [{ createdAt: { $gte: fourteenDaysAgo } }, { updatedAt: { $gte: fourteenDaysAgo } }] };
+    // const where = { _id: "606fc41e6130b5070b7a674a" };
     const countToSync = await MissionModel.countDocuments(where);
     console.log(`[Missions] Found ${countToSync} docs to sync.`);
 
@@ -138,8 +156,8 @@ const handler = async () => {
       const data = await MissionModel.find(where).limit(BULK_SIZE).skip(offset).lean();
       if (data.length === 0) break;
 
-      const dataToCreate = [] as PgMission[];
-      const dataToUpdate = [] as PgMission[];
+      const dataToCreate = [] as { mission: PgMission; addresses: PgAddress[] }[];
+      const dataToUpdate = [] as { mission: PgMission; addresses: PgAddress[] }[];
       console.log(`[Missions] Processing ${data.length} docs.`);
 
       // Fetch all existing missions in one go
@@ -152,18 +170,17 @@ const handler = async () => {
         .then((data) => data.forEach((d) => (stored[d.old_id] = d)));
 
       for (const doc of data) {
-        const obj = await buildData(doc as MongoMission, partners);
-        if (!obj) continue;
-
-        if (stored[doc._id.toString()] && !isDateEqual(stored[doc._id.toString()].updated_at, obj.updated_at)) dataToUpdate.push(obj);
-        else if (!stored[doc._id.toString()]) dataToCreate.push(obj);
+        const res = await buildData(doc as MongoMission, partners);
+        if (!res) continue;
+        if (stored[doc._id.toString()] && !isDateEqual(stored[doc._id.toString()].updated_at, res.mission.updated_at)) dataToUpdate.push(res);
+        else if (!stored[doc._id.toString()]) dataToCreate.push(res);
       }
 
       console.log(`[Missions] ${dataToCreate.length} docs to create, ${dataToUpdate.length} docs to update.`);
-
       // Create data
       if (dataToCreate.length) {
-        const res = await prisma.mission.createMany({ data: dataToCreate, skipDuplicates: true });
+        const data = dataToCreate.map((d) => ({ ...d.mission, addresses: { create: d.addresses } }));
+        const res = await prisma.mission.createMany({ data, skipDuplicates: true });
         created += res.count;
         console.log(`[Missions] Created ${res.count} docs, ${created} created so far.`);
       }
@@ -171,7 +188,18 @@ const handler = async () => {
       if (dataToUpdate.length) {
         const transactions = [];
         for (const obj of dataToUpdate) {
-          transactions.push(prisma.mission.update({ where: { old_id: obj.old_id }, data: obj }));
+          transactions.push(
+            prisma.mission.update({
+              where: { old_id: obj.mission.old_id },
+              data: {
+                ...obj.mission,
+                addresses: {
+                  deleteMany: {}, // Delete all existing addresses
+                  create: obj.addresses, // Create new addresses
+                },
+              },
+            }),
+          );
         }
         for (let i = 0; i < transactions.length; i += 100) {
           await prisma.$transaction(transactions.slice(i, i + 100));
@@ -181,6 +209,7 @@ const handler = async () => {
         console.log(`[Missions] Updated ${dataToUpdate.length} docs, ${updated} updated so far.`);
       }
       offset += BULK_SIZE;
+      // break;
     }
 
     console.log(`[Missions] Ended at ${new Date().toISOString()} in ${(Date.now() - start.getTime()) / 1000}s.`);

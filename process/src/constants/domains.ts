@@ -11,7 +11,7 @@ export const DOMAINS = [
   "animaux",
   "vivre-ensemble",
   "autre",
-  "mémoire et citoyenneté",
+  "memoire-et-citoyennete",
   "benevolat-competences",
 ];
 
