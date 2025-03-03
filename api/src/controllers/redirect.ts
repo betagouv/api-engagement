@@ -646,6 +646,7 @@ router.get("/:missionId/:publisherId", cors({ origin: "*" }), async function tra
     const statBot = await StatsBotModel.findOne({ user: identity.user });
     if (statBot) await esClient.update({ index: STATS_INDEX, id: click.body._id, body: { doc: { isBot: true } } });
   } catch (error: any) {
+    console.log(error);
     captureException(error);
     if (href) res.redirect(302, href);
     res.status(500).send({ ok: false, code: SERVER_ERROR, message: error.message });
