@@ -558,6 +558,7 @@ router.get("/notrack/:id", cors({ origin: "*" }), async (req, res, next) => {
 });
 
 router.get("/:missionId/:publisherId", cors({ origin: "*" }), async function trackClick(req, res, next) {
+  let href: string | null = null;
   try {
     const params = zod
       .object({
@@ -586,6 +587,7 @@ router.get("/:missionId/:publisherId", cors({ origin: "*" }), async function tra
       return res.redirect(302, "https://www.service-civique.gouv.fr/"); // While issue
     }
     if (!identity) return res.redirect(302, mission.applicationUrl);
+    href = mission.applicationUrl;
 
     const fromPublisher = await PublisherModel.findById(params.data.publisherId);
 
@@ -645,6 +647,7 @@ router.get("/:missionId/:publisherId", cors({ origin: "*" }), async function tra
     if (statBot) await esClient.update({ index: STATS_INDEX, id: click.body._id, body: { doc: { isBot: true } } });
   } catch (error: any) {
     captureException(error);
+    if (href) res.redirect(302, href);
     res.status(500).send({ ok: false, code: SERVER_ERROR, message: error.message });
   }
 });
