@@ -344,15 +344,15 @@ const findMissionTemp = async (missionId: string) => {
     return mission;
   }
 
-  const response2 = await esClient.search({ index: STATS_INDEX, body: { query: { term: { "missionId.keyword": missionId } }, size: 1 } });
-  if (response2.body.hits.total.value > 0) {
-    const stats = { _id: response2.body.hits.hits[0]._id, ...response2.body.hits.hits[0]._source } as Stats;
-    const mission = await MissionModel.findOne({ clientId: stats.missionClientId?.toString(), publisherId: stats.toPublisherId });
-    if (mission) {
-      captureMessage("[Temp] Mission found with click", `mission ${missionId}`);
-      return mission;
-    }
-  }
+  // const response2 = await esClient.search({ index: STATS_INDEX, body: { query: { term: { "missionId.keyword": missionId } }, size: 1 } });
+  // if (response2.body.hits.total.value > 0) {
+  //   const stats = { _id: response2.body.hits.hits[0]._id, ...response2.body.hits.hits[0]._source } as Stats;
+  //   const mission = await MissionModel.findOne({ clientId: stats.missionClientId?.toString(), publisherId: stats.toPublisherId });
+  //   if (mission) {
+  //     captureMessage("[Temp] Mission found with click", `mission ${missionId}`);
+  //     return mission;
+  //   }
+  // }
   return null;
 };
 
