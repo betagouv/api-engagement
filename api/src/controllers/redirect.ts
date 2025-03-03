@@ -226,6 +226,7 @@ router.get("/account", cors({ origin: "*" }), async (req: Request, res: Response
 });
 
 router.get("/campaign/:id", cors({ origin: "*" }), async (req, res) => {
+  let href: string | null = null;
   try {
     const params = zod
       .object({
@@ -255,6 +256,7 @@ router.get("/campaign/:id", cors({ origin: "*" }), async (req, res) => {
       captureException(`[Redirection Campaign] Campaign url not found`, `campaign id ${params.data.id}`);
       return res.redirect(302, JVA_URL);
     }
+    href = campaign.url;
 
     const identity = identify(req);
     if (!identity) return res.redirect(302, campaign.url);
@@ -300,7 +302,8 @@ router.get("/campaign/:id", cors({ origin: "*" }), async (req, res) => {
     if (statBot) await esClient.update({ index: STATS_INDEX, id: click.body._id, body: { doc: { isBot: true } } });
   } catch (error) {
     captureException(error);
-    return res.redirect(302, JVA_URL);
+    if (href) return res.redirect(302, href);
+    else return res.redirect(302, JVA_URL);
   }
 });
 
@@ -357,6 +360,7 @@ const findMissionTemp = async (missionId: string) => {
 };
 
 router.get("/widget/:id", cors({ origin: "*" }), async (req: Request, res: Response) => {
+  let href: string | null = null;
   try {
     const params = zod
       .object({
@@ -388,6 +392,7 @@ router.get("/widget/:id", cors({ origin: "*" }), async (req: Request, res: Respo
       captureMessage(`[Redirection Widget] Mission not found`, `mission ${params.data.id}, widget ${query.data?.widgetId}`);
       return res.redirect(302, JVA_URL);
     }
+    href = mission.applicationUrl;
     if (!identity) return res.redirect(302, mission.applicationUrl);
 
     if (!query.success || !query.data.widgetId || query.data.widgetId.length !== 24) {
@@ -454,7 +459,8 @@ router.get("/widget/:id", cors({ origin: "*" }), async (req: Request, res: Respo
     if (statBot) await esClient.update({ index: STATS_INDEX, id: click.body._id, body: { doc: { isBot: true } } });
   } catch (error: any) {
     captureException(error);
-    res.status(500).send({ ok: false, code: SERVER_ERROR, message: error.message });
+    if (href) res.redirect(302, href);
+    else res.status(500).send({ ok: false, code: SERVER_ERROR, message: error.message });
   }
 });
 
@@ -642,14 +648,12 @@ router.get("/:missionId/:publisherId", cors({ origin: "*" }), async function tra
       url.searchParams.set("utm_campaign", slugify(fromPublisher?.name || "unknown"));
     }
 
-    console.log("REDIRECT ICI", url.href);
     res.redirect(302, url.href);
 
     // Update stats just created to add isBot (do it after redirect to avoid delay)
     const statBot = await StatsBotModel.findOne({ user: identity.user });
     if (statBot) await esClient.update({ index: STATS_INDEX, id: click.body._id, body: { doc: { isBot: true } } });
   } catch (error: any) {
-    console.log("REDIRECT ERROR", href);
     captureException(error);
     if (href) res.redirect(302, href);
     else res.status(500).send({ ok: false, code: SERVER_ERROR, message: error.message });
