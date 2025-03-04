@@ -8,9 +8,9 @@ import { usePlausible } from "next-plausible";
 iso.registerLocale(isoFR);
 
 import { API_URL, DOMAINES, ENV } from "../config";
-import { Carousel } from "../components/carousel";
-import { Grid } from "../components/grid";
-import { Filters, MobileFilters } from "../components/filters";
+import Carousel from "../components/Carousel";
+import Grid from "../components/Grid";
+import Filters from "../components/Filters";
 import { calculateDistance } from "../utils";
 import useStore from "../store";
 
@@ -25,7 +25,7 @@ import useStore from "../store";
  *  --> tablet (640->1023px) height = 1862px
  *  --> desktop (1024px->+) height = 1314px
  */
-const Home = ({ widget, missions, options, total, request, environment }) => {
+const Home = ({ widget, missions, apiUrl, total, request, environment }) => {
   const router = useRouter();
   const { setUrl, setColor } = useStore();
   const plausible = usePlausible();
@@ -35,7 +35,6 @@ const Home = ({ widget, missions, options, total, request, environment }) => {
     department: [],
     remote: [],
     location: null,
-    size: widget?.style === "carousel" ? 40 : 6,
     page: 1,
   });
   const [showFilters, setShowFilters] = useState(false);
@@ -74,6 +73,7 @@ const Home = ({ widget, missions, options, total, request, environment }) => {
     const timeoutId = setTimeout(() => {
       const query = {
         widget: widget._id,
+        size: widget?.style === "carousel" ? 25 : 6,
         ...(router.query.notrack && { notrack: router.query.notrack }),
       };
 
@@ -97,8 +97,7 @@ const Home = ({ widget, missions, options, total, request, environment }) => {
           .filter((item) => item && item.value)
           .map((item) => item.value)
           .join(",");
-      if (filters.size) query.size = filters.size;
-      if (filters.page > 1) query.from = (filters.page - 1) * filters.size;
+      if (filters.page > 1) query.from = (filters.page - 1) * query.size;
       if (filters.location?.lat && filters.location?.lon) {
         query.lat = filters.location.lat;
         query.lon = filters.location.lon;
@@ -144,19 +143,15 @@ const Home = ({ widget, missions, options, total, request, environment }) => {
           <h1 className="font-bold text-[28px] leading-[36px] md:p-0">Trouver une mission de bénévolat</h1>
           <p className="text-[#666] text-[18px] leading-[28px]">{total > 1 ? `${total.toLocaleString("fr")} missions` : `${total} mission`}</p>
         </div>
-        <div className="w-full flex md:hidden flex-col items-center gap-2">
-          <MobileFilters
-            options={options}
-            filters={filters}
-            setFilters={(newFilters) => setFilters({ ...filters, ...newFilters })}
-            disabledLocation={!!widget.location}
-            showFilters={showFilters}
-            setShowFilters={setShowFilters}
-          />
-        </div>
-        <div className={`hidden md:flex m-auto items-center justify-between }`}>
-          <Filters options={options} filters={filters} setFilters={(newFilters) => setFilters({ ...filters, ...newFilters })} disabledLocation={!!widget.location} />
-        </div>
+        <Filters
+          widget={widget}
+          apiUrl={apiUrl}
+          values={filters}
+          onChange={(newFilters) => setFilters({ ...filters, ...newFilters })}
+          disabledLocation={!!widget.location}
+          show={showFilters}
+          onShow={setShowFilters}
+        />
       </header>
       <div className={`w-full ${showFilters ? (widget?.style === "carousel" ? "hidden" : "opacity-40") : "h-auto overflow-x-hidden"}`}>
         {widget?.style === "carousel" ? (
@@ -214,30 +209,15 @@ export const getServerSideProps = async (context) => {
       searchParams.append("lon", parseFloat(context.query.lon));
     }
 
-    const response = await fetch(`${API_URL}/iframe/widget/${widget._id}/msearch?${searchParams.toString()}`).then((res) => res.json());
+    const response = await fetch(`${API_URL}/iframe/${widget._id}/search?${searchParams.toString()}`).then((res) => res.json());
 
     if (!response.ok) throw response;
-    const remote = response.data.aggs.remote.filter((b) => b.key === "full" || b.key === "possible");
-    const presentiel = response.data.aggs.remote.filter((b) => b.key === "no");
-    const newOptions = {
-      organizations: response.data.aggs.organization.map((b) => ({ value: b.key, count: b.doc_count, label: b.key })),
-      domains: response.data.aggs.domain.map((b) => ({ value: b.key, count: b.doc_count, label: DOMAINES[b.key] || b.key })),
-      departments: response.data.aggs.department.map((b) => ({
-        value: b.key === "" ? "none" : b.key,
-        count: b.doc_count,
-        label: b.key === "" ? "Non renseigné" : b.key,
-      })),
-      remote: [
-        { value: "no", label: "Présentiel", count: presentiel.reduce((acc, b) => acc + b.doc_count, 0) },
-        { value: "yes", label: "Distance", count: remote.reduce((acc, b) => acc + b.doc_count, 0) },
-      ],
-    };
     const query = new URLSearchParams({
       widgetId: widget._id,
       requestId: response.request,
     });
 
-    const missions = response.data.hits.map((h) => ({
+    const missions = response.data.map((h) => ({
       ...h,
       url: `${API_URL}/r/${context.query.notrack ? "notrack" : "widget"}/${h._id}?${query.toString()}`,
     }));
@@ -260,7 +240,7 @@ export const getServerSideProps = async (context) => {
       });
     }
 
-    return { props: { widget, missions, total: response.total, options: newOptions, request: response.request, environment: ENV } };
+    return { props: { widget, missions, total: response.total, apiUrl: API_URL, request: response.request, environment: ENV } };
   } catch (error) {
     console.error(error);
     Sentry.captureException(error);

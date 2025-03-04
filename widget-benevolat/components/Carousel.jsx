@@ -2,10 +2,10 @@ import React, { useState, useEffect } from "react";
 import { RiArrowLeftLine, RiArrowRightLine } from "react-icons/ri";
 import { usePlausible } from "next-plausible";
 
-import Card from "./card";
+import Card from "./Card";
 import useStore from "../store";
 
-export const Carousel = ({ widget, missions, request }) => {
+const Carousel = ({ widget, missions, request }) => {
   const { url, color } = useStore();
   const plausible = usePlausible();
   const [currentSlide, setCurrentSlide] = useState(0);
@@ -129,3 +129,5 @@ export const Carousel = ({ widget, missions, request }) => {
     </div>
   );
 };
+
+export default Carousel;

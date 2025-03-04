@@ -16,7 +16,15 @@ const getAPI = async (path) => {
 };
 
 const Filters = ({ widget, apiUrl, values, onChange, show, onShow }) => {
-  const [options, setOptions] = useState({});
+  const [options, setOptions] = useState({
+    accessibility: [],
+    action: [],
+    beneficiary: [],
+    country: [],
+    domain: [],
+    minor: [],
+    schedule: [],
+  });
   const [isMobile, setIsMobile] = useState(false);
 
   useEffect(() => {
@@ -43,6 +51,7 @@ const Filters = ({ widget, apiUrl, values, onChange, show, onShow }) => {
           searchParams.append("lat", values.location.lat);
           searchParams.append("lon", values.location.lon);
         }
+        ["accessibility", "action", "beneficiary", "country", "domain", "minor", "schedule"].forEach((key) => searchParams.append("aggs", key));
 
         const { ok, data } = await getAPI(`${apiUrl}/iframe/${widget._id}/aggs?${searchParams.toString()}`);
 
@@ -54,17 +63,17 @@ const Filters = ({ widget, apiUrl, values, onChange, show, onShow }) => {
         country.push({ value: "NOT_FR", count: abroad, label: "Etranger" });
 
         const newOptions = {
-          schedule: data.schedule.map((b) => ({ value: b.key, count: b.doc_count, label: SCHEDULES[b.key] || b.key })),
+          accessibility: data.accessibility.map((b) => ({ value: b.key, count: b.doc_count, label: ACCESSIBILITIES[b.key] || b.key })),
+          action: data.action.map((b) => ({ value: b.key, count: b.doc_count, label: ACTIONS[b.key] || b.key })),
+          beneficiary: data.beneficiary.map((b) => ({ value: b.key, count: b.doc_count, label: BENEFICIARIES[b.key] || b.key })),
+          country,
           domain: data.domain.map((b) => ({
             value: b.key,
             count: b.doc_count,
             label: DOMAINS[b.key] ? DOMAINS[b.key].label : b.key,
           })),
-          action: data.action.map((b) => ({ value: b.key, count: b.doc_count, label: ACTIONS[b.key] || b.key })),
-          beneficiary: data.beneficiary.map((b) => ({ value: b.key, count: b.doc_count, label: BENEFICIARIES[b.key] || b.key })),
-          accessibility: data.accessibility.map((b) => ({ value: b.key, count: b.doc_count, label: ACCESSIBILITIES[b.key] || b.key })),
           minor: data.minor.map((b) => ({ value: b.key, count: b.doc_count, label: MINORS[b.key] || b.key })),
-          country,
+          schedule: data.schedule.map((b) => ({ value: b.key, count: b.doc_count, label: SCHEDULES[b.key] || b.key })),
         };
         setOptions(newOptions);
       } catch (error) {
@@ -72,11 +81,11 @@ const Filters = ({ widget, apiUrl, values, onChange, show, onShow }) => {
       }
     };
     fetchData();
-  }, [widget, values]);
+  }, [widget._id, values]);
 
   if (isMobile) {
     return (
-      <div className="w-full flex flex-col items-center gap-2 md:mb-14">
+      <div className="w-full flex flex-col items-center gap-2">
         <MobileFilters
           options={options}
           values={values}
@@ -90,7 +99,7 @@ const Filters = ({ widget, apiUrl, values, onChange, show, onShow }) => {
   }
 
   return (
-    <div className="w-full mb-8 md:mb-2">
+    <div className="w-full mb-2">
       <DesktopFilters options={options} values={values} onChange={(v) => onChange({ ...values, ...v })} disabledLocation={!!widget.location} />
     </div>
   );
@@ -104,16 +113,16 @@ const MobileFilters = ({ options, values, onChange, show, onShow, disabledLocati
 
   const handleReset = () => {
     onChange({
-      start: null,
-      duration: null,
-      schedule: [],
-      minor: [],
       accessibility: [],
-      domain: [],
       action: [],
       beneficiary: [],
       country: [],
+      domain: [],
+      minor: [],
+      schedule: [],
+      duration: null,
       location: null,
+      start: null,
       page: 1,
     });
   };

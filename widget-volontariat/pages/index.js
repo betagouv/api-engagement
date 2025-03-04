@@ -66,7 +66,7 @@ const Home = ({ widget, apiUrl, missions, total, request, environment }) => {
           if (location) setFilters((f) => ({ ...f, location }));
         },
         (error) => {
-          console.log("Error getting location:", error);
+          console.error("Error getting location:", error);
         }
       );
     } else {
@@ -80,6 +80,7 @@ const Home = ({ widget, apiUrl, missions, total, request, environment }) => {
     // Timeout to prevent multiple rapid router pushes
     const timeoutId = setTimeout(() => {
       const query = {
+        size: widget?.style === "carousel" ? 40 : 6,
         widget: widget._id,
         ...(router.query.notrack && { notrack: router.query.notrack }),
       };
@@ -121,8 +122,7 @@ const Home = ({ widget, apiUrl, missions, total, request, environment }) => {
           .map((item) => item.value)
           .join(",");
       if (filters.start) query.start = filters.start.value.toISOString();
-      if (filters.size) query.size = filters.size;
-      if (filters.page > 1) query.from = (filters.page - 1) * filters.size;
+      if (filters.page > 1) query.from = (filters.page - 1) * query.size;
       if (filters.location && filters.location.lat && filters.location.lon) {
         query.lat = filters.location.lat;
         query.lon = filters.location.lon;
@@ -176,25 +176,6 @@ const Home = ({ widget, apiUrl, missions, total, request, environment }) => {
           show={showFilters}
           onShow={setShowFilters}
         />
-        {/* <div className="w-full flex md:hidden flex-col items-center gap-2 md:mb-14">
-          <MobileFilters
-            options={options}
-            filters={filters}
-            setFilters={(newFilters) => setFilters({ ...filters, ...newFilters })}
-            disabledLocation={!!widget.location}
-            showFilters={showFilters}
-            setShowFilters={setShowFilters}
-          />
-        </div>
-        <div className="hidden md:block w-full mb-8 md:mb-2">
-          <DesktopFilters
-            widget={widget}
-            options={options}
-            filters={filters}
-            setFilters={(newFilters) => setFilters({ ...filters, ...newFilters })}
-            disabledLocation={!!widget.location}
-          />
-        </div> */}
       </header>
 
       <div className={`w-full ${showFilters ? "opacity-40 pointer-events-none" : ""}`}>
@@ -266,7 +247,7 @@ export const getServerSideProps = async (context) => {
       requestId: response.request,
     });
 
-    const missions = response.data.hits.map((h) => ({
+    const missions = response.data.map((h) => ({
       ...h,
       url: `${API_URL}/r/${context.query.notrack ? "notrack" : "widget"}/${h._id}?${query.toString()}`,
     }));

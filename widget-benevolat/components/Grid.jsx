@@ -2,10 +2,10 @@ import React, { useEffect, useState } from "react";
 import { RiArrowRightSLine, RiArrowLeftSLine, RiSkipRightLine, RiSkipLeftLine } from "react-icons/ri";
 import { usePlausible } from "next-plausible";
 
-import Card from "./card";
+import Card from "./Card";
 import useStore from "../store";
 
-export const Grid = ({ widget, missions, total, page, handlePageChange, request }) => {
+const Grid = ({ widget, missions, total, page, handlePageChange, request }) => {
   const { color } = useStore();
 
   if (total === 0) {
@@ -331,3 +331,5 @@ export const MobilePagination = ({ page, setPage, end }) => {
     </div>
   );
 };
+
+export default Grid;

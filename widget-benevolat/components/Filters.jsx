@@ -1,23 +1,110 @@
-import React, { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect } from "react";
 import { usePlausible } from "next-plausible";
 import { RiSearchLine, RiArrowUpSLine, RiArrowDownSLine, RiCheckboxFill, RiCheckboxBlankLine, RiMapPin2Fill, RiCloseFill } from "react-icons/ri";
 
 import useStore from "../store";
+import { DOMAINES } from "../config";
 
-export const MobileFilters = ({ options, filters, setFilters, showFilters, setShowFilters, disabledLocation = false, carousel }) => {
+const getAPI = async (path) => {
+  const response = await fetch(path, { method: "GET" });
+
+  if (!response.ok) throw response;
+  return response.json();
+};
+
+const Filters = ({ widget, apiUrl, values, onChange, show, onShow }) => {
+  const [options, setOptions] = useState({
+    organizations: [],
+    domains: [],
+    departments: [],
+    remote: [],
+  });
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    setIsMobile(window.innerWidth < 768);
+    window.addEventListener("resize", () => setIsMobile(window.innerWidth < 768));
+    return () => window.removeEventListener("resize", () => {});
+  }, []);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const searchParams = new URLSearchParams();
+
+        if (values.domain && values.domain.length) values.domain.forEach((item) => searchParams.append("domain", item.value));
+        if (values.organization && values.organization.length) values.organization.forEach((item) => searchParams.append("organization", item.value));
+        if (values.department && values.department.length) values.department.forEach((item) => searchParams.append("department", item.value === "" ? "none" : item.value));
+        if (values.remote && values.remote.length) values.remote.forEach((item) => searchParams.append("remote", item.value));
+
+        if (values.location && values.location.lat && values.location.lon) {
+          searchParams.append("lat", values.location.lat);
+          searchParams.append("lon", values.location.lon);
+        }
+        ["domain", "organization", "department", "remote"].forEach((key) => searchParams.append("aggs", key));
+
+        const { ok, data } = await getAPI(`${apiUrl}/iframe/${widget._id}/aggs?${searchParams.toString()}`);
+
+        if (!ok) throw Error("Error fetching aggs");
+
+        const remote = data.remote.filter((b) => b.key === "full" || b.key === "possible");
+        const presentiel = data.remote.filter((b) => b.key === "no");
+        const newOptions = {
+          organizations: data.organization.map((b) => ({ value: b.key, count: b.doc_count, label: b.key })),
+          domains: data.domain.map((b) => ({ value: b.key, count: b.doc_count, label: DOMAINES[b.key] || b.key })),
+          departments: data.department.map((b) => ({
+            value: b.key === "" ? "none" : b.key,
+            count: b.doc_count,
+            label: b.key === "" ? "Non renseigné" : b.key,
+          })),
+          remote: [
+            { value: "no", label: "Présentiel", count: presentiel.reduce((acc, b) => acc + b.doc_count, 0) },
+            { value: "yes", label: "Distance", count: remote.reduce((acc, b) => acc + b.doc_count, 0) },
+          ],
+        };
+        setOptions(newOptions);
+      } catch (error) {
+        console.error(error);
+      }
+    };
+    fetchData();
+  }, [widget._id, values]);
+
+  if (isMobile) {
+    return (
+      <div className="w-full flex flex-col items-center gap-2">
+        <MobileFilters
+          options={options}
+          values={values}
+          onChange={(newFilters) => onChange({ ...values, ...newFilters })}
+          disabledLocation={!!widget.location}
+          show={show}
+          onShow={onShow}
+        />
+      </div>
+    );
+  }
+
+  return (
+    <div className="flex m-auto items-center justify-between">
+      <DesktopFilters options={options} values={values} onChange={(v) => onChange({ ...values, ...v })} disabledLocation={!!widget.location} />
+    </div>
+  );
+};
+
+const MobileFilters = ({ options, values, onChange, show, onShow, disabledLocation = false }) => {
   const { url, color } = useStore();
 
   const plausible = usePlausible();
   if (!Object.keys(options).length) return null;
 
   const handleReset = () => {
-    setFilters({
+    onChange({
       domain: [],
       organization: [],
       department: [],
       remote: [],
       location: null,
-      size: carousel ? 40 : 6,
       page: 1,
     });
   };
@@ -25,28 +112,28 @@ export const MobileFilters = ({ options, filters, setFilters, showFilters, setSh
   return (
     <>
       <div className="w-full">
-        <LocationFilter selected={filters.location} onChange={(l) => setFilters({ ...filters, location: l })} disabled={disabledLocation} color={color} width="w-full" />
+        <LocationFilter selected={values.location} onChange={(l) => onChange({ ...values, location: l })} disabled={disabledLocation} color={color} width="w-full" />
       </div>
       <button
         className="flex h-[40px] border-y items-center justify-between w-full px-4 py-2 focus:outline-none focus-visible:ring focus-visible:ring-blue-800"
         onClick={() => {
-          setShowFilters(!showFilters);
-          plausible(showFilters ? "Filters closed" : "Filters opened", { u: url });
+          onShow(!show);
+          plausible(show ? "Filters closed" : "Filters opened", { u: url });
         }}
         style={{ color: color }}
       >
         Filtrer les missions
-        {showFilters ? <RiArrowUpSLine className="font-semibold" style={{ color: color }} /> : <RiArrowDownSLine className="font-semibold" style={{ color: color }} />}
+        {show ? <RiArrowUpSLine className="font-semibold" style={{ color: color }} /> : <RiArrowDownSLine className="font-semibold" style={{ color: color }} />}
       </button>
 
-      {showFilters && (
+      {show && (
         <div className="w-full mt-2">
           <div className="w-full mb-4">
             <RemoteFilter
               id="remote"
               options={options.remote}
-              selectedOptions={filters.remote}
-              onChange={(f) => setFilters({ ...filters, remote: f })}
+              selectedOptions={values.remote}
+              onChange={(f) => onChange({ ...values, remote: f })}
               placeholder="Présentiel / Distance"
               width="w-full"
               color={color}
@@ -56,8 +143,8 @@ export const MobileFilters = ({ options, filters, setFilters, showFilters, setSh
             <SelectFilter
               id="domain"
               options={options.domains}
-              selectedOptions={filters.domain}
-              onChange={(v) => setFilters({ ...filters, domain: v })}
+              selectedOptions={values.domain}
+              onChange={(v) => onChange({ ...values, domain: v })}
               placeholder="Domaines"
               width="w-full"
               color={color}
@@ -67,8 +154,8 @@ export const MobileFilters = ({ options, filters, setFilters, showFilters, setSh
             <SelectFilter
               id="department"
               options={options.departments}
-              selectedOptions={filters.department}
-              onChange={(v) => setFilters({ ...filters, department: v })}
+              selectedOptions={values.department}
+              onChange={(v) => onChange({ ...values, department: v })}
               placeholder="Départements"
               width="w-full"
               color={color}
@@ -78,8 +165,8 @@ export const MobileFilters = ({ options, filters, setFilters, showFilters, setSh
             <SelectFilter
               id="organization"
               options={options.organizations}
-              selectedOptions={filters.organization}
-              onChange={(v) => setFilters({ ...filters, organization: v })}
+              selectedOptions={values.organization}
+              onChange={(v) => onChange({ ...values, organization: v })}
               placeholder="Organisations"
               width="w-full"
               color={color}
@@ -90,7 +177,7 @@ export const MobileFilters = ({ options, filters, setFilters, showFilters, setSh
               aria-label="Voir les missions"
               className="w-full p-3 text-center border-none text-white text-sm focus:outline-none focus-visible:ring focus-visible:ring-blue-800"
               onClick={() => {
-                setShowFilters(false);
+                onShow(false);
                 plausible("Filters closed", { u: url });
               }}
               style={{ backgroundColor: color }}
@@ -115,20 +202,19 @@ export const MobileFilters = ({ options, filters, setFilters, showFilters, setSh
   );
 };
 
-export const Filters = ({ options, filters, setFilters, disabledLocation = false }) => {
+const DesktopFilters = ({ options, values, onChange, disabledLocation = false }) => {
   const { color } = useStore();
-  if (!Object.keys(options).length) return null;
   return (
     <>
       <div className="w-[20%] pr-2">
-        <LocationFilter selected={filters.location} onChange={(l) => setFilters({ ...filters, location: l })} disabled={disabledLocation} color={color} />
+        <LocationFilter selected={values.location} onChange={(l) => onChange({ ...values, location: l })} disabled={disabledLocation} color={color} />
       </div>
       <div className="w-[20%] px-2">
         <RemoteFilter
           id="remote"
           options={options.remote}
-          selectedOptions={filters.remote}
-          onChange={(f) => setFilters({ ...filters, remote: f })}
+          selectedOptions={values.remote}
+          onChange={(f) => onChange({ ...values, remote: f })}
           placeholder="Présentiel / Distance"
           color={color}
         />
@@ -137,8 +223,8 @@ export const Filters = ({ options, filters, setFilters, disabledLocation = false
         <SelectFilter
           id="domain"
           options={options.domains}
-          selectedOptions={filters.domain}
-          onChange={(v) => setFilters({ ...filters, domain: v })}
+          selectedOptions={values.domain}
+          onChange={(v) => onChange({ ...values, domain: v })}
           placeholder="Domaines"
           color={color}
         />
@@ -147,8 +233,8 @@ export const Filters = ({ options, filters, setFilters, disabledLocation = false
         <SelectFilter
           id="department"
           options={options.departments}
-          selectedOptions={filters.department}
-          onChange={(v) => setFilters({ ...filters, department: v })}
+          selectedOptions={values.department}
+          onChange={(v) => onChange({ ...values, department: v })}
           placeholder="Départements"
           color={color}
         />
@@ -157,8 +243,8 @@ export const Filters = ({ options, filters, setFilters, disabledLocation = false
         <SelectFilter
           id="organization"
           options={options.organizations}
-          selectedOptions={filters.organization}
-          onChange={(v) => setFilters({ ...filters, organization: v })}
+          selectedOptions={values.organization}
+          onChange={(v) => onChange({ ...values, organization: v })}
           placeholder="Organisations"
           position="right-0"
           color={color}
@@ -478,3 +564,5 @@ const RemoteFilter = ({ options, selectedOptions, onChange, id, placeholder = "C
     </div>
   );
 };
+
+export default Filters;
