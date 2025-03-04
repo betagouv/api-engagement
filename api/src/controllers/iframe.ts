@@ -478,8 +478,8 @@ router.get("/:id/search", async (req: Request, res: Response, next: NextFunction
 
     const missions = await MissionModel.find(where).sort({ remote: -1 }).limit(query.data.size).skip(query.data.from).lean();
     // Convert $nearSphere to $geoWithin (doesn't work with countDocuments)
-    if (where["addresses.geoPoint"]) {
-      const nearSphere = where["addresses.geoPoint"];
+    if (where["addresses.geoPoint"] && where["addresses.geoPoint"].$nearSphere) {
+      const nearSphere = where["addresses.geoPoint"].$nearSphere;
       const geoWithin = { $geoWithin: { $centerSphere: [[nearSphere.$geometry.coordinates[0], nearSphere.$geometry.coordinates[1]], nearSphere.$maxDistance / EARTH_RADIUS] } };
       where["addresses.geoPoint"] = geoWithin;
     }
