@@ -66,7 +66,7 @@ const Home = ({ widget, apiUrl, missions, total, request, environment }) => {
           if (location) setFilters((f) => ({ ...f, location }));
         },
         (error) => {
-          console.log("Error getting location:", error);
+          console.error("Error getting location:", error);
         }
       );
     } else {
@@ -247,7 +247,7 @@ export const getServerSideProps = async (context) => {
       requestId: response.request,
     });
 
-    const missions = response.data.hits.map((h) => ({
+    const missions = response.data.map((h) => ({
       ...h,
       url: `${API_URL}/r/${context.query.notrack ? "notrack" : "widget"}/${h._id}?${query.toString()}`,
     }));

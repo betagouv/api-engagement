@@ -13,7 +13,12 @@ const getAPI = async (path) => {
 };
 
 const Filters = ({ widget, apiUrl, values, onChange, show, onShow }) => {
-  const [options, setOptions] = useState({});
+  const [options, setOptions] = useState({
+    organizations: [],
+    domains: [],
+    departments: [],
+    remote: [],
+  });
   const [isMobile, setIsMobile] = useState(false);
 
   useEffect(() => {
@@ -26,16 +31,6 @@ const Filters = ({ widget, apiUrl, values, onChange, show, onShow }) => {
     const fetchData = async () => {
       try {
         const searchParams = new URLSearchParams();
-
-        // if (values.accessibility && values.accessibility.length) values.accessibility.forEach((o) => searchParams.append("accessibility", o.value));
-        // if (values.action && values.action.length) values.action.forEach((o) => searchParams.append("action", o.value));
-        // if (values.beneficiary && values.beneficiary.length) values.beneficiary.forEach((o) => searchParams.append("beneficiary", o.value));
-        // if (values.country && values.country.length) values.country.forEach((o) => searchParams.append("country", o.value));
-        // if (values.domain && values.domain.length) values.domain.forEach((o) => searchParams.append("domain", o.value));
-        // if (values.duration) searchParams.append("duration", values.duration.value);
-        // if (values.minor && values.minor.length) values.minor.forEach((o) => searchParams.append("minor", o.value));
-        // if (values.schedule && values.schedule.length) values.schedule.forEach((o) => searchParams.append("schedule", o.value));
-        // if (values.start) searchParams.append("start", values.start.value.toISOString());
 
         if (values.domain && values.domain.length) values.domain.forEach((item) => searchParams.append("domain", item.value));
         if (values.organization && values.organization.length) values.organization.forEach((item) => searchParams.append("organization", item.value));
@@ -51,25 +46,6 @@ const Filters = ({ widget, apiUrl, values, onChange, show, onShow }) => {
         const { ok, data } = await getAPI(`${apiUrl}/iframe/${widget._id}/aggs?${searchParams.toString()}`);
 
         if (!ok) throw Error("Error fetching aggs");
-        // const france = data.country.reduce((acc, c) => acc + (c.key === "FR" ? c.doc_count : 0), 0);
-        // const abroad = data.country.reduce((acc, c) => acc + (c.key !== "FR" ? c.doc_count : 0), 0);
-        // const country = [];
-        // country.push({ value: "FR", count: france, label: "France" });
-        // country.push({ value: "NOT_FR", count: abroad, label: "Etranger" });
-
-        // const newOptions = {
-        //   schedule: data.schedule.map((b) => ({ value: b.key, count: b.doc_count, label: SCHEDULES[b.key] || b.key })),
-        //   domain: data.domain.map((b) => ({
-        //     value: b.key,
-        //     count: b.doc_count,
-        //     label: DOMAINS[b.key] ? DOMAINS[b.key].label : b.key,
-        //   })),
-        //   action: data.action.map((b) => ({ value: b.key, count: b.doc_count, label: ACTIONS[b.key] || b.key })),
-        //   beneficiary: data.beneficiary.map((b) => ({ value: b.key, count: b.doc_count, label: BENEFICIARIES[b.key] || b.key })),
-        //   accessibility: data.accessibility.map((b) => ({ value: b.key, count: b.doc_count, label: ACCESSIBILITIES[b.key] || b.key })),
-        //   minor: data.minor.map((b) => ({ value: b.key, count: b.doc_count, label: MINORS[b.key] || b.key })),
-        //   country,
-        // };
 
         const remote = data.remote.filter((b) => b.key === "full" || b.key === "possible");
         const presentiel = data.remote.filter((b) => b.key === "no");
@@ -92,9 +68,7 @@ const Filters = ({ widget, apiUrl, values, onChange, show, onShow }) => {
       }
     };
     fetchData();
-  }, [widget, values]);
-
-  console.log("isMobile", isMobile);
+  }, [widget._id, values]);
 
   if (isMobile) {
     return (
@@ -230,7 +204,6 @@ const MobileFilters = ({ options, values, onChange, show, onShow, disabledLocati
 
 const DesktopFilters = ({ options, values, onChange, disabledLocation = false }) => {
   const { color } = useStore();
-  if (!Object.keys(options).length) return null;
   return (
     <>
       <div className="w-[20%] pr-2">

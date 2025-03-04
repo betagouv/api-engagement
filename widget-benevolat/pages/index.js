@@ -152,19 +152,6 @@ const Home = ({ widget, missions, apiUrl, total, request, environment }) => {
           show={showFilters}
           onShow={setShowFilters}
         />
-        {/* <div className="w-full flex md:hidden flex-col items-center gap-2">
-          <MobileFilters
-            options={options}
-            filters={filters}
-            setFilters={(newFilters) => setFilters({ ...filters, ...newFilters })}
-            disabledLocation={!!widget.location}
-            showFilters={showFilters}
-            setShowFilters={setShowFilters}
-          />
-        </div>
-        <div className={`hidden md:flex m-auto items-center justify-between }`}>
-          <Filters options={options} filters={filters} setFilters={(newFilters) => setFilters({ ...filters, ...newFilters })} disabledLocation={!!widget.location} />
-        </div> */}
       </header>
       <div className={`w-full ${showFilters ? (widget?.style === "carousel" ? "hidden" : "opacity-40") : "h-auto overflow-x-hidden"}`}>
         {widget?.style === "carousel" ? (
@@ -225,27 +212,12 @@ export const getServerSideProps = async (context) => {
     const response = await fetch(`${API_URL}/iframe/${widget._id}/search?${searchParams.toString()}`).then((res) => res.json());
 
     if (!response.ok) throw response;
-    // const remote = response.data.aggs.remote.filter((b) => b.key === "full" || b.key === "possible");
-    // const presentiel = response.data.aggs.remote.filter((b) => b.key === "no");
-    // const newOptions = {
-    //   organizations: response.data.aggs.organization.map((b) => ({ value: b.key, count: b.doc_count, label: b.key })),
-    //   domains: response.data.aggs.domain.map((b) => ({ value: b.key, count: b.doc_count, label: DOMAINES[b.key] || b.key })),
-    //   departments: response.data.aggs.department.map((b) => ({
-    //     value: b.key === "" ? "none" : b.key,
-    //     count: b.doc_count,
-    //     label: b.key === "" ? "Non renseigné" : b.key,
-    //   })),
-    //   remote: [
-    //     { value: "no", label: "Présentiel", count: presentiel.reduce((acc, b) => acc + b.doc_count, 0) },
-    //     { value: "yes", label: "Distance", count: remote.reduce((acc, b) => acc + b.doc_count, 0) },
-    //   ],
-    // };
     const query = new URLSearchParams({
       widgetId: widget._id,
       requestId: response.request,
     });
 
-    const missions = response.data.hits.map((h) => ({
+    const missions = response.data.map((h) => ({
       ...h,
       url: `${API_URL}/r/${context.query.notrack ? "notrack" : "widget"}/${h._id}?${query.toString()}`,
     }));
