@@ -2,25 +2,25 @@ import he from "he";
 import { convert } from "html-to-text";
 
 import { COUNTRIES } from "../../constants/countries";
-import { DOMAINS } from "../../constants/domains";
+import { DOMAINS, DOMAIN_IMAGES, AUTRE_IMAGE } from "../../constants/domains";
 import { Mission, MissionXML, Publisher } from "../../types";
 import { getAddress, getAddresses } from "./utils/address";
 
-const getImageDomain = (domain: string, title: string) => {
-  const StringToInt = (str: string = "", len: number) => {
-    let total = 0;
-    for (let i = 0; i < str.length; i++) total += str[i].charCodeAt(0);
-    return (total % len) + 1;
-  };
-  if (domain === "education") return `https://apicivique.s3.eu-west-3.amazonaws.com/missions/2_${StringToInt(title, 3)}.jpg`;
-  if (domain === "sante") return `https://apicivique.s3.eu-west-3.amazonaws.com/missions/3_${StringToInt(title, 3) === 2 ? 1 : StringToInt(title, 3)}.jpg`;
-  if (domain === "environnement") return `https://apicivique.s3.eu-west-3.amazonaws.com/missions/4_${StringToInt(title, 3)}.jpg`;
-  if (domain === "solidarite-insertion") return `https://apicivique.s3.eu-west-3.amazonaws.com/missions/6_${StringToInt(title, 3)}.jpg`;
-  if (domain === "sport") return `https://apicivique.s3.eu-west-3.amazonaws.com/missions/7_${StringToInt(title, 3)}.jpg`;
-  if (domain === "prevention-protection") return `https://apicivique.s3.eu-west-3.amazonaws.com/missions/8_${StringToInt(title, 3)}.jpg`;
-  if (domain === "mémoire et citoyenneté") return `https://apicivique.s3.eu-west-3.amazonaws.com/missions/9_${StringToInt(title, 3)}.jpg`;
-  if (domain === "culture-loisirs") return `https://apicivique.s3.eu-west-3.amazonaws.com/missions/11_${StringToInt(title, 3)}.jpg`;
-  return "https://apicivique.s3.eu-west-3.amazonaws.com/missions/6_2.jpg";
+const getImageDomain = (domain: string) => {
+  const number = Number(new Date().getTime().toString().slice(-1)) % 3;
+  if (domain === "animaux") return DOMAIN_IMAGES.animaux[number];
+  if (domain === "benevolat-competences") return DOMAIN_IMAGES["benevolat-competences"][number];
+  if (domain === "culture-loisirs") return DOMAIN_IMAGES["culture-loisirs"][number];
+  if (domain === "education") return DOMAIN_IMAGES.education[number];
+  if (domain === "emploi") return DOMAIN_IMAGES.emploi[number];
+  if (domain === "environnement") return DOMAIN_IMAGES.environnement[number];
+  if (domain === "humanitaire") return DOMAIN_IMAGES.humanitaire[number];
+  if (domain === "memoire-et-citoyennete") return DOMAIN_IMAGES["memoire-et-citoyennete"][number];
+  if (domain === "prevention-protection") return DOMAIN_IMAGES["prevention-protection"][number];
+  if (domain === "sante") return DOMAIN_IMAGES.sante[number];
+  if (domain === "solidarite-insertion") return DOMAIN_IMAGES["solidarite-insertion"][number];
+  if (domain === "sport") return DOMAIN_IMAGES.sport[number];
+  return AUTRE_IMAGE;
 };
 
 const getMonthDifference = (startDate: Date, endDate: Date) => {
@@ -51,8 +51,6 @@ const getModeration = (mission: Mission) => {
   if (mission.remote && !["no", "possible", "full"].includes(mission.remote)) statusComment = "Valeur remote non valide (no, possible ou full)";
   if (mission.places && mission.places <= 0) statusComment = "Nombre de places invalide (doit être supérieur à 0)";
   // if (mission.activity && !ACTIVITIES.includes(mission.activity)) statusComment =  "Activity is not valid";
-
-  if (mission.domain === "mémoire et citoyenneté") mission.domain = "memoire-et-citoyennete";
   if (mission.domain && !DOMAINS.includes(mission.domain)) statusComment = `Domaine non valide : "${mission.domain}"`;
   if (hasEncodageIssue(mission.organizationName)) statusComment = "Problème d'encodage dans le nom de l'organisation";
 
@@ -137,7 +135,8 @@ export const buildMission = (publisher: Publisher, missionXML: MissionXML) => {
     organizationReseaux: parseArray(missionXML.organizationReseaux, true) || [],
   } as Mission;
 
-  mission.domainLogo = missionXML.image || getImageDomain(mission.domain, mission.title);
+  if (mission.domain === "mémoire et citoyenneté") mission.domain = "memoire-et-citoyennete";
+  mission.domainLogo = missionXML.image || getImageDomain(mission.domain);
 
   // Address
   if (missionXML.addresses && Array.isArray(missionXML.addresses) && missionXML.addresses.length > 0) {
