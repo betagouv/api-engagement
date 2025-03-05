@@ -182,9 +182,9 @@ export type Import = {
 };
 
 export interface Mission {
-  _id: Schema.Types.ObjectId;
-  _old_id: string | undefined;
-  _old_ids: string[] | undefined;
+  _id?: Schema.Types.ObjectId;
+  _old_id?: string;
+  _old_ids?: string[];
 
   publisherId: string;
   publisherName: string;
@@ -207,16 +207,16 @@ export interface Mission {
   tasks: string[];
   audience: string[];
   soft_skills: string[];
-  organizationId: string | undefined;
+  organizationClientId: string | undefined;
   organizationUrl: string | undefined;
   organizationName: string | undefined;
+  organizationRNA: string | undefined;
+  organizationSiren: string | undefined;
+  organizationSiret: string | undefined;
   organizationType: string | undefined;
   organizationLogo: string | undefined;
   organizationDescription: string | undefined;
-  organizationClientId: string | undefined;
   organizationFullAddress: string | undefined;
-  organizationRNA: string | undefined;
-  organizationSiren: string | undefined;
   organizationDepartment: string | undefined;
   organizationPostCode: string | undefined;
   organizationCity: string | undefined;
@@ -224,8 +224,24 @@ export interface Mission {
   organizationBeneficiaries: string[] | undefined;
   organizationActions: string[] | undefined;
   organizationReseaux: string[] | undefined;
+
+  organizationId: string | undefined;
+  organizationNameVerified: string | undefined;
+  organizationRNAVerified: string | undefined;
+  organizationSirenVerified: string | undefined;
+  organizationSiretVerified: string | undefined;
+  organizationAddressVerified: string | undefined;
+  organizationCityVerified: string | undefined;
+  organizationPostalCodeVerified: string | undefined;
+  organizationDepartmentCodeVerified: string | undefined;
+  organizationDepartmentNameVerified: string | undefined;
+  organizationRegionVerified: string | undefined;
+  organisationIsRUP: boolean | undefined;
+  organizationVerificationStatus: string | undefined;
+
   associationId: string | undefined;
   associationName: string | undefined;
+  associationSiret: string | undefined;
   associationSiren: string | undefined;
   associationRNA: string | undefined;
   associationSources: string[] | undefined;
@@ -259,6 +275,7 @@ export interface Mission {
   geolocStatus: "ENRICHED_BY_PUBLISHER" | "ENRICHED_BY_API" | "NOT_FOUND" | "NO_DATA" | "SHOULD_ENRICH" | "FAILED";
   rnaStatus: "ENRICHED_BY_DATA_SUBVENTION" | "ENRICHED" | "NEED_VERIFY" | "NOT_FOUND" | "NO_DATA" | "SHOULD_ENRICH" | "FAILED";
   places: number;
+  placesStatus: "ATTRIBUTED_BY_API" | "GIVEN_BY_PARTNER";
   domain: string;
   domainOriginal: string | undefined;
   domainLogo: string;
@@ -271,31 +288,12 @@ export interface Mission {
       }
     | undefined;
 
-  geoPoint:
-    | {
-        type: "Point";
-        coordinates: [number, number];
-      }
-    | undefined;
+  geoPoint: {
+    type: "Point";
+    coordinates: [number, number];
+  } | null;
+  addresses: AddressItem[];
 
-  addresses: {
-    street: string | undefined;
-    postalCode: string | undefined;
-    departmentName: string | undefined;
-    departmentCode: string | undefined;
-    city: string | undefined;
-    region: string | undefined;
-    country: string | undefined;
-    location: {
-      lat: number | undefined;
-      lon: number | undefined;
-    };
-    geoPoint: {
-      type: "Point";
-      coordinates: [number, number] | undefined;
-    };
-    geolocStatus: "ENRICHED_BY_PUBLISHER" | "ENRICHED_BY_API" | "NOT_FOUND" | "NO_DATA" | "SHOULD_ENRICH" | "FAILED";
-  }[];
   snu: boolean | undefined;
   snuPlaces: number | undefined;
   remote: "no" | "possible" | "full";
