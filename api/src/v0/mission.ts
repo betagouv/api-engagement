@@ -41,23 +41,27 @@ router.get("/", passport.authenticate(["apikey", "api"], { session: false }), as
   try {
     const query = zod
       .object({
-        limit: zod.coerce.number().min(0).max(10000).default(25),
-        skip: zod.coerce.number().min(0).default(0),
-        keywords: zod.string().optional(),
-        country: zod.union([zod.string(), zod.array(zod.string())]).optional(),
+        activity: zod.union([zod.string(), zod.array(zod.string())]).optional(),
         city: zod.union([zod.string(), zod.array(zod.string())]).optional(),
-        departmentName: zod.union([zod.string(), zod.array(zod.string())]).optional(),
-        remote: zod.union([zod.string(), zod.array(zod.string())]).optional(),
-        type: zod.union([zod.string(), zod.array(zod.string())]).optional(),
-        domain: zod.union([zod.string(), zod.array(zod.string())]).optional(),
-        publisher: zod.union([zod.string(), zod.array(zod.string())]).optional(),
         clientId: zod.union([zod.string(), zod.array(zod.string())]).optional(),
+        country: zod.union([zod.string(), zod.array(zod.string())]).optional(),
+        createdAt: zod.string().optional(),
+        departmentName: zod.union([zod.string(), zod.array(zod.string())]).optional(),
+        distance: zod.string().optional(),
+        domain: zod.union([zod.string(), zod.array(zod.string())]).optional(),
+        keywords: zod.string().optional(),
+        limit: zod.coerce.number().min(0).max(10000).default(25),
+        lat: zod.coerce.number().optional(),
+        lon: zod.coerce.number().optional(),
+        openToMinors: zod.enum(["yes", "no"]).optional(),
         organizationRNA: zod.union([zod.string(), zod.array(zod.string())]).optional(),
         organizationStatusJuridique: zod.union([zod.string(), zod.array(zod.string())]).optional(),
-        associationId: zod.union([zod.string(), zod.array(zod.string())]).optional(),
-        associationRNA: zod.union([zod.string(), zod.array(zod.string())]).optional(),
-        createdAt: zod.string().optional(),
+        publisher: zod.union([zod.string(), zod.array(zod.string())]).optional(),
+        remote: zod.union([zod.string(), zod.array(zod.string())]).optional(),
+        reducedMobilityAccessible: zod.enum(["yes", "no"]).optional(),
+        skip: zod.coerce.number().min(0).default(0),
         startAt: zod.string().optional(),
+        type: zod.union([zod.string(), zod.array(zod.string())]).optional(),
       })
       .passthrough()
       .safeParse(req.query);
@@ -78,17 +82,28 @@ router.get("/", passport.authenticate(["apikey", "api"], { session: false }), as
 
     const where = {
       statusCode: "ACCEPTED",
-      deleted: false,
+      deletedAt: null,
       organizationName: { $nin: req.user.excludeOrganisations || [] },
     } as { [key: string]: any };
 
-    if (query.data.publisher && req.user.publishers.some((e: { publisher: string }) => e.publisher === query.data.publisher)) {
+    if (query.data.publisher) {
       if (!Array.isArray(query.data.publisher) && query.data.publisher.includes(",")) query.data.publisher = query.data.publisher.split(",").map((e: string) => e.trim());
-      where.publisherId = Array.isArray(query.data.publisher) ? { $in: query.data.publisher } : query.data.publisher;
+      else if (!Array.isArray(query.data.publisher)) query.data.publisher = [query.data.publisher.trim()];
+      else query.data.publisher = query.data.publisher.map((e: string) => e.trim());
+
+      query.data.publisher = query.data.publisher.filter((e: string) => req.user.publishers.some((p: { publisher: string }) => p.publisher === e));
+      where.publisherId = { $in: query.data.publisher };
     } else {
       where.publisherId = { $in: req.user.publishers.map((e: { publisher: string }) => e.publisher) };
     }
 
+    if (query.data.activity) where.activity = buildArrayQuery(query.data.activity);
+    if (query.data.city) where["addresses.city"] = buildArrayQuery(query.data.city);
+    if (query.data.clientId) where.clientId = buildArrayQuery(query.data.clientId);
+    if (query.data.country) where["addresses.country"] = buildArrayQuery(query.data.country);
+    if (query.data.createdAt) where.createdAt = buildDateQuery(query.data.createdAt);
+    if (query.data.departmentName) where["addresses.departmentName"] = buildArrayQuery(query.data.departmentName);
+    if (query.data.domain) where.domain = buildArrayQuery(query.data.domain);
     if (query.data.keywords)
       where.$or = [
         { title: { $regex: diacriticSensitiveRegex(query.data.keywords), $options: "i" } },
@@ -96,61 +111,23 @@ router.get("/", passport.authenticate(["apikey", "api"], { session: false }), as
         { publisherName: { $regex: diacriticSensitiveRegex(query.data.keywords), $options: "i" } },
         { city: { $regex: diacriticSensitiveRegex(query.data.keywords), $options: "i" } },
       ];
+    if (query.data.organizationRNA) where.organizationRNA = buildArrayQuery(query.data.organizationRNA);
+    if (query.data.organizationStatusJuridique) where.organizationStatusJuridique = buildArrayQuery(query.data.organizationStatusJuridique);
+    if (query.data.openToMinors) where.openToMinors = query.data.openToMinors;
+    if (query.data.reducedMobilityAccessible) where.reducedMobilityAccessible = query.data.reducedMobilityAccessible;
+    if (query.data.remote) where.remote = buildArrayQuery(query.data.remote);
+    if (query.data.startAt) where.startAt = buildDateQuery(query.data.startAt);
+    if (query.data.type) where.type = buildArrayQuery(query.data.type);
 
-    if (query.data.country) {
-      if (!Array.isArray(query.data.country) && query.data.country.includes(",")) query.data.country = query.data.country.split(",").map((e: string) => e.trim());
-      where["addresses.country"] = Array.isArray(query.data.country) ? { $in: query.data.country } : query.data.country;
-    }
-
-    if (query.data.city) {
-      if (!Array.isArray(query.data.city) && query.data.city.includes(",")) query.data.city = query.data.city.split(",").map((e: string) => e.trim());
-      where["addresses.city"] = Array.isArray(query.data.city) ? { $in: query.data.city } : query.data.city;
-    }
-
-    if (query.data.departmentName) {
-      if (!Array.isArray(query.data.departmentName) && query.data.departmentName.includes(","))
-        query.data.departmentName = query.data.departmentName.split(",").map((e: string) => e.trim());
-      where["addresses.departmentName"] = Array.isArray(query.data.departmentName) ? { $in: query.data.departmentName } : query.data.departmentName;
-    }
-    if (query.data.remote) {
-      if (!Array.isArray(query.data.remote) && query.data.remote.includes(",")) query.data.remote = query.data.remote.split(",").map((e: string) => e.trim());
-      where.remote = Array.isArray(query.data.remote) ? { $in: query.data.remote } : query.data.remote;
-    }
-    if (query.data.type) {
-      if (!Array.isArray(query.data.type) && query.data.type.includes(",")) query.data.type = query.data.type.split(",").map((e: string) => e.trim());
-      where.type = Array.isArray(query.data.type) ? { $in: query.data.type } : query.data.type;
-    }
-    if (query.data.domain) {
-      if (!Array.isArray(query.data.domain) && query.data.domain.includes(",")) query.data.domain = query.data.domain.split(",").map((e: string) => e.trim());
-      where.domain = Array.isArray(query.data.domain) ? { $in: query.data.domain } : query.data.domain;
-    }
-    if (query.data.clientId) {
-      if (!Array.isArray(query.data.clientId) && query.data.clientId.includes(",")) query.data.clientId = query.data.clientId.split(",").map((e: string) => e.trim());
-      where.clientId = Array.isArray(query.data.clientId) ? { $in: query.data.clientId } : query.data.clientId;
-    }
-
-    if (query.data.organizationRNA) {
-      if (!Array.isArray(query.data.organizationRNA) && query.data.organizationRNA.includes(","))
-        query.data.organizationRNA = query.data.organizationRNA.split(",").map((e: string) => e.trim());
-      where.organizationRNA = Array.isArray(query.data.organizationRNA) ? { $in: query.data.organizationRNA } : query.data.organizationRNA;
-    }
-    if (query.data.organizationStatusJuridique) {
-      if (!Array.isArray(query.data.organizationStatusJuridique) && query.data.organizationStatusJuridique.includes(","))
-        query.data.organizationStatusJuridique = query.data.organizationStatusJuridique.split(",").map((e: string) => e.trim());
-      where.organizationStatusJuridique = Array.isArray(query.data.organizationStatusJuridique)
-        ? { $in: query.data.organizationStatusJuridique }
-        : query.data.organizationStatusJuridique;
-    }
-    if (query.data.associationId) {
-      if (!Array.isArray(query.data.associationId) && query.data.associationId.includes(","))
-        query.data.associationId = query.data.associationId.split(",").map((e: string) => e.trim());
-      where.associationId = Array.isArray(query.data.associationId) ? { $in: query.data.associationId } : query.data.associationId;
-    }
-
-    if (query.data.associationRNA) {
-      if (!Array.isArray(query.data.associationRNA) && query.data.associationRNA.includes(","))
-        query.data.associationRNA = query.data.associationRNA.split(",").map((e: string) => e.trim());
-      where.associationRNA = Array.isArray(query.data.associationRNA) ? { $in: query.data.associationRNA } : query.data.associationRNA;
+    if (query.data.lat && query.data.lon) {
+      if (query.data.distance && (query.data.distance === "0" || query.data.distance === "0km")) query.data.distance = "10km";
+      const distanceKm = getDistanceKm(query.data.distance || "50km");
+      where["addresses.geoPoint"] = {
+        $nearSphere: {
+          $geometry: { type: "Point", coordinates: [query.data.lon, query.data.lat] },
+          $maxDistance: distanceKm * 1000,
+        },
+      };
     }
 
     if (req.user.moderator) {
@@ -162,8 +139,10 @@ router.get("/", passport.authenticate(["apikey", "api"], { session: false }), as
       where.organizationName = { $ne: "APF France handicap - Délégations de Haute-Saône et du Territoire de Belfort" };
     }
 
-    const total = await MissionModel.countDocuments(where);
     const data = await MissionModel.find(where).skip(query.data.skip).limit(query.data.limit).lean();
+
+    if (where["addresses.geoPoint"]) where["addresses.geoPoint"] = nearSphereToGeoWithin(where["addresses.geoPoint"].$nearSphere);
+    const total = await MissionModel.countDocuments(where);
 
     res.locals = { total };
     return res
@@ -192,7 +171,6 @@ router.get("/search", passport.authenticate(["apikey", "api"], { session: false 
         createdAt: zod.string().optional(),
         startAt: zod.string().optional(),
         text: zod.string().optional(),
-        sortBy: zod.string().optional(),
         limit: zod.coerce.number().min(0).max(10000).default(25),
         skip: zod.coerce.number().min(0).default(0),
       })
@@ -347,6 +325,31 @@ router.get("/:id", passport.authenticate(["apikey", "api"], { session: false }),
     next(error);
   }
 });
+
+const buildArrayQuery = (query: string | string[]) => {
+  if (!Array.isArray(query) && query.includes(",")) query = query.split(",").map((e: string) => e.trim());
+  return Array.isArray(query) ? { $in: query } : query;
+};
+
+const buildDateQuery = (query: string) => {
+  try {
+    const operation = query.slice(0, 3);
+    const date = query.slice(3);
+    if (!date) return undefined;
+    if (isNaN(new Date(date).getTime())) return undefined;
+    return { [operation === "gt:" ? "$gt" : "$lt"]: new Date(date) };
+  } catch (error) {
+    return undefined;
+  }
+};
+
+// Convert $nearSphere to $geoWithin (doesn't work with countDocuments)
+const nearSphereToGeoWithin = (nearSphere: any) => {
+  if (!nearSphere) return;
+  const distanceKm = nearSphere.$maxDistance / 1000;
+  const geoWithin = { $geoWithin: { $centerSphere: [[nearSphere.$geometry.coordinates[0], nearSphere.$geometry.coordinates[1]], distanceKm / EARTH_RADIUS] } };
+  return geoWithin;
+};
 
 const buildData = (data: Mission, publisherId: string, moderator: boolean = false) => {
   const address = data.addresses[0];
