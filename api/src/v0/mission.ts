@@ -261,7 +261,7 @@ router.get("/search", passport.authenticate(["apikey", "api"], { session: false 
         $facet: {
           domain: [{ $group: { _id: "$domain", count: { $sum: 1 } } }, { $sort: { count: -1 } }],
           activity: [{ $group: { _id: "$activity", count: { $sum: 1 } } }, { $sort: { count: -1 } }],
-          departmentName: [{ $group: { _id: "$addresses.departmentName", count: { $sum: 1 } } }, { $sort: { count: -1 } }],
+          departmentName: [{ $group: { _id: "$departmentName", count: { $sum: 1 } } }, { $sort: { count: -1 } }],
         },
       },
     ]);
