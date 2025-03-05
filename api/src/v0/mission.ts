@@ -53,12 +53,12 @@ router.get("/", passport.authenticate(["apikey", "api"], { session: false }), as
         limit: zod.coerce.number().min(0).max(10000).default(25),
         lat: zod.coerce.number().optional(),
         lon: zod.coerce.number().optional(),
-        openToMinors: zod.enum(["yes", "no"]).optional(),
+        openToMinors: zod.string().optional(), // TODO: put enum
         organizationRNA: zod.union([zod.string(), zod.array(zod.string())]).optional(),
         organizationStatusJuridique: zod.union([zod.string(), zod.array(zod.string())]).optional(),
         publisher: zod.union([zod.string(), zod.array(zod.string())]).optional(),
         remote: zod.union([zod.string(), zod.array(zod.string())]).optional(),
-        reducedMobilityAccessible: zod.enum(["yes", "no"]).optional(),
+        reducedMobilityAccessible: zod.string().optional(), // TODO: put enum
         skip: zod.coerce.number().min(0).default(0),
         startAt: zod.string().optional(),
         type: zod.union([zod.string(), zod.array(zod.string())]).optional(),
@@ -76,10 +76,6 @@ router.get("/", passport.authenticate(["apikey", "api"], { session: false }), as
       return res.status(400).send({ ok: false, code: NO_PARTNER, message: NO_PARTNER_MESSAGE });
     }
 
-    // Clean old query params
-    if (req.query.size && query.data.limit === 10000) query.data.limit = parseInt(req.query.size as string, 10);
-    if (req.query.from && query.data.skip === 0) query.data.skip = parseInt(req.query.from as string, 10);
-
     const where = {
       statusCode: "ACCEPTED",
       deletedAt: null,
@@ -96,6 +92,9 @@ router.get("/", passport.authenticate(["apikey", "api"], { session: false }), as
     } else {
       where.publisherId = { $in: req.user.publishers.map((e: { publisher: string }) => e.publisher) };
     }
+    if (req.user.moderator) where[`moderation_${req.user._id}_status`] = "ACCEPTED";
+    // Special case for Bouygues Telecom
+    if (req.user._id.toString() === "616fefd119fb03075a0b0843") where.organizationName = { $ne: "APF France handicap - Délégations de Haute-Saône et du Territoire de Belfort" };
 
     if (query.data.activity) where.activity = buildArrayQuery(query.data.activity);
     if (query.data.city) where["addresses.city"] = buildArrayQuery(query.data.city);
@@ -130,15 +129,9 @@ router.get("/", passport.authenticate(["apikey", "api"], { session: false }), as
       };
     }
 
-    if (req.user.moderator) {
-      where[`moderation_${req.user._id}_status`] = "ACCEPTED";
-    }
-
-    // Special case for Bouygues Telecom
-    if (req.user._id.toString() === "616fefd119fb03075a0b0843") {
-      where.organizationName = { $ne: "APF France handicap - Délégations de Haute-Saône et du Territoire de Belfort" };
-    }
-
+    // Clean old query params
+    if (req.query.size && query.data.limit === 10000) query.data.limit = parseInt(req.query.size as string, 10);
+    if (req.query.from && query.data.skip === 0) query.data.skip = parseInt(req.query.from as string, 10);
     const data = await MissionModel.find(where).skip(query.data.skip).limit(query.data.limit).lean();
 
     if (where["addresses.geoPoint"]) where["addresses.geoPoint"] = nearSphereToGeoWithin(where["addresses.geoPoint"].$nearSphere);
@@ -157,22 +150,28 @@ router.get("/search", passport.authenticate(["apikey", "api"], { session: false 
   try {
     const query = zod
       .object({
+        activity: zod.union([zod.string(), zod.array(zod.string())]).optional(),
+        city: zod.union([zod.string(), zod.array(zod.string())]).optional(),
+        clientId: zod.union([zod.string(), zod.array(zod.string())]).optional(),
+        country: zod.union([zod.string(), zod.array(zod.string())]).optional(),
+        createdAt: zod.string().optional(),
+        departmentName: zod.union([zod.string(), zod.array(zod.string())]).optional(),
+        distance: zod.string().optional(),
+        domain: zod.union([zod.string(), zod.array(zod.string())]).optional(),
+        keywords: zod.string().optional(),
+        limit: zod.coerce.number().min(0).max(10000).default(25),
         lat: zod.coerce.number().optional(),
         lon: zod.coerce.number().optional(),
-        distance: zod.string().optional(),
-        openToMinors: zod.string().optional(),
-        reducedMobilityAccessible: zod.string().optional(),
-        publisher: zod.string().optional(),
-        domain: zod.string().optional(),
-        remote: zod.string().optional(),
-        clientId: zod.string().optional(),
-        activity: zod.string().optional(),
-        departmentName: zod.string().optional(),
-        createdAt: zod.string().optional(),
-        startAt: zod.string().optional(),
-        text: zod.string().optional(),
-        limit: zod.coerce.number().min(0).max(10000).default(25),
+        openToMinors: zod.string().optional(), // TODO: put enum
+        organizationRNA: zod.union([zod.string(), zod.array(zod.string())]).optional(),
+        organizationStatusJuridique: zod.union([zod.string(), zod.array(zod.string())]).optional(),
+        publisher: zod.union([zod.string(), zod.array(zod.string())]).optional(),
+        remote: zod.union([zod.string(), zod.array(zod.string())]).optional(),
+        reducedMobilityAccessible: zod.string().optional(), // TODO: put enum
         skip: zod.coerce.number().min(0).default(0),
+        startAt: zod.string().optional(),
+        type: zod.union([zod.string(), zod.array(zod.string())]).optional(),
+        text: zod.string().optional(),
       })
       .passthrough()
       .safeParse(req.query);
@@ -182,10 +181,6 @@ router.get("/search", passport.authenticate(["apikey", "api"], { session: false 
       return res.status(400).send({ ok: false, code: INVALID_QUERY, message: query.error });
     }
 
-    // Clean old query params
-    if (req.query.size && query.data.limit === 10000) query.data.limit = parseInt(req.query.size as string, 10);
-    if (req.query.from && query.data.skip === 0) query.data.skip = parseInt(req.query.from as string, 10);
-
     if (!req.user.publishers || !req.user.publishers.length) {
       res.locals = { code: NO_PARTNER, message: NO_PARTNER_MESSAGE };
       return res.status(400).send({ ok: false, code: NO_PARTNER, message: NO_PARTNER_MESSAGE });
@@ -193,47 +188,44 @@ router.get("/search", passport.authenticate(["apikey", "api"], { session: false 
 
     const where = {
       statusCode: "ACCEPTED",
-      deleted: false,
+      deletedAt: null,
       organizationName: { $nin: req.user.excludeOrganisations || [] },
     } as { [key: string]: any };
 
-    if (query.data.publisher && req.user.publishers.some((e: { publisher: string }) => e.publisher === query.data.publisher)) {
-      where.publisherId = { $in: query.data.publisher.split(",").map((e: string) => e.trim()) };
+    if (query.data.publisher) {
+      if (!Array.isArray(query.data.publisher) && query.data.publisher.includes(",")) query.data.publisher = query.data.publisher.split(",").map((e: string) => e.trim());
+      else if (!Array.isArray(query.data.publisher)) query.data.publisher = [query.data.publisher.trim()];
+      else query.data.publisher = query.data.publisher.map((e: string) => e.trim());
+
+      query.data.publisher = query.data.publisher.filter((e: string) => req.user.publishers.some((p: { publisher: string }) => p.publisher === e));
+      where.publisherId = { $in: query.data.publisher };
     } else {
       where.publisherId = { $in: req.user.publishers.map((e: { publisher: string }) => e.publisher) };
     }
+    if (req.user.moderator) where[`moderation_${req.user._id}_status`] = "ACCEPTED";
 
-    if (query.data.lat && query.data.lon) {
-      if (query.data.distance && (query.data.distance === "0" || query.data.distance === "0km")) query.data.distance = "10km";
-      where["addresses.geoPoint"] = {
-        $geoWithin: {
-          $centerSphere: [[query.data.lon, query.data.lat], getDistanceKm(query.data.distance || "50km") / EARTH_RADIUS],
-        },
-      };
-    }
+    if (query.data.activity) where.activity = buildArrayQuery(query.data.activity);
+    if (query.data.city) where["addresses.city"] = buildArrayQuery(query.data.city);
+    if (query.data.clientId) where.clientId = buildArrayQuery(query.data.clientId);
+    if (query.data.country) where["addresses.country"] = buildArrayQuery(query.data.country);
+    if (query.data.createdAt) where.createdAt = buildDateQuery(query.data.createdAt);
+    if (query.data.departmentName) where["addresses.departmentName"] = buildArrayQuery(query.data.departmentName);
+    if (query.data.domain) where.domain = buildArrayQuery(query.data.domain);
 
-    if (query.data.domain) where.domain = query.data.domain;
+    if (query.data.keywords)
+      where.$or = [
+        { title: { $regex: diacriticSensitiveRegex(query.data.keywords), $options: "i" } },
+        { organizationName: { $regex: diacriticSensitiveRegex(query.data.keywords), $options: "i" } },
+        { publisherName: { $regex: diacriticSensitiveRegex(query.data.keywords), $options: "i" } },
+        { city: { $regex: diacriticSensitiveRegex(query.data.keywords), $options: "i" } },
+      ];
+    if (query.data.organizationRNA) where.organizationRNA = buildArrayQuery(query.data.organizationRNA);
+    if (query.data.organizationStatusJuridique) where.organizationStatusJuridique = buildArrayQuery(query.data.organizationStatusJuridique);
     if (query.data.openToMinors) where.openToMinors = query.data.openToMinors;
     if (query.data.reducedMobilityAccessible) where.reducedMobilityAccessible = query.data.reducedMobilityAccessible;
-    if (query.data.remote) where.remote = { $in: query.data.remote.split(",") };
-    if (query.data.clientId) where.clientId = query.data.clientId;
-    if (query.data.activity) where.activity = query.data.activity;
-    if (query.data.departmentName) where["addresses.departmentName"] = query.data.departmentName;
-
-    if (query.data.createdAt) {
-      if (query.data.createdAt.startsWith("gt:")) where.createdAt = { $gt: new Date(query.data.createdAt.replace("gt:", "")) };
-      if (query.data.createdAt.startsWith("lt:")) where.createdAt = { $lt: new Date(query.data.createdAt.replace("lt:", "")) };
-    }
-
-    if (query.data.startAt) {
-      if (query.data.startAt.startsWith("gt:")) where.startAt = { $gt: new Date(query.data.startAt.replace("gt:", "")) };
-      if (query.data.startAt.startsWith("lt:")) where.startAt = { $lt: new Date(query.data.startAt.replace("lt:", "")) };
-    }
-
-    if (req.user.moderator) {
-      where[`moderation_${req.user._id}_status`] = "ACCEPTED";
-    }
-
+    if (query.data.remote) where.remote = buildArrayQuery(query.data.remote);
+    if (query.data.startAt) where.startAt = buildDateQuery(query.data.startAt);
+    // Old search
     if (query.data.text)
       where.$or = [
         { title: { $regex: diacriticSensitiveRegex(query.data.text), $options: "i" } },
@@ -241,15 +233,30 @@ router.get("/search", passport.authenticate(["apikey", "api"], { session: false 
         { publisherName: { $regex: diacriticSensitiveRegex(query.data.text), $options: "i" } },
         { city: { $regex: diacriticSensitiveRegex(query.data.text), $options: "i" } },
       ];
+    if (query.data.type) where.type = buildArrayQuery(query.data.type);
+
+    if (query.data.lat && query.data.lon) {
+      if (query.data.distance && (query.data.distance === "0" || query.data.distance === "0km")) query.data.distance = "10km";
+      const distanceKm = getDistanceKm(query.data.distance || "50km");
+      where["addresses.geoPoint"] = {
+        $nearSphere: {
+          $geometry: { type: "Point", coordinates: [query.data.lon, query.data.lat] },
+          $maxDistance: distanceKm * 1000,
+        },
+      };
+    }
+
+    // Clean old query params
+    if (req.query.size && query.data.limit === 10000) query.data.limit = parseInt(req.query.size as string, 10);
+    if (req.query.from && query.data.skip === 0) query.data.skip = parseInt(req.query.from as string, 10);
 
     const data = await MissionModel.find(where).skip(query.data.skip).limit(query.data.limit).lean();
 
     // countDocument and aggregate does not accept $nearSphere (but keeping $near cause it sorts the results)
-    const whereAggs = { ...where };
-    if (whereAggs.geoPoint) whereAggs.geoPoint = { $geoWithin: { $centerSphere: [[query.data.lon, query.data.lat], getDistanceKm(query.data.distance || "50km") / EARTH_RADIUS] } };
-    const total = await MissionModel.countDocuments(whereAggs);
+    if (where["addresses.geoPoint"]) where["addresses.geoPoint"] = nearSphereToGeoWithin(where["addresses.geoPoint"].$nearSphere);
+    const total = await MissionModel.countDocuments(where);
     const facets = await MissionModel.aggregate([
-      { $match: whereAggs },
+      { $match: where },
       {
         $facet: {
           domain: [{ $group: { _id: "$domain", count: { $sum: 1 } } }, { $sort: { count: -1 } }],
@@ -265,7 +272,7 @@ router.get("/search", passport.authenticate(["apikey", "api"], { session: false 
       total,
       hits: data.map((e: Mission) => ({
         ...buildData(e, req.user._id, req.user.moderator),
-        _distance: getDistanceFromLatLonInKm(query.data.lat, query.data.lon, e.location?.lat, e.location?.lon),
+        _distance: getDistanceFromLatLonInKm(query.data.lat, query.data.lon, e.addresses[0]?.location?.lat, e.addresses[0]?.location?.lon),
       })),
       facets: {
         departmentName: facets[0].departmentName.map((b: { _id: string; count: number }) => ({ key: b._id, doc_count: b.count })),
