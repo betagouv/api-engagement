@@ -328,8 +328,6 @@ router.get("/:id/aggs", cors({ origin: "*" }), async (req: Request, res: Respons
       }
     });
 
-    console.log(JSON.stringify(where, null, 2));
-
     const facets = await MissionModel.aggregate([{ $match: where }, { $facet }]);
 
     const data = {} as { [key: string]: any };
