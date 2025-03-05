@@ -50,7 +50,6 @@ const Home = ({ widget, missions, apiUrl, total, request, environment }) => {
     plausible("pageview", { u });
 
     if (widget.location) return setFilters((f) => ({ ...f, location: widget.location }));
-
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
         async (position) => {

@@ -51,7 +51,6 @@ const Home = ({ widget, apiUrl, missions, total, request, environment }) => {
 
   useEffect(() => {
     if (!widget) return;
-    if (widget.location) return setFilters((f) => ({ ...f, location: widget.location }));
 
     const url = new URL(location.href);
     const u = `${url.protocol}//${url.hostname}/${widget.style === "page" ? "catalogue" : "carousel"}`;
@@ -59,6 +58,7 @@ const Home = ({ widget, apiUrl, missions, total, request, environment }) => {
     setColor(widget.color ? widget.color : "#71A246");
     plausible("pageview", { u });
 
+    if (widget.location) return setFilters((f) => ({ ...f, location: widget.location }));
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
         async (position) => {
