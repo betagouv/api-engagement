@@ -328,6 +328,8 @@ router.get("/:id/aggs", cors({ origin: "*" }), async (req: Request, res: Respons
       }
     });
 
+    console.log(JSON.stringify(where, null, 2));
+
     const facets = await MissionModel.aggregate([{ $match: where }, { $facet }]);
 
     const data = {} as { [key: string]: any };
@@ -391,7 +393,7 @@ const buildLocationAggs = (widget: Widget, lon: number | undefined, lat: number 
     const distance = getDistanceKm(widget.distance && widget.distance !== "Aucun" ? widget.distance : "50km");
     where["addresses.geoPoint"] = {
       $geoWithin: {
-        $centerSphere: [[lon, lat], distance / EARTH_RADIUS],
+        $centerSphere: [[widget.location.lat, widget.location.lon], distance / EARTH_RADIUS],
       },
     };
   } else if (lat && lon) {
