@@ -1,83 +1,106 @@
 const Index = () => {
   return (
-    <div className="row mb-5 mt-5 px-5">
-      <div className="mr-2">
-        <h1 className="mb-1 text-lg font-semibold">Conditions Générales d'utilisation</h1>
-      </div>
-      <div className="mt-5 rounded-lg bg-white px-5 py-3 shadow-base">
-        <p className="text-sm text-gray-700">
-          Les présentes conditions générales d’utilisation (dites « CGU ») fixent le cadre juridique de la Plateforme l’API Engagement et définissent les conditions d’accès et
-          d’utilisation des services par l’Utilisateur.
-        </p>
-        <h2 className="mb-2 mt-3 text-base font-semibold text-black">Article 1 – Objet et champ d’application</h2>
-        <p className="mb-2 text-sm text-black">
-          L’API Engagement (ci-après l’ « API ») est un dispositif mis en œuvre par la Direction de la jeunesse, de l'éducation populaire et de la vie associative (DJEPVA) du
-          Ministère de l’éducation nationale et de la jeunesse (MENJ), dans le cadre de sa politique publique. Cette API permet aux plateformes d’engagement de mettre en commun
-          leurs missions de bénévolat et de volontariat, dans le but d’accroître leur visibilité.
-        </p>
-        <h2 className="mb-2 mt-3 text-base font-semibold text-black">Article 2 – Définitions</h2>
-        <p className="mb-2 text-sm text-black">
-          Les termes employés avec une majuscule au sein des présentes Conditions Générales d’Utilisation de l’API Engagement sont ainsi définis : - « API » désigne l’API
-          Engagement. - « Utilisateur » désigne toute personne physique disposant d’un compte sur l’API Engagement. - « CGU » désigne les Conditions Générales d’Utilisation de
-          l’API qui forment un contrat entre les Utilisateurs et la DJEPVA concernant l’utilisation de l’API. - « Partenaire »désigne toute plateforme d’engagement diffusant des
-          missions de bénévolat ou de volontariat qui a signé une convention de partenariat en vue d’utiliser l’API Engagement. - « Profil » désigne les informations renseignées
-          par un Utilisateur dans le cadre de l’utilisation de l’API Engagement. - « Mission » désigne la proposition faite à une personne physique pour qu’elle participe à une
-          action de bénévolat ou de volontariat.
-        </p>
-        <h2 className="mb-2 mt-4 text-base font-semibold text-black">Article 3 – Fonctionnalités</h2>
-        <p className="mb-2 text-sm text-black">
-          Les utilisateurs de l’API Engagement ont la possibilité de : - Paramétrer et suivre la performance des flux de missions diffusées ; - Suivre la performance des
-          redirections effectuées par le biais de l’API Engagement ; - Paramétrer des widgets en vue de multidiffuser des missions sur des sites tiers ; - Mettre en place des liens
-          de suivi pour communiquer sur des missions spécifiques et suivre la performance de ces communications ; - Gérer les paramètres du compte Partenaire ; - Gérer les
-          Utilisateurs rattachés au compte d’un Partenaire.
-        </p>
-        <h2 className="mb-2 mt-4 text-base font-semibold text-black">Article 4 – Responsabilités</h2>
-        <p className="mb-2 text-sm text-black">
-          4.1 L’éditeur de la Plateforme En tant qu’éditeur de la Plateforme, la DJEPVA s’engage à : - Mettre à disposition de l’Utilisateur une API permettant la mise en commun
-          des flux de mission, comme évoqué ci-dessus ; - Mettre à disposition le service gratuitement ; - Collecter, conserver, traiter, héberger les données et/ou contributions
-          de manière loyale et conformément aux finalités de l’API Engagement ; - Prendre toute mesure nécessaire de nature à garantir la sécurité et la confidentialité des
-          informations fournies par l’usager et notamment empêcher qu’elles soient déformées, endommagées ou que des tiers non autorisés y aient accès ; - Ne commercialiser,
-          d’aucune manière, les informations et pièces justificatives récoltées dans le cadre de la Plateforme. La DJEPVA s’autorise à supprimer, sans préavis ni indemnité d’aucune
-          sorte, tout compte faisant l’objet d’une utilisation contrevenante aux présentes CGU et tout Organisme dont la DJEPVA estimerait que la mission pourrait avoir un but
-          lucratif. L’indisponibilité de la Plateforme ne donne droit à aucune indemnité.
-        </p>
-        <p className="mb-2 text-sm text-black">
-          4.2 L’Utilisateur L’Utilisateur reconnait avoir lu les présentes CGU et s’engage à : - Choisir des identifiants personnels et confidentiels ; - Prévenir immédiatement
-          l’éditeur de toute utilisation non autorisée de son compte ou de ses informations ; - Communiquer des informations à jour et exactes notamment s’agissant des informations
-          relatives au profil, sa situation personnelle et les missions proposées. Il est rappelé que toute personne procédant à une fausse déclaration pour elle-même ou pour
-          autrui s’expose, notamment, aux sanctions prévues à l’article 441-1 du Code Pénal, prévoyant des peines pouvant aller jusqu’à trois ans d’emprisonnement et 45 000 euros
-          d’amende. Les Utilisateurs peuvent signaler toute description, information ou commentaire ne répondant pas aux CGU. L’éditeur se réserve le droit de supprimer et de
-          modérer sans préavis, un Profil, une Mission ou un commentaire si les présentes règles ne sont pas respectées. - Diffuser des contenus conformes à l’objet de la
-          Plateforme, qui ne soient pas offensants ou inappropriés.
-        </p>
-        <h2 className="mb-2 mt-4 text-base font-semibold text-black">Article 5 – Conditions d’accès</h2>
-        <p className="mb-2 text-sm text-black">
-          Les Utilisateurs sont responsables des identifiants utilisés pour accéder à l’API. En ce sens ils doivent respecter l’état de l’art en matière de sécurité informatique
-          dans l’usage de ces identifiants.
-        </p>
-        <h2 className="mb-2 mt-4 text-base font-semibold text-black">Article 6 – Usage commercial des données et de l’API</h2>
-        <p className="mb-2 text-sm text-black">
-          La licence ouverte 2.0 autorise un usage commercial de la réutilisation des données mise à disposition par l’API. Toutefois, compte tenu de l’absence de garantie de
-          fiabilité de ces données et de disponibilité de l’API, un tel usage se fait au risque et péril de l’Utilisateur. L’Utilisateur assumera seul une action engageant sa
-          responsabilité contractuelle ou extracontractuelle liée directement ou indirectement à son utilisation de l’API. L’éditeur ne pourra être tenue responsable d’un
-          quelconque dommage subi par un Utilisateur ou un tiers utilisant une application fondée sur les données exposées par l’API.
-        </p>
-        <h2 className="mb-2 mt-4 text-base font-semibold text-black">Article 7 - Manquements aux CGU</h2>
-        <p className="mb-2 text-sm text-black">
-          L’éditeur se réserve le droit de suspendre, sans notification préalable, l’accès à son API à des Utilisateurs qui ne respecteraient pas les présentes CGU ou qui feraient
-          un usage de l’API contraire aux lois et réglementations en vigueur. L’Utilisateur sera malgré tout notifié de cette suspension au plus tôt. L’Utilisateur ne pourra
-          prétendre à une quelconque indemnisation.
-        </p>
-        <h2 className="mb-2 mt-4 text-base font-semibold text-black">Article 8. Propriété intellectuelle</h2>
-        <p className="mb-2 text-sm text-black">
-          La DJEPVA est titulaire de tous les droits de propriété, y compris intellectuelle, portant sur l’architecture de l’API. Les données qui sont, elles, mises à disposition
-          par cette API sont soumises à la licence ouverte 2.0 consultable ici : https://www.etalab.gouv.fr/wp-content/uploads/2017/04/ETALAB-Licence-Ouverte-v2.0.pdf
-        </p>
-        <h2 className="mb-2 mt-4 text-base font-semibold text-black">Article 9 - Mise à jour des conditions d’utilisation</h2>
-        <p className="mb-2 text-sm text-black">
-          Les termes des présentes conditions d’utilisation peuvent être amendés à tout moment, sans préavis, en fonction des modifications apportées à la plateforme, de
-          l’évolution de la législation ou pour tout autre motif jugé nécessaire.
-        </p>
+    <div className="mx-auto my-14 w-4/5 max-w-[1200px] flex-1 space-y-10">
+      <h1 className="text-4xl font-bold mb-2">Conditions Générales d'utilisation - API Engagement</h1>
+
+      <div className="bg-white py-12 px-24 border space-y-10 text-base">
+        <p>En vigueur au 7 mars 2025</p>
+        <div className="space-y-6">
+          <h2 className="text-lg font-bold">Article 1 Champ d’application</h2>
+          <p>
+            Les présentes conditions générales d’utilisation (ci-après « CGU ») précisent le cadre juridique de “API Engagement” (ci-après la “Plateforme”) et définissent les
+            conditions d’accès et d’utilisation des Services par l’Utilisateur.
+          </p>
+        </div>
+        <div className="space-y-6">
+          <h2 className="text-lg font-bold">Article 2 Objet de la Plateforme</h2>
+          <p>
+            La Plateforme est un dispositif mis en œuvre par la Direction de la jeunesse, de l'éducation populaire et de la vie associative (DJEPVA) au sein du ministère des
+            Sports, de la Jeunesse et de la Vie associative , dans le cadre de sa politique publique. L’API Engagement permet aux plateformes d’engagement de mettre en commun leurs
+            missions de bénévolat et de volontariat, dans le but d’accroître leur visibilité.
+          </p>
+        </div>
+        <div className="space-y-6">
+          <h2 className="text-lg font-bold">Article 3 Définitions</h2>
+          <p>“Éditeur” désigne la personne morale qui met à la disposition du public la Plateforme, à savoir la DJEPVA</p>
+          <p>
+            “Partenaire” désigne toute plateforme d’engagement qui diffuse des missions de bénévolat ou de volontariat, signataire d’une convention de partenariat pour utiliser la
+            Plateforme
+          </p>
+          <p>
+            “Plateforme” désigne le service numérique qui permet aux plateformes d’engagement d’accroître leur visibilité en mettant en commun leurs missions de bénévolat et de
+            volontariat
+          </p>
+          <p>“Services” désignent les fonctionnalités mises en place par la Plateforme pour répondre à ses finalités</p>
+          <p>“Utilisateur” désigne toute personne physique, membre habilité d’une plateforme d’engagement, qui s’inscrit sur la Plateforme</p>
+        </div>
+        <div className="space-y-6">
+          <h2 className="text-lg font-bold">Article 4 Fonctionnalités de la Plateforme</h2>
+          <p>Chaque Utilisateur peut :</p>
+          <ul className="list-disc list-inside">
+            <li>Paramétrer et suivre la performance des flux de missions diffusées ;</li>
+            <li>Suivre la performance des redirections effectuées par le biais de la Plateforme ;</li>
+            <li>Paramétrer des widgets en vue de multidiffuser des missions sur des sites tiers ;</li>
+            <li>Mettre en place des liens de suivi pour communiquer sur des missions spécifiques et suivre la performance de ces communications ;</li>
+            <li>Gérer les paramètres du compte Partenaire ;</li>
+            <li>Gérer les Utilisateurs rattachés au compte d’un Partenaire.</li>
+          </ul>
+        </div>
+        <div className="space-y-6">
+          <h2 className="text-lg font-bold">Article 5 Responsabilités</h2>
+          <div className="space-y-4">
+            <h3 className="text-base font-semibold">5.1 Responsabilités de l’Éditeur</h3>
+            <p>Les sources des informations diffusées sur la Plateforme sont réputées fiables mais elle ne garantit pas être exempte de défauts, d’erreurs ou d’omissions.</p>
+            <p>
+              L’Éditeur s’engage à la sécurisation de la Plateforme, notamment en prenant toutes les mesures nécessaires permettant de garantir la sécurité et la confidentialité
+              des informations fournies. Il ne saurait être tenu responsable de tout contenu publié par l’Utilisateur sur la Plateforme ou sur des sites tiers en lien avec les
+              missions de bénévolat et de volontariat.
+            </p>
+            <p>
+              L’Éditeur fournit les moyens nécessaires et raisonnables pour assurer un accès continu à la Plateforme. Il se réserve le droit de faire évoluer, de modifier ou de
+              suspendre, sans préavis, la Plateforme pour des raisons de maintenance ou pour tout autre motif jugé nécessaire.
+            </p>
+            <p>
+              En cas de manquement à une ou plusieurs des stipulations des présentes CGU, l’Éditeur se réserve le droit de suspendre ou de supprimer le compte de l’Utilisateur
+              responsable, notamment si les missions proposées semblent poursuivre un but lucratif.
+            </p>
+          </div>
+          <div className="space-y-4">
+            <h3 className="text-base font-semibold">5.2 Responsabilités de l’Utilisateur</h3>
+            <p>
+              L’Utilisateur s’assure de garder son mot de passe secret. Toute divulgation du mot de passe, quelle que soit sa forme, est interdite. Il assume les risques liés à
+              l’utilisation de son adresse courriel et de son mot de passe. Chaque Utilisateur est également responsable de la clé API fournie par l’Éditeur.
+            </p>
+            <p>
+              En créant un compte sur la Plateforme, l’Utilisateur certifie notamment qu’il ne diffuse pas de missions donnant lieu à rémunération ou n’ayant pas de lien avec le
+              bénévolat ou le volontariat. L’Utilisateur est seul responsable de tout contenu qu’il renseigne sur la Plateforme.
+            </p>
+            <p>
+              Il est rappelé que toute personne procédant à une fausse déclaration pour elle-même ou ou pour autrui s’expose notamment aux sanctions prévues à l’article 441-1 du
+              code pénal.
+            </p>
+            <p>
+              L’Utilisateur s’engage à ne pas mettre en ligne de contenus ou informations contraires au cadre juridique en vigueur. Il veille notamment à ne pas communiquer de
+              données sensibles ou de secrets protégés par la loi, et à ne pas publier de contenus illicites notamment dans les zones de champs libres.
+            </p>
+          </div>
+        </div>
+        <div className="space-y-6">
+          <h2 className="text-lg font-bold">Article 6 Propriété intellectuelle</h2>
+          <p>
+            Les données mises à disposition sur la Plateforme sont sous licence ouverte 2.0. L’usage commercial de la réutilisation des données mises à disposition par la
+            Plateforme est autorisé. Toutefois, compte tenu de l’absence de garantie de fiabilité de ces données et de disponibilité de l’API, un tel usage est de la seule
+            responsabilité de l’Utilisateur. L’Éditeur ne peut en aucun cas être tenu responsable de tout dommage subi par l’Utilisateur ou un tiers s’agissant des données issues
+            de la Plateforme.
+          </p>
+        </div>
+        <div className="space-y-6">
+          <h2 className="text-lg font-bold">Article 7 Mise à jour des conditions générales d’utilisation</h2>
+          <p>
+            Les termes des présentes CGU peuvent être amendés à tout moment, sans préavis, en fonction des modifications apportées à la Plateforme, de l’évolution de la législation
+            ou pour tout autre motif jugé nécessaire. Chaque modification donne lieu à une nouvelle version qui est acceptée par l’Utilisateur.
+          </p>
+        </div>
       </div>
     </div>
   );
