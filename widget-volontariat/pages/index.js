@@ -126,6 +126,7 @@ const Home = ({ widget, apiUrl, missions, total, request, environment }) => {
       if (filters.location && filters.location.lat && filters.location.lon) {
         query.lat = filters.location.lat;
         query.lon = filters.location.lon;
+        query.city = filters.location.label;
       }
       router.push({ pathname: "/", query });
     }, 100);
@@ -236,6 +237,7 @@ export const getServerSideProps = async (context) => {
     if (context.query.lat && context.query.lon) {
       searchParams.append("lat", parseFloat(context.query.lat));
       searchParams.append("lon", parseFloat(context.query.lon));
+      searchParams.append("city", context.query.city);
     }
 
     const response = await fetch(`${API_URL}/iframe/${widget._id}/search?${searchParams.toString()}`).then((res) => res.json());
@@ -270,7 +272,7 @@ export const getServerSideProps = async (context) => {
       });
     }
 
-    return { props: { widget, missions, total: response.total, apiUrl: API_URL, request: response.request, environment: ENV } };
+    return { props: { widget, missions, total: response.total, apiUrl: API_URL, request: response.request || null, environment: ENV } };
   } catch (error) {
     console.error(error);
     Sentry.captureException(error);

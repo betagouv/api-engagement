@@ -2,7 +2,7 @@ import cors from "cors";
 import { NextFunction, Request, Response, Router } from "express";
 import zod from "zod";
 
-import { JVA_ID } from "../config";
+import { ENV, JVA_ID } from "../config";
 import { captureMessage, INVALID_PARAMS, INVALID_QUERY, NOT_FOUND } from "../error";
 import MissionModel from "../models/mission";
 import RequestWidget from "../models/request-widget";
@@ -65,24 +65,25 @@ router.get("/:id/search", async (req: Request, res: Response, next: NextFunction
 
     const query = zod
       .object({
-        domain: zod.union([zod.string(), zod.array(zod.string())]).optional(),
-        organization: zod.union([zod.string(), zod.array(zod.string())]).optional(),
-        department: zod.union([zod.string(), zod.array(zod.string())]).optional(),
-        schedule: zod.union([zod.string(), zod.array(zod.string())]).optional(),
-        remote: zod.union([zod.string(), zod.array(zod.string())]).optional(),
+        accessibility: zod.union([zod.string(), zod.array(zod.string())]).optional(),
         action: zod.union([zod.string(), zod.array(zod.string())]).optional(),
         beneficiary: zod.union([zod.string(), zod.array(zod.string())]).optional(),
+        city: zod.string().optional(), // Not used, only for stats
         country: zod.union([zod.string(), zod.array(zod.string())]).optional(),
-        minor: zod.union([zod.string(), zod.array(zod.string())]).optional(),
-        accessibility: zod.union([zod.string(), zod.array(zod.string())]).optional(),
+        department: zod.union([zod.string(), zod.array(zod.string())]).optional(),
+        domain: zod.union([zod.string(), zod.array(zod.string())]).optional(),
         duration: zod.coerce.number().int().min(0).optional(),
-        start: zod.coerce.date().optional(),
-        search: zod.string().optional(),
-        lat: zod.coerce.number().min(-90).max(90).optional(),
-        lon: zod.coerce.number().min(-180).max(180).optional(),
-        location: zod.string().optional(),
-        size: zod.coerce.number().int().min(0).default(25),
         from: zod.coerce.number().int().min(0).default(0),
+        lat: zod.coerce.number().min(-90).max(90).optional(),
+        location: zod.string().optional(),
+        lon: zod.coerce.number().min(-180).max(180).optional(),
+        minor: zod.union([zod.string(), zod.array(zod.string())]).optional(),
+        organization: zod.union([zod.string(), zod.array(zod.string())]).optional(),
+        remote: zod.union([zod.string(), zod.array(zod.string())]).optional(),
+        schedule: zod.union([zod.string(), zod.array(zod.string())]).optional(),
+        search: zod.string().optional(),
+        size: zod.coerce.number().int().min(0).default(25),
+        start: zod.coerce.date().optional(),
       })
       .passthrough()
       .safeParse(req.query);
@@ -203,14 +204,34 @@ router.get("/:id/search", async (req: Request, res: Response, next: NextFunction
       addresses: e.addresses,
     }));
 
+    console.log(
+      JSON.stringify(
+        {
+          query: {
+            ...query.data,
+            distance: where["addresses.geoPoint"] ? "50km" : undefined,
+            jvaModeration: widget.jvaModeration,
+          },
+          widgetId: params.data.id,
+          total,
+          missions: missions.map((h) => h._id.toString()),
+        },
+        null,
+        2,
+      ),
+    );
+
+    if (ENV !== "production") return res.status(200).send({ ok: true, data, total });
     const request = await RequestWidget.create({
-      query: query.data,
+      query: {
+        ...query.data,
+        distance: where["addresses.geoPoint"] ? "50km" : undefined,
+        jvaModeration: widget.jvaModeration,
+      },
       widgetId: params.data.id,
-      status: 0,
       total,
       missions: missions.map((h) => h._id.toString()),
     });
-
     return res.status(200).send({ ok: true, data, total, request: request._id });
   } catch (error) {
     next(error);
