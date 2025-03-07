@@ -498,6 +498,9 @@ model WidgetQuery {
   search        String?
   lat           Float?
   lon           Float?
+  city          String?
+  distance      String?
+  jva_moderation Boolean?
   size          Int?
   from          Int?
   created_at    DateTime  @default(now())

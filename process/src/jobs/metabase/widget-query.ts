@@ -31,6 +31,9 @@ const buildData = (doc: RequestWidget, widgets: { [key: string]: string }) => {
     lon: doc.query?.lon ? parseFloat(doc.query.lon) : null,
     size: doc.query?.size ? parseInt(doc.query.size, 10) : null,
     from: doc.query?.from ? parseInt(doc.query.from, 10) : null,
+    city: doc.query?.city ?? null,
+    distance: doc.query?.distance ?? null,
+    jva_moderation: doc.query?.jvaModeration ?? null,
     created_at: new Date(doc.createdAt),
     widget_id: widgetId,
   } as PgWidgetQuery;
