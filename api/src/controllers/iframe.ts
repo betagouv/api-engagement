@@ -204,23 +204,6 @@ router.get("/:id/search", async (req: Request, res: Response, next: NextFunction
       addresses: e.addresses,
     }));
 
-    console.log(
-      JSON.stringify(
-        {
-          query: {
-            ...query.data,
-            distance: where["addresses.geoPoint"] ? "50km" : undefined,
-            jvaModeration: widget.jvaModeration,
-          },
-          widgetId: params.data.id,
-          total,
-          missions: missions.map((h) => h._id.toString()),
-        },
-        null,
-        2,
-      ),
-    );
-
     if (ENV !== "production") return res.status(200).send({ ok: true, data, total });
     const request = await RequestWidget.create({
       query: {
