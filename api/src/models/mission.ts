@@ -46,6 +46,7 @@ const schema = new Schema<Mission>(
     tasks: { type: [String] },
     audience: { type: [String] },
     soft_skills: { type: [String] },
+    softSkills: { type: [String] },
     reducedMobilityAccessible: { type: String, enum: ["yes", "no"], default: "no" },
     closeToTransport: { type: String, enum: ["yes", "no"], default: "no" },
     openToMinors: { type: String, enum: ["yes", "no"], default: "no" },

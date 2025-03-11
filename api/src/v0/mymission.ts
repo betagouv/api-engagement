@@ -235,6 +235,7 @@ const buildData = (data: Mission) => {
     snu: data.snu,
     snuPlaces: data.snuPlaces,
     soft_skills: data.soft_skills,
+    softSkills: data.softSkills,
     startAt: data.startAt,
     statusCode: data.statusCode,
     statusComment: data.statusComment,
