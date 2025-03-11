@@ -1,13 +1,14 @@
 import _ from "lodash";
 import { useEffect, useState } from "react";
-import { RiCloseFill } from "react-icons/ri";
 import { TiDeleteOutline } from "react-icons/ti";
-import { Link, useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { toast } from "react-toastify";
 
-import Autocomplete from "../../components/Autocomplete";
+import Loader from "../../components/Loader";
+import Table from "../../components/NewTable";
 import RadioInput from "../../components/RadioInput";
-import { Table } from "../../components/Table";
+import Toggle from "../../components/Toggle";
+import { PUBLISHER_CATEGORIES } from "../../constants";
 import api from "../../services/api";
 import { captureError } from "../../services/error";
 import useStore from "../../services/store";
@@ -16,11 +17,13 @@ const Edit = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const { user, publisher: sessionPublisher, setPublisher: setSessionPublisher } = useStore();
-  const [publishers, setPublishers] = useState();
+  const [publishers, setPublishers] = useState([]);
   const [publisher, setPublisher] = useState();
+  const [users, setUsers] = useState([]);
   const [values, setValues] = useState({
     publishers: [],
-    excludeOrganisations: [],
+    // excludeOrganisations: [],
+    excludedOrganisations: [],
     send_report_to: [],
     automated_report: false,
     role_promoteur: false,
@@ -29,7 +32,7 @@ const Edit = () => {
     role_annonceur_campagne: false,
     mission_type: "benevolat",
   });
-  const [users, setUsers] = useState();
+
   const [searchOrga, setSearchOrga] = useState("");
   const [organizations, setOrganizations] = useState([]);
   const [searching, setSearching] = useState(false);
@@ -124,7 +127,12 @@ const Edit = () => {
 
   const isChanged = (v) => !_.isEqual(v, publisher);
 
-  if (!values || !publishers || !users) return <h2 className="p-3">Chargement...</h2>;
+  if (!publisher)
+    return (
+      <div className="flex h-full items-center justify-center">
+        <Loader />
+      </div>
+    );
 
   return (
     <div className="flex flex-col">
@@ -141,142 +149,15 @@ const Edit = () => {
           <h1 className="text-4xl font-bold">Compte partenaire de {values.name}</h1>
         </div>
       </div>
-      <div className="flex flex-col bg-white p-16 shadow-lg">
-        <div className="mb-6 flex justify-between">
-          <h2 className="text-3xl font-bold">Les informations</h2>
+      <div className="bg-white p-12 space-y-12 shadow-lg">
+        <Informations values={values} onChange={setValues} />
+        <div className="w-full h-px bg-gray-border" />
+        <Settings values={values} onChange={setValues} />
+        <div className="w-full h-px bg-gray-border" />
+        <Members values={values} onChange={setValues} />
 
-          <button className="flex cursor-pointer items-center text-sm text-red-main" onClick={handleDelete}>
-            <TiDeleteOutline className="mr-2" />
-            <span>Supprimer</span>
-          </button>
-        </div>
-        <div className="grid grid-cols-2 gap-x-10 gap-y-5">
-          <div className="flex flex-col">
-            <label className="mb-2 text-sm" htmlFor="name">
-              Nom
-            </label>
-            <input id="name" className="input mb-2" name="name" disabled={true} value={values.name} onChange={(e) => setValues({ ...values, name: e.target.value })} />
-          </div>
-
-          <div className="flex flex-col">
-            <label className="mb-2 text-sm" htmlFor="email">
-              Email de contact
-            </label>
-            <input id="email" className="input mb-2" name="email" value={values.email} onChange={(e) => setValues({ ...values, email: e.target.value })} />
-          </div>
-          <div className="flex flex-col">
-            <label className="mb-2 text-sm" htmlFor="url">
-              URL
-            </label>
-            <input id="url" className="input mb-2" name="url" value={values.url} onChange={(e) => setValues({ ...values, url: e.target.value })} />
-          </div>
-          <div className="flex flex-col">
-            <label className="mb-2 text-sm" htmlFor="documentation">
-              Documentation
-            </label>
-            <input
-              id="documentation"
-              className="input mb-2"
-              name="documentation"
-              value={values.documentation}
-              onChange={(e) => setValues({ ...values, documentation: e.target.value })}
-            />
-          </div>
-
-          <div className="row-span-2 flex flex-col">
-            <label className="mb-2 text-sm" htmlFor="documentation">
-              Description
-            </label>
-            <textarea
-              id="description"
-              rows={4}
-              className="input mb-2"
-              name="description"
-              value={values.description}
-              onChange={(e) => setValues({ ...values, description: e.target.value })}
-            />
-          </div>
-
-          <div className="flex flex-col">
-            <label className="mb-2 text-sm" htmlFor="role-promoteur">
-              Annonceur
-            </label>
-            <div className="mb-2 flex items-center gap-12">
-              <div className="flex items-center gap-3">
-                <input
-                  type="checkbox"
-                  className="checkbox"
-                  id="role-promoteur"
-                  name="role-promoteur"
-                  onChange={(e) => setValues({ ...values, role_promoteur: e.target.checked })}
-                  checked={values.role_promoteur}
-                />
-                <span>Annonceur</span>
-              </div>
-              {values.role_promoteur === true && (
-                <div className="flex items-center gap-3">
-                  <RadioInput
-                    id="mission-type-benevolat"
-                    name="mission-type"
-                    value="benevolat"
-                    label="Bénévolat"
-                    checked={values.mission_type === "benevolat"}
-                    onChange={() => setValues({ ...values, mission_type: "benevolat" })}
-                  />
-
-                  <RadioInput
-                    id="mission-type-volontariat"
-                    name="mission-type"
-                    value="volontariat"
-                    label="Volontariat"
-                    checked={values.mission_type === "volontariat"}
-                    onChange={() => setValues({ ...values, mission_type: "volontariat" })}
-                  />
-                </div>
-              )}
-            </div>
-          </div>
-
-          <div className="flex flex-col">
-            <label className="mb-2 text-sm">Diffuseur</label>
-            <div className="mb-2 flex items-center gap-12">
-              <div className="flex items-center gap-3">
-                <input
-                  type="checkbox"
-                  className="checkbox"
-                  id="role-annonceur-api"
-                  name="role-annonceur-api"
-                  onChange={(e) => setValues({ ...values, role_annonceur_api: e.target.checked })}
-                  checked={values.role_annonceur_api}
-                />
-                <label htmlFor="role-annonceur-api">API</label>
-              </div>
-              <div className="flex items-center gap-3">
-                <input
-                  type="checkbox"
-                  className="checkbox"
-                  id="role-annonceur-widget"
-                  name="role-annonceur-widget"
-                  onChange={(e) => setValues({ ...values, role_annonceur_widget: e.target.checked })}
-                  checked={values.role_annonceur_widget}
-                />
-                <label htmlFor="role-annonceur-widget">Widget</label>
-              </div>
-              <div className="flex items-center gap-3">
-                <input
-                  type="checkbox"
-                  className="checkbox"
-                  id="role-annonceur-campagne"
-                  name="role-annonceur-campagne"
-                  onChange={(e) => setValues({ ...values, role_annonceur_campagne: e.target.checked })}
-                  checked={values.role_annonceur_campagne}
-                />
-                <label htmlFor="role-annonceur-campagne">Campagne</label>
-              </div>
-            </div>
-          </div>
-
-          {(values.role_annonceur_api || values.role_annonceur_widget || values.role_annonceur_campagne) && (
+        <div className="grid grid-cols-2 gap-x- gap-y-5">
+          {/* {(values.role_annonceur_api || values.role_annonceur_widget || values.role_annonceur_campagne) && (
             <div className={`flex flex-col ${!values.role_promoteur ? "col-span-2" : ""}`}>
               <label className="mb-2 text-sm" htmlFor="publishers">
                 Je diffuse des missions de
@@ -331,9 +212,9 @@ const Edit = () => {
                 <div className="flex h-12 items-center border-b border-gray-border bg-gray-light px-4 text-left text-xs text-black">Aucun partenaire</div>
               )}
             </div>
-          )}
+          )} */}
 
-          {values.role_promoteur && (
+          {/* {values.role_promoteur && (
             <div className={`flex flex-col ${!(values.role_annonceur_api || values.role_annonceur_widget || values.role_annonceur_campagne) ? "col-span-2" : ""}`}>
               <label className="mb-2 text-sm" htmlFor="publishers">
                 Mes missions sont diffusées par
@@ -350,9 +231,9 @@ const Edit = () => {
                 <div className="flex h-12 items-center border-y border-gray-border bg-gray-light px-4 text-left text-xs text-black">Aucun partenaire</div>
               )}
             </div>
-          )}
+          )} */}
 
-          {(values.role_annonceur_api || values.role_annonceur_widget || values.role_annonceur_campagne) && (
+          {/* {(values.role_annonceur_api || values.role_annonceur_widget || values.role_annonceur_campagne) && (
             <div className="space-y-2">
               <label className="text-sm" htmlFor="excludeOrganisations">
                 Liste des organisations à exclure de la diffusion
@@ -379,9 +260,9 @@ const Edit = () => {
                 </div>
               )}
             </div>
-          )}
+          )} */}
 
-          <div className="col-span-2 flex flex-col">
+          {/* <div className="col-span-2 flex flex-col">
             <label className="mb-2 text-sm" htmlFor="publishers">
               Mes membres
             </label>
@@ -431,7 +312,7 @@ const Edit = () => {
             ) : (
               <div className="flex h-12 items-center border-y border-gray-border bg-gray-light px-4 text-left text-xs text-black">Aucun membre</div>
             )}
-          </div>
+          </div> */}
 
           <div className="col-span-2 flex flex-col">
             <label className="mb-2 text-sm" htmlFor="role-promoteur">
@@ -464,6 +345,10 @@ const Edit = () => {
             </div>
           </div>
           <div className="col-span-2 flex justify-end gap-6">
+            <button className="flex cursor-pointer items-center text-sm text-red-main" onClick={handleDelete}>
+              <TiDeleteOutline className="mr-2" />
+              <span>Supprimer</span>
+            </button>
             <button
               type="button"
               className="button border border-blue-dark bg-white text-blue-dark hover:bg-gray-hover"
@@ -478,6 +363,252 @@ const Edit = () => {
           </div>
         </div>
       </div>
+    </div>
+  );
+};
+
+const Informations = ({ values, onChange }) => {
+  return (
+    <div className="space-y-6">
+      <h2 className="text-3xl font-bold">Informations</h2>
+      <div className="grid grid-cols-2 gap-x-6 gap-y-8">
+        <div className="flex flex-col gap-2">
+          <label className="text-sm" htmlFor="name">
+            Nom
+            <span className="text-xs text-red-700">*</span>
+          </label>
+          <input id="name" className="input" name="name" disabled value={values.name} onChange={(e) => onChange({ ...values, name: e.target.value })} />
+        </div>
+
+        <div className="flex flex-col gap-2">
+          <label className="text-sm" htmlFor="email">
+            Email de contact
+          </label>
+          <input id="email" className="input" name="email" value={values.email} onChange={(e) => onChange({ ...values, email: e.target.value })} />
+        </div>
+        <div className="flex flex-col gap-2">
+          <label className="text-sm" htmlFor="url">
+            URL
+          </label>
+          <input id="url" className="input" name="url" value={values.url} onChange={(e) => onChange({ ...values, url: e.target.value })} />
+        </div>
+        <div className="flex flex-col gap-2">
+          <label className="text-sm" htmlFor="documentation">
+            Documentation
+          </label>
+          <input id="documentation" className="input" name="documentation" value={values.documentation} onChange={(e) => onChange({ ...values, documentation: e.target.value })} />
+        </div>
+
+        <div className="row-span-2 flex flex-col">
+          <label className="mb-2 text-sm" htmlFor="category">
+            Categorie
+          </label>
+          <select id="category" className="select" name="category" value={values.category} onChange={(e) => onChange({ ...values, category: e.target.value })}>
+            <option value="">Sélectionner une catégorie</option>
+            {Object.keys(PUBLISHER_CATEGORIES).map((key) => (
+              <option key={key} value={key}>
+                {PUBLISHER_CATEGORIES[key]}
+              </option>
+            ))}
+          </select>
+        </div>
+        <div className="row-span-2 flex flex-col">
+          <label className="mb-2 text-sm" htmlFor="documentation">
+            Description
+          </label>
+          <textarea
+            id="description"
+            rows={4}
+            className="input mb-2"
+            name="description"
+            value={values.description}
+            onChange={(e) => onChange({ ...values, description: e.target.value })}
+          />
+        </div>
+      </div>
+    </div>
+  );
+};
+
+const Settings = ({ values, onChange }) => {
+  return (
+    <div className="space-y-6">
+      <h2 className="text-3xl font-bold">Paramètres</h2>
+      <div className="grid grid-cols-2 gap-6">
+        <Annonceur values={values} onChange={onChange} />
+        <Diffuseurs values={values} onChange={onChange} />
+      </div>
+    </div>
+  );
+};
+
+const Annonceur = ({ values, onChange }) => {
+  const [annonceurs, setAnnonceurs] = useState([]);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const res = await api.post("/publisher/search", {
+          ids: values.publishers.map((p) => p.publisher),
+        });
+        if (!res.ok) throw res;
+        setAnnonceurs(res.data);
+      } catch (error) {
+        captureError(error, "Erreur lors de la récupération des diffuseurs");
+      }
+    };
+    fetchData();
+  }, [values.publishers]);
+
+  return (
+    <div className="border border-gray-border p-6 space-y-6">
+      <div className="flex items-center justify-between">
+        <h3 className="text-lg font-bold">Annonceur</h3>
+        <Toggle checked={values.role_promoteur} onChange={(e) => onChange({ ...values, role_promoteur: e.target.checked })} />
+      </div>
+      <div className="w-full h-px bg-gray-border" />
+      <div className="space-y-4">
+        <RadioInput
+          id="mission-type-benevolat"
+          name="mission-type"
+          value="benevolat"
+          label="Bénévolat"
+          size={24}
+          checked={values.mission_type === "benevolat"}
+          onChange={() => onChange({ ...values, mission_type: "benevolat" })}
+        />
+
+        <RadioInput
+          id="mission-type-volontariat"
+          name="mission-type"
+          value="volontariat"
+          label="Volontariat"
+          size={24}
+          checked={values.mission_type === "volontariat"}
+          onChange={() => onChange({ ...values, mission_type: "volontariat" })}
+        />
+      </div>
+      <div className="w-full h-px bg-gray-border" />
+      <Table header={[{ title: "Diffuseur" }]} className="h-96">
+        {annonceurs.map((item, index) => (
+          <tr key={index} className={`${index % 2 === 0 ? "bg-gray-100" : "bg-gray-50"} table-item`}>
+            <td className="p-4">{item.name}</td>
+          </tr>
+        ))}
+      </Table>
+    </div>
+  );
+};
+
+const Diffuseurs = ({ values, onChange }) => {
+  const [isDiffuseur, setIsDiffuseur] = useState(values.role_annonceur_api || values.role_annonceur_widget || values.role_annonceur_campagne);
+  const [diffuseurs, setDiffuseurs] = useState([]);
+
+  useEffect(() => {
+    setIsDiffuseur(values.role_annonceur_api || values.role_annonceur_widget || values.role_annonceur_campagne);
+
+    const fetchData = async () => {
+      try {
+        const res = await api.post("/publisher/search", {
+          partnersOf: values._id,
+          role_promoteur: true,
+        });
+        if (!res.ok) throw res;
+        setDiffuseurs(res.data);
+      } catch (error) {
+        captureError(error, "Erreur lors de la récupération des diffuseurs");
+      }
+    };
+    fetchData();
+  }, [values.publishers, values.role_annonceur_api, values.role_annonceur_widget, values.role_annonceur_campagne]);
+
+  return (
+    <div className="border border-gray-border p-6 space-y-6">
+      <div className="flex items-center justify-between">
+        <h3 className="text-lg font-bold">Diffuseurs</h3>
+        <Toggle checked={isDiffuseur} onChange={(e) => setIsDiffuseur(e.target.checked)} />
+      </div>
+      <div className="w-full h-px bg-gray-border" />
+      <div className="space-y-4">
+        <div className="flex items-center gap-2">
+          <input
+            type="checkbox"
+            className="checkbox"
+            id="role-annonceur-api"
+            name="role-annonceur-api"
+            onChange={(e) => onChange({ ...values, role_annonceur_api: e.target.checked })}
+            checked={values.role_annonceur_api}
+          />
+          <label htmlFor="role-annonceur-api">API</label>
+        </div>
+        <div className="flex items-center gap-2">
+          <input
+            type="checkbox"
+            className="checkbox"
+            id="role-annonceur-widget"
+            name="role-annonceur-widget"
+            onChange={(e) => onChange({ ...values, role_annonceur_widget: e.target.checked })}
+            checked={values.role_annonceur_widget}
+          />
+          <label htmlFor="role-annonceur-widget">Widgets</label>
+        </div>
+        <div className="flex items-center gap-2">
+          <input
+            type="checkbox"
+            className="checkbox"
+            id="role-annonceur-campagne"
+            name="role-annonceur-campagne"
+            onChange={(e) => onChange({ ...values, role_annonceur_campagne: e.target.checked })}
+            checked={values.role_annonceur_campagne}
+          />
+          <label htmlFor="role-annonceur-campagne">Campagnes</label>
+        </div>
+      </div>
+      <div className="w-full h-px bg-gray-border" />
+      <Table header={[{ title: "Diffuseur" }]} className="h-96">
+        {diffuseurs.map((item, index) => (
+          <tr key={index} className={`${index % 2 === 0 ? "bg-gray-100" : "bg-gray-50"} table-item`}>
+            <td className="p-4">{item.name}</td>
+          </tr>
+        ))}
+      </Table>
+    </div>
+  );
+};
+
+const Members = ({ values, onChange }) => {
+  const [members, setMembers] = useState([]);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const res = await api.post("/user/search", {
+          publisherId: values._id,
+        });
+        if (!res.ok) throw res;
+        setMembers(res.data);
+      } catch (error) {
+        captureError(error, "Erreur lors de la récupération des membres");
+      }
+    };
+    fetchData();
+  }, [values._id]);
+
+  return (
+    <div className="space-y-6">
+      <h2 className="text-3xl font-bold">Membres</h2>
+      <Table header={[{ title: "Membre" }, { title: "Email" }, { title: "Envoyer le rapport" }, { title: "Rôle" }]} className="h-96">
+        {members.map((item, index) => (
+          <tr key={index} className={`${index % 2 === 0 ? "bg-gray-100" : "bg-gray-50"} table-item`}>
+            <td className="p-4">{`${item.firstname} ${item.lastname}`}</td>
+            <td className="p-4">{item.email}</td>
+            <td className="p-4">
+              <input type="checkbox" className="checkbox" />
+            </td>
+            <td className="p-4">{item.role}</td>
+          </tr>
+        ))}
+      </Table>
     </div>
   );
 };

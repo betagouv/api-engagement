@@ -28,7 +28,7 @@ router.get("/", passport.authenticate("user", { session: false }), async (req: U
 
     if (errorQuery) return res.status(400).send({ ok: false, code: INVALID_QUERY, message: errorQuery.details });
 
-    const where = { deleted_at: null } as { [key: string]: any };
+    const where = { deletedAt: null } as { [key: string]: any };
     if (query.search) where.name = { $regex: "^" + query.search, $options: "i" };
     if (query.partnersOf) {
       if (user.role !== "admin" && !user.publishers.find((e: string) => e === query.partnersOf))
@@ -66,7 +66,7 @@ router.post("/search", passport.authenticate("user", { session: false }), async 
 
     if (!body.success) return res.status(400).send({ ok: false, code: INVALID_BODY, error: body.error });
 
-    const where = { deleted_at: null } as { [key: string]: any };
+    const where = { deletedAt: null } as { [key: string]: any };
     if (body.data.role_promoteur) where.role_promoteur = body.data.role_promoteur;
     if (body.data.name) where.name = { $regex: `.*${body.data.name}.*`, $options: "i" };
     if (body.data.ids) where._id = { $in: body.data.ids };
@@ -284,7 +284,7 @@ router.delete("/:id", passport.authenticate("admin", { session: false }), async 
       users[i].save();
     }
 
-    publisher.deleted_at = new Date();
+    publisher.deletedAt = new Date();
     await publisher.save();
 
     res.status(200).send({ ok: true });

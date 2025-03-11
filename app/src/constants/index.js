@@ -180,3 +180,14 @@ export const REPORT_STATUS = {
   NOT_SENT_ERROR_SENDING: "Erreur lors de l'envoi du rapport",
   SENT: "Envoyé",
 };
+
+export const PUBLISHER_CATEGORIES = {
+  publics_services: "Services publics",
+  associations: "Associations",
+  territorial_collectivities: "Collectivités territoriales",
+  private_organizations: "Organisations privées",
+  schools_and_universities: "Écoles & universités",
+  media: "Médias",
+  engagement_platforms: "Plateformes d’engagement",
+  employment_platforms: "Plateformes d’emploi",
+};

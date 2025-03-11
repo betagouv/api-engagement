@@ -344,6 +344,7 @@ export type Publisher = {
   _id: Schema.Types.ObjectId;
   name: string;
   status: string;
+  category: string;
   automated_report: boolean;
   send_report_to: string[];
   mission_type: string | null;
@@ -368,14 +369,20 @@ export type Publisher = {
     moderator?: boolean;
   }[];
   excludeOrganisations: string[];
+  excludedOrganisations: string[];
   description: string;
   lead: string;
-  deleted_at: Date;
-  created_at: Date;
-  updated_at: Date;
+  deletedAt: Date;
+  createdAt: Date;
+  updatedAt: Date;
+
+  // Deprecated
   lastFetchAt: Date;
   acceptedCount: number;
   refusedCount: number;
+  created_at: Date;
+  updated_at: Date;
+  deleted_at: Date;
 };
 
 export interface Report {

@@ -1,11 +1,11 @@
 import { useRef, useState } from "react";
 
-const RadioInput = ({ id, name, value, label, checked, onChange }) => {
+const RadioInput = ({ id, name, value, label, checked, onChange, size = 16 }) => {
   const ref = useRef();
   const [isFocused, setIsFocused] = useState(false);
 
   return (
-    <div className="flex items-center gap-2 relative">
+    <div className={`flex items-center gap-2 relative`}>
       <input
         ref={ref}
         id={id}
@@ -16,10 +16,13 @@ const RadioInput = ({ id, name, value, label, checked, onChange }) => {
         onChange={onChange}
         onFocus={() => setIsFocused(true)}
         onBlur={() => setIsFocused(false)}
-        className="opacity-0 absolute w-4 h-4"
+        className="opacity-0 absolute w-full h-full"
       />
-      <div className={`w-4 h-4 border border-blue-dark rounded-full flex items-center justify-center ${isFocused ? "ring-offset-2 ring-2 ring-[#0a76f6]" : ""}`}>
-        {checked && <div className="w-1.5 h-1.5 bg-blue-dark rounded-full"></div>}
+      <div
+        className={`border border-blue-dark rounded-full flex items-center justify-center ${isFocused ? "ring-offset-2 ring-2 ring-[#0a76f6]" : ""}`}
+        style={{ width: `${size}px`, height: `${size}px` }}
+      >
+        {checked && <div className="w-3/5 h-3/5 bg-blue-dark rounded-full" />}
       </div>
       <label htmlFor={id} className="flex-1 text-sm text-black">
         {label}
