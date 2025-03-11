@@ -218,5 +218,19 @@ schema.index({
   remote: 1,
 });
 
+schema.index({
+  departmentName: 1,
+  statusCode: 1,
+  deleted: 1,
+  publisherId: 1,
+});
+
+schema.index({
+  domain: 1,
+  statusCode: 1,
+  deleted: 1,
+  publisherId: 1,
+});
+
 const MissionModel = model<Mission>(MODELNAME, schema);
 export default MissionModel;
