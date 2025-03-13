@@ -97,7 +97,7 @@ const View = () => {
             </div>
             <div className="flex flex-wrap items-center">
               <p className="text-xs font-semibold uppercase text-gray-dark">Compétences</p>
-              {(mission.soft_skills || []).map((skill, index) => (
+              {(mission.softSkills || []).map((skill, index) => (
                 <span key={index} className="my-1 ml-3 rounded bg-orange-light px-3 py-1 text-xs font-semibold uppercase text-orange-dark">
                   {skill}
                 </span>

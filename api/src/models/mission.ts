@@ -46,6 +46,7 @@ const schema = new Schema<Mission>(
     tasks: { type: [String] },
     audience: { type: [String] },
     soft_skills: { type: [String] },
+    softSkills: { type: [String] },
     reducedMobilityAccessible: { type: String, enum: ["yes", "no"], default: "no" },
     closeToTransport: { type: String, enum: ["yes", "no"], default: "no" },
     openToMinors: { type: String, enum: ["yes", "no"], default: "no" },
@@ -182,8 +183,6 @@ schema.index({ publisherId: 1 });
 schema.index({ clientId: 1, publisherId: 1 }, { unique: true });
 schema.index({ createdAt: 1 });
 schema.index({ publisherName: 1 });
-schema.index({ startAt: 1 });
-schema.index({ duration: 1 });
 schema.index({ deleted: 1 });
 schema.index({ deletedAt: 1 });
 schema.index({ statusCode: 1 });
@@ -195,10 +194,6 @@ schema.index({ remote: 1 });
 schema.index({ schedule: 1 });
 schema.index({ activity: 1 });
 schema.index({ organizationActions: 1 });
-schema.index({ organizationBeneficiaries: 1 });
-schema.index({ openToMinors: 1 });
-schema.index({ reducedMobilityAccessible: 1 });
-schema.index({ closeToTransport: 1 });
 schema.index({ city: 1 });
 schema.index({ country: 1 });
 schema.index({ departmentName: 1 });
@@ -206,6 +201,36 @@ schema.index({ organizationName: 1 });
 schema.index({ organizationRNA: 1 });
 schema.index({ geoPoint: "2dsphere" });
 schema.index({ "addresses.geoPoint": "2dsphere" });
+
+// Compound indexes for the search
+schema.index({
+  statusCode: 1,
+  deleted: 1,
+  publisherId: 1,
+  moderation_5f5931496c7ea514150a818f_status: 1,
+});
+
+schema.index({
+  "addresses.geoPoint": "2dsphere",
+  statusCode: 1,
+  deleted: 1,
+  publisherId: 1,
+  remote: 1,
+});
+
+schema.index({
+  departmentName: 1,
+  statusCode: 1,
+  deleted: 1,
+  publisherId: 1,
+});
+
+schema.index({
+  domain: 1,
+  statusCode: 1,
+  deleted: 1,
+  publisherId: 1,
+});
 
 const MissionModel = model<Mission>(MODELNAME, schema);
 export default MissionModel;
