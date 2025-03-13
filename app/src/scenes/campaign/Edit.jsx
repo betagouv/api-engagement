@@ -220,7 +220,7 @@ const Edit = () => {
               <span>Supprimer</span>
             </button>
             <div className="flex items-center">
-              <Toggle checked={activated} setChecked={handleArchive} />
+              <Toggle value={activated} onChange={handleArchive} />
               <label className="ml-2 text-blue-dark">{activated ? "Activée" : "Désactivée"}</label>
             </div>
           </div>
@@ -322,8 +322,8 @@ const Edit = () => {
           </div>
           <div className="flex items-center">
             <Toggle
-              checked={values.trackers && values.trackers.length > 0}
-              setChecked={(v) => {
+              value={values.trackers && values.trackers.length > 0}
+              onChange={(v) => {
                 if (v) setValues({ ...values, trackers: [{ key: "", value: "" }] });
                 else setValues({ ...values, trackers: [], url: values.url.split("?")[0] });
               }}

@@ -133,7 +133,7 @@ const Edit = () => {
         </div>
         <div className="flex items-center gap-6">
           <div className="flex flex-col items-end">
-            <Toggle checked={widget.active} setChecked={(value) => handleActivate(value)} />
+            <Toggle value={widget.active} onChange={(value) => handleActivate(value)} />
             <label className="text-blue-dark text-xs">{widget.active ? "Actif" : "Inactif"}</label>
           </div>
           <button type="submit" className="filled-button" onClick={handleSubmit} ref={(node) => setSaveButton(node)} disabled={!canSubmit()}>
@@ -469,7 +469,7 @@ const Settings = ({ widget, values, setValues, loading }) => {
         <div className="mt-6 flex items-center justify-between w-[50%]">
           <div> Afficher uniquement les missions modérées par JeVeuxAider.gouv.fr</div>
           <div className="flex items-center gap-4">
-            <Toggle checked={values.jvaModeration} setChecked={(value) => setValues({ ...values, jvaModeration: value })} />
+            <Toggle value={values.jvaModeration} onChange={(value) => setValues({ ...values, jvaModeration: value })} />
             <img src={JvaLogoSvg} className="w-16 ml-4" />
           </div>
         </div>
@@ -719,7 +719,7 @@ const StickyBar = ({ onEdit, visible, widget, handleActivate, canSubmit }) => {
         <h1 className="text-2xl font-bold">Modifier un widget</h1>
         <div className="flex items-center gap-6">
           <div className="flex flex-col items-end">
-            <Toggle checked={widget.active} setChecked={(value) => handleActivate(value)} />
+            <Toggle value={widget.active} onChange={(value) => handleActivate(value)} />
             <label className="text-blue-dark text-xs">{widget.active ? "Actif" : "Inactif"}</label>
           </div>
           <button type="button" className="filled-button" onClick={onEdit} disabled={!canSubmit()}>

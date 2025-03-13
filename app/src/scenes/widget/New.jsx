@@ -462,7 +462,7 @@ const Settings = ({ values, setValues, errors }) => {
         <div className="mt-6 flex items-center justify-between w-[50%]">
           <div> Afficher uniquement les missions modérées par JeVeuxAider.gouv.fr</div>
           <div className="flex items-center gap-4">
-            <Toggle checked={values.jvaModeration} setChecked={(value) => setValues({ ...values, jvaModeration: value })} />
+            <Toggle value={values.jvaModeration} onChange={(value) => setValues({ ...values, jvaModeration: value })} />
             <img src={JvaLogoSvg} className="w-16 ml-4" />
           </div>
         </div>
