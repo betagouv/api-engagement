@@ -129,7 +129,7 @@ const Campaigns = () => {
           <div>
             {user.role === "admin" && (
               <div className="mt-3 flex items-center">
-                <Toggle checked={!filters.active} setChecked={(checked) => setFilters({ ...filters, active: !checked, page: 1 })} />
+                <Toggle value={!filters.active} onChange={(checked) => setFilters({ ...filters, active: !checked, page: 1 })} />
                 <label className="ml-2">Afficher les campagnes désactivées</label>
               </div>
             )}
@@ -160,7 +160,7 @@ const Campaigns = () => {
               </td>
               {user.role === "admin" && (
                 <td className="px-4">
-                  <Toggle checked={item.active} setChecked={(v) => handleActivate(v, item)} />
+                  <Toggle value={item.active} onChange={(v) => handleActivate(v, item)} />
                 </td>
               )}
             </tr>

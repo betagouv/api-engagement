@@ -223,8 +223,8 @@ const Create = () => {
           </div>
           <div className="flex items-center">
             <Toggle
-              checked={values.trackers && values.trackers.length > 0}
-              setChecked={(v) => {
+              value={values.trackers && values.trackers.length > 0}
+              onChange={(v) => {
                 if (v) setValues({ ...values, trackers: [{ key: "", value: "" }] });
                 else setValues({ ...values, trackers: [], url: values.url.split("?")[0] });
               }}

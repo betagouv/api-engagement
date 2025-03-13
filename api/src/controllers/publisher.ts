@@ -113,20 +113,7 @@ router.get("/:id", passport.authenticate("user", { session: false }), async (req
 
 router.post("/", passport.authenticate("admin", { session: false }), async (req: UserRequest, res: Response, next: NextFunction) => {
   try {
-    const { error: errorBody, value: body } = Joi.object({
-      name: Joi.string().required().trim(),
-      email: Joi.string().allow("").optional(),
-      url: Joi.string().allow("").optional(),
-      documentation: Joi.string().allow("").optional(),
-      description: Joi.string().allow("").optional(),
-      role_annonceur_api: Joi.boolean(),
-      role_annonceur_campagne: Joi.boolean(),
-      role_annonceur_widget: Joi.boolean(),
-      role_promoteur: Joi.boolean(),
-      mission_type: Joi.string().allow("").allow(null).optional(),
-    }).validate(req.body);
-
-    if (errorBody) return res.status(400).send({ ok: false, code: INVALID_BODY, message: errorBody.details });
+    const body = req.body;
 
     const exists = await PublisherModel.exists({ name: body.name });
     if (exists) return res.status(409).send({ ok: false, code: RESSOURCE_ALREADY_EXIST, message: `Publisher ${body.name} already exists` });
@@ -228,6 +215,7 @@ router.put("/:id", passport.authenticate("admin", { session: false }), async (re
         url: zod.string().optional(),
         email: zod.string().optional(),
         feed: zod.string().optional(),
+        category: zod.string().optional(),
       })
       .passthrough()
       .safeParse(req.body);
@@ -246,7 +234,10 @@ router.put("/:id", passport.authenticate("admin", { session: false }), async (re
     if (body.data.role_annonceur_campagne !== undefined) publisher.role_annonceur_campagne = body.data.role_annonceur_campagne;
 
     if (!(publisher.role_annonceur_api || publisher.role_annonceur_widget || publisher.role_annonceur_campagne)) publisher.publishers = [];
-    else if (body.data.publishers) publisher.publishers = body.data.publishers;
+    else if (body.data.publishers) {
+      const uniqueIds = new Set(body.data.publishers.map((p) => p.publisher));
+      publisher.publishers = body.data.publishers.filter((p) => uniqueIds.has(p.publisher));
+    }
 
     if (body.data.excludeOrganisations) publisher.excludeOrganisations = body.data.excludeOrganisations;
     if (body.data.documentation) publisher.documentation = body.data.documentation;
@@ -257,7 +248,7 @@ router.put("/:id", passport.authenticate("admin", { session: false }), async (re
     if (body.data.url) publisher.url = body.data.url;
     if (body.data.email) publisher.email = body.data.email;
     if (body.data.feed) publisher.feed = body.data.feed;
-
+    if (body.data.category) publisher.category = body.data.category;
     await publisher.save();
 
     res.status(200).send({ ok: true, data: publisher });

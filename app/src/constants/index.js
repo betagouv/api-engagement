@@ -182,12 +182,13 @@ export const REPORT_STATUS = {
 };
 
 export const PUBLISHER_CATEGORIES = {
-  publics_services: "Services publics",
-  associations: "Associations",
-  territorial_collectivities: "Collectivités territoriales",
-  private_organizations: "Organisations privées",
-  schools_and_universities: "Écoles & universités",
-  media: "Médias",
-  engagement_platforms: "Plateformes d’engagement",
-  employment_platforms: "Plateformes d’emploi",
+  PUBLICS_SERVICES: "Services publics",
+  ASSOCIATIONS: "Associations",
+  TERRITORIAL_COLLECTIVITIES: "Collectivités territoriales",
+  PRIVATE_ORGANIZATIONS: "Organisations privées",
+  SCHOOLS_AND_UNIVERSITIES: "Écoles & universités",
+  MEDIA: "Médias",
+  ENGAGEMENT_PLATFORMS: "Plateformes d'engagement",
+  EMPLOYMENT_PLATFORMS: "Plateformes d'emploi",
+  OTHER: "Autre",
 };
