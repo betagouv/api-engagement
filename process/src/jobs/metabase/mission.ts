@@ -16,7 +16,7 @@ const buildData = async (doc: MongoMission, partners: { [key: string]: string })
   const organization = doc.organizationId ? await prisma.organization.findUnique({ where: { old_id: doc.organizationId } }) : null;
 
   const obj = {
-    old_id: doc._id?.toString(),
+    old_id: doc._id.toString(),
 
     title: doc.title,
     client_id: doc.clientId,
@@ -113,7 +113,7 @@ const buildData = async (doc: MongoMission, partners: { [key: string]: string })
   const addresses: PgAddress[] = doc.addresses.map(
     (address) =>
       ({
-        old_id: address._id?.toString(),
+        old_id: address._id.toString(),
         street: address.street,
         city: address.city,
         postal_code: address.postalCode,
@@ -179,37 +179,39 @@ const handler = async () => {
       console.log(`[Missions] ${dataToCreate.length} docs to create, ${dataToUpdate.length} docs to update.`);
       // Create data
       if (dataToCreate.length) {
-        const data = dataToCreate.map((d) => ({ ...d.mission, addresses: { create: d.addresses } }));
-        const res = await prisma.mission.createMany({ data, skipDuplicates: true });
-        created += res.count;
-        console.log(`[Missions] Created ${res.count} docs, ${created} created so far.`);
+        const res = await prisma.mission.createManyAndReturn({ data: dataToCreate.map((e) => e.mission), skipDuplicates: true });
+        console.log(`[Missions] Created ${res.length} missions, ${created} created so far.`);
+        const pgCreateAddresses = dataToCreate
+          .map((e) => {
+            const mission = res.find((r) => r.old_id === e.mission.old_id);
+            if (!mission) return [];
+            e.addresses.forEach((a) => (a.mission_id = mission.id));
+            return e.addresses;
+          })
+          .flat();
+        const resAddresses = await prisma.address.createMany({ data: pgCreateAddresses });
+        console.log(`[Missions] Created ${resAddresses.count} addresses`);
+        created += res.length;
       }
       // Update data
       if (dataToUpdate.length) {
-        const transactions = [];
         for (const obj of dataToUpdate) {
-          transactions.push(
-            prisma.mission.update({
+          try {
+            const mission = await prisma.mission.upsert({
               where: { old_id: obj.mission.old_id },
-              data: {
-                ...obj.mission,
-                addresses: {
-                  deleteMany: {}, // Delete all existing addresses
-                  create: obj.addresses, // Create new addresses
-                },
-              },
-            }),
-          );
+              update: obj.mission,
+              create: obj.mission,
+            });
+            await prisma.address.deleteMany({ where: { mission_id: mission.id } });
+            await prisma.address.createMany({ data: obj.addresses.map((e) => ({ ...e, mission_id: mission.id })) });
+            updated += 1;
+          } catch (error) {
+            console.error(error, obj.mission.old_id);
+          }
         }
-        for (let i = 0; i < transactions.length; i += 100) {
-          await prisma.$transaction(transactions.slice(i, i + 100));
-        }
-
-        updated += dataToUpdate.length;
         console.log(`[Missions] Updated ${dataToUpdate.length} docs, ${updated} updated so far.`);
       }
       offset += BULK_SIZE;
-      // break;
     }
 
     console.log(`[Missions] Ended at ${new Date().toISOString()} in ${(Date.now() - start.getTime()) / 1000}s.`);

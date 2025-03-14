@@ -9,6 +9,7 @@ import { verifyOrganization } from "./organization";
 import { enrichWithGeoloc } from "./geoloc";
 import { Import, Mission, MissionXML, Publisher } from "../../types";
 import MissionModel from "../../models/mission";
+import { bulkDB } from "./utils/db";
 
 const parseXML = (xmlString: string) => {
   const parser = new XMLParser();
@@ -63,7 +64,10 @@ const buildData = async (startTime: Date, publisher: Publisher, missionXML: Miss
     const missionDB = (await MissionModel.findOne({ publisherId: publisher._id, clientId: missionXML.clientId }).lean()) as Mission;
 
     const mission = buildMission(publisher, missionXML);
-    mission._id = missionDB?._id;
+    if (missionDB) {
+      mission._id = missionDB._id;
+      mission.createdAt = missionDB.createdAt;
+    }
     mission.deleted = false;
     mission.deletedAt = null;
     mission.lastSyncAt = startTime;
@@ -93,25 +97,6 @@ const buildData = async (startTime: Date, publisher: Publisher, missionXML: Miss
   } catch (err) {
     captureException(err, `Error while parsing mission ${missionXML.clientId}`);
   }
-};
-
-const bulkDB = async (bulk: Mission[], publisher: Publisher, importDoc: Import) => {
-  // Write in mongo
-  const mongoBulk = bulk.filter((e) => e).map((e) => ({ updateOne: { filter: { publisherId: publisher._id, clientId: e.clientId }, update: { $set: e }, upsert: true } }));
-  const mongoUpdateRes = await MissionModel.bulkWrite(mongoBulk);
-  importDoc.createdCount = mongoUpdateRes.upsertedCount;
-  importDoc.updatedCount = mongoUpdateRes.modifiedCount;
-  console.log(`[${publisher.name}] Mongo bulk write created ${importDoc.createdCount}, updated ${importDoc.updatedCount}`);
-  if (mongoUpdateRes.hasWriteErrors()) captureException(`Mongo bulk failed`, JSON.stringify(mongoUpdateRes.getWriteErrors(), null, 2));
-
-  // Clean mongo
-  console.log(`[${publisher.name}] Cleaning Mongo missions...`);
-  const mongoDeleteRes = await MissionModel.updateMany(
-    { publisherId: publisher._id, deletedAt: null, updatedAt: { $lt: importDoc.startedAt } },
-    { deleted: true, deletedAt: importDoc.startedAt },
-  );
-  importDoc.deletedCount = mongoDeleteRes.modifiedCount;
-  console.log(`[${publisher.name}] Mongo cleaning removed ${importDoc.deletedCount}`);
 };
 
 const importPublisher = async (publisher: Publisher, start: Date) => {

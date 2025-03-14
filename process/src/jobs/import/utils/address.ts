@@ -1,4 +1,4 @@
-import { AddressItem, Mission, MissionXML } from "../../../types";
+import { Address, Mission, MissionXML } from "../../../types";
 import { DEPARTMENTS } from "../../../constants/departments";
 
 const parseString = (value: string | undefined) => {
@@ -121,7 +121,7 @@ export const getAddresses = (mission: Mission, missionXML: MissionXML) => {
   mission.addresses = [];
 
   for (const address of missionXML.addresses) {
-    const addressItem: AddressItem = {
+    const addressItem: Address = {
       street: parseString(address.street),
       city: parseString(address.city),
       postalCode: "",
