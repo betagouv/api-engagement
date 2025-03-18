@@ -7,7 +7,7 @@ import esClient from "../db/elastic";
 import { captureMessage, INVALID_PARAMS, INVALID_QUERY, NOT_FOUND } from "../error";
 import MissionModel from "../models/mission";
 import RequestModel from "../models/request";
-import { Mission, Stats } from "../types";
+import { Mission, Publisher, Stats } from "../types";
 import { PublisherRequest } from "../types/passport";
 import { diacriticSensitiveRegex, EARTH_RADIUS, getDistanceFromLatLonInKm, getDistanceKm } from "../utils";
 
@@ -39,6 +39,8 @@ router.use(async (req: PublisherRequest, res: Response, next: NextFunction) => {
 
 router.get("/", passport.authenticate(["apikey", "api"], { session: false }), async (req: PublisherRequest, res: Response, next: NextFunction) => {
   try {
+    const user = req.user as Publisher;
+
     const query = zod
       .object({
         activity: zod.union([zod.string(), zod.array(zod.string())]).optional(),
@@ -71,7 +73,7 @@ router.get("/", passport.authenticate(["apikey", "api"], { session: false }), as
       return res.status(400).send({ ok: false, code: INVALID_QUERY, message: query.error });
     }
 
-    if (!req.user.publishers || !req.user.publishers.length) {
+    if (!user.publishers || !user.publishers.length) {
       res.locals = { code: NO_PARTNER, message: NO_PARTNER_MESSAGE };
       return res.status(400).send({ ok: false, code: NO_PARTNER, message: NO_PARTNER_MESSAGE });
     }
@@ -79,7 +81,8 @@ router.get("/", passport.authenticate(["apikey", "api"], { session: false }), as
     const where = {
       statusCode: "ACCEPTED",
       deletedAt: null,
-      organizationName: { $nin: req.user.excludeOrganisations || [] },
+      organizationName: { $nin: user.excludeOrganisations || [] },
+      organizationClientId: { $nin: user.publishers.map((e: { excludedOrganisations: string[] }) => e.excludedOrganisations || []).flat() },
     } as { [key: string]: any };
 
     if (query.data.publisher) {
@@ -87,14 +90,14 @@ router.get("/", passport.authenticate(["apikey", "api"], { session: false }), as
       else if (!Array.isArray(query.data.publisher)) query.data.publisher = [query.data.publisher.trim()];
       else query.data.publisher = query.data.publisher.map((e: string) => e.trim());
 
-      query.data.publisher = query.data.publisher.filter((e: string) => req.user.publishers.some((p: { publisher: string }) => p.publisher === e));
+      query.data.publisher = query.data.publisher.filter((e: string) => user.publishers.some((p: { publisher: string }) => p.publisher === e));
       where.publisherId = { $in: query.data.publisher };
     } else {
-      where.publisherId = { $in: req.user.publishers.map((e: { publisher: string }) => e.publisher) };
+      where.publisherId = { $in: user.publishers.map((e: { publisher: string }) => e.publisher) };
     }
-    if (req.user.moderator) where[`moderation_${req.user._id}_status`] = "ACCEPTED";
+    if (user.moderator) where[`moderation_${user._id}_status`] = "ACCEPTED";
     // Special case for Bouygues Telecom
-    if (req.user._id.toString() === "616fefd119fb03075a0b0843") where.organizationName = { $ne: "APF France handicap - Délégations de Haute-Saône et du Territoire de Belfort" };
+    if (user._id.toString() === "616fefd119fb03075a0b0843") where.organizationName = { $ne: "APF France handicap - Délégations de Haute-Saône et du Territoire de Belfort" };
 
     if (query.data.activity) where.activity = buildArrayQuery(query.data.activity);
     if (query.data.city) where["addresses.city"] = buildArrayQuery(query.data.city);
@@ -132,6 +135,7 @@ router.get("/", passport.authenticate(["apikey", "api"], { session: false }), as
     // Clean old query params
     if (req.query.size && query.data.limit === 10000) query.data.limit = parseInt(req.query.size as string, 10);
     if (req.query.from && query.data.skip === 0) query.data.skip = parseInt(req.query.from as string, 10);
+
     const data = await MissionModel.find(where).skip(query.data.skip).limit(query.data.limit).lean();
 
     if (where["addresses.geoPoint"]) where["addresses.geoPoint"] = nearSphereToGeoWithin(where["addresses.geoPoint"].$nearSphere);
@@ -148,6 +152,8 @@ router.get("/", passport.authenticate(["apikey", "api"], { session: false }), as
 
 router.get("/search", passport.authenticate(["apikey", "api"], { session: false }), async (req: PublisherRequest, res: Response, next: NextFunction) => {
   try {
+    const user = req.user as Publisher;
+
     const query = zod
       .object({
         activity: zod.union([zod.string(), zod.array(zod.string())]).optional(),
@@ -181,7 +187,7 @@ router.get("/search", passport.authenticate(["apikey", "api"], { session: false 
       return res.status(400).send({ ok: false, code: INVALID_QUERY, message: query.error });
     }
 
-    if (!req.user.publishers || !req.user.publishers.length) {
+    if (!user.publishers || !user.publishers.length) {
       res.locals = { code: NO_PARTNER, message: NO_PARTNER_MESSAGE };
       return res.status(400).send({ ok: false, code: NO_PARTNER, message: NO_PARTNER_MESSAGE });
     }
@@ -189,7 +195,8 @@ router.get("/search", passport.authenticate(["apikey", "api"], { session: false 
     const where = {
       statusCode: "ACCEPTED",
       deletedAt: null,
-      organizationName: { $nin: req.user.excludeOrganisations || [] },
+      organizationName: { $nin: user.excludeOrganisations || [] },
+      organizationClientId: { $nin: user.publishers.map((e: { excludedOrganisations: string[] }) => e.excludedOrganisations || []).flat() },
     } as { [key: string]: any };
 
     if (query.data.publisher) {
@@ -197,12 +204,12 @@ router.get("/search", passport.authenticate(["apikey", "api"], { session: false 
       else if (!Array.isArray(query.data.publisher)) query.data.publisher = [query.data.publisher.trim()];
       else query.data.publisher = query.data.publisher.map((e: string) => e.trim());
 
-      query.data.publisher = query.data.publisher.filter((e: string) => req.user.publishers.some((p: { publisher: string }) => p.publisher === e));
+      query.data.publisher = query.data.publisher.filter((e: string) => user.publishers.some((p: { publisher: string }) => p.publisher === e));
       where.publisherId = { $in: query.data.publisher };
     } else {
-      where.publisherId = { $in: req.user.publishers.map((e: { publisher: string }) => e.publisher) };
+      where.publisherId = { $in: user.publishers.map((e: { publisher: string }) => e.publisher) };
     }
-    if (req.user.moderator) where[`moderation_${req.user._id}_status`] = "ACCEPTED";
+    if (user.moderator) where[`moderation_${user._id}_status`] = "ACCEPTED";
 
     if (query.data.activity) where.activity = buildArrayQuery(query.data.activity);
     if (query.data.city) where["addresses.city"] = buildArrayQuery(query.data.city);
@@ -271,7 +278,7 @@ router.get("/search", passport.authenticate(["apikey", "api"], { session: false 
       ok: true,
       total,
       hits: data.map((e: Mission) => ({
-        ...buildData(e, req.user._id, req.user.moderator),
+        ...buildData(e, user._id.toString(), user.moderator),
         _distance: getDistanceFromLatLonInKm(query.data.lat, query.data.lon, e.addresses[0]?.location?.lat, e.addresses[0]?.location?.lon),
       })),
       facets: {
@@ -311,6 +318,8 @@ const findMissionTemp = async (missionId: string) => {
 
 router.get("/:id", passport.authenticate(["apikey", "api"], { session: false }), async (req: PublisherRequest, res: Response, next: NextFunction) => {
   try {
+    const user = req.user as Publisher;
+
     const params = zod
       .object({
         id: zod.string(),
@@ -327,7 +336,7 @@ router.get("/:id", passport.authenticate(["apikey", "api"], { session: false }),
     if (!mission) return res.status(404).send({ ok: false, code: NOT_FOUND });
 
     res.locals = { total: 1 };
-    return res.status(200).send({ ok: true, data: buildData(mission, req.user._id, req.user.moderator) });
+    return res.status(200).send({ ok: true, data: buildData(mission, user._id.toString(), user.moderator) });
   } catch (error: any) {
     next(error);
   }

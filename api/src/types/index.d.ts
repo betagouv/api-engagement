@@ -340,7 +340,7 @@ export type ModerationEvent = {
   createdAt: Date;
 };
 
-export type Publisher = {
+export interface Publisher {
   _id: Schema.Types.ObjectId;
   name: string;
   status: string;
@@ -361,12 +361,18 @@ export type Publisher = {
   feed: string;
   apikey: string | null;
   lastSyncAt: Date;
+  broadcasters: string[];
   publishers: {
-    publisher: string;
+    _id?: Schema.Types.ObjectId;
+    publisherId: string;
     publisherName: string;
-    publisherLogo?: string;
-    mission_type?: string;
-    moderator?: boolean;
+    moderator: boolean;
+    missionType: string | null;
+    excludedOrganisations: string[];
+
+    // Old to migrate
+    publisher: string; // publisherId
+    mission_type?: string | null; // missionType
   }[];
   excludeOrganisations: string[];
   excludedOrganisations: string[];
@@ -383,7 +389,7 @@ export type Publisher = {
   created_at: Date;
   updated_at: Date;
   deleted_at: Date;
-};
+}
 
 export interface Report {
   _id: Schema.Types.ObjectId;

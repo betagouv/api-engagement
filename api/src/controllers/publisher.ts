@@ -52,7 +52,7 @@ router.get("/", passport.authenticate("user", { session: false }), async (req: U
   }
 });
 
-router.post("/search", passport.authenticate("user", { session: false }), async (req: UserRequest, res: Response, next: NextFunction) => {
+router.post("/search", passport.authenticate("admin", { session: false }), async (req: UserRequest, res: Response, next: NextFunction) => {
   try {
     const body = zod
       .object({
@@ -201,7 +201,8 @@ router.put("/:id", passport.authenticate("admin", { session: false }), async (re
               publisher: zod.string(),
               publisherName: zod.string(),
               publisherLogo: zod.string().optional(),
-              mission_type: zod.string().optional(),
+              mission_type: zod.string().nullable().optional(),
+              excludedOrganisations: zod.array(zod.string()).optional(),
               moderator: zod.boolean().optional(),
             }),
           )
@@ -236,7 +237,15 @@ router.put("/:id", passport.authenticate("admin", { session: false }), async (re
     if (!(publisher.role_annonceur_api || publisher.role_annonceur_widget || publisher.role_annonceur_campagne)) publisher.publishers = [];
     else if (body.data.publishers) {
       const uniqueIds = new Set(body.data.publishers.map((p) => p.publisher));
-      publisher.publishers = body.data.publishers.filter((p) => uniqueIds.has(p.publisher));
+      publisher.publishers = body.data.publishers
+        .filter((p) => uniqueIds.has(p.publisher))
+        .map((p) => ({
+          ...p,
+          excludedOrganisations: p.excludedOrganisations || [],
+          missionType: p.mission_type || null,
+          publisherId: p.publisher,
+          moderator: p.moderator || false,
+        }));
     }
 
     if (body.data.excludeOrganisations) publisher.excludeOrganisations = body.data.excludeOrganisations;

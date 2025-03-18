@@ -149,11 +149,14 @@ const Diffuseurs = ({ values, onChange, onSave }) => {
 
       const res = await api.put(`/publisher/${values._id}`, {
         publishers: publishers.map((p) => ({
-          publisher: p._id,
+          publisherId: p._id,
           publisherName: p.name,
           publisherLogo: p.logo,
-          mission_type: values.mission_type,
           moderator: p.moderator,
+          missionType: p.mission_type,
+          // Old to migrate
+          publisher: p._id,
+          mission_type: p.mission_type,
         })),
       });
 

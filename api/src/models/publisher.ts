@@ -3,11 +3,26 @@ import { Schema, model } from "mongoose";
 import { Publisher } from "../types";
 
 const MODELNAME = "publisher";
+
+const publisherSchema = new Schema<Publisher["publishers"][0]>(
+  {
+    publisherId: { type: String, ref: "publisher" },
+    publisherName: { type: String, required: true, trim: true },
+    moderator: { type: Boolean, default: false },
+    missionType: { type: String, default: null, enum: ["benevolat", "volontariat", null] },
+    excludedOrganisations: { type: [String] },
+    // Old to migrate
+    publisher: { type: String, ref: "publisher" },
+    mission_type: { type: String, default: null, enum: ["benevolat", "volontariat", null] },
+  },
+  { timestamps: true },
+);
+
 const schema = new Schema<Publisher>(
   {
     name: { type: String, required: true, trim: true },
     status: { type: String, enum: ["active", "inactive"] },
-    category: { type: String },
+    category: { type: String, default: "OTHERS" },
     automated_report: { type: Boolean, default: false },
     send_report_to: { type: [String] },
     mission_type: { type: String, default: null, enum: ["benevolat", "volontariat", null] },
@@ -28,20 +43,7 @@ const schema = new Schema<Publisher>(
     apikey: { type: String },
     lastSyncAt: { type: Date },
 
-    publishers: {
-      type: [
-        {
-          publisher: String, // publisherId one day ?
-          publisherName: String,
-          publisherLogo: String,
-          mission_type: String,
-          moderator: Boolean,
-        },
-      ],
-      documentation: {
-        description: "publishers dont les missions sont accessibles a ce publisher",
-      },
-    },
+    publishers: { type: [publisherSchema] },
 
     excludeOrganisations: { type: [String] },
     excludedOrganisations: { type: [String] },

@@ -183,12 +183,12 @@ export const REPORT_STATUS = {
 
 export const PUBLISHER_CATEGORIES = {
   PUBLICS_SERVICES: "Services publics",
-  ASSOCIATIONS: "Associations",
+  ASSOCIATIF_ACTORS: "Acteurs associatifs",
   TERRITORIAL_COLLECTIVITIES: "Collectivités territoriales",
   PRIVATE_ORGANIZATIONS: "Organisations privées",
   SCHOOLS_AND_UNIVERSITIES: "Écoles & universités",
   MEDIA: "Médias",
   ENGAGEMENT_PLATFORMS: "Plateformes d'engagement",
   EMPLOYMENT_PLATFORMS: "Plateformes d'emploi",
-  OTHER: "Autre",
+  OTHERS: "Autres",
 };
