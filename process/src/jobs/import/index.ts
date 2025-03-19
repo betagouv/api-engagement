@@ -87,8 +87,8 @@ const buildData = async (startTime: Date, publisher: Publisher, missionXML: Miss
     }
 
     return mission;
-  } catch (err) {
-    captureException(err, `Error while parsing mission ${missionXML.clientId}`);
+  } catch (error) {
+    captureException(error, `Error while parsing mission ${missionXML.clientId}`);
   }
 };
 
