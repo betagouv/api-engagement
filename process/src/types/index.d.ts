@@ -145,7 +145,7 @@ export interface Import {
   failed: any;
 }
 export interface Mission {
-  _id?: Schema.Types.ObjectId;
+  _id: Schema.Types.ObjectId;
   _old_id?: string;
   _old_ids?: string[];
 
@@ -256,7 +256,7 @@ export interface Mission {
     type: "Point";
     coordinates: [number, number];
   } | null;
-  addresses: AddressItem[];
+  addresses: Address[];
 
   snu: boolean | undefined;
   snuPlaces: number | undefined;
@@ -277,8 +277,8 @@ export interface Mission {
   leboncoinUpdatedAt: Date | undefined;
 }
 
-export interface AddressItem {
-  _id?: Schema.Types.ObjectId;
+export interface Address {
+  _id: Schema.Types.ObjectId;
   street: string | undefined;
   city: string | undefined;
   postalCode: string | undefined;

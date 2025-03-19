@@ -354,10 +354,11 @@ model Address {
   longitude Float?
   geoloc_status String @default("NOT_FOUND")
   mission_id String
-  mission Mission @relation(fields: [mission_id], references: [id])
+  mission Mission @relation(fields: [mission_id], references: [id], onDelete: Cascade)
 
   @@index([mission_id], map: "address_mission_id")
   @@index([old_id], map: "address_old_id")
+  @@unique([mission_id, old_id], map: "address_mission_id_old_id")
 }
 
 model Organization {
