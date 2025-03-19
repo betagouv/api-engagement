@@ -35,6 +35,8 @@ router.get("/", passport.authenticate("api", { session: false }), async (req: Pu
     const query = zod
       .object({
         q: zod.string().optional(),
+        rna: zod.string().optional(),
+        siret: zod.string().optional(),
         limit: zod.coerce.number().min(0).max(100).default(25),
         skip: zod.coerce.number().min(0).default(0),
       })
@@ -49,6 +51,8 @@ router.get("/", passport.authenticate("api", { session: false }), async (req: Pu
     const where = {} as { [key: string]: any };
 
     if (query.data.q) where.$text = { $search: query.data.q };
+    if (query.data.rna) where.rna = query.data.rna;
+    if (query.data.siret) where.siret = query.data.siret;
 
     const data = await OrganizationModel.find(where).skip(query.data.skip).limit(query.data.limit);
     const total = await OrganizationModel.countDocuments(where);
