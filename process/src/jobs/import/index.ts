@@ -86,13 +86,6 @@ const buildData = async (startTime: Date, publisher: Publisher, missionXML: Miss
       mission.statusCommentHistoric = [{ status: mission.statusCode, comment: mission.statusComment, date: mission.updatedAt }];
     }
 
-    // Add previous moderation temporary
-    mission.moderation_5f5931496c7ea514150a818f_status = missionDB?.moderation_5f5931496c7ea514150a818f_status;
-    mission.moderation_5f5931496c7ea514150a818f_comment = missionDB?.moderation_5f5931496c7ea514150a818f_comment;
-    mission.moderation_5f5931496c7ea514150a818f_note = missionDB?.moderation_5f5931496c7ea514150a818f_note;
-    mission.moderation_5f5931496c7ea514150a818f_title = missionDB?.moderation_5f5931496c7ea514150a818f_title;
-    mission.moderation_5f5931496c7ea514150a818f_date = missionDB?.moderation_5f5931496c7ea514150a818f_date;
-
     return mission;
   } catch (err) {
     captureException(err, `Error while parsing mission ${missionXML.clientId}`);

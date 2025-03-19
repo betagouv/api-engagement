@@ -442,7 +442,7 @@ const HistoryTab = ({ data }) => {
                   {index < statusChanges.length - 1 && <div className="h-[30px] ml-4 mt-2 border-l border-gray-border" />}
                 </div>
               )}
-              {event.initialComment !== event.newComment && (
+              {event.newComment !== null && event.initialComment !== event.newComment && (
                 <>
                   <div className="flex justify-between items-center">
                     <div className="text-gray-dark text-sm">
@@ -467,7 +467,7 @@ const HistoryTab = ({ data }) => {
           <div className="flex items-center gap-2 text-gray-dark text-xs font-semibold">MODIFICATIONS</div>
           {modifications.map((event, index) => (
             <div key={index} className="flex flex-col gap-2">
-              {event.initialNote !== event.newNote && (
+              {event.newNote !== null && event.initialNote !== event.newNote && (
                 <div className="flex justify-between items-center">
                   <div className="text-sm text-gray-dark">
                     <span className="text-black">{event.userName}</span> a modifié la note en <span className="font-semibold text-black">{event.newNote}</span>

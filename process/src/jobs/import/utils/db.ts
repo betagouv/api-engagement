@@ -5,11 +5,12 @@ import prisma from "../../../db/postgres";
 import { captureException } from "../../../error";
 import { Import, Mission, Publisher } from "../../../types";
 import MissionModel from "../../../models/mission";
+import { ENVIRONMENT } from "../../../config";
 
 export const bulkDB = async (bulk: Mission[], publisher: Publisher, importDoc: Import) => {
   try {
     await writeMongo(bulk, publisher, importDoc);
-    await writePg(publisher, importDoc);
+    if (ENVIRONMENT === "production") await writePg(publisher, importDoc);
   } catch (error) {
     captureException(`[${publisher.name}] Import failed`, JSON.stringify(error, null, 2));
     return;
@@ -79,6 +80,7 @@ const writePg = async (publisher: Publisher, importDoc: Import) => {
   let updated = 0;
   for (const obj of pgUpdate) {
     try {
+      if (updated % 100 === 0) console.log(`[${publisher.name}] Postgres ${updated} missions updated`);
       const mission = await prisma.mission.upsert({
         where: { old_id: obj.mission.old_id },
         update: obj.mission,
