@@ -278,7 +278,7 @@ export interface Mission {
 }
 
 export interface Address {
-  _id: Schema.Types.ObjectId;
+  _id?: Schema.Types.ObjectId;
   street: string | undefined;
   city: string | undefined;
   postalCode: string | undefined;

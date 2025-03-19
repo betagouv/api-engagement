@@ -201,7 +201,7 @@ const createDataPg = (doc: MongoMission, partnerId: string, organizations: Organ
   const addresses: PgAddress[] = doc.addresses.map(
     (address) =>
       ({
-        old_id: address._id.toString(),
+        old_id: address._id?.toString() || "",
         street: address.street,
         city: address.city,
         postal_code: address.postalCode,
