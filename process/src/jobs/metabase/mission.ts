@@ -113,7 +113,7 @@ const buildData = async (doc: MongoMission, partners: { [key: string]: string })
   const addresses: PgAddress[] = doc.addresses.map(
     (address) =>
       ({
-        old_id: address._id.toString(),
+        old_id: address._id?.toString(),
         street: address.street,
         city: address.city,
         postal_code: address.postalCode,
