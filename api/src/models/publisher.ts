@@ -1,19 +1,28 @@
 import { Schema, model } from "mongoose";
 
-import { Publisher } from "../types";
+import { Publisher, PublisherBoard, PublisherExcludedOrganization } from "../types";
 
 const MODELNAME = "publisher";
 
-const publisherSchema = new Schema<Publisher["publishers"][0]>(
+const publisherSchema = new Schema<PublisherBoard>(
   {
     publisherId: { type: String, ref: "publisher" },
     publisherName: { type: String, required: true, trim: true },
     moderator: { type: Boolean, default: false },
     missionType: { type: String, default: null, enum: ["benevolat", "volontariat", null] },
-    excludedOrganisations: { type: [String] },
     // Old to migrate
     publisher: { type: String, ref: "publisher" },
     mission_type: { type: String, default: null, enum: ["benevolat", "volontariat", null] },
+  },
+  { timestamps: true },
+);
+
+const excludedOrganizationSchema = new Schema<PublisherExcludedOrganization>(
+  {
+    publisherId: { type: String, ref: "publisher" },
+    publisherName: { type: String, required: true, trim: true },
+    organizationClientId: { type: String },
+    organizationName: { type: String, trim: true },
   },
   { timestamps: true },
 );
@@ -44,17 +53,14 @@ const schema = new Schema<Publisher>(
     lastSyncAt: { type: Date },
 
     publishers: { type: [publisherSchema] },
-
-    excludeOrganisations: { type: [String] },
-    excludedOrganisations: { type: [String] },
-
+    excludedOrganizations: { type: [excludedOrganizationSchema] },
     description: { type: String, default: "" },
-
     lead: { type: String, default: "" },
-
     deletedAt: { type: Date, default: null },
 
     // Depreciated
+    // excludeOrganisations: { type: [String] },
+    // excludedOrganisations: { type: [excludedOrganizationSchema] },
     lastFetchAt: { type: Date },
     acceptedCount: { type: Number, default: 0 },
     refusedCount: { type: Number, default: 0 },

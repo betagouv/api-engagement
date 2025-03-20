@@ -362,20 +362,8 @@ export interface Publisher {
   apikey: string | null;
   lastSyncAt: Date;
   broadcasters: string[];
-  publishers: {
-    _id?: Schema.Types.ObjectId;
-    publisherId: string;
-    publisherName: string;
-    moderator: boolean;
-    missionType: string | null;
-    excludedOrganisations: string[];
-
-    // Old to migrate
-    publisher: string; // publisherId
-    mission_type?: string | null; // missionType
-  }[];
-  excludeOrganisations: string[];
-  excludedOrganisations: string[];
+  publishers: PublisherBoard[];
+  excludedOrganizations: PublisherExcludedOrganization[];
   description: string;
   lead: string;
   deletedAt: Date;
@@ -389,6 +377,26 @@ export interface Publisher {
   created_at: Date;
   updated_at: Date;
   deleted_at: Date;
+}
+
+export interface PublisherBoard {
+  _id?: Schema.Types.ObjectId;
+  publisherId: string;
+  publisherName: string;
+  moderator: boolean;
+  missionType: string | null;
+
+  // Old to migrate
+  publisher: string; // publisherId
+  mission_type?: string | null; // missionType
+}
+
+export interface PublisherExcludedOrganization {
+  _id?: Schema.Types.ObjectId;
+  publisherId: string;
+  publisherName: string;
+  organizationClientId: string;
+  organizationName: string;
 }
 
 export interface Report {

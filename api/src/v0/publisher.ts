@@ -5,6 +5,7 @@ import zod from "zod";
 import { INVALID_PARAMS, NOT_FOUND } from "../error";
 import PublisherModel from "../models/publisher";
 import RequestModel from "../models/request";
+import { Publisher } from "../types";
 import { PublisherRequest } from "../types/passport";
 const router = Router();
 
@@ -31,11 +32,10 @@ router.use(async (req: PublisherRequest, res: Response, next: NextFunction) => {
 
 router.get("/", passport.authenticate(["apikey", "api"], { session: false }), async (req: PublisherRequest, res: Response, next: NextFunction) => {
   try {
-    const partners = await PublisherModel.find({ "publishers.publisherId": req.user._id.toString() });
+    const user = req.user as Publisher;
+    const partners = await PublisherModel.find({ "publishers.publisherId": user._id.toString() });
 
     const data = partners.map((e) => {
-      const publisher = e.publishers.find((p) => p.publisherId === req.user._id.toString());
-      if (!publisher) return null;
       return {
         _id: e._id,
         name: e.name,
@@ -47,7 +47,7 @@ router.get("/", passport.authenticate(["apikey", "api"], { session: false }), as
         api: e.role_annonceur_api,
         campaign: e.role_annonceur_campagne,
         annonceur: e.role_promoteur,
-        excludedOrganisations: publisher.excludedOrganisations,
+        excludedOrganizations: e.excludedOrganizations.filter((o) => o.publisherId === user._id.toString()),
       };
     });
 
@@ -60,6 +60,7 @@ router.get("/", passport.authenticate(["apikey", "api"], { session: false }), as
 
 router.get("/:id", passport.authenticate(["apikey", "api"], { session: false }), async (req: PublisherRequest, res: Response, next: NextFunction) => {
   try {
+    const user = req.user as Publisher;
     const params = zod
       .object({
         id: zod.string(),
@@ -71,7 +72,7 @@ router.get("/:id", passport.authenticate(["apikey", "api"], { session: false }),
       return res.status(400).send({ ok: false, code: INVALID_PARAMS, message: params.error });
     }
 
-    const publisher = await PublisherModel.findOne({ _id: params.data.id, "publishers.publisherId": req.user._id.toString() });
+    const publisher = await PublisherModel.findOne({ _id: params.data.id, "publishers.publisherId": user._id.toString() });
     if (!publisher) {
       res.locals = { code: NOT_FOUND, message: "Publisher not found" };
       return res.status(404).send({ ok: false, code: NOT_FOUND, message: "Publisher not found" });
@@ -88,7 +89,7 @@ router.get("/:id", passport.authenticate(["apikey", "api"], { session: false }),
       api: publisher.role_annonceur_api,
       campaign: publisher.role_annonceur_campagne,
       annonceur: publisher.role_promoteur,
-      excludedOrganisations: publisher.publishers.find((p) => p.publisherId === req.user._id.toString())?.excludedOrganisations || [],
+      excludedOrganizations: publisher.excludedOrganizations.filter((o) => o.publisherId === user._id.toString()),
     };
 
     res.locals = { total: 1 };

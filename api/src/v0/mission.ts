@@ -81,8 +81,7 @@ router.get("/", passport.authenticate(["apikey", "api"], { session: false }), as
     const where = {
       statusCode: "ACCEPTED",
       deletedAt: null,
-      organizationName: { $nin: user.excludeOrganisations || [] },
-      organizationClientId: { $nin: user.publishers.map((e: { excludedOrganisations: string[] }) => e.excludedOrganisations || []).flat() },
+      organizationClientId: { $nin: user.excludedOrganizations.map((e) => e.organizationClientId) },
     } as { [key: string]: any };
 
     if (query.data.publisher) {
@@ -195,8 +194,7 @@ router.get("/search", passport.authenticate(["apikey", "api"], { session: false 
     const where = {
       statusCode: "ACCEPTED",
       deletedAt: null,
-      organizationName: { $nin: user.excludeOrganisations || [] },
-      organizationClientId: { $nin: user.publishers.map((e: { excludedOrganisations: string[] }) => e.excludedOrganisations || []).flat() },
+      organizationClientId: { $nin: user.excludedOrganizations.map((e) => e.organizationClientId) },
     } as { [key: string]: any };
 
     if (query.data.publisher) {

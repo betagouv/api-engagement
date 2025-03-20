@@ -20,7 +20,7 @@ const Edit = () => {
   const [publisher, setPublisher] = useState(null);
   const [values, setValues] = useState({
     publishers: [],
-    excludedOrganisations: [],
+    excludedOrganizations: [],
     send_report_to: [],
     automated_report: false,
     role_promoteur: false,
