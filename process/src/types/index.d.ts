@@ -145,7 +145,7 @@ export interface Import {
   failed: any;
 }
 export interface Mission {
-  _id?: Schema.Types.ObjectId;
+  _id: Schema.Types.ObjectId;
   _old_id?: string;
   _old_ids?: string[];
 
@@ -256,7 +256,7 @@ export interface Mission {
     type: "Point";
     coordinates: [number, number];
   } | null;
-  addresses: AddressItem[];
+  addresses: Address[];
 
   snu: boolean | undefined;
   snuPlaces: number | undefined;
@@ -277,7 +277,7 @@ export interface Mission {
   leboncoinUpdatedAt: Date | undefined;
 }
 
-export interface AddressItem {
+export interface Address {
   _id?: Schema.Types.ObjectId;
   street: string | undefined;
   city: string | undefined;
@@ -319,8 +319,8 @@ export type ModerationEvent = {
   _id: Schema.Types.ObjectId;
   missionId: string;
   moderatorId: string;
-  initialStatus: "ACCEPTED" | "REFUSED" | "PENDING" | "ONGOING";
-  newStatus: "ACCEPTED" | "REFUSED" | "PENDING" | "ONGOING";
+  initialStatus: "ACCEPTED" | "REFUSED" | "PENDING" | "ONGOING" | null;
+  newStatus: "ACCEPTED" | "REFUSED" | "PENDING" | "ONGOING" | null;
   initialComment: string | null;
   newComment: string;
   initialNote: string | null;
@@ -334,6 +334,7 @@ export type ModerationEvent = {
   initialRNA: string | null;
   newRNA: string;
   createdAt: Date;
+  updatedAt: Date;
 };
 
 export interface Publisher {

@@ -119,7 +119,7 @@ export const buildMission = (publisher: Publisher, missionXML: MissionXML) => {
     snu: parseString(missionXML.snu) === "yes",
     snuPlaces: parseNumber(missionXML.snuPlaces),
     metadata: parseString(missionXML.metadata),
-    organizationName: parseString(he.decode(missionXML.organizationName)),
+    organizationName: parseString(missionXML.organizationName),
     organizationRNA: parseString(missionXML.organizationRNA) || parseString(missionXML.organizationRna) || "",
     organizationSiren: parseString(missionXML.organizationSiren) || missionXML.organizationSiren || "",
     organizationUrl: parseString(missionXML.organizationUrl),

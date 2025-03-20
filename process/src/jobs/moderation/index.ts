@@ -2,6 +2,7 @@ import { captureException } from "../../error";
 import PublisherModel from "../../models/publisher";
 import { Mission, Publisher } from "../../types";
 import MissionModel from "../../models/mission";
+import ModerationEventModel from "../../models/moderation-event";
 
 const findMissions = async (moderator: Publisher) => {
   const publishers = moderator.publishers.map((p) => p.publisher);
@@ -16,22 +17,17 @@ const findMissions = async (moderator: Publisher) => {
 };
 
 const createModerations = async (missions: Mission[], moderator: Publisher) => {
-  let inserted = 0;
-  let updated = 0;
+  const missonBulk = [] as any[];
+  const eventBulk = [] as any[];
 
-  const bulkBody = [] as any[];
-  missions.forEach((m) => {
-    const obj = {
-      _id: m._id,
+  for (const m of missions) {
+    const update = {
       [`moderation_${moderator._id}_status`]: "PENDING",
       [`moderation_${moderator._id}_comment`]: "",
       [`moderation_${moderator._id}_note`]: "",
       [`moderation_${moderator._id}_title`]: "",
       [`moderation_${moderator._id}_date`]: new Date().toISOString(),
     };
-
-    if (m[`moderation_${moderator._id}_status`]) updated++;
-    else inserted++;
 
     /** ONLY JVA RULES */
     //   "Autre",
@@ -55,30 +51,72 @@ const createModerations = async (missions: Mission[], moderator: Publisher) => {
     sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 6);
 
     if (sixMonthsAgo > createdAt) {
-      obj[`moderation_${moderator._id}_status`] = "REFUSED";
-      obj[`moderation_${moderator._id}_comment`] = "La mission est refusée car la date de création est trop ancienne (> 6 mois)";
-      obj[`moderation_${moderator._id}_date`] = new Date().toISOString();
+      update[`moderation_${moderator._id}_status`] = "REFUSED";
+      update[`moderation_${moderator._id}_comment`] = "La mission est refusée car la date de création est trop ancienne (> 6 mois)";
+      update[`moderation_${moderator._id}_date`] = new Date().toISOString();
     } else if (endAt && startAt < in7Days && endAt < in21Days) {
-      obj[`moderation_${moderator._id}_status`] = "REFUSED";
-      obj[`moderation_${moderator._id}_comment`] = "La date de la mission n’est pas compatible avec le recrutement de bénévoles";
-      obj[`moderation_${moderator._id}_date`] = new Date().toISOString();
+      update[`moderation_${moderator._id}_status`] = "REFUSED";
+      update[`moderation_${moderator._id}_comment`] = "La date de la mission n’est pas compatible avec le recrutement de bénévoles";
+      update[`moderation_${moderator._id}_date`] = new Date().toISOString();
     } else if (m.description.length < 300) {
-      obj[`moderation_${moderator._id}_status`] = "REFUSED";
-      obj[`moderation_${moderator._id}_comment`] = "Le contenu est insuffisant / non qualitatif";
-      obj[`moderation_${moderator._id}_date`] = new Date().toISOString();
+      update[`moderation_${moderator._id}_status`] = "REFUSED";
+      update[`moderation_${moderator._id}_comment`] = "Le contenu est insuffisant / non qualitatif";
+      update[`moderation_${moderator._id}_date`] = new Date().toISOString();
     } else if (!m.city) {
-      obj[`moderation_${moderator._id}_status`] = "REFUSED";
-      obj[`moderation_${moderator._id}_comment`] = "Le contenu est insuffisant / non qualitatif";
-      obj[`moderation_${moderator._id}_date`] = new Date().toISOString();
+      update[`moderation_${moderator._id}_status`] = "REFUSED";
+      update[`moderation_${moderator._id}_comment`] = "Le contenu est insuffisant / non qualitatif";
+      update[`moderation_${moderator._id}_date`] = new Date().toISOString();
     }
 
-    bulkBody.push(obj);
-  });
+    missonBulk.push({ updateOne: { filter: { _id: m._id }, update: { $set: update } } });
 
-  // MongoDB bulk update
-  await MissionModel.bulkWrite(bulkBody.map((b) => ({ updateOne: { filter: { _id: b._id }, update: { $set: { ...b, _id: undefined } } } })));
+    if (m[`moderation_${moderator._id}_status`]) {
+      eventBulk.push({
+        insertOne: {
+          document: {
+            missionId: m._id,
+            moderatorId: moderator._id,
+            userId: null,
+            userName: "Modération automatique",
+            initialStatus: m[`moderation_${moderator._id}_status`],
+            newStatus: update[`moderation_${moderator._id}_status`],
+            initialComment: m[`moderation_${moderator._id}_comment`],
+            newComment: update[`moderation_${moderator._id}_comment`],
+            initialNote: m[`moderation_${moderator._id}_note`],
+            newNote:
+              update[`moderation_${moderator._id}_status`] === "REFUSED"
+                ? `Data de la mission refusée: création=${createdAt.toLocaleString("fr")}, début=${startAt.toLocaleString("fr")}, fin=${endAt ? endAt.toLocaleString("fr") : "non renseigné"}, taille description=${m.description.length}, ville=${m.city}`
+                : "",
+          },
+        },
+      });
+    } else {
+      eventBulk.push({
+        insertOne: {
+          document: {
+            missionId: m._id,
+            moderatorId: moderator._id,
+            userId: null,
+            userName: "Modération automatique",
+            initialStatus: null,
+            newStatus: update[`moderation_${moderator._id}_status`] || null,
+            initialComment: null,
+            newComment: update[`moderation_${moderator._id}_comment`] || null,
+            initialNote: null,
+            newNote:
+              update[`moderation_${moderator._id}_status`] === "REFUSED"
+                ? `Data de la mission refusée :\n - création : ${createdAt}\n - début : ${startAt}\n - fin : ${endAt || "non renseigné"}\n - taille description : ${m.description.length}\n - ville : ${m.city}`
+                : null,
+          },
+        },
+      });
+      break;
+    }
+  }
 
-  return { inserted, updated };
+  const res = await MissionModel.bulkWrite(missonBulk);
+  const resEvent = await ModerationEventModel.bulkWrite(eventBulk);
+  return { updated: res.modifiedCount, events: resEvent.insertedCount };
 };
 
 const handler = async () => {
@@ -101,8 +139,8 @@ const handler = async () => {
       if (!data.length) continue;
 
       const res = await createModerations(data, moderator);
-      console.log(`[Moderation] - ${moderator.name} ${res.updated} moderation updated`);
-      console.log(`[Moderation] - ${moderator.name} ${res.inserted} moderation created`);
+      console.log(`[Moderation] - ${moderator.name} ${res.updated} missions updated`);
+      console.log(`[Moderation] - ${moderator.name} ${res.events} events created`);
     }
     console.log(`[Moderation] Ended at ${new Date().toISOString()} in ${(Date.now() - start.getTime()) / 1000}s`);
   } catch (err) {

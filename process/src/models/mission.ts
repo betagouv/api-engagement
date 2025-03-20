@@ -159,7 +159,7 @@ const schema = new Schema<Mission>(
     deletedAt: { type: Date, default: null },
 
     // Moderation JVA
-    moderation_5f5931496c7ea514150a818f_status: { type: String, enum: ["PENDING", "ONGOING", "ACCEPTED", "REFUSED"], default: "PENDING" },
+    moderation_5f5931496c7ea514150a818f_status: { type: String, enum: ["PENDING", "ONGOING", "ACCEPTED", "REFUSED"] },
     moderation_5f5931496c7ea514150a818f_comment: { type: String },
     moderation_5f5931496c7ea514150a818f_note: { type: String },
     moderation_5f5931496c7ea514150a818f_title: { type: String },

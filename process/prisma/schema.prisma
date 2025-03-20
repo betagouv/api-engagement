@@ -354,10 +354,11 @@ model Address {
   longitude Float?
   geoloc_status String @default("NOT_FOUND")
   mission_id String
-  mission Mission @relation(fields: [mission_id], references: [id])
+  mission Mission @relation(fields: [mission_id], references: [id], onDelete: Cascade)
 
   @@index([mission_id], map: "address_mission_id")
   @@index([old_id], map: "address_old_id")
+  @@unique([mission_id, old_id], map: "address_mission_id_old_id")
 }
 
 model Organization {
@@ -415,6 +416,8 @@ model Partner {
   id                  String       @id @default(uuid())
   old_id              String       @unique
   name                String?
+
+
   diffuseur_api       Boolean
   diffuseur_widget    Boolean
   diffuseur_campaign  Boolean
@@ -467,6 +470,15 @@ model Widget {
   diffuseur_id String
   mission_type MissionType?
   active       Boolean       @default(true)
+  color        String?
+  style        WidgetStyle?
+  city         String?
+  postal_code  String?
+  latitude     Float?
+  longitude    Float?
+  distance     String?
+  jva_moderation Boolean?
+
   deleted_at   DateTime?
   created_at   DateTime      @default(now())
   updated_at   DateTime      @updatedAt
@@ -534,6 +546,11 @@ model PartnerToWidget {
 enum MissionType {
   benevolat
   volontariat
+}
+
+enum WidgetStyle {
+  carousel
+  page
 }
 
 enum SourceType {
