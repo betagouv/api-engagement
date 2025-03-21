@@ -3,6 +3,7 @@ import passport from "passport";
 import zod from "zod";
 
 import { STATS_INDEX } from "../config";
+import { JVA_MODERATION_COMMENTS_LABELS } from "../constant";
 import esClient from "../db/elastic";
 import { INVALID_PARAMS, INVALID_QUERY, NOT_FOUND } from "../error";
 import MissionModel from "../models/mission";
@@ -160,6 +161,7 @@ router.get("/:clientId/stats", passport.authenticate(["apikey", "api"], { sessio
 
 const buildData = (data: Mission) => {
   const address = data.addresses[0];
+  const moderationComment = JVA_MODERATION_COMMENTS_LABELS[data.moderation_5f5931496c7ea514150a818f_comment || ""] || data.moderation_5f5931496c7ea514150a818f_comment;
   return {
     _id: data._id,
     id: data._id,
@@ -202,7 +204,7 @@ const buildData = (data: Mission) => {
     endAt: data.endAt,
     lastSyncAt: data.lastSyncAt,
     metadata: data.metadata,
-    moderation_5f5931496c7ea514150a818f_comment: data.moderation_5f5931496c7ea514150a818f_comment,
+    moderation_5f5931496c7ea514150a818f_comment: moderationComment,
     moderation_5f5931496c7ea514150a818f_status: data.moderation_5f5931496c7ea514150a818f_status,
     moderation_5f5931496c7ea514150a818f_date: data.moderation_5f5931496c7ea514150a818f_date,
     moderation_5f5931496c7ea514150a818f_title: data.moderation_5f5931496c7ea514150a818f_title,
