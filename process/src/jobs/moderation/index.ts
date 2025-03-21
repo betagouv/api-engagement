@@ -52,19 +52,19 @@ const createModerations = async (missions: Mission[], moderator: Publisher) => {
 
     if (sixMonthsAgo > createdAt) {
       update[`moderation_${moderator._id}_status`] = "REFUSED";
-      update[`moderation_${moderator._id}_comment`] = "La mission est refusée car la date de création est trop ancienne (> 6 mois)";
+      update[`moderation_${moderator._id}_comment`] = "MISSION_CREATION_DATE_TOO_OLD";
       update[`moderation_${moderator._id}_date`] = new Date().toISOString();
     } else if (endAt && startAt < in7Days && endAt < in21Days) {
       update[`moderation_${moderator._id}_status`] = "REFUSED";
-      update[`moderation_${moderator._id}_comment`] = "La date de la mission n’est pas compatible avec le recrutement de bénévoles";
+      update[`moderation_${moderator._id}_comment`] = "MISSION_DATE_NOT_COMPATIBLE";
       update[`moderation_${moderator._id}_date`] = new Date().toISOString();
     } else if (m.description.length < 300) {
       update[`moderation_${moderator._id}_status`] = "REFUSED";
-      update[`moderation_${moderator._id}_comment`] = "Le contenu est insuffisant / non qualitatif";
+      update[`moderation_${moderator._id}_comment`] = "CONTENT_INSUFFICIENT";
       update[`moderation_${moderator._id}_date`] = new Date().toISOString();
     } else if (!m.city) {
       update[`moderation_${moderator._id}_status`] = "REFUSED";
-      update[`moderation_${moderator._id}_comment`] = "Le contenu est insuffisant / non qualitatif";
+      update[`moderation_${moderator._id}_comment`] = "CONTENT_INSUFFICIENT";
       update[`moderation_${moderator._id}_date`] = new Date().toISOString();
     }
 

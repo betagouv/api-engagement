@@ -8,7 +8,7 @@ import SearchSelect from "../../../../components/SearchSelect";
 import api from "../../../../services/api";
 import { captureError } from "../../../../services/error";
 import useStore from "../../../../services/store";
-import STATUS, { DEPARTMENT_LABELS, STATUS_PLR } from "./Constants";
+import STATUS, { DEPARTMENT_LABELS, JVA_MODERATION_COMMENTS_LABELS, STATUS_PLR } from "./Constants";
 
 const Filters = ({ filters, onChange, reload }) => {
   const { publisher } = useStore();
@@ -99,7 +99,7 @@ const Filters = ({ filters, onChange, reload }) => {
       </div>
       <div className="flex items-center gap-4 pb-6">
         <Select
-          options={options.comments.map((e) => ({ value: e.key, label: e.key, count: e.doc_count }))}
+          options={options.comments.map((e) => ({ value: e.key, label: JVA_MODERATION_COMMENTS_LABELS[e.key] || e.key, count: e.doc_count }))}
           value={filters.comment}
           onChange={(e) => onChange({ ...filters, comment: e.value })}
           placeholder="Motif de refus"

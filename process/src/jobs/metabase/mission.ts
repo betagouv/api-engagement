@@ -148,7 +148,6 @@ const handler = async () => {
     const fourteenDaysAgo = new Date();
     fourteenDaysAgo.setDate(fourteenDaysAgo.getDate() - 14);
     const where = { $or: [{ createdAt: { $gte: fourteenDaysAgo } }, { updatedAt: { $gte: fourteenDaysAgo } }] };
-    // const where = { _id: "606fc41e6130b5070b7a674a" };
     const countToSync = await MissionModel.countDocuments(where);
     console.log(`[Missions] Found ${countToSync} docs to sync.`);
 
@@ -206,7 +205,7 @@ const handler = async () => {
             await prisma.address.createMany({ data: obj.addresses.map((e) => ({ ...e, mission_id: mission.id })) });
             updated += 1;
           } catch (error) {
-            console.error(error, obj.mission.old_id);
+            captureException(error, `[Missions] Error while syncing doc ${obj.mission.old_id}`);
           }
         }
         console.log(`[Missions] Updated ${dataToUpdate.length} docs, ${updated} updated so far.`);

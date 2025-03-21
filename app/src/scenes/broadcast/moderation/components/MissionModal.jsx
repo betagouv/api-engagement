@@ -10,7 +10,7 @@ import Modal from "../../../../components/Modal";
 import api from "../../../../services/api";
 import { captureError } from "../../../../services/error";
 import useStore from "../../../../services/store";
-import { COMMENTS, DOMAINS, STATUS, STATUS_COLORS } from "./Constants";
+import { DOMAINS, JVA_MODERATION_COMMENTS_LABELS, STATUS, STATUS_COLORS } from "./Constants";
 import Note from "./Note";
 import Organization from "./Organization";
 import OrganizationRefusedModal from "./OrganizationRefusedModal";
@@ -136,8 +136,8 @@ const MissionModal = ({ onChange }) => {
                     {values.status === "REFUSED" && (
                       <select className="select w-64" name="motif" value={values.comment} onChange={(e) => handleChange({ status: "REFUSED", comment: e.target.value })}>
                         <option value="">Motif de refus</option>
-                        {COMMENTS.map((value, index) => (
-                          <option key={index} value={value}>
+                        {Object.entries(JVA_MODERATION_COMMENTS_LABELS).map(([key, value]) => (
+                          <option key={key} value={key}>
                             {value}
                           </option>
                         ))}
