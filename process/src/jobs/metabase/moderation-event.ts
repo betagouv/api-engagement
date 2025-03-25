@@ -1,21 +1,20 @@
 import prisma from "../../db/postgres";
-import { captureException } from "../../error";
+import { captureException, captureMessage } from "../../error";
 import { ModerationEvent } from "../../types";
 import { ModerationEvent as PgModerationEvent } from "@prisma/client";
 import ModerationEventModel from "../../models/moderation-event";
-import { JVA_MODERATION_COMMENTS_LABELS } from "../../constants/moderation";
 
 const BATCH_SIZE = 5000;
 
 const buildData = (doc: ModerationEvent, missions: { [key: string]: string }, users: { [key: string]: string }) => {
   const missionId = missions[doc.missionId];
   if (!missionId) {
-    console.log(`[ModerationEvent] Mission ${doc.missionId} not found for doc ${doc._id.toString()}`);
+    captureMessage("[Metabase-ModerationEvent] Mission not found", `${doc.missionId} not found for doc ${doc._id.toString()}`);
     return null;
   }
-  const userId = users[doc.userId];
-  if (!userId) {
-    console.log(`[ModerationEvent] User ${doc.userId} not found for doc ${doc._id.toString()}`);
+  const userId = doc.userId ? users[doc.userId] : null;
+  if (!userId && doc.userId) {
+    captureMessage("[Metabase-ModerationEvent] User not found", `${doc.userId} not found for doc ${doc._id.toString()}`);
     return null;
   }
   const obj = {
@@ -27,8 +26,8 @@ const buildData = (doc: ModerationEvent, missions: { [key: string]: string }, us
     new_status: doc.newStatus?.toLowerCase() || null,
     initial_title: doc.initialTitle,
     new_title: doc.newTitle,
-    initial_comment: doc.initialComment ? JVA_MODERATION_COMMENTS_LABELS[doc.initialComment] : null,
-    new_comment: doc.newComment ? JVA_MODERATION_COMMENTS_LABELS[doc.newComment] : null,
+    initial_comment: doc.initialComment || null,
+    new_comment: doc.newComment || null,
     initial_note: doc.initialNote,
     new_note: doc.newNote,
     initial_siren: doc.initialSiren,
