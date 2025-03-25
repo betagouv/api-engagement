@@ -104,7 +104,7 @@ router.post("/aggs", passport.authenticate("user", { session: false }), async (r
     const moderator = await PublisherModel.findById(body.data.moderatorId);
     if (!moderator || !moderator.moderator) return res.status(403).send({ ok: false, code: FORBIDDEN });
 
-    const where = { deleted: false, statusCode: "ACCEPTED", [`moderation_${body.data.moderatorId}_status`]: { $exists: true } } as any;
+    const where = { deleted: false, statusCode: "ACCEPTED", [`moderation_${body.data.moderatorId}_status`]: { $ne: null } } as any;
 
     if (body.data.status) where[`moderation_${body.data.moderatorId}_status`] = body.data.status;
     if (body.data.comment) where[`moderation_${body.data.moderatorId}_comment`] = body.data.comment;
