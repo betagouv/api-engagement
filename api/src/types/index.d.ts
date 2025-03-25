@@ -323,20 +323,20 @@ export type ModerationEvent = {
   _id: Schema.Types.ObjectId;
   missionId: string;
   moderatorId: string;
-  initialStatus: "ACCEPTED" | "REFUSED" | "PENDING" | "ONGOING";
-  newStatus: "ACCEPTED" | "REFUSED" | "PENDING" | "ONGOING";
+  initialStatus: "ACCEPTED" | "REFUSED" | "PENDING" | "ONGOING" | null;
+  newStatus: "ACCEPTED" | "REFUSED" | "PENDING" | "ONGOING" | null;
   initialComment: string | null;
-  newComment: string;
+  newComment: string | null;
   initialNote: string | null;
-  newNote: string;
-  initialTitle: string;
-  newTitle: string;
-  userId: string;
-  userName: string;
+  newNote: string | null;
+  initialTitle: string | null;
+  newTitle: string | null;
+  userId: string | null;
+  userName: string | null;
   initialSiren: string | null;
-  newSiren: string;
+  newSiren: string | null;
   initialRNA: string | null;
-  newRNA: string;
+  newRNA: string | null;
   createdAt: Date;
 };
 
@@ -369,8 +369,6 @@ export interface Publisher {
   deletedAt: Date;
   createdAt: Date;
   updatedAt: Date;
-
-
 
   // Deprecated
   mission_type: string | null;

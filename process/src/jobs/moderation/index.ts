@@ -1,8 +1,22 @@
+/*
+Here the job is to update the moderation status of the jva partners. The issue here is that the moderation
+was buit to be open to all partners, but we know only JVA is using it. Would have been better to directly have
+a moderation_jva collection.
+*/
+
 import { captureException } from "../../error";
 import PublisherModel from "../../models/publisher";
 import { Mission, Publisher } from "../../types";
 import MissionModel from "../../models/mission";
 import ModerationEventModel from "../../models/moderation-event";
+import { configureScope } from "@sentry/node";
+
+interface ModerationUpdate {
+  status: string | null;
+  comment: string | null;
+  note: string | null;
+  date: Date | null;
+}
 
 const findMissions = async (moderator: Publisher) => {
   const publishers = moderator.publishers.map((p) => p.publisher);
@@ -16,18 +30,26 @@ const findMissions = async (moderator: Publisher) => {
   return missions;
 };
 
+const hasModerationChanges = (m: Mission, moderator: Publisher, update: ModerationUpdate) => {
+  if (!m[`moderation_${moderator._id}_status`]) return true;
+  if ((m[`moderation_${moderator._id}_status`] || null) !== update.status) return true;
+  if ((m[`moderation_${moderator._id}_comment`] || null) !== update.comment) return true;
+  if ((m[`moderation_${moderator._id}_note`] || null) !== update.note) return true;
+  return false;
+};
+
 const createModerations = async (missions: Mission[], moderator: Publisher) => {
   const missonBulk = [] as any[];
   const eventBulk = [] as any[];
 
+  console.log("missions", missions[0]._id);
   for (const m of missions) {
     const update = {
-      [`moderation_${moderator._id}_status`]: "PENDING",
-      [`moderation_${moderator._id}_comment`]: "",
-      [`moderation_${moderator._id}_note`]: "",
-      [`moderation_${moderator._id}_title`]: "",
-      [`moderation_${moderator._id}_date`]: new Date().toISOString(),
-    };
+      status: "PENDING",
+      comment: null,
+      note: null,
+      date: null,
+    } as ModerationUpdate;
 
     /** ONLY JVA RULES */
     //   "Autre",
@@ -51,67 +73,57 @@ const createModerations = async (missions: Mission[], moderator: Publisher) => {
     sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 6);
 
     if (sixMonthsAgo > createdAt) {
-      update[`moderation_${moderator._id}_status`] = "REFUSED";
-      update[`moderation_${moderator._id}_comment`] = "La mission est refusée car la date de création est trop ancienne (> 6 mois)";
-      update[`moderation_${moderator._id}_date`] = new Date().toISOString();
+      update.status = "REFUSED";
+      update.comment = "La mission est refusée car la date de création est trop ancienne (> 6 mois)";
+      update.date = new Date();
     } else if (endAt && startAt < in7Days && endAt < in21Days) {
-      update[`moderation_${moderator._id}_status`] = "REFUSED";
-      update[`moderation_${moderator._id}_comment`] = "La date de la mission n’est pas compatible avec le recrutement de bénévoles";
-      update[`moderation_${moderator._id}_date`] = new Date().toISOString();
+      update.status = "REFUSED";
+      update.comment = "La date de la mission n’est pas compatible avec le recrutement de bénévoles";
+      update.date = new Date();
     } else if (m.description.length < 300) {
-      update[`moderation_${moderator._id}_status`] = "REFUSED";
-      update[`moderation_${moderator._id}_comment`] = "Le contenu est insuffisant / non qualitatif";
-      update[`moderation_${moderator._id}_date`] = new Date().toISOString();
+      update.status = "REFUSED";
+      update.comment = "Le contenu est insuffisant / non qualitatif";
+      update.date = new Date();
     } else if (!m.city) {
-      update[`moderation_${moderator._id}_status`] = "REFUSED";
-      update[`moderation_${moderator._id}_comment`] = "Le contenu est insuffisant / non qualitatif";
-      update[`moderation_${moderator._id}_date`] = new Date().toISOString();
+      update.status = "REFUSED";
+      update.comment = "Le contenu est insuffisant / non qualitatif";
+      update.date = new Date();
     }
 
-    missonBulk.push({ updateOne: { filter: { _id: m._id }, update: { $set: update } } });
+    if (!hasModerationChanges(m, moderator, update)) continue;
 
-    if (m[`moderation_${moderator._id}_status`]) {
-      eventBulk.push({
-        insertOne: {
-          document: {
-            missionId: m._id,
-            moderatorId: moderator._id,
-            userId: null,
-            userName: "Modération automatique",
-            initialStatus: m[`moderation_${moderator._id}_status`],
-            newStatus: update[`moderation_${moderator._id}_status`],
-            initialComment: m[`moderation_${moderator._id}_comment`],
-            newComment: update[`moderation_${moderator._id}_comment`],
-            initialNote: m[`moderation_${moderator._id}_note`],
-            newNote:
-              update[`moderation_${moderator._id}_status`] === "REFUSED"
-                ? `Data de la mission refusée: création=${createdAt.toLocaleString("fr")}, début=${startAt.toLocaleString("fr")}, fin=${endAt ? endAt.toLocaleString("fr") : "non renseigné"}, taille description=${m.description.length}, ville=${m.city}`
-                : "",
+    eventBulk.push({
+      insertOne: {
+        document: {
+          missionId: m._id,
+          moderatorId: moderator._id,
+          userId: null,
+          userName: "Modération automatique",
+          initialStatus: m[`moderation_${moderator._id}_status`] || null,
+          newStatus: update.status,
+          initialComment: m[`moderation_${moderator._id}_comment`] || null,
+          newComment: update.comment,
+          initialNote: m[`moderation_${moderator._id}_note`] || null,
+          newNote:
+            update.status === "REFUSED"
+              ? `Data de la mission refusée: création=${createdAt.toLocaleDateString("fr")}, début=${startAt.toLocaleDateString("fr")}, fin=${endAt ? endAt.toLocaleDateString("fr") : "non renseigné"}, taille description=${m.description.length}, ville=${m.city}`
+              : "",
+        },
+      },
+    });
+    missonBulk.push({
+      updateOne: {
+        filter: { _id: m._id },
+        update: {
+          $set: {
+            [`moderation_${moderator._id}_status`]: update.status,
+            [`moderation_${moderator._id}_comment`]: update.comment,
+            [`moderation_${moderator._id}_note`]: update.note,
+            [`moderation_${moderator._id}_date`]: update.date,
           },
         },
-      });
-    } else {
-      eventBulk.push({
-        insertOne: {
-          document: {
-            missionId: m._id,
-            moderatorId: moderator._id,
-            userId: null,
-            userName: "Modération automatique",
-            initialStatus: null,
-            newStatus: update[`moderation_${moderator._id}_status`] || null,
-            initialComment: null,
-            newComment: update[`moderation_${moderator._id}_comment`] || null,
-            initialNote: null,
-            newNote:
-              update[`moderation_${moderator._id}_status`] === "REFUSED"
-                ? `Data de la mission refusée :\n - création : ${createdAt}\n - début : ${startAt}\n - fin : ${endAt || "non renseigné"}\n - taille description : ${m.description.length}\n - ville : ${m.city}`
-                : null,
-          },
-        },
-      });
-      break;
-    }
+      },
+    });
   }
 
   const res = await MissionModel.bulkWrite(missonBulk);
