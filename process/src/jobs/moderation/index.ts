@@ -23,7 +23,7 @@ const findMissions = async (moderator: Publisher) => {
     publisherId: { $in: publishers },
     statusCode: "ACCEPTED",
     deleted: false,
-    $or: [{ [`moderation_${moderator._id}_status`]: { $exists: false } }, { [`moderation_${moderator._id}_status`]: "PENDING" }],
+    $or: [{ [`moderation_${moderator._id}_status`]: { $exists: false } }, { [`moderation_${moderator._id}_status`]: null }, { [`moderation_${moderator._id}_status`]: "PENDING" }],
   };
   const missions = await MissionModel.find(where).sort({ createdAt: "desc" });
   return missions;
