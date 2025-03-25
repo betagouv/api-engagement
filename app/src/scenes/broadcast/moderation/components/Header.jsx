@@ -7,7 +7,7 @@ import Modal from "../../../../components/Modal";
 import api from "../../../../services/api";
 import { captureError } from "../../../../services/error";
 import useStore from "../../../../services/store";
-import { COMMENTS, STATUS, STATUS_COLORS } from "./Constants";
+import { JVA_MODERATION_COMMENTS_LABELS, STATUS, STATUS_COLORS } from "./Constants";
 
 const Header = ({ total, data, size, sort, selected, onSize, onSort, onSelect, onChange }) => {
   const headerRef = useRef(null);
@@ -137,8 +137,8 @@ const ManyUpdateModal = ({ onClose, selected, onChange }) => {
                     </label>
                     <select id="comment" className="select" name="comment" value={comment} onChange={(e) => setComment(e.target.value)} required>
                       <option value="">Sélectionner un motif</option>
-                      {COMMENTS.map((value, key) => (
-                        <option key={key} value={value}>
+                      {Object.entries(JVA_MODERATION_COMMENTS_LABELS).map(([key, value]) => (
+                        <option key={key} value={key}>
                           {value}
                         </option>
                       ))}

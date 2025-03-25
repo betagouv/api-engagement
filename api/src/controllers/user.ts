@@ -39,6 +39,28 @@ router.get("/", passport.authenticate("admin", { session: false }), async (req: 
   }
 });
 
+router.post("/search", passport.authenticate("admin", { session: false }), async (req: UserRequest, res: Response, next: NextFunction) => {
+  try {
+    const body = zod
+      .object({
+        email: zod.string().email().optional(),
+        publisherId: zod.string().optional(),
+      })
+      .safeParse(req.body);
+
+    if (!body.success) return res.status(400).send({ ok: false, code: INVALID_BODY, message: body.error.errors });
+
+    const where = {} as { [key: string]: any };
+    if (body.data.email) where.email = body.data.email;
+    if (body.data.publisherId) where.publishers = { $in: body.data.publisherId };
+
+    const users = await UserModel.find(where);
+    return res.status(200).send({ ok: true, data: users });
+  } catch (error) {
+    next(error);
+  }
+});
+
 router.get("/refresh", passport.authenticate("user", { session: false }), async (req: UserRequest, res: Response, next: NextFunction) => {
   try {
     const query = zod

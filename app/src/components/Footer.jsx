@@ -43,9 +43,6 @@ const Footer = () => {
         <a href="https://api-engagement.beta.gouv.fr/accessibilite/" className="pr-3 underline">
           Accessibilité : non conforme
         </a>
-        {/* <a href="https://reserve-civique-metabase.osc-secnum-fr1.scalingo.io/public/dashboard/2dad1c3d-09e5-4d68-85bb-773b9c61e9a7" className="px-4 underline">
-          Statistiques
-        </a> */}
         <Link to="/public-stats" className="px-4 underline">
           Statistiques
         </Link>
@@ -57,6 +54,9 @@ const Footer = () => {
         </a>
         <a href="https://doc.api-engagement.beta.gouv.fr/get-started/rgpd" className="px-3 underline">
           Données personnelles et cookies
+        </a>
+        <a href="https://api-engagement.beta.gouv.fr/politique-de-confidentialite/" className="px-3 underline">
+          Politique de confidentialité
         </a>
         <Link to="cgu" className="pl-4 underline">
           CGU

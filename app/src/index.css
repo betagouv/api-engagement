@@ -108,7 +108,7 @@ html {
   }
 
   .input {
-    @apply rounded-t border-0 border-b border-b-black bg-gray-light h-10 px-4 py-2 text-sm text-black outline-[#0a76f6] placeholder:text-gray-dark focus-visible:outline-2 focus-visible:outline-offset-2  disabled:opacity-60;
+    @apply rounded-t border-0 border-b border-b-black bg-gray-light h-10 px-4 py-2 text-sm text-black outline-[#0a76f6] placeholder:text-gray-dark focus-visible:outline-2 focus-visible:outline-offset-2 disabled:opacity-60;
   }
   .select {
     @apply appearance-none rounded-none rounded-t border-0 border-b border-b-black bg-gray-light h-10 py-2 pl-4 pr-10 text-sm text-black outline-[#0a76f6] placeholder:text-gray-dark focus-visible:outline-2 focus-visible:outline-offset-2 disabled:opacity-60;

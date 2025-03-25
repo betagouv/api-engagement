@@ -4,6 +4,7 @@ import zod from "zod";
 
 import { INVALID_BODY, NOT_FOUND } from "../error";
 import ModerationEventModel from "../models/moderation-event";
+import { ModerationEvent } from "../types";
 import { UserRequest } from "../types/passport";
 
 const router = Router();
@@ -23,18 +24,38 @@ router.post("/search", passport.authenticate("user", { session: false }), async 
     if (body.data.missionId) where.missionId = body.data.missionId;
     if (body.data.moderatorId) where.moderatorId = body.data.moderatorId;
 
-    const response = await ModerationEventModel.find(where).sort({ createdAt: -1 });
-    if (!response) return res.status(404).send({ ok: false, code: NOT_FOUND, message: "No moderation events found for this moderationId" });
-    const total = response.length;
+    const data = await ModerationEventModel.find(where).sort({ createdAt: 1 }).lean();
+    if (!data) return res.status(404).send({ ok: false, code: NOT_FOUND, message: "No moderation events found for this moderationId" });
+    const total = data.length;
 
-    if (!response) {
+    if (!data) {
       return res.status(404).send({ ok: false, code: "NOT_FOUND", message: "No moderation events found for this moderationId" });
     }
 
-    return res.status(200).send({ ok: true, data: response, total });
+    return res.status(200).send({ ok: true, data: data.map(buildData), total });
   } catch (error) {
     next(error);
   }
 });
+
+const buildData = (data: ModerationEvent) => {
+  return {
+    ...data,
+    initialNote: data.initialNote || null,
+    newNote: data.newNote || null,
+    newStatus: data.newStatus || null,
+    initialStatus: data.initialStatus || null,
+    newTitle: data.newTitle || null,
+    initialTitle: data.initialTitle || null,
+    newSiren: data.newSiren || null,
+    initialSiren: data.initialSiren || null,
+    newRNA: data.newRNA || null,
+    initialRNA: data.initialRNA || null,
+    userName: data.userName || null,
+    userId: data.userId || null,
+    newComment: data.newComment || null,
+    initialComment: data.initialComment || null,
+  };
+};
 
 export default router;

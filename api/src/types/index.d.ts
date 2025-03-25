@@ -323,34 +323,35 @@ export type ModerationEvent = {
   _id: Schema.Types.ObjectId;
   missionId: string;
   moderatorId: string;
-  initialStatus: "ACCEPTED" | "REFUSED" | "PENDING" | "ONGOING";
-  newStatus: "ACCEPTED" | "REFUSED" | "PENDING" | "ONGOING";
+  initialStatus: "ACCEPTED" | "REFUSED" | "PENDING" | "ONGOING" | null;
+  newStatus: "ACCEPTED" | "REFUSED" | "PENDING" | "ONGOING" | null;
   initialComment: string | null;
-  newComment: string;
+  newComment: string | null;
   initialNote: string | null;
-  newNote: string;
-  initialTitle: string;
-  newTitle: string;
-  userId: string;
-  userName: string;
+  newNote: string | null;
+  initialTitle: string | null;
+  newTitle: string | null;
+  userId: string | null;
+  userName: string | null;
   initialSiren: string | null;
-  newSiren: string;
+  newSiren: string | null;
   initialRNA: string | null;
-  newRNA: string;
+  newRNA: string | null;
   createdAt: Date;
 };
 
-export type Publisher = {
+export interface Publisher {
   _id: Schema.Types.ObjectId;
   name: string;
   status: string;
+  category: string | null;
   automated_report: boolean;
   send_report_to: string[];
-  mission_type: string | null;
-  role_promoteur: boolean;
-  role_annonceur_api: boolean;
-  role_annonceur_widget: boolean;
-  role_annonceur_campagne: boolean;
+  missionType: string | null;
+  annonceur: boolean;
+  api: boolean;
+  widget: boolean;
+  campaign: boolean;
   url: string;
   moderator: boolean;
   moderatorLink: string;
@@ -360,23 +361,48 @@ export type Publisher = {
   feed: string;
   apikey: string | null;
   lastSyncAt: Date;
-  publishers: {
-    publisher: string;
-    publisherName: string;
-    publisherLogo?: string;
-    mission_type?: string;
-    moderator?: boolean;
-  }[];
-  excludeOrganisations: string[];
+  broadcasters: string[];
+  publishers: PublisherBoard[];
+  excludedOrganizations: PublisherExcludedOrganization[];
   description: string;
   lead: string;
-  deleted_at: Date;
-  created_at: Date;
-  updated_at: Date;
+  deletedAt: Date;
+  createdAt: Date;
+  updatedAt: Date;
+
+  // Deprecated
+  mission_type: string | null;
+  role_promoteur: boolean;
+  role_annonceur_api: boolean;
+  role_annonceur_widget: boolean;
+  role_annonceur_campagne: boolean;
   lastFetchAt: Date;
   acceptedCount: number;
   refusedCount: number;
-};
+  created_at: Date;
+  updated_at: Date;
+  deleted_at: Date;
+}
+
+export interface PublisherBoard {
+  _id?: Schema.Types.ObjectId;
+  publisherId: string;
+  publisherName: string;
+  moderator: boolean;
+  missionType: string | null;
+
+  // Old to migrate
+  publisher: string; // publisherId
+  mission_type?: string | null; // missionType
+}
+
+export interface PublisherExcludedOrganization {
+  _id?: Schema.Types.ObjectId;
+  publisherId: string;
+  publisherName: string;
+  organizationClientId: string;
+  organizationName: string;
+}
 
 export interface Report {
   _id: Schema.Types.ObjectId;

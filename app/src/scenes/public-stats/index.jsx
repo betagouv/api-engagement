@@ -28,16 +28,17 @@ const PublicStats = () => {
   }, [filters]);
 
   return (
-    <div className="flex w-full flex-col bg-white shadow-lg">
+    <div className="flex w-full flex-col bg-white">
       <Helmet>
         <title>Statistiques - API Engagement</title>
       </Helmet>
       <div className="mx-auto my-14 w-4/5 max-w-[1200px] flex-1">
         <div className="flex justify-between">
-          <div className="flex flex-col">
+          <div>
             <h1 className="text-4xl font-bold mb-2">Statistiques de l'API Engagement</h1>
             <p className="text-lg font-medium text-gray-dark">L'API Engagement facilite la diffusion des missions de bénévolat et de volontariat partout en France.</p>
           </div>
+
           <img className="h-18 w-18" src={APILogo} alt="API Engagement" />
         </div>
       </div>
@@ -54,7 +55,7 @@ const PublicStats = () => {
             </div>
           </div>
         </div>
-        <div className="mx-auto my-14 w-4/5 max-w-[1200px] flex-1 border bg-white p-12">
+        <div className="mx-auto my-14 w-4/5 max-w-[1200px] border bg-white p-12">
           <h2 className="text-3xl font-bold">En quelques mots</h2>
           <div className="flex-start flex gap-6">
             <div className="mt-8 flex-1 text-lg leading-loose text-gray-dark">

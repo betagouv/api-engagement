@@ -85,7 +85,7 @@ const Widgets = () => {
             <p className="font-semibold text-lg">{data.length > 1 ? `${data.length} widgets` : `${data.length} widget`}</p>
             {user.role === "admin" && (
               <div className="relative flex items-center">
-                <Toggle checked={!filters.active} setChecked={(checked) => setFilters({ ...filters, active: !checked, page: 1 })} />
+                <Toggle value={!filters.active} onChange={(checked) => setFilters({ ...filters, active: !checked, page: 1 })} />
                 <label className="ml-2">Afficher les widgets désactivés</label>
               </div>
             )}
@@ -122,7 +122,7 @@ const Widgets = () => {
                 </td>
                 {user.role === "admin" && (
                   <td className="px-4">
-                    <Toggle checked={item.active} setChecked={(v) => handleActivate(v, item)} />
+                    <Toggle value={item.active} onChange={(v) => handleActivate(v, item)} />
                   </td>
                 )}
               </tr>
