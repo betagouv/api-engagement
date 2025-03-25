@@ -25,7 +25,7 @@ const Members = ({ values, onChange }) => {
   return (
     <div className="space-y-6">
       <h2 className="text-3xl font-bold">Membres</h2>
-      <Table header={[{ title: "Membre" }, { title: "Email" }, { title: "Envoyer le rapport", position: "center" }, { title: "Rôle", position: "center" }]} className="h-96">
+      <Table header={[{ title: "Membre" }, { title: "Email" }, { title: "Envoyer le rapport", position: "center" }, { title: "Rôle", position: "center" }]} className="max-h-96">
         {members.map((item, index) => (
           <tr key={index} className={`${index % 2 === 0 ? "bg-gray-100" : "bg-gray-50"} table-item`}>
             <td className="p-4">{`${item.firstname} ${item.lastname}`}</td>

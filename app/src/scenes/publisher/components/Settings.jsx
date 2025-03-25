@@ -10,23 +10,24 @@ import { PUBLISHER_CATEGORIES } from "../../../constants";
 import api from "../../../services/api";
 import { captureError } from "../../../services/error";
 
-const Settings = ({ values, onChange, onSave }) => {
+const Settings = ({ values, onChange, onSave, errors, setErrors }) => {
   return (
     <div className="space-y-6">
       <h2 className="text-3xl font-bold">Paramètres</h2>
+      {errors.settings && <p className="text-red-700">{errors.settings}</p>}
       <div className="flex items-start gap-6">
         <div className="flex-1">
-          <Annonceur values={values} onChange={onChange} />
+          <Annonceur values={values} onChange={onChange} errors={errors} setErrors={setErrors} />
         </div>
         <div className="flex-1">
-          <Diffuseurs values={values} onChange={onChange} onSave={onSave} />
+          <Diffuseurs values={values} onChange={onChange} onSave={onSave} errors={errors} setErrors={setErrors} />
         </div>
       </div>
     </div>
   );
 };
 
-const Annonceur = ({ values, onChange }) => {
+const Annonceur = ({ values, onChange, errors, setErrors }) => {
   const [data, setData] = useState([]);
 
   useEffect(() => {
@@ -48,11 +49,18 @@ const Annonceur = ({ values, onChange }) => {
     <div className="border border-gray-border p-6 space-y-6">
       <div className="flex items-center justify-between">
         <h3 className="text-lg font-bold">Annonceur</h3>
-        <Toggle value={values.role_promoteur} onChange={(e) => onChange({ ...values, role_promoteur: e })} />
+        <Toggle
+          value={values.annonceur}
+          onChange={(e) => {
+            onChange({ ...values, annonceur: e, missionType: null });
+            setErrors({ ...errors, settings: null });
+          }}
+        />
       </div>
-      {values.role_promoteur && (
+      {values.annonceur && (
         <>
           <div className="w-full h-px bg-gray-border" />
+          {errors.missionType && <p className="text-red-700">{errors.missionType}</p>}
           <div className="space-y-4">
             <RadioInput
               id="mission-type-benevolat"
@@ -60,8 +68,11 @@ const Annonceur = ({ values, onChange }) => {
               value="benevolat"
               label="Bénévolat"
               size={24}
-              checked={values.mission_type === "benevolat"}
-              onChange={() => onChange({ ...values, mission_type: "benevolat" })}
+              checked={values.missionType === "benevolat"}
+              onChange={() => {
+                onChange({ ...values, missionType: "benevolat" });
+                setErrors({ ...errors, missionType: null });
+              }}
             />
 
             <RadioInput
@@ -70,8 +81,11 @@ const Annonceur = ({ values, onChange }) => {
               value="volontariat"
               label="Volontariat"
               size={24}
-              checked={values.mission_type === "volontariat"}
-              onChange={() => onChange({ ...values, mission_type: "volontariat" })}
+              checked={values.missionType === "volontariat"}
+              onChange={() => {
+                onChange({ ...values, missionType: "volontariat" });
+                setErrors({ ...errors, missionType: null });
+              }}
             />
           </div>
           <div className="w-full h-px bg-gray-border" />
@@ -118,15 +132,12 @@ const DiffuseurModal = ({ data }) => {
   );
 };
 
-const Diffuseurs = ({ values, onChange, onSave }) => {
-  const [open, setOpen] = useState(values.role_annonceur_api || values.role_annonceur_widget || values.role_annonceur_campagne);
+const Diffuseurs = ({ values, onChange, onSave, errors, setErrors }) => {
   const [editing, setEditing] = useState(false);
   const [data, setData] = useState([]);
   const [selected, setSelected] = useState([]);
 
   useEffect(() => {
-    setOpen(values.role_annonceur_api || values.role_annonceur_widget || values.role_annonceur_campagne);
-
     const fetchData = async () => {
       try {
         const res = await api.post("/publisher/search", {
@@ -141,22 +152,29 @@ const Diffuseurs = ({ values, onChange, onSave }) => {
       }
     };
     fetchData();
-  }, [values.publishers, values.role_annonceur_api, values.role_annonceur_widget, values.role_annonceur_campagne]);
+  }, [values.publishers, values.diffuseur]);
 
   const handleSave = async () => {
     try {
+      const errors = {};
+      if (values.diffuseur && !values.category) errors.category = "Le partenaire est “Diffuseur”. Veuillez sélectionner la catégorie dans le formulaire.";
+      if (values.diffuseur && !values.api && !values.widget && !values.campaign)
+        errors.mode = "Le partenaire est “Diffuseur”. Veuillez sélectionner au moins un “moyen de diffusion” dans le formulaire.";
+      if (Object.keys(errors).length > 0) {
+        toast.error(errors.category || errors.mode);
+        setErrors(errors);
+        return;
+      }
       const publishers = data.filter((item) => selected.includes(item._id));
 
       const res = await api.put(`/publisher/${values._id}`, {
+        ...values,
         publishers: publishers.map((p) => ({
           publisherId: p._id,
           publisherName: p.name,
           publisherLogo: p.logo,
           moderator: p.moderator,
-          missionType: p.mission_type,
-          // Old to migrate
-          publisher: p._id,
-          mission_type: p.mission_type,
+          missionType: p.missionType,
         })),
       });
 
@@ -174,17 +192,13 @@ const Diffuseurs = ({ values, onChange, onSave }) => {
     <div className="border border-gray-border p-6 space-y-6">
       <div className="flex items-center justify-between">
         <h3 className="text-lg font-bold">Diffuseurs</h3>
-        <Toggle
-          value={open}
-          onChange={(e) => {
-            setOpen(e);
-            if (!e) onChange({ ...values, role_annonceur_api: false, role_annonceur_widget: false, role_annonceur_campagne: false });
-          }}
-        />
+        <Toggle value={values.diffuseur} onChange={(e) => onChange({ ...values, diffuseur: e, api: false, widget: false, campaign: false })} />
       </div>
-      {open && (
+      {values.diffuseur && (
         <>
           <div className="w-full h-px bg-gray-border" />
+          {errors.category && <p className="text-red-700">{errors.category}</p>}
+          {errors.mode && <p className="text-red-700">{errors.mode}</p>}
           <div className="space-y-2">
             <label className="text-base" htmlFor="category">
               Catégorie <span className="text-red-500">*</span>
@@ -209,8 +223,8 @@ const Diffuseurs = ({ values, onChange, onSave }) => {
                 className="checkbox"
                 id="role-annonceur-api"
                 name="role-annonceur-api"
-                onChange={(e) => onChange({ ...values, role_annonceur_api: e.target.checked })}
-                checked={values.role_annonceur_api}
+                onChange={(e) => onChange({ ...values, api: e.target.checked })}
+                checked={values.api}
               />
               <label htmlFor="role-annonceur-api">API</label>
             </div>
@@ -220,8 +234,8 @@ const Diffuseurs = ({ values, onChange, onSave }) => {
                 className="checkbox"
                 id="role-annonceur-widget"
                 name="role-annonceur-widget"
-                onChange={(e) => onChange({ ...values, role_annonceur_widget: e.target.checked })}
-                checked={values.role_annonceur_widget}
+                onChange={(e) => onChange({ ...values, widget: e.target.checked })}
+                checked={values.widget}
               />
               <label htmlFor="role-annonceur-widget">Widgets</label>
             </div>
@@ -231,19 +245,19 @@ const Diffuseurs = ({ values, onChange, onSave }) => {
                 className="checkbox"
                 id="role-annonceur-campagne"
                 name="role-annonceur-campagne"
-                onChange={(e) => onChange({ ...values, role_annonceur_campagne: e.target.checked })}
-                checked={values.role_annonceur_campagne}
+                onChange={(e) => onChange({ ...values, campaign: e.target.checked })}
+                checked={values.campaign}
               />
               <label htmlFor="role-annonceur-campagne">Campagnes</label>
             </div>
           </div>
           <div className="w-full h-px bg-gray-border" />
           <p className="text-base">
-            {values.name} diffuse les missions de {data.filter((item) => values.publishers.find((p) => p.publisher === item._id)).length} annonceurs
+            {values.name} diffuse les missions de {data.filter((item) => values.publishers.find((p) => p.publisherId === item._id)).length} annonceurs
           </p>
           <Table header={[{ title: "Annonceurs" }]} className="max-h-96 h-full">
             {data
-              .filter((item) => (editing ? true : values.publishers.find((p) => p.publisher === item._id)))
+              .filter((item) => (editing ? item._id !== values._id : values.publishers.find((p) => p.publisherId === item._id)))
               .map((item, index) => (
                 <tr key={index} className={`${index % 2 === 0 ? "bg-gray-100" : "bg-gray-50"} table-item`}>
                   <td className="p-4">

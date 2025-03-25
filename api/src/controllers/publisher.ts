@@ -104,8 +104,8 @@ router.get("/:id", passport.authenticate("user", { session: false }), async (req
     if (req.user.role !== "admin" && !req.user.publishers.find((e: string) => e === params.data.id || publisher.publishers.find((p) => p.publisher === e)))
       return res.status(403).send({ ok: false, code: FORBIDDEN, message: `Not allowed` });
 
-    // TODO publisher to data
-    return res.status(200).send({ ok: true, publisher });
+    // Double write, remove publisher later
+    return res.status(200).send({ ok: true, publisher, data: publisher });
   } catch (error) {
     next(error);
   }
@@ -191,70 +191,81 @@ router.put("/:id", passport.authenticate("admin", { session: false }), async (re
       .object({
         automated_report: zod.boolean().optional(),
         send_report_to: zod.array(zod.string()).optional(),
-        role_promoteur: zod.boolean().optional(),
-        role_annonceur_api: zod.boolean().optional(),
-        role_annonceur_widget: zod.boolean().optional(),
-        role_annonceur_campagne: zod.boolean().optional(),
+        annonceur: zod.boolean().default(false),
+        missionType: zod.string().nullable().default(null),
+        api: zod.boolean().default(false),
+        widget: zod.boolean().default(false),
+        campaign: zod.boolean().default(false),
+        category: zod.string().nullable().default(null),
         publishers: zod
           .array(
             zod.object({
-              publisher: zod.string(),
+              publisherId: zod.string(),
               publisherName: zod.string(),
               publisherLogo: zod.string().optional(),
-              mission_type: zod.string().nullable().optional(),
-              moderator: zod.boolean().optional(),
+              missionType: zod.string().nullable().default(null),
+              moderator: zod.boolean().default(false),
             }),
           )
           .optional(),
         documentation: zod.string().optional(),
-        mission_type: zod.string().nullable().optional(),
         description: zod.string().optional(),
         lead: zod.string().optional(),
         logo: zod.string().optional(),
         url: zod.string().optional(),
         email: zod.string().optional(),
         feed: zod.string().optional(),
-        category: zod.string().optional(),
       })
       .passthrough()
       .safeParse(req.body);
 
     if (!params.success) return res.status(400).send({ ok: false, code: INVALID_PARAMS, error: params.error });
     if (!body.success) return res.status(400).send({ ok: false, code: INVALID_BODY, error: body.error });
+    if (body.data.annonceur && !body.data.missionType) return res.status(400).send({ ok: false, code: INVALID_BODY, message: "Mission type is required" });
+    if (body.data.diffuseur && !body.data.category) return res.status(400).send({ ok: false, code: INVALID_BODY, message: "Category is required" });
+    if (body.data.diffuseur && !body.data.api && !body.data.widget && !body.data.campaign)
+      return res.status(400).send({ ok: false, code: INVALID_BODY, message: "At least one diffusion method is required" });
 
     const publisher = await PublisherModel.findById(params.data.id);
     if (!publisher) return res.status(404).send({ ok: false, code: NOT_FOUND, message: "Publisher not found" });
 
     if (body.data.automated_report !== undefined) publisher.automated_report = body.data.automated_report;
     if (body.data.send_report_to) publisher.send_report_to = body.data.send_report_to;
-    if (body.data.role_promoteur !== undefined) publisher.role_promoteur = body.data.role_promoteur;
-    if (body.data.role_annonceur_api !== undefined) publisher.role_annonceur_api = body.data.role_annonceur_api;
-    if (body.data.role_annonceur_widget !== undefined) publisher.role_annonceur_widget = body.data.role_annonceur_widget;
-    if (body.data.role_annonceur_campagne !== undefined) publisher.role_annonceur_campagne = body.data.role_annonceur_campagne;
+
+    publisher.annonceur = body.data.annonceur || false;
+    publisher.missionType = body.data.missionType || null;
+    publisher.api = body.data.api || false;
+    publisher.widget = body.data.widget || false;
+    publisher.campaign = body.data.campaign || false;
+    publisher.category = body.data.category || null;
+
+    // Double write depreciated
+    publisher.role_promoteur = body.data.annonceur || false;
+    publisher.mission_type = body.data.missionType || null;
+    publisher.role_annonceur_api = body.data.api || false;
+    publisher.role_annonceur_widget = body.data.widget || false;
+    publisher.role_annonceur_campagne = body.data.campaign || false;
 
     if (!(publisher.role_annonceur_api || publisher.role_annonceur_widget || publisher.role_annonceur_campagne)) publisher.publishers = [];
     else if (body.data.publishers) {
-      const uniqueIds = new Set(body.data.publishers.map((p) => p.publisher));
+      const uniqueIds = new Set(body.data.publishers.map((p) => p.publisherId));
       publisher.publishers = body.data.publishers
-        .filter((p) => uniqueIds.has(p.publisher))
+        .filter((p) => uniqueIds.has(p.publisherId))
         .map((p) => ({
           ...p,
-          missionType: p.mission_type || "",
-          mission_type: p.mission_type || "",
-          publisherId: p.publisher,
-          moderator: p.moderator || false,
+          // Double write depreciated
+          publisher: p.publisherId,
+          mission_type: p.missionType || null,
         }));
     }
 
     if (body.data.documentation) publisher.documentation = body.data.documentation;
-    if (body.data.mission_type !== undefined) publisher.mission_type = body.data.mission_type;
     if (body.data.description) publisher.description = body.data.description;
     if (body.data.lead) publisher.lead = body.data.lead;
     if (body.data.logo) publisher.logo = body.data.logo;
     if (body.data.url) publisher.url = body.data.url;
     if (body.data.email) publisher.email = body.data.email;
     if (body.data.feed) publisher.feed = body.data.feed;
-    if (body.data.category) publisher.category = body.data.category;
     await publisher.save();
 
     res.status(200).send({ ok: true, data: publisher });

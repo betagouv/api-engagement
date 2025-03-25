@@ -15,7 +15,7 @@ const Administration = ({ values, onChange }) => {
       <div className="flex-1 space-y-4">
         <div className="flex flex-col gap-2">
           <label className="text-base" htmlFor="excludedOrganizations">
-            Organisations excluses par JeVeuxAider.gouv.fr
+            Organisations exclues de la diffusion par JeVeuxAider.gouv.fr
           </label>
 
           <div className="flex items-center gap-2 flex-wrap">

@@ -344,14 +344,14 @@ export interface Publisher {
   _id: Schema.Types.ObjectId;
   name: string;
   status: string;
-  category: string;
+  category: string | null;
   automated_report: boolean;
   send_report_to: string[];
-  mission_type: string | null;
-  role_promoteur: boolean;
-  role_annonceur_api: boolean;
-  role_annonceur_widget: boolean;
-  role_annonceur_campagne: boolean;
+  missionType: string | null;
+  annonceur: boolean;
+  api: boolean;
+  widget: boolean;
+  campaign: boolean;
   url: string;
   moderator: boolean;
   moderatorLink: string;
@@ -370,7 +370,14 @@ export interface Publisher {
   createdAt: Date;
   updatedAt: Date;
 
+
+
   // Deprecated
+  mission_type: string | null;
+  role_promoteur: boolean;
+  role_annonceur_api: boolean;
+  role_annonceur_widget: boolean;
+  role_annonceur_campagne: boolean;
   lastFetchAt: Date;
   acceptedCount: number;
   refusedCount: number;

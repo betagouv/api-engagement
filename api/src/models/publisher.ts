@@ -31,14 +31,9 @@ const schema = new Schema<Publisher>(
   {
     name: { type: String, required: true, trim: true },
     status: { type: String, enum: ["active", "inactive"] },
-    category: { type: String, default: "OTHERS" },
+    category: { type: String, default: null },
     automated_report: { type: Boolean, default: false },
     send_report_to: { type: [String] },
-    mission_type: { type: String, default: null, enum: ["benevolat", "volontariat", null] },
-    role_promoteur: { type: Boolean, default: false },
-    role_annonceur_api: { type: Boolean, default: false },
-    role_annonceur_widget: { type: Boolean, default: false },
-    role_annonceur_campagne: { type: Boolean, default: false },
 
     url: { type: String },
 
@@ -58,7 +53,21 @@ const schema = new Schema<Publisher>(
     lead: { type: String, default: "" },
     deletedAt: { type: Date, default: null },
 
+    missionType: { type: String, default: null, enum: ["benevolat", "volontariat", null] },
+    annonceur: { type: Boolean, default: false },
+    api: { type: Boolean, default: false },
+    widget: { type: Boolean, default: false },
+    campaign: { type: Boolean, default: false },
+    
     // Depreciated
+    mission_type: { type: String, default: null, enum: ["benevolat", "volontariat", null] },
+    role_promoteur: { type: Boolean, default: false },
+    role_annonceur_api: { type: Boolean, default: false },
+    role_annonceur_widget: { type: Boolean, default: false },
+    role_annonceur_campagne: { type: Boolean, default: false },
+
+
+
     // excludeOrganisations: { type: [String] },
     // excludedOrganisations: { type: [excludedOrganizationSchema] },
     lastFetchAt: { type: Date },

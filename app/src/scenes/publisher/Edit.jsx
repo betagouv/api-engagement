@@ -23,15 +23,26 @@ const Edit = () => {
     excludedOrganizations: [],
     send_report_to: [],
     automated_report: false,
-    role_promoteur: false,
-    role_annonceur_api: false,
-    role_annonceur_widget: false,
-    role_annonceur_campagne: false,
-    mission_type: "benevolat",
+    description: "",
+    lead: "",
+    url: "",
+    email: "",
+    documentation: "",
+    name: "",
+
+    annonceur: false,
+    missionType: null,
+    diffuseur: false,
+    category: null,
+    api: false,
+    widget: false,
+    campaign: false,
   });
+  const [errors, setErrors] = useState({});
 
   useEffect(() => {
-    setValues({ ...values, ...publisher });
+    if (!publisher) return;
+    setValues({ ...values, ...publisher, diffuseur: publisher.api || publisher.widget || publisher.campaign || false });
   }, [publisher]);
 
   useEffect(() => {
@@ -39,7 +50,7 @@ const Edit = () => {
       try {
         const res = await api.get(`/publisher/${id}`);
         if (!res.ok) throw res;
-        setPublisher(res.publisher);
+        setPublisher(res.data);
       } catch (error) {
         captureError(error, "Erreur lors de la récupération du partenaire");
       }
@@ -84,6 +95,18 @@ const Edit = () => {
 
   const handleSubmit = async () => {
     try {
+      const errors = {};
+      if (!values.diffuseur && !values.annonceur) errors.settings = "Le partenaire doit être “Annonceur” ou “Diffuseur”. Veuillez cocher une des options dans le formulaire";
+      if (values.annonceur && !values.missionType) errors.missionType = "Le partenaire est “Annonceur”. Veuillez sélectionner la catégorie dans le formulaire.";
+      if (values.diffuseur && !values.category) errors.category = "Le partenaire est “Diffuseur”. Veuillez sélectionner la catégorie dans le formulaire.";
+      if (values.diffuseur && !values.api && !values.widget && !values.campaign)
+        errors.mode = "Le partenaire est “Diffuseur”. Veuillez sélectionner au moins un “moyen de diffusion” dans le formulaire.";
+      if (Object.keys(errors).length > 0) {
+        toast.error(errors.settings || errors.missionType || errors.category || errors.mode);
+        setErrors(errors);
+        return;
+      }
+
       const res = await api.put(`/publisher/${id}`, values);
       if (!res.ok) throw res;
       toast.success("Partenaire mis à jour");
@@ -121,7 +144,7 @@ const Edit = () => {
       <div className="bg-white p-12 space-y-12 shadow-lg">
         <Informations values={values} onChange={setValues} />
         <div className="w-full h-px bg-gray-border" />
-        <Settings values={values} onChange={setValues} onSave={setPublisher} />
+        <Settings values={values} onChange={setValues} onSave={setPublisher} errors={errors} setErrors={setErrors} />
         <div className="w-full h-px bg-gray-border" />
         <Administration values={values} onChange={setValues} />
         <div className="w-full h-px bg-gray-border" />
