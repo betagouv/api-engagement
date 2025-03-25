@@ -9,7 +9,7 @@ import Modal from "../../../../components/Modal";
 import api from "../../../../services/api";
 import { captureError } from "../../../../services/error";
 import useStore from "../../../../services/store";
-import { COMMENTS, STATUS, STATUS_COLORS } from "./Constants";
+import { JVA_MODERATION_COMMENTS_LABELS, STATUS, STATUS_COLORS } from "./Constants";
 import OrganizationRefusedModal from "./OrganizationRefusedModal";
 
 const MissionItem = ({ data, history, selected, onChange, onSelect, onFilter }) => {
@@ -127,8 +127,8 @@ const MissionItem = ({ data, history, selected, onChange, onSelect, onFilter }) 
         </div>
         {values.status === "REFUSED" && (
           <select className="select" name="motif" value={values.comment} onChange={(e) => handleSubmit({ status: "REFUSED", comment: e.target.value })}>
-            {COMMENTS.map((value, index) => (
-              <option key={index} value={value}>
+            {Object.entries(JVA_MODERATION_COMMENTS_LABELS).map(([key, value]) => (
+              <option key={key} value={key}>
                 {value}
               </option>
             ))}

@@ -34,17 +34,29 @@ export const STATUS_GRAPH_COLORS = {
   REFUSED: "#f95c5e",
 };
 
-export const COMMENTS = [
-  "Autre",
-  "La mission a déjà été publiée sur JeVeuxAider.gouv.fr",
-  "Le contenu est insuffisant / non qualitatif",
-  "La date de la mission n'est pas compatible avec le recrutement de bénévoles",
-  "La mission ne respecte pas la charte de la Réserve Civique",
-  "L'organisation est déjà inscrite sur JeVeuxAider.gouv.fr",
-  "L'organisation n'est pas conforme à la charte de la Réserve Civique",
-  "Les informations sont insuffisantes pour modérer l'organisation",
-  "La mission est refusée car la date de création est trop ancienne (> 6 mois)",
-];
+export const JVA_MODERATION_COMMENTS_LABELS = {
+  OTHER: "Autre",
+  MISSION_ALREADY_PUBLISHED: "La mission a déjà été publiée sur JeVeuxAider.gouv.fr",
+  CONTENT_INSUFFICIENT: "Le contenu est insuffisant / non qualitatif",
+  MISSION_DATE_NOT_COMPATIBLE: "La date de la mission n'est pas compatible avec le recrutement de bénévoles",
+  MISSION_NOT_COMPLIANT: "La mission ne respecte pas la charte de la Réserve Civique",
+  ORGANIZATION_ALREADY_PUBLISHED: "L'organisation est déjà inscrite sur JeVeuxAider.gouv.fr",
+  ORGANIZATION_NOT_COMPLIANT: "L'organisation n'est pas conforme à la charte de la Réserve Civique",
+  INFORMATION_INSUFFICIENT: "Les informations sont insuffisantes pour modérer l'organisation",
+  MISSION_CREATION_DATE_TOO_OLD: "La mission est refusée car la date de création est trop ancienne (> 6 mois)",
+};
+
+// export const COMMENTS = [
+//   "Autre",
+//   "La mission a déjà été publiée sur JeVeuxAider.gouv.fr",
+//   "Le contenu est insuffisant / non qualitatif",
+//   "La date de la mission n'est pas compatible avec le recrutement de bénévoles",
+//   "La mission ne respecte pas la charte de la Réserve Civique",
+//   "L'organisation est déjà inscrite sur JeVeuxAider.gouv.fr",
+//   "L'organisation n'est pas conforme à la charte de la Réserve Civique",
+//   "Les informations sont insuffisantes pour modérer l'organisation",
+//   "La mission est refusée car la date de création est trop ancienne (> 6 mois)",
+// ];
 
 export const moderationStatusBadges = {
   PENDING: <span className="rounded bg-[#fff2ea] px-2 py-1 text-sm font-semibold uppercase text-[#fc5d00]">À modérer</span>,
@@ -52,18 +64,6 @@ export const moderationStatusBadges = {
   ACCEPTED: <span className="rounded bg-[#B8FEC9] px-2 py-1 text-sm font-semibold uppercase text-[#18753C]">Acceptée</span>,
   REFUSED: <span className="rounded bg-[#ce0500]/10 px-2 py-1 text-sm font-semibold uppercase text-[#ce0500]">Refusée</span>,
 };
-
-export const statusCommentLabels = [
-  "Autre",
-  "La mission a déjà été publiée sur JeVeuxAider.gouv.fr",
-  "Le contenu est insuffisant / non qualitatif",
-  "La date de la mission n’est pas compatible avec le recrutement de bénévoles",
-  "La mission ne respecte pas la charte de la Réserve Civique",
-  "L'organisation est déjà inscrite sur JeVeuxAider.gouv.fr",
-  "L’organisation n’est pas conforme à la charte de la Réserve Civique",
-  "Les informations sont insuffisantes pour modérer l’organisation",
-  "La mission est refusée car la date de création est trop ancienne (> 6 mois)",
-];
 
 export const DEPARTMENT_LABELS = {
   10: "Aube (10)",

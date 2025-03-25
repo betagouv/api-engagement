@@ -9,7 +9,6 @@ import PublisherModel from "../../models/publisher";
 import { Mission, Publisher } from "../../types";
 import MissionModel from "../../models/mission";
 import ModerationEventModel from "../../models/moderation-event";
-import { configureScope } from "@sentry/node";
 
 interface ModerationUpdate {
   status: string | null;
@@ -74,19 +73,19 @@ const createModerations = async (missions: Mission[], moderator: Publisher) => {
 
     if (sixMonthsAgo > createdAt) {
       update.status = "REFUSED";
-      update.comment = "La mission est refusée car la date de création est trop ancienne (> 6 mois)";
+      update.comment = "MISSION_CREATION_DATE_TOO_OLD";
       update.date = new Date();
     } else if (endAt && startAt < in7Days && endAt < in21Days) {
       update.status = "REFUSED";
-      update.comment = "La date de la mission n’est pas compatible avec le recrutement de bénévoles";
+      update.comment = "MISSION_DATE_NOT_COMPATIBLE";
       update.date = new Date();
     } else if (m.description.length < 300) {
       update.status = "REFUSED";
-      update.comment = "Le contenu est insuffisant / non qualitatif";
+      update.comment = "CONTENT_INSUFFICIENT";
       update.date = new Date();
     } else if (!m.city) {
       update.status = "REFUSED";
-      update.comment = "Le contenu est insuffisant / non qualitatif";
+      update.comment = "CONTENT_INSUFFICIENT";
       update.date = new Date();
     }
 
@@ -106,7 +105,7 @@ const createModerations = async (missions: Mission[], moderator: Publisher) => {
           initialNote: m[`moderation_${moderator._id}_note`] || null,
           newNote:
             update.status === "REFUSED"
-              ? `Data de la mission refusée: création=${createdAt.toLocaleDateString("fr")}, début=${startAt.toLocaleDateString("fr")}, fin=${endAt ? endAt.toLocaleDateString("fr") : "non renseigné"}, taille description=${m.description.length}, ville=${m.city}`
+              ? `Data de la mission refusée: date de création=${createdAt.toLocaleDateString("fr")}, date de début=${startAt.toLocaleDateString("fr")}, date defin=${endAt ? endAt.toLocaleDateString("fr") : "non renseigné"}, nombre caractères description=${m.description.length}, ville=${m.city}`
               : "",
         },
       },

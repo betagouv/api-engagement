@@ -4,6 +4,7 @@ import importCampaigns from "./campaign";
 import importWidgets from "./widget";
 import importOrganizations from "./organization";
 import importMissions from "./mission";
+import importModerationEvents from "./moderation-event";
 import importImports from "./import";
 import importImpressions from "./print";
 import importClicks from "./click";
@@ -23,6 +24,7 @@ const handler = async () => {
     widgets: { created: 0, updated: 0 },
     organizations: { created: 0, updated: 0 },
     missions: { created: 0, updated: 0 },
+    moderation_events: { created: 0, updated: 0 },
     organization_name_matches: { created: 0, updated: 0 },
     imports: { created: 0, updated: null },
     prints: { created: 0, updated: null },
@@ -52,6 +54,9 @@ const handler = async () => {
   const missions = await importMissions();
   stats.missions.created += missions?.created || 0;
   stats.missions.updated += missions?.updated || 0;
+  const moderation_events = await importModerationEvents();
+  stats.moderation_events.created += moderation_events?.created || 0;
+  stats.moderation_events.updated += moderation_events?.updated || 0;
   const impressions = await importImpressions();
   stats.prints.created += impressions?.created || 0;
   const clicks = await importClicks();

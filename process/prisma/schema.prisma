@@ -296,11 +296,13 @@ model Mission {
   jva_moderation_comment          String?
   jva_moderation_status           String?
   jva_moderation_title            String?
+  jva_moderation_user_id          String?
+  jva_moderation_updated_at       DateTime?
+  
   organization_client_id          String?
   organization_department         String?
   client_id                       String?
   description_html                String?
-  jva_moderation_updated_at       DateTime?
   leboncoin_moderation_comment    String?
   leboncoin_moderation_status     String?
   leboncoin_moderation_updated_at DateTime?
@@ -333,11 +335,36 @@ model Mission {
   impressions                     Impression[]
   organization                    Organization? @relation(fields: [matched_organization_id], references: [id])
   partner                         Partner?      @relation(fields: [partner_id], references: [id])
-
+  moderation_events               ModerationEvent[]
   @@index([client_id], map: "mission_client_id")
   @@index([matched_organization_id], map: "mission_matched_organization_id")
   @@index([partner_id], map: "mission_partner_id")
   @@index([old_id], map: "mission_old_id")
+}
+
+model ModerationEvent {
+  id String @id @default(uuid())
+  old_id String @unique
+  mission_id String
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+  user_id String?
+  user_name String?
+  initial_status ModerationEventStatus?
+  new_status ModerationEventStatus?
+  initial_comment String?
+  new_comment String?
+  initial_note String?
+  new_note String?
+  initial_title String?
+  new_title String?
+  initial_siren String?
+  new_siren String?
+  initial_rna String?
+  new_rna String?
+
+  user User? @relation(fields: [user_id], references: [id])
+  mission Mission @relation(fields: [mission_id], references: [id], onDelete: Cascade)
 }
 
 model Address {
@@ -458,9 +485,10 @@ model User {
   created_at                  DateTime       @default(now())
   updated_at                  DateTime       @updatedAt
   deleted_at                  DateTime?
-  deleted                     Boolean        @default(false)
+  
   login_history               LoginHistory[]
   partners PartnerToUser[]
+  moderation_events           ModerationEvent[]
 }
 
 model Widget {
@@ -559,4 +587,11 @@ enum SourceType {
   campaign
   seo
   jstag
+}
+
+enum ModerationEventStatus {
+  accepted
+  refused
+  pending
+  ongoing
 }
