@@ -202,12 +202,10 @@ router.put("/:id", passport.authenticate("admin", { session: false }), async (re
               publisherName: zod.string(),
               publisherLogo: zod.string().optional(),
               mission_type: zod.string().nullable().optional(),
-              excludedOrganisations: zod.array(zod.string()).optional(),
               moderator: zod.boolean().optional(),
             }),
           )
           .optional(),
-        excludeOrganisations: zod.array(zod.string()).optional(),
         documentation: zod.string().optional(),
         mission_type: zod.string().nullable().optional(),
         description: zod.string().optional(),
@@ -241,14 +239,13 @@ router.put("/:id", passport.authenticate("admin", { session: false }), async (re
         .filter((p) => uniqueIds.has(p.publisher))
         .map((p) => ({
           ...p,
-          excludedOrganisations: p.excludedOrganisations || [],
-          missionType: p.mission_type || null,
+          missionType: p.mission_type || "",
+          mission_type: p.mission_type || "",
           publisherId: p.publisher,
           moderator: p.moderator || false,
         }));
     }
 
-    if (body.data.excludeOrganisations) publisher.excludeOrganisations = body.data.excludeOrganisations;
     if (body.data.documentation) publisher.documentation = body.data.documentation;
     if (body.data.mission_type !== undefined) publisher.mission_type = body.data.mission_type;
     if (body.data.description) publisher.description = body.data.description;
