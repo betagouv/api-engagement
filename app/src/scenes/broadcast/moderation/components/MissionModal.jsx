@@ -1,7 +1,7 @@
 import { Dialog, DialogBackdrop, DialogPanel } from "@headlessui/react";
-import { useEffect, useState } from "react";
+import { Fragment, useEffect, useState } from "react";
 import { HiX } from "react-icons/hi";
-import { RiCheckboxCircleFill, RiCloseCircleFill, RiErrorWarningFill, RiExternalLinkLine, RiTimeFill } from "react-icons/ri";
+import { RiCheckboxCircleFill, RiCloseFill, RiErrorWarningFill, RiExternalLinkLine, RiTimeLine } from "react-icons/ri";
 import { Link, useSearchParams } from "react-router-dom";
 import { toast } from "react-toastify";
 
@@ -389,173 +389,190 @@ const OrganizationTab = ({ data, onChange }) => {
 
 const HistoryTab = ({ data }) => {
   const { publisher } = useStore();
-  const [events, setEvents] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [status, setStatus] = useState([]);
+  const [modifications, setModifications] = useState([]);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
+        setLoading(true);
         const res = await api.post(`/moderation-event/search`, { missionId: data._id, moderatorId: publisher._id });
         if (!res.ok) throw res;
-        setEvents(res.data);
+
+        setStatus(res.data.filter((event) => event.newStatus || event.newComment));
+        setModifications(res.data.filter((event) => event.newNote || event.newTitle || event.newSiren || event.newRNA));
       } catch (error) {
         captureError(error, "Erreur lors de la récupération des données");
+      } finally {
+        setLoading(false);
       }
     };
 
     fetchData();
   }, [data, publisher._id]);
 
-  if (!events) {
-    return <Loader />;
-  }
-
-  const statusChanges = events.filter((event) => event.initialStatus !== event.newStatus || event.initialComment !== event.newComment);
-  const modifications = events.filter(
-    (event) => event.initialNote !== event.newNote || event.initialTitle !== event.newTitle || event.initialSiren !== event.newSiren || event.initialRNA !== event.newRNA,
-  );
+  if (loading) return <Loader />;
 
   return (
-    <div className="flex h-full flex-col gap-4 p-6">
-      {statusChanges.length > 0 && (
-        <div className="flex flex-col gap-2">
-          <div className="flex items-center gap-2 text-gray-dark text-xs font-semibold mb-4">EVOLUTION DES STATUTS</div>
-          {statusChanges.map((event, index) => (
-            <div key={index} className="flex flex-col gap-2">
-              {event.initialStatus !== event.newStatus && (
-                <div className="">
-                  <div className="flex justify-between items-center">
-                    <div className="text-gray-dark text-sm">
-                      {event.newStatus === "ACCEPTED" ? (
-                        <RiCheckboxCircleFill className="inline text-4xl text-green-600 mr-2" />
-                      ) : event.newStatus === "REFUSED" ? (
-                        <RiCloseCircleFill className="inline text-4xl text-red-600 mr-2" />
-                      ) : (
-                        <RiTimeFill className="inline text-4xl text-orange-600 mr-2" />
-                      )}
-                      <span className="font-semibold text-black">{event.userName}</span> a passé le statut à{" "}
-                      <span className="font-semibold text-black">{STATUS[event.newStatus]}</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <span className="text-gray-dark text-sm">{new Date(event.createdAt).toLocaleDateString("fr")}</span>
-                    </div>
-                  </div>
-                  {index < statusChanges.length - 1 && <div className="h-[30px] ml-4 mt-2 border-l border-gray-border" />}
-                </div>
-              )}
-              {event.newComment !== null && event.initialComment !== event.newComment && (
-                <>
-                  <div className="flex justify-between items-center">
-                    <div className="text-gray-dark text-sm">
-                      <RiCloseCircleFill className="inline text-4xl text-red-600 mr-2" />
-                      <span className="font-semibold text-black">{event.userName}</span> a modifié le motif de refus en{" "}
-                      <span className="font-semibold text-black">{event.newComment}</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <span className="text-gray-dark text-sm">{new Date(event.createdAt).toLocaleDateString("fr")}</span>
-                    </div>
-                  </div>
-                  <div className="h-[30px] ml-4 border-l border-gray-border" />
-                </>
-              )}
-            </div>
-          ))}
-        </div>
-      )}
+    <div className="p-8">
+      <h3 className="text-gray-dark text-xs font-bold uppercase mb-4">Évolution des statuts</h3>
+      <div className="space-y-2">
+        {status.length === 0 && modifications.length === 0 && <div className="text-center text-gray-dark">Aucun événement de modération trouvé.</div>}
+        {status.map((event, index) => (
+          <Fragment key={index}>
+            {index !== 0 && <div className="h-[30px] w-px ml-4 bg-gray-border" />}
+            <div className="flex justify-between items-start gap-4">
+              <div className="flex-1 flex items-center gap-4">
+                {
+                  {
+                    PENDING: (
+                      <div className="w-8 h-8 flex items-center justify-center bg-[#B34000] rounded-full">
+                        <RiTimeLine className="text-white" size={16} />
+                      </div>
+                    ),
+                    ACCEPTED: (
+                      <div className="w-8 h-8 flex items-center justify-center bg-[#18753C] rounded-full">
+                        <RiCheckboxCircleFill className="text-white" size={16} />
+                      </div>
+                    ),
+                    REFUSED: (
+                      <div className="w-8 h-8 flex items-center justify-center bg-[#CE0500] rounded-full">
+                        <RiCloseFill className="text-white" size={16} />
+                      </div>
+                    ),
+                  }[event.newStatus]
+                }
+                <p className="flex-1 text-gray-dark text-base">
+                  <span className="text-black">{event.userName}</span> a passé le statut à <span className="font-semibold text-black">{STATUS[event.newStatus]}</span>
+                </p>
+              </div>
 
-      {modifications.length > 0 && (
-        <div className="flex flex-col gap-4 mt-4">
-          <div className="flex items-center gap-2 text-gray-dark text-xs font-semibold">MODIFICATIONS</div>
-          {modifications.map((event, index) => (
-            <div key={index} className="flex flex-col gap-2">
-              {event.newNote !== null && event.initialNote !== event.newNote && (
-                <div className="flex justify-between items-center">
-                  <div className="text-sm text-gray-dark">
-                    <span className="text-black">{event.userName}</span> a modifié la note en <span className="font-semibold text-black">{event.newNote}</span>
+              <span className="text-gray-dark text-sm">{new Date(event.createdAt).toLocaleDateString("fr")}</span>
+            </div>
+
+            {event.newStatus === "REFUSED" && (
+              <>
+                <div className="h-[30px] w-px ml-4 bg-gray-border" />
+                <div className="flex justify-between items-start gap-4">
+                  <div className="flex-1 flex items-center gap-4">
+                    <div className="w-8 h-8 flex items-center justify-center bg-[#CE0500] rounded-full">
+                      <RiCloseFill className="text-white" size={16} />
+                    </div>
+                    <p className="flex-1 text-gray-dark text-base">
+                      <span className="text-black">{event.userName}</span> a modifié le motif de refus en <span className="font-semibold text-black">{event.newComment}</span>
+                    </p>
                   </div>
-                  <div className="text-gray-dark text-sm">
+                  <span className="text-gray-dark text-sm">{new Date(event.createdAt).toLocaleDateString("fr")}</span>
+                </div>
+              </>
+            )}
+          </Fragment>
+        ))}
+      </div>
+
+      <h3 className="text-gray-dark text-xs font-bold uppercase mt-8 mb-4">Modifications</h3>
+      <div className="space-y-4">
+        {modifications.length === 0 && <p className="text-gray-dark">Aucune modification</p>}
+        {modifications.map((event, index) => (
+          <div key={index} className="space-y-2">
+            {event.newNote !== null && event.userId && (
+              <div className="flex justify-between items-center">
+                <div className="text-sm text-gray-dark">
+                  <span className="text-black">{event.userName}</span> a modifié la note en <span className="font-semibold text-black">{event.newNote}</span>
+                </div>
+                <div className="text-gray-dark text-sm">
+                  <span>{new Date(event.createdAt).toLocaleDateString("fr")}</span>
+                </div>
+              </div>
+            )}
+            {event.newNote !== null && !event.userId && (
+              <div className="flex justify-between items-center">
+                <div className="text-sm text-gray-dark">
+                  Modération automatique a enregistré les données suivantes au moment de la modération automatique:{" "}
+                  <span className="font-semibold text-black">{event.newNote}</span>
+                </div>
+                <div className="text-gray-dark text-sm">
+                  <span>{new Date(event.createdAt).toLocaleDateString("fr")}</span>
+                </div>
+              </div>
+            )}
+            {event.newTitle !== null && (
+              <div className="mt-2 text-sm">
+                <div className="mb-4 flex justify-between items-center">
+                  <div className="text-gray-dark">
+                    <span className="font-normal text-black">{event.userName}</span> a modifié le <span className="font-semibold text-black">titre de la mission</span>
+                  </div>
+                  <div className="border-t border-gray-border mx-2 flex-1"></div>
+                  <div className="text-gray-dark">
                     <span>{new Date(event.createdAt).toLocaleDateString("fr")}</span>
                   </div>
                 </div>
-              )}
-              {event.initialTitle !== event.newTitle && (
-                <div className="mt-2 text-sm">
-                  <div className="mb-4 flex justify-between items-center">
-                    <div className="text-gray-dark">
-                      <span className="font-normal text-black">{event.userName}</span> a modifié le <span className="font-semibold text-black">titre de la mission</span>
-                    </div>
-                    <div className="border-t border-gray-border mx-2 flex-1"></div>
-                    <div className="text-gray-dark">
-                      <span>{new Date(event.createdAt).toLocaleDateString("fr")}</span>
-                    </div>
-                  </div>
 
-                  <div className="flex justify-between">
-                    <div>
-                      <p className="text-xs">Avant</p>
-                      <p className="text-xs text-gray-dark mt-4">{event.initialTitle}</p>
-                    </div>
-                    <div>
-                      <p className="text-xs">Après</p>
-                      <p className="text-xs text-gray-dark mt-4">{event.newTitle}</p>
-                    </div>
+                <div className="flex justify-between">
+                  <div className="flex-1">
+                    <p className="text-sm">Avant</p>
+                    <p className="text-sm text-gray-dark mt-4">{event.initialTitle || data.title}</p>
+                  </div>
+                  <div className="flex-1">
+                    <p className="text-sm">Après</p>
+                    <p className="text-sm text-gray-dark mt-4">{event.newTitle}</p>
                   </div>
                 </div>
-              )}
-              {event.initialSiren !== event.newSiren && (
-                <div className="mt-2 text-sm">
-                  <div className="mb-4 flex justify-between items-center">
-                    <div className="text-gray-dark">
-                      <span className="font-normal text-black">{event.userName}</span> a modifié le <span className="font-semibold text-black">SIREN</span>
-                    </div>
-                    <div className="border-t border-gray-border mx-2 flex-1"></div>
-                    <div className="text-gray-dark">
-                      <span>{new Date(event.createdAt).toLocaleDateString("fr")}</span>
-                    </div>
+              </div>
+            )}
+            {event.newSiren !== null && (
+              <div className="mt-2 text-sm">
+                <div className="mb-4 flex justify-between items-center">
+                  <div className="text-gray-dark">
+                    <span className="font-normal text-black">{event.userName}</span> a modifié le <span className="font-semibold text-black">SIREN</span>
                   </div>
-
-                  <div className="flex">
-                    <div className="flex-1">
-                      <p className="text-xs">Avant</p>
-                      <p className="text-xs text-gray-dark mt-4">{!event.initialSiren || event.initialSiren === "" ? "-" : event.initialSiren}</p>
-                    </div>
-                    <div className="flex-1">
-                      <p className="text-xs">Après</p>
-                      <p className="text-xs text-gray-dark mt-4">{event.newSiren}</p>
-                    </div>
+                  <div className="border-t border-gray-border mx-2 flex-1"></div>
+                  <div className="text-gray-dark">
+                    <span>{new Date(event.createdAt).toLocaleDateString("fr")}</span>
                   </div>
                 </div>
-              )}
-              {event.initialRNA !== event.newRNA && (
-                <div className="mt-2 text-sm">
-                  <div className="mb-4 flex justify-between items-center">
-                    <div className="text-gray-dark">
-                      <span className="font-normal text-black">{event.userName}</span> a modifié le <span className="font-semibold text-black">RNA</span>
-                    </div>
-                    <div className="border-t border-gray-border mx-2 flex-1"></div>
 
-                    <div className="text-gray-dark">
-                      <span>{new Date(event.createdAt).toLocaleDateString("fr")}</span>
-                    </div>
+                <div className="flex">
+                  <div className="flex-1">
+                    <p className="text-sm">Avant</p>
+                    <p className="text-sm text-gray-dark mt-4">{event.initialSiren || "-"}</p>
                   </div>
-
-                  <div className="flex">
-                    <div className="flex-1">
-                      <p className="text-xs">Avant</p>
-                      <p className="text-xs text-gray-dark mt-4">{!event.initialRNA || event.initialRNA === "" ? "-" : event.initialRNA}</p>
-                    </div>
-                    <div className="flex-1">
-                      <p className="text-xs">Après</p>
-                      <p className="text-xs text-gray-dark mt-4">{event.newRNA}</p>
-                    </div>
+                  <div className="flex-1">
+                    <p className="text-sm">Après</p>
+                    <p className="text-sm text-gray-dark mt-4">{event.newSiren}</p>
                   </div>
                 </div>
-              )}
-            </div>
-          ))}
-        </div>
-      )}
+              </div>
+            )}
+            {event.newRNA !== null && (
+              <div className="mt-2 text-sm">
+                <div className="mb-4 flex justify-between items-center">
+                  <div className="text-gray-dark">
+                    <span className="font-normal text-black">{event.userName}</span> a modifié le <span className="font-semibold text-black">RNA</span>
+                  </div>
+                  <div className="border-t border-gray-border mx-2 flex-1"></div>
 
-      {statusChanges.length === 0 && modifications.length === 0 && <div className="text-center text-gray-dark">Aucun événement de modération trouvé.</div>}
+                  <div className="text-gray-dark">
+                    <span>{new Date(event.createdAt).toLocaleDateString("fr")}</span>
+                  </div>
+                </div>
+
+                <div className="flex">
+                  <div className="flex-1">
+                    <p className="text-sm">Avant</p>
+                    <p className="text-sm text-gray-dark mt-4">{event.initialRNA || "-"}</p>
+                  </div>
+                  <div className="flex-1">
+                    <p className="text-sm">Après</p>
+                    <p className="text-sm text-gray-dark mt-4">{event.newRNA}</p>
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+        ))}
+      </div>
     </div>
   );
 };

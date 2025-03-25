@@ -34,7 +34,7 @@ const ADIE = "619fb52a7d373e07aea8be35";
 const PARTNERS = [BENEVOLT, FONDATION_RAOUL_FOLLEREAU, VILLE_DE_NANTES, VACANCES_ET_FAMILLES, PREVENTION_ROUTIERE, MEDECINS_DU_MONDE, EGEE, ECTI, ADIE];
 
 const getMissions = async (where: { [key: string]: any }) => {
-  const missions = await MissionModel.find(where).sort({ createdAt: "asc" }).limit(10000).lean();
+  const missions = await MissionModel.find(where).sort({ createdAt: "asc" }).lean();
   return missions.map(
     (e) =>
       ({
@@ -115,7 +115,7 @@ const handler = async () => {
     const xml = generateXML(jobs);
 
     if (ENVIRONMENT === "development") {
-      fs.writeFileSync("linkedin-after.xml", xml);
+      fs.writeFileSync("linkedin.xml", xml);
     } else {
       await putObject("xml/linkedin.xml", xml, { ContentType: "application/xml", ACL: OBJECT_ACL.PUBLIC_READ });
       console.log(`[Linkedin] Create import, created=${importDoc.createdCount}, updated=${importDoc.updatedCount}, deleted=${importDoc.deletedCount}`);
@@ -234,10 +234,9 @@ const generateJob = (mission: Mission, defaultCompany: string) => {
   const diffTime = Math.abs(currentDate.getTime() - startDate.getTime());
   const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
   const initialDescription = diffDays % 6 < 3;
-
   if (!mission.title) return;
   if (!mission.description) return;
-  if (!mission.associationName) return;
+  if (!mission.organizationName) return;
   if (!mission.city) return;
   if (!mission.region) return;
   if (!mission.country) return;
@@ -248,11 +247,11 @@ const generateJob = (mission: Mission, defaultCompany: string) => {
     applyUrl: mission.applicationUrl,
     title: `Bénévolat - ${mission.title}`,
     description: initialDescription
-      ? `Ceci est une mission de bénévolat pour <strong>${mission.associationName}</strong><br>${mission.description.replace("\n", "<br>").replace("\u000b", "")}`
-      : `<strong>${mission.associationName}</strong> vous propose une mission de bénévolat<br>${mission.description
+      ? `Ceci est une mission de bénévolat pour <strong>${mission.organizationName}</strong><br>${mission.description.replace("\n", "<br>").replace("\u000b", "")}`
+      : `<strong>${mission.organizationName}</strong> vous propose une mission de bénévolat<br>${mission.description
           .replace("\n", "<br>")
           .replace("\u000b", "")}<br><br>Type : missions-benevolat`,
-    company: defaultCompany !== "benevolt" && COMPANIES[mission.associationName] ? mission.associationName : defaultCompany,
+    company: defaultCompany !== "benevolt" && COMPANIES[mission.organizationName] ? mission.organizationName : defaultCompany,
     location: `${mission.city}, ${mission.country} ${mission.region}`,
     country: mission.country,
     city: mission.city,
@@ -271,7 +270,6 @@ const generateJob = (mission: Mission, defaultCompany: string) => {
   if (job.company.length > 300) return;
   if (job.location.length > 300) return;
   if (job.country && job.country.length > 2) return;
-  // if (job.listDate.length > 300) return; // ??? why ??? TODO
 
   return job;
 

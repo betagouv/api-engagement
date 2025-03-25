@@ -159,11 +159,11 @@ const schema = new Schema<Mission>(
     deletedAt: { type: Date, default: null },
 
     // Moderation JVA
-    moderation_5f5931496c7ea514150a818f_status: { type: String, enum: ["PENDING", "ONGOING", "ACCEPTED", "REFUSED"] },
-    moderation_5f5931496c7ea514150a818f_comment: { type: String },
-    moderation_5f5931496c7ea514150a818f_note: { type: String },
-    moderation_5f5931496c7ea514150a818f_title: { type: String },
-    moderation_5f5931496c7ea514150a818f_date: { type: Date },
+    moderation_5f5931496c7ea514150a818f_status: { type: String, enum: ["PENDING", "ONGOING", "ACCEPTED", "REFUSED", null], default: null },
+    moderation_5f5931496c7ea514150a818f_comment: { type: String, default: null },
+    moderation_5f5931496c7ea514150a818f_note: { type: String, default: null },
+    moderation_5f5931496c7ea514150a818f_title: { type: String, default: null },
+    moderation_5f5931496c7ea514150a818f_date: { type: Date, default: null },
 
     // LeBonCoin
     leboncoinStatus: { type: String },

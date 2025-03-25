@@ -146,7 +146,7 @@ const Moderation = () => {
 
         <div className="pt-4">
           <div className="flex items-center gap-4">
-            <Toggle checked={true} setChecked={() => null} />
+            <Toggle value={true} />
             <label className="ml-2 font-semibold">Activer la modération automatique</label>
           </div>
           <div className="flex items-center justify-end">

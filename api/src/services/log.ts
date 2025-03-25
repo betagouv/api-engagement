@@ -35,7 +35,7 @@ export const logModeration = async (previous: any, update: any, user: any, moder
     obj.newStatus = data.newStatus;
   }
   if (data.newTitle && data.initialTitle !== data.newTitle) {
-    obj.initialTitle = data.initialTitle;
+    obj.initialTitle = data.initialTitle || previous.title;
     obj.newTitle = data.newTitle;
   }
   if (data.newComment && (data.initialComment !== data.newComment || data.initialComment === null)) {

@@ -60,6 +60,7 @@ schema.index({ titleSlug: 1 });
 schema.index({ siret: 1 });
 schema.index({ addressDepartmentName: 1 });
 schema.index({ addressCity: 1 });
+schema.index({ title: "text", shortTitle: "text", rna: "text", siret: "text" });
 
 const OrganizationModel = model<Organization>(MODELNAME, schema);
 export default OrganizationModel;
