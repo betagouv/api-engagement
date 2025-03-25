@@ -195,7 +195,7 @@ router.get("/search", passport.authenticate(["apikey", "api"], { session: false 
     const where = {
       statusCode: "ACCEPTED",
       deletedAt: null,
-      organizationName: { $nin: user.excludeOrganisations || [] }, // TODO: delete later
+      organizationName: { $nin: user.excludeOrganisations || [] },
       organizationClientId: { $nin: user.excludedOrganizations.map((e) => e.organizationClientId) },
     } as { [key: string]: any };
 
