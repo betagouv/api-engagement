@@ -1,10 +1,10 @@
 import { Schema, model } from "mongoose";
 
-import { Publisher, PublisherBoard, PublisherExcludedOrganization } from "../types";
+import { Diffuseur, Publisher, PublisherExcludedOrganization } from "../types";
 
 const MODELNAME = "publisher";
 
-const publisherSchema = new Schema<PublisherBoard>(
+const publisherSchema = new Schema<Diffuseur>(
   {
     publisherId: { type: String, ref: "publisher" },
     publisherName: { type: String, required: true, trim: true },
@@ -58,7 +58,7 @@ const schema = new Schema<Publisher>(
     api: { type: Boolean, default: false },
     widget: { type: Boolean, default: false },
     campaign: { type: Boolean, default: false },
-    
+
     // Depreciated
     mission_type: { type: String, default: null, enum: ["benevolat", "volontariat", null] },
     role_promoteur: { type: Boolean, default: false },
@@ -66,9 +66,7 @@ const schema = new Schema<Publisher>(
     role_annonceur_widget: { type: Boolean, default: false },
     role_annonceur_campagne: { type: Boolean, default: false },
 
-
-
-    // excludeOrganisations: { type: [String] },
+    excludeOrganisations: { type: [String] },
     // excludedOrganisations: { type: [excludedOrganizationSchema] },
     lastFetchAt: { type: Date },
     acceptedCount: { type: Number, default: 0 },

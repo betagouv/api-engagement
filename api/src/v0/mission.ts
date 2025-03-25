@@ -81,6 +81,7 @@ router.get("/", passport.authenticate(["apikey", "api"], { session: false }), as
     const where = {
       statusCode: "ACCEPTED",
       deletedAt: null,
+      organizationName: { $nin: user.excludeOrganisations || [] }, // TODO: delete later
       organizationClientId: { $nin: user.excludedOrganizations.map((e) => e.organizationClientId) },
     } as { [key: string]: any };
 
@@ -194,6 +195,7 @@ router.get("/search", passport.authenticate(["apikey", "api"], { session: false 
     const where = {
       statusCode: "ACCEPTED",
       deletedAt: null,
+      organizationName: { $nin: user.excludeOrganisations || [] }, // TODO: delete later
       organizationClientId: { $nin: user.excludedOrganizations.map((e) => e.organizationClientId) },
     } as { [key: string]: any };
 

@@ -362,15 +362,16 @@ export interface Publisher {
   apikey: string | null;
   lastSyncAt: Date;
   broadcasters: string[];
-  publishers: PublisherBoard[];
+  publishers: Diffuseur[];
   excludedOrganizations: PublisherExcludedOrganization[];
   description: string;
   lead: string;
-  deletedAt: Date;
+  deletedAt: Date | null;
   createdAt: Date;
   updatedAt: Date;
 
   // Deprecated
+  excludeOrganisations: string[];
   mission_type: string | null;
   role_promoteur: boolean;
   role_annonceur_api: boolean;
@@ -384,7 +385,7 @@ export interface Publisher {
   deleted_at: Date;
 }
 
-export interface PublisherBoard {
+export interface Diffuseur {
   _id?: Schema.Types.ObjectId;
   publisherId: string;
   publisherName: string;

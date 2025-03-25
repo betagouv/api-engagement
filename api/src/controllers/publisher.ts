@@ -248,15 +248,12 @@ router.put("/:id", passport.authenticate("admin", { session: false }), async (re
 
     if (!(publisher.role_annonceur_api || publisher.role_annonceur_widget || publisher.role_annonceur_campagne)) publisher.publishers = [];
     else if (body.data.publishers) {
-      const uniqueIds = new Set(body.data.publishers.map((p) => p.publisherId));
-      publisher.publishers = body.data.publishers
-        .filter((p) => uniqueIds.has(p.publisherId))
-        .map((p) => ({
-          ...p,
-          // Double write depreciated
-          publisher: p.publisherId,
-          mission_type: p.missionType || null,
-        }));
+      publisher.publishers = body.data.publishers.map((p) => ({
+        ...p,
+        // Double write depreciated
+        publisher: p.publisherId,
+        mission_type: p.missionType || null,
+      }));
     }
 
     if (body.data.documentation) publisher.documentation = body.data.documentation;
