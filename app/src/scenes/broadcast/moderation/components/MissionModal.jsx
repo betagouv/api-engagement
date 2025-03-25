@@ -460,7 +460,8 @@ const HistoryTab = ({ data }) => {
                       <RiCloseFill className="text-white" size={16} />
                     </div>
                     <p className="flex-1 text-gray-dark text-base">
-                      <span className="text-black">{event.userName}</span> a modifié le motif de refus en <span className="font-semibold text-black">{event.newComment}</span>
+                      <span className="text-black">{event.userName}</span> a modifié le motif de refus en{" "}
+                      <span className="font-semibold text-black">{JVA_MODERATION_COMMENTS_LABELS[event.newComment] || event.newComment}</span>
                     </p>
                   </div>
                   <span className="text-gray-dark text-sm">{new Date(event.createdAt).toLocaleDateString("fr")}</span>
