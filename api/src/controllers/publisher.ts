@@ -214,7 +214,7 @@ router.put("/:id", passport.authenticate("admin", { session: false }), async (re
               publisher: zod.string(),
               publisherName: zod.string(),
               publisherLogo: zod.string().optional(),
-              mission_type: zod.string().optional(),
+              mission_type: zod.string().nullable().optional(),
               moderator: zod.boolean().optional(),
             }),
           )
@@ -246,7 +246,7 @@ router.put("/:id", passport.authenticate("admin", { session: false }), async (re
     if (body.data.role_annonceur_campagne !== undefined) publisher.role_annonceur_campagne = body.data.role_annonceur_campagne;
 
     if (!(publisher.role_annonceur_api || publisher.role_annonceur_widget || publisher.role_annonceur_campagne)) publisher.publishers = [];
-    else if (body.data.publishers) publisher.publishers = body.data.publishers;
+    else if (body.data.publishers) publisher.publishers = body.data.publishers.map((e) => ({ ...e, mission_type: e.mission_type || "" }));
 
     if (body.data.excludeOrganisations) publisher.excludeOrganisations = body.data.excludeOrganisations;
     if (body.data.documentation) publisher.documentation = body.data.documentation;
