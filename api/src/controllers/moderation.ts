@@ -150,7 +150,7 @@ router.post("/aggs", passport.authenticate("user", { session: false }), async (r
     const publishers = await PublisherModel.find({}, { _id: 1, name: 1 });
 
     const data = {
-      status: facets[0].status.map((b: { _id: string; count: number }) => ({ key: b._id, doc_count: b.count })),
+      status: facets[0].status.filter((b: { _id: string }) => b._id).map((b: { _id: string; count: number }) => ({ key: b._id, doc_count: b.count })),
       comments: facets[0].comments.filter((b: { _id: string }) => b._id).map((b: { _id: string; count: number }) => ({ key: b._id, doc_count: b.count })),
       publishers: facets[0].publishers.map((b: { _id: string; count: number }) => ({
         key: b._id,
