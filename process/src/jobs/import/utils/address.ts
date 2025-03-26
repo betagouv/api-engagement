@@ -143,9 +143,9 @@ export const getAddresses = (mission: Mission, missionXML: MissionXML) => {
       addressItem.geoPoint = { type: "Point", coordinates: [addressItem.location.lon, addressItem.location.lat] };
     }
 
-    if (address.country === "France") address.country = "FR";
+    if (addressItem.country === "France") addressItem.country = "FR";
 
-    if (address.country !== "FR") {
+    if (addressItem.country !== "FR") {
       addressItem.postalCode = parseString(address.postalCode);
       addressItem.departmentCode = parseString(address.departmentCode);
       addressItem.departmentName = parseString(address.departmentName);
