@@ -10,6 +10,7 @@ import { enrichWithGeoloc } from "./geoloc";
 import { Import, Mission, MissionXML, Publisher } from "../../types";
 import MissionModel from "../../models/mission";
 import { bulkDB } from "./utils/db";
+import { Schema } from "mongoose";
 
 const parseXML = (xmlString: string) => {
   const parser = new XMLParser();
@@ -61,11 +62,11 @@ const parseXML = (xmlString: string) => {
 
 const buildData = async (startTime: Date, publisher: Publisher, missionXML: MissionXML) => {
   try {
-    const missionDB = (await MissionModel.findOne({ publisherId: publisher._id, clientId: missionXML.clientId }).lean()) as Mission;
+    const missionDB = await MissionModel.findOne({ publisherId: publisher._id, clientId: missionXML.clientId });
 
     const mission = buildMission(publisher, missionXML);
     if (missionDB) {
-      mission._id = missionDB._id;
+      mission._id = missionDB._id as Schema.Types.ObjectId;
       mission.createdAt = missionDB.createdAt;
     }
     mission.deleted = false;
@@ -88,6 +89,7 @@ const buildData = async (startTime: Date, publisher: Publisher, missionXML: Miss
 
     return mission;
   } catch (error) {
+    console.log("ici", error);
     captureException(error, `Error while parsing mission ${missionXML.clientId}`);
   }
 };
@@ -140,14 +142,17 @@ const importPublisher = async (publisher: Publisher, start: Date) => {
     const promises = [] as Promise<Mission | undefined>[];
     for (let j = 0; j < missionsXML.length; j++) {
       const missionXML = missionsXML[j];
-
       promises.push(buildData(obj.startedAt, publisher, missionXML));
 
-      if (j % 50 === 0 || j === missionsXML.length - 1) {
+      if (j % 50 === 0) {
         const res = await Promise.all(promises);
         res.filter((e) => e !== undefined).forEach((e: Mission) => missions.push(e));
         promises.length = 0;
       }
+    }
+    if (promises.length > 0) {
+      const res = await Promise.all(promises);
+      res.filter((e) => e !== undefined).forEach((e: Mission) => missions.push(e));
     }
 
     // GEOLOC
