@@ -23,92 +23,126 @@ class APIHandler {
   }
 
   async post(endpoint, data, options = {}) {
-    const response = await fetch(`${this.baseUrl}${endpoint}`, {
-      method: "POST",
-      headers: {
-        ...this.headers,
-        ...options.headers,
-      },
-      signal: options.signal,
-      body: JSON.stringify(data),
-      credentials: "include",
-    });
-    if (response.status === 401) {
-      window.location = "/login";
-      return { ok: false, status: 401, error: "Unauthorized" };
+    try {
+      const response = await fetch(`${this.baseUrl}${endpoint}`, {
+        method: "POST",
+        headers: {
+          ...this.headers,
+          ...options.headers,
+        },
+        signal: options.signal,
+        body: JSON.stringify(data),
+        credentials: "include",
+      });
+      if (response.status === 401) {
+        window.location = "/login?loggedout=true";
+        return { ok: false, status: 401, error: "Unauthorized" };
+      }
+      const res = await response.json();
+      return { ...res, status: response.status };
+    } catch (error) {
+      if (error.message.includes("NetworkError")) {
+        return { ok: false, status: 401, error: "Unauthorized" };
+      }
+      throw error;
     }
-    const res = await response.json();
-    return { ...res, status: response.status };
   }
 
   async postFormData(endpoint, data) {
-    const response = await fetch(`${this.baseUrl}${endpoint}`, {
-      method: "POST",
-      headers: {
-        Authorization: this.headers.Authorization,
-      },
-      body: data,
-      credentials: "include",
-    });
-    if (response.status === 401) {
-      window.location = "/login";
-      return { ok: false, status: 401, error: "Unauthorized" };
+    try {
+      const response = await fetch(`${this.baseUrl}${endpoint}`, {
+        method: "POST",
+        headers: {
+          Authorization: this.headers.Authorization,
+        },
+        body: data,
+        credentials: "include",
+      });
+      if (response.status === 401) {
+        window.location = "/login?loggedout=true";
+        return { ok: false, status: 401, error: "Unauthorized" };
+      }
+      return await response.json();
+    } catch (error) {
+      if (error.message.includes("NetworkError")) {
+        return { ok: false, status: 401, error: "Unauthorized" };
+      }
+      throw error;
     }
-    return await response.json();
   }
 
   async get(endpoint, options = {}) {
-    const response = await fetch(`${this.baseUrl}${endpoint}`, {
-      method: "GET",
-      headers: {
-        ...this.headers,
-        ...options.headers,
-      },
-      credentials: "include",
-    });
-    if (response.status === 401) {
-      window.location = "/login";
-      return { ok: false, status: 401, error: "Unauthorized" };
+    try {
+      const response = await fetch(`${this.baseUrl}${endpoint}`, {
+        method: "GET",
+        headers: {
+          ...this.headers,
+          ...options.headers,
+        },
+        credentials: "include",
+      });
+      if (response.status === 401) {
+        window.location = "/login?loggedout=true";
+        return { ok: false, status: 401, error: "Unauthorized" };
+      }
+      const res = await response.json();
+      return { ...res, status: response.status };
+    } catch (error) {
+      if (error.message.includes("NetworkError")) {
+        return { ok: false, status: 401, error: "Unauthorized" };
+      }
+      throw error;
     }
-    const res = await response.json();
-    return { ...res, status: response.status };
   }
 
   async put(endpoint, data, options = {}) {
-    const response = await fetch(`${this.baseUrl}${endpoint}`, {
-      method: "PUT",
-      headers: {
-        ...this.headers,
-        ...options.headers,
-      },
-      body: JSON.stringify(data),
-      credentials: "include",
-    });
-    if (response.status === 401) {
-      window.location = "/login";
-      return { ok: false, status: 401, error: "Unauthorized" };
+    try {
+      const response = await fetch(`${this.baseUrl}${endpoint}`, {
+        method: "PUT",
+        headers: {
+          ...this.headers,
+          ...options.headers,
+        },
+        body: JSON.stringify(data),
+        credentials: "include",
+      });
+      if (response.status === 401) {
+        window.location = "/login?loggedout=true";
+        return { ok: false, status: 401, error: "Unauthorized" };
+      }
+      const res = await response.json();
+      return { ...res, status: response.status };
+    } catch (error) {
+      if (error.message.includes("NetworkError")) {
+        return { ok: false, status: 401, error: "Unauthorized" };
+      }
+      throw error;
     }
-    const res = await response.json();
-    return { ...res, status: response.status };
   }
 
   async delete(endpoint, options = {}) {
-    const response = await fetch(`${this.baseUrl}${endpoint}`, {
-      method: "DELETE",
-      headers: {
-        ...this.headers,
-        ...options.headers,
-      },
-      credentials: "include",
-    });
-    if (response.status === 401) {
-      window.location = "/login";
-      return { ok: false, status: 401, error: "Unauthorized" };
+    try {
+      const response = await fetch(`${this.baseUrl}${endpoint}`, {
+        method: "DELETE",
+        headers: {
+          ...this.headers,
+          ...options.headers,
+        },
+        credentials: "include",
+      });
+      if (response.status === 401) {
+        window.location = "/login?loggedout=true";
+        return { ok: false, status: 401, error: "Unauthorized" };
+      }
+      const res = await response.json();
+      return { ...res, status: response.status };
+    } catch (error) {
+      if (error.message.includes("NetworkError")) {
+        return { ok: false, status: 401, error: "Unauthorized" };
+      }
+      throw error;
     }
-    const res = await response.json();
-    return { ...res, status: response.status };
   }
 }
-
 const api = new APIHandler();
 export default api;

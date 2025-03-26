@@ -25,7 +25,6 @@ const buildData = (doc: User, partners: { [key: string]: string }) => {
     email: doc.email,
     created_at: doc.created_at,
     updated_at: doc.updated_at,
-    deleted: doc.deleted || false, // To remvove
     deleted_at: doc.deleted ? new Date(doc.updated_at) : null,
     last_login_at: doc.last_login_at,
     first_name: doc.firstname,

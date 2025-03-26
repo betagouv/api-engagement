@@ -1,9 +1,10 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Helmet } from "react-helmet-async";
 import { RiErrorWarningFill } from "react-icons/ri";
 import { Link, useNavigate } from "react-router-dom";
 import validator from "validator";
 
+import { toast } from "react-toastify";
 import api from "../../services/api";
 import { captureError } from "../../services/error";
 import useStore from "../../services/store";
@@ -13,6 +14,11 @@ const Login = () => {
   const [errors, setErrors] = useState({});
   const { setAuth } = useStore();
   const navigate = useNavigate();
+
+  useEffect(() => {
+    const loggedout = new URLSearchParams(window.location.search).get("loggedout");
+    if (loggedout) toast.info("Vous avez été déconnecté");
+  }, []);
 
   const handleSubmit = async (event) => {
     event.preventDefault();
