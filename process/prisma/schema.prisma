@@ -505,7 +505,7 @@ model Widget {
   latitude     Float?
   longitude    Float?
   distance     String?
-  jva_moderation Boolean?
+  jva_moderation Boolean @default(false)
 
   deleted_at   DateTime?
   created_at   DateTime      @default(now())
@@ -518,6 +518,7 @@ model Widget {
   query        WidgetQuery[] @relation("QueryWidget")
   partners PartnerToWidget[]
 }
+
 
 model WidgetQuery {
   id            String    @id @default(uuid())

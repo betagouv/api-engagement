@@ -239,6 +239,7 @@ const generateJob = (mission: Mission, defaultCompany: string) => {
   if (!mission.organizationName) return;
   if (!mission.city) return;
   if (!mission.region) return;
+  if (!mission.region) return;
   if (!mission.country) return;
 
   const job = {

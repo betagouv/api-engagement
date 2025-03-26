@@ -24,7 +24,7 @@ const buildData = (doc: Widget, partners: { id: string; old_id: string }[]) => {
     latitude: doc.location?.lat || null,
     longitude: doc.location?.lon || null,
     distance: doc.location ? doc.distance : null,
-    jva_moderation: doc.jvaModeration,
+    jva_moderation: doc.jvaModeration || false,
 
     diffuseur_id: diffuseur.id,
     deleted_at: doc.deleted ? new Date(doc.updatedAt) : null,
@@ -55,9 +55,8 @@ const handler = async () => {
       const exists = stored[doc._id.toString()];
       const obj = buildData(doc as Widget, partners);
       if (!obj) continue;
-      // if (exists && new Date(exists.updated_at).getTime() !== obj.widget.updated_at.getTime()) dataToUpdate.push(obj);
       if (!exists) dataToCreate.push(obj);
-      else dataToUpdate.push(obj);
+      else if (new Date(exists.updated_at).getTime() !== obj.widget.updated_at.getTime()) dataToUpdate.push(obj);
     }
     console.log(`[Widgets] Found ${dataToCreate.length} docs to create, ${dataToUpdate.length} docs to update.`);
 

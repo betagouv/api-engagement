@@ -139,15 +139,14 @@ const handler = async () => {
     let created = 0;
     let updated = 0;
     let offset = 0;
+    let processed = 0;
 
     const count = await prisma.mission.count();
     console.log(`[Missions] Found ${count} docs in database.`);
     const partners = {} as { [key: string]: string };
     await prisma.partner.findMany({ select: { id: true, old_id: true } }).then((data) => data.forEach((d) => (partners[d.old_id] = d.id)));
 
-    const fourteenDaysAgo = new Date();
-    fourteenDaysAgo.setDate(fourteenDaysAgo.getDate() - 14);
-    const where = { $or: [{ createdAt: { $gte: fourteenDaysAgo } }, { updatedAt: { $gte: fourteenDaysAgo } }] };
+    const where = {};
     const countToSync = await MissionModel.countDocuments(where);
     console.log(`[Missions] Found ${countToSync} docs to sync.`);
 
@@ -169,10 +168,13 @@ const handler = async () => {
         .then((data) => data.forEach((d) => (stored[d.old_id] = d)));
 
       for (const doc of data) {
-        const res = await buildData(doc as MongoMission, partners);
-        if (!res) continue;
-        if (stored[doc._id.toString()] && !isDateEqual(stored[doc._id.toString()].updated_at, res.mission.updated_at)) dataToUpdate.push(res);
-        else if (!stored[doc._id.toString()]) dataToCreate.push(res);
+        if (!stored[doc._id.toString()]) {
+          const res = await buildData(doc as MongoMission, partners);
+          if (res) dataToCreate.push(res);
+        } else if (!isDateEqual(stored[doc._id.toString()].updated_at, doc.updatedAt)) {
+          const res = await buildData(doc as MongoMission, partners);
+          if (res) dataToUpdate.push(res);
+        }
       }
 
       console.log(`[Missions] ${dataToCreate.length} docs to create, ${dataToUpdate.length} docs to update.`);
@@ -194,8 +196,10 @@ const handler = async () => {
       }
       // Update data
       if (dataToUpdate.length) {
+        let i = 0;
         for (const obj of dataToUpdate) {
           try {
+            if (i % 100 === 0) console.log(`[Missions] Updated ${i} docs, ${updated} updated so far.`);
             const mission = await prisma.mission.upsert({
               where: { old_id: obj.mission.old_id },
               update: obj.mission,
@@ -204,12 +208,14 @@ const handler = async () => {
             await prisma.address.deleteMany({ where: { mission_id: mission.id } });
             await prisma.address.createMany({ data: obj.addresses.map((e) => ({ ...e, mission_id: mission.id })) });
             updated += 1;
+            i++;
           } catch (error) {
             captureException(error, `[Missions] Error while syncing doc ${obj.mission.old_id}`);
           }
         }
-        console.log(`[Missions] Updated ${dataToUpdate.length} docs, ${updated} updated so far.`);
+        console.log(`[Missions] Updated ${i} docs, ${updated} updated so far.`);
       }
+      processed += data.length;
       offset += BULK_SIZE;
     }
 

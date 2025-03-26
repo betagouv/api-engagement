@@ -9,6 +9,8 @@ import PublisherModel from "../../models/publisher";
 import { Mission, Publisher } from "../../types";
 import MissionModel from "../../models/mission";
 import ModerationEventModel from "../../models/moderation-event";
+import { SLACK_CRON_CHANNEL_ID } from "../../config";
+import { postMessage } from "../../services/slack";
 
 interface ModerationUpdate {
   status: string | null;
@@ -41,7 +43,8 @@ const createModerations = async (missions: Mission[], moderator: Publisher) => {
   const missonBulk = [] as any[];
   const eventBulk = [] as any[];
 
-  console.log("missions", missions[0]._id);
+  let refused = 0;
+  let pending = 0;
   for (const m of missions) {
     const update = {
       status: "PENDING",
@@ -123,11 +126,14 @@ const createModerations = async (missions: Mission[], moderator: Publisher) => {
         },
       },
     });
+
+    if (update.status === "REFUSED") refused++;
+    if (update.status === "PENDING") pending++;
   }
 
   const res = await MissionModel.bulkWrite(missonBulk);
   const resEvent = await ModerationEventModel.bulkWrite(eventBulk);
-  return { updated: res.modifiedCount, events: resEvent.insertedCount };
+  return { updated: res.modifiedCount, events: resEvent.insertedCount, refused, pending };
 };
 
 const handler = async () => {
@@ -150,8 +156,16 @@ const handler = async () => {
       if (!data.length) continue;
 
       const res = await createModerations(data, moderator);
-      console.log(`[Moderation] - ${moderator.name} ${res.updated} missions updated`);
-      console.log(`[Moderation] - ${moderator.name} ${res.events} events created`);
+      console.log(`[Moderation] ${moderator.name} ${res.updated} missions updated`);
+      console.log(`[Moderation] ${moderator.name} ${res.events} events created`);
+
+      await postMessage(
+        {
+          title: `Moderation ${moderator.name} completed`,
+          text: `Mission updated: ${res.updated}, Events created: ${res.events}, Missions refused: ${res.refused}, Missions pending: ${res.pending}`,
+        },
+        SLACK_CRON_CHANNEL_ID,
+      );
     }
     console.log(`[Moderation] Ended at ${new Date().toISOString()} in ${(Date.now() - start.getTime()) / 1000}s`);
   } catch (err) {
