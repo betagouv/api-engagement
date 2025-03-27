@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { AiFillWarning } from "react-icons/ai";
 import { BiSolidInfoSquare } from "react-icons/bi";
-import { RiCloseFill, RiDeleteBin6Line, RiErrorWarningFill } from "react-icons/ri";
+import { RiDeleteBin6Line, RiErrorWarningFill } from "react-icons/ri";
 import { Link, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import Modal from "../../components/New-Modal";
@@ -17,7 +17,7 @@ import { isValidUrl } from "../../services/utils";
 const Create = () => {
   const { publisher } = useStore();
   const [publishers, setPulishers] = useState([]);
-  const [isCopyModalOpen, setIsCopyModalOpen] = useState(false);
+  const [isCopyModalOpen, setIsCopyModalOpen] = useState(true);
   const [campaignId, setCampaignId] = useState(null);
   const [values, setValues] = useState({
     name: "",
@@ -291,22 +291,11 @@ const CopyModal = ({ isOpen, campaignId, onClose }) => {
     navigator.clipboard.writeText(trackedLink);
     toast.success("Lien copié");
   };
+
   return (
-    <Modal isOpen={isOpen} onClose={onClose} innerClassName="w-full">
+    <Modal isOpen={isOpen} onClose={onClose}>
       <div className="p-10">
-        <div className="flex justify-end">
-          <button
-            type="button"
-            className="text-xs text-blue-dark"
-            onClick={() => {
-              onClose(false);
-              navigate(`/campaign/${campaignId}`);
-            }}
-          >
-            Fermer <RiCloseFill className="inline" />
-          </button>
-        </div>
-        <h2 className="mb-8">🥳 Votre campagne est créée !</h2>
+        <h2 className="text-lg font-bold mb-8">🥳 Votre campagne est créée !</h2>
         <p>
           Pour commencer à diffuser des missions et suivre les statistiques, insérez ce lien dans le contenu de votre campagne (votre site web, vos emails, des bannières, etc.).
         </p>

@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { AiFillWarning } from "react-icons/ai";
 import { BiSolidInfoSquare } from "react-icons/bi";
-import { RiCloseFill, RiDeleteBin6Line, RiErrorWarningFill, RiFileTransferLine } from "react-icons/ri";
+import { RiDeleteBin6Line, RiErrorWarningFill, RiFileTransferLine } from "react-icons/ri";
 import { Link, useNavigate, useParams } from "react-router-dom";
 
 import { toast } from "react-toastify";
@@ -447,18 +447,7 @@ const ReassignModal = ({ isOpen, onClose, campaign, values, setValues, setCampai
 
   return (
     <Modal isOpen={isOpen} onClose={onClose} innerClassName="w-full">
-      <div className="flex justify-end p-4">
-        <button
-          type="button"
-          className="text-xs text-blue-dark"
-          onClick={() => {
-            onClose(false);
-          }}
-        >
-          Fermer <RiCloseFill className="inline" />
-        </button>
-      </div>
-      <div className="p-10 pt-0">
+      <div className="p-10">
         <div className="flex items-center gap-3 mb-8">
           <RiFileTransferLine className="text-3xl" />
           <h2 className="text-3xl font-bold">Déplacer une campagne</h2>

@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Helmet } from "react-helmet-async";
-import { RiCheckboxCircleFill, RiCloseCircleFill, RiCloseFill } from "react-icons/ri";
+import { RiCheckboxCircleFill, RiCloseCircleFill } from "react-icons/ri";
 import { toast } from "react-toastify";
 
 import Modal from "../../components/New-Modal";
@@ -17,7 +17,6 @@ const Flux = () => {
   });
   const [imports, setImports] = useState([]);
   const [total, setTotal] = useState(0);
-  const [modal, setModal] = useState(false);
   const [lastSync, setLastSync] = useState(null);
 
   useEffect(() => {
@@ -67,14 +66,7 @@ const Flux = () => {
           <label className="font-semibold flex-none w-[35%]">Lien du fichier XML à synchroniser</label>
           <div className="flex flex-1 gap-2">
             <input className="input disabled:opacity-80 w-full bg-[#F5F5FE] border border-[#E3E3FD]" value={publisher.feed} disabled={true} />
-            {user.role === "admin" && (
-              <>
-                <button className="flex cursor-pointer items-center bg-blue-dark hover:bg-blue-main py-2 px-4 border text-white" onClick={() => setModal(!modal)}>
-                  Modifier
-                </button>
-                <ModifyModal isOpen={modal} onClose={() => setModal(false)} publisher={publisher} setPublisher={setPublisher} />
-              </>
-            )}
+            {user.role === "admin" && <ModifyModal />}
           </div>
         </div>
 
@@ -131,7 +123,8 @@ const Flux = () => {
   );
 };
 
-const ModifyModal = ({ isOpen, onClose }) => {
+const ModifyModal = () => {
+  const [isOpen, setIsOpen] = useState(false);
   const { publisher, setPublisher } = useStore();
 
   const handleFeedSubmit = async () => {
@@ -142,40 +135,40 @@ const ModifyModal = ({ isOpen, onClose }) => {
 
       toast.success("Flux mis à jour");
       setPublisher(res.data);
-      onClose();
+      setIsOpen(false);
     } catch (error) {
       captureError(error, "Erreur lors de la mise à jour du flux");
     }
   };
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose}>
-      <div className="p-10">
-        <div className="flex justify-end">
-          <button type="button" className="text-xs text-blue-dark" onClick={onClose}>
-            Fermer <RiCloseFill className="inline" />
-          </button>
+    <>
+      <button className="flex cursor-pointer items-center bg-blue-dark hover:bg-blue-main py-2 px-4 border text-white" onClick={() => setIsOpen(!isOpen)}>
+        Modifier
+      </button>
+      <Modal isOpen={isOpen} onClose={() => setIsOpen(false)}>
+        <div className="p-10">
+          <h2 className="text-lg font-bold mb-8">⚙️ Modifier votre flux de missions</h2>
+          <div className="flex flex-col items-start gap-4 justify-between">
+            <div>Lien du fichier XML à synchroniser</div>
+            <input
+              className="input w-full border-b-0 bg-gray-100 focus:ring-2 p-4"
+              value={publisher.feed}
+              disabled={false}
+              onChange={(e) => setPublisher({ ...publisher, feed: e.target.value })}
+            />
+          </div>
+          <div className="col-span-2 mt-8 flex justify-end gap-6">
+            <button type="button" className="button border border-blue-dark text-blue-dark hover:bg-gray-hover" onClick={() => setIsOpen(false)}>
+              Annuler
+            </button>
+            <button type="button" className="button bg-blue-dark text-white hover:bg-blue-main" onClick={handleFeedSubmit}>
+              Enregister
+            </button>
+          </div>
         </div>
-        <h2 className="mb-8">⚙️ Modifier votre flux de missions</h2>
-        <div className="flex flex-col items-start gap-4 justify-between">
-          <div>Lien du fichier XML à synchroniser</div>
-          <input
-            className="input w-full border-b-0 bg-gray-100 focus:ring-2 p-4"
-            value={publisher.feed}
-            disabled={false}
-            onChange={(e) => setPublisher({ ...publisher, feed: e.target.value })}
-          />
-        </div>
-        <div className="col-span-2 mt-8 flex justify-end gap-6">
-          <button type="button" className="button border border-blue-dark text-blue-dark hover:bg-gray-hover" onClick={onClose}>
-            Annuler
-          </button>
-          <button type="button" className="button bg-blue-dark text-white hover:bg-blue-main" onClick={handleFeedSubmit}>
-            Enregister
-          </button>
-        </div>
-      </div>
-    </Modal>
+      </Modal>
+    </>
   );
 };
 

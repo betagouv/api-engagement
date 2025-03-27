@@ -12,7 +12,7 @@ const SettingsModal = () => {
         <span>Paramétrage</span>
       </button>
 
-      <Modal isOpen={isOpen} onClose={() => setIsOpen(false)} innerClassName="h-[90%] w-[75%]">
+      <Modal isOpen={isOpen} onClose={() => setIsOpen(false)} className="h-[90%] w-[75%]">
         <div className="bg-white p-16 h-full">
           <div className="mb-10 flex items-center justify-between">
             <h1 className="text-2xl font-bold">Paramétrages de la modération automatique</h1>
