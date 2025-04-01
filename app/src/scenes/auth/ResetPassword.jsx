@@ -58,10 +58,10 @@ const ResetPassword = () => {
 };
 
 const ResetPasswordForm = ({ user, token }) => {
-  const [done, setDone] = useState(false);
+  const [success, setSuccess] = useState(false);
   const [show, setShow] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
-  const [submitted, setSubmitted] = useState(false);
+  const [loading, setLoading] = useState(false);
   const [values, setValues] = useState({
     email: "",
     password: "",
@@ -81,7 +81,7 @@ const ResetPasswordForm = ({ user, token }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setSubmitted(true);
+    setLoading(true);
 
     const errors = {};
     if (values.password.length < 12 || !hasLetter(values.password) || !hasNumber(values.password) || !hasSpecialChar(values.password)) {
@@ -103,9 +103,11 @@ const ResetPasswordForm = ({ user, token }) => {
         if (res.code === "REQUEST_EXPIRED") setErrors({ expired: "Réinitialisation expirée" });
         else throw res;
       }
-      setDone(true);
+      setSuccess(true);
     } catch (error) {
       captureError(error, "Erreur lors de la réinitialisation du mot de passe");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -133,14 +135,17 @@ const ResetPasswordForm = ({ user, token }) => {
 
         <input
           id="password"
-          className={`input mb-2 ${submitted && errors.password ? "border-2 border-b-red-main" : "border-b-black"}`}
+          className={`input mb-2 ${errors.password ? "border-2 border-b-red-main" : "border-b-black"}`}
           name="password"
           type={show ? "text" : "password"}
           value={values.password}
-          onChange={handleChange}
+          onChange={(e) => {
+            setValues({ ...values, password: e.target.value });
+            setErrors({ ...errors, password: null });
+          }}
           autoComplete="new-password"
         />
-        {submitted && errors.password && (
+        {errors.password && (
           <div className="flex items-center text-sm text-red-main">
             <RiErrorWarningFill className="mr-2" />
             {errors.password}
@@ -178,13 +183,16 @@ const ResetPasswordForm = ({ user, token }) => {
         </div>
         <input
           id="confirm-password"
-          className={`input mb-2 ${submitted && errors.confirmPassword ? "border-b-red-main" : "border-b-black"}`}
+          className={`input mb-2 ${loading && errors.confirmPassword ? "border-b-red-main" : "border-b-black"}`}
           name="confirmPassword"
           type={showConfirm ? "text" : "password"}
           value={values.confirmPassword}
-          onChange={handleChange}
+          onChange={(e) => {
+            setValues({ ...values, confirmPassword: e.target.value });
+            setErrors({ ...errors, confirmPassword: null });
+          }}
         />
-        {submitted && errors.confirmPassword && (
+        {errors.confirmPassword && (
           <div className="flex items-center text-sm text-red-main">
             <RiErrorWarningFill className="mr-2" />
             {errors.confirmPassword}
@@ -192,7 +200,7 @@ const ResetPasswordForm = ({ user, token }) => {
         )}
       </div>
 
-      {submitted && errors.expired && (
+      {errors.expired && (
         <div className="flex items-center text-sm text-red-main">
           <RiErrorWarningFill className="mr-2" />
           <Link to="/forgot-password" className="underline">
@@ -201,11 +209,11 @@ const ResetPasswordForm = ({ user, token }) => {
         </div>
       )}
 
-      <button type="submit" className="button mt-6 bg-blue-dark text-white hover:bg-blue-main" disabled={errors.confirmPassword || errors.password || errors.expired}>
-        Enregister
-      </button>
-
-      {done && (
+      {!success ? (
+        <button type="submit" className="button mt-6 bg-blue-dark text-white hover:bg-blue-main" disabled={loading || errors.confirmPassword || errors.password || errors.expired}>
+          {loading ? "Enregistrement..." : "Enregister"}
+        </button>
+      ) : (
         <div className="mt-4 flex items-center text-sm text-green-main">
           <RiCheckboxCircleFill className="mr-2" />
           <p>
