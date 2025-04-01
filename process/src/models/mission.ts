@@ -28,7 +28,7 @@ const addressesSchema = new Schema({
     lon: { type: Number },
   },
   geoPoint: { type: geoPointSchema, default: null },
-  geolocStatus: { type: String, enum: ["ENRICHED_BY_PUBLISHER", "ENRICHED", "NOT_FOUND", "NO_DATA", "SHOULD_ENRICH", "FAILED"], default: "NO_DATA" },
+  geolocStatus: { type: String, default: null },
 });
 
 const schema = new Schema<Mission>(
@@ -82,7 +82,7 @@ const schema = new Schema<Mission>(
       lon: { type: Number },
     },
     geoPoint: { type: geoPointSchema, default: null },
-    geolocStatus: { type: String, enum: ["ENRICHED_BY_PUBLISHER", "ENRICHED", "NOT_FOUND", "NO_DATA", "SHOULD_ENRICH", "FAILED"], default: "NO_DATA" },
+    geolocStatus: { type: String, default: null },
     addresses: { type: [addressesSchema], default: [] },
 
     // Organisation
