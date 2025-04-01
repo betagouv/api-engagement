@@ -49,7 +49,7 @@ const Login = () => {
       }
       api.setToken(res.data.token);
       setAuth(res.data.user, res.data.publisher);
-      navigate("/home");
+      navigate("/performance");
     } catch (error) {
       captureError(error, "Erreur lors de la connexion");
     }
