@@ -26,7 +26,10 @@ const search = async (id: string, month: number, year: number, flux: string) => 
     index: STATS_INDEX,
     body: {
       query: {
-        term: { [publisherId]: id },
+        bool: {
+          must_not: { term: { isBot: true } },
+          filter: { term: { [publisherId]: id } },
+        },
       },
       aggs: {
         print: {

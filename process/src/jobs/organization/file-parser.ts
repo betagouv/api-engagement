@@ -1,5 +1,6 @@
-import { parse } from "csv-parse/sync";
+import { parse } from "csv-parse";
 import streamPackage from "stream";
+import { Readable } from "stream";
 
 import { DEPARTMENTS } from "../../constants/departments";
 import { DataGouvRnaRecord } from "../../types/data-gouv";
@@ -32,193 +33,224 @@ const findDepartment = (postalCode: string) => {
   return { code, department: department ? department[0] : "UNKNOWN", region: department ? department[1] : "UNKNOWN" };
 };
 
-const writeData = async (data: DataGouvRnaRecord[]) => {
+const formatDate = (date: string) => {
+  if (!date) return null;
+  if (isNaN(new Date(date).getTime())) return null;
+  return new Date(date);
+};
+
+const processRecord = (record: string[]): DataGouvRnaRecord => {
+  const [
+    id,
+    id_ex,
+    siret,
+    rup_mi,
+    gestion,
+    date_creat,
+    date_decla,
+    date_publi,
+    date_disso,
+    nature,
+    groupement,
+    titre,
+    titre_court,
+    objet,
+    objet_social1,
+    objet_social2,
+    adrs_complement,
+    adrs_numvoie,
+    adrs_repetition,
+    adrs_typevoie,
+    adrs_libvoie,
+    adrs_distrib,
+    adrs_codeinsee,
+    adrs_codepostal,
+    adrs_libcommune,
+    adrg_declarant,
+    adrg_complemid,
+    adrg_complemgeo,
+    adrg_libvoie,
+    adrg_distrib,
+    adrg_codepostal,
+    adrg_achemine,
+    adrg_pays,
+    dir_civilite,
+    siteweb,
+    publiweb,
+    observation,
+    position,
+    maj_time,
+  ] = record;
+
+  return {
+    id,
+    id_ex,
+    siret,
+    rup_mi,
+    gestion,
+    date_creat,
+    date_decla,
+    date_publi,
+    date_disso,
+    nature,
+    groupement,
+    titre,
+    titre_court,
+    objet,
+    objet_social1,
+    objet_social2,
+    adrs_complement,
+    adrs_numvoie,
+    adrs_repetition,
+    adrs_typevoie,
+    adrs_libvoie,
+    adrs_distrib,
+    adrs_codeinsee,
+    adrs_codepostal,
+    adrs_libcommune,
+    adrg_declarant,
+    adrg_complemid,
+    adrg_complemgeo,
+    adrg_libvoie,
+    adrg_distrib,
+    adrg_codepostal,
+    adrg_achemine,
+    adrg_pays,
+    dir_civilite,
+    siteweb,
+    publiweb,
+    observation,
+    position,
+    maj_time,
+  } as DataGouvRnaRecord;
+};
+
+const createOrganizationFromRecord = (doc: DataGouvRnaRecord): Organization => {
+  const department = findDepartment(doc.adrs_codepostal);
+  return {
+    rna: doc.id,
+    siret: doc.siret,
+    rupMi: doc.rup_mi,
+    gestion: doc.gestion,
+    status: findStatus(doc.position),
+    createdAt: formatDate(doc.date_creat),
+    lastDeclaredAt: formatDate(doc.date_decla),
+    publishedAt: formatDate(doc.date_publi),
+    dissolvedAt: formatDate(doc.date_disso),
+    updatedAt: formatDate(doc.maj_time),
+    nature: doc.nature,
+    groupement: findGroupement(doc.groupement),
+    title: doc.titre,
+    shortTitle: doc.titre_court,
+    titleSlug: slugify(doc.titre),
+    shortTitleSlug: slugify(doc.titre_court),
+    object: doc.objet,
+    socialObject1: doc.objet_social1,
+    socialObject2: doc.objet_social2,
+    addressComplement: doc.adrs_complement,
+    addressNumber: doc.adrs_numvoie,
+    addressRepetition: doc.adrs_repetition,
+    addressType: doc.adrs_typevoie,
+    addressStreet: doc.adrs_libvoie,
+    addressDistribution: doc.adrs_distrib,
+    addressInseeCode: doc.adrs_codeinsee,
+    addressPostalCode: doc.adrs_codepostal,
+    addressDepartmentCode: department.code,
+    addressDepartmentName: department.department,
+    addressRegion: department.region,
+    addressCity: doc.adrs_libcommune,
+    managementDeclarant: doc.adrg_declarant,
+    managementComplement: doc.adrg_complemgeo,
+    managementStreet: doc.adrg_libvoie,
+    managementDistribution: doc.adrg_distrib,
+    managementPostalCode: doc.adrg_codepostal,
+    managementCity: doc.adrg_achemine,
+    managementCountry: doc.adrg_pays,
+    directorCivility: doc.dir_civilite,
+    website: doc.siteweb,
+    observation: doc.observation,
+    syncAt: new Date(),
+  } as Organization;
+};
+
+const writeBatch = async (records: DataGouvRnaRecord[]): Promise<number> => {
   const bulk = [];
   let count = 0;
 
-  for (const doc of data) {
+  for (const doc of records) {
     // Remove header
     if (doc.id === "id") continue;
 
-    const department = findDepartment(doc.adrs_codepostal);
-    const obj = {
-      rna: doc.id,
-      siret: doc.siret,
-      rupMi: doc.rup_mi,
-      gestion: doc.gestion,
-      status: findStatus(doc.position),
-      createdAt: new Date(doc.date_creat),
-      lastDeclaredAt: new Date(doc.date_decla),
-      publishedAt: new Date(doc.date_publi),
-      dissolvedAt: new Date(doc.date_disso),
-      updatedAt: new Date(doc.maj_time),
-      nature: doc.nature,
-      groupement: findGroupement(doc.groupement),
-      title: doc.titre,
-      shortTitle: doc.titre_court,
-      titleSlug: slugify(doc.titre),
-      shortTitleSlug: slugify(doc.titre_court),
-      object: doc.objet,
-      socialObject1: doc.objet_social1,
-      socialObject2: doc.objet_social2,
-      addressComplement: doc.adrs_complement,
-      addressNumber: doc.adrs_numvoie,
-      addressRepetition: doc.adrs_repetition,
-      addressType: doc.adrs_typevoie,
-      addressStreet: doc.adrs_libvoie,
-      addressDistribution: doc.adrs_distrib,
-      addressInseeCode: doc.adrs_codeinsee,
-      addressPostalCode: doc.adrs_codepostal,
-      addressDepartmentCode: department.code,
-      addressDepartmentName: department.department,
-      addressRegion: department.region,
-      addressCity: doc.adrs_libcommune,
-      managementDeclarant: doc.adrg_declarant,
-      managementComplement: doc.adrg_complemgeo,
-      managementStreet: doc.adrg_libvoie,
-      managementDistribution: doc.adrg_distrib,
-      managementPostalCode: doc.adrg_codepostal,
-      managementCity: doc.adrg_achemine,
-      managementCountry: doc.adrg_pays,
-      directorCivility: doc.dir_civilite,
-      website: doc.siteweb,
-      observation: doc.observation,
-      syncAt: new Date(),
-    } as Organization;
-
+    const obj = createOrganizationFromRecord(doc);
     bulk.push({ updateOne: { filter: { rna: doc.id }, update: obj, upsert: true } });
-
-    if (bulk.length === 5000) {
-      const res = await OrganizationModel.bulkWrite(bulk);
-      console.log(`[Organizations] Imported ${res.upsertedCount} organizations`);
-      bulk.length = 0;
-    }
+    count++;
   }
 
   if (bulk.length > 0) {
     const res = await OrganizationModel.bulkWrite(bulk);
-    console.log(`[Organizations] Imported ${res.upsertedCount} organizations`);
+    console.log(`[Organizations] Updated ${res.modifiedCount} organizations, upserted ${res.upsertedCount} organizations`);
   }
+
   return count;
 };
 
-const parseFile = (content: string) => {
-  const records = parse(content, {
-    // columns: true,
-    skip_empty_lines: true,
-    delimiter: ";",
-  }) as string[][];
-
-  const data = records.map((r) => {
-    const [
-      id,
-      id_ex,
-      siret,
-      rup_mi,
-      gestion,
-      date_creat,
-      date_decla,
-      date_publi,
-      date_disso,
-      nature,
-      groupement,
-      titre,
-      titre_court,
-      objet,
-      objet_social1,
-      objet_social2,
-      adrs_complement,
-      adrs_numvoie,
-      adrs_repetition,
-      adrs_typevoie,
-      adrs_libvoie,
-      adrs_distrib,
-      adrs_codeinsee,
-      adrs_codepostal,
-      adrs_libcommune,
-      adrg_declarant,
-      adrg_complemid,
-      adrg_complemgeo,
-      adrg_libvoie,
-      adrg_distrib,
-      adrg_codepostal,
-      adrg_achemine,
-      adrg_pays,
-      dir_civilite,
-      siteweb,
-      publiweb,
-      observation,
-      position,
-      maj_time,
-    ] = r;
-
-    return {
-      id,
-      id_ex,
-      siret,
-      rup_mi,
-      gestion,
-      date_creat,
-      date_decla,
-      date_publi,
-      date_disso,
-      nature,
-      groupement,
-      titre,
-      titre_court,
-      objet,
-      objet_social1,
-      objet_social2,
-      adrs_complement,
-      adrs_numvoie,
-      adrs_repetition,
-      adrs_typevoie,
-      adrs_libvoie,
-      adrs_distrib,
-      adrs_codeinsee,
-      adrs_codepostal,
-      adrs_libcommune,
-      adrg_declarant,
-      adrg_complemid,
-      adrg_complemgeo,
-      adrg_libvoie,
-      adrg_distrib,
-      adrg_codepostal,
-      adrg_achemine,
-      adrg_pays,
-      dir_civilite,
-      siteweb,
-      publiweb,
-      observation,
-      position,
-      maj_time,
-    } as DataGouvRnaRecord;
-  });
-
-  return data;
-};
-
-const collectStream = async (stream: streamPackage.Readable): Promise<string> => {
+const handler = async (stream: Readable): Promise<number> => {
   return new Promise((resolve, reject) => {
-    let data = "" as string;
-    stream.on("data", (chunk) => {
-      data += chunk as string;
+    let totalCount = 0;
+    let batch: DataGouvRnaRecord[] = [];
+    const BATCH_SIZE = 1000; // Process 1000 records at a time
+
+    // Create a parser stream
+    const parser = parse({
+      skip_empty_lines: true,
+      delimiter: ";",
     });
-    stream.on("end", () => {
-      resolve(data);
-    });
-    stream.on("error", (err) => {
+
+    // Handle parser errors
+    parser.on("error", (err) => {
       reject(err);
     });
-  });
-};
 
-const handler = async (stream: streamPackage.Readable) => {
-  const content = await collectStream(stream);
-  const data = parseFile(content);
-  const count = await writeData(data);
-  console.log(`[RNA] Imported ${count} records`);
-  return count;
+    // Process each record as it comes in
+    parser.on("readable", () => {
+      let record: string[];
+      while ((record = parser.read()) !== null) {
+        const dataRecord = processRecord(record);
+        batch.push(dataRecord);
+
+        // When batch size is reached, process it
+        if (batch.length >= BATCH_SIZE) {
+          const currentBatch = [...batch];
+          batch = [];
+
+          // Process batch asynchronously
+          writeBatch(currentBatch)
+            .then((count) => {
+              totalCount += count;
+            })
+            .catch((err) => {
+              console.error("Error processing batch:", err);
+            });
+        }
+      }
+    });
+
+    // When parsing is complete, process any remaining records
+    parser.on("end", async () => {
+      if (batch.length > 0) {
+        try {
+          const count = await writeBatch(batch);
+          totalCount += count;
+        } catch (err) {
+          console.error("Error processing final batch:", err);
+        }
+      }
+      resolve(totalCount);
+    });
+
+    // Pipe the input stream to the parser
+    stream.pipe(parser);
+  });
 };
 
 export default { handler };

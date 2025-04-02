@@ -15,32 +15,76 @@ import { DataGouvResource } from "../../types/data-gouv";
 
 const RNA_DATASETS_ID = "58e53811c751df03df38f42d";
 
+// Process a single file from the zip
+const processZipEntry = async (zipfile: any, entry: any): Promise<number> => {
+  return new Promise((resolve, reject) => {
+    console.log(`[Organization] Processing file: ${entry.fileName}`);
+
+    if (/\/$/.test(entry.fileName)) {
+      // Skip directories
+      resolve(0);
+      return;
+    }
+
+    zipfile.openReadStream(entry, (err: Error | null, readStream: any) => {
+      if (err) {
+        console.error(`Error opening stream for ${entry.fileName}:`, err);
+        reject(err);
+        return;
+      }
+
+      fileParser
+        .handler(readStream)
+        .then((count) => {
+          console.log(`[Organization] Processed ${count} records from ${entry.fileName}`);
+          resolve(count);
+        })
+        .catch((error) => {
+          console.error(`Error processing ${entry.fileName}:`, error);
+          reject(error);
+        });
+    });
+  });
+};
+
+// Process the zip file sequentially
 const readZip = async (file: string): Promise<number> => {
   let total = 0;
 
   return new Promise((resolve, reject) => {
-    yauzl.open(file, { lazyEntries: true }, function (err, zipfile) {
-      if (err) throw reject(err);
+    yauzl.open(file, { lazyEntries: true }, async (err, zipfile) => {
+      if (err) return reject(err);
 
-      zipfile.readEntry();
-
-      zipfile.on("entry", function (entry) {
-        console.log(`[Organization] Parsing... ${entry.fileName}`);
-
-        if (/\/$/.test(entry.fileName)) zipfile.readEntry();
-        else {
-          zipfile.openReadStream(entry, async function (err, readStream) {
-            if (err) throw reject(err);
-
-            total += await fileParser.handler(readStream);
+      // Process entries one by one
+      const processNextEntry = async () => {
+        try {
+          const entry = await new Promise<any>((resolveEntry, rejectEntry) => {
+            zipfile.once("entry", resolveEntry);
+            zipfile.once("error", rejectEntry);
             zipfile.readEntry();
           });
-        }
-      });
 
-      zipfile.on("end", function () {
-        resolve(total);
-      });
+          if (!entry) {
+            // No more entries
+            zipfile.close();
+            resolve(total);
+            return;
+          }
+
+          // Process this entry
+          const count = await processZipEntry(zipfile, entry);
+          total += count;
+
+          // Continue with next entry
+          processNextEntry();
+        } catch (error) {
+          zipfile.close();
+          reject(error);
+        }
+      };
+
+      // Start processing
+      processNextEntry();
     });
   });
 };
@@ -82,10 +126,15 @@ const handler = async () => {
   if (!response.ok) captureException("RNA download failed", JSON.stringify(response, null, 2));
   await streamPipeline(response.body as ReadableStream<any>, fs.createWriteStream(`${folder}/${resource.id}.zip`));
 
-  console.log(`[Organization] Parsing ${resource.id}.zip`);
-  const file = path.join(folder, `${resource.id}.zip`);
-  const count = await readZip(file);
-  console.log(`[Organization] ${count} associations parsed`);
+  let count = 0;
+  try {
+    console.log(`[Organization] Parsing ${resource.id}.zip`);
+    const file = path.join(folder, `${resource.id}.zip`);
+    count = await readZip(file);
+    console.log(`[Organization] ${count} associations parsed`);
+  } catch (error) {
+    captureException("RNA parsing failed", JSON.stringify(error, null, 2));
+  }
 
   console.log(`[Organization] Cleaning up files`);
   fs.rmSync(folder, { recursive: true });
