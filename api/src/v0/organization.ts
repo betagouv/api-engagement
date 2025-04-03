@@ -30,7 +30,7 @@ router.use(async (req: PublisherRequest, res: Response, next: NextFunction) => {
   next();
 });
 
-router.get("/", passport.authenticate("api", { session: false }), async (req: PublisherRequest, res: Response, next: NextFunction) => {
+router.get("/", passport.authenticate(["apikey", "api"], { session: false }), async (req: PublisherRequest, res: Response, next: NextFunction) => {
   try {
     const query = zod
       .object({
