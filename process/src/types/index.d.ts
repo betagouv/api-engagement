@@ -553,6 +553,8 @@ export interface Stats {
   type: "print" | "apply" | "click" | "view";
   user?: string;
   status?: string;
+  isBot?: boolean;
+  isHuman?: boolean;
 }
 
 export interface Kpi {

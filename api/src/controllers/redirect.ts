@@ -563,6 +563,24 @@ router.get("/notrack/:id", cors({ origin: "*" }), async (req, res, next) => {
   }
 });
 
+router.get("/:statsId/confirm-human", cors({ origin: "*" }), async (req, res) => {
+  try {
+    const params = zod.object({ statsId: zod.string() }).safeParse(req.params);
+
+    if (!params.success) {
+      captureMessage(`[Update Stats] Invalid params`, JSON.stringify(params.error, null, 2));
+      return res.status(400).send({ ok: false, code: INVALID_PARAMS, message: params.error });
+    }
+    await esClient.update({ index: STATS_INDEX, id: params.data.statsId, body: { doc: { isHuman: true } } });
+
+    return res.status(200).send({ ok: true });
+  } catch (error: any) {
+    if (error.statusCode === 404) return res.status(404).send({ ok: false, code: NOT_FOUND });
+    captureException(error);
+    return res.status(500).send({ ok: false, code: SERVER_ERROR });
+  }
+});
+
 router.get("/:missionId/:publisherId", cors({ origin: "*" }), async function trackClick(req, res, next) {
   let href: string | null = null;
   try {
