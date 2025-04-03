@@ -8,6 +8,99 @@
       (window._apieng.config = function (e) {
         window._apieng.accountId = e;
       }),
+      // Human detection (not used but kept for later maybe)
+      (window._apieng.isHuman = function () {
+        if (window._apieng.pageLoadTime && Date.now() - window._apieng.pageLoadTime < 2000) return false;
+        if (window._apieng.hasInteracted) return true;
+
+        // Check for common bot indicators
+        const botIndicators = [
+          // Check if document.readyState is complete (bots often don't wait for full page load)
+          document.readyState !== "complete",
+          // Check if window has focus (bots often don't have focus)
+          document.hasFocus && !document.hasFocus(),
+          // Check if the page has been scrolled (bots often don't scroll)
+          window.scrollY === 0 && window.scrollX === 0,
+        ];
+
+        if (botIndicators.every((indicator) => indicator === true)) return false;
+
+        return true;
+      }),
+      // Track user interactions
+      (window._apieng.setupInteractionTracking = function () {
+        window._apieng.hasInteracted = false;
+        window._apieng.pageLoadTime = Date.now();
+
+        document.addEventListener(
+          "mousemove",
+          () => {
+            window._apieng.hasInteracted = true;
+            window._apieng.confirmHuman();
+          },
+          { once: true },
+        );
+
+        // Track clicks
+        document.addEventListener(
+          "click",
+          () => {
+            window._apieng.hasInteracted = true;
+            window._apieng.confirmHuman();
+          },
+          { once: true },
+        );
+
+        // Track keyboard events
+        document.addEventListener(
+          "keydown",
+          () => {
+            window._apieng.hasInteracted = true;
+            window._apieng.confirmHuman();
+          },
+          { once: true },
+        );
+
+        // Track scrolling
+        window.addEventListener(
+          "scroll",
+          () => {
+            window._apieng.hasInteracted = true;
+            window._apieng.confirmHuman();
+          },
+          { once: true },
+        );
+
+        // Track window resize
+        window.addEventListener(
+          "resize",
+          () => {
+            window._apieng.hasInteracted = true;
+            window._apieng.confirmHuman();
+          },
+          { once: true },
+        );
+
+        // Track touch events for mobile
+        document.addEventListener(
+          "touchstart",
+          () => {
+            window._apieng.hasInteracted = true;
+            window._apieng.confirmHuman();
+          },
+          { once: true },
+        );
+      }),
+      // Add new confirmHuman function
+      (window._apieng.confirmHuman = function () {
+        if (window._apieng.humanConfirmed) return;
+        if (!window._apieng.pageLoadTime || Date.now() - window._apieng.pageLoadTime < 2000) return;
+
+        const apiengagementId = window._apieng.getCookieValue("apiengagement");
+        if (!apiengagementId) return;
+
+        fetch(`${window._apieng.eventHost}/r/${apiengagementId}/confirm-human`).then((response) => (response.ok ? (window._apieng.humanConfirmed = true) : null));
+      }),
       // Impression tracking
       (window._apieng.getTrackers = function (e) {
         const elements = document.getElementsByName("tracker_counter");
@@ -99,6 +192,9 @@
         fetch(window._apieng.eventHost + n + "?" + o);
       }),
       (window.apieng.q = window.apieng.q || []);
+
+    // Setup interaction tracking
+    window._apieng.setupInteractionTracking();
 
     for (let e = 0; e < window.apieng.q.length; e++) {
       const n = window.apieng.q[e];
