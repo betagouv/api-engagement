@@ -2,6 +2,8 @@ import { NextFunction, Response, Router } from "express";
 import passport from "passport";
 import zod from "zod";
 
+import { STATS_INDEX } from "../config";
+import esClient from "../db/elastic";
 import { INVALID_BODY, INVALID_PARAMS } from "../error";
 import MissionModel from "../models/mission";
 import PublisherModel from "../models/publisher";
@@ -48,9 +50,30 @@ router.get("/:organizationClientId", passport.authenticate(["apikey", "api"], { 
 
     const publishers = await PublisherModel.find({ "publishers.publisherId": user._id.toString() });
 
+    const aggs = await esClient.search({
+      index: STATS_INDEX,
+
+      body: {
+        query: {
+          bool: {
+            filter: [{ term: { "type.keyword": "click" } }, { terms: { "fromPublisherId.keyword": publishers.map((e) => e._id.toString()) } }],
+            must_not: [{ term: { isBot: true } }],
+          },
+        },
+        aggs: {
+          fromPublisherId: {
+            terms: { field: "fromPublisherId.keyword", size: publishers.length },
+          },
+        },
+      },
+    });
+
+    console.log(aggs.body.aggregations.fromPublisherId.buckets);
+
     const data = [] as any[];
     publishers.forEach((e) => {
       const isExcluded = e.excludedOrganizations.find((o) => o.publisherId === user._id.toString() && o.organizationClientId === params.data.organizationClientId) !== undefined;
+      const clicks = aggs.body.aggregations.fromPublisherId.buckets.find((o: { key: string; doc_count: number }) => o.key === e._id.toString())?.doc_count || 0;
       data.push({
         _id: e._id,
         name: e.name,
@@ -63,6 +86,7 @@ router.get("/:organizationClientId", passport.authenticate(["apikey", "api"], { 
         campaign: e.role_annonceur_campagne,
         annonceur: e.role_promoteur,
         excluded: isExcluded,
+        clicks,
       });
     });
     return res.status(200).send({ ok: true, data: data.filter((e) => e !== null), total: data.filter((e) => e !== null).length });
