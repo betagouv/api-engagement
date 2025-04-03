@@ -426,16 +426,17 @@ const DateFilter = ({ selected, onChange, position = "left-0", width = "w-80" })
               },
             }}
           />
-          <div className="pt-2 pb-1 px-6 w-full flex justify-end border-t border-neutral-grey-950">
+          <div className="pt-2 pb-1 px-6 w-full flex justify-start border-t border-neutral-grey-950">
             <button
               className="text-sm"
+              style={{ color: color ? color : "" }}
               onClick={() => {
                 onChange(null);
                 setIsOpen(false);
                 plausible("Date erased", { u: url });
               }}
             >
-              Effacer
+              Réinitialiser
             </button>
           </div>
         </div>
@@ -525,9 +526,10 @@ const DurationFilter = ({ selected, onChange, position = "left-0", width = "w-80
               );
             })}
           </div>
-          <div className="pt-2 pb-1 px-6 w-full flex justify-end border-t border-neutral-grey-950">
+          <div className="pt-2 pb-1 px-6 w-full flex justify-start border-t border-neutral-grey-950">
             <button
               className={`text-sm ${keyboardNav ? "border-2 border-blue-800 rounded" : ""}`}
+              style={{ color: color ? color : "" }}
               onClick={() => {
                 onChange(null);
                 setIsOpen(false);
@@ -536,7 +538,7 @@ const DurationFilter = ({ selected, onChange, position = "left-0", width = "w-80
               }}
               onMouseOver={handleMouseOver}
             >
-              Effacer
+              Réinitialiser
             </button>
           </div>
         </div>
@@ -632,17 +634,25 @@ const SelectFilter = ({ options, selectedOptions, onChange, id, placeholder = "C
               })
             )}
           </div>
-          <div className="pt-2 pb-1 px-6 w-full flex justify-end border-t border-neutral-grey-950">
+          <div className="pt-2 pb-1 px-6 w-full flex justify-between border-t border-neutral-grey-950">
             <button
               className="text-sm"
+              style={{ color: color ? color : "" }}
               onClick={() => {
                 onChange([]);
-                setIsOpen(false);
                 plausible(`Filter ${id} erased`, { u: url });
               }}
             >
-              Effacer
+              Réinitialiser
             </button>
+            <button 
+              className="text-sm focus:outline-none p-2 text-white"
+              style={{ backgroundColor: color ? color : "" }}
+              onClick={() => {
+                setIsOpen(false);
+                plausible(`Filters applied`, { u: url });
+              }}
+            >Appliquer</button>
           </div>
         </div>
       )}
