@@ -52,7 +52,7 @@ router.get("/", passport.authenticate("user", { session: false }), async (req: U
   }
 });
 
-router.post("/search", passport.authenticate("admin", { session: false }), async (req: UserRequest, res: Response, next: NextFunction) => {
+router.post("/search", passport.authenticate(["user", "admin"], { session: false }), async (req: UserRequest, res: Response, next: NextFunction) => {
   try {
     const body = zod
       .object({
