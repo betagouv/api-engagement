@@ -65,6 +65,8 @@ const buildData = async (
     widget_id: sourceId && doc.source === "widget" ? sourceId : null,
     to_partner_id: partnerToId,
     from_partner_id: partnerFromId,
+    is_bot: doc.isBot || false,
+    is_human: doc.isHuman || null,
   } as Click;
 
   return obj;
