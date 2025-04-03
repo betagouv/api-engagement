@@ -8,7 +8,7 @@ import MissionModel from "../models/mission";
 import RequestWidget from "../models/request-widget";
 import WidgetModel from "../models/widget";
 import { Mission, Widget } from "../types";
-import { buildQueryMongo, EARTH_RADIUS, getDistanceKm, isValidObjectId } from "../utils";
+import { buildQueryMongo, capitalizeFirstLetter, EARTH_RADIUS, getDistanceKm, isValidObjectId } from "../utils";
 
 const router = Router();
 
@@ -196,12 +196,15 @@ router.get("/:id/search", async (req: Request, res: Response, next: NextFunction
       domainLogo: e.domainLogo,
       organizationName: e.organizationName,
       remote: e.remote,
-      city: e.city,
+      city: e.city ? capitalizeFirstLetter(e.city) : e.city,
       country: e.country,
       postalCode: e.postalCode,
       places: e.places,
       tags: e.tags,
-      addresses: e.addresses,
+      addresses: e.addresses?.map((addr) => ({
+        ...addr,
+        city: addr.city ? capitalizeFirstLetter(addr.city) : addr.city,
+      })),
     }));
 
     if (ENV !== "production") return res.status(200).send({ ok: true, data, total });
