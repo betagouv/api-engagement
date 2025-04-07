@@ -141,10 +141,7 @@ router.get("/:clientId/stats", passport.authenticate(["apikey", "api"], { sessio
 
     const stats = await esClient.msearch({ body: [{ index: STATS_INDEX }, clicks, { index: STATS_INDEX }, applications] });
     const d = stats.body.responses.map((e: any) => {
-      return e.aggregations.mission.buckets.map(({ key, doc_count }: { key: string; doc_count: number }) => {
-        if (doc_count && doc_count < 12) return { key, doc_count: "lessthan12" };
-        return { key, doc_count };
-      });
+      return e.aggregations.mission.buckets.map(({ key, doc_count }: { key: string; doc_count: number }) => ({ key, doc_count }));
     });
 
     const data = {} as { clicks: any; applications: any };
