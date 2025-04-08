@@ -94,7 +94,7 @@ passport.use(
   "leboncoin",
   new HeaderAPIKeyStrategy({ header: "Authorization", prefix: "" }, false, async (apikey, done) => {
     try {
-      const publisher = await PublisherModel.findOne({ apikey, name: "Le Bon Coin" });
+      const publisher = await PublisherModel.findOne({ apikey, _id: "60cd04a0d2321e05a743fa8d" });
       if (publisher) {
         Sentry.setUser({ id: publisher._id.toString(), username: publisher.name, email: publisher.email });
         publisher.lastFetchAt = new Date();
@@ -113,7 +113,7 @@ passport.use(
   "jobteaser",
   new HeaderAPIKeyStrategy({ header: "x-api-key", prefix: "" }, false, async (apikey, done) => {
     try {
-      const publisher = await PublisherModel.findOne({ apikey, name: "JobTeaser" });
+      const publisher = await PublisherModel.findOne({ apikey, _id: "66ffce58f95ec99387109053" });
       if (publisher) {
         Sentry.setUser({ id: publisher._id.toString(), username: publisher.name, email: publisher.email });
         publisher.lastFetchAt = new Date();
