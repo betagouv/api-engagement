@@ -634,7 +634,7 @@ const SelectFilter = ({ options, selectedOptions, onChange, id, placeholder = "C
               })
             )}
           </div>
-          <div className="pt-2 pb-1 px-6 w-full flex justify-between border-t border-neutral-grey-950">
+          <div className="pt-2 pb-1 px-6 w-full flex items-center justify-between border-t border-neutral-grey-950">
             <button
               className="text-sm"
               style={{ color: color ? color : "" }}
@@ -646,8 +646,11 @@ const SelectFilter = ({ options, selectedOptions, onChange, id, placeholder = "C
               Réinitialiser
             </button>
             <button 
-              className="text-sm focus:outline-none p-2 text-white"
-              style={{ backgroundColor: color ? color : "" }}
+              className={`text-sm focus:outline-none p-2 text-white ${!selectedOptions || selectedOptions.length === 0 ? 'opacity-50 cursor-not-allowed' : ''}`}
+              style={{ 
+                backgroundColor: color ? color : "", 
+              }}
+              disabled={!selectedOptions || selectedOptions.length === 0}
               onClick={() => {
                 setIsOpen(false);
                 plausible(`Filters applied`, { u: url });
