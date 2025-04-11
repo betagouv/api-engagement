@@ -191,7 +191,7 @@ const Diffuseurs = ({ values, onChange, onSave, errors, setErrors }) => {
   return (
     <div className="border border-gray-border p-6 space-y-6">
       <div className="flex items-center justify-between">
-        <h3 className="text-lg font-bold">Diffuseurs</h3>
+        <h3 className="text-lg font-bold">Diffuseur</h3>
         <Toggle value={values.diffuseur} onChange={(e) => onChange({ ...values, diffuseur: e, api: false, widget: false, campaign: false })} />
       </div>
       {values.diffuseur && (

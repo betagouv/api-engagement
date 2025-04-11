@@ -17,7 +17,7 @@ import { isValidUrl } from "../../services/utils";
 const Create = () => {
   const { publisher } = useStore();
   const [publishers, setPulishers] = useState([]);
-  const [isCopyModalOpen, setIsCopyModalOpen] = useState(true);
+  const [isCopyModalOpen, setIsCopyModalOpen] = useState(false);
   const [campaignId, setCampaignId] = useState(null);
   const [values, setValues] = useState({
     name: "",

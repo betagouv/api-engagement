@@ -161,3 +161,9 @@ export const hasLetter = (string: string) => {
 export const isValidObjectId = (id: string) => {
   return /^[0-9a-fA-F]{24}$/.test(id);
 };
+
+// Capitalize first letter of each word in a string
+export const capitalizeFirstLetter = (string: string): string => {
+  if (!string) return string;
+  return string.replace(/\b\w/g, (l) => l.toUpperCase());
+};
