@@ -87,6 +87,7 @@ router.get("/apply", cors({ origin: "*" }), async (req: Request, res: Response) 
       obj.missionDepartmentName = mission.departmentName;
       obj.missionOrganizationName = mission.organizationName;
       obj.missionOrganizationId = mission.organizationId;
+      obj.missionOrganizationClientId = mission.organizationClientId;
       obj.toPublisherId = mission.publisherId;
       obj.toPublisherName = mission.publisherName;
     }
@@ -192,6 +193,7 @@ router.get("/account", cors({ origin: "*" }), async (req: Request, res: Response
       obj.missionDepartmentName = mission.departmentName;
       obj.missionOrganizationName = mission.organizationName;
       obj.missionOrganizationId = mission.organizationId;
+      obj.missionOrganizationClientId = mission.organizationClientId;
       obj.toPublisherId = mission.publisherId;
       obj.toPublisherName = mission.publisherName;
     }
@@ -426,6 +428,7 @@ router.get("/widget/:id", cors({ origin: "*" }), async (req: Request, res: Respo
       missionDepartmentName: mission.departmentName || "",
       missionOrganizationName: mission.organizationName || "",
       missionOrganizationId: mission.organizationId || "",
+      missionOrganizationClientId: mission.organizationClientId || "",
       toPublisherId: mission.publisherId,
       toPublisherName: mission.publisherName,
       fromPublisherId: widget.fromPublisherId,
@@ -505,6 +508,7 @@ router.get("/seo/:id", cors({ origin: "*" }), async (req: Request, res: Response
       missionDepartmentName: mission.departmentName || "",
       missionOrganizationName: mission.organizationName || "",
       missionOrganizationId: mission.organizationId || "",
+      missionOrganizationClientId: mission.organizationClientId || "",
 
       toPublisherId: mission.publisherId,
       toPublisherName: mission.publisherName,
@@ -634,7 +638,7 @@ router.get("/:missionId/:publisherId", cors({ origin: "*" }), async function tra
       missionDepartmentName: mission.departmentName || "",
       missionOrganizationName: mission.organizationName || "",
       missionOrganizationId: mission.organizationId || "",
-
+      missionOrganizationClientId: mission.organizationClientId || "",
       toPublisherId: mission.publisherId,
       toPublisherName: mission.publisherName,
 
@@ -810,7 +814,7 @@ router.get("/impression/:missionId/:publisherId", cors({ origin: "*" }), async (
       missionDepartmentName: mission.departmentName || "",
       missionOrganizationName: mission.organizationName || "",
       missionOrganizationId: mission.organizationId || "",
-
+      missionOrganizationClientId: mission.organizationClientId || "",
       toPublisherId: mission.publisherId,
       toPublisherName: mission.publisherName,
 
