@@ -55,7 +55,6 @@ const MyApp = ({ Component, pageProps }) => {
   const router = useRouter();
 
   const preventionRoutieres = isPreventionRoutieres(router.query.widgetName || router.query.widget || "");
-  console.log("isPreventionRoutieres", router.query.widgetName, router.query.widget, preventionRoutieres);
 
   return (
     <main className={`${font.className} ${icomoon.variable}`}>
