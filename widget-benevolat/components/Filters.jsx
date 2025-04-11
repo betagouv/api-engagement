@@ -338,7 +338,7 @@ const SelectFilter = ({ options, selectedOptions, onChange, id, placeholder = "C
                     >
                       <div className="flex items-center w-[90%]">
                         <div className="text-sm">{isSelected ? <RiCheckboxFill style={{ height: "16px", width: "16px", color }} /> : <RiCheckboxBlankLine />}</div>
-                        <span className="block text-sm mx-2 truncate font-normal text-[#161616]">{o.label}</span>
+                      <span className="block text-sm mx-2 truncate font-normal text-[#161616]">{o.label}</span>
                       </div>
                       {o.count && <span className="text-sm text-neutral-grey-500">{o.count}</span>}
                     </button>
@@ -347,7 +347,7 @@ const SelectFilter = ({ options, selectedOptions, onChange, id, placeholder = "C
             )}
           </div>
 
-          <div className="p-2 w-full flex justify-end border-t border-gray-300">
+          <div className="p-2 w-full flex items-center justify-between border-t border-gray-300">
             <button
               className={`text-[#3633A1] text-sm hover:underline`}
               onClick={() => {
@@ -355,9 +355,21 @@ const SelectFilter = ({ options, selectedOptions, onChange, id, placeholder = "C
                 setIsOpen(false);
                 plausible(`Filter ${id} erased`, { u: url });
               }}
+              style={{ color }}
             >
-              Effacer
+              Réinitialiser
             </button>
+            <button 
+              className={`text-sm focus:outline-none p-2 text-white ${!selectedOptions || selectedOptions.length === 0 ? 'opacity-50 cursor-not-allowed' : ''}`}
+              style={{ 
+                backgroundColor: color ? color : "", 
+              }}
+              disabled={!selectedOptions || selectedOptions.length === 0}
+              onClick={() => {
+                setIsOpen(false);
+                plausible(`Filters applied`, { u: url });
+              }}
+            >Appliquer</button>
           </div>
         </div>
       )}
@@ -547,7 +559,7 @@ const RemoteFilter = ({ options, selectedOptions, onChange, id, placeholder = "C
               })
             )}
           </div>
-          <div className="p-2 w-full flex justify-end border-t border-gray-300">
+          <div className="p-2 w-full flex items-center justify-between border-t border-gray-300">
             <button
               className="text-[#3633A1] text-sm hover:underline"
               onClick={() => {
@@ -555,9 +567,21 @@ const RemoteFilter = ({ options, selectedOptions, onChange, id, placeholder = "C
                 setIsOpen(false);
                 plausible("Remote filter erased", { u: url });
               }}
+              style={{ color }}
             >
-              Effacer
+              Réinitialiser
             </button>
+            <button 
+              className={`text-sm focus:outline-none p-2 text-white ${!selectedOptions || selectedOptions.length === 0 ? 'opacity-50 cursor-not-allowed' : ''}`}
+              style={{ 
+                backgroundColor: color ? color : "", 
+              }}
+              disabled={!selectedOptions || selectedOptions.length === 0}
+              onClick={() => {
+                setIsOpen(false);
+                plausible(`Filters applied`, { u: url });
+              }}
+            >Appliquer</button>
           </div>
         </div>
       )}
