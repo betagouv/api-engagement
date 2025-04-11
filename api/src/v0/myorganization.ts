@@ -50,13 +50,19 @@ router.get("/:organizationClientId", passport.authenticate(["apikey", "api"], { 
 
     const publishers = await PublisherModel.find({ "publishers.publisherId": user._id.toString() });
 
+    const oneMonthAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
     const aggs = await esClient.search({
       index: STATS_INDEX,
 
       body: {
         query: {
           bool: {
-            filter: [{ term: { "type.keyword": "click" } }, { terms: { "fromPublisherId.keyword": publishers.map((e) => e._id.toString()) } }],
+            filter: [
+              { term: { "type.keyword": "click" } },
+              { terms: { "fromPublisherId.keyword": publishers.map((e) => e._id.toString()) } },
+              { term: { missionOrganizationClientId: params.data.organizationClientId } },
+              { range: { createdAt: { gte: oneMonthAgo.toISOString() } } },
+            ],
             must_not: [{ term: { isBot: true } }],
           },
         },
@@ -67,8 +73,6 @@ router.get("/:organizationClientId", passport.authenticate(["apikey", "api"], { 
         },
       },
     });
-
-    console.log(aggs.body.aggregations.fromPublisherId.buckets);
 
     const data = [] as any[];
     publishers.forEach((e) => {
