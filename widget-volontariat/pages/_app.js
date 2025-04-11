@@ -1,3 +1,4 @@
+import { useRouter } from "next/router";
 import localFont from "next/font/local";
 import PlausibleProvider from "next-plausible";
 
@@ -30,15 +31,39 @@ const icomoon = localFont({
   variable: "--font-icomoon",
 });
 
+const slugify = (name) => {
+  // remove all non-alphanumeric characters and all %C3%A9 and %C3%A8
+  return name
+    .replace(/%C3%A9/g, "-")
+    .replace(/%C3%A8/g, "-")
+    .toLowerCase()
+    .replace(/[^a-z0-9]/g, "-");
+};
+
+const isPreventionRoutieres = (query) => {
+  if (query === "6449707ff9d59c624d4dc666") return true;
+  const slug = query
+    .replace(/%C3%A9/g, "-")
+    .replace(/%C3%A8/g, "-")
+    .toLowerCase()
+    .replace(/[^a-z0-9]/g, "-");
+
+  return slug === "widget-pr-vention-routi-re";
+};
+
 const MyApp = ({ Component, pageProps }) => {
-  const domain = process.env.NODE_ENV === "production" ? "sc.api-engagement.beta.gouv.fr" : "localhost:3001";
+  const router = useRouter();
+
+  const preventionRoutieres = isPreventionRoutieres(router.query.widgetName || router.query.widget || "");
+  console.log("isPreventionRoutieres", router.query.widgetName, router.query.widget, preventionRoutieres);
+
   return (
     <main className={`${font.className} ${icomoon.variable}`}>
       <PlausibleProvider
         manualPageviews
-        domain={domain}
-        enabled={domain.indexOf("localhost") !== -1 || undefined}
-        trackLocalhost={domain.indexOf("localhost") !== -1}
+        domain={process.env.NODE_ENV === "production" ? "sc.api-engagement.beta.gouv.fr" : "localhost:3001"}
+        enabled={process.env.NODE_ENV === "production" && !preventionRoutieres}
+        trackLocalhost={false}
         trackOutboundLinks
       >
         <Component {...pageProps} />
