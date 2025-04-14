@@ -22,7 +22,8 @@ interface HistoryOptions {
  * Provides the following methods:
  * - getStateAt(date: Date): Returns the state of the document at a specific date
  * - getHistory(): Returns the full history of the document
- * - withHistoryContext(metadata: Record<string, any>): Returns a new model with the history context: 
+ * - withHistoryContext(metadata: Record<string, any>): Returns a new model with the history context. 
+ * - bulkWrite(operations: any[]): Returns a new model with the history context. 
  *
  * See example in each function documentation.
  */
@@ -150,6 +151,18 @@ export function historyPlugin<T extends Document>(schema: Schema, options: Histo
   };
 
   /**
+   * Get full history
+   * 
+   * Usage:
+   * ```
+   * const history = await doc.getHistory();
+   * ```
+   */
+  schema.methods.getHistory = function() {
+    return this[historyField] || [];
+  };
+
+  /**
    * Returns a new model with the history context
    * Used to add metadata to the history
    * 
@@ -174,20 +187,132 @@ export function historyPlugin<T extends Document>(schema: Schema, options: Histo
         pluginOptions.metadata = originalPluginMetadata;
         
         return result;
+      },
+      
+      /**
+       * Bulk write with history tracking
+       * Warning: as mongoose does not support hooks for bulkWrite, this method have to be used instead of bulkWrite
+       * We'll find all affected documents and update their history, after calling Model.bulkWrite
+       *    
+       * Usage:
+       * ```
+       * await MissionModel.withHistoryContext({ 
+       *   userId: user._id,
+       *   userName: user.name,
+       *   reason: "Import automatique"
+       * }).bulkWrite(operations);
+       * ```
+       */
+      bulkWrite: async (operations: any[]) => {
+        const Model = this;
+        pluginOptions.metadata = { ...originalPluginMetadata, ...metadata };
+        
+        // First, perform the bulkWrite operation
+        const result = await Model.bulkWrite(operations);
+        
+        // Then, process history for each updated document
+        const updateOperations = operations.filter(op => op.updateOne || op.updateMany);
+        
+        if (updateOperations.length > 0) {
+          // Collect all filters to find affected documents in a single query
+          const filters = updateOperations.map(op => {
+            const operation = op.updateOne || op.updateMany;
+            return operation.filter;
+          });
+          
+          // Find all documents that were updated by any operation
+          const docs = await Model.find({ $or: filters });
+          
+          if (docs.length > 0) {
+            const historyUpdates = [];
+            
+            for (const doc of docs) {
+              // Find the operation that affected this document
+              const matchingOp = updateOperations.find(op => {
+                const operation = op.updateOne || op.updateMany;
+                const filter = operation.filter;
+                
+                // Check if this document matches the filter
+                return Object.keys(filter).every(key => {
+                  if (key === '_id') {
+                    return doc._id.toString() === filter._id.toString();
+                  }
+                  return doc[key] === filter[key];
+                });
+              });
+              
+              if (matchingOp) {
+                const operation = matchingOp.updateOne || matchingOp.updateMany;
+                const update = operation.update;
+                
+                // Skip if there's no $set operation
+                if (!update.$set) continue;
+                
+                // Create history entry for this document
+                const changedFields: Record<string, any> = {};
+                let hasChanges = false;
+                
+                // Extract changed fields from the $set operation
+                Object.keys(update.$set).forEach(path => {
+                  if (!omitFields.includes(path) && path !== historyField) {
+                    // Check if the value has changed
+                    if (JSON.stringify(doc[path]) !== JSON.stringify(update.$set[path])) {
+                      changedFields[path] = update.$set[path];
+                      hasChanges = true;
+                    }
+                  }
+                });
+                
+                if (hasChanges) {
+                  const historyEntry = {
+                    date: new Date(),
+                    state: changedFields,
+                    metadata: { ...pluginOptions.metadata }
+                  };
+                  
+                  let history = doc[historyField] || [];
+                  history.push(historyEntry);
+                  
+                  if (history.length > (pluginOptions.maxEntries as number)) {
+                    history = history.slice(history.length - (pluginOptions.maxEntries as number));
+                  }
+                  
+                  historyUpdates.push({
+                    updateOne: {
+                      filter: { _id: doc._id },
+                      update: { $set: { [historyField]: history } }
+                    }
+                  });
+                }
+              }
+            }
+
+            // Execute a single bulkWrite for all history updates
+            if (historyUpdates.length > 0) {
+              await Model.bulkWrite(historyUpdates);
+            }
+          }
+        }
+        
+        pluginOptions.metadata = originalPluginMetadata;
+        
+        return result;
       }
     };
   };
 
   /**
-   * Get full history
+   * Utility function to track history for bulkWrite operations
+   * Can be used directly if you don't need context metadata
    * 
    * Usage:
    * ```
-   * const history = await doc.getHistory();
+   * const operations = bulk.map(e => (e._id ? { updateOne: { filter: { _id: e._id }, update: { $set: e }, upsert: true } } : { insertOne: { document: e } }));
+   * await MissionModel.bulkWriteWithHistory(operations);
    * ```
    */
-  schema.methods.getHistory = function() {
-    return this[historyField] || [];
+  schema.statics.bulkWriteWithHistory = async function(operations: any[]) {
+    return (this as any).withHistoryContext({}).bulkWrite(operations);
   };
 
 }

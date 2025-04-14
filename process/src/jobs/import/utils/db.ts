@@ -18,9 +18,11 @@ export const bulkDB = async (bulk: Mission[], publisher: Publisher, importDoc: I
 };
 
 const writeMongo = async (bulk: Mission[], publisher: Publisher, importDoc: Import) => {
-  // Write in mongo
+  // We use bulkWriteWithHistory to keep history. See history-plugin.ts.
+  // NB: we cast to any to resolve TypeScript error, as bulkWriteWithHistory is added dynamically to the model.
   const mongoBulk = bulk.filter((e) => e).map((e) => (e._id ? { updateOne: { filter: { _id: e._id }, update: { $set: e }, upsert: true } } : { insertOne: { document: e } }));
-  const mongoUpdateRes = await MissionModel.bulkWrite(mongoBulk);
+  const mongoUpdateRes = await (MissionModel as any).withHistoryContext({ reason: `Import XML (${publisher.name})` }).bulkWrite(mongoBulk);
+
   importDoc.createdCount = mongoUpdateRes.upsertedCount + mongoUpdateRes.insertedCount;
   importDoc.updatedCount = mongoUpdateRes.modifiedCount;
   console.log(`[${publisher.name}] Mongo bulk write created ${importDoc.createdCount}, updated ${importDoc.updatedCount}`);
