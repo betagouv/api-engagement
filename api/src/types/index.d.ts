@@ -181,6 +181,12 @@ export type Import = {
   endedAt: Date;
 };
 
+export interface HistoryEntry {
+  date: Date;
+  state: Record<string, any>;
+  metadata?: Record<string, any>;
+}
+
 export interface Mission {
   _id?: Schema.Types.ObjectId;
   _old_id?: string;
@@ -317,6 +323,8 @@ export interface Mission {
   jobteaserUrl: string | undefined;
   jobteaserComment: string | undefined;
   jobteaserUpdatedAt: Date | undefined;
+
+  __history?: HistoryEntry[];
 }
 
 export type ModerationEvent = {

@@ -13,7 +13,9 @@
     "prettier": "prettier --write . --plugin=prettier-plugin-organize-imports",
     "reload": "pm2 reload api",
     "lint": "eslint . --ext .ts,.tsx",
-    "lint:fix": "eslint . --ext .ts,.tsx --fix"
+    "lint:fix": "eslint . --ext .ts,.tsx --fix",
+    "test": "vitest run",
+    "test:watch": "vitest"
   },
   "dependencies": {
     "@elastic/elasticsearch": "7.17.14",
@@ -69,6 +71,7 @@
     "prettier": "3.5.3",
     "prettier-plugin-organize-imports": "4.1.0",
     "ts-node": "10.9.2",
-    "typescript": "5.8.3"
+    "typescript": "5.8.3",
+    "vitest": "3.1.1"
   }
 }
