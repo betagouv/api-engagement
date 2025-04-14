@@ -331,6 +331,7 @@ model Mission {
   is_siren_verified               Boolean?
   is_siret_verified              Boolean?
   is_rna_verified                 Boolean?
+
   accounts                        Account[]
   applies                         Apply[]
   clicks                          Click[]
@@ -338,6 +339,8 @@ model Mission {
   organization                    Organization? @relation(fields: [matched_organization_id], references: [id])
   partner                         Partner?      @relation(fields: [partner_id], references: [id])
   moderation_events               ModerationEvent[]
+  history                         MissionHistory[] @relation("MissionHistory")
+
   @@index([client_id], map: "mission_client_id")
   @@index([matched_organization_id], map: "mission_matched_organization_id")
   @@index([partner_id], map: "mission_partner_id")
@@ -445,7 +448,6 @@ model Partner {
   id                  String       @id @default(uuid())
   old_id              String       @unique
   name                String?
-
 
   diffuseur_api       Boolean
   diffuseur_widget    Boolean
@@ -573,6 +575,18 @@ model PartnerToWidget {
   @@index([partner_id])
   @@index([widget_id])
 }
+
+model MissionHistory {
+  id                String    @id @default(uuid())
+  date              DateTime  @default(now())
+  state             Json      // All fields that have changed
+  entityId          String    
+  
+  mission           Mission?  @relation("MissionHistory", fields: [entityId], references: [id])
+  
+  @@index([entityId])
+}
+
 
 enum MissionType {
   benevolat

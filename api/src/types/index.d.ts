@@ -181,7 +181,7 @@ export type Import = {
   endedAt: Date;
 };
 
-export interface HistoryEntry {
+export interface MissionHistory {
   date: Date;
   state: Record<string, any>;
   metadata?: Record<string, any>;
@@ -324,7 +324,7 @@ export interface Mission {
   jobteaserComment: string | undefined;
   jobteaserUpdatedAt: Date | undefined;
 
-  __history?: HistoryEntry[];
+  __history?: MissionHistory[];
 }
 
 export type ModerationEvent = {

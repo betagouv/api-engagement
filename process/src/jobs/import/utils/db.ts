@@ -1,4 +1,4 @@
-import { Organization, Address as PgAddress, Mission as PgMission } from "@prisma/client";
+import { Organization, Address as PgAddress, Mission as PgMission, MissionHistory as PgMissionHistory } from "@prisma/client";
 
 import { Mission as MongoMission } from "../../../types";
 import prisma from "../../../db/postgres";
@@ -75,6 +75,20 @@ const writePg = async (publisher: Publisher, importDoc: Import) => {
   const resAddresses = await prisma.address.createMany({ data: pgCreateAddresses });
   console.log(`[${publisher.name}] Postgres created ${resAddresses.count} addresses`);
 
+  // TODO: Don't know what i'm doing
+  // const pgCreateHistory = pgCreate
+  //   .map((e) => {
+  //     const mission = res.find((r) => r.old_id === e.mission.old_id);
+  //     if (!mission) return [];
+  //     e._history.forEach((h) => {
+  //       h.mission_id = mission.id;
+  //     });
+  //     return e._history;
+  //   })
+  //   .flat();
+  // const resHistory = await prisma.mission_history.createMany({ data: pgCreateHistory });
+  // console.log(`[${publisher.name}] Postgres created ${resHistory.count} history entries`);
+
   const upadtedMongoMissions = await MissionModel.find({ publisherId: publisher._id, updatedAt: { $gte: importDoc.startedAt }, createdAt: { $lt: importDoc.startedAt } }).lean();
   console.log(`[${publisher.name}] Postgres ${upadtedMongoMissions.length} missions to update in Mongo`);
 
@@ -107,7 +121,7 @@ const writePg = async (publisher: Publisher, importDoc: Import) => {
   console.log(`[${publisher.name}] Postgres deleted ${pgDeleteRes.count} missions`);
 };
 
-const createDataPg = (doc: MongoMission, partnerId: string, organizations: Organization[]): { mission: PgMission; addresses: PgAddress[] } => {
+const createDataPg = (doc: MongoMission, partnerId: string, organizations: Organization[]): { mission: PgMission; addresses: PgAddress[]; history: PgMissionHistory[] } => {
   const organization = organizations.find((e) => e.old_id === doc.organizationId);
   const obj = {
     old_id: doc._id.toString(),
@@ -219,5 +233,12 @@ const createDataPg = (doc: MongoMission, partnerId: string, organizations: Organ
       }) as PgAddress,
   );
 
-  return { mission: obj, addresses };
+  const history: PgMissionHistory[] = doc.__history?.map((history) => ({
+    date: history.date,
+    entityId: obj.id,
+    state: history.state,
+    id: "", // TODO: check if prisma renders uuid when saving
+  })) || [];
+
+  return { mission: obj, addresses, history };
 };
