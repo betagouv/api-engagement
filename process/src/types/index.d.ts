@@ -144,6 +144,12 @@ export interface Import {
   status: "SUCCESS" | "FAILED";
   failed: any;
 }
+
+export interface MissionHistory {
+  date: Date;
+  state: Record<string, any>;
+  metadata?: Record<string, any>;
+}
 export interface Mission {
   _id: Schema.Types.ObjectId;
   _old_id?: string;
@@ -275,6 +281,8 @@ export interface Mission {
   leboncoinUrl: string | undefined;
   leboncoinComment: string | undefined;
   leboncoinUpdatedAt: Date | undefined;
+
+  __history?: MissionHistory[];
 }
 
 export interface Address {
