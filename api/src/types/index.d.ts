@@ -573,6 +573,7 @@ export interface Stats {
   missionDepartmentName?: string;
   missionOrganizationId?: string;
   missionOrganizationName?: string;
+  missionOrganizationClientId?: string;
   source: "api" | "widget" | "campaign" | "seo" | "jstag" | "publisher";
   sourceId: string;
   sourceName: string;
