@@ -19,14 +19,14 @@ const Edit = () => {
   const { id } = useParams();
   const [widget, setWidget] = useState(null);
   const [values, setValues] = useState({
-    name: widget?.name || "",
-    type: widget?.type || "",
-    url: widget?.url || "",
-    distance: widget?.distance || "25km",
-    publishers: widget?.publishers || [],
-    moderations: widget?.moderations || [],
-    rules: widget?.rules || [],
-    jvaModeration: widget?.jvaModeration || false,
+    name: "",
+    type: "",
+    url: "",
+    distance: "25km",
+    publishers: [],
+    moderations: [],
+    rules: [],
+    jvaModeration: false,
   });
   const [stickyVisible, setStickyVisible] = useState(false);
   const [saveButton, setSaveButton] = useState(null);
@@ -149,31 +149,38 @@ const Edit = () => {
   );
 };
 
+const JVA_ID = "5f5931496c7ea514150a818f";
+const SC_ID = "5f99dbe75eb1ad767733b206";
+
 const Settings = ({ widget, values, setValues, loading }) => {
   const { publisher } = useStore();
-  const JVA_ID = "5f5931496c7ea514150a818f";
-  const SC_ID = "5f99dbe75eb1ad767733b206";
-  const [missions, setMissions] = useState([]);
+  // const [publishers, setPublishers] = useState([]);
+  const [publishers, setPublishers] = useState([]);
   const [total, setTotal] = useState(0);
   const [showAll, setShowAll] = useState(false);
   const [selectAll, setSelectAll] = useState(false);
 
   useEffect(() => {
+    if (loading) return;
     const fetchMissions = async () => {
-      if (loading) return;
       try {
+        const publishers = publisher.publishers.map((p) => p.publisherId);
+        if (publisher.annonceur) publishers.push(publisher._id);
         const query = {
-          publishers: publisher.publishers.map((p) => p.publisher),
+          publishers,
           lat: values.location?.lat,
           lon: values.location?.lon,
           distance: values.distance,
           jvaModeration: values.jvaModeration,
           status: "ACCEPTED",
+          size: 0,
         };
 
         const res = await api.post("/mission/search", query);
         if (!res.ok) throw res;
-        setMissions(res.aggs.partners);
+        const newPublishers = res.aggs.partners;
+        if (publisher.annonceur && !newPublishers.some((p) => p._id === publisher._id)) newPublishers.push({ _id: publisher._id, name: publisher.name, count: 0 });
+        setPublishers(newPublishers);
       } catch (error) {
         captureError(error, "Erreur lors de la récupération des missions");
       }
@@ -182,8 +189,8 @@ const Settings = ({ widget, values, setValues, loading }) => {
   }, [loading, publisher, values.location, values.distance, values.jvaModeration]);
 
   useEffect(() => {
+    if (loading) return;
     const fetchFilteredMissions = async () => {
-      if (loading) return;
       try {
         const query = {
           publishers: values.publishers,
@@ -206,10 +213,6 @@ const Settings = ({ widget, values, setValues, loading }) => {
     fetchFilteredMissions();
   }, [loading, values.publishers, values.location, values.distance, values.jvaModeration, values.rules]);
 
-  useEffect(() => {
-    setSelectAll(values.type === "benevolat" && values.publishers.length === publisher.publishers.filter((p) => p.publisher !== SC_ID).length);
-  }, [values.publishers, values.type, publisher.publishers]);
-
   const handleSearch = async (field, search, currentValues) => {
     try {
       const publishers = currentValues.publishers.map((p) => `publishers[]=${p}`).join("&");
@@ -224,106 +227,68 @@ const Settings = ({ widget, values, setValues, loading }) => {
 
   return (
     <div className="bg-white p-12 space-y-12 shadow-lg">
-      <div className="flex justify-between gap-4">
+      <div className="space-y-10">
         <h2 className="text-2xl font-bold">Informations générales</h2>
-      </div>
 
-      <div className="grid grid-cols-2 gap-10">
-        <div className="flex flex-col">
-          <label className="mb-2" htmlFor="name">
-            Nom du widget<span className="ml-1 text-red-main">*</span>
-          </label>
-          <input
-            id="name"
-            className="input mb-2  border-b-black"
-            name="name"
-            value={values.name}
-            onChange={(e) => setValues({ ...values, name: e.target.value })}
-            disabled={!widget.new}
-          />
-        </div>
+        <div className="grid grid-cols-2 gap-10">
+          <div className="flex flex-col gap-4">
+            <label className="text-base" htmlFor="name">
+              Nom du widget<span className="ml-1 text-red-main">*</span>
+            </label>
+            <input id="name" className="input" name="name" value={values.name} onChange={(e) => setValues({ ...values, name: e.target.value })} disabled={!widget.new} />
+          </div>
 
-        <div className="flex flex-col">
-          <label className="mb-2 flex items-center" htmlFor="url">
-            URL de la page où le widget est intégré
-          </label>
-          <input id="url" className="input mb-2 border-b-black" name="url" value={values.url} onChange={(e) => setValues({ ...values, url: e.target.value })} />
+          <div className="flex flex-col gap-4">
+            <label className="text-base" htmlFor="url">
+              URL de la page où le widget est intégré
+            </label>
+            <input id="url" className="input" name="url" value={values.url} onChange={(e) => setValues({ ...values, url: e.target.value })} />
+          </div>
         </div>
       </div>
 
       <div className="border-b border-gray-border" />
 
-      <h2 className="text-2xl font-bold">Missions à diffuser</h2>
-      <div className="grid grid-cols-2 gap-10">
-        <div className="flex flex-col">
-          <label className="mb-2">
-            Type de mission<span className="ml-1 text-red-main">*</span>
-          </label>
-          <div className="flex items-center justify-between">
-            {publisher.publishers && publisher.publishers.some((p) => p.publisher === SC_ID) && publisher.publishers.length === 1 ? (
-              <>
-                <label htmlFor="type-volontariat" className="sr-only">
-                  Volontariat
-                </label>
-                <RadioInput
-                  id="type-volontariat"
-                  name="type"
-                  value="volontariat"
-                  label="Volontariat"
-                  checked={values.type === "volontariat"}
-                  onChange={() => setValues({ ...values, type: "volontariat", publishers: [missions.find((p) => p.mission_type === "volontariat")?._id] })}
-                  disabled={true}
-                />
-              </>
-            ) : publisher.publishers && !publisher.publishers.some((p) => p.publisher === SC_ID) && publisher.publishers.length > 0 ? (
-              <>
-                <label htmlFor="type-benevolat" className="sr-only">
-                  Bénévolat
-                </label>
-                <RadioInput
-                  id="type-benevolat"
-                  name="type"
-                  value="benevolat"
-                  label="Bénévolat"
-                  checked={values.type === "benevolat"}
-                  onChange={() => setValues({ ...values, type: "benevolat", publishers: [] })}
-                  disabled={true}
-                />
-              </>
-            ) : (
-              <>
-                <label htmlFor="type-benevolat" className="sr-only">
-                  Bénévolat
-                </label>
-                <RadioInput
-                  id="type-benevolat"
-                  name="type"
-                  value="benevolat"
-                  label="Bénévolat"
-                  checked={values.type === "benevolat"}
-                  onChange={() => setValues({ ...values, type: "benevolat", publishers: [] })}
-                />
-                <label htmlFor="type-volontariat" className="sr-only">
-                  Volontariat
-                </label>
-                <RadioInput
-                  id="type-volontariat"
-                  name="type"
-                  value="volontariat"
-                  label="Volontariat"
-                  checked={values.type === "volontariat"}
-                  onChange={() => setValues({ ...values, type: "volontariat", jvaModeration: false, publishers: [SC_ID] })}
-                />
-              </>
-            )}
-          </div>
-        </div>
-      </div>
+      <div className="space-y-10">
+        <h2 className="text-2xl font-bold">Missions à diffuser</h2>
 
-      <div>
-        <div className="grid grid-cols-2 gap-10 mb-10">
-          <div className="flex flex-col">
-            <label className="mb-2" htmlFor="location">
+        <div className="grid grid-cols-2 gap-10">
+          <div className="space-y-4">
+            <label className="text-base">
+              Type de mission<span className="ml-1 text-red-main">*</span>
+            </label>
+            <div className="flex items-center">
+              {publisher.publishers.filter((p) => p.publisherId !== SC_ID).length > 0 && (
+                <RadioInput
+                  id="type-benevolat"
+                  name="type"
+                  value="benevolat"
+                  label="Bénévolat"
+                  checked={values.type === "benevolat"}
+                  onChange={() => setValues({ ...values, type: "benevolat", publishers: [] })}
+                  className="flex-1"
+                  size={24}
+                />
+              )}
+
+              {publisher.publishers.some((p) => p.publisherId === SC_ID) && (
+                <RadioInput
+                  id="type-volontariat"
+                  name="type"
+                  value="volontariat"
+                  label="Volontariat"
+                  checked={values.type === "volontariat"}
+                  onChange={() => setValues({ ...values, type: "volontariat", publishers: [SC_ID] })}
+                  className="flex-1"
+                  size={24}
+                />
+              )}
+            </div>
+          </div>
+          <div />
+
+          <div className="space-y-4">
+            <label className="text-base" htmlFor="location">
               Ville ou code postal
             </label>
             <LocationSearch selected={values.location} onChange={(v) => setValues({ ...values, location: v })} />
@@ -332,68 +297,61 @@ const Settings = ({ widget, values, setValues, loading }) => {
               <span className="text-xs">Laisser vide pour afficher les missions de toute la France</span>
             </div>
           </div>
-          <div className="flex flex-col">
-            <label className="mb-2" htmlFor="distance">
+
+          <div className="space-y-4">
+            <label className="text-base" htmlFor="distance">
               Rayon de recherche
             </label>
-            <select
-              className="select mb-2 border-b-black"
-              id="distance"
-              name="distance"
-              value={values.distance || "25km"}
-              onChange={(e) => setValues({ ...values, distance: e.target.value })}
-            >
-              {["1km", "5km", "25km", "50km", "100km"].map((d, i) => (
-                <option key={i} value={d}>
-                  {d}
-                </option>
-              ))}
-            </select>
+            <div className="w-full">
+              <select
+                className="select w-full"
+                id="distance"
+                name="distance"
+                value={values.distance || "25km"}
+                onChange={(e) => setValues({ ...values, distance: e.target.value })}
+              >
+                {["1km", "5km", "25km", "50km", "100km"].map((d, i) => (
+                  <option key={i} value={d}>
+                    {d}
+                  </option>
+                ))}
+              </select>
+            </div>
           </div>
         </div>
 
-        <div>
-          <div className="flex">
-            <h2>Diffuser des missions de</h2>
+        <div className="space-y-4">
+          <label className="text-base" htmlFor="location">
+            Diffuser des missions de
             <span className="ml-1 text-red-main">*</span>
-          </div>
+          </label>
 
-          {values.type === "benevolat" ? (
-            <button
-              className="text-blue-dark underline mt-2"
-              onClick={() => {
-                if (selectAll) {
-                  setValues({ ...values, publishers: [] });
-                } else {
-                  setValues({ ...values, publishers: publisher.publishers.filter((p) => p.publisher !== SC_ID).map((p) => p.publisher) });
-                }
-                setSelectAll(!selectAll);
-              }}
-            >
-              {selectAll ? "Tout déselectionner" : "Tout sélectionner"}
-            </button>
-          ) : (
-            <div></div>
+          {values.type === "benevolat" && (
+            <div>
+              <button
+                className="text-blue-dark underline"
+                onClick={() => {
+                  setValues({ ...values, publishers: selectAll ? [] : publishers.map((p) => p._id) });
+                  setSelectAll(!selectAll);
+                }}
+              >
+                {selectAll ? "Tout déselectionner" : "Tout sélectionner"}
+              </button>
+            </div>
           )}
 
-          {publisher.publishers.length === 0 ? (
-            <div className="mt-5">
-              <span className="text-sm text-gray-dark">Aucun partenaire disponible</span>
-            </div>
+          {publishers.length === 0 ? (
+            <p className="text-sm text-gray-dark">Aucun partenaire disponible</p>
           ) : (
-            <div className={`mt-5 grid grid-cols-3 gap-x-6 gap-y-3 ${values.type === "volontariat" ? "text-[#929292]" : ""}`}>
-              {publisher.publishers
-                .filter((pub) => (values.type === "benevolat" ? pub.publisher !== SC_ID : pub.publisher === SC_ID))
-                .sort((a, b) => {
-                  const countA = missions.find((mission) => mission._id === a.publisher)?.count || 0;
-                  const countB = missions.find((mission) => mission._id === b.publisher)?.count || 0;
-                  return countB - countA;
-                })
-                .slice(0, showAll ? publisher.publishers.length : 15)
-                .map((pub, i) => (
+            <div className={`grid grid-cols-3 gap-x-6 gap-y-3 ${values.type === "volontariat" ? "text-[#929292]" : ""}`}>
+              {publishers
+                .filter((item) => (values.type === "benevolat" ? item._id !== SC_ID : item._id === SC_ID))
+                .sort((a, b) => b.count - a.count)
+                .slice(0, showAll ? publishers.length : 15)
+                .map((item, i) => (
                   <label
                     key={i}
-                    className={`flex gap-4 border p-4 rounded cursor-pointer hover:border-blue-dark ${values.publishers.includes(pub.publisher) ? "border-blue-dark" : "border-gray-300"}`}
+                    className={`flex gap-4 border p-4 rounded cursor-pointer hover:border-blue-dark ${values.publishers.includes(item._id) ? "border-blue-dark" : "border-gray-300"}`}
                   >
                     <div className="flex items-center gap-2">
                       <input
@@ -402,154 +360,148 @@ const Settings = ({ widget, values, setValues, loading }) => {
                         id={`${i}-publishers`}
                         name={`${i}-publishers`}
                         disabled={values.type === "volontariat"}
-                        checked={values.publishers.includes(pub.publisher) || values.type === "volontariat"}
-                        onChange={(e) => {
-                          if (e.target.checked) {
-                            setValues({ ...values, publishers: [...values.publishers, pub.publisher] });
-                          } else {
-                            setValues({ ...values, publishers: values.publishers.filter((id) => id !== pub.publisher) });
-                          }
-                        }}
+                        checked={values.publishers.includes(item._id) || values.type === "volontariat"}
+                        onChange={(e) =>
+                          setValues({ ...values, publishers: e.target.checked ? [...values.publishers, item._id] : values.publishers.filter((id) => id !== item._id) })
+                        }
                       />
                     </div>
 
                     <div className="flex flex-col truncate">
-                      <span className={`line-clamp-2 truncate text-sm ${values.publishers.includes(pub.publisher) ? "text-blue-dark" : "text-black"}`}>{pub.publisherName}</span>
+                      <span className={`line-clamp-2 truncate text-sm ${values.publishers.includes(item._id) ? "text-blue-dark" : "text-black"}`}>{item.name}</span>
                       <div className={`flex ${values.type === "volontariat" ? "text-[#929292]" : "text-gray-dark"}`}>
                         <span className="text-xs">
-                          {(missions.find((mission) => mission._id === pub.publisher)?.count || 0).toLocaleString("fr")}{" "}
-                          {missions.find((mission) => mission._id === pub.publisher)?.count > 1 ? "missions" : "mission"}
+                          {item.count.toLocaleString("fr")} {item.count > 1 ? "missions" : "mission"}
                         </span>
                       </div>
                     </div>
 
-                    {missions.find((mission) => mission._id === pub.publisher)?.moderation &&
-                      missions.find((mission) => mission._id === pub.publisher).moderation.length > 0 &&
-                      values.publishers.includes(pub.publisher) && (
-                        <div className="pl-8">
-                          {missions
-                            .find((mission) => mission._id === pub.publisher)
-                            .moderation.map((m, j) => (
-                              <div key={j} className="flex items-center gap-2 py-1">
-                                <input
-                                  type="checkbox"
-                                  className="checkbox"
-                                  id={`${j}-moderation`}
-                                  name={`${j}-moderation`}
-                                  checked={!!values.moderations.some((id) => id.moderatorId === pub.publisher && id.publisherId === m._id)}
-                                  onChange={(e) => {
-                                    if (e.target.checked) {
-                                      setValues({ ...values, moderations: [...values.moderations, { moderatorId: pub.publisher, publisherId: m._id }] });
-                                    } else {
-                                      setValues({ ...values, moderations: values.moderations.filter((id) => id.moderatorId !== pub.publisher || id.publisherId !== m._id) });
-                                    }
-                                  }}
-                                />
-                                <label className="line-clamp-2 truncate text-xs" htmlFor={`${j}-moderation`}>
-                                  {m.name} - {m.count > 1 ? `${m.count.toLocaleString("fr")} missions` : `${m.count} mission`}
-                                </label>
-                              </div>
-                            ))}
-                        </div>
-                      )}
+                    {item.moderation && item.moderation.length > 0 && values.publishers.includes(item._id) && (
+                      <div className="pl-8">
+                        {item.moderation.map((m, j) => (
+                          <div key={j} className="flex items-center gap-2 py-1">
+                            <input
+                              type="checkbox"
+                              className="checkbox"
+                              id={`${j}-moderation`}
+                              name={`${j}-moderation`}
+                              checked={!!values.moderations.some((id) => id.moderatorId === item._id && id.publisherId === m._id)}
+                              onChange={(e) => {
+                                if (e.target.checked) {
+                                  setValues({ ...values, moderations: [...values.moderations, { moderatorId: item._id, publisherId: m._id }] });
+                                } else {
+                                  setValues({ ...values, moderations: values.moderations.filter((id) => id.moderatorId !== item._id || id.publisherId !== m._id) });
+                                }
+                              }}
+                            />
+                            <label className="line-clamp-2 truncate text-xs" htmlFor={`${j}-moderation`}>
+                              {m.name} - {m.count > 1 ? `${m.count.toLocaleString("fr")} missions` : `${m.count} mission`}
+                            </label>
+                          </div>
+                        ))}
+                      </div>
+                    )}
                   </label>
                 ))}
             </div>
           )}
+
+          {publishers.length > 15 && values.type === "benevolat" && (
+            <button className="mt-6 border border-blue-dark p-2 text-blue-dark" onClick={() => setShowAll(!showAll)}>
+              {showAll ? "Masquer les annonceurs" : "Afficher tous les annonceurs"}
+            </button>
+          )}
+
+          {values.publishers.includes(JVA_ID) && (
+            <div className="flex items-center justify-between w-[50%] pt-6">
+              <div> Afficher uniquement les missions modérées par JeVeuxAider.gouv.fr</div>
+              <div className="flex items-center gap-4">
+                <Toggle value={values.jvaModeration} onChange={(value) => setValues({ ...values, jvaModeration: value })} />
+                <img src={JvaLogoSvg} className="w-16 ml-4" />
+              </div>
+            </div>
+          )}
         </div>
 
-        {publisher.publishers.length > 15 && values.type !== "volontariat" && (
-          <button className="mt-6 border border-blue-dark p-2 text-blue-dark" onClick={() => setShowAll(!showAll)}>
-            {showAll ? "Masquer les annonceurs" : "Afficher tous les annonceurs"}
-          </button>
-        )}
-      </div>
-
-      {values.publishers.includes(JVA_ID) && values.type === "benevolat" && (
-        <div className="mt-6 flex items-center justify-between w-[50%]">
-          <div> Afficher uniquement les missions modérées par JeVeuxAider.gouv.fr</div>
-          <div className="flex items-center gap-4">
-            <Toggle value={values.jvaModeration} onChange={(value) => setValues({ ...values, jvaModeration: value })} />
-            <img src={JvaLogoSvg} className="w-16 ml-4" />
+        <div className="space-y-4">
+          <div className="space-y-2">
+            <label className="text-base">Filtrer les missions à afficher</label>
+            <p className="text-gray-dark">
+              {values.rules.length === 0 && "Aucun filtre appliqué - "}
+              {total.toLocaleString("fr")} missions affichées
+            </p>
           </div>
+
+          <QueryBuilder
+            fields={[
+              { label: "Nom de l'organisation", value: "organizationName", type: "text" },
+              { label: "Domaine de la mission", value: "domain", type: "text" },
+              { label: "Nom du réseau", value: "organizationReseaux", type: "text" },
+              { label: "Titre de la mission", value: "title", type: "text" },
+              { label: "Code postal de la mission", value: "postalCode", type: "text" },
+              { label: "Département de la mission", value: "departmentName", type: "text" },
+              { label: "Région de la mission", value: "regionName", type: "text" },
+              { label: "Activité de la mission", value: "activity", type: "text" },
+              { label: "Tag personnalisé", value: "tags", type: "text" },
+              { label: "Actions de l'organisation", value: "organizationActions", type: "text" },
+              { label: "Ouvert au mineur", value: "openToMinors", type: "boolean" },
+            ]}
+            rules={values.rules || []}
+            setRules={(rules) => setValues({ ...values, rules })}
+            onSearch={(field, search) => handleSearch(field, search, values)}
+          />
         </div>
-      )}
-
-      <div className="mt-6 flex flex-col gap-2">
-        <div>Filtrer les missions à afficher</div>
-        <span className="text-gray-dark">{total.toLocaleString("fr")} missions affichées</span>
-
-        <QueryBuilder
-          fields={[
-            { label: "Nom de l'organisation", value: "organizationName", type: "text" },
-            { label: "Domaine de la mission", value: "domain", type: "text" },
-            { label: "Nom du réseau", value: "organizationReseaux", type: "text" },
-            { label: "Titre de la mission", value: "title", type: "text" },
-            { label: "Code postal de la mission", value: "postalCode", type: "text" },
-            { label: "Département de la mission", value: "departmentName", type: "text" },
-            { label: "Région de la mission", value: "regionName", type: "text" },
-            { label: "Activité de la mission", value: "activity", type: "text" },
-            { label: "Tag personnalisé", value: "tags", type: "text" },
-            { label: "Actions de l'organisation", value: "organizationActions", type: "text" },
-            { label: "Ouvert au mineur", value: "openToMinors", type: "boolean" },
-          ]}
-          rules={values.rules || []}
-          setRules={(rules) => setValues({ ...values, rules })}
-          onSearch={(field, search) => handleSearch(field, search, values)}
-          className="mt-5"
-        />
       </div>
 
       <div className="my-6 border-b border-gray-border" />
 
-      <div className="flex justify-between gap-4">
+      <div className="space-y-10">
         <h2 className="text-2xl font-bold">Personnalisation</h2>
-      </div>
 
-      <div className="grid grid-cols-2 gap-10">
-        <div className="flex flex-col gap-2">
-          <label className="mb-2" htmlFor="style">
-            Mode d'affichage<span className="ml-1 text-red-main">*</span>
-          </label>
-          <div className="flex items-center justify-between mr-10">
-            <div>
-              <RadioInput
-                id="style-page"
-                name="style"
-                value="page"
-                label="Catalogue"
-                checked={values.style === "page"}
-                onChange={(e) => setValues({ ...values, style: e.target.value })}
-              />
-              <span className="text-xs text-gray-dark">Grille de 6 missions par page</span>
-            </div>
+        <div className="grid grid-cols-2 gap-10">
+          <div className="flex flex-col gap-4">
+            <label className="text-base" htmlFor="style">
+              Mode d'affichage<span className="ml-1 text-red-main">*</span>
+            </label>
+            <div className="flex items-center justify-between">
+              <div>
+                <RadioInput
+                  id="style-page"
+                  name="style"
+                  value="page"
+                  label="Catalogue"
+                  checked={values.style === "page"}
+                  onChange={(e) => setValues({ ...values, style: e.target.value })}
+                />
+                <span className="text-xs text-gray-dark">Grille de 6 missions par page</span>
+              </div>
 
-            <div>
-              <RadioInput
-                id="style-carousel"
-                name="style"
-                value="carousel"
-                label="Carrousel"
-                checked={values.style === "carousel"}
-                onChange={(e) => setValues({ ...values, style: e.target.value })}
-              />
-              <span className="text-xs text-gray-dark">Fait défiler les missions 3 par 3</span>
+              <div>
+                <RadioInput
+                  id="style-carousel"
+                  name="style"
+                  value="carousel"
+                  label="Carrousel"
+                  checked={values.style === "carousel"}
+                  onChange={(e) => setValues({ ...values, style: e.target.value })}
+                />
+                <span className="text-xs text-gray-dark">Fait défiler les missions 3 par 3</span>
+              </div>
             </div>
           </div>
-        </div>
 
-        <div className="flex flex-col">
-          <label className="mb-2" htmlFor="color">
-            Code hexadécimal couleur<span className="ml-1 text-red-main">*</span>
-          </label>
-          <div className="flex items-center gap-4">
-            <div className="h-9 w-9 rounded" style={{ backgroundColor: values.color }} />
-
-            <input id="color" className="input flex-1 border-b-black" name="color" value={values.color} onChange={(e) => setValues({ ...values, color: e.target.value })} />
-          </div>
-          <div className="flex items-center gap-2 text-[#0063CB] mt-2">
-            <BiSolidInfoSquare className="text-sm" />
-            <span className="text-xs">Exemple: #000091</span>
+          <div className="flex flex-col gap-4">
+            <label className="text-base" htmlFor="color">
+              Code hexadécimal couleur<span className="ml-1 text-red-main">*</span>
+            </label>
+            <div className="flex items-center gap-4">
+              <div className="h-9 w-9 rounded" style={{ backgroundColor: values.color }} />
+              <input id="color" className="input flex-1" name="color" value={values.color} onChange={(e) => setValues({ ...values, color: e.target.value })} />
+            </div>
+            <div className="flex items-center gap-2 text-[#0063CB]">
+              <BiSolidInfoSquare className="text-sm" />
+              <span className="text-xs">Exemple: #000091</span>
+            </div>
           </div>
         </div>
       </div>
