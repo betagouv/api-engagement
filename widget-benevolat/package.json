@@ -14,23 +14,23 @@
     "printWidth": 180
   },
   "dependencies": {
-    "@headlessui/react": "^1.7.16",
-    "@sentry/cli": "^2.41.1",
-    "@sentry/nextjs": "^8.39.0",
-    "i18n-iso-countries": "^7.13.0",
-    "next": "^14.2.18",
-    "next-plausible": "^3.12.4",
-    "pm2": "^5.4.3",
-    "react": "^18.3.1",
-    "react-dom": "^18.3.1",
-    "react-icons": "^5.3.0",
-    "sharp": "^0.33.5",
-    "slick-carousel": "^1.8.1",
-    "zustand": "^5.0.3"
+    "@headlessui/react": "1.7.16",
+    "@sentry/cli": "2.41.1",
+    "@sentry/nextjs": "8.39.0",
+    "i18n-iso-countries": "7.13.0",
+    "next": "14.2.18",
+    "next-plausible": "3.12.4",
+    "pm2": "5.4.3",
+    "react": "18.3.1",
+    "react-dom": "18.3.1",
+    "react-icons": "5.3.0",
+    "sharp": "0.33.5",
+    "slick-carousel": "1.8.1",
+    "zustand": "5.0.3"
   },
   "devDependencies": {
-    "autoprefixer": "^10.4.20",
-    "postcss": "^8.4.49",
-    "tailwindcss": "^3.4.15"
+    "autoprefixer": "10.4.20",
+    "postcss": "8.4.49",
+    "tailwindcss": "3.4.15"
   }
 }
