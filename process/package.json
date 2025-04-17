@@ -12,7 +12,10 @@
     "stop": "pm2 stop process",
     "start-dev": "ts-node src/index.ts",
     "start": "pm2 start dist/index.js --name process",
-    "reload": "pm2 reload process"
+    "reload": "pm2 reload process",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage"
   },
   "prettier": {
     "printWidth": 180
@@ -58,6 +61,7 @@
     "@types/yauzl": "2.10.3",
     "nodemon": "3.1.9",
     "prettier-plugin-organize-imports": "4.1.0",
-    "prisma": "6.2.1"
+    "prisma": "6.2.1", 
+    "vitest": "3.1.1"
   }
 }
