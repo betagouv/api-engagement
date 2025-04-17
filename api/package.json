@@ -11,7 +11,9 @@
     "start": "npm run build && node dist/index.js",
     "start-pm2": "pm2 start dist/index.js --name api",
     "prettier": "prettier --write . --plugin=prettier-plugin-organize-imports",
-    "reload": "pm2 reload api"
+    "reload": "pm2 reload api",
+    "lint": "eslint . --ext .ts,.tsx",
+    "lint:fix": "eslint . --ext .ts,.tsx --fix"
   },
   "dependencies": {
     "@elastic/elasticsearch": "7.17.14",
@@ -54,6 +56,15 @@
     "@types/passport": "1.0.16",
     "@types/passport-jwt": "4.0.1",
     "@types/uuid": "9.0.8",
+    "@typescript-eslint/eslint-plugin": "^7.18.0",
+    "@typescript-eslint/parser": "^7.18.0",
+    "eslint": "^8.57.1",
+    "eslint-config-airbnb-typescript": "^18.0.0",
+    "eslint-config-prettier": "^10.1.2",
+    "eslint-plugin-import": "^2.31.0",
+    "eslint-plugin-jsx-a11y": "^6.10.2",
+    "eslint-plugin-react": "^7.37.5",
+    "eslint-plugin-react-hooks": "^5.2.0",
     "nodemon": "3.1.9",
     "prettier": "3.3.3",
     "prettier-plugin-organize-imports": "4.0.0",
