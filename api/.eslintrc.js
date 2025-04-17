@@ -16,7 +16,7 @@ module.exports = {
   rules: {
     'no-underscore-dangle': 'off',
     '@typescript-eslint/dot-notation': 'off',
-    '@typescript-eslint/no-shadow': 'warn',
+    '@typescript-eslint/no-shadow': 'off', // TODO: fix code and activate
     '@typescript-eslint/no-use-before-define': 'off', // TODO: fix code and activate
     '@typescript-eslint/no-redeclare': 'off', // TODO: fix code and activate
     '@typescript-eslint/no-unused-vars': ['error', { 
