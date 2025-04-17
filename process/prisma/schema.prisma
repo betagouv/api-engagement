@@ -580,11 +580,12 @@ model MissionHistory {
   id                String    @id @default(uuid())
   date              DateTime  @default(now())
   state             Json      // All fields that have changed
-  entityId          String    
+  metadata          Json?
+  mission_id        String    
+
+  mission           Mission?  @relation("MissionHistory", fields: [mission_id], references: [id])
   
-  mission           Mission?  @relation("MissionHistory", fields: [entityId], references: [id])
-  
-  @@index([entityId])
+  @@index([mission_id])
 }
 
 

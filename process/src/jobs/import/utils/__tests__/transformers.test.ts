@@ -170,6 +170,9 @@ describe('transformMongoMissionToPg', () => {
       {
         date: new Date('2023-01-20'),
         state: baseHistoryState,
+        metadata: {
+          reason: "reason",
+        },
       },
     ],
     createdAt: new Date('2023-01-01'),
@@ -218,6 +221,7 @@ describe('transformMongoMissionToPg', () => {
     expect(result?.history.length).toBe(1);
     expect(result?.history[0].date).toEqual(new Date('2023-01-20'));
     expect(result?.history[0].state).toEqual(baseHistoryState);
+    expect(result?.history[0].metadata).toEqual({ reason: "reason" });
   });
 
   it('should handle a mission with no organization match', () => {

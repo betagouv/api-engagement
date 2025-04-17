@@ -132,7 +132,7 @@ const writePg = async (publisher: Publisher, importDoc: Import) => {
       if (!mission) return [];
       
       e.history.forEach((h) => {
-        h.entityId = mission.id;
+        h.mission_id = mission.id;
       });
       
       return e.history;
@@ -142,7 +142,8 @@ const writePg = async (publisher: Publisher, importDoc: Import) => {
   const resHistory = await prisma.missionHistory.createMany({ data: 
     pgCreateHistory.map((h) => ({ 
       ...h, 
-      state: h.state as any 
+      state: h.state as any,
+      metadata: h.metadata as any
     }))
   });
   console.log(`[${publisher.name}] Postgres created ${resHistory.count} history entries`);
@@ -182,12 +183,13 @@ const writePg = async (publisher: Publisher, importDoc: Import) => {
       });
       
       // Replace history
-      await prisma.missionHistory.deleteMany({ where: { entityId: mission.id } });
+      await prisma.missionHistory.deleteMany({ where: { mission_id: mission.id } });
       await prisma.missionHistory.createMany({ 
         data: obj.history.map((e) => ({ 
           ...e, 
-          entityId: mission.id,
-          state: e.state as any // Cast state to any to resolve type incompatibility with Prisma
+          mission_id: mission.id,
+          state: e.state as any, // Cast state to any to resolve type incompatibility with Prisma
+          metadata: e.metadata as any 
         })) 
       });
       
