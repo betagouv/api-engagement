@@ -5,8 +5,7 @@ import prisma from "../../../db/postgres";
 import { captureException } from "../../../error";
 import { Import, Mission, Publisher } from "../../../types";
 import MissionModel from "../../../models/mission";
-import { ENVIRONMENT } from "../../../config";
-import { transformMongoMissionToPg } from "./transformers";
+import { transformMongoMissionToPg, MissionTransformResult } from "./transformers";
 
 /**
  * Import a batch of missions into databases
@@ -15,9 +14,7 @@ import { transformMongoMissionToPg } from "./transformers";
 export const bulkDB = async (bulk: Mission[], publisher: Publisher, importDoc: Import) => {
   try {
     await writeMongo(bulk, publisher, importDoc);
-    if (ENVIRONMENT === "production") {
-      await writePg(publisher, importDoc);
-    }
+    await writePg(publisher, importDoc);
   } catch (error) {
     captureException(`[${publisher.name}] Import failed`, JSON.stringify(error, null, 2));
     return;
@@ -95,7 +92,7 @@ const writePg = async (publisher: Publisher, importDoc: Import) => {
   console.log(`[${publisher.name}] Postgres found ${organizations.length} organizations`);
 
   // Transform MongoDB missions to PostgreSQL format
-  const pgCreate = [] as { mission: PgMission; addresses: PgAddress[]; history: PgMissionHistory[] }[];
+  const pgCreate = [] as MissionTransformResult[];
   newMongoMissions.forEach((e) => {
     const res = transformMongoMissionToPg(e as MongoMission, partner.id, organizations);
     if (res) pgCreate.push(res);
