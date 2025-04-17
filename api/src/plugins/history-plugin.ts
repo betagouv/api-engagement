@@ -20,7 +20,6 @@ interface HistoryOptions {
  * __history: [{ date: Date, state: { field1: value1, field2: value2, ... } }]
  * 
  * Provides the following methods:
- * - getStateAt(date: Date): Returns the state of the document at a specific date
  * - getHistory(): Returns the full history of the document
  * - withHistoryContext(metadata: Record<string, any>): Returns a new model with the history context. 
  * - bulkWrite(operations: any[]): Returns a new model with the history context. 
@@ -102,53 +101,6 @@ export function historyPlugin<T extends Document>(schema: Schema, options: Histo
     
     next();
   });
-
-  /**
-   * Returns the state of the document at a specific date
-   * 
-   * Usage:
-   * ```
-   * const state = await doc.getStateAt(new Date('2023-01-01'));
-   * ```
-   */
-  schema.methods.getStateAt = function(date: Date) {
-    // Return current state if no history exists
-    if (!this[historyField] || this[historyField].length === 0) {
-      return this.toObject();
-    }
-    
-    // Get current state without history field
-    const currentState = this.toObject();
-    delete currentState[historyField];
-    
-    const historyEntries = [...this[historyField]];
-    
-    // Identify fields that were modified after the specified date
-    const modifiedFields = historyEntries
-      .filter((entry: any) => new Date(entry.date) > date)
-      .reduce((fields: Set<string>, entry: any) => {
-        Object.keys(entry.state).forEach(key => fields.add(key));
-        return fields;
-      }, new Set<string>());
-    
-    // For each modified field, find its value at the specified date
-    return Array.from(modifiedFields).reduce((stateAtDate: Record<string, any>, field: string) => {
-      // Find the most recent history entry for this field before or at the specified date
-      const lastEntry = [...historyEntries]
-        .filter((entry: any) => new Date(entry.date) <= date && field in entry.state)
-        .sort((a: any, b: any) => new Date(b.date).getTime() - new Date(a.date).getTime())[0];
-      
-      if (lastEntry) {
-        // Use the historical value if found
-        stateAtDate[field] = lastEntry.state[field];
-      } else {
-        // Remove field if it didn't exist at the specified date
-        delete stateAtDate[field];
-      }
-      
-      return stateAtDate;
-    }, { ...currentState });
-  };
 
   /**
    * Get full history
