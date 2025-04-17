@@ -14,7 +14,7 @@
     "printWidth": 180
   },
   "dependencies": {
-    "@headlessui/react": "1.7.16",
+    "@headlessui/react": "2.2.2",
     "@sentry/cli": "2.43.0",
     "@sentry/nextjs": "9.13.0",
     "i18n-iso-countries": "7.14.0",
