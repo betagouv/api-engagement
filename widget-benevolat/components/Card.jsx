@@ -3,8 +3,10 @@ import iso from "i18n-iso-countries";
 import { RiBuildingFill } from "react-icons/ri";
 
 import { DOMAINES } from "../config";
+import { useState } from "react";
 
 const Card = ({ widget, mission, request }) => {
+  const [error, setError] = useState(false);
   if (!mission) return null;
 
   const address =
@@ -25,12 +27,13 @@ const Card = ({ widget, mission, request }) => {
     >
       <div className="min-h-[188px] max-h-[188px] xl:min-h-[200px] xl:max-h-[200px] overflow-hidden">
         <Image
-          src={mission.domainLogo}
+          src={error ? "/generique.jpeg" : mission.domainLogo}
           alt={mission.title}
           priority={true}
           className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110"
           width={500}
           height={500}
+          onError={() => setError(true)}
         />
       </div>
 
