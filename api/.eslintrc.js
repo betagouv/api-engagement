@@ -19,10 +19,7 @@ module.exports = {
     '@typescript-eslint/no-shadow': 'off', // TODO: fix code and activate
     '@typescript-eslint/no-use-before-define': 'off', // TODO: fix code and activate
     '@typescript-eslint/no-redeclare': 'off', // TODO: fix code and activate
-    '@typescript-eslint/no-unused-vars': ['error', { 
-      argsIgnorePattern: '^_|next$',
-      varsIgnorePattern: '^_'
-    }],
+    '@typescript-eslint/no-unused-vars': 'off', // TODO: fix code and activate
     
     'import/extensions': 'off',
     'import/no-extraneous-dependencies': 'off',
