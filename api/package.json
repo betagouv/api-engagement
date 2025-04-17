@@ -16,7 +16,7 @@
     "lint:fix": "eslint . --ext .ts,.tsx --fix"
   },
   "dependencies": {
-    "@elastic/elasticsearch": "7.17.14",
+    "@elastic/elasticsearch": "9.0.0",
     "@sentry/node": "9.13.0",
     "@types/geoip-lite": "1.4.4",
     "aws-sdk": "2.1692.0",
