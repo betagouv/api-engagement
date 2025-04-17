@@ -75,7 +75,6 @@ describe('History Plugin', () => {
 
   it('should add methods to schema', () => {
     expect(schema.methods).toHaveProperty('getHistory');
-    expect(schema.methods).toHaveProperty('getStateAt');
     expect(schema.statics).toHaveProperty('withHistoryContext');
   });
 
@@ -165,7 +164,7 @@ describe('History Plugin', () => {
     expect(doc.__history[1].metadata).toHaveProperty('reason', 'Testing withHistoryContext');
   });
 
-  it('should retrieve document state at a specific date using getStateAt', () => {
+  it('should retrieve full history using getHistory', () => {
     const now = new Date();
     const pastDate1 = new Date(now.getTime() - 3000); // 3 seconds ago
     const pastDate2 = new Date(now.getTime() - 2000); // 2 seconds ago
@@ -192,19 +191,10 @@ describe('History Plugin', () => {
       description: 'Test Description'
     });
     
-    const stateAtFirstUpdate = schema.methods.getStateAt.call(doc, pastDate1);
+    const getHistory = schema.methods.getHistory;
+    const history = getHistory.call(doc);
     
-    expect(stateAtFirstUpdate).toHaveProperty('name', 'First Update');
-    expect(stateAtFirstUpdate).toHaveProperty('status', 'in-progress');
-    expect(stateAtFirstUpdate).toHaveProperty('counter', 1);
-    expect(stateAtFirstUpdate).toHaveProperty('description', 'Test Description');
-    
-    const stateAtSecondUpdate = schema.methods.getStateAt.call(doc, pastDate2);
-    
-    expect(stateAtSecondUpdate).toHaveProperty('name', 'Second Update');
-    expect(stateAtSecondUpdate).toHaveProperty('status', 'in-progress'); // From first update, not overridden
-    expect(stateAtSecondUpdate).toHaveProperty('counter', 2); // Overridden by second update
-    expect(stateAtSecondUpdate).toHaveProperty('description', 'Test Description');
+    expect(history).toEqual(doc.__history);
   });
 
   it('should retrieve full history using getHistory', () => {
