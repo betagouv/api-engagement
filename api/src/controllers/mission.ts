@@ -140,13 +140,7 @@ router.post("/search", passport.authenticate("user", { session: false }), async 
 
     const total = await MissionModel.countDocuments(whereAggs);
 
-    if (body.data.size === 0) return res.status(200).send({ ok: true, data: [], total });
-
-    const data = await MissionModel.find(where)
-      .sort(body.data.sort ? { [body.data.sort]: -1 } : undefined)
-      .skip(body.data.from)
-      .limit(body.data.size);
-
+    // Split in another route maybe ? -> faster and more scalable
     const facets = await MissionModel.aggregate([
       { $match: whereAggs },
       {
@@ -176,6 +170,12 @@ router.post("/search", passport.authenticate("user", { session: false }), async 
       })),
       leboncoinStatus: facets[0].leboncoinStatus.map((b: { _id: string; count: number }) => ({ key: b._id, doc_count: b.count })),
     };
+    if (body.data.size === 0) return res.status(200).send({ ok: true, data: [], total, aggs });
+
+    const data = await MissionModel.find(where)
+      .sort(body.data.sort ? { [body.data.sort]: -1 } : undefined)
+      .skip(body.data.from)
+      .limit(body.data.size);
 
     return res.status(200).send({ ok: true, data, total, aggs });
   } catch (error) {

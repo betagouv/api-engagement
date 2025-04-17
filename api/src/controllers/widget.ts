@@ -253,11 +253,7 @@ router.put("/:id", passport.authenticate("admin", { session: false }), async (re
     if (body.data.color) widget.color = body.data.color;
     if (body.data.type) widget.type = body.data.type;
     if (body.data.active !== undefined) widget.active = body.data.active;
-    if (body.data.publishers)
-      widget.publishers = body.data.publishers.filter((p: string) => {
-        const exists = publishers.find((pub) => pub._id.toString() === p);
-        return exists && exists.mission_type === widget.type;
-      });
+    if (body.data.publishers) widget.publishers = body.data.publishers;
     if (body.data.jvaModeration !== undefined) widget.jvaModeration = body.data.jvaModeration;
 
     // If no location is provided, remove the location

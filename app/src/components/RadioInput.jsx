@@ -1,11 +1,11 @@
 import { useRef, useState } from "react";
 
-const RadioInput = ({ id, name, value, label, checked, onChange, size = 16 }) => {
+const RadioInput = ({ id, name, value, label, checked, onChange, className, size = 16 }) => {
   const ref = useRef();
   const [isFocused, setIsFocused] = useState(false);
 
   return (
-    <div className={`flex items-center gap-2 relative`}>
+    <div className={`flex items-center gap-2 relative ${className}`}>
       <input
         ref={ref}
         id={id}
@@ -24,7 +24,7 @@ const RadioInput = ({ id, name, value, label, checked, onChange, size = 16 }) =>
       >
         {checked && <div className="w-3/5 h-3/5 bg-blue-dark rounded-full" />}
       </div>
-      <label htmlFor={id} className="flex-1 text-sm text-black">
+      <label htmlFor={id} className="flex-1 text-base text-black">
         {label}
       </label>
     </div>
