@@ -126,8 +126,9 @@ export const transformMongoMissionToPg = (
   // Transform history entries
   const history: PgMissionHistory[] = doc.__history?.map((history) => ({
     date: history.date,
-    entityId: obj.id,
+    mission_id: obj.id,
     state: history.state,
+    metadata: history.metadata as any,
     id: "", // TODO: check if prisma renders uuid when saving
   })) || [];
 
