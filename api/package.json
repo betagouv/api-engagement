@@ -17,7 +17,7 @@
   },
   "dependencies": {
     "@elastic/elasticsearch": "7.17.14",
-    "@sentry/node": "8.30.0",
+    "@sentry/node": "9.13.0",
     "@types/geoip-lite": "1.4.4",
     "aws-sdk": "2.1692.0",
     "bcryptjs": "2.4.3",
