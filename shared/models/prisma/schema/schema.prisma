@@ -1,0 +1,600 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("PG_ENDPOINT")
+}
+
+model Account {
+  id              String      @id @default(uuid())
+  old_id          String      @unique
+  mission_id      String?
+  created_at      DateTime    @default(now())
+  updated_at      DateTime    @updatedAt
+  campaign_id     String?
+  widget_id       String?
+  source          SourceType?
+  url             String?
+  from_partner_id String?
+  to_partner_id   String?
+  old_view_id     String?
+  click_id        String?
+  source_id       String?
+  host            String?
+  tag             String?
+  mission_old_id  String?
+  campaign        Campaign?   @relation(fields: [campaign_id], references: [id])
+  click           Click?      @relation(fields: [click_id], references: [id])
+  from_partner    Partner?    @relation("FromAccount", fields: [from_partner_id], references: [id])
+  mission         Mission?    @relation(fields: [mission_id], references: [id])
+  to_partner      Partner?    @relation("ToAccount", fields: [to_partner_id], references: [id])
+  widget          Widget?     @relation(fields: [widget_id], references: [id])
+
+  @@index([mission_id], map: "account_mission_id")
+  @@index([campaign_id], map: "account_campaign_id")
+  @@index([widget_id], map: "account_widget_id")
+  @@index([from_partner_id], map: "account_from_partner_id")
+  @@index([to_partner_id], map: "account_to_partner_id")
+}
+
+model Apply {
+  id              String      @id @default(uuid())
+  old_id          String      @unique
+  mission_id      String?
+  created_at      DateTime    @default(now())
+  updated_at      DateTime    @updatedAt
+  campaign_id     String?
+  widget_id       String?
+  source          SourceType?
+  host            String?
+  from_partner_id String?
+  to_partner_id   String?
+  tag             String?
+  status          String?
+  old_view_id     String?
+  click_id        String?
+  source_id       String?
+  mission_old_id  String?
+  campaign        Campaign?   @relation(fields: [campaign_id], references: [id])
+  click           Click?      @relation(fields: [click_id], references: [id])
+  from_partner    Partner?    @relation("FromApply", fields: [from_partner_id], references: [id])
+  mission         Mission?    @relation(fields: [mission_id], references: [id])
+  to_partner      Partner?    @relation("ToApply", fields: [to_partner_id], references: [id])
+  widget          Widget?     @relation(fields: [widget_id], references: [id])
+
+  @@index([mission_id], map: "apply_mission_id")
+  @@index([campaign_id], map: "apply_campaign_id")
+  @@index([widget_id], map: "apply_widget_id")
+  @@index([from_partner_id], map: "apply_from_partner_id")
+  @@index([to_partner_id], map: "apply_to_partner_id")
+}
+
+model Campaign {
+  id                      String       @id @default(uuid())
+  url                     String?
+  old_id                  String       @unique
+  name                    String?
+  diffuseur_id            String
+  annonceur_id            String
+  active                  Boolean      @default(true)
+  deleted_at              DateTime?
+  created_at              DateTime     @default(now())
+  updated_at              DateTime     @default(now())
+  reassigned_at           DateTime?
+  reassigned_by_user_id   String?
+  reassigned_by_user_name String?
+  type                    String?
+  accounts                Account[]
+  applies                 Apply[]
+  annonceur               Partner      @relation("AnnonceurCampaign", fields: [annonceur_id], references: [id])
+  diffuseur               Partner      @relation("DiffuseurCampaign", fields: [diffuseur_id], references: [id])
+  clicks                  Click[]
+  impressions             Impression[]
+
+  @@index([diffuseur_id], map: "campaign_diffuseur_id")
+  @@index([annonceur_id], map: "campaign_annonceur_id")
+}
+
+model Click {
+  id              String      @id @default(uuid())
+  old_id          String      @unique
+  mission_id      String?
+  created_at      DateTime    @default(now())
+  updated_at      DateTime    @updatedAt
+  campaign_id     String?
+  widget_id       String?
+  source          SourceType?
+  host            String?
+  from_partner_id String?
+  to_partner_id   String?
+  tag             String?
+  tags            String[]
+  source_id       String?
+  mission_old_id  String?
+  accounts        Account[]
+  applies         Apply[]
+  is_bot          Boolean?
+  is_human        Boolean?
+  campaign        Campaign?   @relation(fields: [campaign_id], references: [id])
+  from_partner    Partner?    @relation("FromClick", fields: [from_partner_id], references: [id])
+  mission         Mission?    @relation(fields: [mission_id], references: [id])
+  to_partner      Partner?    @relation("ToClick", fields: [to_partner_id], references: [id])
+  widget          Widget?     @relation(fields: [widget_id], references: [id])
+
+  @@index([mission_id], map: "click_mission_id")
+  @@index([campaign_id], map: "click_campaign_id")
+  @@index([widget_id], map: "click_widget_id")
+  @@index([from_partner_id], map: "click_from_partner_id")
+  @@index([to_partner_id], map: "click_to_partner_id")
+}
+
+model Import {
+  id            String   @id @default(uuid())
+  old_id        String   @unique
+  created_count Int?
+  deleted_count Int?
+  updated_count Int?
+  partner_id    String
+  started_at    DateTime @default(now())
+  ended_at      DateTime @default(now())
+  partner       Partner  @relation(fields: [partner_id], references: [id])
+}
+
+model Impression {
+  id              String      @id @default(uuid())
+  mission_id      String?
+  to_partner_id   String?
+  from_partner_id String?
+  created_at      DateTime    @default(now())
+  updated_at      DateTime    @updatedAt
+  campaign_id     String?
+  widget_id       String?
+  host            String?
+  source          SourceType?
+  source_id       String?
+  old_id          String      @unique
+  mission_old_id  String?
+  campaign        Campaign?   @relation(fields: [campaign_id], references: [id])
+  from_partner    Partner?    @relation("FromImpression", fields: [from_partner_id], references: [id])
+  mission         Mission?    @relation(fields: [mission_id], references: [id])
+  to_partner      Partner?    @relation("ToImpression", fields: [to_partner_id], references: [id])
+  widget          Widget?     @relation(fields: [widget_id], references: [id])
+
+  @@index([mission_id], map: "impression_mission_id")
+  @@index([to_partner_id], map: "impression_to_partner_id")
+  @@index([from_partner_id], map: "impression_from_partner_id")
+  @@index([campaign_id], map: "impression_campaign_id")
+}
+
+model Kpi {
+  id                                                  String   @id @default(uuid())
+  old_id                                              String   @unique
+  date                                                DateTime @unique
+  available_benevolat_mission_count                   Int
+  available_volontariat_mission_count                 Int
+  available_benevolat_given_by_partner_place_count    Int
+  available_volontariat_given_by_partner_place_count  Int
+  available_benevolat_attributed_by_api_place_count   Int
+  available_volontariat_attributed_by_api_place_count Int
+  percentage_benevolat_given_by_partner_places        Float
+  percentage_volontariat_given_by_partner_places      Float
+  percentage_benevolat_attributed_by_api_places       Float
+  percentage_volontariat_attributed_by_api_places     Float
+  benevolat_print_mission_count                       Int
+  volontariat_print_mission_count                     Int
+  benevolat_click_mission_count                       Int
+  volontariat_click_mission_count                     Int
+  benevolat_apply_mission_count                       Int
+  volontariat_apply_mission_count                     Int
+  benevolat_account_mission_count                     Int
+  volontariat_account_mission_count                   Int
+  benevolat_print_count                               Int
+  volontariat_print_count                             Int
+  benevolat_click_count                               Int
+  volontariat_click_count                             Int
+  benevolat_apply_count                               Int
+  volontariat_apply_count                             Int
+  benevolat_account_count                             Int
+  volontariat_account_count                           Int
+}
+
+model KpiBotLess {
+  id                                                  String   @id @default(uuid())
+  old_id                                              String   @unique
+  date                                                DateTime @unique
+  available_benevolat_mission_count                   Int
+  available_volontariat_mission_count                 Int
+  available_benevolat_given_by_partner_place_count    Int
+  available_volontariat_given_by_partner_place_count  Int
+  available_benevolat_attributed_by_api_place_count   Int
+  available_volontariat_attributed_by_api_place_count Int
+  percentage_benevolat_given_by_partner_places        Float
+  percentage_volontariat_given_by_partner_places      Float
+  percentage_benevolat_attributed_by_api_places       Float
+  percentage_volontariat_attributed_by_api_places     Float
+  benevolat_print_mission_count                       Int
+  volontariat_print_mission_count                     Int
+  benevolat_click_mission_count                       Int
+  volontariat_click_mission_count                     Int
+  benevolat_apply_mission_count                       Int
+  volontariat_apply_mission_count                     Int
+  benevolat_account_mission_count                     Int
+  volontariat_account_mission_count                   Int
+  benevolat_print_count                               Int
+  volontariat_print_count                             Int
+  benevolat_click_count                               Int
+  volontariat_click_count                             Int
+  benevolat_apply_count                               Int
+  volontariat_apply_count                             Int
+  benevolat_account_count                             Int
+  volontariat_account_count                           Int
+}
+
+model LoginHistory {
+  id       String   @id @default(uuid())
+  user_id  String
+  login_at DateTime @default(now())
+  user     User     @relation(fields: [user_id], references: [id])
+
+  @@index([user_id], map: "login_history")
+}
+
+model Mission {
+  id                              String        @id @default(uuid())
+  title                           String?
+  old_id                          String        @unique
+  // Address
+  address                         String?
+  department_name                 String?
+  department_code                 String?
+  city                            String?
+  postal_code                     String?
+  country                         String?
+  region                          String?
+  latitude                        Float?
+  longitude                       Float?
+  geoloc_status                  String?
+  addresses                       Address[]
+
+  domain                          String
+  activity                        String?
+  partner_id                      String?
+  description                     String?
+  type                            MissionType?
+  duration                        Int?
+  deleted_at                      DateTime?
+  open_to_minors                  String?
+  organization_actions            String[]
+  organization_beneficiaries      String[]
+  organization_city               String?
+  organization_description        String?
+  organization_logo               String?
+  organization_name               String?
+  organization_rna                String?
+  organization_reseaux            String[]
+  organization_siren              String?
+  organization_status_juridique   String?
+  organization_url                String?
+  organization_full_address       String?
+  schedule                        String?
+  remote                          String?
+  last_sync_at                    DateTime?     @default(now())
+  status                          String?
+  status_comment                  String?
+  posted_at                       DateTime?     @default(now())
+  close_to_transport              String?
+  reduced_mobility_accessible     String?
+  start_at                        DateTime?     @default(now())
+  end_at                          DateTime?     @default(now())
+  created_at                      DateTime      @default(now())
+  updated_at                      DateTime      @updatedAt
+  audience                        String[]
+  rna_status                      String?
+  snu                             Boolean?
+  snu_places                      Int?
+  tags                            String[]
+  jva_moderation_comment          String?
+  jva_moderation_status           String?
+  jva_moderation_title            String?
+  jva_moderation_user_id          String?
+  jva_moderation_updated_at       DateTime?
+  
+  organization_client_id          String?
+  organization_department         String?
+  client_id                       String?
+  description_html                String?
+  leboncoin_moderation_comment    String?
+  leboncoin_moderation_status     String?
+  leboncoin_moderation_updated_at DateTime?
+  leboncoin_moderation_url        String?
+  metadata                        String?
+  organization_postal_code         String?
+  priority                        String?
+  soft_skills                     String[]
+  tasks                           String[]
+  places                          Int?
+  matched_organization_id         String?
+  organization_verification_status String?
+  organization_name_verified      String?
+  organization_rna_verified       String?
+  organization_siren_verified     String?
+  organization_siret_verified      String?
+  organization_address_verified   String?
+  organization_city_verified      String?
+  organization_postal_code_verified String?
+  organization_department_code_verified String?
+  organization_department_name_verified String?
+  organization_region_verified    String?
+  organization_is_rup             Boolean?
+  is_siren_verified               Boolean?
+  is_siret_verified              Boolean?
+  is_rna_verified                 Boolean?
+  accounts                        Account[]
+  applies                         Apply[]
+  clicks                          Click[]
+  impressions                     Impression[]
+  organization                    Organization? @relation(fields: [matched_organization_id], references: [id])
+  partner                         Partner?      @relation(fields: [partner_id], references: [id])
+  moderation_events               ModerationEvent[]
+  @@index([client_id], map: "mission_client_id")
+  @@index([matched_organization_id], map: "mission_matched_organization_id")
+  @@index([partner_id], map: "mission_partner_id")
+  @@index([old_id], map: "mission_old_id")
+}
+
+model ModerationEvent {
+  id String @id @default(uuid())
+  old_id String @unique
+  mission_id String
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+  user_id String?
+  user_name String?
+  initial_status ModerationEventStatus?
+  new_status ModerationEventStatus?
+  initial_comment String?
+  new_comment String?
+  initial_note String?
+  new_note String?
+  initial_title String?
+  new_title String?
+  initial_siren String?
+  new_siren String?
+  initial_rna String?
+  new_rna String?
+
+  user User? @relation(fields: [user_id], references: [id])
+  mission Mission @relation(fields: [mission_id], references: [id], onDelete: Cascade)
+}
+
+model Address {
+  id String @id @default(uuid())
+  old_id String
+  street String?
+  city String?
+  postal_code String?
+  country String?
+  department_code String?
+  department_name String?
+  region String?
+  latitude Float?
+  longitude Float?
+  geoloc_status String @default("NOT_FOUND")
+  mission_id String
+  mission Mission @relation(fields: [mission_id], references: [id], onDelete: Cascade)
+
+  @@index([mission_id], map: "address_mission_id")
+  @@index([old_id], map: "address_old_id")
+  @@unique([mission_id, old_id], map: "address_mission_id_old_id")
+}
+
+model Organization {
+  id                      String    @id
+  old_id                  String    @unique
+  rna                     String
+  siren                   String?
+  siret                   String?
+  rup_mi                  String?
+  gestion                 String?
+  status                  String?
+  created_at              DateTime  @default(now())
+  last_declared_at        DateTime?
+  published_at            DateTime?
+  dissolved_at            DateTime?
+  updated_at              DateTime
+  nature                  String?
+  groupement              String?
+  title                   String
+  short_title             String?
+  title_slug              String
+  short_title_slug        String
+  names                   String[]
+  object                  String?
+  social_object1          String?
+  social_object2          String?
+  address_complement      String?
+  address_number          String?
+  address_repetition      String?
+  address_type            String?
+  address_street          String?
+  address_distribution    String?
+  address_insee_code      String?
+  address_postal_code     String?
+  address_department_code String?
+  address_department_name String?
+  address_region          String?
+  address_city            String?
+  management_declarant    String?
+  management_complement   String?
+  management_street       String?
+  management_distribution String?
+  management_postal_code  String?
+  management_city         String?
+  management_country      String?
+  director_civility       String?
+  website                 String?
+  observation             String?
+  sync_at                 DateTime?
+  source                  String?
+  missions                Mission[]
+}
+
+model Partner {
+  id                  String       @id @default(uuid())
+  old_id              String       @unique
+  name                String?
+
+
+  diffuseur_api       Boolean
+  diffuseur_widget    Boolean
+  diffuseur_campaign  Boolean
+  annonceur           Boolean
+  api_key             String?
+  partners            String[]
+  created_at          DateTime     @default(now())
+  updated_at          DateTime     @updatedAt
+  deleted_at          DateTime?
+  account_from        Account[]    @relation("FromAccount")
+  account_to          Account[]    @relation("ToAccount")
+  apply_from          Apply[]      @relation("FromApply")
+  apply_to            Apply[]      @relation("ToApply")
+  annonceur_campaigns Campaign[]   @relation("AnnonceurCampaign")
+  diffuseur_campaigns Campaign[]   @relation("DiffuseurCampaign")
+  click_from          Click[]      @relation("FromClick")
+  click_to            Click[]      @relation("ToClick")
+  imports             Import[]
+  impression_from     Impression[] @relation("FromImpression")
+  impression_to       Impression[] @relation("ToImpression")
+  missions            Mission[]
+  diffuseur_widgets   Widget[]     @relation("DiffuseurWidget")
+  annonceur_widget PartnerToWidget[]
+  users PartnerToUser[]
+}
+
+model User {
+  id                          String         @id @default(uuid())
+  old_id                      String         @unique
+  forgot_password_reset_token String?
+  role                        String?
+  password                    String?
+  email                       String
+  last_login_at               DateTime?      @default(now())
+  first_name                  String?
+  last_name                   String?
+  invitation_completed_at     DateTime?      @default(now())
+  created_at                  DateTime       @default(now())
+  updated_at                  DateTime       @updatedAt
+  deleted_at                  DateTime?
+  
+  login_history               LoginHistory[]
+  partners PartnerToUser[]
+  moderation_events           ModerationEvent[]
+}
+
+model Widget {
+  id           String        @id @default(uuid())
+  name         String
+  old_id       String        @unique
+  diffuseur_id String
+  mission_type MissionType?
+  active       Boolean       @default(true)
+  color        String?
+  style        WidgetStyle?
+  city         String?
+  postal_code  String?
+  latitude     Float?
+  longitude    Float?
+  distance     String?
+  jva_moderation Boolean @default(false)
+
+  deleted_at   DateTime?
+  created_at   DateTime      @default(now())
+  updated_at   DateTime      @updatedAt
+  accounts     Account[]
+  applies      Apply[]
+  clicks       Click[]
+  impressions  Impression[]
+  diffuseur    Partner       @relation("DiffuseurWidget", fields: [diffuseur_id], references: [id])
+  query        WidgetQuery[] @relation("QueryWidget")
+  partners PartnerToWidget[]
+}
+
+
+model WidgetQuery {
+  id            String    @id @default(uuid())
+  old_id        String    @unique
+  widget_id     String
+  domain        String[]
+  organization  String[]
+  department    String[]
+  schedule      String[]
+  remote        String[]
+  action        String[]
+  beneficiary   String[]
+  country       String[]
+  minor         String[]
+  accessibility String[]
+  duration      Int?
+  start         DateTime?
+  search        String?
+  lat           Float?
+  lon           Float?
+  city          String?
+  distance      String?
+  jva_moderation Boolean?
+  size          Int?
+  from          Int?
+  created_at    DateTime  @default(now())
+  widget        Widget    @relation("QueryWidget", fields: [widget_id], references: [id])
+}
+
+model PartnerToUser {
+  id         String   @id @default(uuid())
+  user_id    String
+  partner_id String
+  user       User     @relation(fields: [user_id], references: [id])
+  partner    Partner  @relation(fields: [partner_id], references: [id])
+
+  @@unique([partner_id, user_id])
+  @@index([partner_id])
+  @@index([user_id])
+}
+
+model PartnerToWidget {
+  id         String   @id @default(uuid())
+  widget_id  String
+  partner_id String
+  widget     Widget   @relation(fields: [widget_id], references: [id])
+  partner    Partner  @relation(fields: [partner_id], references: [id])
+
+  @@unique([partner_id, widget_id])
+  @@index([partner_id])
+  @@index([widget_id])
+}
+
+enum MissionType {
+  benevolat
+  volontariat
+}
+
+enum WidgetStyle {
+  carousel
+  page
+}
+
+enum SourceType {
+  api
+  widget
+  campaign
+  seo
+  jstag
+}
+
+enum ModerationEventStatus {
+  accepted
+  refused
+  pending
+  ongoing
+}

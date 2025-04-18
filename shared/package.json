@@ -1,0 +1,20 @@
+{
+  "name": "@api-engagement/shared",
+  "version": "1.0.0",
+  "description": "Shared code for api-engagement monorepo",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "watch": "tsc -w"
+  },
+  "dependencies": {
+    "@prisma/client": "6.6.0",
+    "mongoose": "8.13.2"
+  },
+  "devDependencies": {
+    "@types/node": "22.14.1",
+    "prisma": "6.6.0",
+    "typescript": "5.8.3"
+  }
+}
