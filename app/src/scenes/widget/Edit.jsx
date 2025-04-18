@@ -566,21 +566,21 @@ const Frame = ({ widget }) => {
 
 const IFRAMES = {
   benevolat: {
-    carousel: `<iframe title="Trouver une mission de bénévolat" border="0" frameborder="0" style="display:block; width:100%;" loading="lazy" allowfullscreen allow="geolocation" src="${BENEVOLAT_URL}?widget={{widgetId}}" onload="this.style.height=this.offsetWidth < 768 ? '780px': '686px'"></iframe>`,
-    page: `<iframe title="Trouver une mission de bénévolat" border="0" frameborder="0" style="display:block; width:100%;" loading="lazy" allowfullscreen allow="geolocation" src="${BENEVOLAT_URL}?widget={{widgetId}}" onload="this.style.height=this.offsetWidth < 640 ? '3424px': this.offsetWidth < 1024 ? '1862px': '1314px'"></iframe>`,
+    carousel: `<iframe id="engagement-widget" title="Trouver une mission de bénévolat" border="0" frameborder="0" style="display:block; width:100%; transition: height 0.3s ease;" loading="lazy" allowfullscreen allow="geolocation" src="${BENEVOLAT_URL}?widget={{widgetId}}" onload="this.style.height=this.offsetWidth < 768 ? '780px': '686px'"></iframe>`,
+    page: `<iframe id="engagement-widget" title="Trouver une mission de bénévolat" border="0" frameborder="0" style="display:block; width:100%; transition: height 0.3s ease;" loading="lazy" allowfullscreen allow="geolocation" src="${BENEVOLAT_URL}?widget={{widgetId}}" onload="this.style.height=this.offsetWidth < 640 ? '3424px': this.offsetWidth < 1024 ? '1862px': '1314px'"></iframe>`,
   },
   volontariat: {
-    carousel: `<iframe title="Trouver une mission de volontariat" border="0" frameborder="0" style="display:block; width:100%;" loading="lazy" allowfullscreen allow="geolocation" src="${VOLONTARIAT_URL}?widget={{widgetId}}" onload="this.style.height=this.offsetWidth < 768 ? '670px': '600px'"></iframe>`,
-    page: `<iframe title="Trouver une mission de volontariat" border="0" frameborder="0" style="display:block; width:100%;" loading="lazy" allowfullscreen allow="geolocation" src="${VOLONTARIAT_URL}?widget={{widgetId}}" onload="this.style.height=this.offsetWidth < 640 ? '2200px': this.offsetWidth < 1024 ? '1350px': '1050px'"></iframe>`,
+    carousel: `<iframe id="engagement-widget" title="Trouver une mission de volontariat" border="0" frameborder="0" style="display:block; width:100%; transition: height 0.3s ease;" loading="lazy" allowfullscreen allow="geolocation" src="${VOLONTARIAT_URL}?widget={{widgetId}}" onload="this.style.height=this.offsetWidth < 768 ? '670px': '600px'"></iframe>`,
+    page: `<iframe id="engagement-widget" title="Trouver une mission de volontariat" border="0" frameborder="0" style="display:block; width:100%; transition: height 0.3s ease;" loading="lazy" allowfullscreen allow="geolocation" src="${VOLONTARIAT_URL}?widget={{widgetId}}" onload="this.style.height=this.offsetWidth < 640 ? '2200px': this.offsetWidth < 1024 ? '1350px': '1050px'"></iframe>`,
   },
 };
 
 const JVA_LOGO = `<div style="padding:10px; display:flex; justify-content:center; align-items:center;">
-  <img src="https://apicivique.s3.eu-west-3.amazonaws.com/jvalogo.svg"/>
+  <img src="https://apicivique.s3.eu-west-3.amazonaws.com/jvalogo.svg" alt="Logo JeVeuxAider"/>
   <div style="color:#666666; font-style:normal; font-size:13px; padding:8px;">Proposé par la plateforme publique du bénévolat
     <a href="https://www.jeveuxaider.gouv.fr/" target="_blank">JeVeuxAider.gouv.fr</a>
   </div>
-</div>`;
+</div><script>(function(){window.addEventListener('message',function(e){try{var d=e.data;if(d&&d.type==='resize'&&d.height&&d.source==='api-engagement-widget'){document.getElementById('engagement-widget').style.height=d.height+'px'}}catch(err){console.error(err)}})})();</script>`;
 
 const Code = ({ widget }) => {
   const handleCopy = () => {

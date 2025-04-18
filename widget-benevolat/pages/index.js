@@ -13,6 +13,7 @@ import Grid from "../components/Grid";
 import Filters from "../components/Filters";
 import { calculateDistance } from "../utils";
 import useStore from "../store";
+import resizeHelper from "../utils/resizeHelper";
 
 /**
  * Layout widget --> max-width: 1152px
@@ -63,6 +64,13 @@ const Home = ({ widget, missions, apiUrl, total, request, environment }) => {
     } else {
       console.log("Geolocation is not supported by this browser.");
     }
+  }, []);
+
+  useEffect(() => {
+    const cleanup = resizeHelper.setupResizeObserver();
+    return () => {
+      if (typeof cleanup === 'function') cleanup();
+    };
   }, []);
 
   useEffect(() => {
