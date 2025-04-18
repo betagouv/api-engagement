@@ -12,7 +12,9 @@
     "stop": "pm2 stop process",
     "start-dev": "ts-node src/index.ts",
     "start": "pm2 start dist/index.js --name process",
-    "reload": "pm2 reload process"
+    "reload": "pm2 reload process",
+    "lint": "eslint --ext .js,.ts src/",
+    "lint:fix": "eslint --ext .js,.ts src/ --fix"
   },
   "prettier": {
     "printWidth": 180
