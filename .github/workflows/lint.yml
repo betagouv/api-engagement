@@ -26,5 +26,8 @@ jobs:
       - name: Install API dependencies
         run: cd api && npm ci
         
+      - name: Install process dependencies
+        run: cd process && npm ci
+        
       - name: Run ESLint
         run: npm run lint
