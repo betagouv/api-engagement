@@ -50,7 +50,7 @@
   },
   "devDependencies": {
     "@types/cors": "2.8.17",
-    "@types/express": "4.17.21",
+    "@types/express": "5.0.1",
     "@types/he": "1.2.3",
     "@types/html-to-text": "9.0.4",
     "@types/react": "19.0.7",
