@@ -107,7 +107,7 @@ const handler = async () => {
         }
       }
 
-      console.log(`[Organization] ${dataToCreate.length} docs to create, ${dataToUpdate.length} docs to update.`);
+      console.log(`[Organization] ${dataToCreate.length} docs to create, ${dataToUpdate.length} docs to update, offset: ${offset}`);
 
       // Create data
       if (dataToCreate.length) {
