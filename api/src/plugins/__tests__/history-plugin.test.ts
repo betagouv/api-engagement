@@ -10,10 +10,15 @@ interface HistoryEntry {
 
 class MockDocument {
   isNew = false;
+
   isModified = vi.fn();
+
   modifiedPaths = vi.fn();
+
   get = vi.fn();
+
   toObject = vi.fn();
+
   __history: HistoryEntry[] = [];
 
   constructor(initialData: Record<string, any> = {}) {
@@ -27,10 +32,15 @@ class MockDocument {
 
 class MockSchema {
   paths: Record<string, any> = {};
+
   methods: Record<string, any> = {};
+
   statics: Record<string, any> = {};
+
   pre = vi.fn();
+
   add = vi.fn();
+
   path = vi.fn();
 
   constructor() {
