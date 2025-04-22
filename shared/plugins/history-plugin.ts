@@ -92,10 +92,11 @@ export function historyPlugin<T extends Document>(schema: Schema, options: Histo
         this[historyField] = [];
       }
       
-      this[historyField].push(historyEntry);
+      // Utiliser un cast de type pour indiquer à TypeScript que c'est un tableau d'HistoryEntry
+      (this[historyField] as HistoryEntry[]).push(historyEntry);
       
-      if (this[historyField].length > (pluginOptions.maxEntries as number)) {
-        this[historyField] = this[historyField].slice(this[historyField].length - (pluginOptions.maxEntries as number));
+      if ((this[historyField] as HistoryEntry[]).length > (pluginOptions.maxEntries as number)) {
+        this[historyField] = (this[historyField] as HistoryEntry[]).slice((this[historyField] as HistoryEntry[]).length - (pluginOptions.maxEntries as number));
       }
     }
     
@@ -111,7 +112,7 @@ export function historyPlugin<T extends Document>(schema: Schema, options: Histo
    * ```
    */
   schema.methods.getHistory = function() {
-    return this[historyField] || [];
+    return (this[historyField] as HistoryEntry[]) || [];
   };
 
   /**
@@ -222,11 +223,11 @@ export function historyPlugin<T extends Document>(schema: Schema, options: Histo
                     metadata: { ...pluginOptions.metadata }
                   };
                   
-                  let history = doc[historyField] || [];
-                  history.push(historyEntry);
+                  let history = (doc[historyField] as HistoryEntry[]) || [];
+                  (history as HistoryEntry[]).push(historyEntry);
                   
-                  if (history.length > (pluginOptions.maxEntries as number)) {
-                    history = history.slice(history.length - (pluginOptions.maxEntries as number));
+                  if ((history as HistoryEntry[]).length > (pluginOptions.maxEntries as number)) {
+                    history = (history as HistoryEntry[]).slice((history as HistoryEntry[]).length - (pluginOptions.maxEntries as number));
                   }
                   
                   historyUpdates.push({

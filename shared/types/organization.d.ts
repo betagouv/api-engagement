@@ -1,5 +1,5 @@
 /**
- * Interface repru00e9sentant une organisation (association, etc.)
+ * Interface représentant une organisation (association, etc.)
  */
 export interface Organization {
   _id?: string;

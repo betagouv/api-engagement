@@ -65,11 +65,6 @@ schema.index({ addressDepartmentName: 1 });
 schema.index({ addressCity: 1 });
 schema.index({ title: "text", shortTitle: "text", rna: "text", siret: "text" });
 
-// Export du modèle
 const OrganizationModel = model<Organization>(MODELNAME, schema);
-export default OrganizationModel;
 
-// Export d'une fonction pour obtenir le modèle
-export function getOrganizationModel() {
-  return OrganizationModel;
-}
+export { OrganizationModel };

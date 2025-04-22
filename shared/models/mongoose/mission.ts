@@ -249,11 +249,6 @@ schema.index({
   publisherId: 1,
 });
 
-// Export du modèle
 const MissionModel = model<Mission>(MODELNAME, schema);
-export default MissionModel;
 
-// Export d'une fonction pour obtenir le modèle (utile pour éviter les problèmes de connexions multiples)
-export function getMissionModel() {
-  return MissionModel;
-}
+export { MissionModel };

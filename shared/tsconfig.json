@@ -5,7 +5,12 @@
     "moduleResolution": "node",
     "resolveJsonModule": true,
     "strict": true,
-    "typeRoots": ["../node_modules/@types", "../types"]
+    "typeRoots": ["../node_modules/@types", "../types"],
+    "baseUrl": ".",
+    "paths": {
+      "@shared/*": ["*"]
+    },
+    "esModuleInterop": true
   },
   "include": ["**/*.ts"],
   "exclude": ["node_modules", "dist"]

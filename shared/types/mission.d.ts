@@ -1,7 +1,7 @@
 import { Address } from './address.d';
 
 /**
- * Interface repru00e9sentant une mission d'engagement
+ * Interface représentant une mission d'engagement
  */
 export interface Mission {
   _id?: string;
