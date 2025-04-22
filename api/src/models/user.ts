@@ -34,7 +34,7 @@ schema.pre("save", function (next) {
   this.updated_at = new Date();
   if (this.isModified("password") && this.password) {
     bcrypt.hash(this.password, 10, (e, hash) => {
-      this.password = hash;
+      this.password = hash || null;
       return next();
     });
   } else {
