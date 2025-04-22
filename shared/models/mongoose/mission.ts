@@ -1,5 +1,6 @@
 import { Schema, model } from "mongoose";
-import { Mission } from "../../types";
+import { Mission } from "../../types/index.d";
+import { historyPlugin } from "../../plugins/history-plugin";
 
 const MODELNAME = "mission";
 
@@ -57,6 +58,7 @@ const schema = new Schema<Mission>(
     endAt: { type: Date },
     priority: { type: String },
     places: { type: Number },
+    placesStatus: { type: String, enum: ["ATTRIBUTED_BY_API", "GIVEN_BY_PARTNER"], default: "ATTRIBUTED_BY_API" },
     metadata: { type: String },
     domain: { type: String },
     domainOriginal: { type: String },
@@ -79,6 +81,8 @@ const schema = new Schema<Mission>(
       lat: { type: Number },
       lon: { type: Number },
     },
+    geoPoint: { type: geoPointSchema, default: null },
+    geolocStatus: { type: String, default: "NOT_FOUND" },
     addresses: { type: [addressesSchema], default: [] },
 
     // Organisation
@@ -137,6 +141,7 @@ const schema = new Schema<Mission>(
     associationId: { type: String },
     associationName: { type: String },
     associationSiren: { type: String },
+    associationSiret: { type: String },
     associationRNA: { type: String },
     associationSources: { type: [String] },
     associationReseaux: { type: [String] },
@@ -154,10 +159,10 @@ const schema = new Schema<Mission>(
 
     // Moderation JVA
     moderation_5f5931496c7ea514150a818f_status: { type: String, enum: ["PENDING", "ONGOING", "ACCEPTED", "REFUSED", null], default: null },
-    moderation_5f5931496c7ea514150a818f_comment: { type: String },
-    moderation_5f5931496c7ea514150a818f_note: { type: String },
-    moderation_5f5931496c7ea514150a818f_title: { type: String },
-    moderation_5f5931496c7ea514150a818f_date: { type: Date },
+    moderation_5f5931496c7ea514150a818f_comment: { type: String, default: null },
+    moderation_5f5931496c7ea514150a818f_note: { type: String, default: null },
+    moderation_5f5931496c7ea514150a818f_title: { type: String, default: null },
+    moderation_5f5931496c7ea514150a818f_date: { type: Date, default: null },
 
     // LeBonCoin
     leboncoinStatus: { type: String },
@@ -176,16 +181,19 @@ const schema = new Schema<Mission>(
   },
 );
 
-// Ajout du système d'historisation
-schema.add({
-  __history: [
-    {
-      date: { type: String },
-      state: { type: Schema.Types.Mixed },
-    },
+// Application du plugin d'historisation
+schema.plugin(historyPlugin, {
+  historyField: "__history",
+  omit: [
+    "updatedAt",  
+    "lastSyncAt",
+    "__v", 
+    "__history",
   ],
+  maxEntries: 100
 });
 
+// Indexes
 schema.index({ _old_id: 1 });
 schema.index({ _old_ids: 1 });
 schema.index({ publisherId: 1 });

@@ -1,73 +1,72 @@
 import { Schema, model } from "mongoose";
+import { Organization } from "../../types/index.d";
 
 const MODELNAME = "organization";
 
-const schema = new Schema(
+const schema = new Schema<Organization>(
   {
-    _id: { type: String },
+    esId: { type: String, description: "ES ID" },
     _old_id: { type: String },
-    rna: { type: String },
-    siren: { type: String },
-    siret: { type: String },
-    rup_mi: { type: String },
-    gestion: { type: String },
-    status: { type: String },
-    created_at: { type: Date, default: Date.now },
-    last_declared_at: { type: Date },
-    published_at: { type: Date },
-    dissolved_at: { type: Date },
-    updated_at: { type: Date },
-    nature: { type: String },
-    groupement: { type: String },
-    title: { type: String },
-    short_title: { type: String },
-    title_slug: { type: String },
-    short_title_slug: { type: String },
-    names: { type: [String] },
-    object: { type: String },
-    social_object1: { type: String },
-    social_object2: { type: String },
-    address_complement: { type: String },
-    address_number: { type: String },
-    address_repetition: { type: String },
-    address_type: { type: String },
-    address_street: { type: String },
-    address_distribution: { type: String },
-    address_insee_code: { type: String },
-    address_postal_code: { type: String },
-    address_department_code: { type: String },
-    address_department_name: { type: String },
-    address_region: { type: String },
-    address_city: { type: String },
-    management_declarant: { type: String },
-    management_complement: { type: String },
-    management_street: { type: String },
-    management_distribution: { type: String },
-    management_postal_code: { type: String },
-    management_city: { type: String },
-    management_country: { type: String },
-    director_civility: { type: String },
-    website: { type: String },
-    observation: { type: String },
-    sync_at: { type: Date },
-    source: { type: String },
+    rna: { type: String, required: true, description: "RNA" },
+    siren: { type: String, description: "Siren" },
+    siret: { type: String, description: "Siret" },
+    sirets: { type: [String], description: "Sirets" },
+    rupMi: { type: String, description: "RUP/MI" },
+    gestion: { type: String, description: "Gestion" },
+    status: { type: String, description: "Status" },
+    lastDeclaredAt: { type: Date, description: "Last declared at" },
+    publishedAt: { type: Date, description: "Published at" },
+    dissolvedAt: { type: Date, description: "Dissolved at" },
+    nature: { type: String, description: "Nature" },
+    groupement: { type: String, description: "Groupement" },
+    title: { type: String, required: true, description: "Title" },
+    names: { type: [String], description: "Names found when associated to the RNA" },
+    shortTitle: { type: String, description: "Short title" },
+    titleSlug: { type: String, description: "Title slug" },
+    shortTitleSlug: { type: String, description: "Short title slug" },
+    object: { type: String, description: "Object" },
+    socialObject1: { type: String, description: "Social object 1" },
+    socialObject2: { type: String, description: "Social object 2" },
+    addressComplement: { type: String, description: "Address complement" },
+    addressNumber: { type: String, description: "Address number" },
+    addressRepetition: { type: String, description: "Address repetition" },
+    addressType: { type: String, description: "Address type" },
+    addressStreet: { type: String, description: "Address street" },
+    addressDistribution: { type: String, description: "Address distribution" },
+    addressInseeCode: { type: String, description: "Address insee code" },
+    addressPostalCode: { type: String, description: "Address postal code" },
+    addressDepartmentCode: { type: String, description: "Address department code" },
+    addressDepartmentName: { type: String, description: "Address department name" },
+    addressRegion: { type: String, description: "Address region" },
+    addressCity: { type: String, description: "Address city" },
+    managementDeclarant: { type: String, description: "Management declarant" },
+    managementComplement: { type: String, description: "Management complement" },
+    managementStreet: { type: String, description: "Management street" },
+    managementDistribution: { type: String, description: "Management distribution" },
+    managementPostalCode: { type: String, description: "Management postal code" },
+    managementCity: { type: String, description: "Management city" },
+    managementCountry: { type: String, description: "Management country" },
+    directorCivility: { type: String, description: "Director civility" },
+    website: { type: String, description: "Website" },
+    observation: { type: String, description: "Observation" },
+    syncAt: { type: Date, description: "Sync at" },
+    source: { type: String, description: "Source" },
   },
-  {
-    timestamps: true,
-  },
+  { timestamps: true },
 );
 
 // Indexes
 schema.index({ rna: 1 });
-schema.index({ siren: 1 });
-schema.index({ siret: 1 });
 schema.index({ title: 1 });
-schema.index({ title_slug: 1 });
-schema.index({ short_title_slug: 1 });
-schema.index({ names: 1 });
+schema.index({ titleSlug: 1 });
+schema.index({ siret: 1 });
+schema.index({ sirets: 1 });
+schema.index({ addressDepartmentName: 1 });
+schema.index({ addressCity: 1 });
+schema.index({ title: "text", shortTitle: "text", rna: "text", siret: "text" });
 
 // Export du modèle
-const OrganizationModel = model(MODELNAME, schema);
+const OrganizationModel = model<Organization>(MODELNAME, schema);
 export default OrganizationModel;
 
 // Export d'une fonction pour obtenir le modèle
