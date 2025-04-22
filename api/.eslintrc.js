@@ -5,6 +5,7 @@ module.exports = {
     '../.eslintrc.base.js',
   ],
   parserOptions: {
+    tsconfigRootDir: __dirname,
     project: './tsconfig.json',
     ecmaVersion: 2020,
     sourceType: 'module',

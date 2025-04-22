@@ -21,7 +21,7 @@
     "strict": true /* Enable all strict type-checking options. */,
     "skipLibCheck": true /* Skip type checking all .d.ts files. */,
     "allowJs": true
-    // ingnore scripts folder
   },
-  "include": ["src", "vitest.config.ts"]
+  "include": ["src/**/*", "vitest.config.ts", "**/*.test.ts"],
+  "exclude": ["node_modules", "dist"]
 }
