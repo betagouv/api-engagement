@@ -8,17 +8,19 @@ const buildData = (doc: Publisher) => {
   const obj = {
     old_id: doc._id.toString(),
     name: doc.name,
-    diffuseur_api: doc.role_annonceur_api,
-    diffuseur_widget: doc.role_annonceur_campagne,
-    diffuseur_campaign: doc.role_annonceur_widget,
-    annonceur: doc.role_promoteur,
-    partners: doc.publishers.map((p) => p.publisher),
-    created_at: new Date(doc.created_at),
-    updated_at: new Date(doc.updated_at),
-    deleted_at: doc.deleted_at ? new Date(doc.deleted_at) : null,
+    diffuseur_api: doc.api,
+    diffuseur_widget: doc.widget,
+    diffuseur_campaign: doc.campaign,
+    annonceur: doc.annonceur,
+    partners: doc.publishers.map((p) => p.publisherId),
+    created_at: new Date(doc.createdAt),
+    updated_at: new Date(doc.updatedAt),
+    deleted_at: doc.deletedAt ? new Date(doc.deletedAt) : null,
   } as PgPartner;
   return obj;
 };
+
+const isDateEqual = (a: Date, b: Date) => new Date(a).getTime() === new Date(b).getTime();
 
 const handler = async () => {
   try {
@@ -37,8 +39,8 @@ const handler = async () => {
     for (const doc of data) {
       const exists = stored[doc._id.toString()];
       const obj = buildData(doc as Publisher);
-      if (exists && new Date(exists.updated_at).getTime() !== obj.updated_at.getTime()) dataToUpdate.push(obj);
-      else if (!exists) dataToCreate.push(obj);
+      if (!exists) dataToCreate.push(obj);
+      else if (!isDateEqual(exists.updated_at, obj.updated_at)) dataToUpdate.push(obj);
     }
 
     // Create data

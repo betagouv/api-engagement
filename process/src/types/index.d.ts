@@ -341,13 +341,14 @@ export interface Publisher {
   _id: Schema.Types.ObjectId;
   name: string;
   status: string;
+  category: string | null;
   automated_report: boolean;
   send_report_to: string[];
-  mission_type: string;
-  role_promoteur: boolean;
-  role_annonceur_api: boolean;
-  role_annonceur_widget: boolean;
-  role_annonceur_campagne: boolean;
+  missionType: string | null;
+  annonceur: boolean;
+  api: boolean;
+  widget: boolean;
+  campaign: boolean;
   url: string;
   moderator: boolean;
   moderatorLink: string;
@@ -355,25 +356,30 @@ export interface Publisher {
   documentation: string;
   logo: string;
   feed: string;
-  feed_password: string;
-  feed_username: string;
   apikey: string | null;
   lastSyncAt: Date;
-  publishers: {
-    publisher: string;
-    publisherName: string;
-    publisherLogo: string;
-    mission_type: string;
-    moderator: boolean;
-  }[];
+  broadcasters: string[];
+  publishers: Diffuseur[];
+  excludedOrganizations: PublisherExcludedOrganization[];
   description: string;
   lead: string;
-  deleted_at: Date;
-  created_at: Date;
-  updated_at: Date;
+  deletedAt: Date | null;
+  createdAt: Date;
+  updatedAt: Date;
+
+  // Deprecated
+  excludeOrganisations: string[];
+  mission_type: string | null;
+  role_promoteur: boolean;
+  role_annonceur_api: boolean;
+  role_annonceur_widget: boolean;
+  role_annonceur_campagne: boolean;
   lastFetchAt: Date;
   acceptedCount: number;
   refusedCount: number;
+  created_at: Date;
+  updated_at: Date;
+  deleted_at: Date;
 }
 
 export interface StatsReport {
