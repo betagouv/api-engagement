@@ -59,7 +59,7 @@ export const sendTemplate = async (templateId: number, options: EmailOptions) =>
     if (options.attachment) body.attachment = options.attachment;
     if (options.tags) body.tags = options.tags;
 
-    if (ENVIRONMENT === "development") {
+    if (ENVIRONMENT !== "production") {
       console.log(`---- EMAIL ----`);
       console.log(`[to]: ${JSON.stringify(body.to, null, 2)}`);
       console.log(`[template]: ${body.templateId}`);
