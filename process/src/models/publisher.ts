@@ -1,195 +1,81 @@
 import { Schema, model } from "mongoose";
 
-import { Publisher } from "../types";
+import { Diffuseur, Publisher, PublisherExcludedOrganization } from "../types";
 
 const MODELNAME = "publisher";
+
+const publisherSchema = new Schema<Diffuseur>(
+  {
+    publisherId: { type: String, ref: "publisher" },
+    publisherName: { type: String, required: true, trim: true },
+    moderator: { type: Boolean, default: false },
+    missionType: { type: String, default: null, enum: ["benevolat", "volontariat", null] },
+    // Old to migrate
+    publisher: { type: String, ref: "publisher" },
+    mission_type: { type: String, default: null, enum: ["benevolat", "volontariat", null] },
+  },
+  { timestamps: true },
+);
+
+const excludedOrganizationSchema = new Schema<PublisherExcludedOrganization>(
+  {
+    publisherId: { type: String, ref: "publisher" },
+    publisherName: { type: String, required: true, trim: true },
+    organizationClientId: { type: String },
+    organizationName: { type: String, trim: true },
+  },
+  { timestamps: true },
+);
+
 const schema = new Schema<Publisher>(
   {
-    name: {
-      type: String,
-      required: true,
-      trim: true,
-      documentation: {
-        description: "Full name of the publisher",
-      },
-    },
-
-    status: {
-      type: String,
-      enum: ["active", "inactive"],
-      documentation: {
-        description: "Status",
-      },
-    },
-
+    name: { type: String, required: true, trim: true },
+    status: { type: String, enum: ["active", "inactive"] },
+    category: { type: String, default: null },
     automated_report: { type: Boolean, default: false },
-    send_report_to: {
-      type: [String],
-      documentation: {
-        description: "List of users id to send report to",
-      },
-    },
+    send_report_to: { type: [String] },
 
-    mission_type: {
-      type: String,
-      default: null,
-      enum: ["benevolat", "volontariat", null],
-      documentation: {
-        description: "Type of mission proposed by the publisher",
-      },
-    },
+    url: { type: String },
 
+    moderator: { type: Boolean, default: false },
+    moderatorLink: { type: String },
+    email: { type: String },
+
+    documentation: { type: String },
+    logo: { type: String },
+    feed: { type: String },
+    feed_username: { type: String },
+    feed_password: { type: String },
+    apikey: { type: String },
+    lastSyncAt: { type: Date },
+
+    publishers: { type: [publisherSchema] },
+    excludedOrganizations: { type: [excludedOrganizationSchema] },
+    description: { type: String, default: "" },
+    lead: { type: String, default: "" },
+    deletedAt: { type: Date, default: null },
+
+    missionType: { type: String, default: null, enum: ["benevolat", "volontariat", null] },
+    annonceur: { type: Boolean, default: false },
+    api: { type: Boolean, default: false },
+    widget: { type: Boolean, default: false },
+    campaign: { type: Boolean, default: false },
+
+    // Depreciated
+    mission_type: { type: String, default: null, enum: ["benevolat", "volontariat", null] },
     role_promoteur: { type: Boolean, default: false },
     role_annonceur_api: { type: Boolean, default: false },
     role_annonceur_widget: { type: Boolean, default: false },
     role_annonceur_campagne: { type: Boolean, default: false },
 
-    url: {
-      type: String,
-      documentation: {
-        description: "Business website or profile url",
-      },
-    },
-
-    moderator: {
-      type: Boolean,
-      default: false,
-      documentation: {
-        description: "Acces a la platforme de modération",
-      },
-    },
-
-    moderatorLink: {
-      type: String,
-      documentation: {
-        description: "Lien de la page de modération",
-      },
-    },
-
-    email: {
-      type: String,
-      documentation: {
-        description: "Email du partenaire",
-      },
-    },
-
-    documentation: {
-      type: String,
-      documentation: {
-        description: "",
-      },
-    },
-
-    logo: {
-      type: String,
-      documentation: {
-        description: "publisher logo",
-      },
-    },
-
-    feed: {
-      type: String,
-      documentation: {
-        description: "Url to the publisher feed",
-      },
-    },
-
-    apikey: {
-      type: String,
-      documentation: {
-        generated: true,
-        description: "apikey token",
-      },
-    },
-
-    lastSyncAt: {
-      type: Date,
-      documentation: {
-        generated: true,
-        description: "When was the last sync",
-      },
-    },
-
-    publishers: {
-      type: [
-        {
-          publisher: String, // publisherId one day ?
-          publisherName: String,
-          publisherLogo: String,
-          mission_type: String,
-          moderator: Boolean,
-        },
-      ],
-      documentation: {
-        description: "publishers dont les missions sont accessibles a ce publisher",
-      },
-    },
-
-    description: {
-      type: String,
-      default: "",
-      documentation: {
-        description: "Description",
-      },
-    },
-
-    lead: {
-      type: String,
-      default: "",
-      documentation: {
-        description: "Leader",
-      },
-    },
-
-    deleted_at: {
-      type: Date,
-      documentation: {
-        generated: true,
-        description: "Date of deletion",
-      },
-      default: null,
-    },
-
-    created_at: {
-      type: Date,
-      default: Date.now,
-      documentation: {
-        generated: true,
-        description: "Date of creation",
-      },
-    },
-
-    updated_at: {
-      type: Date,
-      default: Date.now,
-      documentation: {
-        generated: true,
-        description: "Date of last changes",
-      },
-    },
-    lastFetchAt: {
-      type: Date,
-      documentation: {
-        generated: true,
-        description: "Date of last fetch",
-      },
-    },
-    acceptedCount: {
-      type: Number,
-      default: 0,
-      documentation: {
-        generated: true,
-        description: "Date of last fetch",
-      },
-    },
-    refusedCount: {
-      type: Number,
-      default: 0,
-      documentation: {
-        generated: true,
-        description: "Date of last fetch",
-      },
-    },
+    excludeOrganisations: { type: [String] },
+    // excludedOrganisations: { type: [excludedOrganizationSchema] },
+    lastFetchAt: { type: Date },
+    acceptedCount: { type: Number, default: 0 },
+    refusedCount: { type: Number, default: 0 },
+    updated_at: { type: Date, default: Date.now },
+    created_at: { type: Date, default: Date.now },
+    deleted_at: { type: Date, default: null },
   },
   { timestamps: true },
 );

@@ -473,6 +473,26 @@ model Partner {
   diffuseur_widgets   Widget[]     @relation("DiffuseurWidget")
   annonceur_widget PartnerToWidget[]
   users PartnerToUser[]
+  
+  excluded_organizations_by OrganizationExclusion[] @relation("ExcludedByPublisher")
+  excluded_organizations_for OrganizationExclusion[] @relation("ExcludedForPublisher")
+}
+
+model OrganizationExclusion {
+  id String @id @default(uuid())
+  old_id String @unique
+
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  organization_client_id String
+  organization_name String
+
+  excluded_by_publisher_id String
+  excluded_by_publisher Partner @relation("ExcludedByPublisher", fields: [excluded_by_publisher_id], references: [id])
+
+  excluded_for_publisher_id String
+  excluded_for_publisher Partner @relation("ExcludedForPublisher", fields: [excluded_for_publisher_id], references: [id])
 }
 
 model User {

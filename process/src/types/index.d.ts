@@ -392,6 +392,28 @@ export interface Publisher {
   deleted_at: Date;
 }
 
+export interface Diffuseur {
+  _id?: Schema.Types.ObjectId;
+  publisherId: string;
+  publisherName: string;
+  moderator: boolean;
+  missionType: string | null;
+
+  // Old to migrate
+  publisher: string; // publisherId
+  mission_type?: string | null; // missionType
+}
+
+export interface PublisherExcludedOrganization {
+  _id?: Schema.Types.ObjectId;
+  publisherId: string;
+  publisherName: string;
+  organizationClientId: string;
+  organizationName: string;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
 export interface StatsReport {
   publisherId: string;
   publisherName: string;
