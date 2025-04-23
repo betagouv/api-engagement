@@ -7,7 +7,7 @@ import { PORT, ENVIRONMENT, SENTRY_DSN } from "./config";
 if (ENVIRONMENT !== "development") {
   Sentry.init({
     dsn: SENTRY_DSN,
-    environment: "process",
+    environment: `process-${ENVIRONMENT}`,
     normalizeDepth: 16,
     tracesSampleRate: 0.1,
   });
