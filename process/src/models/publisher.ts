@@ -92,6 +92,8 @@ const schema = new Schema<Publisher>({
       description: "Url to the publisher feed",
     },
   },
+  feed_password: { type: String },
+  feed_username: { type: String },
 
   apikey: {
     type: String,
