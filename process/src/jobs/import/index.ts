@@ -206,10 +206,10 @@ const importPublisher = async (publisher: Publisher, start: Date) => {
     // STATS
     obj.missionCount = await MissionModel.countDocuments({ publisherId: publisher._id, deletedAt: null });
     obj.refusedCount = await MissionModel.countDocuments({ publisherId: publisher._id, deletedAt: null, statusCode: "REFUSED" });
-  } catch (error) {
+  } catch (error: any) {
     captureException(error, `Error while importing publisher ${publisher.name}`);
     obj.status = "FAILED";
-    obj.error = JSON.stringify(error);
+    obj.error = error.message;
   }
 
   obj.endedAt = new Date();
