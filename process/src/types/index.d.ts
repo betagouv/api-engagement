@@ -364,6 +364,8 @@ export interface Publisher {
   documentation: string;
   logo: string;
   feed: string;
+  feed_username: string;
+  feed_password: string;
   apikey: string | null;
   lastSyncAt: Date;
   broadcasters: string[];
