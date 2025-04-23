@@ -43,7 +43,7 @@ export const checkImports = async (publishers: Publisher[]) => {
           publisherLogo: publisher.logo,
         };
         await WarningModel.create(obj);
-        const res = await postMessage({ text: `Alerte détectée: ${publisher.name} - Erreur de flux` }, SLACK_WARNING_CHANNEL_ID);
+        const res = await postMessage({ text: `Alerte détectée: ${publisher.name} - Erreur de flux \n ${lastImport.doc.error}` }, SLACK_WARNING_CHANNEL_ID);
         if (res.error) console.error(res.error);
         else console.log("Slack message sent");
         continue;

@@ -45,6 +45,10 @@ const schema = new Schema<Import>({
     type: String,
     required: true,
   },
+  error: {
+    type: String,
+    default: null,
+  },
   failed: {
     // any[]
     type: Object,
