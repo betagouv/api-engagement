@@ -356,7 +356,7 @@ app.get("/tasks", async (req, res) => {
       {
         name: "Update missions",
         schedule: missionJob.cronTime.source,
-        started: missionJob.running,
+        started: missionJob.isActive,
         lastRun: missionJob.lastDate(),
         nextRun: missionJob.nextDate(),
         running: runnings.mission,
@@ -364,7 +364,7 @@ app.get("/tasks", async (req, res) => {
       {
         name: "Update Linkedin",
         schedule: linkedinCron.cronTime.source,
-        started: linkedinCron.running,
+        started: linkedinCron.isActive,
         lastRun: linkedinCron.lastDate(),
         nextRun: linkedinCron.nextDate(),
         running: runnings.linkedin,
@@ -372,7 +372,7 @@ app.get("/tasks", async (req, res) => {
       {
         name: "Update Linkedin Stats",
         schedule: linkedinStatsJob.cronTime.source,
-        started: linkedinStatsJob.running,
+        started: linkedinStatsJob.isActive,
         lastRun: linkedinStatsJob.lastDate(),
         nextRun: linkedinStatsJob.nextDate(),
         running: runnings.linkedinStats,
@@ -380,7 +380,7 @@ app.get("/tasks", async (req, res) => {
       {
         name: "Update Metabase",
         schedule: metabaseJob.cronTime.source,
-        started: metabaseJob.running,
+        started: metabaseJob.isActive,
         lastRun: metabaseJob.lastDate(),
         nextRun: metabaseJob.nextDate(),
         running: runnings.metabase,
@@ -388,7 +388,7 @@ app.get("/tasks", async (req, res) => {
       {
         name: "Update Organization",
         schedule: organizationJob.cronTime.source,
-        started: organizationJob.running,
+        started: organizationJob.isActive,
         lastRun: organizationJob.lastDate(),
         nextRun: organizationJob.nextDate(),
         running: runnings.organization,
@@ -396,7 +396,7 @@ app.get("/tasks", async (req, res) => {
       {
         name: "Update Leboncoin",
         schedule: leboncoinJob.cronTime.source,
-        started: leboncoinJob.running,
+        started: leboncoinJob.isActive,
         lastRun: leboncoinJob.lastDate(),
         nextRun: leboncoinJob.nextDate(),
         running: runnings.leboncoin,
@@ -404,7 +404,7 @@ app.get("/tasks", async (req, res) => {
       {
         name: "Generate reports",
         schedule: reportJob.cronTime.source,
-        started: reportJob.running,
+        started: reportJob.isActive,
         lastRun: reportJob.lastDate(),
         nextRun: reportJob.nextDate(),
         running: runnings.report,
@@ -412,7 +412,7 @@ app.get("/tasks", async (req, res) => {
       {
         name: "Generate KPI",
         schedule: kpiJob.cronTime.source,
-        started: kpiJob.running,
+        started: kpiJob.isActive,
         lastRun: kpiJob.lastDate(),
         nextRun: kpiJob.nextDate(),
         running: runnings.kpi,
@@ -420,7 +420,7 @@ app.get("/tasks", async (req, res) => {
       {
         name: "Sync Brevo",
         schedule: brevoJob.cronTime.source,
-        started: brevoJob.running,
+        started: brevoJob.isActive,
         lastRun: brevoJob.lastDate(),
         nextRun: brevoJob.nextDate(),
         running: runnings.brevo,
