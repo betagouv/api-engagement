@@ -284,7 +284,7 @@ const DesktopFilters = ({ options, values, onChange, disabledLocation = false })
         ) : (
           <button
             aria-label="plus de filtres"
-            className="border truncate w-full bg-white border-grey-400 py-2 px-4 h-[40px] focus:outline-none focus-visible:ring focus-visible:ring-blue-800 font-medium"
+            className="border truncate w-full bg-white border-[#DDDDDD] py-2 px-4 h-[40px] focus:outline-none focus-visible:ring focus-visible:ring-blue-800 font-medium"
             onClick={() => {
               setMoreFilters(true);
               plausible("More filters", { u: url });
@@ -351,7 +351,7 @@ const DesktopFilters = ({ options, values, onChange, disabledLocation = false })
 
           <button
             aria-label="moins de filtres"
-            className="border truncate w-full bg-white border-grey-400 py-2 px-4 h-[40px] focus:outline-none focus-visible:ring focus-visible:ring-blue-800 font-medium"
+            className="border truncate w-full bg-white border-[#DDDDDD] py-2 px-4 h-[40px] focus:outline-none focus-visible:ring focus-visible:ring-blue-800 font-medium"
             onClick={() => {
               setMoreFilters(false);
               plausible("Less filters", { u: url });
@@ -403,7 +403,7 @@ const DateFilter = ({ selected, onChange, position = "left-0", width = "w-80" })
       </button>
 
       {isOpen && (
-        <div className={`absolute ${position} mt-1 z-50 ${width} flex flex-col items-center border border-neutral-grey-950 bg-white py-1 shadow-[0_0_12px_rgba(0,0,0,0.15)]`}>
+        <div className={`absolute ${position} mt-1 z-50 ${width} flex flex-col items-center border border-[#DDDDDD] bg-white py-1 shadow-[0_0_12px_rgba(0,0,0,0.15)]`}>
           <div className="flex items-center justify-between px-6 py-2">
             <p>Je suis disponible à partir du</p>
           </div>
@@ -426,7 +426,7 @@ const DateFilter = ({ selected, onChange, position = "left-0", width = "w-80" })
               },
             }}
           />
-          <div className="pt-2 pb-1 px-6 w-full flex justify-start border-t border-neutral-grey-950">
+          <div className="pt-2 pb-1 px-6 w-full flex justify-start border-t border-[#DDDDDD]">
             <button
               className="text-sm"
               style={{ color: color ? color : "" }}
@@ -499,7 +499,7 @@ const DurationFilter = ({ selected, onChange, position = "left-0", width = "w-80
       </button>
 
       {isOpen && (
-        <div className={`absolute ${position} mt-1 z-50 ${width} border border-neutral-grey-950  bg-white py-1 shadow-[0_0_12px_rgba(0,0,0,0.15)]`}>
+        <div className={`absolute ${position} mt-1 z-50 ${width} border border-[#DDDDDD]  bg-white py-1 shadow-[0_0_12px_rgba(0,0,0,0.15)]`}>
           <div className="p-3 w-full overflow-auto max-h-60">
             <div className="flex items-center justify-between p-2">
               <p>Durée maximale de la mission</p>
@@ -526,7 +526,7 @@ const DurationFilter = ({ selected, onChange, position = "left-0", width = "w-80
               );
             })}
           </div>
-          <div className="pt-2 pb-1 px-6 w-full flex justify-start border-t border-neutral-grey-950">
+          <div className="pt-2 pb-1 px-6 w-full flex justify-start border-t border-[#DDDDDD]">
             <button
               className={`text-sm ${keyboardNav ? "border-2 border-blue-800 rounded" : ""}`}
               style={{ color: color ? color : "" }}
@@ -596,7 +596,7 @@ const SelectFilter = ({ options, selectedOptions, onChange, id, placeholder = "C
       </button>
 
       {isOpen && (
-        <div className={`absolute ${position} mt-1 z-50 ${width} border border-neutral-grey-950 bg-white py-1 shadow-[0_0_12px_rgba(0,0,0,0.15)]`}>
+        <div className={`absolute ${position} mt-1 z-50 ${width} border border-[#DDDDDD] bg-white py-1 shadow-[0_0_12px_rgba(0,0,0,0.15)]`}>
           <div className="py-3 w-full overflow-auto max-h-60">
             {options?.length === 0 ? (
               <div className="text-sm text-center">Aucune option disponible</div>
@@ -634,7 +634,7 @@ const SelectFilter = ({ options, selectedOptions, onChange, id, placeholder = "C
               })
             )}
           </div>
-          <div className="pt-2 pb-1 px-6 w-full flex items-center justify-between border-t border-neutral-grey-950">
+          <div className="pt-2 pb-1 px-6 w-full flex items-center justify-between border-t border-[#DDDDDD]">
             <button
               className="text-sm"
               style={{ color: color ? color : "" }}
@@ -645,17 +645,19 @@ const SelectFilter = ({ options, selectedOptions, onChange, id, placeholder = "C
             >
               Réinitialiser
             </button>
-            <button 
-              className={`text-sm focus:outline-none p-2 text-white ${!selectedOptions || selectedOptions.length === 0 ? 'opacity-50 cursor-not-allowed' : ''}`}
-              style={{ 
-                backgroundColor: color ? color : "", 
+            <button
+              className={`text-sm focus:outline-none p-2 text-white ${!selectedOptions || selectedOptions.length === 0 ? "opacity-50 cursor-not-allowed" : ""}`}
+              style={{
+                backgroundColor: color ? color : "",
               }}
               disabled={!selectedOptions || selectedOptions.length === 0}
               onClick={() => {
                 setIsOpen(false);
                 plausible(`Filters applied`, { u: url });
               }}
-            >Appliquer</button>
+            >
+              Appliquer
+            </button>
           </div>
         </div>
       )}
@@ -717,7 +719,7 @@ const LocationFilter = ({ selected, onChange, disabled = false, width = "w-80" }
         Localisation
       </label>
       <div className="bg-[#EEE] rounded-t-md border-b-2 border-[#3A3A3A] p-3 focus:outline-none focus-visible:ring focus-visible:ring-blue-800 flex items-center justify-between h-[40px]">
-        <RiMapPin2Fill className="text-disabled-grey-700" />
+        <RiMapPin2Fill className="text-[#929292]" />
         {disabled ? (
           <input className="pl-3 w-full text-sm ring-0 focus:ring-0 focus:outline-none min-w-[6rem] opacity-75" defaultValue={selected?.label} disabled />
         ) : (
@@ -747,7 +749,7 @@ const LocationFilter = ({ selected, onChange, disabled = false, width = "w-80" }
       </div>
 
       {options.length > 0 && isOpen && (
-        <div className={`absolute z-50 mt-1 max-h-60 ${width} overflow-auto border border-neutral-grey-950 bg-white py-1 shadow-[0_0_12px_rgba(0,0,0,0.15)]`}>
+        <div className={`absolute z-50 mt-1 max-h-60 ${width} overflow-auto border border-[#DDDDDD] bg-white py-1 shadow-[0_0_12px_rgba(0,0,0,0.15)]`}>
           {options.map((option) => (
             <div
               key={option.value}

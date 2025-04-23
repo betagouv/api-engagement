@@ -1,5 +1,4 @@
 import * as Sentry from "@sentry/nextjs";
-
 import { ENV, SENTRY_DSN } from "./config";
 
 if (ENV !== "development") {

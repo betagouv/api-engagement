@@ -23,7 +23,7 @@ const Card = ({ widget, mission, request }) => {
       target="_blank"
       className={`${
         widget.style === "carousel" ? "w-full lg:max-w-[336px] min-h-[456px] max-h-[456px] xl:min-h-[500px]" : "w-full lg:min-h-[500px] min-h-[492px]"
-      } group border h-full flex flex-col border-neutral-grey-950 overflow-hidden focus:outline-none focus-visible:ring focus-visible:ring-blue-800 hover:shadow-lg transition-shadow duration-300 mx-auto`}
+      } group border h-full flex flex-col border-[#DDDDDD] overflow-hidden focus:outline-none focus-visible:ring focus-visible:ring-blue-800 hover:shadow-lg transition-shadow duration-300 mx-auto`}
     >
       <div className="min-h-[188px] max-h-[188px] xl:min-h-[200px] xl:max-h-[200px] overflow-hidden">
         <Image
@@ -55,7 +55,7 @@ const Card = ({ widget, mission, request }) => {
         </div>
 
         <div className={`mt-auto flex items-center ${address.length > 40 ? "group-hover:hidden" : ""}`}>
-          <span className="text-xs text-mention-grey">{`${mission.places} ${mission.places > 1 ? "bénévoles recherchés" : "bénévole recherché"}`}</span>
+          <span className="text-xs text-[#666666]">{`${mission.places} ${mission.places > 1 ? "bénévoles recherchés" : "bénévole recherché"}`}</span>
         </div>
       </div>
     </a>

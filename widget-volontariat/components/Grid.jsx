@@ -48,7 +48,7 @@ const Pagination = ({ page, setPage, end }) => {
   return (
     <div className="flex flex-row items-center justify-center gap-1">
       <button
-        className="mr-4 flex items-center rounded-lg py-2 px-3 hover:bg-light-grey disabled:opacity-50 disabled:bg-transparent disabled:cursor-default focus:outline-none focus-visible:ring focus-visible:ring-blue-800"
+        className="mr-4 flex items-center rounded-lg py-2 px-3 hover:bg-[#f5f5f5] disabled:opacity-50 disabled:bg-transparent disabled:cursor-default focus:outline-none focus-visible:ring focus-visible:ring-blue-800"
         onClick={() => {
           setPage(page - 1);
           plausible("Page changed", { u: url });
@@ -177,7 +177,7 @@ const Pagination = ({ page, setPage, end }) => {
         )}
       </div>
       <button
-        className="ml-4 flex items-center rounded-lg py-2 px-3 hover:bg-light-grey disabled:opacity-50 disabled:cursor-default focus:outline-none focus-visible:ring focus-visible:ring-blue-800"
+        className="ml-4 flex items-center rounded-lg py-2 px-3 hover:bg-[#f5f5f5] disabled:opacity-50 disabled:cursor-default focus:outline-none focus-visible:ring focus-visible:ring-blue-800"
         onClick={() => {
           setPage(page + 1);
           plausible("Page changed", { u: url });

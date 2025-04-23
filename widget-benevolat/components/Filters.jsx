@@ -307,7 +307,7 @@ const SelectFilter = ({ options, selectedOptions, onChange, id, placeholder = "C
         <div className={`absolute ${position} z-50 ${width} bg-white text-base focus:outline-none shadow-[0_0_12px_rgba(0,0,0,0.15)]`}>
           <div className="p-2">
             <div className="border w-full border-gray-300 p-2 focus:outline-none flex items-center justify-between">
-              <RiSearchLine className="text-disabled-grey-700" />
+              <RiSearchLine className="text-[#929292]" />
               <input
                 ref={searchRef}
                 type="text"
@@ -338,7 +338,7 @@ const SelectFilter = ({ options, selectedOptions, onChange, id, placeholder = "C
                     >
                       <div className="flex items-center w-[90%]">
                         <div className="text-sm">{isSelected ? <RiCheckboxFill style={{ height: "16px", width: "16px", color }} /> : <RiCheckboxBlankLine />}</div>
-                      <span className="block text-sm mx-2 truncate font-normal text-[#161616]">{o.label}</span>
+                        <span className="block text-sm mx-2 truncate font-normal text-[#161616]">{o.label}</span>
                       </div>
                       {o.count && <span className="text-sm text-neutral-grey-500">{o.count}</span>}
                     </button>
@@ -359,17 +359,19 @@ const SelectFilter = ({ options, selectedOptions, onChange, id, placeholder = "C
             >
               Réinitialiser
             </button>
-            <button 
-              className={`text-sm focus:outline-none p-2 text-white ${!selectedOptions || selectedOptions.length === 0 ? 'opacity-50 cursor-not-allowed' : ''}`}
-              style={{ 
-                backgroundColor: color ? color : "", 
+            <button
+              className={`text-sm focus:outline-none p-2 text-white ${!selectedOptions || selectedOptions.length === 0 ? "opacity-50 cursor-not-allowed" : ""}`}
+              style={{
+                backgroundColor: color ? color : "",
               }}
               disabled={!selectedOptions || selectedOptions.length === 0}
               onClick={() => {
                 setIsOpen(false);
                 plausible(`Filters applied`, { u: url });
               }}
-            >Appliquer</button>
+            >
+              Appliquer
+            </button>
           </div>
         </div>
       )}
@@ -432,7 +434,7 @@ const LocationFilter = ({ selected, onChange, disabled = false, width = "w-80" }
       <div
         className={`bg-[#EEE] h-[40px] rounded-t-md border-b-2 border-[#3A3A3A] p-3 focus:outline-none focus-visible:ring focus-visible:ring-blue-800 flex items-center justify-between`}
       >
-        <RiMapPin2Fill className="text-disabled-grey-700" />
+        <RiMapPin2Fill className="text-[#929292]" />
         {disabled ? (
           <input id="location" className="pl-3 w-full ring-0 focus:ring-0 focus:outline-none min-w-[6rem] opacity-75" value={selected?.label} disabled />
         ) : (
@@ -462,7 +464,7 @@ const LocationFilter = ({ selected, onChange, disabled = false, width = "w-80" }
       </div>
 
       {isOpen && options.length > 0 && (
-        <div className={`absolute z-50 mt-1 max-h-60 ${width} overflow-auto border border-neutral-grey-950 rounded-lg bg-white py-1 text-base focus:outline-none`}>
+        <div className={`absolute z-50 mt-1 max-h-60 ${width} overflow-auto border border-[#DDDDDD] rounded-lg bg-white py-1 text-base focus:outline-none`}>
           {options.map((option) => (
             <div
               key={option.value}
@@ -571,17 +573,19 @@ const RemoteFilter = ({ options, selectedOptions, onChange, id, placeholder = "C
             >
               Réinitialiser
             </button>
-            <button 
-              className={`text-sm focus:outline-none p-2 text-white ${!selectedOptions || selectedOptions.length === 0 ? 'opacity-50 cursor-not-allowed' : ''}`}
-              style={{ 
-                backgroundColor: color ? color : "", 
+            <button
+              className={`text-sm focus:outline-none p-2 text-white ${!selectedOptions || selectedOptions.length === 0 ? "opacity-50 cursor-not-allowed" : ""}`}
+              style={{
+                backgroundColor: color ? color : "",
               }}
               disabled={!selectedOptions || selectedOptions.length === 0}
               onClick={() => {
                 setIsOpen(false);
                 plausible(`Filters applied`, { u: url });
               }}
-            >Appliquer</button>
+            >
+              Appliquer
+            </button>
           </div>
         </div>
       )}

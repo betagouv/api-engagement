@@ -23,7 +23,7 @@ const Card = ({ widget, mission, request }) => {
       target="_blank"
       className={`relative ${
         widget.style === "carousel" ? "w-full lg:max-w-[336px]" : "w-full"
-      } border min-h-[290px] max-h-[290px] md:min-h-[311px] md:max-h-[311px] flex flex-col focus:outline-none focus-visible:ring focus-visible:ring-blue-800 border-grey-400 bg-white group hover:shadow-lg transition-shadow duration-300 overflow-hidden`}
+      } border min-h-[290px] max-h-[290px] md:min-h-[311px] md:max-h-[311px] flex flex-col focus:outline-none focus-visible:ring focus-visible:ring-blue-800 border-[#DDDDDD] bg-white group hover:shadow-lg transition-shadow duration-300 overflow-hidden`}
     >
       <div className="flex-1 flex flex-col p-4 md:p-8 gap-3">
         <div className="flex items-start min-w-0">
@@ -32,7 +32,7 @@ const Card = ({ widget, mission, request }) => {
           </div>
           <div className="ml-3 flex-1 min-w-0" style={{ color: domain.color }}>
             <span className="uppercase font-bold text-sm whitespace-nowrap truncate tracking-wider block">{domain.label || mission.domain}</span>
-            <div className="text-mention-grey flex items-center">
+            <div className="text-[#666666] flex items-center">
               <RiBuildingFill className="text-sm flex-shrink-0" />
               <span className="ml-2 text-xs line-clamp-1">{mission.organizationName}</span>
             </div>
@@ -45,7 +45,7 @@ const Card = ({ widget, mission, request }) => {
           </div>
 
           <h2 className="font-semibold line-clamp-3 text-xl group-hover:text-[#000091] transition-colors duration-300">{mission.title}</h2>
-          <span className="text-sm line-clamp-1 group-hover:line-clamp-4 text-default-grey">{address}</span>
+          <span className="text-sm line-clamp-1 group-hover:line-clamp-4 text-[#3A3A3A]">{address}</span>
         </div>
 
         <div className="min-h-[19px] flex items-center mt-auto">
@@ -56,7 +56,7 @@ const Card = ({ widget, mission, request }) => {
           )}
         </div>
 
-        <div className={`flex justify-between items-center text-mention-grey ${address.length > 40 ? "group-hover:hidden" : ""}`}>
+        <div className={`flex justify-between items-center text-[#666666] ${address.length > 40 ? "group-hover:hidden" : ""}`}>
           <div className="flex items-center min-w-[120px]">
             <RiCalendarEventFill className="h-4 flex-shrink-0" />
             <span className="text-xs ml-2 whitespace-nowrap">Dès que possible</span>
