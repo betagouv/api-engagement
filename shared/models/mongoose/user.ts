@@ -1,5 +1,5 @@
 import bcrypt from "bcryptjs";
-import { Schema, model } from "mongoose";
+import { Schema, model, models } from "mongoose";
 import { User } from "../../types/index.d";
 
 const MODELNAME = "user";
@@ -135,6 +135,6 @@ schema.index({ deleted: 1 });
 schema.index({ invitationToken: 1 });
 schema.index({ brevoContactId: 1 });
 
-const UserModel = model<User>(MODELNAME, schema);
+const UserModel = models[MODELNAME] || model<User>(MODELNAME, schema);
 
 export { UserModel };

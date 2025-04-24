@@ -1,4 +1,4 @@
-import { Schema, model } from "mongoose";
+import { Schema, model, models } from "mongoose";
 
 import { Mission } from "../types";
 import { historyPlugin } from "../plugins/history-plugin";
@@ -244,5 +244,5 @@ schema.plugin(historyPlugin, {
   maxEntries: 100
 });
 
-const MissionModel = model<Mission>(MODELNAME, schema);
+const MissionModel = models[MODELNAME] || model<Mission>(MODELNAME, schema);
 export default MissionModel;

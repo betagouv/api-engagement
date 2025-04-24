@@ -4,10 +4,10 @@ import passport from "passport";
 import { HeaderAPIKeyStrategy } from "passport-headerapikey";
 import { ExtractJwt, Strategy as JwtStrategy } from "passport-jwt";
 
+import { PublisherModel, UserModel } from "@shared/models";
+
 import { SECRET } from "../config";
 import { captureException } from "../error";
-import PublisherModel from "../models/publisher";
-import UserModel from "../models/user";
 
 const userOptions = {
   jwtFromRequest: (req: Request) => ExtractJwt.fromAuthHeaderWithScheme("jwt")(req),

@@ -1,4 +1,4 @@
-import { Schema, model } from "mongoose";
+import { Schema, model, models } from "mongoose";
 import { Kpi } from "../../types/index.d";
 
 const MODELNAME = "kpi";
@@ -203,6 +203,6 @@ const schema = new Schema<Kpi>(
 schema.index({ date: 1 }, { unique: true });
 
 
-const KpiModel = model<Kpi>(MODELNAME, schema);
+const KpiModel = models[MODELNAME] || model<Kpi>(MODELNAME, schema);
 
 export { KpiModel };

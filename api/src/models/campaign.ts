@@ -1,4 +1,4 @@
-import { Schema, model } from "mongoose";
+import { Schema, model, models } from "mongoose";
 
 import { Campaign } from "../types";
 
@@ -84,5 +84,5 @@ const schema = new Schema<Campaign>({
 
 schema.index({ name: 1, fromPublisherId: 1 }, { unique: true, partialFilterExpression: { deletedAt: null } });
 
-const CampaingModel = model<Campaign>(MODELNAME, schema);
+const CampaingModel = models[MODELNAME] || model<Campaign>(MODELNAME, schema);
 export default CampaingModel;

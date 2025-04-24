@@ -1,5 +1,5 @@
-import ModerationEventModel from "../models/moderation-event";
-import { ModerationEvent } from "../types";
+import { ModerationEvent } from "@shared/types";
+import { ModerationEventModel } from "@shared/models";
 
 export const logModeration = async (previous: any, update: any, user: any, moderatorId: string) => {
   const data = {

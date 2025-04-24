@@ -2,9 +2,9 @@ import { NextFunction, Response, Router } from "express";
 import passport from "passport";
 import zod from "zod";
 
+import { CampaignModel, PublisherModel } from "@shared/models";
+
 import { FORBIDDEN, INVALID_BODY, INVALID_PARAMS, INVALID_QUERY, NOT_FOUND, RESSOURCE_ALREADY_EXIST } from "../error";
-import CampaignModel from "../models/campaign";
-import PublisherModel from "../models/publisher";
 import { reassignStats } from "../services/reassign-stats";
 import { EsQuery } from "../types";
 import { UserRequest } from "../types/passport";

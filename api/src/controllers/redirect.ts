@@ -1,17 +1,15 @@
 import cors from "cors";
 import { Request, Response, Router } from "express";
 import zod from "zod";
-
 import { HydratedDocument } from "mongoose";
+
+import { CampaignModel, MissionModel, PublisherModel, StatsBotModel, WidgetModel } from "@shared/models";
+import { Mission } from "@shared/types";
+
 import { JVA_URL, SC_ID, STATS_INDEX } from "../config";
+import { Stats } from "../types";
 import esClient from "../db/elastic";
 import { INVALID_PARAMS, INVALID_QUERY, NOT_FOUND, SERVER_ERROR, captureException, captureMessage } from "../error";
-import CampaignModel from "../models/campaign";
-import MissionModel from "../models/mission";
-import PublisherModel from "../models/publisher";
-import StatsBotModel from "../models/stats-bot";
-import WidgetModel from "../models/widget";
-import { Mission, Stats } from "../types";
 import { identify, slugify } from "../utils";
 
 const router = Router();

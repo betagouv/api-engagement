@@ -1,4 +1,4 @@
-import { Schema, model } from "mongoose";
+import { Schema, model, models } from "mongoose";
 import { Diffuseur, Publisher, PublisherExcludedOrganization } from "../../types/index.d";
 
 const MODELNAME = "publisher";
@@ -371,6 +371,6 @@ schema.index({ "publishers.publisherId": 1 });
 schema.index({ deleted_at: 1 });
 schema.index({ deletedAt: 1 });
 
-const PublisherModel = model<Publisher>(MODELNAME, schema);
+const PublisherModel = models[MODELNAME] || model<Publisher>(MODELNAME, schema);
 
 export { PublisherModel };

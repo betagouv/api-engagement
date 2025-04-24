@@ -1,4 +1,4 @@
-import { Schema, model } from "mongoose";
+import { Schema, model, models } from "mongoose";
 
 import { Diffuseur, Publisher, PublisherExcludedOrganization } from "../types";
 
@@ -78,5 +78,5 @@ const schema = new Schema<Publisher>(
   { timestamps: true },
 );
 
-const PublisherModel = model<Publisher>(MODELNAME, schema);
+const PublisherModel = models[MODELNAME] || model<Publisher>(MODELNAME, schema);
 export default PublisherModel;

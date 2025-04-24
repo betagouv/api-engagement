@@ -2,9 +2,9 @@ import { NextFunction, Response, Router } from "express";
 import passport from "passport";
 import zod from "zod";
 
+import { MissionModel, RequestModel } from "@shared/models";
+
 import { captureMessage, INVALID_BODY, NOT_FOUND } from "../error";
-import MissionModel from "../models/mission";
-import RequestModel from "../models/request";
 import { postMessage } from "../services/slack";
 import { PublisherRequest } from "../types/passport";
 

@@ -1,4 +1,4 @@
-import { Schema, model } from "mongoose";
+import { Schema, model, models } from "mongoose";
 import { ModerationEvent } from "../../types/index.d";
 
 const MODELNAME = "moderation-event";
@@ -132,6 +132,6 @@ schema.index({ userId: 1 });
 schema.index({ createdAt: 1 });
 
 
-const ModerationEventModel = model<ModerationEvent>(MODELNAME, schema);
+const ModerationEventModel = models[MODELNAME] || model<ModerationEvent>(MODELNAME, schema);
 
 export { ModerationEventModel };

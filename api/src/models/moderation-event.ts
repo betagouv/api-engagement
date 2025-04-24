@@ -1,4 +1,4 @@
-import { Schema, model } from "mongoose";
+import { Schema, model, models } from "mongoose";
 
 import { ModerationEvent } from "../types";
 
@@ -27,5 +27,5 @@ const schema = new Schema<ModerationEvent>(
   },
 );
 
-const ModerationEventModel = model<ModerationEvent>(MODELNAME, schema);
+const ModerationEventModel = models[MODELNAME] || model<ModerationEvent>(MODELNAME, schema);
 export default ModerationEventModel;

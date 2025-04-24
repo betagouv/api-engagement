@@ -1,4 +1,4 @@
-import { Schema, model } from "mongoose";
+import { Schema, model, models } from "mongoose";
 
 import { Widget } from "../types";
 
@@ -63,5 +63,5 @@ const schema = new Schema<Widget>(
   },
 );
 
-const WidgetModel = model<Widget>(MODELNAME, schema);
+const WidgetModel = models[MODELNAME] || model<Widget>(MODELNAME, schema);
 export default WidgetModel;

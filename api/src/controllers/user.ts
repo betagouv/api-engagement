@@ -4,10 +4,10 @@ import jwt from "jsonwebtoken";
 import passport from "passport";
 import zod from "zod";
 
+import { PublisherModel, UserModel } from "@shared/models";
+
 import { APP_URL, SECRET } from "../config";
 import { FORBIDDEN, INVALID_BODY, INVALID_PARAMS, INVALID_QUERY, NOT_FOUND, REQUEST_EXPIRED, RESSOURCE_ALREADY_EXIST } from "../error";
-import PublisherModel from "../models/publisher";
-import UserModel from "../models/user";
 import { sendTemplate } from "../services/email";
 import { UserRequest } from "../types/passport";
 import { hasLetter, hasNumber, hasSpecialChar } from "../utils";

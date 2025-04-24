@@ -2,10 +2,11 @@ import { NextFunction, Response, Router } from "express";
 import Joi from "joi";
 import passport from "passport";
 
+import { RequestModel } from "@shared/models";
+
 import { ASSOS_INDEX } from "../config";
 import esClient from "../db/elastic";
 import { INVALID_BODY } from "../error";
-import RequestModel from "../models/request";
 import { PublisherRequest } from "../types/passport";
 
 const router = Router();

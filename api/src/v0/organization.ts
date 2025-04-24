@@ -1,10 +1,10 @@
 import { NextFunction, Response, Router } from "express";
 import zod from "zod";
 
+import { OrganizationModel, RequestModel } from "@shared/models";
+
 import passport from "passport";
 import { INVALID_QUERY } from "../error";
-import OrganizationModel from "../models/organization";
-import RequestModel from "../models/request";
 import { PublisherRequest } from "../types/passport";
 
 const router = Router();

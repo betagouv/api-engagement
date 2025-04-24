@@ -1,4 +1,4 @@
-import { Schema, model } from "mongoose";
+import { Schema, model, models } from "mongoose";
 import { Email } from "../../types/index.d";
 
 const MODELNAME = "email";
@@ -59,6 +59,6 @@ schema.index({ deleted_at: 1 });
 schema.index({ created_at: 1 });
 
 
-const EmailModel = model<Email>(MODELNAME, schema);
+const EmailModel = models[MODELNAME] || model<Email>(MODELNAME, schema);
 
 export { EmailModel };

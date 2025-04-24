@@ -3,7 +3,7 @@ import passport from "passport";
 import zod from "zod";
 
 import { INVALID_BODY } from "../error";
-import ReportModel from "../models/report";
+import { ReportModel } from "@shared/models";
 
 const router = Router();
 

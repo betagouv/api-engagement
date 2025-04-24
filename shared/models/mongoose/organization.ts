@@ -1,4 +1,4 @@
-import { Schema, model } from "mongoose";
+import { Schema, model, models } from "mongoose";
 import { Organization } from "../../types/index.d";
 
 const MODELNAME = "organization";
@@ -65,6 +65,6 @@ schema.index({ addressDepartmentName: 1 });
 schema.index({ addressCity: 1 });
 schema.index({ title: "text", shortTitle: "text", rna: "text", siret: "text" });
 
-const OrganizationModel = model<Organization>(MODELNAME, schema);
+const OrganizationModel = models[MODELNAME] || model<Organization>(MODELNAME, schema);
 
 export { OrganizationModel };

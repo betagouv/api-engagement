@@ -1,4 +1,4 @@
-import { Schema, model } from "mongoose";
+import { Schema, model, models } from "mongoose";
 import { RequestWidget } from "../../types/index.d";
 
 const MODELNAME = "request-widget";
@@ -41,6 +41,6 @@ const schema = new Schema<RequestWidget>(
 schema.index({ widgetId: 1 });
 schema.index({ createdAt: 1 });
 
-const RequestWidgetModel = model<RequestWidget>(MODELNAME, schema);
+const RequestWidgetModel = models[MODELNAME] || model<RequestWidget>(MODELNAME, schema);
 
 export { RequestWidgetModel };

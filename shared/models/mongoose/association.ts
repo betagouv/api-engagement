@@ -1,4 +1,4 @@
-import { Schema, model } from "mongoose";
+import { Schema, model, models } from "mongoose";
 import { Association } from "../../types/index.d";
 
 const MODELNAME = "association";
@@ -585,7 +585,6 @@ schema.index({ coordonnees_adresse_departement_numero: 1 });
 schema.index({ created_at: 1 });
 schema.index({ updated_at: 1 });
 
-
-const AssociationModel = model<Association>(MODELNAME, schema);
+const AssociationModel = models[MODELNAME] || model<Association>(MODELNAME, schema);
 
 export { AssociationModel };

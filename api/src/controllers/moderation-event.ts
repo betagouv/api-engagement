@@ -2,9 +2,10 @@ import { NextFunction, Response, Router } from "express";
 import passport from "passport";
 import zod from "zod";
 
+import { ModerationEventModel } from "@shared/models";
+import { ModerationEvent } from "@shared/types";
+
 import { INVALID_BODY, NOT_FOUND } from "../error";
-import ModerationEventModel from "../models/moderation-event";
-import { ModerationEvent } from "../types";
 import { UserRequest } from "../types/passport";
 
 const router = Router();

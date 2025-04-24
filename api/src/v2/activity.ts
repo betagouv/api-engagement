@@ -3,12 +3,11 @@ import passport from "passport";
 import { v4 as uuidv4 } from "uuid";
 import zod from "zod";
 
+import { MissionModel, PublisherModel, RequestModel } from "@shared/models";
+
 import { STATS_INDEX } from "../config";
 import esClient from "../db/elastic";
 import { captureMessage, INVALID_BODY, INVALID_PARAMS, INVALID_QUERY, NOT_FOUND } from "../error";
-import MissionModel from "../models/mission";
-import PublisherModel from "../models/publisher";
-import RequestModel from "../models/request";
 import { Stats } from "../types";
 import { PublisherRequest } from "../types/passport";
 

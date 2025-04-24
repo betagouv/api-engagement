@@ -1,4 +1,4 @@
-import { Schema, model } from "mongoose";
+import { Schema, model, models } from "mongoose";
 
 import { Request } from "../types";
 
@@ -54,5 +54,5 @@ const schema = new Schema<Request>({
   },
 });
 
-const RequestModel = model<Request>(MODELNAME, schema);
+const RequestModel = models[MODELNAME] || model<Request>(MODELNAME, schema);
 export default RequestModel;

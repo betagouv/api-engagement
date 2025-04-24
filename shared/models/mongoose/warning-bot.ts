@@ -1,4 +1,4 @@
-import { Schema, model } from "mongoose";
+import { Schema, model, models } from "mongoose";
 import { WarningBot } from "../../types/index.d";
 
 const MODELNAME = "warning-bot";
@@ -73,7 +73,7 @@ const schema = new Schema<WarningBot>(
 schema.index({ hash: 1 });
 schema.index({ publisherId: 1 });
 
-const WarningBotModel = model<WarningBot>(MODELNAME, schema);
+const WarningBotModel = models[MODELNAME] || model<WarningBot>(MODELNAME, schema);
 
 export { WarningBotModel };
 

@@ -1,4 +1,4 @@
-import { Schema, model } from "mongoose";
+import { Schema, model, models } from "mongoose";
 import { OrganizationNameMatch } from "../../types/index.d";
 
 const MODELNAME = "organization-name-matches";
@@ -46,6 +46,6 @@ const schema = new Schema<OrganizationNameMatch>(
 schema.index({ name: 1 }, { unique: true });
 
 
-const OrganizationNameMatchModel = model<OrganizationNameMatch>(MODELNAME, schema);
+const OrganizationNameMatchModel = models[MODELNAME] || model<OrganizationNameMatch>(MODELNAME, schema);
 
 export { OrganizationNameMatchModel };

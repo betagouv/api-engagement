@@ -2,9 +2,10 @@ import { NextFunction, Response, Router } from "express";
 import passport from "passport";
 import zod from "zod";
 
+import { MissionModel } from "@shared/models";
+
 import { JVA_ID } from "../config";
 import { FORBIDDEN, INVALID_BODY, INVALID_PARAMS, INVALID_QUERY, NOT_FOUND } from "../error";
-import MissionModel from "../models/mission";
 import { UserRequest } from "../types/passport";
 import { buildQueryMongo, diacriticSensitiveRegex, EARTH_RADIUS, getDistanceKm } from "../utils";
 

@@ -2,11 +2,9 @@ import { NextFunction, Response, Router } from "express";
 import passport from "passport";
 import zod from "zod";
 
-import { HydratedDocument } from "mongoose";
+import { MissionModel, RequestModel } from "@shared/models";
+
 import { captureMessage, INVALID_BODY, NOT_FOUND } from "../error";
-import MissionModel from "../models/mission";
-import RequestModel from "../models/request";
-import { Mission } from "../types";
 import { PublisherRequest } from "../types/passport";
 
 const router = Router();

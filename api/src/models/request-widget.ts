@@ -1,4 +1,4 @@
-import { Schema, model } from "mongoose";
+import { Schema, model, models } from "mongoose";
 
 import { RequestWidget } from "../types";
 
@@ -13,5 +13,5 @@ const schema = new Schema<RequestWidget>(
   { timestamps: true },
 );
 
-const RequestWidget = model<RequestWidget>(MODELNAME, schema);
+const RequestWidget = models[MODELNAME] || model<RequestWidget>(MODELNAME, schema);
 export default RequestWidget;

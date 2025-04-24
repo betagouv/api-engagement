@@ -2,12 +2,12 @@ import { NextFunction, Response, Router } from "express";
 import Joi from "joi";
 import passport from "passport";
 
+import { AssociationModel, RequestModel } from "@shared/models";
+import { Association } from "@shared/types";
+
 import { ASSOS_INDEX } from "../config";
 import esClient from "../db/elastic";
 import { INVALID_PARAMS, NOT_FOUND, SERVER_ERROR, captureException } from "../error";
-import AssociationModel from "../models/association";
-import RequestModel from "../models/request";
-import { Association } from "../types";
 import { PublisherRequest } from "../types/passport";
 
 const router = Router();

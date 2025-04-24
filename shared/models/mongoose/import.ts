@@ -1,4 +1,4 @@
-import { Schema, model } from "mongoose";
+import { Schema, model, models } from "mongoose";
 import { Import } from "../../types/index.d";
 
 const MODELNAME = "import";
@@ -93,6 +93,6 @@ schema.index({ startedAt: 1 });
 schema.index({ status: 1 });
 
 
-const ImportModel = model<Import>(MODELNAME, schema);
+const ImportModel = models[MODELNAME] || model<Import>(MODELNAME, schema);
 
 export { ImportModel };

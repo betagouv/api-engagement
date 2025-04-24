@@ -1,4 +1,4 @@
-import { Schema, model } from "mongoose";
+import { Schema, model, models } from "mongoose";
 import { ImportRna } from "../../types/index.d";
 
 const MODELNAME = "import-rna";
@@ -76,7 +76,6 @@ schema.index({ status: 1 });
 schema.index({ startedAt: 1 });
 schema.index({ endedAt: 1 });
 
-
-const ImportRnaModel = model<ImportRna>(MODELNAME, schema);
+const ImportRnaModel = models[MODELNAME] || model<ImportRna>(MODELNAME, schema);
 
 export { ImportRnaModel };
