@@ -142,6 +142,7 @@ export interface Import {
   startedAt: Date;
   endedAt: Date | null;
   status: "SUCCESS" | "FAILED";
+  error: string | null;
   failed: any;
 }
 
