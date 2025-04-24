@@ -2,11 +2,11 @@ import { NextFunction, Response, Router } from "express";
 import passport from "passport";
 import zod from "zod";
 
+import { MissionModel, PublisherModel } from "@shared/models";
+import { Mission } from "@shared/types";
+
 import { FORBIDDEN, INVALID_BODY, INVALID_PARAMS, INVALID_QUERY, NOT_FOUND } from "../error";
-import MissionModel from "../models/mission";
-import PublisherModel from "../models/publisher";
 import { logModeration } from "../services/log";
-import { Mission } from "../types";
 import { UserRequest } from "../types/passport";
 import { diacriticSensitiveRegex } from "../utils";
 

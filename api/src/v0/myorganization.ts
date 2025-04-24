@@ -2,14 +2,14 @@ import { NextFunction, Response, Router } from "express";
 import passport from "passport";
 import zod from "zod";
 
+import { MissionModel, PublisherModel, RequestModel } from "@shared/models";
+import { Publisher, PublisherExcludedOrganization } from "@shared/types";
+
 import { STATS_INDEX } from "../config";
 import esClient from "../db/elastic";
 import { INVALID_BODY, INVALID_PARAMS } from "../error";
-import MissionModel from "../models/mission";
-import PublisherModel from "../models/publisher";
-import RequestModel from "../models/request";
-import { Publisher, PublisherExcludedOrganization } from "../types";
 import { PublisherRequest } from "../types/passport";
+
 const router = Router();
 
 router.use(async (req: PublisherRequest, res: Response, next: NextFunction) => {

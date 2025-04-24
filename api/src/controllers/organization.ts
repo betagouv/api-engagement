@@ -2,8 +2,9 @@ import { NextFunction, Response, Router } from "express";
 import passport from "passport";
 import zod from "zod";
 
+import { OrganizationModel } from "@shared/models";
+
 import { INVALID_PARAMS, INVALID_QUERY, NOT_FOUND } from "../error";
-import OrganizationModel from "../models/organization";
 import { UserRequest } from "../types/passport";
 
 const router = Router();

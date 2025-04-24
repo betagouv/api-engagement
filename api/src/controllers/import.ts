@@ -3,8 +3,9 @@ import Joi from "joi";
 import passport from "passport";
 import zod from "zod";
 
+import { ImportModel } from "@shared/models";
+
 import { FORBIDDEN, INVALID_BODY, INVALID_PARAMS } from "../error";
-import ImportModel from "../models/import";
 import { UserRequest } from "../types/passport";
 
 const router = Router();

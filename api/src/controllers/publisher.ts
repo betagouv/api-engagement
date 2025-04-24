@@ -5,10 +5,10 @@ import passport from "passport";
 import { v4 as uuid } from "uuid";
 import zod from "zod";
 
+import { PublisherModel, UserModel } from "@shared/models";
+
 import { DEFAULT_AVATAR } from "../config";
 import { FORBIDDEN, INVALID_BODY, INVALID_PARAMS, INVALID_QUERY, NOT_FOUND, RESSOURCE_ALREADY_EXIST } from "../error";
-import PublisherModel from "../models/publisher";
-import UserModel from "../models/user";
 import { OBJECT_ACL, putObject } from "../services/s3";
 import { UserRequest } from "../types/passport";
 

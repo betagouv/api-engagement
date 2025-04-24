@@ -1,4 +1,4 @@
-import { Schema, model } from "mongoose";
+import { Schema, model, models } from "mongoose";
 
 import { Email } from "../types";
 
@@ -52,5 +52,5 @@ const schema = new Schema<Email>({
   updated_at: { type: Date, default: Date.now },
 });
 
-const EmailModel = model<Email>(MODELNAME, schema);
+const EmailModel = models[MODELNAME] || model<Email>(MODELNAME, schema);
 export default EmailModel;

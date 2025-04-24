@@ -1,4 +1,4 @@
-import { Schema, model } from "mongoose";
+import { Schema, model, models } from "mongoose";
 
 import { Warning } from "../types";
 
@@ -19,5 +19,5 @@ const schema = new Schema<Warning>(
   { timestamps: true },
 );
 
-const WarningModel = model<Warning>(MODELNAME, schema);
+const WarningModel = models[MODELNAME] || model<Warning>(MODELNAME, schema);
 export default WarningModel;

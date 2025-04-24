@@ -1,4 +1,4 @@
-import { Schema, model } from "mongoose";
+import { Schema, model, models } from "mongoose";
 
 import { Association } from "../types";
 
@@ -117,5 +117,5 @@ const schema = new Schema<Association>({
   updated_at: { type: Date, default: Date.now },
 });
 
-const obj = model<Association>(MODELNAME, schema);
+const obj = models[MODELNAME] || model<Association>(MODELNAME, schema);
 export default obj;

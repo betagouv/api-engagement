@@ -1,0 +1,27 @@
+{
+  "name": "@api-engagement/shared",
+  "version": "1.0.0",
+  "description": "Shared code for api-engagement monorepo",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "watch": "tsc -w",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage"
+  },
+  "dependencies": {
+    "@prisma/client": "6.6.0",
+    "bcryptjs": "^3.0.2",
+    "mongoose": "8.13.2"
+  },
+  "devDependencies": {
+    "@types/bcryptjs": "^2.4.6",
+    "@types/node": "22.14.1",
+    "mongodb-memory-server": "^10.1.4",
+    "prisma": "6.6.0",
+    "typescript": "5.8.3",
+    "vitest": "^3.1.2"
+  }
+}

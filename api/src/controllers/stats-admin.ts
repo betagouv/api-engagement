@@ -2,11 +2,12 @@ import { NextFunction, Response, Router } from "express";
 import passport from "passport";
 import zod from "zod";
 
+import { Mission } from "@shared/types";
+import { MissionModel, PublisherModel } from "@shared/models";
+
 import { STATS_INDEX } from "../config";
 import esClient from "../db/elastic";
 import { INVALID_QUERY } from "../error";
-import MissionModel from "../models/mission";
-import PublisherModel from "../models/publisher";
 import { EsQuery } from "../types";
 import { UserRequest } from "../types/passport";
 

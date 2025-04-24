@@ -1,5 +1,5 @@
 import bcrypt from "bcryptjs";
-import { Schema, model } from "mongoose";
+import { Schema, model, models } from "mongoose";
 
 import { User } from "../types";
 
@@ -46,5 +46,5 @@ schema.methods.comparePassword = function (password: string) {
   return bcrypt.compare(password, this.password || "");
 };
 
-const obj = model<User>(MODELNAME, schema);
+const obj = models[MODELNAME] || model<User>(MODELNAME, schema);
 export default obj;

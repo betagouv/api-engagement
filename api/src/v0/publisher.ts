@@ -2,11 +2,12 @@ import { NextFunction, Response, Router } from "express";
 import passport from "passport";
 import zod from "zod";
 
+import { PublisherModel, RequestModel } from "@shared/models";
+import { Publisher } from "@shared/types";
+
 import { INVALID_PARAMS, NOT_FOUND } from "../error";
-import PublisherModel from "../models/publisher";
-import RequestModel from "../models/request";
-import { Publisher } from "../types";
 import { PublisherRequest } from "../types/passport";
+
 const router = Router();
 
 router.use(async (req: PublisherRequest, res: Response, next: NextFunction) => {

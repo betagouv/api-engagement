@@ -1,4 +1,4 @@
-import { Schema, model } from "mongoose";
+import { Schema, model, models } from "mongoose";
 
 import { StatsBot } from "../types";
 
@@ -14,5 +14,5 @@ const schema = new Schema<StatsBot>(
   { timestamps: true },
 );
 
-const StatsBotModel = model<StatsBot>(MODELNAME, schema);
+const StatsBotModel = models[MODELNAME] || model<StatsBot>(MODELNAME, schema);
 export default StatsBotModel;

@@ -3,9 +3,9 @@ import Joi from "joi";
 import passport from "passport";
 import zod from "zod";
 
+import { PublisherModel, WidgetModel } from "@shared/models";
+
 import { FORBIDDEN, INVALID_BODY, INVALID_PARAMS, INVALID_QUERY, NOT_FOUND, RESSOURCE_ALREADY_EXIST } from "../error";
-import PublisherModel from "../models/publisher";
-import WidgetModel from "../models/widget";
 import { UserRequest } from "../types/passport";
 
 const router = Router();

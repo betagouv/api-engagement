@@ -1,8 +1,10 @@
 import { Router } from "express";
+
+import { EmailModel } from "@shared/models";
+import { Email } from "@shared/types";
+
 import { captureException, captureMessage } from "../error";
-import EmailModel from "../models/email";
 import { putObject } from "../services/s3";
-import { Email } from "../types";
 import { BrevoInboundEmail } from "../types/brevo";
 
 const router = Router();

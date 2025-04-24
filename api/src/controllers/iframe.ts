@@ -1,13 +1,12 @@
 import cors from "cors";
-import { NextFunction, Request, Response, Router } from "express";
 import zod from "zod";
+import { NextFunction, Request, Response, Router } from "express";
+
+import { WidgetModel, MissionModel, RequestWidgetModel } from "@shared/models";
+import { Mission, Widget } from "@shared/types";
 
 import { ENV, JVA_ID } from "../config";
 import { captureMessage, INVALID_PARAMS, INVALID_QUERY, NOT_FOUND } from "../error";
-import MissionModel from "../models/mission";
-import RequestWidget from "../models/request-widget";
-import WidgetModel from "../models/widget";
-import { Mission, Widget } from "../types";
 import { buildQueryMongo, capitalizeFirstLetter, EARTH_RADIUS, getDistanceKm, isValidObjectId } from "../utils";
 
 const router = Router();
@@ -208,7 +207,7 @@ router.get("/:id/search", async (req: Request, res: Response, next: NextFunction
     }));
 
     if (ENV !== "production") return res.status(200).send({ ok: true, data, total });
-    const request = await RequestWidget.create({
+    const request = await RequestWidgetModel.create({
       query: {
         ...query.data,
         distance: where["addresses.geoPoint"] ? "50km" : undefined,
