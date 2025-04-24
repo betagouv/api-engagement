@@ -179,7 +179,13 @@ const schema = new Schema<Mission>(
 
 schema.plugin(historyPlugin, {
   historyField: "__history",
-  omit: ["updatedAt", "lastSyncAt", "__v", "__history"],
+  omit: [
+    "addresses", 
+    "updatedAt", 
+    "lastSyncAt", 
+    "__v", 
+    "__history"
+  ],
   maxEntries: 100,
 });
 

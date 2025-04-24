@@ -236,6 +236,7 @@ schema.index({
 schema.plugin(historyPlugin, {
   historyField: "__history",
   omit: [
+    "addresses", 
     "updatedAt",  
     "lastSyncAt",
     "__v", 
