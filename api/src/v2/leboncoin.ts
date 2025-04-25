@@ -1,8 +1,10 @@
 import { NextFunction, Response, Router } from "express";
 import passport from "passport";
 import zod from "zod";
+import { HydratedDocument } from "mongoose";
 
-import { MissionModel, RequestModel } from "@shared/models";
+import { RequestModel, MissionModel } from "@shared/models";
+import { Mission } from "@shared/types";
 
 import { captureMessage, INVALID_BODY, NOT_FOUND } from "../error";
 import { PublisherRequest } from "../types/passport";

@@ -3,11 +3,12 @@ import { Request, Response, Router } from "express";
 import zod from "zod";
 import { HydratedDocument } from "mongoose";
 
-import { CampaignModel, MissionModel, PublisherModel, StatsBotModel, WidgetModel } from "@shared/models";
-import { Mission } from "@shared/types";
+import { CampaignModel, PublisherModel, StatsBotModel, WidgetModel } from "@shared/models";
+
+import { MissionModel } from "@shared/models";
+import { Mission, Stats } from "@shared/types";
 
 import { JVA_URL, SC_ID, STATS_INDEX } from "../config";
-import { Stats } from "../types";
 import esClient from "../db/elastic";
 import { INVALID_PARAMS, INVALID_QUERY, NOT_FOUND, SERVER_ERROR, captureException, captureMessage } from "../error";
 import { identify, slugify } from "../utils";

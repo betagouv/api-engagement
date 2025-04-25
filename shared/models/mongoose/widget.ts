@@ -1,5 +1,6 @@
 import { Schema, model, models } from "mongoose";
-import { Widget } from "../../types/index.d";
+
+import { Widget } from "../../types";
 
 const MODELNAME = "widget";
 
@@ -63,14 +64,6 @@ const schema = new Schema<Widget>(
   },
 );
 
-// Indexes
-schema.index({ name: 1 });
-schema.index({ fromPublisherId: 1 });
-schema.index({ type: 1 });
-schema.index({ active: 1 });
-schema.index({ deleted: 1 });
-
-// Utiliser un pattern singleton pour éviter les erreurs de rédéfinition de modèle
 const WidgetModel = models[MODELNAME] || model<Widget>(MODELNAME, schema);
 
 export { WidgetModel };

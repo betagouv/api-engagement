@@ -1,19 +1,29 @@
 {
+  "ts-node": {
+    "transpileOnly": true,
+    "files": true,
+    "compilerOptions": {
+      "module": "commonjs",
+      "target": "es2021",
+      "moduleResolution": "node",
+      "resolveJsonModule": true,
+      "strict": true,
+      "typeRoots": ["../node_modules/@types", "../src/types"]
+    }
+  },
   "compilerOptions": {
-    "module": "commonjs",
     "target": "es2021",
-    "moduleResolution": "node",
-    "resolveJsonModule": true,
-    "strict": true,
-    "sourceMap": false,
-    "noEmit": true,
-    "typeRoots": ["../node_modules/@types", "../types"],
+    "module": "commonjs" /* Specify what module code is generated. */,
+    "sourceMap": true,
+    "outDir": "./dist" /* Specify an output folder for all emitted files. */,
+    "esModuleInterop": true /* Emit additional JavaScript to ease support for importing CommonJS modules. This enables 'allowSyntheticDefaultImports' for type compatibility. */,
+    "forceConsistentCasingInFileNames": true /* Ensure that casing is correct in imports. */,
+    "strict": true /* Enable all strict type-checking options. */,
+    "skipLibCheck": true /* Skip type checking all .d.ts files. */,
+    "allowJs": true,
     "baseUrl": ".",
     "paths": {
       "@shared/*": ["*"]
-    },
-    "esModuleInterop": true
-  },
-  "include": ["**/*.ts"],
-  "exclude": ["node_modules", "dist"]
+    }
+  }
 }

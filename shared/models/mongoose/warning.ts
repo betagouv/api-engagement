@@ -1,87 +1,24 @@
 import { Schema, model, models } from "mongoose";
-import { Warning } from "../../types/index.d";
+
+import { Warning } from "../../types";
 
 const MODELNAME = "warning";
 
 const schema = new Schema<Warning>(
   {
-    type: { 
-      type: String, 
-      required: true,
-      documentation: {
-        description: "Type de l'avertissement",
-      },
-    },
-    title: { 
-      type: String,
-      documentation: {
-        description: "Titre de l'avertissement",
-      },
-    },
-    description: { 
-      type: String,
-      documentation: {
-        description: "Détails de l'avertissement, principalement l'erreur associée",
-      },
-    },
-    publisherId: { 
-      type: String, 
-      required: true,
-      documentation: {
-        description: "ID du publisher",
-      },
-    },
-    publisherName: { 
-      type: String, 
-      required: true,
-      documentation: {
-        description: "Nom du publisher",
-      },
-    },
-    publisherLogo: { 
-      type: String, 
-      required: true,
-      documentation: {
-        description: "Logo du publisher",
-      },
-    },
-    seen: { 
-      type: Boolean, 
-      default: false,
-      documentation: {
-        description: "Indique si l'avertissement a été vu",
-      },
-    },
-    fixed: { 
-      type: Boolean, 
-      default: false,
-      documentation: {
-        description: "Indique si l'avertissement a été résolu",
-      },
-    },
-    fixedAt: { 
-      type: Date,
-      documentation: {
-        description: "Date de résolution",
-      },
-    },
-    occurrences: { 
-      type: Number, 
-      default: 1,
-      documentation: {
-        description: "Nombre de fois que l'avertissement a été détecté",
-      },
-    },
+    type: { type: String, required: true, description: "Type of the warning" },
+    title: { type: String, description: "Title of the warning" },
+    description: { type: String, description: "Details of the warning, mostly the error associated" },
+    publisherId: { type: String, required: true, description: "Publisher ID" },
+    publisherName: { type: String, required: true, description: "Publisher name" },
+    publisherLogo: { type: String, required: true, description: "Publisher logo" },
+    seen: { type: Boolean, default: false, description: "If the warning have been seen" },
+    fixed: { type: Boolean, default: false, description: "If the warning has been fixed" },
+    fixedAt: { type: Date, description: "Date of the fix" },
+    occurrences: { type: Number, default: 1, description: "Number of time the warning as been detected" },
   },
   { timestamps: true },
 );
-
-// Indexes
-schema.index({ publisherId: 1 });
-schema.index({ type: 1 });
-schema.index({ seen: 1 });
-schema.index({ fixed: 1 });
-schema.index({ createdAt: 1 });
 
 const WarningModel = models[MODELNAME] || model<Warning>(MODELNAME, schema);
 

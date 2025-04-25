@@ -2,8 +2,9 @@ import { Router } from "express";
 import passport from "passport";
 import zod from "zod";
 
-import { INVALID_BODY } from "../error";
 import { ReportModel } from "@shared/models";
+
+import { INVALID_BODY } from "../error";
 
 const router = Router();
 

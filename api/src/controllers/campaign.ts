@@ -3,10 +3,10 @@ import passport from "passport";
 import zod from "zod";
 
 import { CampaignModel, PublisherModel } from "@shared/models";
+import { EsQuery } from "@shared/types";
 
 import { FORBIDDEN, INVALID_BODY, INVALID_PARAMS, INVALID_QUERY, NOT_FOUND, RESSOURCE_ALREADY_EXIST } from "../error";
 import { reassignStats } from "../services/reassign-stats";
-import { EsQuery } from "../types";
 import { UserRequest } from "../types/passport";
 import { slugify } from "../utils";
 

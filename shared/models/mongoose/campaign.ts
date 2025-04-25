@@ -1,5 +1,6 @@
 import { Schema, model, models } from "mongoose";
-import { Campaign } from "../../types/index.d";
+
+import { Campaign } from "../../types";
 
 const MODELNAME = "campaign";
 
@@ -81,14 +82,8 @@ const schema = new Schema<Campaign>({
   },
 });
 
-// Indexes
 schema.index({ name: 1, fromPublisherId: 1 }, { unique: true, partialFilterExpression: { deletedAt: null } });
-schema.index({ fromPublisherId: 1 });
-schema.index({ toPublisherId: 1 });
-schema.index({ active: 1 });
-schema.index({ deletedAt: 1 });
 
-// Utiliser un pattern singleton pour éviter les erreurs de redéfinition de modèle
 const CampaignModel = models[MODELNAME] || model<Campaign>(MODELNAME, schema);
 
 export { CampaignModel };

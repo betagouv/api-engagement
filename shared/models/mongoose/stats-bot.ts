@@ -1,50 +1,18 @@
 import { Schema, model, models } from "mongoose";
-import { StatsBot } from "../../types/index.d";
+
+import { StatsBot } from "../../types";
 
 const MODELNAME = "stats-bot";
-
 const schema = new Schema<StatsBot>(
   {
-    origin: { 
-      type: String,
-      documentation: {
-        description: "Origine de la requête",
-      },
-    },
-    referer: { 
-      type: String,
-      documentation: {
-        description: "Référent de la requête",
-      },
-    },
-    userAgent: { 
-      type: String,
-      documentation: {
-        description: "User-Agent du bot",
-      },
-    },
-    host: { 
-      type: String,
-      documentation: {
-        description: "Hôte de la requête",
-      },
-    },
-    user: { 
-      type: String, 
-      required: true, 
-      unique: true, 
-      index: true,
-      documentation: {
-        description: "Identifiant unique du bot",
-      },
-    },
+    origin: { type: String },
+    referer: { type: String },
+    userAgent: { type: String },
+    host: { type: String },
+    user: { type: String, required: true, unique: true, index: true },
   },
   { timestamps: true },
 );
-
-// Indexes
-schema.index({ user: 1 }, { unique: true });
-schema.index({ createdAt: 1 });
 
 const StatsBotModel = models[MODELNAME] || model<StatsBot>(MODELNAME, schema);
 

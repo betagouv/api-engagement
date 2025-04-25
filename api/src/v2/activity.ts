@@ -3,12 +3,12 @@ import passport from "passport";
 import { v4 as uuidv4 } from "uuid";
 import zod from "zod";
 
-import { MissionModel, PublisherModel, RequestModel } from "@shared/models";
+import { PublisherModel, MissionModel, RequestModel } from "@shared/models";
+import { Stats } from "@shared/types";
 
 import { STATS_INDEX } from "../config";
 import esClient from "../db/elastic";
 import { captureMessage, INVALID_BODY, INVALID_PARAMS, INVALID_QUERY, NOT_FOUND } from "../error";
-import { Stats } from "../types";
 import { PublisherRequest } from "../types/passport";
 
 const router = Router();

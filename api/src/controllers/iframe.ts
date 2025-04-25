@@ -2,7 +2,7 @@ import cors from "cors";
 import zod from "zod";
 import { NextFunction, Request, Response, Router } from "express";
 
-import { WidgetModel, MissionModel, RequestWidgetModel } from "@shared/models";
+import { WidgetModel, MissionModel } from "@shared/models";
 import { Mission, Widget } from "@shared/types";
 
 import { ENV, JVA_ID } from "../config";
@@ -200,7 +200,7 @@ router.get("/:id/search", async (req: Request, res: Response, next: NextFunction
       postalCode: e.postalCode,
       places: e.places,
       tags: e.tags,
-      addresses: e.addresses?.map((addr) => ({
+      addresses: e.addresses?.map((addr: Address) => ({
         ...addr,
         city: addr.city ? capitalizeFirstLetter(addr.city) : addr.city,
       })),

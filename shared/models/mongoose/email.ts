@@ -1,5 +1,6 @@
 import { Schema, model, models } from "mongoose";
-import { Email } from "../../types/index.d";
+
+import { Email } from "../../types";
 
 const MODELNAME = "email";
 
@@ -38,7 +39,7 @@ const schema = new Schema<Email>({
 
   raw: { type: Object },
 
-  status: { type: String, enum: ["PENDING", "PROCESSED", "FAILED", "DUPLICATE"], default: "PENDING" },
+  status: { type: String, enum: ["PENDING", "PROCESSED", "FAILED"], default: "PENDING" },
   report_url: { type: String, default: null },
   file_object_name: { type: String, default: null },
   date_from: { type: Date, default: null },
@@ -50,14 +51,6 @@ const schema = new Schema<Email>({
   created_at: { type: Date, default: Date.now },
   updated_at: { type: Date, default: Date.now },
 });
-
-// Indexes
-schema.index({ message_id: 1 }, { unique: true });
-schema.index({ from_email: 1 });
-schema.index({ status: 1 });
-schema.index({ deleted_at: 1 });
-schema.index({ created_at: 1 });
-
 
 const EmailModel = models[MODELNAME] || model<Email>(MODELNAME, schema);
 

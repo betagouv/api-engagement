@@ -2,7 +2,7 @@ import { NextFunction, Response, Router } from "express";
 import passport from "passport";
 import zod from "zod";
 
-import { MissionModel, PublisherModel, RequestModel } from "@shared/models";
+import { PublisherModel, MissionModel, RequestModel } from "@shared/models";
 import { Publisher, PublisherExcludedOrganization } from "@shared/types";
 
 import { STATS_INDEX } from "../config";

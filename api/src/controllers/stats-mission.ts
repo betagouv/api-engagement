@@ -3,11 +3,11 @@ import passport from "passport";
 import zod from "zod";
 
 import { MissionModel } from "@shared/models";
+import { EsQuery } from "@shared/types";
 
 import { STATS_INDEX } from "../config";
 import esClient from "../db/elastic";
 import { INVALID_QUERY } from "../error";
-import { EsQuery } from "../types";
 import { UserRequest } from "../types/passport";
 
 const router = Router();

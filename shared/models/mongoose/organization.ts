@@ -1,16 +1,15 @@
 import { Schema, model, models } from "mongoose";
-import { Organization } from "../../types/index.d";
+
+import { Organization } from "../../types";
 
 const MODELNAME = "organization";
 
 const schema = new Schema<Organization>(
   {
     esId: { type: String, description: "ES ID" },
-    _old_id: { type: String },
     rna: { type: String, required: true, description: "RNA" },
     siren: { type: String, description: "Siren" },
     siret: { type: String, description: "Siret" },
-    sirets: { type: [String], description: "Sirets" },
     rupMi: { type: String, description: "RUP/MI" },
     gestion: { type: String, description: "Gestion" },
     status: { type: String, description: "Status" },
@@ -55,12 +54,10 @@ const schema = new Schema<Organization>(
   { timestamps: true },
 );
 
-// Indexes
 schema.index({ rna: 1 });
 schema.index({ title: 1 });
 schema.index({ titleSlug: 1 });
 schema.index({ siret: 1 });
-schema.index({ sirets: 1 });
 schema.index({ addressDepartmentName: 1 });
 schema.index({ addressCity: 1 });
 schema.index({ title: "text", shortTitle: "text", rna: "text", siret: "text" });
