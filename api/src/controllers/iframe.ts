@@ -2,7 +2,7 @@ import cors from "cors";
 import zod from "zod";
 import { NextFunction, Request, Response, Router } from "express";
 
-import { WidgetModel, MissionModel } from "@shared/models";
+import { WidgetModel, RequestWidgetModel, MissionModel } from "@shared/models";
 import { Mission, Widget } from "@shared/types";
 
 import { ENV, JVA_ID } from "../config";
@@ -188,7 +188,8 @@ router.get("/:id/search", async (req: Request, res: Response, next: NextFunction
 
     const total = await MissionModel.countDocuments(where);
 
-    const data = missions.map((e: Mission) => ({
+    // TODO: replace any with Mission type
+    const data = missions.map((e: any) => ({
       _id: e._id,
       title: e[`moderation_${JVA_ID}_title`] && widget.jvaModeration ? e[`moderation_${JVA_ID}_title`] : e.title,
       domain: e.domain,
@@ -200,7 +201,7 @@ router.get("/:id/search", async (req: Request, res: Response, next: NextFunction
       postalCode: e.postalCode,
       places: e.places,
       tags: e.tags,
-      addresses: e.addresses?.map((addr: Address) => ({
+      addresses: e.addresses?.map((addr) => ({
         ...addr,
         city: addr.city ? capitalizeFirstLetter(addr.city) : addr.city,
       })),
