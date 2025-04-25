@@ -5,6 +5,8 @@
     "moduleResolution": "node",
     "resolveJsonModule": true,
     "strict": true,
+    "sourceMap": false,
+    "noEmit": true,
     "typeRoots": ["../node_modules/@types", "../types"],
     "baseUrl": ".",
     "paths": {
