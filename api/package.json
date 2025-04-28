@@ -15,7 +15,8 @@
     "lint": "eslint . --ext .ts,.tsx",
     "lint:fix": "eslint . --ext .ts,.tsx --fix",
     "test": "vitest run",
-    "test:watch": "vitest"
+    "test:watch": "vitest",
+    "test:ci": "vitest run --no-threads"
   },
   "dependencies": {
     "@elastic/elasticsearch": "7.17.14",
@@ -57,6 +58,7 @@
     "@types/object-hash": "3.0.6",
     "@types/passport": "1.0.17",
     "@types/passport-jwt": "4.0.1",
+    "@types/supertest": "^2.0.16",
     "@types/uuid": "9.0.8",
     "@typescript-eslint/eslint-plugin": "^7.18.0",
     "@typescript-eslint/parser": "^7.18.0",
@@ -67,9 +69,11 @@
     "eslint-plugin-jsx-a11y": "^6.10.2",
     "eslint-plugin-react": "^7.37.5",
     "eslint-plugin-react-hooks": "^5.2.0",
+    "mongodb-memory-server": "^9.1.7",
     "nodemon": "3.1.9",
     "prettier": "3.5.3",
     "prettier-plugin-organize-imports": "4.1.0",
+    "supertest": "^6.3.4",
     "ts-node": "10.9.2",
     "typescript": "5.8.3",
     "vitest": "3.1.1"
