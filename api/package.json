@@ -16,7 +16,7 @@
     "lint:fix": "eslint . --ext .ts,.tsx --fix",
     "test": "vitest run",
     "test:watch": "vitest",
-    "test:ci": "vitest run --no-threads"
+    "test:ci": "vitest run --pool=forks"
   },
   "dependencies": {
     "@elastic/elasticsearch": "7.17.14",
