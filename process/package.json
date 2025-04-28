@@ -32,7 +32,7 @@
     "@elastic/elasticsearch": "7.17.14",
     "@prisma/client": "6.6.0",
     "@sentry/node": "7.120.3",
-    "@types/node": "22.14.1",
+    "@types/node": "22.15.3",
     "@types/react-dom": "19.1.2",
     "aws-sdk": "2.1692.0",
     "cors": "2.8.5",
@@ -66,6 +66,6 @@
     "nodemon": "3.1.9",
     "prettier-plugin-organize-imports": "4.1.0",
     "prisma": "6.2.1",
-    "vitest": "3.1.1"
+    "vitest": "3.1.2"
   }
 }
