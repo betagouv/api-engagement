@@ -29,11 +29,3 @@ jobs:
       
     - name: Run tests
       run: cd api && npm run test:ci
-      
-    - name: Upload test coverage
-      uses: actions/upload-artifact@v3
-      if: always()
-      with:
-        name: test-coverage
-        path: api/coverage/
-        retention-days: 30
