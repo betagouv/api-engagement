@@ -4,16 +4,19 @@ import PublisherModel from '../../src/models/publisher';
 import MissionModel from '../../src/models/mission';
 
 /**
- * Create a test publisher with API key
+ * Create a test publisher with random API key
  */
-export const createTestPublisher = async (): Promise<{ publisher: Publisher; apiKey: string }> => {
+export const createTestPublisher = async (): Promise<Publisher> => {
   const apiKey = 'test-api-key-' + Date.now().toString();
+  const organizationClientId = 'org-' + Date.now().toString();
   
   const publisher = new PublisherModel({
     name: 'Test Publisher',
     email: `test-${Date.now()}@example.com`,
     password: 'password123',
     apikey: apiKey,
+    organizationClientId,
+    organizationName: 'Test Organization',
     role_annonceur_api: true,
     role_promoteur: true,
     publishers: [{
@@ -24,16 +27,13 @@ export const createTestPublisher = async (): Promise<{ publisher: Publisher; api
   });
   
   await publisher.save();
-  return { publisher: publisher.toObject() as Publisher, apiKey };
+  return publisher.toObject() as Publisher;
 };
 
 /**
- * Create a test organization
+ * Create a test mission related to an organization & a publisher
  */
-export const createTestOrganization = async () => {
-  const organizationClientId = 'org-' + Date.now().toString();
-  const publisherId = new mongoose.Types.ObjectId().toString();
-  
+export const createTestMission = async (organizationClientId: string, publisherId: string) => {
   const mission = new MissionModel({
     organizationClientId,
     organizationName: 'Test Organization',

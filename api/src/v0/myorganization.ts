@@ -128,14 +128,18 @@ router.put("/:organizationClientId", passport.authenticate(["apikey", "api"], { 
     const organization = await MissionModel.findOne({ organizationClientId: params.data.organizationClientId }).select("organizationName");
 
     for (const partner of publishers) {
-      const isExcluded =
-        partner.excludedOrganizations.find((o) => o.organizationClientId === params.data.organizationClientId && o.publisherId === user._id.toString()) !== undefined;
-
-      if (body.data.publisherIds.includes(partner._id.toString())) {
-        partner.excludedOrganizations = partner.excludedOrganizations.filter(
-          (o) => o.organizationClientId !== params.data.organizationClientId && o.publisherId !== user._id.toString(),
-        );
-      } else if (!isExcluded) {
+      // First, determine if the partner should be excluded based on publisherIds
+      const shouldBeExcluded = !body.data.publisherIds.includes(partner._id.toString());
+      
+      // Check if this partner is already excluded for this organization
+      const existingExclusion = partner.excludedOrganizations.find(
+        (o) => o.organizationClientId === params.data.organizationClientId && o.publisherId === user._id.toString()
+      );
+      
+      const isCurrentlyExcluded = existingExclusion !== undefined;
+      
+      // If it should be excluded but isn't, add exclusion
+      if (shouldBeExcluded && !isCurrentlyExcluded) {
         partner.excludedOrganizations.push({
           publisherId: user._id.toString(),
           publisherName: user.name,
@@ -143,7 +147,14 @@ router.put("/:organizationClientId", passport.authenticate(["apikey", "api"], { 
           organizationName: organization?.organizationName || "",
         });
       }
-
+      // If it shouldn't be excluded but is, remove exclusion
+      else if (!shouldBeExcluded && isCurrentlyExcluded) {
+        partner.excludedOrganizations = partner.excludedOrganizations.filter(
+          (o) => !(o.organizationClientId === params.data.organizationClientId && o.publisherId === user._id.toString())
+        );
+      }
+      
+      // Always save the partner after potential modifications
       await partner.save();
     }
 
