@@ -1,6 +1,23 @@
 import Toggle from "../../../components/Toggle";
+import api from "../../../services/api";
+import { captureError } from "../../../services/error";
 
 const Administration = ({ values, onChange }) => {
+  const [excludedOrganizations, setExcludedOrganizations] = useState([]);
+
+  useEffect(() => {
+    const fetchExcludedOrganizations = async () => {
+      try {
+        const res = await api.get(`/publisher/${values._id}/excluded-organizations`);
+        if (!res.ok) throw res;
+        setExcludedOrganizations(res.data);
+      } catch (error) {
+        captureError(error, "Erreur lors de la récupération des organisations exclues");
+      }
+    };
+    fetchExcludedOrganizations();
+  }, [values.id]);
+
   return (
     <div className="flex items-center gap-6">
       <div className="flex-1 flex items-center gap-4">
@@ -19,8 +36,8 @@ const Administration = ({ values, onChange }) => {
           </label>
 
           <div className="flex items-center gap-2 flex-wrap">
-            {values.excludedOrganizations.length === 0 && <p className="text-gray-500">Aucune organisation exclue</p>}
-            {values.excludedOrganizations
+            {excludedOrganizations.length === 0 && <p className="text-gray-500">Aucune organisation exclue</p>}
+            {excludedOrganizations
               .filter((item) => item.publisherName === "JeVeuxAider.gouv.fr")
               .map((item, index) => (
                 <div key={index} className="bg-gray-100 px-2 py-1 rounded-md text-sm relative">

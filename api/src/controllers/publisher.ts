@@ -7,6 +7,7 @@ import zod from "zod";
 
 import { DEFAULT_AVATAR } from "../config";
 import { FORBIDDEN, INVALID_BODY, INVALID_PARAMS, INVALID_QUERY, NOT_FOUND, RESSOURCE_ALREADY_EXIST } from "../error";
+import OrganizationExclusionModel from "../models/organization-exclusion";
 import PublisherModel from "../models/publisher";
 import UserModel from "../models/user";
 import { OBJECT_ACL, putObject } from "../services/s3";
@@ -106,6 +107,26 @@ router.get("/:id", passport.authenticate("user", { session: false }), async (req
 
     // Double write, remove publisher later
     return res.status(200).send({ ok: true, publisher, data: publisher });
+  } catch (error) {
+    next(error);
+  }
+});
+
+router.get("/:id/excluded-organizations", passport.authenticate("user", { session: false }), async (req: UserRequest, res: Response, next: NextFunction) => {
+  try {
+    const params = zod
+      .object({
+        id: zod.string(),
+      })
+      .safeParse(req.params);
+
+    if (!params.success) return res.status(400).send({ ok: false, code: INVALID_PARAMS, error: params.error });
+
+    const publisher = await PublisherModel.findById(params.data.id);
+    if (!publisher) return res.status(404).send({ ok: false, code: NOT_FOUND, message: "Publisher not found" });
+
+    const organizationExclusions = await OrganizationExclusionModel.find({ excludedForPublisherId: publisher._id.toString() });
+    return res.status(200).send({ ok: true, data: organizationExclusions });
   } catch (error) {
     next(error);
   }

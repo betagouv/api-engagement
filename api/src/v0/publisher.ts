@@ -3,6 +3,7 @@ import passport from "passport";
 import zod from "zod";
 
 import { INVALID_PARAMS, NOT_FOUND } from "../error";
+import OrganizationExclusionModel from "../models/organization-exclusion";
 import PublisherModel from "../models/publisher";
 import RequestModel from "../models/request";
 import { Publisher } from "../types";
@@ -34,6 +35,7 @@ router.get("/", passport.authenticate(["apikey", "api"], { session: false }), as
   try {
     const user = req.user as Publisher;
     const partners = await PublisherModel.find({ "publishers.publisherId": user._id.toString() });
+    const organizationExclusions = await OrganizationExclusionModel.find({ excludedByPublisherId: user._id.toString() });
 
     const data = partners.map((e) => {
       return {
@@ -47,7 +49,7 @@ router.get("/", passport.authenticate(["apikey", "api"], { session: false }), as
         api: e.role_annonceur_api,
         campaign: e.role_annonceur_campagne,
         annonceur: e.role_promoteur,
-        excludedOrganizations: e.excludedOrganizations.filter((o) => o.publisherId === user._id.toString()),
+        excludedOrganizations: organizationExclusions.filter((o) => o.excludedForPublisherId === e._id.toString()),
       };
     });
 
@@ -78,6 +80,11 @@ router.get("/:id", passport.authenticate(["apikey", "api"], { session: false }),
       return res.status(404).send({ ok: false, code: NOT_FOUND, message: "Publisher not found" });
     }
 
+    const organizationExclusions = await OrganizationExclusionModel.find({
+      excludedForPublisherId: publisher._id.toString(),
+      excludedByPublisherId: user._id.toString(),
+    });
+
     const data = {
       _id: publisher._id,
       name: publisher.name,
@@ -89,7 +96,7 @@ router.get("/:id", passport.authenticate(["apikey", "api"], { session: false }),
       api: publisher.role_annonceur_api,
       campaign: publisher.role_annonceur_campagne,
       annonceur: publisher.role_promoteur,
-      excludedOrganizations: publisher.excludedOrganizations.filter((o) => o.publisherId === user._id.toString()),
+      excludedOrganizations: organizationExclusions,
     };
 
     res.locals = { total: 1 };
