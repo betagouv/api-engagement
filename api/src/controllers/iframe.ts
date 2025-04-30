@@ -5,7 +5,6 @@ import zod from "zod";
 import { ENV, JVA_ID } from "../config";
 import { captureMessage, INVALID_PARAMS, INVALID_QUERY, NOT_FOUND } from "../error";
 import MissionModel from "../models/mission";
-import OrganizationExclusionModel from "../models/organization-exclusion";
 import RequestWidget from "../models/request-widget";
 import WidgetModel from "../models/widget";
 import { Mission, Widget } from "../types";
@@ -109,6 +108,10 @@ router.get("/:id/search", async (req: Request, res: Response, next: NextFunction
       statusCode: "ACCEPTED",
       deleted: false,
     } as { [key: string]: any };
+
+    // Todo: test
+    // const organizationExclusions = await OrganizationExclusionModel.find({ excludedForPublisherId: widget.publishers });
+    // if (organizationExclusions.length) where.organizationClientId = { $nin: organizationExclusions.map((e) => e.organizationClientId) };
 
     if (widget.jvaModeration) {
       const $or = [] as { [key: string]: any }[];
@@ -280,8 +283,9 @@ router.get("/:id/aggs", cors({ origin: "*" }), async (req: Request, res: Respons
       deleted: false,
     } as { [key: string]: any };
 
-    const organizationExclusions = await OrganizationExclusionModel.find({ excludedForPublisherId: widget.publishers });
-    if (organizationExclusions.length) where.organizationClientId = { $nin: organizationExclusions.map((e) => e.organizationClientId) };
+    // Todo: test
+    // const organizationExclusions = await OrganizationExclusionModel.find({ excludedForPublisherId: widget.publishers });
+    // if (organizationExclusions.length) where.organizationClientId = { $nin: organizationExclusions.map((e) => e.organizationClientId) };
 
     if (query.data.start) where.startAt = { $gte: new Date(query.data.start).toISOString() };
     if (query.data.duration) where.duration = { $lte: query.data.duration };
