@@ -1,3 +1,4 @@
+import { useEffect, useState } from "react";
 import Toggle from "../../../components/Toggle";
 import api from "../../../services/api";
 import { captureError } from "../../../services/error";
@@ -6,6 +7,7 @@ const Administration = ({ values, onChange }) => {
   const [excludedOrganizations, setExcludedOrganizations] = useState([]);
 
   useEffect(() => {
+    if (!values._id) return;
     const fetchExcludedOrganizations = async () => {
       try {
         const res = await api.get(`/publisher/${values._id}/excluded-organizations`);
@@ -16,7 +18,7 @@ const Administration = ({ values, onChange }) => {
       }
     };
     fetchExcludedOrganizations();
-  }, [values.id]);
+  }, [values._id]);
 
   return (
     <div className="flex items-center gap-6">
@@ -38,7 +40,7 @@ const Administration = ({ values, onChange }) => {
           <div className="flex items-center gap-2 flex-wrap">
             {excludedOrganizations.length === 0 && <p className="text-gray-500">Aucune organisation exclue</p>}
             {excludedOrganizations
-              .filter((item) => item.publisherName === "JeVeuxAider.gouv.fr")
+              .filter((item) => item.excludedByPublisherName === "JeVeuxAider.gouv.fr")
               .map((item, index) => (
                 <div key={index} className="bg-gray-100 px-2 py-1 rounded-md text-sm relative">
                   {item.organizationName} ({item.organizationClientId})
