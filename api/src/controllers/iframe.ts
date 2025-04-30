@@ -109,6 +109,10 @@ router.get("/:id/search", async (req: Request, res: Response, next: NextFunction
       deleted: false,
     } as { [key: string]: any };
 
+    // Todo: test
+    // const organizationExclusions = await OrganizationExclusionModel.find({ excludedForPublisherId: widget.publishers });
+    // if (organizationExclusions.length) where.organizationClientId = { $nin: organizationExclusions.map((e) => e.organizationClientId) };
+
     if (widget.jvaModeration) {
       const $or = [] as { [key: string]: any }[];
       if (widget.publishers.includes(JVA_ID)) $or.push({ publisherId: JVA_ID });
@@ -278,6 +282,10 @@ router.get("/:id/aggs", cors({ origin: "*" }), async (req: Request, res: Respons
       statusCode: "ACCEPTED",
       deleted: false,
     } as { [key: string]: any };
+
+    // Todo: test
+    // const organizationExclusions = await OrganizationExclusionModel.find({ excludedForPublisherId: widget.publishers });
+    // if (organizationExclusions.length) where.organizationClientId = { $nin: organizationExclusions.map((e) => e.organizationClientId) };
 
     if (query.data.start) where.startAt = { $gte: new Date(query.data.start).toISOString() };
     if (query.data.duration) where.duration = { $lte: query.data.duration };
