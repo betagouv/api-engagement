@@ -493,6 +493,8 @@ model OrganizationExclusion {
 
   excluded_for_publisher_id String
   excluded_for_publisher Partner @relation("ExcludedForPublisher", fields: [excluded_for_publisher_id], references: [id])
+
+  @@unique([excluded_by_publisher_id, excluded_for_publisher_id, organization_client_id])
 }
 
 model User {

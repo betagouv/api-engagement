@@ -1,6 +1,6 @@
 import { Schema, model } from "mongoose";
 
-import { Diffuseur, Publisher, PublisherExcludedOrganization } from "../types";
+import { Diffuseur, Publisher } from "../types";
 
 const MODELNAME = "publisher";
 
@@ -13,16 +13,6 @@ const publisherSchema = new Schema<Diffuseur>(
     // Old to migrate
     publisher: { type: String, ref: "publisher" },
     mission_type: { type: String, default: null, enum: ["benevolat", "volontariat", null] },
-  },
-  { timestamps: true },
-);
-
-const excludedOrganizationSchema = new Schema<PublisherExcludedOrganization>(
-  {
-    publisherId: { type: String, ref: "publisher" },
-    publisherName: { type: String, required: true, trim: true },
-    organizationClientId: { type: String },
-    organizationName: { type: String, trim: true },
   },
   { timestamps: true },
 );
@@ -50,7 +40,6 @@ const schema = new Schema<Publisher>(
     lastSyncAt: { type: Date },
 
     publishers: { type: [publisherSchema] },
-    excludedOrganizations: { type: [excludedOrganizationSchema] },
     description: { type: String, default: "" },
     lead: { type: String, default: "" },
     deletedAt: { type: Date, default: null },
