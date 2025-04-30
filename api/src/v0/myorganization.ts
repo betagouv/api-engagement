@@ -127,36 +127,42 @@ router.put("/:organizationClientId", passport.authenticate(["apikey", "api"], { 
     }
 
     const publishers = await PublisherModel.find({ "publishers.publisherId": user._id.toString() });
-    const organizationExclusions = await OrganizationExclusionModel.find({ excludedByPublisherId: user._id.toString() });
+    const organizationExclusions = await OrganizationExclusionModel.find({ excludedByPublisherId: user._id.toString(), organizationClientId: params.data.organizationClientId });
     const organization = await MissionModel.findOne({ organizationClientId: params.data.organizationClientId }).select("organizationName");
 
-    for (const partner of publishers) {
-      const isExcluded = organizationExclusions.some((o) => o.organizationClientId === params.data.organizationClientId && o.excludedForPublisherId === partner._id.toString());
+    const bulk: any[] = [];
 
-      if (body.data.publisherIds.includes(partner._id.toString())) {
-        await OrganizationExclusionModel.deleteOne({
-          excludedByPublisherId: user._id.toString(),
-          excludedForPublisherId: partner._id.toString(),
-          organizationClientId: params.data.organizationClientId,
+    for (const partner of publishers) {
+      const exclusionExists = organizationExclusions.find((o) => o.excludedForPublisherId === partner._id.toString());
+
+      if (!body.data.publisherIds.includes(partner._id.toString()) && !exclusionExists) {
+        bulk.push({
+          insertOne: {
+            document: {
+              excludedByPublisherId: user._id.toString(),
+              excludedByPublisherName: user.name,
+              excludedForPublisherId: partner._id.toString(),
+              excludedForPublisherName: partner.name,
+              organizationClientId: params.data.organizationClientId,
+              organizationName: organization?.organizationName || "",
+            },
+          },
         });
-      } else if (!isExcluded) {
-        await OrganizationExclusionModel.create({
-          excludedByPublisherId: user._id.toString(),
-          excludedByPublisherName: user.name,
-          excludedForPublisherId: partner._id.toString(),
-          excludedForPublisherName: partner.name,
-          organizationClientId: params.data.organizationClientId,
-          organizationName: organization?.organizationName || "",
+      } else if (body.data.publisherIds.includes(partner._id.toString()) && exclusionExists) {
+        bulk.push({
+          deleteOne: {
+            filter: { _id: exclusionExists._id },
+          },
         });
       }
-
-      await partner.save();
     }
 
-    const newOrganizationExclusions = await OrganizationExclusionModel.find({ excludedByPublisherId: user._id.toString() });
+    await OrganizationExclusionModel.bulkWrite(bulk);
+
+    const newOrganizationExclusions = await OrganizationExclusionModel.find({ excludedByPublisherId: user._id.toString(), organizationClientId: params.data.organizationClientId });
     const data = [] as any[];
     publishers.forEach((e) => {
-      const isExcluded = newOrganizationExclusions.some((o) => o.excludedForPublisherId === e._id.toString() && o.organizationClientId === params.data.organizationClientId);
+      const isExcluded = newOrganizationExclusions.some((o) => o.excludedForPublisherId === e._id.toString());
       data.push({
         _id: e._id,
         name: e.name,
