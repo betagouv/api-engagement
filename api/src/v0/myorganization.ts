@@ -6,9 +6,10 @@ import { STATS_INDEX } from "../config";
 import esClient from "../db/elastic";
 import { INVALID_BODY, INVALID_PARAMS } from "../error";
 import MissionModel from "../models/mission";
+import OrganizationExclusionModel from "../models/organization-exclusion";
 import PublisherModel from "../models/publisher";
 import RequestModel from "../models/request";
-import { Publisher, PublisherExcludedOrganization } from "../types";
+import { Publisher } from "../types";
 import { PublisherRequest } from "../types/passport";
 const router = Router();
 
@@ -49,6 +50,7 @@ router.get("/:organizationClientId", passport.authenticate(["apikey", "api"], { 
     }
 
     const publishers = await PublisherModel.find({ "publishers.publisherId": user._id.toString() });
+    const organizationExclusions = await OrganizationExclusionModel.find({ excludedByPublisherId: user._id.toString() });
 
     const oneMonthAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
     const aggs = await esClient.search({
@@ -76,7 +78,7 @@ router.get("/:organizationClientId", passport.authenticate(["apikey", "api"], { 
 
     const data = [] as any[];
     publishers.forEach((e) => {
-      const isExcluded = e.excludedOrganizations.find((o) => o.publisherId === user._id.toString() && o.organizationClientId === params.data.organizationClientId) !== undefined;
+      const isExcluded = organizationExclusions.some((o) => o.organizationClientId === params.data.organizationClientId && o.excludedForPublisherId === e._id.toString());
       const clicks = aggs.body.aggregations.fromPublisherId.buckets.find((o: { key: string; doc_count: number }) => o.key === e._id.toString())?.doc_count || 0;
       data.push({
         _id: e._id,
@@ -125,33 +127,42 @@ router.put("/:organizationClientId", passport.authenticate(["apikey", "api"], { 
     }
 
     const publishers = await PublisherModel.find({ "publishers.publisherId": user._id.toString() });
+    const organizationExclusions = await OrganizationExclusionModel.find({ excludedByPublisherId: user._id.toString(), organizationClientId: params.data.organizationClientId });
     const organization = await MissionModel.findOne({ organizationClientId: params.data.organizationClientId }).select("organizationName");
 
-    for (const partner of publishers) {
-      const isExcluded =
-        partner.excludedOrganizations.find((o) => o.organizationClientId === params.data.organizationClientId && o.publisherId === user._id.toString()) !== undefined;
+    const bulk: any[] = [];
 
-      if (body.data.publisherIds.includes(partner._id.toString())) {
-        partner.excludedOrganizations = partner.excludedOrganizations.filter(
-          (o) => o.organizationClientId !== params.data.organizationClientId && o.publisherId !== user._id.toString(),
-        );
-      } else if (!isExcluded) {
-        partner.excludedOrganizations.push({
-          publisherId: user._id.toString(),
-          publisherName: user.name,
-          organizationClientId: params.data.organizationClientId,
-          organizationName: organization?.organizationName || "",
+    for (const partner of publishers) {
+      const exclusionExists = organizationExclusions.find((o) => o.excludedForPublisherId === partner._id.toString());
+
+      if (!body.data.publisherIds.includes(partner._id.toString()) && !exclusionExists) {
+        bulk.push({
+          insertOne: {
+            document: {
+              excludedByPublisherId: user._id.toString(),
+              excludedByPublisherName: user.name,
+              excludedForPublisherId: partner._id.toString(),
+              excludedForPublisherName: partner.name,
+              organizationClientId: params.data.organizationClientId,
+              organizationName: organization?.organizationName || "",
+            },
+          },
+        });
+      } else if (body.data.publisherIds.includes(partner._id.toString()) && exclusionExists) {
+        bulk.push({
+          deleteOne: {
+            filter: { _id: exclusionExists._id },
+          },
         });
       }
-
-      await partner.save();
     }
 
+    await OrganizationExclusionModel.bulkWrite(bulk);
+
+    const newOrganizationExclusions = await OrganizationExclusionModel.find({ excludedByPublisherId: user._id.toString(), organizationClientId: params.data.organizationClientId });
     const data = [] as any[];
     publishers.forEach((e) => {
-      const organisation = e.excludedOrganizations.find(
-        (o: PublisherExcludedOrganization) => o.publisherId === user._id.toString() && o.organizationClientId === params.data.organizationClientId,
-      );
+      const isExcluded = newOrganizationExclusions.some((o) => o.excludedForPublisherId === e._id.toString());
       data.push({
         _id: e._id,
         name: e.name,
@@ -163,7 +174,7 @@ router.put("/:organizationClientId", passport.authenticate(["apikey", "api"], { 
         api: e.role_annonceur_api,
         campaign: e.role_annonceur_campagne,
         annonceur: e.role_promoteur,
-        excluded: organisation !== undefined,
+        excluded: isExcluded,
       });
     });
 

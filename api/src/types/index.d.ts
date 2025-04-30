@@ -371,7 +371,6 @@ export interface Publisher {
   lastSyncAt: Date;
   broadcasters: string[];
   publishers: Diffuseur[];
-  excludedOrganizations: PublisherExcludedOrganization[];
   description: string;
   lead: string;
   deletedAt: Date | null;
@@ -379,6 +378,7 @@ export interface Publisher {
   updatedAt: Date;
 
   // Deprecated
+  // excludedOrganizations: PublisherExcludedOrganization[];
   excludeOrganisations: string[];
   mission_type: string | null;
   role_promoteur: boolean;
@@ -405,12 +405,19 @@ export interface Diffuseur {
   mission_type?: string | null; // missionType
 }
 
-export interface PublisherExcludedOrganization {
+export interface OrganizationExclusion {
   _id?: Schema.Types.ObjectId;
-  publisherId: string;
-  publisherName: string;
+  excludedByPublisherId: string;
+  excludedByPublisherName: string;
+
+  excludedForPublisherId: string;
+  excludedForPublisherName: string;
+
   organizationClientId: string;
   organizationName: string;
+
+  createdAt: Date;
+  updatedAt: Date;
 }
 
 export interface Report {

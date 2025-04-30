@@ -1,7 +1,7 @@
 import { Schema, model } from "mongoose";
 
-import { Mission } from "../types";
 import { historyPlugin } from "../plugins/history-plugin";
+import { Mission } from "../types";
 
 const MODELNAME = "mission";
 
@@ -200,6 +200,7 @@ schema.index({ country: 1 });
 schema.index({ departmentName: 1 });
 schema.index({ organizationName: 1 });
 schema.index({ organizationRNA: 1 });
+schema.index({ organizationClientId: 1 });
 schema.index({ geoPoint: "2dsphere" });
 schema.index({ "addresses.geoPoint": "2dsphere" });
 
@@ -235,14 +236,8 @@ schema.index({
 
 schema.plugin(historyPlugin, {
   historyField: "__history",
-  omit: [
-    "addresses", 
-    "updatedAt",  
-    "lastSyncAt",
-    "__v", 
-    "__history",
-  ],
-  maxEntries: 100
+  omit: ["addresses", "updatedAt", "lastSyncAt", "__v", "__history"],
+  maxEntries: 100,
 });
 
 const MissionModel = model<Mission>(MODELNAME, schema);

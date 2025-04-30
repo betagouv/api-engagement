@@ -6,6 +6,7 @@ import { API_URL, STATS_INDEX } from "../config";
 import esClient from "../db/elastic";
 import { captureMessage, INVALID_PARAMS, INVALID_QUERY, NOT_FOUND } from "../error";
 import MissionModel from "../models/mission";
+import OrganizationExclusionModel from "../models/organization-exclusion";
 import RequestModel from "../models/request";
 import { Mission, Publisher, Stats } from "../types";
 import { PublisherRequest } from "../types/passport";
@@ -81,9 +82,11 @@ router.get("/", passport.authenticate(["apikey", "api"], { session: false }), as
     const where = {
       statusCode: "ACCEPTED",
       deletedAt: null,
-      organizationName: { $nin: user.excludeOrganisations || [] }, // TODO: delete later
-      organizationClientId: { $nin: user.excludedOrganizations.map((e) => e.organizationClientId) },
     } as { [key: string]: any };
+
+    // Exclude organizations from other publishers
+    const organizationExclusions = await OrganizationExclusionModel.find({ excludedForPublisherId: user._id.toString() });
+    if (organizationExclusions.length) where.organizationClientId = { $nin: organizationExclusions.map((e) => e.organizationClientId) };
 
     if (query.data.publisher) {
       if (!Array.isArray(query.data.publisher) && query.data.publisher.includes(",")) query.data.publisher = query.data.publisher.split(",").map((e: string) => e.trim());
@@ -195,9 +198,10 @@ router.get("/search", passport.authenticate(["apikey", "api"], { session: false 
     const where = {
       statusCode: "ACCEPTED",
       deletedAt: null,
-      organizationName: { $nin: user.excludeOrganisations || [] },
-      organizationClientId: { $nin: user.excludedOrganizations.map((e) => e.organizationClientId) },
     } as { [key: string]: any };
+
+    const organizationExclusions = await OrganizationExclusionModel.find({ excludedForPublisherId: user._id.toString() });
+    if (organizationExclusions.length) where.organizationClientId = { $nin: organizationExclusions.map((e) => e.organizationClientId) };
 
     if (query.data.publisher) {
       if (!Array.isArray(query.data.publisher) && query.data.publisher.includes(",")) query.data.publisher = query.data.publisher.split(",").map((e: string) => e.trim());
