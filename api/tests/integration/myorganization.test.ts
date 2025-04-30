@@ -107,13 +107,21 @@ describe("MyOrganization API Integration Tests", () => {
       const partner2Data = response.body.data.find((p: any) => p._id.toString() === partner2._id.toString());
       expect(partner2Data.excluded).toBe(true);
 
-      // Verify database was updated correctly
-      const exclusion = await OrganizationExclusionModel.findOne({
+      // Verify partner1 exclusion does not exist
+      const partner1Exclusion = await OrganizationExclusionModel.findOne({
+        excludedByPublisherId: publisher._id.toString(),
+        excludedForPublisherId: partner1._id.toString(),
+        organizationClientId: orgId,
+      });
+      expect(partner1Exclusion).toBeUndefined();
+
+      // Verify partner2 exclusion exists
+      const partner2Exclusion = await OrganizationExclusionModel.findOne({
         excludedByPublisherId: publisher._id.toString(),
         excludedForPublisherId: partner2._id.toString(),
         organizationClientId: orgId,
       });
-      expect(exclusion).toBeDefined();
+      expect(partner2Exclusion).toBeDefined();
     });
 
     it("should remove exclusions when publisher is included", async () => {
