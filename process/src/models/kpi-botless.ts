@@ -9,6 +9,9 @@ const schema = new Schema<Kpi>(
     availableBenevolatMissionCount: { type: Number },
     availableVolontariatMissionCount: { type: Number },
 
+    availableJvaMissionCount: { type: Number },
+    availableJvaMissionIds: { type: [String] },
+
     availableBenevolatGivenPlaceCount: { type: Number },
     availableVolontariatGivenPlaceCount: { type: Number },
 
