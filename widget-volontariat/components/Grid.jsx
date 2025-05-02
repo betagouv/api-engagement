@@ -18,7 +18,7 @@ const Grid = ({ widget, missions, total, page, request, handlePageChange }) => {
 
   return (
     <div className="w-full mx-auto">
-      <main className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-y-4 md:gap-y-6 gap-x-6">
+      <main className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
         {missions.map((mission, i) => (
           <div key={i}>
             <Card widget={widget} mission={mission} request={request} />
