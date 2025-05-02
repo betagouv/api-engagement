@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { usePlausible } from "next-plausible";
-import { DayPicker } from "react-day-picker";
+import { DayPicker, getDefaultClassNames } from "react-day-picker";
 import fr from "date-fns/locale/fr";
 import { RiArrowUpSLine, RiArrowDownSLine, RiCheckboxFill, RiCheckboxBlankLine, RiRadioButtonLine, RiCircleLine, RiMapPin2Fill, RiCloseFill } from "react-icons/ri";
 
@@ -374,6 +374,7 @@ const DateFilter = ({ selected, onChange, position = "left-0", width = "w-80" })
   const plausible = usePlausible();
   const [isOpen, setIsOpen] = useState(false);
   const ref = useRef(null);
+  const defaultClassNames = getDefaultClassNames();
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -417,13 +418,20 @@ const DateFilter = ({ selected, onChange, position = "left-0", width = "w-80" })
               plausible("Date selected", { props: { date: date.toLocaleDateString("fr") }, u: url });
             }}
             className="w-full flex justify-center border-none"
+            style={{
+              '--rdp-accent-color': color,
+            }}
             modifiers={{
               selected: (date) => selected && date.toLocaleDateString("fr") === selected.value.toLocaleDateString("fr"),
             }}
             modifiersStyles={{
               selected: {
                 backgroundColor: color,
-              },
+                color: 'white',
+                borderRadius: '9999px',
+                display: 'flex',
+                justifyContent: 'center',
+              }
             }}
           />
           <div className="pt-2 pb-1 px-6 w-full flex justify-start border-t border-[#DDDDDD]">
