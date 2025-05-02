@@ -114,18 +114,18 @@ const MobileFilters = ({ options, values, onChange, show, onShow, disabledLocati
       <div className="w-full">
         <LocationFilter selected={values.location} onChange={(l) => onChange({ ...values, location: l })} disabled={disabledLocation} color={color} width="w-full" />
       </div>
+      <div className="w-full border-y border-[#DDD]">
       <button
-        className="flex h-[40px] border-y items-center justify-between w-full px-4 py-2 focus:outline-none focus-visible:ring focus-visible:ring-blue-800"
+        className="flex h-[40px] items-center justify-between w-full bg-white focus:outline-none focus-visible:ring focus-visible:ring-blue-800 px-4"
         onClick={() => {
           onShow(!show);
           plausible(show ? "Filters closed" : "Filters opened", { u: url });
         }}
-        style={{ color: color }}
       >
         Filtrer les missions
         {show ? <RiArrowUpSLine className="font-semibold" style={{ color: color }} /> : <RiArrowDownSLine className="font-semibold" style={{ color: color }} />}
       </button>
-
+      
       {show && (
         <div className="w-full mt-2">
           <div className="w-full mb-4">
@@ -198,6 +198,7 @@ const MobileFilters = ({ options, values, onChange, show, onShow, disabledLocati
           </div>
         </div>
       )}
+      </div>
     </>
   );
 };
