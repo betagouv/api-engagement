@@ -21,9 +21,6 @@ describe("MyOrganization API Integration Tests", () => {
     partner1 = await createTestPartner(publisher._id.toString());
     partner2 = await createTestPartner(publisher._id.toString());
     await createTestPartner("other-publisher-id");
-
-    // Clear any existing exclusions
-    await OrganizationExclusionModel.deleteMany({});
   });
 
   /**
@@ -113,7 +110,7 @@ describe("MyOrganization API Integration Tests", () => {
         excludedForPublisherId: partner1._id.toString(),
         organizationClientId: orgId,
       });
-      expect(partner1Exclusion).toBeUndefined();
+      expect(partner1Exclusion).toBeNull();
 
       // Verify partner2 exclusion exists
       const partner2Exclusion = await OrganizationExclusionModel.findOne({
@@ -165,7 +162,7 @@ describe("MyOrganization API Integration Tests", () => {
         excludedForPublisherId: partner1._id.toString(),
         organizationClientId: orgId,
       });
-      expect(exclusion).toBeUndefined();
+      expect(exclusion).toBeNull();
     });
 
     it("should not overwrite exclusions when receiving publisherId of a different publisher", async () => {
@@ -203,7 +200,7 @@ describe("MyOrganization API Integration Tests", () => {
         excludedForPublisherId: partner1._id.toString(),
         organizationClientId: orgId,
       });
-      expect(testExclusion).toBeUndefined();
+      expect(testExclusion).toBeNull();
     });
   });
 });
