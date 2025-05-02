@@ -406,7 +406,7 @@ const buildLocationAggs = (widget: Widget, lon: number | undefined, lat: number 
     const distance = getDistanceKm(widget.distance && widget.distance !== "Aucun" ? widget.distance : "50km");
     where["addresses.geoPoint"] = {
       $geoWithin: {
-        $centerSphere: [[widget.location.lat, widget.location.lon], distance / EARTH_RADIUS],
+        $centerSphere: [[widget.location.lon, widget.location.lat], distance / EARTH_RADIUS],
       },
     };
   } else if (lat && lon) {
