@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { usePlausible } from "next-plausible";
-import { DayPicker, getDefaultClassNames } from "react-day-picker";
+import { DayPicker } from "react-day-picker";
 import fr from "date-fns/locale/fr";
 import { RiArrowUpSLine, RiArrowDownSLine, RiCheckboxFill, RiCheckboxBlankLine, RiRadioButtonLine, RiCircleLine, RiMapPin2Fill, RiCloseFill } from "react-icons/ri";
 
@@ -374,7 +374,6 @@ const DateFilter = ({ selected, onChange, position = "left-0", width = "w-80" })
   const plausible = usePlausible();
   const [isOpen, setIsOpen] = useState(false);
   const ref = useRef(null);
-  const defaultClassNames = getDefaultClassNames();
 
   useEffect(() => {
     const handleClickOutside = (event) => {
