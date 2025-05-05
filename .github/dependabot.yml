@@ -3,7 +3,7 @@ updates:
   - package-ecosystem: "npm"
     directory: "/process"
     schedule:
-      interval: "weekly"
+      interval: "monthly"
     open-pull-requests-limit: 10
     versioning-strategy: "auto"
     labels:
@@ -37,7 +37,7 @@ updates:
   - package-ecosystem: "npm"
     directory: "/api"
     schedule:
-      interval: "weekly"
+      interval: "monthly"
     open-pull-requests-limit: 10
     versioning-strategy: "auto"
     labels:
@@ -71,7 +71,7 @@ updates:
   - package-ecosystem: "npm"
     directory: "/app"
     schedule:
-      interval: "weekly"
+      interval: "monthly"
     open-pull-requests-limit: 10
     versioning-strategy: "auto"
     labels:
@@ -105,7 +105,7 @@ updates:
   - package-ecosystem: "npm"
     directory: "/widget-benevolat"
     schedule:
-      interval: "weekly"
+      interval: "monthly"
     open-pull-requests-limit: 10
     versioning-strategy: "auto"
     labels:
@@ -139,7 +139,7 @@ updates:
   - package-ecosystem: "npm"
     directory: "/widget-volontariat"
     schedule:
-      interval: "weekly"
+      interval: "monthly"
     open-pull-requests-limit: 10
     versioning-strategy: "auto"
     labels:
@@ -173,7 +173,7 @@ updates:
   - package-ecosystem: "github-actions"
     directory: "/"
     schedule:
-      interval: "weekly"
+      interval: "monthly"
     open-pull-requests-limit: 10
     labels:
       - "dependencies"
