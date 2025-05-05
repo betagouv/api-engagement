@@ -4,6 +4,7 @@ import cookieParser from 'cookie-parser';
 import cors from 'cors';
 import passport from '../src/services/passport';
 import MyOrganizationV0Controller from '../src/v0/myorganization';
+import MyMissionV0Controller from '../src/v0/mymission';
 
 // Create a test Express app with minimal configuration
 export const createTestApp = () => {
@@ -16,8 +17,9 @@ export const createTestApp = () => {
   app.use(cookieParser());
   app.use(passport.initialize());
   
-  // Mount the myorganization controller
+  // Mount the controllers
   app.use('/v0/myorganization', MyOrganizationV0Controller);
+  app.use('/v0/mymission', MyMissionV0Controller);
   
   // Error handler
   app.use((err: any, req: express.Request, res: express.Response, _: express.NextFunction) => {
