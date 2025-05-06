@@ -171,7 +171,7 @@ export const getMissionHistoryEventTypeFromState = (
   const { state, metadata } = missionHistory;
 
   // For creation type, return only MissionCreated
-  if (metadata && "created" in metadata) {
+  if (metadata && "action" in metadata && metadata.action === "created") {
     return [MissionHistoryEventType.MissionCreated];
   }
 

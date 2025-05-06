@@ -180,6 +180,7 @@ describe("transformMongoMissionToPg", () => {
         state: baseHistoryState,
         metadata: {
           reason: "reason",
+          action: "created",
         },
       },
     ],
@@ -277,7 +278,7 @@ describe("transformMongoMissionToPg", () => {
 describe("getMissionHistoryEventTypeFromState", () => {
   it("should return only MissionCreated event type", () => {
     const result = getMissionHistoryEventTypeFromState({
-      metadata: { created: true },
+      metadata: { action: "created" },
       state: {
         startAt: "2023-01-01",
         endAt: "2023-01-02",
