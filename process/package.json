@@ -42,7 +42,7 @@
     "express": "4.21.0",
     "fast-xml-parser": "5.2.0",
     "he": "1.2.0",
-    "html-to-text": "8.2.1",
+    "html-to-text": "9.0.5",
     "js2xmlparser": "5.0.0",
     "jspdf": "2.5.2",
     "mongoose": "8.13.2",
