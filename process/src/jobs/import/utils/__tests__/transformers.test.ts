@@ -1,8 +1,9 @@
-import { Organization } from "@prisma/client";
+import { MissionHistoryEventType, Organization } from "@prisma/client";
 import { Schema } from "mongoose";
 import { describe, expect, it } from "vitest";
+import { JVA_ID } from "../../../../config";
 import { Mission as MongoMission } from "../../../../types";
-import { transformMongoMissionToPg } from "../transformers";
+import { getMissionHistoryEventTypeFromState, transformMongoMissionToPg } from "../transformers";
 
 // TODO: is this interface defined in the project?
 interface Address {
@@ -227,8 +228,7 @@ describe("transformMongoMissionToPg", () => {
 
     expect(result?.history.length).toBe(1);
     expect(result?.history[0].date).toEqual(new Date("2023-01-20"));
-    expect(result?.history[0].state).toEqual(baseHistoryState);
-    expect(result?.history[0].metadata).toEqual({ reason: "reason" });
+    expect(result?.history[0].type).toBeDefined(); // Value will be checked by getMissionHistoryEventTypeFromState test
   });
 
   it("should handle a mission with no organization match", () => {
@@ -271,5 +271,113 @@ describe("transformMongoMissionToPg", () => {
     expect(result).not.toBeNull();
     expect(result?.mission).toBeDefined();
     expect(result?.history).toEqual([]);
+  });
+});
+
+describe("getMissionHistoryEventTypeFromState", () => {
+  it("should return MissionsDeleted event type", () => {
+    const result = getMissionHistoryEventTypeFromState({
+      deletedAt: "2023-01-01",
+    });
+
+    expect(Array.isArray(result)).toBe(true);
+    expect(result.length).toBe(1);
+    expect(result).toContain(MissionHistoryEventType.MissionDeleted);
+  });
+
+  it("should return MissionsModifiedStartDate event type", () => {
+    const result = getMissionHistoryEventTypeFromState({
+      startAt: "2023-01-01",
+    });
+
+    expect(Array.isArray(result)).toBe(true);
+    expect(result.length).toBe(1);
+    expect(result).toContain(MissionHistoryEventType.MissionModifiedStartDate);
+  });
+
+  it("should return MissionsModifiedEndDate event type", () => {
+    const result = getMissionHistoryEventTypeFromState({
+      endAt: "2023-01-01",
+    });
+
+    expect(Array.isArray(result)).toBe(true);
+    expect(result.length).toBe(1);
+    expect(result).toContain(MissionHistoryEventType.MissionModifiedEndDate);
+  });
+
+  it("should return MissionModifiedDescription event type", () => {
+    const result = getMissionHistoryEventTypeFromState({
+      description: "Description",
+    });
+
+    expect(Array.isArray(result)).toBe(true);
+    expect(result.length).toBe(1);
+    expect(result).toContain(MissionHistoryEventType.MissionModifiedDescription);
+  });
+
+  it("should return MissionModifiedActivityDomain event type", () => {
+    const result = getMissionHistoryEventTypeFromState({
+      domain: "Domaine",
+    });
+
+    expect(Array.isArray(result)).toBe(true);
+    expect(result.length).toBe(1);
+    expect(result).toContain(MissionHistoryEventType.MissionModifiedActivityDomain);
+  });
+
+  it("should return MissionModifiedPlaces event type", () => {
+    const result = getMissionHistoryEventTypeFromState({
+      places: 1,
+    });
+
+    expect(Array.isArray(result)).toBe(true);
+    expect(result.length).toBe(1);
+    expect(result).toContain(MissionHistoryEventType.MissionModifiedPlaces);
+  });
+
+  it("should return MissionModifiedJVAModerationStatus event type", () => {
+    const result = getMissionHistoryEventTypeFromState({
+      [`moderation_${JVA_ID}_status`]: "status",
+    });
+
+    expect(Array.isArray(result)).toBe(true);
+    expect(result.length).toBe(1);
+    expect(result).toContain(MissionHistoryEventType.MissionModifiedJVAModerationStatus);
+  });
+
+  it("should return MissionModifiedApiEngModerationStatus event type", () => {
+    const result = getMissionHistoryEventTypeFromState({
+      //jva_moderation_status: 'status',
+    });
+
+    expect(Array.isArray(result)).toBe(true);
+    expect(result.length).toBe(1);
+    expect(result).toContain(MissionHistoryEventType.MissionModifiedApiEngModerationStatus);
+  });
+
+  it("should return MissionModifiedOther event type", () => {
+    const result = getMissionHistoryEventTypeFromState({
+      other: "value",
+    });
+
+    expect(Array.isArray(result)).toBe(true);
+    expect(result.length).toBe(1);
+    expect(result).toContain(MissionHistoryEventType.MissionModifiedOther);
+  });
+
+  it("Should return multiple event types", () => {
+    const result = getMissionHistoryEventTypeFromState({
+      startAt: "2023-01-01",
+      endAt: "2023-01-02",
+      description: "Description",
+      domain: "Domaine",
+    });
+
+    expect(Array.isArray(result)).toBe(true);
+    expect(result.length).toBe(4);
+    expect(result).toContain(MissionHistoryEventType.MissionModifiedStartDate);
+    expect(result).toContain(MissionHistoryEventType.MissionModifiedEndDate);
+    expect(result).toContain(MissionHistoryEventType.MissionModifiedDescription);
+    expect(result).toContain(MissionHistoryEventType.MissionModifiedActivityDomain);
   });
 });

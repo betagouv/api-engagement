@@ -5,6 +5,7 @@ import {
   Mission as PgMission,
   MissionHistoryEvent as PgMissionHistoryEvent,
 } from "@prisma/client";
+import { JVA_ID, SC_ID } from "../../../config";
 import { Mission as MongoMission } from "../../../types";
 
 type MissionHistoryEntry = Omit<PgMissionHistoryEvent, "id">; // Prisma renders uuid when saving
@@ -53,7 +54,7 @@ export const transformMongoMissionToPg = (
     places: doc.places,
     metadata: doc.metadata,
     activity: doc.activity,
-    type: doc.publisherId === "5f99dbe75eb1ad767733b206" ? "volontariat" : "benevolat",
+    type: doc.publisherId === SC_ID ? "volontariat" : "benevolat",
     snu: doc.snu,
     snu_places: doc.snuPlaces,
 
@@ -167,20 +168,23 @@ export const getMissionHistoryEventTypeFromState = (
 ): MissionHistoryEventType[] => {
   const eventTypes: MissionHistoryEventType[] = [];
 
-  // Check for specific keys in the state object
-  if ("start_at" in state || "startAt" in state) {
-    eventTypes.push(MissionHistoryEventType.MissionsModifiedStartDate);
+  if ("deletedAt" in state) {
+    eventTypes.push(MissionHistoryEventType.MissionDeleted);
   }
 
-  if ("end_at" in state || "endAt" in state) {
-    eventTypes.push(MissionHistoryEventType.MissionsModifiedEndDate);
+  if ("startAt" in state) {
+    eventTypes.push(MissionHistoryEventType.MissionModifiedStartDate);
+  }
+
+  if ("endAt" in state) {
+    eventTypes.push(MissionHistoryEventType.MissionModifiedEndDate);
   }
 
   if ("description" in state || "descriptionHtml" in state) {
     eventTypes.push(MissionHistoryEventType.MissionModifiedDescription);
   }
 
-  if ("domain" in state || "activity" in state) {
+  if ("domain" in state) {
     eventTypes.push(MissionHistoryEventType.MissionModifiedActivityDomain);
   }
 
@@ -188,25 +192,12 @@ export const getMissionHistoryEventTypeFromState = (
     eventTypes.push(MissionHistoryEventType.MissionModifiedPlaces);
   }
 
-  if (
-    "address" in state ||
-    "addresses" in state ||
-    "city" in state ||
-    "postalCode" in state ||
-    "departmentCode" in state
-  ) {
-    eventTypes.push(MissionHistoryEventType.MissionModifiedAdresses);
-  }
-
-  if (
-    "jva_moderation_status" in state ||
-    state.hasOwnProperty("moderation_5f5931496c7ea514150a818f_status")
-  ) {
-    eventTypes.push(MissionHistoryEventType.MissionsModifiedJVAModerationStatus);
+  if (state.hasOwnProperty(`moderation_${JVA_ID}_status`)) {
+    eventTypes.push(MissionHistoryEventType.MissionModifiedJVAModerationStatus);
   }
 
   if ("status" in state || "statusCode" in state) {
-    eventTypes.push(MissionHistoryEventType.MissionsModifiedApiEngModerationStatus);
+    eventTypes.push(MissionHistoryEventType.MissionModifiedApiEngModerationStatus);
   }
 
   if (eventTypes.length === 0) {
