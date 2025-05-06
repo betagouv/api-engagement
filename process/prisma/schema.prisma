@@ -341,7 +341,7 @@ model Mission {
   organization                    Organization? @relation(fields: [matched_organization_id], references: [id])
   partner                         Partner?      @relation(fields: [partner_id], references: [id])
   moderation_events               ModerationEvent[]
-  history                         MissionHistory[] @relation("MissionHistory")
+  history_events                  MissionHistoryEvent[] @relation("MissionHistoryEvent")
 
   @@index([client_id], map: "mission_client_id")
   @@index([matched_organization_id], map: "mission_matched_organization_id")
@@ -600,18 +600,28 @@ model PartnerToWidget {
   @@index([widget_id])
 }
 
-model MissionHistory {
+model MissionHistoryEvent {
   id                String    @id @default(uuid())
   date              DateTime  @default(now())
-  state             Json      // All fields that have changed
-  metadata          Json?
+  type              MissionHistoryEventType
   mission_id        String    
 
-  mission           Mission?  @relation("MissionHistory", fields: [mission_id], references: [id])
+  mission           Mission?  @relation("MissionHistoryEvent", fields: [mission_id], references: [id])
   
   @@index([mission_id])
 }
 
+enum MissionHistoryEventType {
+  MissionsModifiedStartDate
+  MissionsModifiedEndDate
+  MissionModifiedDescription
+  MissionModifiedActivityDomain
+  MissionModifiedPlaces
+  MissionModifiedAdresses
+  MissionsModifiedJVAModerationStatus
+  MissionsModifiedApiEngModerationStatus
+  MissionModifiedOther
+}
 
 enum MissionType {
   benevolat

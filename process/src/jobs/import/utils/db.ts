@@ -145,11 +145,11 @@ const writePg = async (publisher: Publisher, importDoc: Import) => {
     })
     .flat();
 
-  const resHistory = await prisma.missionHistory.createMany({
+  const resHistory = await prisma.missionHistoryEvent.createMany({
     data: pgCreateHistory.map((h) => ({
       ...h,
-      state: h.state as any,
-      metadata: h.metadata as any,
+      mission_id: h.mission_id,
+      type: getMissionHistoryEventTypeFromState(h.state),
     })),
   });
   console.log(`[${publisher.name}] Postgres created ${resHistory.count} history entries`);
@@ -193,13 +193,12 @@ const writePg = async (publisher: Publisher, importDoc: Import) => {
       });
 
       // Replace history
-      await prisma.missionHistory.deleteMany({ where: { mission_id: mission.id } });
-      await prisma.missionHistory.createMany({
+      await prisma.missionHistoryEvent.deleteMany({ where: { mission_id: mission.id } });
+      await prisma.missionHistoryEvent.createMany({
         data: obj.history.map((e) => ({
           ...e,
           mission_id: mission.id,
-          state: e.state as any, // Cast state to any to resolve type incompatibility with Prisma
-          metadata: e.metadata as any,
+          type: getMissionHistoryEventTypeFromState(e.state),
         })),
       });
 

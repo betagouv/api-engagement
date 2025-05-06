@@ -1,12 +1,13 @@
 import {
+  MissionHistoryEventType,
   Organization,
   Address as PgAddress,
   Mission as PgMission,
-  MissionHistory as PgMissionHistory,
+  MissionHistoryEvent as PgMissionHistoryEvent,
 } from "@prisma/client";
 import { Mission as MongoMission } from "../../../types";
 
-type MissionHistoryEntry = Omit<PgMissionHistory, "id">; // Prisma renders uuid when saving
+type MissionHistoryEntry = Omit<PgMissionHistoryEvent, "id">; // Prisma renders uuid when saving
 
 export type MissionTransformResult = {
   mission: PgMission;
@@ -145,12 +146,72 @@ export const transformMongoMissionToPg = (
 
   // Transform history entries
   const history: MissionHistoryEntry[] =
-    doc.__history?.map((history) => ({
-      date: history.date,
-      mission_id: obj.id,
-      state: history.state,
-      metadata: history.metadata as any,
-    })) || [];
+    doc.__history?.flatMap((history) =>
+      getMissionHistoryEventTypeFromState(history.state).map((type) => ({
+        date: history.date,
+        mission_id: obj.id,
+        type,
+      }))
+    ) || [];
 
   return { mission: obj, addresses, history };
+};
+
+/**
+ * Analyze a state object and determine which MissionHistoryEventTypes to assign
+ * @param state The state object to analyze
+ * @returns An array of MissionHistoryEventTypes
+ */
+export const getMissionHistoryEventTypeFromState = (
+  state: Record<string, any>
+): MissionHistoryEventType[] => {
+  const eventTypes: MissionHistoryEventType[] = [];
+
+  // Check for specific keys in the state object
+  if ("start_at" in state || "startAt" in state) {
+    eventTypes.push(MissionHistoryEventType.MissionsModifiedStartDate);
+  }
+
+  if ("end_at" in state || "endAt" in state) {
+    eventTypes.push(MissionHistoryEventType.MissionsModifiedEndDate);
+  }
+
+  if ("description" in state || "descriptionHtml" in state) {
+    eventTypes.push(MissionHistoryEventType.MissionModifiedDescription);
+  }
+
+  if ("domain" in state || "activity" in state) {
+    eventTypes.push(MissionHistoryEventType.MissionModifiedActivityDomain);
+  }
+
+  if ("places" in state) {
+    eventTypes.push(MissionHistoryEventType.MissionModifiedPlaces);
+  }
+
+  if (
+    "address" in state ||
+    "addresses" in state ||
+    "city" in state ||
+    "postalCode" in state ||
+    "departmentCode" in state
+  ) {
+    eventTypes.push(MissionHistoryEventType.MissionModifiedAdresses);
+  }
+
+  if (
+    "jva_moderation_status" in state ||
+    state.hasOwnProperty("moderation_5f5931496c7ea514150a818f_status")
+  ) {
+    eventTypes.push(MissionHistoryEventType.MissionsModifiedJVAModerationStatus);
+  }
+
+  if ("status" in state || "statusCode" in state) {
+    eventTypes.push(MissionHistoryEventType.MissionsModifiedApiEngModerationStatus);
+  }
+
+  if (eventTypes.length === 0) {
+    eventTypes.push(MissionHistoryEventType.MissionModifiedOther);
+  }
+
+  return eventTypes;
 };
