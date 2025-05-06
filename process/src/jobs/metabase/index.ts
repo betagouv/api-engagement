@@ -1,4 +1,5 @@
 import importPartners from "./partner";
+import importOrganizationExclusion from "./organization-exclusion";
 import importUsers from "./user";
 import importCampaigns from "./campaign";
 import importWidgets from "./widget";
@@ -26,6 +27,7 @@ const handler = async () => {
     missions: { created: 0, updated: 0 },
     moderation_events: { created: 0, updated: 0 },
     organization_name_matches: { created: 0, updated: 0 },
+    organization_exclusion: { created: 0, updated: 0 },
     imports: { created: 0, updated: null },
     prints: { created: 0, updated: null },
     clicks: { created: 0, updated: null },
@@ -39,6 +41,11 @@ const handler = async () => {
   const partners = await importPartners();
   stats.partners.created += partners?.created || 0;
   stats.partners.updated += partners?.updated || 0;
+
+  const organization_exclusion = await importOrganizationExclusion();
+  stats.organization_exclusion.created += organization_exclusion?.created || 0;
+  stats.organization_exclusion.updated += organization_exclusion?.deleted || 0;
+
   const users = await importUsers();
   stats.users.created += users?.created || 0;
   stats.users.updated += users?.updated || 0;

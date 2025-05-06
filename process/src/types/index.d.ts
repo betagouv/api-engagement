@@ -405,16 +405,20 @@ export interface Diffuseur {
   mission_type?: string | null; // missionType
 }
 
-export interface PublisherExcludedOrganization {
+export interface OrganizationExclusion {
   _id?: Schema.Types.ObjectId;
-  publisherId: string;
-  publisherName: string;
+  excludedByPublisherId: string;
+  excludedByPublisherName: string;
+
+  excludedForPublisherId: string;
+  excludedForPublisherName: string;
+
   organizationClientId: string;
   organizationName: string;
+
   createdAt: Date;
   updatedAt: Date;
 }
-
 export interface StatsReport {
   publisherId: string;
   publisherName: string;

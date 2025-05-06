@@ -17,16 +17,6 @@ const publisherSchema = new Schema<Diffuseur>(
   { timestamps: true },
 );
 
-const excludedOrganizationSchema = new Schema<any>(
-  {
-    publisherId: { type: String, ref: "publisher" },
-    publisherName: { type: String, required: true, trim: true },
-    organizationClientId: { type: String },
-    organizationName: { type: String, trim: true },
-  },
-  { timestamps: true },
-);
-
 const schema = new Schema<Publisher>(
   {
     name: { type: String, required: true, trim: true },
@@ -59,7 +49,6 @@ const schema = new Schema<Publisher>(
     campaign: { type: Boolean, default: false },
 
     // Depreciated
-    excludedOrganizations: { type: [excludedOrganizationSchema] },
     mission_type: { type: String, default: null, enum: ["benevolat", "volontariat", null] },
     role_promoteur: { type: Boolean, default: false },
     role_annonceur_api: { type: Boolean, default: false },
