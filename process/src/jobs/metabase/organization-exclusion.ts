@@ -62,6 +62,7 @@ const handler = async () => {
           await prisma.organizationExclusion.create({ data: obj });
           created++;
         } catch (error: any) {
+          // P2002 === unique constraint violation, In case we write a duplicate, we just ignore it.
           if (error.code !== "P2002") throw error;
         }
       }
