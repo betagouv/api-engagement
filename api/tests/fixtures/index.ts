@@ -46,7 +46,7 @@ export const createTestMission = async (organizationClientId: string, publisherI
         region: "Test Region",
       },
     ],
-    applicationUrl: "https://example.com",
+    applicationUrl: `https://api.api-engagement.gouv.fr/mission-id/${publisherId}`,
     audience: ["18-24 ans", "25-34 ans"],
     clientId: 'client-' + Date.now().toString(),
     closeToTransport: "yes",

@@ -14,7 +14,7 @@ describe("MyMission API Integration Tests", () => {
   beforeEach(async () => {
     publisher = await createTestPublisher();
     apiKey = publisher.apikey;
-    const orgId = publisher.organizationClientId || "test-org-id";
+    const orgId = "test-org-id";
     mission1 = await createTestMission(orgId, publisher._id.toString());
     mission2 = await createTestMission(orgId, publisher._id.toString());
     
