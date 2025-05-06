@@ -7,7 +7,7 @@ import { Kpi } from "../../types";
 // Cron that create a kpi doc every with the data available
 export const buildKpi = async (start: Date) => {
   const exists = await KpiModel.findOne({ date: start });
-  if (exists) return console.log(`[KPI Botless] KPI already exists for ${start.toISOString()}`);
+  if (exists) return console.log(`[KPI] KPI already exists for ${start.toISOString()}`);
 
   console.log(`[KPI] Starting at ${start.toISOString()}`);
 
@@ -25,8 +25,12 @@ export const buildKpi = async (start: Date) => {
   const whereBenevolatAvailable = { ...whereMissionAvailable, publisherName: { $ne: "Service Civique" } };
   const whereVolontariatAvailable = { ...whereMissionAvailable, publisherName: "Service Civique" };
 
+  const whereJvaAvailable = { ...whereMissionAvailable, publisherName: "JeVeuxAider.gouv.fr" };
+
   const availableBenevolatMissionCount = await MissionModel.countDocuments(whereBenevolatAvailable);
   const availableVolontariatMissionCount = await MissionModel.countDocuments(whereVolontariatAvailable);
+
+  const availableJvaMissionCount = await MissionModel.countDocuments(whereJvaAvailable);
 
   const aggs = await MissionModel.aggregate([
     {
@@ -143,6 +147,8 @@ export const buildKpi = async (start: Date) => {
 
   kpi.availableBenevolatMissionCount = availableBenevolatMissionCount;
   kpi.availableVolontariatMissionCount = availableVolontariatMissionCount;
+
+  kpi.availableJvaMissionCount = availableJvaMissionCount;
 
   kpi.availableBenevolatGivenPlaceCount = availableBenevolatGivenPlaceCount;
   kpi.availableVolontariatGivenPlaceCount = availableVolontariatGivenPlaceCount;

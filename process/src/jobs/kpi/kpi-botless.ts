@@ -26,8 +26,12 @@ export const buildKpiBotless = async (start: Date) => {
   const whereBenevolatAvailable = { ...whereMissionAvailable, publisherName: { $ne: "Service Civique" } };
   const whereVolontariatAvailable = { ...whereMissionAvailable, publisherName: "Service Civique" };
 
+  const whereJvaAvailable = { ...whereMissionAvailable, publisherName: "JeVeuxAider.gouv.fr" };
+
   const availableBenevolatMissionCount = await MissionModel.countDocuments(whereBenevolatAvailable);
   const availableVolontariatMissionCount = await MissionModel.countDocuments(whereVolontariatAvailable);
+
+  const availableJvaMissionCount = await MissionModel.countDocuments(whereJvaAvailable);
 
   const aggs = await MissionModel.aggregate([
     {
@@ -157,6 +161,8 @@ export const buildKpiBotless = async (start: Date) => {
 
   kpi.availableBenevolatMissionCount = availableBenevolatMissionCount;
   kpi.availableVolontariatMissionCount = availableVolontariatMissionCount;
+
+  kpi.availableJvaMissionCount = availableJvaMissionCount;
 
   kpi.availableBenevolatGivenPlaceCount = availableBenevolatGivenPlaceCount;
   kpi.availableVolontariatGivenPlaceCount = availableVolontariatGivenPlaceCount;

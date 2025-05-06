@@ -1,9 +1,8 @@
 import { buildKpi } from "./kpi";
 import { buildKpiBotless } from "./kpi-botless";
 
-const handler = async () => {
-  // const today = new Date(2024, 10, 18);
-  const today = new Date();
+const handler = async (date?: Date) => {
+  const today = date || new Date();
   const yesterday = new Date(today.getFullYear(), today.getMonth(), today.getDate() - 1);
 
   // build kpi for the last 10 days if not already exists
