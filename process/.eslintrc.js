@@ -1,35 +1,34 @@
 module.exports = {
-  extends: [
-    'airbnb-typescript/base',
-    'prettier',
-    '../.eslintrc.base.js',
-  ],
+  extends: ["airbnb-typescript/base", "prettier", "../.eslintrc.base.js"],
   parserOptions: {
-    project: './tsconfig.json',
+    project: "./tsconfig.json",
     tsconfigRootDir: __dirname,
     ecmaVersion: 2020,
-    sourceType: 'module',
+    sourceType: "module",
   },
-  plugins: [
-    '@typescript-eslint',
-    'import',
-  ],
+  plugins: ["@typescript-eslint", "import"],
   rules: {
-    'no-underscore-dangle': 'off',
-    '@typescript-eslint/dot-notation': 'off',
-    '@typescript-eslint/no-shadow': 'off', // TODO: fix code and activate
-    '@typescript-eslint/no-use-before-define': 'off', // TODO: fix code and activate
-    '@typescript-eslint/no-throw-literal': 'off', // TODO: fix code and activate
-    '@typescript-eslint/no-unused-vars': 'off', // TODO: fix code and activate
-    '@typescript-eslint/naming-convention': 'off', // TODO: fix code and activate
-    '@typescript-eslint/no-loop-func': 'off', // TODO: fix code and activate
-    'import/extensions': 'off',
-    'import/no-extraneous-dependencies': 'off',
+    "no-underscore-dangle": "off",
+    "@typescript-eslint/dot-notation": "off",
+    "@typescript-eslint/no-shadow": "off", // TODO: fix code and activate
+    "@typescript-eslint/no-use-before-define": "off", // TODO: fix code and activate
+    "@typescript-eslint/no-throw-literal": "off", // TODO: fix code and activate
+    "@typescript-eslint/no-unused-vars": "off", // TODO: fix code and activate
+    "@typescript-eslint/naming-convention": "off", // TODO: fix code and activate
+    "@typescript-eslint/no-loop-func": "off", // TODO: fix code and activate
+    "@typescript-eslint/no-explicit-any": "off", // TODO: fix code and activate
+    "@typescript-eslint/no-this-alias": "off", // TODO: fix code and activate
+    "no-constant-condition": "off", // TODO: fix code and activate
+    "no-useless-escape": "off", // TODO: fix code and activate
+    "no-prototype-builtins": "off", // TODO: fix code and activate
+
+    "import/extensions": "off",
+    "import/no-extraneous-dependencies": "off",
   },
   settings: {
-    'import/resolver': {
+    "import/resolver": {
       node: {
-        extensions: ['.js', '.jsx', '.ts', '.tsx'],
+        extensions: [".js", ".jsx", ".ts", ".tsx"],
       },
     },
   },
