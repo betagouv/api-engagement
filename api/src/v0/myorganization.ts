@@ -79,7 +79,7 @@ router.get("/:organizationClientId", passport.authenticate(["apikey", "api"], { 
     const data = [] as any[];
     publishers.forEach((e) => {
       const isExcluded = organizationExclusions.some((o) => o.organizationClientId === params.data.organizationClientId && o.excludedForPublisherId === e._id.toString());
-      const clicks = aggs.body.aggregations.fromPublisherId.buckets.find((o: { key: string; doc_count: number }) => o.key === e._id.toString())?.doc_count || 0;
+      const clicks = aggs.body.aggregations?.fromPublisherId?.buckets?.find((o: { key: string; doc_count: number }) => o.key === e._id.toString())?.doc_count || 0;
       data.push({
         _id: e._id,
         name: e.name,
