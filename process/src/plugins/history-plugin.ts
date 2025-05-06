@@ -1,5 +1,11 @@
 import { Document, Schema } from "mongoose";
 
+// Action types for history entries
+const HISTORY_ACTIONS = {
+  CREATED: "created",
+  UPDATED: "updated",
+} as const;
+
 interface HistoryEntry {
   date: Date;
   state: Record<string, any>;
@@ -38,6 +44,23 @@ export function historyPlugin<T extends Document>(schema: Schema, options: Histo
   const historyField = pluginOptions.historyField as string;
   const omitFields = pluginOptions.omit as string[];
 
+  /**
+   * Reset action metadata if present
+   * @param originalMetadata Original metadata to restore if no action is present
+   */
+  const resetActionMetadata = (originalMetadata: Record<string, any> = {}) => {
+    if (
+      pluginOptions.metadata &&
+      (pluginOptions.metadata.action === HISTORY_ACTIONS.CREATED ||
+        pluginOptions.metadata.action === HISTORY_ACTIONS.UPDATED)
+    ) {
+      const { action, ...restMetadata } = pluginOptions.metadata;
+      pluginOptions.metadata = restMetadata;
+    } else {
+      pluginOptions.metadata = originalMetadata;
+    }
+  };
+
   if (!schema.path(historyField)) {
     const historySchema = {
       [historyField]: [
@@ -66,25 +89,48 @@ export function historyPlugin<T extends Document>(schema: Schema, options: Histo
     // Add type assertion for 'this'
     const doc = this as Document & { [key: string]: HistoryEntry[] };
 
-    // Ignore new documents
-    if (doc.isNew) {
-      return next();
-    }
-
+    // Determine fields to track and their values
+    let fieldsToTrack: string[] = [];
     const changedFields: Record<string, any> = {};
     let hasChanges = false;
 
-    const modifiedPaths = doc.modifiedPaths();
-    const fieldsToTrack = modifiedPaths.filter((path) => {
-      return !omitFields.includes(path) && path !== historyField;
-    });
+    // Ensure metadata is always an object
+    const currentMetadata = pluginOptions.metadata || {};
 
+    if (doc.isNew) {
+      // For new documents, track all fields
+      const docObj = doc.toObject() || {};
+      fieldsToTrack = Object.keys(docObj).filter(
+        (path) => !omitFields.includes(path) && path !== historyField
+      );
+
+      // Add action metadata for creation
+      pluginOptions.metadata = {
+        ...currentMetadata,
+        action: HISTORY_ACTIONS.CREATED,
+      };
+    } else {
+      // For existing documents, only track modified fields
+      const modifiedPaths = doc.modifiedPaths();
+      fieldsToTrack = modifiedPaths.filter((path) => {
+        return !omitFields.includes(path) && path !== historyField;
+      });
+
+      // Add action metadata for update
+      pluginOptions.metadata = {
+        ...currentMetadata,
+        action: HISTORY_ACTIONS.UPDATED,
+      };
+    }
+
+    // If no fields to track, skip
     if (fieldsToTrack.length === 0) {
       return next();
     }
 
+    // Capture values for all tracked fields
     fieldsToTrack.forEach((path) => {
-      if (doc.isModified(path)) {
+      if (doc.isNew || doc.isModified(path)) {
         changedFields[path] = doc.get(path);
         hasChanges = true;
       }
@@ -108,6 +154,8 @@ export function historyPlugin<T extends Document>(schema: Schema, options: Histo
           doc[historyField].length - (pluginOptions.maxEntries as number)
         );
       }
+
+      resetActionMetadata(currentMetadata);
     }
 
     next();
@@ -147,7 +195,7 @@ export function historyPlugin<T extends Document>(schema: Schema, options: Histo
 
         const result = await doc.save();
 
-        pluginOptions.metadata = originalPluginMetadata;
+        resetActionMetadata(originalPluginMetadata);
 
         return result;
       },
@@ -168,15 +216,79 @@ export function historyPlugin<T extends Document>(schema: Schema, options: Histo
        */
       bulkWrite: async (operations: any[]) => {
         const Model = this;
-        pluginOptions.metadata = { ...originalPluginMetadata, ...metadata };
+        // Ensure metadata is always an object
+        const currentMetadata = originalPluginMetadata || {};
+        pluginOptions.metadata = { ...currentMetadata, ...metadata };
 
         // First, perform the bulkWrite operation
         const result = await Model.bulkWrite(operations);
+
+        // Process history for inserted documents
+        const insertOperations = operations.filter((op) => op.insertOne);
+        if (insertOperations.length > 0) {
+          const historyUpdates = [];
+
+          // Add action metadata for creation
+          const creationMetadata = {
+            ...pluginOptions.metadata,
+            action: HISTORY_ACTIONS.CREATED,
+          };
+
+          for (const op of insertOperations) {
+            // Get the inserted document ID from the result
+            const insertedId = op.insertOne.document._id;
+            if (!insertedId) {
+              continue;
+            }
+
+            // Find the newly inserted document
+            const newDoc = await Model.findById(insertedId);
+            if (!newDoc) {
+              continue;
+            }
+
+            // Create history entry with all fields
+            const initialState: Record<string, any> = {};
+            const docObj = newDoc.toObject() || {};
+
+            // Get all fields except those in omitFields
+            Object.keys(docObj).forEach((path) => {
+              if (!omitFields.includes(path) && path !== historyField) {
+                initialState[path] = docObj[path];
+              }
+            });
+
+            // Create history entry for new document
+            const historyEntry = {
+              date: new Date(),
+              state: initialState,
+              metadata: { ...creationMetadata },
+            };
+
+            historyUpdates.push({
+              updateOne: {
+                filter: { _id: insertedId },
+                update: { $set: { [historyField]: [historyEntry] } },
+              },
+            });
+          }
+
+          // Execute a single bulkWrite for all new document history updates
+          if (historyUpdates.length > 0) {
+            await Model.bulkWrite(historyUpdates);
+          }
+        }
 
         // Then, process history for each updated document
         const updateOperations = operations.filter((op) => op.updateOne || op.updateMany);
 
         if (updateOperations.length > 0) {
+          // Add action metadata for update
+          const updateMetadata = {
+            ...pluginOptions.metadata,
+            action: HISTORY_ACTIONS.UPDATED,
+          };
+
           // Collect all filters to find affected documents in a single query
           const filters = updateOperations.map((op) => {
             const operation = op.updateOne || op.updateMany;
@@ -232,7 +344,7 @@ export function historyPlugin<T extends Document>(schema: Schema, options: Histo
                   const historyEntry = {
                     date: new Date(),
                     state: changedFields,
-                    metadata: { ...pluginOptions.metadata },
+                    metadata: { ...updateMetadata },
                   };
 
                   let history = doc[historyField] || [];
@@ -259,7 +371,8 @@ export function historyPlugin<T extends Document>(schema: Schema, options: Histo
           }
         }
 
-        pluginOptions.metadata = originalPluginMetadata;
+        // Reset metadata to original state
+        resetActionMetadata(originalPluginMetadata);
 
         return result;
       },

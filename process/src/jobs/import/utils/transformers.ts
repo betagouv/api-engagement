@@ -148,7 +148,7 @@ export const transformMongoMissionToPg = (
   // Transform history entries
   const history: MissionHistoryEntry[] =
     doc.__history?.flatMap((history) =>
-      getMissionHistoryEventTypeFromState(history.state).map((type) => ({
+      getMissionHistoryEventTypeFromState(history).map((type) => ({
         date: history.date,
         mission_id: obj.id,
         type,
@@ -159,14 +159,21 @@ export const transformMongoMissionToPg = (
 };
 
 /**
- * Analyze a state object and determine which MissionHistoryEventTypes to assign
- * @param state The state object to analyze
+ * Analyze a mission history entry and determine which MissionHistoryEventTypes to assign
+ *
+ * @param missionHistory The mission history entry containing state and metadata
  * @returns An array of MissionHistoryEventTypes
  */
 export const getMissionHistoryEventTypeFromState = (
-  state: Record<string, any>
+  missionHistory: any // TODO
 ): MissionHistoryEventType[] => {
   const eventTypes: MissionHistoryEventType[] = [];
+  const { state, metadata } = missionHistory;
+
+  // For creation type, return only MissionCreated
+  if (metadata && "created" in metadata) {
+    return [MissionHistoryEventType.MissionCreated];
+  }
 
   if ("deletedAt" in state) {
     eventTypes.push(MissionHistoryEventType.MissionDeleted);

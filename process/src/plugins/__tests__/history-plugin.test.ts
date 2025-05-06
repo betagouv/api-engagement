@@ -8,6 +8,12 @@ interface HistoryEntry {
   metadata?: Record<string, any>;
 }
 
+// Import constants from history-plugin.ts to ensure consistency
+const HISTORY_ACTIONS = {
+  CREATED: "created",
+  UPDATED: "updated",
+} as const;
+
 class MockDocument {
   isNew = false;
 
@@ -88,8 +94,11 @@ describe("History Plugin", () => {
     expect(schema.statics).toHaveProperty("withHistoryContext");
   });
 
-  it("should not create history entry for new documents", () => {
+  it("should not create history entry for new documents without fields", () => {
     doc.isNew = true;
+
+    // Mock toObject to return empty object
+    doc.toObject.mockReturnValue({});
 
     const next = vi.fn();
 
@@ -97,6 +106,66 @@ describe("History Plugin", () => {
 
     expect(next).toHaveBeenCalled();
     expect(doc.__history.length).toBe(0);
+  });
+
+  it("should create history entry with full state and 'created' action for new documents", () => {
+    doc.isNew = true;
+
+    // Setup document with initial values
+    const initialData = {
+      name: "New Document",
+      description: "Initial Description",
+      status: "draft",
+      tags: ["test", "new"],
+      counter: 1,
+    };
+
+    // Mock toObject to return all fields
+    doc.toObject.mockReturnValue({
+      ...initialData,
+      updatedAt: new Date(),
+      __v: 0,
+      __history: [],
+    });
+
+    // Mock get to return field values
+    doc.get.mockImplementation((path: string) => {
+      if (initialData.hasOwnProperty(path)) {
+        return (initialData as Record<string, any>)[path];
+      }
+      if (path === "updatedAt") {
+        return new Date();
+      }
+      if (path === "__v") {
+        return 0;
+      }
+      if (path === "__history") {
+        return [];
+      }
+      return null;
+    });
+
+    const next = vi.fn();
+
+    preHook.call(doc, next);
+
+    expect(next).toHaveBeenCalled();
+    expect(doc.__history.length).toBe(1);
+
+    // Verify all fields (except omitted ones) are in the state
+    expect(doc.__history[0].state).toHaveProperty("name", "New Document");
+    expect(doc.__history[0].state).toHaveProperty("description", "Initial Description");
+    expect(doc.__history[0].state).toHaveProperty("status", "draft");
+    expect(doc.__history[0].state).toHaveProperty("tags");
+    expect(doc.__history[0].state).toHaveProperty("counter", 1);
+
+    // Verify omitted fields are not in the state
+    expect(doc.__history[0].state).not.toHaveProperty("updatedAt");
+    expect(doc.__history[0].state).not.toHaveProperty("__v");
+    expect(doc.__history[0].state).not.toHaveProperty("__history");
+
+    // Verify action metadata
+    expect(doc.__history[0].metadata).toHaveProperty("action", HISTORY_ACTIONS.CREATED);
   });
 
   it("should create history entry when document is updated", () => {
@@ -122,6 +191,34 @@ describe("History Plugin", () => {
     expect(doc.__history.length).toBe(1);
     expect(doc.__history[0].state).toHaveProperty("name", "Updated Name");
     expect(doc.__history[0].state).toHaveProperty("status", "active");
+  });
+
+  it("should create history entry when document is updated with 'updated' action", () => {
+    doc.isNew = false;
+
+    doc.modifiedPaths.mockReturnValue(["name", "status"]);
+    doc.isModified.mockImplementation((path: string) => ["name", "status"].includes(path));
+    doc.get.mockImplementation((path: string) => {
+      if (path === "name") {
+        return "Updated Name";
+      }
+      if (path === "status") {
+        return "active";
+      }
+      return null;
+    });
+
+    const next = vi.fn();
+
+    preHook.call(doc, next);
+
+    expect(next).toHaveBeenCalled();
+    expect(doc.__history.length).toBe(1);
+    expect(doc.__history[0].state).toHaveProperty("name", "Updated Name");
+    expect(doc.__history[0].state).toHaveProperty("status", "active");
+
+    // Verify action metadata
+    expect(doc.__history[0].metadata).toHaveProperty("action", HISTORY_ACTIONS.UPDATED);
   });
 
   it("should ignore fields specified in omit option", () => {
@@ -379,6 +476,96 @@ describe("History Plugin", () => {
     expect(mockModel.bulkWrite).toHaveBeenCalledWith(operations);
     expect(mockModel.find).toHaveBeenCalled();
     expect(mockDoc.__history.length).toBe(0);
+  });
+
+  it("should create history entry with full state and 'created' action for bulkWrite insertOne operations", async () => {
+    const mockModel = {
+      bulkWrite: vi.fn().mockResolvedValue({ insertedCount: 1 }),
+      find: vi.fn(),
+      findById: vi.fn(),
+      withHistoryContext: schema.statics.withHistoryContext,
+    };
+
+    // Mock document that will be "inserted"
+    const insertedDoc = new MockDocument({
+      _id: "insert-123",
+      name: "New Bulk Document",
+      description: "Bulk Insert Description",
+      status: "draft",
+      tags: ["test", "bulk"],
+      counter: 5,
+      __history: [],
+    });
+
+    // Mock findById to return our inserted document
+    mockModel.findById.mockResolvedValue(insertedDoc);
+
+    // Setup the document's toObject method
+    insertedDoc.toObject.mockReturnValue({
+      _id: "insert-123",
+      name: "New Bulk Document",
+      description: "Bulk Insert Description",
+      status: "draft",
+      tags: ["test", "bulk"],
+      counter: 5,
+      updatedAt: new Date(),
+      __v: 0,
+      __history: [],
+    });
+
+    const operations = [
+      {
+        insertOne: {
+          document: {
+            _id: "insert-123",
+            name: "New Bulk Document",
+            description: "Bulk Insert Description",
+            status: "draft",
+            tags: ["test", "bulk"],
+            counter: 5,
+          },
+        },
+      },
+    ];
+
+    const withContext = mockModel.withHistoryContext.call(mockModel, {
+      reason: "Test bulk insert",
+    });
+
+    await withContext.bulkWrite(operations);
+
+    // Verify the bulkWrite was called
+    expect(mockModel.bulkWrite).toHaveBeenCalledWith(operations);
+
+    // Verify findById was called to get the inserted document
+    expect(mockModel.findById).toHaveBeenCalledWith("insert-123");
+
+    // A second bulkWrite should have been called to update history
+    expect(mockModel.bulkWrite).toHaveBeenCalledTimes(2);
+
+    // Check that a history entry was created with the right data
+    const historyUpdateCall = mockModel.bulkWrite.mock.calls[1][0];
+    expect(historyUpdateCall).toHaveLength(1);
+    expect(historyUpdateCall[0].updateOne.filter).toEqual({ _id: "insert-123" });
+
+    // Get the history entry from the update operation
+    const historyEntry = historyUpdateCall[0].updateOne.update.$set.__history[0];
+
+    // Verify all fields are in the state
+    expect(historyEntry.state).toHaveProperty("name", "New Bulk Document");
+    expect(historyEntry.state).toHaveProperty("description", "Bulk Insert Description");
+    expect(historyEntry.state).toHaveProperty("status", "draft");
+    expect(historyEntry.state).toHaveProperty("tags");
+    expect(historyEntry.state).toHaveProperty("counter", 5);
+
+    // Verify omitted fields are not in the state
+    expect(historyEntry.state).not.toHaveProperty("updatedAt");
+    expect(historyEntry.state).not.toHaveProperty("__v");
+    expect(historyEntry.state).not.toHaveProperty("__history");
+
+    // Verify action metadata
+    expect(historyEntry.metadata).toHaveProperty("action", HISTORY_ACTIONS.CREATED);
+    expect(historyEntry.metadata).toHaveProperty("reason", "Test bulk insert");
   });
 
   it("should limit history entries to maxEntries", () => {

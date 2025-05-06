@@ -275,9 +275,27 @@ describe("transformMongoMissionToPg", () => {
 });
 
 describe("getMissionHistoryEventTypeFromState", () => {
+  it("should return only MissionCreated event type", () => {
+    const result = getMissionHistoryEventTypeFromState({
+      metadata: { created: true },
+      state: {
+        startAt: "2023-01-01",
+        endAt: "2023-01-02",
+        description: "Description",
+        domain: "Domaine",
+      },
+    });
+
+    expect(Array.isArray(result)).toBe(true);
+    expect(result.length).toBe(1);
+    expect(result).toContain(MissionHistoryEventType.MissionCreated);
+  });
+
   it("should return MissionsDeleted event type", () => {
     const result = getMissionHistoryEventTypeFromState({
-      deletedAt: "2023-01-01",
+      state: {
+        deletedAt: "2023-01-01",
+      },
     });
 
     expect(Array.isArray(result)).toBe(true);
@@ -287,7 +305,9 @@ describe("getMissionHistoryEventTypeFromState", () => {
 
   it("should return MissionsModifiedStartDate event type", () => {
     const result = getMissionHistoryEventTypeFromState({
-      startAt: "2023-01-01",
+      state: {
+        startAt: "2023-01-01",
+      },
     });
 
     expect(Array.isArray(result)).toBe(true);
@@ -297,7 +317,9 @@ describe("getMissionHistoryEventTypeFromState", () => {
 
   it("should return MissionsModifiedEndDate event type", () => {
     const result = getMissionHistoryEventTypeFromState({
-      endAt: "2023-01-01",
+      state: {
+        endAt: "2023-01-01",
+      },
     });
 
     expect(Array.isArray(result)).toBe(true);
@@ -307,7 +329,9 @@ describe("getMissionHistoryEventTypeFromState", () => {
 
   it("should return MissionModifiedDescription event type", () => {
     const result = getMissionHistoryEventTypeFromState({
-      description: "Description",
+      state: {
+        description: "Description",
+      },
     });
 
     expect(Array.isArray(result)).toBe(true);
@@ -317,7 +341,9 @@ describe("getMissionHistoryEventTypeFromState", () => {
 
   it("should return MissionModifiedActivityDomain event type", () => {
     const result = getMissionHistoryEventTypeFromState({
-      domain: "Domaine",
+      state: {
+        domain: "Domaine",
+      },
     });
 
     expect(Array.isArray(result)).toBe(true);
@@ -327,7 +353,9 @@ describe("getMissionHistoryEventTypeFromState", () => {
 
   it("should return MissionModifiedPlaces event type", () => {
     const result = getMissionHistoryEventTypeFromState({
-      places: 1,
+      state: {
+        places: 1,
+      },
     });
 
     expect(Array.isArray(result)).toBe(true);
@@ -337,7 +365,9 @@ describe("getMissionHistoryEventTypeFromState", () => {
 
   it("should return MissionModifiedJVAModerationStatus event type", () => {
     const result = getMissionHistoryEventTypeFromState({
-      [`moderation_${JVA_ID}_status`]: "status",
+      state: {
+        [`moderation_${JVA_ID}_status`]: "status",
+      },
     });
 
     expect(Array.isArray(result)).toBe(true);
@@ -347,7 +377,9 @@ describe("getMissionHistoryEventTypeFromState", () => {
 
   it("should return MissionModifiedApiEngModerationStatus event type", () => {
     const result = getMissionHistoryEventTypeFromState({
-      //jva_moderation_status: 'status',
+      state: {
+        status: "accepted",
+      },
     });
 
     expect(Array.isArray(result)).toBe(true);
@@ -357,7 +389,9 @@ describe("getMissionHistoryEventTypeFromState", () => {
 
   it("should return MissionModifiedOther event type", () => {
     const result = getMissionHistoryEventTypeFromState({
-      other: "value",
+      state: {
+        other: "value",
+      },
     });
 
     expect(Array.isArray(result)).toBe(true);
@@ -367,10 +401,12 @@ describe("getMissionHistoryEventTypeFromState", () => {
 
   it("Should return multiple event types", () => {
     const result = getMissionHistoryEventTypeFromState({
-      startAt: "2023-01-01",
-      endAt: "2023-01-02",
-      description: "Description",
-      domain: "Domaine",
+      state: {
+        startAt: "2023-01-01",
+        endAt: "2023-01-02",
+        description: "Description",
+        domain: "Domaine",
+      },
     });
 
     expect(Array.isArray(result)).toBe(true);

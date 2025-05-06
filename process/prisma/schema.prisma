@@ -612,6 +612,7 @@ model MissionHistoryEvent {
 }
 
 enum MissionHistoryEventType {
+  MissionCreated
   MissionDeleted
   MissionModifiedStartDate
   MissionModifiedEndDate
