@@ -25,7 +25,14 @@ export const drawText = (
   text: string,
   x: number,
   y: number,
-  options?: { fontSize?: number; fontWeight?: string; color?: string; lineHeight?: number; lineHeightFactor?: number; width?: number },
+  options?: {
+    fontSize?: number;
+    fontWeight?: string;
+    color?: string;
+    lineHeight?: number;
+    lineHeightFactor?: number;
+    width?: number;
+  }
 ) => {
   doc.setTextColor(options?.color || "#000000");
   doc.setFont("Marianne", options?.fontWeight || "normal");
@@ -33,10 +40,19 @@ export const drawText = (
   let height = 0;
   if (options?.width) {
     const lines = doc.splitTextToSize(text, options.width);
-    doc.text(lines, x, y + (options?.lineHeight || TEXT_BODY_LINE_HEIGHT) - 6, { lineHeightFactor: options?.lineHeightFactor || 1.5 });
-    height = y + lines.length * (options?.lineHeightFactor || 1.5) * (options?.fontSize || 12) * TEXT_SIZE_FACTOR;
+    doc.text(lines, x, y + (options?.lineHeight || TEXT_BODY_LINE_HEIGHT) - 6, {
+      lineHeightFactor: options?.lineHeightFactor || 1.5,
+    });
+    height =
+      y +
+      lines.length *
+        (options?.lineHeightFactor || 1.5) *
+        (options?.fontSize || 12) *
+        TEXT_SIZE_FACTOR;
   } else {
-    doc.text(text, x, y + (options?.lineHeight || TEXT_BODY_LINE_HEIGHT) - 6, { lineHeightFactor: options?.lineHeightFactor || 1.5 });
+    doc.text(text, x, y + (options?.lineHeight || TEXT_BODY_LINE_HEIGHT) - 6, {
+      lineHeightFactor: options?.lineHeightFactor || 1.5,
+    });
     height = y + (options?.lineHeight || TEXT_BODY_LINE_HEIGHT);
   }
 
@@ -49,7 +65,7 @@ export const drawLink = (
   url: string,
   x: number,
   y: number,
-  options?: { fontSize?: number; fontWeight?: string; color?: string; lineHeight?: number },
+  options?: { fontSize?: number; fontWeight?: string; color?: string; lineHeight?: number }
 ) => {
   doc.setTextColor(options?.color || "#000000");
   doc.setFont("Marianne", options?.fontWeight || "normal");
@@ -58,7 +74,12 @@ export const drawLink = (
   const textWidth = doc.getTextWidth(text);
   doc.setDrawColor(options?.color || "#000000");
   doc.setLineWidth(options?.fontWeight === "bold" ? 1 : 0.5);
-  doc.line(x, y + (options?.lineHeight || TEXT_BODY_LINE_HEIGHT) - 3, x + textWidth, y + (options?.lineHeight || TEXT_BODY_LINE_HEIGHT) - 3);
+  doc.line(
+    x,
+    y + (options?.lineHeight || TEXT_BODY_LINE_HEIGHT) - 3,
+    x + textWidth,
+    y + (options?.lineHeight || TEXT_BODY_LINE_HEIGHT) - 3
+  );
 };
 
 export const drawBoxText = (
@@ -67,7 +88,14 @@ export const drawBoxText = (
   x: number,
   y: number,
   backgroundColor: string,
-  options?: { fontSize?: number; fontWeight?: string; color?: string; lineHeight?: number; lineHeightFactor?: number; width?: number },
+  options?: {
+    fontSize?: number;
+    fontWeight?: string;
+    color?: string;
+    lineHeight?: number;
+    lineHeightFactor?: number;
+    width?: number;
+  }
 ) => {
   doc.setFont("Marianne", options?.fontWeight || "normal");
   doc.setFontSize((options?.fontSize || 12) * TEXT_SIZE_FACTOR);
@@ -86,11 +114,17 @@ interface Point {
 
 export const drawLineChart = (
   doc: jsPDF,
-  data: { month: Date; click: number; clickLastYear: number; apply: number; applyLastYear: number }[],
+  data: {
+    month: Date;
+    click: number;
+    clickLastYear: number;
+    apply: number;
+    applyLastYear: number;
+  }[],
   x: number,
   y: number,
   width: number,
-  height: number,
+  height: number
 ) => {
   // Sort data by month
   data.sort((a, b) => new Date(a.month).getTime() - new Date(b.month).getTime());
@@ -102,7 +136,9 @@ export const drawLineChart = (
   const chartHeight = height - 24; // Account for X-axis labels and legend
 
   // Find max value for Y scale
-  const maxValue = Math.max(...data.map((d) => Math.max(d.click, d.clickLastYear, d.apply, d.applyLastYear)));
+  const maxValue = Math.max(
+    ...data.map((d) => Math.max(d.click, d.clickLastYear, d.apply, d.applyLastYear))
+  );
   const yScale = chartHeight / (maxValue * 1.2); // Increased padding to 20%
   const xScale = chartWidth / (data.length - 1);
 
@@ -118,11 +154,27 @@ export const drawLineChart = (
 
     // Add Y-axis labels with padding
     const value = Math.round((maxValue * i) / gridLines);
-    drawText(doc, value.toLocaleString("fr"), x, yPos + 4, { fontSize: 10, color: COLORS.textGrey });
+    drawText(doc, value.toLocaleString("fr"), x, yPos + 4, {
+      fontSize: 10,
+      color: COLORS.textGrey,
+    });
   }
 
   // Draw X-axis labels (months)
-  const MONTHS = ["janv.", "fév.", "mars", "avr.", "mai", "juin", "juil.", "août", "sept.", "oct.", "nov.", "déc."];
+  const MONTHS = [
+    "janv.",
+    "fév.",
+    "mars",
+    "avr.",
+    "mai",
+    "juin",
+    "juil.",
+    "août",
+    "sept.",
+    "oct.",
+    "nov.",
+    "déc.",
+  ];
   data.forEach((d, i) => {
     const xPos = chartX + i * xScale;
     doc.setFont("Marianne", "normal");
@@ -148,7 +200,9 @@ export const drawLineChart = (
     doc.setLineWidth(width);
 
     points.forEach((point, i) => {
-      if (i === 0) return;
+      if (i === 0) {
+        return;
+      }
       doc.line(points[i - 1].x, points[i - 1].y, point.x, point.y);
     });
 
@@ -167,7 +221,15 @@ export const drawLineChart = (
   drawLine(applyLastYearPoints, COLORS.secondaryLight, 1.5);
 };
 
-export const drawBarChart = (doc: jsPDF, data: { month: number; [key: string]: number }[], x: number, y: number, width: number, height: number, colors: string[]) => {
+export const drawBarChart = (
+  doc: jsPDF,
+  data: { month: number; [key: string]: number }[],
+  x: number,
+  y: number,
+  width: number,
+  height: number,
+  colors: string[]
+) => {
   // Sort data by month
   data.sort((a, b) => new Date(a.month).getTime() - new Date(b.month).getTime());
 
@@ -181,7 +243,9 @@ export const drawBarChart = (doc: jsPDF, data: { month: number; [key: string]: n
   const orgKeys = Object.keys(data[0]).filter((key) => key !== "month");
 
   // Calculate max value for Y scale (sum of all values per month)
-  const maxValue = Math.max(...data.map((d) => orgKeys.reduce((sum, key) => sum + (d[key] || 0), 0)));
+  const maxValue = Math.max(
+    ...data.map((d) => orgKeys.reduce((sum, key) => sum + (d[key] || 0), 0))
+  );
   const yScale = chartHeight / (maxValue * 1.2);
   const barWidth = (chartWidth / data.length) * 0.8; // 80% of available space
   const barGap = (chartWidth / data.length) * 0.2; // 20% gap
@@ -198,16 +262,32 @@ export const drawBarChart = (doc: jsPDF, data: { month: number; [key: string]: n
 
     // Add Y-axis labels
     const value = Math.round((maxValue * i) / gridLines);
-    drawText(doc, value.toLocaleString("fr"), x, yPos + 4, { fontSize: 10, color: COLORS.textGrey });
+    drawText(doc, value.toLocaleString("fr"), x, yPos + 4, {
+      fontSize: 10,
+      color: COLORS.textGrey,
+    });
   }
 
   // Draw X-axis labels (months)
-  const MONTHS = ["janv.", "fév.", "mars", "avr.", "mai", "juin", "juil.", "août", "sept.", "oct.", "nov.", "déc."];
+  const MONTHS = [
+    "janv.",
+    "fév.",
+    "mars",
+    "avr.",
+    "mai",
+    "juin",
+    "juil.",
+    "août",
+    "sept.",
+    "oct.",
+    "nov.",
+    "déc.",
+  ];
 
   // Draw bars
   data.forEach((monthData, monthIndex) => {
     const xPos = chartX + monthIndex * (barWidth + barGap);
-    let yPos = chartY + chartHeight;
+    const yPos = chartY + chartHeight;
     let stackHeight = 0;
 
     // Draw month label
@@ -232,7 +312,9 @@ export const drawSVG = (doc: jsPDF, svg: string, x: number, y: number) => {
   const fillColor = "#000091";
 
   const svgPath = svg.match(/<path d="([^"]+)"/)?.[1];
-  if (!svgPath) return;
+  if (!svgPath) {
+    return;
+  }
 
   const path = parseSVGPath(svgPath, x, y);
   doc.path(path, "F");

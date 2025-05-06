@@ -1,6 +1,6 @@
-import { postMessage } from "../../services/slack";
 import { SLACK_LBC_CHANNEL_ID } from "../../config";
 import MissionModel from "../../models/mission";
+import { postMessage } from "../../services/slack";
 
 const ERROR_TYPES = {
   TYPE: {
@@ -8,7 +8,8 @@ const ERROR_TYPES = {
     label: "Erreur dans le type d'image",
   },
   CITY_NOT_FOUND: {
-    regex: "L'annonce que vous essayez de diffuser possède une ville ou un code postal non présent dans le référentiel du site.",
+    regex:
+      "L'annonce que vous essayez de diffuser possède une ville ou un code postal non présent dans le référentiel du site.",
     label: "Erreur dans la ville ou le code postal",
   },
 } as { [key: string]: { regex: string; label: string } };
@@ -16,7 +17,10 @@ const ERROR_TYPES = {
 const handler = async () => {
   const start = new Date();
   console.log(`[Leboncoin] Starting at ${start.toISOString()}`);
-  const count = await MissionModel.countDocuments({ leboncoinStatus: { $regex: "REFUSED" }, deletedAt: null });
+  const count = await MissionModel.countDocuments({
+    leboncoinStatus: { $regex: "REFUSED" },
+    deletedAt: null,
+  });
 
   const aggs = await MissionModel.aggregate([
     { $match: { leboncoinStatus: { $regex: "REFUSED" }, deletedAt: null } },
@@ -37,7 +41,9 @@ const handler = async () => {
   text += `\n\nVoir et exporter les missions refusées: https://app.api-engagement.beta.gouv.fr/admin-mission?leboncoinStatus=REFUSED`;
 
   await postMessage({ text }, SLACK_LBC_CHANNEL_ID);
-  console.log(`[Leboncoin] Ended at ${new Date().toISOString()} in ${(Date.now() - start.getTime()) / 1000}s`);
+  console.log(
+    `[Leboncoin] Ended at ${new Date().toISOString()} in ${(Date.now() - start.getTime()) / 1000}s`
+  );
 };
 
 export default { handler };

@@ -25,7 +25,7 @@ const schema = new Schema<Report>(
   },
   {
     timestamps: true,
-  },
+  }
 );
 
 schema.index({ publisherId: 1, month: 1, year: 1 }, { unique: true });

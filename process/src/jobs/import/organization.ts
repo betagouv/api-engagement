@@ -1,11 +1,11 @@
 import { HydratedDocument } from "mongoose";
 
-import apiDatasubvention from "../../services/api-datasubvention";
 import { DEPARTMENTS } from "../../constants/departments";
 import { captureException } from "../../error";
-import { Mission, Organization, OrganizationNameMatch } from "../../types";
 import OrganizationModel from "../../models/organization";
 import OrganizationNameMatchModel from "../../models/organization-name-matches";
+import apiDatasubvention from "../../services/api-datasubvention";
+import { Mission, Organization, OrganizationNameMatch } from "../../types";
 import { slugify } from "../../utils";
 
 const isValidRNA = (rna: string) => {
@@ -18,7 +18,9 @@ const isValidSiret = (siret: string) => {
 
 export const verifyOrganization = async (missions: Mission[]) => {
   const result = [] as Mission[];
-  if (!missions.length) return result;
+  if (!missions.length) {
+    return result;
+  }
 
   try {
     const organizationsRNAs = [] as string[];
@@ -29,23 +31,34 @@ export const verifyOrganization = async (missions: Mission[]) => {
       // remove all non alphanumeric characters and convert to uppercase
       const rna = (mission.organizationRNA || "").replace(/[^a-zA-Z0-9]/g, "").toUpperCase();
       if (rna && isValidRNA(rna)) {
-        if (organizationsRNAs.includes(rna)) return;
+        if (organizationsRNAs.includes(rna)) {
+          return;
+        }
         organizationsRNAs.push(rna);
       } else if (rna && isValidSiret(rna)) {
         // Made for Service Civique
-        if (organizationsSirets.includes(rna)) return;
+        if (organizationsSirets.includes(rna)) {
+          return;
+        }
         organizationsSirets.push(rna);
       } else if (mission.organizationName) {
-        if (organizationsNames.includes(mission.organizationName)) return;
+        if (organizationsNames.includes(mission.organizationName)) {
+          return;
+        }
         organizationsNames.push(mission.organizationName);
       }
     });
 
-    console.log(`[Organization Verification] Have ${organizationsRNAs.length} RNAs, ${organizationsSirets.length} SIRETS and ${organizationsNames.length} names to verify`);
+    console.log(
+      `[Organization Verification] Have ${organizationsRNAs.length} RNAs, ${organizationsSirets.length} SIRETS and ${organizationsNames.length} names to verify`
+    );
 
     const resRna = organizationsRNAs.length !== 0 ? await findByRNA(organizationsRNAs) : {};
     const resSiret = organizationsSirets.length !== 0 ? await findBySiret(organizationsSirets) : {};
-    const resNames = organizationsNames.length !== 0 ? await findByName(organizationsNames) : { exact: {}, approximate: {} };
+    const resNames =
+      organizationsNames.length !== 0
+        ? await findByName(organizationsNames)
+        : { exact: {}, approximate: {} };
 
     console.log(`[Organization Verification] Results:`);
     console.log(`- RNA matches: ${Object.keys(resRna).length}`);
@@ -65,16 +78,20 @@ export const verifyOrganization = async (missions: Mission[]) => {
           obj.organizationRNAVerified = data.rna;
           obj.organizationSirenVerified = data.siren;
           obj.organizationSiretVerified = data.siret;
-          obj.organizationAddressVerified = `${data.addressNumber || ""} ${data.addressRepetition || ""} ${data.addressType || ""} ${data.addressStreet || ""}`
-            .replaceAll(/\s+/g, " ")
-            .trim();
+          obj.organizationAddressVerified =
+            `${data.addressNumber || ""} ${data.addressRepetition || ""} ${data.addressType || ""} ${data.addressStreet || ""}`
+              .replaceAll(/\s+/g, " ")
+              .trim();
           obj.organizationCityVerified = data.addressCity;
           obj.organizationPostalCodeVerified = data.addressPostalCode;
           obj.organizationDepartmentCodeVerified = data.addressDepartmentCode;
           obj.organizationDepartmentNameVerified = data.addressDepartmentName;
           obj.organizationRegionVerified = data.addressRegion;
           obj.organisationIsRUP = data.isRUP;
-          obj.organizationVerificationStatus = data.source === "DATA_SUBVENTION" ? "RNA_MATCHED_WITH_DATA_SUBVENTION" : "RNA_MATCHED_WITH_DATA_DB";
+          obj.organizationVerificationStatus =
+            data.source === "DATA_SUBVENTION"
+              ? "RNA_MATCHED_WITH_DATA_SUBVENTION"
+              : "RNA_MATCHED_WITH_DATA_DB";
         } else {
           obj.organizationVerificationStatus = "RNA_NOT_MATCHED";
         }
@@ -86,16 +103,20 @@ export const verifyOrganization = async (missions: Mission[]) => {
           obj.organizationRNAVerified = data.rna;
           obj.organizationSirenVerified = data.siren;
           obj.organizationSiretVerified = data.siret;
-          obj.organizationAddressVerified = `${data.addressNumber || ""} ${data.addressRepetition || ""} ${data.addressType || ""} ${data.addressStreet || ""}`
-            .replaceAll(/\s+/g, " ")
-            .trim();
+          obj.organizationAddressVerified =
+            `${data.addressNumber || ""} ${data.addressRepetition || ""} ${data.addressType || ""} ${data.addressStreet || ""}`
+              .replaceAll(/\s+/g, " ")
+              .trim();
           obj.organizationCityVerified = data.addressCity;
           obj.organizationPostalCodeVerified = data.addressPostalCode;
           obj.organizationDepartmentCodeVerified = data.addressDepartmentCode;
           obj.organizationDepartmentNameVerified = data.addressDepartmentName;
           obj.organizationRegionVerified = data.addressRegion;
           obj.organisationIsRUP = data.isRUP;
-          obj.organizationVerificationStatus = data.source === "DATA_SUBVENTION" ? "SIRET_MATCHED_WITH_DATA_SUBVENTION" : "SIRET_MATCHED_WITH_DATA_DB";
+          obj.organizationVerificationStatus =
+            data.source === "DATA_SUBVENTION"
+              ? "SIRET_MATCHED_WITH_DATA_SUBVENTION"
+              : "SIRET_MATCHED_WITH_DATA_DB";
         } else {
           obj.organizationVerificationStatus = "SIRET_NOT_MATCHED";
         }
@@ -107,9 +128,10 @@ export const verifyOrganization = async (missions: Mission[]) => {
           obj.organizationRNAVerified = data.rna;
           obj.organizationSirenVerified = data.siren;
           obj.organizationSiretVerified = data.siret;
-          obj.organizationAddressVerified = `${data.addressNumber || ""} ${data.addressRepetition || ""} ${data.addressType || ""} ${data.addressStreet || ""}`
-            .replaceAll(/\s+/g, " ")
-            .trim();
+          obj.organizationAddressVerified =
+            `${data.addressNumber || ""} ${data.addressRepetition || ""} ${data.addressType || ""} ${data.addressStreet || ""}`
+              .replaceAll(/\s+/g, " ")
+              .trim();
           obj.organizationCityVerified = data.addressCity;
           obj.organizationPostalCodeVerified = data.addressPostalCode;
           obj.organizationDepartmentCodeVerified = data.addressDepartmentCode;
@@ -137,7 +159,10 @@ export const verifyOrganization = async (missions: Mission[]) => {
     return result;
   } catch (error) {
     captureException(error, `[Organization] Failure during rna enrichment`);
-    return missions.map((m) => ({ clientId: m.clientId, organizationVerificationStatus: "FAILED" })) as Mission[];
+    return missions.map((m) => ({
+      clientId: m.clientId,
+      organizationVerificationStatus: "FAILED",
+    })) as Mission[];
   }
 };
 
@@ -150,8 +175,11 @@ const findByRNA = async (rnas: string[]) => {
 
   rnas.forEach((rna) => {
     const item = response.find((r) => r.rna === rna);
-    if (item) res[rna] = item;
-    else rnasToFetch.push(rna);
+    if (item) {
+      res[rna] = item;
+    } else {
+      rnasToFetch.push(rna);
+    }
   });
 
   console.log(`[Organization-RNA] Fetching ${rnasToFetch.length} RNAs from datasubvention`);
@@ -164,8 +192,12 @@ const findByRNA = async (rnas: string[]) => {
       const data = await apiDatasubvention.get(`/association/${rna}`);
 
       if (data.association) {
-        const departement = data.association.adresse_siege_rna ? getDepartement(data.association.adresse_siege_rna[0]?.value?.code_postal) : null;
-        const siret = Array.isArray(data.association.etablisements_siret) ? data.association.etablisements_siret[0]?.value[0] : data.association.etablisements_siret?.value;
+        const departement = data.association.adresse_siege_rna
+          ? getDepartement(data.association.adresse_siege_rna[0]?.value?.code_postal)
+          : null;
+        const siret = Array.isArray(data.association.etablisements_siret)
+          ? data.association.etablisements_siret[0]?.value[0]
+          : data.association.etablisements_siret?.value;
         const siren = data.association.siren?.[0]?.value || siret?.slice(0, 9);
         const obj = {
           rna,
@@ -182,32 +214,66 @@ const findByRNA = async (rnas: string[]) => {
           addressDepartmentName: departement?.name,
           addressRegion: departement?.region,
           isRUP: data.association.rup?.[0]?.value,
-          createdAt: data.association.date_creation_rna?.[0] ? new Date(data.association.date_creation_rna[0].value) : undefined,
-          updatedAt: data.association.date_modification_rna?.[0] ? new Date(data.association.date_modification_rna[0].value) : undefined,
+          createdAt: data.association.date_creation_rna?.[0]
+            ? new Date(data.association.date_creation_rna[0].value)
+            : undefined,
+          updatedAt: data.association.date_modification_rna?.[0]
+            ? new Date(data.association.date_modification_rna[0].value)
+            : undefined,
           object: data.association.objet_social?.[0]?.value,
           source: "DATA_SUBVENTION",
         } as Organization;
 
         const $or = [] as any[];
-        if (siret) $or.push({ sirets: siret });
-        if (siren) $or.push({ siren });
+        if (siret) {
+          $or.push({ sirets: siret });
+        }
+        if (siren) {
+          $or.push({ siren });
+        }
         const existing = $or.length > 0 ? await OrganizationModel.findOne({ $or }) : null;
         if (existing) {
           const updates = {} as Organization;
 
-          if (!existing.siren) updates.siren = obj.siren;
-          if (!existing.sirets || !existing.sirets.includes(siret)) updates.sirets = [...(existing.sirets || []), siret];
-          if (!existing.title) updates.title = obj.title;
-          if (!existing.addressNumber) updates.addressNumber = obj.addressNumber;
-          if (!existing.addressType) updates.addressType = obj.addressType;
-          if (!existing.addressStreet) updates.addressStreet = obj.addressStreet;
-          if (!existing.addressCity) updates.addressCity = obj.addressCity;
-          if (!existing.addressPostalCode) updates.addressPostalCode = obj.addressPostalCode;
-          if (!existing.addressDepartmentCode) updates.addressDepartmentCode = obj.addressDepartmentCode;
-          if (!existing.addressDepartmentName) updates.addressDepartmentName = obj.addressDepartmentName;
-          if (!existing.addressRegion) updates.addressRegion = obj.addressRegion;
-          if (!existing.isRUP) updates.isRUP = obj.isRUP;
-          if (!existing.object) updates.object = obj.object;
+          if (!existing.siren) {
+            updates.siren = obj.siren;
+          }
+          if (!existing.sirets || !existing.sirets.includes(siret)) {
+            updates.sirets = [...(existing.sirets || []), siret];
+          }
+          if (!existing.title) {
+            updates.title = obj.title;
+          }
+          if (!existing.addressNumber) {
+            updates.addressNumber = obj.addressNumber;
+          }
+          if (!existing.addressType) {
+            updates.addressType = obj.addressType;
+          }
+          if (!existing.addressStreet) {
+            updates.addressStreet = obj.addressStreet;
+          }
+          if (!existing.addressCity) {
+            updates.addressCity = obj.addressCity;
+          }
+          if (!existing.addressPostalCode) {
+            updates.addressPostalCode = obj.addressPostalCode;
+          }
+          if (!existing.addressDepartmentCode) {
+            updates.addressDepartmentCode = obj.addressDepartmentCode;
+          }
+          if (!existing.addressDepartmentName) {
+            updates.addressDepartmentName = obj.addressDepartmentName;
+          }
+          if (!existing.addressRegion) {
+            updates.addressRegion = obj.addressRegion;
+          }
+          if (!existing.isRUP) {
+            updates.isRUP = obj.isRUP;
+          }
+          if (!existing.object) {
+            updates.object = obj.object;
+          }
 
           existing.set(updates);
           await existing.save();
@@ -237,8 +303,11 @@ const findBySiret = async (sirets: string[]) => {
 
   sirets.forEach((siret) => {
     const item = response.find((r) => r.sirets.includes(siret));
-    if (item) res[siret] = item;
-    else siretsToFetch.push(siret);
+    if (item) {
+      res[siret] = item;
+    } else {
+      siretsToFetch.push(siret);
+    }
   });
 
   console.log(`[Organization-SIRET] Fetching ${siretsToFetch.length} SIRETs from datasubvention`);
@@ -252,7 +321,9 @@ const findBySiret = async (sirets: string[]) => {
       const data = await apiDatasubvention.get(`/etablissement/${siret}`);
 
       if (data.etablissement) {
-        const departement = data.etablissement.adresse[0]?.value?.code_postal ? getDepartement(data.etablissement.adresse[0]?.value?.code_postal) : null;
+        const departement = data.etablissement.adresse[0]?.value?.code_postal
+          ? getDepartement(data.etablissement.adresse[0]?.value?.code_postal)
+          : null;
 
         const obj = {
           siret,
@@ -272,24 +343,48 @@ const findBySiret = async (sirets: string[]) => {
         const asso = await apiDatasubvention.get(`/association/${siret}`);
         if (asso.association) {
           obj.rna = asso.association.rna?.[0]?.value;
-          obj.title = asso.association.denomination_rna?.[0]?.value || asso.association.denomination_siren?.[0]?.value;
+          obj.title =
+            asso.association.denomination_rna?.[0]?.value ||
+            asso.association.denomination_siren?.[0]?.value;
         }
 
         const existsRNA = obj.rna ? await OrganizationModel.findOne({ rna: obj.rna }) : null;
         if (existsRNA) {
           const updates = {} as Organization;
 
-          if (!existsRNA.siren) updates.siren = obj.siren;
-          if (!existsRNA.sirets || !existsRNA.sirets.includes(siret)) updates.sirets = [...(existsRNA.sirets || []), siret];
-          if (!existsRNA.title) updates.title = obj.title;
-          if (!existsRNA.addressNumber) updates.addressNumber = obj.addressNumber;
-          if (!existsRNA.addressType) updates.addressType = obj.addressType;
-          if (!existsRNA.addressStreet) updates.addressStreet = obj.addressStreet;
-          if (!existsRNA.addressCity) updates.addressCity = obj.addressCity;
-          if (!existsRNA.addressPostalCode) updates.addressPostalCode = obj.addressPostalCode;
-          if (!existsRNA.addressDepartmentCode) updates.addressDepartmentCode = obj.addressDepartmentCode;
-          if (!existsRNA.addressDepartmentName) updates.addressDepartmentName = obj.addressDepartmentName;
-          if (!existsRNA.addressRegion) updates.addressRegion = obj.addressRegion;
+          if (!existsRNA.siren) {
+            updates.siren = obj.siren;
+          }
+          if (!existsRNA.sirets || !existsRNA.sirets.includes(siret)) {
+            updates.sirets = [...(existsRNA.sirets || []), siret];
+          }
+          if (!existsRNA.title) {
+            updates.title = obj.title;
+          }
+          if (!existsRNA.addressNumber) {
+            updates.addressNumber = obj.addressNumber;
+          }
+          if (!existsRNA.addressType) {
+            updates.addressType = obj.addressType;
+          }
+          if (!existsRNA.addressStreet) {
+            updates.addressStreet = obj.addressStreet;
+          }
+          if (!existsRNA.addressCity) {
+            updates.addressCity = obj.addressCity;
+          }
+          if (!existsRNA.addressPostalCode) {
+            updates.addressPostalCode = obj.addressPostalCode;
+          }
+          if (!existsRNA.addressDepartmentCode) {
+            updates.addressDepartmentCode = obj.addressDepartmentCode;
+          }
+          if (!existsRNA.addressDepartmentName) {
+            updates.addressDepartmentName = obj.addressDepartmentName;
+          }
+          if (!existsRNA.addressRegion) {
+            updates.addressRegion = obj.addressRegion;
+          }
 
           if (Object.keys(updates).length > 0) {
             existsRNA.set(updates);
@@ -320,7 +415,9 @@ const findByName = async (names: string[]) => {
 
   for (let i = 0; i < names.length; i++) {
     const name = names[i];
-    if (i % 50 === 0) console.log(`[Organization-NAME] Processing ${i + 1} / ${names.length} names`);
+    if (i % 50 === 0) {
+      console.log(`[Organization-NAME] Processing ${i + 1} / ${names.length} names`);
+    }
 
     const existingMatches = await OrganizationNameMatchModel.find({ name });
     if (existingMatches.length > 0) {
@@ -378,8 +475,12 @@ const findByName = async (names: string[]) => {
 };
 
 const getDepartement = (postalCode: string) => {
-  if (!postalCode) return null;
+  if (!postalCode) {
+    return null;
+  }
   const code = postalCode.slice(0, 2);
-  if (!code || !DEPARTMENTS[code]) return null;
+  if (!code || !DEPARTMENTS[code]) {
+    return null;
+  }
   return { code, name: DEPARTMENTS[code][0], region: DEPARTMENTS[code][1] };
 };

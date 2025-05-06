@@ -6,7 +6,9 @@ const handler = async () => {
 
   await syncContact();
 
-  console.log(`[Brevo] Ended at ${new Date().toISOString()} in ${(Date.now() - start.getTime()) / 1000}s`);
+  console.log(
+    `[Brevo] Ended at ${new Date().toISOString()} in ${(Date.now() - start.getTime()) / 1000}s`
+  );
 };
 
 export default { handler };

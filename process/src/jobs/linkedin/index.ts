@@ -5,12 +5,12 @@ import ImportModel from "../../models/import";
 import PublisherModel from "../../models/publisher";
 
 import { captureException } from "../../error";
-import { putObject, OBJECT_ACL } from "../../services/s3";
+import { OBJECT_ACL, putObject } from "../../services/s3";
 
 import { ENVIRONMENT } from "../../config";
+import MissionModel from "../../models/mission";
 import { Import, Mission } from "../../types";
 import { LinkedInJob } from "../../types/linkedin";
-import MissionModel from "../../models/mission";
 // only works for promoted slots
 
 /**
@@ -31,7 +31,17 @@ const MEDECINS_DU_MONDE = "619fae737d373e07aea8be23";
 const EGEE = "619faf257d373e07aea8be27";
 const ECTI = "619faeb97d373e07aea8be24";
 const ADIE = "619fb52a7d373e07aea8be35";
-const PARTNERS = [BENEVOLT, FONDATION_RAOUL_FOLLEREAU, VILLE_DE_NANTES, VACANCES_ET_FAMILLES, PREVENTION_ROUTIERE, MEDECINS_DU_MONDE, EGEE, ECTI, ADIE];
+const PARTNERS = [
+  BENEVOLT,
+  FONDATION_RAOUL_FOLLEREAU,
+  VILLE_DE_NANTES,
+  VACANCES_ET_FAMILLES,
+  PREVENTION_ROUTIERE,
+  MEDECINS_DU_MONDE,
+  EGEE,
+  ECTI,
+  ADIE,
+];
 
 const getMissions = async (where: { [key: string]: any }) => {
   const missions = await MissionModel.find(where).sort({ createdAt: "asc" }).lean();
@@ -40,7 +50,7 @@ const getMissions = async (where: { [key: string]: any }) => {
       ({
         ...e,
         applicationUrl: `https://api.api-engagement.beta.gouv.fr/r/${e._id}/${LINKEDIN}`,
-      }) as Mission,
+      }) as Mission
   );
 };
 
@@ -74,12 +84,18 @@ const handler = async () => {
     queryMission.$or = (linkedin.publishers || []).map((e) => ({ publisherId: e.publisher }));
 
     console.log(`[Linkedin] Querying missions of JeVeuxAider.gouv.fr`);
-    const JVAMissions = await getMissions({ deletedAt: null, statusCode: "ACCEPTED", publisherId: JVA });
+    const JVAMissions = await getMissions({
+      deletedAt: null,
+      statusCode: "ACCEPTED",
+      publisherId: JVA,
+    });
     console.log(`[Linkedin] ${JVAMissions.length} JVA missions found`);
     let expired = 0;
     for (let i = 0; i < JVAMissions.length; i++) {
       const job = generateJob(JVAMissions[i], "jeveuxaider.gouv.fr");
-      if (!job) continue;
+      if (!job) {
+        continue;
+      }
       job.description += `<br><br><br> Activité : [${JVAMissions[i].activity}]`;
       if (job.expirationDate && new Date(job.expirationDate).getTime() < Date.now()) {
         expired++;
@@ -93,15 +109,23 @@ const handler = async () => {
     importDoc.createdCount += jobs.length;
     console.log(`[Linkedin] ${jobs.length} missions added to the feed from JVA`);
 
-    const moderatedMission = await getMissions({ deletedAt: null, [`moderation_${JVA}_status`]: "ACCEPTED", publisherId: { $in: PARTNERS } });
+    const moderatedMission = await getMissions({
+      deletedAt: null,
+      [`moderation_${JVA}_status`]: "ACCEPTED",
+      publisherId: { $in: PARTNERS },
+    });
     console.log(`[Linkedin] ${moderatedMission.length} moderated missions found`);
     // let linkedinSlot = moderatedMission.filter((e) => e.metadata === "jobslotlinkedin").length;
 
     let slot = 0;
     for (let i = 0; i < moderatedMission.length; i++) {
       const job = generateJob(moderatedMission[i], "benevolt");
-      if (!job) continue;
-      if (slot >= 50) break;
+      if (!job) {
+        continue;
+      }
+      if (slot >= 50) {
+        break;
+      }
 
       job.description += `<br><br><br> Mission proposée par notre partenaire Benevolt`;
       job.companyId = "11100845";
@@ -117,17 +141,27 @@ const handler = async () => {
     if (ENVIRONMENT === "development") {
       fs.writeFileSync("linkedin.xml", xml);
     } else {
-      await putObject("xml/linkedin.xml", xml, { ContentType: "application/xml", ACL: OBJECT_ACL.PUBLIC_READ });
-      console.log(`[Linkedin] Create import, created=${importDoc.createdCount}, updated=${importDoc.updatedCount}, deleted=${importDoc.deletedCount}`);
+      await putObject("xml/linkedin.xml", xml, {
+        ContentType: "application/xml",
+        ACL: OBJECT_ACL.PUBLIC_READ,
+      });
+      console.log(
+        `[Linkedin] Create import, created=${importDoc.createdCount}, updated=${importDoc.updatedCount}, deleted=${importDoc.deletedCount}`
+      );
       importDoc.endedAt = new Date();
       await ImportModel.create(importDoc);
     }
   } catch (error: any) {
     console.error(`[Linkedin] Error for Linkedin`, error);
-    captureException(`Import linkedin flux failed`, `${error.message} while creating Linkedin flux`);
+    captureException(
+      `Import linkedin flux failed`,
+      `${error.message} while creating Linkedin flux`
+    );
   }
 
-  console.log(`[Linkedin] Ended at ${new Date().toISOString()} in ${(Date.now() - start.getTime()) / 1000}s`);
+  console.log(
+    `[Linkedin] Ended at ${new Date().toISOString()} in ${(Date.now() - start.getTime()) / 1000}s`
+  );
 };
 
 // Generate XML following https://learn.microsoft.com/en-us/linkedin/talent/job-postings/xml-feeds-development-guide
@@ -196,8 +230,8 @@ const generateXML = (data: LinkedInJob[]) => {
             acc[key] = CDATA_KEYS.includes(key) ? { "#cdata": job[key] } : job[key];
             return acc;
           },
-          {} as { [key: string]: any },
-        ),
+          {} as { [key: string]: any }
+        )
       ),
     },
   };
@@ -214,17 +248,39 @@ const generateXML = (data: LinkedInJob[]) => {
 };
 
 const mapDomainToIndustryCode = (domain: string) => {
-  if (domain === "environnement") return 86;
-  if (domain === "solidarite-insertion") return null;
-  if (domain === "sante") return 14;
-  if (domain === "culture-loisirs") return 30;
-  if (domain === "education") return 67;
-  if (domain === "emploi") return 137;
-  if (domain === "sport") return 33;
-  if (domain === "humanitaire") return null;
-  if (domain === "animaux") return 16;
-  if (domain === "vivre-ensemble") return null;
-  if (domain === "autre") return null;
+  if (domain === "environnement") {
+    return 86;
+  }
+  if (domain === "solidarite-insertion") {
+    return null;
+  }
+  if (domain === "sante") {
+    return 14;
+  }
+  if (domain === "culture-loisirs") {
+    return 30;
+  }
+  if (domain === "education") {
+    return 67;
+  }
+  if (domain === "emploi") {
+    return 137;
+  }
+  if (domain === "sport") {
+    return 33;
+  }
+  if (domain === "humanitaire") {
+    return null;
+  }
+  if (domain === "animaux") {
+    return 16;
+  }
+  if (domain === "vivre-ensemble") {
+    return null;
+  }
+  if (domain === "autre") {
+    return null;
+  }
   return null;
 };
 
@@ -234,13 +290,27 @@ const generateJob = (mission: Mission, defaultCompany: string) => {
   const diffTime = Math.abs(currentDate.getTime() - startDate.getTime());
   const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
   const initialDescription = diffDays % 6 < 3;
-  if (!mission.title) return;
-  if (!mission.description) return;
-  if (!mission.organizationName) return;
-  if (!mission.city) return;
-  if (!mission.region) return;
-  if (!mission.region) return;
-  if (!mission.country) return;
+  if (!mission.title) {
+    return;
+  }
+  if (!mission.description) {
+    return;
+  }
+  if (!mission.organizationName) {
+    return;
+  }
+  if (!mission.city) {
+    return;
+  }
+  if (!mission.region) {
+    return;
+  }
+  if (!mission.region) {
+    return;
+  }
+  if (!mission.country) {
+    return;
+  }
 
   const job = {
     jobtype: "VOLUNTEER",
@@ -252,25 +322,44 @@ const generateJob = (mission: Mission, defaultCompany: string) => {
       : `<strong>${mission.organizationName}</strong> vous propose une mission de bénévolat<br>${mission.description
           .replace("\n", "<br>")
           .replace("\u000b", "")}<br><br>Type : missions-benevolat`,
-    company: defaultCompany !== "benevolt" && COMPANIES[mission.organizationName] ? mission.organizationName : defaultCompany,
+    company:
+      defaultCompany !== "benevolt" && COMPANIES[mission.organizationName]
+        ? mission.organizationName
+        : defaultCompany,
     location: `${mission.city}, ${mission.country} ${mission.region}`,
     country: mission.country,
     city: mission.city,
     postalCode: mission.postalCode,
     listDate: new Date(mission.createdAt).toISOString(),
     industry: mission.domain,
-    industryCodes: INDUSTRIES_CODE[mission.domain] ? [{ industryCode: INDUSTRIES_CODE[mission.domain] }] : undefined,
+    industryCodes: INDUSTRIES_CODE[mission.domain]
+      ? [{ industryCode: INDUSTRIES_CODE[mission.domain] }]
+      : undefined,
     isRemote: mission.remote === "no" ? "On-site" : mission.remote === "full" ? "Remote" : "Hybrid",
   } as LinkedInJob;
-  if (mission.endAt) job.expirationDate = new Date(mission.endAt).toISOString();
+  if (mission.endAt) {
+    job.expirationDate = new Date(mission.endAt).toISOString();
+  }
   job.companyId = COMPANIES[job.company];
 
-  if (job.partnerJobId.length > 300) return;
-  if (!job.title || job.title.length > 300) return;
-  if (!job.description || job.description.length < 100 || job.description.length > 25000) return;
-  if (job.company.length > 300) return;
-  if (job.location.length > 300) return;
-  if (job.country && job.country.length > 2) return;
+  if (job.partnerJobId.length > 300) {
+    return;
+  }
+  if (!job.title || job.title.length > 300) {
+    return;
+  }
+  if (!job.description || job.description.length < 100 || job.description.length > 25000) {
+    return;
+  }
+  if (job.company.length > 300) {
+    return;
+  }
+  if (job.location.length > 300) {
+    return;
+  }
+  if (job.country && job.country.length > 2) {
+    return;
+  }
 
   return job;
 

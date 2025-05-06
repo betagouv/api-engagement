@@ -1,8 +1,8 @@
 import fs from "fs";
 import path from "path";
-import yauzl from "yauzl";
 import { pipeline } from "stream";
 import { promisify } from "util";
+import yauzl from "yauzl";
 
 const streamPipeline = promisify(pipeline);
 
@@ -10,8 +10,8 @@ import ImportRNAModel from "../../models/import-rna";
 
 import { captureException } from "../../error";
 import apiDataGouv from "../../services/api-data-gouv";
-import fileParser from "./file-parser";
 import { DataGouvResource } from "../../types/data-gouv";
+import fileParser from "./file-parser";
 
 const RNA_DATASETS_ID = "58e53811c751df03df38f42d";
 
@@ -53,7 +53,9 @@ const readZip = async (file: string): Promise<number> => {
 
   return new Promise((resolve, reject) => {
     yauzl.open(file, { lazyEntries: true }, async (err, zipfile) => {
-      if (err) return reject(err);
+      if (err) {
+        return reject(err);
+      }
 
       // Process entries one by one
       const processNextEntry = async () => {
@@ -93,11 +95,19 @@ const handler = async () => {
   const start = new Date();
   console.log(`[Organization] Starting at ${start.toISOString()}`);
 
-  const resources = await apiDataGouv.get<DataGouvResource[]>(`/datasets/${RNA_DATASETS_ID}/resources?type=main`);
-  if (!resources) return captureException("RNA resources not found");
+  const resources = await apiDataGouv.get<DataGouvResource[]>(
+    `/datasets/${RNA_DATASETS_ID}/resources?type=main`
+  );
+  if (!resources) {
+    return captureException("RNA resources not found");
+  }
 
-  const resource = resources.filter((r) => r.title.includes("rna_waldec")).sort((a, b) => new Date(b.last_modified).getTime() - new Date(a.last_modified).getTime())[0];
-  if (!resource) return captureException("RNA resource not found");
+  const resource = resources
+    .filter((r) => r.title.includes("rna_waldec"))
+    .sort((a, b) => new Date(b.last_modified).getTime() - new Date(a.last_modified).getTime())[0];
+  if (!resource) {
+    return captureException("RNA resource not found");
+  }
 
   console.log(`[Organization] Found resource ${resource.id} ${resource.url}`);
 
@@ -119,12 +129,19 @@ const handler = async () => {
   console.log(`[Organization] Found new resource ${resource.id} ${resource.url}`);
 
   const folder = path.join(__dirname, "/tmp");
-  if (!fs.existsSync(folder)) fs.mkdirSync(folder);
+  if (!fs.existsSync(folder)) {
+    fs.mkdirSync(folder);
+  }
 
   console.log(`[Organization] Downloading ${resource.url} at ${folder}`);
   const response = await fetch(resource.url);
-  if (!response.ok) captureException("RNA download failed", JSON.stringify(response, null, 2));
-  await streamPipeline(response.body as ReadableStream<any>, fs.createWriteStream(`${folder}/${resource.id}.zip`));
+  if (!response.ok) {
+    captureException("RNA download failed", JSON.stringify(response, null, 2));
+  }
+  await streamPipeline(
+    response.body as ReadableStream<any>,
+    fs.createWriteStream(`${folder}/${resource.id}.zip`)
+  );
 
   let count = 0;
   try {
@@ -150,7 +167,9 @@ const handler = async () => {
     endedAt: new Date(),
     status: "SUCCESS",
   });
-  console.log(`[Organization] Ended at ${new Date().toISOString()} in ${(Date.now() - start.getTime()) / 1000}s`);
+  console.log(
+    `[Organization] Ended at ${new Date().toISOString()} in ${(Date.now() - start.getTime()) / 1000}s`
+  );
 };
 
 export default { handler };

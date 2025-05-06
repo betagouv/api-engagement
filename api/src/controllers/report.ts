@@ -22,13 +22,26 @@ router.get("/pdf/:publisherId", async (req: Request, res: Response, next: NextFu
       })
       .safeParse(req.query);
 
-    if (!params.success) return res.status(400).send({ ok: false, code: INVALID_PARAMS, message: params.error });
-    if (!query.success) return res.status(400).send({ ok: false, code: INVALID_QUERY, message: query.error });
+    if (!params.success) {
+      return res.status(400).send({ ok: false, code: INVALID_PARAMS, message: params.error });
+    }
+    if (!query.success) {
+      return res.status(400).send({ ok: false, code: INVALID_QUERY, message: query.error });
+    }
 
-    const report = await ReportModel.findOne({ publisherId: params.data.publisherId, month: query.data.month, year: query.data.year });
-    if (!report) return res.status(404).send({ ok: false, code: NOT_FOUND, message: "Report not found" });
+    const report = await ReportModel.findOne({
+      publisherId: params.data.publisherId,
+      month: query.data.month,
+      year: query.data.year,
+    });
+    if (!report) {
+      return res.status(404).send({ ok: false, code: NOT_FOUND, message: "Report not found" });
+    }
     if (!report.url) {
-      captureException(new Error(`Report ${report._id} has no url`), `Report ${report._id} has no url`);
+      captureException(
+        new Error(`Report ${report._id} has no url`),
+        `Report ${report._id} has no url`
+      );
       return res.status(404).send({ ok: false, code: NOT_FOUND, message: "Report not found" });
     }
     res.redirect(report.url);
@@ -45,12 +58,19 @@ router.get("/:id", async (req: Request, res: Response, next: NextFunction) => {
       })
       .safeParse(req.params);
 
-    if (!params.success) return res.status(400).send({ ok: false, code: INVALID_PARAMS, message: params.error });
+    if (!params.success) {
+      return res.status(400).send({ ok: false, code: INVALID_PARAMS, message: params.error });
+    }
 
     const report = await ReportModel.findById(params.data.id);
-    if (!report) return res.status(404).send({ ok: false, code: NOT_FOUND, message: "Report not found" });
+    if (!report) {
+      return res.status(404).send({ ok: false, code: NOT_FOUND, message: "Report not found" });
+    }
     if (!report.url) {
-      captureException(new Error(`Report ${report._id} has no url`), `Report ${report._id} has no url`);
+      captureException(
+        new Error(`Report ${report._id} has no url`),
+        `Report ${report._id} has no url`
+      );
       return res.status(404).send({ ok: false, code: NOT_FOUND, message: "Report not found" });
     }
 

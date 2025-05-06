@@ -1,14 +1,16 @@
-import prisma from "../../db/postgres";
-import WidgetModel from "../../models/widget";
-import { captureException } from "../../error";
-import { Widget } from "../../types";
 import { Widget as PgWidget } from "@prisma/client";
+import prisma from "../../db/postgres";
+import { captureException } from "../../error";
+import WidgetModel from "../../models/widget";
+import { Widget } from "../../types";
 
 const buildData = (doc: Widget, partners: { id: string; old_id: string }[]) => {
   const annonceurs = partners.filter((p) => doc.publishers.includes(p.old_id));
   const diffuseur = partners.find((p) => p.old_id === doc.fromPublisherId.toString());
   if (!diffuseur) {
-    console.log(`[Widgets] Diffuseur ${doc.fromPublisherId.toString()} not found for widget ${doc._id.toString()}`);
+    console.log(
+      `[Widgets] Diffuseur ${doc.fromPublisherId.toString()} not found for widget ${doc._id.toString()}`
+    );
     return null;
   }
   const obj = {
@@ -44,7 +46,9 @@ const handler = async () => {
     console.log(`[Widgets] Found ${data.length} docs to sync.`);
 
     const stored = {} as { [key: string]: { old_id: string; updated_at: Date } };
-    await prisma.widget.findMany({ select: { old_id: true, updated_at: true } }).then((data) => data.forEach((d) => (stored[d.old_id] = d)));
+    await prisma.widget
+      .findMany({ select: { old_id: true, updated_at: true } })
+      .then((data) => data.forEach((d) => (stored[d.old_id] = d)));
     console.log(`[Widgets] Found ${Object.keys(stored).length} docs in database.`);
 
     const partners = await prisma.partner.findMany({ select: { id: true, old_id: true } });
@@ -54,11 +58,18 @@ const handler = async () => {
     for (const doc of data) {
       const exists = stored[doc._id.toString()];
       const obj = buildData(doc as Widget, partners);
-      if (!obj) continue;
-      if (!exists) dataToCreate.push(obj);
-      else if (new Date(exists.updated_at).getTime() !== obj.widget.updated_at.getTime()) dataToUpdate.push(obj);
+      if (!obj) {
+        continue;
+      }
+      if (!exists) {
+        dataToCreate.push(obj);
+      } else if (new Date(exists.updated_at).getTime() !== obj.widget.updated_at.getTime()) {
+        dataToUpdate.push(obj);
+      }
     }
-    console.log(`[Widgets] Found ${dataToCreate.length} docs to create, ${dataToUpdate.length} docs to update.`);
+    console.log(
+      `[Widgets] Found ${dataToCreate.length} docs to create, ${dataToUpdate.length} docs to update.`
+    );
 
     // Create data
     if (dataToCreate.length) {
@@ -86,12 +97,16 @@ const handler = async () => {
           create: obj.widget,
         });
         await prisma.partnerToWidget.deleteMany({ where: { widget_id: res.id } });
-        await prisma.partnerToWidget.createMany({ data: partners.map((p) => ({ ...p, widget_id: res.id })) });
+        await prisma.partnerToWidget.createMany({
+          data: partners.map((p) => ({ ...p, widget_id: res.id })),
+        });
       }
       console.log(`[Widgets] Updated ${dataToUpdate.length} docs.`);
     }
 
-    console.log(`[Widgets] Ended at ${new Date().toISOString()} in ${(Date.now() - start.getTime()) / 1000}s.`);
+    console.log(
+      `[Widgets] Ended at ${new Date().toISOString()} in ${(Date.now() - start.getTime()) / 1000}s.`
+    );
     return { created: dataToCreate.length, updated: dataToUpdate.length };
   } catch (error) {
     captureException(error, "[Widgets] Error while syncing docs.");

@@ -14,7 +14,7 @@ const schema = new Schema<WarningBot>(
     publisherId: { type: String, required: true, description: "Publisher ID" },
     publisherName: { type: String, required: true, description: "Publisher name" },
   },
-  { timestamps: true },
+  { timestamps: true }
 );
 
 const WarningBotModel = model<WarningBot>(MODELNAME, schema);

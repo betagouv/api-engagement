@@ -1,40 +1,68 @@
-import { Address, Mission, MissionXML } from "../../../types";
 import { DEPARTMENTS } from "../../../constants/departments";
+import { Address, Mission, MissionXML } from "../../../types";
 
 const parseString = (value: string | undefined) => {
-  if (!value) return "";
+  if (!value) {
+    return "";
+  }
   return String(value);
 };
 
 const formatPostalCode = (postalCode: string) => {
-  if (!postalCode) return "";
+  if (!postalCode) {
+    return "";
+  }
   const postalCodeString = postalCode;
-  if (postalCodeString.length === 5) return postalCodeString;
-  if (postalCodeString.length === 4) return "0" + postalCodeString;
-  if (postalCodeString.length === 3) return "00" + postalCodeString;
-  if (postalCodeString.length === 2) return "000" + postalCodeString;
-  if (postalCodeString.length === 1) return "0000" + postalCodeString;
+  if (postalCodeString.length === 5) {
+    return postalCodeString;
+  }
+  if (postalCodeString.length === 4) {
+    return "0" + postalCodeString;
+  }
+  if (postalCodeString.length === 3) {
+    return "00" + postalCodeString;
+  }
+  if (postalCodeString.length === 2) {
+    return "000" + postalCodeString;
+  }
+  if (postalCodeString.length === 1) {
+    return "0000" + postalCodeString;
+  }
   return "";
 };
 
 const getDepartmentCode = (departmentCode: string, postalCode: string) => {
-  if (departmentCode && DEPARTMENTS.hasOwnProperty(departmentCode)) return departmentCode;
+  if (departmentCode && DEPARTMENTS.hasOwnProperty(departmentCode)) {
+    return departmentCode;
+  }
 
   let code;
-  if (postalCode.length === 5) code = postalCode.slice(0, 2);
-  else if (postalCode.length === 4) code = postalCode.slice(0, 1);
-  else return "";
-  if (code === "97" || code === "98") code = postalCode.slice(0, 3);
-  if (DEPARTMENTS.hasOwnProperty(code)) return code;
-  else return "";
+  if (postalCode.length === 5) {
+    code = postalCode.slice(0, 2);
+  } else if (postalCode.length === 4) {
+    code = postalCode.slice(0, 1);
+  } else {
+    return "";
+  }
+  if (code === "97" || code === "98") {
+    code = postalCode.slice(0, 3);
+  }
+  if (DEPARTMENTS.hasOwnProperty(code)) {
+    return code;
+  } else {
+    return "";
+  }
 };
 
-const getDepartement = (code?: string) => (code && code in DEPARTMENTS && DEPARTMENTS[code][0]) || "";
+const getDepartement = (code?: string) =>
+  (code && code in DEPARTMENTS && DEPARTMENTS[code][0]) || "";
 const getRegion = (code?: string) => (code && code in DEPARTMENTS && DEPARTMENTS[code][1]) || "";
 
 export const getAddress = (mission: Mission, missionXML: MissionXML) => {
   mission.country = parseString(missionXML.country || missionXML.countryCode);
-  if (mission.country === "France") mission.country = "FR";
+  if (mission.country === "France") {
+    mission.country = "FR";
+  }
 
   // Dirty because reading a doc is too boring for some people
   let location = undefined;
@@ -42,7 +70,9 @@ export const getAddress = (mission: Mission, missionXML: MissionXML) => {
     // Service Civique use lonLat as field and have this format [lat, lon] --> stupid but eh...
     const lat = parseFloat(missionXML.lonLat.split(",")[0]) || undefined;
     const lon = parseFloat(missionXML.lonLat.split(",")[1]) || undefined;
-    if (lat && lon) location = { lon, lat };
+    if (lat && lon) {
+      location = { lon, lat };
+    }
   }
   if (missionXML.lonlat) {
     const a = parseFloat(missionXML.lonlat.split(",")[0]) || undefined; // supposed lon
@@ -67,13 +97,24 @@ export const getAddress = (mission: Mission, missionXML: MissionXML) => {
   } else if (missionXML.location && missionXML.location.lon && missionXML.location.lat) {
     location = missionXML.location;
   }
-  if (location && location.lon && location.lat && -90 <= location.lat && location.lat <= 90 && -180 <= location.lon && location.lon <= 180) {
+  if (
+    location &&
+    location.lon &&
+    location.lat &&
+    -90 <= location.lat &&
+    location.lat <= 90 &&
+    -180 <= location.lon &&
+    location.lon <= 180
+  ) {
     mission.location = location;
     mission.geolocStatus = "ENRICHED_BY_PUBLISHER";
   }
 
-  if (mission.location) mission.geoPoint = { type: "Point", coordinates: [mission.location.lon, mission.location.lat] };
-  else mission.geoPoint = null;
+  if (mission.location) {
+    mission.geoPoint = { type: "Point", coordinates: [mission.location.lon, mission.location.lat] };
+  } else {
+    mission.geoPoint = null;
+  }
 
   mission.address = parseString(missionXML.address || missionXML.adresse);
   mission.city = parseString(missionXML.city);
@@ -86,9 +127,13 @@ export const getAddress = (mission: Mission, missionXML: MissionXML) => {
   } else {
     mission.postalCode = formatPostalCode(parseString(missionXML.postalCode));
     if (mission.postalCode) {
-      const departmentCode = getDepartmentCode(missionXML.departmentCode, mission.postalCode.toString());
+      const departmentCode = getDepartmentCode(
+        missionXML.departmentCode,
+        mission.postalCode.toString()
+      );
       mission.departmentCode = departmentCode;
-      mission.departmentName = getDepartement(departmentCode) || parseString(missionXML.departmentName);
+      mission.departmentName =
+        getDepartement(departmentCode) || parseString(missionXML.departmentName);
       mission.region = getRegion(departmentCode) || parseString(missionXML.region);
     } else {
       mission.departmentCode = parseString(missionXML.departmentCode);
@@ -140,10 +185,15 @@ export const getAddresses = (mission: Mission, missionXML: MissionXML) => {
     };
 
     if (addressItem.location && addressItem.location.lon && addressItem.location.lat) {
-      addressItem.geoPoint = { type: "Point", coordinates: [addressItem.location.lon, addressItem.location.lat] };
+      addressItem.geoPoint = {
+        type: "Point",
+        coordinates: [addressItem.location.lon, addressItem.location.lat],
+      };
     }
 
-    if (addressItem.country === "France") addressItem.country = "FR";
+    if (addressItem.country === "France") {
+      addressItem.country = "FR";
+    }
 
     if (addressItem.country !== "FR") {
       addressItem.postalCode = parseString(address.postalCode);
@@ -153,9 +203,13 @@ export const getAddresses = (mission: Mission, missionXML: MissionXML) => {
     } else {
       addressItem.postalCode = formatPostalCode(parseString(address.postalCode));
       if (addressItem.postalCode) {
-        const departmentCode = getDepartmentCode(address.departmentCode, addressItem.postalCode.toString());
+        const departmentCode = getDepartmentCode(
+          address.departmentCode,
+          addressItem.postalCode.toString()
+        );
         addressItem.departmentCode = departmentCode;
-        addressItem.departmentName = getDepartement(departmentCode) || parseString(address.departmentName);
+        addressItem.departmentName =
+          getDepartement(departmentCode) || parseString(address.departmentName);
         addressItem.region = getRegion(departmentCode) || parseString(address.region);
       } else {
         addressItem.departmentCode = parseString(address.departmentCode);

@@ -2,7 +2,7 @@ import dotenv from "dotenv";
 dotenv.config();
 
 import * as Sentry from "@sentry/node";
-import { PORT, ENVIRONMENT, SENTRY_DSN } from "./config";
+import { ENVIRONMENT, PORT, SENTRY_DSN } from "./config";
 
 if (ENVIRONMENT !== "development") {
   Sentry.init({
@@ -13,26 +13,26 @@ if (ENVIRONMENT !== "development") {
   });
 }
 
-import express from "express";
-import { CronJob } from "cron";
 import cors from "cors";
+import { CronJob } from "cron";
+import express from "express";
 
-import "./db/mongo";
 import "./db/elastic";
+import "./db/mongo";
 import "./db/postgres";
 
+import { captureException } from "./error";
+import brevo from "./jobs/brevo";
 import imports from "./jobs/import";
-import moderations from "./jobs/moderation";
+import kpi from "./jobs/kpi";
 import leboncoin from "./jobs/leboncoin";
 import linkedin from "./jobs/linkedin";
 import linkedinStats from "./jobs/linkedin-stats";
 import metabase from "./jobs/metabase";
+import moderations from "./jobs/moderation";
 import organization from "./jobs/organization";
-import warnings from "./jobs/warnings";
-import { captureException } from "./error";
 import report from "./jobs/report";
-import kpi from "./jobs/kpi";
-import brevo from "./jobs/brevo";
+import warnings from "./jobs/warnings";
 
 const app = express();
 
@@ -87,14 +87,16 @@ const missionJob = new CronJob(
   },
   null,
   true,
-  "Europe/Paris",
+  "Europe/Paris"
 );
 
 // Every day at 1:00 AM
 const linkedinCron = new CronJob(
   "0 1 * * *",
   async () => {
-    if (runnings.linkedin) return;
+    if (runnings.linkedin) {
+      return;
+    }
     runnings.linkedin = true;
     const checkInId = Sentry.captureCheckIn({
       monitorSlug: "linkedin",
@@ -119,13 +121,15 @@ const linkedinCron = new CronJob(
   },
   null,
   true,
-  "Europe/Paris",
+  "Europe/Paris"
 );
 // Every day at 1:30 AM
 const kpiJob = new CronJob(
   "30 1 * * *",
   async () => {
-    if (runnings.kpi) return;
+    if (runnings.kpi) {
+      return;
+    }
     runnings.kpi = true;
     const checkInId = Sentry.captureCheckIn({
       monitorSlug: "kpi",
@@ -150,14 +154,16 @@ const kpiJob = new CronJob(
   },
   null,
   true,
-  "Europe/Paris",
+  "Europe/Paris"
 );
 
 // Every day at 1 AM
 const brevoJob = new CronJob(
   "0 1 * * *",
   async () => {
-    if (runnings.brevo) return;
+    if (runnings.brevo) {
+      return;
+    }
     runnings.brevo = true;
     const checkInId = Sentry.captureCheckIn({
       monitorSlug: "brevo",
@@ -182,14 +188,16 @@ const brevoJob = new CronJob(
   },
   null,
   true,
-  "Europe/Paris",
+  "Europe/Paris"
 );
 
 // Every day at 02:00 AM
 const metabaseJob = new CronJob(
   "0 2 * * *",
   async () => {
-    if (runnings.metabase) return;
+    if (runnings.metabase) {
+      return;
+    }
     runnings.metabase = true;
 
     const checkInId = Sentry.captureCheckIn({
@@ -215,7 +223,7 @@ const metabaseJob = new CronJob(
   },
   null,
   true,
-  "Europe/Paris",
+  "Europe/Paris"
 );
 
 // Every friday at 09:00 AM
@@ -246,7 +254,7 @@ const linkedinStatsJob = new CronJob(
   },
   null,
   true,
-  "Europe/Paris",
+  "Europe/Paris"
 );
 
 // Every 2nd of the month at 00:00 AM
@@ -277,14 +285,16 @@ const organizationJob = new CronJob(
   },
   null,
   true,
-  "Europe/Paris",
+  "Europe/Paris"
 );
 
 // Every day at 10:00 AM
 const leboncoinJob = new CronJob(
   "0 10 * * *",
   async () => {
-    if (runnings.leboncoin) return;
+    if (runnings.leboncoin) {
+      return;
+    }
     runnings.leboncoin = true;
     const checkInId = Sentry.captureCheckIn({
       monitorSlug: "leboncoin",
@@ -308,7 +318,7 @@ const leboncoinJob = new CronJob(
   },
   null,
   true,
-  "Europe/Paris",
+  "Europe/Paris"
 );
 
 // Every first Tuesday of the month at 10:00 AM
@@ -317,7 +327,9 @@ const reportJob = new CronJob(
   async () => {
     // if not the first Tuesday of the month, return
     const date = new Date();
-    if (date.getDay() !== 2 || date.getDate() > 7) return;
+    if (date.getDay() !== 2 || date.getDate() > 7) {
+      return;
+    }
 
     runnings.report = true;
     const checkInId = Sentry.captureCheckIn({
@@ -343,7 +355,7 @@ const reportJob = new CronJob(
   },
   null,
   true,
-  "Europe/Paris",
+  "Europe/Paris"
 );
 
 //https://app.api-engagement.beta.gouv.fr

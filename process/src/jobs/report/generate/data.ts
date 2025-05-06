@@ -2,7 +2,20 @@ import { STATS_INDEX } from "../../../config";
 import esClient from "../../../db/elastic";
 import { Publisher, StatsReport } from "../../../types";
 
-export const MONTHS = ["Janvier", "Février", "Mars", "Avril", "Mai", "Juin", "Juillet", "Août", "Septembre", "Octobre", "Novembre", "Décembre"];
+export const MONTHS = [
+  "Janvier",
+  "Février",
+  "Mars",
+  "Avril",
+  "Mai",
+  "Juin",
+  "Juillet",
+  "Août",
+  "Septembre",
+  "Octobre",
+  "Novembre",
+  "Décembre",
+];
 
 const search = async (id: string, month: number, year: number, flux: string) => {
   // timezone remove
@@ -60,21 +73,41 @@ const search = async (id: string, month: number, year: number, flux: string) => 
             year: {
               filter: { range: { createdAt: { gte: startYear, lte: endYear } } },
               aggs: {
-                histogram: { date_histogram: { field: "createdAt", interval: "month", min_doc_count: 0, time_zone: "Europe/Paris" } },
+                histogram: {
+                  date_histogram: {
+                    field: "createdAt",
+                    interval: "month",
+                    min_doc_count: 0,
+                    time_zone: "Europe/Paris",
+                  },
+                },
               },
             },
             lastYear: {
               filter: { range: { createdAt: { gte: startLastYear, lte: endLastYear } } },
               aggs: {
-                histogram: { date_histogram: { field: "createdAt", interval: "month", min_doc_count: 0, time_zone: "Europe/Paris" } },
+                histogram: {
+                  date_histogram: {
+                    field: "createdAt",
+                    interval: "month",
+                    min_doc_count: 0,
+                    time_zone: "Europe/Paris",
+                  },
+                },
               },
             },
             lastSixMonths: {
               filter: { range: { createdAt: { gte: startLastSixMonths, lte: endLastSixMonths } } },
               aggs: {
                 histogram: {
-                  date_histogram: { field: "createdAt", interval: "month", time_zone: "Europe/Paris" },
-                  aggs: { orga: { terms: { field: "missionOrganizationName.keyword", size: 100 } } },
+                  date_histogram: {
+                    field: "createdAt",
+                    interval: "month",
+                    time_zone: "Europe/Paris",
+                  },
+                  aggs: {
+                    orga: { terms: { field: "missionOrganizationName.keyword", size: 100 } },
+                  },
                 },
               },
             },
@@ -93,13 +126,26 @@ const search = async (id: string, month: number, year: number, flux: string) => 
             year: {
               filter: { range: { createdAt: { gte: startYear, lte: endYear } } },
               aggs: {
-                histogram: { date_histogram: { field: "createdAt", interval: "month", min_doc_count: 0, time_zone: "Europe/Paris" } },
+                histogram: {
+                  date_histogram: {
+                    field: "createdAt",
+                    interval: "month",
+                    min_doc_count: 0,
+                    time_zone: "Europe/Paris",
+                  },
+                },
               },
             },
             lastYear: {
               filter: { range: { createdAt: { gte: startLastYear, lte: endLastYear } } },
               aggs: {
-                histogram: { date_histogram: { field: "createdAt", interval: "month", time_zone: "Europe/Paris" } },
+                histogram: {
+                  date_histogram: {
+                    field: "createdAt",
+                    interval: "month",
+                    time_zone: "Europe/Paris",
+                  },
+                },
               },
             },
           },
@@ -144,9 +190,12 @@ const search = async (id: string, month: number, year: number, flux: string) => 
       aggregations.click.lastYear.histogram.buckets,
       aggregations.apply.year.histogram.buckets,
       aggregations.apply.lastYear.histogram.buckets,
-      startYear,
+      startYear
     ),
-    organizationHistogram: buildHistogram(aggregations.click.lastSixMonths.histogram.buckets, aggregations.click.month.topOrganizations.buckets),
+    organizationHistogram: buildHistogram(
+      aggregations.click.lastSixMonths.histogram.buckets,
+      aggregations.click.month.topOrganizations.buckets
+    ),
   };
 
   return data;
@@ -157,17 +206,33 @@ const buildGraph = (
   clickLastYearBucket: { key: string; doc_count: number }[],
   applyBucket: { key: string; doc_count: number }[],
   applyLastYearBucket: { key: string; doc_count: number }[],
-  startDate: Date,
+  startDate: Date
 ) => {
   // Construct labels, with all months between start and end of the 1st bucket
   const data = [];
 
   for (let i = startDate.getMonth(); i < startDate.getMonth() + 12; i++) {
     const month = new Date(startDate.getFullYear(), i, 1);
-    const c = clickBucket.find((v) => new Date(v.key).getMonth() === month.getMonth() && new Date(v.key).getFullYear() === month.getFullYear());
-    const cly = clickLastYearBucket.find((v) => new Date(v.key).getMonth() === month.getMonth() && new Date(v.key).getFullYear() === month.getFullYear() - 1);
-    const a = applyBucket.find((v) => new Date(v.key).getMonth() === month.getMonth() && new Date(v.key).getFullYear() === month.getFullYear());
-    const aly = applyLastYearBucket.find((v) => new Date(v.key).getMonth() === month.getMonth() && new Date(v.key).getFullYear() === month.getFullYear() - 1);
+    const c = clickBucket.find(
+      (v) =>
+        new Date(v.key).getMonth() === month.getMonth() &&
+        new Date(v.key).getFullYear() === month.getFullYear()
+    );
+    const cly = clickLastYearBucket.find(
+      (v) =>
+        new Date(v.key).getMonth() === month.getMonth() &&
+        new Date(v.key).getFullYear() === month.getFullYear() - 1
+    );
+    const a = applyBucket.find(
+      (v) =>
+        new Date(v.key).getMonth() === month.getMonth() &&
+        new Date(v.key).getFullYear() === month.getFullYear()
+    );
+    const aly = applyLastYearBucket.find(
+      (v) =>
+        new Date(v.key).getMonth() === month.getMonth() &&
+        new Date(v.key).getFullYear() === month.getFullYear() - 1
+    );
 
     const d = {
       month,
@@ -210,7 +275,11 @@ export const getData = async (year: number, month: number, publisher: Publisher)
   if (publisher.role_promoteur) {
     data.receive = await search(publisher._id.toString(), month, year, "to");
   }
-  if (publisher.role_annonceur_api || publisher.role_annonceur_widget || publisher.role_annonceur_campagne) {
+  if (
+    publisher.role_annonceur_api ||
+    publisher.role_annonceur_widget ||
+    publisher.role_annonceur_campagne
+  ) {
     data.send = await search(publisher._id.toString(), month, year, "from");
   }
 

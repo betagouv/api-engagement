@@ -39,7 +39,11 @@ const schema = new Schema<Email>({
 
   raw: { type: Object },
 
-  status: { type: String, enum: ["PENDING", "PROCESSED", "FAILED", "DUPLICATE"], default: "PENDING" },
+  status: {
+    type: String,
+    enum: ["PENDING", "PROCESSED", "FAILED", "DUPLICATE"],
+    default: "PENDING",
+  },
   report_url: { type: String, default: null },
   file_object_name: { type: String, default: null },
   date_from: { type: Date, default: null },

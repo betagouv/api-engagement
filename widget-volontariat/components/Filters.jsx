@@ -417,7 +417,7 @@ const DateFilter = ({ selected, onChange, position = "left-0", width = "w-80" })
             }}
             className="w-full flex justify-center border-none"
             style={{
-              '--rdp-accent-color': color,
+              "--rdp-accent-color": color,
             }}
             modifiers={{
               selected: (date) => selected && date.toLocaleDateString("fr") === selected.value.toLocaleDateString("fr"),
@@ -425,11 +425,11 @@ const DateFilter = ({ selected, onChange, position = "left-0", width = "w-80" })
             modifiersStyles={{
               selected: {
                 backgroundColor: color,
-                color: 'white',
-                borderRadius: '9999px',
-                display: 'flex',
-                justifyContent: 'center',
-              }
+                color: "white",
+                borderRadius: "9999px",
+                display: "flex",
+                justifyContent: "center",
+              },
             }}
           />
           <div className="pt-2 pb-1 px-6 w-full flex justify-start border-t border-[#DDDDDD]">
@@ -595,8 +595,8 @@ const SelectFilter = ({ options, selectedOptions, onChange, id, placeholder = "C
           {!selectedOptions || selectedOptions.some((o) => o === undefined)
             ? placeholder
             : selectedOptions.length > 0
-            ? `${selectedOptions[0].label}${selectedOptions.length > 1 ? ` +${selectedOptions.length - 1}` : ""}`
-            : placeholder}
+              ? `${selectedOptions[0].label}${selectedOptions.length > 1 ? ` +${selectedOptions.length - 1}` : ""}`
+              : placeholder}
         </span>
         {isOpen ? <RiArrowDownSLine className="text-xl transform rotate-180" /> : <RiArrowDownSLine className="text-xl" />}
       </button>
@@ -710,7 +710,7 @@ const LocationFilter = ({ selected, onChange, disabled = false, width = "w-80" }
           city: f.properties.city,
           postcode: f.properties.postcode,
           name: f.properties.name,
-        }))
+        })),
       );
       setIsOpen(true);
     } else {

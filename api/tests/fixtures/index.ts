@@ -1,31 +1,33 @@
-import mongoose from 'mongoose';
-import { Publisher } from '../../src/types';
-import PublisherModel from '../../src/models/publisher';
-import MissionModel from '../../src/models/mission';
+import mongoose from "mongoose";
+import MissionModel from "../../src/models/mission";
+import PublisherModel from "../../src/models/publisher";
+import { Publisher } from "../../src/types";
 
 /**
  * Create a test publisher with random API key
  */
 export const createTestPublisher = async (): Promise<Publisher> => {
-  const apiKey = 'test-api-key-' + Date.now().toString();
-  const organizationClientId = 'org-' + Date.now().toString();
-  
+  const apiKey = "test-api-key-" + Date.now().toString();
+  const organizationClientId = "org-" + Date.now().toString();
+
   const publisher = new PublisherModel({
-    name: 'Test Publisher',
+    name: "Test Publisher",
     email: `test-${Date.now()}@example.com`,
-    password: 'password123',
+    password: "password123",
     apikey: apiKey,
     organizationClientId,
-    organizationName: 'Test Organization',
+    organizationName: "Test Organization",
     role_annonceur_api: true,
     role_promoteur: true,
-    publishers: [{
-      publisherId: new mongoose.Types.ObjectId().toString(),
-      publisherName: 'Test Publisher Name',
-    }],
+    publishers: [
+      {
+        publisherId: new mongoose.Types.ObjectId().toString(),
+        publisherName: "Test Publisher Name",
+      },
+    ],
     excludedOrganizations: [],
   });
-  
+
   await publisher.save();
   return publisher.toObject() as Publisher;
 };
@@ -48,9 +50,9 @@ export const createTestMission = async (organizationClientId: string, publisherI
     ],
     applicationUrl: `https://api.api-engagement.gouv.fr/mission-id/${publisherId}`,
     audience: ["18-24 ans", "25-34 ans"],
-    clientId: 'client-' + Date.now().toString(),
+    clientId: "client-" + Date.now().toString(),
     closeToTransport: "yes",
-    description: 'Test Mission Description',
+    description: "Test Mission Description",
     duration: 1,
     domain: "bricolage",
     domainLogo: "https://example.com/logo.png",
@@ -60,12 +62,12 @@ export const createTestMission = async (organizationClientId: string, publisherI
     openToMinors: "yes",
     organizationClientId,
     organizationId: new mongoose.Types.ObjectId().toString(),
-    organizationName: 'Test Organization',
+    organizationName: "Test Organization",
     places: 10,
     postedAt: new Date(),
     priority: "high",
     publisherId,
-    publisherName: 'Test Publisher',
+    publisherName: "Test Publisher",
     publisherUrl: "https://example.com",
     publisherLogo: "https://example.com/logo.png",
     reducedMobilityAccessible: "yes",
@@ -73,13 +75,13 @@ export const createTestMission = async (organizationClientId: string, publisherI
     schedule: "1 jour par semaine",
     soft_skills: ["Travail en équipe", "Communication"],
     startAt: new Date(),
-    statusCode: 'ACCEPTED',
+    statusCode: "ACCEPTED",
     tags: ["tag1", "tag2"],
     tasks: ["task1", "task2"],
-    title: 'Test Mission',
+    title: "Test Mission",
     type: "mission",
   });
-  
+
   await mission.save();
   return mission.toObject();
 };
@@ -89,23 +91,25 @@ export const createTestMission = async (organizationClientId: string, publisherI
  */
 export const createTestPartner = async (publisherId: string) => {
   const partner = new PublisherModel({
-    name: 'Test Partner',
+    name: "Test Partner",
     email: `partner-${Date.now()}@example.com`,
     role_annonceur_widget: true,
     role_annonceur_api: true,
     role_annonceur_campagne: true,
     role_promoteur: true,
-    category: 'Test Category',
-    url: 'https://example.com',
-    logo: 'https://example.com/logo.png',
-    description: 'Test partner description',
-    publishers: [{
-      publisherId,
-      publisherName: 'Test Publisher Name',
-    }],
+    category: "Test Category",
+    url: "https://example.com",
+    logo: "https://example.com/logo.png",
+    description: "Test partner description",
+    publishers: [
+      {
+        publisherId,
+        publisherName: "Test Publisher Name",
+      },
+    ],
     excludedOrganizations: [],
   });
-  
+
   await partner.save();
   return partner.toObject();
 };

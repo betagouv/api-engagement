@@ -4,13 +4,13 @@ was buit to be open to all partners, but we know only JVA is using it. Would hav
 a moderation_jva collection.
 */
 
+import { SLACK_CRON_CHANNEL_ID } from "../../config";
 import { captureException } from "../../error";
-import PublisherModel from "../../models/publisher";
-import { Mission, Publisher } from "../../types";
 import MissionModel from "../../models/mission";
 import ModerationEventModel from "../../models/moderation-event";
-import { SLACK_CRON_CHANNEL_ID } from "../../config";
+import PublisherModel from "../../models/publisher";
 import { postMessage } from "../../services/slack";
+import { Mission, Publisher } from "../../types";
 
 interface ModerationUpdate {
   status: string | null;
@@ -25,17 +25,29 @@ const findMissions = async (moderator: Publisher) => {
     publisherId: { $in: publishers },
     statusCode: "ACCEPTED",
     deleted: false,
-    $or: [{ [`moderation_${moderator._id}_status`]: { $exists: false } }, { [`moderation_${moderator._id}_status`]: null }, { [`moderation_${moderator._id}_status`]: "PENDING" }],
+    $or: [
+      { [`moderation_${moderator._id}_status`]: { $exists: false } },
+      { [`moderation_${moderator._id}_status`]: null },
+      { [`moderation_${moderator._id}_status`]: "PENDING" },
+    ],
   };
   const missions = await MissionModel.find(where).sort({ createdAt: "desc" });
   return missions;
 };
 
 const hasModerationChanges = (m: Mission, moderator: Publisher, update: ModerationUpdate) => {
-  if (!m[`moderation_${moderator._id}_status`]) return true;
-  if ((m[`moderation_${moderator._id}_status`] || null) !== update.status) return true;
-  if ((m[`moderation_${moderator._id}_comment`] || null) !== update.comment) return true;
-  if ((m[`moderation_${moderator._id}_note`] || null) !== update.note) return true;
+  if (!m[`moderation_${moderator._id}_status`]) {
+    return true;
+  }
+  if ((m[`moderation_${moderator._id}_status`] || null) !== update.status) {
+    return true;
+  }
+  if ((m[`moderation_${moderator._id}_comment`] || null) !== update.comment) {
+    return true;
+  }
+  if ((m[`moderation_${moderator._id}_note`] || null) !== update.note) {
+    return true;
+  }
   return false;
 };
 
@@ -92,7 +104,9 @@ const createModerations = async (missions: Mission[], moderator: Publisher) => {
       update.date = new Date();
     }
 
-    if (!hasModerationChanges(m, moderator, update)) continue;
+    if (!hasModerationChanges(m, moderator, update)) {
+      continue;
+    }
 
     eventBulk.push({
       insertOne: {
@@ -127,8 +141,12 @@ const createModerations = async (missions: Mission[], moderator: Publisher) => {
       },
     });
 
-    if (update.status === "REFUSED") refused++;
-    if (update.status === "PENDING") pending++;
+    if (update.status === "REFUSED") {
+      refused++;
+    }
+    if (update.status === "PENDING") {
+      pending++;
+    }
   }
 
   const res = await MissionModel.bulkWrite(missonBulk);
@@ -146,14 +164,22 @@ const handler = async () => {
     for (let i = 0; i < moderators.length; i++) {
       const moderator = moderators[i];
 
-      if (!moderator.publishers || !moderator.publishers.length) continue;
+      if (!moderator.publishers || !moderator.publishers.length) {
+        continue;
+      }
 
-      console.log(`[Moderation] Starting for ${moderator.name} (${moderator._id}), number ${i + 1}/${moderators.length}`);
+      console.log(
+        `[Moderation] Starting for ${moderator.name} (${moderator._id}), number ${i + 1}/${moderators.length}`
+      );
 
       const data = await findMissions(moderator);
-      console.log(`[Moderation] - ${moderator.name} ${data.length} found in pending moderation yet`);
+      console.log(
+        `[Moderation] - ${moderator.name} ${data.length} found in pending moderation yet`
+      );
 
-      if (!data.length) continue;
+      if (!data.length) {
+        continue;
+      }
 
       const res = await createModerations(data, moderator);
       console.log(`[Moderation] ${moderator.name} ${res.updated} missions updated`);
@@ -164,10 +190,12 @@ const handler = async () => {
           title: `Moderation ${moderator.name} completed`,
           text: `Mission updated: ${res.updated}, Events created: ${res.events}, Missions refused: ${res.refused}, Missions pending: ${res.pending}`,
         },
-        SLACK_CRON_CHANNEL_ID,
+        SLACK_CRON_CHANNEL_ID
       );
     }
-    console.log(`[Moderation] Ended at ${new Date().toISOString()} in ${(Date.now() - start.getTime()) / 1000}s`);
+    console.log(
+      `[Moderation] Ended at ${new Date().toISOString()} in ${(Date.now() - start.getTime()) / 1000}s`
+    );
   } catch (err) {
     captureException(err);
   }

@@ -115,89 +115,89 @@ const MobileFilters = ({ options, values, onChange, show, onShow, disabledLocati
         <LocationFilter selected={values.location} onChange={(l) => onChange({ ...values, location: l })} disabled={disabledLocation} color={color} width="w-full" />
       </div>
       <div className="w-full border-y border-[#DDD]">
-      <button
-        className="flex h-[40px] items-center justify-between w-full bg-white focus:outline-none focus-visible:ring focus-visible:ring-blue-800 px-4"
-        onClick={() => {
-          onShow(!show);
-          plausible(show ? "Filters closed" : "Filters opened", { u: url });
-        }}
-      >
-        Filtrer les missions
-        {show ? <RiArrowUpSLine className="font-semibold" style={{ color: color }} /> : <RiArrowDownSLine className="font-semibold" style={{ color: color }} />}
-      </button>
-      
-      {show && (
-        <div className="w-full mt-2">
-          <div className="w-full mb-4">
-            <RemoteFilter
-              id="remote"
-              options={options.remote}
-              selectedOptions={values.remote}
-              onChange={(f) => onChange({ ...values, remote: f })}
-              placeholder="Présentiel / Distance"
-              width="w-full"
-              color={color}
-            />
+        <button
+          className="flex h-[40px] items-center justify-between w-full bg-white focus:outline-none focus-visible:ring focus-visible:ring-blue-800 px-4"
+          onClick={() => {
+            onShow(!show);
+            plausible(show ? "Filters closed" : "Filters opened", { u: url });
+          }}
+        >
+          Filtrer les missions
+          {show ? <RiArrowUpSLine className="font-semibold" style={{ color: color }} /> : <RiArrowDownSLine className="font-semibold" style={{ color: color }} />}
+        </button>
+
+        {show && (
+          <div className="w-full mt-2">
+            <div className="w-full mb-4">
+              <RemoteFilter
+                id="remote"
+                options={options.remote}
+                selectedOptions={values.remote}
+                onChange={(f) => onChange({ ...values, remote: f })}
+                placeholder="Présentiel / Distance"
+                width="w-full"
+                color={color}
+              />
+            </div>
+            <div className="w-full mb-4">
+              <SelectFilter
+                id="domain"
+                options={options.domains}
+                selectedOptions={values.domain}
+                onChange={(v) => onChange({ ...values, domain: v })}
+                placeholder="Domaines"
+                width="w-full"
+                color={color}
+              />
+            </div>
+            <div className="w-full mb-4">
+              <SelectFilter
+                id="department"
+                options={options.departments}
+                selectedOptions={values.department}
+                onChange={(v) => onChange({ ...values, department: v })}
+                placeholder="Départements"
+                width="w-full"
+                color={color}
+              />
+            </div>
+            <div className="w-full mb-4">
+              <SelectFilter
+                id="organization"
+                options={options.organizations}
+                selectedOptions={values.organization}
+                onChange={(v) => onChange({ ...values, organization: v })}
+                placeholder="Organisations"
+                width="w-full"
+                color={color}
+              />
+            </div>
+            <div className="w-full flex flex-col gap-2">
+              <button
+                aria-label="Voir les missions"
+                className="w-full p-3 text-center border-none text-white text-sm focus:outline-none focus-visible:ring focus-visible:ring-blue-800"
+                onClick={() => {
+                  onShow(false);
+                  plausible("Filters closed", { u: url });
+                }}
+                style={{ backgroundColor: color }}
+              >
+                Voir les missions
+              </button>
+              <button
+                aria-label="Réinitialiser les filtres"
+                className="w-full p-3 text-center border-none bg-transparent text-sm focus:outline-none focus-visible:ring focus-visible:ring-blue-800"
+                style={{ color }}
+                onClick={() => {
+                  handleReset();
+                  plausible("Filters reset", { u: url });
+                }}
+              >
+                Réinitialiser les filtres
+              </button>
+            </div>
           </div>
-          <div className="w-full mb-4">
-            <SelectFilter
-              id="domain"
-              options={options.domains}
-              selectedOptions={values.domain}
-              onChange={(v) => onChange({ ...values, domain: v })}
-              placeholder="Domaines"
-              width="w-full"
-              color={color}
-            />
-          </div>
-          <div className="w-full mb-4">
-            <SelectFilter
-              id="department"
-              options={options.departments}
-              selectedOptions={values.department}
-              onChange={(v) => onChange({ ...values, department: v })}
-              placeholder="Départements"
-              width="w-full"
-              color={color}
-            />
-          </div>
-          <div className="w-full mb-4">
-            <SelectFilter
-              id="organization"
-              options={options.organizations}
-              selectedOptions={values.organization}
-              onChange={(v) => onChange({ ...values, organization: v })}
-              placeholder="Organisations"
-              width="w-full"
-              color={color}
-            />
-          </div>
-          <div className="w-full flex flex-col gap-2">
-            <button
-              aria-label="Voir les missions"
-              className="w-full p-3 text-center border-none text-white text-sm focus:outline-none focus-visible:ring focus-visible:ring-blue-800"
-              onClick={() => {
-                onShow(false);
-                plausible("Filters closed", { u: url });
-              }}
-              style={{ backgroundColor: color }}
-            >
-              Voir les missions
-            </button>
-            <button
-              aria-label="Réinitialiser les filtres"
-              className="w-full p-3 text-center border-none bg-transparent text-sm focus:outline-none focus-visible:ring focus-visible:ring-blue-800"
-              style={{ color }}
-              onClick={() => {
-                handleReset();
-                plausible("Filters reset", { u: url });
-              }}
-            >
-              Réinitialiser les filtres
-            </button>
-          </div>
-        </div>
-      )}
+        )}
       </div>
     </>
   );
@@ -298,8 +298,8 @@ const SelectFilter = ({ options, selectedOptions, onChange, id, placeholder = "C
           {!selectedOptions || selectedOptions.some((o) => o === undefined)
             ? placeholder
             : selectedOptions.length > 0
-            ? `${selectedOptions[0].label}${selectedOptions.length > 1 ? ` +${selectedOptions.length - 1}` : ""}`
-            : placeholder}
+              ? `${selectedOptions[0].label}${selectedOptions.length > 1 ? ` +${selectedOptions.length - 1}` : ""}`
+              : placeholder}
         </span>
         {isOpen ? <RiArrowDownSLine className="text-xl transform rotate-180" /> : <RiArrowDownSLine className="text-xl" />}
       </button>
@@ -418,7 +418,7 @@ const LocationFilter = ({ selected, onChange, disabled = false, width = "w-80" }
           city: f.properties.city,
           postcode: f.properties.postcode,
           name: f.properties.name,
-        }))
+        })),
       );
       setIsOpen(true);
     } else {
@@ -529,8 +529,8 @@ const RemoteFilter = ({ options, selectedOptions, onChange, id, placeholder = "C
           {!selectedOptions || selectedOptions.some((o) => o === undefined)
             ? placeholder
             : selectedOptions.length > 0
-            ? `${selectedOptions[0].label}${selectedOptions.length > 1 ? ` +${selectedOptions.length - 1}` : ""}`
-            : placeholder}
+              ? `${selectedOptions[0].label}${selectedOptions.length > 1 ? ` +${selectedOptions.length - 1}` : ""}`
+              : placeholder}
         </span>
         {isOpen ? <RiArrowDownSLine className="text-xl transform rotate-180" /> : <RiArrowDownSLine className="text-xl" />}
       </button>

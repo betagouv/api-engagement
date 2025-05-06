@@ -1,19 +1,26 @@
+import { Address as PgAddress, Mission as PgMission } from "@prisma/client";
 import prisma from "../../db/postgres";
 import { captureException } from "../../error";
-import { Mission as MongoMission } from "../../types";
-import { Address as PgAddress, Mission as PgMission } from "@prisma/client";
 import MissionModel from "../../models/mission";
+import { Mission as MongoMission } from "../../types";
 
 const BULK_SIZE = 5000;
 
-const buildData = async (doc: MongoMission, partners: { [key: string]: string }): Promise<{ mission: PgMission; addresses: PgAddress[] } | null> => {
+const buildData = async (
+  doc: MongoMission,
+  partners: { [key: string]: string }
+): Promise<{ mission: PgMission; addresses: PgAddress[] } | null> => {
   const partnerId = partners[doc.publisherId?.toString()];
   if (!partnerId) {
-    console.log(`[Mission] Partner ${doc.publisherId?.toString()} not found for mission ${doc._id?.toString()}`);
+    console.log(
+      `[Mission] Partner ${doc.publisherId?.toString()} not found for mission ${doc._id?.toString()}`
+    );
     return null;
   }
 
-  const organization = doc.organizationId ? await prisma.organization.findUnique({ where: { old_id: doc.organizationId } }) : null;
+  const organization = doc.organizationId
+    ? await prisma.organization.findUnique({ where: { old_id: doc.organizationId } })
+    : null;
 
   const obj = {
     old_id: doc._id.toString(),
@@ -98,12 +105,16 @@ const buildData = async (doc: MongoMission, partners: { [key: string]: string })
     jva_moderation_status: doc["moderation_5f5931496c7ea514150a818f_status"],
     jva_moderation_comment: doc["moderation_5f5931496c7ea514150a818f_comment"],
     jva_moderation_title: doc["moderation_5f5931496c7ea514150a818f_title"],
-    jva_moderation_updated_at: doc["moderation_5f5931496c7ea514150a818f_date"] ? new Date(doc["moderation_5f5931496c7ea514150a818f_date"]) : undefined,
+    jva_moderation_updated_at: doc["moderation_5f5931496c7ea514150a818f_date"]
+      ? new Date(doc["moderation_5f5931496c7ea514150a818f_date"])
+      : undefined,
 
     leboncoin_moderation_status: doc.leboncoinStatus,
     leboncoin_moderation_comment: doc.leboncoinComment,
     leboncoin_moderation_url: doc.leboncoinUrl,
-    leboncoin_moderation_updated_at: doc.leboncoinUpdatedAt ? new Date(doc.leboncoinUpdatedAt) : undefined,
+    leboncoin_moderation_updated_at: doc.leboncoinUpdatedAt
+      ? new Date(doc.leboncoinUpdatedAt)
+      : undefined,
 
     created_at: new Date(doc.createdAt),
     updated_at: new Date(doc.updatedAt),
@@ -124,7 +135,7 @@ const buildData = async (doc: MongoMission, partners: { [key: string]: string })
         latitude: address.location?.lat || null,
         longitude: address.location?.lon || null,
         geoloc_status: address.geolocStatus,
-      }) as PgAddress,
+      }) as PgAddress
   );
 
   return { mission: obj, addresses };
@@ -144,7 +155,9 @@ const handler = async () => {
     const count = await prisma.mission.count();
     console.log(`[Missions] Found ${count} docs in database.`);
     const partners = {} as { [key: string]: string };
-    await prisma.partner.findMany({ select: { id: true, old_id: true } }).then((data) => data.forEach((d) => (partners[d.old_id] = d.id)));
+    await prisma.partner
+      .findMany({ select: { id: true, old_id: true } })
+      .then((data) => data.forEach((d) => (partners[d.old_id] = d.id)));
 
     const where = {};
     const countToSync = await MissionModel.countDocuments(where);
@@ -152,7 +165,9 @@ const handler = async () => {
 
     while (true) {
       const data = await MissionModel.find(where).limit(BULK_SIZE).skip(offset).lean();
-      if (data.length === 0) break;
+      if (data.length === 0) {
+        break;
+      }
 
       const dataToCreate = [] as { mission: PgMission; addresses: PgAddress[] }[];
       const dataToUpdate = [] as { mission: PgMission; addresses: PgAddress[] }[];
@@ -170,22 +185,33 @@ const handler = async () => {
       for (const doc of data) {
         if (!stored[doc._id.toString()]) {
           const res = await buildData(doc as MongoMission, partners);
-          if (res) dataToCreate.push(res);
+          if (res) {
+            dataToCreate.push(res);
+          }
         } else if (!isDateEqual(stored[doc._id.toString()].updated_at, doc.updatedAt)) {
           const res = await buildData(doc as MongoMission, partners);
-          if (res) dataToUpdate.push(res);
+          if (res) {
+            dataToUpdate.push(res);
+          }
         }
       }
 
-      console.log(`[Missions] ${dataToCreate.length} docs to create, ${dataToUpdate.length} docs to update.`);
+      console.log(
+        `[Missions] ${dataToCreate.length} docs to create, ${dataToUpdate.length} docs to update.`
+      );
       // Create data
       if (dataToCreate.length) {
-        const res = await prisma.mission.createManyAndReturn({ data: dataToCreate.map((e) => e.mission), skipDuplicates: true });
+        const res = await prisma.mission.createManyAndReturn({
+          data: dataToCreate.map((e) => e.mission),
+          skipDuplicates: true,
+        });
         console.log(`[Missions] Created ${res.length} missions, ${created} created so far.`);
         const pgCreateAddresses = dataToCreate
           .map((e) => {
             const mission = res.find((r) => r.old_id === e.mission.old_id);
-            if (!mission) return [];
+            if (!mission) {
+              return [];
+            }
             e.addresses.forEach((a) => (a.mission_id = mission.id));
             return e.addresses;
           })
@@ -199,14 +225,18 @@ const handler = async () => {
         let i = 0;
         for (const obj of dataToUpdate) {
           try {
-            if (i % 100 === 0) console.log(`[Missions] Updated ${i} docs, ${updated} updated so far.`);
+            if (i % 100 === 0) {
+              console.log(`[Missions] Updated ${i} docs, ${updated} updated so far.`);
+            }
             const mission = await prisma.mission.upsert({
               where: { old_id: obj.mission.old_id },
               update: obj.mission,
               create: obj.mission,
             });
             await prisma.address.deleteMany({ where: { mission_id: mission.id } });
-            await prisma.address.createMany({ data: obj.addresses.map((e) => ({ ...e, mission_id: mission.id })) });
+            await prisma.address.createMany({
+              data: obj.addresses.map((e) => ({ ...e, mission_id: mission.id })),
+            });
             updated += 1;
             i++;
           } catch (error) {
@@ -219,7 +249,9 @@ const handler = async () => {
       offset += BULK_SIZE;
     }
 
-    console.log(`[Missions] Ended at ${new Date().toISOString()} in ${(Date.now() - start.getTime()) / 1000}s.`);
+    console.log(
+      `[Missions] Ended at ${new Date().toISOString()} in ${(Date.now() - start.getTime()) / 1000}s.`
+    );
     return { created, updated };
   } catch (error) {
     captureException(error, "[Missions] Error while syncing docs.");

@@ -1,41 +1,66 @@
 import { parse } from "csv-parse";
-import streamPackage from "stream";
 import { Readable } from "stream";
 
 import { DEPARTMENTS } from "../../constants/departments";
-import { DataGouvRnaRecord } from "../../types/data-gouv";
-import { Organization } from "../../types";
 import OrganizationModel from "../../models/organization";
+import { Organization } from "../../types";
+import { DataGouvRnaRecord } from "../../types/data-gouv";
 import { slugify } from "../../utils";
 
 const findStatus = (position: string) => {
-  if (position === "A") return "ACTIVE";
-  if (position === "D") return "DISSOLVED";
-  if (position === "S") return "DELETED";
-  else return "UNKNOWN";
+  if (position === "A") {
+    return "ACTIVE";
+  }
+  if (position === "D") {
+    return "DISSOLVED";
+  }
+  if (position === "S") {
+    return "DELETED";
+  } else {
+    return "UNKNOWN";
+  }
 };
 
 const findGroupement = (groupement: string) => {
-  if (groupement === "F") return "FEDERATION";
-  if (groupement === "S") return "SIMPLE";
-  if (groupement === "U") return "UNION";
-  else return "UNKNOWN";
+  if (groupement === "F") {
+    return "FEDERATION";
+  }
+  if (groupement === "S") {
+    return "SIMPLE";
+  }
+  if (groupement === "U") {
+    return "UNION";
+  } else {
+    return "UNKNOWN";
+  }
 };
 
 const findDepartment = (postalCode: string) => {
   let code;
-  if (postalCode.startsWith("97") || postalCode.startsWith("98")) code = postalCode.substring(0, 3);
-  else if (postalCode.length === 5) code = postalCode.substring(0, 2);
-  else code = postalCode.substring(0, 1);
+  if (postalCode.startsWith("97") || postalCode.startsWith("98")) {
+    code = postalCode.substring(0, 3);
+  } else if (postalCode.length === 5) {
+    code = postalCode.substring(0, 2);
+  } else {
+    code = postalCode.substring(0, 1);
+  }
 
   const department = DEPARTMENTS[code];
 
-  return { code, department: department ? department[0] : "UNKNOWN", region: department ? department[1] : "UNKNOWN" };
+  return {
+    code,
+    department: department ? department[0] : "UNKNOWN",
+    region: department ? department[1] : "UNKNOWN",
+  };
 };
 
 const formatDate = (date: string) => {
-  if (!date) return null;
-  if (isNaN(new Date(date).getTime())) return null;
+  if (!date) {
+    return null;
+  }
+  if (isNaN(new Date(date).getTime())) {
+    return null;
+  }
   return new Date(date);
 };
 
@@ -179,7 +204,9 @@ const writeBatch = async (records: DataGouvRnaRecord[]): Promise<number> => {
 
   for (const doc of records) {
     // Remove header
-    if (doc.id === "id") continue;
+    if (doc.id === "id") {
+      continue;
+    }
 
     const obj = createOrganizationFromRecord(doc);
     bulk.push({ updateOne: { filter: { rna: doc.id }, update: obj, upsert: true } });
@@ -188,7 +215,9 @@ const writeBatch = async (records: DataGouvRnaRecord[]): Promise<number> => {
 
   if (bulk.length > 0) {
     const res = await OrganizationModel.bulkWrite(bulk);
-    console.log(`[Organizations] Updated ${res.modifiedCount} organizations, upserted ${res.upsertedCount} organizations`);
+    console.log(
+      `[Organizations] Updated ${res.modifiedCount} organizations, upserted ${res.upsertedCount} organizations`
+    );
   }
 
   return count;

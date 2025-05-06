@@ -12,8 +12,8 @@ const Card = ({ widget, mission, request }) => {
     mission.remote === "full"
       ? "À distance"
       : mission.addresses?.length > 1
-      ? mission.addresses.map((a) => a.city).join(", ")
-      : `${mission.city} ${mission.country !== "FR" ? `- ${iso.getName(mission.country, "fr")}` : ""}`;
+        ? mission.addresses.map((a) => a.city).join(", ")
+        : `${mission.city} ${mission.country !== "FR" ? `- ${iso.getName(mission.country, "fr")}` : ""}`;
 
   const domain = DOMAINS[mission.domain] || DOMAINS.autre;
   return (

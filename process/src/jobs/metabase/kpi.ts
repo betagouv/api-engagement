@@ -2,8 +2,8 @@ import { Kpi as PgKpi } from "@prisma/client";
 import prisma from "../../db/postgres";
 
 import { captureException } from "../../error";
-import { Kpi } from "../../types";
 import KpiModel from "../../models/kpi";
+import { Kpi } from "../../types";
 
 const buildData = (doc: Kpi) => {
   const obj = {
@@ -16,7 +16,8 @@ const buildData = (doc: Kpi) => {
     available_volontariat_given_by_partner_place_count: doc.availableVolontariatGivenPlaceCount,
 
     available_benevolat_attributed_by_api_place_count: doc.availableBenevolatAttributedPlaceCount,
-    available_volontariat_attributed_by_api_place_count: doc.availableVolontariatAttributedPlaceCount,
+    available_volontariat_attributed_by_api_place_count:
+      doc.availableVolontariatAttributedPlaceCount,
 
     percentage_benevolat_given_by_partner_places: doc.percentageBenevolatGivenPlaces,
     percentage_volontariat_given_by_partner_places: doc.percentageVolontariatGivenPlaces,
@@ -60,13 +61,17 @@ const handler = async () => {
     console.log(`[KPI] Found ${data.length} docs to sync.`);
 
     const stored = [] as string[];
-    await prisma.kpi.findMany({ select: { old_id: true } }).then((data) => data.forEach((d) => stored.push(d.old_id)));
+    await prisma.kpi
+      .findMany({ select: { old_id: true } })
+      .then((data) => data.forEach((d) => stored.push(d.old_id)));
     console.log(`[KPI] Found ${stored.length} docs in database.`);
 
     const dataToCreate = [];
     for (const doc of data) {
       const exists = stored.includes(doc._id.toString());
-      if (exists) continue;
+      if (exists) {
+        continue;
+      }
       const obj = buildData(doc as Kpi);
       dataToCreate.push(obj);
     }
@@ -78,7 +83,9 @@ const handler = async () => {
       console.log(`[KPI] Created ${res.count} docs.`);
     }
 
-    console.log(`[KPI] Ended at ${new Date().toISOString()} in ${(Date.now() - start.getTime()) / 1000}s.`);
+    console.log(
+      `[KPI] Ended at ${new Date().toISOString()} in ${(Date.now() - start.getTime()) / 1000}s.`
+    );
     return { created: dataToCreate.length };
   } catch (error) {
     captureException(error, "[KPI] Error while syncing docs.");

@@ -67,7 +67,9 @@ export function historyPlugin<T extends Document>(schema: Schema, options: Histo
     const doc = this as Document & { [key: string]: HistoryEntry[] };
 
     // Ignore new documents
-    if (doc.isNew) return next();
+    if (doc.isNew) {
+      return next();
+    }
 
     const changedFields: Record<string, any> = {};
     let hasChanges = false;
@@ -77,7 +79,9 @@ export function historyPlugin<T extends Document>(schema: Schema, options: Histo
       return !omitFields.includes(path) && path !== historyField;
     });
 
-    if (fieldsToTrack.length === 0) return next();
+    if (fieldsToTrack.length === 0) {
+      return next();
+    }
 
     fieldsToTrack.forEach((path) => {
       if (doc.isModified(path)) {
@@ -100,7 +104,9 @@ export function historyPlugin<T extends Document>(schema: Schema, options: Histo
       doc[historyField].push(historyEntry);
 
       if (doc[historyField].length > (pluginOptions.maxEntries as number)) {
-        doc[historyField] = doc[historyField].slice(doc[historyField].length - (pluginOptions.maxEntries as number));
+        doc[historyField] = doc[historyField].slice(
+          doc[historyField].length - (pluginOptions.maxEntries as number)
+        );
       }
     }
 
@@ -203,7 +209,9 @@ export function historyPlugin<T extends Document>(schema: Schema, options: Histo
                 const update = operation.update;
 
                 // Skip if there's no $set operation
-                if (!update.$set) continue;
+                if (!update.$set) {
+                  continue;
+                }
 
                 // Create history entry for this document
                 const changedFields: Record<string, any> = {};

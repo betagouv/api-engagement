@@ -2,9 +2,9 @@ name: Lint
 
 on:
   pull_request:
-    branches: [ main, staging ]
+    branches: [main, staging]
   push:
-    branches: [ main, staging ]
+    branches: [main, staging]
 
 jobs:
   lint:
@@ -17,17 +17,17 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '18'
-          cache: 'npm'
+          node-version: "18"
+          cache: "npm"
 
       - name: Install root dependencies
         run: npm ci
-        
+
       - name: Install API dependencies
         run: cd api && npm ci
-        
+
       - name: Install process dependencies
         run: cd process && npm ci
-        
+
       - name: Run ESLint
         run: npm run lint

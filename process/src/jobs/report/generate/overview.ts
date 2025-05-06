@@ -1,6 +1,6 @@
 import { jsPDF } from "jspdf";
 import { StatsReport } from "../../../types";
-import { drawSVG, drawBoxText, drawText, PAGE_WIDTH, formatNumber } from "./utils";
+import { drawBoxText, drawSVG, drawText, formatNumber, PAGE_WIDTH } from "./utils";
 
 const CONTAINER_PADDING = 32;
 const BOX_STATS_HEIGHT = 82;
@@ -59,17 +59,33 @@ const drawStatBox = ({ doc, x, y, width, icon, title, value, compareValue }: Sta
   drawSVG(doc, ICONS[icon], x + BOX_PADDING + 10, y + BOX_PADDING + 10);
 
   let currentY = y + BOX_PADDING;
-  let currentX = x + BOX_STATS_HEIGHT + BOX_PADDING;
+  const currentX = x + BOX_STATS_HEIGHT + BOX_PADDING;
 
   // Title
-  currentY = drawText(doc, `${formatNumber(value)} ${title}`, currentX, currentY, { fontWeight: "bold", fontSize: 16 });
+  currentY = drawText(doc, `${formatNumber(value)} ${title}`, currentX, currentY, {
+    fontWeight: "bold",
+    fontSize: 16,
+  });
 
   // Comparison
   const raise = compare(value, compareValue);
-  const raisePct = Math.abs(raise).toLocaleString("fr", { style: "percent", maximumFractionDigits: 2 });
+  const raisePct = Math.abs(raise).toLocaleString("fr", {
+    style: "percent",
+    maximumFractionDigits: 2,
+  });
   const raiseText = `${raise < 0 ? "-" : "+"} ${raisePct}`;
-  const { width: raiseWidth } = drawBoxText(doc, raiseText, currentX, currentY, raise < 0 ? "#FFE9E9" : "#B8FEC9", { fontSize: 12, color: raise < 0 ? "#CE0500" : "#18753C" });
-  drawText(doc, "par rapport au mois dernier", currentX + raiseWidth + 2, currentY, { fontSize: 12, color: "#666666" });
+  const { width: raiseWidth } = drawBoxText(
+    doc,
+    raiseText,
+    currentX,
+    currentY,
+    raise < 0 ? "#FFE9E9" : "#B8FEC9",
+    { fontSize: 12, color: raise < 0 ? "#CE0500" : "#18753C" }
+  );
+  drawText(doc, "par rapport au mois dernier", currentX + raiseWidth + 2, currentY, {
+    fontSize: 12,
+    color: "#666666",
+  });
 };
 
 interface TopBoxProps {
@@ -90,41 +106,58 @@ const drawTopBox = ({ doc, x, y, width, title, value }: TopBoxProps) => {
   drawSVG(doc, ICONS["table"], x + BOX_PADDING + 10, y + BOX_PADDING + 10);
 
   let currentY = y + BOX_PADDING;
-  let currentX = x + BOX_STATS_HEIGHT + BOX_PADDING;
+  const currentX = x + BOX_STATS_HEIGHT + BOX_PADDING;
 
   // Title
   currentY = drawText(doc, title, currentX, currentY, { fontWeight: "bold", fontSize: 16 });
 
   // Top publishers
-  const topPublishers = value.slice(0, 3).map((top: { key: string; doc_count: number }, index: number) => {
-    return `${index + 1}. ${top.key} - ${formatNumber(top.doc_count)} redirections`;
-  });
+  const topPublishers = value
+    .slice(0, 3)
+    .map((top: { key: string; doc_count: number }, index: number) => {
+      return `${index + 1}. ${top.key} - ${formatNumber(top.doc_count)} redirections`;
+    });
 
   for (const top of topPublishers) {
     currentY = drawText(doc, top, currentX, currentY, { fontSize: 12, color: "#666666" });
   }
 };
 
-const generateOverviewSection = (doc: jsPDF, data: StatsReport, x: number, width: number, isAnnounce: boolean, useSingleColumn: boolean = false) => {
+const generateOverviewSection = (
+  doc: jsPDF,
+  data: StatsReport,
+  x: number,
+  width: number,
+  isAnnounce: boolean,
+  useSingleColumn: boolean = false
+) => {
   // White container with padding
   doc.setFillColor(255, 255, 255);
   doc.rect(x, 224, width, useSingleColumn ? 838 : 520, "F");
 
   let currentY = 224 + CONTAINER_PADDING;
-  let currentX = x + CONTAINER_PADDING;
+  const currentX = x + CONTAINER_PADDING;
 
   // Title and description
-  const title = isAnnounce ? "En tant qu'annonceur, vous avez reçu" : "En tant que diffuseur, vous avez envoyé";
+  const title = isAnnounce
+    ? "En tant qu'annonceur, vous avez reçu"
+    : "En tant que diffuseur, vous avez envoyé";
   currentY = drawText(doc, title, currentX, currentY, { fontWeight: "bold", fontSize: 20 });
 
   // Description text
   const description = isAnnounce
     ? "L'API Engagement vous met en relation avec des plateformes qui diffusent vos missions. Ces statistiques résument l'engagement que vous avez reçu vers vos missions grâce à vos partenaires diffuseurs."
     : "L'API Engagement vous met en relation avec des annonceurs qui proposent des missions. Ces statistiques résument l'engagement que vous avez généré vers les missions de vos partenaires.";
-  currentY = drawText(doc, description, currentX, currentY + 8, { fontSize: 14, lineHeightFactor: 1.5, width: width - CONTAINER_PADDING * 2 });
+  currentY = drawText(doc, description, currentX, currentY + 8, {
+    fontSize: 14,
+    lineHeightFactor: 1.5,
+    width: width - CONTAINER_PADDING * 2,
+  });
 
   const stats = isAnnounce ? data.receive : data.send;
-  if (!stats?.hasStats) return;
+  if (!stats?.hasStats) {
+    return;
+  }
 
   const boxWidth = width - CONTAINER_PADDING * 2; // 32px padding on each side
 

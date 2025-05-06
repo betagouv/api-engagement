@@ -1,8 +1,8 @@
 import request from "supertest";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { createTestMission, createTestPublisher } from "../fixtures";
-import { createTestApp } from "../testApp";
 import elasticMock from "../mocks/elasticMock";
+import { createTestApp } from "../testApp";
 
 describe("MyMission API Integration Tests", () => {
   const app = createTestApp();
@@ -17,7 +17,7 @@ describe("MyMission API Integration Tests", () => {
     const orgId = "test-org-id";
     mission1 = await createTestMission(orgId, publisher._id.toString());
     mission2 = await createTestMission(orgId, publisher._id.toString());
-    
+
     vi.clearAllMocks();
     elasticMock.msearch.mockResolvedValue({
       body: {
@@ -86,7 +86,9 @@ describe("MyMission API Integration Tests", () => {
     });
 
     it("should return 400 for invalid query parameters", async () => {
-      const response = await request(app).get("/v0/mymission?limit=invalid").set("x-api-key", apiKey);
+      const response = await request(app)
+        .get("/v0/mymission?limit=invalid")
+        .set("x-api-key", apiKey);
       expect(response.status).toBe(400);
       expect(response.body.ok).toBe(false);
       expect(response.body.code).toBe("INVALID_QUERY");
@@ -107,7 +109,9 @@ describe("MyMission API Integration Tests", () => {
     });
 
     it("should return 404 if mission not found", async () => {
-      const response = await request(app).get("/v0/mymission/non-existent-id").set("x-api-key", apiKey);
+      const response = await request(app)
+        .get("/v0/mymission/non-existent-id")
+        .set("x-api-key", apiKey);
       expect(response.status).toBe(404);
       expect(response.body.ok).toBe(false);
     });
@@ -122,8 +126,8 @@ describe("MyMission API Integration Tests", () => {
                 apply: {
                   data: {
                     buckets: [
-                      { 
-                        key: "publisher1", 
+                      {
+                        key: "publisher1",
                         doc_count: 5,
                         hits: {
                           hits: {
@@ -132,21 +136,21 @@ describe("MyMission API Integration Tests", () => {
                                 _source: {
                                   fromPublisherLogo: "logo1.png",
                                   fromPublisherName: "Publisher 1",
-                                  fromPublisherUrl: "https://publisher1.com"
-                                }
-                              }
-                            ]
-                          }
-                        }
-                      }
+                                  fromPublisherUrl: "https://publisher1.com",
+                                },
+                              },
+                            ],
+                          },
+                        },
+                      },
                     ],
                   },
                 },
                 click: {
                   data: {
                     buckets: [
-                      { 
-                        key: "publisher2", 
+                      {
+                        key: "publisher2",
                         doc_count: 3,
                         hits: {
                           hits: {
@@ -155,13 +159,13 @@ describe("MyMission API Integration Tests", () => {
                                 _source: {
                                   fromPublisherLogo: "logo2.png",
                                   fromPublisherName: "Publisher 2",
-                                  fromPublisherUrl: "https://publisher2.com"
-                                }
-                              }
-                            ]
-                          }
-                        }
-                      }
+                                  fromPublisherUrl: "https://publisher2.com",
+                                },
+                              },
+                            ],
+                          },
+                        },
+                      },
                     ],
                   },
                 },
@@ -171,7 +175,9 @@ describe("MyMission API Integration Tests", () => {
         },
       });
 
-      const response = await request(app).get(`/v0/mymission/${mission1.clientId}`).set("x-api-key", apiKey);
+      const response = await request(app)
+        .get(`/v0/mymission/${mission1.clientId}`)
+        .set("x-api-key", apiKey);
 
       expect(response.status).toBe(200);
       expect(response.body.ok).toBe(true);
@@ -207,7 +213,9 @@ describe("MyMission API Integration Tests", () => {
     });
 
     it("should return 404 if mission not found", async () => {
-      const response = await request(app).get("/v0/mymission/non-existent-id/stats").set("x-api-key", apiKey);
+      const response = await request(app)
+        .get("/v0/mymission/non-existent-id/stats")
+        .set("x-api-key", apiKey);
       expect(response.status).toBe(404);
       expect(response.body.ok).toBe(false);
       expect(response.body.code).toBe("NOT_FOUND");
@@ -222,27 +230,29 @@ describe("MyMission API Integration Tests", () => {
               aggregations: {
                 mission: {
                   buckets: [
-                    { key: 'publisher1', doc_count: 5 },
-                    { key: 'publisher2', doc_count: 3 }
-                  ]
-                }
-              }
+                    { key: "publisher1", doc_count: 5 },
+                    { key: "publisher2", doc_count: 3 },
+                  ],
+                },
+              },
             },
             {
               aggregations: {
                 mission: {
                   buckets: [
-                    { key: 'publisher1', doc_count: 2 },
-                    { key: 'publisher3', doc_count: 1 }
-                  ]
-                }
-              }
-            }
-          ]
-        }
+                    { key: "publisher1", doc_count: 2 },
+                    { key: "publisher3", doc_count: 1 },
+                  ],
+                },
+              },
+            },
+          ],
+        },
       });
 
-      const response = await request(app).get(`/v0/mymission/${mission1.clientId}/stats`).set("x-api-key", apiKey);
+      const response = await request(app)
+        .get(`/v0/mymission/${mission1.clientId}/stats`)
+        .set("x-api-key", apiKey);
 
       expect(response.status).toBe(200);
       expect(response.body.ok).toBe(true);
@@ -268,36 +278,36 @@ function validateMissionStructure(mission: any) {
   expect(mission).toHaveProperty("id");
   expect(mission).toHaveProperty("clientId");
   expect(mission).toHaveProperty("publisherId");
-  
+
   expect(mission).toHaveProperty("organizationName");
   expect(mission).toHaveProperty("organizationId");
   expect(mission).toHaveProperty("organizationClientId");
-  
+
   expect(mission).toHaveProperty("title");
   expect(mission).toHaveProperty("description");
   expect(mission).toHaveProperty("domain");
   expect(mission).toHaveProperty("activity");
-  
+
   expect(mission).toHaveProperty("addresses");
   expect(mission).toHaveProperty("city");
   expect(mission).toHaveProperty("postalCode");
   expect(mission).toHaveProperty("departmentCode");
   expect(mission).toHaveProperty("departmentName");
   expect(mission).toHaveProperty("region");
-  
+
   expect(mission).toHaveProperty("createdAt");
   expect(mission).toHaveProperty("updatedAt");
   expect(mission).toHaveProperty("postedAt");
   expect(mission).toHaveProperty("startAt");
   expect(mission).toHaveProperty("endAt");
-  
+
   expect(mission).toHaveProperty("statusCode");
   expect(mission).toHaveProperty("moderation_5f5931496c7ea514150a818f_status");
-  
+
   expect(mission).toHaveProperty("publisherName");
   expect(mission).toHaveProperty("publisherUrl");
   expect(mission).toHaveProperty("publisherLogo");
-  
+
   expect(mission).toHaveProperty("places");
   expect(mission).toHaveProperty("remote");
   expect(mission).toHaveProperty("tasks");
@@ -307,12 +317,12 @@ function validateMissionStructure(mission: any) {
   expect(mission).toHaveProperty("tags");
   expect(mission).toHaveProperty("soft_skills");
   expect(mission).toHaveProperty("softSkills");
-  
+
   expect(typeof mission._id).toBe("string");
   expect(typeof mission.clientId).toBe("string");
   expect(typeof mission.publisherId).toBe("string");
   expect(typeof mission.title).toBe("string");
-  
+
   expect(Array.isArray(mission.addresses)).toBe(true);
   expect(Array.isArray(mission.tags)).toBe(true);
 }
@@ -322,24 +332,24 @@ function validateStatsStructure(stats: any) {
   expect(stats).toHaveProperty("applications");
   expect(Array.isArray(stats.clicks)).toBe(true);
   expect(Array.isArray(stats.applications)).toBe(true);
-  
+
   if (stats.clicks.length > 0) {
     const click = stats.clicks[0];
     expect(click).toHaveProperty("key");
     expect(click).toHaveProperty("doc_count");
-    
+
     if (click.logo !== undefined) {
       expect(click).toHaveProperty("logo");
       expect(click).toHaveProperty("name");
       expect(click).toHaveProperty("url");
     }
   }
-  
+
   if (stats.applications.length > 0) {
     const application = stats.applications[0];
     expect(application).toHaveProperty("key");
     expect(application).toHaveProperty("doc_count");
-    
+
     if (application.logo !== undefined) {
       expect(application).toHaveProperty("logo");
       expect(application).toHaveProperty("name");
