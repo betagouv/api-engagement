@@ -134,15 +134,14 @@ const MobileFilters = ({ options, values, onChange, show, onShow, disabledLocati
       </div>
       <div className="w-full border-y border-[#DDD]">
         <button
-          className="flex h-[40px] items-center justify-between w-full bg-white font-semibold focus:outline-none focus-visible:ring focus-visible:ring-blue-800"
+          className="flex h-[40px] items-center justify-between w-full bg-white focus:outline-none focus-visible:ring focus-visible:ring-blue-800 px-4"
           onClick={() => {
             onShow(!show);
             plausible(show ? "Filters closed" : "Filters opened", { u: url });
           }}
-          style={{ color }}
         >
           Filtrer les missions
-          {show ? <RiArrowUpSLine className="font-semibold" /> : <RiArrowDownSLine className="font-semibold" />}
+          {show ? <RiArrowUpSLine className="text-xl" /> : <RiArrowDownSLine className="font-semibold text-xl" />}
         </button>
 
         {show && (
