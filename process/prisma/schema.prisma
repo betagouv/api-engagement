@@ -175,7 +175,6 @@ model Kpi {
   available_benevolat_mission_count                   Int
   available_volontariat_mission_count                 Int
   available_jva_mission_count                         Int
-  available_jva_mission_ids                           String[]
   available_benevolat_given_by_partner_place_count    Int
   available_volontariat_given_by_partner_place_count  Int
   available_benevolat_attributed_by_api_place_count   Int
@@ -209,7 +208,6 @@ model KpiBotLess {
   available_benevolat_mission_count                   Int
   available_volontariat_mission_count                 Int
   available_jva_mission_count                         Int
-  available_jva_mission_ids                           String[]
   available_benevolat_given_by_partner_place_count    Int
   available_volontariat_given_by_partner_place_count  Int
   available_benevolat_attributed_by_api_place_count   Int

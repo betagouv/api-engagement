@@ -32,7 +32,6 @@ export const buildKpiBotless = async (start: Date) => {
   const availableVolontariatMissionCount = await MissionModel.countDocuments(whereVolontariatAvailable);
 
   const availableJvaMissionCount = await MissionModel.countDocuments(whereJvaAvailable);
-  const availableJvaMissionIds = await MissionModel.find(whereJvaAvailable, { _id: 1 }).lean();
 
   const aggs = await MissionModel.aggregate([
     {
@@ -164,7 +163,6 @@ export const buildKpiBotless = async (start: Date) => {
   kpi.availableVolontariatMissionCount = availableVolontariatMissionCount;
 
   kpi.availableJvaMissionCount = availableJvaMissionCount;
-  kpi.availableJvaMissionIds = availableJvaMissionIds.map((m) => m._id.toString());
 
   kpi.availableBenevolatGivenPlaceCount = availableBenevolatGivenPlaceCount;
   kpi.availableVolontariatGivenPlaceCount = availableVolontariatGivenPlaceCount;

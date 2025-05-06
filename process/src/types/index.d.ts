@@ -609,7 +609,6 @@ export interface Kpi {
   availableVolontariatMissionCount: number;
 
   availableJvaMissionCount: number;
-  availableJvaMissionIds: string[];
 
   availableBenevolatGivenPlaceCount: number;
   availableVolontariatGivenPlaceCount: number;
