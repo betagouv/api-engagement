@@ -1,21 +1,21 @@
-import importPartners from "./partner";
-import importOrganizationExclusion from "./organization-exclusion";
-import importUsers from "./user";
+import { SLACK_CRON_CHANNEL_ID } from "../../config";
+import { postMessage } from "../../services/slack";
+import importAccounts from "./account";
+import importApplies from "./apply";
 import importCampaigns from "./campaign";
-import importWidgets from "./widget";
-import importOrganizations from "./organization";
+import importClicks from "./click";
+import importImports from "./import";
+import importKpi from "./kpi";
+import importLoginHistory from "./login-history";
 import importMissions from "./mission";
 import importModerationEvents from "./moderation-event";
-import importImports from "./import";
+import importOrganizations from "./organization";
+import importOrganizationExclusion from "./organization-exclusion";
+import importPartners from "./partner";
 import importImpressions from "./print";
-import importClicks from "./click";
-import importApplies from "./apply";
-import importAccounts from "./account";
+import importUsers from "./user";
+import importWidgets from "./widget";
 import importRequestWidgets from "./widget-query";
-import importLoginHistory from "./login-history";
-import importKpi from "./kpi";
-import { postMessage } from "../../services/slack";
-import { SLACK_CRON_CHANNEL_ID } from "../../config";
 
 const handler = async () => {
   const stats = {
@@ -84,7 +84,10 @@ const handler = async () => {
 
   // Send message to slack
   const text = `${Object.entries(stats)
-    .map(([key, value]) => `${key}: ${value.created} created${value.updated !== null ? `, ${value.updated} updated` : ""}`)
+    .map(
+      ([key, value]) =>
+        `${key}: ${value.created} created${value.updated !== null ? `, ${value.updated} updated` : ""}`
+    )
     .join("\n")}`;
 
   console.log("stats", stats);
@@ -93,7 +96,7 @@ const handler = async () => {
       title: `Metabase Sync completed`,
       text,
     },
-    SLACK_CRON_CHANNEL_ID,
+    SLACK_CRON_CHANNEL_ID
   );
   return stats;
 };

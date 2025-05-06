@@ -1,9 +1,22 @@
 import jsPDF from "jspdf";
-import { Publisher } from "../../../types";
-import { PAGE_WIDTH, drawText, drawLink } from "./utils";
 import sharp from "sharp";
+import { Publisher } from "../../../types";
+import { PAGE_WIDTH, drawLink, drawText } from "./utils";
 
-const MONTHS = ["janvier", "février", "mars", "avril", "mai", "juin", "juillet", "août", "septembre", "octobre", "novembre", "décembre"];
+const MONTHS = [
+  "janvier",
+  "février",
+  "mars",
+  "avril",
+  "mai",
+  "juin",
+  "juillet",
+  "août",
+  "septembre",
+  "octobre",
+  "novembre",
+  "décembre",
+];
 const HEADER_HEIGHT = 192;
 
 const drawAPIEngagementLogo = (doc: jsPDF, x: number, y: number, size: number = 48) => {
@@ -22,7 +35,14 @@ const drawAPIEngagementLogo = (doc: jsPDF, x: number, y: number, size: number = 
   doc.circle(x + 44 * scale, y + 20 * scale, 14 * scale, "S");
 };
 
-export const generateHeader = async (doc: jsPDF, publisher: Publisher, month: number, year: number, page: number, totalPages: number) => {
+export const generateHeader = async (
+  doc: jsPDF,
+  publisher: Publisher,
+  month: number,
+  year: number,
+  page: number,
+  totalPages: number
+) => {
   // Header background
   doc.setFillColor("#F5F5FE");
   doc.rect(0, 0, PAGE_WIDTH, HEADER_HEIGHT, "F"); // Draw background for entire page
@@ -83,16 +103,31 @@ export const generateHeader = async (doc: jsPDF, publisher: Publisher, month: nu
   drawAPIEngagementLogo(doc, 248, 40);
 
   // Update font settings for text
-  drawText(doc, `API Engagement x ${publisher.name}`, 312, 40, { fontWeight: "bold", fontSize: 20, lineHeight: 28 });
+  drawText(doc, `API Engagement x ${publisher.name}`, 312, 40, {
+    fontWeight: "bold",
+    fontSize: 20,
+    lineHeight: 28,
+  });
 
   // Report title
-  drawText(doc, `Rapport d'impact ${MONTHS[month]} ${year}`, 248, 84, { fontWeight: "bold", fontSize: 28, lineHeight: 36 });
+  drawText(doc, `Rapport d'impact ${MONTHS[month]} ${year}`, 248, 84, {
+    fontWeight: "bold",
+    fontSize: 28,
+    lineHeight: 36,
+  });
 
   // Dashboard link underline
   const dashboardUrl = `https://app.api-engagement.beta.gouv.fr/performance?from=${new Date(year, month, 1).toISOString()}&to=${new Date(year, month + 1, 1).toISOString()}`;
   const text = "Retrouvez l'ensemble de vos statistiques sur votre tableau de bord";
-  drawLink(doc, text, dashboardUrl, 248, 128, { fontSize: 14, fontWeight: "bold", color: "#000091" });
+  drawLink(doc, text, dashboardUrl, 248, 128, {
+    fontSize: 14,
+    fontWeight: "bold",
+    color: "#000091",
+  });
 
   // Page numbers
-  drawText(doc, `Page ${page} / ${totalPages}`, PAGE_WIDTH - 120, 24, { fontSize: 12, color: "#666666" });
+  drawText(doc, `Page ${page} / ${totalPages}`, PAGE_WIDTH - 120, 24, {
+    fontSize: 12,
+    color: "#666666",
+  });
 };

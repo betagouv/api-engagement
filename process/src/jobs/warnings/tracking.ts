@@ -1,7 +1,7 @@
+import { SLACK_WARNING_CHANNEL_ID, STATS_INDEX } from "../../config";
 import esClient from "../../db/elastic";
 import WarningModel from "../../models/warning";
 import { postMessage } from "../../services/slack";
-import { SLACK_WARNING_CHANNEL_ID, STATS_INDEX } from "../../config";
 import { Publisher } from "../../types";
 
 const TRACKING_WARNING = "TRACKING_WARNING";
@@ -11,7 +11,14 @@ const getStats = async (publisherId: string) => {
   const twoWeeksAgo = new Date(now.getTime() - 14 * 24 * 60 * 60 * 1000);
 
   const body = {
-    query: { bool: { must: [{ term: { "toPublisherId.keyword": publisherId } }, { range: { createdAt: { gte: twoWeeksAgo } } }] } },
+    query: {
+      bool: {
+        must: [
+          { term: { "toPublisherId.keyword": publisherId } },
+          { range: { createdAt: { gte: twoWeeksAgo } } },
+        ],
+      },
+    },
     aggs: {
       click: { filter: { term: { "type.keyword": "click" } } },
       apply: { filter: { term: { "type.keyword": "apply" } } },
@@ -28,14 +35,22 @@ const getStats = async (publisherId: string) => {
 };
 
 export const checkTracking = async (publishers: Publisher[]) => {
-  console.log(`Checking stats from ${publishers.filter((p) => p.role_promoteur).length} publishers`);
+  console.log(
+    `Checking stats from ${publishers.filter((p) => p.role_promoteur).length} publishers`
+  );
 
   for (const publisher of publishers.filter((p) => p.role_promoteur)) {
     const stats = await getStats(publisher._id.toString());
-    if (!stats) continue;
+    if (!stats) {
+      continue;
+    }
     console.log(`[${publisher.name}] ${stats.click} clicks and ${stats.apply} applies`);
 
-    const statsWarning = await WarningModel.findOne({ publisherId: publisher._id.toString(), type: TRACKING_WARNING, fixed: false }, null, { sort: { createdAt: -1 } });
+    const statsWarning = await WarningModel.findOne(
+      { publisherId: publisher._id.toString(), type: TRACKING_WARNING, fixed: false },
+      null,
+      { sort: { createdAt: -1 } }
+    );
     if (stats.apply === 0 && stats.click >= 70) {
       console.log(`[${publisher.name}] No application but more than 70 redirections`);
       if (statsWarning) {
@@ -52,9 +67,15 @@ export const checkTracking = async (publishers: Publisher[]) => {
           publisherLogo: publisher.logo,
         };
         await WarningModel.create(obj);
-        const res = await postMessage({ text: `Alerte détectée: ${publisher.name} - Problème de tracking` }, SLACK_WARNING_CHANNEL_ID);
-        if (res.error) console.error(res.error);
-        else console.log("Slack message sent");
+        const res = await postMessage(
+          { text: `Alerte détectée: ${publisher.name} - Problème de tracking` },
+          SLACK_WARNING_CHANNEL_ID
+        );
+        if (res.error) {
+          console.error(res.error);
+        } else {
+          console.log("Slack message sent");
+        }
         continue;
       }
     } else {

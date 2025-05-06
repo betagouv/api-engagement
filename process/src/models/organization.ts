@@ -52,7 +52,7 @@ const schema = new Schema<Organization>(
     syncAt: { type: Date, description: "Sync at" },
     source: { type: String, description: "Source" },
   },
-  { timestamps: true },
+  { timestamps: true }
 );
 
 schema.index({ rna: 1 });

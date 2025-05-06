@@ -1,4 +1,9 @@
-import { Organization, Address as PgAddress, Mission as PgMission, MissionHistory as PgMissionHistory } from "@prisma/client";
+import {
+  Organization,
+  Address as PgAddress,
+  Mission as PgMission,
+  MissionHistory as PgMissionHistory,
+} from "@prisma/client";
 import { Mission as MongoMission } from "../../../types";
 
 type MissionHistoryEntry = Omit<PgMissionHistory, "id">; // Prisma renders uuid when saving
@@ -6,21 +11,23 @@ type MissionHistoryEntry = Omit<PgMissionHistory, "id">; // Prisma renders uuid 
 export type MissionTransformResult = {
   mission: PgMission;
   addresses: PgAddress[];
-  history: MissionHistoryEntry[]; 
+  history: MissionHistoryEntry[];
 };
 
 /**
  * Transform a MongoDB mission into PostgreSQL format
  */
 export const transformMongoMissionToPg = (
-  doc: MongoMission, 
-  partnerId: string, 
+  doc: MongoMission,
+  partnerId: string,
   organizations: Organization[]
 ): MissionTransformResult | null => {
-  if (!doc) return null;
+  if (!doc) {
+    return null;
+  }
 
   const organization = organizations.find((e) => e.old_id === doc.organizationId);
-  
+
   const obj = {
     old_id: doc._id.toString(),
     title: doc.title,
@@ -102,12 +109,16 @@ export const transformMongoMissionToPg = (
     jva_moderation_status: doc["moderation_5f5931496c7ea514150a818f_status"],
     jva_moderation_comment: doc["moderation_5f5931496c7ea514150a818f_comment"],
     jva_moderation_title: doc["moderation_5f5931496c7ea514150a818f_title"],
-    jva_moderation_updated_at: doc["moderation_5f5931496c7ea514150a818f_date"] ? new Date(doc["moderation_5f5931496c7ea514150a818f_date"]) : undefined,
+    jva_moderation_updated_at: doc["moderation_5f5931496c7ea514150a818f_date"]
+      ? new Date(doc["moderation_5f5931496c7ea514150a818f_date"])
+      : undefined,
 
     leboncoin_moderation_status: doc.leboncoinStatus,
     leboncoin_moderation_comment: doc.leboncoinComment,
     leboncoin_moderation_url: doc.leboncoinUrl,
-    leboncoin_moderation_updated_at: doc.leboncoinUpdatedAt ? new Date(doc.leboncoinUpdatedAt) : undefined,
+    leboncoin_moderation_updated_at: doc.leboncoinUpdatedAt
+      ? new Date(doc.leboncoinUpdatedAt)
+      : undefined,
 
     created_at: new Date(doc.createdAt),
     updated_at: new Date(doc.updatedAt),
@@ -116,28 +127,30 @@ export const transformMongoMissionToPg = (
 
   // Transform addresses
   const addresses: PgAddress[] = doc.addresses.map(
-    (address) => ({
-      old_id: address._id?.toString() || "",
-      street: address.street,
-      city: address.city,
-      postal_code: address.postalCode,
-      department_code: address.departmentCode,
-      department_name: address.departmentName,
-      region: address.region,
-      country: address.country,
-      latitude: address.location?.lat || null,
-      longitude: address.location?.lon || null,
-      geoloc_status: address.geolocStatus,
-    }) as PgAddress
+    (address) =>
+      ({
+        old_id: address._id?.toString() || "",
+        street: address.street,
+        city: address.city,
+        postal_code: address.postalCode,
+        department_code: address.departmentCode,
+        department_name: address.departmentName,
+        region: address.region,
+        country: address.country,
+        latitude: address.location?.lat || null,
+        longitude: address.location?.lon || null,
+        geoloc_status: address.geolocStatus,
+      }) as PgAddress
   );
 
   // Transform history entries
-  const history: MissionHistoryEntry[] = doc.__history?.map((history) => ({
-    date: history.date,
-    mission_id: obj.id,
-    state: history.state,
-    metadata: history.metadata as any,
-  })) || [];
+  const history: MissionHistoryEntry[] =
+    doc.__history?.map((history) => ({
+      date: history.date,
+      mission_id: obj.id,
+      state: history.state,
+      metadata: history.metadata as any,
+    })) || [];
 
   return { mission: obj, addresses, history };
 };

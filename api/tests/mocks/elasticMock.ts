@@ -1,15 +1,15 @@
-import { vi } from 'vitest';
+import { vi } from "vitest";
 
 const elasticMock = {
   msearch: vi.fn().mockResolvedValue({
     body: {
-      responses: []
-    }
+      responses: [],
+    },
   }),
   search: vi.fn().mockResolvedValue({
     body: {
-      aggregations: {}
-    }
+      aggregations: {},
+    },
   }),
   ping: vi.fn().mockResolvedValue({ statusCode: 200 }),
 };

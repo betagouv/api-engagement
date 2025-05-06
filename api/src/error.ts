@@ -15,13 +15,23 @@ export const NOT_FOUND = "NOT_FOUND";
 export const SERVER_ERROR = "SERVER_ERROR";
 
 export const captureException = (error: any, context?: string) => {
-  if (context) console.log(context);
-  if (ENV !== "development") Sentry.captureException(error);
-  else console.error(error);
+  if (context) {
+    console.log(context);
+  }
+  if (ENV !== "development") {
+    Sentry.captureException(error);
+  } else {
+    console.error(error);
+  }
 };
 
 export const captureMessage = (message: string, context?: string) => {
-  if (context) console.log(context);
-  if (ENV !== "development") Sentry.captureMessage(message);
-  else console.info(message);
+  if (context) {
+    console.log(context);
+  }
+  if (ENV !== "development") {
+    Sentry.captureMessage(message);
+  } else {
+    console.info(message);
+  }
 };

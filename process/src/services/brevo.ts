@@ -42,7 +42,9 @@ const api = async (path: string, body = {}, method = "POST") => {
 
   const res = await fetch(`https://api.brevo.com/v3${path}`, options);
   // if res content-type is application/json, return res.json()
-  if (res.headers.get("content-type")?.includes("application/json")) return { ok: res.ok, data: await res.json() };
+  if (res.headers.get("content-type")?.includes("application/json")) {
+    return { ok: res.ok, data: await res.json() };
+  }
   return { ok: res.ok, data: res };
 };
 
@@ -53,11 +55,21 @@ export const sendTemplate = async (templateId: number, options: EmailOptions) =>
       to: options.emailTo.map((email) => ({ email })),
     } as EmailBody;
 
-    if (options.emailBcc) body.bcc = options.emailBcc.map((email) => ({ email }));
-    if (options.subject) body.subject = options.subject;
-    if (options.params) body.params = options.params;
-    if (options.attachment) body.attachment = options.attachment;
-    if (options.tags) body.tags = options.tags;
+    if (options.emailBcc) {
+      body.bcc = options.emailBcc.map((email) => ({ email }));
+    }
+    if (options.subject) {
+      body.subject = options.subject;
+    }
+    if (options.params) {
+      body.params = options.params;
+    }
+    if (options.attachment) {
+      body.attachment = options.attachment;
+    }
+    if (options.tags) {
+      body.tags = options.tags;
+    }
 
     if (ENVIRONMENT !== "production") {
       console.log(`---- EMAIL ----`);
@@ -79,7 +91,9 @@ export const sendTemplate = async (templateId: number, options: EmailOptions) =>
 export const downloadAttachment = async (token: string) => {
   try {
     const res = await api(`/inbound/attachments/${token}`, {}, "GET");
-    if (!res.ok) throw res.data;
+    if (!res.ok) {
+      throw res.data;
+    }
     // send buffer
     const buffer = await res.data.arrayBuffer();
     return Buffer.from(buffer);

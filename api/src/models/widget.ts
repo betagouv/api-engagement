@@ -33,8 +33,16 @@ const schema = new Schema<Widget>(
       ],
       default: [],
     },
-    publishers: { type: [String], description: "List of publishers ids where the widget will take the mission from" },
-    jvaModeration: { type: Boolean, default: false, description: "Boolean that says if the mission of the widget should be the ones moderated by JVA" },
+    publishers: {
+      type: [String],
+      description: "List of publishers ids where the widget will take the mission from",
+    },
+    jvaModeration: {
+      type: Boolean,
+      default: false,
+      description:
+        "Boolean that says if the mission of the widget should be the ones moderated by JVA",
+    },
     display: { type: String, default: "full", enum: ["full", "line"] },
     url: { type: String },
     fromPublisherId: { type: String, required: true },
@@ -60,7 +68,7 @@ const schema = new Schema<Widget>(
   },
   {
     timestamps: true,
-  },
+  }
 );
 
 const WidgetModel = model<Widget>(MODELNAME, schema);

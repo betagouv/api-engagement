@@ -1,10 +1,10 @@
 import esClient from "../../db/elastic";
 import prisma from "../../db/postgres";
 
+import { Account } from "@prisma/client";
 import { STATS_INDEX } from "../../config";
 import { captureException } from "../../error";
 import { Stats } from "../../types";
-import { Account } from "@prisma/client";
 
 const BATCH_SIZE = 5000;
 
@@ -14,27 +14,36 @@ const buildData = async (
   missions: { [key: string]: string },
   campaigns: { [key: string]: string },
   widgets: { [key: string]: string },
-  clickId: string | undefined,
+  clickId: string | undefined
 ) => {
   const partnerFromId = partners[doc.fromPublisherId?.toString()];
   if (!partnerFromId) {
-    console.log(`[Accounts] Partner ${doc.fromPublisherId?.toString()} not found for doc ${doc._id.toString()}`);
+    console.log(
+      `[Accounts] Partner ${doc.fromPublisherId?.toString()} not found for doc ${doc._id.toString()}`
+    );
     return null;
   }
   const partnerToId = partners[doc.toPublisherId?.toString()];
   if (!partnerToId) {
-    console.log(`[Accounts] Partner ${doc.toPublisherId?.toString()} not found for doc ${doc._id.toString()}`);
+    console.log(
+      `[Accounts] Partner ${doc.toPublisherId?.toString()} not found for doc ${doc._id.toString()}`
+    );
     return null;
   }
   let missionId;
   if (doc.missionClientId && doc.toPublisherId) {
     missionId = missions[`${doc.missionClientId}-${doc.toPublisherId}`];
     if (!missionId) {
-      const m = await prisma.mission.findFirst({ where: { old_id: doc.missionId?.toString() }, select: { id: true } });
+      const m = await prisma.mission.findFirst({
+        where: { old_id: doc.missionId?.toString() },
+        select: { id: true },
+      });
       if (m) {
         missionId = m.id;
       } else {
-        console.log(`[Accounts] Mission ${doc.missionId?.toString()} not found for doc ${doc._id.toString()}`);
+        console.log(
+          `[Accounts] Mission ${doc.missionId?.toString()} not found for doc ${doc._id.toString()}`
+        );
       }
     }
   }
@@ -42,13 +51,19 @@ const buildData = async (
   let sourceId;
   if (doc.source === "widget") {
     const widget = widgets[doc.sourceId];
-    if (widget) sourceId = widget;
+    if (widget) {
+      sourceId = widget;
+    }
   } else if (doc.source === "campaign") {
     const campaign = campaigns[doc.sourceId];
-    if (campaign) sourceId = campaign;
+    if (campaign) {
+      sourceId = campaign;
+    }
   } else if (doc.source === "publisher") {
     const publisher = partners[doc.sourceId];
-    if (publisher) sourceId = publisher;
+    if (publisher) {
+      sourceId = publisher;
+    }
   }
 
   const obj = {
@@ -82,19 +97,31 @@ const handler = async () => {
     const stored = await prisma.apply.count();
     console.log(`[Accounts] Found ${stored} docs in database.`);
     // Select clicks from the last 2 months
-    const whereClicks = { created_at: { gte: new Date(Date.now() - 1000 * 60 * 60 * 24 * 62), lte: new Date() } };
+    const whereClicks = {
+      created_at: { gte: new Date(Date.now() - 1000 * 60 * 60 * 24 * 62), lte: new Date() },
+    };
     const clicks = {} as { [key: string]: string };
-    await prisma.click.findMany({ where: whereClicks, select: { id: true, old_id: true } }).then((data) => data.forEach((d) => (clicks[d.old_id] = d.id)));
+    await prisma.click
+      .findMany({ where: whereClicks, select: { id: true, old_id: true } })
+      .then((data) => data.forEach((d) => (clicks[d.old_id] = d.id)));
     const missions = {} as { [key: string]: string };
     await prisma.mission
       .findMany({ select: { id: true, client_id: true, partner: { select: { old_id: true } } } })
-      .then((data) => data.forEach((d) => (missions[`${d.client_id}-${d.partner?.old_id}`] = d.id)));
+      .then((data) =>
+        data.forEach((d) => (missions[`${d.client_id}-${d.partner?.old_id}`] = d.id))
+      );
     const partners = {} as { [key: string]: string };
-    await prisma.partner.findMany({ select: { id: true, old_id: true } }).then((data) => data.forEach((d) => (partners[d.old_id] = d.id)));
+    await prisma.partner
+      .findMany({ select: { id: true, old_id: true } })
+      .then((data) => data.forEach((d) => (partners[d.old_id] = d.id)));
     const campaigns = {} as { [key: string]: string };
-    await prisma.campaign.findMany({ select: { id: true, old_id: true } }).then((data) => data.forEach((d) => (campaigns[d.old_id] = d.id)));
+    await prisma.campaign
+      .findMany({ select: { id: true, old_id: true } })
+      .then((data) => data.forEach((d) => (campaigns[d.old_id] = d.id)));
     const widgets = {} as { [key: string]: string };
-    await prisma.widget.findMany({ select: { id: true, old_id: true } }).then((data) => data.forEach((d) => (widgets[d.old_id] = d.id)));
+    await prisma.widget
+      .findMany({ select: { id: true, old_id: true } })
+      .then((data) => data.forEach((d) => (widgets[d.old_id] = d.id)));
 
     while (true) {
       let data: { _id: string; _source: Stats }[] = [];
@@ -134,7 +161,9 @@ const handler = async () => {
       const clickIds: string[] = [];
       data.forEach((hit) => hit._source.clickId && clickIds.push(hit._source.clickId));
       if (clickIds.length) {
-        await prisma.click.findMany({ where: { old_id: { in: clickIds } }, select: { id: true, old_id: true } }).then((data) => data.forEach((d) => (clicks[d.old_id] = d.id)));
+        await prisma.click
+          .findMany({ where: { old_id: { in: clickIds } }, select: { id: true, old_id: true } })
+          .then((data) => data.forEach((d) => (clicks[d.old_id] = d.id)));
       }
 
       const dataToCreate: Account[] = [];
@@ -145,23 +174,42 @@ const handler = async () => {
         if (hit._source.clickId) {
           clickId = clicks[hit._source.clickId];
           if (!clickId) {
-            const res = await prisma.click.findFirst({ where: { old_id: hit._source.clickId }, select: { id: true } });
+            const res = await prisma.click.findFirst({
+              where: { old_id: hit._source.clickId },
+              select: { id: true },
+            });
             if (res) {
               clickId = res.id;
               clicks[hit._source.clickId] = clickId;
             } else {
-              console.log(`[Accounts] Click ${hit._source.clickId} not found for doc ${hit._id.toString()}`);
+              console.log(
+                `[Accounts] Click ${hit._source.clickId} not found for doc ${hit._id.toString()}`
+              );
             }
           }
         }
-        const obj = await buildData({ ...hit._source, _id: hit._id }, partners, missions, campaigns, widgets, clickId);
-        if (!obj) continue;
+        const obj = await buildData(
+          { ...hit._source, _id: hit._id },
+          partners,
+          missions,
+          campaigns,
+          widgets,
+          clickId
+        );
+        if (!obj) {
+          continue;
+        }
 
-        if (stored[hit._id.toString()] && stored[hit._id.toString()].click_id !== obj.click_id) dataToUpdate.push(obj);
-        else if (!stored[hit._id.toString()]) dataToCreate.push(obj);
+        if (stored[hit._id.toString()] && stored[hit._id.toString()].click_id !== obj.click_id) {
+          dataToUpdate.push(obj);
+        } else if (!stored[hit._id.toString()]) {
+          dataToCreate.push(obj);
+        }
       }
 
-      console.log(`[Accounts] ${dataToCreate.length} docs to create, ${dataToUpdate.length} docs to update.`);
+      console.log(
+        `[Accounts] ${dataToCreate.length} docs to create, ${dataToUpdate.length} docs to update.`
+      );
 
       if (dataToCreate.length) {
         const res = await prisma.account.createMany({ data: dataToCreate, skipDuplicates: true });
@@ -183,7 +231,9 @@ const handler = async () => {
       console.log(`[Accounts] Updated ${dataToUpdate.length} docs, ${updated} updated so far.`);
     }
 
-    console.log(`[Accounts] Ended at ${new Date().toISOString()} in ${(Date.now() - start.getTime()) / 1000}s.`);
+    console.log(
+      `[Accounts] Ended at ${new Date().toISOString()} in ${(Date.now() - start.getTime()) / 1000}s.`
+    );
     return { created, updated };
   } catch (error) {
     captureException(error, "[Accounts] Error while syncing docs.");

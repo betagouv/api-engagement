@@ -47,7 +47,7 @@ const schema = new Schema<Kpi>(
     benevolatAccountCount: { type: Number },
     volontariatAccountCount: { type: Number },
   },
-  { timestamps: true },
+  { timestamps: true }
 );
 
 const KpiBotlessModel = model<Kpi>(MODELNAME, schema);

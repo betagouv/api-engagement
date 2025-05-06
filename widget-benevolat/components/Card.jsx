@@ -13,8 +13,8 @@ const Card = ({ widget, mission, request }) => {
     mission.remote === "full"
       ? "à distance"
       : mission.addresses?.length > 1
-      ? mission.addresses.map((a) => a.city).join(", ")
-      : `${mission.city} ${mission.country !== "FR" ? `- ${iso.getName(mission.country, "fr")}` : ""}`;
+        ? mission.addresses.map((a) => a.city).join(", ")
+        : `${mission.city} ${mission.country !== "FR" ? `- ${iso.getName(mission.country, "fr")}` : ""}`;
 
   return (
     <a
@@ -23,9 +23,9 @@ const Card = ({ widget, mission, request }) => {
       target="_blank"
       rel="noopener noreferrer"
       className={`${
-        widget.style === "carousel" ? 
-          "w-full lg:max-w-[336px] min-h-[420px] max-h-[420px] xl:min-h-[460px] xl:max-h-[460px]" : 
-          "w-full lg:min-h-[440px] lg:max-h-[440px] min-h-[420px] max-h-[420px]"
+        widget.style === "carousel"
+          ? "w-full lg:max-w-[336px] min-h-[420px] max-h-[420px] xl:min-h-[460px] xl:max-h-[460px]"
+          : "w-full lg:min-h-[440px] lg:max-h-[440px] min-h-[420px] max-h-[420px]"
       } group border h-full flex flex-col border-[#DDDDDD] overflow-hidden focus:outline-none focus-visible:ring focus-visible:ring-blue-800 hover:shadow-lg transition-shadow duration-300 mx-auto`}
     >
       <div className="min-h-[188px] max-h-[188px] xl:min-h-[200px] xl:max-h-[200px] overflow-hidden">
@@ -53,13 +53,13 @@ const Card = ({ widget, mission, request }) => {
           <div className="h-[4.5rem] mb-4">
             <h2 className="font-semibold line-clamp-3 text-xl leading-tight group-hover:text-[#000091] transition-colors duration-300">{mission.title}</h2>
           </div>
-          
+
           <div className="flex flex-col mb-4">
             <span className="text-sm line-clamp-1 text-[#3A3A3A] mb-2">{address}</span>
             <span className="text-xs text-[#666666]">{`${mission.places} ${mission.places > 1 ? "bénévoles recherchés" : "bénévole recherché"}`}</span>
           </div>
         </div>
-        
+
         <div className="w-full text-center mt-4">
           <span name="tracker_counter" data-id={mission._id} data-publisher={widget.fromPublisherId.toString()} data-source={widget._id.toString()} data-request={request} />
         </div>

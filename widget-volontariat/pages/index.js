@@ -68,7 +68,7 @@ const Home = ({ widget, apiUrl, missions, total, request, environment }) => {
         },
         (error) => {
           console.error("Error getting location:", error);
-        }
+        },
       );
     } else {
       console.log("Geolocation is not supported by this browser.");
@@ -78,7 +78,7 @@ const Home = ({ widget, apiUrl, missions, total, request, environment }) => {
   useEffect(() => {
     const cleanup = resizeHelper.setupResizeObserver();
     return () => {
-      if (typeof cleanup === 'function') cleanup();
+      if (typeof cleanup === "function") cleanup();
     };
   }, []);
 

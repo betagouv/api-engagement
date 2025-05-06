@@ -1,8 +1,8 @@
-import esClient from "../../db/elastic";
-import { postMessage } from "../../services/slack";
 import { SLACK_WARNING_CHANNEL_ID, STATS_INDEX } from "../../config";
-import WarningBotModel from "../../models/warning-bot";
+import esClient from "../../db/elastic";
 import PublisherModel from "../../models/publisher";
+import WarningBotModel from "../../models/warning-bot";
+import { postMessage } from "../../services/slack";
 import { WarningBot } from "../../types";
 
 const countClick = async (user: string) => {
@@ -112,7 +112,9 @@ export const checkBotClicks = async () => {
       const exists = await WarningBotModel.findOne({ hash: bucket.key });
       if (!exists) {
         const publisher = await PublisherModel.findOne({ name: publisherId.key });
-        if (!publisher) continue;
+        if (!publisher) {
+          continue;
+        }
         const newWarning = await WarningBotModel.create({
           hash: bucket.key,
           userAgent: userAgent.key,

@@ -15,10 +15,13 @@ const schema = new Schema<OrganizationExclusion>(
     organizationClientId: { type: String },
     organizationName: { type: String, trim: true },
   },
-  { timestamps: true },
+  { timestamps: true }
 );
 
-schema.index({ excludedByPublisherId: 1, excludedForPublisherId: 1, organizationClientId: 1 }, { unique: true });
+schema.index(
+  { excludedByPublisherId: 1, excludedForPublisherId: 1, organizationClientId: 1 },
+  { unique: true }
+);
 schema.index({ excludedForPublisherId: 1 });
 
 const OrganizationExclusionModel = model<OrganizationExclusion>(MODELNAME, schema);

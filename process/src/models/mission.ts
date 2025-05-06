@@ -1,7 +1,7 @@
 import { Schema, model } from "mongoose";
 
-import { Mission } from "../types";
 import { historyPlugin } from "../plugins/history-plugin";
+import { Mission } from "../types";
 
 const MODELNAME = "mission";
 
@@ -59,7 +59,11 @@ const schema = new Schema<Mission>(
     endAt: { type: Date },
     priority: { type: String },
     places: { type: Number },
-    placesStatus: { type: String, enum: ["ATTRIBUTED_BY_API", "GIVEN_BY_PARTNER"], default: "ATTRIBUTED_BY_API" },
+    placesStatus: {
+      type: String,
+      enum: ["ATTRIBUTED_BY_API", "GIVEN_BY_PARTNER"],
+      default: "ATTRIBUTED_BY_API",
+    },
     metadata: { type: String },
     domain: { type: String },
     domainOriginal: { type: String },
@@ -127,7 +131,12 @@ const schema = new Schema<Mission>(
     publisherLogo: { type: String },
     lastSyncAt: { type: Date, required: true },
     applicationUrl: { type: String },
-    statusCode: { type: String, required: true, enum: ["ACCEPTED", "REFUSED"], default: "ACCEPTED" },
+    statusCode: {
+      type: String,
+      required: true,
+      enum: ["ACCEPTED", "REFUSED"],
+      default: "ACCEPTED",
+    },
     statusComment: { type: String },
     statusCommentHistoric: {
       type: [
@@ -160,7 +169,11 @@ const schema = new Schema<Mission>(
     deletedAt: { type: Date, default: null },
 
     // Moderation JVA
-    moderation_5f5931496c7ea514150a818f_status: { type: String, enum: ["PENDING", "ONGOING", "ACCEPTED", "REFUSED", null], default: null },
+    moderation_5f5931496c7ea514150a818f_status: {
+      type: String,
+      enum: ["PENDING", "ONGOING", "ACCEPTED", "REFUSED", null],
+      default: null,
+    },
     moderation_5f5931496c7ea514150a818f_comment: { type: String, default: null },
     moderation_5f5931496c7ea514150a818f_note: { type: String, default: null },
     moderation_5f5931496c7ea514150a818f_title: { type: String, default: null },
@@ -174,18 +187,12 @@ const schema = new Schema<Mission>(
   },
   {
     timestamps: true,
-  },
+  }
 );
 
 schema.plugin(historyPlugin, {
   historyField: "__history",
-  omit: [
-    "addresses", 
-    "updatedAt", 
-    "lastSyncAt", 
-    "__v", 
-    "__history"
-  ],
+  omit: ["addresses", "updatedAt", "lastSyncAt", "__v", "__history"],
   maxEntries: 100,
 });
 

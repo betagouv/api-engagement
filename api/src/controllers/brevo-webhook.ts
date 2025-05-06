@@ -50,7 +50,9 @@ router.post("/", async (req, res, next) => {
 
       const email = await EmailModel.create(obj);
       const objectName = await downloadFile(email);
-      if (objectName) email.file_object_name = objectName;
+      if (objectName) {
+        email.file_object_name = objectName;
+      }
       await email.save();
     }
     return res.status(200).send({ ok: true });
@@ -61,10 +63,14 @@ router.post("/", async (req, res, next) => {
 
 const downloadFile = async (email: Email) => {
   try {
-    if (!email.md_text_body) return null;
+    if (!email.md_text_body) {
+      return null;
+    }
 
     // find link the md_text_body of the text [Download report](https://www.linkedin.com/e/v2?...)
-    const match = email.md_text_body.match(/\[Download report\]\((https:\/\/www.linkedin.com\/e\/v2\?[^)]+)\)/);
+    const match = email.md_text_body.match(
+      /\[Download report\]\((https:\/\/www.linkedin.com\/e\/v2\?[^)]+)\)/
+    );
     if (!match) {
       captureException("[Linkedin Stats] No link found", `No link found in email ${email._id}`);
       return;

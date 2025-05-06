@@ -1,8 +1,8 @@
-import prisma from "../../db/postgres";
-import PublisherModel from "../../models/publisher";
-import { captureException } from "../../error";
-import { Publisher } from "../../types";
 import { Partner as PgPartner } from "@prisma/client";
+import prisma from "../../db/postgres";
+import { captureException } from "../../error";
+import PublisherModel from "../../models/publisher";
+import { Publisher } from "../../types";
 
 const buildData = (doc: Publisher) => {
   const obj = {
@@ -32,7 +32,9 @@ const handler = async () => {
     console.log(`[Partners] Found ${data.length} docs to sync.`);
 
     const stored = {} as { [key: string]: { old_id: string; id: string; updated_at: Date } };
-    await prisma.partner.findMany({ select: { old_id: true, id: true, updated_at: true } }).then((data) => data.forEach((d) => (stored[d.old_id] = d)));
+    await prisma.partner
+      .findMany({ select: { old_id: true, id: true, updated_at: true } })
+      .then((data) => data.forEach((d) => (stored[d.old_id] = d)));
     console.log(`[Partners] Found ${Object.keys(stored).length} docs in database.`);
 
     let created = 0;
@@ -40,7 +42,11 @@ const handler = async () => {
     let processed = 0;
 
     for (const doc of data) {
-      if (processed % 10 === 0) console.log(`[Partners] Processed ${processed}/${data.length} docs, created ${created}, updated ${updated}`);
+      if (processed % 10 === 0) {
+        console.log(
+          `[Partners] Processed ${processed}/${data.length} docs, created ${created}, updated ${updated}`
+        );
+      }
 
       const exists = stored[doc._id.toString()];
       const obj = buildData(doc as Publisher);
@@ -54,7 +60,9 @@ const handler = async () => {
       processed++;
     }
 
-    console.log(`[Partners] Ended at ${new Date().toISOString()} in ${(Date.now() - start.getTime()) / 1000}s, created ${created}, updated ${updated}, processed ${processed}`);
+    console.log(
+      `[Partners] Ended at ${new Date().toISOString()} in ${(Date.now() - start.getTime()) / 1000}s, created ${created}, updated ${updated}, processed ${processed}`
+    );
     return { created, updated, processed };
   } catch (error) {
     captureException(error, "[Partners] Error while syncing docs.");

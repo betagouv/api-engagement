@@ -3,7 +3,9 @@ import { Body } from "aws-sdk/clients/s3";
 
 import { BUCKET_NAME, REGION, SCW_ACCESS_KEY, SCW_HOST, SCW_SECRET_KEY } from "../config";
 
-if (!SCW_HOST || !BUCKET_NAME || !REGION || !SCW_ACCESS_KEY || !SCW_SECRET_KEY) throw new Error("Missing Scaleway credentials");
+if (!SCW_HOST || !BUCKET_NAME || !REGION || !SCW_ACCESS_KEY || !SCW_SECRET_KEY) {
+  throw new Error("Missing Scaleway credentials");
+}
 
 const bucket = new AWS.S3({
   endpoint: SCW_HOST,
@@ -28,7 +30,11 @@ const DEFAULT_OPTIONS = {
   ACL: OBJECT_ACL.PRIVATE,
 };
 
-export const putObject = async (objectName: string, objectContent: Body, options = {}): Promise<AWS.S3.ManagedUpload.SendData> => {
+export const putObject = async (
+  objectName: string,
+  objectContent: Body,
+  options = {}
+): Promise<AWS.S3.ManagedUpload.SendData> => {
   return new Promise((resolve, reject) => {
     const params = {
       ...DEFAULT_OPTIONS,
@@ -37,33 +43,45 @@ export const putObject = async (objectName: string, objectContent: Body, options
       Body: objectContent,
     };
     bucket.upload(params, (err: any, data: AWS.S3.ManagedUpload.SendData) => {
-      if (err) return reject(err);
+      if (err) {
+        return reject(err);
+      }
       resolve(data);
     });
   });
 };
 
-export const getObject = async (objectName: string, bucketName = BUCKET_NAME): Promise<AWS.S3.GetObjectOutput> => {
+export const getObject = async (
+  objectName: string,
+  bucketName = BUCKET_NAME
+): Promise<AWS.S3.GetObjectOutput> => {
   return new Promise((resolve, reject) => {
     const params = {
       Bucket: bucketName,
       Key: objectName,
     };
     bucket.getObject(params, (err: any, data: AWS.S3.GetObjectOutput) => {
-      if (err) return reject(err);
+      if (err) {
+        return reject(err);
+      }
       resolve(data);
     });
   });
 };
 
-export const deleteObject = async (objectName: string, bucketName = BUCKET_NAME): Promise<AWS.S3.DeleteObjectOutput> => {
+export const deleteObject = async (
+  objectName: string,
+  bucketName = BUCKET_NAME
+): Promise<AWS.S3.DeleteObjectOutput> => {
   return new Promise((resolve, reject) => {
     const params = {
       Bucket: bucketName,
       Key: objectName,
     };
     bucket.deleteObject(params, (err: any, data: AWS.S3.DeleteObjectOutput) => {
-      if (err) return reject(err);
+      if (err) {
+        return reject(err);
+      }
       resolve(data);
     });
   });

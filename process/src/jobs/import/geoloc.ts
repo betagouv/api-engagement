@@ -2,8 +2,8 @@
 
 import { DEPARTMENTS } from "../../constants/departments";
 
-import apiAdresse from "../../services/api-adresse";
 import { captureException } from "../../error";
+import apiAdresse from "../../services/api-adresse";
 import { Mission, Publisher } from "../../types";
 
 export interface GeolocResult {
@@ -25,11 +25,22 @@ export interface GeolocResult {
     type: "Point";
     coordinates: [number, number];
   } | null;
-  geolocStatus: "NOT_FOUND" | "FAILED" | "ENRICHED_BY_PUBLISHER" | "ENRICHED_BY_API" | "NO_DATA" | "SHOULD_ENRICH";
+  geolocStatus:
+    | "NOT_FOUND"
+    | "FAILED"
+    | "ENRICHED_BY_PUBLISHER"
+    | "ENRICHED_BY_API"
+    | "NO_DATA"
+    | "SHOULD_ENRICH";
 }
 
-export const enrichWithGeoloc = async (publisher: Publisher, missions: Mission[]): Promise<GeolocResult[]> => {
-  if (!missions.length) return [];
+export const enrichWithGeoloc = async (
+  publisher: Publisher,
+  missions: Mission[]
+): Promise<GeolocResult[]> => {
+  if (!missions.length) {
+    return [];
+  }
   try {
     console.log(`[${publisher.name}] Enriching with geoloc ${missions.length} missions...`);
     const csv = ["clientid,addressindex,address,city,postcode,departmentcode"];
@@ -37,7 +48,12 @@ export const enrichWithGeoloc = async (publisher: Publisher, missions: Mission[]
 
     missions.forEach((mission) => {
       (mission.addresses || []).forEach((addressItem, addressIndex) => {
-        if (addressItem.geolocStatus === "ENRICHED_BY_PUBLISHER" || addressItem.geolocStatus === "ENRICHED_BY_API") return;
+        if (
+          addressItem.geolocStatus === "ENRICHED_BY_PUBLISHER" ||
+          addressItem.geolocStatus === "ENRICHED_BY_API"
+        ) {
+          return;
+        }
         const clientId = mission.clientId;
         const street = (addressItem.street || "").replace(/[^a-zA-Z0-9]/g, " ") || "";
         const city = (addressItem.city || "").replace(/[^a-zA-Z0-9]/g, " ") || "";
@@ -58,7 +74,9 @@ export const enrichWithGeoloc = async (publisher: Publisher, missions: Mission[]
       const lines = results.split("\n").filter((line) => line.trim());
       const data = lines.map((line) => line.split(","));
       const header = data.shift();
-      if (!header) throw new Error("No header in api-adresse results");
+      if (!header) {
+        throw new Error("No header in api-adresse results");
+      }
       const headerIndex: Record<string, number> = {};
       header.forEach((h, i) => (headerIndex[h] = i));
 
@@ -68,7 +86,9 @@ export const enrichWithGeoloc = async (publisher: Publisher, missions: Mission[]
         const clientId = line[headerIndex.clientid]?.trim();
         const addressIndex = parseInt(line[headerIndex.addressindex], 10);
         const mission = missions.find((m) => m.clientId.toString() === clientId);
-        if (!mission) continue;
+        if (!mission) {
+          continue;
+        }
 
         const obj: GeolocResult = {
           clientId: mission.clientId,
@@ -85,9 +105,15 @@ export const enrichWithGeoloc = async (publisher: Publisher, missions: Mission[]
         };
 
         if (parseFloat(line[headerIndex.result_score]) > 0.4) {
-          if (line[headerIndex.result_name]) obj.street = line[headerIndex.result_name];
-          if (line[headerIndex.result_postcode]) obj.postalCode = line[headerIndex.result_postcode];
-          if (line[headerIndex.result_city]) obj.city = line[headerIndex.result_city];
+          if (line[headerIndex.result_name]) {
+            obj.street = line[headerIndex.result_name];
+          }
+          if (line[headerIndex.result_postcode]) {
+            obj.postalCode = line[headerIndex.result_postcode];
+          }
+          if (line[headerIndex.result_city]) {
+            obj.city = line[headerIndex.result_city];
+          }
           if (line[headerIndex.latitude]) {
             obj.location = {
               lat: Number(line[headerIndex.latitude]),
@@ -95,7 +121,9 @@ export const enrichWithGeoloc = async (publisher: Publisher, missions: Mission[]
             };
           }
           if (line[headerIndex.result_context]) {
-            const context = line[headerIndex.result_context].split(",").map((val) => val.replace(/^"|"$/g, "").trim());
+            const context = line[headerIndex.result_context]
+              .split(",")
+              .map((val) => val.replace(/^"|"$/g, "").trim());
             obj.departmentCode = context[0];
 
             if (DEPARTMENTS[obj.departmentCode]) {
@@ -131,7 +159,7 @@ export const enrichWithGeoloc = async (publisher: Publisher, missions: Mission[]
         clientId: m.clientId,
         addressIndex: index,
         geolocStatus: "FAILED",
-      })),
+      }))
     ) as GeolocResult[];
   }
 };

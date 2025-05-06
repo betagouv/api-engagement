@@ -2,8 +2,8 @@ import { BulkOperationContainer } from "@elastic/elasticsearch/api/types";
 import { STATS_INDEX } from "../../config";
 import esClient from "../../db/elastic";
 import { captureException, captureMessage } from "../../error";
-import { Stats } from "../../types";
 import MissionModel from "../../models/mission";
+import { Stats } from "../../types";
 
 const ROWS = [
   "LinkedIn Job ID",
@@ -46,8 +46,11 @@ const BULK_SIZE = 1000;
 
 const getDate = (date: string, full: boolean = false) => {
   const s = date.split("-");
-  if (full) return new Date(parseInt(s[0]), parseInt(s[1]) - 1, parseInt(s[2]) + 1, 0, 0, 0, -1);
-  else return new Date(parseInt(s[0]), parseInt(s[1]) - 1, parseInt(s[2]));
+  if (full) {
+    return new Date(parseInt(s[0]), parseInt(s[1]) - 1, parseInt(s[2]) + 1, 0, 0, 0, -1);
+  } else {
+    return new Date(parseInt(s[0]), parseInt(s[1]) - 1, parseInt(s[2]));
+  }
 };
 
 // Temporary fix for missing missions
@@ -81,7 +84,9 @@ const parseRow = async (row: (string | number)[], from: Date, to: Date, sourceId
   }
 
   const stateStartDate = getDate(row[ROWS.indexOf("State Start Date")].toString());
-  const stateEndDate = row[ROWS.indexOf("State End Date")] ? getDate(row[ROWS.indexOf("State End Date")].toString(), true) : null;
+  const stateEndDate = row[ROWS.indexOf("State End Date")]
+    ? getDate(row[ROWS.indexOf("State End Date")].toString(), true)
+    : null;
 
   const views = parseInt(row[ROWS.indexOf("Total Views")].toString()) || 0;
   try {
@@ -89,7 +94,10 @@ const parseRow = async (row: (string | number)[], from: Date, to: Date, sourceId
 
     let mission = await MissionModel.findOne({ _old_ids: { $in: [missionId] } });
     if (!mission) {
-      const response2 = await esClient.search({ index: STATS_INDEX, body: { query: { term: { "missionId.keyword": missionId } }, size: 1 } });
+      const response2 = await esClient.search({
+        index: STATS_INDEX,
+        body: { query: { term: { "missionId.keyword": missionId } }, size: 1 },
+      });
       if (response2.body.hits.total.value === 0) {
         if (MISSION_NOT_FOUND[missionId.toString()]) {
           mission = await MissionModel.findById(MISSION_NOT_FOUND[missionId.toString()]);
@@ -102,8 +110,14 @@ const parseRow = async (row: (string | number)[], from: Date, to: Date, sourceId
           return;
         }
       } else {
-        const stats = { _id: response2.body.hits.hits[0]._id, ...response2.body.hits.hits[0]._source } as Stats;
-        mission = await MissionModel.findOne({ clientId: stats.missionClientId?.toString(), publisherId: stats.toPublisherId });
+        const stats = {
+          _id: response2.body.hits.hits[0]._id,
+          ...response2.body.hits.hits[0]._source,
+        } as Stats;
+        mission = await MissionModel.findOne({
+          clientId: stats.missionClientId?.toString(),
+          publisherId: stats.toPublisherId,
+        });
         if (!mission) {
           if (MISSION_NOT_FOUND[missionId.toString()]) {
             mission = await MissionModel.findById(MISSION_NOT_FOUND[missionId.toString()]);
@@ -119,8 +133,14 @@ const parseRow = async (row: (string | number)[], from: Date, to: Date, sourceId
       }
     }
 
-    const endInterval = !stateEndDate || stateEndDate > to || stateEndDate < from ? to : stateEndDate;
-    const startInterval = stateStartDate < from || (stateEndDate && stateEndDate < from) ? from : stateStartDate > endInterval ? endInterval : stateStartDate;
+    const endInterval =
+      !stateEndDate || stateEndDate > to || stateEndDate < from ? to : stateEndDate;
+    const startInterval =
+      stateStartDate < from || (stateEndDate && stateEndDate < from)
+        ? from
+        : stateStartDate > endInterval
+          ? endInterval
+          : stateStartDate;
 
     const intervalPrints = (endInterval.getTime() - startInterval.getTime()) / (views - 1 || 1);
 
@@ -154,7 +174,12 @@ const parseRow = async (row: (string | number)[], from: Date, to: Date, sourceId
   }
 };
 
-export const processData = async (data: (string | number)[][], from: Date, to: Date, sourceId: string) => {
+export const processData = async (
+  data: (string | number)[][],
+  from: Date,
+  to: Date,
+  sourceId: string
+) => {
   const bulk = [] as (BulkOperationContainer | Stats)[];
   const result = {
     created: 0,
@@ -162,12 +187,18 @@ export const processData = async (data: (string | number)[][], from: Date, to: D
   };
 
   for (let i = 1; i < data.length; i++) {
-    if (i % 100 === 0) console.log(`[Linkedin Stats] Processed ${i} rows`);
+    if (i % 100 === 0) {
+      console.log(`[Linkedin Stats] Processed ${i} rows`);
+    }
 
     const row = data[i];
-    if (row[0] === "LinkedIn Job ID") continue;
+    if (row[0] === "LinkedIn Job ID") {
+      continue;
+    }
     const res = await parseRow(row, from, to, sourceId);
-    if (!res) continue;
+    if (!res) {
+      continue;
+    }
 
     res.forEach((print) => {
       bulk.push({ index: { _index: STATS_INDEX } });

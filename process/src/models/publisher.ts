@@ -14,7 +14,7 @@ const publisherSchema = new Schema<Diffuseur>(
     publisher: { type: String, ref: "publisher" },
     mission_type: { type: String, default: null, enum: ["benevolat", "volontariat", null] },
   },
-  { timestamps: true },
+  { timestamps: true }
 );
 
 const schema = new Schema<Publisher>(
@@ -66,7 +66,7 @@ const schema = new Schema<Publisher>(
     created_at: { type: Date, default: Date.now },
     deleted_at: { type: Date, default: null },
   },
-  { timestamps: true },
+  { timestamps: true }
 );
 
 const PublisherModel = model<Publisher>(MODELNAME, schema);

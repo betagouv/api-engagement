@@ -27,7 +27,7 @@ const schema = new Schema<User>(
       createdAt: "created_at",
       updatedAt: "updated_at",
     },
-  },
+  }
 );
 
 schema.pre("save", function (next) {

@@ -1,14 +1,27 @@
-import { Report } from "../../types";
-import PublisherModel from "../../models/publisher";
-import UserModel from "../../models/user";
-import ReportModel from "../../models/report";
-import { sendTemplate } from "../../services/brevo";
 import { captureException } from "../../error";
+import PublisherModel from "../../models/publisher";
+import ReportModel from "../../models/report";
+import UserModel from "../../models/user";
+import { sendTemplate } from "../../services/brevo";
+import { Report } from "../../types";
 
 const ANNOUNCE_TEMPLATE_ID = 20;
 const BROADCAST_TEMPLATE_ID = 9;
 
-const MONTHS = ["Janvier", "Février", "Mars", "Avril", "Mai", "Juin", "Juillet", "Août", "Septembre", "Octobre", "Novembre", "Décembre"];
+const MONTHS = [
+  "Janvier",
+  "Février",
+  "Mars",
+  "Avril",
+  "Mai",
+  "Juin",
+  "Juillet",
+  "Août",
+  "Septembre",
+  "Octobre",
+  "Novembre",
+  "Décembre",
+];
 const compare = (a: number, b: number) => (a - b) / (a || 1);
 
 const sendReport = async (report: Report) => {
@@ -38,11 +51,18 @@ const sendReport = async (report: Report) => {
       } as any,
     };
 
-    if (data.topPublishers[0]) body.params.top1 = ` 1. ${data.topPublishers[0].key} - ${data.topPublishers[0].doc_count} redirections`;
-    if (data.topPublishers[1]) body.params.top2 = ` 2. ${data.topPublishers[1].key} - ${data.topPublishers[1].doc_count} redirections`;
-    if (data.topPublishers[2]) body.params.top3 = ` 3. ${data.topPublishers[2].key} - ${data.topPublishers[2].doc_count} redirections`;
+    if (data.topPublishers[0]) {
+      body.params.top1 = ` 1. ${data.topPublishers[0].key} - ${data.topPublishers[0].doc_count} redirections`;
+    }
+    if (data.topPublishers[1]) {
+      body.params.top2 = ` 2. ${data.topPublishers[1].key} - ${data.topPublishers[1].doc_count} redirections`;
+    }
+    if (data.topPublishers[2]) {
+      body.params.top3 = ` 3. ${data.topPublishers[2].key} - ${data.topPublishers[2].doc_count} redirections`;
+    }
 
-    const templateId = report.dataTemplate === "SEND" ? BROADCAST_TEMPLATE_ID : ANNOUNCE_TEMPLATE_ID;
+    const templateId =
+      report.dataTemplate === "SEND" ? BROADCAST_TEMPLATE_ID : ANNOUNCE_TEMPLATE_ID;
     return await sendTemplate(templateId, body);
   } catch (error) {
     captureException(error, "Error sending report");
@@ -102,7 +122,9 @@ export const sendReports = async (year: number, month: number) => {
       continue;
     }
 
-    const receivers = users.filter((user) => publisher.send_report_to.includes(user._id.toString()));
+    const receivers = users.filter((user) =>
+      publisher.send_report_to.includes(user._id.toString())
+    );
     report.sentTo = receivers.map((r) => r.email);
 
     console.log(`[${publisher.name}] Sending report to ${report.sentTo.map((e) => e).join(", ")}`);

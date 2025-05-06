@@ -10,7 +10,7 @@ const schema = new Schema<RequestWidget>(
     total: { type: Number, default: 0 },
     missions: { type: [String], default: [] },
   },
-  { timestamps: true },
+  { timestamps: true }
 );
 
 const RequestWidget = model<RequestWidget>(MODELNAME, schema);

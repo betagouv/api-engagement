@@ -11,7 +11,7 @@ const schema = new Schema<StatsBot>(
     host: { type: String },
     user: { type: String, required: true, unique: true, index: true },
   },
-  { timestamps: true },
+  { timestamps: true }
 );
 
 const StatsBotModel = model<StatsBot>(MODELNAME, schema);

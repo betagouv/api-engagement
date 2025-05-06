@@ -9,8 +9,16 @@ const schema = new Schema<ModerationEvent>(
     moderatorId: { type: String, required: true },
     userId: { type: String, default: null },
     userName: { type: String, default: null },
-    initialStatus: { type: String, enum: ["ACCEPTED", "REFUSED", "PENDING", "ONGOING", null], default: null },
-    newStatus: { type: String, enum: ["ACCEPTED", "REFUSED", "PENDING", "ONGOING", null], default: null },
+    initialStatus: {
+      type: String,
+      enum: ["ACCEPTED", "REFUSED", "PENDING", "ONGOING", null],
+      default: null,
+    },
+    newStatus: {
+      type: String,
+      enum: ["ACCEPTED", "REFUSED", "PENDING", "ONGOING", null],
+      default: null,
+    },
     initialTitle: { type: String, default: null },
     newTitle: { type: String, default: null },
     initialComment: { type: String, default: null },
@@ -24,7 +32,7 @@ const schema = new Schema<ModerationEvent>(
   },
   {
     timestamps: true,
-  },
+  }
 );
 
 const ModerationEventModel = model<ModerationEvent>(MODELNAME, schema);

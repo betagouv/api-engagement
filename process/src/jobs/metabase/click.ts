@@ -1,10 +1,10 @@
 import esClient from "../../db/elastic";
 import prisma from "../../db/postgres";
 
+import { Click } from "@prisma/client";
 import { STATS_INDEX } from "../../config";
 import { captureException } from "../../error";
 import { Stats } from "../../types";
-import { Click } from "@prisma/client";
 
 const BATCH_SIZE = 5000;
 
@@ -13,16 +13,20 @@ const buildData = async (
   partners: { [key: string]: string },
   missions: { [key: string]: string },
   campaigns: { [key: string]: string },
-  widgets: { [key: string]: string },
+  widgets: { [key: string]: string }
 ) => {
   const partnerFromId = partners[doc.fromPublisherId?.toString()];
   if (!partnerFromId) {
-    console.log(`[Clicks] Partner ${doc.fromPublisherId?.toString()} not found for doc ${doc._id.toString()}`);
+    console.log(
+      `[Clicks] Partner ${doc.fromPublisherId?.toString()} not found for doc ${doc._id.toString()}`
+    );
     return null;
   }
   const partnerToId = partners[doc.toPublisherId?.toString()];
   if (!partnerToId) {
-    console.log(`[Clicks] Partner ${doc.toPublisherId?.toString()} not found for doc ${doc._id.toString()}`);
+    console.log(
+      `[Clicks] Partner ${doc.toPublisherId?.toString()} not found for doc ${doc._id.toString()}`
+    );
     return null;
   }
 
@@ -30,11 +34,16 @@ const buildData = async (
   if (doc.missionClientId && doc.toPublisherId) {
     missionId = missions[`${doc.missionClientId}-${doc.toPublisherId}`];
     if (!missionId) {
-      const m = await prisma.mission.findFirst({ where: { old_id: doc.missionId?.toString() }, select: { id: true } });
+      const m = await prisma.mission.findFirst({
+        where: { old_id: doc.missionId?.toString() },
+        select: { id: true },
+      });
       if (m) {
         missionId = m.id;
       } else {
-        console.log(`[Clicks] Mission ${doc.missionId?.toString()} not found for doc ${doc._id.toString()}`);
+        console.log(
+          `[Clicks] Mission ${doc.missionId?.toString()} not found for doc ${doc._id.toString()}`
+        );
       }
     }
   }
@@ -42,13 +51,19 @@ const buildData = async (
   let sourceId;
   if (doc.source === "widget") {
     const widget = widgets[doc.sourceId];
-    if (widget) sourceId = widget;
+    if (widget) {
+      sourceId = widget;
+    }
   } else if (doc.source === "campaign") {
     const campaign = campaigns[doc.sourceId];
-    if (campaign) sourceId = campaign;
+    if (campaign) {
+      sourceId = campaign;
+    }
   } else if (doc.source === "publisher") {
     const publisher = partners[doc.sourceId];
-    if (publisher) sourceId = publisher;
+    if (publisher) {
+      sourceId = publisher;
+    }
   }
 
   const obj = {
@@ -85,13 +100,21 @@ const handler = async () => {
     const missions = {} as { [key: string]: string };
     await prisma.mission
       .findMany({ select: { id: true, client_id: true, partner: { select: { old_id: true } } } })
-      .then((data) => data.forEach((d) => (missions[`${d.client_id}-${d.partner?.old_id}`] = d.id)));
+      .then((data) =>
+        data.forEach((d) => (missions[`${d.client_id}-${d.partner?.old_id}`] = d.id))
+      );
     const partners = {} as { [key: string]: string };
-    await prisma.partner.findMany({ select: { id: true, old_id: true } }).then((data) => data.forEach((d) => (partners[d.old_id] = d.id)));
+    await prisma.partner
+      .findMany({ select: { id: true, old_id: true } })
+      .then((data) => data.forEach((d) => (partners[d.old_id] = d.id)));
     const campaigns = {} as { [key: string]: string };
-    await prisma.campaign.findMany({ select: { id: true, old_id: true } }).then((data) => data.forEach((d) => (campaigns[d.old_id] = d.id)));
+    await prisma.campaign
+      .findMany({ select: { id: true, old_id: true } })
+      .then((data) => data.forEach((d) => (campaigns[d.old_id] = d.id)));
     const widgets = {} as { [key: string]: string };
-    await prisma.widget.findMany({ select: { id: true, old_id: true } }).then((data) => data.forEach((d) => (widgets[d.old_id] = d.id)));
+    await prisma.widget
+      .findMany({ select: { id: true, old_id: true } })
+      .then((data) => data.forEach((d) => (widgets[d.old_id] = d.id)));
 
     while (true) {
       let data = [];
@@ -141,8 +164,16 @@ const handler = async () => {
 
       const dataToCreate = [];
       for (const hit of data) {
-        const obj = await buildData({ _id: hit._id, ...hit._source }, partners, missions, campaigns, widgets);
-        if (!obj) continue;
+        const obj = await buildData(
+          { _id: hit._id, ...hit._source },
+          partners,
+          missions,
+          campaigns,
+          widgets
+        );
+        if (!obj) {
+          continue;
+        }
 
         dataToCreate.push(obj);
       }
@@ -155,7 +186,9 @@ const handler = async () => {
       }
     }
 
-    console.log(`[Clicks] Ended at ${new Date().toISOString()} in ${(Date.now() - start.getTime()) / 1000}s.`);
+    console.log(
+      `[Clicks] Ended at ${new Date().toISOString()} in ${(Date.now() - start.getTime()) / 1000}s.`
+    );
     return { created };
   } catch (error) {
     captureException(error, "[Clicks] Error while syncing docs.");

@@ -1,16 +1,16 @@
 import { XMLParser } from "fast-xml-parser";
 
 import { captureException } from "../../error";
-import PublisherModel from "../../models/publisher";
 import ImportModel from "../../models/import";
+import PublisherModel from "../../models/publisher";
 
+import { Schema } from "mongoose";
+import MissionModel from "../../models/mission";
+import { Import, Mission, MissionXML, Publisher } from "../../types";
+import { enrichWithGeoloc } from "./geoloc";
 import { buildMission } from "./mission";
 import { verifyOrganization } from "./organization";
-import { enrichWithGeoloc } from "./geoloc";
-import { Import, Mission, MissionXML, Publisher } from "../../types";
-import MissionModel from "../../models/mission";
 import { bulkDB } from "./utils/db";
-import { Schema } from "mongoose";
 
 const parseXML = (xmlString: string) => {
   const parser = new XMLParser();
@@ -29,15 +29,21 @@ const parseXML = (xmlString: string) => {
     arrayMode: false, //"strict"
     stopNodes: ["parse-me-as-string"],
     isArray: (name: string, jpath: string, isLeafNode: boolean, isAttribute: boolean) => {
-      if (jpath === "source.mission.addresses.address") return true;
+      if (jpath === "source.mission.addresses.address") {
+        return true;
+      }
       return false;
     },
   };
 
   const res = parser.parse(xmlString, options);
 
-  if (!res.source || !res.source.mission) return;
-  if (res.source.mission && !Array.isArray(res.source.mission)) res.source.mission = [res.source.mission];
+  if (!res.source || !res.source.mission) {
+    return;
+  }
+  if (res.source.mission && !Array.isArray(res.source.mission)) {
+    res.source.mission = [res.source.mission];
+  }
 
   // Remove duplicates clientId
   const clientId = new Set();
@@ -62,7 +68,10 @@ const parseXML = (xmlString: string) => {
 
 const buildData = async (startTime: Date, publisher: Publisher, missionXML: MissionXML) => {
   try {
-    const missionDB = await MissionModel.findOne({ publisherId: publisher._id, clientId: missionXML.clientId });
+    const missionDB = await MissionModel.findOne({
+      publisherId: publisher._id,
+      clientId: missionXML.clientId,
+    });
 
     const mission = buildMission(publisher, missionXML);
     if (missionDB) {
@@ -79,12 +88,21 @@ const buildData = async (startTime: Date, publisher: Publisher, missionXML: Miss
     mission.updatedAt = new Date();
 
     mission.organizationVerificationStatus = missionDB?.organizationVerificationStatus;
-    if (missionDB && missionDB.statusCommentHistoric && Array.isArray(missionDB.statusCommentHistoric)) {
+    if (
+      missionDB &&
+      missionDB.statusCommentHistoric &&
+      Array.isArray(missionDB.statusCommentHistoric)
+    ) {
       if (missionDB.statusCode !== mission.statusCode) {
-        mission.statusCommentHistoric = [...missionDB.statusCommentHistoric, { status: mission.statusCode, comment: mission.statusComment, date: mission.updatedAt }];
+        mission.statusCommentHistoric = [
+          ...missionDB.statusCommentHistoric,
+          { status: mission.statusCode, comment: mission.statusComment, date: mission.updatedAt },
+        ];
       }
     } else {
-      mission.statusCommentHistoric = [{ status: mission.statusCode, comment: mission.statusComment, date: mission.updatedAt }];
+      mission.statusCommentHistoric = [
+        { status: mission.statusCode, comment: mission.statusComment, date: mission.updatedAt },
+      ];
     }
 
     return mission;
@@ -95,7 +113,9 @@ const buildData = async (startTime: Date, publisher: Publisher, missionXML: Miss
 };
 
 const importPublisher = async (publisher: Publisher, start: Date) => {
-  if (!publisher) return;
+  if (!publisher) {
+    return;
+  }
 
   const obj = {
     name: `${publisher.name}`,
@@ -115,7 +135,10 @@ const importPublisher = async (publisher: Publisher, start: Date) => {
     const headers = new Headers();
 
     if (publisher.feed_username && publisher.feed_password) {
-      headers.set("Authorization", `Basic ${btoa(`${publisher.feed_username}:${publisher.feed_password}`)}`);
+      headers.set(
+        "Authorization",
+        `Basic ${btoa(`${publisher.feed_username}:${publisher.feed_password}`)}`
+      );
     }
     const xml = await fetch(publisher.feed, { headers }).then((response) => response.text());
 
@@ -126,7 +149,10 @@ const importPublisher = async (publisher: Publisher, start: Date) => {
       console.log(`[${publisher.name}] Empty xml`);
 
       console.log(`[${publisher.name}] Mongo cleaning...`);
-      const mongoRes = await MissionModel.updateMany({ publisherId: publisher._id, deletedAt: null, updatedAt: { $lt: start } }, { deleted: true, deletedAt: new Date() });
+      const mongoRes = await MissionModel.updateMany(
+        { publisherId: publisher._id, deletedAt: null, updatedAt: { $lt: start } },
+        { deleted: true, deletedAt: new Date() }
+      );
       console.log(`[${publisher.name}] Mongo cleaning deleted ${mongoRes.modifiedCount}`);
       obj.endedAt = new Date();
       return obj;
@@ -134,7 +160,10 @@ const importPublisher = async (publisher: Publisher, start: Date) => {
     console.log(`[${publisher.name}] Found ${missionsXML.length} missions in XML`);
 
     // GET COUNT MISSIONS IN DB
-    const missionsDB = await MissionModel.countDocuments({ publisherId: publisher._id, deleted: false });
+    const missionsDB = await MissionModel.countDocuments({
+      publisherId: publisher._id,
+      deleted: false,
+    });
     console.log(`[${publisher.name}] Found ${missionsDB} missions in DB`);
 
     // BUILD NEW MISSIONS
@@ -176,7 +205,9 @@ const importPublisher = async (publisher: Publisher, start: Date) => {
     });
 
     // RNA
-    console.log(`[Organization] Starting organization verification for ${missions.length} missions`);
+    console.log(
+      `[Organization] Starting organization verification for ${missions.length} missions`
+    );
     const resultRNA = await verifyOrganization(missions);
     console.log(`[Organization] Received ${resultRNA.length} verification results`);
 
@@ -204,8 +235,15 @@ const importPublisher = async (publisher: Publisher, start: Date) => {
     await bulkDB(missions, publisher, obj);
 
     // STATS
-    obj.missionCount = await MissionModel.countDocuments({ publisherId: publisher._id, deletedAt: null });
-    obj.refusedCount = await MissionModel.countDocuments({ publisherId: publisher._id, deletedAt: null, statusCode: "REFUSED" });
+    obj.missionCount = await MissionModel.countDocuments({
+      publisherId: publisher._id,
+      deletedAt: null,
+    });
+    obj.refusedCount = await MissionModel.countDocuments({
+      publisherId: publisher._id,
+      deletedAt: null,
+      statusCode: "REFUSED",
+    });
   } catch (error: any) {
     captureException(error, `Error while importing publisher ${publisher.name}`);
     obj.status = "FAILED";
@@ -236,13 +274,20 @@ const handler = async (publisherId?: string) => {
         continue;
       }
       const res = await importPublisher(publisher, start);
-      if (!res) continue;
+      if (!res) {
+        continue;
+      }
       await ImportModel.create(res);
     } catch (error: any) {
-      captureException(`Import XML failed`, `${error.message} while creating import for ${publisher.name} (${publisher._id})`);
+      captureException(
+        `Import XML failed`,
+        `${error.message} while creating import for ${publisher.name} (${publisher._id})`
+      );
     }
   }
-  console.log(`[Import XML] Ended at ${new Date().toISOString()} in ${(Date.now() - start.getTime()) / 1000}s`);
+  console.log(
+    `[Import XML] Ended at ${new Date().toISOString()} in ${(Date.now() - start.getTime()) / 1000}s`
+  );
 };
 
 export default { handler };
