@@ -33,8 +33,8 @@ const buildData = (doc: User, partners: { [key: string]: string }) => {
     invitation_completed_at: doc.invitationCompletedAt,
     invitation_token: doc.invitationToken,
     invitation_expires_at: doc.invitationExpiresAt,
-    forgot_password_reset_token: doc.forgotPasswordToken,
-    forgot_password_reset_expires_at: doc.forgotPasswordExpiresAt,
+    forgot_password_token: doc.forgotPasswordToken,
+    forgot_password_expires_at: doc.forgotPasswordExpiresAt,
 
     created_at: doc.createdAt,
     updated_at: doc.updatedAt,

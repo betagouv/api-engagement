@@ -509,8 +509,8 @@ model User {
   invitation_expires_at       DateTime?
   invitation_completed_at     DateTime?
   
-  forgot_password_reset_token String?
-  forgot_password_reset_expires_at DateTime?
+  forgot_password_token String?
+  forgot_password_expires_at DateTime?
   
   created_at                  DateTime       @default(now())
   updated_at                  DateTime       @updatedAt
