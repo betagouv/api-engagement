@@ -816,7 +816,7 @@ export interface WarningBot {
   updatedAt: Date;
 }
 
-export type Widget = {
+export interface Widget {
   _id: Schema.Types.ObjectId;
   name: string;
   color: string;
@@ -839,16 +839,15 @@ export type Widget = {
     fieldType?: string;
   }[];
   publishers: string[];
-  display: "full" | "line";
   url: string;
   jvaModeration: boolean;
   fromPublisherId: string;
   fromPublisherName: string;
   active: boolean;
-  deleted: boolean;
+  deletedAt: Date | null;
   createdAt: Date;
   updatedAt: Date;
-};
+}
 
 export type EsQuery = {
   bool: {

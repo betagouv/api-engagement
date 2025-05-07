@@ -29,7 +29,7 @@ const buildData = (doc: Widget, partners: { id: string; old_id: string }[]) => {
     jva_moderation: doc.jvaModeration || false,
 
     diffuseur_id: diffuseur.id,
-    deleted_at: doc.deleted ? new Date(doc.updatedAt) : null,
+    deleted_at: doc.deletedAt || null,
     created_at: doc.createdAt,
     updated_at: doc.updatedAt,
   } as PgWidget;
