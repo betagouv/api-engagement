@@ -28,7 +28,7 @@ passport.use(
           username: user.firstname + user.lastname,
           email: user.email,
         });
-        user.last_activity_at = new Date();
+        user.lastActivityAt = new Date();
         await user.save();
         return done(null, user);
       }

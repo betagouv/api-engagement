@@ -41,8 +41,8 @@ const handler = async () => {
       const userId = users[user._id.toString()];
       const latestLoginAt = logins[userId];
 
-      if (userId && user.login_at && user.login_at.length) {
-        user.login_at.forEach((loginTime) => {
+      if (userId && user.loginAt && user.loginAt.length) {
+        user.loginAt.forEach((loginTime) => {
           const loginDate = new Date(loginTime);
           if (!latestLoginAt || loginDate > new Date(latestLoginAt)) {
             dataToCreate.push(buildData(userId, loginTime));

@@ -38,14 +38,14 @@ export const syncContact = async () => {
     console.log(`[Brevo Contacts] Fetched ${contacts.length} contacts`);
 
     const toUpdate = users
-      .filter((user) => !user.deleted)
+      .filter((user) => user.deletedAt === null)
       .filter((user) =>
         contacts.some(
           (contact) => contact.email?.toLowerCase().trim() === user.email.toLowerCase().trim()
         )
       );
     const toCreate = users
-      .filter((user) => !user.deleted)
+      .filter((user) => user.deletedAt === null)
       .filter(
         (user) =>
           !contacts.some(
@@ -163,7 +163,7 @@ export const syncContact = async () => {
 
     const toDelete = contacts.filter((contact) =>
       users
-        .filter((user) => user.deleted)
+        .filter((user) => user.deletedAt !== null)
         .some((user) => user.email.toLowerCase().trim() === contact.email?.toLowerCase().trim())
     );
     console.log(`[Brevo Contacts] Deleting ${toDelete.length} contacts`);

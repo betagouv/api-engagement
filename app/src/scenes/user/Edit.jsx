@@ -45,21 +45,6 @@ const Edit = () => {
     fetchData();
   }, [id, navigate]);
 
-  const handleChange = (e) => {
-    const { name, value, type, checked } = e.target;
-    setValues({
-      ...values,
-      [name]: type === "checkbox" ? checked : value,
-    });
-  };
-
-  const handlePublisherChange = (id, checked) => {
-    setValues((prevValues) => ({
-      ...prevValues,
-      publishers: checked ? [...prevValues.publishers, id] : prevValues.publishers.filter((pub) => pub !== id),
-    }));
-  };
-
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -136,7 +121,7 @@ const Edit = () => {
               className={`input mb-2 ${errors.firstname ? "border-b-red-main" : "border-b-black"}`}
               name="firstname"
               value={values.firstname}
-              onChange={handleChange}
+              onChange={(e) => setValues({ ...values, firstname: e.target.value })}
             />
             {errors.firstname && (
               <div className="flex items-center text-sm text-red-main">
@@ -155,7 +140,7 @@ const Edit = () => {
               className={`input mb-2 ${errors.lastname ? "border-b-red-main" : "border-b-black"}`}
               name="lastname"
               value={values.lastname}
-              onChange={handleChange}
+              onChange={(e) => setValues({ ...values, lastname: e.target.value })}
             />
             {errors.lastname && (
               <div className="flex items-center text-sm text-red-main">
@@ -169,7 +154,13 @@ const Edit = () => {
             <label className="mb-2 text-sm" htmlFor="email">
               E-mail
             </label>
-            <input id="email" className={`input mb-2 ${errors.email ? "border-b-red-main" : "border-b-black"}`} name="email" value={values.email} onChange={handleChange} />
+            <input
+              id="email"
+              className={`input mb-2 ${errors.email ? "border-b-red-main" : "border-b-black"}`}
+              name="email"
+              value={values.email}
+              onChange={(e) => setValues({ ...values, email: e.target.value })}
+            />
             {errors.email && (
               <div className="flex items-center text-sm text-red-main">
                 <RiErrorWarningFill className="mr-2" />
@@ -182,7 +173,13 @@ const Edit = () => {
               Rôle
             </label>
 
-            <select id="role" className={`input mb-2 ${errors.role ? "border-b-red-main" : "border-b-black"}`} value={values.role} onChange={handleChange} name="role">
+            <select
+              id="role"
+              className={`input mb-2 ${errors.role ? "border-b-red-main" : "border-b-black"}`}
+              value={values.role}
+              onChange={(e) => setValues({ ...values, role: e.target.value })}
+              name="role"
+            >
               <option value="user">Utilisateur</option>
               <option value="admin">Admin</option>
             </select>
@@ -216,7 +213,7 @@ const Edit = () => {
                 {values.publishers.map((p, i) => (
                   <div key={i} className="flex items-center rounded bg-blue-light p-2">
                     <span className="text-xs">{publishers.find((pub) => pub._id === p)?.name}</span>
-                    <button type="button" className="ml-2" onClick={() => handlePublisherChange(p, false)}>
+                    <button type="button" className="ml-2" onClick={() => setValues({ ...values, publishers: values.publishers.filter((pub) => pub !== p) })}>
                       <RiCloseFill className="text-xs" />
                     </button>
                   </div>
@@ -239,7 +236,12 @@ const Edit = () => {
                     <input
                       type="checkbox"
                       className="checkbox"
-                      onChange={(e) => handlePublisherChange(item._id.toString(), e.target.checked)}
+                      onChange={(e) =>
+                        setValues({
+                          ...values,
+                          publishers: e.target.checked ? [...values.publishers, item._id.toString()] : values.publishers.filter((pub) => pub !== item._id.toString()),
+                        })
+                      }
                       checked={values.publishers.includes(item._id.toString())}
                     />
                   </div>

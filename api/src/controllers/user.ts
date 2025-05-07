@@ -4,6 +4,7 @@ import jwt from "jsonwebtoken";
 import passport from "passport";
 import zod from "zod";
 
+import { HydratedDocument } from "mongoose";
 import { APP_URL, SECRET } from "../config";
 import {
   FORBIDDEN,
@@ -17,6 +18,7 @@ import {
 import PublisherModel from "../models/publisher";
 import UserModel from "../models/user";
 import { sendTemplate } from "../services/email";
+import { User } from "../types";
 import { UserRequest } from "../types/passport";
 import { hasLetter, hasNumber, hasSpecialChar } from "../utils";
 
@@ -24,40 +26,6 @@ const FORGET_PASSWORD_EXPIRATION = 1000 * 60 * 60 * 2; // 2 hours
 const AUTH_TOKEN_EXPIRATION = 1000 * 60 * 60 * 24 * 7; // 7 day
 
 const router = Router();
-
-// TODO: POST /search
-router.get(
-  "/",
-  passport.authenticate("admin", { session: false }),
-  async (req: UserRequest, res: Response, next: NextFunction) => {
-    try {
-      const query = zod
-        .object({
-          email: zod.string().email().optional(),
-          publisherId: zod.string().optional(),
-        })
-        .safeParse(req.query);
-
-      if (!query.success) {
-        return res
-          .status(400)
-          .send({ ok: false, code: INVALID_QUERY, message: query.error.errors });
-      }
-
-      const where = {} as { [key: string]: any };
-      if (query.data.email) {
-        where.email = query.data.email;
-      }
-      if (query.data.publisherId) {
-        where.publishers = { $in: query.data.publisherId };
-      }
-      const users = await UserModel.find(where).sort("-last_login_at");
-      return res.status(200).send({ ok: true, data: users });
-    } catch (error) {
-      next(error);
-    }
-  }
-);
 
 router.post(
   "/search",
@@ -75,7 +43,7 @@ router.post(
         return res.status(400).send({ ok: false, code: INVALID_BODY, message: body.error.errors });
       }
 
-      const where = {} as { [key: string]: any };
+      const where = { deletedAt: null } as { [key: string]: any };
       if (body.data.email) {
         where.email = body.data.email;
       }
@@ -96,6 +64,7 @@ router.get(
   passport.authenticate("user", { session: false }),
   async (req: UserRequest, res: Response, next: NextFunction) => {
     try {
+      const user = req.user as HydratedDocument<User>;
       const query = zod
         .object({
           publisherId: zod.string().optional(),
@@ -108,29 +77,28 @@ router.get(
           .send({ ok: false, code: INVALID_QUERY, message: query.error.errors });
       }
 
-      req.user.last_login_at = new Date();
-      await req.user.save();
+      await user.save();
 
       const token = jwt.sign({ _id: req.user._id.toString() }, SECRET, {
         expiresIn: AUTH_TOKEN_EXPIRATION,
       });
 
-      if (req.user.publishers.length === 0) {
-        return res.send({ ok: true, data: { token, user: req.user, publisher: null } });
+      if (user.publishers.length === 0) {
+        return res.send({ ok: true, data: { token, user, publisher: null } });
       }
 
       let publisher;
       if (
         query.data.publisherId &&
-        (req.user.publishers.includes(query.data.publisherId) || req.user.role === "admin")
+        (user.publishers.includes(query.data.publisherId) || user.role === "admin")
       ) {
         publisher = await PublisherModel.findById(query.data.publisherId);
       }
       if (!publisher) {
-        publisher = await PublisherModel.findById(req.user.publishers[0]);
+        publisher = await PublisherModel.findById(user.publishers[0]);
       }
 
-      return res.send({ ok: true, data: { token, user: req.user, publisher } });
+      return res.send({ ok: true, data: { token, user, publisher } });
     } catch (error) {
       next(error);
     }
@@ -296,12 +264,12 @@ router.post(
         return res.status(400).send({ ok: false, code: INVALID_BODY, message: body.error.errors });
       }
 
-      const user = await UserModel.findOne({ forgot_password_reset_token: body.data.token });
+      const user = await UserModel.findOne({ forgotPasswordToken: body.data.token });
       if (!user) {
         return res.status(404).send({ ok: false, code: NOT_FOUND, message: `User not found` });
       }
 
-      if (!user.forgot_password_reset_expires || user.forgot_password_reset_expires < new Date()) {
+      if (!user.forgotPasswordExpiresAt || user.forgotPasswordExpiresAt < new Date()) {
         return res.status(403).send({ ok: false, code: REQUEST_EXPIRED, message: `Token expired` });
       }
 
@@ -387,11 +355,11 @@ router.post("/login", async (req: UserRequest, res: Response, next: NextFunction
           ? await PublisherModel.findById(user.publishers[0])
           : null;
 
-        user.last_login_at = new Date();
-        if (!user.login_at) {
-          user.login_at = [];
+        user.lastActivityAt = new Date();
+        if (!user.loginAt) {
+          user.loginAt = [];
         }
-        user.login_at.push(new Date());
+        user.loginAt.push(new Date());
         await user.save();
 
         const token = jwt.sign({ _id: user.id }, SECRET, { expiresIn: AUTH_TOKEN_EXPIRATION });
@@ -420,13 +388,13 @@ router.post("/forgot-password", async (req: UserRequest, res: Response, next: Ne
     const user = await UserModel.findOne({ email: body.data.email });
 
     if (user) {
-      user.forgot_password_reset_token = crypto.randomBytes(20).toString("hex");
-      user.forgot_password_reset_expires = new Date(Date.now() + FORGET_PASSWORD_EXPIRATION);
+      user.forgotPasswordToken = crypto.randomBytes(20).toString("hex");
+      user.forgotPasswordExpiresAt = new Date(Date.now() + FORGET_PASSWORD_EXPIRATION);
       await user.save();
 
       await sendTemplate(5, {
         emailTo: [body.data.email],
-        params: { link: `${APP_URL}/reset-password?token=${user.forgot_password_reset_token}` },
+        params: { link: `${APP_URL}/reset-password?token=${user.forgotPasswordToken}` },
       });
     }
     res.status(200).send({ ok: true });
@@ -519,12 +487,12 @@ router.put("/reset-password", async (req: UserRequest, res: Response, next: Next
       return res.status(400).send({ ok: false, code: INVALID_BODY, message: body.error.errors });
     }
 
-    const user = await UserModel.findOne({ forgot_password_reset_token: body.data.token });
+    const user = await UserModel.findOne({ forgotPasswordToken: body.data.token });
     if (!user) {
       return res.status(404).send({ ok: false, code: NOT_FOUND, message: `User not found` });
     }
 
-    if (!user.forgot_password_reset_expires || user.forgot_password_reset_expires < new Date()) {
+    if (!user.forgotPasswordExpiresAt || user.forgotPasswordExpiresAt < new Date()) {
       return res.status(403).send({ ok: false, code: REQUEST_EXPIRED, message: `Token expired` });
     }
 
@@ -538,8 +506,8 @@ router.put("/reset-password", async (req: UserRequest, res: Response, next: Next
     }
 
     user.password = body.data.password;
-    user.forgot_password_reset_token = null;
-    user.forgot_password_reset_expires = null;
+    user.forgotPasswordToken = null;
+    user.forgotPasswordExpiresAt = null;
     await user.save();
 
     res.status(200).send({ ok: true });
@@ -699,7 +667,7 @@ router.delete(
         return res.status(404).send({ ok: false, code: NOT_FOUND, message: `User not found` });
       }
 
-      user.deleted = true;
+      user.deletedAt = new Date();
       await user.save();
 
       res.status(200).send({ ok: true });
