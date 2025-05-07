@@ -97,7 +97,7 @@ const RealTime = () => {
               <td className="px-4">{item.type === "apply" ? "Candidature" : item.type === "click" ? "Redirection" : "Impression"}</td>
               <td className="px-4">{item.fromPublisherName}</td>
               <td className="px-4">{item.toPublisherName}</td>
-              <td className="px-4 text-right">{timeSince(new Date(item.created_at || item.createdAt))}</td>
+              <td className="px-4 text-right">{timeSince(new Date(item.createdAt))}</td>
             </tr>
           ))}
         </TablePagination>

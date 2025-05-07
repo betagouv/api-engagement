@@ -25,7 +25,7 @@ const Publishers = () => {
         setPublishers(resP.data.sort((a, b) => a.name.localeCompare(b.name)));
         setDisplayedPublishers(resP.data);
 
-        const resU = await api.get(`/user`);
+        const resU = await api.post("/user/search");
         if (!resU.ok) throw resU;
         setUsers(resU.data);
       } catch (error) {
@@ -98,8 +98,6 @@ const Publishers = () => {
     setExporting(false);
   };
 
-  if (!users) return <h2 className="p-3">Chargement...</h2>;
-
   return (
     <div className="space-y-12 p-12">
       <Helmet>
@@ -111,9 +109,6 @@ const Publishers = () => {
           <p className="mt-2">Liste de comptes annonceurs et diffuseurs de l'API</p>
         </div>
 
-        {/* <button className="button border border-blue-dark bg-white text-blue-dark hover:bg-gray-hover" onClick={buildExport}>
-          Exporter
-        </button> */}
         <div className="flex">
           <button className="button flex items-center text-blue-dark hover:bg-gray-hover" onClick={handleExport}>
             {exporting ? <Loader /> : <RiFileDownloadLine className="mr-2" />}

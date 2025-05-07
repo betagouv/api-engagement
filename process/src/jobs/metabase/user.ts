@@ -21,17 +21,25 @@ const buildData = (doc: User, partners: { [key: string]: string }) => {
 
   const obj = {
     old_id: doc._id.toString(),
-    forgot_password_reset_token: doc.forgot_password_reset_token,
+    brevo_contact_id: doc.brevoContactId,
+    first_name: doc.firstname,
+    last_name: doc.lastname,
     role: doc.role,
     password: doc.password,
     email: doc.email,
-    created_at: doc.created_at,
-    updated_at: doc.updated_at,
-    deleted_at: doc.deleted ? new Date(doc.updated_at) : null,
-    last_login_at: doc.last_login_at,
-    first_name: doc.firstname,
-    last_name: doc.lastname,
+
+    last_activity_at: doc.lastActivityAt,
+
     invitation_completed_at: doc.invitationCompletedAt,
+    invitation_token: doc.invitationToken,
+    invitation_expires_at: doc.invitationExpiresAt,
+    forgot_password_token: doc.forgotPasswordToken,
+    forgot_password_expires_at: doc.forgotPasswordExpiresAt,
+
+    created_at: doc.createdAt,
+    updated_at: doc.updatedAt,
+    deleted_at: doc.deletedAt || null,
+
     partners: {
       create: connections,
     },

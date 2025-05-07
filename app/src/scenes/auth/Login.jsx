@@ -40,7 +40,7 @@ const Login = () => {
     setErrors({});
 
     try {
-      const res = await api.post(`/user/login`, values);
+      const res = await api.post("/user/login", values);
       if (!res.ok) {
         if (res.code === "NOT_FOUND") {
           setErrors({ login: "E-mail ou mot de passe erroné" });

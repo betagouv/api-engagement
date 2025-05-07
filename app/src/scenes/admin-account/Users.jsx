@@ -10,59 +10,30 @@ import api from "../../services/api";
 import { captureError } from "../../services/error";
 
 const Users = () => {
+  const [search, setSearch] = useState("");
   const [users, setUsers] = useState([]);
   const [publishers, setPublishers] = useState([]);
-  const [displayeddUsers, setDisplayedUsers] = useState([]);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     const fetchData = async () => {
       setLoading(true);
       try {
-        const resU = await api.get(`/user`);
+        const resU = await api.post("/user/search");
         if (!resU.ok) throw resU;
         setUsers(resU.data);
-        const filteredUsers = resU.data.filter((user) => user.deleted === false);
-
-        // Sort by last_activity_at if exists else last_login_at (last_activity_at should be always greater than last_login_at)
-        filteredUsers.sort((a, b) => {
-          if (a.last_activity_at && b.last_activity_at) return new Date(b.last_activity_at) - new Date(a.last_activity_at);
-          if (a.last_activity_at) return -1;
-          if (b.last_activity_at) return 1;
-          if (a.last_login_at && b.last_login_at) return new Date(b.last_login_at) - new Date(a.last_login_at);
-          if (a.last_login_at) return -1;
-          if (b.last_login_at) return 1;
-          return 0;
-        });
-        setUsers(filteredUsers);
-        setDisplayedUsers(filteredUsers);
 
         const resP = await api.post("/publisher/search");
         if (!resP.ok) throw resP;
         setPublishers(resP.data);
       } catch (error) {
         captureError(error, "Erreur lors de la récupération des données");
+      } finally {
+        setLoading(false);
       }
-      setLoading(false);
     };
     fetchData();
   }, []);
-
-  const handleSearch = (e) => {
-    e.preventDefault();
-    const search = e.target.value;
-    if (search)
-      setDisplayedUsers(
-        users.filter((u) => {
-          return (
-            u.firstname.toLowerCase().search(search.toLowerCase()) !== -1 ||
-            u.lastname?.toLowerCase().search(search.toLowerCase()) !== -1 ||
-            u.email.toLowerCase().search(search.toLowerCase()) !== -1
-          );
-        }),
-      );
-    else setDisplayedUsers(users);
-  };
 
   return (
     <div className="space-y-12 p-12">
@@ -81,7 +52,7 @@ const Users = () => {
           <label htmlFor="user-search" className="sr-only">
             Rechercher par nom ou par email
           </label>
-          <input id="user-search" name="user-search" className="input flex-1" placeholder="Chercher par nom ou par email" onChange={handleSearch} />
+          <input id="user-search" name="user-search" className="input flex-1" placeholder="Chercher par nom ou par email" onChange={(e) => setSearch(e.target.value)} />
           <Link to="/user/new" className="button flex items-center border bg-blue-dark text-white">
             Nouvel utilisateur <HiOutlinePlus className="ml-2" />
           </Link>
@@ -90,7 +61,14 @@ const Users = () => {
           <Loader />
         ) : (
           <Table
-            data={displayeddUsers}
+            data={users.filter((u) => {
+              if (!search) return true;
+              return (
+                u.firstname.toLowerCase().search(search.toLowerCase()) !== -1 ||
+                u.lastname?.toLowerCase().search(search.toLowerCase()) !== -1 ||
+                u.email.toLowerCase().search(search.toLowerCase()) !== -1
+              );
+            })}
             renderHeader={() => (
               <>
                 <h4 className="w-[15%]">Nom</h4>
@@ -142,8 +120,8 @@ const Users = () => {
                 <span className="w-[12%] text-center">
                   {item.role === "admin" ? <span className="rounded bg-red-light px-1">Admin</span> : <span className="rounded bg-green-light px-1">Utilisateur</span>}
                 </span>
-                <span className="w-[12%] text-center">{new Date(item.created_at).toLocaleDateString("fr")}</span>
-                <span className="flex w-[10%] justify-center">{item.last_activity_at ? new Date(item.last_activity_at).toLocaleDateString("fr") : "-"}</span>
+                <span className="w-[12%] text-center">{new Date(item.createdAt).toLocaleDateString("fr")}</span>
+                <span className="flex w-[10%] justify-center">{item.lastActivityAt ? new Date(item.lastActivityAt).toLocaleDateString("fr") : "-"}</span>
                 <Link to={`/connect?id=${item._id}`} target="_blank" className="flex w-[12%] items-center justify-center text-blue-dark">
                   Se connecter
                   <RiLoginBoxLine className="ml-2" />

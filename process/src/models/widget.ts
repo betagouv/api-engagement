@@ -6,7 +6,7 @@ const MODELNAME = "widget";
 const schema = new Schema<Widget>(
   {
     name: { type: String, required: true },
-    color: { type: String },
+    color: { type: String, default: "#000091" },
     style: { type: String, enum: ["carousel", "page"], default: "page" },
     type: { type: String, enum: ["benevolat", "volontariat"], default: "benevolat" },
     location: {
@@ -43,28 +43,12 @@ const schema = new Schema<Widget>(
       description:
         "Boolean that says if the mission of the widget should be the ones moderated by JVA",
     },
-    display: { type: String, default: "full", enum: ["full", "line"] },
+
     url: { type: String },
     fromPublisherId: { type: String, required: true },
     fromPublisherName: { type: String },
-    active: {
-      type: Boolean,
-      required: true,
-      default: true,
-      documentation: {
-        generated: true,
-        description: "Boolean that says if the widget is still active or not",
-      },
-    },
-    deleted: {
-      type: Boolean,
-      required: true,
-      default: false,
-      documentation: {
-        generated: true,
-        description: "Boolean that says if the widget is deleted or not",
-      },
-    },
+    active: { type: Boolean, required: true, default: true },
+    deletedAt: { type: Date, default: null },
   },
   {
     timestamps: true,

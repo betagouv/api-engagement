@@ -37,7 +37,7 @@ router.post(
         return res.status(400).send({ ok: false, code: INVALID_BODY, error: body.error });
       }
 
-      const where = { deleted: false, active: body.data.active } as { [key: string]: any };
+      const where = { deletedAt: null, active: body.data.active } as { [key: string]: any };
 
       if (body.data.fromPublisherId) {
         if (req.user.role !== "admin" && !req.user.publishers.includes(body.data.fromPublisherId)) {
@@ -204,24 +204,20 @@ router.post(
 
       const exists = await WidgetModel.findOne({ name: body.data.name });
       if (exists) {
-        return res
-          .status(409)
-          .send({
-            ok: false,
-            code: RESSOURCE_ALREADY_EXIST,
-            message: `Widget ${body.data.name} already exist`,
-          });
+        return res.status(409).send({
+          ok: false,
+          code: RESSOURCE_ALREADY_EXIST,
+          message: `Widget ${body.data.name} already exist`,
+        });
       }
 
       const fromPublisher = await PublisherModel.findById(body.data.fromPublisherId);
       if (!fromPublisher) {
-        return res
-          .status(404)
-          .send({
-            ok: false,
-            code: NOT_FOUND,
-            message: `Publisher ${body.data.fromPublisherId} not found`,
-          });
+        return res.status(404).send({
+          ok: false,
+          code: NOT_FOUND,
+          message: `Publisher ${body.data.fromPublisherId} not found`,
+        });
       }
 
       const obj = {
@@ -380,9 +376,9 @@ router.delete(
 
       const widget = await WidgetModel.findById(params.data.id);
       if (!widget) {
-        return res.status(404).send({ ok: false, code: NOT_FOUND });
+        return res.status(200).send({ ok: true });
       }
-      widget.deleted = true;
+      widget.deletedAt = new Date();
       await widget.save();
       res.status(200).send({ ok: true });
     } catch (error) {
