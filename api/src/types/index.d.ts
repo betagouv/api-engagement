@@ -752,13 +752,12 @@ export type Widget = {
     fieldType?: string;
   }[];
   publishers: string[];
-  display: "full" | "line";
   url: string;
   jvaModeration: boolean;
   fromPublisherId: string;
   fromPublisherName: string;
   active: boolean;
-  deleted: boolean;
+  deletedAt: Date | null;
   createdAt: Date;
   updatedAt: Date;
 };
