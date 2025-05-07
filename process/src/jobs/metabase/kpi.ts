@@ -12,6 +12,8 @@ const buildData = (doc: Kpi) => {
     available_benevolat_mission_count: doc.availableBenevolatMissionCount,
     available_volontariat_mission_count: doc.availableVolontariatMissionCount,
 
+    available_jva_mission_count: doc.availableJvaMissionCount,
+
     available_benevolat_given_by_partner_place_count: doc.availableBenevolatGivenPlaceCount,
     available_volontariat_given_by_partner_place_count: doc.availableVolontariatGivenPlaceCount,
 
