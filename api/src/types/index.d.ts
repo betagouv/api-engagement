@@ -729,7 +729,7 @@ export type Warning = {
   updatedAt: Date;
 };
 
-export type Widget = {
+export interface Widget {
   _id: Schema.Types.ObjectId;
   name: string;
   color: string;
@@ -760,7 +760,7 @@ export type Widget = {
   deletedAt: Date | null;
   createdAt: Date;
   updatedAt: Date;
-};
+}
 
 export type EsQuery = {
   bool: {
