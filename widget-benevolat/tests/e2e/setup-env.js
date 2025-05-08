@@ -11,7 +11,6 @@ const url = require("url");
 function startMockServer() {
   const server = http.createServer((req, res) => {
     res.setHeader("Content-Type", "application/json");
-    console.log(`Mock server received request: ${req.method} ${req.url}`);
 
     const parsedUrl = url.parse(req.url, true);
     const pathname = parsedUrl.pathname;

@@ -16,6 +16,14 @@ export default defineConfig({
     trace: "on-first-retry",
     screenshot: "on",
   },
+  expect: {
+    toHaveScreenshot: {
+      threshold: 0.3,
+      maxDiffPixelRatio: 0.1,
+    },
+  },
+  snapshotPathTemplate: "{testDir}/{testFileDir}/{testFileName}-snapshots/{arg}{ext}",
+
   projects: [
     {
       name: "chromium",
