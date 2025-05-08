@@ -28,7 +28,10 @@ jobs:
           cache-dependency-path: "widget-benevolat/package-lock.json"
 
       - name: Install dependencies
-        run: cd widget-benevolat && npm ci && npx playwright install
+        run: cd widget-benevolat && npm ci
+
+      - name: Install Playwright browsers and dependencies
+        run: cd widget-benevolat && npx playwright install --with-deps
 
       - name: Run tests
         run: cd widget-benevolat && npm run test:e2e
