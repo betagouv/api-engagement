@@ -21,13 +21,13 @@ function startMockServer() {
       return;
     }
 
-    if (pathname.match(/\/api-mock\/iframe\/.*\/search/)) {
+    if (pathname.match(/\/api-mock\/iframe\/[^\/]+\/search$/)) {
       res.writeHead(200);
       res.end(JSON.stringify(mockMissionsResponse));
       return;
     }
 
-    if (pathname.match(/\/api-mock\/iframe\/.*\/aggs/)) {
+    if (pathname.match(/\/api-mock\/iframe\/[^\/]+\/aggs$/)) {
       res.writeHead(200);
       res.end(JSON.stringify(mockAggsResponse));
       return;
