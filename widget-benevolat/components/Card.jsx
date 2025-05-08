@@ -22,6 +22,7 @@ const Card = ({ widget, mission, request }) => {
       href={mission.url}
       target="_blank"
       rel="noopener noreferrer"
+      data-testid="mission-card"
       className={`${
         widget.style === "carousel"
           ? "w-full lg:max-w-[336px] min-h-[420px] max-h-[420px] xl:min-h-[460px] xl:max-h-[460px]"
