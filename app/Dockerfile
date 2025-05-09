@@ -1,42 +1,17 @@
-# Étape de construction
-FROM node:18-alpine AS builder
+# Use Node.js 18
+FROM node:18 AS builder
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
 
-# Copier les fichiers de dépendances
 COPY package*.json ./
 
-# Installer les dépendances
 RUN npm ci
 
-# Copier le reste des fichiers source
 COPY . .
 
-# Construire l'application
-RUN npm run build
+EXPOSE 3000
 
-# Étape de production
-FROM node:18-alpine
-
-WORKDIR /app
-
-# Définir les variables d'environnement pour la production
-ENV NODE_ENV=production
-
-# Copier les fichiers du serveur Express
-COPY server ./server
-
-# Copier les fichiers de dépendances
-COPY package*.json ./
-
-# Installer uniquement les dépendances de production
-RUN npm ci --only=production
-
-# Copier les fichiers construits depuis l'étape de construction
-COPY --from=builder /app/dist ./dist
-
-# Exposer le port sur lequel l'application s'exécute
-EXPOSE 8080
-
-# Commande pour démarrer l'application
-CMD ["node", "server/index.js"]
+CMD ["npm", "run", "dev"]
