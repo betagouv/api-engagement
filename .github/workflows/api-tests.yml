@@ -28,7 +28,6 @@ jobs:
         with:
           context: ./api
           file: ./api/Dockerfile
-          target: builder
           load: true
           tags: api-test:latest
           cache-from: type=gha
