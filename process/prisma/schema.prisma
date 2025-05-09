@@ -612,16 +612,16 @@ model MissionHistoryEvent {
 }
 
 enum MissionHistoryEventType {
-  MissionCreated
-  MissionDeleted
-  MissionModifiedStartDate
-  MissionModifiedEndDate
-  MissionModifiedDescription
-  MissionModifiedActivityDomain
-  MissionModifiedPlaces
-  MissionModifiedJVAModerationStatus
-  MissionModifiedApiEngModerationStatus
-  MissionModifiedOther
+  Created
+  Deleted
+  UpdatedStartDate
+  UpdatedEndDate
+  UpdatedDescription
+  UpdatedActivityDomain
+  UpdatedPlaces
+  UpdatedJVAModerationStatus
+  UpdatedApiEngModerationStatus
+  UpdatedOther
 }
 
 enum MissionType {

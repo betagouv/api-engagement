@@ -148,7 +148,7 @@ export const transformMongoMissionToPg = (
   // Transform history entries
   const history: MissionHistoryEntry[] =
     doc.__history?.flatMap((history) =>
-      getMissionHistoryEventTypeFromState(history).map((type) => ({
+      getTypeFromMissionHistoryEvent(history).map((type) => ({
         date: history.date,
         mission_id: obj.id,
         type,
@@ -164,7 +164,7 @@ export const transformMongoMissionToPg = (
  * @param missionHistory The mission history entry containing state and metadata
  * @returns An array of MissionHistoryEventTypes
  */
-export const getMissionHistoryEventTypeFromState = (
+export const getTypeFromMissionHistoryEvent = (
   missionHistory: any // TODO
 ): MissionHistoryEventType[] => {
   const eventTypes: MissionHistoryEventType[] = [];
@@ -172,43 +172,43 @@ export const getMissionHistoryEventTypeFromState = (
 
   // For creation type, return only MissionCreated
   if (metadata && "action" in metadata && metadata.action === "created") {
-    return [MissionHistoryEventType.MissionCreated];
+    return [MissionHistoryEventType.Created];
   }
 
   if ("deletedAt" in state) {
-    eventTypes.push(MissionHistoryEventType.MissionDeleted);
+    eventTypes.push(MissionHistoryEventType.Deleted);
   }
 
   if ("startAt" in state) {
-    eventTypes.push(MissionHistoryEventType.MissionModifiedStartDate);
+    eventTypes.push(MissionHistoryEventType.UpdatedStartDate);
   }
 
   if ("endAt" in state) {
-    eventTypes.push(MissionHistoryEventType.MissionModifiedEndDate);
+    eventTypes.push(MissionHistoryEventType.UpdatedEndDate);
   }
 
   if ("description" in state || "descriptionHtml" in state) {
-    eventTypes.push(MissionHistoryEventType.MissionModifiedDescription);
+    eventTypes.push(MissionHistoryEventType.UpdatedDescription);
   }
 
   if ("domain" in state) {
-    eventTypes.push(MissionHistoryEventType.MissionModifiedActivityDomain);
+    eventTypes.push(MissionHistoryEventType.UpdatedActivityDomain);
   }
 
   if ("places" in state) {
-    eventTypes.push(MissionHistoryEventType.MissionModifiedPlaces);
+    eventTypes.push(MissionHistoryEventType.UpdatedPlaces);
   }
 
   if (state.hasOwnProperty(`moderation_${JVA_ID}_status`)) {
-    eventTypes.push(MissionHistoryEventType.MissionModifiedJVAModerationStatus);
+    eventTypes.push(MissionHistoryEventType.UpdatedJVAModerationStatus);
   }
 
   if ("status" in state || "statusCode" in state) {
-    eventTypes.push(MissionHistoryEventType.MissionModifiedApiEngModerationStatus);
+    eventTypes.push(MissionHistoryEventType.UpdatedApiEngModerationStatus);
   }
 
   if (eventTypes.length === 0) {
-    eventTypes.push(MissionHistoryEventType.MissionModifiedOther);
+    eventTypes.push(MissionHistoryEventType.UpdatedOther);
   }
 
   return eventTypes;
