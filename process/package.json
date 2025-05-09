@@ -19,7 +19,7 @@
     "lint:fix": "eslint --ext .js,.ts src/ --fix",
     "test": "vitest run",
     "test:watch": "vitest",
-    "test:coverage": "vitest run --coverage"
+    "test:ci": "vitest run --pool=forks"
   },
   "dependencies": {
     "@babel/core": "7.26.10",
@@ -60,6 +60,7 @@
     "@types/react": "19.1.2",
     "@types/uuid": "10.0.0",
     "@types/yauzl": "2.10.3",
+    "mongodb-memory-server": "^10.1.4",
     "nodemon": "3.1.9",
     "prisma": "6.2.1",
     "vitest": "3.1.1"
