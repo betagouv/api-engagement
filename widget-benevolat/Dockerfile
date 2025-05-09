@@ -1,42 +1,19 @@
-# Étape de construction
-FROM node:18-alpine AS builder
+# Use Node.js 18 for development
+FROM node:18 AS builder
 
 WORKDIR /app
 
-# Copier les fichiers de du00e9pendances
+# Copy dependency files
 COPY package*.json ./
 
-# Installer les dépendances
+# Install all dependencies (including dev dependencies)
 RUN npm ci
 
-# Copier le reste des fichiers source
+# Copy source files
 COPY . .
 
-# Construire l'application Next.js
-RUN npm run build
+# Expose development port
+EXPOSE 3001
 
-# Étape de production
-FROM node:18-alpine
-
-WORKDIR /app
-
-# Définir les variables d'environnement pour la production
-ENV NODE_ENV=production
-ENV PORT=8080
-
-# Copier les fichiers de du00e9pendances
-COPY package*.json ./
-
-# Installer uniquement les du00e9pendances de production
-RUN npm ci --only=production
-
-# Copier les fichiers construits et nécessaires depuis l'étape de construction
-COPY --from=builder /app/.next ./.next
-COPY --from=builder /app/public ./public
-COPY --from=builder /app/next.config.js .
-
-# Exposer le port sur lequel l'application s'exécute
-EXPOSE 8080
-
-# Commande pour du00e9marrer l'application
-CMD ["npm", "start"]
+# Default command for development
+CMD ["npm", "run", "dev"]

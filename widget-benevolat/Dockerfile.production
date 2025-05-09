@@ -1,9 +1,6 @@
 # Build
 FROM node:18 AS builder
 
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    && rm -rf /var/lib/apt/lists/*
-
 WORKDIR /app
 
 COPY package*.json ./
@@ -20,15 +17,16 @@ FROM node:18
 WORKDIR /app
 
 ENV NODE_ENV=production
-
-COPY server ./server
+ENV PORT=8080
 
 COPY package*.json ./
 
 RUN npm ci --omit=dev
 
-COPY --from=builder /app/dist ./dist
+COPY --from=builder /app/.next ./.next
+COPY --from=builder /app/public ./public
+COPY --from=builder /app/next.config.js .
 
 EXPOSE 8080
 
-CMD ["node", "server/index.js"]
+CMD ["npm", "start"]
