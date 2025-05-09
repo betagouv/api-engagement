@@ -1,0 +1,44 @@
+# u00c9tape de construction
+FROM node:18-bullseye-slim AS builder
+
+# Installer les du00e9pendances systu00e8me nu00e9cessaires
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    libcurl4 \
+    && rm -rf /var/lib/apt/lists/*
+
+WORKDIR /app
+
+# Copier les fichiers de du00e9pendances
+COPY package*.json ./
+
+# Installer les du00e9pendances
+RUN npm ci
+
+# Copier le reste des fichiers source
+COPY . .
+
+# Construire l'application
+RUN npm run build
+
+# u00c9tape de production
+FROM node:18-bullseye-slim
+
+WORKDIR /app
+
+# Du00e9finir les variables d'environnement pour la production
+ENV NODE_ENV=production
+
+# Copier les fichiers de du00e9pendances
+COPY package*.json ./
+
+# Installer uniquement les du00e9pendances de production
+RUN npm ci --only=production
+
+# Copier les fichiers construits depuis l'u00e9tape de construction
+COPY --from=builder /app/dist ./dist
+
+# Exposer le port sur lequel l'application s'exu00e9cute
+EXPOSE 8080
+
+# Commande pour du00e9marrer l'application
+CMD ["node", "dist/index.js"]
