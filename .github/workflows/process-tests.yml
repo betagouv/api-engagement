@@ -28,7 +28,6 @@ jobs:
         with:
           context: ./process
           file: ./process/Dockerfile
-          target: builder
           load: true
           tags: process-test:latest
           cache-from: type=gha
