@@ -1,5 +1,5 @@
 # Étape de construction
-FROM node:18-alpine AS builder
+FROM node:18-slim AS builder
 
 WORKDIR /app
 
@@ -19,7 +19,7 @@ RUN npm run generate
 RUN npm run build
 
 # Étape de production
-FROM node:18-alpine
+FROM node:18-slim
 
 WORKDIR /app
 
@@ -29,7 +29,7 @@ ENV NODE_ENV=production
 # Copier les fichiers de du00e9pendances
 COPY package*.json ./
 
-# Installer uniquement les du00e9pendances de production
+# Installer uniquement les dépendances de production
 RUN npm ci --only=production
 
 # Copier les fichiers construits depuis l'étape de construction
