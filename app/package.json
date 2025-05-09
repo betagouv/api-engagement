@@ -14,8 +14,6 @@
   "devDependencies": {
     "@vitejs/plugin-react": "4.3.1",
     "autoprefixer": "10.4.20",
-    "dotenv": "16.4.7",
-    "express": "4.21.0",
     "hsts": "2.2.0",
     "postcss": "8.4.45",
     "tailwindcss": "3.4.11",
@@ -28,6 +26,8 @@
     "@sentry/vite-plugin": "2.22.6",
     "chart.js": "4.4.4",
     "date-fns": "3.6.0",
+    "dotenv": "16.4.7",
+    "express": "4.21.0",
     "formik": "2.4.6",
     "lodash": "4.17.21",
     "pm2": "5.4.2",
