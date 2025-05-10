@@ -27,7 +27,7 @@
     "@sentry/react": "8.30.0",
     "@sentry/vite-plugin": "2.22.6",
     "chart.js": "4.4.4",
-    "date-fns": "3.6.0",
+    "date-fns": "4.1.0",
     "formik": "2.4.6",
     "lodash": "4.17.21",
     "pm2": "5.4.2",
