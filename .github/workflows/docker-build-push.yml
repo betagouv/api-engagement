@@ -73,7 +73,8 @@ jobs:
             echo "Secret PROCESS_ENV_PRODUCTION is NOT set"
           fi
           if [ -n "${{ secrets.PROCESS_ENV_STAGING }}" ]; then
-            echo "Secret PROCESS_ENV_STAGING is set"
+            echo "SHA256: $(echo "${{ secrets.PROCESS_ENV_STAGING }}" | sha256sum)"
+            echo "Length: $(echo -n "${{ secrets.PROCESS_ENV_STAGING }}" | wc -c)"
           else
             echo "Secret PROCESS_ENV_STAGING is NOT set"
           fi

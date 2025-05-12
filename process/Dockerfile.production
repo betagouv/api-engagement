@@ -17,7 +17,13 @@ RUN npm ci
 
 COPY . .
 
-RUN if [ -n "$ENV_FILE_CONTENT" ]; then echo "$ENV_FILE_CONTENT" > .env; fi
+RUN if [ -n "$ENV_FILE_CONTENT" ]; then \
+    echo "$ENV_FILE_CONTENT" > .env; \
+    echo "ENV_FILE_CONTENT length: $(echo -n \"$ENV_FILE_CONTENT\" | wc -c)"; \
+    echo "ENV_FILE_CONTENT sha256: $(echo -n \"$ENV_FILE_CONTENT\" | sha256sum)"; \
+    echo 'First 5 lines of .env:'; head -n 5 .env; \
+    echo 'Last 5 lines of .env:'; tail -n 5 .env; \
+  fi
 
 RUN npm run build
 
