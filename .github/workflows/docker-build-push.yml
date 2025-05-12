@@ -63,6 +63,25 @@ jobs:
             echo "Using staging environment variables"
           fi
 
+      - name: Debug secrets availability
+        id: debug_secrets
+        run: |
+          echo "Checking secrets availability..."
+          if [ -n "${{ secrets.PROCESS_ENV_PRODUCTION }}" ]; then
+            echo "Secret PROCESS_ENV_PRODUCTION is set"
+          else
+            echo "Secret PROCESS_ENV_PRODUCTION is NOT set"
+          fi
+          if [ -n "${{ secrets.PROCESS_ENV_STAGING }}" ]; then
+            echo "Secret PROCESS_ENV_STAGING is set"
+          else
+            echo "Secret PROCESS_ENV_STAGING is NOT set"
+          fi
+          echo "Current environment: ${{ steps.vars.outputs.ENV }}"
+          echo "Workflow permissions: ${{ toJson(github.permissions) }}"
+          echo "Actor: ${{ github.actor }}"
+          echo "Repository: ${{ github.repository }}"
+
       - name: Set app build args
         if: matrix.service == 'app'
         id: app_args
