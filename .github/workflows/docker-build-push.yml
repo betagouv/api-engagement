@@ -20,9 +20,6 @@ on:
   # TODO: remove me
   push:
     branches: [feature--docker]
-    paths-ignore:
-      - "**/*.md"
-      - ".github/ISSUE_TEMPLATE/**"
 
 permissions:
   contents: read
@@ -31,7 +28,8 @@ permissions:
 jobs:
   build-and-push:
     name: Build and Push Docker Images
-    if: github.event.workflow_run.conclusion == 'success'
+    # TODO: "push" event name is for feature--docker branch only. Should be removed when merged
+    if: github.event_name == 'push' || github.event.workflow_run.conclusion == 'success'
     runs-on: ubuntu-latest
     strategy:
       matrix:
