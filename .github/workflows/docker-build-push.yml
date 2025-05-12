@@ -15,7 +15,14 @@ on:
   workflow_run:
     workflows: ["API Tests", "Process Tests", "Lint"]
     types: [completed]
-    branches: [main, staging, feature--docker] # TODO: remove me
+    branches: [main, staging]
+
+  # TODO: remove me
+  push:
+    branches: [feature--docker]
+    paths-ignore:
+      - "**/*.md"
+      - ".github/ISSUE_TEMPLATE/**"
 
 permissions:
   contents: read
