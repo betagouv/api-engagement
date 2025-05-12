@@ -1,5 +1,5 @@
 # Build
-FROM node:18 AS builder
+FROM node:18-bullseye-slim AS builder
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
     && rm -rf /var/lib/apt/lists/*
@@ -28,7 +28,7 @@ RUN echo "VITE_API_URL=${VITE_API_URL}" > .env.production && \
 RUN npm run build
 
 # Run
-FROM node:18
+FROM node:18-bullseye-slim
 
 WORKDIR /app
 

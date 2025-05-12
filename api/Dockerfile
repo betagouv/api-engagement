@@ -13,8 +13,6 @@ RUN npm ci
 
 COPY . .
 
-RUN npm run generate
-
 EXPOSE 3002
 
 CMD ["npm", "run", "dev"]
