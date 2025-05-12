@@ -14,7 +14,7 @@ RUN npm ci
 
 COPY . .
 
-RUN if [ -n "$ENV_FILE_CONTENT" ]; then echo "$ENV_FILE_CONTENT" > .env.production; fi
+RUN if [ -n "$ENV_FILE_CONTENT" ]; then echo "$ENV_FILE_CONTENT" > .env; fi
 
 RUN npm run build
 
