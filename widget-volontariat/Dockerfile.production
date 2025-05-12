@@ -3,9 +3,7 @@ FROM node:18-bullseye-slim AS builder
 
 WORKDIR /app
 
-# NEXT_PUBLIC_ env vars are passed as build args for Next widget
-ARG NEXT_PUBLIC_API_URL
-ARG NEXT_PUBLIC_ENV
+ARG ENV_FILE_CONTENT
 
 COPY package*.json ./
 
@@ -13,8 +11,7 @@ RUN npm ci
 
 COPY . .
 
-RUN echo "NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL}" > .env.production && \
-    echo "NEXT_PUBLIC_ENV=${NEXT_PUBLIC_ENV}" >> .env.production
+RUN if [ -n "$ENV_FILE_CONTENT" ]; then echo "$ENV_FILE_CONTENT" > .env.production; fi
 
 RUN npm run build
 

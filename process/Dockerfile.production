@@ -8,11 +8,16 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 
 WORKDIR /app
 
+# Argument pour le contenu du fichier .env
+ARG ENV_FILE_CONTENT
+
 COPY package*.json ./
 
 RUN npm ci
 
 COPY . .
+
+RUN if [ -n "$ENV_FILE_CONTENT" ]; then echo "$ENV_FILE_CONTENT" > .env.production; fi
 
 RUN npm run build
 

@@ -6,12 +6,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 
 WORKDIR /app
 
-# VITE_ env vars are passed as build args for Next app
-ARG VITE_API_URL
-ARG VITE_ENV
-ARG VITE_BENEVOLAT_URL
-ARG VITE_VOLONTARIAT_URL
-ARG VITE_SENTRY_DSN
+ARG ENV_FILE_CONTENT
 
 COPY package*.json ./
 
@@ -19,11 +14,7 @@ RUN npm ci
 
 COPY . .
 
-RUN echo "VITE_API_URL=${VITE_API_URL}" > .env.production && \
-    echo "VITE_ENV=${VITE_ENV}" >> .env.production && \
-    echo "VITE_BENEVOLAT_URL=${VITE_BENEVOLAT_URL}" >> .env.production && \
-    echo "VITE_VOLONTARIAT_URL=${VITE_VOLONTARIAT_URL}" >> .env.production && \
-    echo "VITE_SENTRY_DSN=${VITE_SENTRY_DSN}" >> .env.production
+RUN if [ -n "$ENV_FILE_CONTENT" ]; then echo "$ENV_FILE_CONTENT" > .env.production; fi
 
 RUN npm run build
 

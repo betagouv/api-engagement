@@ -3,12 +3,14 @@
 # - staging branch: staging
 #
 # For each service (app, api, process, widget-benevolat, widget-volontariat)
-# - use build args to pass environment variables (specific to Next app, see Dockerfile)
+# - use build args to pass environment variables
 # - build and push image to GitHub Container Registry
 #
 # NB:
 # - if API tests, process test or lint fails, the build won't be triggered
-# - VITE_ env vars has to be configured in GitHub secrets with _[ENV] suffix (e.g. VITE_API_URL_PRODUCTION)
+# - Env vars has to be configured in GitHub secrets with following format: [SERVICE]_ENV_[ENV]. Example:
+#   - APP_ENV_PRODUCTION
+#   - APP_ENV_STAGING
 
 name: Build and Push Docker Images
 on:
@@ -65,28 +67,31 @@ jobs:
         if: matrix.service == 'app'
         id: app_args
         run: |
-          echo "ARGS<<EOF" >> $GITHUB_OUTPUT
-          echo "VITE_API_URL=${{ steps.vars.outputs.ENV == 'production' && secrets.VITE_API_URL_PRODUCTION || secrets.VITE_API_URL_STAGING }}" >> $GITHUB_OUTPUT
-          echo "VITE_ENV=${{ steps.vars.outputs.ENV }}" >> $GITHUB_OUTPUT
-          echo "VITE_BENEVOLAT_URL=${{ steps.vars.outputs.ENV == 'production' && secrets.VITE_BENEVOLAT_URL_PRODUCTION || secrets.VITE_BENEVOLAT_URL_STAGING }}" >> $GITHUB_OUTPUT
-          echo "VITE_VOLONTARIAT_URL=${{ steps.vars.outputs.ENV == 'production' && secrets.VITE_VOLONTARIAT_URL_PRODUCTION || secrets.VITE_VOLONTARIAT_URL_STAGING }}" >> $GITHUB_OUTPUT
-          echo "VITE_SENTRY_DSN=${{ steps.vars.outputs.ENV == 'production' && secrets.VITE_SENTRY_DSN_PRODUCTION || secrets.VITE_SENTRY_DSN_STAGING }}" >> $GITHUB_OUTPUT
-          echo "EOF" >> $GITHUB_OUTPUT
+          echo "ARGS=ENV_FILE_CONTENT=${{ steps.vars.outputs.ENV == 'production' && secrets.APP_ENV_PRODUCTION || secrets.APP_ENV_STAGING }}" >> $GITHUB_OUTPUT
 
-      - name: Set api/process build args
-        if: matrix.service == 'api' || matrix.service == 'process'
-        id: node_args
+      - name: Set api build args
+        if: matrix.service == 'api'
+        id: api_args
         run: |
-          echo "ARGS=NODE_ENV=${{ steps.vars.outputs.ENV }}" >> $GITHUB_OUTPUT
+          echo "ARGS=ENV_FILE_CONTENT=${{ steps.vars.outputs.ENV == 'production' && secrets.API_ENV_PRODUCTION || secrets.API_ENV_STAGING }}" >> $GITHUB_OUTPUT
 
-      - name: Set widget build args
-        if: matrix.service == 'widget-benevolat' || matrix.service == 'widget-volontariat'
-        id: widget_args
+      - name: Set process build args
+        if: matrix.service == 'process'
+        id: process_args
         run: |
-          echo "ARGS<<EOF" >> $GITHUB_OUTPUT
-          echo "NEXT_PUBLIC_API_URL=${{ steps.vars.outputs.ENV == 'production' && secrets.NEXT_PUBLIC_API_URL_PRODUCTION || secrets.NEXT_PUBLIC_API_URL_STAGING }}" >> $GITHUB_OUTPUT
-          echo "NEXT_PUBLIC_ENV=${{ steps.vars.outputs.ENV }}" >> $GITHUB_OUTPUT
-          echo "EOF" >> $GITHUB_OUTPUT
+          echo "ARGS=ENV_FILE_CONTENT=${{ steps.vars.outputs.ENV == 'production' && secrets.PROCESS_ENV_PRODUCTION || secrets.PROCESS_ENV_STAGING }}" >> $GITHUB_OUTPUT
+
+      - name: Set widget-benevolat build args
+        if: matrix.service == 'widget-benevolat'
+        id: widget_benevolat_args
+        run: |
+          echo "ARGS=ENV_FILE_CONTENT=${{ steps.vars.outputs.ENV == 'production' && secrets.WIDGET_BENEVOLAT_ENV_PRODUCTION || secrets.WIDGET_BENEVOLAT_ENV_STAGING }}" >> $GITHUB_OUTPUT
+
+      - name: Set widget-volontariat build args
+        if: matrix.service == 'widget-volontariat'
+        id: widget_volontariat_args
+        run: |
+          echo "ARGS=ENV_FILE_CONTENT=${{ steps.vars.outputs.ENV == 'production' && secrets.WIDGET_VOLONTARIAT_ENV_PRODUCTION || secrets.WIDGET_VOLONTARIAT_ENV_STAGING }}" >> $GITHUB_OUTPUT
 
       - name: Build and push ${{ matrix.service }} image
         uses: docker/build-push-action@v4
@@ -99,5 +104,7 @@ jobs:
             ghcr.io/${{ github.repository }}/${{ matrix.service }}:${{ steps.vars.outputs.ENV }}-${{ github.sha }}
           build-args: |
             ${{ matrix.service == 'app' && steps.app_args.outputs.ARGS || '' }}
-            ${{ (matrix.service == 'api' || matrix.service == 'process') && steps.node_args.outputs.ARGS || '' }}
-            ${{ (matrix.service == 'widget-benevolat' || matrix.service == 'widget-volontariat') && steps.widget_args.outputs.ARGS || '' }}
+            ${{ matrix.service == 'api' && steps.api_args.outputs.ARGS || '' }}
+            ${{ matrix.service == 'process' && steps.process_args.outputs.ARGS || '' }}
+            ${{ matrix.service == 'widget-benevolat' && steps.widget_benevolat_args.outputs.ARGS || '' }}
+            ${{ matrix.service == 'widget-volontariat' && steps.widget_volontariat_args.outputs.ARGS || '' }}
