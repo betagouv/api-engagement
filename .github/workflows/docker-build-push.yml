@@ -50,6 +50,19 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Set environment variables based on workflow
+        id: vars
+        env:
+          HEAD_BRANCH: ${{ github.event.workflow_run.head_branch }}
+        run: |
+          if [[ "$HEAD_BRANCH" == 'main' ]]; then
+            echo "ENV=production" >> $GITHUB_OUTPUT
+            echo "Push to production image"
+          else
+            echo "ENV=staging" >> $GITHUB_OUTPUT
+            echo "Push to staging image"
+          fi
+
       - name: Build and push ${{ matrix.service }} image
         uses: docker/build-push-action@v4
         with:
