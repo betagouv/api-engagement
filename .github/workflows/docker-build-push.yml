@@ -17,6 +17,10 @@ on:
     types: [completed]
     branches: [main, staging, feature--docker] # TODO: remove me
 
+permissions:
+  contents: read
+  packages: write
+
 jobs:
   build-and-push:
     name: Build and Push Docker Images
@@ -41,8 +45,10 @@ jobs:
 
       - name: Set environment variables based on workflow
         id: vars
+        env:
+          HEAD_BRANCH: ${{ github.event.workflow_run.head_branch }}
         run: |
-          if [[ ${{ github.event.workflow_run.head_branch }} == 'main' ]]; then
+          if [[ "$HEAD_BRANCH" == 'main' ]]; then
             echo "ENV=production" >> $GITHUB_OUTPUT
             echo "Using production environment variables"
           else
