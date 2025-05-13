@@ -8,7 +8,7 @@ const useStore = create((set) => ({
   setUser: (user) => set(() => ({ user })),
   setPublisher: (publisher) => {
     localStorage.setItem("publisher", publisher._id);
-    set(() => ({ publisher, flux: publisher.role_promoteur ? "to" : "from" }));
+    set(() => ({ publisher, flux: publisher.annonceur ? "to" : "from" }));
   },
   setFlux: (flux) => {
     localStorage.setItem("flux", flux);

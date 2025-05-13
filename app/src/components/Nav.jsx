@@ -26,8 +26,8 @@ const Nav = () => {
     };
 
     let newFlux = localStorage.getItem("flux") || flux;
-    if (newFlux === "to" && !publisher.role_promoteur) newFlux = "from";
-    if (newFlux === "from" && !(publisher.role_annonceur_api || publisher.role_annonceur_campagne || publisher.role_annonceur_widget)) newFlux = "to";
+    if (newFlux === "to" && !publisher.annonceur) newFlux = "from";
+    if (newFlux === "from" && !(publisher.api || publisher.widget || publisher.campaign)) newFlux = "to";
     setFlux(newFlux);
 
     fetchData();
@@ -47,9 +47,7 @@ const Nav = () => {
     <nav className="flex w-full justify-center bg-white shadow-lg">
       <div className="flex w-full max-w-[78rem] items-center justify-between h-14 pl-4">
         <div className="flex h-full items-center gap-6">
-          {publisher.role_promoteur && (publisher.role_annonceur_api || publisher.role_annonceur_campagne || publisher.role_annonceur_widget) && (
-            <FluxMenu value={flux} onChange={handleFluxChange} />
-          )}
+          {publisher.annonceur && (publisher.api || publisher.widget || publisher.campaign) && <FluxMenu value={flux} onChange={handleFluxChange} />}
           <Link
             to="/performance"
             className={`px-6 h-full flex items-center text-sm hover:bg-gray-hover ${location.pathname.includes("performance") ? "border-b-2 border-b-blue-dark text-blue-dark" : "border-none text-black"}`}
@@ -65,7 +63,7 @@ const Nav = () => {
               >
                 Diffuser des missions
               </Link>
-              {publisher.role_annonceur_api || publisher.role_annonceur_campagne ? (
+              {publisher.api || publisher.campaign ? (
                 <Link
                   to="/settings"
                   className={`px-6 h-full flex items-center text-sm hover:bg-gray-hover ${location.pathname.includes("settings") ? "border-b-2 border-b-blue-dark text-blue-dark" : "border-none text-black"}`}

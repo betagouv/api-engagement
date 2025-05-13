@@ -61,7 +61,7 @@ const Broacaster = () => {
 
         if (!res.ok) throw res;
         const broadcasters = res.data
-          .filter((item) => item.role_annonceur_api || item.role_annonceur_campagne || item.role_annonceur_widget)
+          .filter((item) => item.api || item.campaign || item.widget)
           .map((item) => ({
             ...item,
             rate: item.clickFrom === 0 ? 0 : item.applyFrom / item.clickFrom,
@@ -106,7 +106,7 @@ const Broacaster = () => {
       const csv =
         "Id;Nom du partenaire;Nombre de redirections;Nombre de candidatures;Taux de conversion\n" +
         res.data
-          .filter((item) => item.role_annonceur_api || item.role_annonceur_campagne || item.role_annonceur_widget)
+          .filter((item) => item.api || item.campaign || item.widget)
           .map(
             (item) => `${item._id};${item.name};${item.clickFrom};${item.applyFrom};${item.clickFrom === 0 ? "0 %" : ((item.applyFrom / item.clickFrom) * 100).toFixed(1) + " %"}`,
           )
@@ -192,22 +192,22 @@ const Broacaster = () => {
                       </div>
                       <>
                         <div className="flex gap-2 flex-wrap">
-                          {item.role_promoteur && (
+                          {item.annonceur && (
                             <span className="text-gray-700 rounded-xl bg-[#fee2b5] px-2 py-1" style={{ fontSize: "12px" }}>
                               Annonceur
                             </span>
                           )}
-                          {item.role_annonceur_api && (
+                          {item.api && (
                             <span className="text-gray-700 rounded-xl bg-[#dae6fd] px-2 py-1" style={{ fontSize: "12px" }}>
                               Diffuseur API
                             </span>
                           )}
-                          {item.role_annonceur_campagne && (
+                          {item.campaign && (
                             <span className="text-gray-700 rounded-xl bg-[#dae6fd] px-2 py-1" style={{ fontSize: "12px" }}>
                               Diffuseur Campagne
                             </span>
                           )}
-                          {item.role_annonceur_widget && (
+                          {item.widget && (
                             <span className="text-gray-700 rounded-xl bg-[#dae6fd] px-2 py-1" style={{ fontSize: "12px" }}>
                               Diffuseur Widget
                             </span>

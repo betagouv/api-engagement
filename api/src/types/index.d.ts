@@ -408,8 +408,8 @@ export interface Diffuseur {
   missionType: string | null;
 
   // Old to migrate
-  publisher: string; // publisherId
-  mission_type?: string | null; // missionType
+  // publisher: string; // publisherId
+  // mission_type?: string | null; // missionType
 }
 
 export interface OrganizationExclusion {

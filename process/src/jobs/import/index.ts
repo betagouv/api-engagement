@@ -246,7 +246,7 @@ const handler = async (publisherId?: string) => {
     const publisher = await PublisherModel.findById(publisherId);
     publishers = publisher ? [publisher] : [];
   } else {
-    publishers = await PublisherModel.find({ role_promoteur: true });
+    publishers = await PublisherModel.find({ annonceur: true });
   }
 
   for (let i = 0; i < publishers.length; i++) {

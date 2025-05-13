@@ -10,9 +10,10 @@ const publisherSchema = new Schema<Diffuseur>(
     publisherName: { type: String, required: true, trim: true },
     moderator: { type: Boolean, default: false },
     missionType: { type: String, default: null, enum: ["benevolat", "volontariat", null] },
-    // Old to migrate
-    publisher: { type: String, ref: "publisher" },
-    mission_type: { type: String, default: null, enum: ["benevolat", "volontariat", null] },
+
+    // // Old to migrate
+    // publisher: { type: String, ref: "publisher" },
+    // mission_type: { type: String, default: null, enum: ["benevolat", "volontariat", null] },
   },
   { timestamps: true }
 );

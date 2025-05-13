@@ -22,8 +22,6 @@ router.post("/search", passport.authenticate(["user", "admin"], { session: false
     const user = req.user as HydratedDocument<User>;
     const body = zod
       .object({
-        role_promoteur: zod.boolean().optional(),
-
         partnersOf: zod.string().optional(),
         moderator: zod.boolean().optional(),
         name: zod.string().optional(),
