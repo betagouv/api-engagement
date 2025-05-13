@@ -1,0 +1,59 @@
+version: "3.8"
+
+services:
+  # process:
+  #   build:
+  #     context: ./process
+  #     dockerfile: Dockerfile.production
+  #   ports:
+  #     - "9000:8080"
+  #   env_file:
+  #     - ./process/.env
+  #   command: sh -c "npx prisma migrate deploy && node dist/index.js"
+  #   restart: unless-stopped
+
+  api:
+    build:
+      context: ./api
+      dockerfile: Dockerfile.production
+    ports:
+      - "9001:4000"
+    env_file:
+      - ./api/.env
+    restart: unless-stopped
+
+  app:
+    build:
+      context: ./app
+      dockerfile: Dockerfile.production
+    ports:
+      - "9002:8080"
+    # env_file:
+    #   - ./app/.env
+    restart: unless-stopped
+    depends_on:
+      - api
+
+  widget-benevolat:
+    build:
+      context: ./widget-benevolat
+      dockerfile: Dockerfile.production
+    ports:
+      - "9003:8080"
+    # env_file:
+    #   - ./widget-benevolat/.env
+    restart: unless-stopped
+    depends_on:
+      - api
+
+  widget-volontariat:
+    build:
+      context: ./widget-volontariat
+      dockerfile: Dockerfile.production
+    ports:
+      - "9004:8080"
+    # env_file:
+    #   - ./widget-volontariat/.env
+    restart: unless-stopped
+    depends_on:
+      - api

@@ -3,6 +3,14 @@ FROM node:18-bullseye-slim AS builder
 
 WORKDIR /app
 
+ARG ENV=development
+ARG API_URL=http://localhost:9001
+ARG SENTRY_DSN=
+
+ENV ENV=$ENV
+ENV API_URL=$API_URL
+ENV SENTRY_DSN=$SENTRY_DSN
+
 COPY package*.json ./
 
 RUN npm ci

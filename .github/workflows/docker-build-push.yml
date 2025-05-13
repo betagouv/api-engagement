@@ -63,6 +63,63 @@ jobs:
             echo "Push to staging image"
           fi
 
+      # Set app build args
+      - name: Set app build args
+        id: app_args
+        if: matrix.service == 'app'
+        run: |
+          if [[ "${{ steps.vars.outputs.ENV }}" == 'production' ]]; then
+            # Production environment
+            echo "VITE_ENV=production" >> $GITHUB_OUTPUT
+            echo "VITE_API_URL=${{ secrets.API_URL_PRODUCTION }}" >> $GITHUB_OUTPUT
+            echo "VITE_BENEVOLAT_URL=${{ secrets.BENEVOLAT_URL_PRODUCTION }}" >> $GITHUB_OUTPUT
+            echo "VITE_VOLONTARIAT_URL=${{ secrets.VOLONTARIAT_URL_PRODUCTION }}" >> $GITHUB_OUTPUT
+            echo "VITE_SENTRY_DSN=${{ secrets.SENTRY_DSN_PRODUCTION }}" >> $GITHUB_OUTPUT
+          else
+            # Staging environment
+            echo "VITE_ENV=staging" >> $GITHUB_OUTPUT
+            echo "VITE_API_URL=${{ secrets.API_URL_STAGING }}" >> $GITHUB_OUTPUT
+            echo "VITE_BENEVOLAT_URL=${{ secrets.BENEVOLAT_URL_STAGING }}" >> $GITHUB_OUTPUT
+            echo "VITE_VOLONTARIAT_URL=${{ secrets.VOLONTARIAT_URL_STAGING }}" >> $GITHUB_OUTPUT
+            echo "VITE_SENTRY_DSN=${{ secrets.SENTRY_DSN_STAGING }}" >> $GITHUB_OUTPUT
+          fi
+
+      # Set widget-benevolat build args
+      - name: Set widget-benevolat build args
+        id: widget_benevolat_args
+        if: matrix.service == 'widget-benevolat'
+        run: |
+          if [[ "${{ steps.vars.outputs.ENV }}" == 'production' ]]; then
+            # Production environment
+            echo "WIDGET_ENV=production" >> $GITHUB_OUTPUT
+            echo "WIDGET_API_URL=${{ secrets.API_URL_PRODUCTION }}" >> $GITHUB_OUTPUT
+            echo "WIDGET_SENTRY_DSN=${{ secrets.SENTRY_DSN_PRODUCTION }}" >> $GITHUB_OUTPUT
+            echo "WIDGET_GOOGLE_FOR_JOB_KEY=${{ secrets.GOOGLE_FOR_JOB_KEY_PRODUCTION }}" >> $GITHUB_OUTPUT
+          else
+            # Staging environment
+            echo "WIDGET_ENV=staging" >> $GITHUB_OUTPUT
+            echo "WIDGET_API_URL=${{ secrets.API_URL_STAGING }}" >> $GITHUB_OUTPUT
+            echo "WIDGET_SENTRY_DSN=${{ secrets.SENTRY_DSN_STAGING }}" >> $GITHUB_OUTPUT
+            echo "WIDGET_GOOGLE_FOR_JOB_KEY=${{ secrets.GOOGLE_FOR_JOB_KEY_STAGING }}" >> $GITHUB_OUTPUT
+          fi
+
+      # Set widget-volontariat build args
+      - name: Set widget-volontariat build args
+        id: widget_volontariat_args
+        if: matrix.service == 'widget-volontariat'
+        run: |
+          if [[ "${{ steps.vars.outputs.ENV }}" == 'production' ]]; then
+            # Production environment
+            echo "WIDGET_ENV=production" >> $GITHUB_OUTPUT
+            echo "WIDGET_API_URL=${{ secrets.API_URL_PRODUCTION }}" >> $GITHUB_OUTPUT
+            echo "WIDGET_SENTRY_DSN=${{ secrets.SENTRY_DSN_PRODUCTION }}" >> $GITHUB_OUTPUT
+          else
+            # Staging environment
+            echo "WIDGET_ENV=staging" >> $GITHUB_OUTPUT
+            echo "WIDGET_API_URL=${{ secrets.API_URL_STAGING }}" >> $GITHUB_OUTPUT
+            echo "WIDGET_SENTRY_DSN=${{ secrets.SENTRY_DSN_STAGING }}" >> $GITHUB_OUTPUT
+          fi
+
       - name: Build and push ${{ matrix.service }} image
         uses: docker/build-push-action@v4
         with:
@@ -72,3 +129,21 @@ jobs:
           tags: |
             ghcr.io/${{ github.repository }}/${{ matrix.service }}:${{ steps.vars.outputs.ENV }}
             ghcr.io/${{ github.repository }}/${{ matrix.service }}:${{ steps.vars.outputs.ENV }}-${{ github.sha }}
+          build-args: |
+            # App (Vite) variables
+            ${{ matrix.service == 'app' && format('VITE_ENV={0}', steps.app_args.outputs.VITE_ENV) || '' }}
+            ${{ matrix.service == 'app' && format('VITE_API_URL={0}', steps.app_args.outputs.VITE_API_URL) || '' }}
+            ${{ matrix.service == 'app' && format('VITE_BENEVOLAT_URL={0}', steps.app_args.outputs.VITE_BENEVOLAT_URL) || '' }}
+            ${{ matrix.service == 'app' && format('VITE_VOLONTARIAT_URL={0}', steps.app_args.outputs.VITE_VOLONTARIAT_URL) || '' }}
+            ${{ matrix.service == 'app' && format('VITE_SENTRY_DSN={0}', steps.app_args.outputs.VITE_SENTRY_DSN) || '' }}
+
+            # Widget Benevolat variables
+            ${{ matrix.service == 'widget-benevolat' && format('ENV={0}', steps.widget_benevolat_args.outputs.WIDGET_ENV) || '' }}
+            ${{ matrix.service == 'widget-benevolat' && format('API_URL={0}', steps.widget_benevolat_args.outputs.WIDGET_API_URL) || '' }}
+            ${{ matrix.service == 'widget-benevolat' && format('SENTRY_DSN={0}', steps.widget_benevolat_args.outputs.WIDGET_SENTRY_DSN) || '' }}
+            ${{ matrix.service == 'widget-benevolat' && format('GOOGLE_FOR_JOB_KEY={0}', steps.widget_benevolat_args.outputs.WIDGET_GOOGLE_FOR_JOB_KEY) || '' }}
+
+            # Widget Volontariat variables
+            ${{ matrix.service == 'widget-volontariat' && format('ENV={0}', steps.widget_volontariat_args.outputs.WIDGET_ENV) || '' }}
+            ${{ matrix.service == 'widget-volontariat' && format('API_URL={0}', steps.widget_volontariat_args.outputs.WIDGET_API_URL) || '' }}
+            ${{ matrix.service == 'widget-volontariat' && format('SENTRY_DSN={0}', steps.widget_volontariat_args.outputs.WIDGET_SENTRY_DSN) || '' }}
