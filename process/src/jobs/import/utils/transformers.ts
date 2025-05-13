@@ -87,7 +87,6 @@ export const transformMongoMissionToPg = (doc: MongoMission, partnerId: string, 
     organization_department_code_verified: doc.organizationDepartmentCodeVerified,
     organization_department_name_verified: doc.organizationDepartmentNameVerified,
     organization_region_verified: doc.organizationRegionVerified,
-    organization_is_rup: doc.organisationIsRUP,
 
     is_rna_verified: doc.organizationRNAVerified ? true : false,
     is_siren_verified: doc.organizationSirenVerified ? true : false,
