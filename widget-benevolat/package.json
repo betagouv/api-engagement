@@ -14,12 +14,12 @@
     "test:e2e:report": "playwright show-report tests/e2e/_playwright-report --port 58724"
   },
   "dependencies": {
-    "@headlessui/react": "2.2.2",
-    "@sentry/cli": "2.43.0",
-    "@sentry/nextjs": "9.13.0",
-    "@tailwindcss/postcss": "^4.1.4",
+    "@headlessui/react": "2.2.3",
+    "@sentry/cli": "2.45.0",
+    "@sentry/nextjs": "9.18.0",
+    "@tailwindcss/postcss": "^4.1.6",
     "i18n-iso-countries": "7.14.0",
-    "next": "15.3.1",
+    "next": "15.3.2",
     "next-plausible": "3.12.4",
     "pm2": "6.0.5",
     "react": "19.1.0",
@@ -27,7 +27,7 @@
     "react-icons": "5.5.0",
     "sharp": "0.34.1",
     "slick-carousel": "1.8.1",
-    "zustand": "5.0.3"
+    "zustand": "5.0.4"
   },
   "devDependencies": {
     "@playwright/test": "^1.52.0",
