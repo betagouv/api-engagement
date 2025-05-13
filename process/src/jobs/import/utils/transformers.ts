@@ -1,7 +1,8 @@
-import { Organization, Address as PgAddress, Mission as PgMission, MissionHistory as PgMissionHistory } from "@prisma/client";
+import { MissionHistoryEventType, Organization, Address as PgAddress, Mission as PgMission, MissionHistoryEvent as PgMissionHistoryEvent } from "@prisma/client";
+import { JVA_ID, SC_ID } from "../../../config";
 import { Mission as MongoMission } from "../../../types";
 
-type MissionHistoryEntry = Omit<PgMissionHistory, "id">; // Prisma renders uuid when saving
+type MissionHistoryEntry = Omit<PgMissionHistoryEvent, "id">; // Prisma renders uuid when saving
 
 export type MissionTransformResult = {
   mission: PgMission;
@@ -43,7 +44,7 @@ export const transformMongoMissionToPg = (doc: MongoMission, partnerId: string, 
     places: doc.places,
     metadata: doc.metadata,
     activity: doc.activity,
-    type: doc.publisherId === "5f99dbe75eb1ad767733b206" ? "volontariat" : "benevolat",
+    type: doc.publisherId === SC_ID ? "volontariat" : "benevolat",
     snu: doc.snu,
     snu_places: doc.snuPlaces,
 
@@ -86,7 +87,6 @@ export const transformMongoMissionToPg = (doc: MongoMission, partnerId: string, 
     organization_department_code_verified: doc.organizationDepartmentCodeVerified,
     organization_department_name_verified: doc.organizationDepartmentNameVerified,
     organization_region_verified: doc.organizationRegionVerified,
-    organization_is_rup: doc.organisationIsRUP,
 
     is_rna_verified: doc.organizationRNAVerified ? true : false,
     is_siren_verified: doc.organizationSirenVerified ? true : false,
@@ -132,12 +132,69 @@ export const transformMongoMissionToPg = (doc: MongoMission, partnerId: string, 
 
   // Transform history entries
   const history: MissionHistoryEntry[] =
-    doc.__history?.map((history) => ({
-      date: history.date,
-      mission_id: obj.id,
-      state: history.state,
-      metadata: history.metadata as any,
-    })) || [];
+    doc.__history?.flatMap((history) =>
+      getTypeFromMissionHistoryEvent(history).map((type) => ({
+        date: history.date,
+        mission_id: obj.id,
+        type,
+      }))
+    ) || [];
 
   return { mission: obj, addresses, history };
+};
+
+/**
+ * Analyze a mission history entry and determine which MissionHistoryEventTypes to assign
+ *
+ * @param missionHistory The mission history entry containing state and metadata
+ * @returns An array of MissionHistoryEventTypes
+ */
+export const getTypeFromMissionHistoryEvent = (
+  missionHistory: any // TODO
+): MissionHistoryEventType[] => {
+  const eventTypes: MissionHistoryEventType[] = [];
+  const { state, metadata } = missionHistory;
+
+  // For creation type, return only MissionCreated
+  if (metadata && "action" in metadata && metadata.action === "created") {
+    return [MissionHistoryEventType.Created];
+  }
+
+  if ("deletedAt" in state) {
+    eventTypes.push(MissionHistoryEventType.Deleted);
+  }
+
+  if ("startAt" in state) {
+    eventTypes.push(MissionHistoryEventType.UpdatedStartDate);
+  }
+
+  if ("endAt" in state) {
+    eventTypes.push(MissionHistoryEventType.UpdatedEndDate);
+  }
+
+  if ("description" in state || "descriptionHtml" in state) {
+    eventTypes.push(MissionHistoryEventType.UpdatedDescription);
+  }
+
+  if ("domain" in state) {
+    eventTypes.push(MissionHistoryEventType.UpdatedActivityDomain);
+  }
+
+  if ("places" in state) {
+    eventTypes.push(MissionHistoryEventType.UpdatedPlaces);
+  }
+
+  if (state.hasOwnProperty(`moderation_${JVA_ID}_status`)) {
+    eventTypes.push(MissionHistoryEventType.UpdatedJVAModerationStatus);
+  }
+
+  if ("status" in state || "statusCode" in state) {
+    eventTypes.push(MissionHistoryEventType.UpdatedApiEngModerationStatus);
+  }
+
+  if (eventTypes.length === 0) {
+    eventTypes.push(MissionHistoryEventType.UpdatedOther);
+  }
+
+  return eventTypes;
 };

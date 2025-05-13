@@ -27,3 +27,7 @@ export const REGION = process.env.SCW_REGION || "fr-par";
 
 export const SCW_ACCESS_KEY = process.env.SCW_ACCESS_KEY;
 export const SCW_SECRET_KEY = process.env.SCW_SECRET_KEY;
+
+// Ids
+export const JVA_ID = "5f5931496c7ea514150a818f"; // JeVeuxAider Id
+export const SC_ID = "5f99dbe75eb1ad767733b206"; // Service Civique Id

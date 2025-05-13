@@ -1,12 +1,23 @@
 import { Document, Schema } from "mongoose";
 
-interface HistoryEntry {
+export const HISTORY_ACTIONS = {
+  CREATED: "created",
+  UPDATED: "updated",
+  DELETED: "deleted",
+} as const;
+
+type HistoryAction = (typeof HISTORY_ACTIONS)[keyof typeof HISTORY_ACTIONS];
+
+export interface HistoryEntry {
   date: Date;
   state: Record<string, any>;
-  metadata?: Record<string, any>;
+  metadata?: {
+    action: HistoryAction;
+    [key: string]: any;
+  };
 }
 
-interface HistoryOptions {
+export interface HistoryOptions {
   historyField?: string;
   omit?: string[];
   metadata?: Record<string, any>;
@@ -38,6 +49,19 @@ export function historyPlugin<T extends Document>(schema: Schema, options: Histo
   const historyField = pluginOptions.historyField as string;
   const omitFields = pluginOptions.omit as string[];
 
+  /**
+   * Reset action metadata if present
+   * @param originalMetadata Original metadata to restore if no action is present
+   */
+  const resetActionMetadata = (originalMetadata: Record<string, any> = {}) => {
+    if (pluginOptions.metadata && (pluginOptions.metadata.action === HISTORY_ACTIONS.CREATED || pluginOptions.metadata.action === HISTORY_ACTIONS.UPDATED)) {
+      const { action, ...restMetadata } = pluginOptions.metadata;
+      pluginOptions.metadata = restMetadata;
+    } else {
+      pluginOptions.metadata = originalMetadata;
+    }
+  };
+
   if (!schema.path(historyField)) {
     const historySchema = {
       [historyField]: [
@@ -66,25 +90,33 @@ export function historyPlugin<T extends Document>(schema: Schema, options: Histo
     // Add type assertion for 'this'
     const doc = this as Document & { [key: string]: HistoryEntry[] };
 
-    // Ignore new documents
-    if (doc.isNew) {
-      return next();
-    }
-
+    // Determine fields to track and their values
+    let fieldsToTrack: string[] = [];
     const changedFields: Record<string, any> = {};
     let hasChanges = false;
 
-    const modifiedPaths = doc.modifiedPaths();
-    const fieldsToTrack = modifiedPaths.filter((path) => {
-      return !omitFields.includes(path) && path !== historyField;
-    });
+    // Ensure metadata is always an object
+    const currentMetadata = pluginOptions.metadata || {};
+
+    if (doc.isNew) {
+      // For new documents, track all fields
+      const docObj = doc.toObject() || {};
+      fieldsToTrack = Object.keys(docObj).filter((path) => !omitFields.includes(path) && path !== historyField);
+    } else {
+      // For existing documents, only track modified fields
+      const modifiedPaths = doc.modifiedPaths();
+      fieldsToTrack = modifiedPaths.filter((path) => {
+        return !omitFields.includes(path) && path !== historyField;
+      });
+    }
 
     if (fieldsToTrack.length === 0) {
       return next();
     }
 
+    // Capture values for all tracked fields
     fieldsToTrack.forEach((path) => {
-      if (doc.isModified(path)) {
+      if (doc.isNew || doc.isModified(path)) {
         changedFields[path] = doc.get(path);
         hasChanges = true;
       }
@@ -94,7 +126,10 @@ export function historyPlugin<T extends Document>(schema: Schema, options: Histo
       const historyEntry = {
         date: new Date(),
         state: changedFields,
-        metadata: { ...pluginOptions.metadata },
+        metadata: {
+          action: doc.isNew ? HISTORY_ACTIONS.CREATED : HISTORY_ACTIONS.UPDATED,
+          ...currentMetadata,
+        },
       };
 
       if (!doc[historyField]) {
@@ -106,6 +141,8 @@ export function historyPlugin<T extends Document>(schema: Schema, options: Histo
       if (doc[historyField].length > (pluginOptions.maxEntries as number)) {
         doc[historyField] = doc[historyField].slice(doc[historyField].length - (pluginOptions.maxEntries as number));
       }
+
+      resetActionMetadata(currentMetadata);
     }
 
     next();
@@ -145,7 +182,7 @@ export function historyPlugin<T extends Document>(schema: Schema, options: Histo
 
         const result = await doc.save();
 
-        pluginOptions.metadata = originalPluginMetadata;
+        resetActionMetadata(originalPluginMetadata);
 
         return result;
       },
@@ -166,98 +203,163 @@ export function historyPlugin<T extends Document>(schema: Schema, options: Histo
        */
       bulkWrite: async (operations: any[]) => {
         const Model = this;
-        pluginOptions.metadata = { ...originalPluginMetadata, ...metadata };
+        const currentMetadata = originalPluginMetadata || {};
+        pluginOptions.metadata = { ...currentMetadata, ...metadata };
 
-        // First, perform the bulkWrite operation
-        const result = await Model.bulkWrite(operations);
+        // Get all operations that will update documents before bulkWrite
+        const operationsToUpdate = operations.filter((op) => op.updateOne || op.updateMany);
+        let docsBeforeUpdate = [];
 
-        // Then, process history for each updated document
-        const updateOperations = operations.filter((op) => op.updateOne || op.updateMany);
-
-        if (updateOperations.length > 0) {
-          // Collect all filters to find affected documents in a single query
-          const filters = updateOperations.map((op) => {
+        if (operationsToUpdate.length > 0) {
+          const filters = operationsToUpdate.map((op) => {
             const operation = op.updateOne || op.updateMany;
             return operation.filter;
           });
 
-          // Find all documents that were updated by any operation
-          const docs = await Model.find({ $or: filters });
+          docsBeforeUpdate = await Model.find({ $or: filters });
+        }
 
-          if (docs.length > 0) {
-            const historyUpdates = [];
+        const result = await Model.bulkWrite(operations);
 
-            for (const doc of docs) {
-              // Find the operation that affected this document
-              const matchingOp = updateOperations.find((op) => {
-                const operation = op.updateOne || op.updateMany;
-                const filter = operation.filter;
+        const createHistoryEntry = (state: Record<string, any>, action: HistoryAction) => ({
+          date: new Date(),
+          state,
+          metadata: {
+            ...pluginOptions.metadata,
+            action,
+          },
+        });
 
-                // Check if this document matches the filter
-                return Object.keys(filter).every((key) => {
-                  if (key === "_id") {
-                    return doc._id.toString() === filter._id.toString();
-                  }
-                  return doc[key] === filter[key];
-                });
-              });
+        const filterFields = (obj: Record<string, any>): Record<string, any> => {
+          const filteredState: Record<string, any> = {};
+          Object.keys(obj).forEach((path) => {
+            if (!omitFields.includes(path) && path !== historyField) {
+              filteredState[path] = obj[path];
+            }
+          });
+          return filteredState;
+        };
 
-              if (matchingOp) {
-                const operation = matchingOp.updateOne || matchingOp.updateMany;
-                const update = operation.update;
+        const insertOperations = operations.filter((op) => op.insertOne);
+        if (insertOperations.length > 0) {
+          const historyUpdates = [];
 
-                // Skip if there's no $set operation
-                if (!update.$set) {
-                  continue;
-                }
-
-                // Create history entry for this document
-                const changedFields: Record<string, any> = {};
-                let hasChanges = false;
-
-                // Extract changed fields from the $set operation
-                Object.keys(update.$set).forEach((path) => {
-                  if (!omitFields.includes(path) && path !== historyField) {
-                    // Check if the value has changed
-                    if (JSON.stringify(doc[path]) !== JSON.stringify(update.$set[path])) {
-                      changedFields[path] = update.$set[path];
-                      hasChanges = true;
-                    }
-                  }
-                });
-
-                if (hasChanges) {
-                  const historyEntry = {
-                    date: new Date(),
-                    state: changedFields,
-                    metadata: { ...pluginOptions.metadata },
-                  };
-
-                  let history = doc[historyField] || [];
-                  history.push(historyEntry);
-
-                  if (history.length > (pluginOptions.maxEntries as number)) {
-                    history = history.slice(history.length - (pluginOptions.maxEntries as number));
-                  }
-
-                  historyUpdates.push({
-                    updateOne: {
-                      filter: { _id: doc._id },
-                      update: { $set: { [historyField]: history } },
-                    },
-                  });
-                }
-              }
+          for (const op of insertOperations) {
+            const insertedId = op.insertOne.document._id;
+            if (!insertedId) {
+              continue;
             }
 
-            // Execute a single bulkWrite for all history updates
-            if (historyUpdates.length > 0) {
-              await Model.bulkWrite(historyUpdates);
+            const newDoc = await Model.findById(insertedId);
+            if (!newDoc) {
+              continue;
             }
+
+            const docObj = newDoc.toObject() || {};
+            const initialState = filterFields(docObj);
+
+            if (Object.keys(initialState).length === 0) {
+              continue;
+            }
+
+            const historyEntry = createHistoryEntry(initialState, HISTORY_ACTIONS.CREATED);
+
+            historyUpdates.push({
+              updateOne: {
+                filter: { _id: insertedId },
+                update: { $set: { [historyField]: [historyEntry] } },
+              },
+            });
+          }
+
+          if (historyUpdates.length > 0) {
+            await Model.bulkWrite(historyUpdates);
           }
         }
 
-        pluginOptions.metadata = originalPluginMetadata;
+        if (operationsToUpdate.length > 0) {
+          const filters = operationsToUpdate.map((op) => {
+            const operation = op.updateOne || op.updateMany;
+            return operation.filter;
+          });
+
+          const updatedDocs = await Model.find({ $or: filters });
+          if (updatedDocs.length === 0) {
+            resetActionMetadata(originalPluginMetadata);
+            return result;
+          }
+
+          const historyUpdates = [];
+
+          for (const updatedDoc of updatedDocs) {
+            const originalDoc = docsBeforeUpdate.find((doc: any) => doc._id && doc._id.toString() === updatedDoc._id.toString());
+
+            if (!originalDoc) {
+              continue;
+            }
+
+            const matchingOp = operationsToUpdate.find((op) => {
+              const operation = op.updateOne || op.updateMany;
+              const filter = operation.filter;
+
+              return Object.keys(filter).every((key) => {
+                if (key === "_id") {
+                  return updatedDoc._id.toString() === filter._id.toString();
+                }
+                return updatedDoc[key] === filter[key];
+              });
+            });
+
+            if (!matchingOp) {
+              continue;
+            }
+
+            const operation = matchingOp.updateOne || matchingOp.updateMany;
+            const update = operation.update;
+            if (!update.$set) {
+              continue;
+            }
+
+            const changedFields: Record<string, any> = {};
+            let hasChanges = false;
+
+            Object.keys(update.$set).forEach((path) => {
+              if (!omitFields.includes(path) && path !== historyField) {
+                if (JSON.stringify(originalDoc[path]) !== JSON.stringify(update.$set[path])) {
+                  changedFields[path] = update.$set[path];
+                  hasChanges = true;
+                }
+              }
+            });
+
+            if (!hasChanges) {
+              continue;
+            }
+
+            const historyEntry = createHistoryEntry(changedFields, HISTORY_ACTIONS.UPDATED);
+
+            let history = Array.isArray(updatedDoc[historyField]) ? [...updatedDoc[historyField]] : [];
+
+            history.push(historyEntry);
+
+            if (history.length > (pluginOptions.maxEntries as number)) {
+              history = history.slice(history.length - (pluginOptions.maxEntries as number));
+            }
+
+            historyUpdates.push({
+              updateOne: {
+                filter: { _id: updatedDoc._id },
+                update: { $set: { [historyField]: history } },
+              },
+            });
+          }
+
+          if (historyUpdates.length > 0) {
+            await Model.bulkWrite(historyUpdates);
+          }
+        }
+
+        resetActionMetadata(originalPluginMetadata);
 
         return result;
       },

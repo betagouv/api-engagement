@@ -1,18 +1,18 @@
-import React, { useState, useEffect } from "react";
-import Script from "next/script";
 import * as Sentry from "@sentry/nextjs";
 import iso from "i18n-iso-countries";
 import isoFR from "i18n-iso-countries/langs/fr.json";
-import { useRouter } from "next/router";
 import { usePlausible } from "next-plausible";
+import { useRouter } from "next/router";
+import Script from "next/script";
+import { useEffect, useState } from "react";
 iso.registerLocale(isoFR);
 
-import { API_URL, ENV } from "../config";
 import Carousel from "../components/Carousel";
-import Grid from "../components/Grid";
 import Filters from "../components/Filters";
-import { calculateDistance } from "../utils";
+import Grid from "../components/Grid";
+import { API_URL, ENV } from "../config";
 import useStore from "../store";
+import { calculateDistance } from "../utils";
 import resizeHelper from "../utils/resizeHelper";
 
 /**
@@ -59,7 +59,7 @@ const Home = ({ widget, missions, apiUrl, total, request, environment }) => {
         },
         (error) => {
           console.error("Error getting location:", error);
-        },
+        }
       );
     } else {
       console.log("Geolocation is not supported by this browser.");
@@ -138,18 +138,18 @@ const Home = ({ widget, missions, apiUrl, total, request, environment }) => {
     }
   };
 
-  if (!widget) return <div className="w-full h-full flex items-center justify-center">Erreur lors du chargement du widget</div>;
+  if (!widget) return <div className="flex h-full w-full items-center justify-center">Erreur lors du chargement du widget</div>;
 
   return (
     <div
       className={`p-2 xl:px-0 ${
-        widget?.style === "carousel" ? "h-[760px] md:max-h-[686px] md:max-w-[1200px]" : "max-h-[3424px] lg:max-h-[1270px] md:max-w-[1200px]"
-      } flex flex-col justify-start mx-auto items-center gap-4`}
+        widget?.style === "carousel" ? "h-[760px] md:max-h-[686px] md:max-w-[1200px]" : "max-h-[3424px] md:max-w-[1200px] lg:max-h-[1270px]"
+      } mx-auto flex flex-col items-center justify-start gap-4`}
     >
       <header className={`w-full space-y-4 md:space-y-8 ${widget?.style === "carousel" ? "max-w-[1056px]" : ""}`}>
-        <div className="flex flex-col gap-2 md:items-center md:flex-row md:justify-between">
-          <h1 className="font-bold text-[28px] leading-[36px] md:p-0">Trouver une mission de bénévolat</h1>
-          <p className="text-[#666] text-[18px] leading-[28px]">{total > 1 ? `${total.toLocaleString("fr")} missions` : `${total} mission`}</p>
+        <div className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
+          <h1 className="text-[28px] font-bold leading-[36px] md:p-0">Trouver une mission de bénévolat</h1>
+          <p className="text-[18px] leading-[28px] text-[#666]">{total > 1 ? `${total.toLocaleString("fr")} missions` : `${total} mission`}</p>
         </div>
         <Filters
           widget={widget}

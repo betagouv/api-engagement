@@ -1,9 +1,9 @@
-import Image from "next/image";
 import iso from "i18n-iso-countries";
+import Image from "next/image";
 import { RiBuildingFill } from "react-icons/ri";
 
-import { DOMAINES } from "../config";
 import { useState } from "react";
+import { DOMAINES } from "../config";
 
 const Card = ({ widget, mission, request }) => {
   const [error, setError] = useState(false);
@@ -22,45 +22,46 @@ const Card = ({ widget, mission, request }) => {
       href={mission.url}
       target="_blank"
       rel="noopener noreferrer"
+      data-testid="mission-card"
       className={`${
         widget.style === "carousel"
-          ? "w-full lg:max-w-[336px] min-h-[420px] max-h-[420px] xl:min-h-[460px] xl:max-h-[460px]"
-          : "w-full lg:min-h-[440px] lg:max-h-[440px] min-h-[420px] max-h-[420px]"
-      } group border h-full flex flex-col border-[#DDDDDD] overflow-hidden focus:outline-none focus-visible:ring focus-visible:ring-blue-800 hover:shadow-lg transition-shadow duration-300 mx-auto`}
+          ? "max-h-[420px] min-h-[420px] w-full lg:max-w-[336px] xl:max-h-[460px] xl:min-h-[460px]"
+          : "max-h-[420px] min-h-[420px] w-full lg:max-h-[440px] lg:min-h-[440px]"
+      } group mx-auto flex h-full flex-col overflow-hidden border border-[#DDDDDD] transition-shadow duration-300 hover:shadow-lg focus:outline-none focus-visible:ring focus-visible:ring-blue-800`}
     >
-      <div className="min-h-[188px] max-h-[188px] xl:min-h-[200px] xl:max-h-[200px] overflow-hidden">
+      <div className="max-h-[188px] min-h-[188px] overflow-hidden xl:max-h-[200px] xl:min-h-[200px]">
         <Image
           src={error ? "/generique.jpeg" : mission.domainLogo}
           alt={mission.title}
           priority={true}
-          className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110"
+          className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-110"
           width={500}
           height={500}
           onError={() => setError(true)}
         />
       </div>
 
-      <div className="flex-1 flex flex-col p-6 justify-between">
+      <div className="flex flex-1 flex-col justify-between p-6">
         <div>
-          <div className="flex flex-col gap-2 mb-4">
-            <span className="text-xs bg-[#EEE] w-fit py-0.5 px-2 rounded-full">{DOMAINES[mission.domain] || mission.domain}</span>
+          <div className="mb-4 flex flex-col gap-2">
+            <span className="w-fit rounded-full bg-[#EEE] px-2 py-0.5 text-xs">{DOMAINES[mission.domain] || mission.domain}</span>
             <div className="flex gap-2 text-[#666]">
               <RiBuildingFill />
-              <span className="text-xs line-clamp-1">{mission.organizationName}</span>
+              <span className="line-clamp-1 text-xs">{mission.organizationName}</span>
             </div>
           </div>
 
-          <div className="h-[4.5rem] mb-4">
-            <h2 className="font-semibold line-clamp-3 text-xl leading-tight group-hover:text-[#000091] transition-colors duration-300">{mission.title}</h2>
+          <div className="mb-4 h-[4.5rem]">
+            <h2 className="line-clamp-3 text-xl font-semibold leading-tight transition-colors duration-300 group-hover:text-[#000091]">{mission.title}</h2>
           </div>
 
-          <div className="flex flex-col mb-4">
-            <span className="text-sm line-clamp-1 text-[#3A3A3A] mb-2">{address}</span>
+          <div className="mb-4 flex flex-col">
+            <span className="mb-2 line-clamp-1 text-sm text-[#3A3A3A]">{address}</span>
             <span className="text-xs text-[#666666]">{`${mission.places} ${mission.places > 1 ? "bénévoles recherchés" : "bénévole recherché"}`}</span>
           </div>
         </div>
 
-        <div className="w-full text-center mt-4">
+        <div className="mt-4 w-full text-center">
           <span name="tracker_counter" data-id={mission._id} data-publisher={widget.fromPublisherId.toString()} data-source={widget._id.toString()} data-request={request} />
         </div>
       </div>

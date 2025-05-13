@@ -127,21 +127,15 @@ const writePg = async (publisher: Publisher, importDoc: Import) => {
         return [];
       }
 
-      e.history.forEach((h) => {
-        h.mission_id = mission.id;
-      });
-
-      return e.history;
+      // Set the mission_id for each history entry
+      return e.history.map((h) => ({
+        ...h,
+        mission_id: mission.id,
+      }));
     })
     .flat();
 
-  const resHistory = await prisma.missionHistory.createMany({
-    data: pgCreateHistory.map((h) => ({
-      ...h,
-      state: h.state as any,
-      metadata: h.metadata as any,
-    })),
-  });
+  const resHistory = await prisma.missionHistoryEvent.createMany({ data: pgCreateHistory });
   console.log(`[${publisher.name}] Postgres created ${resHistory.count} history entries`);
 
   // Find updated missions in MongoDB
@@ -179,13 +173,11 @@ const writePg = async (publisher: Publisher, importDoc: Import) => {
       });
 
       // Replace history
-      await prisma.missionHistory.deleteMany({ where: { mission_id: mission.id } });
-      await prisma.missionHistory.createMany({
-        data: obj.history.map((e) => ({
-          ...e,
+      await prisma.missionHistoryEvent.deleteMany({ where: { mission_id: mission.id } });
+      await prisma.missionHistoryEvent.createMany({
+        data: obj.history.map((h) => ({
+          ...h,
           mission_id: mission.id,
-          state: e.state as any, // Cast state to any to resolve type incompatibility with Prisma
-          metadata: e.metadata as any,
         })),
       });
 
