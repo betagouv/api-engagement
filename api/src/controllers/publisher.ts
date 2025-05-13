@@ -39,13 +39,27 @@ router.post("/search", passport.authenticate(["user", "admin"], { session: false
 
     const where = { deletedAt: null } as { [key: string]: any };
 
-    if (body.data.role === "annonceur") where.annonceur = true;
-    if (body.data.role === "diffuseur") where.$or = [{ api: true }, { widget: true }, { campaign: true }];
-    if (body.data.role === "api") where.api = true;
-    if (body.data.role === "widget") where.widget = true;
-    if (body.data.role === "campaign") where.campaign = true;
-    if (body.data.sendReport !== undefined) where.sendReport = body.data.sendReport;
-    if (body.data.missionType) where.missionType = body.data.missionType;
+    if (body.data.role === "annonceur") {
+      where.annonceur = true;
+    }
+    if (body.data.role === "diffuseur") {
+      where.$or = [{ api: true }, { widget: true }, { campaign: true }];
+    }
+    if (body.data.role === "api") {
+      where.api = true;
+    }
+    if (body.data.role === "widget") {
+      where.widget = true;
+    }
+    if (body.data.role === "campaign") {
+      where.campaign = true;
+    }
+    if (body.data.sendReport !== undefined) {
+      where.sendReport = body.data.sendReport;
+    }
+    if (body.data.missionType) {
+      where.missionType = body.data.missionType;
+    }
 
     if (body.data.name) {
       where.name = { $regex: `.*${body.data.name}.*`, $options: "i" };
@@ -61,7 +75,9 @@ router.post("/search", passport.authenticate(["user", "admin"], { session: false
         return res.status(403).send({ ok: false, code: FORBIDDEN, message: `Not allowed` });
       }
     }
-    if (body.data.moderator) where.moderator = true;
+    if (body.data.moderator) {
+      where.moderator = true;
+    }
 
     if (!where._id && !where["publishers.publisher"] && user.role !== "admin") {
       where._id = { $in: user.publishers };
