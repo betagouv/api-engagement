@@ -105,10 +105,10 @@ router.get("/", passport.authenticate(["apikey", "api"], { session: false }), as
         query.data.publisher = query.data.publisher.map((e: string) => e.trim());
       }
 
-      query.data.publisher = query.data.publisher.filter((e: string) => user.publishers.some((p: { publisher: string }) => p.publisher === e));
+      query.data.publisher = query.data.publisher.filter((e: string) => user.publishers.some((p: { publisherId: string }) => p.publisherId === e));
       where.publisherId = { $in: query.data.publisher };
     } else {
-      where.publisherId = { $in: user.publishers.map((e: { publisher: string }) => e.publisher) };
+      where.publisherId = { $in: user.publishers.map((e: { publisherId: string }) => e.publisherId) };
     }
     if (user.moderator) {
       where[`moderation_${user._id}_status`] = "ACCEPTED";
@@ -284,10 +284,10 @@ router.get("/search", passport.authenticate(["apikey", "api"], { session: false 
         query.data.publisher = query.data.publisher.map((e: string) => e.trim());
       }
 
-      query.data.publisher = query.data.publisher.filter((e: string) => user.publishers.some((p: { publisher: string }) => p.publisher === e));
+      query.data.publisher = query.data.publisher.filter((e: string) => user.publishers.some((p: { publisherId: string }) => p.publisherId === e));
       where.publisherId = { $in: query.data.publisher };
     } else {
-      where.publisherId = { $in: user.publishers.map((e: { publisher: string }) => e.publisher) };
+      where.publisherId = { $in: user.publishers.map((e: { publisherId: string }) => e.publisherId) };
     }
     if (user.moderator) {
       where[`moderation_${user._id}_status`] = "ACCEPTED";

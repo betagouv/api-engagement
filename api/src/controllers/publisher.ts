@@ -109,7 +109,7 @@ router.get("/:id", passport.authenticate("user", { session: false }), async (req
       return res.status(404).send({ ok: false, code: NOT_FOUND, message: "Publisher not found" });
     }
 
-    if (req.user.role !== "admin" && !req.user.publishers.find((e: string) => e === params.data.id || publisher.publishers.find((p) => p.publisher === e))) {
+    if (req.user.role !== "admin" && !req.user.publishers.find((e: string) => e === params.data.id || publisher.publishers.find((p) => p.publisherId === e))) {
       return res.status(403).send({ ok: false, code: FORBIDDEN, message: `Not allowed` });
     }
 
