@@ -44,3 +44,9 @@ yarn-error.log*
 
 # Sentry Config File
 .env.sentry-build-plugin
+
+# Playwright
+/tests/e2e/_test-results/
+/tests/e2e/_playwright-report/
+.playwright-visual-snapshots-results/
+/playwright/.cache/
