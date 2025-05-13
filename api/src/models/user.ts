@@ -11,27 +11,31 @@ const schema = new Schema<User>(
     publishers: { type: [String], required: true },
     email: { type: String, required: true, unique: true, trim: true },
     password: { type: String },
-    deleted: { type: Boolean, default: false },
-    last_activity_at: { type: Date },
-    last_login_at: { type: Date },
-    login_at: { type: [Date] },
-    forgot_password_reset_token: { type: String, default: "" },
-    forgot_password_reset_expires: { type: Date },
     role: { type: String, enum: ["user", "admin"], default: "user" },
+
     invitationToken: { type: String },
     invitationExpiresAt: { type: Date },
     invitationCompletedAt: { type: Date },
+
+    lastActivityAt: { type: Date },
+    loginAt: { type: [Date] },
+
+    forgotPasswordToken: { type: String, default: null },
+    forgotPasswordExpiresAt: { type: Date, default: null },
+
+    deletedAt: { type: Date, default: null },
+
+    brevoContactId: { type: Number, default: null },
   },
   {
-    timestamps: {
-      createdAt: "created_at",
-      updatedAt: "updated_at",
-    },
+    timestamps: true,
   }
 );
 
+schema.index({ deletedAt: 1 });
+
 schema.pre("save", function (next) {
-  this.updated_at = new Date();
+  this.updatedAt = new Date();
   if (this.isModified("password") && this.password) {
     bcrypt.hash(this.password, 10, (e, hash) => {
       this.password = hash || null;

@@ -555,27 +555,30 @@ export type Request = {
   createdAt: Date;
 };
 
-export type User = {
+export interface User {
   _id: Schema.Types.ObjectId;
   firstname: string;
   lastname: string | undefined;
   publishers: string[];
   email: string;
   password: string | null;
-  deleted: boolean;
-  created_at: Date;
-  updated_at: Date;
-  last_activity_at: Date;
-  last_login_at: Date;
-  login_at: Date[];
-  forgot_password_reset_token: string | null;
-  forgot_password_reset_expires: Date | null;
   role: "user" | "admin";
   invitationToken: string | null;
   invitationExpiresAt: Date | null;
   invitationCompletedAt: Date | null;
+
   comparePassword: (password: string) => Promise<boolean>;
-};
+
+  createdAt: Date;
+  updatedAt: Date;
+  deletedAt: Date | null;
+  lastActivityAt: Date | null;
+  loginAt: Date[] | null;
+  forgotPasswordToken: string | null;
+  forgotPasswordExpiresAt: Date | null;
+
+  brevoContactId: number | null;
+}
 
 export interface Stats {
   _id: string;

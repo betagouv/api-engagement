@@ -74,7 +74,7 @@ const View = () => {
           <p>
             SIRET: <b>{data.siret || "N/A"}</b>
           </p>
-          <p>Dernière modification le {data.updated_at ? new Date(data.updated_at).toLocaleDateString("fr") : "N/A"}</p>
+          <p>Dernière modification le {data.updatedAt ? new Date(data.updatedAt).toLocaleDateString("fr") : "N/A"}</p>
         </div>
 
         <div className="flex gap-4 border border-gray-border p-6">

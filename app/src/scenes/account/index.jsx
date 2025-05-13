@@ -29,7 +29,7 @@ const Account = () => {
     if (Object.keys(errors).length > 0) return;
 
     try {
-      const res = await api.put(`/user/`, values);
+      const res = await api.put("/user", values);
       if (!res.ok) throw res;
       toast.success("Paramètres mis à jour");
       setUser(res.data);

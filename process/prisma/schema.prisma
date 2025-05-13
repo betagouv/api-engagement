@@ -234,14 +234,7 @@ model KpiBotLess {
   volontariat_account_count                           Int
 }
 
-model LoginHistory {
-  id       String   @id @default(uuid())
-  user_id  String
-  login_at DateTime @default(now())
-  user     User     @relation(fields: [user_id], references: [id])
 
-  @@index([user_id], map: "login_history")
-}
 
 model Mission {
   id                              String        @id @default(uuid())
@@ -501,14 +494,23 @@ model OrganizationExclusion {
 model User {
   id                          String         @id @default(uuid())
   old_id                      String         @unique
-  forgot_password_reset_token String?
+  brevo_contact_id            Int?
+  
+  first_name                  String?
+  last_name                   String?
   role                        String?
   password                    String?
   email                       String
-  last_login_at               DateTime?      @default(now())
-  first_name                  String?
-  last_name                   String?
-  invitation_completed_at     DateTime?      @default(now())
+  
+  last_activity_at            DateTime?      @default(now())
+  
+  invitation_token            String?
+  invitation_expires_at       DateTime?
+  invitation_completed_at     DateTime?
+  
+  forgot_password_token String?
+  forgot_password_expires_at DateTime?
+  
   created_at                  DateTime       @default(now())
   updated_at                  DateTime       @updatedAt
   deleted_at                  DateTime?
@@ -516,6 +518,15 @@ model User {
   login_history               LoginHistory[]
   partners PartnerToUser[]
   moderation_events           ModerationEvent[]
+}
+
+model LoginHistory {
+  id       String   @id @default(uuid())
+  user_id  String
+  login_at DateTime @default(now())
+  user     User     @relation(fields: [user_id], references: [id])
+
+  @@index([user_id], map: "login_history")
 }
 
 model Widget {
