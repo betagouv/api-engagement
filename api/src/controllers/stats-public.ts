@@ -121,34 +121,22 @@ router.get("/graph-stats", async (req: Request, res: Response, next: NextFunctio
 
     const data = {
       clicks: viewResponse.body.aggregations.months.buckets
-        .filter((bucket: { key_as_string: string }) =>
-          bucket.key_as_string.startsWith(query.data.year.toString())
-        )
+        .filter((bucket: { key_as_string: string }) => bucket.key_as_string.startsWith(query.data.year.toString()))
         .map((bucket: { key_as_string: string; click: { doc_count: number } }) => ({
           key: bucket.key_as_string,
           doc_count: bucket.click.doc_count,
         })),
-      totalClicks: viewResponse.body.aggregations.months.buckets.reduce(
-        (acc: number, bucket: { click: { doc_count: number } }) => acc + bucket.click.doc_count,
-        0
-      ),
+      totalClicks: viewResponse.body.aggregations.months.buckets.reduce((acc: number, bucket: { click: { doc_count: number } }) => acc + bucket.click.doc_count, 0),
       applies: viewResponse.body.aggregations.months.buckets
-        .filter((bucket: { key_as_string: string }) =>
-          bucket.key_as_string.startsWith(query.data.year.toString())
-        )
+        .filter((bucket: { key_as_string: string }) => bucket.key_as_string.startsWith(query.data.year.toString()))
         .map((bucket: { key_as_string: string; apply: { doc_count: number } }) => ({
           key: bucket.key_as_string,
           doc_count: bucket.apply.doc_count,
         })),
-      totalApplies: viewResponse.body.aggregations.months.buckets.reduce(
-        (acc: number, bucket: { apply: { doc_count: number } }) => acc + bucket.apply.doc_count,
-        0
-      ),
+      totalApplies: viewResponse.body.aggregations.months.buckets.reduce((acc: number, bucket: { apply: { doc_count: number } }) => acc + bucket.apply.doc_count, 0),
 
       organizations: viewResponse.body.aggregations.organizations.buckets
-        .filter((bucket: { key_as_string: string }) =>
-          bucket.key_as_string.startsWith(query.data.year.toString())
-        )
+        .filter((bucket: { key_as_string: string }) => bucket.key_as_string.startsWith(query.data.year.toString()))
         .map((bucket: { key_as_string: string; unique_organizations: { value: number } }) => ({
           key: bucket.key_as_string,
           doc_count: bucket.unique_organizations.value,
@@ -189,10 +177,7 @@ router.get("/graph-missions", async (req: Request, res: Response, next: NextFunc
     }
 
     if (query.data.year) {
-      whereMissions.$or = [
-        { deletedAt: { $gte: new Date(query.data.year, 0, 1) } },
-        { deleted: false },
-      ];
+      whereMissions.$or = [{ deletedAt: { $gte: new Date(query.data.year, 0, 1) } }, { deleted: false }];
     }
 
     const $facet = buildMonthFacets(query.data.year);
@@ -292,17 +277,15 @@ router.get("/domains", async (req: Request, res: Response, next: NextFunction) =
 
     const aggs = response.body.aggregations;
 
-    const data = aggs.per_year.buckets.map(
-      (yearBucket: { key: string; domains: { buckets: any[] } }) => ({
-        year: new Date(yearBucket.key).getFullYear(),
-        domains: yearBucket.domains.buckets.map((domainBucket) => ({
-          key: domainBucket.key,
-          doc_count: domainBucket.unique_missions.value,
-          click: domainBucket.click.doc_count,
-          apply: domainBucket.apply.doc_count,
-        })),
-      })
-    );
+    const data = aggs.per_year.buckets.map((yearBucket: { key: string; domains: { buckets: any[] } }) => ({
+      year: new Date(yearBucket.key).getFullYear(),
+      domains: yearBucket.domains.buckets.map((domainBucket) => ({
+        key: domainBucket.key,
+        doc_count: domainBucket.unique_missions.value,
+        click: domainBucket.click.doc_count,
+        apply: domainBucket.apply.doc_count,
+      })),
+    }));
 
     return res.status(200).send({ ok: true, data });
   } catch (error) {
@@ -376,12 +359,7 @@ router.get("/departments", async (req: Request, res: Response, next: NextFunctio
     const response = await esClient.search({ index: STATS_INDEX, body: aggBody });
 
     const data = response.body.aggregations.departments.buckets.map(
-      (b: {
-        key: string;
-        unique_missions: { value: number };
-        clicks: { doc_count: number };
-        applies: { doc_count: number };
-      }) => ({
+      (b: { key: string; unique_missions: { value: number }; clicks: { doc_count: number }; applies: { doc_count: number } }) => ({
         key: b.key,
         mission_count: b.unique_missions.value,
         click_count: b.clicks.doc_count,

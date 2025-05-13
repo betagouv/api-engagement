@@ -25,11 +25,7 @@ const findMissions = async (moderator: Publisher) => {
     publisherId: { $in: publishers },
     statusCode: "ACCEPTED",
     deleted: false,
-    $or: [
-      { [`moderation_${moderator._id}_status`]: { $exists: false } },
-      { [`moderation_${moderator._id}_status`]: null },
-      { [`moderation_${moderator._id}_status`]: "PENDING" },
-    ],
+    $or: [{ [`moderation_${moderator._id}_status`]: { $exists: false } }, { [`moderation_${moderator._id}_status`]: null }, { [`moderation_${moderator._id}_status`]: "PENDING" }],
   };
   const missions = await MissionModel.find(where).sort({ createdAt: "desc" });
   return missions;
@@ -168,14 +164,10 @@ const handler = async () => {
         continue;
       }
 
-      console.log(
-        `[Moderation] Starting for ${moderator.name} (${moderator._id}), number ${i + 1}/${moderators.length}`
-      );
+      console.log(`[Moderation] Starting for ${moderator.name} (${moderator._id}), number ${i + 1}/${moderators.length}`);
 
       const data = await findMissions(moderator);
-      console.log(
-        `[Moderation] - ${moderator.name} ${data.length} found in pending moderation yet`
-      );
+      console.log(`[Moderation] - ${moderator.name} ${data.length} found in pending moderation yet`);
 
       if (!data.length) {
         continue;
@@ -193,9 +185,7 @@ const handler = async () => {
         SLACK_CRON_CHANNEL_ID
       );
     }
-    console.log(
-      `[Moderation] Ended at ${new Date().toISOString()} in ${(Date.now() - start.getTime()) / 1000}s`
-    );
+    console.log(`[Moderation] Ended at ${new Date().toISOString()} in ${(Date.now() - start.getTime()) / 1000}s`);
   } catch (err) {
     captureException(err);
   }

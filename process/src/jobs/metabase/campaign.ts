@@ -7,16 +7,12 @@ import { Campaign } from "../../types";
 const buildData = (doc: Campaign, partners: { [key: string]: string }) => {
   const annonceurId = partners[doc.fromPublisherId?.toString()];
   if (!annonceurId) {
-    console.log(
-      `[Campaigns] Annonceur ${doc.fromPublisherId?.toString()} not found for doc ${doc._id.toString()}`
-    );
+    console.log(`[Campaigns] Annonceur ${doc.fromPublisherId?.toString()} not found for doc ${doc._id.toString()}`);
     return null;
   }
   const diffuseurId = partners[doc.toPublisherId?.toString()];
   if (!diffuseurId) {
-    console.log(
-      `[Campaigns] Diffuseur ${doc.toPublisherId?.toString()} not found for doc ${doc._id.toString()}`
-    );
+    console.log(`[Campaigns] Diffuseur ${doc.toPublisherId?.toString()} not found for doc ${doc._id.toString()}`);
     return null;
   }
 
@@ -47,14 +43,10 @@ const handler = async () => {
     console.log(`[Campaigns] Found ${data.length} docs to sync.`);
 
     const stored = {} as { [key: string]: { old_id: string; updated_at: Date } };
-    await prisma.campaign
-      .findMany({ select: { old_id: true, updated_at: true } })
-      .then((data) => data.forEach((d) => (stored[d.old_id] = d)));
+    await prisma.campaign.findMany({ select: { old_id: true, updated_at: true } }).then((data) => data.forEach((d) => (stored[d.old_id] = d)));
     console.log(`[Campaigns] Found ${Object.keys(stored).length} docs in database.`);
     const partners = {} as { [key: string]: string };
-    await prisma.partner
-      .findMany({ select: { id: true, old_id: true } })
-      .then((data) => data.forEach((d) => (partners[d.old_id] = d.id)));
+    await prisma.partner.findMany({ select: { id: true, old_id: true } }).then((data) => data.forEach((d) => (partners[d.old_id] = d.id)));
 
     const dataToCreate = [];
     const dataToUpdate = [];
@@ -89,9 +81,7 @@ const handler = async () => {
       console.log(`[Campaigns] Updated ${dataToUpdate.length} docs.`);
     }
 
-    console.log(
-      `[Campaigns] Ended at ${new Date().toISOString()} in ${(Date.now() - start.getTime()) / 1000}s.`
-    );
+    console.log(`[Campaigns] Ended at ${new Date().toISOString()} in ${(Date.now() - start.getTime()) / 1000}s.`);
     return { created: dataToCreate.length, updated: dataToUpdate.length };
   } catch (error) {
     captureException(error, "[Campaigns] Error while syncing docs.");

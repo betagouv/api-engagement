@@ -84,10 +84,7 @@ const handler = async () => {
 
   // Send message to slack
   const text = `${Object.entries(stats)
-    .map(
-      ([key, value]) =>
-        `${key}: ${value.created} created${value.updated !== null ? `, ${value.updated} updated` : ""}`
-    )
+    .map(([key, value]) => `${key}: ${value.created} created${value.updated !== null ? `, ${value.updated} updated` : ""}`)
     .join("\n")}`;
 
   console.log("stats", stats);

@@ -86,9 +86,7 @@ describe("MyMission API Integration Tests", () => {
     });
 
     it("should return 400 for invalid query parameters", async () => {
-      const response = await request(app)
-        .get("/v0/mymission?limit=invalid")
-        .set("x-api-key", apiKey);
+      const response = await request(app).get("/v0/mymission?limit=invalid").set("x-api-key", apiKey);
       expect(response.status).toBe(400);
       expect(response.body.ok).toBe(false);
       expect(response.body.code).toBe("INVALID_QUERY");
@@ -109,9 +107,7 @@ describe("MyMission API Integration Tests", () => {
     });
 
     it("should return 404 if mission not found", async () => {
-      const response = await request(app)
-        .get("/v0/mymission/non-existent-id")
-        .set("x-api-key", apiKey);
+      const response = await request(app).get("/v0/mymission/non-existent-id").set("x-api-key", apiKey);
       expect(response.status).toBe(404);
       expect(response.body.ok).toBe(false);
     });
@@ -175,9 +171,7 @@ describe("MyMission API Integration Tests", () => {
         },
       });
 
-      const response = await request(app)
-        .get(`/v0/mymission/${mission1.clientId}`)
-        .set("x-api-key", apiKey);
+      const response = await request(app).get(`/v0/mymission/${mission1.clientId}`).set("x-api-key", apiKey);
 
       expect(response.status).toBe(200);
       expect(response.body.ok).toBe(true);
@@ -189,10 +183,7 @@ describe("MyMission API Integration Tests", () => {
     });
 
     it("should return 400 for invalid parameters", async () => {
-      const response = await request(app)
-        .get(`/v0/mymission/${mission1.clientId}`)
-        .set("x-api-key", apiKey)
-        .query({ someInvalidParam: "value" });
+      const response = await request(app).get(`/v0/mymission/${mission1.clientId}`).set("x-api-key", apiKey).query({ someInvalidParam: "value" });
 
       expect(response.status).toBe(200);
       expect(response.body.ok).toBe(true);
@@ -213,9 +204,7 @@ describe("MyMission API Integration Tests", () => {
     });
 
     it("should return 404 if mission not found", async () => {
-      const response = await request(app)
-        .get("/v0/mymission/non-existent-id/stats")
-        .set("x-api-key", apiKey);
+      const response = await request(app).get("/v0/mymission/non-existent-id/stats").set("x-api-key", apiKey);
       expect(response.status).toBe(404);
       expect(response.body.ok).toBe(false);
       expect(response.body.code).toBe("NOT_FOUND");
@@ -250,9 +239,7 @@ describe("MyMission API Integration Tests", () => {
         },
       });
 
-      const response = await request(app)
-        .get(`/v0/mymission/${mission1.clientId}/stats`)
-        .set("x-api-key", apiKey);
+      const response = await request(app).get(`/v0/mymission/${mission1.clientId}/stats`).set("x-api-key", apiKey);
 
       expect(response.status).toBe(200);
       expect(response.body.ok).toBe(true);
@@ -262,10 +249,7 @@ describe("MyMission API Integration Tests", () => {
     });
 
     it("should return 400 for invalid parameters", async () => {
-      const response = await request(app)
-        .get(`/v0/mymission/${mission1.clientId}/stats`)
-        .set("x-api-key", apiKey)
-        .query({ someInvalidParam: "value" });
+      const response = await request(app).get(`/v0/mymission/${mission1.clientId}/stats`).set("x-api-key", apiKey).query({ someInvalidParam: "value" });
 
       expect(response.status).toBe(200);
       expect(response.body.ok).toBe(true);

@@ -35,9 +35,7 @@ describe("MyOrganization API Integration Tests", () => {
     });
 
     it("should return list of publishers for the organization with correct format", async () => {
-      const response = await request(app)
-        .get(`/v0/myorganization/${orgId}`)
-        .set("x-api-key", apiKey);
+      const response = await request(app).get(`/v0/myorganization/${orgId}`).set("x-api-key", apiKey);
 
       expect(response.status).toBe(200);
       expect(response.body.ok).toBe(true);
@@ -81,10 +79,7 @@ describe("MyOrganization API Integration Tests", () => {
     });
 
     it("should return 400 for invalid request body", async () => {
-      const response = await request(app)
-        .put(`/v0/myorganization/${orgId}`)
-        .set("x-api-key", apiKey)
-        .send({ invalidField: "value" }); // Missing required publisherIds
+      const response = await request(app).put(`/v0/myorganization/${orgId}`).set("x-api-key", apiKey).send({ invalidField: "value" }); // Missing required publisherIds
 
       expect(response.status).toBe(400);
       expect(response.body.ok).toBe(false);
@@ -102,15 +97,11 @@ describe("MyOrganization API Integration Tests", () => {
       expect(Array.isArray(response.body.data)).toBe(true);
 
       // Verify partner1 is not excluded
-      const partner1Data = response.body.data.find(
-        (p: any) => p._id.toString() === partner1._id.toString()
-      );
+      const partner1Data = response.body.data.find((p: any) => p._id.toString() === partner1._id.toString());
       expect(partner1Data.excluded).toBe(false);
 
       // Verify partner2 is excluded
-      const partner2Data = response.body.data.find(
-        (p: any) => p._id.toString() === partner2._id.toString()
-      );
+      const partner2Data = response.body.data.find((p: any) => p._id.toString() === partner2._id.toString());
       expect(partner2Data.excluded).toBe(true);
 
       // Verify partner1 exclusion does not exist
@@ -160,12 +151,8 @@ describe("MyOrganization API Integration Tests", () => {
       expect(response.status).toBe(200);
 
       // Verify both partners are not excluded in the response
-      const partner1Data = response.body.data.find(
-        (p: any) => p._id.toString() === partner1._id.toString()
-      );
-      const partner2Data = response.body.data.find(
-        (p: any) => p._id.toString() === partner2._id.toString()
-      );
+      const partner1Data = response.body.data.find((p: any) => p._id.toString() === partner1._id.toString());
+      const partner2Data = response.body.data.find((p: any) => p._id.toString() === partner2._id.toString());
       expect(partner1Data.excluded).toBe(false);
       expect(partner2Data.excluded).toBe(false);
 

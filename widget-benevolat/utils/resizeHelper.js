@@ -14,7 +14,7 @@ var sendHeightToParent = function () {
         height: height,
         source: "api-engagement-widget",
       },
-      "*",
+      "*"
     );
   } catch (error) {
     console.error("Erreur lors de l'envoi de la hauteur à la page parente:", error);

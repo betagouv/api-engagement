@@ -6,25 +6,15 @@ import { ModerationEvent } from "../../types";
 
 const BATCH_SIZE = 5000;
 
-const buildData = (
-  doc: ModerationEvent,
-  missions: { [key: string]: string },
-  users: { [key: string]: string }
-) => {
+const buildData = (doc: ModerationEvent, missions: { [key: string]: string }, users: { [key: string]: string }) => {
   const missionId = missions[doc.missionId];
   if (!missionId) {
-    captureMessage(
-      "[Metabase-ModerationEvent] Mission not found",
-      `${doc.missionId} not found for doc ${doc._id.toString()}`
-    );
+    captureMessage("[Metabase-ModerationEvent] Mission not found", `${doc.missionId} not found for doc ${doc._id.toString()}`);
     return null;
   }
   const userId = doc.userId ? users[doc.userId] : null;
   if (!userId && doc.userId) {
-    captureMessage(
-      "[Metabase-ModerationEvent] User not found",
-      `${doc.userId} not found for doc ${doc._id.toString()}`
-    );
+    captureMessage("[Metabase-ModerationEvent] User not found", `${doc.userId} not found for doc ${doc._id.toString()}`);
     return null;
   }
   const obj = {
@@ -63,18 +53,14 @@ const handler = async () => {
     console.log(`[Widget-Requests] Found ${count} docs in database.`);
 
     const users = {} as { [key: string]: string };
-    await prisma.user
-      .findMany({ select: { id: true, old_id: true } })
-      .then((data) => data.forEach((d) => (users[d.old_id] = d.id)));
+    await prisma.user.findMany({ select: { id: true, old_id: true } }).then((data) => data.forEach((d) => (users[d.old_id] = d.id)));
     console.log(`[ModerationEvent] Mapped ${Object.keys(users).length} users to database IDs.`);
 
     const countToSync = await ModerationEventModel.countDocuments();
     console.log(`[ModerationEvent] Found ${countToSync} docs to sync.`);
 
     const stored = {} as { [key: string]: { updated_at: Date } };
-    await prisma.moderationEvent
-      .findMany({ select: { old_id: true, updated_at: true } })
-      .then((data) => data.forEach((d) => (stored[d.old_id] = d)));
+    await prisma.moderationEvent.findMany({ select: { old_id: true, updated_at: true } }).then((data) => data.forEach((d) => (stored[d.old_id] = d)));
 
     while (true) {
       const data = await ModerationEventModel.find()
@@ -92,9 +78,7 @@ const handler = async () => {
           select: { old_id: true, id: true },
         })
         .then((data) => data.forEach((d) => (missions[d.old_id] = d.id)));
-      console.log(
-        `[ModerationEvent] Mapped ${Object.keys(missions).length} missions to database IDs.`
-      );
+      console.log(`[ModerationEvent] Mapped ${Object.keys(missions).length} missions to database IDs.`);
 
       const dataToCreate = [] as PgModerationEvent[];
       const dataToUpdate = [] as PgModerationEvent[];
@@ -104,27 +88,20 @@ const handler = async () => {
         if (!res) {
           continue;
         }
-        if (
-          stored[doc._id.toString()] &&
-          !isDateEqual(stored[doc._id.toString()].updated_at, res.updated_at)
-        ) {
+        if (stored[doc._id.toString()] && !isDateEqual(stored[doc._id.toString()].updated_at, res.updated_at)) {
           dataToUpdate.push(res);
         } else if (!stored[doc._id.toString()]) {
           dataToCreate.push(res);
         }
       }
-      console.log(
-        `[ModerationEvent] ${dataToCreate.length} docs to create, ${dataToUpdate.length} docs to update.`
-      );
+      console.log(`[ModerationEvent] ${dataToCreate.length} docs to create, ${dataToUpdate.length} docs to update.`);
       // Create data
       if (dataToCreate.length) {
         const res = await prisma.moderationEvent.createManyAndReturn({
           data: dataToCreate,
           skipDuplicates: true,
         });
-        console.log(
-          `[ModerationEvent] Created ${res.length} moderation events, ${created} created so far.`
-        );
+        console.log(`[ModerationEvent] Created ${res.length} moderation events, ${created} created so far.`);
         created += res.length;
       }
 
@@ -142,16 +119,12 @@ const handler = async () => {
             captureException(error, `[ModerationEvent] Error while syncing doc ${obj.old_id}`);
           }
         }
-        console.log(
-          `[ModerationEvent] Updated ${dataToUpdate.length} docs, ${updated} updated so far.`
-        );
+        console.log(`[ModerationEvent] Updated ${dataToUpdate.length} docs, ${updated} updated so far.`);
       }
       offset += BATCH_SIZE;
     }
 
-    console.log(
-      `[ModerationEvent] Ended at ${new Date().toISOString()} in ${(Date.now() - start.getTime()) / 1000}s.`
-    );
+    console.log(`[ModerationEvent] Ended at ${new Date().toISOString()} in ${(Date.now() - start.getTime()) / 1000}s.`);
     return { created, updated };
   } catch (error) {
     captureException(error, "[ModerationEvent] Error while syncing docs.");

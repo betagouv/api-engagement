@@ -32,9 +32,7 @@ const handler = async () => {
     console.log(`[Partners] Found ${data.length} docs to sync.`);
 
     const stored = {} as { [key: string]: { old_id: string; id: string; updated_at: Date } };
-    await prisma.partner
-      .findMany({ select: { old_id: true, id: true, updated_at: true } })
-      .then((data) => data.forEach((d) => (stored[d.old_id] = d)));
+    await prisma.partner.findMany({ select: { old_id: true, id: true, updated_at: true } }).then((data) => data.forEach((d) => (stored[d.old_id] = d)));
     console.log(`[Partners] Found ${Object.keys(stored).length} docs in database.`);
 
     let created = 0;
@@ -43,9 +41,7 @@ const handler = async () => {
 
     for (const doc of data) {
       if (processed % 10 === 0) {
-        console.log(
-          `[Partners] Processed ${processed}/${data.length} docs, created ${created}, updated ${updated}`
-        );
+        console.log(`[Partners] Processed ${processed}/${data.length} docs, created ${created}, updated ${updated}`);
       }
 
       const exists = stored[doc._id.toString()];
@@ -60,9 +56,7 @@ const handler = async () => {
       processed++;
     }
 
-    console.log(
-      `[Partners] Ended at ${new Date().toISOString()} in ${(Date.now() - start.getTime()) / 1000}s, created ${created}, updated ${updated}, processed ${processed}`
-    );
+    console.log(`[Partners] Ended at ${new Date().toISOString()} in ${(Date.now() - start.getTime()) / 1000}s, created ${created}, updated ${updated}, processed ${processed}`);
     return { created, updated, processed };
   } catch (error) {
     captureException(error, "[Partners] Error while syncing docs.");

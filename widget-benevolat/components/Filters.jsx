@@ -1,9 +1,9 @@
-import { useState, useRef, useEffect } from "react";
 import { usePlausible } from "next-plausible";
-import { RiSearchLine, RiArrowUpSLine, RiArrowDownSLine, RiCheckboxFill, RiCheckboxBlankLine, RiMapPin2Fill, RiCloseFill } from "react-icons/ri";
+import { useEffect, useRef, useState } from "react";
+import { RiArrowDownSLine, RiArrowUpSLine, RiCheckboxBlankLine, RiCheckboxFill, RiCloseFill, RiMapPin2Fill, RiSearchLine } from "react-icons/ri";
 
-import useStore from "../store";
 import { DOMAINES } from "../config";
+import useStore from "../store";
 
 const getAPI = async (path) => {
   const response = await fetch(path, { method: "GET" });
@@ -72,7 +72,7 @@ const Filters = ({ widget, apiUrl, values, onChange, show, onShow }) => {
 
   if (isMobile) {
     return (
-      <div className="w-full flex flex-col items-center gap-2">
+      <div className="flex w-full flex-col items-center gap-2">
         <MobileFilters
           options={options}
           values={values}
@@ -86,7 +86,7 @@ const Filters = ({ widget, apiUrl, values, onChange, show, onShow }) => {
   }
 
   return (
-    <div className="flex m-auto items-center justify-between">
+    <div className="m-auto flex items-center justify-between">
       <DesktopFilters options={options} values={values} onChange={(v) => onChange({ ...values, ...v })} disabledLocation={!!widget.location} />
     </div>
   );
@@ -116,7 +116,7 @@ const MobileFilters = ({ options, values, onChange, show, onShow, disabledLocati
       </div>
       <div className="w-full border-y border-[#DDD]">
         <button
-          className="flex h-[40px] items-center justify-between w-full bg-white focus:outline-none focus-visible:ring focus-visible:ring-blue-800 px-4"
+          className="flex h-[40px] w-full items-center justify-between bg-white px-4 focus:outline-none focus-visible:ring focus-visible:ring-blue-800"
           onClick={() => {
             onShow(!show);
             plausible(show ? "Filters closed" : "Filters opened", { u: url });
@@ -127,8 +127,8 @@ const MobileFilters = ({ options, values, onChange, show, onShow, disabledLocati
         </button>
 
         {show && (
-          <div className="w-full mt-2">
-            <div className="w-full mb-4">
+          <div className="mt-2 w-full">
+            <div className="mb-4 w-full">
               <RemoteFilter
                 id="remote"
                 options={options.remote}
@@ -139,7 +139,7 @@ const MobileFilters = ({ options, values, onChange, show, onShow, disabledLocati
                 color={color}
               />
             </div>
-            <div className="w-full mb-4">
+            <div className="mb-4 w-full">
               <SelectFilter
                 id="domain"
                 options={options.domains}
@@ -150,7 +150,7 @@ const MobileFilters = ({ options, values, onChange, show, onShow, disabledLocati
                 color={color}
               />
             </div>
-            <div className="w-full mb-4">
+            <div className="mb-4 w-full">
               <SelectFilter
                 id="department"
                 options={options.departments}
@@ -161,7 +161,7 @@ const MobileFilters = ({ options, values, onChange, show, onShow, disabledLocati
                 color={color}
               />
             </div>
-            <div className="w-full mb-4">
+            <div className="mb-4 w-full">
               <SelectFilter
                 id="organization"
                 options={options.organizations}
@@ -172,10 +172,10 @@ const MobileFilters = ({ options, values, onChange, show, onShow, disabledLocati
                 color={color}
               />
             </div>
-            <div className="w-full flex flex-col gap-2">
+            <div className="flex w-full flex-col gap-2">
               <button
                 aria-label="Voir les missions"
-                className="w-full p-3 text-center border-none text-white text-sm focus:outline-none focus-visible:ring focus-visible:ring-blue-800"
+                className="w-full border-none p-3 text-center text-sm text-white focus:outline-none focus-visible:ring focus-visible:ring-blue-800"
                 onClick={() => {
                   onShow(false);
                   plausible("Filters closed", { u: url });
@@ -186,7 +186,7 @@ const MobileFilters = ({ options, values, onChange, show, onShow, disabledLocati
               </button>
               <button
                 aria-label="Réinitialiser les filtres"
-                className="w-full p-3 text-center border-none bg-transparent text-sm focus:outline-none focus-visible:ring focus-visible:ring-blue-800"
+                className="w-full border-none bg-transparent p-3 text-center text-sm focus:outline-none focus-visible:ring focus-visible:ring-blue-800"
                 style={{ color }}
                 onClick={() => {
                   handleReset();
@@ -290,24 +290,24 @@ const SelectFilter = ({ options, selectedOptions, onChange, id, placeholder = "C
       <button
         id={id}
         onClick={() => setIsOpen(!isOpen)}
-        className={`w-full rounded-t-md h-[40px] bg-[#EEE] border-b-2 border-[#3A3A3A] p-3 focus:outline-none focus-visible:ring focus-visible:ring-blue-800 flex items-center justify-between ${
+        className={`flex h-[40px] w-full items-center justify-between rounded-t-md border-b-2 border-[#3A3A3A] bg-[#EEE] p-3 focus:outline-none focus-visible:ring focus-visible:ring-blue-800 ${
           !selectedOptions?.length ? "text-[#666666]" : "text-[#161616]"
         }`}
       >
-        <span className="pr-3 truncate max-w-60">
+        <span className="max-w-60 truncate pr-3">
           {!selectedOptions || selectedOptions.some((o) => o === undefined)
             ? placeholder
             : selectedOptions.length > 0
               ? `${selectedOptions[0].label}${selectedOptions.length > 1 ? ` +${selectedOptions.length - 1}` : ""}`
               : placeholder}
         </span>
-        {isOpen ? <RiArrowDownSLine className="text-xl transform rotate-180" /> : <RiArrowDownSLine className="text-xl" />}
+        {isOpen ? <RiArrowDownSLine className="rotate-180 transform text-xl" /> : <RiArrowDownSLine className="text-xl" />}
       </button>
 
       {isOpen && (
-        <div className={`absolute ${position} z-50 ${width} bg-white text-base focus:outline-none shadow-[0_0_12px_rgba(0,0,0,0.15)]`}>
+        <div className={`absolute ${position} z-50 ${width} bg-white text-base shadow-[0_0_12px_rgba(0,0,0,0.15)] focus:outline-none`}>
           <div className="p-2">
-            <div className="border w-full border-gray-300 p-2 focus:outline-none flex items-center justify-between">
+            <div className="flex w-full items-center justify-between border border-gray-300 p-2 focus:outline-none">
               <RiSearchLine className="text-[#929292]" />
               <input
                 ref={searchRef}
@@ -315,14 +315,14 @@ const SelectFilter = ({ options, selectedOptions, onChange, id, placeholder = "C
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
                 placeholder="Rechercher"
-                className="w-full text-sm rounded-lg pl-3 focus:outline-none"
+                className="w-full rounded-lg pl-3 text-sm focus:outline-none"
               />
             </div>
           </div>
 
-          <div className="py-3 w-full overflow-auto max-h-60">
+          <div className="max-h-60 w-full overflow-auto py-3">
             {!options?.filter((o) => o.label?.toLowerCase().includes(search.toLowerCase()))?.length ? (
-              <div className="text-sm text-center">Aucune option disponible</div>
+              <div className="text-center text-sm">Aucune option disponible</div>
             ) : (
               options
                 ?.filter((o) => o.label?.toLowerCase().includes(search.toLowerCase()))
@@ -335,22 +335,22 @@ const SelectFilter = ({ options, selectedOptions, onChange, id, placeholder = "C
                         toggleOption(o);
                         plausible(`Filter ${id} selected`, { props: { filter: o.label }, u: url });
                       }}
-                      className={`cursor-pointer w-full flex items-center justify-between text-sm py-2 pl-3 pr-4 hover:bg-gray-100`}
+                      className={`flex w-full cursor-pointer items-center justify-between py-2 pl-3 pr-4 text-sm hover:bg-gray-100`}
                     >
-                      <div className="flex items-center w-[90%]">
+                      <div className="flex w-[90%] items-center">
                         <div className="text-sm">{isSelected ? <RiCheckboxFill style={{ height: "16px", width: "16px", color }} /> : <RiCheckboxBlankLine />}</div>
-                        <span className="block text-sm mx-2 truncate font-normal text-[#161616]">{o.label}</span>
+                        <span className="mx-2 block truncate text-sm font-normal text-[#161616]">{o.label}</span>
                       </div>
-                      {o.count && <span className="text-sm text-neutral-grey-500">{o.count}</span>}
+                      {o.count && <span className="text-neutral-grey-500 text-sm">{o.count}</span>}
                     </button>
                   );
                 })
             )}
           </div>
 
-          <div className="p-2 w-full flex items-center justify-between border-t border-gray-300">
+          <div className="flex w-full items-center justify-between border-t border-gray-300 p-2">
             <button
-              className={`text-[#3633A1] text-sm hover:underline`}
+              className={`text-sm text-[#3633A1] hover:underline`}
               onClick={() => {
                 onChange([]);
                 setIsOpen(false);
@@ -361,7 +361,7 @@ const SelectFilter = ({ options, selectedOptions, onChange, id, placeholder = "C
               Réinitialiser
             </button>
             <button
-              className={`text-sm focus:outline-none p-2 text-white ${!selectedOptions || selectedOptions.length === 0 ? "opacity-50 cursor-not-allowed" : ""}`}
+              className={`p-2 text-sm text-white focus:outline-none ${!selectedOptions || selectedOptions.length === 0 ? "cursor-not-allowed opacity-50" : ""}`}
               style={{
                 backgroundColor: color ? color : "",
               }}
@@ -418,7 +418,7 @@ const LocationFilter = ({ selected, onChange, disabled = false, width = "w-80" }
           city: f.properties.city,
           postcode: f.properties.postcode,
           name: f.properties.name,
-        })),
+        }))
       );
       setIsOpen(true);
     } else {
@@ -433,24 +433,24 @@ const LocationFilter = ({ selected, onChange, disabled = false, width = "w-80" }
         Localisation
       </label>
       <div
-        className={`bg-[#EEE] h-[40px] rounded-t-md border-b-2 border-[#3A3A3A] p-3 focus:outline-none focus-visible:ring focus-visible:ring-blue-800 flex items-center justify-between`}
+        className={`flex h-[40px] items-center justify-between rounded-t-md border-b-2 border-[#3A3A3A] bg-[#EEE] p-3 focus:outline-none focus-visible:ring focus-visible:ring-blue-800`}
       >
         <RiMapPin2Fill className="text-[#929292]" />
         {disabled ? (
-          <input id="location" className="pl-3 w-full ring-0 focus:ring-0 focus:outline-none min-w-[6rem] opacity-75" value={selected?.label} disabled />
+          <input id="location" className="w-full min-w-[6rem] pl-3 opacity-75 ring-0 focus:outline-none focus:ring-0" value={selected?.label} disabled />
         ) : (
           <>
             <input
               id="location"
               aria-label="localisation"
-              className={`pl-3 w-full ring-0 focus:ring-0 bg-[#EEE] focus:outline-none min-w-[6rem] ${!selected ? "text-[#666666] placeholder-[#666666]" : "text-[#161616]"}`}
+              className={`w-full min-w-[6rem] bg-[#EEE] pl-3 ring-0 focus:outline-none focus:ring-0 ${!selected ? "text-[#666666] placeholder-[#666666]" : "text-[#161616]"}`}
               value={inputValue}
               placeholder="Localisation"
               onChange={handleInputChange}
             />
             {selected && (
               <button
-                className="text-sm text-neutral-grey-700"
+                className="text-neutral-grey-700 text-sm"
                 onClick={() => {
                   onChange(null);
                   setInputValue("");
@@ -465,11 +465,11 @@ const LocationFilter = ({ selected, onChange, disabled = false, width = "w-80" }
       </div>
 
       {isOpen && options.length > 0 && (
-        <div className={`absolute z-50 mt-1 max-h-60 ${width} overflow-auto border border-[#DDDDDD] rounded-lg bg-white py-1 text-base focus:outline-none`}>
+        <div className={`absolute z-50 mt-1 max-h-60 ${width} overflow-auto rounded-lg border border-[#DDDDDD] bg-white py-1 text-base focus:outline-none`}>
           {options.map((option) => (
             <div
               key={option.value}
-              className="cursor-pointer flex items-center justify-between py-2 px-3 hover:bg-gray-100"
+              className="flex cursor-pointer items-center justify-between px-3 py-2 hover:bg-gray-100"
               onClick={() => {
                 onChange(option);
                 setInputValue(option.label);
@@ -477,7 +477,7 @@ const LocationFilter = ({ selected, onChange, disabled = false, width = "w-80" }
                 plausible("Location selected", { props: { location: option.label }, u: url });
               }}
             >
-              <span className="block text-sm truncate font-normal">{option.label}</span>
+              <span className="block truncate text-sm font-normal">{option.label}</span>
             </div>
           ))}
         </div>
@@ -520,26 +520,26 @@ const RemoteFilter = ({ options, selectedOptions, onChange, id, placeholder = "C
       <button
         id={id}
         aria-label={placeholder}
-        className={`w-full bg-[#EEE] h-[40px] rounded-t-md border-b-2 border-[#3A3A3A] p-3 focus:outline-none focus-visible:ring focus-visible:ring-blue-800 flex items-center justify-between ${
+        className={`flex h-[40px] w-full items-center justify-between rounded-t-md border-b-2 border-[#3A3A3A] bg-[#EEE] p-3 focus:outline-none focus-visible:ring focus-visible:ring-blue-800 ${
           !selectedOptions?.length ? "text-[#666666]" : "text-[#161616]"
         }`}
         onClick={() => setIsOpen(!isOpen)}
       >
-        <span className="pr-3 truncate max-w-60">
+        <span className="max-w-60 truncate pr-3">
           {!selectedOptions || selectedOptions.some((o) => o === undefined)
             ? placeholder
             : selectedOptions.length > 0
               ? `${selectedOptions[0].label}${selectedOptions.length > 1 ? ` +${selectedOptions.length - 1}` : ""}`
               : placeholder}
         </span>
-        {isOpen ? <RiArrowDownSLine className="text-xl transform rotate-180" /> : <RiArrowDownSLine className="text-xl" />}
+        {isOpen ? <RiArrowDownSLine className="rotate-180 transform text-xl" /> : <RiArrowDownSLine className="text-xl" />}
       </button>
 
       {isOpen && (
-        <div className={`absolute ${position} z-50 ${width} bg-white text-base focus:outline-none shadow-[0_0_12px_rgba(0,0,0,0.15)]`}>
-          <div className="py-3 w-full overflow-auto max-h-60">
+        <div className={`absolute ${position} z-50 ${width} bg-white text-base shadow-[0_0_12px_rgba(0,0,0,0.15)] focus:outline-none`}>
+          <div className="max-h-60 w-full overflow-auto py-3">
             {options?.length === 0 ? (
-              <div className="text-sm text-center">Aucune option disponible</div>
+              <div className="text-center text-sm">Aucune option disponible</div>
             ) : (
               options?.map((o) => {
                 const isSelected = selectedOptions?.some((so) => so.value === o.value);
@@ -550,21 +550,21 @@ const RemoteFilter = ({ options, selectedOptions, onChange, id, placeholder = "C
                       toggleOption(o);
                       plausible("Remote filter selected", { props: { remote: o.label }, u: url });
                     }}
-                    className="cursor-pointer w-full flex items-center justify-between text-sm py-2 pl-3 pr-4 hover:bg-gray-100"
+                    className="flex w-full cursor-pointer items-center justify-between py-2 pl-3 pr-4 text-sm hover:bg-gray-100"
                   >
-                    <div className="flex items-center w-[90%]">
+                    <div className="flex w-[90%] items-center">
                       <div className="text-sm">{isSelected ? <RiCheckboxFill style={{ height: "16px", width: "16px", color }} /> : <RiCheckboxBlankLine />}</div>
-                      <span className="block text-sm mx-2 truncate font-normal">{o.label}</span>
+                      <span className="mx-2 block truncate text-sm font-normal">{o.label}</span>
                     </div>
-                    {o.count && <span className="text-sm text-neutral-grey-500">{o.count}</span>}
+                    {o.count && <span className="text-neutral-grey-500 text-sm">{o.count}</span>}
                   </button>
                 );
               })
             )}
           </div>
-          <div className="p-2 w-full flex items-center justify-between border-t border-gray-300">
+          <div className="flex w-full items-center justify-between border-t border-gray-300 p-2">
             <button
-              className="text-[#3633A1] text-sm hover:underline"
+              className="text-sm text-[#3633A1] hover:underline"
               onClick={() => {
                 onChange([]);
                 setIsOpen(false);
@@ -575,7 +575,7 @@ const RemoteFilter = ({ options, selectedOptions, onChange, id, placeholder = "C
               Réinitialiser
             </button>
             <button
-              className={`text-sm focus:outline-none p-2 text-white ${!selectedOptions || selectedOptions.length === 0 ? "opacity-50 cursor-not-allowed" : ""}`}
+              className={`p-2 text-sm text-white focus:outline-none ${!selectedOptions || selectedOptions.length === 0 ? "cursor-not-allowed opacity-50" : ""}`}
               style={{
                 backgroundColor: color ? color : "",
               }}

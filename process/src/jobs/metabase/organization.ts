@@ -75,11 +75,7 @@ const handler = async () => {
     console.log(`[Organization] Found ${countToSync} docs to sync.`);
 
     while (true) {
-      const data = await OrganizationModel.find({})
-        .select("_id updatedAt")
-        .limit(BULK_SIZE)
-        .skip(offset)
-        .lean();
+      const data = await OrganizationModel.find({}).select("_id updatedAt").limit(BULK_SIZE).skip(offset).lean();
       if (data.length === 0) {
         break;
       }
@@ -121,9 +117,7 @@ const handler = async () => {
         }
       }
 
-      console.log(
-        `[Organization] ${dataToCreate.length} docs to create, ${dataToUpdate.length} docs to update, offset: ${offset}`
-      );
+      console.log(`[Organization] ${dataToCreate.length} docs to create, ${dataToUpdate.length} docs to update, offset: ${offset}`);
 
       // Create data
       if (dataToCreate.length) {
@@ -138,25 +132,19 @@ const handler = async () => {
       if (dataToUpdate.length) {
         const transactions = [];
         for (const obj of dataToUpdate) {
-          transactions.push(
-            prisma.organization.update({ where: { old_id: obj.old_id }, data: obj })
-          );
+          transactions.push(prisma.organization.update({ where: { old_id: obj.old_id }, data: obj }));
         }
         for (let i = 0; i < transactions.length; i += 100) {
           await prisma.$transaction(transactions.slice(i, i + 100));
         }
 
         updated += dataToUpdate.length;
-        console.log(
-          `[Organization] Updated ${dataToUpdate.length} docs, ${updated} updated so far.`
-        );
+        console.log(`[Organization] Updated ${dataToUpdate.length} docs, ${updated} updated so far.`);
       }
       offset += BULK_SIZE;
     }
 
-    console.log(
-      `[Organization] Ended at ${new Date().toISOString()} in ${(Date.now() - start.getTime()) / 1000}s.`
-    );
+    console.log(`[Organization] Ended at ${new Date().toISOString()} in ${(Date.now() - start.getTime()) / 1000}s.`);
     return { created, updated };
   } catch (error) {
     captureException(error, "[Organization] Error while syncing docs.");

@@ -10,16 +10,10 @@ import OrganizationExclusionModel from "../models/organization-exclusion";
 import RequestModel from "../models/request";
 import { Mission, Publisher, Stats } from "../types";
 import { PublisherRequest } from "../types/passport";
-import {
-  diacriticSensitiveRegex,
-  EARTH_RADIUS,
-  getDistanceFromLatLonInKm,
-  getDistanceKm,
-} from "../utils";
+import { diacriticSensitiveRegex, EARTH_RADIUS, getDistanceFromLatLonInKm, getDistanceKm } from "../utils";
 
 const NO_PARTNER = "NO_PARTNER";
-const NO_PARTNER_MESSAGE =
-  "Vous n'avez pas encore accès à des missions. Contactez margot.quettelart@beta.gouv.fr pour vous donner accès aux missions";
+const NO_PARTNER_MESSAGE = "Vous n'avez pas encore accès à des missions. Contactez margot.quettelart@beta.gouv.fr pour vous donner accès aux missions";
 
 const router = Router();
 
@@ -46,432 +40,393 @@ router.use(async (req: PublisherRequest, res: Response, next: NextFunction) => {
   next();
 });
 
-router.get(
-  "/",
-  passport.authenticate(["apikey", "api"], { session: false }),
-  async (req: PublisherRequest, res: Response, next: NextFunction) => {
-    try {
-      const user = req.user as Publisher;
+router.get("/", passport.authenticate(["apikey", "api"], { session: false }), async (req: PublisherRequest, res: Response, next: NextFunction) => {
+  try {
+    const user = req.user as Publisher;
 
-      const query = zod
-        .object({
-          activity: zod.union([zod.string(), zod.array(zod.string())]).optional(),
-          city: zod.union([zod.string(), zod.array(zod.string())]).optional(),
-          clientId: zod.union([zod.string(), zod.array(zod.string())]).optional(),
-          country: zod.union([zod.string(), zod.array(zod.string())]).optional(),
-          createdAt: zod.string().optional(),
-          departmentName: zod.union([zod.string(), zod.array(zod.string())]).optional(),
-          distance: zod.string().optional(),
-          domain: zod.union([zod.string(), zod.array(zod.string())]).optional(),
-          keywords: zod.string().optional(),
-          limit: zod.coerce.number().min(0).max(10000).default(25),
-          lat: zod.coerce.number().optional(),
-          lon: zod.coerce.number().optional(),
-          openToMinors: zod.string().optional(), // TODO: put enum
-          organizationRNA: zod.union([zod.string(), zod.array(zod.string())]).optional(),
-          organizationStatusJuridique: zod
-            .union([zod.string(), zod.array(zod.string())])
-            .optional(),
-          publisher: zod.union([zod.string(), zod.array(zod.string())]).optional(),
-          remote: zod.union([zod.string(), zod.array(zod.string())]).optional(),
-          reducedMobilityAccessible: zod.string().optional(), // TODO: put enum
-          skip: zod.coerce.number().min(0).default(0),
-          startAt: zod.string().optional(),
-          type: zod.union([zod.string(), zod.array(zod.string())]).optional(),
-        })
-        .passthrough()
-        .safeParse(req.query);
+    const query = zod
+      .object({
+        activity: zod.union([zod.string(), zod.array(zod.string())]).optional(),
+        city: zod.union([zod.string(), zod.array(zod.string())]).optional(),
+        clientId: zod.union([zod.string(), zod.array(zod.string())]).optional(),
+        country: zod.union([zod.string(), zod.array(zod.string())]).optional(),
+        createdAt: zod.string().optional(),
+        departmentName: zod.union([zod.string(), zod.array(zod.string())]).optional(),
+        distance: zod.string().optional(),
+        domain: zod.union([zod.string(), zod.array(zod.string())]).optional(),
+        keywords: zod.string().optional(),
+        limit: zod.coerce.number().min(0).max(10000).default(25),
+        lat: zod.coerce.number().optional(),
+        lon: zod.coerce.number().optional(),
+        openToMinors: zod.string().optional(), // TODO: put enum
+        organizationRNA: zod.union([zod.string(), zod.array(zod.string())]).optional(),
+        organizationStatusJuridique: zod.union([zod.string(), zod.array(zod.string())]).optional(),
+        publisher: zod.union([zod.string(), zod.array(zod.string())]).optional(),
+        remote: zod.union([zod.string(), zod.array(zod.string())]).optional(),
+        reducedMobilityAccessible: zod.string().optional(), // TODO: put enum
+        skip: zod.coerce.number().min(0).default(0),
+        startAt: zod.string().optional(),
+        type: zod.union([zod.string(), zod.array(zod.string())]).optional(),
+      })
+      .passthrough()
+      .safeParse(req.query);
 
-      if (!query.success) {
-        res.locals = { code: INVALID_QUERY, message: JSON.stringify(query.error) };
-        return res.status(400).send({ ok: false, code: INVALID_QUERY, message: query.error });
-      }
-
-      if (!user.publishers || !user.publishers.length) {
-        res.locals = { code: NO_PARTNER, message: NO_PARTNER_MESSAGE };
-        return res.status(400).send({ ok: false, code: NO_PARTNER, message: NO_PARTNER_MESSAGE });
-      }
-
-      const where = {
-        statusCode: "ACCEPTED",
-        deletedAt: null,
-      } as { [key: string]: any };
-
-      // Exclude organizations from other publishers
-      const organizationExclusions = await OrganizationExclusionModel.find({
-        excludedForPublisherId: user._id.toString(),
-      });
-      if (organizationExclusions.length) {
-        where.organizationClientId = {
-          $nin: organizationExclusions.map((e) => e.organizationClientId),
-        };
-      }
-
-      if (query.data.publisher) {
-        if (!Array.isArray(query.data.publisher) && query.data.publisher.includes(",")) {
-          query.data.publisher = query.data.publisher.split(",").map((e: string) => e.trim());
-        } else if (!Array.isArray(query.data.publisher)) {
-          query.data.publisher = [query.data.publisher.trim()];
-        } else {
-          query.data.publisher = query.data.publisher.map((e: string) => e.trim());
-        }
-
-        query.data.publisher = query.data.publisher.filter((e: string) =>
-          user.publishers.some((p: { publisher: string }) => p.publisher === e)
-        );
-        where.publisherId = { $in: query.data.publisher };
-      } else {
-        where.publisherId = { $in: user.publishers.map((e: { publisher: string }) => e.publisher) };
-      }
-      if (user.moderator) {
-        where[`moderation_${user._id}_status`] = "ACCEPTED";
-      }
-      // Special case for Bouygues Telecom
-      if (user._id.toString() === "616fefd119fb03075a0b0843") {
-        where.organizationName = {
-          $ne: "APF France handicap - Délégations de Haute-Saône et du Territoire de Belfort",
-        };
-      }
-
-      if (query.data.activity) {
-        where.activity = buildArrayQuery(query.data.activity);
-      }
-      if (query.data.city) {
-        where["addresses.city"] = buildArrayQuery(query.data.city);
-      }
-      if (query.data.clientId) {
-        where.clientId = buildArrayQuery(query.data.clientId);
-      }
-      if (query.data.country) {
-        where["addresses.country"] = buildArrayQuery(query.data.country);
-      }
-      if (query.data.createdAt) {
-        where.createdAt = buildDateQuery(query.data.createdAt);
-      }
-      if (query.data.departmentName) {
-        where["addresses.departmentName"] = buildArrayQuery(query.data.departmentName);
-      }
-      if (query.data.domain) {
-        where.domain = buildArrayQuery(query.data.domain);
-      }
-      if (query.data.keywords) {
-        where.$or = [
-          { title: { $regex: diacriticSensitiveRegex(query.data.keywords), $options: "i" } },
-          {
-            organizationName: {
-              $regex: diacriticSensitiveRegex(query.data.keywords),
-              $options: "i",
-            },
-          },
-          {
-            publisherName: { $regex: diacriticSensitiveRegex(query.data.keywords), $options: "i" },
-          },
-          { city: { $regex: diacriticSensitiveRegex(query.data.keywords), $options: "i" } },
-        ];
-      }
-      if (query.data.organizationRNA) {
-        where.organizationRNA = buildArrayQuery(query.data.organizationRNA);
-      }
-      if (query.data.organizationStatusJuridique) {
-        where.organizationStatusJuridique = buildArrayQuery(query.data.organizationStatusJuridique);
-      }
-      if (query.data.openToMinors) {
-        where.openToMinors = query.data.openToMinors;
-      }
-      if (query.data.reducedMobilityAccessible) {
-        where.reducedMobilityAccessible = query.data.reducedMobilityAccessible;
-      }
-      if (query.data.remote) {
-        where.remote = buildArrayQuery(query.data.remote);
-      }
-      if (query.data.startAt) {
-        where.startAt = buildDateQuery(query.data.startAt);
-      }
-      if (query.data.type) {
-        where.type = buildArrayQuery(query.data.type);
-      }
-
-      if (query.data.lat && query.data.lon) {
-        if (query.data.distance && (query.data.distance === "0" || query.data.distance === "0km")) {
-          query.data.distance = "10km";
-        }
-        const distanceKm = getDistanceKm(query.data.distance || "50km");
-        where["addresses.geoPoint"] = {
-          $nearSphere: {
-            $geometry: { type: "Point", coordinates: [query.data.lon, query.data.lat] },
-            $maxDistance: distanceKm * 1000,
-          },
-        };
-      }
-
-      // Clean old query params
-      if (req.query.size && query.data.limit === 10000) {
-        query.data.limit = parseInt(req.query.size as string, 10);
-      }
-      if (req.query.from && query.data.skip === 0) {
-        query.data.skip = parseInt(req.query.from as string, 10);
-      }
-
-      const data = await MissionModel.find(where)
-        .skip(query.data.skip)
-        .limit(query.data.limit)
-        .lean();
-
-      if (where["addresses.geoPoint"]) {
-        where["addresses.geoPoint"] = nearSphereToGeoWithin(
-          where["addresses.geoPoint"].$nearSphere
-        );
-      }
-      const total = await MissionModel.countDocuments(where);
-
-      res.locals = { total };
-      return res
-        .status(200)
-        .send({
-          ok: true,
-          total,
-          data: data.map((e: Mission) => buildData(e, req.user._id, req.user.moderator)),
-          limit: query.data.limit,
-          skip: query.data.skip,
-        });
-    } catch (error) {
-      next(error);
+    if (!query.success) {
+      res.locals = { code: INVALID_QUERY, message: JSON.stringify(query.error) };
+      return res.status(400).send({ ok: false, code: INVALID_QUERY, message: query.error });
     }
-  }
-);
 
-router.get(
-  "/search",
-  passport.authenticate(["apikey", "api"], { session: false }),
-  async (req: PublisherRequest, res: Response, next: NextFunction) => {
-    try {
-      const user = req.user as Publisher;
+    if (!user.publishers || !user.publishers.length) {
+      res.locals = { code: NO_PARTNER, message: NO_PARTNER_MESSAGE };
+      return res.status(400).send({ ok: false, code: NO_PARTNER, message: NO_PARTNER_MESSAGE });
+    }
 
-      const query = zod
-        .object({
-          activity: zod.union([zod.string(), zod.array(zod.string())]).optional(),
-          city: zod.union([zod.string(), zod.array(zod.string())]).optional(),
-          clientId: zod.union([zod.string(), zod.array(zod.string())]).optional(),
-          country: zod.union([zod.string(), zod.array(zod.string())]).optional(),
-          createdAt: zod.string().optional(),
-          departmentName: zod.union([zod.string(), zod.array(zod.string())]).optional(),
-          distance: zod.string().optional(),
-          domain: zod.union([zod.string(), zod.array(zod.string())]).optional(),
-          keywords: zod.string().optional(),
-          limit: zod.coerce.number().min(0).max(10000).default(25),
-          lat: zod.coerce.number().optional(),
-          lon: zod.coerce.number().optional(),
-          openToMinors: zod.string().optional(), // TODO: put enum
-          organizationRNA: zod.union([zod.string(), zod.array(zod.string())]).optional(),
-          organizationStatusJuridique: zod
-            .union([zod.string(), zod.array(zod.string())])
-            .optional(),
-          publisher: zod.union([zod.string(), zod.array(zod.string())]).optional(),
-          remote: zod.union([zod.string(), zod.array(zod.string())]).optional(),
-          reducedMobilityAccessible: zod.string().optional(), // TODO: put enum
-          skip: zod.coerce.number().min(0).default(0),
-          startAt: zod.string().optional(),
-          type: zod.union([zod.string(), zod.array(zod.string())]).optional(),
-          text: zod.string().optional(),
-        })
-        .passthrough()
-        .safeParse(req.query);
+    const where = {
+      statusCode: "ACCEPTED",
+      deletedAt: null,
+    } as { [key: string]: any };
 
-      if (!query.success) {
-        res.locals = { code: INVALID_QUERY, message: JSON.stringify(query.error) };
-        return res.status(400).send({ ok: false, code: INVALID_QUERY, message: query.error });
-      }
+    // Exclude organizations from other publishers
+    const organizationExclusions = await OrganizationExclusionModel.find({
+      excludedForPublisherId: user._id.toString(),
+    });
+    if (organizationExclusions.length) {
+      where.organizationClientId = {
+        $nin: organizationExclusions.map((e) => e.organizationClientId),
+      };
+    }
 
-      if (!user.publishers || !user.publishers.length) {
-        res.locals = { code: NO_PARTNER, message: NO_PARTNER_MESSAGE };
-        return res.status(400).send({ ok: false, code: NO_PARTNER, message: NO_PARTNER_MESSAGE });
-      }
-
-      const where = {
-        statusCode: "ACCEPTED",
-        deletedAt: null,
-      } as { [key: string]: any };
-
-      const organizationExclusions = await OrganizationExclusionModel.find({
-        excludedForPublisherId: user._id.toString(),
-      });
-      if (organizationExclusions.length) {
-        where.organizationClientId = {
-          $nin: organizationExclusions.map((e) => e.organizationClientId),
-        };
-      }
-
-      if (query.data.publisher) {
-        if (!Array.isArray(query.data.publisher) && query.data.publisher.includes(",")) {
-          query.data.publisher = query.data.publisher.split(",").map((e: string) => e.trim());
-        } else if (!Array.isArray(query.data.publisher)) {
-          query.data.publisher = [query.data.publisher.trim()];
-        } else {
-          query.data.publisher = query.data.publisher.map((e: string) => e.trim());
-        }
-
-        query.data.publisher = query.data.publisher.filter((e: string) =>
-          user.publishers.some((p: { publisher: string }) => p.publisher === e)
-        );
-        where.publisherId = { $in: query.data.publisher };
+    if (query.data.publisher) {
+      if (!Array.isArray(query.data.publisher) && query.data.publisher.includes(",")) {
+        query.data.publisher = query.data.publisher.split(",").map((e: string) => e.trim());
+      } else if (!Array.isArray(query.data.publisher)) {
+        query.data.publisher = [query.data.publisher.trim()];
       } else {
-        where.publisherId = { $in: user.publishers.map((e: { publisher: string }) => e.publisher) };
-      }
-      if (user.moderator) {
-        where[`moderation_${user._id}_status`] = "ACCEPTED";
+        query.data.publisher = query.data.publisher.map((e: string) => e.trim());
       }
 
-      if (query.data.activity) {
-        where.activity = buildArrayQuery(query.data.activity);
-      }
-      if (query.data.city) {
-        where["addresses.city"] = buildArrayQuery(query.data.city);
-      }
-      if (query.data.clientId) {
-        where.clientId = buildArrayQuery(query.data.clientId);
-      }
-      if (query.data.country) {
-        where["addresses.country"] = buildArrayQuery(query.data.country);
-      }
-      if (query.data.createdAt) {
-        where.createdAt = buildDateQuery(query.data.createdAt);
-      }
-      if (query.data.departmentName) {
-        where["addresses.departmentName"] = buildArrayQuery(query.data.departmentName);
-      }
-      if (query.data.domain) {
-        where.domain = buildArrayQuery(query.data.domain);
-      }
+      query.data.publisher = query.data.publisher.filter((e: string) => user.publishers.some((p: { publisher: string }) => p.publisher === e));
+      where.publisherId = { $in: query.data.publisher };
+    } else {
+      where.publisherId = { $in: user.publishers.map((e: { publisher: string }) => e.publisher) };
+    }
+    if (user.moderator) {
+      where[`moderation_${user._id}_status`] = "ACCEPTED";
+    }
+    // Special case for Bouygues Telecom
+    if (user._id.toString() === "616fefd119fb03075a0b0843") {
+      where.organizationName = {
+        $ne: "APF France handicap - Délégations de Haute-Saône et du Territoire de Belfort",
+      };
+    }
 
-      if (query.data.keywords) {
-        where.$or = [
-          { title: { $regex: diacriticSensitiveRegex(query.data.keywords), $options: "i" } },
-          {
-            organizationName: {
-              $regex: diacriticSensitiveRegex(query.data.keywords),
-              $options: "i",
-            },
-          },
-          {
-            publisherName: { $regex: diacriticSensitiveRegex(query.data.keywords), $options: "i" },
-          },
-          { city: { $regex: diacriticSensitiveRegex(query.data.keywords), $options: "i" } },
-        ];
-      }
-      if (query.data.organizationRNA) {
-        where.organizationRNA = buildArrayQuery(query.data.organizationRNA);
-      }
-      if (query.data.organizationStatusJuridique) {
-        where.organizationStatusJuridique = buildArrayQuery(query.data.organizationStatusJuridique);
-      }
-      if (query.data.openToMinors) {
-        where.openToMinors = query.data.openToMinors;
-      }
-      if (query.data.reducedMobilityAccessible) {
-        where.reducedMobilityAccessible = query.data.reducedMobilityAccessible;
-      }
-      if (query.data.remote) {
-        where.remote = buildArrayQuery(query.data.remote);
-      }
-      if (query.data.startAt) {
-        where.startAt = buildDateQuery(query.data.startAt);
-      }
-      // Old search
-      if (query.data.text) {
-        where.$or = [
-          { title: { $regex: diacriticSensitiveRegex(query.data.text), $options: "i" } },
-          { organizationName: { $regex: diacriticSensitiveRegex(query.data.text), $options: "i" } },
-          { publisherName: { $regex: diacriticSensitiveRegex(query.data.text), $options: "i" } },
-          { city: { $regex: diacriticSensitiveRegex(query.data.text), $options: "i" } },
-        ];
-      }
-      if (query.data.type) {
-        where.type = buildArrayQuery(query.data.type);
-      }
-
-      if (query.data.lat && query.data.lon) {
-        if (query.data.distance && (query.data.distance === "0" || query.data.distance === "0km")) {
-          query.data.distance = "10km";
-        }
-        const distanceKm = getDistanceKm(query.data.distance || "50km");
-        where["addresses.geoPoint"] = {
-          $nearSphere: {
-            $geometry: { type: "Point", coordinates: [query.data.lon, query.data.lat] },
-            $maxDistance: distanceKm * 1000,
-          },
-        };
-      }
-
-      // Clean old query params
-      if (req.query.size && query.data.limit === 10000) {
-        query.data.limit = parseInt(req.query.size as string, 10);
-      }
-      if (req.query.from && query.data.skip === 0) {
-        query.data.skip = parseInt(req.query.from as string, 10);
-      }
-
-      const data = await MissionModel.find(where)
-        .skip(query.data.skip)
-        .limit(query.data.limit)
-        .lean();
-
-      // countDocument and aggregate does not accept $nearSphere (but keeping $near cause it sorts the results)
-      if (where["addresses.geoPoint"]) {
-        where["addresses.geoPoint"] = nearSphereToGeoWithin(
-          where["addresses.geoPoint"].$nearSphere
-        );
-      }
-      const total = await MissionModel.countDocuments(where);
-      const facets = await MissionModel.aggregate([
-        { $match: where },
+    if (query.data.activity) {
+      where.activity = buildArrayQuery(query.data.activity);
+    }
+    if (query.data.city) {
+      where["addresses.city"] = buildArrayQuery(query.data.city);
+    }
+    if (query.data.clientId) {
+      where.clientId = buildArrayQuery(query.data.clientId);
+    }
+    if (query.data.country) {
+      where["addresses.country"] = buildArrayQuery(query.data.country);
+    }
+    if (query.data.createdAt) {
+      where.createdAt = buildDateQuery(query.data.createdAt);
+    }
+    if (query.data.departmentName) {
+      where["addresses.departmentName"] = buildArrayQuery(query.data.departmentName);
+    }
+    if (query.data.domain) {
+      where.domain = buildArrayQuery(query.data.domain);
+    }
+    if (query.data.keywords) {
+      where.$or = [
+        { title: { $regex: diacriticSensitiveRegex(query.data.keywords), $options: "i" } },
         {
-          $facet: {
-            domain: [{ $group: { _id: "$domain", count: { $sum: 1 } } }, { $sort: { count: -1 } }],
-            activity: [
-              { $group: { _id: "$activity", count: { $sum: 1 } } },
-              { $sort: { count: -1 } },
-            ],
-            departmentName: [
-              { $group: { _id: "$departmentName", count: { $sum: 1 } } },
-              { $sort: { count: -1 } },
-            ],
+          organizationName: {
+            $regex: diacriticSensitiveRegex(query.data.keywords),
+            $options: "i",
           },
         },
-      ]);
-
-      res.locals = { total };
-      return res.status(200).send({
-        ok: true,
-        total,
-        hits: data.map((e: Mission) => ({
-          ...buildData(e, user._id.toString(), user.moderator),
-          _distance: getDistanceFromLatLonInKm(
-            query.data.lat,
-            query.data.lon,
-            e.addresses[0]?.location?.lat,
-            e.addresses[0]?.location?.lon
-          ),
-        })),
-        facets: {
-          departmentName: facets[0].departmentName.map((b: { _id: string; count: number }) => ({
-            key: b._id,
-            doc_count: b.count,
-          })),
-          activities: facets[0].activity.map((b: { _id: string; count: number }) => ({
-            key: b._id,
-            doc_count: b.count,
-          })),
-          domains: facets[0].domain.map((b: { _id: string; count: number }) => ({
-            key: b._id,
-            doc_count: b.count,
-          })),
+        {
+          publisherName: { $regex: diacriticSensitiveRegex(query.data.keywords), $options: "i" },
         },
-      });
-    } catch (error) {
-      next(error);
+        { city: { $regex: diacriticSensitiveRegex(query.data.keywords), $options: "i" } },
+      ];
     }
+    if (query.data.organizationRNA) {
+      where.organizationRNA = buildArrayQuery(query.data.organizationRNA);
+    }
+    if (query.data.organizationStatusJuridique) {
+      where.organizationStatusJuridique = buildArrayQuery(query.data.organizationStatusJuridique);
+    }
+    if (query.data.openToMinors) {
+      where.openToMinors = query.data.openToMinors;
+    }
+    if (query.data.reducedMobilityAccessible) {
+      where.reducedMobilityAccessible = query.data.reducedMobilityAccessible;
+    }
+    if (query.data.remote) {
+      where.remote = buildArrayQuery(query.data.remote);
+    }
+    if (query.data.startAt) {
+      where.startAt = buildDateQuery(query.data.startAt);
+    }
+    if (query.data.type) {
+      where.type = buildArrayQuery(query.data.type);
+    }
+
+    if (query.data.lat && query.data.lon) {
+      if (query.data.distance && (query.data.distance === "0" || query.data.distance === "0km")) {
+        query.data.distance = "10km";
+      }
+      const distanceKm = getDistanceKm(query.data.distance || "50km");
+      where["addresses.geoPoint"] = {
+        $nearSphere: {
+          $geometry: { type: "Point", coordinates: [query.data.lon, query.data.lat] },
+          $maxDistance: distanceKm * 1000,
+        },
+      };
+    }
+
+    // Clean old query params
+    if (req.query.size && query.data.limit === 10000) {
+      query.data.limit = parseInt(req.query.size as string, 10);
+    }
+    if (req.query.from && query.data.skip === 0) {
+      query.data.skip = parseInt(req.query.from as string, 10);
+    }
+
+    const data = await MissionModel.find(where).skip(query.data.skip).limit(query.data.limit).lean();
+
+    if (where["addresses.geoPoint"]) {
+      where["addresses.geoPoint"] = nearSphereToGeoWithin(where["addresses.geoPoint"].$nearSphere);
+    }
+    const total = await MissionModel.countDocuments(where);
+
+    res.locals = { total };
+    return res.status(200).send({
+      ok: true,
+      total,
+      data: data.map((e: Mission) => buildData(e, req.user._id, req.user.moderator)),
+      limit: query.data.limit,
+      skip: query.data.skip,
+    });
+  } catch (error) {
+    next(error);
   }
-);
+});
+
+router.get("/search", passport.authenticate(["apikey", "api"], { session: false }), async (req: PublisherRequest, res: Response, next: NextFunction) => {
+  try {
+    const user = req.user as Publisher;
+
+    const query = zod
+      .object({
+        activity: zod.union([zod.string(), zod.array(zod.string())]).optional(),
+        city: zod.union([zod.string(), zod.array(zod.string())]).optional(),
+        clientId: zod.union([zod.string(), zod.array(zod.string())]).optional(),
+        country: zod.union([zod.string(), zod.array(zod.string())]).optional(),
+        createdAt: zod.string().optional(),
+        departmentName: zod.union([zod.string(), zod.array(zod.string())]).optional(),
+        distance: zod.string().optional(),
+        domain: zod.union([zod.string(), zod.array(zod.string())]).optional(),
+        keywords: zod.string().optional(),
+        limit: zod.coerce.number().min(0).max(10000).default(25),
+        lat: zod.coerce.number().optional(),
+        lon: zod.coerce.number().optional(),
+        openToMinors: zod.string().optional(), // TODO: put enum
+        organizationRNA: zod.union([zod.string(), zod.array(zod.string())]).optional(),
+        organizationStatusJuridique: zod.union([zod.string(), zod.array(zod.string())]).optional(),
+        publisher: zod.union([zod.string(), zod.array(zod.string())]).optional(),
+        remote: zod.union([zod.string(), zod.array(zod.string())]).optional(),
+        reducedMobilityAccessible: zod.string().optional(), // TODO: put enum
+        skip: zod.coerce.number().min(0).default(0),
+        startAt: zod.string().optional(),
+        type: zod.union([zod.string(), zod.array(zod.string())]).optional(),
+        text: zod.string().optional(),
+      })
+      .passthrough()
+      .safeParse(req.query);
+
+    if (!query.success) {
+      res.locals = { code: INVALID_QUERY, message: JSON.stringify(query.error) };
+      return res.status(400).send({ ok: false, code: INVALID_QUERY, message: query.error });
+    }
+
+    if (!user.publishers || !user.publishers.length) {
+      res.locals = { code: NO_PARTNER, message: NO_PARTNER_MESSAGE };
+      return res.status(400).send({ ok: false, code: NO_PARTNER, message: NO_PARTNER_MESSAGE });
+    }
+
+    const where = {
+      statusCode: "ACCEPTED",
+      deletedAt: null,
+    } as { [key: string]: any };
+
+    const organizationExclusions = await OrganizationExclusionModel.find({
+      excludedForPublisherId: user._id.toString(),
+    });
+    if (organizationExclusions.length) {
+      where.organizationClientId = {
+        $nin: organizationExclusions.map((e) => e.organizationClientId),
+      };
+    }
+
+    if (query.data.publisher) {
+      if (!Array.isArray(query.data.publisher) && query.data.publisher.includes(",")) {
+        query.data.publisher = query.data.publisher.split(",").map((e: string) => e.trim());
+      } else if (!Array.isArray(query.data.publisher)) {
+        query.data.publisher = [query.data.publisher.trim()];
+      } else {
+        query.data.publisher = query.data.publisher.map((e: string) => e.trim());
+      }
+
+      query.data.publisher = query.data.publisher.filter((e: string) => user.publishers.some((p: { publisher: string }) => p.publisher === e));
+      where.publisherId = { $in: query.data.publisher };
+    } else {
+      where.publisherId = { $in: user.publishers.map((e: { publisher: string }) => e.publisher) };
+    }
+    if (user.moderator) {
+      where[`moderation_${user._id}_status`] = "ACCEPTED";
+    }
+
+    if (query.data.activity) {
+      where.activity = buildArrayQuery(query.data.activity);
+    }
+    if (query.data.city) {
+      where["addresses.city"] = buildArrayQuery(query.data.city);
+    }
+    if (query.data.clientId) {
+      where.clientId = buildArrayQuery(query.data.clientId);
+    }
+    if (query.data.country) {
+      where["addresses.country"] = buildArrayQuery(query.data.country);
+    }
+    if (query.data.createdAt) {
+      where.createdAt = buildDateQuery(query.data.createdAt);
+    }
+    if (query.data.departmentName) {
+      where["addresses.departmentName"] = buildArrayQuery(query.data.departmentName);
+    }
+    if (query.data.domain) {
+      where.domain = buildArrayQuery(query.data.domain);
+    }
+
+    if (query.data.keywords) {
+      where.$or = [
+        { title: { $regex: diacriticSensitiveRegex(query.data.keywords), $options: "i" } },
+        {
+          organizationName: {
+            $regex: diacriticSensitiveRegex(query.data.keywords),
+            $options: "i",
+          },
+        },
+        {
+          publisherName: { $regex: diacriticSensitiveRegex(query.data.keywords), $options: "i" },
+        },
+        { city: { $regex: diacriticSensitiveRegex(query.data.keywords), $options: "i" } },
+      ];
+    }
+    if (query.data.organizationRNA) {
+      where.organizationRNA = buildArrayQuery(query.data.organizationRNA);
+    }
+    if (query.data.organizationStatusJuridique) {
+      where.organizationStatusJuridique = buildArrayQuery(query.data.organizationStatusJuridique);
+    }
+    if (query.data.openToMinors) {
+      where.openToMinors = query.data.openToMinors;
+    }
+    if (query.data.reducedMobilityAccessible) {
+      where.reducedMobilityAccessible = query.data.reducedMobilityAccessible;
+    }
+    if (query.data.remote) {
+      where.remote = buildArrayQuery(query.data.remote);
+    }
+    if (query.data.startAt) {
+      where.startAt = buildDateQuery(query.data.startAt);
+    }
+    // Old search
+    if (query.data.text) {
+      where.$or = [
+        { title: { $regex: diacriticSensitiveRegex(query.data.text), $options: "i" } },
+        { organizationName: { $regex: diacriticSensitiveRegex(query.data.text), $options: "i" } },
+        { publisherName: { $regex: diacriticSensitiveRegex(query.data.text), $options: "i" } },
+        { city: { $regex: diacriticSensitiveRegex(query.data.text), $options: "i" } },
+      ];
+    }
+    if (query.data.type) {
+      where.type = buildArrayQuery(query.data.type);
+    }
+
+    if (query.data.lat && query.data.lon) {
+      if (query.data.distance && (query.data.distance === "0" || query.data.distance === "0km")) {
+        query.data.distance = "10km";
+      }
+      const distanceKm = getDistanceKm(query.data.distance || "50km");
+      where["addresses.geoPoint"] = {
+        $nearSphere: {
+          $geometry: { type: "Point", coordinates: [query.data.lon, query.data.lat] },
+          $maxDistance: distanceKm * 1000,
+        },
+      };
+    }
+
+    // Clean old query params
+    if (req.query.size && query.data.limit === 10000) {
+      query.data.limit = parseInt(req.query.size as string, 10);
+    }
+    if (req.query.from && query.data.skip === 0) {
+      query.data.skip = parseInt(req.query.from as string, 10);
+    }
+
+    const data = await MissionModel.find(where).skip(query.data.skip).limit(query.data.limit).lean();
+
+    // countDocument and aggregate does not accept $nearSphere (but keeping $near cause it sorts the results)
+    if (where["addresses.geoPoint"]) {
+      where["addresses.geoPoint"] = nearSphereToGeoWithin(where["addresses.geoPoint"].$nearSphere);
+    }
+    const total = await MissionModel.countDocuments(where);
+    const facets = await MissionModel.aggregate([
+      { $match: where },
+      {
+        $facet: {
+          domain: [{ $group: { _id: "$domain", count: { $sum: 1 } } }, { $sort: { count: -1 } }],
+          activity: [{ $group: { _id: "$activity", count: { $sum: 1 } } }, { $sort: { count: -1 } }],
+          departmentName: [{ $group: { _id: "$departmentName", count: { $sum: 1 } } }, { $sort: { count: -1 } }],
+        },
+      },
+    ]);
+
+    res.locals = { total };
+    return res.status(200).send({
+      ok: true,
+      total,
+      hits: data.map((e: Mission) => ({
+        ...buildData(e, user._id.toString(), user.moderator),
+        _distance: getDistanceFromLatLonInKm(query.data.lat, query.data.lon, e.addresses[0]?.location?.lat, e.addresses[0]?.location?.lon),
+      })),
+      facets: {
+        departmentName: facets[0].departmentName.map((b: { _id: string; count: number }) => ({
+          key: b._id,
+          doc_count: b.count,
+        })),
+        activities: facets[0].activity.map((b: { _id: string; count: number }) => ({
+          key: b._id,
+          doc_count: b.count,
+        })),
+        domains: facets[0].domain.map((b: { _id: string; count: number }) => ({
+          key: b._id,
+          doc_count: b.count,
+        })),
+      },
+    });
+  } catch (error) {
+    next(error);
+  }
+});
 
 const findMissionTemp = async (missionId: string) => {
   if (!missionId.match(/[^0-9a-fA-F]/) && missionId.length === 24) {
@@ -508,39 +463,33 @@ const findMissionTemp = async (missionId: string) => {
   return null;
 };
 
-router.get(
-  "/:id",
-  passport.authenticate(["apikey", "api"], { session: false }),
-  async (req: PublisherRequest, res: Response, next: NextFunction) => {
-    try {
-      const user = req.user as Publisher;
+router.get("/:id", passport.authenticate(["apikey", "api"], { session: false }), async (req: PublisherRequest, res: Response, next: NextFunction) => {
+  try {
+    const user = req.user as Publisher;
 
-      const params = zod
-        .object({
-          id: zod.string(),
-        })
-        .safeParse(req.params);
+    const params = zod
+      .object({
+        id: zod.string(),
+      })
+      .safeParse(req.params);
 
-      if (!params.success) {
-        res.locals = { code: INVALID_PARAMS, message: JSON.stringify(params.error) };
-        return res.status(400).send({ ok: false, code: INVALID_PARAMS, message: params.error });
-      }
-
-      // const mission = await MissionModel.findOne({ _id: params.data.id });
-      const mission = await findMissionTemp(params.data.id);
-      if (!mission) {
-        return res.status(404).send({ ok: false, code: NOT_FOUND });
-      }
-
-      res.locals = { total: 1 };
-      return res
-        .status(200)
-        .send({ ok: true, data: buildData(mission, user._id.toString(), user.moderator) });
-    } catch (error: any) {
-      next(error);
+    if (!params.success) {
+      res.locals = { code: INVALID_PARAMS, message: JSON.stringify(params.error) };
+      return res.status(400).send({ ok: false, code: INVALID_PARAMS, message: params.error });
     }
+
+    // const mission = await MissionModel.findOne({ _id: params.data.id });
+    const mission = await findMissionTemp(params.data.id);
+    if (!mission) {
+      return res.status(404).send({ ok: false, code: NOT_FOUND });
+    }
+
+    res.locals = { total: 1 };
+    return res.status(200).send({ ok: true, data: buildData(mission, user._id.toString(), user.moderator) });
+  } catch (error: any) {
+    next(error);
   }
-);
+});
 
 const buildArrayQuery = (query: string | string[]) => {
   if (!Array.isArray(query) && query.includes(",")) {
@@ -573,10 +522,7 @@ const nearSphereToGeoWithin = (nearSphere: any) => {
   const distanceKm = nearSphere.$maxDistance / 1000;
   const geoWithin = {
     $geoWithin: {
-      $centerSphere: [
-        [nearSphere.$geometry.coordinates[0], nearSphere.$geometry.coordinates[1]],
-        distanceKm / EARTH_RADIUS,
-      ],
+      $centerSphere: [[nearSphere.$geometry.coordinates[0], nearSphere.$geometry.coordinates[1]], distanceKm / EARTH_RADIUS],
     },
   };
   return geoWithin;
@@ -676,10 +622,7 @@ const buildData = (data: Mission, publisherId: string, moderator: boolean = fals
     statusCommentHistoric: data.statusCommentHistoric,
     tags: data.tags,
     tasks: data.tasks,
-    title:
-      moderator && data[`moderation_${publisherId}_title`]
-        ? data[`moderation_${publisherId}_title`]
-        : data.title,
+    title: moderator && data[`moderation_${publisherId}_title`] ? data[`moderation_${publisherId}_title`] : data.title,
     type: data.type,
     updatedAt: data.updatedAt,
   };

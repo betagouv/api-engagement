@@ -18,9 +18,7 @@ const handler = async () => {
   console.log("Checking bots");
   await checkBotClicks();
 
-  console.log(
-    `[Warnings] Ended at ${new Date().toISOString()} in ${(Date.now() - start.getTime()) / 1000}s`
-  );
+  console.log(`[Warnings] Ended at ${new Date().toISOString()} in ${(Date.now() - start.getTime()) / 1000}s`);
 };
 
 export default { handler };

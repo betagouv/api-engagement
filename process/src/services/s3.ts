@@ -30,11 +30,7 @@ const DEFAULT_OPTIONS = {
   ACL: OBJECT_ACL.PRIVATE,
 };
 
-export const putObject = async (
-  objectName: string,
-  objectContent: Body,
-  options = {}
-): Promise<AWS.S3.ManagedUpload.SendData> => {
+export const putObject = async (objectName: string, objectContent: Body, options = {}): Promise<AWS.S3.ManagedUpload.SendData> => {
   return new Promise((resolve, reject) => {
     const params = {
       ...DEFAULT_OPTIONS,
@@ -51,10 +47,7 @@ export const putObject = async (
   });
 };
 
-export const getObject = async (
-  objectName: string,
-  bucketName = BUCKET_NAME
-): Promise<AWS.S3.GetObjectOutput> => {
+export const getObject = async (objectName: string, bucketName = BUCKET_NAME): Promise<AWS.S3.GetObjectOutput> => {
   return new Promise((resolve, reject) => {
     const params = {
       Bucket: bucketName,
@@ -69,10 +62,7 @@ export const getObject = async (
   });
 };
 
-export const deleteObject = async (
-  objectName: string,
-  bucketName = BUCKET_NAME
-): Promise<AWS.S3.DeleteObjectOutput> => {
+export const deleteObject = async (objectName: string, bucketName = BUCKET_NAME): Promise<AWS.S3.DeleteObjectOutput> => {
   return new Promise((resolve, reject) => {
     const params = {
       Bucket: bucketName,

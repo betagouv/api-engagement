@@ -1,10 +1,4 @@
-import {
-  MissionHistoryEventType,
-  Organization,
-  Address as PgAddress,
-  Mission as PgMission,
-  MissionHistoryEvent as PgMissionHistoryEvent,
-} from "@prisma/client";
+import { MissionHistoryEventType, Organization, Address as PgAddress, Mission as PgMission, MissionHistoryEvent as PgMissionHistoryEvent } from "@prisma/client";
 import { JVA_ID, SC_ID } from "../../../config";
 import { Mission as MongoMission } from "../../../types";
 
@@ -19,11 +13,7 @@ export type MissionTransformResult = {
 /**
  * Transform a MongoDB mission into PostgreSQL format
  */
-export const transformMongoMissionToPg = (
-  doc: MongoMission,
-  partnerId: string,
-  organizations: Organization[]
-): MissionTransformResult | null => {
+export const transformMongoMissionToPg = (doc: MongoMission, partnerId: string, organizations: Organization[]): MissionTransformResult | null => {
   if (!doc) {
     return null;
   }
@@ -111,16 +101,12 @@ export const transformMongoMissionToPg = (
     jva_moderation_status: doc["moderation_5f5931496c7ea514150a818f_status"],
     jva_moderation_comment: doc["moderation_5f5931496c7ea514150a818f_comment"],
     jva_moderation_title: doc["moderation_5f5931496c7ea514150a818f_title"],
-    jva_moderation_updated_at: doc["moderation_5f5931496c7ea514150a818f_date"]
-      ? new Date(doc["moderation_5f5931496c7ea514150a818f_date"])
-      : undefined,
+    jva_moderation_updated_at: doc["moderation_5f5931496c7ea514150a818f_date"] ? new Date(doc["moderation_5f5931496c7ea514150a818f_date"]) : undefined,
 
     leboncoin_moderation_status: doc.leboncoinStatus,
     leboncoin_moderation_comment: doc.leboncoinComment,
     leboncoin_moderation_url: doc.leboncoinUrl,
-    leboncoin_moderation_updated_at: doc.leboncoinUpdatedAt
-      ? new Date(doc.leboncoinUpdatedAt)
-      : undefined,
+    leboncoin_moderation_updated_at: doc.leboncoinUpdatedAt ? new Date(doc.leboncoinUpdatedAt) : undefined,
 
     created_at: new Date(doc.createdAt),
     updated_at: new Date(doc.updatedAt),

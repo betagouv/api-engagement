@@ -2,17 +2,7 @@ import dotenv from "dotenv";
 dotenv.config();
 
 import * as Sentry from "@sentry/node";
-import {
-  ADMIN_SNU_URL,
-  APP_URL,
-  ASSOCIATION_URL,
-  BENEVOLAT_URL,
-  ENV,
-  JVA_URL,
-  PORT,
-  SENTRY_DSN,
-  VOLONTARIAT_URL,
-} from "./config";
+import { ADMIN_SNU_URL, APP_URL, ASSOCIATION_URL, BENEVOLAT_URL, ENV, JVA_URL, PORT, SENTRY_DSN, VOLONTARIAT_URL } from "./config";
 
 if (ENV !== "development") {
   Sentry.init({
@@ -167,9 +157,7 @@ app.use("/widget", WidgetController);
 app.get("/geo", async (req: Request, res: Response, next) => {
   try {
     captureMessage(`Fetching geo is still used`);
-    const url = encodeURI(
-      `https://api-adresse.data.gouv.fr/search/?q=${req.query.postcode}&type=municipality`
-    );
+    const url = encodeURI(`https://api-adresse.data.gouv.fr/search/?q=${req.query.postcode}&type=municipality`);
     const r = await fetch(url).then((response) => response.json());
     res.status(200).send(r);
   } catch (error) {
@@ -183,8 +171,7 @@ app.use(async (err: any, req: Request, res: Response, _: NextFunction) => {
     console.error(err);
 
     // Filter out socket hang up errors from Sentry reporting
-    const isSocketHangUp =
-      err.code === "ECONNRESET" || (err.message && err.message.includes("socket hang up"));
+    const isSocketHangUp = err.code === "ECONNRESET" || (err.message && err.message.includes("socket hang up"));
 
     if (ENV !== "development" && !isSocketHangUp) {
       captureException(err);

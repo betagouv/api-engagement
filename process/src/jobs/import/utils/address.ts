@@ -54,8 +54,7 @@ const getDepartmentCode = (departmentCode: string, postalCode: string) => {
   }
 };
 
-const getDepartement = (code?: string) =>
-  (code && code in DEPARTMENTS && DEPARTMENTS[code][0]) || "";
+const getDepartement = (code?: string) => (code && code in DEPARTMENTS && DEPARTMENTS[code][0]) || "";
 const getRegion = (code?: string) => (code && code in DEPARTMENTS && DEPARTMENTS[code][1]) || "";
 
 export const getAddress = (mission: Mission, missionXML: MissionXML) => {
@@ -97,15 +96,7 @@ export const getAddress = (mission: Mission, missionXML: MissionXML) => {
   } else if (missionXML.location && missionXML.location.lon && missionXML.location.lat) {
     location = missionXML.location;
   }
-  if (
-    location &&
-    location.lon &&
-    location.lat &&
-    -90 <= location.lat &&
-    location.lat <= 90 &&
-    -180 <= location.lon &&
-    location.lon <= 180
-  ) {
+  if (location && location.lon && location.lat && -90 <= location.lat && location.lat <= 90 && -180 <= location.lon && location.lon <= 180) {
     mission.location = location;
     mission.geolocStatus = "ENRICHED_BY_PUBLISHER";
   }
@@ -127,13 +118,9 @@ export const getAddress = (mission: Mission, missionXML: MissionXML) => {
   } else {
     mission.postalCode = formatPostalCode(parseString(missionXML.postalCode));
     if (mission.postalCode) {
-      const departmentCode = getDepartmentCode(
-        missionXML.departmentCode,
-        mission.postalCode.toString()
-      );
+      const departmentCode = getDepartmentCode(missionXML.departmentCode, mission.postalCode.toString());
       mission.departmentCode = departmentCode;
-      mission.departmentName =
-        getDepartement(departmentCode) || parseString(missionXML.departmentName);
+      mission.departmentName = getDepartement(departmentCode) || parseString(missionXML.departmentName);
       mission.region = getRegion(departmentCode) || parseString(missionXML.region);
     } else {
       mission.departmentCode = parseString(missionXML.departmentCode);
@@ -203,13 +190,9 @@ export const getAddresses = (mission: Mission, missionXML: MissionXML) => {
     } else {
       addressItem.postalCode = formatPostalCode(parseString(address.postalCode));
       if (addressItem.postalCode) {
-        const departmentCode = getDepartmentCode(
-          address.departmentCode,
-          addressItem.postalCode.toString()
-        );
+        const departmentCode = getDepartmentCode(address.departmentCode, addressItem.postalCode.toString());
         addressItem.departmentCode = departmentCode;
-        addressItem.departmentName =
-          getDepartement(departmentCode) || parseString(address.departmentName);
+        addressItem.departmentName = getDepartement(departmentCode) || parseString(address.departmentName);
         addressItem.region = getRegion(departmentCode) || parseString(address.region);
       } else {
         addressItem.departmentCode = parseString(address.departmentCode);

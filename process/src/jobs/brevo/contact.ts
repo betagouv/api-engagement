@@ -23,11 +23,7 @@ export const syncContact = async () => {
 
     if (contacts.length < count) {
       for (let i = BREVO_CONTACTS_LIMIT; i < count; i += BREVO_CONTACTS_LIMIT) {
-        const res = await Brevo.api(
-          `/contacts?limit=${BREVO_CONTACTS_LIMIT}&offset=${i}`,
-          {},
-          "GET"
-        );
+        const res = await Brevo.api(`/contacts?limit=${BREVO_CONTACTS_LIMIT}&offset=${i}`, {}, "GET");
         if (!res.ok) {
           throw res;
         }
@@ -39,26 +35,15 @@ export const syncContact = async () => {
 
     const toUpdate = users
       .filter((user) => user.deletedAt === null)
-      .filter((user) =>
-        contacts.some(
-          (contact) => contact.email?.toLowerCase().trim() === user.email.toLowerCase().trim()
-        )
-      );
+      .filter((user) => contacts.some((contact) => contact.email?.toLowerCase().trim() === user.email.toLowerCase().trim()));
     const toCreate = users
       .filter((user) => user.deletedAt === null)
-      .filter(
-        (user) =>
-          !contacts.some(
-            (contact) => contact.email?.toLowerCase().trim() === user.email.toLowerCase().trim()
-          )
-      );
+      .filter((user) => !contacts.some((contact) => contact.email?.toLowerCase().trim() === user.email.toLowerCase().trim()));
 
     console.log(`[Brevo Contacts] Updating ${toUpdate.length} contacts`);
     let updated = 0;
     for (const user of toUpdate) {
-      const contact = contacts.find(
-        (contact) => contact.email?.toLowerCase().trim() === user.email.toLowerCase().trim()
-      );
+      const contact = contacts.find((contact) => contact.email?.toLowerCase().trim() === user.email.toLowerCase().trim());
       if (!contact) {
         toCreate.push(user);
         continue;
@@ -83,20 +68,11 @@ export const syncContact = async () => {
           if (!contact.attributes.ENTREPRISE) {
             attributes.ENTREPRISE = publisher.name;
           }
-          if (
-            publisher?.role_promoteur &&
-            (publisher?.role_annonceur_api ||
-              publisher?.role_annonceur_campagne ||
-              publisher?.role_annonceur_widget)
-          ) {
+          if (publisher?.role_promoteur && (publisher?.role_annonceur_api || publisher?.role_annonceur_campagne || publisher?.role_annonceur_widget)) {
             attributes.ROLE = "Annonceur & Diffuseur";
           } else if (publisher?.role_promoteur) {
             attributes.ROLE = "Annonceur";
-          } else if (
-            publisher?.role_annonceur_api ||
-            publisher?.role_annonceur_campagne ||
-            publisher?.role_annonceur_widget
-          ) {
+          } else if (publisher?.role_annonceur_api || publisher?.role_annonceur_campagne || publisher?.role_annonceur_widget) {
             attributes.ROLE = "Diffuseur";
           }
         }
@@ -132,20 +108,11 @@ export const syncContact = async () => {
         const publisher = publishers.find((publisher) => publisher.id === user.publishers[0]);
         if (publisher) {
           body.attributes.ENTREPRISE = publisher.name;
-          if (
-            publisher?.role_promoteur &&
-            (publisher?.role_annonceur_api ||
-              publisher?.role_annonceur_campagne ||
-              publisher?.role_annonceur_widget)
-          ) {
+          if (publisher?.role_promoteur && (publisher?.role_annonceur_api || publisher?.role_annonceur_campagne || publisher?.role_annonceur_widget)) {
             body.attributes.ROLE = "Annonceur & Diffuseur";
           } else if (publisher?.role_promoteur) {
             body.attributes.ROLE = "Annonceur";
-          } else if (
-            publisher?.role_annonceur_api ||
-            publisher?.role_annonceur_campagne ||
-            publisher?.role_annonceur_widget
-          ) {
+          } else if (publisher?.role_annonceur_api || publisher?.role_annonceur_campagne || publisher?.role_annonceur_widget) {
             body.attributes.ROLE = "Diffuseur";
           }
         }
@@ -162,9 +129,7 @@ export const syncContact = async () => {
     console.log(`[Brevo Contacts] Created ${created} contacts`);
 
     const toDelete = contacts.filter((contact) =>
-      users
-        .filter((user) => user.deletedAt !== null)
-        .some((user) => user.email.toLowerCase().trim() === contact.email?.toLowerCase().trim())
+      users.filter((user) => user.deletedAt !== null).some((user) => user.email.toLowerCase().trim() === contact.email?.toLowerCase().trim())
     );
     console.log(`[Brevo Contacts] Deleting ${toDelete.length} contacts`);
     let deleted = 0;

@@ -18,8 +18,7 @@ const buildData = (doc: Kpi) => {
     available_volontariat_given_by_partner_place_count: doc.availableVolontariatGivenPlaceCount,
 
     available_benevolat_attributed_by_api_place_count: doc.availableBenevolatAttributedPlaceCount,
-    available_volontariat_attributed_by_api_place_count:
-      doc.availableVolontariatAttributedPlaceCount,
+    available_volontariat_attributed_by_api_place_count: doc.availableVolontariatAttributedPlaceCount,
 
     percentage_benevolat_given_by_partner_places: doc.percentageBenevolatGivenPlaces,
     percentage_volontariat_given_by_partner_places: doc.percentageVolontariatGivenPlaces,
@@ -63,9 +62,7 @@ const handler = async () => {
     console.log(`[KPI] Found ${data.length} docs to sync.`);
 
     const stored = [] as string[];
-    await prisma.kpi
-      .findMany({ select: { old_id: true } })
-      .then((data) => data.forEach((d) => stored.push(d.old_id)));
+    await prisma.kpi.findMany({ select: { old_id: true } }).then((data) => data.forEach((d) => stored.push(d.old_id)));
     console.log(`[KPI] Found ${stored.length} docs in database.`);
 
     const dataToCreate = [];
@@ -85,9 +82,7 @@ const handler = async () => {
       console.log(`[KPI] Created ${res.count} docs.`);
     }
 
-    console.log(
-      `[KPI] Ended at ${new Date().toISOString()} in ${(Date.now() - start.getTime()) / 1000}s.`
-    );
+    console.log(`[KPI] Ended at ${new Date().toISOString()} in ${(Date.now() - start.getTime()) / 1000}s.`);
     return { created: dataToCreate.length };
   } catch (error) {
     captureException(error, "[KPI] Error while syncing docs.");

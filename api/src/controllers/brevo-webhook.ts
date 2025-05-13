@@ -68,9 +68,7 @@ const downloadFile = async (email: Email) => {
     }
 
     // find link the md_text_body of the text [Download report](https://www.linkedin.com/e/v2?...)
-    const match = email.md_text_body.match(
-      /\[Download report\]\((https:\/\/www.linkedin.com\/e\/v2\?[^)]+)\)/
-    );
+    const match = email.md_text_body.match(/\[Download report\]\((https:\/\/www.linkedin.com\/e\/v2\?[^)]+)\)/);
     if (!match) {
       captureException("[Linkedin Stats] No link found", `No link found in email ${email._id}`);
       return;

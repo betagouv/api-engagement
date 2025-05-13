@@ -34,18 +34,14 @@ export const buildKpiBotless = async (start: Date) => {
   const whereJvaAvailable = { ...whereMissionAvailable, publisherName: "JeVeuxAider.gouv.fr" };
 
   const availableBenevolatMissionCount = await MissionModel.countDocuments(whereBenevolatAvailable);
-  const availableVolontariatMissionCount =
-    await MissionModel.countDocuments(whereVolontariatAvailable);
+  const availableVolontariatMissionCount = await MissionModel.countDocuments(whereVolontariatAvailable);
 
   const availableJvaMissionCount = await MissionModel.countDocuments(whereJvaAvailable);
 
   const aggs = await MissionModel.aggregate([
     {
       $facet: {
-        benevolat_given: [
-          { $match: { ...whereBenevolatAvailable, placesStatus: "GIVEN_BY_PARTNER" } },
-          { $group: { _id: null, count: { $sum: 1 }, total: { $sum: "$places" } } },
-        ],
+        benevolat_given: [{ $match: { ...whereBenevolatAvailable, placesStatus: "GIVEN_BY_PARTNER" } }, { $group: { _id: null, count: { $sum: 1 }, total: { $sum: "$places" } } }],
         volontariat_given: [
           { $match: { ...whereVolontariatAvailable, placesStatus: "GIVEN_BY_PARTNER" } },
           { $group: { _id: null, count: { $sum: 1 }, total: { $sum: "$places" } } },
@@ -62,40 +58,20 @@ export const buildKpiBotless = async (start: Date) => {
     },
   ]);
 
-  const availableBenevolatGivenPlaceCount = aggs.length
-    ? aggs[0].benevolat_given[0]?.total || 0
-    : 0;
-  const availableVolontariatGivenPlaceCount = aggs.length
-    ? aggs[0].volontariat_given[0]?.total || 0
-    : 0;
-  const availableBenevolatAttributedPlaceCount = aggs.length
-    ? aggs[0].benevolat_attributed[0]?.total || 0
-    : 0;
-  const availableVolontariatAttributedPlaceCount = aggs.length
-    ? aggs[0].volontariat_attributed[0]?.total || 0
-    : 0;
+  const availableBenevolatGivenPlaceCount = aggs.length ? aggs[0].benevolat_given[0]?.total || 0 : 0;
+  const availableVolontariatGivenPlaceCount = aggs.length ? aggs[0].volontariat_given[0]?.total || 0 : 0;
+  const availableBenevolatAttributedPlaceCount = aggs.length ? aggs[0].benevolat_attributed[0]?.total || 0 : 0;
+  const availableVolontariatAttributedPlaceCount = aggs.length ? aggs[0].volontariat_attributed[0]?.total || 0 : 0;
 
-  const availableBenevolatGivenMissionCount = aggs.length
-    ? aggs[0].benevolat_given[0]?.count || 0
-    : 0;
-  const availableVolontariatGivenMissionCount = aggs.length
-    ? aggs[0].volontariat_given[0]?.count || 0
-    : 0;
-  const availableBenevolatAttributedMissionCount = aggs.length
-    ? aggs[0].benevolat_attributed[0]?.count || 0
-    : 0;
-  const availableVolontariatAttributedMissionCount = aggs.length
-    ? aggs[0].volontariat_attributed[0]?.count || 0
-    : 0;
+  const availableBenevolatGivenMissionCount = aggs.length ? aggs[0].benevolat_given[0]?.count || 0 : 0;
+  const availableVolontariatGivenMissionCount = aggs.length ? aggs[0].volontariat_given[0]?.count || 0 : 0;
+  const availableBenevolatAttributedMissionCount = aggs.length ? aggs[0].benevolat_attributed[0]?.count || 0 : 0;
+  const availableVolontariatAttributedMissionCount = aggs.length ? aggs[0].volontariat_attributed[0]?.count || 0 : 0;
 
-  const percentageBenevolatGivenPlaces =
-    availableBenevolatGivenMissionCount / availableBenevolatMissionCount;
-  const percentageVolontariatGivenPlaces =
-    availableVolontariatGivenMissionCount / availableVolontariatMissionCount;
-  const percentageBenevolatAttributedPlaces =
-    availableBenevolatAttributedMissionCount / availableBenevolatMissionCount;
-  const percentageVolontariatAttributedPlaces =
-    availableVolontariatAttributedMissionCount / availableVolontariatMissionCount;
+  const percentageBenevolatGivenPlaces = availableBenevolatGivenMissionCount / availableBenevolatMissionCount;
+  const percentageVolontariatGivenPlaces = availableVolontariatGivenMissionCount / availableVolontariatMissionCount;
+  const percentageBenevolatAttributedPlaces = availableBenevolatAttributedMissionCount / availableBenevolatMissionCount;
+  const percentageVolontariatAttributedPlaces = availableVolontariatAttributedMissionCount / availableVolontariatMissionCount;
 
   const statsBots = await StatsBotModel.find({}).lean();
 
@@ -156,10 +132,7 @@ export const buildKpiBotless = async (start: Date) => {
               terms: { "user.keyword": statsBots.map((e) => e.user) },
             },
           ],
-          filter: [
-            { term: { "toPublisherName.keyword": "Service Civique" } },
-            { range: { createdAt: { gte: fromDate, lt: endDate } } },
-          ],
+          filter: [{ term: { "toPublisherName.keyword": "Service Civique" } }, { range: { createdAt: { gte: fromDate, lt: endDate } } }],
         },
       },
       aggs: {
@@ -216,8 +189,7 @@ export const buildKpiBotless = async (start: Date) => {
   kpi.volontariatApplyMissionCount = statsVolontariatAggs.body.aggregations.apply.data.value || 0;
 
   kpi.benevolatAccountMissionCount = statsBenevolatAggs.body.aggregations.account.data.value || 0;
-  kpi.volontariatAccountMissionCount =
-    statsVolontariatAggs.body.aggregations.account.data.value || 0;
+  kpi.volontariatAccountMissionCount = statsVolontariatAggs.body.aggregations.account.data.value || 0;
 
   kpi.benevolatPrintCount = statsBenevolatAggs.body.aggregations.print.doc_count || 0;
   kpi.volontariatPrintCount = statsVolontariatAggs.body.aggregations.print.doc_count || 0;

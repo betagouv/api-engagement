@@ -9,9 +9,7 @@ const BATCH_SIZE = 5000;
 const buildData = (doc: Import, partners: { [key: string]: string }) => {
   const partnerId = partners[doc.publisherId.toString()];
   if (!partnerId) {
-    console.log(
-      `[Imports] Patner ${doc.publisherId.toString()} not found for doc ${doc._id?.toString()}`
-    );
+    console.log(`[Imports] Patner ${doc.publisherId.toString()} not found for doc ${doc._id?.toString()}`);
     return null;
   }
   const obj = {
@@ -45,9 +43,7 @@ const handler = async () => {
     const stored = await prisma.import.count();
     console.log(`[Imports] Found ${stored} docs in database.`);
     const partners = {} as { [key: string]: string };
-    await prisma.partner
-      .findMany({ select: { id: true, old_id: true } })
-      .then((data) => data.forEach((d) => (partners[d.old_id] = d.id)));
+    await prisma.partner.findMany({ select: { id: true, old_id: true } }).then((data) => data.forEach((d) => (partners[d.old_id] = d.id)));
 
     while (data && data.length) {
       const dataToCreate = [];
@@ -74,9 +70,7 @@ const handler = async () => {
         .lean();
     }
 
-    console.log(
-      `[Imports] Ended at ${new Date().toISOString()} in ${(Date.now() - start.getTime()) / 1000}s.`
-    );
+    console.log(`[Imports] Ended at ${new Date().toISOString()} in ${(Date.now() - start.getTime()) / 1000}s.`);
     return { created };
   } catch (error) {
     captureException(error, "[Imports] Error while syncing docs.");

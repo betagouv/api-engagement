@@ -1,10 +1,5 @@
 module.exports = {
-  extends: [
-    "eslint:recommended",
-    "plugin:@typescript-eslint/recommended",
-    "plugin:import/typescript",
-    "prettier",
-  ],
+  extends: ["eslint:recommended", "plugin:@typescript-eslint/recommended", "plugin:import/typescript", "prettier"],
   plugins: ["@typescript-eslint", "import"],
   rules: {
     "import/prefer-default-export": "off",
