@@ -41,7 +41,7 @@ jobs:
   set-env:
     name: Determine Environment
     runs-on: ubuntu-latest
-    if: github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success'
+    if: github.event_name == 'workflow_dispatch' || github.event_name == 'push' || github.event.workflow_run.conclusion == 'success'
     outputs:
       environment_name: ${{ steps.set-env.outputs.environment }}
     steps:
