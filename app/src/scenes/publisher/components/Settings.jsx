@@ -141,7 +141,7 @@ const Diffuseurs = ({ values, onChange, onSave, errors, setErrors }) => {
     const fetchData = async () => {
       try {
         const res = await api.post("/publisher/search", {
-          role_promoteur: true,
+          role: "annonceur",
         });
         if (!res.ok) throw res;
 

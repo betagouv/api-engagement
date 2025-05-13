@@ -11,59 +11,50 @@ import { captureError } from "../../services/error";
 import exportCSV from "../../services/utils";
 
 const Publishers = () => {
-  const [filters, setFilters] = useState({ role: "", automated_report: "", mission_type: "" });
+  const [filters, setFilters] = useState({ name: "", role: "", sendReport: "", missionType: "" });
   const [exporting, setExporting] = useState(false);
   const [users, setUsers] = useState([]);
   const [publishers, setPublishers] = useState([]);
-  const [displayedPublishers, setDisplayedPublishers] = useState([]);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const resP = await api.post("/publisher/search");
-        if (!resP.ok) throw resP;
-        setPublishers(resP.data.sort((a, b) => a.name.localeCompare(b.name)));
-        setDisplayedPublishers(resP.data);
-
+        setLoading(true);
         const resU = await api.post("/user/search");
         if (!resU.ok) throw resU;
         setUsers(resU.data);
       } catch (error) {
-        captureError(error, "Erreur lors de la récupération des données");
+        captureError(error, "Erreur lors de la récupération des utilisateurs");
+      } finally {
+        setLoading(false);
       }
     };
     fetchData();
   }, []);
 
   useEffect(() => {
-    if (publishers) {
-      let filtered = publishers;
-      if (filters.role)
-        filtered = filtered.filter((s) => {
-          if (filters.role === "broadcast") return s.role_annonceur_api || s.role_annonceur_widget || s.role_annonceur_campagne;
-          if (filters.role === "announce") return s.role_promoteur;
-          if (filters.role === "api") return s.role_annonceur_api;
-          if (filters.role === "widget") return s.role_annonceur_widget;
-          if (filters.role === "campaign") return s.role_annonceur_campagne;
-          else return s[filters.role];
-        });
+    const fetchData = async () => {
+      try {
+        setLoading(true);
+        const query = {};
+        if (filters.name) query.name = filters.name;
+        if (filters.role) query.role = filters.role;
+        if (filters.sendReport === "true") query.sendReport = true;
+        if (filters.sendReport === "false") query.sendReport = false;
+        if (filters.missionType) query.missionType = filters.missionType;
 
-      if (filters.mission_type === "volontariat")
-        filtered = filtered.filter((p) => p.mission_type === "volontariat" || p.publishers.some((n) => n.publisherName === "Service Civique"));
-      if (filters.mission_type === "benevolat") filtered = filtered.filter((p) => p.publishers.some((n) => n.publisherName !== "Service Civique"));
-
-      if (filters.automated_report === "true") filtered = filtered.filter((s) => s.automated_report);
-      if (filters.automated_report === "false") filtered = filtered.filter((s) => !s.automated_report);
-      setDisplayedPublishers(filtered);
-    }
+        const resP = await api.post("/publisher/search", query);
+        if (!resP.ok) throw resP;
+        setPublishers(resP.data);
+      } catch (error) {
+        captureError(error, "Erreur lors de la récupération des partenaires");
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchData();
   }, [filters]);
-
-  const handleSearch = (e) => {
-    e.preventDefault();
-    const search = e.target.value;
-    if (search) setDisplayedPublishers(publishers.filter((p) => p.name.toLowerCase().includes(search.toLowerCase())));
-    else setDisplayedPublishers(publishers);
-  };
 
   const handleExport = () => {
     if (!publishers) return;
@@ -75,10 +66,10 @@ const Publishers = () => {
       val["Nom"] = publisher.name;
       val["Email"] = publisher.email;
       val["URL"] = publisher.url;
-      val["Role annonceur"] = publisher.role_promoteur;
-      val["Role diffuseur API"] = publisher.role_annonceur_api;
-      val["Role diffuseur widget"] = publisher.role_annonceur_widget;
-      val["Role diffuseur campagne"] = publisher.role_annonceur_campagne;
+      val["Role annonceur"] = publisher.annonceur;
+      val["Role diffuseur API"] = publisher.api;
+      val["Role diffuseur widget"] = publisher.widget;
+      val["Role diffuseur campagne"] = publisher.campaign;
       const annonceurs = publisher.publishers.map((p) => p.publisherName);
       val["Nombre d'annonceurs"] = annonceurs.length;
       val["Annonceurs"] = annonceurs;
@@ -88,9 +79,9 @@ const Publishers = () => {
       const members = users.filter((e) => e.publishers.find((j) => j === publisher._id.toString())).map((e) => `${e.name} - ${e.email}`);
       val["Nombre de membres"] = members.length;
       val["Membres"] = members;
-      val["Rapport automatique"] = publisher.automated_report;
-      val["Nombre de destinataires"] = publisher.send_report_to.length;
-      val["Destinataires"] = publisher.send_report_to.map((e) => users.find((j) => j._id.toString() === e).email);
+      val["Rapport automatique"] = publisher.sendReport;
+      val["Nombre de destinataires"] = publisher.sendReportTo.length;
+      val["Destinataires"] = publisher.sendReportTo.map((e) => users.find((j) => j._id.toString() === e).email);
 
       data.push(val);
     });
@@ -122,27 +113,39 @@ const Publishers = () => {
 
       <div className="border border-gray-border p-6">
         <div className="mb-6 flex items-center gap-4">
-          <p className="font-semibold">{`${displayedPublishers.length} partenaire${displayedPublishers.length > 1 ? "s" : ""}`}</p>
-          <label htmlFor="publisher-search" className="sr-only">
+          <p className="font-semibold">{`${publishers.length} partenaire${publishers.length > 1 ? "s" : ""}`}</p>
+          <label htmlFor="publisher-name" className="sr-only">
             Rechercher par nom
           </label>
-          <input id="publisher-search" name="publisher-search" className="input flex-1" placeholder="Chercher par nom" onChange={handleSearch} />
+          <input
+            id="publisher-name"
+            name="publisher-name"
+            className="input flex-1"
+            placeholder="Chercher par nom"
+            value={filters.name}
+            onChange={(e) => setFilters({ ...filters, name: e.target.value })}
+          />
 
           <label htmlFor="publisher-role" className="sr-only">
             Filtrer par rôle
           </label>
           <select id="publisher-role" name="publisher-role" className="input w-[20%]" value={filters.role} onChange={(e) => setFilters({ ...filters, role: e.target.value })}>
             <option value="">Tous les rôles</option>
-            <option value="announce">Tous les annonceurs</option>
-            <option value="broadcast">Tous les diffuseurs</option>
+            <option value="annonceur">Tous les annonceurs</option>
+            <option value="diffuseur">Tous les diffuseurs</option>
             <option value="api">Tous les diffuseurs api</option>
             <option value="widget">Tous les diffuseurs widget</option>
             <option value="campaign">Tous les diffuseurs campagne</option>
           </select>
-          <label htmlFor="publisher-automated-report" className="sr-only">
+          <label htmlFor="publisher-send-report" className="sr-only">
             Filtrer par rapport d'impact
           </label>
-          <select className="input w-[20%] truncate" defaultValue="" id="publisher-automated-report" onChange={(e) => setFilters({ ...filters, automated_report: e.target.value })}>
+          <select
+            className="input w-[20%] truncate"
+            id="publisher-send-report"
+            value={filters.sendReport.toString()}
+            onChange={(e) => setFilters({ ...filters, sendReport: e.target.value })}
+          >
             <option value="">Avec et sans rapport d'impact</option>
             <option value="true">Avec rapport d'impact</option>
             <option value="false">Sans rapport d'impact</option>
@@ -153,51 +156,57 @@ const Publishers = () => {
           <select
             className="input w-[20%] truncate"
             id="publisher-mission-type"
-            value={filters.mission_type}
-            onChange={(e) => setFilters({ ...filters, mission_type: e.target.value })}
+            value={filters.missionType}
+            onChange={(e) => setFilters({ ...filters, missionType: e.target.value })}
           >
             <option value="">Type de mission</option>
             <option value="benevolat">Missions de bénévolat</option>
             <option value="volontariat">Missions de volontariat</option>
           </select>
         </div>
-        <Table
-          data={displayedPublishers}
-          renderHeader={() => (
-            <>
-              <h4 className="flex-1">Nom</h4>
-              <h4 className="flex-1 text-center">Rôles</h4>
-              <h4 className="w-32 text-center">Nombre d'annonceurs</h4>
-              <h4 className="w-32 text-center">Nombre de diffuseurs</h4>
-              <h4 className="w-32 text-center">Nombre de membres</h4>
-              <h4 className="w-32 text-center">Rapport d'impact</h4>
-            </>
-          )}
-          itemHeight={"min-h-[3rem]"}
-          renderItem={(item) => (
-            <>
-              <Link to={`/publisher/${item._id.toString()}`} className="link flex-1">
-                {item.name}
-              </Link>
-              <div className="flex flex-1 flex-wrap justify-center gap-2">
-                {item.role_promoteur && <span className="rounded bg-red-light px-1 text-[10px]">Annonceur</span>}
-                {item.role_annonceur_api && <span className="rounded bg-green-light px-1 text-[10px]">Diffuseur API</span>}
-                {item.role_annonceur_widget && <span className="rounded bg-green-light px-1 text-[10px]">Diffuseur Widget</span>}
-                {item.role_annonceur_campagne && <span className="rounded bg-green-light px-1 text-[10px]">Diffuseur Campagne</span>}
-              </div>
-              <span className="w-32 text-center text-xs">{item.publishers.length}</span>
-              <span className="w-32 text-center text-xs">{publishers.filter((e) => e.publishers.find((j) => j.publisher === item._id.toString())).length}</span>
-              <span className="w-32 text-center text-xs">{users.filter((e) => e.publishers.find((j) => j === item._id.toString())).length}</span>
-              <div className="w-32 text-center text-xs">
-                {item.automated_report ? (
-                  <span className="rounded bg-blue-light px-1">{`Oui (${item.send_report_to.length} receveur${item.send_report_to.length > 1 ? "s" : ""})`}</span>
-                ) : (
-                  <span className="rounded bg-red-light px-1">Non</span>
-                )}
-              </div>
-            </>
-          )}
-        />
+        {loading ? (
+          <div className="flex h-full items-center justify-center py-12">
+            <Loader />
+          </div>
+        ) : (
+          <Table
+            data={publishers}
+            renderHeader={() => (
+              <>
+                <h4 className="flex-1">Nom</h4>
+                <h4 className="flex-1 text-center">Rôles</h4>
+                <h4 className="w-32 text-center">Nombre d'annonceurs</h4>
+                <h4 className="w-32 text-center">Nombre de diffuseurs</h4>
+                <h4 className="w-32 text-center">Nombre de membres</h4>
+                <h4 className="w-32 text-center">Rapport d'impact</h4>
+              </>
+            )}
+            itemHeight={"min-h-[3rem]"}
+            renderItem={(item) => (
+              <>
+                <Link to={`/publisher/${item._id.toString()}`} className="link flex-1">
+                  {item.name}
+                </Link>
+                <div className="flex flex-1 flex-wrap justify-center gap-2">
+                  {item.annonceur && <span className="rounded bg-red-light px-1 text-[10px]">Annonceur</span>}
+                  {item.api && <span className="rounded bg-green-light px-1 text-[10px]">Diffuseur API</span>}
+                  {item.widget && <span className="rounded bg-green-light px-1 text-[10px]">Diffuseur Widget</span>}
+                  {item.campaign && <span className="rounded bg-green-light px-1 text-[10px]">Diffuseur Campagne</span>}
+                </div>
+                <span className="w-32 text-center text-xs">{item.publishers.length}</span>
+                <span className="w-32 text-center text-xs">{publishers.filter((e) => e.publishers.find((j) => j.publisher === item._id.toString())).length}</span>
+                <span className="w-32 text-center text-xs">{users.filter((e) => e.publishers.find((j) => j === item._id.toString())).length}</span>
+                <div className="w-32 text-center text-xs">
+                  {item.sendReport ? (
+                    <span className="rounded bg-blue-light px-1">{`Oui (${item.sendReportTo.length} receveur${item.sendReportTo.length > 1 ? "s" : ""})`}</span>
+                  ) : (
+                    <span className="rounded bg-red-light px-1">Non</span>
+                  )}
+                </div>
+              </>
+            )}
+          />
+        )}
       </div>
     </div>
   );

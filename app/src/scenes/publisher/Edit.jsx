@@ -20,16 +20,14 @@ const Edit = () => {
   const [publisher, setPublisher] = useState(null);
   const [values, setValues] = useState({
     publishers: [],
-    excludedOrganizations: [],
-    send_report_to: [],
-    automated_report: false,
+    sendReportTo: [],
+    sendReport: false,
     description: "",
     lead: "",
     url: "",
     email: "",
     documentation: "",
     name: "",
-
     annonceur: false,
     missionType: null,
     diffuseur: false,

@@ -20,10 +20,7 @@ const publisherSchema = new Schema<Diffuseur>(
 const schema = new Schema<Publisher>(
   {
     name: { type: String, required: true, trim: true },
-    status: { type: String, enum: ["active", "inactive"] },
     category: { type: String, default: null },
-    automated_report: { type: Boolean, default: false },
-    send_report_to: { type: [String] },
 
     url: { type: String },
 
@@ -33,14 +30,12 @@ const schema = new Schema<Publisher>(
 
     documentation: { type: String },
     logo: { type: String },
+    lead: { type: String },
     feed: { type: String },
     apikey: { type: String },
-    lastSyncAt: { type: Date },
 
     publishers: { type: [publisherSchema] },
     description: { type: String, default: "" },
-    lead: { type: String, default: "" },
-    deletedAt: { type: Date, default: null },
 
     missionType: { type: String, default: null, enum: ["benevolat", "volontariat", null] },
     annonceur: { type: Boolean, default: false },
@@ -48,21 +43,32 @@ const schema = new Schema<Publisher>(
     widget: { type: Boolean, default: false },
     campaign: { type: Boolean, default: false },
 
-    // Depreciated
-    mission_type: { type: String, default: null, enum: ["benevolat", "volontariat", null] },
-    role_promoteur: { type: Boolean, default: false },
-    role_annonceur_api: { type: Boolean, default: false },
-    role_annonceur_widget: { type: Boolean, default: false },
-    role_annonceur_campagne: { type: Boolean, default: false },
+    sendReport: { type: Boolean, default: false },
+    sendReportTo: { type: [String] },
 
-    excludeOrganisations: { type: [String] },
-    // excludedOrganisations: { type: [excludedOrganizationSchema] },
-    lastFetchAt: { type: Date },
-    acceptedCount: { type: Number, default: 0 },
-    refusedCount: { type: Number, default: 0 },
-    updated_at: { type: Date, default: Date.now },
-    created_at: { type: Date, default: Date.now },
-    deleted_at: { type: Date, default: null },
+    deletedAt: { type: Date, default: null },
+
+    // lead: { type: String, default: "" },
+    // Depreciated
+    // status: { type: String, enum: ["active", "inactive"] },
+    // lastSyncAt: { type: Date },
+    // automated_report: { type: Boolean, default: false },
+    // send_report_to: { type: [String] },
+
+    // mission_type: { type: String, default: null, enum: ["benevolat", "volontariat", null] },
+    // role_promoteur: { type: Boolean, default: false },
+    // role_annonceur_api: { type: Boolean, default: false },
+    // role_annonceur_widget: { type: Boolean, default: false },
+    // role_annonceur_campagne: { type: Boolean, default: false },
+
+    // excludeOrganisations: { type: [String] },
+    // // excludedOrganisations: { type: [excludedOrganizationSchema] },
+    // lastFetchAt: { type: Date },
+    // acceptedCount: { type: Number, default: 0 },
+    // refusedCount: { type: Number, default: 0 },
+    // updated_at: { type: Date, default: Date.now },
+    // created_at: { type: Date, default: Date.now },
+    // deleted_at: { type: Date, default: null },
   },
   { timestamps: true }
 );

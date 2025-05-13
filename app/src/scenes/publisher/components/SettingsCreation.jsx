@@ -25,9 +25,9 @@ const Annonceur = ({ values, onChange }) => {
     <div className="border border-gray-border p-6 space-y-6">
       <div className="flex items-center justify-between">
         <h3 className="text-lg font-bold">Annonceur</h3>
-        <Toggle value={values.role_promoteur} onChange={(e) => onChange({ ...values, role_promoteur: e })} />
+        <Toggle value={values.annonceur} onChange={(e) => onChange({ ...values, annonceur: e })} />
       </div>
-      {values.role_promoteur && (
+      {values.annonceur && (
         <>
           <div className="w-full h-px bg-gray-border" />
           <div className="space-y-4">
@@ -37,8 +37,8 @@ const Annonceur = ({ values, onChange }) => {
               value="benevolat"
               label="Bénévolat"
               size={24}
-              checked={values.mission_type === "benevolat"}
-              onChange={() => onChange({ ...values, mission_type: "benevolat" })}
+              checked={values.missionType === "benevolat"}
+              onChange={() => onChange({ ...values, missionType: "benevolat" })}
             />
 
             <RadioInput
@@ -47,8 +47,8 @@ const Annonceur = ({ values, onChange }) => {
               value="volontariat"
               label="Volontariat"
               size={24}
-              checked={values.mission_type === "volontariat"}
-              onChange={() => onChange({ ...values, mission_type: "volontariat" })}
+              checked={values.missionType === "volontariat"}
+              onChange={() => onChange({ ...values, missionType: "volontariat" })}
             />
           </div>
         </>
@@ -58,10 +58,7 @@ const Annonceur = ({ values, onChange }) => {
 };
 
 const Diffuseurs = ({ values, onChange }) => {
-  const [open, setOpen] = useState(values.role_annonceur_api || values.role_annonceur_widget || values.role_annonceur_campagne);
-  const [editing, setEditing] = useState(false);
-  const [data, setData] = useState([]);
-  const [selected, setSelected] = useState([]);
+  const [open, setOpen] = useState(values.api || values.widget || values.campaign);
 
   return (
     <div className="border border-gray-border p-6 space-y-6">
@@ -71,7 +68,7 @@ const Diffuseurs = ({ values, onChange }) => {
           value={open}
           onChange={(e) => {
             setOpen(e);
-            if (!e) onChange({ ...values, role_annonceur_api: false, role_annonceur_widget: false, role_annonceur_campagne: false });
+            if (!e) onChange({ ...values, api: false, widget: false, campaign: false });
           }}
         />
       </div>
@@ -97,37 +94,23 @@ const Diffuseurs = ({ values, onChange }) => {
               Moyens de diffusion <span className="text-red-500">*</span>
             </label>
             <div className="flex items-center gap-2">
-              <input
-                type="checkbox"
-                className="checkbox"
-                id="role-annonceur-api"
-                name="role-annonceur-api"
-                onChange={(e) => onChange({ ...values, role_annonceur_api: e.target.checked })}
-                checked={values.role_annonceur_api}
-              />
-              <label htmlFor="role-annonceur-api">API</label>
+              <input type="checkbox" className="checkbox" id="api" name="api" onChange={(e) => onChange({ ...values, api: e.target.checked })} checked={values.api} />
+              <label htmlFor="api">API</label>
+            </div>
+            <div className="flex items-center gap-2">
+              <input type="checkbox" className="checkbox" id="widget" name="widget" onChange={(e) => onChange({ ...values, widget: e.target.checked })} checked={values.widget} />
+              <label htmlFor="widget">Widgets</label>
             </div>
             <div className="flex items-center gap-2">
               <input
                 type="checkbox"
                 className="checkbox"
-                id="role-annonceur-widget"
-                name="role-annonceur-widget"
-                onChange={(e) => onChange({ ...values, role_annonceur_widget: e.target.checked })}
-                checked={values.role_annonceur_widget}
+                id="campaign"
+                name="campaign"
+                onChange={(e) => onChange({ ...values, campaign: e.target.checked })}
+                checked={values.campaign}
               />
-              <label htmlFor="role-annonceur-widget">Widgets</label>
-            </div>
-            <div className="flex items-center gap-2">
-              <input
-                type="checkbox"
-                className="checkbox"
-                id="role-annonceur-campagne"
-                name="role-annonceur-campagne"
-                onChange={(e) => onChange({ ...values, role_annonceur_campagne: e.target.checked })}
-                checked={values.role_annonceur_campagne}
-              />
-              <label htmlFor="role-annonceur-campagne">Campagnes</label>
+              <label htmlFor="campaign">Campagnes</label>
             </div>
           </div>
         </>

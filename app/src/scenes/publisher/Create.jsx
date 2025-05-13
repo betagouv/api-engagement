@@ -9,9 +9,9 @@ import SettingsCreation from "./components/SettingsCreation";
 
 const canSubmit = (values) => {
   if (values.name === "") return false;
-  if (!(values.role_annonceur_api || values.role_annonceur_campagne || values.role_annonceur_widget) && !values.role_promoteur) return false;
-  if ((values.role_annonceur_api || values.role_annonceur_campagne || values.role_annonceur_widget) && !values.category) return false;
-  if (values.role_promoteur && !values.mission_type) return false;
+  if (!(values.api || values.campaign || values.widget) && !values.annonceur) return false;
+  if ((values.api || values.campaign || values.widget) && !values.category) return false;
+  if (values.annonceur && !values.missionType) return false;
   return true;
 };
 
@@ -23,11 +23,11 @@ const Create = () => {
     url: "",
     documentation: "",
     description: "",
-    role_annonceur_api: false,
-    role_annonceur_campagne: false,
-    role_annonceur_widget: false,
-    role_promoteur: false,
-    mission_type: null,
+    api: false,
+    campaign: false,
+    widget: false,
+    annonceur: false,
+    missionType: null,
   });
 
   const handleSubmit = async (e) => {

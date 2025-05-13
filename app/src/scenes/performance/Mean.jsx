@@ -179,7 +179,7 @@ const Mean = ({ filters, onFiltersChange }) => {
           </div>
 
           <div>
-            <a href={publisher.mission_type === "benevolat" ? "mailto:nassim.merzouk@beta.gouv.fr" : "mailto:jessica.maitte@beta.gouv.fr"} className="empty-button">
+            <a href={publisher.missionType === "benevolat" ? "mailto:nassim.merzouk@beta.gouv.fr" : "mailto:jessica.maitte@beta.gouv.fr"} className="empty-button">
               Nous contacter
             </a>
           </div>
