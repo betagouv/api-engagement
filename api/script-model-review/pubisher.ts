@@ -72,7 +72,7 @@ const main = async () => {
 
   for (const publisher of publishers) {
     await refactoFields(publisher);
-    // await cleanUnusedFields(publisher);
+    // await cleanUnusedFields(publisher); Clean the unused fields in a second step after it's merge to not lose data
   }
 };
 

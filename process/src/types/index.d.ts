@@ -349,48 +349,34 @@ export type ModerationEvent = {
 export interface Publisher {
   _id: Schema.Types.ObjectId;
   name: string;
-  status: string;
+  lead: string;
   category: string | null;
-  automated_report: boolean;
-  send_report_to: string[];
+  url: string;
+  email: string;
+  logo: string;
+  documentation: string;
+  description: string;
+
   missionType: string | null;
+  feed: string;
   annonceur: boolean;
+
   api: boolean;
   widget: boolean;
   campaign: boolean;
-  url: string;
+
   moderator: boolean;
   moderatorLink: string;
-  email: string;
-  documentation: string;
-  logo: string;
-  feed: string;
-  feed_username: string;
-  feed_password: string;
   apikey: string | null;
-  lastSyncAt: Date;
   broadcasters: string[];
   publishers: Diffuseur[];
-  excludedOrganizations: PublisherExcludedOrganization[];
-  description: string;
-  lead: string;
+
+  sendReport: boolean;
+  sendReportTo: string[];
+
   deletedAt: Date | null;
   createdAt: Date;
   updatedAt: Date;
-
-  // Deprecated
-  excludeOrganisations: string[];
-  mission_type: string | null;
-  role_promoteur: boolean;
-  role_annonceur_api: boolean;
-  role_annonceur_widget: boolean;
-  role_annonceur_campagne: boolean;
-  lastFetchAt: Date;
-  acceptedCount: number;
-  refusedCount: number;
-  created_at: Date;
-  updated_at: Date;
-  deleted_at: Date;
 }
 
 export interface Diffuseur {
@@ -399,12 +385,7 @@ export interface Diffuseur {
   publisherName: string;
   moderator: boolean;
   missionType: string | null;
-
-  // Old to migrate
-  publisher: string; // publisherId
-  mission_type?: string | null; // missionType
 }
-
 export interface OrganizationExclusion {
   _id?: Schema.Types.ObjectId;
   excludedByPublisherId: string;
@@ -419,6 +400,7 @@ export interface OrganizationExclusion {
   createdAt: Date;
   updatedAt: Date;
 }
+
 export interface StatsReport {
   publisherId: string;
   publisherName: string;
