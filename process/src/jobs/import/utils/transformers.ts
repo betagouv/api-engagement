@@ -1,12 +1,14 @@
 import {
+  MissionHistoryEventType,
   Organization,
   Address as PgAddress,
   Mission as PgMission,
-  MissionHistory as PgMissionHistory,
+  MissionHistoryEvent as PgMissionHistoryEvent,
 } from "@prisma/client";
+import { JVA_ID, SC_ID } from "../../../config";
 import { Mission as MongoMission } from "../../../types";
 
-type MissionHistoryEntry = Omit<PgMissionHistory, "id">; // Prisma renders uuid when saving
+type MissionHistoryEntry = Omit<PgMissionHistoryEvent, "id">; // Prisma renders uuid when saving
 
 export type MissionTransformResult = {
   mission: PgMission;
@@ -52,7 +54,7 @@ export const transformMongoMissionToPg = (
     places: doc.places,
     metadata: doc.metadata,
     activity: doc.activity,
-    type: doc.publisherId === "5f99dbe75eb1ad767733b206" ? "volontariat" : "benevolat",
+    type: doc.publisherId === SC_ID ? "volontariat" : "benevolat",
     snu: doc.snu,
     snu_places: doc.snuPlaces,
 
@@ -145,12 +147,69 @@ export const transformMongoMissionToPg = (
 
   // Transform history entries
   const history: MissionHistoryEntry[] =
-    doc.__history?.map((history) => ({
-      date: history.date,
-      mission_id: obj.id,
-      state: history.state,
-      metadata: history.metadata as any,
-    })) || [];
+    doc.__history?.flatMap((history) =>
+      getTypeFromMissionHistoryEvent(history).map((type) => ({
+        date: history.date,
+        mission_id: obj.id,
+        type,
+      }))
+    ) || [];
 
   return { mission: obj, addresses, history };
+};
+
+/**
+ * Analyze a mission history entry and determine which MissionHistoryEventTypes to assign
+ *
+ * @param missionHistory The mission history entry containing state and metadata
+ * @returns An array of MissionHistoryEventTypes
+ */
+export const getTypeFromMissionHistoryEvent = (
+  missionHistory: any // TODO
+): MissionHistoryEventType[] => {
+  const eventTypes: MissionHistoryEventType[] = [];
+  const { state, metadata } = missionHistory;
+
+  // For creation type, return only MissionCreated
+  if (metadata && "action" in metadata && metadata.action === "created") {
+    return [MissionHistoryEventType.Created];
+  }
+
+  if ("deletedAt" in state) {
+    eventTypes.push(MissionHistoryEventType.Deleted);
+  }
+
+  if ("startAt" in state) {
+    eventTypes.push(MissionHistoryEventType.UpdatedStartDate);
+  }
+
+  if ("endAt" in state) {
+    eventTypes.push(MissionHistoryEventType.UpdatedEndDate);
+  }
+
+  if ("description" in state || "descriptionHtml" in state) {
+    eventTypes.push(MissionHistoryEventType.UpdatedDescription);
+  }
+
+  if ("domain" in state) {
+    eventTypes.push(MissionHistoryEventType.UpdatedActivityDomain);
+  }
+
+  if ("places" in state) {
+    eventTypes.push(MissionHistoryEventType.UpdatedPlaces);
+  }
+
+  if (state.hasOwnProperty(`moderation_${JVA_ID}_status`)) {
+    eventTypes.push(MissionHistoryEventType.UpdatedJVAModerationStatus);
+  }
+
+  if ("status" in state || "statusCode" in state) {
+    eventTypes.push(MissionHistoryEventType.UpdatedApiEngModerationStatus);
+  }
+
+  if (eventTypes.length === 0) {
+    eventTypes.push(MissionHistoryEventType.UpdatedOther);
+  }
+
+  return eventTypes;
 };
