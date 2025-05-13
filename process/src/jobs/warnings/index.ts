@@ -7,7 +7,7 @@ import { checkTracking } from "./tracking";
 const handler = async () => {
   const start = new Date();
   console.log(`[Warnings] Starting at ${start.toISOString()}`);
-  const publishers = await PublisherModel.find({ annonceur: true });
+  const publishers = await PublisherModel.find({ isAnnonceur: true });
 
   console.log("Checking imports");
   await checkImports(publishers);

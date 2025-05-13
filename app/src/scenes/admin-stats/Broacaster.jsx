@@ -192,7 +192,7 @@ const Broacaster = () => {
                       </div>
                       <>
                         <div className="flex gap-2 flex-wrap">
-                          {item.annonceur && (
+                          {item.isAnnonceur && (
                             <span className="text-gray-700 rounded-xl bg-[#fee2b5] px-2 py-1" style={{ fontSize: "12px" }}>
                               Annonceur
                             </span>

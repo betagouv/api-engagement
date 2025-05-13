@@ -400,7 +400,7 @@ router.get("/publishers-views", passport.authenticate("user", { session: false }
     const data = publishers.map((p) => ({
       _id: p._id,
       name: p.name,
-      annonceur: p.annonceur,
+      isAnnonceur: p.isAnnonceur,
       api: p.api,
       campaign: p.campaign,
       widget: p.widget,
@@ -413,7 +413,7 @@ router.get("/publishers-views", passport.authenticate("user", { session: false }
     const total = {
       publishers: publishers.length,
       announcers: publishers.filter((e) => {
-        if (!e.annonceur) {
+        if (!e.isAnnonceur) {
           return false;
         }
         if (query.data.type === "volontariat") {

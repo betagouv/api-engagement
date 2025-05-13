@@ -32,9 +32,9 @@ const getStats = async (publisherId: string) => {
 };
 
 export const checkTracking = async (publishers: Publisher[]) => {
-  console.log(`Checking stats from ${publishers.filter((p) => p.annonceur).length} publishers`);
+  console.log(`Checking stats from ${publishers.filter((p) => p.isAnnonceur).length} publishers`);
 
-  for (const publisher of publishers.filter((p) => p.annonceur)) {
+  for (const publisher of publishers.filter((p) => p.isAnnonceur)) {
     const stats = await getStats(publisher._id.toString());
     if (!stats) {
       continue;

@@ -96,7 +96,7 @@ router.get("/:organizationClientId", passport.authenticate(["apikey", "api"], { 
         widget: e.widget,
         api: e.api,
         campaign: e.campaign,
-        annonceur: e.annonceur,
+        annonceur: e.isAnnonceur,
         excluded: isExcluded,
         clicks,
       });
@@ -193,7 +193,7 @@ router.put("/:organizationClientId", passport.authenticate(["apikey", "api"], { 
         widget: e.widget,
         api: e.api,
         campaign: e.campaign,
-        annonceur: e.annonceur,
+        annonceur: e.isAnnonceur,
         excluded: isExcluded,
       });
     });

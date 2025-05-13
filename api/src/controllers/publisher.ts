@@ -40,7 +40,7 @@ router.post("/search", passport.authenticate(["user", "admin"], { session: false
     const where = { deletedAt: null } as { [key: string]: any };
 
     if (body.data.role === "annonceur") {
-      where.annonceur = true;
+      where.isAnnonceur = true;
     }
     if (body.data.role === "diffuseur") {
       where.$or = [{ api: true }, { widget: true }, { campaign: true }];
@@ -246,7 +246,7 @@ router.put("/:id", passport.authenticate("admin", { session: false }), async (re
       .object({
         sendReport: zod.boolean().optional(),
         sendReportTo: zod.array(zod.string()).optional(),
-        annonceur: zod.boolean().default(false),
+        isAnnonceur: zod.boolean().default(false),
         missionType: zod.string().nullable().default(null),
         api: zod.boolean().default(false),
         widget: zod.boolean().default(false),
@@ -280,7 +280,7 @@ router.put("/:id", passport.authenticate("admin", { session: false }), async (re
     if (!body.success) {
       return res.status(400).send({ ok: false, code: INVALID_BODY, error: body.error });
     }
-    if (body.data.annonceur && !body.data.missionType) {
+    if (body.data.isAnnonceur && !body.data.missionType) {
       return res.status(400).send({ ok: false, code: INVALID_BODY, message: "Mission type is required" });
     }
     if (body.data.diffuseur && !body.data.category) {
@@ -306,7 +306,7 @@ router.put("/:id", passport.authenticate("admin", { session: false }), async (re
       publisher.sendReportTo = body.data.sendReportTo;
     }
 
-    publisher.annonceur = body.data.annonceur || false;
+    publisher.isAnnonceur = body.data.isAnnonceur || false;
     publisher.missionType = body.data.missionType || null;
     publisher.api = body.data.api || false;
     publisher.widget = body.data.widget || false;

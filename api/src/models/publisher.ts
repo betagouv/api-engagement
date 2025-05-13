@@ -29,13 +29,17 @@ const schema = new Schema<Publisher>(
     logo: { type: String },
     lead: { type: String },
     feed: { type: String },
+    feedUsername: { type: String },
+    feedPassword: { type: String },
     apikey: { type: String },
 
     publishers: { type: [publisherSchema] },
     description: { type: String, default: "" },
 
     missionType: { type: String, default: null, enum: ["benevolat", "volontariat", null] },
-    annonceur: { type: Boolean, default: false },
+
+    isAnnonceur: { type: Boolean, default: false },
+    // annonceur: { type: Boolean, default: false },
     api: { type: Boolean, default: false },
     widget: { type: Boolean, default: false },
     campaign: { type: Boolean, default: false },

@@ -240,7 +240,7 @@ export const getData = async (year: number, month: number, publisher: Publisher)
     id: publisher._id.toString(),
   } as StatsReport;
 
-  if (publisher.annonceur) {
+  if (publisher.isAnnonceur) {
     data.receive = await search(publisher._id.toString(), month, year, "to");
   }
   if (publisher.api || publisher.widget || publisher.campaign) {

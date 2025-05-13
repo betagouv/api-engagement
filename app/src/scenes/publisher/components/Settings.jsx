@@ -50,14 +50,14 @@ const Annonceur = ({ values, onChange, errors, setErrors }) => {
       <div className="flex items-center justify-between">
         <h3 className="text-lg font-bold">Annonceur</h3>
         <Toggle
-          value={values.annonceur}
+          value={values.isAnnonceur}
           onChange={(e) => {
-            onChange({ ...values, annonceur: e, missionType: null });
+            onChange({ ...values, isAnnonceur: e, missionType: null });
             setErrors({ ...errors, settings: null });
           }}
         />
       </div>
-      {values.annonceur && (
+      {values.isAnnonceur && (
         <>
           <div className="w-full h-px bg-gray-border" />
           {errors.missionType && <p className="text-red-700">{errors.missionType}</p>}

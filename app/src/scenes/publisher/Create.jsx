@@ -9,9 +9,9 @@ import SettingsCreation from "./components/SettingsCreation";
 
 const canSubmit = (values) => {
   if (values.name === "") return false;
-  if (!(values.api || values.campaign || values.widget) && !values.annonceur) return false;
+  if (!(values.api || values.campaign || values.widget) && !values.isAnnonceur) return false;
   if ((values.api || values.campaign || values.widget) && !values.category) return false;
-  if (values.annonceur && !values.missionType) return false;
+  if (values.isAnnonceur && !values.missionType) return false;
   return true;
 };
 
@@ -26,7 +26,7 @@ const Create = () => {
     api: false,
     campaign: false,
     widget: false,
-    annonceur: false,
+    isAnnonceur: false,
     missionType: null,
   });
 

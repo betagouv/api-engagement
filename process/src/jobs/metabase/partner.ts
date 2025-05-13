@@ -11,7 +11,7 @@ const buildData = (doc: Publisher) => {
     diffuseur_api: doc.api,
     diffuseur_widget: doc.widget,
     diffuseur_campaign: doc.campaign,
-    annonceur: doc.annonceur,
+    annonceur: doc.isAnnonceur,
     partners: doc.publishers.map((p) => p.publisherId),
     created_at: new Date(doc.createdAt),
     updated_at: new Date(doc.updatedAt),

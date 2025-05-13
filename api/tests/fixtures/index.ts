@@ -18,7 +18,7 @@ export const createTestPublisher = async (): Promise<Publisher> => {
     organizationClientId,
     organizationName: "Test Organization",
     api: true,
-    annonceur: true,
+    isAnnonceur: true,
     publishers: [
       {
         publisherId: new mongoose.Types.ObjectId().toString(),
@@ -96,7 +96,7 @@ export const createTestPartner = async (publisherId: string) => {
     widget: true,
     api: true,
     campaign: true,
-    annonceur: true,
+    isAnnonceur: true,
     category: "Test Category",
     url: "https://example.com",
     logo: "https://example.com/logo.png",

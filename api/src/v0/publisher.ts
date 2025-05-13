@@ -52,7 +52,7 @@ router.get("/", passport.authenticate(["apikey", "api"], { session: false }), as
         widget: e.widget,
         api: e.api,
         campaign: e.campaign,
-        annonceur: e.annonceur,
+        annonceur: e.isAnnonceur,
         excludedOrganizations: organizationExclusions.filter((o) => o.excludedForPublisherId === e._id.toString()),
       };
     });
@@ -106,7 +106,7 @@ router.get("/:id", passport.authenticate(["apikey", "api"], { session: false }),
       widget: publisher.widget,
       api: publisher.api,
       campaign: publisher.campaign,
-      annonceur: publisher.annonceur,
+      annonceur: publisher.isAnnonceur,
       excludedOrganizations: organizationExclusions,
     };
 

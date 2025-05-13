@@ -66,7 +66,7 @@ const Publishers = () => {
       val["Nom"] = publisher.name;
       val["Email"] = publisher.email;
       val["URL"] = publisher.url;
-      val["Role annonceur"] = publisher.annonceur;
+      val["Role annonceur"] = publisher.isAnnonceur;
       val["Role diffuseur API"] = publisher.api;
       val["Role diffuseur widget"] = publisher.widget;
       val["Role diffuseur campagne"] = publisher.campaign;
@@ -188,7 +188,7 @@ const Publishers = () => {
                   {item.name}
                 </Link>
                 <div className="flex flex-1 flex-wrap justify-center gap-2">
-                  {item.annonceur && <span className="rounded bg-red-light px-1 text-[10px]">Annonceur</span>}
+                  {item.isAnnonceur && <span className="rounded bg-red-light px-1 text-[10px]">Annonceur</span>}
                   {item.api && <span className="rounded bg-green-light px-1 text-[10px]">Diffuseur API</span>}
                   {item.widget && <span className="rounded bg-green-light px-1 text-[10px]">Diffuseur Widget</span>}
                   {item.campaign && <span className="rounded bg-green-light px-1 text-[10px]">Diffuseur Campagne</span>}

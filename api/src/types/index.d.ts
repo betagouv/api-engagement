@@ -361,8 +361,10 @@ export interface Publisher {
 
   missionType: string | null;
   feed: string;
-  annonceur: boolean;
-
+  feedUsername: string;
+  feedPassword: string;
+  // annonceur: boolean;
+  isAnnonceur: boolean;
   api: boolean;
   widget: boolean;
   campaign: boolean;

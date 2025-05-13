@@ -489,7 +489,7 @@ const Patners = ({ filters }) => {
     "applyFrom",
   );
   const announcePie = buildPie(
-    data.filter((d) => d.annonceur),
+    data.filter((d) => d.isAnnonceur),
     "applyTo",
   );
 
@@ -571,7 +571,7 @@ const Patners = ({ filters }) => {
               </h3>
               <p className="text-[#666] text-sm">Top des annonceurs ayant reçu le plus de candidatures</p>
             </div>
-            {!data.filter((d) => d.annonceur).length ? (
+            {!data.filter((d) => d.isAnnonceur).length ? (
               <div className="w-full h-[248px] bg-[#f6f6f6] flex flex-col justify-center items-center border border-dashed border-[#ddddd]">
                 <img src={EmptySVG} alt="empty" className="w-16 h-16" />
                 <p className="text-base text-[#666]">Aucune donnée disponible pour la période</p>
@@ -591,7 +591,7 @@ const Patners = ({ filters }) => {
                     </thead>
                     <tbody>
                       {data
-                        .filter((d) => d.annonceur)
+                        .filter((d) => d.isAnnonceur)
                         .sort((a, b) => b.applyTo - a.applyTo)
                         .slice(0, 5)
                         .map((item, i) => (

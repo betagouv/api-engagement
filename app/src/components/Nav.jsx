@@ -26,7 +26,7 @@ const Nav = () => {
     };
 
     let newFlux = localStorage.getItem("flux") || flux;
-    if (newFlux === "to" && !publisher.annonceur) newFlux = "from";
+    if (newFlux === "to" && !publisher.isAnnonceur) newFlux = "from";
     if (newFlux === "from" && !(publisher.api || publisher.widget || publisher.campaign)) newFlux = "to";
     setFlux(newFlux);
 
@@ -47,7 +47,7 @@ const Nav = () => {
     <nav className="flex w-full justify-center bg-white shadow-lg">
       <div className="flex w-full max-w-[78rem] items-center justify-between h-14 pl-4">
         <div className="flex h-full items-center gap-6">
-          {publisher.annonceur && (publisher.api || publisher.widget || publisher.campaign) && <FluxMenu value={flux} onChange={handleFluxChange} />}
+          {publisher.isAnnonceur && (publisher.api || publisher.widget || publisher.campaign) && <FluxMenu value={flux} onChange={handleFluxChange} />}
           <Link
             to="/performance"
             className={`px-6 h-full flex items-center text-sm hover:bg-gray-hover ${location.pathname.includes("performance") ? "border-b-2 border-b-blue-dark text-blue-dark" : "border-none text-black"}`}

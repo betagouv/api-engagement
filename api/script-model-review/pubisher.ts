@@ -42,13 +42,17 @@ const refactoFields = async (publisher: any) => {
   updates.updatedAt = publisher.updatedAt || publisher.updated_at;
   updates.missionType = publisher.missionType || publisher.mission_type;
 
-  updates.annonceur = publisher.annonceur || publisher.role_promoteur;
+  updates.isAnnonceur = publisher.annonceur || publisher.role_promoteur;
+
   updates.api = publisher.api || publisher.role_annonceur_api;
   updates.widget = publisher.widget || publisher.role_annonceur_widget;
   updates.campaign = publisher.campaign || publisher.role_annonceur_campagne;
 
   updates.sendReport = publisher.automated_report;
   updates.sendReportTo = publisher.send_report_to;
+
+  updates.feedUsername = publisher.feedUsername || publisher.feed_username;
+  updates.feedPassword = publisher.feedPassword || publisher.feed_password;
 
   // Update without the schema cause the timestamps would not set correctly
   if (!mongoose.connection.db) {

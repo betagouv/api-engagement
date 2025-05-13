@@ -60,7 +60,7 @@ const Announcer = () => {
 
         if (!res.ok) throw res;
         const announcers = res.data
-          .filter((item) => item.annonceur)
+          .filter((item) => item.isAnnonceur)
           .map((item) => ({
             ...item,
             rate: item.clickTo === 0 ? 0 : item.applyTo / item.clickTo,
@@ -105,7 +105,7 @@ const Announcer = () => {
       const csv =
         "Id;Nom du partenaire;Nombre de redirections;Nombre de candidatures;Taux de conversion\n" +
         res.data
-          .filter((item) => item.annonceur)
+          .filter((item) => item.isAnnonceur)
           .map((item) => `${item._id};${item.name};${item.clickTo};${item.applyTo};${item.clickTo === 0 ? "0 %" : ((item.applyTo / item.clickTo) * 100).toFixed(1) + " %"}`)
           .join("\n");
 
@@ -176,7 +176,7 @@ const Announcer = () => {
                     </div>
                     <>
                       <div className="flex gap-2 flex-wrap">
-                        {item.annonceur && (
+                        {item.isAnnonceur && (
                           <span className="text-gray-700 rounded-xl bg-[#fee2b5] px-2 py-1" style={{ fontSize: "12px" }}>
                             Annonceur
                           </span>

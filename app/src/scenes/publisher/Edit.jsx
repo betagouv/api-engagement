@@ -28,7 +28,7 @@ const Edit = () => {
     email: "",
     documentation: "",
     name: "",
-    annonceur: false,
+    isAnnonceur: false,
     missionType: null,
     diffuseur: false,
     category: null,
@@ -94,8 +94,8 @@ const Edit = () => {
   const handleSubmit = async () => {
     try {
       const errors = {};
-      if (!values.diffuseur && !values.annonceur) errors.settings = "Le partenaire doit être “Annonceur” ou “Diffuseur”. Veuillez cocher une des options dans le formulaire";
-      if (values.annonceur && !values.missionType) errors.missionType = "Le partenaire est “Annonceur”. Veuillez sélectionner la catégorie dans le formulaire.";
+      if (!values.diffuseur && !values.isAnnonceur) errors.settings = "Le partenaire doit être “Annonceur” ou “Diffuseur”. Veuillez cocher une des options dans le formulaire";
+      if (values.isAnnonceur && !values.missionType) errors.missionType = "Le partenaire est “Annonceur”. Veuillez sélectionner la catégorie dans le formulaire.";
       if (values.diffuseur && !values.category) errors.category = "Le partenaire est “Diffuseur”. Veuillez sélectionner la catégorie dans le formulaire.";
       if (values.diffuseur && !values.api && !values.widget && !values.campaign)
         errors.mode = "Le partenaire est “Diffuseur”. Veuillez sélectionner au moins un “moyen de diffusion” dans le formulaire.";

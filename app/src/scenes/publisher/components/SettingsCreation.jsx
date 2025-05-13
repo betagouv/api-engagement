@@ -25,9 +25,9 @@ const Annonceur = ({ values, onChange }) => {
     <div className="border border-gray-border p-6 space-y-6">
       <div className="flex items-center justify-between">
         <h3 className="text-lg font-bold">Annonceur</h3>
-        <Toggle value={values.annonceur} onChange={(e) => onChange({ ...values, annonceur: e })} />
+        <Toggle value={values.isAnnonceur} onChange={(e) => onChange({ ...values, isAnnonceur: e })} />
       </div>
-      {values.annonceur && (
+      {values.isAnnonceur && (
         <>
           <div className="w-full h-px bg-gray-border" />
           <div className="space-y-4">
