@@ -24,22 +24,23 @@ const cleanUnusedFields = async (widget: any) => {
 
   console.log(`Widget ${widget._id} has ${extraFields.join(", ")} as extra fields`);
 
-  const widgetMongo = await WidgetModel.findById(widget._id);
-  if (!widgetMongo) {
-    console.log(`Widget ${widget._id} not found`);
-    return;
-  }
+  const unset: any = {};
   for (const field of extraFields) {
-    widgetMongo.set(field, undefined, { strict: false });
+    unset[field] = 1;
   }
-  await widgetMongo.save();
+  await mongoose.connection.db
+    .collection("widgets")
+    .updateOne({ _id: widget._id }, { $unset: unset });
   console.log(`Widget ${widget._id} cleaned`);
 };
 
 const refactoFields = async (widget: any) => {
   const updates: any = {};
   updates.deletedAt = widget.deleted ? widget.updatedAt : null;
-  await WidgetModel.findByIdAndUpdate(widget._id, updates);
+
+  await mongoose.connection.db
+    .collection("widgets")
+    .updateOne({ _id: widget._id }, { $set: updates });
   console.log(`Widget ${widget._id} updated`);
 };
 
