@@ -17,7 +17,7 @@ on:
   workflow_run:
     workflows: ["API Tests", "Process Tests", "Lint"]
     types: [completed]
-    branches: [main, staging]
+    branches: [main, staging, feature--docker]
 
   # TODO: remove me
   push:

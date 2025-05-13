@@ -6,6 +6,10 @@ on:
     types: [completed]
     branches: [main, staging, feature--docker] # TODO: remove me
 
+  # TODO: remove me. Direct push trigger for testing
+  push:
+    branches: [feature--docker]
+
   # Manual trigger if needed
   workflow_dispatch:
     inputs:
@@ -59,7 +63,7 @@ jobs:
     name: Deploy to Clever Cloud
     needs: set-env
     runs-on: ubuntu-latest
-    environment: ${{ needs.set-env.outputs.environment_name }}
+    environment: ${{ needs.set-env.outputs.environment_name }}-${{ matrix.service }}
     strategy:
       matrix:
         service: ${{ (github.event.inputs.service == 'all' || github.event_name != 'workflow_dispatch') && fromJson('["app", "api", "process", "widget-benevolat", "widget-volontariat"]') || fromJson(format('["{}"', github.event.inputs.service)) }}
