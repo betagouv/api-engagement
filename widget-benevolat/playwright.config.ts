@@ -18,7 +18,7 @@ export default defineConfig({
   },
   expect: {
     toHaveScreenshot: {
-      threshold: 0.3,
+      threshold: 0.1,
       maxDiffPixelRatio: 0.1,
     },
   },
@@ -48,10 +48,10 @@ export default defineConfig({
   ],
   webServer: {
     command:
-      "NEXT_PUBLIC_API_URL=http://localhost:3099/api-mock API_URL=http://localhost:3099/api-mock NEXT_DEVTOOLS=false npm run dev",
+      "NEXT_PUBLIC_API_URL=http://localhost:3099/api-mock API_URL=http://localhost:3099/api-mock NEXT_DEVTOOLS='false' npm run dev",
     url: "http://localhost:3001",
     reuseExistingServer: !process.env.CI,
     timeout: 120 * 1000,
   },
-  globalSetup: "./tests/e2e/global-setup.ts",
+  globalSetup: "./tests/e2e/setup.ts",
 });

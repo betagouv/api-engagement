@@ -1,18 +1,32 @@
-// Configuration d'environnement pour les tests E2E
+import http from "http";
+import url from "url";
 import { mockAggsResponse, mockMissionsResponse, mockWidgetResponse } from "./fixtures/mockData";
 
-const http = require("http");
-const url = require("url");
+let mockServer: any;
 
-// Run mock HTTP server on specific port
-// It will be used by Next app during tests
-// Each needed route is mocked to return fake data
-// Other ones will return 404 error code
+/*
+ * Global setup for testing environment
+ *
+ * Run mock HTTP server on specific port:
+ * - It will be used by Next app during tests
+ * - Each needed route is mocked to return fake data
+ * - Other ones will return 404 error code
+ */
+async function globalSetup() {
+  mockServer = startMockServer();
+
+  return async () => {
+    if (mockServer) {
+      mockServer.close();
+    }
+  };
+}
+
 function startMockServer() {
   const server = http.createServer((req, res) => {
     res.setHeader("Content-Type", "application/json");
 
-    const parsedUrl = url.parse(req.url, true);
+    const parsedUrl = url.parse(req.url || "", true);
     const pathname = parsedUrl.pathname;
 
     if (pathname === "/api-mock/iframe/widget") {
@@ -21,13 +35,13 @@ function startMockServer() {
       return;
     }
 
-    if (pathname.match(/\/api-mock\/iframe\/[^\/]+\/search$/)) {
+    if (pathname?.match(/\/api-mock\/iframe\/[^/]+\/search$/)) {
       res.writeHead(200);
       res.end(JSON.stringify(mockMissionsResponse));
       return;
     }
 
-    if (pathname.match(/\/api-mock\/iframe\/[^\/]+\/aggs$/)) {
+    if (pathname?.match(/\/api-mock\/iframe\/[^/]+\/aggs$/)) {
       res.writeHead(200);
       res.end(JSON.stringify(mockAggsResponse));
       return;
@@ -46,4 +60,4 @@ function startMockServer() {
   return server;
 }
 
-export { startMockServer };
+export default globalSetup;

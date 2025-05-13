@@ -3,6 +3,8 @@ const { withPlausibleProxy } = require("next-plausible");
 
 const nextConfig = {
   reactStrictMode: false,
+  // Only disable dev indicators when running tests
+  devIndicators: process.env.NEXT_DEVTOOLS === "false" ? false : undefined,
   images: {
     remotePatterns: [
       {

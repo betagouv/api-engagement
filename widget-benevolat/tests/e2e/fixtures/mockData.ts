@@ -322,8 +322,4 @@ const mockAggsResponse = {
   },
 };
 
-module.exports = {
-  mockAggsResponse,
-  mockMissionsResponse,
-  mockWidgetResponse,
-};
+export { mockAggsResponse, mockMissionsResponse, mockWidgetResponse };
