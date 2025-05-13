@@ -6,6 +6,7 @@ import importCampaigns from "./campaign";
 import importClicks from "./click";
 import importImports from "./import";
 import importKpi from "./kpi";
+import importKpiBotless from "./kpi-botless";
 import importLoginHistory from "./login-history";
 import importMissions from "./mission";
 import importModerationEvents from "./moderation-event";
@@ -36,6 +37,7 @@ const handler = async () => {
     requests: { created: 0, updated: null },
     login_history: { created: 0, updated: null },
     kpi: { created: 0, updated: null },
+    kpiBotless: { created: 0, updated: null },
   };
 
   const partners = await importPartners();
@@ -81,6 +83,8 @@ const handler = async () => {
   stats.login_history.created += login_history?.created || 0;
   const kpi = await importKpi();
   stats.kpi.created += kpi?.created || 0;
+  const kpiBotless = await importKpiBotless();
+  stats.kpiBotless.created += kpiBotless?.created || 0;
 
   // Send message to slack
   const text = `${Object.entries(stats)
