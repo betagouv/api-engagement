@@ -25,19 +25,10 @@ export interface GeolocResult {
     type: "Point";
     coordinates: [number, number];
   } | null;
-  geolocStatus:
-    | "NOT_FOUND"
-    | "FAILED"
-    | "ENRICHED_BY_PUBLISHER"
-    | "ENRICHED_BY_API"
-    | "NO_DATA"
-    | "SHOULD_ENRICH";
+  geolocStatus: "NOT_FOUND" | "FAILED" | "ENRICHED_BY_PUBLISHER" | "ENRICHED_BY_API" | "NO_DATA" | "SHOULD_ENRICH";
 }
 
-export const enrichWithGeoloc = async (
-  publisher: Publisher,
-  missions: Mission[]
-): Promise<GeolocResult[]> => {
+export const enrichWithGeoloc = async (publisher: Publisher, missions: Mission[]): Promise<GeolocResult[]> => {
   if (!missions.length) {
     return [];
   }
@@ -48,10 +39,7 @@ export const enrichWithGeoloc = async (
 
     missions.forEach((mission) => {
       (mission.addresses || []).forEach((addressItem, addressIndex) => {
-        if (
-          addressItem.geolocStatus === "ENRICHED_BY_PUBLISHER" ||
-          addressItem.geolocStatus === "ENRICHED_BY_API"
-        ) {
+        if (addressItem.geolocStatus === "ENRICHED_BY_PUBLISHER" || addressItem.geolocStatus === "ENRICHED_BY_API") {
           return;
         }
         const clientId = mission.clientId;
@@ -121,9 +109,7 @@ export const enrichWithGeoloc = async (
             };
           }
           if (line[headerIndex.result_context]) {
-            const context = line[headerIndex.result_context]
-              .split(",")
-              .map((val) => val.replace(/^"|"$/g, "").trim());
+            const context = line[headerIndex.result_context].split(",").map((val) => val.replace(/^"|"$/g, "").trim());
             obj.departmentCode = context[0];
 
             if (DEPARTMENTS[obj.departmentCode]) {

@@ -40,8 +40,7 @@ const schema = new Schema<Widget>(
     jvaModeration: {
       type: Boolean,
       default: false,
-      description:
-        "Boolean that says if the mission of the widget should be the ones moderated by JVA",
+      description: "Boolean that says if the mission of the widget should be the ones moderated by JVA",
     },
 
     url: { type: String },

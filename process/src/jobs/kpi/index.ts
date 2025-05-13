@@ -7,11 +7,7 @@ const handler = async (date?: Date) => {
 
   // build kpi for the last 10 days if not already exists
   for (let i = 0; i < 10; i++) {
-    const fromDate = new Date(
-      yesterday.getFullYear(),
-      yesterday.getMonth(),
-      yesterday.getDate() - i
-    );
+    const fromDate = new Date(yesterday.getFullYear(), yesterday.getMonth(), yesterday.getDate() - i);
 
     await buildKpiBotless(fromDate);
     await buildKpi(fromDate);

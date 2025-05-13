@@ -16,13 +16,7 @@ interface Address {
   country: string;
   location: { lon: number; lat: number };
   geoPoint: { type: "Point"; coordinates: [number, number] } | null;
-  geolocStatus:
-    | "NOT_FOUND"
-    | "FAILED"
-    | "ENRICHED_BY_PUBLISHER"
-    | "ENRICHED_BY_API"
-    | "NO_DATA"
-    | "SHOULD_ENRICH";
+  geolocStatus: "NOT_FOUND" | "FAILED" | "ENRICHED_BY_PUBLISHER" | "ENRICHED_BY_API" | "NO_DATA" | "SHOULD_ENRICH";
 }
 
 // Transform ID to fake Mongo ObjectId

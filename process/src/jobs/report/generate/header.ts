@@ -3,20 +3,7 @@ import sharp from "sharp";
 import { Publisher } from "../../../types";
 import { PAGE_WIDTH, drawLink, drawText } from "./utils";
 
-const MONTHS = [
-  "janvier",
-  "février",
-  "mars",
-  "avril",
-  "mai",
-  "juin",
-  "juillet",
-  "août",
-  "septembre",
-  "octobre",
-  "novembre",
-  "décembre",
-];
+const MONTHS = ["janvier", "février", "mars", "avril", "mai", "juin", "juillet", "août", "septembre", "octobre", "novembre", "décembre"];
 const HEADER_HEIGHT = 192;
 
 const drawAPIEngagementLogo = (doc: jsPDF, x: number, y: number, size: number = 48) => {
@@ -35,14 +22,7 @@ const drawAPIEngagementLogo = (doc: jsPDF, x: number, y: number, size: number = 
   doc.circle(x + 44 * scale, y + 20 * scale, 14 * scale, "S");
 };
 
-export const generateHeader = async (
-  doc: jsPDF,
-  publisher: Publisher,
-  month: number,
-  year: number,
-  page: number,
-  totalPages: number
-) => {
+export const generateHeader = async (doc: jsPDF, publisher: Publisher, month: number, year: number, page: number, totalPages: number) => {
   // Header background
   doc.setFillColor("#F5F5FE");
   doc.rect(0, 0, PAGE_WIDTH, HEADER_HEIGHT, "F"); // Draw background for entire page

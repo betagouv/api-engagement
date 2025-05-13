@@ -74,14 +74,7 @@ const drawStatBox = ({ doc, x, y, width, icon, title, value, compareValue }: Sta
     maximumFractionDigits: 2,
   });
   const raiseText = `${raise < 0 ? "-" : "+"} ${raisePct}`;
-  const { width: raiseWidth } = drawBoxText(
-    doc,
-    raiseText,
-    currentX,
-    currentY,
-    raise < 0 ? "#FFE9E9" : "#B8FEC9",
-    { fontSize: 12, color: raise < 0 ? "#CE0500" : "#18753C" }
-  );
+  const { width: raiseWidth } = drawBoxText(doc, raiseText, currentX, currentY, raise < 0 ? "#FFE9E9" : "#B8FEC9", { fontSize: 12, color: raise < 0 ? "#CE0500" : "#18753C" });
   drawText(doc, "par rapport au mois dernier", currentX + raiseWidth + 2, currentY, {
     fontSize: 12,
     color: "#666666",
@@ -112,25 +105,16 @@ const drawTopBox = ({ doc, x, y, width, title, value }: TopBoxProps) => {
   currentY = drawText(doc, title, currentX, currentY, { fontWeight: "bold", fontSize: 16 });
 
   // Top publishers
-  const topPublishers = value
-    .slice(0, 3)
-    .map((top: { key: string; doc_count: number }, index: number) => {
-      return `${index + 1}. ${top.key} - ${formatNumber(top.doc_count)} redirections`;
-    });
+  const topPublishers = value.slice(0, 3).map((top: { key: string; doc_count: number }, index: number) => {
+    return `${index + 1}. ${top.key} - ${formatNumber(top.doc_count)} redirections`;
+  });
 
   for (const top of topPublishers) {
     currentY = drawText(doc, top, currentX, currentY, { fontSize: 12, color: "#666666" });
   }
 };
 
-const generateOverviewSection = (
-  doc: jsPDF,
-  data: StatsReport,
-  x: number,
-  width: number,
-  isAnnounce: boolean,
-  useSingleColumn: boolean = false
-) => {
+const generateOverviewSection = (doc: jsPDF, data: StatsReport, x: number, width: number, isAnnounce: boolean, useSingleColumn: boolean = false) => {
   // White container with padding
   doc.setFillColor(255, 255, 255);
   doc.rect(x, 224, width, useSingleColumn ? 838 : 520, "F");
@@ -139,9 +123,7 @@ const generateOverviewSection = (
   const currentX = x + CONTAINER_PADDING;
 
   // Title and description
-  const title = isAnnounce
-    ? "En tant qu'annonceur, vous avez reçu"
-    : "En tant que diffuseur, vous avez envoyé";
+  const title = isAnnounce ? "En tant qu'annonceur, vous avez reçu" : "En tant que diffuseur, vous avez envoyé";
   currentY = drawText(doc, title, currentX, currentY, { fontWeight: "bold", fontSize: 20 });
 
   // Description text

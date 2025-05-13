@@ -38,10 +38,7 @@ export const logModeration = async (previous: any, update: any, user: any, moder
     obj.initialTitle = data.initialTitle || previous.title;
     obj.newTitle = data.newTitle;
   }
-  if (
-    data.newComment &&
-    (data.initialComment !== data.newComment || data.initialComment === null)
-  ) {
+  if (data.newComment && (data.initialComment !== data.newComment || data.initialComment === null)) {
     obj.initialComment = data.initialComment || null;
     obj.newComment = data.newComment;
   }

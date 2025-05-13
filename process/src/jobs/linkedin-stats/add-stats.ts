@@ -84,9 +84,7 @@ const parseRow = async (row: (string | number)[], from: Date, to: Date, sourceId
   }
 
   const stateStartDate = getDate(row[ROWS.indexOf("State Start Date")].toString());
-  const stateEndDate = row[ROWS.indexOf("State End Date")]
-    ? getDate(row[ROWS.indexOf("State End Date")].toString(), true)
-    : null;
+  const stateEndDate = row[ROWS.indexOf("State End Date")] ? getDate(row[ROWS.indexOf("State End Date")].toString(), true) : null;
 
   const views = parseInt(row[ROWS.indexOf("Total Views")].toString()) || 0;
   try {
@@ -133,14 +131,8 @@ const parseRow = async (row: (string | number)[], from: Date, to: Date, sourceId
       }
     }
 
-    const endInterval =
-      !stateEndDate || stateEndDate > to || stateEndDate < from ? to : stateEndDate;
-    const startInterval =
-      stateStartDate < from || (stateEndDate && stateEndDate < from)
-        ? from
-        : stateStartDate > endInterval
-          ? endInterval
-          : stateStartDate;
+    const endInterval = !stateEndDate || stateEndDate > to || stateEndDate < from ? to : stateEndDate;
+    const startInterval = stateStartDate < from || (stateEndDate && stateEndDate < from) ? from : stateStartDate > endInterval ? endInterval : stateStartDate;
 
     const intervalPrints = (endInterval.getTime() - startInterval.getTime()) / (views - 1 || 1);
 
@@ -174,12 +166,7 @@ const parseRow = async (row: (string | number)[], from: Date, to: Date, sourceId
   }
 };
 
-export const processData = async (
-  data: (string | number)[][],
-  from: Date,
-  to: Date,
-  sourceId: string
-) => {
+export const processData = async (data: (string | number)[][], from: Date, to: Date, sourceId: string) => {
   const bulk = [] as (BulkOperationContainer | Stats)[];
   const result = {
     created: 0,

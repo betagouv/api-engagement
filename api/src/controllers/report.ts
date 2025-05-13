@@ -38,10 +38,7 @@ router.get("/pdf/:publisherId", async (req: Request, res: Response, next: NextFu
       return res.status(404).send({ ok: false, code: NOT_FOUND, message: "Report not found" });
     }
     if (!report.url) {
-      captureException(
-        new Error(`Report ${report._id} has no url`),
-        `Report ${report._id} has no url`
-      );
+      captureException(new Error(`Report ${report._id} has no url`), `Report ${report._id} has no url`);
       return res.status(404).send({ ok: false, code: NOT_FOUND, message: "Report not found" });
     }
     res.redirect(report.url);
@@ -67,10 +64,7 @@ router.get("/:id", async (req: Request, res: Response, next: NextFunction) => {
       return res.status(404).send({ ok: false, code: NOT_FOUND, message: "Report not found" });
     }
     if (!report.url) {
-      captureException(
-        new Error(`Report ${report._id} has no url`),
-        `Report ${report._id} has no url`
-      );
+      captureException(new Error(`Report ${report._id} has no url`), `Report ${report._id} has no url`);
       return res.status(404).send({ ok: false, code: NOT_FOUND, message: "Report not found" });
     }
 

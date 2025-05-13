@@ -49,16 +49,11 @@ export const verifyOrganization = async (missions: Mission[]) => {
       }
     });
 
-    console.log(
-      `[Organization Verification] Have ${organizationsRNAs.length} RNAs, ${organizationsSirets.length} SIRETS and ${organizationsNames.length} names to verify`
-    );
+    console.log(`[Organization Verification] Have ${organizationsRNAs.length} RNAs, ${organizationsSirets.length} SIRETS and ${organizationsNames.length} names to verify`);
 
     const resRna = organizationsRNAs.length !== 0 ? await findByRNA(organizationsRNAs) : {};
     const resSiret = organizationsSirets.length !== 0 ? await findBySiret(organizationsSirets) : {};
-    const resNames =
-      organizationsNames.length !== 0
-        ? await findByName(organizationsNames)
-        : { exact: {}, approximate: {} };
+    const resNames = organizationsNames.length !== 0 ? await findByName(organizationsNames) : { exact: {}, approximate: {} };
 
     console.log(`[Organization Verification] Results:`);
     console.log(`- RNA matches: ${Object.keys(resRna).length}`);
@@ -78,20 +73,16 @@ export const verifyOrganization = async (missions: Mission[]) => {
           obj.organizationRNAVerified = data.rna;
           obj.organizationSirenVerified = data.siren;
           obj.organizationSiretVerified = data.siret;
-          obj.organizationAddressVerified =
-            `${data.addressNumber || ""} ${data.addressRepetition || ""} ${data.addressType || ""} ${data.addressStreet || ""}`
-              .replaceAll(/\s+/g, " ")
-              .trim();
+          obj.organizationAddressVerified = `${data.addressNumber || ""} ${data.addressRepetition || ""} ${data.addressType || ""} ${data.addressStreet || ""}`
+            .replaceAll(/\s+/g, " ")
+            .trim();
           obj.organizationCityVerified = data.addressCity;
           obj.organizationPostalCodeVerified = data.addressPostalCode;
           obj.organizationDepartmentCodeVerified = data.addressDepartmentCode;
           obj.organizationDepartmentNameVerified = data.addressDepartmentName;
           obj.organizationRegionVerified = data.addressRegion;
           obj.organisationIsRUP = data.isRUP;
-          obj.organizationVerificationStatus =
-            data.source === "DATA_SUBVENTION"
-              ? "RNA_MATCHED_WITH_DATA_SUBVENTION"
-              : "RNA_MATCHED_WITH_DATA_DB";
+          obj.organizationVerificationStatus = data.source === "DATA_SUBVENTION" ? "RNA_MATCHED_WITH_DATA_SUBVENTION" : "RNA_MATCHED_WITH_DATA_DB";
         } else {
           obj.organizationVerificationStatus = "RNA_NOT_MATCHED";
         }
@@ -103,20 +94,16 @@ export const verifyOrganization = async (missions: Mission[]) => {
           obj.organizationRNAVerified = data.rna;
           obj.organizationSirenVerified = data.siren;
           obj.organizationSiretVerified = data.siret;
-          obj.organizationAddressVerified =
-            `${data.addressNumber || ""} ${data.addressRepetition || ""} ${data.addressType || ""} ${data.addressStreet || ""}`
-              .replaceAll(/\s+/g, " ")
-              .trim();
+          obj.organizationAddressVerified = `${data.addressNumber || ""} ${data.addressRepetition || ""} ${data.addressType || ""} ${data.addressStreet || ""}`
+            .replaceAll(/\s+/g, " ")
+            .trim();
           obj.organizationCityVerified = data.addressCity;
           obj.organizationPostalCodeVerified = data.addressPostalCode;
           obj.organizationDepartmentCodeVerified = data.addressDepartmentCode;
           obj.organizationDepartmentNameVerified = data.addressDepartmentName;
           obj.organizationRegionVerified = data.addressRegion;
           obj.organisationIsRUP = data.isRUP;
-          obj.organizationVerificationStatus =
-            data.source === "DATA_SUBVENTION"
-              ? "SIRET_MATCHED_WITH_DATA_SUBVENTION"
-              : "SIRET_MATCHED_WITH_DATA_DB";
+          obj.organizationVerificationStatus = data.source === "DATA_SUBVENTION" ? "SIRET_MATCHED_WITH_DATA_SUBVENTION" : "SIRET_MATCHED_WITH_DATA_DB";
         } else {
           obj.organizationVerificationStatus = "SIRET_NOT_MATCHED";
         }
@@ -128,10 +115,9 @@ export const verifyOrganization = async (missions: Mission[]) => {
           obj.organizationRNAVerified = data.rna;
           obj.organizationSirenVerified = data.siren;
           obj.organizationSiretVerified = data.siret;
-          obj.organizationAddressVerified =
-            `${data.addressNumber || ""} ${data.addressRepetition || ""} ${data.addressType || ""} ${data.addressStreet || ""}`
-              .replaceAll(/\s+/g, " ")
-              .trim();
+          obj.organizationAddressVerified = `${data.addressNumber || ""} ${data.addressRepetition || ""} ${data.addressType || ""} ${data.addressStreet || ""}`
+            .replaceAll(/\s+/g, " ")
+            .trim();
           obj.organizationCityVerified = data.addressCity;
           obj.organizationPostalCodeVerified = data.addressPostalCode;
           obj.organizationDepartmentCodeVerified = data.addressDepartmentCode;
@@ -192,12 +178,8 @@ const findByRNA = async (rnas: string[]) => {
       const data = await apiDatasubvention.get(`/association/${rna}`);
 
       if (data.association) {
-        const departement = data.association.adresse_siege_rna
-          ? getDepartement(data.association.adresse_siege_rna[0]?.value?.code_postal)
-          : null;
-        const siret = Array.isArray(data.association.etablisements_siret)
-          ? data.association.etablisements_siret[0]?.value[0]
-          : data.association.etablisements_siret?.value;
+        const departement = data.association.adresse_siege_rna ? getDepartement(data.association.adresse_siege_rna[0]?.value?.code_postal) : null;
+        const siret = Array.isArray(data.association.etablisements_siret) ? data.association.etablisements_siret[0]?.value[0] : data.association.etablisements_siret?.value;
         const siren = data.association.siren?.[0]?.value || siret?.slice(0, 9);
         const obj = {
           rna,
@@ -214,12 +196,8 @@ const findByRNA = async (rnas: string[]) => {
           addressDepartmentName: departement?.name,
           addressRegion: departement?.region,
           isRUP: data.association.rup?.[0]?.value,
-          createdAt: data.association.date_creation_rna?.[0]
-            ? new Date(data.association.date_creation_rna[0].value)
-            : undefined,
-          updatedAt: data.association.date_modification_rna?.[0]
-            ? new Date(data.association.date_modification_rna[0].value)
-            : undefined,
+          createdAt: data.association.date_creation_rna?.[0] ? new Date(data.association.date_creation_rna[0].value) : undefined,
+          updatedAt: data.association.date_modification_rna?.[0] ? new Date(data.association.date_modification_rna[0].value) : undefined,
           object: data.association.objet_social?.[0]?.value,
           source: "DATA_SUBVENTION",
         } as Organization;
@@ -321,9 +299,7 @@ const findBySiret = async (sirets: string[]) => {
       const data = await apiDatasubvention.get(`/etablissement/${siret}`);
 
       if (data.etablissement) {
-        const departement = data.etablissement.adresse[0]?.value?.code_postal
-          ? getDepartement(data.etablissement.adresse[0]?.value?.code_postal)
-          : null;
+        const departement = data.etablissement.adresse[0]?.value?.code_postal ? getDepartement(data.etablissement.adresse[0]?.value?.code_postal) : null;
 
         const obj = {
           siret,
@@ -343,9 +319,7 @@ const findBySiret = async (sirets: string[]) => {
         const asso = await apiDatasubvention.get(`/association/${siret}`);
         if (asso.association) {
           obj.rna = asso.association.rna?.[0]?.value;
-          obj.title =
-            asso.association.denomination_rna?.[0]?.value ||
-            asso.association.denomination_siren?.[0]?.value;
+          obj.title = asso.association.denomination_rna?.[0]?.value || asso.association.denomination_siren?.[0]?.value;
         }
 
         const existsRNA = obj.rna ? await OrganizationModel.findOne({ rna: obj.rna }) : null;

@@ -95,16 +95,12 @@ const handler = async () => {
   const start = new Date();
   console.log(`[Organization] Starting at ${start.toISOString()}`);
 
-  const resources = await apiDataGouv.get<DataGouvResource[]>(
-    `/datasets/${RNA_DATASETS_ID}/resources?type=main`
-  );
+  const resources = await apiDataGouv.get<DataGouvResource[]>(`/datasets/${RNA_DATASETS_ID}/resources?type=main`);
   if (!resources) {
     return captureException("RNA resources not found");
   }
 
-  const resource = resources
-    .filter((r) => r.title.includes("rna_waldec"))
-    .sort((a, b) => new Date(b.last_modified).getTime() - new Date(a.last_modified).getTime())[0];
+  const resource = resources.filter((r) => r.title.includes("rna_waldec")).sort((a, b) => new Date(b.last_modified).getTime() - new Date(a.last_modified).getTime())[0];
   if (!resource) {
     return captureException("RNA resource not found");
   }
@@ -138,10 +134,7 @@ const handler = async () => {
   if (!response.ok) {
     captureException("RNA download failed", JSON.stringify(response, null, 2));
   }
-  await streamPipeline(
-    response.body as ReadableStream<any>,
-    fs.createWriteStream(`${folder}/${resource.id}.zip`)
-  );
+  await streamPipeline(response.body as ReadableStream<any>, fs.createWriteStream(`${folder}/${resource.id}.zip`));
 
   let count = 0;
   try {
@@ -167,9 +160,7 @@ const handler = async () => {
     endedAt: new Date(),
     status: "SUCCESS",
   });
-  console.log(
-    `[Organization] Ended at ${new Date().toISOString()} in ${(Date.now() - start.getTime()) / 1000}s`
-  );
+  console.log(`[Organization] Ended at ${new Date().toISOString()} in ${(Date.now() - start.getTime()) / 1000}s`);
 };
 
 export default { handler };

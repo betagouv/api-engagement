@@ -31,9 +31,7 @@ const cleanUnusedFields = async (publisher: any) => {
   if (!mongoose.connection.db) {
     throw new Error("Database not connected");
   }
-  await mongoose.connection.db
-    .collection("publishers")
-    .updateOne({ _id: publisher._id }, { $unset: unset });
+  await mongoose.connection.db.collection("publishers").updateOne({ _id: publisher._id }, { $unset: unset });
   console.log(`Publisher ${publisher._id} cleaned`);
 };
 
@@ -56,9 +54,7 @@ const refactoFields = async (publisher: any) => {
   if (!mongoose.connection.db) {
     throw new Error("Database not connected");
   }
-  await mongoose.connection.db
-    .collection("publishers")
-    .updateOne({ _id: publisher._id }, { $set: updates });
+  await mongoose.connection.db.collection("publishers").updateOne({ _id: publisher._id }, { $set: updates });
 
   console.log(`Publisher ${publisher._id} updated`);
 };

@@ -9,63 +9,21 @@ const BATCH_SIZE = 5000;
 const buildData = (doc: RequestWidget, widgets: { [key: string]: string }) => {
   const widgetId = widgets[doc.widgetId.toString()];
   if (!widgetId) {
-    console.log(
-      `[Widget-Requests] Widget ${doc.widgetId.toString()} not found for doc ${doc._id.toString()}`
-    );
+    console.log(`[Widget-Requests] Widget ${doc.widgetId.toString()} not found for doc ${doc._id.toString()}`);
     return null;
   }
   const obj = {
     old_id: doc._id.toString(),
-    domain: Array.isArray(doc.query?.domain)
-      ? doc.query.domain
-      : doc.query?.domain
-        ? [doc.query.domain]
-        : [],
-    organization: Array.isArray(doc.query?.organization)
-      ? doc.query.organization
-      : doc.query?.organization
-        ? [doc.query.organization]
-        : [],
-    department: Array.isArray(doc.query?.department)
-      ? doc.query.department
-      : doc.query?.department
-        ? [doc.query.department]
-        : [],
-    schedule: Array.isArray(doc.query?.schedule)
-      ? doc.query.schedule
-      : doc.query?.schedule
-        ? [doc.query.schedule]
-        : [],
-    remote: Array.isArray(doc.query?.remote)
-      ? doc.query.remote
-      : doc.query?.remote
-        ? [doc.query.remote]
-        : [],
-    action: Array.isArray(doc.query?.action)
-      ? doc.query.action
-      : doc.query?.action
-        ? [doc.query.action]
-        : [],
-    beneficiary: Array.isArray(doc.query?.beneficiary)
-      ? doc.query.beneficiary
-      : doc.query?.beneficiary
-        ? [doc.query.beneficiary]
-        : [],
-    country: Array.isArray(doc.query?.country)
-      ? doc.query.country
-      : doc.query?.country
-        ? [doc.query.country]
-        : [],
-    minor: Array.isArray(doc.query?.minor)
-      ? doc.query.minor
-      : doc.query?.minor
-        ? [doc.query.minor]
-        : [],
-    accessibility: Array.isArray(doc.query?.accessibility)
-      ? doc.query.accessibility
-      : doc.query?.accessibility
-        ? [doc.query.accessibility]
-        : [],
+    domain: Array.isArray(doc.query?.domain) ? doc.query.domain : doc.query?.domain ? [doc.query.domain] : [],
+    organization: Array.isArray(doc.query?.organization) ? doc.query.organization : doc.query?.organization ? [doc.query.organization] : [],
+    department: Array.isArray(doc.query?.department) ? doc.query.department : doc.query?.department ? [doc.query.department] : [],
+    schedule: Array.isArray(doc.query?.schedule) ? doc.query.schedule : doc.query?.schedule ? [doc.query.schedule] : [],
+    remote: Array.isArray(doc.query?.remote) ? doc.query.remote : doc.query?.remote ? [doc.query.remote] : [],
+    action: Array.isArray(doc.query?.action) ? doc.query.action : doc.query?.action ? [doc.query.action] : [],
+    beneficiary: Array.isArray(doc.query?.beneficiary) ? doc.query.beneficiary : doc.query?.beneficiary ? [doc.query.beneficiary] : [],
+    country: Array.isArray(doc.query?.country) ? doc.query.country : doc.query?.country ? [doc.query.country] : [],
+    minor: Array.isArray(doc.query?.minor) ? doc.query.minor : doc.query?.minor ? [doc.query.minor] : [],
+    accessibility: Array.isArray(doc.query?.accessibility) ? doc.query.accessibility : doc.query?.accessibility ? [doc.query.accessibility] : [],
     duration: doc.query?.duration ? parseInt(doc.query.duration) : null,
     start: doc.query?.start ? new Date(doc.query.start) : null,
     search: doc.query?.search ?? null,
@@ -101,9 +59,7 @@ const handler = async () => {
     console.log(`[Widget-Requests] Found ${stored} docs in database.`);
 
     const widgets = {} as { [key: string]: string };
-    await prisma.widget
-      .findMany({ select: { id: true, old_id: true } })
-      .then((data) => data.forEach((d) => (widgets[d.old_id] = d.id)));
+    await prisma.widget.findMany({ select: { id: true, old_id: true } }).then((data) => data.forEach((d) => (widgets[d.old_id] = d.id)));
 
     while (data && data.length) {
       const dataToCreate = [];
@@ -133,9 +89,7 @@ const handler = async () => {
         .lean();
     }
 
-    console.log(
-      `[Widget-Requests] Ended at ${new Date().toISOString()} in ${(Date.now() - start.getTime()) / 1000}s.`
-    );
+    console.log(`[Widget-Requests] Ended at ${new Date().toISOString()} in ${(Date.now() - start.getTime()) / 1000}s.`);
     return { created };
   } catch (error) {
     captureException(error, "[Widget-Requests] Error while syncing docs.");

@@ -2,20 +2,7 @@ import { STATS_INDEX } from "../../../config";
 import esClient from "../../../db/elastic";
 import { Publisher, StatsReport } from "../../../types";
 
-export const MONTHS = [
-  "Janvier",
-  "Février",
-  "Mars",
-  "Avril",
-  "Mai",
-  "Juin",
-  "Juillet",
-  "Août",
-  "Septembre",
-  "Octobre",
-  "Novembre",
-  "Décembre",
-];
+export const MONTHS = ["Janvier", "Février", "Mars", "Avril", "Mai", "Juin", "Juillet", "Août", "Septembre", "Octobre", "Novembre", "Décembre"];
 
 const search = async (id: string, month: number, year: number, flux: string) => {
   // timezone remove
@@ -192,10 +179,7 @@ const search = async (id: string, month: number, year: number, flux: string) => 
       aggregations.apply.lastYear.histogram.buckets,
       startYear
     ),
-    organizationHistogram: buildHistogram(
-      aggregations.click.lastSixMonths.histogram.buckets,
-      aggregations.click.month.topOrganizations.buckets
-    ),
+    organizationHistogram: buildHistogram(aggregations.click.lastSixMonths.histogram.buckets, aggregations.click.month.topOrganizations.buckets),
   };
 
   return data;
@@ -213,26 +197,10 @@ const buildGraph = (
 
   for (let i = startDate.getMonth(); i < startDate.getMonth() + 12; i++) {
     const month = new Date(startDate.getFullYear(), i, 1);
-    const c = clickBucket.find(
-      (v) =>
-        new Date(v.key).getMonth() === month.getMonth() &&
-        new Date(v.key).getFullYear() === month.getFullYear()
-    );
-    const cly = clickLastYearBucket.find(
-      (v) =>
-        new Date(v.key).getMonth() === month.getMonth() &&
-        new Date(v.key).getFullYear() === month.getFullYear() - 1
-    );
-    const a = applyBucket.find(
-      (v) =>
-        new Date(v.key).getMonth() === month.getMonth() &&
-        new Date(v.key).getFullYear() === month.getFullYear()
-    );
-    const aly = applyLastYearBucket.find(
-      (v) =>
-        new Date(v.key).getMonth() === month.getMonth() &&
-        new Date(v.key).getFullYear() === month.getFullYear() - 1
-    );
+    const c = clickBucket.find((v) => new Date(v.key).getMonth() === month.getMonth() && new Date(v.key).getFullYear() === month.getFullYear());
+    const cly = clickLastYearBucket.find((v) => new Date(v.key).getMonth() === month.getMonth() && new Date(v.key).getFullYear() === month.getFullYear() - 1);
+    const a = applyBucket.find((v) => new Date(v.key).getMonth() === month.getMonth() && new Date(v.key).getFullYear() === month.getFullYear());
+    const aly = applyLastYearBucket.find((v) => new Date(v.key).getMonth() === month.getMonth() && new Date(v.key).getFullYear() === month.getFullYear() - 1);
 
     const d = {
       month,
@@ -275,11 +243,7 @@ export const getData = async (year: number, month: number, publisher: Publisher)
   if (publisher.role_promoteur) {
     data.receive = await search(publisher._id.toString(), month, year, "to");
   }
-  if (
-    publisher.role_annonceur_api ||
-    publisher.role_annonceur_widget ||
-    publisher.role_annonceur_campagne
-  ) {
+  if (publisher.role_annonceur_api || publisher.role_annonceur_widget || publisher.role_annonceur_campagne) {
     data.send = await search(publisher._id.toString(), month, year, "from");
   }
 

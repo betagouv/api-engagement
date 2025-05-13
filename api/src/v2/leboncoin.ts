@@ -48,53 +48,47 @@ const STATUS_MAP = {
   ad_rejected_moderation: "REFUSED",
 } as { [key: string]: "ACCEPTED" | "EDITED" | "DELETED" | "REFUSED" };
 
-router.post(
-  "/feedback",
-  passport.authenticate(["leboncoin"], { session: false }),
-  async (req: PublisherRequest, res: Response, next: NextFunction) => {
-    try {
-      const body = zod
-        .object({
-          partner_unique_reference: zod.string(),
-          site: zod.string(),
-          status: zod.string(),
-          url: zod.string().optional(),
-          note: zod.string().optional(),
-        })
-        .passthrough()
-        .safeParse(req.body);
+router.post("/feedback", passport.authenticate(["leboncoin"], { session: false }), async (req: PublisherRequest, res: Response, next: NextFunction) => {
+  try {
+    const body = zod
+      .object({
+        partner_unique_reference: zod.string(),
+        site: zod.string(),
+        status: zod.string(),
+        url: zod.string().optional(),
+        note: zod.string().optional(),
+      })
+      .passthrough()
+      .safeParse(req.body);
 
-      if (!body.success) {
-        captureMessage("Invalid body", JSON.stringify(body.error, null, 2));
-        return res.status(400).send({ ok: false, code: INVALID_BODY, message: body.error });
-      }
-
-      let mission = null as HydratedDocument<Mission> | null;
-      if (body.data.partner_unique_reference.length === 24) {
-        mission = await MissionModel.findOne({ _id: body.data.partner_unique_reference });
-      } else {
-        mission = await MissionModel.findOne({ _old_id: body.data.partner_unique_reference });
-      }
-
-      if (!mission) {
-        captureMessage("Mission not found", JSON.stringify(body.data, null, 2));
-        return res.status(404).send({ ok: false, code: NOT_FOUND, message: "Mission not found" });
-      }
-
-      mission.leboncoinStatus = STATUS_MAP[body.data.status];
-      mission.leboncoinUrl = body.data.url;
-      mission.leboncoinComment = body.data.note;
-      mission.leboncoinUpdatedAt = new Date();
-
-      await mission.save();
-
-      return res
-        .status(200)
-        .send({ result: { code: 200, message: "Success, ad status recorded" } });
-    } catch (error) {
-      next(error);
+    if (!body.success) {
+      captureMessage("Invalid body", JSON.stringify(body.error, null, 2));
+      return res.status(400).send({ ok: false, code: INVALID_BODY, message: body.error });
     }
+
+    let mission = null as HydratedDocument<Mission> | null;
+    if (body.data.partner_unique_reference.length === 24) {
+      mission = await MissionModel.findOne({ _id: body.data.partner_unique_reference });
+    } else {
+      mission = await MissionModel.findOne({ _old_id: body.data.partner_unique_reference });
+    }
+
+    if (!mission) {
+      captureMessage("Mission not found", JSON.stringify(body.data, null, 2));
+      return res.status(404).send({ ok: false, code: NOT_FOUND, message: "Mission not found" });
+    }
+
+    mission.leboncoinStatus = STATUS_MAP[body.data.status];
+    mission.leboncoinUrl = body.data.url;
+    mission.leboncoinComment = body.data.note;
+    mission.leboncoinUpdatedAt = new Date();
+
+    await mission.save();
+
+    return res.status(200).send({ result: { code: 200, message: "Success, ad status recorded" } });
+  } catch (error) {
+    next(error);
   }
-);
+});
 
 export default router;
