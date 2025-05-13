@@ -18,10 +18,7 @@ const schema = new Schema<OrganizationExclusion>(
   { timestamps: true }
 );
 
-schema.index(
-  { excludedByPublisherId: 1, excludedForPublisherId: 1, organizationClientId: 1 },
-  { unique: true }
-);
+schema.index({ excludedByPublisherId: 1, excludedForPublisherId: 1, organizationClientId: 1 }, { unique: true });
 schema.index({ excludedForPublisherId: 1 });
 
 const OrganizationExclusionModel = model<OrganizationExclusion>(MODELNAME, schema);

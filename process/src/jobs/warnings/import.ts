@@ -9,15 +9,11 @@ const EMPTY_WARNING = "EMPTY_WARNING";
 const VALIDATION_WARNING = "VALIDATION_WARNING";
 
 export const checkImports = async (publishers: Publisher[]) => {
-  const imports = await ImportModel.aggregate([
-    { $group: { _id: "$publisherId", doc: { $last: "$$ROOT" } } },
-  ]);
+  const imports = await ImportModel.aggregate([{ $group: { _id: "$publisherId", doc: { $last: "$$ROOT" } } }]);
   console.log(`Checking ${imports.length} import from ${publishers.length} publishers`);
 
   for (const publisher of publishers) {
-    const lastImport = imports.find((i) => i.doc.publisherId === publisher._id.toString()) as
-      | { doc: Import }
-      | undefined;
+    const lastImport = imports.find((i) => i.doc.publisherId === publisher._id.toString()) as { doc: Import } | undefined;
     if (!lastImport) {
       console.log(`[${publisher.name}] Never imported`);
       continue;
@@ -29,11 +25,7 @@ export const checkImports = async (publishers: Publisher[]) => {
     }
     console.log(`[${publisher.name}] Last import at ${lastImport.doc.startedAt}`);
 
-    const errorWarning = await WarningModel.findOne(
-      { publisherId: publisher._id.toString(), type: ERROR_WARNING, fixed: false },
-      null,
-      { sort: { createdAt: -1 } }
-    );
+    const errorWarning = await WarningModel.findOne({ publisherId: publisher._id.toString(), type: ERROR_WARNING, fixed: false }, null, { sort: { createdAt: -1 } });
     if (lastImport.doc.status === "FAILED") {
       console.log(`[${publisher.name}] Error while importing`);
       if (errorWarning) {
@@ -73,11 +65,7 @@ export const checkImports = async (publishers: Publisher[]) => {
       }
     }
 
-    const importWarning = await WarningModel.findOne(
-      { publisherId: publisher._id.toString(), type: EMPTY_WARNING, fixed: false },
-      null,
-      { sort: { createdAt: -1 } }
-    );
+    const importWarning = await WarningModel.findOne({ publisherId: publisher._id.toString(), type: EMPTY_WARNING, fixed: false }, null, { sort: { createdAt: -1 } });
     if (lastImport.doc.missionCount === 0) {
       console.log(`[${publisher.name}] No mission imported`);
       if (importWarning) {
@@ -96,10 +84,7 @@ export const checkImports = async (publishers: Publisher[]) => {
           publisherLogo: publisher.logo,
         };
         await WarningModel.create(obj);
-        const res = await postMessage(
-          { text: `Alerte détectée: ${publisher.name} - Flux vide` },
-          SLACK_WARNING_CHANNEL_ID
-        );
+        const res = await postMessage({ text: `Alerte détectée: ${publisher.name} - Flux vide` }, SLACK_WARNING_CHANNEL_ID);
         if (res.error) {
           console.error(res.error);
         } else {
@@ -116,17 +101,11 @@ export const checkImports = async (publishers: Publisher[]) => {
       }
     }
 
-    const validationWarning = await WarningModel.findOne(
-      { publisherId: publisher._id.toString(), type: VALIDATION_WARNING, fixed: false },
-      null,
-      {
-        sort: { createdAt: -1 },
-      }
-    );
+    const validationWarning = await WarningModel.findOne({ publisherId: publisher._id.toString(), type: VALIDATION_WARNING, fixed: false }, null, {
+      sort: { createdAt: -1 },
+    });
     if (lastImport.doc.refusedCount / lastImport.doc.missionCount > 0.75) {
-      console.log(
-        `[${publisher.name}] ${Math.round((lastImport.doc.refusedCount / lastImport.doc.missionCount) * 100)}% of missions refused`
-      );
+      console.log(`[${publisher.name}] ${Math.round((lastImport.doc.refusedCount / lastImport.doc.missionCount) * 100)}% of missions refused`);
       if (validationWarning) {
         validationWarning.title = `${Math.round((lastImport.doc.refusedCount / lastImport.doc.missionCount) * 100)}% des missions sont refusées par l’API.`;
         validationWarning.description = `Nombre missions refusées : ${lastImport.doc.refusedCount} / Nombre missions total : ${lastImport.doc.missionCount}, dernière importation : ${lastImport.doc.startedAt}`;
@@ -143,10 +122,7 @@ export const checkImports = async (publishers: Publisher[]) => {
           publisherLogo: publisher.logo,
         };
         await WarningModel.create(obj);
-        const res = await postMessage(
-          { text: `Alerte détectée: ${publisher.name} - Taux de validation critique` },
-          SLACK_WARNING_CHANNEL_ID
-        );
+        const res = await postMessage({ text: `Alerte détectée: ${publisher.name} - Taux de validation critique` }, SLACK_WARNING_CHANNEL_ID);
         if (res.error) {
           console.error(res.error);
         } else {
@@ -155,9 +131,7 @@ export const checkImports = async (publishers: Publisher[]) => {
         continue;
       }
     } else {
-      console.log(
-        `[${publisher.name}] ${Math.round((lastImport.doc.refusedCount / lastImport.doc.missionCount) * 100)}% of missions refused`
-      );
+      console.log(`[${publisher.name}] ${Math.round((lastImport.doc.refusedCount / lastImport.doc.missionCount) * 100)}% of missions refused`);
       if (validationWarning) {
         validationWarning.fixed = true;
         validationWarning.fixedAt = new Date();

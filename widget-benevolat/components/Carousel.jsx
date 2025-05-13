@@ -1,9 +1,9 @@
-import React, { useState, useEffect } from "react";
-import { RiArrowLeftLine, RiArrowRightLine } from "react-icons/ri";
 import { usePlausible } from "next-plausible";
+import { useEffect, useState } from "react";
+import { RiArrowLeftLine, RiArrowRightLine } from "react-icons/ri";
 
-import Card from "./Card";
 import useStore from "../store";
+import Card from "./Card";
 
 const Carousel = ({ widget, missions, request }) => {
   const { url, color } = useStore();
@@ -52,12 +52,12 @@ const Carousel = ({ widget, missions, request }) => {
   }
 
   return (
-    <div className="w-full flex flex-col gap-4">
+    <div className="flex w-full flex-col gap-4">
       <div className="relative flex items-center gap-4">
         <button
           onClick={prevPage}
           disabled={currentSlide === 0}
-          className="p-2 h-12 w-12 rounded-full hidden xl:flex items-center justify-center flex-shrink-0"
+          className="hidden h-12 w-12 flex-shrink-0 items-center justify-center rounded-full p-2 xl:flex"
           style={{
             backgroundColor: currentSlide === 0 ? "#e5e5e5" : color,
             color: currentSlide === 0 ? "#929292" : "white",
@@ -67,7 +67,7 @@ const Carousel = ({ widget, missions, request }) => {
           <RiArrowLeftLine size={20} />
         </button>
 
-        <div className="overflow-hidden md:max-w-[1056px] md:py-4 mx-auto">
+        <div className="mx-auto overflow-hidden md:max-w-[1056px] md:py-4">
           <div className="flex transition-transform duration-500 ease-in-out" style={{ margin: "0 -0.75rem", transform: `translateX(-${currentSlide * (100 / slidesToShow)}%)` }}>
             {missions.slice(0, 60).map((mission, i) => (
               <div
@@ -75,7 +75,7 @@ const Carousel = ({ widget, missions, request }) => {
                 key={i}
                 id={mission._id}
                 aria-labelledby={mission._id}
-                className={`flex-shrink-0 h-auto ${missions.length <= 2 ? "w-full lg:w-auto sm:w-1/2 flex-shrink-0" : "w-full sm:w-1/2 lg:w-1/3"} px-3`}
+                className={`h-auto flex-shrink-0 ${missions.length <= 2 ? "w-full flex-shrink-0 sm:w-1/2 lg:w-auto" : "w-full sm:w-1/2 lg:w-1/3"} px-3`}
               >
                 <Card widget={widget} mission={mission} color={color} request={request} />
               </div>
@@ -86,7 +86,7 @@ const Carousel = ({ widget, missions, request }) => {
         <button
           onClick={nextPage}
           disabled={currentSlide >= missions.length - slidesToShow}
-          className="p-2 h-12 w-12 rounded-full hidden xl:flex items-center justify-center flex-shrink-0"
+          className="hidden h-12 w-12 flex-shrink-0 items-center justify-center rounded-full p-2 xl:flex"
           style={{
             backgroundColor: currentSlide >= missions.length - slidesToShow ? "#e5e5e5" : color,
             color: currentSlide >= missions.length - slidesToShow ? "#929292" : "white",
@@ -102,7 +102,7 @@ const Carousel = ({ widget, missions, request }) => {
           <button
             onClick={prevPage}
             disabled={currentSlide === 0}
-            className="p-2 h-10 w-10 rounded-full flex items-center justify-center"
+            className="flex h-10 w-10 items-center justify-center rounded-full p-2"
             style={{
               backgroundColor: currentSlide === 0 ? "#e5e5e5" : color,
               color: currentSlide === 0 ? "#929292" : "white",
@@ -115,7 +115,7 @@ const Carousel = ({ widget, missions, request }) => {
           <button
             onClick={nextPage}
             disabled={currentSlide >= missions.length - slidesToShow}
-            className="p-2 h-10 w-10 rounded-full flex items-center justify-center"
+            className="flex h-10 w-10 items-center justify-center rounded-full p-2"
             style={{
               backgroundColor: currentSlide >= missions.length - slidesToShow ? "#e5e5e5" : color,
               color: currentSlide >= missions.length - slidesToShow ? "#929292" : "white",

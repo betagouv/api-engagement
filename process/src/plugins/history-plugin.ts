@@ -54,11 +54,7 @@ export function historyPlugin<T extends Document>(schema: Schema, options: Histo
    * @param originalMetadata Original metadata to restore if no action is present
    */
   const resetActionMetadata = (originalMetadata: Record<string, any> = {}) => {
-    if (
-      pluginOptions.metadata &&
-      (pluginOptions.metadata.action === HISTORY_ACTIONS.CREATED ||
-        pluginOptions.metadata.action === HISTORY_ACTIONS.UPDATED)
-    ) {
+    if (pluginOptions.metadata && (pluginOptions.metadata.action === HISTORY_ACTIONS.CREATED || pluginOptions.metadata.action === HISTORY_ACTIONS.UPDATED)) {
       const { action, ...restMetadata } = pluginOptions.metadata;
       pluginOptions.metadata = restMetadata;
     } else {
@@ -105,9 +101,7 @@ export function historyPlugin<T extends Document>(schema: Schema, options: Histo
     if (doc.isNew) {
       // For new documents, track all fields
       const docObj = doc.toObject() || {};
-      fieldsToTrack = Object.keys(docObj).filter(
-        (path) => !omitFields.includes(path) && path !== historyField
-      );
+      fieldsToTrack = Object.keys(docObj).filter((path) => !omitFields.includes(path) && path !== historyField);
     } else {
       // For existing documents, only track modified fields
       const modifiedPaths = doc.modifiedPaths();
@@ -145,9 +139,7 @@ export function historyPlugin<T extends Document>(schema: Schema, options: Histo
       doc[historyField].push(historyEntry);
 
       if (doc[historyField].length > (pluginOptions.maxEntries as number)) {
-        doc[historyField] = doc[historyField].slice(
-          doc[historyField].length - (pluginOptions.maxEntries as number)
-        );
+        doc[historyField] = doc[historyField].slice(doc[historyField].length - (pluginOptions.maxEntries as number));
       }
 
       resetActionMetadata(currentMetadata);
@@ -300,9 +292,7 @@ export function historyPlugin<T extends Document>(schema: Schema, options: Histo
           const historyUpdates = [];
 
           for (const updatedDoc of updatedDocs) {
-            const originalDoc = docsBeforeUpdate.find(
-              (doc: any) => doc._id && doc._id.toString() === updatedDoc._id.toString()
-            );
+            const originalDoc = docsBeforeUpdate.find((doc: any) => doc._id && doc._id.toString() === updatedDoc._id.toString());
 
             if (!originalDoc) {
               continue;
@@ -348,9 +338,7 @@ export function historyPlugin<T extends Document>(schema: Schema, options: Histo
 
             const historyEntry = createHistoryEntry(changedFields, HISTORY_ACTIONS.UPDATED);
 
-            let history = Array.isArray(updatedDoc[historyField])
-              ? [...updatedDoc[historyField]]
-              : [];
+            let history = Array.isArray(updatedDoc[historyField]) ? [...updatedDoc[historyField]] : [];
 
             history.push(historyEntry);
 

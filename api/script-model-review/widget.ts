@@ -28,9 +28,7 @@ const cleanUnusedFields = async (widget: any) => {
   for (const field of extraFields) {
     unset[field] = 1;
   }
-  await mongoose.connection.db
-    .collection("widgets")
-    .updateOne({ _id: widget._id }, { $unset: unset });
+  await mongoose.connection.db.collection("widgets").updateOne({ _id: widget._id }, { $unset: unset });
   console.log(`Widget ${widget._id} cleaned`);
 };
 
@@ -38,9 +36,7 @@ const refactoFields = async (widget: any) => {
   const updates: any = {};
   updates.deletedAt = widget.deleted ? widget.updatedAt : null;
 
-  await mongoose.connection.db
-    .collection("widgets")
-    .updateOne({ _id: widget._id }, { $set: updates });
+  await mongoose.connection.db.collection("widgets").updateOne({ _id: widget._id }, { $set: updates });
   console.log(`Widget ${widget._id} updated`);
 };
 

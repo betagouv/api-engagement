@@ -18,16 +18,12 @@ const buildData = async (
 ) => {
   const partnerFromId = partners[doc.fromPublisherId?.toString()];
   if (!partnerFromId) {
-    console.log(
-      `[Applies] Partner ${doc.fromPublisherId?.toString()} not found for doc ${doc._id.toString()}`
-    );
+    console.log(`[Applies] Partner ${doc.fromPublisherId?.toString()} not found for doc ${doc._id.toString()}`);
     return null;
   }
   const partnerToId = partners[doc.toPublisherId?.toString()];
   if (!partnerToId) {
-    console.log(
-      `[Applies] Partner ${doc.toPublisherId?.toString()} not found for doc ${doc._id.toString()}`
-    );
+    console.log(`[Applies] Partner ${doc.toPublisherId?.toString()} not found for doc ${doc._id.toString()}`);
     return null;
   }
 
@@ -42,9 +38,7 @@ const buildData = async (
       if (m) {
         missionId = m.id;
       } else {
-        console.log(
-          `[Applies] Mission ${doc.missionId?.toString()} not found for doc ${doc._id.toString()}`
-        );
+        console.log(`[Applies] Mission ${doc.missionId?.toString()} not found for doc ${doc._id.toString()}`);
       }
     }
   }
@@ -101,21 +95,13 @@ const handler = async () => {
     const missions = {} as { [key: string]: string };
     await prisma.mission
       .findMany({ select: { id: true, client_id: true, partner: { select: { old_id: true } } } })
-      .then((data) =>
-        data.forEach((d) => (missions[`${d.client_id}-${d.partner?.old_id}`] = d.id))
-      );
+      .then((data) => data.forEach((d) => (missions[`${d.client_id}-${d.partner?.old_id}`] = d.id)));
     const partners = {} as { [key: string]: string };
-    await prisma.partner
-      .findMany({ select: { id: true, old_id: true } })
-      .then((data) => data.forEach((d) => (partners[d.old_id] = d.id)));
+    await prisma.partner.findMany({ select: { id: true, old_id: true } }).then((data) => data.forEach((d) => (partners[d.old_id] = d.id)));
     const campaigns = {} as { [key: string]: string };
-    await prisma.campaign
-      .findMany({ select: { id: true, old_id: true } })
-      .then((data) => data.forEach((d) => (campaigns[d.old_id] = d.id)));
+    await prisma.campaign.findMany({ select: { id: true, old_id: true } }).then((data) => data.forEach((d) => (campaigns[d.old_id] = d.id)));
     const widgets = {} as { [key: string]: string };
-    await prisma.widget
-      .findMany({ select: { id: true, old_id: true } })
-      .then((data) => data.forEach((d) => (widgets[d.old_id] = d.id)));
+    await prisma.widget.findMany({ select: { id: true, old_id: true } }).then((data) => data.forEach((d) => (widgets[d.old_id] = d.id)));
 
     while (true) {
       let data: { _id: string; _source: Stats }[] = [];
@@ -155,9 +141,7 @@ const handler = async () => {
       const clickIds: string[] = [];
       data.forEach((hit) => hit._source.clickId && clickIds.push(hit._source.clickId));
       if (clickIds.length) {
-        await prisma.click
-          .findMany({ where: { old_id: { in: clickIds } }, select: { id: true, old_id: true } })
-          .then((data) => data.forEach((d) => (clicks[d.old_id] = d.id)));
+        await prisma.click.findMany({ where: { old_id: { in: clickIds } }, select: { id: true, old_id: true } }).then((data) => data.forEach((d) => (clicks[d.old_id] = d.id)));
       }
 
       const dataToCreate = [] as Apply[];
@@ -176,51 +160,26 @@ const handler = async () => {
               clickId = res.id;
               clicks[hit._source.clickId] = clickId;
             } else {
-              console.log(
-                `[Applies] Click ${hit._source.clickId} not found for doc ${hit._id.toString()}`
-              );
+              console.log(`[Applies] Click ${hit._source.clickId} not found for doc ${hit._id.toString()}`);
             }
           }
         }
-        const obj = await buildData(
-          { ...hit._source, _id: hit._id },
-          partners,
-          missions,
-          campaigns,
-          widgets,
-          clickId
-        );
+        const obj = await buildData({ ...hit._source, _id: hit._id }, partners, missions, campaigns, widgets, clickId);
         if (!obj) {
           continue;
         }
 
-        if (
-          stored[hit._id.toString()] &&
-          (stored[hit._id.toString()].status !== obj.status ||
-            stored[hit._id.toString()].click_id !== obj.click_id)
-        ) {
+        if (stored[hit._id.toString()] && (stored[hit._id.toString()].status !== obj.status || stored[hit._id.toString()].click_id !== obj.click_id)) {
           console.log("UPDATE");
-          console.log(
-            "status",
-            stored[hit._id.toString()].status !== obj.status,
-            stored[hit._id.toString()].status,
-            obj.status
-          );
-          console.log(
-            "click_id",
-            stored[hit._id.toString()].click_id !== obj.click_id,
-            stored[hit._id.toString()].click_id,
-            obj.click_id
-          );
+          console.log("status", stored[hit._id.toString()].status !== obj.status, stored[hit._id.toString()].status, obj.status);
+          console.log("click_id", stored[hit._id.toString()].click_id !== obj.click_id, stored[hit._id.toString()].click_id, obj.click_id);
           dataToUpdate.push(obj);
         } else if (!stored[hit._id.toString()]) {
           dataToCreate.push(obj);
         }
       }
 
-      console.log(
-        `[Applies] ${dataToCreate.length} docs to create, ${dataToUpdate.length} docs to update.`
-      );
+      console.log(`[Applies] ${dataToCreate.length} docs to create, ${dataToUpdate.length} docs to update.`);
 
       if (dataToCreate.length) {
         console.log(`[Applies] Creating ${dataToCreate.length} docs.`);
@@ -242,9 +201,7 @@ const handler = async () => {
       updated += dataToUpdate.length;
       console.log(`[Applies] Updated ${dataToUpdate.length} docs, ${updated} updated so far.`);
     }
-    console.log(
-      `[Applies] Ended at ${new Date().toISOString()} in ${(Date.now() - start.getTime()) / 1000}s.`
-    );
+    console.log(`[Applies] Ended at ${new Date().toISOString()} in ${(Date.now() - start.getTime()) / 1000}s.`);
     return { created, updated };
   } catch (error) {
     captureException(error, "[Applies] Error while syncing docs.");

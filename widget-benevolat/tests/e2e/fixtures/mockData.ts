@@ -32,8 +32,7 @@ const mockMissionsResponse = {
       _id: "681c2d791e3eb537c7283581",
       title: "J’accompagne des projets de communication",
       domain: "benevolat-competences",
-      domainLogo:
-        "https://jeveuxaider.fra1.digitaloceanspaces.com/public/production/16695/s4oQeun6RPeBuFm0MygXVyBKp3kzMz.jpg?v=1737369602",
+      domainLogo: "https://jeveuxaider.fra1.digitaloceanspaces.com/public/production/16695/s4oQeun6RPeBuFm0MygXVyBKp3kzMz.jpg?v=1737369602",
       organizationName: "Asssociation johnny l'envie d'avoir envie",
       remote: "no",
       city: "Guidel",
@@ -65,8 +64,7 @@ const mockMissionsResponse = {
       _id: "681371953af75a9483b0e1f5",
       title: "Je rejoins l'équipe de montage / démontage d'un festival / événement",
       domain: "culture-loisirs",
-      domainLogo:
-        "https://jeveuxaider.fra1.digitaloceanspaces.com/public/production/35540/76B0yzUWKbcK2GCsblx52CubbI12e9.jpg?v=1737369627",
+      domainLogo: "https://jeveuxaider.fra1.digitaloceanspaces.com/public/production/35540/76B0yzUWKbcK2GCsblx52CubbI12e9.jpg?v=1737369627",
       organizationName: "Festival Damgan",
       remote: "no",
       city: "Damgan",
@@ -96,11 +94,9 @@ const mockMissionsResponse = {
     },
     {
       _id: "681371913af75a9483b0b897",
-      title:
-        "Je rejoins l’équipe chargée des entrées et de l'accueil du public lors d’un festival / événement",
+      title: "Je rejoins l’équipe chargée des entrées et de l'accueil du public lors d’un festival / événement",
       domain: "culture-loisirs",
-      domainLogo:
-        "https://jeveuxaider.fra1.digitaloceanspaces.com/public/production/35538/dviNG44GukjYdX4uy45PYQFt24XZV0.jpg?v=1737369628",
+      domainLogo: "https://jeveuxaider.fra1.digitaloceanspaces.com/public/production/35538/dviNG44GukjYdX4uy45PYQFt24XZV0.jpg?v=1737369628",
       organizationName: "Festival Damgan",
       remote: "no",
       city: "Damgan",
@@ -132,8 +128,7 @@ const mockMissionsResponse = {
       _id: "681371913af75a9483b0b49c",
       title: "Je rejoins l’équipe de restauration / buvette d’un festival / événement",
       domain: "culture-loisirs",
-      domainLogo:
-        "https://jeveuxaider.fra1.digitaloceanspaces.com/public/production/36061/4QrxtvPiZBlc42XyGmQCCF6GsWGpAT.jpg?v=1737369629",
+      domainLogo: "https://jeveuxaider.fra1.digitaloceanspaces.com/public/production/36061/4QrxtvPiZBlc42XyGmQCCF6GsWGpAT.jpg?v=1737369629",
       organizationName: "Festival Damgan",
       remote: "no",
       city: "Damgan",
@@ -180,11 +175,9 @@ const mockMissionsResponse = {
     },
     {
       _id: "68127459fa85f607c336aacf",
-      title:
-        "Je cherche des propriétaires solidaires qui vont accepter de donner en location leur logements à Habitat et Humanisme",
+      title: "Je cherche des propriétaires solidaires qui vont accepter de donner en location leur logements à Habitat et Humanisme",
       domain: "solidarite-insertion",
-      domainLogo:
-        "https://jeveuxaider.fra1.digitaloceanspaces.com/public/production/12169/solidarite-et-insertion-5.webp?v=1737022213",
+      domainLogo: "https://jeveuxaider.fra1.digitaloceanspaces.com/public/production/12169/solidarite-et-insertion-5.webp?v=1737022213",
       organizationName: "Association Habitat et Humanisme - Morbihan",
       remote: "no",
       city: "Auray",
@@ -216,8 +209,7 @@ const mockMissionsResponse = {
       _id: "68127458fa85f607c336a4ea",
       title: "Je deviens bénévole contrôle au Festival Interceltique de Lorient !",
       domain: "culture-loisirs",
-      domainLogo:
-        "https://jeveuxaider.fra1.digitaloceanspaces.com/public/production/59588/BqiI5yiZTOEi2QnP0ZfZp1LCIJhXAV.jpg?v=1737022174",
+      domainLogo: "https://jeveuxaider.fra1.digitaloceanspaces.com/public/production/59588/BqiI5yiZTOEi2QnP0ZfZp1LCIJhXAV.jpg?v=1737022174",
       organizationName: "Festival Interceltique De Lorient",
       remote: "no",
       city: "Lorient",
@@ -247,11 +239,9 @@ const mockMissionsResponse = {
     },
     {
       _id: "68127458fa85f607c336a3a8",
-      title:
-        "J'aide à la mise en place d'une braderie du livre pour une association de Solidarité Internationale",
+      title: "J'aide à la mise en place d'une braderie du livre pour une association de Solidarité Internationale",
       domain: "solidarite-insertion",
-      domainLogo:
-        "https://jeveuxaider.fra1.digitaloceanspaces.com/public/production/12166/solidarite-et-insertion-2.webp?v=1737022219",
+      domainLogo: "https://jeveuxaider.fra1.digitaloceanspaces.com/public/production/12166/solidarite-et-insertion-2.webp?v=1737022219",
       organizationName: "CCFD-Terre Solidaire - Bretagne",
       remote: "no",
       city: "Vannes",

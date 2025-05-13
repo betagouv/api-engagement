@@ -104,9 +104,7 @@ export function historyPlugin<T extends Document>(schema: Schema, options: Histo
       doc[historyField].push(historyEntry);
 
       if (doc[historyField].length > (pluginOptions.maxEntries as number)) {
-        doc[historyField] = doc[historyField].slice(
-          doc[historyField].length - (pluginOptions.maxEntries as number)
-        );
+        doc[historyField] = doc[historyField].slice(doc[historyField].length - (pluginOptions.maxEntries as number));
       }
     }
 

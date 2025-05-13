@@ -31,17 +31,7 @@ const MEDECINS_DU_MONDE = "619fae737d373e07aea8be23";
 const EGEE = "619faf257d373e07aea8be27";
 const ECTI = "619faeb97d373e07aea8be24";
 const ADIE = "619fb52a7d373e07aea8be35";
-const PARTNERS = [
-  BENEVOLT,
-  FONDATION_RAOUL_FOLLEREAU,
-  VILLE_DE_NANTES,
-  VACANCES_ET_FAMILLES,
-  PREVENTION_ROUTIERE,
-  MEDECINS_DU_MONDE,
-  EGEE,
-  ECTI,
-  ADIE,
-];
+const PARTNERS = [BENEVOLT, FONDATION_RAOUL_FOLLEREAU, VILLE_DE_NANTES, VACANCES_ET_FAMILLES, PREVENTION_ROUTIERE, MEDECINS_DU_MONDE, EGEE, ECTI, ADIE];
 
 const getMissions = async (where: { [key: string]: any }) => {
   const missions = await MissionModel.find(where).sort({ createdAt: "asc" }).lean();
@@ -145,23 +135,16 @@ const handler = async () => {
         ContentType: "application/xml",
         ACL: OBJECT_ACL.PUBLIC_READ,
       });
-      console.log(
-        `[Linkedin] Create import, created=${importDoc.createdCount}, updated=${importDoc.updatedCount}, deleted=${importDoc.deletedCount}`
-      );
+      console.log(`[Linkedin] Create import, created=${importDoc.createdCount}, updated=${importDoc.updatedCount}, deleted=${importDoc.deletedCount}`);
       importDoc.endedAt = new Date();
       await ImportModel.create(importDoc);
     }
   } catch (error: any) {
     console.error(`[Linkedin] Error for Linkedin`, error);
-    captureException(
-      `Import linkedin flux failed`,
-      `${error.message} while creating Linkedin flux`
-    );
+    captureException(`Import linkedin flux failed`, `${error.message} while creating Linkedin flux`);
   }
 
-  console.log(
-    `[Linkedin] Ended at ${new Date().toISOString()} in ${(Date.now() - start.getTime()) / 1000}s`
-  );
+  console.log(`[Linkedin] Ended at ${new Date().toISOString()} in ${(Date.now() - start.getTime()) / 1000}s`);
 };
 
 // Generate XML following https://learn.microsoft.com/en-us/linkedin/talent/job-postings/xml-feeds-development-guide
@@ -322,19 +305,14 @@ const generateJob = (mission: Mission, defaultCompany: string) => {
       : `<strong>${mission.organizationName}</strong> vous propose une mission de bénévolat<br>${mission.description
           .replace("\n", "<br>")
           .replace("\u000b", "")}<br><br>Type : missions-benevolat`,
-    company:
-      defaultCompany !== "benevolt" && COMPANIES[mission.organizationName]
-        ? mission.organizationName
-        : defaultCompany,
+    company: defaultCompany !== "benevolt" && COMPANIES[mission.organizationName] ? mission.organizationName : defaultCompany,
     location: `${mission.city}, ${mission.country} ${mission.region}`,
     country: mission.country,
     city: mission.city,
     postalCode: mission.postalCode,
     listDate: new Date(mission.createdAt).toISOString(),
     industry: mission.domain,
-    industryCodes: INDUSTRIES_CODE[mission.domain]
-      ? [{ industryCode: INDUSTRIES_CODE[mission.domain] }]
-      : undefined,
+    industryCodes: INDUSTRIES_CODE[mission.domain] ? [{ industryCode: INDUSTRIES_CODE[mission.domain] }] : undefined,
     isRemote: mission.remote === "no" ? "On-site" : mission.remote === "full" ? "Remote" : "Hybrid",
   } as LinkedInJob;
   if (mission.endAt) {

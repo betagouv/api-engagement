@@ -8,20 +8,7 @@ import { Report } from "../../types";
 const ANNOUNCE_TEMPLATE_ID = 20;
 const BROADCAST_TEMPLATE_ID = 9;
 
-const MONTHS = [
-  "Janvier",
-  "Février",
-  "Mars",
-  "Avril",
-  "Mai",
-  "Juin",
-  "Juillet",
-  "Août",
-  "Septembre",
-  "Octobre",
-  "Novembre",
-  "Décembre",
-];
+const MONTHS = ["Janvier", "Février", "Mars", "Avril", "Mai", "Juin", "Juillet", "Août", "Septembre", "Octobre", "Novembre", "Décembre"];
 const compare = (a: number, b: number) => (a - b) / (a || 1);
 
 const sendReport = async (report: Report) => {
@@ -61,8 +48,7 @@ const sendReport = async (report: Report) => {
       body.params.top3 = ` 3. ${data.topPublishers[2].key} - ${data.topPublishers[2].doc_count} redirections`;
     }
 
-    const templateId =
-      report.dataTemplate === "SEND" ? BROADCAST_TEMPLATE_ID : ANNOUNCE_TEMPLATE_ID;
+    const templateId = report.dataTemplate === "SEND" ? BROADCAST_TEMPLATE_ID : ANNOUNCE_TEMPLATE_ID;
     return await sendTemplate(templateId, body);
   } catch (error) {
     captureException(error, "Error sending report");
@@ -122,9 +108,7 @@ export const sendReports = async (year: number, month: number) => {
       continue;
     }
 
-    const receivers = users.filter((user) =>
-      publisher.send_report_to.includes(user._id.toString())
-    );
+    const receivers = users.filter((user) => publisher.send_report_to.includes(user._id.toString()));
     report.sentTo = receivers.map((r) => r.email);
 
     console.log(`[${publisher.name}] Sending report to ${report.sentTo.map((e) => e).join(", ")}`);

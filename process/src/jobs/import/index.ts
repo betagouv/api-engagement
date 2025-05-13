@@ -88,21 +88,12 @@ const buildData = async (startTime: Date, publisher: Publisher, missionXML: Miss
     mission.updatedAt = new Date();
 
     mission.organizationVerificationStatus = missionDB?.organizationVerificationStatus;
-    if (
-      missionDB &&
-      missionDB.statusCommentHistoric &&
-      Array.isArray(missionDB.statusCommentHistoric)
-    ) {
+    if (missionDB && missionDB.statusCommentHistoric && Array.isArray(missionDB.statusCommentHistoric)) {
       if (missionDB.statusCode !== mission.statusCode) {
-        mission.statusCommentHistoric = [
-          ...missionDB.statusCommentHistoric,
-          { status: mission.statusCode, comment: mission.statusComment, date: mission.updatedAt },
-        ];
+        mission.statusCommentHistoric = [...missionDB.statusCommentHistoric, { status: mission.statusCode, comment: mission.statusComment, date: mission.updatedAt }];
       }
     } else {
-      mission.statusCommentHistoric = [
-        { status: mission.statusCode, comment: mission.statusComment, date: mission.updatedAt },
-      ];
+      mission.statusCommentHistoric = [{ status: mission.statusCode, comment: mission.statusComment, date: mission.updatedAt }];
     }
 
     return mission;
@@ -135,10 +126,7 @@ const importPublisher = async (publisher: Publisher, start: Date) => {
     const headers = new Headers();
 
     if (publisher.feed_username && publisher.feed_password) {
-      headers.set(
-        "Authorization",
-        `Basic ${btoa(`${publisher.feed_username}:${publisher.feed_password}`)}`
-      );
+      headers.set("Authorization", `Basic ${btoa(`${publisher.feed_username}:${publisher.feed_password}`)}`);
     }
     const xml = await fetch(publisher.feed, { headers }).then((response) => response.text());
 
@@ -149,10 +137,7 @@ const importPublisher = async (publisher: Publisher, start: Date) => {
       console.log(`[${publisher.name}] Empty xml`);
 
       console.log(`[${publisher.name}] Mongo cleaning...`);
-      const mongoRes = await MissionModel.updateMany(
-        { publisherId: publisher._id, deletedAt: null, updatedAt: { $lt: start } },
-        { deleted: true, deletedAt: new Date() }
-      );
+      const mongoRes = await MissionModel.updateMany({ publisherId: publisher._id, deletedAt: null, updatedAt: { $lt: start } }, { deleted: true, deletedAt: new Date() });
       console.log(`[${publisher.name}] Mongo cleaning deleted ${mongoRes.modifiedCount}`);
       obj.endedAt = new Date();
       return obj;
@@ -205,9 +190,7 @@ const importPublisher = async (publisher: Publisher, start: Date) => {
     });
 
     // RNA
-    console.log(
-      `[Organization] Starting organization verification for ${missions.length} missions`
-    );
+    console.log(`[Organization] Starting organization verification for ${missions.length} missions`);
     const resultRNA = await verifyOrganization(missions);
     console.log(`[Organization] Received ${resultRNA.length} verification results`);
 
@@ -279,15 +262,10 @@ const handler = async (publisherId?: string) => {
       }
       await ImportModel.create(res);
     } catch (error: any) {
-      captureException(
-        `Import XML failed`,
-        `${error.message} while creating import for ${publisher.name} (${publisher._id})`
-      );
+      captureException(`Import XML failed`, `${error.message} while creating import for ${publisher.name} (${publisher._id})`);
     }
   }
-  console.log(
-    `[Import XML] Ended at ${new Date().toISOString()} in ${(Date.now() - start.getTime()) / 1000}s`
-  );
+  console.log(`[Import XML] Ended at ${new Date().toISOString()} in ${(Date.now() - start.getTime()) / 1000}s`);
 };
 
 export default { handler };

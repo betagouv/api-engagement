@@ -215,9 +215,7 @@ const writeBatch = async (records: DataGouvRnaRecord[]): Promise<number> => {
 
   if (bulk.length > 0) {
     const res = await OrganizationModel.bulkWrite(bulk);
-    console.log(
-      `[Organizations] Updated ${res.modifiedCount} organizations, upserted ${res.upsertedCount} organizations`
-    );
+    console.log(`[Organizations] Updated ${res.modifiedCount} organizations, upserted ${res.upsertedCount} organizations`);
   }
 
   return count;

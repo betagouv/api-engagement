@@ -6,10 +6,7 @@ export default defineConfig({
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 2 : 0,
   workers: process.env.CI ? 1 : undefined,
-  reporter: [
-    ["line"],
-    ["html", { open: "never", outputFolder: "./tests/e2e/_playwright-report", port: 58724 }],
-  ],
+  reporter: [["line"], ["html", { open: "never", outputFolder: "./tests/e2e/_playwright-report", port: 58724 }]],
   outputDir: "./tests/e2e/_test-results/",
   use: {
     baseURL: "http://localhost:3001",
@@ -47,8 +44,7 @@ export default defineConfig({
     },
   ],
   webServer: {
-    command:
-      "NEXT_PUBLIC_API_URL=http://localhost:3099/api-mock API_URL=http://localhost:3099/api-mock NEXT_DEVTOOLS='false' npm run dev",
+    command: "NEXT_PUBLIC_API_URL=http://localhost:3099/api-mock API_URL=http://localhost:3099/api-mock NEXT_DEVTOOLS='false' npm run dev",
     url: "http://localhost:3001",
     reuseExistingServer: !process.env.CI,
     timeout: 120 * 1000,

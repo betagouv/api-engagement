@@ -1,5 +1,5 @@
-import localFont from "next/font/local";
 import PlausibleProvider from "next-plausible";
+import localFont from "next/font/local";
 
 import "./global.css";
 

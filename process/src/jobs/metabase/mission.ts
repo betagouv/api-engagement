@@ -6,21 +6,14 @@ import { Mission as MongoMission } from "../../types";
 
 const BULK_SIZE = 5000;
 
-const buildData = async (
-  doc: MongoMission,
-  partners: { [key: string]: string }
-): Promise<{ mission: PgMission; addresses: PgAddress[] } | null> => {
+const buildData = async (doc: MongoMission, partners: { [key: string]: string }): Promise<{ mission: PgMission; addresses: PgAddress[] } | null> => {
   const partnerId = partners[doc.publisherId?.toString()];
   if (!partnerId) {
-    console.log(
-      `[Mission] Partner ${doc.publisherId?.toString()} not found for mission ${doc._id?.toString()}`
-    );
+    console.log(`[Mission] Partner ${doc.publisherId?.toString()} not found for mission ${doc._id?.toString()}`);
     return null;
   }
 
-  const organization = doc.organizationId
-    ? await prisma.organization.findUnique({ where: { old_id: doc.organizationId } })
-    : null;
+  const organization = doc.organizationId ? await prisma.organization.findUnique({ where: { old_id: doc.organizationId } }) : null;
 
   const obj = {
     old_id: doc._id.toString(),
@@ -105,16 +98,12 @@ const buildData = async (
     jva_moderation_status: doc["moderation_5f5931496c7ea514150a818f_status"],
     jva_moderation_comment: doc["moderation_5f5931496c7ea514150a818f_comment"],
     jva_moderation_title: doc["moderation_5f5931496c7ea514150a818f_title"],
-    jva_moderation_updated_at: doc["moderation_5f5931496c7ea514150a818f_date"]
-      ? new Date(doc["moderation_5f5931496c7ea514150a818f_date"])
-      : undefined,
+    jva_moderation_updated_at: doc["moderation_5f5931496c7ea514150a818f_date"] ? new Date(doc["moderation_5f5931496c7ea514150a818f_date"]) : undefined,
 
     leboncoin_moderation_status: doc.leboncoinStatus,
     leboncoin_moderation_comment: doc.leboncoinComment,
     leboncoin_moderation_url: doc.leboncoinUrl,
-    leboncoin_moderation_updated_at: doc.leboncoinUpdatedAt
-      ? new Date(doc.leboncoinUpdatedAt)
-      : undefined,
+    leboncoin_moderation_updated_at: doc.leboncoinUpdatedAt ? new Date(doc.leboncoinUpdatedAt) : undefined,
 
     created_at: new Date(doc.createdAt),
     updated_at: new Date(doc.updatedAt),
@@ -155,9 +144,7 @@ const handler = async () => {
     const count = await prisma.mission.count();
     console.log(`[Missions] Found ${count} docs in database.`);
     const partners = {} as { [key: string]: string };
-    await prisma.partner
-      .findMany({ select: { id: true, old_id: true } })
-      .then((data) => data.forEach((d) => (partners[d.old_id] = d.id)));
+    await prisma.partner.findMany({ select: { id: true, old_id: true } }).then((data) => data.forEach((d) => (partners[d.old_id] = d.id)));
 
     const where = {};
     const countToSync = await MissionModel.countDocuments(where);
@@ -196,9 +183,7 @@ const handler = async () => {
         }
       }
 
-      console.log(
-        `[Missions] ${dataToCreate.length} docs to create, ${dataToUpdate.length} docs to update.`
-      );
+      console.log(`[Missions] ${dataToCreate.length} docs to create, ${dataToUpdate.length} docs to update.`);
       // Create data
       if (dataToCreate.length) {
         const res = await prisma.mission.createManyAndReturn({
@@ -249,9 +234,7 @@ const handler = async () => {
       offset += BULK_SIZE;
     }
 
-    console.log(
-      `[Missions] Ended at ${new Date().toISOString()} in ${(Date.now() - start.getTime()) / 1000}s.`
-    );
+    console.log(`[Missions] Ended at ${new Date().toISOString()} in ${(Date.now() - start.getTime()) / 1000}s.`);
     return { created, updated };
   } catch (error) {
     captureException(error, "[Missions] Error while syncing docs.");

@@ -48,10 +48,7 @@ const getImageDomain = (domain: string) => {
 };
 
 const getMonthDifference = (startDate: Date, endDate: Date) => {
-  const d =
-    endDate.getMonth() -
-    startDate.getMonth() +
-    12 * (endDate.getFullYear() - startDate.getFullYear());
+  const d = endDate.getMonth() - startDate.getMonth() + 12 * (endDate.getFullYear() - startDate.getFullYear());
   if (isNaN(d)) {
     return undefined;
   } else {
@@ -145,10 +142,7 @@ const parseNumber = (value: number | string | undefined) => {
   return Number(value);
 };
 
-const parseArray = (
-  value: string | { value: string[] | string } | undefined,
-  includeSpace = false
-) => {
+const parseArray = (value: string | { value: string[] | string } | undefined, includeSpace = false) => {
   if (!value) {
     return undefined;
   }
@@ -180,16 +174,11 @@ export const buildMission = (publisher: Publisher, missionXML: MissionXML) => {
     postedAt: parseDate(missionXML.postedAt) || new Date(),
     startAt: parseDate(missionXML.startAt) || new Date(),
     endAt: parseDate(missionXML.endAt) || null,
-    duration: missionXML.endAt
-      ? getMonthDifference(new Date(missionXML.startAt), new Date(missionXML.endAt))
-      : undefined,
+    duration: missionXML.endAt ? getMonthDifference(new Date(missionXML.startAt), new Date(missionXML.endAt)) : undefined,
     activity: parseString(missionXML.activity) || "",
     domain: parseString(missionXML.domain) || "",
     schedule: parseString(missionXML.schedule),
-    audience:
-      parseArray(missionXML.audience, true) ||
-      parseArray(missionXML.publicBeneficiaries, true) ||
-      [],
+    audience: parseArray(missionXML.audience, true) || parseArray(missionXML.publicBeneficiaries, true) || [],
     soft_skills: parseArray(missionXML.soft_skills, true) || [],
     softSkills: parseArray(missionXML.softSkills, true) || [],
     remote: parseString(missionXML.remote) || "no",
@@ -204,10 +193,8 @@ export const buildMission = (publisher: Publisher, missionXML: MissionXML) => {
     snuPlaces: parseNumber(missionXML.snuPlaces),
     metadata: parseString(missionXML.metadata),
     organizationName: parseString(missionXML.organizationName),
-    organizationRNA:
-      parseString(missionXML.organizationRNA) || parseString(missionXML.organizationRna) || "",
-    organizationSiren:
-      parseString(missionXML.organizationSiren) || missionXML.organizationSiren || "",
+    organizationRNA: parseString(missionXML.organizationRNA) || parseString(missionXML.organizationRna) || "",
+    organizationSiren: parseString(missionXML.organizationSiren) || missionXML.organizationSiren || "",
     organizationUrl: parseString(missionXML.organizationUrl),
     organizationLogo: parseString(missionXML.organizationLogo || ""),
     organizationDescription: parseString(missionXML.organizationDescription),
@@ -218,13 +205,7 @@ export const buildMission = (publisher: Publisher, missionXML: MissionXML) => {
     organizationFullAddress: parseString(missionXML.organizationFullAddress),
     organizationPostCode: parseString(missionXML.organizationPostCode),
     organizationCity: parseString(missionXML.organizationCity),
-    organizationBeneficiaries:
-      parseArray(
-        missionXML.organizationBeneficiaries ||
-          missionXML.organizationBeneficiaires ||
-          missionXML.publicBeneficiaries,
-        true
-      ) || [],
+    organizationBeneficiaries: parseArray(missionXML.organizationBeneficiaries || missionXML.organizationBeneficiaires || missionXML.publicBeneficiaries, true) || [],
     organizationReseaux: parseArray(missionXML.organizationReseaux, true) || [],
   } as Mission;
 
@@ -234,11 +215,7 @@ export const buildMission = (publisher: Publisher, missionXML: MissionXML) => {
   mission.domainLogo = missionXML.image || getImageDomain(mission.domain);
 
   // Address
-  if (
-    missionXML.addresses &&
-    Array.isArray(missionXML.addresses) &&
-    missionXML.addresses.length > 0
-  ) {
+  if (missionXML.addresses && Array.isArray(missionXML.addresses) && missionXML.addresses.length > 0) {
     getAddresses(mission, missionXML);
   } else {
     getAddress(mission, missionXML);
@@ -280,9 +257,7 @@ export const buildMission = (publisher: Publisher, missionXML: MissionXML) => {
   // Dirty dirty hack for service civique
   if (publisher._id.toString() === "5f99dbe75eb1ad767733b206") {
     if (missionXML.parentOrganizationName) {
-      mission.organizationReseaux = Array.isArray(missionXML.parentOrganizationName)
-        ? missionXML.parentOrganizationName
-        : [missionXML.parentOrganizationName];
+      mission.organizationReseaux = Array.isArray(missionXML.parentOrganizationName) ? missionXML.parentOrganizationName : [missionXML.parentOrganizationName];
     } else {
       mission.organizationReseaux = [missionXML.organizationName];
     }

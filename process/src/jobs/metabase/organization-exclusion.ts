@@ -7,16 +7,12 @@ import { OrganizationExclusion } from "../../types";
 const buildData = (doc: OrganizationExclusion, partners: { [key: string]: string }) => {
   const partnerIdBy = partners[doc.excludedByPublisherId.toString()];
   if (!partnerIdBy) {
-    console.log(
-      `[OrganizationExclusion] Partner ${doc.excludedByPublisherId.toString()} not found for excluded organization ${doc.organizationClientId}`
-    );
+    console.log(`[OrganizationExclusion] Partner ${doc.excludedByPublisherId.toString()} not found for excluded organization ${doc.organizationClientId}`);
     return null;
   }
   const partnerIdFor = partners[doc.excludedForPublisherId.toString()];
   if (!partnerIdFor) {
-    console.log(
-      `[OrganizationExclusion] Partner ${doc.excludedForPublisherId.toString()} not found for excluded organization ${doc.organizationClientId}`
-    );
+    console.log(`[OrganizationExclusion] Partner ${doc.excludedForPublisherId.toString()} not found for excluded organization ${doc.organizationClientId}`);
     return null;
   }
 
@@ -50,9 +46,7 @@ const handler = async () => {
     console.log(`[OrganizationExclusion] Found ${Object.keys(stored).length} docs in database.`);
 
     const partners = {} as { [key: string]: string };
-    await prisma.partner
-      .findMany({ select: { old_id: true, id: true } })
-      .then((data) => data.forEach((d) => (partners[d.old_id] = d.id)));
+    await prisma.partner.findMany({ select: { old_id: true, id: true } }).then((data) => data.forEach((d) => (partners[d.old_id] = d.id)));
 
     let created = 0;
     for (const doc of data) {
@@ -94,9 +88,7 @@ const handler = async () => {
       }
     }
 
-    console.log(
-      `[OrganizationExclusion] Ended at ${new Date().toISOString()} in ${(Date.now() - start.getTime()) / 1000}s, created ${created}, deleted ${deleted}`
-    );
+    console.log(`[OrganizationExclusion] Ended at ${new Date().toISOString()} in ${(Date.now() - start.getTime()) / 1000}s, created ${created}, deleted ${deleted}`);
     return { created, deleted };
   } catch (error) {
     captureException(error, "[Partners] Error while syncing docs.");

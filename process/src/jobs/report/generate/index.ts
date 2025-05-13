@@ -39,14 +39,7 @@ export const generateReport = async (publisher: Publisher, year: number, month: 
     // Overview page #f6f6f6
     doc.setFillColor("#f6f6f6");
     doc.rect(0, 0, PAGE_WIDTH, PAGE_HEIGHT, "F");
-    await generateHeader(
-      doc,
-      publisher,
-      month,
-      year,
-      1,
-      data.send?.hasStats && data.receive?.hasStats ? 3 : 2
-    );
+    await generateHeader(doc, publisher, month, year, 1, data.send?.hasStats && data.receive?.hasStats ? 3 : 2);
     generateOverview(doc, data);
 
     // Announce details page if exists
@@ -63,14 +56,7 @@ export const generateReport = async (publisher: Publisher, year: number, month: 
       doc.addPage();
       doc.setFillColor("#f6f6f6");
       doc.rect(0, 0, PAGE_WIDTH, PAGE_HEIGHT, "F");
-      await generateHeader(
-        doc,
-        publisher,
-        month,
-        year,
-        data.receive?.hasStats ? 3 : 2,
-        data.receive?.hasStats ? 3 : 2
-      );
+      await generateHeader(doc, publisher, month, year, data.receive?.hasStats ? 3 : 2, data.receive?.hasStats ? 3 : 2);
       generateBroadcast(doc, data);
     }
 
@@ -94,9 +80,7 @@ export const generateReports = async (year: number, month: number) => {
   const publishers = await PublisherModel.find({ automated_report: true });
   let count = 0;
   const errors = [] as { id: string; name: string; error: string }[];
-  console.log(
-    `[Report] Generating report for ${year}-${month} for ${publishers.length} publishers`
-  );
+  console.log(`[Report] Generating report for ${year}-${month} for ${publishers.length} publishers`);
   for (let i = 0; i < publishers.length; i++) {
     const publisher = publishers[i];
     console.log(`[Report] Generating report for ${year}-${month} for ${publisher.name}`);
@@ -112,10 +96,7 @@ export const generateReports = async (year: number, month: number) => {
     } as Report;
 
     if (res.error) {
-      console.error(
-        `[Report] Error generating report for ${year}-${month} for ${publisher.name}:`,
-        res.error
-      );
+      console.error(`[Report] Error generating report for ${year}-${month} for ${publisher.name}:`, res.error);
       obj.status = "NOT_GENERATED_ERROR_GENERATION";
       errors.push({
         id: publisher._id.toString(),
@@ -129,12 +110,7 @@ export const generateReports = async (year: number, month: number) => {
       console.log(`[Report] Report generated for ${year}-${month} for ${publisher.name}`);
       obj.objectName = res.objectName;
       obj.url = res.url;
-      obj.dataTemplate =
-        res.data.receive?.hasStats && res.data.send?.hasStats
-          ? "BOTH"
-          : res.data.receive?.hasStats
-            ? "RECEIVE"
-            : "SEND";
+      obj.dataTemplate = res.data.receive?.hasStats && res.data.send?.hasStats ? "BOTH" : res.data.receive?.hasStats ? "RECEIVE" : "SEND";
       obj.status = "GENERATED";
     }
     const existing = await ReportModel.findOne({ publisherId: publisher._id, year, month });

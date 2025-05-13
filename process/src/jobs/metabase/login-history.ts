@@ -18,9 +18,7 @@ const handler = async () => {
     console.log(`[User] Found ${data.length} users to process.`);
 
     const users = {} as { [key: string]: string };
-    await prisma.user
-      .findMany({ select: { id: true, old_id: true } })
-      .then((data) => data.forEach((d) => (users[d.old_id] = d.id)));
+    await prisma.user.findMany({ select: { id: true, old_id: true } }).then((data) => data.forEach((d) => (users[d.old_id] = d.id)));
     console.log(`[User] Mapped ${Object.keys(users).length} users to database IDs.`);
 
     const logins = {} as { [key: string]: Date | null };
@@ -32,9 +30,7 @@ const handler = async () => {
         },
       })
       .then((data) => data.forEach((e) => (logins[e.user_id] = e._max.login_at)));
-    console.log(
-      `[LoginHistory] Fetched latest login times for ${Object.keys(logins).length} users.`
-    );
+    console.log(`[LoginHistory] Fetched latest login times for ${Object.keys(logins).length} users.`);
 
     const dataToCreate = [] as LoginHistory[];
     for (const user of data) {
@@ -61,9 +57,7 @@ const handler = async () => {
       console.log(`[LoginHistory] Created ${dataToCreate.length} records.`);
     }
 
-    console.log(
-      `[LoginHistory] Ended at ${new Date().toISOString()} in ${(Date.now() - start.getTime()) / 1000}s.`
-    );
+    console.log(`[LoginHistory] Ended at ${new Date().toISOString()} in ${(Date.now() - start.getTime()) / 1000}s.`);
     return { created: dataToCreate.length };
   } catch (error) {
     captureException(error, "[LoginHistory] Error while syncing login history.");

@@ -36,223 +36,188 @@ router.use(async (req: PublisherRequest, res: Response, next: NextFunction) => {
   next();
 });
 
-router.get(
-  "/",
-  passport.authenticate(["apikey", "api"], { session: false }),
-  async (req: PublisherRequest, res: Response, next: NextFunction) => {
-    try {
-      const query = zod
-        .object({
-          limit: zod.coerce.number().int().max(10000).default(50),
-          skip: zod.coerce.number().int().default(0),
-        })
-        .passthrough()
-        .safeParse(req.query);
+router.get("/", passport.authenticate(["apikey", "api"], { session: false }), async (req: PublisherRequest, res: Response, next: NextFunction) => {
+  try {
+    const query = zod
+      .object({
+        limit: zod.coerce.number().int().max(10000).default(50),
+        skip: zod.coerce.number().int().default(0),
+      })
+      .passthrough()
+      .safeParse(req.query);
 
-      if (!query.success) {
-        res.locals = { code: INVALID_QUERY, message: JSON.stringify(query.error) };
-        return res.status(400).send({ ok: false, code: INVALID_QUERY, message: query.error });
-      }
-
-      const where = { deleted: false, publisherId: req.user._id.toString() };
-
-      const total = await MissionModel.countDocuments(where);
-      const data = await MissionModel.find(where)
-        .limit(query.data.limit)
-        .skip(query.data.skip)
-        .lean();
-
-      res.locals = { total };
-      return res
-        .status(200)
-        .send({
-          ok: true,
-          total,
-          limit: query.data.limit,
-          skip: query.data.skip,
-          data: data.map(buildData),
-        });
-    } catch (error) {
-      next(error);
+    if (!query.success) {
+      res.locals = { code: INVALID_QUERY, message: JSON.stringify(query.error) };
+      return res.status(400).send({ ok: false, code: INVALID_QUERY, message: query.error });
     }
+
+    const where = { deleted: false, publisherId: req.user._id.toString() };
+
+    const total = await MissionModel.countDocuments(where);
+    const data = await MissionModel.find(where).limit(query.data.limit).skip(query.data.skip).lean();
+
+    res.locals = { total };
+    return res.status(200).send({
+      ok: true,
+      total,
+      limit: query.data.limit,
+      skip: query.data.skip,
+      data: data.map(buildData),
+    });
+  } catch (error) {
+    next(error);
   }
-);
+});
 
-router.get(
-  "/:clientId",
-  passport.authenticate(["apikey", "api"], { session: false }),
-  async (req: PublisherRequest, res: Response, next: NextFunction) => {
-    try {
-      const params = zod
-        .object({
-          clientId: zod.string(),
-        })
-        .safeParse(req.params);
+router.get("/:clientId", passport.authenticate(["apikey", "api"], { session: false }), async (req: PublisherRequest, res: Response, next: NextFunction) => {
+  try {
+    const params = zod
+      .object({
+        clientId: zod.string(),
+      })
+      .safeParse(req.params);
 
-      if (!params.success) {
-        res.locals = { code: INVALID_PARAMS, message: JSON.stringify(params.error) };
-        return res.status(400).send({ ok: false, code: INVALID_PARAMS, message: params.error });
-      }
+    if (!params.success) {
+      res.locals = { code: INVALID_PARAMS, message: JSON.stringify(params.error) };
+      return res.status(400).send({ ok: false, code: INVALID_PARAMS, message: params.error });
+    }
 
-      const mission = await MissionModel.findOne({
-        clientId: params.data.clientId,
-        publisherId: req.user._id.toString(),
-      }).lean();
-      if (!mission) {
-        return res.status(404).send({ ok: false, code: NOT_FOUND });
-      }
+    const mission = await MissionModel.findOne({
+      clientId: params.data.clientId,
+      publisherId: req.user._id.toString(),
+    }).lean();
+    if (!mission) {
+      return res.status(404).send({ ok: false, code: NOT_FOUND });
+    }
 
-      const query = {
-        query: {
-          bool: {
-            must_not: [{ term: { isBot: true } }],
-            must: [{ term: { "missionId.keyword": mission._id } }],
-          },
+    const query = {
+      query: {
+        bool: {
+          must_not: [{ term: { isBot: true } }],
+          must: [{ term: { "missionId.keyword": mission._id } }],
         },
-        aggs: {
-          apply: {
-            filter: { term: { type: "apply" } },
-            aggs: {
-              data: {
-                terms: { field: "fromPublisherId.keyword", size: 100 },
-                aggs: { hits: { top_hits: { size: 1 } } },
-              },
-            },
-          },
-          click: {
-            filter: { term: { type: "click" } },
-            aggs: {
-              data: {
-                terms: { field: "fromPublisherId.keyword", size: 100 },
-                aggs: { hits: { top_hits: { size: 1 } } },
-              },
+      },
+      aggs: {
+        apply: {
+          filter: { term: { type: "apply" } },
+          aggs: {
+            data: {
+              terms: { field: "fromPublisherId.keyword", size: 100 },
+              aggs: { hits: { top_hits: { size: 1 } } },
             },
           },
         },
-        size: 0,
-      };
-
-      const raw = await esClient.msearch({ body: [{ index: STATS_INDEX }, query] });
-      const applications = raw.body.responses[0].aggregations.apply.data.buckets.map(
-        ({ key, hits, doc_count }: { key: string; hits: any; doc_count: number }) => {
-          const count = doc_count;
-          const { fromPublisherLogo, fromPublisherName, fromPublisherUrl } =
-            hits.hits.hits[0]._source;
-          return {
-            key,
-            logo: fromPublisherLogo,
-            name: fromPublisherName,
-            url: fromPublisherUrl,
-            doc_count: count,
-          };
-        }
-      );
-      const clicks = raw.body.responses[0].aggregations.click.data.buckets.map(
-        ({ key, hits, doc_count }: { key: string; hits: any; doc_count: number }) => {
-          const count = doc_count;
-          const { fromPublisherLogo, fromPublisherName, fromPublisherUrl } =
-            hits.hits.hits[0]._source;
-          return {
-            key,
-            logo: fromPublisherLogo,
-            name: fromPublisherName,
-            url: fromPublisherUrl,
-            doc_count: count,
-          };
-        }
-      );
-
-      res.locals = { total: 1 };
-      return res
-        .status(200)
-        .send({ ok: true, data: { ...buildData(mission), stats: { applications, clicks } } });
-    } catch (error: any) {
-      next(error);
-    }
-  }
-);
-
-router.get(
-  "/:clientId/stats",
-  passport.authenticate(["apikey", "api"], { session: false }),
-  async (req: PublisherRequest, res: Response, next: NextFunction) => {
-    try {
-      const params = zod
-        .object({
-          clientId: zod.string(),
-        })
-        .safeParse(req.params);
-
-      if (!params.success) {
-        res.locals = { code: INVALID_PARAMS, message: JSON.stringify(params.error) };
-        return res.status(400).send({ ok: false, code: INVALID_PARAMS, message: params.error });
-      }
-
-      const mission = await MissionModel.findOne({
-        clientId: params.data.clientId,
-        publisherId: req.user._id.toString(),
-      }).lean();
-      if (!mission) {
-        return res.status(404).send({ ok: false, code: NOT_FOUND });
-      }
-
-      const clicks = {
-        query: {
-          bool: {
-            must_not: [{ term: { isBot: true } }],
-            must: [
-              { term: { "missionId.keyword": mission._id } },
-              { term: { "type.keyword": "click" } },
-            ],
+        click: {
+          filter: { term: { type: "click" } },
+          aggs: {
+            data: {
+              terms: { field: "fromPublisherId.keyword", size: 100 },
+              aggs: { hits: { top_hits: { size: 1 } } },
+            },
           },
         },
-        aggs: { mission: { terms: { field: "fromPublisherName.keyword" } } },
-        size: 0,
+      },
+      size: 0,
+    };
+
+    const raw = await esClient.msearch({ body: [{ index: STATS_INDEX }, query] });
+    const applications = raw.body.responses[0].aggregations.apply.data.buckets.map(({ key, hits, doc_count }: { key: string; hits: any; doc_count: number }) => {
+      const count = doc_count;
+      const { fromPublisherLogo, fromPublisherName, fromPublisherUrl } = hits.hits.hits[0]._source;
+      return {
+        key,
+        logo: fromPublisherLogo,
+        name: fromPublisherName,
+        url: fromPublisherUrl,
+        doc_count: count,
       };
-
-      const applications = {
-        query: {
-          bool: {
-            must_not: [{ term: { isBot: true } }],
-            must: [
-              { term: { "missionId.keyword": mission._id } },
-              { term: { "type.keyword": "apply" } },
-            ],
-          },
-        },
-        aggs: { mission: { terms: { field: "fromPublisherName.keyword" } } },
-        size: 0,
+    });
+    const clicks = raw.body.responses[0].aggregations.click.data.buckets.map(({ key, hits, doc_count }: { key: string; hits: any; doc_count: number }) => {
+      const count = doc_count;
+      const { fromPublisherLogo, fromPublisherName, fromPublisherUrl } = hits.hits.hits[0]._source;
+      return {
+        key,
+        logo: fromPublisherLogo,
+        name: fromPublisherName,
+        url: fromPublisherUrl,
+        doc_count: count,
       };
+    });
 
-      const stats = await esClient.msearch({
-        body: [{ index: STATS_INDEX }, clicks, { index: STATS_INDEX }, applications],
-      });
-      const d = stats.body.responses.map((e: any) => {
-        return e.aggregations?.mission?.buckets?.map(
-          ({ key, doc_count }: { key: string; doc_count: number }) => ({ key, doc_count })
-        );
-      });
-
-      const data = {} as { clicks: any; applications: any };
-      data.clicks = d[0];
-      data.applications = d[1];
-
-      res.locals = { total: 1 };
-      return res.status(200).send({ ok: true, data });
-    } catch (error: any) {
-      if (error.statusCode === 404) {
-        return res.status(404).send({ ok: false, code: NOT_FOUND });
-      }
-      next(error);
-    }
+    res.locals = { total: 1 };
+    return res.status(200).send({ ok: true, data: { ...buildData(mission), stats: { applications, clicks } } });
+  } catch (error: any) {
+    next(error);
   }
-);
+});
+
+router.get("/:clientId/stats", passport.authenticate(["apikey", "api"], { session: false }), async (req: PublisherRequest, res: Response, next: NextFunction) => {
+  try {
+    const params = zod
+      .object({
+        clientId: zod.string(),
+      })
+      .safeParse(req.params);
+
+    if (!params.success) {
+      res.locals = { code: INVALID_PARAMS, message: JSON.stringify(params.error) };
+      return res.status(400).send({ ok: false, code: INVALID_PARAMS, message: params.error });
+    }
+
+    const mission = await MissionModel.findOne({
+      clientId: params.data.clientId,
+      publisherId: req.user._id.toString(),
+    }).lean();
+    if (!mission) {
+      return res.status(404).send({ ok: false, code: NOT_FOUND });
+    }
+
+    const clicks = {
+      query: {
+        bool: {
+          must_not: [{ term: { isBot: true } }],
+          must: [{ term: { "missionId.keyword": mission._id } }, { term: { "type.keyword": "click" } }],
+        },
+      },
+      aggs: { mission: { terms: { field: "fromPublisherName.keyword" } } },
+      size: 0,
+    };
+
+    const applications = {
+      query: {
+        bool: {
+          must_not: [{ term: { isBot: true } }],
+          must: [{ term: { "missionId.keyword": mission._id } }, { term: { "type.keyword": "apply" } }],
+        },
+      },
+      aggs: { mission: { terms: { field: "fromPublisherName.keyword" } } },
+      size: 0,
+    };
+
+    const stats = await esClient.msearch({
+      body: [{ index: STATS_INDEX }, clicks, { index: STATS_INDEX }, applications],
+    });
+    const d = stats.body.responses.map((e: any) => {
+      return e.aggregations?.mission?.buckets?.map(({ key, doc_count }: { key: string; doc_count: number }) => ({ key, doc_count }));
+    });
+
+    const data = {} as { clicks: any; applications: any };
+    data.clicks = d[0];
+    data.applications = d[1];
+
+    res.locals = { total: 1 };
+    return res.status(200).send({ ok: true, data });
+  } catch (error: any) {
+    if (error.statusCode === 404) {
+      return res.status(404).send({ ok: false, code: NOT_FOUND });
+    }
+    next(error);
+  }
+});
 
 const buildData = (data: Mission) => {
   const address = data.addresses[0];
-  const moderationComment =
-    JVA_MODERATION_COMMENTS_LABELS[data.moderation_5f5931496c7ea514150a818f_comment || ""] ||
-    data.moderation_5f5931496c7ea514150a818f_comment;
+  const moderationComment = JVA_MODERATION_COMMENTS_LABELS[data.moderation_5f5931496c7ea514150a818f_comment || ""] || data.moderation_5f5931496c7ea514150a818f_comment;
   return {
     _id: data._id,
     id: data._id,

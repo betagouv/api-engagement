@@ -43,12 +43,7 @@ export const drawText = (
     doc.text(lines, x, y + (options?.lineHeight || TEXT_BODY_LINE_HEIGHT) - 6, {
       lineHeightFactor: options?.lineHeightFactor || 1.5,
     });
-    height =
-      y +
-      lines.length *
-        (options?.lineHeightFactor || 1.5) *
-        (options?.fontSize || 12) *
-        TEXT_SIZE_FACTOR;
+    height = y + lines.length * (options?.lineHeightFactor || 1.5) * (options?.fontSize || 12) * TEXT_SIZE_FACTOR;
   } else {
     doc.text(text, x, y + (options?.lineHeight || TEXT_BODY_LINE_HEIGHT) - 6, {
       lineHeightFactor: options?.lineHeightFactor || 1.5,
@@ -74,12 +69,7 @@ export const drawLink = (
   const textWidth = doc.getTextWidth(text);
   doc.setDrawColor(options?.color || "#000000");
   doc.setLineWidth(options?.fontWeight === "bold" ? 1 : 0.5);
-  doc.line(
-    x,
-    y + (options?.lineHeight || TEXT_BODY_LINE_HEIGHT) - 3,
-    x + textWidth,
-    y + (options?.lineHeight || TEXT_BODY_LINE_HEIGHT) - 3
-  );
+  doc.line(x, y + (options?.lineHeight || TEXT_BODY_LINE_HEIGHT) - 3, x + textWidth, y + (options?.lineHeight || TEXT_BODY_LINE_HEIGHT) - 3);
 };
 
 export const drawBoxText = (
@@ -136,9 +126,7 @@ export const drawLineChart = (
   const chartHeight = height - 24; // Account for X-axis labels and legend
 
   // Find max value for Y scale
-  const maxValue = Math.max(
-    ...data.map((d) => Math.max(d.click, d.clickLastYear, d.apply, d.applyLastYear))
-  );
+  const maxValue = Math.max(...data.map((d) => Math.max(d.click, d.clickLastYear, d.apply, d.applyLastYear)));
   const yScale = chartHeight / (maxValue * 1.2); // Increased padding to 20%
   const xScale = chartWidth / (data.length - 1);
 
@@ -161,20 +149,7 @@ export const drawLineChart = (
   }
 
   // Draw X-axis labels (months)
-  const MONTHS = [
-    "janv.",
-    "fév.",
-    "mars",
-    "avr.",
-    "mai",
-    "juin",
-    "juil.",
-    "août",
-    "sept.",
-    "oct.",
-    "nov.",
-    "déc.",
-  ];
+  const MONTHS = ["janv.", "fév.", "mars", "avr.", "mai", "juin", "juil.", "août", "sept.", "oct.", "nov.", "déc."];
   data.forEach((d, i) => {
     const xPos = chartX + i * xScale;
     doc.setFont("Marianne", "normal");
@@ -221,15 +196,7 @@ export const drawLineChart = (
   drawLine(applyLastYearPoints, COLORS.secondaryLight, 1.5);
 };
 
-export const drawBarChart = (
-  doc: jsPDF,
-  data: { month: number; [key: string]: number }[],
-  x: number,
-  y: number,
-  width: number,
-  height: number,
-  colors: string[]
-) => {
+export const drawBarChart = (doc: jsPDF, data: { month: number; [key: string]: number }[], x: number, y: number, width: number, height: number, colors: string[]) => {
   // Sort data by month
   data.sort((a, b) => new Date(a.month).getTime() - new Date(b.month).getTime());
 
@@ -243,9 +210,7 @@ export const drawBarChart = (
   const orgKeys = Object.keys(data[0]).filter((key) => key !== "month");
 
   // Calculate max value for Y scale (sum of all values per month)
-  const maxValue = Math.max(
-    ...data.map((d) => orgKeys.reduce((sum, key) => sum + (d[key] || 0), 0))
-  );
+  const maxValue = Math.max(...data.map((d) => orgKeys.reduce((sum, key) => sum + (d[key] || 0), 0)));
   const yScale = chartHeight / (maxValue * 1.2);
   const barWidth = (chartWidth / data.length) * 0.8; // 80% of available space
   const barGap = (chartWidth / data.length) * 0.2; // 20% gap
@@ -269,20 +234,7 @@ export const drawBarChart = (
   }
 
   // Draw X-axis labels (months)
-  const MONTHS = [
-    "janv.",
-    "fév.",
-    "mars",
-    "avr.",
-    "mai",
-    "juin",
-    "juil.",
-    "août",
-    "sept.",
-    "oct.",
-    "nov.",
-    "déc.",
-  ];
+  const MONTHS = ["janv.", "fév.", "mars", "avr.", "mai", "juin", "juil.", "août", "sept.", "oct.", "nov.", "déc."];
 
   // Draw bars
   data.forEach((monthData, monthIndex) => {

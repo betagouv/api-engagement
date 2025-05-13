@@ -24,13 +24,7 @@ export const bulkDB = async (bulk: Mission[], publisher: Publisher, importDoc: I
  */
 const writeMongo = async (bulk: Mission[], publisher: Publisher, importDoc: Import) => {
   // Cast to any to resolve TypeScript error, as bulkWriteWithHistory is added dynamically to the model.
-  const mongoBulk = bulk
-    .filter((e) => e)
-    .map((e) =>
-      e._id
-        ? { updateOne: { filter: { _id: e._id }, update: { $set: e }, upsert: true } }
-        : { insertOne: { document: e } }
-    );
+  const mongoBulk = bulk.filter((e) => e).map((e) => (e._id ? { updateOne: { filter: { _id: e._id }, update: { $set: e }, upsert: true } } : { insertOne: { document: e } }));
 
   const mongoUpdateRes = await (MissionModel as any)
     .withHistoryContext({
@@ -40,9 +34,7 @@ const writeMongo = async (bulk: Mission[], publisher: Publisher, importDoc: Impo
 
   importDoc.createdCount = mongoUpdateRes.upsertedCount + mongoUpdateRes.insertedCount;
   importDoc.updatedCount = mongoUpdateRes.modifiedCount;
-  console.log(
-    `[${publisher.name}] Mongo bulk write created ${importDoc.createdCount}, updated ${importDoc.updatedCount}`
-  );
+  console.log(`[${publisher.name}] Mongo bulk write created ${importDoc.createdCount}, updated ${importDoc.updatedCount}`);
 
   if (mongoUpdateRes.hasWriteErrors()) {
     captureException(`Mongo bulk failed`, JSON.stringify(mongoUpdateRes.getWriteErrors(), null, 2));
@@ -75,9 +67,7 @@ const writePg = async (publisher: Publisher, importDoc: Import) => {
     publisherId: publisher._id,
     createdAt: { $gte: importDoc.startedAt },
   }).lean();
-  console.log(
-    `[${publisher.name}] Postgres ${newMongoMissions.length} missions just created in Mongo`
-  );
+  console.log(`[${publisher.name}] Postgres ${newMongoMissions.length} missions just created in Mongo`);
 
   // Extract unique organization IDs from missions
   const organizationIds = [] as string[];
@@ -154,14 +144,10 @@ const writePg = async (publisher: Publisher, importDoc: Import) => {
     updatedAt: { $gte: importDoc.startedAt },
     createdAt: { $lt: importDoc.startedAt },
   }).lean();
-  console.log(
-    `[${publisher.name}] Postgres ${updatedMongoMissions.length} missions to update in Mongo`
-  );
+  console.log(`[${publisher.name}] Postgres ${updatedMongoMissions.length} missions to update in Mongo`);
 
   // Prepare PG update query
-  const pgUpdate = updatedMongoMissions.map((e) =>
-    transformMongoMissionToPg(e as MongoMission, partner.id, organizations)
-  );
+  const pgUpdate = updatedMongoMissions.map((e) => transformMongoMissionToPg(e as MongoMission, partner.id, organizations));
 
   let updated = 0;
   for (const obj of pgUpdate) {

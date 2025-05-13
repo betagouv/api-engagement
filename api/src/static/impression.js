@@ -21,20 +21,9 @@
         const publisherId = e.getAttribute("data-publisher");
         const sourceId = e.getAttribute("data-source");
         const requestId = e.getAttribute("data-request");
-        console.log(
-          "id",
-          id,
-          "publisherId",
-          publisherId,
-          "sourceId",
-          sourceId,
-          "requestId",
-          requestId
-        );
+        console.log("id", id, "publisherId", publisherId, "sourceId", sourceId, "requestId", requestId);
         if (!id && !publisherId) return;
-        fetch(
-          `https://api.api-engagement.beta.gouv.fr/r/impression/${id}/${publisherId}${sourceId ? `?sourceId=${sourceId}` : ""}${requestId ? `&requestId=${requestId}` : ""}`
-        );
+        fetch(`https://api.api-engagement.beta.gouv.fr/r/impression/${id}/${publisherId}${sourceId ? `?sourceId=${sourceId}` : ""}${requestId ? `&requestId=${requestId}` : ""}`);
       } else e.setAttribute("data-visible", "true");
     } else e.setAttribute("data-visible", "false");
   }

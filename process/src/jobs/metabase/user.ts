@@ -57,15 +57,11 @@ const handler = async () => {
     console.log(`[Users] Found ${data.length} doc to sync.`);
 
     const stored = {} as { [key: string]: { old_id: string; updated_at: Date } };
-    await prisma.user
-      .findMany({ select: { old_id: true, updated_at: true } })
-      .then((data) => data.forEach((d) => (stored[d.old_id] = d)));
+    await prisma.user.findMany({ select: { old_id: true, updated_at: true } }).then((data) => data.forEach((d) => (stored[d.old_id] = d)));
     console.log(`[Users] Found ${Object.keys(stored).length} docs in database.`);
 
     const partners = {} as { [key: string]: string };
-    await prisma.partner
-      .findMany({ select: { id: true, old_id: true } })
-      .then((data) => data.forEach((d) => (partners[d.old_id] = d.id)));
+    await prisma.partner.findMany({ select: { id: true, old_id: true } }).then((data) => data.forEach((d) => (partners[d.old_id] = d.id)));
 
     const dataToCreate = [];
     const dataToUpdate = [];
@@ -131,9 +127,7 @@ const handler = async () => {
                 deleteMany: {
                   user_id: user.id,
                   partner_id: {
-                    in: existsPartnerIds.filter(
-                      (id) => !partners.create.map((p) => p.partner_id).includes(id)
-                    ),
+                    in: existsPartnerIds.filter((id) => !partners.create.map((p) => p.partner_id).includes(id)),
                   },
                 },
                 create: partners.create.filter((p) => !existsPartnerIds.includes(p.partner_id)),
@@ -146,9 +140,7 @@ const handler = async () => {
       console.log(`[Users] Updated ${res.length} docs.`);
     }
 
-    console.log(
-      `[Users] Ended at ${new Date().toISOString()} in ${(Date.now() - start.getTime()) / 1000}s.`
-    );
+    console.log(`[Users] Ended at ${new Date().toISOString()} in ${(Date.now() - start.getTime()) / 1000}s.`);
     return { created: dataToCreate.length, updated: dataToUpdate.length };
   } catch (error) {
     captureException(error, "[Users] Error while syncing docs.");
