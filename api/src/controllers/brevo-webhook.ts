@@ -27,31 +27,31 @@ router.post("/", async (req, res, next) => {
 
       const obj = {
         raw: item,
-        message_id: item["MessageId"],
-        in_reply_to: item["InReplyTo"],
-        from_name: item["From"]["Name"],
-        from_email: item["From"]["Address"],
+        messageId: item["MessageId"],
+        inReplyTo: item["InReplyTo"],
+        fromName: item["From"]["Name"],
+        fromEmail: item["From"]["Address"],
         to: item["To"].map((to) => ({ name: to["Name"], email: to["Address"] })),
         subject: item["Subject"],
-        sent_at: new Date(item["SentAtDate"]),
-        raw_text_body: item["RawTextBody"],
-        raw_html_body: item["RawHtmlBody"],
-        md_text_body: item["ExtractedMarkdownMessage"],
+        sentAt: new Date(item["SentAtDate"]),
+        rawTextBody: item["RawTextBody"],
+        rawHtmlBody: item["RawHtmlBody"],
+        mdTextBody: item["ExtractedMarkdownMessage"],
 
         attachments: item["Attachments"].map((attachment) => ({
           name: attachment["Name"],
-          content_type: attachment["ContentType"],
-          content_length: attachment["ContentLength"],
-          content_id: attachment["ContentId"],
+          contentType: attachment["ContentType"],
+          contentLength: attachment["ContentLength"],
+          contentId: attachment["ContentId"],
           token: attachment["DownloadToken"],
         })),
-        deleted_at: null,
-      };
+        deletedAt: null,
+      } as Email;
 
       const email = await EmailModel.create(obj);
       const objectName = await downloadFile(email);
       if (objectName) {
-        email.file_object_name = objectName;
+        email.fileObjectName = objectName;
       }
       await email.save();
     }
@@ -63,12 +63,12 @@ router.post("/", async (req, res, next) => {
 
 const downloadFile = async (email: Email) => {
   try {
-    if (!email.md_text_body) {
+    if (!email.mdTextBody) {
       return null;
     }
 
     // find link the md_text_body of the text [Download report](https://www.linkedin.com/e/v2?...)
-    const match = email.md_text_body.match(/\[Download report\]\((https:\/\/www.linkedin.com\/e\/v2\?[^)]+)\)/);
+    const match = email.mdTextBody.match(/\[Download report\]\((https:\/\/www.linkedin.com\/e\/v2\?[^)]+)\)/);
     if (!match) {
       captureException("[Linkedin Stats] No link found", `No link found in email ${email._id}`);
       return;
