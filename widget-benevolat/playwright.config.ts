@@ -18,7 +18,7 @@ export default defineConfig({
   },
   expect: {
     toHaveScreenshot: {
-      threshold: 0.1,
+      threshold: 0.3, // TODO: when tests will be ran by container both on CI and local, we should set a lower threshold to 0.1
       maxDiffPixelRatio: 0.1,
     },
   },
