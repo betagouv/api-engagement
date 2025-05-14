@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 
 import MagnifyIconSvg from "../assets/svg/magnify-icon.svg";
 
-const SearchInput = ({ value, onChange, className, ...props }) => {
+const SearchInput = ({ value, onChange, className, placeholder, ...props }) => {
   const [input, setInput] = useState(value);
 
   useEffect(() => {
@@ -18,7 +18,7 @@ const SearchInput = ({ value, onChange, className, ...props }) => {
 
   return (
     <div className={`relative ${className || "w-full"}`}>
-      <input {...props} className="input w-full" value={input} onChange={(e) => setInput(e.target.value)} />
+      <input {...props} className="input w-full" value={input} onChange={(e) => setInput(e.target.value)} placeholder={placeholder} />
       <img src={MagnifyIconSvg} className="absolute top-1/2 right-4 transform -translate-y-1/2" />
     </div>
   );

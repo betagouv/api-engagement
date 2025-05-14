@@ -4,6 +4,7 @@ import { RiArrowRightSLine } from "react-icons/ri";
 import { Link } from "react-router-dom";
 
 import Loader from "../../components/Loader";
+import SearchInput from "../../components/SearchInput";
 import api from "../../services/api";
 import { captureError } from "../../services/error";
 import useStore from "../../services/store";
@@ -11,40 +12,27 @@ import useStore from "../../services/store";
 const PublishersTab = () => {
   const { publisher } = useStore();
   const [search, setSearch] = useState("");
-  const [data, setPublishers] = useState([]);
+  const [data, setData] = useState([]);
+  const [total, setTotal] = useState(0);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchData = async () => {
       setLoading(true);
       try {
-        const res = await api.post("/publisher/search", { partnersOf: publisher._id });
+        const query = { partnersOf: publisher._id };
+        if (search) query.name = search;
+        const res = await api.post("/publisher/search", query);
         if (!res.ok) throw res;
-        setPublishers(res.data);
+        setData(res.data);
+        setTotal(res.total);
       } catch {
         captureError("Erreur lors de la récupération des données");
       }
       setLoading(false);
     };
     fetchData();
-  }, [publisher]);
-
-  const handleSearch = (e) => {
-    e.preventDefault();
-    const search = e.target.value;
-
-    if (search) setSearch(data.filter((w) => w.name.toLowerCase().includes(search.toLowerCase())));
-    else setSearch(data);
-  };
-
-  if (loading)
-    return (
-      <div className="flex justify-center w-full p-12">
-        <Loader />
-      </div>
-    );
-
-  const count = data.filter((e) => e.name.toLowerCase().includes(search.toLowerCase())).length;
+  }, [publisher, search]);
 
   return (
     <div className="space-y-12 p-12">
@@ -54,20 +42,24 @@ const PublishersTab = () => {
       <div className="flex items-center justify-between">
         <div className="space-y-2">
           <h2 className="text-3xl font-bold">Mes partenaires diffuseurs</h2>
-          <p>{`${count} partenaire${count > 1 ? "s" : ""}`}</p>
+          <p>{`${total} partenaire${total > 1 ? "s" : ""}`}</p>
         </div>
 
         <div className="flex overflow-hidden rounded-t border-b border-b-blue-dark">
           <label htmlFor="search-partner" className="sr-only">
             Chercher par nom
           </label>
-          <input id="search-partner" className="input flex-1" name="search-partner" placeholder="Chercher par nom" onChange={handleSearch} />
+          {/* <input  className="input flex-1" name="search-partner" placeholder="Chercher par nom" value={search} onChange={(e) => setSearch(e.target.value)} /> */}
+          <SearchInput id="search-partner" placeholder="Chercher par nom" value={search} onChange={setSearch} />
         </div>
       </div>
-      <div className="grid grid-cols-4 gap-10">
-        {data
-          .filter((e) => e.name.toLowerCase().includes(search.toLowerCase()))
-          .map((item, index) => {
+      {loading ? (
+        <div className="flex justify-center w-full p-12">
+          <Loader />
+        </div>
+      ) : (
+        <div className="grid grid-cols-4 gap-10">
+          {data.map((item, index) => {
             return (
               <div key={index} className="flex flex-col items-center border border-gray-border h-40">
                 <div className="mt-2 text-center text-xs text-gray-dark">{item.name}</div>
@@ -85,7 +77,8 @@ const PublishersTab = () => {
               </div>
             );
           })}
-      </div>
+        </div>
+      )}
     </div>
   );
 };
