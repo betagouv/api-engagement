@@ -59,7 +59,7 @@ const Flux = () => {
         if (!resI.ok) throw resI;
         setLastImport(resI.data.length ? resI.data[0] : null);
 
-        const resM = await api.get(`/publisher?moderatorOf=${publisher._id}`);
+        const resM = await api.post("/publisher/search", { partnersOf: publisher._id, moderator: true });
         if (!resM.ok) throw resM;
         const newHideAlter = {};
         resM.data.forEach((m) => (newHideAlter[m._id] = false));

@@ -279,7 +279,6 @@ router.put("/:id", passport.authenticate("admin", { session: false }), async (re
     if (!widget) {
       return res.status(404).send({ ok: false, code: NOT_FOUND });
     }
-    const publishers = await PublisherModel.find().select("_id name moderator mission_type").lean();
 
     if (body.data.distance) {
       widget.distance = body.data.distance;

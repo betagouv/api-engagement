@@ -77,7 +77,7 @@ export const generateReport = async (publisher: Publisher, year: number, month: 
 };
 
 export const generateReports = async (year: number, month: number) => {
-  const publishers = await PublisherModel.find({ automated_report: true });
+  const publishers = await PublisherModel.find({ sendReport: true });
   let count = 0;
   const errors = [] as { id: string; name: string; error: string }[];
   console.log(`[Report] Generating report for ${year}-${month} for ${publishers.length} publishers`);

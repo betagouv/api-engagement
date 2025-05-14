@@ -38,7 +38,7 @@ const Edit = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const res = await api.post(`/publisher/search`, { role_promoteur: true, name: "" });
+        const res = await api.post(`/publisher/search`, { role: "annonceur" });
         if (!res.ok) throw new Error("Erreur lors de la récupération des données");
         setPublishers(res.data.sort((a, b) => a.name.localeCompare(b.name)).map((p) => ({ ...p, label: p.name })));
       } catch (error) {
@@ -402,15 +402,11 @@ const ReassignModal = ({ isOpen, onClose, campaign, values, setValues, setCampai
   const navigate = useNavigate();
   const [publishers, setPublishers] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [filters, setFilters] = useState({
-    role_annonceur_campagne: true,
-    name: "",
-  });
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const res = await api.post(`/publisher/search`, filters);
+        const res = await api.post(`/publisher/search`, { role: "campaign" });
         if (!res.ok) throw new Error("Erreur lors de la récupération des données");
         setPublishers(res.data.sort((a, b) => a.name.localeCompare(b.name)).map((p) => ({ ...p, label: p.name })));
       } catch (error) {
@@ -418,7 +414,7 @@ const ReassignModal = ({ isOpen, onClose, campaign, values, setValues, setCampai
       }
     };
     fetchData();
-  }, [filters]);
+  }, []);
 
   const handleReassignSubmit = async () => {
     setLoading(true);
