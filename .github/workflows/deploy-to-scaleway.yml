@@ -76,11 +76,17 @@ jobs:
           echo '{"auths":{"ghcr.io":{"auth":"${{ github.token }}"}}}' > ~/.docker/config.json
 
       - name: Configure Scaleway credentials
-        uses: scaleway/action-scw@v1
+        uses: scaleway/action-scw@v0
         with:
           access-key: ${{ secrets.SCW_ACCESS_KEY }}
           secret-key: ${{ secrets.SCW_SECRET_KEY }}
           project-id: ${{ secrets.SCW_PROJECT_ID }}
+
+      - name: Export Scaleway environment variables
+        run: |
+          echo "SCW_ACCESS_KEY=${{ secrets.SCW_ACCESS_KEY }}" >> $GITHUB_ENV
+          echo "SCW_SECRET_KEY=${{ secrets.SCW_SECRET_KEY }}" >> $GITHUB_ENV
+          echo "SCW_DEFAULT_PROJECT_ID=${{ secrets.SCW_PROJECT_ID }}" >> $GITHUB_ENV
 
       - name: Configure AWS credentials for S3 backend
         uses: aws-actions/configure-aws-credentials@v2
