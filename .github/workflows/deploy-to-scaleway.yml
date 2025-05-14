@@ -1,0 +1,139 @@
+name: Deploy to Scaleway
+
+on:
+  workflow_run:
+    workflows: ["Build and Push Docker Images"]
+    types: [completed]
+    branches: [main, staging, feature--docker]
+
+  # TODO: remove me
+  push:
+    branches: [feature--docker]
+
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: "Environment to deploy to"
+        required: true
+        default: "staging"
+        type: choice
+        options:
+          - staging
+          - production
+
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  set-env:
+    name: Determine Environment
+    runs-on: ubuntu-latest
+    # TODO: remove "push"
+    if: github.event_name == 'push' ||github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success'
+    outputs:
+      environment_name: ${{ steps.set-env.outputs.environment }}
+    steps:
+      - name: Set environment based on input or branch
+        id: set-env
+        env:
+          HEAD_BRANCH: ${{ github.event.workflow_run.head_branch || github.ref_name }}
+          MANUAL_ENV: ${{ github.event.inputs.environment }}
+        run: |
+          if [[ "$GITHUB_EVENT_NAME" == 'workflow_dispatch' ]]; then
+            echo "environment=$MANUAL_ENV" >> $GITHUB_OUTPUT
+          elif [[ "$HEAD_BRANCH" == 'main' ]]; then
+            echo "environment=production" >> $GITHUB_OUTPUT
+          else
+            echo "environment=staging" >> $GITHUB_OUTPUT
+          fi
+
+  deploy:
+    name: Deploy to Scaleway
+    needs: set-env
+    runs-on: ubuntu-latest
+    environment: ${{ needs.set-env.outputs.environment_name }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v2
+        with:
+          terraform_version: 1.5.7
+
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v2
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Setup GitHub credentials for Terraform
+        run: |
+          mkdir -p ~/.docker
+          echo '{"auths":{"ghcr.io":{"auth":"${{ github.token }}"}}}' > ~/.docker/config.json
+
+      - name: Configure Scaleway credentials
+        uses: scaleway/action-scw@v1
+        with:
+          access-key: ${{ secrets.SCW_ACCESS_KEY }}
+          secret-key: ${{ secrets.SCW_SECRET_KEY }}
+          project-id: ${{ secrets.SCW_PROJECT_ID }}
+
+      - name: Configure AWS credentials for S3 backend
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          aws-access-key-id: ${{ secrets.SCW_ACCESS_KEY }}
+          aws-secret-access-key: ${{ secrets.SCW_SECRET_KEY }}
+          aws-region: fr-par
+
+      - name: Set image tag from workflow_run
+        id: get-tag
+        env:
+          GITHUB_SHA: ${{ github.event.workflow_run.head_sha || github.sha }}
+        run: |
+          echo "image_tag=${GITHUB_SHA::7}" >> $GITHUB_OUTPUT
+          echo "Using image tag: ${GITHUB_SHA::7}"
+          echo "Environment: ${{ needs.set-env.outputs.environment_name }}"
+          echo "Will use images tagged as: ${{ needs.set-env.outputs.environment_name }}-${GITHUB_SHA::7}"
+
+      - name: Terraform Init
+        working-directory: ./terraform
+        env:
+          TF_VAR_project_id: ${{ secrets.SCW_PROJECT_ID }}
+        run: |
+          terraform init \
+            -backend-config="bucket=terraform-state-${{ needs.set-env.outputs.environment_name }}" \
+            -backend-config="key=api-engagement/${{ needs.set-env.outputs.environment_name }}/terraform.tfstate"
+
+      - name: Terraform Workspace
+        working-directory: ./terraform
+        run: |
+          terraform workspace list | grep -q "${{ needs.set-env.outputs.environment_name }}" || \
+          terraform workspace new "${{ needs.set-env.outputs.environment_name }}"
+          terraform workspace select "${{ needs.set-env.outputs.environment_name }}"
+
+      - name: Terraform Plan
+        working-directory: ./terraform
+        env:
+          TF_VAR_project_id: ${{ secrets.SCW_PROJECT_ID }}
+          TF_VAR_image_tag: ${{ steps.get-tag.outputs.image_tag }}
+        run: terraform plan -out=tfplan
+
+      - name: Terraform Apply
+        working-directory: ./terraform
+        env:
+          TF_VAR_project_id: ${{ secrets.SCW_PROJECT_ID }}
+          TF_VAR_image_tag: ${{ steps.get-tag.outputs.image_tag }}
+        run: terraform apply -auto-approve tfplan
+
+      - name: Output Deployment URLs
+        working-directory: ./terraform
+        run: |
+          echo "API Endpoint: $(terraform output -raw api_endpoint)"
+          echo "App Endpoint: $(terraform output -raw app_endpoint)"
+          echo "Process Endpoint: $(terraform output -raw process_endpoint)"
+          echo "Benevolat Widget Endpoint: $(terraform output -raw benevolat_endpoint)"
+          echo "Volontariat Widget Endpoint: $(terraform output -raw volontariat_endpoint)"
