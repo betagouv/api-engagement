@@ -480,7 +480,7 @@ model OrganizationExclusion {
   updated_at DateTime @updatedAt
 
   organization_client_id String
-  organization_name String
+  organization_name String?
 
   excluded_by_publisher_id String
   excluded_by_publisher Partner @relation("ExcludedByPublisher", fields: [excluded_by_publisher_id], references: [id])
