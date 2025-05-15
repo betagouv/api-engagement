@@ -7,12 +7,12 @@
 # - build and push image to GitHub Container Registry
 #
 # NB:
-# - if API tests, process test or lint fails, the build won't be triggered
+# - if test fails, the build won't be triggered
 
 name: Build and Push Docker Images
 on:
   workflow_run:
-    workflows: ["API Tests", "Process Tests", "Lint"]
+    workflows: ["Tests"]
     types: [completed]
     branches: [main, staging]
 
