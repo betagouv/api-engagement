@@ -108,7 +108,13 @@ jobs:
         run: |
           terraform init \
             -backend-config="bucket=terraform-state-${{ needs.set-env.outputs.environment_name }}" \
-            -backend-config="key=api-engagement/${{ needs.set-env.outputs.environment_name }}/terraform.tfstate"
+            -backend-config="key=api-engagement/${{ needs.set-env.outputs.environment_name }}/terraform.tfstate" \
+            -backend-config="endpoint=https://s3.fr-par.scw.cloud" \
+            -backend-config="region=fr-par" \
+            -backend-config="skip_credentials_validation=true" \
+            -backend-config="skip_region_validation=true" \
+            -backend-config="skip_metadata_api_check=true" \
+            -backend-config="skip_requesting_account_id=true"
 
       - name: Terraform Workspace
         working-directory: ./terraform
