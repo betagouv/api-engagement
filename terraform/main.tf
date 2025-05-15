@@ -8,16 +8,9 @@ terraform {
     }
   }
 
-  backend "s3" {
-    region                      = "fr-par"
-    endpoints = {
-      s3 = "https://s3.fr-par.scw.cloud"
-    }
-    skip_credentials_validation = true
-    skip_region_validation      = true
-    skip_metadata_api_check     = true
-    skip_requesting_account_id  = true
-  }
+  # Use minimal S3 backend configuration
+  # The full configuration is provided by the GitHub Actions workflow
+  backend "s3" {}
 
   required_version = ">= 1.0.0"
 }
