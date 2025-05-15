@@ -72,6 +72,7 @@ jobs:
         id: vars
         run: |
           echo "ENV=${{ needs.set-env.outputs.environment_name }}" >> $GITHUB_OUTPUT
+          echo "short_sha=${GITHUB_SHA::7}" >> $GITHUB_OUTPUT
           echo "Building for ${{ needs.set-env.outputs.environment_name }} environment"
 
       - name: Set app build args
@@ -121,8 +122,6 @@ jobs:
 
       - name: Build and push ${{ matrix.service }} image
         uses: docker/build-push-action@v4
-        env:
-          GITHUB_SHA: ${{ github.sha }}
         with:
           context: ./${{ matrix.service }}
           file: ./${{ matrix.service }}/Dockerfile.production
@@ -130,7 +129,7 @@ jobs:
           tags: |
             ghcr.io/${{ github.repository }}/${{ matrix.service }}:${{ needs.set-env.outputs.environment_name }}
             ghcr.io/${{ github.repository }}/${{ matrix.service }}:${{ needs.set-env.outputs.environment_name }}-latest
-            ghcr.io/${{ github.repository }}/${{ matrix.service }}:${{ needs.set-env.outputs.environment_name }}-${GITHUB_SHA::7}
+            ghcr.io/${{ github.repository }}/${{ matrix.service }}:${{ needs.set-env.outputs.environment_name }}-${{ steps.vars.outputs.short_sha }}
           build-args: |
             # App (Vite) variables
             ${{ matrix.service == 'app' && format('VITE_ENV={0}', steps.app_args.outputs.VITE_ENV) || '' }}
