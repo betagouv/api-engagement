@@ -4,11 +4,7 @@ on:
   workflow_run:
     workflows: ["Build and Push Docker Images"]
     types: [completed]
-    branches: [main, staging, feature--docker]
-
-  # TODO: remove me
-  push:
-    branches: [feature--docker]
+    branches: [main, staging]
 
   workflow_dispatch:
     inputs:
@@ -29,8 +25,7 @@ jobs:
   set-env:
     name: Determine Environment
     runs-on: ubuntu-latest
-    # TODO: remove "push"
-    if: github.event_name == 'push' ||github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success'
+    if: github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success'
     outputs:
       environment_name: ${{ steps.set-env.outputs.environment }}
     steps:

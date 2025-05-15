@@ -8,20 +8,13 @@
 #
 # NB:
 # - if API tests, process test or lint fails, the build won't be triggered
-# - Env vars has to be configured in GitHub secrets with following format: [SERVICE]_ENV_[ENV]. Example:
-#   - APP_ENV_PRODUCTION
-#   - APP_ENV_STAGING
 
 name: Build and Push Docker Images
 on:
   workflow_run:
     workflows: ["API Tests", "Process Tests", "Lint"]
     types: [completed]
-    branches: [main, staging, feature--docker]
-
-  # TODO: remove me
-  push:
-    branches: [feature--docker]
+    branches: [main, staging]
 
 permissions:
   contents: read
@@ -32,7 +25,7 @@ jobs:
   set-env:
     name: Determine Github Environment based on branch
     runs-on: ubuntu-latest
-    if: github.event_name == 'push' || github.event.workflow_run.conclusion == 'success'
+    if: github.event.workflow_run.conclusion == 'success'
     outputs:
       environment_name: ${{ steps.set-env.outputs.environment }}
     steps:
