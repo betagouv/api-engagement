@@ -52,7 +52,9 @@ jobs:
     name: Deploy to Scaleway
     needs: set-env
     runs-on: ubuntu-latest
-    environment: ${{ needs.set-env.outputs.environment_name }}
+    environment:
+      name: ${{ needs.set-env.outputs.environment_name }}
+      url: ""
 
     steps:
       - name: Checkout code
