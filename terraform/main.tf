@@ -9,12 +9,12 @@ terraform {
   }
 
   backend "s3" {
-    bucket                      = "terraform-state"
-    key                         = "api-engagement/terraform.tfstate"
     region                      = "fr-par"
     endpoint                    = "https://s3.fr-par.scw.cloud"
     skip_credentials_validation = true
     skip_region_validation      = true
+    skip_metadata_api_check     = true
+    skip_requesting_account_id  = true
   }
 
   required_version = ">= 1.0.0"
@@ -27,15 +27,15 @@ provider "scaleway" {
 
 variable "image_tag" {
   type     = string
-  nullable = false
+  default  = "latest"
+  description = "Tag of the Docker image to deploy. Use 'latest' for the default environment tag, or a specific value like 'sha' for a specific commit."
 }
 
 variable "project_id" {
-  type     = string
-  nullable = false
+  type        = string
+  description = "Scaleway Project ID"
 }
 
-# Variables pour le registre GitHub
 variable "github_repository" {
   type     = string
   default  = "betagouv/api-engagement"
@@ -75,11 +75,11 @@ resource "scaleway_container" "api" {
   name            = "${terraform.workspace}-api"
   description     = "API ${terraform.workspace} container"
   namespace_id    = scaleway_container_namespace.main.id
-  registry_image  = "ghcr.io/${var.github_repository}/api:${terraform.workspace}-${var.image_tag}"
+  registry_image  = "ghcr.io/${var.github_repository}/api:${terraform.workspace}${var.image_tag == "latest" ? "" : "-${var.image_tag}"}"
   port            = 8080
   # Update in function of terraform.workspace
   cpu_limit       = terraform.workspace == "production" ? 1680 : 560
-  memory_limit    = terraform.workspace == "production" ? 1024 : 512
+  memory_limit    = terraform.workspace == "production" ? 2048 : 560
   min_scale       = terraform.workspace == "production" ? 1 : 1
   max_scale       = terraform.workspace == "production" ? 5 : 1
   timeout         = 60
@@ -119,10 +119,10 @@ resource "scaleway_container" "process" {
   name            = "${terraform.workspace}-process"
   description     = "Process ${terraform.workspace} container"
   namespace_id    = scaleway_container_namespace.main.id
-  registry_image  = "ghcr.io/${var.github_repository}/process:${terraform.workspace}-${var.image_tag}"
+  registry_image  = "ghcr.io/${var.github_repository}/process:${terraform.workspace}${var.image_tag == "latest" ? "" : "-${var.image_tag}"}"
   port            = 8080
   cpu_limit       = terraform.workspace == "production" ? 1680 : 560
-  memory_limit    = terraform.workspace == "production" ? 1024 : 512
+  memory_limit    = terraform.workspace == "production" ? 2048 : 560
   min_scale       = terraform.workspace == "production" ? 1 : 1
   max_scale       = terraform.workspace == "production" ? 3 : 1
   timeout         = 300  # Longer timeout for process jobs
@@ -162,10 +162,10 @@ resource "scaleway_container" "app" {
   name            = "${terraform.workspace}-app"
   description     = "App ${terraform.workspace} container"
   namespace_id    = scaleway_container_namespace.main.id
-  registry_image  = "ghcr.io/${var.github_repository}/app:${terraform.workspace}-${var.image_tag}"
+  registry_image  = "ghcr.io/${var.github_repository}/app:${terraform.workspace}${var.image_tag == "latest" ? "" : "-${var.image_tag}"}"
   port            = 8080
   cpu_limit       = terraform.workspace == "production" ? 560 : 560
-  memory_limit    = terraform.workspace == "production" ? 1024 : 512
+  memory_limit    = terraform.workspace == "production" ? 1024 : 560
   min_scale       = terraform.workspace == "production" ? 1 : 1
   max_scale       = terraform.workspace == "production" ? 1 : 1
   timeout         = 60
@@ -197,10 +197,10 @@ resource "scaleway_container" "volontariat" {
   name            = "${terraform.workspace}-volontariat"
   description     = "Widget volontariat ${terraform.workspace} container"
   namespace_id    = scaleway_container_namespace.main.id
-  registry_image  = "ghcr.io/${var.github_repository}/widget-volontariat:${terraform.workspace}-${var.image_tag}"
+  registry_image  = "ghcr.io/${var.github_repository}/widget-volontariat:${terraform.workspace}${var.image_tag == "latest" ? "" : "-${var.image_tag}"}"
   port            = 8080
   cpu_limit       = terraform.workspace == "production" ? 1120 : 560
-  memory_limit    = terraform.workspace == "production" ? 1024 : 512
+  memory_limit    = terraform.workspace == "production" ? 1120 : 560
   min_scale       = terraform.workspace == "production" ? 1 : 1
   max_scale       = terraform.workspace == "production" ? 4 : 1
   timeout         = 60
@@ -230,10 +230,10 @@ resource "scaleway_container" "benevolat" {
   name            = "${terraform.workspace}-benevolat"
   description     = "Widget benevolat ${terraform.workspace} container"
   namespace_id    = scaleway_container_namespace.main.id
-  registry_image  = "ghcr.io/${var.github_repository}/widget-benevolat:${terraform.workspace}-${var.image_tag}"
+  registry_image  = "ghcr.io/${var.github_repository}/widget-benevolat:${terraform.workspace}${var.image_tag == "latest" ? "" : "-${var.image_tag}"}"
   port            = 8080
   cpu_limit       = terraform.workspace == "production" ? 1120 : 560
-  memory_limit    = terraform.workspace == "production" ? 1024 : 512
+  memory_limit    = terraform.workspace == "production" ? 1120 : 560
   min_scale       = terraform.workspace == "production" ? 1 : 1
   max_scale       = terraform.workspace == "production" ? 4 : 1
   timeout         = 60

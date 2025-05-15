@@ -87,6 +87,7 @@ jobs:
           echo "SCW_ACCESS_KEY=${{ secrets.SCW_ACCESS_KEY }}" >> $GITHUB_ENV
           echo "SCW_SECRET_KEY=${{ secrets.SCW_SECRET_KEY }}" >> $GITHUB_ENV
           echo "SCW_DEFAULT_PROJECT_ID=${{ secrets.SCW_PROJECT_ID }}" >> $GITHUB_ENV
+          echo "TF_VAR_project_id=${{ secrets.SCW_PROJECT_ID }}" >> $GITHUB_ENV
 
       - name: Configure AWS credentials for S3 backend
         uses: aws-actions/configure-aws-credentials@v2
@@ -123,16 +124,10 @@ jobs:
 
       - name: Terraform Plan
         working-directory: ./terraform
-        env:
-          TF_VAR_project_id: ${{ secrets.SCW_PROJECT_ID }}
-          TF_VAR_image_tag: ${{ steps.get-tag.outputs.image_tag }}
-        run: terraform plan -out=tfplan
+        run: terraform plan -var="image_tag=${{ steps.get-tag.outputs.image_tag }}" -var="project_id=${{ secrets.SCW_PROJECT_ID }}" -out=tfplan
 
       - name: Terraform Apply
         working-directory: ./terraform
-        env:
-          TF_VAR_project_id: ${{ secrets.SCW_PROJECT_ID }}
-          TF_VAR_image_tag: ${{ steps.get-tag.outputs.image_tag }}
         run: terraform apply -auto-approve tfplan
 
       - name: Output Deployment URLs
