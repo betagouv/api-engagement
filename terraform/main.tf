@@ -101,6 +101,10 @@ resource "scaleway_container" "api" {
     "SECRET"            = local.secrets.SECRET
     "SCW_ACCESS_KEY"    = local.secrets.SCW_ACCESS_KEY
     "SCW_SECRET_KEY"    = local.secrets.SCW_SECRET_KEY
+    "APP_URL"           = "https://${local.app_hostname}"
+    "API_URL"           = "https://${local.api_hostname}"
+    "BENEVOLAT_URL"     = "https://${local.benevolat_hostname}"
+    "VOLONTARIAT_URL"   = "https://${local.volontariat_hostname}"
   }
 }
 
@@ -130,20 +134,18 @@ resource "scaleway_container" "process" {
   environment_variables = {
     "ENV"           = terraform.workspace
     "API_URL"       = "https://${local.api_hostname}"
-    "APP_URL"       = "https://${local.app_hostname}"
-    "BENEVOLAT_URL" = "https://${local.benevolat_hostname}"
-    "VOLONTARIAT_URL" = "https://${local.volontariat_hostname}"
     "BUCKET_NAME"   = local.bucket_name
   }
 
   secret_environment_variables = {
-    "DB_ENDPOINT"       = local.secrets.DB_ENDPOINT
-    "ES_ENDPOINT"       = local.secrets.ES_ENDPOINT
-    "SENTRY_DSN"        = local.secrets.SENTRY_DSN
-    "SENDINBLUE_APIKEY" = local.secrets.SENDINBLUE_APIKEY
-    "SECRET"            = local.secrets.SECRET
-    "SCW_ACCESS_KEY"    = local.secrets.SCW_ACCESS_KEY
-    "SCW_SECRET_KEY"    = local.secrets.SCW_SECRET_KEY
+    "DB_ENDPOINT"                = local.secrets.DB_ENDPOINT
+    "ES_ENDPOINT"                = local.secrets.ES_ENDPOINT
+    "PG_ENDPOINT"                = local.secrets.PG_ENDPOINT
+    "SENTRY_DSN"                 = local.secrets.SENTRY_DSN
+    "SLACK_WARNING_CHANNEL_ID"   = local.secrets.SLACK_WARNING_CHANNEL_ID
+    "SCW_ACCESS_KEY"             = local.secrets.SCW_ACCESS_KEY
+    "SCW_SECRET_KEY"             = local.secrets.SCW_SECRET_KEY
+    "DATA_SUBVENTION_TOKEN"      = local.secrets.DATA_SUBVENTION_TOKEN
   }
 }
 
@@ -172,13 +174,6 @@ resource "scaleway_container" "app" {
 
   environment_variables = {
     "ENV"            = terraform.workspace
-    "API_URL"        = "https://${local.api_hostname}"
-    "BENEVOLAT_URL"  = "https://${local.benevolat_hostname}"
-    "VOLONTARIAT_URL" = "https://${local.volontariat_hostname}"
-  }
-  
-  secret_environment_variables = {
-    "SENTRY_DSN" = local.secrets.SENTRY_DSN
   }
 }
 
