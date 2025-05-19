@@ -1,12 +1,12 @@
-import { useState, useEffect, useRef } from "react";
-import { usePlausible } from "next-plausible";
-import { DayPicker } from "react-day-picker";
 import fr from "date-fns/locale/fr";
-import { RiArrowUpSLine, RiArrowDownSLine, RiCheckboxFill, RiCheckboxBlankLine, RiRadioButtonLine, RiCircleLine, RiMapPin2Fill, RiCloseFill } from "react-icons/ri";
+import { usePlausible } from "next-plausible";
+import { useEffect, useRef, useState } from "react";
+import { DayPicker } from "react-day-picker";
+import { RiArrowDownSLine, RiArrowUpSLine, RiCheckboxBlankLine, RiCheckboxFill, RiCircleLine, RiCloseFill, RiMapPin2Fill, RiRadioButtonLine } from "react-icons/ri";
 
 import "react-day-picker/dist/style.css";
-import useStore from "../store";
 import { ACCESSIBILITIES, ACTIONS, BENEFICIARIES, DOMAINS, MINORS, SCHEDULES } from "../config";
+import useStore from "../store";
 
 const getAPI = async (path) => {
   const response = await fetch(path, { method: "GET" });
@@ -228,7 +228,7 @@ const MobileFilters = ({ options, values, onChange, show, onShow, disabledLocati
               Voir les missions
             </button>
             <button
-              className="w-full p-3 text-center bg-transparent focus:outline-none focus-visible:ring focus-visible:ring-blue-800"
+              className="w-full cursor-pointer p-3 text-center bg-transparent focus:outline-none focus-visible:ring focus-visible:ring-blue-800"
               onClick={() => {
                 handleReset();
                 plausible("Filters reset", { u: url });
@@ -283,7 +283,7 @@ const DesktopFilters = ({ options, values, onChange, disabledLocation = false })
         ) : (
           <button
             aria-label="plus de filtres"
-            className="border truncate w-full bg-white border-[#DDDDDD] py-2 px-4 h-[40px] focus:outline-none focus-visible:ring focus-visible:ring-blue-800 font-medium"
+            className="cursor-pointer border truncate w-full bg-white border-[#DDDDDD] py-2 px-4 h-[40px] focus:outline-none focus-visible:ring focus-visible:ring-blue-800 font-medium"
             onClick={() => {
               setMoreFilters(true);
               plausible("More filters", { u: url });
@@ -392,7 +392,7 @@ const DateFilter = ({ selected, onChange, position = "left-0", width = "w-80" })
       <button
         id="date"
         aria-label="date"
-        className={`w-full rounded-t-md bg-[#EEE] h-[40px] border-b-2 border-[#3A3A3A] p-3 focus:outline-none focus-visible:ring focus-visible:ring-blue-800 flex items-center justify-between ${
+        className={`w-full cursor-pointer rounded-t-md bg-[#EEE] h-[40px] border-b-2 border-[#3A3A3A] p-3 focus:outline-none focus-visible:ring focus-visible:ring-blue-800 flex items-center justify-between ${
           !selected ? "text-[#666666]" : "text-[#161616]"
         }`}
         onClick={() => setIsOpen(!isOpen)}
@@ -434,7 +434,7 @@ const DateFilter = ({ selected, onChange, position = "left-0", width = "w-80" })
           />
           <div className="pt-2 pb-1 px-6 w-full flex justify-start border-t border-[#DDDDDD]">
             <button
-              className="text-sm"
+              className="text-sm cursor-pointer"
               style={{ color: color ? color : "" }}
               onClick={() => {
                 onChange(null);
@@ -495,7 +495,7 @@ const DurationFilter = ({ selected, onChange, position = "left-0", width = "w-80
         id="duration"
         aria-label="durée"
         onKeyDown={handleKeyDown}
-        className={`w-full rounded-t-md h-[40px] bg-[#EEE] border-b-2 border-[#3A3A3A] p-3 focus:outline-none focus-visible:ring focus-visible:ring-blue-800 flex items-center justify-between ${
+        className={`w-full cursor-pointer rounded-t-md h-[40px] bg-[#EEE] border-b-2 border-[#3A3A3A] p-3 focus:outline-none focus-visible:ring focus-visible:ring-blue-800 flex items-center justify-between ${
           !selected ? "text-[#666666]" : "text-[#161616]"
         }`}
         onClick={() => setIsOpen(!isOpen)}
@@ -534,7 +534,7 @@ const DurationFilter = ({ selected, onChange, position = "left-0", width = "w-80
           </div>
           <div className="pt-2 pb-1 px-6 w-full flex justify-start border-t border-[#DDDDDD]">
             <button
-              className={`text-sm ${keyboardNav ? "border-2 border-blue-800 rounded" : ""}`}
+              className={`text-sm cursor-pointer ${keyboardNav ? "border-2 border-blue-800 rounded" : ""}`}
               style={{ color: color ? color : "" }}
               onClick={() => {
                 onChange(null);
@@ -586,7 +586,7 @@ const SelectFilter = ({ options, selectedOptions, onChange, id, placeholder = "C
       <button
         id={id}
         aria-label={placeholder}
-        className={`w-full rounded-t-md bg-[#EEE] h-[40px] border-b-2 border-[#3A3A3A] p-3 focus:outline-none focus-visible:ring focus-visible:ring-blue-800 flex items-center justify-between ${
+        className={`w-full rounded-t-md cursor-pointer bg-[#EEE] h-[40px] border-b-2 border-[#3A3A3A] p-3 focus:outline-none focus-visible:ring focus-visible:ring-blue-800 flex items-center justify-between ${
           !selectedOptions || selectedOptions.length === 0 ? "text-[#666666]" : "text-[#161616]"
         }`}
         onClick={() => setIsOpen(!isOpen)}
@@ -642,7 +642,7 @@ const SelectFilter = ({ options, selectedOptions, onChange, id, placeholder = "C
           </div>
           <div className="pt-2 pb-1 px-6 w-full flex items-center justify-between border-t border-[#DDDDDD]">
             <button
-              className="text-sm"
+              className="text-sm cursor-pointer"
               style={{ color: color ? color : "" }}
               onClick={() => {
                 onChange([]);

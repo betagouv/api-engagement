@@ -8,7 +8,9 @@ import useStore from "../store";
 const getAPI = async (path) => {
   const response = await fetch(path, { method: "GET" });
 
-  if (!response.ok) throw response;
+  if (!response.ok) {
+    throw response;
+  }
   return response.json();
 };
 
@@ -32,10 +34,18 @@ const Filters = ({ widget, apiUrl, values, onChange, show, onShow }) => {
       try {
         const searchParams = new URLSearchParams();
 
-        if (values.domain && values.domain.length) values.domain.forEach((item) => searchParams.append("domain", item.value));
-        if (values.organization && values.organization.length) values.organization.forEach((item) => searchParams.append("organization", item.value));
-        if (values.department && values.department.length) values.department.forEach((item) => searchParams.append("department", item.value === "" ? "none" : item.value));
-        if (values.remote && values.remote.length) values.remote.forEach((item) => searchParams.append("remote", item.value));
+        if (values.domain && values.domain.length) {
+          values.domain.forEach((item) => searchParams.append("domain", item.value));
+        }
+        if (values.organization && values.organization.length) {
+          values.organization.forEach((item) => searchParams.append("organization", item.value));
+        }
+        if (values.department && values.department.length) {
+          values.department.forEach((item) => searchParams.append("department", item.value === "" ? "none" : item.value));
+        }
+        if (values.remote && values.remote.length) {
+          values.remote.forEach((item) => searchParams.append("remote", item.value));
+        }
 
         if (values.location && values.location.lat && values.location.lon) {
           searchParams.append("lat", values.location.lat);
@@ -45,7 +55,9 @@ const Filters = ({ widget, apiUrl, values, onChange, show, onShow }) => {
 
         const { ok, data } = await getAPI(`${apiUrl}/iframe/${widget._id}/aggs?${searchParams.toString()}`);
 
-        if (!ok) throw Error("Error fetching aggs");
+        if (!ok) {
+          throw Error("Error fetching aggs");
+        }
 
         const remote = data.remote.filter((b) => b.key === "full" || b.key === "possible");
         const presentiel = data.remote.filter((b) => b.key === "no");
@@ -96,7 +108,9 @@ const MobileFilters = ({ options, values, onChange, show, onShow, disabledLocati
   const { url, color } = useStore();
 
   const plausible = usePlausible();
-  if (!Object.keys(options).length) return null;
+  if (!Object.keys(options).length) {
+    return null;
+  }
 
   const handleReset = () => {
     onChange({
@@ -274,7 +288,9 @@ const SelectFilter = ({ options, selectedOptions, onChange, id, placeholder = "C
   }, []);
 
   const toggleOption = (option) => {
-    if (!selectedOptions) return onChange([option]);
+    if (!selectedOptions) {
+      return onChange([option]);
+    }
     if (selectedOptions.some((o) => o.value === option.value)) {
       onChange(selectedOptions.filter((o) => o.value !== option.value));
     } else {
@@ -290,7 +306,7 @@ const SelectFilter = ({ options, selectedOptions, onChange, id, placeholder = "C
       <button
         id={id}
         onClick={() => setIsOpen(!isOpen)}
-        className={`flex h-[40px] w-full items-center justify-between rounded-t-md border-b-2 border-[#3A3A3A] bg-[#EEE] p-3 focus:outline-none focus-visible:ring focus-visible:ring-blue-800 ${
+        className={`flex h-[40px] w-full cursor-pointer items-center justify-between rounded-t-md border-b-2 border-[#3A3A3A] bg-[#EEE] p-3 focus:outline-none focus-visible:ring focus-visible:ring-blue-800 ${
           !selectedOptions?.length ? "text-[#666666]" : "text-[#161616]"
         }`}
       >
@@ -408,7 +424,9 @@ const LocationFilter = ({ selected, onChange, disabled = false, width = "w-80" }
 
     if (search?.length > 3) {
       const res = await fetch(`https://api-adresse.data.gouv.fr/search?q=${search}&type=municipality&autocomplete=1&limit=6`).then((r) => r.json());
-      if (!res.features) return;
+      if (!res.features) {
+        return;
+      }
       setOptions(
         res.features.map((f) => ({
           label: `${f.properties.name} (${f.properties.postcode})`,
@@ -503,7 +521,9 @@ const RemoteFilter = ({ options, selectedOptions, onChange, id, placeholder = "C
   }, []);
 
   const toggleOption = (option) => {
-    if (!selectedOptions) return onChange([option]);
+    if (!selectedOptions) {
+      return onChange([option]);
+    }
     const exists = selectedOptions.find((o) => o.value === option.value);
     if (exists) {
       onChange(selectedOptions.filter((o) => o.value !== option.value));
@@ -520,7 +540,7 @@ const RemoteFilter = ({ options, selectedOptions, onChange, id, placeholder = "C
       <button
         id={id}
         aria-label={placeholder}
-        className={`flex h-[40px] w-full items-center justify-between rounded-t-md border-b-2 border-[#3A3A3A] bg-[#EEE] p-3 focus:outline-none focus-visible:ring focus-visible:ring-blue-800 ${
+        className={`flex h-[40px] w-full cursor-pointer items-center justify-between rounded-t-md border-b-2 border-[#3A3A3A] bg-[#EEE] p-3 focus:outline-none focus-visible:ring focus-visible:ring-blue-800 ${
           !selectedOptions?.length ? "text-[#666666]" : "text-[#161616]"
         }`}
         onClick={() => setIsOpen(!isOpen)}

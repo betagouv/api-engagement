@@ -42,15 +42,21 @@ const Pagination = ({ page, setPage, end }) => {
   const [pages, setPages] = useState([...Array(end).keys()].map((i) => i + 1));
 
   useEffect(() => {
-    if (page < 1) setPage(1);
-    if (page > end) setPage(end);
-    if (end !== pages.length) setPages([...Array(end).keys()].map((i) => i + 1));
+    if (page < 1) {
+      setPage(1);
+    }
+    if (page > end) {
+      setPage(end);
+    }
+    if (end !== pages.length) {
+      setPages([...Array(end).keys()].map((i) => i + 1));
+    }
   }, [end]);
 
   return (
     <div className="flex flex-row items-center justify-center gap-1">
       <button
-        className="mr-4 flex items-center rounded-lg px-3 py-2 hover:bg-[#f5f5f5] disabled:cursor-default disabled:bg-transparent disabled:opacity-50"
+        className="mr-4 flex cursor-pointer items-center rounded-lg px-3 py-2 hover:bg-[#f5f5f5] disabled:cursor-default disabled:bg-transparent disabled:opacity-50"
         onClick={() => {
           setPage(page - 1);
           plausible("Page changed", { u: url });
@@ -67,7 +73,7 @@ const Pagination = ({ page, setPage, end }) => {
               {pages.slice(0, 4).map((p) => (
                 <button
                   key={p}
-                  className="hover:bg-gray-hover flex h-8 w-8 items-center justify-center rounded-full"
+                  className="hover:bg-gray-hover flex h-8 w-8 cursor-pointer items-center justify-center rounded-full"
                   style={p === page ? { backgroundColor: color, color: "white" } : {}}
                   onClick={() => {
                     setPage(p);
@@ -79,7 +85,7 @@ const Pagination = ({ page, setPage, end }) => {
               ))}
               <button className="hover:bg-gray-hover flex h-8 w-8 items-center justify-center rounded-full">...</button>
               <button
-                className="hover:bg-gray-hover flex h-8 w-8 items-center justify-center rounded-full"
+                className="hover:bg-gray-hover flex h-8 w-8 cursor-pointer items-center justify-center rounded-full"
                 onClick={() => {
                   setPage(end);
                   plausible("Page changed", { u: url });
@@ -90,14 +96,14 @@ const Pagination = ({ page, setPage, end }) => {
             </>
           ) : page > end - 3 ? (
             <>
-              <button className="hover:bg-gray-hover flex h-8 w-8 items-center justify-center rounded-full" onClick={() => setPage(1)}>
+              <button className="hover:bg-gray-hover flex h-8 w-8 cursor-pointer items-center justify-center rounded-full" onClick={() => setPage(1)}>
                 1
               </button>
               <button className="hover:bg-gray-hover flex h-8 w-8 items-center justify-center rounded-full">...</button>
               {pages.slice(end - 4, end).map((p) => (
                 <button
                   key={p}
-                  className="hover:bg-gray-hover flex h-8 w-8 items-center justify-center rounded-full"
+                  className="hover:bg-gray-hover flex h-8 w-8 cursor-pointer items-center justify-center rounded-full"
                   style={p === page ? { backgroundColor: color, color: "white" } : {}}
                   onClick={() => {
                     setPage(p);
@@ -110,14 +116,14 @@ const Pagination = ({ page, setPage, end }) => {
             </>
           ) : (
             <>
-              <button className="hover:bg-gray-hover flex h-8 w-8 items-center justify-center rounded-full" onClick={() => setPage(1)}>
+              <button className="hover:bg-gray-hover flex h-8 w-8 cursor-pointer items-center justify-center rounded-full" onClick={() => setPage(1)}>
                 1
               </button>
               <button className="hover:bg-gray-hover flex h-8 w-8 items-center justify-center rounded-full">...</button>
               {pages.slice(page - 2, page + 1).map((p) => (
                 <button
                   key={p}
-                  className="hover:bg-gray-hover flex h-8 w-8 items-center justify-center rounded-full"
+                  className="hover:bg-gray-hover flex h-8 w-8 cursor-pointer items-center justify-center rounded-full"
                   style={p === page ? { backgroundColor: color, color: "white" } : {}}
                   onClick={() => {
                     setPage(p);
@@ -130,7 +136,7 @@ const Pagination = ({ page, setPage, end }) => {
               <button className="hover:bg-gray-hover flex h-8 w-8 items-center justify-center rounded-full" disabled={true}>
                 ...
               </button>
-              <button className="hover:bg-gray-hover flex h-8 w-8 items-center justify-center rounded-full" onClick={() => setPage(end)}>
+              <button className="hover:bg-gray-hover flex h-8 w-8 cursor-pointer items-center justify-center rounded-full" onClick={() => setPage(end)}>
                 {end}
               </button>
             </>
@@ -139,7 +145,7 @@ const Pagination = ({ page, setPage, end }) => {
           pages.map((p) => (
             <button
               key={p}
-              className="hover:bg-gray-hover flex h-8 w-8 items-center justify-center rounded-full"
+              className="hover:bg-gray-hover flex h-8 w-8 cursor-pointer items-center justify-center rounded-full"
               style={p === page ? { backgroundColor: color, color: "white" } : {}}
               onClick={() => {
                 setPage(p);
@@ -152,7 +158,7 @@ const Pagination = ({ page, setPage, end }) => {
         )}
       </div>
       <button
-        className="ml-4 flex items-center rounded-lg px-3 py-2 hover:bg-[#f5f5f5] disabled:cursor-default disabled:opacity-50"
+        className="ml-4 flex cursor-pointer items-center rounded-lg px-3 py-2 hover:bg-[#f5f5f5] disabled:cursor-default disabled:opacity-50"
         onClick={() => {
           setPage(page + 1);
           plausible("Page changed", { u: url });
@@ -172,8 +178,12 @@ export const MobilePagination = ({ page, setPage, end }) => {
   const [pages, setPages] = useState([...Array(end).keys()].map((i) => i + 1));
 
   useEffect(() => {
-    if (page > end) setPage(end);
-    if (end !== pages.length) setPages([...Array(end).keys()].map((i) => i + 1));
+    if (page > end) {
+      setPage(end);
+    }
+    if (end !== pages.length) {
+      setPages([...Array(end).keys()].map((i) => i + 1));
+    }
   }, [end]);
 
   return (
