@@ -12,6 +12,9 @@ if (ENV !== "development") {
   });
 }
 
+// Importer le système de jobs
+import { initializeJobSystem } from "./jobs";
+
 import bodyParser from "body-parser";
 import cookieParser from "cookie-parser";
 import cors from "cors";
@@ -185,4 +188,41 @@ app.use(async (err: any, req: Request, res: Response, _: NextFunction) => {
   }
 });
 
-app.listen(PORT, () => console.log(`API is running on port ${PORT} at ${new Date()}`));
+const server = app.listen(PORT, () => console.log(`API is running on port ${PORT} at ${new Date()}`));
+
+// Job system initialization
+let jobSystem: any;
+(async () => {
+  try {
+    jobSystem = await initializeJobSystem();
+    console.log("Job system initialized successfully");
+  } catch (error) {
+    console.error("Failed to initialize job system:", error);
+    captureException(error);
+  }
+})();
+
+// Gestion de l'arrêt propre de l'application
+process.on("SIGTERM", async () => {
+  console.log("SIGTERM received, shutting down gracefully");
+  // Arrêter les workers avant de quitter
+  if (jobSystem) {
+    await jobSystem.stopWorkers();
+  }
+  server.close(() => {
+    console.log("HTTP server closed");
+    process.exit(0);
+  });
+});
+
+process.on("SIGINT", async () => {
+  console.log("SIGINT received, shutting down gracefully");
+  // Arrêter les workers avant de quitter
+  if (jobSystem) {
+    await jobSystem.stopWorkers();
+  }
+  server.close(() => {
+    console.log("HTTP server closed");
+    process.exit(0);
+  });
+});
