@@ -38,3 +38,9 @@ export const JVA_ID = "5f5931496c7ea514150a818f"; // JeVeuxAider Id
 export const LBC_ID = "60cd04a0d2321e05a743fa8d"; // Leboncoin Id
 
 export const DEFAULT_AVATAR = "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/default.jpg";
+
+// Redis configuration for job queues
+export const REDIS_HOST = process.env.REDIS_HOST || "localhost";
+export const REDIS_PORT = parseInt(process.env.REDIS_PORT || "6379", 10);
+export const REDIS_PASSWORD = process.env.REDIS_PASSWORD;
+export const REDIS_USERNAME = process.env.REDIS_USERNAME;
