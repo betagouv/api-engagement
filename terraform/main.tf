@@ -111,6 +111,10 @@ resource "scaleway_container" "api" {
 resource "scaleway_container_domain" "api" {
   container_id = scaleway_container.api.id
   hostname     = local.api_hostname
+
+  lifecycle {
+    ignore_changes = all
+  }
 }
 
 # Process Container
@@ -152,6 +156,10 @@ resource "scaleway_container" "process" {
 resource "scaleway_container_domain" "process" {
   container_id = scaleway_container.process.id
   hostname     = local.process_hostname
+
+  lifecycle {
+    ignore_changes = all
+  }
 }
 
 # App Container
@@ -187,6 +195,10 @@ resource "scaleway_container" "app" {
 resource "scaleway_container_domain" "app" {
   container_id = scaleway_container.app.id
   hostname     = local.app_hostname
+
+  lifecycle {
+    ignore_changes = all
+  }
 }
 
 # Widget Volontariat Container
@@ -220,6 +232,10 @@ resource "scaleway_container" "volontariat" {
 resource "scaleway_container_domain" "volontariat" {
   container_id = scaleway_container.volontariat.id
   hostname     = local.volontariat_hostname
+
+  lifecycle {
+    ignore_changes = all
+  }
 }
 
 # Widget Benevolat Container
@@ -254,6 +270,10 @@ resource "scaleway_container" "benevolat" {
 resource "scaleway_container_domain" "benevolat" {
   container_id = scaleway_container.benevolat.id
   hostname     = local.benevolat_hostname
+
+  lifecycle {
+    ignore_changes = all
+  }
 }
 
 # Outputs
