@@ -7,19 +7,15 @@
 
 import dotenv from "dotenv";
 import fs from "fs";
-import path from "path";
 import mongoose from "mongoose";
+import path from "path";
 
 // Importer les configurations et connexions DB
 import "../db/mongo"; // Ceci initialise la connexion MongoDB
-import { DB_ENDPOINT } from "../config";
 
-// Charger les variables d'environnement
 dotenv.config();
 
-// Récupérer le nom du job depuis les arguments
 const jobName = process.argv[2];
-
 if (!jobName) {
   console.error("Error: no job name provided");
   console.log("Usage: npm run job -- <job-name>");
@@ -40,7 +36,6 @@ if (!fs.existsSync(handlerPath)) {
 
 async function runJob() {
   try {
-    // Vérifier que MongoDB est connecté
     if (mongoose.connection.readyState !== 1) {
       console.log("Waiting for MongoDB connection...");
       await new Promise((resolve) => {
@@ -70,7 +65,6 @@ async function runJob() {
   } catch (error) {
     console.error(`Error executing job '${jobName}':`, error);
   } finally {
-    // Fermer proprement la connexion MongoDB avant de quitter
     await mongoose.disconnect();
     process.exit(0);
   }

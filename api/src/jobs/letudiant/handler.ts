@@ -2,8 +2,8 @@ import { Job } from "bullmq";
 import { captureException } from "../../error";
 
 /**
- * Handler pour le job de génération du flux XML pour letudiant.fr
- * @param job Le job BullMQ
+ * Handler for the letudiant feed generation job
+ * @param job The BullMQ job
  */
 export async function handler(job: Job): Promise<any> {
   try {
@@ -20,6 +20,6 @@ export async function handler(job: Job): Promise<any> {
   } catch (error) {
     console.error(`[Letudiant] Job ${job.id} failed:`, error);
     captureException(error);
-    throw error; // Rethrow pour que BullMQ puisse gérer les tentatives
+    throw error; // BullMQ will handle retries
   }
 }
