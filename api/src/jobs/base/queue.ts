@@ -2,11 +2,12 @@ import { Queue } from "bullmq";
 import { redisConnection } from "../../db/redis";
 
 /**
- * Classe de base pour toutes les queues
- * Implémente le pattern singleton et fournit des méthodes communes
+ * Base class for all queues
+ * Implements the singleton pattern and provides common methods
  */
 export abstract class BaseQueue {
   protected queue: Queue;
+
   protected queueName: string;
 
   protected constructor(queueName: string) {
@@ -20,10 +21,10 @@ export abstract class BaseQueue {
           delay: 1000,
         },
         removeOnComplete: {
-          age: 7 * 24 * 3600, // Garder les jobs complétés pendant 7 jours
-          count: 100, // Garder les 100 derniers jobs
+          age: 7 * 24 * 3600, // 7 days
+          count: 100, // Keep the last 100 jobs
         },
-        removeOnFail: false, // Garder les jobs échoués pour diagnostic
+        removeOnFail: false, // Keep failed jobs for debugging
       },
     });
   }
@@ -33,21 +34,27 @@ export abstract class BaseQueue {
   }
 
   /**
-   * Ajoute un job à la queue
-   * @param name Nom du job
-   * @param data Données du job
-   * @param options Options du job
+   * Add a job to the queue
+   * @param name Job name
+   * @param data Job data
+   * @param options Job options
    */
   public async addJob(name: string, data: any, options: any = {}): Promise<any> {
-    return this.queue.add(name, data, options);
+    try {
+      const job = await this.queue.add(name, data, options);
+      return job;
+    } catch (error) {
+      console.error(`[BaseQueue] Failed to add job '${name}' to queue '${this.queueName}':`, error);
+      throw error;
+    }
   }
 
   /**
-   * Planifie un job récurrent
-   * @param name Nom du job
-   * @param data Données du job
-   * @param cronExpression Expression cron pour la planification
-   * @param jobId ID unique pour le job récurrent (pour pouvoir le retrouver/supprimer)
+   * Schedule a recurring job
+   * @param name Job name
+   * @param data Job data
+   * @param cronExpression Cron expression for scheduling
+   * @param jobId Unique job ID (to find/schedule the job)
    */
   public async scheduleRecurringJob(name: string, data: any, cronExpression: string, jobId: string): Promise<any> {
     return this.queue.add(name, data, {

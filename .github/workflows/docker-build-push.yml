@@ -50,7 +50,15 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        service: [app, api, process, widget-benevolat, widget-volontariat]
+        include:
+          - service: app
+          - service: process
+          - service: widget-benevolat
+          - service: widget-volontariat
+          - service: api
+            server_type: api
+          - service: api
+            server_type: jobs
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
@@ -122,10 +130,13 @@ jobs:
           file: ./${{ matrix.service }}/Dockerfile.production
           push: true
           tags: |
-            ghcr.io/${{ github.repository }}/${{ matrix.service }}:${{ needs.set-env.outputs.environment_name }}
-            ghcr.io/${{ github.repository }}/${{ matrix.service }}:${{ needs.set-env.outputs.environment_name }}-latest
-            ghcr.io/${{ github.repository }}/${{ matrix.service }}:${{ needs.set-env.outputs.environment_name }}-${{ steps.vars.outputs.short_sha }}
+            ${{ matrix.service != 'api' && format('ghcr.io/{0}/{1}:{2}', github.repository, matrix.service, needs.set-env.outputs.environment_name) || format('ghcr.io/{0}/{1}-{2}:{3}', github.repository, matrix.service, matrix.server_type, needs.set-env.outputs.environment_name) }}
+            ${{ matrix.service != 'api' && format('ghcr.io/{0}/{1}:{2}-latest', github.repository, matrix.service, needs.set-env.outputs.environment_name) || format('ghcr.io/{0}/{1}-{2}:{3}-latest', github.repository, matrix.service, matrix.server_type, needs.set-env.outputs.environment_name) }}
+            ${{ matrix.service != 'api' && format('ghcr.io/{0}/{1}:{2}-{3}', github.repository, matrix.service, needs.set-env.outputs.environment_name, steps.vars.outputs.short_sha) || format('ghcr.io/{0}/{1}-{2}:{3}-{4}', github.repository, matrix.service, matrix.server_type, needs.set-env.outputs.environment_name, steps.vars.outputs.short_sha) }}
           build-args: |
+            # API server type
+            ${{ matrix.service == 'api' && format('SERVER_TYPE={0}', matrix.server_type) || '' }}
+            
             # App (Vite) variables
             ${{ matrix.service == 'app' && format('VITE_ENV={0}', steps.app_args.outputs.VITE_ENV) || '' }}
             ${{ matrix.service == 'app' && format('VITE_API_URL={0}', steps.app_args.outputs.VITE_API_URL) || '' }}
