@@ -173,7 +173,14 @@ resource "scaleway_container" "app" {
   deploy          = true
 
   environment_variables = {
-    "ENV"            = terraform.workspace
+    "ENV"             = terraform.workspace
+    "API_URL"         = "https://${local.api_hostname}"
+    "BENEVOLAT_URL"   = "https://${local.benevolat_hostname}"
+    "VOLONTARIAT_URL" = "https://${local.volontariat_hostname}"
+  }
+
+  secret_environment_variables = {
+    "SENTRY_DSN" = local.secrets.SENTRY_DSN
   }
 }
 
