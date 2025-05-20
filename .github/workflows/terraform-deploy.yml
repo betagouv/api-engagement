@@ -109,10 +109,7 @@ jobs:
 
       - name: Terraform Workspace
         working-directory: ./terraform
-        run: |
-          terraform workspace list | grep -q "${{ needs.set-env.outputs.environment_name }}" || \
-          terraform workspace new "${{ needs.set-env.outputs.environment_name }}"
-          terraform workspace select "${{ needs.set-env.outputs.environment_name }}"
+        run: terraform workspace select "${{ needs.set-env.outputs.environment_name }}" || terraform workspace new "${{ needs.set-env.outputs.environment_name }}"
 
       - name: Terraform Plan
         working-directory: ./terraform

@@ -108,13 +108,12 @@ resource "scaleway_container" "api" {
   }
 }
 
+# We're using count = 0 to skip creating this resource
+# because it already exists and causes conflicts
 resource "scaleway_container_domain" "api" {
+  count = 0
   container_id = scaleway_container.api.id
   hostname     = local.api_hostname
-
-  lifecycle {
-    ignore_changes = all
-  }
 }
 
 # Process Container
@@ -153,13 +152,12 @@ resource "scaleway_container" "process" {
   }
 }
 
+# We're using count = 0 to skip creating this resource
+# because it already exists and causes conflicts
 resource "scaleway_container_domain" "process" {
+  count = 0
   container_id = scaleway_container.process.id
   hostname     = local.process_hostname
-
-  lifecycle {
-    ignore_changes = all
-  }
 }
 
 # App Container
@@ -192,13 +190,12 @@ resource "scaleway_container" "app" {
   }
 }
 
+# We're using count = 0 to skip creating this resource
+# because it already exists and causes conflicts
 resource "scaleway_container_domain" "app" {
+  count = 0
   container_id = scaleway_container.app.id
   hostname     = local.app_hostname
-
-  lifecycle {
-    ignore_changes = all
-  }
 }
 
 # Widget Volontariat Container
@@ -229,13 +226,12 @@ resource "scaleway_container" "volontariat" {
   }
 }
 
+# We're using count = 0 to skip creating this resource
+# because it already exists and causes conflicts
 resource "scaleway_container_domain" "volontariat" {
+  count = 0
   container_id = scaleway_container.volontariat.id
   hostname     = local.volontariat_hostname
-
-  lifecycle {
-    ignore_changes = all
-  }
 }
 
 # Widget Benevolat Container
@@ -267,13 +263,12 @@ resource "scaleway_container" "benevolat" {
   }
 }
 
+# We're using count = 0 to skip creating this resource
+# because it already exists and causes conflicts
 resource "scaleway_container_domain" "benevolat" {
+  count = 0
   container_id = scaleway_container.benevolat.id
   hostname     = local.benevolat_hostname
-
-  lifecycle {
-    ignore_changes = all
-  }
 }
 
 # Outputs
