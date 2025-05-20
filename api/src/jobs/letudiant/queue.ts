@@ -1,5 +1,6 @@
 import { BaseQueue } from "../base/queue";
 import { QueueNames } from "../config";
+import { JOB_NAME } from "./";
 
 /**
  * Queue for letudiant.fr feed generation
@@ -24,13 +25,14 @@ export class Queue extends BaseQueue {
    * @param options Options for the feed generation
    */
   public async generateFeed(options?: any): Promise<any> {
-    return this.addJob(
-      "generate-feed",
+    const result = await this.addJob(
+      JOB_NAME,
       { timestamp: Date.now(), options },
       {
-        jobId: `letudiant-feed-${Date.now()}`,
+        jobId: `${JOB_NAME}-${Date.now()}`,
       }
     );
+    return result;
   }
 
   /**
@@ -38,6 +40,6 @@ export class Queue extends BaseQueue {
    * @param cronExpression Expression cron for the schedule (default: every day at 2am)
    */
   public async scheduleFeedGeneration(cronExpression: string): Promise<any> {
-    return this.scheduleRecurringJob("generate-feed", { scheduled: true }, cronExpression, "scheduled-letudiant-feed");
+    return this.scheduleRecurringJob(JOB_NAME, { scheduled: true }, cronExpression, `${JOB_NAME}-scheduled`);
   }
 }

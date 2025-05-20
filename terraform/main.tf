@@ -76,7 +76,7 @@ resource "scaleway_container" "api" {
   name            = "${terraform.workspace}-api"
   description     = "API ${terraform.workspace} container"
   namespace_id    = scaleway_container_namespace.main.id
-  registry_image  = "ghcr.io/${var.github_repository}/api:${terraform.workspace}${var.image_tag == "latest" ? "" : "-${var.image_tag}"}"
+  registry_image  = "ghcr.io/${var.github_repository}/api-api:${terraform.workspace}${var.image_tag == "latest" ? "" : "-${var.image_tag}"}"
   port            = 8080
   # Update in function of terraform.workspace
   cpu_limit       = terraform.workspace == "production" ? 750 : 250
@@ -110,14 +110,6 @@ resource "scaleway_container" "api" {
     "SCW_ACCESS_KEY"    = local.secrets.SCW_ACCESS_KEY
     "SCW_SECRET_KEY"    = local.secrets.SCW_SECRET_KEY
   }
-}
-
-# We're using count = 0 to skip creating this resource
-# because it already exists and causes conflicts
-resource "scaleway_container_domain" "api" {
-  count = 0
-  container_id = scaleway_container.api.id
-  hostname     = local.api_hostname
 }
 
 # Process Container
@@ -181,7 +173,7 @@ resource "scaleway_container" "app" {
   max_scale       = terraform.workspace == "production" ? 1 : 1
   timeout         = 60
   max_concurrency = 50
-  privacy         = "public"
+  privacy         = "private"
   protocol        = "http1"
   http_option     = "redirected" # https only
   deploy          = true
@@ -208,7 +200,7 @@ resource "scaleway_container" "volontariat" {
   max_scale       = terraform.workspace == "production" ? 4 : 1
   timeout         = 60
   max_concurrency = 50
-  privacy         = "public"
+  privacy         = "private"
   protocol        = "http1"
   http_option     = "redirected" # https only
   deploy          = true
@@ -244,7 +236,7 @@ resource "scaleway_container" "benevolat" {
   max_scale       = terraform.workspace == "production" ? 4 : 1
   timeout         = 60
   max_concurrency = 50
-  privacy         = "public"
+  privacy         = "private"
   protocol        = "http1"
   http_option     = "redirected" # https only
   deploy          = true

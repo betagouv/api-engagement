@@ -9,7 +9,20 @@ if (!DB_ENDPOINT) {
 
 let reconnectTries = 0;
 
-mongoose.connection.on("open", () => console.log("MongoDB connected"));
+// Create a promise that resolves when MongoDB is connected
+export const mongoConnected = new Promise<void>((resolve) => {
+  if (mongoose.connection.readyState === 1) {
+    // Already connected
+    console.log("MongoDB already connected");
+    resolve();
+  } else {
+    mongoose.connection.once("open", () => {
+      console.log("MongoDB connected");
+      resolve();
+    });
+  }
+});
+
 mongoose.connection.on("disconnected", () => {
   console.log("MongoDB disconnected");
   // Try to reconnect every 5 seconds until successful or 5 tries have been made

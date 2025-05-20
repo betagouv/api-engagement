@@ -8,7 +8,9 @@ import { captureException } from "../../error";
  */
 export abstract class BaseWorker {
   protected worker: Worker;
+
   protected queueName: string;
+
   protected workerName: string;
 
   protected static instance: BaseWorker;
@@ -19,11 +21,10 @@ export abstract class BaseWorker {
 
     this.worker = new Worker(queueName, processor, {
       connection: redisConnection,
-      concurrency: 1, // Par défaut, un seul job à la fois
-      autorun: false, // Ne pas démarrer automatiquement
+      concurrency: 1,
+      autorun: false,
     });
 
-    // Gestion des événements communs
     this.worker.on("completed", (job) => {
       console.log(`[${this.workerName}] Job ${job.id} completed successfully`);
     });
@@ -34,15 +35,11 @@ export abstract class BaseWorker {
     });
   }
 
-  // Démarrer le worker
   public async start(): Promise<void> {
-    await this.worker.run();
-    console.log(`[${this.workerName}] Started worker for queue ${this.queueName}`);
+    this.worker.run();
   }
 
-  // Arrêter le worker
   public async stop(): Promise<void> {
-    await this.worker.close();
-    console.log(`[${this.workerName}] Stopped worker for queue ${this.queueName}`);
+    this.worker.close();
   }
 }

@@ -1,52 +1,126 @@
-# API
+# API Engagement - Service API
 
-## Deployment
+Ce répertoire contient le service API pour la plateforme API Engagement.
 
-### PM2 Setup
+## Installation locale
 
-#### Installation and configure
+### Prérequis
 
-Install pm2
+- Node.js 18.x ou supérieur
+- MongoDB (instance locale ou distante)
+- npm
+
+### Étapes d'installation
+
+1. Cloner le dépôt (si ce n'est pas déjà fait)
 
 ```bash
-npm install pm2
+git clone https://github.com/betagouv/api-engagement.git
+cd api-engagement/api
 ```
 
-Start application (used with `npm run start`)
+2. Installer les dépendances
 
 ```bash
-pm2 start dist/index.js --name api
+npm install
 ```
 
-Restart application
+3. Créer un fichier `.env` basé sur l'exemple fourni (ou demander à un membre de l'équipe les variables d'environnement de développement).
+
+## Mode développement
+
+### Lancement du service API
+
+Pour démarrer le service API en mode développement avec rechargement à chaud :
 
 ```bash
-pm2 restart api
+npm run dev:api
 ```
 
-Stop application (used with `npm run stop`)
+Cela démarrera le serveur API en utilisant nodemon, qui redémarrera automatiquement lorsque des modifications de fichiers seront détectées.
+
+### Lancement du service de tâches
+
+Pour démarrer le service de tâches en arrière-plan en mode développement :
 
 ```bash
-pm2 stop api
+npm run dev:jobs
 ```
 
-#### Logs rotation
+### Exécution d'une tâche spécifique
 
-Install `pm2-logrotate`
+Pour exécuter manuellement une tâche spécifique :
 
 ```bash
-pm2 install pm2-logrotate
+npm run job -- <nom-de-la-tâche> [paramètres-de-la-tâche]
 ```
 
-Configure log rotate to keep the last 2 months of logs
+## Mode production
+
+### Compilation pour la production
+
+Pour compiler l'application pour la production :
 
 ```bash
-# Rotate logs when they reach a specific size (optional, e.g., 10 MB)
-pm2 set pm2-logrotate:max_size 100M
+npm run build
+```
 
-# Set the retention period to 2 months (60 days)
-pm2 set pm2-logrotate:retain 60
+### Exécution en production
 
-# Set the interval to check logs (e.g., daily rotation)
-pm2 set pm2-logrotate:rotateInterval '0 0 * * *'
+Pour démarrer le service API en mode production :
+
+```bash
+npm run start:api
+```
+
+Pour démarrer le service de tâches en mode production :
+
+```bash
+npm run start:jobs
+```
+
+## Tests
+
+### Exécution des tests
+
+Pour exécuter tous les tests une fois :
+
+```bash
+npm test
+```
+
+Pour exécuter les tests en mode watch pendant le développement :
+
+```bash
+npm run test:watch
+```
+
+Pour exécuter les tests dans un environnement CI (optimisé pour les pipelines CI) :
+
+```bash
+npm run test:ci
+```
+
+## Autres commandes
+
+### Linting
+
+Pour vérifier la qualité du code avec ESLint :
+
+```bash
+npm run lint
+```
+
+Pour corriger automatiquement les problèmes de linting :
+
+```bash
+npm run lint:fix
+```
+
+### Formatage du code
+
+Pour formater le code avec Prettier :
+
+```bash
+npm run prettier
 ```

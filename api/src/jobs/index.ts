@@ -1,73 +1,33 @@
-import { Worker } from "bullmq";
-import { redisConnection } from "../db/redis";
-import { captureException } from "../error";
-import { jobHandlers } from "./config";
+import { jobSchedules, jobWorkers } from "./config";
 
-let workers: Worker[] = [];
+// Keep track of active workers
+const workers: any[] = [];
 
-/**
- * Initialize the job system
- * - Create workers for each queue
- * - Start workers
- */
-export async function initializeJobSystem() {
-  try {
-    workers = Object.entries(jobHandlers).map(([queueName, handler]) => {
-      console.log(`[Jobs] Creating worker for queue ${queueName}`);
-
-      const worker = new Worker(queueName, handler, {
-        connection: redisConnection,
-        concurrency: 1,
-        autorun: false,
-      });
-
-      worker.on("completed", (job) => {
-        console.log(`[${queueName}] Job ${job.id} completed successfully`);
-      });
-
-      worker.on("failed", (job, error) => {
-        console.error(`[${queueName}] Job ${job?.id} failed:`, error);
-        captureException(error);
-      });
-
-      return worker;
-    });
-
-    await startWorkers();
-
-    console.log("Job system initialized successfully");
-
-    return {
-      workers,
-      stopWorkers,
-    };
-  } catch (error) {
-    console.error("Failed to initialize job system:", error);
-    throw error;
+export async function launchJobSystem() {
+  // Start workers first
+  console.log("[Jobs] Starting workers...");
+  for (const [queueName, WorkerClass] of Object.entries(jobWorkers)) {
+    const worker = WorkerClass.getInstance();
+    await worker.start();
+    workers.push(worker);
+    console.log(`[Jobs] Worker for queue ${queueName} started successfully`);
   }
+
+  // Then schedule jobs
+  console.log("[Jobs] Scheduling jobs...");
+  for (const schedule of jobSchedules) {
+    await schedule.function.apply(schedule.cronExpression);
+    console.log(`[Jobs] Scheduled job ${schedule.title} with cron ${schedule.cronExpression}`);
+  }
+
+  console.log("[Jobs] Job system initialization complete");
 }
 
-/**
- * Start all registered workers
- */
-export async function startWorkers(): Promise<Worker[]> {
+// Add a function to gracefully shut down workers
+export async function shutdownJobs() {
+  console.log("[Jobs] Shutting down workers...");
   for (const worker of workers) {
-    await worker.run();
-    console.log(`[Jobs] Started worker for queue ${worker.name}`);
+    await worker.stop();
   }
-
-  console.log(`[Jobs] Started ${workers.length} workers`);
-  return workers;
-}
-
-/**
- * Stop all registered workers
- */
-export async function stopWorkers(): Promise<void> {
-  for (const worker of workers) {
-    await worker.close();
-    console.log(`[Jobs] Stopped worker for queue ${worker.name}`);
-  }
-
-  console.log(`[Jobs] Stopped ${workers.length} workers`);
+  console.log("[Jobs] All workers stopped");
 }
