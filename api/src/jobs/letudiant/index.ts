@@ -5,7 +5,7 @@ import { Queue } from "./queue";
  * Schedule the feed generation
  * @param cronExpression Expression cron for the schedule (default: every day at 2am)
  */
-export async function schedule(cronExpression = "0 2 * * *") {
+async function schedule(cronExpression = "0 2 * * *") {
   try {
     const queue = Queue.getInstance();
     await queue.scheduleFeedGeneration(cronExpression);
@@ -19,7 +19,7 @@ export async function schedule(cronExpression = "0 2 * * *") {
 /**
  * Manually trigger the feed generation
  */
-export async function trigger() {
+async function trigger() {
   try {
     const queue = Queue.getInstance();
     const job = await queue.generateFeed();
@@ -31,4 +31,4 @@ export async function trigger() {
   }
 }
 
-export { handler, Queue };
+export { handler, schedule, trigger };

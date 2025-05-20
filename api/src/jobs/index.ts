@@ -3,25 +3,24 @@ import { redisConnection } from "../db/redis";
 import { captureException } from "../error";
 import { jobHandlers } from "./config";
 
-// Workers créés lors de l'initialisation
 let workers: Worker[] = [];
 
 /**
- * Initialise le système de jobs asynchrones
+ * Initialize the job system
+ * - Create workers for each queue
+ * - Start workers
  */
 export async function initializeJobSystem() {
   try {
-    // Créer les workers pour chaque queue
     workers = Object.entries(jobHandlers).map(([queueName, handler]) => {
       console.log(`[Jobs] Creating worker for queue ${queueName}`);
 
       const worker = new Worker(queueName, handler, {
         connection: redisConnection,
-        concurrency: 1, // Par défaut, un seul job à la fois
-        autorun: false, // Ne pas démarrer automatiquement
+        concurrency: 1,
+        autorun: false,
       });
 
-      // Gestion des événements communs
       worker.on("completed", (job) => {
         console.log(`[${queueName}] Job ${job.id} completed successfully`);
       });
@@ -34,7 +33,6 @@ export async function initializeJobSystem() {
       return worker;
     });
 
-    // Démarrer les workers
     await startWorkers();
 
     console.log("Job system initialized successfully");
@@ -50,7 +48,7 @@ export async function initializeJobSystem() {
 }
 
 /**
- * Démarre tous les workers enregistrés
+ * Start all registered workers
  */
 export async function startWorkers(): Promise<Worker[]> {
   for (const worker of workers) {
@@ -63,7 +61,7 @@ export async function startWorkers(): Promise<Worker[]> {
 }
 
 /**
- * Arrête tous les workers enregistrés
+ * Stop all registered workers
  */
 export async function stopWorkers(): Promise<void> {
   for (const worker of workers) {
