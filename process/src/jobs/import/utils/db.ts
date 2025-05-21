@@ -151,7 +151,7 @@ const writePg = async (publisher: Publisher, importDoc: Import) => {
   console.log(`[${publisher.name}] Postgres ${updatedMongoMissions.length} missions to update in Mongo`);
 
   // Prepare PG update query
-  const pgUpdate = updatedMongoMissions.map((e) => transformMongoMissionToPg(e as MongoMission, partner.id, organizations));
+  const pgUpdate = updatedMongoMissions.map((e) => transformMongoMissionToPg(e as MongoMission, partner.id, organizations)).filter((e) => e !== null);
 
   let updated = 0;
   for (let i = 0; i < pgUpdate.length; i += 200) {
@@ -177,7 +177,7 @@ const writePg = async (publisher: Publisher, importDoc: Import) => {
 
     await prisma.address.deleteMany({ where: { mission_id: { in: Object.values(missionsIds) } } });
     await prisma.address.createMany({
-      data: chunk.flatMap((e) => e.addresses.map((a) => ({ ...a, mission_id: missionsIds[e.mission.old_id] }))),
+      data: chunk.flatMap((e) => e?.addresses.map((a) => ({ ...a, mission_id: missionsIds[e.mission.old_id] }))),
     });
 
     await prisma.missionHistoryEvent.deleteMany({ where: { mission_id: { in: Object.values(missionsIds) } } });

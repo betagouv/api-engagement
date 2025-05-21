@@ -13,7 +13,10 @@ export type MissionTransformResult = {
 /**
  * Transform a MongoDB mission into PostgreSQL format
  */
-export const transformMongoMissionToPg = (doc: MongoMission, partnerId: string, organizations: Organization[]): MissionTransformResult => {
+export const transformMongoMissionToPg = (doc: MongoMission | null, partnerId: string, organizations: Organization[]): MissionTransformResult | null => {
+  if (!doc) {
+    return null;
+  }
   const organization = organizations.find((e) => e.old_id === doc.organizationId);
 
   const obj = {
