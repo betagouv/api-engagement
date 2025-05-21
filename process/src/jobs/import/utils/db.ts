@@ -10,8 +10,11 @@ import { MissionTransformResult, transformMongoMissionToPg } from "./transformer
  */
 export const bulkDB = async (bulk: Mission[], publisher: Publisher, importDoc: Import) => {
   try {
+    const startedAt = new Date();
     await writeMongo(bulk, publisher, importDoc);
+    console.log(`[${publisher.name}] Mongo write took ${((new Date().getTime() - startedAt.getTime()) / 1000).toFixed(2)}s`);
     await writePg(publisher, importDoc);
+    console.log(`[${publisher.name}] Postgres write took ${((new Date().getTime() - startedAt.getTime()) / 1000).toFixed(2)}s`);
   } catch (error) {
     captureException(`[${publisher.name}] Import failed`, JSON.stringify(error, null, 2));
     return;
@@ -143,6 +146,7 @@ const writePg = async (publisher: Publisher, importDoc: Import) => {
     publisherId: publisher._id,
     updatedAt: { $gte: importDoc.startedAt },
     createdAt: { $lt: importDoc.startedAt },
+    deletedAt: null,
   }).lean();
   console.log(`[${publisher.name}] Postgres ${updatedMongoMissions.length} missions to update in Mongo`);
 
@@ -150,41 +154,36 @@ const writePg = async (publisher: Publisher, importDoc: Import) => {
   const pgUpdate = updatedMongoMissions.map((e) => transformMongoMissionToPg(e as MongoMission, partner.id, organizations));
 
   let updated = 0;
-  for (const obj of pgUpdate) {
-    try {
-      if (updated % 100 === 0) {
-        console.log(`[${publisher.name}] Postgres ${updated} missions updated`);
+  for (let i = 0; i < pgUpdate.length; i += 200) {
+    console.log(`[${publisher.name}] Postgres updating chunk ${i} of ${pgUpdate.length} (${updated} missions updated)`);
+
+    const chunk = pgUpdate.slice(i, i + 200);
+    const missionsIds = {} as Record<string, string>;
+
+    for (const obj of chunk) {
+      try {
+        const mission = await prisma.mission.upsert({
+          where: { old_id: obj.mission.old_id },
+          update: obj.mission,
+          create: obj.mission,
+        });
+
+        missionsIds[obj.mission.old_id] = mission.id;
+        updated++;
+      } catch (error) {
+        captureException(error, `[${publisher.name}] Error while updating mission ${obj?.mission?.old_id}`);
       }
-
-      // Upsert mission with actual data
-      if (!obj) {
-        continue;
-      }
-      const mission = await prisma.mission.upsert({
-        where: { old_id: obj.mission.old_id },
-        update: obj.mission,
-        create: obj.mission,
-      });
-
-      // Replace addresses
-      await prisma.address.deleteMany({ where: { mission_id: mission.id } });
-      await prisma.address.createMany({
-        data: obj.addresses.map((e) => ({ ...e, mission_id: mission.id })),
-      });
-
-      // Replace history
-      await prisma.missionHistoryEvent.deleteMany({ where: { mission_id: mission.id } });
-      await prisma.missionHistoryEvent.createMany({
-        data: obj.history.map((h) => ({
-          ...h,
-          mission_id: mission.id,
-        })),
-      });
-
-      updated += 1;
-    } catch (error) {
-      console.error(error, obj?.mission?.old_id);
     }
+
+    await prisma.address.deleteMany({ where: { mission_id: { in: Object.values(missionsIds) } } });
+    await prisma.address.createMany({
+      data: chunk.flatMap((e) => e.addresses.map((a) => ({ ...a, mission_id: missionsIds[e.mission.old_id] }))),
+    });
+
+    await prisma.missionHistoryEvent.deleteMany({ where: { mission_id: { in: Object.values(missionsIds) } } });
+    await prisma.missionHistoryEvent.createMany({
+      data: chunk.flatMap((e) => e.history.map((h) => ({ ...h, mission_id: missionsIds[e.mission.old_id] }))),
+    });
   }
 
   console.log(`[${publisher.name}] Postgres ${updated} missions updated`);

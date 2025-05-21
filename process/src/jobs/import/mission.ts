@@ -161,7 +161,7 @@ const parseArray = (value: string | { value: string[] | string } | undefined, in
   return [value];
 };
 
-export const buildMission = (publisher: Publisher, missionXML: MissionXML) => {
+export const buildMission = (publisher: Publisher, missionXML: MissionXML, missionDB?: Mission) => {
   const mission = {
     title: he.decode(missionXML.title),
     description: convert(he.decode(missionXML.description || ""), {
@@ -212,7 +212,7 @@ export const buildMission = (publisher: Publisher, missionXML: MissionXML) => {
   if (mission.domain === "mémoire et citoyenneté") {
     mission.domain = "memoire-et-citoyennete";
   }
-  mission.domainLogo = missionXML.image || getImageDomain(mission.domain);
+  mission.domainLogo = missionXML.image || missionDB?.domainLogo || getImageDomain(mission.domain);
 
   // Address
   if (missionXML.addresses && Array.isArray(missionXML.addresses) && missionXML.addresses.length > 0) {

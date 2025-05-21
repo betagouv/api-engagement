@@ -73,7 +73,7 @@ const buildData = async (startTime: Date, publisher: Publisher, missionXML: Miss
       clientId: missionXML.clientId,
     });
 
-    const mission = buildMission(publisher, missionXML);
+    const mission = buildMission(publisher, missionXML, missionDB?.toObject());
     if (missionDB) {
       mission._id = missionDB._id as Schema.Types.ObjectId;
       mission.createdAt = missionDB.createdAt;
@@ -85,7 +85,7 @@ const buildData = async (startTime: Date, publisher: Publisher, missionXML: Miss
     mission.publisherName = publisher.name;
     mission.publisherLogo = publisher.logo;
     mission.publisherUrl = publisher.url;
-    mission.updatedAt = new Date();
+    mission.updatedAt = startTime;
 
     mission.organizationVerificationStatus = missionDB?.organizationVerificationStatus;
     if (missionDB && missionDB.statusCommentHistoric && Array.isArray(missionDB.statusCommentHistoric)) {
@@ -116,7 +116,7 @@ const importPublisher = async (publisher: Publisher, start: Date) => {
     deletedCount: 0,
     missionCount: 0,
     refusedCount: 0,
-    startedAt: new Date(),
+    startedAt: start,
     endedAt: null,
     status: "SUCCESS",
     failed: { data: [] },
