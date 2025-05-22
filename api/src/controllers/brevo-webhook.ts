@@ -73,11 +73,12 @@ const downloadFile = async (email: Email) => {
     }
 
     // find link the md_text_body of the text [Download report](https://www.linkedin.com/e/v2?...)
-    const match = email.mdTextBody.match(/\[Download report\]\((https:\/\/www.linkedin.com\/e\/v2\?[^)]+)\)/);
+    const match = email.mdTextBody.match(/\[Download report\]\((https:\/\/www\.linkedin\.com\/e\/v2\?[^)]+)\)/);
     if (!match) {
       captureException("[Linkedin Stats] No link found", `No link found in email ${email._id}`);
       return;
     }
+
     const link = match[0].slice("[Download report](".length, -1).replaceAll("&amp;", "&");
     console.log(`[Linkedin Stats] Found link in email ${email._id}: ${link}`);
 

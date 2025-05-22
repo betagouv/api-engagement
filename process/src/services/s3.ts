@@ -7,12 +7,6 @@ if (!SCW_HOST || !BUCKET_NAME || !REGION || !SCW_ACCESS_KEY || !SCW_SECRET_KEY) 
   throw new Error("Missing Scaleway credentials");
 }
 
-console.log("SCW_HOST", SCW_HOST);
-console.log("BUCKET_NAME", BUCKET_NAME);
-console.log("REGION", REGION);
-console.log("SCW_ACCESS_KEY", SCW_ACCESS_KEY);
-console.log("SCW_SECRET_KEY", SCW_SECRET_KEY);
-
 const bucket = new AWS.S3({
   endpoint: SCW_HOST,
   accessKeyId: SCW_ACCESS_KEY,
