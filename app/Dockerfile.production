@@ -1,0 +1,46 @@
+# Build
+FROM node:18-bullseye-slim AS builder
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    && rm -rf /var/lib/apt/lists/*
+
+WORKDIR /app
+
+ARG VITE_ENV=development
+ARG VITE_API_URL=http://localhost:9001
+ARG VITE_BENEVOLAT_URL=http://localhost:9003
+ARG VITE_VOLONTARIAT_URL=http://localhost:9004
+ARG VITE_SENTRY_DSN=
+
+ENV VITE_ENV=$VITE_ENV
+ENV VITE_API_URL=$VITE_API_URL
+ENV VITE_BENEVOLAT_URL=$VITE_BENEVOLAT_URL
+ENV VITE_VOLONTARIAT_URL=$VITE_VOLONTARIAT_URL
+ENV VITE_SENTRY_DSN=$VITE_SENTRY_DSN
+
+COPY package*.json ./
+
+RUN npm ci
+
+COPY . .
+
+RUN npm run build
+
+# Run
+FROM node:18-bullseye-slim
+
+WORKDIR /app
+
+ENV NODE_ENV=production
+
+COPY server ./server
+
+COPY package*.json ./
+
+RUN npm ci --omit=dev
+
+COPY --from=builder /app/dist ./dist
+
+EXPOSE 8080
+
+CMD ["node", "server/index.js"]

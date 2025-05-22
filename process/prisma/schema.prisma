@@ -174,7 +174,7 @@ model Kpi {
   date                                                DateTime @unique
   available_benevolat_mission_count                   Int
   available_volontariat_mission_count                 Int
-  available_jva_mission_count                         Int
+  available_jva_mission_count                         Int?
   available_benevolat_given_by_partner_place_count    Int
   available_volontariat_given_by_partner_place_count  Int
   available_benevolat_attributed_by_api_place_count   Int
@@ -207,7 +207,7 @@ model KpiBotLess {
   date                                                DateTime @unique
   available_benevolat_mission_count                   Int
   available_volontariat_mission_count                 Int
-  available_jva_mission_count                         Int
+  available_jva_mission_count                         Int?
   available_benevolat_given_by_partner_place_count    Int
   available_volontariat_given_by_partner_place_count  Int
   available_benevolat_attributed_by_api_place_count   Int
@@ -480,7 +480,7 @@ model OrganizationExclusion {
   updated_at DateTime @updatedAt
 
   organization_client_id String
-  organization_name String
+  organization_name String?
 
   excluded_by_publisher_id String
   excluded_by_publisher Partner @relation("ExcludedByPublisher", fields: [excluded_by_publisher_id], references: [id])
