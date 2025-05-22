@@ -249,9 +249,9 @@ const Edit = () => {
                   <div className="flex-1">
                     <div className="flex flex-wrap justify-center gap-2">
                       {item.isAnnonceur && <span className="rounded bg-red-light p-2">Annonceur</span>}
-                      {item.api && <span className="rounded bg-green-light p-2">Diffuseur API</span>}
-                      {item.widget && <span className="rounded bg-green-light p-2">Diffuseur Widget</span>}
-                      {item.campaign && <span className="rounded bg-green-light p-2">Diffuseur Campagne</span>}
+                      {item.hasApiRights && <span className="rounded bg-green-light p-2">Diffuseur API</span>}
+                      {item.hasWidgetRights && <span className="rounded bg-green-light p-2">Diffuseur Widget</span>}
+                      {item.hasCampaignRights && <span className="rounded bg-green-light p-2">Diffuseur Campagne</span>}
                     </div>
                   </div>
                 </>

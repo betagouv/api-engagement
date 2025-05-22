@@ -61,7 +61,7 @@ const Broacaster = () => {
 
         if (!res.ok) throw res;
         const broadcasters = res.data
-          .filter((item) => item.api || item.campaign || item.widget)
+          .filter((item) => item.hasApiRights || item.hasWidgetRights || item.hasCampaignRights)
           .map((item) => ({
             ...item,
             rate: item.clickFrom === 0 ? 0 : item.applyFrom / item.clickFrom,
@@ -106,7 +106,7 @@ const Broacaster = () => {
       const csv =
         "Id;Nom du partenaire;Nombre de redirections;Nombre de candidatures;Taux de conversion\n" +
         res.data
-          .filter((item) => item.api || item.campaign || item.widget)
+          .filter((item) => item.hasApiRights || item.hasWidgetRights || item.hasCampaignRights)
           .map(
             (item) => `${item._id};${item.name};${item.clickFrom};${item.applyFrom};${item.clickFrom === 0 ? "0 %" : ((item.applyFrom / item.clickFrom) * 100).toFixed(1) + " %"}`,
           )
@@ -197,17 +197,17 @@ const Broacaster = () => {
                               Annonceur
                             </span>
                           )}
-                          {item.api && (
+                          {item.hasApiRights && (
                             <span className="text-gray-700 rounded-xl bg-[#dae6fd] px-2 py-1" style={{ fontSize: "12px" }}>
                               Diffuseur API
                             </span>
                           )}
-                          {item.campaign && (
+                          {item.hasCampaignRights && (
                             <span className="text-gray-700 rounded-xl bg-[#dae6fd] px-2 py-1" style={{ fontSize: "12px" }}>
                               Diffuseur Campagne
                             </span>
                           )}
-                          {item.widget && (
+                          {item.hasWidgetRights && (
                             <span className="text-gray-700 rounded-xl bg-[#dae6fd] px-2 py-1" style={{ fontSize: "12px" }}>
                               Diffuseur Widget
                             </span>

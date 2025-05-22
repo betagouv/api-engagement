@@ -243,7 +243,7 @@ export const getData = async (year: number, month: number, publisher: Publisher)
   if (publisher.isAnnonceur) {
     data.receive = await search(publisher._id.toString(), month, year, "to");
   }
-  if (publisher.api || publisher.widget || publisher.campaign) {
+  if (publisher.hasApiRights || publisher.hasWidgetRights || publisher.hasCampaignRights) {
     data.send = await search(publisher._id.toString(), month, year, "from");
   }
 

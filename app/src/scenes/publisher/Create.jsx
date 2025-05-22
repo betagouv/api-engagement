@@ -9,8 +9,9 @@ import SettingsCreation from "./components/SettingsCreation";
 
 const canSubmit = (values) => {
   if (values.name === "") return false;
-  if (!(values.api || values.campaign || values.widget) && !values.isAnnonceur) return false;
-  if ((values.api || values.campaign || values.widget) && !values.category) return false;
+  if (!values.isDiffuseur && !values.isAnnonceur) return false;
+  if (values.isDiffuseur && !(values.hasApiRights || values.hasWidgetRights || values.hasCampaignRights)) return false;
+  if (values.isDiffuseur && !values.category) return false;
   if (values.isAnnonceur && !values.missionType) return false;
   return true;
 };
@@ -23,10 +24,11 @@ const Create = () => {
     url: "",
     documentation: "",
     description: "",
-    api: false,
-    campaign: false,
-    widget: false,
     isAnnonceur: false,
+    isDiffuseur: false,
+    hasApiRights: false,
+    hasWidgetRights: false,
+    hasCampaignRights: false,
     missionType: null,
   });
 

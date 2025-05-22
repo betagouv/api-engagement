@@ -1,5 +1,3 @@
-import { useState } from "react";
-
 import RadioInput from "../../../components/RadioInput";
 import Toggle from "../../../components/Toggle";
 import { PUBLISHER_CATEGORIES } from "../../../constants";
@@ -25,7 +23,7 @@ const Annonceur = ({ values, onChange }) => {
     <div className="border border-gray-border p-6 space-y-6">
       <div className="flex items-center justify-between">
         <h3 className="text-lg font-bold">Annonceur</h3>
-        <Toggle value={values.isAnnonceur} onChange={(e) => onChange({ ...values, isAnnonceur: e })} />
+        <Toggle value={values.isAnnonceur} onChange={(e) => onChange({ ...values, isAnnonceur: e, missionType: null })} />
       </div>
       {values.isAnnonceur && (
         <>
@@ -58,21 +56,16 @@ const Annonceur = ({ values, onChange }) => {
 };
 
 const Diffuseurs = ({ values, onChange }) => {
-  const [open, setOpen] = useState(values.api || values.widget || values.campaign);
-
   return (
     <div className="border border-gray-border p-6 space-y-6">
       <div className="flex items-center justify-between">
         <h3 className="text-lg font-bold">Diffuseurs</h3>
         <Toggle
-          value={open}
-          onChange={(e) => {
-            setOpen(e);
-            if (!e) onChange({ ...values, api: false, widget: false, campaign: false });
-          }}
+          value={values.isDiffuseur}
+          onChange={(e) => onChange({ ...values, isDiffuseur: e, category: null, hasApiRights: false, hasWidgetRights: false, hasCampaignRights: false })}
         />
       </div>
-      {open && (
+      {values.isDiffuseur && (
         <>
           <div className="w-full h-px bg-gray-border" />
           <div className="space-y-2">
@@ -94,11 +87,25 @@ const Diffuseurs = ({ values, onChange }) => {
               Moyens de diffusion <span className="text-red-500">*</span>
             </label>
             <div className="flex items-center gap-2">
-              <input type="checkbox" className="checkbox" id="api" name="api" onChange={(e) => onChange({ ...values, api: e.target.checked })} checked={values.api} />
+              <input
+                type="checkbox"
+                className="checkbox"
+                id="api"
+                name="api"
+                onChange={(e) => onChange({ ...values, hasApiRights: e.target.checked })}
+                checked={values.hasApiRights}
+              />
               <label htmlFor="api">API</label>
             </div>
             <div className="flex items-center gap-2">
-              <input type="checkbox" className="checkbox" id="widget" name="widget" onChange={(e) => onChange({ ...values, widget: e.target.checked })} checked={values.widget} />
+              <input
+                type="checkbox"
+                className="checkbox"
+                id="widget"
+                name="widget"
+                onChange={(e) => onChange({ ...values, hasWidgetRights: e.target.checked })}
+                checked={values.hasWidgetRights}
+              />
               <label htmlFor="widget">Widgets</label>
             </div>
             <div className="flex items-center gap-2">
@@ -107,8 +114,8 @@ const Diffuseurs = ({ values, onChange }) => {
                 className="checkbox"
                 id="campaign"
                 name="campaign"
-                onChange={(e) => onChange({ ...values, campaign: e.target.checked })}
-                checked={values.campaign}
+                onChange={(e) => onChange({ ...values, hasCampaignRights: e.target.checked })}
+                checked={values.hasCampaignRights}
               />
               <label htmlFor="campaign">Campagnes</label>
             </div>

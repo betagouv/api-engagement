@@ -154,7 +154,6 @@ const SC_ID = "5f99dbe75eb1ad767733b206";
 
 const Settings = ({ widget, values, setValues, loading }) => {
   const { publisher } = useStore();
-  // const [publishers, setPublishers] = useState([]);
   const [publishers, setPublishers] = useState([]);
   const [total, setTotal] = useState(0);
   const [showAll, setShowAll] = useState(false);

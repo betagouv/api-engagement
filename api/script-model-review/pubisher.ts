@@ -40,19 +40,19 @@ const refactoFields = async (publisher: any) => {
   updates.deletedAt = publisher.deletedAt || publisher.deleted_at || null;
   updates.createdAt = publisher.createdAt || publisher.created_at;
   updates.updatedAt = publisher.updatedAt || publisher.updated_at;
-  updates.missionType = publisher.missionType || publisher.mission_type;
+  updates.missionType = publisher.missionType || publisher.mission_type || null;
 
-  updates.isAnnonceur = publisher.annonceur || publisher.role_promoteur;
+  updates.isAnnonceur = publisher.isAnnonceur || publisher.annonceur || publisher.role_promoteur || false;
 
-  updates.api = publisher.api || publisher.role_annonceur_api;
-  updates.widget = publisher.widget || publisher.role_annonceur_widget;
-  updates.campaign = publisher.campaign || publisher.role_annonceur_campagne;
+  updates.hasApiRights = publisher.hasApiRights || publisher.api || publisher.role_annonceur_api || false;
+  updates.hasWidgetRights = publisher.hasWidgetRights || publisher.widget || publisher.role_annonceur_widget || false;
+  updates.hasCampaignRights = publisher.hasCampaignRights || publisher.campaign || publisher.role_annonceur_campagne || false;
 
-  updates.sendReport = publisher.automated_report;
-  updates.sendReportTo = publisher.send_report_to;
+  updates.sendReport = publisher.sendReport || publisher.automated_report || false;
+  updates.sendReportTo = publisher.sendReportTo || publisher.send_report_to || [];
 
-  updates.feedUsername = publisher.feedUsername || publisher.feed_username;
-  updates.feedPassword = publisher.feedPassword || publisher.feed_password;
+  updates.feedUsername = publisher.feedUsername || publisher.feed_username || null;
+  updates.feedPassword = publisher.feedPassword || publisher.feed_password || null;
 
   // Update without the schema cause the timestamps would not set correctly
   if (!mongoose.connection.db) {
@@ -76,7 +76,8 @@ const main = async () => {
 
   for (const publisher of publishers) {
     await refactoFields(publisher);
-    // await cleanUnusedFields(publisher); Clean the unused fields in a second step after it's merge to not lose data
+    // Clean the unused fields in a second step after it's merge to not lose data
+    await cleanUnusedFields(publisher);
   }
 };
 

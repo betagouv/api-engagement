@@ -181,17 +181,17 @@ const Announcer = () => {
                             Annonceur
                           </span>
                         )}
-                        {item.api && (
+                        {item.hasApiRights && (
                           <span className="text-gray-700 rounded-xl bg-[#dae6fd] px-2 py-1" style={{ fontSize: "12px" }}>
                             Diffuseur API
                           </span>
                         )}
-                        {item.campaign && (
+                        {item.hasCampaignRights && (
                           <span className="text-gray-700 rounded-xl bg-[#dae6fd] px-2 py-1" style={{ fontSize: "12px" }}>
                             Diffuseur Campagne
                           </span>
                         )}
-                        {item.widget && (
+                        {item.hasWidgetRights && (
                           <span className="text-gray-700 rounded-xl bg-[#dae6fd] px-2 py-1" style={{ fontSize: "12px" }}>
                             Diffuseur Widget
                           </span>

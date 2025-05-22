@@ -68,11 +68,11 @@ export const syncContact = async () => {
           if (!contact.attributes.ENTREPRISE) {
             attributes.ENTREPRISE = publisher.name;
           }
-          if (publisher.isAnnonceur && (publisher.api || publisher.campaign || publisher.widget)) {
+          if (publisher.isAnnonceur && (publisher.hasApiRights || publisher.hasCampaignRights || publisher.hasWidgetRights)) {
             attributes.ROLE = "Annonceur & Diffuseur";
           } else if (publisher.isAnnonceur) {
             attributes.ROLE = "Annonceur";
-          } else if (publisher.api || publisher.campaign || publisher.widget) {
+          } else if (publisher.hasApiRights || publisher.hasCampaignRights || publisher.hasWidgetRights) {
             attributes.ROLE = "Diffuseur";
           }
         }
@@ -108,11 +108,11 @@ export const syncContact = async () => {
         const publisher = publishers.find((publisher) => publisher.id === user.publishers[0]);
         if (publisher) {
           body.attributes.ENTREPRISE = publisher.name;
-          if (publisher.isAnnonceur && (publisher.api || publisher.campaign || publisher.widget)) {
+          if (publisher.isAnnonceur && (publisher.hasApiRights || publisher.hasCampaignRights || publisher.hasWidgetRights)) {
             body.attributes.ROLE = "Annonceur & Diffuseur";
           } else if (publisher.isAnnonceur) {
             body.attributes.ROLE = "Annonceur";
-          } else if (publisher.api || publisher.campaign || publisher.widget) {
+          } else if (publisher.hasApiRights || publisher.hasCampaignRights || publisher.hasWidgetRights) {
             body.attributes.ROLE = "Diffuseur";
           }
         }

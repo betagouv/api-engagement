@@ -361,11 +361,11 @@ export interface Publisher {
   feed: string;
   feedUsername: string;
   feedPassword: string;
-  isAnnonceur: boolean;
 
-  api: boolean;
-  widget: boolean;
-  campaign: boolean;
+  isAnnonceur: boolean;
+  hasApiRights: boolean;
+  hasWidgetRights: boolean;
+  hasCampaignRights: boolean;
 
   moderator: boolean;
   moderatorLink: string;

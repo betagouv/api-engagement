@@ -53,7 +53,7 @@ describe("MyOrganization API Integration Tests", () => {
       expect(partner).toHaveProperty("widget");
       expect(partner).toHaveProperty("api");
       expect(partner).toHaveProperty("campaign");
-      expect(partner).toHaveProperty("isAnnonceur");
+      expect(partner).toHaveProperty("annonceur");
       expect(partner).toHaveProperty("excluded");
       expect(partner).toHaveProperty("clicks");
 

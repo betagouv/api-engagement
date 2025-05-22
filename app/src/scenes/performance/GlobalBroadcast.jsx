@@ -160,7 +160,7 @@ const GlobalDiffuseur = ({ filters, onFiltersChange }) => {
 
       {!loading && (
         <>
-          {(publisher.api && 1) + (publisher.campaign && 1) + (publisher.widget && 1) > 1 && (
+          {(publisher.hasApiRights && 1) + (publisher.hasCampaignRights && 1) + (publisher.hasWidgetRights && 1) > 1 && (
             <DistributionMean filters={filters} defaultType={data.totalPrint !== 0 ? "print" : "click"} />
           )}
           <Evolution filters={filters} defaultType={data.totalPrint !== 0 ? "print" : "click"} />

@@ -39,13 +39,12 @@ const schema = new Schema<Publisher>(
     missionType: { type: String, default: null, enum: ["benevolat", "volontariat", null] },
 
     isAnnonceur: { type: Boolean, default: false },
-    // annonceur: { type: Boolean, default: false },
-    api: { type: Boolean, default: false },
-    widget: { type: Boolean, default: false },
-    campaign: { type: Boolean, default: false },
+    hasApiRights: { type: Boolean, default: false },
+    hasWidgetRights: { type: Boolean, default: false },
+    hasCampaignRights: { type: Boolean, default: false },
 
     sendReport: { type: Boolean, default: false },
-    sendReportTo: { type: [String] },
+    sendReportTo: { type: [String], default: [] },
 
     deletedAt: { type: Date, default: null },
   },

@@ -43,16 +43,16 @@ router.post("/search", passport.authenticate(["user", "admin"], { session: false
       where.isAnnonceur = true;
     }
     if (body.data.role === "diffuseur") {
-      where.$or = [{ api: true }, { widget: true }, { campaign: true }];
+      where.$or = [{ hasApiRights: true }, { hasWidgetRights: true }, { hasCampaignRights: true }];
     }
     if (body.data.role === "api") {
-      where.api = true;
+      where.hasApiRights = true;
     }
     if (body.data.role === "widget") {
-      where.widget = true;
+      where.hasWidgetRights = true;
     }
     if (body.data.role === "campaign") {
-      where.campaign = true;
+      where.hasCampaignRights = true;
     }
     if (body.data.sendReport !== undefined) {
       where.sendReport = body.data.sendReport;
@@ -244,13 +244,13 @@ router.put("/:id", passport.authenticate("admin", { session: false }), async (re
 
     const body = zod
       .object({
-        sendReport: zod.boolean().optional(),
-        sendReportTo: zod.array(zod.string()).optional(),
+        sendReport: zod.boolean().default(false),
+        sendReportTo: zod.array(zod.string()).default([]),
         isAnnonceur: zod.boolean().default(false),
         missionType: zod.string().nullable().default(null),
-        api: zod.boolean().default(false),
-        widget: zod.boolean().default(false),
-        campaign: zod.boolean().default(false),
+        hasApiRights: zod.boolean().default(false),
+        hasWidgetRights: zod.boolean().default(false),
+        hasCampaignRights: zod.boolean().default(false),
         category: zod.string().nullable().default(null),
         publishers: zod
           .array(
@@ -283,15 +283,8 @@ router.put("/:id", passport.authenticate("admin", { session: false }), async (re
     if (body.data.isAnnonceur && !body.data.missionType) {
       return res.status(400).send({ ok: false, code: INVALID_BODY, message: "Mission type is required" });
     }
-    if (body.data.diffuseur && !body.data.category) {
+    if ((body.data.hasApiRights || body.data.hasWidgetRights || body.data.hasCampaignRights) && !body.data.category) {
       return res.status(400).send({ ok: false, code: INVALID_BODY, message: "Category is required" });
-    }
-    if (body.data.diffuseur && !body.data.api && !body.data.widget && !body.data.campaign) {
-      return res.status(400).send({
-        ok: false,
-        code: INVALID_BODY,
-        message: "At least one diffusion method is required",
-      });
     }
 
     const publisher = await PublisherModel.findById(params.data.id);
@@ -299,21 +292,16 @@ router.put("/:id", passport.authenticate("admin", { session: false }), async (re
       return res.status(404).send({ ok: false, code: NOT_FOUND, message: "Publisher not found" });
     }
 
-    if (body.data.sendReport !== undefined) {
-      publisher.sendReport = body.data.sendReport;
-    }
-    if (body.data.sendReportTo) {
-      publisher.sendReportTo = body.data.sendReportTo;
-    }
+    publisher.sendReport = body.data.sendReport;
+    publisher.sendReportTo = body.data.sendReportTo;
+    publisher.isAnnonceur = body.data.isAnnonceur;
+    publisher.missionType = body.data.missionType;
+    publisher.hasApiRights = body.data.hasApiRights;
+    publisher.hasWidgetRights = body.data.hasWidgetRights;
+    publisher.hasCampaignRights = body.data.hasCampaignRights;
+    publisher.category = body.data.category;
 
-    publisher.isAnnonceur = body.data.isAnnonceur || false;
-    publisher.missionType = body.data.missionType || null;
-    publisher.api = body.data.api || false;
-    publisher.widget = body.data.widget || false;
-    publisher.campaign = body.data.campaign || false;
-    publisher.category = body.data.category || null;
-
-    if (!(publisher.api || publisher.widget || publisher.campaign)) {
+    if (!(publisher.hasApiRights || publisher.hasWidgetRights || publisher.hasCampaignRights)) {
       publisher.publishers = [];
     } else if (body.data.publishers) {
       publisher.publishers = body.data.publishers;

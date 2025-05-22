@@ -485,7 +485,7 @@ const Patners = ({ filters }) => {
   };
 
   const broadcastPie = buildPie(
-    data.filter((d) => d.api || d.campaign || d.widget),
+    data.filter((d) => d.hasApiRights || d.hasWidgetRights || d.hasCampaignRights),
     "applyFrom",
   );
   const announcePie = buildPie(
@@ -510,7 +510,7 @@ const Patners = ({ filters }) => {
               </h3>
               <p className="text-[#666] text-sm">Top des diffuseurs ayant généré le plus de candidatures</p>
             </div>
-            {!data.filter((d) => d.api || d.campaign || d.widget).length ? (
+            {!data.filter((d) => d.hasApiRights || d.hasWidgetRights || d.hasCampaignRights).length ? (
               <div className="w-full h-[248px] bg-[#f6f6f6] flex flex-col justify-center items-center border border-dashed border-[#ddddd]">
                 <img src={EmptySVG} alt="empty" className="w-16 h-16" />
                 <p className="text-base text-[#666]">Aucune donnée disponible pour la période</p>
@@ -530,7 +530,7 @@ const Patners = ({ filters }) => {
                     </thead>
                     <tbody>
                       {data
-                        .filter((d) => d.api || d.campaign || d.widget)
+                        .filter((d) => d.hasApiRights || d.hasWidgetRights || d.hasCampaignRights)
                         .sort((a, b) => b.applyFrom - a.applyFrom)
                         .slice(0, 5)
                         .map((item, i) => (

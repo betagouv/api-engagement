@@ -401,9 +401,9 @@ router.get("/publishers-views", passport.authenticate("user", { session: false }
       _id: p._id,
       name: p.name,
       isAnnonceur: p.isAnnonceur,
-      api: p.api,
-      campaign: p.campaign,
-      widget: p.widget,
+      hasApiRights: p.hasApiRights,
+      hasCampaignRights: p.hasCampaignRights,
+      hasWidgetRights: p.hasWidgetRights,
       clickFrom: response.body.aggregations.clickFrom.data.buckets.find((b: { key: string; doc_count: number }) => b.key === p.name)?.doc_count || 0,
       clickTo: response.body.aggregations.clickTo.data.buckets.find((b: { key: string; doc_count: number }) => b.key === p.name)?.doc_count || 0,
       applyFrom: response.body.aggregations.applyFrom.data.buckets.find((b: { key: string; doc_count: number }) => b.key === p.name)?.doc_count || 0,
@@ -425,7 +425,7 @@ router.get("/publishers-views", passport.authenticate("user", { session: false }
         return true;
       }).length,
       broadcasters: publishers.filter((e) => {
-        const isDiffuseur = e.api || e.campaign || e.widget;
+        const isDiffuseur = e.hasApiRights || e.hasCampaignRights || e.hasWidgetRights;
         if (!isDiffuseur) {
           return false;
         }

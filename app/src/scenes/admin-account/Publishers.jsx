@@ -67,9 +67,9 @@ const Publishers = () => {
       val["Email"] = publisher.email;
       val["URL"] = publisher.url;
       val["Role annonceur"] = publisher.isAnnonceur;
-      val["Role diffuseur API"] = publisher.api;
-      val["Role diffuseur widget"] = publisher.widget;
-      val["Role diffuseur campagne"] = publisher.campaign;
+      val["Role diffuseur API"] = publisher.hasApiRights;
+      val["Role diffuseur widget"] = publisher.hasWidgetRights;
+      val["Role diffuseur campagne"] = publisher.hasCampaignRights;
       const annonceurs = publisher.publishers.map((p) => p.publisherName);
       val["Nombre d'annonceurs"] = annonceurs.length;
       val["Annonceurs"] = annonceurs;
@@ -189,9 +189,9 @@ const Publishers = () => {
                 </Link>
                 <div className="flex flex-1 flex-wrap justify-center gap-2">
                   {item.isAnnonceur && <span className="rounded bg-red-light px-1 text-[10px]">Annonceur</span>}
-                  {item.api && <span className="rounded bg-green-light px-1 text-[10px]">Diffuseur API</span>}
-                  {item.widget && <span className="rounded bg-green-light px-1 text-[10px]">Diffuseur Widget</span>}
-                  {item.campaign && <span className="rounded bg-green-light px-1 text-[10px]">Diffuseur Campagne</span>}
+                  {item.hasApiRights && <span className="rounded bg-green-light px-1 text-[10px]">Diffuseur API</span>}
+                  {item.hasWidgetRights && <span className="rounded bg-green-light px-1 text-[10px]">Diffuseur Widget</span>}
+                  {item.hasCampaignRights && <span className="rounded bg-green-light px-1 text-[10px]">Diffuseur Campagne</span>}
                 </div>
                 <span className="w-32 text-center text-xs">{item.publishers.length}</span>
                 <span className="w-32 text-center text-xs">{publishers.filter((e) => e.publishers.find((j) => j.publisher === item._id.toString())).length}</span>

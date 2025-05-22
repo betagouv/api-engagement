@@ -8,9 +8,9 @@ const buildData = (doc: Publisher) => {
   const obj = {
     old_id: doc._id.toString(),
     name: doc.name,
-    diffuseur_api: doc.api,
-    diffuseur_widget: doc.widget,
-    diffuseur_campaign: doc.campaign,
+    diffuseur_api: doc.hasApiRights,
+    diffuseur_widget: doc.hasWidgetRights,
+    diffuseur_campaign: doc.hasCampaignRights,
     annonceur: doc.isAnnonceur,
     partners: doc.publishers.map((p) => p.publisherId),
     created_at: new Date(doc.createdAt),
