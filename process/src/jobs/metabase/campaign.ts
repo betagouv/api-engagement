@@ -16,7 +16,7 @@ const buildData = (doc: Campaign, partners: { [key: string]: string }) => {
     return null;
   }
 
-  const obj = {
+  const campaign = {
     old_id: doc._id.toString(),
     name: doc.name,
     type: doc.type,
@@ -31,7 +31,13 @@ const buildData = (doc: Campaign, partners: { [key: string]: string }) => {
     created_at: doc.createdAt,
     updated_at: doc.updatedAt,
   } as PrismaCampaign;
-  return obj;
+
+  const trackers = doc.trackers.map((t) => ({
+    key: t.key,
+    value: t.value,
+  }));
+
+  return { campaign, trackers };
 };
 
 const handler = async () => {
@@ -42,8 +48,8 @@ const handler = async () => {
     const data = await CampaignModel.find().lean();
     console.log(`[Campaigns] Found ${data.length} docs to sync.`);
 
-    const stored = {} as { [key: string]: { old_id: string; updated_at: Date } };
-    await prisma.campaign.findMany({ select: { old_id: true, updated_at: true } }).then((data) => data.forEach((d) => (stored[d.old_id] = d)));
+    const stored = {} as { [key: string]: { id: string; old_id: string; updated_at: Date } };
+    await prisma.campaign.findMany({ select: { old_id: true, updated_at: true, id: true } }).then((data) => data.forEach((d) => (stored[d.old_id] = d)));
     console.log(`[Campaigns] Found ${Object.keys(stored).length} docs in database.`);
     const partners = {} as { [key: string]: string };
     await prisma.partner.findMany({ select: { id: true, old_id: true } }).then((data) => data.forEach((d) => (partners[d.old_id] = d.id)));
@@ -57,8 +63,8 @@ const handler = async () => {
         continue;
       }
 
-      if (exists && new Date(exists.updated_at).getTime() !== obj.updated_at.getTime()) {
-        dataToUpdate.push(obj);
+      if (exists && new Date(exists.updated_at).getTime() !== obj.campaign.updated_at.getTime()) {
+        dataToUpdate.push({ ...obj, id: exists.id });
       } else if (!exists) {
         dataToCreate.push(obj);
       }
@@ -67,18 +73,28 @@ const handler = async () => {
     // Create data
     if (dataToCreate.length) {
       console.log(`[Campaigns] Creating ${dataToCreate.length} docs...`);
-      const res = await prisma.campaign.createMany({ data: dataToCreate, skipDuplicates: true });
-      console.log(`[Campaigns] Created ${res.count} docs.`);
+      const res = await prisma.campaign.createManyAndReturn({ data: dataToCreate.map((d) => d.campaign), skipDuplicates: true });
+      console.log(`[Campaigns] Created ${res.length} docs.`);
+      for (const obj of dataToCreate) {
+        const campaign = res.find((r) => r.old_id === obj.campaign.old_id);
+        if (!campaign) {
+          console.log(`[Campaigns] Campaign ${obj.campaign.old_id} not found after creation`);
+          continue;
+        }
+        await prisma.campaignTracker.createMany({ data: obj.trackers.map((t) => ({ ...t, campaign_id: campaign.id })), skipDuplicates: true });
+      }
     }
     // Update data
     if (dataToUpdate.length) {
       console.log(`[Campaigns] Updating ${dataToUpdate.length} docs...`);
-      const transactions = [];
+      let updated = 0;
       for (const obj of dataToUpdate) {
-        transactions.push(prisma.campaign.update({ where: { old_id: obj.old_id }, data: obj }));
+        await prisma.campaign.update({ where: { id: obj.id }, data: obj.campaign });
+        await prisma.campaignTracker.deleteMany({ where: { campaign_id: obj.id } });
+        await prisma.campaignTracker.createMany({ data: obj.trackers.map((t) => ({ ...t, campaign_id: obj.id })), skipDuplicates: true });
+        updated++;
       }
-      await prisma.$transaction(transactions);
-      console.log(`[Campaigns] Updated ${dataToUpdate.length} docs.`);
+      console.log(`[Campaigns] Updated ${updated} docs.`);
     }
 
     console.log(`[Campaigns] Ended at ${new Date().toISOString()} in ${(Date.now() - start.getTime()) / 1000}s.`);
