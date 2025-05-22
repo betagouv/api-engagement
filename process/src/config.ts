@@ -23,7 +23,7 @@ export const DATA_SUBVENTION_TOKEN = process.env.DATA_SUBVENTION_TOKEN || "";
 
 export const SCW_HOST = process.env.SCW_HOST || "https://s3.fr-par.scw.cloud";
 export const REGION = process.env.SCW_REGION || "fr-par";
-export const BUCKET_NAME = process.env.BUCKET_NAME || "api-engagement-bucket";
+export const BUCKET_NAME = process.env.BUCKET_NAME || "api-engagement-bucket-staging";
 
 export const SCW_ACCESS_KEY = process.env.SCW_ACCESS_KEY;
 export const SCW_SECRET_KEY = process.env.SCW_SECRET_KEY;

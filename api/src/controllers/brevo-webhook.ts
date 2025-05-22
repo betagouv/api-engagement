@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { captureException, captureMessage } from "../error";
+import { captureException, captureMessage, INVALID_BODY } from "../error";
 import EmailModel from "../models/email";
 import { putObject } from "../services/s3";
 import { Email } from "../types";
@@ -16,6 +16,11 @@ const router = Router();
 router.post("/", async (req, res, next) => {
   try {
     const body = req.body as { items: BrevoInboundEmail[] };
+
+    if (!body.items || !Array.isArray(body.items)) {
+      captureMessage("Invalid body", JSON.stringify(body, null, 2));
+      return res.status(400).send({ ok: false, code: INVALID_BODY, message: "Invalid body" });
+    }
 
     for (let i = 0; i < body.items.length; i++) {
       const item = body.items[i];

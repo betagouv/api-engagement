@@ -35,33 +35,34 @@ const cleanUnusedFields = async (email: any) => {
 const refactoFields = async (email: any) => {
   const updates: any = {};
 
-  updates.messageId = email.message_id;
-  updates.inReplyTo = email.in_reply_to;
-  updates.fromName = email.from_name;
-  updates.fromEmail = email.from_email;
+  updates.messageId = email.messageId || email.message_id;
+  updates.inReplyTo = email.inReplyTo || email.in_reply_to;
+  updates.fromName = email.fromName || email.from_name;
+  updates.fromEmail = email.fromEmail || email.from_email;
 
-  updates.sentAt = email.sent_at;
-  updates.rawTextBody = email.raw_text_body;
-  updates.rawHtmlBody = email.raw_html_body;
-  updates.mdTextBody = email.md_text_body;
+  updates.sentAt = email.sentAt || email.sent_at;
+  updates.rawTextBody = email.rawTextBody || email.raw_text_body;
+  updates.rawHtmlBody = email.rawHtmlBody || email.raw_html_body;
+  updates.mdTextBody = email.mdTextBody || email.md_text_body;
 
-  updates.attachments = email.attachments.map((attachment: any) => ({
+  updates.attachments = (email.attachments || email.attachments).map((attachment: any) => ({
     name: attachment.name,
-    contentType: attachment.content_type,
-    contentLength: attachment.content_length,
-    contentId: attachment.content_id,
+    contentType: attachment.contentType || attachment.content_type,
+    contentLength: attachment.contentLength || attachment.content_length,
+    contentId: attachment.contentId || attachment.content_id,
     token: attachment.token,
+    url: attachment.url,
   }));
 
-  updates.reportUrl = email.report_url;
-  updates.fileObjectName = email.file_object_name;
-  updates.dateFrom = email.date_from;
-  updates.dateTo = email.date_to;
-  updates.createdCount = email.created_count;
+  updates.reportUrl = email.reportUrl || email.report_url;
+  updates.fileObjectName = email.fileObjectName || email.file_object_name;
+  updates.dateFrom = email.dateFrom || email.date_from;
+  updates.dateTo = email.dateTo || email.date_to;
+  updates.createdCount = email.createdCount || email.created_count;
 
-  updates.deletedAt = email.deleted_at;
-  updates.createdAt = email.created_at;
-  updates.updatedAt = email.updated_at;
+  updates.deletedAt = email.deletedAt || email.deleted_at;
+  updates.createdAt = email.createdAt || email.created_at;
+  updates.updatedAt = email.updatedAt || email.updated_at;
 
   // Update without the schema cause the timestamps would not set correctly
   await mongoose.connection.db.collection("emails").updateOne({ _id: email._id }, { $set: updates });
