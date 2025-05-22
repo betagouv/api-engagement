@@ -51,7 +51,7 @@ const runnings = {
 // https://crontab.guru/#0_*/3_*_*_*
 // Every 3 hours
 const missionJob = new CronJob(
-  "0 */3 * * *",
+  "0 */4 * * *",
   async () => {
     const checkInId = Sentry.captureCheckIn({
       monitorSlug: "mission-updates",
