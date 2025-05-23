@@ -86,16 +86,30 @@ model Campaign {
   reassigned_by_user_id   String?
   reassigned_by_user_name String?
   type                    String?
+  
   accounts                Account[]
   applies                 Apply[]
   annonceur               Partner      @relation("AnnonceurCampaign", fields: [annonceur_id], references: [id])
   diffuseur               Partner      @relation("DiffuseurCampaign", fields: [diffuseur_id], references: [id])
   clicks                  Click[]
   impressions             Impression[]
+  trackers                CampaignTracker[]
 
   @@index([diffuseur_id], map: "campaign_diffuseur_id")
   @@index([annonceur_id], map: "campaign_annonceur_id")
 }
+
+model CampaignTracker {
+  id String @id @default(uuid())
+  campaign_id String
+  key String
+  value String
+
+  campaign Campaign @relation(fields: [campaign_id], references: [id])
+
+  @@index([campaign_id], map: "campaign_tracker_campaign_id")
+}
+
 
 model Click {
   id              String      @id @default(uuid())
