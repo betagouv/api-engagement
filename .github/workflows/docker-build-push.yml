@@ -14,7 +14,7 @@ on:
   workflow_run:
     workflows: ["Tests"]
     types: [completed]
-    branches: [main, staging]
+    branches: [staging]
 
 permissions:
   contents: read

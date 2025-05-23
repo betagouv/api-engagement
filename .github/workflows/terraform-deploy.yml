@@ -4,7 +4,7 @@ on:
   workflow_run:
     workflows: ["Build and Push Docker Images"]
     types: [completed]
-    branches: [main, staging]
+    branches: [staging]
 
   workflow_dispatch:
     inputs:
