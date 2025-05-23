@@ -16,6 +16,7 @@ import bodyParser from "body-parser";
 import cookieParser from "cookie-parser";
 import cors from "cors";
 import express, { NextFunction, Request, Response } from "express";
+import { rateLimit } from "express-rate-limit";
 import helmet from "helmet";
 import morgan from "morgan";
 import path from "path";
@@ -76,7 +77,28 @@ const origin = [
   "https://app-735c50af-69c1-4a10-ac30-7ba11d1112f7.cleverapps.io",
   "https://app-ec11b799-95d0-4770-8e41-701b4becf64a.cleverapps.io",
 ];
+
+const limiter = rateLimit({
+  windowMs: 60 * 1000, // 1 minute
+  limit: 100, // Limit each IP to 100 requests per `window` (here, per 1 minute).
+  handler: (req, res) => {
+    captureMessage(`Too many requests, please try again later.`, {
+      extra: {
+        ip: req.ip,
+        url: req.url,
+        method: req.method,
+      },
+    });
+    res.status(429).send({
+      ok: false,
+      code: "TOO_MANY_REQUESTS",
+      message: "Too many requests, please try again later.",
+    });
+  },
+});
+
 // Configure express
+app.use(limiter);
 app.use(cors({ credentials: true, origin }));
 app.use(bodyParser.json({ limit: "50mb" }));
 app.use(bodyParser.text({ type: "application/x-ndjson" }));
