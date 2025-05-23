@@ -70,7 +70,7 @@ resource "scaleway_container" "api" {
   name            = "${terraform.workspace}-api"
   description     = "API ${terraform.workspace} container"
   namespace_id    = scaleway_container_namespace.main.id
-  registry_image  = "ghcr.io/${var.github_repository}/api:${terraform.workspace}${var.image_tag == "latest" ? "" : "-${var.image_tag}"}"
+  registry_image  = "ghcr.io/${var.github_repository}/api-api:${terraform.workspace}${var.image_tag == "latest" ? "" : "-${var.image_tag}"}"
   port            = 8080
   # Update in function of terraform.workspace
   cpu_limit       = terraform.workspace == "production" ? 1680 : 560
@@ -80,6 +80,57 @@ resource "scaleway_container" "api" {
   timeout         = 60
   max_concurrency = 50
   privacy         = "public"
+  protocol        = "http1"
+  http_option     = "redirected" # https only
+  deploy          = true
+
+  environment_variables = {
+    "ENV"           = terraform.workspace
+    "API_URL"       = "https://${local.api_hostname}"
+    "APP_URL"       = "https://${local.app_hostname}"
+    "BENEVOLAT_URL" = "https://${local.benevolat_hostname}"
+    "VOLONTARIAT_URL" = "https://${local.volontariat_hostname}"
+    "BUCKET_NAME"   = local.bucket_name
+    "REDIS_HOST"    = local.secrets.REDIS_HOST
+    "REDIS_PORT"    = local.secrets.REDIS_PORT
+  }
+
+  secret_environment_variables = {
+    "DB_ENDPOINT"       = local.secrets.DB_ENDPOINT
+    "ES_ENDPOINT"       = local.secrets.ES_ENDPOINT
+    "SENTRY_DSN"        = local.secrets.SENTRY_DSN
+    "SENDINBLUE_APIKEY" = local.secrets.SENDINBLUE_APIKEY
+    "SECRET"            = local.secrets.SECRET
+    "SCW_ACCESS_KEY"    = local.secrets.SCW_ACCESS_KEY
+    "SCW_SECRET_KEY"    = local.secrets.SCW_SECRET_KEY
+    "REDIS_PASSWORD"    = local.secrets.REDIS_PASSWORD
+    "REDIS_USERNAME"    = local.secrets.REDIS_USERNAME
+    "APP_URL"           = "https://${local.app_hostname}"
+    "API_URL"           = "https://${local.api_hostname}"
+    "BENEVOLAT_URL"     = "https://${local.benevolat_hostname}"
+    "VOLONTARIAT_URL"   = "https://${local.volontariat_hostname}"
+  }
+}
+
+resource "scaleway_container_domain" "api" {
+  container_id = scaleway_container.api.id
+  hostname     = local.api_hostname
+}
+
+# Jobs Container
+resource "scaleway_container" "jobs" {
+  name            = "${terraform.workspace}-jobs"
+  description     = "Jobs ${terraform.workspace} container"
+  namespace_id    = scaleway_container_namespace.main.id
+  registry_image  = "ghcr.io/${var.github_repository}/api-jobs:${terraform.workspace}${var.image_tag == "latest" ? "" : "-${var.image_tag}"}"
+  port            = 8080
+  cpu_limit       = terraform.workspace == "production" ? 1120 : 560
+  memory_limit    = terraform.workspace == "production" ? 1120 : 560
+  min_scale       = terraform.workspace == "production" ? 1 : 1
+  max_scale       = terraform.workspace == "production" ? 2 : 1
+  timeout         = 60
+  max_concurrency = 20
+  privacy         = "private"
   protocol        = "http1"
   http_option     = "redirected" # https only
   deploy          = true
@@ -105,15 +156,11 @@ resource "scaleway_container" "api" {
     "API_URL"           = "https://${local.api_hostname}"
     "BENEVOLAT_URL"     = "https://${local.benevolat_hostname}"
     "VOLONTARIAT_URL"   = "https://${local.volontariat_hostname}"
+    "REDIS_HOST"        = local.secrets.REDIS_HOST
+    "REDIS_PORT"        = local.secrets.REDIS_PORT
+    "REDIS_PASSWORD"    = local.secrets.REDIS_PASSWORD
+    "REDIS_USERNAME"    = local.secrets.REDIS_USERNAME
   }
-}
-
-# We're using count = 0 to skip creating this resource
-# because it already exists and causes conflicts
-resource "scaleway_container_domain" "api" {
-  count = 0
-  container_id = scaleway_container.api.id
-  hostname     = local.api_hostname
 }
 
 # Process Container
@@ -123,8 +170,8 @@ resource "scaleway_container" "process" {
   namespace_id    = scaleway_container_namespace.main.id
   registry_image  = "ghcr.io/${var.github_repository}/process:${terraform.workspace}${var.image_tag == "latest" ? "" : "-${var.image_tag}"}"
   port            = 8080
-  cpu_limit       = terraform.workspace == "production" ? 1680 : 560
-  memory_limit    = terraform.workspace == "production" ? 2048 : 560
+  cpu_limit       = terraform.workspace == "production" ? 1120 : 560
+  memory_limit    = terraform.workspace == "production" ? 1120 : 560
   min_scale       = terraform.workspace == "production" ? 1 : 1
   max_scale       = terraform.workspace == "production" ? 3 : 1
   timeout         = 300  # Longer timeout for process jobs
@@ -176,7 +223,7 @@ resource "scaleway_container" "app" {
   max_scale       = terraform.workspace == "production" ? 1 : 1
   timeout         = 60
   max_concurrency = 50
-  privacy         = "public"
+  privacy         = "private"
   protocol        = "http1"
   http_option     = "redirected" # https only
   deploy          = true
@@ -214,7 +261,7 @@ resource "scaleway_container" "volontariat" {
   max_scale       = terraform.workspace == "production" ? 4 : 1
   timeout         = 60
   max_concurrency = 50
-  privacy         = "public"
+  privacy         = "private"
   protocol        = "http1"
   http_option     = "redirected" # https only
   deploy          = true
@@ -250,7 +297,7 @@ resource "scaleway_container" "benevolat" {
   max_scale       = terraform.workspace == "production" ? 4 : 1
   timeout         = 60
   max_concurrency = 50
-  privacy         = "public"
+  privacy         = "private"
   protocol        = "http1"
   http_option     = "redirected" # https only
   deploy          = true
