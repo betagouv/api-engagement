@@ -16,6 +16,10 @@ on:
     types: [completed]
     branches: [staging]
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 permissions:
   contents: read
   packages: write
@@ -93,11 +97,9 @@ jobs:
           if [[ "${{ needs.set-env.outputs.environment_name }}" == 'production' ]]; then
             echo "API_URL=${{ vars.API_URL_PRODUCTION }}" >> $GITHUB_OUTPUT
             echo "SENTRY_DSN=${{ secrets.SENTRY_DSN_PRODUCTION }}" >> $GITHUB_OUTPUT
-            echo "GOOGLE_FOR_JOB_KEY=${{ secrets.GOOGLE_FOR_JOB_KEY_PRODUCTION }}" >> $GITHUB_OUTPUT
           else
             echo "API_URL=${{ vars.API_URL_STAGING }}" >> $GITHUB_OUTPUT
             echo "SENTRY_DSN=${{ secrets.SENTRY_DSN_STAGING }}" >> $GITHUB_OUTPUT
-            echo "GOOGLE_FOR_JOB_KEY=${{ secrets.GOOGLE_FOR_JOB_KEY_STAGING }}" >> $GITHUB_OUTPUT
           fi
 
       - name: Set widget-volontariat build args
@@ -135,7 +137,6 @@ jobs:
             ${{ matrix.service == 'widget-benevolat' && format('ENV={0}', steps.widget_benevolat_args.outputs.ENV) || '' }}
             ${{ matrix.service == 'widget-benevolat' && format('API_URL={0}', steps.widget_benevolat_args.outputs.API_URL) || '' }}
             ${{ matrix.service == 'widget-benevolat' && format('SENTRY_DSN={0}', steps.widget_benevolat_args.outputs.SENTRY_DSN) || '' }}
-            ${{ matrix.service == 'widget-benevolat' && format('GOOGLE_FOR_JOB_KEY={0}', steps.widget_benevolat_args.outputs.GOOGLE_FOR_JOB_KEY) || '' }}
 
             # Widget Volontariat variables
             ${{ matrix.service == 'widget-volontariat' && format('ENV={0}', steps.widget_volontariat_args.outputs.ENV) || '' }}
