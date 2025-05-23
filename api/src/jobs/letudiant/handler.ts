@@ -7,18 +7,13 @@ import { captureException } from "../../error";
  */
 export async function handler(job: Job): Promise<any> {
   try {
-    console.log(`[Letudiant] Processing job ${job.id} of type ${job.name}`);
-
-    console.log("TODO");
-
-    console.log(`[Letudiant] Job ${job.id} completed successfully`);
+    console.log("TODO - Letudiant");
 
     return {
       success: true,
       timestamp: new Date(),
     };
   } catch (error) {
-    console.error(`[Letudiant] Job ${job.id} failed:`, error);
     captureException(error);
     throw error; // BullMQ will handle retries
   }

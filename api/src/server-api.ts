@@ -59,11 +59,10 @@ import JobTeaserV2Controller from "./v2/jobteaser";
 import LeboncoinV2Controller from "./v2/leboncoin";
 import MissionV2Controller from "./v2/mission";
 
+// Create the Express app but don't start the server yet
+// See startApiServer function below
 const app = express();
 const start = new Date();
-
-process.on("SIGTERM", () => process.exit(0));
-process.on("SIGINT", () => process.exit(0));
 
 const origin = [
   APP_URL,
@@ -76,7 +75,7 @@ const origin = [
   "https://app-735c50af-69c1-4a10-ac30-7ba11d1112f7.cleverapps.io",
   "https://app-ec11b799-95d0-4770-8e41-701b4becf64a.cleverapps.io",
 ];
-// Configure express
+
 app.use(cors({ credentials: true, origin }));
 app.use(bodyParser.json({ limit: "50mb" }));
 app.use(bodyParser.text({ type: "application/x-ndjson" }));
@@ -186,9 +185,9 @@ app.use(async (err: any, req: Request, res: Response, _: NextFunction) => {
 });
 
 export function startApiServer() {
+  // Start the server only when this function is called
   const server = app.listen(PORT, () => console.log(`API is running on port ${PORT} at ${new Date()}`));
-  
-  // Gestion de l'arrêt propre de l'application
+
   const handleShutdown = () => {
     console.log("Shutting down API server gracefully");
     server.close(() => {
@@ -199,6 +198,6 @@ export function startApiServer() {
 
   process.on("SIGTERM", handleShutdown);
   process.on("SIGINT", handleShutdown);
-  
+
   return server;
 }

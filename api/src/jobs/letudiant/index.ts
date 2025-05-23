@@ -25,7 +25,7 @@ export async function trigger() {
   try {
     const queue = Queue.getInstance();
     const job = await queue.generateFeed();
-    console.log(`[Letudiant] Feed generation job added with ID: ${job?.id || 'unknown'}`);
+    console.log(`[Letudiant] Feed generation job added with ID: ${job?.id || "unknown"}`);
     return job;
   } catch (error) {
     console.error("[Letudiant] Failed to trigger feed generation:", error);
@@ -33,5 +33,4 @@ export async function trigger() {
   }
 }
 
-export { Worker, handler };
-
+export { handler, Queue, Worker };

@@ -8,6 +8,7 @@ Ce répertoire contient le service API pour la plateforme API Engagement.
 
 - Node.js 18.x ou supérieur
 - MongoDB (instance locale ou distante)
+- Redis (instance locale ou distante)
 - npm
 
 ### Étapes d'installation
@@ -28,6 +29,14 @@ npm install
 3. Créer un fichier `.env` basé sur l'exemple fourni (ou demander à un membre de l'équipe les variables d'environnement de développement).
 
 ## Mode développement
+
+### Lancement des services
+
+Redis doit être démarré en parallèle du service de traitement des jobs.
+
+```bash
+docker run --name redis -d -p 6379:6379 redis
+```
 
 ### Lancement du service API
 
