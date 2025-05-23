@@ -83,7 +83,7 @@ const GlobalAnnounce = ({ filters, onFiltersChange }) => {
               </div>
               <div className="border p-6">
                 <p className="font-bold text-[28px]">{data.totalMissionClicked.toLocaleString("fr")}</p>
-                <p className="text-base">missions ayant généré au moins une candidature</p>
+                <p className="text-base">missions ayant reçu au moins une redirection sur la période</p>
               </div>
             </div>
             <div className="grid grid-cols-4 gap-4">
