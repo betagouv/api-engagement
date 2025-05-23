@@ -765,34 +765,34 @@ export type EsQuery = {
 export interface Email {
   _id: Schema.Types.ObjectId;
   raw: BrevoInboundEmail;
-  message_id: string;
-  in_reply_to?: string;
-  from_name: string;
-  from_email: string;
+  messageId: string;
+  inReplyTo?: string;
+  fromName: string;
+  fromEmail: string;
   to: { name: string; email: string }[];
   subject: string;
-  sent_at: Date;
-  raw_text_body?: string;
-  raw_html_body?: string;
-  md_text_body: string;
+  sentAt: Date;
+  rawTextBody?: string;
+  rawHtmlBody?: string;
+  mdTextBody: string;
   attachments: {
     name: string;
-    content_type: string;
-    content_length: number;
-    content_id: string;
+    contentType: string;
+    contentLength: number;
+    contentId: string;
     token: string;
     url: string;
   }[];
 
   status: "PENDING" | "PROCESSED" | "FAILED";
-  report_url: string | null;
-  file_object_name: string | null;
-  date_from: Date | null;
-  date_to: Date | null;
-  created_count: number | null;
+  reportUrl: string | null;
+  fileObjectName: string | null;
+  dateFrom: Date | null;
+  dateTo: Date | null;
+  createdCount: number | null;
   failed: any | null;
 
-  deleted_at: Date | null;
-  created_at: Date;
-  updated_at: Date;
+  deletedAt: Date | null;
+  createdAt: Date;
+  updatedAt: Date;
 }

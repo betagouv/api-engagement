@@ -28,12 +28,12 @@ const downloadXlsx = async (url: string) => {
 
 const getData = async (email: Email) => {
   try {
-    if (!email.file_object_name) {
+    if (!email.fileObjectName) {
       captureException("[Linkedin Stats] No file found", `No file found in email ${email._id}`);
       return;
     }
 
-    const data = await downloadXlsx(email.file_object_name);
+    const data = await downloadXlsx(email.fileObjectName);
     if (!data) {
       captureException("[Linkedin Stats] Failed to download", `Failed to download link in email ${email._id}`);
       return;
@@ -77,22 +77,22 @@ const handler = async () => {
       const data = await getData(email);
       if (!data) {
         email.status = "FAILED";
-        email.updated_at = new Date();
+        email.updatedAt = new Date();
         await email.save();
         continue;
       }
 
       const exists = await EmailModel.exists({
         status: "PROCESSED",
-        date_from: data.from,
-        date_to: data.to,
+        dateFrom: data.from,
+        dateTo: data.to,
       });
       if (exists) {
         console.log(`[Linkedin Stats] Report already processed for email ${email._id}`);
         email.status = "DUPLICATE";
-        email.date_from = data.from;
-        email.date_to = data.to;
-        email.updated_at = new Date();
+        email.dateFrom = data.from;
+        email.dateTo = data.to;
+        email.updatedAt = new Date();
         await email.save();
         continue;
       }
@@ -104,11 +104,11 @@ const handler = async () => {
       result.failed.data.push(...res.failed.data);
 
       email.status = "PROCESSED";
-      email.date_from = data.from;
-      email.date_to = data.to;
-      email.created_count = res.created;
+      email.dateFrom = data.from;
+      email.dateTo = data.to;
+      email.createdCount = res.created;
       email.failed = res.failed.data.length ? res.failed : null;
-      email.updated_at = new Date();
+      email.updatedAt = new Date();
       await email.save();
     }
 

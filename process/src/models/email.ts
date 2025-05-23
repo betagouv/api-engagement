@@ -4,57 +4,52 @@ import { Email } from "../types";
 
 const MODELNAME = "email";
 
-const schema = new Schema<Email>({
-  message_id: { type: String },
-  in_reply_to: { type: String },
-  from_name: { type: String },
-  from_email: { type: String },
-  to: {
-    type: [
-      {
-        name: { type: String },
-        email: { type: String },
-      },
-    ],
+const schema = new Schema<Email>(
+  {
+    messageId: { type: String },
+    inReplyTo: { type: String },
+    fromName: { type: String },
+    fromEmail: { type: String },
+    to: {
+      type: [
+        {
+          name: { type: String },
+          email: { type: String },
+        },
+      ],
+    },
+
+    subject: { type: String },
+    sentAt: { type: Date },
+    rawTextBody: { type: String },
+    rawHtmlBody: { type: String },
+    mdTextBody: { type: String },
+
+    attachments: {
+      type: [
+        {
+          name: { type: String },
+          contentType: { type: String },
+          contentLength: { type: Number },
+          contentId: { type: String },
+          token: { type: String },
+          url: { type: String },
+        },
+      ],
+    },
+
+    raw: { type: Object },
+
+    status: { type: String, default: "PENDING" },
+    reportUrl: { type: String, default: null },
+    fileObjectName: { type: String, default: null },
+    dateFrom: { type: Date, default: null },
+    dateTo: { type: Date, default: null },
+    createdCount: { type: Number, default: null },
+    failed: { type: Object, default: null },
   },
-
-  subject: { type: String },
-  sent_at: { type: Date },
-  raw_text_body: { type: String },
-  raw_html_body: { type: String },
-  md_text_body: { type: String },
-
-  attachments: {
-    type: [
-      {
-        name: { type: String },
-        content_type: { type: String },
-        content_length: { type: Number },
-        content_id: { type: String },
-        token: { type: String },
-        url: { type: String },
-      },
-    ],
-  },
-
-  raw: { type: Object },
-
-  status: {
-    type: String,
-    enum: ["PENDING", "PROCESSED", "FAILED", "DUPLICATE"],
-    default: "PENDING",
-  },
-  report_url: { type: String, default: null },
-  file_object_name: { type: String, default: null },
-  date_from: { type: Date, default: null },
-  date_to: { type: Date, default: null },
-  created_count: { type: Number, default: null },
-  failed: { type: Object, default: null },
-
-  deleted_at: { type: Date, default: null },
-  created_at: { type: Date, default: Date.now },
-  updated_at: { type: Date, default: Date.now },
-});
+  { timestamps: true }
+);
 
 const EmailModel = model<Email>(MODELNAME, schema);
 export default EmailModel;
