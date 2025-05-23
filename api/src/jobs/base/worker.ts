@@ -3,8 +3,8 @@ import { redisConnection } from "../../db/redis";
 import { captureException } from "../../error";
 
 /**
- * Classe de base pour tous les workers
- * Implémente le pattern singleton et fournit des méthodes communes
+ * Base class for all workers
+ * Implements the singleton pattern and provides common methods
  */
 export abstract class BaseWorker {
   protected worker: Worker;

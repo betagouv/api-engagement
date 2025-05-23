@@ -1,19 +1,17 @@
 #!/usr/bin/env node
 /**
- * Script CLI pour exécuter directement les handlers de jobs
- * Usage: npm run job:<nom-du-job>
- * Exemple: npm run job:letudiant
+ * CLI script to run a job manually
+ * Usage: npm run job -- <job-name>
  */
 
 import dotenv from "dotenv";
 import fs from "fs";
-import mongoose from "mongoose";
 import path from "path";
 
-// Importer les configurations et connexions DB
-import "../db/mongo"; // Ceci initialise la connexion MongoDB
-
 dotenv.config();
+
+import "../db/mongo";
+import { mongoConnected } from "../db/mongo";
 
 const jobName = process.argv[2];
 if (!jobName) {
@@ -36,13 +34,7 @@ if (!fs.existsSync(handlerPath)) {
 
 async function runJob() {
   try {
-    if (mongoose.connection.readyState !== 1) {
-      console.log("Waiting for MongoDB connection...");
-      await new Promise((resolve) => {
-        mongoose.connection.once("open", resolve);
-      });
-      console.log("MongoDB connected successfully");
-    }
+    await Promise.all([mongoConnected]);
 
     const handlerModule = await import(`./${jobName}/handler`);
 
@@ -65,7 +57,6 @@ async function runJob() {
   } catch (error) {
     console.error(`Error executing job '${jobName}':`, error);
   } finally {
-    await mongoose.disconnect();
     process.exit(0);
   }
 }

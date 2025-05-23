@@ -4,10 +4,10 @@ dotenv.config();
 /**
  * Main entry point for the application
  * Based on the command line argument, it will start either the API server or the job server
+ * We need to wait for the database connections to be established before starting the server
  */
 
-import { mongoConnected } from "./db/mongo";
-import { redisConnected } from "./db/redis";
+import { esConnected, mongoConnected, redisConnected } from "./db/";
 import { startApiServer } from "./server-api";
 import { startJobServer } from "./server-jobs";
 
@@ -16,19 +16,23 @@ const serverType = process.argv[2] || "api";
 
 async function main() {
   try {
-    console.log("Waiting for database connections...");
-    await Promise.all([mongoConnected, redisConnected]);
-    console.log("All database connections established successfully");
-
     switch (serverType) {
       case "api":
+        console.log("Waiting for database connections...");
+        await Promise.all([mongoConnected, esConnected]);
+        console.log("All database connections established successfully.");
         console.log("Starting API server...");
         startApiServer();
         break;
+
       case "jobs":
+        console.log("Waiting for database connections...");
+        await Promise.all([mongoConnected, redisConnected]); // Redis is required only for jobs for no
+        console.log("All database connections established successfully");
         console.log("Starting job server...");
         startJobServer();
         break;
+
       default:
         console.error(`Unknown server type: ${serverType}`);
         console.log("Usage: npm start -- [api|jobs]\nDefaulting to API server");
