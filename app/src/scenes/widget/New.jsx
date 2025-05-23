@@ -265,7 +265,7 @@ const Settings = ({ values, setValues, errors }) => {
                   value="volontariat"
                   label="Volontariat"
                   checked={values.type === "volontariat"}
-                  onChange={() => setValues({ ...values, type: "volontariat", publishers: [missions.find((p) => p.mission_type === "volontariat")?._id] })}
+                  onChange={() => setValues({ ...values, type: "volontariat", publishers: [missions.find((p) => p.missionType === "volontariat")?._id] })}
                   disabled={true}
                 />
               </>

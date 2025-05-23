@@ -125,8 +125,8 @@ const importPublisher = async (publisher: Publisher, start: Date) => {
   try {
     const headers = new Headers();
 
-    if (publisher.feed_username && publisher.feed_password) {
-      headers.set("Authorization", `Basic ${btoa(`${publisher.feed_username}:${publisher.feed_password}`)}`);
+    if (publisher.feedUsername && publisher.feedPassword) {
+      headers.set("Authorization", `Basic ${btoa(`${publisher.feedUsername}:${publisher.feedPassword}`)}`);
     }
     const xml = await fetch(publisher.feed, { headers }).then((response) => response.text());
 
@@ -246,7 +246,7 @@ const handler = async (publisherId?: string) => {
     const publisher = await PublisherModel.findById(publisherId);
     publishers = publisher ? [publisher] : [];
   } else {
-    publishers = await PublisherModel.find({ role_promoteur: true });
+    publishers = await PublisherModel.find({ isAnnonceur: true });
   }
 
   for (let i = 0; i < publishers.length; i++) {

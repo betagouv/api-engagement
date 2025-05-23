@@ -17,8 +17,8 @@ export const createTestPublisher = async (): Promise<Publisher> => {
     apikey: apiKey,
     organizationClientId,
     organizationName: "Test Organization",
-    role_annonceur_api: true,
-    role_promoteur: true,
+    api: true,
+    isAnnonceur: true,
     publishers: [
       {
         publisherId: new mongoose.Types.ObjectId().toString(),
@@ -93,10 +93,10 @@ export const createTestPartner = async (publisherId: string) => {
   const partner = new PublisherModel({
     name: "Test Partner",
     email: `partner-${Date.now()}@example.com`,
-    role_annonceur_widget: true,
-    role_annonceur_api: true,
-    role_annonceur_campagne: true,
-    role_promoteur: true,
+    widget: true,
+    api: true,
+    campaign: true,
+    isAnnonceur: true,
     category: "Test Category",
     url: "https://example.com",
     logo: "https://example.com/logo.png",

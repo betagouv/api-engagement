@@ -23,12 +23,12 @@ const Mean = ({ filters, onFiltersChange }) => {
         const newOptions = [];
         let source = "";
 
-        if (publisher.role_annonceur_api) {
+        if (publisher.hasApiRights) {
           source = "publisher";
           newOptions.push({ label: "API", value: "publisher" });
         }
 
-        if (publisher.role_annonceur_campagne) {
+        if (publisher.hasCampaignRights) {
           const resC = await api.post("/campaign/search", { fromPublisherId: publisher._id, size: 0 });
           if (!resC.ok) throw resC;
           if (resC.total) {
@@ -37,7 +37,7 @@ const Mean = ({ filters, onFiltersChange }) => {
           }
         }
 
-        if (publisher.role_annonceur_widget) {
+        if (publisher.hasWidgetRights) {
           const resW = await api.post("/widget/search", { fromPublisherId: publisher._id, size: 0 });
           if (!resW.ok) throw resW;
           if (resW.total) {
@@ -179,7 +179,7 @@ const Mean = ({ filters, onFiltersChange }) => {
           </div>
 
           <div>
-            <a href={publisher.mission_type === "benevolat" ? "mailto:nassim.merzouk@beta.gouv.fr" : "mailto:jessica.maitte@beta.gouv.fr"} className="empty-button">
+            <a href={publisher.missionType === "benevolat" ? "mailto:nassim.merzouk@beta.gouv.fr" : "mailto:jessica.maitte@beta.gouv.fr"} className="empty-button">
               Nous contacter
             </a>
           </div>

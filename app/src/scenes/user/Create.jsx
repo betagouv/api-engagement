@@ -204,10 +204,10 @@ const Create = () => {
                   <div className="flex-1">{item.name}</div>
                   <div className="flex-1">
                     <div className="flex flex-wrap justify-center gap-2">
-                      {item.role_promoteur && <span className="rounded bg-red-light p-2">Annonceur</span>}
-                      {item.role_annonceur_api && <span className="rounded bg-green-light p-2">Diffuseur API</span>}
-                      {item.role_annonceur_widget && <span className="rounded bg-green-light p-2">Diffuseur Widget</span>}
-                      {item.role_annonceur_campagne && <span className="rounded bg-green-light p-2">Diffuseur Campagne</span>}
+                      {item.isAnnonceur && <span className="rounded bg-red-light p-2">Annonceur</span>}
+                      {item.hasApiRights && <span className="rounded bg-green-light p-2">Diffuseur API</span>}
+                      {item.hasWidgetRights && <span className="rounded bg-green-light p-2">Diffuseur Widget</span>}
+                      {item.hasCampaignRights && <span className="rounded bg-green-light p-2">Diffuseur Campagne</span>}
                     </div>
                   </div>
                 </>

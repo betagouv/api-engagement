@@ -75,8 +75,6 @@ passport.use(
           username: publisher.name,
           email: publisher.email,
         });
-        publisher.lastFetchAt = new Date();
-        await publisher.save();
         return done(null, publisher);
       }
     } catch (error: any) {
@@ -98,8 +96,6 @@ passport.use(
           username: publisher.name,
           email: publisher.email,
         });
-        publisher.lastFetchAt = new Date();
-        await publisher.save();
         return done(null, publisher);
       }
     } catch (error: any) {
@@ -121,8 +117,6 @@ passport.use(
           username: publisher.name,
           email: publisher.email,
         });
-        publisher.lastFetchAt = new Date();
-        await publisher.save();
         return done(null, publisher);
       }
     } catch (error: any) {
@@ -144,8 +138,6 @@ passport.use(
           username: publisher.name,
           email: publisher.email,
         });
-        publisher.lastFetchAt = new Date();
-        await publisher.save();
         return done(null, publisher);
       }
     } catch (error: any) {

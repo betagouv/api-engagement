@@ -16,9 +16,9 @@ const Index = () => {
   useEffect(() => {
     if (!publisher) return;
     let route = location.pathname.split("/broadcast")[1].split("/")[1] || "";
-    if (route === "" && !publisher.role_annonceur_api) route = "widgets";
-    if (route === "widgets" && !publisher.role_annonceur_widget) route = "campaigns";
-    if (route === "campaigns" && !publisher.role_annonceur_campagne) route = "moderation";
+    if (route === "" && !publisher.hasApiRights) route = "widgets";
+    if (route === "widgets" && !publisher.hasWidgetRights) route = "campaigns";
+    if (route === "campaigns" && !publisher.hasCampaignRights) route = "moderation";
     if (route === "moderation" && !publisher.moderator) route = "";
 
     navigate(`/broadcast/${route}`); // If route didn't change, it will not trigger a re-render, so no infinite loop
@@ -30,9 +30,9 @@ const Index = () => {
 
       <div>
         <div className="flex items-center space-x-4 pl-4 font-semibold text-black">
-          {publisher.role_annonceur_api && <Tab title="Flux par API" />}
-          {publisher.role_annonceur_widget && <Tab title="Widgets" route="widgets" />}
-          {publisher.role_annonceur_campagne && <Tab title="Campagnes" route="campaigns" />}
+          {publisher.hasApiRights && <Tab title="Flux par API" />}
+          {publisher.hasWidgetRights && <Tab title="Widgets" route="widgets" />}
+          {publisher.hasCampaignRights && <Tab title="Campagnes" route="campaigns" />}
           {publisher.moderator && <Tab title="Modération" route="moderation" />}
         </div>
 
