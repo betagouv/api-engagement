@@ -2,7 +2,7 @@ import { NextFunction, Response, Router } from "express";
 import passport from "passport";
 import zod from "zod";
 
-import { API_URL, STATS_INDEX } from "../config";
+import { API_URL, LBC_ID, STATS_INDEX } from "../config";
 import esClient from "../db/elastic";
 import { captureMessage, INVALID_PARAMS, INVALID_QUERY, NOT_FOUND } from "../error";
 import MissionModel from "../models/mission";
@@ -530,7 +530,7 @@ const nearSphereToGeoWithin = (nearSphere: any) => {
 
 const buildData = (data: Mission, publisherId: string, moderator: boolean = false) => {
   const address = data.addresses[0];
-  return {
+  const obj = {
     _id: data._id,
     id: data._id,
     clientId: data.clientId,
@@ -626,6 +626,20 @@ const buildData = (data: Mission, publisherId: string, moderator: boolean = fals
     type: data.type,
     updatedAt: data.updatedAt,
   };
+
+  if (publisherId.toString() === LBC_ID && obj.remote === "full") {
+    obj.title = `[À distance] ${obj.title}`;
+    obj.postalCode = "75000";
+    obj.departmentCode = "75";
+    obj.departmentName = "Paris";
+    obj.city = "Paris";
+    obj.country = "FR";
+    obj.location = {
+      lat: 48.854744,
+      lon: 2.348715,
+    };
+  }
+  return obj;
 };
 
 export default router;
