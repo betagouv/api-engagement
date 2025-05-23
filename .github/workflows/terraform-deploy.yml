@@ -6,6 +6,10 @@ on:
     types: [completed]
     branches: [staging]
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
   workflow_dispatch:
     inputs:
       environment:

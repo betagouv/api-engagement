@@ -138,6 +138,10 @@ resource "scaleway_container" "process" {
     "ENV"           = terraform.workspace
     "API_URL"       = "https://${local.api_hostname}"
     "BUCKET_NAME"   = local.bucket_name
+    "SLACK_WARNING_CHANNEL_ID"   = terraform.workspace == "production" ? "C052V2UF918" : "C08QQT4702D"
+    "SLACK_LBC_CHANNEL_ID"       = terraform.workspace == "production" ? "C07SPFG724V" : ""
+    "SLACK_PRODUCT_CHANNEL_ID"   = terraform.workspace == "production" ? "C019LKL5N69" : ""
+    "SLACK_CRON_CHANNEL_ID"      = terraform.workspace == "production" ? "C085S6M2K5J" : ""
   }
 
   secret_environment_variables = {
@@ -145,7 +149,6 @@ resource "scaleway_container" "process" {
     "ES_ENDPOINT"                = local.secrets.ES_ENDPOINT
     "PG_ENDPOINT"                = local.secrets.PG_ENDPOINT
     "SENTRY_DSN"                 = local.secrets.SENTRY_DSN
-    "SLACK_WARNING_CHANNEL_ID"   = local.secrets.SLACK_WARNING_CHANNEL_ID
     "SCW_ACCESS_KEY"             = local.secrets.SCW_ACCESS_KEY
     "SCW_SECRET_KEY"             = local.secrets.SCW_SECRET_KEY
     "DATA_SUBVENTION_TOKEN"      = local.secrets.DATA_SUBVENTION_TOKEN
@@ -259,7 +262,6 @@ resource "scaleway_container" "benevolat" {
   
   secret_environment_variables = {
     "SENTRY_DSN"         = local.secrets.SENTRY_DSN
-    "GOOGLE_FOR_JOB_KEY" = local.secrets.GOOGLE_FOR_JOB_KEY
   }
 }
 
