@@ -4,15 +4,6 @@ on:
   push:
     branches: [main-test, staging]
   workflow_dispatch:
-    inputs:
-      environment:
-        description: "Environment to deploy to"
-        required: true
-        default: "staging"
-        type: choice
-        options:
-          - staging
-          - production
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}

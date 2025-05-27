@@ -10,6 +10,7 @@
 # - if test fails, the build won't be triggered
 
 name: Build and Push Docker Images
+
 on:
   workflow_call:
     inputs:
@@ -55,8 +56,7 @@ jobs:
     strategy:
       matrix:
         # TODO uncomment
-        # service: [app, api, process, widget-benevolat, widget-volontariat]
-        service: [process]
+        service: [app, api, process, widget-benevolat, widget-volontariat]
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
