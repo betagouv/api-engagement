@@ -12,15 +12,15 @@
 name: Build and Push Docker Images
 on:
   workflow_run:
-    workflows: ["Tests"]
+    workflows: [Tests]
     types: [completed]
     # TODO uncomment
     # branches: [main, staging]
     branches: [main-test]
 
-concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: true
+# concurrency:
+#   group: ${{ github.workflow }}-${{ github.ref }}
+#   cancel-in-progress: true
 
 permissions:
   contents: read
