@@ -1,20 +1,13 @@
 name: Tests
 
 on:
-  push:
-    # TODO uncomment
-    # branches: [main, staging]
-    branches: [main-test, staging]
-  pull_request:
-    # TODO uncomment
-    # branches: [main, staging]
-    branches: [main-test, staging]
+  workflow_call:
+    inputs:
+      branch:
+        required: true
+        type: string
 
   workflow_dispatch:
-
-concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: true
 
 jobs:
   # TODO uncomment

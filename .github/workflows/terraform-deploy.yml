@@ -1,13 +1,11 @@
 name: Deploy to Scaleway
 
 on:
-  workflow_run:
-    workflows: [Build and Push Docker Images]
-    types: [completed]
-    # TODO uncomment
-    # branches: [main, staging]
-    branches: [main-test, staging]
-
+  workflow_call:
+    inputs:
+      branch:
+        required: true
+        type: string
   workflow_dispatch:
     inputs:
       environment:
@@ -19,10 +17,6 @@ on:
           - staging
           - production
 
-concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: true
-
 permissions:
   contents: read
   id-token: write
@@ -31,7 +25,6 @@ jobs:
   set-env:
     name: Determine Environment
     runs-on: ubuntu-latest
-    if: github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success'
     outputs:
       environment_name: ${{ steps.set-env.outputs.environment }}
     steps:

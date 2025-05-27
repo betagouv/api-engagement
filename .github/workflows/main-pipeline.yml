@@ -1,0 +1,40 @@
+name: Main Pipeline
+
+on:
+  push:
+    branches: [main-test, staging]
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: "Environment to deploy to"
+        required: true
+        default: "staging"
+        type: choice
+        options:
+          - staging
+          - production
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    uses: ./.github/workflows/tests.yml
+    secrets: inherit
+    with:
+      branch: ${{ github.ref_name }}
+
+  build:
+    uses: ./.github/workflows/docker-build-push.yml
+    secrets: inherit
+    with:
+      branch: ${{ github.ref_name }}
+
+  deploy:
+    needs: build
+    uses: ./.github/workflows/terraform-deploy.yml
+    secrets: inherit
+    with:
+      branch: ${{ github.ref_name }}
+      environment: ${{ github.event.inputs.environment }}
