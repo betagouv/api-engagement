@@ -16,7 +16,7 @@ on:
     types: [completed]
     # TODO uncomment
     # branches: [main, staging]
-    branches: [main-test, staging]
+    branches: [main-test]
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
