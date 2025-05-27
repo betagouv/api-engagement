@@ -124,7 +124,7 @@ resource "scaleway_container" "process" {
   registry_image  = "ghcr.io/${var.github_repository}/process:${terraform.workspace}${var.image_tag == "latest" ? "" : "-${var.image_tag}"}"
   port            = 8080
   cpu_limit       = terraform.workspace == "production" ? 1000 : 560
-  memory_limit    = terraform.workspace == "production" ? 4096 : 1024
+  memory_limit    = terraform.workspace == "production" ? 3072 : 1024
   min_scale       = terraform.workspace == "production" ? 1 : 1
   max_scale       = terraform.workspace == "production" ? 1 : 1
   timeout         = 300  # Longer timeout for process jobs
@@ -152,6 +152,7 @@ resource "scaleway_container" "process" {
     "SCW_ACCESS_KEY"             = local.secrets.SCW_ACCESS_KEY
     "SCW_SECRET_KEY"             = local.secrets.SCW_SECRET_KEY
     "DATA_SUBVENTION_TOKEN"      = local.secrets.DATA_SUBVENTION_TOKEN
+    "SLACK_TOKEN"                = local.secrets.SLACK_TOKEN
   }
 }
 

@@ -33,7 +33,7 @@ jobs:
       - name: Set environment based on branch
         id: set-env
         env:
-          HEAD_BRANCH: ${{ github.event.workflow_run.head_branch || github.ref_name }}
+          HEAD_BRANCH: ${{ inputs.branch || github.ref_name }}
         # TODO uncomment
         # run: |
         #   if [[ "$HEAD_BRANCH" == 'main' ]]; then

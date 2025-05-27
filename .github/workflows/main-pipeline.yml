@@ -26,6 +26,7 @@ jobs:
       branch: ${{ github.ref_name }}
 
   build:
+    needs: test
     uses: ./.github/workflows/docker-build-push.yml
     secrets: inherit
     with:

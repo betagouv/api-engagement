@@ -31,7 +31,7 @@ jobs:
       - name: Set environment based on input or branch
         id: set-env
         env:
-          HEAD_BRANCH: ${{ github.event.workflow_run.head_branch || github.ref_name }}
+          HEAD_BRANCH: ${{ inputs.branch || github.ref_name }}
           # MANUAL_ENV: ${{ github.event.inputs.environment }}
         # TODO uncomment
         # run: |
@@ -133,10 +133,3 @@ jobs:
           echo "Process Endpoint: $(terraform output -raw process_endpoint)"
           echo "Benevolat Widget Endpoint: $(terraform output -raw benevolat_endpoint)"
           echo "Volontariat Widget Endpoint: $(terraform output -raw volontariat_endpoint)"
-
-      - name: Debug GitHub context
-        run: |
-          echo "Event name: ${{ github.event_name }}"
-          echo "Workflow run head branch: ${{ github.event.workflow_run.head_branch }}"
-          echo "Ref name: ${{ github.ref_name }}"
-          echo "GitHub ref: ${{ github.ref }}"
