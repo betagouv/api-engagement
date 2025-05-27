@@ -2,7 +2,7 @@ name: Deploy to Scaleway
 
 on:
   workflow_run:
-    workflows: ["Build and Push Docker Images"]
+    workflows: [Build and Push Docker Images]
     types: [completed]
     # TODO uncomment
     # branches: [main, staging]
@@ -142,3 +142,10 @@ jobs:
           echo "Process Endpoint: $(terraform output -raw process_endpoint)"
           echo "Benevolat Widget Endpoint: $(terraform output -raw benevolat_endpoint)"
           echo "Volontariat Widget Endpoint: $(terraform output -raw volontariat_endpoint)"
+
+      - name: Debug GitHub context
+        run: |
+          echo "Event name: ${{ github.event_name }}"
+          echo "Workflow run head branch: ${{ github.event.workflow_run.head_branch }}"
+          echo "Ref name: ${{ github.ref_name }}"
+          echo "GitHub ref: ${{ github.ref }}"
