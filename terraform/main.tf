@@ -73,8 +73,8 @@ resource "scaleway_container" "api" {
   registry_image  = "ghcr.io/${var.github_repository}/api:${terraform.workspace}${var.image_tag == "latest" ? "" : "-${var.image_tag}"}"
   port            = 8080
   # Update in function of terraform.workspace
-  cpu_limit       = terraform.workspace == "production" ? 1680 : 560
-  memory_limit    = terraform.workspace == "production" ? 2048 : 560
+  cpu_limit       = terraform.workspace == "production" ? 750 : 250
+  memory_limit    = terraform.workspace == "production" ? 2048 : 512
   min_scale       = terraform.workspace == "production" ? 1 : 1
   max_scale       = terraform.workspace == "production" ? 5 : 1
   timeout         = 60
@@ -123,10 +123,10 @@ resource "scaleway_container" "process" {
   namespace_id    = scaleway_container_namespace.main.id
   registry_image  = "ghcr.io/${var.github_repository}/process:${terraform.workspace}${var.image_tag == "latest" ? "" : "-${var.image_tag}"}"
   port            = 8080
-  cpu_limit       = terraform.workspace == "production" ? 1680 : 560
-  memory_limit    = terraform.workspace == "production" ? 2048 : 560
+  cpu_limit       = terraform.workspace == "production" ? 1000 : 560
+  memory_limit    = terraform.workspace == "production" ? 4096 : 1024
   min_scale       = terraform.workspace == "production" ? 1 : 1
-  max_scale       = terraform.workspace == "production" ? 3 : 1
+  max_scale       = terraform.workspace == "production" ? 1 : 1
   timeout         = 300  # Longer timeout for process jobs
   max_concurrency = 20
   privacy         = "public"
@@ -170,8 +170,8 @@ resource "scaleway_container" "app" {
   namespace_id    = scaleway_container_namespace.main.id
   registry_image  = "ghcr.io/${var.github_repository}/app:${terraform.workspace}${var.image_tag == "latest" ? "" : "-${var.image_tag}"}"
   port            = 8080
-  cpu_limit       = terraform.workspace == "production" ? 560 : 560
-  memory_limit    = terraform.workspace == "production" ? 1024 : 560
+  cpu_limit       = terraform.workspace == "production" ? 500 : 250
+  memory_limit    = terraform.workspace == "production" ? 1024 : 512
   min_scale       = terraform.workspace == "production" ? 1 : 1
   max_scale       = terraform.workspace == "production" ? 1 : 1
   timeout         = 60
@@ -208,8 +208,8 @@ resource "scaleway_container" "volontariat" {
   namespace_id    = scaleway_container_namespace.main.id
   registry_image  = "ghcr.io/${var.github_repository}/widget-volontariat:${terraform.workspace}${var.image_tag == "latest" ? "" : "-${var.image_tag}"}"
   port            = 8080
-  cpu_limit       = terraform.workspace == "production" ? 1120 : 560
-  memory_limit    = terraform.workspace == "production" ? 1120 : 560
+  cpu_limit       = terraform.workspace == "production" ? 500 : 250
+  memory_limit    = terraform.workspace == "production" ? 1024 : 512
   min_scale       = terraform.workspace == "production" ? 1 : 1
   max_scale       = terraform.workspace == "production" ? 4 : 1
   timeout         = 60
@@ -244,8 +244,8 @@ resource "scaleway_container" "benevolat" {
   namespace_id    = scaleway_container_namespace.main.id
   registry_image  = "ghcr.io/${var.github_repository}/widget-benevolat:${terraform.workspace}${var.image_tag == "latest" ? "" : "-${var.image_tag}"}"
   port            = 8080
-  cpu_limit       = terraform.workspace == "production" ? 1120 : 560
-  memory_limit    = terraform.workspace == "production" ? 1120 : 560
+  cpu_limit       = terraform.workspace == "production" ? 500 : 250
+  memory_limit    = terraform.workspace == "production" ? 1024 : 512
   min_scale       = terraform.workspace == "production" ? 1 : 1
   max_scale       = terraform.workspace == "production" ? 4 : 1
   timeout         = 60
