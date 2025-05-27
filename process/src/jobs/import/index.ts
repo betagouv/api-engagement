@@ -124,6 +124,7 @@ const importPublisher = async (publisher: Publisher, start: Date) => {
     obj.error = error.message;
   }
 
+  console.log(`[${publisher.name}] Ended at ${new Date().toISOString()} in ${(Date.now() - start.getTime()) / 1000}s`);
   obj.endedAt = new Date();
   return obj;
 };
