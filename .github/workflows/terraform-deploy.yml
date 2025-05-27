@@ -7,15 +7,15 @@ on:
         required: true
         type: string
   workflow_dispatch:
-    inputs:
-      environment:
-        description: "Environment to deploy to"
-        required: true
-        default: "staging"
-        type: choice
-        options:
-          - staging
-          - production
+    # inputs:
+    #   environment:
+    #     description: "Environment to deploy to"
+    #     required: true
+    #     default: "staging"
+    #     type: choice
+    #     options:
+    #       - staging
+    #       - production
 
 permissions:
   contents: read
@@ -32,7 +32,7 @@ jobs:
         id: set-env
         env:
           HEAD_BRANCH: ${{ github.event.workflow_run.head_branch || github.ref_name }}
-          MANUAL_ENV: ${{ github.event.inputs.environment }}
+          # MANUAL_ENV: ${{ github.event.inputs.environment }}
         # TODO uncomment
         # run: |
         #   if [[ "$GITHUB_EVENT_NAME" == 'workflow_dispatch' ]]; then
@@ -43,9 +43,7 @@ jobs:
         #     echo "environment=staging" >> $GITHUB_OUTPUT
         #   fi
         run: |
-          if [[ "$GITHUB_EVENT_NAME" == 'workflow_dispatch' ]]; then
-            echo "environment=$MANUAL_ENV" >> $GITHUB_OUTPUT
-          elif [[ "$HEAD_BRANCH" == 'main-test' ]]; then
+          if [[ "$HEAD_BRANCH" == 'main-test' ]]; then
             echo "environment=production" >> $GITHUB_OUTPUT
           else
             echo "environment=staging" >> $GITHUB_OUTPUT

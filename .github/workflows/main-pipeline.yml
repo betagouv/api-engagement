@@ -37,4 +37,3 @@ jobs:
     secrets: inherit
     with:
       branch: ${{ github.ref_name }}
-      environment: ${{ github.event.inputs.environment }}
