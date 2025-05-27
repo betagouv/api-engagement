@@ -14,7 +14,9 @@ on:
   workflow_run:
     workflows: ["Tests"]
     types: [completed]
-    branches: [staging]
+    # TODO uncomment
+    # branches: [main, staging]
+    branches: [main-test, staging]
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -37,8 +39,15 @@ jobs:
         id: set-env
         env:
           HEAD_BRANCH: ${{ github.event.workflow_run.head_branch || github.ref_name }}
+        # TODO uncomment
+        # run: |
+        #   if [[ "$HEAD_BRANCH" == 'main' ]]; then
+        #     echo "environment=production" >> $GITHUB_OUTPUT
+        #   else
+        #     echo "environment=staging" >> $GITHUB_OUTPUT
+        #   fi
         run: |
-          if [[ "$HEAD_BRANCH" == 'main' ]]; then
+          if [[ "$HEAD_BRANCH" == 'main-test' ]]; then
             echo "environment=production" >> $GITHUB_OUTPUT
           else
             echo "environment=staging" >> $GITHUB_OUTPUT
@@ -50,7 +59,9 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        service: [app, api, process, widget-benevolat, widget-volontariat]
+        # TODO uncomment
+        # service: [app, api, process, widget-benevolat, widget-volontariat]
+        service: [process]
     steps:
       - name: Checkout code
         uses: actions/checkout@v3

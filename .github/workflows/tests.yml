@@ -2,9 +2,13 @@ name: Tests
 
 on:
   push:
-    branches: [main, staging]
+    # TODO uncomment
+    # branches: [main, staging]
+    branches: [main-test, staging]
   pull_request:
-    branches: [main, staging]
+    # TODO uncomment
+    # branches: [main, staging]
+    branches: [main-test, staging]
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}

@@ -4,7 +4,9 @@ on:
   workflow_run:
     workflows: ["Build and Push Docker Images"]
     types: [completed]
-    branches: [staging]
+    # TODO uncomment
+    # branches: [main, staging]
+    branches: [main-test, staging]
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -38,10 +40,19 @@ jobs:
         env:
           HEAD_BRANCH: ${{ github.event.workflow_run.head_branch || github.ref_name }}
           MANUAL_ENV: ${{ github.event.inputs.environment }}
+        # TODO uncomment
+        # run: |
+        #   if [[ "$GITHUB_EVENT_NAME" == 'workflow_dispatch' ]]; then
+        #     echo "environment=$MANUAL_ENV" >> $GITHUB_OUTPUT
+        #   elif [[ "$HEAD_BRANCH" == 'main' ]]; then
+        #     echo "environment=production" >> $GITHUB_OUTPUT
+        #   else
+        #     echo "environment=staging" >> $GITHUB_OUTPUT
+        #   fi
         run: |
           if [[ "$GITHUB_EVENT_NAME" == 'workflow_dispatch' ]]; then
             echo "environment=$MANUAL_ENV" >> $GITHUB_OUTPUT
-          elif [[ "$HEAD_BRANCH" == 'main' ]]; then
+          elif [[ "$HEAD_BRANCH" == 'main-test' ]]; then
             echo "environment=production" >> $GITHUB_OUTPUT
           else
             echo "environment=staging" >> $GITHUB_OUTPUT
