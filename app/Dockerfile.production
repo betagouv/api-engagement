@@ -1,32 +1,46 @@
-FROM --platform=amd64 node:alpine as base
+# Build
+FROM node:18-bullseye-slim AS builder
 
-ARG SENTRY_AUTH_TOKEN
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    && rm -rf /var/lib/apt/lists/*
 
-# Install dependencies
-FROM base AS deps
 WORKDIR /app
-COPY package.json package-lock.json ./
-RUN npm i
 
-# Build app (with Sentry token for source maps)
-FROM base as builder
-WORKDIR /app
-COPY --from=deps /app/node_modules ./node_modules
+ARG VITE_ENV=development
+ARG VITE_API_URL=http://localhost:9001
+ARG VITE_BENEVOLAT_URL=http://localhost:9003
+ARG VITE_VOLONTARIAT_URL=http://localhost:9004
+ARG VITE_SENTRY_DSN=
+
+ENV VITE_ENV=$VITE_ENV
+ENV VITE_API_URL=$VITE_API_URL
+ENV VITE_BENEVOLAT_URL=$VITE_BENEVOLAT_URL
+ENV VITE_VOLONTARIAT_URL=$VITE_VOLONTARIAT_URL
+ENV VITE_SENTRY_DSN=$VITE_SENTRY_DSN
+
+COPY package*.json ./
+
+RUN npm ci
+
 COPY . .
-ENV SENTRY_AUTH_TOKEN=$SENTRY_AUTH_TOKEN
+
 RUN npm run build
 
-FROM base as prod-deps
-WORKDIR /app
-RUN npm i @import-meta-env/cli express morgan
+# Run
+FROM node:18-bullseye-slim
 
-FROM base as runner
 WORKDIR /app
-COPY --from=prod-deps /app/node_modules ./node_modules
-COPY --from=builder /app/package.json ./package.json
+
+ENV NODE_ENV=production
+
+COPY server ./server
+
+COPY package*.json ./
+
+RUN npm ci --omit=dev
+
 COPY --from=builder /app/dist ./dist
-COPY --from=builder /app/server ./server
-COPY --from=builder /app/.env.example ./.env.example
 
 EXPOSE 8080
-CMD npx import-meta-env -x .env.example -p dist/index.html && node server/index.js
+
+CMD ["node", "server/index.js"]

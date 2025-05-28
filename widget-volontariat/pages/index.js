@@ -31,6 +31,7 @@ import resizeHelper from "../utils/resizeHelper";
  */
 
 const Home = ({ widget, apiUrl, missions, total, request, environment }) => {
+  console.log("apiUrl", apiUrl);
   const router = useRouter();
   const { setUrl, setColor } = useStore();
   const plausible = usePlausible();

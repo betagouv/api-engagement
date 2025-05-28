@@ -185,16 +185,6 @@ resource "scaleway_container" "app" {
   protocol        = "http1"
   http_option     = "redirected" # https only
   deploy          = true
-
-  environment_variables = {
-    "ENV"             = terraform.workspace
-    "API_URL"         = "https://${local.api_hostname}"
-    "BENEVOLAT_URL"   = "https://${local.benevolat_hostname}"
-    "VOLONTARIAT_URL" = "https://${local.volontariat_hostname}"
-  }
-  secret_environment_variables = {
-    "SENTRY_DSN"      = local.secrets.SENTRY_DSN 
-  }
 }
 
 # We're using count = 0 to skip creating this resource

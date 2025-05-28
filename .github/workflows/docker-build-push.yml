@@ -50,7 +50,7 @@ jobs:
           fi
 
   build-and-push:
-    name: Build and Push Docker Images
+    name: Build and Push
     needs: set-env
     runs-on: ubuntu-latest
     strategy:
@@ -95,32 +95,6 @@ jobs:
             echo "VITE_SENTRY_DSN=${{ secrets.SENTRY_DSN_STAGING }}" >> $GITHUB_OUTPUT
           fi
 
-      - name: Set widget-benevolat build args
-        id: widget_benevolat_args
-        if: matrix.service == 'widget-benevolat'
-        run: |
-          echo "ENV=${{ needs.set-env.outputs.environment_name }}" >> $GITHUB_OUTPUT
-          if [[ "${{ needs.set-env.outputs.environment_name }}" == 'production' ]]; then
-            echo "API_URL=${{ vars.API_URL_PRODUCTION }}" >> $GITHUB_OUTPUT
-            echo "SENTRY_DSN=${{ secrets.SENTRY_DSN_PRODUCTION }}" >> $GITHUB_OUTPUT
-          else
-            echo "API_URL=${{ vars.API_URL_STAGING }}" >> $GITHUB_OUTPUT
-            echo "SENTRY_DSN=${{ secrets.SENTRY_DSN_STAGING }}" >> $GITHUB_OUTPUT
-          fi
-
-      - name: Set widget-volontariat build args
-        id: widget_volontariat_args
-        if: matrix.service == 'widget-volontariat'
-        run: |
-          echo "ENV=${{ needs.set-env.outputs.environment_name }}" >> $GITHUB_OUTPUT
-          if [[ "${{ needs.set-env.outputs.environment_name }}" == 'production' ]]; then
-            echo "API_URL=${{ vars.API_URL_PRODUCTION }}" >> $GITHUB_OUTPUT
-            echo "SENTRY_DSN=${{ secrets.SENTRY_DSN_PRODUCTION }}" >> $GITHUB_OUTPUT
-          else
-            echo "API_URL=${{ vars.API_URL_STAGING }}" >> $GITHUB_OUTPUT
-            echo "SENTRY_DSN=${{ secrets.SENTRY_DSN_STAGING }}" >> $GITHUB_OUTPUT
-          fi
-
       - name: Build and push ${{ matrix.service }} image
         uses: docker/build-push-action@v4
         with:
@@ -132,19 +106,15 @@ jobs:
             ghcr.io/${{ github.repository }}/${{ matrix.service }}:${{ needs.set-env.outputs.environment_name }}-latest
             ghcr.io/${{ github.repository }}/${{ matrix.service }}:${{ needs.set-env.outputs.environment_name }}-${{ steps.vars.outputs.short_sha }}
           build-args: |
-            # App (Vite) variables
-            ${{ matrix.service == 'app' && format('VITE_ENV={0}', steps.app_args.outputs.VITE_ENV) || '' }}
-            ${{ matrix.service == 'app' && format('VITE_API_URL={0}', steps.app_args.outputs.VITE_API_URL) || '' }}
-            ${{ matrix.service == 'app' && format('VITE_BENEVOLAT_URL={0}', steps.app_args.outputs.VITE_BENEVOLAT_URL) || '' }}
-            ${{ matrix.service == 'app' && format('VITE_VOLONTARIAT_URL={0}', steps.app_args.outputs.VITE_VOLONTARIAT_URL) || '' }}
-            ${{ matrix.service == 'app' && format('VITE_SENTRY_DSN={0}', steps.app_args.outputs.VITE_SENTRY_DSN) || '' }}
-
-            # Widget Benevolat variables
-            ${{ matrix.service == 'widget-benevolat' && format('ENV={0}', steps.widget_benevolat_args.outputs.ENV) || '' }}
-            ${{ matrix.service == 'widget-benevolat' && format('API_URL={0}', steps.widget_benevolat_args.outputs.API_URL) || '' }}
-            ${{ matrix.service == 'widget-benevolat' && format('SENTRY_DSN={0}', steps.widget_benevolat_args.outputs.SENTRY_DSN) || '' }}
-
-            # Widget Volontariat variables
-            ${{ matrix.service == 'widget-volontariat' && format('ENV={0}', steps.widget_volontariat_args.outputs.ENV) || '' }}
-            ${{ matrix.service == 'widget-volontariat' && format('API_URL={0}', steps.widget_volontariat_args.outputs.API_URL) || '' }}
-            ${{ matrix.service == 'widget-volontariat' && format('SENTRY_DSN={0}', steps.widget_volontariat_args.outputs.SENTRY_DSN) || '' }}
+            ${{ matrix.service == 'app' && format(
+              'VITE_ENV=%s
+              VITE_API_URL=%s
+              VITE_BENEVOLAT_URL=%s
+              VITE_VOLONTARIAT_URL=%s
+              VITE_SENTRY_DSN=%s',
+              steps.app_args.outputs.VITE_ENV,
+              steps.app_args.outputs.VITE_API_URL,
+              steps.app_args.outputs.VITE_BENEVOLAT_URL,
+              steps.app_args.outputs.VITE_VOLONTARIAT_URL,
+              steps.app_args.outputs.VITE_SENTRY_DSN
+            ) || '' }}
