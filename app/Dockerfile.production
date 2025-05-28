@@ -20,6 +20,13 @@ ENV VITE_BENEVOLAT_URL=$VITE_BENEVOLAT_URL
 ENV VITE_VOLONTARIAT_URL=$VITE_VOLONTARIAT_URL
 ENV VITE_SENTRY_DSN=$VITE_SENTRY_DSN
 
+
+# In the builder stage, before the build
+RUN echo "Building with ENV=$VITE_ENV"
+RUN echo "Building with API_URL=$VITE_API_URL"
+RUN echo "Building with BENEVOLAT_URL=$VITE_BENEVOLAT_URL"
+RUN echo "Building with VOLONTARIAT_URL=$VITE_VOLONTARIAT_URL"
+
 COPY package*.json ./
 
 RUN npm ci
