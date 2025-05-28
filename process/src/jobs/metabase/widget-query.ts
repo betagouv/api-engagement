@@ -7,7 +7,9 @@ import { RequestWidget } from "../../types";
 const BATCH_SIZE = 5000;
 
 function sanitizeRemoteValue(value: string): string {
-  if (!value) return "";
+  if (!value) {
+    return "";
+  }
 
   return (
     value
@@ -23,8 +25,12 @@ function sanitizeRemoteValue(value: string): string {
 }
 
 const toArray = (value: string | string[] | undefined) => {
-  if (!value) return [];
-  if (Array.isArray(value)) return value.map(sanitizeRemoteValue);
+  if (!value) {
+    return [];
+  }
+  if (Array.isArray(value)) {
+    return value.map(sanitizeRemoteValue);
+  }
   return [sanitizeRemoteValue(value)];
 };
 
