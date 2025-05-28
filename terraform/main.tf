@@ -192,9 +192,8 @@ resource "scaleway_container" "app" {
     "BENEVOLAT_URL"   = "https://${local.benevolat_hostname}"
     "VOLONTARIAT_URL" = "https://${local.volontariat_hostname}"
   }
-
   secret_environment_variables = {
-    "SENTRY_DSN" = local.secrets.SENTRY_DSN
+    "SENTRY_DSN"      = local.secrets.SENTRY_DSN 
   }
 }
 
