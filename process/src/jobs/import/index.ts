@@ -1,107 +1,16 @@
-import { XMLParser } from "fast-xml-parser";
-
 import { captureException } from "../../error";
 import ImportModel from "../../models/import";
 import PublisherModel from "../../models/publisher";
 
-import { Schema } from "mongoose";
 import MissionModel from "../../models/mission";
-import { Import, Mission, MissionXML, Publisher } from "../../types";
+import { Import, Mission, Publisher } from "../../types";
 import { enrichWithGeoloc } from "./geoloc";
-import { buildMission } from "./mission";
+import { buildData } from "./mission";
 import { verifyOrganization } from "./organization";
-import { bulkDB } from "./utils/db";
+import { bulkDB, cleanDB } from "./utils/db";
+import { parseXML } from "./utils/xml";
 
-const parseXML = (xmlString: string) => {
-  const parser = new XMLParser();
-
-  const options = {
-    attributeNamePrefix: "@_",
-    textNodeName: "#text",
-    ignoreAttributes: true,
-    ignoreNameSpace: false,
-    allowBooleanAttributes: false,
-    parseNodeValue: true,
-    parseAttributeValue: false,
-    trimValues: true,
-    cdataPositionChar: "\\c",
-    parseTrueNumberOnly: false,
-    arrayMode: false, //"strict"
-    stopNodes: ["parse-me-as-string"],
-    isArray: (name: string, jpath: string, isLeafNode: boolean, isAttribute: boolean) => {
-      if (jpath === "source.mission.addresses.address") {
-        return true;
-      }
-      return false;
-    },
-  };
-
-  const res = parser.parse(xmlString, options);
-
-  if (!res.source || !res.source.mission) {
-    return;
-  }
-  if (res.source.mission && !Array.isArray(res.source.mission)) {
-    res.source.mission = [res.source.mission];
-  }
-
-  // Remove duplicates clientId
-  const clientId = new Set();
-  const unique = [] as MissionXML[];
-  const data = res.source.mission as MissionXML[];
-
-  data.forEach((mission) => {
-    if (!clientId.has(mission.clientId)) {
-      const addresses = mission.addresses as any;
-      if (addresses?.address && Array.isArray(addresses.address)) {
-        mission.addresses = addresses.address;
-      } else if (addresses?.address) {
-        mission.addresses = [addresses.address];
-      }
-      clientId.add(mission.clientId);
-      unique.push(mission);
-    }
-  });
-
-  return unique;
-};
-
-const buildData = async (startTime: Date, publisher: Publisher, missionXML: MissionXML) => {
-  try {
-    const missionDB = await MissionModel.findOne({
-      publisherId: publisher._id,
-      clientId: missionXML.clientId,
-    });
-
-    const mission = buildMission(publisher, missionXML, missionDB?.toObject());
-    if (missionDB) {
-      mission._id = missionDB._id as Schema.Types.ObjectId;
-      mission.createdAt = missionDB.createdAt;
-    }
-    mission.deleted = false;
-    mission.deletedAt = null;
-    mission.lastSyncAt = startTime;
-    mission.publisherId = publisher._id.toString();
-    mission.publisherName = publisher.name;
-    mission.publisherLogo = publisher.logo;
-    mission.publisherUrl = publisher.url;
-    mission.updatedAt = startTime;
-
-    mission.organizationVerificationStatus = missionDB?.organizationVerificationStatus;
-    if (missionDB && missionDB.statusCommentHistoric && Array.isArray(missionDB.statusCommentHistoric)) {
-      if (missionDB.statusCode !== mission.statusCode) {
-        mission.statusCommentHistoric = [...missionDB.statusCommentHistoric, { status: mission.statusCode, comment: mission.statusComment, date: mission.updatedAt }];
-      }
-    } else {
-      mission.statusCommentHistoric = [{ status: mission.statusCode, comment: mission.statusComment, date: mission.updatedAt }];
-    }
-
-    return mission;
-  } catch (error) {
-    console.log("ici", error);
-    captureException(error, `Error while parsing mission ${missionXML.clientId}`);
-  }
-};
+const CHUNK_SIZE = 2000;
 
 const importPublisher = async (publisher: Publisher, start: Date) => {
   if (!publisher) {
@@ -134,9 +43,7 @@ const importPublisher = async (publisher: Publisher, start: Date) => {
     console.log(`[${publisher.name}] Parse xml from ${publisher.feed}`);
     const missionsXML = parseXML(xml);
     if (!missionsXML || !missionsXML.length) {
-      console.log(`[${publisher.name}] Empty xml`);
-
-      console.log(`[${publisher.name}] Mongo cleaning...`);
+      console.log(`[${publisher.name}] Empty xml, mongo cleaning...`);
       const mongoRes = await MissionModel.updateMany({ publisherId: publisher._id, deletedAt: null, updatedAt: { $lt: start } }, { deleted: true, deletedAt: new Date() });
       console.log(`[${publisher.name}] Mongo cleaning deleted ${mongoRes.modifiedCount}`);
       obj.endedAt = new Date();
@@ -147,75 +54,59 @@ const importPublisher = async (publisher: Publisher, start: Date) => {
     // GET COUNT MISSIONS IN DB
     const missionsDB = await MissionModel.countDocuments({
       publisherId: publisher._id,
-      deleted: false,
+      deletedAt: null,
     });
     console.log(`[${publisher.name}] Found ${missionsDB} missions in DB`);
 
-    // BUILD NEW MISSIONS
-    const missions = [] as Mission[];
-    const promises = [] as Promise<Mission | undefined>[];
-    for (let j = 0; j < missionsXML.length; j++) {
-      const missionXML = missionsXML[j];
-      promises.push(buildData(obj.startedAt, publisher, missionXML));
+    for (let i = 0; i < missionsXML.length; i += CHUNK_SIZE) {
+      console.log(`[${publisher.name}] Processing chunk ${i / CHUNK_SIZE + 1} of ${Math.ceil(missionsXML.length / CHUNK_SIZE)}`);
+      const chunk = missionsXML.slice(i, i + CHUNK_SIZE);
+      // BUILD NEW MISSIONS
+      const missions = [] as Mission[];
+      const promises = [] as Promise<Mission | undefined>[];
+      for (let j = 0; j < chunk.length; j++) {
+        const missionXML = chunk[j];
+        promises.push(buildData(obj.startedAt, publisher, missionXML));
 
-      if (j % 50 === 0) {
+        if (j % 50 === 0) {
+          const res = await Promise.all(promises);
+          res.filter((e) => e !== undefined).forEach((e: Mission) => missions.push(e));
+          promises.length = 0;
+        }
+      }
+      if (promises.length > 0) {
         const res = await Promise.all(promises);
         res.filter((e) => e !== undefined).forEach((e: Mission) => missions.push(e));
-        promises.length = 0;
       }
-    }
-    if (promises.length > 0) {
-      const res = await Promise.all(promises);
-      res.filter((e) => e !== undefined).forEach((e: Mission) => missions.push(e));
-    }
 
-    // GEOLOC
-    const resultGeoloc = await enrichWithGeoloc(publisher, missions);
-    resultGeoloc.forEach((r) => {
-      const mission = missions.find((m) => m.clientId.toString() === r.clientId.toString());
-      if (mission && r.addressIndex < mission.addresses.length) {
-        const address = mission.addresses[r.addressIndex];
-        address.street = r.street;
-        address.city = r.city;
-        address.postalCode = r.postalCode;
-        address.departmentCode = r.departmentCode;
-        address.departmentName = r.departmentName;
-        address.region = r.region;
-        if (r.location?.lat && r.location?.lon) {
-          address.location = { lat: r.location.lat, lon: r.location.lon };
-          address.geoPoint = r.geoPoint;
+      // GEOLOC
+      const resultGeoloc = await enrichWithGeoloc(publisher, missions);
+      resultGeoloc.forEach((r) => {
+        const mission = missions.find((m) => m.clientId.toString() === r.clientId.toString());
+        if (mission && r.addressIndex < mission.addresses.length) {
+          const address = mission.addresses[r.addressIndex];
+          address.street = r.street;
+          address.city = r.city;
+          address.postalCode = r.postalCode;
+          address.departmentCode = r.departmentCode;
+          address.departmentName = r.departmentName;
+          address.region = r.region;
+          if (r.location?.lat && r.location?.lon) {
+            address.location = { lat: r.location.lat, lon: r.location.lon };
+            address.geoPoint = r.geoPoint;
+          }
+          address.geolocStatus = r.geolocStatus;
         }
-        address.geolocStatus = r.geolocStatus;
-      }
-    });
+      });
 
-    // RNA
-    console.log(`[Organization] Starting organization verification for ${missions.length} missions`);
-    const resultRNA = await verifyOrganization(missions);
-    console.log(`[Organization] Received ${resultRNA.length} verification results`);
+      // RNA
+      await verifyOrganization(missions);
+      // BULK WRITE
+      await bulkDB(missions, publisher, obj);
+    }
 
-    resultRNA.forEach((r) => {
-      const mission = missions.find((m) => m.clientId.toString() === r.clientId.toString());
-      if (mission) {
-        mission.organizationId = r.organizationId;
-        mission.organizationNameVerified = r.organizationNameVerified;
-        mission.organizationRNAVerified = r.organizationRNAVerified;
-        mission.organizationSirenVerified = r.organizationSirenVerified;
-        mission.organizationSiretVerified = r.organizationSiretVerified;
-        mission.organizationAddressVerified = r.organizationAddressVerified;
-        mission.organizationCityVerified = r.organizationCityVerified;
-        mission.organizationPostalCodeVerified = r.organizationPostalCodeVerified;
-        mission.organizationDepartmentCodeVerified = r.organizationDepartmentCodeVerified;
-        mission.organizationDepartmentNameVerified = r.organizationDepartmentNameVerified;
-        mission.organizationRegionVerified = r.organizationRegionVerified;
-        mission.organizationVerificationStatus = r.organizationVerificationStatus;
-      } else {
-        console.log(`[Organization Warning] Could not find mission for clientId: ${r.clientId}`);
-      }
-    });
-
-    // BULK WRITE
-    await bulkDB(missions, publisher, obj);
+    // CLEAN DB
+    await cleanDB(publisher, obj);
 
     // STATS
     obj.missionCount = await MissionModel.countDocuments({
