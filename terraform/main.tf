@@ -97,20 +97,18 @@ resource "scaleway_container" "api" {
     "BENEVOLAT_URL" = "https://${local.benevolat_hostname}"
     "VOLONTARIAT_URL" = "https://${local.volontariat_hostname}"
     "BUCKET_NAME"   = local.bucket_name
+    "SLACK_JOBTEASER_CHANNEL_ID" = terraform.workspace == "production" ? "C080H9MH56W" : ""
   }
 
   secret_environment_variables = {
+    "SECRET"            = local.secrets.SECRET
     "DB_ENDPOINT"       = local.secrets.DB_ENDPOINT
     "ES_ENDPOINT"       = local.secrets.ES_ENDPOINT
     "SENTRY_DSN"        = local.secrets.SENTRY_DSN
     "SENDINBLUE_APIKEY" = local.secrets.SENDINBLUE_APIKEY
-    "SECRET"            = local.secrets.SECRET
+    "SLACK_TOKEN"       = local.secrets.SLACK_TOKEN
     "SCW_ACCESS_KEY"    = local.secrets.SCW_ACCESS_KEY
     "SCW_SECRET_KEY"    = local.secrets.SCW_SECRET_KEY
-    "APP_URL"           = "https://${local.app_hostname}"
-    "API_URL"           = "https://${local.api_hostname}"
-    "BENEVOLAT_URL"     = "https://${local.benevolat_hostname}"
-    "VOLONTARIAT_URL"   = "https://${local.volontariat_hostname}"
   }
 }
 
@@ -155,10 +153,10 @@ resource "scaleway_container" "process" {
     "ES_ENDPOINT"                = local.secrets.ES_ENDPOINT
     "PG_ENDPOINT"                = local.secrets.PG_ENDPOINT
     "SENTRY_DSN"                 = local.secrets.SENTRY_DSN
+    "SLACK_TOKEN"                = local.secrets.SLACK_TOKEN
+    "DATA_SUBVENTION_TOKEN"      = local.secrets.DATA_SUBVENTION_TOKEN
     "SCW_ACCESS_KEY"             = local.secrets.SCW_ACCESS_KEY
     "SCW_SECRET_KEY"             = local.secrets.SCW_SECRET_KEY
-    "DATA_SUBVENTION_TOKEN"      = local.secrets.DATA_SUBVENTION_TOKEN
-    "SLACK_TOKEN"                = local.secrets.SLACK_TOKEN
   }
 }
 
