@@ -404,7 +404,7 @@ model Address {
 model Organization {
   id String @id @default(uuid())
   old_id String    @unique
-  rna String
+  rna String?
   siren String?
   siret String?
   rup_mi String?

@@ -71,11 +71,13 @@ const handler = async () => {
     const count = await prisma.organization.count();
     console.log(`[Organization] Found ${count} docs in database.`);
 
-    const countToSync = await OrganizationModel.countDocuments({});
+    const twoWeeksAgo = new Date(Date.now() - 1000 * 60 * 60 * 24 * 14);
+    const where = { $or: [{ createdAt: { $gte: twoWeeksAgo } }, { updatedAt: { $gte: twoWeeksAgo } }] };
+    const countToSync = await OrganizationModel.countDocuments(where);
     console.log(`[Organization] Found ${countToSync} docs to sync.`);
 
     while (true) {
-      const data = await OrganizationModel.find({}).select("_id updatedAt").limit(BULK_SIZE).skip(offset).lean();
+      const data = await OrganizationModel.find(where).select("_id updatedAt").limit(BULK_SIZE).skip(offset).lean();
       if (data.length === 0) {
         break;
       }
