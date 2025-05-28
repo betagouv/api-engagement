@@ -80,7 +80,6 @@ jobs:
 
       - name: Set app build args
         id: app_args
-        if: matrix.service == 'app'
         run: |
           echo "ENV=${{ needs.set-env.outputs.environment_name }}" >> $GITHUB_OUTPUT
           if [[ "${{ needs.set-env.outputs.environment_name }}" == 'production' ]]; then
@@ -108,8 +107,8 @@ jobs:
           secrets: |
             "sentry_auth_token=${{ secrets.SENTRY_AUTH_TOKEN }}"
           build-args: |
-            ${{ matrix.service == 'app' && 'ENV=' }}${{ steps.app_args.outputs.ENV }}
-            ${{ matrix.service == 'app' && 'API_URL=' }}${{ steps.app_args.outputs.API_URL }}
-            ${{ matrix.service == 'app' && 'BENEVOLAT_URL=' }}${{ steps.app_args.outputs.BENEVOLAT_URL }}
-            ${{ matrix.service == 'app' && 'VOLONTARIAT_URL=' }}${{ steps.app_args.outputs.VOLONTARIAT_URL }}
-            ${{ matrix.service == 'app' && 'SENTRY_DSN=' }}${{ steps.app_args.outputs.SENTRY_DSN }}
+            ENV=${{ steps.app_args.outputs.ENV }}
+            API_URL=${{ steps.app_args.outputs.API_URL }}
+            BENEVOLAT_URL=${{ steps.app_args.outputs.BENEVOLAT_URL }}
+            VOLONTARIAT_URL=${{ steps.app_args.outputs.VOLONTARIAT_URL }}
+            SENTRY_DSN=${{ steps.app_args.outputs.SENTRY_DSN }}
