@@ -4,6 +4,8 @@ FROM node:18-bullseye-slim AS builder
 RUN apt-get update && apt-get install -y --no-install-recommends \
     && rm -rf /var/lib/apt/lists/*
 
+RUN --mount=type=secret,id=sentry_auth_token,env=SENTRY_AUTH_TOKEN
+
 WORKDIR /app
 
 ARG VITE_ENV=development
