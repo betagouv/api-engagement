@@ -210,7 +210,7 @@ router.get("/", passport.authenticate(["apikey", "api"], { session: false }), as
     return res.status(200).send({
       ok: true,
       total,
-      data: data.map((e: Mission) => buildData(e, req.user._id, req.user.moderator)),
+      data: data.map((e: Mission) => buildData(e, user._id.toString(), user.moderator)),
       limit: query.data.limit,
       skip: query.data.skip,
     });

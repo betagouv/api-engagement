@@ -8,7 +8,7 @@ import esClient from "../db/elastic";
 import { INVALID_PARAMS, INVALID_QUERY, NOT_FOUND } from "../error";
 import MissionModel from "../models/mission";
 import RequestModel from "../models/request";
-import { Mission } from "../types";
+import { Mission, Publisher } from "../types";
 import { PublisherRequest } from "../types/passport";
 
 const router = Router();
@@ -38,6 +38,7 @@ router.use(async (req: PublisherRequest, res: Response, next: NextFunction) => {
 
 router.get("/", passport.authenticate(["apikey", "api"], { session: false }), async (req: PublisherRequest, res: Response, next: NextFunction) => {
   try {
+    const user = req.user as Publisher;
     const query = zod
       .object({
         limit: zod.coerce.number().int().max(10000).default(50),
@@ -51,7 +52,7 @@ router.get("/", passport.authenticate(["apikey", "api"], { session: false }), as
       return res.status(400).send({ ok: false, code: INVALID_QUERY, message: query.error });
     }
 
-    const where = { deleted: false, publisherId: req.user._id.toString() };
+    const where = { deleted: false, publisherId: user._id.toString() };
 
     const total = await MissionModel.countDocuments(where);
     const data = await MissionModel.find(where).limit(query.data.limit).skip(query.data.skip).lean();
@@ -71,6 +72,7 @@ router.get("/", passport.authenticate(["apikey", "api"], { session: false }), as
 
 router.get("/:clientId", passport.authenticate(["apikey", "api"], { session: false }), async (req: PublisherRequest, res: Response, next: NextFunction) => {
   try {
+    const user = req.user as Publisher;
     const params = zod
       .object({
         clientId: zod.string(),
@@ -84,7 +86,7 @@ router.get("/:clientId", passport.authenticate(["apikey", "api"], { session: fal
 
     const mission = await MissionModel.findOne({
       clientId: params.data.clientId,
-      publisherId: req.user._id.toString(),
+      publisherId: user._id.toString(),
     }).lean();
     if (!mission) {
       return res.status(404).send({ ok: false, code: NOT_FOUND });
@@ -153,6 +155,7 @@ router.get("/:clientId", passport.authenticate(["apikey", "api"], { session: fal
 
 router.get("/:clientId/stats", passport.authenticate(["apikey", "api"], { session: false }), async (req: PublisherRequest, res: Response, next: NextFunction) => {
   try {
+    const user = req.user as Publisher;
     const params = zod
       .object({
         clientId: zod.string(),
@@ -166,7 +169,7 @@ router.get("/:clientId/stats", passport.authenticate(["apikey", "api"], { sessio
 
     const mission = await MissionModel.findOne({
       clientId: params.data.clientId,
-      publisherId: req.user._id.toString(),
+      publisherId: user._id.toString(),
     }).lean();
     if (!mission) {
       return res.status(404).send({ ok: false, code: NOT_FOUND });

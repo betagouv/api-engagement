@@ -71,7 +71,7 @@ const handler = async () => {
     const jobs = [];
 
     const queryMission = { deleted: "no", statusCode: "ACCEPTED" } as { [key: string]: any };
-    queryMission.$or = (linkedin.publishers || []).map((e) => ({ publisherId: e.publisher }));
+    queryMission.$or = (linkedin.publishers || []).map((e) => ({ publisherId: e.publisherId }));
 
     console.log(`[Linkedin] Querying missions of JeVeuxAider.gouv.fr`);
     const JVAMissions = await getMissions({
