@@ -94,6 +94,13 @@ jobs:
             echo "VITE_VOLONTARIAT_URL=${{ vars.VOLONTARIAT_URL_STAGING }}" >> $GITHUB_OUTPUT
             echo "VITE_SENTRY_DSN=${{ secrets.SENTRY_DSN_STAGING }}" >> $GITHUB_OUTPUT
           fi
+          # Debug outputs
+          echo "Debug - Checking outputs:"
+          echo "VITE_ENV: ${{ steps.app_args.outputs.VITE_ENV }}"
+          echo "VITE_API_URL: ${{ steps.app_args.outputs.VITE_API_URL }}"
+          echo "VITE_BENEVOLAT_URL: ${{ steps.app_args.outputs.VITE_BENEVOLAT_URL }}"
+          echo "VITE_VOLONTARIAT_URL: ${{ steps.app_args.outputs.VITE_VOLONTARIAT_URL }}"
+          echo "VITE_SENTRY_DSN: ${{ steps.app_args.outputs.VITE_SENTRY_DSN }}"
 
       - name: Build and push ${{ matrix.service }} image
         uses: docker/build-push-action@v4
