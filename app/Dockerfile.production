@@ -8,24 +8,28 @@ RUN --mount=type=secret,id=sentry_auth_token,env=SENTRY_AUTH_TOKEN
 
 WORKDIR /app
 
-ARG VITE_ENV=development
-ARG VITE_API_URL=http://localhost:9001
-ARG VITE_BENEVOLAT_URL=http://localhost:9003
-ARG VITE_VOLONTARIAT_URL=http://localhost:9004
-ARG VITE_SENTRY_DSN=
+ARG ENV=development
+ARG API_URL=http://localhost:9001
+ARG BENEVOLAT_URL=http://localhost:9003
+ARG VOLONTARIAT_URL=http://localhost:9004
+ARG SENTRY_DSN=
 
-ENV VITE_ENV=$VITE_ENV
-ENV VITE_API_URL=$VITE_API_URL
-ENV VITE_BENEVOLAT_URL=$VITE_BENEVOLAT_URL
-ENV VITE_VOLONTARIAT_URL=$VITE_VOLONTARIAT_URL
-ENV VITE_SENTRY_DSN=$VITE_SENTRY_DSN
+ENV VITE_ENV=$ENV
+ENV VITE_API_URL=$API_URL
+ENV VITE_BENEVOLAT_URL=$BENEVOLAT_URL
+ENV VITE_VOLONTARIAT_URL=$VOLONTARIAT_URL
+ENV VITE_SENTRY_DSN=$SENTRY_DSN
 
 
 # In the builder stage, before the build
-RUN echo "Building with ENV=$VITE_ENV"
-RUN echo "Building with API_URL=$VITE_API_URL"
-RUN echo "Building with BENEVOLAT_URL=$VITE_BENEVOLAT_URL"
-RUN echo "Building with VOLONTARIAT_URL=$VITE_VOLONTARIAT_URL"
+RUN echo "Building with arg ENV=$ENV"
+RUN echo "Building with arg API_URL=$API_URL"
+RUN echo "Building with arg BENEVOLAT_URL=$BENEVOLAT_URL"
+RUN echo "Building with arg VOLONTARIAT_URL=$VOLONTARIAT_URL"
+RUN echo "Building with env ENV=$VITE_ENV"
+RUN echo "Building with env API_URL=$VITE_API_URL"
+RUN echo "Building with env BENEVOLAT_URL=$VITE_BENEVOLAT_URL"
+RUN echo "Building with env VOLONTARIAT_URL=$VITE_VOLONTARIAT_URL"
 
 COPY package*.json ./
 
