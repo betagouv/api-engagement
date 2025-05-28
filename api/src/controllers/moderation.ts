@@ -60,7 +60,7 @@ router.post("/search", passport.authenticate("user", { session: false }), async 
     if (body.data.publisherId) {
       where.publisherId = body.data.publisherId;
     } else {
-      where.publisherId = { $in: moderator.publishers.map((p) => p.publisher) };
+      where.publisherId = { $in: moderator.publishers.map((p) => p.publisherId) };
     }
     if (body.data.organization === "none") {
       where.$or = [{ organizationName: "" }, { organizationName: null }];
@@ -167,7 +167,7 @@ router.post("/aggs", passport.authenticate("user", { session: false }), async (r
     if (body.data.publisherId) {
       where.publisherId = body.data.publisherId;
     } else {
-      where.publisherId = { $in: moderator.publishers.map((p) => p.publisher) };
+      where.publisherId = { $in: moderator.publishers.map((p) => p.publisherId) };
     }
     if (body.data.organization === "none") {
       where.$or = [{ organizationName: "" }, { organizationName: null }];

@@ -400,10 +400,10 @@ router.get("/publishers-views", passport.authenticate("user", { session: false }
     const data = publishers.map((p) => ({
       _id: p._id,
       name: p.name,
-      role_promoteur: p.role_promoteur,
-      role_annonceur_api: p.role_annonceur_api,
-      role_annonceur_campagne: p.role_annonceur_campagne,
-      role_annonceur_widget: p.role_annonceur_widget,
+      isAnnonceur: p.isAnnonceur,
+      hasApiRights: p.hasApiRights,
+      hasCampaignRights: p.hasCampaignRights,
+      hasWidgetRights: p.hasWidgetRights,
       clickFrom: response.body.aggregations.clickFrom.data.buckets.find((b: { key: string; doc_count: number }) => b.key === p.name)?.doc_count || 0,
       clickTo: response.body.aggregations.clickTo.data.buckets.find((b: { key: string; doc_count: number }) => b.key === p.name)?.doc_count || 0,
       applyFrom: response.body.aggregations.applyFrom.data.buckets.find((b: { key: string; doc_count: number }) => b.key === p.name)?.doc_count || 0,
@@ -413,7 +413,7 @@ router.get("/publishers-views", passport.authenticate("user", { session: false }
     const total = {
       publishers: publishers.length,
       announcers: publishers.filter((e) => {
-        if (!e.role_promoteur) {
+        if (!e.isAnnonceur) {
           return false;
         }
         if (query.data.type === "volontariat") {
@@ -425,8 +425,8 @@ router.get("/publishers-views", passport.authenticate("user", { session: false }
         return true;
       }).length,
       broadcasters: publishers.filter((e) => {
-        const isBroadcaster = e.role_annonceur_api || e.role_annonceur_campagne || e.role_annonceur_widget;
-        if (!isBroadcaster) {
+        const isDiffuseur = e.hasApiRights || e.hasCampaignRights || e.hasWidgetRights;
+        if (!isDiffuseur) {
           return false;
         }
         if (query.data.type === "volontariat") {

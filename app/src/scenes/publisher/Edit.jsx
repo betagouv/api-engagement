@@ -20,29 +20,27 @@ const Edit = () => {
   const [publisher, setPublisher] = useState(null);
   const [values, setValues] = useState({
     publishers: [],
-    excludedOrganizations: [],
-    send_report_to: [],
-    automated_report: false,
+    sendReportTo: [],
+    sendReport: false,
     description: "",
     lead: "",
     url: "",
     email: "",
     documentation: "",
     name: "",
-
-    annonceur: false,
+    isAnnonceur: false,
+    isDiffuseur: false, // No in the model
     missionType: null,
-    diffuseur: false,
     category: null,
-    api: false,
-    widget: false,
-    campaign: false,
+    hasApiRights: false,
+    hasWidgetRights: false,
+    hasCampaignRights: false,
   });
   const [errors, setErrors] = useState({});
 
   useEffect(() => {
     if (!publisher) return;
-    setValues({ ...values, ...publisher, diffuseur: publisher.api || publisher.widget || publisher.campaign || false });
+    setValues({ ...values, ...publisher, isDiffuseur: publisher.hasApiRights || publisher.hasWidgetRights || publisher.hasCampaignRights || false });
   }, [publisher]);
 
   useEffect(() => {
@@ -96,10 +94,10 @@ const Edit = () => {
   const handleSubmit = async () => {
     try {
       const errors = {};
-      if (!values.diffuseur && !values.annonceur) errors.settings = "Le partenaire doit être “Annonceur” ou “Diffuseur”. Veuillez cocher une des options dans le formulaire";
-      if (values.annonceur && !values.missionType) errors.missionType = "Le partenaire est “Annonceur”. Veuillez sélectionner la catégorie dans le formulaire.";
-      if (values.diffuseur && !values.category) errors.category = "Le partenaire est “Diffuseur”. Veuillez sélectionner la catégorie dans le formulaire.";
-      if (values.diffuseur && !values.api && !values.widget && !values.campaign)
+      if (!values.isAnnonceur && !values.isDiffuseur) errors.settings = "Le partenaire doit être “Annonceur” ou “Diffuseur”. Veuillez cocher une des options dans le formulaire";
+      if (values.isAnnonceur && !values.missionType) errors.missionType = "Le partenaire est “Annonceur”. Veuillez sélectionner la catégorie dans le formulaire.";
+      if (values.isDiffuseur && !values.category) errors.category = "Le partenaire est “Diffuseur”. Veuillez sélectionner la catégorie dans le formulaire.";
+      if (values.isDiffuseur && !values.hasApiRights && !values.hasWidgetRights && !values.hasCampaignRights)
         errors.mode = "Le partenaire est “Diffuseur”. Veuillez sélectionner au moins un “moyen de diffusion” dans le formulaire.";
       if (Object.keys(errors).length > 0) {
         toast.error(errors.settings || errors.missionType || errors.category || errors.mode);

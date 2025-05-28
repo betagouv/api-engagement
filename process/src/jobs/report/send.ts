@@ -57,7 +57,7 @@ const sendReport = async (report: Report) => {
 };
 
 export const sendReports = async (year: number, month: number) => {
-  const publishers = await PublisherModel.find({ automated_report: true });
+  const publishers = await PublisherModel.find({ sendReport: true });
   const users = await UserModel.find({});
 
   let count = 0;
@@ -77,7 +77,7 @@ export const sendReports = async (year: number, month: number) => {
       continue;
     }
 
-    if (!publisher.send_report_to.length) {
+    if (!publisher.sendReportTo.length) {
       console.log(`[${publisher.name}] No recipient found`);
       skipped.push({
         name: publisher.name,
@@ -108,7 +108,7 @@ export const sendReports = async (year: number, month: number) => {
       continue;
     }
 
-    const receivers = users.filter((user) => publisher.send_report_to.includes(user._id.toString()));
+    const receivers = users.filter((user) => publisher.sendReportTo.includes(user._id.toString()));
     report.sentTo = receivers.map((r) => r.email);
 
     console.log(`[${publisher.name}] Sending report to ${report.sentTo.map((e) => e).join(", ")}`);

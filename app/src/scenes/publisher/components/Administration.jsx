@@ -27,8 +27,8 @@ const Administration = ({ values, onChange }) => {
           Rapport automatisé
         </label>
         <div className="relative">
-          <Toggle value={values.automated_report} onChange={(e) => onChange({ ...values, automated_report: e })} />
-          {values.automated_report ? <p className="text-base text-blue-dark absolute top-8 right-0">Oui</p> : <p className="text-base text-gray-700 absolute top-8 right-0">Non</p>}
+          <Toggle value={values.sendReport} onChange={(e) => onChange({ ...values, sendReport: e })} />
+          {values.sendReport ? <p className="text-base text-blue-dark absolute top-8 right-0">Oui</p> : <p className="text-base text-gray-700 absolute top-8 right-0">Non</p>}
         </div>
       </div>
       <div className="flex-1 space-y-4">

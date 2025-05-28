@@ -33,7 +33,7 @@ const Create = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const res = await api.post("/publisher/search", { role_promoteur: true, name: "" });
+        const res = await api.post("/publisher/search", { role: "annonceur" });
         if (!res.ok) throw res;
         setPulishers(res.data.sort((a, b) => a.name.localeCompare(b.name)).map((p) => ({ ...p, label: p.name })));
       } catch (error) {
