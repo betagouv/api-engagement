@@ -21,7 +21,7 @@ module.exports = {
     "no-constant-condition": "off", // TODO: fix code and activate
     "no-useless-escape": "off", // TODO: fix code and activate
     "no-prototype-builtins": "off", // TODO: fix code and activate
-
+    "no-control-regex": "off", // TODO: fix code and activate
     "import/extensions": "off",
     "import/no-extraneous-dependencies": "off",
   },

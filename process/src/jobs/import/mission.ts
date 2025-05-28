@@ -1,8 +1,12 @@
 import he from "he";
 import { convert } from "html-to-text";
+import { Schema } from "mongoose";
 
+import { SC_ID } from "../../config";
 import { COUNTRIES } from "../../constants/countries";
 import { AUTRE_IMAGE, DOMAINS, DOMAIN_IMAGES } from "../../constants/domains";
+import { captureException } from "../../error";
+import MissionModel from "../../models/mission";
 import { Mission, MissionXML, Publisher } from "../../types";
 import { getAddress, getAddresses } from "./utils/address";
 
@@ -161,7 +165,7 @@ const parseArray = (value: string | { value: string[] | string } | undefined, in
   return [value];
 };
 
-export const buildMission = (publisher: Publisher, missionXML: MissionXML, missionDB?: Mission) => {
+const parseMission = (publisher: Publisher, missionXML: MissionXML, missionDB: Mission | null) => {
   const mission = {
     title: he.decode(missionXML.title),
     description: convert(he.decode(missionXML.description || ""), {
@@ -209,6 +213,13 @@ export const buildMission = (publisher: Publisher, missionXML: MissionXML, missi
     organizationReseaux: parseArray(missionXML.organizationReseaux, true) || [],
   } as Mission;
 
+  // Moderation except Service Civique (already moderated)  // Moderation except Service Civique (already moderated)
+  mission.statusComment = "";
+  mission.statusCode = "ACCEPTED";
+  if (publisher._id.toString() !== SC_ID) {
+    getModeration(mission);
+  }
+
   if (mission.domain === "mémoire et citoyenneté") {
     mission.domain = "memoire-et-citoyennete";
   }
@@ -221,17 +232,19 @@ export const buildMission = (publisher: Publisher, missionXML: MissionXML, missi
     getAddress(mission, missionXML);
   }
 
-  // Moderation except Service Civique (already moderated)
-  mission.statusComment = "";
-  mission.statusCode = "ACCEPTED";
-  if (publisher._id.toString() !== "5f99dbe75eb1ad767733b206") {
-    getModeration(mission);
-  }
+  if (missionDB) {
+    mission._id = missionDB._id as Schema.Types.ObjectId;
+    mission.createdAt = missionDB.createdAt;
+    mission.organizationVerificationStatus = missionDB.organizationVerificationStatus;
 
-  // SPECIFIC CASE
-  if (!mission.publisherLogo) {
-    mission.publisherLogo = "";
-  } // Publisher without logo
+    if (missionDB.statusCommentHistoric && Array.isArray(missionDB.statusCommentHistoric)) {
+      if (missionDB.statusCode !== mission.statusCode) {
+        mission.statusCommentHistoric = [...missionDB.statusCommentHistoric, { status: mission.statusCode, comment: mission.statusComment, date: mission.updatedAt }];
+      }
+    } else {
+      mission.statusCommentHistoric = [{ status: mission.statusCode, comment: mission.statusComment, date: mission.updatedAt }];
+    }
+  }
 
   // Dirty dirty hack for afev to get Joe happy
   if (missionXML.organizationName === "Afev") {
@@ -293,4 +306,28 @@ export const buildMission = (publisher: Publisher, missionXML: MissionXML, missi
   }
 
   return mission;
+};
+
+export const buildData = async (startTime: Date, publisher: Publisher, missionXML: MissionXML) => {
+  try {
+    const missionDB = await MissionModel.findOne({
+      publisherId: publisher._id,
+      clientId: missionXML.clientId,
+    });
+
+    const mission = parseMission(publisher, missionXML, missionDB?.toObject() || null);
+
+    mission.deleted = false;
+    mission.deletedAt = null;
+    mission.lastSyncAt = startTime;
+    mission.publisherId = publisher._id.toString();
+    mission.publisherName = publisher.name;
+    mission.publisherLogo = publisher.logo;
+    mission.publisherUrl = publisher.url;
+    mission.updatedAt = startTime;
+
+    return mission;
+  } catch (error) {
+    captureException(error, `Error while parsing mission ${missionXML.clientId}`);
+  }
 };
