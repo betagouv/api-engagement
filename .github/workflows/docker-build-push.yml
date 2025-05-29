@@ -55,8 +55,8 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        # TODO uncomment
-        service: [app, api, process, widget-benevolat, widget-volontariat]
+        # service: [app, api, process, widget-benevolat, widget-volontariat]
+        service: [app, api, widget-benevolat, widget-volontariat]
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
