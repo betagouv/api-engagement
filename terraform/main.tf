@@ -49,10 +49,16 @@ data "scaleway_secret_version" "main" {
 }
 
 locals {
-  api_hostname         = terraform.workspace == "production" ? "api.api-engagement.beta.gouv.fr" : "api.api-engagement-dev.fr"
-  app_hostname         = terraform.workspace == "production" ? "app.api-engagement.beta.gouv.fr" : "app.api-engagement-dev.fr"
-  benevolat_hostname   = terraform.workspace == "production" ? "mission.api-engagement.beta.gouv.fr" : "mission.api-engagement-dev.fr"
-  volontariat_hostname = terraform.workspace == "production" ? "sc.api-engagement.beta.gouv.fr" : "sc.api-engagement-dev.fr"
+  # api_hostname         = terraform.workspace == "production" ? "api.api-engagement.beta.gouv.fr" : "api.api-engagement-dev.fr"
+  # app_hostname         = terraform.workspace == "production" ? "app.api-engagement.beta.gouv.fr" : "app.api-engagement-dev.fr"
+  # benevolat_hostname   = terraform.workspace == "production" ? "mission.api-engagement.beta.gouv.fr" : "mission.api-engagement-dev.fr"
+  # volontariat_hostname = terraform.workspace == "production" ? "sc.api-engagement.beta.gouv.fr" : "sc.api-engagement-dev.fr"
+  # process_hostname     = terraform.workspace == "production" ? "process.api-engagement.beta.gouv.fr" : "process.api-engagement-dev.fr"
+  # bucket_name          = terraform.workspace == "production" ? "api-engagement-bucket" : "api-engagement-bucket-staging"
+  api_hostname         = terraform.workspace == "production" ? "api-test.api-engagement.beta.gouv.fr" : "api.api-engagement-dev.fr"
+  app_hostname         = terraform.workspace == "production" ? "app-test.api-engagement.beta.gouv.fr" : "app.api-engagement-dev.fr"
+  benevolat_hostname   = terraform.workspace == "production" ? "mission-test.api-engagement.beta.gouv.fr" : "mission.api-engagement-dev.fr"
+  volontariat_hostname = terraform.workspace == "production" ? "sc-test.api-engagement.beta.gouv.fr" : "sc.api-engagement-dev.fr"
   process_hostname     = terraform.workspace == "production" ? "process.api-engagement.beta.gouv.fr" : "process.api-engagement-dev.fr"
   bucket_name          = terraform.workspace == "production" ? "api-engagement-bucket" : "api-engagement-bucket-staging"
   secrets              = jsondecode(base64decode(data.scaleway_secret_version.main.data))
@@ -91,20 +97,18 @@ resource "scaleway_container" "api" {
     "BENEVOLAT_URL" = "https://${local.benevolat_hostname}"
     "VOLONTARIAT_URL" = "https://${local.volontariat_hostname}"
     "BUCKET_NAME"   = local.bucket_name
+    "SLACK_JOBTEASER_CHANNEL_ID" = terraform.workspace == "production" ? "C080H9MH56W" : ""
   }
 
   secret_environment_variables = {
+    "SECRET"            = local.secrets.SECRET
     "DB_ENDPOINT"       = local.secrets.DB_ENDPOINT
     "ES_ENDPOINT"       = local.secrets.ES_ENDPOINT
     "SENTRY_DSN"        = local.secrets.SENTRY_DSN
     "SENDINBLUE_APIKEY" = local.secrets.SENDINBLUE_APIKEY
-    "SECRET"            = local.secrets.SECRET
+    "SLACK_TOKEN"       = local.secrets.SLACK_TOKEN
     "SCW_ACCESS_KEY"    = local.secrets.SCW_ACCESS_KEY
     "SCW_SECRET_KEY"    = local.secrets.SCW_SECRET_KEY
-    "APP_URL"           = "https://${local.app_hostname}"
-    "API_URL"           = "https://${local.api_hostname}"
-    "BENEVOLAT_URL"     = "https://${local.benevolat_hostname}"
-    "VOLONTARIAT_URL"   = "https://${local.volontariat_hostname}"
   }
 }
 
@@ -117,51 +121,52 @@ resource "scaleway_container_domain" "api" {
 }
 
 # Process Container
-resource "scaleway_container" "process" {
-  name            = "${terraform.workspace}-process"
-  description     = "Process ${terraform.workspace} container"
-  namespace_id    = scaleway_container_namespace.main.id
-  registry_image  = "ghcr.io/${var.github_repository}/process:${terraform.workspace}${var.image_tag == "latest" ? "" : "-${var.image_tag}"}"
-  port            = 8080
-  cpu_limit       = terraform.workspace == "production" ? 1000 : 560
-  memory_limit    = terraform.workspace == "production" ? 4096 : 1024
-  min_scale       = terraform.workspace == "production" ? 1 : 1
-  max_scale       = terraform.workspace == "production" ? 1 : 1
-  timeout         = 300  # Longer timeout for process jobs
-  max_concurrency = 20
-  privacy         = "public"
-  protocol        = "http1"
-  http_option     = "redirected" # https only
-  deploy          = true
+# resource "scaleway_container" "process" {
+#   name            = "${terraform.workspace}-process"
+#   description     = "Process ${terraform.workspace} container"
+#   namespace_id    = scaleway_container_namespace.main.id
+#   registry_image  = "ghcr.io/${var.github_repository}/process:${terraform.workspace}${var.image_tag == "latest" ? "" : "-${var.image_tag}"}"
+#   port            = 8080
+#   cpu_limit       = terraform.workspace == "production" ? 1500 : 560
+#   memory_limit    = terraform.workspace == "production" ? 3072 : 1024
+#   min_scale       = terraform.workspace == "production" ? 1 : 1
+#   max_scale       = terraform.workspace == "production" ? 1 : 1
+#   timeout         = 300  # Longer timeout for process jobs
+#   max_concurrency = 20
+#   privacy         = "public"
+#   protocol        = "http1"
+#   http_option     = "redirected" # https only
+#   deploy          = true
 
-  environment_variables = {
-    "ENV"           = terraform.workspace
-    "API_URL"       = "https://${local.api_hostname}"
-    "BUCKET_NAME"   = local.bucket_name
-    "SLACK_WARNING_CHANNEL_ID"   = terraform.workspace == "production" ? "C052V2UF918" : "C08QQT4702D"
-    "SLACK_LBC_CHANNEL_ID"       = terraform.workspace == "production" ? "C07SPFG724V" : ""
-    "SLACK_PRODUCT_CHANNEL_ID"   = terraform.workspace == "production" ? "C019LKL5N69" : ""
-    "SLACK_CRON_CHANNEL_ID"      = terraform.workspace == "production" ? "C085S6M2K5J" : ""
-  }
+#   environment_variables = {
+#     "ENV"           = terraform.workspace
+#     "API_URL"       = "https://${local.api_hostname}"
+#     "BUCKET_NAME"   = local.bucket_name
+#     "SLACK_WARNING_CHANNEL_ID"   = terraform.workspace == "production" ? "C052V2UF918" : "C08QQT4702D"
+#     "SLACK_LBC_CHANNEL_ID"       = terraform.workspace == "production" ? "C07SPFG724V" : ""
+#     "SLACK_PRODUCT_CHANNEL_ID"   = terraform.workspace == "production" ? "C019LKL5N69" : ""
+#     "SLACK_CRON_CHANNEL_ID"      = terraform.workspace == "production" ? "C085S6M2K5J" : ""
+#   }
 
-  secret_environment_variables = {
-    "DB_ENDPOINT"                = local.secrets.DB_ENDPOINT
-    "ES_ENDPOINT"                = local.secrets.ES_ENDPOINT
-    "PG_ENDPOINT"                = local.secrets.PG_ENDPOINT
-    "SENTRY_DSN"                 = local.secrets.SENTRY_DSN
-    "SCW_ACCESS_KEY"             = local.secrets.SCW_ACCESS_KEY
-    "SCW_SECRET_KEY"             = local.secrets.SCW_SECRET_KEY
-    "DATA_SUBVENTION_TOKEN"      = local.secrets.DATA_SUBVENTION_TOKEN
-  }
-}
+#   secret_environment_variables = {
+#     "DB_ENDPOINT"                = local.secrets.DB_ENDPOINT
+#     "ES_ENDPOINT"                = local.secrets.ES_ENDPOINT
+#     "PG_ENDPOINT"                = local.secrets.PG_ENDPOINT
+#     "SENTRY_DSN"                 = local.secrets.SENTRY_DSN
+#     "SLACK_TOKEN"                = local.secrets.SLACK_TOKEN
+#     "DATA_SUBVENTION_TOKEN"      = local.secrets.DATA_SUBVENTION_TOKEN
+#     "SCW_ACCESS_KEY"             = local.secrets.SCW_ACCESS_KEY
+#     "SCW_SECRET_KEY"             = local.secrets.SCW_SECRET_KEY
+#   }
+# }
 
 # We're using count = 0 to skip creating this resource
 # because it already exists and causes conflicts
-resource "scaleway_container_domain" "process" {
-  count = 0
-  container_id = scaleway_container.process.id
-  hostname     = local.process_hostname
-}
+# resource "scaleway_container_domain" "process" {
+#   count = 0
+#   container_id = scaleway_container.process.id
+#   hostname     = local.process_hostname
+# }
 
 # App Container
 resource "scaleway_container" "app" {
@@ -180,17 +185,6 @@ resource "scaleway_container" "app" {
   protocol        = "http1"
   http_option     = "redirected" # https only
   deploy          = true
-
-  environment_variables = {
-    "ENV"             = terraform.workspace
-    "API_URL"         = "https://${local.api_hostname}"
-    "BENEVOLAT_URL"   = "https://${local.benevolat_hostname}"
-    "VOLONTARIAT_URL" = "https://${local.volontariat_hostname}"
-  }
-
-  secret_environment_variables = {
-    "SENTRY_DSN" = local.secrets.SENTRY_DSN
-  }
 }
 
 # We're using count = 0 to skip creating this resource

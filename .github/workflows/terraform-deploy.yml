@@ -1,27 +1,12 @@
 name: Deploy to Scaleway
 
 on:
-  workflow_run:
-    workflows: ["Build and Push Docker Images"]
-    types: [completed]
-    # TODO uncomment
-    # branches: [main, staging]
-    branches: [main-test, staging]
-
-  workflow_dispatch:
+  workflow_call:
     inputs:
-      environment:
-        description: "Environment to deploy to"
+      branch:
         required: true
-        default: "staging"
-        type: choice
-        options:
-          - staging
-          - production
-
-concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: true
+        type: string
+  workflow_dispatch:
 
 permissions:
   contents: read
@@ -31,28 +16,15 @@ jobs:
   set-env:
     name: Determine Environment
     runs-on: ubuntu-latest
-    if: github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success'
     outputs:
       environment_name: ${{ steps.set-env.outputs.environment }}
     steps:
       - name: Set environment based on input or branch
         id: set-env
         env:
-          HEAD_BRANCH: ${{ github.event.workflow_run.head_branch || github.ref_name }}
-          MANUAL_ENV: ${{ github.event.inputs.environment }}
-        # TODO uncomment
-        # run: |
-        #   if [[ "$GITHUB_EVENT_NAME" == 'workflow_dispatch' ]]; then
-        #     echo "environment=$MANUAL_ENV" >> $GITHUB_OUTPUT
-        #   elif [[ "$HEAD_BRANCH" == 'main' ]]; then
-        #     echo "environment=production" >> $GITHUB_OUTPUT
-        #   else
-        #     echo "environment=staging" >> $GITHUB_OUTPUT
-        #   fi
+          HEAD_BRANCH: ${{ inputs.branch || github.ref_name }}
         run: |
-          if [[ "$GITHUB_EVENT_NAME" == 'workflow_dispatch' ]]; then
-            echo "environment=$MANUAL_ENV" >> $GITHUB_OUTPUT
-          elif [[ "$HEAD_BRANCH" == 'main-test' ]]; then
+          if [[ "$HEAD_BRANCH" == 'main-test' ]]; then
             echo "environment=production" >> $GITHUB_OUTPUT
           else
             echo "environment=staging" >> $GITHUB_OUTPUT

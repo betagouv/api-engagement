@@ -13,8 +13,8 @@ export const bulkDB = async (bulk: Mission[], publisher: Publisher, importDoc: I
     const startedAt = new Date();
     console.log(`[${publisher.name}] Starting mongo write at ${startedAt.toISOString()}`);
     const res = await writeMongo(bulk, publisher, startedAt);
-    importDoc.createdCount = res.upsertedCount + res.insertedCount;
-    importDoc.updatedCount = res.modifiedCount;
+    importDoc.createdCount += res.upsertedCount + res.insertedCount;
+    importDoc.updatedCount += res.modifiedCount;
     const time = ((new Date().getTime() - startedAt.getTime()) / 1000).toFixed(2);
     console.log(`[${publisher.name}] Mongo bulk write created ${importDoc.createdCount}, updated ${importDoc.updatedCount}, took ${time}s`);
 
