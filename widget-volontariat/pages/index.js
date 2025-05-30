@@ -31,7 +31,6 @@ import resizeHelper from "../utils/resizeHelper";
  */
 
 const Home = ({ widget, apiUrl, missions, total, request, environment }) => {
-  console.log("apiUrl", apiUrl);
   const router = useRouter();
   const { setUrl, setColor } = useStore();
   const plausible = usePlausible();
@@ -248,8 +247,6 @@ export const getServerSideProps = async (context) => {
       searchParams.append("lon", parseFloat(context.query.lon));
       searchParams.append("city", context.query.city);
     }
-
-    console.log("API_URL", API_URL);
 
     const response = await fetch(`${API_URL}/iframe/${widget._id}/search?${searchParams.toString()}`).then((res) => res.json());
 
