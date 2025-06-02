@@ -16,7 +16,7 @@ import { mongoConnected } from "../db/mongo";
 const jobName = process.argv[2];
 if (!jobName) {
   console.error("Error: no job name provided");
-  console.log("Usage: npm run job -- <job-name>");
+  console.log('Usage: npm run job -- <job-name> \'{"key":"value"}\'');
   process.exit(1);
 }
 
@@ -45,11 +45,30 @@ async function runJob() {
 
     console.log(`Executing handler for job '${jobName}'...`);
 
-    // Fake job to emulate BullMQ job
+    // Extract args from command line and create fake BullMQ job
+    const extraArg = process.argv[3];
+    let extraData: Record<string, any> = {};
+
+    if (extraArg && extraArg.startsWith("{")) {
+      try {
+        extraData = JSON.parse(extraArg);
+      } catch (e) {
+        console.error("Invalid JSON parameters", e);
+        process.exit(1);
+      }
+    } else if (extraArg) {
+      console.error("Invalid JSON parameters");
+      process.exit(1);
+    }
+
     const fakeJob = {
       id: `manual-${Date.now()}`,
       name: `manual-${jobName}`,
-      data: { manualExecution: true, timestamp: Date.now() },
+      data: {
+        manualExecution: true,
+        timestamp: Date.now(),
+        ...extraData,
+      },
     };
 
     const result = await handlerModule.handler(fakeJob);

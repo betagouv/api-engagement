@@ -181,6 +181,10 @@ const schema = new Schema<Mission>(
     jobteaserUrl: { type: String },
     jobteaserComment: { type: String },
     jobteaserUpdatedAt: { type: Date },
+
+    // Letudiant
+    letudiantPublicId: { type: String },
+    letudiantCreatedAt: { type: Date },
   },
   {
     timestamps: true,

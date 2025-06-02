@@ -283,6 +283,9 @@ export interface Mission {
   leboncoinComment: string | undefined;
   leboncoinUpdatedAt: Date | undefined;
 
+  letudiantPublicId: string | undefined;
+  letudiantCreatedAt: Date | undefined;
+
   __history?: MissionHistory[];
 }
 
