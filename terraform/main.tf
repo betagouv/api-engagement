@@ -85,7 +85,48 @@ resource "scaleway_container" "api" {
   max_scale       = terraform.workspace == "production" ? 5 : 1
   timeout         = 60
   max_concurrency = 50
-  privacy         = "public"
+  privacy         = "private"
+  protocol        = "http1"
+  http_option     = "redirected" # https only
+  deploy          = true
+
+  environment_variables = {
+    "ENV"           = terraform.workspace
+    "API_URL"       = "https://${local.api_hostname}"
+    "APP_URL"       = "https://${local.app_hostname}"
+    "BENEVOLAT_URL" = "https://${local.benevolat_hostname}"
+    "VOLONTARIAT_URL" = "https://${local.volontariat_hostname}"
+    "BUCKET_NAME"   = local.bucket_name
+    "SLACK_JOBTEASER_CHANNEL_ID" = terraform.workspace == "production" ? "C080H9MH56W" : ""
+  }
+
+  secret_environment_variables = {
+    "SECRET"            = local.secrets.SECRET
+    "DB_ENDPOINT"       = local.secrets.DB_ENDPOINT
+    "ES_ENDPOINT"       = local.secrets.ES_ENDPOINT
+    "SENTRY_DSN"        = local.secrets.SENTRY_DSN
+    "SENDINBLUE_APIKEY" = local.secrets.SENDINBLUE_APIKEY
+    "SLACK_TOKEN"       = local.secrets.SLACK_TOKEN
+    "SCW_ACCESS_KEY"    = local.secrets.SCW_ACCESS_KEY
+    "SCW_SECRET_KEY"    = local.secrets.SCW_SECRET_KEY
+  }
+}
+
+# API Jobs Container
+resource "scaleway_container" "api_jobs" {
+  name            = "${terraform.workspace}-api-jobs"
+  description     = "API Jobs ${terraform.workspace} container"
+  namespace_id    = scaleway_container_namespace.main.id
+  registry_image  = "ghcr.io/${var.github_repository}/api-jobs:${terraform.workspace}${var.image_tag == "latest" ? "" : "-${var.image_tag}"}"
+  port            = 8080
+  # Update in function of terraform.workspace
+  cpu_limit       = terraform.workspace == "production" ? 500 : 250
+  memory_limit    = terraform.workspace == "production" ? 1024 : 512
+  min_scale       = terraform.workspace == "production" ? 1 : 1
+  max_scale       = terraform.workspace == "production" ? 2 : 1
+  timeout         = 300  # Jobs may take longer to complete
+  max_concurrency = 10   # Limit concurrent jobs
+  privacy         = "private"
   protocol        = "http1"
   http_option     = "redirected" # https only
   deploy          = true
@@ -125,7 +166,7 @@ resource "scaleway_container" "api" {
 #   max_scale       = terraform.workspace == "production" ? 1 : 1
 #   timeout         = 300  # Longer timeout for process jobs
 #   max_concurrency = 20
-#   privacy         = "public"
+#   privacy         = "private"
 #   protocol        = "http1"
 #   http_option     = "redirected" # https only
 #   deploy          = true
@@ -262,6 +303,10 @@ resource "scaleway_container_domain" "benevolat" {
 # Outputs
 output "api_endpoint" {
   value = "https://${local.api_hostname}"
+}
+
+output "api_jobs_endpoint" {
+  value = "Service privé (pas d'endpoint public)"
 }
 
 output "app_endpoint" {

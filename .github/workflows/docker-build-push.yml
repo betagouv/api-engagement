@@ -55,20 +55,15 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-<<<<<<< HEAD
         # service: [app, api, process, widget-benevolat, widget-volontariat]
-        service: [app, api, widget-benevolat, widget-volontariat]
-=======
         include:
           - service: app
-          - service: process
           - service: widget-benevolat
           - service: widget-volontariat
           - service: api
             server_type: api
           - service: api
             server_type: jobs
->>>>>>> eaaea09 (Split api folder to manage jobs)
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -113,10 +108,9 @@ jobs:
           file: ./${{ matrix.service }}/Dockerfile.production
           push: true
           tags: |
-<<<<<<< HEAD
-            ghcr.io/${{ github.repository }}/${{ matrix.service }}:${{ needs.set-env.outputs.environment_name }}
-            ghcr.io/${{ github.repository }}/${{ matrix.service }}:${{ needs.set-env.outputs.environment_name }}-latest
-            ghcr.io/${{ github.repository }}/${{ matrix.service }}:${{ needs.set-env.outputs.environment_name }}-${{ steps.vars.outputs.short_sha }}
+            ${{ matrix.server_type != '' && format('ghcr.io/{0}/{1}-{2}:{3}', github.repository, matrix.service, matrix.server_type, needs.set-env.outputs.environment_name) || format('ghcr.io/{0}/{1}:{2}', github.repository, matrix.service, needs.set-env.outputs.environment_name) }}
+            ${{ matrix.server_type != '' && format('ghcr.io/{0}/{1}-{2}:{3}-latest', github.repository, matrix.service, matrix.server_type, needs.set-env.outputs.environment_name) || format('ghcr.io/{0}/{1}:{2}-latest', github.repository, matrix.service, needs.set-env.outputs.environment_name) }}
+            ${{ matrix.server_type != '' && format('ghcr.io/{0}/{1}-{2}:{3}-{4}', github.repository, matrix.service, matrix.server_type, needs.set-env.outputs.environment_name, steps.vars.outputs.short_sha) || format('ghcr.io/{0}/{1}:{2}-{3}', github.repository, matrix.service, needs.set-env.outputs.environment_name, steps.vars.outputs.short_sha) }}
           secrets: |
             "sentry_auth_token=${{ secrets.SENTRY_AUTH_TOKEN }}"
           build-args: |
@@ -125,28 +119,4 @@ jobs:
             BENEVOLAT_URL=${{ steps.app_args.outputs.BENEVOLAT_URL }}
             VOLONTARIAT_URL=${{ steps.app_args.outputs.VOLONTARIAT_URL }}
             SENTRY_DSN=${{ steps.app_args.outputs.SENTRY_DSN }}
-=======
-            ${{ matrix.service != 'api' && format('ghcr.io/{0}/{1}:{2}', github.repository, matrix.service, needs.set-env.outputs.environment_name) || format('ghcr.io/{0}/{1}-{2}:{3}', github.repository, matrix.service, matrix.server_type, needs.set-env.outputs.environment_name) }}
-            ${{ matrix.service != 'api' && format('ghcr.io/{0}/{1}:{2}-latest', github.repository, matrix.service, needs.set-env.outputs.environment_name) || format('ghcr.io/{0}/{1}-{2}:{3}-latest', github.repository, matrix.service, matrix.server_type, needs.set-env.outputs.environment_name) }}
-            ${{ matrix.service != 'api' && format('ghcr.io/{0}/{1}:{2}-{3}', github.repository, matrix.service, needs.set-env.outputs.environment_name, steps.vars.outputs.short_sha) || format('ghcr.io/{0}/{1}-{2}:{3}-{4}', github.repository, matrix.service, matrix.server_type, needs.set-env.outputs.environment_name, steps.vars.outputs.short_sha) }}
-          build-args: |
-            # API server type
-            ${{ matrix.service == 'api' && format('SERVER_TYPE={0}', matrix.server_type) || '' }}
-            
-            # App (Vite) variables
-            ${{ matrix.service == 'app' && format('VITE_ENV={0}', steps.app_args.outputs.VITE_ENV) || '' }}
-            ${{ matrix.service == 'app' && format('VITE_API_URL={0}', steps.app_args.outputs.VITE_API_URL) || '' }}
-            ${{ matrix.service == 'app' && format('VITE_BENEVOLAT_URL={0}', steps.app_args.outputs.VITE_BENEVOLAT_URL) || '' }}
-            ${{ matrix.service == 'app' && format('VITE_VOLONTARIAT_URL={0}', steps.app_args.outputs.VITE_VOLONTARIAT_URL) || '' }}
-            ${{ matrix.service == 'app' && format('VITE_SENTRY_DSN={0}', steps.app_args.outputs.VITE_SENTRY_DSN) || '' }}
-
-            # Widget Benevolat variables
-            ${{ matrix.service == 'widget-benevolat' && format('ENV={0}', steps.widget_benevolat_args.outputs.ENV) || '' }}
-            ${{ matrix.service == 'widget-benevolat' && format('API_URL={0}', steps.widget_benevolat_args.outputs.API_URL) || '' }}
-            ${{ matrix.service == 'widget-benevolat' && format('SENTRY_DSN={0}', steps.widget_benevolat_args.outputs.SENTRY_DSN) || '' }}
-
-            # Widget Volontariat variables
-            ${{ matrix.service == 'widget-volontariat' && format('ENV={0}', steps.widget_volontariat_args.outputs.ENV) || '' }}
-            ${{ matrix.service == 'widget-volontariat' && format('API_URL={0}', steps.widget_volontariat_args.outputs.API_URL) || '' }}
-            ${{ matrix.service == 'widget-volontariat' && format('SENTRY_DSN={0}', steps.widget_volontariat_args.outputs.SENTRY_DSN) || '' }}
->>>>>>> eaaea09 (Split api folder to manage jobs)
+            ${{ matrix.server_type != '' && format('SERVER_TYPE={0}', matrix.server_type) || '' }}
