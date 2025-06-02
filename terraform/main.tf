@@ -85,7 +85,7 @@ resource "scaleway_container" "api" {
   max_scale       = terraform.workspace == "production" ? 5 : 1
   timeout         = 60
   max_concurrency = 50
-  privacy         = "private"
+  privacy         = "public"
   protocol        = "http1"
   http_option     = "redirected" # https only
   deploy          = true
@@ -214,7 +214,7 @@ resource "scaleway_container" "app" {
   max_scale       = terraform.workspace == "production" ? 1 : 1
   timeout         = 60
   max_concurrency = 50
-  privacy         = "private"
+  privacy         = "public"
   protocol        = "http1"
   http_option     = "redirected" # https only
   deploy          = true
@@ -241,7 +241,7 @@ resource "scaleway_container" "volontariat" {
   max_scale       = terraform.workspace == "production" ? 4 : 1
   timeout         = 60
   max_concurrency = 50
-  privacy         = "private"
+  privacy         = "public"
   protocol        = "http1"
   http_option     = "redirected" # https only
   deploy          = true
@@ -277,7 +277,7 @@ resource "scaleway_container" "benevolat" {
   max_scale       = terraform.workspace == "production" ? 4 : 1
   timeout         = 60
   max_concurrency = 50
-  privacy         = "private"
+  privacy         = "public"
   protocol        = "http1"
   http_option     = "redirected" # https only
   deploy          = true
@@ -303,10 +303,6 @@ resource "scaleway_container_domain" "benevolat" {
 # Outputs
 output "api_endpoint" {
   value = "https://${local.api_hostname}"
-}
-
-output "api_jobs_endpoint" {
-  value = "Service privé (pas d'endpoint public)"
 }
 
 output "app_endpoint" {
