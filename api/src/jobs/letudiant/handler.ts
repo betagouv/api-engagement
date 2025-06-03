@@ -1,10 +1,10 @@
 import { Job } from "bullmq";
 import { LETUDIANT_PILOTY_TOKEN } from "../../config";
 import { captureException } from "../../error";
-import MissionModel from "../../models/mission";
 import { PilotyClient } from "../../services/piloty/client";
+import { MEDIA_PUBLIC_ID } from "./config";
 import { missionToPilotyCompany, missionToPilotyJob } from "./transformers";
-import { getMissionsToSync, isAlreadySynced, rateLimit } from "./utils";
+import { getMandatoryData, getMissionsToSync, isAlreadySynced, rateLimit } from "./utils";
 
 /**
  * Handler for the letudiant feed generation job
@@ -12,16 +12,19 @@ import { getMissionsToSync, isAlreadySynced, rateLimit } from "./utils";
  */
 export async function handler(bullJob: Job): Promise<any> {
   try {
-    const pilotyClient = new PilotyClient(LETUDIANT_PILOTY_TOKEN);
+    const pilotyClient = new PilotyClient(LETUDIANT_PILOTY_TOKEN, MEDIA_PUBLIC_ID);
     const { id } = bullJob.data || {};
 
     const missions = await getMissionsToSync(id);
     console.log(`[Letudiant] Found ${missions.length} missions to sync`);
 
     const counter = {
-      success: 0,
+      created: 0,
+      updated: 0,
       error: 0,
     };
+
+    const mandatoryData = await getMandatoryData(pilotyClient);
 
     for (const mission of missions) {
       try {
@@ -30,34 +33,40 @@ export async function handler(bullJob: Job): Promise<any> {
           continue; // idempotence unless force by id
         }
 
-        const companyPayload = missionToPilotyCompany(mission);
-        const pilotyCompany = await pilotyClient.createCompany(companyPayload);
+        if (!mission.organizationName) {
+          console.log(`[Letudiant] Mission ${mission._id} has no organization name, skipping`);
+          continue;
+        }
+
+        let pilotyCompany = await pilotyClient.findCompanyByName(mission.organizationName);
+
+        if (!pilotyCompany) {
+          const companyPayload = missionToPilotyCompany(mission);
+          pilotyCompany = await pilotyClient.createCompany(companyPayload);
+          console.log("[Letudiant] Created company", pilotyCompany);
+        }
 
         // TODO: handle company update
         if (!pilotyCompany) {
           throw new Error("Unable to create company for mission");
         }
 
-        const jobPayload = missionToPilotyJob(mission, pilotyCompany.public_id);
+        const jobPayload = missionToPilotyJob(mission, pilotyCompany.public_id, mandatoryData);
+        console.log(jobPayload);
         let pilotyJob = null;
 
         if (mission.letudiantPublicId) {
+          counter.updated++;
           pilotyJob = await pilotyClient.updateJob(mission.letudiantPublicId, jobPayload);
         } else {
+          counter.created++;
           pilotyJob = await pilotyClient.createJob(jobPayload);
         }
 
-        // TODO: process in bulk
-        await MissionModel.updateOne(
-          { _id: mission._id },
-          {
-            $set: {
-              letudiantPublicId: pilotyJob.public_id,
-              letudiantCreatedAt: pilotyJob.createdAt,
-            },
-          }
-        );
-        counter.success++;
+        mission.letudiantPublicId = pilotyJob.public_id;
+        mission.letudiantUpdatedAt = new Date();
+
+        await mission.save();
       } catch (err) {
         counter.error++;
         console.error(`[Letudiant] Mission ${mission._id}:`, err);

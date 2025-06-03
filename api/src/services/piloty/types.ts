@@ -114,3 +114,34 @@ export interface PilotyJob {
   publishedAt: string;
   is_redirect_apply: boolean;
 }
+
+// All fields related to job
+// Used for contract, remote policy
+// https://developers.piloty.fr/jobs-api/jobs-fields/get-list-contracts
+// https://developers.piloty.fr/jobs-api/jobs-fields/get-list-remote-policies
+export interface PilotyJobField {
+  id: string;
+  name: string;
+  ref: string;
+}
+
+export interface PilotyJobCategory {
+  id: string;
+  parent_id: string;
+  ref: string;
+  children: {
+    data: PilotyJobCategory[];
+  };
+}
+
+// Mandatory data fetched from Piloty API once
+export interface PilotyMandatoryData {
+  contracts: {
+    benevolat: string;
+    volontariat: string;
+  };
+  remotePolicies: {
+    full: string;
+  };
+  jobCategories: Record<string, string>;
+}

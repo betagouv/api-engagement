@@ -325,7 +325,7 @@ export interface Mission {
   jobteaserUpdatedAt: Date | undefined;
 
   letudiantPublicId: string | undefined;
-  letudiantCreatedAt: Date | undefined;
+  letudiantUpdatedAt: Date | undefined;
 
   __history?: MissionHistory[];
 }
