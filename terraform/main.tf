@@ -127,8 +127,8 @@ resource "scaleway_container" "process" {
   namespace_id    = scaleway_container_namespace.main.id
   registry_image  = "ghcr.io/${var.github_repository}/process:${terraform.workspace}${var.image_tag == "latest" ? "" : "-${var.image_tag}"}"
   port            = 8080
-  cpu_limit       = terraform.workspace == "production" ? 1500 : 560
-  memory_limit    = terraform.workspace == "production" ? 3072 : 1024
+  cpu_limit       = terraform.workspace == "production" ? 2000 : 1000
+  memory_limit    = terraform.workspace == "production" ? 4096 : 2048
   min_scale       = terraform.workspace == "production" ? 1 : 1
   max_scale       = terraform.workspace == "production" ? 1 : 1
   timeout         = 300  # Longer timeout for process jobs
