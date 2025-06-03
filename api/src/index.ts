@@ -2,7 +2,7 @@ import dotenv from "dotenv";
 dotenv.config();
 
 import * as Sentry from "@sentry/node";
-import { ADMIN_SNU_URL, APP_URL, ASSOCIATION_URL, BENEVOLAT_URL, ENV, JVA_URL, PORT, SENTRY_DSN, VOLONTARIAT_URL } from "./config";
+import { ENV, PORT, SENTRY_DSN } from "./config";
 
 if (ENV !== "development") {
   Sentry.init({
@@ -12,18 +12,12 @@ if (ENV !== "development") {
   });
 }
 
-import bodyParser from "body-parser";
-import cookieParser from "cookie-parser";
 import cors from "cors";
 import express, { NextFunction, Request, Response } from "express";
-import { rateLimit } from "express-rate-limit";
-import helmet from "helmet";
-import morgan from "morgan";
 import path from "path";
 
 import "./db/mongo";
 import { SERVER_ERROR, captureException, captureMessage } from "./error";
-import passport from "./services/passport";
 
 import AdminReportController from "./controllers/admin-report";
 import BrevoWebhookController from "./controllers/brevo-webhook";
@@ -60,76 +54,16 @@ import JobTeaserV2Controller from "./v2/jobteaser";
 import LeboncoinV2Controller from "./v2/leboncoin";
 import MissionV2Controller from "./v2/mission";
 
+import middlewares from "./middlewares";
+
 const app = express();
-const start = new Date();
 
 process.on("SIGTERM", () => process.exit(0));
 process.on("SIGINT", () => process.exit(0));
 
-const origin = [
-  APP_URL,
-  ASSOCIATION_URL,
-  VOLONTARIAT_URL,
-  BENEVOLAT_URL,
-  JVA_URL,
-  ADMIN_SNU_URL,
-  // SNU admin staging
-  "https://app-735c50af-69c1-4a10-ac30-7ba11d1112f7.cleverapps.io",
-  "https://app-ec11b799-95d0-4770-8e41-701b4becf64a.cleverapps.io",
-];
+const start = new Date();
 
-const limiter = rateLimit({
-  windowMs: 60 * 1000, // 1 minute
-  limit: 100, // Limit each IP to 100 requests per `window` (here, per 1 minute).
-  handler: (req, res) => {
-    captureMessage(`Too many requests, please try again later.`, {
-      extra: {
-        ip: req.ip,
-        url: req.url,
-        method: req.method,
-      },
-    });
-    res.status(429).send({
-      ok: false,
-      code: "TOO_MANY_REQUESTS",
-      message: "Too many requests, please try again later.",
-    });
-  },
-});
-
-// Configure express
-app.use(limiter);
-app.use(cors({ credentials: true, origin }));
-app.use(bodyParser.json({ limit: "50mb" }));
-app.use(bodyParser.text({ type: "application/x-ndjson" }));
-app.use(bodyParser.urlencoded({ extended: true }));
-app.use(cookieParser());
-app.use(morgan(":date[iso] :method :url :status :res[content-length] - :response-time ms"));
-app.use(passport.initialize());
-
-app.use(
-  helmet({
-    contentSecurityPolicy: {
-      directives: {
-        defaultSrc: ["'self'"],
-        scriptSrc: ["'self'", "https://plausible.io"],
-        styleSrc: ["'self'", "https://cdn.jsdelivr.net"],
-        objectSrc: ["'none'"],
-        upgradeInsecureRequests: [],
-        frameAncestors: ["'self'", "https://generation.paris2024.org"],
-      },
-    },
-    crossOriginOpenerPolicy: false,
-    hsts: {
-      maxAge: 31536000,
-      includeSubDomains: true,
-      preload: true,
-    },
-    referrerPolicy: { policy: "no-referrer" },
-    xssFilter: true,
-    noSniff: true,
-  })
-);
+middlewares(app);
 
 app.get("/", async (req, res) => {
   res.status(200).send(`API Engagement is running since ${start}`);

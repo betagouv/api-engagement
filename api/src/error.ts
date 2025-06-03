@@ -24,8 +24,11 @@ export const captureException = (error: any, context?: string | { extra: any }) 
   if (typeof context === "object" && "extra" in context) {
     const extra: Record<string, string> = {};
     for (const [key, value] of Object.entries(context.extra)) {
-      if (typeof value !== "string") extra[key] = JSON.stringify(value);
-      else extra[key] = value;
+      if (typeof value !== "string") {
+        extra[key] = JSON.stringify(value);
+      } else {
+        extra[key] = value;
+      }
     }
     context.extra = extra;
     Sentry.captureException(error, {
@@ -47,8 +50,11 @@ export const captureMessage = (message: string, context?: string | { extra: any 
   if (typeof context === "object" && "extra" in context) {
     const extra: Record<string, string> = {};
     for (const [key, value] of Object.entries(context.extra)) {
-      if (typeof value !== "string") extra[key] = JSON.stringify(value);
-      else extra[key] = value;
+      if (typeof value !== "string") {
+        extra[key] = JSON.stringify(value);
+      } else {
+        extra[key] = value;
+      }
     }
     context.extra = extra;
     Sentry.captureMessage(message, {
