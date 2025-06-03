@@ -63,11 +63,11 @@ const handler = async () => {
         continue;
       }
 
-      if (exists && new Date(exists.updated_at).getTime() !== obj.campaign.updated_at.getTime()) {
-        dataToUpdate.push({ ...obj, id: exists.id });
-      } else if (!exists) {
+      if (!exists) {
         dataToCreate.push(obj);
+        continue;
       }
+      dataToUpdate.push({ ...obj, id: exists.id });
     }
 
     // Create data

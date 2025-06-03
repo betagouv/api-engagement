@@ -20,11 +20,8 @@ export const STATS_INDEX = "stats";
 
 export const SENDINBLUE_APIKEY = process.env.SENDINBLUE_APIKEY;
 
-export const CELLAR_ADDON_HOST = process.env.CELLAR_ADDON_HOST;
-export const CELLAR_ADDON_KEY_ID = process.env.CELLAR_ADDON_KEY_ID;
-export const CELLAR_ADDON_KEY_SECRET = process.env.CELLAR_ADDON_KEY_SECRET;
-
 export const SLACK_TOKEN = process.env.SLACK_TOKEN;
+export const SLACK_JOBTEASER_CHANNEL_ID = process.env.SLACK_JOBTEASER_CHANNEL_ID || "C080H9MH56W";
 
 export const SENTRY_DSN = process.env.SENTRY_DSN;
 

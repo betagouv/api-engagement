@@ -6,6 +6,7 @@ import { STATS_INDEX } from "../config";
 import esClient from "../db/elastic";
 import { INVALID_QUERY } from "../error";
 import RequestModel from "../models/request";
+import { Publisher } from "../types";
 import { PublisherRequest } from "../types/passport";
 
 const router = Router();
@@ -35,6 +36,7 @@ router.use(async (req: PublisherRequest, res: Response, next: NextFunction) => {
 
 router.get("/stats", passport.authenticate(["apikey", "api"], { session: false }), async (req: PublisherRequest, res: Response, next: NextFunction) => {
   try {
+    const user = req.user as Publisher;
     const { error: queryError, value: query } = Joi.object({
       fromPublisherId: Joi.string().allow("").optional(),
       toPublisherId: Joi.string().allow("").optional(),
@@ -57,7 +59,7 @@ router.get("/stats", passport.authenticate(["apikey", "api"], { session: false }
         bool: {
           must_not: [{ term: { isBot: true } }],
           must: [],
-          should: [{ term: { "toPublisherId.keyword": req.user._id } }, { term: { "fromPublisherId.keyword": req.user._id } }],
+          should: [{ term: { "toPublisherId.keyword": user._id } }, { term: { "fromPublisherId.keyword": user._id } }],
           filter: [],
         },
       },

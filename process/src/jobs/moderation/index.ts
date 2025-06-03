@@ -20,7 +20,7 @@ interface ModerationUpdate {
 }
 
 const findMissions = async (moderator: Publisher) => {
-  const publishers = moderator.publishers.map((p) => p.publisher);
+  const publishers = moderator.publishers.map((p) => p.publisherId);
   const where = {
     publisherId: { $in: publishers },
     statusCode: "ACCEPTED",

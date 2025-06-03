@@ -2,6 +2,7 @@ import { NextFunction, Response, Router } from "express";
 import passport from "passport";
 import zod from "zod";
 
+import { SLACK_JOBTEASER_CHANNEL_ID } from "../config";
 import { captureMessage, INVALID_BODY, NOT_FOUND } from "../error";
 import MissionModel from "../models/mission";
 import RequestModel from "../models/request";
@@ -68,7 +69,7 @@ router.post("/feedback", passport.authenticate(["jobteaser"], { session: false }
           title: `Mission refusée sur JobTeaser`,
           text: `La mission ${mission.title} (${mission._id}) a été refusée sur JobTeaser\n\turl: https://app.api-engagement.beta.gouv.fr/mission/${mission._id}\n\tstatut: ${body.data.status}\n\traison: ${body.data.comment}`,
         },
-        "C080H9MH56W"
+        SLACK_JOBTEASER_CHANNEL_ID
       );
     }
 

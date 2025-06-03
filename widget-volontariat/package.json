@@ -14,26 +14,26 @@
     "printWidth": 180
   },
   "dependencies": {
-    "@headlessui/react": "2.2.2",
-    "@sentry/cli": "2.43.0",
-    "@sentry/nextjs": "9.13.0",
-    "@tailwindcss/postcss": "^4.1.4",
+    "@headlessui/react": "2.2.4",
+    "@sentry/cli": "2.46.0",
+    "@sentry/nextjs": "9.24.0",
+    "@tailwindcss/postcss": "^4.1.8",
     "i18n-iso-countries": "7.14.0",
-    "next": "15.3.1",
+    "next": "15.3.3",
     "next-plausible": "3.12.4",
-    "pm2": "6.0.5",
+    "pm2": "6.0.6",
     "react": "19.1.0",
-    "react-day-picker": "9.6.7",
+    "react-day-picker": "9.7.0",
     "react-dom": "^19.1.0",
     "react-icons": "4.11.0",
     "react-slick": "0.30.3",
-    "sharp": "0.34.1",
+    "sharp": "0.34.2",
     "slick-carousel": "1.8.1",
-    "zustand": "5.0.3"
+    "zustand": "5.0.5"
   },
   "devDependencies": {
     "autoprefixer": "10.4.21",
-    "postcss": "^8.5.3",
+    "postcss": "^8.5.4",
     "tailwindcss": "^4.1.4"
   }
 }

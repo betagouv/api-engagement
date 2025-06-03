@@ -1,4 +1,4 @@
-import { SLACK_PRODUCT_CHANNEL_ID } from "../../config";
+import { SLACK_CRON_CHANNEL_ID } from "../../config";
 import { captureException } from "../../error";
 import { postMessage } from "../../services/slack";
 import { generateReports } from "./generate";
@@ -33,7 +33,7 @@ const handler = async () => {
         title: `Rapports d'impact du ${month + 1 < 10 ? `0${month + 1}` : month + 1}/${year} générés et envoyés`,
         text: `Rapport générés: ${generationRes.count}, emails envoyés: ${sendingRes.count}, non envoyés: ${sendingRes.skipped.length}, erreurs: ${generationRes.errors.length + sendingRes.errors.length}\n\nListe des rapports d'impact du mois [ici](https://app.api-engagement.beta.gouv.fr/admin-report?month=${month}&year=${year})`,
       },
-      SLACK_PRODUCT_CHANNEL_ID
+      SLACK_CRON_CHANNEL_ID
     );
   } catch (error: any) {
     console.error(error);

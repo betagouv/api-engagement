@@ -6,7 +6,7 @@ import { API_URL } from "../config";
 import { INVALID_PARAMS, INVALID_QUERY, NOT_FOUND } from "../error";
 import MissionModel from "../models/mission";
 import RequestModel from "../models/request";
-import { Mission } from "../types";
+import { Mission, Publisher } from "../types";
 import { PublisherRequest } from "../types/passport";
 import { diacriticSensitiveRegex } from "../utils";
 
@@ -40,6 +40,7 @@ router.use(async (req: PublisherRequest, res: Response, next: NextFunction) => {
 
 router.get("/", passport.authenticate(["apikey", "api"], { session: false }), async (req: PublisherRequest, res: Response, next: NextFunction) => {
   try {
+    const user = req.user as Publisher;
     const query = zod
       .object({
         keywords: zod.string().optional(),
@@ -60,7 +61,7 @@ router.get("/", passport.authenticate(["apikey", "api"], { session: false }), as
       return res.status(400).send({ ok: false, code: INVALID_QUERY, message: query.error });
     }
 
-    if (!req.user.publishers || !req.user.publishers.length) {
+    if (!user.publishers || !user.publishers.length) {
       res.locals = { code: NO_PARTNER, message: NO_PARTNER_MESSAGE };
       return res.status(400).send({ ok: false, code: NO_PARTNER, message: NO_PARTNER_MESSAGE });
     }
@@ -68,7 +69,7 @@ router.get("/", passport.authenticate(["apikey", "api"], { session: false }), as
     const where = {
       statusCode: "ACCEPTED",
       deleted: false,
-      publisherId: { $in: req.user.publishers.map((e: { publisher: string }) => e.publisher) },
+      publisherId: { $in: user.publishers.map((e) => e.publisherId) },
     } as { [key: string]: any };
 
     if (query.data.keywords) {
@@ -94,8 +95,8 @@ router.get("/", passport.authenticate(["apikey", "api"], { session: false }), as
       where.snu = true;
     }
 
-    if (req.user.moderator) {
-      where[`moderation_${req.user._id}_status`] = "ACCEPTED";
+    if (user.moderator) {
+      where[`moderation_${user._id}_status`] = "ACCEPTED";
     }
 
     const $facet = {} as { [key: string]: any };
@@ -131,7 +132,7 @@ router.get("/", passport.authenticate(["apikey", "api"], { session: false }), as
     return res.status(200).send({
       ok: true,
       total,
-      data: data.map((e: Mission) => buildData(e, req.user._id, req.user.moderator)),
+      data: data.map((e: Mission) => buildData(e, user._id.toString(), user.moderator)),
       facets,
       skip: query.data.skip,
       limit: query.data.limit,
@@ -143,6 +144,7 @@ router.get("/", passport.authenticate(["apikey", "api"], { session: false }), as
 
 router.get("/:id", passport.authenticate(["apikey", "api"], { session: false }), async (req: PublisherRequest, res: Response, next: NextFunction) => {
   try {
+    const user = req.user as Publisher;
     const params = zod
       .object({
         id: zod.string(),
@@ -160,7 +162,7 @@ router.get("/:id", passport.authenticate(["apikey", "api"], { session: false }),
     }
 
     res.locals = { total: 1 };
-    return res.status(200).send({ ok: true, data: buildData(mission, req.user._id, req.user.moderator) });
+    return res.status(200).send({ ok: true, data: buildData(mission, user._id.toString(), user.moderator) });
   } catch (error: any) {
     next(error);
   }

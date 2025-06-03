@@ -337,12 +337,12 @@ const AccountMenu = () => {
       >
         <MenuItem>
           <Link to="my-account" className="block w-full p-4 text-sm data-[focus]:bg-gray-hover">
-            Paramètres
+            Mon compte
           </Link>
         </MenuItem>
         <MenuItem>
           <button className="w-full p-4 text-sm text-left data-[focus]:bg-gray-hover" onClick={handleLogout}>
-            Se deconnecter
+            Se déconnecter
           </button>
         </MenuItem>
       </MenuItems>

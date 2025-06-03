@@ -6,6 +6,34 @@ import { RequestWidget } from "../../types";
 
 const BATCH_SIZE = 5000;
 
+function sanitizeRemoteValue(value: string): string {
+  if (!value) {
+    return "";
+  }
+
+  return (
+    value
+      // Remove control characters and zero-width characters
+      .replace(/[\x00-\x1F\x7F-\x9F\uFEFF\uFFFE\uFFFF]/g, "")
+      // Remove potentially dangerous characters
+      .replace(/[\\'"();|[\]{}]/g, "")
+      // Keep only printable characters and common emojis
+      .replace(/[^\p{L}\p{N}\p{P}\p{Z}\p{Emoji}\s-]/gu, "")
+      // Trim whitespace
+      .trim()
+  );
+}
+
+const toArray = (value: string | string[] | undefined) => {
+  if (!value) {
+    return [];
+  }
+  if (Array.isArray(value)) {
+    return value.map(sanitizeRemoteValue);
+  }
+  return [sanitizeRemoteValue(value)];
+};
+
 const buildData = (doc: RequestWidget, widgets: { [key: string]: string }) => {
   const widgetId = widgets[doc.widgetId.toString()];
   if (!widgetId) {
@@ -14,16 +42,16 @@ const buildData = (doc: RequestWidget, widgets: { [key: string]: string }) => {
   }
   const obj = {
     old_id: doc._id.toString(),
-    domain: Array.isArray(doc.query?.domain) ? doc.query.domain : doc.query?.domain ? [doc.query.domain] : [],
-    organization: Array.isArray(doc.query?.organization) ? doc.query.organization : doc.query?.organization ? [doc.query.organization] : [],
-    department: Array.isArray(doc.query?.department) ? doc.query.department : doc.query?.department ? [doc.query.department] : [],
-    schedule: Array.isArray(doc.query?.schedule) ? doc.query.schedule : doc.query?.schedule ? [doc.query.schedule] : [],
-    remote: Array.isArray(doc.query?.remote) ? doc.query.remote : doc.query?.remote ? [doc.query.remote] : [],
-    action: Array.isArray(doc.query?.action) ? doc.query.action : doc.query?.action ? [doc.query.action] : [],
-    beneficiary: Array.isArray(doc.query?.beneficiary) ? doc.query.beneficiary : doc.query?.beneficiary ? [doc.query.beneficiary] : [],
-    country: Array.isArray(doc.query?.country) ? doc.query.country : doc.query?.country ? [doc.query.country] : [],
-    minor: Array.isArray(doc.query?.minor) ? doc.query.minor : doc.query?.minor ? [doc.query.minor] : [],
-    accessibility: Array.isArray(doc.query?.accessibility) ? doc.query.accessibility : doc.query?.accessibility ? [doc.query.accessibility] : [],
+    domain: toArray(doc.query?.domain),
+    organization: toArray(doc.query?.organization),
+    department: toArray(doc.query?.department),
+    schedule: toArray(doc.query?.schedule),
+    remote: toArray(doc.query?.remote),
+    action: toArray(doc.query?.action),
+    beneficiary: toArray(doc.query?.beneficiary),
+    country: toArray(doc.query?.country),
+    minor: toArray(doc.query?.minor),
+    accessibility: toArray(doc.query?.accessibility),
     duration: doc.query?.duration ? parseInt(doc.query.duration) : null,
     start: doc.query?.start ? new Date(doc.query.start) : null,
     search: doc.query?.search ?? null,
@@ -43,52 +71,76 @@ const buildData = (doc: RequestWidget, widgets: { [key: string]: string }) => {
 const handler = async () => {
   try {
     const start = new Date();
+    console.log(`[Widget-Requests] Started at ${start.toISOString()}.`);
     let created = 0;
-    let page = 0;
+    let offset = 20000;
+    let processed = 0;
 
-    // Get data from 2 weeks ago
-    const where = { createdAt: { $gte: new Date(Date.now() - 1000 * 60 * 60 * 24 * 7) } };
-    const total = await RequestWidgetModel.countDocuments(where);
-    let data = await RequestWidgetModel.find(where)
-      .limit(BATCH_SIZE)
-      .skip(page * BATCH_SIZE)
-      .lean();
-    console.log(`[Widget-Requests] Found ${total} docs to sync.`);
-
-    const stored = await prisma.widgetQuery.count();
-    console.log(`[Widget-Requests] Found ${stored} docs in database.`);
+    const count = await prisma.widgetQuery.count();
+    console.log(`[Widget-Requests] Found ${count} docs in database.`);
 
     const widgets = {} as { [key: string]: string };
     await prisma.widget.findMany({ select: { id: true, old_id: true } }).then((data) => data.forEach((d) => (widgets[d.old_id] = d.id)));
 
-    while (data && data.length) {
-      const dataToCreate = [];
+    // Get data from 2 weeks ago
+    const where = { createdAt: { $gte: new Date(Date.now() - 1000 * 60 * 60 * 24 * 7) } };
+    const countToSync = await RequestWidgetModel.countDocuments(where);
+    console.log(`[Widget-Requests] Found ${countToSync} docs to sync.`);
+
+    while (true) {
+      const data = await RequestWidgetModel.find(where).limit(BATCH_SIZE).skip(offset).lean();
+
+      if (data.length === 0) {
+        break;
+      }
+
+      console.log(`[Widget-Requests] Processing ${data.length} docs.`);
+
+      const dataToCreate: PgWidgetQuery[] = [];
+
+      const stored = {} as { [key: string]: boolean };
+      await prisma.widgetQuery
+        .findMany({
+          where: { old_id: { in: data.map((hit) => hit._id.toString()) } },
+          select: { old_id: true },
+        })
+        .then((data) => data.forEach((d) => (stored[d.old_id] = true)));
+
       for (const doc of data) {
+        if (stored[doc._id.toString()]) {
+          continue;
+        }
         const obj = buildData(doc as RequestWidget, widgets);
         if (!obj) {
           continue;
         }
+
         dataToCreate.push(obj);
       }
 
       // Create data
       if (dataToCreate.length) {
         console.log(`[Widget-Requests] Creating ${dataToCreate.length} docs...`);
-        const res = await prisma.widgetQuery.createMany({
-          data: dataToCreate,
-          skipDuplicates: true,
-        });
-        created += res.count;
-        console.log(`[Widget-Requests] Created ${res.count} docs.`);
+        try {
+          const res = await prisma.widgetQuery.createMany({
+            data: dataToCreate,
+            skipDuplicates: true,
+          });
+          created += res.count;
+          console.log(`[Widget-Requests] Created ${res.count} docs.`);
+        } catch (error) {
+          console.log(error);
+          console.log(JSON.stringify(dataToCreate, null, 2));
+          throw error;
+          // captureException(error, "[Widget-Requests] Error while creating docs.");
+        }
       }
 
-      page++;
-      data = await RequestWidgetModel.find(where)
-        .limit(BATCH_SIZE)
-        .skip(page * BATCH_SIZE)
-        .lean();
+      processed += data.length;
+      offset += BATCH_SIZE;
     }
 
+    console.log(`[Widget-Requests] Processed ${processed} docs, ${created} created`);
     console.log(`[Widget-Requests] Ended at ${new Date().toISOString()} in ${(Date.now() - start.getTime()) / 1000}s.`);
     return { created };
   } catch (error) {

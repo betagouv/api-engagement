@@ -1,20 +1,20 @@
-import React, { useState, useEffect } from "react";
-import Script from "next/script";
-import Image from "next/image";
 import * as Sentry from "@sentry/nextjs";
 import iso from "i18n-iso-countries";
 import isoFR from "i18n-iso-countries/langs/fr.json";
+import Image from "next/image";
 import { useRouter } from "next/router";
+import Script from "next/script";
+import React, { useEffect, useState } from "react";
 iso.registerLocale(isoFR);
 
-import LogoSC from "../public/images/logo-sc.svg";
-import { API_URL, ENV } from "../config";
-import Grid from "../components/Grid";
+import { usePlausible } from "next-plausible";
 import Carousel from "../components/Carousel";
 import Filters from "../components/Filters";
-import { calculateDistance } from "../utils";
-import { usePlausible } from "next-plausible";
+import Grid from "../components/Grid";
+import { API_URL, ENV } from "../config";
+import LogoSC from "../public/images/logo-sc.svg";
 import useStore from "../store";
+import { calculateDistance } from "../utils";
 import resizeHelper from "../utils/resizeHelper";
 
 /**

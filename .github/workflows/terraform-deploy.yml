@@ -1,21 +1,12 @@
 name: Deploy to Scaleway
 
 on:
-  workflow_run:
-    workflows: ["Build and Push Docker Images"]
-    types: [completed]
-    branches: [staging]
-
-  workflow_dispatch:
+  workflow_call:
     inputs:
-      environment:
-        description: "Environment to deploy to"
+      branch:
         required: true
-        default: "staging"
-        type: choice
-        options:
-          - staging
-          - production
+        type: string
+  workflow_dispatch:
 
 permissions:
   contents: read
@@ -25,19 +16,15 @@ jobs:
   set-env:
     name: Determine Environment
     runs-on: ubuntu-latest
-    if: github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success'
     outputs:
       environment_name: ${{ steps.set-env.outputs.environment }}
     steps:
       - name: Set environment based on input or branch
         id: set-env
         env:
-          HEAD_BRANCH: ${{ github.event.workflow_run.head_branch || github.ref_name }}
-          MANUAL_ENV: ${{ github.event.inputs.environment }}
+          HEAD_BRANCH: ${{ inputs.branch || github.ref_name }}
         run: |
-          if [[ "$GITHUB_EVENT_NAME" == 'workflow_dispatch' ]]; then
-            echo "environment=$MANUAL_ENV" >> $GITHUB_OUTPUT
-          elif [[ "$HEAD_BRANCH" == 'main' ]]; then
+          if [[ "$HEAD_BRANCH" == 'main-test' ]]; then
             echo "environment=production" >> $GITHUB_OUTPUT
           else
             echo "environment=staging" >> $GITHUB_OUTPUT
@@ -53,15 +40,15 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Setup Terraform
-        uses: hashicorp/setup-terraform@v2
+        uses: hashicorp/setup-terraform@v3
         with:
           terraform_version: 1.5.7
 
       - name: Login to GitHub Container Registry
-        uses: docker/login-action@v2
+        uses: docker/login-action@v3
         with:
           registry: ghcr.io
           username: ${{ github.actor }}

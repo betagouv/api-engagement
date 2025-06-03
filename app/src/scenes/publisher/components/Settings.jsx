@@ -34,7 +34,7 @@ const Annonceur = ({ values, onChange, errors, setErrors }) => {
     const fetchData = async () => {
       try {
         const res = await api.post("/publisher/search", {
-          partnerOf: values._id,
+          partnersOf: values._id,
         });
         if (!res.ok) throw res;
         setData(res.data);
@@ -50,14 +50,14 @@ const Annonceur = ({ values, onChange, errors, setErrors }) => {
       <div className="flex items-center justify-between">
         <h3 className="text-lg font-bold">Annonceur</h3>
         <Toggle
-          value={values.annonceur}
+          value={values.isAnnonceur}
           onChange={(e) => {
-            onChange({ ...values, annonceur: e, missionType: null });
+            onChange({ ...values, isAnnonceur: e, missionType: null });
             setErrors({ ...errors, settings: null });
           }}
         />
       </div>
-      {values.annonceur && (
+      {values.isAnnonceur && (
         <>
           <div className="w-full h-px bg-gray-border" />
           {errors.missionType && <p className="text-red-700">{errors.missionType}</p>}
@@ -141,12 +141,12 @@ const Diffuseurs = ({ values, onChange, onSave, errors, setErrors }) => {
     const fetchData = async () => {
       try {
         const res = await api.post("/publisher/search", {
-          role_promoteur: true,
+          role: "annonceur",
         });
         if (!res.ok) throw res;
 
         setData(res.data);
-        setSelected(values.publishers.map((p) => p.publisher));
+        setSelected(values.publishers.map((p) => p.publisherId));
       } catch (error) {
         captureError(error, "Erreur lors de la récupération des diffuseurs");
       }
@@ -157,8 +157,8 @@ const Diffuseurs = ({ values, onChange, onSave, errors, setErrors }) => {
   const handleSave = async () => {
     try {
       const errors = {};
-      if (values.diffuseur && !values.category) errors.category = "Le partenaire est “Diffuseur”. Veuillez sélectionner la catégorie dans le formulaire.";
-      if (values.diffuseur && !values.api && !values.widget && !values.campaign)
+      if (values.isDiffuseur && !values.category) errors.category = "Le partenaire est “Diffuseur”. Veuillez sélectionner la catégorie dans le formulaire.";
+      if (values.isDiffuseur && !values.hasApiRights && !values.hasWidgetRights && !values.hasCampaignRights)
         errors.mode = "Le partenaire est “Diffuseur”. Veuillez sélectionner au moins un “moyen de diffusion” dans le formulaire.";
       if (Object.keys(errors).length > 0) {
         toast.error(errors.category || errors.mode);
@@ -192,9 +192,9 @@ const Diffuseurs = ({ values, onChange, onSave, errors, setErrors }) => {
     <div className="border border-gray-border p-6 space-y-6">
       <div className="flex items-center justify-between">
         <h3 className="text-lg font-bold">Diffuseur</h3>
-        <Toggle value={values.diffuseur} onChange={(e) => onChange({ ...values, diffuseur: e, api: false, widget: false, campaign: false })} />
+        <Toggle value={values.isDiffuseur} onChange={(e) => onChange({ ...values, isDiffuseur: e, hasApiRights: false, hasWidgetRights: false, hasCampaignRights: false })} />
       </div>
-      {values.diffuseur && (
+      {values.isDiffuseur && (
         <>
           <div className="w-full h-px bg-gray-border" />
           {errors.category && <p className="text-red-700">{errors.category}</p>}
@@ -221,34 +221,34 @@ const Diffuseurs = ({ values, onChange, onSave, errors, setErrors }) => {
               <input
                 type="checkbox"
                 className="checkbox"
-                id="role-annonceur-api"
-                name="role-annonceur-api"
-                onChange={(e) => onChange({ ...values, api: e.target.checked })}
-                checked={values.api}
+                id="api"
+                name="api"
+                onChange={(e) => onChange({ ...values, hasApiRights: e.target.checked })}
+                checked={values.hasApiRights}
               />
-              <label htmlFor="role-annonceur-api">API</label>
+              <label htmlFor="api">API</label>
             </div>
             <div className="flex items-center gap-2">
               <input
                 type="checkbox"
                 className="checkbox"
-                id="role-annonceur-widget"
-                name="role-annonceur-widget"
-                onChange={(e) => onChange({ ...values, widget: e.target.checked })}
-                checked={values.widget}
+                id="widget"
+                name="widget"
+                onChange={(e) => onChange({ ...values, hasWidgetRights: e.target.checked })}
+                checked={values.hasWidgetRights}
               />
-              <label htmlFor="role-annonceur-widget">Widgets</label>
+              <label htmlFor="widget">Widgets</label>
             </div>
             <div className="flex items-center gap-2">
               <input
                 type="checkbox"
                 className="checkbox"
-                id="role-annonceur-campagne"
-                name="role-annonceur-campagne"
-                onChange={(e) => onChange({ ...values, campaign: e.target.checked })}
-                checked={values.campaign}
+                id="campagne"
+                name="campagne"
+                onChange={(e) => onChange({ ...values, hasCampaignRights: e.target.checked })}
+                checked={values.hasCampaignRights}
               />
-              <label htmlFor="role-annonceur-campagne">Campagnes</label>
+              <label htmlFor="campagne">Campagnes</label>
             </div>
           </div>
           <div className="w-full h-px bg-gray-border" />

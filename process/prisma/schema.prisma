@@ -105,7 +105,7 @@ model CampaignTracker {
   key String
   value String
 
-  campaign Campaign @relation(fields: [campaign_id], references: [id])
+  campaign Campaign @relation(fields: [campaign_id], references: [id], onDelete: Cascade)
 
   @@index([campaign_id], map: "campaign_tracker_campaign_id")
 }
@@ -404,7 +404,7 @@ model Address {
 model Organization {
   id String @id @default(uuid())
   old_id String    @unique
-  rna String
+  rna String?
   siren String?
   siret String?
   rup_mi String?
