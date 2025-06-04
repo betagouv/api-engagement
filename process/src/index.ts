@@ -29,7 +29,7 @@ import leboncoin from "./jobs/leboncoin";
 import linkedin from "./jobs/linkedin";
 import linkedinStats from "./jobs/linkedin-stats";
 import metabase from "./jobs/metabase";
-import moderations from "./jobs/moderation";
+import moderation from "./jobs/moderation";
 import organization from "./jobs/organization";
 import report from "./jobs/report";
 import warnings from "./jobs/warnings";
@@ -68,7 +68,7 @@ const missionJob = new CronJob(
     runnings.mission = true;
     try {
       await imports.handler();
-      await moderations.handler();
+      await moderation.handler();
       await warnings.handler();
       Sentry.captureCheckIn({
         checkInId,
@@ -94,14 +94,19 @@ const missionJob = new CronJob(
 const linkedinCron = new CronJob(
   "0 1 * * *",
   async () => {
-    if (runnings.linkedin) {
-      return;
-    }
-    runnings.linkedin = true;
     const checkInId = Sentry.captureCheckIn({
       monitorSlug: "linkedin",
       status: "in_progress",
     });
+    if (runnings.linkedin || ENVIRONMENT !== "production") {
+      Sentry.captureCheckIn({
+        checkInId,
+        monitorSlug: "linkedin",
+        status: "ok",
+      });
+      return;
+    }
+    runnings.linkedin = true;
     try {
       await linkedin.handler();
       Sentry.captureCheckIn({
@@ -127,14 +132,19 @@ const linkedinCron = new CronJob(
 const kpiJob = new CronJob(
   "30 1 * * *",
   async () => {
-    if (runnings.kpi) {
-      return;
-    }
-    runnings.kpi = true;
     const checkInId = Sentry.captureCheckIn({
       monitorSlug: "kpi",
       status: "in_progress",
     });
+    if (runnings.kpi) {
+      Sentry.captureCheckIn({
+        checkInId,
+        monitorSlug: "kpi",
+        status: "ok",
+      });
+      return;
+    }
+    runnings.kpi = true;
     try {
       await kpi.handler();
       Sentry.captureCheckIn({
@@ -161,14 +171,19 @@ const kpiJob = new CronJob(
 const brevoJob = new CronJob(
   "0 1 * * *",
   async () => {
-    if (runnings.brevo) {
-      return;
-    }
-    runnings.brevo = true;
     const checkInId = Sentry.captureCheckIn({
       monitorSlug: "brevo",
       status: "in_progress",
     });
+    if (runnings.brevo || ENVIRONMENT !== "production") {
+      Sentry.captureCheckIn({
+        checkInId,
+        monitorSlug: "brevo",
+        status: "ok",
+      });
+      return;
+    }
+    runnings.brevo = true;
     try {
       await brevo.handler();
       Sentry.captureCheckIn({
@@ -195,15 +210,20 @@ const brevoJob = new CronJob(
 const metabaseJob = new CronJob(
   "0 2 * * *",
   async () => {
-    if (runnings.metabase) {
-      return;
-    }
-    runnings.metabase = true;
-
     const checkInId = Sentry.captureCheckIn({
       monitorSlug: "metabase",
       status: "in_progress",
     });
+    if (runnings.metabase) {
+      Sentry.captureCheckIn({
+        checkInId,
+        monitorSlug: "metabase",
+        status: "ok",
+      });
+      return;
+    }
+    runnings.metabase = true;
+
     try {
       await metabase.handler();
       Sentry.captureCheckIn({
@@ -212,7 +232,7 @@ const metabaseJob = new CronJob(
         status: "ok",
       });
     } catch (error) {
-      Sentry.captureException(error);
+      captureException(error);
       Sentry.captureCheckIn({
         checkInId,
         monitorSlug: "metabase",
@@ -230,11 +250,19 @@ const metabaseJob = new CronJob(
 const linkedinStatsJob = new CronJob(
   "0 9 * * 5",
   async () => {
-    runnings.linkedinStats = true;
     const checkInId = Sentry.captureCheckIn({
       monitorSlug: "linkedin-stats",
       status: "in_progress",
     });
+    if (ENVIRONMENT !== "production") {
+      Sentry.captureCheckIn({
+        checkInId,
+        monitorSlug: "linkedin-stats",
+        status: "ok",
+      });
+      return;
+    }
+    runnings.linkedinStats = true;
     try {
       await linkedinStats.handler();
       Sentry.captureCheckIn({
@@ -243,7 +271,7 @@ const linkedinStatsJob = new CronJob(
         status: "ok",
       });
     } catch (error) {
-      Sentry.captureException(error);
+      captureException(error);
       Sentry.captureCheckIn({
         checkInId,
         monitorSlug: "linkedin-stats",
@@ -261,11 +289,11 @@ const linkedinStatsJob = new CronJob(
 const organizationJob = new CronJob(
   "0 0 2 * *",
   async () => {
-    runnings.organization = true;
     const checkInId = Sentry.captureCheckIn({
       monitorSlug: "organization",
       status: "in_progress",
     });
+    runnings.organization = true;
     try {
       await organization.handler();
       Sentry.captureCheckIn({
@@ -274,7 +302,7 @@ const organizationJob = new CronJob(
         status: "ok",
       });
     } catch (error) {
-      Sentry.captureException(error);
+      captureException(error);
       Sentry.captureCheckIn({
         checkInId,
         monitorSlug: "organization",
@@ -292,14 +320,19 @@ const organizationJob = new CronJob(
 const leboncoinJob = new CronJob(
   "0 10 * * *",
   async () => {
-    if (runnings.leboncoin) {
-      return;
-    }
-    runnings.leboncoin = true;
     const checkInId = Sentry.captureCheckIn({
       monitorSlug: "leboncoin",
       status: "in_progress",
     });
+    if (runnings.leboncoin || ENVIRONMENT !== "production") {
+      Sentry.captureCheckIn({
+        checkInId,
+        monitorSlug: "leboncoin",
+        status: "ok",
+      });
+      return;
+    }
+    runnings.leboncoin = true;
     try {
       await leboncoin.handler();
       Sentry.captureCheckIn({
@@ -308,7 +341,7 @@ const leboncoinJob = new CronJob(
         status: "ok",
       });
     } catch (error) {
-      Sentry.captureException(error);
+      captureException(error);
       Sentry.captureCheckIn({
         checkInId,
         monitorSlug: "leboncoin",
@@ -325,31 +358,17 @@ const leboncoinJob = new CronJob(
 const reportJob = new CronJob(
   "0 10 * * 2",
   async () => {
-    // if not the first Tuesday of the month, return
+    // if not the first Tuesday of the month, return (can't be checked in)
     const date = new Date();
     if (date.getDay() !== 2 || date.getDate() > 7) {
       return;
     }
 
     runnings.report = true;
-    const checkInId = Sentry.captureCheckIn({
-      monitorSlug: "report",
-      status: "in_progress",
-    });
     try {
       await report.handler();
-      Sentry.captureCheckIn({
-        checkInId,
-        monitorSlug: "report",
-        status: "ok",
-      });
     } catch (error) {
-      Sentry.captureException(error);
-      Sentry.captureCheckIn({
-        checkInId,
-        monitorSlug: "report",
-        status: "error",
-      });
+      captureException(error);
     }
     runnings.report = false;
   },

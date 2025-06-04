@@ -109,7 +109,7 @@ const buildData = async (doc: MongoMission, partners: { [key: string]: string })
     deleted_at: doc.deletedAt ? new Date(doc.deletedAt) : null,
   } as PgMission;
 
-  const addresses: PgAddress[] = doc.addresses.map(
+  const addresses: PgAddress[] = (doc.addresses || []).map(
     (address) =>
       ({
         old_id: address._id?.toString(),
