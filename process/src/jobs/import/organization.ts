@@ -163,7 +163,7 @@ const findByRNA = async (rna: string) => {
 
     const data = await apiDatasubvention.get(`/association/${rna}`);
 
-    if (data.association) {
+    if (data && data.association) {
       const departement = data.association.adresse_siege_rna ? getDepartement(data.association.adresse_siege_rna[0]?.value?.code_postal) : null;
       const siret = Array.isArray(data.association.etablisements_siret) ? data.association.etablisements_siret[0]?.value[0] : data.association.etablisements_siret?.value;
       const siren = data.association.siren?.[0]?.value || siret?.slice(0, 9);
@@ -266,7 +266,7 @@ const findBySiret = async (siret: string) => {
 
     const data = await apiDatasubvention.get(`/etablissement/${siret}`);
 
-    if (data.etablissement) {
+    if (data && data.etablissement) {
       const departement = data.etablissement.adresse[0]?.value?.code_postal ? getDepartement(data.etablissement.adresse[0]?.value?.code_postal) : null;
 
       const obj = {
