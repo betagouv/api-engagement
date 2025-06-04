@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { captureException, captureMessage, INVALID_BODY } from "../error";
-import EmailModel from "../models/email";
+import { EmailRepository } from "../repositories/email";
 import { putObject } from "../services/s3";
 import { Email } from "../types";
 import { BrevoInboundEmail } from "../types/brevo";
@@ -53,12 +53,11 @@ router.post("/", async (req, res, next) => {
         deletedAt: null,
       } as Email;
 
-      const email = await EmailModel.create(obj);
+      const email = await EmailRepository.create(obj);
       const objectName = await downloadFile(email);
       if (objectName) {
-        email.fileObjectName = objectName;
+        await EmailRepository.update(email._id.toString(), { fileObjectName: objectName });
       }
-      await email.save();
     }
     return res.status(200).send({ ok: true });
   } catch (error) {
