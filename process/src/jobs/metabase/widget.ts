@@ -93,7 +93,6 @@ const handler = async () => {
 
         await prisma.widget.update({ where: { id }, data: widget });
         await prisma.partnerToWidget.deleteMany({ where: { widget_id: id } });
-        console.log(partners);
         await prisma.partnerToWidget.createMany({ data: partners.map((p) => ({ partner_id: p, widget_id: id })) });
       }
       console.log(`[Widgets] Updated ${dataToUpdate.length} docs.`);
