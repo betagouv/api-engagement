@@ -1,16 +1,17 @@
 // Utility functions for letudiant job sync
+import { HydratedDocument } from "mongoose";
 import { setTimeout as sleep } from "timers/promises";
 import MissionModel from "../../models/mission";
 import { PilotyClient } from "../../services/piloty/client";
 import { PilotyJobCategory, PilotyMandatoryData } from "../../services/piloty/types";
 import { Mission } from "../../types";
-import { HydratedDocument } from "mongoose";
+import { CONTRACT_MAPPING, JOB_CATEGORY_MAPPING, REMOTE_POLICY_MAPPING } from "./config";
 
 /**
- * Check if a mission is already synced to Piloty (idempotence)
+ * Check if a mission is already synced to Piloty
  */
 export function isAlreadySynced(mission: Mission): boolean {
-  return Boolean(mission.letudiantPublicId);
+  return Boolean(mission.letudiantPublicId && mission.letudiantUpdatedAt && mission.letudiantUpdatedAt.getTime() >= mission.updatedAt.getTime());
 }
 
 /**
@@ -22,18 +23,23 @@ export async function rateLimit(delayMs = 1000) {
 
 /**
  * Get missions created or updated since the last sync
- * TODO: get last sync date from DB
+ *
+ * @param id Optional mission ID to sync
+ * @param limit Optional limit (default: 10)
  */
-export async function getMissionsToSync(id?: string): Promise<HydratedDocument<Mission>[]> {
-  const query: any = {
-    deletedAt: null,
-    statusCode: "ACCEPTED",
-  };
+export async function getMissionsToSync(id?: string, limit = 10): Promise<HydratedDocument<Mission>[]> {
+  const query = id
+    ? {
+        _id: id,
+      }
+    : {
+        // TODO: if deletedAt is after letudiantUpdatedAt, we have to include deleted missions in the query
+        deletedAt: null,
+        statusCode: "ACCEPTED",
+        $or: [{ letudiantPublicId: { $exists: false } }, { $expr: { $lt: ["$letudiantUpdatedAt", "$updatedAt"] } }],
+      };
 
-  if (id) {
-    query._id = id;
-  }
-  return MissionModel.find(query).sort({ createdAt: "asc" });
+  return MissionModel.find(query).sort({ updatedAt: "asc" }).limit(limit);
 }
 
 /**
@@ -54,17 +60,18 @@ export async function getMandatoryData(client: PilotyClient): Promise<PilotyMand
   };
 }
 
+/**
+ * Get mandatory contracts from Piloty, mapped by mission data
+ * @param client The Piloty client
+ * @returns {benevolat: string, volontariat: string}
+ */
 export async function getMandatoryContracts(client: PilotyClient): Promise<PilotyMandatoryData["contracts"]> {
-  const CONTRACT_REF = {
-    benevolat: "volunteering",
-    volontariat: "civil_service",
-  };
   const contracts = await client.getContracts();
   if (!contracts) {
     throw new Error("Unable to fetch contracts from Piloty");
   }
-  const benevolat = contracts.find((c) => c.ref === CONTRACT_REF.benevolat);
-  const volontariat = contracts.find((c) => c.ref === CONTRACT_REF.volontariat);
+  const benevolat = contracts.find((c) => c.ref === CONTRACT_MAPPING.benevolat);
+  const volontariat = contracts.find((c) => c.ref === CONTRACT_MAPPING.volontariat);
   if (!benevolat || !volontariat) {
     throw new Error("Unable to find volunteering or civil service contract");
   }
@@ -74,15 +81,17 @@ export async function getMandatoryContracts(client: PilotyClient): Promise<Pilot
   };
 }
 
+/**
+ * Get mandatory remote policies from Piloty, mapped by mission data
+ * @param client The Piloty client
+ * @returns {full: string}
+ */
 export async function getMandatoryRemotePolicies(client: PilotyClient): Promise<PilotyMandatoryData["remotePolicies"]> {
-  const REMOTE_POLICY_REF = {
-    fullRemote: "fulltime",
-  };
   const remotePolicies = await client.getRemotePolicies();
   if (!remotePolicies) {
     throw new Error("Unable to fetch remote policies from Piloty");
   }
-  const fullRemote = remotePolicies.find((p) => p.ref === REMOTE_POLICY_REF.fullRemote);
+  const fullRemote = remotePolicies.find((p) => p.ref === REMOTE_POLICY_MAPPING.fullRemote);
   if (!fullRemote) {
     throw new Error("Unable to find 'full remote' policy");
   }
@@ -91,22 +100,14 @@ export async function getMandatoryRemotePolicies(client: PilotyClient): Promise<
   };
 }
 
+/**
+ * Get mandatory job categories from Piloty, mapped by mission domain.
+ * Each key is a mission "domain" field value.
+ *
+ * @param client The Piloty client
+ * @returns {key: value}
+ */
 export async function getMandatoryJobCategories(client: PilotyClient): Promise<PilotyMandatoryData["jobCategories"]> {
-  // Key is mission "domain" field
-  const JOB_CATEGORY_REF = {
-    environnement: "environment_energie",
-    "solidarite-insertion": "arts_culture_sport_professional_dancer", // TODO
-    sante: "health_social",
-    "culture-loisirs": "tourism_leisure",
-    education: "education_training",
-    emploi: "hr",
-    sport: "arts_culture_sport",
-    humanitaire: "arts_culture_sport_professional_dancer", // TODO
-    animaux: "health_social_pet_sitting",
-    "vivre-ensemble": "health_social",
-    autre: "arts_culture_sport_professional_dancer", // TODO: find better fallback
-  };
-
   // Recursive sub function to find category ID by ref (job category is a tree)
   function findCategoryIdByRef(categories: PilotyJobCategory[], ref: string): string | undefined {
     for (const cat of categories) {
@@ -128,12 +129,55 @@ export async function getMandatoryJobCategories(client: PilotyClient): Promise<P
     throw new Error("Unable to fetch job categories from Piloty");
   }
   const jobCategoryIds: Record<string, string> = {};
-  for (const ref of Object.keys(JOB_CATEGORY_REF) as Array<keyof typeof JOB_CATEGORY_REF>) {
-    const id = findCategoryIdByRef(jobCategories, JOB_CATEGORY_REF[ref]);
+  for (const ref of Object.keys(JOB_CATEGORY_MAPPING) as Array<keyof typeof JOB_CATEGORY_MAPPING>) {
+    const id = findCategoryIdByRef(jobCategories, JOB_CATEGORY_MAPPING[ref]);
     if (!id) {
       throw new Error(`Unable to find job category for ref: ${ref}`);
     }
     jobCategoryIds[ref] = id;
   }
   return jobCategoryIds;
+}
+
+/**
+ * Checks if a URL is valid and accessible using a GET request with timeout.
+ * @param urlString The URL to check.
+ * @param timeoutMs Timeout in milliseconds for the fetch request. Defaults to 5000ms.
+ * @returns The URL string if valid and accessible, otherwise undefined.
+ */
+export async function getValidAndAccessibleUrl(urlString: string | undefined, timeoutMs = 5000): Promise<string | undefined> {
+  if (!urlString) {
+    return undefined;
+  }
+
+  let parsedUrl: URL;
+  try {
+    parsedUrl = new URL(urlString);
+  } catch (error) {
+    console.warn(`[getValidAndAccessibleUrl] Invalid URL format: ${urlString}`, error);
+    return undefined;
+  }
+
+  const fetchPromise = fetch(parsedUrl.href, { method: "GET" });
+  const timeoutPromise = new Promise<undefined>((_, reject) => setTimeout(() => reject(new Error("Timeout")), timeoutMs));
+
+  try {
+    // Race fetch against timeout
+    // Cast to Response because if timeoutPromise wins, it rejects, and error is caught.
+    const response = (await Promise.race([fetchPromise, timeoutPromise])) as Response;
+
+    if (!response.ok) {
+      console.warn(`[getValidAndAccessibleUrl] URL not accessible (status ${response.status}): ${urlString}`);
+      return undefined;
+    }
+    return urlString;
+  } catch (error) {
+    if (error instanceof Error && error.message === "Timeout") {
+      console.warn(`[getValidAndAccessibleUrl] URL check timed out after ${timeoutMs}ms: ${urlString}`);
+    } else {
+      // Log other fetch errors (network error, etc.)
+      console.warn(`[getValidAndAccessibleUrl] Error fetching URL: ${urlString}`, error);
+    }
+    return undefined;
+  }
 }

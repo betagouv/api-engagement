@@ -134,6 +134,14 @@ export interface PilotyJobCategory {
   };
 }
 
+// All fields related to company
+// Used for sector
+// https://developers.piloty.fr/jobs-api/jobs-fields/get-list-company-sectors
+export interface PilotyCompanyField {
+  id: string;
+  ref: string;
+}
+
 // Mandatory data fetched from Piloty API once
 export interface PilotyMandatoryData {
   contracts: {

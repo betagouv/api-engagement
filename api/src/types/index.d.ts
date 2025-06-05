@@ -50,6 +50,8 @@ export interface Organization {
   syncAt?: Date;
   source?: string;
   isRUP?: boolean;
+  letudiantPublicId?: string;
+  letudiantUpdatedAt?: Date;
 }
 
 export type Association = {
