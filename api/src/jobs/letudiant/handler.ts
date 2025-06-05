@@ -3,6 +3,7 @@ import { HydratedDocument } from "mongoose";
 import { LETUDIANT_PILOTY_TOKEN } from "../../config";
 import OrganizationModel from "../../models/organization";
 import { PilotyClient } from "../../services/piloty/client";
+import { PilotyError } from "../../services/piloty/exceptions";
 import { PilotyCompany } from "../../services/piloty/types";
 import { Mission, Organization } from "../../types";
 import { MEDIA_PUBLIC_ID } from "./config";
@@ -92,8 +93,8 @@ async function createOrUpdateCompany(pilotyClient: PilotyClient, mission: Hydrat
     try {
       pilotyCompany = await pilotyClient.createCompany(companyPayload);
     } catch (error) {
-      if (error instanceof Error && error.message.includes("company-already-existed")) {
-        console.log(`[Letudiant] Company ${organization.title} already exists`);
+      if (error instanceof PilotyError && error.status === 409) {
+        console.log(`[Letudiant] Company ${organization.title} already exists (409)`);
         pilotyCompany = await pilotyClient.findCompanyByName(companyPayload.name);
       } else {
         throw error;
