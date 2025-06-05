@@ -16,8 +16,11 @@ export function isAlreadySynced(mission: Mission): boolean {
 
 /**
  * Simple rate limiter: wait for a fixed delay (ms)
+ * Default rate limit is 2 requests per second
+ *
+ * @param delayMs Delay in milliseconds
  */
-export async function rateLimit(delayMs = 1000) {
+export async function rateLimit(delayMs = 500) {
   await sleep(delayMs);
 }
 
@@ -36,6 +39,9 @@ export async function getMissionsToSync(id?: string, limit = 10): Promise<Hydrat
         // TODO: if deletedAt is after letudiantUpdatedAt, we have to include deleted missions in the query
         deletedAt: null,
         statusCode: "ACCEPTED",
+        organizationId: {
+          $exists: true,
+        },
         $or: [{ letudiantPublicId: { $exists: false } }, { $expr: { $lt: ["$letudiantUpdatedAt", "$updatedAt"] } }],
       };
 

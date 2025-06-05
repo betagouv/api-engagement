@@ -26,6 +26,7 @@ export async function handler(bullJob: Job): Promise<any> {
   const counter = {
     created: 0,
     updated: 0,
+    skipped: 0,
     error: 0,
   };
 
@@ -36,6 +37,7 @@ export async function handler(bullJob: Job): Promise<any> {
       const organization = await OrganizationModel.findOne({ _id: mission.organizationId });
       if (!organization) {
         console.log(`[Letudiant] Mission ${mission._id} has no organization, skipping`);
+        counter.skipped++;
         continue;
       }
 
@@ -87,7 +89,6 @@ async function createOrUpdateCompany(pilotyClient: PilotyClient, mission: Hydrat
   if (organization.letudiantPublicId) {
     console.log(`[Letudiant] Company ${organization.title} already exists (${organization.letudiantPublicId})`);
     pilotyCompany = await pilotyClient.getCompanyById(organization.letudiantPublicId);
-    // TODO: update company if needed
   } else {
     console.log(`[Letudiant] Company ${organization.title} not found: creating...`);
     try {
