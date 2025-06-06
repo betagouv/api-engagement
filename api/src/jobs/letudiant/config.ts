@@ -1,16 +1,20 @@
+// Used to sign every Piloty API requests
 export const MEDIA_PUBLIC_ID = "letudiant";
 
+// Mapping between mission data and Piloty data
 export const CONTRACT_MAPPING = {
   benevolat: "volunteering",
   volontariat: "civil_service",
 };
 
+// Mapping between mission data and Piloty data
 export const REMOTE_POLICY_MAPPING = {
   fullRemote: "fulltime",
 };
 
+// Mapping between mission data and Piloty data
+// Key is mission "domain" field
 export const JOB_CATEGORY_MAPPING = {
-  // Key is mission "domain" field
   environnement: "environment_energie",
   "solidarite-insertion": "arts_culture_sport_professional_dancer", // TODO
   sante: "health_social",

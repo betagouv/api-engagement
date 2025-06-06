@@ -1,28 +1,59 @@
-import { jobConfigs, jobSchedules } from "./config";
+// api/src/jobs/index.ts
+import { WorkerOptions } from "bullmq";
+import { BaseWorker } from "./base/worker";
+import { jobWorkers } from "./config";
 
-const workers: any[] = [];
+const activeWorkers: BaseWorker<any>[] = [];
 
-export async function launchJobSystem() {
-  console.log("[Job workers] Starting workers...");
-  for (const [queueName, config] of Object.entries(jobConfigs)) {
-    await config.worker.start();
-    workers.push(config.worker);
-    console.log(`[Job workers] Worker for queue ${queueName} started successfully`);
+/**
+ * Initializes and starts all configured job workers.
+ */
+export async function launchJobSystem(): Promise<void> {
+  console.log("[JobSystem] Launching job system...");
+
+  if (jobWorkers.length === 0) {
+    console.warn("[JobSystem] No workers configured. Job system will be idle.");
+    return;
   }
 
-  console.log("[Job workers] Scheduling jobs...");
-  for (const schedule of jobSchedules) {
-    await schedule.function(schedule.cronExpression);
-    console.log(`[Job workers] Scheduled job ${schedule.title} with cron ${schedule.cronExpression}`);
+  for (const workerConfig of jobWorkers) {
+    const { queueName, processor, name } = workerConfig;
+    const workerOptions: WorkerOptions | undefined = undefined;
+
+    console.log(`[JobSystem] Initializing worker for queue: ${queueName}${name ? ` (Job: ${name})` : ""}`);
+    try {
+      const worker = new BaseWorker(queueName, processor, workerOptions, name);
+
+      await worker.start();
+      activeWorkers.push(worker);
+      console.log(`[JobSystem] Worker started for queue: ${queueName}${name ? ` (Job: ${name})` : ""}`);
+    } catch (error) {
+      console.error(`[JobSystem] Failed to start worker for queue: ${queueName}${name ? ` (Job: ${name})` : ""}`, error);
+    }
   }
 
-  console.log("[Job workers] Job system initialization complete");
+  if (activeWorkers.length > 0) {
+    console.log(`[JobSystem] All ${activeWorkers.length} configured workers launched.`);
+  } else {
+    console.error("[JobSystem] No workers were successfully launched.");
+  }
 }
 
-export async function shutdownJobs() {
-  console.log("[Job workers] Shutting down workers...");
-  for (const worker of workers) {
-    await worker.stop();
-  }
-  console.log("[Job workers] All workers stopped");
+/**
+ * Gracefully shuts down all active job workers.
+ */
+export async function shutdownJobs(): Promise<void> {
+  console.log(`[JobSystem] Shutting down ${activeWorkers.length} active workers...`);
+  const shutdownPromises = activeWorkers.map(async (worker) => {
+    try {
+      await worker.stop();
+    } catch (error) {
+      console.error(`[JobSystem] Error stopping worker for queue ${worker.queueName}${worker.workerName ? ` (Job: ${worker.workerName})` : ""}:`, error);
+    }
+  });
+
+  await Promise.allSettled(shutdownPromises); // Wait for all stop attempts
+
+  activeWorkers.length = 0; // Clear the array
+  console.log("[JobSystem] All workers have been requested to shut down.");
 }

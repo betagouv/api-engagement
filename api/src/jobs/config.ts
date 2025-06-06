@@ -1,36 +1,34 @@
-import { Queue as LetudiantQueue, schedule as LetudiantSchedule, Worker as LetudiantWorker } from "./letudiant";
-import { JobConfig, JobSchedule } from "./types";
+import { Processor } from "bullmq";
+import { BaseQueue } from "./base";
+import { LetudiantHandler, LetudiantJobPayload } from "./letudiant/handler";
+import { LetudiantQueue } from "./letudiant/queue";
+import { JobSchedule, WorkerConfig } from "./types";
 
-export enum QueueNames {
-  LETUDIANT = "letudiant",
-  // TODO: add more queues here
-}
-
-/**
- * Job configuration
- * Each job is configured with an instance of queue and a worker
- * See BullMQ documentation for more details.
- * Worker: https://docs.bullmq.io/guide/workers
- * Queue: https://docs.bullmq.io/guide/queues
- */
-export const jobConfigs: Record<QueueNames, JobConfig> = {
-  [QueueNames.LETUDIANT]: {
-    queue: LetudiantQueue.getInstance(),
-    worker: LetudiantWorker.getInstance(),
-  },
-  // TODO: add more queues here
-};
+export const queues: BaseQueue<any>[] = [
+  new LetudiantQueue(),
+  // TODO: init more Queues here
+];
 
 /**
- * Scheduled Job
- * Each job is scheduled with a cron expression and a function to execute
- * See BullMQ documentation for more details.
- * https://docs.bullmq.io/guide/job-schedulers
+ * Array of scheduled jobs.
+ * These are scheduled in `server-scheduler.ts`
  */
 export const jobSchedules: JobSchedule[] = [
   {
     title: "L'Etudiant feed XML generation",
     cronExpression: "* * * * *", // Every minute
-    function: LetudiantSchedule,
+    function: LetudiantHandler.schedule,
+  },
+];
+
+/**
+ * Array of all job worker configurations.
+ * This will be used by the job system to initialize and start workers.
+ */
+export const jobWorkers: WorkerConfig[] = [
+  {
+    queueName: LetudiantQueue.queueName,
+    processor: LetudiantHandler.handle as Processor<LetudiantJobPayload>,
+    name: LetudiantHandler.JOB_NAME, // This worker will specifically handle "letudiant-exporter" jobs
   },
 ];

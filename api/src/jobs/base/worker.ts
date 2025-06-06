@@ -1,45 +1,73 @@
-import { Worker } from "bullmq";
+// api/src/jobs/base/worker.ts
+import { Job, Processor, Worker, WorkerOptions } from "bullmq";
 import { redisConnection } from "../../db/redis";
 import { captureException } from "../../error";
 
-/**
- * Base class for all workers
- * Implements the singleton pattern and provides common methods
- */
-export abstract class BaseWorker {
-  protected worker: Worker;
+export class BaseWorker<PayloadType = any> {
+  protected worker: Worker<PayloadType>;
 
-  protected queueName: string;
+  public readonly queueName: string;
 
-  protected workerName: string;
+  public readonly workerName?: string; // Can be undefined if the worker handles all jobs of the queue
 
-  protected static instance: BaseWorker;
-
-  protected constructor(queueName: string, workerName: string, processor: (job: any) => Promise<any>) {
+  public constructor(queueName: string, processor: Processor<PayloadType>, workerOptions?: WorkerOptions, workerName?: string) {
     this.queueName = queueName;
     this.workerName = workerName;
 
-    this.worker = new Worker(queueName, processor, {
-      connection: redisConnection,
-      concurrency: 1,
-      autorun: false,
-    });
+    const fullWorkerNameLog = workerName ? `${queueName}/${workerName}` : queueName;
 
-    this.worker.on("completed", (job) => {
-      console.log(`[${this.workerName}] Job ${job.id} completed successfully`);
+    this.worker = new Worker<PayloadType>(
+      queueName,
+      async (job: Job<PayloadType>) => {
+        if (workerName && job.name !== workerName) {
+          console.warn(`[BaseWorker/${fullWorkerNameLog}] Worker configured for job name '${workerName}' but received job name '${job.name}'. Skipping.`);
+          return Promise.resolve(undefined);
+        }
+        console.log(`[BaseWorker/${fullWorkerNameLog}] Processing job ${job.id} (Name: ${job.name})`);
+        try {
+          return await processor(job);
+        } catch (error) {
+          console.error(`[BaseWorker/${fullWorkerNameLog}] Job ${job.id} (Name: ${job.name}) failed during processing:`, error);
+          captureException(error);
+          throw error; // Throw error to mark job as failed in BullMQ
+        }
+      },
+      {
+        connection: redisConnection,
+        concurrency: 1,
+        autorun: false,
+        ...workerOptions,
+      }
+    );
+
+    this.worker.on("completed", (job, result) => {
+      console.log(`[BaseWorker/${fullWorkerNameLog}] Job ${job.id} (Name: ${job.name}) completed.`);
     });
 
     this.worker.on("failed", (job, error) => {
-      console.error(`[${this.workerName}] Job ${job?.id} failed:`, error);
-      captureException(error);
+      console.error(`[BaseWorker/${fullWorkerNameLog}] Job ${job?.id} (Name: ${job?.name}) failed (event listener). Error: ${error.message}`);
     });
+
+    this.worker.on("error", (err) => {
+      console.error(`[BaseWorker/${fullWorkerNameLog}] Worker instance error:`, err);
+      captureException(err);
+    });
+
+    console.log(`[BaseWorker/${fullWorkerNameLog}] Initialized worker for queue: ${queueName}`);
   }
 
   public async start(): Promise<void> {
-    this.worker.run();
+    if (!this.worker.isRunning()) {
+      await this.worker.run();
+      const fullWorkerNameLog = this.workerName ? `${this.queueName}/${this.workerName}` : this.queueName;
+      console.log(`[BaseWorker/${fullWorkerNameLog}] Worker started and listening for jobs.`);
+    }
   }
 
   public async stop(): Promise<void> {
-    this.worker.close();
+    const fullWorkerNameLog = this.workerName ? `${this.queueName}/${this.workerName}` : this.queueName;
+    console.log(`[BaseWorker/${fullWorkerNameLog}] Stopping worker...`);
+    await this.worker.close();
+    console.log(`[BaseWorker/${fullWorkerNameLog}] Worker stopped.`);
   }
 }

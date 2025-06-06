@@ -38,8 +38,18 @@ async function runJob() {
 
     const handlerModule = await import(`./${jobName}/handler`);
 
-    if (!handlerModule.handler || typeof handlerModule.handler !== "function") {
-      console.error(`Error: handler function not found in ${handlerPath}`);
+    const HandlerClassName = jobName.charAt(0).toUpperCase() + jobName.slice(1) + "Handler";
+    const HandlerClass = handlerModule[HandlerClassName];
+
+    if (!HandlerClass || typeof HandlerClass !== "function") {
+      console.error(`Error: Handler class '${HandlerClassName}' not found or not a constructor in ${handlerPath}`);
+      process.exit(1);
+    }
+
+    const handlerInstance = new HandlerClass();
+
+    if (typeof handlerInstance.handle !== "function") {
+      console.error(`Error: 'handle' method not found on handler instance for job '${jobName}'`);
       process.exit(1);
     }
 
@@ -69,9 +79,9 @@ async function runJob() {
         timestamp: Date.now(),
         ...extraData,
       },
-    };
+    } as any; // Cast to any to satisfy BullMQ Job type if needed, or define a simpler type
 
-    const result = await handlerModule.handler(fakeJob);
+    const result = await handlerInstance.handle(fakeJob);
     console.log(`Job '${jobName}' executed successfully:`, result);
   } catch (error) {
     console.error(`Error executing job '${jobName}':`, error);

@@ -1,18 +1,14 @@
-import { Queue } from "bullmq";
+import { QueueOptions as BullMQQueueOptions, Job, JobsOptions, Queue } from "bullmq";
 import { redisConnection } from "../../db/redis";
 
-/**
- * Base class for all queues
- * Implements the singleton pattern and provides common methods
- */
-export abstract class BaseQueue {
-  protected queue: Queue;
+export abstract class BaseQueue<PayloadType = any> {
+  protected queue: Queue<PayloadType>;
 
-  protected queueName: string;
+  public readonly queueName: string;
 
-  protected constructor(queueName: string) {
+  public constructor(queueName: string, queueOptions?: Partial<BullMQQueueOptions>) {
     this.queueName = queueName;
-    this.queue = new Queue(queueName, {
+    this.queue = new Queue<PayloadType>(queueName, {
       connection: redisConnection,
       defaultJobOptions: {
         attempts: 3,
@@ -22,46 +18,37 @@ export abstract class BaseQueue {
         },
         removeOnComplete: {
           age: 7 * 24 * 3600, // 7 days
-          count: 100, // Keep the last 100 jobs
+          count: 1000,
         },
-        removeOnFail: false, // Keep failed jobs for debugging
+        removeOnFail: {
+          age: 30 * 24 * 3600, // 30 days
+        },
       },
+      ...queueOptions,
     });
+    console.log(`[BaseQueue] Initialized queue: ${queueName}`);
   }
 
-  public getQueue(): Queue {
+  public getQueue(): Queue<PayloadType> {
     return this.queue;
   }
 
   /**
    * Add a job to the queue
-   * @param name Job name
-   * @param data Job data
+   * @param name Job name (specific type for the job)
+   * @param data Job data (typed payload)
    * @param options Job options
    */
-  public async addJob(name: string, data: any, options: any = {}): Promise<any> {
+  public async addJob(name: string, data: PayloadType, options?: JobsOptions): Promise<Job<PayloadType>> {
     try {
-      const job = await this.queue.add(name, data, options);
-      return job;
+      // @ts-expect-error - BullMQ's ExtractNameType can be overly strict with generic wrappers.
+      // We ensure 'name' is a string and PayloadType matches the worker's expectation.
+      const job = await this.queue.add(name as unknown as string, data, options);
+      console.log(`[BaseQueue/${this.queueName}] Added job '${name}' with ID ${job.id}`);
+      return job as Job<PayloadType>;
     } catch (error) {
-      console.error(`[BaseQueue] Failed to add job '${name}' to queue '${this.queueName}':`, error);
+      console.error(`[BaseQueue/${this.queueName}] Failed to add job '${name}':`, error);
       throw error;
     }
-  }
-
-  /**
-   * Schedule a recurring job
-   * @param name Job name
-   * @param data Job data
-   * @param cronExpression Cron expression for scheduling
-   * @param jobId Unique job ID (to find/schedule the job)
-   */
-  public async scheduleRecurringJob(name: string, data: any, cronExpression: string, jobId: string): Promise<any> {
-    return this.queue.add(name, data, {
-      jobId,
-      repeat: {
-        pattern: cronExpression,
-      },
-    });
   }
 }
