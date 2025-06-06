@@ -50,6 +50,8 @@ export interface Organization {
   syncAt?: Date;
   source?: string;
   isRUP?: boolean;
+  letudiantPublicId?: string;
+  letudiantUpdatedAt?: Date;
 }
 
 export type Association = {
@@ -323,6 +325,9 @@ export interface Mission {
   jobteaserUrl: string | undefined;
   jobteaserComment: string | undefined;
   jobteaserUpdatedAt: Date | undefined;
+
+  letudiantPublicId: string | undefined;
+  letudiantUpdatedAt: Date | undefined;
 
   __history?: MissionHistory[];
 }

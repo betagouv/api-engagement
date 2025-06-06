@@ -50,6 +50,10 @@ const schema = new Schema<Organization>(
     observation: { type: String, description: "Observation" },
     syncAt: { type: Date, description: "Sync at" },
     source: { type: String, description: "Source" },
+
+    // Letudiant
+    letudiantPublicId: { type: String, description: "Letudiant public ID" },
+    letudiantUpdatedAt: { type: Date, description: "Letudiant updated at" },
   },
   { timestamps: true }
 );

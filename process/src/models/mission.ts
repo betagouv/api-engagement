@@ -184,6 +184,10 @@ const schema = new Schema<Mission>(
     leboncoinUrl: { type: String },
     leboncoinComment: { type: String },
     leboncoinUpdatedAt: { type: Date },
+
+    // Letudiant
+    letudiantPublicId: { type: String },
+    letudiantUpdatedAt: { type: Date },
   },
   {
     timestamps: true,
