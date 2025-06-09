@@ -2,7 +2,7 @@ name: Main Pipeline
 
 on:
   push:
-    branches: [main-test, staging]
+    branches: [main, staging]
   workflow_dispatch:
 
 concurrency:

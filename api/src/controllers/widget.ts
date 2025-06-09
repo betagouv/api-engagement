@@ -207,7 +207,7 @@ router.post("/", passport.authenticate("admin", { session: false }), async (req:
       style: body.data.style,
       color: body.data.color,
       active: body.data.active,
-      publishers: body.data.publishers,
+      publishers: Array.from(new Set(body.data.publishers)),
       jvaModeration: body.data.jvaModeration,
       location: body.data.location,
     };

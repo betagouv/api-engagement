@@ -24,7 +24,7 @@ jobs:
         env:
           HEAD_BRANCH: ${{ inputs.branch || github.ref_name }}
         run: |
-          if [[ "$HEAD_BRANCH" == 'main-test' ]]; then
+          if [[ "$HEAD_BRANCH" == 'main' ]]; then
             echo "environment=production" >> $GITHUB_OUTPUT
           else
             echo "environment=staging" >> $GITHUB_OUTPUT
