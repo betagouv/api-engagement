@@ -16,7 +16,7 @@ export const queues: BaseQueue<any>[] = [
 export const jobSchedules: JobSchedule[] = [
   {
     title: "L'Etudiant feed XML generation",
-    cronExpression: "* * * * *", // Every minute
+    cronExpression: "0 */3 * * *", // Every 3 hours
     function: LetudiantHandler.schedule,
   },
 ];

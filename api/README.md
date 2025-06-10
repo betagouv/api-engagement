@@ -56,6 +56,14 @@ Pour démarrer le service de tâches en arrière-plan en mode développement :
 npm run dev:jobs
 ```
 
+### Lancement du service de programmation des jobs
+
+Pour démarrer le service de programmation des jobs en arrière-plan en mode développement :
+
+```bash
+npm run dev:scheduler
+```
+
 ### Exécution d'une tâche spécifique
 
 Pour exécuter manuellement une tâche spécifique :
@@ -86,6 +94,12 @@ Pour démarrer le service de tâches en mode production :
 
 ```bash
 npm run start:jobs
+```
+
+Pour démarrer le service de programmation des jobs en arrière-plan en mode production :
+
+```bash
+npm run start:scheduler
 ```
 
 ## Tests
