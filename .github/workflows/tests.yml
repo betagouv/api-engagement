@@ -59,7 +59,7 @@ jobs:
     runs-on: ubuntu-latest
 
     # Does not run if no files in widget have been modified
-    if: ${{ github.event_name == 'push' || contains(toJSON(github.event.pull_request.files.*.filename), 'widget-benevolat/') || contains(toJSON(github.event.pull_request.files.*.filename), 'widget/') }}
+    if: ${{ github.event_name == 'push' || contains(toJSON(github.event.pull_request.files.*.filename), 'widget/') }}
     steps:
       - uses: actions/checkout@v4
 
@@ -68,7 +68,7 @@ jobs:
         with:
           node-version: "18.x"
           cache: "npm"
-          cache-dependency-path: "widget-benevolat/package-lock.json"
+          cache-dependency-path: "widget/package-lock.json"
 
       - name: Install dependencies
         run: cd widget && npm ci
