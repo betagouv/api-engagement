@@ -46,10 +46,8 @@ async function runJob() {
       process.exit(1);
     }
 
-    const handlerInstance = new HandlerClass();
-
-    if (typeof handlerInstance.handle !== "function") {
-      console.error(`Error: 'handle' method not found on handler instance for job '${jobName}'`);
+    if (typeof HandlerClass.handle !== "function") {
+      console.error(`Error: 'handle' static method not found on handler class for job '${jobName}'`);
       process.exit(1);
     }
 
@@ -81,7 +79,7 @@ async function runJob() {
       },
     } as any; // Cast to any to satisfy BullMQ Job type if needed, or define a simpler type
 
-    const result = await handlerInstance.handle(fakeJob);
+    const result = await HandlerClass.handle(fakeJob);
     console.log(`Job '${jobName}' executed successfully:`, result);
   } catch (error) {
     console.error(`Error executing job '${jobName}':`, error);

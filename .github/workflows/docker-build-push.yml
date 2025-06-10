@@ -48,7 +48,6 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        # service: [app, api, process, widget-benevolat, widget-volontariat]
         include:
           - service: app
           - service: widget-benevolat
@@ -59,6 +58,7 @@ jobs:
             server_type: jobs
           - service: api
             server_type: scheduler
+          # - service: process
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
