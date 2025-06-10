@@ -17,11 +17,11 @@ import cookieParser from "cookie-parser";
 import cors from "cors";
 import express, { NextFunction, Request, Response } from "express";
 import helmet from "helmet";
-import morgan from "morgan";
 import path from "path";
 
 import "./db/mongo";
 import { SERVER_ERROR, captureException, captureMessage } from "./error";
+import logger from "./services/logger";
 import passport from "./services/passport";
 
 import AdminReportController from "./controllers/admin-report";
@@ -82,7 +82,7 @@ app.use(bodyParser.json({ limit: "50mb" }));
 app.use(bodyParser.text({ type: "application/x-ndjson" }));
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(cookieParser());
-app.use(morgan(":date[iso] :method :url :status :res[content-length] - :response-time ms"));
+app.use(logger());
 app.use(passport.initialize());
 
 app.use(
