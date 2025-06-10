@@ -25,17 +25,6 @@ export interface JobSchedule {
 }
 
 /**
- * Base result structure for job handlers.
- */
-export interface JobResult {
-  success: boolean;
-  timestamp: Date;
-  message?: string;
-  error?: string; // Optional error message
-  details?: Record<string, any>; // Optional additional details
-}
-
-/**
  * Base Job Result
  * Inherit from this interface to create specific job results
  */
