@@ -23,6 +23,7 @@ const Card = ({ widget, mission, request }) => {
       tabIndex={0}
       href={mission.url}
       target="_blank"
+      data-testid="mission-card"
       className={`relative ${
         widget.style === "carousel" ? "w-full lg:max-w-[336px]" : "w-full"
       } border min-h-[290px] max-h-[290px] md:min-h-[311px] md:max-h-[311px] flex flex-col focus:outline-none focus-visible:ring focus-visible:ring-blue-800 border-[#DDDDDD] bg-white group hover:shadow-lg transition-shadow duration-300 overflow-hidden`}
