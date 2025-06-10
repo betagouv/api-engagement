@@ -103,48 +103,14 @@ updates:
           - "patch"
 
   - package-ecosystem: "npm"
-    directory: "/widget-benevolat"
+    directory: "/widget"
     schedule:
       interval: "monthly"
     open-pull-requests-limit: 10
     versioning-strategy: "auto"
     labels:
       - "dependencies"
-      - "widget-benevolat"
-    commit-message:
-      prefix: "chore"
-      include: "scope"
-    groups:
-      dev-dependencies:
-        patterns:
-          - "*eslint*"
-          - "*prettier*"
-          - "*test*"
-          - "*types*"
-        update-types:
-          - "minor"
-          - "patch"
-      production-dependencies:
-        patterns:
-          - "*"
-        exclude-patterns:
-          - "*eslint*"
-          - "*prettier*"
-          - "*test*"
-          - "*types*"
-        update-types:
-          - "minor"
-          - "patch"
-
-  - package-ecosystem: "npm"
-    directory: "/widget-volontariat"
-    schedule:
-      interval: "monthly"
-    open-pull-requests-limit: 10
-    versioning-strategy: "auto"
-    labels:
-      - "dependencies"
-      - "widget-volontariat"
+      - "widget"
     commit-message:
       prefix: "chore"
       include: "scope"

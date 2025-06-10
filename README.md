@@ -17,7 +17,7 @@ dossier `app/`
 ### Un [Widget Benevolat](https://mission.api-engagement.beta.gouv.fr) et un [Widget Volontariat](https://sc.api-engagement.beta.gouv.fr)
 
 Les deux widgets sont des applications NextJS pour optimiser le SEO
-dossiers `widget-benevolat/` et `widget-volontariat/`
+dossier `widget/
 
 ### Un process
 
