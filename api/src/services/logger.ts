@@ -21,7 +21,7 @@ const logger = () => {
       return null;
     }
 
-    const isUser = "firstname" in user;
+    const isUser = user ? "firstname" in user : false;
 
     return [
       chalk[methodColor].bold(method),
