@@ -20,15 +20,13 @@ export async function launchJobSystem(): Promise<void> {
     const { queueName, processor, name } = workerConfig;
     const workerOptions: WorkerOptions | undefined = undefined;
 
-    console.log(`[JobSystem] Initializing worker for queue: ${queueName}${name ? ` (Job: ${name})` : ""}`);
     try {
       const worker = new BaseWorker(queueName, processor, workerOptions, name);
 
-      await worker.start();
+      worker.start();
       activeWorkers.push(worker);
-      console.log(`[JobSystem] Worker started for queue: ${queueName}${name ? ` (Job: ${name})` : ""}`);
     } catch (error) {
-      console.error(`[JobSystem] Failed to start worker for queue: ${queueName}${name ? ` (Job: ${name})` : ""}`, error);
+      console.error(`[JobSystem] Failed to instantiate or start worker for queue: ${queueName}${name ? ` (Job: ${name})` : ""}`, error);
     }
   }
 

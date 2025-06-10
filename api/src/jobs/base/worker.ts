@@ -56,11 +56,13 @@ export class BaseWorker<PayloadType = any> {
     console.log(`[BaseWorker/${fullWorkerNameLog}] Initialized worker for queue: ${queueName}`);
   }
 
-  public async start(): Promise<void> {
+  public start(): void {
     if (!this.worker.isRunning()) {
-      await this.worker.run();
-      const fullWorkerNameLog = this.workerName ? `${this.queueName}/${this.workerName}` : this.queueName;
-      console.log(`[BaseWorker/${fullWorkerNameLog}] Worker started and listening for jobs.`);
+      this.worker.run().catch((err) => {
+        const fullWorkerNameLog = this.workerName ? `${this.queueName}/${this.workerName}` : this.queueName;
+        console.error(`[BaseWorker/${fullWorkerNameLog}] Error from worker.run() promise:`, err);
+        captureException(err); // Capture the error from the run() promise itself
+      });
     }
   }
 
