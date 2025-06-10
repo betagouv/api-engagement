@@ -35,7 +35,7 @@ const DOMAINS = {
   },
   emploi: {
     label: "Emploi",
-    icon: "",
+    icon: "",
     color: "#007C94",
   },
   sport: {
@@ -50,7 +50,7 @@ const DOMAINS = {
   },
   animaux: {
     label: "Animaux",
-    icon: "",
+    icon: "",
     color: "#017c51",
   },
   "vivre-ensemble": {
@@ -65,12 +65,12 @@ const DOMAINS = {
   },
   "benevolat-competences": {
     label: "Bénévolat de compétences",
-    icon: "",
+    icon: "",
     color: "#be0023",
   },
   "mémoire et citoyenneté": {
     label: "Mémoire et citoyenneté",
-    icon: "",
+    icon: "",
     color: "#8c7500",
   },
   autre: {

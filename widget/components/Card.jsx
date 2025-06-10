@@ -6,11 +6,8 @@ const Card = (props) => {
 
   if (widget.type === "volontariat") {
     return <CardVolontariat widget={widget} {...rest} />;
-  } else if (widget.type === "benevolat") {
-    return <CardBenevolat widget={widget} {...rest} />;
   } else {
-    console.warn("Unknown widgetType for Card:", widget.type);
-    return <CardVolontariat widget={widget} {...rest} />;
+    return <CardBenevolat widget={widget} {...rest} />;
   }
 };
 

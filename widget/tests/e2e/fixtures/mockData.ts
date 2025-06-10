@@ -1,37 +1,44 @@
+export const WIDGET_IDS = {
+  BENEVOLAT: "widget-id-benevolat",
+  VOLONTARIAT: "widget-id-volontariat",
+};
+
 // Mock /iframe/widget/?id=xxxx result
-const mockWidgetResponse = {
-  ok: true,
-  data: {
-    location: null,
-    display: "full",
-    deleted: false,
-    _id: "612f9d2bb2e403030f1684f8",
-    name: "Toutes les missions",
-    color: "#245564",
-    style: "page",
-    type: "benevolat",
-    distance: "25km",
-    rules: [],
-    publishers: ["5f5931496c7ea514150a818f"],
-    jvaModeration: false,
-    fromPublisherId: "5f5931496c7ea514150a818f",
-    fromPublisherName: "JeVeuxAider.gouv.fr",
-    active: true,
-    createdAt: "2021-09-01T15:32:59.646Z",
-    updatedAt: "2025-05-07T09:40:01.510Z",
-    __v: 0,
-    deletedAt: null,
-  },
+export const mockWidgetResponse = (widgetId: string) => {
+  return {
+    ok: true,
+    data: {
+      location: null,
+      display: "full",
+      deleted: false,
+      _id: widgetId,
+      name: "Toutes les missions",
+      color: "#245564",
+      style: "page",
+      type: widgetId === WIDGET_IDS.BENEVOLAT ? "benevolat" : "volontariat",
+      distance: "25km",
+      rules: [],
+      publishers: ["5f5931496c7ea514150a818f"],
+      jvaModeration: false,
+      fromPublisherId: "5f5931496c7ea514150a818f",
+      fromPublisherName: "JeVeuxAider.gouv.fr",
+      active: true,
+      createdAt: "2021-09-01T15:32:59.646Z",
+      updatedAt: "2025-05-07T09:40:01.510Z",
+      __v: 0,
+      deletedAt: null,
+    },
+  };
 };
 
 // Mock /iframe/search
-const mockMissionsResponse = {
+export const mockMissionsResponse = {
   ok: true,
   data: [
     {
       _id: "681c2d791e3eb537c7283581",
       title: "J’accompagne des projets de communication",
-      domain: "benevolat-competences",
+      domain: "sport",
       domainLogo: "https://jeveuxaider.fra1.digitaloceanspaces.com/public/production/16695/s4oQeun6RPeBuFm0MygXVyBKp3kzMz.jpg?v=1737369602",
       organizationName: "Asssociation johnny l'envie d'avoir envie",
       remote: "no",
@@ -274,7 +281,7 @@ const mockMissionsResponse = {
 };
 
 // Mock /iframe/xxxx/aggs
-const mockAggsResponse = {
+export const mockAggsResponse = {
   ok: true,
   data: {
     domain: [
@@ -311,5 +318,3 @@ const mockAggsResponse = {
     ],
   },
 };
-
-export { mockAggsResponse, mockMissionsResponse, mockWidgetResponse };

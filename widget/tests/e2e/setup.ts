@@ -31,7 +31,7 @@ function startMockServer() {
 
     if (pathname === "/api-mock/iframe/widget") {
       res.writeHead(200);
-      res.end(JSON.stringify(mockWidgetResponse));
+      res.end(JSON.stringify(mockWidgetResponse(parsedUrl.query.id as string)));
       return;
     }
 
