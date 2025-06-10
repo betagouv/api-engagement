@@ -2,7 +2,7 @@
 # - main branch: production
 # - staging branch: staging
 #
-# For each service (app, api, process, widget-benevolat, widget-volontariat)
+# For each service (app, api, process, widget)
 # - use build args to pass environment variables
 # - build and push image to GitHub Container Registry
 #
@@ -48,7 +48,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        service: [app, api, process, widget-benevolat, widget-volontariat]
+        service: [app, api, process, widget]
     steps:
       - name: Checkout code
         uses: actions/checkout@v4

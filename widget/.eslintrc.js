@@ -7,13 +7,12 @@ module.exports = {
     "node_modules/",
     ".next/",
     "out/",
-    // We want to lint 'components/', 'pages/', 'public/', 'store.js', 'utils.js', etc.
-    // 'public/' can sometimes be ignored if it only contains static assets not needing linting.
-    // Let's start by linting it and can add it to ignorePatterns later if needed.
+    "public/",
+    "next.config.js", // CommonJS
   ],
   overrides: [
     {
-      // Specific configuration for Playwright test files (if used)
+      // Specific configuration for Playwright test files
       files: ["tests/**/*.ts", "playwright.config.ts"],
       parserOptions: {
         ecmaVersion: 2020,
@@ -55,12 +54,6 @@ module.exports = {
           version: "detect", // Automatically detect the React version
         },
       },
-      // Add any specific rules for JS/JSX files here if needed,
-      // otherwise, they will inherit from the base config.
-      // Example:
-      // rules: {
-      //   "react/prop-types": "off", // If you're not using prop-types
-      // },
     },
   ],
 };
