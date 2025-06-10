@@ -20,7 +20,7 @@ const Create = () => {
       try {
         const resP = await api.post("/publisher/search", {});
         if (!resP.ok) throw resP;
-        setPublishers(resP.data);
+        setPublishers(resP.data.sort((a, b) => a.name.localeCompare(b.name)));
       } catch (error) {
         captureError(error, "Une erreur est survenue lors de la récupération des partenaires");
         navigate("/admin-account");
