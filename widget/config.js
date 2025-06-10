@@ -13,6 +13,11 @@ const DOMAINS = {
     icon: "",
     color: "#BC5401",
   },
+  "prevention-protection": {
+    label: "Prévention et protection",
+    icon: "",
+    color: "#BC5401",
+  },
   sante: {
     label: "Santé",
     icon: "",
@@ -28,6 +33,11 @@ const DOMAINS = {
     icon: "",
     color: "#007C94",
   },
+  emploi: {
+    label: "Emploi",
+    icon: "",
+    color: "#007C94",
+  },
   sport: {
     label: "Sport",
     icon: "",
@@ -36,6 +46,11 @@ const DOMAINS = {
   humanitaire: {
     label: "Développement international et aide humanitaire",
     icon: "",
+    color: "#017c51",
+  },
+  animaux: {
+    label: "Animaux",
+    icon: "",
     color: "#017c51",
   },
   "vivre-ensemble": {
@@ -47,6 +62,16 @@ const DOMAINS = {
     label: "Citoyenneté européenne",
     icon: "",
     color: "#ffca00",
+  },
+  "benevolat-competences": {
+    label: "Bénévolat de compétences",
+    icon: "",
+    color: "#be0023",
+  },
+  "mémoire et citoyenneté": {
+    label: "Mémoire et citoyenneté",
+    icon: "",
+    color: "#8c7500",
   },
   autre: {
     label: "Interventions d'urgence en cas de crise",

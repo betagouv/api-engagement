@@ -2,12 +2,14 @@
   "name": "api-engagement",
   "version": "1.0.0",
   "scripts": {
-    "lint": "npm run lint:api && npm run lint:process",
-    "lint:fix": "npm run lint:fix:api && npm run lint:fix:process",
+    "lint": "npm run lint:api && npm run lint:process && npm run lint:widget",
+    "lint:fix": "npm run lint:fix:api && npm run lint:fix:process && npm run lint:fix:widget",
     "lint:api": "cd api && npm run lint",
     "lint:fix:api": "cd api && npm run lint:fix",
     "lint:process": "cd process && npm run lint",
     "lint:fix:process": "cd process && npm run lint:fix",
+    "lint:widget": "cd widget && npm run lint",
+    "lint:fix:widget": "cd widget && npm run lint:fix",
     "format": "prettier --write \"**/*.{js,jsx,ts,tsx,json,md,yml}\" --ignore-path .prettierignore"
   },
   "devDependencies": {
