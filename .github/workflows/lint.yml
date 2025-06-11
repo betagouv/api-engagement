@@ -33,5 +33,8 @@ jobs:
       - name: Install process dependencies
         run: cd process && npm ci
 
+      - name: Install widget dependencies
+        run: cd widget && npm ci
+
       - name: Run ESLint
         run: npm run lint
