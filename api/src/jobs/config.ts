@@ -1,8 +1,11 @@
 import { Processor } from "bullmq";
-import { BaseQueue } from "./base";
+import { BaseQueue } from "./base/queue";
 import { LetudiantHandler, LetudiantJobPayload } from "./letudiant/handler";
 import { LetudiantQueue } from "./letudiant/queue";
 import { JobSchedule, WorkerConfig } from "./types";
+
+// Instanciate handlers here
+const letudiantHandler = new LetudiantHandler();
 
 export const queues: BaseQueue<any>[] = [
   new LetudiantQueue(),
@@ -15,9 +18,9 @@ export const queues: BaseQueue<any>[] = [
  */
 export const jobSchedules: JobSchedule[] = [
   {
-    title: "L'Etudiant feed XML generation",
+    title: "L'Etudiant API sync",
     cronExpression: "0 */3 * * *", // Every 3 hours
-    function: LetudiantHandler.schedule,
+    function: letudiantHandler.schedule,
   },
 ];
 
@@ -28,7 +31,7 @@ export const jobSchedules: JobSchedule[] = [
 export const jobWorkers: WorkerConfig[] = [
   {
     queueName: LetudiantQueue.queueName,
-    processor: LetudiantHandler.handle as Processor<LetudiantJobPayload>,
-    name: LetudiantHandler.JOB_NAME, // This worker will specifically handle "letudiant-exporter" jobs
+    processor: letudiantHandler.handle as Processor<LetudiantJobPayload>,
+    name: letudiantHandler.JOB_NAME, // This worker will specifically handle "letudiant-exporter" jobs
   },
 ];

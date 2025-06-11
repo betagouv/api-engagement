@@ -4,6 +4,7 @@ import { LETUDIANT_PILOTY_TOKEN } from "../../config";
 import OrganizationModel from "../../models/organization";
 import { PilotyClient, PilotyCompany, PilotyError } from "../../services/piloty/";
 import { Mission, Organization } from "../../types";
+import { BaseHandler } from "../base/handler";
 import { JobResult } from "../types";
 import { MEDIA_PUBLIC_ID } from "./config";
 import { LetudiantQueue } from "./queue";
@@ -32,12 +33,12 @@ export interface LetudiantJobResult extends JobResult {
  * - Handles the job processing
  * - Schedules the job
  */
-export class LetudiantHandler {
-  public static readonly JOB_NAME = "letudiant-exporter";
+export class LetudiantHandler implements BaseHandler<LetudiantJobPayload, LetudiantJobResult> {
+  public readonly JOB_NAME = "letudiant-exporter";
 
-  public static readonly queue = new LetudiantQueue();
+  public readonly queue = new LetudiantQueue();
 
-  public static async handle(bullJob: Job<LetudiantJobPayload>): Promise<LetudiantJobResult> {
+  public async handle(bullJob: Job<LetudiantJobPayload>): Promise<LetudiantJobResult> {
     const pilotyClient = new PilotyClient(LETUDIANT_PILOTY_TOKEN, MEDIA_PUBLIC_ID);
     const { id, limit } = bullJob.data;
 
@@ -62,7 +63,7 @@ export class LetudiantHandler {
           continue;
         }
 
-        const pilotyCompany = await LetudiantHandler.createOrUpdateCompany(pilotyClient, mission, organization);
+        const pilotyCompany = await this.createOrUpdateCompany(pilotyClient, mission, organization);
 
         const jobPayload = missionToPilotyJob(mission, pilotyCompany.public_id, mandatoryData);
         let pilotyJob = null;
@@ -103,7 +104,7 @@ export class LetudiantHandler {
     };
   }
 
-  private static async createOrUpdateCompany(pilotyClient: PilotyClient, mission: HydratedDocument<Mission>, organization: HydratedDocument<Organization>): Promise<PilotyCompany> {
+  private async createOrUpdateCompany(pilotyClient: PilotyClient, mission: HydratedDocument<Mission>, organization: HydratedDocument<Organization>): Promise<PilotyCompany> {
     const companyPayload = await missionToPilotyCompany(mission);
     let pilotyCompany = null;
 
@@ -133,16 +134,16 @@ export class LetudiantHandler {
     return pilotyCompany;
   }
 
-  public static async schedule(): Promise<void> {
-    console.log(`[LetudiantHandler] Scheduling job '${LetudiantHandler.JOB_NAME}' to queue '${LetudiantHandler.queue.queueName}'`);
+  public async schedule(): Promise<void> {
+    console.log(`[LetudiantHandler] Scheduling job '${this.JOB_NAME}' to queue '${this.queue.queueName}'`);
     try {
       // Add the job with its specific name and an empty payload.
       // The worker (LetudiantHandler.handle) will pick it up based on the JOB_NAME.
       // An empty payload {} means the handle method will use default values if any (e.g., for limit).
-      await LetudiantHandler.queue.addJob(LetudiantHandler.JOB_NAME, {});
-      console.log(`[LetudiantHandler] Successfully added job '${LetudiantHandler.JOB_NAME}' to queue '${LetudiantHandler.queue.queueName}'`);
+      await this.queue.addJob(this.JOB_NAME, {});
+      console.log(`[LetudiantHandler] Successfully added job '${this.JOB_NAME}' to queue '${this.queue.queueName}'`);
     } catch (error) {
-      console.error(`[LetudiantHandler] Failed to add job '${LetudiantHandler.JOB_NAME}' to queue '${LetudiantHandler.queue.queueName}':`, error);
+      console.error(`[LetudiantHandler] Failed to add job '${this.JOB_NAME}' to queue '${this.queue.queueName}':`, error);
       // Depending on requirements, you might want to re-throw the error or handle it.
     }
   }
