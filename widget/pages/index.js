@@ -19,15 +19,32 @@ import { calculateDistance } from "../utils/utils";
 
 /**
  * Layout widget --> max-width: 1152px
+ * VOLONTARIAT
+ *
+ *
+ * Layout widget --> max-width: 1152px
  * 1 : CAROUSEL
- *  --> mobile (0->639px) height = 670px, frame = (1x1) bottom arrows
- *  --> tablet (640->767px) height = 670px, frame = (2x2) bottom arrows
- *  --> tablet (768->1023px) height = 600px, frame = (2x2) side arrows
- *  --> desktop (1024px->) height = 600px, frame = (3x3) side arrows
+ * --> mobile (0->639px) height = 670px, frame = (1x1) bottom arrows
+ * --> tablet (640->767px) height = 670px, frame = (2x2) bottom arrows
+ * --> tablet (768->1023px) height = 600px, frame = (2x2) side arrows
+ * --> desktop (1024px->) height = 600px, frame = (3x3) side arrows
  * 2 : GRID
- *  --> mobile (0->639px) height = 2200px, frame = (1x1) bottom pagination
- *  --> tablet (640->1350px) height = 1350px, frame = (2x2) bottom pagination
- *  --> desktop (1024px->) height = 1050px, frame = (3x3) bottom pagination
+ * --> mobile (0->639px) height = 2200px, frame = (1x1) bottom pagination
+ * --> tablet (640->1350px) height = 1350px, frame = (2x2) bottom pagination
+ * --> desktop (1024px->) height = 1050px, frame = (3x3) bottom pagination
+ *
+ * --
+ *
+ * BENEVOLAT
+ *
+ * Layout widget --> max-width: 1152px
+ * 1 : CAROUSEL
+ * --> mobile (0->767px) height = 780px
+ * --> tablet + desktop (640->+) height = 686px
+ * 2 : GRID
+ * --> mobile (0->639px) height = 3424px
+ * --> tablet (640->1023px) height = 1862px
+ * --> desktop (1024px->+) height = 1314px
  */
 
 const Home = ({ widget, apiUrl, missions, total, request, environment }) => {
@@ -189,6 +206,8 @@ const Home = ({ widget, apiUrl, missions, total, request, environment }) => {
   if (!widget) {
     return <div className="w-full h-full flex items-center justify-center">Erreur lors du chargement du widget</div>;
   }
+
+  // TODO: DYNAMIC HEIGHT
 
   return (
     <div
