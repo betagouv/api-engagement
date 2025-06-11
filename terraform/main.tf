@@ -109,6 +109,8 @@ resource "scaleway_container" "api" {
     "SLACK_TOKEN"       = local.secrets.SLACK_TOKEN
     "SCW_ACCESS_KEY"    = local.secrets.SCW_ACCESS_KEY
     "SCW_SECRET_KEY"    = local.secrets.SCW_SECRET_KEY
+    "PILOTY_BASE_URL"   = local.secrets.PILOTY_BASE_URL
+    "LETUDIANT_PILOTY_TOKEN" = local.secrets.LETUDIANT_PILOTY_TOKEN
   }
 }
 
@@ -150,6 +152,8 @@ resource "scaleway_container" "api_jobs" {
     "SLACK_TOKEN"       = local.secrets.SLACK_TOKEN
     "SCW_ACCESS_KEY"    = local.secrets.SCW_ACCESS_KEY
     "SCW_SECRET_KEY"    = local.secrets.SCW_SECRET_KEY
+    "PILOTY_BASE_URL"   = local.secrets.PILOTY_BASE_URL
+    "LETUDIANT_PILOTY_TOKEN" = local.secrets.LETUDIANT_PILOTY_TOKEN
   }
 }
 
@@ -190,6 +194,8 @@ resource "scaleway_container" "api_scheduler" {
     "SLACK_TOKEN"       = local.secrets.SLACK_TOKEN
     "SCW_ACCESS_KEY"    = local.secrets.SCW_ACCESS_KEY
     "SCW_SECRET_KEY"    = local.secrets.SCW_SECRET_KEY
+    "PILOTY_BASE_URL"   = local.secrets.PILOTY_BASE_URL
+    "LETUDIANT_PILOTY_TOKEN" = local.secrets.LETUDIANT_PILOTY_TOKEN
   }
 }
 
