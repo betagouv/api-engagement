@@ -45,7 +45,7 @@ jobs:
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3
         with:
-          terraform_version: 1.5.7
+          terraform_version: 1.9.1
 
       - name: Login to GitHub Container Registry
         uses: docker/login-action@v3
@@ -85,14 +85,7 @@ jobs:
       - name: Terraform Init
         working-directory: ./terraform
         run: |
-          terraform init \
-            -backend-config="bucket=api-engagement-terraform-state-${{ needs.set-env.outputs.environment_name }}" \
-            -backend-config="key=terraform.tfstate" \
-            -backend-config="endpoint=https://s3.fr-par.scw.cloud" \
-            -backend-config="region=fr-par" \
-            -backend-config="skip_credentials_validation=true" \
-            -backend-config="skip_region_validation=true" \
-            -backend-config="skip_metadata_api_check=true"
+          terraform init
 
       - name: Terraform Workspace
         working-directory: ./terraform

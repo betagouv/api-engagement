@@ -10,7 +10,15 @@ terraform {
 
   # Use minimal S3 backend configuration
   # The full configuration is provided by the GitHub Actions workflow
-  backend "s3" {}
+  backend "s3" {
+    bucket                      = "api-engagement-terraform-state"
+    key                         = "terraform.tfstate"
+    region                      = "fr-par"
+    endpoint                    = "https://s3.fr-par.scw.cloud"
+    skip_credentials_validation = true
+    skip_region_validation      = true
+    skip_requesting_account_id  = true
+  }
 
   required_version = ">= 1.0.0"
 }
@@ -194,28 +202,25 @@ resource "scaleway_container" "api_scheduler" {
 }
 
 # Process Container
-# resource "scaleway_container" "process" {
-#   name            = "${terraform.workspace}-process"
-#   description     = "Process ${terraform.workspace} container"
-#   namespace_id    = scaleway_container_namespace.main.id
-#   registry_image  = "ghcr.io/${var.github_repository}/process:${terraform.workspace}${var.image_tag == "latest" ? "" : "-${var.image_tag}"}"
-#   port            = 8080
-#   cpu_limit       = terraform.workspace == "production" ? 1500 : 560
-#   memory_limit    = terraform.workspace == "production" ? 3072 : 1024
-#   min_scale       = terraform.workspace == "production" ? 1 : 1
-#   max_scale       = terraform.workspace == "production" ? 1 : 1
-#   timeout         = 300  # Longer timeout for process jobs
-#   max_concurrency = 20
-#   privacy         = "private"
-#   protocol        = "http1"
-#   http_option     = "redirected" # https only
-#   deploy          = true
-# }
+resource "scaleway_container" "process" {
+  name            = "${terraform.workspace}-process"
+  description     = "Process ${terraform.workspace} container"
+  namespace_id    = scaleway_container_namespace.main.id
+  registry_image  = "ghcr.io/${var.github_repository}/process:${terraform.workspace}${var.image_tag == "latest" ? "" : "-${var.image_tag}"}"
+  port            = 8080
+  cpu_limit       = terraform.workspace == "production" ? 1500 : 560
+  memory_limit    = terraform.workspace == "production" ? 3072 : 1024
+  min_scale       = terraform.workspace == "production" ? 1 : 1
+  max_scale       = terraform.workspace == "production" ? 1 : 1
+  timeout         = 300  # Longer timeout for process jobs
+  max_concurrency = 20
+  privacy         = "private"
+  protocol        = "http1"
+  http_option     = "redirected" # https only
+  deploy          = true
+}
 
-# We're using count = 0 to skip creating this resource
-# because it already exists and causes conflicts
 resource "scaleway_container_domain" "process" {
-  count = 0
   container_id = scaleway_container.process.id
   hostname     = local.process_hostname
 }
@@ -239,10 +244,7 @@ resource "scaleway_container" "app" {
   deploy          = true
 }
 
-# We're using count = 0 to skip creating this resource
-# because it already exists and causes conflicts
 resource "scaleway_container_domain" "app" {
-  count = 0
   container_id = scaleway_container.app.id
   hostname     = local.app_hostname
 }
@@ -274,11 +276,7 @@ resource "scaleway_container" "volontariat" {
     "SENTRY_DSN" = local.secrets.SENTRY_DSN
   }
 }
-
-# We're using count = 0 to skip creating this resource
-# because it already exists and causes conflicts
 resource "scaleway_container_domain" "volontariat" {
-  count = 0
   container_id = scaleway_container.volontariat.id
   hostname     = local.volontariat_hostname
 }
@@ -310,11 +308,7 @@ resource "scaleway_container" "benevolat" {
     "SENTRY_DSN"         = local.secrets.SENTRY_DSN
   }
 }
-
-# We're using count = 0 to skip creating this resource
-# because it already exists and causes conflicts
 resource "scaleway_container_domain" "benevolat" {
-  count = 0
   container_id = scaleway_container.benevolat.id
   hostname     = local.benevolat_hostname
 }
