@@ -148,19 +148,54 @@ router.get("/:id/excluded-organizations", passport.authenticate("user", { sessio
 
 router.post("/", passport.authenticate("admin", { session: false }), async (req: UserRequest, res: Response, next: NextFunction) => {
   try {
-    const body = req.body;
+    const body = zod
+      .object({
+        sendReport: zod.boolean().default(false),
+        sendReportTo: zod.array(zod.string()).default([]),
+        isAnnonceur: zod.boolean().default(false),
+        missionType: zod.string().nullable().default(null),
+        hasApiRights: zod.boolean().default(false),
+        hasWidgetRights: zod.boolean().default(false),
+        hasCampaignRights: zod.boolean().default(false),
+        category: zod.string().nullable().default(null),
+        publishers: zod
+          .array(
+            zod.object({
+              publisherId: zod.string(),
+              publisherName: zod.string(),
+              publisherLogo: zod.string().optional(),
+              missionType: zod.string().nullable().default(null),
+              moderator: zod.boolean().default(false),
+            })
+          )
+          .optional(),
+        documentation: zod.string().optional(),
+        description: zod.string().optional(),
+        lead: zod.string().optional(),
+        logo: zod.string().optional(),
+        url: zod.string().optional(),
+        email: zod.string().optional(),
+        feed: zod.string().optional(),
+      })
+      .passthrough()
+      .safeParse(req.body);
 
-    const exists = await PublisherModel.exists({ name: body.name });
+    if (!body.success) {
+      return res.status(400).send({ ok: false, code: INVALID_BODY, error: body.error });
+    }
+
+    const exists = await PublisherModel.exists({ name: body.data.name });
     if (exists) {
       return res.status(409).send({
         ok: false,
         code: RESSOURCE_ALREADY_EXIST,
-        message: `Publisher ${body.name} already exists`,
+        message: `Publisher ${body.data.name} already exists`,
       });
     }
 
-    body.logo = DEFAULT_AVATAR;
-    const data = await PublisherModel.create(body);
+    body.data.logo = DEFAULT_AVATAR;
+
+    const data = await PublisherModel.create(body.data);
 
     return res.status(200).send({ ok: true, data });
   } catch (error) {

@@ -4,8 +4,9 @@ import { toast } from "react-toastify";
 
 import api from "../../services/api";
 import { captureError } from "../../services/error";
+import AnnonceurCreation from "./components/AnnonceurCreation";
+import DiffuseurCreation from "./components/DiffuseurCreation";
 import Informations from "./components/Informations";
-import SettingsCreation from "./components/SettingsCreation";
 
 const canSubmit = (values) => {
   if (values.name === "") return false;
@@ -19,24 +20,32 @@ const canSubmit = (values) => {
 const Create = () => {
   const navigate = useNavigate();
   const [values, setValues] = useState({
-    name: "",
-    email: "",
-    url: "",
-    documentation: "",
+    publishers: [],
+    sendReportTo: [],
+    sendReport: false,
     description: "",
+    lead: "",
+    url: "",
+    email: "",
+    documentation: "",
+    name: "",
     isAnnonceur: false,
-    isDiffuseur: false,
+    isDiffuseur: false, // No in the model
+    missionType: null,
+    category: null,
     hasApiRights: false,
     hasWidgetRights: false,
     hasCampaignRights: false,
-    missionType: null,
   });
+  const [errors, setErrors] = useState({});
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
       const res = await api.post(`/publisher/`, values);
-      if (!res.ok) throw res;
+      if (!res.ok) {
+        throw res;
+      }
       toast.success("Partenaire créé avec succès");
       navigate(`/publisher/${res.data._id}`);
     } catch (error) {
@@ -54,7 +63,18 @@ const Create = () => {
       <div className="bg-white p-12 space-y-12 shadow-lg">
         <Informations values={values} onChange={setValues} disabled={false} />
         <div className="w-full h-px bg-gray-border" />
-        <SettingsCreation values={values} onChange={setValues} onSave={setValues} />
+        <div className="space-y-6">
+          <h2 className="text-3xl font-bold">Paramètres</h2>
+          {errors.settings && <p className="text-red-700">{errors.settings}</p>}
+          <div className="flex items-start gap-6">
+            <div className="flex-1">
+              <AnnonceurCreation values={values} onChange={setValues} errors={errors} setErrors={setErrors} />
+            </div>
+            <div className="flex-1">
+              <DiffuseurCreation values={values} onChange={setValues} errors={errors} setErrors={setErrors} />
+            </div>
+          </div>
+        </div>
 
         <div className="flex items-center justify-end gap-2">
           <button className="filled-button" disabled={!canSubmit(values)} onClick={handleSubmit}>
