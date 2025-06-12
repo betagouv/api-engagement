@@ -9,9 +9,10 @@ import api from "../../services/api";
 import { captureError } from "../../services/error";
 import useStore from "../../services/store";
 import Administration from "./components/Administration";
+import Annonceur from "./components/Annonceur";
+import Diffuseur from "./components/Diffuseur";
 import Informations from "./components/Informations";
 import Members from "./components/Members";
-import Settings from "./components/Settings";
 
 const Edit = () => {
   const { id } = useParams();
@@ -28,10 +29,10 @@ const Edit = () => {
     email: "",
     documentation: "",
     name: "",
-    isAnnonceur: false,
-    isDiffuseur: false, // No in the model
     missionType: null,
     category: null,
+    isAnnonceur: false,
+    isDiffuseur: false,
     hasApiRights: false,
     hasWidgetRights: false,
     hasCampaignRights: false,
@@ -47,7 +48,14 @@ const Edit = () => {
     const fetchData = async () => {
       try {
         const res = await api.get(`/publisher/${id}`);
-        if (!res.ok) throw res;
+        if (!res.ok) {
+          if (res.status === 404) {
+            toast.error("Partenaire non trouvé");
+            navigate("/admin-account/publishers");
+            return;
+          }
+          throw res;
+        }
         setPublisher(res.data);
       } catch (error) {
         captureError(error, "Erreur lors de la récupération du partenaire");
@@ -94,22 +102,34 @@ const Edit = () => {
   const handleSubmit = async () => {
     try {
       const errors = {};
-      if (!values.isAnnonceur && !values.isDiffuseur) errors.settings = "Le partenaire doit être “Annonceur” ou “Diffuseur”. Veuillez cocher une des options dans le formulaire";
-      if (values.isAnnonceur && !values.missionType) errors.missionType = "Le partenaire est “Annonceur”. Veuillez sélectionner la catégorie dans le formulaire.";
-      if (values.isDiffuseur && !values.category) errors.category = "Le partenaire est “Diffuseur”. Veuillez sélectionner la catégorie dans le formulaire.";
-      if (values.isDiffuseur && !values.hasApiRights && !values.hasWidgetRights && !values.hasCampaignRights)
+      if (!values.isAnnonceur && !values.isDiffuseur) {
+        errors.settings = "Le partenaire doit être “Annonceur” ou “Diffuseur”. Veuillez cocher une des options dans le formulaire";
+      }
+      if (values.isAnnonceur && !values.missionType) {
+        errors.missionType = "Le partenaire est “Annonceur”. Veuillez sélectionner la catégorie dans le formulaire.";
+      }
+      if (values.isDiffuseur && !values.category) {
+        errors.category = "Le partenaire est “Diffuseur”. Veuillez sélectionner la catégorie dans le formulaire.";
+      }
+      if (values.isDiffuseur && !values.hasApiRights && !values.hasWidgetRights && !values.hasCampaignRights) {
         errors.mode = "Le partenaire est “Diffuseur”. Veuillez sélectionner au moins un “moyen de diffusion” dans le formulaire.";
+      }
+
       if (Object.keys(errors).length > 0) {
-        toast.error(errors.settings || errors.missionType || errors.category || errors.mode);
+        toast.error(errors.settings || errors.missionType || errors.category);
         setErrors(errors);
         return;
       }
 
       const res = await api.put(`/publisher/${id}`, values);
-      if (!res.ok) throw res;
+      if (!res.ok) {
+        throw res;
+      }
       toast.success("Partenaire mis à jour");
       setPublisher(res.data);
-      if (sessionPublisher._id === values._id) setSessionPublisher(res.data);
+      if (sessionPublisher._id === values._id) {
+        setSessionPublisher(res.data);
+      }
     } catch (error) {
       captureError(error, "Erreur lors de la mise à jour du partenaire");
     }
@@ -142,7 +162,18 @@ const Edit = () => {
       <div className="bg-white p-12 space-y-12 shadow-lg">
         <Informations values={values} onChange={setValues} />
         <div className="w-full h-px bg-gray-border" />
-        <Settings values={values} onChange={setValues} onSave={setPublisher} errors={errors} setErrors={setErrors} />
+        <div className="space-y-6">
+          <h2 className="text-3xl font-bold">Paramètres</h2>
+          {errors.settings && <p className="text-red-700">{errors.settings}</p>}
+          <div className="flex items-start gap-6">
+            <div className="flex-1">
+              <Annonceur values={values} onChange={setValues} errors={errors} setErrors={setErrors} />
+            </div>
+            <div className="flex-1">
+              <Diffuseur values={values} onChange={setValues} onSave={setPublisher} errors={errors} setErrors={setErrors} />
+            </div>
+          </div>
+        </div>
         <div className="w-full h-px bg-gray-border" />
         <Administration values={values} onChange={setValues} />
         <div className="w-full h-px bg-gray-border" />

@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 
 import MagnifyIconSvg from "../assets/svg/magnify-icon.svg";
 
-const SearchInput = ({ value, onChange, className, placeholder, ...props }) => {
+const SearchInput = ({ value, onChange, className, placeholder, timeout = 400, ...props }) => {
   const [input, setInput] = useState(value);
 
   useEffect(() => {
@@ -12,7 +12,7 @@ const SearchInput = ({ value, onChange, className, placeholder, ...props }) => {
   useEffect(() => {
     const handler = setTimeout(() => {
       onChange(input);
-    }, 400);
+    }, timeout);
     return () => clearTimeout(handler);
   }, [input]);
 
