@@ -1,6 +1,6 @@
 {
   "ignore": ["node_modules"],
   "watch": ["src"],
-  "exec": "npm run start-dev",
-  "ext": "ts"
+  "ext": "ts",
+  "exec": "ts-node src/index.ts"
 }

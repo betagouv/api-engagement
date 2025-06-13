@@ -10,7 +10,15 @@ terraform {
 
   # Use minimal S3 backend configuration
   # The full configuration is provided by the GitHub Actions workflow
-  backend "s3" {}
+  backend "s3" {
+    bucket                      = "api-engagement-terraform-state"
+    key                         = "terraform.tfstate"
+    region                      = "fr-par"
+    endpoint                    = "https://s3.fr-par.scw.cloud"
+    skip_credentials_validation = true
+    skip_region_validation      = true
+    skip_requesting_account_id  = true
+  }
 
   required_version = ">= 1.0.0"
 }
@@ -70,7 +78,7 @@ resource "scaleway_container" "api" {
   name            = "${terraform.workspace}-api"
   description     = "API ${terraform.workspace} container"
   namespace_id    = scaleway_container_namespace.main.id
-  registry_image  = "ghcr.io/${var.github_repository}/api:${terraform.workspace}${var.image_tag == "latest" ? "" : "-${var.image_tag}"}"
+  registry_image  = "ghcr.io/${var.github_repository}/api-api:${terraform.workspace}${var.image_tag == "latest" ? "" : "-${var.image_tag}"}"
   port            = 8080
   # Update in function of terraform.workspace
   cpu_limit       = terraform.workspace == "production" ? 750 : 250
@@ -103,15 +111,94 @@ resource "scaleway_container" "api" {
     "SLACK_TOKEN"       = local.secrets.SLACK_TOKEN
     "SCW_ACCESS_KEY"    = local.secrets.SCW_ACCESS_KEY
     "SCW_SECRET_KEY"    = local.secrets.SCW_SECRET_KEY
+    "PILOTY_BASE_URL"   = local.secrets.PILOTY_BASE_URL
+    "LETUDIANT_PILOTY_TOKEN" = local.secrets.LETUDIANT_PILOTY_TOKEN
   }
 }
 
-# We're using count = 0 to skip creating this resource
-# because it already exists and causes conflicts
-resource "scaleway_container_domain" "api" {
-  count = 0
-  container_id = scaleway_container.api.id
-  hostname     = local.api_hostname
+# API Jobs Container
+resource "scaleway_container" "api_jobs" {
+  name            = "${terraform.workspace}-api-jobs"
+  description     = "API Jobs ${terraform.workspace} container"
+  namespace_id    = scaleway_container_namespace.main.id
+  registry_image  = "ghcr.io/${var.github_repository}/api-jobs:${terraform.workspace}${var.image_tag == "latest" ? "" : "-${var.image_tag}"}"
+  port            = 8080
+  # Update in function of terraform.workspace
+  cpu_limit       = terraform.workspace == "production" ? 500 : 250
+  memory_limit    = terraform.workspace == "production" ? 1024 : 512
+  min_scale       = terraform.workspace == "production" ? 1 : 1
+  max_scale       = terraform.workspace == "production" ? 2 : 1
+  timeout         = 300  # Jobs may take longer to complete
+  max_concurrency = 10   # Limit concurrent jobs
+  privacy         = "private"
+  protocol        = "http1"
+  http_option     = "redirected" # https only
+  deploy          = true
+
+  environment_variables = {
+    "ENV"           = terraform.workspace
+    "API_URL"       = "https://${local.api_hostname}"
+    "APP_URL"       = "https://${local.app_hostname}"
+    "BENEVOLAT_URL" = "https://${local.benevolat_hostname}"
+    "VOLONTARIAT_URL" = "https://${local.volontariat_hostname}"
+    "BUCKET_NAME"   = local.bucket_name
+    "SLACK_JOBTEASER_CHANNEL_ID" = terraform.workspace == "production" ? "C080H9MH56W" : ""
+  }
+
+  secret_environment_variables = {
+    "SECRET"            = local.secrets.SECRET
+    "DB_ENDPOINT"       = local.secrets.DB_ENDPOINT
+    "ES_ENDPOINT"       = local.secrets.ES_ENDPOINT
+    "SENTRY_DSN"        = local.secrets.SENTRY_DSN
+    "SENDINBLUE_APIKEY" = local.secrets.SENDINBLUE_APIKEY
+    "SLACK_TOKEN"       = local.secrets.SLACK_TOKEN
+    "SCW_ACCESS_KEY"    = local.secrets.SCW_ACCESS_KEY
+    "SCW_SECRET_KEY"    = local.secrets.SCW_SECRET_KEY
+    "PILOTY_BASE_URL"   = local.secrets.PILOTY_BASE_URL
+    "LETUDIANT_PILOTY_TOKEN" = local.secrets.LETUDIANT_PILOTY_TOKEN
+  }
+}
+
+# API Scheduler Container
+resource "scaleway_container" "api_scheduler" {
+  name            = "${terraform.workspace}-api-scheduler"
+  description     = "API Scheduler ${terraform.workspace} container"
+  namespace_id    = scaleway_container_namespace.main.id
+  registry_image  = "ghcr.io/${var.github_repository}/api-scheduler:${terraform.workspace}${var.image_tag == "latest" ? "" : "-${var.image_tag}"}"
+  port            = 8080
+  cpu_limit       = terraform.workspace == "production" ? 500 : 250
+  memory_limit    = terraform.workspace == "production" ? 1024 : 512
+  min_scale       = terraform.workspace == "production" ? 1 : 1
+  max_scale       = terraform.workspace == "production" ? 2 : 1
+  timeout         = 30
+  max_concurrency = 1   
+  privacy         = "private"
+  protocol        = "http1"
+  http_option     = "redirected" # https only
+  deploy          = true
+
+  environment_variables = {
+    "ENV"           = terraform.workspace
+    "API_URL"       = "https://${local.api_hostname}"
+    "APP_URL"       = "https://${local.app_hostname}"
+    "BENEVOLAT_URL" = "https://${local.benevolat_hostname}"
+    "VOLONTARIAT_URL" = "https://${local.volontariat_hostname}"
+    "BUCKET_NAME"   = local.bucket_name
+    "SLACK_JOBTEASER_CHANNEL_ID" = terraform.workspace == "production" ? "C080H9MH56W" : ""
+  }
+
+  secret_environment_variables = {
+    "SECRET"            = local.secrets.SECRET
+    "DB_ENDPOINT"       = local.secrets.DB_ENDPOINT
+    "ES_ENDPOINT"       = local.secrets.ES_ENDPOINT
+    "SENTRY_DSN"        = local.secrets.SENTRY_DSN
+    "SENDINBLUE_APIKEY" = local.secrets.SENDINBLUE_APIKEY
+    "SLACK_TOKEN"       = local.secrets.SLACK_TOKEN
+    "SCW_ACCESS_KEY"    = local.secrets.SCW_ACCESS_KEY
+    "SCW_SECRET_KEY"    = local.secrets.SCW_SECRET_KEY
+    "PILOTY_BASE_URL"   = local.secrets.PILOTY_BASE_URL
+    "LETUDIANT_PILOTY_TOKEN" = local.secrets.LETUDIANT_PILOTY_TOKEN
+  }
 }
 
 # Process Container
@@ -121,42 +208,19 @@ resource "scaleway_container" "process" {
   namespace_id    = scaleway_container_namespace.main.id
   registry_image  = "ghcr.io/${var.github_repository}/process:${terraform.workspace}${var.image_tag == "latest" ? "" : "-${var.image_tag}"}"
   port            = 8080
-  cpu_limit       = terraform.workspace == "production" ? 2000 : 1000
-  memory_limit    = terraform.workspace == "production" ? 4096 : 2048
+  cpu_limit       = terraform.workspace == "production" ? 1500 : 560
+  memory_limit    = terraform.workspace == "production" ? 3072 : 1024
   min_scale       = terraform.workspace == "production" ? 1 : 1
   max_scale       = terraform.workspace == "production" ? 1 : 1
   timeout         = 300  # Longer timeout for process jobs
   max_concurrency = 20
-  privacy         = "public"
+  privacy         = "private"
   protocol        = "http1"
   http_option     = "redirected" # https only
   deploy          = true
-
-  environment_variables = {
-    "ENV"           = terraform.workspace
-    "API_URL"       = "https://${local.api_hostname}"
-    "BUCKET_NAME"   = local.bucket_name
-    "SLACK_WARNING_CHANNEL_ID"   = terraform.workspace == "production" ? "C052V2UF918" : "C08QQT4702D"
-    "SLACK_CRON_CHANNEL_ID"      = terraform.workspace == "production" ? "C085S6M2K5J" : ""
-    "SLACK_LBC_CHANNEL_ID"       = terraform.workspace == "production" ? "C07SPFG724V" : ""
-  }
-
-  secret_environment_variables = {
-    "DB_ENDPOINT"                = local.secrets.DB_ENDPOINT
-    "ES_ENDPOINT"                = local.secrets.ES_ENDPOINT
-    "PG_ENDPOINT"                = local.secrets.PG_ENDPOINT
-    "SENTRY_DSN"                 = local.secrets.SENTRY_DSN
-    "SLACK_TOKEN"                = local.secrets.SLACK_TOKEN
-    "DATA_SUBVENTION_TOKEN"      = local.secrets.DATA_SUBVENTION_TOKEN
-    "SCW_ACCESS_KEY"             = local.secrets.SCW_ACCESS_KEY
-    "SCW_SECRET_KEY"             = local.secrets.SCW_SECRET_KEY
-  }
 }
 
-# We're using count = 0 to skip creating this resource
-# because it already exists and causes conflicts
 resource "scaleway_container_domain" "process" {
-  count = 0
   container_id = scaleway_container.process.id
   hostname     = local.process_hostname
 }
@@ -180,15 +244,12 @@ resource "scaleway_container" "app" {
   deploy          = true
 }
 
-# We're using count = 0 to skip creating this resource
-# because it already exists and causes conflicts
 resource "scaleway_container_domain" "app" {
-  count = 0
   container_id = scaleway_container.app.id
   hostname     = local.app_hostname
 }
 
-# Widget Volontariat Container
+# Widget Container
 resource "scaleway_container" "widget" {
   name            = "${terraform.workspace}"
   description     = "Widget ${terraform.workspace} container"
@@ -220,10 +281,6 @@ resource "scaleway_container" "widget" {
 resource "scaleway_container_domain" "widget" {
   container_id = scaleway_container.widget.id
   hostname     = local.volontariat_hostname
-}
-resource "scaleway_container_domain" "benevolat" {
-  container_id = scaleway_container.widget.id
-  hostname     = local.benevolat_hostname
 }
 
 # Outputs
