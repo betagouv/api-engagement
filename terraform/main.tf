@@ -113,6 +113,10 @@ resource "scaleway_container" "api" {
     "SCW_SECRET_KEY"    = local.secrets.SCW_SECRET_KEY
     "PILOTY_BASE_URL"   = local.secrets.PILOTY_BASE_URL
     "LETUDIANT_PILOTY_TOKEN" = local.secrets.LETUDIANT_PILOTY_TOKEN
+    "REDIS_HOST"        = local.secrets.REDIS_HOST
+    "REDIS_PASSWORD"    = local.secrets.REDIS_PASSWORD
+    "REDIS_PORT"        = local.secrets.REDIS_PORT
+    "REDIS_USERNAME"    = local.secrets.REDIS_USERNAME
   }
 }
 
@@ -156,6 +160,10 @@ resource "scaleway_container" "api_jobs" {
     "SCW_SECRET_KEY"    = local.secrets.SCW_SECRET_KEY
     "PILOTY_BASE_URL"   = local.secrets.PILOTY_BASE_URL
     "LETUDIANT_PILOTY_TOKEN" = local.secrets.LETUDIANT_PILOTY_TOKEN
+    "REDIS_HOST"        = local.secrets.REDIS_HOST
+    "REDIS_PASSWORD"    = local.secrets.REDIS_PASSWORD
+    "REDIS_PORT"        = local.secrets.REDIS_PORT
+    "REDIS_USERNAME"    = local.secrets.REDIS_USERNAME
   }
 }
 
@@ -198,6 +206,10 @@ resource "scaleway_container" "api_scheduler" {
     "SCW_SECRET_KEY"    = local.secrets.SCW_SECRET_KEY
     "PILOTY_BASE_URL"   = local.secrets.PILOTY_BASE_URL
     "LETUDIANT_PILOTY_TOKEN" = local.secrets.LETUDIANT_PILOTY_TOKEN
+    "REDIS_HOST"        = local.secrets.REDIS_HOST
+    "REDIS_PASSWORD"    = local.secrets.REDIS_PASSWORD
+    "REDIS_PORT"        = local.secrets.REDIS_PORT
+    "REDIS_USERNAME"    = local.secrets.REDIS_USERNAME
   }
 }
 
