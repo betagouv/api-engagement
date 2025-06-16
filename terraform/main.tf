@@ -255,12 +255,12 @@ resource "scaleway_container_domain" "app" {
   hostname     = local.app_hostname
 }
 
-# Widget Volontariat Container
-resource "scaleway_container" "volontariat" {
-  name            = "${terraform.workspace}-volontariat"
-  description     = "Widget volontariat ${terraform.workspace} container"
+# Widget Container
+resource "scaleway_container" "widget" {
+  name            = "${terraform.workspace}"
+  description     = "Widget ${terraform.workspace} container"
   namespace_id    = scaleway_container_namespace.main.id
-  registry_image  = "ghcr.io/${var.github_repository}/widget-volontariat:${terraform.workspace}${var.image_tag == "latest" ? "" : "-${var.image_tag}"}"
+  registry_image  = "ghcr.io/${var.github_repository}/widget:${terraform.workspace}${var.image_tag == "latest" ? "" : "-${var.image_tag}"}"
   port            = 8080
   cpu_limit       = terraform.workspace == "production" ? 500 : 250
   memory_limit    = terraform.workspace == "production" ? 1024 : 512
@@ -282,40 +282,14 @@ resource "scaleway_container" "volontariat" {
     "SENTRY_DSN" = local.secrets.SENTRY_DSN
   }
 }
+
+# Widget is linked to both volontariat and benevolat domains
 resource "scaleway_container_domain" "volontariat" {
-  container_id = scaleway_container.volontariat.id
+  container_id = scaleway_container.widget.id
   hostname     = local.volontariat_hostname
 }
-
-# Widget Benevolat Container
-resource "scaleway_container" "benevolat" {
-  name            = "${terraform.workspace}-benevolat"
-  description     = "Widget benevolat ${terraform.workspace} container"
-  namespace_id    = scaleway_container_namespace.main.id
-  registry_image  = "ghcr.io/${var.github_repository}/widget-benevolat:${terraform.workspace}${var.image_tag == "latest" ? "" : "-${var.image_tag}"}"
-  port            = 8080
-  cpu_limit       = terraform.workspace == "production" ? 500 : 250
-  memory_limit    = terraform.workspace == "production" ? 1024 : 512
-  min_scale       = terraform.workspace == "production" ? 1 : 1
-  max_scale       = terraform.workspace == "production" ? 4 : 1
-  timeout         = 60
-  max_concurrency = 50
-  privacy         = "public"
-  protocol        = "http1"
-  http_option     = "redirected" # https only
-  deploy          = true
-
-  environment_variables = {
-    "ENV"     = terraform.workspace
-    "API_URL" = "https://${local.api_hostname}"
-  }
-  
-  secret_environment_variables = {
-    "SENTRY_DSN"         = local.secrets.SENTRY_DSN
-  }
-}
 resource "scaleway_container_domain" "benevolat" {
-  container_id = scaleway_container.benevolat.id
+  container_id = scaleway_container.widget.id
   hostname     = local.benevolat_hostname
 }
 

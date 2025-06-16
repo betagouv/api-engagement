@@ -2,7 +2,7 @@
 # - main branch: production
 # - staging branch: staging
 #
-# For each service (app, api, process, widget-benevolat, widget-volontariat)
+# For each service (app, api, process, widget)
 # - use build args to pass environment variables
 # - build and push image to GitHub Container Registry
 #
@@ -50,15 +50,14 @@ jobs:
       matrix:
         include:
           - service: app
-          - service: widget-benevolat
-          - service: widget-volontariat
+          - service: widget
           - service: api
             server_type: api
           - service: api
             server_type: jobs
           - service: api
             server_type: scheduler
-          # - service: process
+          - service: process
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
