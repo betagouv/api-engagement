@@ -284,9 +284,13 @@ resource "scaleway_container" "widget" {
 }
 
 # Widget is linked to both volontariat and benevolat domains
-resource "scaleway_container_domain" "widget" {
+resource "scaleway_container_domain" "volontariat" {
   container_id = scaleway_container.widget.id
   hostname     = local.volontariat_hostname
+}
+resource "scaleway_container_domain" "benevolat" {
+  container_id = scaleway_container.widget.id
+  hostname     = local.benevolat_hostname
 }
 
 # Outputs
