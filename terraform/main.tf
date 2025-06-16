@@ -257,7 +257,7 @@ resource "scaleway_container_domain" "app" {
 
 # Widget Container
 resource "scaleway_container" "widget" {
-  name            = "${terraform.workspace}"
+  name            = "${terraform.workspace}-widget"
   description     = "Widget ${terraform.workspace} container"
   namespace_id    = scaleway_container_namespace.main.id
   registry_image  = "ghcr.io/${var.github_repository}/widget:${terraform.workspace}${var.image_tag == "latest" ? "" : "-${var.image_tag}"}"
