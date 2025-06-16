@@ -22,7 +22,7 @@
   "dependencies": {
     "@bull-board/api": "^6.9.6",
     "@bull-board/express": "^6.9.6",
-    "@elastic/elasticsearch": "7.17.14",
+    "@elastic/elasticsearch": "9.0.2",
     "@sentry/node": "9.24.0",
     "@types/geoip-lite": "1.4.4",
     "aws-sdk": "2.1692.0",
