@@ -113,6 +113,8 @@ resource "scaleway_container" "api" {
     "SCW_SECRET_KEY"    = local.secrets.SCW_SECRET_KEY
     "PILOTY_BASE_URL"   = local.secrets.PILOTY_BASE_URL
     "LETUDIANT_PILOTY_TOKEN" = local.secrets.LETUDIANT_PILOTY_TOKEN
+    "REDIS_URL"         = local.secrets.REDIS_URL
+    "REDIS_CA_CERT_BASE64" = local.secrets.REDIS_CA_CERT_BASE64
   }
 }
 
@@ -156,6 +158,8 @@ resource "scaleway_container" "api_jobs" {
     "SCW_SECRET_KEY"    = local.secrets.SCW_SECRET_KEY
     "PILOTY_BASE_URL"   = local.secrets.PILOTY_BASE_URL
     "LETUDIANT_PILOTY_TOKEN" = local.secrets.LETUDIANT_PILOTY_TOKEN
+    "REDIS_URL"         = local.secrets.REDIS_URL
+    "REDIS_CA_CERT_BASE64" = local.secrets.REDIS_CA_CERT_BASE64
   }
 }
 
@@ -198,6 +202,8 @@ resource "scaleway_container" "api_scheduler" {
     "SCW_SECRET_KEY"    = local.secrets.SCW_SECRET_KEY
     "PILOTY_BASE_URL"   = local.secrets.PILOTY_BASE_URL
     "LETUDIANT_PILOTY_TOKEN" = local.secrets.LETUDIANT_PILOTY_TOKEN
+    "REDIS_URL"         = local.secrets.REDIS_URL
+    "REDIS_CA_CERT_BASE64" = local.secrets.REDIS_CA_CERT_BASE64
   }
 }
 

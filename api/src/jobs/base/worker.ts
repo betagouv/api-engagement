@@ -1,6 +1,8 @@
 // api/src/jobs/base/worker.ts
 import { Job, Processor, Worker, WorkerOptions } from "bullmq";
-import { redisConnection } from "../../db/redis";
+import { REDIS_URL } from "../../config";
+import { redisOptions } from "../../db/redis";
+import { Redis } from "ioredis";
 import { captureException } from "../../error";
 
 export class BaseWorker<PayloadType = any> {
@@ -16,24 +18,28 @@ export class BaseWorker<PayloadType = any> {
 
     const fullWorkerNameLog = workerName ? `${queueName}/${workerName}` : queueName;
 
+    // Combine the shared redisOptions with the BullMQ-specific requirements.
+    // This ensures TLS and other settings are consistent, while respecting BullMQ's needs.
+    const connectionOptions = {
+      ...redisOptions,
+      maxRetriesPerRequest: null, // Explicitly set for BullMQ
+    };
+
     this.worker = new Worker<PayloadType>(
       queueName,
       async (job: Job<PayloadType>) => {
-        if (workerName && job.name !== workerName) {
-          console.warn(`[BaseWorker/${fullWorkerNameLog}] Worker configured for job name '${workerName}' but received job name '${job.name}'. Skipping.`);
-          return Promise.resolve(undefined);
-        }
-        console.log(`[BaseWorker/${fullWorkerNameLog}] Processing job ${job.id} (Name: ${job.name})`);
         try {
-          return await processor(job);
-        } catch (error) {
-          console.error(`[BaseWorker/${fullWorkerNameLog}] Job ${job.id} (Name: ${job.name}) failed during processing:`, error);
+          console.log(`[Worker/${fullWorkerNameLog}] Processing job #${job.id}`);
+          await processor(job);
+          console.log(`[Worker/${fullWorkerNameLog}] Completed job #${job.id}`);
+        } catch (error: any) {
+          console.error(`[Worker/${fullWorkerNameLog}] Failed job #${job.id}`, error);
           captureException(error);
-          throw error; // Throw error to mark job as failed in BullMQ
+          throw error; // Re-throw to let BullMQ handle the job failure
         }
       },
       {
-        connection: redisConnection,
+        connection: new Redis(REDIS_URL, connectionOptions),
         concurrency: 1,
         autorun: false,
         ...workerOptions,

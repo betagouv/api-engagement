@@ -19,7 +19,7 @@ import { BullMQAdapter } from "@bull-board/api/bullMQAdapter";
 import { ExpressAdapter } from "@bull-board/express";
 import { Queue } from "bullmq";
 import "./db/mongo";
-import { redisConnection } from "./db/redis";
+import { redis } from "./db/redis";
 import { captureException } from "./error";
 import { launchJobSystem, shutdownJobs } from "./jobs";
 import { queues } from "./jobs/config";
@@ -41,7 +41,7 @@ export function startJobServer() {
   const bullMqQueues: BullMQAdapter[] = [];
 
   queues.forEach((queue) => {
-    const queueInstance = new Queue(queue.queueName, { connection: redisConnection });
+    const queueInstance = new Queue(queue.queueName, { connection: redis });
     bullMqQueues.push(new BullMQAdapter(queueInstance));
   });
 
