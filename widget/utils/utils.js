@@ -33,6 +33,6 @@ export const isPreventionRoutieres = (query) => {
  * Split the host by the port if present
  */
 export const getDomain = (ctx) => {
-  const host = ctx.req ? ctx.req.headers.host : "";
+  const host = ctx.req?.headers?.host || "";
   return host.split(":")[0];
 };
