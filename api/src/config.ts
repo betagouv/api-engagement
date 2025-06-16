@@ -39,11 +39,9 @@ export const LBC_ID = "60cd04a0d2321e05a743fa8d"; // Leboncoin Id
 
 export const DEFAULT_AVATAR = "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/default.jpg";
 
-// Redis configuration for job queues
-export const REDIS_HOST = process.env.REDIS_HOST || "localhost";
-export const REDIS_PORT = parseInt(process.env.REDIS_PORT || "6379", 10);
-export const REDIS_PASSWORD = process.env.REDIS_PASSWORD;
-export const REDIS_USERNAME = process.env.REDIS_USERNAME;
+// Redis configuration
+export const REDIS_URL = process.env.REDIS_URL || "redis://localhost:6379";
+export const REDIS_CA_CERT_BASE64 = process.env.REDIS_CA_CERT_BASE64;
 
 export const PILOTY_BASE_URL = process.env.PILOTY_BASE_URL || "https://sandbox-api.piloty.fr";
 
