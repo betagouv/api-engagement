@@ -50,6 +50,8 @@ export interface Organization {
   syncAt?: Date;
   source?: string;
   isRUP?: boolean;
+  letudiantPublicId?: string;
+  letudiantUpdatedAt?: Date;
 }
 
 export interface OrganizationNameMatch {
@@ -282,6 +284,9 @@ export interface Mission {
   leboncoinUrl: string | undefined;
   leboncoinComment: string | undefined;
   leboncoinUpdatedAt: Date | undefined;
+
+  letudiantPublicId: string | undefined;
+  letudiantUpdatedAt: Date | undefined;
 
   __history?: MissionHistory[];
 }

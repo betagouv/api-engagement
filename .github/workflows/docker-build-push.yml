@@ -35,15 +35,8 @@ jobs:
         id: set-env
         env:
           HEAD_BRANCH: ${{ inputs.branch || github.ref_name }}
-        # TODO uncomment
-        # run: |
-        #   if [[ "$HEAD_BRANCH" == 'main' ]]; then
-        #     echo "environment=production" >> $GITHUB_OUTPUT
-        #   else
-        #     echo "environment=staging" >> $GITHUB_OUTPUT
-        #   fi
         run: |
-          if [[ "$HEAD_BRANCH" == 'main-test' ]]; then
+          if [[ "$HEAD_BRANCH" == 'main' ]]; then
             echo "environment=production" >> $GITHUB_OUTPUT
           else
             echo "environment=staging" >> $GITHUB_OUTPUT
@@ -55,7 +48,17 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        service: [app, api, process, widget-benevolat, widget-volontariat]
+        include:
+          - service: app
+          - service: widget-benevolat
+          - service: widget-volontariat
+          - service: api
+            server_type: api
+          - service: api
+            server_type: jobs
+          - service: api
+            server_type: scheduler
+          # - service: process
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -100,9 +103,9 @@ jobs:
           file: ./${{ matrix.service }}/Dockerfile.production
           push: true
           tags: |
-            ghcr.io/${{ github.repository }}/${{ matrix.service }}:${{ needs.set-env.outputs.environment_name }}
-            ghcr.io/${{ github.repository }}/${{ matrix.service }}:${{ needs.set-env.outputs.environment_name }}-latest
-            ghcr.io/${{ github.repository }}/${{ matrix.service }}:${{ needs.set-env.outputs.environment_name }}-${{ steps.vars.outputs.short_sha }}
+            ${{ matrix.server_type != '' && format('ghcr.io/{0}/{1}-{2}:{3}', github.repository, matrix.service, matrix.server_type, needs.set-env.outputs.environment_name) || format('ghcr.io/{0}/{1}:{2}', github.repository, matrix.service, needs.set-env.outputs.environment_name) }}
+            ${{ matrix.server_type != '' && format('ghcr.io/{0}/{1}-{2}:{3}-latest', github.repository, matrix.service, matrix.server_type, needs.set-env.outputs.environment_name) || format('ghcr.io/{0}/{1}:{2}-latest', github.repository, matrix.service, needs.set-env.outputs.environment_name) }}
+            ${{ matrix.server_type != '' && format('ghcr.io/{0}/{1}-{2}:{3}-{4}', github.repository, matrix.service, matrix.server_type, needs.set-env.outputs.environment_name, steps.vars.outputs.short_sha) || format('ghcr.io/{0}/{1}:{2}-{3}', github.repository, matrix.service, needs.set-env.outputs.environment_name, steps.vars.outputs.short_sha) }}
           secrets: |
             "sentry_auth_token=${{ secrets.SENTRY_AUTH_TOKEN }}"
           build-args: |
@@ -111,3 +114,4 @@ jobs:
             BENEVOLAT_URL=${{ steps.app_args.outputs.BENEVOLAT_URL }}
             VOLONTARIAT_URL=${{ steps.app_args.outputs.VOLONTARIAT_URL }}
             SENTRY_DSN=${{ steps.app_args.outputs.SENTRY_DSN }}
+            ${{ matrix.server_type != '' && format('SERVER_TYPE={0}', matrix.server_type) || '' }}
