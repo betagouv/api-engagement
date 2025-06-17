@@ -2,7 +2,7 @@
 # - main branch: production
 # - staging branch: staging
 #
-# For each service (app, api, process, widget-benevolat, widget-volontariat)
+# For each service (app, api, process, widget)
 # - use build args to pass environment variables
 # - build and push image to GitHub Container Registry
 #
@@ -50,15 +50,14 @@ jobs:
       matrix:
         include:
           - service: app
-          - service: widget-benevolat
-          - service: widget-volontariat
+          - service: widget
           - service: api
             server_type: api
           - service: api
             server_type: jobs
           - service: api
             server_type: scheduler
-          # - service: process
+          - service: process
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -114,4 +113,4 @@ jobs:
             BENEVOLAT_URL=${{ steps.app_args.outputs.BENEVOLAT_URL }}
             VOLONTARIAT_URL=${{ steps.app_args.outputs.VOLONTARIAT_URL }}
             SENTRY_DSN=${{ steps.app_args.outputs.SENTRY_DSN }}
-            ${{ matrix.server_type != '' && format('SERVER_TYPE={0}', matrix.server_type) || '' }}
+            ${{ matrix.service == 'api' && format('SERVER_TYPE={0}', matrix.server_type) || '' }}

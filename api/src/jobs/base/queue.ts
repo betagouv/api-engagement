@@ -1,5 +1,5 @@
 import { QueueOptions as BullMQQueueOptions, Job, JobsOptions, Queue } from "bullmq";
-import { redisConnection } from "../../db/redis";
+import { redis } from "../../db/redis";
 
 export abstract class BaseQueue<PayloadType = any> {
   protected queue: Queue<PayloadType>;
@@ -9,7 +9,7 @@ export abstract class BaseQueue<PayloadType = any> {
   public constructor(queueName: string, queueOptions?: Partial<BullMQQueueOptions>) {
     this.queueName = queueName;
     this.queue = new Queue<PayloadType>(queueName, {
-      connection: redisConnection,
+      connection: redis,
       defaultJobOptions: {
         attempts: 3,
         backoff: {
