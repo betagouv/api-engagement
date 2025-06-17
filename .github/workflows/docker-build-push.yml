@@ -113,4 +113,4 @@ jobs:
             BENEVOLAT_URL=${{ steps.app_args.outputs.BENEVOLAT_URL }}
             VOLONTARIAT_URL=${{ steps.app_args.outputs.VOLONTARIAT_URL }}
             SENTRY_DSN=${{ steps.app_args.outputs.SENTRY_DSN }}
-            ${{ matrix.server_type != '' && format('SERVER_TYPE={0}', matrix.server_type) || '' }}
+            ${{ matrix.service == 'api' && format('SERVER_TYPE={0}', matrix.server_type) || '' }}
