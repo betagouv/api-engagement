@@ -16,11 +16,13 @@ COPY . .
 
 RUN npm run build
 
+
 # Run
 FROM node:18-bullseye-slim
 
 # Define build argument with default value 'api'
 ARG SERVER_TYPE=api
+ENV SERVER_TYPE=${SERVER_TYPE}
 
 WORKDIR /app
 
@@ -34,4 +36,4 @@ COPY --from=builder /app/dist ./dist
 
 EXPOSE 8080
 
-CMD node dist/index.js ${SERVER_TYPE}
+CMD ["/bin/sh", "-c", "exec node /app/dist/index.js \"$SERVER_TYPE\""]
