@@ -10,25 +10,28 @@ const serverType = process.argv[2] || "api";
 async function main() {
   try {
     switch (serverType) {
-      case "api":
+      case "api": {
         const { startApiServer } = await import("./server-api");
         startApiServer();
         break;
+      }
 
-      case "jobs":
+      case "jobs": {
         const { startJobServer } = await import("./server-jobs");
         startJobServer();
         break;
+      }
 
-      case "scheduler":
+      case "scheduler": {
         const { startScheduler } = await import("./server-scheduler");
         startScheduler();
         break;
-
-      default:
+      }
+      default: {
         console.error(`Unknown server type: ${serverType}`);
         console.log("Usage: npm start -- [api|jobs|scheduler]\nDefaulting to API server");
         break;
+      }
     }
   } catch (error) {
     console.error("Failed to establish database connections:", error);
