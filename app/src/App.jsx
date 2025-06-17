@@ -132,22 +132,22 @@ const ProtectedLayout = () => {
 
   useEffect(() => {
     const fetchData = async () => {
-      setLoading(true);
       try {
+        setLoading(true);
         const publisher = localStorage.getItem("publisher");
         const res = await api.get(`/user/refresh${publisher ? `?publisherId=${publisher}` : ""}`);
 
         if (!res.ok) throw res;
         // Don't capture error here, it can be a 401
-        setAuth(null, null);
         setAuth(res.data.user, res.data.publisher);
         api.setToken(res.data.token);
-        setLoading(false);
       } catch (error) {
         setAuth(null, null);
         api.removeToken();
         navigate("/login");
         captureError(error);
+      } finally {
+        setLoading(false);
       }
     };
     fetchData();

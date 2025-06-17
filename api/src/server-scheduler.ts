@@ -1,11 +1,18 @@
 import cron from "node-cron";
 import { jobSchedules } from "./jobs/config";
 
+import { mongoConnected } from "./db/mongo";
+import { redisConnected } from "./db/redis";
+
 /**
  * Start the scheduler process
  * - Schedules recurring tasks (crons) defined in `jobs/config.ts`
  */
-export function startScheduler() {
+export const startScheduler = async () => {
+  console.log("[Scheduler] Waiting for database connections...");
+  await Promise.all([mongoConnected, redisConnected]);
+  console.log("[Scheduler] All database connections established successfully");
+
   console.log("[Scheduler] Starting job scheduler...");
 
   for (const schedule of jobSchedules) {
@@ -14,4 +21,4 @@ export function startScheduler() {
   }
 
   console.log("[Scheduler] All crons scheduled. Scheduler is running.");
-}
+};

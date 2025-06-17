@@ -4,7 +4,10 @@ dotenv.config();
 
 import * as Sentry from "@sentry/node";
 import express from "express";
+
 import { ENV, PORT, SENTRY_DSN } from "./config"; // Assuming this is the correct path for these configs
+import { mongoConnected } from "./db/mongo";
+import { redisConnected } from "./db/redis";
 
 if (ENV !== "development") {
   Sentry.init({
@@ -30,7 +33,12 @@ import { queues } from "./jobs/config";
  * - Setting up graceful shutdown handlers
  * - Starting an Express server with Bull Board UI
  */
-export function startJobServer() {
+export const startJobServer = async () => {
+  console.log("[Job server] Waiting for database connections...");
+  await Promise.all([mongoConnected, redisConnected]); // Redis is required only for jobs for no
+  console.log("[Job server] All database connections established successfully");
+  console.log("[Job server] Starting job server...");
+
   const app = express();
 
   // Setup BullBoard UI
@@ -103,4 +111,4 @@ export function startJobServer() {
       process.exit(1);
     }
   })();
-}
+};
