@@ -1,5 +1,9 @@
+import express from "express";
 import cron from "node-cron";
+import { PORT } from "./config";
 import { jobSchedules } from "./jobs/config";
+
+const app = express();
 
 /**
  * Start the scheduler process
@@ -14,4 +18,8 @@ export function startScheduler() {
   }
 
   console.log("[Scheduler] All crons scheduled. Scheduler is running.");
+
+  app.listen(PORT, () => {
+    console.log(`[Scheduler] Express server started on port ${PORT}`);
+  });
 }
