@@ -14,24 +14,54 @@ export const BAD_REQUEST = "BAD_REQUEST";
 export const NOT_FOUND = "NOT_FOUND";
 export const SERVER_ERROR = "SERVER_ERROR";
 
-export const captureException = (error: any, context?: string) => {
-  if (context) {
-    console.log(context);
+export const captureException = (error: any, context?: string | { extra: any }) => {
+  if (ENV === "development") {
+    console.log("[Sentry] Context", context);
+    console.log("[Sentry] Capture exception", error);
+    return;
   }
-  if (ENV !== "development") {
-    Sentry.captureException(error);
+
+  if (typeof context === "object" && "extra" in context) {
+    const extra: Record<string, string> = {};
+    for (const [key, value] of Object.entries(context.extra)) {
+      if (typeof value !== "string") {
+        extra[key] = JSON.stringify(value);
+      } else {
+        extra[key] = value;
+      }
+    }
+    context.extra = extra;
+    Sentry.captureException(error, {
+      extra: context.extra,
+    });
   } else {
-    console.error(error);
+    console.log("[Sentry] Context", context);
+    Sentry.captureException(error);
   }
 };
 
-export const captureMessage = (message: string, context?: string) => {
-  if (context) {
-    console.log(context);
+export const captureMessage = (message: string, context?: string | { extra: any }) => {
+  if (ENV === "development") {
+    console.log("[Sentry] Context", context);
+    console.log("[Sentry] Capture message", message);
+    return;
   }
-  if (ENV !== "development") {
-    Sentry.captureMessage(message);
+
+  if (typeof context === "object" && "extra" in context) {
+    const extra: Record<string, string> = {};
+    for (const [key, value] of Object.entries(context.extra)) {
+      if (typeof value !== "string") {
+        extra[key] = JSON.stringify(value);
+      } else {
+        extra[key] = value;
+      }
+    }
+    context.extra = extra;
+    Sentry.captureMessage(message, {
+      extra: context.extra,
+    });
   } else {
-    console.info(message);
+    console.log("[Sentry] Context", message);
+    Sentry.captureMessage(message);
   }
 };

@@ -1,19 +1,27 @@
 import dotenv from "dotenv";
 dotenv.config();
 
-import { ADMIN_SNU_URL, APP_URL, ASSOCIATION_URL, BENEVOLAT_URL, ENV, JVA_URL, PORT, VOLONTARIAT_URL } from "./config";
+import * as Sentry from "@sentry/node";
+import { ENV, PORT, SENTRY_DSN } from "./config";
 
-import bodyParser from "body-parser";
-import cookieParser from "cookie-parser";
+if (ENV !== "development") {
+  Sentry.init({
+    dsn: SENTRY_DSN,
+    environment: "api",
+    tracesSampleRate: 0.1,
+  });
+}
+
 import cors from "cors";
 import express, { NextFunction, Request, Response } from "express";
-import helmet from "helmet";
 import path from "path";
 
 import "./db/mongo";
 import { SERVER_ERROR, captureException, captureMessage } from "./error";
-import logger from "./services/logger";
-import passport from "./services/passport";
+
+import { esConnected } from "./db/elastic";
+import { mongoConnected } from "./db/mongo";
+import middlewares from "./middlewares";
 
 import AdminReportController from "./controllers/admin-report";
 import BrevoWebhookController from "./controllers/brevo-webhook";
@@ -50,56 +58,17 @@ import JobTeaserV2Controller from "./v2/jobteaser";
 import LeboncoinV2Controller from "./v2/leboncoin";
 import MissionV2Controller from "./v2/mission";
 
-export const startApiServer = () => {
+export const startApiServer = async () => {
+  console.log("[API] Waiting for database connections...");
+  await Promise.all([mongoConnected, esConnected]);
+  console.log("[API] All database connections established successfully.");
+
+  console.log("[API] Starting API server...");
+
   const app = express();
   const start = new Date();
 
-  process.on("SIGTERM", () => process.exit(0));
-  process.on("SIGINT", () => process.exit(0));
-
-  const origin = [
-    APP_URL,
-    ASSOCIATION_URL,
-    VOLONTARIAT_URL,
-    BENEVOLAT_URL,
-    JVA_URL,
-    ADMIN_SNU_URL,
-    // SNU admin staging
-    "https://app-735c50af-69c1-4a10-ac30-7ba11d1112f7.cleverapps.io",
-    "https://app-ec11b799-95d0-4770-8e41-701b4becf64a.cleverapps.io",
-  ];
-  // Configure express
-  app.use(cors({ credentials: true, origin }));
-  app.use(bodyParser.json({ limit: "50mb" }));
-  app.use(bodyParser.text({ type: "application/x-ndjson" }));
-  app.use(bodyParser.urlencoded({ extended: true }));
-  app.use(cookieParser());
-  app.use(logger());
-  app.use(passport.initialize());
-
-  app.use(
-    helmet({
-      contentSecurityPolicy: {
-        directives: {
-          defaultSrc: ["'self'"],
-          scriptSrc: ["'self'", "https://plausible.io"],
-          styleSrc: ["'self'", "https://cdn.jsdelivr.net"],
-          objectSrc: ["'none'"],
-          upgradeInsecureRequests: [],
-          frameAncestors: ["'self'", "https://generation.paris2024.org"],
-        },
-      },
-      crossOriginOpenerPolicy: false,
-      hsts: {
-        maxAge: 31536000,
-        includeSubDomains: true,
-        preload: true,
-      },
-      referrerPolicy: { policy: "no-referrer" },
-      xssFilter: true,
-      noSniff: true,
-    })
-  );
+  middlewares(app);
 
   app.get("/", async (req, res) => {
     res.status(200).send(`API Engagement is running since ${start}`);
@@ -177,5 +146,5 @@ export const startApiServer = () => {
     }
   });
 
-  app.listen(PORT, () => console.log(`API is running on port ${PORT} at ${new Date()}`));
+  app.listen(PORT, () => console.log(`[API] Running on port ${PORT} at ${new Date().toISOString()}`));
 };
