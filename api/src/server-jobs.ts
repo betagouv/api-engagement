@@ -69,10 +69,9 @@ export const startJobServer = async () => {
     try {
       await launchJobSystem();
 
-      const jobServerPort = typeof PORT === "string" ? parseInt(PORT, 10) + 1 : (PORT || 3000) + 1;
-      const server = app.listen(jobServerPort, () => {
-        console.log(`[Job server] Express server started on port ${jobServerPort}`);
-        console.log(`[Job server] Bull Board is available at http://localhost:${jobServerPort}/admin/queues`);
+      const server = app.listen(PORT, () => {
+        console.log(`[Job server] Express server started on port ${PORT}`);
+        console.log(`[Job server] Bull Board is available at http://localhost:${PORT}/admin/queues`);
       });
 
       const handleShutdown = async () => {
