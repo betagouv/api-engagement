@@ -32,7 +32,7 @@ const getContainerHeight = (widget) => {
     // --> mobile (0->767px) height = 670px
     // --> tablet (768->1023px) height = 600px
     // --> desktop (1024px->) height = 600px
-    return "h-[670px] md:h-[600px]";
+    return "h-[670px] md:h-[620px]";
   }
 
   // GRID

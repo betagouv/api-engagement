@@ -34,3 +34,8 @@ body {
 .slick-slide > div {
   height: 100%;
 }
+
+/* Date picker hack. Should be deleted when react-day-picker is updated */
+.rdp-caption_label {
+  padding-left: 15px;
+}
