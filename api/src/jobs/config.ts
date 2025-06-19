@@ -19,8 +19,8 @@ export const queues: BaseQueue<any>[] = [
 export const jobSchedules: JobSchedule[] = [
   {
     title: "L'Etudiant API sync",
-    cronExpression: "0 */3 * * *", // Every 3 hours
-    function: letudiantHandler.schedule,
+    cronExpression: "* */3 * * *", // Every 3 hours
+    function: letudiantHandler.schedule.bind(letudiantHandler),
   },
 ];
 

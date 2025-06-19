@@ -1,3 +1,6 @@
+import dotenv from "dotenv";
+dotenv.config();
+
 import express from "express";
 import cron from "node-cron";
 import { PORT } from "./config";
@@ -29,4 +32,4 @@ export const startScheduler = async () => {
   app.listen(PORT, () => {
     console.log(`[Scheduler] Express server started on port ${PORT}`);
   });
-}
+};

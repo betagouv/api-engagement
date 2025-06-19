@@ -1,4 +1,3 @@
-// api/src/server-jobs.ts
 import dotenv from "dotenv";
 dotenv.config();
 
