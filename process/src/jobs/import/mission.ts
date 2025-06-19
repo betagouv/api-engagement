@@ -168,6 +168,7 @@ const parseArray = (value: string | { value: string[] | string } | undefined, in
 const parseMission = (publisher: Publisher, missionXML: MissionXML, missionDB: Mission | null) => {
   const mission = {
     title: he.decode(missionXML.title),
+    type: publisher.missionType,
     description: convert(he.decode(missionXML.description || ""), {
       preserveNewlines: true,
       selectors: [{ selector: "ul", options: { itemPrefix: " • " } }],

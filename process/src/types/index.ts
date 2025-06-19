@@ -964,3 +964,8 @@ export interface Email {
   createdAt: Date;
   updatedAt: Date;
 }
+
+export enum MissionType {
+  BENEVOLAT = "benevolat",
+  VOLONTARIAT = "volontariat-service-civique",
+}

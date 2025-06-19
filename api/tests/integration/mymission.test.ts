@@ -269,6 +269,7 @@ function validateMissionStructure(mission: any) {
 
   expect(mission).toHaveProperty("title");
   expect(mission).toHaveProperty("description");
+  expect(mission).toHaveProperty("type");
   expect(mission).toHaveProperty("domain");
   expect(mission).toHaveProperty("activity");
 

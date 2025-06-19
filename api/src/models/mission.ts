@@ -1,7 +1,7 @@
 import { Schema, model } from "mongoose";
 
 import { historyPlugin } from "../plugins/history-plugin";
-import { Mission } from "../types";
+import { Mission, MissionType } from "../types";
 
 const MODELNAME = "mission";
 
@@ -64,7 +64,7 @@ const schema = new Schema<Mission>(
     domainOriginal: { type: String },
     domainLogo: { type: String },
     activity: { type: String },
-    type: { type: String },
+    type: { type: String, enum: MissionType, default: MissionType.VOLONTARIAT },
     snu: { type: Boolean },
     snuPlaces: { type: Number },
 

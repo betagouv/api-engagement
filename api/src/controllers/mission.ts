@@ -6,7 +6,7 @@ import { JVA_ID } from "../config";
 import { FORBIDDEN, INVALID_BODY, INVALID_PARAMS, INVALID_QUERY, NOT_FOUND } from "../error";
 import MissionModel from "../models/mission";
 import { UserRequest } from "../types/passport";
-import { buildQueryMongo, diacriticSensitiveRegex, EARTH_RADIUS, getDistanceKm } from "../utils";
+import { EARTH_RADIUS, buildQueryMongo, diacriticSensitiveRegex, getDistanceKm } from "../utils";
 
 const router = Router();
 
@@ -15,6 +15,7 @@ router.post("/search", passport.authenticate("user", { session: false }), async 
     const body = zod
       .object({
         status: zod.union([zod.string(), zod.array(zod.string())]).optional(),
+        type: zod.union([zod.string(), zod.array(zod.string())]).optional(),
         publisherId: zod.string().optional(),
         domain: zod.union([zod.string(), zod.array(zod.string())]).optional(),
         organization: zod.string().optional(),
@@ -75,6 +76,10 @@ router.post("/search", passport.authenticate("user", { session: false }), async 
       if (rulesQuery.$or.length > 0) {
         where.$or = [...(where.$or || []), ...rulesQuery.$or];
       }
+    }
+
+    if (body.data.type) {
+      where.type = body.data.type;
     }
 
     if (body.data.publisherId) {
@@ -180,6 +185,7 @@ router.post("/search", passport.authenticate("user", { session: false }), async 
       {
         $facet: {
           status: [{ $group: { _id: "$statusCode", count: { $sum: 1 } } }, { $sort: { count: -1 } }],
+          type: [{ $group: { _id: "$type", count: { $sum: 1 } } }, { $sort: { count: -1 } }],
           domains: [{ $group: { _id: "$domain", count: { $sum: 1 } } }, { $sort: { count: -1 } }],
           organizations: [{ $group: { _id: "$organizationName", count: { $sum: 1 } } }, { $sort: { count: -1 } }],
           activities: [{ $group: { _id: "$activity", count: { $sum: 1 } } }, { $sort: { count: -1 } }],
@@ -201,6 +207,10 @@ router.post("/search", passport.authenticate("user", { session: false }), async 
 
     const aggs = {
       status: facets[0].status.map((b: { _id: string; count: number }) => ({
+        key: b._id,
+        doc_count: b.count,
+      })),
+      type: facets[0].type.map((b: { _id: string; count: number }) => ({
         key: b._id,
         doc_count: b.count,
       })),

@@ -1,7 +1,7 @@
 import mongoose from "mongoose";
 import MissionModel from "../../src/models/mission";
 import PublisherModel from "../../src/models/publisher";
-import { Publisher } from "../../src/types";
+import { MissionType, Publisher } from "../../src/types";
 
 /**
  * Create a test publisher with random API key
@@ -17,6 +17,7 @@ export const createTestPublisher = async (): Promise<Publisher> => {
     apikey: apiKey,
     organizationClientId,
     organizationName: "Test Organization",
+    missionType: MissionType.BENEVOLAT,
     api: true,
     isAnnonceur: true,
     publishers: [
@@ -79,7 +80,7 @@ export const createTestMission = async (organizationClientId: string, publisherI
     tags: ["tag1", "tag2"],
     tasks: ["task1", "task2"],
     title: "Test Mission",
-    type: "mission",
+    type: MissionType.BENEVOLAT,
   });
 
   await mission.save();

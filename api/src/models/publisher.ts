@@ -1,6 +1,6 @@
 import { Schema, model } from "mongoose";
 
-import { Diffuseur, Publisher } from "../types";
+import { Diffuseur, MissionType, Publisher } from "../types";
 
 const MODELNAME = "publisher";
 
@@ -9,7 +9,7 @@ const publisherSchema = new Schema<Diffuseur>(
     publisherId: { type: String, ref: "publisher" },
     publisherName: { type: String, required: true, trim: true },
     moderator: { type: Boolean, default: false },
-    missionType: { type: String, default: null, enum: ["benevolat", "volontariat", null] },
+    missionType: { type: String, default: MissionType.BENEVOLAT, enum: [MissionType.BENEVOLAT, MissionType.VOLONTARIAT] },
   },
   { timestamps: true }
 );
@@ -36,7 +36,7 @@ const schema = new Schema<Publisher>(
     publishers: { type: [publisherSchema] },
     description: { type: String, default: "" },
 
-    missionType: { type: String, default: null, enum: ["benevolat", "volontariat", null] },
+    missionType: { type: String, default: MissionType.BENEVOLAT, enum: [MissionType.BENEVOLAT, MissionType.VOLONTARIAT] },
 
     isAnnonceur: { type: Boolean, default: false },
     hasApiRights: { type: Boolean, default: false },
