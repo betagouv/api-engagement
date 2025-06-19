@@ -92,9 +92,9 @@ resource "scaleway_container" "api" {
   http_option     = "redirected" # https only
   deploy          = true
 
-  scaling_option {
-    cpu_usage_threshold = 80
-  }
+  # scaling_option {
+  #   cpu_usage_threshold = 80
+  # }
 
   environment_variables = {
     "ENV"           = terraform.workspace
