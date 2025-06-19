@@ -10,17 +10,14 @@ import passport from "./passport";
 import limiter from "./rate-limite";
 
 const middlewares = (app: Express) => {
-  app.use(limiter);
-
   app.use(cors(corsOptions));
-
   app.use(bodyParser.json({ limit: "50mb" }));
   app.use(bodyParser.text({ type: "application/x-ndjson" }));
   app.use(bodyParser.urlencoded({ extended: true }));
   app.use(cookieParser());
   app.use(helmet);
   app.use(logger);
-
+  app.use(limiter);
   app.use(passport.initialize());
 };
 
