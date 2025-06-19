@@ -54,6 +54,25 @@ export interface Organization {
   letudiantUpdatedAt?: Date;
 }
 
+export type AddressItem = {
+  street: string;
+  postalCode: string;
+  departmentName: string;
+  departmentCode: string;
+  city: string;
+  region: string;
+  country: string;
+  location: {
+    lat: number;
+    lon: number;
+  };
+  geoPoint?: {
+    type: string;
+    coordinates: number[];
+  };
+  geolocStatus: string;
+};
+
 export type Association = {
   _id?: Schema.Types.ObjectId | string;
   score?: number;
@@ -468,7 +487,7 @@ export interface StatsReport {
       applyLastYear: number;
     }[];
     organizationHistogram: {
-      month: Date;
+      month: number;
       [key: string]: number;
     }[];
   };
@@ -502,7 +521,7 @@ export interface StatsReport {
       applyLastYear: number;
     }[];
     organizationHistogram: {
-      month: Date;
+      month: number;
       [key: string]: number;
     }[];
   };

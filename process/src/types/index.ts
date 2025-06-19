@@ -1,4 +1,5 @@
 import { Schema } from "mongoose";
+import { BrevoInboundEmail } from "./brevo";
 
 export interface Organization {
   _id: Schema.Types.ObjectId;
