@@ -46,7 +46,7 @@ router.post("/search", passport.authenticate("user", { session: false }), async 
     }
 
     const where = {
-      deleted: false,
+      deletedAt: null,
       statusCode: "ACCEPTED",
       [`moderation_${body.data.moderatorId}_status`]: { $exists: true },
     } as any;
