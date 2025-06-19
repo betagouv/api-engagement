@@ -1,36 +1,31 @@
 import RadioInput from "../../../components/RadioInput";
 import Toggle from "../../../components/Toggle";
+import { MISSION_TYPES } from "../../../constants";
 
 const AnnonceurCreation = ({ values, onChange }) => {
+  const { isAnnonceur } = values;
   return (
     <div className="border border-gray-border p-6 space-y-6">
       <div className="flex items-center justify-between">
         <h3 className="text-lg font-bold">Annonceur</h3>
-        <Toggle value={values.isAnnonceur} onChange={(e) => onChange({ ...values, isAnnonceur: e, missionType: null })} />
+        <Toggle value={isAnnonceur} onChange={(e) => onChange({ ...values, isAnnonceur: e, missionType: null })} />
       </div>
-      {values.isAnnonceur && (
+      {isAnnonceur && (
         <>
           <div className="w-full h-px bg-gray-border" />
           <div className="space-y-4">
-            <RadioInput
-              id="mission-type-benevolat"
-              name="mission-type"
-              value="benevolat"
-              label="Bénévolat"
-              size={24}
-              checked={values.missionType === "benevolat"}
-              onChange={() => onChange({ ...values, missionType: "benevolat" })}
-            />
-
-            <RadioInput
-              id="mission-type-volontariat"
-              name="mission-type"
-              value="volontariat"
-              label="Volontariat"
-              size={24}
-              checked={values.missionType === "volontariat"}
-              onChange={() => onChange({ ...values, missionType: "volontariat" })}
-            />
+            {Object.values(MISSION_TYPES).map((type) => (
+              <RadioInput
+                key={type.slug}
+                id={`mission-type-${type.slug}`}
+                name="mission-type"
+                value={type.slug}
+                label={type.label}
+                size={24}
+                checked={values.missionType === type.slug}
+                onChange={() => onChange({ ...values, missionType: type.slug })}
+              />
+            ))}
           </div>
         </>
       )}

@@ -5,11 +5,13 @@ import Modal from "../../../components/New-Modal";
 import Table from "../../../components/NewTable";
 import RadioInput from "../../../components/RadioInput";
 import Toggle from "../../../components/Toggle";
+import { MISSION_TYPES } from "../../../constants";
 import api from "../../../services/api";
 import { captureError } from "../../../services/error";
 
 const Annonceur = ({ values, onChange, errors, setErrors }) => {
   const [data, setData] = useState([]);
+  const { isAnnonceur } = values;
 
   useEffect(() => {
     const fetchData = async () => {
@@ -31,43 +33,33 @@ const Annonceur = ({ values, onChange, errors, setErrors }) => {
       <div className="flex items-center justify-between">
         <h3 className="text-lg font-bold">Annonceur</h3>
         <Toggle
-          value={values.isAnnonceur}
+          value={isAnnonceur}
           onChange={(e) => {
             onChange({ ...values, isAnnonceur: e, missionType: null });
             setErrors({ ...errors, settings: null });
           }}
         />
       </div>
-      {values.isAnnonceur && (
+      {isAnnonceur && (
         <>
           <div className="w-full h-px bg-gray-border" />
           {errors.missionType && <p className="text-red-700">{errors.missionType}</p>}
           <div className="space-y-4">
-            <RadioInput
-              id="mission-type-benevolat"
-              name="mission-type"
-              value="benevolat"
-              label="Bénévolat"
-              size={24}
-              checked={values.missionType === "benevolat"}
-              onChange={() => {
-                onChange({ ...values, missionType: "benevolat" });
-                setErrors({ ...errors, missionType: null });
-              }}
-            />
-
-            <RadioInput
-              id="mission-type-volontariat"
-              name="mission-type"
-              value="volontariat"
-              label="Volontariat"
-              size={24}
-              checked={values.missionType === "volontariat"}
-              onChange={() => {
-                onChange({ ...values, missionType: "volontariat" });
-                setErrors({ ...errors, missionType: null });
-              }}
-            />
+            {Object.values(MISSION_TYPES).map((type) => (
+              <RadioInput
+                key={type.slug}
+                id={`mission-type-${type.slug}`}
+                name="mission-type"
+                value={type.slug}
+                label={type.label}
+                size={24}
+                checked={values.missionType === type.slug}
+                onChange={() => {
+                  onChange({ ...values, missionType: type.slug });
+                  setErrors({ ...errors, missionType: null });
+                }}
+              />
+            ))}
           </div>
           <div className="w-full h-px bg-gray-border" />
           <p className="text-base">

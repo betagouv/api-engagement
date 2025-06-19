@@ -192,3 +192,8 @@ export const PUBLISHER_CATEGORIES = {
   EMPLOYMENT_PLATFORMS: "Plateformes d'emploi",
   OTHERS: "Autres",
 };
+
+export const MISSION_TYPES = {
+  VOLONTARIAT: { slug: "volontariat-service-civique", label: "Volontariat (Service Civique)" },
+  BENEVOLAT: { slug: "benevolat", label: "Bénévolat" },
+};
