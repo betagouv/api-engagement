@@ -1,15 +1,37 @@
 export const EARTH_RADIUS = 6371; // Radius of the Earth in kilometers
 
-export const getDistanceKm = (value: string) => {
-  const distance = parseInt(value);
-  if (value.endsWith("km") || !value.endsWith("m")) {
-    return distance;
+/**
+ * Get the distance in kilometers from a string
+ *
+ * @param value The string to parse
+ * @returns The distance in kilometers
+ */
+export const getDistanceKm = (value: string): number => {
+  const distance = parseInt(value, 10);
+
+  if (isNaN(distance)) {
+    return 50;
   }
-  return distance ? distance / 1000 : 50;
+
+  if (value.endsWith("m") && !value.endsWith("km")) {
+    return distance / 1000;
+  }
+
+  return distance;
 };
 
-export const degreesToRadians = (degrees: number) => degrees * (Math.PI / 180);
-export const getDistanceFromLatLonInKm = (lat1?: number, lon1?: number, lat2?: number, lon2?: number) => {
+/**
+ * Calculate the distance between two points in kilometers
+ *
+ * @param lat1 The latitude of the first point
+ * @param lon1 The longitude of the first point
+ * @param lat2 The latitude of the second point
+ * @param lon2 The longitude of the second point
+ * @returns The distance between the two points in kilometers
+ */
+export const getDistanceFromLatLonInKm = (lat1?: number, lon1?: number, lat2?: number, lon2?: number): number | undefined => {
+  const degreesToRadians = (degrees: number) => degrees * (Math.PI / 180);
+
   if (!lat1 || !lon1 || !lat2 || !lon2) {
     return undefined;
   }
