@@ -1,5 +1,5 @@
 import { MissionHistoryEventType, Organization, Address as PgAddress, Mission as PgMission, MissionHistoryEvent as PgMissionHistoryEvent } from "@prisma/client";
-import { JVA_ID, SC_ID } from "../../../config";
+import { JVA_ID } from "../../../config";
 import { Mission as MongoMission } from "../../../types";
 
 type MissionHistoryEntry = Omit<PgMissionHistoryEvent, "id">; // Prisma renders uuid when saving
@@ -29,7 +29,9 @@ export const transformMongoMissionToPg = (doc: MongoMission | null, partnerId: s
     tasks: doc.tasks,
     domain: doc.domain,
     audience: doc.audience || [],
-    soft_skills: doc.soft_skills || [],
+    soft_skills: doc.softSkills || doc.soft_skills || [],
+    rome_skills: doc.romeSkills || [],
+    requirements: doc.requirements || [],
     close_to_transport: doc.closeToTransport,
     reduced_mobility_accessible: doc.reducedMobilityAccessible,
     open_to_minors: doc.openToMinors,
@@ -43,7 +45,7 @@ export const transformMongoMissionToPg = (doc: MongoMission | null, partnerId: s
     places: doc.places,
     metadata: doc.metadata,
     activity: doc.activity,
-    type: doc.publisherId === SC_ID ? "volontariat" : "benevolat",
+    type: doc.type,
     snu: doc.snu,
     snu_places: doc.snuPlaces,
 

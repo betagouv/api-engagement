@@ -115,7 +115,9 @@ describe("transformMongoMissionToPg", () => {
     tasks: ["task1", "task2"],
     domain: "Domaine Test",
     audience: ["Tous publics"],
-    soft_skills: ["Communication", "Travail en équipe"],
+    softSkills: ["Communication", "Travail en équipe"],
+    romeSkills: ["123456"],
+    requirements: ["Pré-requis 1", "Pré-requis 2"],
     organizationId: "mongo-org-123",
     organizationUrl: "https://org.test",
     organizationName: "Organisation Test",
@@ -205,7 +207,10 @@ describe("transformMongoMissionToPg", () => {
     expect(result?.mission.old_id).toBe("mission-123");
     expect(result?.mission.title).toBe("Mission Test");
     expect(result?.mission.client_id).toBe("client-123");
-    expect(result?.mission.type).toBe("volontariat"); // Car publisherId est 5f99dbe75eb1ad767733b206
+    expect(result?.mission.type).toBe("benevolat");
+    expect(result?.mission.soft_skills).toEqual(["Communication", "Travail en équipe"]);
+    expect(result?.mission.rome_skills).toEqual(["123456"]);
+    expect(result?.mission.requirements).toEqual(["Pré-requis 1", "Pré-requis 2"]);
     expect(result?.mission.organization_name).toBe("Organisation Test");
     expect(result?.mission.organization_client_id).toBe("mongo-org-123");
     expect(result?.mission.matched_organization_id).toBe("org-123");

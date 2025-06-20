@@ -181,6 +181,8 @@ export interface Mission {
   audience: string[];
   soft_skills: string[];
   softSkills: string[];
+  requirements: string[];
+  romeSkills: string[];
   organizationClientId: string | undefined;
   organizationUrl: string | undefined;
   organizationName: string | undefined;
@@ -884,6 +886,8 @@ export interface MissionXML {
   audience: { value: string[] | string } | string;
   soft_skills: { value: string[] | string } | string;
   softSkills: { value: string[] | string } | string;
+  romeSkills: { value: string[] | string } | string;
+  requirements: { value: string[] | string } | string;
   remote: "no" | "possible" | "full";
   reducedMobilityAccessible: string;
   closeToTransport: string;

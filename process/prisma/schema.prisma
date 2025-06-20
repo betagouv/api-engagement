@@ -322,6 +322,8 @@ model Mission {
   organization_postal_code        String?
   priority                        String?
   soft_skills                     String[]
+  rome_skills                     String[]
+  requirements                    String[]
   tasks                           String[]
   places                          Int?
   matched_organization_id         String?

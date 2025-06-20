@@ -48,6 +48,8 @@ const schema = new Schema<Mission>(
     audience: { type: [String] },
     soft_skills: { type: [String] },
     softSkills: { type: [String] },
+    requirements: { type: [String] },
+    romeSkills: { type: [String] },
     reducedMobilityAccessible: { type: String, enum: ["yes", "no"], default: "no" },
     closeToTransport: { type: String, enum: ["yes", "no"], default: "no" },
     openToMinors: { type: String, enum: ["yes", "no"], default: "no" },

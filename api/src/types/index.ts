@@ -237,6 +237,8 @@ export interface Mission {
   audience: string[];
   soft_skills: string[];
   softSkills: string[];
+  requirements: string[];
+  romeSkills: string[];
   organizationClientId: string | undefined;
   organizationUrl: string | undefined;
   organizationName: string | undefined;
