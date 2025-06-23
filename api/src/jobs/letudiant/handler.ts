@@ -63,7 +63,7 @@ export class LetudiantHandler implements BaseHandler<LetudiantJobPayload, Letudi
           continue;
         }
 
-        const pilotyCompany = await this.createOrUpdateCompany(pilotyClient, mission, organization);
+        const pilotyCompany = await createOrUpdateCompany(pilotyClient, mission, organization);
 
         const jobPayload = missionToPilotyJob(mission, pilotyCompany.public_id, mandatoryData);
         let pilotyJob = null;
@@ -104,36 +104,6 @@ export class LetudiantHandler implements BaseHandler<LetudiantJobPayload, Letudi
     };
   }
 
-  private async createOrUpdateCompany(pilotyClient: PilotyClient, mission: HydratedDocument<Mission>, organization: HydratedDocument<Organization>): Promise<PilotyCompany> {
-    const companyPayload = await missionToPilotyCompany(mission);
-    let pilotyCompany = null;
-
-    if (organization.letudiantPublicId) {
-      console.log(`[LetudiantHandler] Company ${organization.title} already exists (${organization.letudiantPublicId})`);
-      pilotyCompany = await pilotyClient.getCompanyById(organization.letudiantPublicId);
-    } else {
-      console.log(`[LetudiantHandler] Company ${organization.title} not found: creating...`);
-      try {
-        pilotyCompany = await pilotyClient.createCompany(companyPayload);
-      } catch (error) {
-        if (error instanceof PilotyError && error.status === 409) {
-          console.log(`[LetudiantHandler] Company ${organization.title} already exists (409)`);
-          pilotyCompany = await pilotyClient.findCompanyByName(companyPayload.name);
-        } else {
-          throw error;
-        }
-      }
-    }
-
-    if (!pilotyCompany) {
-      throw new Error("Unable to create company for mission");
-    } else {
-      await OrganizationModel.updateOne({ _id: organization._id }, { letudiantPublicId: pilotyCompany.public_id, letudiantUpdatedAt: new Date() });
-    }
-
-    return pilotyCompany;
-  }
-
   public async schedule(): Promise<void> {
     console.log(`[LetudiantHandler] Scheduling job '${this.JOB_NAME}' to queue '${this.queue.queueName}'`);
     try {
@@ -148,3 +118,33 @@ export class LetudiantHandler implements BaseHandler<LetudiantJobPayload, Letudi
     }
   }
 }
+
+const createOrUpdateCompany = async (pilotyClient: PilotyClient, mission: HydratedDocument<Mission>, organization: HydratedDocument<Organization>): Promise<PilotyCompany> => {
+  const companyPayload = await missionToPilotyCompany(mission);
+  let pilotyCompany = null;
+
+  if (organization.letudiantPublicId) {
+    console.log(`[LetudiantHandler] Company ${organization.title} already exists (${organization.letudiantPublicId})`);
+    pilotyCompany = await pilotyClient.getCompanyById(organization.letudiantPublicId);
+  } else {
+    console.log(`[LetudiantHandler] Company ${organization.title} not found: creating...`);
+    try {
+      pilotyCompany = await pilotyClient.createCompany(companyPayload);
+    } catch (error) {
+      if (error instanceof PilotyError && error.status === 409) {
+        console.log(`[LetudiantHandler] Company ${organization.title} already exists (409)`);
+        pilotyCompany = await pilotyClient.findCompanyByName(companyPayload.name);
+      } else {
+        throw error;
+      }
+    }
+  }
+
+  if (!pilotyCompany) {
+    throw new Error("Unable to create company for mission");
+  } else {
+    await OrganizationModel.updateOne({ _id: organization._id }, { letudiantPublicId: pilotyCompany.public_id, letudiantUpdatedAt: new Date() });
+  }
+
+  return pilotyCompany;
+};
