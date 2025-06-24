@@ -6,6 +6,7 @@ import Modal from "../../../../components/Modal";
 import api from "../../../../services/api";
 import { captureError } from "../../../../services/error";
 import useStore from "../../../../services/store";
+import { JVA_MODERATION_COMMENTS_LABELS } from "./Constants";
 
 const OrganizationRefusedModal = ({ isOpen, onClose, organizationName, comment, onChange }) => {
   const { publisher } = useStore();
@@ -53,10 +54,11 @@ const OrganizationRefusedModal = ({ isOpen, onClose, organizationName, comment, 
       <div className="space-y-8 p-12">
         <h1 className="text-xl font-semibold">Refuser les {missions.length} autres missions de cette organisation ?</h1>
         <p className="text-black text-sm">
-          Vous venez de refuser une mission de l’organisation <b>{organizationName}</b> avec le motif <b>{comment}</b>.
+          Vous venez de refuser une mission de l’organisation <b>{organizationName}</b> avec le motif <b>{JVA_MODERATION_COMMENTS_LABELS[comment]}</b>.
         </p>
         <p className="text-black text-sm">
-          Cette organisation a {missions.length} autres missions à modérer, voulez-vous passer le statut de ces missions en <b>Refusée</b> avec le motif <b>{comment}</b> ?
+          Cette organisation a {missions.length} autres missions à modérer, voulez-vous passer le statut de ces missions en <b>Refusée</b> avec le motif{" "}
+          <b>{JVA_MODERATION_COMMENTS_LABELS[comment]}</b> ?
         </p>
         <div className="flex justify-end gap-4">
           <button className="empty-button" onClick={onClose}>
