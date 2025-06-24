@@ -1,3 +1,5 @@
+import { BUCKET_NAME } from "../../config";
+
 export const LINKEDIN_ID = "5f8b3c7552a1412baaa0cd44";
 
 export const BENEVOLT_ID = "5f592d415655a711feb4460e";
@@ -9,6 +11,7 @@ export const MEDECINS_DU_MONDE_ID = "619fae737d373e07aea8be23";
 export const EGEE_ID = "619faf257d373e07aea8be27";
 export const ECTI_ID = "619faeb97d373e07aea8be24";
 export const ADIE_ID = "619fb52a7d373e07aea8be35";
+export const LINKEDIN_XML_URL = `https://${BUCKET_NAME}.s3.fr-par.scw.cloud/xml/linkedin`;
 
 export const PARTNERS_IDS = [
   BENEVOLT_ID,

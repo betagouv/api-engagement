@@ -2,8 +2,10 @@ import { XMLBuilder } from "fast-xml-parser";
 
 import MissionModel from "../../models/mission";
 import { OBJECT_ACL, putObject } from "../../services/s3";
-import { LinkedInJob, Mission } from "../../types";
+import { Mission } from "../../types";
+import { LINKEDIN_XML_URL } from "./config";
 import { missionToLinkedinJob } from "./transformers";
+import { LinkedInJob } from "./type";
 
 export async function getMissions(where: { [key: string]: any }): Promise<Mission[]> {
   const missions = await MissionModel.find(where).sort({ createdAt: "asc" }).lean();
@@ -107,7 +109,8 @@ export function generateXML(data: LinkedInJob[]) {
 
 export async function storeXML(xml: string): Promise<string> {
   const date = new Date().toISOString().split("T")[0];
-  await putObject(`xml/linkedin.xml-${date}`, xml, {
+
+  await putObject(`xml/linkedin-${date}.xml`, xml, {
     ContentType: "application/xml",
     ACL: OBJECT_ACL.PUBLIC_READ,
   });
@@ -117,5 +120,5 @@ export async function storeXML(xml: string): Promise<string> {
     ACL: OBJECT_ACL.PUBLIC_READ,
   });
 
-  return `https://api-engagement-bucket.s3.fr-par.scw.cloud/xml/linkedin.xml-${date}`;
+  return `${LINKEDIN_XML_URL}-${date}.xml`;
 }

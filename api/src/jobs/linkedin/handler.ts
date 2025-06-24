@@ -1,6 +1,6 @@
 import fs from "fs";
 
-import { JVA_ID } from "../../config";
+import { ENV, JVA_ID } from "../../config";
 import ImportModel from "../../models/import";
 import PublisherModel from "../../models/publisher";
 import { BaseHandler } from "../base/handler";
@@ -75,15 +75,15 @@ export class LinkedinHandler implements BaseHandler<LinkedinJobPayload, Linkedin
       const xml = generateXML(jobs);
       console.log(`[LinkedinHandler] ${xml.length} bytes`);
 
-      // if (ENV === "development") {
-      fs.writeFileSync("linkedin.xml", xml);
-      console.log(`[LinkedinHandler] XML stored in local file`);
-      return {
-        success: true,
-        timestamp: new Date(),
-        counter,
-      };
-      // }
+      if (ENV === "development") {
+        fs.writeFileSync("linkedin.xml", xml);
+        console.log(`[LinkedinHandler] XML stored in local file`);
+        return {
+          success: true,
+          timestamp: new Date(),
+          counter,
+        };
+      }
 
       const url = await storeXML(xml);
       console.log(`[LinkedinHandler] XML stored at ${url}`);
