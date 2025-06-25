@@ -81,7 +81,7 @@ resource "scaleway_container" "api" {
   registry_image  = "ghcr.io/${var.github_repository}/api-api:${terraform.workspace}${var.image_tag == "latest" ? "" : "-${var.image_tag}"}"
   port            = 8080
   # Update in function of terraform.workspace
-  cpu_limit       = terraform.workspace == "production" ? 750 : 250
+  cpu_limit       = terraform.workspace == "production" ? 1500 : 250
   memory_limit    = terraform.workspace == "production" ? 2048 : 512
   min_scale       = terraform.workspace == "production" ? 1 : 1
   max_scale       = terraform.workspace == "production" ? 5 : 1
@@ -92,9 +92,15 @@ resource "scaleway_container" "api" {
   http_option     = "redirected" # https only
   deploy          = true
 
-  # scaling_option {
-  #   cpu_usage_threshold = 80
-  # }
+  health_check {
+    path = "/"
+    interval = "30s"
+    failure_threshold = 3
+  }
+
+  scaling_option = {
+    cpu_usage_threshold = 80
+  }
 
   environment_variables = {
     "ENV"           = terraform.workspace

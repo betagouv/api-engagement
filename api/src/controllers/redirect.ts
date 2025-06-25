@@ -722,9 +722,7 @@ router.get("/:missionId/:publisherId", cors({ origin: "*" }), async function tra
       tags: query.data?.tags ? (query.data.tags.includes(",") ? query.data.tags.split(",").map((tag) => tag.trim()) : [query.data.tags]) : undefined,
     } as Stats;
 
-    console.log("REDIRECT CLICK 1");
     const click = await esClient.index({ index: STATS_INDEX, body: obj });
-    console.log("REDIRECT CLICK 2");
 
     if (mission.applicationUrl.indexOf("http://") === -1 && mission.applicationUrl.indexOf("https://") === -1) {
       mission.applicationUrl = "https://" + mission.applicationUrl;
