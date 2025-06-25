@@ -244,6 +244,34 @@ resource "scaleway_container" "process" {
   protocol        = "http1"
   http_option     = "redirected" # https only
   deploy          = true
+
+  health_check {
+    http {
+      path = "/"
+    }
+    interval = "30s"
+    failure_threshold = 3
+  }
+
+  environment_variables = {
+    "ENV"           = terraform.workspace
+    "API_URL"       = "https://${local.api_hostname}"
+    "BUCKET_NAME"   = local.bucket_name
+    "SLACK_WARNING_CHANNEL_ID"   = terraform.workspace == "production" ? "C052V2UF918" : "C08QQT4702D"
+    "SLACK_CRON_CHANNEL_ID"      = terraform.workspace == "production" ? "C085S6M2K5J" : ""
+    "SLACK_LBC_CHANNEL_ID"       = terraform.workspace == "production" ? "C07SPFG724V" : ""
+  }
+
+  secret_environment_variables = {
+    "DB_ENDPOINT"                = local.secrets.DB_ENDPOINT
+    "ES_ENDPOINT"                = local.secrets.ES_ENDPOINT
+    "PG_ENDPOINT"                = local.secrets.PG_ENDPOINT
+    "SENTRY_DSN"                 = local.secrets.SENTRY_DSN
+    "SLACK_TOKEN"                = local.secrets.SLACK_TOKEN
+    "DATA_SUBVENTION_TOKEN"      = local.secrets.DATA_SUBVENTION_TOKEN
+    "SCW_ACCESS_KEY"             = local.secrets.SCW_ACCESS_KEY
+    "SCW_SECRET_KEY"             = local.secrets.SCW_SECRET_KEY
+  }
 }
 
 resource "scaleway_container_domain" "process" {
