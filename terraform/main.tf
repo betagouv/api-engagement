@@ -93,9 +93,11 @@ resource "scaleway_container" "api" {
   deploy          = true
 
   health_check {
-    path = "/"
+    http_path {
+      path = "/"
+    }
     interval = "30s"
-    failure_threshold = 3
+    failure_threshold = 2
   }
 
   scaling_option {
