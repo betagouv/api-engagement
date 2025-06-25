@@ -98,7 +98,7 @@ resource "scaleway_container" "api" {
     failure_threshold = 3
   }
 
-  scaling_option = {
+  scaling_option {
     cpu_usage_threshold = 80
   }
 
