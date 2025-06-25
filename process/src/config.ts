@@ -1,12 +1,11 @@
 process.env.TZ = "Europe/Paris";
 
-export const PORT = process.env.PORT || 4001;
-
 export const ENVIRONMENT = process.env.ENV || "development";
 export const ES_ENDPOINT = process.env.ES_ENDPOINT;
 export const DB_ENDPOINT = process.env.DB_ENDPOINT;
 export const STATS_INDEX = "stats";
 export const MISSION_INDEX = "mission";
+export const PORT = ENVIRONMENT === "production" ? 8080 : 4001;
 
 export const SENTRY_DSN = process.env.SENTRY_DSN;
 
