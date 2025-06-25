@@ -93,7 +93,7 @@ resource "scaleway_container" "api" {
   deploy          = true
 
   health_check {
-    http_path {
+    http {
       path = "/"
     }
     interval = "30s"
