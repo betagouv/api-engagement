@@ -1,5 +1,6 @@
 // api/src/jobs/index.ts
 import { WorkerOptions } from "bullmq";
+import { captureException } from "../error";
 import { BaseWorker } from "./base/worker";
 import { jobWorkers } from "./config";
 
@@ -26,7 +27,7 @@ export async function launchJobSystem(): Promise<void> {
       worker.start();
       activeWorkers.push(worker);
     } catch (error) {
-      console.error(`[JobSystem] Failed to instantiate or start worker for queue: ${queueName}${name ? ` (Job: ${name})` : ""}`, error);
+      captureException("[JobSystem] Failed to instantiate or start worker", { extra: { queueName, name } });
     }
   }
 

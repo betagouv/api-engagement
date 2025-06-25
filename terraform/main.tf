@@ -96,7 +96,7 @@ resource "scaleway_container" "api" {
       path = "/"
     }
     interval = "30s"
-    failure_threshold = 2
+    failure_threshold = 3
   }
 
   scaling_option {
@@ -152,7 +152,7 @@ resource "scaleway_container" "api_jobs" {
       path = "/"
     }
     interval = "30s"
-    failure_threshold = 2
+    failure_threshold = 3
   }
 
   scaling_option {
@@ -296,7 +296,7 @@ resource "scaleway_container" "widget" {
       path = "/"
     }
     interval = "30s"
-    failure_threshold = 2
+    failure_threshold = 3
   }
 
   scaling_option {

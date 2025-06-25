@@ -1,8 +1,8 @@
 // api/src/jobs/base/worker.ts
 import { Job, Processor, Worker, WorkerOptions } from "bullmq";
+import { Redis } from "ioredis";
 import { REDIS_URL } from "../../config";
 import { redisOptions } from "../../db/redis";
-import { Redis } from "ioredis";
 import { captureException } from "../../error";
 
 export class BaseWorker<PayloadType = any> {
@@ -47,7 +47,7 @@ export class BaseWorker<PayloadType = any> {
     );
 
     this.worker.on("completed", (job, result) => {
-      console.log(`[BaseWorker/${fullWorkerNameLog}] Job ${job.id} (Name: ${job.name}) completed.`);
+      console.log(`[BaseWorker/${fullWorkerNameLog}] Job ${job.id} (Name: ${job.name}) completed. Result: ${JSON.stringify(result)}`);
     });
 
     this.worker.on("failed", (job, error) => {

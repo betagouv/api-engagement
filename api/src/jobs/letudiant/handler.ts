@@ -1,9 +1,11 @@
 import { Job } from "bullmq";
 import { HydratedDocument } from "mongoose";
 import { LETUDIANT_PILOTY_TOKEN } from "../../config";
+import { captureException } from "../../error";
 import OrganizationModel from "../../models/organization";
 import { PilotyClient, PilotyCompany, PilotyError } from "../../services/piloty/";
 import { Mission, Organization } from "../../types";
+import { isValidObjectId } from "../../utils";
 import { BaseHandler } from "../base/handler";
 import { JobResult } from "../types";
 import { MEDIA_PUBLIC_ID } from "./config";
@@ -41,6 +43,7 @@ export class LetudiantHandler implements BaseHandler<LetudiantJobPayload, Letudi
   public async handle(bullJob: Job<LetudiantJobPayload>): Promise<LetudiantJobResult> {
     const pilotyClient = new PilotyClient(LETUDIANT_PILOTY_TOKEN, MEDIA_PUBLIC_ID);
     const { id, limit } = bullJob.data;
+    console.log(`[LetudiantHandler] Starting job with ${id ? `id ${id}` : "all missions"} and limit ${limit || DEFAULT_LIMIT}`);
 
     const missions = await getMissionsToSync(id, limit || DEFAULT_LIMIT);
     console.log(`[LetudiantHandler] Found ${missions.length} missions to sync`);
@@ -56,6 +59,12 @@ export class LetudiantHandler implements BaseHandler<LetudiantJobPayload, Letudi
 
     for (const mission of missions) {
       try {
+        if (!mission.organizationId || !isValidObjectId(mission.organizationId)) {
+          console.log(`[LetudiantHandler] Mission ${mission._id} has no organization, skipping`);
+          counter.skipped++;
+          continue;
+        }
+
         const organization = await OrganizationModel.findOne({ _id: mission.organizationId });
         if (!organization) {
           console.log(`[LetudiantHandler] Mission ${mission._id} has no organization, skipping`);
@@ -89,7 +98,7 @@ export class LetudiantHandler implements BaseHandler<LetudiantJobPayload, Letudi
 
         await rateLimit();
       } catch (error) {
-        console.error(`[LetudiantHandler] Error processing mission ${mission._id}`, error);
+        captureException(`[LetudiantHandler] Error processing mission`, { extra: { missionId: mission._id, id, limit } });
         counter.error++;
       }
     }
