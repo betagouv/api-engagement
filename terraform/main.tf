@@ -86,7 +86,6 @@ resource "scaleway_container" "api" {
   min_scale       = terraform.workspace == "production" ? 1 : 1
   max_scale       = terraform.workspace == "production" ? 5 : 1
   timeout         = 60
-  max_concurrency = 50
   privacy         = "public"
   protocol        = "http1"
   http_option     = "redirected" # https only
@@ -143,11 +142,22 @@ resource "scaleway_container" "api_jobs" {
   min_scale       = terraform.workspace == "production" ? 1 : 1
   max_scale       = terraform.workspace == "production" ? 2 : 1
   timeout         = 300  # Jobs may take longer to complete
-  max_concurrency = 10   # Limit concurrent jobs
   privacy         = "private"
   protocol        = "http1"
   http_option     = "redirected" # https only
   deploy          = true
+
+  health_check {
+    http {
+      path = "/"
+    }
+    interval = "30s"
+    failure_threshold = 2
+  }
+
+  scaling_option {
+    cpu_usage_threshold = 80
+  }
 
   environment_variables = {
     "ENV"           = terraform.workspace
@@ -185,9 +195,8 @@ resource "scaleway_container" "api_scheduler" {
   cpu_limit       = terraform.workspace == "production" ? 500 : 250
   memory_limit    = terraform.workspace == "production" ? 1024 : 512
   min_scale       = terraform.workspace == "production" ? 1 : 1
-  max_scale       = terraform.workspace == "production" ? 2 : 1
+  max_scale       = terraform.workspace == "production" ? 1 : 1
   timeout         = 30
-  max_concurrency = 1   
   privacy         = "private"
   protocol        = "http1"
   http_option     = "redirected" # https only
@@ -231,7 +240,6 @@ resource "scaleway_container" "process" {
   min_scale       = terraform.workspace == "production" ? 1 : 1
   max_scale       = terraform.workspace == "production" ? 1 : 1
   timeout         = 300  # Longer timeout for process jobs
-  max_concurrency = 20
   privacy         = "private"
   protocol        = "http1"
   http_option     = "redirected" # https only
@@ -255,7 +263,6 @@ resource "scaleway_container" "app" {
   min_scale       = terraform.workspace == "production" ? 1 : 1
   max_scale       = terraform.workspace == "production" ? 1 : 1
   timeout         = 60
-  max_concurrency = 50
   privacy         = "public"
   protocol        = "http1"
   http_option     = "redirected" # https only
@@ -279,11 +286,22 @@ resource "scaleway_container" "widget" {
   min_scale       = terraform.workspace == "production" ? 1 : 1
   max_scale       = terraform.workspace == "production" ? 4 : 1
   timeout         = 60
-  max_concurrency = 50
   privacy         = "public"
   protocol        = "http1"
   http_option     = "redirected" # https only
   deploy          = true
+
+  health_check {
+    http {
+      path = "/"
+    }
+    interval = "30s"
+    failure_threshold = 2
+  }
+
+  scaling_option {
+    concurrent_requests_threshold = 15
+  }
 
   environment_variables = {
     "ENV"     = terraform.workspace
