@@ -1,10 +1,19 @@
 import dotenv from "dotenv";
 dotenv.config();
 
+import * as Sentry from "@sentry/node";
 import express from "express";
 import cron from "node-cron";
-import { PORT } from "./config";
+import { ENV, PORT, SENTRY_DSN } from "./config";
 import { jobSchedules } from "./jobs/config";
+
+if (ENV !== "development") {
+  Sentry.init({
+    dsn: SENTRY_DSN,
+    environment: "scheduler", // Differentiate Sentry environment for jobs
+    tracesSampleRate: 0.1,
+  });
+}
 
 import { mongoConnected } from "./db/mongo";
 import { redisConnected } from "./db/redis";
