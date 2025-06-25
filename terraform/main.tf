@@ -245,13 +245,6 @@ resource "scaleway_container" "process" {
   http_option     = "redirected" # https only
   deploy          = true
 
-  health_check {
-    http {
-      path = "/"
-    }
-    interval = "30s"
-    failure_threshold = 3
-  }
 
   environment_variables = {
     "ENV"           = terraform.workspace
@@ -318,14 +311,6 @@ resource "scaleway_container" "widget" {
   protocol        = "http1"
   http_option     = "redirected" # https only
   deploy          = true
-
-  health_check {
-    http {
-      path = "/"
-    }
-    interval = "30s"
-    failure_threshold = 3
-  }
 
   scaling_option {
     concurrent_requests_threshold = 15
