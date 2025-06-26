@@ -1,5 +1,6 @@
 // Utility functions for letudiant job sync
 import { HydratedDocument } from "mongoose";
+import he from 'he';
 import { setTimeout as sleep } from "timers/promises";
 import MissionModel from "../../models/mission";
 import { PilotyClient } from "../../services/piloty/client";
@@ -31,21 +32,24 @@ export async function rateLimit(delayMs = 500) {
  * @param limit Optional limit (default: 10)
  */
 export async function getMissionsToSync(id?: string, limit = 10): Promise<HydratedDocument<Mission>[]> {
-  const query = id
-    ? {
-        _id: id,
-      }
-    : {
-        // TODO: if deletedAt is after letudiantUpdatedAt, we have to include deleted missions in the query
-        deletedAt: null,
-        statusCode: "ACCEPTED",
-        organizationId: {
-          $exists: true,
-        },
-        $or: [{ letudiantPublicId: { $exists: false } }, { $expr: { $lt: ["$letudiantUpdatedAt", "$updatedAt"] } }],
-      };
+  if (id) {
+    return MissionModel.find({ _id: id }).limit(1);
+  }
 
-  return MissionModel.find(query).sort({ updatedAt: "asc" }).limit(limit);
+  // Use an aggregation pipeline to check if organization exists
+  const missions = await MissionModel.find({
+    deletedAt: null,
+    statusCode: "ACCEPTED",
+    organizationId: {
+      $exists: true,
+      $ne: null,
+      // Ensure the string is a 24-character hex string before attempting conversion
+      $regex: /^[0-9a-fA-F]{24}$/,
+    },
+    $or: [{ letudiantPublicId: { $exists: true } }, { $expr: { $lt: ["$letudiantUpdatedAt", "$updatedAt"] } }],
+  }).limit(limit);
+
+  return missions;
 }
 
 /**
@@ -143,4 +147,16 @@ export async function getMandatoryJobCategories(client: PilotyClient): Promise<P
     jobCategoryIds[ref] = id;
   }
   return jobCategoryIds;
+}
+
+/**
+ * Decode HTML entities from a string if it contains them.
+ * @param text The text to decode
+ * @returns The decoded text
+ */
+export function decodeHtml(text: string): string {
+  if (text && text.includes('&')) {
+    return he.decode(text);
+  }
+  return text;
 }

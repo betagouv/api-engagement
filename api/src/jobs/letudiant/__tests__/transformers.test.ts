@@ -64,7 +64,7 @@ describe("L'Etudiant Transformers", () => {
       expect(result.contract_id).toBe(mockMandatoryData.contracts.benevolat);
       expect(result.job_category_id).toBe(mockMandatoryData.jobCategories.sante);
       expect(result.localisation).toBe(mission.city);
-      expect(result.description_job).toBe(mission.descriptionHtml);
+      expect(result.description_job).toBe("<p>Une description 素晴らしい HTML.</p>");
       expect(result.application_method).toBe("external_apply");
       expect(getMissionTrackedApplicationUrl).toHaveBeenCalledWith(mission);
       expect(result.application_url).toBe(`https://api-engagement.beta.gouv.fr/r/${mission._id}/${mission.publisherId}`);
@@ -152,6 +152,22 @@ describe("L'Etudiant Transformers", () => {
       } as Mission;
       result = missionToPilotyJob(missionUnknownDomain, mockCompanyId, mockMandatoryData);
       expect(result.job_category_id).toBe(mockMandatoryData.jobCategories.autre);
+    });
+
+    it('should decode HTML entities in description_job', () => {
+      const mission: Mission = {
+        ...baseMission,
+        publisherId: 'any_id',
+        domain: 'sante',
+        remote: 'no',
+        city: 'Lyon',
+        deletedAt: null,
+        descriptionHtml: 'Description with &lt;p&gt;html&lt;/p&gt; tags.',
+      } as Mission;
+
+      const result = missionToPilotyJob(mission, mockCompanyId, mockMandatoryData);
+
+      expect(result.description_job).toBe('Description with <p>html</p> tags.');
     });
 
     /**

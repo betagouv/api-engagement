@@ -3,6 +3,7 @@ import { PilotyCompanyPayload, PilotyJobPayload, PilotyMandatoryData } from "../
 import { Mission } from "../../types";
 import { getMissionTrackedApplicationUrl } from "../../utils/mission";
 import { MEDIA_PUBLIC_ID } from "./config";
+import { decodeHtml } from './utils';
 
 /**
  * Transform a mission into a Piloty job payload
@@ -31,7 +32,7 @@ export function missionToPilotyJob(mission: Mission, companyId: string, mandator
     contract_id: mission.publisherId === SC_ID ? mandatoryData.contracts.volontariat : mandatoryData.contracts.benevolat,
     job_category_id: mandatoryData.jobCategories[mission.domain] ?? mandatoryData.jobCategories["autre"],
     localisation: mission.remote === "full" ? "A distance" : mission.city || "",
-    description_job: mission.descriptionHtml,
+    description_job: decodeHtml(mission.descriptionHtml),
     application_method: "external_apply",
     application_url: getMissionTrackedApplicationUrl(mission),
     state: mission.deletedAt ? "archived" : "published",
