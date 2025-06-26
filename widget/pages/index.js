@@ -51,15 +51,10 @@ const getContainerHeight = (widget) => {
   return "h-[2200px] sm:h-[1350px] lg:h-[1050px]";
 };
 
-const Home = ({ widget, apiUrl, missions, total, request, environment }) => {
-  const router = useRouter();
-  const { setUrl, setColor } = useStore();
-  const plausible = usePlausible();
-  const [showFilters, setShowFilters] = useState(false);
-
+const getInitialFilters = (widget) => {
   const isBenevolat = widget?.type === "benevolat";
 
-  const initialFilters = {
+  return {
     domain: [],
     location: null,
     page: 1,
@@ -83,10 +78,18 @@ const Home = ({ widget, apiUrl, missions, total, request, environment }) => {
           country: [],
         }),
   };
+};
 
-  const [filters, setFilters] = useState(initialFilters);
-
+const Home = ({ widget, apiUrl, missions, total, request, environment }) => {
+  const isBenevolat = widget?.type === "benevolat";
   const color = widget?.color ? widget.color : "#71A246";
+
+  const router = useRouter();
+  const plausible = usePlausible();
+
+  const { setUrl, setColor } = useStore();
+  const [filters, setFilters] = useState(() => getInitialFilters(widget));
+  const [showFilters, setShowFilters] = useState(false);
 
   const fetchLocation = async (lat, lon) => {
     try {
