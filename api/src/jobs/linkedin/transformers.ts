@@ -1,5 +1,6 @@
-import { LinkedInJob, Mission } from "../../types";
+import { Mission } from "../../types";
 import { LINKEDIN_COMPANY_ID, LINKEDIN_ID, LINKEDIN_INDUSTRY_CODE } from "./config";
+import { LinkedInJob } from "./types";
 
 export function missionToLinkedinJob(mission: Mission, defaultCompany: string): LinkedInJob | null {
   const startDate = new Date(mission.startAt);

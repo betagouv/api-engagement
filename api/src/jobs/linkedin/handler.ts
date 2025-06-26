@@ -6,7 +6,6 @@ import PublisherModel from "../../models/publisher";
 import { BaseHandler } from "../base/handler";
 import { JobResult } from "../types";
 import { LINKEDIN_ID, PARTNERS_IDS } from "./config";
-import { LinkedinQueue } from "./queue";
 import { generateJvaJobs, generatePartnersJobs, generateXML, getMissions, storeXML } from "./utils";
 
 export interface LinkedinJobPayload {}
@@ -21,11 +20,7 @@ export interface LinkedinJobResult extends JobResult {
 }
 
 export class LinkedinHandler implements BaseHandler<LinkedinJobPayload, LinkedinJobResult> {
-  public readonly JOB_NAME = "linkedin-exporter";
-
-  public readonly queue = new LinkedinQueue();
-
-  public async handle(): Promise<LinkedinJobResult> {
+  public async handle(payload: LinkedinJobPayload): Promise<LinkedinJobResult> {
     const start = new Date();
     try {
       const linkedin = await PublisherModel.findById(LINKEDIN_ID);
@@ -123,16 +118,6 @@ export class LinkedinHandler implements BaseHandler<LinkedinJobPayload, Linkedin
         timestamp: new Date(),
         counter: { processed: 0, sent: 0, expired: 0, skipped: 0 },
       };
-    }
-  }
-
-  public async schedule(): Promise<void> {
-    console.log(`[LinkedinHandler] Scheduling job '${this.JOB_NAME}' to queue '${this.queue.queueName}'`);
-    try {
-      await this.queue.addJob(this.JOB_NAME, {});
-      console.log(`[LinkedinHandler] Successfully added job '${this.JOB_NAME}' to queue '${this.queue.queueName}'`);
-    } catch (error) {
-      console.error(`[LinkedinHandler] Failed to add job '${this.JOB_NAME}' to queue '${this.queue.queueName}':`, error);
     }
   }
 }

@@ -5,7 +5,7 @@ import { OBJECT_ACL, putObject } from "../../services/s3";
 import { Mission } from "../../types";
 import { LINKEDIN_XML_URL } from "./config";
 import { missionToLinkedinJob } from "./transformers";
-import { LinkedInJob } from "./type";
+import { LinkedInJob } from "./types";
 
 export async function getMissions(where: { [key: string]: any }): Promise<Mission[]> {
   const missions = await MissionModel.find(where).sort({ createdAt: "asc" }).lean();
