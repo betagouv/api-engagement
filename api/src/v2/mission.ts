@@ -2,13 +2,12 @@ import { NextFunction, Response, Router } from "express";
 import passport from "passport";
 import zod from "zod";
 
-import { API_URL } from "../config";
 import { INVALID_PARAMS, INVALID_QUERY, NOT_FOUND } from "../error";
 import MissionModel from "../models/mission";
 import RequestModel from "../models/request";
 import { Mission, Publisher } from "../types";
 import { PublisherRequest } from "../types/passport";
-import { diacriticSensitiveRegex } from "../utils";
+import { diacriticSensitiveRegex, getMissionTrackedApplicationUrl } from "../utils";
 
 const NO_PARTNER = "NO_PARTNER";
 const NO_PARTNER_MESSAGE = "Vous n'avez pas encore accès à des missions. Contactez margot.quettelart@beta.gouv.fr pour vous donner accès aux missions";
@@ -184,7 +183,7 @@ const buildData = (data: Mission, publisherId: string, moderator: boolean = fals
     country: address ? address.country : undefined,
     location: address ? address.location : undefined,
     addresses: data.addresses,
-    applicationUrl: `${API_URL}/r/${data._id}/${publisherId}`,
+    applicationUrl: getMissionTrackedApplicationUrl(data),
     associationLogo: data.associationLogo,
     associationAddress: data.associationAddress,
     associationCity: data.associationCity,
