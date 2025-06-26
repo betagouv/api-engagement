@@ -150,6 +150,7 @@ describe("transformMongoMissionToPg", () => {
     reducedMobilityAccessible: "yes",
     openToMinors: "no",
     schedule: "Lundi au vendredi, 9h-17h",
+    type: "benevolat",
     postedAt: new Date("2023-01-15"),
     startAt: new Date("2023-02-01"),
     endAt: new Date("2023-03-01"),
