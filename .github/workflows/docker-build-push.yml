@@ -55,8 +55,6 @@ jobs:
             server_type: api
           - service: api
             server_type: jobs
-          - service: api
-            server_type: scheduler
           - service: process
     steps:
       - name: Checkout code
