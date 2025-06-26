@@ -10,7 +10,6 @@ import path from "path";
 
 dotenv.config();
 
-import "../db/mongo";
 import { mongoConnected } from "../db/mongo";
 
 const jobName = process.argv[2];
