@@ -6,7 +6,6 @@ import express from "express";
 
 import { ENV, PORT, SENTRY_DSN } from "./config"; // Assuming this is the correct path for these configs
 import { mongoConnected } from "./db/mongo";
-import { redisConnected } from "./db/redis";
 
 if (ENV !== "development") {
   Sentry.init({
@@ -16,97 +15,23 @@ if (ENV !== "development") {
   });
 }
 
-import { createBullBoard } from "@bull-board/api";
-import { BullMQAdapter } from "@bull-board/api/bullMQAdapter";
-import { ExpressAdapter } from "@bull-board/express";
-import { Queue } from "bullmq";
 import "./db/mongo";
-import { redis } from "./db/redis";
-import { captureException } from "./error";
-import { launchJobSystem, shutdownJobs } from "./jobs";
-import { queues } from "./jobs/config";
 
 /**
- * Starts the job server, which includes:
- * - Launching all configured BullMQ workers
- * - Setting up graceful shutdown handlers
- * - Starting an Express server with Bull Board UI
+ * Starts the job server.
+ * A dummy express server is started to handle health checks, but no endpoint is exposed.
  */
 export const startJobServer = async () => {
   console.log("[Job server] Waiting for database connections...");
-  await Promise.all([mongoConnected, redisConnected]); // Redis is required only for jobs for no
+  await Promise.all([mongoConnected]);
   console.log("[Job server] All database connections established successfully");
   console.log("[Job server] Starting job server...");
 
   const app = express();
 
-  // Setup BullBoard UI
-  const basePath = "/admin/queues";
-  const serverAdapter = new ExpressAdapter();
-  serverAdapter.setBasePath(basePath);
-
-  const bullMqQueues: BullMQAdapter[] = [];
-
-  queues.forEach((queue) => {
-    const queueInstance = new Queue(queue.queueName, { connection: redis });
-    bullMqQueues.push(new BullMQAdapter(queueInstance));
-  });
-
-  createBullBoard({
-    queues: bullMqQueues,
-    serverAdapter,
-  });
-
-  app.use(basePath, serverAdapter.getRouter());
-  console.log(`[Job server] Bull Board UI registered at ${basePath}`);
-
   app.get("/", (req, res) => {
-    res.send("Job server is running. Bull Board is at /admin/queues.");
+    res.send("Job server is running.");
   });
 
-  (async () => {
-    try {
-      await launchJobSystem();
-
-      const server = app.listen(PORT, () => {
-        console.log(`[Job server] Express server started on port ${PORT}`);
-        console.log(`[Job server] Bull Board is available at http://localhost:${PORT}/admin/queues`);
-      });
-
-      const handleShutdown = async () => {
-        console.log("[Job server] Received shutdown signal. Shutting down gracefully...");
-        try {
-          await shutdownJobs();
-
-          server.close((err) => {
-            if (err) {
-              console.error("[Job server] Error closing HTTP server:", err);
-              captureException(err); // Log error
-              process.exit(1); // Exit with error if server doesn't close gracefully
-            } else {
-              console.log("[Job server] HTTP server closed.");
-              console.log("[Job server] Graceful shutdown complete.");
-              process.exit(0); // Successful graceful shutdown
-            }
-          });
-
-          setTimeout(() => {
-            console.error("[Job server] Graceful shutdown timed out. Forcing exit.");
-            process.exit(1);
-          }, 10000); // 10 seconds timeout
-        } catch (error) {
-          console.error("[Job server] Error during shutdown sequence:", error);
-          captureException(error);
-          process.exit(1);
-        }
-      };
-
-      process.on("SIGTERM", handleShutdown);
-      process.on("SIGINT", handleShutdown);
-    } catch (error) {
-      console.error("[Job server] Failed to initialize or start job server:", error);
-      captureException(error);
-      process.exit(1);
-    }
-  })();
+  app.listen(PORT, () => console.log(`[Job server] Running on port ${PORT}`));
 };

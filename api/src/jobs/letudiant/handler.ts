@@ -1,4 +1,3 @@
-import { Job } from "bullmq";
 import { HydratedDocument } from "mongoose";
 import { LETUDIANT_PILOTY_TOKEN } from "../../config";
 import { captureException } from "../../error";
@@ -9,7 +8,6 @@ import { isValidObjectId } from "../../utils";
 import { BaseHandler } from "../base/handler";
 import { JobResult } from "../types";
 import { MEDIA_PUBLIC_ID } from "./config";
-import { LetudiantQueue } from "./queue";
 import { missionToPilotyCompany, missionToPilotyJob } from "./transformers";
 import { getMandatoryData, getMissionsToSync, rateLimit } from "./utils";
 
@@ -36,13 +34,9 @@ export interface LetudiantJobResult extends JobResult {
  * - Schedules the job
  */
 export class LetudiantHandler implements BaseHandler<LetudiantJobPayload, LetudiantJobResult> {
-  public readonly JOB_NAME = "letudiant-exporter";
-
-  public readonly queue = new LetudiantQueue();
-
-  public async handle(bullJob: Job<LetudiantJobPayload>): Promise<LetudiantJobResult> {
+  public async handle(payload: LetudiantJobPayload): Promise<LetudiantJobResult> {
     const pilotyClient = new PilotyClient(LETUDIANT_PILOTY_TOKEN, MEDIA_PUBLIC_ID);
-    const { id, limit } = bullJob.data;
+    const { id, limit } = payload;
     console.log(`[LetudiantHandler] Starting job with ${id ? `id ${id}` : "all missions"} and limit ${limit || DEFAULT_LIMIT}`);
 
     const missions = await getMissionsToSync(id, limit || DEFAULT_LIMIT);
@@ -111,20 +105,6 @@ export class LetudiantHandler implements BaseHandler<LetudiantJobPayload, Letudi
         ...counter,
       },
     };
-  }
-
-  public async schedule(): Promise<void> {
-    console.log(`[LetudiantHandler] Scheduling job '${this.JOB_NAME}' to queue '${this.queue.queueName}'`);
-    try {
-      // Add the job with its specific name and an empty payload.
-      // The worker (LetudiantHandler.handle) will pick it up based on the JOB_NAME.
-      // An empty payload {} means the handle method will use default values if any (e.g., for limit).
-      await this.queue.addJob(this.JOB_NAME, {});
-      console.log(`[LetudiantHandler] Successfully added job '${this.JOB_NAME}' to queue '${this.queue.queueName}'`);
-    } catch (error) {
-      console.error(`[LetudiantHandler] Failed to add job '${this.JOB_NAME}' to queue '${this.queue.queueName}':`, error);
-      // Depending on requirements, you might want to re-throw the error or handle it.
-    }
   }
 }
 

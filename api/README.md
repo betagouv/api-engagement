@@ -8,7 +8,6 @@ Ce répertoire contient le service API pour la plateforme API Engagement.
 
 - Node.js 18.x ou supérieur
 - MongoDB (instance locale ou distante)
-- Redis (instance locale ou distante)
 - npm
 
 ### Étapes d'installation
@@ -30,14 +29,6 @@ npm install
 
 ## Mode développement
 
-### Lancement des services
-
-Redis doit être démarré en parallèle du service de traitement des jobs.
-
-```bash
-docker run --name redis -d -p 6379:6379 redis
-```
-
 ### Lancement du service API
 
 Pour démarrer le service API en mode développement avec rechargement à chaud :
@@ -47,22 +38,6 @@ npm run dev:api
 ```
 
 Cela démarrera le serveur API en utilisant nodemon, qui redémarrera automatiquement lorsque des modifications de fichiers seront détectées.
-
-### Lancement du service de tâches
-
-Pour démarrer le service de tâches en arrière-plan en mode développement :
-
-```bash
-npm run dev:jobs
-```
-
-### Lancement du service de programmation des jobs
-
-Pour démarrer le service de programmation des jobs en arrière-plan en mode développement :
-
-```bash
-npm run dev:scheduler
-```
 
 ### Exécution d'une tâche spécifique
 
@@ -94,12 +69,6 @@ Pour démarrer le service de tâches en mode production :
 
 ```bash
 npm run start:jobs
-```
-
-Pour démarrer le service de programmation des jobs en arrière-plan en mode production :
-
-```bash
-npm run start:scheduler
 ```
 
 ## Tests
