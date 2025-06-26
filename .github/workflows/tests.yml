@@ -1,17 +1,35 @@
 name: Tests
 
 on:
-  workflow_call:
-    inputs:
-      branch:
-        required: true
-        type: string
-
+  push:
+  pull_request:
   workflow_dispatch:
 
 jobs:
+  changes:
+    name: Detect changes
+    runs-on: ubuntu-latest
+    outputs:
+      api: ${{ steps.filter.outputs.api }}
+      process: ${{ steps.filter.outputs.process }}
+      widget: ${{ steps.filter.outputs.widget }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dorny/paths-filter@v3
+        id: filter
+        with:
+          filters: |
+            api:
+              - 'api/**'
+            process:
+              - 'process/**'
+            widget:
+              - 'widget/**'
+
   api-tests:
     name: API Tests
+    needs: changes
+    if: needs.changes.outputs.api == 'true'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -34,6 +52,8 @@ jobs:
 
   process-tests:
     name: Process Tests
+    needs: changes
+    if: needs.changes.outputs.process == 'true'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -56,10 +76,9 @@ jobs:
 
   widgets-tests:
     name: Widget Tests
+    needs: changes
+    if: needs.changes.outputs.widget == 'true'
     runs-on: ubuntu-latest
-
-    # Does not run if no files in widget have been modified
-    if: ${{ github.event_name == 'push' || contains(toJSON(github.event.pull_request.files.*.filename), 'widget/') }}
     steps:
       - uses: actions/checkout@v4
 
