@@ -1,6 +1,7 @@
 import { SC_ID } from "../../config";
 import { PilotyCompanyPayload, PilotyJobPayload, PilotyMandatoryData } from "../../services/piloty/types";
 import { Mission } from "../../types";
+import { getMissionTrackedApplicationUrl } from "../../utils/mission";
 import { MEDIA_PUBLIC_ID } from "./config";
 
 /**
@@ -32,7 +33,7 @@ export function missionToPilotyJob(mission: Mission, companyId: string, mandator
     localisation: mission.remote === "full" ? "A distance" : mission.city || "",
     description_job: mission.descriptionHtml,
     application_method: "external_apply",
-    application_url: mission.applicationUrl,
+    application_url: getMissionTrackedApplicationUrl(mission),
     state: mission.deletedAt ? "archived" : "published",
     remote_policy_id: mission.remote === "full" ? mandatoryData.remotePolicies.full : undefined,
     position_level: "employee",

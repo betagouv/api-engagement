@@ -2,15 +2,15 @@ import { NextFunction, Response, Router } from "express";
 import passport from "passport";
 import zod from "zod";
 
-import { API_URL, LBC_ID, STATS_INDEX } from "../config";
+import { LBC_ID, STATS_INDEX } from "../config";
 import esClient from "../db/elastic";
-import { captureMessage, INVALID_PARAMS, INVALID_QUERY, NOT_FOUND } from "../error";
+import { INVALID_PARAMS, INVALID_QUERY, NOT_FOUND, captureMessage } from "../error";
 import MissionModel from "../models/mission";
 import OrganizationExclusionModel from "../models/organization-exclusion";
 import RequestModel from "../models/request";
 import { Mission, Publisher, Stats } from "../types";
 import { PublisherRequest } from "../types/passport";
-import { diacriticSensitiveRegex, EARTH_RADIUS, getDistanceFromLatLonInKm, getDistanceKm } from "../utils";
+import { EARTH_RADIUS, diacriticSensitiveRegex, getDistanceFromLatLonInKm, getDistanceKm, getMissionTrackedApplicationUrl } from "../utils";
 
 const NO_PARTNER = "NO_PARTNER";
 const NO_PARTNER_MESSAGE = "Vous n'avez pas encore accès à des missions. Contactez margot.quettelart@beta.gouv.fr pour vous donner accès aux missions";
@@ -543,7 +543,7 @@ const buildData = (data: Mission, publisherId: string, moderator: boolean = fals
     country: address ? address.country : undefined,
     location: address ? address.location : undefined,
     addresses: data.addresses,
-    applicationUrl: `${API_URL}/r/${data._id}/${publisherId}`,
+    applicationUrl: getMissionTrackedApplicationUrl(data),
     associationLogo: data.associationLogo,
     associationAddress: data.associationAddress,
     associationCity: data.associationCity,
