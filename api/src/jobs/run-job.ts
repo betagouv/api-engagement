@@ -46,14 +46,15 @@ async function runJob() {
       process.exit(1);
     }
 
-    if (typeof HandlerClass.handle !== "function") {
-      console.error(`Error: 'handle' static method not found on handler class for job '${jobName}'`);
+    const handler = new HandlerClass();
+    if (typeof handler.handle !== "function") {
+      console.error(`Error: 'handle' method not found on handler class for job '${jobName}'`);
       process.exit(1);
     }
 
     console.log(`Executing handler for job '${jobName}'...`);
 
-    // Extract args from command line and create fake BullMQ job
+    // Extract args from command line
     const extraArg = process.argv[3];
     let extraData: Record<string, any> = {};
 
@@ -69,17 +70,7 @@ async function runJob() {
       process.exit(1);
     }
 
-    const fakeJob = {
-      id: `manual-${Date.now()}`,
-      name: `manual-${jobName}`,
-      data: {
-        manualExecution: true,
-        timestamp: Date.now(),
-        ...extraData,
-      },
-    } as any; // Cast to any to satisfy BullMQ Job type if needed, or define a simpler type
-
-    const result = await HandlerClass.handle(fakeJob);
+    const result = await handler.handle(extraData);
     console.log(`Job '${jobName}' executed successfully:`, result);
   } catch (error) {
     console.error(`Error executing job '${jobName}':`, error);

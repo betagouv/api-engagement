@@ -7,10 +7,8 @@
     "build": "npx tsc --build --clean && npx tsc -p tsconfig.build.json",
     "dev:api": "nodemon -- api",
     "dev:jobs": "nodemon -- jobs",
-    "dev:scheduler": "nodemon -- scheduler",
     "start:api": "npm run build && node dist/index.js api",
     "start:jobs": "npm run build && node dist/index.js jobs",
-    "start:scheduler": "npm run build && node dist/index.js scheduler",
     "prettier": "prettier --write . --plugin=prettier-plugin-organize-imports",
     "lint": "eslint . --ext .ts,.tsx",
     "lint:fix": "eslint . --ext .ts,.tsx --fix",
@@ -20,8 +18,6 @@
     "job": "ts-node src/jobs/run-job.ts"
   },
   "dependencies": {
-    "@bull-board/api": "^6.9.6",
-    "@bull-board/express": "^6.9.6",
     "@elastic/elasticsearch": "7.17.14",
     "@sentry/node": "9.24.0",
     "@types/geoip-lite": "1.4.4",
