@@ -21,10 +21,11 @@ locals {
 resource "scaleway_job_definition" "letudiant" {
   name         = "${terraform.workspace}-letudiant"
   project_id   = var.project_id
-  cpu_limit    = 500
-  memory_limit = 1024
+  cpu_limit    = 1000
+  memory_limit = 2048
   image_uri    = local.image_uri
-  command      = "node dist/jobs/run-job.js letudiant"
+  # Max old space workaround: https://stackoverflow.com/questions/48387040/how-do-i-determine-the-correct-max-old-space-size-for-node-js
+  command      = "node --max-old-space-size=1800 dist/jobs/run-job.js letudiant"
   timeout      = "15m"
 
   cron {
@@ -39,10 +40,10 @@ resource "scaleway_job_definition" "letudiant" {
 resource "scaleway_job_definition" "linkedin" {
   name         = "${terraform.workspace}-linkedin"
   project_id   = var.project_id
-  cpu_limit    = 500
-  memory_limit = 1024
+  cpu_limit    = 1000
+  memory_limit = 2048
   image_uri    = local.image_uri
-  command      = "node dist/jobs/run-job.js linkedin"
+  command      = "node --max-old-space-size=1800 dist/jobs/run-job.js linkedin"
   timeout      = "15m"
 
   cron {
