@@ -300,8 +300,9 @@ function validateMissionStructure(mission: any) {
   expect(mission).toHaveProperty("duration");
   expect(mission).toHaveProperty("schedule");
   expect(mission).toHaveProperty("tags");
-  expect(mission).toHaveProperty("soft_skills");
   expect(mission).toHaveProperty("softSkills");
+  expect(mission).toHaveProperty("romeSkills");
+  expect(mission).toHaveProperty("requirements");
 
   expect(typeof mission._id).toBe("string");
   expect(typeof mission.clientId).toBe("string");
@@ -310,6 +311,9 @@ function validateMissionStructure(mission: any) {
 
   expect(Array.isArray(mission.addresses)).toBe(true);
   expect(Array.isArray(mission.tags)).toBe(true);
+  expect(Array.isArray(mission.softSkills)).toBe(true);
+  expect(Array.isArray(mission.romeSkills)).toBe(true);
+  expect(Array.isArray(mission.requirements)).toBe(true);
 }
 
 function validateStatsStructure(stats: any) {

@@ -1,11 +1,11 @@
 import { Schema, model } from "mongoose";
 
 import { historyPlugin } from "../plugins/history-plugin";
-import { Mission, MissionType } from "../types";
+import { AddressItem, GeoPoint, Mission, MissionType } from "../types";
 
 const MODELNAME = "mission";
 
-const geoPointSchema = new Schema({
+const geoPointSchema = new Schema<GeoPoint>({
   type: {
     type: String,
     enum: ["Point"],
@@ -16,7 +16,7 @@ const geoPointSchema = new Schema({
   },
 });
 
-const addressesSchema = new Schema({
+const addressesSchema = new Schema<AddressItem>({
   street: { type: String },
   postalCode: { type: String },
   departmentName: { type: String },
@@ -48,6 +48,8 @@ const schema = new Schema<Mission>(
     audience: { type: [String] },
     soft_skills: { type: [String] },
     softSkills: { type: [String] },
+    requirements: { type: [String] },
+    romeSkills: { type: [String] },
     reducedMobilityAccessible: { type: String, enum: ["yes", "no"], default: "no" },
     closeToTransport: { type: String, enum: ["yes", "no"], default: "no" },
     openToMinors: { type: String, enum: ["yes", "no"], default: "no" },
