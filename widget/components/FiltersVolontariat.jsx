@@ -239,7 +239,7 @@ const MobileFilters = ({ options, values, onChange, show, onShow, disabledLocati
             </div>
             <button
               aria-label="Voir les missions"
-              className="w-full p-3 text-center border-none bg-black text-white focus:outline-none focus-visible:ring focus-visible:ring-blue-800"
+              className="w-full p-3 text-center border-none bg-black text-white focus:outline-none focus-visible:ring focus-visible:ring-blue-800 cursor-pointer"
               onClick={() => {
                 onShow(false);
                 plausible("Filters closed", { u: url });
