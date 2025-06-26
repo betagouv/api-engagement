@@ -26,7 +26,6 @@ import brevo from "./jobs/brevo";
 import imports from "./jobs/import";
 import kpi from "./jobs/kpi";
 import leboncoin from "./jobs/leboncoin";
-import linkedin from "./jobs/linkedin";
 import linkedinStats from "./jobs/linkedin-stats";
 import metabase from "./jobs/metabase";
 import moderation from "./jobs/moderation";
@@ -38,7 +37,6 @@ const app = express();
 
 const runnings = {
   mission: false,
-  linkedin: false,
   linkedinStats: false,
   metabase: false,
   leboncoin: false,
@@ -57,7 +55,7 @@ const missionJob = new CronJob(
       monitorSlug: "mission-updates",
       status: "in_progress",
     });
-    if (runnings.mission || runnings.metabase || runnings.linkedin) {
+    if (runnings.mission || runnings.metabase) {
       Sentry.captureCheckIn({
         checkInId,
         monitorSlug: "mission-updates",
@@ -90,44 +88,6 @@ const missionJob = new CronJob(
   "Europe/Paris"
 );
 
-// Every day at 1:00 AM
-const linkedinCron = new CronJob(
-  "0 1 * * *",
-  async () => {
-    const checkInId = Sentry.captureCheckIn({
-      monitorSlug: "linkedin",
-      status: "in_progress",
-    });
-    if (runnings.linkedin || ENVIRONMENT !== "production") {
-      Sentry.captureCheckIn({
-        checkInId,
-        monitorSlug: "linkedin",
-        status: "ok",
-      });
-      return;
-    }
-    runnings.linkedin = true;
-    try {
-      await linkedin.handler();
-      Sentry.captureCheckIn({
-        checkInId,
-        monitorSlug: "linkedin",
-        status: "ok",
-      });
-    } catch (error) {
-      captureException(error);
-      Sentry.captureCheckIn({
-        checkInId,
-        monitorSlug: "linkedin",
-        status: "error",
-      });
-    }
-    runnings.linkedin = false;
-  },
-  null,
-  true,
-  "Europe/Paris"
-);
 // Every day at 1:30 AM
 const kpiJob = new CronJob(
   "30 1 * * *",
@@ -391,14 +351,6 @@ app.get("/tasks", async (req, res) => {
         lastRun: missionJob.lastDate(),
         nextRun: missionJob.nextDate(),
         running: runnings.mission,
-      },
-      {
-        name: "Update Linkedin",
-        schedule: linkedinCron.cronTime.source,
-        started: linkedinCron.isActive,
-        lastRun: linkedinCron.lastDate(),
-        nextRun: linkedinCron.nextDate(),
-        running: runnings.linkedin,
       },
       {
         name: "Update Linkedin Stats",

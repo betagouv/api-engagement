@@ -4,6 +4,7 @@ module.exports = {
   rules: {
     "import/prefer-default-export": "off",
     "no-console": "off",
+    "no-control-regex": "off",
     curly: ["error", "all"],
   },
   env: {
