@@ -53,7 +53,6 @@ export class LetudiantHandler implements BaseHandler<LetudiantJobPayload, Letudi
 
     for (const mission of missions) {
       try {
-        console.dir(mission);
         if (!mission.organizationId || !isValidObjectId(mission.organizationId)) {
           console.log(`[LetudiantHandler] Mission ${mission._id} has no organization, skipping`);
           counter.skipped++;

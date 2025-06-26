@@ -1,6 +1,6 @@
 // Utility functions for letudiant job sync
+import he from "he";
 import { HydratedDocument } from "mongoose";
-import he from 'he';
 import { setTimeout as sleep } from "timers/promises";
 import MissionModel from "../../models/mission";
 import { PilotyClient } from "../../services/piloty/client";
@@ -36,14 +36,13 @@ export async function getMissionsToSync(id?: string, limit = 10): Promise<Hydrat
     return MissionModel.find({ _id: id }).limit(1);
   }
 
-  // Use an aggregation pipeline to check if organization exists
   const missions = await MissionModel.find({
     deletedAt: null,
     statusCode: "ACCEPTED",
     organizationId: {
       $exists: true,
       $ne: null,
-      // Ensure the string is a 24-character hex string before attempting conversion
+      // Ensure the string is a 24-character hex string (Mongo ObjectId)
       $regex: /^[0-9a-fA-F]{24}$/,
     },
     $or: [{ letudiantPublicId: { $exists: true } }, { $expr: { $lt: ["$letudiantUpdatedAt", "$updatedAt"] } }],
@@ -155,7 +154,7 @@ export async function getMandatoryJobCategories(client: PilotyClient): Promise<P
  * @returns The decoded text
  */
 export function decodeHtml(text: string): string {
-  if (text && text.includes('&')) {
+  if (text && text.includes("&")) {
     return he.decode(text);
   }
   return text;
