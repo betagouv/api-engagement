@@ -26,7 +26,8 @@ if (!fs.existsSync(jobDir)) {
   process.exit(1);
 }
 
-const handlerPath = path.join(jobDir, "handler.ts");
+const fileExtension = path.extname(__filename);
+const handlerPath = path.join(jobDir, `handler${fileExtension}`);
 if (!fs.existsSync(handlerPath)) {
   console.error(`Error: handler for job '${jobName}' not found`);
   process.exit(1);
