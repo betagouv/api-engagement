@@ -366,7 +366,7 @@ const SelectFilter = ({ options, selectedOptions, onChange, id, placeholder = "C
 
           <div className="flex w-full items-center justify-between border-t border-gray-300 p-2">
             <button
-              className={`text-sm text-[#3633A1] hover:underline`}
+              className={`text-sm text-[#3633A1] hover:underline cursor-pointer`}
               onClick={() => {
                 onChange([]);
                 setIsOpen(false);
@@ -377,7 +377,7 @@ const SelectFilter = ({ options, selectedOptions, onChange, id, placeholder = "C
               Réinitialiser
             </button>
             <button
-              className={`p-2 text-sm text-white focus:outline-none ${!selectedOptions || selectedOptions.length === 0 ? "cursor-not-allowed opacity-50" : ""}`}
+              className={`p-2 text-sm text-white focus:outline-none ${!selectedOptions || selectedOptions.length === 0 ? "cursor-not-allowed opacity-50" : "cursor-pointer"}`}
               style={{
                 backgroundColor: color ? color : "",
               }}
@@ -412,6 +412,7 @@ const LocationFilter = ({ selected, onChange, disabled = false, width = "w-80" }
     const handleClickOutside = (event) => {
       if (ref.current && !ref.current.contains(event.target)) {
         setIsOpen(false);
+        setOptions([]);
       }
     };
     document.addEventListener("mousedown", handleClickOutside);
@@ -450,25 +451,23 @@ const LocationFilter = ({ selected, onChange, disabled = false, width = "w-80" }
       <label htmlFor="location" className="sr-only">
         Localisation
       </label>
-      <div
-        className={`flex h-[40px] items-center justify-between rounded-t-md border-b-2 border-[#3A3A3A] bg-[#EEE] p-3 focus:outline-none focus-visible:ring focus-visible:ring-blue-800`}
-      >
+      <div className="bg-[#EEE] rounded-t-md border-b-2 border-[#3A3A3A] p-3 focus:outline-none focus-visible:ring focus-visible:ring-blue-800 flex items-center justify-between h-[40px]">
         <RiMapPin2Fill className="text-[#929292]" />
         {disabled ? (
-          <input id="location" className="w-full min-w-[6rem] pl-3 opacity-75 ring-0 focus:outline-none focus:ring-0" value={selected?.label} disabled />
+          <input className="pl-3 w-full text-sm ring-0 focus:ring-0 focus:outline-none min-w-[6rem] opacity-75" defaultValue={selected?.label} disabled />
         ) : (
           <>
             <input
               id="location"
               aria-label="localisation"
-              className={`w-full min-w-[6rem] bg-[#EEE] pl-3 ring-0 focus:outline-none focus:ring-0 ${!selected ? "text-[#666666] placeholder-[#666666]" : "text-[#161616]"}`}
+              className={`pl-3 w-full ring-0 focus:ring-0 bg-[#EEE] focus:outline-none min-w-[6rem] ${!selected ? "text-[#666666] placeholder-[#666666]" : "text-[#161616]"}`}
               value={inputValue}
               placeholder="Localisation"
               onChange={handleInputChange}
             />
             {selected && (
               <button
-                className="text-neutral-grey-700 text-sm"
+                className="text-sm text-neutral-grey-700"
                 onClick={() => {
                   onChange(null);
                   setInputValue("");
@@ -482,12 +481,12 @@ const LocationFilter = ({ selected, onChange, disabled = false, width = "w-80" }
         )}
       </div>
 
-      {isOpen && options.length > 0 && (
-        <div className={`absolute z-50 mt-1 max-h-60 ${width} overflow-auto rounded-lg border border-[#DDDDDD] bg-white py-1 text-base focus:outline-none`}>
+      {options.length > 0 && isOpen && (
+        <div className={`absolute z-50 mt-1 max-h-60 ${width} overflow-auto border border-[#DDDDDD] bg-white py-1 shadow-[0_0_12px_rgba(0,0,0,0.15)]`}>
           {options.map((option) => (
             <div
               key={option.value}
-              className="flex cursor-pointer items-center justify-between px-3 py-2 hover:bg-gray-100"
+              className="cursor-pointer flex items-center justify-between py-2 px-3"
               onClick={() => {
                 onChange(option);
                 setInputValue(option.label);
@@ -495,7 +494,7 @@ const LocationFilter = ({ selected, onChange, disabled = false, width = "w-80" }
                 plausible("Location selected", { props: { location: option.label }, u: url });
               }}
             >
-              <span className="block truncate text-sm font-normal">{option.label}</span>
+              <span className="block text-sm truncate font-normal">{option.label}</span>
             </div>
           ))}
         </div>
@@ -584,7 +583,7 @@ const RemoteFilter = ({ options, selectedOptions, onChange, id, placeholder = "C
           </div>
           <div className="flex w-full items-center justify-between border-t border-gray-300 p-2">
             <button
-              className="text-sm text-[#3633A1] hover:underline"
+              className="text-sm text-[#3633A1] hover:underline cursor-pointer"
               onClick={() => {
                 onChange([]);
                 setIsOpen(false);
@@ -595,7 +594,7 @@ const RemoteFilter = ({ options, selectedOptions, onChange, id, placeholder = "C
               Réinitialiser
             </button>
             <button
-              className={`p-2 text-sm text-white focus:outline-none ${!selectedOptions || selectedOptions.length === 0 ? "cursor-not-allowed opacity-50" : ""}`}
+              className={`p-2 text-sm text-white focus:outline-none ${!selectedOptions || selectedOptions.length === 0 ? "cursor-not-allowed opacity-50" : "cursor-pointer"}`}
               style={{
                 backgroundColor: color ? color : "",
               }}

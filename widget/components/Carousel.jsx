@@ -61,11 +61,10 @@ const Carousel = ({ widget, missions, request }) => {
         <button
           onClick={prevPage}
           disabled={currentSlide === 0}
-          className="hidden h-12 w-12 flex-shrink-0 items-center justify-center rounded-full p-2 xl:flex"
-          style={{
-            backgroundColor: currentSlide === 0 ? "#e5e5e5" : color,
-            color: currentSlide === 0 ? "#929292" : "white",
-          }}
+          className={`hidden h-12 w-12 flex-shrink-0 items-center justify-center rounded-full p-2 xl:flex ${
+            currentSlide === 0 ? "cursor-not-allowed bg-[#e5e5e5] text-[#929292] opacity-50" : "cursor-pointer bg-[var(--bg-color)] text-white transition-opacity hover:opacity-90"
+          }`}
+          style={{ "--bg-color": color }}
           aria-label="Diapositive précédente"
         >
           <RiArrowLeftLine size={20} />
@@ -90,11 +89,12 @@ const Carousel = ({ widget, missions, request }) => {
         <button
           onClick={nextPage}
           disabled={currentSlide >= missions.length - slidesToShow}
-          className="hidden h-12 w-12 flex-shrink-0 items-center justify-center rounded-full p-2 xl:flex"
-          style={{
-            backgroundColor: currentSlide >= missions.length - slidesToShow ? "#e5e5e5" : color,
-            color: currentSlide >= missions.length - slidesToShow ? "#929292" : "white",
-          }}
+          className={`hidden h-12 w-12 flex-shrink-0 items-center justify-center rounded-full p-2 xl:flex ${
+            currentSlide >= missions.length - slidesToShow
+              ? "cursor-not-allowed bg-[#e5e5e5] text-[#929292] opacity-50"
+              : "cursor-pointer bg-[var(--bg-color)] text-white transition-opacity hover:opacity-90"
+          }`}
+          style={{ "--bg-color": color }}
           aria-label="Diapositive suivante"
         >
           <RiArrowRightLine size={20} />
@@ -106,11 +106,8 @@ const Carousel = ({ widget, missions, request }) => {
           <button
             onClick={prevPage}
             disabled={currentSlide === 0}
-            className="flex h-10 w-10 items-center justify-center rounded-full p-2"
-            style={{
-              backgroundColor: currentSlide === 0 ? "#e5e5e5" : color,
-              color: currentSlide === 0 ? "#929292" : "white",
-            }}
+            className={`flex h-10 w-10 items-center justify-center rounded-full p-2 ${currentSlide === 0 ? "cursor-not-allowed bg-[#e5e5e5] text-[#929292] opacity-50" : "cursor-pointer bg-[var(--bg-color)] text-white transition-opacity hover:opacity-90"}`}
+            style={{ "--bg-color": color }}
             aria-label="Diapositive précédente"
           >
             <RiArrowLeftLine size={20} />
@@ -119,11 +116,8 @@ const Carousel = ({ widget, missions, request }) => {
           <button
             onClick={nextPage}
             disabled={currentSlide >= missions.length - slidesToShow}
-            className="flex h-10 w-10 items-center justify-center rounded-full p-2"
-            style={{
-              backgroundColor: currentSlide >= missions.length - slidesToShow ? "#e5e5e5" : color,
-              color: currentSlide >= missions.length - slidesToShow ? "#929292" : "white",
-            }}
+            className={`flex h-10 w-10 items-center justify-center rounded-full p-2 ${currentSlide >= missions.length - slidesToShow ? "cursor-not-allowed bg-[#e5e5e5] text-[#929292] opacity-50" : "cursor-pointer bg-[var(--bg-color)] text-white transition-opacity hover:opacity-90"}`}
+            style={{ "--bg-color": color }}
             aria-label="Diapositive suivante"
           >
             <RiArrowRightLine size={20} />
