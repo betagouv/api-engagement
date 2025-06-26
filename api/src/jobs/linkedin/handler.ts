@@ -11,6 +11,7 @@ import { generateJvaJobs, generatePartnersJobs, generateXML, getMissions, storeX
 export interface LinkedinJobPayload {}
 
 export interface LinkedinJobResult extends JobResult {
+  url?: string;
   counter: {
     processed: number;
     sent: number;
@@ -28,12 +29,15 @@ export class LinkedinHandler implements BaseHandler<LinkedinJobPayload, Linkedin
         throw new Error("Linkedin publisher not found");
       }
 
-      const counter = {
-        processed: 0,
-        sent: 0,
-        expired: 0,
-        skipped: 0,
-      } as LinkedinJobResult["counter"];
+      const result = {
+        url: "",
+        counter: {
+          processed: 0,
+          sent: 0,
+          expired: 0,
+          skipped: 0,
+        },
+      } as LinkedinJobResult;
 
       const jobs = [];
 
@@ -44,13 +48,14 @@ export class LinkedinHandler implements BaseHandler<LinkedinJobPayload, Linkedin
         publisherId: JVA_ID,
       });
       console.log(`[LinkedinHandler] ${JvaMissions.length} missions found`);
+
       const jvaJobs = generateJvaJobs(JvaMissions);
       console.log(`[LinkedinHandler] ${jvaJobs.jobs.length} jobs added to the feed`);
       jobs.push(...jvaJobs.jobs);
-      counter.processed += JvaMissions.length;
-      counter.sent += jvaJobs.jobs.length;
-      counter.skipped += jvaJobs.skipped;
-      counter.expired += jvaJobs.expired;
+      result.counter.processed += JvaMissions.length;
+      result.counter.sent += jvaJobs.jobs.length;
+      result.counter.skipped += jvaJobs.skipped;
+      result.counter.expired += jvaJobs.expired;
 
       console.log(`[LinkedinHandler] Querying missions of partners`);
       const partnersMissions = await getMissions({
@@ -62,9 +67,9 @@ export class LinkedinHandler implements BaseHandler<LinkedinJobPayload, Linkedin
       const partnersJobs = generatePartnersJobs(partnersMissions);
       console.log(`[LinkedinHandler] ${partnersJobs.jobs.length} jobs added to the feed`);
       jobs.push(...partnersJobs.jobs);
-      counter.processed += partnersMissions.length;
-      counter.sent += partnersJobs.jobs.length;
-      counter.skipped += partnersJobs.skipped;
+      result.counter.processed += partnersMissions.length;
+      result.counter.sent += partnersJobs.jobs.length;
+      result.counter.skipped += partnersJobs.skipped;
 
       console.log(`[LinkedinHandler] Generating XML for ${jobs.length} jobs`);
       const xml = generateXML(jobs);
@@ -73,10 +78,12 @@ export class LinkedinHandler implements BaseHandler<LinkedinJobPayload, Linkedin
       if (ENV === "development") {
         fs.writeFileSync("linkedin.xml", xml);
         console.log(`[LinkedinHandler] XML stored in local file`);
+
         return {
           success: true,
           timestamp: new Date(),
-          counter,
+          url: "file://linkedin.xml",
+          counter: result.counter,
         };
       }
 
@@ -86,7 +93,7 @@ export class LinkedinHandler implements BaseHandler<LinkedinJobPayload, Linkedin
       await ImportModel.create({
         name: `LINKEDIN`,
         publisherId: LINKEDIN_ID,
-        createdCount: counter.sent,
+        createdCount: result.counter.sent,
         updatedCount: 0,
         deletedCount: 0,
         missionCount: 0,
@@ -100,7 +107,8 @@ export class LinkedinHandler implements BaseHandler<LinkedinJobPayload, Linkedin
       return {
         success: true,
         timestamp: new Date(),
-        counter,
+        url,
+        counter: result.counter,
       };
     } catch (error) {
       console.error(`[LinkedinHandler] Error processing missions`, error);
@@ -113,9 +121,11 @@ export class LinkedinHandler implements BaseHandler<LinkedinJobPayload, Linkedin
         status: "FAILED",
         failed: { data: [] },
       });
+
       return {
         success: false,
         timestamp: new Date(),
+        url: "",
         counter: { processed: 0, sent: 0, expired: 0, skipped: 0 },
       };
     }
