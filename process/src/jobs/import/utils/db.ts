@@ -8,7 +8,7 @@ import { MissionTransformResult, transformMongoMissionToPg } from "./transformer
  * Import a batch of missions into databases
  * NB: MongoDB is always written, PostgreSQL is written only in production
  */
-export const bulkDB = async (bulk: Mission[], publisher: Publisher, importDoc: Import) => {
+export const bulkDB = async (bulk: Mission[], publisher: Publisher, importDoc: Import): Promise<boolean> => {
   try {
     const startedAt = new Date();
     console.log(`[${publisher.name}] Starting mongo write at ${startedAt.toISOString()}`);
@@ -19,9 +19,10 @@ export const bulkDB = async (bulk: Mission[], publisher: Publisher, importDoc: I
     console.log(`[${publisher.name}] Mongo bulk write created ${importDoc.createdCount}, updated ${importDoc.updatedCount}, took ${time}s`);
 
     await writePg(publisher, startedAt);
+    return true;
   } catch (error) {
     captureException(`[${publisher.name}] Import failed`, JSON.stringify(error, null, 2));
-    return;
+    return false;
   }
 };
 
@@ -40,6 +41,7 @@ export const cleanDB = async (publisher: Publisher, importDoc: Import) => {
  */
 const writeMongo = async (bulk: Mission[], publisher: Publisher, startedAt: Date) => {
   // Cast to any to resolve TypeScript error, as bulkWriteWithHistory is added dynamically to the model.
+
   const mongoBulk = bulk
     .filter((e) => e)
     .map((e) =>
@@ -47,14 +49,15 @@ const writeMongo = async (bulk: Mission[], publisher: Publisher, startedAt: Date
         ? { updateOne: { filter: { _id: e._id }, update: { $set: { ...e, updatedAt: startedAt } }, upsert: true } }
         : { insertOne: { document: { ...e, createdAt: startedAt, updatedAt: startedAt } } }
     );
+
   const mongoUpdateRes = await (MissionModel as any)
     .withHistoryContext({
       reason: `Import XML (${publisher.name})`,
     })
-    .bulkWrite(mongoBulk);
+    .bulkWrite(mongoBulk, { ordered: false }); // ordered: false to avoid stopping the import if one mission fails
 
   if (mongoUpdateRes.hasWriteErrors()) {
-    captureException(`Mongo bulk failed`, JSON.stringify(mongoUpdateRes.getWriteErrors(), null, 2));
+    captureException("Mongo bulk failed", JSON.stringify(mongoUpdateRes.getWriteErrors(), null, 2));
   }
   return mongoUpdateRes;
 };
