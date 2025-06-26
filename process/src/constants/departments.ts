@@ -100,4 +100,12 @@ export const DEPARTMENTS = {
   973: ["Guyane", "Guyane"],
   974: ["La Réunion", "La Réunion"],
   976: ["Mayotte", "Mayotte"],
+  977: ["Saint-Pierre-et-Miquelon", "Saint-Pierre-et-Miquelon"],
+  978: ["Saint-Martin", "Saint-Martin"],
+  986: ["Terres australes et antarctiques françaises", "Terres australes et antarctiques françaises"],
+  987: ["Wallis et Futuna", "Wallis et Futuna"],
+  988: ["Polynésie française", "Polynésie française"],
+  989: ["Nouvelle-Calédonie", "Nouvelle-Calédonie"],
+  99133: ["Saint-Barthélemy", "Saint-Barthélemy"],
+  99134: ["Saint-Martin", "Saint-Martin"],
 } as { [key: string]: [string, string] };
