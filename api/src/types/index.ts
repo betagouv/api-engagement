@@ -66,11 +66,13 @@ export type AddressItem = {
     lat: number;
     lon: number;
   };
-  geoPoint?: {
-    type: string;
-    coordinates: number[];
-  };
+  geoPoint?: GeoPoint;
   geolocStatus: string;
+};
+
+export type GeoPoint = {
+  type: string;
+  coordinates: number[];
 };
 
 export type Association = {
@@ -235,6 +237,8 @@ export interface Mission {
   audience: string[];
   soft_skills: string[];
   softSkills: string[];
+  requirements: string[];
+  romeSkills: string[];
   organizationClientId: string | undefined;
   organizationUrl: string | undefined;
   organizationName: string | undefined;
@@ -316,10 +320,7 @@ export interface Mission {
       }
     | undefined;
 
-  geoPoint: {
-    type: "Point";
-    coordinates: [number, number];
-  } | null;
+  geoPoint?: GeoPoint;
   addresses: AddressItem[];
 
   snu: boolean | undefined;

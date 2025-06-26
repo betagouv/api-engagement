@@ -8,6 +8,7 @@ Ce répertoire contient le service API pour la plateforme API Engagement.
 
 - Node.js 18.x ou supérieur
 - MongoDB (instance locale ou distante)
+- Postgres (instance locale ou distante)
 - npm
 
 ### Étapes d'installation
@@ -26,6 +27,20 @@ npm install
 ```
 
 3. Créer un fichier `.env` basé sur l'exemple fourni (ou demander à un membre de l'équipe les variables d'environnement de développement).
+
+4. Initialiser la base de données
+
+Lancer la base de données via Docker :
+
+```bash
+docker run --name api-engagement-postgres -e POSTGRES_USER=user -e POSTGRES_PASSWORD=password -e POSTGRES_DB=api-engagement -p 5432:5432 -v postgres_data:/var/lib/postgresql/data -d postgres:13
+```
+
+Puis lancer les migrations :
+
+```bash
+npx prisma migrate dev --name init
+```
 
 ## Mode développement
 
