@@ -1,18 +1,44 @@
 #!/usr/bin/env node
 /**
  * CLI script to run a job manually
- * Usage: npm run job -- <job-name>
+ * Usage: npm run job -- <job-name> <json-params> --env <env>
+ * Example: npm run job -- letudiant "{\"limit\": 100}" --env staging
  */
 
 import dotenv from "dotenv";
 import fs from "fs";
 import path from "path";
 
-dotenv.config();
+// Parse command-line arguments to find the environment
+const args = process.argv.slice(2);
+const envArgIndex = args.findIndex((arg) => arg === "--env");
+let env;
+
+if (envArgIndex !== -1 && args[envArgIndex + 1]) {
+  env = args[envArgIndex + 1];
+  // Remove --env and its value from the arguments array so it doesn't interfere with job arguments
+  args.splice(envArgIndex, 2);
+}
+
+const envFile = env ? `.env.${env}` : null;
+let envPath;
+if (envFile) {
+  envPath = path.resolve(__dirname, "..", "..", envFile);
+}
+
+if (envPath && fs.existsSync(envPath)) {
+  console.log(`Loading environment variables from ${envFile}`);
+  dotenv.config({ path: envPath });
+} else {
+  if (env) {
+    console.log(`Warning: .env file for environment '${env}' not found. Falling back to default .env`);
+  }
+  dotenv.config();
+}
 
 import { mongoConnected } from "../db/mongo";
 
-const jobName = process.argv[2];
+const jobName = args[0];
 if (!jobName) {
   console.error("Error: no job name provided");
   console.log('Usage: npm run job -- <job-name> \'{"key":"value"}\'');
@@ -55,7 +81,7 @@ async function runJob() {
     console.log(`Executing handler for job '${jobName}'...`);
 
     // Extract args from command line
-    const extraArg = process.argv[3];
+    const extraArg = args[1];
     let extraData: Record<string, any> = {};
 
     if (extraArg && extraArg.startsWith("{")) {
