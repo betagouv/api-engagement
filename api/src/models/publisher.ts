@@ -36,8 +36,7 @@ const schema = new Schema<Publisher>(
     publishers: { type: [publisherSchema] },
     description: { type: String, default: "" },
 
-    // missionType: { type: String, default: MissionType.BENEVOLAT, enum: [MissionType.BENEVOLAT, MissionType.VOLONTARIAT, null] },
-    missionType: { type: String, default: MissionType.BENEVOLAT, enum: [MissionType.BENEVOLAT, MissionType.VOLONTARIAT] },
+    missionType: { type: String, default: MissionType.BENEVOLAT, enum: [MissionType.BENEVOLAT, MissionType.VOLONTARIAT, null] },
 
     isAnnonceur: { type: Boolean, default: false },
     hasApiRights: { type: Boolean, default: false },
