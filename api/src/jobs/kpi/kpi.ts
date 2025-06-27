@@ -1,18 +1,18 @@
 import { STATS_INDEX } from "../../config";
 import esClient from "../../db/elastic";
-import KpiBotlessModel from "../../models/kpi-botless";
+import KpiModel from "../../models/kpi";
 import MissionModel from "../../models/mission";
-import StatsBotModel from "../../models/stats-bot";
 import { Kpi } from "../../types";
 
 // Cron that create a kpi doc every with the data available
-export const buildKpiBotless = async (start: Date) => {
-  const exists = await KpiBotlessModel.findOne({ date: start });
+export const buildKpi = async (start: Date): Promise<Kpi | null> => {
+  const exists = await KpiModel.findOne({ date: start });
   if (exists) {
-    return console.log(`[KPI Botless] KPI already exists for ${start.toISOString()}`);
+    console.log(`[KPI] KPI already exists for ${start.toISOString()}`);
+    return null;
   }
 
-  console.log(`[KPI Botless] Starting at ${start.toISOString()}`);
+  console.log(`[KPI] Starting at ${start.toISOString()}`);
 
   // Get the previous day
   const fromDate = new Date(start.getFullYear(), start.getMonth(), start.getDate() - 1);
@@ -73,21 +73,14 @@ export const buildKpiBotless = async (start: Date) => {
   const percentageBenevolatAttributedPlaces = availableBenevolatAttributedMissionCount / availableBenevolatMissionCount;
   const percentageVolontariatAttributedPlaces = availableVolontariatAttributedMissionCount / availableVolontariatMissionCount;
 
-  const statsBots = await StatsBotModel.find({}).lean();
-
   const statsBenevolatAggs = await esClient.search({
     index: STATS_INDEX,
     body: {
       query: {
         bool: {
-          must_not: [
-            {
-              term: { "toPublisherName.keyword": "Service Civique" },
-            },
-            {
-              terms: { "user.keyword": statsBots.map((e) => e.user) },
-            },
-          ],
+          must_not: {
+            term: { "toPublisherName.keyword": "Service Civique" },
+          },
           filter: [{ range: { createdAt: { gte: fromDate, lt: endDate } } }],
         },
       },
@@ -121,17 +114,11 @@ export const buildKpiBotless = async (start: Date) => {
       },
     },
   });
-
   const statsVolontariatAggs = await esClient.search({
     index: STATS_INDEX,
     body: {
       query: {
         bool: {
-          must_not: [
-            {
-              terms: { "user.keyword": statsBots.map((e) => e.user) },
-            },
-          ],
           filter: [{ term: { "toPublisherName.keyword": "Service Civique" } }, { range: { createdAt: { gte: fromDate, lt: endDate } } }],
         },
       },
@@ -203,7 +190,9 @@ export const buildKpiBotless = async (start: Date) => {
   kpi.benevolatAccountCount = statsBenevolatAggs.body.aggregations.account.doc_count || 0;
   kpi.volontariatAccountCount = statsVolontariatAggs.body.aggregations.account.doc_count || 0;
 
-  await KpiBotlessModel.create(kpi);
+  await KpiModel.create(kpi);
 
-  console.log(`[KPI Botless] Created kpi for ${start.toISOString()}`);
+  console.log(`[KPI] Created kpi for ${start.toISOString()}`);
+
+  return kpi;
 };

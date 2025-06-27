@@ -36,6 +36,7 @@ if (envPath && fs.existsSync(envPath)) {
   dotenv.config();
 }
 
+import { esConnected } from "../db/elastic";
 import { mongoConnected } from "../db/mongo";
 
 const jobName = args[0];
@@ -60,7 +61,7 @@ if (!fs.existsSync(handlerPath)) {
 
 async function runJob() {
   try {
-    await Promise.all([mongoConnected]);
+    await Promise.all([mongoConnected, esConnected]);
 
     const handlerModule = await import(`./${jobName}/handler`);
 
