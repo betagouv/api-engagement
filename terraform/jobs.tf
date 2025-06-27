@@ -53,3 +53,21 @@ resource "scaleway_job_definition" "linkedin" {
 
   env = local.all_env_vars
 }
+
+# Job Definition for the 'kpi' task
+resource "scaleway_job_definition" "kpi" {
+  name         = "${terraform.workspace}-kpi"
+  project_id   = var.project_id
+  cpu_limit    = 1000
+  memory_limit = 2048
+  image_uri    = local.image_uri
+  command      = "node --max-old-space-size=1800 dist/jobs/run-job.js kpi"
+  timeout      = "15m"
+
+  cron {
+    schedule = "30 1 * * *" # Every day at 1:30 AM
+    timezone = "Europe/Paris"
+  }
+
+  env = local.all_env_vars
+}
