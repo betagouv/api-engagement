@@ -6,7 +6,7 @@ import MissionModel from "../../models/mission";
 import { PilotyClient } from "../../services/piloty/client";
 import { PilotyJobCategory, PilotyMandatoryData } from "../../services/piloty/types";
 import { Mission } from "../../types";
-import { CONTRACT_MAPPING, JOB_CATEGORY_MAPPING, REMOTE_POLICY_MAPPING } from "./config";
+import { CONTRACT_MAPPING, JOB_CATEGORY_MAPPING, PUBLISHERS_IDS, REMOTE_POLICY_MAPPING } from "./config";
 
 /**
  * Check if a mission is already synced to Piloty
@@ -26,7 +26,7 @@ export async function rateLimit(delayMs = 500) {
 }
 
 /**
- * Get missions created or updated since the last sync
+ * Get accepted missions from whitelisted publishers created or updated since the last sync
  *
  * @param id Optional mission ID to sync
  * @param limit Optional limit (default: 10)
@@ -39,6 +39,9 @@ export async function getMissionsToSync(id?: string, limit = 10): Promise<Hydrat
   const missions = await MissionModel.find({
     deletedAt: null,
     statusCode: "ACCEPTED",
+    publisherId: {
+      $in: PUBLISHERS_IDS,
+    },
     organizationId: {
       $exists: true,
       $ne: null,

@@ -1,3 +1,8 @@
+import { JVA_ID } from "../../config";
+
+// Whitelisted publishers IDs
+export const PUBLISHERS_IDS = [JVA_ID];
+
 // Used to sign every Piloty API requests
 export const MEDIA_PUBLIC_ID = "letudiant";
 

@@ -4,7 +4,6 @@ import { captureException } from "../../error";
 import OrganizationModel from "../../models/organization";
 import { PilotyClient, PilotyCompany, PilotyError } from "../../services/piloty/";
 import { Mission, Organization } from "../../types";
-import { isValidObjectId } from "../../utils";
 import { BaseHandler } from "../base/handler";
 import { JobResult } from "../types";
 import { MEDIA_PUBLIC_ID } from "./config";
@@ -53,12 +52,6 @@ export class LetudiantHandler implements BaseHandler<LetudiantJobPayload, Letudi
 
     for (const mission of missions) {
       try {
-        if (!mission.organizationId || !isValidObjectId(mission.organizationId)) {
-          console.log(`[LetudiantHandler] Mission ${mission._id} has no organization, skipping`);
-          counter.skipped++;
-          continue;
-        }
-
         const organization = await OrganizationModel.findOne({ _id: mission.organizationId });
         if (!organization) {
           console.log(`[LetudiantHandler] Mission ${mission._id} has no organization, skipping`);
