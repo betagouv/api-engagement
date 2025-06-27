@@ -28,6 +28,8 @@ npm install
 
 3. Créer un fichier `.env` basé sur l'exemple fourni (ou demander à un membre de l'équipe les variables d'environnement de développement).
 
+NB : un fichier `.env` peut être créé pour chaque environnement (staging, production) : `.env.staging`, `.env.production`.
+
 4. Initialiser la base de données
 
 Lancer la base de données via Docker :
@@ -59,7 +61,13 @@ Cela démarrera le serveur API en utilisant nodemon, qui redémarrera automatiqu
 Pour exécuter manuellement une tâche spécifique :
 
 ```bash
-npm run job -- <nom-de-la-tâche> [paramètres-de-la-tâche]
+npm run job -- <job-name> <json-params> --env <env>
+```
+
+Exemple :
+
+```bash
+npm run job -- letudiant "{\"limit\": 100}" --env staging
 ```
 
 ## Mode production
