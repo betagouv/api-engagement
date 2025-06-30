@@ -36,6 +36,7 @@ export const REGION = process.env.REGION || "fr-par";
 export const SC_ID = "5f99dbe75eb1ad767733b206"; // Service Civique Id
 export const JVA_ID = "5f5931496c7ea514150a818f"; // JeVeuxAider Id
 export const LBC_ID = "60cd04a0d2321e05a743fa8d"; // Leboncoin Id
+export const LETUDIANT_ID = "65251e076c0781cafb6ba76d"; // Letudiant Id
 
 export const DEFAULT_AVATAR = "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/default.jpg";
 
