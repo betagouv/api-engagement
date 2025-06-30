@@ -543,7 +543,7 @@ const buildData = (data: Mission, publisherId: string, moderator: boolean = fals
     country: address ? address.country : undefined,
     location: address ? address.location : undefined,
     addresses: data.addresses,
-    applicationUrl: getMissionTrackedApplicationUrl(data),
+    applicationUrl: getMissionTrackedApplicationUrl(data, publisherId),
     associationLogo: data.associationLogo,
     associationAddress: data.associationAddress,
     associationCity: data.associationCity,
