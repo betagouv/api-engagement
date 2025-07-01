@@ -19,7 +19,7 @@
   },
   "dependencies": {
     "@elastic/elasticsearch": "7.17.14",
-    "@sentry/node": "9.24.0",
+    "@sentry/node": "9.33.0",
     "@types/geoip-lite": "1.4.4",
     "aws-sdk": "2.1692.0",
     "bcryptjs": "3.0.2",
@@ -44,7 +44,7 @@
     "passport-headerapikey": "1.2.2",
     "passport-jwt": "4.0.1",
     "uuid": "11.1.0",
-    "zod": "3.25.45",
+    "zod": "3.25.67",
     "he": "^1.2.0"
   },
   "devDependencies": {
