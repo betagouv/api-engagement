@@ -37,6 +37,9 @@ export function missionToPilotyJob(mission: Mission, companyId: string, mandator
     application_url: getMissionTrackedApplicationUrl(mission, LETUDIANT_ID),
     state: mission.deletedAt ? "archived" : "published",
     remote_policy_id: mission.remote === "full" ? mandatoryData.remotePolicies.full : undefined,
+    position_level: "employee",
+    description_company: mission.organizationDescription || "",
+  };
 }
 /**
  * Transform a mission into a Piloty company payload

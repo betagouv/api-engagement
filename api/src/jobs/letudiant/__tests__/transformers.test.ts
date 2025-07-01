@@ -172,7 +172,12 @@ describe("L'Etudiant Transformers", () => {
      * Tests for missionToPilotyCompany function
      */
     describe("missionToPilotyCompany", () => {
-      const baseMission: Partial<Mission> = {};
+      const baseMission: Partial<Mission> = {
+        organizationDescription: "Une description détaillée de l'organisation.",
+        organizationLogo: "https://example.com/logo.png",
+        organizationUrl: "https://example.com/org", // This is not used in the current transformer due to comments
+      };
+
       it("should correctly transform a mission to a Piloty company payload with organizationName", async () => {
         const mission: Mission = {
           ...baseMission,
