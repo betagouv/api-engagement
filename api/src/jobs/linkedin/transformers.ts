@@ -1,4 +1,5 @@
 import { Mission } from "../../types";
+import { getMissionTrackedApplicationUrl } from "../../utils";
 import { LINKEDIN_COMPANY_ID, LINKEDIN_ID, LINKEDIN_INDUSTRY_CODE } from "./config";
 import { LinkedInJob } from "./types";
 
@@ -34,7 +35,7 @@ export function missionToLinkedinJob(mission: Mission, defaultCompany: string): 
   const job = {
     jobtype: "VOLUNTEER",
     partnerJobId: String(mission._id),
-    applyUrl: `https://api.api-engagement.beta.gouv.fr/r/${mission._id}/${LINKEDIN_ID}`,
+    applyUrl: getMissionTrackedApplicationUrl(mission, LINKEDIN_ID),
     title: `Bénévolat - ${mission.title}`,
     description: initialDescription
       ? `Ceci est une mission de bénévolat pour <strong>${mission.organizationName}</strong><br>${mission.description.replace(/\n/g, "<br>").replace(/\u000b/g, "")}`
