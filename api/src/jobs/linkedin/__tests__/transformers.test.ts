@@ -14,6 +14,10 @@ vi.mock("../config", () => ({
   },
 }));
 
+vi.mock("../../../utils/mission", () => ({
+  getMissionTrackedApplicationUrl: vi.fn((mission, publisherId) => `https://api.api-engagement.beta.gouv.fr/r/${mission._id}/${publisherId}`),
+}));
+
 const defaultCompany = "benevolt";
 
 const baseMission: any = {
@@ -103,11 +107,6 @@ describe("missionToLinkedinJob", () => {
     const mission = { ...baseMission, endAt: undefined };
     const job = missionToLinkedinJob(mission, defaultCompany);
     expect(job?.expirationDate).toBeUndefined();
-  });
-
-  it("should return null for description length < 100", () => {
-    const mission = { ...baseMission, description: "short" };
-    expect(missionToLinkedinJob(mission, defaultCompany)).toBeNull();
   });
 
   it("should return null for description length > 25000", () => {

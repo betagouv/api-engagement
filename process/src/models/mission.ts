@@ -41,7 +41,7 @@ const schema = new Schema<Mission>(
     // Mission
     clientId: { type: String, required: true },
     title: { type: String, required: true },
-    description: { type: String, required: true },
+    description: { type: String, default: "" },
     descriptionHtml: { type: String },
     tags: { type: [String] },
     tasks: { type: [String] },

@@ -1,3 +1,8 @@
+import { JVA_ID } from "../../config";
+
+// Whitelisted publishers IDs
+export const PUBLISHERS_IDS = [JVA_ID];
+
 // Used to sign every Piloty API requests
 export const MEDIA_PUBLIC_ID = "letudiant";
 
@@ -16,14 +21,14 @@ export const REMOTE_POLICY_MAPPING = {
 // Key is mission "domain" field
 export const JOB_CATEGORY_MAPPING = {
   environnement: "environment_energie",
-  "solidarite-insertion": "arts_culture_sport_professional_dancer", // TODO
+  "solidarite-insertion": "customer_service_customer_advisor",
   sante: "health_social",
   "culture-loisirs": "tourism_leisure",
   education: "education_training",
   emploi: "hr",
   sport: "arts_culture_sport",
-  humanitaire: "arts_culture_sport_professional_dancer", // TODO
+  humanitaire: "hr_mobility",
   animaux: "health_social_pet_sitting",
   "vivre-ensemble": "health_social",
-  autre: "arts_culture_sport_professional_dancer", // TODO: find better fallback
+  autre: "customer_support", // TODO: find better fallback
 };

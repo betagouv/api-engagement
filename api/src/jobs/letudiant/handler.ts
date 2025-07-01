@@ -92,7 +92,7 @@ export class LetudiantHandler implements BaseHandler<LetudiantJobPayload, Letudi
 
         await rateLimit();
       } catch (error) {
-        captureException(`[LetudiantHandler] Error processing mission`, { extra: { missionId: mission._id, id, limit } });
+        captureException(`[LetudiantHandler] Error processing mission`, { extra: { error, missionId: mission._id, id, limit } });
         counter.error++;
       }
     }
