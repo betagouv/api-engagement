@@ -48,6 +48,9 @@ export async function getMissionsToSync(id?: string, limit = 10): Promise<Hydrat
       // Ensure the string is a 24-character hex string (Mongo ObjectId)
       $regex: /^[0-9a-fA-F]{24}$/,
     },
+    letudiantPublicId: {
+      $exists: false,
+    },
     $or: [{ letudiantPublicId: { $exists: true } }, { $expr: { $lt: ["$letudiantUpdatedAt", "$updatedAt"] } }],
   }).limit(limit);
 

@@ -1,9 +1,9 @@
-import { SC_ID } from "../../config";
+import { LETUDIANT_ID } from "../../config";
 import { PilotyCompanyPayload, PilotyJobPayload, PilotyMandatoryData } from "../../services/piloty/types";
-import { Mission } from "../../types";
+import { Mission, MissionType } from "../../types";
 import { getMissionTrackedApplicationUrl } from "../../utils/mission";
 import { MEDIA_PUBLIC_ID } from "./config";
-import { decodeHtml } from './utils';
+import { decodeHtml } from "./utils";
 
 /**
  * Transform a mission into a Piloty job payload
@@ -29,19 +29,15 @@ export function missionToPilotyJob(mission: Mission, companyId: string, mandator
     media_public_id: MEDIA_PUBLIC_ID,
     company_public_id: companyId,
     name: mission.title,
-    contract_id: mission.publisherId === SC_ID ? mandatoryData.contracts.volontariat : mandatoryData.contracts.benevolat,
+    contract_id: mission.type === MissionType.VOLONTARIAT ? mandatoryData.contracts.volontariat : mandatoryData.contracts.benevolat,
     job_category_id: mandatoryData.jobCategories[mission.domain] ?? mandatoryData.jobCategories["autre"],
     localisation: mission.remote === "full" ? "A distance" : mission.city || "",
     description_job: decodeHtml(mission.descriptionHtml),
     application_method: "external_apply",
-    application_url: getMissionTrackedApplicationUrl(mission),
+    application_url: getMissionTrackedApplicationUrl(mission, LETUDIANT_ID),
     state: mission.deletedAt ? "archived" : "published",
     remote_policy_id: mission.remote === "full" ? mandatoryData.remotePolicies.full : undefined,
-    position_level: "employee",
-    description_company: mission.organizationDescription || "",
-  };
 }
-
 /**
  * Transform a mission into a Piloty company payload
  * NB: these fields are not handled for now (seems not needed):

@@ -1,13 +1,12 @@
 import { describe, expect, it, vi } from "vitest";
-import { SC_ID } from "../../../config";
+import { LETUDIANT_ID } from "../../../config";
 import { PilotyMandatoryData } from "../../../services/piloty/types";
-import { Mission } from "../../../types";
-import { getMissionTrackedApplicationUrl } from "../../../utils/mission";
+import { Mission, MissionType } from "../../../types";
 import { MEDIA_PUBLIC_ID } from "../config";
 import { missionToPilotyCompany, missionToPilotyJob } from "../transformers";
 
 vi.mock("../../../utils/mission", () => ({
-  getMissionTrackedApplicationUrl: vi.fn((mission) => `https://api-engagement.beta.gouv.fr/r/${mission._id}/${mission.publisherId}`),
+  getMissionTrackedApplicationUrl: vi.fn((mission, publisherId) => `https://api-engagement.beta.gouv.fr/r/${mission._id}/${publisherId}`),
 }));
 
 const mockCompanyId = "test-company-public-id";
@@ -41,6 +40,7 @@ describe("L'Etudiant Transformers", () => {
   describe("missionToPilotyJob", () => {
     const baseMission: Partial<Mission> = {
       title: "Super Mission de Test",
+      type: MissionType.BENEVOLAT,
       descriptionHtml: "<p>Une description 素晴らしい HTML.</p>",
       applicationUrl: "https://example.com/apply",
       organizationDescription: "Description de l'organisation.",
@@ -66,18 +66,17 @@ describe("L'Etudiant Transformers", () => {
       expect(result.localisation).toBe(mission.city);
       expect(result.description_job).toBe("<p>Une description 素晴らしい HTML.</p>");
       expect(result.application_method).toBe("external_apply");
-      expect(getMissionTrackedApplicationUrl).toHaveBeenCalledWith(mission);
-      expect(result.application_url).toBe(`https://api-engagement.beta.gouv.fr/r/${mission._id}/${mission.publisherId}`);
+      expect(result.application_url).toBe(`https://api-engagement.beta.gouv.fr/r/${mission._id}/${LETUDIANT_ID}`);
       expect(result.state).toBe("published");
       expect(result.remote_policy_id).toBeUndefined();
       expect(result.position_level).toBe("employee");
       expect(result.description_company).toBe(mission.organizationDescription);
     });
 
-    it("should correctly transform a mission for Service Civique", () => {
+    it("should correctly transform a volontariat mission", () => {
       const mission: Mission = {
         ...baseMission,
-        publisherId: SC_ID,
+        type: MissionType.VOLONTARIAT,
         domain: "education",
         remote: "full",
         city: "Marseille",
@@ -91,7 +90,6 @@ describe("L'Etudiant Transformers", () => {
     it("should set localisation to 'A distance' for full remote missions and set remote_policy_id", () => {
       const mission: Mission = {
         ...baseMission,
-        publisherId: "any_id",
         domain: "culture-loisirs",
         remote: "full",
         city: "Paris", // City should be ignored for localisation
@@ -154,32 +152,27 @@ describe("L'Etudiant Transformers", () => {
       expect(result.job_category_id).toBe(mockMandatoryData.jobCategories.autre);
     });
 
-    it('should decode HTML entities in description_job', () => {
+    it("should decode HTML entities in description_job", () => {
       const mission: Mission = {
         ...baseMission,
-        publisherId: 'any_id',
-        domain: 'sante',
-        remote: 'no',
-        city: 'Lyon',
+        publisherId: "any_id",
+        domain: "sante",
+        remote: "no",
+        city: "Lyon",
         deletedAt: null,
-        descriptionHtml: 'Description with &lt;p&gt;html&lt;/p&gt; tags.',
+        descriptionHtml: "Description with &lt;p&gt;html&lt;/p&gt; tags.",
       } as Mission;
 
       const result = missionToPilotyJob(mission, mockCompanyId, mockMandatoryData);
 
-      expect(result.description_job).toBe('Description with <p>html</p> tags.');
+      expect(result.description_job).toBe("Description with <p>html</p> tags.");
     });
 
     /**
      * Tests for missionToPilotyCompany function
      */
     describe("missionToPilotyCompany", () => {
-      const baseMission: Partial<Mission> = {
-        organizationDescription: "Une description détaillée de l'organisation.",
-        organizationLogo: "https://example.com/logo.png",
-        organizationUrl: "https://example.com/org", // This is not used in the current transformer due to comments
-      };
-
+      const baseMission: Partial<Mission> = {};
       it("should correctly transform a mission to a Piloty company payload with organizationName", async () => {
         const mission: Mission = {
           ...baseMission,

@@ -12,19 +12,19 @@
     "reload": "pm2 reload app"
   },
   "devDependencies": {
-    "@vitejs/plugin-react": "4.5.0",
+    "@vitejs/plugin-react": "4.6.0",
     "autoprefixer": "10.4.21",
     "hsts": "2.2.0",
-    "postcss": "8.5.4",
+    "postcss": "8.5.6",
     "tailwindcss": "3.4.11",
     "vite": "5.4.5",
     "vite-plugin-svgr": "4.3.0"
   },
   "dependencies": {
     "@headlessui/react": "2.2.4",
-    "@sentry/react": "9.24.0",
+    "@sentry/react": "9.33.0",
     "@sentry/vite-plugin": "2.22.6",
-    "chart.js": "4.4.9",
+    "chart.js": "4.5.0",
     "date-fns": "4.1.0",
     "dotenv": "16.5.0",
     "express": "4.21.0",
@@ -40,10 +40,10 @@
     "react-icons": "5.5.0",
     "react-router-dom": "6.26.2",
     "react-toastify": "10.0.5",
-    "react-tooltip": "5.28.1",
+    "react-tooltip": "5.29.1",
     "recharts": "2.15.3",
     "url": "0.11.4",
     "validator": "13.15.15",
-    "zustand": "5.0.5"
+    "zustand": "5.0.6"
   }
 }

@@ -40,11 +40,11 @@ resource "scaleway_job_definition" "letudiant" {
 resource "scaleway_job_definition" "linkedin" {
   name         = "${terraform.workspace}-linkedin"
   project_id   = var.project_id
-  cpu_limit    = 1000
+  cpu_limit    = 1500
   memory_limit = 2048
   image_uri    = local.image_uri
   command      = "node --max-old-space-size=1800 dist/jobs/run-job.js linkedin"
-  timeout      = "15m"
+  timeout      = "30m"
 
   cron {
     schedule = "0 */6 * * *" # Every 6 hours

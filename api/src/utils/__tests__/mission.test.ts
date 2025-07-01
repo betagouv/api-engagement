@@ -15,10 +15,9 @@ describe("getMissionTrackedApplicationUrl", () => {
   it("should return the correct tracked application URL using mocked config", () => {
     const mockMission = {
       _id: "mission123",
-      publisherId: "publisher456",
     } as unknown as Mission; // Simple mock of Mission object
 
-    const actualUrl = getMissionTrackedApplicationUrl(mockMission);
+    const actualUrl = getMissionTrackedApplicationUrl(mockMission, "publisher456");
 
     expect(actualUrl).toBe("https://api.test.com/r/mission123/publisher456");
   });
