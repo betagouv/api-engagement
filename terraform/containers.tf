@@ -23,7 +23,7 @@ resource "scaleway_container" "api" {
   }
 
   scaling_option {
-    cpu_usage_threshold = 80
+    concurrent_requests_threshold = 20
   }
 
   environment_variables = {
