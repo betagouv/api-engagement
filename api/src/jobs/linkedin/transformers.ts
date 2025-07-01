@@ -1,5 +1,5 @@
 import { Mission } from "../../types";
-import { getMissionTrackedApplicationUrl } from "../../utils/mission";
+import { getMissionTrackedApplicationUrl } from "../../utils";
 import { LINKEDIN_COMPANY_ID, LINKEDIN_ID, LINKEDIN_INDUSTRY_CODE } from "./config";
 import { LinkedInJob } from "./types";
 
@@ -42,7 +42,7 @@ export function missionToLinkedinJob(mission: Mission, defaultCompany: string): 
       : `<strong>${mission.organizationName}</strong> vous propose une mission de bénévolat<br>${mission.description
           .replace(/\n/g, "<br>")
           .replace(/\u000b/g, "")}<br><br>Type : missions-benevolat`,
-    company: defaultCompany !== "benevolt" && LINKEDIN_COMPANY_ID[mission.organizationName] ? mission.organizationName : defaultCompany,
+    company: LINKEDIN_COMPANY_ID[mission.organizationName] ? mission.organizationName : defaultCompany,
     location: `${mission.city}, ${mission.country} ${mission.region}`,
     country: mission.country,
     city: mission.city,
