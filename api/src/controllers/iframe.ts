@@ -500,7 +500,6 @@ const buildLocationQuery = (widget: Widget, lon: number | undefined, lat: number
     }
 
     if (remote && remote.includes("yes") && !remote.includes("no")) {
-      console.log("1.2");
       where.remote = "full";
       return where;
     }
