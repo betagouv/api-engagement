@@ -1,9 +1,14 @@
 name: Tests
 
 on:
-  push:
-  pull_request:
+  # push:
+  # pull_request:
   workflow_dispatch:
+  workflow_call:
+    inputs:
+      branch:
+        required: true
+        type: string
 
 jobs:
   changes:
