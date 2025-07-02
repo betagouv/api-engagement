@@ -216,6 +216,8 @@ schema.index({ departmentName: 1 });
 schema.index({ organizationName: 1 });
 schema.index({ organizationRNA: 1 });
 schema.index({ organizationClientId: 1 });
+schema.index({ organizationReseaux: 1 });
+
 schema.index({ geoPoint: "2dsphere" });
 schema.index({ "addresses.geoPoint": "2dsphere" });
 
