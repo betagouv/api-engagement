@@ -28,7 +28,6 @@ import leboncoin from "./jobs/leboncoin";
 import linkedinStats from "./jobs/linkedin-stats";
 import metabase from "./jobs/metabase";
 import moderation from "./jobs/moderation";
-import organization from "./jobs/organization";
 import report from "./jobs/report";
 import warnings from "./jobs/warnings";
 
@@ -39,9 +38,7 @@ const runnings = {
   linkedinStats: false,
   metabase: false,
   leboncoin: false,
-  organization: false,
   report: false,
-  kpi: false,
   brevo: false,
 };
 
@@ -205,37 +202,6 @@ const linkedinStatsJob = new CronJob(
   "Europe/Paris"
 );
 
-// Every 2nd of the month at 00:00 AM
-const organizationJob = new CronJob(
-  "0 0 2 * *",
-  async () => {
-    const checkInId = Sentry.captureCheckIn({
-      monitorSlug: "organization",
-      status: "in_progress",
-    });
-    runnings.organization = true;
-    try {
-      await organization.handler();
-      Sentry.captureCheckIn({
-        checkInId,
-        monitorSlug: "organization",
-        status: "ok",
-      });
-    } catch (error) {
-      captureException(error);
-      Sentry.captureCheckIn({
-        checkInId,
-        monitorSlug: "organization",
-        status: "error",
-      });
-    }
-    runnings.organization = false;
-  },
-  null,
-  true,
-  "Europe/Paris"
-);
-
 // Every day at 10:00 AM
 const leboncoinJob = new CronJob(
   "0 10 * * *",
@@ -327,14 +293,6 @@ app.get("/tasks", async (req, res) => {
         lastRun: metabaseJob.lastDate(),
         nextRun: metabaseJob.nextDate(),
         running: runnings.metabase,
-      },
-      {
-        name: "Update Organization",
-        schedule: organizationJob.cronTime.source,
-        started: organizationJob.isActive,
-        lastRun: organizationJob.lastDate(),
-        nextRun: organizationJob.nextDate(),
-        running: runnings.organization,
       },
       {
         name: "Update Leboncoin",
