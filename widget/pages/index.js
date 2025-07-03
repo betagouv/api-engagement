@@ -376,15 +376,15 @@ export const getServerSideProps = async (context) => {
     }));
 
     if (context.query.lat && context.query.lon) {
+      const lat = parseFloat(context.query.lat);
+      const lon = parseFloat(context.query.lon);
+
       missions.forEach((mission) => {
         if (mission.addresses && mission.addresses.length > 1) {
           mission.addresses.sort((a, b) => {
             if (!a.location || !b.location) {
               return 0;
             }
-
-            const lat = parseFloat(context.query.lat);
-            const lon = parseFloat(context.query.lon);
 
             const distA = calculateDistance(lat, lon, a.location.lat, a.location.lon);
             const distB = calculateDistance(lat, lon, b.location.lat, b.location.lon);

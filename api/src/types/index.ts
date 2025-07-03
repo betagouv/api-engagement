@@ -824,6 +824,56 @@ export interface Email {
   updatedAt: Date;
 }
 
+export interface Kpi {
+  _id: Schema.Types.ObjectId;
+
+  date: Date;
+
+  availableBenevolatMissionCount: number;
+  availableVolontariatMissionCount: number;
+
+  availableJvaMissionCount: number;
+
+  availableBenevolatGivenPlaceCount: number;
+  availableVolontariatGivenPlaceCount: number;
+
+  availableBenevolatAttributedPlaceCount: number;
+  availableVolontariatAttributedPlaceCount: number;
+
+  percentageBenevolatGivenPlaces: number;
+  percentageVolontariatGivenPlaces: number;
+
+  percentageBenevolatAttributedPlaces: number;
+  percentageVolontariatAttributedPlaces: number;
+
+  benevolatPrintMissionCount: number;
+  volontariatPrintMissionCount: number;
+
+  benevolatClickMissionCount: number;
+  volontariatClickMissionCount: number;
+
+  benevolatApplyMissionCount: number;
+  volontariatApplyMissionCount: number;
+
+  benevolatAccountMissionCount: number;
+  volontariatAccountMissionCount: number;
+
+  benevolatPrintCount: number;
+  volontariatPrintCount: number;
+
+  benevolatClickCount: number;
+  volontariatClickCount: number;
+
+  benevolatApplyCount: number;
+  volontariatApplyCount: number;
+
+  benevolatAccountCount: number;
+  volontariatAccountCount: number;
+
+  createdAt: Date;
+  updatedAt: Date;
+}
+
 export enum MissionType {
   BENEVOLAT = "benevolat",
   VOLONTARIAT = "volontariat-service-civique",

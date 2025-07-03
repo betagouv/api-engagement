@@ -17,7 +17,7 @@ const helmetConfig = helmet({
     includeSubDomains: true,
     preload: true,
   },
-  referrerPolicy: { policy: "no-referrer" },
+  // referrerPolicy: { policy: "origin" },
   xssFilter: true,
   noSniff: true,
 });

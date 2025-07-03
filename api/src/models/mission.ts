@@ -41,7 +41,7 @@ const schema = new Schema<Mission>(
     // Mission
     clientId: { type: String, required: true },
     title: { type: String, required: true },
-    description: { type: String, required: true },
+    description: { type: String, default: "" },
     descriptionHtml: { type: String },
     tags: { type: [String] },
     tasks: { type: [String] },
@@ -216,6 +216,8 @@ schema.index({ departmentName: 1 });
 schema.index({ organizationName: 1 });
 schema.index({ organizationRNA: 1 });
 schema.index({ organizationClientId: 1 });
+schema.index({ organizationReseaux: 1 });
+
 schema.index({ geoPoint: "2dsphere" });
 schema.index({ "addresses.geoPoint": "2dsphere" });
 

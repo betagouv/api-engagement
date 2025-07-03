@@ -24,7 +24,7 @@ export const identify = (req: Request) => {
   }
 
   const ip = req.ip;
-  const referer = req.header("referer") || "not_defined";
+  const referer = req.get("referer") || "not_defined";
   const user = hash([ip, referer, userAgent]);
   return { user, userAgent, referer: referer.includes("?") ? referer.split("?")[0] : referer };
 };

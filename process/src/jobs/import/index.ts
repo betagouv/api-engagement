@@ -58,9 +58,10 @@ const importPublisher = async (publisher: Publisher, start: Date) => {
     });
     console.log(`[${publisher.name}] Found ${missionsDB} missions in DB`);
 
+    let hasFailed: boolean = false;
     for (let i = 0; i < missionsXML.length; i += CHUNK_SIZE) {
-      console.log(`[${publisher.name}] Processing chunk ${i / CHUNK_SIZE + 1} of ${Math.ceil(missionsXML.length / CHUNK_SIZE)}`);
       const chunk = missionsXML.slice(i, i + CHUNK_SIZE);
+      console.log(`[${publisher.name}] Processing chunk ${i / CHUNK_SIZE + 1} of ${Math.ceil(missionsXML.length / CHUNK_SIZE)} (${chunk.length} missions)`);
       // BUILD NEW MISSIONS
       const missions = [] as Mission[];
       const promises = [] as Promise<Mission | undefined>[];
@@ -102,11 +103,17 @@ const importPublisher = async (publisher: Publisher, start: Date) => {
       // RNA
       await verifyOrganization(missions);
       // BULK WRITE
-      await bulkDB(missions, publisher, obj);
+      const res = await bulkDB(missions, publisher, obj);
+      if (!res) {
+        hasFailed = true;
+      }
     }
 
     // CLEAN DB
-    await cleanDB(publisher, obj);
+    if (!hasFailed) {
+      // If one chunk failed, don't remove missions from DB
+      await cleanDB(publisher, obj);
+    }
 
     // STATS
     obj.missionCount = await MissionModel.countDocuments({

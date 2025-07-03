@@ -7,7 +7,7 @@ import corsOptions from "./cors";
 import helmet from "./helmet";
 import logger from "./logger";
 import passport from "./passport";
-import limiter from "./rate-limite";
+// import limiter from "./rate-limite";
 
 const middlewares = (app: Express) => {
   app.use(cors(corsOptions));
@@ -17,7 +17,7 @@ const middlewares = (app: Express) => {
   app.use(cookieParser());
   app.use(helmet);
   app.use(logger);
-  app.use(limiter);
+  // app.use(limiter); // TODO: enable with correct values
   app.use(passport.initialize());
 };
 

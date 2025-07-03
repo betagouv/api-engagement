@@ -121,6 +121,7 @@ router.get("/:id/search", async (req: Request, res: Response, next: NextFunction
       deleted: false,
     } as { [key: string]: any };
 
+    const sort = {} as { [key: string]: any };
     // Todo: test
     // const organizationExclusions = await OrganizationExclusionModel.find({ excludedForPublisherId: widget.publishers });
     // if (organizationExclusions.length) where.organizationClientId = { $nin: organizationExclusions.map((e) => e.organizationClientId) };
@@ -145,6 +146,8 @@ router.get("/:id/search", async (req: Request, res: Response, next: NextFunction
     const whereLocation = buildLocationQuery(widget, query.data.lon, query.data.lat, query.data.remote);
     if (whereLocation["addresses.geoPoint"]) {
       where["addresses.geoPoint"] = whereLocation["addresses.geoPoint"];
+    } else {
+      sort.remote = -1;
     }
     if (whereLocation.$and) {
       where.$and.push(whereLocation.$and);
@@ -220,7 +223,7 @@ router.get("/:id/search", async (req: Request, res: Response, next: NextFunction
     }
 
     const missions = await MissionModel.find(where)
-      .sort({ remote: -1 })
+      .sort(sort)
       .limit(query.data.size)
       .skip(query.data.from)
       .select({
@@ -470,6 +473,7 @@ router.get("/:id/aggs", cors({ origin: "*" }), async (req: Request, res: Respons
 
 const buildLocationQuery = (widget: Widget, lon: number | undefined, lat: number | undefined, remote: string | string[] | undefined) => {
   const where = {} as { [key: string]: any };
+
   if (widget.location && widget.location.lat && widget.location.lon) {
     const distance = getDistanceKm(widget.distance && widget.distance !== "Aucun" ? widget.distance : "50km");
     where["addresses.geoPoint"] = {
@@ -478,9 +482,13 @@ const buildLocationQuery = (widget: Widget, lon: number | undefined, lat: number
         $maxDistance: distance * 1000,
       },
     };
-  } else if (lat && lon) {
+    return where;
+  }
+
+  if (lat && lon) {
     const distance = getDistanceKm("50km");
-    if (remote && remote.includes("no") && !remote.includes("yes")) {
+
+    if (widget.type === "volontariat" || (remote && remote.includes("no") && !remote.includes("yes"))) {
       where.remote = "no";
       where["addresses.geoPoint"] = {
         $nearSphere: {
@@ -488,27 +496,33 @@ const buildLocationQuery = (widget: Widget, lon: number | undefined, lat: number
           $maxDistance: distance * 1000,
         },
       };
-    } else if (remote && remote.includes("yes") && !remote.includes("no")) {
-      where.remote = "full";
-    } else {
-      where.$and = {
-        $or: [
-          {
-            "addresses.geoPoint": {
-              $geoWithin: { $centerSphere: [[lon, lat], distance / EARTH_RADIUS] },
-            },
-          },
-          { remote: "full" },
-        ],
-      };
+      return where;
     }
-  } else {
+
     if (remote && remote.includes("yes") && !remote.includes("no")) {
-      where.$and = { $or: [{ remote: "full" }, { remote: "possible" }] };
+      where.remote = "full";
+      return where;
     }
-    if (remote && remote.includes("no") && !remote.includes("yes")) {
-      where.remote = "no";
-    }
+
+    where.$and = {
+      $or: [
+        {
+          "addresses.geoPoint": {
+            $geoWithin: { $centerSphere: [[lon, lat], distance / EARTH_RADIUS] },
+          },
+        },
+        { remote: "full" },
+      ],
+    };
+    return where;
+  }
+  if (remote && remote.includes("yes") && !remote.includes("no")) {
+    where.$and = { $or: [{ remote: "full" }, { remote: "possible" }] };
+    return where;
+  }
+  if (remote && remote.includes("no") && !remote.includes("yes")) {
+    where.remote = "no";
+    return where;
   }
   return where;
 };
