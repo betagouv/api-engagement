@@ -62,7 +62,7 @@ interface LinkedinStatsJobPayload {}
 
 interface LinkedinStatsJobResult extends JobResult {}
 
-class LinkedinStats implements BaseHandler<LinkedinStatsJobPayload, LinkedinStatsJobResult> {
+export class LinkedinStatsHandler implements BaseHandler<LinkedinStatsJobPayload, LinkedinStatsJobResult> {
   public async handle(payload: LinkedinStatsJobPayload): Promise<LinkedinStatsJobResult> {
     const start = new Date();
     console.log(`[Linkedin Stats] Starting at ${start.toISOString()}`);
