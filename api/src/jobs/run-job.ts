@@ -65,7 +65,13 @@ async function runJob() {
 
     const handlerModule = await import(`./${jobName}/handler`);
 
-    const HandlerClassName = jobName.charAt(0).toUpperCase() + jobName.slice(1) + "Handler";
+    // Convert to camelCase
+    // import-organizations -> ImportOrganizationsHandler
+    const HandlerClassName =
+      jobName
+        .split("-")
+        .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+        .join("") + "Handler";
     const HandlerClass = handlerModule[HandlerClassName];
 
     if (!HandlerClass || typeof HandlerClass !== "function") {
