@@ -252,21 +252,6 @@ router.get("/account", cors({ origin: "*" }), async (req: Request, res: Response
 router.get("/campaign/:id", cors({ origin: "*" }), async (req, res) => {
   let href: string | null = null;
   try {
-    console.log("[impression campaign]", req.params.id);
-    console.log("[impression campaign] All headers:", JSON.stringify(req.headers, null, 2));
-    console.log("[impression campaign] Referer methods:");
-    console.log("  req.header('referer'):", req.header("referer"));
-    console.log("  req.get('referer'):", req.get("referer"));
-    console.log("  req.headers.referer:", req.headers.referer);
-    console.log("[impression campaign] Origin methods:");
-    console.log("  req.header('origin'):", req.header("origin"));
-    console.log("  req.get('origin'):", req.get("origin"));
-    console.log("  req.headers.origin:", req.headers.origin);
-    console.log("[impression campaign] Sec-Fetch headers:");
-    console.log("  sec-fetch-site:", req.header("sec-fetch-site"));
-    console.log("  sec-fetch-mode:", req.header("sec-fetch-mode"));
-    console.log("  sec-fetch-dest:", req.header("sec-fetch-dest"));
-
     const params = zod
       .object({
         id: zod.string(),
