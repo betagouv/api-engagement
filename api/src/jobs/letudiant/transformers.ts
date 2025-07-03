@@ -41,7 +41,6 @@ export function missionToPilotyJob(mission: Mission, companyId: string, mandator
     description_company: mission.organizationDescription || "",
   };
 }
-
 /**
  * Transform a mission into a Piloty company payload
  * NB: these fields are not handled for now (seems not needed):
