@@ -1,10 +1,11 @@
+/* eslint-disable @typescript-eslint/naming-convention */
 import { parse } from "csv-parse";
 import { Readable } from "stream";
 
-import { DEPARTMENTS } from "../../constants/departments";
+import { DEPARTMENTS } from "../../constant";
 import OrganizationModel from "../../models/organization";
+import { DataGouvRnaRecord } from "../../services/data-gouv/types";
 import { Organization } from "../../types";
-import { DataGouvRnaRecord } from "../../types/data-gouv";
 import { slugify } from "../../utils";
 
 const findStatus = (position: string) => {
@@ -64,6 +65,7 @@ const formatDate = (date: string) => {
   return new Date(date);
 };
 
+// ESLint naming-convention disabled for the entire file
 const processRecord = (record: string[]): DataGouvRnaRecord => {
   const [
     id,
@@ -221,7 +223,7 @@ const writeBatch = async (records: DataGouvRnaRecord[]): Promise<number> => {
   return count;
 };
 
-const handler = async (stream: Readable): Promise<number> => {
+export const parseFile = async (stream: Readable): Promise<number> => {
   return new Promise((resolve, reject) => {
     let totalCount = 0;
     let batch: DataGouvRnaRecord[] = [];
@@ -252,6 +254,7 @@ const handler = async (stream: Readable): Promise<number> => {
 
           // Process batch asynchronously
           writeBatch(currentBatch)
+            // eslint-disable-next-line @typescript-eslint/no-loop-func
             .then((count) => {
               totalCount += count;
             })
@@ -279,5 +282,3 @@ const handler = async (stream: Readable): Promise<number> => {
     stream.pipe(parser);
   });
 };
-
-export default { handler };

@@ -71,3 +71,21 @@ resource "scaleway_job_definition" "kpi" {
 
   env = local.all_env_vars
 }
+
+# Job Defition for the 'import-organizations' task
+resource "scaleway_job_definition" "import-organizations" {
+  name         = "${terraform.workspace}-import-organizations"
+  project_id   = var.project_id
+  cpu_limit    = 1000
+  memory_limit = 2048
+  image_uri    = local.image_uri
+  command      = "node --max-old-space-size=1800 dist/jobs/run-job.js import-organizations"
+  timeout      = "45m"
+
+  cron {
+    schedule = "0 0 2 * * *" # At 00:00 on day-of-month 2
+    timezone = "Europe/Paris"
+  }
+
+  env = local.all_env_vars
+}
