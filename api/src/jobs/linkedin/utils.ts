@@ -7,18 +7,18 @@ import { LINKEDIN_XML_URL } from "./config";
 import { missionToLinkedinJob } from "./transformers";
 import { LinkedInJob } from "./types";
 
-export async function getMissions(where: { [key: string]: any }): Promise<Mission[]> {
-  const missions = await MissionModel.find(where).sort({ createdAt: "asc" }).lean();
-  return missions;
+export function getMissionsCursor(where: { [key: string]: any }) {
+  return MissionModel.find(where).sort({ createdAt: "asc" }).lean().cursor();
 }
 
-export function generateJvaJobs(missions: Mission[]): { jobs: LinkedInJob[]; expired: number; skipped: number } {
+export async function generateJvaJobs(missionsCursor: AsyncIterable<Mission>): Promise<{ jobs: LinkedInJob[]; expired: number; skipped: number; processed: number }> {
   const jobs = [] as LinkedInJob[];
   let expired = 0;
   let skipped = 0;
+  let processed = 0;
 
-  for (let i = 0; i < missions.length; i++) {
-    const mission = missions[i];
+  for await (const mission of missionsCursor) {
+    processed++;
     const job = missionToLinkedinJob(mission, "jeveuxaider.gouv.fr");
     if (!job) {
       skipped++;
@@ -32,16 +32,17 @@ export function generateJvaJobs(missions: Mission[]): { jobs: LinkedInJob[]; exp
     jobs.push(job);
   }
 
-  return { jobs, expired, skipped };
+  return { jobs, expired, skipped, processed };
 }
 
-export function generatePartnersJobs(missions: Mission[]): { jobs: LinkedInJob[]; skipped: number } {
+export async function generatePartnersJobs(missionsCursor: AsyncIterable<Mission>): Promise<{ jobs: LinkedInJob[]; skipped: number; processed: number }> {
   const jobs = [] as LinkedInJob[];
   let skipped = 0;
+  let processed = 0;
 
   let slot = 0;
-  for (let i = 0; i < missions.length; i++) {
-    const mission = missions[i];
+  for await (const mission of missionsCursor) {
+    processed++;
     const job = missionToLinkedinJob(mission, "benevolt");
     if (!job) {
       skipped++;
@@ -57,7 +58,7 @@ export function generatePartnersJobs(missions: Mission[]): { jobs: LinkedInJob[]
     slot++;
   }
 
-  return { jobs, skipped };
+  return { jobs, skipped, processed };
 }
 
 const CDATA_KEYS = [

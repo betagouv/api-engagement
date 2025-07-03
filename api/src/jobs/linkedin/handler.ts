@@ -6,7 +6,7 @@ import PublisherModel from "../../models/publisher";
 import { BaseHandler } from "../base/handler";
 import { JobResult } from "../types";
 import { LINKEDIN_ID, PARTNERS_IDS } from "./config";
-import { generateJvaJobs, generatePartnersJobs, generateXML, getMissions, storeXML } from "./utils";
+import { generateJvaJobs, generatePartnersJobs, generateXML, getMissionsCursor, storeXML } from "./utils";
 
 export interface LinkedinJobPayload {}
 
@@ -41,33 +41,32 @@ export class LinkedinHandler implements BaseHandler<LinkedinJobPayload, Linkedin
 
       const jobs = [];
 
-      console.log(`[LinkedinHandler] Querying missions of JeVeuxAider.gouv.fr`);
-      const JvaMissions = await getMissions({
+      console.log(`[LinkedinHandler] Querying and processing missions of JeVeuxAider.gouv.fr`);
+      const JvaMissionsCursor = getMissionsCursor({
         deletedAt: null,
         statusCode: "ACCEPTED",
         publisherId: JVA_ID,
       });
-      console.log(`[LinkedinHandler] ${JvaMissions.length} missions found`);
 
-      const jvaJobs = generateJvaJobs(JvaMissions);
-      console.log(`[LinkedinHandler] ${jvaJobs.jobs.length} jobs added to the feed`);
+      const jvaJobs = await generateJvaJobs(JvaMissionsCursor);
+      console.log(`[LinkedinHandler] ${jvaJobs.processed} JVA missions processed, ${jvaJobs.jobs.length} jobs added to the feed`);
       jobs.push(...jvaJobs.jobs);
-      result.counter.processed += JvaMissions.length;
+      result.counter.processed += jvaJobs.processed;
       result.counter.sent += jvaJobs.jobs.length;
       result.counter.skipped += jvaJobs.skipped;
       result.counter.expired += jvaJobs.expired;
 
-      console.log(`[LinkedinHandler] Querying missions of partners`);
-      const partnersMissions = await getMissions({
+      console.log(`[LinkedinHandler] Querying and processing missions of partners`);
+      const partnersMissionsCursor = getMissionsCursor({
         deletedAt: null,
         statusCode: "ACCEPTED",
         publisherId: { $in: PARTNERS_IDS },
       });
-      console.log(`[LinkedinHandler] ${partnersMissions.length} partners missions found`);
-      const partnersJobs = generatePartnersJobs(partnersMissions);
-      console.log(`[LinkedinHandler] ${partnersJobs.jobs.length} jobs added to the feed`);
+
+      const partnersJobs = await generatePartnersJobs(partnersMissionsCursor);
+      console.log(`[LinkedinHandler] ${partnersJobs.processed} partners missions processed, ${partnersJobs.jobs.length} jobs added to the feed`);
       jobs.push(...partnersJobs.jobs);
-      result.counter.processed += partnersMissions.length;
+      result.counter.processed += partnersJobs.processed;
       result.counter.sent += partnersJobs.jobs.length;
       result.counter.skipped += partnersJobs.skipped;
 
