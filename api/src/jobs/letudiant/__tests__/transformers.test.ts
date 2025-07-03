@@ -1,22 +1,12 @@
 import { describe, expect, it, vi } from "vitest";
-<<<<<<< HEAD
-import { PilotyMandatoryData } from "../../../services/piloty/types";
-import { Mission } from "../../../types";
-import { getMissionTrackedApplicationUrl } from "../../../utils/mission";
-=======
 import { LETUDIANT_ID } from "../../../config";
 import { PilotyMandatoryData } from "../../../services/piloty/types";
 import { Mission, MissionType } from "../../../types";
->>>>>>> staging
 import { MEDIA_PUBLIC_ID } from "../config";
 import { missionToPilotyCompany, missionToPilotyJob } from "../transformers";
 
 vi.mock("../../../utils/mission", () => ({
-<<<<<<< HEAD
-  getMissionTrackedApplicationUrl: vi.fn((mission) => `https://api-engagement.beta.gouv.fr/r/${mission._id}/${mission.publisherId}`),
-=======
   getMissionTrackedApplicationUrl: vi.fn((mission, publisherId) => `https://api-engagement.beta.gouv.fr/r/${mission._id}/${publisherId}`),
->>>>>>> staging
 }));
 
 const mockCompanyId = "test-company-public-id";
@@ -76,12 +66,7 @@ describe("L'Etudiant Transformers", () => {
       expect(result.localisation).toBe(mission.city);
       expect(result.description_job).toBe("<p>Une description 素晴らしい HTML.</p>");
       expect(result.application_method).toBe("external_apply");
-<<<<<<< HEAD
-      expect(getMissionTrackedApplicationUrl).toHaveBeenCalledWith(mission);
-      expect(result.application_url).toBe(`https://api-engagement.beta.gouv.fr/r/${mission._id}/${mission.publisherId}`);
-=======
       expect(result.application_url).toBe(`https://api-engagement.beta.gouv.fr/r/${mission._id}/${LETUDIANT_ID}`);
->>>>>>> staging
       expect(result.state).toBe("published");
       expect(result.remote_policy_id).toBeUndefined();
       expect(result.position_level).toBe("employee");

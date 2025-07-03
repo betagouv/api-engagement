@@ -7,29 +7,29 @@ permissions:
   id-token: write
 
 on:
-  workflow_run:
-    workflows: ["Tests"]
-    types:
-      - completed
-    branches:
-      - main
-      - staging
+  push:
+    branches: [main, staging]
+  workflow_dispatch:
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
+  test:
+    uses: ./.github/workflows/tests.yml
+    secrets: inherit
+    with:
+      branch: ${{ github.ref_name }}
+
   build:
-    if: ${{ github.event.workflow_run.conclusion == 'success' }}
-    name: Build
+    needs: test
     uses: ./.github/workflows/docker-build-push.yml
     secrets: inherit
     with:
-      branch: ${{ github.event.workflow_run.head_branch }}
+      branch: ${{ github.ref_name }}
 
   deploy:
-    name: Deploy
     needs: build
     uses: ./.github/workflows/terraform-deploy.yml
     secrets: inherit
