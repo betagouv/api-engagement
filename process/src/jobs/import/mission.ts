@@ -3,12 +3,12 @@ import { convert } from "html-to-text";
 import { Schema } from "mongoose";
 
 import { SC_ID } from "../../config";
-import { COUNTRIES } from "../../constants/countries";
-import { AUTRE_IMAGE, DOMAINS, DOMAIN_IMAGES } from "../../constants/domains";
+import { AUTRE_IMAGE, DOMAIN_IMAGES } from "../../constants/domains";
 import { captureException } from "../../error";
 import MissionModel from "../../models/mission";
 import { Mission, MissionXML, Publisher } from "../../types";
 import { getAddress, getAddresses } from "./utils/address";
+import { getModeration } from "./utils/moderation";
 
 const getImageDomain = (domain: string) => {
   const number = Number(new Date().getTime().toString().slice(-1)) % 3;
@@ -58,61 +58,6 @@ const getMonthDifference = (startDate: Date, endDate: Date) => {
   } else {
     return d;
   }
-};
-
-const hasEncodageIssue = (str = "") => {
-  return str.indexOf("&#") !== -1;
-};
-
-const getModeration = (mission: Mission) => {
-  let statusComment = "";
-  if (!mission.title || mission.title === " ") {
-    statusComment = "Titre manquant";
-  }
-  if (hasEncodageIssue(mission.title)) {
-    statusComment = "Problème d'encodage dans le titre";
-  }
-  if ((mission.title || "").split(" ").length === 1) {
-    statusComment = "Le titre est trop court (1 seul mot)";
-  }
-  if (!mission.clientId) {
-    statusComment = "ClientId manquant";
-  }
-  if (!mission.description) {
-    statusComment = "Description manquante";
-  }
-  if (hasEncodageIssue(mission.description)) {
-    statusComment = "Problème d'encodage dans la description";
-  }
-  if ((mission.description || "").length < 300) {
-    statusComment = "La description est trop courte (moins de 300 caractères)";
-  }
-  if ((mission.description || "").length > 20000) {
-    mission.description = mission.description.substring(0, 20000);
-    statusComment = "La description est trop longue (plus de 20000 caractères)";
-  }
-  if (!mission.applicationUrl) {
-    statusComment = "URL de candidature manquant";
-  }
-  if (mission.country && !COUNTRIES.includes(mission.country)) {
-    statusComment = `Pays non valide : "${mission.country}"`;
-  }
-  if (mission.remote && !["no", "possible", "full"].includes(mission.remote)) {
-    statusComment = "Valeur remote non valide (no, possible ou full)";
-  }
-  if (mission.places && mission.places <= 0) {
-    statusComment = "Nombre de places invalide (doit être supérieur à 0)";
-  }
-  // if (mission.activity && !ACTIVITIES.includes(mission.activity)) statusComment =  "Activity is not valid";
-  if (mission.domain && !DOMAINS.includes(mission.domain)) {
-    statusComment = `Domaine non valide : "${mission.domain}"`;
-  }
-  if (hasEncodageIssue(mission.organizationName)) {
-    statusComment = "Problème d'encodage dans le nom de l'organisation";
-  }
-
-  mission.statusCode = statusComment ? "REFUSED" : "ACCEPTED";
-  mission.statusComment = statusComment || "";
 };
 
 const parseString = (value: string | undefined) => {
