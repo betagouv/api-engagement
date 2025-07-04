@@ -37,59 +37,26 @@ const handler = async () => {
     const data = await OrganizationExclusionModel.find().lean();
     console.log(`[OrganizationExclusion] Found ${data.length} docs to sync.`);
 
-    const stored = await prisma.organizationExclusion.findMany({
-      include: {
-        excluded_by_publisher: { select: { id: true, old_id: true } },
-        excluded_for_publisher: { select: { id: true, old_id: true } },
-      },
-    });
-    console.log(`[OrganizationExclusion] Found ${Object.keys(stored).length} docs in database.`);
+    const stored = await prisma.organizationExclusion.count();
+    console.log(`[OrganizationExclusion] Found ${stored} docs in database.`);
 
     const partners = {} as { [key: string]: string };
     await prisma.partner.findMany({ select: { old_id: true, id: true } }).then((data) => data.forEach((d) => (partners[d.old_id] = d.id)));
 
-    let created = 0;
+    const toCreate = [] as PgOrganizationExclusion[];
     for (const doc of data) {
-      const exists = stored.find(
-        (d) =>
-          d.excluded_by_publisher.old_id === doc.excludedByPublisherId &&
-          d.excluded_for_publisher.old_id === doc.excludedForPublisherId &&
-          d.organization_client_id === doc.organizationClientId
-      );
-      if (!exists) {
-        const obj = buildData(doc, partners);
-        if (!obj) {
-          continue;
-        }
-        try {
-          await prisma.organizationExclusion.create({ data: obj });
-          created++;
-        } catch (error: any) {
-          // P2002 === unique constraint violation, In case we write a duplicate, we just ignore it.
-          if (error.code !== "P2002") {
-            throw error;
-          }
-        }
+      const obj = buildData(doc, partners);
+      if (!obj) {
+        continue;
       }
+      toCreate.push(obj);
     }
 
-    let deleted = 0;
-    for (const doc of stored) {
-      if (
-        !data.find(
-          (d) =>
-            d.excludedByPublisherId === doc.excluded_by_publisher.old_id &&
-            d.excludedForPublisherId === doc.excluded_for_publisher.old_id &&
-            d.organizationClientId === doc.organization_client_id
-        )
-      ) {
-        await prisma.organizationExclusion.delete({ where: { id: doc.id } });
-        deleted++;
-      }
-    }
+    await prisma.organizationExclusion.deleteMany({ where: { id: "329f8e65-d3a1-423a-b611-cf3dcf39b915" } });
+    const created = await prisma.organizationExclusion.createMany({ data: toCreate });
 
-    console.log(`[OrganizationExclusion] Ended at ${new Date().toISOString()} in ${(Date.now() - start.getTime()) / 1000}s, created ${created}, deleted ${deleted}`);
-    return { created, deleted };
+    console.log(`[OrganizationExclusion] Ended at ${new Date().toISOString()} in ${(Date.now() - start.getTime()) / 1000}s, created ${toCreate.length}`);
+    return { created: created.count };
   } catch (error) {
     captureException(error, "[Partners] Error while syncing docs.");
   }

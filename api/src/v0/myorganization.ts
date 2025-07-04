@@ -123,6 +123,7 @@ router.put("/:organizationClientId", passport.authenticate(["apikey", "api"], { 
 
     const body = zod
       .object({
+        organizationName: zod.string().optional().nullable(),
         publisherIds: zod.array(zod.string()),
       })
       .safeParse(req.body);
@@ -139,47 +140,43 @@ router.put("/:organizationClientId", passport.authenticate(["apikey", "api"], { 
     const publishers = await PublisherModel.find({
       "publishers.publisherId": user._id.toString(),
     });
-    const organizationExclusions = await OrganizationExclusionModel.find({
-      excludedByPublisherId: user._id.toString(),
-      organizationClientId: params.data.organizationClientId,
-    });
-    const organization = await MissionModel.findOne({
-      organizationClientId: params.data.organizationClientId,
-    }).select("organizationName");
 
-    const bulk: any[] = [];
-
-    for (const partner of publishers) {
-      const exclusionExists = organizationExclusions.find((o) => o.excludedForPublisherId === partner._id.toString());
-
-      if (!body.data.publisherIds.includes(partner._id.toString()) && !exclusionExists) {
-        bulk.push({
-          insertOne: {
-            document: {
-              excludedByPublisherId: user._id.toString(),
-              excludedByPublisherName: user.name,
-              excludedForPublisherId: partner._id.toString(),
-              excludedForPublisherName: partner.name,
-              organizationClientId: params.data.organizationClientId,
-              organizationName: organization?.organizationName || "",
-            },
-          },
-        });
-      } else if (body.data.publisherIds.includes(partner._id.toString()) && exclusionExists) {
-        bulk.push({
-          deleteOne: {
-            filter: { _id: exclusionExists._id },
-          },
-        });
+    if (!body.data.organizationName) {
+      const organization = await MissionModel.findOne({
+        organizationClientId: params.data.organizationClientId,
+        organizationName: { $exists: true },
+      }).select("organizationName");
+      if (organization) {
+        body.data.organizationName = organization.organizationName;
       }
     }
 
-    await OrganizationExclusionModel.bulkWrite(bulk);
+    await OrganizationExclusionModel.deleteMany({
+      excludedByPublisherId: user._id.toString(),
+      organizationClientId: params.data.organizationClientId,
+    });
+
+    const bulk: any[] = [];
+    publishers
+      .filter((e) => !body.data.publisherIds.includes(e._id.toString()))
+      .forEach((e) => {
+        bulk.push({
+          excludedByPublisherId: user._id.toString(),
+          excludedByPublisherName: user.name,
+          excludedForPublisherId: e._id.toString(),
+          excludedForPublisherName: e.name,
+          organizationClientId: params.data.organizationClientId,
+          organizationName: body.data.organizationName || "",
+        });
+      });
+
+    await OrganizationExclusionModel.insertMany(bulk);
 
     const newOrganizationExclusions = await OrganizationExclusionModel.find({
       excludedByPublisherId: user._id.toString(),
       organizationClientId: params.data.organizationClientId,
     });
+
     const data = [] as any[];
     publishers.forEach((e) => {
       const isExcluded = newOrganizationExclusions.some((o) => o.excludedForPublisherId === e._id.toString());
@@ -198,7 +195,7 @@ router.put("/:organizationClientId", passport.authenticate(["apikey", "api"], { 
       });
     });
 
-    return res.status(200).send({ ok: true, data });
+    return res.status(200).send({ ok: true, data, total: data.length });
   } catch (error) {
     next(error);
   }
