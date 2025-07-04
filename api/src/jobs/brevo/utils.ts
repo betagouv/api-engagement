@@ -2,7 +2,8 @@ import { captureException } from "../../error";
 import PublisherModel from "../../models/publisher";
 import UserModel from "../../models/user";
 import Brevo from "../../services/brevo";
-import { BrevoContact } from "../../types/brevo";
+import { slugify } from "../../utils";
+import { BrevoContact } from "./types";
 
 const BREVO_CONTACTS_LIMIT = 1000;
 
@@ -14,7 +15,7 @@ export const syncContact = async () => {
 
     const res = await Brevo.api(`/contacts?limit=${BREVO_CONTACTS_LIMIT}`, {}, "GET");
     if (!res.ok) {
-      throw res;
+      throw new Error(JSON.stringify(res));
     }
 
     const count = res.data.count;
@@ -25,7 +26,7 @@ export const syncContact = async () => {
       for (let i = BREVO_CONTACTS_LIMIT; i < count; i += BREVO_CONTACTS_LIMIT) {
         const res = await Brevo.api(`/contacts?limit=${BREVO_CONTACTS_LIMIT}&offset=${i}`, {}, "GET");
         if (!res.ok) {
-          throw res;
+          throw new Error(JSON.stringify(res));
         }
         contacts.push(...res.data.contacts);
       }
@@ -49,14 +50,16 @@ export const syncContact = async () => {
         continue;
       }
 
-      const updates = {} as Record<string, any>;
-      const attributes = {} as Record<string, any>;
+      const updates = {
+        attributes: {} as Record<string, any>,
+        ext_id: undefined as string | undefined,
+      };
 
       if (contact.attributes.PRENOM !== user.firstname && user.firstname) {
-        attributes.PRENOM = user.firstname;
+        updates.attributes.PRENOM = user.firstname;
       }
       if (contact.attributes.NOM !== user.lastname && user.lastname) {
-        attributes.NOM = user.lastname;
+        updates.attributes.NOM = user.lastname;
       }
       if (contact.attributes.EXT_ID !== user._id.toString()) {
         updates.ext_id = user._id.toString();
@@ -65,32 +68,36 @@ export const syncContact = async () => {
       if (user.publishers.length > 0) {
         const publisher = publishers.find((publisher) => publisher.id === user.publishers[0]);
         if (publisher) {
-          if (!contact.attributes.ENTREPRISE) {
-            attributes.ENTREPRISE = publisher.name;
+          if (!contact.attributes.ENTREPRISE || slugify(contact.attributes.ENTREPRISE) !== slugify(publisher.name)) {
+            updates.attributes.ENTREPRISE = publisher.name;
           }
+          let role = "";
           if (publisher.isAnnonceur && (publisher.hasApiRights || publisher.hasCampaignRights || publisher.hasWidgetRights)) {
-            attributes.ROLE = "Annonceur & Diffuseur";
+            role = "Annonceur & Diffuseur";
           } else if (publisher.isAnnonceur) {
-            attributes.ROLE = "Annonceur";
+            role = "Annonceur";
           } else if (publisher.hasApiRights || publisher.hasCampaignRights || publisher.hasWidgetRights) {
-            attributes.ROLE = "Diffuseur";
+            role = "Diffuseur";
+          }
+          if (role !== contact.attributes.ROLE) {
+            updates.attributes.ROLE = role;
           }
         }
       }
 
-      if (updates.ext_id || Object.keys(attributes).length > 0) {
-        if (Object.keys(attributes).length > 0) {
-          updates.attributes = attributes;
-        }
-        console.log(`[Brevo Contacts] Updating ${user.email}`, updates);
-        const res = await Brevo.api(`/contacts/${contact.id}`, updates, "PUT");
-        if (!res.ok) {
-          throw res;
-        }
-        user.brevoContactId = contact.id;
-        await user.save();
-        updated++;
+      if (!updates.ext_id && Object.keys(updates.attributes).length === 0) {
+        console.log(`[Brevo Contacts] No updates for ${user.email}`);
+        continue;
       }
+
+      console.log(`[Brevo Contacts] Updating ${user.email}`, updates);
+      const res = await Brevo.api(`/contacts/${contact.id}`, updates, "PUT");
+      if (!res.ok) {
+        throw new Error(JSON.stringify(res));
+      }
+      user.brevoContactId = contact.id;
+      await user.save();
+      updated++;
     }
     console.log(`[Brevo Contacts] Updated ${updated} contacts`);
 
@@ -120,7 +127,7 @@ export const syncContact = async () => {
 
       const res = await Brevo.api(`/contacts`, body, "POST");
       if (!res.ok) {
-        throw res;
+        throw new Error(JSON.stringify(res));
       }
       user.brevoContactId = res.data.id;
       await user.save();
@@ -137,7 +144,7 @@ export const syncContact = async () => {
       console.log(`[Brevo Contacts] Deleting ${contact.email} ${contact.id}`);
       const res = await Brevo.api(`/contacts/${contact.id}`, {}, "DELETE");
       if (!res.ok) {
-        throw res;
+        throw new Error(JSON.stringify(res));
       }
       deleted++;
     }

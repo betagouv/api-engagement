@@ -32,34 +32,21 @@ const api = async (path: string, body = {}, method = "POST") => {
     method,
     headers: {
       "api-key": SENDINBLUE_APIKEY,
+      "Content-Type": "application/json",
     },
   } as { [key: string]: any };
 
-  if (body) {
-    options.headers["Content-Type"] = "application/json";
+  if (Object.keys(body).length > 0) {
     options.body = JSON.stringify(body);
   }
 
-  const res = await fetch(`https://api.sendinblue.com/v3${path}`, options);
+  const res = await fetch(`https://api.brevo.com/v3${path}`, options);
   // if res content-type is application/json, return res.json()
   if (res.headers.get("content-type")?.includes("application/json")) {
     return { ok: res.ok, data: await res.json() };
   }
   return { ok: res.ok, data: res };
 };
-
-// const api = async (path: string, body = {}) => {
-
-//   const res = await fetch(`https://api.sendinblue.com/v3${path}`, {
-//     method: "POST",
-//     headers: {
-//       "api-key": SENDINBLUE_APIKEY,
-//       "Content-Type": "application/json",
-//     },
-//     body: JSON.stringify(body),
-//   });
-//   return { ok: res.ok, data: await res.json() };
-// };
 
 export const sendTemplate = async (templateId: number, options: EmailOptions) => {
   try {
@@ -113,3 +100,5 @@ export const downloadAttachment = async (token: string) => {
     captureException(error);
   }
 };
+
+export default { api, sendTemplate, downloadAttachment };
