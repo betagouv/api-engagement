@@ -5,7 +5,7 @@ name: Generate Changelog
 on:
   workflow_dispatch: # Allows manual triggering
   schedule:
-    - cron: '0 8 1 * *' # At 08:00 on the 1st day of every month
+    - cron: "0 8 1 * *" # At 08:00 on the 1st day of every month
 
 jobs:
   changelog:
@@ -28,17 +28,15 @@ jobs:
       - name: Switch to main branch
         run: git checkout main
 
-      - name: Install git-cliff
-        run: |
-          echo "Installing git-cliff..."
-          curl -sL https://github.com/orhun/git-cliff/releases/latest/download/git-cliff-x86_64-unknown-linux-gnu.tar.gz | sudo tar -xz -C /usr/local/bin
-          echo "git-cliff installed."
+      - name: Ensure CHANGELOG.md exists
+        run: touch CHANGELOG.md
 
       - name: Generate Changelog
-        run: |
-          # This command generates the changelog for commits since the last tag
-          # and prepends it to the CHANGELOG.md file.
-          git-cliff --latest --prepend CHANGELOG.md || true
+        uses: orhun/git-cliff-action@v4
+        with:
+          config: cliff.toml
+          args: --latest --prepend CHANGELOG.md
+        continue-on-error: true
 
       - name: Commit changes to main
         id: commit
