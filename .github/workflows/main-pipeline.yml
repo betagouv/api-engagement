@@ -9,6 +9,16 @@ permissions:
 on:
   push:
     branches: [main, staging]
+    paths:
+      - ".github/workflows/main-pipeline.yml"
+      - ".github/workflows/docker-build-push.yml"
+      - ".github/workflows/terraform-deploy.yml"
+      - ".github/workflows/tests.yml"
+      - "api/**"
+      - "app/**"
+      - "widget/**"
+      - "terraform/**"
+
   workflow_dispatch:
 
 concurrency:

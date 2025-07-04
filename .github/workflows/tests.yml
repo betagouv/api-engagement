@@ -19,7 +19,6 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       api: ${{ steps.filter.outputs.api }}
-      process: ${{ steps.filter.outputs.process }}
       widget: ${{ steps.filter.outputs.widget }}
     steps:
       - uses: actions/checkout@v4
@@ -29,8 +28,6 @@ jobs:
           filters: |
             api:
               - 'api/**'
-            process:
-              - 'process/**'
             widget:
               - 'widget/**'
 
@@ -60,33 +57,6 @@ jobs:
 
       - name: Run tests
         run: docker run --rm api-test:latest npm run test:ci
-
-  process-tests:
-    name: Process Tests
-    needs: changes
-    if: needs.changes.outputs.process == 'true'
-    runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      actions: write
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
-
-      - name: Build test image
-        uses: docker/build-push-action@v6
-        with:
-          context: ./process
-          file: ./process/Dockerfile
-          load: true
-          tags: process-test:latest
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
-
-      - name: Run tests
-        run: docker run --rm process-test:latest npm run test
 
   widgets-tests:
     name: Widget Tests

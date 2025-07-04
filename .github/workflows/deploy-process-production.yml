@@ -1,0 +1,55 @@
+name: Deploy process production
+
+on:
+  # workflow_dispatch:
+  push:
+    branches:
+      - main
+    paths:
+      - ".github/workflows/deploy-process-production.yml"
+      - "process/**"
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "18"
+          cache: "npm"
+
+      - name: Install dependencies
+        working-directory: process
+        run: npm ci
+
+      - name: Run tests
+        working-directory: process
+        run: npm run test:ci
+
+  deploy:
+    runs-on: ubuntu-latest
+    environment: production
+    needs: test
+    steps:
+      - name: Connect and restart process
+        uses: appleboy/ssh-action@master
+        with:
+          host: process.api-engagement.beta.gouv.fr
+          username: "root"
+          key: ${{ secrets.SCW_SSH_KEY }}
+          script: |
+            cd api-engagement/process
+            git checkout main
+            git reset --hard
+            git pull
+            npm install
+            npm run build
+            npm run reload

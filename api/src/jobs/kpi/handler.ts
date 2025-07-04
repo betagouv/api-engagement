@@ -40,7 +40,7 @@ export class KpiHandler implements BaseHandler<KpiJobPayload, KpiJobResult> {
     }
 
     return {
-      success: true,
+      success: result.every((e) => e.kpiBotless !== null && e.kpi !== null) ? true : false,
       timestamp: new Date(),
       result,
     };
