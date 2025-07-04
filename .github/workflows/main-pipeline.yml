@@ -28,6 +28,9 @@ concurrency:
 jobs:
   test:
     uses: ./.github/workflows/tests.yml
+    permissions:
+      contents: read
+      actions: write
     secrets: inherit
     with:
       branch: ${{ github.ref_name }}
