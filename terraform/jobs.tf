@@ -143,3 +143,21 @@ resource "scaleway_job_definition" "leboncoin" {
 
   env = local.all_env_vars
 }
+
+# Job Definition for the 'brevo' task
+resource "scaleway_job_definition" "brevo" {
+  name         = "${terraform.workspace}-brevo"
+  project_id   = var.project_id
+  cpu_limit    = 1000
+  memory_limit = 2048
+  image_uri    = local.image_uri
+  command      = "node dist/jobs/run-job.js brevo"
+  timeout      = "15m"
+
+  cron {
+    schedule = "0 1 * * *" # Every day at 1 AM
+    timezone = "Europe/Paris"
+  }
+
+  env = local.all_env_vars
+}

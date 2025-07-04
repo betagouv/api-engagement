@@ -9,7 +9,7 @@ import { APP_URL, SECRET } from "../config";
 import { FORBIDDEN, INVALID_BODY, INVALID_PARAMS, INVALID_QUERY, NOT_FOUND, REQUEST_EXPIRED, RESSOURCE_ALREADY_EXIST } from "../error";
 import PublisherModel from "../models/publisher";
 import UserModel from "../models/user";
-import { sendTemplate } from "../services/email";
+import { sendTemplate } from "../services/brevo";
 import { User } from "../types";
 import { UserRequest } from "../types/passport";
 import { hasLetter, hasNumber, hasSpecialChar } from "../utils";
