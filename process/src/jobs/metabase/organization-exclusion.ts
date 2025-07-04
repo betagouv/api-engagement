@@ -52,7 +52,7 @@ const handler = async () => {
       toCreate.push(obj);
     }
 
-    await prisma.organizationExclusion.deleteMany({ where: { id: "329f8e65-d3a1-423a-b611-cf3dcf39b915" } });
+    await prisma.organizationExclusion.deleteMany();
     const created = await prisma.organizationExclusion.createMany({ data: toCreate });
 
     console.log(`[OrganizationExclusion] Ended at ${new Date().toISOString()} in ${(Date.now() - start.getTime()) / 1000}s, created ${toCreate.length}`);
