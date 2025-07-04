@@ -11,6 +11,14 @@ const schema = new Schema<Import>({
   publisherId: {
     type: String,
   },
+  missionCount: {
+    type: Number,
+    default: 0,
+  },
+  refusedCount: {
+    type: Number,
+    default: 0,
+  },
   createdCount: {
     type: Number,
     default: 0,
@@ -30,6 +38,19 @@ const schema = new Schema<Import>({
   endedAt: {
     type: Date,
     required: true,
+  },
+  status: {
+    type: String,
+    required: true,
+  },
+  error: {
+    type: String,
+    default: null,
+  },
+  failed: {
+    // any[]
+    type: Object,
+    default: [],
   },
 });
 
