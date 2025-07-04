@@ -200,8 +200,13 @@ export type Import = {
   createdCount: number;
   deletedCount: number;
   updatedCount: number;
+  missionCount: number;
+  refusedCount: number;
   startedAt: Date;
   endedAt: Date;
+  status: "SUCCESS" | "FAILED";
+  error: string | null;
+  failed: any;
 };
 
 export interface MissionHistory {
@@ -729,6 +734,20 @@ export type Warning = {
   createdAt: Date;
   updatedAt: Date;
 };
+
+export interface WarningBot {
+  _id: Schema.Types.ObjectId;
+  hash: string;
+  userAgent: string;
+  printCount: number;
+  clickCount: number;
+  applyCount: number;
+  accountCount: number;
+  publisherId: string;
+  publisherName: string;
+  createdAt: Date;
+  updatedAt: Date;
+}
 
 export interface Widget {
   _id: Schema.Types.ObjectId;
