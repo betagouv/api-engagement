@@ -44,7 +44,7 @@
     "html-to-text": "8.2.1",
     "js2xmlparser": "5.0.0",
     "jspdf": "2.5.2",
-    "mongoose": "8.16.1",
+    "mongoose": "7.8.2",
     "pm2": "6.0.8",
     "react": "19.1.0",
     "react-dom": "19.1.0",
