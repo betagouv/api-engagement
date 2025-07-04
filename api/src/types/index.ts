@@ -830,7 +830,7 @@ export interface Email {
     url: string;
   }[];
 
-  status: "PENDING" | "PROCESSED" | "FAILED";
+  status: "PENDING" | "PROCESSED" | "FAILED" | "DUPLICATE";
   reportUrl: string | null;
   fileObjectName: string | null;
   dateFrom: Date | null;
