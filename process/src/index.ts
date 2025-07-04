@@ -24,7 +24,6 @@ import "./db/postgres";
 import { captureException } from "./error";
 import brevo from "./jobs/brevo";
 import imports from "./jobs/import";
-import leboncoin from "./jobs/leboncoin";
 import linkedinStats from "./jobs/linkedin-stats";
 import metabase from "./jobs/metabase";
 import moderation from "./jobs/moderation";
@@ -36,7 +35,6 @@ const runnings = {
   mission: false,
   linkedinStats: false,
   metabase: false,
-  leboncoin: false,
   report: false,
   brevo: false,
 };
@@ -200,44 +198,6 @@ const linkedinStatsJob = new CronJob(
   "Europe/Paris"
 );
 
-// Every day at 10:00 AM
-const leboncoinJob = new CronJob(
-  "0 10 * * *",
-  async () => {
-    const checkInId = Sentry.captureCheckIn({
-      monitorSlug: "leboncoin",
-      status: "in_progress",
-    });
-    if (runnings.leboncoin || ENVIRONMENT !== "production") {
-      Sentry.captureCheckIn({
-        checkInId,
-        monitorSlug: "leboncoin",
-        status: "ok",
-      });
-      return;
-    }
-    runnings.leboncoin = true;
-    try {
-      await leboncoin.handler();
-      Sentry.captureCheckIn({
-        checkInId,
-        monitorSlug: "leboncoin",
-        status: "ok",
-      });
-    } catch (error) {
-      captureException(error);
-      Sentry.captureCheckIn({
-        checkInId,
-        monitorSlug: "leboncoin",
-        status: "error",
-      });
-    }
-  },
-  null,
-  true,
-  "Europe/Paris"
-);
-
 // Every first Tuesday of the month at 10:00 AM
 const reportJob = new CronJob(
   "0 10 * * 2",
@@ -291,14 +251,6 @@ app.get("/tasks", async (req, res) => {
         lastRun: metabaseJob.lastDate(),
         nextRun: metabaseJob.nextDate(),
         running: runnings.metabase,
-      },
-      {
-        name: "Update Leboncoin",
-        schedule: leboncoinJob.cronTime.source,
-        started: leboncoinJob.isActive,
-        lastRun: leboncoinJob.lastDate(),
-        nextRun: leboncoinJob.nextDate(),
-        running: runnings.leboncoin,
       },
       {
         name: "Generate reports",

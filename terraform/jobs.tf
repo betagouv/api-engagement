@@ -107,3 +107,21 @@ resource "scaleway_job_definition" "warnings" {
 
   env = local.all_env_vars
 }
+
+# Job Definition for the 'leboncoin' task
+resource "scaleway_job_definition" "leboncoin" {
+  name         = "${terraform.workspace}-leboncoin"
+  project_id   = var.project_id
+  cpu_limit    = 1000
+  memory_limit = 2048
+  image_uri    = local.image_uri
+  command      = "node dist/jobs/run-job.js leboncoin"
+  timeout      = "15m"
+
+  cron {
+    schedule = "30 */3 * * *" # Every 3 hours at 30 minutes
+    timezone = "Europe/Paris"
+  }
+
+  env = local.all_env_vars
+}
