@@ -5,14 +5,14 @@
 [changelog]
 # changelog header
 header = """
-# Changelog
-All notable changes to this project will be documented in this file.\n
+# API Engagement - Changelog
+Vous retrouverez ici l'historique des différents déploiements effectués sur l'API Engagement. \n 
 """
 # template for the changelog body
 # https://git-cliff.org/docs/configuration/templating
 body = """
 {% if version %}
-    ## [{{ version | trim_start_matches(pat="v") }}] - {{ timestamp | date(format="%Y-%m-%d") }}
+    ## {{ timestamp | date(format="%d/%m/%Y") }}
 {% else %}
     ## [unreleased]
 {% endif %}
