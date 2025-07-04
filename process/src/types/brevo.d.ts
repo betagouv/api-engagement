@@ -1,21 +1,3 @@
-export interface BrevoContact {
-  id: number;
-  email: string;
-  attributes: {
-    PRENOM?: string;
-    NOM?: string;
-    ENTREPRISE?: string;
-    EXT_ID: string;
-    ROLE?: string;
-  };
-  emailBlacklisted: boolean;
-  smsBlacklisted: boolean;
-  createdAt: string;
-  modifiedAt: string;
-  listIds: number[];
-  listUnsubscribed: number[] | null;
-}
-
 export interface BrevoInboundEmail {
   Uuid: string[];
   MessageId: string;
@@ -38,12 +20,12 @@ export interface BrevoInboundEmail {
   Headers: string | string[];
 }
 
-export interface Mailbox {
+interface Mailbox {
   Name: string;
   Address: string;
 }
 
-export interface Attachment {
+interface Attachment {
   Name: string;
   ContentType: string;
   ContentLength: number;
