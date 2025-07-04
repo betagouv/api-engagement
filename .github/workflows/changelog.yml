@@ -5,7 +5,7 @@ name: Generate Changelog
 on:
   workflow_dispatch: # Allows manual triggering
   schedule:
-    - cron: "0 8 1 * *" # At 08:00 on the 1st day of every month
+    - cron: "0 8 * * 1" # At 08:00 on every Monday
 
 jobs:
   changelog:
@@ -60,5 +60,5 @@ jobs:
           echo "Updating staging branch..."
           git checkout staging
           git pull origin staging
-          git merge main --no-ff -m "chore: merge changelog from main"
+          git merge main --no-ff --allow-unrelated-histories -m "chore: merge changelog from main"
           git push origin staging
