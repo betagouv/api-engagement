@@ -22,7 +22,6 @@ import "./db/mongo";
 import "./db/postgres";
 
 import { captureException } from "./error";
-import brevo from "./jobs/brevo";
 import imports from "./jobs/import";
 import leboncoin from "./jobs/leboncoin";
 import linkedinStats from "./jobs/linkedin-stats";
@@ -38,7 +37,6 @@ const runnings = {
   metabase: false,
   leboncoin: false,
   report: false,
-  brevo: false,
 };
 
 // https://crontab.guru/#0_*/3_*_*_*
@@ -76,45 +74,6 @@ const missionJob = new CronJob(
       });
     }
     runnings.mission = false;
-  },
-  null,
-  true,
-  "Europe/Paris"
-);
-
-// Every day at 1 AM
-const brevoJob = new CronJob(
-  "0 1 * * *",
-  async () => {
-    const checkInId = Sentry.captureCheckIn({
-      monitorSlug: "brevo",
-      status: "in_progress",
-    });
-    if (runnings.brevo || ENVIRONMENT !== "production") {
-      Sentry.captureCheckIn({
-        checkInId,
-        monitorSlug: "brevo",
-        status: "ok",
-      });
-      return;
-    }
-    runnings.brevo = true;
-    try {
-      await brevo.handler();
-      Sentry.captureCheckIn({
-        checkInId,
-        monitorSlug: "brevo",
-        status: "ok",
-      });
-    } catch (error) {
-      captureException(error);
-      Sentry.captureCheckIn({
-        checkInId,
-        monitorSlug: "brevo",
-        status: "error",
-      });
-    }
-    runnings.brevo = false;
   },
   null,
   true,
@@ -307,14 +266,6 @@ app.get("/tasks", async (req, res) => {
         lastRun: reportJob.lastDate(),
         nextRun: reportJob.nextDate(),
         running: runnings.report,
-      },
-      {
-        name: "Sync Brevo",
-        schedule: brevoJob.cronTime.source,
-        started: brevoJob.isActive,
-        lastRun: brevoJob.lastDate(),
-        nextRun: brevoJob.nextDate(),
-        running: runnings.brevo,
       },
     ];
 
