@@ -8,12 +8,12 @@ import { Kpi } from "../../types";
 
 // Cron that create a kpi doc every with the data available
 export const buildKpiBotless = async (start: Date): Promise<Kpi | null> => {
-  const kpi = { date: start } as Kpi;
+  const body = { date: start } as Kpi;
   try {
     const exists = await KpiBotlessModel.findOne({ date: start });
     if (exists) {
       console.log(`[KPI Botless] KPI already exists for ${start.toISOString()}`);
-      return null;
+      return exists;
     }
 
     console.log(`[KPI Botless] Starting at ${start.toISOString()}`);
@@ -169,50 +169,50 @@ export const buildKpiBotless = async (start: Date): Promise<Kpi | null> => {
       },
     });
 
-    kpi.availableBenevolatMissionCount = availableBenevolatMissionCount;
-    kpi.availableVolontariatMissionCount = availableVolontariatMissionCount;
+    body.availableBenevolatMissionCount = availableBenevolatMissionCount;
+    body.availableVolontariatMissionCount = availableVolontariatMissionCount;
 
-    kpi.availableJvaMissionCount = availableJvaMissionCount;
+    body.availableJvaMissionCount = availableJvaMissionCount;
 
-    kpi.availableBenevolatGivenPlaceCount = availableBenevolatGivenPlaceCount;
-    kpi.availableVolontariatGivenPlaceCount = availableVolontariatGivenPlaceCount;
-    kpi.availableBenevolatAttributedPlaceCount = availableBenevolatAttributedPlaceCount;
-    kpi.availableVolontariatAttributedPlaceCount = availableVolontariatAttributedPlaceCount;
+    body.availableBenevolatGivenPlaceCount = availableBenevolatGivenPlaceCount;
+    body.availableVolontariatGivenPlaceCount = availableVolontariatGivenPlaceCount;
+    body.availableBenevolatAttributedPlaceCount = availableBenevolatAttributedPlaceCount;
+    body.availableVolontariatAttributedPlaceCount = availableVolontariatAttributedPlaceCount;
 
-    kpi.percentageBenevolatGivenPlaces = percentageBenevolatGivenPlaces;
-    kpi.percentageVolontariatGivenPlaces = percentageVolontariatGivenPlaces;
-    kpi.percentageBenevolatAttributedPlaces = percentageBenevolatAttributedPlaces;
-    kpi.percentageVolontariatAttributedPlaces = percentageVolontariatAttributedPlaces;
+    body.percentageBenevolatGivenPlaces = percentageBenevolatGivenPlaces;
+    body.percentageVolontariatGivenPlaces = percentageVolontariatGivenPlaces;
+    body.percentageBenevolatAttributedPlaces = percentageBenevolatAttributedPlaces;
+    body.percentageVolontariatAttributedPlaces = percentageVolontariatAttributedPlaces;
 
-    kpi.benevolatPrintMissionCount = statsBenevolatAggs.body.aggregations.print.data.value || 0;
-    kpi.volontariatPrintMissionCount = statsVolontariatAggs.body.aggregations.print.data.value || 0;
+    body.benevolatPrintMissionCount = statsBenevolatAggs.body.aggregations.print.data.value || 0;
+    body.volontariatPrintMissionCount = statsVolontariatAggs.body.aggregations.print.data.value || 0;
 
-    kpi.benevolatClickMissionCount = statsBenevolatAggs.body.aggregations.click.data.value || 0;
-    kpi.volontariatClickMissionCount = statsVolontariatAggs.body.aggregations.click.data.value || 0;
+    body.benevolatClickMissionCount = statsBenevolatAggs.body.aggregations.click.data.value || 0;
+    body.volontariatClickMissionCount = statsVolontariatAggs.body.aggregations.click.data.value || 0;
 
-    kpi.benevolatApplyMissionCount = statsBenevolatAggs.body.aggregations.apply.data.value || 0;
-    kpi.volontariatApplyMissionCount = statsVolontariatAggs.body.aggregations.apply.data.value || 0;
+    body.benevolatApplyMissionCount = statsBenevolatAggs.body.aggregations.apply.data.value || 0;
+    body.volontariatApplyMissionCount = statsVolontariatAggs.body.aggregations.apply.data.value || 0;
 
-    kpi.benevolatAccountMissionCount = statsBenevolatAggs.body.aggregations.account.data.value || 0;
-    kpi.volontariatAccountMissionCount = statsVolontariatAggs.body.aggregations.account.data.value || 0;
+    body.benevolatAccountMissionCount = statsBenevolatAggs.body.aggregations.account.data.value || 0;
+    body.volontariatAccountMissionCount = statsVolontariatAggs.body.aggregations.account.data.value || 0;
 
-    kpi.benevolatPrintCount = statsBenevolatAggs.body.aggregations.print.doc_count || 0;
-    kpi.volontariatPrintCount = statsVolontariatAggs.body.aggregations.print.doc_count || 0;
+    body.benevolatPrintCount = statsBenevolatAggs.body.aggregations.print.doc_count || 0;
+    body.volontariatPrintCount = statsVolontariatAggs.body.aggregations.print.doc_count || 0;
 
-    kpi.benevolatClickCount = statsBenevolatAggs.body.aggregations.click.doc_count || 0;
-    kpi.volontariatClickCount = statsVolontariatAggs.body.aggregations.click.doc_count || 0;
+    body.benevolatClickCount = statsBenevolatAggs.body.aggregations.click.doc_count || 0;
+    body.volontariatClickCount = statsVolontariatAggs.body.aggregations.click.doc_count || 0;
 
-    kpi.benevolatApplyCount = statsBenevolatAggs.body.aggregations.apply.doc_count || 0;
-    kpi.volontariatApplyCount = statsVolontariatAggs.body.aggregations.apply.doc_count || 0;
+    body.benevolatApplyCount = statsBenevolatAggs.body.aggregations.apply.doc_count || 0;
+    body.volontariatApplyCount = statsVolontariatAggs.body.aggregations.apply.doc_count || 0;
 
-    kpi.benevolatAccountCount = statsBenevolatAggs.body.aggregations.account.doc_count || 0;
-    kpi.volontariatAccountCount = statsVolontariatAggs.body.aggregations.account.doc_count || 0;
+    body.benevolatAccountCount = statsBenevolatAggs.body.aggregations.account.doc_count || 0;
+    body.volontariatAccountCount = statsVolontariatAggs.body.aggregations.account.doc_count || 0;
 
-    await KpiBotlessModel.create(kpi);
+    const data = await KpiBotlessModel.create(body);
     console.log(`[KPI Botless] Created kpi for ${start.toISOString()}`);
+    return data;
   } catch (error) {
-    captureException(error, { extra: { kpi, start } });
+    captureException(error, { extra: { kpi: body, start } });
   }
-
-  return kpi;
+  return null;
 };
