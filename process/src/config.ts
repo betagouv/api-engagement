@@ -12,8 +12,6 @@ export const SENTRY_DSN = process.env.SENTRY_DSN;
 export const SENDINBLUE_APIKEY = process.env.SENDINBLUE_APIKEY;
 
 export const SLACK_TOKEN = process.env.SLACK_TOKEN;
-export const SLACK_WARNING_CHANNEL_ID = process.env.SLACK_WARNING_CHANNEL_ID || "C052V2UF918";
-export const SLACK_LBC_CHANNEL_ID = process.env.SLACK_LBC_CHANNEL_ID || "C07SPFG724V";
 export const SLACK_CRON_CHANNEL_ID = process.env.SLACK_CRON_CHANNEL_ID || "C085S6M2K5J";
 
 export const DATA_SUBVENTION_TOKEN = process.env.DATA_SUBVENTION_TOKEN || "";
