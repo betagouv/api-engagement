@@ -29,7 +29,6 @@ import linkedinStats from "./jobs/linkedin-stats";
 import metabase from "./jobs/metabase";
 import moderation from "./jobs/moderation";
 import report from "./jobs/report";
-import warnings from "./jobs/warnings";
 
 const app = express();
 
@@ -63,7 +62,6 @@ const missionJob = new CronJob(
     try {
       await imports.handler();
       await moderation.handler();
-      await warnings.handler();
       Sentry.captureCheckIn({
         checkInId,
         monitorSlug: "mission-updates",
