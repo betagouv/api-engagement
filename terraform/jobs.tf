@@ -107,3 +107,21 @@ resource "scaleway_job_definition" "warnings" {
 
   env = local.all_env_vars
 }
+
+# Job Definition for the 'linkedin-stats' task
+resource "scaleway_job_definition" "linkedin-stats" {
+  name         = "${terraform.workspace}-linkedin-stats"
+  project_id   = var.project_id
+  cpu_limit    = 1000
+  memory_limit = 2048
+  image_uri    = local.image_uri
+  command      = "node dist/jobs/run-job.js linkedin-stats"
+  timeout      = "15m"
+
+  cron {
+    schedule = "0 9 * * 5" # Every friday at 09:00 AM
+    timezone = "Europe/Paris"
+  }
+
+  env = local.all_env_vars
+}
