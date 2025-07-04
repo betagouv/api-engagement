@@ -3,11 +3,6 @@ resource "scaleway_container_domain" "app" {
   hostname     = local.app_hostname
 }
 
-resource "scaleway_container_domain" "process" {
-  container_id = scaleway_container.process.id
-  hostname     = local.process_hostname
-}
-
 # Widget is linked to both volontariat and benevolat domains
 resource "scaleway_container_domain" "volontariat" {
   container_id = scaleway_container.widget.id
