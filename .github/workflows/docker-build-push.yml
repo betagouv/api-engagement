@@ -55,7 +55,6 @@ jobs:
             server_type: api
           - service: api
             server_type: jobs
-          - service: process
     steps:
       - name: Checkout code
         uses: actions/checkout@v4

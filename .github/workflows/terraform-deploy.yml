@@ -104,6 +104,5 @@ jobs:
         run: |
           echo "API Endpoint: $(terraform output -raw api_endpoint)"
           echo "App Endpoint: $(terraform output -raw app_endpoint)"
-          echo "Process Endpoint: $(terraform output -raw process_endpoint)"
           echo "Benevolat Widget Endpoint: $(terraform output -raw benevolat_endpoint)"
           echo "Volontariat Widget Endpoint: $(terraform output -raw volontariat_endpoint)"
