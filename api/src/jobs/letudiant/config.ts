@@ -1,4 +1,6 @@
-import { JVA_ID } from "../../config";
+import { ENV, JVA_ID } from "../../config";
+
+export const DEFAULT_LIMIT = ENV === "production" ? 1000 : 1;
 
 // Whitelisted publishers IDs
 export const PUBLISHERS_IDS = [JVA_ID];
