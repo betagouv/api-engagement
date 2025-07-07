@@ -64,7 +64,6 @@ export class LetudiantHandler implements BaseHandler<LetudiantJobPayload, Letudi
         }
 
         const jobPayload = missionToPilotyJob(mission, pilotyCompanyPublicId, mandatoryData);
-        // console.log(`[LetudiantHandler] Job payload: ${JSON.stringify(jobPayload)}`);
         let pilotyJob = null;
 
         if (mission.letudiantPublicId) {
