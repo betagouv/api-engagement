@@ -12,11 +12,11 @@ const MyApp = ({ Component, pageProps }) => {
   const preventionRoutieres = isPreventionRoutieres(router.query.widgetName || router.query.widget || "");
 
   return (
-    <main className={`${font.className} ${icomoon.variable}`}>
+    <div className={`${font.className} ${icomoon.variable}`}>
       <PlausibleProvider manualPageviews domain={domain} enabled={process.env.NODE_ENV === "production" && !preventionRoutieres} trackLocalhost={false} trackOutboundLinks>
         <Component {...pageProps} />
       </PlausibleProvider>
-    </main>
+    </div>
   );
 };
 

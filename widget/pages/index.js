@@ -17,40 +17,6 @@ import resizeHelper from "../utils/resizeHelper";
 import useStore from "../utils/store";
 import { calculateDistance } from "../utils/utils";
 
-const getContainerHeight = (widget) => {
-  const isBenevolat = widget?.type === "benevolat";
-  const isCarousel = widget?.style === "carousel";
-
-  if (isCarousel) {
-    if (isBenevolat) {
-      // BENEVOLAT - CAROUSEL
-      // --> mobile (0->767px) height = 780px
-      // --> tablet + desktop (768px->+) height = 686px
-      return "h-[780px] md:h-[686px]";
-    }
-    // VOLONTARIAT - CAROUSEL
-    // --> mobile (0->767px) height = 670px
-    // --> tablet (768->1023px) height = 600px
-    // --> desktop (1024px->) height = 600px
-    return "h-[670px] md:h-[620px]";
-  }
-
-  // GRID
-  if (isBenevolat) {
-    // BENEVOLAT - GRID
-    // --> mobile (0->639px) height = 3424px
-    // --> tablet (640->1023px) height = 1862px
-    // --> desktop (1024px->+) height = 1314px
-    return "h-[3424px] sm:h-[1862px] lg:h-[1314px]";
-  }
-
-  // VOLONTARIAT - GRID
-  // --> mobile (0->639px) height = 2200px
-  // --> tablet (640->1350px) height = 1350px
-  // --> desktop (1024px->) height = 1050px
-  return "h-[2200px] sm:h-[1350px] lg:h-[1050px]";
-};
-
 const getInitialFilters = (widget) => {
   const isBenevolat = widget?.type === "benevolat";
 
@@ -230,8 +196,8 @@ const Home = ({ widget, apiUrl, missions, total, request, environment }) => {
   }
 
   return (
-    <div className={`p-4 xl:px-0 ${getContainerHeight(widget)} md:max-w-[1200px] gap-4 flex flex-col justify-start items-center mx-auto`}>
-      <header className={`w-full space-y-4 md:space-y-8 ${widget?.style === "carousel" ? "max-w-[1056px]" : ""}`}>
+    <>
+      <header role="banner" className={`w-full space-y-4 p-4 md:space-y-8 ${widget?.style === "carousel" ? "max-w-[1056px]" : ""}`}>
         <div className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
           <h1 className="text-[28px] font-bold leading-[36px] md:p-0">{isBenevolat ? "Trouver une mission de bénévolat" : "Trouver une mission de Service Civique"}</h1>
           <p className="text-[18px] leading-[28px] text-[#666]">{total > 1 ? `${total.toLocaleString("fr")} missions` : `${total} mission`}</p>
@@ -246,7 +212,7 @@ const Home = ({ widget, apiUrl, missions, total, request, environment }) => {
           onShow={setShowFilters}
         />
       </header>
-      <div className={`w-full ${showFilters ? (widget?.style === "carousel" ? "hidden" : "opacity-40 pointer-events-none") : "h-auto overflow-x-hidden"}`}>
+      <main role="main" className={`w-full ${showFilters ? (widget?.style === "carousel" ? "hidden" : "opacity-40 pointer-events-none") : "h-auto overflow-x-hidden"}`}>
         {widget?.style === "carousel" ? (
           <Carousel widget={widget} missions={missions} total={total} request={request} />
         ) : (
@@ -260,7 +226,7 @@ const Home = ({ widget, apiUrl, missions, total, request, environment }) => {
             handlePageChange={(page) => setFilters({ ...filters, page })}
           />
         )}
-      </div>
+      </main>
       {environment === "production" && !router.query.notrack && <Script src="https://app.api-engagement.beta.gouv.fr/jstag.js" />}
       {!isBenevolat && (
         <div className={`flex w-full justify-center items-center gap-4 px-4 ${showFilters ? "opacity-40 pointer-events-none" : ""}`}>
@@ -273,7 +239,7 @@ const Home = ({ widget, apiUrl, missions, total, request, environment }) => {
           </p>
         </div>
       )}
-    </div>
+    </>
   );
 };
 
