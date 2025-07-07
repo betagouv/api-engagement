@@ -616,6 +616,8 @@ const buildData = (data: Mission, publisherId: string, moderator: boolean = fals
     snuPlaces: data.snuPlaces,
     soft_skills: data.soft_skills,
     softSkills: data.softSkills,
+    romeSkills: data.romeSkills,
+    requirements: data.requirements,
     startAt: data.startAt,
     statusCode: data.statusCode,
     statusComment: data.statusComment,

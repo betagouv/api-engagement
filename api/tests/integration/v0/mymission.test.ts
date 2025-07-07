@@ -1,8 +1,8 @@
 import request from "supertest";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { createTestMission, createTestPublisher } from "../fixtures";
-import elasticMock from "../mocks/elasticMock";
-import { createTestApp } from "../testApp";
+import { createTestMission, createTestPublisher } from "../../fixtures";
+import elasticMock from "../../mocks/elasticMock";
+import { createTestApp } from "../../testApp";
 
 describe("MyMission API Integration Tests", () => {
   const app = createTestApp();
@@ -15,8 +15,8 @@ describe("MyMission API Integration Tests", () => {
     publisher = await createTestPublisher();
     apiKey = publisher.apikey;
     const orgId = "test-org-id";
-    mission1 = await createTestMission(orgId, publisher._id.toString());
-    mission2 = await createTestMission(orgId, publisher._id.toString());
+    mission1 = await createTestMission({ organizationClientId: orgId, publisherId: publisher._id.toString() });
+    mission2 = await createTestMission({ organizationClientId: orgId, publisherId: publisher._id.toString() });
 
     vi.clearAllMocks();
     elasticMock.msearch.mockResolvedValue({
