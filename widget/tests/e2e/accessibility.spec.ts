@@ -13,10 +13,10 @@ test.describe("Accessibility Landmarks", () => {
     const header = page.locator('header[role="banner"]');
     await expect(header).toHaveCount(1);
 
-    // Check that if a footer exists, it has role="contentinfo".
-    const footerLocator = page.locator("footer");
-    if ((await footerLocator.count()) > 0) {
-      await expect(footerLocator).toHaveAttribute("role", "contentinfo");
+    // Check that if footers exist, they have role="contentinfo".
+    const footerLocators = page.locator("footer");
+    for (const footer of await footerLocators.all()) {
+      await expect(footer).toHaveAttribute("role", "contentinfo");
     }
 
     // Check that if a nav exists, it has role="navigation".

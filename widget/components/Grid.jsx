@@ -26,10 +26,10 @@ const Grid = ({ widget, missions, total, page, handlePageChange, request }) => {
           </div>
         ))}
       </main>
-      <footer className="flex items-center justify-center py-4 md:hidden">
+      <footer role="contentinfo" className="flex items-center justify-center py-4 md:hidden">
         <MobilePagination page={page} setPage={handlePageChange} end={parseInt(total / 6) + (total % 6 !== 0 && 1)} />
       </footer>
-      <footer className="hidden items-center justify-center pt-10 md:flex">
+      <footer role="contentinfo" className="hidden items-center justify-center pt-10 md:flex">
         <Pagination page={page} setPage={handlePageChange} end={parseInt(total / 6) + (total % 6 !== 0 && 1)} color={color} />
       </footer>
     </div>
