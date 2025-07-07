@@ -51,6 +51,9 @@ export async function getMissionsToSync(id?: string, limit = 10): Promise<Hydrat
     letudiantPublicId: {
       $exists: false,
     },
+    letudiantError: {
+      $exists: false,
+    },
     $or: [{ letudiantPublicId: { $exists: true } }, { $expr: { $lt: ["$letudiantUpdatedAt", "$updatedAt"] } }],
   }).limit(limit);
 

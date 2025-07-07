@@ -290,6 +290,7 @@ export interface Mission {
 
   letudiantPublicId: string | undefined;
   letudiantUpdatedAt: Date | undefined;
+  letudiantError: string | undefined;
 
   __history?: MissionHistory[];
 }

@@ -187,6 +187,7 @@ const schema = new Schema<Mission>(
     // Letudiant
     letudiantPublicId: { type: String },
     letudiantUpdatedAt: { type: Date },
+    letudiantError: { type: String },
   },
   {
     timestamps: true,
