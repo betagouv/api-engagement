@@ -17,6 +17,40 @@ import resizeHelper from "../utils/resizeHelper";
 import useStore from "../utils/store";
 import { calculateDistance } from "../utils/utils";
 
+const getContainerHeight = (widget) => {
+  const isBenevolat = widget?.type === "benevolat";
+  const isCarousel = widget?.style === "carousel";
+
+  if (isCarousel) {
+    if (isBenevolat) {
+      // BENEVOLAT - CAROUSEL
+      // --> mobile (0->767px) height = 780px
+      // --> tablet + desktop (768px->+) height = 686px
+      return "h-[780px] md:h-[686px]";
+    }
+    // VOLONTARIAT - CAROUSEL
+    // --> mobile (0->767px) height = 670px
+    // --> tablet (768->1023px) height = 600px
+    // --> desktop (1024px->) height = 600px
+    return "h-[670px] md:h-[620px]";
+  }
+
+  // GRID
+  if (isBenevolat) {
+    // BENEVOLAT - GRID
+    // --> mobile (0->639px) height = 3424px
+    // --> tablet (640->1023px) height = 1862px
+    // --> desktop (1024px->+) height = 1314px
+    return "h-[3424px] sm:h-[1862px] lg:h-[1314px]";
+  }
+
+  // VOLONTARIAT - GRID
+  // --> mobile (0->639px) height = 2200px
+  // --> tablet (640->1350px) height = 1350px
+  // --> desktop (1024px->) height = 1050px
+  return "h-[2200px] sm:h-[1350px] lg:h-[1050px]";
+};
+
 const getInitialFilters = (widget) => {
   const isBenevolat = widget?.type === "benevolat";
 
@@ -196,7 +230,7 @@ const Home = ({ widget, apiUrl, missions, total, request, environment }) => {
   }
 
   return (
-    <>
+    <div className={`flex flex-col justify-between overflow-hidden rounded-lg bg-white shadow-lg ${getContainerHeight(widget)}`}>
       <header role="banner" className={`w-full space-y-4 p-4 md:space-y-8 ${widget?.style === "carousel" ? "max-w-[1056px]" : ""}`}>
         <div className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
           <h1 className="text-[28px] font-bold leading-[36px] md:p-0">{isBenevolat ? "Trouver une mission de bénévolat" : "Trouver une mission de Service Civique"}</h1>
@@ -239,7 +273,7 @@ const Home = ({ widget, apiUrl, missions, total, request, environment }) => {
           </p>
         </div>
       )}
-    </>
+    </div>
   );
 };
 
