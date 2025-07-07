@@ -142,19 +142,7 @@ router.get("/", passport.authenticate(["apikey", "api"], { session: false }), as
       where.domain = buildArrayQuery(query.data.domain);
     }
     if (query.data.keywords) {
-      where.$or = [
-        { title: { $regex: diacriticSensitiveRegex(query.data.keywords), $options: "i" } },
-        {
-          organizationName: {
-            $regex: diacriticSensitiveRegex(query.data.keywords),
-            $options: "i",
-          },
-        },
-        {
-          publisherName: { $regex: diacriticSensitiveRegex(query.data.keywords), $options: "i" },
-        },
-        { city: { $regex: diacriticSensitiveRegex(query.data.keywords), $options: "i" } },
-      ];
+      where.$text = { $search: query.data.keywords };
     }
     if (query.data.organizationRNA) {
       where.organizationRNA = buildArrayQuery(query.data.organizationRNA);
