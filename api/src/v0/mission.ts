@@ -166,19 +166,6 @@ router.get("/", passport.authenticate(["apikey", "api"], { session: false }), as
       where.type = buildArrayQuery(query.data.type);
     }
 
-    if (query.data.lat && query.data.lon) {
-      if (query.data.distance && (query.data.distance === "0" || query.data.distance === "0km")) {
-        query.data.distance = "10km";
-      }
-      const distanceKm = getDistanceKm(query.data.distance || "50km");
-      where["addresses.geoPoint"] = {
-        $nearSphere: {
-          $geometry: { type: "Point", coordinates: [query.data.lon, query.data.lat] },
-          $maxDistance: distanceKm * 1000,
-        },
-      };
-    }
-
     // Clean old query params
     if (req.query.size && query.data.limit === 10000) {
       query.data.limit = parseInt(req.query.size as string, 10);
@@ -187,12 +174,44 @@ router.get("/", passport.authenticate(["apikey", "api"], { session: false }), as
       query.data.skip = parseInt(req.query.from as string, 10);
     }
 
-    const data = await MissionModel.find(where).skip(query.data.skip).limit(query.data.limit).lean();
+    const pipeline: any[] = [];
 
-    if (where["addresses.geoPoint"]) {
-      where["addresses.geoPoint"] = nearSphereToGeoWithin(where["addresses.geoPoint"].$nearSphere);
+    if (query.data.lat && query.data.lon) {
+      if (query.data.distance && (query.data.distance === "0" || query.data.distance === "0km")) {
+        query.data.distance = "10km";
+      }
+      const distanceKm = getDistanceKm(query.data.distance || "50km");
+      pipeline.push({
+        $geoNear: {
+          near: { type: "Point", coordinates: [query.data.lon, query.data.lat] },
+          distanceField: "distance",
+          key: "addresses.geoPoint",
+          maxDistance: distanceKm * 1000,
+          query: where,
+          spherical: true,
+        },
+      });
+    } else {
+      pipeline.push({ $match: where });
     }
-    const total = await MissionModel.countDocuments(where);
+
+    if (query.data.keywords && !(query.data.lat && query.data.lon)) {
+      pipeline.push({ $sort: { score: { $meta: "textScore" } } });
+    } else if (!(query.data.lat && query.data.lon)) {
+      pipeline.push({ $sort: { startAt: -1 } });
+    }
+
+    pipeline.push({
+      $facet: {
+        data: [{ $skip: query.data.skip }, { $limit: query.data.limit }],
+        total: [{ $count: "count" }],
+      },
+    });
+
+    const results = await MissionModel.aggregate(pipeline);
+
+    const data = results[0].data;
+    const total = results[0].total.length > 0 ? results[0].total[0].count : 0;
 
     res.locals = { total };
     return res.status(200).send({
