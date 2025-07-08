@@ -76,7 +76,7 @@ const CDATA_KEYS = [
   "listDate",
   "industry",
   "industryCode",
-  "isRemote",
+  "workplaceTypes",
 ];
 
 export function generateXML(data: LinkedInJob[]) {
