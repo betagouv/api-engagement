@@ -170,22 +170,39 @@ const ProtectedLayout = () => {
             <a className="underline" href="https://api.api-engagement.beta.gouv.fr/r/campaign/686d39421960f56166201ab1">
               Lien normal
             </a>
-            <a className="underline" href="https://api.api-engagement.beta.gouv.fr/r/campaign/686d39421960f56166201ab1" referrerPolicy="origin-when-cross-origin">
-              Lien avec origin-when-cross-origin
+            <a
+              className="underline"
+              href="https://api.api-engagement.beta.gouv.fr/r/campaign/686d39421960f56166201ab1"
+              rel="noopener"
+              referrerPolicy="strict-origin-when-cross-origin"
+            >
+              Lien avec strict-origin-when-cross-origin et rel="noopener"
             </a>
             <a
               className="underline"
               href="https://api.api-engagement.beta.gouv.fr/r/campaign/686d39421960f56166201ab1"
-              rel="noreferrer"
+              target="_blank"
+              rel="noopener"
               referrerPolicy="strict-origin-when-cross-origin"
             >
-              Lien avec strict-origin-when-cross-origin et rel="noreferrer"
+              Lien avec strict-origin-when-cross-origin et rel="noopener"
             </a>
-            <a className="underline" href="https://api.api-engagement.beta.gouv.fr/r/campaign/686d39421960f56166201ab1" referrerPolicy="unsafe-url">
-              Lien avec unsafe-url
+            <a
+              className="underline"
+              href="https://api.api-engagement.beta.gouv.fr/r/campaign/686d39421960f56166201ab1"
+              rel="noopener"
+              referrerPolicy="strict-origin-when-cross-origin"
+            >
+              Lien avec strict-origin-when-cross-origin et rel="opener"
             </a>
-            <a className="underline" href="https://api.api-engagement.beta.gouv.fr/r/campaign/686d39421960f56166201ab1" rel="noreferrer" referrerPolicy="unsafe-url">
-              Lien avec unsafe-url et rel="noreferrer"
+            <a
+              className="underline"
+              href="https://api.api-engagement.beta.gouv.fr/r/campaign/686d39421960f56166201ab1"
+              target="_blank"
+              rel="noopener"
+              referrerPolicy="strict-origin-when-cross-origin"
+            >
+              Lien avec strict-origin-when-cross-origin et rel="opener"
             </a>
           </div>
         </div>
