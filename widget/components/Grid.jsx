@@ -19,19 +19,19 @@ const Grid = ({ widget, missions, total, page, handlePageChange, request }) => {
   }
   return (
     <div className="mx-auto w-full pt-4">
-      <main className="grid grid-cols-1 gap-x-6 gap-y-6 overflow-x-hidden sm:grid-cols-2 md:gap-y-6 lg:grid-cols-3">
+      <main role="main" className="grid grid-cols-1 gap-x-6 gap-y-6 overflow-x-hidden sm:grid-cols-2 md:gap-y-6 lg:grid-cols-3">
         {missions.map((mission, i) => (
           <div key={i} className="flex justify-center">
             <Card widget={widget} mission={mission} request={request} />
           </div>
         ))}
       </main>
-      <footer role="contentinfo" className="flex items-center justify-center py-4 md:hidden">
+      <div className="flex items-center justify-center py-4 md:hidden">
         <MobilePagination page={page} setPage={handlePageChange} end={parseInt(total / 6) + (total % 6 !== 0 && 1)} />
-      </footer>
-      <footer role="contentinfo" className="hidden items-center justify-center pt-10 md:flex">
+      </div>
+      <div className="hidden items-center justify-center pt-10 md:flex">
         <Pagination page={page} setPage={handlePageChange} end={parseInt(total / 6) + (total % 6 !== 0 && 1)} color={color} />
-      </footer>
+      </div>
     </div>
   );
 };

@@ -56,7 +56,7 @@ const Carousel = ({ widget, missions, request }) => {
   }
 
   return (
-    <div className="flex w-full flex-col gap-4">
+    <main role="main" className="flex w-full flex-col gap-4">
       <div className="relative flex items-center gap-4">
         <button
           onClick={prevPage}
@@ -124,7 +124,7 @@ const Carousel = ({ widget, missions, request }) => {
           </button>
         </div>
       </div>
-    </div>
+    </main>
   );
 };
 

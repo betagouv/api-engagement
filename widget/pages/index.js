@@ -230,8 +230,8 @@ const Home = ({ widget, apiUrl, missions, total, request, environment }) => {
   }
 
   return (
-    <div className={`flex flex-col justify-between overflow-hidden rounded-lg bg-white shadow-lg ${getContainerHeight(widget)}`}>
-      <header role="banner" className={`w-full space-y-4 p-4 md:space-y-8 ${widget?.style === "carousel" ? "max-w-[1056px]" : ""}`}>
+    <div className={`p-4 xl:px-0 ${getContainerHeight(widget)} md:max-w-[1200px] gap-4 flex flex-col justify-start items-center mx-auto`}>
+      <header role="banner" className={`w-full space-y-4 md:space-y-8 ${widget?.style === "carousel" ? "max-w-[1056px]" : ""}`}>
         <div className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
           <h1 className="text-[28px] font-bold leading-[36px] md:p-0">{isBenevolat ? "Trouver une mission de bénévolat" : "Trouver une mission de Service Civique"}</h1>
           <p className="text-[18px] leading-[28px] text-[#666]">{total > 1 ? `${total.toLocaleString("fr")} missions` : `${total} mission`}</p>
@@ -246,7 +246,7 @@ const Home = ({ widget, apiUrl, missions, total, request, environment }) => {
           onShow={setShowFilters}
         />
       </header>
-      <main role="main" className={`w-full ${showFilters ? (widget?.style === "carousel" ? "hidden" : "opacity-40 pointer-events-none") : "h-auto overflow-x-hidden"}`}>
+      <div className={`w-full ${showFilters ? (widget?.style === "carousel" ? "hidden" : "opacity-40 pointer-events-none") : "h-auto overflow-x-hidden"}`}>
         {widget?.style === "carousel" ? (
           <Carousel widget={widget} missions={missions} total={total} request={request} />
         ) : (
@@ -260,10 +260,10 @@ const Home = ({ widget, apiUrl, missions, total, request, environment }) => {
             handlePageChange={(page) => setFilters({ ...filters, page })}
           />
         )}
-      </main>
+      </div>
       {environment === "production" && !router.query.notrack && <Script src="https://app.api-engagement.beta.gouv.fr/jstag.js" />}
       {!isBenevolat && (
-        <div className={`flex w-full justify-center items-center gap-4 px-4 ${showFilters ? "opacity-40 pointer-events-none" : ""}`}>
+        <footer role="contentinfo" className={`flex w-full justify-center items-center gap-4 px-4 ${showFilters ? "opacity-40 pointer-events-none" : ""}`}>
           <Image src={LogoSC} width="100" height="0" style={{ width: "53px", height: "auto" }} alt="Logo du Service Civique" />
           <p className=" text-xs text-[#666]">
             Proposé par l'Agence du Service Civique{" "}
@@ -271,7 +271,7 @@ const Home = ({ widget, apiUrl, missions, total, request, environment }) => {
               service-civique.gouv.fr
             </a>
           </p>
-        </div>
+        </footer>
       )}
     </div>
   );

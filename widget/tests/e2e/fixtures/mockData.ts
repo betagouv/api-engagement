@@ -1,6 +1,12 @@
 export const WIDGET_IDS = {
-  BENEVOLAT: "widget-id-benevolat",
-  VOLONTARIAT: "widget-id-volontariat",
+  BENEVOLAT: {
+    PAGE: "widget-id-benevolat",
+    CAROUSEL: "widget-id-benevolat-carousel",
+  },
+  VOLONTARIAT: {
+    PAGE: "widget-id-volontariat",
+    CAROUSEL: "widget-id-volontariat-carousel",
+  },
 };
 
 // Mock /iframe/widget/?id=xxxx result
@@ -14,8 +20,8 @@ export const mockWidgetResponse = (widgetId: string) => {
       _id: widgetId,
       name: "Toutes les missions",
       color: "#245564",
-      style: "page",
-      type: widgetId === WIDGET_IDS.BENEVOLAT ? "benevolat" : "volontariat",
+      style: [WIDGET_IDS.BENEVOLAT.CAROUSEL, WIDGET_IDS.VOLONTARIAT.CAROUSEL].includes(widgetId) ? "carousel" : "page",
+      type: [WIDGET_IDS.BENEVOLAT.PAGE, WIDGET_IDS.BENEVOLAT.CAROUSEL].includes(widgetId) ? "benevolat" : "volontariat",
       distance: "25km",
       rules: [],
       publishers: ["5f5931496c7ea514150a818f"],

@@ -5,7 +5,7 @@ test.describe("Card component (bénévolat) - Visual regression", () => {
   test("Desktop", async ({ page }) => {
     await page.setViewportSize({ width: 1280, height: 800 });
 
-    await page.goto(`/?widget=${WIDGET_IDS.BENEVOLAT}`);
+    await page.goto(`/?widget=${WIDGET_IDS.BENEVOLAT.PAGE}`);
     await page.waitForSelector('[data-testid="mission-card"]', { timeout: 10000 });
 
     const cardElement = await page.locator('[data-testid="mission-card"]').first();
@@ -20,7 +20,7 @@ test.describe("Card component (bénévolat) - Visual regression", () => {
   test("Mobile", async ({ page }) => {
     await page.setViewportSize({ width: 375, height: 667 });
 
-    await page.goto(`/?widget=${WIDGET_IDS.BENEVOLAT}`);
+    await page.goto(`/?widget=${WIDGET_IDS.BENEVOLAT.PAGE}`);
     await page.waitForSelector('[data-testid="mission-card"]', { timeout: 10000 });
 
     const cardElement = await page.locator('[data-testid="mission-card"]').first();
@@ -33,7 +33,7 @@ test.describe("Card component (volontariat) - Visual regression", () => {
   test("Desktop", async ({ page }) => {
     await page.setViewportSize({ width: 1280, height: 800 });
 
-    await page.goto(`/?widget=${WIDGET_IDS.VOLONTARIAT}`);
+    await page.goto(`/?widget=${WIDGET_IDS.VOLONTARIAT.PAGE}`);
     await page.waitForSelector('[data-testid="mission-card"]', { timeout: 10000 });
 
     const cardElement = await page.locator('[data-testid="mission-card"]').first();
@@ -48,7 +48,7 @@ test.describe("Card component (volontariat) - Visual regression", () => {
   test("Mobile", async ({ page }) => {
     await page.setViewportSize({ width: 375, height: 667 });
 
-    await page.goto(`/?widget=${WIDGET_IDS.VOLONTARIAT}`);
+    await page.goto(`/?widget=${WIDGET_IDS.VOLONTARIAT.PAGE}`);
     await page.waitForSelector('[data-testid="mission-card"]', { timeout: 10000 });
 
     const cardElement = await page.locator('[data-testid="mission-card"]').first();
