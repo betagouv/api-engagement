@@ -14,6 +14,83 @@ import { EARTH_RADIUS, diacriticSensitiveRegex, getDistanceFromLatLonInKm, getDi
 
 const NO_PARTNER = "NO_PARTNER";
 const NO_PARTNER_MESSAGE = "Vous n'avez pas encore accès à des missions. Contactez margot.quettelart@beta.gouv.fr pour vous donner accès aux missions";
+const MISSION_FIELDS = [
+  "_id",
+  "clientId",
+  "activity",
+  "addresses",
+  "associationLogo",
+  "associationAddress",
+  "associationCity",
+  "associationDepartmentCode",
+  "associationDepartmentName",
+  "associationId",
+  "associationName",
+  "associationRNA",
+  "associationPostalCode",
+  "associationRegion",
+  "associationReseaux",
+  "associationSiren",
+  "associationSources",
+  "audience",
+  "closeToTransport",
+  "createdAt",
+  "deleted",
+  "deletedAt",
+  "description",
+  "descriptionHtml",
+  "domain",
+  "domainLogo",
+  "duration",
+  "endAt",
+  "lastSyncAt",
+  "metadata",
+  "openToMinors",
+  "organizationActions",
+  "organizationBeneficiaries",
+  "organizationCity",
+  "organizationClientId",
+  "organizationDepartment",
+  "organizationDepartmentCode",
+  "organizationDepartmentName",
+  "organizationDescription",
+  "organizationFullAddress",
+  "organizationId",
+  "organizationLogo",
+  "organizationName",
+  "organizationPostCode",
+  "organizationRNA",
+  "organizationReseaux",
+  "organizationSiren",
+  "organizationStatusJuridique",
+  "organizationType",
+  "organizationUrl",
+  "postedAt",
+  "priority",
+  "publisherId",
+  "publisherName",
+  "publisherUrl",
+  "publisherLogo",
+  "reducedMobilityAccessible",
+  "remote",
+  "requirements",
+  "romeSkills",
+  "schedule",
+  "snu",
+  "snuPlaces",
+  "soft_skills",
+  "softSkills",
+  "startAt",
+  "statusCode",
+  "statusComment",
+  "statusCommentHistoric",
+  "tags",
+  "tasks",
+  "title",
+  "type",
+  "places",
+  "updatedAt",
+];
 
 const router = Router();
 
@@ -142,7 +219,13 @@ router.get("/", passport.authenticate(["apikey", "api"], { session: false }), as
       where.domain = buildArrayQuery(query.data.domain);
     }
     if (query.data.keywords) {
-      where.$text = { $search: query.data.keywords };
+      const regex = diacriticSensitiveRegex(query.data.keywords);
+      where.$or = [
+        { title: { $regex: regex, $options: "i" } },
+        { organizationName: { $regex: regex, $options: "i" } },
+        { publisherName: { $regex: regex, $options: "i" } },
+        { city: { $regex: regex, $options: "i" } },
+      ];
     }
     if (query.data.organizationRNA) {
       where.organizationRNA = buildArrayQuery(query.data.organizationRNA);
@@ -195,12 +278,16 @@ router.get("/", passport.authenticate(["apikey", "api"], { session: false }), as
       pipeline.push({ $match: where });
     }
 
-    if (query.data.keywords && !(query.data.lat && query.data.lon)) {
-      pipeline.push({ $sort: { score: { $meta: "textScore" } } });
-    } else if (!(query.data.lat && query.data.lon)) {
+    if (!(query.data.lat && query.data.lon)) {
       pipeline.push({ $sort: { startAt: -1 } });
     }
 
+    // Use MISSION_FIELDS to select only used fields
+    const projection: Record<string, any> = {};
+    MISSION_FIELDS.forEach((field) => {
+      projection[field] = 1;
+    });
+    pipeline.push({ $project: projection });
     pipeline.push({
       $facet: {
         data: [{ $skip: query.data.skip }, { $limit: query.data.limit }],
@@ -535,107 +622,29 @@ const nearSphereToGeoWithin = (nearSphere: any) => {
   return geoWithin;
 };
 
+// Build the data object for the response
 const buildData = (data: Mission, publisherId: string, moderator: boolean = false) => {
-  const address = data.addresses[0];
-  const obj = {
-    _id: data._id,
-    id: data._id,
-    clientId: data.clientId,
-    activity: data.activity,
-    address: address ? address.street : undefined,
-    city: address ? address.city : undefined,
-    postalCode: address ? address.postalCode : undefined,
-    departmentCode: address ? address.departmentCode : undefined,
-    departmentName: address ? address.departmentName : undefined,
-    country: address ? address.country : undefined,
-    location: address ? address.location : undefined,
-    addresses: data.addresses,
-    applicationUrl: getMissionTrackedApplicationUrl(data, publisherId),
-    associationLogo: data.associationLogo,
-    associationAddress: data.associationAddress,
-    associationCity: data.associationCity,
-    associationDepartmentCode: data.associationDepartmentCode,
-    associationDepartmentName: data.associationDepartmentName,
-    associationId: data.associationId,
-    associationName: data.associationName,
-    associationRNA: data.associationRNA,
-    associationPostalCode: data.associationPostalCode,
-    associationRegion: data.associationRegion,
-    associationReseaux: data.associationReseaux,
-    associationSiren: data.associationSiren,
-    associationSources: data.associationSources,
-    audience: data.audience,
-    closeToTransport: data.closeToTransport,
-    createdAt: data.createdAt,
-    deleted: data.deleted,
-    deletedAt: data.deletedAt,
-    description: data.description,
-    descriptionHtml: data.descriptionHtml,
-    domain: data.domain,
-    domainLogo: data.domainLogo,
-    duration: data.duration,
-    endAt: data.endAt,
-    lastSyncAt: data.lastSyncAt,
-    metadata: data.metadata,
-    openToMinors: data.openToMinors,
-    organizationActions: data.organizationActions,
-    organizationBeneficiaries: data.organizationBeneficiaries,
-    organizationCity: data.organizationCity,
-    organizationClientId: data.organizationClientId,
-    organizationDescription: data.organizationDescription,
-    organizationFullAddress: data.organizationFullAddress,
-    organizationId: data.organizationId,
-    organizationLogo: data.organizationLogo,
-    organizationName: data.organizationName,
-    organizationPostCode: data.organizationPostCode,
-    organizationRNA: data.organizationRNA,
-    organizationReseaux: data.organizationReseaux,
-    organizationSiren: data.organizationSiren,
-    organizationStatusJuridique: data.organizationStatusJuridique,
-    organizationType: data.organizationType,
-    organizationUrl: data.organizationUrl,
+  const obj: any = {};
 
-    organizationVerificationStatus: data.organizationVerificationStatus,
-    organisationIsRUP: data.organisationIsRUP,
-    organizationNameVerified: data.organizationNameVerified,
-    organizationRNAVerified: data.organizationRNAVerified,
-    organizationSirenVerified: data.organizationSirenVerified,
-    organizationSiretVerified: data.organizationSiretVerified,
-    organizationAddressVerified: data.organizationAddressVerified,
-    organizationCityVerified: data.organizationCityVerified,
-    organizationPostalCodeVerified: data.organizationPostalCodeVerified,
-    organizationDepartmentCodeVerified: data.organizationDepartmentCodeVerified,
-    organizationDepartmentNameVerified: data.organizationDepartmentNameVerified,
-    organizationRegionVerified: data.organizationRegionVerified,
+  // Use MISSION_FIELDS const
+  for (const field of MISSION_FIELDS) {
+    obj[field] = data[field as keyof Mission];
+  }
 
-    places: data.places,
-    postedAt: data.postedAt,
-    priority: data.priority,
-    publisherId: data.publisherId,
-    publisherLogo: data.publisherLogo,
-    publisherName: data.publisherName,
-    publisherUrl: data.publisherUrl,
-    reducedMobilityAccessible: data.reducedMobilityAccessible,
-    region: data.region,
-    remote: data.remote,
-    schedule: data.schedule,
-    snu: data.snu,
-    snuPlaces: data.snuPlaces,
-    soft_skills: data.soft_skills,
-    softSkills: data.softSkills,
-    romeSkills: data.romeSkills,
-    requirements: data.requirements,
-    startAt: data.startAt,
-    statusCode: data.statusCode,
-    statusComment: data.statusComment,
-    statusCommentHistoric: data.statusCommentHistoric,
-    tags: data.tags,
-    tasks: data.tasks,
-    title: moderator && data[`moderation_${publisherId}_title`] ? data[`moderation_${publisherId}_title`] : data.title,
-    type: data.type,
-    updatedAt: data.updatedAt,
-  };
+  obj.applicationUrl = getMissionTrackedApplicationUrl(data, publisherId);
 
+  // Add fields to legacy support
+  const address = data.addresses?.[0];
+  obj.id = data._id;
+  obj.address = address ? address.street : undefined;
+  obj.city = address ? address.city : undefined;
+  obj.postalCode = address ? address.postalCode : undefined;
+  obj.departmentCode = address ? address.departmentCode : undefined;
+  obj.departmentName = address ? address.departmentName : undefined;
+  obj.country = address ? address.country : undefined;
+  obj.location = address ? address.location : undefined;
+
+  // Custom hack for remote LBC
   if (publisherId.toString() === LBC_ID && obj.remote === "full") {
     obj.title = `[À distance] ${obj.title}`;
     obj.postalCode = "75000";

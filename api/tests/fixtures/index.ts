@@ -18,14 +18,12 @@ export const createTestPublisher = async (data: Partial<Publisher> = {}): Promis
     organizationClientId,
     organizationName: "Test Organization",
     missionType: MissionType.BENEVOLAT,
-    api: true,
-    isAnnonceur: true,
     url: "https://example.com",
     logo: "https://example.com/logo.png",
     description: "Test Publisher Description",
-    widget: true,
-    campaign: true,
-    annonceur: true,
+    hasWidgetRights: true,
+    hasCampaignRights: true,
+    hasApiRights: true,
     publishers: [
       {
         publisherId: new mongoose.Types.ObjectId().toString(),
