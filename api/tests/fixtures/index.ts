@@ -1,16 +1,16 @@
 import mongoose from "mongoose";
 import MissionModel from "../../src/models/mission";
 import PublisherModel from "../../src/models/publisher";
-import { MissionType, Publisher } from "../../src/types";
+import { Mission, MissionType, Publisher } from "../../src/types";
 
 /**
  * Create a test publisher with random API key
  */
-export const createTestPublisher = async (): Promise<Publisher> => {
+export const createTestPublisher = async (data: Partial<Publisher> = {}): Promise<Publisher> => {
   const apiKey = "test-api-key-" + Date.now().toString();
   const organizationClientId = "org-" + Date.now().toString();
 
-  const publisher = new PublisherModel({
+  const defaultData = {
     name: "Test Publisher",
     email: `test-${Date.now()}@example.com`,
     password: "password123",
@@ -18,8 +18,12 @@ export const createTestPublisher = async (): Promise<Publisher> => {
     organizationClientId,
     organizationName: "Test Organization",
     missionType: MissionType.BENEVOLAT,
-    api: true,
-    isAnnonceur: true,
+    url: "https://example.com",
+    logo: "https://example.com/logo.png",
+    description: "Test Publisher Description",
+    hasWidgetRights: true,
+    hasCampaignRights: true,
+    hasApiRights: true,
     publishers: [
       {
         publisherId: new mongoose.Types.ObjectId().toString(),
@@ -27,7 +31,10 @@ export const createTestPublisher = async (): Promise<Publisher> => {
       },
     ],
     excludedOrganizations: [],
-  });
+  };
+
+  const publisherData = { ...defaultData, ...data };
+  const publisher = new PublisherModel(publisherData);
 
   await publisher.save();
   return publisher.toObject() as Publisher;
@@ -36,8 +43,8 @@ export const createTestPublisher = async (): Promise<Publisher> => {
 /**
  * Create a test mission related to an organization & a publisher
  */
-export const createTestMission = async (organizationClientId: string, publisherId: string) => {
-  const mission = new MissionModel({
+export const createTestMission = async (data: Partial<Mission> = {}) => {
+  const defaultData = {
     activity: "environnement",
     addresses: [
       {
@@ -47,13 +54,16 @@ export const createTestMission = async (organizationClientId: string, publisherI
         departmentCode: "12",
         departmentName: "Test Department",
         region: "Test Region",
+        location: { lat: 0, lon: 0 },
+        geoPoint: { type: "Point", coordinates: [0, 0] },
       },
     ],
-    applicationUrl: `https://api.api-engagement.gouv.fr/mission-id/${publisherId}`,
+    applicationUrl: `https://api.api-engagement.gouv.fr/mission-id/${data.publisherId || "test-publisher-id"}`,
     audience: ["18-24 ans", "25-34 ans"],
     clientId: "client-" + Date.now().toString(),
     closeToTransport: "yes",
     description: "Test Mission Description",
+    descriptionHtml: "Test Mission Description<br/>Html",
     duration: 1,
     domain: "bricolage",
     domainLogo: "https://example.com/logo.png",
@@ -61,20 +71,34 @@ export const createTestMission = async (organizationClientId: string, publisherI
     lastSyncAt: new Date(),
     metadata: "metadata",
     openToMinors: "yes",
-    organizationClientId,
-    organizationId: new mongoose.Types.ObjectId().toString(),
-    organizationName: "Test Organization",
+    organizationCity: "Nantes",
+    organizationClientId: "6789",
+    organizationDescription: "",
+    organizationFullAddress: "Organizaiton full address",
+    organizationId: "123233",
+    organizationLogo: "https://example.com/logo.png",
+    organizationName: "Organization name",
+    organizationPostCode: "12345",
+    organizationRNA: "W1234567890",
+    organizationSiren: "",
+    organizationStatusJuridique: "Association",
+    organizationType: "",
+    organizationUrl: "http://example.com",
     places: 10,
     postedAt: new Date(),
     priority: "high",
-    publisherId,
+    publisherId: "test-publisher-id",
     publisherName: "Test Publisher",
     publisherUrl: "https://example.com",
     publisherLogo: "https://example.com/logo.png",
     reducedMobilityAccessible: "yes",
     remote: "no",
     schedule: "1 jour par semaine",
+    snu: false,
+    snuPlaces: 0,
     softSkills: ["Travail en équipe", "Communication"],
+    statusComment: "Status comment",
+    statusCommentHistoric: [],
     romeSkills: ["123456"],
     requirements: ["Pré-requis 1", "Pré-requis 2"],
     startAt: new Date(),
@@ -83,36 +107,15 @@ export const createTestMission = async (organizationClientId: string, publisherI
     tasks: ["task1", "task2"],
     title: "Test Mission",
     type: MissionType.BENEVOLAT,
-  });
+  };
+
+  const missionData = { ...defaultData, ...data };
+  if (data.addresses) {
+    missionData.addresses = data.addresses;
+  }
+
+  const mission = new MissionModel(missionData);
 
   await mission.save();
   return mission.toObject();
-};
-
-/**
- * Create a test publisher partner
- */
-export const createTestPartner = async (publisherId: string) => {
-  const partner = new PublisherModel({
-    name: "Test Partner",
-    email: `partner-${Date.now()}@example.com`,
-    widget: true,
-    api: true,
-    campaign: true,
-    isAnnonceur: true,
-    category: "Test Category",
-    url: "https://example.com",
-    logo: "https://example.com/logo.png",
-    description: "Test partner description",
-    publishers: [
-      {
-        publisherId,
-        publisherName: "Test Publisher Name",
-      },
-    ],
-    excludedOrganizations: [],
-  });
-
-  await partner.save();
-  return partner.toObject();
 };

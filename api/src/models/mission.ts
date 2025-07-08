@@ -196,9 +196,14 @@ const schema = new Schema<Mission>(
 
 schema.index({ _old_id: 1 });
 schema.index({ _old_ids: 1 });
-schema.index({ publisherId: 1 });
 schema.index({ clientId: 1, publisherId: 1 }, { unique: true });
 schema.index({ createdAt: 1 });
+schema.index({ startAt: 1 });
+schema.index({ domain: 1 });
+schema.index({ remote: 1 });
+schema.index({ activity: 1 });
+schema.index({ publisherId: 1, statusCode: 1, deletedAt: 1, startAt: -1 });
+
 schema.index({ publisherName: 1 });
 schema.index({ deleted: 1 });
 schema.index({ deletedAt: 1 });
@@ -206,10 +211,7 @@ schema.index({ statusCode: 1 });
 schema.index({ moderation_5f5931496c7ea514150a818f_status: 1 });
 schema.index({ moderation_5f5931496c7ea514150a818f_title: 1 });
 schema.index({ title: 1 });
-schema.index({ domain: 1 });
-schema.index({ remote: 1 });
 schema.index({ schedule: 1 });
-schema.index({ activity: 1 });
 schema.index({ organizationActions: 1 });
 schema.index({ city: 1 });
 schema.index({ country: 1 });
@@ -221,7 +223,6 @@ schema.index({ organizationReseaux: 1 });
 schema.index({ leboncoinStatus: 1 });
 schema.index({ jobteaserStatus: 1 });
 
-schema.index({ geoPoint: "2dsphere" });
 schema.index({ "addresses.geoPoint": "2dsphere" });
 
 // Compound indexes for the search
