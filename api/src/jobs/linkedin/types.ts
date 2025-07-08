@@ -15,8 +15,7 @@ export interface LinkedInJob {
   state?: string;
   country?: string;
   postalCode?: string;
-  isRemote?: "On-site" | "Hybrid" | "Remote";
-  workplaceTypes?: string;
+  workplaceTypes?: "On-site" | "Hybrid" | "Remote";
   industryCodes?: {
     industryCode: string;
   }[];
