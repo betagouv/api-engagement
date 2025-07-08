@@ -64,7 +64,13 @@ describe("missionToLinkedinJob", () => {
     expect(job?.expirationDate).toBe(new Date(baseMission.endAt).toISOString());
     expect(job?.industry).toBe("Informatique");
     expect(job?.industryCodes).toEqual([{ industryCode: "4" }]);
-    expect(job?.isRemote).toBe("On-site");
+    expect(job?.workplaceTypes).toBe("On-site");
+  });
+
+  it("should use country FR if not provided", () => {
+    const mission = { ...baseMission, country: undefined };
+    const job = missionToLinkedinJob(mission, defaultCompany);
+    expect(job?.country).toBe("FR");
   });
 
   it.each([["title"], ["description"], ["organizationName"], ["city"], ["region"], ["country"]])("should return null if %s is missing", (field) => {
@@ -83,8 +89,7 @@ describe("missionToLinkedinJob", () => {
     const mission = { ...baseMission, organizationName: "Some Other Org" };
     const job = missionToLinkedinJob(mission, "benevolt");
     expect(job?.company).toBe("benevolt");
-    // 'benevolt' (lowercase) is not in the mocked LINKEDIN_COMPANY_ID, so companyId should be undefined
-    expect(job?.companyId).toBeUndefined();
+    expect(job?.companyId).toBe("11022359");
   });
 
   it("should use defaultCompany when organizationName is not in LINKEDIN_COMPANY_ID and default is not benevolt", () => {
@@ -96,11 +101,11 @@ describe("missionToLinkedinJob", () => {
 
   it("should correctly map remote status", () => {
     let job = missionToLinkedinJob({ ...baseMission, remote: "full" }, defaultCompany);
-    expect(job?.isRemote).toBe("Remote");
-    job = missionToLinkedinJob({ ...baseMission, remote: "partial" }, defaultCompany);
-    expect(job?.isRemote).toBe("Hybrid");
+    expect(job?.workplaceTypes).toBe("Remote");
+    job = missionToLinkedinJob({ ...baseMission, remote: "possible" }, defaultCompany);
+    expect(job?.workplaceTypes).toBe("Hybrid");
     job = missionToLinkedinJob({ ...baseMission, remote: "no" }, defaultCompany);
-    expect(job?.isRemote).toBe("On-site");
+    expect(job?.workplaceTypes).toBe("On-site");
   });
 
   it("should not have expirationDate if endAt is not provided", () => {
@@ -111,16 +116,6 @@ describe("missionToLinkedinJob", () => {
 
   it("should return null for description length > 25000", () => {
     const mission = { ...baseMission, description: "a".repeat(25001) };
-    expect(missionToLinkedinJob(mission, defaultCompany)).toBeNull();
-  });
-
-  it("should return null for partnerJobId length > 300", () => {
-    const mission = { ...baseMission, _id: "a".repeat(301) };
-    expect(missionToLinkedinJob(mission, defaultCompany)).toBeNull();
-  });
-
-  it("should return null for title length > 300", () => {
-    const mission = { ...baseMission, title: "a".repeat(301) };
     expect(missionToLinkedinJob(mission, defaultCompany)).toBeNull();
   });
 

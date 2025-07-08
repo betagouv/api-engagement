@@ -57,6 +57,9 @@ export function missionToLinkedinJob(mission: Mission, defaultCompany: string): 
   if (!job.description || job.description.length < 100 || job.description.length > 25000) {
     return null;
   }
+  if (!job.country || job.country.length > 2) {
+    return null;
+  }
 
   return job;
 }
