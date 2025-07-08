@@ -231,7 +231,7 @@ const Home = ({ widget, apiUrl, missions, total, request, environment }) => {
 
   return (
     <div className={`p-4 xl:px-0 ${getContainerHeight(widget)} md:max-w-[1200px] gap-4 flex flex-col justify-start items-center mx-auto`}>
-      <header className={`w-full space-y-4 md:space-y-8 ${widget?.style === "carousel" ? "max-w-[1056px]" : ""}`}>
+      <header role="banner" className={`w-full space-y-4 md:space-y-8 ${widget?.style === "carousel" ? "max-w-[1056px]" : ""}`}>
         <div className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
           <h1 className="text-[28px] font-bold leading-[36px] md:p-0">{isBenevolat ? "Trouver une mission de bénévolat" : "Trouver une mission de Service Civique"}</h1>
           <p className="text-[18px] leading-[28px] text-[#666]">{total > 1 ? `${total.toLocaleString("fr")} missions` : `${total} mission`}</p>
@@ -263,7 +263,7 @@ const Home = ({ widget, apiUrl, missions, total, request, environment }) => {
       </div>
       {environment === "production" && !router.query.notrack && <Script src="https://app.api-engagement.beta.gouv.fr/jstag.js" />}
       {!isBenevolat && (
-        <div className={`flex w-full justify-center items-center gap-4 px-4 ${showFilters ? "opacity-40 pointer-events-none" : ""}`}>
+        <footer role="contentinfo" className={`flex w-full justify-center items-center gap-4 px-4 ${showFilters ? "opacity-40 pointer-events-none" : ""}`}>
           <Image src={LogoSC} width="100" height="0" style={{ width: "53px", height: "auto" }} alt="Logo du Service Civique" />
           <p className=" text-xs text-[#666]">
             Proposé par l'Agence du Service Civique{" "}
@@ -271,7 +271,7 @@ const Home = ({ widget, apiUrl, missions, total, request, environment }) => {
               service-civique.gouv.fr
             </a>
           </p>
-        </div>
+        </footer>
       )}
     </div>
   );
