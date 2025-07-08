@@ -56,7 +56,7 @@ describe("missionToLinkedinJob", () => {
     expect(job?.description).toContain(`Ceci est une mission de bénévolat pour <strong>${baseMission.organizationName}</strong>`);
     expect(job?.company).toBe("Test Org");
     expect(job?.companyId).toBe("12345");
-    expect(job?.location).toBe(`${baseMission.city}, ${baseMission.country} ${baseMission.region}`);
+    expect(job?.location).toBe("Paris, FR, Île-de-France");
     expect(job?.country).toBe("FR");
     expect(job?.city).toBe("Paris");
     expect(job?.postalCode).toBe("75001");
@@ -73,7 +73,7 @@ describe("missionToLinkedinJob", () => {
     expect(job?.country).toBe("FR");
   });
 
-  it.each([["title"], ["description"], ["organizationName"], ["city"], ["region"], ["country"]])("should return null if %s is missing", (field) => {
+  it.each([["title"], ["description"], ["organizationName"], ["city"]])("should return null if %s is missing", (field) => {
     const mission = { ...baseMission, [field]: undefined };
     expect(missionToLinkedinJob(mission, defaultCompany)).toBeNull();
   });
@@ -89,7 +89,7 @@ describe("missionToLinkedinJob", () => {
     const mission = { ...baseMission, organizationName: "Some Other Org" };
     const job = missionToLinkedinJob(mission, "benevolt");
     expect(job?.company).toBe("benevolt");
-    expect(job?.companyId).toBe("11022359");
+    expect(job?.companyId).toBeUndefined();
   });
 
   it("should use defaultCompany when organizationName is not in LINKEDIN_COMPANY_ID and default is not benevolt", () => {

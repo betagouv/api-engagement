@@ -29,6 +29,10 @@ export function missionToLinkedinJob(mission: Mission, defaultCompany: string): 
     return null;
   }
 
+  console.log("company", Object.keys(LINKEDIN_COMPANY_ID));
+  console.log("organizationName", mission.organizationName, LINKEDIN_COMPANY_ID[mission.organizationName]);
+  console.log("company", defaultCompany, LINKEDIN_COMPANY_ID[defaultCompany]);
+
   const job = {
     jobtype: "VOLUNTEER",
     partnerJobId: String(mission._id),
@@ -52,6 +56,7 @@ export function missionToLinkedinJob(mission: Mission, defaultCompany: string): 
   if (mission.endAt) {
     job.expirationDate = new Date(mission.endAt).toISOString();
   }
+  console.log("job", job.company, LINKEDIN_COMPANY_ID[job.company]);
   job.companyId = LINKEDIN_COMPANY_ID[job.company];
 
   if (!job.description || job.description.length < 100 || job.description.length > 25000) {
