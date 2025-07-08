@@ -166,6 +166,28 @@ const ProtectedLayout = () => {
       {ENV === "staging" && (
         <div className="bg-red-dark text-white text-center p-2 w-full">
           <span>Environnement de pré-prod</span>
+          <div className="flex flex-col gap-2">
+            <a className="underline" href="https://api.api-engagement.beta.gouv.fr/r/campaign/686d39421960f56166201ab1">
+              Lien normal
+            </a>
+            <a className="underline" href="https://api.api-engagement.beta.gouv.fr/r/campaign/686d39421960f56166201ab1" referrerPolicy="origin-when-cross-origin">
+              Lien avec origin-when-cross-origin
+            </a>
+            <a
+              className="underline"
+              href="https://api.api-engagement.beta.gouv.fr/r/campaign/686d39421960f56166201ab1"
+              rel="noreferrer"
+              referrerPolicy="strict-origin-when-cross-origin"
+            >
+              Lien avec strict-origin-when-cross-origin et rel="noreferrer"
+            </a>
+            <a className="underline" href="https://api.api-engagement.beta.gouv.fr/r/campaign/686d39421960f56166201ab1" referrerPolicy="unsafe-url">
+              Lien avec unsafe-url
+            </a>
+            <a className="underline" href="https://api.api-engagement.beta.gouv.fr/r/campaign/686d39421960f56166201ab1" rel="noreferrer" referrerPolicy="unsafe-url">
+              Lien avec unsafe-url et rel="noreferrer"
+            </a>
+          </div>
         </div>
       )}
       <Header />
