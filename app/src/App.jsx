@@ -166,35 +166,6 @@ const ProtectedLayout = () => {
       {ENV === "staging" && (
         <div className="bg-red-dark text-white text-center p-2 w-full">
           <span>Environnement de pré-prod</span>
-          <div className="flex flex-col gap-2">
-            <a className="underline" href="https://api.api-engagement.beta.gouv.fr/r/campaign/686d39421960f56166201ab1" target="_blank" referrerPolicy="origin">
-              Lien no rel
-            </a>
-            <a className="underline" href="https://api.api-engagement.beta.gouv.fr/r/campaign/686d39421960f56166201ab1" target="_blank" rel="noopener" referrerPolicy="origin">
-              Lien rel="noopener"
-            </a>
-            <a className="underline" href="https://api.api-engagement.beta.gouv.fr/r/campaign/686d39421960f56166201ab1" target="_blank" rel="opener" referrerPolicy="origin">
-              Lien rel="opener"
-            </a>
-            <a
-              className="underline"
-              href="https://api.api-engagement.beta.gouv.fr/r/campaign/686d39421960f56166201ab1"
-              target="_blank"
-              rel="noopener noreferrer"
-              referrerPolicy="origin"
-            >
-              Lien rel="noopener noreferrer"
-            </a>
-            <a
-              className="underline"
-              href="https://api.api-engagement.beta.gouv.fr/r/campaign/686d39421960f56166201ab1"
-              target="_blank"
-              rel="opener noreferrer"
-              referrerPolicy="origin"
-            >
-              Lien rel="opener noreferrer"
-            </a>
-          </div>
         </div>
       )}
       <Header />
