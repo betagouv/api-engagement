@@ -173,6 +173,7 @@ const ProtectedLayout = () => {
             <a
               className="underline"
               href="https://api.api-engagement.beta.gouv.fr/r/campaign/686d39421960f56166201ab1"
+              target="_blank"
               rel="noopener"
               referrerPolicy="strict-origin-when-cross-origin"
             >
@@ -187,7 +188,7 @@ const ProtectedLayout = () => {
             >
               Lien avec strict-origin-when-cross-origin et rel="opener"
             </a>
-            <a className="underline" href="https://api.api-engagement.beta.gouv.fr/r/campaign/686d39421960f56166201ab1" rel="noopener" referrerPolicy="unsafe-url">
+            <a className="underline" href="https://api.api-engagement.beta.gouv.fr/r/campaign/686d39421960f56166201ab1" target="_blank" rel="noopener" referrerPolicy="unsafe-url">
               Lien avec unsafe-url et rel="noopener"
             </a>
             <a className="underline" href="https://api.api-engagement.beta.gouv.fr/r/campaign/686d39421960f56166201ab1" target="_blank" rel="opener" referrerPolicy="unsafe-url">
