@@ -15,7 +15,6 @@ export function missionToLinkedinJob(mission: Mission, defaultCompany: string): 
   if (!mission.country) {
     mission.country = "FR";
   }
-
   if (!mission.title) {
     return null;
   }
@@ -25,13 +24,6 @@ export function missionToLinkedinJob(mission: Mission, defaultCompany: string): 
   if (!mission.organizationName) {
     return null;
   }
-  if (!mission.city) {
-    return null;
-  }
-
-  console.log("company", Object.keys(LINKEDIN_COMPANY_ID));
-  console.log("organizationName", mission.organizationName, LINKEDIN_COMPANY_ID[mission.organizationName]);
-  console.log("company", defaultCompany, LINKEDIN_COMPANY_ID[defaultCompany]);
 
   const job = {
     jobtype: "VOLUNTEER",
@@ -44,7 +36,7 @@ export function missionToLinkedinJob(mission: Mission, defaultCompany: string): 
           .replace(/\n/g, "<br>")
           .replace(/\u000b/g, "")}<br><br>Type : missions-benevolat`,
     company: LINKEDIN_COMPANY_ID[mission.organizationName] ? mission.organizationName : defaultCompany,
-    location: `${mission.city}, ${mission.country}${mission.region ? `, ${mission.region}` : ""}`,
+    location: `${mission.city ? `${mission.city}, ` : ""}${mission.country === "FR" ? "France" : mission.country}${mission.region ? `, ${mission.region}` : ""}`,
     country: mission.country,
     city: mission.city,
     postalCode: mission.postalCode,
@@ -56,7 +48,6 @@ export function missionToLinkedinJob(mission: Mission, defaultCompany: string): 
   if (mission.endAt) {
     job.expirationDate = new Date(mission.endAt).toISOString();
   }
-  console.log("job", job.company, LINKEDIN_COMPANY_ID[job.company]);
   job.companyId = LINKEDIN_COMPANY_ID[job.company];
 
   if (!job.description || job.description.length < 100 || job.description.length > 25000) {
