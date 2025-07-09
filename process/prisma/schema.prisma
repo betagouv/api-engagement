@@ -120,7 +120,7 @@ model Click {
   campaign_id     String?
   widget_id       String?
   source          SourceType?
-  host            String?
+  url_origin      String?
   from_partner_id String?
   to_partner_id   String?
   tag             String?
