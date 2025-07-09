@@ -8,6 +8,18 @@ import { Stats } from "../../types";
 
 const BATCH_SIZE = 5000;
 
+const getReferer = (doc: Stats) => {
+  if (!doc.referer) {
+    return null;
+  }
+  try {
+    const url = new URL(doc.referer);
+    return url.href;
+  } catch (error) {
+    return null;
+  }
+};
+
 const buildData = async (
   doc: Stats,
   partners: { [key: string]: string },
@@ -65,7 +77,7 @@ const buildData = async (
     mission_id: missionId ? missionId : null,
     mission_old_id: doc.missionId ? doc.missionId : null,
     created_at: new Date(doc.createdAt),
-    host: doc.host,
+    url_origin: getReferer(doc),
     tag: doc.tag,
     tags: doc.tags,
     source: !doc.source || doc.source === "publisher" ? "api" : doc.source,
