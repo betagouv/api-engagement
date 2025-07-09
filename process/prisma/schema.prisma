@@ -653,6 +653,7 @@ enum MissionHistoryEventType {
 enum MissionType {
   benevolat
   volontariat
+  volontariat_service_civique
 }
 
 enum WidgetStyle {

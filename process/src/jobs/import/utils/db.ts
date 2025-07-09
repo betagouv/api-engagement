@@ -1,3 +1,4 @@
+import { Address, MissionHistoryEvent } from "@prisma/client";
 import prisma from "../../../db/postgres";
 import { captureException } from "../../../error";
 import MissionModel from "../../../models/mission";
@@ -70,6 +71,7 @@ const cleanMongo = async (publisher: Publisher, importDoc: Import) => {
   return mongoDeleteRes;
 };
 
+const PG_CHUNK_SIZE = 200;
 /**
  * Write missions to PostgreSQL
  * This includes creating new missions and related data, updating existing ones, and cleaning up old ones
@@ -127,11 +129,10 @@ const writePg = async (publisher: Publisher, startedAt: Date) => {
         return [];
       }
 
-      e.addresses.forEach((a) => {
-        a.mission_id = mission.id;
-      });
-
-      return e.addresses;
+      return e.addresses.map((a) => ({
+        ...a,
+        mission_id: mission.id,
+      }));
     })
     .flat();
 
@@ -170,11 +171,14 @@ const writePg = async (publisher: Publisher, startedAt: Date) => {
   const pgUpdate = updatedMongoMissions.map((e) => transformMongoMissionToPg(e as MongoMission, partner.id, organizations)).filter((e) => e !== null);
 
   let updated = 0;
-  for (let i = 0; i < pgUpdate.length; i += 200) {
+  for (let i = 0; i < pgUpdate.length; i += PG_CHUNK_SIZE) {
     console.log(`[${publisher.name}] Postgres updating chunk ${i} of ${pgUpdate.length} (${updated} missions updated)`);
 
-    const chunk = pgUpdate.slice(i, i + 200);
-    const missionsIds = {} as Record<string, string>;
+    const chunk = pgUpdate.slice(i, i + PG_CHUNK_SIZE);
+
+    const missionsIds = [] as string[];
+    const addressesToCreate = [] as Omit<Address, "id">[];
+    const historyToCreate = [] as Omit<MissionHistoryEvent, "id">[];
 
     for (const obj of chunk) {
       try {
@@ -184,22 +188,24 @@ const writePg = async (publisher: Publisher, startedAt: Date) => {
           create: obj.mission,
         });
 
-        missionsIds[obj.mission.old_id] = mission.id;
+        missionsIds.push(mission.id);
+        addressesToCreate.push(...obj.addresses.map((a) => ({ ...a, mission_id: mission.id })));
+        historyToCreate.push(...obj.history.map((h) => ({ ...h, mission_id: mission.id })));
         updated++;
       } catch (error) {
         captureException(error, `[${publisher.name}] Error while updating mission ${obj?.mission?.old_id}`);
       }
     }
 
-    await prisma.address.deleteMany({ where: { mission_id: { in: Object.values(missionsIds) } } });
-    await prisma.address.createMany({
-      data: chunk.flatMap((e) => e?.addresses.map((a) => ({ ...a, mission_id: missionsIds[e.mission.old_id] }))),
-    });
+    try {
+      await prisma.address.deleteMany({ where: { mission_id: { in: missionsIds } } });
+      await prisma.address.createMany({ data: addressesToCreate });
 
-    await prisma.missionHistoryEvent.deleteMany({ where: { mission_id: { in: Object.values(missionsIds) } } });
-    await prisma.missionHistoryEvent.createMany({
-      data: chunk.flatMap((e) => e.history.map((h) => ({ ...h, mission_id: missionsIds[e.mission.old_id] }))),
-    });
+      await prisma.missionHistoryEvent.deleteMany({ where: { mission_id: { in: missionsIds } } });
+      await prisma.missionHistoryEvent.createMany({ data: historyToCreate });
+    } catch (error) {
+      captureException(error, `[${publisher.name}] Error while updating addresses and history for mission chunk ${i}`);
+    }
   }
 
   console.log(`[${publisher.name}] Postgres ${updated} missions updated`);

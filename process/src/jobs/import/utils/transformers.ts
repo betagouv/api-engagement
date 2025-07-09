@@ -1,4 +1,4 @@
-import { MissionHistoryEventType, Organization, Address as PgAddress, Mission as PgMission, MissionHistoryEvent as PgMissionHistoryEvent } from "@prisma/client";
+import { MissionHistoryEventType, MissionType, Organization, Address as PgAddress, Mission as PgMission, MissionHistoryEvent as PgMissionHistoryEvent } from "@prisma/client";
 import { JVA_ID } from "../../../config";
 import { Mission as MongoMission } from "../../../types";
 
@@ -45,7 +45,7 @@ export const transformMongoMissionToPg = (doc: MongoMission | null, partnerId: s
     places: doc.places,
     metadata: doc.metadata,
     activity: doc.activity,
-    type: doc.type,
+    type: getMissionType(doc.type),
     snu: doc.snu,
     snu_places: doc.snuPlaces,
 
@@ -142,6 +142,13 @@ export const transformMongoMissionToPg = (doc: MongoMission | null, partnerId: s
     ) || [];
 
   return { mission: obj, addresses, history };
+};
+
+const getMissionType = (type: string) => {
+  if (type === "benevolat") {
+    return MissionType.benevolat;
+  }
+  return MissionType.volontariat_service_civique;
 };
 
 /**

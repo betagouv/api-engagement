@@ -255,7 +255,7 @@ export interface Mission {
   domain: string;
   domainOriginal: string | undefined;
   domainLogo: string;
-  type: string;
+  type: "benevolat" | "volontariat-service-civique";
   activity: string;
   location:
     | {
