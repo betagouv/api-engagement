@@ -43,7 +43,7 @@ export function missionToLinkedinJob(mission: Mission, defaultCompany: string): 
       if (diffDays % 6 < 3) {
         blocks.push(`<p><b>${mission.organizationName}</b> vous propose une mission de bénévolat</p>`);
       } else {
-        blocks.push(`<p><b>${mission.organizationName}</b> vous propose une mission de bénévolat</p>`);
+        blocks.push(`<p>Ceci est une mission de bénévolat pour <b>${mission.organizationName}</b></p>`);
       }
 
       if (mission.domain) {

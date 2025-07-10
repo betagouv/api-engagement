@@ -148,7 +148,7 @@ describe("missionToLinkedinJob", () => {
   it("should use alternate description based on date difference", () => {
     vi.setSystemTime(new Date("2025-01-19")); // diffDays = 4, initialDescription = false
     const job = missionToLinkedinJob(baseMission, defaultCompany);
-    expect(job?.description).toContain(`<b>${baseMission.organizationName}</b> vous propose une mission de bénévolat`);
+    expect(job?.description).toContain(`Ceci est une mission de bénévolat pour <b>${baseMission.organizationName}</b>`);
   });
 
   it("should use return location to FR if not provided", () => {
