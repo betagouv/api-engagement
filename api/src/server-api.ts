@@ -46,7 +46,7 @@ import UserController from "./controllers/user";
 import WarningController from "./controllers/warning";
 import WidgetController from "./controllers/widget";
 import AssociationV0Controller from "./v0/association";
-import MissionV0Controller from "./v0/mission";
+import MissionV0Controller from "./v0/mission/controller";
 import MyMissionV0Controller from "./v0/mymission";
 import MyOrganizationV0Controller from "./v0/myorganization";
 import OrganizationV0Controller from "./v0/organization";

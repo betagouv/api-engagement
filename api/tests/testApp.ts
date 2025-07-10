@@ -3,7 +3,7 @@ import cookieParser from "cookie-parser";
 import cors from "cors";
 import express from "express";
 import passport from "../src/middlewares/passport";
-import MissionV0Controller from "../src/v0/mission";
+import MissionV0Controller from "../src/v0/mission/controller";
 import MyMissionV0Controller from "../src/v0/mymission";
 import MyOrganizationV0Controller from "../src/v0/myorganization";
 
