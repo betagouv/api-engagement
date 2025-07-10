@@ -26,7 +26,7 @@ resource "scaleway_job_definition" "letudiant" {
   image_uri    = local.image_uri
   # Max old space workaround: https://stackoverflow.com/questions/48387040/how-do-i-determine-the-correct-max-old-space-size-for-node-js
   command      = "node --max-old-space-size=1800 dist/jobs/run-job.js letudiant"
-  timeout      = "15m"
+  timeout      = "45m"
 
   cron {
     schedule = "0 */3 * * *" # Every 3 hours
