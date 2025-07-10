@@ -3,15 +3,15 @@ import { getMissionTrackedApplicationUrl } from "../../utils";
 import { LINKEDIN_COMPANY_ID, LINKEDIN_ID, LINKEDIN_INDUSTRY_CODE } from "./config";
 import { LinkedInJob } from "./types";
 
-// Doc: https://learn.microsoft.com/en-us/linkedin/talent/job-postings/xml-feeds-development-guide?view=li-lts-2025-04
-
+/**
+ * Format mission to Linkedin Job
+ * Doc: https://learn.microsoft.com/en-us/linkedin/talent/job-postings/xml-feeds-development-guide?view=li-lts-2025-04
+ *
+ * @param mission - Mission to format
+ * @param defaultCompany - Default company to use if organizationName is not in LINKEDIN_COMPANY_ID
+ * @returns LinkedInJob | null
+ */
 export function missionToLinkedinJob(mission: Mission, defaultCompany: string): LinkedInJob | null {
-  const startDate = new Date(mission.startAt);
-  const currentDate = new Date();
-  const diffTime = Math.abs(currentDate.getTime() - startDate.getTime());
-  const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
-  const initialDescription = diffDays % 6 < 3;
-
   if (!mission.country) {
     mission.country = "FR";
   }
@@ -30,11 +30,56 @@ export function missionToLinkedinJob(mission: Mission, defaultCompany: string): 
     partnerJobId: String(mission._id),
     applyUrl: getMissionTrackedApplicationUrl(mission, LINKEDIN_ID),
     title: `Bénévolat - ${mission.title}`,
-    description: initialDescription
-      ? `Ceci est une mission de bénévolat pour <strong>${mission.organizationName}</strong><br>${mission.description.replace(/\n/g, "<br>").replace(/\u000b/g, "")}`
-      : `<strong>${mission.organizationName}</strong> vous propose une mission de bénévolat<br>${mission.description
-          .replace(/\n/g, "<br>")
-          .replace(/\u000b/g, "")}<br><br>Type : missions-benevolat`,
+    description: (() => {
+      const blocks: string[] = [];
+      const startDate = new Date(mission.startAt);
+      const currentDate = new Date();
+      const diffTime = Math.abs(currentDate.getTime() - startDate.getTime());
+      const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+
+      blocks.push("<p><b>Type de mission : </b><br>");
+
+      // Switch main title based on diffDays to alternate on 3 days basis
+      if (diffDays % 6 < 3) {
+        blocks.push(`<p><b>${mission.organizationName}</b> vous propose une mission de bénévolat</p>`);
+      } else {
+        blocks.push(`<p><b>${mission.organizationName}</b> vous propose une mission de bénévolat</p>`);
+      }
+
+      if (mission.domain) {
+        blocks.push("<p><b>Domaine d'activité</b></p>");
+        blocks.push(`<p>${mission.domain}</p>`);
+      }
+
+      if (mission.descriptionHtml) {
+        blocks.push(mission.descriptionHtml);
+      }
+
+      if (Array.isArray(mission.requirements) && mission.requirements.length > 0) {
+        blocks.push("<p><b>Pré-requis : </b></p>");
+        blocks.push("<ol>");
+        mission.requirements.forEach((req) => {
+          blocks.push(`  <li>${req}</li>`);
+        });
+        blocks.push("</ol>");
+      }
+
+      if (mission.audience) {
+        blocks.push("<p><b>Public accompagné durant la mission : </b></p>");
+        blocks.push(`<p>${mission.audience}</p>`);
+      }
+
+      if (mission.schedule) {
+        blocks.push("<p><b>Durée de la mission : </b></p>");
+        blocks.push(`<p>${mission.schedule}</p>`);
+      }
+
+      if (mission.openToMinors === "no") {
+        blocks.push("<p><b>Âge minimum : </b></p>");
+        blocks.push(`<p>18 ans minimum.</p>`);
+      }
+      return blocks.join("\n");
+    })(),
     company: LINKEDIN_COMPANY_ID[mission.organizationName] ? mission.organizationName : defaultCompany,
     location: `${mission.city ? `${mission.city}, ` : ""}${mission.country === "FR" ? "France" : mission.country}${mission.region ? `, ${mission.region}` : ""}`,
     country: mission.country,
