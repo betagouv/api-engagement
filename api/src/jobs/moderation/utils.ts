@@ -1,25 +1,9 @@
-/*
-Here the job is to update the moderation status of the jva partners. The issue here is that the moderation
-was buit to be open to all partners, but we know only JVA is using it. Would have been better to directly have
-a moderation_jva collection.
-*/
-
-import { SLACK_CRON_CHANNEL_ID } from "../../config";
-import { captureException } from "../../error";
 import MissionModel from "../../models/mission";
 import ModerationEventModel from "../../models/moderation-event";
-import PublisherModel from "../../models/publisher";
-import { postMessage } from "../../services/slack";
 import { Mission, Publisher } from "../../types";
+import { ModerationUpdate } from "./types";
 
-interface ModerationUpdate {
-  status: string | null;
-  comment: string | null;
-  note: string | null;
-  date: Date | null;
-}
-
-const findMissions = async (moderator: Publisher) => {
+export const findMissions = async (moderator: Publisher) => {
   const publishers = moderator.publishers.map((p) => p.publisherId);
   const where = {
     publisherId: { $in: publishers },
@@ -31,7 +15,7 @@ const findMissions = async (moderator: Publisher) => {
   return missions;
 };
 
-const hasModerationChanges = (m: Mission, moderator: Publisher, update: ModerationUpdate) => {
+export const hasModerationChanges = (m: Mission, moderator: Publisher, update: ModerationUpdate) => {
   if (!m[`moderation_${moderator._id}_status`]) {
     return true;
   }
@@ -47,7 +31,7 @@ const hasModerationChanges = (m: Mission, moderator: Publisher, update: Moderati
   return false;
 };
 
-const createModerations = async (missions: Mission[], moderator: Publisher) => {
+export const createModerations = async (missions: Mission[], moderator: Publisher) => {
   const missonBulk = [] as any[];
   const eventBulk = [] as any[];
 
@@ -149,46 +133,3 @@ const createModerations = async (missions: Mission[], moderator: Publisher) => {
   const resEvent = await ModerationEventModel.bulkWrite(eventBulk);
   return { updated: res.modifiedCount, events: resEvent.insertedCount, refused, pending };
 };
-
-const handler = async () => {
-  try {
-    const start = new Date();
-    console.log(`[Moderation] Starting at ${start.toISOString()}`);
-
-    const moderators = await PublisherModel.find({ moderator: true });
-
-    for (let i = 0; i < moderators.length; i++) {
-      const moderator = moderators[i];
-
-      if (!moderator.publishers || !moderator.publishers.length) {
-        continue;
-      }
-
-      console.log(`[Moderation] Starting for ${moderator.name} (${moderator._id}), number ${i + 1}/${moderators.length}`);
-
-      const data = await findMissions(moderator);
-      console.log(`[Moderation] - ${moderator.name} ${data.length} found in pending moderation yet`);
-
-      if (!data.length) {
-        continue;
-      }
-
-      const res = await createModerations(data, moderator);
-      console.log(`[Moderation] ${moderator.name} ${res.updated} missions updated`);
-      console.log(`[Moderation] ${moderator.name} ${res.events} events created`);
-
-      await postMessage(
-        {
-          title: `Moderation ${moderator.name} completed`,
-          text: `Mission updated: ${res.updated}, Events created: ${res.events}, Missions refused: ${res.refused}, Missions pending: ${res.pending}`,
-        },
-        SLACK_CRON_CHANNEL_ID
-      );
-    }
-    console.log(`[Moderation] Ended at ${new Date().toISOString()} in ${(Date.now() - start.getTime()) / 1000}s`);
-  } catch (err) {
-    captureException(err);
-  }
-};
-
-export default { handler };

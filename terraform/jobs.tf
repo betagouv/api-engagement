@@ -161,3 +161,21 @@ resource "scaleway_job_definition" "brevo" {
 
   env = local.all_env_vars
 }
+
+# Job Definition for the 'moderation' task
+resource "scaleway_job_definition" "moderation" {
+  name         = "${terraform.workspace}-moderation"
+  project_id   = var.project_id
+  cpu_limit    = 1000
+  memory_limit = 2048
+  image_uri    = local.image_uri
+  command      = "node dist/jobs/run-job.js moderation"
+  timeout      = "15m"
+
+  cron {
+    schedule = "0 */3 * * *" # Every 3 hours
+    timezone = "Europe/Paris"
+  }
+
+  env = local.all_env_vars
+}
