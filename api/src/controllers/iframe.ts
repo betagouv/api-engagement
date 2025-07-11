@@ -2,7 +2,7 @@ import cors from "cors";
 import { NextFunction, Request, Response, Router } from "express";
 import zod from "zod";
 
-import { ENV, JVA_ID } from "../config";
+import { ENV, PUBLISHER_IDS } from "../config";
 import { INVALID_PARAMS, INVALID_QUERY, NOT_FOUND, captureMessage } from "../error";
 import MissionModel from "../models/mission";
 import RequestWidget from "../models/request-widget";
@@ -128,10 +128,10 @@ router.get("/:id/search", async (req: Request, res: Response, next: NextFunction
 
     if (widget.jvaModeration) {
       const $or = [] as { [key: string]: any }[];
-      if (widget.publishers.includes(JVA_ID)) {
-        $or.push({ publisherId: JVA_ID });
+      if (widget.publishers.includes(PUBLISHER_IDS.JEVEUXAIDER)) {
+        $or.push({ publisherId: PUBLISHER_IDS.JEVEUXAIDER });
       }
-      widget.publishers.filter((p) => p !== JVA_ID).forEach((p) => $or.push({ publisherId: p, [`moderation_${JVA_ID}_status`]: "ACCEPTED" }));
+      widget.publishers.filter((p) => p !== PUBLISHER_IDS.JEVEUXAIDER).forEach((p) => $or.push({ publisherId: p, [`moderation_${PUBLISHER_IDS.JEVEUXAIDER}_status`]: "ACCEPTED" }));
       if ($or.length) {
         where.$and.push({ $or });
       }
@@ -229,7 +229,7 @@ router.get("/:id/search", async (req: Request, res: Response, next: NextFunction
       .select({
         _id: 1,
         title: 1,
-        [`moderation_${JVA_ID}_title`]: 1,
+        [`moderation_${PUBLISHER_IDS.JEVEUXAIDER}_title`]: 1,
         domain: 1,
         domainLogo: 1,
         organizationName: 1,
@@ -251,7 +251,7 @@ router.get("/:id/search", async (req: Request, res: Response, next: NextFunction
 
     const data = missions.map((e: Mission) => ({
       _id: e._id,
-      title: e[`moderation_${JVA_ID}_title`] && widget.jvaModeration ? e[`moderation_${JVA_ID}_title`] : e.title,
+      title: e[`moderation_${PUBLISHER_IDS.JEVEUXAIDER}_title`] && widget.jvaModeration ? e[`moderation_${PUBLISHER_IDS.JEVEUXAIDER}_title`] : e.title,
       domain: e.domain,
       domainLogo: e.domainLogo,
       organizationName: e.organizationName,
@@ -355,10 +355,10 @@ router.get("/:id/aggs", cors({ origin: "*" }), async (req: Request, res: Respons
     // Publisher
     if (widget.jvaModeration) {
       const $or = [] as { [key: string]: any }[];
-      if (widget.publishers.includes(JVA_ID)) {
-        $or.push({ publisherId: JVA_ID });
+      if (widget.publishers.includes(PUBLISHER_IDS.JEVEUXAIDER)) {
+        $or.push({ publisherId: PUBLISHER_IDS.JEVEUXAIDER });
       }
-      widget.publishers.filter((p) => p !== JVA_ID).forEach((p) => $or.push({ publisherId: p, [`moderation_${JVA_ID}_status`]: "ACCEPTED" }));
+      widget.publishers.filter((p) => p !== PUBLISHER_IDS.JEVEUXAIDER).forEach((p) => $or.push({ publisherId: p, [`moderation_${PUBLISHER_IDS.JEVEUXAIDER}_status`]: "ACCEPTED" }));
       if ($or.length) {
         where.$and.push({ $or });
       }

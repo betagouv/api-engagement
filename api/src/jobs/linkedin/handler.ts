@@ -1,11 +1,11 @@
 import fs from "fs";
 
-import { ENV, JVA_ID } from "../../config";
+import { ENV, PUBLISHER_IDS } from "../../config";
 import ImportModel from "../../models/import";
 import PublisherModel from "../../models/publisher";
 import { BaseHandler } from "../base/handler";
 import { JobResult } from "../types";
-import { LINKEDIN_ID, PARTNERS_IDS } from "./config";
+import { PARTNERS_IDS } from "./config";
 import { generateJvaJobs, generatePartnersJobs, generateXML, getMissionsCursor, storeXML } from "./utils";
 
 export interface LinkedinJobPayload {}
@@ -24,7 +24,7 @@ export class LinkedinHandler implements BaseHandler<LinkedinJobPayload, Linkedin
   public async handle(payload: LinkedinJobPayload): Promise<LinkedinJobResult> {
     const start = new Date();
     try {
-      const linkedin = await PublisherModel.findById(LINKEDIN_ID);
+      const linkedin = await PublisherModel.findById(PUBLISHER_IDS.LINKEDIN);
       if (!linkedin) {
         throw new Error("Linkedin publisher not found");
       }
@@ -45,7 +45,7 @@ export class LinkedinHandler implements BaseHandler<LinkedinJobPayload, Linkedin
       const JvaMissionsCursor = getMissionsCursor({
         deletedAt: null,
         statusCode: "ACCEPTED",
-        publisherId: JVA_ID,
+        publisherId: PUBLISHER_IDS.JEVEUXAIDER,
       });
 
       const jvaJobs = await generateJvaJobs(JvaMissionsCursor);
@@ -91,7 +91,7 @@ export class LinkedinHandler implements BaseHandler<LinkedinJobPayload, Linkedin
 
       await ImportModel.create({
         name: `LINKEDIN`,
-        publisherId: LINKEDIN_ID,
+        publisherId: PUBLISHER_IDS.LINKEDIN,
         createdCount: result.counter.sent,
         updatedCount: 0,
         deletedCount: 0,
@@ -114,7 +114,7 @@ export class LinkedinHandler implements BaseHandler<LinkedinJobPayload, Linkedin
 
       await ImportModel.create({
         name: `LINKEDIN`,
-        publisherId: LINKEDIN_ID,
+        publisherId: PUBLISHER_IDS.LINKEDIN,
         startedAt: start,
         endedAt: new Date(),
         status: "FAILED",

@@ -1,5 +1,5 @@
 import { BulkOperationContainer } from "@elastic/elasticsearch/api/types";
-import { STATS_INDEX } from "../../config";
+import { PUBLISHER_IDS, STATS_INDEX } from "../../config";
 import esClient from "../../db/elastic";
 import { captureException, captureMessage } from "../../error";
 import MissionModel from "../../models/mission";
@@ -155,7 +155,7 @@ const parseRow = async (row: (string | number)[], from: Date, to: Date, sourceId
         missionOrganizationId: mission.organizationId,
         toPublisherId: mission.publisherId,
         toPublisherName: mission.publisherName,
-        fromPublisherId: "5f8b3c7552a1412baaa0cd44",
+        fromPublisherId: PUBLISHER_IDS.LINKEDIN,
         fromPublisherName: "Linkedin",
       } as Stats);
     }

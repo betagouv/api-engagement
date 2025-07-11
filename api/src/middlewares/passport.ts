@@ -4,7 +4,7 @@ import passport from "passport";
 import { HeaderAPIKeyStrategy } from "passport-headerapikey";
 import { ExtractJwt, Strategy as JwtStrategy } from "passport-jwt";
 
-import { SECRET } from "../config";
+import { PUBLISHER_IDS, SECRET } from "../config";
 import { captureException } from "../error";
 import PublisherModel from "../models/publisher";
 import UserModel from "../models/user";
@@ -110,7 +110,7 @@ passport.use(
   "leboncoin",
   new HeaderAPIKeyStrategy({ header: "Authorization", prefix: "" }, false, async (apikey, done) => {
     try {
-      const publisher = await PublisherModel.findOne({ apikey, _id: "60cd04a0d2321e05a743fa8d" });
+      const publisher = await PublisherModel.findOne({ apikey, _id: PUBLISHER_IDS.LEBONCOIN });
       if (publisher) {
         Sentry.setUser({
           id: publisher._id.toString(),
@@ -131,7 +131,7 @@ passport.use(
   "jobteaser",
   new HeaderAPIKeyStrategy({ header: "x-api-key", prefix: "" }, false, async (apikey, done) => {
     try {
-      const publisher = await PublisherModel.findOne({ apikey, _id: "66ffce58f95ec99387109053" });
+      const publisher = await PublisherModel.findOne({ apikey, _id: PUBLISHER_IDS.JOBTEASER });
       if (publisher) {
         Sentry.setUser({
           id: publisher._id.toString(),

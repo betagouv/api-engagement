@@ -3,7 +3,7 @@ import { Request, Response, Router } from "express";
 import zod from "zod";
 
 import { HydratedDocument } from "mongoose";
-import { JVA_URL, SC_ID, STATS_INDEX } from "../config";
+import { JVA_URL, PUBLISHER_IDS, STATS_INDEX } from "../config";
 import esClient from "../db/elastic";
 import { INVALID_PARAMS, INVALID_QUERY, NOT_FOUND, SERVER_ERROR, captureException, captureMessage } from "../error";
 import CampaignModel from "../models/campaign";
@@ -311,7 +311,7 @@ router.get("/campaign/:id", cors({ origin: "*" }), async (req, res) => {
     const url = new URL(campaign.url);
 
     if (!url.search) {
-      if (campaign.toPublisherId === SC_ID) {
+      if (campaign.toPublisherId === PUBLISHER_IDS.SERVICE_CIVIQUE) {
         url.searchParams.set("mtm_source", "api_engagement");
         url.searchParams.set("mtm_medium", "campaign");
         url.searchParams.set("mtm_campaign", slugify(campaign.name));
@@ -488,7 +488,7 @@ router.get("/widget/:id", cors({ origin: "*" }), async (req: Request, res: Respo
     url.searchParams.set("apiengagement_id", click.body._id);
 
     // Service ask for mtm
-    if (mission.publisherId === SC_ID) {
+    if (mission.publisherId === PUBLISHER_IDS.SERVICE_CIVIQUE) {
       url.searchParams.set("mtm_source", "api_engagement");
       url.searchParams.set("mtm_medium", "widget");
       url.searchParams.set("mtm_campaign", slugify(widget.name));
@@ -569,7 +569,7 @@ router.get("/seo/:id", cors({ origin: "*" }), async (req: Request, res: Response
       toPublisherId: mission.publisherId,
       toPublisherName: mission.publisherName,
 
-      fromPublisherId: "63da29db7d356a87a4e35d4a",
+      fromPublisherId: PUBLISHER_IDS.API_ENGAGEMENT,
       fromPublisherName: "API Engagement",
       isBot: false,
     } as Stats;
@@ -732,7 +732,7 @@ router.get("/:missionId/:publisherId", cors({ origin: "*" }), async function tra
     url.searchParams.set("apiengagement_id", click.body._id);
 
     // Service ask for mtm
-    if (mission.publisherId === "5f99dbe75eb1ad767733b206") {
+    if (mission.publisherId === PUBLISHER_IDS.SERVICE_CIVIQUE) {
       url.searchParams.set("mtm_source", "api_engagement");
       url.searchParams.set("mtm_medium", "api");
       url.searchParams.set("mtm_campaign", slugify(fromPublisher?.name || "unknown"));

@@ -6,7 +6,7 @@ import MissionModel from "../../models/mission";
 import { PilotyClient } from "../../services/piloty/client";
 import { PilotyJobCategory, PilotyMandatoryData } from "../../services/piloty/types";
 import { Mission } from "../../types";
-import { CONTRACT_MAPPING, JOB_CATEGORY_MAPPING, PUBLISHERS_IDS, REMOTE_POLICY_MAPPING } from "./config";
+import { CONTRACT_MAPPING, JOB_CATEGORY_MAPPING, REMOTE_POLICY_MAPPING, WHITELISTED_PUBLISHERS_IDS } from "./config";
 
 /**
  * Check if a mission is already synced to Piloty
@@ -40,7 +40,7 @@ export async function getMissionsToSync(id?: string, limit = 10): Promise<Hydrat
     deletedAt: null,
     statusCode: "ACCEPTED",
     publisherId: {
-      $in: PUBLISHERS_IDS,
+      $in: WHITELISTED_PUBLISHERS_IDS,
     },
     organizationId: {
       $exists: true,

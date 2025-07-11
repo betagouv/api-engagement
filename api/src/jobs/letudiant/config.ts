@@ -1,9 +1,8 @@
-import { ENV, JVA_ID } from "../../config";
+import { ENV, PUBLISHER_IDS } from "../../config";
 
 export const DEFAULT_LIMIT = ENV === "production" ? 1000 : 1;
 
-// Whitelisted publishers IDs
-export const PUBLISHERS_IDS = [JVA_ID];
+export const WHITELISTED_PUBLISHERS_IDS = [PUBLISHER_IDS.JEVEUXAIDER];
 
 // Used to sign every Piloty API requests
 export const MEDIA_PUBLIC_ID = "letudiant";

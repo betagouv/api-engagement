@@ -1,6 +1,6 @@
 import { Mission } from "../../types";
 import { getMissionTrackedApplicationUrl } from "../../utils";
-import { LINKEDIN_COMPANY_ID, LINKEDIN_ID, LINKEDIN_INDUSTRY_CODE } from "./config";
+import { LINKEDIN_COMPANY_ID, LINKEDIN_INDUSTRY_CODE, PUBLISHER_IDS } from "./config";
 import { LinkedInJob } from "./types";
 
 // Doc: https://learn.microsoft.com/en-us/linkedin/talent/job-postings/xml-feeds-development-guide?view=li-lts-2025-04
@@ -28,7 +28,7 @@ export function missionToLinkedinJob(mission: Mission, defaultCompany: string): 
   const job = {
     jobtype: "VOLUNTEER",
     partnerJobId: String(mission._id),
-    applyUrl: getMissionTrackedApplicationUrl(mission, LINKEDIN_ID),
+    applyUrl: getMissionTrackedApplicationUrl(mission, PUBLISHER_IDS.LINKEDIN),
     title: `Bénévolat - ${mission.title}`,
     description: initialDescription
       ? `Ceci est une mission de bénévolat pour <strong>${mission.organizationName}</strong><br>${mission.description.replace(/\n/g, "<br>").replace(/\u000b/g, "")}`

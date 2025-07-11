@@ -2,7 +2,7 @@ import { NextFunction, Response, Router } from "express";
 import passport from "passport";
 import zod from "zod";
 
-import { JVA_ID } from "../config";
+import { PUBLISHER_IDS } from "../config";
 import { FORBIDDEN, INVALID_BODY, INVALID_PARAMS, INVALID_QUERY, NOT_FOUND } from "../error";
 import MissionModel from "../models/mission";
 import { UserRequest } from "../types/passport";
@@ -162,7 +162,7 @@ router.post("/search", passport.authenticate("user", { session: false }), async 
     }
 
     if (body.data.jvaModeration) {
-      where.$or = [{ publisherId: JVA_ID }, { [`moderation_${JVA_ID}_status`]: "ACCEPTED" }];
+      where.$or = [{ publisherId: PUBLISHER_IDS.JEVEUXAIDER }, { [`moderation_${PUBLISHER_IDS.JEVEUXAIDER}_status`]: "ACCEPTED" }];
     }
 
     const whereAggs = { ...where };
