@@ -2,6 +2,7 @@ import { NextFunction, Response, Router } from "express";
 import passport from "passport";
 import zod from "zod";
 
+import { PUBLISHER_IDS } from "../config";
 import { FORBIDDEN, INVALID_BODY, INVALID_PARAMS, INVALID_QUERY, NOT_FOUND, RESSOURCE_ALREADY_EXIST } from "../error";
 import CampaignModel from "../models/campaign";
 import PublisherModel from "../models/publisher";
@@ -119,7 +120,7 @@ router.post("/", passport.authenticate("admin", { session: false }), async (req:
     }
 
     if (!body.data.trackers || !body.data.trackers.length) {
-      if (toPublisher._id.toString() === "5f99dbe75eb1ad767733b206") {
+      if (toPublisher._id.toString() === PUBLISHER_IDS.SERVICE_CIVIQUE) {
         body.data.trackers = [
           { key: "mtm_source", value: "api_engagement" },
           { key: "mtm_medium", value: "campaign" },
@@ -250,7 +251,7 @@ router.put("/:id", passport.authenticate("admin", { session: false }), async (re
     if (body.data.trackers && body.data.trackers.length) {
       campaign.trackers = body.data.trackers;
     } else {
-      if (campaign.toPublisherId === "5f99dbe75eb1ad767733b206") {
+      if (campaign.toPublisherId === PUBLISHER_IDS.SERVICE_CIVIQUE) {
         campaign.trackers = [
           { key: "mtm_source", value: "api_engagement" },
           { key: "mtm_medium", value: "campaign" },

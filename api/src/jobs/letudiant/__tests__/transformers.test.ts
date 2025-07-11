@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from "vitest";
-import { LETUDIANT_ID } from "../../../config";
+import { PUBLISHER_IDS } from "../../../config";
 import { PilotyMandatoryData } from "../../../services/piloty/types";
 import { Mission, MissionType } from "../../../types";
 import { MEDIA_PUBLIC_ID } from "../config";
@@ -66,7 +66,7 @@ describe("L'Etudiant Transformers", () => {
       expect(result.localisation).toBe(mission.city);
       expect(result.description_job).toBe("<p>Une description 素晴らしい HTML.</p>");
       expect(result.application_method).toBe("external_apply");
-      expect(result.application_url).toBe(`https://api-engagement.beta.gouv.fr/r/${mission._id}/${LETUDIANT_ID}`);
+      expect(result.application_url).toBe(`https://api-engagement.beta.gouv.fr/r/${mission._id}/${PUBLISHER_IDS.LETUDIANT}`);
       expect(result.state).toBe("published");
       expect(result.remote_policy_id).toBeUndefined();
       expect(result.position_level).toBe("employee");
