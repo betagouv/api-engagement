@@ -1,6 +1,6 @@
 import { Mission } from "../../types";
 import { getMissionTrackedApplicationUrl } from "../../utils";
-import { LINKEDIN_COMPANY_ID, LINKEDIN_INDUSTRY_CODE, PUBLISHER_IDS } from "./config";
+import { LINKEDIN_COMPANY_ID, LINKEDIN_INDUSTRY_CODE, LINKEDIN_PUBLISHER_ID } from "./config";
 import { LinkedInJob } from "./types";
 
 /**
@@ -28,7 +28,7 @@ export function missionToLinkedinJob(mission: Mission, defaultCompany: string): 
   const job = {
     jobtype: "VOLUNTEER",
     partnerJobId: String(mission._id),
-    applyUrl: getMissionTrackedApplicationUrl(mission, PUBLISHER_IDS.LINKEDIN),
+    applyUrl: getMissionTrackedApplicationUrl(mission, LINKEDIN_PUBLISHER_ID),
     title: `Bénévolat - ${mission.title}`,
     description: (() => {
       const blocks: string[] = [];
