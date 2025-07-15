@@ -1,4 +1,4 @@
-import { LETUDIANT_ID } from "../../config";
+import { PUBLISHER_IDS } from "../../config";
 import { PilotyCompanyPayload, PilotyJobPayload, PilotyMandatoryData } from "../../services/piloty/types";
 import { Mission, MissionType } from "../../types";
 import { getMissionTrackedApplicationUrl } from "../../utils/mission";
@@ -34,7 +34,7 @@ export function missionToPilotyJob(mission: Mission, companyId: string, mandator
     localisation: mission.remote === "full" ? "A distance" : mission.city || "",
     description_job: decodeHtml(mission.descriptionHtml),
     application_method: "external_apply",
-    application_url: getMissionTrackedApplicationUrl(mission, LETUDIANT_ID),
+    application_url: getMissionTrackedApplicationUrl(mission, PUBLISHER_IDS.LETUDIANT),
     state: mission.deletedAt ? "archived" : "published",
     remote_policy_id: mission.remote === "full" ? mandatoryData.remotePolicies.full : undefined,
     position_level: "employee",
