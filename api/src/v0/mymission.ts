@@ -3,7 +3,7 @@ import passport from "passport";
 import zod from "zod";
 
 import { STATS_INDEX } from "../config";
-import { JVA_MODERATION_COMMENTS_LABELS } from "../constant";
+import { JVA_MODERATION_COMMENTS_LABELS } from "../constants/moderation";
 import esClient from "../db/elastic";
 import { INVALID_PARAMS, INVALID_QUERY, NOT_FOUND } from "../error";
 import MissionModel from "../models/mission";

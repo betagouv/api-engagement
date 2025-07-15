@@ -1,8 +1,8 @@
 import request from "supertest";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { createTestMission, createTestPublisher } from "../../fixtures";
-import elasticMock from "../../mocks/elasticMock";
-import { createTestApp } from "../../testApp";
+import { createTestMission, createTestPublisher } from "../../../fixtures";
+import elasticMock from "../../../mocks/elasticMock";
+import { createTestApp } from "../../../testApp";
 
 describe("MyMission API Integration Tests", () => {
   const app = createTestApp();
