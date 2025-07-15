@@ -1,5 +1,5 @@
 export const NO_PARTNER = "NO_PARTNER";
-export const NO_PARTNER_MESSAGE = "Vous n'avez pas encore accès à des missions. Contactez margot.quettelart@beta.gouv.fr pour vous donner accès aux missions";
+export const NO_PARTNER_MESSAGE = "Vous n'avez pas encore accès à des missions. Contactez quentin.dallery@beta.gouv.fr pour vous donner accès aux missions";
 export const MISSION_FIELDS = [
   "_id",
   "clientId",

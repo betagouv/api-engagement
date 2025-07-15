@@ -314,7 +314,7 @@ router.get("/search", passport.authenticate(["apikey", "api"], { session: false 
       where.reducedMobilityAccessible = query.data.reducedMobilityAccessible;
     }
     if (query.data.remote) {
-      where.remote = query.data.remote;
+      where.remote = buildArrayQuery(query.data.remote);
     }
     if (query.data.startAt) {
       where.startAt = buildDateQuery(query.data.startAt);
