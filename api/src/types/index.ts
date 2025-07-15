@@ -193,21 +193,21 @@ export type Campaign = {
   updatedAt: Date;
 };
 
-export type Import = {
+export interface Import {
   _id: Schema.Types.ObjectId;
   name: string;
-  publisherId: string;
+  publisherId: Schema.Types.ObjectId;
   createdCount: number;
   deletedCount: number;
   updatedCount: number;
   missionCount: number;
   refusedCount: number;
   startedAt: Date;
-  endedAt: Date;
+  endedAt: Date | null;
   status: "SUCCESS" | "FAILED";
   error: string | null;
   failed: any;
-};
+}
 
 export interface MissionHistory {
   date: Date;

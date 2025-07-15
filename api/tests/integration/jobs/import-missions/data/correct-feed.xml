@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<source>
+  <publisher><![CDATA[Example Job Site]]></publisher>
+  <publisherurl><![CDATA[http://www.examplemissionsite.com]]></publisherurl>
+  <lastBuildDate><![CDATA[Fri, 10 March 2020 22:49:39 GMT]]></lastBuildDate>
+  <mission>
+    <title><![CDATA[Sales Executive]]></title>
+    <clientId><![CDATA[32132143]]></clientId>
+    <description><![CDATA[Do you have 1-3 years of experience in sales? Join us and make a difference!]]></description>
+    <applicationUrl><![CDATA[https://www.urltomymission.org]]></applicationUrl>
+    <postedAt><![CDATA[Fri, 10 Dec 2005 22:49:39 GMT]]></postedAt>
+    <startAt><![CDATA[Fri, 10 Dec 2005 22:49:39 GMT]]></startAt>
+    <endAt><![CDATA[Fri, 20 Dec 2005 22:49:39 GMT]]></endAt>
+    <addresses>
+      <address>
+        <street><![CDATA[46 Rue Saint-Antoine]]></street>
+        <postalCode><![CDATA[75004]]></postalCode>
+        <city><![CDATA[Paris]]></city>
+        <departmentCode><![CDATA[75]]></departmentCode>
+        <departmentName><![CDATA[Paris]]></departmentName>
+        <region><![CDATA[Île-de-France]]></region>
+        <country><![CDATA[France]]></country>
+        <location>
+          <lat><![CDATA[48.8541]]></lat>
+          <lon><![CDATA[2.3643]]></lon>
+        </location>
+      </address>
+      <address>
+        <street><![CDATA[Quai de Loire]]></street>
+        <postalCode><![CDATA[45000]]></postalCode>
+        <city><![CDATA[Orléans]]></city>
+        <departmentCode><![CDATA[45]]></departmentCode>
+        <departmentName><![CDATA[Loiret]]></departmentName>
+        <region><![CDATA[Centre-Val de Loire]]></region>
+        <country><![CDATA[France]]></country>
+        <location>
+          <lat><![CDATA[47.8951]]></lat>
+          <lon><![CDATA[1.9108]]></lon>
+        </location>
+      </address>
+    </addresses>
+    <places><![CDATA[2]]></places>
+    <activity><![CDATA[logistique]]></activity>
+    <remote><![CDATA[full]]></remote>
+    <domain><![CDATA[environnement]]></domain>
+    <tags><![CDATA[environnement,écologie]]></tags>
+    <image><![CDATA[https://monurl.com/1.jpg]]></image>
+    <organizationName><![CDATA[Big ABC Corporation]]></organizationName>
+    <organizationRNA><![CDATA[W922000733]]></organizationRNA>
+    <organizationSiren><![CDATA[332737394]]></organizationSiren>
+    <organizationUrl><![CDATA[https://www.organizationname.com]]></organizationUrl>
+    <organizationId><![CDATA[123312321]]></organizationId>
+    <organizationType><![CDATA[1901]]></organizationType>
+    <organizationFullAddress><![CDATA[55 Rue du Faubourg Saint-Honoré 75008 Paris]]></organizationFullAddress>
+    <organizationStatusJuridique><![CDATA[Association]]></organizationStatusJuridique>
+  </mission>
+</source>

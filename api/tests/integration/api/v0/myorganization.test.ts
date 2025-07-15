@@ -1,9 +1,9 @@
 import request from "supertest";
 import { beforeEach, describe, expect, it } from "vitest";
-import OrganizationExclusionModel from "../../../src/models/organization-exclusion";
-import { Mission, MissionType, Publisher } from "../../../src/types";
-import { createTestMission, createTestPublisher } from "../../fixtures";
-import { createTestApp } from "../../testApp";
+import OrganizationExclusionModel from "../../../../src/models/organization-exclusion";
+import { Mission, MissionType, Publisher } from "../../../../src/types";
+import { createTestMission, createTestPublisher } from "../../../fixtures";
+import { createTestApp } from "../../../testApp";
 
 describe("MyOrganization API Integration Tests", () => {
   const app = createTestApp();
