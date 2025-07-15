@@ -3,7 +3,9 @@ import { missionToLinkedinJob } from "../transformers";
 
 // Mock constants from ../config, as this is where they are imported from in transformers.ts
 vi.mock("../config", () => ({
-  LINKEDIN_ID: "test-linkedin-id",
+  PUBLISHER_IDS: {
+    LINKEDIN: "test-linkedin-id",
+  },
   LINKEDIN_COMPANY_ID: {
     "Mon asso": "12345",
     Benevolt: "54321",

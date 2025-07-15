@@ -2,7 +2,7 @@ import { NextFunction, Response, Router } from "express";
 import passport from "passport";
 import zod from "zod";
 
-import { LBC_ID, STATS_INDEX } from "../config";
+import { PUBLISHER_IDS, STATS_INDEX } from "../config";
 import esClient from "../db/elastic";
 import { INVALID_PARAMS, INVALID_QUERY, NOT_FOUND, captureMessage } from "../error";
 import MissionModel from "../models/mission";
@@ -191,7 +191,7 @@ router.get("/", passport.authenticate(["apikey", "api"], { session: false }), as
       where[`moderation_${user._id}_status`] = "ACCEPTED";
     }
     // Special case for Bouygues Telecom
-    if (user._id.toString() === "616fefd119fb03075a0b0843") {
+    if (user._id.toString() === PUBLISHER_IDS.BOUYGUES_TELECOM) {
       where.organizationName = {
         $ne: "APF France handicap - Délégations de Haute-Saône et du Territoire de Belfort",
       };
@@ -645,7 +645,7 @@ const buildData = (data: Mission, publisherId: string, moderator: boolean = fals
   obj.location = address ? address.location : undefined;
 
   // Custom hack for remote LBC
-  if (publisherId.toString() === LBC_ID && obj.remote === "full") {
+  if (publisherId.toString() === PUBLISHER_IDS.LEBONCOIN && obj.remote === "full") {
     obj.title = `[À distance] ${obj.title}`;
     obj.postalCode = "75000";
     obj.departmentCode = "75";
