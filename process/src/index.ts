@@ -24,7 +24,6 @@ import "./db/postgres";
 import { captureException } from "./error";
 import imports from "./jobs/import";
 import metabase from "./jobs/metabase";
-import moderation from "./jobs/moderation";
 import report from "./jobs/report";
 
 const app = express();
@@ -55,7 +54,6 @@ const missionJob = new CronJob(
     runnings.mission = true;
     try {
       await imports.handler();
-      await moderation.handler();
       Sentry.captureCheckIn({
         checkInId,
         monitorSlug: "mission-updates",
