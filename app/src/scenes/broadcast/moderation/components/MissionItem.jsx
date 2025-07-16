@@ -99,7 +99,7 @@ const MissionItem = ({ data, history, selected, onChange, onSelect, onFilter }) 
             <span className="text-red-main">{history["REFUSED"] || "0"}</span>
           </div>
         </div>
-        {data.associationSources ? (
+        {data.associationSources?.length ? (
           <span className="text-gray-dark">
             {data.associationSources.length > 0 && `Inscrite sur ${data.associationSources.map((a) => (a === "Je veux aider" ? "JeVeuxAider.gouv.fr" : a)).join(", ")}`}
           </span>

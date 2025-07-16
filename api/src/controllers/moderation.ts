@@ -447,8 +447,8 @@ router.put("/:id", passport.authenticate("user", { session: false }), async (req
         comment: zod.string().nullable().optional(),
         note: zod.string().nullable().optional(),
         newTitle: zod.string().nullable().optional(),
-        associationSiren: zod.string().nullable().optional(),
-        associationRNA: zod.string().nullable().optional(),
+        organizationRNAVerified: zod.string().nullable().optional(),
+        organizationSirenVerified: zod.string().nullable().optional(),
       })
       .safeParse(req.body);
 
@@ -488,12 +488,14 @@ router.put("/:id", passport.authenticate("user", { session: false }), async (req
     if (body.data.newTitle) {
       mission[`moderation_${body.data.moderatorId}_title`] = body.data.newTitle;
     }
-    if (body.data.associationSiren) {
-      mission.associationSiren = body.data.associationSiren;
+
+    if (body.data.organizationRNAVerified) {
+      mission.organizationRNAVerified = body.data.organizationRNAVerified;
     }
-    if (body.data.associationRNA) {
-      mission.associationRNA = body.data.associationRNA;
+    if (body.data.organizationSirenVerified) {
+      mission.organizationSirenVerified = body.data.organizationSirenVerified;
     }
+
     mission[`moderation_${body.data.moderatorId}_date`] = new Date();
 
     await mission.save();
@@ -525,15 +527,15 @@ const buildData = (source: Mission, moderatorId: string) => ({
   endAt: source.endAt,
   publisherId: source.publisherId,
   publisherName: source.publisherName,
-  associationId: source.associationId,
-  associationName: source.associationName,
-  associationRNA: source.associationRNA,
-  associationSiren: source.associationSiren,
   associationSources: source.associationSources,
-  organizationId: source.organizationId,
   organizationName: source.organizationName,
   organizationFullAddress: source.organizationFullAddress,
   organizationUrl: source.organizationUrl,
+  organizationId: source.organizationId,
+  organizationSiren: source.organizationSiren,
+  organizationRNA: source.organizationRNA,
+  organizationRNAVerified: source.organizationRNAVerified,
+  organizationSirenVerified: source.organizationSirenVerified,
 
   newTitle: source[`moderation_${moderatorId}_title`],
   status: source[`moderation_${moderatorId}_status`],
