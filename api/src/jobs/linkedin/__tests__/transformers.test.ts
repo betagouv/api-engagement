@@ -14,6 +14,7 @@ vi.mock("../config", () => ({
     Informatique: "4",
     Santé: "94",
   },
+  LINKEDIN_PUBLISHER_ID: "test-linkedin-id",
 }));
 
 vi.mock("../../../utils/mission", () => ({
