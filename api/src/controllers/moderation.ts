@@ -491,9 +491,11 @@ router.put("/:id", passport.authenticate("user", { session: false }), async (req
 
     if (body.data.organizationRNAVerified) {
       mission.organizationRNAVerified = body.data.organizationRNAVerified;
+      mission.organizationVerificationStatus = "DATA_MANUALLY_ADDED";
     }
     if (body.data.organizationSirenVerified) {
       mission.organizationSirenVerified = body.data.organizationSirenVerified;
+      mission.organizationVerificationStatus = "DATA_MANUALLY_ADDED";
     }
 
     mission[`moderation_${body.data.moderatorId}_date`] = new Date();
