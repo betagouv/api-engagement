@@ -16,7 +16,8 @@ const Api = () => {
   }, [publisher]);
 
   const handleNewApiKey = async () => {
-    window.confirm("Êtes-vous sûr de vouloir générer une nouvelle clé API ?");
+    const confirm = window.confirm("Êtes-vous sûr de vouloir générer une nouvelle clé API ?");
+    if (!confirm) return;
     try {
       const res = await api.post(`/publisher/${publisher._id}/apikey`);
       if (!res.ok) throw res;
@@ -28,7 +29,8 @@ const Api = () => {
   };
 
   const handleDelete = async () => {
-    window.confirm("Êtes-vous sûr de vouloir supprimer la clé API ?");
+    const confirm = window.confirm("Êtes-vous sûr de vouloir supprimer la clé API ?");
+    if (!confirm) return;
     try {
       const res = await api.delete(`/publisher/${publisher._id}/apikey`);
       if (!res.ok) throw res;
@@ -68,16 +70,16 @@ const Api = () => {
             Votre clé API
           </label>
           <input id="apikey" className="input flex-1" name="apikey" disabled={true} value={publisher.apikey || ""} />
-          <button className="flex cursor-pointer items-center border border-blue-dark p-2 text-blue-dark" onClick={handleCopy}>
+          <button className="empty-button h-10 w-10 p-0 flex justify-center items-center" onClick={handleCopy}>
             <RiFileCopyFill />
           </button>
           <div className="">
-            <button className="flex cursor-pointer items-center border border-blue-dark p-2 px-4 text-blue-dark" onClick={handleNewApiKey}>
+            <button className="empty-button h-10 truncate" onClick={handleNewApiKey}>
               Générer une nouvelle clé
             </button>
           </div>
           <div className="">
-            <button className="flex cursor-pointer items-center border border-blue-dark p-2 px-4 text-blue-dark" onClick={handleDelete}>
+            <button className="empty-button h-10 truncate" onClick={handleDelete}>
               Supprimer la clé
             </button>
           </div>

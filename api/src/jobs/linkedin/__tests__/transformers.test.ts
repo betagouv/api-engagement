@@ -1,11 +1,9 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { PUBLISHER_IDS } from "../../../config";
 import { missionToLinkedinJob } from "../transformers";
 
 // Mock constants from ../config, as this is where they are imported from in transformers.ts
 vi.mock("../config", () => ({
-  PUBLISHER_IDS: {
-    LINKEDIN: "test-linkedin-id",
-  },
   LINKEDIN_COMPANY_ID: {
     "Mon asso": "12345",
     Benevolt: "54321",
@@ -54,7 +52,7 @@ describe("missionToLinkedinJob", () => {
     expect(job?.partnerJobId).toBe(String(baseMission._id));
     expect(job?.title).toBe(`Bénévolat - ${baseMission.title}`);
     expect(job?.jobtype).toBe("VOLUNTEER");
-    expect(job?.applyUrl).toBe(`https://api.api-engagement.beta.gouv.fr/r/${baseMission._id}/test-linkedin-id`);
+    expect(job?.applyUrl).toBe(`https://api.api-engagement.beta.gouv.fr/r/${baseMission._id}/${PUBLISHER_IDS.LINKEDIN}`);
     expect(job?.description).not.toBeNull(); // Description will be tested in dedicated test
     expect(job?.company).toBe("Mon asso");
     expect(job?.companyId).toBe("12345");
@@ -70,6 +68,8 @@ describe("missionToLinkedinJob", () => {
   });
 
   it("should format description with correct data", () => {
+    vi.setSystemTime(new Date("2025-01-16")); // diffDays = 1 - regular description
+
     // JVA missions should have a description with the following structure
     const descriptionHtml = `
       <b>Présentation de la mission</b><br>
@@ -148,7 +148,7 @@ describe("missionToLinkedinJob", () => {
   });
 
   it("should use alternate description based on date difference", () => {
-    vi.setSystemTime(new Date("2025-01-19")); // diffDays = 4, initialDescription = false
+    vi.setSystemTime(new Date("2025-01-19")); // diffDays = 4 - alternate description
     const job = missionToLinkedinJob(baseMission, defaultCompany);
     expect(job?.description).toContain(`Ceci est une mission de bénévolat pour <b>${baseMission.organizationName}</b>`);
   });

@@ -1,6 +1,7 @@
+import { PUBLISHER_IDS } from "../../config";
 import { Mission } from "../../types";
 import { getMissionTrackedApplicationUrl } from "../../utils";
-import { LINKEDIN_COMPANY_ID, LINKEDIN_INDUSTRY_CODE, PUBLISHER_IDS } from "./config";
+import { LINKEDIN_COMPANY_ID, LINKEDIN_INDUSTRY_CODE } from "./config";
 import { LinkedInJob } from "./types";
 
 /**

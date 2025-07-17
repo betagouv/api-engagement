@@ -2,6 +2,41 @@
 Vous retrouverez ici l'historique des différents déploiements effectués sur l'API Engagement.
 
 
+## 07/07/2025
+
+
+### Bug Fixes
+
+-  Fix package missing staging ([`f6eec7c`](https://github.com/betagouv/api-engagement/commit/f6eec7cf741077dfada7b219efe457d4a679b4de))
+
+-  Workflow permission issues ([`7e391fb`](https://github.com/betagouv/api-engagement/commit/7e391fb585b84b93a37eb32c46c7dd1f2f459cc8))
+
+-  Fix workflow process test failure ([`b6c4e24`](https://github.com/betagouv/api-engagement/commit/b6c4e243d9b60bed8bc4bd8b0c30b5c25cca9249))
+
+-  Fix process deploy package ([`596286f`](https://github.com/betagouv/api-engagement/commit/596286f1205f4e815885596ba9b38cbb6b276e15))
+
+-  Fix deploy failure ([`f3eb67d`](https://github.com/betagouv/api-engagement/commit/f3eb67d2b521236b9f5fec8019c30d53743e0587))
+
+-  Revert june changelog ([`a4856dc`](https://github.com/betagouv/api-engagement/commit/a4856dc8d3d7c8004bcaa7b9979afcbe3484cddd))
+
+-  Git cliff action ([`99e521b`](https://github.com/betagouv/api-engagement/commit/99e521b521e3a06b4e161dd47687de3f0ea2ed7a))
+
+
+### Features
+
+-  Delete mission 300 char restriction during moderation (#293) ([`14aa093`](https://github.com/betagouv/api-engagement/commit/14aa093cae0f18b808e90cb13f00bae96b6d3d0e))
+
+
+### Miscellaneous Tasks
+
+- (**changelog**) Update CHANGELOG.md ([`11f4912`](https://github.com/betagouv/api-engagement/commit/11f4912dd03b12c9d67d7892403e4d773d8755ed))
+
+-  Improve Changelog generation ([`4339e81`](https://github.com/betagouv/api-engagement/commit/4339e810ac8919c061fb6ea7400e21f8cbd95451))
+
+# API Engagement - Changelog
+Vous retrouverez ici l'historique des différents déploiements effectués sur l'API Engagement.
+
+
 ## 04/07/2025
 
 
