@@ -16,10 +16,10 @@ export const logModeration = async (previous: any, update: any, user: any, moder
     newNote: update[`moderation_${moderatorId}_note`],
     initialTitle: previous[`moderation_${moderatorId}_title`],
     newTitle: update[`moderation_${moderatorId}_title`],
-    initialSiren: previous.associationSiren,
-    newSiren: update.associationSiren,
-    initialRNA: previous.associationRNA,
-    newRNA: update.associationRNA,
+    initialSiren: previous.organizationSirenVerified,
+    newSiren: update.organizationSirenVerified,
+    initialRNA: previous.organizationRNAVerified,
+    newRNA: update.organizationRNAVerified,
   } as ModerationEvent;
 
   const obj = {

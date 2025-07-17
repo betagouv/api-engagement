@@ -296,19 +296,23 @@ const MissionTab = ({ data, onChange }) => {
 };
 
 const OrganizationTab = ({ data, onChange }) => {
-  const [siren, setSiren] = useState(data.associationSiren);
-  const [rna, setRna] = useState(data.associationRNA);
+  const [values, setValues] = useState({
+    organizationSirenVerified: data.organizationSirenVerified,
+    organizationRNAVerified: data.organizationRNAVerified,
+  });
 
   useEffect(() => {
-    setSiren(data.associationSiren);
-    setRna(data.associationRNA);
-  }, [data.associationSiren, data.associationRNA]);
+    setValues({
+      organizationSirenVerified: data.organizationSirenVerified,
+      organizationRNAVerified: data.organizationRNAVerified,
+    });
+  }, [data]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     const obj = {};
-    if (siren !== data.newAssociationSiren) obj.associationSiren = siren;
-    if (rna !== data.newAssociationRNA) obj.associationRNA = rna;
+    if (values.organizationSirenVerified !== data.organizationSirenVerified) obj.organizationSirenVerified = values.organizationSirenVerified;
+    if (values.organizationRNAVerified !== data.organizationRNAVerified) obj.organizationRNAVerified = values.organizationRNAVerified;
     onChange(obj);
   };
 
@@ -316,39 +320,46 @@ const OrganizationTab = ({ data, onChange }) => {
     <form className="flex h-full divide-x" onSubmit={handleSubmit}>
       <div className="flex flex-1 flex-col gap-2 p-8">
         <div className="flex flex-col gap-2">
-          <label className="text-sm" htmlFor="association-name">
+          <label className="text-sm" htmlFor="organization-name">
             Nom de l'organisation
           </label>
-          <input id="association-name" className="input mb-2" disabled name="association-name" defaultValue={data.organizationName} />
+          <input id="organization-name" className="input mb-2" disabled name="organization-name" defaultValue={data.organizationName} />
         </div>
         <div className="flex flex-col gap-2 py-2">
-          <label className="text-sm" htmlFor="association-siren">
-            SIRET
+          <label className="text-sm" htmlFor="organization-siren">
+            SIREN
           </label>
           <input
-            id="association-siren"
+            id="organization-siren"
             className="input mb-2"
-            name="association-siren"
-            placeholder={data.associationSiren}
-            value={siren}
-            onChange={(e) => setSiren(e.target.value)}
+            name="organization-siren"
+            placeholder={data.organizationSirenVerified}
+            value={values.organizationSirenVerified}
+            onChange={(e) => setValues({ ...values, organizationSirenVerified: e.target.value })}
           />
           <p className="text-xs text-gray-dark">
-            <span className="mr-1 font-semibold">SIRET d'origine:</span>
-            {data.associationSiren ? data.associationSiren : "/"}
+            <span className="mr-1 font-semibold">SIREN d'origine:</span>
+            {data.organizationSiren ? data.organizationSiren : "/"}
           </p>
         </div>
         <div className="flex flex-col space-y-2 py-2">
-          <label className="text-sm" htmlFor="association-rna">
+          <label className="text-sm" htmlFor="organization-rna">
             RNA
           </label>
-          <input id="association-rna" className="input mb-2" name="association-rna" placeholder={data.associationRNA} value={rna} onChange={(e) => setRna(e.target.value)} />
+          <input
+            id="organization-rna"
+            className="input mb-2"
+            name="organization-rna"
+            placeholder={data.organizationRNAVerified}
+            value={values.organizationRNAVerified}
+            onChange={(e) => setValues({ ...values, organizationRNAVerified: e.target.value })}
+          />
           <p className="text-xs text-gray-dark">
             <span className="mr-1 font-semibold">RNA d'origine:</span>
-            {data.associationRNA ? data.associationRNA : "/"}
+            {data.organizationRNA ? data.organizationRNA : "/"}
           </p>
         </div>
-        {(siren !== data.associationSiren || rna !== data.associationRNA) && (
+        {(values.organizationSirenVerified !== data.organizationSirenVerified || values.organizationRNAVerified !== data.organizationRNAVerified) && (
           <button className="button bg-blue-dark text-white hover:bg-blue-main mt-4 w-[25%]" type="submit">
             Enregistrer
           </button>
@@ -371,7 +382,7 @@ const OrganizationTab = ({ data, onChange }) => {
             Organisation déjà inscrite sur
           </label>
           <p className="text-sm text-gray-dark">
-            {data.associationSources ? data.associationSources.map((s) => (s === "Je veux aider" ? "JeVeuxAider.gouv.fr" : s)).join(", ") : "/"}
+            {data.associationSources?.length ? data.associationSources.map((s) => (s === "Je veux aider" ? "JeVeuxAider.gouv.fr" : s)).join(", ") : "/"}
           </p>
         </div>
         <div className="flex flex-col gap-2 border-t border-gray-border py-4">
