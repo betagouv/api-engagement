@@ -8,7 +8,7 @@ const elasticMock = {
   }),
   search: vi.fn().mockResolvedValue({
     body: {
-      aggregations: {},
+      hits: { total: { value: 0 } },
     },
   }),
   ping: vi.fn().mockResolvedValue({ statusCode: 200 }),
