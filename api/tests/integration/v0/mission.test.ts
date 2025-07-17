@@ -13,6 +13,7 @@ describe("Mission API Integration Tests", () => {
   let mission1: Mission;
   let mission2: Mission;
   let mission3: Mission;
+  let mission4: Mission;
 
   beforeEach(async () => {
     // Clean up
@@ -50,6 +51,15 @@ describe("Mission API Integration Tests", () => {
       title: "Mission in Paris",
       city: "Paris",
       domain: "culture",
+      activity: "arts",
+      type: MissionType.BENEVOLAT,
+      organizationRNA: "W123456789",
+      organizationStatusJuridique: "Association",
+      remote: "no",
+      openToMinors: "no",
+      reducedMobilityAccessible: "yes",
+      startAt: new Date("2024-01-10"),
+      endAt: new Date("2024-02-10"),
       addresses: [
         {
           street: "1 Place de l'Hôtel de Ville",
@@ -72,6 +82,7 @@ describe("Mission API Integration Tests", () => {
       title: "Mission in Lyon",
       city: "Lyon",
       domain: "sport",
+      openToMinors: "no",
       addresses: [
         {
           street: "1 rue de la république",
@@ -94,6 +105,7 @@ describe("Mission API Integration Tests", () => {
       title: "Another mission in Paris",
       city: "Paris",
       domain: "environment",
+      openToMinors: "no",
       addresses: [
         {
           street: "1 Avenue des Champs-Élysées",
@@ -251,15 +263,15 @@ describe("Mission API Integration Tests", () => {
     });
 
     it("should filter by openToMinors", async () => {
-      await createTestMission({ organizationClientId: "org-8", publisherId: publisher.publishers[0].publisherId, openToMinors: "no" });
-      const response = await request(app).get("/v0/mission?openToMinors=no").set("x-api-key", apiKey);
+      await createTestMission({ publisherId: publisher.publishers[0].publisherId, openToMinors: "yes" });
+      const response = await request(app).get("/v0/mission?openToMinors=yes").set("x-api-key", apiKey);
       expect(response.status).toBe(200);
       expect(response.body.total).toBe(1);
-      expect(response.body.data[0].openToMinors).toBe("no");
+      expect(response.body.data[0].openToMinors).toBe("yes");
     });
 
     it("should filter by remote", async () => {
-      await createTestMission({ organizationClientId: "org-9", publisherId: publisher.publishers[0].publisherId, remote: "full" });
+      await createTestMission({ publisherId: publisher.publishers[0].publisherId, remote: "full" });
       const response = await request(app).get("/v0/mission?remote=full").set("x-api-key", apiKey);
       expect(response.status).toBe(200);
       expect(response.body.total).toBe(1);
@@ -267,7 +279,7 @@ describe("Mission API Integration Tests", () => {
     });
 
     it("should filter by reducedMobilityAccessible", async () => {
-      await createTestMission({ organizationClientId: "org-10", publisherId: publisher.publishers[0].publisherId, reducedMobilityAccessible: "no" });
+      await createTestMission({ publisherId: publisher.publishers[0].publisherId, reducedMobilityAccessible: "no" });
       const response = await request(app).get("/v0/mission?reducedMobilityAccessible=no").set("x-api-key", apiKey);
       expect(response.status).toBe(200);
       expect(response.body.total).toBe(1);
@@ -275,7 +287,7 @@ describe("Mission API Integration Tests", () => {
     });
 
     it("should filter by type", async () => {
-      await createTestMission({ organizationClientId: "org-11", publisherId: publisher.publishers[0].publisherId, type: MissionType.VOLONTARIAT });
+      await createTestMission({ publisherId: publisher.publishers[0].publisherId, type: MissionType.VOLONTARIAT });
       const response = await request(app).get(`/v0/mission?type=${MissionType.VOLONTARIAT}`).set("x-api-key", apiKey);
       expect(response.status).toBe(200);
       expect(response.body.total).toBe(1);
@@ -296,6 +308,162 @@ describe("Mission API Integration Tests", () => {
       const response = await request(app).get(`/v0/mission?startAt=lt:${futureDate.toISOString()}`).set("x-api-key", apiKey);
       expect(response.status).toBe(200);
       expect(response.body.total).toBe(3);
+    });
+  });
+
+  describe("GET /v0/mission/search", () => {
+    it("should return 401 if not authenticated", async () => {
+      const response = await request(app).get("/v0/mission/search");
+      expect(response.status).toBe(401);
+    });
+
+    it("should return a list of missions with correct format and facets", async () => {
+      const response = await request(app).get("/v0/mission/search").set("x-api-key", apiKey);
+
+      expect(response.status).toBe(200);
+      expect(response.body.ok).toBe(true);
+      expect(Array.isArray(response.body.hits)).toBe(true);
+      expect(response.body.total).toBe(3);
+      expect(response.body.hits.length).toBe(3);
+
+      // Check facets
+      expect(response.body.facets).toBeDefined();
+      expect(response.body.facets.domains).toBeDefined();
+      expect(response.body.facets.activities).toBeDefined();
+      expect(response.body.facets.departmentName).toBeDefined();
+
+      // Check each hit is well formed
+      response.body.hits.forEach((hit: any) => {
+        validateMissionStructure(hit);
+      });
+    });
+
+    it("should filter by keywords", async () => {
+      const response = await request(app).get("/v0/mission/search?keywords=Lyon").set("x-api-key", apiKey);
+      expect(response.status).toBe(200);
+      expect(response.body.total).toBe(1);
+      expect(response.body.hits[0]._id).toBe(mission2._id!.toString());
+    });
+
+    it("should filter by geo-location", async () => {
+      // Near Lyon
+      const response = await request(app).get("/v0/mission/search?lat=45.76&lon=4.83&distance=10km").set("x-api-key", apiKey);
+      expect(response.status).toBe(200);
+      expect(response.body.total).toBe(1);
+      expect(response.body.hits[0]._id).toBe(mission2._id!.toString());
+      expect(response.body.hits[0]._distance).toBeLessThan(1);
+    });
+
+    it("should respect limit and skip parameters", async () => {
+      const response = await request(app).get("/v0/mission/search?limit=1&skip=1").set("x-api-key", apiKey);
+      expect(response.status).toBe(200);
+      expect(response.body.hits.length).toBe(1);
+      expect(response.body.total).toBe(3);
+    });
+
+    it("should filter by activity", async () => {
+      const response = await request(app).get("/v0/mission/search?activity=arts").set("x-api-key", apiKey);
+      expect(response.status).toBe(200);
+      expect(response.body.total).toBe(1);
+      expect(response.body.hits[0]._id).toBe(mission1._id!.toString());
+    });
+
+    it("should filter by city", async () => {
+      const response = await request(app).get("/v0/mission/search?city=Paris").set("x-api-key", apiKey);
+      expect(response.status).toBe(200);
+      expect(response.body.total).toBe(2);
+    });
+
+    it("should filter by clientId", async () => {
+      const response = await request(app).get("/v0/mission/search?clientId=org-1").set("x-api-key", apiKey);
+      expect(response.status).toBe(200);
+      expect(response.body.total).toBe(1);
+      expect(response.body.hits[0]._id).toBe(mission1._id!.toString());
+    });
+
+    it("should filter by multiple clientIds", async () => {
+      const response = await request(app).get("/v0/mission/search?clientId=org-1,org-3").set("x-api-key", apiKey);
+      expect(response.status).toBe(200);
+      expect(response.body.total).toBe(2);
+      const clientIds = response.body.hits.map((h: any) => h.organizationClientId);
+      expect(clientIds).toContain("org-1");
+      expect(clientIds).toContain("org-3");
+    });
+
+    it("should filter by country", async () => {
+      const response = await request(app).get("/v0/mission/search?country=France").set("x-api-key", apiKey);
+      expect(response.status).toBe(200);
+      expect(response.body.total).toBe(3);
+    });
+
+    it("should filter by departmentName", async () => {
+      const response = await request(app).get("/v0/mission/search?departmentName=Rhône").set("x-api-key", apiKey);
+      expect(response.status).toBe(200);
+      expect(response.body.total).toBe(1);
+    });
+
+    it("should filter by domain", async () => {
+      await createTestMission({ publisherId: publisher.publishers[0].publisherId, domain: "arts" });
+      const response = await request(app).get("/v0/mission/search?domain=arts").set("x-api-key", apiKey);
+      expect(response.status).toBe(200);
+      expect(response.body.total).toBe(1);
+    });
+
+    it("should filter by openToMinors", async () => {
+      await createTestMission({ publisherId: publisher.publishers[0].publisherId, openToMinors: "yes" });
+      const response = await request(app).get("/v0/mission/search?openToMinors=yes").set("x-api-key", apiKey);
+      expect(response.status).toBe(200);
+      expect(response.body.total).toBe(1);
+      expect(response.body.hits[0].openToMinors).toBe("yes");
+    });
+
+    it("should filter by organizationRNA", async () => {
+      await createTestMission({ publisherId: publisher.publishers[0].publisherId, organizationRNA: "XXX" });
+      const response = await request(app).get("/v0/mission/search?organizationRNA=XXX").set("x-api-key", apiKey);
+      expect(response.status).toBe(200);
+      expect(response.body.total).toBe(1);
+    });
+
+    it("should filter by organizationStatusJuridique", async () => {
+      await createTestMission({ organizationClientId: "org-7", publisherId: publisher.publishers[0].publisherId, organizationStatusJuridique: "Fondation" });
+      const response = await request(app).get("/v0/mission/search?organizationStatusJuridique=Fondation").set("x-api-key", apiKey);
+      expect(response.status).toBe(200);
+      expect(response.body.total).toBe(1);
+    });
+
+    it("should filter by publisher", async () => {
+      const response = await request(app).get(`/v0/mission/search?publisher=${mission2.publisherId}`).set("x-api-key", apiKey);
+      expect(response.status).toBe(200);
+      expect(response.body.total).toBe(1);
+      expect(response.body.hits[0]._id).toBe(mission2._id!.toString());
+    });
+
+    it("should filter by remote", async () => {
+      await createTestMission({ publisherId: publisher.publishers[0].publisherId, remote: "full" });
+      const response = await request(app).get("/v0/mission/search?remote=full").set("x-api-key", apiKey);
+      expect(response.status).toBe(200);
+      expect(response.body.total).toBe(1);
+    });
+
+    it("should filter by reducedMobilityAccessible", async () => {
+      await createTestMission({ publisherId: publisher.publishers[0].publisherId, reducedMobilityAccessible: "no" });
+      const response = await request(app).get("/v0/mission/search?reducedMobilityAccessible=no").set("x-api-key", apiKey);
+      expect(response.status).toBe(200);
+      expect(response.body.total).toBe(1);
+    });
+
+    it("should filter by startAt (gt)", async () => {
+      await createTestMission({ publisherId: publisher.publishers[0].publisherId, startAt: new Date("2028-01-01") });
+      const response = await request(app).get("/v0/mission/search?startAt=gt:2027-12-31").set("x-api-key", apiKey);
+      expect(response.status).toBe(200);
+      expect(response.body.total).toBe(1);
+    });
+
+    it("should filter by type", async () => {
+      await createTestMission({ publisherId: publisher.publishers[0].publisherId, type: MissionType.VOLONTARIAT });
+      const response = await request(app).get(`/v0/mission/search?type=${MissionType.VOLONTARIAT}`).set("x-api-key", apiKey);
+      expect(response.status).toBe(200);
+      expect(response.body.total).toBe(1);
     });
   });
 });
