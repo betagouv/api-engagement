@@ -1,7 +1,7 @@
 import { MongoMemoryServer } from "mongodb-memory-server";
 import mongoose from "mongoose";
 import { afterAll, beforeAll, beforeEach, vi } from "vitest";
-import { elasticMock, sentryMock } from "./mocks";
+import { dataSubventionMock, elasticMock, sentryMock } from "./mocks";
 
 process.env.JWT_SECRET = "test-jwt-secret";
 process.env.MONGODB_URI = "mongodb://localhost:27017/test";
@@ -14,6 +14,11 @@ vi.mock("../src/db/elastic", () => ({
 vi.mock("@sentry/node", () => ({
   default: sentryMock,
   ...sentryMock,
+}));
+
+// Mock services
+vi.mock("../src/services/api-datasubvention", () => ({
+  default: dataSubventionMock,
 }));
 
 let mongoServer: MongoMemoryServer;

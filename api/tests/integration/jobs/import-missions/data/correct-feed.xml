@@ -4,13 +4,13 @@
   <publisherurl><![CDATA[http://www.examplemissionsite.com]]></publisherurl>
   <lastBuildDate><![CDATA[Fri, 10 March 2020 22:49:39 GMT]]></lastBuildDate>
   <mission>
-    <title><![CDATA[Sales Executive]]></title>
+    <title><![CDATA[Titre de la mission]]></title>
     <clientId><![CDATA[32132143]]></clientId>
-    <description><![CDATA[Do you have 1-3 years of experience in sales? Join us and make a difference!]]></description>
+    <description><![CDATA[Description de la mission]]></description>
     <applicationUrl><![CDATA[https://www.urltomymission.org]]></applicationUrl>
-    <postedAt><![CDATA[Fri, 10 Dec 2005 22:49:39 GMT]]></postedAt>
-    <startAt><![CDATA[Fri, 10 Dec 2005 22:49:39 GMT]]></startAt>
-    <endAt><![CDATA[Fri, 20 Dec 2005 22:49:39 GMT]]></endAt>
+    <postedAt><![CDATA[Fri, 10 Dec 2024 22:49:39 GMT]]></postedAt>
+    <startAt><![CDATA[Fri, 10 Dec 2025 00:00:00 GMT]]></startAt>
+    <endAt><![CDATA[Fri, 20 Dec 2025 00:00:00 GMT]]></endAt>
     <addresses>
       <address>
         <street><![CDATA[46 Rue Saint-Antoine]]></street>
@@ -45,7 +45,7 @@
     <domain><![CDATA[environnement]]></domain>
     <tags><![CDATA[environnement,écologie]]></tags>
     <image><![CDATA[https://monurl.com/1.jpg]]></image>
-    <organizationName><![CDATA[Big ABC Corporation]]></organizationName>
+    <organizationName><![CDATA[Mon asso]]></organizationName>
     <organizationRNA><![CDATA[W922000733]]></organizationRNA>
     <organizationSiren><![CDATA[332737394]]></organizationSiren>
     <organizationUrl><![CDATA[https://www.organizationname.com]]></organizationUrl>
