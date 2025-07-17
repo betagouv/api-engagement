@@ -5,7 +5,6 @@ import { ImportMissionsHandler } from "../../../../src/jobs/import-missions/hand
 import MissionModel from "../../../../src/models/mission";
 import { createTestMission, createTestPublisher } from "../../../fixtures";
 
-// Mock global fetch
 const originalFetch = global.fetch;
 global.fetch = vi.fn();
 
@@ -37,9 +36,48 @@ describe("Import missions job (integration test)", () => {
     expect(missions.length).toBeGreaterThan(0);
     expect(result.success).toBe(true);
     expect(result.imports[0].status).toBe("SUCCESS");
-    expect(missions[0].title).toMatch(/Sales Executive/);
-    expect(missions[0].addresses.length).toBeGreaterThan(0);
-    expect(missions[0].organizationName).toBe("Big ABC Corporation");
+
+    const mission = missions[0];
+
+    expect(mission.addresses).toBeDefined();
+    expect(mission.addresses.length).toBe(2);
+    expect(mission.addresses[0]).toMatchObject({
+      street: "46 Rue Saint-Antoine",
+      city: "Paris",
+      postalCode: "75004",
+      departmentCode: "75",
+      departmentName: "Paris",
+      region: "Île-de-France",
+      country: "FR",
+      location: {
+        lat: 48.8541,
+        lon: 2.3643,
+      },
+      geoPoint: {
+        type: "Point",
+        coordinates: [2.3643, 48.8541],
+      },
+      geolocStatus: "ENRICHED_BY_PUBLISHER",
+    });
+    expect(mission.activity).toBe("logistique");
+    expect(mission.clientId).toBe("32132143");
+    expect(mission.description).toBe("Description de la mission");
+    expect(mission.domain).toBe("environnement");
+    expect(mission.endAt?.toISOString()).toBe("2025-12-20T00:00:00.000Z");
+    expect(mission.organizationClientId).toBe("123312321");
+    expect(mission.organizationFullAddress).toBe("55 Rue du Faubourg Saint-Honoré 75008 Paris");
+    expect(mission.organizationName).toBe("Mon asso");
+    expect(mission.organizationRNA).toBe("W922000733");
+    expect(mission.organizationSiren).toBe("332737394");
+    expect(mission.organizationStatusJuridique).toBe("Association");
+    expect(mission.organizationType).toBe("1901");
+    expect(mission.organizationUrl).toBe("https://www.organizationname.com");
+    expect(mission.places).toBe(2);
+    expect(mission.publisherId).toBe(publisher._id.toString());
+    expect(mission.remote).toBe("full");
+    expect(mission.startAt.toISOString()).toBe("2025-12-10T00:00:00.000Z");
+    expect(mission.tags).toEqual(expect.arrayContaining(["environnement", "écologie"]));
+    expect(mission.title).toBe("Titre de la mission");
   });
 
   it("If feed is empty, missions related to publisher should be deleted", async () => {
@@ -69,5 +107,56 @@ describe("Import missions job (integration test)", () => {
     const result = await handler.handle({ publisherId: publisher._id.toString() });
     expect(result.imports[0].status).toBe("FAILED");
     expect(result.imports[0].error).toMatch(/Network error/);
+  });
+
+  it("If feed XML is malformed, import should fail with explicit error", async () => {
+    const malformedXml = `<missions><mission><title>Oops</title></mission>`; // missing closing tags
+    const publisher = await createTestPublisher({ feed: "https://malformed-feed" });
+    (global.fetch as any).mockResolvedValueOnce({ text: async () => malformedXml });
+    const result = await handler.handle({ publisherId: publisher._id.toString() });
+    expect(result.imports[0].status).toBe("FAILED");
+  });
+
+  it("If publisher has feedUsername/feedPassword, Authorization header is sent", async () => {
+    const xml = await readFile(path.join(__dirname, "data/correct-feed.xml"), "utf-8");
+    const publisher = await createTestPublisher({
+      feed: "https://auth-feed",
+      feedUsername: "user",
+      feedPassword: "pass",
+    });
+    (global.fetch as any).mockImplementationOnce((url: string, options: any) => {
+      expect(url).toBe("https://auth-feed");
+      expect(options).toBeDefined();
+      expect(options.headers).toBeDefined();
+      const auth = options.headers.get("Authorization");
+      expect(auth).toMatch(/^Basic /);
+      return Promise.resolve({ text: async () => xml });
+    });
+    const result = await handler.handle({ publisherId: publisher._id.toString() });
+    expect(result.imports[0].status).toBe("SUCCESS");
+  });
+
+  it("If mission already exists, it is updated and not duplicated", async () => {
+    const xml = await readFile(path.join(__dirname, "data/correct-feed.xml"), "utf-8");
+    const publisher = await createTestPublisher({ feed: "https://fixture-feed" });
+    // Create a mission with the same clientId as the one in the XML
+    await createTestMission({
+      publisherId: publisher._id.toString(),
+      clientId: "32132143",
+      title: "Ancien titre",
+      description: "Ancienne description",
+      organizationName: "Ancienne asso",
+    });
+
+    (global.fetch as any).mockResolvedValueOnce({ text: async () => xml });
+    const result = await handler.handle({ publisherId: publisher._id.toString() });
+    expect(result.imports[0].status).toBe("SUCCESS");
+
+    const missions = await MissionModel.find({ publisherId: publisher._id.toString(), clientId: "32132143" });
+    expect(missions.length).toBe(1);
+    const mission = missions[0];
+    expect(mission.title).toBe("Titre de la mission");
+    expect(mission.description).toBe("Description de la mission");
+    expect(mission.organizationName).toBe("Mon asso");
   });
 });
