@@ -2,95 +2,41 @@ import { NextFunction, Response, Router } from "express";
 import passport from "passport";
 import zod from "zod";
 
-import { PUBLISHER_IDS, STATS_INDEX } from "../config";
-import esClient from "../db/elastic";
-import { INVALID_PARAMS, INVALID_QUERY, NOT_FOUND, captureMessage } from "../error";
-import MissionModel from "../models/mission";
-import OrganizationExclusionModel from "../models/organization-exclusion";
-import RequestModel from "../models/request";
-import { Mission, Publisher, Stats } from "../types";
-import { PublisherRequest } from "../types/passport";
-import { EARTH_RADIUS, diacriticSensitiveRegex, getDistanceFromLatLonInKm, getDistanceKm, getMissionTrackedApplicationUrl } from "../utils";
+import { PUBLISHER_IDS } from "../../config";
+import { INVALID_PARAMS, INVALID_QUERY, NOT_FOUND } from "../../error";
+import MissionModel from "../../models/mission";
+import OrganizationExclusionModel from "../../models/organization-exclusion";
+import RequestModel from "../../models/request";
+import { Mission, Publisher } from "../../types";
+import { PublisherRequest } from "../../types/passport";
+import { diacriticSensitiveRegex, getDistanceFromLatLonInKm, getDistanceKm } from "../../utils";
+import { MISSION_FIELDS, NO_PARTNER, NO_PARTNER_MESSAGE } from "./constants";
+import { buildData } from "./transformer";
+import { buildArrayQuery, buildDateQuery, findMissionTemp, nearSphereToGeoWithin } from "./utils";
 
-const NO_PARTNER = "NO_PARTNER";
-const NO_PARTNER_MESSAGE = "Vous n'avez pas encore accès à des missions. Contactez margot.quettelart@beta.gouv.fr pour vous donner accès aux missions";
-const MISSION_FIELDS = [
-  "_id",
-  "clientId",
-  "activity",
-  "addresses",
-  "associationLogo",
-  "associationAddress",
-  "associationCity",
-  "associationDepartmentCode",
-  "associationDepartmentName",
-  "associationId",
-  "associationName",
-  "associationRNA",
-  "associationPostalCode",
-  "associationRegion",
-  "associationReseaux",
-  "associationSiren",
-  "associationSources",
-  "audience",
-  "closeToTransport",
-  "createdAt",
-  "deleted",
-  "deletedAt",
-  "description",
-  "descriptionHtml",
-  "domain",
-  "domainLogo",
-  "duration",
-  "endAt",
-  "lastSyncAt",
-  "metadata",
-  "openToMinors",
-  "organizationActions",
-  "organizationBeneficiaries",
-  "organizationCity",
-  "organizationClientId",
-  "organizationDepartment",
-  "organizationDepartmentCode",
-  "organizationDepartmentName",
-  "organizationDescription",
-  "organizationFullAddress",
-  "organizationId",
-  "organizationLogo",
-  "organizationName",
-  "organizationPostCode",
-  "organizationRNA",
-  "organizationReseaux",
-  "organizationSiren",
-  "organizationStatusJuridique",
-  "organizationType",
-  "organizationUrl",
-  "postedAt",
-  "priority",
-  "publisherId",
-  "publisherName",
-  "publisherUrl",
-  "publisherLogo",
-  "reducedMobilityAccessible",
-  "remote",
-  "requirements",
-  "romeSkills",
-  "schedule",
-  "snu",
-  "snuPlaces",
-  "soft_skills",
-  "softSkills",
-  "startAt",
-  "statusCode",
-  "statusComment",
-  "statusCommentHistoric",
-  "tags",
-  "tasks",
-  "title",
-  "type",
-  "places",
-  "updatedAt",
-];
+export const missionQuerySchema = zod.object({
+  activity: zod.union([zod.string(), zod.array(zod.string())]).optional(),
+  city: zod.union([zod.string(), zod.array(zod.string())]).optional(),
+  clientId: zod.union([zod.string(), zod.array(zod.string())]).optional(),
+  country: zod.union([zod.string(), zod.array(zod.string())]).optional(),
+  createdAt: zod.string().optional(),
+  departmentName: zod.union([zod.string(), zod.array(zod.string())]).optional(),
+  distance: zod.string().optional(),
+  domain: zod.union([zod.string(), zod.array(zod.string())]).optional(),
+  keywords: zod.string().optional(),
+  limit: zod.coerce.number().min(0).max(10000).default(25),
+  lat: zod.coerce.number().optional(),
+  lon: zod.coerce.number().optional(),
+  openToMinors: zod.string().optional(), // TODO: put enum
+  organizationRNA: zod.union([zod.string(), zod.array(zod.string())]).optional(),
+  organizationStatusJuridique: zod.union([zod.string(), zod.array(zod.string())]).optional(),
+  publisher: zod.union([zod.string(), zod.array(zod.string())]).optional(),
+  remote: zod.union([zod.string(), zod.array(zod.string())]).optional(),
+  reducedMobilityAccessible: zod.string().optional(), // TODO: put enum
+  skip: zod.coerce.number().min(0).default(0),
+  startAt: zod.string().optional(),
+  type: zod.union([zod.string(), zod.array(zod.string())]).optional(),
+});
 
 const router = Router();
 
@@ -121,32 +67,7 @@ router.get("/", passport.authenticate(["apikey", "api"], { session: false }), as
   try {
     const user = req.user as Publisher;
 
-    const query = zod
-      .object({
-        activity: zod.union([zod.string(), zod.array(zod.string())]).optional(),
-        city: zod.union([zod.string(), zod.array(zod.string())]).optional(),
-        clientId: zod.union([zod.string(), zod.array(zod.string())]).optional(),
-        country: zod.union([zod.string(), zod.array(zod.string())]).optional(),
-        createdAt: zod.string().optional(),
-        departmentName: zod.union([zod.string(), zod.array(zod.string())]).optional(),
-        distance: zod.string().optional(),
-        domain: zod.union([zod.string(), zod.array(zod.string())]).optional(),
-        keywords: zod.string().optional(),
-        limit: zod.coerce.number().min(0).max(10000).default(25),
-        lat: zod.coerce.number().optional(),
-        lon: zod.coerce.number().optional(),
-        openToMinors: zod.string().optional(), // TODO: put enum
-        organizationRNA: zod.union([zod.string(), zod.array(zod.string())]).optional(),
-        organizationStatusJuridique: zod.union([zod.string(), zod.array(zod.string())]).optional(),
-        publisher: zod.union([zod.string(), zod.array(zod.string())]).optional(),
-        remote: zod.union([zod.string(), zod.array(zod.string())]).optional(),
-        reducedMobilityAccessible: zod.string().optional(), // TODO: put enum
-        skip: zod.coerce.number().min(0).default(0),
-        startAt: zod.string().optional(),
-        type: zod.union([zod.string(), zod.array(zod.string())]).optional(),
-      })
-      .passthrough()
-      .safeParse(req.query);
+    const query = missionQuerySchema.passthrough().safeParse(req.query);
 
     if (!query.success) {
       res.locals = { code: INVALID_QUERY, message: JSON.stringify(query.error) };
@@ -317,30 +238,9 @@ router.get("/search", passport.authenticate(["apikey", "api"], { session: false 
   try {
     const user = req.user as Publisher;
 
-    const query = zod
-      .object({
-        activity: zod.union([zod.string(), zod.array(zod.string())]).optional(),
-        city: zod.union([zod.string(), zod.array(zod.string())]).optional(),
-        clientId: zod.union([zod.string(), zod.array(zod.string())]).optional(),
-        country: zod.union([zod.string(), zod.array(zod.string())]).optional(),
-        createdAt: zod.string().optional(),
-        departmentName: zod.union([zod.string(), zod.array(zod.string())]).optional(),
-        distance: zod.string().optional(),
-        domain: zod.union([zod.string(), zod.array(zod.string())]).optional(),
-        keywords: zod.string().optional(),
-        limit: zod.coerce.number().min(0).max(10000).default(25),
-        lat: zod.coerce.number().optional(),
-        lon: zod.coerce.number().optional(),
-        openToMinors: zod.string().optional(), // TODO: put enum
-        organizationRNA: zod.union([zod.string(), zod.array(zod.string())]).optional(),
-        organizationStatusJuridique: zod.union([zod.string(), zod.array(zod.string())]).optional(),
-        publisher: zod.union([zod.string(), zod.array(zod.string())]).optional(),
-        remote: zod.union([zod.string(), zod.array(zod.string())]).optional(),
-        reducedMobilityAccessible: zod.string().optional(), // TODO: put enum
-        skip: zod.coerce.number().min(0).default(0),
-        startAt: zod.string().optional(),
-        type: zod.union([zod.string(), zod.array(zod.string())]).optional(),
-        text: zod.string().optional(),
+    const query = missionQuerySchema
+      .extend({
+        text: zod.string().optional(), // Legacy text param, not documented anymore
       })
       .passthrough()
       .safeParse(req.query);
@@ -394,7 +294,7 @@ router.get("/search", passport.authenticate(["apikey", "api"], { session: false 
       where["addresses.city"] = buildArrayQuery(query.data.city);
     }
     if (query.data.clientId) {
-      where.clientId = buildArrayQuery(query.data.clientId);
+      where.organizationClientId = buildArrayQuery(query.data.clientId);
     }
     if (query.data.country) {
       where["addresses.country"] = buildArrayQuery(query.data.country);
@@ -442,6 +342,9 @@ router.get("/search", passport.authenticate(["apikey", "api"], { session: false 
     if (query.data.startAt) {
       where.startAt = buildDateQuery(query.data.startAt);
     }
+    if (query.data.type) {
+      where.type = buildArrayQuery(query.data.type);
+    }
     // Old search
     if (query.data.text) {
       where.$or = [
@@ -476,23 +379,31 @@ router.get("/search", passport.authenticate(["apikey", "api"], { session: false 
       query.data.skip = parseInt(req.query.from as string, 10);
     }
 
-    const data = await MissionModel.find(where).skip(query.data.skip).limit(query.data.limit).lean();
+    const projection: Record<string, any> = {};
+    MISSION_FIELDS.forEach((field) => {
+      projection[field] = 1;
+    });
 
-    // countDocument and aggregate does not accept $nearSphere (but keeping $near cause it sorts the results)
-    if (where["addresses.geoPoint"]) {
-      where["addresses.geoPoint"] = nearSphereToGeoWithin(where["addresses.geoPoint"].$nearSphere);
+    const whereForFacets = { ...where };
+    if (whereForFacets["addresses.geoPoint"]) {
+      whereForFacets["addresses.geoPoint"] = nearSphereToGeoWithin(whereForFacets["addresses.geoPoint"].$nearSphere);
     }
-    const total = await MissionModel.countDocuments(where);
-    const facets = await MissionModel.aggregate([
-      { $match: where },
-      {
-        $facet: {
-          domain: [{ $group: { _id: "$domain", count: { $sum: 1 } } }, { $sort: { count: -1 } }],
-          activity: [{ $group: { _id: "$activity", count: { $sum: 1 } } }, { $sort: { count: -1 } }],
-          departmentName: [{ $group: { _id: "$departmentName", count: { $sum: 1 } } }, { $sort: { count: -1 } }],
-        },
+
+    const aggregation: any[] = [];
+    aggregation.push({ $match: whereForFacets });
+    aggregation.push({
+      $facet: {
+        data: [{ $skip: query.data.skip }, { $limit: query.data.limit }, { $project: projection }],
+        metadata: [{ $count: "total" }],
+        domain: [{ $group: { _id: "$domain", count: { $sum: 1 } } }, { $sort: { count: -1 } }],
+        activity: [{ $group: { _id: "$activity", count: { $sum: 1 } } }, { $sort: { count: -1 } }],
+        departmentName: [{ $group: { _id: "$departmentName", count: { $sum: 1 } } }, { $sort: { count: -1 } }],
       },
-    ]);
+    });
+
+    const [results] = await MissionModel.aggregate(aggregation);
+    const data = results.data;
+    const total = results.metadata[0]?.total || 0;
 
     res.locals = { total };
     return res.status(200).send({
@@ -503,15 +414,15 @@ router.get("/search", passport.authenticate(["apikey", "api"], { session: false 
         _distance: getDistanceFromLatLonInKm(query.data.lat, query.data.lon, e.addresses[0]?.location?.lat, e.addresses[0]?.location?.lon),
       })),
       facets: {
-        departmentName: facets[0].departmentName.map((b: { _id: string; count: number }) => ({
+        departmentName: results.departmentName.map((b: { _id: string; count: number }) => ({
           key: b._id,
           doc_count: b.count,
         })),
-        activities: facets[0].activity.map((b: { _id: string; count: number }) => ({
+        activities: results.activity.map((b: { _id: string; count: number }) => ({
           key: b._id,
           doc_count: b.count,
         })),
-        domains: facets[0].domain.map((b: { _id: string; count: number }) => ({
+        domains: results.domain.map((b: { _id: string; count: number }) => ({
           key: b._id,
           doc_count: b.count,
         })),
@@ -521,41 +432,6 @@ router.get("/search", passport.authenticate(["apikey", "api"], { session: false 
     next(error);
   }
 });
-
-const findMissionTemp = async (missionId: string) => {
-  if (!missionId.match(/[^0-9a-fA-F]/) && missionId.length === 24) {
-    const mission = await MissionModel.findById(missionId);
-    if (mission) {
-      return mission;
-    }
-  }
-
-  const mission = await MissionModel.findOne({ _old_ids: { $in: [missionId] } });
-  if (mission) {
-    captureMessage("[Temp] Mission found with _old_ids", `mission ${missionId}`);
-    return mission;
-  }
-
-  const response2 = await esClient.search({
-    index: STATS_INDEX,
-    body: { query: { term: { "missionId.keyword": missionId } }, size: 1 },
-  });
-  if (response2.body.hits.total.value > 0) {
-    const stats = {
-      _id: response2.body.hits.hits[0]._id,
-      ...response2.body.hits.hits[0]._source,
-    } as Stats;
-    const mission = await MissionModel.findOne({
-      clientId: stats.missionClientId?.toString(),
-      publisherId: stats.toPublisherId,
-    });
-    if (mission) {
-      captureMessage("[Temp] Mission found with click", `mission ${missionId}`);
-      return mission;
-    }
-  }
-  return null;
-};
 
 router.get("/:id", passport.authenticate(["apikey", "api"], { session: false }), async (req: PublisherRequest, res: Response, next: NextFunction) => {
   try {
@@ -573,6 +449,7 @@ router.get("/:id", passport.authenticate(["apikey", "api"], { session: false }),
     }
 
     // const mission = await MissionModel.findOne({ _id: params.data.id });
+    // TODO: temporary hack: still used?
     const mission = await findMissionTemp(params.data.id);
     if (!mission) {
       return res.status(404).send({ ok: false, code: NOT_FOUND });
@@ -584,80 +461,5 @@ router.get("/:id", passport.authenticate(["apikey", "api"], { session: false }),
     next(error);
   }
 });
-
-const buildArrayQuery = (query: string | string[]) => {
-  if (!Array.isArray(query) && query.includes(",")) {
-    query = query.split(",").map((e: string) => e.trim());
-  }
-  return Array.isArray(query) ? { $in: query } : query;
-};
-
-const buildDateQuery = (query: string) => {
-  try {
-    const operation = query.slice(0, 3);
-    const date = query.slice(3);
-    if (!date) {
-      return undefined;
-    }
-    if (isNaN(new Date(date).getTime())) {
-      return undefined;
-    }
-    return { [operation === "gt:" ? "$gt" : "$lt"]: new Date(date) };
-  } catch (error) {
-    return undefined;
-  }
-};
-
-// Convert $nearSphere to $geoWithin (doesn't work with countDocuments)
-const nearSphereToGeoWithin = (nearSphere: any) => {
-  if (!nearSphere) {
-    return;
-  }
-  const distanceKm = nearSphere.$maxDistance / 1000;
-  const geoWithin = {
-    $geoWithin: {
-      $centerSphere: [[nearSphere.$geometry.coordinates[0], nearSphere.$geometry.coordinates[1]], distanceKm / EARTH_RADIUS],
-    },
-  };
-  return geoWithin;
-};
-
-// Build the data object for the response
-const buildData = (data: Mission, publisherId: string, moderator: boolean = false) => {
-  const obj: any = {};
-
-  // Use MISSION_FIELDS const
-  for (const field of MISSION_FIELDS) {
-    obj[field] = data[field as keyof Mission];
-  }
-
-  obj.applicationUrl = getMissionTrackedApplicationUrl(data, publisherId);
-
-  // Add fields to legacy support
-  const address = data.addresses?.[0];
-  obj.id = data._id;
-  obj.address = address ? address.street : undefined;
-  obj.city = address ? address.city : undefined;
-  obj.postalCode = address ? address.postalCode : undefined;
-  obj.departmentCode = address ? address.departmentCode : undefined;
-  obj.departmentName = address ? address.departmentName : undefined;
-  obj.country = address ? address.country : undefined;
-  obj.location = address ? address.location : undefined;
-
-  // Custom hack for remote LBC
-  if (publisherId.toString() === PUBLISHER_IDS.LEBONCOIN && obj.remote === "full") {
-    obj.title = `[À distance] ${obj.title}`;
-    obj.postalCode = "75000";
-    obj.departmentCode = "75";
-    obj.departmentName = "Paris";
-    obj.city = "Paris";
-    obj.country = "FR";
-    obj.location = {
-      lat: 48.854744,
-      lon: 2.348715,
-    };
-  }
-  return obj;
-};
 
 export default router;
