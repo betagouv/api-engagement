@@ -179,3 +179,21 @@ resource "scaleway_job_definition" "moderation" {
 
   env = local.all_env_vars
 }
+
+# Job Definition for the 'import-missions' task
+resource "scaleway_job_definition" "import-missions" {
+  name         = "${terraform.workspace}-import-missions"
+  project_id   = var.project_id
+  cpu_limit    = 1000
+  memory_limit = 2048
+  image_uri    = local.image_uri
+  command      = "node dist/jobs/run-job.js import-missions"
+  timeout      = "45m"
+
+  cron {
+    schedule = "15 */3 * * *" # Every 3 hours at 15 minutes
+    timezone = "Europe/Paris"
+  }
+
+  env = local.all_env_vars
+}
