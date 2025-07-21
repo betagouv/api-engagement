@@ -159,4 +159,26 @@ describe("Import missions job (integration test)", () => {
     expect(mission.description).toBe("Description de la mission");
     expect(mission.organizationName).toBe("Mon asso");
   });
+
+  it("If mission already exists and has no new data, it is not updated", async () => {
+    const xml = await readFile(path.join(__dirname, "data/correct-feed.xml"), "utf-8");
+    const publisher = await createTestPublisher({ feed: "https://fixture-feed" });
+
+    // Import feed once to create mission
+    (global.fetch as any).mockResolvedValueOnce({ text: async () => xml });
+    await handler.handle({ publisherId: publisher._id.toString() });
+
+    // Update updatedAt to simulate older mission
+    await MissionModel.updateOne({ publisherId: publisher._id.toString(), clientId: "32132143" }, { updatedAt: new Date("2025-01-01") }, { timestamps: false });
+
+    // Import feed again to update mission (no change)
+    (global.fetch as any).mockResolvedValueOnce({ text: async () => xml });
+    await handler.handle({ publisherId: publisher._id.toString() });
+
+    const missions = await MissionModel.find({ publisherId: publisher._id.toString(), clientId: "32132143" });
+
+    expect(missions.length).toBe(1);
+    const mission = missions[0];
+    expect(mission.updatedAt.toISOString()).toBe("2025-01-01T00:00:00.000Z");
+  });
 });

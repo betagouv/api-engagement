@@ -3,6 +3,7 @@
 import { captureException } from "../../../error";
 import MissionModel from "../../../models/mission";
 import { Import, Mission, Publisher } from "../../../types";
+import { missionsAreEqual } from "./mission";
 
 /**
  * Import a batch of missions into databases
@@ -26,9 +27,9 @@ export const bulkDB = async (bulk: Mission[], publisher: Publisher, importDoc: I
   }
 };
 
-export const cleanDB = async (publisher: Publisher, importDoc: Import) => {
+export const cleanDB = async (bulk: Mission[], publisher: Publisher, importDoc: Import) => {
   console.log(`[${publisher.name}] Cleaning Mongo missions...`);
-  const res = await cleanMongo(publisher, importDoc);
+  const res = await cleanMongo(bulk, publisher, importDoc);
   importDoc.deletedCount = res.modifiedCount;
   console.log(`[${publisher.name}] Mongo cleaning removed ${res.modifiedCount}`);
 
@@ -40,15 +41,32 @@ export const cleanDB = async (publisher: Publisher, importDoc: Import) => {
  * We use bulkWriteWithHistory to keep history of changes. See history-plugin.ts.
  */
 const writeMongo = async (bulk: Mission[], publisher: Publisher, startedAt: Date) => {
-  // Cast to any to resolve TypeScript error, as bulkWriteWithHistory is added dynamically to the model.
+  // Get existing missions in DB, to compare with new missions
+  const clientIds = bulk.filter((e) => e && e.clientId).map((e) => e.clientId);
+  const existingMissions = await MissionModel.find({
+    publisherId: publisher._id,
+    clientId: { $in: clientIds },
+  }).lean();
+  const existingMap = new Map(existingMissions.map((m) => [m.clientId, m]));
 
+  // Build bulk write operations
   const mongoBulk = bulk
     .filter((e) => e)
-    .map((e) =>
-      e._id
+    .map((e) => {
+      const current = e._id ? existingMap.get(e.clientId) : null;
+      if (e._id && current && missionsAreEqual(current, e)) {
+        // Pas de changement : skip update
+        return null;
+      }
+      return e._id
         ? { updateOne: { filter: { _id: e._id }, update: { $set: { ...e, updatedAt: startedAt } }, upsert: true } }
-        : { insertOne: { document: { ...e, createdAt: startedAt, updatedAt: startedAt } } }
-    );
+        : { insertOne: { document: { ...e, createdAt: startedAt, updatedAt: startedAt } } };
+    })
+    .filter(Boolean);
+
+  if (mongoBulk.length === 0) {
+    return { upsertedCount: 0, insertedCount: 0, modifiedCount: 0, hasWriteErrors: () => false, getWriteErrors: () => [] };
+  }
 
   const mongoUpdateRes = await (MissionModel as any)
     .withHistoryContext({
@@ -59,18 +77,20 @@ const writeMongo = async (bulk: Mission[], publisher: Publisher, startedAt: Date
   if (mongoUpdateRes.hasWriteErrors()) {
     captureException("Mongo bulk failed", JSON.stringify(mongoUpdateRes.getWriteErrors(), null, 2));
   }
+
   return mongoUpdateRes;
 };
 
-const cleanMongo = async (publisher: Publisher, importDoc: Import) => {
+const cleanMongo = async (bulk: Mission[], publisher: Publisher, importDoc: Import) => {
   const mongoDeleteRes = await MissionModel.updateMany(
-    { publisherId: publisher._id, deletedAt: null, updatedAt: { $lt: importDoc.startedAt } },
+    { publisherId: publisher._id, deletedAt: null, clientId: { $nin: bulk.map((e) => e.clientId) } },
     { deleted: true, deletedAt: importDoc.startedAt }
   );
+
   return mongoDeleteRes;
 };
 
-const PG_CHUNK_SIZE = 200;
+// const PG_CHUNK_SIZE = 200;
 /**
  * Write missions to PostgreSQL
  * This includes creating new missions and related data, updating existing ones, and cleaning up old ones

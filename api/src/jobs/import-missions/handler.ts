@@ -7,9 +7,9 @@ import { Import, Mission, Publisher } from "../../types";
 import { BaseHandler } from "../base/handler";
 import { JobResult } from "../types";
 import { enrichWithGeoloc } from "./geoloc";
-import { buildData } from "./mission";
 import { verifyOrganization } from "./organization";
 import { bulkDB, cleanDB } from "./utils/db";
+import { buildData } from "./utils/mission";
 import { parseXML } from "./utils/xml";
 
 const CHUNK_SIZE = 2000;
@@ -110,6 +110,7 @@ async function importMissionssForPublisher(publisher: Publisher, start: Date): P
     console.log(`[${publisher.name}] Found ${missionsDB} missions in DB`);
 
     let hasFailed: boolean = false;
+    const allMissions = [] as Mission[];
     for (let i = 0; i < missionsXML.length; i += CHUNK_SIZE) {
       const chunk = missionsXML.slice(i, i + CHUNK_SIZE);
       console.log(`[${publisher.name}] Processing chunk ${i / CHUNK_SIZE + 1} of ${Math.ceil(missionsXML.length / CHUNK_SIZE)} (${chunk.length} missions)`);
@@ -130,6 +131,7 @@ async function importMissionssForPublisher(publisher: Publisher, start: Date): P
         const res = await Promise.all(promises);
         res.forEach((e: Mission | undefined) => e && missions.push(e));
       }
+      allMissions.push(...missions);
 
       // GEOLOC
       const resultGeoloc = await enrichWithGeoloc(publisher, missions);
@@ -163,7 +165,7 @@ async function importMissionssForPublisher(publisher: Publisher, start: Date): P
     // CLEAN DB
     if (!hasFailed) {
       // If one chunk failed, don't remove missions from DB
-      await cleanDB(publisher, obj);
+      await cleanDB(allMissions, publisher, obj);
     }
 
     // STATS

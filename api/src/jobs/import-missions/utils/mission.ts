@@ -1,15 +1,16 @@
 import he from "he";
 import { convert } from "html-to-text";
 import { Schema } from "mongoose";
+import { isDeepStrictEqual } from "node:util";
 
-import { PUBLISHER_IDS } from "../../config";
-import { AUTRE_IMAGE, DOMAIN_IMAGES } from "../../constants/domains";
-import { captureException } from "../../error";
-import MissionModel from "../../models/mission";
-import { Mission, Publisher } from "../../types";
-import { MissionXML } from "./types";
-import { getAddress, getAddresses } from "./utils/address";
-import { getModeration } from "./utils/moderation";
+import { PUBLISHER_IDS } from "../../../config";
+import { AUTRE_IMAGE, DOMAIN_IMAGES } from "../../../constants/domains";
+import { captureException } from "../../../error";
+import MissionModel from "../../../models/mission";
+import { Mission, Publisher } from "../../../types";
+import { MissionXML } from "../types";
+import { getAddress, getAddresses } from "./address";
+import { getModeration } from "./moderation";
 
 const getImageDomain = (domain: string) => {
   const number = Number(new Date().getTime().toString().slice(-1)) % 3;
@@ -273,4 +274,104 @@ export const buildData = async (startTime: Date, publisher: Publisher, missionXM
   } catch (error) {
     captureException(error, `Error while parsing mission ${missionXML.clientId}`);
   }
+};
+
+export const missionsAreEqual = (a: any, b: any) => {
+  const fields = [
+    "title",
+    "type",
+    "description",
+    "descriptionHtml",
+    "clientId",
+    "applicationUrl",
+    "postedAt",
+    "startAt",
+    "endAt",
+    "duration",
+    "activity",
+    "domain",
+    "schedule",
+    "audience",
+    "softSkills",
+    "romeSkills",
+    "requirements",
+    "remote",
+    "reducedMobilityAccessible",
+    "closeToTransport",
+    "openToMinors",
+    "priority",
+    "tags",
+    "places",
+    "snu",
+    "snuPlaces",
+    "metadata",
+    "organizationName",
+    "organizationRNA",
+    "organizationSiren",
+    "organizationUrl",
+    "organizationLogo",
+    "organizationDescription",
+    "organizationClientId",
+    "organizationStatusJuridique",
+    "organizationType",
+    "organizationActions",
+    "organizationFullAddress",
+    "organizationPostCode",
+    "organizationCity",
+    "organizationBeneficiaries",
+    "organizationReseaux",
+    "statusComment",
+    "statusCommentHistoric",
+    "addresses",
+    "tasks",
+    "tags",
+    "requirements",
+    "softSkills",
+    "romeSkills",
+  ];
+
+  // Check if a field is an array, based on the schema
+  const isArrayField = (field: string): boolean => {
+    const path = MissionModel.schema.path(field);
+    return !!path && path.instance === "Array";
+  };
+
+  // Normalize mission for comparison: strip _id, arrays undefined -> [], string/number
+  const normalizeMission = (val: any): any => {
+    if (val === undefined) {
+      return [];
+    }
+    if (Array.isArray(val)) {
+      return val.map(normalizeMission);
+    }
+    if (val && typeof val === "object") {
+      // eslint-disable-next-line @typescript-eslint/naming-convention
+      const { _id: mongoId, ...rest } = val;
+      const clean: any = {};
+      for (const key in rest) {
+        if (Object.prototype.hasOwnProperty.call(rest, key)) {
+          clean[key] = normalizeMission(rest[key]);
+        }
+      }
+      return clean;
+    }
+    if (typeof val === "string" && val !== "" && !isNaN(Number(val))) {
+      return Number(val);
+    }
+    return val;
+  };
+
+  const diffs = fields.filter((field) => {
+    let aVal = a[field];
+    let bVal = b[field];
+    if (isArrayField(field)) {
+      aVal = aVal === undefined ? [] : aVal;
+      bVal = bVal === undefined ? [] : bVal;
+    }
+    aVal = normalizeMission(aVal);
+    bVal = normalizeMission(bVal);
+    return !isDeepStrictEqual(aVal, bVal);
+  });
+
+  return diffs.length === 0;
 };
