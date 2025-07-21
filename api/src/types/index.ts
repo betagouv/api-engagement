@@ -360,6 +360,8 @@ export interface Mission {
   letudiantUpdatedAt: Date | undefined;
   letudiantError: string | undefined;
 
+  lastExportedToPgAt: Date | null;
+
   __history?: MissionHistory[];
 }
 
