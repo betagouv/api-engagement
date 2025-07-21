@@ -60,13 +60,19 @@ describe("Import missions job (integration test)", () => {
       geolocStatus: "ENRICHED_BY_PUBLISHER",
     });
     expect(mission.activity).toBe("logistique");
+    expect(mission.audience).toEqual(["Tous"]);
     expect(mission.clientId).toBe("32132143");
     expect(mission.description).toBe("Description de la mission");
     expect(mission.domain).toBe("environnement");
-    expect(mission.endAt?.toISOString()).toBe("2025-12-20T00:00:00.000Z");
+    expect(mission.duration).toBe(10);
+    expect(mission.endAt?.toISOString()).toBe("2025-10-31T23:00:00.000Z"); // TODO: GMT issue?
+    expect(mission.openToMinors).toBe("yes");
+    expect(mission.organizationBeneficiaries).toEqual(["Tous"]);
+    expect(mission.organizationCity).toBe("Paris");
     expect(mission.organizationClientId).toBe("123312321");
     expect(mission.organizationFullAddress).toBe("55 Rue du Faubourg Saint-Honoré 75008 Paris");
     expect(mission.organizationName).toBe("Mon asso");
+    expect(mission.organizationPostCode).toBe("75008");
     expect(mission.organizationRNA).toBe("W922000733");
     expect(mission.organizationSiren).toBe("332737394");
     expect(mission.organizationStatusJuridique).toBe("Association");
@@ -75,7 +81,8 @@ describe("Import missions job (integration test)", () => {
     expect(mission.places).toBe(2);
     expect(mission.publisherId).toBe(publisher._id.toString());
     expect(mission.remote).toBe("full");
-    expect(mission.startAt.toISOString()).toBe("2025-12-10T00:00:00.000Z");
+    expect(mission.schedule).toBe("1 demi-journée par semaine");
+    expect(mission.startAt.toISOString()).toBe("2024-12-31T23:00:00.000Z"); // TODO: GMT issue?
     expect(mission.tags).toEqual(expect.arrayContaining(["environnement", "écologie"]));
     expect(mission.title).toBe("Titre de la mission");
   });

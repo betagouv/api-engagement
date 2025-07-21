@@ -4,6 +4,8 @@ import { missionsAreEqual } from "../mission";
 const baseMission = {
   title: "Ma mission",
   description: "Description de ma mission",
+  clientId: "123456",
+  duration: 12,
   addresses: [
     {
       street: "1 rue de Paris",
@@ -13,7 +15,6 @@ const baseMission = {
   ],
   tags: ["écologie", "solidarité"],
   requirements: ["compétence 1", "compétence 2"],
-  statusCommentHistoric: [],
 };
 
 describe("missionsAreEqual", () => {

@@ -321,7 +321,6 @@ export const missionsAreEqual = (a: any, b: any) => {
     "organizationBeneficiaries",
     "organizationReseaux",
     "statusComment",
-    "statusCommentHistoric",
     "addresses",
     "tasks",
     "tags",
