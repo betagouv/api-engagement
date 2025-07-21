@@ -1,25 +1,60 @@
-// import { Address, MissionHistoryEvent } from "@prisma/client";
-// import prisma from "../../../db/postgres";
 import { captureException } from "../../../error";
 import MissionModel from "../../../models/mission";
 import { Import, Mission, Publisher } from "../../../types";
 import { missionsAreEqual } from "./mission";
 
 /**
- * Import a batch of missions into databases
- * NB: MongoDB is always written, PostgreSQL is written only in production
+ * Insert or update a batch of missions into MongoDB
+ *
+ * @param bulk - Array of missions to import
+ * @param publisher - Publisher of the missions
+ * @param importDoc - Import document to update
+ * @returns true if the import was successful, false otherwise
  */
 export const bulkDB = async (bulk: Mission[], publisher: Publisher, importDoc: Import): Promise<boolean> => {
   try {
     const startedAt = new Date();
     console.log(`[${publisher.name}] Starting mongo write at ${startedAt.toISOString()}`);
-    const res = await writeMongo(bulk, publisher, startedAt);
-    importDoc.createdCount += res.upsertedCount + res.insertedCount;
-    importDoc.updatedCount += res.modifiedCount;
-    const time = ((new Date().getTime() - startedAt.getTime()) / 1000).toFixed(2);
-    console.log(`[${publisher.name}] Mongo bulk write created ${importDoc.createdCount}, updated ${importDoc.updatedCount}, took ${time}s`);
 
-    // await writePg(publisher, startedAt);
+    // Get existing missions in DB, to compare with new missions
+    const clientIds = bulk.filter((e) => e && e.clientId).map((e) => e.clientId);
+    const existingMissions = await MissionModel.find({
+      publisherId: publisher._id,
+      clientId: { $in: clientIds },
+    }).lean();
+    const existingMap = new Map(existingMissions.map((m) => [m.clientId, m]));
+
+    // Build bulk write operations
+    const mongoBulk = bulk
+      .filter((e) => e)
+      .map((e) => {
+        const current = e._id ? existingMap.get(e.clientId) : null;
+        if (e._id && current && missionsAreEqual(current, e)) {
+          // No change : skip update
+          return null;
+        }
+        return e._id
+          ? { updateOne: { filter: { _id: e._id }, update: { $set: { ...e, updatedAt: startedAt } }, upsert: true } }
+          : { insertOne: { document: { ...e, createdAt: startedAt, updatedAt: startedAt } } };
+      })
+      .filter(Boolean);
+
+    if (mongoBulk.length > 0) {
+      const res = await (MissionModel as any)
+        .withHistoryContext({
+          reason: `Import XML (${publisher.name})`,
+        })
+        .bulkWrite(mongoBulk, { ordered: false }); // ordered: false to avoid stopping the import if one mission fails
+
+      if (res.hasWriteErrors()) {
+        captureException("Mongo bulk failed", JSON.stringify(res.getWriteErrors(), null, 2));
+      }
+
+      importDoc.createdCount += res.upsertedCount + res.insertedCount;
+      importDoc.updatedCount += res.modifiedCount;
+      const time = ((new Date().getTime() - startedAt.getTime()) / 1000).toFixed(2);
+      console.log(`[${publisher.name}] Mongo bulk write created ${importDoc.createdCount}, updated ${importDoc.updatedCount}, took ${time}s`);
+    }
     return true;
   } catch (error) {
     captureException(`[${publisher.name}] Import failed`, JSON.stringify(error, null, 2));
@@ -27,224 +62,22 @@ export const bulkDB = async (bulk: Mission[], publisher: Publisher, importDoc: I
   }
 };
 
+/**
+ * Clean missions in MongoDB
+ * All missions related to given publisher and not in the bulk are deleted
+ *
+ * @param bulk - Array of imported missions
+ * @param publisher - Publisher of the missions
+ * @param importDoc - Import document to update
+ */
 export const cleanDB = async (bulk: Mission[], publisher: Publisher, importDoc: Import) => {
   console.log(`[${publisher.name}] Cleaning Mongo missions...`);
-  const res = await cleanMongo(bulk, publisher, importDoc);
-  importDoc.deletedCount = res.modifiedCount;
-  console.log(`[${publisher.name}] Mongo cleaning removed ${res.modifiedCount}`);
 
-  // await cleanPg(publisher, importDoc);
-};
-
-/**
- * Write missions to MongoDB and update import statistics
- * We use bulkWriteWithHistory to keep history of changes. See history-plugin.ts.
- */
-const writeMongo = async (bulk: Mission[], publisher: Publisher, startedAt: Date) => {
-  // Get existing missions in DB, to compare with new missions
-  const clientIds = bulk.filter((e) => e && e.clientId).map((e) => e.clientId);
-  const existingMissions = await MissionModel.find({
-    publisherId: publisher._id,
-    clientId: { $in: clientIds },
-  }).lean();
-  const existingMap = new Map(existingMissions.map((m) => [m.clientId, m]));
-
-  // Build bulk write operations
-  const mongoBulk = bulk
-    .filter((e) => e)
-    .map((e) => {
-      const current = e._id ? existingMap.get(e.clientId) : null;
-      if (e._id && current && missionsAreEqual(current, e)) {
-        // Pas de changement : skip update
-        return null;
-      }
-      return e._id
-        ? { updateOne: { filter: { _id: e._id }, update: { $set: { ...e, updatedAt: startedAt } }, upsert: true } }
-        : { insertOne: { document: { ...e, createdAt: startedAt, updatedAt: startedAt } } };
-    })
-    .filter(Boolean);
-
-  if (mongoBulk.length === 0) {
-    return { upsertedCount: 0, insertedCount: 0, modifiedCount: 0, hasWriteErrors: () => false, getWriteErrors: () => [] };
-  }
-
-  const mongoUpdateRes = await (MissionModel as any)
-    .withHistoryContext({
-      reason: `Import XML (${publisher.name})`,
-    })
-    .bulkWrite(mongoBulk, { ordered: false }); // ordered: false to avoid stopping the import if one mission fails
-
-  if (mongoUpdateRes.hasWriteErrors()) {
-    captureException("Mongo bulk failed", JSON.stringify(mongoUpdateRes.getWriteErrors(), null, 2));
-  }
-
-  return mongoUpdateRes;
-};
-
-const cleanMongo = async (bulk: Mission[], publisher: Publisher, importDoc: Import) => {
-  const mongoDeleteRes = await MissionModel.updateMany(
+  const res = await MissionModel.updateMany(
     { publisherId: publisher._id, deletedAt: null, clientId: { $nin: bulk.map((e) => e.clientId) } },
     { deleted: true, deletedAt: importDoc.startedAt }
   );
 
-  return mongoDeleteRes;
+  importDoc.deletedCount = res.modifiedCount;
+  console.log(`[${publisher.name}] Mongo cleaning removed ${res.modifiedCount}`);
 };
-
-// const PG_CHUNK_SIZE = 200;
-/**
- * Write missions to PostgreSQL
- * This includes creating new missions and related data, updating existing ones, and cleaning up old ones
- */
-// const writePg = async (publisher: Publisher, startedAt: Date) => {
-//   const partner = await prisma.partner.findUnique({ where: { old_id: publisher._id.toString() } });
-//   if (!partner) {
-//     captureException(`Partner ${publisher._id.toString()} not found`);
-//     return;
-//   }
-
-//   // Find newly created missions in MongoDB
-//   const newMongoMissions = await MissionModel.find({
-//     publisherId: publisher._id,
-//     createdAt: { $gte: startedAt },
-//   }).lean();
-//   console.log(`[${publisher.name}] Postgres ${newMongoMissions.length} missions just created in Mongo`);
-
-//   // Extract unique organization IDs from missions
-//   const organizationIds = [] as string[];
-//   newMongoMissions.forEach((e) => {
-//     if (e && e.organizationId && !organizationIds.includes(e.organizationId)) {
-//       organizationIds.push(e.organizationId);
-//     }
-//   });
-//   console.log(`[${publisher.name}] Postgres ${organizationIds.length} organizations to find`);
-
-//   // Find organizations in PostgreSQL
-//   const organizations = await prisma.organization.findMany({
-//     where: { old_id: { in: organizationIds } },
-//   });
-//   console.log(`[${publisher.name}] Postgres found ${organizations.length} organizations`);
-
-//   // Transform MongoDB missions to PostgreSQL format
-//   const pgCreate = [] as MissionTransformResult[];
-//   newMongoMissions.forEach((e) => {
-//     const res = transformMongoMissionToPg(e as MongoMission, partner.id, organizations);
-//     if (res) {
-//       pgCreate.push(res);
-//     }
-//   });
-
-//   // Create missions in PostgreSQL
-//   const res = await prisma.mission.createManyAndReturn({
-//     data: pgCreate.map((e) => e.mission),
-//     skipDuplicates: true,
-//   });
-//   console.log(`[${publisher.name}] Postgres created ${res.length} missions`);
-
-//   // Create addresses for missions
-//   const pgCreateAddresses = pgCreate
-//     .map((e) => {
-//       const mission = res.find((r) => r.old_id === e.mission.old_id);
-//       if (!mission) {
-//         return [];
-//       }
-
-//       return e.addresses.map((a) => ({
-//         ...a,
-//         mission_id: mission.id,
-//       }));
-//     })
-//     .flat();
-
-//   const resAddresses = await prisma.address.createMany({ data: pgCreateAddresses });
-//   console.log(`[${publisher.name}] Postgres created ${resAddresses.count} addresses`);
-
-//   // Create history entries for missions
-//   const pgCreateHistory = pgCreate
-//     .map((e) => {
-//       const mission = res.find((r) => r.old_id === e.mission.old_id);
-//       if (!mission) {
-//         return [];
-//       }
-
-//       // Set the mission_id for each history entry
-//       return e.history.map((h) => ({
-//         ...h,
-//         mission_id: mission.id,
-//       }));
-//     })
-//     .flat();
-
-//   const resHistory = await prisma.missionHistoryEvent.createMany({ data: pgCreateHistory });
-//   console.log(`[${publisher.name}] Postgres created ${resHistory.count} history entries`);
-
-//   // Find updated missions in MongoDB
-//   const updatedMongoMissions = await MissionModel.find({
-//     publisherId: publisher._id,
-//     updatedAt: { $gte: startedAt },
-//     createdAt: { $lt: startedAt },
-//     deletedAt: null,
-//   }).lean();
-//   console.log(`[${publisher.name}] Postgres ${updatedMongoMissions.length} missions to update in Mongo`);
-
-//   // Prepare PG update query
-//   const pgUpdate = updatedMongoMissions.map((e) => transformMongoMissionToPg(e as MongoMission, partner.id, organizations)).filter((e) => e !== null);
-
-//   let updated = 0;
-//   for (let i = 0; i < pgUpdate.length; i += PG_CHUNK_SIZE) {
-//     console.log(`[${publisher.name}] Postgres updating chunk ${i} of ${pgUpdate.length} (${updated} missions updated)`);
-
-//     const chunk = pgUpdate.slice(i, i + PG_CHUNK_SIZE);
-
-//     const missionsIds = [] as string[];
-//     const addressesToCreate = [] as Omit<Address, "id">[];
-//     const historyToCreate = [] as Omit<MissionHistoryEvent, "id">[];
-
-//     for (const obj of chunk) {
-//       try {
-//         const mission = await prisma.mission.upsert({
-//           where: { old_id: obj.mission.old_id },
-//           update: obj.mission,
-//           create: obj.mission,
-//         });
-
-//         missionsIds.push(mission.id);
-//         addressesToCreate.push(...obj.addresses.map((a) => ({ ...a, mission_id: mission.id })));
-//         historyToCreate.push(...obj.history.map((h) => ({ ...h, mission_id: mission.id })));
-//         updated++;
-//       } catch (error) {
-//         captureException(error, `[${publisher.name}] Error while updating mission ${obj?.mission?.old_id}`);
-//       }
-//     }
-
-//     try {
-//       await prisma.address.deleteMany({ where: { mission_id: { in: missionsIds } } });
-//       await prisma.address.createMany({ data: addressesToCreate });
-
-//       await prisma.missionHistoryEvent.deleteMany({ where: { mission_id: { in: missionsIds } } });
-//       await prisma.missionHistoryEvent.createMany({ data: historyToCreate });
-//     } catch (error) {
-//       captureException(error, `[${publisher.name}] Error while updating addresses and history for mission chunk ${i}`);
-//     }
-//   }
-
-//   console.log(`[${publisher.name}] Postgres ${updated} missions updated`);
-// };
-
-// const cleanPg = async (publisher: Publisher, importDoc: Import) => {
-//   const partner = await prisma.partner.findUnique({ where: { old_id: publisher._id.toString() } });
-//   if (!partner) {
-//     captureException(`Partner ${publisher._id.toString()} not found`);
-//     return;
-//   }
-
-//   console.log(`[${publisher.name}] Postgres deleting missions...`);
-//   const pgDeleteRes = await prisma.mission.updateMany({
-//     where: {
-//       updated_at: { lte: importDoc.startedAt },
-//       deleted_at: null,
-//       partner_id: partner.id,
-//     },
-//     data: { deleted_at: importDoc.startedAt },
-//   });
-//   console.log(`[${publisher.name}] Postgres deleted ${pgDeleteRes.count} missions`);
-// };

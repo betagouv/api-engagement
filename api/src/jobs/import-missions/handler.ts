@@ -6,10 +6,10 @@ import MissionModel from "../../models/mission";
 import { Import, Mission, Publisher } from "../../types";
 import { BaseHandler } from "../base/handler";
 import { JobResult } from "../types";
-import { enrichWithGeoloc } from "./geoloc";
-import { verifyOrganization } from "./organization";
 import { bulkDB, cleanDB } from "./utils/db";
+import { enrichWithGeoloc } from "./utils/geoloc";
 import { buildData } from "./utils/mission";
+import { verifyOrganization } from "./utils/organization";
 import { parseXML } from "./utils/xml";
 
 const CHUNK_SIZE = 2000;

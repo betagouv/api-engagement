@@ -7,6 +7,7 @@ export interface Organization {
   rna: string;
   siren?: string;
   siret?: string;
+  sirets?: string[];
   rupMi?: string;
   gestion?: string;
   status?: string;
