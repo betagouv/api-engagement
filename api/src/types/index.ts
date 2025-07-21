@@ -55,6 +55,8 @@ export interface Organization {
   letudiantUpdatedAt?: Date;
 }
 
+export type GeolocStatus = "ENRICHED_BY_PUBLISHER" | "ENRICHED_BY_API" | "NOT_FOUND" | "NO_DATA" | "SHOULD_ENRICH" | "FAILED";
+
 export type AddressItem = {
   street: string;
   postalCode: string;
@@ -63,12 +65,14 @@ export type AddressItem = {
   city: string;
   region: string;
   country: string;
-  location: {
-    lat: number;
-    lon: number;
-  };
+  location:
+    | {
+        lat: number;
+        lon: number;
+      }
+    | undefined;
   geoPoint?: GeoPoint;
-  geolocStatus: string;
+  geolocStatus: GeolocStatus;
 };
 
 export type GeoPoint = {

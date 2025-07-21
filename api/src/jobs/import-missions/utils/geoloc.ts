@@ -4,7 +4,7 @@ import { DEPARTMENTS } from "../../../constants/departments";
 
 import { captureException } from "../../../error";
 import { getAddressCsv } from "../../../services/data-gouv/api";
-import { Mission, Publisher } from "../../../types";
+import { GeolocStatus, Mission, Publisher } from "../../../types";
 
 export interface GeolocResult {
   clientId: string;
@@ -25,7 +25,7 @@ export interface GeolocResult {
     type: "Point";
     coordinates: [number, number];
   } | null;
-  geolocStatus: "NOT_FOUND" | "FAILED" | "ENRICHED_BY_PUBLISHER" | "ENRICHED_BY_API" | "NO_DATA" | "SHOULD_ENRICH";
+  geolocStatus: GeolocStatus;
 }
 
 export const enrichWithGeoloc = async (publisher: Publisher, missions: Mission[]): Promise<GeolocResult[]> => {
