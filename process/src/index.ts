@@ -22,57 +22,15 @@ import "./db/mongo";
 import "./db/postgres";
 
 import { captureException } from "./error";
-import imports from "./jobs/import";
 import metabase from "./jobs/metabase";
 import report from "./jobs/report";
 
 const app = express();
 
 const runnings = {
-  mission: false,
   metabase: false,
   report: false,
 };
-
-// https://crontab.guru/#0_*/3_*_*_*
-// Every 3 hours
-const missionJob = new CronJob(
-  "0 */3 * * *",
-  async () => {
-    const checkInId = Sentry.captureCheckIn({
-      monitorSlug: "mission-updates",
-      status: "in_progress",
-    });
-    if (runnings.mission || runnings.metabase) {
-      Sentry.captureCheckIn({
-        checkInId,
-        monitorSlug: "mission-updates",
-        status: "ok",
-      });
-      return;
-    }
-    runnings.mission = true;
-    try {
-      await imports.handler();
-      Sentry.captureCheckIn({
-        checkInId,
-        monitorSlug: "mission-updates",
-        status: "ok",
-      });
-    } catch (error) {
-      captureException(error);
-      Sentry.captureCheckIn({
-        checkInId,
-        monitorSlug: "mission-updates",
-        status: "error",
-      });
-    }
-    runnings.mission = false;
-  },
-  null,
-  true,
-  "Europe/Paris"
-);
 
 // Every day at 02:00 AM
 const metabaseJob = new CronJob(
@@ -144,14 +102,6 @@ app.use(cors({ origin }));
 app.get("/tasks", async (req, res) => {
   try {
     const tasks = [
-      {
-        name: "Update missions",
-        schedule: missionJob.cronTime.source,
-        started: missionJob.isActive,
-        lastRun: missionJob.lastDate(),
-        nextRun: missionJob.nextDate(),
-        running: runnings.mission,
-      },
       {
         name: "Update Metabase",
         schedule: metabaseJob.cronTime.source,
