@@ -65,7 +65,7 @@ const Footer = () => {
       <div className="items-baseliner inline-flex px-20 pb-4 pt-2 text-sm text-grey-150">
         Sauf mention contraire, tous les textes de ce site sont sous
         <a href="https://github.com/etalab/licence-ouverte/blob/master/LO.md" target="_blank" className="ml-1 underline">
-          licence etatlab-2.0
+          licence etalab-2.0
         </a>
       </div>
     </footer>
