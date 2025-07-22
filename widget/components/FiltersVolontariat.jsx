@@ -406,6 +406,7 @@ const DateFilter = ({ selected, onChange, position = "left-0", width = "w-80" })
     };
     document.addEventListener("mousedown", handleClickOutside);
 
+    // Set aria-label in French, an issue has been reported on the react-day-picker library, maybe it will be fixed in the future
     const previousButton = document.getElementsByClassName("rdp-button_previous");
     if (previousButton.length > 0) {
       previousButton[0].setAttribute("aria-label", "Mois précédent");
