@@ -56,7 +56,7 @@ const SearchSelect = ({ id, options, value, onChange, placeholder, className, lo
         </button>
       </div>
       {isOpen && (
-        <ul className={`absolute z-10 top-10 w-full max-h-80 overflow-y-scroll transition duration-100 ease-in bg-white shadow-lg ${className || "w-full"}`}>
+        <ul className={`absolute z-10 top-10 max-h-80 overflow-y-scroll transition duration-100 ease-in bg-white shadow-lg ${className || "w-full"}`}>
           {loading ? (
             <li className="group flex cursor-default items-center justify-center px-4 py-2 data-[focus]:bg-gray-hover">
               <Loader />
