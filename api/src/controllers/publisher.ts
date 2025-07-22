@@ -22,7 +22,7 @@ router.post("/search", passport.authenticate(["user", "admin"], { session: false
     const user = req.user as HydratedDocument<User>;
     const body = zod
       .object({
-        partnersOf: zod.string().optional(),
+        diffuseursOf: zod.string().optional(),
         moderator: zod.boolean().optional(),
         name: zod.string().optional(),
         ids: zod.array(zod.string()).optional(),
@@ -68,9 +68,9 @@ router.post("/search", passport.authenticate(["user", "admin"], { session: false
       where._id = { $in: body.data.ids };
     }
 
-    if (body.data.partnersOf) {
-      if (user.role === "admin" || user.publishers.some((e: string) => e === body.data.partnersOf)) {
-        where["publishers.publisher"] = body.data.partnersOf;
+    if (body.data.diffuseursOf) {
+      if (user.role === "admin" || user.publishers.some((e: string) => e === body.data.diffuseursOf)) {
+        where["publishers.publisherId"] = body.data.diffuseursOf;
       } else {
         return res.status(403).send({ ok: false, code: FORBIDDEN, message: `Not allowed` });
       }
@@ -79,7 +79,7 @@ router.post("/search", passport.authenticate(["user", "admin"], { session: false
       where.moderator = true;
     }
 
-    if (!where._id && !where["publishers.publisher"] && user.role !== "admin") {
+    if (!where._id && !where["publishers.publisherId"] && user.role !== "admin") {
       where._id = { $in: user.publishers };
     }
 

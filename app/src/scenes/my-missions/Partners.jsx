@@ -20,7 +20,7 @@ const PublishersTab = () => {
     const fetchData = async () => {
       setLoading(true);
       try {
-        const query = { partnersOf: publisher._id };
+        const query = { diffuseursOf: publisher._id };
         if (search) query.name = search;
         const res = await api.post("/publisher/search", query);
         if (!res.ok) throw res;
