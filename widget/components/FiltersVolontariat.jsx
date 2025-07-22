@@ -405,6 +405,16 @@ const DateFilter = ({ selected, onChange, position = "left-0", width = "w-80" })
       }
     };
     document.addEventListener("mousedown", handleClickOutside);
+
+    const previousButton = document.getElementsByClassName("rdp-button_previous");
+    if (previousButton.length > 0) {
+      previousButton[0].setAttribute("aria-label", "Mois précédent");
+    }
+    const nextButton = document.getElementsByClassName("rdp-button_next");
+    if (nextButton.length > 0) {
+      nextButton[0].setAttribute("aria-label", "Mois suivant");
+    }
+
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
@@ -434,7 +444,7 @@ const DateFilter = ({ selected, onChange, position = "left-0", width = "w-80" })
             mode="single"
             locale={fr}
             aria-label="disponible à partir du"
-            role="application"
+            role="dialog"
             selected={selected}
             onDayClick={(date) => {
               onChange({ label: date.toLocaleDateString("fr"), value: date });
