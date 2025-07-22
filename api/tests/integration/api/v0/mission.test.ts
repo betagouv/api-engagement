@@ -1,10 +1,10 @@
 import request from "supertest";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import MissionModel from "../../../src/models/mission";
-import PublisherModel from "../../../src/models/publisher";
-import { Mission, MissionType, Publisher } from "../../../src/types";
-import { createTestMission, createTestPublisher } from "../../fixtures";
-import { createTestApp } from "../../testApp";
+import MissionModel from "../../../../src/models/mission";
+import PublisherModel from "../../../../src/models/publisher";
+import { Mission, MissionType, Publisher } from "../../../../src/types";
+import { createTestMission, createTestPublisher } from "../../../fixtures";
+import { createTestApp } from "../../../testApp";
 
 describe("Mission API Integration Tests", () => {
   const app = createTestApp();

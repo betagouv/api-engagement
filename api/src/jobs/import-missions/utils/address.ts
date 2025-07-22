@@ -1,5 +1,6 @@
 import { DEPARTMENTS } from "../../../constants/departments";
-import { Address, Mission, MissionXML } from "../../../types";
+import { AddressItem, Mission } from "../../../types";
+import { MissionXML } from "../types";
 
 const parseString = (value: string | undefined) => {
   if (!value) {
@@ -32,7 +33,7 @@ const formatPostalCode = (postalCode: string) => {
 };
 
 const getDepartmentCode = (departmentCode: string, postalCode: string) => {
-  if (departmentCode && DEPARTMENTS.hasOwnProperty(departmentCode)) {
+  if (departmentCode && DEPARTMENTS[departmentCode]) {
     return departmentCode;
   }
 
@@ -47,15 +48,15 @@ const getDepartmentCode = (departmentCode: string, postalCode: string) => {
   if (code === "97" || code === "98") {
     code = postalCode.slice(0, 3);
   }
-  if (DEPARTMENTS.hasOwnProperty(code)) {
+  if (DEPARTMENTS[code]) {
     return code;
   } else {
     return "";
   }
 };
 
-const getDepartement = (code?: string) => (code && code in DEPARTMENTS && DEPARTMENTS[code][0]) || "";
-const getRegion = (code?: string) => (code && code in DEPARTMENTS && DEPARTMENTS[code][1]) || "";
+const getDepartement = (code?: string) => (code && DEPARTMENTS[code] && DEPARTMENTS[code][0]) || "";
+const getRegion = (code?: string) => (code && DEPARTMENTS[code] && DEPARTMENTS[code][1]) || "";
 
 export const getAddress = (mission: Mission, missionXML: MissionXML) => {
   mission.country = parseString(missionXML.country || missionXML.countryCode);
@@ -104,7 +105,7 @@ export const getAddress = (mission: Mission, missionXML: MissionXML) => {
   if (mission.location) {
     mission.geoPoint = { type: "Point", coordinates: [mission.location.lon, mission.location.lat] };
   } else {
-    mission.geoPoint = null;
+    mission.geoPoint = undefined;
   }
 
   mission.address = parseString(missionXML.address || missionXML.adresse);
@@ -153,7 +154,7 @@ export const getAddresses = (mission: Mission, missionXML: MissionXML) => {
   mission.addresses = [];
 
   for (const address of missionXML.addresses) {
-    const addressItem: Address = {
+    const addressItem: AddressItem = {
       street: parseString(address.street),
       city: parseString(address.city),
       postalCode: "",
@@ -167,7 +168,7 @@ export const getAddresses = (mission: Mission, missionXML: MissionXML) => {
             lat: address.location.lat,
           }
         : undefined,
-      geoPoint: null,
+      geoPoint: undefined,
       geolocStatus: address.location ? "ENRICHED_BY_PUBLISHER" : "SHOULD_ENRICH",
     };
 
@@ -217,6 +218,6 @@ export const getAddresses = (mission: Mission, missionXML: MissionXML) => {
         lon: Number(mission.addresses[0].location.lon),
       }
     : undefined;
-  mission.geoPoint = mission.addresses[0].geoPoint || null;
+  mission.geoPoint = mission.addresses[0].geoPoint || undefined;
   mission.geolocStatus = mission.addresses[0].geolocStatus || "NO_DATA";
 };

@@ -1,8 +1,8 @@
 import { XMLParser } from "fast-xml-parser";
 
-import { MissionXML } from "../../../types";
+import { MissionXML } from "../types";
 
-export const parseXML = (xmlString: string) => {
+export const parseXML = (xmlString: string): MissionXML[] | undefined => {
   const parser = new XMLParser();
 
   const options = {

@@ -1,10 +1,10 @@
 //https://api.gouv.fr/documentation/api_carto_codes_postaux
 
-import { DEPARTMENTS } from "../../constants/departments";
+import { DEPARTMENTS } from "../../../constants/departments";
 
-import { captureException } from "../../error";
-import apiAdresse from "../../services/api-adresse";
-import { Mission, Publisher } from "../../types";
+import { captureException } from "../../../error";
+import { getAddressCsv } from "../../../services/data-gouv/api";
+import { GeolocStatus, Mission, Publisher } from "../../../types";
 
 export interface GeolocResult {
   clientId: string;
@@ -25,7 +25,7 @@ export interface GeolocResult {
     type: "Point";
     coordinates: [number, number];
   } | null;
-  geolocStatus: "NOT_FOUND" | "FAILED" | "ENRICHED_BY_PUBLISHER" | "ENRICHED_BY_API" | "NO_DATA" | "SHOULD_ENRICH";
+  geolocStatus: GeolocStatus;
 }
 
 export const enrichWithGeoloc = async (publisher: Publisher, missions: Mission[]): Promise<GeolocResult[]> => {
@@ -53,20 +53,20 @@ export const enrichWithGeoloc = async (publisher: Publisher, missions: Mission[]
 
     if (csv.length > 1) {
       const csvString = csv.join("\n");
-      const results = await apiAdresse.csv(csvString);
+      const results = await getAddressCsv(csvString);
       if (!results) {
         console.log(`[${publisher.name}] No results from api-adresse for remaining addresses`);
         return updates;
       }
 
-      const lines = results.split("\n").filter((line) => line.trim());
-      const data = lines.map((line) => line.split(","));
+      const lines = results.split("\n").filter((line: string) => line.trim());
+      const data = lines.map((line: string) => line.split(","));
       const header = data.shift();
       if (!header) {
         throw new Error("No header in api-adresse results");
       }
       const headerIndex: Record<string, number> = {};
-      header.forEach((h, i) => (headerIndex[h] = i));
+      header.forEach((h: string, i: number) => (headerIndex[h] = i));
 
       let found = 0;
       for (let i = 0; i < data.length; i++) {
@@ -109,11 +109,11 @@ export const enrichWithGeoloc = async (publisher: Publisher, missions: Mission[]
             };
           }
           if (line[headerIndex.result_context]) {
-            const context = line[headerIndex.result_context].split(",").map((val) => val.replace(/^"|"$/g, "").trim());
+            const context = line[headerIndex.result_context].split(",").map((val: string) => val.replace(/^"|"$/g, "").trim());
             obj.departmentCode = context[0];
 
-            if (DEPARTMENTS[obj.departmentCode]) {
-              [obj.departmentName, obj.region] = DEPARTMENTS[obj.departmentCode];
+            if (DEPARTMENTS[obj.departmentCode as string]) {
+              [obj.departmentName, obj.region] = DEPARTMENTS[obj.departmentCode as string];
             } else {
               console.log(`No department info found for code: ${obj.departmentCode}`);
               obj.departmentName = obj.departmentCode;
