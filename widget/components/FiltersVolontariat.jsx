@@ -433,6 +433,8 @@ const DateFilter = ({ selected, onChange, position = "left-0", width = "w-80" })
           <DayPicker
             mode="single"
             locale={fr}
+            aria-label="disponible à partir du"
+            role="application"
             selected={selected}
             onDayClick={(date) => {
               onChange({ label: date.toLocaleDateString("fr"), value: date });
@@ -446,6 +448,7 @@ const DateFilter = ({ selected, onChange, position = "left-0", width = "w-80" })
             modifiers={{
               selected: (date) => selected && date.toLocaleDateString("fr") === selected.value.toLocaleDateString("fr"),
             }}
+            autoFocus
             modifiersStyles={{
               selected: {
                 backgroundColor: color,
