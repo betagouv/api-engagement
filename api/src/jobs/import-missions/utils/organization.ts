@@ -1,28 +1,52 @@
-import { DEPARTMENTS } from "../../constants/departments";
-import { captureException } from "../../error";
-import OrganizationModel from "../../models/organization";
-import apiDatasubvention from "../../services/api-datasubvention";
-import { Mission, Organization } from "../../types";
-import { slugify } from "../../utils";
+import { DEPARTMENTS } from "../../../constants/departments";
+import { captureException } from "../../../error";
+import OrganizationModel from "../../../models/organization";
+import apiDatasubvention from "../../../services/api-datasubvention";
+import { Mission, Organization } from "../../../types";
+import { slugify } from "../../../utils";
 
-const isValidRNA = (rna: string) => {
-  return rna && rna.length === 10 && rna.startsWith("W") && rna.match(/^[W0-9]+$/);
+export const ORGANIZATION_VERIFICATION_STATUS = {
+  RNA_MATCHED_WITH_DATA_DB: "RNA_MATCHED_WITH_DATA_DB",
+  RNA_MATCHED_WITH_DATA_SUBVENTION: "RNA_MATCHED_WITH_DATA_SUBVENTION",
+  RNA_NOT_MATCHED: "RNA_NOT_MATCHED",
+  SIRET_MATCHED_WITH_DATA_DB: "SIRET_MATCHED_WITH_DATA_DB",
+  SIRET_MATCHED_WITH_DATA_SUBVENTION: "SIRET_MATCHED_WITH_DATA_SUBVENTION",
+  SIRET_NOT_MATCHED: "SIRET_NOT_MATCHED",
+  NAME_EXACT_MATCHED_WITH_DB: "NAME_EXACT_MATCHED_WITH_DB",
+  NAME_APPROXIMATE_MATCHED_WITH_DB: "NAME_APPROXIMATE_MATCHED_WITH_DB",
+  NAME_NOT_MATCHED: "NAME_NOT_MATCHED",
+  NO_DATA: "NO_DATA",
 };
 
-const isValidSiret = (siret: string) => {
-  return siret && siret.length === 14 && siret.match(/^[0-9]+$/);
+export const isValidRNA = (rna: string): boolean => {
+  return !!rna && rna.length === 10 && rna.startsWith("W") && !!rna.match(/^[W0-9]+$/);
 };
 
-const isVerified = (mission: Mission) => {
+export const isValidSiret = (siret: string): boolean => {
+  return !!siret && siret.length === 14 && !!siret.match(/^[0-9]+$/);
+};
+
+export const isVerified = (mission: Partial<Mission>): boolean => {
   return [
-    "RNA_MATCHED_WITH_DATA_DB",
-    "RNA_MATCHED_WITH_DATA_SUBVENTION",
-    "SIRET_MATCHED_WITH_DATA_DB",
-    "SIRET_MATCHED_WITH_DATA_SUBVENTION",
-    "NAME_EXACT_MATCHED_WITH_DB",
-    "NAME_APPROXIMATE_MATCHED_WITH_DB",
-    "NO_DATA",
+    ORGANIZATION_VERIFICATION_STATUS.RNA_MATCHED_WITH_DATA_DB,
+    ORGANIZATION_VERIFICATION_STATUS.RNA_MATCHED_WITH_DATA_SUBVENTION,
+    ORGANIZATION_VERIFICATION_STATUS.SIRET_MATCHED_WITH_DATA_DB,
+    ORGANIZATION_VERIFICATION_STATUS.SIRET_MATCHED_WITH_DATA_SUBVENTION,
+    ORGANIZATION_VERIFICATION_STATUS.NAME_EXACT_MATCHED_WITH_DB,
+    ORGANIZATION_VERIFICATION_STATUS.NAME_APPROXIMATE_MATCHED_WITH_DB,
+    ORGANIZATION_VERIFICATION_STATUS.NO_DATA,
   ].includes(mission.organizationVerificationStatus || "");
+};
+
+export const getDepartement = (postalCode: string): { code: string; name: string; region: string } | null => {
+  if (!postalCode) {
+    return null;
+  }
+  const code = postalCode.slice(0, 2);
+  if (!code || !DEPARTMENTS[code]) {
+    return null;
+  }
+  return { code, name: DEPARTMENTS[code][0], region: DEPARTMENTS[code][1] };
 };
 
 export const verifyOrganization = async (missions: Mission[]) => {
@@ -57,12 +81,12 @@ export const verifyOrganization = async (missions: Mission[]) => {
       const identifier = (mission.organizationRNA || "").replace(/[^a-zA-Z0-9]/g, "").toUpperCase();
       if (identifier && isValidRNA(identifier)) {
         if (foundRNAs[identifier] === "not_found") {
-          mission.organizationVerificationStatus = "RNA_NOT_MATCHED";
+          mission.organizationVerificationStatus = ORGANIZATION_VERIFICATION_STATUS.RNA_NOT_MATCHED;
           rnaNotFound++;
           continue;
         }
-        if (foundRNAs[identifier]) {
-          updateMissionOrganization(mission, foundRNAs[identifier], "RNA_MATCHED_WITH_DATA_DB");
+        if (foundRNAs[identifier] !== "not_found" && foundRNAs[identifier]) {
+          updateMissionOrganization(mission, foundRNAs[identifier] as Organization, ORGANIZATION_VERIFICATION_STATUS.RNA_MATCHED_WITH_DATA_DB);
           rnaFound++;
           continue;
         }
@@ -73,18 +97,18 @@ export const verifyOrganization = async (missions: Mission[]) => {
           continue;
         }
         foundRNAs[identifier] = res;
-        updateMissionOrganization(mission, res, "RNA_MATCHED_WITH_DATA_DB");
+        updateMissionOrganization(mission, res, ORGANIZATION_VERIFICATION_STATUS.RNA_MATCHED_WITH_DATA_DB);
         rnaFound++;
         continue;
       }
       if (identifier && isValidSiret(identifier)) {
         if (foundSirets[identifier] === "not_found") {
-          mission.organizationVerificationStatus = "SIRET_NOT_MATCHED";
+          mission.organizationVerificationStatus = ORGANIZATION_VERIFICATION_STATUS.SIRET_NOT_MATCHED;
           siretNotFound++;
           continue;
         }
-        if (foundSirets[identifier]) {
-          updateMissionOrganization(mission, foundSirets[identifier], "SIRET_MATCHED_WITH_DATA_DB");
+        if (foundSirets[identifier] !== "not_found" && foundSirets[identifier]) {
+          updateMissionOrganization(mission, foundSirets[identifier] as Organization, ORGANIZATION_VERIFICATION_STATUS.SIRET_MATCHED_WITH_DATA_DB);
           siretFound++;
           continue;
         }
@@ -95,19 +119,19 @@ export const verifyOrganization = async (missions: Mission[]) => {
           continue;
         }
         foundSirets[identifier] = res;
-        updateMissionOrganization(mission, res, "SIRET_MATCHED_WITH_DATA_DB");
+        updateMissionOrganization(mission, res, ORGANIZATION_VERIFICATION_STATUS.SIRET_MATCHED_WITH_DATA_DB);
         siretFound++;
         continue;
       }
       if (mission.organizationName) {
         const name = mission.organizationName || "";
         if (foundNames[name] === "not_found") {
-          mission.organizationVerificationStatus = "NAME_NOT_MATCHED";
+          mission.organizationVerificationStatus = ORGANIZATION_VERIFICATION_STATUS.NAME_NOT_MATCHED;
           nameNotFound++;
           continue;
         }
-        if (foundNames[name]) {
-          updateMissionOrganization(mission, foundNames[name], "NAME_MATCHED_WITH_DATA_DB");
+        if (foundNames[name] !== "not_found" && foundNames[name]) {
+          updateMissionOrganization(mission, foundNames[name] as Organization, ORGANIZATION_VERIFICATION_STATUS.NAME_EXACT_MATCHED_WITH_DB);
           nameFound++;
           continue;
         }
@@ -118,7 +142,7 @@ export const verifyOrganization = async (missions: Mission[]) => {
           continue;
         }
         foundNames[name] = res;
-        updateMissionOrganization(mission, res, "NAME_MATCHED_WITH_DATA_DB");
+        updateMissionOrganization(mission, res, ORGANIZATION_VERIFICATION_STATUS.NAME_EXACT_MATCHED_WITH_DB);
         nameFound++;
         continue;
       }
@@ -350,90 +374,5 @@ const findByName = async (name: string) => {
     return exactMatch[0];
   }
 
-  // Approximate match is not ready yet
-  // const approximateMatch = await OrganizationNameMatchModel.find({ name });
-  // if (approximateMatch.length === 1) {
-  //   return approximateMatch[0];
-  // }
-
   return null;
-};
-
-// TODO: Implement approximate match
-// const findByNames = async (names: string[]) => {
-//   const res = {
-//     exact: {} as { [key: string]: Organization },
-//     approximate: {} as { [key: string]: HydratedDocument<OrganizationNameMatch> },
-//   };
-
-//   for (let i = 0; i < names.length; i++) {
-//     const name = names[i];
-//     if (i % 50 === 0) {
-//       console.log(`[Organization-NAME] Processing ${i + 1} / ${names.length} names`);
-//     }
-
-//     const existingMatches = await OrganizationNameMatchModel.find({ name });
-//     if (existingMatches.length > 0) {
-//       res.approximate[name] = existingMatches[0];
-//       continue;
-//     }
-
-//     const exactMatch = await OrganizationModel.find({ titleSlug: slugify(name) });
-//     if (exactMatch.length === 1) {
-//       res.exact[name] = exactMatch[0];
-//       continue;
-//     }
-
-//     /*
-//     // Try approximate match using case-insensitive regex
-//     const matchCount = await OrganizationModel.countDocuments({
-//       title: {
-//         $regex: `^${name.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, "\\$&")}$`,
-//         $options: "i",
-//       },
-//     });
-
-//     if (matchCount > 0) {
-//       const match = await OrganizationNameMatchModel.findOne({ name });
-
-//       const approximateMatches = await OrganizationModel.find({
-//         title: {
-//           $regex: `^${name.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, "\\$&")}$`,
-//           $options: "i",
-//         },
-//       }).limit(20);
-
-//       if (match) {
-//         match.organizationIds = [...new Set([...match.organizationIds, ...approximateMatches.map((m) => m._id.toString())])];
-//         match.organizationNames = [...new Set([...match.organizationNames, name])];
-//         match.matchCount = matchCount;
-//         match.missionIds = [...new Set([...match.missionIds])];
-//         await match.save();
-//         res.approximate[name] = match;
-//       } else {
-//         const newMatch = await OrganizationNameMatchModel.create({
-//           name,
-//           organizationIds: approximateMatches.map((m) => m._id.toString()),
-//           organizationNames: [name],
-//           matchCount: matchCount,
-//           missionIds: [],
-//         });
-//         res.approximate[name] = newMatch;
-//       }
-//     }
-//     */
-//   }
-
-//   return res;
-// };
-
-const getDepartement = (postalCode: string) => {
-  if (!postalCode) {
-    return null;
-  }
-  const code = postalCode.slice(0, 2);
-  if (!code || !DEPARTMENTS[code]) {
-    return null;
-  }
-  return { code, name: DEPARTMENTS[code][0], region: DEPARTMENTS[code][1] };
 };
