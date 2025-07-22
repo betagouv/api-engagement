@@ -66,15 +66,15 @@ export const bulkDB = async (bulk: Mission[], publisher: Publisher, importDoc: I
  * Clean missions in MongoDB
  * All missions related to given publisher and not in the bulk are deleted
  *
- * @param bulk - Array of imported missions
+ * @param missionsClientIds - Array of mission clientIds
  * @param publisher - Publisher of the missions
  * @param importDoc - Import document to update
  */
-export const cleanDB = async (bulk: Mission[], publisher: Publisher, importDoc: Import) => {
+export const cleanDB = async (missionsClientIds: string[], publisher: Publisher, importDoc: Import) => {
   console.log(`[${publisher.name}] Cleaning Mongo missions...`);
 
   const res = await MissionModel.updateMany(
-    { publisherId: publisher._id, deletedAt: null, clientId: { $nin: bulk.map((e) => e.clientId) } },
+    { publisherId: publisher._id, deletedAt: null, clientId: { $nin: missionsClientIds } },
     { deleted: true, deletedAt: importDoc.startedAt }
   );
 

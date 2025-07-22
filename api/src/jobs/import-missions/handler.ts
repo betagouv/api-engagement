@@ -110,7 +110,7 @@ async function importMissionssForPublisher(publisher: Publisher, start: Date): P
     console.log(`[${publisher.name}] Found ${missionsDB} missions in DB`);
 
     let hasFailed: boolean = false;
-    const allMissions = [] as Mission[];
+    const allMissionsClientIds = [] as string[];
     for (let i = 0; i < missionsXML.length; i += CHUNK_SIZE) {
       const chunk = missionsXML.slice(i, i + CHUNK_SIZE);
       console.log(`[${publisher.name}] Processing chunk ${i / CHUNK_SIZE + 1} of ${Math.ceil(missionsXML.length / CHUNK_SIZE)} (${chunk.length} missions)`);
@@ -131,7 +131,7 @@ async function importMissionssForPublisher(publisher: Publisher, start: Date): P
         const res = await Promise.all(promises);
         res.forEach((e: Mission | undefined) => e && missions.push(e));
       }
-      allMissions.push(...missions);
+      allMissionsClientIds.push(...missions.map((m) => m.clientId.toString()));
 
       // GEOLOC
       const resultGeoloc = await enrichWithGeoloc(publisher, missions);
@@ -165,7 +165,7 @@ async function importMissionssForPublisher(publisher: Publisher, start: Date): P
     // CLEAN DB
     if (!hasFailed) {
       // If one chunk failed, don't remove missions from DB
-      await cleanDB(allMissions, publisher, obj);
+      await cleanDB(allMissionsClientIds, publisher, obj);
     }
 
     // STATS
