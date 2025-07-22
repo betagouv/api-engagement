@@ -58,6 +58,7 @@ export interface Organization {
 export type GeolocStatus = "ENRICHED_BY_PUBLISHER" | "ENRICHED_BY_API" | "NOT_FOUND" | "NO_DATA" | "SHOULD_ENRICH" | "FAILED";
 
 export type AddressItem = {
+  _id?: Schema.Types.ObjectId;
   street: string;
   postalCode: string;
   departmentName: string;

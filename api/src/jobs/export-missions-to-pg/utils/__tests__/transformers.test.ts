@@ -63,6 +63,7 @@ describe("transformMongoMissionToPg", () => {
   };
 
   const baseAddress: AddressItem = {
+    _id: randomObjectId("address-123"),
     street: "123 RUE TEST",
     city: "Paris",
     postalCode: "75000",
@@ -204,6 +205,7 @@ describe("transformMongoMissionToPg", () => {
     expect(result?.mission.partner_id).toBe("partner-123");
 
     expect(result?.addresses.length).toBe(1);
+    expect(result?.addresses[0].old_id).toBe("address-123");
     expect(result?.addresses[0].street).toBe("123 RUE TEST");
     expect(result?.addresses[0].city).toBe("Paris");
     expect(result?.addresses[0].latitude).toBe(48.8566);
@@ -222,7 +224,7 @@ describe("transformMongoMissionToPg", () => {
       organizationName: "Organisation Inexistante",
     } as MongoMission;
 
-    const result = transformMongoMissionToPg(mongoMission, "partner-456", "org-inexistante");
+    const result = transformMongoMissionToPg(mongoMission, "partner-456", undefined);
 
     expect(result).not.toBeNull();
     expect(result?.mission).toBeDefined();

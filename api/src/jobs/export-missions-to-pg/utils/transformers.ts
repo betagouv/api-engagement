@@ -1,14 +1,7 @@
-import { MissionHistoryEventType, MissionType, Address as PgAddress, Mission as PgMission, MissionHistoryEvent as PgMissionHistoryEvent } from "@prisma/client";
+import { MissionHistoryEventType, MissionType, Address as PgAddress, Mission as PgMission } from "@prisma/client";
 import { PUBLISHER_IDS } from "../../../config";
 import { Mission as MongoMission } from "../../../types";
-
-type MissionHistoryEntry = Omit<PgMissionHistoryEvent, "id">; // Prisma renders uuid when saving
-
-export type MissionTransformResult = {
-  mission: PgMission;
-  addresses: PgAddress[];
-  history: MissionHistoryEntry[];
-};
+import { MissionHistoryEntry, MissionTransformResult } from "../types";
 
 /**
  * Transform a MongoDB mission into PostgreSQL format
@@ -18,7 +11,7 @@ export type MissionTransformResult = {
  * @param organizationId The organization ID
  * @returns The transformed mission with addresses and history
  */
-export const transformMongoMissionToPg = (doc: MongoMission | null, partnerId: string, organizationId: string): MissionTransformResult | null => {
+export const transformMongoMissionToPg = (doc: MongoMission | null, partnerId: string, organizationId?: string): MissionTransformResult | null => {
   if (!doc) {
     return null;
   }
@@ -122,6 +115,7 @@ export const transformMongoMissionToPg = (doc: MongoMission | null, partnerId: s
   const addresses: PgAddress[] = doc.addresses.map(
     (address) =>
       ({
+        old_id: address._id?.toString() || "",
         street: address.street,
         city: address.city,
         postal_code: address.postalCode,
