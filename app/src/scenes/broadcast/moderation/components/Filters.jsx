@@ -93,7 +93,7 @@ const Filters = ({ filters, onChange, reload }) => {
           options={options.organizations.map((e) => ({ value: e.key === "" ? "none" : e.key, label: e.key === "" ? "Non renseignée" : e.key, count: e.doc_count }))}
           value={filters.organization}
           onChange={(e) => onChange({ ...filters, organization: e.value })}
-          className="w-80 right-0"
+          className="w-96 right-0"
           loading={loading}
         />
       </div>
@@ -103,6 +103,7 @@ const Filters = ({ filters, onChange, reload }) => {
           value={filters.comment}
           onChange={(e) => onChange({ ...filters, comment: e.value })}
           placeholder="Motif de refus"
+          className="w-[612px]"
           loading={loading}
         />
         <Select
@@ -129,6 +130,7 @@ const Filters = ({ filters, onChange, reload }) => {
           value={filters.activity}
           onChange={(e) => onChange({ ...filters, activity: e.value })}
           placeholder="Activité"
+          className="w-80 right-0"
           loading={loading}
         />
       </div>
@@ -143,7 +145,7 @@ const Filters = ({ filters, onChange, reload }) => {
           onDelete={() => onChange({ ...filters, department: "" })}
         />
         <Badge label="Ville" value={filters.city === "none" ? "Non renseignée" : filters.city} onDelete={() => onChange({ ...filters, city: "" })} />
-        <Badge label="Motif de refus" value={filters.comment} onDelete={() => onChange({ ...filters, comment: "" })} />
+        <Badge label="Motif de refus" value={JVA_MODERATION_COMMENTS_LABELS[filters.comment] || filters.comment} onDelete={() => onChange({ ...filters, comment: "" })} />
         <Badge label="Domaine" value={filters.domain} onDelete={() => onChange({ ...filters, domain: "" })} />
         <Badge label="Activité" value={filters.activity === "none" ? "Non renseignée" : filters.activity} onDelete={() => onChange({ ...filters, activity: "" })} />
         <Badge label="Recherche" value={filters.search} onDelete={() => onChange({ ...filters, search: "" })} />
