@@ -10,7 +10,7 @@ import { captureError } from "../../services/error";
 import useStore from "../../services/store";
 
 const Flux = () => {
-  const { user, publisher, setPublisher } = useStore();
+  const { user, publisher } = useStore();
   const [filters, setFilters] = useState({
     size: 5,
     skip: 0,

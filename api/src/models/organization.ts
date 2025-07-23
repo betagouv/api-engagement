@@ -10,6 +10,7 @@ const schema = new Schema<Organization>(
     rna: { type: String, required: true, description: "RNA" },
     siren: { type: String, description: "Siren" },
     siret: { type: String, description: "Siret" },
+    sirets: { type: [String], description: "Sirets" },
     rupMi: { type: String, description: "RUP/MI" },
     gestion: { type: String, description: "Gestion" },
     status: { type: String, description: "Status" },

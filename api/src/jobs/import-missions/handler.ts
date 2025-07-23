@@ -4,15 +4,66 @@ import PublisherModel from "../../models/publisher";
 
 import MissionModel from "../../models/mission";
 import { Import, Mission, Publisher } from "../../types";
-import { enrichWithGeoloc } from "./geoloc";
-import { buildData } from "./mission";
-import { verifyOrganization } from "./organization";
+import { BaseHandler } from "../base/handler";
+import { JobResult } from "../types";
 import { bulkDB, cleanDB } from "./utils/db";
+import { enrichWithGeoloc } from "./utils/geoloc";
+import { buildData } from "./utils/mission";
+import { verifyOrganization } from "./utils/organization";
 import { parseXML } from "./utils/xml";
 
 const CHUNK_SIZE = 2000;
 
-const importPublisher = async (publisher: Publisher, start: Date) => {
+export interface ImportMissionsJobPayload {
+  publisherId?: string;
+}
+
+export interface ImportMissionsJobResult extends JobResult {
+  start: Date;
+  imports: Import[];
+}
+
+export class ImportMissionsHandler implements BaseHandler<ImportMissionsJobPayload, ImportMissionsJobResult> {
+  async handle(payload: ImportMissionsJobPayload): Promise<ImportMissionsJobResult> {
+    const start = new Date();
+    console.log(`[Import XML] Starting at ${start.toISOString()}`);
+
+    const imports = [] as Import[];
+    let publishers = [] as Publisher[];
+    if (payload.publisherId) {
+      publishers = [await PublisherModel.findById(payload.publisherId)] as Publisher[];
+    } else {
+      publishers = await PublisherModel.find({ isAnnonceur: true });
+    }
+
+    for (let i = 0; i < publishers.length; i++) {
+      const publisher = publishers[i];
+      try {
+        if (!publisher.feed) {
+          console.log(`[Import XML] Publisher ${publisher.name} has no feed`);
+          continue;
+        }
+        const res = await importMissionssForPublisher(publisher, start);
+        if (!res) {
+          continue;
+        }
+        await ImportModel.create(res);
+        imports.push(res);
+      } catch (error: any) {
+        captureException(`Import XML failed`, `${error.message} while creating import for ${publisher.name} (${publisher._id})`);
+      }
+    }
+    console.log(`[Import XML] Ended at ${new Date().toISOString()} in ${(Date.now() - start.getTime()) / 1000}s`);
+    return {
+      success: true,
+      start,
+      timestamp: new Date(),
+      imports,
+    };
+  }
+}
+
+async function importMissionssForPublisher(publisher: Publisher, start: Date): Promise<Import | undefined> {
   if (!publisher) {
     return;
   }
@@ -59,6 +110,7 @@ const importPublisher = async (publisher: Publisher, start: Date) => {
     console.log(`[${publisher.name}] Found ${missionsDB} missions in DB`);
 
     let hasFailed: boolean = false;
+    const allMissionsClientIds = [] as string[];
     for (let i = 0; i < missionsXML.length; i += CHUNK_SIZE) {
       const chunk = missionsXML.slice(i, i + CHUNK_SIZE);
       console.log(`[${publisher.name}] Processing chunk ${i / CHUNK_SIZE + 1} of ${Math.ceil(missionsXML.length / CHUNK_SIZE)} (${chunk.length} missions)`);
@@ -71,14 +123,15 @@ const importPublisher = async (publisher: Publisher, start: Date) => {
 
         if (j % 50 === 0) {
           const res = await Promise.all(promises);
-          res.filter((e) => e !== undefined).forEach((e: Mission) => missions.push(e));
+          res.forEach((e: Mission | undefined) => e && missions.push(e));
           promises.length = 0;
         }
       }
       if (promises.length > 0) {
         const res = await Promise.all(promises);
-        res.filter((e) => e !== undefined).forEach((e: Mission) => missions.push(e));
+        res.forEach((e: Mission | undefined) => e && missions.push(e));
       }
+      allMissionsClientIds.push(...missions.map((m) => m.clientId.toString()));
 
       // GEOLOC
       const resultGeoloc = await enrichWithGeoloc(publisher, missions);
@@ -86,15 +139,15 @@ const importPublisher = async (publisher: Publisher, start: Date) => {
         const mission = missions.find((m) => m.clientId.toString() === r.clientId.toString());
         if (mission && r.addressIndex < mission.addresses.length) {
           const address = mission.addresses[r.addressIndex];
-          address.street = r.street;
-          address.city = r.city;
-          address.postalCode = r.postalCode;
-          address.departmentCode = r.departmentCode;
-          address.departmentName = r.departmentName;
-          address.region = r.region;
+          address.street = r.street || "";
+          address.city = r.city || "";
+          address.postalCode = r.postalCode || "";
+          address.departmentCode = r.departmentCode || "";
+          address.departmentName = r.departmentName || "";
+          address.region = r.region || "";
           if (r.location?.lat && r.location?.lon) {
             address.location = { lat: r.location.lat, lon: r.location.lon };
-            address.geoPoint = r.geoPoint;
+            address.geoPoint = r.geoPoint || undefined;
           }
           address.geolocStatus = r.geolocStatus;
         }
@@ -112,7 +165,7 @@ const importPublisher = async (publisher: Publisher, start: Date) => {
     // CLEAN DB
     if (!hasFailed) {
       // If one chunk failed, don't remove missions from DB
-      await cleanDB(publisher, obj);
+      await cleanDB(allMissionsClientIds, publisher, obj);
     }
 
     // STATS
@@ -134,37 +187,4 @@ const importPublisher = async (publisher: Publisher, start: Date) => {
   console.log(`[${publisher.name}] Ended at ${new Date().toISOString()} in ${(Date.now() - start.getTime()) / 1000}s`);
   obj.endedAt = new Date();
   return obj;
-};
-
-const handler = async (publisherId?: string) => {
-  const start = new Date();
-  console.log(`[Import XML] Starting at ${start.toISOString()}`);
-
-  let publishers = [] as Publisher[];
-  if (publisherId) {
-    const publisher = await PublisherModel.findById(publisherId);
-    publishers = publisher ? [publisher] : [];
-  } else {
-    publishers = await PublisherModel.find({ isAnnonceur: true });
-  }
-
-  for (let i = 0; i < publishers.length; i++) {
-    const publisher = publishers[i];
-    try {
-      if (!publisher.feed) {
-        console.log(`[Import XML] Publisher ${publisher.name} has no feed`);
-        continue;
-      }
-      const res = await importPublisher(publisher, start);
-      if (!res) {
-        continue;
-      }
-      await ImportModel.create(res);
-    } catch (error: any) {
-      captureException(`Import XML failed`, `${error.message} while creating import for ${publisher.name} (${publisher._id})`);
-    }
-  }
-  console.log(`[Import XML] Ended at ${new Date().toISOString()} in ${(Date.now() - start.getTime()) / 1000}s`);
-};
-
-export default { handler };
+}

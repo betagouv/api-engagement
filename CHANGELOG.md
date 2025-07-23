@@ -2,6 +2,33 @@
 Vous retrouverez ici l'historique des différents déploiements effectués sur l'API Engagement.
 
 
+## 14/07/2025
+
+
+### Bug Fixes
+
+-  Fix postgres mission type miss matched ([`b15f6be`](https://github.com/betagouv/api-engagement/commit/b15f6becc9c4119417398e9636b437c2034d9850))
+
+
+### Miscellaneous Tasks
+
+- (**changelog**) Update CHANGELOG.md ([`cf248bd`](https://github.com/betagouv/api-engagement/commit/cf248bd870fd7b7aeb0fb96655b532f0837e1260))
+
+-  Better logging data ([`14bdf03`](https://github.com/betagouv/api-engagement/commit/14bdf03c0e608b167e47587fe584710b72c3cf4c))
+
+-  Merge changelog from main ([`05cc083`](https://github.com/betagouv/api-engagement/commit/05cc08313933a0515f36809bc70bd9f9ad37e22a))
+
+
+### Testing
+
+-  Test referer link ([`8678892`](https://github.com/betagouv/api-engagement/commit/86788923bd2febdcb1026e8e520543b91b45e7b1))
+
+-  Test link referal attributes ([`ed6fe2d`](https://github.com/betagouv/api-engagement/commit/ed6fe2d2a7cd2559e39e03e24c5f184c57647ea1))
+
+# API Engagement - Changelog
+Vous retrouverez ici l'historique des différents déploiements effectués sur l'API Engagement.
+
+
 ## 07/07/2025
 
 

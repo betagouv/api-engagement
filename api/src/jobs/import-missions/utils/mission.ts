@@ -1,14 +1,16 @@
 import he from "he";
 import { convert } from "html-to-text";
 import { Schema } from "mongoose";
+import { isDeepStrictEqual } from "node:util";
 
-import { SC_ID } from "../../config";
-import { AUTRE_IMAGE, DOMAIN_IMAGES } from "../../constants/domains";
-import { captureException } from "../../error";
-import MissionModel from "../../models/mission";
-import { Mission, MissionXML, Publisher } from "../../types";
-import { getAddress, getAddresses } from "./utils/address";
-import { getModeration } from "./utils/moderation";
+import { PUBLISHER_IDS } from "../../../config";
+import { AUTRE_IMAGE, DOMAIN_IMAGES } from "../../../constants/domains";
+import { captureException } from "../../../error";
+import MissionModel from "../../../models/mission";
+import { Mission, Publisher } from "../../../types";
+import { MissionXML } from "../types";
+import { getAddress, getAddresses } from "./address";
+import { getModeration } from "./moderation";
 
 const getImageDomain = (domain: string) => {
   const number = Number(new Date().getTime().toString().slice(-1)) % 3;
@@ -163,7 +165,7 @@ const parseMission = (publisher: Publisher, missionXML: MissionXML, missionDB: M
   // Moderation except Service Civique (already moderated)  // Moderation except Service Civique (already moderated)
   mission.statusComment = "";
   mission.statusCode = "ACCEPTED";
-  if (publisher._id.toString() !== SC_ID) {
+  if (publisher._id.toString() !== PUBLISHER_IDS.SERVICE_CIVIQUE) {
     getModeration(mission);
   }
 
@@ -193,13 +195,8 @@ const parseMission = (publisher: Publisher, missionXML: MissionXML, missionDB: M
     }
   }
 
-  // Dirty dirty hack for afev to get Joe happy
-  if (missionXML.organizationName === "Afev") {
-    mission.description = mission.description.replace(/(\r\n|\n|\r)/gm, " ");
-  }
-
   // Dirty dirty hack for j'agis pour la nature
-  if (publisher._id.toString() === "5f59305b6c7ea514150a818e") {
+  if (publisher._id.toString() === PUBLISHER_IDS.JAGIS_POUR_LA_NATURE) {
     const index = mission.description.indexOf("MODALITÉS D'INSCRIPTION");
     if (index !== -1) {
       mission.description = mission.description.substring(0, index); // remove stuff
@@ -210,46 +207,46 @@ const parseMission = (publisher: Publisher, missionXML: MissionXML, missionDB: M
   }
 
   // Dirty dirty hack for Prevention routiere
-  if (publisher._id.toString() === "619fab857d373e07aea8be1e") {
+  if (publisher._id.toString() === PUBLISHER_IDS.PREVENTION_ROUTIERE) {
     mission.domain = "prevention-protection";
   }
 
   // Dirty dirty hack for service civique
-  if (publisher._id.toString() === "5f99dbe75eb1ad767733b206") {
+  if (publisher._id.toString() === PUBLISHER_IDS.SERVICE_CIVIQUE) {
     if (missionXML.parentOrganizationName) {
       mission.organizationReseaux = Array.isArray(missionXML.parentOrganizationName) ? missionXML.parentOrganizationName : [missionXML.parentOrganizationName];
     } else {
       mission.organizationReseaux = [missionXML.organizationName];
     }
-    let domain_original = "";
+    let domainOriginal = "";
     if (missionXML.domain === "solidarite-insertion") {
-      domain_original = "Solidarité";
+      domainOriginal = "Solidarité";
     }
     if (missionXML.domain === "education") {
-      domain_original = "Éducation pour tous";
+      domainOriginal = "Éducation pour tous";
     }
     if (missionXML.domain === "culture-loisirs") {
-      domain_original = "Culture et loisirs";
+      domainOriginal = "Culture et loisirs";
     }
     if (missionXML.domain === "environnement") {
-      domain_original = "Environnement";
+      domainOriginal = "Environnement";
     }
     if (missionXML.domain === "sport") {
-      domain_original = "Sport";
+      domainOriginal = "Sport";
     }
     if (missionXML.domain === "vivre-ensemble") {
-      domain_original = "Mémoire et citoyenneté";
+      domainOriginal = "Mémoire et citoyenneté";
     }
     if (missionXML.domain === "sante") {
-      domain_original = "Santé";
+      domainOriginal = "Santé";
     }
     if (missionXML.domain === "humanitaire") {
-      domain_original = "Développement international et aide humanitaire";
+      domainOriginal = "Développement international et aide humanitaire";
     }
     if (missionXML.domain === "autre") {
-      domain_original = "Interventions d'urgence en cas de crise";
+      domainOriginal = "Interventions d'urgence en cas de crise";
     }
-    mission.domainOriginal = domain_original;
+    mission.domainOriginal = domainOriginal;
   }
 
   return mission;
@@ -277,4 +274,103 @@ export const buildData = async (startTime: Date, publisher: Publisher, missionXM
   } catch (error) {
     captureException(error, `Error while parsing mission ${missionXML.clientId}`);
   }
+};
+
+export const missionsAreEqual = (a: any, b: any) => {
+  const fields = [
+    "title",
+    "type",
+    "description",
+    "descriptionHtml",
+    "clientId",
+    "applicationUrl",
+    "postedAt",
+    "startAt",
+    "endAt",
+    "duration",
+    "activity",
+    "domain",
+    "schedule",
+    "audience",
+    "softSkills",
+    "romeSkills",
+    "requirements",
+    "remote",
+    "reducedMobilityAccessible",
+    "closeToTransport",
+    "openToMinors",
+    "priority",
+    "tags",
+    "places",
+    "snu",
+    "snuPlaces",
+    "metadata",
+    "organizationName",
+    "organizationRNA",
+    "organizationSiren",
+    "organizationUrl",
+    "organizationLogo",
+    "organizationDescription",
+    "organizationClientId",
+    "organizationStatusJuridique",
+    "organizationType",
+    "organizationActions",
+    "organizationFullAddress",
+    "organizationPostCode",
+    "organizationCity",
+    "organizationBeneficiaries",
+    "organizationReseaux",
+    "statusComment",
+    "addresses",
+    "tasks",
+    "tags",
+    "requirements",
+    "softSkills",
+    "romeSkills",
+  ];
+
+  // Check if a field is an array, based on the schema
+  const isArrayField = (field: string): boolean => {
+    const path = MissionModel.schema.path(field);
+    return !!path && path.instance === "Array";
+  };
+
+  // Normalize mission for comparison: strip _id, arrays undefined -> [], string/number
+  const normalizeMission = (val: any): any => {
+    if (val === undefined) {
+      return [];
+    }
+    if (Array.isArray(val)) {
+      return val.map(normalizeMission);
+    }
+    if (val && typeof val === "object") {
+      // eslint-disable-next-line @typescript-eslint/naming-convention
+      const { _id: mongoId, ...rest } = val;
+      const clean: any = {};
+      for (const key in rest) {
+        if (Object.prototype.hasOwnProperty.call(rest, key)) {
+          clean[key] = normalizeMission(rest[key]);
+        }
+      }
+      return clean;
+    }
+    if (typeof val === "string" && val !== "" && !isNaN(Number(val))) {
+      return Number(val);
+    }
+    return val;
+  };
+
+  const diffs = fields.filter((field) => {
+    let aVal = a[field];
+    let bVal = b[field];
+    if (isArrayField(field)) {
+      aVal = aVal === undefined ? [] : aVal;
+      bVal = bVal === undefined ? [] : bVal;
+    }
+    aVal = normalizeMission(aVal);
+    bVal = normalizeMission(bVal);
+    return !isDeepStrictEqual(aVal, bVal);
+  });
+
+  return diffs.length === 0;
 };
