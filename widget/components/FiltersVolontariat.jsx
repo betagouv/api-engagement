@@ -405,17 +405,6 @@ const DateFilter = ({ selected, onChange, position = "left-0", width = "w-80" })
       }
     };
     document.addEventListener("mousedown", handleClickOutside);
-
-    // Set aria-label in French, an issue has been reported on the react-day-picker library, maybe it will be fixed in the future
-    const previousButton = document.getElementsByClassName("rdp-button_previous");
-    if (previousButton.length > 0) {
-      previousButton[0].setAttribute("aria-label", "Mois précédent");
-    }
-    const nextButton = document.getElementsByClassName("rdp-button_next");
-    if (nextButton.length > 0) {
-      nextButton[0].setAttribute("aria-label", "Mois suivant");
-    }
-
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
@@ -468,6 +457,13 @@ const DateFilter = ({ selected, onChange, position = "left-0", width = "w-80" })
                 display: "flex",
                 justifyContent: "center",
               },
+            }}
+            labels={{
+              labelDayButton: (date, { today, selected }) => {
+                return `${today ? "Aujourd'hui, " : ""}${date.toLocaleDateString("fr", { weekday: "long", day: "numeric", month: "long" })}${selected ? ", sélectionné" : ""}`;
+              },
+              labelNext: () => "Mois suivant",
+              labelPrevious: () => "Mois précédent",
             }}
           />
           <div className="pt-2 pb-1 px-6 w-full flex justify-start border-t border-[#DDDDDD]">

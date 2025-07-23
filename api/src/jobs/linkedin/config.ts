@@ -1,4 +1,6 @@
-import { PUBLISHER_IDS } from "../../config";
+import { BUCKET_NAME, PUBLISHER_IDS } from "../../config";
+
+export const LINKEDIN_XML_URL = `https://${BUCKET_NAME}.s3.fr-par.scw.cloud/xml/linkedin`;
 
 export const LINKEDIN_PUBLISHER_ID = PUBLISHER_IDS.LINKEDIN;
 
