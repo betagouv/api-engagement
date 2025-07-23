@@ -98,9 +98,14 @@ describe("missionToLinkedinJob", () => {
       defaultCompany
     );
 
+    const startDate = new Date(baseMission.startAt);
+    const currentDate = new Date();
+    const diffTime = Math.abs(currentDate.getTime() - startDate.getTime());
+    const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+
     const expectedDescription = `
       <p><b>Type de mission : </b><br>
-      <p><b>${organizationName}</b> vous propose une mission de bénévolat</p>
+      ${diffDays % 6 < 3 ? `<p><b>${organizationName}</b> vous propose une mission de bénévolat</p>` : `<p>Ceci est une mission de bénévolat pour <b>${organizationName}</b></p>`}
       <p><b>Domaine d'activité</b></p>
       <p>${domain}</p>
       ${descriptionHtml}
