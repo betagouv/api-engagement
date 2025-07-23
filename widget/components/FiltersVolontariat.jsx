@@ -405,6 +405,17 @@ const DateFilter = ({ selected, onChange, position = "left-0", width = "w-80" })
       }
     };
     document.addEventListener("mousedown", handleClickOutside);
+
+    // Set aria-label in French, an issue has been reported on the react-day-picker library, maybe it will be fixed in the future
+    const previousButton = document.getElementsByClassName("rdp-button_previous");
+    if (previousButton.length > 0) {
+      previousButton[0].setAttribute("aria-label", "Mois précédent");
+    }
+    const nextButton = document.getElementsByClassName("rdp-button_next");
+    if (nextButton.length > 0) {
+      nextButton[0].setAttribute("aria-label", "Mois suivant");
+    }
+
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
@@ -433,6 +444,8 @@ const DateFilter = ({ selected, onChange, position = "left-0", width = "w-80" })
           <DayPicker
             mode="single"
             locale={fr}
+            aria-label="disponible à partir du"
+            role="dialog"
             selected={selected}
             onDayClick={(date) => {
               onChange({ label: date.toLocaleDateString("fr"), value: date });
@@ -446,6 +459,7 @@ const DateFilter = ({ selected, onChange, position = "left-0", width = "w-80" })
             modifiers={{
               selected: (date) => selected && date.toLocaleDateString("fr") === selected.value.toLocaleDateString("fr"),
             }}
+            autoFocus
             modifiersStyles={{
               selected: {
                 backgroundColor: color,
