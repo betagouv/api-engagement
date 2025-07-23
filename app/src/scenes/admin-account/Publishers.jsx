@@ -14,6 +14,7 @@ const Publishers = () => {
   const [filters, setFilters] = useState({ name: "", role: "", sendReport: "", missionType: "" });
   const [exporting, setExporting] = useState(false);
   const [users, setUsers] = useState([]);
+  const [diffuseurs, setDiffuseurs] = useState([]);
   const [publishers, setPublishers] = useState([]);
   const [loading, setLoading] = useState(false);
 
@@ -21,9 +22,9 @@ const Publishers = () => {
     const fetchData = async () => {
       try {
         setLoading(true);
-        const resU = await api.post("/user/search");
-        if (!resU.ok) throw resU;
-        setUsers(resU.data);
+        const res = await api.post("/user/search");
+        if (!res.ok) throw res;
+        setUsers(res.data);
       } catch (error) {
         captureError(error, "Erreur lors de la récupération des utilisateurs");
       } finally {
@@ -44,9 +45,12 @@ const Publishers = () => {
         if (filters.sendReport === "false") query.sendReport = false;
         if (filters.missionType) query.missionType = filters.missionType;
 
-        const resP = await api.post("/publisher/search", query);
-        if (!resP.ok) throw resP;
-        setPublishers(resP.data);
+        const res = await api.post("/publisher/search", query);
+        if (!res.ok) throw res;
+        setPublishers(res.data);
+        if (!Object.keys(query).length) {
+          setDiffuseurs(res.data);
+        }
       } catch (error) {
         captureError(error, "Erreur lors de la récupération des partenaires");
       } finally {
@@ -194,8 +198,8 @@ const Publishers = () => {
                   {item.hasCampaignRights && <span className="rounded bg-green-light px-1 text-[10px]">Diffuseur Campagne</span>}
                 </div>
                 <span className="w-32 text-center text-xs">{item.publishers.length}</span>
-                <span className="w-32 text-center text-xs">{publishers.filter((e) => e.publishers.find((j) => j.publisher === item._id.toString())).length}</span>
-                <span className="w-32 text-center text-xs">{users.filter((e) => e.publishers.find((j) => j === item._id.toString())).length}</span>
+                <span className="w-32 text-center text-xs">{diffuseurs.filter((e) => e.publishers.some((j) => j.publisherId === item._id)).length}</span>
+                <span className="w-32 text-center text-xs">{users.filter((e) => e.publishers.find((j) => j === item._id)).length}</span>
                 <div className="w-32 text-center text-xs">
                   {item.sendReport ? (
                     <span className="rounded bg-blue-light px-1">{`Oui (${item.sendReportTo.length} receveur${item.sendReportTo.length > 1 ? "s" : ""})`}</span>
