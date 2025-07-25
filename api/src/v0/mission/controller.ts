@@ -1,5 +1,4 @@
 import { NextFunction, Response, Router } from "express";
-import mongoose from "mongoose";
 import passport from "passport";
 import zod from "zod";
 
@@ -440,9 +439,7 @@ router.get("/:id", passport.authenticate(["apikey", "api"], { session: false }),
 
     const params = zod
       .object({
-        id: zod.string().refine((val) => {
-          return mongoose.Types.ObjectId.isValid(val)
-        }),
+        id: zod.string(),
       })
       .safeParse(req.params);
 

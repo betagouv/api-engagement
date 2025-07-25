@@ -72,7 +72,7 @@ describe("Mission API Integration Tests", () => {
           location: { lat: 48.8566, lon: 2.3522 },
           geoPoint: { type: "Point", coordinates: [2.3522, 48.8566] },
           postalCode: "75004",
-          geolocStatus: "found",
+          geolocStatus: "ENRICHED_BY_PUBLISHER",
         },
       ],
     });
@@ -95,7 +95,7 @@ describe("Mission API Integration Tests", () => {
           country: "France",
           location: { lat: 45.767, lon: 4.836 },
           geoPoint: { type: "Point", coordinates: [4.836, 45.767] },
-          geolocStatus: "FOUND",
+          geolocStatus: "ENRICHED_BY_PUBLISHER",
         },
       ],
     });
@@ -118,7 +118,7 @@ describe("Mission API Integration Tests", () => {
           location: { lat: 48.8699, lon: 2.3073 },
           geoPoint: { type: "Point", coordinates: [2.3073, 48.8699] },
           postalCode: "75008",
-          geolocStatus: "found",
+          geolocStatus: "ENRICHED_BY_PUBLISHER",
         },
       ],
     });
@@ -483,13 +483,6 @@ describe("Mission API Integration Tests", () => {
       expect(response.body.data._id).toBe(mission1._id?.toString());
 
       validateMissionStructure(response.body.data);
-    });
-
-    it("should return 400 for invalid id parameter", async () => {
-      const response = await request(app).get("/v0/mission/invalid_id").set("x-api-key", apiKey);
-      expect(response.status).toBe(400);
-      expect(response.body.ok).toBe(false);
-      expect(response.body.code).toBe("INVALID_PARAMS");
     });
 
     it("should return 404 for unknown id parameter", async () => {
