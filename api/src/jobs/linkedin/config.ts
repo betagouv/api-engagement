@@ -70,15 +70,15 @@ export const LINKEDIN_COMPANY_ID = {
 } as { [key: string]: string };
 
 export const LINKEDIN_INDUSTRY_CODE = {
-  environnement: 86,
-  "solidarite-insertion": null,
+  environnement: 2368,
+  "solidarite-insertion": 2125,
   sante: 14,
-  "culture-loisirs": 30,
+  "culture-loisirs": 28,
   education: 67,
-  emploi: 137,
-  sport: 33,
-  humanitaire: null,
-  animaux: 16,
-  "vivre-ensemble": null,
-  autre: null,
+  emploi: 2125,
+  sport: 2027,
+  humanitaire: 2122,
+  animaux: 2282,
+  "vivre-ensemble": 90,
+  autre: 100,
 } as { [key: string]: number | null };

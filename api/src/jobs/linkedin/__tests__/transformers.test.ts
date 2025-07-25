@@ -1,21 +1,21 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { missionToLinkedinJob } from "../transformers";
 
-// Mock constants from ../config, as this is where they are imported from in transformers.ts
-vi.mock("../config", () => ({
-  PUBLISHER_IDS: {
-    LINKEDIN: "test-linkedin-id",
-  },
-  LINKEDIN_COMPANY_ID: {
-    "Mon asso": "12345",
-    Benevolt: "54321",
-  },
-  LINKEDIN_INDUSTRY_CODE: {
-    Informatique: "4",
-    Santé: "94",
-  },
-  LINKEDIN_PUBLISHER_ID: "test-linkedin-id",
-}));
+// Mock constants with IDs but keep the rest of the config
+vi.mock("../config", async () => {
+  const config = await vi.importActual<typeof import("../config")>("../config");
+  return {
+    ...config,
+    PUBLISHER_IDS: {
+      LINKEDIN: "test-linkedin-id",
+    },
+    LINKEDIN_COMPANY_ID: {
+      "Mon asso": "12345",
+      Benevolt: "54321",
+    },
+    LINKEDIN_PUBLISHER_ID: "test-linkedin-id",
+  };
+});
 
 vi.mock("../../../utils/mission", () => ({
   getMissionTrackedApplicationUrl: vi.fn((mission, publisherId) => `https://api.api-engagement.beta.gouv.fr/r/${mission._id}/${publisherId}`),
@@ -35,7 +35,7 @@ const baseMission: any = {
   startAt: new Date("2025-01-15").toISOString(),
   createdAt: new Date("2025-01-01").toISOString(),
   endAt: new Date("2025-06-30").toISOString(),
-  domain: "Informatique",
+  domain: "environnement",
   remote: "no",
 };
 
@@ -65,8 +65,8 @@ describe("missionToLinkedinJob", () => {
     expect(job?.postalCode).toBe("75001");
     expect(job?.listDate).toBe(new Date(baseMission.createdAt).toISOString());
     expect(job?.expirationDate).toBe(new Date(baseMission.endAt).toISOString());
-    expect(job?.industry).toBe("Informatique");
-    expect(job?.industryCodes).toEqual([{ industryCode: "4" }]);
+    expect(job?.industry).toBe("environnement");
+    expect(job?.industryCodes).toEqual([{ industryCode: 2368 }]);
     expect(job?.workplaceTypes).toBe("On-site");
   });
 
@@ -80,7 +80,7 @@ describe("missionToLinkedinJob", () => {
       <p>Précisions</p><br>
       <p>Texte de précisions</p>`;
     const organizationName = "Mon asso";
-    const domain = "Informatique";
+    const domain = "environnement";
     const requirements = ["Précision 1", "Précision 2"];
     const audience = "Jeunes";
     const schedule = "un jour par semaine";
@@ -213,5 +213,17 @@ describe("missionToLinkedinJob", () => {
   it("should return null for country code length > 2", () => {
     const mission = { ...baseMission, country: "FRA" };
     expect(missionToLinkedinJob(mission, defaultCompany)).toBeNull();
+  });
+
+  it("should map domain to industry code", () => {
+    const mission = { ...baseMission, domain: "sante" };
+    const job = missionToLinkedinJob(mission, defaultCompany);
+    expect(job?.industryCodes).toEqual([{ industryCode: 14 }]);
+  });
+
+  it("when domain is not in LINKEDIN_INDUSTRY_CODE, key should be undefined", () => {
+    const mission = { ...baseMission, domain: "unknown" };
+    const job = missionToLinkedinJob(mission, defaultCompany);
+    expect(job?.industryCodes).toBeUndefined();
   });
 });
