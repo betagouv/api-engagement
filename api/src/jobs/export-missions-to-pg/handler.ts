@@ -2,36 +2,19 @@ import { Address, MissionHistoryEvent } from "@prisma/client";
 import prisma from "../../db/postgres";
 import MissionModel from "../../models/mission";
 import { BaseHandler } from "../base/handler";
-import { JobResult } from "../types";
+import { ExportMissionsToPgJobPayload, ExportMissionsToPgJobResult } from "./types";
+import { getMongoMissionsToSync, getOrganizationsFromMissions } from "./utils/helpers";
 import { transformMongoMissionToPg } from "./utils/transformers";
 
 const PG_CHUNK_SIZE = 100;
-const DEFAULT_LIMIT = 1000;
-export interface ExportMissionsToPgJobPayload {
-  id?: string;
-  limit?: number;
-}
-
-export interface ExportMissionsToPgJobResult extends JobResult {
-  counter: {
-    total: number;
-    processed: number;
-    error: number;
-    deleted: number;
-  };
-}
 
 export class ExportMissionsToPgHandler implements BaseHandler<ExportMissionsToPgJobPayload, ExportMissionsToPgJobResult> {
   async handle(payload: ExportMissionsToPgJobPayload): Promise<ExportMissionsToPgJobResult> {
     const start = new Date();
     console.log(`[Export missions to PG] Starting at ${start.toISOString()}`);
 
-    // Get missions where updated at is greater than the last time they were exported (mission.updatedAt > mission.lastExportedToPgAt)
-    const missions = await MissionModel.find({
-      $or: [{ lastExportedToPgAt: { $exists: false } }, { $expr: { $lt: ["$lastExportedToPgAt", "$updatedAt"] } }],
-    })
-      .limit(payload.limit || DEFAULT_LIMIT)
-      .lean();
+    const missions = await getMongoMissionsToSync(payload);
+    console.log(`[Export missions to PG] Found ${missions.length} missions to sync`);
 
     // Get partners for mission mapping
     const partners = await prisma.partner.findMany({
@@ -42,13 +25,6 @@ export class ExportMissionsToPgHandler implements BaseHandler<ExportMissionsToPg
     });
     console.log(`[Export missions to PG] Found ${partners.length} partners`);
 
-    // Extract unique organization IDs from selected missions to find only wanted organizations in PG
-    const organizationIds: string[] = [...new Set(missions.map((e) => e.organizationId).filter((e) => e !== undefined))] as string[];
-    const organizations = await prisma.organization.findMany({
-      where: { old_id: { in: organizationIds } },
-    });
-    console.log(`[Export missions to PG] Found ${organizations.length} organizations related to missions`);
-
     const counter = {
       total: 0,
       processed: 0,
@@ -58,7 +34,10 @@ export class ExportMissionsToPgHandler implements BaseHandler<ExportMissionsToPg
 
     for (let i = 0; i < missions.length; i += PG_CHUNK_SIZE) {
       const batch = missions.slice(i, i + PG_CHUNK_SIZE);
-      console.log(`[Export missions to PG] Traitement du lot ${i / PG_CHUNK_SIZE + 1} (${batch.length} missions)`);
+      console.log(`[Export missions to PG] Batch ${i / PG_CHUNK_SIZE + 1} / ${Math.ceil(missions.length / PG_CHUNK_SIZE)} (${batch.length} missions)`);
+
+      const organizations = await getOrganizationsFromMissions(batch);
+      console.log(`[Export missions to PG] Found ${organizations.length} organizations related to missions`);
 
       const missionsIds: string[] = [];
       const addressesToCreate: Omit<Address, "id">[] = [];
@@ -69,7 +48,7 @@ export class ExportMissionsToPgHandler implements BaseHandler<ExportMissionsToPg
 
         const partner = partners.find((p) => p.old_id === mission.publisherId);
         if (!partner) {
-          console.log(`[Export missions to PG] No partner found for mission ${mission._id.toString()} (${mission.publisherId})`);
+          console.error(`[Export missions to PG] No partner found for mission ${mission._id?.toString()} (${mission.publisherId})`);
           counter.error++;
           continue;
         }
@@ -82,17 +61,16 @@ export class ExportMissionsToPgHandler implements BaseHandler<ExportMissionsToPg
               update: result.mission,
               create: result.mission,
             });
-            console.log(`[Export missions to PG] Mission ${mission._id.toString()} processed`);
             counter.processed++;
             missionsIds.push(upsert.id);
             addressesToCreate.push(...result.addresses.map((a) => ({ ...a, mission_id: upsert.id })));
             historyToCreate.push(...result.history.map((h) => ({ ...h, mission_id: upsert.id })));
           } catch (error) {
-            console.log(`Error processing mission ${mission._id.toString()}: ${error}`);
+            console.error(`Error processing mission ${mission._id?.toString()}: ${error}`);
             counter.error++;
           }
         } else {
-          console.log(`[Export missions to PG] Error converting mission ${mission._id.toString()}`);
+          console.error(`[Export missions to PG] Error converting mission ${mission._id?.toString()}`);
           counter.error++;
         }
       }
@@ -109,7 +87,7 @@ export class ExportMissionsToPgHandler implements BaseHandler<ExportMissionsToPg
           console.log(`[Export missions to PG] Updated addresses and history for ${missionsIds.length} missions (batch)`);
         }
       } catch (error) {
-        console.log(`[Export missions to PG] Error while updating addresses and history for ${missionsIds.length} missions (batch): ${error}`);
+        console.error(`[Export missions to PG] Error while updating addresses and history for ${missionsIds.length} missions (batch): ${error}`);
       }
 
       // Update missions lastExportedToPgAt to exclude them to be processed again

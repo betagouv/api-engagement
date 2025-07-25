@@ -197,3 +197,21 @@ resource "scaleway_job_definition" "import-missions" {
 
   env = local.all_env_vars
 }
+
+# Job Definition for the 'export-missions-to-pg' task
+resource "scaleway_job_definition" "export-missions-to-pg" {
+  name         = "${terraform.workspace}-export-missions-to-pg"
+  project_id   = var.project_id
+  cpu_limit    = 1000
+  memory_limit = 2048
+  image_uri    = local.image_uri
+  command      = "node --max-old-space-size=1800 dist/jobs/run-job.js export-missions-to-pg"
+  timeout      = "30m"
+
+  cron {
+    schedule = "0 */12 * * *" # Every 12 hours
+    timezone = "Europe/Paris"
+  }
+
+  env = local.all_env_vars
+}
