@@ -2,7 +2,7 @@
 import { parse } from "csv-parse";
 import { Readable } from "stream";
 
-import { DEPARTMENTS } from "../../constant";
+import { DEPARTMENTS } from "../../constants/departments";
 import OrganizationModel from "../../models/organization";
 import { DataGouvRnaRecord } from "../../services/data-gouv/types";
 import { Organization } from "../../types";

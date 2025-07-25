@@ -1,9 +1,11 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { PUBLISHER_IDS } from "../../../config";
 import { missionToLinkedinJob } from "../transformers";
 
 // Mock constants from ../config, as this is where they are imported from in transformers.ts
 vi.mock("../config", () => ({
+  PUBLISHER_IDS: {
+    LINKEDIN: "test-linkedin-id",
+  },
   LINKEDIN_COMPANY_ID: {
     "Mon asso": "12345",
     Benevolt: "54321",
@@ -12,6 +14,7 @@ vi.mock("../config", () => ({
     Informatique: "4",
     Santé: "94",
   },
+  LINKEDIN_PUBLISHER_ID: "test-linkedin-id",
 }));
 
 vi.mock("../../../utils/mission", () => ({
@@ -52,7 +55,7 @@ describe("missionToLinkedinJob", () => {
     expect(job?.partnerJobId).toBe(String(baseMission._id));
     expect(job?.title).toBe(`Bénévolat - ${baseMission.title}`);
     expect(job?.jobtype).toBe("VOLUNTEER");
-    expect(job?.applyUrl).toBe(`https://api.api-engagement.beta.gouv.fr/r/${baseMission._id}/${PUBLISHER_IDS.LINKEDIN}`);
+    expect(job?.applyUrl).toBe(`https://api.api-engagement.beta.gouv.fr/r/${baseMission._id}/test-linkedin-id`);
     expect(job?.description).not.toBeNull(); // Description will be tested in dedicated test
     expect(job?.company).toBe("Mon asso");
     expect(job?.companyId).toBe("12345");
@@ -68,8 +71,6 @@ describe("missionToLinkedinJob", () => {
   });
 
   it("should format description with correct data", () => {
-    vi.setSystemTime(new Date("2025-01-16")); // diffDays = 1 - regular description
-
     // JVA missions should have a description with the following structure
     const descriptionHtml = `
       <b>Présentation de la mission</b><br>
@@ -97,9 +98,14 @@ describe("missionToLinkedinJob", () => {
       defaultCompany
     );
 
+    const startDate = new Date(baseMission.startAt);
+    const currentDate = new Date();
+    const diffTime = Math.abs(currentDate.getTime() - startDate.getTime());
+    const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+
     const expectedDescription = `
       <p><b>Type de mission : </b><br>
-      <p><b>${organizationName}</b> vous propose une mission de bénévolat</p>
+      ${diffDays % 6 < 3 ? `<p><b>${organizationName}</b> vous propose une mission de bénévolat</p>` : `<p>Ceci est une mission de bénévolat pour <b>${organizationName}</b></p>`}
       <p><b>Domaine d'activité</b></p>
       <p>${domain}</p>
       ${descriptionHtml}
@@ -148,7 +154,7 @@ describe("missionToLinkedinJob", () => {
   });
 
   it("should use alternate description based on date difference", () => {
-    vi.setSystemTime(new Date("2025-01-19")); // diffDays = 4 - alternate description
+    vi.setSystemTime(new Date("2025-01-19")); // diffDays = 4, initialDescription = false
     const job = missionToLinkedinJob(baseMission, defaultCompany);
     expect(job?.description).toContain(`Ceci est une mission de bénévolat pour <b>${baseMission.organizationName}</b>`);
   });

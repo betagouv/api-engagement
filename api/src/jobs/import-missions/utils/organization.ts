@@ -85,7 +85,7 @@ export const verifyOrganization = async (missions: Mission[]) => {
           rnaNotFound++;
           continue;
         }
-        if (foundRNAs[identifier] !== "not_found" && foundRNAs[identifier]) {
+        if (foundRNAs[identifier]) {
           updateMissionOrganization(mission, foundRNAs[identifier] as Organization, ORGANIZATION_VERIFICATION_STATUS.RNA_MATCHED_WITH_DATA_DB);
           rnaFound++;
           continue;
@@ -107,7 +107,7 @@ export const verifyOrganization = async (missions: Mission[]) => {
           siretNotFound++;
           continue;
         }
-        if (foundSirets[identifier] !== "not_found" && foundSirets[identifier]) {
+        if (foundSirets[identifier]) {
           updateMissionOrganization(mission, foundSirets[identifier] as Organization, ORGANIZATION_VERIFICATION_STATUS.SIRET_MATCHED_WITH_DATA_DB);
           siretFound++;
           continue;
@@ -130,7 +130,7 @@ export const verifyOrganization = async (missions: Mission[]) => {
           nameNotFound++;
           continue;
         }
-        if (foundNames[name] !== "not_found" && foundNames[name]) {
+        if (foundNames[name]) {
           updateMissionOrganization(mission, foundNames[name] as Organization, ORGANIZATION_VERIFICATION_STATUS.NAME_EXACT_MATCHED_WITH_DB);
           nameFound++;
           continue;

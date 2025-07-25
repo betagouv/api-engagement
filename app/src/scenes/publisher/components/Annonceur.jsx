@@ -17,7 +17,7 @@ const Annonceur = ({ values, onChange, errors, setErrors }) => {
     const fetchData = async () => {
       try {
         const res = await api.post("/publisher/search", {
-          partnersOf: values._id,
+          diffuseursOf: values._id,
         });
         if (!res.ok) throw res;
         setData(res.data);

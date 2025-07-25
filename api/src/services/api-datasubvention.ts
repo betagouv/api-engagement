@@ -8,7 +8,7 @@ const get = async (path: string, body?: BodyInit, options?: RequestInit) => {
       headers: {
         "Content-Type": "application/json",
         "x-access-token": DATA_SUBVENTION_TOKEN,
-      },
+      } as HeadersInit,
       body: JSON.stringify(body),
       ...options,
     });
