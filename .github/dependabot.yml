@@ -46,6 +46,9 @@ updates:
     commit-message:
       prefix: "chore"
       include: "scope"
+    ignore:
+      - dependency-name: "mongoose"
+        versions: [">=8.0.0"]
     groups:
       dev-dependencies:
         patterns:
