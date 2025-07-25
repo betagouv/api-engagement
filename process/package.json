@@ -28,7 +28,7 @@
     "@babel/preset-env": "7.27.2",
     "@babel/preset-react": "7.27.1",
     "@babel/register": "7.27.1",
-    "@elastic/elasticsearch": "7.17.14",
+    "@elastic/elasticsearch": "9.0.3",
     "@prisma/client": "6.10.1",
     "@sentry/node": "9.33.0",
     "@types/node": "22.15.29",
