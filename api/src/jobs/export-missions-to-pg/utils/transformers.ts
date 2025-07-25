@@ -112,7 +112,7 @@ export const transformMongoMissionToPg = (doc: MongoMission | null, partnerId: s
   } as PgMission;
 
   // Transform addresses
-  const addresses: PgAddress[] = doc.addresses.map(
+  const addresses: PgAddress[] = doc.addresses?.map(
     (address) =>
       ({
         old_id: address._id?.toString() || "",
