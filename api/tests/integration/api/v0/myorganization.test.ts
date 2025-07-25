@@ -1,9 +1,12 @@
 import request from "supertest";
-import { beforeEach, describe, expect, it } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import OrganizationExclusionModel from "../../../../src/models/organization-exclusion";
 import { Mission, MissionType, Publisher } from "../../../../src/types";
 import { createTestMission, createTestPublisher } from "../../../fixtures";
+import elasticMock from "../../../mocks/elasticMock";
 import { createTestApp } from "../../../testApp";
+
+vi.mock("../../../src/es", () => ({ esClient: elasticMock }));
 
 describe("MyOrganization API Integration Tests", () => {
   const app = createTestApp();
@@ -15,6 +18,9 @@ describe("MyOrganization API Integration Tests", () => {
   let orgId: string;
 
   beforeEach(async () => {
+    elasticMock.search.mockReset();
+    elasticMock.msearch.mockReset();
+
     publisher = await createTestPublisher();
     apiKey = publisher.apikey || "";
     orgId = "test-org-id";
@@ -40,6 +46,20 @@ describe("MyOrganization API Integration Tests", () => {
     });
 
     it("should return list of publishers for the organization with correct format", async () => {
+      // Mock ES result with random clicks values
+      elasticMock.search.mockResolvedValueOnce({
+        body: {
+          aggregations: {
+            fromPublisherId: {
+              buckets: [
+                { key: publisher1._id.toString(), doc_count: 7 },
+                { key: publisher2._id.toString(), doc_count: 0 },
+              ],
+            },
+          },
+        },
+      });
+
       const response = await request(app).get(`/v0/myorganization/${orgId}`).set("x-api-key", apiKey);
 
       expect(response.status).toBe(200);
@@ -47,23 +67,60 @@ describe("MyOrganization API Integration Tests", () => {
       expect(Array.isArray(response.body.data)).toBe(true);
       expect(response.body.data.length).toBe(2); // Should have our two test partners related to publisher
 
-      // Verify the structure of returned data matches the documentation
-      const partner = response.body.data[0];
-      expect(partner).toHaveProperty("_id");
-      expect(partner).toHaveProperty("name");
-      expect(partner).toHaveProperty("category");
-      expect(partner).toHaveProperty("url");
-      expect(partner).toHaveProperty("logo");
-      expect(partner).toHaveProperty("description");
-      expect(partner).toHaveProperty("widget");
-      expect(partner).toHaveProperty("api");
-      expect(partner).toHaveProperty("campaign");
-      expect(partner).toHaveProperty("annonceur");
-      expect(partner).toHaveProperty("excluded");
-      expect(partner).toHaveProperty("clicks");
+      const partner1 = response.body.data.find((p: any) => p._id === publisher1._id.toString());
+      const partner2 = response.body.data.find((p: any) => p._id === publisher2._id.toString());
+      expect(partner1.clicks).toBe(7);
+      expect(partner2.clicks).toBe(0);
 
-      expect(typeof partner.excluded).toBe("boolean");
-      expect(typeof partner.clicks).toBe("number");
+      [partner1, partner2].forEach((partner) => {
+        expect(partner).toHaveProperty("_id");
+        expect(partner).toHaveProperty("name");
+        expect(partner).toHaveProperty("category");
+        expect(partner).toHaveProperty("url");
+        expect(partner).toHaveProperty("logo");
+        expect(partner).toHaveProperty("description");
+        expect(partner).toHaveProperty("widget");
+        expect(partner).toHaveProperty("api");
+        expect(partner).toHaveProperty("campaign");
+        expect(partner).toHaveProperty("annonceur");
+        expect(partner).toHaveProperty("excluded");
+        expect(partner).toHaveProperty("clicks");
+        expect(typeof partner.excluded).toBe("boolean");
+        expect(typeof partner.clicks).toBe("number");
+      });
+    });
+
+    it("should return correct exclusion status for publishers", async () => {
+      // Mock ES: all clicks to 0
+      elasticMock.search.mockResolvedValueOnce({
+        body: {
+          aggregations: {
+            fromPublisherId: {
+              buckets: [
+                { key: publisher1._id.toString(), doc_count: 0 },
+                { key: publisher2._id.toString(), doc_count: 0 },
+              ],
+            },
+          },
+        },
+      });
+
+      // Add exclusion for publisher2
+      await OrganizationExclusionModel.create({
+        excludedByPublisherId: publisher._id.toString(),
+        excludedByPublisherName: publisher.name,
+        excludedForPublisherId: publisher2._id.toString(),
+        excludedForPublisherName: publisher2.name,
+        organizationClientId: orgId,
+        organizationName: publisher.name,
+      });
+
+      const response = await request(app).get(`/v0/myorganization/${orgId}`).set("x-api-key", apiKey);
+      expect(response.status).toBe(200);
+      const partner1 = response.body.data.find((p: any) => p._id === publisher1._id.toString());
+      const partner2 = response.body.data.find((p: any) => p._id === publisher2._id.toString());
+      expect(partner1.excluded).toBe(false);
+      expect(partner2.excluded).toBe(true);
     });
   });
 
