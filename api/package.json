@@ -19,7 +19,7 @@
     "job": "ts-node src/jobs/run-job.ts"
   },
   "dependencies": {
-    "@elastic/elasticsearch": "7.17.14",
+    "@elastic/elasticsearch": "9.0.3",
     "@sentry/node": "9.33.0",
     "@types/geoip-lite": "1.4.4",
     "aws-sdk": "2.1692.0",
