@@ -185,7 +185,7 @@ const schema = new Schema<Mission>(
     jobteaserUpdatedAt: { type: Date },
 
     // Letudiant
-    letudiantPublicId: { type: String },
+    letudiantPublicId: { type: Object },
     letudiantUpdatedAt: { type: Date },
     letudiantError: { type: String },
 

@@ -3,7 +3,7 @@ import { PUBLISHER_IDS } from "../../../config";
 import { PilotyMandatoryData } from "../../../services/piloty/types";
 import { Mission, MissionType } from "../../../types";
 import { MEDIA_PUBLIC_ID } from "../config";
-import { missionToPilotyCompany, missionToPilotyJob } from "../transformers";
+import { missionToPilotyCompany, missionToPilotyJobs } from "../transformers";
 
 vi.mock("../../../utils/mission", () => ({
   getMissionTrackedApplicationUrl: vi.fn((mission, publisherId) => `https://api-engagement.beta.gouv.fr/r/${mission._id}/${publisherId}`),
@@ -35,35 +35,51 @@ const mockMandatoryData: PilotyMandatoryData = {
 
 describe("L'Etudiant Transformers", () => {
   /**
-   * Tests for missionToPilotyJob function
+   * Tests for missionToPilotyJobs function
    */
-  describe("missionToPilotyJob", () => {
+  describe("missionToPilotyJobs", () => {
     const baseMission: Partial<Mission> = {
+      addresses: [
+        {
+          city: "Lyon",
+          postalCode: "69000",
+          street: "123 rue de test",
+          country: "France",
+          departmentName: "Rhône",
+          departmentCode: "69",
+          region: "Auvergne-Rhône-Alpes",
+          geolocStatus: "ENRICHED_BY_PUBLISHER",
+          location: {
+            lat: 45.764,
+            lon: 4.835,
+          },
+        },
+      ],
+      domain: "education",
       title: "Super Mission de Test",
       type: MissionType.BENEVOLAT,
       descriptionHtml: "<p>Une description 素晴らしい HTML.</p>",
       applicationUrl: "https://example.com/apply",
       organizationDescription: "Description de l'organisation.",
+      publisherId: "some_publisher_id",
+      remote: "no",
+      deletedAt: null,
     };
 
     it("should correctly transform a mission for Benevolat", () => {
       const mission: Mission = {
         ...baseMission,
-        publisherId: "some_other_publisher_id",
-        domain: "sante",
-        remote: "no",
-        city: "Lyon",
-        deletedAt: null,
       } as Mission;
 
-      const result = missionToPilotyJob(mission, mockCompanyId, mockMandatoryData);
+      const results = missionToPilotyJobs(mission, mockCompanyId, mockMandatoryData);
+      const result = results[0];
 
       expect(result.media_public_id).toBe(MEDIA_PUBLIC_ID);
       expect(result.company_public_id).toBe(mockCompanyId);
       expect(result.name).toBe(mission.title);
       expect(result.contract_id).toBe(mockMandatoryData.contracts.benevolat);
-      expect(result.job_category_id).toBe(mockMandatoryData.jobCategories.sante);
-      expect(result.localisation).toBe(mission.city);
+      expect(result.job_category_id).toBe(mockMandatoryData.jobCategories.education);
+      expect(result.localisation).toBe("Lyon");
       expect(result.description_job).toBe("<p>Une description 素晴らしい HTML.</p>");
       expect(result.application_method).toBe("external_apply");
       expect(result.application_url).toBe(`https://api-engagement.beta.gouv.fr/r/${mission._id}/${PUBLISHER_IDS.LETUDIANT}`);
@@ -77,93 +93,106 @@ describe("L'Etudiant Transformers", () => {
       const mission: Mission = {
         ...baseMission,
         type: MissionType.VOLONTARIAT,
-        domain: "education",
-        remote: "full",
-        city: "Marseille",
-        deletedAt: null,
       } as Mission;
 
-      const result = missionToPilotyJob(mission, mockCompanyId, mockMandatoryData);
+      const results = missionToPilotyJobs(mission, mockCompanyId, mockMandatoryData);
+      const result = results[0];
       expect(result.contract_id).toBe(mockMandatoryData.contracts.volontariat);
     });
 
     it("should set localisation to 'A distance' for full remote missions and set remote_policy_id", () => {
       const mission: Mission = {
         ...baseMission,
-        domain: "culture-loisirs",
         remote: "full",
-        city: "Paris", // City should be ignored for localisation
-        deletedAt: null,
       } as Mission;
 
-      const result = missionToPilotyJob(mission, mockCompanyId, mockMandatoryData);
+      const results = missionToPilotyJobs(mission, mockCompanyId, mockMandatoryData);
+      const result = results[0];
       expect(result.localisation).toBe("A distance");
       expect(result.remote_policy_id).toBe(mockMandatoryData.remotePolicies.full);
     });
 
-    it("should set localisation to city if remote is not full and city is provided", () => {
+    it("should return an empty array if no address is provided", () => {
       const mission: Mission = {
         ...baseMission,
-        publisherId: "any_id",
-        domain: "environnement",
-        remote: "no",
-        city: "Bordeaux",
-        deletedAt: null,
+        addresses: [],
       } as Mission;
-      const result = missionToPilotyJob(mission, mockCompanyId, mockMandatoryData);
-      expect(result.localisation).toBe("Bordeaux");
-      expect(result.remote_policy_id).toBeUndefined();
+      const results = missionToPilotyJobs(mission, mockCompanyId, mockMandatoryData);
+      expect(results).toHaveLength(0);
+    });
+
+    it("should return an array of jobs for each address", () => {
+      const mission: Mission = {
+        ...baseMission,
+        addresses: [
+          {
+            city: "Lyon",
+            postalCode: "69000",
+            street: "123 rue de test",
+            country: "France",
+            departmentName: "Rhône",
+            departmentCode: "69",
+            region: "Auvergne-Rhône-Alpes",
+            geolocStatus: "ENRICHED_BY_PUBLISHER",
+            location: {
+              lat: 45.764,
+              lon: 4.835,
+            },
+          },
+          {
+            city: "Marseille",
+            postalCode: "13000",
+            street: "456 rue de test",
+            country: "France",
+            departmentName: "Bouches-du-Rhône",
+            departmentCode: "13",
+            region: "Provence-Alpes-Côte d'Azur",
+            geolocStatus: "ENRICHED_BY_PUBLISHER",
+            location: {
+              lat: 43.296,
+              lon: 5.369,
+            },
+          },
+        ],
+      } as Mission;
+      const results = missionToPilotyJobs(mission, mockCompanyId, mockMandatoryData);
+      expect(results).toHaveLength(2);
     });
 
     it("should set state to 'archived' if mission is deleted", () => {
       const mission: Mission = {
         ...baseMission,
-        publisherId: "any_id",
-        domain: "autre",
-        remote: "no",
-        city: "Lille",
         deletedAt: new Date(),
       } as Mission;
-      const result = missionToPilotyJob(mission, mockCompanyId, mockMandatoryData);
+      const results = missionToPilotyJobs(mission, mockCompanyId, mockMandatoryData);
+      const result = results[0];
       expect(result.state).toBe("archived");
     });
 
     it("should use 'autre' job category if mission domain is null or not in mandatoryData", () => {
       const missionNullDomain: Mission = {
         ...baseMission,
-        publisherId: "any_id",
         domain: "autre",
-        remote: "no",
-        city: "Strasbourg",
-        deletedAt: null,
       } as Mission;
-      let result = missionToPilotyJob(missionNullDomain, mockCompanyId, mockMandatoryData);
-      expect(result.job_category_id).toBe(mockMandatoryData.jobCategories.autre);
+      let result = missionToPilotyJobs(missionNullDomain, mockCompanyId, mockMandatoryData);
+      expect(result[0].job_category_id).toBe(mockMandatoryData.jobCategories.autre);
 
       const missionUnknownDomain: Mission = {
         ...baseMission,
-        publisherId: "any_id",
         domain: "domaine-inexistant", // This domain is not in mockMandatoryData.jobCategories
-        remote: "no",
-        city: "Strasbourg",
-        deletedAt: null,
       } as Mission;
-      result = missionToPilotyJob(missionUnknownDomain, mockCompanyId, mockMandatoryData);
-      expect(result.job_category_id).toBe(mockMandatoryData.jobCategories.autre);
+      result = missionToPilotyJobs(missionUnknownDomain, mockCompanyId, mockMandatoryData);
+      expect(result[0].job_category_id).toBe(mockMandatoryData.jobCategories.autre);
     });
 
     it("should decode HTML entities in description_job", () => {
       const mission: Mission = {
         ...baseMission,
-        publisherId: "any_id",
-        domain: "sante",
-        remote: "no",
-        city: "Lyon",
-        deletedAt: null,
         descriptionHtml: "Description with &lt;p&gt;html&lt;/p&gt; tags.",
       } as Mission;
 
-      const result = missionToPilotyJob(mission, mockCompanyId, mockMandatoryData);
+      const results = missionToPilotyJobs(mission, mockCompanyId, mockMandatoryData);
+      const result = results[0];
 
       expect(result.description_job).toBe("Description with <p>html</p> tags.");
     });
