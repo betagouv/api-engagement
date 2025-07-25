@@ -1,3 +1,4 @@
+import mongoose from "mongoose";
 import request from "supertest";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import MissionModel from "../../../../src/models/mission";
@@ -71,7 +72,7 @@ describe("Mission API Integration Tests", () => {
           location: { lat: 48.8566, lon: 2.3522 },
           geoPoint: { type: "Point", coordinates: [2.3522, 48.8566] },
           postalCode: "75004",
-          geolocStatus: "found",
+          geolocStatus: "ENRICHED_BY_PUBLISHER",
         },
       ],
     });
@@ -94,7 +95,7 @@ describe("Mission API Integration Tests", () => {
           country: "France",
           location: { lat: 45.767, lon: 4.836 },
           geoPoint: { type: "Point", coordinates: [4.836, 45.767] },
-          geolocStatus: "FOUND",
+          geolocStatus: "ENRICHED_BY_PUBLISHER",
         },
       ],
     });
@@ -117,7 +118,7 @@ describe("Mission API Integration Tests", () => {
           location: { lat: 48.8699, lon: 2.3073 },
           geoPoint: { type: "Point", coordinates: [2.3073, 48.8699] },
           postalCode: "75008",
-          geolocStatus: "found",
+          geolocStatus: "ENRICHED_BY_PUBLISHER",
         },
       ],
     });
@@ -466,6 +467,32 @@ describe("Mission API Integration Tests", () => {
       expect(response.body.total).toBe(1);
     });
   });
+
+  describe("GET /v0/mission/:id", () => {
+    it("should return 401 if not authenticated", async () => {
+      const response = await request(app).get(`/v0/mission/${mission1._id}`);
+      expect(response.status).toBe(401);
+    });
+
+    it("should return an existing mission with correct format", async () => {
+      const response = await request(app).get(`/v0/mission/${mission1._id}`).set("x-api-key", apiKey);
+
+      expect(response.status).toBe(200);
+      expect(response.body.ok).toBe(true);
+      expect(typeof response.body.data === "object").toBe(true);
+      expect(response.body.data._id).toBe(mission1._id?.toString());
+
+      validateMissionStructure(response.body.data);
+    });
+
+    it("should return 404 for unknown id parameter", async () => {
+      const id = generateFakeObjectId([mission1, mission2, mission3]);
+      const response = await request(app).get(`/v0/mission/${id}`).set("x-api-key", apiKey);
+      expect(response.status).toBe(404);
+      expect(response.body.ok).toBe(false);
+      expect(response.body.code).toBe("NOT_FOUND");
+    });
+  });
 });
 
 function validateMissionStructure(mission: any) {
@@ -559,4 +586,15 @@ function validateMissionStructure(mission: any) {
   expect(Array.isArray(mission.statusCommentHistoric)).toBe(true);
   expect(Array.isArray(mission.tags)).toBe(true);
   expect(Array.isArray(mission.tasks)).toBe(true);
+}
+
+function generateFakeObjectId(existingMissions: Mission[]) {
+  const existingIds = existingMissions.map((m) => m._id?.toString());
+  let id: mongoose.Types.ObjectId = new mongoose.Types.ObjectId();
+
+  while (existingIds.includes(id.toString())) {
+    id = new mongoose.Types.ObjectId();
+  }
+
+  return id;
 }
