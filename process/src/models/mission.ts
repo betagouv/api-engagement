@@ -188,7 +188,7 @@ const schema = new Schema<Mission>(
     leboncoinUpdatedAt: { type: Date },
 
     // Letudiant
-    letudiantPublicId: { type: String },
+    letudiantPublicId: { type: Object },
     letudiantUpdatedAt: { type: Date },
     letudiantError: { type: String },
   },

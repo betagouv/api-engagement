@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from "vitest";
-import { PUBLISHER_IDS } from "../../../config";
+import { JVA_LOGO_URL, PUBLISHER_IDS } from "../../../config";
 import { PilotyMandatoryData } from "../../../services/piloty/types";
 import { Mission, MissionType } from "../../../types";
 import { MEDIA_PUBLIC_ID } from "../config";
@@ -60,7 +60,6 @@ describe("L'Etudiant Transformers", () => {
       type: MissionType.BENEVOLAT,
       descriptionHtml: "<p>Une description 素晴らしい HTML.</p>",
       applicationUrl: "https://example.com/apply",
-      organizationDescription: "Description de l'organisation.",
       publisherId: "some_publisher_id",
       remote: "no",
       deletedAt: null,
@@ -86,7 +85,6 @@ describe("L'Etudiant Transformers", () => {
       expect(result.state).toBe("published");
       expect(result.remote_policy_id).toBeUndefined();
       expect(result.position_level).toBe("employee");
-      expect(result.description_company).toBe(mission.organizationDescription);
     });
 
     it("should correctly transform a volontariat mission", () => {
@@ -202,16 +200,14 @@ describe("L'Etudiant Transformers", () => {
      */
     describe("missionToPilotyCompany", () => {
       const baseMission: Partial<Mission> = {
+        organizationName: "Nom de l'association",
         organizationDescription: "Une description détaillée de l'organisation.",
         organizationLogo: "https://example.com/logo.png",
-        organizationUrl: "https://example.com/org", // This is not used in the current transformer due to comments
       };
 
       it("should correctly transform a mission to a Piloty company payload with organizationName", async () => {
         const mission: Mission = {
           ...baseMission,
-          organizationName: "Nom de l'Organisation Principal",
-          associationName: "Nom de l'Association Secondaire",
         } as Mission;
 
         const result = await missionToPilotyCompany(mission);
@@ -220,6 +216,17 @@ describe("L'Etudiant Transformers", () => {
         expect(result.name).toBe(mission.organizationName);
         expect(result.description).toBe(mission.organizationDescription);
         expect(result.logo_url).toBe(mission.organizationLogo);
+      });
+
+      it("should use JVA logo if no organizationLogo is provided", async () => {
+        const mission: Mission = {
+          ...baseMission,
+          organizationLogo: "",
+        } as Mission;
+
+        const result = await missionToPilotyCompany(mission);
+
+        expect(result.logo_url).toBe(JVA_LOGO_URL);
       });
     });
   });

@@ -61,6 +61,7 @@ export const PUBLISHER_IDS = {
 };
 
 export const DEFAULT_AVATAR = "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/default.jpg";
+export const JVA_LOGO_URL = "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/JVA_logo.png";
 
 // Piloty job boards
 export const PILOTY_BASE_URL = process.env.PILOTY_BASE_URL || "https://sandbox-api.piloty.fr";
