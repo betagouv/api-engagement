@@ -34,6 +34,10 @@ export const missionQuerySchema = zod.object({
   remote: zod.union([zod.string(), zod.array(zod.string())]).optional(),
   reducedMobilityAccessible: zod.string().optional(), // TODO: put enum
   skip: zod.coerce.number().min(0).default(0),
+  snu: zod
+    .enum(["true", "false"])
+    .transform((value) => value === "true")
+    .optional(),
   startAt: zod.string().optional(),
   type: zod.union([zod.string(), zod.array(zod.string())]).optional(),
 });
@@ -162,6 +166,9 @@ router.get("/", passport.authenticate(["apikey", "api"], { session: false }), as
     }
     if (query.data.remote) {
       where.remote = buildArrayQuery(query.data.remote);
+    }
+    if (query.data.snu) {
+      where.snu = true;
     }
     if (query.data.startAt) {
       where.startAt = buildDateQuery(query.data.startAt);

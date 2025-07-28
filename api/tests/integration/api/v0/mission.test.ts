@@ -453,6 +453,13 @@ describe("Mission API Integration Tests", () => {
       expect(response.body.total).toBe(1);
     });
 
+    it("should filter by snu", async () => {
+      await createTestMission({ publisherId: publisher.publishers[0].publisherId, snu: true });
+      const response = await request(app).get("/v0/mission/search?snu=true").set("x-api-key", apiKey);
+      expect(response.status).toBe(200);
+      expect(response.body.total).toBe(1);
+    });
+
     it("should filter by startAt (gt)", async () => {
       await createTestMission({ publisherId: publisher.publishers[0].publisherId, startAt: new Date("2028-01-01") });
       const response = await request(app).get("/v0/mission/search?startAt=gt:2027-12-31").set("x-api-key", apiKey);
