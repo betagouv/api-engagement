@@ -6,7 +6,7 @@ import MissionModel from "../../models/mission";
 import { PilotyClient } from "../../services/piloty/client";
 import { PilotyJobCategory, PilotyMandatoryData } from "../../services/piloty/types";
 import { Mission } from "../../types";
-import { CONTRACT_MAPPING, JOB_CATEGORY_MAPPING, REMOTE_POLICY_MAPPING, WHITELISTED_PUBLISHERS_IDS } from "./config";
+import { CONTRACT_MAPPING, DAYS_AFTER_REPUBLISH, JOB_CATEGORY_MAPPING, REMOTE_POLICY_MAPPING, WHITELISTED_PUBLISHERS_IDS } from "./config";
 
 /**
  * Check if a mission is already synced to Piloty
@@ -36,6 +36,8 @@ export async function getMissionsToSync(id?: string, limit = 10): Promise<Hydrat
     return MissionModel.find({ _id: id }).limit(1);
   }
 
+  const republishingDate = new Date(Date.now() - DAYS_AFTER_REPUBLISH * 24 * 60 * 60 * 1000);
+
   const missions = await MissionModel.find({
     deletedAt: null,
     statusCode: "ACCEPTED",
@@ -48,13 +50,17 @@ export async function getMissionsToSync(id?: string, limit = 10): Promise<Hydrat
       // Ensure the string is a 24-character hex string (Mongo ObjectId)
       $regex: /^[0-9a-fA-F]{24}$/,
     },
-    letudiantPublicId: {
-      $exists: false,
-    },
     letudiantError: {
       $exists: false,
     },
-    $or: [{ letudiantPublicId: { $exists: true } }, { $expr: { $lt: ["$letudiantUpdatedAt", "$updatedAt"] } }],
+    $or: [
+      // Updated since last sync
+      { $expr: { $lt: ["$letudiantUpdatedAt", "$updatedAt"] } },
+      // Deleted since last sync
+      { $expr: { $lt: ["$letudiantUpdatedAt", "$deletedAt"] } },
+      // Missions not synced for more than X days or not synced at all
+      { $or: [{ letudiantUpdatedAt: { $exists: false } }, { letudiantUpdatedAt: { $lt: republishingDate } }] },
+    ],
   }).limit(limit);
 
   return missions;
