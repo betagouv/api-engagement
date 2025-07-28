@@ -1,40 +1,6 @@
 version: 2
 updates:
   - package-ecosystem: "npm"
-    directory: "/process"
-    schedule:
-      interval: "monthly"
-    open-pull-requests-limit: 10
-    versioning-strategy: "auto"
-    labels:
-      - "dependencies"
-      - "process"
-    commit-message:
-      prefix: "chore"
-      include: "scope"
-    groups:
-      dev-dependencies:
-        patterns:
-          - "*eslint*"
-          - "*prettier*"
-          - "*test*"
-          - "*types*"
-        update-types:
-          - "minor"
-          - "patch"
-      production-dependencies:
-        patterns:
-          - "*"
-        exclude-patterns:
-          - "*eslint*"
-          - "*prettier*"
-          - "*test*"
-          - "*types*"
-        update-types:
-          - "minor"
-          - "patch"
-
-  - package-ecosystem: "npm"
     directory: "/api"
     schedule:
       interval: "monthly"
@@ -49,6 +15,8 @@ updates:
     ignore:
       - dependency-name: "mongoose"
         versions: [">=8.0.0"]
+      - dependency-name: "@elastic/elasticsearch"
+      - dependency-name: "bcryptjs"
     groups:
       dev-dependencies:
         patterns:
@@ -73,6 +41,9 @@ updates:
 
   - package-ecosystem: "npm"
     directory: "/app"
+    ignore:
+      - dependency-name: "tailwindcss"
+      - dependency-name: "vite"
     schedule:
       interval: "monthly"
     open-pull-requests-limit: 10
