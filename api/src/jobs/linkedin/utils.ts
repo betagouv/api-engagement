@@ -3,7 +3,7 @@ import { XMLBuilder } from "fast-xml-parser";
 import MissionModel from "../../models/mission";
 import { OBJECT_ACL, putObject } from "../../services/s3";
 import { Mission } from "../../types";
-import { LINKEDIN_XML_URL, MAX_MULTI_ADDRESSES_JOBS } from "./config";
+import { LINKEDIN_XML_URL, MULTI_ADDRESSES_MISSIONS } from "./config";
 import { missionToLinkedinJobs } from "./transformers";
 import { LinkedInJob } from "./types";
 
@@ -16,21 +16,20 @@ export async function generateJvaJobs(missionsCursor: AsyncIterable<Mission>): P
   let expired = 0;
   let skipped = 0;
   let processed = 0;
-  // Number of jobs that will be created for missions with multiple addresses
-  // TODO: remove this limit later
-  let multiAddressesJobsNb = 0;
 
   for await (const mission of missionsCursor) {
     processed++;
-    const linkedinJobs = missionToLinkedinJobs(mission, "jeveuxaider.gouv.fr", multiAddressesJobsNb <= MAX_MULTI_ADDRESSES_JOBS);
+
+    // TODO: remove this limit later
+    const isMultiAddresses = isMissionEligibleForMultiAddresses(mission);
+    if (isMultiAddresses) {
+      console.log(`Multi address slot used for mission ${mission._id} (${mission.title})`);
+    }
+
+    const linkedinJobs = missionToLinkedinJobs(mission, "jeveuxaider.gouv.fr", isMultiAddresses);
     if (linkedinJobs.length === 0) {
       skipped++;
       continue;
-    }
-
-    if (linkedinJobs.length > 1) {
-      console.log(`Multi address slot used for mission ${mission._id} (${mission.title})`);
-      multiAddressesJobsNb++;
     }
 
     for (const job of linkedinJobs) {
@@ -136,4 +135,8 @@ export async function storeXML(xml: string): Promise<string> {
   });
 
   return `${LINKEDIN_XML_URL}-${date}.xml`;
+}
+
+function isMissionEligibleForMultiAddresses(mission: Mission): boolean {
+  return MULTI_ADDRESSES_MISSIONS.includes(mission._id?.toString() || "");
 }

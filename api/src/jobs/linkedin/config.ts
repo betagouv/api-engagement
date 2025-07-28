@@ -2,10 +2,21 @@ import { BUCKET_NAME, PUBLISHER_IDS } from "../../config";
 
 export const LINKEDIN_XML_URL = `https://${BUCKET_NAME}.s3.fr-par.scw.cloud/xml/linkedin`;
 export const LINKEDIN_PUBLISHER_ID = PUBLISHER_IDS.LINKEDIN;
-// Limit number of multi addresses jobs for testing purpose
-// TODO: remove this limit
-export const MAX_MULTI_ADDRESSES_JOBS = 10;
-
+// Mission with multiple addresses for testing purpose
+// TODO: remove later
+export const MULTI_ADDRESSES_MISSIONS = [
+  "5f6b4c1e596993ec582ffd10",
+  "5f776377d06bc5f77de70dfb",
+  "5fb9a9e6096468000815c811",
+  "6703bbb373fbd982c101234a",
+  "60a72a9093b62c074927103c",
+  "60ee5a6bb225b20748696c00",
+  "612074a3bfcfe7060e7b9361",
+  "6703bb4273fbd982c1011c3d",
+  "61778ba7d0947a074f8b68ef",
+  "61a1b0d001adda076753ea03",
+  "61b2e1290e690d075ebd57d5",
+];
 export const PARTNERS_IDS = [
   PUBLISHER_IDS.LINKEDIN,
   PUBLISHER_IDS.BENEVOLT,
