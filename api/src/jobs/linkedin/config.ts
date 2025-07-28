@@ -1,8 +1,10 @@
 import { BUCKET_NAME, PUBLISHER_IDS } from "../../config";
 
 export const LINKEDIN_XML_URL = `https://${BUCKET_NAME}.s3.fr-par.scw.cloud/xml/linkedin`;
-
 export const LINKEDIN_PUBLISHER_ID = PUBLISHER_IDS.LINKEDIN;
+// Limit number of multi addresses jobs for testing purpose
+// TODO: remove this limit
+export const MAX_MULTI_ADDRESSES_JOBS = 10;
 
 export const PARTNERS_IDS = [
   PUBLISHER_IDS.LINKEDIN,

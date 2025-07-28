@@ -3,8 +3,8 @@ import { XMLBuilder } from "fast-xml-parser";
 import MissionModel from "../../models/mission";
 import { OBJECT_ACL, putObject } from "../../services/s3";
 import { Mission } from "../../types";
-import { LINKEDIN_XML_URL } from "./config";
-import { missionToLinkedinJob } from "./transformers";
+import { LINKEDIN_XML_URL, MAX_MULTI_ADDRESSES_JOBS } from "./config";
+import { missionToLinkedinJobs } from "./transformers";
 import { LinkedInJob } from "./types";
 
 export function getMissionsCursor(where: { [key: string]: any }) {
@@ -16,20 +16,31 @@ export async function generateJvaJobs(missionsCursor: AsyncIterable<Mission>): P
   let expired = 0;
   let skipped = 0;
   let processed = 0;
+  // Number of jobs that will be created for missions with multiple addresses
+  // TODO: remove this limit later
+  let multiAddressesJobsNb = 0;
 
   for await (const mission of missionsCursor) {
     processed++;
-    const job = missionToLinkedinJob(mission, "jeveuxaider.gouv.fr");
-    if (!job) {
+    const linkedinJobs = missionToLinkedinJobs(mission, "jeveuxaider.gouv.fr", multiAddressesJobsNb <= MAX_MULTI_ADDRESSES_JOBS);
+    if (linkedinJobs.length === 0) {
       skipped++;
       continue;
     }
-    job.description += `<br><br><br> Activité : [${mission.activity}]`;
-    if (job.expirationDate && new Date(job.expirationDate).getTime() < Date.now()) {
-      expired++;
-      continue;
+
+    if (linkedinJobs.length > 1) {
+      console.log(`Multi address slot used for mission ${mission._id} (${mission.title})`);
+      multiAddressesJobsNb++;
     }
-    jobs.push(job);
+
+    for (const job of linkedinJobs) {
+      job.description += `<br><br><br> Activité : [${mission.activity}]`;
+      if (job.expirationDate && new Date(job.expirationDate).getTime() < Date.now()) {
+        expired++;
+        continue;
+      }
+      jobs.push(job);
+    }
   }
 
   return { jobs, expired, skipped, processed };
@@ -43,19 +54,22 @@ export async function generatePartnersJobs(missionsCursor: AsyncIterable<Mission
   let slot = 0;
   for await (const mission of missionsCursor) {
     processed++;
-    const job = missionToLinkedinJob(mission, "benevolt");
-    if (!job) {
+    // Multi address disabled for partners for now
+    const linkedinJobs = missionToLinkedinJobs(mission, "benevolt", false);
+    if (linkedinJobs.length === 0) {
       skipped++;
       continue;
     }
     if (slot >= 50) {
       break;
     }
-    job.description += `<br><br><br> Mission proposée par notre partenaire Benevolt`;
-    job.companyId = "11100845";
-    job.company = "jeveuxaider.gouv.fr";
-    jobs.push(job);
-    slot++;
+    for (const job of jobs) {
+      job.description += `<br><br><br> Mission proposée par notre partenaire Benevolt`;
+      job.companyId = "11100845";
+      job.company = "jeveuxaider.gouv.fr";
+      jobs.push(job);
+      slot++;
+    }
   }
 
   return { jobs, skipped, processed };
