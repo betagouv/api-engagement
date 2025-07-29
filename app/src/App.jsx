@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { HelmetProvider } from "react-helmet-async";
-import { BrowserRouter, Navigate, Outlet, Route, Routes, useNavigate } from "react-router-dom";
+import { BrowserRouter, Navigate, Outlet, Route, Routes, useLocation, useNavigate } from "react-router-dom";
 import { ToastContainer } from "react-toastify";
 
 import Footer from "./components/Footer";
@@ -127,8 +127,16 @@ const AuthLayout = () => {
 
 const ProtectedLayout = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const { user, setAuth } = useStore();
   const [loading, setLoading] = useState(true);
+
+  // Simple page tracking with user role
+  useEffect(() => {
+    if (user && user.role && window.plausible) {
+      window.plausible(`${user.role} - ${location.pathname}`);
+    }
+  }, [location.pathname, user]);
 
   useEffect(() => {
     const fetchData = async () => {
