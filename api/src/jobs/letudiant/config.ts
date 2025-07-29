@@ -1,6 +1,8 @@
 import { ENV, PUBLISHER_IDS } from "../../config";
 
 export const DEFAULT_LIMIT = ENV === "production" ? 1000 : 1;
+// Don't want to republish missions in staging
+export const DAYS_AFTER_REPUBLISH = ENV === "production" ? 15 : 10000;
 
 export const WHITELISTED_PUBLISHERS_IDS = [PUBLISHER_IDS.JEVEUXAIDER];
 

@@ -357,7 +357,7 @@ export interface Mission {
   jobteaserComment: string | undefined;
   jobteaserUpdatedAt: Date | undefined;
 
-  letudiantPublicId: string | undefined;
+  letudiantPublicId: { [key: string]: string } | undefined;
   letudiantUpdatedAt: Date | undefined;
   letudiantError: string | undefined;
 
