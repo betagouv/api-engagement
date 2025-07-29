@@ -2,3 +2,4 @@
 /scripts
 /dist
 .env
+coverage
