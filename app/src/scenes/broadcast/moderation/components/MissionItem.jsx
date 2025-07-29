@@ -34,7 +34,13 @@ const MissionItem = ({ data, history, selected, onChange, onSelect, onFilter }) 
       if (v.status === "REFUSED" && !v.comment) return;
 
       const res = await api.put(`/moderation/${data._id}`, { ...v, moderatorId: publisher._id });
-      if (!res.ok) throw res;
+      if (!res.ok) {
+        if (res.error === "COMMENT_REQUIRED") {
+          toast.error("Le commentaire est requis pour refuser la mission");
+          return;
+        }
+        throw res;
+      }
       toast.success("La mission a été modérée avec succès");
       onChange(res.data);
 

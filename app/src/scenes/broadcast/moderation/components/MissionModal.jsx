@@ -70,7 +70,13 @@ const MissionModal = ({ onChange }) => {
       setValues({ ...values, ...doc });
       if (doc.status === "REFUSED" && !doc.comment) return;
       const res = await api.put(`/moderation/${data._id}`, { ...doc, moderatorId: publisher._id });
-      if (!res.ok) throw res;
+      if (!res.ok) {
+        if (res.error === "COMMENT_REQUIRED") {
+          toast.error("Le commentaire est requis pour refuser la mission");
+          return;
+        }
+        throw res;
+      }
       toast.success("La mission a été modérée avec succès", {
         position: "bottom-right",
       });

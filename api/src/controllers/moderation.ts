@@ -459,6 +459,10 @@ router.put("/:id", passport.authenticate("user", { session: false }), async (req
       return res.status(400).send({ ok: false, code: INVALID_BODY, error: body.error });
     }
 
+    if (body.data.status === "REFUSED" && !body.data.comment) {
+      return res.status(400).send({ ok: false, code: INVALID_BODY, error: "COMMENT_REQUIRED" });
+    }
+
     const moderator = await PublisherModel.findById(body.data.moderatorId);
     if (!moderator || !moderator.moderator) {
       return res.status(403).send({ ok: false, code: FORBIDDEN });
