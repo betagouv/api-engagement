@@ -133,6 +133,7 @@ const MissionItem = ({ data, history, selected, onChange, onSelect, onFilter }) 
         </div>
         {values.status === "REFUSED" && (
           <select className="select" name="motif" value={values.comment} onChange={(e) => handleSubmit({ status: "REFUSED", comment: e.target.value })}>
+            <option value="">Motif de refus</option>
             {Object.entries(JVA_MODERATION_COMMENTS_LABELS).map(([key, value]) => (
               <option key={key} value={key}>
                 {value}
