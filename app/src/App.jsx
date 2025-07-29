@@ -125,6 +125,29 @@ const AuthLayout = () => {
   );
 };
 
+const PATH = [
+  "/performance",
+  "/performance/mission",
+  "/performance/means",
+  "/performance/compare",
+  "/broadcast",
+  "/broadcast/widgets",
+  "/broadcast/campaigns",
+  "/broadcast/moderation",
+  "/my-missions",
+  "/my-missions/moderation",
+  "/my-missions/partners",
+  "/my-missions/moderated-mission",
+  "/settings",
+  "/settings/tracking",
+  "/settings/real-time",
+  "/mission",
+  "/warning",
+  "/my-account",
+];
+
+const ADMIN_PATH = ["/admin-mission", "/admin-organization", "/admin-account", "/admin-stats", "/admin-warning", "/admin-report", "/user/", "/publisher/"];
+
 const ProtectedLayout = () => {
   const navigate = useNavigate();
   const location = useLocation();
@@ -134,7 +157,18 @@ const ProtectedLayout = () => {
   // Simple page tracking with user role
   useEffect(() => {
     if (user && user.role && window.plausible) {
-      window.plausible(`${user.role} - ${location.pathname}`);
+      console.log("location.pathname", location.pathname);
+      const adminPath = ADMIN_PATH.find((path) => location.pathname.startsWith(path));
+      console.log("isAdmin", adminPath);
+      if (adminPath) {
+        window.plausible(`admin - ${adminPath}`);
+        return;
+      }
+
+      const path = PATH.find((path) => location.pathname.startsWith(path));
+      if (path) {
+        window.plausible(`${user.role} - ${path}`);
+      }
     }
   }, [location.pathname, user]);
 
@@ -194,6 +228,14 @@ const AdminLayout = () => {
 
 const PublicLayout = () => {
   const { user } = useStore();
+  const location = useLocation();
+
+  useEffect(() => {
+    if (window.plausible) {
+      window.plausible(`public - ${location.pathname}`);
+    }
+  }, [location.pathname]);
+
   return (
     <div className="min-w-768 flex min-h-screen w-screen flex-col bg-beige">
       <Header />
