@@ -1,4 +1,4 @@
-import { JVA_LOGO_URL, PUBLISHER_IDS } from "../../config";
+import { PUBLISHER_IDS } from "../../config";
 import { PilotyCompanyPayload, PilotyJobPayload, PilotyMandatoryData } from "../../services/piloty/types";
 import { Mission, MissionType } from "../../types";
 import { getMissionTrackedApplicationUrl } from "../../utils/mission";
@@ -57,6 +57,6 @@ export async function missionToPilotyCompany(mission: Mission): Promise<PilotyCo
     name: mission.organizationName || mission.associationName || "",
     // domain_url: (await getValidAndAccessibleUrl(mission.organizationUrl)) || "", // TODO: since Piloty seems to reject most of the urls, we skip it for now
     description: mission.organizationDescription || "",
-    logo_url: mission.organizationLogo || JVA_LOGO_URL,
+    logo_url: mission.organizationLogo,
   };
 }

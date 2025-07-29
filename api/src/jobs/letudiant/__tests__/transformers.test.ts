@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from "vitest";
-import { JVA_LOGO_URL, PUBLISHER_IDS } from "../../../config";
+import { PUBLISHER_IDS } from "../../../config";
 import { PilotyMandatoryData } from "../../../services/piloty/types";
 import { Mission, MissionType } from "../../../types";
 import { MEDIA_PUBLIC_ID } from "../config";
@@ -216,17 +216,6 @@ describe("L'Etudiant Transformers", () => {
         expect(result.name).toBe(mission.organizationName);
         expect(result.description).toBe(mission.organizationDescription);
         expect(result.logo_url).toBe(mission.organizationLogo);
-      });
-
-      it("should use JVA logo if no organizationLogo is provided", async () => {
-        const mission: Mission = {
-          ...baseMission,
-          organizationLogo: "",
-        } as Mission;
-
-        const result = await missionToPilotyCompany(mission);
-
-        expect(result.logo_url).toBe(JVA_LOGO_URL);
       });
     });
   });
