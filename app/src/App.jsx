@@ -127,7 +127,13 @@ const AuthLayout = () => {
 
 const PATH = [
   "/performance",
+  "/performance/mission",
+  "/performance/means",
+  "/performance/compare",
   "/broadcast",
+  "/broadcast/widgets",
+  "/broadcast/campaigns",
+  "/broadcast/moderation",
   "/my-missions",
   "/my-missions/moderation",
   "/my-missions/partners",
@@ -140,19 +146,7 @@ const PATH = [
   "/my-account",
 ];
 
-const ADMIN_PATH = [
-  "/broadcast/campaign",
-  "/broadcast/widget",
-  "/broadcast/moderation",
-  "/admin-mission",
-  "/admin-organization",
-  "/admin-account",
-  "/admin-stats",
-  "/admin-warning",
-  "/admin-report",
-  "/user/",
-  "/publisher/",
-];
+const ADMIN_PATH = ["/admin-mission", "/admin-organization", "/admin-account", "/admin-stats", "/admin-warning", "/admin-report", "/user/", "/publisher/"];
 
 const ProtectedLayout = () => {
   const navigate = useNavigate();
