@@ -287,6 +287,13 @@ describe("Mission API Integration Tests", () => {
       expect(response.body.data[0].reducedMobilityAccessible).toBe("no");
     });
 
+    it("should filter by snu", async () => {
+      await createTestMission({ publisherId: publisher.publishers[0].publisherId, snu: true });
+      const response = await request(app).get("/v0/mission/?snu=true").set("x-api-key", apiKey);
+      expect(response.status).toBe(200);
+      expect(response.body.total).toBe(1);
+    });
+
     it("should filter by type", async () => {
       await createTestMission({ publisherId: publisher.publishers[0].publisherId, type: MissionType.VOLONTARIAT });
       const response = await request(app).get(`/v0/mission?type=${MissionType.VOLONTARIAT}`).set("x-api-key", apiKey);
