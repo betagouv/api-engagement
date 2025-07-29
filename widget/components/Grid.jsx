@@ -7,6 +7,13 @@ import Card from "./Card";
 
 const Grid = ({ widget, missions, total, page, handlePageChange, request }) => {
   const { color } = useStore();
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    setIsMobile(window.innerWidth < 768);
+    window.addEventListener("resize", () => setIsMobile(window.innerWidth < 768));
+    return () => window.removeEventListener("resize", () => {});
+  }, []);
 
   if (total === 0) {
     return (
@@ -26,12 +33,11 @@ const Grid = ({ widget, missions, total, page, handlePageChange, request }) => {
           </div>
         ))}
       </main>
-      <div className="flex items-center justify-center py-4 md:hidden">
+      {isMobile ? (
         <MobilePagination page={page} setPage={handlePageChange} end={parseInt(total / 6) + (total % 6 !== 0 && 1)} />
-      </div>
-      <div className="hidden items-center justify-center pt-10 md:flex">
+      ) : (
         <Pagination page={page} setPage={handlePageChange} end={parseInt(total / 6) + (total % 6 !== 0 && 1)} color={color} />
-      </div>
+      )}
     </div>
   );
 };
@@ -54,7 +60,7 @@ const Pagination = ({ page, setPage, end }) => {
   }, [end]);
 
   return (
-    <div className="flex flex-row items-center justify-center gap-1">
+    <nav role="navigation" className="flex flex-row items-center justify-center gap-1 pt-10" aria-label="pagination">
       <button
         className="mr-4 flex cursor-pointer items-center rounded-lg px-3 py-2 hover:bg-[#f5f5f5] disabled:cursor-default disabled:bg-transparent disabled:opacity-50"
         onClick={() => {
@@ -62,101 +68,113 @@ const Pagination = ({ page, setPage, end }) => {
           plausible("Page changed", { u: url });
         }}
         disabled={page === 1}
+        aria-label="Page précédente"
       >
         <RiArrowLeftSLine className="mr-2" />
         Précédente
       </button>
-      <div className="mx-4 flex flex-row items-center">
-        {end > 5 ? (
-          page < 4 ? (
-            <>
-              {pages.slice(0, 4).map((p) => (
-                <button
-                  key={p}
-                  className="hover:bg-gray-hover flex h-8 w-8 cursor-pointer items-center justify-center rounded-full"
-                  style={p === page ? { backgroundColor: color, color: "white" } : {}}
-                  onClick={() => {
-                    setPage(p);
-                    plausible("Page changed", { u: url });
-                  }}
-                >
-                  {p}
-                </button>
-              ))}
-              <button className="hover:bg-gray-hover flex h-8 w-8 items-center justify-center rounded-full">...</button>
+
+      {end > 5 ? (
+        page < 4 ? (
+          <>
+            {pages.slice(0, 4).map((p) => (
               <button
+                key={p}
                 className="hover:bg-gray-hover flex h-8 w-8 cursor-pointer items-center justify-center rounded-full"
+                style={p === page ? { backgroundColor: color, color: "white" } : {}}
                 onClick={() => {
-                  setPage(end);
+                  setPage(p);
                   plausible("Page changed", { u: url });
                 }}
+                aria-label={`Page ${p}${p === page ? ", page actuelle" : ""}`}
+                aria-current={p === page ? "page" : null}
               >
-                {end}
+                {p}
               </button>
-            </>
-          ) : page > end - 3 ? (
-            <>
-              <button className="hover:bg-gray-hover flex h-8 w-8 cursor-pointer items-center justify-center rounded-full" onClick={() => setPage(1)}>
-                1
-              </button>
-              <button className="hover:bg-gray-hover flex h-8 w-8 items-center justify-center rounded-full">...</button>
-              {pages.slice(end - 4, end).map((p) => (
-                <button
-                  key={p}
-                  className="hover:bg-gray-hover flex h-8 w-8 cursor-pointer items-center justify-center rounded-full"
-                  style={p === page ? { backgroundColor: color, color: "white" } : {}}
-                  onClick={() => {
-                    setPage(p);
-                    plausible("Page changed", { u: url });
-                  }}
-                >
-                  {p}
-                </button>
-              ))}
-            </>
-          ) : (
-            <>
-              <button className="hover:bg-gray-hover flex h-8 w-8 cursor-pointer items-center justify-center rounded-full" onClick={() => setPage(1)}>
-                1
-              </button>
-              <button className="hover:bg-gray-hover flex h-8 w-8 items-center justify-center rounded-full">...</button>
-              {pages.slice(page - 2, page + 1).map((p) => (
-                <button
-                  key={p}
-                  className="hover:bg-gray-hover flex h-8 w-8 cursor-pointer items-center justify-center rounded-full"
-                  style={p === page ? { backgroundColor: color, color: "white" } : {}}
-                  onClick={() => {
-                    setPage(p);
-                    plausible("Page changed", { u: url });
-                  }}
-                >
-                  {p}
-                </button>
-              ))}
-              <button className="hover:bg-gray-hover flex h-8 w-8 items-center justify-center rounded-full" disabled={true}>
-                ...
-              </button>
-              <button className="hover:bg-gray-hover flex h-8 w-8 cursor-pointer items-center justify-center rounded-full" onClick={() => setPage(end)}>
-                {end}
-              </button>
-            </>
-          )
-        ) : (
-          pages.map((p) => (
+            ))}
+            <div className="hover:bg-gray-hover flex h-8 w-8 items-center justify-center rounded-full">...</div>
             <button
-              key={p}
               className="hover:bg-gray-hover flex h-8 w-8 cursor-pointer items-center justify-center rounded-full"
-              style={p === page ? { backgroundColor: color, color: "white" } : {}}
               onClick={() => {
-                setPage(p);
+                setPage(end);
                 plausible("Page changed", { u: url });
               }}
+              aria-label={`Page ${end}, dernière page`}
             >
-              {p}
+              {end}
             </button>
-          ))
-        )}
-      </div>
+          </>
+        ) : page > end - 3 ? (
+          <>
+            <button className="hover:bg-gray-hover flex h-8 w-8 cursor-pointer items-center justify-center rounded-full" onClick={() => setPage(1)} aria-label="Page 1">
+              1
+            </button>
+            <div className="hover:bg-gray-hover flex h-8 w-8 items-center justify-center rounded-full">...</div>
+            {pages.slice(end - 4, end).map((p) => (
+              <button
+                key={p}
+                className="hover:bg-gray-hover flex h-8 w-8 cursor-pointer items-center justify-center rounded-full"
+                style={p === page ? { backgroundColor: color, color: "white" } : {}}
+                onClick={() => {
+                  setPage(p);
+                  plausible("Page changed", { u: url });
+                }}
+                aria-label={`Page ${p}${p === end ? ", dernière page" : ""}${p === page ? ", page actuelle" : ""}`}
+                aria-current={p === page ? "page" : null}
+              >
+                {p}
+              </button>
+            ))}
+          </>
+        ) : (
+          <>
+            <button className="hover:bg-gray-hover flex h-8 w-8 cursor-pointer items-center justify-center rounded-full" onClick={() => setPage(1)} aria-label="Page 1">
+              1
+            </button>
+            <div className="hover:bg-gray-hover flex h-8 w-8 items-center justify-center rounded-full">...</div>
+            {pages.slice(page - 2, page + 1).map((p) => (
+              <button
+                key={p}
+                className="hover:bg-gray-hover flex h-8 w-8 cursor-pointer items-center justify-center rounded-full"
+                style={p === page ? { backgroundColor: color, color: "white" } : {}}
+                onClick={() => {
+                  setPage(p);
+                  plausible("Page changed", { u: url });
+                }}
+                aria-label={`Page ${p}${p === page ? ", page actuelle" : ""}`}
+                aria-current={p === page ? "page" : null}
+              >
+                {p}
+              </button>
+            ))}
+            <div className="hover:bg-gray-hover flex h-8 w-8 items-center justify-center rounded-full">...</div>
+            <button
+              className="hover:bg-gray-hover flex h-8 w-8 cursor-pointer items-center justify-center rounded-full"
+              onClick={() => setPage(end)}
+              aria-label={`Page ${end}, dernière page`}
+            >
+              {end}
+            </button>
+          </>
+        )
+      ) : (
+        pages.map((p) => (
+          <button
+            key={p}
+            className="hover:bg-gray-hover flex h-8 w-8 cursor-pointer items-center justify-center rounded-full"
+            style={p === page ? { backgroundColor: color, color: "white" } : {}}
+            onClick={() => {
+              setPage(p);
+              plausible("Page changed", { u: url });
+            }}
+            aria-label={`Page ${p}${p === end ? ", dernière page" : ""}${p === page ? ", page actuelle" : ""}`}
+            aria-current={p === page ? "page" : null}
+          >
+            {p}
+          </button>
+        ))
+      )}
+
       <button
         className="ml-4 flex cursor-pointer items-center rounded-lg px-3 py-2 hover:bg-[#f5f5f5] disabled:cursor-default disabled:opacity-50"
         onClick={() => {
@@ -164,11 +182,12 @@ const Pagination = ({ page, setPage, end }) => {
           plausible("Page changed", { u: url });
         }}
         disabled={page === end}
+        aria-label="Page suivante"
       >
         Suivante
         <RiArrowRightSLine className="ml-2" />
       </button>
-    </div>
+    </nav>
   );
 };
 
@@ -187,9 +206,9 @@ export const MobilePagination = ({ page, setPage, end }) => {
   }, [end]);
 
   return (
-    <div className="flex flex-row items-center justify-between">
+    <nav role="navigation" className="flex flex-row items-center justify-center gap-1 py-4" aria-label="pagination">
       <button
-        className="flex h-8 w-8 items-center justify-center rounded focus:outline-none focus-visible:ring focus-visible:ring-blue-800"
+        className="flex h-8 min-w-[2rem] items-center justify-center rounded focus:outline-none focus-visible:ring focus-visible:ring-blue-800"
         onClick={() => {
           setPage(1);
           plausible("Page changed", { u: url });
@@ -200,7 +219,7 @@ export const MobilePagination = ({ page, setPage, end }) => {
         <RiSkipLeftLine />
       </button>
       <button
-        className="flex h-8 w-8 items-center justify-center rounded focus:outline-none focus-visible:ring focus-visible:ring-blue-800"
+        className="flex h-8 min-w-[2rem] mr-4 items-center justify-center rounded focus:outline-none focus-visible:ring focus-visible:ring-blue-800"
         onClick={() => {
           setPage(page - 1);
           plausible("Page changed", { u: url });
@@ -210,114 +229,122 @@ export const MobilePagination = ({ page, setPage, end }) => {
       >
         <RiArrowLeftSLine />
       </button>
-      <div className="mx-4 flex flex-row items-center gap-1">
-        {end > 4 ? (
-          page < 3 ? (
-            <>
-              {pages.slice(0, 3).map((p) => (
-                <button
-                  key={p}
-                  className="hover:bg-gray-hover flex h-8 min-w-[2rem] items-center justify-center rounded-full p-1 focus:outline-none focus-visible:ring focus-visible:ring-blue-800"
-                  style={p === page ? { backgroundColor: color, color: "white" } : {}}
-                  onClick={() => {
-                    setPage(p);
-                    plausible("Page changed", { u: url });
-                  }}
-                >
-                  {p}
-                </button>
-              ))}
-              <button className="hover:bg-gray-hover flex h-8 w-8 items-center justify-center rounded-full focus:outline-none focus-visible:ring focus-visible:ring-blue-800">
-                ...
-              </button>
+
+      {end > 4 ? (
+        page < 3 ? (
+          <>
+            {pages.slice(0, 3).map((p) => (
               <button
+                key={p}
                 className="hover:bg-gray-hover flex h-8 min-w-[2rem] items-center justify-center rounded-full p-1 focus:outline-none focus-visible:ring focus-visible:ring-blue-800"
+                style={p === page ? { backgroundColor: color, color: "white" } : {}}
                 onClick={() => {
-                  setPage(end);
+                  setPage(p);
                   plausible("Page changed", { u: url });
                 }}
+                aria-label={`Page ${p}${p === page ? ", page actuelle" : ""}`}
+                aria-current={p === page ? "page" : null}
               >
-                {end}
+                {p}
               </button>
-            </>
-          ) : page > end - 3 ? (
-            <>
-              <button
-                className="hover:bg-gray-hover flex h-8 w-8 items-center justify-center rounded-full focus:outline-none focus-visible:ring focus-visible:ring-blue-800"
-                onClick={() => {
-                  setPage(1);
-                  plausible("Page changed", { u: url });
-                }}
-              >
-                1
-              </button>
-              <button className="hover:bg-gray-hover flex h-8 w-8 items-center justify-center rounded-full focus:outline-none focus-visible:ring focus-visible:ring-blue-800">
-                ...
-              </button>
-              {pages.slice(end - 3, end).map((p) => (
-                <button
-                  key={p}
-                  className="hover:bg-gray-hover flex h-8 min-w-[2rem] items-center justify-center rounded-full p-1 focus:outline-none focus-visible:ring focus-visible:ring-blue-800"
-                  style={p === page ? { backgroundColor: color, color: "white" } : {}}
-                  onClick={() => {
-                    setPage(p);
-                    plausible("Page changed", { u: url });
-                  }}
-                >
-                  {p}
-                </button>
-              ))}
-            </>
-          ) : (
-            <>
-              {pages.slice(page - 3, page).map((p) => (
-                <button
-                  key={p}
-                  className="hover:bg-gray-hover flex h-8 min-w-[2rem] items-center justify-center rounded-full p-1 focus:outline-none focus-visible:ring focus-visible:ring-blue-800"
-                  style={p === page ? { backgroundColor: color, color: "white" } : {}}
-                  onClick={() => {
-                    setPage(p);
-                    plausible("Page changed", { u: url });
-                  }}
-                >
-                  {p}
-                </button>
-              ))}
-              <button
-                className="hover:bg-gray-hover flex h-8 w-8 items-center justify-center rounded focus:outline-none focus-visible:ring focus-visible:ring-blue-800"
-                disabled={true}
-              >
-                ...
-              </button>
-              <button
-                className="hover:bg-gray-hover flex h-8 min-w-[2rem] items-center justify-center rounded focus:outline-none focus-visible:ring focus-visible:ring-blue-800"
-                onClick={() => {
-                  setPage(end);
-                  plausible("Page changed", { u: url });
-                }}
-              >
-                {end}
-              </button>
-            </>
-          )
-        ) : (
-          pages.map((p) => (
+            ))}
+            <div className="hover:bg-gray-hover flex h-8 min-w-[2rem] items-center justify-center rounded-full focus:outline-none focus-visible:ring focus-visible:ring-blue-800">
+              ...
+            </div>
             <button
-              key={p}
-              className="hover:bg-gray-hover flex h-8 w-8 items-center justify-center rounded-full focus:outline-none focus-visible:ring focus-visible:ring-blue-800"
-              style={p === page ? { backgroundColor: color, color: "white" } : {}}
+              className="hover:bg-gray-hover flex h-8 min-w-[2rem] items-center justify-center rounded-full p-1 focus:outline-none focus-visible:ring focus-visible:ring-blue-800"
               onClick={() => {
-                setPage(p);
+                setPage(end);
                 plausible("Page changed", { u: url });
               }}
+              aria-label={`Page ${end}, dernière page`}
             >
-              {p}
+              {end}
             </button>
-          ))
-        )}
-      </div>
+          </>
+        ) : page > end - 3 ? (
+          <>
+            <button
+              className="hover:bg-gray-hover flex h-8 min-w-[2rem] items-center justify-center rounded-full focus:outline-none focus-visible:ring focus-visible:ring-blue-800"
+              onClick={() => {
+                setPage(1);
+                plausible("Page changed", { u: url });
+              }}
+              aria-label="Page 1"
+            >
+              1
+            </button>
+            <div className="hover:bg-gray-hover flex h-8 min-w-[2rem] items-center justify-center rounded-full focus:outline-none focus-visible:ring focus-visible:ring-blue-800">
+              ...
+            </div>
+            {pages.slice(end - 3, end).map((p) => (
+              <button
+                key={p}
+                className="hover:bg-gray-hover flex h-8 min-w-[2rem] items-center justify-center rounded-full p-1 focus:outline-none focus-visible:ring focus-visible:ring-blue-800"
+                style={p === page ? { backgroundColor: color, color: "white" } : {}}
+                onClick={() => {
+                  setPage(p);
+                  plausible("Page changed", { u: url });
+                }}
+                aria-label={`Page ${p}${p === page ? ", page actuelle" : ""}`}
+                aria-current={p === page ? "page" : null}
+              >
+                {p}
+              </button>
+            ))}
+          </>
+        ) : (
+          <>
+            {pages.slice(page - 3, page).map((p) => (
+              <button
+                key={p}
+                className="hover:bg-gray-hover flex h-8 min-w-[2rem] items-center justify-center rounded-full p-1 focus:outline-none focus-visible:ring focus-visible:ring-blue-800"
+                style={p === page ? { backgroundColor: color, color: "white" } : {}}
+                onClick={() => {
+                  setPage(p);
+                  plausible("Page changed", { u: url });
+                }}
+                aria-label={`Page ${p}${p === page ? ", page actuelle" : ""}`}
+                aria-current={p === page ? "page" : null}
+              >
+                {p}
+              </button>
+            ))}
+            <div className="hover:bg-gray-hover flex h-8 min-w-[2rem] items-center justify-center rounded focus:outline-none focus-visible:ring focus-visible:ring-blue-800">
+              ...
+            </div>
+            <button
+              className="hover:bg-gray-hover flex h-8 min-w-[2rem] items-center justify-center rounded focus:outline-none focus-visible:ring focus-visible:ring-blue-800"
+              onClick={() => {
+                setPage(end);
+                plausible("Page changed", { u: url });
+              }}
+              aria-label={`Page ${end}, dernière page`}
+            >
+              {end}
+            </button>
+          </>
+        )
+      ) : (
+        pages.map((p) => (
+          <button
+            key={p}
+            className="hover:bg-gray-hover flex h-8 min-w-[2rem] items-center justify-center rounded-full focus:outline-none focus-visible:ring focus-visible:ring-blue-800"
+            style={p === page ? { backgroundColor: color, color: "white" } : {}}
+            onClick={() => {
+              setPage(p);
+              plausible("Page changed", { u: url });
+            }}
+            aria-label={`Page ${p}${p === end ? ", dernière page" : ""}${p === page ? ", page actuelle" : ""}`}
+            aria-current={p === page ? "page" : null}
+          >
+            {p}
+          </button>
+        ))
+      )}
+
       <button
-        className="flex h-8 w-8 items-center justify-center rounded focus:outline-none focus-visible:ring focus-visible:ring-blue-800"
+        className="flex h-8 min-w-[2rem] ml-4 items-center justify-center rounded focus:outline-none focus-visible:ring focus-visible:ring-blue-800"
         onClick={() => {
           setPage(page + 1);
           plausible("Page changed", { u: url });
@@ -328,7 +355,7 @@ export const MobilePagination = ({ page, setPage, end }) => {
         <RiArrowRightSLine />
       </button>
       <button
-        className="flex h-8 w-8 items-center justify-center rounded focus:outline-none focus-visible:ring focus-visible:ring-blue-800"
+        className="flex h-8 min-w-[2rem] items-center justify-center rounded focus:outline-none focus-visible:ring focus-visible:ring-blue-800"
         onClick={() => {
           setPage(end);
           plausible("Page changed", { u: url });
@@ -338,7 +365,7 @@ export const MobilePagination = ({ page, setPage, end }) => {
       >
         <RiSkipRightLine />
       </button>
-    </div>
+    </nav>
   );
 };
 

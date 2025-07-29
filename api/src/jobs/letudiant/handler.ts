@@ -7,7 +7,7 @@ import { Mission, Organization } from "../../types";
 import { BaseHandler } from "../base/handler";
 import { JobResult } from "../types";
 import { DEFAULT_LIMIT, MEDIA_PUBLIC_ID } from "./config";
-import { missionToPilotyCompany, missionToPilotyJob } from "./transformers";
+import { missionToPilotyCompany, missionToPilotyJobs } from "./transformers";
 import { getMandatoryData, getMissionsToSync, rateLimit } from "./utils";
 
 export interface LetudiantJobPayload {
@@ -63,29 +63,38 @@ export class LetudiantHandler implements BaseHandler<LetudiantJobPayload, Letudi
           throw new Error("Unable to get company public ID for mission");
         }
 
-        const jobPayload = missionToPilotyJob(mission, pilotyCompanyPublicId, mandatoryData);
-        let pilotyJob = null;
+        const jobPayloads = missionToPilotyJobs(mission, pilotyCompanyPublicId, mandatoryData);
+        const processedIds: Record<string, string> = {};
 
-        if (mission.letudiantPublicId) {
-          console.log(`[LetudiantHandler] Updating job ${mission._id} (${mission.letudiantPublicId})`);
-          pilotyJob = await pilotyClient.updateJob(mission.letudiantPublicId, jobPayload);
-          counter.updated++;
-        } else {
-          console.log(`[LetudiantHandler] Creating job ${mission._id}`);
-          pilotyJob = await pilotyClient.createJob(jobPayload);
-          counter.created++;
+        // Create / update jobs related to each address
+        // letudiantPublicId is an object with the localisation as key
+        for (const jobPayload of jobPayloads) {
+          let pilotyJob = null;
+          const letudiantPublicId = mission.letudiantPublicId?.[jobPayload.localisation];
+
+          if (letudiantPublicId) {
+            console.log(`[LetudiantHandler] Updating job ${mission._id} - ${jobPayload.localisation} (${letudiantPublicId})`);
+            pilotyJob = await pilotyClient.updateJob(letudiantPublicId, jobPayload);
+            counter.updated++;
+          } else {
+            console.log(`[LetudiantHandler] Creating job ${mission._id} - ${jobPayload.localisation}`);
+            pilotyJob = await pilotyClient.createJob(jobPayload);
+            counter.created++;
+          }
+
+          if (!pilotyJob) {
+            throw new Error("Unable to create or update job for mission");
+          } else {
+            processedIds[jobPayload.localisation] = pilotyJob.public_id;
+          }
+
+          await rateLimit();
         }
 
-        if (!pilotyJob) {
-          throw new Error("Unable to create or update job for mission");
-        } else {
-          mission.letudiantPublicId = pilotyJob.public_id;
-          mission.letudiantUpdatedAt = new Date();
+        mission.letudiantPublicId = processedIds;
+        mission.letudiantUpdatedAt = new Date();
 
-          await mission.save();
-        }
-
-        await rateLimit();
+        await mission.save();
       } catch (error) {
         console.error(error);
         captureException(`[LetudiantHandler] Error processing mission`, { extra: { error, missionId: mission._id, id, limit } });

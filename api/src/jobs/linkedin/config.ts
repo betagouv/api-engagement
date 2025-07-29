@@ -1,28 +1,20 @@
-import { BUCKET_NAME } from "../../config";
+import { BUCKET_NAME, PUBLISHER_IDS } from "../../config";
 
-export const LINKEDIN_ID = "5f8b3c7552a1412baaa0cd44";
-
-export const BENEVOLT_ID = "5f592d415655a711feb4460e";
-export const FONDATION_RAOUL_FOLLEREAU_ID = "634e641783b660072d4c597e";
-export const VILLE_DE_NANTES_ID = "6347be8883b660072d4c1c53";
-export const VACANCES_ET_FAMILLES_ID = "619fb1e17d373e07aea8be32";
-export const PREVENTION_ROUTIERE_ID = "619fab857d373e07aea8be1e";
-export const MEDECINS_DU_MONDE_ID = "619fae737d373e07aea8be23";
-export const EGEE_ID = "619faf257d373e07aea8be27";
-export const ECTI_ID = "619faeb97d373e07aea8be24";
-export const ADIE_ID = "619fb52a7d373e07aea8be35";
 export const LINKEDIN_XML_URL = `https://${BUCKET_NAME}.s3.fr-par.scw.cloud/xml/linkedin`;
 
+export const LINKEDIN_PUBLISHER_ID = PUBLISHER_IDS.LINKEDIN;
+
 export const PARTNERS_IDS = [
-  BENEVOLT_ID,
-  FONDATION_RAOUL_FOLLEREAU_ID,
-  VILLE_DE_NANTES_ID,
-  VACANCES_ET_FAMILLES_ID,
-  PREVENTION_ROUTIERE_ID,
-  MEDECINS_DU_MONDE_ID,
-  EGEE_ID,
-  ECTI_ID,
-  ADIE_ID,
+  PUBLISHER_IDS.LINKEDIN,
+  PUBLISHER_IDS.BENEVOLT,
+  PUBLISHER_IDS.FONDATION_RAOUL_FOLLEREAU,
+  PUBLISHER_IDS.VILLE_DE_NANTES,
+  PUBLISHER_IDS.VACANCES_ET_FAMILLES,
+  PUBLISHER_IDS.PREVENTION_ROUTIERE,
+  PUBLISHER_IDS.MEDECINS_DU_MONDE,
+  PUBLISHER_IDS.EGEE,
+  PUBLISHER_IDS.ECTI,
+  PUBLISHER_IDS.ADIE,
 ];
 
 export const LINKEDIN_COMPANY_ID = {
@@ -78,15 +70,15 @@ export const LINKEDIN_COMPANY_ID = {
 } as { [key: string]: string };
 
 export const LINKEDIN_INDUSTRY_CODE = {
-  environnement: 86,
-  "solidarite-insertion": null,
+  environnement: 2368,
+  "solidarite-insertion": 2125,
   sante: 14,
-  "culture-loisirs": 30,
+  "culture-loisirs": 28,
   education: 67,
-  emploi: 137,
-  sport: 33,
-  humanitaire: null,
-  animaux: 16,
-  "vivre-ensemble": null,
-  autre: null,
+  emploi: 2125,
+  sport: 2027,
+  humanitaire: 2122,
+  animaux: 2282,
+  "vivre-ensemble": 90,
+  autre: 100,
 } as { [key: string]: number | null };

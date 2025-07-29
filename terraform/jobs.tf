@@ -26,7 +26,7 @@ resource "scaleway_job_definition" "letudiant" {
   image_uri    = local.image_uri
   # Max old space workaround: https://stackoverflow.com/questions/48387040/how-do-i-determine-the-correct-max-old-space-size-for-node-js
   command      = "node --max-old-space-size=1800 dist/jobs/run-job.js letudiant"
-  timeout      = "15m"
+  timeout      = "45m"
 
   cron {
     schedule = "0 */3 * * *" # Every 3 hours
@@ -156,6 +156,60 @@ resource "scaleway_job_definition" "brevo" {
 
   cron {
     schedule = "0 1 * * *" # Every day at 1 AM
+    timezone = "Europe/Paris"
+  }
+
+  env = local.all_env_vars
+}
+
+# Job Definition for the 'moderation' task
+resource "scaleway_job_definition" "moderation" {
+  name         = "${terraform.workspace}-moderation"
+  project_id   = var.project_id
+  cpu_limit    = 1000
+  memory_limit = 2048
+  image_uri    = local.image_uri
+  command      = "node dist/jobs/run-job.js moderation"
+  timeout      = "15m"
+
+  cron {
+    schedule = "0 */3 * * *" # Every 3 hours
+    timezone = "Europe/Paris"
+  }
+
+  env = local.all_env_vars
+}
+
+# Job Definition for the 'import-missions' task
+resource "scaleway_job_definition" "import-missions" {
+  name         = "${terraform.workspace}-import-missions"
+  project_id   = var.project_id
+  cpu_limit    = 1000
+  memory_limit = 2048
+  image_uri    = local.image_uri
+  command      = "node dist/jobs/run-job.js import-missions"
+  timeout      = "45m"
+
+  cron {
+    schedule = "15 */3 * * *" # Every 3 hours at 15 minutes
+    timezone = "Europe/Paris"
+  }
+
+  env = local.all_env_vars
+}
+
+# Job Definition for the 'export-missions-to-pg' task
+resource "scaleway_job_definition" "export-missions-to-pg" {
+  name         = "${terraform.workspace}-export-missions-to-pg"
+  project_id   = var.project_id
+  cpu_limit    = 1000
+  memory_limit = 2048
+  image_uri    = local.image_uri
+  command      = "node --max-old-space-size=1800 dist/jobs/run-job.js export-missions-to-pg"
+  timeout      = "30m"
+
+  cron {
+    schedule = "0 */12 * * *" # Every 12 hours
     timezone = "Europe/Paris"
   }
 

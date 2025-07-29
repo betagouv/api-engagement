@@ -7,6 +7,7 @@ export interface Organization {
   rna: string;
   siren?: string;
   siret?: string;
+  sirets?: string[];
   rupMi?: string;
   gestion?: string;
   status?: string;
@@ -54,7 +55,10 @@ export interface Organization {
   letudiantUpdatedAt?: Date;
 }
 
+export type GeolocStatus = "ENRICHED_BY_PUBLISHER" | "ENRICHED_BY_API" | "NOT_FOUND" | "NO_DATA" | "SHOULD_ENRICH" | "FAILED";
+
 export type AddressItem = {
+  _id?: Schema.Types.ObjectId;
   street: string;
   postalCode: string;
   departmentName: string;
@@ -62,12 +66,14 @@ export type AddressItem = {
   city: string;
   region: string;
   country: string;
-  location: {
-    lat: number;
-    lon: number;
-  };
+  location:
+    | {
+        lat: number;
+        lon: number;
+      }
+    | undefined;
   geoPoint?: GeoPoint;
-  geolocStatus: string;
+  geolocStatus: GeolocStatus;
 };
 
 export type GeoPoint = {
@@ -193,21 +199,21 @@ export type Campaign = {
   updatedAt: Date;
 };
 
-export type Import = {
+export interface Import {
   _id: Schema.Types.ObjectId;
   name: string;
-  publisherId: string;
+  publisherId: Schema.Types.ObjectId;
   createdCount: number;
   deletedCount: number;
   updatedCount: number;
   missionCount: number;
   refusedCount: number;
   startedAt: Date;
-  endedAt: Date;
+  endedAt: Date | null;
   status: "SUCCESS" | "FAILED";
   error: string | null;
   failed: any;
-};
+}
 
 export interface MissionHistory {
   date: Date;
@@ -351,9 +357,11 @@ export interface Mission {
   jobteaserComment: string | undefined;
   jobteaserUpdatedAt: Date | undefined;
 
-  letudiantPublicId: string | undefined;
+  letudiantPublicId: { [key: string]: string } | undefined;
   letudiantUpdatedAt: Date | undefined;
   letudiantError: string | undefined;
+
+  lastExportedToPgAt: Date | null;
 
   __history?: MissionHistory[];
 }

@@ -117,5 +117,11 @@ export const createTestMission = async (data: Partial<Mission> = {}) => {
   const mission = new MissionModel(missionData);
 
   await mission.save();
+
+  // Force date if provided with timestamps disabled
+  if (data.updatedAt) {
+    await MissionModel.updateOne({ _id: mission._id }, { $set: { updatedAt: data.updatedAt } }, { timestamps: false });
+    mission.updatedAt = data.updatedAt;
+  }
   return mission.toObject();
 };

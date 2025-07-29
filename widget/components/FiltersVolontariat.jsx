@@ -433,6 +433,8 @@ const DateFilter = ({ selected, onChange, position = "left-0", width = "w-80" })
           <DayPicker
             mode="single"
             locale={fr}
+            aria-label="disponible à partir du"
+            role="dialog"
             selected={selected}
             onDayClick={(date) => {
               onChange({ label: date.toLocaleDateString("fr"), value: date });
@@ -446,6 +448,7 @@ const DateFilter = ({ selected, onChange, position = "left-0", width = "w-80" })
             modifiers={{
               selected: (date) => selected && date.toLocaleDateString("fr") === selected.value.toLocaleDateString("fr"),
             }}
+            autoFocus
             modifiersStyles={{
               selected: {
                 backgroundColor: color,
@@ -454,6 +457,13 @@ const DateFilter = ({ selected, onChange, position = "left-0", width = "w-80" })
                 display: "flex",
                 justifyContent: "center",
               },
+            }}
+            labels={{
+              labelDayButton: (date, { today, selected }) => {
+                return `${today ? "Aujourd'hui, " : ""}${date.toLocaleDateString("fr", { weekday: "long", day: "numeric", month: "long" })}${selected ? ", sélectionné" : ""}`;
+              },
+              labelNext: () => "Mois suivant",
+              labelPrevious: () => "Mois précédent",
             }}
           />
           <div className="pt-2 pb-1 px-6 w-full flex justify-start border-t border-[#DDDDDD]">

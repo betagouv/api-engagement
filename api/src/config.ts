@@ -36,13 +36,32 @@ export const SLACK_LBC_CHANNEL_ID = process.env.SLACK_LBC_CHANNEL_ID || "C07SPFG
 export const SLACK_CRON_CHANNEL_ID = process.env.SLACK_CRON_CHANNEL_ID || "C085S6M2K5J";
 export const SLACK_JOBTEASER_CHANNEL_ID = process.env.SLACK_JOBTEASER_CHANNEL_ID || "C080H9MH56W";
 
-// Ids
-export const SC_ID = "5f99dbe75eb1ad767733b206"; // Service Civique Id
-export const JVA_ID = "5f5931496c7ea514150a818f"; // JeVeuxAider Id
-export const LBC_ID = "60cd04a0d2321e05a743fa8d"; // Leboncoin Id
-export const LETUDIANT_ID = "65251e076c0781cafb6ba76d"; // Letudiant Id
+export const DATA_SUBVENTION_TOKEN = process.env.DATA_SUBVENTION_TOKEN;
+
+// Ids (ISO prod / staging)
+export const PUBLISHER_IDS = {
+  ADIE: "619fb52a7d373e07aea8be35",
+  API_ENGAGEMENT: "63da29db7d356a87a4e35d4a",
+  BENEVOLT: "5f592d415655a711feb4460e",
+  BOUYGUES_TELECOM: "616fefd119fb03075a0b0843",
+  ECTI: "619faeb97d373e07aea8be24",
+  EGEE: "619faf257d373e07aea8be27",
+  FONDATION_RAOUL_FOLLEREAU: "634e641783b660072d4c597e",
+  JAGIS_POUR_LA_NATURE: "5f59305b6c7ea514150a818e",
+  JEVEUXAIDER: "5f5931496c7ea514150a818f",
+  JOBTEASER: "66ffce58f95ec99387109053",
+  LEBONCOIN: "60cd04a0d2321e05a743fa8d",
+  LETUDIANT: "65251e076c0781cafb6ba76d",
+  LINKEDIN: "5f8b3c7552a1412baaa0cd44",
+  MEDECINS_DU_MONDE: "619fae737d373e07aea8be23",
+  PREVENTION_ROUTIERE: "619fab857d373e07aea8be1e",
+  SERVICE_CIVIQUE: "5f99dbe75eb1ad767733b206",
+  VACANCES_ET_FAMILLES: "619fb1e17d373e07aea8be32",
+  VILLE_DE_NANTES: "6347be8883b660072d4c1c53",
+};
 
 export const DEFAULT_AVATAR = "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/default.jpg";
+export const JVA_LOGO_URL = "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/JVA_logo.png";
 
 // Piloty job boards
 export const PILOTY_BASE_URL = process.env.PILOTY_BASE_URL || "https://sandbox-api.piloty.fr";
