@@ -1,6 +1,7 @@
 import { HydratedDocument } from "mongoose";
 import { LETUDIANT_PILOTY_TOKEN } from "../../config";
 import { captureException } from "../../error";
+import MissionModel from "../../models/mission";
 import OrganizationModel from "../../models/organization";
 import { PilotyClient, PilotyError } from "../../services/piloty/";
 import { Mission, Organization } from "../../types";
@@ -91,16 +92,31 @@ export class LetudiantHandler implements BaseHandler<LetudiantJobPayload, Letudi
           await rateLimit();
         }
 
-        mission.letudiantPublicId = processedIds;
-        mission.letudiantUpdatedAt = new Date();
-
-        await mission.save();
+        // Update mission and avoid updatedAt update
+        await MissionModel.updateOne(
+          { _id: mission._id },
+          {
+            $set: {
+              letudiantPublicId: processedIds,
+              letudiantUpdatedAt: new Date(),
+            },
+          },
+          { timestamps: false }
+        );
       } catch (error) {
         console.error(error);
         captureException(`[LetudiantHandler] Error processing mission`, { extra: { error, missionId: mission._id, id, limit } });
 
-        mission.letudiantError = error instanceof Error ? error.message : "Unknown error";
-        await mission.save();
+        // Update mission and avoid updatedAt update
+        await MissionModel.updateOne(
+          { _id: mission._id },
+          {
+            $set: {
+              letudiantError: error instanceof Error ? error.message : "Unknown error",
+            },
+          },
+          { timestamps: false }
+        );
 
         counter.error++;
       }
