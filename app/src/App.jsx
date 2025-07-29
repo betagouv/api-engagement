@@ -157,9 +157,8 @@ const ProtectedLayout = () => {
   // Simple page tracking with user role
   useEffect(() => {
     if (user && user.role && window.plausible) {
-      console.log("location.pathname", location.pathname);
       const adminPath = ADMIN_PATH.find((path) => location.pathname.startsWith(path));
-      console.log("isAdmin", adminPath);
+
       if (adminPath) {
         window.plausible(`admin - ${adminPath}`);
         return;

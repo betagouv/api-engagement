@@ -34,7 +34,13 @@ const MissionItem = ({ data, history, selected, onChange, onSelect, onFilter }) 
       if (v.status === "REFUSED" && !v.comment) return;
 
       const res = await api.put(`/moderation/${data._id}`, { ...v, moderatorId: publisher._id });
-      if (!res.ok) throw res;
+      if (!res.ok) {
+        if (res.error === "COMMENT_REQUIRED") {
+          toast.error("Le commentaire est requis pour refuser la mission");
+          return;
+        }
+        throw res;
+      }
       toast.success("La mission a été modérée avec succès");
       onChange(res.data);
 
@@ -127,6 +133,7 @@ const MissionItem = ({ data, history, selected, onChange, onSelect, onFilter }) 
         </div>
         {values.status === "REFUSED" && (
           <select className="select" name="motif" value={values.comment} onChange={(e) => handleSubmit({ status: "REFUSED", comment: e.target.value })}>
+            <option value="">Motif de refus</option>
             {Object.entries(JVA_MODERATION_COMMENTS_LABELS).map(([key, value]) => (
               <option key={key} value={key}>
                 {value}
