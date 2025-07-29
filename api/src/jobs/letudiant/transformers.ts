@@ -26,22 +26,43 @@ import { decodeHtml } from "./utils";
  * @returns The job payloads
  */
 export function missionToPilotyJobs(mission: Mission, companyId: string, mandatoryData: PilotyMandatoryData): PilotyJobPayload[] {
-  return mission.addresses.map((address) => ({
-    media_public_id: MEDIA_PUBLIC_ID,
-    company_public_id: companyId,
-    name: mission.title,
-    contract_id: mission.type === MissionType.VOLONTARIAT ? mandatoryData.contracts.volontariat : mandatoryData.contracts.benevolat,
-    job_category_id: mandatoryData.jobCategories[mission.domain] ?? mandatoryData.jobCategories["autre"],
-    localisation: mission.remote === "full" ? "A distance" : address.city || "",
-    description_job: decodeHtml(mission.descriptionHtml),
-    application_method: "external_apply",
-    application_url: getMissionTrackedApplicationUrl(mission, PUBLISHER_IDS.LETUDIANT),
-    state: mission.deletedAt ? "archived" : "published",
-    remote_policy_id: mission.remote === "full" ? mandatoryData.remotePolicies.full : undefined,
-    position_level: "employee",
-    description_company: mission.organizationDescription || "",
-  }));
+  // Build payload depending on localisation. If no localisation, it's a remote job
+  function buildJobPayload(localisation: string | undefined): PilotyJobPayload {
+    return {
+      media_public_id: MEDIA_PUBLIC_ID,
+      company_public_id: companyId,
+      name: mission.title,
+      contract_id: mission.type === MissionType.VOLONTARIAT ? mandatoryData.contracts.volontariat : mandatoryData.contracts.benevolat,
+      job_category_id: mandatoryData.jobCategories[mission.domain] ?? mandatoryData.jobCategories["autre"],
+      localisation: localisation || "A distance",
+      description_job: decodeHtml(mission.descriptionHtml),
+      application_method: "external_apply",
+      application_url: getMissionTrackedApplicationUrl(mission, PUBLISHER_IDS.LETUDIANT),
+      state: mission.deletedAt ? "archived" : "published",
+      remote_policy_id: localisation ? undefined : mandatoryData.remotePolicies.full,
+      position_level: "employee",
+      description_company: mission.organizationDescription || "",
+    };
+  }
+
+  if (mission.remote === "full" || !mission.addresses.length) {
+    return [buildJobPayload(undefined)];
+  }
+
+  // Group addresses by city
+  const seenCities = new Set<string>();
+  const uniqueAddresses = mission.addresses.filter((address) => {
+    const city = address.city || "";
+    if (seenCities.has(city)) {
+      return false;
+    }
+    seenCities.add(city);
+    return true;
+  });
+
+  return uniqueAddresses.map((address) => buildJobPayload(address.city));
 }
+
 /**
  * Transform a mission into a Piloty company payload
  * NB: these fields are not handled for now (seems not needed):

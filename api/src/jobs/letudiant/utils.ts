@@ -39,6 +39,7 @@ export async function getMissionsToSync(id?: string, limit = 10): Promise<Hydrat
   const republishingDate = new Date(Date.now() - DAYS_AFTER_REPUBLISH * 24 * 60 * 60 * 1000);
 
   const missions = await MissionModel.find({
+    "addresses.1": { $exists: true },
     deletedAt: null,
     statusCode: "ACCEPTED",
     publisherId: {
@@ -53,14 +54,14 @@ export async function getMissionsToSync(id?: string, limit = 10): Promise<Hydrat
     letudiantError: {
       $exists: false,
     },
-    $or: [
-      // Updated since last sync
-      { $expr: { $lt: ["$letudiantUpdatedAt", "$updatedAt"] } },
-      // Deleted since last sync
-      { $expr: { $lt: ["$letudiantUpdatedAt", "$deletedAt"] } },
-      // Missions not synced for more than X days or not synced at all
-      { $or: [{ letudiantUpdatedAt: { $exists: false } }, { letudiantUpdatedAt: { $lt: republishingDate } }] },
-    ],
+    // $or: [
+    //   // Updated since last sync
+    //   { $expr: { $lt: ["$letudiantUpdatedAt", "$updatedAt"] } },
+    //   // Deleted since last sync
+    //   { $expr: { $lt: ["$letudiantUpdatedAt", "$deletedAt"] } },
+    //   // Missions not synced for more than X days or not synced at all
+    //   { $or: [{ letudiantUpdatedAt: { $exists: false } }, { letudiantUpdatedAt: { $lt: republishingDate } }] },
+    // ],
   }).limit(limit);
 
   return missions;
