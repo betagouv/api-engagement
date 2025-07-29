@@ -188,6 +188,9 @@ const schema = new Schema<Mission>(
     letudiantPublicId: { type: String },
     letudiantUpdatedAt: { type: Date },
     letudiantError: { type: String },
+
+    // PG export
+    lastExportedToPgAt: { type: Date, default: null },
   },
   {
     timestamps: true,

@@ -58,6 +58,7 @@ export interface Organization {
 export type GeolocStatus = "ENRICHED_BY_PUBLISHER" | "ENRICHED_BY_API" | "NOT_FOUND" | "NO_DATA" | "SHOULD_ENRICH" | "FAILED";
 
 export type AddressItem = {
+  _id?: Schema.Types.ObjectId;
   street: string;
   postalCode: string;
   departmentName: string;
@@ -359,6 +360,8 @@ export interface Mission {
   letudiantPublicId: string | undefined;
   letudiantUpdatedAt: Date | undefined;
   letudiantError: string | undefined;
+
+  lastExportedToPgAt: Date | null;
 
   __history?: MissionHistory[];
 }
