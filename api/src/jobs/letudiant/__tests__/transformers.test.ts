@@ -98,9 +98,10 @@ describe("L'Etudiant Transformers", () => {
       expect(result.contract_id).toBe(mockMandatoryData.contracts.volontariat);
     });
 
-    it("should set localisation to 'A distance' for full remote missions and set remote_policy_id", () => {
+    it("should set localisation to 'A distance' for full remote missions with no address", () => {
       const mission: Mission = {
         ...baseMission,
+        addresses: [],
         remote: "full",
       } as Mission;
 
@@ -110,13 +111,15 @@ describe("L'Etudiant Transformers", () => {
       expect(result.remote_policy_id).toBe(mockMandatoryData.remotePolicies.full);
     });
 
-    it("should return an empty array if no address is provided", () => {
+    it("should consider remote job if no address", () => {
       const mission: Mission = {
         ...baseMission,
         addresses: [],
       } as Mission;
       const results = missionToPilotyJobs(mission, mockCompanyId, mockMandatoryData);
-      expect(results).toHaveLength(0);
+      const result = results[0];
+      expect(result.localisation).toBe("A distance");
+      expect(result.remote_policy_id).toBe(mockMandatoryData.remotePolicies.full);
     });
 
     it("should return an array of jobs for each address", () => {
@@ -155,6 +158,45 @@ describe("L'Etudiant Transformers", () => {
       } as Mission;
       const results = missionToPilotyJobs(mission, mockCompanyId, mockMandatoryData);
       expect(results).toHaveLength(2);
+    });
+
+    it("should merge jobs when addresses are in the same city", () => {
+      const mission: Mission = {
+        ...baseMission,
+        addresses: [
+          {
+            city: "Lyon",
+            postalCode: "69000",
+            street: "123 rue de test",
+            country: "France",
+            departmentName: "Rhône",
+            departmentCode: "69",
+            region: "Auvergne-Rhône-Alpes",
+            geolocStatus: "ENRICHED_BY_PUBLISHER",
+            location: {
+              lat: 45.764,
+              lon: 4.835,
+            },
+          },
+          {
+            city: "Lyon",
+            postalCode: "69000",
+            street: "456 rue de test",
+            country: "France",
+            departmentName: "Rhône",
+            departmentCode: "69",
+            region: "Auvergne-Rhône-Alpes",
+            geolocStatus: "ENRICHED_BY_PUBLISHER",
+            location: {
+              lat: 45.764,
+              lon: 4.835,
+            },
+          },
+        ],
+      } as Mission;
+      const results = missionToPilotyJobs(mission, mockCompanyId, mockMandatoryData);
+      expect(results).toHaveLength(1);
+      expect(results[0].localisation).toBe("Lyon");
     });
 
     it("should set state to 'archived' if mission is deleted", () => {
