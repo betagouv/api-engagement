@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from "vitest";
 
-// Mock complet du service S3 pour éviter l'erreur de credentials Scaleway
+// Mock S3 service before import to avoid credentials error on launch
 vi.mock("../../../services/s3", () => ({
   default: {},
 }));
