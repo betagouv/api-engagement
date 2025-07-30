@@ -20,7 +20,6 @@ export interface LinkedInJob {
     industryCode: string;
   }[];
   industryCode?: string;
-  industry?: string; // Is it really used
   experienceLevel?: string;
   jobFunctions?: string[];
   jobFunction?: string;

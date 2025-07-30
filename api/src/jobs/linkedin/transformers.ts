@@ -2,6 +2,7 @@ import { Mission } from "../../types";
 import { getMissionTrackedApplicationUrl } from "../../utils";
 import { LINKEDIN_COMPANY_ID, LINKEDIN_INDUSTRY_CODE, LINKEDIN_PUBLISHER_ID } from "./config";
 import { LinkedInJob } from "./types";
+import { getAudienceLabel, getDomainLabel } from "./utils";
 
 /**
  * Format mission to Linkedin Job
@@ -37,18 +38,19 @@ export function missionToLinkedinJob(mission: Mission, defaultCompany: string): 
       const diffTime = Math.abs(currentDate.getTime() - startDate.getTime());
       const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
 
-      blocks.push("<p><b>Type de mission : </b><br>");
+      let title = "";
 
       // Switch main title based on diffDays to alternate on 3 days basis
       if (diffDays % 6 < 3) {
-        blocks.push(`<p><b>${mission.organizationName}</b> vous propose une mission de bénévolat</p>`);
+        title = `<b>${mission.organizationName}</b> vous propose une mission de bénévolat`;
       } else {
-        blocks.push(`<p>Ceci est une mission de bénévolat pour <b>${mission.organizationName}</b></p>`);
+        title = `Ceci est une mission de bénévolat pour <b>${mission.organizationName}</b>`;
       }
 
+      blocks.push(`<p><b>Type de mission : </b>${title}</p>`);
+
       if (mission.domain) {
-        blocks.push("<p><b>Domaine d'activité</b></p>");
-        blocks.push(`<p>${mission.domain}</p>`);
+        blocks.push(`<p><b>Domaine d'activité : </b>${getDomainLabel(mission.domain)}</p>`);
       }
 
       if (mission.descriptionHtml) {
@@ -66,17 +68,15 @@ export function missionToLinkedinJob(mission: Mission, defaultCompany: string): 
 
       if (mission.audience) {
         blocks.push("<p><b>Public accompagné durant la mission : </b></p>");
-        blocks.push(`<p>${mission.audience}</p>`);
+        blocks.push(`<p>${mission.audience.map((audience) => getAudienceLabel(audience)).join(" - ")}</p>`);
       }
 
       if (mission.schedule) {
-        blocks.push("<p><b>Durée de la mission : </b></p>");
-        blocks.push(`<p>${mission.schedule}</p>`);
+        blocks.push(`<p><b>Durée de la mission : </b>${mission.schedule}</p>`);
       }
 
       if (mission.openToMinors === "no") {
-        blocks.push("<p><b>Âge minimum : </b></p>");
-        blocks.push(`<p>18 ans minimum.</p>`);
+        blocks.push(`<p><b>Âge minimum : </b>18 ans minimum</p>`);
       }
       return blocks.join("\n");
     })(),
@@ -86,7 +86,6 @@ export function missionToLinkedinJob(mission: Mission, defaultCompany: string): 
     city: mission.city,
     postalCode: mission.postalCode,
     listDate: new Date(mission.createdAt).toISOString(),
-    industry: mission.domain,
     industryCodes: LINKEDIN_INDUSTRY_CODE[mission.domain] ? [{ industryCode: LINKEDIN_INDUSTRY_CODE[mission.domain] }] : undefined,
     workplaceTypes: mission.remote === "no" ? "On-site" : mission.remote === "full" ? "Remote" : "Hybrid",
   } as LinkedInJob;

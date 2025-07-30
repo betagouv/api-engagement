@@ -3,12 +3,12 @@ import { XMLBuilder } from "fast-xml-parser";
 import MissionModel from "../../models/mission";
 import { OBJECT_ACL, putObject } from "../../services/s3";
 import { Mission } from "../../types";
-import { LINKEDIN_XML_URL } from "./config";
+import { AUDIENCE_MAPPING, DOMAIN_MAPPING, LINKEDIN_XML_URL } from "./config";
 import { missionToLinkedinJob } from "./transformers";
 import { LinkedInJob } from "./types";
 
 export function getMissionsCursor(where: { [key: string]: any }) {
-  return MissionModel.find(where).sort({ createdAt: "asc" }).lean().cursor();
+  return MissionModel.find(where).sort({ createdAt: "asc" }).limit(10).lean().cursor();
 }
 
 export async function generateJvaJobs(missionsCursor: AsyncIterable<Mission>): Promise<{ jobs: LinkedInJob[]; expired: number; skipped: number; processed: number }> {
@@ -24,7 +24,6 @@ export async function generateJvaJobs(missionsCursor: AsyncIterable<Mission>): P
       skipped++;
       continue;
     }
-    job.description += `<br><br><br> Activité : [${mission.activity}]`;
     if (job.expirationDate && new Date(job.expirationDate).getTime() < Date.now()) {
       expired++;
       continue;
@@ -122,4 +121,12 @@ export async function storeXML(xml: string): Promise<string> {
   });
 
   return `${LINKEDIN_XML_URL}-${date}.xml`;
+}
+
+export function getDomainLabel(domain: string): string {
+  return DOMAIN_MAPPING[domain] || DOMAIN_MAPPING["autre"];
+}
+
+export function getAudienceLabel(audience: string): string {
+  return AUDIENCE_MAPPING[audience] || AUDIENCE_MAPPING["any_public"];
 }

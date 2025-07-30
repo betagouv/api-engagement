@@ -21,6 +21,11 @@ vi.mock("../../../utils/mission", () => ({
   getMissionTrackedApplicationUrl: vi.fn((mission, publisherId) => `https://api.api-engagement.beta.gouv.fr/r/${mission._id}/${publisherId}`),
 }));
 
+vi.mock("../utils", () => ({
+  getDomainLabel: vi.fn((domain) => `Libellé ${domain}`),
+  getAudienceLabel: vi.fn((audience) => `Libellé ${audience}`),
+}));
+
 const defaultCompany = "benevolt";
 
 const baseMission: any = {
@@ -46,6 +51,7 @@ describe("missionToLinkedinJob", () => {
 
   afterEach(() => {
     vi.useRealTimers();
+    vi.resetAllMocks();
   });
 
   it("should return a valid LinkedInJob for a valid mission", () => {
@@ -65,7 +71,6 @@ describe("missionToLinkedinJob", () => {
     expect(job?.postalCode).toBe("75001");
     expect(job?.listDate).toBe(new Date(baseMission.createdAt).toISOString());
     expect(job?.expirationDate).toBe(new Date(baseMission.endAt).toISOString());
-    expect(job?.industry).toBe("environnement");
     expect(job?.industryCodes).toEqual([{ industryCode: 2368 }]);
     expect(job?.workplaceTypes).toBe("On-site");
   });
@@ -80,18 +85,16 @@ describe("missionToLinkedinJob", () => {
       <p>Précisions</p><br>
       <p>Texte de précisions</p>`;
     const organizationName = "Mon asso";
-    const domain = "environnement";
     const requirements = ["Précision 1", "Précision 2"];
-    const audience = "Jeunes";
     const schedule = "un jour par semaine";
 
     const job = missionToLinkedinJob(
       {
         ...baseMission,
         descriptionHtml,
-        domain,
+        domain: "environnement",
         requirements,
-        audience,
+        audience: ["seniors", "people_in_difficulty"],
         schedule,
         openToMinors: "no",
       },
@@ -103,11 +106,10 @@ describe("missionToLinkedinJob", () => {
     const diffTime = Math.abs(currentDate.getTime() - startDate.getTime());
     const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
 
+    // TOOD: proper mock of vi.setSystemTime to test diffDays
     const expectedDescription = `
-      <p><b>Type de mission : </b><br>
-      ${diffDays % 6 < 3 ? `<p><b>${organizationName}</b> vous propose une mission de bénévolat</p>` : `<p>Ceci est une mission de bénévolat pour <b>${organizationName}</b></p>`}
-      <p><b>Domaine d'activité</b></p>
-      <p>${domain}</p>
+      <p><b>Type de mission : </b>${diffDays % 6 < 3 ? `<b>${organizationName}</b> vous propose une mission de bénévolat` : `Ceci est une mission de bénévolat pour <b>${organizationName}</b>`}</p>
+      <p><b>Domaine d'activité : </b>Libellé environnement</p>
       ${descriptionHtml}
       <p><b>Pré-requis : </b></p>
       <ol>
@@ -115,11 +117,9 @@ describe("missionToLinkedinJob", () => {
         <li>${requirements[1]}</li>
       </ol>
       <p><b>Public accompagné durant la mission : </b></p>
-      <p>${audience}</p>
-      <p><b>Durée de la mission : </b></p>
-      <p>${schedule}</p>
-      <p><b>Âge minimum : </b></p>
-      <p>18 ans minimum.</p>
+      <p>Libellé seniors - Libellé people_in_difficulty</p>
+      <p><b>Durée de la mission : </b>${schedule}</p>
+      <p><b>Âge minimum : </b>18 ans minimum</p>
     `;
 
     // Compare strings with normalized whitespace
