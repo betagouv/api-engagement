@@ -21,7 +21,7 @@ describe("getDomainLabel", () => {
     expect(getDomainLabel("prevention-protection")).toBe("🚨 Prévention & Protection");
     expect(getDomainLabel("sante")).toBe("💊 Santé pour tous");
     expect(getDomainLabel("sport")).toBe("🏀 Sport pour tous");
-    expect(getDomainLabel("solidarite-insertion")).toBe(" 🍜 Solidarité et insertion");
+    expect(getDomainLabel("solidarite-insertion")).toBe("🍜 Solidarité et insertion");
     expect(getDomainLabel("vivre-ensemble")).toBe("🌍 Coopération internationale");
   });
 
