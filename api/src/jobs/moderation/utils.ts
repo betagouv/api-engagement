@@ -1,5 +1,4 @@
 import MissionModel from "../../models/mission";
-import ModerationEventModel from "../../models/moderation-event";
 import { Mission, Publisher } from "../../types";
 import { ModerationUpdate } from "./types";
 
@@ -32,12 +31,12 @@ export const hasModerationChanges = (m: Mission, moderator: Publisher, update: M
 };
 
 export const createModerations = async (missions: Mission[], moderator: Publisher) => {
-  const missonBulk = [] as any[];
+  const missionBulk = [] as any[];
   const eventBulk = [] as any[];
 
   let refused = 0;
   let pending = 0;
-  for (const m of missions) {
+  for (const mission of missions) {
     const update = {
       status: "PENDING",
       comment: null,
@@ -55,9 +54,9 @@ export const createModerations = async (missions: Mission[], moderator: Publishe
     //   "L’organisation n’est pas conforme à la charte de la Réserve Civique",
     //   "Les informations sont insuffisantes pour modérer l’organisation",
 
-    const createdAt = new Date(m.createdAt);
-    const startAt = new Date(m.startAt);
-    const endAt = m.endAt ? new Date(m.endAt) : null;
+    const createdAt = new Date(mission.createdAt);
+    const startAt = new Date(mission.startAt);
+    const endAt = mission.endAt ? new Date(mission.endAt) : null;
 
     const in7Days = new Date();
     in7Days.setDate(in7Days.getDate() + 7);
@@ -74,42 +73,42 @@ export const createModerations = async (missions: Mission[], moderator: Publishe
       update.status = "REFUSED";
       update.comment = "MISSION_DATE_NOT_COMPATIBLE";
       update.date = new Date();
-    } else if (m.description.length < 300) {
+    } else if (mission.description.length < 300) {
       update.status = "REFUSED";
       update.comment = "CONTENT_INSUFFICIENT";
       update.date = new Date();
-    } else if (!m.city) {
+    } else if (!mission.city) {
       update.status = "REFUSED";
       update.comment = "CONTENT_INSUFFICIENT";
       update.date = new Date();
     }
 
-    if (!hasModerationChanges(m, moderator, update)) {
+    if (!hasModerationChanges(mission, moderator, update)) {
       continue;
     }
 
     eventBulk.push({
       insertOne: {
         document: {
-          missionId: m._id,
+          missionId: mission._id,
           moderatorId: moderator._id,
           userId: null,
           userName: "Modération automatique",
-          initialStatus: m[`moderation_${moderator._id}_status`] || null,
+          initialStatus: mission[`moderation_${moderator._id}_status`] || null,
           newStatus: update.status,
-          initialComment: m[`moderation_${moderator._id}_comment`] || null,
+          initialComment: mission[`moderation_${moderator._id}_comment`] || null,
           newComment: update.comment,
-          initialNote: m[`moderation_${moderator._id}_note`] || null,
+          initialNote: mission[`moderation_${moderator._id}_note`] || null,
           newNote:
             update.status === "REFUSED"
-              ? `Data de la mission refusée: date de création=${createdAt.toLocaleDateString("fr")}, date de début=${startAt.toLocaleDateString("fr")}, date defin=${endAt ? endAt.toLocaleDateString("fr") : "non renseigné"}, nombre caractères description=${m.description.length}, ville=${m.city}`
+              ? `Data de la mission refusée: date de création=${createdAt.toLocaleDateString("fr")}, date de début=${startAt.toLocaleDateString("fr")}, date defin=${endAt ? endAt.toLocaleDateString("fr") : "non renseigné"}, nombre caractères description=${mission.description.length}, ville=${mission.city}`
               : "",
         },
       },
     });
-    missonBulk.push({
+    missionBulk.push({
       updateOne: {
-        filter: { _id: m._id },
+        filter: { _id: mission._id },
         update: {
           $set: {
             [`moderation_${moderator._id}_status`]: update.status,
@@ -129,7 +128,9 @@ export const createModerations = async (missions: Mission[], moderator: Publishe
     }
   }
 
-  const res = await MissionModel.bulkWrite(missonBulk);
-  const resEvent = await ModerationEventModel.bulkWrite(eventBulk);
-  return { updated: res.modifiedCount, events: resEvent.insertedCount, refused, pending };
+  console.log(`[Moderation JVA] Bulk update ${missionBulk.length} missions, ${eventBulk.length} events`);
+  // const resMission = await MissionModel.bulkWrite(missionBulk);
+  // const resEvent = await ModerationEventModel.bulkWrite(eventBulk);
+  // return { updated: resMission.modifiedCount, events: resEvent.insertedCount, refused, pending };
+  return { updated: 0, events: 0, refused, pending };
 };

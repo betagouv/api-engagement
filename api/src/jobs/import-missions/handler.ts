@@ -2,7 +2,9 @@ import { captureException } from "../../error";
 import ImportModel from "../../models/import";
 import PublisherModel from "../../models/publisher";
 
+import { SLACK_CRON_CHANNEL_ID } from "../../config";
 import MissionModel from "../../models/mission";
+import { postMessage } from "../../services/slack";
 import { Import, Mission, Publisher } from "../../types";
 import { BaseHandler } from "../base/handler";
 import { JobResult } from "../types";
@@ -36,6 +38,10 @@ export class ImportMissionsHandler implements BaseHandler<ImportMissionsJobPaylo
       publishers = await PublisherModel.find({ isAnnonceur: true });
     }
 
+    let processed = 0;
+    let updated = 0;
+    let created = 0;
+    let deleted = 0;
     for (let i = 0; i < publishers.length; i++) {
       const publisher = publishers[i];
       try {
@@ -48,11 +54,26 @@ export class ImportMissionsHandler implements BaseHandler<ImportMissionsJobPaylo
           continue;
         }
         await ImportModel.create(res);
+
+        processed += res.missionCount;
+        updated += res.updatedCount;
+        created += res.createdCount;
+        deleted += res.deletedCount;
+
         imports.push(res);
       } catch (error: any) {
         captureException(`Import XML failed`, `${error.message} while creating import for ${publisher.name} (${publisher._id})`);
       }
     }
+
+    await postMessage(
+      {
+        title: `Import des flux XML terminée`,
+        text: `\t• Nombre de missions totales: ${processed}\n\t• Nombre de missions mises à jour: ${updated}\n\t• Nombre de missions créées: ${created}\n\t• Nombre de missions supprimées: ${deleted}`,
+      },
+      SLACK_CRON_CHANNEL_ID
+    );
+
     console.log(`[Import XML] Ended at ${new Date().toISOString()} in ${(Date.now() - start.getTime()) / 1000}s`);
     return {
       success: true,

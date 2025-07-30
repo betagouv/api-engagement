@@ -1,4 +1,4 @@
-import { SLACK_CRON_CHANNEL_ID } from "../../config";
+import { PUBLISHER_IDS, SLACK_CRON_CHANNEL_ID } from "../../config";
 import { captureException } from "../../error";
 import PublisherModel from "../../models/publisher";
 import { postMessage } from "../../services/slack";
@@ -28,46 +28,57 @@ export class ModerationHandler implements BaseHandler<ModerationJobPayload, Mode
   async handle(): Promise<ModerationJobResult> {
     try {
       const start = new Date();
-      console.log(`[Moderation] Starting at ${start.toISOString()}`);
+      console.log(`[Moderation JVA] Starting at ${start.toISOString()}`);
 
-      const moderators = await PublisherModel.find({ moderator: true });
+      const jva = await PublisherModel.findById(PUBLISHER_IDS.JEVEUXAIDER);
+
+      if (!jva) {
+        throw new Error("JVA not found");
+      }
+
       const result = [] as ModerationJobResult["moderators"];
 
-      for (let i = 0; i < moderators.length; i++) {
-        const moderator = moderators[i];
+      if (!jva.publishers || !jva.publishers.length) {
+        throw new Error("JVA has no publishers");
+      }
 
-        if (!moderator.publishers || !moderator.publishers.length) {
-          continue;
-        }
+      const data = await findMissions(jva);
+      console.log(`[Moderation JVA] ${data.length} missions found in pending moderation yet`);
 
-        console.log(`[Moderation] Starting for ${moderator.name} (${moderator._id}), number ${i + 1}/${moderators.length}`);
-
-        const data = await findMissions(moderator);
-        console.log(`[Moderation] - ${moderator.name} ${data.length} found in pending moderation yet`);
-
-        if (!data.length) {
-          continue;
-        }
-
-        const res = await createModerations(data, moderator);
-        result?.push({
-          name: moderator.name,
-          updated: res.updated,
-          events: res.events,
-          refused: res.refused,
-          pending: res.pending,
-        });
-        console.log(`[Moderation] ${moderator.name} ${res.updated} missions updated`);
-        console.log(`[Moderation] ${moderator.name} ${res.events} events created`);
-
+      if (!data.length) {
         await postMessage(
           {
-            title: `Moderation ${moderator.name} completed`,
-            text: `Mission updated: ${res.updated}, Events created: ${res.events}, Missions refused: ${res.refused}, Missions pending: ${res.pending}`,
+            title: `Moderation ${jva.name} completed`,
+            text: `No missions found in pending moderation yet`,
           },
           SLACK_CRON_CHANNEL_ID
         );
+        return {
+          success: true,
+          timestamp: new Date(),
+          moderators: result,
+        };
       }
+
+      const res = await createModerations(data, jva);
+      result?.push({
+        name: jva.name,
+        updated: res.updated,
+        events: res.events,
+        refused: res.refused,
+        pending: res.pending,
+      });
+      console.log(`[Moderation JVA] ${res.updated} missions updated`);
+      console.log(`[Moderation JVA] ${res.events} events created`);
+
+      await postMessage(
+        {
+          title: `Moderation JeVeuxAider.gouv.fr terminée`,
+          text: `\t• Nombre de missions procédées: ${data.length} (dont ${data.filter((e) => e[`moderation_${jva._id}_status`] === "PENDING").length} en attente de modération)\n\t• Nombre de missions refusées: ${res.refused}\n\t• Nombre de missions mises en attente de modération: ${res.pending}`,
+        },
+        SLACK_CRON_CHANNEL_ID
+      );
+
       console.log(`[Moderation] Ended at ${new Date().toISOString()} in ${(Date.now() - start.getTime()) / 1000}s`);
 
       return {
