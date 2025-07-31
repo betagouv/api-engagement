@@ -74,7 +74,7 @@ export class ModerationHandler implements BaseHandler<ModerationJobPayload, Mode
       await postMessage(
         {
           title: `Moderation JeVeuxAider.gouv.fr terminée`,
-          text: `\t• Nombre de missions procédées: ${data.length} (dont ${data.filter((e) => e[`moderation_${jva._id}_status`] === "PENDING").length} en attente de modération)\n\t• Nombre de missions refusées: ${res.refused}\n\t• Nombre de missions mises en attente de modération: ${res.pending}`,
+          text: `\t• Nombre de missions traitées: ${data.length} (dont ${data.filter((e) => e[`moderation_${jva._id}_status`] === "PENDING").length} en attente de modération)\n\t• Nombre de missions refusées: ${res.refused}\n\t• Nombre de missions mises en attente de modération: ${res.pending}`,
         },
         SLACK_CRON_CHANNEL_ID
       );
