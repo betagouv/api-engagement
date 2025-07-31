@@ -17,19 +17,13 @@ const getAPI = async (path) => {
 };
 
 const Filters = ({ widget, apiUrl, values, onChange, show, onShow }) => {
+  const { mobile } = useStore();
   const [options, setOptions] = useState({
     organizations: [],
     domains: [],
     departments: [],
     remote: [],
   });
-  const [isMobile, setIsMobile] = useState(false);
-
-  useEffect(() => {
-    setIsMobile(window.innerWidth < 768);
-    window.addEventListener("resize", () => setIsMobile(window.innerWidth < 768));
-    return () => window.removeEventListener("resize", () => {});
-  }, []);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -81,10 +75,11 @@ const Filters = ({ widget, apiUrl, values, onChange, show, onShow }) => {
         console.error(error);
       }
     };
+
     fetchData();
   }, [widget._id, values]);
 
-  if (isMobile) {
+  if (mobile) {
     return (
       <div className="flex w-full flex-col items-center gap-2">
         <MobileFilters

@@ -6,14 +6,7 @@ import useStore from "../utils/store";
 import Card from "./Card";
 
 const Grid = ({ widget, missions, total, page, handlePageChange, request }) => {
-  const { color } = useStore();
-  const [isMobile, setIsMobile] = useState(false);
-
-  useEffect(() => {
-    setIsMobile(window.innerWidth < 768);
-    window.addEventListener("resize", () => setIsMobile(window.innerWidth < 768));
-    return () => window.removeEventListener("resize", () => {});
-  }, []);
+  const { color, mobile } = useStore();
 
   if (total === 0) {
     return (
@@ -33,7 +26,7 @@ const Grid = ({ widget, missions, total, page, handlePageChange, request }) => {
           </div>
         ))}
       </main>
-      {isMobile ? (
+      {mobile ? (
         <MobilePagination page={page} setPage={handlePageChange} end={parseInt(total / 6) + (total % 6 !== 0 && 1)} />
       ) : (
         <Pagination page={page} setPage={handlePageChange} end={parseInt(total / 6) + (total % 6 !== 0 && 1)} color={color} />

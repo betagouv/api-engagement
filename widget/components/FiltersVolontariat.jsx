@@ -20,6 +20,7 @@ const getAPI = async (path) => {
 };
 
 const Filters = ({ widget, apiUrl, values, onChange, show, onShow }) => {
+  const { mobile } = useStore();
   const [options, setOptions] = useState({
     accessibility: [],
     action: [],
@@ -29,13 +30,6 @@ const Filters = ({ widget, apiUrl, values, onChange, show, onShow }) => {
     minor: [],
     schedule: [],
   });
-  const [isMobile, setIsMobile] = useState(false);
-
-  useEffect(() => {
-    setIsMobile(window.innerWidth < 768);
-    window.addEventListener("resize", () => setIsMobile(window.innerWidth < 768));
-    return () => window.removeEventListener("resize", () => {});
-  }, []);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -107,7 +101,7 @@ const Filters = ({ widget, apiUrl, values, onChange, show, onShow }) => {
     fetchData();
   }, [widget._id, values]);
 
-  if (isMobile) {
+  if (mobile) {
     return (
       <div className="w-full flex flex-col items-center gap-2">
         <MobileFilters

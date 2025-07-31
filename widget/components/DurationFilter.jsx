@@ -17,14 +17,14 @@ const DURATION_OPTIONS = [
 const DurationFilter = ({ selected, onChange, position = "left-0", width = "w-80" }) => {
   const { url, color } = useStore();
   const plausible = usePlausible();
-  const [isOpen, setIsOpen] = useState(false);
+  const [show, setShow] = useState(false);
   const [focusedIndex, setFocusedIndex] = useState(-1);
   const ref = useRef(null);
 
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (ref.current && !ref.current.contains(event.target)) {
-        setIsOpen(false);
+        setShow(false);
         setFocusedIndex(-1);
       }
     };
@@ -33,10 +33,10 @@ const DurationFilter = ({ selected, onChange, position = "left-0", width = "w-80
   }, []);
 
   const handleKeyDown = (e) => {
-    if (!isOpen) {
+    if (!show) {
       if (e.key === "Enter" || e.key === " " || e.key === "ArrowDown" || e.key === "ArrowUp") {
         e.preventDefault();
-        setIsOpen(true);
+        setShow(true);
         setFocusedIndex(e.key === "ArrowUp" ? DURATION_OPTIONS.length - 1 : 0);
       }
       return;
@@ -66,14 +66,14 @@ const DurationFilter = ({ selected, onChange, position = "left-0", width = "w-80
           // Duration option selected
           const item = DURATION_OPTIONS[focusedIndex];
           onChange(item);
-          setIsOpen(false);
+          setShow(false);
           setFocusedIndex(-1);
           plausible(`Filter duration selected`, { props: { filter: item.label }, u: url });
         }
         break;
       case "Escape":
         e.preventDefault();
-        setIsOpen(false);
+        setShow(false);
         setFocusedIndex(-1);
         break;
     }
@@ -87,7 +87,7 @@ const DurationFilter = ({ selected, onChange, position = "left-0", width = "w-80
       <button
         id="duration"
         aria-label="durée"
-        aria-expanded={isOpen}
+        aria-expanded={show}
         aria-haspopup="listbox"
         aria-activedescendant={focusedIndex >= 0 ? `duration-option-${focusedIndex}` : undefined}
         onKeyDown={handleKeyDown}
@@ -95,19 +95,15 @@ const DurationFilter = ({ selected, onChange, position = "left-0", width = "w-80
           !selected ? "text-[#666666]" : "text-[#161616]"
         }`}
         onClick={() => {
-          setIsOpen(!isOpen);
-          if (!isOpen) {
-            setFocusedIndex(0);
-          } else {
-            setFocusedIndex(-1);
-          }
+          setShow(!show);
+          setFocusedIndex(show ? -1 : 0);
         }}
       >
         <span className="pr-3 truncate max-w-60">{selected ? selected.label : "Durée"}</span>
-        {isOpen ? <RiArrowDownSLine className="text-xl transform rotate-180" /> : <RiArrowDownSLine className="text-xl" />}
+        {show ? <RiArrowDownSLine className="text-xl transform rotate-180" /> : <RiArrowDownSLine className="text-xl" />}
       </button>
 
-      <div className={`absolute ${position} mt-1 z-50 ${width} border border-[#DDDDDD] bg-white shadow-md ${isOpen ? "block" : "hidden"}`}>
+      <div className={`absolute ${position} mt-1 z-50 ${width} border border-[#DDDDDD] bg-white shadow-md ${show ? "block" : "hidden"}`}>
         <ul className="p-6 w-full overflow-auto" role="listbox" aria-label="Durée maximale de la mission">
           <div className="mb-4">
             <label className="text-base font-bold">Durée maximale de la mission</label>
@@ -122,7 +118,7 @@ const DurationFilter = ({ selected, onChange, position = "left-0", width = "w-80
                 className={`w-full flex items-center text-sm px-4 py-2 cursor-pointer ${index === focusedIndex ? "bg-[#0000000A]" : "hover:bg-[#0000000A]"}`}
                 onClick={() => {
                   onChange(item);
-                  setIsOpen(false);
+                  setShow(false);
                   setFocusedIndex(-1);
                   plausible(`Filter duration selected`, { props: { filter: item.label }, u: url });
                 }}
@@ -140,7 +136,7 @@ const DurationFilter = ({ selected, onChange, position = "left-0", width = "w-80
             style={{ color: color ? color : "" }}
             onClick={() => {
               onChange(null);
-              setIsOpen(false);
+              setShow(false);
               setFocusedIndex(-1);
               plausible("Filter duration erased", { u: url });
             }}
