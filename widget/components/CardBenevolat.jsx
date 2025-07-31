@@ -1,44 +1,55 @@
 import iso from "i18n-iso-countries";
 import Image from "next/image";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { RiBuildingFill } from "react-icons/ri";
 
 import { DOMAINS } from "../config";
 
-const Card = ({ widget, mission, request }) => {
+const Card = ({ widget, mission, request, onFocus = null }) => {
+  const ref = useRef(null);
+  const [address, setAddress] = useState("");
+  const [domain, setDomain] = useState(DOMAINS[mission.domain] || DOMAINS.autre);
   const [error, setError] = useState(false);
+
+  useEffect(() => {
+    if (!mission) {
+      return;
+    }
+    setAddress(
+      mission.remote === "full"
+        ? "À distance"
+        : mission.addresses?.length > 1
+          ? mission.addresses.map((a) => a.city).join(", ")
+          : `${mission.city} ${mission.country !== "FR" ? `- ${iso.getName(mission.country, "fr")}` : ""}`,
+    );
+    setDomain(DOMAINS[mission.domain] || DOMAINS.autre);
+  }, [mission]);
+
+  useEffect(() => {
+    if (onFocus) {
+      onFocus(ref);
+    }
+  }, [onFocus]);
+
   if (!mission) {
     return null;
   }
 
-  const address =
-    mission.remote === "full"
-      ? "à distance"
-      : mission.addresses?.length > 1
-        ? mission.addresses.map((a) => a.city).join(", ")
-        : `${mission.city} ${mission.country !== "FR" ? `- ${iso.getName(mission.country, "fr")}` : ""}`;
-
-  const domain = DOMAINS[mission.domain] || DOMAINS.autre;
-
   return (
-    <a
-      tabIndex={0}
-      href={mission.url}
-      target="_blank"
+    <div
       data-testid="mission-card"
-      rel="noopener noreferrer"
       className={`${
         widget.style === "carousel"
           ? "max-h-[420px] min-h-[420px] w-full lg:max-w-[336px] xl:max-h-[460px] xl:min-h-[460px]"
           : "max-h-[420px] min-h-[420px] w-full lg:max-h-[440px] lg:min-h-[440px]"
-      } group mx-auto flex h-full flex-col overflow-hidden border border-[#DDDDDD] transition-shadow duration-300 hover:shadow-lg focus:outline-none focus-visible:ring focus-visible:ring-blue-800`}
+      } relative group mx-auto flex h-full flex-col overflow-hidden border border-[#DDDDDD] transition-shadow duration-300 hover:shadow-lg ${onFocus !== null ? "ring-2 ring-blue-600 ring-offset-0" : "focus-within:ring-2 focus-within:ring-blue-600 focus-within:ring-offset-0"}`}
     >
       <div className="max-h-[188px] min-h-[188px] overflow-hidden xl:max-h-[200px] xl:min-h-[200px]">
         <Image
           src={error ? "/generique.jpeg" : mission.domainLogo}
           alt={mission.title}
           priority={true}
-          className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-110"
+          className={`h-full w-full object-cover transition-transform duration-300 ${onFocus !== null ? "scale-110" : "group-hover:scale-110 group-focus-within:scale-110"}`}
           width={500}
           height={500}
           onError={() => setError(true)}
@@ -56,7 +67,19 @@ const Card = ({ widget, mission, request }) => {
           </div>
 
           <div className="mb-4 h-[4.5rem]">
-            <h2 className="line-clamp-3 text-xl font-semibold leading-tight transition-colors duration-300 group-hover:text-[#000091]">{mission.title}</h2>
+            <a
+              ref={ref}
+              href={mission.url}
+              target="_blank"
+              className="after:absolute after:top-0 after:left-0 after:right-0 after:bottom-0 focus:outline-none"
+              tabIndex={widget.style === "carousel" ? -1 : 0}
+            >
+              <h2
+                className={`line-clamp-3 text-xl font-semibold leading-tight transition-colors duration-300 ${onFocus !== null ? "text-[#000091]" : "group-hover:text-[#000091] group-focus-within:text-[#000091]"}`}
+              >
+                {mission.title}
+              </h2>
+            </a>
           </div>
 
           <div className="mb-4 flex flex-col">
@@ -69,7 +92,7 @@ const Card = ({ widget, mission, request }) => {
           <span name="tracker_counter" data-id={mission._id} data-publisher={widget.fromPublisherId.toString()} data-source={widget._id.toString()} data-request={request} />
         </div>
       </div>
-    </a>
+    </div>
   );
 };
 

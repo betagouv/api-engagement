@@ -250,7 +250,7 @@ const Home = ({ widget, apiUrl, missions, total, request, environment }) => {
           onShow={setShowFilters}
         />
       </header>
-      <div className={`w-full ${showFilters ? (widget?.style === "carousel" ? "hidden" : "opacity-40 pointer-events-none") : "h-auto overflow-x-hidden"}`}>
+      <div className={`w-full ${showFilters ? (widget?.style === "carousel" ? "hidden" : "opacity-40 pointer-events-none") : "h-auto"}`}>
         {widget?.style === "carousel" ? (
           <Carousel widget={widget} missions={missions} total={total} request={request} />
         ) : (
