@@ -1,9 +1,11 @@
 import { usePlausible } from "next-plausible";
-import { useEffect, useRef, useState } from "react";
-import { RiArrowDownSLine, RiArrowUpSLine, RiCheckboxBlankLine, RiCheckboxFill, RiCloseFill, RiMapPin2Fill, RiSearchLine } from "react-icons/ri";
+import { useEffect, useState } from "react";
+import { RiArrowDownSLine, RiArrowUpSLine } from "react-icons/ri";
 
 import { DOMAINS } from "../config";
 import useStore from "../utils/store";
+import LocationFilter from "./LocationFilter";
+import SelectFilter from "./SelectFilter";
 
 const getAPI = async (path) => {
   const response = await fetch(path, { method: "GET" });
@@ -15,19 +17,13 @@ const getAPI = async (path) => {
 };
 
 const Filters = ({ widget, apiUrl, values, onChange, show, onShow }) => {
+  const { mobile } = useStore();
   const [options, setOptions] = useState({
     organizations: [],
     domains: [],
     departments: [],
     remote: [],
   });
-  const [isMobile, setIsMobile] = useState(false);
-
-  useEffect(() => {
-    setIsMobile(window.innerWidth < 768);
-    window.addEventListener("resize", () => setIsMobile(window.innerWidth < 768));
-    return () => window.removeEventListener("resize", () => {});
-  }, []);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -79,10 +75,11 @@ const Filters = ({ widget, apiUrl, values, onChange, show, onShow }) => {
         console.error(error);
       }
     };
+
     fetchData();
   }, [widget._id, values]);
 
-  if (isMobile) {
+  if (mobile) {
     return (
       <div className="flex w-full flex-col items-center gap-2">
         <MobileFilters
@@ -126,7 +123,7 @@ const MobileFilters = ({ options, values, onChange, show, onShow, disabledLocati
   return (
     <>
       <div className="w-full">
-        <LocationFilter selected={values.location} onChange={(l) => onChange({ ...values, location: l })} disabled={disabledLocation} color={color} width="w-full" />
+        <LocationFilter selected={values.location} onChange={(l) => onChange({ ...values, location: l })} disabled={disabledLocation} width="w-full" />
       </div>
       <div className="w-full border-y border-[#DDD]">
         <button
@@ -143,14 +140,13 @@ const MobileFilters = ({ options, values, onChange, show, onShow, disabledLocati
         {show && (
           <div className="mt-2 w-full">
             <div className="mb-4 w-full">
-              <RemoteFilter
+              <SelectFilter
                 id="remote"
                 options={options.remote}
                 selectedOptions={values.remote}
                 onChange={(f) => onChange({ ...values, remote: f })}
                 placeholder="Présentiel / Distance"
                 width="w-full"
-                color={color}
               />
             </div>
             <div className="mb-4 w-full">
@@ -161,7 +157,6 @@ const MobileFilters = ({ options, values, onChange, show, onShow, disabledLocati
                 onChange={(v) => onChange({ ...values, domain: v })}
                 placeholder="Domaines"
                 width="w-full"
-                color={color}
               />
             </div>
             <div className="mb-4 w-full">
@@ -172,7 +167,6 @@ const MobileFilters = ({ options, values, onChange, show, onShow, disabledLocati
                 onChange={(v) => onChange({ ...values, department: v })}
                 placeholder="Départements"
                 width="w-full"
-                color={color}
               />
             </div>
             <div className="mb-4 w-full">
@@ -183,7 +177,6 @@ const MobileFilters = ({ options, values, onChange, show, onShow, disabledLocati
                 onChange={(v) => onChange({ ...values, organization: v })}
                 placeholder="Organisations"
                 width="w-full"
-                color={color}
               />
             </div>
             <div className="flex w-full flex-col gap-2">
@@ -218,31 +211,22 @@ const MobileFilters = ({ options, values, onChange, show, onShow, disabledLocati
 };
 
 const DesktopFilters = ({ options, values, onChange, disabledLocation = false }) => {
-  const { color } = useStore();
   return (
     <>
       <div className="w-[20%] pr-2">
-        <LocationFilter selected={values.location} onChange={(l) => onChange({ ...values, location: l })} disabled={disabledLocation} color={color} />
+        <LocationFilter selected={values.location} onChange={(l) => onChange({ ...values, location: l })} disabled={disabledLocation} />
       </div>
       <div className="w-[20%] px-2">
-        <RemoteFilter
+        <SelectFilter
           id="remote"
           options={options.remote}
           selectedOptions={values.remote}
           onChange={(f) => onChange({ ...values, remote: f })}
           placeholder="Présentiel / Distance"
-          color={color}
         />
       </div>
       <div className="w-[20%] px-2">
-        <SelectFilter
-          id="domain"
-          options={options.domains}
-          selectedOptions={values.domain}
-          onChange={(v) => onChange({ ...values, domain: v })}
-          placeholder="Domaines"
-          color={color}
-        />
+        <SelectFilter id="domain" options={options.domains} selectedOptions={values.domain} onChange={(v) => onChange({ ...values, domain: v })} placeholder="Domaines" />
       </div>
       <div className="w-[20%] px-2">
         <SelectFilter
@@ -251,7 +235,6 @@ const DesktopFilters = ({ options, values, onChange, disabledLocation = false })
           selectedOptions={values.department}
           onChange={(v) => onChange({ ...values, department: v })}
           placeholder="Départements"
-          color={color}
         />
       </div>
       <div className="w-[20%] pl-2">
@@ -262,354 +245,10 @@ const DesktopFilters = ({ options, values, onChange, disabledLocation = false })
           onChange={(v) => onChange({ ...values, organization: v })}
           placeholder="Organisations"
           position="right-0"
-          color={color}
+          width="w-96"
         />
       </div>
     </>
-  );
-};
-
-const SelectFilter = ({ options, selectedOptions, onChange, id, placeholder = "Choissiez une option", position = "left-0", width = "w-80" }) => {
-  const { url, color } = useStore();
-  const plausible = usePlausible();
-  const [isOpen, setIsOpen] = useState(false);
-  const [search, setSearch] = useState("");
-  const ref = useRef(null);
-  const searchRef = useRef(null);
-
-  useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (ref.current && !ref.current.contains(event.target)) {
-        setIsOpen(false);
-      }
-    };
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, []);
-
-  const toggleOption = (option) => {
-    if (!selectedOptions) {
-      return onChange([option]);
-    }
-    if (selectedOptions.some((o) => o.value === option.value)) {
-      onChange(selectedOptions.filter((o) => o.value !== option.value));
-    } else {
-      onChange([...selectedOptions, option]);
-    }
-  };
-
-  return (
-    <div className="relative w-full min-w-[6rem]" ref={ref}>
-      <label htmlFor={id} className="sr-only">
-        {placeholder}
-      </label>
-      <button
-        id={id}
-        onClick={() => setIsOpen(!isOpen)}
-        className={`flex h-[40px] w-full cursor-pointer items-center justify-between rounded-t-md border-b-2 border-[#3A3A3A] bg-[#EEE] p-3 focus:outline-none focus-visible:ring focus-visible:ring-blue-800 ${
-          !selectedOptions?.length ? "text-[#666666]" : "text-[#161616]"
-        }`}
-      >
-        <span className="max-w-60 truncate pr-3">
-          {!selectedOptions || selectedOptions.some((o) => o === undefined)
-            ? placeholder
-            : selectedOptions.length > 0
-              ? `${selectedOptions[0].label}${selectedOptions.length > 1 ? ` +${selectedOptions.length - 1}` : ""}`
-              : placeholder}
-        </span>
-        {isOpen ? <RiArrowDownSLine className="rotate-180 transform text-xl" /> : <RiArrowDownSLine className="text-xl" />}
-      </button>
-
-      {isOpen && (
-        <div className={`absolute ${position} z-50 ${width} bg-white text-base shadow-[0_0_12px_rgba(0,0,0,0.15)] focus:outline-none`}>
-          <div className="p-2">
-            <div className="flex w-full items-center justify-between border border-gray-300 p-2 focus:outline-none">
-              <RiSearchLine className="text-[#929292]" />
-              <input
-                ref={searchRef}
-                type="text"
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-                placeholder="Rechercher"
-                className="w-full rounded-lg pl-3 text-sm focus:outline-none"
-              />
-            </div>
-          </div>
-
-          <div className="max-h-60 w-full overflow-auto py-3">
-            {!options?.filter((o) => o.label?.toLowerCase().includes(search.toLowerCase()))?.length ? (
-              <div className="text-center text-sm">Aucune option disponible</div>
-            ) : (
-              options
-                ?.filter((o) => o.label?.toLowerCase().includes(search.toLowerCase()))
-                ?.map((o) => {
-                  const isSelected = selectedOptions?.some((so) => so.value === o.value);
-                  return (
-                    <button
-                      key={o.value}
-                      onClick={() => {
-                        toggleOption(o);
-                        plausible(`Filter ${id} selected`, { props: { filter: o.label }, u: url });
-                      }}
-                      className={`flex w-full cursor-pointer items-center justify-between py-2 pl-3 pr-4 text-sm hover:bg-gray-100`}
-                    >
-                      <div className="flex w-[90%] items-center">
-                        <div className="text-sm">{isSelected ? <RiCheckboxFill style={{ height: "16px", width: "16px", color }} /> : <RiCheckboxBlankLine />}</div>
-                        <span className="mx-2 block truncate text-sm font-normal text-[#161616]">{o.label}</span>
-                      </div>
-                      {o.count && <span className="text-neutral-grey-500 text-sm">{o.count}</span>}
-                    </button>
-                  );
-                })
-            )}
-          </div>
-
-          <div className="flex w-full items-center justify-between border-t border-gray-300 p-2">
-            <button
-              className={`text-sm text-[#3633A1] hover:underline cursor-pointer`}
-              onClick={() => {
-                onChange([]);
-                setIsOpen(false);
-                plausible(`Filter ${id} erased`, { u: url });
-              }}
-              style={{ color }}
-            >
-              Réinitialiser
-            </button>
-            <button
-              className={`p-2 text-sm text-white focus:outline-none ${!selectedOptions || selectedOptions.length === 0 ? "cursor-not-allowed opacity-50" : "cursor-pointer"}`}
-              style={{
-                backgroundColor: color ? color : "",
-              }}
-              disabled={!selectedOptions || selectedOptions.length === 0}
-              onClick={() => {
-                setIsOpen(false);
-                plausible(`Filters applied`, { u: url });
-              }}
-            >
-              Appliquer
-            </button>
-          </div>
-        </div>
-      )}
-    </div>
-  );
-};
-
-const LocationFilter = ({ selected, onChange, disabled = false, width = "w-80" }) => {
-  const { url } = useStore();
-  const plausible = usePlausible();
-  const [isOpen, setIsOpen] = useState(false);
-  const [options, setOptions] = useState([]);
-  const [inputValue, setInputValue] = useState(selected?.label || "");
-  const ref = useRef(null);
-
-  useEffect(() => {
-    setInputValue(selected?.label || "");
-  }, [selected]);
-
-  useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (ref.current && !ref.current.contains(event.target)) {
-        setIsOpen(false);
-        setOptions([]);
-      }
-    };
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, []);
-
-  const handleInputChange = async (e) => {
-    const search = e.target.value;
-    setInputValue(search);
-
-    if (search?.length > 3) {
-      const res = await fetch(`https://api-adresse.data.gouv.fr/search?q=${search}&type=municipality&autocomplete=1&limit=6`).then((r) => r.json());
-      if (!res.features) {
-        return;
-      }
-      setOptions(
-        res.features.map((f) => ({
-          label: `${f.properties.name} (${f.properties.postcode})`,
-          value: f.properties.id,
-          lat: f.geometry.coordinates[1],
-          lon: f.geometry.coordinates[0],
-          city: f.properties.city,
-          postcode: f.properties.postcode,
-          name: f.properties.name,
-        })),
-      );
-      setIsOpen(true);
-    } else {
-      setOptions([]);
-      setIsOpen(false);
-    }
-  };
-
-  return (
-    <div className="relative w-full" ref={ref}>
-      <label htmlFor="location" className="sr-only">
-        Localisation
-      </label>
-      <div className="bg-[#EEE] rounded-t-md border-b-2 border-[#3A3A3A] p-3 focus:outline-none focus-visible:ring focus-visible:ring-blue-800 flex items-center justify-between h-[40px]">
-        <RiMapPin2Fill className="text-[#929292]" />
-        {disabled ? (
-          <input className="pl-3 w-full text-sm ring-0 focus:ring-0 focus:outline-none min-w-[6rem] opacity-75" defaultValue={selected?.label} disabled />
-        ) : (
-          <>
-            <input
-              id="location"
-              aria-label="localisation"
-              className={`pl-3 w-full ring-0 focus:ring-0 bg-[#EEE] focus:outline-none min-w-[6rem] ${!selected ? "text-[#666666] placeholder-[#666666]" : "text-[#161616]"}`}
-              value={inputValue}
-              placeholder="Localisation"
-              onChange={handleInputChange}
-            />
-            {selected && (
-              <button
-                className="text-sm text-neutral-grey-700"
-                onClick={() => {
-                  onChange(null);
-                  setInputValue("");
-                  plausible("Location erased", { u: url });
-                }}
-              >
-                <RiCloseFill />
-              </button>
-            )}
-          </>
-        )}
-      </div>
-
-      {options.length > 0 && isOpen && (
-        <div className={`absolute z-50 mt-1 max-h-60 ${width} overflow-auto border border-[#DDDDDD] bg-white py-1 shadow-[0_0_12px_rgba(0,0,0,0.15)]`}>
-          {options.map((option) => (
-            <div
-              key={option.value}
-              className="cursor-pointer flex items-center justify-between py-2 px-3"
-              onClick={() => {
-                onChange(option);
-                setInputValue(option.label);
-                setIsOpen(false);
-                plausible("Location selected", { props: { location: option.label }, u: url });
-              }}
-            >
-              <span className="block text-sm truncate font-normal">{option.label}</span>
-            </div>
-          ))}
-        </div>
-      )}
-    </div>
-  );
-};
-
-const RemoteFilter = ({ options, selectedOptions, onChange, id, placeholder = "Choissiez une option", position = "left-0", width = "w-80" }) => {
-  const { url, color } = useStore();
-  const plausible = usePlausible();
-  const [isOpen, setIsOpen] = useState(false);
-  const ref = useRef(null);
-
-  useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (ref.current && !ref.current.contains(event.target)) {
-        setIsOpen(false);
-      }
-    };
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, []);
-
-  const toggleOption = (option) => {
-    if (!selectedOptions) {
-      return onChange([option]);
-    }
-    const exists = selectedOptions.find((o) => o.value === option.value);
-    if (exists) {
-      onChange(selectedOptions.filter((o) => o.value !== option.value));
-    } else {
-      onChange([...selectedOptions, option]);
-    }
-  };
-
-  return (
-    <div className="relative w-full min-w-[6rem]" ref={ref}>
-      <label htmlFor={id} className="sr-only">
-        {placeholder}
-      </label>
-      <button
-        id={id}
-        aria-label={placeholder}
-        className={`flex h-[40px] w-full cursor-pointer items-center justify-between rounded-t-md border-b-2 border-[#3A3A3A] bg-[#EEE] p-3 focus:outline-none focus-visible:ring focus-visible:ring-blue-800 ${
-          !selectedOptions?.length ? "text-[#666666]" : "text-[#161616]"
-        }`}
-        onClick={() => setIsOpen(!isOpen)}
-      >
-        <span className="max-w-60 truncate pr-3">
-          {!selectedOptions || selectedOptions.some((o) => o === undefined)
-            ? placeholder
-            : selectedOptions.length > 0
-              ? `${selectedOptions[0].label}${selectedOptions.length > 1 ? ` +${selectedOptions.length - 1}` : ""}`
-              : placeholder}
-        </span>
-        {isOpen ? <RiArrowDownSLine className="rotate-180 transform text-xl" /> : <RiArrowDownSLine className="text-xl" />}
-      </button>
-
-      {isOpen && (
-        <div className={`absolute ${position} z-50 ${width} bg-white text-base shadow-[0_0_12px_rgba(0,0,0,0.15)] focus:outline-none`}>
-          <div className="max-h-60 w-full overflow-auto py-3">
-            {options?.length === 0 ? (
-              <div className="text-center text-sm">Aucune option disponible</div>
-            ) : (
-              options?.map((o) => {
-                const isSelected = selectedOptions?.some((so) => so.value === o.value);
-                return (
-                  <button
-                    key={o.value}
-                    onClick={() => {
-                      toggleOption(o);
-                      plausible("Remote filter selected", { props: { remote: o.label }, u: url });
-                    }}
-                    className="flex w-full cursor-pointer items-center justify-between py-2 pl-3 pr-4 text-sm hover:bg-gray-100"
-                  >
-                    <div className="flex w-[90%] items-center">
-                      <div className="text-sm">{isSelected ? <RiCheckboxFill style={{ height: "16px", width: "16px", color }} /> : <RiCheckboxBlankLine />}</div>
-                      <span className="mx-2 block truncate text-sm font-normal">{o.label}</span>
-                    </div>
-                    {o.count && <span className="text-neutral-grey-500 text-sm">{o.count}</span>}
-                  </button>
-                );
-              })
-            )}
-          </div>
-          <div className="flex w-full items-center justify-between border-t border-gray-300 p-2">
-            <button
-              className="text-sm text-[#3633A1] hover:underline cursor-pointer"
-              onClick={() => {
-                onChange([]);
-                setIsOpen(false);
-                plausible("Remote filter erased", { u: url });
-              }}
-              style={{ color }}
-            >
-              Réinitialiser
-            </button>
-            <button
-              className={`p-2 text-sm text-white focus:outline-none ${!selectedOptions || selectedOptions.length === 0 ? "cursor-not-allowed opacity-50" : "cursor-pointer"}`}
-              style={{
-                backgroundColor: color ? color : "",
-              }}
-              disabled={!selectedOptions || selectedOptions.length === 0}
-              onClick={() => {
-                setIsOpen(false);
-                plausible(`Filters applied`, { u: url });
-              }}
-            >
-              Appliquer
-            </button>
-          </div>
-        </div>
-      )}
-    </div>
   );
 };
 
