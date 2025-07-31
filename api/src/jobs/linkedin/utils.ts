@@ -8,7 +8,7 @@ import { missionToLinkedinJob } from "./transformers";
 import { LinkedInJob } from "./types";
 
 export function getMissionsCursor(where: { [key: string]: any }) {
-  return MissionModel.find(where).sort({ createdAt: "asc" }).limit(10).lean().cursor();
+  return MissionModel.find(where).sort({ createdAt: "asc" }).lean().cursor();
 }
 
 export async function generateJvaJobs(missionsCursor: AsyncIterable<Mission>): Promise<{ jobs: LinkedInJob[]; expired: number; skipped: number; processed: number }> {
