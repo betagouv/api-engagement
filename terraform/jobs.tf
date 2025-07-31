@@ -173,7 +173,7 @@ resource "scaleway_job_definition" "moderation" {
   timeout      = "15m"
 
   cron {
-    schedule = "0 */3 * * *" # Every 3 hours
+    schedule = "55 */3 * * *" # Every 3 hours at 55 minutes (after import-missions)
     timezone = "Europe/Paris"
   }
 

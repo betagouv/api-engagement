@@ -1,8 +1,10 @@
 import fs from "fs";
 
-import { ENV, PUBLISHER_IDS } from "../../config";
+import { ENV, PUBLISHER_IDS, SLACK_CRON_CHANNEL_ID } from "../../config";
 import ImportModel from "../../models/import";
 import PublisherModel from "../../models/publisher";
+import { postMessage } from "../../services/slack";
+import { getJobTime } from "../../utils";
 import { BaseHandler } from "../base/handler";
 import { JobResult } from "../types";
 import { PARTNERS_IDS } from "./config";
@@ -102,6 +104,15 @@ export class LinkedinHandler implements BaseHandler<LinkedinJobPayload, Linkedin
         status: "SUCCESS",
         failed: { data: [] },
       });
+
+      const time = getJobTime(start);
+      await postMessage(
+        {
+          title: `Génération du feed Linkedin terminée en ${time}`,
+          text: `\t• Nombre de missions traitées: ${result.counter.processed}\n\t• Nombre de missions envoyées dans le feed: ${result.counter.sent}\n\t• Nombre de missions expirées: ${result.counter.expired}\n\t• Nombre de missions ignorées: ${result.counter.skipped}`,
+        },
+        SLACK_CRON_CHANNEL_ID
+      );
 
       return {
         success: true,

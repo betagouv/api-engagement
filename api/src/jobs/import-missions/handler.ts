@@ -6,6 +6,7 @@ import { SLACK_CRON_CHANNEL_ID } from "../../config";
 import MissionModel from "../../models/mission";
 import { postMessage } from "../../services/slack";
 import { Import, Mission, Publisher } from "../../types";
+import { getJobTime } from "../../utils";
 import { BaseHandler } from "../base/handler";
 import { JobResult } from "../types";
 import { bulkDB, cleanDB } from "./utils/db";
@@ -66,15 +67,17 @@ export class ImportMissionsHandler implements BaseHandler<ImportMissionsJobPaylo
       }
     }
 
+    const time = getJobTime(start);
+
     await postMessage(
       {
-        title: `Import des flux XML terminée`,
+        title: `Import des flux XML terminée en ${time}`,
         text: `\t• Nombre de missions totales: ${processed}\n\t• Nombre de missions mises à jour: ${updated}\n\t• Nombre de missions créées: ${created}\n\t• Nombre de missions supprimées: ${deleted}`,
       },
       SLACK_CRON_CHANNEL_ID
     );
 
-    console.log(`[Import XML] Ended at ${new Date().toISOString()} in ${(Date.now() - start.getTime()) / 1000}s`);
+    console.log(`[Import XML] Ended at ${new Date().toISOString()} in ${time}`);
     return {
       success: true,
       start,

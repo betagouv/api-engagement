@@ -1,6 +1,9 @@
 import { Address, MissionHistoryEvent } from "@prisma/client";
+import { SLACK_CRON_CHANNEL_ID } from "../../config";
 import prisma from "../../db/postgres";
 import MissionModel from "../../models/mission";
+import { postMessage } from "../../services/slack";
+import { getJobTime } from "../../utils";
 import { BaseHandler } from "../base/handler";
 import { ExportMissionsToPgJobPayload, ExportMissionsToPgJobResult } from "./types";
 import { getMongoMissionsToSync, getOrganizationsFromMissions } from "./utils/helpers";
@@ -95,6 +98,15 @@ export class ExportMissionsToPgHandler implements BaseHandler<ExportMissionsToPg
       await MissionModel.updateMany({ _id: { $in: batch.map((m) => m._id) } }, { $set: { lastExportedToPgAt: new Date() } }, { timestamps: false });
       console.log(`[Export missions to PG] Updated lastExportedToPgAt for ${batch.length} missions (batch)`);
     }
+
+    const time = getJobTime(start);
+    await postMessage(
+      {
+        title: `Export des missions vers PG terminée en ${time}`,
+        text: `\t• Nombre de missions traitées: ${counter.total}\n\t• Nombre de missions traitées avec succès: ${counter.processed}\n\t• Nombre de missions en erreur: ${counter.error}\n\t• Nombre de missions supprimées: ${counter.deleted}`,
+      },
+      SLACK_CRON_CHANNEL_ID
+    );
 
     return {
       success: true,

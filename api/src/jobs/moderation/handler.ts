@@ -2,6 +2,7 @@ import { PUBLISHER_IDS, SLACK_CRON_CHANNEL_ID } from "../../config";
 import { captureException } from "../../error";
 import PublisherModel from "../../models/publisher";
 import { postMessage } from "../../services/slack";
+import { getJobTime } from "../../utils";
 import { BaseHandler } from "../base/handler";
 import { JobResult } from "../types";
 import { createModerations, findMissions } from "./utils";
@@ -71,15 +72,16 @@ export class ModerationHandler implements BaseHandler<ModerationJobPayload, Mode
       console.log(`[Moderation JVA] ${res.updated} missions updated`);
       console.log(`[Moderation JVA] ${res.events} events created`);
 
+      const time = getJobTime(start);
       await postMessage(
         {
-          title: `Moderation JeVeuxAider.gouv.fr terminée`,
+          title: `Moderation JeVeuxAider.gouv.fr terminée en ${time}`,
           text: `\t• Nombre de missions traitées: ${data.length} (dont ${data.filter((e) => e[`moderation_${jva._id}_status`] === "PENDING").length} en attente de modération)\n\t• Nombre de missions refusées: ${res.refused}\n\t• Nombre de missions mises en attente de modération: ${res.pending}`,
         },
         SLACK_CRON_CHANNEL_ID
       );
 
-      console.log(`[Moderation] Ended at ${new Date().toISOString()} in ${(Date.now() - start.getTime()) / 1000}s`);
+      console.log(`[Moderation] Ended at ${new Date().toISOString()} in ${time}`);
 
       return {
         success: true,
