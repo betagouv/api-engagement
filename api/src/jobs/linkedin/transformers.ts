@@ -1,4 +1,4 @@
-import { Mission } from "../../types";
+import { AddressItem, Mission } from "../../types";
 import { getMissionTrackedApplicationUrl } from "../../utils";
 import { LINKEDIN_COMPANY_ID, LINKEDIN_INDUSTRY_CODE, LINKEDIN_PUBLISHER_ID } from "./config";
 import { LinkedInJob } from "./types";
@@ -13,9 +13,6 @@ import { getAudienceLabel, getDomainLabel } from "./utils";
  * @returns LinkedInJob | null
  */
 export function missionToLinkedinJob(mission: Mission, defaultCompany: string): LinkedInJob | null {
-  if (!mission.country) {
-    mission.country = "FR";
-  }
   if (!mission.title) {
     return null;
   }
@@ -66,7 +63,7 @@ export function missionToLinkedinJob(mission: Mission, defaultCompany: string): 
         blocks.push("</ol>");
       }
 
-      if (mission.audience) {
+      if (Array.isArray(mission.audience) && mission.audience.length > 0) {
         blocks.push("<p><b>Public accompagné durant la mission : </b></p>");
         blocks.push(`<p>${mission.audience.map((audience) => getAudienceLabel(audience)).join(" - ")}</p>`);
       }
@@ -81,10 +78,11 @@ export function missionToLinkedinJob(mission: Mission, defaultCompany: string): 
       return blocks.join("\n");
     })(),
     company: LINKEDIN_COMPANY_ID[mission.organizationName] ? mission.organizationName : defaultCompany,
-    location: `${mission.city ? `${mission.city}, ` : ""}${mission.country === "FR" ? "France" : mission.country}${mission.region ? `, ${mission.region}` : ""}`,
-    country: mission.country,
-    city: mission.city,
-    postalCode: mission.postalCode,
+    location: mission.addresses.length > 0 ? formatLocation(mission.addresses[0]) : "",
+    alternateLocations: mission.addresses.length > 1 ? { alternateLocation: mission.addresses.map((address) => formatLocation(address)).slice(0, 7) } : undefined, // Limit to 7 locations
+    country: (mission.addresses?.length ?? 0) === 0 ? mission.country || "FR" : undefined,
+    city: (mission.addresses?.length ?? 0) === 0 ? mission.city : undefined,
+    postalCode: (mission.addresses?.length ?? 0) === 0 ? mission.postalCode : undefined,
     listDate: new Date(mission.createdAt).toISOString(),
     industryCodes: LINKEDIN_INDUSTRY_CODE[mission.domain] ? [{ industryCode: LINKEDIN_INDUSTRY_CODE[mission.domain] }] : undefined,
     workplaceTypes: mission.remote === "no" ? "On-site" : mission.remote === "full" ? "Remote" : "Hybrid",
@@ -97,9 +95,13 @@ export function missionToLinkedinJob(mission: Mission, defaultCompany: string): 
   if (!job.description || job.description.length < 100 || job.description.length > 25000) {
     return null;
   }
-  if (!job.country || job.country.length > 2) {
+  if (job.country && job.country.length > 2) {
     return null;
   }
 
   return job;
+}
+
+export function formatLocation(address: AddressItem) {
+  return `${address.city ? `${address.city}, ` : ""}${address.country === "FR" ? "France" : address.country}`;
 }

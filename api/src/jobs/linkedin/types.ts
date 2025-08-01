@@ -10,7 +10,7 @@ export interface LinkedInJob {
   publisherURL?: string;
   publisher?: string;
   expectedJobCount?: number;
-  alternateLocations?: string[];
+  alternateLocations?: { alternateLocation: string[] };
   city?: string;
   state?: string;
   country?: string;
