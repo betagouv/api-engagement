@@ -21,6 +21,7 @@ export interface LetudiantJobResult extends JobResult {
     processed: number;
     created: number;
     updated: number;
+    deleted: number;
     skipped: number;
     error: number;
   };
@@ -43,6 +44,7 @@ export class LetudiantHandler implements BaseHandler<LetudiantJobPayload, Letudi
     const counter = {
       created: 0,
       updated: 0,
+      deleted: 0,
       skipped: 0,
       error: 0,
     };
@@ -76,7 +78,11 @@ export class LetudiantHandler implements BaseHandler<LetudiantJobPayload, Letudi
           if (letudiantPublicId) {
             console.log(`[LetudiantHandler] Updating job ${mission._id} - ${jobPayload.localisation} (${letudiantPublicId})`);
             pilotyJob = await pilotyClient.updateJob(letudiantPublicId, jobPayload);
-            counter.updated++;
+            if (jobPayload.state === "archived") {
+              counter.deleted++;
+            } else {
+              counter.updated++;
+            }
           } else {
             console.log(`[LetudiantHandler] Creating job ${mission._id} - ${jobPayload.localisation}`);
             pilotyJob = await pilotyClient.createJob(jobPayload);

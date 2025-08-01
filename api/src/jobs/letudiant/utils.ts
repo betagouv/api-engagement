@@ -39,27 +39,33 @@ export async function getMissionsToSync(id?: string, limit = 10): Promise<Hydrat
   const republishingDate = new Date(Date.now() - DAYS_AFTER_REPUBLISH * 24 * 60 * 60 * 1000);
 
   const missions = await MissionModel.find({
-    deletedAt: null,
-    statusCode: "ACCEPTED",
-    publisherId: {
-      $in: WHITELISTED_PUBLISHERS_IDS,
-    },
+    publisherId: { $in: WHITELISTED_PUBLISHERS_IDS },
     organizationId: {
       $exists: true,
       $ne: null,
       // Ensure the string is a 24-character hex string (Mongo ObjectId)
       $regex: /^[0-9a-fA-F]{24}$/,
     },
-    letudiantError: {
-      $exists: false,
-    },
+    letudiantError: { $exists: false },
     $or: [
-      // Updated since last sync
-      { $expr: { $lt: ["$letudiantUpdatedAt", "$updatedAt"] } },
-      // Deleted since last sync
-      { $expr: { $lt: ["$letudiantUpdatedAt", "$deletedAt"] } },
-      // Missions not synced for more than X days or not synced at all
-      { $or: [{ letudiantUpdatedAt: { $exists: false } }, { letudiantUpdatedAt: { $lt: republishingDate } }] },
+      // Accepted missions not deleted
+      {
+        deletedAt: null,
+        statusCode: "ACCEPTED",
+        $or: [{ $expr: { $lt: ["$letudiantUpdatedAt", "$updatedAt"] } }, { letudiantUpdatedAt: { $exists: false } }, { letudiantUpdatedAt: { $lt: republishingDate } }],
+      },
+      // Deleted missions already sent, deletedAt < letudiantUpdatedAt
+      {
+        deletedAt: { $ne: null },
+        letudiantPublicId: { $exists: true, $ne: null },
+        $expr: { $lt: ["$deletedAt", "$letudiantUpdatedAt"] },
+      },
+      // Missions not ACCEPTED but already sent, updatedAt < letudiantUpdatedAt
+      {
+        statusCode: { $ne: "ACCEPTED" },
+        letudiantPublicId: { $exists: true, $ne: null },
+        $expr: { $lt: ["$updatedAt", "$letudiantUpdatedAt"] },
+      },
     ],
   }).limit(limit);
 
