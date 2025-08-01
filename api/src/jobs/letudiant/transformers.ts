@@ -38,7 +38,7 @@ export function missionToPilotyJobs(mission: Mission, companyId: string, mandato
       description_job: decodeHtml(mission.descriptionHtml),
       application_method: "external_apply",
       application_url: getMissionTrackedApplicationUrl(mission, PUBLISHER_IDS.LETUDIANT),
-      state: mission.deletedAt ? "archived" : "published",
+      state: mission.deletedAt || mission.statusCode !== "ACCEPTED" ? "archived" : "published",
       remote_policy_id: localisation ? undefined : mandatoryData.remotePolicies.full,
       position_level: "employee",
       description_company: mission.organizationDescription || "",

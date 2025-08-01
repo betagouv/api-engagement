@@ -63,6 +63,7 @@ describe("L'Etudiant Transformers", () => {
       publisherId: "some_publisher_id",
       remote: "no",
       deletedAt: null,
+      statusCode: "ACCEPTED",
     };
 
     it("should correctly transform a mission for Benevolat", () => {
@@ -199,14 +200,52 @@ describe("L'Etudiant Transformers", () => {
       expect(results[0].localisation).toBe("Lyon");
     });
 
-    it("should set state to 'archived' if mission is deleted", () => {
+    it("should set state to 'archived' for not accepted mission", () => {
       const mission: Mission = {
         ...baseMission,
+        statusCode: "REJECTED",
+      } as Mission;
+      const results = missionToPilotyJobs(mission, mockCompanyId, mockMandatoryData);
+      expect(results[0].state).toBe("archived");
+    });
+
+    it("should set state to 'archived' for each job if mission is deleted", () => {
+      const mission: Mission = {
+        ...baseMission,
+        addresses: [
+          {
+            city: "Lyon",
+            postalCode: "69000",
+            street: "123 rue de test",
+            country: "France",
+            departmentName: "Rhône",
+            departmentCode: "69",
+            region: "Auvergne-Rhône-Alpes",
+            geolocStatus: "ENRICHED_BY_PUBLISHER",
+            location: {
+              lat: 45.764,
+              lon: 4.835,
+            },
+          },
+          {
+            city: "Marseille",
+            postalCode: "13000",
+            street: "456 rue de test",
+            country: "France",
+            departmentName: "Bouches-du-Rhône",
+            departmentCode: "13",
+            region: "Provence-Alpes-Côte d'Azur",
+            geolocStatus: "ENRICHED_BY_PUBLISHER",
+            location: {
+              lat: 43.296,
+              lon: 5.369,
+            },
+          },
+        ],
         deletedAt: new Date(),
       } as Mission;
       const results = missionToPilotyJobs(mission, mockCompanyId, mockMandatoryData);
-      const result = results[0];
-      expect(result.state).toBe("archived");
+      expect(results.every((job) => job.state === "archived")).toBe(true);
     });
 
     it("should use 'autre' job category if mission domain is null or not in mandatoryData", () => {
