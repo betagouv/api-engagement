@@ -68,6 +68,7 @@ const CDATA_KEYS = [
   "company",
   "companyId",
   "location",
+  "alternateLocation",
   "city",
   "country",
   "postalCode",
@@ -79,21 +80,39 @@ const CDATA_KEYS = [
 ];
 
 export function generateXML(data: LinkedInJob[]) {
+  // Recursive function to wrap with cdata every listed key at any level
+  const wrapWithCdata = (obj: any, parentKey?: string): any => {
+    if (Array.isArray(obj)) {
+      if (parentKey && CDATA_KEYS.includes(parentKey)) {
+        return obj.map((el) => (typeof el === "string" ? { "#cdata": el } : wrapWithCdata(el)));
+      } else {
+        return obj.map((el) => wrapWithCdata(el));
+      }
+    }
+    if (obj && typeof obj === "object") {
+      const result: any = {};
+      for (const key of Object.keys(obj)) {
+        const value = obj[key];
+        if (CDATA_KEYS.includes(key) && typeof value === "string") {
+          result[key] = { "#cdata": value };
+        } else if (Array.isArray(value) || (value && typeof value === "object")) {
+          result[key] = wrapWithCdata(value, key);
+        } else {
+          result[key] = value;
+        }
+      }
+      return result;
+    }
+    return obj;
+  };
+
   const obj = {
     source: {
       publisher: "api-engagement",
       publisherUrl: "https://api-engagement.beta.gouv.fr/",
       lastBuildDate: new Date().toUTCString(),
       expectedJobCount: { "#cdata": data.length },
-      job: data.map((job: { [key: string]: any }) =>
-        Object.keys(job).reduce(
-          (acc, key) => {
-            acc[key] = CDATA_KEYS.includes(key) ? { "#cdata": job[key] } : job[key];
-            return acc;
-          },
-          {} as { [key: string]: any }
-        )
-      ),
+      job: data.map((job) => wrapWithCdata(job)),
     },
   };
 
