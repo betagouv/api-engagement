@@ -2,6 +2,17 @@
 Vous retrouverez ici l'historique des différents déploiements effectués sur l'API Engagement.
 
 
+## 28/07/2025
+
+
+### Miscellaneous Tasks
+
+- (**changelog**) Update CHANGELOG.md ([`457ca4a`](https://github.com/betagouv/api-engagement/commit/457ca4ad1884cb0df438b121eb277f903084f218))
+
+# API Engagement - Changelog
+Vous retrouverez ici l'historique des différents déploiements effectués sur l'API Engagement.
+
+
 ## 21/07/2025
 
 
