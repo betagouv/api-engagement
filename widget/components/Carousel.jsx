@@ -102,8 +102,9 @@ const Carousel = ({ widget, missions, request }) => {
     <main role="main" className="flex w-full flex-col gap-4">
       <section
         id="carousel"
+        role="region"
         ref={ref}
-        className="relative flex items-center gap-4"
+        className="relative flex items-center justify-center gap-4"
         aria-label={`Carousel de missions. Mission ${focusedSlideIndex + 1} sur ${missions.length} sélectionnée.`}
         aria-roledescription="carousel"
         aria-describedby="carousel-instructions"
@@ -134,7 +135,7 @@ const Carousel = ({ widget, missions, request }) => {
 
         <div
           id="carousel-content"
-          className="mx-auto overflow-hidden md:max-w-[1056px] md:py-2 md:my-2"
+          className="overflow-hidden md:max-w-[1056px] w-full md:p-[1px] md:my-2"
           tabIndex={0}
           onFocus={() => setIsCarouselFocused(true)}
           onBlur={() => setIsCarouselFocused(false)}
