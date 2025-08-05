@@ -8,7 +8,7 @@ if (ENV !== "development") {
   Sentry.init({
     dsn: SENTRY_DSN_API,
     environment: ENV,
-    tracesSampleRate: 0.1,
+    tracesSampleRate: 1,
   });
 }
 
@@ -77,8 +77,9 @@ export const startApiServer = async () => {
   });
 
   app.get("/sentry-test", async (req, res) => {
-    Sentry.captureException(new Error("Sentry test"));
-    res.status(200).send("Sentry test");
+    const error = Sentry.captureException(new Error("Sentry test"));
+    console.log(error);
+    res.status(200).send({ error });
   });
 
   // Opened routes
