@@ -16,7 +16,7 @@ export function missionToTalentJob(mission: Mission): TalentJob[] {
   if (!mission.addresses || mission.addresses.length === 0) {
     return [
       {
-        referencenumber: String(mission._id),
+        referencenumber: mission.clientId,
         title: `Bénévolat - ${mission.title}`,
         company: mission.publisherName,
         city: "Paris",
@@ -38,7 +38,7 @@ export function missionToTalentJob(mission: Mission): TalentJob[] {
 
   for (const address of mission.addresses) {
     const job = {
-      referencenumber: String(mission._id),
+      referencenumber: mission.clientId,
       title: `Bénévolat - ${mission.title}`,
       company: mission.publisherName,
       city: address.city,
