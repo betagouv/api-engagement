@@ -84,12 +84,14 @@ jobs:
             echo "API_URL=${{ vars.API_URL_PRODUCTION }}" >> $GITHUB_OUTPUT
             echo "BENEVOLAT_URL=${{ vars.BENEVOLAT_URL_PRODUCTION }}" >> $GITHUB_OUTPUT
             echo "VOLONTARIAT_URL=${{ vars.VOLONTARIAT_URL_PRODUCTION }}" >> $GITHUB_OUTPUT
-            echo "SENTRY_DSN=${{ secrets.SENTRY_DSN_PRODUCTION }}" >> $GITHUB_OUTPUT
+            echo "SENTRY_DNS_APP=${{ secrets.SENTRY_DNS_APP }}" >> $GITHUB_OUTPUT
+            echo "SENTRY_DNS_WIDGET=${{ secrets.SENTRY_DNS_WIDGET }}" >> $GITHUB_OUTPUT
           else
             echo "API_URL=${{ vars.API_URL_STAGING }}" >> $GITHUB_OUTPUT
             echo "BENEVOLAT_URL=${{ vars.BENEVOLAT_URL_STAGING }}" >> $GITHUB_OUTPUT
             echo "VOLONTARIAT_URL=${{ vars.VOLONTARIAT_URL_STAGING }}" >> $GITHUB_OUTPUT
-            echo "SENTRY_DSN=${{ secrets.SENTRY_DSN_STAGING }}" >> $GITHUB_OUTPUT
+            echo "SENTRY_DNS_APP=${{ secrets.SENTRY_DNS_APP }}" >> $GITHUB_OUTPUT
+            echo "SENTRY_DNS_WIDGET=${{ secrets.SENTRY_DNS_WIDGET }}" >> $GITHUB_OUTPUT
           fi
 
       - name: Build and push ${{ matrix.service }} image
@@ -109,5 +111,6 @@ jobs:
             API_URL=${{ steps.app_args.outputs.API_URL }}
             BENEVOLAT_URL=${{ steps.app_args.outputs.BENEVOLAT_URL }}
             VOLONTARIAT_URL=${{ steps.app_args.outputs.VOLONTARIAT_URL }}
-            SENTRY_DSN=${{ steps.app_args.outputs.SENTRY_DSN }}
+            SENTRY_DNS_APP=${{ steps.app_args.outputs.SENTRY_DNS_APP }}
+            SENTRY_DNS_WIDGET=${{ steps.app_args.outputs.SENTRY_DNS_WIDGET }}
             ${{ matrix.service == 'api' && format('SERVER_TYPE={0}', matrix.server_type) || '' }}
