@@ -77,6 +77,7 @@ export const startApiServer = async () => {
   });
 
   app.get("/sentry-test", async (req, res) => {
+    console.log(SENTRY_DSN_API);
     const error = Sentry.captureException(new Error("Sentry test"));
     console.log(error);
     res.status(200).send({ error });
