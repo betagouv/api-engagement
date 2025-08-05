@@ -5,6 +5,7 @@
  * Example: npm run job -- letudiant "{\"limit\": 100}" --env staging
  */
 
+import * as Sentry from "@sentry/node";
 import dotenv from "dotenv";
 import fs from "fs";
 import path from "path";
@@ -36,8 +37,17 @@ if (envPath && fs.existsSync(envPath)) {
   dotenv.config();
 }
 
+import { ENV, SENTRY_DSN_JOBS } from "../config";
 import { esConnected } from "../db/elastic";
 import { mongoConnected } from "../db/mongo";
+
+if (ENV !== "development") {
+  Sentry.init({
+    dsn: SENTRY_DSN_JOBS,
+    environment: ENV,
+    tracesSampleRate: 0.1,
+  });
+}
 
 const jobName = args[0];
 if (!jobName) {
@@ -64,6 +74,8 @@ async function runJob() {
     await Promise.all([mongoConnected, esConnected]);
 
     const handlerModule = await import(`./${jobName}/handler`);
+
+    Sentry.captureMessage(`Executing job '${jobName}'`);
 
     // Convert to camelCase
     // import-organizations -> ImportOrganizationsHandler

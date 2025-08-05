@@ -2,12 +2,12 @@ import dotenv from "dotenv";
 dotenv.config();
 
 import * as Sentry from "@sentry/node";
-import { ENV, PORT, SENTRY_DSN } from "./config";
+import { ENV, PORT, SENTRY_DSN_API } from "./config";
 
 if (ENV !== "development") {
   Sentry.init({
-    dsn: SENTRY_DSN,
-    environment: "api",
+    dsn: SENTRY_DSN_API,
+    environment: ENV,
     tracesSampleRate: 0.1,
   });
 }
@@ -74,6 +74,11 @@ export const startApiServer = async () => {
   });
   app.get("/impression.js", async (req, res) => {
     res.sendFile(path.join(__dirname, "static/impression.js"));
+  });
+
+  app.get("/sentry-test", async (req, res) => {
+    Sentry.captureException(new Error("Sentry test"));
+    res.status(200).send("Sentry test");
   });
 
   // Opened routes

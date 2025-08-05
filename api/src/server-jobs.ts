@@ -4,13 +4,13 @@ dotenv.config();
 import * as Sentry from "@sentry/node";
 import express from "express";
 
-import { ENV, PORT, SENTRY_DSN } from "./config"; // Assuming this is the correct path for these configs
+import { ENV, PORT, SENTRY_DSN_JOBS } from "./config"; // Assuming this is the correct path for these configs
 import { mongoConnected } from "./db/mongo";
 
 if (ENV !== "development") {
   Sentry.init({
-    dsn: SENTRY_DSN,
-    environment: "jobs", // Differentiate Sentry environment for jobs
+    dsn: SENTRY_DSN_JOBS,
+    environment: ENV,
     tracesSampleRate: 0.1,
   });
 }

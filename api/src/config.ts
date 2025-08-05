@@ -20,7 +20,8 @@ export const STATS_INDEX = "stats";
 
 export const SENDINBLUE_APIKEY = process.env.SENDINBLUE_APIKEY;
 
-export const SENTRY_DSN = process.env.SENTRY_DSN;
+export const SENTRY_DSN_API = process.env.SENTRY_DSN_API;
+export const SENTRY_DSN_JOBS = process.env.SENTRY_DSN_JOBS;
 
 // Bucket storage
 export const SCW_ACCESS_KEY = process.env.SCW_ACCESS_KEY;
