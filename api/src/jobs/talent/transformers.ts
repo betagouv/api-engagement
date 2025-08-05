@@ -13,50 +13,36 @@ import { getActivityCategory, getImageUrl } from "./utils";
  * @returns LinkedInJob | null
  */
 export function missionToTalentJob(mission: Mission): TalentJob[] {
+  const missionJob = {
+    referencenumber: String(mission._id),
+    title: `Bénévolat - ${mission.title}`,
+    company: mission.publisherName,
+    dateposted: new Date(mission.postedAt).toISOString(),
+    url: getMissionTrackedApplicationUrl(mission, TALENT_PUBLISHER_ID),
+    description: mission.descriptionHtml,
+    jobtype: "part-time",
+    expirationdate: mission.endAt ? new Date(mission.endAt).toISOString() : undefined,
+    isremote: mission.remote === "no" ? "no" : "yes",
+    category: getActivityCategory(mission.activity),
+    logo: getImageUrl(mission.organizationLogo),
+  } as TalentJob;
+
   if (!mission.addresses || mission.addresses.length === 0) {
-    return [
-      {
-        referencenumber: mission.clientId,
-        title: `Bénévolat - ${mission.title}`,
-        company: mission.publisherName,
-        city: "Paris",
-        state: "Île-de-France",
-        country: "France",
-        dateposted: new Date(mission.postedAt).toISOString(),
-        url: getMissionTrackedApplicationUrl(mission, TALENT_PUBLISHER_ID),
-        description: mission.descriptionHtml,
-        jobtype: "part-time",
-        expirationdate: mission.endAt ? new Date(mission.endAt).toISOString() : undefined,
-        isremote: mission.remote === "no" ? "no" : "yes",
-        category: getActivityCategory(mission.activity),
-        logo: mission.organizationLogo,
-      },
-    ] as TalentJob[];
+    console.log("missionJob", missionJob);
+    return [{ ...missionJob, city: "Paris", state: "Île-de-France", country: "FR" }];
   }
 
   const jobs = [] as TalentJob[];
 
   for (const address of mission.addresses) {
-    const job = {
-      referencenumber: mission.clientId,
-      title: `Bénévolat - ${mission.title}`,
-      company: mission.publisherName,
+    jobs.push({
+      ...missionJob,
       city: address.city,
       state: address.region,
       country: address.country || "FR",
-      dateposted: new Date(mission.postedAt).toISOString(),
-      url: getMissionTrackedApplicationUrl(mission, TALENT_PUBLISHER_ID),
-      description: mission.descriptionHtml,
-      jobtype: "part-time",
-      expirationdate: mission.endAt ? new Date(mission.endAt).toISOString() : undefined,
       streetaddress: address.street,
       postalcode: address.postalCode,
-      isremote: mission.remote === "no" ? "no" : "yes",
-      category: getActivityCategory(mission.activity),
-      logo: getImageUrl(mission.organizationLogo),
-    } as TalentJob;
-
-    jobs.push(job);
+    } as TalentJob);
   }
 
   return jobs;

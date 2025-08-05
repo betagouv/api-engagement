@@ -14,7 +14,6 @@ describe("Mission API Integration Tests", () => {
   let mission1: Mission;
   let mission2: Mission;
   let mission3: Mission;
-  let mission4: Mission;
 
   beforeEach(async () => {
     // Clean up

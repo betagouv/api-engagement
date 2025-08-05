@@ -1,8 +1,6 @@
 import { Schema } from "mongoose";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { JVA_LOGO_URL } from "../../../config";
 import { Mission } from "../../../types";
-import { CATEGORY_MAPPING } from "../config";
 import { missionToTalentJob } from "../transformers";
 
 // Mock constants with IDs but keep the rest of the config
@@ -86,8 +84,8 @@ describe("missionToTalentJob", () => {
 
   it("should return one job per address when mission has multiple addresses", () => {
     const addresses = [
-      { ...baseMission.addresses?.[0], city: "Lyon", region: "Rhône-Alpes", street: undefined },
-      { ...baseMission.addresses?.[0], city: "Marseille", region: "Provence-Alpes-Côte d'Azur", street: "13 rue de test" },
+      { ...baseMission.addresses?.[0], city: "Lyon", region: "Rhône-Alpes", postalCode: "69000", street: undefined },
+      { ...baseMission.addresses?.[0], city: "Marseille", region: "Provence-Alpes-Côte d'Azur", postalCode: "13000", street: "13 rue de test" },
     ];
     const mission = { ...baseMission, addresses } as Mission;
     const jobs = missionToTalentJob(mission);
@@ -96,9 +94,11 @@ describe("missionToTalentJob", () => {
     expect(jobs[0].city).toBe("Lyon");
     expect(jobs[0].state).toBe("Rhône-Alpes");
     expect(jobs[0].streetaddress).toBeUndefined();
+    expect(jobs[0].postalcode).toBe("69000");
     expect(jobs[1].city).toBe("Marseille");
     expect(jobs[1].state).toBe("Provence-Alpes-Côte d'Azur");
     expect(jobs[1].streetaddress).toBe("13 rue de test");
+    expect(jobs[1].postalcode).toBe("13000");
     // Both jobs should have the same base properties
     jobs.forEach((job) => {
       expect(job.referencenumber).toBe(String(mission._id));
@@ -115,7 +115,7 @@ describe("missionToTalentJob", () => {
     const job = jobs[0];
     expect(job.city).toBe("Paris");
     expect(job.state).toBe("Île-de-France");
-    expect(job.country).toBe("France");
+    expect(job.country).toBe("FR");
     expect(job.streetaddress).toBeUndefined();
   });
 
@@ -142,16 +142,16 @@ describe("missionToTalentJob", () => {
     expect(jobs[0].logo).toBe("https://custom-logo.com/logo.png");
   });
 
-  it("should use getImageUrl for logo processing", () => {
-    const mission = { ...baseMission, organizationLogo: "invalid-logo" } as Mission;
+  it("should use default logo when organizationLogo is undefined", () => {
+    const mission = { ...baseMission, organizationLogo: undefined } as Mission;
     const jobs = missionToTalentJob(mission);
-    expect(jobs[0].logo).toBe(JVA_LOGO_URL); // Based on our mock
+    expect(jobs[0].logo).toBe("https://default-logo.com/logo.png");
   });
 
   it("should use getActivityCategory for category mapping", () => {
     const mission = { ...baseMission, activity: "art" } as Mission;
     const jobs = missionToTalentJob(mission);
-    expect(jobs[0].category).toBe(CATEGORY_MAPPING["art"]); // Based on our mock
+    expect(jobs[0].category).toBe("Category art");
   });
 
   it("should format dateposted correctly", () => {

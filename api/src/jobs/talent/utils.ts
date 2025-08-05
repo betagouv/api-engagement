@@ -33,6 +33,7 @@ export async function generateJobs(missionsCursor: AsyncIterable<Mission>): Prom
 }
 
 export function getImageUrl(image?: string) {
+  console.log("getImageUrl", image);
   if (image && image.endsWith(".png")) {
     return image;
   }
