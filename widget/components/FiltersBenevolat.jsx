@@ -127,7 +127,7 @@ const MobileFilters = ({ options, values, onChange, show, onShow, disabledLocati
       </div>
       <div className="w-full border-y border-[#DDD]">
         <button
-          className="flex h-[40px] w-full items-center justify-between bg-white px-4 focus:outline-none focus-visible:ring focus-visible:ring-blue-800"
+          className="flex h-[40px] w-full items-center justify-between bg-white px-4 focus:outline-none focus-visible:ring focus-visible:ring-[#000091]"
           onClick={() => {
             onShow(!show);
             plausible(show ? "Filters closed" : "Filters opened", { u: url });
@@ -157,6 +157,7 @@ const MobileFilters = ({ options, values, onChange, show, onShow, disabledLocati
                 onChange={(v) => onChange({ ...values, domain: v })}
                 placeholder="Domaines"
                 width="w-full"
+                searchable
               />
             </div>
             <div className="mb-4 w-full">
@@ -167,6 +168,7 @@ const MobileFilters = ({ options, values, onChange, show, onShow, disabledLocati
                 onChange={(v) => onChange({ ...values, department: v })}
                 placeholder="Départements"
                 width="w-full"
+                searchable
               />
             </div>
             <div className="mb-4 w-full">
@@ -177,12 +179,13 @@ const MobileFilters = ({ options, values, onChange, show, onShow, disabledLocati
                 onChange={(v) => onChange({ ...values, organization: v })}
                 placeholder="Organisations"
                 width="w-full"
+                searchable
               />
             </div>
             <div className="flex w-full flex-col gap-2">
               <button
                 aria-label="Voir les missions"
-                className="w-full border-none p-3 text-center text-sm text-white focus:outline-none focus-visible:ring focus-visible:ring-blue-800"
+                className="w-full border-none p-3 text-center text-sm text-white focus:outline-none focus-visible:ring focus-visible:ring-[#000091]"
                 onClick={() => {
                   onShow(false);
                   plausible("Filters closed", { u: url });
@@ -193,7 +196,7 @@ const MobileFilters = ({ options, values, onChange, show, onShow, disabledLocati
               </button>
               <button
                 aria-label="Réinitialiser les filtres"
-                className="w-full border-none bg-transparent p-3 text-center text-sm focus:outline-none focus-visible:ring focus-visible:ring-blue-800"
+                className="w-full border-none bg-transparent p-3 text-center text-sm focus:outline-none focus-visible:ring focus-visible:ring-[#000091]"
                 style={{ color }}
                 onClick={() => {
                   handleReset();
@@ -226,26 +229,28 @@ const DesktopFilters = ({ options, values, onChange, disabledLocation = false })
         />
       </div>
       <div className="w-[20%] px-2">
-        <SelectFilter id="domain" options={options.domains} selectedOptions={values.domain} onChange={(v) => onChange({ ...values, domain: v })} placeholder="Domaines" />
+        <SelectFilter id="domain" options={options.domains} selected={values.domain} onChange={(v) => onChange({ ...values, domain: v })} placeholder="Domaines" searchable />
       </div>
       <div className="w-[20%] px-2">
         <SelectFilter
           id="department"
           options={options.departments}
-          selectedOptions={values.department}
+          selected={values.department}
           onChange={(v) => onChange({ ...values, department: v })}
           placeholder="Départements"
+          searchable
         />
       </div>
       <div className="w-[20%] pl-2">
         <SelectFilter
           id="organization"
           options={options.organizations}
-          selectedOptions={values.organization}
+          selected={values.organization}
           onChange={(v) => onChange({ ...values, organization: v })}
           placeholder="Organisations"
           position="right-0"
           width="w-96"
+          searchable
         />
       </div>
     </>

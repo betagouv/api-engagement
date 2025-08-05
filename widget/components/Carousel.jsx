@@ -119,7 +119,7 @@ const Carousel = ({ widget, missions, request }) => {
             onClick={prevPage}
             disabled={currentSlide === 0}
             tabIndex={0}
-            className={`h-10 w-10 flex flex-shrink-0 items-center justify-center rounded-full p-2 focus:outline-none focus-visible:ring focus-visible:ring-blue-800 ${
+            className={`h-10 w-10 flex flex-shrink-0 items-center justify-center rounded-full p-2 focus:outline-none focus-visible:ring focus-visible:ring-[#000091] ${
               currentSlide === 0
                 ? "cursor-not-allowed bg-[#e5e5e5] text-[#929292] opacity-50"
                 : "cursor-pointer bg-[var(--bg-color)] text-white transition-opacity hover:opacity-90"
@@ -166,7 +166,7 @@ const Carousel = ({ widget, missions, request }) => {
             onClick={nextPage}
             disabled={currentSlide >= missions.length - slidesToShow}
             tabIndex={0}
-            className={`h-10 w-10 flex flex-shrink-0 items-center justify-center rounded-full p-2 focus:outline-none focus-visible:ring focus-visible:ring-blue-800 ${
+            className={`h-10 w-10 flex flex-shrink-0 items-center justify-center rounded-full p-2 focus:outline-none focus-visible:ring focus-visible:ring-[#000091] ${
               currentSlide >= missions.length - slidesToShow
                 ? "cursor-not-allowed bg-[#e5e5e5] text-[#929292] opacity-50"
                 : "cursor-pointer bg-[var(--bg-color)] text-white transition-opacity hover:opacity-90"
@@ -186,7 +186,7 @@ const Carousel = ({ widget, missions, request }) => {
             <button
               onClick={prevPage}
               disabled={currentSlide === 0}
-              className={`flex h-10 w-10 items-center justify-center rounded-full p-2 focus:outline-none focus-visible:ring focus-visible:ring-blue-800 ${currentSlide === 0 ? "cursor-not-allowed bg-[#e5e5e5] text-[#929292] opacity-50" : "cursor-pointer bg-[var(--bg-color)] text-white transition-opacity hover:opacity-90"}`}
+              className={`flex h-10 w-10 items-center justify-center rounded-full p-2 focus:outline-none focus-visible:ring focus-visible:ring-[#000091] ${currentSlide === 0 ? "cursor-not-allowed bg-[#e5e5e5] text-[#929292] opacity-50" : "cursor-pointer bg-[var(--bg-color)] text-white transition-opacity hover:opacity-90"}`}
               style={{ "--bg-color": color }}
               aria-label="Diapositive précédente"
               aria-controls="carousel-content"
@@ -197,7 +197,7 @@ const Carousel = ({ widget, missions, request }) => {
             <button
               onClick={nextPage}
               disabled={currentSlide >= missions.length - slidesToShow}
-              className={`flex h-10 w-10 items-center justify-center rounded-full p-2 focus:outline-none focus-visible:ring focus-visible:ring-blue-800 ${currentSlide >= missions.length - slidesToShow ? "cursor-not-allowed bg-[#e5e5e5] text-[#929292] opacity-50" : "cursor-pointer bg-[var(--bg-color)] text-white transition-opacity hover:opacity-90"}`}
+              className={`flex h-10 w-10 items-center justify-center rounded-full p-2 focus:outline-none focus-visible:ring focus-visible:ring-[#000091] ${currentSlide >= missions.length - slidesToShow ? "cursor-not-allowed bg-[#e5e5e5] text-[#929292] opacity-50" : "cursor-pointer bg-[var(--bg-color)] text-white transition-opacity hover:opacity-90"}`}
               style={{ "--bg-color": color }}
               aria-label="Diapositive suivante"
               aria-controls="carousel-content"

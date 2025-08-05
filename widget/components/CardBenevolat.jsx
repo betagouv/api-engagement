@@ -42,7 +42,7 @@ const Card = ({ widget, mission, request, onFocus = null }) => {
         widget.style === "carousel"
           ? "max-h-[420px] min-h-[420px] w-full lg:max-w-[336px] xl:max-h-[460px] xl:min-h-[460px]"
           : "max-h-[420px] min-h-[420px] w-full lg:max-h-[440px] lg:min-h-[440px]"
-      } relative group mx-auto flex h-full flex-col overflow-hidden border border-[#DDDDDD] transition-shadow duration-300 hover:shadow-lg ${onFocus !== null ? "ring-2 ring-blue-600 ring-offset-0" : "focus-within:ring-2 focus-within:ring-blue-600 focus-within:ring-offset-0"}`}
+      } relative group mx-auto flex h-full flex-col overflow-hidden border border-[#DDDDDD] transition-shadow duration-300 hover:shadow-lg ${onFocus !== null ? "ring-2 ring-[#000091] ring-offset-0" : "focus-within:ring-2 focus-within:ring-[#000091] focus-within:ring-offset-0"}`}
     >
       <div className="max-h-[188px] min-h-[188px] overflow-hidden xl:max-h-[200px] xl:min-h-[200px]">
         <Image

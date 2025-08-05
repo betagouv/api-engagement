@@ -91,7 +91,7 @@ const DurationFilter = ({ selected, onChange, position = "left-0", width = "w-80
         aria-haspopup="listbox"
         aria-activedescendant={focusedIndex >= 0 ? `duration-option-${focusedIndex}` : undefined}
         onKeyDown={handleKeyDown}
-        className={`w-full cursor-pointer rounded-t-md h-[40px] bg-[#EEE] border-b-2 border-[#3A3A3A] p-3 focus:outline-none focus-visible:ring focus-visible:ring-blue-800 flex items-center justify-between ${
+        className={`w-full cursor-pointer rounded-t-md h-[40px] bg-[#EEE] border-b-2 border-[#3A3A3A] p-3 focus:outline-none focus-visible:ring focus-visible:ring-[#000091] flex items-center justify-between ${
           !selected ? "text-[#666666]" : "text-[#161616]"
         }`}
         onClick={() => {

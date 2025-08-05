@@ -74,7 +74,7 @@ const LocationFilter = ({ selected, onChange, width = "w-80", disabled = false }
       case "Enter":
         e.preventDefault();
         if (focusedIndex >= 0 && options[focusedIndex]) {
-          selectOption(options[focusedIndex]);
+          handleSelect(options[focusedIndex]);
         }
         break;
       case "Escape":
@@ -86,7 +86,7 @@ const LocationFilter = ({ selected, onChange, width = "w-80", disabled = false }
     }
   };
 
-  const selectOption = (option) => {
+  const handleSelect = (option) => {
     onChange(option);
     setInputValue(option.label);
     setShow(false);
@@ -118,8 +118,8 @@ const LocationFilter = ({ selected, onChange, width = "w-80", disabled = false }
               aria-controls="location-list"
               role="combobox"
               aria-autocomplete="both"
-              aria-activedescendant={focusedIndex >= 0 ? `option-${focusedIndex}` : undefined}
-              className="bg-[#EEE] rounded-t-md border-b-2 border-[#3A3A3A] px-8 h-full w-full focus:outline-none focus-visible:ring focus-visible:ring-blue-800 placeholder-[#666666]"
+              aria-activedescendant={focusedIndex >= 0 ? `location-option-${focusedIndex}` : undefined}
+              className="bg-[#EEE] rounded-t-md border-b-2 border-[#3A3A3A] px-8 h-full w-full focus:outline-none focus-visible:ring focus-visible:ring-[#000091] placeholder-[#666666]"
               value={inputValue}
               placeholder="Localisation"
               onChange={handleInputChange}
@@ -146,7 +146,7 @@ const LocationFilter = ({ selected, onChange, width = "w-80", disabled = false }
         id="location-list"
         aria-label="Liste des villes"
         role="listbox"
-        className={`absolute z-50 mt-1 max-h-60 ${width} overflow-auto border border-[#DDDDDD] bg-white py-1 shadow-md ${show ? "block" : "hidden"}`}
+        className={`absolute z-50 mt-1 max-h-60 ${width} overflow-auto border border-[#DDDDDD] bg-white p-[1px] shadow-md ${show ? "block" : "hidden"}`}
       >
         {options.length === 0 && show && (
           <li className="cursor-pointer flex items-center justify-between py-2 px-3">
@@ -157,14 +157,14 @@ const LocationFilter = ({ selected, onChange, width = "w-80", disabled = false }
           show &&
           options.map((option, index) => (
             <li
-              key={option.value}
-              id={`option-${index}`}
-              className={`cursor-pointer flex items-center justify-between py-2 px-3 ${index === focusedIndex ? "bg-[#0000000A]" : "hover:bg-[#0000000A]"}`}
+              key={index}
+              id={`location-option-${index}`}
+              className={`cursor-pointer flex items-center justify-between py-2 px-3 ${index === focusedIndex ? "bg-[#0000000A] ring ring-[#000091]" : "hover:bg-[#0000000A]"}`}
               role="option"
               aria-selected={selected?.value === option.value}
               aria-label={option.label}
               tabIndex={-1}
-              onClick={() => selectOption(option)}
+              onClick={() => handleSelect(option)}
               onMouseEnter={() => setFocusedIndex(index)}
             >
               <span className="block text-sm truncate font-normal">{option.label}</span>

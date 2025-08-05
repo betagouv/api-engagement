@@ -154,7 +154,7 @@ const MobileFilters = ({ options, values, onChange, show, onShow, disabledLocati
       </div>
       <div className="w-full border-y border-[#DDD]">
         <button
-          className="flex h-[40px] items-center justify-between w-full bg-white focus:outline-none focus-visible:ring focus-visible:ring-blue-800 px-4"
+          className="flex h-[40px] items-center justify-between w-full bg-white focus:outline-none focus-visible:ring focus-visible:ring-[#000091] px-4"
           onClick={() => {
             onShow(!show);
             plausible(show ? "Filters closed" : "Filters opened", { u: url });
@@ -234,7 +234,7 @@ const MobileFilters = ({ options, values, onChange, show, onShow, disabledLocati
             </div>
             <button
               aria-label="Voir les missions"
-              className="w-full p-3 text-center border-none bg-black text-white focus:outline-none focus-visible:ring focus-visible:ring-blue-800 cursor-pointer"
+              className="w-full p-3 text-center border-none bg-black text-white focus:outline-none focus-visible:ring focus-visible:ring-[#000091] cursor-pointer"
               onClick={() => {
                 onShow(false);
                 plausible("Filters closed", { u: url });
@@ -247,7 +247,7 @@ const MobileFilters = ({ options, values, onChange, show, onShow, disabledLocati
               Voir les missions
             </button>
             <button
-              className="w-full cursor-pointer p-3 text-center bg-transparent focus:outline-none focus-visible:ring focus-visible:ring-blue-800"
+              className="w-full cursor-pointer p-3 text-center bg-transparent focus:outline-none focus-visible:ring focus-visible:ring-[#000091]"
               onClick={() => {
                 handleReset();
                 plausible("Filters reset", { u: url });
@@ -294,7 +294,7 @@ const DesktopFilters = ({ options, values, onChange, disabledLocation = false })
         ) : (
           <button
             aria-label="plus de filtres"
-            className="cursor-pointer border truncate w-full bg-white border-[#DDDDDD] py-2 px-4 h-[40px] focus:outline-none focus-visible:ring focus-visible:ring-blue-800 font-medium"
+            className="cursor-pointer border truncate w-full bg-white border-[#DDDDDD] py-2 px-4 h-[40px] focus:outline-none focus-visible:ring focus-visible:ring-[#000091] font-medium"
             onClick={() => {
               setMoreFilters(true);
               plausible("More filters", { u: url });
@@ -353,7 +353,7 @@ const DesktopFilters = ({ options, values, onChange, disabledLocation = false })
 
           <button
             aria-label="moins de filtres"
-            className="border truncate w-full bg-white border-[#DDDDDD] py-2 px-4 h-[40px] focus:outline-none focus-visible:ring focus-visible:ring-blue-800 font-medium"
+            className="border truncate w-full bg-white border-[#DDDDDD] py-2 px-4 h-[40px] focus:outline-none focus-visible:ring focus-visible:ring-[#000091] font-medium"
             onClick={() => {
               setMoreFilters(false);
               plausible("Less filters", { u: url });
