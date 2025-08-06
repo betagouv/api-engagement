@@ -25,7 +25,7 @@ if (ENV !== "development") {
       }),
       Sentry.replayIntegration(),
     ],
-    environment: "app",
+    environment: ENV,
     tracesSampleRate: 0.1,
   });
 }

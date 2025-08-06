@@ -74,9 +74,6 @@ async function runJob() {
     await Promise.all([mongoConnected, esConnected]);
 
     const handlerModule = await import(`./${jobName}/handler`);
-
-    Sentry.captureMessage(`Executing job '${jobName}'`);
-
     // Convert to camelCase
     // import-organizations -> ImportOrganizationsHandler
     const HandlerClassName =

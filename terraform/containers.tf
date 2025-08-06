@@ -96,7 +96,7 @@ resource "scaleway_container" "widget" {
   }
   
   secret_environment_variables = {
-    "SENTRY_DSN" = local.secrets.SENTRY_DSN
+    "SENTRY_DSN" = local.secrets.SENTRY_DSN_WIDGET
   }
 }
 

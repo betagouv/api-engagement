@@ -1,4 +1,3 @@
-import * as Sentry from "@sentry/react";
 import { useEffect, useState } from "react";
 import { HelmetProvider } from "react-helmet-async";
 import { BrowserRouter, Navigate, Outlet, Route, Routes, useLocation, useNavigate } from "react-router-dom";
@@ -208,14 +207,6 @@ const ProtectedLayout = () => {
       {ENV === "staging" && (
         <div className="bg-red-dark text-white text-center p-2 w-full">
           <span>Environnement de pré-prod</span>
-          <button
-            onClick={() => {
-              const error = Sentry.captureException(new Error("Test sentry"));
-              console.log(error);
-            }}
-          >
-            Test sentry
-          </button>
         </div>
       )}
       <Header />

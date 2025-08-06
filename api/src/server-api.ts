@@ -8,7 +8,7 @@ if (ENV !== "development") {
   Sentry.init({
     dsn: SENTRY_DSN_API,
     environment: ENV,
-    tracesSampleRate: 1,
+    tracesSampleRate: 0.1,
   });
 }
 
