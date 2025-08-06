@@ -1,15 +1,13 @@
 # Build
 FROM node:18-bullseye-slim AS builder
 
+RUN --mount=type=secret,id=sentry_auth_token,env=SENTRY_AUTH_TOKEN
+
 WORKDIR /app
 
-ARG ENV=development
-ARG API_URL=http://localhost:4000
-ARG SENTRY_DNS_WIDGET=
+ARG SENTRY_HOST=
 
-ENV ENV=$ENV
-ENV API_URL=$API_URL
-ENV SENTRY_DNS_WIDGET=$SENTRY_DNS_WIDGET
+ENV SENTRY_HOST=$SENTRY_HOST
 
 COPY package*.json ./
 

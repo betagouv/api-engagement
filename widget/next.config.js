@@ -21,9 +21,16 @@ module.exports = withSentryConfig(withPlausibleProxy()(nextConfig), {
   // For all available options, see:
   // https://github.com/getsentry/sentry-webpack-plugin#options
   org: "sentry",
-  project: "api-engagement-production",
+  project: "api-engagement-widget",
   sentryUrl: process.env.SENTRY_HOST,
-  silent: !process.env.CI,
+  environment: process.env.ENV,
+  authToken: process.env.SENTRY_AUTH_TOKEN,
+  sourcemaps: {
+    disable: false,
+    assets: ["**/*.js", "**/*.js.map"],
+    ignore: ["**/node_modules/**"],
+    deleteSourcemapsAfterUpload: true,
+  },
   widenClientFileUpload: true,
   reactComponentAnnotation: {
     enabled: true,
