@@ -20,7 +20,7 @@ const nextConfig = {
 module.exports = withSentryConfig(withPlausibleProxy()(nextConfig), {
   // For all available options, see:
   // https://github.com/getsentry/sentry-webpack-plugin#options
-  org: "sentry",
+  org: "betagouv",
   project: "api-engagement-widget",
   sentryUrl: process.env.SENTRY_HOST,
   environment: process.env.ENV,
