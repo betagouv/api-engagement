@@ -1,7 +1,7 @@
 import { MissionHistoryEventType, MissionType, Address as PgAddress, Mission as PgMission } from "@prisma/client";
 import { PUBLISHER_IDS } from "../../../config";
 import { Mission as MongoMission } from "../../../types";
-import { MissionHistoryEntry, MissionTransformResult } from "../types";
+import { MissionTransformResult } from "../types";
 
 /**
  * Transform a MongoDB mission into PostgreSQL format
@@ -25,6 +25,7 @@ export const transformMongoMissionToPg = (doc: MongoMission | null, partnerId: s
     tags: doc.tags,
     tasks: doc.tasks,
     domain: doc.domain,
+    domain_logo: doc.domainLogo,
     audience: doc.audience || [],
     soft_skills: doc.softSkills || doc.soft_skills || [],
     rome_skills: doc.romeSkills || [],
@@ -129,17 +130,7 @@ export const transformMongoMissionToPg = (doc: MongoMission | null, partnerId: s
       }) as PgAddress
   );
 
-  // Transform history entries
-  const history: MissionHistoryEntry[] =
-    doc.__history?.flatMap((history) =>
-      getTypeFromMissionHistoryEvent(history).map((type) => ({
-        date: history.date,
-        mission_id: obj.id,
-        type,
-      }))
-    ) || [];
-
-  return { mission: obj, addresses, history };
+  return { mission: obj, addresses };
 };
 
 const getMissionType = (type: string) => {

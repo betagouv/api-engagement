@@ -1,5 +1,6 @@
 import { API_URL } from "../config";
 import { AddressItem, Mission } from "../types";
+import { slugify } from "./string";
 
 /**
  * Format the tracked application URL for a mission and a given publisher
@@ -12,7 +13,7 @@ export const getMissionTrackedApplicationUrl = (mission: Mission, publisherId: s
   return `${API_URL}/r/${mission._id}/${publisherId}`;
 };
 
-const FIELDS_TO_COMPARE = [
+const FIELDS = [
   "title",
   "type",
   "description",
@@ -25,6 +26,7 @@ const FIELDS_TO_COMPARE = [
   "duration",
   "activity",
   "domain",
+  "domainLogo",
   "schedule",
   "audience",
   "softSkills",
@@ -55,14 +57,10 @@ const FIELDS_TO_COMPARE = [
   "organizationCity",
   "organizationBeneficiaries",
   "organizationReseaux",
+  "organizationVerificationStatus",
   "statusComment",
-  "tasks",
-  "tags",
-  "requirements",
-  "softSkills",
-  "romeSkills",
+  "statusCode",
 ] as (keyof Mission)[];
-// "addresses",
 
 /**
  * Get the changes between two missions
@@ -74,8 +72,39 @@ const FIELDS_TO_COMPARE = [
 export const getMissionChanges = (previousMission: Mission, currentMission: Mission): Record<string, { previous: any; current: any }> | null => {
   const changes: Record<string, { previous: any; current: any }> = {};
 
-  for (const field of FIELDS_TO_COMPARE) {
-    if (previousMission[field] !== currentMission[field]) {
+  for (const field of FIELDS) {
+    if (Array.isArray(previousMission[field]) && Array.isArray(currentMission[field])) {
+      if (!areArraysEqual(previousMission[field], currentMission[field])) {
+        changes[field] = {
+          previous: previousMission[field],
+          current: currentMission[field],
+        };
+      }
+      continue;
+    }
+
+    if (field.endsWith("At")) {
+      if (!areDatesEqual(previousMission[field] as any, currentMission[field] as any)) {
+        changes[field] = {
+          previous: new Date(previousMission[field] as any),
+          current: new Date(currentMission[field] as any),
+        };
+      }
+      continue;
+    }
+
+    if (!previousMission[field] && previousMission[field] !== 0 && !currentMission[field] && currentMission[field] !== 0) {
+      continue;
+    }
+
+    if (!previousMission[field] && previousMission[field] !== 0 && !currentMission[field] && currentMission[field] !== 0) {
+      changes[field] = {
+        previous: previousMission[field],
+        current: currentMission[field],
+      };
+    }
+
+    if (String(previousMission[field]) !== String(currentMission[field])) {
       changes[field] = {
         previous: previousMission[field],
         current: currentMission[field],
@@ -83,9 +112,7 @@ export const getMissionChanges = (previousMission: Mission, currentMission: Miss
     }
   }
 
-  let hasAddressesChanged = false;
   if (previousMission.addresses.length !== currentMission.addresses.length) {
-    hasAddressesChanged = true;
     changes.addresses = {
       previous: previousMission.addresses,
       current: currentMission.addresses,
@@ -93,10 +120,11 @@ export const getMissionChanges = (previousMission: Mission, currentMission: Miss
     return changes;
   }
 
-  for (let i = 0; i < currentMission.addresses.length; i++) {
-    const exists = previousMission.addresses.find((address) => areAddressesEqual(address, currentMission.addresses[i]));
-    if (!exists) {
-      hasAddressesChanged = true;
+  const sortedPreviousAddresses = normalizeAddresses(previousMission.addresses);
+  const sortedCurrentAddresses = normalizeAddresses(currentMission.addresses);
+
+  for (let i = 0; i < sortedCurrentAddresses.length; i++) {
+    if (sortedPreviousAddresses[i] !== sortedCurrentAddresses[i]) {
       changes.addresses = {
         previous: previousMission.addresses,
         current: currentMission.addresses,
@@ -108,16 +136,34 @@ export const getMissionChanges = (previousMission: Mission, currentMission: Miss
   return Object.keys(changes).length > 0 ? changes : null;
 };
 
-const areAddressesEqual = (previousAddress: AddressItem, currentAddress: AddressItem) => {
-  return (
-    previousAddress.street === currentAddress.street &&
-    previousAddress.city === currentAddress.city &&
-    previousAddress.postalCode === currentAddress.postalCode &&
-    previousAddress.departmentCode === currentAddress.departmentCode &&
-    previousAddress.departmentName === currentAddress.departmentName &&
-    previousAddress.region === currentAddress.region &&
-    previousAddress.country === currentAddress.country &&
-    previousAddress.location?.lon === currentAddress.location?.lon &&
-    previousAddress.location?.lat === currentAddress.location?.lat
+const areDatesEqual = (previousDate: Date | string | undefined, currentDate: Date | string | undefined) => {
+  if (!previousDate && !currentDate) {
+    return true;
+  }
+  if (!previousDate || !currentDate) {
+    return false;
+  }
+  return new Date(previousDate).getTime() === new Date(currentDate).getTime();
+};
+
+const areArraysEqual = (previousArray: any[], currentArray: any[]) => {
+  if (previousArray.length !== currentArray.length) {
+    return false;
+  }
+  const sortedPreviousArray = [...previousArray].sort();
+  const sortedCurrentArray = [...currentArray].sort();
+
+  for (let i = 0; i < sortedPreviousArray.length; i++) {
+    if (String(sortedPreviousArray[i]) !== String(sortedCurrentArray[i])) {
+      return false;
+    }
+  }
+  return true;
+};
+
+const normalizeAddresses = (address: AddressItem[]) => {
+  const data = address.map((item) =>
+    slugify(`${item.street} ${item.city} ${item.postalCode} ${item.departmentName} ${item.region} ${item.country} ${item.location?.lat} ${item.location?.lon}`)
   );
+  return data.sort();
 };

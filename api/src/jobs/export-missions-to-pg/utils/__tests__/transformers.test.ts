@@ -187,7 +187,6 @@ describe("transformMongoMissionToPg", () => {
     expect(result).not.toBeNull();
     expect(result?.mission).toBeDefined();
     expect(result?.addresses).toBeDefined();
-    expect(result?.history).toBeDefined();
 
     expect(result?.mission.old_id).toBe("mission-123");
     expect(result?.mission.title).toBe("Mission Test");
@@ -210,10 +209,6 @@ describe("transformMongoMissionToPg", () => {
     expect(result?.addresses[0].city).toBe("Paris");
     expect(result?.addresses[0].latitude).toBe(48.8566);
     expect(result?.addresses[0].longitude).toBe(2.3522);
-
-    expect(result?.history.length).toBe(1);
-    expect(result?.history[0].date).toEqual(new Date("2023-01-20"));
-    expect(result?.history[0].type).toBeDefined(); // Value will be checked by getTypeFromMissionHistoryEvent test
   });
 
   it("should handle a mission with no organization match", () => {
@@ -255,7 +250,6 @@ describe("transformMongoMissionToPg", () => {
 
     expect(result).not.toBeNull();
     expect(result?.mission).toBeDefined();
-    expect(result?.history).toEqual([]);
   });
 });
 

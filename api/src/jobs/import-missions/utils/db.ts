@@ -1,7 +1,9 @@
 import { captureException } from "../../../error";
 import MissionModel from "../../../models/mission";
+import MissionEventModel from "../../../models/mission-event";
 import { Import, Mission, Publisher } from "../../../types";
-import { missionsAreEqual } from "./mission";
+import { getJobTime } from "../../../utils/job";
+import { getMissionChanges } from "../../../utils/mission";
 
 /**
  * Insert or update a batch of missions into MongoDB
@@ -25,36 +27,70 @@ export const bulkDB = async (bulk: Mission[], publisher: Publisher, importDoc: I
     const existingMap = new Map(existingMissions.map((m) => [m.clientId, m]));
 
     // Build bulk write operations
-    const mongoBulk = bulk
-      .filter((e) => e)
-      .map((e) => {
-        const current = e._id ? existingMap.get(e.clientId) : null;
-        if (e._id && current && missionsAreEqual(current, e)) {
-          // No change : skip update
-          return null;
-        }
-        return e._id
-          ? { updateOne: { filter: { _id: e._id }, update: { $set: { ...e, updatedAt: startedAt } }, upsert: true } }
-          : { insertOne: { document: { ...e, createdAt: startedAt, updatedAt: startedAt } } };
-      })
-      .filter(Boolean);
+    const missionBulk = [] as any[];
+    const missionEventsBulk = [] as any[];
 
-    if (mongoBulk.length > 0) {
-      const res = await (MissionModel as any)
-        .withHistoryContext({
-          reason: `Import XML (${publisher.name})`,
-        })
-        .bulkWrite(mongoBulk, { ordered: false }); // ordered: false to avoid stopping the import if one mission fails
-
-      if (res.hasWriteErrors()) {
-        captureException("Mongo bulk failed", JSON.stringify(res.getWriteErrors(), null, 2));
+    for (const e of bulk) {
+      if (!e) {
+        continue;
       }
 
-      importDoc.createdCount += res.upsertedCount + res.insertedCount;
-      importDoc.updatedCount += res.modifiedCount;
-      const time = ((new Date().getTime() - startedAt.getTime()) / 1000).toFixed(2);
-      console.log(`[${publisher.name}] Mongo bulk write created ${importDoc.createdCount}, updated ${importDoc.updatedCount}, took ${time}s`);
+      if (!e._id) {
+        missionBulk.push({ insertOne: { document: { ...e, createdAt: startedAt, updatedAt: startedAt } } });
+        continue;
+      }
+
+      const current = existingMap.get(e.clientId);
+      if (!current) {
+        missionBulk.push({ insertOne: { document: { ...e, createdAt: startedAt, updatedAt: startedAt } } });
+        continue;
+      }
+
+      const changes = getMissionChanges(current, e);
+      if (changes) {
+        missionBulk.push({ updateOne: { filter: { _id: current._id }, update: { $set: { ...e, updatedAt: startedAt } }, upsert: true } });
+        missionEventsBulk.push({
+          insertOne: {
+            document: {
+              missionId: current._id,
+              type: changes.deletedAt?.current === null ? "delete" : "update",
+              changes,
+              fields: Object.keys(changes),
+            },
+          },
+        });
+      }
     }
+
+    if (missionBulk.length > 0) {
+      const resMission = await MissionModel.bulkWrite(missionBulk, { ordered: false }); // ordered: false to avoid stopping the import if one mission fails
+
+      if (resMission.hasWriteErrors()) {
+        captureException("Mongo bulk failed", JSON.stringify(resMission.getWriteErrors(), null, 2));
+      }
+
+      Object.values(resMission.insertedIds).forEach((id) => {
+        missionEventsBulk.push({
+          insertOne: {
+            document: { missionId: id, type: "create", changes: null, fields: [] },
+          },
+        });
+      });
+
+      importDoc.createdCount += resMission.upsertedCount + resMission.insertedCount;
+      importDoc.updatedCount += resMission.modifiedCount;
+    }
+
+    if (missionEventsBulk.length > 0) {
+      const resMissionEvents = await (MissionEventModel as any).bulkWrite(missionEventsBulk, { ordered: false }); // ordered: false to avoid stopping the import if one mission fails
+
+      if (resMissionEvents.hasWriteErrors()) {
+        captureException("Mongo bulk failed", JSON.stringify(resMissionEvents.getWriteErrors(), null, 2));
+      }
+    }
+
+    const time = getJobTime(startedAt);
+    console.log(`[${publisher.name}] Mongo bulk write created ${importDoc.createdCount}, updated ${importDoc.updatedCount}, took ${time}`);
     return true;
   } catch (error) {
     captureException(`[${publisher.name}] Import failed`, JSON.stringify(error, null, 2));

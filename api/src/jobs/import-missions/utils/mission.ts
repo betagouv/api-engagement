@@ -126,7 +126,7 @@ const parseMission = (publisher: Publisher, missionXML: MissionXML, missionDB: M
     postedAt: parseDate(missionXML.postedAt) || new Date(),
     startAt: parseDate(missionXML.startAt) || new Date(),
     endAt: parseDate(missionXML.endAt) || null,
-    duration: missionXML.endAt ? getMonthDifference(new Date(missionXML.startAt), new Date(missionXML.endAt)) : undefined,
+    duration: missionXML.endAt ? getMonthDifference(new Date(missionXML.startAt), new Date(missionXML.endAt)) : null,
     activity: parseString(missionXML.activity) || "",
     domain: parseString(missionXML.domain) || "",
     schedule: parseString(missionXML.schedule),
