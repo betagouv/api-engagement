@@ -13,7 +13,7 @@ export const getMissionTrackedApplicationUrl = (mission: Mission, publisherId: s
   return `${API_URL}/r/${mission._id}/${publisherId}`;
 };
 
-const FIELDS = [
+export const FIELDS_TO_COMPARE = [
   "title",
   "type",
   "description",
@@ -72,7 +72,7 @@ const FIELDS = [
 export const getMissionChanges = (previousMission: Mission, currentMission: Mission): Record<string, { previous: any; current: any }> | null => {
   const changes: Record<string, { previous: any; current: any }> = {};
 
-  for (const field of FIELDS) {
+  for (const field of FIELDS_TO_COMPARE) {
     if (Array.isArray(previousMission[field]) && Array.isArray(currentMission[field])) {
       if (!areArraysEqual(previousMission[field], currentMission[field])) {
         changes[field] = {
