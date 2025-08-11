@@ -2,6 +2,46 @@
 Vous retrouverez ici l'historique des différents déploiements effectués sur l'API Engagement.
 
 
+## 04/08/2025
+
+
+### Bug Fixes
+
+-  Fix cron message label ([`318156c`](https://github.com/betagouv/api-engagement/commit/318156c58d657603f63dfe6e5cb57980f35765f1))
+
+-  Fix message slack cron ([`85b1903`](https://github.com/betagouv/api-engagement/commit/85b19037942583a8bdf6a32a12b076a61a948204))
+
+-  Fix mission moderation refuse ([`2f607f3`](https://github.com/betagouv/api-engagement/commit/2f607f3c4587f39404642f15bd42703a56e12345))
+
+-  Fix plausible event registration ([`b52638a`](https://github.com/betagouv/api-engagement/commit/b52638a576e6c27c27b52c7803320de54e85a46f))
+
+-  Fix deploy ci ([`7682765`](https://github.com/betagouv/api-engagement/commit/7682765d4b5dfbdecb297d2739048f43e4be02b5))
+
+-  Fix linkedin test ([`c0b46ae`](https://github.com/betagouv/api-engagement/commit/c0b46ae5621d06d766d912fb0f0b61cb78581883))
+
+-  Fix ci + widget date picker translation ([`caf4edb`](https://github.com/betagouv/api-engagement/commit/caf4edb24a6e26fac8e47281cf92bbb4f5b14667))
+
+-  Fix linkedin test ([`4d272ea`](https://github.com/betagouv/api-engagement/commit/4d272ea0275b2f7983abbebc2059df26f4910c20))
+
+-  Fix import config ([`c75006f`](https://github.com/betagouv/api-engagement/commit/c75006ff5bbacaccef6ff53ccaeef591eb112d2d))
+
+
+### Miscellaneous Tasks
+
+- (**changelog**) Update CHANGELOG.md ([`db1a829`](https://github.com/betagouv/api-engagement/commit/db1a82953bcdbb38636dc21b52870bc896de24c7))
+
+- (**deps-dev**) Bump the dev-dependencies group across 1 directory with 2 updates (#355) ([`a40bfea`](https://github.com/betagouv/api-engagement/commit/a40bfea1d4971ba9b6265a099048d1712bd9a79d))
+
+- (**deps**) Bump the production-dependencies group across 1 directory with 9 updates (#356) ([`9666e85`](https://github.com/betagouv/api-engagement/commit/9666e85549cf3b036a10db50bf9f3ad042b0b75a))
+
+- (**deps**) Bump the production-dependencies group across 1 directory with 6 updates (#357) ([`135e536`](https://github.com/betagouv/api-engagement/commit/135e536d4aecd2ebe64c4237ad39a5b20a10d009))
+
+- (**changelog**) Update CHANGELOG.md ([`7c6cc07`](https://github.com/betagouv/api-engagement/commit/7c6cc07b36f3cbd84fb05f159cf81a2bf10ae36a))
+
+# API Engagement - Changelog
+Vous retrouverez ici l'historique des différents déploiements effectués sur l'API Engagement.
+
+
 ## 28/07/2025
 
 
