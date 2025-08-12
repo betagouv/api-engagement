@@ -6,11 +6,19 @@ import useStore from "../utils/store";
 
 const SelectFilter = ({ options, selectedOptions, onChange, id, placeholder = "Choissiez une option", position = "left-0", width = "w-80", searchable = false }) => {
   const { url, color } = useStore();
+  const ref = useRef(null);
+  const inputRef = useRef(null);
+  const resetButtonRef = useRef(null);
+  const [listRef, setListRef] = useState(options.map(() => null));
   const plausible = usePlausible();
   const [show, setShow] = useState(false);
   const [selection, setSelection] = useState(selectedOptions);
   const [search, setSearch] = useState("");
-  const ref = useRef(null);
+  const [focusedIndex, setFocusedIndex] = useState(0);
+
+  useEffect(() => {
+    setListRef(options.map(() => null));
+  }, [options]);
 
   useEffect(() => {
     setSelection(selectedOptions);
@@ -37,7 +45,7 @@ const SelectFilter = ({ options, selectedOptions, onChange, id, placeholder = "C
     }
   };
 
-  const handleKeyDown = (e) => {
+  const handleButtonKeyDown = (e) => {
     if (!show) {
       if (e.key === "Enter" || e.key === " ") {
         e.preventDefault();
@@ -52,11 +60,51 @@ const SelectFilter = ({ options, selectedOptions, onChange, id, placeholder = "C
     }
   };
 
+  const handleListKeyDown = (e, item) => {
+    switch (e.key) {
+      case "Tab":
+        e.preventDefault();
+        if (e.shiftKey) {
+          inputRef.current.focus();
+        } else {
+          resetButtonRef.current.focus();
+        }
+        break;
+      case " ":
+      case "Space":
+      case "Enter": {
+        e.preventDefault();
+        handleToggle(item);
+        plausible(`Filter ${id} selected`, { props: { filter: item.label }, u: url });
+        break;
+      }
+      case "Up":
+      case "ArrowUp": {
+        e.preventDefault();
+        const newIndex = focusedIndex > 0 ? focusedIndex - 1 : options.length - 1;
+        setFocusedIndex(newIndex);
+        listRef[newIndex].focus();
+        break;
+      }
+      case "Down":
+      case "ArrowDown": {
+        e.preventDefault();
+        const newIndex = focusedIndex < options.length - 1 ? focusedIndex + 1 : 0;
+        setFocusedIndex(newIndex);
+        listRef[newIndex].focus();
+        break;
+      }
+    }
+  };
+
   return (
     <div className="relative w-full min-w-[6rem]" ref={ref}>
       <label htmlFor={id} className="sr-only">
         {placeholder}
       </label>
+      <div aria-live="polite" className="sr-only">
+        {(selection || []).length > 1 ? `${(selection || []).length} filtres sélectionnés` : `${(selection || []).length} filtre sélectionné`}
+      </div>
       <button
         id={id}
         aria-label={placeholder}
@@ -65,7 +113,7 @@ const SelectFilter = ({ options, selectedOptions, onChange, id, placeholder = "C
           !selectedOptions || selectedOptions.length === 0 ? "text-[#666666]" : "text-[#161616]"
         }`}
         onClick={() => setShow(!show)}
-        onKeyDown={handleKeyDown}
+        onKeyDown={handleButtonKeyDown}
       >
         <span className="pr-3 truncate max-w-60">
           {!selectedOptions || selectedOptions.some((o) => o === undefined)
@@ -77,12 +125,19 @@ const SelectFilter = ({ options, selectedOptions, onChange, id, placeholder = "C
         {show ? <RiArrowDownSLine className="text-xl transform rotate-180" /> : <RiArrowDownSLine className="text-xl" />}
       </button>
 
-      <div className={`absolute ${position} mt-1 z-50 ${width} border border-[#DDDDDD] bg-white shadow-md ${show ? "block" : "hidden"}`} role="group" aria-labelledby={id}>
+      <div
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby={id}
+        className={`absolute ${position} mt-1 z-50 ${width} border border-[#DDDDDD] bg-white shadow-md ${show ? "block" : "hidden"}`}
+      >
         {searchable && (
           <div className="mx-4 mt-4 relative">
             <RiSearchLine className="text-[#3A3A3A] absolute left-3 top-1/2 -translate-y-1/2" />
             <input
+              ref={inputRef}
               aria-label={`Rechercher dans ${placeholder.toLowerCase()}`}
+              role="searchbox"
               type="text"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
@@ -91,7 +146,7 @@ const SelectFilter = ({ options, selectedOptions, onChange, id, placeholder = "C
             />
           </div>
         )}
-        <ul id={`${id}-list`} className="p-4 w-full max-h-60 overflow-y-scroll" tabIndex={-1}>
+        <ul id={`${id}-list`} className="p-4 w-full max-h-60 overflow-y-scroll" tabIndex={-1} role="listbox" aria-multiselectable="true">
           {options?.length === 0 ? (
             <li className="text-sm text-center py-2">Aucune option disponible</li>
           ) : (
@@ -101,24 +156,20 @@ const SelectFilter = ({ options, selectedOptions, onChange, id, placeholder = "C
                 const selected = selection?.some((option) => option.value === item.value);
                 return (
                   <li
+                    ref={(el) => (listRef[index] = el)}
                     key={item.value}
                     id={`${id}-option-${index}`}
-                    role="checkbox"
+                    role="option"
                     aria-label={item.label}
                     aria-checked={selected}
-                    tabIndex={0}
+                    aria-focused={index === focusedIndex}
+                    tabIndex={index === focusedIndex ? 0 : -1}
                     className="w-full flex items-center justify-between gap-2 text-sm px-4 py-2 cursor-pointer hover:bg-[#0000000A] focus:outline-none focus-visible:ring focus-visible:ring-[#000091] focus-visible:bg-[#0000000A]"
                     onClick={() => {
                       handleToggle(item);
                       plausible(`Filter ${id} selected`, { props: { filter: item.label }, u: url });
                     }}
-                    onKeyDown={(e) => {
-                      if (e.key === "Enter" || e.key === " ") {
-                        e.preventDefault();
-                        handleToggle(item);
-                        plausible(`Filter ${id} selected`, { props: { filter: item.label }, u: url });
-                      }
-                    }}
+                    onKeyDown={(e) => handleListKeyDown(e, item)}
                   >
                     <div className="flex items-center w-[90%]">
                       <Checkbox selected={selected} color={color} />
@@ -132,6 +183,7 @@ const SelectFilter = ({ options, selectedOptions, onChange, id, placeholder = "C
         </ul>
         <div className="p-4 w-full flex items-center justify-between border-t border-[#DDDDDD]">
           <button
+            ref={resetButtonRef}
             className="text-sm cursor-pointer px-2 focus:outline-none focus-visible:ring focus-visible:ring-[#000091]"
             style={{ color: color ? color : "" }}
             onClick={() => {
