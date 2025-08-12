@@ -40,7 +40,12 @@ const DateFilter = ({ selected, onChange, position = "left-0", width = "w-80" })
         {show ? <RiArrowDownSLine className="text-xl transform rotate-180" /> : <RiArrowDownSLine className="text-xl" />}
       </button>
 
-      <div className={`absolute ${position} mt-1 z-50 ${width} min-w-[384px] p-6 border border-[#DDDDDD] bg-white shadow-md ${show ? "block" : "hidden"}`}>
+      <div
+        role="dialog"
+        aria-modal="true"
+        aria-label="Calendrier de disponibilité"
+        className={`absolute ${position} mt-1 z-50 ${width} min-w-[384px] p-6 border border-[#DDDDDD] bg-white shadow-md ${show ? "block" : "hidden"}`}
+      >
         <div className="border-b border-[#DDDDDD] pb-4">
           <p>Je suis disponible à partir du</p>
         </div>
