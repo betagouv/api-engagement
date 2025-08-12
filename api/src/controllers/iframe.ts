@@ -5,7 +5,7 @@ import zod from "zod";
 import { ENV, PUBLISHER_IDS } from "../config";
 import { INVALID_PARAMS, INVALID_QUERY, NOT_FOUND, captureMessage } from "../error";
 import MissionModel from "../models/mission";
-import RequestWidget from "../models/request-widget";
+import RequestWidgetModel from "../models/request-widget";
 import WidgetModel from "../models/widget";
 import { Mission, Widget } from "../types";
 import { EARTH_RADIUS, buildQueryMongo, capitalizeFirstLetter, getDistanceKm, isValidObjectId } from "../utils";
@@ -270,7 +270,8 @@ router.get("/:id/search", async (req: Request, res: Response, next: NextFunction
     if (ENV !== "production") {
       return res.status(200).send({ ok: true, data, total });
     }
-    const request = await RequestWidget.create({
+
+    const request = await RequestWidgetModel.create({
       query: {
         ...query.data,
         distance: where["addresses.geoPoint"] ? "50km" : undefined,

@@ -30,7 +30,8 @@ mongoose.connection.on("disconnected", () => {
       if (!DB_ENDPOINT) {
         throw new Error("[MongoDB] No MongoDB endpoint provided!");
       }
-      mongoose.connect(DB_ENDPOINT, { maxPoolSize: 5000 });
+
+      mongoose.connect(DB_ENDPOINT, { maxPoolSize: 5000, tls: true, tlsInsecure: true });
       reconnectTries++;
     }, 5000);
   } else {
@@ -38,4 +39,4 @@ mongoose.connection.on("disconnected", () => {
   }
 });
 
-mongoose.connect(DB_ENDPOINT, { maxPoolSize: 5000 });
+mongoose.connect(DB_ENDPOINT, { maxPoolSize: 5000, tls: DB_ENDPOINT.includes("scw") ? true : false, tlsInsecure: true });
