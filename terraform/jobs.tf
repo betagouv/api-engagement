@@ -76,8 +76,8 @@ resource "scaleway_job_definition" "kpi" {
 resource "scaleway_job_definition" "import-organizations" {
   name         = "${terraform.workspace}-import-organizations"
   project_id   = var.project_id
-  cpu_limit    = 1000
-  memory_limit = 2048
+  cpu_limit    = 2000
+  memory_limit = 4096
   image_uri    = local.image_uri
   command      = "node --max-old-space-size=1800 dist/jobs/run-job.js import-organizations"
   timeout      = "45m"

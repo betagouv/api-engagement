@@ -47,7 +47,6 @@ const Card = ({ widget, mission, request, focused = false, onKeyDown = null, onR
       <div className="max-h-[188px] min-h-[188px] overflow-hidden xl:max-h-[200px] xl:min-h-[200px]">
         <Image
           src={error ? "/generique.jpeg" : mission.domainLogo}
-          alt={mission.title}
           priority={true}
           className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-110 group-focus-within:scale-110"
           width={500}
