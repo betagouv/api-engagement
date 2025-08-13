@@ -80,7 +80,6 @@ jobs:
         id: app_args
         run: |
           echo "ENV=${{ needs.set-env.outputs.environment_name }}" >> $GITHUB_OUTPUT
-          echo "SENTRY_AUTH_TOKEN=${{ secrets.SENTRY_AUTH_TOKEN }}" >> $GITHUB_OUTPUT
           echo "SENTRY_HOST=${{ vars.SENTRY_HOST }}" >> $GITHUB_OUTPUT
           echo "SENTRY_DNS_APP=${{ secrets.SENTRY_DNS_APP }}" >> $GITHUB_OUTPUT
           if [[ "${{ needs.set-env.outputs.environment_name }}" == 'production' ]]; then
@@ -103,8 +102,9 @@ jobs:
             ${{ matrix.server_type != '' && format('ghcr.io/{0}/{1}-{2}:{3}', github.repository, matrix.service, matrix.server_type, needs.set-env.outputs.environment_name) || format('ghcr.io/{0}/{1}:{2}', github.repository, matrix.service, needs.set-env.outputs.environment_name) }}
             ${{ matrix.server_type != '' && format('ghcr.io/{0}/{1}-{2}:{3}-latest', github.repository, matrix.service, matrix.server_type, needs.set-env.outputs.environment_name) || format('ghcr.io/{0}/{1}:{2}-latest', github.repository, matrix.service, needs.set-env.outputs.environment_name) }}
             ${{ matrix.server_type != '' && format('ghcr.io/{0}/{1}-{2}:{3}-{4}', github.repository, matrix.service, matrix.server_type, needs.set-env.outputs.environment_name, steps.vars.outputs.short_sha) || format('ghcr.io/{0}/{1}:{2}-{3}', github.repository, matrix.service, needs.set-env.outputs.environment_name, steps.vars.outputs.short_sha) }}
+          secrets: |
+            sentry_auth_token=${{ secrets.SENTRY_AUTH_TOKEN }}
           build-args: |
-            SENTRY_AUTH_TOKEN=${{ steps.app_args.outputs.SENTRY_AUTH_TOKEN }}
             ENV=${{ steps.app_args.outputs.ENV }}
             API_URL=${{ steps.app_args.outputs.API_URL }}
             BENEVOLAT_URL=${{ steps.app_args.outputs.BENEVOLAT_URL }}
