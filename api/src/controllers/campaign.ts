@@ -102,7 +102,6 @@ router.post("/", passport.authenticate("admin", { session: false }), async (req:
         toPublisherId: zod.string(),
         trackers: zod.array(zod.object({ key: zod.string(), value: zod.string(), _id: zod.string().optional() })).optional(),
       })
-      .passthrough()
       .safeParse(req.body);
 
     if (!body.success) {
@@ -227,7 +226,6 @@ router.put("/:id", passport.authenticate("admin", { session: false }), async (re
         toPublisherId: zod.string().optional(),
         trackers: zod.array(zod.object({ key: zod.string(), value: zod.string(), _id: zod.string().optional() })).optional(),
       })
-      .passthrough()
       .safeParse(req.body);
 
     if (!params.success) {

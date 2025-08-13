@@ -58,7 +58,6 @@ router.post("/feedback", passport.authenticate(["leboncoin"], { session: false }
         url: zod.string().optional(),
         note: zod.string().optional(),
       })
-      .passthrough()
       .safeParse(req.body);
 
     if (!body.success) {

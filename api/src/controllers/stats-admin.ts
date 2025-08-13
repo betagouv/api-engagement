@@ -20,7 +20,6 @@ router.get("/views", passport.authenticate("user", { session: false }), async (r
         from: zod.coerce.date().optional(),
         to: zod.coerce.date().optional(),
       })
-      .passthrough()
       .safeParse(req.query);
 
     if (!query.success) {
@@ -172,7 +171,6 @@ router.get("/created-missions", passport.authenticate("user", { session: false }
         from: zod.coerce.date().optional(),
         to: zod.coerce.date().optional(),
       })
-      .passthrough()
       .safeParse(req.query);
 
     if (!query.success) {
@@ -264,7 +262,6 @@ router.get("/active-missions", passport.authenticate("user", { session: false })
         from: zod.coerce.date(),
         to: zod.coerce.date(),
       })
-      .passthrough()
       .safeParse(req.query);
 
     if (!query.success) {

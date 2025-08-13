@@ -44,8 +44,8 @@ router.post("/search", passport.authenticate("user", { session: false }), async 
             })
           )
           .optional(),
+        leboncoinStatus: zod.string().optional(),
       })
-      .passthrough()
       .safeParse(req.body);
 
     if (!body.success) {
@@ -264,7 +264,6 @@ router.get("/autocomplete", passport.authenticate("admin", { session: false }), 
         field: zod.string(),
         search: zod.string(),
       })
-      .passthrough()
       .safeParse(req.query);
 
     if (!query.success) {

@@ -29,7 +29,7 @@ router.post("/search", passport.authenticate("admin", { session: false }), async
       .safeParse(req.body);
 
     if (!body.success) {
-      return res.status(400).send({ ok: false, code: INVALID_BODY, message: body.error.errors });
+      return res.status(400).send({ ok: false, code: INVALID_BODY, message: body.error });
     }
 
     const where = { deletedAt: null } as { [key: string]: any };
@@ -57,7 +57,7 @@ router.get("/refresh", passport.authenticate("user", { session: false }), async 
       .safeParse(req.query);
 
     if (!query.success) {
-      return res.status(400).send({ ok: false, code: INVALID_QUERY, message: query.error.errors });
+      return res.status(400).send({ ok: false, code: INVALID_QUERY, message: query.error });
     }
 
     await user.save();
@@ -93,7 +93,7 @@ router.get("/:id", passport.authenticate("user", { session: false }), async (req
       .safeParse(req.params);
 
     if (!params.success) {
-      return res.status(400).send({ ok: false, code: INVALID_PARAMS, message: params.error.errors });
+      return res.status(400).send({ ok: false, code: INVALID_PARAMS, message: params.error });
     }
 
     if (req.user.role !== "admin" && req.user._id.toString() !== params.data.id) {
@@ -116,7 +116,7 @@ router.get("/loginas/:id", passport.authenticate("admin", { session: false }), a
       .safeParse(req.params);
 
     if (!params.success) {
-      return res.status(400).send({ ok: false, code: INVALID_PARAMS, message: params.error.errors });
+      return res.status(400).send({ ok: false, code: INVALID_PARAMS, message: params.error });
     }
 
     const user = await UserModel.findById(params.data.id);
@@ -151,7 +151,7 @@ router.post("/invite", passport.authenticate("admin", { session: false }), async
       .safeParse(req.body);
 
     if (!body.success) {
-      return res.status(400).send({ ok: false, code: INVALID_BODY, message: body.error.errors });
+      return res.status(400).send({ ok: false, code: INVALID_BODY, message: body.error });
     }
 
     const email = body.data.email.toLowerCase().trim();
@@ -193,7 +193,7 @@ router.post("/verify-token", async (req: UserRequest, res: Response, next: NextF
       .safeParse(req.body);
 
     if (!body.success) {
-      return res.status(400).send({ ok: false, code: INVALID_BODY, message: body.error.errors });
+      return res.status(400).send({ ok: false, code: INVALID_BODY, message: body.error });
     }
 
     const user = await UserModel.findOne({ invitationToken: body.data.token });
@@ -220,7 +220,7 @@ router.post("/verify-reset-password-token", async (req: UserRequest, res: Respon
       .safeParse(req.body);
 
     if (!body.success) {
-      return res.status(400).send({ ok: false, code: INVALID_BODY, message: body.error.errors });
+      return res.status(400).send({ ok: false, code: INVALID_BODY, message: body.error });
     }
 
     const user = await UserModel.findOne({ forgotPasswordToken: body.data.token });
@@ -251,7 +251,7 @@ router.post("/signup", async (req: UserRequest, res: Response, next: NextFunctio
       .safeParse(req.body);
 
     if (!body.success) {
-      return res.status(400).send({ ok: false, code: INVALID_BODY, message: body.error.errors });
+      return res.status(400).send({ ok: false, code: INVALID_BODY, message: body.error });
     }
 
     if (body.data.password.length < 12 || !hasLetter(body.data.password) || !hasNumber(body.data.password) || !hasSpecialChar(body.data.password)) {
@@ -287,7 +287,7 @@ router.post("/login", async (req: UserRequest, res: Response, next: NextFunction
       .safeParse(req.body);
 
     if (!body.success) {
-      return res.status(404).send({ ok: false, code: INVALID_BODY, message: body.error.errors });
+      return res.status(404).send({ ok: false, code: INVALID_BODY, message: body.error });
     }
 
     const start = Date.now();
@@ -362,7 +362,7 @@ router.put("/", passport.authenticate("user", { session: false }), async (req: U
       .safeParse(req.body);
 
     if (!body.success) {
-      return res.status(400).send({ ok: false, code: INVALID_BODY, message: body.error.errors });
+      return res.status(400).send({ ok: false, code: INVALID_BODY, message: body.error });
     }
 
     req.user.lastname = body.data.lastname;
@@ -418,7 +418,7 @@ router.put("/reset-password", async (req: UserRequest, res: Response, next: Next
       .safeParse(req.body);
 
     if (!body.success) {
-      return res.status(400).send({ ok: false, code: INVALID_BODY, message: body.error.errors });
+      return res.status(400).send({ ok: false, code: INVALID_BODY, message: body.error });
     }
 
     const user = await UserModel.findOne({ forgotPasswordToken: body.data.token });
@@ -454,7 +454,7 @@ router.put("/:id/reset-password", passport.authenticate("admin", { session: fals
       .safeParse(req.params);
 
     if (!params.success) {
-      return res.status(400).send({ ok: false, code: INVALID_PARAMS, message: params.error.errors });
+      return res.status(400).send({ ok: false, code: INVALID_PARAMS, message: params.error });
     }
 
     const user = await UserModel.findById(params.data.id);
@@ -480,7 +480,7 @@ router.put("/:id/invite-again", passport.authenticate("admin", { session: false 
       .safeParse(req.params);
 
     if (!params.success) {
-      return res.status(400).send({ ok: false, code: INVALID_PARAMS, message: params.error.errors });
+      return res.status(400).send({ ok: false, code: INVALID_PARAMS, message: params.error });
     }
 
     const user = await UserModel.findById(params.data.id);
@@ -524,10 +524,10 @@ router.put("/:id", passport.authenticate("admin", { session: false }), async (re
       .safeParse(req.body);
 
     if (!params.success) {
-      return res.status(400).send({ ok: false, code: INVALID_PARAMS, message: params.error.errors });
+      return res.status(400).send({ ok: false, code: INVALID_PARAMS, message: params.error });
     }
     if (!body.success) {
-      return res.status(400).send({ ok: false, code: INVALID_BODY, message: body.error.errors });
+      return res.status(400).send({ ok: false, code: INVALID_BODY, message: body.error });
     }
 
     const user = await UserModel.findById(params.data.id);
@@ -565,7 +565,7 @@ router.delete("/:id", passport.authenticate("admin", { session: false }), async 
       .safeParse(req.params);
 
     if (!params.success) {
-      return res.status(400).send({ ok: false, code: INVALID_PARAMS, message: params.error.errors });
+      return res.status(400).send({ ok: false, code: INVALID_PARAMS, message: params.error });
     }
 
     const user = await UserModel.findById(params.data.id);

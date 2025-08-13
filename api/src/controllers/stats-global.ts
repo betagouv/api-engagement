@@ -18,7 +18,6 @@ router.get("/broadcast-preview", passport.authenticate("user", { session: false 
         from: zod.coerce.date().optional(),
         to: zod.coerce.date().optional(),
       })
-      .passthrough()
       .safeParse(req.query);
 
     if (!query.success) {
@@ -107,7 +106,6 @@ router.get("/announce-preview", async (req: UserRequest, res: Response, next: Ne
         from: zod.coerce.date().optional(),
         to: zod.coerce.date().optional(),
       })
-      .passthrough()
       .safeParse(req.query);
 
     if (!query.success) {
@@ -183,7 +181,6 @@ router.get("/distribution", passport.authenticate("user", { session: false }), a
         to: zod.coerce.date().optional(),
         type: zod.enum(["click", "apply", "print", "account"]).optional(),
       })
-      .passthrough()
       .safeParse(req.query);
 
     if (!query.success) {
@@ -248,7 +245,6 @@ router.get("/evolution", async (req: UserRequest, res: Response, next: NextFunct
         type: zod.enum(["click", "apply", "print", "account"]).optional(),
         flux: zod.enum(["to", "from"]).default("to"),
       })
-      .passthrough()
       .safeParse(req.query);
 
     if (!query.success) {
@@ -342,7 +338,6 @@ router.get("/broadcast-publishers", passport.authenticate("user", { session: fal
         to: zod.coerce.date().optional(),
         flux: zod.enum(["to", "from"]).default("to"),
       })
-      .passthrough()
       .safeParse(req.query);
 
     if (!query.success) {
@@ -434,7 +429,6 @@ router.get("/announce-publishers", passport.authenticate("user", { session: fals
         to: zod.coerce.date().optional(),
         flux: zod.enum(["to", "from"]).default("to"),
       })
-      .passthrough()
       .safeParse(req.query);
 
     if (!query.success) {
@@ -495,7 +489,6 @@ router.get("/missions", async (req: UserRequest, res: Response, next: NextFuncti
         from: zod.coerce.date().optional(),
         to: zod.coerce.date().optional(),
       })
-      .passthrough()
       .safeParse(req.query);
 
     if (!query.success) {

@@ -97,7 +97,6 @@ router.get("/:id/search", async (req: Request, res: Response, next: NextFunction
         size: zod.coerce.number().int().min(0).default(25),
         start: zod.coerce.date().optional(),
       })
-      .passthrough()
       .safeParse(req.query);
 
     if (!params.success) {
@@ -316,7 +315,6 @@ router.get("/:id/aggs", cors({ origin: "*" }), async (req: Request, res: Respons
         size: zod.coerce.number().int().min(0).default(25),
         from: zod.coerce.number().int().min(0).default(0),
       })
-      .passthrough()
       .safeParse(req.query);
 
     if (!params.success) {

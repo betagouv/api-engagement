@@ -44,7 +44,6 @@ router.get("/", passport.authenticate(["apikey", "api"], { session: false }), as
         limit: zod.coerce.number().int().max(10000).default(50),
         skip: zod.coerce.number().int().default(0),
       })
-      .passthrough()
       .safeParse(req.query);
 
     if (!query.success) {
