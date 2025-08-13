@@ -63,10 +63,12 @@ const LocationFilter = ({ selected, onChange, width = "w-80", disabled = false }
     }
 
     switch (e.key) {
+      case "Down":
       case "ArrowDown":
         e.preventDefault();
         setFocusedIndex((prev) => (prev < options.length - 1 ? prev + 1 : 0));
         break;
+      case "Up":
       case "ArrowUp":
         e.preventDefault();
         setFocusedIndex((prev) => (prev > 0 ? prev - 1 : options.length - 1));
@@ -79,6 +81,11 @@ const LocationFilter = ({ selected, onChange, width = "w-80", disabled = false }
         break;
       case "Escape":
         e.preventDefault();
+        setShow(false);
+        setOptions([]);
+        setFocusedIndex(-1);
+        break;
+      case "Tab":
         setShow(false);
         setOptions([]);
         setFocusedIndex(-1);
@@ -161,11 +168,9 @@ const LocationFilter = ({ selected, onChange, width = "w-80", disabled = false }
               id={`location-option-${index}`}
               className={`cursor-pointer flex items-center justify-between py-2 px-3 ${index === focusedIndex ? "bg-[#0000000A] ring ring-[#000091]" : "hover:bg-[#0000000A]"}`}
               role="option"
-              aria-selected={selected?.value === option.value}
+              aria-selected={focusedIndex === index}
               aria-label={option.label}
-              tabIndex={-1}
               onClick={() => handleSelect(option)}
-              onMouseEnter={() => setFocusedIndex(index)}
             >
               <span className="block text-sm truncate font-normal">{option.label}</span>
               {selected?.value === option.value && (
