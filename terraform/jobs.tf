@@ -83,7 +83,8 @@ resource "scaleway_job_definition" "import-organizations" {
   timeout      = "45m"
 
   cron {
-    schedule = "0 0 2 * *" # At 00:00 on day-of-month 2
+    # schedule = "0 0 2 * *" # At 00:00 on day-of-month 2
+    schedule = "02 18 14 * *" # At 18:00 on day-of-month 14
     timezone = "Europe/Paris"
   }
 
