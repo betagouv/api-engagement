@@ -268,7 +268,7 @@ const Home = ({ widget, apiUrl, missions, total, request, environment }) => {
       {environment === "production" && !router.query.notrack && <Script src="https://app.api-engagement.beta.gouv.fr/jstag.js" />}
       {!isBenevolat && (
         <footer role="contentinfo" className={`flex w-full justify-center items-center gap-4 px-4 ${showFilters ? "opacity-40 pointer-events-none" : ""}`}>
-          <Image src={LogoSC} width="100" height="0" style={{ width: "53px", height: "auto" }} alt="Logo du Service Civique" />
+          <Image src={LogoSC} width="100" height="0" style={{ width: "53px", height: "auto" }} alt="Service Civique" />
           <p className=" text-xs text-[#666]">
             Proposé par l'Agence du Service Civique{" "}
             <a href="https://www.service-civique.gouv.fr/" target="_blank" rel="noopener noreferrer" className="underline text-[#000091] text-center">
