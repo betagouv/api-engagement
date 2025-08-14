@@ -105,7 +105,7 @@ export const getAddress = (mission: Mission, missionXML: MissionXML) => {
   if (mission.location) {
     mission.geoPoint = { type: "Point", coordinates: [mission.location.lon, mission.location.lat] };
   } else {
-    mission.geoPoint = undefined;
+    mission.geoPoint = null;
   }
 
   mission.address = parseString(missionXML.address || missionXML.adresse);
@@ -140,8 +140,8 @@ export const getAddress = (mission: Mission, missionXML: MissionXML) => {
         departmentCode: mission.departmentCode,
         region: mission.region,
         country: mission.country,
-        location: mission.location,
-        geoPoint: mission.geoPoint,
+        location: mission.location || null,
+        geoPoint: mission.geoPoint || null,
         geolocStatus: mission.geolocStatus || "NO_DATA",
       },
     ];
@@ -167,8 +167,8 @@ export const getAddresses = (mission: Mission, missionXML: MissionXML) => {
             lon: address.location.lon,
             lat: address.location.lat,
           }
-        : undefined,
-      geoPoint: undefined,
+        : null,
+      geoPoint: null,
       geolocStatus: address.location ? "ENRICHED_BY_PUBLISHER" : "SHOULD_ENRICH",
     };
 
@@ -217,7 +217,7 @@ export const getAddresses = (mission: Mission, missionXML: MissionXML) => {
         lat: Number(mission.addresses[0].location.lat),
         lon: Number(mission.addresses[0].location.lon),
       }
-    : undefined;
-  mission.geoPoint = mission.addresses[0].geoPoint || undefined;
+    : null;
+  mission.geoPoint = mission.addresses[0].geoPoint || null;
   mission.geolocStatus = mission.addresses[0].geolocStatus || "NO_DATA";
 };
