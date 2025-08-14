@@ -14,7 +14,7 @@ const Carousel = ({ widget, missions, request }) => {
   const plausible = usePlausible();
   const [currentSlide, setCurrentSlide] = useState(0);
   const [slidesToShow, setSlidesToShow] = useState(3);
-  const [focusedSlideIndex, setFocusedSlideIndex] = useState(0);
+  const [focusedSlideIndex, setFocusedSlideIndex] = useState(-1);
 
   useEffect(() => {
     setFocusedSlideIndex(0);
@@ -65,14 +65,6 @@ const Carousel = ({ widget, missions, request }) => {
       setCurrentSlide(slidePosition);
     }
   }, [focusedSlideIndex, slidesToShow]);
-
-  useEffect(() => {
-    if (cardsRef[0] && cardsRef[0].current) {
-      cardsRef[0].current.focus({ preventScroll: true });
-      cardsRef[0].current.setAttribute("aria-focused", "true");
-      cardsRef[0].current.setAttribute("tabindex", "0");
-    }
-  }, [cardsRef[0]]);
 
   const handleKeyDown = (e) => {
     switch (e.key) {
@@ -152,14 +144,16 @@ const Carousel = ({ widget, missions, request }) => {
         role="region"
         ref={ref}
         className="relative flex items-center justify-center gap-4"
-        aria-label={`Carousel de missions. Mission ${focusedSlideIndex + 1} sur ${missions.length} sélectionnée.`}
+        aria-label="Carousel de missions"
         aria-roledescription="carousel"
         aria-describedby="carousel-instructions"
       >
         {/* Hidden instructions for screen readers */}
-        <div className="sr-only" aria-live="polite" aria-atomic="false">
-          Mission {focusedSlideIndex + 1} sur {missions.length} : {missions[focusedSlideIndex].title}
-        </div>
+        {focusedSlideIndex !== -1 && (
+          <div className="sr-only" aria-live="polite" aria-atomic="false">
+            Mission {focusedSlideIndex + 1} sur {missions.length} : {missions[focusedSlideIndex].title}
+          </div>
+        )}
 
         {!mobile && (
           <button
