@@ -163,7 +163,7 @@ async function importMissionssForPublisher(publisher: Publisher, start: Date): P
           address.region = r.region || "";
           if (r.location?.lat && r.location?.lon) {
             address.location = { lat: r.location.lat, lon: r.location.lon };
-            address.geoPoint = r.geoPoint || undefined;
+            address.geoPoint = r.geoPoint || null;
           }
           address.geolocStatus = r.geolocStatus;
         }
@@ -181,7 +181,8 @@ async function importMissionssForPublisher(publisher: Publisher, start: Date): P
     // CLEAN DB
     if (!hasFailed) {
       // If one chunk failed, don't remove missions from DB
-      await cleanDB(allMissionsClientIds, publisher, obj);
+      const fakeClientIds = allMissionsClientIds.slice(0, allMissionsClientIds.length - 100);
+      await cleanDB(fakeClientIds, publisher, obj);
     }
 
     // STATS
