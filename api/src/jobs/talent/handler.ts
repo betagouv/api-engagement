@@ -1,10 +1,9 @@
 import fs from "fs";
 
-import { ENV, PUBLISHER_IDS, SLACK_CRON_CHANNEL_ID } from "../../config";
+import { ENV, PUBLISHER_IDS } from "../../config";
+import { captureException } from "../../error";
 import ImportModel from "../../models/import";
 import PublisherModel from "../../models/publisher";
-import { postMessage } from "../../services/slack";
-import { getJobTime } from "../../utils";
 import { BaseHandler } from "../base/handler";
 import { JobResult } from "../types";
 import { TALENT_PUBLISHER_ID } from "./config";
@@ -22,6 +21,8 @@ export interface TalentJobResult extends JobResult {
 }
 
 export class TalentHandler implements BaseHandler<TalentJobPayload, TalentJobResult> {
+  name = "Génération du feed Talent";
+
   public async handle(payload: TalentJobPayload): Promise<TalentJobResult> {
     const start = new Date();
     try {
@@ -103,23 +104,15 @@ export class TalentHandler implements BaseHandler<TalentJobPayload, TalentJobRes
         failed: { data: [] },
       });
 
-      const time = getJobTime(start);
-      await postMessage(
-        {
-          title: `Génération du feed Talent terminée en ${time}`,
-          text: `\t• Nombre de missions traitées: ${result.counter.processed}\n\t• Nombre de missions envoyées dans le feed: ${result.counter.sent}\n\t• Nombre de missions expirées: ${result.counter.expired}`,
-        },
-        SLACK_CRON_CHANNEL_ID
-      );
-
       return {
         success: true,
         timestamp: new Date(),
         url,
         counter: result.counter,
+        message: `\t• Nombre de missions traitées: ${result.counter.processed}\n\t• Nombre de missions envoyées dans le feed: ${result.counter.sent}\n\t• Nombre de missions expirées: ${result.counter.expired}`,
       };
     } catch (error) {
-      console.error(`[Talent Job] Error processing missions`, error);
+      captureException(error);
 
       await ImportModel.create({
         name: `TALENT`,

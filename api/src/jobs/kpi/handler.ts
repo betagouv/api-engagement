@@ -18,6 +18,8 @@ export interface KpiJobResult extends JobResult {
 }
 
 export class KpiHandler implements BaseHandler<KpiJobPayload, KpiJobResult> {
+  name = "Calcul des KPIs";
+
   public async handle(payload: KpiJobPayload): Promise<KpiJobResult> {
     const { date } = payload;
     const today = date || new Date();
@@ -43,6 +45,7 @@ export class KpiHandler implements BaseHandler<KpiJobPayload, KpiJobResult> {
       success: result.every((e) => e.kpiBotless !== null && e.kpi !== null) ? true : false,
       timestamp: new Date(),
       result,
+      message: "KPIs calculées avec succès",
     };
   }
 }

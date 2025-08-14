@@ -10,5 +10,6 @@ export interface BaseHandler<PayloadType = any, ResultType extends JobResult = J
    * @param payload The payload of the job.
    * @returns A promise that resolves with a JobResult.
    */
+  name: string;
   handle(payload: PayloadType): Promise<ResultType | undefined>;
 }

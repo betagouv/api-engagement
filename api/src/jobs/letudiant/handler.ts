@@ -33,6 +33,8 @@ export interface LetudiantJobResult extends JobResult {
  * - Schedules the job
  */
 export class LetudiantHandler implements BaseHandler<LetudiantJobPayload, LetudiantJobResult> {
+  name = "Sync des missions L'Etudiant";
+
   public async handle(payload: LetudiantJobPayload): Promise<LetudiantJobResult> {
     const pilotyClient = new PilotyClient(LETUDIANT_PILOTY_TOKEN, MEDIA_PUBLIC_ID);
     const { id, limit } = payload;
@@ -110,7 +112,6 @@ export class LetudiantHandler implements BaseHandler<LetudiantJobPayload, Letudi
           { timestamps: false }
         );
       } catch (error) {
-        console.error(error);
         captureException(`[LetudiantHandler] Error processing mission`, { extra: { error, missionId: mission._id, id, limit } });
 
         // Update mission and avoid updatedAt update
@@ -135,6 +136,7 @@ export class LetudiantHandler implements BaseHandler<LetudiantJobPayload, Letudi
         processed: missions.length,
         ...counter,
       },
+      message: `\t• Nombre de missions traitées: ${missions.length}\n\t• Nombre de missions créées: ${counter.created}\n\t• Nombre de missions mises à jour: ${counter.updated}\n\t• Nombre de missions supprimées: ${counter.deleted}\n\t• Nombre de missions en erreur: ${counter.error}`,
     };
   }
 }

@@ -20,20 +20,32 @@ export interface ImportOrganizationsJobPayload {}
 export interface ImportOrganizationsJobResult extends JobResult {}
 
 export class ImportOrganizationsHandler implements BaseHandler<ImportOrganizationsJobPayload, ImportOrganizationsJobResult> {
+  name = "Import des RNA de data.gouv.fr";
+
   public async handle(payload: ImportOrganizationsJobPayload): Promise<ImportOrganizationsJobResult> {
     const start = new Date();
+    let success = false;
+    let count = 0;
     console.log(`[ImportOrganizations] Starting at ${start.toISOString()}`);
 
     const resources = await apiDataGouv.get<DataGouvResource[]>(`/datasets/${RNA_DATASETS_ID}/resources?type=main`);
     if (!resources) {
       captureException("RNA resources not found");
-      return returnResult(false);
+      return {
+        success: false,
+        timestamp: new Date(),
+        message: "RNA resources not found",
+      };
     }
 
     const resource = resources.filter((r) => r.title.includes("rna_waldec")).sort((a, b) => new Date(b.last_modified).getTime() - new Date(a.last_modified).getTime())[0];
     if (!resource) {
       captureException("RNA resource not found");
-      return returnResult(false);
+      return {
+        success: false,
+        timestamp: new Date(),
+        message: "RNA resource not found",
+      };
     }
 
     console.log(`[ImportOrganizations] Found resource ${resource.id} ${resource.url}`);
@@ -51,7 +63,11 @@ export class ImportOrganizationsHandler implements BaseHandler<ImportOrganizatio
         endedAt: new Date(),
         status: "ALREADY_UPDATED",
       });
-      return returnResult(false);
+      return {
+        success: true,
+        timestamp: new Date(),
+        message: "RNA resource already parsed",
+      };
     }
     console.log(`[ImportOrganizations] Found new resource ${resource.id} ${resource.url}`);
 
@@ -63,27 +79,16 @@ export class ImportOrganizationsHandler implements BaseHandler<ImportOrganizatio
     try {
       console.log(`[ImportOrganizations] Downloading ${resource.url} at ${folder}`);
       const response = await fetch(resource.url);
-      if (!response.ok) {
-        captureException(`RNA download failed with status: ${response.status}`, { extra: { url: resource.url, status: response.status, statusText: response.statusText } });
-        return returnResult(false);
-      }
-      if (!response.body) {
-        captureException("RNA download failed, response body is null", { extra: { url: resource.url } });
-        return returnResult(false);
+      if (!response.ok || !response.body) {
+        throw new Error(response.statusText);
       }
 
       await pipeline(Readable.fromWeb(response.body as ReadableStream<any>), fs.createWriteStream(`${folder}/${resource.id}.zip`));
 
-      let count = 0;
-      try {
-        console.log(`[ImportOrganizations] Parsing ${resource.id}.zip`);
-        const file = path.join(folder, `${resource.id}.zip`);
-        count = await readZip(file);
-        console.log(`[ImportOrganizations] ${count} associations parsed`);
-      } catch (error) {
-        captureException("RNA parsing failed", { extra: { originalError: error } });
-        return returnResult(false);
-      }
+      console.log(`[ImportOrganizations] Parsing ${resource.id}.zip`);
+      const file = path.join(folder, `${resource.id}.zip`);
+      count = await readZip(file);
+      console.log(`[ImportOrganizations] ${count} associations parsed`);
 
       await ImportRNAModel.create({
         year: new Date().getFullYear(),
@@ -97,20 +102,19 @@ export class ImportOrganizationsHandler implements BaseHandler<ImportOrganizatio
         status: "SUCCESS",
       });
       console.log(`[ImportOrganizations] Ended at ${new Date().toISOString()} in ${(Date.now() - start.getTime()) / 1000}s`);
-
-      return returnResult(true);
+    } catch (error) {
+      captureException("RNA import failed", { extra: { resource } });
+      success = false;
     } finally {
       console.log(`[ImportOrganizations] Cleaning up files`);
       if (fs.existsSync(folder)) {
         fs.rmSync(folder, { recursive: true });
       }
     }
+    return {
+      success,
+      timestamp: new Date(),
+      message: success ? `\t• Nombre d'associations importées: ${count}` : "RNA import failed",
+    };
   }
 }
-
-const returnResult = (success: boolean) => {
-  return {
-    success,
-    timestamp: new Date(),
-  };
-};

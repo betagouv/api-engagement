@@ -37,9 +37,11 @@ if (envPath && fs.existsSync(envPath)) {
   dotenv.config();
 }
 
-import { ENV, SENTRY_DSN_JOBS } from "../config";
+import { ENV, SENTRY_DSN_JOBS, SLACK_CRON_CHANNEL_ID } from "../config";
 import { esConnected } from "../db/elastic";
 import { mongoConnected } from "../db/mongo";
+import { postMessage } from "../services/slack";
+import { getJobTime } from "../utils";
 
 if (ENV !== "development") {
   Sentry.init({
@@ -112,8 +114,20 @@ async function runJob() {
       process.exit(1);
     }
 
+    const start = new Date();
+
     const result = await handler.handle(extraData);
     console.log(`Job '${jobName}' executed successfully:`, result);
+
+    const time = getJobTime(start);
+    await postMessage(
+      {
+        title: `Job '${jobName}' terminée en ${time}`,
+        text: result.message || (result.success ? "Job executed successfully" : "Job failed"),
+        color: result.success ? "good" : "danger",
+      },
+      SLACK_CRON_CHANNEL_ID
+    );
   } catch (error) {
     console.error(`Error executing job '${jobName}':`, error);
   } finally {

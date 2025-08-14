@@ -63,8 +63,14 @@ interface LinkedinStatsJobPayload {}
 interface LinkedinStatsJobResult extends JobResult {}
 
 export class LinkedinStatsHandler implements BaseHandler<LinkedinStatsJobPayload, LinkedinStatsJobResult> {
+  name = "Import des stats Linkedin";
+
   public async handle(payload: LinkedinStatsJobPayload): Promise<LinkedinStatsJobResult> {
     const start = new Date();
+    const result = {
+      created: 0,
+      failed: { data: [] as any[] },
+    };
     console.log(`[Linkedin Stats] Starting at ${start.toISOString()}`);
     try {
       const emails = await EmailModel.find({
@@ -73,13 +79,14 @@ export class LinkedinStatsHandler implements BaseHandler<LinkedinStatsJobPayload
       });
       if (!emails.length) {
         console.log(`[Linkedin Stats] No email to process`);
-        returnSuccess(false);
+        return {
+          success: false,
+          timestamp: new Date(),
+          message: "No email to process",
+        };
       }
       console.log(`[Linkedin Stats] Found ${emails.length} emails to process`);
-      const result = {
-        created: 0,
-        failed: { data: [] as any[] },
-      };
+
       for (const email of emails) {
         const data = await getData(email);
         if (!data) {
@@ -122,23 +129,28 @@ export class LinkedinStatsHandler implements BaseHandler<LinkedinStatsJobPayload
       console.log(`[Linkedin Stats] Created ${result.created} stats`);
       if (result.failed.data.length) {
         captureException("[Linkedin Stats] Failed to create stats", `Failed to create stats, ${JSON.stringify(result.failed.data, null, 2)}`);
-        return returnSuccess(false);
+        return {
+          success: false,
+          timestamp: new Date(),
+          message: "Failed to create stats",
+        };
       }
     } catch (error: any) {
       console.error(`[Linkedin Stats] Error for Linkedin`, error);
       captureException(`Import linkedin flux failed`, `${error.message} while creating Linkedin flux`);
-      return returnSuccess(false);
+      return {
+        success: false,
+        timestamp: new Date(),
+        message: "Failed to create stats",
+      };
     }
 
-    console.log(`[Linkedin Stats] Ended at ${new Date().toISOString()} in ${(Date.now() - start.getTime()) / 1000}s`);
+    console.log(`[Linkedin Stats] Ended at ${new Date().toISOString()}`);
 
-    return returnSuccess(true);
+    return {
+      success: true,
+      timestamp: new Date(),
+      message: `\t• Nombre de stats créées: ${result.created}\n\t• Nombre de stats en erreur: ${result.failed.data.length}`,
+    };
   }
 }
-
-const returnSuccess = (status: boolean) => {
-  return {
-    success: status,
-    timestamp: new Date(),
-  };
-};

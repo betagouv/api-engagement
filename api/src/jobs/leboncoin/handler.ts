@@ -20,6 +20,8 @@ const ERROR_TYPES = {
 } as { [key: string]: { regex: string; label: string } };
 
 export class LeboncoinHandler implements BaseHandler<LeboncoinJobPayload, LeboncoinJobResult> {
+  name = "Alertes Leboncoin";
+
   async handle(): Promise<LeboncoinJobResult> {
     const start = new Date();
     console.log(`[Leboncoin] Starting at ${start.toISOString()}`);
@@ -47,11 +49,12 @@ export class LeboncoinHandler implements BaseHandler<LeboncoinJobPayload, Lebonc
     text += `\n\nVoir et exporter les missions refusées: https://app.api-engagement.beta.gouv.fr/admin-mission?leboncoinStatus=REFUSED`;
 
     await postMessage({ text }, SLACK_LBC_CHANNEL_ID);
-    console.log(`[Leboncoin] Ended at ${new Date().toISOString()} in ${(Date.now() - start.getTime()) / 1000}s`);
+    console.log(`[Leboncoin] Ended at ${new Date().toISOString()}`);
 
     return {
       success: true,
       timestamp: new Date(),
+      message: `\t• Nombre de missions refusées: ${count}`,
     };
   }
 }
