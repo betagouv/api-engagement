@@ -90,8 +90,8 @@ export const getMissionChanges = (
     if (field.endsWith("At")) {
       if (!areDatesEqual(previousMission[field] as any, currentMission[field] as any)) {
         changes[field] = {
-          previous: new Date(previousMission[field] as any),
-          current: new Date(currentMission[field] as any),
+          previous: parseDate(previousMission[field] as any),
+          current: parseDate(currentMission[field] as any),
         };
       }
       continue;
@@ -140,6 +140,13 @@ export const getMissionChanges = (
   return Object.keys(changes).length > 0 ? changes : null;
 };
 
+const parseDate = (value: string | Date | undefined) => {
+  if (!value) {
+    return null;
+  }
+  return isNaN(new Date(value).getTime()) ? null : new Date(value);
+};
+
 const areDatesEqual = (previousDate: Date | string | undefined, currentDate: Date | string | undefined) => {
   if (!previousDate && !currentDate) {
     return true;
@@ -147,7 +154,7 @@ const areDatesEqual = (previousDate: Date | string | undefined, currentDate: Dat
   if (!previousDate || !currentDate) {
     return false;
   }
-  return new Date(previousDate).getTime() === new Date(currentDate).getTime();
+  return parseDate(previousDate)?.getTime() === parseDate(currentDate)?.getTime();
 };
 
 const areArraysEqual = (previousArray: any[], currentArray: any[]) => {

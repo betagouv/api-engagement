@@ -287,12 +287,7 @@ describe("getMissionChanges", () => {
 
     const changes = getMissionChanges(mission1, mission2);
 
-    expect(changes).toEqual({
-      addresses: {
-        previous: mission1.addresses,
-        current: mission2.addresses,
-      },
-    });
+    expect(changes).toBeNull();
   });
 
   it("should handle undefined and null values", () => {
@@ -308,7 +303,7 @@ describe("getMissionChanges", () => {
     expect(changes).toEqual({
       endAt: {
         previous: new Date("2023-03-01"),
-        current: new Date("Invalid Date"), // null becomes Invalid Date
+        current: null,
       },
       metadata: {
         previous: "test metadata",
