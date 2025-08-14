@@ -79,7 +79,7 @@ const CardVolontariat = ({ widget, mission, request, focused = false, onKeyDown 
 
         <div className="min-h-[19px] flex items-center mt-auto">
           {mission.tags?.includes("Service Civique Écologique") ? (
-            <Image src={LogoSCE} width="0" height="0" style={{ width: "228px", height: "19px" }} alt="logo service civique écologique" />
+            <Image src={LogoSCE} width="0" height="0" style={{ width: "228px", height: "19px" }} alt="Service Civique Écologique" />
           ) : (
             <div style={{ width: "228px", height: "19px" }} />
           )}
