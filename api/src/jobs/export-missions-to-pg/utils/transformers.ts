@@ -210,8 +210,12 @@ export const transformMongoMissionEventToPg = (doc: MongoMissionEvent, missionId
 
   const events: MissionHistoryEvent[] = [];
 
+  console.log("doc", doc);
+  console.log("baseEvent", baseEvent);
+
   // For creation type, return only MissionCreated
   if (doc.type === "create") {
+    console.log("create");
     return [
       {
         ...baseEvent,
@@ -221,6 +225,7 @@ export const transformMongoMissionEventToPg = (doc: MongoMissionEvent, missionId
   }
 
   if (doc.type === "delete") {
+    console.log("delete");
     events.push({
       ...baseEvent,
       type: MissionHistoryEventType.Deleted,
@@ -371,5 +376,6 @@ export const transformMongoMissionEventToPg = (doc: MongoMissionEvent, missionId
     });
   }
 
+  console.log("events", events);
   return events;
 };

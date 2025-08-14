@@ -244,6 +244,12 @@ describe("transformMongoMissionEventToPg", () => {
     const deleteEvent: MongoMissionEvent = {
       ...baseMissionEvent,
       type: "delete",
+      changes: {
+        deletedAt: {
+          previous: null,
+          current: new Date("2023-01-15"),
+        },
+      },
     };
 
     const result = transformMongoMissionEventToPg(deleteEvent, "mission-123");
@@ -253,7 +259,12 @@ describe("transformMongoMissionEventToPg", () => {
     expect(result?.[0].type).toBe(MissionHistoryEventType.Deleted);
     expect(result?.[0].mission_id).toBe("mission-123");
     expect(result?.[0].date).toEqual(new Date("2023-01-15"));
-    expect(result?.[0].changes).toBeNull();
+    expect(result?.[0].changes).toEqual({
+      deleted_at: {
+        previous: null,
+        current: new Date("2023-01-15"),
+      },
+    });
   });
 
   it("should transform an update event with startAt change", () => {
