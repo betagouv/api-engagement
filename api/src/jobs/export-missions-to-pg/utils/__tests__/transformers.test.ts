@@ -1,9 +1,9 @@
-import { MissionHistoryEventType, Organization } from "@prisma/client";
+import { MissionHistoryEventType } from "@prisma/client";
 import { Schema } from "mongoose";
 import { describe, expect, it } from "vitest";
 import { PUBLISHER_IDS } from "../../../../config";
-import { AddressItem, Mission as MongoMission } from "../../../../types";
-import { getTypeFromMissionHistoryEvent, transformMongoMissionToPg } from "../transformers";
+import { AddressItem, Mission as MongoMission, MissionEvent as MongoMissionEvent } from "../../../../types";
+import { transformMongoMissionEventToPg, transformMongoMissionToPg } from "../transformers";
 
 // Transform ID to fake Mongo ObjectId
 const randomObjectId = (id: string) =>
@@ -12,56 +12,6 @@ const randomObjectId = (id: string) =>
   }) as unknown as Schema.Types.ObjectId;
 
 describe("transformMongoMissionToPg", () => {
-  const baseOrganization: Organization = {
-    id: "org-123",
-    old_id: "mongo-org-123",
-    rna: "RNA123",
-    siren: "SIREN123",
-    siret: "SIRET123",
-    names: ["name1"],
-    rup_mi: "RUP123",
-    gestion: "GESTION",
-    status: "ACTIVE",
-    created_at: new Date("2023-01-01"),
-    last_declared_at: new Date("2023-01-02"),
-    published_at: new Date("2023-01-03"),
-    dissolved_at: null,
-    updated_at: new Date("2023-01-04"),
-    nature: "NATURE",
-    groupement: "GROUPEMENT",
-    title: "Organisation Test",
-    short_title: "Org Test",
-    title_slug: "organisation-test",
-    short_title_slug: "org-test",
-    object: "OBJECT",
-    social_object1: "SOCIAL1",
-    social_object2: "SOCIAL2",
-    address_complement: "COMPLEMENT",
-    address_number: "123",
-    address_repetition: "BIS",
-    address_type: "RUE",
-    address_street: "RUE TEST",
-    address_distribution: "DISTRIBUTION",
-    address_insee_code: "INSEE123",
-    address_postal_code: "75000",
-    address_department_code: "75",
-    address_department_name: "Paris",
-    address_region: "Île-de-France",
-    address_city: "Paris",
-    management_declarant: "DECLARANT",
-    management_complement: "MGMT_COMPLEMENT",
-    management_street: "MGMT_STREET",
-    management_distribution: "MGMT_DISTRIBUTION",
-    management_postal_code: "75000",
-    management_city: "Paris",
-    management_country: "France",
-    director_civility: "M",
-    website: "https://example.com",
-    observation: "OBSERVATION",
-    sync_at: new Date("2023-01-05"),
-    source: "SOURCE",
-  };
-
   const baseAddress: AddressItem = {
     _id: randomObjectId("address-123"),
     street: "123 RUE TEST",
@@ -253,146 +203,345 @@ describe("transformMongoMissionToPg", () => {
   });
 });
 
-describe("getTypeFromMissionHistoryEvent", () => {
-  it("should return only MissionCreated event type", () => {
-    const result = getTypeFromMissionHistoryEvent({
-      metadata: { action: "created" },
-      state: {
-        startAt: "2023-01-01",
-        endAt: "2023-01-02",
-        description: "Description",
-        domain: "Domaine",
-      },
-    });
+describe("transformMongoMissionEventToPg", () => {
+  const baseMissionEvent: MongoMissionEvent = {
+    _id: randomObjectId("event-123"),
+    type: "create",
+    missionId: randomObjectId("mission-123"),
+    changes: null,
+    fields: [],
+    createdAt: new Date("2023-01-15"),
+    lastExportedToPgAt: null,
+  };
 
-    expect(Array.isArray(result)).toBe(true);
-    expect(result.length).toBe(1);
-    expect(result).toContain(MissionHistoryEventType.Created);
+  it("should return null if missionEvent is null", () => {
+    const result = transformMongoMissionEventToPg(null as unknown as MongoMissionEvent, "mission-123");
+    expect(result).toBeNull();
   });
 
-  it("should return MissionsDeleted event type", () => {
-    const result = getTypeFromMissionHistoryEvent({
-      state: {
-        deletedAt: "2023-01-01",
-      },
-    });
-
-    expect(Array.isArray(result)).toBe(true);
-    expect(result.length).toBe(1);
-    expect(result).toContain(MissionHistoryEventType.Deleted);
+  it("should return null if missionId is null", () => {
+    const result = transformMongoMissionEventToPg(baseMissionEvent, "");
+    expect(result).toBeNull();
   });
 
-  it("should return MissionsModifiedStartDate event type", () => {
-    const result = getTypeFromMissionHistoryEvent({
-      state: {
-        startAt: "2023-01-01",
-      },
-    });
+  it("should transform a create event", () => {
+    const createEvent: MongoMissionEvent = {
+      ...baseMissionEvent,
+      type: "create",
+    };
 
-    expect(Array.isArray(result)).toBe(true);
-    expect(result.length).toBe(1);
-    expect(result).toContain(MissionHistoryEventType.UpdatedStartDate);
+    const result = transformMongoMissionEventToPg(createEvent, "mission-123");
+
+    expect(result).not.toBeNull();
+    expect(result?.length).toBe(1);
+    expect(result?.[0].type).toBe(MissionHistoryEventType.Created);
+    expect(result?.[0].mission_id).toBe("mission-123");
+    expect(result?.[0].date).toEqual(new Date("2023-01-15"));
+    expect(result?.[0].changes).toBeNull();
   });
 
-  it("should return MissionsModifiedEndDate event type", () => {
-    const result = getTypeFromMissionHistoryEvent({
-      state: {
-        endAt: "2023-01-01",
-      },
-    });
+  it("should transform a delete event", () => {
+    const deleteEvent: MongoMissionEvent = {
+      ...baseMissionEvent,
+      type: "delete",
+    };
 
-    expect(Array.isArray(result)).toBe(true);
-    expect(result.length).toBe(1);
-    expect(result).toContain(MissionHistoryEventType.UpdatedEndDate);
+    const result = transformMongoMissionEventToPg(deleteEvent, "mission-123");
+
+    expect(result).not.toBeNull();
+    expect(result?.length).toBe(1);
+    expect(result?.[0].type).toBe(MissionHistoryEventType.Deleted);
+    expect(result?.[0].mission_id).toBe("mission-123");
+    expect(result?.[0].date).toEqual(new Date("2023-01-15"));
+    expect(result?.[0].changes).toBeNull();
   });
 
-  it("should return MissionModifiedDescription event type", () => {
-    const result = getTypeFromMissionHistoryEvent({
-      state: {
-        description: "Description",
+  it("should transform an update event with startAt change", () => {
+    const updateEvent: MongoMissionEvent = {
+      ...baseMissionEvent,
+      type: "update",
+      changes: {
+        startAt: {
+          previous: new Date("2023-01-01"),
+          current: new Date("2023-02-01"),
+        },
+      },
+      fields: ["startAt"],
+    };
+
+    const result = transformMongoMissionEventToPg(updateEvent, "mission-123");
+
+    expect(result).not.toBeNull();
+    expect(result?.length).toBe(1);
+    expect(result?.[0].type).toBe(MissionHistoryEventType.UpdatedStartDate);
+    expect(result?.[0].changes).toEqual({
+      start_at: {
+        previous: new Date("2023-01-01"),
+        current: new Date("2023-02-01"),
       },
     });
-
-    expect(Array.isArray(result)).toBe(true);
-    expect(result.length).toBe(1);
-    expect(result).toContain(MissionHistoryEventType.UpdatedDescription);
   });
 
-  it("should return MissionModifiedActivityDomain event type", () => {
-    const result = getTypeFromMissionHistoryEvent({
-      state: {
-        domain: "Domaine",
+  it("should transform an update event with endAt change", () => {
+    const updateEvent: MongoMissionEvent = {
+      ...baseMissionEvent,
+      type: "update",
+      changes: {
+        endAt: {
+          previous: new Date("2023-03-01"),
+          current: new Date("2023-04-01"),
+        },
+      },
+      fields: ["endAt"],
+    };
+
+    const result = transformMongoMissionEventToPg(updateEvent, "mission-123");
+
+    expect(result).not.toBeNull();
+    expect(result?.length).toBe(1);
+    expect(result?.[0].type).toBe(MissionHistoryEventType.UpdatedEndDate);
+    expect(result?.[0].changes).toEqual({
+      end_at: {
+        previous: new Date("2023-03-01"),
+        current: new Date("2023-04-01"),
       },
     });
-
-    expect(Array.isArray(result)).toBe(true);
-    expect(result.length).toBe(1);
-    expect(result).toContain(MissionHistoryEventType.UpdatedActivityDomain);
   });
 
-  it("should return MissionModifiedPlaces event type", () => {
-    const result = getTypeFromMissionHistoryEvent({
-      state: {
-        places: 1,
+  it("should transform an update event with description change", () => {
+    const updateEvent: MongoMissionEvent = {
+      ...baseMissionEvent,
+      type: "update",
+      changes: {
+        description: {
+          previous: "Old description",
+          current: "New description",
+        },
+      },
+      fields: ["description"],
+    };
+
+    const result = transformMongoMissionEventToPg(updateEvent, "mission-123");
+
+    expect(result).not.toBeNull();
+    expect(result?.length).toBe(1);
+    expect(result?.[0].type).toBe(MissionHistoryEventType.UpdatedDescription);
+    expect(result?.[0].changes).toEqual({
+      description: {
+        previous: "Old description",
+        current: "New description",
       },
     });
-
-    expect(Array.isArray(result)).toBe(true);
-    expect(result.length).toBe(1);
-    expect(result).toContain(MissionHistoryEventType.UpdatedPlaces);
   });
 
-  it("should return MissionModifiedJVAModerationStatus event type", () => {
-    const result = getTypeFromMissionHistoryEvent({
-      state: {
-        [`moderation_${PUBLISHER_IDS.JEVEUXAIDER}_status`]: "status",
+  it("should transform an update event with descriptionHtml change", () => {
+    const updateEvent: MongoMissionEvent = {
+      ...baseMissionEvent,
+      type: "update",
+      changes: {
+        descriptionHtml: {
+          previous: "<p>Old description</p>",
+          current: "<p>New description</p>",
+        },
+      },
+      fields: ["descriptionHtml"],
+    };
+
+    const result = transformMongoMissionEventToPg(updateEvent, "mission-123");
+
+    expect(result).not.toBeNull();
+    expect(result?.length).toBe(1);
+    expect(result?.[0].type).toBe(MissionHistoryEventType.UpdatedDescription);
+    expect(result?.[0].changes).toEqual({
+      description_html: {
+        previous: "<p>Old description</p>",
+        current: "<p>New description</p>",
       },
     });
-
-    expect(Array.isArray(result)).toBe(true);
-    expect(result.length).toBe(1);
-    expect(result).toContain(MissionHistoryEventType.UpdatedJVAModerationStatus);
   });
 
-  it("should return MissionModifiedApiEngModerationStatus event type", () => {
-    const result = getTypeFromMissionHistoryEvent({
-      state: {
-        status: "accepted",
+  it("should transform an update event with domain change", () => {
+    const updateEvent: MongoMissionEvent = {
+      ...baseMissionEvent,
+      type: "update",
+      changes: {
+        domain: {
+          previous: "Old domain",
+          current: "New domain",
+        },
+      },
+      fields: ["domain"],
+    };
+
+    const result = transformMongoMissionEventToPg(updateEvent, "mission-123");
+
+    expect(result).not.toBeNull();
+    expect(result?.length).toBe(1);
+    expect(result?.[0].type).toBe(MissionHistoryEventType.UpdatedActivityDomain);
+    expect(result?.[0].changes).toEqual({
+      domain: {
+        previous: "Old domain",
+        current: "New domain",
       },
     });
-
-    expect(Array.isArray(result)).toBe(true);
-    expect(result.length).toBe(1);
-    expect(result).toContain(MissionHistoryEventType.UpdatedApiEngModerationStatus);
   });
 
-  it("should return MissionModifiedOther event type", () => {
-    const result = getTypeFromMissionHistoryEvent({
-      state: {
-        other: "value",
+  it("should transform an update event with places change", () => {
+    const updateEvent: MongoMissionEvent = {
+      ...baseMissionEvent,
+      type: "update",
+      changes: {
+        places: {
+          previous: 5,
+          current: 10,
+        },
+      },
+      fields: ["places"],
+    };
+
+    const result = transformMongoMissionEventToPg(updateEvent, "mission-123");
+
+    expect(result).not.toBeNull();
+    expect(result?.length).toBe(1);
+    expect(result?.[0].type).toBe(MissionHistoryEventType.UpdatedPlaces);
+    expect(result?.[0].changes).toEqual({
+      places: {
+        previous: 5,
+        current: 10,
       },
     });
-
-    expect(Array.isArray(result)).toBe(true);
-    expect(result.length).toBe(1);
-    expect(result).toContain(MissionHistoryEventType.UpdatedOther);
   });
 
-  it("Should return multiple event types", () => {
-    const result = getTypeFromMissionHistoryEvent({
-      state: {
-        startAt: "2023-01-01",
-        endAt: "2023-01-02",
-        description: "Description",
-        domain: "Domaine",
+  it("should transform an update event with JVA moderation status change", () => {
+    const updateEvent: MongoMissionEvent = {
+      ...baseMissionEvent,
+      type: "update",
+      changes: {
+        [`moderation_${PUBLISHER_IDS.JEVEUXAIDER}_status`]: {
+          previous: "PENDING",
+          current: "ACCEPTED",
+        },
+      },
+      fields: [`moderation_${PUBLISHER_IDS.JEVEUXAIDER}_status`],
+    };
+
+    const result = transformMongoMissionEventToPg(updateEvent, "mission-123");
+
+    expect(result).not.toBeNull();
+    expect(result?.length).toBe(1);
+    expect(result?.[0].type).toBe(MissionHistoryEventType.UpdatedJVAModerationStatus);
+    expect(result?.[0].changes).toEqual({
+      jva_moderation_status: {
+        previous: "PENDING",
+        current: "ACCEPTED",
       },
     });
+  });
 
-    expect(Array.isArray(result)).toBe(true);
-    expect(result.length).toBe(4);
-    expect(result).toContain(MissionHistoryEventType.UpdatedStartDate);
-    expect(result).toContain(MissionHistoryEventType.UpdatedEndDate);
-    expect(result).toContain(MissionHistoryEventType.UpdatedDescription);
-    expect(result).toContain(MissionHistoryEventType.UpdatedActivityDomain);
+  it("should transform an update event with status change", () => {
+    const updateEvent: MongoMissionEvent = {
+      ...baseMissionEvent,
+      type: "update",
+      changes: {
+        statusCode: {
+          previous: "PENDING",
+          current: "ACCEPTED",
+        },
+        status: {
+          previous: "PENDING",
+          current: "ACCEPTED",
+        },
+      },
+      fields: ["statusCode"],
+    };
+
+    const result = transformMongoMissionEventToPg(updateEvent, "mission-123");
+
+    expect(result).not.toBeNull();
+    expect(result?.length).toBe(1);
+    expect(result?.[0].type).toBe(MissionHistoryEventType.UpdatedApiEngModerationStatus);
+    expect(result?.[0].changes).toEqual({
+      status: {
+        previous: "PENDING",
+        current: "ACCEPTED",
+      },
+    });
+  });
+
+  it("should transform an update event with multiple changes", () => {
+    const updateEvent: MongoMissionEvent = {
+      ...baseMissionEvent,
+      type: "update",
+      changes: {
+        startAt: {
+          previous: new Date("2023-01-01"),
+          current: new Date("2023-02-01"),
+        },
+        description: {
+          previous: "Old description",
+          current: "New description",
+        },
+        places: {
+          previous: 5,
+          current: 10,
+        },
+      },
+      fields: ["startAt", "description", "places"],
+    };
+
+    const result = transformMongoMissionEventToPg(updateEvent, "mission-123");
+
+    expect(result).not.toBeNull();
+    expect(result?.length).toBe(3);
+    expect(result?.map((e) => e.type)).toContain(MissionHistoryEventType.UpdatedStartDate);
+    expect(result?.map((e) => e.type)).toContain(MissionHistoryEventType.UpdatedDescription);
+    expect(result?.map((e) => e.type)).toContain(MissionHistoryEventType.UpdatedPlaces);
+  });
+
+  it("should transform an update event with other changes", () => {
+    const updateEvent: MongoMissionEvent = {
+      ...baseMissionEvent,
+      type: "update",
+      changes: {
+        title: {
+          previous: "Old title",
+          current: "New title",
+        },
+        activity: {
+          previous: "Old activity",
+          current: "New activity",
+        },
+      },
+      fields: ["title", "activity"],
+    };
+
+    const result = transformMongoMissionEventToPg(updateEvent, "mission-123");
+
+    expect(result).not.toBeNull();
+    expect(result?.length).toBe(1);
+    expect(result?.[0].type).toBe(MissionHistoryEventType.UpdatedOther);
+    expect(result?.[0].changes).toEqual({
+      title: {
+        previous: "Old title",
+        current: "New title",
+      },
+      activity: {
+        previous: "Old activity",
+        current: "New activity",
+      },
+    });
+  });
+
+  it("should return empty array for update event with no changes", () => {
+    const updateEvent: MongoMissionEvent = {
+      ...baseMissionEvent,
+      type: "update",
+      changes: null,
+      fields: [],
+    };
+
+    const result = transformMongoMissionEventToPg(updateEvent, "mission-123");
+
+    expect(result).toEqual([]);
   });
 });
