@@ -7,9 +7,11 @@ dotenv.config({ path: "../.env" });
 
 import "../src/db/mongo";
 
+// import MissionEventModel from "../src/models/mission-event";
 import MissionModel from "../src/models/mission";
+
 import { Mission, MissionEvent } from "../src/types";
-import { FIELDS_TO_COMPARE } from "../src/utils/mission";
+import { IMPORT_FIELDS_TO_COMPARE } from "../src/utils/mission";
 
 const BATCH_SIZE = 10000;
 
@@ -42,7 +44,7 @@ const transformMissionHistoryToMissionEvent = (mission: Mission) => {
     if (history.metadata.action === "updated") {
       const changes = {} as Record<string, { previous: any; current: any }>;
 
-      const fields = Object.keys(history.state).filter((field) => FIELDS_TO_COMPARE.includes(field as keyof Mission));
+      const fields = Object.keys(history.state).filter((field) => IMPORT_FIELDS_TO_COMPARE.includes(field as keyof Mission));
 
       console.log("fields", fields);
 
@@ -72,24 +74,33 @@ const transformMissionHistoryToMissionEvent = (mission: Mission) => {
 };
 
 const main = async () => {
-  const where = {
-    // __history: { $exists: true },
-    // _id: "5f96fe4c1b55850008fac57d",
-    _id: "6824eafdb31b0edbfe4b51ec",
-  };
+  const res = await MissionModel.countDocuments({ deletedAt: { $gt: new Date("2025-08-14T10:28:53.361") } });
+  console.log(res);
+  const res2 = await MissionModel.updateMany({ deletedAt: { $gt: new Date("2025-08-14T10:28:53.361") } }, { $set: { deletedAt: null } });
+  console.log(res2);
+  // const res = await MissionEventModel.countDocuments({ lastExportedToPgAt: { $gt: new Date("2025-08-14T10:28:53.361") } });
+  // console.log(res);
+  // const res2 = await MissionEventModel.updateMany({ lastExportedToPgAt: { $gt: new Date("2025-08-14T10:28:53.361") } }, { $set: { lastExportedToPgAt: null } });
+  // console.log(res2);
 
-  const count = await MissionModel.countDocuments(where);
-  console.log(`Found ${count} missions with __history`);
+  // const where = {
+  //   // __history: { $exists: true },
+  //   // _id: "5f96fe4c1b55850008fac57d",
+  //   _id: "6824eafdb31b0edbfe4b51ec",
+  // };
 
-  for (let i = 0; i < count; i += BATCH_SIZE) {
-    const batch = await MissionModel.find(where).skip(i).limit(BATCH_SIZE).lean();
-    console.log(`Processing batch ${i / BATCH_SIZE + 1} of ${Math.ceil(count / BATCH_SIZE)}`);
-    for (const mission of batch) {
-      const events = transformMissionHistoryToMissionEvent(mission);
-      console.log(events);
-      // await MissionEventModel.insertMany(events);
-    }
-  }
+  // const count = await MissionModel.countDocuments(where);
+  // console.log(`Found ${count} missions with __history`);
+
+  // for (let i = 0; i < count; i += BATCH_SIZE) {
+  //   const batch = await MissionModel.find(where).skip(i).limit(BATCH_SIZE).lean();
+  //   console.log(`Processing batch ${i / BATCH_SIZE + 1} of ${Math.ceil(count / BATCH_SIZE)}`);
+  //   for (const mission of batch) {
+  //     const events = transformMissionHistoryToMissionEvent(mission);
+  //     console.log(events);
+  //     // await MissionEventModel.insertMany(events);
+  //   }
+  // }
 };
 
 if (require.main === module) {

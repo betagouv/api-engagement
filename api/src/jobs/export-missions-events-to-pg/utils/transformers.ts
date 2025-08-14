@@ -86,6 +86,13 @@ export const transformMongoMissionEventToPg = (doc: MongoMissionEvent, missionId
     events.push({
       ...baseEvent,
       type: MissionHistoryEventType.Deleted,
+      fields: ["deleted_at"],
+      changes: {
+        deleted_at: {
+          previous: doc.changes?.deletedAt.previous || null,
+          current: doc.changes?.deletedAt.current || null,
+        },
+      } as Prisma.JsonValue,
     });
   }
 
@@ -97,6 +104,7 @@ export const transformMongoMissionEventToPg = (doc: MongoMissionEvent, missionId
     events.push({
       ...baseEvent,
       type: MissionHistoryEventType.UpdatedStartDate,
+      fields: ["start_at"],
       changes: {
         start_at: {
           previous: doc.changes.startAt.previous,
@@ -110,6 +118,7 @@ export const transformMongoMissionEventToPg = (doc: MongoMissionEvent, missionId
     events.push({
       ...baseEvent,
       type: MissionHistoryEventType.UpdatedEndDate,
+      fields: ["end_at"],
       changes: {
         end_at: {
           previous: doc.changes.endAt.previous,
@@ -123,6 +132,7 @@ export const transformMongoMissionEventToPg = (doc: MongoMissionEvent, missionId
     events.push({
       ...baseEvent,
       type: MissionHistoryEventType.UpdatedDescription,
+      fields: ["description"],
       changes: {
         description: {
           previous: doc.changes.description.previous,
@@ -135,6 +145,7 @@ export const transformMongoMissionEventToPg = (doc: MongoMissionEvent, missionId
     events.push({
       ...baseEvent,
       type: MissionHistoryEventType.UpdatedDescription,
+      fields: ["description_html"],
       changes: {
         description_html: {
           previous: doc.changes.descriptionHtml.previous,
@@ -148,6 +159,7 @@ export const transformMongoMissionEventToPg = (doc: MongoMissionEvent, missionId
     events.push({
       ...baseEvent,
       type: MissionHistoryEventType.UpdatedActivityDomain,
+      fields: ["domain"],
       changes: {
         domain: {
           previous: doc.changes.domain.previous,
@@ -161,6 +173,7 @@ export const transformMongoMissionEventToPg = (doc: MongoMissionEvent, missionId
     events.push({
       ...baseEvent,
       type: MissionHistoryEventType.UpdatedPlaces,
+      fields: ["places"],
       changes: {
         places: {
           previous: doc.changes.places.previous,
@@ -175,6 +188,7 @@ export const transformMongoMissionEventToPg = (doc: MongoMissionEvent, missionId
     events.push({
       ...baseEvent,
       type: MissionHistoryEventType.UpdatedJVAModerationStatus,
+      fields: ["jva_moderation_status"],
       changes: {
         jva_moderation_status: {
           previous: doc.changes[`moderation_${PUBLISHER_IDS.JEVEUXAIDER}_status`].previous,
@@ -188,6 +202,7 @@ export const transformMongoMissionEventToPg = (doc: MongoMissionEvent, missionId
     events.push({
       ...baseEvent,
       type: MissionHistoryEventType.UpdatedApiEngModerationStatus,
+      fields: ["status"],
       changes: {
         status: {
           previous: doc.changes.status.previous,
@@ -201,6 +216,7 @@ export const transformMongoMissionEventToPg = (doc: MongoMissionEvent, missionId
     events.push({
       ...baseEvent,
       type: MissionHistoryEventType.UpdatedOther,
+      fields: Object.keys(doc.changes).map((key) => MONGO_TO_PG_FIELDS[key as keyof typeof MONGO_TO_PG_FIELDS]),
       changes: Object.keys(doc.changes).reduce(
         (acc, key) => {
           if (!doc.changes || !doc.changes[key]) {

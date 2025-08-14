@@ -633,6 +633,7 @@ model MissionHistoryEvent {
   type              MissionHistoryEventType
   mission_id        String    
   mission           Mission?  @relation("MissionHistoryEvent", fields: [mission_id], references: [id])
+  fields            String[]
   changes           Json?
   
   @@index([mission_id])

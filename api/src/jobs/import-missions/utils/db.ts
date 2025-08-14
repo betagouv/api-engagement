@@ -1,7 +1,7 @@
 import { captureException } from "../../../error";
 import MissionModel from "../../../models/mission";
 import MissionEventModel from "../../../models/mission-event";
-import { Import, Mission, Publisher } from "../../../types";
+import { Import, Mission, MissionEvent, Publisher } from "../../../types";
 import { getJobTime } from "../../../utils/job";
 import { getMissionChanges } from "../../../utils/mission";
 
@@ -109,10 +109,28 @@ export const bulkDB = async (bulk: Mission[], publisher: Publisher, importDoc: I
 export const cleanDB = async (missionsClientIds: string[], publisher: Publisher, importDoc: Import) => {
   console.log(`[${publisher.name}] Cleaning Mongo missions...`);
 
-  const res = await MissionModel.updateMany(
-    { publisherId: publisher._id, deletedAt: null, clientId: { $nin: missionsClientIds } },
-    { deleted: true, deletedAt: importDoc.startedAt }
-  );
+  const missions = await MissionModel.find({ publisherId: publisher._id, deletedAt: null, clientId: { $nin: missionsClientIds } })
+    .select("_id")
+    .lean();
+
+  const events = [] as Omit<MissionEvent, "createdAt" | "_id">[];
+  for (const mission of missions) {
+    events.push({
+      missionId: mission._id,
+      type: "delete",
+      changes: {
+        deletedAt: { previous: null, current: importDoc.startedAt },
+      },
+      fields: ["deletedAt"],
+      lastExportedToPgAt: null,
+    });
+  }
+
+  const res = await MissionModel.updateMany({ _id: { $in: missions.map((m) => m._id) } }, { deleted: true, deletedAt: importDoc.startedAt });
+
+  if (events.length > 0) {
+    await MissionEventModel.insertMany(events);
+  }
 
   importDoc.deletedCount = res.modifiedCount;
   console.log(`[${publisher.name}] Mongo cleaning removed ${res.modifiedCount}`);

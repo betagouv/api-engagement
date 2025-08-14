@@ -13,7 +13,7 @@ export const getMissionTrackedApplicationUrl = (mission: Mission, publisherId: s
   return `${API_URL}/r/${mission._id}/${publisherId}`;
 };
 
-export const FIELDS_TO_COMPARE = [
+export const IMPORT_FIELDS_TO_COMPARE = [
   "title",
   "type",
   "description",
@@ -69,10 +69,14 @@ export const FIELDS_TO_COMPARE = [
  * @param currentMission The current mission
  * @returns The changes between the two missions
  */
-export const getMissionChanges = (previousMission: Mission, currentMission: Mission): Record<string, { previous: any; current: any }> | null => {
+export const getMissionChanges = (
+  previousMission: Mission,
+  currentMission: Mission,
+  fieldsToCompare: (keyof Mission)[] = IMPORT_FIELDS_TO_COMPARE
+): Record<string, { previous: any; current: any }> | null => {
   const changes: Record<string, { previous: any; current: any }> = {};
 
-  for (const field of FIELDS_TO_COMPARE) {
+  for (const field of fieldsToCompare) {
     if (Array.isArray(previousMission[field]) && Array.isArray(currentMission[field])) {
       if (!areArraysEqual(previousMission[field], currentMission[field])) {
         changes[field] = {

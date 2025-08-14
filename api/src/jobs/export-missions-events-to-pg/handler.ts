@@ -1,11 +1,9 @@
 import { MissionHistoryEvent, Prisma } from "@prisma/client";
-import { SLACK_CRON_CHANNEL_ID } from "../../config";
+import { Schema } from "mongoose";
 import prisma from "../../db/postgres";
 import { captureException } from "../../error";
 import MissionEventModel from "../../models/mission-event";
-import { postMessage } from "../../services/slack";
 import { MissionEvent } from "../../types";
-import { getJobTime } from "../../utils";
 import { BaseHandler } from "../base/handler";
 import { ExportMissionsEventToPgJobPayload, ExportMissionsEventToPgJobResult } from "./types";
 import { transformMongoMissionEventToPg } from "./utils/transformers";
@@ -14,6 +12,8 @@ const BULK_SIZE = 10000;
 const PG_CHUNK_SIZE = 100;
 
 export class ExportMissionsEventsToPgHandler implements BaseHandler<ExportMissionsEventToPgJobPayload, ExportMissionsEventToPgJobResult> {
+  name = "Export des evenements historiques des missions vers PG";
+
   async handle(): Promise<ExportMissionsEventToPgJobResult> {
     const start = new Date();
     console.log(`[Export missions events to PG] Starting at ${start.toISOString()}`);
@@ -47,6 +47,7 @@ export class ExportMissionsEventsToPgHandler implements BaseHandler<ExportMissio
         console.log(`[Export missions to PG] Found ${Object.keys(missions).length} missions related to events`);
 
         const eventsToCreate: Omit<MissionHistoryEvent, "id">[] = [];
+        const updatedIds: Schema.Types.ObjectId[] = [];
         for (const event of batch) {
           counter.processed++;
 
@@ -59,6 +60,7 @@ export class ExportMissionsEventsToPgHandler implements BaseHandler<ExportMissio
           const result = transformMongoMissionEventToPg(event, mission);
           if (result && result.length > 0) {
             eventsToCreate.push(...result);
+            updatedIds.push(event._id);
           }
         }
         try {
@@ -71,24 +73,16 @@ export class ExportMissionsEventsToPgHandler implements BaseHandler<ExportMissio
           captureException(error, { extra: { eventsToCreate } });
         }
 
-        await MissionEventModel.updateMany({ _id: { $in: batch.map((m) => m._id) } }, { $set: { lastExportedToPgAt: new Date() } });
+        await MissionEventModel.updateMany({ _id: { $in: updatedIds } }, { $set: { lastExportedToPgAt: new Date() } });
         console.log(`[Export missions to PG] Updated lastExportedToPgAt for ${batch.length} missions (batch)`);
       }
     }
-
-    const time = getJobTime(start);
-    await postMessage(
-      {
-        title: `Export des evenements historiques des missions vers PG terminée en ${time}`,
-        text: `\t• Nombre d'evenements traités: ${counter.processed}\n\t• Nombre d'evenements traités avec succès: ${counter.success}\n\t• Nombre d'evenements en erreur: ${counter.error}`,
-      },
-      SLACK_CRON_CHANNEL_ID
-    );
 
     return {
       success: true,
       timestamp: new Date(),
       counter,
+      message: `\t• Nombre d'evenements traités: ${counter.processed}\n\t• Nombre d'evenements traités avec succès: ${counter.success}\n\t• Nombre d'evenements en erreur: ${counter.error}`,
     };
   }
 }
