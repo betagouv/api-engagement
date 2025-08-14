@@ -2,11 +2,8 @@ import { captureException } from "../../error";
 import ImportModel from "../../models/import";
 import PublisherModel from "../../models/publisher";
 
-import { SLACK_CRON_CHANNEL_ID } from "../../config";
 import MissionModel from "../../models/mission";
-import { postMessage } from "../../services/slack";
 import { Import, Mission, Publisher } from "../../types";
-import { getJobTime } from "../../utils";
 import { BaseHandler } from "../base/handler";
 import { JobResult } from "../types";
 import { bulkDB, cleanDB } from "./utils/db";
@@ -27,6 +24,8 @@ export interface ImportMissionsJobResult extends JobResult {
 }
 
 export class ImportMissionsHandler implements BaseHandler<ImportMissionsJobPayload, ImportMissionsJobResult> {
+  name = "Import des flux XML";
+
   async handle(payload: ImportMissionsJobPayload): Promise<ImportMissionsJobResult> {
     const start = new Date();
     console.log(`[Import XML] Starting at ${start.toISOString()}`);
@@ -63,26 +62,17 @@ export class ImportMissionsHandler implements BaseHandler<ImportMissionsJobPaylo
 
         imports.push(res);
       } catch (error: any) {
-        captureException(`Import XML failed`, `${error.message} while creating import for ${publisher.name} (${publisher._id})`);
+        captureException(`Import XML failed`, { extra: { publishers, payload } });
       }
     }
 
-    const time = getJobTime(start);
-
-    await postMessage(
-      {
-        title: `Import des flux XML terminée en ${time}`,
-        text: `\t• Nombre de missions totales: ${processed}\n\t• Nombre de missions mises à jour: ${updated}\n\t• Nombre de missions créées: ${created}\n\t• Nombre de missions supprimées: ${deleted}`,
-      },
-      SLACK_CRON_CHANNEL_ID
-    );
-
-    console.log(`[Import XML] Ended at ${new Date().toISOString()} in ${time}`);
+    console.log(`[Import XML] Ended at ${new Date().toISOString()}`);
     return {
       success: true,
       start,
       timestamp: new Date(),
       imports,
+      message: `\t• Nombre de missions totales: ${processed}\n\t• Nombre de missions mises à jour: ${updated}\n\t• Nombre de missions créées: ${created}\n\t• Nombre de missions supprimées: ${deleted}`,
     };
   }
 }
@@ -112,16 +102,18 @@ async function importMissionssForPublisher(publisher: Publisher, start: Date): P
     if (publisher.feedUsername && publisher.feedPassword) {
       headers.set("Authorization", `Basic ${btoa(`${publisher.feedUsername}:${publisher.feedPassword}`)}`);
     }
+    console.log(`[${publisher.name}] Fetching xml from ${publisher.feed}`);
     const xml = await fetch(publisher.feed, { headers }).then((response) => response.text());
-
     // PARSE XML
-    console.log(`[${publisher.name}] Parse xml from ${publisher.feed}`);
+    console.log(`[${publisher.name}] Parsing xml`);
     const missionsXML = parseXML(xml);
     if (!missionsXML || !missionsXML.length) {
-      console.log(`[${publisher.name}] Empty xml, mongo cleaning...`);
+      console.log(`[${publisher.name}] Empty xml, Mongo cleaning...`);
       const mongoRes = await MissionModel.updateMany({ publisherId: publisher._id, deletedAt: null, updatedAt: { $lt: start } }, { deleted: true, deletedAt: new Date() });
       console.log(`[${publisher.name}] Mongo cleaning deleted ${mongoRes.modifiedCount}`);
       obj.endedAt = new Date();
+      obj.status = "FAILED";
+      obj.error = "Empty xml";
       return obj;
     }
     console.log(`[${publisher.name}] Found ${missionsXML.length} missions in XML`);
@@ -203,7 +195,7 @@ async function importMissionssForPublisher(publisher: Publisher, start: Date): P
       statusCode: "REFUSED",
     });
   } catch (error: any) {
-    captureException(error, `Error while importing publisher ${publisher.name}`);
+    captureException(error, { extra: { publisher } });
     obj.status = "FAILED";
     obj.error = error.message;
   }

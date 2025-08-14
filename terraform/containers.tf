@@ -32,6 +32,7 @@ resource "scaleway_container" "api" {
     "APP_URL"       = "https://${local.app_hostname}"
     "BENEVOLAT_URL" = "https://${local.benevolat_hostname}"
     "VOLONTARIAT_URL" = "https://${local.volontariat_hostname}"
+    "PILOTY_BASE_URL" = local.piloty_hostname
     "BUCKET_NAME"   = local.bucket_name
     "SLACK_JOBTEASER_CHANNEL_ID" = terraform.workspace == "production" ? "C080H9MH56W" : ""
   }
@@ -46,7 +47,6 @@ resource "scaleway_container" "api" {
     "SLACK_TOKEN"       = local.secrets.SLACK_TOKEN
     "SCW_ACCESS_KEY"    = local.secrets.SCW_ACCESS_KEY
     "SCW_SECRET_KEY"    = local.secrets.SCW_SECRET_KEY
-    "PILOTY_BASE_URL"   = local.secrets.PILOTY_BASE_URL
     "LETUDIANT_PILOTY_TOKEN" = local.secrets.LETUDIANT_PILOTY_TOKEN
   }
 }
@@ -60,7 +60,7 @@ resource "scaleway_container" "app" {
   port            = 8080
   cpu_limit       = terraform.workspace == "production" ? 500 : 250
   memory_limit    = terraform.workspace == "production" ? 1024 : 512
-  min_scale       = terraform.workspace == "production" ? 1 : 1
+  min_scale       = terraform.workspace == "production" ? 1 : 0
   max_scale       = terraform.workspace == "production" ? 1 : 1
   timeout         = 60
   privacy         = "public"
@@ -78,7 +78,7 @@ resource "scaleway_container" "widget" {
   port            = 8080
   cpu_limit       = terraform.workspace == "production" ? 500 : 250
   memory_limit    = terraform.workspace == "production" ? 1024 : 512
-  min_scale       = terraform.workspace == "production" ? 1 : 1
+  min_scale       = terraform.workspace == "production" ? 1 : 0
   max_scale       = terraform.workspace == "production" ? 4 : 1
   timeout         = 60
   privacy         = "public"

@@ -30,7 +30,6 @@ router.post("/search", passport.authenticate(["user", "admin"], { session: false
         sendReport: zod.boolean().optional(),
         missionType: zod.string().optional(),
       })
-      .passthrough()
       .safeParse(req.body);
 
     if (!body.success) {
@@ -158,6 +157,7 @@ router.post("/", passport.authenticate("admin", { session: false }), async (req:
         hasWidgetRights: zod.boolean().default(false),
         hasCampaignRights: zod.boolean().default(false),
         category: zod.string().nullable().default(null),
+        name: zod.string().optional(),
         publishers: zod
           .array(
             zod.object({
@@ -177,7 +177,6 @@ router.post("/", passport.authenticate("admin", { session: false }), async (req:
         email: zod.string().optional(),
         feed: zod.string().optional(),
       })
-      .passthrough()
       .safeParse(req.body);
 
     if (!body.success) {
@@ -306,7 +305,6 @@ router.put("/:id", passport.authenticate("admin", { session: false }), async (re
         email: zod.string().optional(),
         feed: zod.string().optional(),
       })
-      .passthrough()
       .safeParse(req.body);
 
     if (!params.success) {

@@ -5,6 +5,7 @@ import * as Sentry from "@sentry/node";
 import express from "express";
 
 import { ENV, PORT, SENTRY_DSN_JOBS } from "./config"; // Assuming this is the correct path for these configs
+import "./db/mongo";
 import { mongoConnected } from "./db/mongo";
 
 if (ENV !== "development") {
@@ -14,8 +15,6 @@ if (ENV !== "development") {
     tracesSampleRate: 0.1,
   });
 }
-
-import "./db/mongo";
 
 /**
  * Starts the job server.

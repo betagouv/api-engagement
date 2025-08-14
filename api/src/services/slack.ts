@@ -2,7 +2,13 @@ import { ENV, SLACK_TOKEN } from "../config";
 
 export const postMessage = async ({ title, text, author_name, color }: { title?: string; text: string; author_name?: string; color?: string }, channelId: string) => {
   if (ENV !== "production") {
-    console.log(`[Slack] ${text}`);
+    console.log(`---- SLACK ----`);
+    console.log(`title: ${title}`);
+    console.log(`text: ${text}`);
+    console.log(`author_name: ${author_name || "none"}`);
+    console.log(`color: ${color || "none"}`);
+    console.log(`channelId: ${channelId}`);
+    console.log(`---- SLACK ----`);
     return { ok: true };
   }
 

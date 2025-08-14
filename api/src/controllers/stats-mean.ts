@@ -19,7 +19,6 @@ router.get("/", passport.authenticate("user", { session: false }), async (req: U
         to: zod.coerce.date().optional(),
         source: zod.string().optional(),
       })
-      .passthrough()
       .safeParse(req.query);
 
     if (!query.success) {

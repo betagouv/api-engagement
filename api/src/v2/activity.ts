@@ -267,7 +267,6 @@ router.put("/:activityId", passport.authenticate(["apikey", "api"], { session: f
       .object({
         status: zod.enum(["PENDING", "VALIDATED", "CANCEL", "CANCELED", "REFUSED", "CARRIED_OUT"]),
       })
-      .passthrough()
       .safeParse(req.body);
 
     if (!params.success) {

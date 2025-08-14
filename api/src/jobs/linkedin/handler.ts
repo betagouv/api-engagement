@@ -1,10 +1,9 @@
 import fs from "fs";
 
-import { ENV, PUBLISHER_IDS, SLACK_CRON_CHANNEL_ID } from "../../config";
+import { ENV, PUBLISHER_IDS } from "../../config";
+import { captureException } from "../../error";
 import ImportModel from "../../models/import";
 import PublisherModel from "../../models/publisher";
-import { postMessage } from "../../services/slack";
-import { getJobTime } from "../../utils";
 import { BaseHandler } from "../base/handler";
 import { JobResult } from "../types";
 import { PARTNERS_IDS } from "./config";
@@ -23,6 +22,8 @@ export interface LinkedinJobResult extends JobResult {
 }
 
 export class LinkedinHandler implements BaseHandler<LinkedinJobPayload, LinkedinJobResult> {
+  name = "Génération du feed Linkedin";
+
   public async handle(payload: LinkedinJobPayload): Promise<LinkedinJobResult> {
     const start = new Date();
     try {
@@ -105,23 +106,15 @@ export class LinkedinHandler implements BaseHandler<LinkedinJobPayload, Linkedin
         failed: { data: [] },
       });
 
-      const time = getJobTime(start);
-      await postMessage(
-        {
-          title: `Génération du feed Linkedin terminée en ${time}`,
-          text: `\t• Nombre de missions traitées: ${result.counter.processed}\n\t• Nombre de missions envoyées dans le feed: ${result.counter.sent}\n\t• Nombre de missions expirées: ${result.counter.expired}\n\t• Nombre de missions ignorées: ${result.counter.skipped}`,
-        },
-        SLACK_CRON_CHANNEL_ID
-      );
-
       return {
         success: true,
         timestamp: new Date(),
         url,
         counter: result.counter,
+        message: `\t• Nombre de missions traitées: ${result.counter.processed}\n\t• Nombre de missions envoyées dans le feed: ${result.counter.sent}\n\t• Nombre de missions expirées: ${result.counter.expired}\n\t• Nombre de missions ignorées: ${result.counter.skipped}`,
       };
     } catch (error) {
-      console.error(`[LinkedinHandler] Error processing missions`, error);
+      captureException(error);
 
       await ImportModel.create({
         name: `LINKEDIN`,

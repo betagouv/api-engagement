@@ -6,7 +6,7 @@ import { RiBuildingFill, RiCalendarEventFill } from "react-icons/ri";
 import { DOMAINS } from "../config";
 import LogoSCE from "../public/images/logo-sce.svg";
 
-const CardVolontariat = ({ widget, mission, request, onFocus = null }) => {
+const CardVolontariat = ({ widget, mission, request, focused = false, onKeyDown = null, onRef = null }) => {
   const ref = useRef(null);
   const [address, setAddress] = useState("");
   const [domain, setDomain] = useState(DOMAINS[mission.domain] || DOMAINS.autre);
@@ -26,10 +26,10 @@ const CardVolontariat = ({ widget, mission, request, onFocus = null }) => {
   }, [mission]);
 
   useEffect(() => {
-    if (onFocus) {
-      onFocus(ref);
+    if (onRef) {
+      onRef(ref);
     }
-  }, [onFocus]);
+  }, [ref]);
 
   if (!mission) {
     return null;
@@ -40,7 +40,7 @@ const CardVolontariat = ({ widget, mission, request, onFocus = null }) => {
       data-testid="mission-card"
       className={`relative ${
         widget.style === "carousel" ? "w-full lg:max-w-[336px]" : "w-full"
-      } relative border min-h-[290px] max-h-[290px] md:min-h-[311px] md:max-h-[311px] flex flex-col border-[#DDDDDD] bg-white group overflow-hidden ${onFocus !== null ? "ring-2 ring-[#000091] ring-offset-0" : "focus-within:ring-2 focus-within:ring-[#000091] focus-within:ring-offset-0"}`}
+      } relative border min-h-[290px] max-h-[290px] md:min-h-[311px] md:max-h-[311px] flex flex-col border-[#DDDDDD] bg-white group overflow-hidden focus-within:ring-2 focus-within:ring-[#000091] focus-within:ring-offset-0`}
     >
       <div className="flex-1 flex flex-col p-5 gap-3">
         <div className="flex items-start min-w-0">
@@ -66,16 +66,15 @@ const CardVolontariat = ({ widget, mission, request, onFocus = null }) => {
             href={mission.url}
             target="_blank"
             className="after:absolute after:top-0 after:left-0 after:right-0 after:bottom-0 focus:outline-none"
-            tabIndex={widget.style === "carousel" ? -1 : 0}
+            tabIndex={widget.style === "carousel" ? (focused ? 0 : -1) : undefined}
+            aria-focused={widget.style === "carousel" ? focused : undefined}
+            onKeyDown={onKeyDown}
           >
-            <h2
-              id={mission._id}
-              className={`font-semibold line-clamp-3 text-xl ${onFocus !== null ? "text-[#000091]" : "group-hover:text-[#000091] group-focus-within:text-[#000091]"} transition-colors duration-300`}
-            >
+            <h2 id={mission._id} className={`font-semibold line-clamp-3 text-xl group-hover:text-[#000091] group-focus-within:text-[#000091] transition-colors duration-300`}>
               {mission.title}
             </h2>
           </a>
-          <p className={`text-sm line-clamp-1 text-[#3A3A3A] ${onFocus !== null ? "line-clamp-4" : "group-hover:line-clamp-4 group-focus-within:line-clamp-4"}`}>{address}</p>
+          <p className={`text-sm line-clamp-1 text-[#3A3A3A] group-hover:line-clamp-4 group-focus-within:line-clamp-4`}>{address}</p>
         </div>
 
         <div className="min-h-[19px] flex items-center mt-auto">
@@ -86,9 +85,7 @@ const CardVolontariat = ({ widget, mission, request, onFocus = null }) => {
           )}
         </div>
 
-        <div
-          className={`flex justify-between items-center text-[#666666] ${address.length > 40 ? `${onFocus !== null ? "hidden" : "group-hover:hidden group-focus-within:hidden"}` : ""}`}
-        >
+        <div className={`flex justify-between items-center text-[#666666] ${address.length > 40 ? "group-hover:hidden group-focus-within:hidden" : ""}`}>
           <div className="flex items-center min-w-[120px]">
             <RiCalendarEventFill className="h-4 flex-shrink-0" />
             <p className="text-xs ml-2 whitespace-nowrap">Dès que possible</p>

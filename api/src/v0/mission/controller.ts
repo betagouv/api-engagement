@@ -71,7 +71,7 @@ router.get("/", passport.authenticate(["apikey", "api"], { session: false }), as
   try {
     const user = req.user as Publisher;
 
-    const query = missionQuerySchema.passthrough().safeParse(req.query);
+    const query = missionQuerySchema.safeParse(req.query);
 
     if (!query.success) {
       res.locals = { code: INVALID_QUERY, message: JSON.stringify(query.error) };
@@ -249,7 +249,6 @@ router.get("/search", passport.authenticate(["apikey", "api"], { session: false 
       .extend({
         text: zod.string().optional(), // Legacy text param, not documented anymore
       })
-      .passthrough()
       .safeParse(req.query);
 
     if (!query.success) {

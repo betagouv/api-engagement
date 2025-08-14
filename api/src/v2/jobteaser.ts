@@ -49,7 +49,6 @@ router.post("/feedback", passport.authenticate(["jobteaser"], { session: false }
         url: zod.string().optional(),
         comment: zod.string().optional(),
       })
-      .passthrough()
       .safeParse(req.body);
 
     if (!body.success) {

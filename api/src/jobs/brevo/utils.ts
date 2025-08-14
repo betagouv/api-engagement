@@ -8,6 +8,9 @@ import { BrevoContact } from "./types";
 const BREVO_CONTACTS_LIMIT = 1000;
 
 export const syncContact = async () => {
+  let updated = 0;
+  let deleted = 0;
+  let created = 0;
   try {
     const users = await UserModel.find({});
     const publishers = await PublisherModel.find({});
@@ -42,7 +45,7 @@ export const syncContact = async () => {
       .filter((user) => !contacts.some((contact) => contact.email?.toLowerCase().trim() === user.email.toLowerCase().trim()));
 
     console.log(`[Brevo Contacts] Updating ${toUpdate.length} contacts`);
-    let updated = 0;
+
     for (const user of toUpdate) {
       const contact = contacts.find((contact) => contact.email?.toLowerCase().trim() === user.email.toLowerCase().trim());
       if (!contact) {
@@ -102,7 +105,6 @@ export const syncContact = async () => {
     console.log(`[Brevo Contacts] Updated ${updated} contacts`);
 
     console.log(`[Brevo Contacts] Creating ${toCreate.length} contacts`);
-    let created = 0;
     for (const user of toCreate) {
       console.log(`[Brevo Contacts] Creating ${user.email}`);
       const body = {
@@ -139,7 +141,6 @@ export const syncContact = async () => {
       users.filter((user) => user.deletedAt !== null).some((user) => user.email.toLowerCase().trim() === contact.email?.toLowerCase().trim())
     );
     console.log(`[Brevo Contacts] Deleting ${toDelete.length} contacts`);
-    let deleted = 0;
     for (const contact of toDelete) {
       console.log(`[Brevo Contacts] Deleting ${contact.email} ${contact.id}`);
       const res = await Brevo.api(`/contacts/${contact.id}`, {}, "DELETE");
@@ -152,4 +153,9 @@ export const syncContact = async () => {
   } catch (error) {
     captureException(error, `[Brevo Contacts] Error syncing contacts`);
   }
+  return {
+    deleted,
+    created,
+    updated,
+  };
 };

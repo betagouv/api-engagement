@@ -20,7 +20,7 @@ router.post("/search", passport.authenticate("user", { session: false }), async 
       .safeParse(req.body);
 
     if (!body.success) {
-      return res.status(400).send({ ok: false, code: INVALID_BODY, error: body.error.errors });
+      return res.status(400).send({ ok: false, code: INVALID_BODY, error: body.error });
     }
 
     if (req.user.role !== "admin" && (!body.data.publisherId || !req.user.publishers.includes(body.data.publisherId))) {

@@ -1,3 +1,4 @@
+import { Schema } from "mongoose";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { Mission } from "../../../types";
 import { missionToLinkedinJob } from "../transformers";
@@ -30,6 +31,7 @@ vi.mock("../utils", () => ({
 const defaultCompany = "benevolt";
 
 const baseMission: Partial<Mission> = {
+  _id: new Schema.Types.ObjectId("000000000000000000000123"),
   title: "Développeur Web",
   description: "Ceci est une description de mission de plus de 100 caractères pour passer la validation initiale. Il faut que ce soit assez long pour que le test passe.",
   organizationName: "Mon asso",

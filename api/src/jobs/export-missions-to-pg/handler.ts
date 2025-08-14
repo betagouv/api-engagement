@@ -1,11 +1,8 @@
 import { Address } from "@prisma/client";
-import { SLACK_CRON_CHANNEL_ID } from "../../config";
 import prisma from "../../db/postgres";
 import { captureException } from "../../error";
 import MissionModel from "../../models/mission";
-import { postMessage } from "../../services/slack";
 import { Mission } from "../../types";
-import { getJobTime } from "../../utils";
 import { BaseHandler } from "../base/handler";
 import { ExportMissionsToPgJobPayload, ExportMissionsToPgJobResult } from "./types";
 import { countMongoMissionsToSync, getMongoMissionsToSync, getOrganizationsFromMissions } from "./utils/helpers";
@@ -15,7 +12,9 @@ const BULK_SIZE = 10000;
 const PG_CHUNK_SIZE = 100;
 
 export class ExportMissionsToPgHandler implements BaseHandler<ExportMissionsToPgJobPayload, ExportMissionsToPgJobResult> {
-  async handle(): Promise<ExportMissionsToPgJobResult> {
+  name = "Export des missions vers PG";
+
+  async handle(payload: ExportMissionsToPgJobPayload): Promise<ExportMissionsToPgJobResult> {
     const start = new Date();
     console.log(`[Export missions to PG] Starting at ${start.toISOString()}`);
 
@@ -101,19 +100,11 @@ export class ExportMissionsToPgHandler implements BaseHandler<ExportMissionsToPg
       }
     }
 
-    const time = getJobTime(start);
-    await postMessage(
-      {
-        title: `Export des missions vers PG terminée en ${time}`,
-        text: `\t• Nombre de missions traitées: ${counter.processed}\n\t• Nombre de missions traitées avec succès: ${counter.success}\n\t• Nombre de missions en erreur: ${counter.error}\n\t• Nombre de missions supprimées: ${counter.deleted}`,
-      },
-      SLACK_CRON_CHANNEL_ID
-    );
-
     return {
       success: true,
       timestamp: new Date(),
       counter,
+      message: `\t• Nombre de missions traitées: ${counter.processed}\n\t• Nombre de missions traitées avec succès: ${counter.success}\n\t• Nombre de missions en erreur: ${counter.error}\n\t• Nombre de missions supprimées: ${counter.deleted}`,
     };
   }
 }

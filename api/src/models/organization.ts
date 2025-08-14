@@ -7,7 +7,7 @@ const MODELNAME = "organization";
 const schema = new Schema<Organization>(
   {
     esId: { type: String, description: "ES ID" },
-    rna: { type: String, required: true, description: "RNA" },
+    rna: { type: String, description: "RNA" },
     siren: { type: String, description: "Siren" },
     siret: { type: String, description: "Siret" },
     sirets: { type: [String], description: "Sirets" },

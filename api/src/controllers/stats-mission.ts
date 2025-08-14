@@ -23,7 +23,6 @@ router.get("/mission-performance", passport.authenticate("user", { session: fals
         skip: zod.coerce.number().default(0),
         flux: zod.enum(["to", "from"]).default("to"),
       })
-      .passthrough()
       .safeParse(req.query);
 
     if (!query.success) {
@@ -148,7 +147,6 @@ router.get("/organisation-performance", passport.authenticate("user", { session:
         skip: zod.coerce.number().default(0),
         flux: zod.enum(["to", "from"]).default("to"),
       })
-      .passthrough()
       .safeParse(req.query);
 
     if (!query.success) {
@@ -251,7 +249,6 @@ router.get("/domain-performance", passport.authenticate("user", { session: false
         skip: zod.coerce.number().default(0),
         flux: zod.enum(["to", "from"]).default("to"),
       })
-      .passthrough()
       .safeParse(req.query);
 
     if (!query.success) {
@@ -330,7 +327,6 @@ router.get("/domain-distribution", passport.authenticate("user", { session: fals
         to: zod.coerce.date().optional(),
         flux: zod.enum(["to", "from"]).default("to"),
       })
-      .passthrough()
       .safeParse(req.query);
 
     if (!query.success) {
@@ -352,21 +348,6 @@ router.get("/domain-distribution", passport.authenticate("user", { session: fals
       where.bool.filter.push({ range: { createdAt: { gte: query.data.from } } });
     } else if (query.data.to) {
       where.bool.filter.push({ range: { createdAt: { lte: query.data.to } } });
-    }
-
-    const sort = {
-      bucket_sort: {
-        sort: [{ "print._count": "desc" }],
-        size: query.data.size,
-        from: query.data.skip,
-      },
-    } as any;
-    if (query.data.sort === "click") {
-      sort.bucket_sort.sort = [{ "click._count": "desc" }];
-    } else if (query.data.sort === "apply") {
-      sort.bucket_sort.sort = [{ "apply._count": "desc" }];
-    } else if (query.data.sort === "rate") {
-      sort.bucket_sort.sort = [{ rate: "desc" }];
     }
 
     const body = {
@@ -402,7 +383,6 @@ router.get("/moderation", passport.authenticate("user", { session: false }), asy
         from: zod.coerce.date().optional(),
         to: zod.coerce.date().optional(),
       })
-      .passthrough()
       .safeParse(req.query);
 
     if (!query.success) {

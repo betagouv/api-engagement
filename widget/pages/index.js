@@ -239,14 +239,6 @@ const Home = ({ widget, apiUrl, missions, total, request, environment }) => {
         <div className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
           <h1 className="text-[28px] font-bold leading-[36px] md:p-0">{isBenevolat ? "Trouver une mission de bénévolat" : "Trouver une mission de Service Civique"}</h1>
           <p className="text-[18px] leading-[28px] text-[#666]">{total > 1 ? `${total.toLocaleString("fr")} missions` : `${total} mission`}</p>
-          <button
-            onClick={() => {
-              const error = Sentry.captureException(new Error("Test sentry"));
-              console.log(error);
-            }}
-          >
-            Test sentry
-          </button>
         </div>
         <Filters
           widget={widget}

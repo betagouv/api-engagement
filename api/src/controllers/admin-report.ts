@@ -22,7 +22,7 @@ router.post("/search", passport.authenticate("admin", { session: false }), async
       .safeParse(req.body);
 
     if (!body.success) {
-      return res.status(400).send({ ok: false, code: INVALID_BODY, message: body.error.errors });
+      return res.status(400).send({ ok: false, code: INVALID_BODY, message: body.error });
     }
 
     const where = {} as any;

@@ -141,15 +141,13 @@ router.post("/", passport.authenticate("admin", { session: false }), async (req:
         url: zod.string().optional(),
         rules: zod
           .array(
-            zod
-              .object({
-                combinator: zod.enum(["and", "or"]),
-                field: zod.string(),
-                fieldType: zod.string().optional(),
-                operator: zod.string(),
-                value: zod.string().min(1),
-              })
-              .passthrough()
+            zod.object({
+              combinator: zod.enum(["and", "or"]),
+              field: zod.string(),
+              fieldType: zod.string().optional(),
+              operator: zod.string(),
+              value: zod.string().min(1),
+            })
           )
           .optional(),
 
@@ -171,7 +169,6 @@ router.post("/", passport.authenticate("admin", { session: false }), async (req:
           .nullable()
           .optional(),
       })
-      .passthrough()
       .safeParse(req.body);
 
     if (!body.success) {
@@ -235,15 +232,13 @@ router.put("/:id", passport.authenticate("admin", { session: false }), async (re
         url: zod.string().optional(),
         rules: zod
           .array(
-            zod
-              .object({
-                combinator: zod.enum(["and", "or"]),
-                field: zod.string(),
-                fieldType: zod.string().optional(),
-                operator: zod.string(),
-                value: zod.string().min(1),
-              })
-              .passthrough()
+            zod.object({
+              combinator: zod.enum(["and", "or"]),
+              field: zod.string(),
+              fieldType: zod.string().optional(),
+              operator: zod.string(),
+              value: zod.string().min(1),
+            })
           )
           .optional(),
 
@@ -265,7 +260,6 @@ router.put("/:id", passport.authenticate("admin", { session: false }), async (re
           .nullable()
           .optional(),
       })
-      .passthrough()
       .safeParse(req.body);
 
     if (!params.success) {

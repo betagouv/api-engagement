@@ -12,7 +12,7 @@ import { DOMAINS } from "../../constants";
 import api from "../../services/api";
 import { captureError } from "../../services/error";
 import useStore from "../../services/store";
-import { DEPARTMENT_LABELS, STATUS, STATUS_GRAPH_COLORS, STATUS_ICONS, STATUS_PLR } from "../broadcast/moderation/components/Constants";
+import { DEPARTMENT_LABELS, JVA_MODERATION_COMMENTS_LABELS, STATUS, STATUS_GRAPH_COLORS, STATUS_ICONS, STATUS_PLR } from "../broadcast/moderation/components/Constants";
 
 const STATUS_COMMENT = [
   "La mission a déjà été publiée sur JeVeuxAider.gouv.fr",
@@ -301,7 +301,7 @@ const Moderation = () => {
                     <RiInformationLine className="text-gray-dark" />
 
                     <div className="hidden group-hover:block absolute right-8 -translate-y-1/2 -top-1/2 z-10 w-64 border border-gray-border bg-white p-4 shadow-lg">
-                      <p className="text-sm">{item.comment}</p>
+                      <p className="text-sm">{JVA_MODERATION_COMMENTS_LABELS[item.comment] || item.comment}</p>
                     </div>
                   </div>
                 )}

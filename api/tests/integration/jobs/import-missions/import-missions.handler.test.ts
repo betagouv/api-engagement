@@ -97,7 +97,7 @@ describe("Import missions job (integration test)", () => {
     const missions = await MissionModel.find({ publisherId: publisher._id.toString(), deleted: true });
     expect(missions.length).toBeGreaterThan(0);
     expect(result.success).toBe(true);
-    expect(result.imports[0].status).toBe("SUCCESS");
+    expect(result.imports[0].status).toBe("FAILED");
   });
 
   it("If publisher has no feed, skip import", async () => {
