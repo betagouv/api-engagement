@@ -63,10 +63,13 @@ const SelectFilter = ({ options, selectedOptions, onChange, id, placeholder = "C
   const handleListKeyDown = (e, item) => {
     switch (e.key) {
       case "Tab":
-        e.preventDefault();
         if (e.shiftKey) {
-          inputRef.current.focus();
+          if (inputRef && inputRef.current) {
+            e.preventDefault();
+            inputRef.current.focus();
+          }
         } else {
+          e.preventDefault();
           resetButtonRef.current.focus();
         }
         break;
