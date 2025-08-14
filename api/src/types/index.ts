@@ -66,13 +66,11 @@ export type AddressItem = {
   city: string;
   region: string;
   country: string;
-  location:
-    | {
-        lat: number;
-        lon: number;
-      }
-    | undefined;
-  geoPoint?: GeoPoint;
+  location: {
+    lat: number;
+    lon: number;
+  } | null;
+  geoPoint: GeoPoint | null;
   geolocStatus: GeolocStatus;
 };
 
@@ -221,10 +219,20 @@ export interface MissionHistory {
   metadata?: Record<string, any>;
 }
 
+export interface MissionEvent {
+  _id: Schema.Types.ObjectId;
+  type: "create" | "update" | "delete";
+  missionId: Schema.Types.ObjectId;
+  changes: Record<string, { previous: any; current: any }> | null;
+  fields: string[];
+  createdAt: Date;
+  createdBy?: Schema.Types.ObjectId; // User
+  // PG export
+  lastExportedToPgAt: Date | null;
+}
+
 export interface Mission {
   _id?: Schema.Types.ObjectId;
-  _old_id?: string;
-  _old_ids?: string[];
 
   publisherId: string;
   publisherName: string;
@@ -244,43 +252,42 @@ export interface Mission {
   description: string;
   descriptionHtml: string;
   tags: string[];
-  tasks: string[];
   audience: string[];
-  soft_skills: string[];
+
   softSkills: string[];
   requirements: string[];
   romeSkills: string[];
-  organizationClientId: string | undefined;
-  organizationUrl: string | undefined;
-  organizationName: string | undefined;
-  organizationRNA: string | undefined;
-  organizationSiren: string | undefined;
-  organizationSiret: string | undefined;
-  organizationType: string | undefined;
-  organizationLogo: string | undefined;
-  organizationDescription: string | undefined;
-  organizationFullAddress: string | undefined;
-  organizationDepartment: string | undefined;
-  organizationPostCode: string | undefined;
-  organizationCity: string | undefined;
-  organizationStatusJuridique: string | undefined;
-  organizationBeneficiaries: string[] | undefined;
-  organizationActions: string[] | undefined;
-  organizationReseaux: string[] | undefined;
+  organizationClientId: string;
+  organizationUrl: string;
+  organizationName: string;
+  organizationRNA: string;
+  organizationSiren: string;
+  organizationSiret: string;
+  organizationType: string;
+  organizationLogo: string;
+  organizationDescription: string;
+  organizationFullAddress: string;
+  organizationDepartment: string;
+  organizationPostCode: string;
+  organizationCity: string;
+  organizationStatusJuridique: string;
+  organizationBeneficiaries: string[];
+  organizationActions: string[];
+  organizationReseaux: string[];
 
-  organizationId: string | undefined;
-  organizationNameVerified: string | undefined;
-  organizationRNAVerified: string | undefined;
-  organizationSirenVerified: string | undefined;
-  organizationSiretVerified: string | undefined;
-  organizationAddressVerified: string | undefined;
-  organizationCityVerified: string | undefined;
-  organizationPostalCodeVerified: string | undefined;
-  organizationDepartmentCodeVerified: string | undefined;
-  organizationDepartmentNameVerified: string | undefined;
-  organizationRegionVerified: string | undefined;
-  organisationIsRUP: boolean | undefined;
-  organizationVerificationStatus: string | undefined;
+  organizationId: string | null;
+  organizationNameVerified: string;
+  organizationRNAVerified: string;
+  organizationSirenVerified: string;
+  organizationSiretVerified: string;
+  organizationAddressVerified: string;
+  organizationCityVerified: string;
+  organizationPostalCodeVerified: string;
+  organizationDepartmentCodeVerified: string;
+  organizationDepartmentNameVerified: string;
+  organizationRegionVerified: string;
+  organisationIsRUP: boolean;
+  organizationVerificationStatus: string;
 
   associationId: string | undefined;
   associationName: string | undefined;
@@ -303,39 +310,35 @@ export interface Mission {
   schedule: string;
   postedAt: Date;
   startAt: Date;
-  priority: string | undefined;
-  metadata: string | undefined;
+  priority: string;
+  metadata: string;
   endAt: Date | null;
-  duration: number | undefined;
-  adresse: string | undefined;
-  address: string | undefined;
-  postalCode: string | undefined;
-  departmentName: string | undefined;
-  departmentCode: string | undefined;
-  city: string | undefined;
-  region: string | undefined;
-  country: string | undefined;
+  duration: number | null;
+  address: string;
+  postalCode: string;
+  departmentName: string;
+  departmentCode: string;
+  city: string;
+  region: string;
+  country: string;
   geolocStatus: "ENRICHED_BY_PUBLISHER" | "ENRICHED_BY_API" | "NOT_FOUND" | "NO_DATA" | "SHOULD_ENRICH" | "FAILED";
   rnaStatus: "ENRICHED_BY_DATA_SUBVENTION" | "ENRICHED" | "NEED_VERIFY" | "NOT_FOUND" | "NO_DATA" | "SHOULD_ENRICH" | "FAILED";
   places: number;
   placesStatus: "ATTRIBUTED_BY_API" | "GIVEN_BY_PARTNER";
   domain: string;
-  domainOriginal: string | undefined;
   domainLogo: string;
   type: string;
   activity: string;
-  location:
-    | {
-        lat: number;
-        lon: number;
-      }
-    | undefined;
+  location: {
+    lat: number;
+    lon: number;
+  } | null;
 
-  geoPoint?: GeoPoint;
+  geoPoint: GeoPoint | null;
   addresses: AddressItem[];
 
-  snu: boolean | undefined;
-  snuPlaces: number | undefined;
+  snu: boolean;
+  snuPlaces: number | null;
   remote: "no" | "possible" | "full";
   deleted: boolean;
   deletedAt: Date | null;
@@ -363,7 +366,14 @@ export interface Mission {
 
   lastExportedToPgAt: Date | null;
 
+  // Deprecated fields
+  domainOriginal: string | undefined;
   __history?: MissionHistory[];
+  soft_skills: string[];
+  adresse: string | undefined;
+  tasks: string[];
+  _old_id?: string;
+  _old_ids?: string[];
 }
 
 export type ModerationEvent = {

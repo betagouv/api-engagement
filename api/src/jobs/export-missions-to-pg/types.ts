@@ -10,15 +10,19 @@ export interface ExportMissionsToPgJobPayload {
 
 export interface ExportMissionsToPgJobResult extends JobResult {
   counter: {
-    total: number;
     processed: number;
+    success: number;
     error: number;
     deleted: number;
+  };
+  counterEvent: {
+    processed: number;
+    success: number;
+    error: number;
   };
 }
 
 export type MissionTransformResult = {
   mission: PgMission;
   addresses: PgAddress[];
-  history: MissionHistoryEntry[];
 };

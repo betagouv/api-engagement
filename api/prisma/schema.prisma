@@ -268,6 +268,7 @@ model Mission {
   addresses                       Address[]
 
   domain                          String
+  domain_logo                     String?
   activity                        String?
   partner_id                      String?
   description                     String?
@@ -631,8 +632,9 @@ model MissionHistoryEvent {
   date              DateTime  @default(now())
   type              MissionHistoryEventType
   mission_id        String    
-
   mission           Mission?  @relation("MissionHistoryEvent", fields: [mission_id], references: [id])
+  fields            String[]
+  changes           Json?
   
   @@index([mission_id])
 }
