@@ -1,7 +1,7 @@
 node_modules
 dist
 scripts
-script-model-review
+script-data-clean
 coverage
 .github
 *.js.map
