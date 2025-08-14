@@ -211,7 +211,7 @@ const IFRAMES = {
 };
 
 const JVA_LOGO = `<div style="padding:10px; display:flex; justify-content:center; align-items:center;">
-  <img src="https://apicivique.s3.eu-west-3.amazonaws.com/jvalogo.svg" alt="Logo JeVeuxAider"/>
+  <img src="https://apicivique.s3.eu-west-3.amazonaws.com/jvalogo.svg" alt="JeVeuxAider.gouv.fr"/>
   <div style="color:#666666; font-style:normal; font-size:13px; padding:8px;">Proposé par la plateforme publique du bénévolat
     <a href="https://www.jeveuxaider.gouv.fr/" target="_blank">JeVeuxAider.gouv.fr</a>
   </div>
