@@ -16,12 +16,11 @@ export const countMongoMissionsToSync = async (): Promise<number> => {
  * @param payload The job payload
  * @returns The missions to sync
  */
-export const getMongoMissionsToSync = async ({ limit, offset }: { limit: number; offset: number }): Promise<Mission[]> => {
+export const getMongoMissionsToSync = async ({ limit }: { limit: number }): Promise<Mission[]> => {
   return MissionModel.find({
     $or: [{ lastExportedToPgAt: { $exists: false } }, { $expr: { $lt: ["$lastExportedToPgAt", "$updatedAt"] } }],
   })
     .limit(limit || DEFAULT_LIMIT)
-    .skip(offset || 0)
     .lean();
 };
 

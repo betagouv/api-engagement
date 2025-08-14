@@ -6,6 +6,7 @@ import dotenv from "dotenv";
 dotenv.config({ path: "../.env" });
 
 import "../src/db/mongo";
+import prisma from "../src/db/postgres";
 
 import MissionModel from "../src/models/mission";
 import MissionEventModel from "../src/models/mission-event";
@@ -104,9 +105,14 @@ const transformMissionHistoryToMissionEvent = (mission: Mission) => {
 const BATCH_SIZE = 10000;
 
 const main = async () => {
-  // const res = await MissionEventModel.deleteMany({});
-  // console.log(res);
+  const res = await prisma.missionHistoryEvent.deleteMany({});
+  console.log(res);
   // return;
+
+  const res1 = await MissionEventModel.updateMany({}, { lastExportedToPgAt: null });
+  // const res = await MissionEventModel.deleteMany({});
+  console.log(res1);
+  return;
 
   const where = {
     __history: { $exists: true },
@@ -122,7 +128,12 @@ const main = async () => {
 
   while (true) {
     const batch = await MissionModel.find(where).limit(BATCH_SIZE).lean();
+    if (batch.length === 0) {
+      break;
+    }
+
     console.log(`Processing batch ${batchCount + 1} of ${Math.ceil(count / BATCH_SIZE)}, ${created} events created`);
+
     for (const mission of batch) {
       events.push(...transformMissionHistoryToMissionEvent(mission));
       if (events.length > 1000) {

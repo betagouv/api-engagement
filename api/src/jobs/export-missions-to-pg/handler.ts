@@ -27,7 +27,7 @@ export class ExportMissionsToPgHandler implements BaseHandler<ExportMissionsToPg
       timestamp: new Date(),
       counter,
       counterEvent,
-      message: `\t• Nombre de missions traitées: ${counter.processed}\n\t• Nombre de missions traitées avec succès: ${counter.success}\n\t• Nombre de missions en erreur: ${counter.error}\n\t• Nombre de missions supprimées: ${counter.deleted}\n\t• Nombre d'evenements traités: ${counterEvent.processed}\n\t• Nombre d'evenements traités avec succès: ${counterEvent.success}\n\t• Nombre d'evenements en erreur: ${counterEvent.error}`,
+      message: `\t• Nombre de missions traitées: ${counter.processed}\n\t• Nombre de missions traitées avec succès: ${counter.success}\n\t• Nombre de missions en erreur: ${counter.error}\n\t• Nombre de missions supprimées: ${counter.deleted}\n\t• Nombre d'evenements traités: ${counterEvent.processed}\n\t• Nombre d'evenements traités avec succès: ${counterEvent.created}\n\t• Nombre d'evenements en erreur: ${counterEvent.error}`,
     };
   }
 }
@@ -43,8 +43,19 @@ const exportMission = async () => {
     deleted: 0,
   };
 
-  for (let i = 0; i < count; i += BULK_SIZE) {
-    const missions = await getMongoMissionsToSync({ limit: BULK_SIZE, offset: i });
+  let prevCount = 0;
+  let batchCount = 0;
+  while (true) {
+    const missions = await getMongoMissionsToSync({ limit: BULK_SIZE });
+
+    if (missions.length === 0 || (missions.length === prevCount && missions.length !== BULK_SIZE)) {
+      console.log(`[Export missions to PG] No more missions can be processed (${missions.length} left)`);
+      break;
+    }
+
+    prevCount = missions.length;
+
+    console.log(`[Export missions to PG] Processing batch ${batchCount + 1} / ${Math.ceil(count / BULK_SIZE)} (${missions.length} missions)`);
 
     // Get partners for mission mapping
     const partners = {} as { [key: string]: string };
@@ -111,8 +122,10 @@ const exportMission = async () => {
       // Update missions lastExportedToPgAt to exclude them to be processed again
       // Timestamps are disabled to avoid updating updatedAt
       await MissionModel.updateMany({ _id: { $in: missionsUpdatedIds } }, { $set: { lastExportedToPgAt: new Date() } }, { timestamps: false });
+      missionsUpdatedIds.length = 0;
       console.log(`[Export missions to PG] Updated lastExportedToPgAt for ${batch.length} missions (batch)`);
     }
+    batchCount++;
   }
 
   return counter;
@@ -124,17 +137,26 @@ const exportMissionEvent = async () => {
 
   const counter = {
     processed: 0,
-    success: 0,
+    created: 0,
     error: 0,
   };
 
-  for (let i = 0; i < count; i += BULK_SIZE) {
-    const events = await MissionEventModel.find({ lastExportedToPgAt: null }).limit(BULK_SIZE).skip(i).lean();
-    console.log(`[Export missions events to PG] Processing batch ${i / BULK_SIZE + 1} / ${Math.ceil(count / BULK_SIZE)} (${events.length} events)`);
+  let prevCount = 0;
+  let batchCount = 0;
 
+  while (true) {
+    const events = await MissionEventModel.find({ lastExportedToPgAt: null }).limit(BULK_SIZE).lean();
+    if (events.length === 0 || (events.length === prevCount && events.length !== BULK_SIZE)) {
+      console.log(`[Export missions events to PG] No more events can be processed (${events.length} left)`);
+      break;
+    }
+
+    prevCount = events.length;
+
+    console.log(`[Export missions events to PG] Processing batch ${batchCount + 1} / ${Math.ceil(count / BULK_SIZE)} (${events.length} events)`);
     for (let i = 0; i < events.length; i += PG_CHUNK_SIZE) {
       const batch = events.slice(i, i + PG_CHUNK_SIZE) as MissionEvent[];
-      console.log(`[Export missions to PG] Batch ${i / PG_CHUNK_SIZE + 1} / ${Math.ceil(events.length / PG_CHUNK_SIZE)} (${batch.length} missions)`);
+      console.log(`[Export missions events to PG] Batch ${i / PG_CHUNK_SIZE + 1} / ${Math.ceil(events.length / PG_CHUNK_SIZE)} (${batch.length} missions)`);
 
       const missionIds: string[] = [...new Set(events.map((e) => e.missionId.toString()).filter((e) => e !== undefined))] as string[];
       const missions = {} as { [key: string]: string };
@@ -145,7 +167,7 @@ const exportMissionEvent = async () => {
         })
         .then((data) => data.forEach((d) => (missions[d.old_id] = d.id)));
 
-      console.log(`[Export missions to PG] Found ${Object.keys(missions).length} missions related to events`);
+      console.log(`[Export missions events to PG] Found ${Object.keys(missions).length} missions related to events`);
 
       const eventsToCreate: Omit<MissionHistoryEvent, "id">[] = [];
       const updatedIds: Schema.Types.ObjectId[] = [];
@@ -154,7 +176,7 @@ const exportMissionEvent = async () => {
 
         const mission = missions[event.missionId.toString()];
         if (!mission) {
-          console.error(`[Export missions to PG] No mission found for event ${event._id.toString()} (missionId: ${event.missionId})`);
+          console.error(`[Export missions events to PG] No mission found for event ${event._id.toString()} (missionId: ${event.missionId})`);
           counter.error++;
           continue;
         }
@@ -168,15 +190,17 @@ const exportMissionEvent = async () => {
         if (eventsToCreate.length > 0) {
           // Prisma issue: https://github.com/prisma/prisma/issues/12131
           const res = await prisma.missionHistoryEvent.createMany({ data: eventsToCreate.map((e) => ({ ...e, changes: e.changes === null ? Prisma.JsonNull : e.changes })) });
-          counter.success += res.count;
+          counter.created += res.count;
         }
       } catch (error) {
         captureException(error, { extra: { eventsToCreate } });
       }
 
       await MissionEventModel.updateMany({ _id: { $in: updatedIds } }, { $set: { lastExportedToPgAt: new Date() } });
-      console.log(`[Export missions to PG] Updated lastExportedToPgAt for ${batch.length} missions (batch)`);
+      updatedIds.length = 0;
+      console.log(`[Export missions events to PG] Updated lastExportedToPgAt for ${batch.length} missions (batch)`);
     }
+    batchCount++;
   }
 
   return counter;

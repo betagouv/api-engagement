@@ -17,7 +17,7 @@ export interface ExportMissionsToPgJobResult extends JobResult {
   };
   counterEvent: {
     processed: number;
-    success: number;
+    created: number;
     error: number;
   };
 }

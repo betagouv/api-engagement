@@ -210,12 +210,8 @@ export const transformMongoMissionEventToPg = (doc: MongoMissionEvent, missionId
 
   const events: MissionHistoryEvent[] = [];
 
-  console.log("doc", doc);
-  console.log("baseEvent", baseEvent);
-
   // For creation type, return only MissionCreated
   if (doc.type === "create") {
-    console.log("create");
     return [
       {
         ...baseEvent,
@@ -225,15 +221,14 @@ export const transformMongoMissionEventToPg = (doc: MongoMissionEvent, missionId
   }
 
   if (doc.type === "delete") {
-    console.log("delete");
     events.push({
       ...baseEvent,
       type: MissionHistoryEventType.Deleted,
       fields: ["deleted_at"],
       changes: {
         deleted_at: {
-          previous: doc.changes?.deletedAt.previous || null,
-          current: doc.changes?.deletedAt.current || null,
+          previous: doc.changes?.deletedAt.previous,
+          current: doc.changes?.deletedAt.current,
         },
       } as Prisma.JsonValue,
     });
@@ -334,7 +329,7 @@ export const transformMongoMissionEventToPg = (doc: MongoMissionEvent, missionId
       fields: ["jva_moderation_status"],
       changes: {
         jva_moderation_status: {
-          previous: doc.changes[`moderation_${PUBLISHER_IDS.JEVEUXAIDER}_status`].previous,
+          previous: doc.changes[`moderation_${PUBLISHER_IDS.JEVEUXAIDER}_status`]?.previous || null,
           current: doc.changes[`moderation_${PUBLISHER_IDS.JEVEUXAIDER}_status`].current,
         },
       } as Prisma.JsonValue,
@@ -348,8 +343,8 @@ export const transformMongoMissionEventToPg = (doc: MongoMissionEvent, missionId
       fields: ["status"],
       changes: {
         status: {
-          previous: doc.changes.status.previous,
-          current: doc.changes.status.current,
+          previous: doc.changes.statusCode.previous,
+          current: doc.changes.statusCode.current,
         },
       } as Prisma.JsonValue,
     });
@@ -366,7 +361,7 @@ export const transformMongoMissionEventToPg = (doc: MongoMissionEvent, missionId
             return acc;
           }
           acc[MONGO_TO_PG_FIELDS[key as keyof typeof MONGO_TO_PG_FIELDS]] = {
-            previous: doc.changes[key].previous,
+            previous: doc.changes[key]?.previous || null,
             current: doc.changes[key].current,
           };
           return acc;
@@ -376,6 +371,5 @@ export const transformMongoMissionEventToPg = (doc: MongoMissionEvent, missionId
     });
   }
 
-  console.log("events", events);
   return events;
 };
