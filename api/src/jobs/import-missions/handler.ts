@@ -112,6 +112,8 @@ async function importMissionssForPublisher(publisher: Publisher, start: Date): P
       const mongoRes = await MissionModel.updateMany({ publisherId: publisher._id, deletedAt: null, updatedAt: { $lt: start } }, { deleted: true, deletedAt: new Date() });
       console.log(`[${publisher.name}] Mongo cleaning deleted ${mongoRes.modifiedCount}`);
       obj.endedAt = new Date();
+      obj.status = "FAILED";
+      obj.error = "Empty xml";
       return obj;
     }
     console.log(`[${publisher.name}] Found ${missionsXML.length} missions in XML`);
@@ -193,7 +195,7 @@ async function importMissionssForPublisher(publisher: Publisher, start: Date): P
       statusCode: "REFUSED",
     });
   } catch (error: any) {
-    captureException(error, `Error while importing publisher ${publisher.name}`);
+    captureException(error, { extra: { publisher } });
     obj.status = "FAILED";
     obj.error = error.message;
   }
