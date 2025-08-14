@@ -97,7 +97,7 @@ router.get("/apply", cors({ origin: "*" }), async (req: Request, res: Response) 
       obj.missionPostalCode = mission.postalCode;
       obj.missionDepartmentName = mission.departmentName;
       obj.missionOrganizationName = mission.organizationName;
-      obj.missionOrganizationId = mission.organizationId;
+      obj.missionOrganizationId = mission.organizationId || "";
       obj.missionOrganizationClientId = mission.organizationClientId;
       obj.toPublisherId = mission.publisherId;
       obj.toPublisherName = mission.publisherName;
@@ -214,7 +214,7 @@ router.get("/account", cors({ origin: "*" }), async (req: Request, res: Response
       obj.missionPostalCode = mission.postalCode;
       obj.missionDepartmentName = mission.departmentName;
       obj.missionOrganizationName = mission.organizationName;
-      obj.missionOrganizationId = mission.organizationId;
+      obj.missionOrganizationId = mission.organizationId || "";
       obj.missionOrganizationClientId = mission.organizationClientId;
       obj.toPublisherId = mission.publisherId;
       obj.toPublisherName = mission.publisherName;

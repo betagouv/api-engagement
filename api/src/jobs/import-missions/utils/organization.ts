@@ -163,18 +163,18 @@ const updateMissionOrganization = async (mission: Mission, organization: Organiz
   mission.organizationId = organization._id.toString();
   mission.organizationNameVerified = organization.title;
   mission.organizationRNAVerified = organization.rna;
-  mission.organizationSirenVerified = organization.siren;
-  mission.organizationSiretVerified = organization.siret;
+  mission.organizationSirenVerified = organization.siren || "";
+  mission.organizationSiretVerified = organization.siret || "";
   mission.organizationAddressVerified =
     `${organization.addressNumber || ""} ${organization.addressRepetition || ""} ${organization.addressType || ""} ${organization.addressStreet || ""}`
       .replaceAll(/\s+/g, " ")
       .trim();
-  mission.organizationCityVerified = organization.addressCity;
-  mission.organizationPostalCodeVerified = organization.addressPostalCode;
-  mission.organizationDepartmentCodeVerified = organization.addressDepartmentCode;
-  mission.organizationDepartmentNameVerified = organization.addressDepartmentName;
-  mission.organizationRegionVerified = organization.addressRegion;
-  mission.organisationIsRUP = organization.isRUP;
+  mission.organizationCityVerified = organization.addressCity || "";
+  mission.organizationPostalCodeVerified = organization.addressPostalCode || "";
+  mission.organizationDepartmentCodeVerified = organization.addressDepartmentCode || "";
+  mission.organizationDepartmentNameVerified = organization.addressDepartmentName || "";
+  mission.organizationRegionVerified = organization.addressRegion || "";
+  mission.organisationIsRUP = organization.isRUP || false;
   mission.organizationVerificationStatus = status;
 };
 
