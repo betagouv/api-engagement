@@ -2,6 +2,41 @@
 Vous retrouverez ici l'historique des différents déploiements effectués sur l'API Engagement.
 
 
+## 11/08/2025
+
+
+### Bug Fixes
+
+-  Fix widgets ([`2c74179`](https://github.com/betagouv/api-engagement/commit/2c74179efe0bd40f687254cceb2b9665af97f999))
+
+
+### CI/CD
+
+- (**deps**) Bump stefanzweifel/git-auto-commit-action from 5 to 6 (#323) ([`84b0406`](https://github.com/betagouv/api-engagement/commit/84b04065d3b0a4fe5f624c3492f077f267ab15af))
+
+
+### Miscellaneous Tasks
+
+- (**changelog**) Update CHANGELOG.md ([`ad9e9a8`](https://github.com/betagouv/api-engagement/commit/ad9e9a86ff23642711bfc69ae2775bcab4f6aec8))
+
+-  Merge changelog from main ([`cae08cc`](https://github.com/betagouv/api-engagement/commit/cae08cc0d2b45f5c088eaf508ef57a656e91749b))
+
+- (**deps**) Bump multer and @types/multer in /api (#343) ([`a7d0f6a`](https://github.com/betagouv/api-engagement/commit/a7d0f6a03e093c076a6e9c57df0741e4bc33c1af))
+
+- (**deps**) Bump dotenv from 16.5.0 to 17.2.1 in /app (#328) ([`fcf3202`](https://github.com/betagouv/api-engagement/commit/fcf32025cac58e9f7aa67e1bd1a6a55d37c4045c))
+
+- (**deps**) Bump the production-dependencies group across 1 directory with 4 updates (#362) ([`7701ffa`](https://github.com/betagouv/api-engagement/commit/7701ffa0e78b2997c7c991b305d9cd162afd5376))
+
+- (**deps**) Bump the production-dependencies group (#363) ([`81231c9`](https://github.com/betagouv/api-engagement/commit/81231c94f389abbf6e16accfdc4b7d597d63dfed))
+
+- (**deps**) Bump the production-dependencies group (#365) ([`d870fb9`](https://github.com/betagouv/api-engagement/commit/d870fb9a6a25194ced9b5e96b64752f502d58d33))
+
+- (**deps**) Bump dotenv from 16.5.0 to 17.2.1 in /api (#368) ([`9ce5595`](https://github.com/betagouv/api-engagement/commit/9ce55958de4072fbdb313f6296bd2827f484e9b9))
+
+# API Engagement - Changelog
+Vous retrouverez ici l'historique des différents déploiements effectués sur l'API Engagement.
+
+
 ## 04/08/2025
 
 
