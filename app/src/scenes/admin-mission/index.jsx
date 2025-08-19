@@ -8,6 +8,7 @@ import Loader from "../../components/Loader";
 import Select from "../../components/NewSelect";
 import TablePagination from "../../components/NewTablePagination";
 import SearchInput from "../../components/SearchInput";
+import SearchSelect from "../../components/SearchSelect";
 import { LEBONCOIN_STATUS, STATUS_PLR } from "../../constants";
 import api from "../../services/api";
 import { captureError } from "../../services/error";
@@ -27,9 +28,11 @@ const AdminMission = () => {
     size: 25,
     page: Number(searchParams.get("page")) || 1,
     sortBy: "createdAt",
+    publisher: searchParams.get("publisher") || null,
     status: searchParams.get("status") || null,
     domain: searchParams.get("domain") || null,
     activity: searchParams.get("activity") || null,
+    department: searchParams.get("department") || null,
     city: searchParams.get("city") || null,
     organization: searchParams.get("organization") || null,
     leboncoinStatus: searchParams.get("leboncoinStatus") || null,
@@ -37,8 +40,10 @@ const AdminMission = () => {
   });
   const [options, setOptions] = useState({
     status: [],
+    partners: [],
     domains: [],
     activities: [],
+    departments: [],
     cities: [],
     organizations: [],
     leboncoinStatus: [],
@@ -67,14 +72,20 @@ const AdminMission = () => {
     const fetchData = async () => {
       setLoading(true);
       try {
+        const newSearchParams = new URLSearchParams(searchParams);
+        Object.entries(filters).forEach(([key, value]) => (value ? newSearchParams.set(key, value) : newSearchParams.delete(key)));
+        setSearchParams(newSearchParams);
+
         const query = {
           size: filters.size,
           from: (filters.page - 1) * filters.size,
         };
         if (filters.status) query.status = filters.status;
+        if (filters.publisher) query.publisher = filters.publisher;
         if (filters.domain) query.domain = filters.domain;
         if (filters.activity) query.activity = filters.activity;
         if (filters.city) query.city = filters.city;
+        if (filters.department) query.department = filters.department;
         if (filters.organization) query.organization = filters.organization;
         if (filters.leboncoinStatus) query.leboncoinStatus = filters.leboncoinStatus;
         if (filters.search) query.search = filters.search;
@@ -85,18 +96,6 @@ const AdminMission = () => {
         setData(res.data);
         setOptions(res.aggs);
         setTotal(res.total);
-
-        const newSearchParams = new URLSearchParams(searchParams);
-        newSearchParams.set("size", filters.size);
-        newSearchParams.set("page", filters.page);
-        if (filters.status) newSearchParams.set("status", filters.status);
-        if (filters.domain) newSearchParams.set("domain", filters.domain);
-        if (filters.activity) newSearchParams.set("activity", filters.activity);
-        if (filters.city) newSearchParams.set("city", filters.city);
-        if (filters.organization) newSearchParams.set("organization", filters.organization);
-        if (filters.leboncoinStatus) newSearchParams.set("leboncoinStatus", filters.leboncoinStatus);
-        if (filters.search) newSearchParams.set("search", filters.search);
-        setSearchParams(newSearchParams);
       } catch (error) {
         captureError(error, "Erreur lors de la récupération des données");
       }
@@ -184,6 +183,13 @@ const AdminMission = () => {
             onChange={(e) => setFilters({ ...filters, activity: e.value })}
             placeholder="Activité"
           />
+          <SearchSelect
+            id="publisher"
+            options={options.partners.map((e) => ({ value: e._id, label: e.name, count: e.count }))}
+            value={filters.partner}
+            onChange={(e) => setFilters({ ...filters, partner: e.value })}
+            placeholder="Partenaire"
+          />
         </div>
         <div className="flex items-center gap-4">
           <Select
@@ -191,6 +197,13 @@ const AdminMission = () => {
             value={filters.city}
             onChange={(e) => setFilters({ ...filters, city: e.value })}
             placeholder="Ville"
+          />
+          <SearchSelect
+            id="department"
+            options={options.departments.map((e) => ({ value: e.key === "" ? "none" : e.key, label: e.key === "" ? "Non renseignée" : e.key, count: e.doc_count }))}
+            value={filters.department}
+            onChange={(e) => setFilters({ ...filters, department: e.value })}
+            placeholder="Département"
           />
           <Select
             options={options.organizations.map((e) => ({ value: e.key === "" ? "none" : e.key, label: e.key === "" ? "Non renseignée" : e.key, count: e.doc_count }))}
@@ -242,6 +255,7 @@ const AdminMission = () => {
                 <Link to={`/mission/${item._id}`} className="line-clamp-3 text-blue-dark">
                   {item.title}
                 </Link>
+                {item.publisherName && <p className="text-sm">{item.publisherName}</p>}
                 {item.organizationName && <p className="text-sm">{item.organizationName}</p>}
               </td>
               <td className="px-4">{item.places}</td>

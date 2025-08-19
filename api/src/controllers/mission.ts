@@ -21,6 +21,7 @@ router.post("/search", passport.authenticate("user", { session: false }), async 
         organization: zod.string().optional(),
         activity: zod.string().optional(),
         city: zod.string().optional(),
+        department: zod.string().optional(),
         search: zod.string().optional(),
         availableFrom: zod.coerce.date().optional(),
         availableTo: zod.coerce.date().optional(),
@@ -136,6 +137,12 @@ router.post("/search", passport.authenticate("user", { session: false }), async 
       where.city = body.data.city;
     }
 
+    if (body.data.department === "none") {
+      where.$or = [{ departmentName: "" }, { departmentName: null }];
+    } else if (body.data.department) {
+      where.departmentName = body.data.department;
+    }
+
     if (body.data.search) {
       where.$or = [
         { title: { $regex: diacriticSensitiveRegex(body.data.search), $options: "i" } },
@@ -190,6 +197,7 @@ router.post("/search", passport.authenticate("user", { session: false }), async 
           organizations: [{ $group: { _id: "$organizationName", count: { $sum: 1 } } }, { $sort: { count: -1 } }],
           activities: [{ $group: { _id: "$activity", count: { $sum: 1 } } }, { $sort: { count: -1 } }],
           cities: [{ $group: { _id: "$city", count: { $sum: 1 } } }, { $sort: { count: -1 } }],
+          departments: [{ $group: { _id: "$departmentName", count: { $sum: 1 } } }, { $sort: { count: -1 } }],
           partners: [
             {
               $group: {
@@ -227,6 +235,10 @@ router.post("/search", passport.authenticate("user", { session: false }), async 
         doc_count: b.count,
       })),
       cities: facets[0].cities.map((b: { _id: string; count: number }) => ({
+        key: b._id,
+        doc_count: b.count,
+      })),
+      departments: facets[0].departments.map((b: { _id: string; count: number }) => ({
         key: b._id,
         doc_count: b.count,
       })),
