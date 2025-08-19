@@ -22,7 +22,8 @@ const CardVolontariat = ({ widget, mission, request, focused = false, onKeyDown 
           ? mission.addresses.map((a) => a.city).join(", ")
           : `${mission.city} ${mission.country !== "FR" ? `- ${iso.getName(mission.country, "fr")}` : ""}`,
     );
-    setDomain(DOMAINS[mission.domain] || DOMAINS.autre);
+    // setDomain(DOMAINS[mission.domain] || DOMAINS.autre);
+    setDomain(DOMAINS.sport);
   }, [mission]);
 
   useEffect(() => {
@@ -50,7 +51,8 @@ const CardVolontariat = ({ widget, mission, request, focused = false, onKeyDown 
             <p className="uppercase font-bold text-sm leading-5 whitespace-nowrap truncate tracking-wider">{domain.label || mission.domain}</p>
             <div className="text-[#666666] flex items-center">
               <RiBuildingFill className="text-sm flex-shrink-0" />
-              <p className="ml-2 text-xs line-clamp-1">{mission.organizationName}</p>
+              {/* <p className="ml-2 text-xs line-clamp-1">{mission.organizationName}</p> */}
+              <p className="ml-2 text-xs line-clamp-1">Asssociation johnny l'envie d'avoir envie</p>
             </div>
           </div>
         </div>
@@ -72,10 +74,12 @@ const CardVolontariat = ({ widget, mission, request, focused = false, onKeyDown 
             id={mission._id}
             className={`font-semibold h-[84px] line-clamp-3 text-xl group-hover:text-[#000091] group-focus-within:text-[#000091] transition-colors duration-300`}
           >
-            {mission.title}
+            {/* {mission.title} */}
+            J’accompagne des projets de communication
           </h2>
         </a>
-        <p className="text-sm line-clamp-1 text-[#3A3A3A] group-hover:line-clamp-2 group-focus-within:line-clamp-2 my-3">{address}</p>
+        {/* <p className="text-sm line-clamp-1 text-[#3A3A3A] group-hover:line-clamp-2 group-focus-within:line-clamp-2 my-3">{address}</p> */}
+        <p className="text-sm line-clamp-1 text-[#3A3A3A] group-hover:line-clamp-2 group-focus-within:line-clamp-2 my-3">Guidel</p>
 
         {mission.tags?.includes("Service Civique Écologique") && <Image src={LogoSCE} height={18} alt="Service Civique Écologique" />}
       </div>
