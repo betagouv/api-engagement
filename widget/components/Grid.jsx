@@ -18,8 +18,8 @@ const Grid = ({ widget, missions, total, page, handlePageChange, request }) => {
     );
   }
   return (
-    <div className="mx-auto w-full pt-4">
-      <main role="main" className="grid grid-cols-1 gap-x-6 gap-y-6 sm:grid-cols-2 md:gap-y-6 lg:grid-cols-3">
+    <div className="mx-auto w-full">
+      <main role="main" className="grid grid-cols-1 gap-x-6 gap-y-6 sm:grid-cols-2 lg:grid-cols-3">
         {missions.map((mission, i) => (
           <Card key={i} widget={widget} mission={mission} request={request} />
         ))}
@@ -197,7 +197,7 @@ export const MobilePagination = ({ page, setPage, end }) => {
   }, [end]);
 
   return (
-    <nav role="navigation" className="flex flex-row items-center justify-center gap-1 py-4" aria-label="pagination">
+    <nav role="navigation" className="flex flex-row items-center justify-center gap-1 py-4 mt-6" aria-label="pagination">
       <button
         className="flex h-8 min-w-[2rem] items-center justify-center rounded focus:outline-none focus-visible:ring focus-visible:ring-[#000091]"
         onClick={() => {
