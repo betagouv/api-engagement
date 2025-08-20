@@ -137,7 +137,7 @@ const Edit = () => {
 
   const isChanged = (v) => !_.isEqual(v, publisher);
 
-  if (!publisher)
+  if (!publisher || !values._id)
     return (
       <div className="flex h-full items-center justify-center">
         <Loader />
