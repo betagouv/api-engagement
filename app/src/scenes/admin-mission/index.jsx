@@ -28,7 +28,7 @@ const AdminMission = () => {
     size: 25,
     page: Number(searchParams.get("page")) || 1,
     sortBy: "createdAt",
-    publisher: searchParams.get("publisher") || null,
+    publisherId: searchParams.get("publisherId") || null,
     status: searchParams.get("status") || null,
     domain: searchParams.get("domain") || null,
     activity: searchParams.get("activity") || null,
@@ -81,7 +81,7 @@ const AdminMission = () => {
           from: (filters.page - 1) * filters.size,
         };
         if (filters.status) query.status = filters.status;
-        if (filters.publisher) query.publisher = filters.publisher;
+        if (filters.publisherId) query.publisherId = filters.publisherId;
         if (filters.domain) query.domain = filters.domain;
         if (filters.activity) query.activity = filters.activity;
         if (filters.city) query.city = filters.city;
@@ -186,8 +186,8 @@ const AdminMission = () => {
           <SearchSelect
             id="publisher"
             options={options.partners.map((e) => ({ value: e._id, label: e.name, count: e.count }))}
-            value={filters.partner}
-            onChange={(e) => setFilters({ ...filters, partner: e.value })}
+            value={filters.publisherId}
+            onChange={(e) => setFilters({ ...filters, publisherId: e.value })}
             placeholder="Partenaire"
           />
         </div>

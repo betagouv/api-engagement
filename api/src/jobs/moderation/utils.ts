@@ -1,4 +1,5 @@
 import MissionModel from "../../models/mission";
+import ModerationEventModel from "../../models/moderation-event";
 import { Mission, Publisher } from "../../types";
 import { ModerationUpdate } from "./types";
 
@@ -129,8 +130,7 @@ export const createModerations = async (missions: Mission[], moderator: Publishe
   }
 
   console.log(`[Moderation JVA] Bulk update ${missionBulk.length} missions, ${eventBulk.length} events`);
-  // const resMission = await MissionModel.bulkWrite(missionBulk);
-  // const resEvent = await ModerationEventModel.bulkWrite(eventBulk);
-  // return { updated: resMission.modifiedCount, events: resEvent.insertedCount, refused, pending };
-  return { updated: 0, events: 0, refused, pending };
+  const resMission = await MissionModel.bulkWrite(missionBulk);
+  const resEvent = await ModerationEventModel.bulkWrite(eventBulk);
+  return { updated: resMission.modifiedCount, events: resEvent.insertedCount, refused, pending };
 };

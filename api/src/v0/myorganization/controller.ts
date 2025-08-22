@@ -55,6 +55,7 @@ router.get("/:organizationClientId", passport.authenticate(["apikey", "api"], { 
     const [publishers, organizationExclusions] = await Promise.all([
       PublisherModel.find({
         "publishers.publisherId": user._id.toString(),
+        // $or: [{ hasApiRights: true }, { hasCampaignRights: true }, { hasWidgetRights: true }], TODO ?
       }),
       OrganizationExclusionModel.find({
         excludedByPublisherId: user._id.toString(),
