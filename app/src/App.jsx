@@ -1,4 +1,3 @@
-import * as Sentry from "@sentry/react";
 import { useEffect, useState } from "react";
 import { HelmetProvider } from "react-helmet-async";
 import { BrowserRouter, Navigate, Outlet, Route, Routes, useLocation, useNavigate } from "react-router-dom";
@@ -36,7 +35,7 @@ import PublicStats from "./scenes/public-stats";
 import Publisher from "./scenes/publisher";
 import User from "./scenes/user";
 import api from "./services/api";
-import { ENV, SENTRY_DSN } from "./services/config";
+import { ENV } from "./services/config";
 import { captureError } from "./services/error";
 import useStore from "./services/store";
 
@@ -208,15 +207,6 @@ const ProtectedLayout = () => {
       {ENV === "staging" && (
         <div className="bg-red-dark text-white text-center p-2 w-full">
           <span>Environnement de pré-prod</span>
-          <button
-            onClick={() => {
-              console.log(SENTRY_DSN);
-              const a = Sentry.captureException(new Error("Test sentry"));
-              console.log(a);
-            }}
-          >
-            Test sentry
-          </button>
         </div>
       )}
       <Header />
