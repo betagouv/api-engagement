@@ -2,6 +2,47 @@
 Vous retrouverez ici l'historique des différents déploiements effectués sur l'API Engagement.
 
 
+## 18/08/2025
+
+
+### Bug Fixes
+
+-  Fix focus tab unfocus error ([`d0746bd`](https://github.com/betagouv/api-engagement/commit/d0746bd947a5df6ff253a8bf4aa8bd4a602fcd78))
+
+-  Fix auto focus carousel ([`949c52a`](https://github.com/betagouv/api-engagement/commit/949c52a999cf29b28f5a101ccaa1c173ea1710ef))
+
+-  Fix test ([`00fb4b5`](https://github.com/betagouv/api-engagement/commit/00fb4b5131c0f9d1bee2149398324722677e922b))
+
+-  Fix combobox tabindex ([`dbc0247`](https://github.com/betagouv/api-engagement/commit/dbc02478a122044854104f594cfdd5446dd443a7))
+
+-  Fix zod ([`25c4bc4`](https://github.com/betagouv/api-engagement/commit/25c4bc456b242570b3fd300c1ff1c18415bbedea))
+
+-  Fix widget sentry ([`f7d8516`](https://github.com/betagouv/api-engagement/commit/f7d85166b4bd684c9fb98bcca35c6bc3f1c18845))
+
+-  Fix docker build arg sentry auth token ([`1331834`](https://github.com/betagouv/api-engagement/commit/1331834c03f9a9b0c83a43d2fcb6413dace08f13))
+
+-  Fix widget sentry settings ([`47b7945`](https://github.com/betagouv/api-engagement/commit/47b79458dd3874d494cb5a89140f92cbaea93109))
+
+
+### Miscellaneous Tasks
+
+- (**changelog**) Update CHANGELOG.md ([`a5eee35`](https://github.com/betagouv/api-engagement/commit/a5eee35e83d777db6e0c3e18eac79e58e6603586))
+
+-  Merge changelog from main ([`ad54ab6`](https://github.com/betagouv/api-engagement/commit/ad54ab6be1ffb8d3e12210a5e6b080a9a2ba1ced))
+
+- (**deps**) Bump zod from 3.25.67 to 4.0.14 in /api (#369) ([`147e874`](https://github.com/betagouv/api-engagement/commit/147e874810deea44591ad2d9590d4d0e7f1bb378))
+
+- (**deps**) Bump csv-parse from 5.6.0 to 6.1.0 in /api (#347) ([`23ffce9`](https://github.com/betagouv/api-engagement/commit/23ffce97d004ff61fa5d0844c6e306f09cc55501))
+
+
+### Testing
+
+-  Test secret ([`f19fb22`](https://github.com/betagouv/api-engagement/commit/f19fb22ecc29c75226bbc26e2d81369368b5d51f))
+
+# API Engagement - Changelog
+Vous retrouverez ici l'historique des différents déploiements effectués sur l'API Engagement.
+
+
 ## 11/08/2025
 
 
