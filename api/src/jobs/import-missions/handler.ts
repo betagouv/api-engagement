@@ -10,6 +10,7 @@ import { bulkDB, cleanDB } from "./utils/db";
 import { enrichWithGeoloc } from "./utils/geoloc";
 import { buildData } from "./utils/mission";
 import { verifyOrganization } from "./utils/organization";
+import { shouldCleanMissionsForPublisher } from "./utils/publisher";
 import { parseXML } from "./utils/xml";
 
 const CHUNK_SIZE = 2000;
@@ -104,13 +105,22 @@ async function importMissionssForPublisher(publisher: Publisher, start: Date): P
     }
     console.log(`[${publisher.name}] Fetching xml from ${publisher.feed}`);
     const xml = await fetch(publisher.feed, { headers }).then((response) => response.text());
+
     // PARSE XML
     console.log(`[${publisher.name}] Parsing xml`);
     const missionsXML = parseXML(xml);
+
+    // Clean missions if no XML feed is sucessful for 7 days
     if (!missionsXML || !missionsXML.length) {
-      console.log(`[${publisher.name}] Empty xml, Mongo cleaning...`);
-      const mongoRes = await MissionModel.updateMany({ publisherId: publisher._id, deletedAt: null, updatedAt: { $lt: start } }, { deleted: true, deletedAt: new Date() });
-      console.log(`[${publisher.name}] Mongo cleaning deleted ${mongoRes.modifiedCount}`);
+      if (await shouldCleanMissionsForPublisher(publisher._id.toString())) {
+        console.log(`[${publisher.name}] Empty xml, cleaning missions...`);
+        const mongoRes = await MissionModel.updateMany({ publisherId: publisher._id, deletedAt: null, updatedAt: { $lt: start } }, { deleted: true, deletedAt: new Date() });
+        console.log(`[${publisher.name}] Deleted ${mongoRes.modifiedCount} missions`);
+        obj.deletedCount = mongoRes.modifiedCount;
+      } else {
+        console.log(`[${publisher.name}] Empty xml, but do not clean missions for now`);
+      }
+
       obj.endedAt = new Date();
       obj.status = "FAILED";
       obj.error = "Empty xml";
@@ -130,6 +140,7 @@ async function importMissionssForPublisher(publisher: Publisher, start: Date): P
     for (let i = 0; i < missionsXML.length; i += CHUNK_SIZE) {
       const chunk = missionsXML.slice(i, i + CHUNK_SIZE);
       console.log(`[${publisher.name}] Processing chunk ${i / CHUNK_SIZE + 1} of ${Math.ceil(missionsXML.length / CHUNK_SIZE)} (${chunk.length} missions)`);
+
       // BUILD NEW MISSIONS
       const missions = [] as Mission[];
       const promises = [] as Promise<Mission | undefined>[];
@@ -171,6 +182,7 @@ async function importMissionssForPublisher(publisher: Publisher, start: Date): P
 
       // RNA
       await verifyOrganization(missions);
+
       // BULK WRITE
       const res = await bulkDB(missions, publisher, obj);
       if (!res) {
