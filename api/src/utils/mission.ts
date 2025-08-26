@@ -14,52 +14,53 @@ export const getMissionTrackedApplicationUrl = (mission: Mission, publisherId: s
 };
 
 export const IMPORT_FIELDS_TO_COMPARE = [
-  "title",
-  "type",
+  "activity",
+  "applicationUrl",
+  "audience",
+  "clientId",
+  "closeToTransport",
+  "deletedAt",
   "description",
   "descriptionHtml",
-  "clientId",
-  "applicationUrl",
-  "postedAt",
-  "startAt",
-  "endAt",
-  "duration",
-  "activity",
   "domain",
   "domainLogo",
-  "schedule",
-  "audience",
-  "softSkills",
-  "romeSkills",
-  "requirements",
-  "remote",
-  "reducedMobilityAccessible",
-  "closeToTransport",
-  "openToMinors",
-  "priority",
-  "tags",
-  "places",
-  "snu",
-  "snuPlaces",
+  "duration",
+  "endAt",
   "metadata",
+  "openToMinors",
+  "organizationActions",
+  "organizationBeneficiaries",
+  "organizationCity",
+  "organizationClientId",
+  "organizationDescription",
+  "organizationFullAddress",
+  "organizationLogo",
   "organizationName",
+  "organizationPostCode",
+  "organizationReseaux",
   "organizationRNA",
   "organizationSiren",
-  "organizationUrl",
-  "organizationLogo",
-  "organizationDescription",
-  "organizationClientId",
   "organizationStatusJuridique",
   "organizationType",
-  "organizationActions",
-  "organizationFullAddress",
-  "organizationPostCode",
-  "organizationCity",
-  "organizationBeneficiaries",
-  "organizationReseaux",
+  "organizationUrl",
   "organizationVerificationStatus",
-  "statusComment",
+  "places",
+  "postedAt",
+  "priority",
+  "reducedMobilityAccessible",
+  "remote",
+  "requirements",
+  "romeSkills",
+  "schedule",
+  "snu",
+  "snuPlaces",
+  "softSkills",
+  "startAt",
   "statusCode",
+  "statusComment",
+  "tags",
+  "title",
+  "type",
 ] as (keyof Mission)[];
 
 /**
@@ -78,7 +79,7 @@ export const getMissionChanges = (
 
   for (const field of fieldsToCompare) {
     if (Array.isArray(previousMission[field]) && Array.isArray(currentMission[field])) {
-      if (!areArraysEqual(previousMission[field], currentMission[field])) {
+      if (!areArraysEqual(previousMission[field] as any, currentMission[field] as any)) {
         changes[field] = {
           previous: previousMission[field],
           current: currentMission[field],
@@ -136,6 +137,8 @@ export const getMissionChanges = (
       break;
     }
   }
+
+  console.log(changes);
 
   return Object.keys(changes).length > 0 ? changes : null;
 };
