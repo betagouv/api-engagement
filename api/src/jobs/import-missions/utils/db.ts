@@ -3,7 +3,7 @@ import MissionModel from "../../../models/mission";
 import MissionEventModel from "../../../models/mission-event";
 import { Import, Mission, MissionEvent, Publisher } from "../../../types";
 import { getJobTime } from "../../../utils/job";
-import { getMissionChanges } from "../../../utils/mission";
+import { EVENT_TYPES, getMissionChanges } from "../../../utils/mission";
 
 /**
  * Insert or update a batch of missions into MongoDB
@@ -53,9 +53,8 @@ export const bulkDB = async (bulk: Mission[], publisher: Publisher, importDoc: I
           insertOne: {
             document: {
               missionId: current._id,
-              type: changes.deletedAt?.current === null ? "delete" : "update",
+              type: changes.deletedAt?.current === null ? EVENT_TYPES.DELETE : EVENT_TYPES.UPDATE,
               changes,
-              fields: Object.keys(changes),
             },
           },
         });
@@ -72,7 +71,7 @@ export const bulkDB = async (bulk: Mission[], publisher: Publisher, importDoc: I
       Object.values(resMission.insertedIds).forEach((id) => {
         missionEventsBulk.push({
           insertOne: {
-            document: { missionId: id, type: "create", changes: null, fields: [] },
+            document: { missionId: id, type: EVENT_TYPES.CREATE, changes: null },
           },
         });
       });
@@ -117,11 +116,10 @@ export const cleanDB = async (missionsClientIds: string[], publisher: Publisher,
   for (const mission of missions) {
     events.push({
       missionId: mission._id,
-      type: "delete",
+      type: EVENT_TYPES.DELETE,
       changes: {
         deletedAt: { previous: null, current: importDoc.startedAt },
       },
-      fields: ["deletedAt"],
       lastExportedToPgAt: null,
     });
   }

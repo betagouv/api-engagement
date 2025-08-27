@@ -9,7 +9,6 @@ const schema = new Schema<MissionEvent>(
     type: { type: String, required: true, default: "update", enum: ["create", "update", "delete"] },
     missionId: { type: Schema.Types.ObjectId, ref: "Mission", required: true },
     changes: { type: Object, default: null },
-    fields: { type: [String], required: true },
     createdBy: { type: String },
     // PG export
     lastExportedToPgAt: { type: Date, default: null },

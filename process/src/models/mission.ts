@@ -1,6 +1,5 @@
 import { Schema, model } from "mongoose";
 
-import { historyPlugin } from "../plugins/history-plugin";
 import { Mission, MissionType } from "../types";
 
 const MODELNAME = "mission";
@@ -196,12 +195,6 @@ const schema = new Schema<Mission>(
     timestamps: true,
   }
 );
-
-schema.plugin(historyPlugin, {
-  historyField: "__history",
-  omit: ["addresses", "updatedAt", "lastSyncAt", "__v", "__history"],
-  maxEntries: 100,
-});
 
 const MissionModel = model<Mission>(MODELNAME, schema);
 export default MissionModel;

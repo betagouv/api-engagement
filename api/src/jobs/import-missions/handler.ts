@@ -181,8 +181,7 @@ async function importMissionssForPublisher(publisher: Publisher, start: Date): P
     // CLEAN DB
     if (!hasFailed) {
       // If one chunk failed, don't remove missions from DB
-      const fakeClientIds = allMissionsClientIds.slice(0, allMissionsClientIds.length - 100);
-      await cleanDB(fakeClientIds, publisher, obj);
+      await cleanDB(allMissionsClientIds, publisher, obj);
     }
 
     // STATS

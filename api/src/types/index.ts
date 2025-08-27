@@ -224,7 +224,6 @@ export interface MissionEvent {
   type: "create" | "update" | "delete";
   missionId: Schema.Types.ObjectId;
   changes: Record<string, { previous: any; current: any }> | null;
-  fields: string[];
   createdAt: Date;
   createdBy?: Schema.Types.ObjectId; // User
   // PG export
