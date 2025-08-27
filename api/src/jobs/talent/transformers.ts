@@ -28,7 +28,6 @@ export function missionToTalentJob(mission: Mission): TalentJob[] {
   } as TalentJob;
 
   if (!mission.addresses || mission.addresses.length === 0) {
-    console.log("missionJob", missionJob);
     return [{ ...missionJob, city: "Paris", state: "Île-de-France", country: "FR" }];
   }
 
