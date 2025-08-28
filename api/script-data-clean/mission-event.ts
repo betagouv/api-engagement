@@ -7,21 +7,33 @@ dotenv.config({ path: "../.env" });
 
 import "../src/db/mongo";
 
-// import MissionEventModel from "../src/models/mission-event";
 import MissionModel from "../src/models/mission";
+import MissionEventModel from "../src/models/mission-event";
 
+import mongoose, { Schema } from "mongoose";
 import { Mission, MissionEvent } from "../src/types";
 import { IMPORT_FIELDS_TO_COMPARE } from "../src/utils/mission";
 
-const BATCH_SIZE = 10000;
-
-const FIELDS = [...IMPORT_FIELDS_TO_COMPARE, "deletedAt"];
+const FIELDS = [
+  ...IMPORT_FIELDS_TO_COMPARE,
+  "deletedAt",
+  "leboncoinStatus",
+  "leboncoinUrl",
+  "leboncoinComment",
+  "leboncoinUpdatedAt",
+  "jobteaserStatus",
+  "jobteaserUrl",
+  "jobteaserComment",
+  "jobteaserUpdatedAt",
+  "letudiantPublicId",
+  "letudiantUpdatedAt",
+  "letudiantError",
+];
 
 const transformMissionHistoryToMissionEvent = (mission: Mission) => {
-  const events: MissionEvent[] = [];
+  const events: Omit<MissionEvent, "_id">[] = [];
 
-  console.log("mission", mission.__history?.length);
-  if (!mission.__history) {
+  if (!mission.__history || !mission._id) {
     return events;
   }
 
@@ -29,13 +41,14 @@ const transformMissionHistoryToMissionEvent = (mission: Mission) => {
 
   const createHistory = mission.__history.find((h) => h.metadata?.action === "created");
   if (createHistory) {
-    console.log("create", createHistory.date);
     events.push({
       type: "create",
       changes: null,
       fields: [] as string[],
       createdAt: createHistory.date,
-    } as MissionEvent);
+      missionId: mission._id,
+      lastExportedToPgAt: null,
+    });
     initialMission = createHistory.state as Mission;
   }
 
@@ -63,60 +76,75 @@ const transformMissionHistoryToMissionEvent = (mission: Mission) => {
         }
 
         changes[field] = {
-          previous: initialMission[field],
-          current: history.state[field],
+          previous: initialMission[field] === undefined ? "unknown" : initialMission[field],
+          current: history.state[field] === undefined ? null : history.state[field],
         };
 
         initialMission[field] = history.state[field];
       }
 
-      console.log("fields", fields);
-      console.log("changes", changes);
       if (Object.keys(changes).length > 0) {
         events.push({
           type: changes.deletedAt ? "delete" : "update",
           changes,
           fields,
           createdAt: history.date,
-        } as MissionEvent);
+          missionId: mission._id,
+          lastExportedToPgAt: null,
+        });
       }
 
       continue;
     }
-    console.log(history.metadata.action);
   }
 
   return events;
 };
 
+const BATCH_SIZE = 10000;
+
 const main = async () => {
-  // const res = await MissionModel.countDocuments({ deletedAt: { $gt: new Date("2025-08-14T10:28:53.361") } });
+  // const res = await MissionEventModel.deleteMany({});
   // console.log(res);
-  // const res2 = await MissionModel.updateMany({ deletedAt: { $gt: new Date("2025-08-14T10:28:53.361") } }, { $set: { deletedAt: null } });
-  // console.log(res2);
-  // const res = await MissionEventModel.countDocuments({ lastExportedToPgAt: { $gt: new Date("2025-08-14T10:28:53.361") } });
-  // console.log(res);
-  // const res2 = await MissionEventModel.updateMany({ lastExportedToPgAt: { $gt: new Date("2025-08-14T10:28:53.361") } }, { $set: { lastExportedToPgAt: null } });
-  // console.log(res2);
+  // return;
 
   const where = {
-    // __history: { $exists: true },
-    // _id: "5f96fe4c1b55850008fac57d",
-    // _id: "6824eafdb31b0edbfe4b51ec",
-    _id: "682739ebb6f2ee2e955996eb",
+    __history: { $exists: true },
   };
 
   const count = await MissionModel.countDocuments(where);
   console.log(`Found ${count} missions with __history`);
 
-  for (let i = 0; i < count; i += BATCH_SIZE) {
-    const batch = await MissionModel.find(where).skip(i).limit(BATCH_SIZE).lean();
-    console.log(`Processing batch ${i / BATCH_SIZE + 1} of ${Math.ceil(count / BATCH_SIZE)}`);
+  let events: Omit<MissionEvent, "_id">[] = [];
+  let created = 0;
+  const ids = [] as Schema.Types.ObjectId[];
+  let batchCount = 0;
+
+  while (true) {
+    const batch = await MissionModel.find(where).limit(BATCH_SIZE).lean();
+    console.log(`Processing batch ${batchCount + 1} of ${Math.ceil(count / BATCH_SIZE)}, ${created} events created`);
     for (const mission of batch) {
-      const events = transformMissionHistoryToMissionEvent(mission);
-      // console.log(events);
-      // await MissionEventModel.insertMany(events);
+      events.push(...transformMissionHistoryToMissionEvent(mission));
+      if (events.length > 1000) {
+        console.log("Inserting events", events.length);
+
+        await MissionEventModel.insertMany(events);
+        created += events.length;
+        events = [];
+      }
+      ids.push(mission._id);
     }
+    console.log("Inserting events", events.length);
+
+    await MissionEventModel.insertMany(events);
+    created += events.length;
+    events = [];
+
+    console.log("Unsetting __history", ids.length);
+    // const res = await MissionModel.updateMany({ _id: { $in: ids } }, { $unset: { __history: 1 } });
+    await mongoose.connection.db.collection("missions").updateMany({ _id: { $in: ids } }, { $unset: { __history: 1 } });
+    ids.length = 0;
+    batchCount++;
   }
 };
 
