@@ -133,10 +133,9 @@ const Moderation = () => {
   const buildStats = (options) => {
     const status = options.status.filter((s) => s.key !== undefined).map((s) => ({ key: STATUS_PLR[s.key], doc_count: s.doc_count, color: STATUS_GRAPH_COLORS[s.key] }));
     const refused = options.status.find((s) => s.key === "REFUSED")?.doc_count || 0;
-    const comments = [];
-    options.comments.forEach((s) => {
-      if (STATUS_COMMENT.includes(s.key)) comments.push({ ...s, rate: s.doc_count / refused });
-    });
+    const comments = options.comments
+      .filter((s) => s.key !== undefined)
+      .map((s) => ({ key: JVA_MODERATION_COMMENTS_LABELS[s.key] || s.key, doc_count: s.doc_count, rate: s.doc_count / refused }));
     comments.sort((a, b) => b.rate - a.rate);
     setStats({ status, comments, refused });
   };
@@ -176,31 +175,39 @@ const Moderation = () => {
 
         <div className="flex items-center gap-4 flex-1">
           <Select
-            options={options.status.map((e) => ({ value: e.key, label: STATUS[e.key], count: e.doc_count }))}
+            options={options.status.map((e) => ({ value: e.key === "" ? "none" : e.key, label: e.key === "" ? "Non renseigné" : STATUS[e.key], count: e.doc_count }))}
             value={filters.status}
             onChange={(e) => setFilters({ ...filters, status: e.value })}
             placeholder="Statut"
           />
           <Select
-            options={options.comments.map((e) => ({ value: e.key, label: e.key, count: e.doc_count }))}
+            options={options.comments.map((e) => ({
+              value: e.key === "" ? "none" : e.key,
+              label: e.key === "" ? "Non renseigné" : JVA_MODERATION_COMMENTS_LABELS[e.key] || e.key,
+              count: e.doc_count,
+            }))}
             value={filters.comment}
             onChange={(e) => setFilters({ ...filters, comment: e.value })}
             placeholder="Motif de refus"
           />
           <Select
-            options={options.domains.map((e) => ({ value: e.key, label: DOMAINS[e.key], count: e.doc_count }))}
+            options={options.domains.map((e) => ({ value: e.key === "" ? "none" : e.key, label: e.key === "" ? "Non renseigné" : DOMAINS[e.key], count: e.doc_count }))}
             value={filters.domain}
             onChange={(e) => setFilters({ ...filters, domain: e.value })}
             placeholder="Domaine"
           />
           <Select
-            options={options.departments.map((e) => ({ value: e.key, label: DEPARTMENT_LABELS[e.key], count: e.doc_count }))}
+            options={options.departments.map((e) => ({
+              value: e.key === "" ? "none" : e.key,
+              label: e.key === "" ? "Non renseigné" : DEPARTMENT_LABELS[e.key],
+              count: e.doc_count,
+            }))}
             value={filters.department}
             onChange={(e) => setFilters({ ...filters, department: e.value })}
             placeholder="Département"
           />
           <Select
-            options={options.organizations.map((e) => ({ value: e.key, label: e.key, count: e.doc_count }))}
+            options={options.organizations.map((e) => ({ value: e.key === "" ? "none" : e.key, label: e.key === "" ? "Non renseigné" : e.key, count: e.doc_count }))}
             value={filters.organization}
             onChange={(e) => setFilters({ ...filters, organization: e.value })}
             placeholder="Organisation"
@@ -208,27 +215,46 @@ const Moderation = () => {
         </div>
       </div>
 
-      <div className="flex flex-wrap gap-3">
-        {Object.keys(filters).filter((key) => filters[key] && key !== "page").length > 0 &&
-          Object.keys(filters)
+      {Object.keys(filters).filter((key) => filters[key] && key !== "page").length > 0 && (
+        <div className="flex flex-wrap gap-3">
+          {Object.keys(filters)
             .filter((key) => filters[key] && key !== "page")
             .map((key, i) => {
+              let label = filters[key] === "" ? "Non renseigné" : FILTERS[key] || key;
+
+              if (key === "comment") {
+                label = JVA_MODERATION_COMMENTS_LABELS[filters[key]] || filters[key];
+              }
+              if (key === "status") {
+                label = STATUS[filters[key]];
+              }
+              if (key === "organization") {
+                label = options.organizations.find((o) => o.key === filters[key])?.label || filters[key];
+              }
+              if (key === "department") {
+                label = DEPARTMENT_LABELS[filters[key]];
+              }
+              if (key === "domain") {
+                label = DOMAINS[filters[key]];
+              }
+
               return (
                 <div key={i} className="flex items-center gap-2 rounded bg-blue-light p-2">
                   <p className="text-sm">{FILTERS[key] || key}:</p>
-                  <p className="text-sm">{filters[key].label || filters[key]}</p>
+                  <p className="text-sm">{label}</p>
                   <button className="text-sm text-black" onClick={() => setFilters({ ...filters, [key]: "" })}>
                     <RiCloseFill />
                   </button>
                 </div>
               );
             })}
-      </div>
+        </div>
+      )}
 
       <div className="grid grid-cols-3 gap-5">
         <div className="border border-gray-border p-4">
           <div className="flex items-start">
-            <h2 className="flex-1 text-lg">Répartition des missions par statut</h2>
+            <h2 className="flex-1 text-lg font-bold">Répartition des missions par statut</h2>
           </div>
           <div className="p-4">
             <Pie data={stats.status} backgroundColor={colors} legendPosition="right" />
@@ -236,7 +262,7 @@ const Moderation = () => {
         </div>
         <div className="col-span-2 border border-gray-border p-4">
           <div className="flex items-start">
-            <h2 className="flex-1 text-lg">Répartition des motifs de refus</h2>
+            <h2 className="flex-1 text-lg font-bold">Répartition des motifs de refus</h2>
           </div>
           {stats.refused === 0 ? (
             <div className="flex h-full items-center">
@@ -257,7 +283,7 @@ const Moderation = () => {
                 itemHeight={"h-12"}
                 renderItem={(item) => (
                   <>
-                    <span className="flex-1">{item.key}</span>
+                    <span className="flex-1">{JVA_MODERATION_COMMENTS_LABELS[item.key] || item.key}</span>
                     <span className="w-[15%] text-center">{item.doc_count}</span>
                     <span className="w-[15%] text-center">{`${(item.rate * 100).toFixed(2)} %`}</span>
                   </>
@@ -313,16 +339,5 @@ const Moderation = () => {
     </div>
   );
 };
-
-const Option = ({ option, active, selected, getLabel }) => (
-  <div
-    className={`${active ? "bg-gray-hover" : "bg-transparent"} ${
-      selected ? "border-r-2 border-r-blue-dark text-blue-dark" : "border-none text-black"
-    } select-none list-none flex items-center justify-between px-3 py-2`}
-  >
-    <p>{getLabel(option)}</p>
-    <span>{option.doc_count}</span>
-  </div>
-);
 
 export default Moderation;
