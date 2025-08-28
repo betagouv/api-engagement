@@ -1,6 +1,6 @@
 import { AddressItem, Mission } from "../../types";
 import { getMissionTrackedApplicationUrl } from "../../utils";
-import { LINKEDIN_COMPANY_ID, LINKEDIN_INDUSTRY_CODE, LINKEDIN_PUBLISHER_ID } from "./config";
+import { LINKEDIN_COMPANY_ID, LINKEDIN_INDUSTRY_CODE, LINKEDIN_PUBLISHER_ID, MISSIONS_VARIATIONS_FOR_TESTING, VARIATIONS } from "./config";
 import { LinkedInJob } from "./types";
 import { getAudienceLabel, getDomainLabel } from "./utils";
 
@@ -30,6 +30,7 @@ export function missionToLinkedinJob(mission: Mission, defaultCompany: string): 
     title: `Bénévolat - ${mission.title}`,
     description: (() => {
       const blocks: string[] = [];
+
       const startDate = new Date(mission.startAt);
       const currentDate = new Date();
       const diffTime = Math.abs(currentDate.getTime() - startDate.getTime());
@@ -37,11 +38,19 @@ export function missionToLinkedinJob(mission: Mission, defaultCompany: string): 
 
       let title = "";
 
-      // Switch main title based on diffDays to alternate on 3 days basis
-      if (diffDays % 6 < 3) {
-        title = `<b>${mission.organizationName}</b> vous propose une mission de bénévolat`;
+      // If mission is eligible for testing, use variation description
+      // Warning: testing purpose only, remove this later
+      // https://www.notion.so/jeveuxaider/Republication-des-missions-Linkedin-23872a322d5080bf9468da0c328b6588?source=copy_link
+      const variation = MISSIONS_VARIATIONS_FOR_TESTING[mission._id?.toString() || ""];
+      if (variation) {
+        title = getTitleFromVariation(variation, mission);
       } else {
-        title = `Ceci est une mission de bénévolat pour <b>${mission.organizationName}</b>`;
+        // Switch main title based on diffDays to alternate on 3 days basis
+        if (diffDays % 6 < 3) {
+          title = `<b>${mission.organizationName}</b> vous propose une mission de bénévolat`;
+        } else {
+          title = `Ceci est une mission de bénévolat pour <b>${mission.organizationName}</b>`;
+        }
       }
 
       blocks.push(`<p><b>Type de mission : </b>${title}</p>`);
@@ -104,4 +113,17 @@ export function missionToLinkedinJob(mission: Mission, defaultCompany: string): 
 
 export function formatLocation(address: AddressItem) {
   return `${address.city ? `${address.city}, ` : ""}${address.country === "FR" ? "France" : address.country}`;
+}
+
+export function getTitleFromVariation(variation: string, mission: Mission) {
+  switch (variation) {
+    case VARIATIONS.VARIATION_1:
+      return `<b>${mission.organizationName}</b> vous propose une mission de bénévolat, ouverte à toutes les personnes désireuses de s’impliquer dans un projet solidaire et utile. Vous aurez l’opportunité de contribuer concrètement à une action portée par une structure engagée et de vivre une expérience humaine enrichissante.`;
+    case VARIATIONS.VARIATION_2:
+      return `Vous cherchez une mission qui a du sens et qui vous permet de contribuer activement à une cause qui vous tient à coeur ? <b>${mission.organizationName}</b> vous invite à rejoindre une aventure de bénévolat à fort impact humain et collectif, où chaque geste compte et où l’engagement de chacun fait la différence.`;
+    case VARIATIONS.VARIATION_3:
+      return `Rejoignez <b>${mission.organizationName}</b> pour une mission de bénévolat conviviale, stimulante et porteuse de sens. En vous impliquant à nos côtés, vous participerez activement à un projet concret, au contact direct du public, dans une ambiance chaleureuse et dynamique.`;
+    default:
+      return "";
+  }
 }
