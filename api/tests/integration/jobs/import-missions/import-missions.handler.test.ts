@@ -210,4 +210,83 @@ describe("Import missions job (integration test)", () => {
     const mission = missions[0];
     expect(mission.updatedAt.toISOString()).toBe("2025-01-01T00:00:00.000Z");
   });
+
+  it("If startAt is not defined in XML, uses default on first import and preserves DB value on updates", async () => {
+    // Create XML without startAt field
+    const xmlWithoutStartAt = `<?xml version="1.0" encoding="UTF-8"?>
+<source>
+  <publisher><![CDATA[Example Job Site]]></publisher>
+  <publisherurl><![CDATA[http://www.examplemissionsite.com]]></publisherurl>
+  <lastBuildDate><![CDATA[Fri, 10 March 2020 22:49:39 GMT]]></lastBuildDate>
+  <mission>
+    <title><![CDATA[Mission sans date de début]]></title>
+    <clientId><![CDATA[TEST_NO_START_DATE]]></clientId>
+    <description><![CDATA[Mission de test sans startAt]]></description>
+    <applicationUrl><![CDATA[https://www.example.org]]></applicationUrl>
+    <postedAt><![CDATA[01/01/2023]]></postedAt>
+    <endAt><![CDATA[11/01/2025]]></endAt>
+    <addresses>
+      <address>
+        <street><![CDATA[Test Street]]></street>
+        <postalCode><![CDATA[75001]]></postalCode>
+        <city><![CDATA[Paris]]></city>
+        <departmentCode><![CDATA[75]]></departmentCode>
+        <departmentName><![CDATA[Paris]]></departmentName>
+        <region><![CDATA[Île-de-France]]></region>
+        <country><![CDATA[France]]></country>
+      </address>
+    </addresses>
+    <schedule><![CDATA[Flexible]]></schedule>
+    <places><![CDATA[1]]></places>
+    <activity><![CDATA[test]]></activity>
+    <remote><![CDATA[no]]></remote>
+    <domain><![CDATA[test]]></domain>
+    <organizationName><![CDATA[Test Org]]></organizationName>
+    <organizationType><![CDATA[1901]]></organizationType>
+  </mission>
+</source>`;
+
+    const publisher = await createTestPublisher({ feed: "https://no-start-date-feed" });
+
+    // First import - should use default startAt (current date)
+    const importDate = new Date();
+    (global.fetch as any).mockResolvedValueOnce({ text: async () => xmlWithoutStartAt });
+
+    const result = await handler.handle({ publisherId: publisher._id.toString() });
+    expect(result.success).toBe(true);
+    expect(result.imports[0].status).toBe("SUCCESS");
+
+    const missions = await MissionModel.find({ publisherId: publisher._id.toString(), clientId: "TEST_NO_START_DATE" });
+    expect(missions.length).toBe(1);
+
+    const mission = missions[0];
+    expect(mission.title).toBe("Mission sans date de début");
+
+    // startAt should be set to a default value (around the import date)
+    const timeDiff = Math.abs(mission.startAt.getTime() - importDate.getTime());
+    expect(timeDiff).toBeLessThan(5000); // Within 5 seconds of import
+
+    const originalStartAt = mission.startAt;
+
+    // Wait a moment to ensure different timestamps
+    await new Promise((resolve) => setTimeout(resolve, 10));
+
+    // Second import with same XML (no startAt) - should preserve the existing startAt from DB
+    const secondImportDate = new Date();
+    (global.fetch as any).mockResolvedValueOnce({ text: async () => xmlWithoutStartAt });
+
+    const result2 = await handler.handle({ publisherId: publisher._id.toString() });
+    expect(result2.success).toBe(true);
+    expect(result2.imports[0].status).toBe("SUCCESS");
+
+    const missionsAfterUpdate = await MissionModel.find({ publisherId: publisher._id.toString(), clientId: "TEST_NO_START_DATE" });
+    expect(missionsAfterUpdate.length).toBe(1);
+
+    const updatedMission = missionsAfterUpdate[0];
+
+    // startAt should be preserved from the first import, not changed to the second import date
+    expect(updatedMission.startAt.toISOString()).toBe(originalStartAt.toISOString());
+    // The mission should exist and have the preserved startAt, which should be different from second import date
+    expect(Math.abs(updatedMission.startAt.getTime() - secondImportDate.getTime())).toBeGreaterThan(0);
+  });
 });
