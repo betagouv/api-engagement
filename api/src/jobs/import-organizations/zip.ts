@@ -5,7 +5,7 @@ import { parseFile } from "./file-parser";
 // Process a single file from the zip
 const processZipEntry = async (zipfile: any, entry: any): Promise<number> => {
   return new Promise((resolve, reject) => {
-    console.log(`[Organization] Processing file: ${entry.fileName}`);
+    console.log(`[Zip] Processing file: ${entry.fileName}`);
 
     if (/\/$/.test(entry.fileName)) {
       // Skip directories
@@ -22,11 +22,11 @@ const processZipEntry = async (zipfile: any, entry: any): Promise<number> => {
 
       parseFile(readStream)
         .then((count) => {
-          console.log(`[Organization] Processed ${count} records from ${entry.fileName}`);
+          console.log(`[Zip] Processed ${count} records from ${entry.fileName}`);
           resolve(count);
         })
         .catch((error) => {
-          console.error(`Error processing ${entry.fileName}:`, error);
+          console.error(`[Zip] Error processing ${entry.fileName}:`, error);
           reject(error);
         });
     });
@@ -36,43 +36,50 @@ const processZipEntry = async (zipfile: any, entry: any): Promise<number> => {
 // Process the zip file sequentially
 export const readZip = async (file: string): Promise<number> => {
   let total = 0;
+  let entriesSeen = 0;
 
   return new Promise((resolve, reject) => {
-    yauzl.open(file, { lazyEntries: true }, async (err, zipfile) => {
+    yauzl.open(file, { lazyEntries: true }, (err, zipfile) => {
       if (err) {
         return reject(err);
       }
 
-      // Process entries one by one
-      const processNextEntry = async () => {
+      const onError = (e: any) => {
         try {
-          const entry = await new Promise<any>((resolveEntry, rejectEntry) => {
-            zipfile.once("entry", resolveEntry);
-            zipfile.once("error", rejectEntry);
-            zipfile.readEntry();
-          });
-
-          if (!entry) {
-            // No more entries
-            zipfile.close();
-            resolve(total);
-            return;
-          }
-
-          // Process this entry
-          const count = await processZipEntry(zipfile, entry);
-          total += count;
-
-          // Continue with next entry
-          processNextEntry();
-        } catch (error) {
           zipfile.close();
-          reject(error);
-        }
+        } catch (_) {}
+        reject(e);
       };
 
-      // Start processing
-      processNextEntry();
+      zipfile.on("error", onError);
+
+      // When archive ends, resolve with total processed
+      zipfile.on("end", () => {
+        try {
+          zipfile.close();
+        } catch (_) {}
+        console.log(`[Zip] ZIP end reached: entries=${entriesSeen}, totalRecords=${total}`);
+        resolve(total);
+      });
+
+      // Handle each entry then move to the next one
+      zipfile.on("entry", async (entry) => {
+        try {
+          entriesSeen += 1;
+          if (entriesSeen % 5 === 1) {
+            console.log(`[Zip] Processing entry #${entriesSeen}: ${entry.fileName}`);
+          }
+          const count = await processZipEntry(zipfile, entry);
+          total += count;
+          zipfile.readEntry();
+        } catch (e) {
+          onError(e);
+        }
+      });
+
+      // Start the iteration
+      console.log(`[Zip] Starting ZIP processing for file ${file}`);
+      zipfile.readEntry();
     });
   });
 };

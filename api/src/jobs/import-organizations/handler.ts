@@ -77,18 +77,34 @@ export class ImportOrganizationsHandler implements BaseHandler<ImportOrganizatio
     }
 
     try {
-      console.log(`[ImportOrganizations] Downloading ${resource.url} at ${folder}`);
-      const response = await fetch(resource.url);
+      const DOWNLOAD_TIMEOUT_MS = 10 * 60 * 1000; // 10 minutes
+      console.log(`[ImportOrganizations] Downloading ${resource.url} into ${folder} (timeout=${DOWNLOAD_TIMEOUT_MS}ms)`);
+
+      const controller = new AbortController();
+      const timeout = setTimeout(() => controller.abort(), DOWNLOAD_TIMEOUT_MS);
+      const response = await fetch(resource.url, { signal: controller.signal as any });
+      clearTimeout(timeout);
+
       if (!response.ok || !response.body) {
         throw new Error(response.statusText);
       }
+      console.log(
+        `[ImportOrganizations] Response headers: content-type=${response.headers.get("content-type")} content-length=${response.headers.get("content-length")}`
+      );
 
-      await pipeline(Readable.fromWeb(response.body as ReadableStream<any>), fs.createWriteStream(`${folder}/${resource.id}.zip`));
+      const zipPath = `${folder}/${resource.id}.zip`;
+      const dlStart = Date.now();
+      await pipeline(Readable.fromWeb(response.body as ReadableStream<any>), fs.createWriteStream(zipPath));
+      const dlDuration = (Date.now() - dlStart) / 1000;
+      const fileSize = fs.existsSync(zipPath) ? fs.statSync(zipPath).size : 0;
+      console.log(`[ImportOrganizations] Downloaded to ${zipPath} (${fileSize} bytes) in ${dlDuration}s`);
 
       console.log(`[ImportOrganizations] Parsing ${resource.id}.zip`);
       const file = path.join(folder, `${resource.id}.zip`);
+      const parseStart = Date.now();
       count = await readZip(file);
-      console.log(`[ImportOrganizations] ${count} associations parsed`);
+      const parseDuration = (Date.now() - parseStart) / 1000;
+      console.log(`[ImportOrganizations] ${count} associations parsed in ${parseDuration}s`);
 
       await ImportRNAModel.create({
         year: new Date().getFullYear(),
@@ -101,6 +117,7 @@ export class ImportOrganizationsHandler implements BaseHandler<ImportOrganizatio
         endedAt: new Date(),
         status: "SUCCESS",
       });
+      success = true;
       console.log(`[ImportOrganizations] Ended at ${new Date().toISOString()} in ${(Date.now() - start.getTime()) / 1000}s`);
     } catch (error) {
       captureException("RNA import failed", { extra: { resource } });
