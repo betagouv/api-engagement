@@ -55,7 +55,7 @@ const getImageDomain = (domain: string) => {
 const getMonthDifference = (startDate: Date, endDate: Date) => {
   const d = endDate.getMonth() - startDate.getMonth() + 12 * (endDate.getFullYear() - startDate.getFullYear());
   if (isNaN(d)) {
-    return undefined;
+    return null;
   } else {
     return d;
   }
@@ -75,9 +75,12 @@ const parseBool = (value: string | undefined) => {
   return "yes";
 };
 
-const parseDate = (value: string | undefined) => {
+const parseDate = (value: string | Date | undefined) => {
   if (!value) {
     return null;
+  }
+  if (value instanceof Date) {
+    return value;
   }
   return isNaN(new Date(value).getTime()) ? null : new Date(value);
 };
@@ -123,9 +126,9 @@ const parseMission = (publisher: Publisher, missionXML: MissionXML, missionDB: M
     clientId: parseString(missionXML.clientId),
     applicationUrl: missionXML.applicationUrl || "",
     postedAt: parseDate(missionXML.postedAt) || new Date(),
-    startAt: parseDate(missionXML.startAt) || new Date(),
+    startAt: parseDate(missionXML.startAt) || parseDate(missionDB?.startAt) || new Date(),
     endAt: parseDate(missionXML.endAt) || null,
-    duration: missionXML.endAt ? getMonthDifference(new Date(missionXML.startAt), new Date(missionXML.endAt)) : null,
+
     activity: parseString(missionXML.activity) || "",
     domain: parseString(missionXML.domain) || "",
     schedule: parseString(missionXML.schedule),
@@ -164,6 +167,8 @@ const parseMission = (publisher: Publisher, missionXML: MissionXML, missionDB: M
   // Moderation except Service Civique (already moderated)  // Moderation except Service Civique (already moderated)
   mission.statusComment = "";
   mission.statusCode = "ACCEPTED";
+  mission.duration = mission.endAt ? getMonthDifference(new Date(mission.startAt), new Date(mission.endAt)) : null;
+
   if (publisher._id.toString() !== PUBLISHER_IDS.SERVICE_CIVIQUE) {
     getModeration(mission);
   }
