@@ -35,6 +35,24 @@ resource "scaleway_job_definition" "letudiant" {
 
   env = local.all_env_vars
 }
+# Job Definition for the 'talent' task
+# resource "scaleway_job_definition" "talent" {
+#   name         = "${terraform.workspace}-talent"
+#   project_id   = var.project_id
+#   cpu_limit    = 1000
+#   memory_limit = 2048
+#   image_uri    = local.image_uri
+#   # Max old space workaround: https://stackoverflow.com/questions/48387040/how-do-i-determine-the-correct-max-old-space-size-for-node-js
+#   command      = "node --max-old-space-size=1800 dist/jobs/run-job.js talent"
+#   timeout      = "45m"
+
+#   cron {
+#     schedule = "0 */3 * * *" # Every 3 hours
+#     timezone = "Europe/Paris"
+#   }
+
+#   env = local.all_env_vars
+# }
 
 # Job Definition for the 'linkedin' task
 resource "scaleway_job_definition" "linkedin" {
