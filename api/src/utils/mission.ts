@@ -78,7 +78,7 @@ export const getMissionChanges = (
 
   for (const field of fieldsToCompare) {
     if (Array.isArray(previousMission[field]) && Array.isArray(currentMission[field])) {
-      if (!areArraysEqual(previousMission[field], currentMission[field])) {
+      if (!areArraysEqual(previousMission[field] as any, currentMission[field] as any)) {
         changes[field] = {
           previous: previousMission[field],
           current: currentMission[field],

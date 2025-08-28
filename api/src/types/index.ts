@@ -200,7 +200,7 @@ export type Campaign = {
 export interface Import {
   _id: Schema.Types.ObjectId;
   name: string;
-  publisherId: Schema.Types.ObjectId;
+  publisherId: Schema.Types.ObjectId | string;
   createdCount: number;
   deletedCount: number;
   updatedCount: number;

@@ -1,7 +1,8 @@
 import mongoose from "mongoose";
+import ImportModel from "../../src/models/import";
 import MissionModel from "../../src/models/mission";
 import PublisherModel from "../../src/models/publisher";
-import { Mission, MissionType, Publisher } from "../../src/types";
+import { Import, Mission, MissionType, Publisher } from "../../src/types";
 
 /**
  * Create a test publisher with random API key
@@ -124,4 +125,25 @@ export const createTestMission = async (data: Partial<Mission> = {}) => {
     mission.updatedAt = data.updatedAt;
   }
   return mission.toObject();
+};
+
+export const createTestImport = async (data: Partial<Import> = {}): Promise<Import> => {
+  const defaultData = {
+    name: "Test import",
+    publisherId: "test-publisher-id",
+    status: "SUCCESS",
+    startedAt: new Date(),
+    endedAt: new Date(),
+    createdCount: 0,
+    deletedCount: 0,
+    updatedCount: 0,
+    missionCount: 0,
+    refusedCount: 0,
+    error: null,
+    failed: [],
+  };
+  const importData = { ...defaultData, ...data };
+  const object = new ImportModel(importData);
+  await object.save();
+  return object.toObject() as Import;
 };

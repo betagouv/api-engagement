@@ -2,8 +2,9 @@ import { readFile } from "fs/promises";
 import path from "path";
 import { afterAll, beforeEach, describe, expect, it, vi } from "vitest";
 import { ImportMissionsHandler } from "../../../../src/jobs/import-missions/handler";
+import ImportModel from "../../../../src/models/import";
 import MissionModel from "../../../../src/models/mission";
-import { createTestMission, createTestPublisher } from "../../../fixtures";
+import { createTestImport, createTestMission, createTestPublisher } from "../../../fixtures";
 
 const originalFetch = global.fetch;
 global.fetch = vi.fn();
@@ -87,17 +88,38 @@ describe("Import missions job (integration test)", () => {
     expect(mission.title).toBe("Titre de la mission");
   });
 
-  it("If feed is empty, missions related to publisher should be deleted", async () => {
+  it("If feed is empty for the first time, missions related to publisher should not be deleted", async () => {
     const publisher = await createTestPublisher({ feed: "https://empty-feed" });
     await createTestMission({ publisherId: publisher._id.toString(), clientId: "client-old" });
+    await createTestImport({ publisherId: publisher._id.toString(), status: "SUCCESS" });
     (global.fetch as any).mockResolvedValueOnce({ text: async () => emptyXml });
 
     const result = await handler.handle({ publisherId: publisher._id.toString() });
 
-    const missions = await MissionModel.find({ publisherId: publisher._id.toString(), deleted: true });
-    expect(missions.length).toBeGreaterThan(0);
+    const onlineMissions = await MissionModel.find({ publisherId: publisher._id.toString(), deleted: false });
+    const failedImports = await ImportModel.find({ publisherId: publisher._id.toString(), status: "FAILED" });
+
+    expect(onlineMissions.length).toBe(1);
     expect(result.success).toBe(true);
     expect(result.imports[0].status).toBe("FAILED");
+    expect(failedImports.length).toBe(1);
+    expect(failedImports[0].deletedCount).toBe(0);
+    expect(failedImports[0].status).toBe("FAILED");
+    expect(failedImports[0].error).toBe("Empty xml");
+  });
+
+  it("If feed is empty and no import is successful for 7 days, missions should be deleted", async () => {
+    const publisher = await createTestPublisher({ feed: "https://empty-feed" });
+    await createTestMission({ publisherId: publisher._id.toString(), clientId: "client-old" });
+    await createTestImport({ publisherId: publisher._id.toString(), status: "FAILED", endedAt: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000) });
+    await createTestImport({ publisherId: publisher._id.toString(), status: "FAILED", endedAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000) });
+    (global.fetch as any).mockResolvedValueOnce({ text: async () => emptyXml });
+
+    await handler.handle({ publisherId: publisher._id.toString() });
+
+    const deletedMissions = await MissionModel.find({ publisherId: publisher._id.toString(), deleted: true });
+
+    expect(deletedMissions.length).toBe(1);
   });
 
   it("If publisher has no feed, skip import", async () => {
