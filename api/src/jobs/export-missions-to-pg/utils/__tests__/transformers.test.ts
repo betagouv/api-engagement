@@ -3,6 +3,7 @@ import { Schema } from "mongoose";
 import { describe, expect, it } from "vitest";
 import { PUBLISHER_IDS } from "../../../../config";
 import { AddressItem, Mission as MongoMission, MissionEvent as MongoMissionEvent } from "../../../../types";
+import { EVENT_TYPES } from "../../../../utils/mission";
 import { transformMongoMissionEventToPg, transformMongoMissionToPg } from "../transformers";
 
 // Transform ID to fake Mongo ObjectId
@@ -206,10 +207,9 @@ describe("transformMongoMissionToPg", () => {
 describe("transformMongoMissionEventToPg", () => {
   const baseMissionEvent: MongoMissionEvent = {
     _id: randomObjectId("event-123"),
-    type: "create",
+    type: EVENT_TYPES.CREATE,
     missionId: randomObjectId("mission-123"),
     changes: null,
-    fields: [],
     createdAt: new Date("2023-01-15"),
     lastExportedToPgAt: null,
   };
@@ -243,7 +243,7 @@ describe("transformMongoMissionEventToPg", () => {
   it("should transform a delete event", () => {
     const deleteEvent: MongoMissionEvent = {
       ...baseMissionEvent,
-      type: "delete",
+      type: EVENT_TYPES.DELETE,
       changes: {
         deletedAt: {
           previous: null,
@@ -270,14 +270,13 @@ describe("transformMongoMissionEventToPg", () => {
   it("should transform an update event with startAt change", () => {
     const updateEvent: MongoMissionEvent = {
       ...baseMissionEvent,
-      type: "update",
+      type: EVENT_TYPES.UPDATE,
       changes: {
         startAt: {
           previous: new Date("2023-01-01"),
           current: new Date("2023-02-01"),
         },
       },
-      fields: ["startAt"],
     };
 
     const result = transformMongoMissionEventToPg(updateEvent, "mission-123");
@@ -296,14 +295,13 @@ describe("transformMongoMissionEventToPg", () => {
   it("should transform an update event with endAt change", () => {
     const updateEvent: MongoMissionEvent = {
       ...baseMissionEvent,
-      type: "update",
+      type: EVENT_TYPES.UPDATE,
       changes: {
         endAt: {
           previous: new Date("2023-03-01"),
           current: new Date("2023-04-01"),
         },
       },
-      fields: ["endAt"],
     };
 
     const result = transformMongoMissionEventToPg(updateEvent, "mission-123");
@@ -322,14 +320,13 @@ describe("transformMongoMissionEventToPg", () => {
   it("should transform an update event with description change", () => {
     const updateEvent: MongoMissionEvent = {
       ...baseMissionEvent,
-      type: "update",
+      type: EVENT_TYPES.UPDATE,
       changes: {
         description: {
           previous: "Old description",
           current: "New description",
         },
       },
-      fields: ["description"],
     };
 
     const result = transformMongoMissionEventToPg(updateEvent, "mission-123");
@@ -348,14 +345,13 @@ describe("transformMongoMissionEventToPg", () => {
   it("should transform an update event with descriptionHtml change", () => {
     const updateEvent: MongoMissionEvent = {
       ...baseMissionEvent,
-      type: "update",
+      type: EVENT_TYPES.UPDATE,
       changes: {
         descriptionHtml: {
           previous: "<p>Old description</p>",
           current: "<p>New description</p>",
         },
       },
-      fields: ["descriptionHtml"],
     };
 
     const result = transformMongoMissionEventToPg(updateEvent, "mission-123");
@@ -374,14 +370,13 @@ describe("transformMongoMissionEventToPg", () => {
   it("should transform an update event with domain change", () => {
     const updateEvent: MongoMissionEvent = {
       ...baseMissionEvent,
-      type: "update",
+      type: EVENT_TYPES.UPDATE,
       changes: {
         domain: {
           previous: "Old domain",
           current: "New domain",
         },
       },
-      fields: ["domain"],
     };
 
     const result = transformMongoMissionEventToPg(updateEvent, "mission-123");
@@ -400,14 +395,13 @@ describe("transformMongoMissionEventToPg", () => {
   it("should transform an update event with places change", () => {
     const updateEvent: MongoMissionEvent = {
       ...baseMissionEvent,
-      type: "update",
+      type: EVENT_TYPES.UPDATE,
       changes: {
         places: {
           previous: 5,
           current: 10,
         },
       },
-      fields: ["places"],
     };
 
     const result = transformMongoMissionEventToPg(updateEvent, "mission-123");
@@ -426,14 +420,13 @@ describe("transformMongoMissionEventToPg", () => {
   it("should transform an update event with JVA moderation status change", () => {
     const updateEvent: MongoMissionEvent = {
       ...baseMissionEvent,
-      type: "update",
+      type: EVENT_TYPES.UPDATE,
       changes: {
         [`moderation_${PUBLISHER_IDS.JEVEUXAIDER}_status`]: {
           previous: "PENDING",
           current: "ACCEPTED",
         },
       },
-      fields: [`moderation_${PUBLISHER_IDS.JEVEUXAIDER}_status`],
     };
 
     const result = transformMongoMissionEventToPg(updateEvent, "mission-123");
@@ -452,7 +445,7 @@ describe("transformMongoMissionEventToPg", () => {
   it("should transform an update event with status change", () => {
     const updateEvent: MongoMissionEvent = {
       ...baseMissionEvent,
-      type: "update",
+      type: EVENT_TYPES.UPDATE,
       changes: {
         statusCode: {
           previous: "PENDING",
@@ -463,7 +456,6 @@ describe("transformMongoMissionEventToPg", () => {
           current: "ACCEPTED",
         },
       },
-      fields: ["statusCode"],
     };
 
     const result = transformMongoMissionEventToPg(updateEvent, "mission-123");
@@ -482,7 +474,7 @@ describe("transformMongoMissionEventToPg", () => {
   it("should transform an update event with multiple changes", () => {
     const updateEvent: MongoMissionEvent = {
       ...baseMissionEvent,
-      type: "update",
+      type: EVENT_TYPES.UPDATE,
       changes: {
         startAt: {
           previous: new Date("2023-01-01"),
@@ -497,7 +489,6 @@ describe("transformMongoMissionEventToPg", () => {
           current: 10,
         },
       },
-      fields: ["startAt", "description", "places"],
     };
 
     const result = transformMongoMissionEventToPg(updateEvent, "mission-123");
@@ -512,7 +503,7 @@ describe("transformMongoMissionEventToPg", () => {
   it("should transform an update event with other changes", () => {
     const updateEvent: MongoMissionEvent = {
       ...baseMissionEvent,
-      type: "update",
+      type: EVENT_TYPES.UPDATE,
       changes: {
         title: {
           previous: "Old title",
@@ -523,7 +514,6 @@ describe("transformMongoMissionEventToPg", () => {
           current: "New activity",
         },
       },
-      fields: ["title", "activity"],
     };
 
     const result = transformMongoMissionEventToPg(updateEvent, "mission-123");
@@ -546,9 +536,8 @@ describe("transformMongoMissionEventToPg", () => {
   it("should return empty array for update event with no changes", () => {
     const updateEvent: MongoMissionEvent = {
       ...baseMissionEvent,
-      type: "update",
+      type: EVENT_TYPES.UPDATE,
       changes: null,
-      fields: [],
     };
 
     const result = transformMongoMissionEventToPg(updateEvent, "mission-123");

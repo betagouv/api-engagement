@@ -141,34 +141,20 @@ const getMissionType = (type: string) => {
 };
 
 const MONGO_TO_PG_FIELDS = {
-  title: "title",
-  type: "type",
+  activity: "activity",
+  applicationUrl: "application_url",
+  audience: "audience",
+  clientId: "client_id",
+  closeToTransport: "close_to_transport",
+  deletedAt: "deleted_at",
   description: "description",
   descriptionHtml: "description_html",
-  clientId: "client_id",
-  applicationUrl: "application_url",
-  postedAt: "posted_at",
-  startAt: "start_at",
-  endAt: "end_at",
-  duration: "duration",
-  activity: "activity",
   domain: "domain",
   domainLogo: "domain_logo",
-  schedule: "schedule",
-  audience: "audience",
-  softSkills: "soft_skills",
-  romeSkills: "rome_skills",
-  requirements: "requirements",
-  remote: "remote",
-  reducedMobilityAccessible: "reduced_mobility_accessible",
-  closeToTransport: "close_to_transport",
-  openToMinors: "open_to_minors",
-  priority: "priority",
-  tags: "tags",
-  places: "places",
-  snu: "snu",
-  snuPlaces: "snu_places",
+  duration: "duration",
+  endAt: "end_at",
   metadata: "metadata",
+  openToMinors: "open_to_minors",
   organizationName: "organization_name",
   organizationRNA: "organization_rna",
   organizationSiren: "organization_siren",
@@ -185,8 +171,23 @@ const MONGO_TO_PG_FIELDS = {
   organizationBeneficiaries: "organization_beneficiaries",
   organizationReseaux: "organization_reseaux",
   organizationVerificationStatus: "organization_verification_status",
-  statusComment: "status_comment",
+  places: "places",
+  postedAt: "posted_at",
+  priority: "priority",
+  reducedMobilityAccessible: "reduced_mobility_accessible",
+  remote: "remote",
+  requirements: "requirements",
+  romeSkills: "rome_skills",
+  schedule: "schedule",
+  snu: "snu",
+  snuPlaces: "snu_places",
+  softSkills: "soft_skills",
+  startAt: "start_at",
   statusCode: "status",
+  statusComment: "status_comment",
+  tags: "tags",
+  title: "title",
+  type: "type",
 };
 
 /**
@@ -224,7 +225,6 @@ export const transformMongoMissionEventToPg = (doc: MongoMissionEvent, missionId
     events.push({
       ...baseEvent,
       type: MissionHistoryEventType.Deleted,
-      fields: ["deleted_at"],
       changes: {
         deleted_at: {
           previous: doc.changes?.deletedAt.previous,
@@ -242,7 +242,6 @@ export const transformMongoMissionEventToPg = (doc: MongoMissionEvent, missionId
     events.push({
       ...baseEvent,
       type: MissionHistoryEventType.UpdatedStartDate,
-      fields: ["start_at"],
       changes: {
         start_at: {
           previous: doc.changes.startAt.previous,
@@ -256,7 +255,6 @@ export const transformMongoMissionEventToPg = (doc: MongoMissionEvent, missionId
     events.push({
       ...baseEvent,
       type: MissionHistoryEventType.UpdatedEndDate,
-      fields: ["end_at"],
       changes: {
         end_at: {
           previous: doc.changes.endAt.previous,
@@ -270,7 +268,6 @@ export const transformMongoMissionEventToPg = (doc: MongoMissionEvent, missionId
     events.push({
       ...baseEvent,
       type: MissionHistoryEventType.UpdatedDescription,
-      fields: ["description"],
       changes: {
         description: {
           previous: doc.changes.description.previous,
@@ -283,7 +280,6 @@ export const transformMongoMissionEventToPg = (doc: MongoMissionEvent, missionId
     events.push({
       ...baseEvent,
       type: MissionHistoryEventType.UpdatedDescription,
-      fields: ["description_html"],
       changes: {
         description_html: {
           previous: doc.changes.descriptionHtml.previous,
@@ -297,7 +293,6 @@ export const transformMongoMissionEventToPg = (doc: MongoMissionEvent, missionId
     events.push({
       ...baseEvent,
       type: MissionHistoryEventType.UpdatedActivityDomain,
-      fields: ["domain"],
       changes: {
         domain: {
           previous: doc.changes.domain.previous,
@@ -311,7 +306,6 @@ export const transformMongoMissionEventToPg = (doc: MongoMissionEvent, missionId
     events.push({
       ...baseEvent,
       type: MissionHistoryEventType.UpdatedPlaces,
-      fields: ["places"],
       changes: {
         places: {
           previous: doc.changes.places.previous,
@@ -326,7 +320,6 @@ export const transformMongoMissionEventToPg = (doc: MongoMissionEvent, missionId
     events.push({
       ...baseEvent,
       type: MissionHistoryEventType.UpdatedJVAModerationStatus,
-      fields: ["jva_moderation_status"],
       changes: {
         jva_moderation_status: {
           previous: doc.changes[`moderation_${PUBLISHER_IDS.JEVEUXAIDER}_status`]?.previous || null,
@@ -340,7 +333,6 @@ export const transformMongoMissionEventToPg = (doc: MongoMissionEvent, missionId
     events.push({
       ...baseEvent,
       type: MissionHistoryEventType.UpdatedApiEngModerationStatus,
-      fields: ["status"],
       changes: {
         status: {
           previous: doc.changes.statusCode.previous,
@@ -354,7 +346,6 @@ export const transformMongoMissionEventToPg = (doc: MongoMissionEvent, missionId
     events.push({
       ...baseEvent,
       type: MissionHistoryEventType.UpdatedOther,
-      fields: Object.keys(doc.changes).map((key) => MONGO_TO_PG_FIELDS[key as keyof typeof MONGO_TO_PG_FIELDS]),
       changes: Object.keys(doc.changes).reduce(
         (acc, key) => {
           if (!doc.changes || !doc.changes[key]) {
