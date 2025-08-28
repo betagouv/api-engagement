@@ -76,12 +76,6 @@ export const startApiServer = async () => {
     res.sendFile(path.join(__dirname, "static/impression.js"));
   });
 
-  app.get("/test-sentry", async (req, res) => {
-    const a = Sentry.captureException(new Error("Test sentry"));
-    console.log(a);
-    res.status(200).send({ ok: true, dns: SENTRY_DSN_API, a });
-  });
-
   // Opened routes
   app.use("/iframe", IframeController);
   app.use("/stats-public", PublicStatsController);

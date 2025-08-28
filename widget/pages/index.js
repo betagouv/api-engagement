@@ -11,7 +11,7 @@ import { usePlausible } from "next-plausible";
 import Carousel from "../components/Carousel";
 import Filters from "../components/Filters";
 import Grid from "../components/Grid";
-import { API_URL, ENV, SENTRY_DSN } from "../config";
+import { API_URL, ENV } from "../config";
 import LogoSC from "../public/images/logo-sc.svg";
 import resizeHelper from "../utils/resizeHelper";
 import useStore from "../utils/store";
@@ -80,7 +80,7 @@ const getInitialFilters = (widget) => {
   };
 };
 
-const Home = ({ widget, apiUrl, missions, total, request, environment, dsn }) => {
+const Home = ({ widget, apiUrl, missions, total, request, environment }) => {
   const isBenevolat = widget?.type === "benevolat";
   const color = widget?.color ? widget.color : "#71A246";
 
@@ -239,15 +239,6 @@ const Home = ({ widget, apiUrl, missions, total, request, environment, dsn }) =>
         <div className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
           <h1 className="text-[28px] font-bold leading-[36px] md:p-0">{isBenevolat ? "Trouver une mission de bénévolat" : "Trouver une mission de Service Civique"}</h1>
           <p className="text-[18px] leading-[28px] text-[#666]">{total > 1 ? `${total.toLocaleString("fr")} missions` : `${total} mission`}</p>
-          <button
-            onClick={() => {
-              console.log(dsn);
-              const a = Sentry.captureException(new Error("Test sentry"));
-              console.log(a);
-            }}
-          >
-            Test sentry
-          </button>
         </div>
         <Filters
           widget={widget}
@@ -408,7 +399,7 @@ export const getServerSideProps = async (context) => {
       });
     }
 
-    return { props: { widget, missions, total: response.total, apiUrl: API_URL, request: response.request || null, environment: ENV, dsn: SENTRY_DSN } };
+    return { props: { widget, missions, total: response.total, apiUrl: API_URL, request: response.request || null, environment: ENV } };
   } catch (error) {
     console.error(error);
     Sentry.captureException(error);
