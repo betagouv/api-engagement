@@ -152,22 +152,20 @@ const exportMissionEvent = async () => {
     }
 
     prevCount = events.length;
+    const missionIds: string[] = [...new Set(events.map((e) => e.missionId.toString()).filter((e) => e !== undefined))] as string[];
+    const missions = {} as { [key: string]: string };
+    await prisma.mission
+      .findMany({
+        where: { old_id: { in: missionIds } },
+        select: { id: true, old_id: true },
+      })
+      .then((data) => data.forEach((d) => (missions[d.old_id] = d.id)));
+    console.log(`[Export missions events to PG] Found ${Object.keys(missions).length} missions related to events`);
 
     console.log(`[Export missions events to PG] Processing batch ${batchCount + 1} / ${Math.ceil(count / BULK_SIZE)} (${events.length} events)`);
     for (let i = 0; i < events.length; i += PG_CHUNK_SIZE) {
       const batch = events.slice(i, i + PG_CHUNK_SIZE) as MissionEvent[];
-      console.log(`[Export missions events to PG] Batch ${i / PG_CHUNK_SIZE + 1} / ${Math.ceil(events.length / PG_CHUNK_SIZE)} (${batch.length} missions)`);
-
-      const missionIds: string[] = [...new Set(events.map((e) => e.missionId.toString()).filter((e) => e !== undefined))] as string[];
-      const missions = {} as { [key: string]: string };
-      await prisma.mission
-        .findMany({
-          where: { old_id: { in: missionIds } },
-          select: { id: true, old_id: true },
-        })
-        .then((data) => data.forEach((d) => (missions[d.old_id] = d.id)));
-
-      console.log(`[Export missions events to PG] Found ${Object.keys(missions).length} missions related to events`);
+      console.log(`[Export missions events to PG] Batch ${i / PG_CHUNK_SIZE + 1} / ${Math.ceil(events.length / PG_CHUNK_SIZE)}`);
 
       const eventsToCreate: Omit<MissionHistoryEvent, "id">[] = [];
       const updatedIds: Schema.Types.ObjectId[] = [];
@@ -198,7 +196,7 @@ const exportMissionEvent = async () => {
 
       await MissionEventModel.updateMany({ _id: { $in: updatedIds } }, { $set: { lastExportedToPgAt: new Date() } });
       updatedIds.length = 0;
-      console.log(`[Export missions events to PG] Updated lastExportedToPgAt for ${batch.length} missions (batch)`);
+      console.log(`[Export missions events to PG] Updated lastExportedToPgAt for ${batch.length} events (batch)`);
     }
     batchCount++;
   }
