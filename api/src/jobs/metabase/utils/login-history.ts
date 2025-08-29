@@ -1,7 +1,7 @@
 import { LoginHistory } from "@prisma/client";
-import prisma from "../../db/postgres";
-import { captureException } from "../../error";
-import UserModel from "../../models/user";
+import prisma from "../../../db/postgres";
+import { captureException } from "../../../error";
+import UserModel from "../../../models/user";
 
 const buildData = (userId: string, loginTime: Date) => {
   return {

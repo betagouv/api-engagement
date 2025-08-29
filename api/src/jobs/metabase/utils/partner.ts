@@ -1,8 +1,8 @@
 import { Partner as PgPartner } from "@prisma/client";
-import prisma from "../../db/postgres";
-import { captureException } from "../../error";
-import PublisherModel from "../../models/publisher";
-import { Publisher } from "../../types";
+import prisma from "../../../db/postgres";
+import { captureException } from "../../../error";
+import PublisherModel from "../../../models/publisher";
+import { Publisher } from "../../../types";
 
 const buildData = (doc: Publisher) => {
   const obj = {

@@ -1,8 +1,8 @@
 import { Campaign as PrismaCampaign } from "@prisma/client";
-import prisma from "../../db/postgres";
-import { captureException } from "../../error";
-import CampaignModel from "../../models/campaign";
-import { Campaign } from "../../types";
+import prisma from "../../../db/postgres";
+import { captureException } from "../../../error";
+import CampaignModel from "../../../models/campaign";
+import { Campaign } from "../../../types";
 
 const buildData = (doc: Campaign, partners: { [key: string]: string }) => {
   const diffuseurId = partners[doc.fromPublisherId?.toString()];

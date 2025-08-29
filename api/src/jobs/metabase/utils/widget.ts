@@ -1,8 +1,8 @@
 import { Widget as PgWidget } from "@prisma/client";
-import prisma from "../../db/postgres";
-import { captureException, captureMessage } from "../../error";
-import WidgetModel from "../../models/widget";
-import { Widget } from "../../types";
+import prisma from "../../../db/postgres";
+import { captureException, captureMessage } from "../../../error";
+import WidgetModel from "../../../models/widget";
+import { Widget } from "../../../types";
 
 const buildData = (doc: Widget, partners: { [key: string]: string }) => {
   const diffuseurId = partners[doc.fromPublisherId?.toString()];

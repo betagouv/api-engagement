@@ -1,8 +1,8 @@
 import { Import as PrismaImport } from "@prisma/client";
-import prisma from "../../db/postgres";
-import { captureException } from "../../error";
-import ImportModel from "../../models/import";
-import { Import } from "../../types";
+import prisma from "../../../db/postgres";
+import { captureException } from "../../../error";
+import ImportModel from "../../../models/import";
+import { Import } from "../../../types";
 
 const BATCH_SIZE = 5000;
 

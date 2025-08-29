@@ -1,8 +1,8 @@
 import { ModerationEvent as PgModerationEvent } from "@prisma/client";
-import prisma from "../../db/postgres";
-import { captureException, captureMessage } from "../../error";
-import ModerationEventModel from "../../models/moderation-event";
-import { ModerationEvent } from "../../types";
+import prisma from "../../../db/postgres";
+import { captureException, captureMessage } from "../../../error";
+import ModerationEventModel from "../../../models/moderation-event";
+import { ModerationEvent } from "../../../types";
 
 const BATCH_SIZE = 5000;
 

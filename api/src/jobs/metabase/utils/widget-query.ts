@@ -1,8 +1,8 @@
 import { WidgetQuery as PgWidgetQuery } from "@prisma/client";
-import prisma from "../../db/postgres";
-import { captureException } from "../../error";
-import RequestWidgetModel from "../../models/request-widget";
-import { RequestWidget } from "../../types";
+import prisma from "../../../db/postgres";
+import { captureException } from "../../../error";
+import RequestWidgetModel from "../../../models/request-widget";
+import { RequestWidget } from "../../../types";
 
 const BATCH_SIZE = 5000;
 

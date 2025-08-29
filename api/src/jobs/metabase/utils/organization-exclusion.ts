@@ -1,8 +1,8 @@
 import { OrganizationExclusion as PgOrganizationExclusion } from "@prisma/client";
-import prisma from "../../db/postgres";
-import { captureException } from "../../error";
-import OrganizationExclusionModel from "../../models/organization-exclusion";
-import { OrganizationExclusion } from "../../types";
+import prisma from "../../../db/postgres";
+import { captureException } from "../../../error";
+import OrganizationExclusionModel from "../../../models/organization-exclusion";
+import { OrganizationExclusion } from "../../../types";
 
 const buildData = (doc: OrganizationExclusion, partners: { [key: string]: string }) => {
   const partnerIdBy = partners[doc.excludedByPublisherId.toString()];
@@ -56,7 +56,7 @@ const handler = async () => {
     const created = await prisma.organizationExclusion.createMany({ data: toCreate });
 
     console.log(`[OrganizationExclusion] Ended at ${new Date().toISOString()} in ${(Date.now() - start.getTime()) / 1000}s, created ${toCreate.length}`);
-    return { created: created.count };
+    return { created: created.count, updated: 0 };
   } catch (error) {
     captureException(error, "[Partners] Error while syncing docs.");
   }

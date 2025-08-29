@@ -1,8 +1,8 @@
 import { Organization as PgOrganization } from "@prisma/client";
-import prisma from "../../db/postgres";
-import { captureException } from "../../error";
-import OrganizationModel from "../../models/organization";
-import { Organization as MongoOrganization } from "../../types";
+import prisma from "../../../db/postgres";
+import { captureException } from "../../../error";
+import OrganizationModel from "../../../models/organization";
+import { Organization as MongoOrganization } from "../../../types";
 
 const BULK_SIZE = 5000;
 

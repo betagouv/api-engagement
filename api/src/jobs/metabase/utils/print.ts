@@ -1,24 +1,11 @@
-import esClient from "../../db/elastic";
-import prisma from "../../db/postgres";
-
-import { Click } from "@prisma/client";
-import { STATS_INDEX } from "../../config";
-import { captureException } from "../../error";
-import { Stats } from "../../types";
+import { Impression } from "@prisma/client";
+import { STATS_INDEX } from "../../../config";
+import esClient from "../../../db/elastic";
+import prisma from "../../../db/postgres";
+import { captureException } from "../../../error";
+import { Stats } from "../../../types";
 
 const BATCH_SIZE = 5000;
-
-const getReferer = (doc: Stats) => {
-  if (!doc.referer) {
-    return null;
-  }
-  try {
-    const url = new URL(doc.referer);
-    return url.href;
-  } catch (error) {
-    return null;
-  }
-};
 
 const buildData = async (
   doc: Stats,
@@ -29,12 +16,12 @@ const buildData = async (
 ) => {
   const partnerFromId = partners[doc.fromPublisherId?.toString()];
   if (!partnerFromId) {
-    console.log(`[Clicks] Partner ${doc.fromPublisherId?.toString()} not found for doc ${doc._id.toString()}`);
+    console.log(`[Prints] Partner ${doc.fromPublisherId?.toString()} not found for doc ${doc._id.toString()}`);
     return null;
   }
   const partnerToId = partners[doc.toPublisherId?.toString()];
   if (!partnerToId) {
-    console.log(`[Clicks] Partner ${doc.toPublisherId?.toString()} not found for doc ${doc._id.toString()}`);
+    console.log(`[Prints] Partner ${doc.toPublisherId?.toString()} not found for doc ${doc._id.toString()}`);
     return null;
   }
 
@@ -77,18 +64,14 @@ const buildData = async (
     mission_id: missionId ? missionId : null,
     mission_old_id: doc.missionId ? doc.missionId : null,
     created_at: new Date(doc.createdAt),
-    url_origin: getReferer(doc),
-    tag: doc.tag,
-    tags: doc.tags,
-    source: !doc.source || doc.source === "publisher" ? "api" : doc.source,
+    host: doc.host,
+    source: !doc.source || doc.source === "publisher" || doc.source === "jstag" ? "api" : doc.source,
     source_id: sourceId ? sourceId : null,
     campaign_id: sourceId && doc.source === "campaign" ? sourceId : null,
     widget_id: sourceId && doc.source === "widget" ? sourceId : null,
     to_partner_id: partnerToId,
     from_partner_id: partnerFromId,
-    is_bot: doc.isBot || null,
-    is_human: doc.isHuman || null,
-  } as Click;
+  } as Impression;
 
   return obj;
 };
@@ -96,12 +79,12 @@ const buildData = async (
 const handler = async () => {
   try {
     const start = new Date();
-    console.log(`[Clicks] Started at ${start.toISOString()}.`);
+    console.log(`[Prints] Started at ${start.toISOString()}.`);
     let created = 0;
     let scrollId = null;
 
-    const stored = await prisma.click.count();
-    console.log(`[Clicks] Found ${stored} docs in database.`);
+    const stored = await prisma.impression.count();
+    console.log(`[Prints] Found ${stored} docs in database.`);
 
     const missions = {} as { [key: string]: string };
     await prisma.mission
@@ -134,7 +117,7 @@ const handler = async () => {
                 must: [
                   {
                     term: {
-                      "type.keyword": "click",
+                      "type.keyword": "print",
                     },
                   },
                   {
@@ -153,7 +136,7 @@ const handler = async () => {
         });
         scrollId = body._scroll_id;
         data = body.hits.hits as { _id: string; _source: Stats }[];
-        console.log(`[Clicks] Total hits ${body.hits.total.value}, scrollId ${scrollId}`);
+        console.log(`[Prints] Total hits ${body.hits.total.value}, scrollId ${scrollId}`);
       }
 
       if (data.length === 0) {
@@ -166,22 +149,26 @@ const handler = async () => {
         if (!obj) {
           continue;
         }
-
         dataToCreate.push(obj);
       }
 
       // Create data
       if (dataToCreate.length) {
-        const res = await prisma.click.createMany({ data: dataToCreate, skipDuplicates: true });
+        const res = await prisma.impression.createMany({
+          data: dataToCreate,
+          skipDuplicates: true,
+        });
         created += res.count;
-        console.log(`[Clicks] Created ${res.count} docs, ${created} created so far.`);
+        console.log(`[Prints] Created ${res.count} docs, ${created} created so far.`);
       }
+
+      console.log(`[Prints] Processed ${data.length} docs.`);
     }
 
-    console.log(`[Clicks] Ended at ${new Date().toISOString()} in ${(Date.now() - start.getTime()) / 1000}s.`);
+    console.log(`[Prints] Ended at ${new Date().toISOString()} in ${(Date.now() - start.getTime()) / 1000}s.`);
     return { created };
   } catch (error) {
-    captureException(error, "[Clicks] Error while syncing docs.");
+    captureException(error, "[Prints] Error while syncing docs.");
   }
 };
 
