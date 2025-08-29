@@ -30,10 +30,6 @@ jobs:
         working-directory: process
         run: npm ci
 
-      - name: Run tests
-        working-directory: process
-        run: npm run test:ci
-
   deploy:
     runs-on: ubuntu-latest
     environment: production

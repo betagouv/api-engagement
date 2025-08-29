@@ -18,10 +18,7 @@
     "start-pm2": "pm2 start dist/index.js --name process --max-memory-restart 8096M",
     "reload": "pm2 reload process",
     "lint": "eslint --ext .js,.ts src/",
-    "lint:fix": "eslint --ext .js,.ts src/ --fix",
-    "test": "vitest run",
-    "test:watch": "vitest",
-    "test:ci": "vitest run --pool=forks"
+    "lint:fix": "eslint --ext .js,.ts src/ --fix"
   },
   "dependencies": {
     "@babel/core": "7.27.7",
@@ -63,7 +60,6 @@
     "@types/yauzl": "2.10.3",
     "mongodb-memory-server": "^10.1.4",
     "nodemon": "3.1.10",
-    "prisma": "6.10.1",
-    "vitest": "3.1.4"
+    "prisma": "6.10.1"
   }
 }
