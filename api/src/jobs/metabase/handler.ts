@@ -8,7 +8,6 @@ import importImports from "./utils/import";
 import importKpi from "./utils/kpi";
 import importKpiBotless from "./utils/kpi-botless";
 import importLoginHistory from "./utils/login-history";
-import importMissions from "./utils/mission";
 import importModerationEvents from "./utils/moderation-event";
 import importOrganizations from "./utils/organization";
 import importOrganizationExclusion from "./utils/organization-exclusion";
@@ -42,7 +41,6 @@ export class MetabaseHandler implements BaseHandler<MetabaseJobPayload, Metabase
       campaigns: { created: 0, updated: 0 },
       widgets: { created: 0, updated: 0 },
       organizations: { created: 0, updated: 0 },
-      missions: { created: 0, updated: 0 },
       moderation_events: { created: 0, updated: 0 },
       organization_name_matches: { created: 0, updated: 0 },
       organization_exclusion: { created: 0, updated: 0 },
@@ -77,9 +75,6 @@ export class MetabaseHandler implements BaseHandler<MetabaseJobPayload, Metabase
     const organizations = await importOrganizations();
     stats.organizations.created += organizations?.created || 0;
     stats.organizations.updated += organizations?.updated || 0;
-    const missions = await importMissions();
-    stats.missions.created += missions?.created || 0;
-    stats.missions.updated += missions?.updated || 0;
     const moderationEvents = await importModerationEvents();
     stats.moderation_events.created += moderationEvents?.created || 0;
     stats.moderation_events.updated += moderationEvents?.updated || 0;
