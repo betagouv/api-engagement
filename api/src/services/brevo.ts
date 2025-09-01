@@ -24,7 +24,7 @@ interface EmailBody {
   tags?: string[];
 }
 
-const api = async (path: string, body = {}, method = "POST") => {
+const api = async (path: string, body = {}, method = "POST"): Promise<{ ok: boolean; data: any }> => {
   if (!SENDINBLUE_APIKEY) {
     return { ok: false, data: "SENDINBLUE_APIKEY is undefined" };
   }
@@ -48,7 +48,7 @@ const api = async (path: string, body = {}, method = "POST") => {
   return { ok: res.ok, data: res };
 };
 
-export const sendTemplate = async (templateId: number, options: EmailOptions) => {
+export const sendTemplate = async (templateId: number, options: EmailOptions): Promise<{ ok: boolean; data?: any }> => {
   try {
     const body = {
       templateId,
@@ -78,12 +78,13 @@ export const sendTemplate = async (templateId: number, options: EmailOptions) =>
       console.log(`[subject]: ${body.subject}`);
       console.log(`[params]: ${JSON.stringify(body.params, null, 2)}`);
       console.log(`---- EMAIL ----`);
-      return true;
+      return { ok: true, data: { dev: true } };
     } else {
       return await api("/smtp/email", body);
     }
   } catch (e) {
     captureException(e, "sendTemplate");
+    return { ok: false };
   }
 };
 
