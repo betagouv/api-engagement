@@ -2,6 +2,22 @@
 Vous retrouverez ici l'historique des différents déploiements effectués sur l'API Engagement.
 
 
+## 25/08/2025
+
+
+### Bug Fixes
+
+-  Fix publisher selector in admin mission ([`d2be287`](https://github.com/betagouv/api-engagement/commit/d2be28735217f3f17960517d2351a0feb6431db8))
+
+
+### Miscellaneous Tasks
+
+- (**changelog**) Update CHANGELOG.md ([`f30275f`](https://github.com/betagouv/api-engagement/commit/f30275f07bbb17de870ae53d29a5729a09bcfc76))
+
+# API Engagement - Changelog
+Vous retrouverez ici l'historique des différents déploiements effectués sur l'API Engagement.
+
+
 ## 18/08/2025
 
 
