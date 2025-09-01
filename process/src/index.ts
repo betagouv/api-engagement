@@ -22,55 +22,13 @@ import "./db/mongo";
 import "./db/postgres";
 
 import { captureException } from "./error";
-import metabase from "./jobs/metabase";
 import report from "./jobs/report";
 
 const app = express();
 
 const runnings = {
-  metabase: false,
   report: false,
 };
-
-// Every day at 02:00 AM
-const metabaseJob = new CronJob(
-  "0 2 * * *",
-  async () => {
-    const checkInId = Sentry.captureCheckIn({
-      monitorSlug: "metabase",
-      status: "in_progress",
-    });
-    if (runnings.metabase) {
-      Sentry.captureCheckIn({
-        checkInId,
-        monitorSlug: "metabase",
-        status: "ok",
-      });
-      return;
-    }
-    runnings.metabase = true;
-
-    try {
-      await metabase.handler();
-      Sentry.captureCheckIn({
-        checkInId,
-        monitorSlug: "metabase",
-        status: "ok",
-      });
-    } catch (error) {
-      captureException(error);
-      Sentry.captureCheckIn({
-        checkInId,
-        monitorSlug: "metabase",
-        status: "error",
-      });
-    }
-    runnings.metabase = false;
-  },
-  null,
-  true,
-  "Europe/Paris"
-);
 
 // Every first Tuesday of the month at 10:00 AM
 const reportJob = new CronJob(
@@ -102,14 +60,6 @@ app.use(cors({ origin }));
 app.get("/tasks", async (req, res) => {
   try {
     const tasks = [
-      {
-        name: "Update Metabase",
-        schedule: metabaseJob.cronTime.source,
-        started: metabaseJob.isActive,
-        lastRun: metabaseJob.lastDate(),
-        nextRun: metabaseJob.nextDate(),
-        running: runnings.metabase,
-      },
       {
         name: "Generate reports",
         schedule: reportJob.cronTime.source,

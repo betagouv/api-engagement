@@ -1,8 +1,8 @@
 import { User as PgUser } from "@prisma/client";
-import prisma from "../../db/postgres";
-import { captureException } from "../../error";
-import UserModel from "../../models/user";
-import { User } from "../../types";
+import prisma from "../../../db/postgres";
+import { captureException } from "../../../error";
+import UserModel from "../../../models/user";
+import { User } from "../../../types";
 
 interface UserUpdate extends PgUser {
   partners: { create: { partner_id: string }[] };
