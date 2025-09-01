@@ -18,20 +18,20 @@
   },
   "dependencies": {
     "@headlessui/react": "2.2.7",
-    "@sentry/cli": "2.50.2",
-    "@sentry/nextjs": "^10.5.0",
-    "@tailwindcss/postcss": "^4.1.11",
+    "@sentry/cli": "2.52.0",
+    "@sentry/nextjs": "^10.8.0",
+    "@tailwindcss/postcss": "^4.1.12",
     "i18n-iso-countries": "7.14.0",
-    "next": "15.4.5",
+    "next": "15.5.2",
     "next-plausible": "3.12.4",
     "react": "19.1.1",
-    "react-day-picker": "^9.8.1",
+    "react-day-picker": "^9.9.0",
     "react-dom": "19.1.1",
     "react-icons": "5.5.0",
-    "react-slick": "0.30.3",
+    "react-slick": "0.31.0",
     "sharp": "0.34.3",
     "slick-carousel": "1.8.1",
-    "zustand": "5.0.7"
+    "zustand": "5.0.8"
   },
   "devDependencies": {
     "@playwright/test": "^1.54.1",
