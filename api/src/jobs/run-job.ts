@@ -40,6 +40,7 @@ if (envPath && fs.existsSync(envPath)) {
 import { ENV, SENTRY_DSN_JOBS, SLACK_CRON_CHANNEL_ID } from "../config";
 import { esConnected } from "../db/elastic";
 import { mongoConnected } from "../db/mongo";
+import { captureException } from "../error";
 import { postMessage } from "../services/slack";
 import { getJobTime } from "../utils";
 
@@ -130,6 +131,7 @@ async function runJob() {
     );
   } catch (error) {
     console.error(`Error executing job '${jobName}':`, error);
+    captureException(error, { extra: { jobName } });
   } finally {
     process.exit(0);
   }
