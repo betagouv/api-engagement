@@ -1,7 +1,0 @@
-/node_modules
-/scripts
-/dist
-.env
-*.csv
-/src/**/*.json
-```
