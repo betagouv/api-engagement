@@ -643,12 +643,17 @@ router.get("/:statsId/confirm-human", cors({ origin: "*" }), async (req, res) =>
       index: STATS_INDEX,
       id: params.data.statsId,
       body: { doc: { isHuman: true } },
+      retry_on_conflict: 5,
     });
 
     return res.status(200).send({ ok: true });
   } catch (error: any) {
     if (error.statusCode === 404) {
       return res.status(404).send({ ok: false, code: NOT_FOUND });
+    }
+    // If another concurrent update already set the flag, treat as success
+    if (error.statusCode === 409 || error?.meta?.statusCode === 409) {
+      return res.status(200).send({ ok: true, alreadyUpdated: true });
     }
     captureException(error);
     return res.status(500).send({ ok: false, code: SERVER_ERROR });
