@@ -394,6 +394,7 @@ export type ModerationEvent = {
   initialRNA: string | null;
   newRNA: string | null;
   createdAt: Date;
+  updatedAt: Date;
 };
 
 export interface Publisher {
@@ -554,7 +555,7 @@ export interface StatsReport {
 export type RequestWidget = {
   _id: Schema.Types.ObjectId;
   widgetId: Schema.Types.ObjectId;
-  query: object;
+  query: any;
   total: number;
   missions: string[];
   createdAt: Date;
@@ -612,6 +613,7 @@ export interface Stats {
   host: string;
   user?: string;
   isBot: boolean;
+  isHuman: boolean;
   createdAt: Date;
   fromPublisherId: string;
   fromPublisherName: string;
