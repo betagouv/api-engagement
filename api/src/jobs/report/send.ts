@@ -11,7 +11,7 @@ const BROADCAST_TEMPLATE_ID = 9;
 const MONTHS = ["Janvier", "Février", "Mars", "Avril", "Mai", "Juin", "Juillet", "Août", "Septembre", "Octobre", "Novembre", "Décembre"];
 const compare = (a: number, b: number) => (a - b) / (a || 1);
 
-const sendReport = async (report: Report) => {
+const sendReport = async (report: Report): Promise<{ ok: boolean; data?: any }> => {
   try {
     const data = report.dataTemplate === "SEND" ? report.data.send : report.data.receive;
     const rate = data.apply / (data.click || 1);
@@ -114,11 +114,11 @@ export const sendReports = async (year: number, month: number) => {
     console.log(`[${publisher.name}] Sending report to ${report.sentTo.map((e) => e).join(", ")}`);
     const res = await sendReport(report);
     if (!res.ok) {
-      console.log(`[${publisher.name}] ERROR - Error sending report ${res}`);
+      console.log(`[${publisher.name}] ERROR - Error sending report`, res);
       console.error(res);
       errors.push({
         name: publisher.name,
-        error: `Error sending report ${res}`,
+        error: `Error sending report ${JSON.stringify(res)}`,
       });
       report.status = "NOT_SENT_ERROR_SENDING";
       await report.save();
