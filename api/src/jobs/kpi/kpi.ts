@@ -4,6 +4,7 @@ import { captureException } from "../../error";
 import KpiModel from "../../models/kpi";
 import MissionModel from "../../models/mission";
 import { Kpi } from "../../types";
+import { safeDivision } from "./utils/math";
 
 // Cron that create a kpi doc every with the data available
 export const buildKpi = async (start: Date): Promise<Kpi | null> => {
@@ -72,10 +73,10 @@ export const buildKpi = async (start: Date): Promise<Kpi | null> => {
     const availableBenevolatAttributedMissionCount = aggs.length ? aggs[0].benevolat_attributed[0]?.count || 0 : 0;
     const availableVolontariatAttributedMissionCount = aggs.length ? aggs[0].volontariat_attributed[0]?.count || 0 : 0;
 
-    const percentageBenevolatGivenPlaces = availableBenevolatGivenMissionCount / availableBenevolatMissionCount;
-    const percentageVolontariatGivenPlaces = availableVolontariatGivenMissionCount / availableVolontariatMissionCount;
-    const percentageBenevolatAttributedPlaces = availableBenevolatAttributedMissionCount / availableBenevolatMissionCount;
-    const percentageVolontariatAttributedPlaces = availableVolontariatAttributedMissionCount / availableVolontariatMissionCount;
+    const percentageBenevolatGivenPlaces = safeDivision(availableBenevolatGivenMissionCount, availableBenevolatMissionCount);
+    const percentageVolontariatGivenPlaces = safeDivision(availableVolontariatGivenMissionCount, availableVolontariatMissionCount);
+    const percentageBenevolatAttributedPlaces = safeDivision(availableBenevolatAttributedMissionCount, availableBenevolatMissionCount);
+    const percentageVolontariatAttributedPlaces = safeDivision(availableVolontariatAttributedMissionCount, availableVolontariatMissionCount);
 
     const statsBenevolatAggs = await esClient.search({
       index: STATS_INDEX,
