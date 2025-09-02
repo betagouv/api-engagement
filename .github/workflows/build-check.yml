@@ -1,0 +1,84 @@
+name: Build Check (TypeScript)
+
+on:
+  pull_request:
+    branches: [main, staging]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  changes:
+    name: Detect changes
+    runs-on: ubuntu-latest
+    outputs:
+      api: ${{ steps.filter.outputs.api }}
+      app: ${{ steps.filter.outputs.app }}
+      widget: ${{ steps.filter.outputs.widget }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dorny/paths-filter@v3
+        id: filter
+        with:
+          filters: |
+            api:
+              - 'api/**'
+            app:
+              - 'app/**'
+            widget:
+              - 'widget/**'
+
+  api-build:
+    name: API build
+    needs: changes
+    if: needs.changes.outputs.api == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "18"
+          cache: "npm"
+          cache-dependency-path: "api/package-lock.json"
+      - name: Install dependencies
+        run: cd api && npm ci
+      - name: Build (tsc)
+        run: cd api && npm run build
+
+  app-build:
+    name: App build
+    needs: changes
+    if: needs.changes.outputs.app == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "18"
+          cache: "npm"
+          cache-dependency-path: "app/package-lock.json"
+      - name: Install dependencies
+        run: cd app && npm ci
+      - name: Build (vite)
+        run: cd app && npm run build
+
+  widget-build:
+    name: Widget build
+    needs: changes
+    if: needs.changes.outputs.widget == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "18"
+          cache: "npm"
+          cache-dependency-path: "widget/package-lock.json"
+      - name: Install dependencies
+        run: cd widget && npm ci
+      - name: Build (next)
+        run: cd widget && npm run build
