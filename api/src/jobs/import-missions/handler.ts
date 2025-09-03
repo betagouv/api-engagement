@@ -98,17 +98,9 @@ async function importMissionssForPublisher(publisher: Publisher, start: Date): P
   } as Import;
 
   try {
-    const headers = new Headers();
-
-    if (publisher.feedUsername && publisher.feedPassword) {
-      headers.set("Authorization", `Basic ${btoa(`${publisher.feedUsername}:${publisher.feedPassword}`)}`);
-    }
-    console.log(`[${publisher.name}] Fetching xml from ${publisher.feed}`);
-    const xml = await fetch(publisher.feed, { headers }).then((response) => response.text());
-
     // PARSE XML
-    console.log(`[${publisher.name}] Parsing xml`);
-    const missionsXML = parseXML(xml);
+    console.log(`[${publisher.name}] Fetching and parsing xml`);
+    const missionsXML = await parseXML(publisher);
 
     // Clean missions if no XML feed is sucessful for 7 days
     if (!missionsXML || !missionsXML.length) {

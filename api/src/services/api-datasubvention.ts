@@ -1,5 +1,5 @@
 import { DATA_SUBVENTION_TOKEN } from "../config";
-import { captureException } from "../error";
+import { captureException, captureMessage } from "../error";
 
 const get = async (path: string, body?: BodyInit, options?: RequestInit) => {
   try {
@@ -12,6 +12,15 @@ const get = async (path: string, body?: BodyInit, options?: RequestInit) => {
       body: JSON.stringify(body),
       ...options,
     });
+
+    if (!response.ok) {
+      const error = await response.json();
+      if (error.message?.includes("Multiple associations found")) {
+        captureMessage(`Multiple associations found`, { extra: { path, body } });
+        return null;
+      }
+      throw new Error(`Failed to fetch data from ${path}`);
+    }
 
     const data = await response.json();
     return data;
