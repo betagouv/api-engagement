@@ -20,10 +20,6 @@ RUN npm run build
 # Run
 FROM node:18-bullseye-slim
 
-# Define build argument with default value 'api'
-ARG SERVER_TYPE=api
-ENV SERVER_TYPE=${SERVER_TYPE}
-
 WORKDIR /app
 
 ENV NODE_ENV=production

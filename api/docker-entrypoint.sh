@@ -1,5 +1,4 @@
 #!/bin/sh
-set -e
 
 npm run prisma:migrate:deploy
-exec node /app/dist/index.js "$SERVER_TYPE"
+exec node /app/dist/index.js 
