@@ -4,13 +4,13 @@ import { captureException } from "../../../error";
 import { Publisher } from "../../../types";
 import { MissionXML } from "../types";
 
-const fetchXML = async (publisher: Publisher): Promise<string | null> => {
-  const headers = new Headers();
-
-  if (publisher.feedUsername && publisher.feedPassword) {
-    headers.set("Authorization", `Basic ${btoa(`${publisher.feedUsername}:${publisher.feedPassword}`)}`);
-  }
+export const fetchXML = async (publisher: Publisher): Promise<string | null> => {
   try {
+    const headers = new Headers();
+
+    if (publisher.feedUsername && publisher.feedPassword) {
+      headers.set("Authorization", `Basic ${btoa(`${publisher.feedUsername}:${publisher.feedPassword}`)}`);
+    }
     console.log(`[${publisher.name}] Fetching xml from ${publisher.feed}`);
     const response = await fetch(publisher.feed, { headers });
     if (!response.ok) {
@@ -23,14 +23,8 @@ const fetchXML = async (publisher: Publisher): Promise<string | null> => {
   }
 };
 
-export const parseXML = async (publisher: Publisher): Promise<MissionXML[] | undefined> => {
-  let xmlString: string | null = null;
+export const parseXML = (xmlString: string): MissionXML[] | undefined => {
   try {
-    xmlString = await fetchXML(publisher);
-    if (!xmlString) {
-      return;
-    }
-
     const parser = new XMLParser();
 
     const options = {

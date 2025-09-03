@@ -29,7 +29,7 @@ describe("Import missions job (integration test)", () => {
   it("Imports missions from a feed XML with correct structure and one mission", async () => {
     const xml = await readFile(path.join(__dirname, "data/correct-feed.xml"), "utf-8");
     const publisher = await createTestPublisher({ feed: "https://fixture-feed" });
-    (global.fetch as any).mockResolvedValueOnce({ text: async () => xml });
+    (global.fetch as any).mockResolvedValueOnce({ ok: true, text: async () => xml });
 
     const result = await handler.handle({ publisherId: publisher._id.toString() });
 
@@ -92,7 +92,7 @@ describe("Import missions job (integration test)", () => {
     const publisher = await createTestPublisher({ feed: "https://empty-feed" });
     await createTestMission({ publisherId: publisher._id.toString(), clientId: "client-old" });
     await createTestImport({ publisherId: publisher._id.toString(), status: "SUCCESS" });
-    (global.fetch as any).mockResolvedValueOnce({ text: async () => emptyXml });
+    (global.fetch as any).mockResolvedValueOnce({ ok: true, text: async () => emptyXml });
 
     const result = await handler.handle({ publisherId: publisher._id.toString() });
 
@@ -113,7 +113,7 @@ describe("Import missions job (integration test)", () => {
     await createTestMission({ publisherId: publisher._id.toString(), clientId: "client-old" });
     await createTestImport({ publisherId: publisher._id.toString(), status: "FAILED", endedAt: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000) });
     await createTestImport({ publisherId: publisher._id.toString(), status: "FAILED", endedAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000) });
-    (global.fetch as any).mockResolvedValueOnce({ text: async () => emptyXml });
+    (global.fetch as any).mockResolvedValueOnce({ ok: true, text: async () => emptyXml });
 
     await handler.handle({ publisherId: publisher._id.toString() });
 
@@ -135,13 +135,13 @@ describe("Import missions job (integration test)", () => {
     (global.fetch as any).mockRejectedValueOnce(new Error("Network error"));
     const result = await handler.handle({ publisherId: publisher._id.toString() });
     expect(result.imports[0].status).toBe("FAILED");
-    expect(result.imports[0].error).toMatch(/Network error/);
+    expect(result.imports[0].error).toMatch("Failed to fetch xml");
   });
 
   it("If feed XML is malformed, import should fail with explicit error", async () => {
     const malformedXml = `<missions><mission><title>Oops</title></mission>`; // missing closing tags
     const publisher = await createTestPublisher({ feed: "https://malformed-feed" });
-    (global.fetch as any).mockResolvedValueOnce({ text: async () => malformedXml });
+    (global.fetch as any).mockResolvedValueOnce({ ok: true, text: async () => malformedXml });
     const result = await handler.handle({ publisherId: publisher._id.toString() });
     expect(result.imports[0].status).toBe("FAILED");
   });
@@ -159,7 +159,7 @@ describe("Import missions job (integration test)", () => {
       expect(options.headers).toBeDefined();
       const auth = options.headers.get("Authorization");
       expect(auth).toMatch(/^Basic /);
-      return Promise.resolve({ text: async () => xml });
+      return Promise.resolve({ ok: true, text: async () => xml });
     });
     const result = await handler.handle({ publisherId: publisher._id.toString() });
     expect(result.imports[0].status).toBe("SUCCESS");
@@ -177,7 +177,7 @@ describe("Import missions job (integration test)", () => {
       organizationName: "Ancienne asso",
     });
 
-    (global.fetch as any).mockResolvedValueOnce({ text: async () => xml });
+    (global.fetch as any).mockResolvedValueOnce({ ok: true, text: async () => xml });
     const result = await handler.handle({ publisherId: publisher._id.toString() });
     expect(result.imports[0].status).toBe("SUCCESS");
 
@@ -194,14 +194,14 @@ describe("Import missions job (integration test)", () => {
     const publisher = await createTestPublisher({ feed: "https://fixture-feed" });
 
     // Import feed once to create mission
-    (global.fetch as any).mockResolvedValueOnce({ text: async () => xml });
+    (global.fetch as any).mockResolvedValueOnce({ ok: true, text: async () => xml });
     await handler.handle({ publisherId: publisher._id.toString() });
 
     // Update updatedAt to simulate older mission
     await MissionModel.updateOne({ publisherId: publisher._id.toString(), clientId: "32132143" }, { updatedAt: new Date("2025-01-01") }, { timestamps: false });
 
     // Import feed again to update mission (no change)
-    (global.fetch as any).mockResolvedValueOnce({ text: async () => xml });
+    (global.fetch as any).mockResolvedValueOnce({ ok: true, text: async () => xml });
     await handler.handle({ publisherId: publisher._id.toString() });
 
     const missions = await MissionModel.find({ publisherId: publisher._id.toString(), clientId: "32132143" });
@@ -250,7 +250,7 @@ describe("Import missions job (integration test)", () => {
 
     // First import - should use default startAt (current date)
     const importDate = new Date();
-    (global.fetch as any).mockResolvedValueOnce({ text: async () => xmlWithoutStartAt });
+    (global.fetch as any).mockResolvedValueOnce({ ok: true, text: async () => xmlWithoutStartAt });
 
     const result = await handler.handle({ publisherId: publisher._id.toString() });
     expect(result.success).toBe(true);
@@ -273,7 +273,7 @@ describe("Import missions job (integration test)", () => {
 
     // Second import with same XML (no startAt) - should preserve the existing startAt from DB
     const secondImportDate = new Date();
-    (global.fetch as any).mockResolvedValueOnce({ text: async () => xmlWithoutStartAt });
+    (global.fetch as any).mockResolvedValueOnce({ ok: true, text: async () => xmlWithoutStartAt });
 
     const result2 = await handler.handle({ publisherId: publisher._id.toString() });
     expect(result2.success).toBe(true);
