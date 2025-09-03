@@ -36,9 +36,6 @@ jobs:
       - name: Install API dependencies
         run: cd api && npm ci
 
-      - name: Install process dependencies
-        run: cd process && npm ci
-
       - name: Install widget dependencies
         run: cd widget && npm ci
 

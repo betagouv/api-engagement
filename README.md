@@ -18,7 +18,3 @@ dossier `app/`
 
 Les deux widgets sont des applications NextJS pour optimiser le SEO
 dossier `widget/
-
-### Un process
-
-Un serveur qui fait tourner plusieurs crons afin de recuperer les missions des flux XML, appliquer une moderation automatique de JVA, mettre à jour le flux vers Linkedin et recuperer les stats de ce dernier, mettre a jour la base des associations de l'API, envoyer les rapports d'impacts, dupliquer la data dans une base PostGres utiliser pour analyser la data et surveiller les bonnes stats de l'API Engagement. Les serveurs est une app ExpressJs ecrite en typescript.

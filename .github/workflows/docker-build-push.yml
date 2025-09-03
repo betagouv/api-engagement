@@ -2,7 +2,7 @@
 # - main branch: production
 # - staging branch: staging
 #
-# For each service (app, api, process, widget)
+# For each service (app, api, widget)
 # - use build args to pass environment variables
 # - build and push image to GitHub Container Registry
 #
