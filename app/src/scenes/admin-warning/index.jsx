@@ -9,6 +9,7 @@ import { DAYS, MONTHS, WARNINGS, YEARS } from "../../constants";
 import api from "../../services/api";
 import { captureError } from "../../services/error";
 import { slugify } from "../../services/utils";
+import Bots from "./components/Bots";
 
 const Index = () => {
   const [currentWarnings, setCurrentWarnings] = useState([]);
@@ -124,7 +125,12 @@ const Index = () => {
     return `${d.getDate()} ${MONTHS[d.getMonth()].toLowerCase()} ${d.getFullYear()} à ${d.getHours()}h${minutes}`;
   };
 
-  if (loading) return <Loader />;
+  if (loading)
+    return (
+      <div className="flex justify-center items-center h-96">
+        <Loader />
+      </div>
+    );
 
   return (
     <div className="space-y-12">
@@ -172,6 +178,7 @@ const Index = () => {
           </div>
         </div>
       </div>
+      <Bots />
       <div className="mb-6 space-y-6">
         <h2 className="text-2xl font-bold">Alertes en cours</h2>
         <div className="flex items-center justify-start gap-4 w-2/3">
