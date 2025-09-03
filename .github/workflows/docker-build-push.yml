@@ -52,9 +52,6 @@ jobs:
           - service: app
           - service: widget
           - service: api
-            server_type: api
-          - service: api
-            server_type: jobs
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -99,9 +96,9 @@ jobs:
           file: ./${{ matrix.service }}/Dockerfile.production
           push: true
           tags: |
-            ${{ matrix.server_type != '' && format('ghcr.io/{0}/{1}-{2}:{3}', github.repository, matrix.service, matrix.server_type, needs.set-env.outputs.environment_name) || format('ghcr.io/{0}/{1}:{2}', github.repository, matrix.service, needs.set-env.outputs.environment_name) }}
-            ${{ matrix.server_type != '' && format('ghcr.io/{0}/{1}-{2}:{3}-latest', github.repository, matrix.service, matrix.server_type, needs.set-env.outputs.environment_name) || format('ghcr.io/{0}/{1}:{2}-latest', github.repository, matrix.service, needs.set-env.outputs.environment_name) }}
-            ${{ matrix.server_type != '' && format('ghcr.io/{0}/{1}-{2}:{3}-{4}', github.repository, matrix.service, matrix.server_type, needs.set-env.outputs.environment_name, steps.vars.outputs.short_sha) || format('ghcr.io/{0}/{1}:{2}-{3}', github.repository, matrix.service, needs.set-env.outputs.environment_name, steps.vars.outputs.short_sha) }}
+            ${{ format('ghcr.io/{0}/{1}:{2}', github.repository, matrix.service, needs.set-env.outputs.environment_name) }}
+            ${{ format('ghcr.io/{0}/{1}:{2}-latest', github.repository, matrix.service, needs.set-env.outputs.environment_name) }}
+            ${{ format('ghcr.io/{0}/{1}:{2}-{3}', github.repository, matrix.service, needs.set-env.outputs.environment_name, steps.vars.outputs.short_sha) }}
           secrets: |
             "sentry_auth_token=${{ secrets.SENTRY_AUTH_TOKEN }}"
           build-args: |
@@ -111,4 +108,3 @@ jobs:
             VOLONTARIAT_URL=${{ steps.app_args.outputs.VOLONTARIAT_URL }}
             SENTRY_DNS_APP=${{ steps.app_args.outputs.SENTRY_DNS_APP }}
             SENTRY_HOST=${{ steps.app_args.outputs.SENTRY_HOST }}
-            ${{ matrix.service == 'api' && format('SERVER_TYPE={0}', matrix.server_type) || '' }}
