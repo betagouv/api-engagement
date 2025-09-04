@@ -1,13 +1,30 @@
 import { XMLParser } from "fast-xml-parser";
 
 import { captureException } from "../../../error";
+import { Publisher } from "../../../types";
 import { MissionXML } from "../types";
+
+export const fetchXML = async (publisher: Publisher): Promise<string | null> => {
+  try {
+    const headers = new Headers();
+
+    if (publisher.feedUsername && publisher.feedPassword) {
+      headers.set("Authorization", `Basic ${btoa(`${publisher.feedUsername}:${publisher.feedPassword}`)}`);
+    }
+    console.log(`[${publisher.name}] Fetching xml from ${publisher.feed}`);
+    const response = await fetch(publisher.feed, { headers });
+    if (!response.ok) {
+      return null;
+    }
+    return await response.text();
+  } catch (error) {
+    captureException(error, { extra: { publisher } });
+    return null;
+  }
+};
 
 export const parseXML = (xmlString: string): MissionXML[] | undefined => {
   try {
-    if (xmlString.includes("<!DOCTYPE html>")) {
-      return;
-    }
     const parser = new XMLParser();
 
     const options = {
@@ -60,7 +77,7 @@ export const parseXML = (xmlString: string): MissionXML[] | undefined => {
 
     return unique;
   } catch (error) {
-    captureException(error, { extra: { xml: xmlString.slice(0, 1000) } });
+    captureException(error, { extra: { xml: xmlString?.slice(0, 1000) } });
     return;
   }
 };

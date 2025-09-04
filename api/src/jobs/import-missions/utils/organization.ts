@@ -357,9 +357,11 @@ const findBySiret = async (siret: string) => {
           await existing.save();
         }
         return existing;
-      } else {
+      } else if (obj.title) {
         const newRNA = await OrganizationModel.create(obj);
         return newRNA;
+      } else {
+        return null;
       }
     }
   } catch (error: any) {

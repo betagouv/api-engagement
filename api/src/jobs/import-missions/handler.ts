@@ -11,7 +11,7 @@ import { enrichWithGeoloc } from "./utils/geoloc";
 import { buildData } from "./utils/mission";
 import { verifyOrganization } from "./utils/organization";
 import { shouldCleanMissionsForPublisher } from "./utils/publisher";
-import { parseXML } from "./utils/xml";
+import { fetchXML, parseXML } from "./utils/xml";
 
 const CHUNK_SIZE = 2000;
 
@@ -98,15 +98,16 @@ async function importMissionssForPublisher(publisher: Publisher, start: Date): P
   } as Import;
 
   try {
-    const headers = new Headers();
-
-    if (publisher.feedUsername && publisher.feedPassword) {
-      headers.set("Authorization", `Basic ${btoa(`${publisher.feedUsername}:${publisher.feedPassword}`)}`);
-    }
-    console.log(`[${publisher.name}] Fetching xml from ${publisher.feed}`);
-    const xml = await fetch(publisher.feed, { headers }).then((response) => response.text());
-
     // PARSE XML
+    const xml = await fetchXML(publisher);
+    if (!xml) {
+      console.log(`[${publisher.name}] Failed to fetch xml`);
+      obj.endedAt = new Date();
+      obj.status = "FAILED";
+      obj.error = "Failed to fetch xml";
+      return obj;
+    }
+
     console.log(`[${publisher.name}] Parsing xml`);
     const missionsXML = parseXML(xml);
 
