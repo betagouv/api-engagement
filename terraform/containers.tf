@@ -2,7 +2,7 @@ resource "scaleway_container" "api" {
   name            = "${terraform.workspace}-api"
   description     = "API ${terraform.workspace} container"
   namespace_id    = scaleway_container_namespace.main.id
-  registry_image  = "ghcr.io/${var.github_repository}/api-api:${terraform.workspace}${var.image_tag == "latest" ? "" : "-${var.image_tag}"}"
+  registry_image  = "ghcr.io/${var.github_repository}/api:${terraform.workspace}${var.image_tag == "latest" ? "" : "-${var.image_tag}"}"
   port            = 8080
   cpu_limit       = terraform.workspace == "production" ? 1500 : 250
   memory_limit    = terraform.workspace == "production" ? 2048 : 512
