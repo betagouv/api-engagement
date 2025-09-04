@@ -13,5 +13,5 @@ const schema = new Schema<RequestWidget>(
   { timestamps: true }
 );
 
-const RequestWidget = model<RequestWidget>(MODELNAME, schema);
-export default RequestWidget;
+const RequestWidgetModel = model<RequestWidget>(MODELNAME, schema);
+export default RequestWidgetModel;
