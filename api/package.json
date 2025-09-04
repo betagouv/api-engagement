@@ -5,11 +5,8 @@
     "main": "src/index.js",
     "scripts": {
       "build": "npm run prisma:generate && npx tsc --build --clean && npx tsc -p tsconfig.build.json",
-      "dev": "nodemon -- api",
-      "dev:api": "nodemon -- api",
-      "dev:jobs": "nodemon -- jobs",
-      "start:api": "npm run build && node dist/index.js api",
-      "start:jobs": "npm run build && node dist/index.js jobs",
+      "dev": "nodemon",
+      "start": "npm run build && node dist/index.js",
       "prisma:migrate:dev": "prisma migrate dev --name init",
       "prisma:migrate:deploy": "prisma migrate deploy",
       "prisma:generate": "prisma generate",

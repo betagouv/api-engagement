@@ -85,14 +85,10 @@ npm run build
 Pour démarrer le service API en mode production :
 
 ```bash
-npm run start:api
+npm run start
 ```
 
-Pour démarrer le service de tâches en mode production :
-
-```bash
-npm run start:jobs
-```
+````
 
 ## Tests
 
@@ -102,7 +98,7 @@ Pour exécuter tous les tests une fois :
 
 ```bash
 npm test
-```
+````
 
 Pour exécuter les tests en mode watch pendant le développement :
 
