@@ -44,6 +44,7 @@ import StatsMissionController from "./controllers/stats-mission";
 import PublicStatsController from "./controllers/stats-public";
 import UserController from "./controllers/user";
 import WarningController from "./controllers/warning";
+import WarningBotController from "./controllers/warning-bot";
 import WidgetController from "./controllers/widget";
 import AssociationV0Controller from "./v0/association";
 import MissionV0Controller from "./v0/mission/controller";
@@ -113,6 +114,7 @@ const main = async () => {
   app.use("/stats-mission", StatsMissionController);
   app.use("/user", UserController);
   app.use("/warning", WarningController);
+  app.use("/warning-bot", WarningBotController);
   app.use("/widget", WidgetController);
 
   app.get("/geo", async (req: Request, res: Response, next) => {
