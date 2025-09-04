@@ -12,12 +12,9 @@ const router = Router();
 
 router.post("/search", passport.authenticate("admin", { session: false }), async (req, res, next) => {
   try {
-    const where = {} as any;
+    const data = await WarningBotModel.find({}).sort({ createdAt: -1 }).lean();
 
-    const total = await WarningBotModel.countDocuments(where);
-    const data = await WarningBotModel.find(where).sort({ createdAt: -1 });
-
-    return res.status(200).send({ ok: true, data, total });
+    return res.status(200).send({ ok: true, data, total: data.length });
   } catch (error) {
     next(error);
   }
@@ -93,10 +90,13 @@ router.post("/:id/block", passport.authenticate("admin", { session: false }), as
       return res.status(404).send({ ok: false, code: NOT_FOUND });
     }
 
-    const statsBot = await StatsBotModel.create({
-      user: warningBot.hash,
-      userAgent: warningBot.userAgent,
-    });
+    let statsBot = await StatsBotModel.findOne({ user: warningBot.hash });
+    if (!statsBot) {
+      statsBot = await StatsBotModel.create({
+        user: warningBot.hash,
+        userAgent: warningBot.userAgent,
+      });
+    }
 
     await esClient.updateByQuery({
       index: STATS_INDEX,
