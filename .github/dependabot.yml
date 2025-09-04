@@ -44,6 +44,9 @@ updates:
     ignore:
       - dependency-name: "tailwindcss"
       - dependency-name: "vite"
+      - dependency-name: "react" # TODO: update to v19
+      - dependency-name: "react-dom"
+      - dependency-name: "react-date-picker"
     schedule:
       interval: "monthly"
     open-pull-requests-limit: 10
