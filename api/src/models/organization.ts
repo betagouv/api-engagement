@@ -55,10 +55,14 @@ const schema = new Schema<Organization>(
     // Letudiant
     letudiantPublicId: { type: String, description: "Letudiant public ID" },
     letudiantUpdatedAt: { type: Date, description: "Letudiant updated at" },
+
+    // Metabase
+    lastExportedToPgAt: { type: Date, default: null },
   },
   { timestamps: true }
 );
 
+schema.index({ updatedAt: 1, lastExportedToPgAt: 1 });
 schema.index({ rna: 1 });
 schema.index({ title: 1 });
 schema.index({ titleSlug: 1 });
