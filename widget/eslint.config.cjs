@@ -5,7 +5,7 @@ const reactHooksPlugin = require("eslint-plugin-react-hooks");
 const jsxA11yPlugin = require("eslint-plugin-jsx-a11y");
 const tsParser = require("@typescript-eslint/parser");
 const globals = require("globals");
-const next = require("@next/eslint-plugin-next");
+const nextPlugin = require("@next/eslint-plugin-next");
 
 module.exports = [
   {
@@ -14,6 +14,16 @@ module.exports = [
 
   // Apply @eslint/js recommended (and override rules)
   js.configs.recommended,
+
+  // Next.js config
+  {
+    plugins: {
+      "@next/next": nextPlugin,
+    },
+    rules: {
+      ...nextPlugin.configs["core-web-vitals"].rules,
+    },
+  },
 
   // Base JS/JSX config
   {
@@ -34,11 +44,8 @@ module.exports = [
       react: reactPlugin,
       "react-hooks": reactHooksPlugin,
       "jsx-a11y": jsxA11yPlugin,
-      next,
     },
     rules: {
-      // Apply Next.js core-web-vitals recommended rules first
-      ...next.configs["core-web-vitals"].rules,
       // From project base config
       "import/prefer-default-export": "off",
       "no-console": "off",
