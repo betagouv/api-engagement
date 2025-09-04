@@ -315,7 +315,6 @@ export const transformMongoMissionEventToPg = (doc: MongoMissionEvent, missionId
     });
   }
 
-  // eslint-disable-next-line no-prototype-builtins
   if (doc.changes[`moderation_${PUBLISHER_IDS.JEVEUXAIDER}_status`]) {
     events.push({
       ...baseEvent,

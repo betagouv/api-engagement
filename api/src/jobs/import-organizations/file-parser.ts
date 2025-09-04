@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/naming-convention */
 import { parse } from "csv-parse";
 import { Readable } from "stream";
 
@@ -65,7 +64,6 @@ const formatDate = (date: string) => {
   return new Date(date);
 };
 
-// ESLint naming-convention disabled for the entire file
 const processRecord = (record: string[]): DataGouvRnaRecord => {
   const [
     id,
@@ -254,7 +252,6 @@ export const parseFile = async (stream: Readable): Promise<number> => {
 
           // Process batch asynchronously
           writeBatch(currentBatch)
-            // eslint-disable-next-line @typescript-eslint/no-loop-func
             .then((count) => {
               totalCount += count;
             })

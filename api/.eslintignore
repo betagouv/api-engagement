@@ -1,8 +1,0 @@
-node_modules
-dist
-scripts
-script-data-clean
-coverage
-.github
-*.js.map
-*.d.ts
