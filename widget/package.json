@@ -18,7 +18,7 @@
   },
   "dependencies": {
     "@headlessui/react": "2.2.7",
-    "@sentry/cli": "2.52.0",
+    "@sentry/cli": "2.53.0",
     "@sentry/nextjs": "^10.8.0",
     "@tailwindcss/postcss": "^4.1.12",
     "i18n-iso-countries": "7.14.0",
