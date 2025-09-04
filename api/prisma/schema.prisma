@@ -423,7 +423,7 @@ model Organization {
   title String
   short_title String?
   title_slug String
-  short_title_slug String
+  short_title_slug String?
   names String[]
   object String?
   social_object1 String?
@@ -453,6 +453,8 @@ model Organization {
   sync_at DateTime?
   source String?
   missions Mission[]
+
+  @@index([old_id], map: "organization_old_id")
 }
 
 model Partner {
