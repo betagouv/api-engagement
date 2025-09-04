@@ -7,7 +7,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 WORKDIR /app
 
 RUN --mount=type=secret,id=sentry_auth_token,env=SENTRY_AUTH_TOKEN \
-    --mount=type=secret,id=test_secret,TEST_SECRET=/run/secrets/test_secret \
+    --mount=type=secret,id=test_secret \
+    TEST_SECRET=/run/secrets/test_secret \
 
 RUN echo "TEST_SECRET $TEST_SECRET"
 
