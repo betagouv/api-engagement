@@ -3,8 +3,9 @@ import prisma from "../../../db/postgres";
 import { captureException } from "../../../error";
 import OrganizationModel from "../../../models/organization";
 import { Organization as MongoOrganization } from "../../../types";
+import { slugify } from "../../../utils";
 
-const BULK_SIZE = 5000;
+const BULK_SIZE = 10000;
 
 const buildData = (doc: MongoOrganization) => {
   const obj = {
@@ -23,9 +24,9 @@ const buildData = (doc: MongoOrganization) => {
     nature: doc.nature,
     groupement: doc.groupement,
     title: doc.title,
-    short_title: doc.titleSlug,
-    title_slug: doc.shortTitleSlug,
-    short_title_slug: doc.shortTitleSlug,
+    short_title: doc.shortTitle,
+    title_slug: doc.titleSlug || slugify(doc.title),
+    short_title_slug: doc.shortTitleSlug || (doc.shortTitle ? slugify(doc.shortTitle) : null),
     names: doc.names,
     object: doc.object,
     social_object1: doc.socialObject1,
@@ -64,30 +65,34 @@ const handler = async () => {
   try {
     const start = new Date();
     console.log(`[Organization] Started at ${start.toISOString()}.`);
+    let processed = 0;
     let created = 0;
     let updated = 0;
-    let offset = 0;
 
     const count = await prisma.organization.count();
     console.log(`[Organization] Found ${count} docs in database.`);
 
-    const twoWeeksAgo = new Date(Date.now() - 1000 * 60 * 60 * 24 * 14);
-    const where = { $or: [{ createdAt: { $gte: twoWeeksAgo } }, { updatedAt: { $gte: twoWeeksAgo } }] };
+    const where = { $or: [{ lastExportedToPgAt: null }, { $expr: { $lt: ["$lastExportedToPgAt", "$updatedAt"] } }] };
     const countToSync = await OrganizationModel.countDocuments(where);
     console.log(`[Organization] Found ${countToSync} docs to sync.`);
 
     while (true) {
-      const data = await OrganizationModel.find(where).select("_id updatedAt").limit(BULK_SIZE).skip(offset).lean();
+      const start = new Date();
+      console.log(`[Organization] Fetching docs from ${start.toISOString()}`);
+      const data = await OrganizationModel.find(where).select("_id updatedAt").limit(BULK_SIZE).lean();
+      console.log(`[Organization] Fetched ${data.length} docs in ${(new Date().getTime() - start.getTime()) / 1000}s.`);
       if (data.length === 0) {
         break;
       }
+      processed += data.length;
 
       const dataToCreate = [] as PgOrganization[];
       const dataToUpdate = [] as PgOrganization[];
-      console.log(`[Organization] Processing ${data.length} docs.`);
+      console.log(`[Organization] Processing ${data.length} docs, ${processed} processed so far`);
 
       // Fetch all existing Orga in one go
       const stored = {} as { [key: string]: Date };
+
       await prisma.organization
         .findMany({
           where: { old_id: { in: data.map((hit) => hit._id.toString()) } },
@@ -118,8 +123,7 @@ const handler = async () => {
           dataToUpdate.push(obj);
         }
       }
-
-      console.log(`[Organization] ${dataToCreate.length} docs to create, ${dataToUpdate.length} docs to update, offset: ${offset}`);
+      console.log(`[Organization] ${dataToCreate.length} docs to create, ${dataToUpdate.length} docs to update`);
 
       // Create data
       if (dataToCreate.length) {
@@ -143,7 +147,10 @@ const handler = async () => {
         updated += dataToUpdate.length;
         console.log(`[Organization] Updated ${dataToUpdate.length} docs, ${updated} updated so far.`);
       }
-      offset += BULK_SIZE;
+
+      // Update lastExportedToPgAt
+      console.log(`[Organization] Updating lastExportedToPgAt for ${data.length} docs, processed batch in ${(new Date().getTime() - start.getTime()) / 1000}s.`);
+      await OrganizationModel.updateMany({ _id: { $in: data.map((hit) => hit._id) } }, { $set: { lastExportedToPgAt: new Date() } }, { timestamps: false });
     }
 
     console.log(`[Organization] Ended at ${new Date().toISOString()} in ${(Date.now() - start.getTime()) / 1000}s.`);

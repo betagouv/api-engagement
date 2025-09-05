@@ -53,6 +53,9 @@ export interface Organization {
   isRUP?: boolean;
   letudiantPublicId?: string;
   letudiantUpdatedAt?: Date;
+
+  // Metabase
+  lastExportedToPgAt: Date | null;
 }
 
 export type GeolocStatus = "ENRICHED_BY_PUBLISHER" | "ENRICHED_BY_API" | "NOT_FOUND" | "NO_DATA" | "SHOULD_ENRICH" | "FAILED";

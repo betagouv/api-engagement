@@ -69,12 +69,12 @@ const buildData = (doc: RequestWidget, widgets: { [key: string]: string }) => {
 };
 
 const handler = async () => {
+  let created = 0;
+  let offset = 20000;
+  let processed = 0;
   try {
     const start = new Date();
     console.log(`[Widget-Requests] Started at ${start.toISOString()}.`);
-    let created = 0;
-    let offset = 20000;
-    let processed = 0;
 
     const count = await prisma.widgetQuery.count();
     console.log(`[Widget-Requests] Found ${count} docs in database.`);
@@ -129,10 +129,7 @@ const handler = async () => {
           created += res.count;
           console.log(`[Widget-Requests] Created ${res.count} docs.`);
         } catch (error) {
-          console.log(error);
-          console.log(JSON.stringify(dataToCreate, null, 2));
-          throw error;
-          // captureException(error, "[Widget-Requests] Error while creating docs.");
+          captureException(error, { extra: { dataToCreate } });
         }
       }
 
@@ -144,7 +141,7 @@ const handler = async () => {
     console.log(`[Widget-Requests] Ended at ${new Date().toISOString()} in ${(Date.now() - start.getTime()) / 1000}s.`);
     return { created };
   } catch (error) {
-    captureException(error, "[Widget-Requests] Error while syncing docs.");
+    captureException(error, { extra: { offset, processed, created } });
   }
 };
 

@@ -40,6 +40,8 @@ const buildData = (doc: Widget, partners: { [key: string]: string }) => {
   return { widget: obj, partners: Array.from(new Set(annonceurIds.filter((a) => a !== undefined))) };
 };
 
+const isDateEqual = (a: Date, b: Date) => new Date(a).getTime() === new Date(b).getTime();
+
 const handler = async () => {
   try {
     const start = new Date();
@@ -48,8 +50,8 @@ const handler = async () => {
     const data = await WidgetModel.find().lean();
     console.log(`[Widgets] Found ${data.length} docs to sync.`);
 
-    const stored = {} as { [key: string]: { old_id: string; id: string } };
-    await prisma.widget.findMany({ select: { old_id: true, id: true } }).then((data) => data.forEach((d) => (stored[d.old_id] = d)));
+    const stored = {} as { [key: string]: { old_id: string; id: string; updated_at: Date } };
+    await prisma.widget.findMany({ select: { old_id: true, id: true, updated_at: true } }).then((data) => data.forEach((d) => (stored[d.old_id] = d)));
     console.log(`[Widgets] Found ${Object.keys(stored).length} docs in database.`);
 
     const partners = {} as { [key: string]: string };
@@ -57,6 +59,7 @@ const handler = async () => {
 
     const dataToCreate = [] as { widget: PgWidget; partners: string[] }[];
     const dataToUpdate = [] as { widget: PgWidget; partners: string[]; id: string }[];
+
     for (const doc of data) {
       const exists = stored[doc._id.toString()];
       const obj = buildData(doc as Widget, partners);
@@ -67,7 +70,9 @@ const handler = async () => {
         dataToCreate.push(obj);
         continue;
       }
-      dataToUpdate.push({ ...obj, id: exists.id });
+      if (!isDateEqual(exists.updated_at, obj.widget.updated_at)) {
+        dataToUpdate.push({ ...obj, id: exists.id });
+      }
     }
     console.log(`[Widgets] Found ${dataToCreate.length} docs to create, ${dataToUpdate.length} docs to update.`);
 
@@ -76,12 +81,16 @@ const handler = async () => {
       console.log(`[Widgets] Creating ${dataToCreate.length} docs...`);
       for (const obj of dataToCreate) {
         const { partners, widget } = obj;
-        await prisma.widget.create({
-          data: {
-            ...widget,
-            partners: { create: partners.map((p) => ({ partner_id: p })) },
-          },
-        });
+        try {
+          await prisma.widget.create({
+            data: {
+              ...widget,
+              partners: { create: partners.map((p) => ({ partner_id: p })) },
+            },
+          });
+        } catch (error) {
+          captureException(error, { extra: { widget, partners } });
+        }
       }
       console.log(`[Widgets] Created ${dataToCreate.length} docs.`);
     }
@@ -91,9 +100,13 @@ const handler = async () => {
       for (const obj of dataToUpdate) {
         const { partners, widget, id } = obj;
 
-        await prisma.widget.update({ where: { id }, data: widget });
-        await prisma.partnerToWidget.deleteMany({ where: { widget_id: id } });
-        await prisma.partnerToWidget.createMany({ data: partners.map((p) => ({ partner_id: p, widget_id: id })) });
+        try {
+          await prisma.widget.update({ where: { id }, data: widget });
+          await prisma.partnerToWidget.deleteMany({ where: { widget_id: id } });
+          await prisma.partnerToWidget.createMany({ data: partners.map((p) => ({ partner_id: p, widget_id: id })) });
+        } catch (error) {
+          captureException(error, { extra: { widget, id, partners } });
+        }
       }
       console.log(`[Widgets] Updated ${dataToUpdate.length} docs.`);
     }
