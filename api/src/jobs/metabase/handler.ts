@@ -20,7 +20,9 @@ import importRequestWidgets from "./utils/widget-query";
 import { BaseHandler } from "../base/handler";
 import { JobResult } from "../types";
 
-export interface MetabaseJobPayload {}
+export interface MetabaseJobPayload {
+  jobs?: string;
+}
 
 export interface MetabaseJobResult extends JobResult {
   stats: {
@@ -30,7 +32,6 @@ export interface MetabaseJobResult extends JobResult {
     };
   };
 }
-
 export class MetabaseHandler implements BaseHandler<MetabaseJobPayload, MetabaseJobResult> {
   name = "Sync all data to metabase (PG database)";
 
@@ -55,48 +56,86 @@ export class MetabaseHandler implements BaseHandler<MetabaseJobPayload, Metabase
       kpiBotless: { created: 0, updated: null },
     };
 
-    const partners = await importPartners();
-    stats.partners.created += partners?.created || 0;
-    stats.partners.updated += partners?.updated || 0;
+    const jobs = payload?.jobs ? payload.jobs.split(",") : null;
 
-    const organizationExclusions = await importOrganizationExclusion();
-    stats.organization_exclusion.created += organizationExclusions?.created || 0;
-    stats.organization_exclusion.updated += organizationExclusions?.updated || 0;
+    if (jobs === null || jobs.includes("partners")) {
+      const partners = await importPartners();
+      stats.partners.created += partners?.created || 0;
+      stats.partners.updated += partners?.updated || 0;
+    }
 
-    const users = await importUsers();
-    stats.users.created += users?.created || 0;
-    stats.users.updated += users?.updated || 0;
-    const campaigns = await importCampaigns();
-    stats.campaigns.created += campaigns?.created || 0;
-    stats.campaigns.updated += campaigns?.updated || 0;
-    const widgets = await importWidgets();
-    stats.widgets.created += widgets?.created || 0;
-    stats.widgets.updated += widgets?.updated || 0;
-    const organizations = await importOrganizations();
-    stats.organizations.created += organizations?.created || 0;
-    stats.organizations.updated += organizations?.updated || 0;
-    const moderationEvents = await importModerationEvents();
-    stats.moderation_events.created += moderationEvents?.created || 0;
-    stats.moderation_events.updated += moderationEvents?.updated || 0;
-    const impressions = await importImpressions();
-    stats.prints.created += impressions?.created || 0;
-    const clicks = await importClicks();
-    stats.clicks.created += clicks?.created || 0;
-    const applies = await importApplies();
-    stats.applies.created += applies?.created || 0;
-    const accounts = await importAccounts();
-    stats.accounts.created += accounts?.created || 0;
-    stats.accounts.updated += accounts?.updated || 0;
-    const imports = await importImports();
-    stats.imports.created += imports?.created || 0;
-    const requests = await importRequestWidgets();
-    stats.requests.created += requests?.created || 0;
-    const loginHistory = await importLoginHistory();
-    stats.login_history.created += loginHistory?.created || 0;
-    const kpi = await importKpi();
-    stats.kpi.created += kpi?.created || 0;
-    const kpiBotless = await importKpiBotless();
-    stats.kpiBotless.created += kpiBotless?.created || 0;
+    if (jobs === null || jobs.includes("organization_exclusion")) {
+      const organizationExclusions = await importOrganizationExclusion();
+      stats.organization_exclusion.created += organizationExclusions?.created || 0;
+      stats.organization_exclusion.updated += organizationExclusions?.updated || 0;
+    }
+
+    if (jobs === null || jobs.includes("users")) {
+      const users = await importUsers();
+      stats.users.created += users?.created || 0;
+      stats.users.updated += users?.updated || 0;
+    }
+
+    if (jobs === null || jobs.includes("campaigns")) {
+      const campaigns = await importCampaigns();
+      stats.campaigns.created += campaigns?.created || 0;
+      stats.campaigns.updated += campaigns?.updated || 0;
+    }
+
+    if (jobs === null || jobs.includes("widgets")) {
+      const widgets = await importWidgets();
+      stats.widgets.created += widgets?.created || 0;
+      stats.widgets.updated += widgets?.updated || 0;
+    }
+
+    if (jobs === null || jobs.includes("organizations")) {
+      const organizations = await importOrganizations();
+      stats.organizations.created += organizations?.created || 0;
+      stats.organizations.updated += organizations?.updated || 0;
+    }
+
+    if (jobs === null || jobs.includes("moderation_events")) {
+      const moderationEvents = await importModerationEvents();
+      stats.moderation_events.created += moderationEvents?.created || 0;
+      stats.moderation_events.updated += moderationEvents?.updated || 0;
+    }
+
+    if (jobs === null || jobs.includes("prints")) {
+      const impressions = await importImpressions();
+      stats.prints.created += impressions?.created || 0;
+      const clicks = await importClicks();
+      stats.clicks.created += clicks?.created || 0;
+    }
+
+    if (jobs === null || jobs.includes("applies")) {
+      const applies = await importApplies();
+      stats.applies.created += applies?.created || 0;
+      const accounts = await importAccounts();
+      stats.accounts.created += accounts?.created || 0;
+      stats.accounts.updated += accounts?.updated || 0;
+    }
+
+    if (jobs === null || jobs.includes("imports")) {
+      const imports = await importImports();
+      stats.imports.created += imports?.created || 0;
+    }
+
+    if (jobs === null || jobs.includes("requests")) {
+      const requests = await importRequestWidgets();
+      stats.requests.created += requests?.created || 0;
+    }
+
+    if (jobs === null || jobs.includes("login_history")) {
+      const loginHistory = await importLoginHistory();
+      stats.login_history.created += loginHistory?.created || 0;
+    }
+
+    if (jobs === null || jobs.includes("kpi")) {
+      const kpi = await importKpi();
+      stats.kpi.created += kpi?.created || 0;
+      const kpiBotless = await importKpiBotless();
+      stats.kpiBotless.created += kpiBotless?.created || 0;
+    }
 
     // Send message to slack
     const text = `${Object.entries(stats)
