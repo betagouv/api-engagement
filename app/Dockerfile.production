@@ -6,14 +6,6 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 
 WORKDIR /app
 
-RUN --mount=type=secret,id=sentry_auth_token,env=SENTRY_AUTH_TOKEN \
-    --mount=type=secret,id=test_secret \
-    export TEST_SECRET=$(cat /run/secrets/test_secret) \
-    echo "TEST_SECRET INSIDE $TEST_SECRET"
-
-RUN echo "TEST_SECRET OUTSIDE $TEST_SECRET"
-
-
 ARG ENV=development
 ARG API_URL=http://localhost:9001
 ARG BENEVOLAT_URL=http://localhost:9003
