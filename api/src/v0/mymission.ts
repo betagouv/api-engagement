@@ -54,7 +54,11 @@ router.get("/", passport.authenticate(["apikey", "api"], { session: false }), as
     const where = { deleted: false, publisherId: user._id.toString() };
 
     const total = await MissionModel.countDocuments(where);
-    const data = await MissionModel.find(where).limit(query.data.limit).skip(query.data.skip).lean();
+    const data = await MissionModel.find(where)
+      .sort({ createdAt: -1 })
+      .skip(query.data.skip)
+      .limit(query.data.limit)
+      .lean();
 
     res.locals = { total };
     return res.status(200).send({
