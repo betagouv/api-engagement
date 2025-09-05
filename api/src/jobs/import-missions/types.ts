@@ -64,7 +64,7 @@ export interface MissionXML {
 
   organizationSiren: string;
   organizationUrl: string;
-  organizationLogo: string;
+  organizationLogo?: string;
   organizationDescription: string;
   organizationClientId: string;
   organizationStatusJuridique: string;

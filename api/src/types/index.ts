@@ -405,6 +405,7 @@ export interface Publisher {
   url: string;
   email: string;
   logo: string;
+  defaultMissionLogo?: string;
   documentation: string;
   description: string;
 
