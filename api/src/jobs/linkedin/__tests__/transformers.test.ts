@@ -1,4 +1,4 @@
-import { Schema } from "mongoose";
+import { Types } from "mongoose";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { Mission } from "../../../types";
 import { missionToLinkedinJob } from "../transformers";
@@ -16,6 +16,10 @@ vi.mock("../config", async () => {
       Benevolt: "54321",
     },
     LINKEDIN_PUBLISHER_ID: "test-linkedin-id",
+    MISSIONS_PERIODIC_REMOVAL_IDS: ["000000000000000000000123"],
+    MISSIONS_PERIODIC_ONLINE_DAYS: 10,
+    MISSIONS_PERIODIC_OFFLINE_DAYS: 1,
+    MISSIONS_PERIODIC_CYCLE_START_DATE: "2025-09-08",
   };
 });
 
@@ -31,7 +35,7 @@ vi.mock("../utils", () => ({
 const defaultCompany = "benevolt";
 
 const baseMission: Partial<Mission> = {
-  _id: new Schema.Types.ObjectId("000000000000000000000123"),
+  _id: new Types.ObjectId("000000000000000000000123"),
   title: "Développeur Web",
   description: "Ceci est une description de mission de plus de 100 caractères pour passer la validation initiale. Il faut que ce soit assez long pour que le test passe.",
   organizationName: "Mon asso",
@@ -61,6 +65,7 @@ const baseMission: Partial<Mission> = {
 describe("missionToLinkedinJob", () => {
   beforeEach(() => {
     vi.useFakeTimers();
+    vi.setSystemTime(new Date("2025-09-09"));
   });
 
   afterEach(() => {
@@ -69,7 +74,6 @@ describe("missionToLinkedinJob", () => {
   });
 
   it("should return a valid LinkedInJob for a valid mission", () => {
-    vi.setSystemTime(new Date("2025-01-16")); // diffDays = 1, initialDescription = true
     const job = missionToLinkedinJob(baseMission as Mission, defaultCompany);
     expect(job).not.toBeNull();
     expect(job?.partnerJobId).toBe(String(baseMission._id));
@@ -115,14 +119,8 @@ describe("missionToLinkedinJob", () => {
 
     const job = missionToLinkedinJob(mission, defaultCompany);
 
-    const startDate = mission.startAt;
-    const currentDate = new Date();
-    const diffTime = Math.abs(currentDate.getTime() - startDate.getTime());
-    const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
-
-    // TOOD: proper mock of vi.setSystemTime to test diffDays
     const expectedDescription = `
-      <p><b>Type de mission : </b>${diffDays % 6 < 3 ? `<b>${organizationName}</b> vous propose une mission de bénévolat` : `Ceci est une mission de bénévolat pour <b>${organizationName}</b>`}</p>
+      <p><b>Type de mission : </b><b>${organizationName}</b> vous propose une mission de bénévolat</p>
       <p><b>Domaine d'activité : </b>Libellé environnement</p>
       ${descriptionHtml}
       <p><b>Pré-requis : </b></p>
@@ -167,10 +165,10 @@ describe("missionToLinkedinJob", () => {
     expect(job?.description).not.toContain("<b>Pré-requis : </b>");
   });
 
-  it("should use alternate description based on date difference", () => {
-    vi.setSystemTime(new Date("2025-01-19")); // diffDays = 4, initialDescription = false
+  it("should exclude missions on offline day", () => {
+    vi.setSystemTime(new Date("2025-09-08"));
     const job = missionToLinkedinJob(baseMission as Mission, defaultCompany);
-    expect(job?.description).toContain(`Ceci est une mission de bénévolat pour <b>${baseMission.organizationName}</b>`);
+    expect(job).toBeNull();
   });
 
   it("should use location fields when present and no address are provided", () => {
