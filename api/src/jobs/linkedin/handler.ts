@@ -7,6 +7,7 @@ import PublisherModel from "../../models/publisher";
 import { BaseHandler } from "../base/handler";
 import { JobResult } from "../types";
 import { PARTNERS_IDS } from "./config";
+import { LinkedInJob } from "./types";
 import { generateJvaJobs, generatePartnersJobs, generateXML, getMissionsCursor, storeXML } from "./utils";
 
 export interface LinkedinJobPayload {}
@@ -42,7 +43,7 @@ export class LinkedinHandler implements BaseHandler<LinkedinJobPayload, Linkedin
         },
       } as LinkedinJobResult;
 
-      const jobs = [];
+      const jobs: LinkedInJob[] = [];
 
       console.log(`[LinkedinHandler] Querying and processing missions of JeVeuxAider.gouv.fr`);
       const JvaMissionsCursor = getMissionsCursor({
