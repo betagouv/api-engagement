@@ -27,6 +27,7 @@ const schema = new Schema<Publisher>(
 
     documentation: { type: String },
     logo: { type: String },
+    defaultMissionLogo: { type: String },
     lead: { type: String },
     feed: { type: String },
     feedUsername: { type: String },

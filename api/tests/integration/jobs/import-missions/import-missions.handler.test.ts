@@ -88,6 +88,19 @@ describe("Import missions job (integration test)", () => {
     expect(mission.title).toBe("Titre de la mission");
   });
 
+  it("uses publisher defaultMissionLogo when organizationLogo is missing", async () => {
+    const xml = await readFile(path.join(__dirname, "data/missing-logo-feed.xml"), "utf-8");
+    const defaultLogo = "https://example.com/default_logo.png";
+    const publisher = await createTestPublisher({ feed: "https://fixture-missing-logo", defaultMissionLogo: defaultLogo });
+    (global.fetch as any).mockResolvedValueOnce({ ok: true, text: async () => xml });
+
+    await handler.handle({ publisherId: publisher._id.toString() });
+
+    const missions = await MissionModel.find({ publisherId: publisher._id.toString() });
+    expect(missions.length).toBeGreaterThan(0);
+    expect(missions[0].organizationLogo).toBe(defaultLogo);
+  });
+
   it("If feed is empty for the first time, missions related to publisher should not be deleted", async () => {
     const publisher = await createTestPublisher({ feed: "https://empty-feed" });
     await createTestMission({ publisherId: publisher._id.toString(), clientId: "client-old" });

@@ -115,6 +115,8 @@ const parseArray = (value: string | { value: string[] | string } | undefined, in
 };
 
 const parseMission = (publisher: Publisher, missionXML: MissionXML, missionDB: Mission | null) => {
+  const organizationLogo = parseString(missionXML.organizationLogo);
+
   const mission = {
     title: he.decode(missionXML.title),
     type: publisher.missionType,
@@ -151,7 +153,7 @@ const parseMission = (publisher: Publisher, missionXML: MissionXML, missionDB: M
     organizationRNA: parseString(missionXML.organizationRNA) || parseString(missionXML.organizationRna) || "",
     organizationSiren: parseString(missionXML.organizationSiren) || missionXML.organizationSiren || "",
     organizationUrl: parseString(missionXML.organizationUrl),
-    organizationLogo: parseString(missionXML.organizationLogo || ""),
+    organizationLogo: organizationLogo || publisher.defaultMissionLogo || "",
     organizationDescription: parseString(missionXML.organizationDescription),
     organizationClientId: parseString(missionXML.organizationId),
     organizationStatusJuridique: parseString(missionXML.organizationStatusJuridique) || "",
