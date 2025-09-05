@@ -14,7 +14,7 @@ locals {
     tomap(local.secrets)
   )
 
-  image_uri = "ghcr.io/${var.github_repository}/api-jobs:${terraform.workspace == "production" ? "production" : "staging"}${var.image_tag == "latest" ? "" : "-${var.image_tag}"}"
+  image_uri = "ghcr.io/${var.github_repository}/api:${terraform.workspace == "production" ? "production" : "staging"}${var.image_tag == "latest" ? "" : "-${var.image_tag}"}"
 }
 
 # Job Definition for the 'letudiant' task
