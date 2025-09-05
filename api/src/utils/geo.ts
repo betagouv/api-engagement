@@ -32,7 +32,12 @@ export const getDistanceKm = (value: string): number => {
 export const getDistanceFromLatLonInKm = (lat1?: number, lon1?: number, lat2?: number, lon2?: number): number | undefined => {
   const degreesToRadians = (degrees: number) => degrees * (Math.PI / 180);
 
-  if (!lat1 || !lon1 || !lat2 || !lon2) {
+  if (
+    lat1 === undefined ||
+    lon1 === undefined ||
+    lat2 === undefined ||
+    lon2 === undefined
+  ) {
     return undefined;
   }
   const r = EARTH_RADIUS; // Radius of the Earth in kilometers

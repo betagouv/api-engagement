@@ -53,5 +53,10 @@ describe("Geo Utils", () => {
       const distance = getDistanceFromLatLonInKm(lat, lon, lat, lon);
       expect(distance).toBe(0);
     });
+
+    it("should handle zero values for coordinates", () => {
+      const distance = getDistanceFromLatLonInKm(0, 0, 0, 0);
+      expect(distance).toBe(0);
+    });
   });
 });
