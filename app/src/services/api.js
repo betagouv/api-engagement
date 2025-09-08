@@ -38,6 +38,9 @@ class APIHandler {
         window.location = "/login?loggedout=true";
         return { ok: false, status: 401, error: "Unauthorized" };
       }
+      if (!response.ok) {
+        return { status: response.status, ok: false, error: response.statusText };
+      }
       const res = await response.json();
       return { ...res, status: response.status };
     } catch (error) {

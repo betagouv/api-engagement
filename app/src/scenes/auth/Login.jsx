@@ -2,12 +2,12 @@ import { useEffect, useState } from "react";
 import { Helmet } from "react-helmet-async";
 import { RiErrorWarningFill } from "react-icons/ri";
 import { Link, useNavigate } from "react-router-dom";
-import validator from "validator";
 
 import { toast } from "react-toastify";
 import api from "../../services/api";
 import { captureError } from "../../services/error";
 import useStore from "../../services/store";
+import { isValidEmail } from "../../services/utils";
 
 const Login = () => {
   const [loading, setLoading] = useState(false);
@@ -28,8 +28,8 @@ const Login = () => {
     };
 
     const errors = {};
-    if (!validator.isEmail(values.email)) errors.email = "Adresse email invalide";
-    if (validator.isEmpty(values.password)) errors.password = "Ce champ est requis";
+    if (!isValidEmail(values.email)) errors.email = "Adresse email invalide";
+    if (values.password.trim() === "") errors.password = "Ce champ est requis";
 
     if (Object.keys(errors).length) {
       setErrors(errors);

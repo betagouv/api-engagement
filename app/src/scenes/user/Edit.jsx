@@ -4,12 +4,12 @@ import { RiCloseFill, RiErrorWarningFill, RiFileCopyFill } from "react-icons/ri"
 import { TiDeleteOutline } from "react-icons/ti";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { toast } from "react-toastify";
-import validator from "validator";
 
 import Modal from "../../components/Modal";
 import { Table } from "../../components/Table";
 import api from "../../services/api";
 import { captureError } from "../../services/error";
+import { isValidEmail } from "../../services/utils";
 
 const Edit = () => {
   const { id } = useParams();
@@ -48,8 +48,8 @@ const Edit = () => {
     e.preventDefault();
 
     const errors = {};
-    if (validator.isEmpty(values.firstname)) errors.firstname = "Le prénom est requis";
-    if (!validator.isEmail(values.email)) errors.email = "Adresse email invalide";
+    if (!values.firstname) errors.firstname = "Le prénom est requis";
+    if (!isValidEmail(values.email)) errors.email = "Adresse email invalide";
     if (values.role !== "admin" && values.role !== "user") errors.role = "Le rôle renseigné est invalide";
     if (values.publishers.length === 0) errors.publishers = "Veuillez sélectionner au moins un partenaire";
 

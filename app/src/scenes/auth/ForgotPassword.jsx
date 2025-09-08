@@ -1,10 +1,10 @@
 import { useState } from "react";
 import { Helmet } from "react-helmet-async";
 import { RiCheckboxCircleFill, RiErrorWarningFill } from "react-icons/ri";
-import validator from "validator";
 
 import api from "../../services/api";
 import { captureError } from "../../services/error";
+import { isValidEmail } from "../../services/utils";
 
 const Forgot = () => {
   const [values, setValues] = useState({ email: "" });
@@ -15,7 +15,7 @@ const Forgot = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     const errors = {};
-    if (!validator.isEmail(values.email)) {
+    if (!isValidEmail(values.email)) {
       errors.email = true;
     }
     setErrors(errors);

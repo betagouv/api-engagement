@@ -8,22 +8,17 @@ import svgr from "vite-plugin-svgr";
 export default defineConfig((env) => {
   const plugins = [react(), svgr()];
 
-  if (env.mode === "production") {
+  if (process.env.SENTRY_AUTH_TOKEN) {
     plugins.push(
       sentryVitePlugin({
         org: "sentry",
-        project: "api-engagement-production",
-        url: "https://sentry.selego.co/",
-        environment: "app",
-      }),
-    );
-  } else if (env.mode === "staging") {
-    plugins.push(
-      sentryVitePlugin({
-        org: "sentry",
-        project: "api-engagement-staging",
-        url: "https://sentry.selego.co/",
-        environment: "app",
+        project: "app",
+        url: "https://sentry.api-engagement.beta.gouv.fr/",
+        environment: env.mode,
+        release: {
+          name: "app",
+        },
+        authToken: process.env.SENTRY_AUTH_TOKEN,
       }),
     );
   }

@@ -60,7 +60,6 @@ const BotRow = ({ bot }) => {
       try {
         const res = await api.get(`/warning-bot/${bot._id}/stat`);
         if (!res.ok) {
-          console.log(res);
           if (res.code === "NOT_FOUND") {
             setStatBot(null);
           } else {
@@ -116,16 +115,16 @@ const BotRow = ({ bot }) => {
 
       <div className="mt-6 flex items-center justify-end gap-2">
         {statBot ? (
-          <div className="flex flex-col justify-end gap-2">
+          <div className="flex flex-col items-end justify-end gap-2">
             <div className="flex items-center gap-2">
               <RiCheckboxCircleFill className="text-green-main" /> <p className="text-green-main">Marqué comme bots (les stats n'apparaîtront pas dans le dashboard)</p>
             </div>
-            <button className="red-button w-32" onClick={handleUnblock} disabled={loading}>
+            <button className="red-button w-56" onClick={handleUnblock} disabled={loading}>
               {loading ? <Loader className="w-4 h-4 text-white" /> : "Démarquer comme bots"}
             </button>
           </div>
         ) : (
-          <button className="filled-button w-32" onClick={handleBlock} disabled={loading}>
+          <button className="filled-button w-56" onClick={handleBlock} disabled={loading}>
             {loading ? <Loader className="w-4 h-4 text-white" /> : "Marquer comme bots"}
           </button>
         )}

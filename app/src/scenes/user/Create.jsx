@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { RiCloseFill, RiErrorWarningFill } from "react-icons/ri";
 import { Link, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
-import validator from "validator";
+import { isValidEmail } from "../../services/utils";
 
 import { Table } from "../../components/Table";
 import api from "../../services/api";
@@ -39,8 +39,8 @@ const Create = () => {
     e.preventDefault();
 
     const errors = {};
-    if (validator.isEmpty(values.firstname)) errors.firstname = "Le prénom est requis";
-    if (!validator.isEmail(values.email)) errors.email = "Adresse email invalide";
+    if (!values.firstname) errors.firstname = "Le prénom est requis";
+    if (!isValidEmail(values.email)) errors.email = "Adresse email invalide";
     if (values.role !== "admin" && values.role !== "user") errors.role = "Le rôle renseigné est invalide";
     if (values.publishers.length === 0) errors.publishers = "Veuillez sélectionner au moins un partenaire";
 

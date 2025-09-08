@@ -51,8 +51,6 @@ const Diffuseur = ({ values, onChange, onSave, errors, setErrors }) => {
         throw res;
       }
 
-      console.log(res.data);
-
       toast.success("Diffuseurs mis à jour avec succès");
       setEditing(false);
       onSave(res.data);

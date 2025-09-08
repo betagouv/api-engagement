@@ -76,6 +76,10 @@ export const isValidUrl = (url) => {
   }
 };
 
+export const isValidEmail = (email) => {
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+};
+
 export const hasSpecialChar = (string) => {
   return /[$&+,:;=?@#|'<>.^*()%!-]/.test(string);
 };

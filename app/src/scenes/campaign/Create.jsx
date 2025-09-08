@@ -62,7 +62,6 @@ const Create = () => {
       values.trackers = values.trackers.filter((t) => t.key && t.value);
 
       const res = await api.post("/campaign", values);
-      console.log(res);
       if (!res.ok) {
         if (res.status === 409) return toast.error("Une campagne avec ce nom existe déjà");
         else throw res;

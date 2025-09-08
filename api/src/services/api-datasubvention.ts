@@ -14,6 +14,9 @@ const get = async (path: string, body?: BodyInit, options?: RequestInit) => {
     });
 
     if (!response.ok) {
+      if (response.status === 404) {
+        return null;
+      }
       const error = await response.json();
       if (error.message?.includes("Multiple associations found")) {
         captureMessage(`Multiple associations found`, { extra: { path, body } });
