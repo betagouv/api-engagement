@@ -2,6 +2,31 @@
 Vous retrouverez ici l'historique des différents déploiements effectués sur l'API Engagement.
 
 
+## 01/09/2025
+
+
+### Bug Fixes
+
+-  Fix export event ([`52850d1`](https://github.com/betagouv/api-engagement/commit/52850d10d6964f216615a0aff5f41eb15b04aaf6))
+
+-  Fix deploy ([`0a16340`](https://github.com/betagouv/api-engagement/commit/0a16340d822dd39144b6d1cf2a0d15faa73a1fc3))
+
+
+### Miscellaneous Tasks
+
+- (**changelog**) Update CHANGELOG.md ([`4fd0505`](https://github.com/betagouv/api-engagement/commit/4fd05052a861cf6c43a6b010c81eb9ed35bb4c6d))
+
+
+### Testing
+
+-  Test widget ([`13d5879`](https://github.com/betagouv/api-engagement/commit/13d5879451c714c893875f35db64cb2d40db87ed))
+
+-  Test import rna job ([`e86f242`](https://github.com/betagouv/api-engagement/commit/e86f2424ef6618ae93900372b099dbf717749283))
+
+# API Engagement - Changelog
+Vous retrouverez ici l'historique des différents déploiements effectués sur l'API Engagement.
+
+
 ## 25/08/2025
 
 
