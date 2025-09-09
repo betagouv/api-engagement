@@ -26,6 +26,8 @@ export default defineConfig((env) => {
   return {
     server: {
       port: 3000,
+      host: true,
+      strictPort: true,
     },
     resolve: {
       alias: {

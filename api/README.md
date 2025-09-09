@@ -7,8 +7,8 @@ Ce répertoire contient le service API pour la plateforme API Engagement.
 ### Prérequis
 
 - Node.js 18.x ou supérieur
-- MongoDB (instance locale ou distante)
-- Postgres (instance locale ou distante)
+- MongoDB (instance locale via docker-compose ou distante)
+- Postgres (instance locale via docker-compose ou distante)
 - npm
 
 ### Étapes d'installation
@@ -32,16 +32,33 @@ NB : un fichier `.env` peut être créé pour chaque environnement (staging, pro
 
 4. Initialiser la base de données
 
-Lancer la base de données via Docker :
-
-```bash
-docker run --name api-engagement-postgres -e POSTGRES_USER=user -e POSTGRES_PASSWORD=password -e POSTGRES_DB=api-engagement -p 5432:5432 -v postgres_data:/var/lib/postgresql/data -d postgres:13
-```
-
-Puis lancer les migrations :
+Lancer les migrations :
 
 ```bash
 npx prisma migrate dev --name init
+```
+
+### Jeux de données
+
+On peut remplir les bases de données avec des jeux de données en provenance de staging.
+
+#### MongoDB
+
+```bash
+MONGO_STAGING_URI="mongodb+srv://..."
+MONGO_LOCAL_URI="mongodb://localhost:27017/api-engagement"
+
+mongodump --uri="$MONGO_STAGING_URI" --archive=dump.archive
+mongorestore --uri="$MONGO_LOCAL_URI" --archive=dump.archive --drop
+```
+
+#### PostgreSQL
+
+```bash
+PG_STAGING_URI="postgres://user:pass@host/db"
+PG_LOCAL_URI="postgres://user:password@localhost:5432/api-engagement"
+
+pg_dump "$PG_STAGING_URI" | psql "$PG_LOCAL_URI"
 ```
 
 ## Mode développement
@@ -51,7 +68,7 @@ npx prisma migrate dev --name init
 Pour démarrer le service API en mode développement avec rechargement à chaud :
 
 ```bash
-npm run dev:api
+npm run dev
 ```
 
 Cela démarrera le serveur API en utilisant nodemon, qui redémarrera automatiquement lorsque des modifications de fichiers seront détectées.
