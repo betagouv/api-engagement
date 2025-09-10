@@ -18,7 +18,7 @@ router.use(async (req: PublisherRequest, res: Response, next: NextFunction) => {
       method: req.method,
       key: req.headers["x-api-key"] || req.headers["apikey"],
       header: req.headers,
-      route: `/v0/association${req.route.path}`,
+      route: `/v0/organization${req.route.path}`,
       query: req.query,
       params: req.params,
       body: req.body,
