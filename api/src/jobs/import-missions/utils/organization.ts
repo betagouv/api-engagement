@@ -309,7 +309,7 @@ const findBySiret = async (siret: string) => {
       } as Organization;
 
       const asso = await apiDatasubvention.get(`/association/${siret}`);
-      if (asso.association) {
+      if (asso && asso.association) {
         obj.rna = asso.association.rna?.[0]?.value;
         obj.title = asso.association.denomination_rna?.[0]?.value || asso.association.denomination_siren?.[0]?.value;
       }

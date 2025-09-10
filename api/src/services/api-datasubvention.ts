@@ -22,6 +22,10 @@ const get = async (path: string, body?: BodyInit, options?: RequestInit) => {
         captureMessage(`Multiple associations found`, { extra: { path, body } });
         return null;
       }
+      if (error.message?.includes("Votre recherche pointe vers une entité qui n'est pas une association")) {
+        captureMessage(`Entity not an association`, { extra: { path, body } });
+        return null;
+      }
       throw new Error(`Failed to fetch data from ${path}`);
     }
 

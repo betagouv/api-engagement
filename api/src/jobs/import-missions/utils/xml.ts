@@ -6,13 +6,16 @@ import { MissionXML } from "../types";
 
 export const fetchXML = async (publisher: Publisher): Promise<string | null> => {
   try {
+    if (!publisher.feed) {
+      return null;
+    }
     const headers = new Headers();
 
     if (publisher.feedUsername && publisher.feedPassword) {
       headers.set("Authorization", `Basic ${btoa(`${publisher.feedUsername}:${publisher.feedPassword}`)}`);
     }
     console.log(`[${publisher.name}] Fetching xml from ${publisher.feed}`);
-    const response = await fetch(publisher.feed, { headers });
+    const response = await fetch(publisher.feed.trim(), { headers });
 
     if (!response.ok) {
       return null;
