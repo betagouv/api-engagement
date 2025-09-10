@@ -76,7 +76,7 @@ const Tab = ({ title, route = "" }) => {
   }, [location]);
 
   return (
-    <Link to={route}>
+    <Link to={`/performance/${route}`}>
       <div
         className={`${
           active ? "border-t-2 border-blue-dark bg-white text-blue-dark hover:bg-gray-hover" : "border-0 bg-tab-main hover:bg-tab-hover"
