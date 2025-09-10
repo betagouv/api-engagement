@@ -1,5 +1,5 @@
 import { Kpi as PgKpi } from "@prisma/client";
-import prisma from "../../../db/postgres";
+import { prismaAnalytics as prisma } from "../../../db/postgres";
 
 import { captureException } from "../../../error";
 import KpiModel from "../../../models/kpi";

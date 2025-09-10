@@ -1,5 +1,5 @@
 import { Campaign as PrismaCampaign } from "@prisma/client";
-import prisma from "../../../db/postgres";
+import { prismaAnalytics as prisma } from "../../../db/postgres";
 import { captureException, captureMessage } from "../../../error";
 import CampaignModel from "../../../models/campaign";
 import { Campaign } from "../../../types";

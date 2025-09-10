@@ -1,6 +1,6 @@
 import { Address, MissionHistoryEvent, Prisma } from "@prisma/client";
 import { Schema } from "mongoose";
-import prisma from "../../db/postgres";
+import { prismaAnalytics as prisma } from "../../db/postgres";
 import { captureException } from "../../error";
 import MissionModel from "../../models/mission";
 import MissionEventModel from "../../models/mission-event";
@@ -186,8 +186,11 @@ const exportMissionEvent = async () => {
       }
       try {
         if (eventsToCreate.length > 0) {
-          // Prisma issue: https://github.com/prisma/prisma/issues/12131
-          const res = await prisma.missionHistoryEvent.createMany({ data: eventsToCreate.map((e) => ({ ...e, changes: e.changes === null ? Prisma.JsonNull : e.changes })) });
+          const data = eventsToCreate.map((e) => ({
+            ...e,
+            changes: e.changes === null ? undefined : (e.changes as Prisma.InputJsonValue),
+          }));
+          const res = await prisma.missionHistoryEvent.createMany({ data });
           counter.created += res.count;
         }
       } catch (error) {

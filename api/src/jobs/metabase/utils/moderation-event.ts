@@ -1,5 +1,5 @@
 import { ModerationEvent as PgModerationEvent } from "@prisma/client";
-import prisma from "../../../db/postgres";
+import { prismaAnalytics as prisma } from "../../../db/postgres";
 import { captureException, captureMessage } from "../../../error";
 import ModerationEventModel from "../../../models/moderation-event";
 import { ModerationEvent } from "../../../types";

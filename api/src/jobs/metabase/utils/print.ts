@@ -1,7 +1,7 @@
 import { Impression } from "@prisma/client";
 import { STATS_INDEX } from "../../../config";
 import esClient from "../../../db/elastic";
-import prisma from "../../../db/postgres";
+import { prismaAnalytics as prisma } from "../../../db/postgres";
 import { captureException } from "../../../error";
 import { Stats } from "../../../types";
 

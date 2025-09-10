@@ -1,5 +1,5 @@
 import esClient from "../../../db/elastic";
-import prisma from "../../../db/postgres";
+import { prismaAnalytics as prisma } from "../../../db/postgres";
 
 import { Click } from "@prisma/client";
 import { STATS_INDEX } from "../../../config";

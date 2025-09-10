@@ -1,5 +1,5 @@
 import { User as PgUser } from "@prisma/client";
-import prisma from "../../../db/postgres";
+import { prismaAnalytics as prisma } from "../../../db/postgres";
 import { captureException, captureMessage } from "../../../error";
 import UserModel from "../../../models/user";
 import { User } from "../../../types";

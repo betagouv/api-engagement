@@ -1,5 +1,5 @@
 import { LoginHistory } from "@prisma/client";
-import prisma from "../../../db/postgres";
+import { prismaAnalytics as prisma } from "../../../db/postgres";
 import { captureException } from "../../../error";
 import UserModel from "../../../models/user";
 

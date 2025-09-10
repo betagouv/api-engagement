@@ -1,5 +1,5 @@
 import { OrganizationExclusion as PgOrganizationExclusion } from "@prisma/client";
-import prisma from "../../../db/postgres";
+import { prismaAnalytics as prisma } from "../../../db/postgres";
 import { captureException } from "../../../error";
 import OrganizationExclusionModel from "../../../models/organization-exclusion";
 import { OrganizationExclusion } from "../../../types";

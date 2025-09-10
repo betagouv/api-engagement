@@ -1,5 +1,5 @@
 import { WidgetQuery as PgWidgetQuery } from "@prisma/client";
-import prisma from "../../../db/postgres";
+import { prismaAnalytics as prisma } from "../../../db/postgres";
 import { captureException } from "../../../error";
 import RequestWidgetModel from "../../../models/request-widget";
 import { RequestWidget } from "../../../types";
