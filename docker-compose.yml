@@ -1,0 +1,70 @@
+version: "3.9"
+
+services:
+  mongo:
+    image: mongo:4.4 # NB: Clevercloud is 4.3 but no 4.3 image is available. Nevermind, should upgrade.
+    restart: always
+    command:
+      - mongod
+      - --quiet
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo-data:/data/db
+
+  postgres:
+    image: postgres:13
+    restart: always
+    environment:
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: api-engagement
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+
+  api:
+    build: ./api
+    depends_on:
+      - mongo
+      - postgres
+    environment:
+      PORT: 3002
+      DB_ENDPOINT: mongodb://mongo:27017/api-engagement
+      PG_ENDPOINT: postgres://user:password@postgres:5432/api-engagement
+    volumes:
+      - ./api:/app
+      - /app/node_modules
+    ports:
+      - "3002:3002"
+
+  app:
+    build: ./app
+    depends_on:
+      - api
+    environment:
+      PORT: 3000
+      VITE_API_URL: http://localhost:3002
+    volumes:
+      - ./app:/app
+      - /app/node_modules
+    ports:
+      - "3000:3000"
+
+  widget:
+    build: ./widget
+    depends_on:
+      - api
+    environment:
+      API_URL: http://localhost:3002
+      ENV: development
+    volumes:
+      - ./widget:/app
+      - /app/node_modules
+    ports:
+      - "3003:3003"
+
+volumes:
+  mongo-data:
+  postgres-data:
