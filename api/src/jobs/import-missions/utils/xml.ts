@@ -62,7 +62,7 @@ export const parseXML = (xmlString: string): MissionXML[] | string => {
     const res = parser.parse(xmlString, options);
 
     if (!res.source || !res.source.mission) {
-      return "No mission found";
+      return "Empty xml";
     }
     if (res.source.mission && !Array.isArray(res.source.mission)) {
       res.source.mission = [res.source.mission];
