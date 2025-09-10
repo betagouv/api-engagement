@@ -13,6 +13,7 @@ export const fetchXML = async (publisher: Publisher): Promise<string | null> => 
     }
     console.log(`[${publisher.name}] Fetching xml from ${publisher.feed}`);
     const response = await fetch(publisher.feed, { headers });
+
     if (!response.ok) {
       return null;
     }
@@ -23,8 +24,15 @@ export const fetchXML = async (publisher: Publisher): Promise<string | null> => 
   }
 };
 
-export const parseXML = (xmlString: string): MissionXML[] | undefined => {
+const isXml = (xmlString: string): boolean => {
+  return xmlString.includes("<?xml");
+};
+
+export const parseXML = (xmlString: string): MissionXML[] | string => {
   try {
+    if (!isXml(xmlString)) {
+      return "Not an XML";
+    }
     const parser = new XMLParser();
 
     const options = {
@@ -48,10 +56,12 @@ export const parseXML = (xmlString: string): MissionXML[] | undefined => {
       },
     };
 
+    console.log("[XML] Parsing xml", xmlString);
+
     const res = parser.parse(xmlString, options);
 
     if (!res.source || !res.source.mission) {
-      return;
+      return "No mission found";
     }
     if (res.source.mission && !Array.isArray(res.source.mission)) {
       res.source.mission = [res.source.mission];
@@ -78,6 +88,6 @@ export const parseXML = (xmlString: string): MissionXML[] | undefined => {
     return unique;
   } catch (error) {
     captureException(error, { extra: { xml: xmlString?.slice(0, 1000) } });
-    return;
+    return "Error parsing xml";
   }
 };

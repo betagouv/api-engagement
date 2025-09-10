@@ -299,7 +299,7 @@ export const getServerSideProps = async (context) => {
     widget = res.data;
   } catch (error) {
     console.error("error", error);
-    Sentry.captureException(error);
+    Sentry.captureException(error, { extra: { context } });
     return { props: { widget: null } };
   }
 
@@ -402,7 +402,7 @@ export const getServerSideProps = async (context) => {
     return { props: { widget, missions, total: response.total, apiUrl: API_URL, request: response.request || null, environment: ENV } };
   } catch (error) {
     console.error(error);
-    Sentry.captureException(error);
+    Sentry.captureException(error, { extra: { context } });
   }
   return { props: { widget, missions: [], total: 0, options: {} } };
 };

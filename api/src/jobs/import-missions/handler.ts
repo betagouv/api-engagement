@@ -112,7 +112,7 @@ async function importMissionssForPublisher(publisher: Publisher, start: Date): P
     const missionsXML = parseXML(xml);
 
     // Clean missions if no XML feed is sucessful for 7 days
-    if (!missionsXML || !missionsXML.length) {
+    if (typeof missionsXML === "string" || !missionsXML.length) {
       if (await shouldCleanMissionsForPublisher(publisher._id.toString())) {
         console.log(`[${publisher.name}] Empty xml, cleaning missions...`);
         const mongoRes = await MissionModel.updateMany({ publisherId: publisher._id, deletedAt: null, updatedAt: { $lt: start } }, { deleted: true, deletedAt: new Date() });
@@ -124,7 +124,7 @@ async function importMissionssForPublisher(publisher: Publisher, start: Date): P
 
       obj.endedAt = new Date();
       obj.status = "FAILED";
-      obj.error = "Empty xml";
+      obj.error = typeof missionsXML === "string" ? missionsXML : "Empty xml";
       return obj;
     }
     console.log(`[${publisher.name}] Found ${missionsXML.length} missions in XML`);

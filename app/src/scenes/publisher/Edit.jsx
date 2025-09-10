@@ -170,7 +170,7 @@ const Edit = () => {
               <Annonceur values={values} onChange={setValues} errors={errors} setErrors={setErrors} />
             </div>
             <div className="flex-1">
-              <Diffuseur values={values} onChange={setValues} onSave={setPublisher} errors={errors} setErrors={setErrors} />
+              <Diffuseur values={values} onChange={setValues} errors={errors} setErrors={setErrors} />
             </div>
           </div>
         </div>

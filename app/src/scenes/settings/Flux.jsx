@@ -3,6 +3,7 @@ import { Helmet } from "react-helmet-async";
 import { RiCheckboxCircleFill, RiCloseCircleFill } from "react-icons/ri";
 import { toast } from "react-toastify";
 
+import Loader from "../../components/Loader";
 import Modal from "../../components/New-Modal";
 import { TablePaginator } from "../../components/Table";
 import api from "../../services/api";
@@ -124,12 +125,19 @@ const Flux = () => {
 };
 
 const ModifyModal = () => {
-  const [isOpen, setIsOpen] = useState(false);
   const { publisher, setPublisher } = useStore();
+  const [isOpen, setIsOpen] = useState(false);
+  const [feed, setFeed] = useState(publisher.feed);
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    setFeed(publisher.feed);
+  }, [publisher.feed]);
 
   const handleFeedSubmit = async () => {
     try {
-      const res = await api.put(`/publisher/${publisher._id}`, { feed: publisher.feed });
+      setLoading(true);
+      const res = await api.put(`/publisher/${publisher._id}`, { feed });
 
       if (!res.ok) throw res;
 
@@ -138,6 +146,8 @@ const ModifyModal = () => {
       setIsOpen(false);
     } catch (error) {
       captureError(error, "Erreur lors de la mise à jour du flux");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -151,19 +161,14 @@ const ModifyModal = () => {
           <h2 className="text-lg font-bold mb-8">⚙️ Modifier votre flux de missions</h2>
           <div className="flex flex-col items-start gap-4 justify-between">
             <div>Lien du fichier XML à synchroniser</div>
-            <input
-              className="input w-full border-b-0 bg-gray-100 focus:ring-2 p-4"
-              value={publisher.feed}
-              disabled={false}
-              onChange={(e) => setPublisher({ ...publisher, feed: e.target.value })}
-            />
+            <input className="input w-full border-b-0 bg-gray-100 focus:ring-2 p-4" value={feed} disabled={false} onChange={(e) => setFeed(e.target.value)} />
           </div>
           <div className="col-span-2 mt-8 flex justify-end gap-6">
             <button type="button" className="button border border-blue-dark text-blue-dark hover:bg-gray-hover" onClick={() => setIsOpen(false)}>
               Annuler
             </button>
-            <button type="button" className="button bg-blue-dark text-white hover:bg-blue-main" onClick={handleFeedSubmit}>
-              Enregister
+            <button type="button" className="button bg-blue-dark text-white hover:bg-blue-main" onClick={handleFeedSubmit} disabled={loading}>
+              {loading ? <Loader className="mr-2" /> : "Enregister"}
             </button>
           </div>
         </div>

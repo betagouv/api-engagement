@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import { toast } from "react-toastify";
 
 import Table from "../../../components/NewTable";
 import SearchInput from "../../../components/SearchInput";
@@ -8,10 +7,15 @@ import { PUBLISHER_CATEGORIES } from "../../../constants";
 import api from "../../../services/api";
 import { captureError } from "../../../services/error";
 
-const Diffuseur = ({ values, onChange, onSave, errors, setErrors }) => {
+const Diffuseur = ({ values, onChange, errors, setErrors }) => {
   const [editing, setEditing] = useState(false);
-  const [data, setData] = useState([]);
+  const [publishers, setPublishers] = useState([]);
+  const [selectedPublishers, setSelectedPublishers] = useState([]);
   const [search, setSearch] = useState("");
+
+  useEffect(() => {
+    setSelectedPublishers(values.publishers);
+  }, [values.publishers]);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -21,7 +25,7 @@ const Diffuseur = ({ values, onChange, onSave, errors, setErrors }) => {
         });
         if (!res.ok) throw res;
 
-        setData(res.data);
+        setPublishers(res.data);
         setErrors({});
       } catch (error) {
         captureError(error, "Erreur lors de la récupération des diffuseurs");
@@ -29,35 +33,6 @@ const Diffuseur = ({ values, onChange, onSave, errors, setErrors }) => {
     };
     fetchData();
   }, []);
-
-  const handleSave = async () => {
-    try {
-      const errors = {};
-      if (values.isDiffuseur && !values.category) {
-        errors.category = "Le partenaire est “Diffuseur”. Veuillez sélectionner la catégorie dans le formulaire.";
-      }
-      if (values.isDiffuseur && !values.hasApiRights && !values.hasWidgetRights && !values.hasCampaignRights) {
-        errors.mode = "Le partenaire est “Diffuseur”. Veuillez sélectionner au moins un “moyen de diffusion” dans le formulaire.";
-      }
-      if (Object.keys(errors).length > 0) {
-        toast.error(errors.category || errors.mode);
-        setErrors(errors);
-        return;
-      }
-
-      const res = await api.put(`/publisher/${values._id}`, values);
-
-      if (!res.ok) {
-        throw res;
-      }
-
-      toast.success("Diffuseurs mis à jour avec succès");
-      setEditing(false);
-      onSave(res.data);
-    } catch (error) {
-      captureError(error, "Erreur lors de la mise à jour des diffuseurs");
-    }
-  };
 
   return (
     <div className="border border-gray-border p-6 space-y-6">
@@ -127,11 +102,11 @@ const Diffuseur = ({ values, onChange, onSave, errors, setErrors }) => {
           </div>
           <div className="w-full h-px bg-gray-border" />
           <p className="text-base">
-            {values.name} diffuse les missions de {data.filter((item) => values.publishers.find((p) => p.publisherId === item._id)).length} annonceurs
+            {values.name} diffuse les missions de {publishers.filter((item) => values.publishers.find((p) => p.publisherId === item._id)).length} annonceurs
           </p>
           <SearchInput value={search} onChange={setSearch} placeholder="Rechercher un annonceur" timeout={0} />
           <Table header={[{ title: "Annonceurs" }]} className="max-h-96 h-full">
-            {data
+            {publishers
               .filter((item) => (editing ? item._id !== values._id : values.publishers.find((p) => p.publisherId === item._id)))
               .filter((item) => item.name.toLowerCase().includes(search.toLowerCase()))
               .map((item, index) => (
@@ -143,18 +118,17 @@ const Diffuseur = ({ values, onChange, onSave, errors, setErrors }) => {
                           id={item._id}
                           type="checkbox"
                           className="checkbox"
-                          checked={values.publishers.find((p) => p.publisherId === item._id) || false}
-                          onChange={(e) =>
-                            e.target.checked
-                              ? onChange({
-                                  ...values,
-                                  publishers: [
-                                    ...values.publishers,
-                                    { publisherId: item._id, publisherName: item.name, publisherLogo: item.logo, moderator: item.moderator, missionType: item.missionType },
-                                  ],
-                                })
-                              : onChange({ ...values, publishers: values.publishers.filter((p) => p.publisherId !== item._id) })
-                          }
+                          checked={selectedPublishers.find((p) => p.publisherId === item._id) || false}
+                          onChange={(e) => {
+                            if (e.target.checked) {
+                              setSelectedPublishers([
+                                ...selectedPublishers,
+                                { publisherId: item._id, publisherName: item.name, publisherLogo: item.logo, moderator: item.moderator, missionType: item.missionType },
+                              ]);
+                            } else {
+                              setSelectedPublishers(selectedPublishers.filter((p) => p.publisherId !== item._id));
+                            }
+                          }}
                         />
                       )}
                       <label htmlFor={item._id}>{item.name}</label>
@@ -166,11 +140,23 @@ const Diffuseur = ({ values, onChange, onSave, errors, setErrors }) => {
 
           {editing ? (
             <div className="flex items-center gap-2">
-              <button className="empty-button" onClick={() => setEditing(false)}>
+              <button
+                className="empty-button"
+                onClick={() => {
+                  setEditing(false);
+                  setSelectedPublishers(values.publishers);
+                }}
+              >
                 Annuler
               </button>
-              <button className="filled-button" onClick={handleSave}>
-                Enregistrer
+              <button
+                className="filled-button"
+                onClick={() => {
+                  setEditing(false);
+                  onChange({ ...values, publishers: selectedPublishers });
+                }}
+              >
+                Terminer
               </button>
             </div>
           ) : (

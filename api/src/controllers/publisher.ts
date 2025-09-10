@@ -278,14 +278,14 @@ router.put("/:id", passport.authenticate("admin", { session: false }), async (re
 
     const body = zod
       .object({
-        sendReport: zod.boolean().default(false),
-        sendReportTo: zod.array(zod.string()).default([]),
-        isAnnonceur: zod.boolean().default(false),
-        missionType: zod.string().nullable().default(null),
-        hasApiRights: zod.boolean().default(false),
-        hasWidgetRights: zod.boolean().default(false),
-        hasCampaignRights: zod.boolean().default(false),
-        category: zod.string().nullable().default(null),
+        sendReport: zod.boolean().optional(),
+        sendReportTo: zod.array(zod.string()).optional(),
+        isAnnonceur: zod.boolean().optional(),
+        missionType: zod.string().nullable().optional(),
+        hasApiRights: zod.boolean().optional(),
+        hasWidgetRights: zod.boolean().optional(),
+        hasCampaignRights: zod.boolean().optional(),
+        category: zod.string().nullable().optional(),
         publishers: zod
           .array(
             zod.object({
@@ -325,40 +325,62 @@ router.put("/:id", passport.authenticate("admin", { session: false }), async (re
       return res.status(404).send({ ok: false, code: NOT_FOUND, message: "Publisher not found" });
     }
 
-    publisher.sendReport = body.data.sendReport;
-    publisher.sendReportTo = body.data.sendReportTo;
-    publisher.isAnnonceur = body.data.isAnnonceur;
-    publisher.missionType = body.data.missionType;
-    publisher.hasApiRights = body.data.hasApiRights;
-    publisher.hasWidgetRights = body.data.hasWidgetRights;
-    publisher.hasCampaignRights = body.data.hasCampaignRights;
-    publisher.category = body.data.category;
+    if (body.data.sendReport !== undefined) {
+      publisher.sendReport = body.data.sendReport;
+    }
+    if (body.data.sendReportTo !== undefined) {
+      publisher.sendReportTo = body.data.sendReportTo;
+    }
+    if (body.data.isAnnonceur !== undefined) {
+      publisher.isAnnonceur = body.data.isAnnonceur;
+    }
+    if (body.data.missionType !== undefined) {
+      publisher.missionType = body.data.missionType;
+    }
+    if (body.data.hasApiRights !== undefined) {
+      publisher.hasApiRights = body.data.hasApiRights;
+    }
+    if (body.data.hasWidgetRights !== undefined) {
+      publisher.hasWidgetRights = body.data.hasWidgetRights;
+    }
+    if (body.data.hasCampaignRights !== undefined) {
+      publisher.hasCampaignRights = body.data.hasCampaignRights;
+    }
+    if (body.data.hasWidgetRights !== undefined) {
+      publisher.hasWidgetRights = body.data.hasWidgetRights;
+    }
+    if (body.data.hasCampaignRights !== undefined) {
+      publisher.hasCampaignRights = body.data.hasCampaignRights;
+    }
+    if (body.data.category !== undefined) {
+      publisher.category = body.data.category;
+    }
 
     if (!(publisher.hasApiRights || publisher.hasWidgetRights || publisher.hasCampaignRights)) {
       publisher.publishers = [];
-    } else if (body.data.publishers) {
+    } else if (body.data.publishers !== undefined) {
       publisher.publishers = body.data.publishers;
     }
 
-    if (body.data.documentation) {
+    if (body.data.documentation !== undefined) {
       publisher.documentation = body.data.documentation;
     }
-    if (body.data.description) {
+    if (body.data.description !== undefined) {
       publisher.description = body.data.description;
     }
-    if (body.data.lead) {
+    if (body.data.lead !== undefined) {
       publisher.lead = body.data.lead;
     }
-    if (body.data.logo) {
+    if (body.data.logo !== undefined) {
       publisher.logo = body.data.logo;
     }
-    if (body.data.url) {
+    if (body.data.url !== undefined) {
       publisher.url = body.data.url;
     }
-    if (body.data.email) {
+    if (body.data.email !== undefined) {
       publisher.email = body.data.email;
     }
-    if (body.data.feed) {
+    if (body.data.feed !== undefined) {
       publisher.feed = body.data.feed;
     }
     await publisher.save();
