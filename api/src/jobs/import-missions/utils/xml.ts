@@ -56,8 +56,6 @@ export const parseXML = (xmlString: string): MissionXML[] | string => {
       },
     };
 
-    console.log("[XML] Parsing xml", xmlString);
-
     const res = parser.parse(xmlString, options);
 
     if (!res.source || !res.source.mission) {
