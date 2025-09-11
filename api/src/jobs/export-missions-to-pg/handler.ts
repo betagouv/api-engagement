@@ -1,6 +1,6 @@
-import { Address, MissionHistoryEvent, Prisma } from "@prisma/client";
 import { Schema } from "mongoose";
-import { prismaAnalytics as prisma } from "../../db/postgres";
+import { MissionHistoryEvent, Prisma } from "../../db/analytics";
+import { prismaAnalytics as prismaClient } from "../../db/postgres";
 import { captureException } from "../../error";
 import MissionModel from "../../models/mission";
 import MissionEventModel from "../../models/mission-event";
@@ -59,7 +59,7 @@ const exportMission = async () => {
 
     // Get partners for mission mapping
     const partners = {} as { [key: string]: string };
-    await prisma.partner.findMany({ select: { id: true, old_id: true } }).then((data) => data.forEach((d) => (partners[d.old_id] = d.id)));
+    await prismaClient.partner.findMany({ select: { id: true, old_id: true } }).then((data) => data.forEach((d) => (partners[d.old_id] = d.id)));
     console.log(`[Export missions to PG] Found ${Object.keys(partners).length} partners`);
 
     for (let i = 0; i < missions.length; i += PG_CHUNK_SIZE) {
@@ -71,7 +71,7 @@ const exportMission = async () => {
 
       const missionsIds: string[] = [];
       const missionsUpdatedIds: string[] = [];
-      const addressesToCreate: Omit<Address, "id">[] = [];
+      const addressesToCreate: Prisma.AddressCreateManyInput[] = [];
 
       for (const mission of batch) {
         counter.processed++;
@@ -90,7 +90,7 @@ const exportMission = async () => {
           continue;
         }
         try {
-          const upsert = await prisma.mission.upsert({
+          const upsert = await prismaClient.mission.upsert({
             where: { old_id: result.mission.old_id },
             update: result.mission,
             create: result.mission,
@@ -108,9 +108,9 @@ const exportMission = async () => {
 
       try {
         if (missionsIds.length > 0) {
-          await prisma.address.deleteMany({ where: { mission_id: { in: missionsIds } } });
+          await prismaClient.address.deleteMany({ where: { mission_id: { in: missionsIds } } });
           if (addressesToCreate.length > 0) {
-            await prisma.address.createMany({ data: addressesToCreate });
+            await prismaClient.address.createMany({ data: addressesToCreate });
           }
           console.log(`[Export missions to PG] Updated addresses and history for ${missionsIds.length} missions (batch)`);
         }
@@ -154,7 +154,7 @@ const exportMissionEvent = async () => {
     prevCount = events.length;
     const missionIds: string[] = [...new Set(events.map((e) => e.missionId.toString()).filter((e) => e !== undefined))] as string[];
     const missions = {} as { [key: string]: string };
-    await prisma.mission
+    await prismaClient.mission
       .findMany({
         where: { old_id: { in: missionIds } },
         select: { id: true, old_id: true },
@@ -186,11 +186,12 @@ const exportMissionEvent = async () => {
       }
       try {
         if (eventsToCreate.length > 0) {
-          const data = eventsToCreate.map((e) => ({
-            ...e,
-            changes: e.changes === null ? undefined : (e.changes as Prisma.InputJsonValue),
-          }));
-          const res = await prisma.missionHistoryEvent.createMany({ data });
+          const res = await prismaClient.missionHistoryEvent.createMany({
+            data: eventsToCreate.map((e) => ({
+              ...e,
+              changes: e.changes === null ? undefined : (e.changes as any),
+            })),
+          });
           counter.created += res.count;
         }
       } catch (error) {

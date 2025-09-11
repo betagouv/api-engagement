@@ -1,5 +1,5 @@
-import { Kpi as PgKpi } from "@prisma/client";
-import { prismaAnalytics as prisma } from "../../../db/postgres";
+import { Kpi as PgKpi } from "../../../db/analytics";
+import { prismaAnalytics as prismaClient } from "../../../db/postgres";
 
 import { captureException } from "../../../error";
 import KpiModel from "../../../models/kpi";
@@ -62,7 +62,7 @@ const handler = async () => {
     console.log(`[KPI] Found ${data.length} docs to sync.`);
 
     const stored = [] as string[];
-    await prisma.kpiBotLess.findMany({ select: { old_id: true } }).then((data) => data.forEach((d) => stored.push(d.old_id)));
+    await prismaClient.kpiBotLess.findMany({ select: { old_id: true } }).then((data) => data.forEach((d) => stored.push(d.old_id)));
     console.log(`[KPI] Found ${stored.length} docs in database.`);
 
     const dataToCreate = [];
@@ -78,7 +78,7 @@ const handler = async () => {
     // Create data
     if (dataToCreate.length) {
       console.log(`[KPI] Creating ${dataToCreate.length} docs...`);
-      const res = await prisma.kpiBotLess.createMany({ data: dataToCreate, skipDuplicates: true });
+      const res = await prismaClient.kpiBotLess.createMany({ data: dataToCreate, skipDuplicates: true });
       console.log(`[KPI] Created ${res.count} docs.`);
     }
 

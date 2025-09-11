@@ -1,5 +1,5 @@
-import { LoginHistory } from "@prisma/client";
-import { prismaAnalytics as prisma } from "../../../db/postgres";
+import { LoginHistory } from "../../../db/analytics";
+import { prismaAnalytics as prismaClient } from "../../../db/postgres";
 import { captureException } from "../../../error";
 import UserModel from "../../../models/user";
 
@@ -18,11 +18,11 @@ const handler = async () => {
     console.log(`[User] Found ${data.length} users to process.`);
 
     const users = {} as { [key: string]: string };
-    await prisma.user.findMany({ select: { id: true, old_id: true } }).then((data) => data.forEach((d) => (users[d.old_id] = d.id)));
+    await prismaClient.user.findMany({ select: { id: true, old_id: true } }).then((data) => data.forEach((d) => (users[d.old_id] = d.id)));
     console.log(`[User] Mapped ${Object.keys(users).length} users to database IDs.`);
 
     const logins = {} as { [key: string]: Date | null };
-    await prisma.loginHistory
+    await prismaClient.loginHistory
       .groupBy({
         by: ["user_id"],
         _max: {
@@ -51,9 +51,9 @@ const handler = async () => {
       console.log(`[LoginHistory] Creating ${dataToCreate.length} login history records...`);
       const transactions = [];
       for (const obj of dataToCreate) {
-        transactions.push(prisma.loginHistory.create({ data: obj }));
+        transactions.push(prismaClient.loginHistory.create({ data: obj }));
       }
-      await prisma.$transaction(transactions);
+      await prismaClient.$transaction(transactions);
       console.log(`[LoginHistory] Created ${dataToCreate.length} records.`);
     }
 

@@ -1,5 +1,5 @@
-import { OrganizationExclusion as PgOrganizationExclusion } from "@prisma/client";
-import { prismaAnalytics as prisma } from "../../../db/postgres";
+import { OrganizationExclusion as PgOrganizationExclusion } from "../../../db/analytics";
+import { prismaAnalytics as prismaClient } from "../../../db/postgres";
 import { captureException } from "../../../error";
 import OrganizationExclusionModel from "../../../models/organization-exclusion";
 import { OrganizationExclusion } from "../../../types";
@@ -37,11 +37,11 @@ const handler = async () => {
     const data = await OrganizationExclusionModel.find().lean();
     console.log(`[OrganizationExclusion] Found ${data.length} docs to sync.`);
 
-    const stored = await prisma.organizationExclusion.count();
+    const stored = await prismaClient.organizationExclusion.count();
     console.log(`[OrganizationExclusion] Found ${stored} docs in database.`);
 
     const partners = {} as { [key: string]: string };
-    await prisma.partner.findMany({ select: { old_id: true, id: true } }).then((data) => data.forEach((d) => (partners[d.old_id] = d.id)));
+    await prismaClient.partner.findMany({ select: { old_id: true, id: true } }).then((data) => data.forEach((d) => (partners[d.old_id] = d.id)));
 
     const toCreate = [] as PgOrganizationExclusion[];
     for (const doc of data) {
@@ -52,8 +52,8 @@ const handler = async () => {
       toCreate.push(obj);
     }
 
-    await prisma.organizationExclusion.deleteMany();
-    const created = await prisma.organizationExclusion.createMany({ data: toCreate });
+    await prismaClient.organizationExclusion.deleteMany();
+    const created = await prismaClient.organizationExclusion.createMany({ data: toCreate });
 
     console.log(`[OrganizationExclusion] Ended at ${new Date().toISOString()} in ${(Date.now() - start.getTime()) / 1000}s, created ${toCreate.length}`);
     return { created: created.count, updated: 0 };

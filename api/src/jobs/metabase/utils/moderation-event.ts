@@ -1,5 +1,5 @@
-import { ModerationEvent as PgModerationEvent } from "@prisma/client";
-import { prismaAnalytics as prisma } from "../../../db/postgres";
+import { ModerationEvent as PgModerationEvent } from "../../../db/analytics";
+import { prismaAnalytics as prismaClient } from "../../../db/postgres";
 import { captureException, captureMessage } from "../../../error";
 import ModerationEventModel from "../../../models/moderation-event";
 import { ModerationEvent } from "../../../types";
@@ -49,18 +49,18 @@ const handler = async () => {
     let updated = 0;
     let offset = 0;
 
-    const count = await prisma.widgetQuery.count();
+    const count = await prismaClient.moderationEvent.count();
     console.log(`[Widget-Requests] Found ${count} docs in database.`);
 
     const users = {} as { [key: string]: string };
-    await prisma.user.findMany({ select: { id: true, old_id: true } }).then((data) => data.forEach((d) => (users[d.old_id] = d.id)));
+    await prismaClient.user.findMany({ select: { id: true, old_id: true } }).then((data) => data.forEach((d) => (users[d.old_id] = d.id)));
     console.log(`[ModerationEvent] Mapped ${Object.keys(users).length} users to database IDs.`);
 
     const countToSync = await ModerationEventModel.countDocuments();
     console.log(`[ModerationEvent] Found ${countToSync} docs to sync.`);
 
     const stored = {} as { [key: string]: { updated_at: Date } };
-    await prisma.moderationEvent.findMany({ select: { old_id: true, updated_at: true } }).then((data) => data.forEach((d) => (stored[d.old_id] = d)));
+    await prismaClient.moderationEvent.findMany({ select: { old_id: true, updated_at: true } }).then((data) => data.forEach((d) => (stored[d.old_id] = d)));
 
     while (true) {
       const data = await ModerationEventModel.find()
@@ -72,7 +72,7 @@ const handler = async () => {
       }
 
       const missions = {} as { [key: string]: string };
-      await prisma.mission
+      await prismaClient.mission
         .findMany({
           where: { old_id: { in: data.map((hit) => hit.missionId) } },
           select: { old_id: true, id: true },
@@ -97,7 +97,7 @@ const handler = async () => {
       console.log(`[ModerationEvent] ${dataToCreate.length} docs to create, ${dataToUpdate.length} docs to update.`);
       // Create data
       if (dataToCreate.length) {
-        const res = await prisma.moderationEvent.createManyAndReturn({
+        const res = await prismaClient.moderationEvent.createManyAndReturn({
           data: dataToCreate,
           skipDuplicates: true,
         });
@@ -109,7 +109,7 @@ const handler = async () => {
       if (dataToUpdate.length) {
         for (const obj of dataToUpdate) {
           try {
-            await prisma.moderationEvent.upsert({
+            await prismaClient.moderationEvent.upsert({
               where: { old_id: obj.old_id },
               update: obj,
               create: obj,

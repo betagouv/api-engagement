@@ -1,5 +1,5 @@
-import { Campaign as PrismaCampaign } from "@prisma/client";
-import { prismaAnalytics as prisma } from "../../../db/postgres";
+import { Campaign as PrismaCampaign } from "../../../db/analytics";
+import { prismaAnalytics as prismaClient } from "../../../db/postgres";
 import { captureException, captureMessage } from "../../../error";
 import CampaignModel from "../../../models/campaign";
 import { Campaign } from "../../../types";
@@ -51,11 +51,11 @@ const handler = async () => {
     console.log(`[Campaigns] Found ${data.length} docs to sync.`);
 
     const stored = {} as { [key: string]: { id: string; old_id: string; updated_at: Date } };
-    await prisma.campaign.findMany({ select: { old_id: true, id: true, updated_at: true } }).then((data) => data.forEach((d) => (stored[d.old_id] = d)));
+    await prismaClient.campaign.findMany({ select: { old_id: true, id: true, updated_at: true } }).then((data) => data.forEach((d) => (stored[d.old_id] = d)));
     console.log(`[Campaigns] Found ${Object.keys(stored).length} docs in database.`);
 
     const partners = {} as { [key: string]: string };
-    await prisma.partner.findMany({ select: { id: true, old_id: true } }).then((data) => data.forEach((d) => (partners[d.old_id] = d.id)));
+    await prismaClient.partner.findMany({ select: { id: true, old_id: true } }).then((data) => data.forEach((d) => (partners[d.old_id] = d.id)));
 
     const dataToCreate = [];
     const dataToUpdate = [];
@@ -81,7 +81,7 @@ const handler = async () => {
       for (const obj of dataToCreate) {
         const { campaign, trackers } = obj;
         try {
-          await prisma.campaign.create({
+          await prismaClient.campaign.create({
             data: {
               ...campaign,
               trackers: { create: trackers },
@@ -99,9 +99,9 @@ const handler = async () => {
       for (const obj of dataToUpdate) {
         const { id, campaign, trackers } = obj;
         try {
-          await prisma.campaign.update({ where: { id }, data: campaign });
-          await prisma.campaignTracker.deleteMany({ where: { campaign_id: id } });
-          await prisma.campaignTracker.createMany({ data: trackers.map((t) => ({ ...t, campaign_id: id })), skipDuplicates: true });
+          await prismaClient.campaign.update({ where: { id }, data: campaign });
+          await prismaClient.campaignTracker.deleteMany({ where: { campaign_id: id } });
+          await prismaClient.campaignTracker.createMany({ data: trackers.map((t) => ({ ...t, campaign_id: id })), skipDuplicates: true });
         } catch (error) {
           captureException(error, { extra: { campaign, trackers, id } });
         }
