@@ -3,13 +3,13 @@
  * Send the height of the iframe to the parent window
  */
 
-var sendHeightToParent = function () {
+const sendHeightToParent = (): void => {
   if (typeof window === "undefined") {
     return;
   }
 
   try {
-    var height = document.body.scrollHeight;
+    const height = document.body.scrollHeight;
     window.parent.postMessage(
       {
         type: "resize",
@@ -23,12 +23,12 @@ var sendHeightToParent = function () {
   }
 };
 
-var setupResizeObserver = function () {
+const setupResizeObserver = (): (() => void) => {
   if (typeof window === "undefined") {
-    return;
+    return () => {};
   }
 
-  var observer = new MutationObserver(function () {
+  const observer = new MutationObserver(() => {
     sendHeightToParent();
   });
 
@@ -41,9 +41,9 @@ var setupResizeObserver = function () {
 
   window.addEventListener("load", sendHeightToParent);
 
-  window.addEventListener("load", function () {
-    var images = document.querySelectorAll("img");
-    images.forEach(function (img) {
+  window.addEventListener("load", () => {
+    const images = document.querySelectorAll("img");
+    images.forEach((img) => {
       if (img.complete) {
         sendHeightToParent();
       } else {
@@ -54,9 +54,9 @@ var setupResizeObserver = function () {
 
   window.addEventListener("resize", sendHeightToParent);
 
-  var interval = setInterval(sendHeightToParent, 1000);
+  const interval = setInterval(sendHeightToParent, 1000);
 
-  return function () {
+  return () => {
     observer.disconnect();
     clearInterval(interval);
     window.removeEventListener("load", sendHeightToParent);
@@ -64,7 +64,7 @@ var setupResizeObserver = function () {
   };
 };
 
-module.exports = {
-  sendHeightToParent: sendHeightToParent,
-  setupResizeObserver: setupResizeObserver,
+export default {
+  sendHeightToParent,
+  setupResizeObserver,
 };

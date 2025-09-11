@@ -1,8 +1,10 @@
+import { ServerSideContext } from "../types";
+
 /**
  * Calculate the distance between two points using the Haversine formula
  */
-export const calculateDistance = (lat1, lon1, lat2, lon2) => {
-  const toRad = (value) => (value * Math.PI) / 180;
+export const calculateDistance = (lat1: number, lon1: number, lat2: number, lon2: number): number => {
+  const toRad = (value: number): number => (value * Math.PI) / 180;
 
   const R = 6371; // Earth's radius in km
   const dLat = toRad(lat2 - lat1);
@@ -15,7 +17,7 @@ export const calculateDistance = (lat1, lon1, lat2, lon2) => {
 /**
  * Check if the widget is the prevention routieres widget
  */
-export const isPreventionRoutieres = (query) => {
+export const isPreventionRoutieres = (query: string): boolean => {
   if (query === "6449707ff9d59c624d4dc666") {
     return true;
   }
@@ -32,7 +34,7 @@ export const isPreventionRoutieres = (query) => {
  * Get the domain from the request headers
  * Split the host by the port if present
  */
-export const getDomain = (ctx) => {
+export const getDomain = (ctx: ServerSideContext): string => {
   const host = ctx.req?.headers?.host || "";
   return host.split(":")[0];
 };

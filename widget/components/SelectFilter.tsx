@@ -2,22 +2,43 @@ import { usePlausible } from "next-plausible";
 import { useEffect, useRef, useState } from "react";
 import { RiArrowDownSLine, RiCheckFill, RiSearchLine } from "react-icons/ri";
 
+import { FilterOption } from "../types";
 import useStore from "../utils/store";
 
-const SelectFilter = ({ options, selectedOptions, onChange, id, placeholder = "Choissiez une option", position = "left-0", width = "w-80", searchable = false }) => {
+interface SelectFilterProps {
+  options: FilterOption[];
+  selectedOptions: FilterOption[];
+  onChange: (options: FilterOption[]) => void;
+  id: string;
+  placeholder?: string;
+  position?: string;
+  width?: string;
+  searchable?: boolean;
+}
+
+const SelectFilter = ({
+  options,
+  selectedOptions,
+  onChange,
+  id,
+  placeholder = "Choissiez une option",
+  position = "left-0",
+  width = "w-80",
+  searchable = false,
+}: SelectFilterProps) => {
   const { url, color } = useStore();
-  const ref = useRef(null);
-  const inputRef = useRef(null);
-  const resetButtonRef = useRef(null);
-  const [listRef, setListRef] = useState(options.map(() => null));
+  const ref = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
+  const resetButtonRef = useRef<HTMLButtonElement>(null);
+  const [listRef, setListRef] = useState<(HTMLLIElement | undefined)[]>(options.map(() => undefined));
   const plausible = usePlausible();
   const [show, setShow] = useState(false);
-  const [selection, setSelection] = useState(selectedOptions);
+  const [selection, setSelection] = useState<FilterOption[]>(selectedOptions);
   const [search, setSearch] = useState("");
   const [focusedIndex, setFocusedIndex] = useState(0);
 
   useEffect(() => {
-    setListRef(options.map(() => null));
+    setListRef(options.map(() => undefined));
   }, [options]);
 
   useEffect(() => {
@@ -25,8 +46,8 @@ const SelectFilter = ({ options, selectedOptions, onChange, id, placeholder = "C
   }, [selectedOptions]);
 
   useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (ref.current && !ref.current.contains(event.target)) {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (ref.current && !ref.current.contains(event.target as Node)) {
         setShow(false);
       }
     };
@@ -34,7 +55,7 @@ const SelectFilter = ({ options, selectedOptions, onChange, id, placeholder = "C
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  const handleToggle = (option) => {
+  const handleToggle = (option: FilterOption) => {
     if (!selection) {
       return setSelection([option]);
     }
@@ -45,7 +66,7 @@ const SelectFilter = ({ options, selectedOptions, onChange, id, placeholder = "C
     }
   };
 
-  const handleButtonKeyDown = (e) => {
+  const handleButtonKeyDown = (e: React.KeyboardEvent<HTMLButtonElement>) => {
     if (!show) {
       if (e.key === "Enter" || e.key === " ") {
         e.preventDefault();
@@ -60,7 +81,7 @@ const SelectFilter = ({ options, selectedOptions, onChange, id, placeholder = "C
     }
   };
 
-  const handleListKeyDown = (e, item) => {
+  const handleListKeyDown = (e: React.KeyboardEvent<HTMLLIElement>, item: FilterOption) => {
     switch (e.key) {
       case "Tab":
         if (e.shiftKey) {
@@ -70,7 +91,7 @@ const SelectFilter = ({ options, selectedOptions, onChange, id, placeholder = "C
           }
         } else {
           e.preventDefault();
-          resetButtonRef.current.focus();
+          resetButtonRef.current?.focus();
         }
         break;
       case " ":
@@ -78,7 +99,7 @@ const SelectFilter = ({ options, selectedOptions, onChange, id, placeholder = "C
       case "Enter": {
         e.preventDefault();
         handleToggle(item);
-        plausible(`Filter ${id} selected`, { props: { filter: item.label }, u: url });
+        plausible(`Filter ${id} selected`, { props: { filter: item.label }, u: url || undefined });
         break;
       }
       case "Up":
@@ -86,7 +107,7 @@ const SelectFilter = ({ options, selectedOptions, onChange, id, placeholder = "C
         e.preventDefault();
         const newIndex = focusedIndex > 0 ? focusedIndex - 1 : options.length - 1;
         setFocusedIndex(newIndex);
-        listRef[newIndex].focus();
+        listRef[newIndex]?.focus();
         break;
       }
       case "Down":
@@ -94,7 +115,7 @@ const SelectFilter = ({ options, selectedOptions, onChange, id, placeholder = "C
         e.preventDefault();
         const newIndex = focusedIndex < options.length - 1 ? focusedIndex + 1 : 0;
         setFocusedIndex(newIndex);
-        listRef[newIndex].focus();
+        listRef[newIndex]?.focus();
         break;
       }
     }
@@ -159,18 +180,19 @@ const SelectFilter = ({ options, selectedOptions, onChange, id, placeholder = "C
                 const selected = selection?.some((option) => option.value === item.value);
                 return (
                   <li
-                    ref={(el) => (listRef[index] = el)}
+                    ref={(el) => {
+                      listRef[index] = el || undefined;
+                    }}
                     key={item.value}
                     id={`${id}-option-${index}`}
                     role="option"
                     aria-label={item.label}
                     aria-checked={selected}
-                    aria-focused={index === focusedIndex}
                     tabIndex={index === focusedIndex ? 0 : -1}
                     className="w-full flex items-center justify-between gap-2 text-sm px-4 py-2 cursor-pointer hover:bg-[#0000000A] focus:outline-none focus-visible:ring focus-visible:ring-[#000091] focus-visible:bg-[#0000000A]"
                     onClick={() => {
                       handleToggle(item);
-                      plausible(`Filter ${id} selected`, { props: { filter: item.label }, u: url });
+                      plausible(`Filter ${id} selected`, { props: { filter: item.label }, u: url || undefined });
                     }}
                     onKeyDown={(e) => handleListKeyDown(e, item)}
                   >
@@ -192,7 +214,7 @@ const SelectFilter = ({ options, selectedOptions, onChange, id, placeholder = "C
             onClick={() => {
               onChange([]);
               setShow(false);
-              plausible(`Filter ${id} erased`, { u: url });
+              plausible(`Filter ${id} erased`, { u: url || undefined });
             }}
           >
             Réinitialiser
@@ -206,7 +228,7 @@ const SelectFilter = ({ options, selectedOptions, onChange, id, placeholder = "C
             onClick={() => {
               onChange(selection);
               setShow(false);
-              plausible(`Filters applied`, { u: url });
+              plausible(`Filters applied`, { u: url || undefined });
             }}
           >
             Appliquer
@@ -217,7 +239,12 @@ const SelectFilter = ({ options, selectedOptions, onChange, id, placeholder = "C
   );
 };
 
-const Checkbox = ({ selected, color }) => {
+interface CheckboxProps {
+  selected: boolean;
+  color: string;
+}
+
+const Checkbox = ({ selected, color }: CheckboxProps) => {
   return (
     <div
       className="w-4 h-4 rounded-sm border flex items-center justify-center text-base"

@@ -103,7 +103,7 @@
       }),
       // Impression tracking
       (window._apieng.getTrackers = function (e) {
-        const elements = document.getElementsByName("tracker_counter");
+        const elements = document.querySelectorAll('[data-name="tracker_counter"]');
         if (elements.length === 0)
           return document.querySelectorAll(`a[href*="${window._apieng.eventHost}"], a[href*="${window._apieng.eventHost.replace("https://", "http://")}"]`);
 
