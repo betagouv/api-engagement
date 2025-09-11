@@ -1,21 +1,22 @@
-import fr from "date-fns/locale/fr";
+import { fr } from "date-fns/locale/fr";
 import { usePlausible } from "next-plausible";
 import { useEffect, useRef, useState } from "react";
 import { DayPicker } from "react-day-picker";
 import { RiArrowDownSLine } from "react-icons/ri";
 
 import "react-day-picker/dist/style.css";
+import { DateFilterProps } from "../types";
 import useStore from "../utils/store";
 
-const DateFilter = ({ selected, onChange, position = "left-0", width = "w-80" }) => {
+const DateFilter = ({ selected, onChange, position = "left-0", width = "w-80" }: DateFilterProps) => {
   const { url, color } = useStore();
   const plausible = usePlausible();
   const [show, setShow] = useState(false);
-  const ref = useRef(null);
+  const ref = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (ref.current && !ref.current.contains(event.target)) {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (ref.current && !ref.current.contains(event.target as Node)) {
         setShow(false);
       }
     };
@@ -55,19 +56,23 @@ const DateFilter = ({ selected, onChange, position = "left-0", width = "w-80" })
             locale={fr}
             aria-label="disponible à partir du"
             role="dialog"
-            selected={selected}
+            selected={selected?.value}
             onDayClick={(date) => {
-              onChange({ label: date.toLocaleDateString("fr"), value: date });
-              setShow(false);
-              plausible("Date selected", { props: { date: date.toLocaleDateString("fr") }, u: url });
+              if (date) {
+                onChange({ label: date.toLocaleDateString("fr"), value: date });
+                setShow(false);
+                plausible("Date selected", { props: { date: date.toLocaleDateString("fr") }, u: url || undefined });
+              }
             }}
-            style={{
-              "--rdp-accent-color": color,
-              "--rdp-day_button-width": "48px",
-              "--rdp-day_button-height": "48px",
-            }}
+            style={
+              {
+                "--rdp-accent-color": color,
+                "--rdp-day_button-width": "48px",
+                "--rdp-day_button-height": "48px",
+              } as React.CSSProperties
+            }
             modifiers={{
-              selected: (date) => selected && date.toLocaleDateString("fr") === selected.value.toLocaleDateString("fr"),
+              selected: (date) => !!selected && date.toLocaleDateString("fr") === selected.value.toLocaleDateString("fr"),
             }}
             autoFocus
             modifiersStyles={{
@@ -100,7 +105,7 @@ const DateFilter = ({ selected, onChange, position = "left-0", width = "w-80" })
             onClick={() => {
               onChange(null);
               setShow(false);
-              plausible("Date erased", { u: url });
+              plausible("Date erased", { u: url || undefined });
             }}
           >
             Réinitialiser

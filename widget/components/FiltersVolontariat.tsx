@@ -4,13 +4,14 @@ import { RiArrowDownSLine, RiArrowUpSLine } from "react-icons/ri";
 
 import "react-day-picker/dist/style.css";
 import { ACCESSIBILITIES, ACTIONS, BENEFICIARIES, DOMAINS, MINORS, SCHEDULES } from "../config";
+import { AggregationData, ApiResponse, DesktopFiltersProps, FilterOptions, FiltersVolontariatProps, MobileFiltersProps } from "../types";
 import useStore from "../utils/store";
 import DateFilter from "./DateFilter";
 import DurationFilter from "./DurationFilter";
 import LocationFilter from "./LocationFilter";
 import SelectFilter from "./SelectFilter";
 
-const getAPI = async (path) => {
+const getAPI = async (path: string): Promise<ApiResponse<AggregationData>> => {
   const response = await fetch(path, { method: "GET" });
 
   if (!response.ok) {
@@ -19,9 +20,9 @@ const getAPI = async (path) => {
   return response.json();
 };
 
-const Filters = ({ widget, apiUrl, values, onChange, show, onShow }) => {
+const FiltersVolontariat = ({ widget, apiUrl, values, onChange, show, onShow }: FiltersVolontariatProps) => {
   const { mobile } = useStore();
-  const [options, setOptions] = useState({
+  const [options, setOptions] = useState<FilterOptions>({
     accessibility: [],
     action: [],
     beneficiary: [],
@@ -37,35 +38,35 @@ const Filters = ({ widget, apiUrl, values, onChange, show, onShow }) => {
         const searchParams = new URLSearchParams();
 
         if (values.accessibility && values.accessibility.length) {
-          values.accessibility.forEach((o) => searchParams.append("accessibility", o.value));
+          values.accessibility.forEach((o) => searchParams.append("accessibility", o.value.toString()));
         }
         if (values.action && values.action.length) {
-          values.action.forEach((o) => searchParams.append("action", o.value));
+          values.action.forEach((o) => searchParams.append("action", o.value.toString()));
         }
         if (values.beneficiary && values.beneficiary.length) {
-          values.beneficiary.forEach((o) => searchParams.append("beneficiary", o.value));
+          values.beneficiary.forEach((o) => searchParams.append("beneficiary", o.value.toString()));
         }
         if (values.country && values.country.length) {
-          values.country.forEach((o) => searchParams.append("country", o.value));
+          values.country.forEach((o) => searchParams.append("country", o.value.toString()));
         }
         if (values.domain && values.domain.length) {
-          values.domain.forEach((o) => searchParams.append("domain", o.value));
+          values.domain.forEach((o) => searchParams.append("domain", o.value.toString()));
         }
         if (values.duration) {
-          searchParams.append("duration", values.duration.value);
+          searchParams.append("duration", values.duration.value.toString());
         }
         if (values.minor && values.minor.length) {
-          values.minor.forEach((o) => searchParams.append("minor", o.value));
+          values.minor.forEach((o) => searchParams.append("minor", o.value.toString()));
         }
         if (values.schedule && values.schedule.length) {
-          values.schedule.forEach((o) => searchParams.append("schedule", o.value));
+          values.schedule.forEach((o) => searchParams.append("schedule", o.value.toString()));
         }
         if (values.start) {
           searchParams.append("start", values.start.value.toISOString());
         }
         if (values.location && values.location.lat && values.location.lon) {
-          searchParams.append("lat", values.location.lat);
-          searchParams.append("lon", values.location.lon);
+          searchParams.append("lat", values.location.lat.toString());
+          searchParams.append("lon", values.location.lon.toString());
         }
         ["accessibility", "action", "beneficiary", "country", "domain", "minor", "schedule"].forEach((key) => searchParams.append("aggs", key));
 
@@ -80,7 +81,7 @@ const Filters = ({ widget, apiUrl, values, onChange, show, onShow }) => {
         country.push({ value: "FR", count: france, label: "France" });
         country.push({ value: "NOT_FR", count: abroad, label: "Etranger" });
 
-        const newOptions = {
+        const newOptions: FilterOptions = {
           accessibility: data.accessibility.map((b) => ({ value: b.key, count: b.doc_count, label: ACCESSIBILITIES[b.key] || b.key })),
           action: data.action.map((b) => ({ value: b.key, count: b.doc_count, label: ACTIONS[b.key] || b.key })),
           beneficiary: data.beneficiary.map((b) => ({ value: b.key, count: b.doc_count, label: BENEFICIARIES[b.key] || b.key })),
@@ -99,12 +100,12 @@ const Filters = ({ widget, apiUrl, values, onChange, show, onShow }) => {
       }
     };
     fetchData();
-  }, [widget._id, values]);
+  }, [widget._id, values, apiUrl]);
 
   if (mobile) {
     return (
       <div className="w-full flex flex-col items-center gap-2">
-        <MobileFilters
+        <MobileFiltersVolontariat
           options={options}
           values={values}
           onChange={(newFilters) => onChange({ ...values, ...newFilters })}
@@ -118,12 +119,12 @@ const Filters = ({ widget, apiUrl, values, onChange, show, onShow }) => {
 
   return (
     <div className="w-full mb-2">
-      <DesktopFilters options={options} values={values} onChange={(v) => onChange({ ...values, ...v })} disabledLocation={!!widget.location} />
+      <DesktopFiltersVolontariat options={options} values={values} onChange={(v) => onChange({ ...values, ...v })} disabledLocation={!!widget.location} />
     </div>
   );
 };
 
-const MobileFilters = ({ options, values, onChange, show, onShow, disabledLocation = false }) => {
+const MobileFiltersVolontariat = ({ options, values, onChange, show, onShow, disabledLocation = false }: MobileFiltersProps) => {
   const { url, color } = useStore();
 
   const plausible = usePlausible();
@@ -157,7 +158,7 @@ const MobileFilters = ({ options, values, onChange, show, onShow, disabledLocati
           className="flex h-[40px] items-center justify-between w-full bg-white focus:outline-none focus-visible:ring focus-visible:ring-[#000091] px-4"
           onClick={() => {
             onShow(!show);
-            plausible(show ? "Filters closed" : "Filters opened", { u: url });
+            plausible(show ? "Filters closed" : "Filters opened", { u: url || undefined });
           }}
         >
           Filtrer les missions
@@ -167,10 +168,10 @@ const MobileFilters = ({ options, values, onChange, show, onShow, disabledLocati
         {show && (
           <div className="w-full flex flex-col mt-4 gap-4">
             <div className="w-full">
-              <DateFilter selected={values.start} onChange={(f) => onChange({ ...values, start: f })} width="w-full" />
+              <DateFilter selected={values.start || null} onChange={(f) => onChange({ ...values, start: f })} width="w-full" />
             </div>
             <div className="w-full">
-              <DurationFilter selected={values.duration} onChange={(v) => onChange({ ...values, duration: v })} width="w-full" />
+              <DurationFilter selected={values.duration || null} onChange={(v) => onChange({ ...values, duration: v })} width="w-full" />
             </div>
             <div className="w-full">
               <SelectFilter
@@ -186,7 +187,7 @@ const MobileFilters = ({ options, values, onChange, show, onShow, disabledLocati
               <SelectFilter
                 id="schedule"
                 options={options.schedule || []}
-                selectedOptions={values.schedule}
+                selectedOptions={values.schedule || []}
                 onChange={(v) => onChange({ ...values, schedule: v })}
                 placeholder="Horaires"
                 width="w-full"
@@ -196,7 +197,7 @@ const MobileFilters = ({ options, values, onChange, show, onShow, disabledLocati
               <SelectFilter
                 id="accessibility"
                 options={options.accessibility || []}
-                selectedOptions={values.accessibility}
+                selectedOptions={values.accessibility || []}
                 onChange={(v) => onChange({ ...values, accessibility: v })}
                 placeholder="Accessibilité"
                 width="w-full"
@@ -206,7 +207,7 @@ const MobileFilters = ({ options, values, onChange, show, onShow, disabledLocati
               <SelectFilter
                 id="beneficiary"
                 options={options.beneficiary || []}
-                selectedOptions={values.beneficiary}
+                selectedOptions={values.beneficiary || []}
                 onChange={(v) => onChange({ ...values, beneficiary: v })}
                 placeholder="Public bénéficiaire"
                 width="w-full"
@@ -216,7 +217,7 @@ const MobileFilters = ({ options, values, onChange, show, onShow, disabledLocati
               <SelectFilter
                 id="action"
                 options={options.action || []}
-                selectedOptions={values.action}
+                selectedOptions={values.action || []}
                 onChange={(v) => onChange({ ...values, action: v })}
                 placeholder="Actions clés"
                 width="w-full"
@@ -226,7 +227,7 @@ const MobileFilters = ({ options, values, onChange, show, onShow, disabledLocati
               <SelectFilter
                 id="country"
                 options={options.country || []}
-                selectedOptions={values.country}
+                selectedOptions={values.country || []}
                 onChange={(v) => onChange({ ...values, country: v })}
                 placeholder="France / Etranger"
                 width="w-full"
@@ -237,7 +238,7 @@ const MobileFilters = ({ options, values, onChange, show, onShow, disabledLocati
               className="w-full p-3 text-center border-none bg-black text-white focus:outline-none focus-visible:ring focus-visible:ring-[#000091] cursor-pointer"
               onClick={() => {
                 onShow(false);
-                plausible("Filters closed", { u: url });
+                plausible("Filters closed", { u: url || undefined });
               }}
               style={{
                 backgroundColor: color,
@@ -250,7 +251,7 @@ const MobileFilters = ({ options, values, onChange, show, onShow, disabledLocati
               className="w-full cursor-pointer p-3 text-center bg-transparent focus:outline-none focus-visible:ring focus-visible:ring-[#000091]"
               onClick={() => {
                 handleReset();
-                plausible("Filters reset", { u: url });
+                plausible("Filters reset", { u: url || undefined });
               }}
               style={{ color }}
             >
@@ -263,15 +264,15 @@ const MobileFilters = ({ options, values, onChange, show, onShow, disabledLocati
   );
 };
 
-const DesktopFilters = ({ options, values, onChange, disabledLocation = false }) => {
+const DesktopFiltersVolontariat = ({ options, values, onChange, disabledLocation = false }: DesktopFiltersProps) => {
   const { url, color } = useStore();
   const plausible = usePlausible();
   const [moreFilters, setMoreFilters] = useState(false);
-  const missionsAbroad = useRef(null);
+  const missionsAbroad = useRef<boolean | null>(null);
 
   useEffect(() => {
     if (missionsAbroad.current === null && Array.isArray(options.country)) {
-      missionsAbroad.current = options.country.some((o) => o.value === "NOT_FR" && o.count > 0);
+      missionsAbroad.current = options.country.some((o) => o.value === "NOT_FR" && (o.count || 0) > 0);
     }
   }, [options.country]);
 
@@ -279,14 +280,14 @@ const DesktopFilters = ({ options, values, onChange, disabledLocation = false })
     <div className="flex-1">
       <div className="grid grid-cols-5 gap-4 h-10">
         <LocationFilter selected={values.location} onChange={(l) => onChange({ ...values, location: l })} disabled={disabledLocation} />
-        <DateFilter selected={values.start} onChange={(f) => onChange({ ...values, start: f })} />
-        <DurationFilter selected={values.duration} onChange={(v) => onChange({ ...values, duration: v })} />
+        <DateFilter selected={values.start || null} onChange={(f) => onChange({ ...values, start: f })} />
+        <DurationFilter selected={values.duration || null} onChange={(v) => onChange({ ...values, duration: v })} />
         <SelectFilter id="domain" options={options.domain || []} selectedOptions={values.domain} onChange={(v) => onChange({ ...values, domain: v })} placeholder="Thèmes" />
         {moreFilters ? (
           <SelectFilter
             id="minor"
             options={options.minor || []}
-            selectedOptions={values.minor}
+            selectedOptions={values.minor || []}
             onChange={(v) => onChange({ ...values, minor: v })}
             placeholder="Accès aux mineurs"
             position="right-0"
@@ -297,7 +298,7 @@ const DesktopFilters = ({ options, values, onChange, disabledLocation = false })
             className="cursor-pointer border truncate w-full bg-white border-[#DDDDDD] py-2 px-4 h-[40px] focus:outline-none focus-visible:ring focus-visible:ring-[#000091] font-medium"
             onClick={() => {
               setMoreFilters(true);
-              plausible("More filters", { u: url });
+              plausible("More filters", { u: url || undefined });
             }}
             style={{
               backgroundColor: "white",
@@ -314,14 +315,14 @@ const DesktopFilters = ({ options, values, onChange, disabledLocation = false })
           <SelectFilter
             id="schedule"
             options={options.schedule || []}
-            selectedOptions={values.schedule}
+            selectedOptions={values.schedule || []}
             onChange={(v) => onChange({ ...values, schedule: v })}
             placeholder="Horaires"
           />
           <SelectFilter
             id="accessibility"
             options={options.accessibility || []}
-            selectedOptions={values.accessibility}
+            selectedOptions={values.accessibility || []}
             onChange={(v) => onChange({ ...values, accessibility: v })}
             placeholder="Accessibilité"
             width="w-96"
@@ -329,14 +330,14 @@ const DesktopFilters = ({ options, values, onChange, disabledLocation = false })
           <SelectFilter
             id="beneficiary"
             options={options.beneficiary || []}
-            selectedOptions={values.beneficiary}
+            selectedOptions={values.beneficiary || []}
             onChange={(v) => onChange({ ...values, beneficiary: v })}
             placeholder="Public bénéficiaire"
           />
           <SelectFilter
             id="action"
             options={options.action || []}
-            selectedOptions={values.action}
+            selectedOptions={values.action || []}
             onChange={(v) => onChange({ ...values, action: v })}
             placeholder="Actions clés"
           />
@@ -344,7 +345,7 @@ const DesktopFilters = ({ options, values, onChange, disabledLocation = false })
             <SelectFilter
               id="country"
               options={options.country || []}
-              selectedOptions={values.country}
+              selectedOptions={values.country || []}
               onChange={(v) => onChange({ ...values, country: v })}
               placeholder="France / Etranger"
               position="right-0"
@@ -356,7 +357,7 @@ const DesktopFilters = ({ options, values, onChange, disabledLocation = false })
             className="border truncate w-full bg-white border-[#DDDDDD] py-2 px-4 h-[40px] focus:outline-none focus-visible:ring focus-visible:ring-[#000091] font-medium"
             onClick={() => {
               setMoreFilters(false);
-              plausible("Less filters", { u: url });
+              plausible("Less filters", { u: url || undefined });
             }}
             style={{
               backgroundColor: "white",
@@ -371,4 +372,4 @@ const DesktopFilters = ({ options, values, onChange, disabledLocation = false })
   );
 };
 
-export default Filters;
+export default FiltersVolontariat;

@@ -1,13 +1,14 @@
 import iso from "i18n-iso-countries";
 import Image from "next/image";
-
 import { useEffect, useRef, useState } from "react";
 import { RiBuildingFill, RiCalendarEventFill } from "react-icons/ri";
+
 import { DOMAINS } from "../config";
 import LogoSCE from "../public/images/logo-sce.svg";
+import { CardProps } from "../types";
 
-const CardVolontariat = ({ widget, mission, request, focused = false, onKeyDown = null, onRef = null }) => {
-  const ref = useRef(null);
+const CardVolontariat = ({ widget, mission, request, focused = false, onKeyDown, onRef }: CardProps) => {
+  const ref = useRef<HTMLAnchorElement>(null);
   const [address, setAddress] = useState("");
   const [domain, setDomain] = useState(DOMAINS[mission.domain] || DOMAINS.autre);
 
@@ -18,7 +19,7 @@ const CardVolontariat = ({ widget, mission, request, focused = false, onKeyDown 
     setAddress(
       mission.remote === "full"
         ? "À distance"
-        : mission.addresses?.length > 1
+        : mission.addresses?.length && mission.addresses.length > 1
           ? mission.addresses.map((a) => a.city).join(", ")
           : `${mission.city} ${mission.country !== "FR" ? `- ${iso.getName(mission.country, "fr")}` : ""}`,
     );
@@ -29,7 +30,7 @@ const CardVolontariat = ({ widget, mission, request, focused = false, onKeyDown 
     if (onRef) {
       onRef(ref);
     }
-  }, [ref]);
+  }, [onRef]);
 
   if (!mission) {
     return null;
@@ -55,18 +56,17 @@ const CardVolontariat = ({ widget, mission, request, focused = false, onKeyDown 
           </div>
         </div>
 
-        <div className="w-full text-center">
-          <span name="tracker_counter" data-id={mission._id} data-publisher={widget.fromPublisherId} data-source={widget._id} data-request={request} />
-        </div>
+        <span data-name="tracker_counter" data-id={mission._id} data-publisher={widget.fromPublisherId?.toString()} data-source={widget._id} data-request={request || ""} />
 
         <a
           ref={ref}
           href={mission.url}
           target="_blank"
+          rel="noopener noreferrer"
           className="after:absolute after:top-0 after:left-0 after:right-0 after:bottom-0 focus:outline-none"
           tabIndex={widget.style === "carousel" ? (focused ? 0 : -1) : undefined}
           aria-focused={widget.style === "carousel" ? focused : undefined}
-          onKeyDown={onKeyDown}
+          onKeyDown={onKeyDown as React.KeyboardEventHandler<HTMLAnchorElement>}
         >
           <h2
             id={mission._id}

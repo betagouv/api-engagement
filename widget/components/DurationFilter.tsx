@@ -2,9 +2,10 @@ import { usePlausible } from "next-plausible";
 import { useEffect, useRef, useState } from "react";
 import { RiArrowDownSLine, RiCheckFill } from "react-icons/ri";
 
+import { DurationFilterProps, FilterOption } from "../types";
 import useStore from "../utils/store";
 
-const DURATION_OPTIONS = [
+const DURATION_OPTIONS: FilterOption[] = [
   { label: "6 mois", value: 6 },
   { label: "7 mois", value: 7 },
   { label: "8 mois", value: 8 },
@@ -14,16 +15,16 @@ const DURATION_OPTIONS = [
   { label: "12 mois", value: 12 },
 ];
 
-const DurationFilter = ({ selected, onChange, position = "left-0", width = "w-80" }) => {
+const DurationFilter = ({ selected, onChange, position = "left-0", width = "w-80" }: DurationFilterProps) => {
   const { url, color } = useStore();
   const plausible = usePlausible();
   const [show, setShow] = useState(false);
   const [focusedIndex, setFocusedIndex] = useState(-1);
-  const ref = useRef(null);
+  const ref = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (ref.current && !ref.current.contains(event.target)) {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (ref.current && !ref.current.contains(event.target as Node)) {
         setShow(false);
         setFocusedIndex(-1);
       }
@@ -32,7 +33,7 @@ const DurationFilter = ({ selected, onChange, position = "left-0", width = "w-80
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  const handleKeyDown = (e) => {
+  const handleKeyDown = (e: React.KeyboardEvent) => {
     if (!show) {
       if (e.key === "Enter" || e.key === " " || e.key === "ArrowDown" || e.key === "ArrowUp") {
         e.preventDefault();
@@ -44,6 +45,7 @@ const DurationFilter = ({ selected, onChange, position = "left-0", width = "w-80
 
     // Navigation when dropdown is open
     switch (e.key) {
+      case "Down":
       case "ArrowDown":
         e.preventDefault();
         setFocusedIndex((prev) => {
@@ -52,6 +54,7 @@ const DurationFilter = ({ selected, onChange, position = "left-0", width = "w-80
           return prev < maxIndex ? prev + 1 : 0;
         });
         break;
+      case "Down":
       case "ArrowUp":
         e.preventDefault();
         setFocusedIndex((prev) => {
@@ -68,7 +71,7 @@ const DurationFilter = ({ selected, onChange, position = "left-0", width = "w-80
           onChange(item);
           setShow(false);
           setFocusedIndex(-1);
-          plausible(`Filter duration selected`, { props: { filter: item.label }, u: url });
+          plausible(`Filter duration selected`, { props: { filter: item.label }, u: url || undefined });
         }
         break;
       case "Escape":
@@ -115,12 +118,12 @@ const DurationFilter = ({ selected, onChange, position = "left-0", width = "w-80
                 id={`duration-option-${index}`}
                 role="option"
                 aria-selected={selected?.value === item.value}
-                className={`w-full flex items-center text-sm px-4 py-2 cursor-pointer ${index === focusedIndex ? "bg-[#0000000A]" : "hover:bg-[#0000000A]"}`}
+                className={`w-full flex items-center text-sm px-4 py-2 cursor-pointer ${index === focusedIndex ? "bg-[#0000000A] ring ring-[#000091]" : "hover:bg-[#0000000A]"}`}
                 onClick={() => {
                   onChange(item);
                   setShow(false);
                   setFocusedIndex(-1);
-                  plausible(`Filter duration selected`, { props: { filter: item.label }, u: url });
+                  plausible(`Filter duration selected`, { props: { filter: item.label }, u: url || undefined });
                 }}
                 onMouseEnter={() => setFocusedIndex(index)}
               >
@@ -138,7 +141,7 @@ const DurationFilter = ({ selected, onChange, position = "left-0", width = "w-80
               onChange(null);
               setShow(false);
               setFocusedIndex(-1);
-              plausible("Filter duration erased", { u: url });
+              plausible("Filter duration erased", { u: url || undefined });
             }}
           >
             Réinitialiser

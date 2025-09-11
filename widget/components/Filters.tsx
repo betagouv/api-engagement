@@ -1,7 +1,18 @@
+import { Filters as FilterTypes, Widget } from "../types";
 import FiltersBenevolat from "./FiltersBenevolat";
 import FiltersVolontariat from "./FiltersVolontariat";
 
-const Filters = (props) => {
+interface FiltersProps {
+  widget: Widget;
+  apiUrl: string;
+  values: FilterTypes;
+  onChange: (newFilters: Partial<FilterTypes>) => void;
+  disabledLocation: boolean;
+  show: boolean;
+  onShow: (show: boolean) => void;
+}
+
+const Filters = (props: FiltersProps) => {
   const { widget, ...rest } = props;
 
   if (widget.type === "volontariat") {

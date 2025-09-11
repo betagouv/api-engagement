@@ -2,24 +2,41 @@ import { usePlausible } from "next-plausible";
 import { useEffect, useRef, useState } from "react";
 import { RiCloseFill, RiMapPin2Fill } from "react-icons/ri";
 
+import { Location, LocationFilterProps } from "../types";
 import useStore from "../utils/store";
 
-const LocationFilter = ({ selected, onChange, width = "w-80", disabled = false }) => {
+interface AddressFeature {
+  properties: {
+    name: string;
+    postcode: string;
+    id: string;
+    city: string;
+  };
+  geometry: {
+    coordinates: [number, number];
+  };
+}
+
+interface AddressApiResponse {
+  features: AddressFeature[];
+}
+
+const LocationFilter = ({ selected, onChange, width = "w-80", disabled = false }: LocationFilterProps) => {
   const { url } = useStore();
   const plausible = usePlausible();
   const [show, setShow] = useState(false);
-  const [options, setOptions] = useState([]);
+  const [options, setOptions] = useState<Location[]>([]);
   const [inputValue, setInputValue] = useState(selected?.label || "");
   const [focusedIndex, setFocusedIndex] = useState(-1);
-  const ref = useRef(null);
+  const ref = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     setInputValue(selected?.label || "");
   }, [selected]);
 
   useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (ref.current && !ref.current.contains(event.target)) {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (ref.current && !ref.current.contains(event.target as Node)) {
         setShow(false);
         setOptions([]);
         setFocusedIndex(-1);
@@ -29,35 +46,41 @@ const LocationFilter = ({ selected, onChange, width = "w-80", disabled = false }
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  const handleInputChange = async (e) => {
+  const handleInputChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const search = e.target.value;
     setInputValue(search);
     setFocusedIndex(-1);
 
     if (search?.length > 3) {
-      const res = await fetch(`https://api-adresse.data.gouv.fr/search?q=${search}&type=municipality&autocomplete=1&limit=6`).then((r) => r.json());
-      if (!res.features) {
-        return;
+      try {
+        const res: AddressApiResponse = await fetch(`https://api-adresse.data.gouv.fr/search?q=${search}&type=municipality&autocomplete=1&limit=6`).then((r) => r.json());
+        if (!res.features) {
+          return;
+        }
+        setOptions(
+          res.features.map((f) => ({
+            label: `${f.properties.name} (${f.properties.postcode})`,
+            value: f.properties.id,
+            lat: f.geometry.coordinates[1],
+            lon: f.geometry.coordinates[0],
+            city: f.properties.city,
+            postcode: f.properties.postcode,
+            name: f.properties.name,
+          })),
+        );
+        setShow(true);
+      } catch (error) {
+        console.error("Error fetching locations:", error);
+        setOptions([]);
+        setShow(false);
       }
-      setOptions(
-        res.features.map((f) => ({
-          label: `${f.properties.name} (${f.properties.postcode})`,
-          value: f.properties.id,
-          lat: f.geometry.coordinates[1],
-          lon: f.geometry.coordinates[0],
-          city: f.properties.city,
-          postcode: f.properties.postcode,
-          name: f.properties.name,
-        })),
-      );
-      setShow(true);
     } else {
       setOptions([]);
       setShow(false);
     }
   };
 
-  const handleKeyDown = (e) => {
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (!show || options.length === 0) {
       return;
     }
@@ -93,12 +116,12 @@ const LocationFilter = ({ selected, onChange, width = "w-80", disabled = false }
     }
   };
 
-  const handleSelect = (option) => {
+  const handleSelect = (option: Location) => {
     onChange(option);
     setInputValue(option.label);
     setShow(false);
     setFocusedIndex(-1);
-    plausible("Location selected", { props: { location: option.label }, u: url });
+    plausible("Location selected", { props: { location: option.label }, u: url || undefined });
   };
 
   return (
@@ -139,7 +162,7 @@ const LocationFilter = ({ selected, onChange, width = "w-80", disabled = false }
                 onClick={() => {
                   onChange(null);
                   setInputValue("");
-                  plausible("Location erased", { u: url });
+                  plausible("Location erased", { u: url || undefined });
                 }}
               >
                 <RiCloseFill />
