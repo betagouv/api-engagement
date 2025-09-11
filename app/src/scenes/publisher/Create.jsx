@@ -62,7 +62,7 @@ const Create = () => {
       </div>
       <div className="bg-white p-12 space-y-12 shadow-lg">
         <Informations values={values} onChange={setValues} disabled={false} />
-        <div className="w-full h-px bg-gray-border" />
+        <div className="w-full h-px bg-gray-900" />
         <div className="space-y-6">
           <h2 className="text-3xl font-bold">Paramètres</h2>
           {errors.settings && <p className="text-red-700">{errors.settings}</p>}

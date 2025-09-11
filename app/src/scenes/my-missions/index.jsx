@@ -43,8 +43,8 @@ const Tab = ({ title, route = "", actives = [route] }) => {
     <Link to={`/my-missions/${route}`}>
       <div
         className={`${
-          active ? "border-t-2 border-blue-dark bg-white text-blue-dark hover:bg-gray-hover" : "border-0 bg-tab-main hover:bg-tab-hover"
-        } flex translate-y-[1px] cursor-pointer items-center border-x border-x-gray-border px-4 py-2`}
+          active ? "border-t-2 border-blue-france bg-white text-blue-france hover:bg-gray-975" : "border-0 bg-tab-main hover:bg-tab-hover"
+        } flex translate-y-px cursor-pointer items-center border-x border-x-gray-900 px-4 py-2`}
       >
         <p>{title}</p>
       </div>

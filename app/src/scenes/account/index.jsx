@@ -51,7 +51,7 @@ const Account = () => {
         <div className="mb-6 flex justify-between">
           <h2 className="text-3xl font-bold">Vos informations</h2>
           <div
-            className="flex cursor-pointer items-center text-sm text-red-main"
+            className="flex cursor-pointer items-center text-sm text-red-error"
             onClick={() => {
               api.removeToken();
               setAuth(null, null);
@@ -68,13 +68,13 @@ const Account = () => {
             </label>
             <input
               id="firstname"
-              className={`input mb-2 ${errors.firstname ? "border-b-red-main" : "border-b-black"}`}
+              className={`input mb-2 ${errors.firstname ? "border-b-red-error" : "border-b-black"}`}
               name="firstname"
               value={values.firstname}
               onChange={(e) => setValues({ ...values, firstname: e.target.value })}
             />
             {errors.firstname && (
-              <div className="flex items-center text-sm text-red-main">
+              <div className="flex items-center text-sm text-red-error">
                 <RiErrorWarningFill className="mr-2" />
                 {errors.firstname}
               </div>
@@ -87,7 +87,7 @@ const Account = () => {
             </label>
             <input
               id="lastname"
-              className={`input mb-2 ${errors.lastname ? "border-b-red-main" : "border-b-black"}`}
+              className={`input mb-2 ${errors.lastname ? "border-b-red-error" : "border-b-black"}`}
               name="lastname"
               value={values.lastname}
               onChange={(e) => setValues({ ...values, lastname: e.target.value })}
@@ -184,14 +184,14 @@ const ResetPasswordModal = () => {
               </label>
               <input
                 id="old-password"
-                className={`input mb-2 ${errors.oldPassword ? "border-b-red-main" : "border-b-black"}`}
+                className={`input mb-2 ${errors.oldPassword ? "border-b-red-error" : "border-b-black"}`}
                 name="oldPassword"
                 type="password"
                 value={values.oldPassword}
                 onChange={(e) => setValues({ ...values, oldPassword: e.target.value })}
               />
               {errors.oldPassword && (
-                <div className="flex items-center text-sm text-red-main">
+                <div className="flex items-center text-sm text-red-error">
                   <RiErrorWarningFill className="mr-2" />
                   {errors.oldPassword}
                 </div>
@@ -203,13 +203,13 @@ const ResetPasswordModal = () => {
                   Nouveau mot de passe
                 </label>
                 <div className="flex items-center gap-1 cursor-pointer" onClick={() => setShowNewPassword(!showNewPassword)}>
-                  {showNewPassword ? <IoMdEyeOff className="text-blue-dark" /> : <IoMdEye className="text-blue-dark" />}
-                  <span className="text-xs font-bold text-blue-dark">{showNewPassword ? "CACHER" : "AFFICHER"}</span>
+                  {showNewPassword ? <IoMdEyeOff className="text-blue-france" /> : <IoMdEye className="text-blue-france" />}
+                  <span className="text-xs font-bold text-blue-france">{showNewPassword ? "CACHER" : "AFFICHER"}</span>
                 </div>
               </div>
               <input
                 id="new-password"
-                className={`input mb-2 ${errors.newPassword ? "border-b-red-main" : "border-b-black"}`}
+                className={`input mb-2 ${errors.newPassword ? "border-b-red-error" : "border-b-black"}`}
                 name="newPassword"
                 type={showNewPassword ? "text" : "password"}
                 value={values.newPassword}
@@ -217,7 +217,7 @@ const ResetPasswordModal = () => {
                 autoComplete="new-password"
               />
               {errors.newPassword && (
-                <div className="flex items-center text-sm text-red-main">
+                <div className="flex items-center text-sm text-red-error">
                   <RiErrorWarningFill className="mr-2" />
                   {errors.newPassword}
                 </div>
@@ -229,20 +229,20 @@ const ResetPasswordModal = () => {
                   Confirmez le nouveau mot de passe
                 </label>
                 <div className="flex items-center gap-1 cursor-pointer" onClick={() => setShowConfirmPassword(!showConfirmPassword)}>
-                  {showConfirmPassword ? <IoMdEyeOff className="text-blue-dark" /> : <IoMdEye className="text-blue-dark" />}
-                  <span className="text-xs font-bold text-blue-dark">{showConfirmPassword ? "CACHER" : "AFFICHER"}</span>
+                  {showConfirmPassword ? <IoMdEyeOff className="text-blue-france" /> : <IoMdEye className="text-blue-france" />}
+                  <span className="text-xs font-bold text-blue-france">{showConfirmPassword ? "CACHER" : "AFFICHER"}</span>
                 </div>
               </div>
               <input
                 id="confirm-password"
-                className={`input mb-2 ${errors.confirmPassword ? "border-b-red-main" : "border-b-black"}`}
+                className={`input mb-2 ${errors.confirmPassword ? "border-b-red-error" : "border-b-black"}`}
                 name="confirmPassword"
                 type={showConfirmPassword ? "text" : "password"}
                 value={values.confirmPassword}
                 onChange={(e) => setValues({ ...values, confirmPassword: e.target.value })}
               />
               {errors.confirmPassword && (
-                <div className="flex items-center text-sm text-red-main">
+                <div className="flex items-center text-sm text-red-error">
                   <RiErrorWarningFill className="mr-2" />
                   {errors.confirmPassword}
                 </div>
@@ -275,7 +275,7 @@ const ResetPasswordModal = () => {
             </div>
 
             <div className="mt-8 flex gap-2 justify-end">
-              <button type="button" className="button border text-blue-dark py-2 px-4 hover:bg-gray-hover" onClick={() => setOpen(false)}>
+              <button type="button" className="button border text-blue-france py-2 px-4 hover:bg-gray-975" onClick={() => setOpen(false)}>
                 Annuler
               </button>
               <button type="button" className="filled-button" disabled={isErrors()} onClick={handleSubmit}>

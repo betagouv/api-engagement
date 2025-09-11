@@ -95,7 +95,7 @@ const New = () => {
     <div className="space-y-6">
       <StickyBar onEdit={handleSubmit} visible={stickyVisible} canSubmit={canSubmit} />
       <div className="flex">
-        <Link to={`/broadcast/widgets`} className="flex items-center space-x-1 text-blue-dark">
+        <Link to={`/broadcast/widgets`} className="flex items-center space-x-1 text-blue-france">
           <RiArrowLeftLine />
           <span>Retour</span>
         </Link>

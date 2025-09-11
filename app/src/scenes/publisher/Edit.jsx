@@ -161,7 +161,7 @@ const Edit = () => {
       </div>
       <div className="bg-white p-12 space-y-12 shadow-lg">
         <Informations values={values} onChange={setValues} />
-        <div className="w-full h-px bg-gray-border" />
+        <div className="w-full h-px bg-gray-900" />
         <div className="space-y-6">
           <h2 className="text-3xl font-bold">Paramètres</h2>
           {errors.settings && <p className="text-red-700">{errors.settings}</p>}
@@ -174,13 +174,13 @@ const Edit = () => {
             </div>
           </div>
         </div>
-        <div className="w-full h-px bg-gray-border" />
+        <div className="w-full h-px bg-gray-900" />
         <Administration values={values} onChange={setValues} />
-        <div className="w-full h-px bg-gray-border" />
+        <div className="w-full h-px bg-gray-900" />
         <Members values={values} onChange={setValues} />
 
         <div className="flex items-center justify-end gap-2">
-          <button className="button border border-gray-400 flex items-center text-red-main" onClick={handleDelete}>
+          <button className="button border border-gray-400 flex items-center text-red-error" onClick={handleDelete}>
             <TrashSvg className="mr-2" />
             <span>Supprimer</span>
           </button>

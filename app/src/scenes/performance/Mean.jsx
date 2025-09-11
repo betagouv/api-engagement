@@ -86,14 +86,14 @@ const Mean = ({ filters, onFiltersChange }) => {
       </Helmet>
       <div className="flex items-center justify-between">
         <div className="space-y-2">
-          <label className="text-sm text-gray-dark uppercase font-semibold">Période</label>
+          <label className="text-sm text-gray-425 uppercase font-semibold">Période</label>
           <DateRangePicker value={filters} onChange={(value) => onFiltersChange({ ...filters, ...value })} />
         </div>
         {options.length > 1 && (
           <>
-            <div className="h-16 w-px mx-10 bg-gray-border" />
+            <div className="h-16 w-px mx-10 bg-gray-900" />
             <div className="space-y-2 flex-1">
-              <label htmlFor="mean-of-diffusion" className="text-sm text-gray-dark uppercase font-semibold">
+              <label htmlFor="mean-of-diffusion" className="text-sm text-gray-425 uppercase font-semibold">
                 Moyen de diffusion
               </label>
               <select id="mean-of-diffusion" className="select w-full" value={source} onChange={(e) => setSource(e.target.value)}>
@@ -108,7 +108,7 @@ const Mean = ({ filters, onFiltersChange }) => {
         )}
       </div>
 
-      <div className="border-b border-b-gray-border" />
+      <div className="border-b border-b-gray-900" />
 
       <div className="flex flex-col gap-4">
         <h2 className="text-[28px] font-bold">

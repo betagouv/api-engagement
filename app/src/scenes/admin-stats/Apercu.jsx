@@ -75,7 +75,7 @@ const Apercu = () => {
       <div ref={(node) => setFilterSection(node)}>
         <div className="flex items-end gap-4">
           <div className="space-y-2 flex-1">
-            <label className="text-sm text-gray-dark uppercase font-semibold">Période</label>
+            <label className="text-sm text-gray-425 uppercase font-semibold">Période</label>
             <DateRangePicker value={filters} onChange={(value) => setFilters({ ...filters, from: value.from, to: value.to })} />
           </div>
           <label htmlFor="mission-type" className="sr-only">
@@ -88,7 +88,7 @@ const Apercu = () => {
           </select>
         </div>
       </div>
-      <div className="border-b border-b-gray-border" />
+      <div className="border-b border-b-gray-900" />
 
       <Engagement filters={filters} />
       <Mission filters={filters} />
@@ -198,7 +198,7 @@ const Engagement = ({ filters }) => {
         </div>
       ) : (
         <>
-          <div className="border border-gray-border p-4">
+          <div className="border border-gray-900 p-4">
             <div className="flex justify-between mb-4">
               <div>
                 <span className="text-lg font-bold mr-2">{data.totalClicks.toLocaleString("fr")}</span>
@@ -232,7 +232,7 @@ const Engagement = ({ filters }) => {
             )}
           </div>
 
-          <div className="border border-gray-border p-4">
+          <div className="border border-gray-900 p-4">
             <div className="flex justify-between mb-4">
               <div>
                 <span className="text-lg font-bold mr-2">{data.totalApplies.toLocaleString("fr")}</span>
@@ -266,7 +266,7 @@ const Engagement = ({ filters }) => {
             )}
           </div>
 
-          <div className="border border-gray-border p-4">
+          <div className="border border-gray-900 p-4">
             <div className="flex justify-between mb-6">
               <div className="">
                 <span className="text-lg font-bold">Evolution de l'engagement</span>
@@ -357,7 +357,7 @@ const Mission = ({ filters }) => {
         </div>
       ) : (
         <>
-          <div className="border border-gray-border p-4">
+          <div className="border border-gray-900 p-4">
             <div className="flex justify-between mb-4">
               <div>
                 <span className="text-lg font-bold mr-2">
@@ -396,7 +396,7 @@ const Mission = ({ filters }) => {
               </div>
             )}
           </div>
-          <div className="border border-gray-border p-4">
+          <div className="border border-gray-900 p-4">
             <div className="flex justify-between mb-4">
               <div>
                 <span className="text-lg font-bold mr-2">
@@ -502,7 +502,7 @@ const Patners = ({ filters }) => {
         </div>
       ) : (
         <>
-          <div className="border border-gray-border p-4 space-y-6">
+          <div className="border border-gray-900 p-4 space-y-6">
             <div className="space-y-2">
               <h3 className="text-lg font-bold">
                 {total.broadcasters.toLocaleString("fr")}
@@ -563,7 +563,7 @@ const Patners = ({ filters }) => {
             )}
           </div>
 
-          <div className="border border-gray-border p-4 space-y-6">
+          <div className="border border-gray-900 p-4 space-y-6">
             <div className="space-y-2">
               <h3 className="text-lg font-bold">
                 {total.announcers.toLocaleString("fr")}

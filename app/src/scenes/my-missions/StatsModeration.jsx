@@ -62,10 +62,10 @@ const StatsModeration = () => {
         <title>Statistiques de modération - Vos Missions - API Engagement</title>
       </Helmet>
       <div className="space-y-2">
-        <label className="text-sm text-gray-dark uppercase font-semibold">Période</label>
+        <label className="text-sm text-gray-425 uppercase font-semibold">Période</label>
         <DateRangePicker value={filters} onChange={(value) => setFilters({ ...filters, ...value })} />
       </div>
-      <div className="h-px w-full bg-gray-border" />
+      <div className="h-px w-full bg-gray-900" />
       {loading ? (
         <Loader />
       ) : total === 0 ? (
@@ -74,7 +74,7 @@ const StatsModeration = () => {
         </div>
       ) : (
         <div className="flex gap-6 items-start">
-          <div className="w-1/3 border border-gray-border p-6 space-y-6">
+          <div className="w-1/3 border border-gray-900 p-6 space-y-6">
             <h2 className="text-3xl font-bold">
               {data.rate === 1
                 ? `😎 Aucune mission n'a été refusée par l'API Engagement`
@@ -92,7 +92,7 @@ const StatsModeration = () => {
               />
             </div>
           </div>
-          <div className="flex-1 border border-gray-border p-6 space-y-6">
+          <div className="flex-1 border border-gray-900 p-6 space-y-6">
             <h2 className="text-3xl font-bold">Top des motifs de refus</h2>
 
             <Table header={TABLE_HEADER}>

@@ -128,14 +128,14 @@ const ResetPasswordForm = ({ user, token }) => {
             Nouveau mot de passe
           </label>
           <div className="flex items-center gap-1 cursor-pointer" onClick={() => setShow(!show)}>
-            {show ? <IoMdEyeOff className="text-blue-dark" /> : <IoMdEye className="text-blue-dark" />}
-            <span className="text-xs font-bold text-blue-dark">{show ? "CACHER" : "AFFICHER"}</span>
+            {show ? <IoMdEyeOff className="text-blue-france" /> : <IoMdEye className="text-blue-france" />}
+            <span className="text-xs font-bold text-blue-france">{show ? "CACHER" : "AFFICHER"}</span>
           </div>
         </div>
 
         <input
           id="password"
-          className={`input mb-2 ${errors.password ? "border-2 border-b-red-main" : "border-b-black"}`}
+          className={`input mb-2 ${errors.password ? "border-2 border-b-red-error" : "border-b-black"}`}
           name="password"
           type={show ? "text" : "password"}
           value={values.password}
@@ -146,7 +146,7 @@ const ResetPasswordForm = ({ user, token }) => {
           autoComplete="new-password"
         />
         {errors.password && (
-          <div className="flex items-center text-sm text-red-main">
+          <div className="flex items-center text-sm text-red-error">
             <RiErrorWarningFill className="mr-2" />
             {errors.password}
           </div>
@@ -177,13 +177,13 @@ const ResetPasswordForm = ({ user, token }) => {
             Confirmez ce mot de passe
           </label>
           <div className="flex items-center gap-1 cursor-pointer" onClick={() => setShowConfirm(!showConfirm)}>
-            {showConfirm ? <IoMdEyeOff className="text-blue-dark" /> : <IoMdEye className="text-blue-dark" />}
-            <span className="text-xs font-bold text-blue-dark">{showConfirm ? "CACHER" : "AFFICHER"}</span>
+            {showConfirm ? <IoMdEyeOff className="text-blue-france" /> : <IoMdEye className="text-blue-france" />}
+            <span className="text-xs font-bold text-blue-france">{showConfirm ? "CACHER" : "AFFICHER"}</span>
           </div>
         </div>
         <input
           id="confirm-password"
-          className={`input mb-2 ${loading && errors.confirmPassword ? "border-b-red-main" : "border-b-black"}`}
+          className={`input mb-2 ${loading && errors.confirmPassword ? "border-b-red-error" : "border-b-black"}`}
           name="confirmPassword"
           type={showConfirm ? "text" : "password"}
           value={values.confirmPassword}
@@ -193,7 +193,7 @@ const ResetPasswordForm = ({ user, token }) => {
           }}
         />
         {errors.confirmPassword && (
-          <div className="flex items-center text-sm text-red-main">
+          <div className="flex items-center text-sm text-red-error">
             <RiErrorWarningFill className="mr-2" />
             {errors.confirmPassword}
           </div>
@@ -201,7 +201,7 @@ const ResetPasswordForm = ({ user, token }) => {
       </div>
 
       {errors.expired && (
-        <div className="flex items-center text-sm text-red-main">
+        <div className="flex items-center text-sm text-red-error">
           <RiErrorWarningFill className="mr-2" />
           <Link to="/forgot-password" className="underline">
             Réinitialisation expirée
@@ -210,11 +210,15 @@ const ResetPasswordForm = ({ user, token }) => {
       )}
 
       {!success ? (
-        <button type="submit" className="button mt-6 bg-blue-dark text-white hover:bg-blue-main" disabled={loading || errors.confirmPassword || errors.password || errors.expired}>
+        <button
+          type="submit"
+          className="button mt-6 bg-blue-france text-white hover:bg-blue-france-hover"
+          disabled={loading || errors.confirmPassword || errors.password || errors.expired}
+        >
           {loading ? "Enregistrement..." : "Enregister"}
         </button>
       ) : (
-        <div className="mt-4 flex items-center text-sm text-green-main">
+        <div className="mt-4 flex items-center text-sm text-green-success">
           <RiCheckboxCircleFill className="mr-2" />
           <p>
             Nouveau mot de passe enregistré <br />

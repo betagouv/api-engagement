@@ -81,10 +81,10 @@ const GlobalDiffuseur = ({ filters, onFiltersChange }) => {
         <title>Au global - Performance - API Engagement</title>
       </Helmet>
       <div className="space-y-2">
-        <label className="text-sm text-gray-dark uppercase font-semibold">Période</label>
+        <label className="text-sm text-gray-425 uppercase font-semibold">Période</label>
         <DateRangePicker value={filters} onChange={(value) => onFiltersChange({ ...filters, ...value })} />
       </div>
-      <div className="border-b border-b-gray-border" />
+      <div className="border-b border-b-gray-900" />
 
       {trackingWarning && (
         <WarningAlert onClose={() => setTrackingWarning(false)}>
@@ -101,7 +101,7 @@ const GlobalDiffuseur = ({ filters, onFiltersChange }) => {
       <div className="space-y-6">
         <div className="space-y-2">
           <h2 className="text-3xl font-bold">Aperçu</h2>
-          <p className="text-base text-gray-dark">Les missions que vous diffusez et l'impact que vous générez pour vos partenaires annonceurs</p>
+          <p className="text-base text-gray-425">Les missions que vous diffusez et l'impact que vous générez pour vos partenaires annonceurs</p>
         </div>
         {loading ? (
           <div className="w-full py-10 flex justify-center">
@@ -126,20 +126,20 @@ const GlobalDiffuseur = ({ filters, onFiltersChange }) => {
                   {data.totalPrint === 0 ? (
                     <div className="relative group">
                       <RiAlertFill className="text-2xl text-[#b34000] cursor-pointer" />
-                      <div className="hidden group-hover:block absolute -translate-x-1/2 bottom-8 z-10 w-80 border border-gray-border bg-white p-4 shadow-lg">
+                      <div className="hidden group-hover:block absolute -translate-x-1/2 bottom-8 z-10 w-80 border border-gray-900 bg-white p-4 shadow-lg">
                         <p className="text-xs">Ils semblerait que les impressions de vos campagnes ou missions ne soient pas comptabilisées</p>
                       </div>
                     </div>
                   ) : (
                     <div className="relative group">
                       <RiInformationFill className="text-2xl text-[#666] cursor-pointer" />
-                      <div className="hidden group-hover:block absolute -translate-x-1/2 bottom-8 z-10 w-80 border border-gray-border bg-white p-4 shadow-lg">
+                      <div className="hidden group-hover:block absolute -translate-x-1/2 bottom-8 z-10 w-80 border border-gray-900 bg-white p-4 shadow-lg">
                         <p className="text-xs">Les impressions des liens situés dans des emails ou SMS ne sont pas comptabilisés dans ce total</p>
                       </div>
                     </div>
                   )}
                 </div>
-                <p className="text-base text-gray-dark">impressions</p>
+                <p className="text-base text-gray-425">impressions</p>
               </div>
               <div className="border p-6">
                 <p className="font-bold text-[28px]">{data.totalClick?.toLocaleString("fr")}</p>
@@ -205,19 +205,19 @@ const DistributionMean = ({ filters, defaultType = "print" }) => {
       <h2 className="text-3xl font-bold">Répartition par moyen de diffusion</h2>
       <div className="border space-y-4 p-6">
         <div className="flex items-center text-sm gap-8 mb-8">
-          <button onClick={() => setType("print")} className={`pb-1 ${type === "print" ? "border-b-2 border-blue-dark text-blue-dark font-semibold" : ""}`}>
+          <button onClick={() => setType("print")} className={`pb-1 ${type === "print" ? "border-b-2 border-blue-france text-blue-france font-semibold" : ""}`}>
             Impressions
           </button>
 
-          <button onClick={() => setType("click")} className={`pb-1 ${type === "click" ? "border-b-2 border-blue-dark text-blue-dark font-semibold" : ""}`}>
+          <button onClick={() => setType("click")} className={`pb-1 ${type === "click" ? "border-b-2 border-blue-france text-blue-france font-semibold" : ""}`}>
             Redirections
           </button>
 
-          <button onClick={() => setType("account")} className={`pb-1 ${type === "account" ? "border-b-2 border-blue-dark text-blue-dark font-semibold" : ""}`}>
+          <button onClick={() => setType("account")} className={`pb-1 ${type === "account" ? "border-b-2 border-blue-france text-blue-france font-semibold" : ""}`}>
             Créations de compte
           </button>
 
-          <button onClick={() => setType("apply")} className={`pb-1 ${type === "apply" ? "border-b-2 border-blue-dark text-blue-dark font-semibold" : ""}`}>
+          <button onClick={() => setType("apply")} className={`pb-1 ${type === "apply" ? "border-b-2 border-blue-france text-blue-france font-semibold" : ""}`}>
             Candidatures
           </button>
         </div>
@@ -324,23 +324,23 @@ const Evolution = ({ filters, defaultType = "print" }) => {
     <div className="space-y-6">
       <div className="space-y-2">
         <h2 className="text-3xl font-bold">Evolution</h2>
-        <p className="text-base text-gray-dark">Trafic que vous avez généré pour vos partenaires annonceurs</p>
+        <p className="text-base text-gray-425">Trafic que vous avez généré pour vos partenaires annonceurs</p>
       </div>
       <div className="border p-4">
         <div className="flex items-center text-sm gap-8 mb-8">
-          <button onClick={() => setType("print")} className={`pb-1 ${type === "print" ? "border-b-2 border-blue-dark text-blue-dark font-semibold" : ""}`}>
+          <button onClick={() => setType("print")} className={`pb-1 ${type === "print" ? "border-b-2 border-blue-france text-blue-france font-semibold" : ""}`}>
             Impressions
           </button>
 
-          <button onClick={() => setType("click")} className={`pb-1 ${type === "click" ? "border-b-2 border-blue-dark text-blue-dark font-semibold" : ""}`}>
+          <button onClick={() => setType("click")} className={`pb-1 ${type === "click" ? "border-b-2 border-blue-france text-blue-france font-semibold" : ""}`}>
             Redirections
           </button>
 
-          <button onClick={() => setType("account")} className={`pb-1 ${type === "account" ? "border-b-2 border-blue-dark text-blue-dark font-semibold" : ""}`}>
+          <button onClick={() => setType("account")} className={`pb-1 ${type === "account" ? "border-b-2 border-blue-france text-blue-france font-semibold" : ""}`}>
             Créations de compte
           </button>
 
-          <button onClick={() => setType("apply")} className={`pb-1 ${type === "apply" ? "border-b-2 border-blue-dark text-blue-dark font-semibold" : ""}`}>
+          <button onClick={() => setType("apply")} className={`pb-1 ${type === "apply" ? "border-b-2 border-blue-france text-blue-france font-semibold" : ""}`}>
             Candidatures
           </button>
         </div>
@@ -410,7 +410,7 @@ const Announcers = ({ filters }) => {
     <div className="space-y-6">
       <div className="space-y-2">
         <h2 className="text-3xl font-bold">Vos annonceurs</h2>
-        <p className="text-base text-gray-dark">Vous avez diffusé des missions de {announcerData?.length} partenaires annonceurs</p>
+        <p className="text-base text-gray-425">Vous avez diffusé des missions de {announcerData?.length} partenaires annonceurs</p>
       </div>
       {loading ? (
         <div className="w-full py-10 flex justify-center">

@@ -2,8 +2,8 @@ import { useState } from "react";
 import Pagination from "./Pagination";
 
 export const Table = ({ data, renderHeader, renderFooter, renderItem, headerHeight = "h-12", itemHeight = "h-16", maxHeigth = "" }) => {
-  if (!data) return <div className={`bg-gray-light p-4 text-center text-sm font-bold text-black`}>Chargement...</div>;
-  if (!data.length) return <div className={`bg-gray-light p-4 text-center text-sm font-bold text-black`}>Aucune donnée</div>;
+  if (!data) return <div className={`bg-gray-950 p-4 text-center text-sm font-bold text-black`}>Chargement...</div>;
+  if (!data.length) return <div className={`bg-gray-950 p-4 text-center text-sm font-bold text-black`}>Aucune donnée</div>;
 
   return (
     <div className="w-full bg-[#f6f6f6]">
@@ -15,7 +15,7 @@ export const Table = ({ data, renderHeader, renderFooter, renderItem, headerHeig
           const rowBgColor = i % 2 === 0 ? "bg-gray-200" : "bg-gray-100";
           if (item)
             return (
-              <div key={i} className={`flex items-center border-b border-b-gray-main px-4 text-left text-xs text-black ${itemHeight} ${rowBgColor}`}>
+              <div key={i} className={`flex items-center border-b border-b-gray-925 px-4 text-left text-xs text-black ${itemHeight} ${rowBgColor}`}>
                 {item}
               </div>
             );
@@ -59,7 +59,7 @@ export const TablePaginator = ({
 
             if (item)
               return (
-                <div key={i} className={`flex items-center border-b border-b-gray-main px-4 text-left text-xs text-black ${itemHeight} ${rowBgColor}`}>
+                <div key={i} className={`flex items-center border-b border-b-gray-925 px-4 text-left text-xs text-black ${itemHeight} ${rowBgColor}`}>
                   {item}
                 </div>
               );

@@ -117,7 +117,7 @@ const Campaigns = () => {
         </div>
         <div className="flex items-center gap-4">
           {user.role === "admin" && (
-            <Link to="/broadcast/campaign/new" className="button flex items-center bg-blue-dark text-white hover:bg-blue-main">
+            <Link to="/broadcast/campaign/new" className="button flex items-center bg-blue-france text-white hover:bg-blue-france-hover">
               Nouvelle campagne <RiAddFill className="ml-2" />
             </Link>
           )}
@@ -140,7 +140,7 @@ const Campaigns = () => {
           {data.slice((filters.page - 1) * filters.pageSize, filters.page * filters.pageSize).map((item, i) => (
             <tr key={i} className={`${i % 2 === 0 ? "bg-gray-100" : "bg-gray-50"} table-item`}>
               <td className="px-4 truncate" colSpan={3}>
-                <Link to={`/broadcast/campaign/${item._id}`} className="text-blue-dark">
+                <Link to={`/broadcast/campaign/${item._id}`} className="text-blue-france">
                   {item.name}
                 </Link>
               </td>
@@ -150,11 +150,11 @@ const Campaigns = () => {
               <td className={`px-4 ${!item.active ? "opacity-50" : "opacity-100"}`}>{new Date(item.createdAt).toLocaleDateString("fr")}</td>
               <td className="px-4">
                 <div className="flex gap-2 text-lg">
-                  <button className="cursor-pointer border border-blue-dark p-2" onClick={() => handleCopy(item._id)}>
-                    <HiLink className="text-blue-dark" />
+                  <button className="cursor-pointer border border-blue-france p-2" onClick={() => handleCopy(item._id)}>
+                    <HiLink className="text-blue-france" />
                   </button>
-                  <button className="cursor-pointer border border-blue-dark p-2" onClick={() => handleDuplicate(item._id)}>
-                    <RiFileCopyLine className="text-blue-dark" />
+                  <button className="cursor-pointer border border-blue-france p-2" onClick={() => handleDuplicate(item._id)}>
+                    <RiFileCopyLine className="text-blue-france" />
                   </button>
                 </div>
               </td>

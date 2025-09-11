@@ -67,9 +67,9 @@ const Login = () => {
       <label className="mb-2 mt-6 text-sm" htmlFor="email">
         E-mail
       </label>
-      <input className={`input mb-2 ${errors.email ? "border-b-red-main" : "border-b-black"}`} name="email" id="email" type="email" />
+      <input className={`input mb-2 ${errors.email ? "border-b-red-error" : "border-b-black"}`} name="email" id="email" type="email" />
       {errors.email && (
-        <div className="flex items-center text-sm text-red-main">
+        <div className="flex items-center text-sm text-red-error">
           <RiErrorWarningFill className="mr-2" />
           {errors.email}
         </div>
@@ -78,9 +78,9 @@ const Login = () => {
       <label className="mb-2 mt-6 text-sm" htmlFor="password">
         Mot de passe
       </label>
-      <input className={`input mb-2 ${errors.password ? "border-b-red-main" : "border-b-black"}`} name="password" type="password" id="password" />
+      <input className={`input mb-2 ${errors.password ? "border-b-red-error" : "border-b-black"}`} name="password" type="password" id="password" />
       {errors.password && (
-        <div className="flex items-center text-sm text-red-main">
+        <div className="flex items-center text-sm text-red-error">
           <RiErrorWarningFill className="mr-2" />
           {errors.password}
         </div>
@@ -91,11 +91,11 @@ const Login = () => {
           Mot de passe oublié ?
         </Link>
       </div>
-      <button type="submit" className="button bg-blue-dark text-white hover:bg-blue-main" disabled={loading}>
+      <button type="submit" className="button bg-blue-france text-white hover:bg-blue-france-hover" disabled={loading}>
         {loading ? "Chargement..." : "Se connecter"}
       </button>
       {errors.login && (
-        <div className="mt-4 flex items-center text-sm text-red-main">
+        <div className="mt-4 flex items-center text-sm text-red-error">
           <RiErrorWarningFill className="mr-2" />
           {errors.login}
         </div>

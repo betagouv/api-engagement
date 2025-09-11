@@ -72,10 +72,10 @@ const MissionItem = ({ data, history, selected, onChange, onSelect, onFilter }) 
         <input id="moderation-select" type="checkbox" className="checkbox" name="moderation-select" onChange={handleSelectModeration} checked={selected} />
       </span>
       <div className="flex flex-1 flex-col justify-between">
-        <div className="my-2 line-clamp-3 flex items-center text-base font-semibold hover:cursor-pointer hover:text-blue-dark" onClick={handleMissionClick}>
+        <div className="my-2 line-clamp-3 flex items-center text-base font-semibold hover:cursor-pointer hover:text-blue-france" onClick={handleMissionClick}>
           {data.newTitle || data.title}
         </div>
-        <div className="flex items-center gap-4 text-gray-dark mb-2">
+        <div className="flex items-center gap-4 text-gray-425 mb-2">
           {data.city && (
             <span className="flex items-center">
               <RiMapPin2Fill className="mr-2" />
@@ -88,7 +88,7 @@ const MissionItem = ({ data, history, selected, onChange, onSelect, onFilter }) 
             {data.endAt && ` au ${new Date(data.endAt).toLocaleDateString("fr")}`}
           </span>
         </div>
-        <div className="flex items-center text-gray-dark">
+        <div className="flex items-center text-gray-425">
           <RiTimeLine className="mr-2 text-xs" />
           Postée le {new Date(data.postedAt).toLocaleDateString("fr")} sur {data.publisherName}
         </div>
@@ -96,21 +96,21 @@ const MissionItem = ({ data, history, selected, onChange, onSelect, onFilter }) 
       <div className="flex w-[25%] flex-col justify-between px-2">
         <span className="max-h-12 truncate">{data.organizationName}</span>
         <div>
-          <div className="my-2 inline-flex flex-wrap items-center gap-1 rounded border border-gray-border p-1">
+          <div className="my-2 inline-flex flex-wrap items-center gap-1 rounded border border-gray-900 p-1">
             <span>Missions</span>
             <RiCheckboxCircleFill className="text-green-success" />
             <span className="text-green-success">{history["ACCEPTED"] || "0"}</span>
-            <BsDot className="text-gray-dark" />
-            <RiCloseCircleFill className="text-red-main" />
-            <span className="text-red-main">{history["REFUSED"] || "0"}</span>
+            <BsDot className="text-gray-425" />
+            <RiCloseCircleFill className="text-red-error" />
+            <span className="text-red-error">{history["REFUSED"] || "0"}</span>
           </div>
         </div>
         {data.associationSources?.length ? (
-          <span className="text-gray-dark">
+          <span className="text-gray-425">
             {data.associationSources.length > 0 && `Inscrite sur ${data.associationSources.map((a) => (a === "Je veux aider" ? "JeVeuxAider.gouv.fr" : a)).join(", ")}`}
           </span>
         ) : (
-          <span className="text-gray-dark">Pas d'inscription retrouvée</span>
+          <span className="text-gray-425">Pas d'inscription retrouvée</span>
         )}
       </div>
 
@@ -165,7 +165,7 @@ const MissionActionsMenu = ({ data, onFilter, onChange }) => {
   return (
     <>
       <Menu as="div" className="relative h-full text-left">
-        <Menu.Button as="div" className="flex h-full cursor-pointer border border-black items-center justify-between gap-4 px-3 text-sm hover:bg-gray-hover">
+        <Menu.Button as="div" className="flex h-full cursor-pointer border border-black items-center justify-between gap-4 px-3 text-sm hover:bg-gray-975">
           <span className="font-semibold">
             <RiMoreFill />
           </span>
@@ -179,9 +179,9 @@ const MissionActionsMenu = ({ data, onFilter, onChange }) => {
           leaveFrom="transform opacity-100 scale-100"
           leaveTo="transform opacity-0 scale-95"
         >
-          <Menu.Items as="div" className="absolute right-0 z-30 mt-2 w-64 origin-top-right border border-gray-border bg-white text-black focus:outline-none">
+          <Menu.Items as="div" className="absolute right-0 z-30 mt-2 w-64 origin-top-right border border-gray-900 bg-white text-black focus:outline-none">
             <Menu.Item>
-              <button onClick={handleMissionClick} className="flex cursor-pointer text-blue-dark text-sm items-center p-3 w-full text-left hover:bg-gray-light border-none">
+              <button onClick={handleMissionClick} className="flex cursor-pointer text-blue-france text-sm items-center p-3 w-full text-left hover:bg-gray-950 border-none">
                 Aperçu de la mission
               </button>
             </Menu.Item>
@@ -190,7 +190,7 @@ const MissionActionsMenu = ({ data, onFilter, onChange }) => {
                 href={data.applicationUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex cursor-pointer text-blue-dark text-sm items-center p-3 w-full text-left hover:bg-gray-light border-none"
+                className="flex cursor-pointer text-blue-france text-sm items-center p-3 w-full text-left hover:bg-gray-950 border-none"
               >
                 Lien de la mission
               </a>
@@ -198,14 +198,14 @@ const MissionActionsMenu = ({ data, onFilter, onChange }) => {
             <Menu.Item>
               {data.note ? (
                 <button
-                  className="flex cursor-pointer text-blue-dark text-sm items-center p-3 w-full text-left hover:bg-gray-light border-none"
+                  className="flex cursor-pointer text-blue-france text-sm items-center p-3 w-full text-left hover:bg-gray-950 border-none"
                   onClick={() => setIsModalOpen(true)}
                 >
                   Modifier la note
                 </button>
               ) : (
                 <button
-                  className="flex cursor-pointer text-blue-dark text-sm items-center p-3 w-full text-left hover:bg-gray-light border-none"
+                  className="flex cursor-pointer text-blue-france text-sm items-center p-3 w-full text-left hover:bg-gray-950 border-none"
                   onClick={() => setIsModalOpen(true)}
                 >
                   Ajouter une note interne
@@ -214,7 +214,7 @@ const MissionActionsMenu = ({ data, onFilter, onChange }) => {
             </Menu.Item>
             <Menu.Item>
               <button
-                className="flex cursor-pointer text-blue-dark text-sm items-center p-3 w-full text-left hover:bg-gray-light border-none"
+                className="flex cursor-pointer text-blue-france text-sm items-center p-3 w-full text-left hover:bg-gray-950 border-none"
                 onClick={() => onFilter(data.organizationName)}
               >
                 Filter les missions de l'organisation

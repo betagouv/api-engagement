@@ -55,13 +55,13 @@ const RealTime = () => {
       <Helmet>
         <title>Événements en temps réel - Paramètres - API Engagement</title>
       </Helmet>
-      <div className="border border-gray-border p-8 space-y-8">
+      <div className="border border-gray-900 p-8 space-y-8">
         <div className="flex items-center justify-between gap-4">
           <div className="space-y-2 w-[40%]">
             <h2 className="text-3xl font-bold">
               Activité {{ apply: "des candidatures", click: "des redirections", print: "des impressions", account: "des créations de compte" }[filters.type]} en temps réel
             </h2>
-            <p className="mb-4 text-xs text-gray-dark">
+            <p className="mb-4 text-xs text-gray-425">
               L'historique
               {{ apply: " des dernières candidatures", click: " des dernières redirections", impressions: " des dernières impressions" }[filters.type] ||
                 " de toutes les dernières activités"}

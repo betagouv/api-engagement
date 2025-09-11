@@ -9,7 +9,7 @@ const Modal = ({ isOpen, children, onClose, className = "w-full max-w-3xl", wapp
       <div className={`${wapperClassName} absolute z-10 md:px-4`}>
         <div className={`${className} absolute left-1/2 top-1/2 z-10 -translate-x-1/2 -translate-y-1/2 transform overflow-y-auto border bg-white`}>
           <div className="relative h-full w-full">
-            <button type="button" className="absolute right-2 top-2 cursor-pointer p-3 text-sm text-blue-dark" onClick={onClose}>
+            <button type="button" className="absolute right-2 top-2 cursor-pointer p-3 text-sm text-blue-france" onClick={onClose}>
               <span className="leading-none">Fermer</span>
               <RiCloseFill className="ml-2 inline text-sm" />
             </button>

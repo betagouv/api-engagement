@@ -45,7 +45,7 @@ const PublishersTab = () => {
           <p>{`${total} partenaire${total > 1 ? "s" : ""}`}</p>
         </div>
 
-        <div className="flex overflow-hidden rounded-t border-b border-b-blue-dark">
+        <div className="flex overflow-hidden rounded-t border-b border-b-blue-france">
           <label htmlFor="search-partner" className="sr-only">
             Chercher par nom
           </label>
@@ -61,14 +61,14 @@ const PublishersTab = () => {
         <div className="grid grid-cols-4 gap-10">
           {data.map((item, index) => {
             return (
-              <div key={index} className="flex flex-col items-center border border-gray-border h-40">
-                <div className="mt-2 text-center text-xs text-gray-dark">{item.name}</div>
+              <div key={index} className="flex flex-col items-center border border-gray-900 h-40">
+                <div className="mt-2 text-center text-xs text-gray-425">{item.name}</div>
                 <div className="flex flex-1 items-center justify-center w-full h-24">
                   {item.logo && <img className="object-contain w-full h-full p-2" src={item.logo} alt={`${item.name} logo`} />}
                 </div>
                 {item.moderator && (
-                  <div className="flex w-full items-center justify-center border-t border-gray-border py-2">
-                    <Link to={`/my-missions/moderated-mission/${item._id.toString()}`} className="text-xs text-blue-dark">
+                  <div className="flex w-full items-center justify-center border-t border-gray-900 py-2">
+                    <Link to={`/my-missions/moderated-mission/${item._id.toString()}`} className="text-xs text-blue-france">
                       Missions modérées
                       <RiArrowRightSLine className="ml-0.5 inline-block text-xs" />
                     </Link>

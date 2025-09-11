@@ -10,12 +10,12 @@ const Modal = ({ isOpen, children, onClose, className = "w-1/2" }) => {
       <div className="fixed inset-0 flex w-screen items-center justify-center p-4">
         <DialogPanel
           transition
-          className={`w-full max-w-3xl bg-white p-6 backdrop-blur-2xl duration-300 ease-out data-[closed]:transform-[scale(95%)] data-[closed]:opacity-0 ${className}`}
+          className={`w-full max-w-3xl bg-white p-6 backdrop-blur-2xl duration-300 ease-out data-closed:transform-[scale(95%)] data-closed:opacity-0 ${className}`}
         >
           <div className="absolute right-2 top-2 cursor-pointer p-3">
-            <HiX className="text-blue-dark text-lg" onClick={onClose} />
+            <HiX className="text-blue-france text-lg" onClick={onClose} />
           </div>
-          <div className="max-h-[100%] overflow-y-auto">{children}</div>
+          <div className="max-h-full overflow-y-auto">{children}</div>
         </DialogPanel>
       </div>
     </Dialog>

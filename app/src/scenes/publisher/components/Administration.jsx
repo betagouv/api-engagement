@@ -28,7 +28,7 @@ const Administration = ({ values, onChange }) => {
         </label>
         <div className="relative">
           <Toggle value={values.sendReport} onChange={(e) => onChange({ ...values, sendReport: e })} />
-          {values.sendReport ? <p className="text-base text-blue-dark absolute top-8 right-0">Oui</p> : <p className="text-base text-gray-700 absolute top-8 right-0">Non</p>}
+          {values.sendReport ? <p className="text-base text-blue-france absolute top-8 right-0">Oui</p> : <p className="text-base text-gray-700 absolute top-8 right-0">Non</p>}
         </div>
       </div>
       <div className="flex-1 space-y-4">

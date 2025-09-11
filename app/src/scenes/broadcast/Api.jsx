@@ -59,13 +59,13 @@ const Api = () => {
           <p>Je deviens diffuseur pour mes partenaires en partageant leurs missions</p>
         </div>
 
-        <a href="https://doc.api-engagement.beta.gouv.fr/" className="button flex items-center border border-blue-dark text-blue-dark" target="_blank">
+        <a href="https://doc.api-engagement.beta.gouv.fr/" className="button flex items-center border border-blue-france text-blue-france" target="_blank">
           <RiBookletFill className="mr-2" />
           Documentation
         </a>
       </div>
-      <div className="border border-gray-border p-6">
-        <div className="flex items-center justify-between gap-4 border-b border-b-gray-main pb-6">
+      <div className="border border-gray-900 p-6">
+        <div className="flex items-center justify-between gap-4 border-b border-b-gray-925 pb-6">
           <label htmlFor="apikey" className="w-1/4 font-semibold">
             Votre clé API
           </label>
@@ -85,7 +85,7 @@ const Api = () => {
           </div>
           {/* {user.role === "admin" && (
             <>
-              <button className="flex cursor-pointer items-center border border-blue-dark p-2 text-blue-dark" onClick={handleReset}>
+              <button className="flex cursor-pointer items-center border border-blue-france p-2 text-blue-france" onClick={handleReset}>
                 <IoSync />
               </button>
             </>

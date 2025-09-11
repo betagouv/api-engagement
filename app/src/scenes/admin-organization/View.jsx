@@ -40,15 +40,15 @@ const View = () => {
           {data.status === "ACTIVE" ? (
             <div className="flex items-center gap-2">
               <p>Active</p>
-              <RiCheckboxCircleFill className="text-green-main" />
+              <RiCheckboxCircleFill className="text-green-success" />
             </div>
           ) : (
             <div className="flex items-center gap-2">
               <p>Inactive</p>
-              <RiCloseCircleFill className="text-red-main" />
+              <RiCloseCircleFill className="text-red-error" />
             </div>
           )}
-          <div className="flex items-center gap-2 text-base text-gray-dark">
+          <div className="flex items-center gap-2 text-base text-gray-425">
             <HiLocationMarker className="ml-2" />
             {data.addressDepartmentName && <span>{data.addressDepartmentName}</span>}
             {data.addressCity && (
@@ -77,12 +77,12 @@ const View = () => {
           <p>Dernière modification le {data.updatedAt ? new Date(data.updatedAt).toLocaleDateString("fr") : "N/A"}</p>
         </div>
 
-        <div className="flex gap-4 border border-gray-border p-6">
+        <div className="flex gap-4 border border-gray-900 p-6">
           <div className="flex-1">
             <p className="text-xl font-semibold">Object de l'organisme</p>
             <p className="mt-4">{data.object}</p>
           </div>
-          <div className="w-[1px] bg-gray-border" />
+          <div className="w-px bg-gray-900" />
           <div className="w-1/3">
             <p className="text-xl font-semibold">Adresse complète</p>
             <p className="mt-4">
@@ -116,13 +116,13 @@ const View = () => {
         </div>
 
         <div className="mt-6">
-          <button className="button border border-blue-dark text-blue-dark" onClick={() => setShowRaw(!showRaw)}>
+          <button className="button border border-blue-france text-blue-france" onClick={() => setShowRaw(!showRaw)}>
             Données brutes
           </button>
         </div>
 
         {showRaw && (
-          <div className="mt-6 overflow-scroll border border-gray-border p-6 text-xs">
+          <div className="mt-6 overflow-scroll border border-gray-900 p-6 text-xs">
             <pre>{JSON.stringify(data, null, 2)}</pre>
           </div>
         )}

@@ -34,8 +34,8 @@ const Header = ({ total, data, size, sort, selected, onSize, onSort, onSelect, o
             <h2 className="text-xl font-semibold">{total.toLocaleString("fr")} missions diffusables</h2>
           )}
           <div className="flex items-center gap-4">
-            <span className="text-gray-dark text-sm">{selected.length === 1 ? `1 sélectionnée` : `${selected.length} sélectionnées`}</span>
-            <span className="text-blue-dark text-sm underline cursor-pointer" onClick={() => onSelect([])}>
+            <span className="text-gray-425 text-sm">{selected.length === 1 ? `1 sélectionnée` : `${selected.length} sélectionnées`}</span>
+            <span className="text-blue-france text-sm underline cursor-pointer" onClick={() => onSelect([])}>
               Désélectionner
             </span>
             <ManyUpdateModal onClose={() => onSelect([])} selected={selected} onChange={onChange} />
@@ -49,7 +49,7 @@ const Header = ({ total, data, size, sort, selected, onSize, onSort, onSelect, o
       <h2 className="text-xl font-semibold">{total.toLocaleString("fr")} missions diffusables</h2>
 
       <div className="flex gap-2 items-center">
-        <label htmlFor="missions-per-page" className="text-xs text-gray-dark">
+        <label htmlFor="missions-per-page" className="text-xs text-gray-425">
           Missions affichées par page
         </label>
         <select id="missions-per-page" className="input w-18" value={size} onChange={(e) => onSize(Number(e.target.value))}>
@@ -58,7 +58,7 @@ const Header = ({ total, data, size, sort, selected, onSize, onSort, onSelect, o
           <option value={75}>75</option>
           <option value={100}>100</option>
         </select>
-        <label htmlFor="sort-by" className="text-xs text-gray-dark sr-only">
+        <label htmlFor="sort-by" className="text-xs text-gray-425 sr-only">
           Trier par
         </label>
         <select id="sort-by" className="input w-60" value={sort} onChange={(e) => onSort(e.target.value)}>
@@ -101,7 +101,7 @@ const ManyUpdateModal = ({ onClose, selected, onChange }) => {
 
   return (
     <>
-      <button className="button border border-blue-dark text-blue-dark hover:bg-gray-hover" onClick={() => setIsOpen(true)}>
+      <button className="button border border-blue-france text-blue-france hover:bg-gray-975" onClick={() => setIsOpen(true)}>
         Modérer
       </button>
 
@@ -112,7 +112,7 @@ const ManyUpdateModal = ({ onClose, selected, onChange }) => {
             <div className="flex w-full flex-col justify-center gap-4">
               <div className="flex flex-col gap-2">
                 <label htmlFor="status" className="text-sm">
-                  Statut<span className="ml-1 text-red-main">*</span>
+                  Statut<span className="ml-1 text-red-error">*</span>
                 </label>
                 <select
                   id="status"
@@ -133,7 +133,7 @@ const ManyUpdateModal = ({ onClose, selected, onChange }) => {
                 {status === "REFUSED" && (
                   <div className="flex flex-col gap-2 mt-2">
                     <label htmlFor="comment" className="text-sm">
-                      Motif<span className="ml-1 text-red-main">*</span>
+                      Motif<span className="ml-1 text-red-error">*</span>
                     </label>
                     <select id="comment" className="select" name="comment" value={comment} onChange={(e) => setComment(e.target.value)} required>
                       <option value="">Sélectionner un motif</option>

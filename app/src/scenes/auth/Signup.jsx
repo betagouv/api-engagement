@@ -140,13 +140,13 @@ const SignupForm = ({ user }) => {
         </label>
         <input
           id="firstname"
-          className={`input mb-2 ${submitted && errors.firstname ? "border-b-red-main" : "border-b-black"}`}
+          className={`input mb-2 ${submitted && errors.firstname ? "border-b-red-error" : "border-b-black"}`}
           name="firstname"
           value={values.firstname}
           onChange={handleChange}
         />
         {submitted && errors.firstname && (
-          <div className="flex items-center text-sm text-red-main">
+          <div className="flex items-center text-sm text-red-error">
             <RiErrorWarningFill className="mr-2" />
             {errors.firstname}
           </div>
@@ -158,13 +158,13 @@ const SignupForm = ({ user }) => {
         </label>
         <input
           id="lastname"
-          className={`input mb-2 ${submitted && errors.lastname ? "border-b-red-main" : "border-b-black"}`}
+          className={`input mb-2 ${submitted && errors.lastname ? "border-b-red-error" : "border-b-black"}`}
           name="lastname"
           value={values.lastname}
           onChange={handleChange}
         />
         {submitted && errors.lastname && (
-          <div className="flex items-center text-sm text-red-main">
+          <div className="flex items-center text-sm text-red-error">
             <RiErrorWarningFill className="mr-2" />
             {errors.lastname}
           </div>
@@ -176,20 +176,20 @@ const SignupForm = ({ user }) => {
             Mot de passe
           </label>
           <div className="flex items-center gap-1 cursor-pointer" onClick={() => setShow(!show)}>
-            {show ? <IoMdEyeOff className="text-blue-dark" /> : <IoMdEye className="text-blue-dark" />}
-            <span className="text-xs font-bold text-blue-dark">{show ? "CACHER" : "AFFICHER"}</span>
+            {show ? <IoMdEyeOff className="text-blue-france" /> : <IoMdEye className="text-blue-france" />}
+            <span className="text-xs font-bold text-blue-france">{show ? "CACHER" : "AFFICHER"}</span>
           </div>
         </div>
         <input
           id="password"
-          className={`input mb-2 ${submitted && errors.password ? "border-2 border-b-red-main" : "border-b-black"}`}
+          className={`input mb-2 ${submitted && errors.password ? "border-2 border-b-red-error" : "border-b-black"}`}
           name="password"
           type={show ? "text" : "password"}
           value={values.password}
           onChange={handleChange}
         />
         {submitted && errors.password && (
-          <div className="flex items-center text-sm text-red-main">
+          <div className="flex items-center text-sm text-red-error">
             <RiErrorWarningFill className="mr-2" />
             {errors.password}
           </div>
@@ -220,26 +220,26 @@ const SignupForm = ({ user }) => {
             Confirmation du mot de passe
           </label>
           <div className="flex items-center gap-1 cursor-pointer" onClick={() => setShowConfirm(!showConfirm)}>
-            {showConfirm ? <IoMdEyeOff className="text-blue-dark" /> : <IoMdEye className="text-blue-dark" />}
-            <span className="text-xs font-bold text-blue-dark">{showConfirm ? "CACHER" : "AFFICHER"}</span>
+            {showConfirm ? <IoMdEyeOff className="text-blue-france" /> : <IoMdEye className="text-blue-france" />}
+            <span className="text-xs font-bold text-blue-france">{showConfirm ? "CACHER" : "AFFICHER"}</span>
           </div>
         </div>
         <input
           id="confirm-password"
-          className={`input mb-2 ${submitted && errors.confirmPassword ? "border-2 border-b-red-main" : "border-b-black"}`}
+          className={`input mb-2 ${submitted && errors.confirmPassword ? "border-2 border-b-red-error" : "border-b-black"}`}
           name="confirmPassword"
           type={showConfirm ? "text" : "password"}
           value={values.confirmPassword}
           onChange={handleChange}
         />
         {submitted && errors.confirmPassword && (
-          <div className="flex items-center text-sm text-red-main">
+          <div className="flex items-center text-sm text-red-error">
             <RiErrorWarningFill className="mr-2" />
             {errors.confirmPassword}
           </div>
         )}
       </div>
-      <button type="submit" className="button mt-6 bg-blue-dark text-white hover:bg-blue-main" disabled={loading}>
+      <button type="submit" className="button mt-6 bg-blue-france text-white hover:bg-blue-france-hover" disabled={loading}>
         {loading ? "Chargement..." : "S'inscrire"}
       </button>
     </form>

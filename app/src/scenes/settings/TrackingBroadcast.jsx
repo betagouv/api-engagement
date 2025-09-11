@@ -37,7 +37,7 @@ const TrackingBroadcast = () => {
           Ouvrir la documentation
         </a>
 
-        <button className="flex cursor-pointer items-center text-sm px-2 py-1 border border-blue-dark text-blue-dark" onClick={handleCopyScript}>
+        <button className="flex cursor-pointer items-center text-sm px-2 py-1 border border-blue-france text-blue-france" onClick={handleCopyScript}>
           Copier
         </button>
       </div>

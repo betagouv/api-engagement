@@ -136,7 +136,7 @@ const Compare = () => {
         </div>
       </div>
 
-      <div className="border-b border-b-gray-border" />
+      <div className="border-b border-b-gray-900" />
 
       <div className="border p-6 space-y-4">
         <div className="space-y-2">
@@ -185,22 +185,22 @@ const Compare = () => {
           <p className="text-sm text-[#666]">{flux === "to" ? "Trafic reçu par partenaire diffuseur" : "Trafic généré pour vos partenaires annonceurs, par partenaire"}</p>
         </div>
         <div className="flex items-center text-sm gap-8 mb-8">
-          <button onClick={() => setType("printCount")} className={`pb-1 ${type === "printCount" ? "border-b-2 border-blue-dark text-blue-dark font-semibold" : ""}`}>
+          <button onClick={() => setType("printCount")} className={`pb-1 ${type === "printCount" ? "border-b-2 border-blue-france text-blue-france font-semibold" : ""}`}>
             Impressions
           </button>
 
-          <button onClick={() => setType("clickCount")} className={`pb-1 ${type === "clickCount" ? "border-b-2 border-blue-dark text-blue-dark font-semibold" : ""}`}>
+          <button onClick={() => setType("clickCount")} className={`pb-1 ${type === "clickCount" ? "border-b-2 border-blue-france text-blue-france font-semibold" : ""}`}>
             Redirections
           </button>
 
-          <button onClick={() => setType("accountCount")} className={`pb-1 ${type === "accountCount" ? "border-b-2 border-blue-dark text-blue-dark font-semibold" : ""}`}>
+          <button onClick={() => setType("accountCount")} className={`pb-1 ${type === "accountCount" ? "border-b-2 border-blue-france text-blue-france font-semibold" : ""}`}>
             Créations de compte
           </button>
 
-          <button onClick={() => setType("applyCount")} className={`pb-1 ${type === "applyCount" ? "border-b-2 border-blue-dark text-blue-dark font-semibold" : ""}`}>
+          <button onClick={() => setType("applyCount")} className={`pb-1 ${type === "applyCount" ? "border-b-2 border-blue-france text-blue-france font-semibold" : ""}`}>
             Candidatures
           </button>
-          <button onClick={() => setType("rate")} className={`pb-1 ${type === "rate" ? "border-b-2 border-blue-dark text-blue-dark font-semibold" : ""}`}>
+          <button onClick={() => setType("rate")} className={`pb-1 ${type === "rate" ? "border-b-2 border-blue-france text-blue-france font-semibold" : ""}`}>
             Taux de conversion
           </button>
         </div>

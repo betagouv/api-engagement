@@ -7,7 +7,7 @@ const ErrorAlert = ({ children, onClose }) => {
     <div className="relative flex border border-[#e1000f]">
       {onClose && (
         <button className="absolute top-0 right-0 p-2" onClick={onClose}>
-          <RiCloseFill className="text-blue-dark" />
+          <RiCloseFill className="text-blue-france" />
         </button>
       )}
       <div className="bg-[#e1000f] p-2 text-white">

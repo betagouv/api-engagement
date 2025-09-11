@@ -29,10 +29,10 @@ const TrackingAnnounce = () => {
       <Helmet>
         <title>Tracking des événements - Paramètres - API Engagement</title>
       </Helmet>
-      <div className="border border-gray-border p-8 space-y-8">
+      <div className="border border-gray-900 p-8 space-y-8">
         <h2 className="text-2xl font-bold">Tracking des événements</h2>
 
-        <div className="flex items-center justify-between gap-4 border-b border-b-gray-border pb-6">
+        <div className="flex items-center justify-between gap-4 border-b border-b-gray-900 pb-6">
           <div className="flex-1">
             <h3 className="text-base font-semibold">Commande de comptage d'une candidature</h3>
             <p className="max-w-sm text-xs text-[#666666]">
@@ -48,7 +48,7 @@ const TrackingAnnounce = () => {
             </button>
           </div>
         </div>
-        <div className="border-b border-b-gray-border pb-6 space-y-6">
+        <div className="border-b border-b-gray-900 pb-6 space-y-6">
           <div className="flex items-center justify-between gap-4">
             <div className="flex-1">
               <h3 className="text-base font-semibold">Commande de comptage d'une création de compte</h3>
@@ -80,7 +80,7 @@ const TrackingAnnounce = () => {
             <h3 className="text-base font-semibold">Script à integrer sur votre site</h3>
             <p className="text-xs w-4/5 text-[#666666]">{`Afin d’assurer le suivi des candidatures générées via l’API Engagement, ajoutez le script ci-dessous dans le <head></head> de votre page sur laquelle un bénévole candidate à une offre`}</p>
           </div>
-          <button className="flex cursor-pointer items-center text-sm px-2 py-1 border border-blue-dark text-blue-dark" onClick={handleCopyScript}>
+          <button className="flex cursor-pointer items-center text-sm px-2 py-1 border border-blue-france text-blue-france" onClick={handleCopyScript}>
             Copier
           </button>
         </div>

@@ -60,7 +60,7 @@ const Flux = () => {
       <Helmet>
         <title>Flux de missions - Paramètres - API Engagement</title>
       </Helmet>
-      <div className="border border-gray-border p-8 space-y-8">
+      <div className="border border-gray-900 p-8 space-y-8">
         <h2 className="text-3xl font-bold">Configurer votre flux de missions</h2>
 
         <div className="flex justify-between gap-6 items-center">
@@ -71,7 +71,7 @@ const Flux = () => {
           </div>
         </div>
 
-        <div className="w-full h-px bg-gray-border" />
+        <div className="w-full h-px bg-gray-900" />
 
         <div className="flex justify-between gap-6 items-center">
           <label className="font-semibold w-[35%]">Dernière synchronisation</label>
@@ -92,7 +92,7 @@ const Flux = () => {
         </div>
       </div>
 
-      <div className="border border-gray-border p-6 space-y-6">
+      <div className="border border-gray-900 p-6 space-y-6">
         <h2 className="text-3xl font-bold">Historique des synchronisations</h2>
 
         <TablePaginator
@@ -153,7 +153,7 @@ const ModifyModal = () => {
 
   return (
     <>
-      <button className="flex cursor-pointer items-center bg-blue-dark hover:bg-blue-main py-2 px-4 border text-white" onClick={() => setIsOpen(!isOpen)}>
+      <button className="flex cursor-pointer items-center bg-blue-france hover:bg-blue-france-hover py-2 px-4 border text-white" onClick={() => setIsOpen(!isOpen)}>
         Modifier
       </button>
       <Modal isOpen={isOpen} onClose={() => setIsOpen(false)}>
@@ -164,10 +164,10 @@ const ModifyModal = () => {
             <input className="input w-full border-b-0 bg-gray-100 focus:ring-2 p-4" value={feed} disabled={false} onChange={(e) => setFeed(e.target.value)} />
           </div>
           <div className="col-span-2 mt-8 flex justify-end gap-6">
-            <button type="button" className="button border border-blue-dark text-blue-dark hover:bg-gray-hover" onClick={() => setIsOpen(false)}>
+            <button type="button" className="button border border-blue-france text-blue-france hover:bg-gray-975" onClick={() => setIsOpen(false)}>
               Annuler
             </button>
-            <button type="button" className="button bg-blue-dark text-white hover:bg-blue-main" onClick={handleFeedSubmit} disabled={loading}>
+            <button type="button" className="button bg-blue-france text-white hover:bg-blue-france-hover" onClick={handleFeedSubmit} disabled={loading}>
               {loading ? <Loader className="mr-2" /> : "Enregister"}
             </button>
           </div>

@@ -1,4 +1,5 @@
 import { sentryVitePlugin } from "@sentry/vite-plugin";
+import tailwindcss from "@tailwindcss/vite";
 import react from "@vitejs/plugin-react";
 import path from "path";
 import { defineConfig } from "vite";
@@ -6,7 +7,7 @@ import svgr from "vite-plugin-svgr";
 
 // https://vitejs.dev/config/
 export default defineConfig((env) => {
-  const plugins = [react(), svgr()];
+  const plugins = [react(), svgr(), tailwindcss()];
 
   if (process.env.SENTRY_AUTH_TOKEN) {
     plugins.push(

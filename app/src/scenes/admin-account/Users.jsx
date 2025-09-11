@@ -47,13 +47,13 @@ const Users = () => {
         </div>
       </div>
 
-      <div className="border border-gray-border p-6">
+      <div className="border border-gray-900 p-6">
         <div className="mb-6 flex items-center gap-4">
           <label htmlFor="user-search" className="sr-only">
             Rechercher par nom ou par email
           </label>
           <input id="user-search" name="user-search" className="input flex-1" placeholder="Chercher par nom ou par email" onChange={(e) => setSearch(e.target.value)} />
-          <Link to="/user/new" className="button flex items-center border bg-blue-dark text-white">
+          <Link to="/user/new" className="button flex items-center border bg-blue-france text-white">
             Nouvel utilisateur <HiOutlinePlus className="ml-2" />
           </Link>
         </div>
@@ -80,7 +80,7 @@ const Users = () => {
                   <div className="relative group">
                     <div className="ml-2 flex items-center">
                       Dernière activité
-                      <RiInformationLine className="ml-2 text-gray-dark" />
+                      <RiInformationLine className="ml-2 text-gray-425" />
                     </div>
                     <div className="hidden group-hover:block absolute right-6 top-[-20px] w-56">
                       <div className="bg-white p-2 shadow-lg">
@@ -92,7 +92,7 @@ const Users = () => {
                 <h4 className="w-[12%] text-center">Se connecter en tant que</h4>
               </>
             )}
-            itemHeight={"min-h-[3rem]"}
+            itemHeight="min-h-12"
             renderItem={(item) => (
               <>
                 <Link to={`/user/${item._id}`} className="link w-[15%] truncate">
@@ -101,28 +101,28 @@ const Users = () => {
                 <span className="w-[20%] truncate">{item.email}</span>
                 <div className="gap-y-.5 flex flex-1 flex-wrap justify-center gap-x-2 py-1">
                   {item.role === "admin" ? (
-                    <span className="text-2xs max-w-[12rem] truncate rounded bg-blue-light p-1">Tous</span>
+                    <span className="text-2xs max-w-48 truncate rounded bg-blue-france-975 p-1">Tous</span>
                   ) : (
                     <>
                       {item.publishers.slice(0, 2).map((p, i) => {
                         const publisher = publishers.find((pub) => pub._id === p);
                         if (!publisher) return null;
                         return (
-                          <span key={i} className="text-2xs max-w-[12rem] truncate rounded bg-blue-light p-1">
+                          <span key={i} className="text-2xs max-w-48 truncate rounded bg-blue-france-975 p-1">
                             {publisher.name}
                           </span>
                         );
                       })}
-                      {item.publishers.length > 2 && <span className="text-2xs max-w-[12rem] truncate rounded bg-blue-light p-1">+ {item.publishers.length - 2} autres</span>}
+                      {item.publishers.length > 2 && <span className="text-2xs max-w-48 truncate rounded bg-blue-france-975 p-1">+ {item.publishers.length - 2} autres</span>}
                     </>
                   )}
                 </div>
                 <span className="w-[12%] text-center">
-                  {item.role === "admin" ? <span className="rounded bg-red-light px-1">Admin</span> : <span className="rounded bg-green-light px-1">Utilisateur</span>}
+                  {item.role === "admin" ? <span className="rounded bg-red-300 px-1">Admin</span> : <span className="rounded bg-green-300 px-1">Utilisateur</span>}
                 </span>
                 <span className="w-[12%] text-center">{new Date(item.createdAt).toLocaleDateString("fr")}</span>
                 <span className="flex w-[10%] justify-center">{item.lastActivityAt ? new Date(item.lastActivityAt).toLocaleDateString("fr") : "-"}</span>
-                <Link to={`/connect?id=${item._id}`} target="_blank" className="flex w-[12%] items-center justify-center text-blue-dark">
+                <Link to={`/connect?id=${item._id}`} target="_blank" className="flex w-[12%] items-center justify-center text-blue-france">
                   Se connecter
                   <RiLoginBoxLine className="ml-2" />
                 </Link>

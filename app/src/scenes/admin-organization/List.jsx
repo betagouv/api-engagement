@@ -58,7 +58,7 @@ const List = () => {
         <SearchInput value={filters.search} onChange={(search) => setFilters({ ...filters, search })} className="w-1/4" placeholder="Rechercher par mot-clé" />
       </div>
 
-      <div className="border border-gray-border p-6">
+      <div className="border border-gray-900 p-6">
         <TablePagination
           header={[{ title: "Titre de l'organisation", colSpan: 3 }, { title: "RNA" }, { title: "SIRET" }, { title: "Créée le" }, { title: "Statut" }]}
           page={filters.from}
@@ -70,7 +70,7 @@ const List = () => {
           {data.map((item, i) => (
             <tr key={i} className={`${i % 2 === 0 ? "bg-gray-100" : "bg-gray-50"} table-item`}>
               <td className="p-4" colSpan={3}>
-                <Link to={`/admin-organization/${item._id}`} className="line-clamp-3 max-w-xl flex-1 px-2 text-blue-dark">
+                <Link to={`/admin-organization/${item._id}`} className="line-clamp-3 max-w-xl flex-1 px-2 text-blue-france">
                   {item.title}
                 </Link>
               </td>
@@ -82,12 +82,12 @@ const List = () => {
                   {item.status === "ACTIVE" ? (
                     <div className="flex items-center gap-2">
                       <p>Active</p>
-                      <RiCheckboxCircleFill className="text-green-main" />
+                      <RiCheckboxCircleFill className="text-green-success" />
                     </div>
                   ) : (
                     <div className="flex items-center gap-2">
                       <p>Inactive</p>
-                      <RiCloseCircleFill className="text-red-main" />
+                      <RiCloseCircleFill className="text-red-error" />
                     </div>
                   )}
                 </div>

@@ -105,17 +105,17 @@ const Publishers = () => {
         </div>
 
         <div className="flex">
-          <button className="button flex items-center text-blue-dark hover:bg-gray-hover" onClick={handleExport}>
+          <button className="button flex items-center text-blue-france hover:bg-gray-975" onClick={handleExport}>
             {exporting ? <Loader /> : <RiFileDownloadLine className="mr-2" />}
             Exporter
           </button>
-          <Link to="/publisher/new" className="button flex items-center text-blue-dark hover:bg-gray-hover">
+          <Link to="/publisher/new" className="button flex items-center text-blue-france hover:bg-gray-975">
             Nouveau partenaire <HiOutlinePlus className="ml-2" />
           </Link>
         </div>
       </div>
 
-      <div className="border border-gray-border p-6">
+      <div className="border border-gray-900 p-6">
         <div className="mb-6 flex items-center gap-4">
           <p className="font-semibold">{`${publishers.length} partenaire${publishers.length > 1 ? "s" : ""}`}</p>
           <label htmlFor="publisher-name" className="sr-only">
@@ -185,26 +185,26 @@ const Publishers = () => {
                 <h4 className="w-32 text-center">Rapport d'impact</h4>
               </>
             )}
-            itemHeight={"min-h-[3rem]"}
+            itemHeight="min-h-12"
             renderItem={(item) => (
               <>
                 <Link to={`/publisher/${item._id.toString()}`} className="link flex-1">
                   {item.name}
                 </Link>
                 <div className="flex flex-1 flex-wrap justify-center gap-2">
-                  {item.isAnnonceur && <span className="rounded bg-red-light px-1 text-[10px]">Annonceur</span>}
-                  {item.hasApiRights && <span className="rounded bg-green-light px-1 text-[10px]">Diffuseur API</span>}
-                  {item.hasWidgetRights && <span className="rounded bg-green-light px-1 text-[10px]">Diffuseur Widget</span>}
-                  {item.hasCampaignRights && <span className="rounded bg-green-light px-1 text-[10px]">Diffuseur Campagne</span>}
+                  {item.isAnnonceur && <span className="rounded bg-red-300 px-1 text-[10px]">Annonceur</span>}
+                  {item.hasApiRights && <span className="rounded bg-green-300 px-1 text-[10px]">Diffuseur API</span>}
+                  {item.hasWidgetRights && <span className="rounded bg-green-300 px-1 text-[10px]">Diffuseur Widget</span>}
+                  {item.hasCampaignRights && <span className="rounded bg-green-300 px-1 text-[10px]">Diffuseur Campagne</span>}
                 </div>
                 <span className="w-32 text-center text-xs">{item.publishers.length}</span>
                 <span className="w-32 text-center text-xs">{diffuseurs.filter((e) => e.publishers.some((j) => j.publisherId === item._id)).length}</span>
                 <span className="w-32 text-center text-xs">{users.filter((e) => e.publishers.find((j) => j === item._id)).length}</span>
                 <div className="w-32 text-center text-xs">
                   {item.sendReport ? (
-                    <span className="rounded bg-blue-light px-1">{`Oui (${item.sendReportTo.length} receveur${item.sendReportTo.length > 1 ? "s" : ""})`}</span>
+                    <span className="rounded bg-blue-france-975 px-1">{`Oui (${item.sendReportTo.length} receveur${item.sendReportTo.length > 1 ? "s" : ""})`}</span>
                   ) : (
-                    <span className="rounded bg-red-light px-1">Non</span>
+                    <span className="rounded bg-red-300 px-1">Non</span>
                   )}
                 </div>
               </>

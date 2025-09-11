@@ -105,11 +105,11 @@ const MissionModal = ({ onChange }) => {
     <Dialog open={searchParams.has("mission")} as="div" className="relative z-10 focus:outline-none" onClose={handleClose}>
       <DialogBackdrop className="fixed inset-0 bg-black/30" />
       <div className="fixed inset-0 flex w-screen items-center justify-center">
-        <DialogPanel transition className="w-full h-full bg-beige p-6 backdrop-blur-2xl duration-300 ease-out data-[closed]:transform-[scale(95%)] data-[closed]:opacity-0">
+        <DialogPanel transition className="w-full h-full bg-beige p-6 backdrop-blur-2xl duration-300 ease-out data-closed:transform-[scale(95%)] data-closed:opacity-0">
           <div className="absolute right-2 top-2 cursor-pointer p-3">
-            <HiX className="text-blue-dark text-lg" onClick={handleClose} />
+            <HiX className="text-blue-france text-lg" onClick={handleClose} />
           </div>
-          <div className="max-h-[100%] overflow-y-auto">
+          <div className="max-h-full overflow-y-auto">
             <OrganizationRefusedModal
               isOpen={isOrganizationRefusedOpen}
               onClose={() => setIsOrganizationRefusedOpen(false)}
@@ -118,7 +118,7 @@ const MissionModal = ({ onChange }) => {
               onChange={onChange}
             />
             <div className="px-20">
-              <div className="flex gap-8 pb-8 justify-between items-center sticky top-0 z-50 h-full bg-beige border-b border-gray-border">
+              <div className="flex gap-8 pb-8 justify-between items-center sticky top-0 z-50 h-full bg-beige border-b border-gray-900">
                 <div className="space-y-2 max-w-[50%]">
                   <h1 className="mb-1">{DOMAINS[data.domain]}</h1>
                   <h2 className="text-xl">{data.newTitle || data.title}</h2>
@@ -164,7 +164,7 @@ const MissionModal = ({ onChange }) => {
                     <Tab name="history" title="Historique" tab={tab} setTab={setTab} />
                   </nav>
                   <div className="flex gap-6 mb-12 w-full">
-                    <div className="w-2/3 border border-gray-border bg-white">
+                    <div className="w-2/3 border border-gray-900 bg-white">
                       {
                         {
                           mission: <MissionTab data={data} onChange={handleChange} />,
@@ -215,7 +215,7 @@ const MissionTab = ({ data, onChange }) => {
             Nom de la mission
           </label>
           <input
-            className={`input mb-2 ${error ? "border-b-red-main" : "border-b-black"}`}
+            className={`input mb-2 ${error ? "border-b-red-error" : "border-b-black"}`}
             id="new-mission-title"
             name="new-mission-title"
             placeholder={data.title}
@@ -223,57 +223,57 @@ const MissionTab = ({ data, onChange }) => {
             onChange={(e) => setNewTitle(e.target.value)}
           />
           {error && (
-            <div className="flex items-center text-sm text-red-main">
+            <div className="flex items-center text-sm text-red-error">
               <RiErrorWarningFill className="mr-2" />
               {error}
             </div>
           )}
-          <p className="text-xs text-gray-dark">
+          <p className="text-xs text-gray-425">
             <span className="mr-1 font-semibold">Titre d'origine:</span>
             {data.title}
           </p>
           {newTitle !== data.title && newTitle !== data.newTitle && (
-            <button className="button bg-blue-dark text-white hover:bg-blue-main mt-4 w-[25%]" type="submit">
+            <button className="button bg-blue-france text-white hover:bg-blue-france-hover mt-4 w-[25%]" type="submit">
               Enregistrer
             </button>
           )}
         </div>
-        <div className="border-t border-gray-border" />
+        <div className="border-t border-gray-900" />
         <div className="flex flex-col space-y-2">
           <label className="mb-2 text-sm" htmlFor="description">
             Description
           </label>
           <div
-            className="rounded-t overflow-hidden p-6 text-sm text-gray-dark border border-gray-border bg-gray-light"
+            className="rounded-t overflow-hidden p-6 text-sm text-gray-425 border border-gray-900 bg-gray-950"
             dangerouslySetInnerHTML={{ __html: data.description.replace(/\n/g, "<br />") }}
           />
         </div>
-        <div className="border-t border-gray-border" />
+        <div className="border-t border-gray-900" />
         <div className="flex flex-col space-y-2 py-2">
           <label className="text-sm" htmlFor="title">
             Lieu de la mission
           </label>
-          <p className="text-sm text-gray-dark">
+          <p className="text-sm text-gray-425">
             {data.departmentName} ({data.departmentCode})
           </p>
         </div>
-        <div className="border-t border-gray-border" />
+        <div className="border-t border-gray-900" />
         <div className="flex flex-col space-y-2 py-2">
           <label className="text-sm" htmlFor="title">
             Date de la mission
           </label>
-          <p className="text-sm text-gray-dark">À partir du {new Date(data.startAt).toLocaleDateString("fr", { year: "numeric", month: "long", day: "numeric" })}</p>
+          <p className="text-sm text-gray-425">À partir du {new Date(data.startAt).toLocaleDateString("fr", { year: "numeric", month: "long", day: "numeric" })}</p>
         </div>
-        <div className="border-t border-gray-border" />
+        <div className="border-t border-gray-900" />
         <div className="flex flex-col space-y-2 py-2">
           <label className="text-sm" htmlFor="title">
             Date de création
           </label>
-          <p className="text-sm text-gray-dark">
+          <p className="text-sm text-gray-425">
             Postée le {new Date(data.postedAt).toLocaleDateString("fr")} sur {data.publisherName}
           </p>
         </div>
-        <div className="border-t border-gray-border" />
+        <div className="border-t border-gray-900" />
         <div className="flex flex-col space-y-2 py-2">
           <label className="text-sm" htmlFor="title">
             Lien de la mission
@@ -281,7 +281,7 @@ const MissionTab = ({ data, onChange }) => {
           <div className="flex items-center gap-2">
             <Link
               to={data.applicationUrl.includes("http") ? data.applicationUrl : `https://${data.applicationUrl}`}
-              className="text-sm text-blue-dark underline w-fit"
+              className="text-sm text-blue-france underline w-fit"
               target="_blank"
             >
               Ouvrir le lien de la mission
@@ -289,12 +289,12 @@ const MissionTab = ({ data, onChange }) => {
             <RiExternalLinkLine />
           </div>
         </div>
-        <div className="border-t border-gray-border" />
+        <div className="border-t border-gray-900" />
         <div className="flex flex-col space-y-2 py-2">
           <label className="text-sm" htmlFor="title">
             ID
           </label>
-          <p className="text-sm text-gray-dark">{data._id}</p>
+          <p className="text-sm text-gray-425">{data._id}</p>
         </div>
       </div>
     </form>
@@ -343,7 +343,7 @@ const OrganizationTab = ({ data, onChange }) => {
             value={values.organizationSirenVerified}
             onChange={(e) => setValues({ ...values, organizationSirenVerified: e.target.value })}
           />
-          <p className="text-xs text-gray-dark">
+          <p className="text-xs text-gray-425">
             <span className="mr-1 font-semibold">SIREN d'origine:</span>
             {data.organizationSiren ? data.organizationSiren : "/"}
           </p>
@@ -360,42 +360,42 @@ const OrganizationTab = ({ data, onChange }) => {
             value={values.organizationRNAVerified}
             onChange={(e) => setValues({ ...values, organizationRNAVerified: e.target.value })}
           />
-          <p className="text-xs text-gray-dark">
+          <p className="text-xs text-gray-425">
             <span className="mr-1 font-semibold">RNA d'origine:</span>
             {data.organizationRNA ? data.organizationRNA : "/"}
           </p>
         </div>
         {(values.organizationSirenVerified !== data.organizationSirenVerified || values.organizationRNAVerified !== data.organizationRNAVerified) && (
-          <button className="button bg-blue-dark text-white hover:bg-blue-main mt-4 w-[25%]" type="submit">
+          <button className="button bg-blue-france text-white hover:bg-blue-france-hover mt-4 w-[25%]" type="submit">
             Enregistrer
           </button>
         )}
 
-        <div className="flex flex-col gap-2 border-t border-gray-border py-4">
+        <div className="flex flex-col gap-2 border-t border-gray-900 py-4">
           <label className="text-sm" htmlFor="title">
             Adresse
           </label>
-          <p className="text-sm text-gray-dark">{data.organizationFullAddress ? data.organizationFullAddress : "/"}</p>
+          <p className="text-sm text-gray-425">{data.organizationFullAddress ? data.organizationFullAddress : "/"}</p>
         </div>
-        <div className="flex flex-col gap-2 border-t border-gray-border py-4">
+        <div className="flex flex-col gap-2 border-t border-gray-900 py-4">
           <label className="text-sm" htmlFor="title">
             Domaine d'action
           </label>
-          <p className="text-sm text-gray-dark">{DOMAINS[data.domain]}</p>
+          <p className="text-sm text-gray-425">{DOMAINS[data.domain]}</p>
         </div>
-        <div className="flex flex-col gap-2 border-t border-gray-border py-4">
+        <div className="flex flex-col gap-2 border-t border-gray-900 py-4">
           <label className="text-sm" htmlFor="title">
             Organisation déjà inscrite sur
           </label>
-          <p className="text-sm text-gray-dark">
+          <p className="text-sm text-gray-425">
             {data.associationSources?.length ? data.associationSources.map((s) => (s === "Je veux aider" ? "JeVeuxAider.gouv.fr" : s)).join(", ") : "/"}
           </p>
         </div>
-        <div className="flex flex-col gap-2 border-t border-gray-border py-4">
+        <div className="flex flex-col gap-2 border-t border-gray-900 py-4">
           <label className="text-sm" htmlFor="title">
             Site internet
           </label>
-          <a href={data.organizationUrl} className="text-sm text-blue-dark underline" target="_blank">
+          <a href={data.organizationUrl} className="text-sm text-blue-france underline" target="_blank">
             {data.organizationUrl}
           </a>
         </div>
@@ -433,12 +433,12 @@ const HistoryTab = ({ data }) => {
 
   return (
     <div className="p-8">
-      <h3 className="text-gray-dark text-xs font-bold uppercase mb-4">Évolution des statuts</h3>
+      <h3 className="text-gray-425 text-xs font-bold uppercase mb-4">Évolution des statuts</h3>
       <div className="space-y-2">
-        {status.length === 0 && modifications.length === 0 && <div className="text-center text-gray-dark">Aucun événement de modération trouvé.</div>}
+        {status.length === 0 && modifications.length === 0 && <div className="text-center text-gray-425">Aucun événement de modération trouvé.</div>}
         {status.map((event, index) => (
           <Fragment key={index}>
-            {index !== 0 && <div className="h-[30px] w-px ml-4 bg-gray-border" />}
+            {index !== 0 && <div className="h-[30px] w-px ml-4 bg-gray-900" />}
             <div className="flex justify-between items-start gap-4">
               <div className="flex-1 flex items-center gap-4">
                 {
@@ -460,28 +460,28 @@ const HistoryTab = ({ data }) => {
                     ),
                   }[event.newStatus]
                 }
-                <p className="flex-1 text-gray-dark text-base">
+                <p className="flex-1 text-gray-425 text-base">
                   <span className="text-black">{event.userName}</span> a passé le statut à <span className="font-semibold text-black">{STATUS[event.newStatus]}</span>
                 </p>
               </div>
 
-              <span className="text-gray-dark text-sm">{new Date(event.createdAt).toLocaleDateString("fr")}</span>
+              <span className="text-gray-425 text-sm">{new Date(event.createdAt).toLocaleDateString("fr")}</span>
             </div>
 
             {event.newStatus === "REFUSED" && (
               <>
-                <div className="h-[30px] w-px ml-4 bg-gray-border" />
+                <div className="h-[30px] w-px ml-4 bg-gray-900" />
                 <div className="flex justify-between items-start gap-4">
                   <div className="flex-1 flex items-center gap-4">
                     <div className="w-8 h-8 flex items-center justify-center bg-[#CE0500] rounded-full">
                       <RiCloseFill className="text-white" size={16} />
                     </div>
-                    <p className="flex-1 text-gray-dark text-base">
+                    <p className="flex-1 text-gray-425 text-base">
                       <span className="text-black">{event.userName}</span> a modifié le motif de refus en{" "}
                       <span className="font-semibold text-black">{JVA_MODERATION_COMMENTS_LABELS[event.newComment] || event.newComment}</span>
                     </p>
                   </div>
-                  <span className="text-gray-dark text-sm">{new Date(event.createdAt).toLocaleDateString("fr")}</span>
+                  <span className="text-gray-425 text-sm">{new Date(event.createdAt).toLocaleDateString("fr")}</span>
                 </div>
               </>
             )}
@@ -489,28 +489,28 @@ const HistoryTab = ({ data }) => {
         ))}
       </div>
 
-      <h3 className="text-gray-dark text-xs font-bold uppercase mt-8 mb-4">Modifications</h3>
+      <h3 className="text-gray-425 text-xs font-bold uppercase mt-8 mb-4">Modifications</h3>
       <div className="space-y-4">
-        {modifications.length === 0 && <p className="text-gray-dark">Aucune modification</p>}
+        {modifications.length === 0 && <p className="text-gray-425">Aucune modification</p>}
         {modifications.map((event, index) => (
           <div key={index} className="space-y-2">
             {event.newNote !== null && event.userId && (
               <div className="flex justify-between items-center">
-                <div className="text-sm text-gray-dark">
+                <div className="text-sm text-gray-425">
                   <span className="text-black">{event.userName}</span> a modifié la note en <span className="font-semibold text-black">{event.newNote}</span>
                 </div>
-                <div className="text-gray-dark text-sm">
+                <div className="text-gray-425 text-sm">
                   <span>{new Date(event.createdAt).toLocaleDateString("fr")}</span>
                 </div>
               </div>
             )}
             {event.newNote !== null && !event.userId && (
               <div className="flex justify-between items-center">
-                <div className="text-sm text-gray-dark">
+                <div className="text-sm text-gray-425">
                   Modération automatique a enregistré les données suivantes au moment de la modération automatique:{" "}
                   <span className="font-semibold text-black">{event.newNote}</span>
                 </div>
-                <div className="text-gray-dark text-sm">
+                <div className="text-gray-425 text-sm">
                   <span>{new Date(event.createdAt).toLocaleDateString("fr")}</span>
                 </div>
               </div>
@@ -518,11 +518,11 @@ const HistoryTab = ({ data }) => {
             {event.newTitle !== null && (
               <div className="mt-2 text-sm">
                 <div className="mb-4 flex justify-between items-center">
-                  <div className="text-gray-dark">
+                  <div className="text-gray-425">
                     <span className="font-normal text-black">{event.userName}</span> a modifié le <span className="font-semibold text-black">titre de la mission</span>
                   </div>
-                  <div className="border-t border-gray-border mx-2 flex-1"></div>
-                  <div className="text-gray-dark">
+                  <div className="border-t border-gray-900 mx-2 flex-1"></div>
+                  <div className="text-gray-425">
                     <span>{new Date(event.createdAt).toLocaleDateString("fr")}</span>
                   </div>
                 </div>
@@ -530,11 +530,11 @@ const HistoryTab = ({ data }) => {
                 <div className="flex justify-between">
                   <div className="flex-1">
                     <p className="text-sm">Avant</p>
-                    <p className="text-sm text-gray-dark mt-4">{event.initialTitle || data.title}</p>
+                    <p className="text-sm text-gray-425 mt-4">{event.initialTitle || data.title}</p>
                   </div>
                   <div className="flex-1">
                     <p className="text-sm">Après</p>
-                    <p className="text-sm text-gray-dark mt-4">{event.newTitle}</p>
+                    <p className="text-sm text-gray-425 mt-4">{event.newTitle}</p>
                   </div>
                 </div>
               </div>
@@ -542,11 +542,11 @@ const HistoryTab = ({ data }) => {
             {event.newSiren !== null && (
               <div className="mt-2 text-sm">
                 <div className="mb-4 flex justify-between items-center">
-                  <div className="text-gray-dark">
+                  <div className="text-gray-425">
                     <span className="font-normal text-black">{event.userName}</span> a modifié le <span className="font-semibold text-black">SIREN</span>
                   </div>
-                  <div className="border-t border-gray-border mx-2 flex-1"></div>
-                  <div className="text-gray-dark">
+                  <div className="border-t border-gray-900 mx-2 flex-1"></div>
+                  <div className="text-gray-425">
                     <span>{new Date(event.createdAt).toLocaleDateString("fr")}</span>
                   </div>
                 </div>
@@ -554,11 +554,11 @@ const HistoryTab = ({ data }) => {
                 <div className="flex">
                   <div className="flex-1">
                     <p className="text-sm">Avant</p>
-                    <p className="text-sm text-gray-dark mt-4">{event.initialSiren || "-"}</p>
+                    <p className="text-sm text-gray-425 mt-4">{event.initialSiren || "-"}</p>
                   </div>
                   <div className="flex-1">
                     <p className="text-sm">Après</p>
-                    <p className="text-sm text-gray-dark mt-4">{event.newSiren}</p>
+                    <p className="text-sm text-gray-425 mt-4">{event.newSiren}</p>
                   </div>
                 </div>
               </div>
@@ -566,12 +566,12 @@ const HistoryTab = ({ data }) => {
             {event.newRNA !== null && (
               <div className="mt-2 text-sm">
                 <div className="mb-4 flex justify-between items-center">
-                  <div className="text-gray-dark">
+                  <div className="text-gray-425">
                     <span className="font-normal text-black">{event.userName}</span> a modifié le <span className="font-semibold text-black">RNA</span>
                   </div>
-                  <div className="border-t border-gray-border mx-2 flex-1"></div>
+                  <div className="border-t border-gray-900 mx-2 flex-1"></div>
 
-                  <div className="text-gray-dark">
+                  <div className="text-gray-425">
                     <span>{new Date(event.createdAt).toLocaleDateString("fr")}</span>
                   </div>
                 </div>
@@ -579,11 +579,11 @@ const HistoryTab = ({ data }) => {
                 <div className="flex">
                   <div className="flex-1">
                     <p className="text-sm">Avant</p>
-                    <p className="text-sm text-gray-dark mt-4">{event.initialRNA || "-"}</p>
+                    <p className="text-sm text-gray-425 mt-4">{event.initialRNA || "-"}</p>
                   </div>
                   <div className="flex-1">
                     <p className="text-sm">Après</p>
-                    <p className="text-sm text-gray-dark mt-4">{event.newRNA}</p>
+                    <p className="text-sm text-gray-425 mt-4">{event.newRNA}</p>
                   </div>
                 </div>
               </div>
@@ -608,8 +608,8 @@ const Tab = ({ name, title, tab, setTab, actives }) => {
     <div onClick={() => setTab(name)}>
       <div
         className={`${
-          active ? "border-t-2 border-blue-dark bg-white text-blue-dark hover:bg-gray-hover" : "border-0 bg-tab-main hover:bg-tab-hover"
-        } flex translate-y-[1px] cursor-pointer items-center border-x border-x-gray-border px-4 py-2`}
+          active ? "border-t-2 border-blue-france bg-white text-blue-france hover:bg-gray-975" : "border-0 bg-tab-main hover:bg-tab-hover"
+        } flex translate-y-px cursor-pointer items-center border-x border-x-gray-900 px-4 py-2`}
       >
         <p>{title}</p>
       </div>

@@ -54,11 +54,11 @@ const Autocomplete = ({ options, value, onChange, onSelect, onClear, loading = f
       {isOpen && (
         <ul className={`absolute z-10 top-10 w-full max-h-80 overflow-y-scroll transition duration-100 ease-in bg-white shadow-lg ${className || "w-full"}`}>
           {loading ? (
-            <li className="group flex cursor-default items-center justify-center px-4 py-2 data-[focus]:bg-gray-hover">
+            <li className="group flex cursor-default items-center justify-center px-4 py-2 data-[focus]:bg-gray-975">
               <Loader />
             </li>
           ) : !options.length ? (
-            <li className="group flex cursor-default items-center justify-center px-4 py-2 data-[focus]:bg-gray-hover">
+            <li className="group flex cursor-default items-center justify-center px-4 py-2 data-[focus]:bg-gray-975">
               <p className="text-sm">Aucune option trouvée</p>
             </li>
           ) : (
@@ -66,7 +66,7 @@ const Autocomplete = ({ options, value, onChange, onSelect, onClear, loading = f
               <Fragment key={i}>
                 {i !== 0 ? <div className="h-px mx-4 bg-gray-100" /> : null}
                 <li
-                  className={`relative flex gap-4 cursor-default select-none list-none items-center justify-between px-4 py-3 text-sm hover:bg-gray-100 hover:text-blue-dark bg-white text-black`}
+                  className={`relative flex gap-4 cursor-default select-none list-none items-center justify-between px-4 py-3 text-sm hover:bg-gray-100 hover:text-blue-france bg-white text-black`}
                   onClick={() => {
                     onSelect(option);
                     setIsOpen(false);

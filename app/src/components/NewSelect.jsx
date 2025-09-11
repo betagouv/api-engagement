@@ -43,11 +43,11 @@ const Select = ({ options, value, onChange, className, placeholder = "Sélection
       {isOpen && (
         <ul className={`absolute z-10 top-10 max-h-80 overflow-y-scroll transition duration-100 ease-in bg-white shadow-lg ${className || "w-full"}`} tabIndex={0}>
           {loading ? (
-            <li className="group flex cursor-default items-center justify-center px-4 py-2 data-[focus]:bg-gray-hover">
+            <li className="group flex cursor-default items-center justify-center px-4 py-2 data-[focus]:bg-gray-975">
               <Loader />
             </li>
           ) : !options.length ? (
-            <li className="group flex cursor-default items-center justify-center px-4 py-2 data-[focus]:bg-gray-hover">
+            <li className="group flex cursor-default items-center justify-center px-4 py-2 data-[focus]:bg-gray-975">
               <p className="text-sm">Aucune option trouvée</p>
             </li>
           ) : (
@@ -57,7 +57,7 @@ const Select = ({ options, value, onChange, className, placeholder = "Sélection
                 <li
                   tabIndex={-1}
                   key={option.value}
-                  className={`relative flex gap-4 cursor-default select-none list-none items-center justify-between px-4 py-3 text-sm hover:bg-gray-100 hover:text-blue-dark bg-white text-black`}
+                  className={`relative flex gap-4 cursor-default select-none list-none items-center justify-between px-4 py-3 text-sm hover:bg-gray-100 hover:text-blue-france bg-white text-black`}
                   onClick={() => {
                     onChange(option);
                     setIsOpen(false);

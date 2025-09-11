@@ -45,12 +45,12 @@ const Nav = () => {
 
   return (
     <nav className="flex w-full justify-center bg-white shadow-lg">
-      <div className="flex w-full max-w-[78rem] items-center justify-between h-14 pl-4">
+      <div className="flex w-full max-w-312 items-center justify-between h-14 pl-4">
         <div className="flex h-full items-center gap-6">
           {publisher.isAnnonceur && (publisher.hasApiRights || publisher.hasWidgetRights || publisher.hasCampaignRights) && <FluxMenu value={flux} onChange={handleFluxChange} />}
           <Link
             to="/performance"
-            className={`px-6 h-full flex items-center text-sm hover:bg-gray-hover ${location.pathname.includes("performance") ? "border-b-2 border-b-blue-dark text-blue-dark" : "border-none text-black"}`}
+            className={`px-6 h-full flex items-center text-sm hover:bg-gray-975 ${location.pathname.includes("performance") ? "border-b-2 border-b-blue-france text-blue-france" : "border-none text-black"}`}
           >
             Performance
           </Link>
@@ -59,14 +59,14 @@ const Nav = () => {
             <>
               <Link
                 to="/broadcast"
-                className={`px-6 h-full flex items-center text-sm hover:bg-gray-hover ${location.pathname.includes("broadcast") ? "border-b-2 border-b-blue-dark text-blue-dark" : "border-none text-black"}`}
+                className={`px-6 h-full flex items-center text-sm hover:bg-gray-975 ${location.pathname.includes("broadcast") ? "border-b-2 border-b-blue-france text-blue-france" : "border-none text-black"}`}
               >
                 Diffuser des missions
               </Link>
               {publisher.hasApiRights || publisher.hasCampaignRights ? (
                 <Link
                   to="/settings"
-                  className={`px-6 h-full flex items-center text-sm hover:bg-gray-hover ${location.pathname.includes("settings") ? "border-b-2 border-b-blue-dark text-blue-dark" : "border-none text-black"}`}
+                  className={`px-6 h-full flex items-center text-sm hover:bg-gray-975 ${location.pathname.includes("settings") ? "border-b-2 border-b-blue-france text-blue-france" : "border-none text-black"}`}
                 >
                   Paramètres
                 </Link>
@@ -76,13 +76,13 @@ const Nav = () => {
             <>
               <Link
                 to="/my-missions"
-                className={`px-6 h-full flex items-center text-sm hover:bg-gray-hover ${location.pathname.includes("my-missions") ? "border-b-2 border-b-blue-dark text-blue-dark" : "border-none text-black"}`}
+                className={`px-6 h-full flex items-center text-sm hover:bg-gray-975 ${location.pathname.includes("my-missions") ? "border-b-2 border-b-blue-france text-blue-france" : "border-none text-black"}`}
               >
                 Vos missions
               </Link>
               <Link
                 to="/settings"
-                className={`px-6 h-full flex items-center text-sm hover:bg-gray-hover ${location.pathname.includes("settings") ? "border-b-2 border-b-blue-dark text-blue-dark" : "border-none text-black"}`}
+                className={`px-6 h-full flex items-center text-sm hover:bg-gray-975 ${location.pathname.includes("settings") ? "border-b-2 border-b-blue-france text-blue-france" : "border-none text-black"}`}
               >
                 Paramètres
               </Link>
@@ -101,7 +101,7 @@ const Nav = () => {
 
 const FluxMenu = ({ value, onChange }) => (
   <Menu>
-    <MenuButton className="bg-blue-dark w-44 px-4 py-2 flex items-center justify-between rounded-full text-white text-sm">
+    <MenuButton className="bg-blue-france w-44 px-4 py-2 flex items-center justify-between rounded-full text-white text-sm">
       <span>Mode {value === "to" ? "annonceur" : "diffuseur"}</span>
 
       <RiArrowDownSFill className="text-base" />
@@ -110,35 +110,35 @@ const FluxMenu = ({ value, onChange }) => (
     <MenuItems
       transition
       anchor="bottom start"
-      className="w-64 origin-top-left mt-2 bg-white border border-gray-border divide-y divide-gray-border shadow-lg focus:outline-none transition duration-200 ease-out data-[closed]:scale-95 data-[closed]:opacity-0"
+      className="w-64 origin-top-left mt-2 bg-white border border-gray-900 divide-y divide-gray-900 shadow-lg focus:outline-none transition duration-200 ease-out data-closed:scale-95 data-closed:opacity-0"
     >
       {value === "to" ? (
         <>
           <MenuItem>
-            <button className="w-full p-4 text-sm text-left data-[focus]:bg-gray-hover flex items-center justify-between" onClick={() => onChange("to")}>
+            <button className="w-full p-4 text-sm text-left data-[focus]:bg-gray-975 flex items-center justify-between" onClick={() => onChange("to")}>
               <span>Mode annonceur</span>
               <RiCheckLine className="text-lg text-[#00A95F]" />
             </button>
           </MenuItem>
           <MenuItem>
-            <button className="w-full p-4 text-sm text-left data-[focus]:bg-gray-hover flex items-center justify-between" onClick={() => onChange("from")}>
+            <button className="w-full p-4 text-sm text-left data-[focus]:bg-gray-975 flex items-center justify-between" onClick={() => onChange("from")}>
               <span>Mode diffuseur</span>
-              <RiArrowLeftRightLine className="text-lg text-blue-dark" />
+              <RiArrowLeftRightLine className="text-lg text-blue-france" />
             </button>
           </MenuItem>
         </>
       ) : (
         <>
           <MenuItem>
-            <button className="w-full p-4 text-sm text-left data-[focus]:bg-gray-hover flex items-center justify-between" onClick={() => onChange("from")}>
+            <button className="w-full p-4 text-sm text-left data-[focus]:bg-gray-975 flex items-center justify-between" onClick={() => onChange("from")}>
               <span>Mode diffuseur</span>
               <RiCheckLine className="text-lg text-[#00A95F]" />
             </button>
           </MenuItem>
           <MenuItem>
-            <button className="w-full p-4 text-sm text-left data-[focus]:bg-gray-hover flex items-center justify-between" onClick={() => onChange("to")}>
+            <button className="w-full p-4 text-sm text-left data-[focus]:bg-gray-975 flex items-center justify-between" onClick={() => onChange("to")}>
               <span>Mode annonceur</span>
-              <RiArrowLeftRightLine className="text-lg text-blue-dark" />
+              <RiArrowLeftRightLine className="text-lg text-blue-france" />
             </button>
           </MenuItem>
         </>
@@ -164,7 +164,7 @@ const PublisherMenu = ({ options, value, onChange }) => {
   return (
     <div className="relative h-full" ref={ref}>
       <button
-        className="flex h-full cursor-pointer items-center justify-between gap-4 px-4 text-sm hover:bg-gray-hover focus:outline-none focus-visible:ring-2 focus-visible:ring-[#015fcc]"
+        className="flex h-full cursor-pointer items-center justify-between gap-4 px-4 text-sm hover:bg-gray-975 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#015fcc]"
         onClick={() => setIsOpen(!isOpen)}
       >
         <span className="font-semibold">{value.name}</span>
@@ -173,8 +173,8 @@ const PublisherMenu = ({ options, value, onChange }) => {
 
       <div className={`absolute z-10 origin-top-right mt-1 transition duration-200 ease-in-out ${isOpen ? "" : "scale-95 opacity-0 pointer-events-none"}`}>
         {isOpen && (
-          <div className={`w-72 bg-white border border-gray-border shadow-lg focus:outline-none`}>
-            <div className="flex items-center gap-4 p-3 border-b border-gray-border focus-visible:ring-2 focus-visible:ring-[#015fcc]">
+          <div className={`w-72 bg-white border border-gray-900 shadow-lg focus:outline-none`}>
+            <div className="flex items-center gap-4 p-3 border-b border-gray-900 focus-visible:ring-2 focus-visible:ring-[#015fcc]">
               <RiSearchLine />
               <label htmlFor="publisher-search" className="sr-only">
                 Rechercher un partenaire
@@ -187,7 +187,7 @@ const PublisherMenu = ({ options, value, onChange }) => {
                 .map((option, index) => (
                   <button
                     key={index}
-                    className="w-full border-b border-gray-border p-4 text-sm text-left hover:bg-gray-hover focus:outline-none focus-visible:bg-gray-hover focus-visible:ring-1 focus-visible:ring-[#015fcc] flex items-center justify-between"
+                    className="w-full border-b border-gray-900 p-4 text-sm text-left hover:bg-gray-975 focus:outline-none focus-visible:bg-gray-975 focus-visible:ring-1 focus-visible:ring-[#015fcc] flex items-center justify-between"
                     onClick={() => {
                       setSearch("");
                       setIsOpen(false);
@@ -195,7 +195,7 @@ const PublisherMenu = ({ options, value, onChange }) => {
                     }}
                   >
                     <span>{option.name}</span>
-                    {value._id === option._id && <RiCheckLine className="text-lg text-blue-dark" />}
+                    {value._id === option._id && <RiCheckLine className="text-lg text-blue-france" />}
                   </button>
                 ))}
             </div>
@@ -210,42 +210,42 @@ const AdminMenu = () => (
   <Menu>
     {({ open }) => (
       <>
-        <MenuButton className="flex h-full cursor-pointer items-center justify-between gap-4 px-4 text-sm data-[focus]:bg-gray-hover hover:bg-gray-hover">
+        <MenuButton className="flex h-full cursor-pointer items-center justify-between gap-4 px-4 text-sm data-[focus]:bg-gray-975 hover:bg-gray-975">
           <span className="font-semibold">Administration</span>
           <RiArrowDownSLine className={`text-lg ${open ? "transform rotate-180" : ""}`} />
         </MenuButton>
         <MenuItems
           transition
           anchor="bottom end"
-          className="w-64 origin-top-right mt-1 bg-white border border-gray-border divide-y divide-gray-border shadow-lg focus:outline-none transition duration-200 ease-out data-[closed]:scale-95 data-[closed]:opacity-0"
+          className="w-64 origin-top-right mt-1 bg-white border border-gray-900 divide-y divide-gray-900 shadow-lg focus:outline-none transition duration-200 ease-out data-closed:scale-95 data-closed:opacity-0"
         >
           <MenuItem>
-            <Link to="/admin-account" className="block w-full p-4 text-sm data-[focus]:bg-gray-hover">
+            <Link to="/admin-account" className="block w-full p-4 text-sm data-[focus]:bg-gray-975">
               Comptes
             </Link>
           </MenuItem>
           <MenuItem>
-            <Link to="/admin-mission" className="block w-full p-4 text-sm data-[focus]:bg-gray-hover">
+            <Link to="/admin-mission" className="block w-full p-4 text-sm data-[focus]:bg-gray-975">
               Missions
             </Link>
           </MenuItem>
           <MenuItem>
-            <Link to="/admin-organization" className="block w-full p-4 text-sm data-[focus]:bg-gray-hover">
+            <Link to="/admin-organization" className="block w-full p-4 text-sm data-[focus]:bg-gray-975">
               Organisations
             </Link>
           </MenuItem>
           <MenuItem>
-            <Link to="/admin-stats" className="block w-full p-4 text-sm data-[focus]:bg-gray-hover">
+            <Link to="/admin-stats" className="block w-full p-4 text-sm data-[focus]:bg-gray-975">
               Statistiques
             </Link>
           </MenuItem>
           <MenuItem>
-            <Link to="/admin-warning" className="block w-full p-4 text-sm data-[focus]:bg-gray-hover">
+            <Link to="/admin-warning" className="block w-full p-4 text-sm data-[focus]:bg-gray-975">
               Alertes
             </Link>
           </MenuItem>
           <MenuItem>
-            <Link to="/admin-report" className="block w-full p-4 text-sm data-[focus]:bg-gray-hover">
+            <Link to="/admin-report" className="block w-full p-4 text-sm data-[focus]:bg-gray-975">
               Rapports d'impacts
             </Link>
           </MenuItem>

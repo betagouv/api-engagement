@@ -43,25 +43,25 @@ const Forgot = () => {
         E-mail
       </label>
       <input
-        className={`input mb-2 ${errors.email ? "border-b-red-main" : "border-b-black"}`}
+        className={`input mb-2 ${errors.email ? "border-b-red-error" : "border-b-black"}`}
         name="email"
         id="email"
         value={values.email}
         onChange={(e) => setValues({ ...values, email: e.target.value })}
       />
       {errors.email && (
-        <div className="flex items-center text-sm text-red-main">
+        <div className="flex items-center text-sm text-red-error">
           <RiErrorWarningFill className="mr-2" />
           Adresse email invalide
         </div>
       )}
 
-      <button type="submit" className="button mt-6 bg-blue-dark text-white hover:bg-blue-main" disabled={errors.email || loading || done}>
+      <button type="submit" className="button mt-6 bg-blue-france text-white hover:bg-blue-france-hover" disabled={errors.email || loading || done}>
         {loading ? "Chargement..." : "Réinitialisez votre mot de passe"}
       </button>
 
       {done && (
-        <div className="mt-4 flex items-center text-sm text-green-main">
+        <div className="mt-4 flex items-center text-sm text-green-success">
           <RiCheckboxCircleFill className="mr-2" />
           <p>Si votre adresse email est valide, un e-mail vous a été envoyé pour vous permettre de réinitialiser votre mot de passe.</p>
         </div>

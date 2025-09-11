@@ -157,7 +157,7 @@ const Filters = ({ filters, onChange, reload }) => {
 const Badge = ({ label, value, onDelete }) => {
   if (!value) return null;
   return (
-    <div className="flex items-center gap-2 rounded bg-blue-light p-2">
+    <div className="flex items-center gap-2 rounded bg-blue-france-975 p-2">
       <p className="text-sm">{label}:</p>
       <p className="text-sm">{value}</p>
       <button className="text-sm text-black" onClick={onDelete}>

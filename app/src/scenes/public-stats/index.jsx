@@ -36,7 +36,7 @@ const PublicStats = () => {
         <div className="flex justify-between">
           <div>
             <h1 className="text-4xl font-bold mb-2">Statistiques de l'API Engagement</h1>
-            <p className="text-lg font-medium text-gray-dark">L'API Engagement facilite la diffusion des missions de bénévolat et de volontariat partout en France.</p>
+            <p className="text-lg font-medium text-gray-425">L'API Engagement facilite la diffusion des missions de bénévolat et de volontariat partout en France.</p>
           </div>
 
           <img className="h-18 w-18" src={APILogo} alt="API Engagement" />
@@ -48,7 +48,7 @@ const PublicStats = () => {
             <img className="h-18 w-18" src={dataViz} alt="API Engagement" />
             <div className="ml-5 flex flex-col">
               <h2 className="text-3xl font-bold">Vue d'ensemble</h2>
-              <p className="text-lg text-gray-dark">
+              <p className="text-lg text-gray-425">
                 <strong>Quelques indicateurs </strong>
                 pour observer d'un coup d'oeil l'impact de l'API Engagement
               </p>
@@ -58,7 +58,7 @@ const PublicStats = () => {
         <div className="mx-auto my-14 w-4/5 max-w-[1200px] border bg-white p-12">
           <h2 className="text-3xl font-bold">En quelques mots</h2>
           <div className="flex-start flex gap-6">
-            <div className="mt-8 flex-1 text-lg leading-loose text-gray-dark">
+            <div className="mt-8 flex-1 text-lg leading-loose text-gray-425">
               <strong className="text-black">
                 L'API Engagement est un service public numérique qui permet aux plateformes d'engagement associatives, publiques et privées de mettre en commun leurs missions.
               </strong>
@@ -67,7 +67,7 @@ const PublicStats = () => {
                 personnes qui candidatent aux actions.
               </div>
             </div>
-            <div className="mt-8 flex-1 text-lg leading-loose text-gray-dark">
+            <div className="mt-8 flex-1 text-lg leading-loose text-gray-425">
               L'API Engagement permet de faciliter l'engagement en simplifiant l'accès à une pluralité d'annonces actualisées. Avec cette technologie, les points de rencontres sont
               multipliés : les annonces sont accessible aux bons endroits, c'est-à-dire là où les personnes qui souhaitent s'engager se trouvent : site de mairie, applications,
               plateformes d'engagement, etc.

@@ -40,11 +40,11 @@ import { captureError } from "./services/error";
 import useStore from "./services/store";
 
 const TOAST_STYLES = {
-  success: "bg-green-dark text-white",
-  error: "bg-red-dark text-white",
-  info: "bg-blue-dark text-white",
-  warning: "bg-orange-warning",
-  default: "bg-white border border-gray-border",
+  success: "bg-green-success text-white",
+  error: "bg-red-error text-white",
+  info: "bg-blue-france text-white",
+  warning: "bgbg-[#FEECC2]",
+  default: "bg-white border border-gray-900",
   dark: "bg-dark text-white border border white",
 };
 
@@ -110,7 +110,7 @@ const AuthLayout = () => {
   if (user) return <Navigate to="/performance" replace={true} />;
 
   return (
-    <div className="min-w-768 flex min-h-screen w-screen flex-col bg-beige">
+    <div className="min-w-3xl flex min-h-screen w-screen flex-col bg-beige">
       <Header />
       <div className="flex">
         <div className="flex-1">
@@ -203,9 +203,9 @@ const ProtectedLayout = () => {
   if (!user) return <Navigate to="/login" />;
 
   return (
-    <div className="min-w-768 flex min-h-screen w-screen flex-col bg-beige">
+    <div className="min-w-3xl flex min-h-screen w-screen flex-col bg-beige">
       {ENV === "staging" && (
-        <div className="bg-red-dark text-white text-center p-2 w-full">
+        <div className="bg-red-error text-white text-center p-2 w-full">
           <span>Environnement de pré-prod</span>
         </div>
       )}
@@ -236,7 +236,7 @@ const PublicLayout = () => {
   }, [location.pathname]);
 
   return (
-    <div className="min-w-768 flex min-h-screen w-screen flex-col bg-beige">
+    <div className="min-w-3xl flex min-h-screen w-screen flex-col bg-beige">
       <Header />
       {user ? <Nav /> : ""}
       <div className="">

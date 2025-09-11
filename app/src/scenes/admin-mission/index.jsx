@@ -227,13 +227,13 @@ const AdminMission = () => {
             <div className="flex items-center gap-2">
               <p className="text-base text-[#666666]">Dernière synchronisation le {lastImport ? new Date(lastImport.startedAt).toLocaleDateString("fr") : "N/A"}</p>
               {lastImport && new Date(lastImport.startedAt) > new Date(new Date().getFullYear(), new Date().getMonth(), new Date().getDate() - 1) ? (
-                <RiCheckboxCircleFill className="text-green-main text-base" />
+                <RiCheckboxCircleFill className="text-green-success text-base" />
               ) : (
                 <ErrorIconSvg alt="error" className="w-4 h-4 fill-[#e1000f]" />
               )}
             </div>
           </div>
-          <button className="button border border-[#dddddd] flex items-center text-blue-dark hover:bg-gray-hover" onClick={handleExport}>
+          <button className="button border border-[#dddddd] flex items-center text-blue-france hover:bg-gray-975" onClick={handleExport}>
             {exporting ? <Loader /> : <RiFileDownloadLine className="mr-2" />}
             Exporter
           </button>
@@ -252,7 +252,7 @@ const AdminMission = () => {
           {data.map((item, i) => (
             <tr key={i} className={`${i % 2 === 0 ? "bg-gray-100" : "bg-gray-50"} table-item`}>
               <td className="p-4" colSpan={4}>
-                <Link to={`/mission/${item._id}`} className="line-clamp-3 text-blue-dark">
+                <Link to={`/mission/${item._id}`} className="line-clamp-3 text-blue-france">
                   {item.title}
                 </Link>
                 {item.publisherName && <p className="text-sm">{item.publisherName}</p>}
@@ -265,12 +265,16 @@ const AdminMission = () => {
               <td className="px-4">{new Date(item.createdAt).toLocaleDateString("fr")}</td>
               <td className="px-6">
                 <div className="flex items-center gap-1">
-                  {item.statusCode === "ACCEPTED" ? <RiCheckboxCircleFill className="text-green-main text-2xl" /> : <ErrorIconSvg alt="error" className="w-6 h-6 fill-[#e1000f]" />}
+                  {item.statusCode === "ACCEPTED" ? (
+                    <RiCheckboxCircleFill className="text-green-success text-2xl" />
+                  ) : (
+                    <ErrorIconSvg alt="error" className="w-6 h-6 fill-[#e1000f]" />
+                  )}
                   {item.statusComment && (
                     <div className="relative group">
-                      <RiInformationLine className="text-gray-dark text-2xl" />
+                      <RiInformationLine className="text-gray-425 text-2xl" />
 
-                      <div className="hidden group-hover:block absolute right-8 -translate-y-1/2 -top-1/2 z-10 w-64 border border-gray-border bg-white p-4 shadow-lg">
+                      <div className="hidden group-hover:block absolute right-8 -translate-y-1/2 -top-1/2 z-10 w-64 border border-gray-900 bg-white p-4 shadow-lg">
                         <p className="text-sm">{item.statusComment}</p>
                       </div>
                     </div>

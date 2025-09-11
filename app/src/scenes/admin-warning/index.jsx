@@ -161,16 +161,16 @@ const Index = () => {
           </h4>
           <div className="grid grid-cols-4 gap-10">
             {Object.values(currentWarningsByPublishers).map((p, i) => (
-              <div className="flex h-40 flex-col items-center border border-gray-border" key={i}>
-                <div className="mt-2 text-center text-xs text-gray-dark">{p.name}</div>
+              <div className="flex h-40 flex-col items-center border border-gray-900" key={i}>
+                <div className="mt-2 text-center text-xs text-gray-425">{p.name}</div>
                 <div className="flex h-24 items-center justify-center">
                   {p.logo ? <img className="h-20 w-4/5 object-contain" src={p.logo} alt={p.name} /> : <div className="h-20 w-20 bg-gray-200" />}
                 </div>
 
-                <div className="flex h-12 w-full items-center justify-center gap-2 border-t border-gray-border px-3">
-                  <span className="truncate rounded bg-orange-light p-1 text-center text-xs font-semibold uppercase text-orange-dark">{p.warnings[0]}</span>
+                <div className="flex h-12 w-full items-center justify-center gap-2 border-t border-gray-900 px-3">
+                  <span className="truncate rounded bgbg-[#FEECC2] p-1 text-center text-xs font-semibold uppercase textbg-[#716043]">{p.warnings[0]}</span>
                   {p.warnings.length > 1 && (
-                    <span className="whitespace-nowrap rounded bg-orange-light p-1 text-center text-xs font-semibold uppercase text-orange-dark">+ {p.warnings.length - 1}</span>
+                    <span className="whitespace-nowrap rounded bgbg-[#FEECC2] p-1 text-center text-xs font-semibold uppercase textbg-[#716043]">+ {p.warnings.length - 1}</span>
                   )}
                 </div>
               </div>
@@ -232,7 +232,7 @@ const Index = () => {
                       {w.publisherLogo ? <img className="h-20 w-36 object-contain" src={w.publisherLogo} alt={w.publisherName} /> : <div className="h-4/5 w-4/5 bg-gray-200" />}
                       <div className="flex flex-col justify-between">
                         <div className="mb-2">
-                          <span className="truncate rounded bg-orange-light p-1 text-center text-xs font-semibold uppercase text-orange-dark">{label.name}</span>
+                          <span className="truncate rounded bgbg-[#FEECC2] p-1 text-center text-xs font-semibold uppercase textbg-[#716043]">{label.name}</span>
                         </div>
                         <p className="text-xl font-semibold">{w.title}</p>
                       </div>
@@ -301,13 +301,13 @@ const Index = () => {
                       {w.publisherLogo ? <img className="h-20 w-36 object-contain" src={w.publisherLogo} alt={w.publisherName} /> : <div className="h-4/5 w-4/5 bg-gray-200" />}
                       <div className="flex flex-col justify-between">
                         <div className="mb-2">
-                          <span className="truncate rounded bg-orange-light p-1 text-center text-xs font-semibold uppercase text-orange-dark">{label.name}</span>
+                          <span className="truncate rounded bgbg-[#FEECC2] p-1 text-center text-xs font-semibold uppercase textbg-[#716043]">{label.name}</span>
                         </div>
                         <p className="text-xl font-semibold">{w.title}</p>
                         {w.fixed && (
                           <div className="mt-3 flex items-center">
-                            <RiCheckboxCircleFill className="mr-2 w-4 text-green-check" />
-                            <p className="text-gray-dark ">
+                            <RiCheckboxCircleFill className="mr-2 w-4 text-green-success" />
+                            <p className="text-gray-425 ">
                               Corrigée le {new Date(w.fixedAt || w.updatedAt).getDate()} {MONTHS[new Date(w.fixedAt || w.updatedAt).getMonth()].toLowerCase()}
                             </p>
                           </div>
@@ -332,7 +332,7 @@ const Index = () => {
 const Badge = ({ label, value, onDelete }) => {
   if (!value) return null;
   return (
-    <div className="flex items-center gap-2 rounded bg-blue-light p-2">
+    <div className="flex items-center gap-2 rounded bg-blue-france-975 p-2">
       <p className="text-sm">{label}:</p>
       <p className="text-sm">{value}</p>
       <button className="text-sm text-black" onClick={onDelete}>

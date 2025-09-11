@@ -211,17 +211,17 @@ const Edit = () => {
             <span>Créée le {new Date(campaign.createdAt).toLocaleDateString("fr")}</span>
           </div>
           <div className="flex items-center gap-6">
-            <button className="flex items-center text-sm text-blue-dark p-2 border border-blue-dark" onClick={() => setIsReassignModalOpen(true)}>
+            <button className="flex items-center text-sm text-blue-france p-2 border border-blue-france" onClick={() => setIsReassignModalOpen(true)}>
               <RiFileTransferLine className="mr-2" />
               <span>Déplacer</span>
             </button>
-            <button className="flex items-center text-sm text-red-main p-2 border" onClick={handleDelete}>
+            <button className="flex items-center text-sm text-red-error p-2 border" onClick={handleDelete}>
               <RiDeleteBin6Line className="mr-2" />
               <span>Supprimer</span>
             </button>
             <div className="flex items-center">
               <Toggle value={activated} onChange={handleArchive} />
-              <label className="ml-2 text-blue-dark">{activated ? "Activée" : "Désactivée"}</label>
+              <label className="ml-2 text-blue-france">{activated ? "Activée" : "Désactivée"}</label>
             </div>
           </div>
         </div>
@@ -244,13 +244,13 @@ const Edit = () => {
               Nom de la campagne
             </label>
             <input
-              className={`input mb-2 ${errors.name ? "border-b-red-main" : "border-b-black"}`}
+              className={`input mb-2 ${errors.name ? "border-b-red-error" : "border-b-black"}`}
               id="name"
               value={values.name}
               onChange={(e) => setValues({ ...values, name: e.target.value })}
             />
             {errors.name && (
-              <div className="flex items-center text-sm text-red-main">
+              <div className="flex items-center text-sm text-red-error">
                 <RiErrorWarningFill className="mr-2" />
                 {errors.name}
               </div>
@@ -264,7 +264,7 @@ const Edit = () => {
               </label>
               <select
                 id="type"
-                className={`input ${errors.type ? "border-b-red-main" : "border-b-black"}`}
+                className={`input ${errors.type ? "border-b-red-error" : "border-b-black"}`}
                 value={values.type}
                 onChange={(e) => {
                   setValues({ ...values, type: e.target.value });
@@ -278,7 +278,7 @@ const Edit = () => {
                 <option value="autre">Autre</option>
               </select>
               {errors.type && (
-                <div className="flex items-center text-sm text-red-main">
+                <div className="flex items-center text-sm text-red-error">
                   <RiErrorWarningFill className="mr-2" />
                   {errors.type}
                 </div>
@@ -296,7 +296,7 @@ const Edit = () => {
               />
 
               {errors.toPublisherId && (
-                <div className="flex items-center text-sm text-red-main">
+                <div className="flex items-center text-sm text-red-error">
                   <RiErrorWarningFill className="mr-2" />
                   {errors.toPublisherId}
                 </div>
@@ -308,9 +308,9 @@ const Edit = () => {
             <label className="mb-2 flex items-center text-sm" htmlFor="url">
               Lien de la page web de la campagne
             </label>
-            <input id="url" className={`input mb-2 ${errors.url ? "border-b-red-main" : "border-b-black"}`} name="url" value={values.url} onChange={(e) => handleUrlChange(e)} />
+            <input id="url" className={`input mb-2 ${errors.url ? "border-b-red-error" : "border-b-black"}`} name="url" value={values.url} onChange={(e) => handleUrlChange(e)} />
             {errors.url && (
-              <div className="flex items-center text-sm text-red-main">
+              <div className="flex items-center text-sm text-red-error">
                 <RiErrorWarningFill className="mr-2" />
                 {errors.url}
               </div>
@@ -331,7 +331,7 @@ const Edit = () => {
             <label className="ml-2 text-base">Ajouter des paramètres pour le suivi statistique</label>
           </div>
           {values.trackers && values.trackers.length > 0 && (
-            <div className="border border-gray-border p-8">
+            <div className="border border-gray-900 p-8">
               <div className="flex items-center gap-4 mb-2">
                 <label className="flex-1 text-base">Nom du paramètre</label>
                 <label className="flex-1 text-base">Valeur du paramètre</label>
@@ -354,8 +354,8 @@ const Edit = () => {
                     </div>
                     <div className="w-10 flex justify-end">
                       {values.trackers.length > 1 && (
-                        <button type="button h-full w-10" className="border border-gray-border p-2" onClick={() => handleDeleteTracker(i)}>
-                          <RiDeleteBin6Line className="text-red-main" />
+                        <button type="button h-full w-10" className="border border-gray-900 p-2" onClick={() => handleDeleteTracker(i)}>
+                          <RiDeleteBin6Line className="text-red-error" />
                         </button>
                       )}
                     </div>
@@ -373,22 +373,22 @@ const Edit = () => {
             <label className="text-sm">Lien à insérer dans le contenu de votre campagne</label>
             <div className="border-2 my-2 py-4 px-4 flex items-center justify-between bg-indigo-50">
               <span className="text-sm truncate">{trackedLink}</span>
-              <button type="button" className="button ml-3 border border-dark-blue bg-indigo-50 border-blue-dark text-blue-dark hover:bg-gray-hover" onClick={handleCopy}>
+              <button type="button" className="button ml-3 border border-dark-blue bg-indigo-50 border-blue-france text-blue-france hover:bg-gray-975" onClick={handleCopy}>
                 Copier
               </button>
             </div>
             <div>
-              <span className="text-xs flex flex-row items-center text-orange-warning">
+              <span className="text-xs flex flex-row items-center textbg-[#FEECC2]">
                 <AiFillWarning className="mr-2" />
                 Copiez exactement ce lien !
               </span>
             </div>
           </div>
           <div className="col-span-2 flex justify-end gap-4">
-            <Link to="/broadcast/campaigns" className="button border border-blue-dark text-blue-dark hover:bg-gray-hover">
+            <Link to="/broadcast/campaigns" className="button border border-blue-france text-blue-france hover:bg-gray-975">
               Retour
             </Link>
-            <button className="button bg-blue-dark text-white hover:bg-blue-main" disabled={!isChanged(values) || isErrors(errors)} onClick={handleSubmit}>
+            <button className="button bg-blue-france text-white hover:bg-blue-france-hover" disabled={!isChanged(values) || isErrors(errors)} onClick={handleSubmit}>
               Enregistrer
             </button>
           </div>
@@ -448,7 +448,7 @@ const ReassignModal = ({ isOpen, onClose, campaign, values, setValues, setCampai
           <RiFileTransferLine className="text-3xl" />
           <h2 className="text-3xl font-bold">Déplacer une campagne</h2>
         </div>
-        <span className="text-gray-dark">
+        <span className="text-gray-425">
           Vers quel compte voulez-vous déplacer la campagne <span className="font-bold">{campaign.name}</span> ?
         </span>
         <div className="flex flex-1 gap-2 mt-8">
@@ -460,11 +460,11 @@ const ReassignModal = ({ isOpen, onClose, campaign, values, setValues, setCampai
           />
         </div>
         <div className="flex justify-end gap-2 mt-10">
-          <button className="button border text-blue-dark py-2 px-4 hover:bg-gray-hover" type="button" onClick={onClose}>
+          <button className="button border text-blue-france py-2 px-4 hover:bg-gray-975" type="button" onClick={onClose}>
             Annuler
           </button>
           <button
-            className="button bg-blue-dark text-white hover:bg-blue-main py-2 px-4"
+            className="button bg-blue-france text-white hover:bg-blue-france-hover py-2 px-4"
             type="submit"
             onClick={handleReassignSubmit}
             disabled={!values.fromPublisherId || values.fromPublisherId === campaign.fromPublisherId || loading}

@@ -1,6 +1,23 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
+
+/* https://www.systeme-de-design.gouv.fr/version-courante/fr/fondamentaux/couleurs-palette#accent */
+@theme {
+  --color-black: #161616;
+  --color-blue-france: #000091;
+  --color-blue-france-hover: #1212ff;
+  --color-blue-france-975: #f5f5fe;
+  --color-blue-info: #0063cb;
+  --color-green-success: #1f8d49;
+  --color-red-marianne: #e1000f;
+  --color-red-error: #f60700;
+  --color-gray-975: #f6f6f6;
+  --color-gray-950: #eeeeee;
+  --color-gray-925: #e5e5e5;
+  --color-gray-900: #dddddd;
+  --color-gray-425: #666666;
+  --color-gray-200: #3a3a3a;
+  --color-beige: #f9f6f2;
+}
 
 @font-face {
   font-display: swap;
@@ -86,46 +103,44 @@ html {
   font-family: "Marianne";
 }
 
-@layer components {
-  body {
-    @apply text-black;
-  }
+body {
+  color: black;
+}
 
-  .button {
-    @apply px-5 py-2 text-center text-sm transition-all focus:ring-0 disabled:opacity-40;
-  }
-  .filled-button {
-    @apply bg-blue-dark px-5 py-2 text-center text-sm text-white transition-all hover:bg-blue-main focus:ring-0 disabled:bg-gray-border disabled:text-gray-disabled disabled:hover:bg-gray-border;
-  }
-  .empty-button {
-    @apply border border-blue-dark px-5 py-2 text-center text-sm text-blue-dark transition-all hover:bg-gray-hover focus:ring-0 disabled:border-gray-border disabled:text-gray-disabled disabled:hover:bg-white;
-  }
-  .red-button {
-    @apply button bg-red-dark text-white hover:bg-red-main;
-  }
-  .red-emtpy-button {
-    @apply button border border-red-dark text-red-dark hover:bg-red-main;
-  }
+@utility button {
+  @apply px-5 py-2 text-center text-sm transition-all focus:ring-0 disabled:opacity-40;
+}
+@utility filled-button {
+  @apply bg-blue-france px-5 py-2 text-center text-sm text-white transition-all hover:bg-blue-france-hover focus:ring-0 disabled:bg-gray-900 disabled:text-gray-425 disabled:hover:bg-gray-900;
+}
+@utility empty-button {
+  @apply border border-blue-france px-5 py-2 text-center text-sm text-blue-france transition-all hover:bg-gray-975 focus:ring-0 disabled:border-gray-900 disabled:text-gray-425 disabled:hover:bg-white;
+}
+@utility red-button {
+  @apply button bg-red-error text-white hover:bg-red-error;
+}
+@utility red-emtpy-button {
+  @apply button border border-red-error text-red-error hover:bg-red-error;
+}
 
-  .input {
-    @apply rounded-t border-0 border-b border-b-black bg-gray-light h-10 px-4 py-2 text-sm text-black outline-[#0a76f6] placeholder:text-gray-dark focus-visible:outline-2 focus-visible:outline-offset-2 disabled:opacity-60;
-  }
-  .select {
-    @apply appearance-none rounded-none rounded-t border-0 border-b border-b-black bg-gray-light h-10 py-2 pl-4 pr-10 text-sm text-black outline-[#0a76f6] placeholder:text-gray-dark focus-visible:outline-2 focus-visible:outline-offset-2 disabled:opacity-60;
-  }
+@utility input {
+  @apply rounded-t border-0 border-b border-b-black bg-gray-950 h-10 px-4 py-2 text-sm text-black outline-[#0a76f6] placeholder:text-gray-425 focus-visible:outline-2 focus-visible:outline-offset-2 disabled:opacity-60;
+}
+@utility select {
+  @apply appearance-none rounded-none rounded-t border-0 border-b border-b-black bg-gray-950 h-10 py-2 pl-4 pr-10 text-sm text-black outline-[#0a76f6] placeholder:text-gray-425 focus-visible:outline-2 focus-visible:outline-offset-2 disabled:opacity-60;
+}
 
-  .link {
-    @apply text-blue-dark underline;
-  }
-  .checkbox {
-    @apply h-4 w-4 rounded border border-black checked:bg-blue-dark checked:hover:bg-blue-dark checked:focus:bg-blue-dark active:bg-blue-dark;
-  }
-  .table-header {
-    @apply bg-gray-100 px-4 border-b-2 border-b-black text-left text-sm font-bold text-black h-12;
-  }
-  .table-item {
-    @apply border-b border-b-gray-main text-left text-sm text-black h-16;
-  }
+@utility link {
+  @apply text-blue-france underline;
+}
+@utility checkbox {
+  @apply h-4 w-4 rounded border border-black checked:bg-blue-france checked:hover:bg-blue-france checked:focus:bg-blue-france active:bg-blue-france;
+}
+@utility table-header {
+  @apply bg-gray-100 px-4 border-b-2 border-b-black text-left text-sm font-bold text-black h-12;
+}
+@utility table-item {
+  @apply border-b border-b-gray-925 text-left text-sm text-black h-16;
 }
 
 select {

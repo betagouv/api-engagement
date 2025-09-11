@@ -117,7 +117,7 @@ const BotRow = ({ bot }) => {
         {statBot ? (
           <div className="flex flex-col items-end justify-end gap-2">
             <div className="flex items-center gap-2">
-              <RiCheckboxCircleFill className="text-green-main" /> <p className="text-green-main">Marqué comme bots (les stats n'apparaîtront pas dans le dashboard)</p>
+              <RiCheckboxCircleFill className="text-green-success" /> <p className="text-green-success">Marqué comme bots (les stats n'apparaîtront pas dans le dashboard)</p>
             </div>
             <button className="red-button w-56" onClick={handleUnblock} disabled={loading}>
               {loading ? <Loader className="w-4 h-4 text-white" /> : "Démarquer comme bots"}

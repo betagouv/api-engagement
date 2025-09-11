@@ -29,7 +29,7 @@ const Annonceur = ({ values, onChange, errors, setErrors }) => {
   }, [values._id]);
 
   return (
-    <div className="border border-gray-border p-6 space-y-6">
+    <div className="border border-gray-900 p-6 space-y-6">
       <div className="flex items-center justify-between">
         <h3 className="text-lg font-bold">Annonceur</h3>
         <Toggle
@@ -42,7 +42,7 @@ const Annonceur = ({ values, onChange, errors, setErrors }) => {
       </div>
       {isAnnonceur && (
         <>
-          <div className="w-full h-px bg-gray-border" />
+          <div className="w-full h-px bg-gray-900" />
           {errors.missionType && <p className="text-red-700">{errors.missionType}</p>}
           <div className="space-y-4">
             {Object.values(MISSION_TYPES).map((type) => (
@@ -61,7 +61,7 @@ const Annonceur = ({ values, onChange, errors, setErrors }) => {
               />
             ))}
           </div>
-          <div className="w-full h-px bg-gray-border" />
+          <div className="w-full h-px bg-gray-900" />
           <p className="text-base">
             {data.length} diffuseurs diffusent les missions de {values.name}
           </p>
@@ -84,7 +84,7 @@ const DiffuseurModal = ({ data }) => {
 
   return (
     <>
-      <button onClick={() => setOpen(true)} className="text-blue-dark border-b border-blue-dark flex items-center gap-2">
+      <button onClick={() => setOpen(true)} className="text-blue-france border-b border-blue-france flex items-center gap-2">
         <span>Tous les diffuseurs</span>
         <ExportSvg className="w-4 h-4" />
       </button>

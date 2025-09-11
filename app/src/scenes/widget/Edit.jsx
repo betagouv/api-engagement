@@ -115,7 +115,7 @@ const Edit = () => {
     <div className="space-y-6">
       <StickyBar onEdit={handleSubmit} visible={stickyVisible} widget={widget} handleActivate={handleActivate} canSubmit={canSubmit} />
       <div className="flex">
-        <Link to={`/broadcast/widgets`} className="flex items-center space-x-1 text-blue-dark">
+        <Link to={`/broadcast/widgets`} className="flex items-center space-x-1 text-blue-france">
           <RiArrowLeftLine />
           <span>Retour</span>
         </Link>
@@ -124,12 +124,12 @@ const Edit = () => {
       <div className="flex items-center justify-between align-baseline">
         <div>
           <h1 className="text-4xl font-bold">Modifier un widget</h1>
-          <span className="text-gray-dark">Créé le {new Date(widget.createdAt).toLocaleDateString("fr")}</span>
+          <span className="text-gray-425">Créé le {new Date(widget.createdAt).toLocaleDateString("fr")}</span>
         </div>
         <div className="flex items-center gap-6">
           <div className="flex flex-col items-end">
             <Toggle value={widget.active} onChange={(value) => handleActivate(value)} />
-            <label className="text-blue-dark text-xs">{widget.active ? "Actif" : "Inactif"}</label>
+            <label className="text-blue-france text-xs">{widget.active ? "Actif" : "Inactif"}</label>
           </div>
           <button type="submit" className="filled-button" onClick={handleSubmit} ref={(node) => setSaveButton(node)} disabled={!canSubmit()}>
             Enregistrer
@@ -183,7 +183,7 @@ const Frame = ({ widget }) => {
         <span>Enregistrez le widget pour mettre à jour l'aperçu</span>
       </div>
 
-      <div className="my-10 border-b border-gray-border shadow-lg" />
+      <div className="my-10 border-b border-gray-900 shadow-lg" />
       <iframe
         key={iframeKey}
         border="0"
@@ -255,7 +255,7 @@ const StickyBar = ({ onEdit, visible, widget, handleActivate, canSubmit }) => {
         <div className="flex items-center gap-6">
           <div className="flex flex-col items-end">
             <Toggle value={widget.active} onChange={(value) => handleActivate(value)} />
-            <label className="text-blue-dark text-xs">{widget.active ? "Actif" : "Inactif"}</label>
+            <label className="text-blue-france text-xs">{widget.active ? "Actif" : "Inactif"}</label>
           </div>
           <button type="button" className="filled-button" onClick={onEdit} disabled={!canSubmit()}>
             Enregistrer

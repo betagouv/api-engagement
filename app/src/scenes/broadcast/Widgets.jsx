@@ -95,7 +95,7 @@ const Widgets = () => {
             {data.slice((filters.page - 1) * filters.pageSize, filters.page * filters.pageSize).map((item, i) => (
               <tr key={i} className={`${i % 2 === 0 ? "bg-gray-100" : "bg-gray-50"} table-item`}>
                 <td className="px-4" colSpan={3}>
-                  <Link to={`/broadcast/widget/${item._id}`} className="text-blue-dark truncate">
+                  <Link to={`/broadcast/widget/${item._id}`} className="text-blue-france truncate">
                     {item.name}
                   </Link>
                 </td>
@@ -108,16 +108,16 @@ const Widgets = () => {
                 </td>
                 <td className={`${!item.active ? "opacity-50" : "opacity-100"} px-4`}>{new Date(item.createdAt).toLocaleDateString("fr")}</td>
                 <td className="px-4 flex gap-2 text-lg mt-3">
-                  <Link className="cursor-pointer border border-blue-dark p-2" to={`/broadcast/widget/${item._id}`}>
-                    <RiEditFill className="text-blue-dark" />
+                  <Link className="cursor-pointer border border-blue-france p-2" to={`/broadcast/widget/${item._id}`}>
+                    <RiEditFill className="text-blue-france" />
                   </Link>
                   <a
-                    className="cursor-pointer border border-blue-dark p-2"
+                    className="cursor-pointer border border-blue-france p-2"
                     href={`${item.type === "volontariat" ? VOLONTARIAT_URL : BENEVOLAT_URL}?widget=${item._id}&notrack=true`}
                     target="_blank"
                     rel="noopener noreferrer"
                   >
-                    <RiEyeFill className="text-blue-dark" />
+                    <RiEyeFill className="text-blue-france" />
                   </a>
                 </td>
                 {user.role === "admin" && (

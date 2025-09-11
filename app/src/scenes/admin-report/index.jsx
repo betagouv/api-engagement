@@ -66,9 +66,9 @@ const AdminReport = () => {
         <h2 className="text-2xl font-semibold flex-1">{total.toLocaleString("fr")} rapports d'impacts</h2>
       </div>
 
-      <div className="border border-gray-border p-6 space-y-6">
+      <div className="border border-gray-900 p-6 space-y-6">
         <p className="font-bold">Filtrer les resultats</p>
-        <div className="flex items-center gap-4 border-b border-b-gray-border pb-6">
+        <div className="flex items-center gap-4 border-b border-b-gray-900 pb-6">
           <SearchSelect
             options={options.publishers.sort((a, b) => b.count - a.count).map((e) => ({ value: e._id, label: e.name, count: e.count }))}
             value={filters.publisherId}
@@ -158,7 +158,7 @@ const AdminReport = () => {
                     )}
                   </div>
                   {item.url !== null && (
-                    <a className="border border-blue-dark p-2 text-blue-dark" href={item.url} target="_blank" rel="noreferrer">
+                    <a className="border border-blue-france p-2 text-blue-france" href={item.url} target="_blank" rel="noreferrer">
                       <RiDownload2Line className="text-blue-800" />
                     </a>
                   )}

@@ -155,12 +155,12 @@ const Moderation = () => {
         </div>
       </div>
       <div className="px-12">
-        <div className="h-px w-full bg-gray-border" />
+        <div className="h-px w-full bg-gray-900" />
       </div>
 
       <Filters filters={filters} onChange={setFilters} searchParams={searchParams} reload={reloadFilters} />
       <div className="px-12">
-        <div className="h-px w-full bg-gray-border" />
+        <div className="h-px w-full bg-gray-900" />
       </div>
       <Header
         total={total}

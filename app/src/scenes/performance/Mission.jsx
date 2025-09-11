@@ -45,11 +45,11 @@ const Mission = ({ filters, onFiltersChange }) => {
         <title>Missions - Performance - API Engagement</title>
       </Helmet>
       <div className="space-y-2">
-        <label className="text-sm text-gray-dark uppercase font-semibold">Période</label>
+        <label className="text-sm text-gray-425 uppercase font-semibold">Période</label>
         <DateRangePicker value={filters} onChange={(value) => onFiltersChange({ ...filters, ...value })} />
       </div>
 
-      <div className="border-b border-b-gray-border" />
+      <div className="border-b border-b-gray-900" />
 
       <MissionTable filters={filters} />
       <OrganisationTable filters={filters} />
@@ -129,7 +129,7 @@ const MissionTable = ({ filters }) => {
     <div className="border p-6 space-y-4">
       <div className="flex items-center justify-between">
         <h3 className="text-2xl font-semibold">Vos 50 missions les plus performantes</h3>
-        <button className="py-2 px-4 text-sm flex items-center text-blue-dark hover:bg-gray-hover border transition delay-50" onClick={handleExport} disabled={exporting}>
+        <button className="py-2 px-4 text-sm flex items-center text-blue-france hover:bg-gray-975 border transition delay-50" onClick={handleExport} disabled={exporting}>
           {exporting ? (
             <>
               <Loader size="small" /> Export en cours
@@ -158,7 +158,7 @@ const MissionTable = ({ filters }) => {
           {data.slice((tableSettings.page - 1) * tableSettings.pageSize, tableSettings.page * tableSettings.pageSize).map((item, i) => (
             <tr key={i} className={`${i % 2 === 0 ? "bg-gray-100" : "bg-gray-50"} table-item`}>
               <td colSpan={2} className="p-4">
-                <Link to={`/mission/${item._id}`} className="text-blue-dark hover:underline">
+                <Link to={`/mission/${item._id}`} className="text-blue-france hover:underline">
                   {item.title}
                 </Link>
                 {item.organizationName && <p>{item.organizationName}</p>}
@@ -244,7 +244,7 @@ const OrganisationTable = ({ filters }) => {
     <div className="border p-6 space-y-4">
       <div className="flex items-center justify-between">
         <h3 className="text-2xl font-semibold">Performance par organisation</h3>
-        <button className="py-2 px-4 text-sm flex items-center text-blue-dark hover:bg-gray-hover border transition delay-50" onClick={handleExport} disabled={exporting}>
+        <button className="py-2 px-4 text-sm flex items-center text-blue-france hover:bg-gray-975 border transition delay-50" onClick={handleExport} disabled={exporting}>
           {exporting ? (
             <>
               <Loader size="small" /> Export en cours

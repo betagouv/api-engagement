@@ -160,9 +160,9 @@ const Moderation = () => {
       <div className="mb-6 flex items-end justify-between gap-4">
         <div>
           <h2 className="text-3xl font-bold">Modération de {moderator.name}</h2>
-          <p className="text-sm text-gray-dark">
+          <p className="text-sm text-gray-425">
             Consultez les
-            <a href={moderator.moderatorLink} target="_blank" className="ml-1 cursor-pointer text-gray-dark underline">
+            <a href={moderator.moderatorLink} target="_blank" className="ml-1 cursor-pointer text-gray-425 underline">
               règles de modération du partenaire
             </a>
           </p>
@@ -170,7 +170,7 @@ const Moderation = () => {
         <SearchInput value={filters.search} onChange={(search) => setFilters({ ...filters, search })} className="w-1/4" placeholder="Rechercher par mot-clé" />
       </div>
 
-      <div className="flex items-center gap-4 border-b border-b-gray-border pb-6">
+      <div className="flex items-center gap-4 border-b border-b-gray-900 pb-6">
         <p className="font-bold">Filtrer les résultats</p>
 
         <div className="flex items-center gap-4 flex-1">
@@ -239,7 +239,7 @@ const Moderation = () => {
               }
 
               return (
-                <div key={i} className="flex items-center gap-2 rounded bg-blue-light p-2">
+                <div key={i} className="flex items-center gap-2 rounded bg-blue-france-975 p-2">
                   <p className="text-sm">{FILTERS[key] || key}:</p>
                   <p className="text-sm">{label}</p>
                   <button className="text-sm text-black" onClick={() => setFilters({ ...filters, [key]: "" })}>
@@ -252,7 +252,7 @@ const Moderation = () => {
       )}
 
       <div className="grid grid-cols-3 gap-5">
-        <div className="border border-gray-border p-4">
+        <div className="border border-gray-900 p-4">
           <div className="flex items-start">
             <h2 className="flex-1 text-lg font-bold">Répartition des missions par statut</h2>
           </div>
@@ -260,7 +260,7 @@ const Moderation = () => {
             <Pie data={stats.status} backgroundColor={colors} legendPosition="right" />
           </div>
         </div>
-        <div className="col-span-2 border border-gray-border p-4">
+        <div className="col-span-2 border border-gray-900 p-4">
           <div className="flex items-start">
             <h2 className="flex-1 text-lg font-bold">Répartition des motifs de refus</h2>
           </div>
@@ -280,7 +280,7 @@ const Moderation = () => {
                     <h4 className="w-[15%] text-center">Pourcentage</h4>
                   </>
                 )}
-                itemHeight={"h-12"}
+                itemHeight="h-12"
                 renderItem={(item) => (
                   <>
                     <span className="flex-1">{JVA_MODERATION_COMMENTS_LABELS[item.key] || item.key}</span>
@@ -294,7 +294,7 @@ const Moderation = () => {
         </div>
       </div>
 
-      <div className="border border-gray-border p-6">
+      <div className="border border-gray-900 p-6">
         <TablePaginator
           data={data}
           pageSize={pageSize}
@@ -311,7 +311,7 @@ const Moderation = () => {
           )}
           renderItem={(item, i) => (
             <>
-              <Link to={`/mission/${item._id}`} className="max-w-xl flex-1 px-2 text-blue-dark">
+              <Link to={`/mission/${item._id}`} className="max-w-xl flex-1 px-2 text-blue-france">
                 <p className="line-clamp-3">{item.title}</p>
               </Link>
               <span className="w-[25%] pr-2">{item.organizationName}</span>
@@ -324,9 +324,9 @@ const Moderation = () => {
                 </Tooltip>
                 {item.status === "REFUSED" && item.comment && (
                   <div className="relative group">
-                    <RiInformationLine className="text-gray-dark" />
+                    <RiInformationLine className="text-gray-425" />
 
-                    <div className="hidden group-hover:block absolute right-8 -translate-y-1/2 -top-1/2 z-10 w-64 border border-gray-border bg-white p-4 shadow-lg">
+                    <div className="hidden group-hover:block absolute right-8 -translate-y-1/2 -top-1/2 z-10 w-64 border border-gray-900 bg-white p-4 shadow-lg">
                       <p className="text-sm">{JVA_MODERATION_COMMENTS_LABELS[item.comment] || item.comment}</p>
                     </div>
                   </div>

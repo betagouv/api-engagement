@@ -23,8 +23,8 @@ const DateRangePicker = ({ value, onChange }) => {
         {RANGES.map((range, i) => (
           <div
             key={i}
-            className={` text-sm py-2 px-4 cursor-pointer 
-                    ${value.from.toLocaleDateString() === range.from.toLocaleDateString() ? "border border-blue-dark text-blue-dark rounded-sm" : ""} 
+            className={`text-sm py-2 px-4 cursor-pointer 
+                    ${value.from.toLocaleDateString() === range.from.toLocaleDateString() ? "border border-blue-france text-blue-france rounded-sm" : ""} 
                     hover:bg-gray-100`}
             onClick={() => onChange(range)}
           >
@@ -69,51 +69,48 @@ export const DateInput = ({ value, onChange }) => {
       <PopoverPanel
         transition
         anchor="bottom"
-        className="origin-top mt-1 bg-white border p-10 border-gray-border divide-y divide-gray-border shadow-lg focus:outline-none transition duration-200 ease-out data-[closed]:scale-95 data-[closed]:opacity-0"
+        className="origin-top mt-1 bg-white border p-10 border-gray-900 divide-y divide-gray-900 shadow-lg focus:outline-none transition duration-200 ease-out data-closed:scale-95 data-closed:opacity-0"
       >
         <div className="flex gap-6">
           <div className="flex w-44 flex-col gap-4 overflow-x-scroll text-base">
             <button
-              className="w-full cursor-pointer px-3 py-1 hover:bg-gray-hover text-left text-base"
+              className="w-full cursor-pointer px-3 py-1 hover:bg-gray-975 text-left text-base"
               onClick={() => handleChange([new Date(NOW.getFullYear(), NOW.getMonth(), NOW.getDate() - 7), YESTERDAY])}
             >
               Depuis 7 jours
             </button>
             <button
-              className="w-full cursor-pointer px-3 py-1 hover:bg-gray-hover text-left text-base"
+              className="w-full cursor-pointer px-3 py-1 hover:bg-gray-975 text-left text-base"
               onClick={() => handleChange([new Date(NOW.getFullYear(), NOW.getMonth(), NOW.getDate() - 30), YESTERDAY])}
             >
               Depuis 30 jours
             </button>
             <button
-              className="w-full cursor-pointer px-3 py-1 hover:bg-gray-hover text-left text-base"
+              className="w-full cursor-pointer px-3 py-1 hover:bg-gray-975 text-left text-base"
               onClick={() => handleChange([new Date(NOW.getFullYear() - 1, NOW.getMonth(), NOW.getDate()), YESTERDAY])}
             >
               Depuis 1 an
             </button>
-            <button className="w-full cursor-pointer px-3 py-1 hover:bg-gray-hover text-left text-base" onClick={() => handleChange([new Date(2020, 0, 1), YESTERDAY])}>
+            <button className="w-full cursor-pointer px-3 py-1 hover:bg-gray-975 text-left text-base" onClick={() => handleChange([new Date(2020, 0, 1), YESTERDAY])}>
               Depuis toujours
             </button>
             <button
-              className="w-full cursor-pointer px-3 py-1 hover:bg-gray-hover text-left text-base"
+              className="w-full cursor-pointer px-3 py-1 hover:bg-gray-975 text-left text-base"
               onClick={() => handleChange([new Date(NOW.getFullYear(), NOW.getMonth(), 1), YESTERDAY])}
             >
               Ce mois-ci
             </button>
             <button
-              className="w-full cursor-pointer px-3 py-1 hover:bg-gray-hover text-left text-base"
+              className="w-full cursor-pointer px-3 py-1 hover:bg-gray-975 text-left text-base"
               onClick={() => handleChange([new Date(NOW.getFullYear(), NOW.getMonth() - 1, 1), new Date(NOW.getFullYear(), NOW.getMonth(), 1, 0, 0, 0, -1)])}
             >
               Le mois dernier
             </button>
-            <button
-              className="w-full cursor-pointer px-3 py-1 hover:bg-gray-hover text-left text-base"
-              onClick={() => handleChange([new Date(NOW.getFullYear(), 0, 1), YESTERDAY])}
-            >
+            <button className="w-full cursor-pointer px-3 py-1 hover:bg-gray-975 text-left text-base" onClick={() => handleChange([new Date(NOW.getFullYear(), 0, 1), YESTERDAY])}>
               Cette année
             </button>
             <button
-              className="w-full cursor-pointer px-3 py-1 hover:bg-gray-hover text-left text-base"
+              className="w-full cursor-pointer px-3 py-1 hover:bg-gray-975 text-left text-base"
               onClick={() => handleChange([new Date(NOW.getFullYear() - 1, 0, 1), new Date(NOW.getFullYear(), 0, 1, 0, 0, 0, -1)])}
             >
               L'année dernière
@@ -146,8 +143,8 @@ const DatePickerContainer = ({ children }) => (
 
 const DatePickerHeader = ({ monthDate, customHeaderCount, decreaseMonth, increaseMonth }) => (
   <div className="flex items-center justify-between gap-8 pb-4">
-    <button aria-label="Previous Month" className="hover:bg-gray-hover" style={customHeaderCount === 1 ? { visibility: "hidden" } : null} onClick={decreaseMonth}>
-      <RiArrowLeftSLine className="text-blue-dark text-[32px]" />
+    <button aria-label="Previous Month" className="hover:bg-gray-975" style={customHeaderCount === 1 ? { visibility: "hidden" } : null} onClick={decreaseMonth}>
+      <RiArrowLeftSLine className="text-blue-france text-[32px]" />
     </button>
     <span className="text-base font-bold">
       {monthDate.toLocaleString("fr-Fr", {
@@ -155,8 +152,8 @@ const DatePickerHeader = ({ monthDate, customHeaderCount, decreaseMonth, increas
         year: "numeric",
       })}
     </span>
-    <button aria-label="Next Month" className="hover:bg-gray-hover" style={customHeaderCount === 0 ? { visibility: "hidden" } : null} onClick={increaseMonth}>
-      <RiArrowRightSLine className="text-blue-dark text-[32px]" />
+    <button aria-label="Next Month" className="hover:bg-gray-975" style={customHeaderCount === 0 ? { visibility: "hidden" } : null} onClick={increaseMonth}>
+      <RiArrowRightSLine className="text-blue-france text-[32px]" />
     </button>
   </div>
 );
