@@ -1,7 +1,7 @@
-import { MissionHistoryEventType } from "@prisma/client";
 import { Schema } from "mongoose";
 import { describe, expect, it } from "vitest";
 import { PUBLISHER_IDS } from "../../../../config";
+import { MissionHistoryEventType } from "../../../../db/analytics";
 import { AddressItem, Mission as MongoMission, MissionEvent as MongoMissionEvent } from "../../../../types";
 import { EVENT_TYPES } from "../../../../utils/mission";
 import { transformMongoMissionEventToPg, transformMongoMissionToPg } from "../transformers";
