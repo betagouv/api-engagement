@@ -1,5 +1,5 @@
-import { User as PgUser } from "@prisma/client";
-import { prismaAnalytics as prisma } from "../../../db/postgres";
+import { User as PgUser } from "../../../db/analytics";
+import { prismaAnalytics as prismaClient } from "../../../db/postgres";
 import { captureException, captureMessage } from "../../../error";
 import UserModel from "../../../models/user";
 import { User } from "../../../types";
@@ -45,11 +45,11 @@ const handler = async () => {
     console.log(`[Users] Found ${data.length} doc to sync.`);
 
     const stored = {} as { [key: string]: { old_id: string; id: string } };
-    await prisma.user.findMany({ select: { old_id: true, id: true } }).then((data) => data.forEach((d) => (stored[d.old_id] = d)));
+    await prismaClient.user.findMany({ select: { old_id: true, id: true } }).then((data) => data.forEach((d) => (stored[d.old_id] = d)));
     console.log(`[Users] Found ${Object.keys(stored).length} docs in database.`);
 
     const partners = {} as { [key: string]: string };
-    await prisma.partner.findMany({ select: { id: true, old_id: true } }).then((data) => data.forEach((d) => (partners[d.old_id] = d.id)));
+    await prismaClient.partner.findMany({ select: { id: true, old_id: true } }).then((data) => data.forEach((d) => (partners[d.old_id] = d.id)));
 
     const dataToCreate = [];
     const dataToUpdate = [];
@@ -72,7 +72,7 @@ const handler = async () => {
       for (const obj of dataToCreate) {
         const { partners, user } = obj;
         try {
-          await prisma.user.create({
+          await prismaClient.user.create({
             data: {
               ...user,
               partners: { create: partners.map((p) => ({ partner_id: p })) },
@@ -93,9 +93,9 @@ const handler = async () => {
         const { partners, user, id } = obj;
 
         try {
-          await prisma.user.update({ where: { id }, data: user });
-          await prisma.partnerToUser.deleteMany({ where: { user_id: id } });
-          await prisma.partnerToUser.createMany({ data: partners.map((p) => ({ partner_id: p, user_id: id })) });
+          await prismaClient.user.update({ where: { id }, data: user });
+          await prismaClient.partnerToUser.deleteMany({ where: { user_id: id } });
+          await prismaClient.partnerToUser.createMany({ data: partners.map((p) => ({ partner_id: p, user_id: id })) });
         } catch (error) {
           captureException(error, { extra: { user, partners, id } });
         }

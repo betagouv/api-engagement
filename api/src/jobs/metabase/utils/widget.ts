@@ -1,5 +1,5 @@
-import { Widget as PgWidget } from "@prisma/client";
-import { prismaAnalytics as prisma } from "../../../db/postgres";
+import { Widget as PgWidget } from "../../../db/analytics";
+import { prismaAnalytics as prismaClient } from "../../../db/postgres";
 import { captureException, captureMessage } from "../../../error";
 import WidgetModel from "../../../models/widget";
 import { Widget } from "../../../types";
@@ -51,11 +51,11 @@ const handler = async () => {
     console.log(`[Widgets] Found ${data.length} docs to sync.`);
 
     const stored = {} as { [key: string]: { old_id: string; id: string; updated_at: Date } };
-    await prisma.widget.findMany({ select: { old_id: true, id: true, updated_at: true } }).then((data) => data.forEach((d) => (stored[d.old_id] = d)));
+    await prismaClient.widget.findMany({ select: { old_id: true, id: true, updated_at: true } }).then((data) => data.forEach((d) => (stored[d.old_id] = d)));
     console.log(`[Widgets] Found ${Object.keys(stored).length} docs in database.`);
 
     const partners = {} as { [key: string]: string };
-    await prisma.partner.findMany({ select: { id: true, old_id: true } }).then((data) => data.forEach((d) => (partners[d.old_id] = d.id)));
+    await prismaClient.partner.findMany({ select: { id: true, old_id: true } }).then((data) => data.forEach((d) => (partners[d.old_id] = d.id)));
 
     const dataToCreate = [] as { widget: PgWidget; partners: string[] }[];
     const dataToUpdate = [] as { widget: PgWidget; partners: string[]; id: string }[];
@@ -82,7 +82,7 @@ const handler = async () => {
       for (const obj of dataToCreate) {
         const { partners, widget } = obj;
         try {
-          await prisma.widget.create({
+          await prismaClient.widget.create({
             data: {
               ...widget,
               partners: { create: partners.map((p) => ({ partner_id: p })) },
@@ -101,9 +101,9 @@ const handler = async () => {
         const { partners, widget, id } = obj;
 
         try {
-          await prisma.widget.update({ where: { id }, data: widget });
-          await prisma.partnerToWidget.deleteMany({ where: { widget_id: id } });
-          await prisma.partnerToWidget.createMany({ data: partners.map((p) => ({ partner_id: p, widget_id: id })) });
+          await prismaClient.widget.update({ where: { id }, data: widget });
+          await prismaClient.partnerToWidget.deleteMany({ where: { widget_id: id } });
+          await prismaClient.partnerToWidget.createMany({ data: partners.map((p) => ({ partner_id: p, widget_id: id })) });
         } catch (error) {
           captureException(error, { extra: { widget, id, partners } });
         }

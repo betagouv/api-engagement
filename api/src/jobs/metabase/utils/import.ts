@@ -1,4 +1,4 @@
-import { Import as PrismaImport } from "@prisma/client";
+import { Import as PrismaImport } from "../../../db/analytics";
 import { prismaAnalytics as prismaClient } from "../../../db/postgres";
 import { captureException } from "../../../error";
 import ImportModel from "../../../models/import";

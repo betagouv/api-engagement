@@ -1,5 +1,5 @@
-import { WidgetQuery as PgWidgetQuery } from "@prisma/client";
-import { prismaAnalytics as prisma } from "../../../db/postgres";
+import { WidgetQuery as PgWidgetQuery } from "../../../db/analytics";
+import { prismaAnalytics as prismaClient } from "../../../db/postgres";
 import { captureException } from "../../../error";
 import RequestWidgetModel from "../../../models/request-widget";
 import { RequestWidget } from "../../../types";
@@ -76,11 +76,11 @@ const handler = async () => {
     const start = new Date();
     console.log(`[Widget-Requests] Started at ${start.toISOString()}.`);
 
-    const count = await prisma.widgetQuery.count();
+    const count = await prismaClient.widgetQuery.count();
     console.log(`[Widget-Requests] Found ${count} docs in database.`);
 
     const widgets = {} as { [key: string]: string };
-    await prisma.widget.findMany({ select: { id: true, old_id: true } }).then((data) => data.forEach((d) => (widgets[d.old_id] = d.id)));
+    await prismaClient.widget.findMany({ select: { id: true, old_id: true } }).then((data) => data.forEach((d) => (widgets[d.old_id] = d.id)));
 
     // Get data from 2 weeks ago
     const where = { createdAt: { $gte: new Date(Date.now() - 1000 * 60 * 60 * 24 * 7) } };
@@ -99,7 +99,7 @@ const handler = async () => {
       const dataToCreate: PgWidgetQuery[] = [];
 
       const stored = {} as { [key: string]: boolean };
-      await prisma.widgetQuery
+      await prismaClient.widgetQuery
         .findMany({
           where: { old_id: { in: data.map((hit) => hit._id.toString()) } },
           select: { old_id: true },
@@ -122,7 +122,7 @@ const handler = async () => {
       if (dataToCreate.length) {
         console.log(`[Widget-Requests] Creating ${dataToCreate.length} docs...`);
         try {
-          const res = await prisma.widgetQuery.createMany({
+          const res = await prismaClient.widgetQuery.createMany({
             data: dataToCreate,
             skipDuplicates: true,
           });
