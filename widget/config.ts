@@ -11,77 +11,77 @@ interface DomainConfig {
 const DOMAINS: Record<string, DomainConfig> = {
   environnement: {
     label: "Environnement",
-    icon: "",
+    icon: "",
     color: "#498501",
   },
   "solidarite-insertion": {
     label: "Solidarité",
-    icon: "",
+    icon: "",
     color: "#BC5401",
   },
   "prevention-protection": {
     label: "Prévention et protection",
-    icon: "",
+    icon: "",
     color: "#BC5401",
   },
   sante: {
     label: "Santé",
-    icon: "",
+    icon: "",
     color: "#d10066",
   },
   "culture-loisirs": {
     label: "Culture et loisirs",
-    icon: "",
+    icon: "",
     color: "#8637ae",
   },
   education: {
     label: "Éducation pour tous",
-    icon: "",
+    icon: "",
     color: "#007C94",
   },
   emploi: {
     label: "Emploi",
-    icon: "",
+    icon: "",
     color: "#007C94",
   },
   sport: {
     label: "Sport",
-    icon: "",
+    icon: "",
     color: "#242bb1",
   },
   humanitaire: {
     label: "Développement international et aide humanitaire",
-    icon: "",
+    icon: "",
     color: "#017c51",
   },
   animaux: {
     label: "Animaux",
-    icon: "",
+    icon: "",
     color: "#017c51",
   },
   "vivre-ensemble": {
     label: "Mémoire et citoyenneté",
-    icon: "",
+    icon: "",
     color: "#8c7500",
   },
   "citoyennete-europeenne": {
     label: "Citoyenneté européenne",
-    icon: "",
+    icon: "",
     color: "#ffca00",
   },
   "benevolat-competences": {
     label: "Bénévolat de compétences",
-    icon: "",
+    icon: "",
     color: "#be0023",
   },
   "mémoire et citoyenneté": {
     label: "Mémoire et citoyenneté",
-    icon: "",
+    icon: "",
     color: "#8c7500",
   },
   autre: {
     label: "Interventions d'urgence en cas de crise",
-    icon: "",
+    icon: "",
     color: "#be0023",
   },
 };

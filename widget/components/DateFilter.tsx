@@ -5,8 +5,14 @@ import { DayPicker } from "react-day-picker";
 import { RiArrowDownSLine } from "react-icons/ri";
 
 import "react-day-picker/dist/style.css";
-import { DateFilterProps } from "../types";
 import useStore from "../utils/store";
+
+interface DateFilterProps {
+  selected: { label: string; value: Date } | null;
+  onChange: (date: { label: string; value: Date } | null) => void;
+  position?: string;
+  width?: string;
+}
 
 const DateFilter = ({ selected, onChange, position = "left-0", width = "w-80" }: DateFilterProps) => {
   const { url, color } = useStore();

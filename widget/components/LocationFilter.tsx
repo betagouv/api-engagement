@@ -2,7 +2,7 @@ import { usePlausible } from "next-plausible";
 import { useEffect, useRef, useState } from "react";
 import { RiCloseFill, RiMapPin2Fill } from "react-icons/ri";
 
-import { Location, LocationFilterProps } from "../types";
+import { Location } from "../types";
 import useStore from "../utils/store";
 
 interface AddressFeature {
@@ -19,6 +19,13 @@ interface AddressFeature {
 
 interface AddressApiResponse {
   features: AddressFeature[];
+}
+
+interface LocationFilterProps {
+  selected: Location | null;
+  onChange: (location: Location | null) => void;
+  width?: string;
+  disabled?: boolean;
 }
 
 const LocationFilter = ({ selected, onChange, width = "w-80", disabled = false }: LocationFilterProps) => {

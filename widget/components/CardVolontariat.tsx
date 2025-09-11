@@ -3,9 +3,18 @@ import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
 import { RiBuildingFill, RiCalendarEventFill } from "react-icons/ri";
 
+import { Mission, Widget } from "types";
 import { DOMAINS } from "../config";
 import LogoSCE from "../public/images/logo-sce.svg";
-import { CardProps } from "../types";
+
+interface CardProps {
+  widget: Widget;
+  mission: Mission;
+  request: string | null;
+  focused?: boolean;
+  onKeyDown?: (e: React.KeyboardEvent<HTMLAnchorElement>) => void;
+  onRef?: (ref: React.RefObject<HTMLAnchorElement | null>) => void;
+}
 
 const CardVolontariat = ({ widget, mission, request, focused = false, onKeyDown, onRef }: CardProps) => {
   const ref = useRef<HTMLAnchorElement>(null);
@@ -57,7 +66,6 @@ const CardVolontariat = ({ widget, mission, request, focused = false, onKeyDown,
         </div>
 
         <span data-name="tracker_counter" data-id={mission._id} data-publisher={widget.fromPublisherId?.toString()} data-source={widget._id} data-request={request || ""} />
-
         <a
           ref={ref}
           href={mission.url}
@@ -65,7 +73,6 @@ const CardVolontariat = ({ widget, mission, request, focused = false, onKeyDown,
           rel="noopener noreferrer"
           className="after:absolute after:top-0 after:left-0 after:right-0 after:bottom-0 focus:outline-none"
           tabIndex={widget.style === "carousel" ? (focused ? 0 : -1) : undefined}
-          aria-focused={widget.style === "carousel" ? focused : undefined}
           onKeyDown={onKeyDown as React.KeyboardEventHandler<HTMLAnchorElement>}
         >
           <h2

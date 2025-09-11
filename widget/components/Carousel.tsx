@@ -2,16 +2,22 @@ import { usePlausible } from "next-plausible";
 import { useEffect, useRef, useState } from "react";
 import { RiArrowLeftLine, RiArrowRightLine } from "react-icons/ri";
 
-import { CarouselProps } from "../types";
+import { Mission, Widget } from "../types";
 import useStore from "../utils/store";
 import Card from "./Card";
+
+interface CarouselProps {
+  widget: Widget;
+  missions: Mission[];
+  request: string | null;
+}
 
 const Carousel = ({ widget, missions, request }: CarouselProps) => {
   const { url, color, mobile } = useStore();
   const ref = useRef<HTMLElement>(null);
   const prevButtonRef = useRef<HTMLButtonElement>(null);
   const nextButtonRef = useRef<HTMLButtonElement>(null);
-  const [cardsRef, setCardsRef] = useState<(React.RefObject<HTMLAnchorElement> | null)[]>(missions.map(() => null));
+  const [cardsRef, setCardsRef] = useState<(React.RefObject<HTMLAnchorElement | null> | null)[]>(missions.map(() => null));
   const plausible = usePlausible();
   const [currentSlide, setCurrentSlide] = useState(0);
   const [slidesToShow, setSlidesToShow] = useState(3);
@@ -40,7 +46,7 @@ const Carousel = ({ widget, missions, request }: CarouselProps) => {
   }, []);
 
   const handleNextPage = () => {
-    setCurrentSlide((prev) => {
+    setFocusedSlideIndex((prev) => {
       const nextSlide = prev + slidesToShow;
       // If we've reached or passed the end, loop back to the beginning
       return nextSlide >= missions.length ? 0 : nextSlide;
@@ -49,7 +55,7 @@ const Carousel = ({ widget, missions, request }: CarouselProps) => {
   };
 
   const handlePrevPage = () => {
-    setCurrentSlide((prev) => {
+    setFocusedSlideIndex((prev) => {
       // If we're at the beginning, loop to the last possible slide position
       if (prev <= 0) {
         const lastSlidePosition = Math.floor((missions.length - 1) / slidesToShow) * slidesToShow;
@@ -194,12 +200,14 @@ const Carousel = ({ widget, missions, request }: CarouselProps) => {
                   request={request}
                   focused={i === focusedSlideIndex}
                   onKeyDown={handleKeyDown}
-                  onRef={(ref: React.RefObject<HTMLAnchorElement>) => {
-                    setCardsRef((prev) => {
-                      const newRefs = [...prev];
-                      newRefs[i] = ref;
-                      return newRefs;
-                    });
+                  onRef={(ref: React.RefObject<HTMLAnchorElement | null>) => {
+                    if (!cardsRef[i]) {
+                      setCardsRef((prev) => {
+                        const newRefs = [...prev];
+                        newRefs[i] = ref;
+                        return newRefs;
+                      });
+                    }
                   }}
                 />
               </div>

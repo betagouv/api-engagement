@@ -248,7 +248,6 @@ const Home = ({ widget, apiUrl, missions, total, request, environment }: PagePro
           apiUrl={apiUrl}
           values={filters}
           onChange={(newFilters) => setFilters({ ...filters, ...newFilters, page: 1 })}
-          disabledLocation={!!widget.location}
           show={showFilters}
           onShow={setShowFilters}
         />
@@ -276,16 +275,14 @@ const Home = ({ widget, apiUrl, missions, total, request, environment }: PagePro
   );
 };
 
-export const getServerSideProps: GetServerSideProps<PageProps> = async (context) => {
-  const ctx = context as ServerSideContext;
-
-  if (!ctx.query.widgetName && !ctx.query.widget) {
+export const getServerSideProps: GetServerSideProps<PageProps> = async (context: ServerSideContext) => {
+  if (!context.query.widgetName && !context.query.widget) {
     return { props: { widget: null, missions: [], total: 0, apiUrl: API_URL, request: null, environment: ENV } };
   }
 
   let widget: Widget | null = null;
   try {
-    const q = ctx.query.widget ? `id=${ctx.query.widget}` : `name=${ctx.query.widgetName}`;
+    const q = context.query.widget ? `id=${context.query.widget}` : `name=${context.query.widgetName}`;
     const res = await fetch(`${API_URL}/iframe/widget?${q}`).then((e) => e.json());
     if (!res.ok) {
       if (res.code === "NOT_FOUND") {
@@ -296,7 +293,7 @@ export const getServerSideProps: GetServerSideProps<PageProps> = async (context)
     widget = res.data;
   } catch (error) {
     console.error("error", error);
-    Sentry.captureException(error, { extra: { context } });
+    Sentry.captureException(error, { extra: { context: context } });
     return { props: { widget: null, missions: [], total: 0, apiUrl: API_URL, request: null, environment: ENV } };
   }
 
@@ -305,60 +302,60 @@ export const getServerSideProps: GetServerSideProps<PageProps> = async (context)
     const isBenevolat = widget!.type === "benevolat";
 
     if (isBenevolat) {
-      if (ctx.query.domain) {
-        ctx.query.domain.split(",").forEach((item) => searchParams.append("domain", item));
+      if (context.query.domain) {
+        context.query.domain.split(",").forEach((item) => searchParams.append("domain", item));
       }
-      if (ctx.query.organization) {
-        ctx.query.organization.split(",").forEach((item) => searchParams.append("organization", item));
+      if (context.query.organization) {
+        context.query.organization.split(",").forEach((item) => searchParams.append("organization", item));
       }
-      if (ctx.query.department) {
-        ctx.query.department.split(",").forEach((item) => {
+      if (context.query.department) {
+        context.query.department.split(",").forEach((item) => {
           searchParams.append("department", item === "" ? "none" : item);
         });
       }
-      if (ctx.query.remote) {
-        ctx.query.remote.split(",").forEach((item) => searchParams.append("remote", item));
+      if (context.query.remote) {
+        context.query.remote.split(",").forEach((item) => searchParams.append("remote", item));
       }
     } else {
-      if (ctx.query.domain) {
-        ctx.query.domain.split(",").forEach((item) => searchParams.append("domain", item));
+      if (context.query.domain) {
+        context.query.domain.split(",").forEach((item) => searchParams.append("domain", item));
       }
-      if (ctx.query.schedule) {
-        ctx.query.schedule.split(",").forEach((item) => searchParams.append("schedule", item));
+      if (context.query.schedule) {
+        context.query.schedule.split(",").forEach((item) => searchParams.append("schedule", item));
       }
-      if (ctx.query.accessibility) {
-        ctx.query.accessibility.split(",").forEach((item) => searchParams.append("accessibility", item));
+      if (context.query.accessibility) {
+        context.query.accessibility.split(",").forEach((item) => searchParams.append("accessibility", item));
       }
-      if (ctx.query.minor) {
-        ctx.query.minor.split(",").forEach((item) => searchParams.append("minor", item));
+      if (context.query.minor) {
+        context.query.minor.split(",").forEach((item) => searchParams.append("minor", item));
       }
-      if (ctx.query.action) {
-        ctx.query.action.split(",").forEach((item) => searchParams.append("action", item));
+      if (context.query.action) {
+        context.query.action.split(",").forEach((item) => searchParams.append("action", item));
       }
-      if (ctx.query.beneficiary) {
-        ctx.query.beneficiary.split(",").forEach((item) => searchParams.append("beneficiary", item));
+      if (context.query.beneficiary) {
+        context.query.beneficiary.split(",").forEach((item) => searchParams.append("beneficiary", item));
       }
-      if (ctx.query.country) {
-        ctx.query.country.split(",").forEach((item) => searchParams.append("country", item));
+      if (context.query.country) {
+        context.query.country.split(",").forEach((item) => searchParams.append("country", item));
       }
-      if (ctx.query.start) {
-        searchParams.append("start", ctx.query.start);
+      if (context.query.start) {
+        searchParams.append("start", context.query.start);
       }
-      if (ctx.query.duration) {
-        searchParams.append("duration", ctx.query.duration);
+      if (context.query.duration) {
+        searchParams.append("duration", context.query.duration);
       }
     }
 
-    if (ctx.query.size) {
-      searchParams.append("size", parseInt(ctx.query.size, 10).toString());
+    if (context.query.size) {
+      searchParams.append("size", parseInt(context.query.size, 10).toString());
     }
-    if (ctx.query.from) {
-      searchParams.append("from", parseInt(ctx.query.from, 10).toString());
+    if (context.query.from) {
+      searchParams.append("from", parseInt(context.query.from, 10).toString());
     }
-    if (ctx.query.lat && ctx.query.lon) {
-      searchParams.append("lat", parseFloat(ctx.query.lat).toString());
-      searchParams.append("lon", parseFloat(ctx.query.lon).toString());
-      searchParams.append("city", ctx.query.city || "");
+    if (context.query.lat && context.query.lon) {
+      searchParams.append("lat", parseFloat(context.query.lat).toString());
+      searchParams.append("lon", parseFloat(context.query.lon).toString());
+      searchParams.append("city", context.query.city || "");
     }
 
     const response = await fetch(`${API_URL}/iframe/${widget!._id}/search?${searchParams.toString()}`).then((res) => res.json());
@@ -373,12 +370,12 @@ export const getServerSideProps: GetServerSideProps<PageProps> = async (context)
 
     const missions: Mission[] = response.data.map((h: any) => ({
       ...h,
-      url: `${API_URL}/r/${ctx.query.notrack ? "notrack" : "widget"}/${h._id}?${query.toString()}`,
+      url: `${API_URL}/r/${context.query.notrack ? "notrack" : "widget"}/${h._id}?${query.toString()}`,
     }));
 
-    if (ctx.query.lat && ctx.query.lon) {
-      const lat = parseFloat(ctx.query.lat);
-      const lon = parseFloat(ctx.query.lon);
+    if (context.query.lat && context.query.lon) {
+      const lat = parseFloat(context.query.lat);
+      const lon = parseFloat(context.query.lon);
 
       missions.forEach((mission) => {
         if (mission.addresses && mission.addresses.length > 1) {
@@ -399,7 +396,7 @@ export const getServerSideProps: GetServerSideProps<PageProps> = async (context)
     return { props: { widget, missions, total: response.total, apiUrl: API_URL, request: response.request || null, environment: ENV } };
   } catch (error) {
     console.error(error);
-    Sentry.captureException(error, { extra: { context } });
+    Sentry.captureException(error, { extra: { context: context } });
   }
   return { props: { widget, missions: [], total: 0, apiUrl: API_URL, request: null, environment: ENV } };
 };

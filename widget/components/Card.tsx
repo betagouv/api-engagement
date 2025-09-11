@@ -6,7 +6,9 @@ interface CardProps {
   widget: Widget;
   mission: Mission;
   request: string | null;
-  [key: string]: any;
+  focused?: boolean;
+  onKeyDown?: (e: React.KeyboardEvent<HTMLAnchorElement>) => void;
+  onRef?: (ref: React.RefObject<HTMLAnchorElement | null>) => void;
 }
 
 const Card = (props: CardProps) => {

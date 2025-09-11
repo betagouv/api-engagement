@@ -2,7 +2,7 @@ import { usePlausible } from "next-plausible";
 import { useEffect, useRef, useState } from "react";
 import { RiArrowDownSLine, RiCheckFill } from "react-icons/ri";
 
-import { DurationFilterProps, FilterOption } from "../types";
+import { FilterOption } from "../types";
 import useStore from "../utils/store";
 
 const DURATION_OPTIONS: FilterOption[] = [
@@ -14,6 +14,13 @@ const DURATION_OPTIONS: FilterOption[] = [
   { label: "11 mois", value: 11 },
   { label: "12 mois", value: 12 },
 ];
+
+interface DurationFilterProps {
+  selected: FilterOption | null;
+  onChange: (duration: FilterOption | null) => void;
+  position?: string;
+  width?: string;
+}
 
 const DurationFilter = ({ selected, onChange, position = "left-0", width = "w-80" }: DurationFilterProps) => {
   const { url, color } = useStore();

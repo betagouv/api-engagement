@@ -2,8 +2,19 @@ import { usePlausible } from "next-plausible";
 import { useEffect, useRef, useState } from "react";
 import { RiArrowDownSLine, RiCheckFill, RiSearchLine } from "react-icons/ri";
 
-import { CheckboxProps, FilterOption, SelectFilterProps } from "../types";
+import { FilterOption } from "../types";
 import useStore from "../utils/store";
+
+interface SelectFilterProps {
+  options: FilterOption[];
+  selectedOptions: FilterOption[];
+  onChange: (options: FilterOption[]) => void;
+  id: string;
+  placeholder?: string;
+  position?: string;
+  width?: string;
+  searchable?: boolean;
+}
 
 const SelectFilter = ({
   options,
@@ -177,7 +188,6 @@ const SelectFilter = ({
                     role="option"
                     aria-label={item.label}
                     aria-checked={selected}
-                    aria-focused={index === focusedIndex}
                     tabIndex={index === focusedIndex ? 0 : -1}
                     className="w-full flex items-center justify-between gap-2 text-sm px-4 py-2 cursor-pointer hover:bg-[#0000000A] focus:outline-none focus-visible:ring focus-visible:ring-[#000091] focus-visible:bg-[#0000000A]"
                     onClick={() => {
@@ -228,6 +238,11 @@ const SelectFilter = ({
     </div>
   );
 };
+
+interface CheckboxProps {
+  selected: boolean;
+  color: string;
+}
 
 const Checkbox = ({ selected, color }: CheckboxProps) => {
   return (

@@ -6,8 +6,7 @@ interface FiltersProps {
   widget: Widget;
   apiUrl: string;
   values: FilterTypes;
-  onChange: (newFilters: Partial<FilterTypes>) => void;
-  disabledLocation: boolean;
+  onChange: (filters: Partial<FilterTypes>) => void;
   show: boolean;
   onShow: (show: boolean) => void;
 }

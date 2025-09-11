@@ -4,7 +4,7 @@ import { RiArrowDownSLine, RiArrowUpSLine } from "react-icons/ri";
 
 import "react-day-picker/dist/style.css";
 import { ACCESSIBILITIES, ACTIONS, BENEFICIARIES, DOMAINS, MINORS, SCHEDULES } from "../config";
-import { AggregationData, ApiResponse, DesktopFiltersProps, FilterOptions, FiltersVolontariatProps, MobileFiltersProps } from "../types";
+import { AggregationData, ApiResponse, FilterOptions, Filters, Widget } from "../types";
 import useStore from "../utils/store";
 import DateFilter from "./DateFilter";
 import DurationFilter from "./DurationFilter";
@@ -19,6 +19,15 @@ const getAPI = async (path: string): Promise<ApiResponse<AggregationData>> => {
   }
   return response.json();
 };
+
+interface FiltersVolontariatProps {
+  widget: Widget;
+  apiUrl: string;
+  values: Filters;
+  onChange: (filters: Partial<Filters>) => void;
+  show: boolean;
+  onShow: (show: boolean) => void;
+}
 
 const FiltersVolontariat = ({ widget, apiUrl, values, onChange, show, onShow }: FiltersVolontariatProps) => {
   const { mobile } = useStore();
@@ -124,7 +133,16 @@ const FiltersVolontariat = ({ widget, apiUrl, values, onChange, show, onShow }: 
   );
 };
 
-const MobileFiltersVolontariat = ({ options, values, onChange, show, onShow, disabledLocation = false }: MobileFiltersProps) => {
+interface MobileFiltersVolontariatProps {
+  options: FilterOptions;
+  values: Filters;
+  onChange: (filters: Partial<Filters>) => void;
+  show: boolean;
+  onShow: (show: boolean) => void;
+  disabledLocation?: boolean;
+}
+
+const MobileFiltersVolontariat = ({ options, values, onChange, show, onShow, disabledLocation = false }: MobileFiltersVolontariatProps) => {
   const { url, color } = useStore();
 
   const plausible = usePlausible();
@@ -264,7 +282,14 @@ const MobileFiltersVolontariat = ({ options, values, onChange, show, onShow, dis
   );
 };
 
-const DesktopFiltersVolontariat = ({ options, values, onChange, disabledLocation = false }: DesktopFiltersProps) => {
+interface DesktopFiltersVolontariatProps {
+  options: FilterOptions;
+  values: Filters;
+  onChange: (filters: Partial<Filters>) => void;
+  disabledLocation?: boolean;
+}
+
+const DesktopFiltersVolontariat = ({ options, values, onChange, disabledLocation = false }: DesktopFiltersVolontariatProps) => {
   const { url, color } = useStore();
   const plausible = usePlausible();
   const [moreFilters, setMoreFilters] = useState(false);

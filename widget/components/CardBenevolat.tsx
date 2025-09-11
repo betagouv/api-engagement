@@ -3,8 +3,17 @@ import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
 import { RiBuildingFill } from "react-icons/ri";
 
+import { Mission, Widget } from "types";
 import { DOMAINS } from "../config";
-import { CardProps } from "../types";
+
+interface CardProps {
+  widget: Widget;
+  mission: Mission;
+  request: string | null;
+  focused?: boolean;
+  onKeyDown?: (e: React.KeyboardEvent<HTMLAnchorElement>) => void;
+  onRef?: (ref: React.RefObject<HTMLAnchorElement | null>) => void;
+}
 
 const CardBenevolat = ({ widget, mission, request, focused = false, onKeyDown, onRef }: CardProps) => {
   const ref = useRef<HTMLAnchorElement>(null);
@@ -76,7 +85,6 @@ const CardBenevolat = ({ widget, mission, request, focused = false, onKeyDown, o
             rel="noopener noreferrer"
             className="after:absolute after:top-0 after:left-0 after:right-0 after:bottom-0 focus:outline-none"
             tabIndex={widget.style === "carousel" ? (focused ? 0 : -1) : undefined}
-            aria-focused={widget.style === "carousel" ? focused : undefined}
             onKeyDown={onKeyDown as React.KeyboardEventHandler<HTMLAnchorElement>}
           >
             <h2 className="line-clamp-3 text-xl text-[#161616] font-semibold leading-7 transition-colors duration-300 group-hover:text-[#000091] group-focus-within:text-[#000091]">

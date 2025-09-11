@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { RiArrowDownSLine, RiArrowUpSLine } from "react-icons/ri";
 
 import { DOMAINS } from "../config";
-import { AggregationData, ApiResponse, DesktopFiltersProps, FilterOptions, FiltersBenevolatProps, MobileFiltersProps } from "../types";
+import { AggregationData, ApiResponse, FilterOptions, Filters, Widget } from "../types";
 import useStore from "../utils/store";
 import LocationFilter from "./LocationFilter";
 import SelectFilter from "./SelectFilter";
@@ -16,6 +16,15 @@ const getAPI = async (path: string): Promise<ApiResponse<AggregationData>> => {
   }
   return response.json();
 };
+
+interface FiltersBenevolatProps {
+  widget: Widget;
+  apiUrl: string;
+  values: Filters;
+  onChange: (filters: Partial<Filters>) => void;
+  show: boolean;
+  onShow: (show: boolean) => void;
+}
 
 const FiltersBenevolat = ({ widget, apiUrl, values, onChange, show, onShow }: FiltersBenevolatProps) => {
   const { mobile } = useStore();
@@ -83,7 +92,7 @@ const FiltersBenevolat = ({ widget, apiUrl, values, onChange, show, onShow }: Fi
   if (mobile) {
     return (
       <div className="flex w-full flex-col items-center gap-2">
-        <MobileFilters
+        <MobileBenevolatFilters
           options={options}
           values={values}
           onChange={(newFilters) => onChange({ ...values, ...newFilters })}
@@ -97,12 +106,21 @@ const FiltersBenevolat = ({ widget, apiUrl, values, onChange, show, onShow }: Fi
 
   return (
     <div className="m-auto flex items-center justify-between">
-      <DesktopFilters options={options} values={values} onChange={(v) => onChange({ ...values, ...v })} disabledLocation={!!widget.location} />
+      <DesktopFiltersBenevolat options={options} values={values} onChange={(v) => onChange({ ...values, ...v })} disabledLocation={!!widget.location} />
     </div>
   );
 };
 
-const MobileFilters = ({ options, values, onChange, show, onShow, disabledLocation = false }: MobileFiltersProps) => {
+interface MobileBenevolatFiltersProps {
+  options: FilterOptions;
+  values: Filters;
+  onChange: (filters: Partial<Filters>) => void;
+  show: boolean;
+  onShow: (show: boolean) => void;
+  disabledLocation?: boolean;
+}
+
+const MobileBenevolatFilters = ({ options, values, onChange, show, onShow, disabledLocation = false }: MobileBenevolatFiltersProps) => {
   const { url, color } = useStore();
 
   const plausible = usePlausible();
@@ -214,7 +232,14 @@ const MobileFilters = ({ options, values, onChange, show, onShow, disabledLocati
   );
 };
 
-const DesktopFilters = ({ options, values, onChange, disabledLocation = false }: DesktopFiltersProps) => {
+interface DesktopFiltersBenevolatProps {
+  options: FilterOptions;
+  values: Filters;
+  onChange: (filters: Partial<Filters>) => void;
+  disabledLocation?: boolean;
+}
+
+const DesktopFiltersBenevolat = ({ options, values, onChange, disabledLocation = false }: DesktopFiltersBenevolatProps) => {
   return (
     <>
       <div className="w-[20%] pr-2">
