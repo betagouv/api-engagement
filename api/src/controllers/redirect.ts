@@ -4,13 +4,13 @@ import zod from "zod";
 
 import { HydratedDocument } from "mongoose";
 import { JVA_URL, PUBLISHER_IDS } from "../config";
-import statEventRepository from "../repositories/stat-event";
 import { INVALID_PARAMS, INVALID_QUERY, NOT_FOUND, SERVER_ERROR, captureException, captureMessage } from "../error";
 import CampaignModel from "../models/campaign";
 import MissionModel from "../models/mission";
 import PublisherModel from "../models/publisher";
 import StatsBotModel from "../models/stats-bot";
 import WidgetModel from "../models/widget";
+import statEventRepository from "../repositories/stat-event";
 import { Mission, Stats } from "../types";
 import { identify, slugify } from "../utils";
 
