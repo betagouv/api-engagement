@@ -17,6 +17,8 @@ export const DB_ENDPOINT = process.env.DB_ENDPOINT;
 export const MISSION_INDEX = "mission";
 export const ASSOS_INDEX = "association";
 export const STATS_INDEX = "stats";
+export const READ_STATS_FROM = (process.env.READ_STATS_FROM as "es" | "pg") || "es";
+export const WRITE_STATS_DUAL = process.env.WRITE_STATS_DUAL === "true";
 
 export const SENDINBLUE_APIKEY = process.env.SENDINBLUE_APIKEY;
 

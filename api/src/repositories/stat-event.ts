@@ -1,0 +1,179 @@
+import { v4 as uuidv4 } from "uuid";
+
+import { READ_STATS_FROM, STATS_INDEX, WRITE_STATS_DUAL } from "../config";
+import esClient from "../db/elastic";
+import { prismaCore } from "../db/postgres";
+import { Stats } from "../types";
+
+function toPg(data: Partial<Stats>) {
+  const mapped: any = {
+    type: data.type,
+    created_at: data.createdAt,
+    click_user: data.clickUser,
+    click_id: data.clickId,
+    request_id: data.requestId,
+    origin: data.origin,
+    referer: data.referer,
+    user_agent: data.userAgent,
+    host: data.host,
+    user: data.user,
+    is_bot: data.isBot,
+    is_human: data.isHuman ?? false,
+    source: data.source || "publisher",
+    source_id: data.sourceId || "",
+    source_name: data.sourceName || "",
+    status: data.status || "PENDING",
+    from_publisher_id: data.fromPublisherId || "",
+    from_publisher_name: data.fromPublisherName || "",
+    to_publisher_id: data.toPublisherId || "",
+    to_publisher_name: data.toPublisherName || "",
+    mission_id: data.missionId,
+    mission_client_id: data.missionClientId,
+    mission_domain: data.missionDomain,
+    mission_title: data.missionTitle,
+    mission_postal_code: data.missionPostalCode,
+    mission_department_name: data.missionDepartmentName,
+    mission_organization_id: data.missionOrganizationId,
+    mission_organization_name: data.missionOrganizationName,
+    mission_organization_client_id: data.missionOrganizationClientId,
+    tag: data.tag,
+    tags: data.tags,
+  };
+  Object.keys(mapped).forEach((key) => mapped[key] === undefined && delete mapped[key]);
+  return mapped;
+}
+
+function fromPg(row: any): Stats {
+  return {
+    _id: row.id,
+    type: row.type,
+    createdAt: row.created_at,
+    clickUser: row.click_user ?? undefined,
+    clickId: row.click_id ?? undefined,
+    requestId: row.request_id ?? undefined,
+    origin: row.origin,
+    referer: row.referer,
+    userAgent: row.user_agent,
+    host: row.host,
+    user: row.user ?? undefined,
+    isBot: row.is_bot,
+    isHuman: row.is_human,
+    source: row.source,
+    sourceId: row.source_id,
+    sourceName: row.source_name,
+    status: row.status,
+    fromPublisherId: row.from_publisher_id,
+    fromPublisherName: row.from_publisher_name,
+    toPublisherId: row.to_publisher_id,
+    toPublisherName: row.to_publisher_name,
+    missionId: row.mission_id ?? undefined,
+    missionClientId: row.mission_client_id ?? undefined,
+    missionDomain: row.mission_domain ?? undefined,
+    missionTitle: row.mission_title ?? undefined,
+    missionPostalCode: row.mission_postal_code ?? undefined,
+    missionDepartmentName: row.mission_department_name ?? undefined,
+    missionOrganizationId: row.mission_organization_id ?? undefined,
+    missionOrganizationName: row.mission_organization_name ?? undefined,
+    missionOrganizationClientId: row.mission_organization_client_id ?? undefined,
+    tag: row.tag ?? undefined,
+    tags: row.tags ?? undefined,
+  } as Stats;
+}
+
+export async function createStatEvent(event: Stats): Promise<string> {
+  const id = event._id || uuidv4();
+  if (READ_STATS_FROM === "pg") {
+    await prismaCore.statEvent.create({ data: { id, ...toPg(event) } });
+    if (WRITE_STATS_DUAL) {
+      await esClient.index({ index: STATS_INDEX, id, body: event });
+    }
+    return id;
+  }
+  await esClient.index({ index: STATS_INDEX, id, body: event });
+  if (WRITE_STATS_DUAL) {
+    await prismaCore.statEvent.create({ data: { id, ...toPg(event) } });
+  }
+  return id;
+}
+
+export async function updateStatEventById(id: string, patch: Partial<Stats>) {
+  const data = toPg(patch);
+  if (READ_STATS_FROM === "pg") {
+    await prismaCore.statEvent.update({ where: { id }, data });
+    if (WRITE_STATS_DUAL) {
+      await esClient.update({ index: STATS_INDEX, id, body: { doc: patch } });
+    }
+    return;
+  }
+  await esClient.update({ index: STATS_INDEX, id, body: { doc: patch } });
+  if (WRITE_STATS_DUAL) {
+    await prismaCore.statEvent.update({ where: { id }, data });
+  }
+}
+
+export async function getStatEventById(id: string): Promise<Stats | null> {
+  if (READ_STATS_FROM === "pg") {
+    const pgRes = await prismaCore.statEvent.findUnique({ where: { id } });
+    return pgRes ? fromPg(pgRes) : null;
+  }
+  try {
+    const esRes = await esClient.get({ index: STATS_INDEX, id });
+    return { ...esRes.body._source, _id: esRes.body._id } as Stats;
+  } catch {
+    return null;
+  }
+}
+
+export async function findRecentByTypeAndClickId(
+  type: string,
+  clickId: string,
+  minutes: number,
+): Promise<Stats | null> {
+  if (READ_STATS_FROM === "pg") {
+    const from = new Date(Date.now() - minutes * 60 * 1000);
+    const pgRes = await prismaCore.statEvent.findFirst({
+      where: { type, click_id: clickId, created_at: { gte: from } },
+      orderBy: { created_at: "desc" },
+    });
+    return pgRes ? fromPg(pgRes) : null;
+  }
+  const { body } = await esClient.search({
+    index: STATS_INDEX,
+    body: {
+      query: {
+        bool: {
+          must: [
+            { term: { "type.keyword": type } },
+            { term: { "clickId.keyword": clickId } },
+            { range: { createdAt: { gte: `now-${minutes}m/m`, lte: "now/m" } } },
+          ],
+        },
+      },
+    },
+    size: 1,
+  });
+  if (body.hits.total.value) {
+    const hit = body.hits.hits[0];
+    return { ...hit._source, _id: hit._id } as Stats;
+  }
+  return null;
+}
+
+export async function count() {
+  if (READ_STATS_FROM === "pg") {
+    return prismaCore.statEvent.count();
+  }
+  const { body } = await esClient.count({ index: STATS_INDEX });
+  return body.count as number;
+}
+
+const statEventRepository = {
+  createStatEvent,
+  updateStatEventById,
+  getStatEventById,
+  findRecentByTypeAndClickId,
+  count,
+};
+
+export default statEventRepository;
+
