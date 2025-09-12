@@ -1,6 +1,7 @@
 import { v4 as uuidv4 } from "uuid";
 
 import { READ_STATS_FROM, STATS_INDEX, WRITE_STATS_DUAL } from "../config";
+import { StatEventType } from "../db/core";
 import esClient from "../db/elastic";
 import { prismaCore } from "../db/postgres";
 import { Stats } from "../types";
@@ -81,6 +82,7 @@ function fromPg(row: any): Stats {
 }
 
 export async function createStatEvent(event: Stats): Promise<string> {
+  // Render id here to share it between es and pg
   const id = event._id || uuidv4();
   if (READ_STATS_FROM === "pg") {
     await prismaCore.statEvent.create({ data: { id, ...toPg(event) } });
@@ -107,7 +109,11 @@ export async function updateStatEventById(id: string, patch: Partial<Stats>) {
   }
   await esClient.update({ index: STATS_INDEX, id, body: { doc: patch } });
   if (WRITE_STATS_DUAL) {
-    await prismaCore.statEvent.update({ where: { id }, data });
+    try {
+      await prismaCore.statEvent.update({ where: { id }, data });
+    } catch (error) {
+      console.error(`[StatEvent] Error updating stat event ${id}:`, error);
+    }
   }
 }
 
@@ -124,11 +130,7 @@ export async function getStatEventById(id: string): Promise<Stats | null> {
   }
 }
 
-export async function findRecentByTypeAndClickId(
-  type: string,
-  clickId: string,
-  minutes: number,
-): Promise<Stats | null> {
+export async function findRecentByTypeAndClickId(type: StatEventType, clickId: string, minutes: number): Promise<Stats | null> {
   if (READ_STATS_FROM === "pg") {
     const from = new Date(Date.now() - minutes * 60 * 1000);
     const pgRes = await prismaCore.statEvent.findFirst({
@@ -142,11 +144,7 @@ export async function findRecentByTypeAndClickId(
     body: {
       query: {
         bool: {
-          must: [
-            { term: { "type.keyword": type } },
-            { term: { "clickId.keyword": clickId } },
-            { range: { createdAt: { gte: `now-${minutes}m/m`, lte: "now/m" } } },
-          ],
+          must: [{ term: { "type.keyword": type as string } }, { term: { "clickId.keyword": clickId } }, { range: { createdAt: { gte: `now-${minutes}m/m`, lte: "now/m" } } }],
         },
       },
     },
@@ -176,4 +174,3 @@ const statEventRepository = {
 };
 
 export default statEventRepository;
-
