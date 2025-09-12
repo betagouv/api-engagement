@@ -1,4 +1,4 @@
-import { MissionHistoryEvent, Address as PgAddress, Mission as PgMission } from "@prisma/client";
+import { MissionHistoryEvent, Address as PgAddress, Mission as PgMission } from "../../db/analytics";
 import { JobResult } from "../types";
 
 export type MissionHistoryEntry = Omit<MissionHistoryEvent, "id">; // Prisma renders uuid when saving

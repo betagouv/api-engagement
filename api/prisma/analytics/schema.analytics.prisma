@@ -1,10 +1,11 @@
-generator client {
+generator client_analytics {
   provider = "prisma-client-js"
+  output   = "../../src/db/analytics"
 }
 
-datasource db {
+datasource db_analytics {
   provider = "postgresql"
-  url      = env("PG_ENDPOINT")
+  url      = env("DATABASE_URL_ANALYTICS")
 }
 
 model Account {

@@ -1,8 +1,8 @@
 import esClient from "../../../db/elastic";
-import prisma from "../../../db/postgres";
+import { prismaAnalytics as prismaClient } from "../../../db/postgres";
 
-import { Account } from "@prisma/client";
 import { STATS_INDEX } from "../../../config";
+import { Account } from "../../../db/analytics";
 import { captureException } from "../../../error";
 import { Stats } from "../../../types";
 
@@ -30,7 +30,7 @@ const buildData = async (
   if (doc.missionClientId && doc.toPublisherId) {
     missionId = missions[`${doc.missionClientId}-${doc.toPublisherId}`];
     if (!missionId) {
-      const m = await prisma.mission.findFirst({
+      const m = await prismaClient.mission.findFirst({
         where: { old_id: doc.missionId?.toString() },
         select: { id: true },
       });
@@ -88,24 +88,24 @@ const handler = async () => {
     let updated = 0;
     let scrollId = null;
 
-    const stored = await prisma.apply.count();
+    const stored = await prismaClient.apply.count();
     console.log(`[Accounts] Found ${stored} docs in database.`);
     // Select clicks from the last 2 months
     const whereClicks = {
       created_at: { gte: new Date(Date.now() - 1000 * 60 * 60 * 24 * 62), lte: new Date() },
     };
     const clicks = {} as { [key: string]: string };
-    await prisma.click.findMany({ where: whereClicks, select: { id: true, old_id: true } }).then((data) => data.forEach((d) => (clicks[d.old_id] = d.id)));
+    await prismaClient.click.findMany({ where: whereClicks, select: { id: true, old_id: true } }).then((data) => data.forEach((d) => (clicks[d.old_id] = d.id)));
     const missions = {} as { [key: string]: string };
-    await prisma.mission
+    await prismaClient.mission
       .findMany({ select: { id: true, client_id: true, partner: { select: { old_id: true } } } })
       .then((data) => data.forEach((d) => (missions[`${d.client_id}-${d.partner?.old_id}`] = d.id)));
     const partners = {} as { [key: string]: string };
-    await prisma.partner.findMany({ select: { id: true, old_id: true } }).then((data) => data.forEach((d) => (partners[d.old_id] = d.id)));
+    await prismaClient.partner.findMany({ select: { id: true, old_id: true } }).then((data) => data.forEach((d) => (partners[d.old_id] = d.id)));
     const campaigns = {} as { [key: string]: string };
-    await prisma.campaign.findMany({ select: { id: true, old_id: true } }).then((data) => data.forEach((d) => (campaigns[d.old_id] = d.id)));
+    await prismaClient.campaign.findMany({ select: { id: true, old_id: true } }).then((data) => data.forEach((d) => (campaigns[d.old_id] = d.id)));
     const widgets = {} as { [key: string]: string };
-    await prisma.widget.findMany({ select: { id: true, old_id: true } }).then((data) => data.forEach((d) => (widgets[d.old_id] = d.id)));
+    await prismaClient.widget.findMany({ select: { id: true, old_id: true } }).then((data) => data.forEach((d) => (widgets[d.old_id] = d.id)));
 
     while (true) {
       let data: { _id: string; _source: Stats }[] = [];
@@ -134,7 +134,7 @@ const handler = async () => {
       }
 
       const stored = {} as { [key: string]: { click_id: string | null } };
-      await prisma.account
+      await prismaClient.account
         .findMany({
           where: { old_id: { in: data.map((hit) => hit._id.toString()) } },
           select: { old_id: true, click_id: true },
@@ -145,7 +145,9 @@ const handler = async () => {
       const clickIds: string[] = [];
       data.forEach((hit) => hit._source.clickId && clickIds.push(hit._source.clickId));
       if (clickIds.length) {
-        await prisma.click.findMany({ where: { old_id: { in: clickIds } }, select: { id: true, old_id: true } }).then((data) => data.forEach((d) => (clicks[d.old_id] = d.id)));
+        await prismaClient.click
+          .findMany({ where: { old_id: { in: clickIds } }, select: { id: true, old_id: true } })
+          .then((data) => data.forEach((d) => (clicks[d.old_id] = d.id)));
       }
 
       const dataToCreate: Account[] = [];
@@ -156,7 +158,7 @@ const handler = async () => {
         if (hit._source.clickId) {
           clickId = clicks[hit._source.clickId];
           if (!clickId) {
-            const res = await prisma.click.findFirst({
+            const res = await prismaClient.click.findFirst({
               where: { old_id: hit._source.clickId },
               select: { id: true },
             });
@@ -183,7 +185,7 @@ const handler = async () => {
       console.log(`[Accounts] ${dataToCreate.length} docs to create, ${dataToUpdate.length} docs to update.`);
 
       if (dataToCreate.length) {
-        const res = await prisma.account.createMany({ data: dataToCreate, skipDuplicates: true });
+        const res = await prismaClient.account.createMany({ data: dataToCreate, skipDuplicates: true });
         created += res.count;
         console.log(`[Accounts] Created ${res.count} docs, ${created} created so far.`);
       }
@@ -192,10 +194,10 @@ const handler = async () => {
         console.log(`[Accounts] Updating ${dataToUpdate.length} docs.`);
         const transactions = [];
         for (const obj of dataToUpdate) {
-          transactions.push(prisma.account.update({ where: { old_id: obj.old_id }, data: obj }));
+          transactions.push(prismaClient.account.update({ where: { old_id: obj.old_id }, data: obj }));
         }
         for (let i = 0; i < transactions.length; i += 100) {
-          await prisma.$transaction(transactions.slice(i, i + 100));
+          await prismaClient.$transaction(transactions.slice(i, i + 100));
         }
       }
       updated += dataToUpdate.length;

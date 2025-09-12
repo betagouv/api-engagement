@@ -1,5 +1,5 @@
-import { Import as PrismaImport } from "@prisma/client";
-import prisma from "../../../db/postgres";
+import { Import as PrismaImport } from "../../../db/analytics";
+import { prismaAnalytics as prismaClient } from "../../../db/postgres";
 import { captureException } from "../../../error";
 import ImportModel from "../../../models/import";
 import { Import } from "../../../types";
@@ -40,10 +40,10 @@ const handler = async () => {
       .lean();
     console.log(`[Imports] Found ${total} docs to sync.`);
 
-    const stored = await prisma.import.count();
+    const stored = await prismaClient.import.count();
     console.log(`[Imports] Found ${stored} docs in database.`);
     const partners = {} as { [key: string]: string };
-    await prisma.partner.findMany({ select: { id: true, old_id: true } }).then((data) => data.forEach((d) => (partners[d.old_id] = d.id)));
+    await prismaClient.partner.findMany({ select: { id: true, old_id: true } }).then((data) => data.forEach((d) => (partners[d.old_id] = d.id)));
 
     while (data && data.length) {
       const dataToCreate = [];
@@ -58,7 +58,7 @@ const handler = async () => {
       // Create data
       if (dataToCreate.length) {
         console.log(`[Imports] Creating ${dataToCreate.length} docs...`);
-        const res = await prisma.import.createMany({ data: dataToCreate, skipDuplicates: true });
+        const res = await prismaClient.import.createMany({ data: dataToCreate, skipDuplicates: true });
         created += res.count;
         console.log(`[Imports] Created ${res.count} docs.`);
       }
