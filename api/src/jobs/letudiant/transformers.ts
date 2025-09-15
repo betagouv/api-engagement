@@ -26,7 +26,6 @@ import { decodeHtml } from "./utils";
  * @returns The job payloads
  */
 export function missionToPilotyJobs(mission: Mission, companyId: string, mandatoryData: PilotyMandatoryData): PilotyJobPayload[] {
-  // Build payload depending on localisation. If no localisation, it's a remote job
   function buildJobPayload(isRemote: boolean, localisation: string | undefined): PilotyJobPayload {
     return {
       media_public_id: MEDIA_PUBLIC_ID,
