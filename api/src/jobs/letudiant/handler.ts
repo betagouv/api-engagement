@@ -4,6 +4,7 @@ import { captureException } from "../../error";
 import MissionModel from "../../models/mission";
 import OrganizationModel from "../../models/organization";
 import { PilotyClient, PilotyError } from "../../services/piloty/";
+import { PilotyJob } from "../../services/piloty/types";
 import { Mission, Organization } from "../../types";
 import { BaseHandler } from "../base/handler";
 import { JobResult } from "../types";
@@ -74,8 +75,8 @@ export class LetudiantHandler implements BaseHandler<LetudiantJobPayload, Letudi
         // Create / update jobs related to each address
         // letudiantPublicId is an object with the localisation as key
         for (const jobPayload of jobPayloads) {
-          let pilotyJob = null;
-          const letudiantPublicId = mission.letudiantPublicId?.[jobPayload.localisation];
+          let pilotyJob: PilotyJob | null = null;
+          const letudiantPublicId = mission.letudiantPublicId?.[mission.remote === "full" ? "A distance" : jobPayload.localisation];
 
           if (letudiantPublicId) {
             console.log(`[LetudiantHandler] Updating job ${mission._id} - ${jobPayload.localisation} (${letudiantPublicId})`);
@@ -94,7 +95,7 @@ export class LetudiantHandler implements BaseHandler<LetudiantJobPayload, Letudi
           if (!pilotyJob) {
             throw new Error("Unable to create or update job for mission");
           } else {
-            processedIds[jobPayload.localisation] = pilotyJob.public_id;
+            processedIds[mission.remote === "full" ? "A distance" : jobPayload.localisation] = pilotyJob.public_id;
           }
 
           await rateLimit();
@@ -142,7 +143,7 @@ export class LetudiantHandler implements BaseHandler<LetudiantJobPayload, Letudi
 }
 
 const getCompanyPilotyId = async (pilotyClient: PilotyClient, mission: HydratedDocument<Mission>, organization: HydratedDocument<Organization>): Promise<string | null> => {
-  let pilotyCompanyPublicId = null;
+  let pilotyCompanyPublicId: string | null = null;
 
   if (organization.letudiantPublicId) {
     console.log(`[LetudiantHandler] Company ${organization.title} already exists (${organization.letudiantPublicId})`);
