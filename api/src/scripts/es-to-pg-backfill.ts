@@ -1,9 +1,36 @@
-import esClient from "../db/elastic";
-import { prismaCore } from "../db/postgres";
-import { STATS_INDEX } from "../config";
-import { captureException } from "../error";
-import { Stats } from "../types";
+import fs from "fs";
+import path from "path";
+import dotenv from "dotenv";
+import type { Stats } from "../types";
 import { Prisma } from "@prisma/client";
+
+const args = process.argv.slice(2);
+const envArgIndex = args.indexOf("--env");
+let envFile: string | undefined;
+
+if (envArgIndex !== -1 && args[envArgIndex + 1]) {
+  envFile = `.env.${args[envArgIndex + 1]}`;
+}
+
+if (!envFile) {
+  const defaultFile = path.resolve(__dirname, "..", "..", ".env.es-to-pg-backfill");
+  if (fs.existsSync(defaultFile)) {
+    envFile = ".env.es-to-pg-backfill";
+  }
+}
+
+if (envFile) {
+  const envPath = path.resolve(__dirname, "..", "..", envFile);
+  console.log(`Loading environment variables from ${envFile}`);
+  dotenv.config({ path: envPath });
+} else {
+  dotenv.config();
+}
+
+const esClient = require("../db/elastic").default;
+const { prismaCore } = require("../db/postgres");
+const { STATS_INDEX } = require("../config");
+const { captureException } = require("../error");
 
 const BATCH_SIZE = 1000;
 const BACKFILL_KEY = "stat_event_es_to_pg";
