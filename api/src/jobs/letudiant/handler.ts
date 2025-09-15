@@ -12,6 +12,21 @@ import { DEFAULT_LIMIT, MEDIA_PUBLIC_ID } from "./config";
 import { missionToPilotyCompany, missionToPilotyJobs } from "./transformers";
 import { getMandatoryData, getMissionsToSync, rateLimit } from "./utils";
 
+export function findLetudiantPublicId(
+  mission: HydratedDocument<Mission>,
+  localisation: string
+): string | undefined {
+  const id = mission.letudiantPublicId?.[localisation];
+  if (id) {
+    return id;
+  }
+  const legacyKey = localisation.split(",")[0];
+  if (legacyKey !== localisation) {
+    return mission.letudiantPublicId?.[legacyKey];
+  }
+  return undefined;
+}
+
 export interface LetudiantJobPayload {
   id?: string;
   limit?: number;
@@ -76,7 +91,8 @@ export class LetudiantHandler implements BaseHandler<LetudiantJobPayload, Letudi
         // letudiantPublicId is an object with the localisation as key
         for (const jobPayload of jobPayloads) {
           let pilotyJob: PilotyJob | null = null;
-          const letudiantPublicId = mission.letudiantPublicId?.[mission.remote === "full" ? "A distance" : jobPayload.localisation];
+          const localisationKey = mission.remote === "full" ? "A distance" : jobPayload.localisation;
+          const letudiantPublicId = findLetudiantPublicId(mission, localisationKey);
 
           if (letudiantPublicId) {
             console.log(`[LetudiantHandler] Updating job ${mission._id} - ${jobPayload.localisation} (${letudiantPublicId})`);
@@ -95,7 +111,7 @@ export class LetudiantHandler implements BaseHandler<LetudiantJobPayload, Letudi
           if (!pilotyJob) {
             throw new Error("Unable to create or update job for mission");
           } else {
-            processedIds[mission.remote === "full" ? "A distance" : jobPayload.localisation] = pilotyJob.public_id;
+            processedIds[localisationKey] = pilotyJob.public_id;
           }
 
           await rateLimit();
