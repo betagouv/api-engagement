@@ -17,7 +17,9 @@
       "test": "vitest run",
       "test:watch": "vitest",
       "test:ci": "npm run prisma:generate && vitest run --pool=forks",
-      "job": "ts-node src/jobs/run-job.ts"
+      "job": "ts-node src/jobs/run-job.ts",
+      "backfill:stats": "ts-node src/scripts/es-to-pg-backfill.ts",
+      "verify:backfill": "ts-node src/scripts/verify-backfill.ts"
     },
     "dependencies": {
       "@elastic/elasticsearch": "7.17.14",

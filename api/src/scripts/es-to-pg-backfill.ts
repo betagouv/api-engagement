@@ -2,13 +2,19 @@ import dotenv from "dotenv";
 import type { Stats } from "../types";
 import { Prisma } from "@prisma/client";
 
+const args = process.argv.slice(2);
+
+const envArgIndex = args.indexOf("--env");
+if (envArgIndex !== -1 && args[envArgIndex + 1]) {
+  dotenv.config({ path: args[envArgIndex + 1] });
+} else {
+  dotenv.config();
+}
+
 /**
  * Optionally override endpoints with:
  *   --es <elastic_url> --db <postgres_url>
  */
-dotenv.config();
-
-const args = process.argv.slice(2);
 
 const esArgIndex = args.indexOf("--es");
 if (esArgIndex !== -1 && args[esArgIndex + 1]) {
