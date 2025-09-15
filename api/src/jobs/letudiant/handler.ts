@@ -12,10 +12,7 @@ import { DEFAULT_LIMIT, MEDIA_PUBLIC_ID } from "./config";
 import { missionToPilotyCompany, missionToPilotyJobs } from "./transformers";
 import { getMandatoryData, getMissionsToSync, rateLimit } from "./utils";
 
-export function findLetudiantPublicId(
-  mission: HydratedDocument<Mission>,
-  localisation: string
-): string | undefined {
+export function findLetudiantPublicId(mission: HydratedDocument<Mission>, localisation: string): string | undefined {
   const id = mission.letudiantPublicId?.[localisation];
   if (id) {
     return id;
