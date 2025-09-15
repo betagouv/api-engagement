@@ -44,8 +44,17 @@ export function missionToPilotyJobs(mission: Mission, companyId: string, mandato
     };
   }
 
+  // Helper to format localisation as "city, department, country" without empty parts
+  function formatLocalisation(parts: Array<string | undefined | null>): string {
+    return parts.filter((p) => Boolean(p && String(p).trim().length)).join(", ");
+  }
+
   if (mission.remote === "full" || !mission.addresses.length) {
-    return [buildJobPayload(true, mission.organizationCity || undefined)];
+    const city = mission.organizationCity || undefined;
+    const department = mission.organizationDepartment || undefined;
+    const country = mission.country || "France";
+    const formatted = formatLocalisation([city, department, country]) || "France";
+    return [buildJobPayload(true, formatted)];
   }
 
   // Group addresses by city
@@ -59,7 +68,10 @@ export function missionToPilotyJobs(mission: Mission, companyId: string, mandato
     return true;
   });
 
-  return uniqueAddresses.map((address) => buildJobPayload(false, address.city));
+  return uniqueAddresses.map((address) => {
+    const localisation = formatLocalisation([address.city, address.departmentName, address.country || "France"]);
+    return buildJobPayload(false, localisation);
+  });
 }
 
 /**

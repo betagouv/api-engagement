@@ -75,7 +75,7 @@ export class LetudiantHandler implements BaseHandler<LetudiantJobPayload, Letudi
         // letudiantPublicId is an object with the localisation as key
         for (const jobPayload of jobPayloads) {
           let pilotyJob = null;
-          const letudiantPublicId = mission.letudiantPublicId?.[jobPayload.localisation];
+          const letudiantPublicId = mission.letudiantPublicId?.[mission.remote === "full" ? "A distance" : jobPayload.localisation];
 
           if (letudiantPublicId) {
             console.log(`[LetudiantHandler] Updating job ${mission._id} - ${jobPayload.localisation} (${letudiantPublicId})`);
@@ -94,7 +94,7 @@ export class LetudiantHandler implements BaseHandler<LetudiantJobPayload, Letudi
           if (!pilotyJob) {
             throw new Error("Unable to create or update job for mission");
           } else {
-            processedIds[jobPayload.localisation] = pilotyJob.public_id;
+            processedIds[mission.remote === "full" ? "A distance" : jobPayload.localisation] = pilotyJob.public_id;
           }
 
           await rateLimit();
