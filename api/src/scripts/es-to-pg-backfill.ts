@@ -73,8 +73,10 @@ const handler = async () => {
     let created = 0;
     let scrollId: string | null = null;
     const state = await getState();
+    // Use gte so that on resume we reprocess the last timestamp; duplicates are
+    // ignored by createMany with skipDuplicates.
     const query = state.lastCreatedAt
-      ? { range: { createdAt: { gt: state.lastCreatedAt } } }
+      ? { range: { createdAt: { gte: state.lastCreatedAt } } }
       : { match_all: {} };
 
     while (true) {
