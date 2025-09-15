@@ -49,6 +49,7 @@ describe("L'Etudiant Transformers", () => {
           departmentCode: "69",
           region: "Auvergne-Rhône-Alpes",
           geolocStatus: "ENRICHED_BY_PUBLISHER",
+          geoPoint: null,
           location: {
             lat: 45.764,
             lon: 4.835,
@@ -79,7 +80,7 @@ describe("L'Etudiant Transformers", () => {
       expect(result.name).toBe(mission.title);
       expect(result.contract_id).toBe(mockMandatoryData.contracts.benevolat);
       expect(result.job_category_id).toBe(mockMandatoryData.jobCategories.education);
-      expect(result.localisation).toBe("Lyon");
+      expect(result.localisation).toBe("Lyon, Rhône, France");
       expect(result.description_job).toBe("<p>Une description 素晴らしい HTML.</p>");
       expect(result.application_method).toBe("external_apply");
       expect(result.application_url).toBe(`https://api-engagement.beta.gouv.fr/r/${mission._id}/${PUBLISHER_IDS.LETUDIANT}`);
@@ -99,17 +100,30 @@ describe("L'Etudiant Transformers", () => {
       expect(result.contract_id).toBe(mockMandatoryData.contracts.volontariat);
     });
 
-    it("should set localisation to 'A distance' for full remote missions with no address", () => {
+    it("should set localisation to 'organization City' for full remote missions", () => {
       const mission: Mission = {
         ...baseMission,
-        addresses: [],
         remote: "full",
+        organizationCity: "Lyon",
+        organizationDepartment: "Rhône",
       } as Mission;
 
       const results = missionToPilotyJobs(mission, mockCompanyId, mockMandatoryData);
       const result = results[0];
-      expect(result.localisation).toBe("A distance");
-      expect(result.remote_policy_id).toBe(mockMandatoryData.remotePolicies.full);
+      expect(result.localisation).toBe("Lyon, Rhône, France");
+    });
+
+    it("should set localisation to 'France' for full remote missions with no address and no organization city", () => {
+      const mission: Mission = {
+        ...baseMission,
+        addresses: [],
+        remote: "full",
+        organizationCity: "",
+      } as Mission;
+
+      const results = missionToPilotyJobs(mission, mockCompanyId, mockMandatoryData);
+      const result = results[0];
+      expect(result.localisation).toBe("France");
     });
 
     it("should consider remote job if no address", () => {
@@ -119,7 +133,6 @@ describe("L'Etudiant Transformers", () => {
       } as Mission;
       const results = missionToPilotyJobs(mission, mockCompanyId, mockMandatoryData);
       const result = results[0];
-      expect(result.localisation).toBe("A distance");
       expect(result.remote_policy_id).toBe(mockMandatoryData.remotePolicies.full);
     });
 
@@ -197,7 +210,7 @@ describe("L'Etudiant Transformers", () => {
       } as Mission;
       const results = missionToPilotyJobs(mission, mockCompanyId, mockMandatoryData);
       expect(results).toHaveLength(1);
-      expect(results[0].localisation).toBe("Lyon");
+      expect(results[0].localisation).toBe("Lyon, Rhône, France");
     });
 
     it("should set state to 'archived' for not accepted mission", () => {

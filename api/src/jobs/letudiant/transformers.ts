@@ -26,27 +26,35 @@ import { decodeHtml } from "./utils";
  * @returns The job payloads
  */
 export function missionToPilotyJobs(mission: Mission, companyId: string, mandatoryData: PilotyMandatoryData): PilotyJobPayload[] {
-  // Build payload depending on localisation. If no localisation, it's a remote job
-  function buildJobPayload(localisation: string | undefined): PilotyJobPayload {
+  function buildJobPayload(isRemote: boolean, localisation: string | undefined): PilotyJobPayload {
     return {
       media_public_id: MEDIA_PUBLIC_ID,
       company_public_id: companyId,
       name: mission.title,
       contract_id: mission.type === MissionType.VOLONTARIAT ? mandatoryData.contracts.volontariat : mandatoryData.contracts.benevolat,
       job_category_id: mandatoryData.jobCategories[mission.domain] ?? mandatoryData.jobCategories["autre"],
-      localisation: localisation || "A distance",
+      localisation: localisation || "France",
       description_job: decodeHtml(mission.descriptionHtml),
       application_method: "external_apply",
       application_url: getMissionTrackedApplicationUrl(mission, PUBLISHER_IDS.LETUDIANT),
       state: mission.deletedAt || mission.statusCode !== "ACCEPTED" ? "archived" : "published",
-      remote_policy_id: localisation ? undefined : mandatoryData.remotePolicies.full,
+      remote_policy_id: isRemote ? mandatoryData.remotePolicies.full : undefined,
       position_level: "employee",
       description_company: mission.organizationDescription || "",
     };
   }
 
+  // Helper to format localisation as "city, department, country" without empty parts
+  function formatLocalisation(parts: Array<string | undefined | null>): string {
+    return parts.filter((p) => Boolean(p && String(p).trim().length)).join(", ");
+  }
+
   if (mission.remote === "full" || !mission.addresses.length) {
-    return [buildJobPayload(undefined)];
+    const city = mission.organizationCity || undefined;
+    const department = mission.organizationDepartment || undefined;
+    const country = mission.country || "France";
+    const formatted = formatLocalisation([city, department, country]) || "France";
+    return [buildJobPayload(true, formatted)];
   }
 
   // Group addresses by city
@@ -60,7 +68,10 @@ export function missionToPilotyJobs(mission: Mission, companyId: string, mandato
     return true;
   });
 
-  return uniqueAddresses.map((address) => buildJobPayload(address.city));
+  return uniqueAddresses.map((address) => {
+    const localisation = formatLocalisation([address.city, address.departmentName, address.country || "France"]);
+    return buildJobPayload(false, localisation);
+  });
 }
 
 /**
