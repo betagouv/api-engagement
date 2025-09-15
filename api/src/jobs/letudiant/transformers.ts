@@ -27,26 +27,26 @@ import { decodeHtml } from "./utils";
  */
 export function missionToPilotyJobs(mission: Mission, companyId: string, mandatoryData: PilotyMandatoryData): PilotyJobPayload[] {
   // Build payload depending on localisation. If no localisation, it's a remote job
-  function buildJobPayload(localisation: string | undefined): PilotyJobPayload {
+  function buildJobPayload(isRemote: boolean, localisation: string | undefined): PilotyJobPayload {
     return {
       media_public_id: MEDIA_PUBLIC_ID,
       company_public_id: companyId,
       name: mission.title,
       contract_id: mission.type === MissionType.VOLONTARIAT ? mandatoryData.contracts.volontariat : mandatoryData.contracts.benevolat,
       job_category_id: mandatoryData.jobCategories[mission.domain] ?? mandatoryData.jobCategories["autre"],
-      localisation: localisation || "A distance",
+      localisation: localisation || "France",
       description_job: decodeHtml(mission.descriptionHtml),
       application_method: "external_apply",
       application_url: getMissionTrackedApplicationUrl(mission, PUBLISHER_IDS.LETUDIANT),
       state: mission.deletedAt || mission.statusCode !== "ACCEPTED" ? "archived" : "published",
-      remote_policy_id: localisation ? undefined : mandatoryData.remotePolicies.full,
+      remote_policy_id: isRemote ? mandatoryData.remotePolicies.full : undefined,
       position_level: "employee",
       description_company: mission.organizationDescription || "",
     };
   }
 
   if (mission.remote === "full" || !mission.addresses.length) {
-    return [buildJobPayload(undefined)];
+    return [buildJobPayload(true, mission.organizationCity || undefined)];
   }
 
   // Group addresses by city
@@ -60,7 +60,7 @@ export function missionToPilotyJobs(mission: Mission, companyId: string, mandato
     return true;
   });
 
-  return uniqueAddresses.map((address) => buildJobPayload(address.city));
+  return uniqueAddresses.map((address) => buildJobPayload(false, address.city));
 }
 
 /**
