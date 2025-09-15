@@ -1,30 +1,23 @@
-import fs from "fs";
-import path from "path";
 import dotenv from "dotenv";
 import type { Stats } from "../types";
 import { Prisma } from "@prisma/client";
 
+/**
+ * Optionally override endpoints with:
+ *   --es <elastic_url> --db <postgres_url>
+ */
+dotenv.config();
+
 const args = process.argv.slice(2);
-const envArgIndex = args.indexOf("--env");
-let envFile: string | undefined;
 
-if (envArgIndex !== -1 && args[envArgIndex + 1]) {
-  envFile = `.env.${args[envArgIndex + 1]}`;
+const esArgIndex = args.indexOf("--es");
+if (esArgIndex !== -1 && args[esArgIndex + 1]) {
+  process.env.ES_ENDPOINT = args[esArgIndex + 1];
 }
 
-if (!envFile) {
-  const defaultFile = path.resolve(__dirname, "..", "..", ".env.es-to-pg-backfill");
-  if (fs.existsSync(defaultFile)) {
-    envFile = ".env.es-to-pg-backfill";
-  }
-}
-
-if (envFile) {
-  const envPath = path.resolve(__dirname, "..", "..", envFile);
-  console.log(`Loading environment variables from ${envFile}`);
-  dotenv.config({ path: envPath });
-} else {
-  dotenv.config();
+const dbArgIndex = args.indexOf("--db");
+if (dbArgIndex !== -1 && args[dbArgIndex + 1]) {
+  process.env.DATABASE_URL_CORE = args[dbArgIndex + 1];
 }
 
 const esClient = require("../db/elastic").default;
