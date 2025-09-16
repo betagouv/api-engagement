@@ -107,10 +107,16 @@ const BotRow = ({ bot }) => {
       <p className="text-lg font-bold">Identifiant: {bot.hash}</p>
       <p className="text-sm">User Agent: {bot.userAgent}</p>
       <p className="mt-6 text-sm">
-        <span className="font-bold">Statistiques:</span> {stats.type.map((b) => `${(b.doc_count || 0).toLocaleString("fr")} ${STATS_LABELS[b.key]}`).join(", ")}
+        <span className="font-bold">Statistiques:</span>{" "}
+        {stats.type.length > 0 ? stats.type.map((b) => `${(b.doc_count || 0).toLocaleString("fr")} ${STATS_LABELS[b.key]}`).join(", ") : "Aucune statistique"}
       </p>
-      <p className="mt-6 text-sm">
-        <span className="font-bold">Partenaires:</span> {stats.publisherTo.map((b) => `${(b.doc_count || 0).toLocaleString("fr")} ${b.name}`).join(", ")}
+      <p className="mt-2 text-sm">
+        <span className="font-bold">Partenaires diffuseurs:</span>{" "}
+        {stats.publisherFrom.length > 0 ? stats.publisherFrom.map((b) => `${(b.doc_count || 0).toLocaleString("fr")} ${b.name}`).join(", ") : "Aucun partenaire diffuseur"}
+      </p>
+      <p className="mt-2 text-sm">
+        <span className="font-bold">Partenaires annonceurs:</span>{" "}
+        {stats.publisherTo.length > 0 ? stats.publisherTo.map((b) => `${(b.doc_count || 0).toLocaleString("fr")} ${b.name}`).join(", ") : "Aucun partenaire annonceur"}
       </p>
 
       <div className="mt-6 flex items-center justify-end gap-2">

@@ -39,13 +39,7 @@ router.get("/:id/stat", passport.authenticate("admin", { session: false }), asyn
         aggs: {
           type: { terms: { field: "type.keyword" } },
           publisherTo: { terms: { field: "toPublisherId.keyword" } },
-          blocked: {
-            filter: { term: { isBot: true } },
-            aggs: {
-              type: { terms: { field: "type.keyword" } },
-              publisherTo: { terms: { field: "toPublisherId.keyword" } },
-            },
-          },
+          publisherFrom: { terms: { field: "fromPublisherId.keyword" } },
         },
       },
     });
@@ -62,11 +56,7 @@ router.get("/:id/stat", passport.authenticate("admin", { session: false }), asyn
         doc_count: b.doc_count,
         name: publishers.find((p) => p._id.toString() === b.key)?.name,
       })),
-      typeBlocked: response.body.aggregations.blocked.type.buckets.map((b: { [key: string]: any }) => ({
-        key: b.key,
-        doc_count: b.doc_count,
-      })),
-      publisherToBlocked: response.body.aggregations.blocked.publisherTo.buckets.map((b: { [key: string]: any }) => ({
+      publisherFrom: response.body.aggregations.publisherFrom.buckets.map((b: { [key: string]: any }) => ({
         key: b.key,
         doc_count: b.doc_count,
         name: publishers.find((p) => p._id.toString() === b.key)?.name,
