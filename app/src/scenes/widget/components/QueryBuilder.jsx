@@ -25,12 +25,12 @@ const QueryBuilder = ({ fields, rules, setRules, onSearch }) => {
       {rules.map((r, i) => (
         <div key={i} className="my-3 flex w-full items-center gap-4">
           <Rule index={i} fields={fields} rule={r} onChange={(r) => handleRuleChange(r, i)} onSearch={onSearch} />
-          <span className="flex h-8 w-8 cursor-pointer items-center justify-center border border-red-error text-red-error" onClick={() => handleDeleteRule(i)}>
+          <span className="border-red-error text-red-error flex h-8 w-8 cursor-pointer items-center justify-center border" onClick={() => handleDeleteRule(i)}>
             <RiDeleteBin6Line />
           </span>
         </div>
       ))}
-      <span className="empty-button flex items-center w-fit" onClick={handleAddRule}>
+      <span className="empty-button flex w-fit items-center" onClick={handleAddRule}>
         Ajouter un filtre
         <RiAddFill className="ml-2" />
       </span>

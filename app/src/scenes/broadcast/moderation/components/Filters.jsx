@@ -93,7 +93,7 @@ const Filters = ({ filters, onChange, reload }) => {
           options={options.organizations.map((e) => ({ value: e.key === "" ? "none" : e.key, label: e.key === "" ? "Non renseignée" : e.key, count: e.doc_count }))}
           value={filters.organization}
           onChange={(e) => onChange({ ...filters, organization: e.value })}
-          className="w-96 right-0"
+          className="right-0 w-96"
           loading={loading}
         />
       </div>
@@ -122,7 +122,7 @@ const Filters = ({ filters, onChange, reload }) => {
           options={options.cities.map((e) => ({ value: e.key === "" ? "none" : e.key, label: e.key === "" ? "Non renseignée" : e.key, count: e.doc_count }))}
           value={filters.city}
           onChange={(e) => onChange({ ...filters, city: e.value })}
-          className="w-80 right-0"
+          className="right-0 w-80"
           loading={loading}
         />
         <Select
@@ -130,7 +130,7 @@ const Filters = ({ filters, onChange, reload }) => {
           value={filters.activity}
           onChange={(e) => onChange({ ...filters, activity: e.value })}
           placeholder="Activité"
-          className="w-80 right-0"
+          className="right-0 w-80"
           loading={loading}
         />
       </div>
@@ -157,7 +157,7 @@ const Filters = ({ filters, onChange, reload }) => {
 const Badge = ({ label, value, onDelete }) => {
   if (!value) return null;
   return (
-    <div className="flex items-center gap-2 rounded bg-blue-france-975 p-2">
+    <div className="bg-blue-france-975 flex items-center gap-2 rounded p-2">
       <p className="text-sm">{label}:</p>
       <p className="text-sm">{value}</p>
       <button className="text-sm text-black" onClick={onDelete}>

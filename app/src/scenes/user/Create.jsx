@@ -85,7 +85,7 @@ const Create = () => {
               onChange={handleChange}
             />
             {errors.firstname && (
-              <div className="flex items-center text-sm text-red-error">
+              <div className="text-red-error flex items-center text-sm">
                 <RiErrorWarningFill className="mr-2" />
                 {errors.firstname}
               </div>
@@ -104,7 +104,7 @@ const Create = () => {
               onChange={handleChange}
             />
             {errors.lastname && (
-              <div className="flex items-center text-sm text-red-error">
+              <div className="text-red-error flex items-center text-sm">
                 <RiErrorWarningFill className="mr-2" />
                 {errors.lastname}
               </div>
@@ -117,7 +117,7 @@ const Create = () => {
             </label>
             <input id="email" className={`input mb-2 ${errors.email ? "border-b-red-error" : "border-b-black"}`} name="email" value={values.email} onChange={handleChange} />
             {errors.email && (
-              <div className="flex items-center text-sm text-red-error">
+              <div className="text-red-error flex items-center text-sm">
                 <RiErrorWarningFill className="mr-2" />
                 {errors.email}
               </div>
@@ -134,7 +134,7 @@ const Create = () => {
               <option value="admin">Admin</option>
             </select>
             {errors.role && (
-              <div className="flex items-center text-sm text-red-error">
+              <div className="text-red-error flex items-center text-sm">
                 <RiErrorWarningFill className="mr-2" />
                 {errors.role}
               </div>
@@ -148,7 +148,7 @@ const Create = () => {
 
             <input
               id="publishers"
-              className="w-64 mb-4 input flex-1 bg-gray-950 px-3 py-2 text-sm"
+              className="input mb-4 w-64 flex-1 bg-gray-950 px-3 py-2 text-sm"
               placeholder="Rechercher"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
@@ -157,7 +157,7 @@ const Create = () => {
             {values.publishers.length > 0 && (
               <div className="mb-2 flex flex-wrap gap-2">
                 {values.publishers.map((p, i) => (
-                  <div key={i} className="flex items-center rounded bg-blue-france-975 p-2">
+                  <div key={i} className="bg-blue-france-975 flex items-center rounded p-2">
                     <span className="text-xs">{publishers.find((pub) => pub._id === p)?.name}</span>
                     <button
                       type="button"
@@ -173,7 +173,7 @@ const Create = () => {
               </div>
             )}
             {errors.publishers && (
-              <div className="mb-2 flex items-center text-sm text-red-error">
+              <div className="text-red-error mb-2 flex items-center text-sm">
                 <RiErrorWarningFill className="mr-2" />
                 {errors.publishers}
               </div>
@@ -216,10 +216,10 @@ const Create = () => {
           </div>
 
           <div className="col-span-2 flex justify-end gap-4">
-            <Link to="/accounts?tab=users" className="button border border-black text-black hover:bg-gray-975">
+            <Link to="/accounts?tab=users" className="button hover:bg-gray-975 border border-black text-black">
               Retour
             </Link>
-            <button type="submit" className="button bg-blue-france text-white hover:bg-blue-france-hover" disabled={!isChanged() || isErrors()}>
+            <button type="submit" className="button bg-blue-france hover:bg-blue-france-hover text-white" disabled={!isChanged() || isErrors()}>
               Inviter
             </button>
           </div>

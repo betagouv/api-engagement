@@ -48,12 +48,12 @@ const List = () => {
   }, [filters]);
 
   return (
-    <div className="bg-white shadow-lg p-12 space-y-12">
+    <div className="space-y-12 bg-white p-12 shadow-lg">
       <Helmet>
         <title>RNA - Administration - API Engagement</title>
       </Helmet>
       <div className="flex items-center justify-between">
-        <h2 className="text-2xl font-semibold flex-1">{total.toLocaleString("fr")} d'associations référencées</h2>
+        <h2 className="flex-1 text-2xl font-semibold">{total.toLocaleString("fr")} d'associations référencées</h2>
 
         <SearchInput value={filters.search} onChange={(search) => setFilters({ ...filters, search })} className="w-1/4" placeholder="Rechercher par mot-clé" />
       </div>
@@ -68,9 +68,9 @@ const List = () => {
           loading={loading}
         >
           {data.map((item, i) => (
-            <tr key={i} className={`${i % 2 === 0 ? "bg-gray-100" : "bg-gray-50"} table-item`}>
+            <tr key={i} className={`${i % 2 === 0 ? "bg-gray-975" : "bg-gray-1000-active"} table-item`}>
               <td className="p-4" colSpan={3}>
-                <Link to={`/admin-organization/${item._id}`} className="line-clamp-3 max-w-xl flex-1 px-2 text-blue-france">
+                <Link to={`/admin-organization/${item._id}`} className="text-blue-france line-clamp-3 max-w-xl flex-1 px-2">
                   {item.title}
                 </Link>
               </td>

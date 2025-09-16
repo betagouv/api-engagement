@@ -29,7 +29,7 @@ const TrackingAnnounce = () => {
       <Helmet>
         <title>Tracking des événements - Paramètres - API Engagement</title>
       </Helmet>
-      <div className="border border-gray-900 p-8 space-y-8">
+      <div className="space-y-8 border border-gray-900 p-8">
         <h2 className="text-2xl font-bold">Tracking des événements</h2>
 
         <div className="flex items-center justify-between gap-4 border-b border-b-gray-900 pb-6">
@@ -40,15 +40,15 @@ const TrackingAnnounce = () => {
             </p>
           </div>
           <div className="flex items-center gap-2">
-            <div className="w-[535px] px-4 py-2 rounded-none disabled:opacity-80 bg-[#F5F5FE] border border-[#E3E3FD] text-base whitespace-nowrap">
-              window.apieng && window.apieng("trackApplication", <span className="text-[#b34000] font-['courier']">clientId</span>)
+            <div className="w-[535px] rounded-none border border-[#E3E3FD] bg-[#F5F5FE] px-4 py-2 text-base whitespace-nowrap disabled:opacity-80">
+              window.apieng && window.apieng("trackApplication", <span className="font-['courier'] text-[#b34000]">clientId</span>)
             </div>
-            <button className="empty-button text-base py-2 px-4" onClick={() => handleCopyCommand(`window.apieng && window.apieng("trackApplication", "clientId")`)}>
+            <button className="empty-button px-4 py-2 text-base" onClick={() => handleCopyCommand(`window.apieng && window.apieng("trackApplication", "clientId")`)}>
               Copier
             </button>
           </div>
         </div>
-        <div className="border-b border-b-gray-900 pb-6 space-y-6">
+        <div className="space-y-6 border-b border-b-gray-900 pb-6">
           <div className="flex items-center justify-between gap-4">
             <div className="flex-1">
               <h3 className="text-base font-semibold">Commande de comptage d'une création de compte</h3>
@@ -57,17 +57,17 @@ const TrackingAnnounce = () => {
               </p>
             </div>
             <div className="flex items-center gap-2">
-              <div className="w-[535px] px-4 py-2 rounded-none disabled:opacity-80 bg-[#F5F5FE] border border-[#E3E3FD] text-base whitespace-nowrap">
-                window.apieng && window.apieng("trackAccount", <span className="text-[#b34000] font-['courier']">clientId</span>)
+              <div className="w-[535px] rounded-none border border-[#E3E3FD] bg-[#F5F5FE] px-4 py-2 text-base whitespace-nowrap disabled:opacity-80">
+                window.apieng && window.apieng("trackAccount", <span className="font-['courier'] text-[#b34000]">clientId</span>)
               </div>
-              <button className="empty-button text-base py-2 px-4" onClick={() => handleCopyCommand(`window.apieng && window.apieng("trackAccount", "clientId")`)}>
+              <button className="empty-button px-4 py-2 text-base" onClick={() => handleCopyCommand(`window.apieng && window.apieng("trackAccount", "clientId")`)}>
                 Copier
               </button>
             </div>
           </div>
           <div className="flex items-start gap-2 pb-6">
-            <BiSolidInfoSquare className="text-xs text-[#0063CB] mt-1" />
-            <p className="text-xs text-[#0063CB] leading-4">
+            <BiSolidInfoSquare className="mt-1 text-xs text-[#0063CB]" />
+            <p className="text-xs leading-4 text-[#0063CB]">
               clientId = votre identifiant de mission utilisé dans le flux XML. <br />
               Exemple : <span className="font-['courier']">window.apieng && window.apieng("trackAccount", "6294b108de43a106f6ca6d5f")</span> <br />
               NB: Si vous n’en avez pas, ne l’indiquez pas dans la commande. Exemple : <span className="font-['courier']">window.apieng && window.apieng(“trackAccount”)</span>
@@ -78,14 +78,14 @@ const TrackingAnnounce = () => {
         <div className="flex items-center justify-between">
           <div>
             <h3 className="text-base font-semibold">Script à integrer sur votre site</h3>
-            <p className="text-xs w-4/5 text-[#666666]">{`Afin d’assurer le suivi des candidatures générées via l’API Engagement, ajoutez le script ci-dessous dans le <head></head> de votre page sur laquelle un bénévole candidate à une offre`}</p>
+            <p className="w-4/5 text-xs text-[#666666]">{`Afin d’assurer le suivi des candidatures générées via l’API Engagement, ajoutez le script ci-dessous dans le <head></head> de votre page sur laquelle un bénévole candidate à une offre`}</p>
           </div>
-          <button className="flex cursor-pointer items-center text-sm px-2 py-1 border border-blue-france text-blue-france" onClick={handleCopyScript}>
+          <button className="border-blue-france text-blue-france flex cursor-pointer items-center border px-2 py-1 text-sm" onClick={handleCopyScript}>
             Copier
           </button>
         </div>
         <textarea
-          className="px-4 py-2 text-base rounded-none disabled:opacity-80 w-full bg-[#F5F5FE] border border-[#E3E3FD]"
+          className="w-full rounded-none border border-[#E3E3FD] bg-[#F5F5FE] px-4 py-2 text-base disabled:opacity-80"
           rows={8}
           value={script.replace("{{publisherId}}", publisher._id)}
           disabled={true}

@@ -35,7 +35,7 @@ const MultiSearchSelect = ({ options, value, onChange, placeholder, className, l
   };
 
   return (
-    <div className="relative w-full " ref={ref}>
+    <div className="relative w-full" ref={ref}>
       <div className="relative w-full">
         <label htmlFor="multi-search-select" className="sr-only">
           {placeholder}
@@ -50,22 +50,22 @@ const MultiSearchSelect = ({ options, value, onChange, placeholder, className, l
         />
 
         {selected.length > 0 && (
-          <button className="absolute top-1/2 right-9 transform -translate-y-1/2" onClick={handleClear}>
+          <button className="absolute top-1/2 right-9 -translate-y-1/2 transform" onClick={handleClear}>
             <RiCloseFill className="text-lg" />
           </button>
         )}
         <button className="absolute inset-y-2 right-0 flex items-center pr-2" onClick={() => setIsOpen(!isOpen)}>
-          <RiArrowDownSLine className={`text-sm ${isOpen ? "transform rotate-180" : ""}`} />
+          <RiArrowDownSLine className={`text-sm ${isOpen ? "rotate-180 transform" : ""}`} />
         </button>
       </div>
       {isOpen && (
-        <ul className={`absolute z-10 top-10 w-full max-h-80 overflow-y-scroll transition duration-100 ease-in bg-white shadow-lg ${className || "w-full"}`}>
+        <ul className={`absolute top-10 z-10 max-h-80 w-full overflow-y-scroll bg-white shadow-lg transition duration-100 ease-in ${className || "w-full"}`}>
           {loading ? (
-            <li className="group flex cursor-default items-center justify-center px-4 py-2 data-[focus]:bg-gray-975">
+            <li className="group data-[focus]:bg-gray-975 flex cursor-default items-center justify-center px-4 py-2">
               <Loader />
             </li>
           ) : !options.length ? (
-            <li className="group flex cursor-default items-center justify-center px-4 py-2 data-[focus]:bg-gray-975">
+            <li className="group data-[focus]:bg-gray-975 flex cursor-default items-center justify-center px-4 py-2">
               <p className="text-sm">Aucune option trouvée</p>
             </li>
           ) : (
@@ -73,16 +73,16 @@ const MultiSearchSelect = ({ options, value, onChange, placeholder, className, l
               .filter((option) => (search ? option.label.toLowerCase().includes(search.toLowerCase()) : true))
               .map((option, i) => (
                 <Fragment key={i}>
-                  {i !== 0 ? <div className="h-px mx-4 bg-gray-100" /> : null}
+                  {i !== 0 ? <div className="mx-4 h-px bg-gray-100" /> : null}
                   <li
-                    className={`relative flex gap-4 cursor-default select-none list-none items-center justify-between px-6 py-3 text-sm hover:bg-gray-100 hover:text-blue-france bg-white text-black`}
+                    className={`hover:text-blue-france relative flex cursor-default list-none items-center justify-between gap-4 bg-white px-6 py-3 text-sm text-black select-none hover:bg-gray-100`}
                     tabIndex={-1}
                     onClick={() => {
                       onChange(selected.includes(option.value) ? { value: selected.filter((v) => v !== option.value) } : { value: [...selected, option.value] });
                     }}
                   >
-                    {selected.includes(option.value) && <RiCheckLine className="absolute left-1 top-1/2 -translate-y-1/2 text-sm text-blue-france" />}
-                    <p className="text-sm truncate whitespace-nowrap">{option.label}</p>
+                    {selected.includes(option.value) && <RiCheckLine className="text-blue-france absolute top-1/2 left-1 -translate-y-1/2 text-sm" />}
+                    <p className="truncate text-sm whitespace-nowrap">{option.label}</p>
 
                     {option.count && <p className="text-sm">{option.count}</p>}
                   </li>

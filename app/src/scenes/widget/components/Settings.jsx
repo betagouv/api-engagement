@@ -86,14 +86,14 @@ const Settings = ({ widget, values, onChange, loading }) => {
   };
 
   return (
-    <div className="bg-white p-12 space-y-12 shadow-lg">
+    <div className="space-y-12 bg-white p-12 shadow-lg">
       <div className="space-y-10">
         <h2 className="text-2xl font-bold">Informations générales</h2>
 
         <div className="grid grid-cols-2 gap-10">
           <div className="flex flex-col gap-4">
             <label className="text-base" htmlFor="name">
-              Nom du widget<span className="ml-1 text-red-error">*</span>
+              Nom du widget<span className="text-red-error ml-1">*</span>
             </label>
             <input id="name" className="input" name="name" value={values.name} onChange={(e) => onChange({ ...values, name: e.target.value })} disabled={Boolean(widget)} />
           </div>
@@ -115,7 +115,7 @@ const Settings = ({ widget, values, onChange, loading }) => {
         <div className="grid grid-cols-2 gap-10">
           <div className="space-y-4">
             <label className="text-base">
-              Type de mission<span className="ml-1 text-red-error">*</span>
+              Type de mission<span className="text-red-error ml-1">*</span>
             </label>
             <div className="flex items-center">
               {publisher.publishers.filter((p) => p.publisherId !== SC_ID).length > 0 && (
@@ -177,7 +177,7 @@ const Settings = ({ widget, values, onChange, loading }) => {
         <div className="space-y-4">
           <label className="text-base" htmlFor="location">
             Diffuser des missions de
-            <span className="ml-1 text-red-error">*</span>
+            <span className="text-red-error ml-1">*</span>
           </label>
 
           {values.type === "benevolat" && (
@@ -195,7 +195,7 @@ const Settings = ({ widget, values, onChange, loading }) => {
           )}
 
           {publishers.length === 0 ? (
-            <p className="text-sm text-gray-425">Aucun partenaire disponible</p>
+            <p className="text-gray-425 text-sm">Aucun partenaire disponible</p>
           ) : (
             <div className={`grid grid-cols-3 gap-x-6 gap-y-3 ${values.type === "volontariat" ? "text-[#929292]" : ""}`}>
               {publishers
@@ -205,7 +205,7 @@ const Settings = ({ widget, values, onChange, loading }) => {
                 .map((item, i) => (
                   <label
                     key={i}
-                    className={`flex gap-4 border p-4 rounded cursor-pointer hover:border-blue-france ${values.publishers.includes(item._id) ? "border-blue-france" : "border-gray-300"}`}
+                    className={`hover:border-blue-france flex cursor-pointer gap-4 rounded border p-4 ${values.publishers.includes(item._id) ? "border-blue-france" : "border-gray-300"}`}
                   >
                     <div className="flex items-center gap-2">
                       <input
@@ -261,17 +261,17 @@ const Settings = ({ widget, values, onChange, loading }) => {
           )}
 
           {publishers.length > 15 && values.type === "benevolat" && (
-            <button className="mt-6 border border-blue-france p-2 text-blue-france" onClick={() => setShowAll(!showAll)}>
+            <button className="border-blue-france text-blue-france mt-6 border p-2" onClick={() => setShowAll(!showAll)}>
               {showAll ? "Masquer les annonceurs" : "Afficher tous les annonceurs"}
             </button>
           )}
 
           {values.publishers.includes(JVA_ID) && (
-            <div className="flex items-center justify-between w-[50%] pt-6">
+            <div className="flex w-[50%] items-center justify-between pt-6">
               <div> Afficher uniquement les missions modérées par JeVeuxAider.gouv.fr</div>
               <div className="flex items-center gap-4">
                 <Toggle value={values.jvaModeration} onChange={(value) => onChange({ ...values, jvaModeration: value })} />
-                <img src={JvaLogoSvg} className="w-16 ml-4" />
+                <img src={JvaLogoSvg} className="ml-4 w-16" />
               </div>
             </div>
           )}
@@ -315,7 +315,7 @@ const Settings = ({ widget, values, onChange, loading }) => {
         <div className="grid grid-cols-2 gap-10">
           <div className="flex flex-col gap-4">
             <label className="text-base" htmlFor="style">
-              Mode d'affichage<span className="ml-1 text-red-error">*</span>
+              Mode d'affichage<span className="text-red-error ml-1">*</span>
             </label>
             <div className="flex items-center justify-between">
               <div>
@@ -327,7 +327,7 @@ const Settings = ({ widget, values, onChange, loading }) => {
                   checked={values.style === "page"}
                   onChange={(e) => onChange({ ...values, style: e.target.value })}
                 />
-                <span className="text-xs text-gray-425">Grille de 6 missions par page</span>
+                <span className="text-gray-425 text-xs">Grille de 6 missions par page</span>
               </div>
 
               <div>
@@ -339,14 +339,14 @@ const Settings = ({ widget, values, onChange, loading }) => {
                   checked={values.style === "carousel"}
                   onChange={(e) => onChange({ ...values, style: e.target.value })}
                 />
-                <span className="text-xs text-gray-425">Fait défiler les missions 3 par 3</span>
+                <span className="text-gray-425 text-xs">Fait défiler les missions 3 par 3</span>
               </div>
             </div>
           </div>
 
           <div className="flex flex-col gap-4">
             <label className="text-base" htmlFor="color">
-              Code hexadécimal couleur<span className="ml-1 text-red-error">*</span>
+              Code hexadécimal couleur<span className="text-red-error ml-1">*</span>
             </label>
             <div className="flex items-center gap-4">
               <div className="h-9 w-9 rounded" style={{ backgroundColor: values.color }} />
@@ -404,7 +404,7 @@ const LocationSearch = ({ selected, onChange }) => {
         <Transition as={Fragment} leave="transition ease-in duration-100" leaveFrom="opacity-100" leaveTo="opacity-0">
           <ComboboxOptions className="absolute max-h-60 w-full divide-y divide-gray-900 overflow-auto bg-white text-base shadow-lg focus:outline-none">
             {options.map((option) => (
-              <ComboboxOption key={option.value} value={option} className={({ active }) => `cursor-default select-none p-3 ${active ? "bg-gray-975" : "bg-white"}`}>
+              <ComboboxOption key={option.value} value={option} className={({ active }) => `cursor-default p-3 select-none ${active ? "bg-gray-975" : "bg-white"}`}>
                 <span className={`truncate text-sm text-black ${selected?.label === option.label ? "text-blue-france" : ""}`}>{option.label}</span>
               </ComboboxOption>
             ))}

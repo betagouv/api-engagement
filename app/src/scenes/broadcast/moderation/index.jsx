@@ -122,7 +122,7 @@ const Moderation = () => {
 
   if (!history)
     return (
-      <div className="flex justify-center items-center h-96">
+      <div className="flex h-96 items-center justify-center">
         <Loader />
       </div>
     );
@@ -138,7 +138,7 @@ const Moderation = () => {
           fetchHistory();
         }}
       />
-      <div className="flex items-start justify-between mx-12">
+      <div className="mx-12 flex items-start justify-between">
         <div className="flex items-center gap-4">
           <img src={ModerationAutoIcon} className="h-14 w-14" allt="Modération automatique" />
           <h2 className="text-xl font-semibold text-black">Modération automatique</h2>

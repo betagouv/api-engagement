@@ -72,10 +72,10 @@ const MissionItem = ({ data, history, selected, onChange, onSelect, onFilter }) 
         <input id="moderation-select" type="checkbox" className="checkbox" name="moderation-select" onChange={handleSelectModeration} checked={selected} />
       </span>
       <div className="flex flex-1 flex-col justify-between">
-        <div className="my-2 line-clamp-3 flex items-center text-base font-semibold hover:cursor-pointer hover:text-blue-france" onClick={handleMissionClick}>
+        <div className="hover:text-blue-france my-2 line-clamp-3 flex items-center text-base font-semibold hover:cursor-pointer" onClick={handleMissionClick}>
           {data.newTitle || data.title}
         </div>
-        <div className="flex items-center gap-4 text-gray-425 mb-2">
+        <div className="text-gray-425 mb-2 flex items-center gap-4">
           {data.city && (
             <span className="flex items-center">
               <RiMapPin2Fill className="mr-2" />
@@ -88,7 +88,7 @@ const MissionItem = ({ data, history, selected, onChange, onSelect, onFilter }) 
             {data.endAt && ` au ${new Date(data.endAt).toLocaleDateString("fr")}`}
           </span>
         </div>
-        <div className="flex items-center text-gray-425">
+        <div className="text-gray-425 flex items-center">
           <RiTimeLine className="mr-2 text-xs" />
           Postée le {new Date(data.postedAt).toLocaleDateString("fr")} sur {data.publisherName}
         </div>
@@ -117,7 +117,7 @@ const MissionItem = ({ data, history, selected, onChange, onSelect, onFilter }) 
       <div className="flex h-full w-[30%] flex-col justify-center gap-3 px-2">
         <div className="flex items-center gap-3">
           <select
-            className="select flex-1 pr-2 border-b-2"
+            className="select flex-1 border-b-2 pr-2"
             style={{ borderBottomColor: STATUS_COLORS[values.status] }}
             name="status"
             value={values.status}
@@ -142,7 +142,7 @@ const MissionItem = ({ data, history, selected, onChange, onSelect, onFilter }) 
           </select>
         )}
         {values.note && (
-          <div className="flex items-center gap-2 text-xs mt-1">
+          <div className="mt-1 flex items-center gap-2 text-xs">
             <RiPencilFill />
             <div className="italic">{values.note}</div>
           </div>
@@ -165,7 +165,7 @@ const MissionActionsMenu = ({ data, onFilter, onChange }) => {
   return (
     <>
       <Menu as="div" className="relative h-full text-left">
-        <Menu.Button as="div" className="flex h-full cursor-pointer border border-black items-center justify-between gap-4 px-3 text-sm hover:bg-gray-975">
+        <Menu.Button as="div" className="hover:bg-gray-975 flex h-full cursor-pointer items-center justify-between gap-4 border border-black px-3 text-sm">
           <span className="font-semibold">
             <RiMoreFill />
           </span>
@@ -181,7 +181,7 @@ const MissionActionsMenu = ({ data, onFilter, onChange }) => {
         >
           <Menu.Items as="div" className="absolute right-0 z-30 mt-2 w-64 origin-top-right border border-gray-900 bg-white text-black focus:outline-none">
             <Menu.Item>
-              <button onClick={handleMissionClick} className="flex cursor-pointer text-blue-france text-sm items-center p-3 w-full text-left hover:bg-gray-950 border-none">
+              <button onClick={handleMissionClick} className="text-blue-france flex w-full cursor-pointer items-center border-none p-3 text-left text-sm hover:bg-gray-950">
                 Aperçu de la mission
               </button>
             </Menu.Item>
@@ -190,7 +190,7 @@ const MissionActionsMenu = ({ data, onFilter, onChange }) => {
                 href={data.applicationUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex cursor-pointer text-blue-france text-sm items-center p-3 w-full text-left hover:bg-gray-950 border-none"
+                className="text-blue-france flex w-full cursor-pointer items-center border-none p-3 text-left text-sm hover:bg-gray-950"
               >
                 Lien de la mission
               </a>
@@ -198,14 +198,14 @@ const MissionActionsMenu = ({ data, onFilter, onChange }) => {
             <Menu.Item>
               {data.note ? (
                 <button
-                  className="flex cursor-pointer text-blue-france text-sm items-center p-3 w-full text-left hover:bg-gray-950 border-none"
+                  className="text-blue-france flex w-full cursor-pointer items-center border-none p-3 text-left text-sm hover:bg-gray-950"
                   onClick={() => setIsModalOpen(true)}
                 >
                   Modifier la note
                 </button>
               ) : (
                 <button
-                  className="flex cursor-pointer text-blue-france text-sm items-center p-3 w-full text-left hover:bg-gray-950 border-none"
+                  className="text-blue-france flex w-full cursor-pointer items-center border-none p-3 text-left text-sm hover:bg-gray-950"
                   onClick={() => setIsModalOpen(true)}
                 >
                   Ajouter une note interne
@@ -214,7 +214,7 @@ const MissionActionsMenu = ({ data, onFilter, onChange }) => {
             </Menu.Item>
             <Menu.Item>
               <button
-                className="flex cursor-pointer text-blue-france text-sm items-center p-3 w-full text-left hover:bg-gray-950 border-none"
+                className="text-blue-france flex w-full cursor-pointer items-center border-none p-3 text-left text-sm hover:bg-gray-950"
                 onClick={() => onFilter(data.organizationName)}
               >
                 Filter les missions de l'organisation

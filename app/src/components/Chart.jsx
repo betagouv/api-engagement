@@ -33,13 +33,13 @@ const PieTooltip = ({ active, payload, unit }) => {
   if (active && payload && payload.length) {
     return (
       <div className="bg-white shadow-lg">
-        <div className="bg-[#f6f6f6] text-xs text-[#666666] w-full px-4 py-2">
+        <div className="w-full bg-[#f6f6f6] px-4 py-2 text-xs text-[#666666]">
           <p className="label">{payload[0].payload.name}</p>
         </div>
         <div className="space-y-2 p-4">
           {payload.map((p, i) => (
             <div key={i} className="flex items-center justify-between">
-              <div className="w-4 h-2 mr-2" style={{ backgroundColor: p.payload.fill }} />
+              <div className="mr-2 h-2 w-4" style={{ backgroundColor: p.payload.fill }} />
               <p className="text-xs font-bold">{unit ? `${p.value} ${unit}` : p.value}</p>
             </div>
           ))}
@@ -70,15 +70,15 @@ const LineChartTooltip = ({ active, payload, label }) => {
     const total = payload.reduce((acc, p) => acc + p.value, 0);
     return (
       <div className="bg-white shadow-lg">
-        <div className="bg-[#f6f6f6] text-xs text-[#666666] w-full px-4 py-2">
+        <div className="w-full bg-[#f6f6f6] px-4 py-2 text-xs text-[#666666]">
           <p className="label">{`${label} - ${total}`}</p>
         </div>
         <div className="space-y-2 p-4">
           {payload.map((p, i) => (
             <div key={i} className="flex items-center justify-between gap-4">
               <div className="flex items-center">
-                <div className="w-4 h-2 mr-2" style={{ backgroundColor: p.stroke }} />
-                <p className="text-xs truncate font-bold">{p.name}</p>
+                <div className="mr-2 h-2 w-4" style={{ backgroundColor: p.stroke }} />
+                <p className="truncate text-xs font-bold">{p.name}</p>
               </div>
               <p className="text-xs font-bold">{p.value}</p>
             </div>
@@ -127,14 +127,14 @@ const BarChartTooltip = ({ active, payload, label }) => {
   if (active && payload && payload.length) {
     return (
       <div className="bg-white shadow-lg">
-        <div className="bg-[#f6f6f6] text-xs text-[#666666] w-full px-4 py-2">
+        <div className="w-full bg-[#f6f6f6] px-4 py-2 text-xs text-[#666666]">
           <p className="label">{label}</p>
         </div>
         <div className="space-y-2 p-4">
           <div className="flex items-center justify-between gap-4">
             <div className="flex items-center">
-              <div className="w-4 h-2 mr-2" style={{ backgroundColor: payload[0].fill }} />
-              <p className="text-xs truncate font-bold">{payload[0].name}</p>
+              <div className="mr-2 h-2 w-4" style={{ backgroundColor: payload[0].fill }} />
+              <p className="truncate text-xs font-bold">{payload[0].name}</p>
             </div>
             <p className="text-xs font-bold">{payload[0].value}</p>
           </div>
@@ -166,15 +166,15 @@ const StackedBarChartTooltip = ({ active, payload, label }) => {
     const total = payload.reduce((acc, p) => acc + p.value, 0);
     return (
       <div className="bg-white shadow-lg">
-        <div className="bg-[#f6f6f6] text-xs text-[#666666] w-full px-4 py-2">
+        <div className="w-full bg-[#f6f6f6] px-4 py-2 text-xs text-[#666666]">
           <p className="label">{`${label} - ${total}`}</p>
         </div>
         <div className="space-y-2 p-4">
           {payload.map((p, i) => (
             <div key={i} className="flex items-center justify-between gap-4">
               <div className="flex items-center">
-                <div className="w-4 h-2 mr-2" style={{ backgroundColor: p.fill }} />
-                <p className="text-xs truncate font-bold">{p.name}</p>
+                <div className="mr-2 h-2 w-4" style={{ backgroundColor: p.fill }} />
+                <p className="truncate text-xs font-bold">{p.name}</p>
               </div>
               <p className="text-xs font-bold">{p.value}</p>
             </div>
@@ -191,8 +191,8 @@ const StackedBarChartLegend = ({ payload }) => {
     <div className="flex flex-wrap justify-end gap-4 pb-4">
       {payload.map((entry, index) => (
         <div key={`item-${index}`} className="flex items-center gap-2">
-          <div className="w-4 h-2" style={{ backgroundColor: entry.color }}></div>
-          <p className="text-xs truncate">{entry.value}</p>
+          <div className="h-2 w-4" style={{ backgroundColor: entry.color }}></div>
+          <p className="truncate text-xs">{entry.value}</p>
         </div>
       ))}
     </div>

@@ -95,7 +95,7 @@ const New = () => {
     <div className="space-y-6">
       <StickyBar onEdit={handleSubmit} visible={stickyVisible} canSubmit={canSubmit} />
       <div className="flex">
-        <Link to={`/broadcast/widgets`} className="flex items-center space-x-1 text-blue-france">
+        <Link to={`/broadcast/widgets`} className="text-blue-france flex items-center space-x-1">
           <RiArrowLeftLine />
           <span>Retour</span>
         </Link>
@@ -117,8 +117,8 @@ const StickyBar = ({ onEdit, visible, canSubmit }) => {
   if (!visible) return null;
 
   return (
-    <div className="fixed top-0 left-0 bg-white w-full shadow-lg py-4 items-center z-50">
-      <div className="flex items-center justify-between w-[90%] m-auto">
+    <div className="fixed top-0 left-0 z-50 w-full items-center bg-white py-4 shadow-lg">
+      <div className="m-auto flex w-[90%] items-center justify-between">
         <h1 className="text-2xl font-bold">Créer un widget</h1>
         <button type="button" className="filled-button" onClick={onEdit} disabled={!canSubmit()}>
           Créer le widget

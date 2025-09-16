@@ -61,46 +61,46 @@ const GlobalAnnounce = ({ filters, onFiltersChange }) => {
   return (
     <div className="space-y-12 p-12">
       <div className="space-y-2">
-        <label className="text-sm text-gray-425 uppercase font-semibold">Période</label>
+        <label className="text-gray-425 text-sm font-semibold uppercase">Période</label>
         <DateRangePicker value={filters} onChange={(value) => onFiltersChange({ ...filters, ...value })} />
       </div>
-      <div className="w-full h-px bg-gray-900" />
+      <div className="h-px w-full bg-gray-900" />
       <div className="space-y-6">
         <div className="space-y-2">
           <h2 className="text-3xl font-bold">Aperçu</h2>
-          <p className="text-base text-gray-425">Vos missions partagées et l’impact que vos diffuseurs ont généré pour vous</p>
+          <p className="text-gray-425 text-base">Vos missions partagées et l’impact que vos diffuseurs ont généré pour vous</p>
         </div>
         {loading ? (
-          <div className="w-full py-10 flex justify-center">
+          <div className="flex w-full justify-center py-10">
             <Loader />
           </div>
         ) : (
-          <div className="grid gap-4 mt-4">
+          <div className="mt-4 grid gap-4">
             <div className="grid grid-cols-2 gap-4">
-              <div className="border p-6">
-                <p className="font-bold text-[28px]">{data.totalMissionAvailable.toLocaleString("fr")}</p>
+              <div className="border border-gray-900 p-6">
+                <p className="text-[28px] font-bold">{data.totalMissionAvailable.toLocaleString("fr")}</p>
                 <p className="text-base">{data.totalMissionAvailable > 1 ? "missions disponibles sur la période" : "mission disponible sur la période"}</p>
               </div>
-              <div className="border p-6">
-                <p className="font-bold text-[28px]">{data.totalMissionClicked.toLocaleString("fr")}</p>
+              <div className="border border-gray-900 p-6">
+                <p className="text-[28px] font-bold">{data.totalMissionClicked.toLocaleString("fr")}</p>
                 <p className="text-base">missions ayant reçu au moins une redirection sur la période</p>
               </div>
             </div>
             <div className="grid grid-cols-4 gap-4">
-              <div className="border p-6 relative">
+              <div className="relative border border-gray-900 p-6">
                 <div className="flex items-center justify-between">
-                  <p className="font-bold text-[28px]">{data.totalPrint !== 0 ? data.totalPrint.toLocaleString("fr") : "N/A"}</p>
+                  <p className="text-[28px] font-bold">{data.totalPrint !== 0 ? data.totalPrint.toLocaleString("fr") : "N/A"}</p>
                   {data.totalPrint === 0 ? (
-                    <div className="relative group">
-                      <RiAlertFill className="text-2xl text-[#b34000] cursor-pointer" />
-                      <div className="hidden group-hover:block absolute -translate-x-1/2 bottom-8 z-10 w-80 border border-gray-900 bg-white p-4 shadow-lg">
+                    <div className="group relative">
+                      <RiAlertFill className="cursor-pointer text-2xl text-[#b34000]" />
+                      <div className="absolute bottom-8 z-10 hidden w-80 -translate-x-1/2 border border-gray-900 bg-white p-4 shadow-lg group-hover:block">
                         <p className="text-xs">Ils semblerait que les impressions de vos campagnes ou missions ne soient pas comptabilisées</p>
                       </div>
                     </div>
                   ) : (
-                    <div className="relative group">
-                      <RiInformationFill className="text-2xl text-[#666] cursor-pointer" />
-                      <div className="hidden group-hover:block absolute -translate-x-1/2 bottom-8 z-10 w-80 border border-gray-900 bg-white p-4 shadow-lg">
+                    <div className="group relative">
+                      <RiInformationFill className="cursor-pointer text-2xl text-[#666]" />
+                      <div className="absolute bottom-8 z-10 hidden w-80 -translate-x-1/2 border border-gray-900 bg-white p-4 shadow-lg group-hover:block">
                         <p className="text-xs">Les impressions des liens situés dans des emails ou SMS ne sont pas comptabilisés dans ce total</p>
                       </div>
                     </div>
@@ -108,16 +108,16 @@ const GlobalAnnounce = ({ filters, onFiltersChange }) => {
                 </div>
                 <p className="text-base">impressions</p>
               </div>
-              <div className="border p-6">
-                <p className="font-bold text-[28px]">{data.totalClick?.toLocaleString("fr")}</p>
+              <div className="border border-gray-900 p-6">
+                <p className="text-[28px] font-bold">{data.totalClick?.toLocaleString("fr")}</p>
                 <p className="text-base">redirections</p>
               </div>
-              <div className="border p-6">
-                <p className="font-bold text-[28px]">{data.totalAccount?.toLocaleString("fr")}</p>
+              <div className="border border-gray-900 p-6">
+                <p className="text-[28px] font-bold">{data.totalAccount?.toLocaleString("fr")}</p>
                 <p className="text-base">créations de compte</p>
               </div>
-              <div className="border p-6">
-                <p className="font-bold text-[28px]">{data.totalApply?.toLocaleString("fr")}</p>
+              <div className="border border-gray-900 p-6">
+                <p className="text-[28px] font-bold">{data.totalApply?.toLocaleString("fr")}</p>
                 <p className="text-base">candidatures</p>
               </div>
             </div>
@@ -188,23 +188,23 @@ const Evolution = ({ filters, defaultType = "print" }) => {
     <div className="space-y-6">
       <div className="space-y-2">
         <h2 className="text-3xl font-bold">Evolution</h2>
-        <p className="text-base text-gray-425">Trafic reçu grâce à vos partenaires diffuseurs</p>
+        <p className="text-gray-425 text-base">Trafic reçu grâce à vos partenaires diffuseurs</p>
       </div>
-      <div className="border p-4">
-        <div className="flex items-center text-sm gap-8 mb-8">
-          <button onClick={() => setType("print")} className={`pb-1 ${type === "print" ? "border-b-2 border-blue-france text-blue-france font-semibold" : ""}`}>
+      <div className="border border-gray-900 p-4">
+        <div className="mb-8 flex items-center gap-8 text-sm">
+          <button onClick={() => setType("print")} className={`pb-1 ${type === "print" ? "border-blue-france text-blue-france border-b-2 font-semibold" : ""}`}>
             Impressions
           </button>
 
-          <button onClick={() => setType("click")} className={`pb-1 ${type === "click" ? "border-b-2 border-blue-france text-blue-france font-semibold" : ""}`}>
+          <button onClick={() => setType("click")} className={`pb-1 ${type === "click" ? "border-blue-france text-blue-france border-b-2 font-semibold" : ""}`}>
             Redirections
           </button>
 
-          <button onClick={() => setType("account")} className={`pb-1 ${type === "account" ? "border-b-2 border-blue-france text-blue-france font-semibold" : ""}`}>
+          <button onClick={() => setType("account")} className={`pb-1 ${type === "account" ? "border-blue-france text-blue-france border-b-2 font-semibold" : ""}`}>
             Créations de compte
           </button>
 
-          <button onClick={() => setType("apply")} className={`pb-1 ${type === "apply" ? "border-b-2 border-blue-france text-blue-france font-semibold" : ""}`}>
+          <button onClick={() => setType("apply")} className={`pb-1 ${type === "apply" ? "border-blue-france text-blue-france border-b-2 font-semibold" : ""}`}>
             Candidatures
           </button>
         </div>
@@ -213,12 +213,12 @@ const Evolution = ({ filters, defaultType = "print" }) => {
             <Loader />
           </div>
         ) : !histogram.length ? (
-          <div className="w-full h-[248px] bg-[#f6f6f6] flex flex-col justify-center items-center border border-dashed border-[#ddddd]">
-            <img src={EmptySVG} alt="empty" className="w-16 h-16" />
+          <div className="flex h-[248px] w-full flex-col items-center justify-center border border-dashed border-[#ddddd] bg-[#f6f6f6]">
+            <img src={EmptySVG} alt="empty" className="h-16 w-16" />
             <p className="text-base text-[#666]">Aucune donnée disponible pour la période</p>
           </div>
         ) : (
-          <div className="w-full h-[424px]">
+          <div className="h-[424px] w-full">
             <StackedBarchart data={histogram} dataKey={[...data.topPublishers, "Autres"]} />
           </div>
         )}
@@ -263,34 +263,34 @@ const Announcers = ({ filters, defaultType = "print" }) => {
     <div className="space-y-6">
       <div className="space-y-2">
         <h2 className="text-3xl font-bold">Top partenaires diffuseurs</h2>
-        <p className="text-base text-gray-425">{total > 1 ? `${total} partenaires` : `${total} partenaire`} ont diffusé vos missions sur la période</p>
+        <p className="text-gray-425 text-base">{total > 1 ? `${total} partenaires` : `${total} partenaire`} ont diffusé vos missions sur la période</p>
       </div>
       {loading ? (
-        <div className="w-full py-10 flex justify-center">
+        <div className="flex w-full justify-center py-10">
           <Loader />
         </div>
       ) : (
-        <div className="border p-6 space-y-4">
-          <div className="flex items-center text-sm gap-8 mb-8">
-            <button onClick={() => setType("print")} className={`pb-1 ${type === "print" ? "border-b-2 border-blue-france text-blue-france font-semibold" : ""}`}>
+        <div className="space-y-4 border border-gray-900 p-6">
+          <div className="mb-8 flex items-center gap-8 text-sm">
+            <button onClick={() => setType("print")} className={`pb-1 ${type === "print" ? "border-blue-france text-blue-france border-b-2 font-semibold" : ""}`}>
               Impressions
             </button>
 
-            <button onClick={() => setType("click")} className={`pb-1 ${type === "click" ? "border-b-2 border-blue-france text-blue-france font-semibold" : ""}`}>
+            <button onClick={() => setType("click")} className={`pb-1 ${type === "click" ? "border-blue-france text-blue-france border-b-2 font-semibold" : ""}`}>
               Redirections
             </button>
 
-            <button onClick={() => setType("account")} className={`pb-1 ${type === "account" ? "border-b-2 border-blue-france text-blue-france font-semibold" : ""}`}>
+            <button onClick={() => setType("account")} className={`pb-1 ${type === "account" ? "border-blue-france text-blue-france border-b-2 font-semibold" : ""}`}>
               Créations de compte
             </button>
 
-            <button onClick={() => setType("apply")} className={`pb-1 ${type === "apply" ? "border-b-2 border-blue-france text-blue-france font-semibold" : ""}`}>
+            <button onClick={() => setType("apply")} className={`pb-1 ${type === "apply" ? "border-blue-france text-blue-france border-b-2 font-semibold" : ""}`}>
               Candidatures
             </button>
           </div>
           {!data.length ? (
-            <div className="w-full h-[248px] bg-[#f6f6f6] flex flex-col justify-center items-center border border-dashed border-[#ddddd]">
-              <img src={EmptySVG} alt="empty" className="w-16 h-16" />
+            <div className="flex h-[248px] w-full flex-col items-center justify-center border border-dashed border-gray-900 bg-[#f6f6f6]">
+              <img src={EmptySVG} alt="empty" className="h-16 w-16" />
               <p className="text-base text-[#666]">Aucune donnée disponible pour la période</p>
             </div>
           ) : (
@@ -298,7 +298,7 @@ const Announcers = ({ filters, defaultType = "print" }) => {
               <div className="w-2/3">
                 <table className="w-full table-fixed">
                   <thead className="text-left">
-                    <tr className="text-gray-500 text-xs uppercase">
+                    <tr className="text-xs text-gray-500 uppercase">
                       <th colSpan={3} className="px-4">
                         Diffuseurs
                       </th>
@@ -310,7 +310,7 @@ const Announcers = ({ filters, defaultType = "print" }) => {
                       <tr key={i}>
                         <td colSpan={3} className="p-4">
                           <div className="flex items-center gap-2">
-                            <span className="w-6 h-4 mr-2" style={{ backgroundColor: COLORS[i % COLORS.length] }} />
+                            <span className="mr-2 h-4 w-6" style={{ backgroundColor: COLORS[i % COLORS.length] }} />
                             <div className="flex-1 text-sm font-semibold">{item.key}</div>
                           </div>
                         </td>
@@ -320,8 +320,8 @@ const Announcers = ({ filters, defaultType = "print" }) => {
                   </tbody>
                 </table>
               </div>
-              <div className="w-1/3 flex justify-center items-center ml-24 mr-8">
-                <div className="w-full h-56">
+              <div className="mr-8 ml-24 flex w-1/3 items-center justify-center">
+                <div className="h-56 w-full">
                   <Pie
                     data={data?.slice(0, 6).map((d, i) => ({ name: d.key, value: d.doc_count || 0, color: COLORS[i % COLORS.length] }))}
                     innerRadius="0%"

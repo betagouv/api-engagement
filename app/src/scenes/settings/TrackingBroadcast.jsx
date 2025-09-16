@@ -18,7 +18,7 @@ const TrackingBroadcast = () => {
   };
 
   return (
-    <div className="space-y-4 p-12 bg-white shadow-lg">
+    <div className="space-y-4 bg-white p-12 shadow-lg">
       <div className="space-y-2">
         <h2 className="text-3xl font-bold">Script à intégrer sur votre site</h2>
         <p className="text-sm text-[#666666]">
@@ -32,17 +32,17 @@ const TrackingBroadcast = () => {
           href="https://doc.api-engagement.beta.gouv.fr/diffuser-des-missions/tracking-des-candidatures"
           target="_blank"
           rel="noreferrer"
-          className="text-[#000091] underline text-sm"
+          className="text-sm text-[#000091] underline"
         >
           Ouvrir la documentation
         </a>
 
-        <button className="flex cursor-pointer items-center text-sm px-2 py-1 border border-blue-france text-blue-france" onClick={handleCopyScript}>
+        <button className="border-blue-france text-blue-france flex cursor-pointer items-center border px-2 py-1 text-sm" onClick={handleCopyScript}>
           Copier
         </button>
       </div>
       <textarea
-        className="px-4 py-2 text-base rounded-none disabled:opacity-80 w-full bg-[#F5F5FE] border border-[#E3E3FD]"
+        className="w-full rounded-none border border-[#E3E3FD] bg-[#F5F5FE] px-4 py-2 text-base disabled:opacity-80"
         rows={8}
         value={script.replace("{{publisherId}}", publisher._id)}
         disabled={true}

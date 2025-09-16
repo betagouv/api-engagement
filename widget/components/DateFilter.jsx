@@ -44,9 +44,9 @@ const DateFilter = ({ selected, onChange, position = "left-0", width = "w-80" })
         role="dialog"
         aria-modal="true"
         aria-label="Calendrier de disponibilité"
-        className={`absolute ${position} mt-1 z-50 ${width} min-w-[384px] p-6 border border-[#DDDDDD] bg-white shadow-md ${show ? "block" : "hidden"}`}
+        className={`absolute ${position} mt-1 z-50 ${width} min-w-[384px] p-6 border border-gray-900 bg-white shadow-md ${show ? "block" : "hidden"}`}
       >
-        <div className="border-b border-[#DDDDDD] pb-4">
+        <div className="border-b border-gray-900 pb-4">
           <p>Je suis disponible à partir du</p>
         </div>
         <div className="mt-4 flex items-center justify-center">
@@ -93,7 +93,7 @@ const DateFilter = ({ selected, onChange, position = "left-0", width = "w-80" })
             }}
           />
         </div>
-        <div className="p-4 w-full border-t border-[#DDDDDD]">
+        <div className="p-4 w-full border-t border-gray-900">
           <button
             className="text-sm cursor-pointer"
             style={{ color: color ? color : "" }}

@@ -45,7 +45,7 @@ const Mission = ({ filters, onFiltersChange }) => {
         <title>Missions - Performance - API Engagement</title>
       </Helmet>
       <div className="space-y-2">
-        <label className="text-sm text-gray-425 uppercase font-semibold">Période</label>
+        <label className="text-gray-425 text-sm font-semibold uppercase">Période</label>
         <DateRangePicker value={filters} onChange={(value) => onFiltersChange({ ...filters, ...value })} />
       </div>
 
@@ -126,23 +126,23 @@ const MissionTable = ({ filters }) => {
   };
 
   return (
-    <div className="border p-6 space-y-4">
+    <div className="space-y-4 border border-gray-900 p-6">
       <div className="flex items-center justify-between">
         <h3 className="text-2xl font-semibold">Vos 50 missions les plus performantes</h3>
-        <button className="py-2 px-4 text-sm flex items-center text-blue-france hover:bg-gray-975 border transition delay-50" onClick={handleExport} disabled={exporting}>
+        <button className="text-blue-france hover:bg-gray-975 flex items-center border px-4 py-2 text-sm transition delay-50" onClick={handleExport} disabled={exporting}>
           {exporting ? (
             <>
               <Loader size="small" /> Export en cours
             </>
           ) : (
             <>
-              <RiFileDownloadLine className="inline align-middle mr-2" /> Exporter
+              <RiFileDownloadLine className="mr-2 inline align-middle" /> Exporter
             </>
           )}
         </button>
       </div>
       {loading ? (
-        <div className="w-full py-10 flex justify-center">
+        <div className="flex w-full justify-center py-10">
           <Loader />
         </div>
       ) : (
@@ -156,7 +156,7 @@ const MissionTable = ({ filters }) => {
           onSort={(sort) => setTableMissionSettings({ ...tableSettings, sort })}
         >
           {data.slice((tableSettings.page - 1) * tableSettings.pageSize, tableSettings.page * tableSettings.pageSize).map((item, i) => (
-            <tr key={i} className={`${i % 2 === 0 ? "bg-gray-100" : "bg-gray-50"} table-item`}>
+            <tr key={i} className={`${i % 2 === 0 ? "bg-gray-975" : "bg-gray-1000-active"} table-item`}>
               <td colSpan={2} className="p-4">
                 <Link to={`/mission/${item._id}`} className="text-blue-france hover:underline">
                   {item.title}
@@ -241,23 +241,23 @@ const OrganisationTable = ({ filters }) => {
   };
 
   return (
-    <div className="border p-6 space-y-4">
+    <div className="space-y-4 border border-gray-900 p-6">
       <div className="flex items-center justify-between">
         <h3 className="text-2xl font-semibold">Performance par organisation</h3>
-        <button className="py-2 px-4 text-sm flex items-center text-blue-france hover:bg-gray-975 border transition delay-50" onClick={handleExport} disabled={exporting}>
+        <button className="text-blue-france hover:bg-gray-975 flex items-center border px-4 py-2 text-sm transition delay-50" onClick={handleExport} disabled={exporting}>
           {exporting ? (
             <>
               <Loader size="small" /> Export en cours
             </>
           ) : (
             <>
-              <RiFileDownloadLine className="inline align-middle mr-2" /> Exporter
+              <RiFileDownloadLine className="mr-2 inline align-middle" /> Exporter
             </>
           )}
         </button>
       </div>
       {loading ? (
-        <div className="w-full py-10 flex justify-center">
+        <div className="flex w-full justify-center py-10">
           <Loader />
         </div>
       ) : (
@@ -271,7 +271,7 @@ const OrganisationTable = ({ filters }) => {
           onSort={(sortBy) => setTableDomainSettings({ ...tableSettings, sortBy })}
         >
           {data.map((item, i) => (
-            <tr key={i} className={`${i % 2 === 0 ? "bg-gray-100" : "bg-gray-50"} table-item`}>
+            <tr key={i} className={`${i % 2 === 0 ? "bg-gray-975" : "bg-gray-1000-active"} table-item`}>
               <td colSpan={2} className="px-4">
                 {item.name}
               </td>
@@ -319,10 +319,10 @@ const DomainTable = ({ filters }) => {
   }, [filters, publisher, flux]);
 
   return (
-    <div className="border p-6 space-y-4">
+    <div className="space-y-4 border border-gray-900 p-6">
       <h3 className="text-2xl font-semibold">Performance par domaine d'action</h3>
       {loading ? (
-        <div className="w-full py-10 flex justify-center">
+        <div className="flex w-full justify-center py-10">
           <Loader />
         </div>
       ) : (
@@ -339,7 +339,7 @@ const DomainTable = ({ filters }) => {
             .sort((a, b) => (tableSettings.sortBy === "name" ? (a.name || "").localeCompare(b.name) : b[tableSettings.sortBy] - a[tableSettings.sortBy]))
             .slice((tableSettings.page - 1) * 5, tableSettings.page * 5)
             .map((item, i) => (
-              <tr key={i} className={`${i % 2 === 0 ? "bg-gray-100" : "bg-gray-50"} table-item`}>
+              <tr key={i} className={`${i % 2 === 0 ? "bg-gray-975" : "bg-gray-1000-active"} table-item`}>
                 <td colSpan={2} className="px-4">
                   {DOMAINS[item.name] || item.name}
                 </td>
@@ -391,10 +391,10 @@ const DomainPie = ({ filters }) => {
   };
 
   return (
-    <div className="border p-6 space-y-4">
+    <div className="space-y-4 border border-gray-900 p-6">
       <h3 className="text-2xl font-semibold">Répartition par domaine d'action</h3>
       {loading ? (
-        <div className="w-full py-10 flex justify-center">
+        <div className="flex w-full justify-center py-10">
           <Loader />
         </div>
       ) : (
@@ -402,7 +402,7 @@ const DomainPie = ({ filters }) => {
           <div className="w-2/3">
             <table className="w-full table-fixed">
               <thead className="text-left">
-                <tr className="text-gray-500 text-xs uppercase">
+                <tr className="text-xs text-gray-500 uppercase">
                   <th colSpan={3} className="px-4">
                     Domaine d'action
                   </th>
@@ -414,7 +414,7 @@ const DomainPie = ({ filters }) => {
                   <tr key={i}>
                     <td colSpan={3} className="p-4">
                       <div className="flex items-center gap-2">
-                        <span className="w-6 h-4 mr-2" style={{ backgroundColor: COLORS[i % COLORS.length] }} />
+                        <span className="mr-2 h-4 w-6" style={{ backgroundColor: COLORS[i % COLORS.length] }} />
                         <div className="flex-1 text-sm font-semibold">{DOMAINS[item.key] || item.key}</div>
                       </div>
                     </td>
@@ -424,7 +424,7 @@ const DomainPie = ({ filters }) => {
                 <tr>
                   <td colSpan={3} className="p-4">
                     <div className="flex items-center gap-2">
-                      <span className="w-6 h-4 mr-2" style={{ backgroundColor: "rgba(0,0,0,0.5)" }} />
+                      <span className="mr-2 h-4 w-6" style={{ backgroundColor: "rgba(0,0,0,0.5)" }} />
                       <div className="flex-1 text-sm font-semibold">Autres</div>
                     </div>
                   </td>
@@ -438,8 +438,8 @@ const DomainPie = ({ filters }) => {
               </tbody>
             </table>
           </div>
-          <div className="w-1/3 flex justify-center items-center ml-24 mr-8">
-            <div className="w-full h-56">
+          <div className="mr-8 ml-24 flex w-1/3 items-center justify-center">
+            <div className="h-56 w-full">
               <Pie data={buildPieData(data)} innerRadius={0} unit="missions" />
             </div>
           </div>

@@ -55,13 +55,13 @@ const RealTime = () => {
       <Helmet>
         <title>Événements en temps réel - Paramètres - API Engagement</title>
       </Helmet>
-      <div className="border border-gray-900 p-8 space-y-8">
+      <div className="space-y-8 border border-gray-900 p-8">
         <div className="flex items-center justify-between gap-4">
-          <div className="space-y-2 w-[40%]">
+          <div className="w-[40%] space-y-2">
             <h2 className="text-3xl font-bold">
               Activité {{ apply: "des candidatures", click: "des redirections", print: "des impressions", account: "des créations de compte" }[filters.type]} en temps réel
             </h2>
-            <p className="mb-4 text-xs text-gray-425">
+            <p className="text-gray-425 mb-4 text-xs">
               L'historique
               {{ apply: " des dernières candidatures", click: " des dernières redirections", impressions: " des dernières impressions" }[filters.type] ||
                 " de toutes les dernières activités"}
@@ -84,7 +84,7 @@ const RealTime = () => {
 
         <TablePagination header={TABLE_HEADER} page={filters.page} total={total} pageSize={filters.pageSize} onPageChange={(page) => setFilters({ ...filters, page })}>
           {data.map((item, i) => (
-            <tr key={i} className={`${i % 2 === 0 ? "bg-gray-100" : "bg-gray-50"} table-item`}>
+            <tr key={i} className={`${i % 2 === 0 ? "bg-gray-975" : "bg-gray-1000-active"} table-item`}>
               <td colSpan={2} className="px-4">
                 {item.missionId && item.missionTitle ? (
                   <a href={`${API_URL}/r/notrack/${item.missionId}`} target="_blank">

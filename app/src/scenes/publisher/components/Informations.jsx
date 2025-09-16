@@ -29,7 +29,7 @@ const Informations = ({ values, onChange, disabled = true }) => {
           </label>
           <input id="documentation" className="input" name="documentation" value={values.documentation} onChange={(e) => onChange({ ...values, documentation: e.target.value })} />
         </div>
-        <div className="row-span-2 flex flex-col h-32">
+        <div className="row-span-2 flex h-32 flex-col">
           <label className="mb-2 text-sm" htmlFor="documentation">
             Description
           </label>

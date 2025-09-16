@@ -15,17 +15,17 @@ const Note = ({ data, onChange }) => {
   };
 
   return (
-    <div className="flex flex-col bg-white p-6 gap-4 border border-gray-900">
+    <div className="flex flex-col gap-4 border border-gray-900 bg-white p-6">
       <div className="flex items-center gap-2">
         <RiPencilFill className="text-gray-425" />
-        <label className="text-xs text-gray-425 font-semibold" htmlFor="note">
+        <label className="text-gray-425 text-xs font-semibold" htmlFor="note">
           NOTES
         </label>
       </div>
       <div>
         {note && !editing && (
-          <div className="flex flex-col gap-4 items-start">
-            <span className="text-sm text-gray-425 italic">{note}</span>
+          <div className="flex flex-col items-start gap-4">
+            <span className="text-gray-425 text-sm italic">{note}</span>
             <button className="text-blue-france text-sm" onClick={() => setEditing(true)}>
               Modifier la note
             </button>
@@ -41,7 +41,7 @@ const Note = ({ data, onChange }) => {
       {editing && (
         <>
           <textarea id="note" className="input mb-2 border-b-black" name="note" value={note} onChange={(e) => setNote(e.target.value)} rows={4} placeholder="Ajouter une note" />
-          <button className="button bg-blue-france text-white hover:bg-blue-france-hover w-1/2" onClick={handleSave}>
+          <button className="button bg-blue-france hover:bg-blue-france-hover w-1/2 text-white" onClick={handleSave}>
             Enregistrer
           </button>
         </>

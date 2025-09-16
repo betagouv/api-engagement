@@ -147,10 +147,10 @@ const Distribution = ({ filters, onFiltersChange }) => {
       <div className="mt-8 gap-4 border p-8">
         <div className="mb-4 flex justify-between">
           <h2 className="mb-6 text-2xl font-bold">Domaine d'action des missions</h2>
-          <div className="relative group">
-            <RiQuestionLine className="text-lg text-gray-425" />
+          <div className="group relative">
+            <RiQuestionLine className="text-gray-425 text-lg" />
 
-            <div className="hidden group-hover:block absolute left-0 top-8 z-10 w-56 border border-gray-900 bg-white p-4 shadow-lg">
+            <div className="absolute top-8 left-0 z-10 hidden w-56 border border-gray-900 bg-white p-4 shadow-lg group-hover:block">
               <p className="text-xs text-black">Répartition des missions ayant eu au moins une redirection par thématique d'engagement.</p>
             </div>
           </div>
@@ -169,7 +169,7 @@ const Distribution = ({ filters, onFiltersChange }) => {
               loading={loading}
             >
               {domainStats.domains.slice((currentDomainPage - 1) * 7, currentDomainPage * 7).map((item, i) => (
-                <tr key={i} className={`${i % 2 === 0 ? "bg-gray-100" : "bg-gray-50"} table-item`}>
+                <tr key={i} className={`${i % 2 === 0 ? "bg-gray-975" : "bg-gray-1000-active"} table-item`}>
                   <td className="p-4" colSpan={2}>
                     {item.key}
                   </td>
@@ -186,10 +186,10 @@ const Distribution = ({ filters, onFiltersChange }) => {
       <div className="mt-8 gap-4 border border-gray-900 p-8">
         <div className="mb-4 flex justify-between">
           <h2 className="mb-6 text-2xl font-bold">Département des missions</h2>
-          <div className="relative group">
-            <RiQuestionLine className="text-lg text-gray-425" />
+          <div className="group relative">
+            <RiQuestionLine className="text-gray-425 text-lg" />
 
-            <div className="hidden group-hover:block absolute left-0 top-8 z-10 w-56 border border-gray-900 bg-white p-4 shadow-lg">
+            <div className="absolute top-8 left-0 z-10 hidden w-56 border border-gray-900 bg-white p-4 shadow-lg group-hover:block">
               <p className="text-xs text-black">Répartition des missions ayant eu au moins une redirection par département</p>
             </div>
           </div>
@@ -208,7 +208,7 @@ const Distribution = ({ filters, onFiltersChange }) => {
               loading={loading}
             >
               {departmentStats.slice((currentDepartmentPage - 1) * 7, currentDepartmentPage * 7).map((item, i) => (
-                <tr key={i} className={`${i % 2 === 0 ? "bg-gray-100" : "bg-gray-50"} table-item`}>
+                <tr key={i} className={`${i % 2 === 0 ? "bg-gray-975" : "bg-gray-1000-active"} table-item`}>
                   <td className="p-4" colSpan={2}>
                     {item.name}
                   </td>

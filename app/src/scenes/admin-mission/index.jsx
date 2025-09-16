@@ -158,7 +158,7 @@ const AdminMission = () => {
   };
 
   return (
-    <div className="space-y-12 p-12 bg-white shadow-lg">
+    <div className="space-y-12 bg-white p-12 shadow-lg">
       <Helmet>
         <title>Missions - Administration - API Engagement</title>
       </Helmet>
@@ -222,18 +222,18 @@ const AdminMission = () => {
 
       <div className="space-y-6">
         <div className="flex items-center justify-between gap-4">
-          <div className="space-y-2 flex-1 max-w-[60%]">
-            <h2 className="text-2xl font-bold ">{total.toLocaleString("fr")} missions partagées</h2>
+          <div className="max-w-[60%] flex-1 space-y-2">
+            <h2 className="text-2xl font-bold">{total.toLocaleString("fr")} missions partagées</h2>
             <div className="flex items-center gap-2">
               <p className="text-base text-[#666666]">Dernière synchronisation le {lastImport ? new Date(lastImport.startedAt).toLocaleDateString("fr") : "N/A"}</p>
               {lastImport && new Date(lastImport.startedAt) > new Date(new Date().getFullYear(), new Date().getMonth(), new Date().getDate() - 1) ? (
                 <RiCheckboxCircleFill className="text-green-success text-base" />
               ) : (
-                <ErrorIconSvg alt="error" className="w-4 h-4 fill-[#e1000f]" />
+                <ErrorIconSvg alt="error" className="h-4 w-4 fill-[#e1000f]" />
               )}
             </div>
           </div>
-          <button className="button border border-[#dddddd] flex items-center text-blue-france hover:bg-gray-975" onClick={handleExport}>
+          <button className="button text-blue-france hover:bg-gray-975 flex items-center border border-gray-900" onClick={handleExport}>
             {exporting ? <Loader /> : <RiFileDownloadLine className="mr-2" />}
             Exporter
           </button>
@@ -250,9 +250,9 @@ const AdminMission = () => {
           onSort={(sortBy) => setFilters({ ...filters, sortBy })}
         >
           {data.map((item, i) => (
-            <tr key={i} className={`${i % 2 === 0 ? "bg-gray-100" : "bg-gray-50"} table-item`}>
+            <tr key={i} className={`${i % 2 === 0 ? "bg-gray-975" : "bg-gray-1000-active"} table-item`}>
               <td className="p-4" colSpan={4}>
-                <Link to={`/mission/${item._id}`} className="line-clamp-3 text-blue-france">
+                <Link to={`/mission/${item._id}`} className="text-blue-france line-clamp-3">
                   {item.title}
                 </Link>
                 {item.publisherName && <p className="text-sm">{item.publisherName}</p>}
@@ -268,13 +268,13 @@ const AdminMission = () => {
                   {item.statusCode === "ACCEPTED" ? (
                     <RiCheckboxCircleFill className="text-green-success text-2xl" />
                   ) : (
-                    <ErrorIconSvg alt="error" className="w-6 h-6 fill-[#e1000f]" />
+                    <ErrorIconSvg alt="error" className="h-6 w-6 fill-[#e1000f]" />
                   )}
                   {item.statusComment && (
-                    <div className="relative group">
+                    <div className="group relative">
                       <RiInformationLine className="text-gray-425 text-2xl" />
 
-                      <div className="hidden group-hover:block absolute right-8 -translate-y-1/2 -top-1/2 z-10 w-64 border border-gray-900 bg-white p-4 shadow-lg">
+                      <div className="absolute -top-1/2 right-8 z-10 hidden w-64 -translate-y-1/2 border border-gray-900 bg-white p-4 shadow-lg group-hover:block">
                         <p className="text-sm">{item.statusComment}</p>
                       </div>
                     </div>

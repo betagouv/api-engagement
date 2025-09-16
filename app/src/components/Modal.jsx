@@ -12,7 +12,7 @@ const Modal = ({ isOpen, children, onClose, className = "w-1/2" }) => {
           transition
           className={`w-full max-w-3xl bg-white p-6 backdrop-blur-2xl duration-300 ease-out data-closed:transform-[scale(95%)] data-closed:opacity-0 ${className}`}
         >
-          <div className="absolute right-2 top-2 cursor-pointer p-3">
+          <div className="absolute top-2 right-2 cursor-pointer p-3">
             <HiX className="text-blue-france text-lg" onClick={onClose} />
           </div>
           <div className="max-h-full overflow-y-auto">{children}</div>

@@ -53,7 +53,7 @@ const Users = () => {
             Rechercher par nom ou par email
           </label>
           <input id="user-search" name="user-search" className="input flex-1" placeholder="Chercher par nom ou par email" onChange={(e) => setSearch(e.target.value)} />
-          <Link to="/user/new" className="button flex items-center border bg-blue-france text-white">
+          <Link to="/user/new" className="button bg-blue-france flex items-center border border-gray-900 text-white">
             Nouvel utilisateur <HiOutlinePlus className="ml-2" />
           </Link>
         </div>
@@ -77,12 +77,12 @@ const Users = () => {
                 <h4 className="w-[12%] text-center">Rôle</h4>
                 <h4 className="w-[12%] text-center">Accès données</h4>
                 <h4 className="flex w-[10%] justify-center">
-                  <div className="relative group">
+                  <div className="group relative">
                     <div className="ml-2 flex items-center">
                       Dernière activité
-                      <RiInformationLine className="ml-2 text-gray-425" />
+                      <RiInformationLine className="text-gray-425 ml-2" />
                     </div>
-                    <div className="hidden group-hover:block absolute right-6 top-[-20px] w-56">
+                    <div className="absolute top-[-20px] right-6 hidden w-56 group-hover:block">
                       <div className="bg-white p-2 shadow-lg">
                         <p className="text-sm">Dernière fois que l'utilisateur à utilisé la plateforme</p>
                       </div>
@@ -101,19 +101,19 @@ const Users = () => {
                 <span className="w-[20%] truncate">{item.email}</span>
                 <div className="gap-y-.5 flex flex-1 flex-wrap justify-center gap-x-2 py-1">
                   {item.role === "admin" ? (
-                    <span className="text-2xs max-w-48 truncate rounded bg-blue-france-975 p-1">Tous</span>
+                    <span className="text-2xs bg-blue-france-975 max-w-48 truncate rounded p-1">Tous</span>
                   ) : (
                     <>
                       {item.publishers.slice(0, 2).map((p, i) => {
                         const publisher = publishers.find((pub) => pub._id === p);
                         if (!publisher) return null;
                         return (
-                          <span key={i} className="text-2xs max-w-48 truncate rounded bg-blue-france-975 p-1">
+                          <span key={i} className="text-2xs bg-blue-france-975 max-w-48 truncate rounded p-1">
                             {publisher.name}
                           </span>
                         );
                       })}
-                      {item.publishers.length > 2 && <span className="text-2xs max-w-48 truncate rounded bg-blue-france-975 p-1">+ {item.publishers.length - 2} autres</span>}
+                      {item.publishers.length > 2 && <span className="text-2xs bg-blue-france-975 max-w-48 truncate rounded p-1">+ {item.publishers.length - 2} autres</span>}
                     </>
                   )}
                 </div>
@@ -122,7 +122,7 @@ const Users = () => {
                 </span>
                 <span className="w-[12%] text-center">{new Date(item.createdAt).toLocaleDateString("fr")}</span>
                 <span className="flex w-[10%] justify-center">{item.lastActivityAt ? new Date(item.lastActivityAt).toLocaleDateString("fr") : "-"}</span>
-                <Link to={`/connect?id=${item._id}`} target="_blank" className="flex w-[12%] items-center justify-center text-blue-france">
+                <Link to={`/connect?id=${item._id}`} target="_blank" className="text-blue-france flex w-[12%] items-center justify-center">
                   Se connecter
                   <RiLoginBoxLine className="ml-2" />
                 </Link>

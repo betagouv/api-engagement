@@ -53,10 +53,10 @@ const OrganizationRefusedModal = ({ isOpen, onClose, organizationName, comment, 
     <Modal isOpen={isOpen} onClose={onClose} className="w-2/3">
       <div className="space-y-8 p-12">
         <h1 className="text-xl font-semibold">Refuser les {missions.length} autres missions de cette organisation ?</h1>
-        <p className="text-black text-sm">
+        <p className="text-sm text-black">
           Vous venez de refuser une mission de l’organisation <b>{organizationName}</b> avec le motif <b>{JVA_MODERATION_COMMENTS_LABELS[comment]}</b>.
         </p>
-        <p className="text-black text-sm">
+        <p className="text-sm text-black">
           Cette organisation a {missions.length} autres missions à modérer, voulez-vous passer le statut de ces missions en <b>Refusée</b> avec le motif{" "}
           <b>{JVA_MODERATION_COMMENTS_LABELS[comment]}</b> ?
         </p>
@@ -65,7 +65,7 @@ const OrganizationRefusedModal = ({ isOpen, onClose, organizationName, comment, 
             Non, je vais vérifier
           </button>
           <button className="filled-button flex justify-center" onClick={handleSubmit}>
-            {loading ? <Loader className="w-6 h-6" /> : "Oui, refuser les missions"}
+            {loading ? <Loader className="h-6 w-6" /> : "Oui, refuser les missions"}
           </button>
         </div>
       </div>

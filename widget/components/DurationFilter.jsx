@@ -103,7 +103,7 @@ const DurationFilter = ({ selected, onChange, position = "left-0", width = "w-80
         {show ? <RiArrowDownSLine className="text-xl transform rotate-180" /> : <RiArrowDownSLine className="text-xl" />}
       </button>
 
-      <div className={`absolute ${position} mt-1 z-50 ${width} border border-[#DDDDDD] bg-white shadow-md ${show ? "block" : "hidden"}`}>
+      <div className={`absolute ${position} mt-1 z-50 ${width} border border-gray-900 bg-white shadow-md ${show ? "block" : "hidden"}`}>
         <ul className="p-6 w-full overflow-auto" role="listbox" aria-label="Durée maximale de la mission">
           <div className="mb-4">
             <label className="text-base font-bold">Durée maximale de la mission</label>
@@ -130,7 +130,7 @@ const DurationFilter = ({ selected, onChange, position = "left-0", width = "w-80
             );
           })}
         </ul>
-        <div className="p-4 w-full border-t border-[#DDDDDD]">
+        <div className="p-4 w-full border-t border-gray-900">
           <button
             className="text-sm cursor-pointer px-2"
             style={{ color: color ? color : "" }}

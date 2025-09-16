@@ -142,7 +142,7 @@ const Moderation = () => {
 
   if (!moderator || !stats)
     return (
-      <div className="bg-white p-12 flex justify-center">
+      <div className="flex justify-center bg-white p-12">
         <Loader />
       </div>
     );
@@ -160,9 +160,9 @@ const Moderation = () => {
       <div className="mb-6 flex items-end justify-between gap-4">
         <div>
           <h2 className="text-3xl font-bold">Modération de {moderator.name}</h2>
-          <p className="text-sm text-gray-425">
+          <p className="text-gray-425 text-sm">
             Consultez les
-            <a href={moderator.moderatorLink} target="_blank" className="ml-1 cursor-pointer text-gray-425 underline">
+            <a href={moderator.moderatorLink} target="_blank" className="text-gray-425 ml-1 cursor-pointer underline">
               règles de modération du partenaire
             </a>
           </p>
@@ -173,7 +173,7 @@ const Moderation = () => {
       <div className="flex items-center gap-4 border-b border-b-gray-900 pb-6">
         <p className="font-bold">Filtrer les résultats</p>
 
-        <div className="flex items-center gap-4 flex-1">
+        <div className="flex flex-1 items-center gap-4">
           <Select
             options={options.status.map((e) => ({ value: e.key === "" ? "none" : e.key, label: e.key === "" ? "Non renseigné" : STATUS[e.key], count: e.doc_count }))}
             value={filters.status}
@@ -239,7 +239,7 @@ const Moderation = () => {
               }
 
               return (
-                <div key={i} className="flex items-center gap-2 rounded bg-blue-france-975 p-2">
+                <div key={i} className="bg-blue-france-975 flex items-center gap-2 rounded p-2">
                   <p className="text-sm">{FILTERS[key] || key}:</p>
                   <p className="text-sm">{label}</p>
                   <button className="text-sm text-black" onClick={() => setFilters({ ...filters, [key]: "" })}>
@@ -311,7 +311,7 @@ const Moderation = () => {
           )}
           renderItem={(item, i) => (
             <>
-              <Link to={`/mission/${item._id}`} className="max-w-xl flex-1 px-2 text-blue-france">
+              <Link to={`/mission/${item._id}`} className="text-blue-france max-w-xl flex-1 px-2">
                 <p className="line-clamp-3">{item.title}</p>
               </Link>
               <span className="w-[25%] pr-2">{item.organizationName}</span>
@@ -323,10 +323,10 @@ const Moderation = () => {
                   {STATUS[item.status] || item.status}
                 </Tooltip>
                 {item.status === "REFUSED" && item.comment && (
-                  <div className="relative group">
+                  <div className="group relative">
                     <RiInformationLine className="text-gray-425" />
 
-                    <div className="hidden group-hover:block absolute right-8 -translate-y-1/2 -top-1/2 z-10 w-64 border border-gray-900 bg-white p-4 shadow-lg">
+                    <div className="absolute -top-1/2 right-8 z-10 hidden w-64 -translate-y-1/2 border border-gray-900 bg-white p-4 shadow-lg group-hover:block">
                       <p className="text-sm">{JVA_MODERATION_COMMENTS_LABELS[item.comment] || item.comment}</p>
                     </div>
                   </div>

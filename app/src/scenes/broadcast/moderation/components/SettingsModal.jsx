@@ -7,13 +7,13 @@ const SettingsModal = () => {
 
   return (
     <>
-      <button className="flex items-center text-blue-france" onClick={() => setIsOpen(true)}>
+      <button className="text-blue-france flex items-center" onClick={() => setIsOpen(true)}>
         <RiSettings3Fill className="mr-2" />
         <span>Paramétrage</span>
       </button>
 
       <Modal isOpen={isOpen} onClose={() => setIsOpen(false)} className="h-[90%] w-[75%]">
-        <div className="bg-white p-16 h-full">
+        <div className="h-full bg-white p-16">
           <div className="mb-10 flex items-center justify-between">
             <h1 className="text-2xl font-bold">Paramétrages de la modération automatique</h1>
           </div>

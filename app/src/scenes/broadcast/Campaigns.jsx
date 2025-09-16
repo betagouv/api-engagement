@@ -80,8 +80,8 @@ const Campaigns = () => {
       <Helmet>
         <title>Campagnes - Diffuser des missions - API Engagement</title>
       </Helmet>
-      <div className="flex items-center gap-32 justify-between">
-        <div className="flex items-center gap-4 flex-1">
+      <div className="flex items-center justify-between gap-32">
+        <div className="flex flex-1 items-center gap-4">
           <label htmlFor="campaign-search" className="sr-only">
             Chercher par nom
           </label>
@@ -117,7 +117,7 @@ const Campaigns = () => {
         </div>
         <div className="flex items-center gap-4">
           {user.role === "admin" && (
-            <Link to="/broadcast/campaign/new" className="button flex items-center bg-blue-france text-white hover:bg-blue-france-hover">
+            <Link to="/broadcast/campaign/new" className="button bg-blue-france hover:bg-blue-france-hover flex items-center text-white">
               Nouvelle campagne <RiAddFill className="ml-2" />
             </Link>
           )}
@@ -138,8 +138,8 @@ const Campaigns = () => {
 
         <TablePagination header={TABLE_HEADER} page={filters.page} pageSize={filters.pageSize} onPageChange={(page) => setFilters({ ...filters, page })} total={data.length}>
           {data.slice((filters.page - 1) * filters.pageSize, filters.page * filters.pageSize).map((item, i) => (
-            <tr key={i} className={`${i % 2 === 0 ? "bg-gray-100" : "bg-gray-50"} table-item`}>
-              <td className="px-4 truncate" colSpan={3}>
+            <tr key={i} className={`${i % 2 === 0 ? "bg-gray-975" : "bg-gray-1000-active"} table-item`}>
+              <td className="truncate px-4" colSpan={3}>
                 <Link to={`/broadcast/campaign/${item._id}`} className="text-blue-france">
                   {item.name}
                 </Link>
@@ -150,10 +150,10 @@ const Campaigns = () => {
               <td className={`px-4 ${!item.active ? "opacity-50" : "opacity-100"}`}>{new Date(item.createdAt).toLocaleDateString("fr")}</td>
               <td className="px-4">
                 <div className="flex gap-2 text-lg">
-                  <button className="cursor-pointer border border-blue-france p-2" onClick={() => handleCopy(item._id)}>
+                  <button className="border-blue-france cursor-pointer border p-2" onClick={() => handleCopy(item._id)}>
                     <HiLink className="text-blue-france" />
                   </button>
-                  <button className="cursor-pointer border border-blue-france p-2" onClick={() => handleDuplicate(item._id)}>
+                  <button className="border-blue-france cursor-pointer border p-2" onClick={() => handleDuplicate(item._id)}>
                     <RiFileCopyLine className="text-blue-france" />
                   </button>
                 </div>

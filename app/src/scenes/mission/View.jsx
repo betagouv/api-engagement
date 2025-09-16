@@ -36,7 +36,7 @@ const View = () => {
   return (
     <div className="space-y-12">
       <div className="space-y-6">
-        <h1 className="text-4xl font-bold leading-normal">{mission.title}</h1>
+        <h1 className="text-4xl leading-normal font-bold">{mission.title}</h1>
         <div className="flex justify-between">
           <p>
             Pour l'association{" "}
@@ -44,7 +44,7 @@ const View = () => {
               {mission.organizationName}
             </a>
           </p>
-          <div className="flex items-center gap-2 text-base text-gray-425">
+          <div className="text-gray-425 flex items-center gap-2 text-base">
             <HiLocationMarker className="ml-2" />
             <span>{mission.country}</span>
             {mission.departmentName && (
@@ -63,18 +63,18 @@ const View = () => {
         </div>
       </div>
 
-      <div className="bg-white p-12 space-y-12">
+      <div className="space-y-12 bg-white p-12">
         <div className="flex justify-between">
           <div>
             <h2 className="text-3xl font-bold">
-              <span className="font-normal text-gray-425">Mission provenant de </span>
+              <span className="text-gray-425 font-normal">Mission provenant de </span>
               {mission.publisherName}
               <span className="ml-2 text-lg font-normal">#{mission._id}</span>
             </h2>
             <p className="mt-2">Mise à jour le {new Date(mission.lastSyncAt).toLocaleString().replace(" ", " à ")}</p>
           </div>
 
-          <a className="button flex cursor-pointer items-center text-sm text-blue-france" href={buildLink(mission)} target="_blank">
+          <a className="button text-blue-france flex cursor-pointer items-center text-sm" href={buildLink(mission)} target="_blank">
             <RiCursorFill className="mr-2" />
             <span>Lien vers la mission</span>
           </a>
@@ -92,13 +92,13 @@ const View = () => {
               <span className="ml-3 rounded-full bg-gray-950 px-3 py-2">{mission.domain}</span>
             </div>
             <div className="mb-4 flex items-center">
-              <p className="text-xs font-semibold uppercase text-gray-425">Activités</p>
-              <span className="ml-3 rounded bg-purple-300 px-3 py-1 text-xs font-semibold uppercase text-purple-950">{mission.activity}</span>
+              <p className="text-gray-425 text-xs font-semibold uppercase">Activités</p>
+              <span className="ml-3 rounded bg-purple-300 px-3 py-1 text-xs font-semibold text-purple-950 uppercase">{mission.activity}</span>
             </div>
             <div className="flex flex-wrap items-center">
-              <p className="text-xs font-semibold uppercase text-gray-425">Compétences</p>
+              <p className="text-gray-425 text-xs font-semibold uppercase">Compétences</p>
               {(mission.softSkills || []).map((skill, index) => (
-                <span key={index} className="my-1 ml-3 rounded bgbg-[#FEECC2] px-3 py-1 text-xs font-semibold uppercase textbg-[#716043]">
+                <span key={index} className="bgbg-[#FEECC2] textbg-[#716043] my-1 ml-3 rounded px-3 py-1 text-xs font-semibold uppercase">
                   {skill}
                 </span>
               ))}
@@ -107,7 +107,7 @@ const View = () => {
         </div>
 
         <div className="mt-6">
-          <button className="button border border-blue-france text-blue-france" onClick={() => setShowRaw(!showRaw)}>
+          <button className="button border-blue-france text-blue-france border" onClick={() => setShowRaw(!showRaw)}>
             Données brutes
           </button>
         </div>

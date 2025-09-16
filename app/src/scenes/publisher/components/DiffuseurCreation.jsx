@@ -28,14 +28,14 @@ const DiffuseurCreation = ({ values, onChange, errors }) => {
   }, []);
 
   return (
-    <div className="border border-gray-900 p-6 space-y-6">
+    <div className="space-y-6 border border-gray-900 p-6">
       <div className="flex items-center justify-between">
         <h3 className="text-lg font-bold">Diffuseur</h3>
         <Toggle value={values.isDiffuseur} onChange={(e) => onChange({ ...values, isDiffuseur: e, hasApiRights: false, hasWidgetRights: false, hasCampaignRights: false })} />
       </div>
       {values.isDiffuseur && (
         <>
-          <div className="w-full h-px bg-gray-900" />
+          <div className="h-px w-full bg-gray-900" />
           {errors.category && <p className="text-red-700">{errors.category}</p>}
           {errors.mode && <p className="text-red-700">{errors.mode}</p>}
           <div className="space-y-2">
@@ -51,7 +51,7 @@ const DiffuseurCreation = ({ values, onChange, errors }) => {
               ))}
             </select>
           </div>
-          <div className="w-full h-px bg-gray-900" />
+          <div className="h-px w-full bg-gray-900" />
           <div className="space-y-4">
             <label className="text-base" htmlFor="category">
               Moyens de diffusion <span className="text-red-500">*</span>
@@ -90,12 +90,12 @@ const DiffuseurCreation = ({ values, onChange, errors }) => {
               <label htmlFor="campagne">Campagnes</label>
             </div>
           </div>
-          <div className="w-full h-px bg-gray-900" />
+          <div className="h-px w-full bg-gray-900" />
           <p className="text-base">
             {values.name} diffuse les missions de {data.filter((item) => values.publishers.find((p) => p.publisherId === item._id)).length} annonceurs
           </p>
           <SearchInput value={search} onChange={setSearch} placeholder="Rechercher un annonceur" timeout={0} />
-          <Table header={[{ title: "Annonceurs" }]} className="max-h-96 h-full">
+          <Table header={[{ title: "Annonceurs" }]} className="h-full max-h-96">
             {data
               .filter((item) => item._id !== values._id && item.name.toLowerCase().includes(search.toLowerCase()))
               .map((item, index) => (

@@ -120,7 +120,7 @@ const Create = () => {
 
       <h1 className="text-4xl font-bold">Nouvelle campagne de diffusion</h1>
 
-      <div className="bg-white shadow-lg p-12 space-y-12">
+      <div className="space-y-12 bg-white p-12 shadow-lg">
         <div className="mb-6 flex justify-between">
           <h2 className="text-3xl font-bold">Paramétrez votre campagne</h2>
         </div>
@@ -142,20 +142,20 @@ const Create = () => {
               placeholder="Exemple: Communication événement janvier 2024"
             />
             {errors.name && (
-              <div className="flex items-center text-sm text-red-error">
+              <div className="text-red-error flex items-center text-sm">
                 <RiErrorWarningFill className="mr-2" />
                 {errors.name}
               </div>
             )}
           </div>
           <div className="flex gap-4">
-            <div className="flex flex-col flex-1">
+            <div className="flex flex-1 flex-col">
               <label className="mb-2 text-sm" htmlFor="type">
                 Type de campagne
               </label>
               <select
                 id="type"
-                className={`input ${errors.type ? "border-b-red-error" : "border-b-black"} ${!values.type ? " text-gray-425" : ""}`}
+                className={`input ${errors.type ? "border-b-red-error" : "border-b-black"} ${!values.type ? "text-gray-425" : ""}`}
                 value={values.type}
                 onChange={(e) => {
                   setValues({ ...values, type: e.target.value });
@@ -171,13 +171,13 @@ const Create = () => {
                 <option value="autre">Autre</option>
               </select>
               {errors.type && (
-                <div className="flex items-center text-sm text-red-error">
+                <div className="text-red-error flex items-center text-sm">
                   <RiErrorWarningFill className="mr-2" />
                   {errors.type}
                 </div>
               )}
             </div>
-            <div className="flex flex-col flex-1">
+            <div className="flex flex-1 flex-col">
               <label className="mb-2 text-sm" htmlFor="to-publisher-id">
                 Diffuse les missions de
               </label>
@@ -189,7 +189,7 @@ const Create = () => {
                 onChange={(e) => setValues({ ...values, toPublisherId: e.value })}
               />
               {errors.toPublisherId && (
-                <div className="flex items-center text-sm text-red-error">
+                <div className="text-red-error flex items-center text-sm">
                   <RiErrorWarningFill className="mr-2" />
                   {errors.toPublisherId}
                 </div>
@@ -210,12 +210,12 @@ const Create = () => {
               placeholder="Exemple : https://votresiteweb.com/campagne"
             />
             {errors.url && (
-              <div className="flex items-center text-sm text-red-error">
+              <div className="text-red-error flex items-center text-sm">
                 <RiErrorWarningFill className="mr-2" />
                 {errors.url}
               </div>
             )}
-            <span className="flex items-center text-xs text-blue-info">
+            <span className="text-blue-info-425 flex items-center text-xs">
               <BiSolidInfoSquare className="mr-2 text-sm" />
               <p>Lien de la page à laquelle les utilisateurs accèderont</p>
             </span>
@@ -232,7 +232,7 @@ const Create = () => {
           </div>
           {values.trackers && values.trackers.length > 0 && (
             <div className="border border-gray-900 p-8">
-              <div className="flex items-center gap-4 mb-2">
+              <div className="mb-2 flex items-center gap-4">
                 <label className="flex-1 text-base">Nom du paramètre</label>
                 <label className="flex-1 text-base">Valeur du paramètre</label>
                 <div className="w-10" />
@@ -252,7 +252,7 @@ const Create = () => {
                         placeholder="Exemples : google, newsletter"
                       />
                     </div>
-                    <div className="w-10 flex justify-end">
+                    <div className="flex w-10 justify-end">
                       {values.trackers.length > 1 && (
                         <button type="button h-full w-10" className="border border-gray-900 p-2" onClick={() => handleDeleteTracker(i)}>
                           <RiDeleteBin6Line className="text-red-error" />
@@ -269,10 +269,10 @@ const Create = () => {
             </div>
           )}
           <div className="flex justify-end gap-4">
-            <Link to="/broadcast" className="button border border-black text-black hover:bg-gray-975">
+            <Link to="/broadcast" className="button hover:bg-gray-975 border border-black text-black">
               Retour
             </Link>
-            <button type="submit" className="button bg-blue-france text-white hover:bg-blue-france-hover" disabled={isErrors(errors) || isEmpty(values)} onClick={handleSubmit}>
+            <button type="submit" className="button bg-blue-france hover:bg-blue-france-hover text-white" disabled={isErrors(errors) || isEmpty(values)} onClick={handleSubmit}>
               Créer la campagne
             </button>
           </div>
@@ -294,19 +294,19 @@ const CopyModal = ({ isOpen, campaignId, onClose }) => {
   return (
     <Modal isOpen={isOpen} onClose={onClose}>
       <div className="p-10">
-        <h2 className="text-lg font-bold mb-8">🥳 Votre campagne est créée !</h2>
+        <h2 className="mb-8 text-lg font-bold">🥳 Votre campagne est créée !</h2>
         <p>
           Pour commencer à diffuser des missions et suivre les statistiques, insérez ce lien dans le contenu de votre campagne (votre site web, vos emails, des bannières, etc.).
         </p>
 
-        <div className="border my-4 py-4 px-4 flex items-center justify-between bg-blue-france-975">
-          <span className="text-sm truncate">{trackedLink}</span>
-          <button type="button" className="button ml-3 border bg-transparent border-blue-france text-blue-france hover:bg-gray-975" onClick={handleCopy}>
+        <div className="bg-blue-france-975 my-4 flex items-center justify-between border px-4 py-4">
+          <span className="truncate text-sm">{trackedLink}</span>
+          <button type="button" className="button border-blue-france text-blue-france hover:bg-gray-975 ml-3 border bg-transparent" onClick={handleCopy}>
             Copier
           </button>
         </div>
         <div>
-          <span className="text-base flex flex-row textbg-[#FEECC2] items-center">
+          <span className="textbg-[#FEECC2] flex flex-row items-center text-base">
             <AiFillWarning className="mr-2" />
             Copiez exactement ce lien et non celui qui apparaît dans la barre de votre navigateur !
           </span>
@@ -314,7 +314,7 @@ const CopyModal = ({ isOpen, campaignId, onClose }) => {
         <div className="col-span-2 mt-8 flex justify-end gap-6">
           <button
             type="button"
-            className="button bg-blue-france text-white hover:bg-blue-france-hover"
+            className="button bg-blue-france hover:bg-blue-france-hover text-white"
             onClick={() => {
               onClose(false);
               navigate(`/campaign/${campaignId}`);

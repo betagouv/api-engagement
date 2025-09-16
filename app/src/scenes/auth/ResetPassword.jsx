@@ -118,24 +118,24 @@ const ResetPasswordForm = ({ user, token }) => {
       <h2 className="font-light">Mot de passe</h2>
       <h1 className="text-4xl font-bold">Définissez un nouveau mot de passe</h1>
 
-      <div className="flex flex-col mt-4">
-        <label className="mb-2 mt-6 text-sm" htmlFor="email">
+      <div className="mt-4 flex flex-col">
+        <label className="mt-6 mb-2 text-sm" htmlFor="email">
           Email
         </label>
         <input id="email" className="input mb-2" name="email" type="email" value={values.email} disabled />
-        <div className="flex justify-between mt-6">
+        <div className="mt-6 flex justify-between">
           <label className="mb-2 text-sm" htmlFor="password">
             Nouveau mot de passe
           </label>
-          <div className="flex items-center gap-1 cursor-pointer" onClick={() => setShow(!show)}>
+          <div className="flex cursor-pointer items-center gap-1" onClick={() => setShow(!show)}>
             {show ? <IoMdEyeOff className="text-blue-france" /> : <IoMdEye className="text-blue-france" />}
-            <span className="text-xs font-bold text-blue-france">{show ? "CACHER" : "AFFICHER"}</span>
+            <span className="text-blue-france text-xs font-bold">{show ? "CACHER" : "AFFICHER"}</span>
           </div>
         </div>
 
         <input
           id="password"
-          className={`input mb-2 ${errors.password ? "border-2 border-b-red-error" : "border-b-black"}`}
+          className={`input mb-2 ${errors.password ? "border-b-red-error border-2" : "border-b-black"}`}
           name="password"
           type={show ? "text" : "password"}
           value={values.password}
@@ -146,39 +146,39 @@ const ResetPasswordForm = ({ user, token }) => {
           autoComplete="new-password"
         />
         {errors.password && (
-          <div className="flex items-center text-sm text-red-error">
+          <div className="text-red-error flex items-center text-sm">
             <RiErrorWarningFill className="mr-2" />
             {errors.password}
           </div>
         )}
       </div>
-      <div className="flex flex-col gap-2 mt-2">
-        <div className="flex gap-2 items-center">
+      <div className="mt-2 flex flex-col gap-2">
+        <div className="flex items-center gap-2">
           {(values.password || "").length >= 12 ? <AiFillCloseCircle className="text-green-700" /> : <AiFillCloseCircle className="text-gray-600" />}
           <span className={`align-middle text-sm ${values.password && (values.password || "").length >= 12 ? "text-green-600" : "text-gray-600"}`}>Au moins 12 caractères</span>
         </div>
-        <div className="flex gap-2 items-center">
+        <div className="flex items-center gap-2">
           {hasLetter(values.password) ? <AiFillCloseCircle className="text-green-700" /> : <AiFillCloseCircle className="text-gray-600" />}
           <span className={`align-middle text-sm ${values.password && hasLetter(values.password) ? "text-green-600" : "text-gray-600"}`}>Au moins une lettre</span>
         </div>
-        <div className="flex gap-2 items-center">
+        <div className="flex items-center gap-2">
           {hasNumber(values.password) ? <AiFillCloseCircle className="text-green-700" /> : <AiFillCloseCircle className="text-gray-600" />}
           <span className={`align-middle text-sm ${values.password && hasNumber(values.password) ? "text-green-600" : "text-gray-600"}`}>Au moins un chiffre</span>
         </div>
-        <div className="flex gap-2 items-center">
+        <div className="flex items-center gap-2">
           {hasSpecialChar(values.password) ? <AiFillCloseCircle className="text-green-700" /> : <AiFillCloseCircle className="text-gray-600" />}
           <span className={`align-middle text-sm ${values.password && hasSpecialChar(values.password) ? "text-green-600" : "text-gray-600"}`}>Au moins un caractère spécial</span>
         </div>
       </div>
 
-      <div className="flex flex-col mt-4">
-        <div className="flex justify-between mt-6">
+      <div className="mt-4 flex flex-col">
+        <div className="mt-6 flex justify-between">
           <label className="mb-2 text-sm" htmlFor="confirm-password">
             Confirmez ce mot de passe
           </label>
-          <div className="flex items-center gap-1 cursor-pointer" onClick={() => setShowConfirm(!showConfirm)}>
+          <div className="flex cursor-pointer items-center gap-1" onClick={() => setShowConfirm(!showConfirm)}>
             {showConfirm ? <IoMdEyeOff className="text-blue-france" /> : <IoMdEye className="text-blue-france" />}
-            <span className="text-xs font-bold text-blue-france">{showConfirm ? "CACHER" : "AFFICHER"}</span>
+            <span className="text-blue-france text-xs font-bold">{showConfirm ? "CACHER" : "AFFICHER"}</span>
           </div>
         </div>
         <input
@@ -193,7 +193,7 @@ const ResetPasswordForm = ({ user, token }) => {
           }}
         />
         {errors.confirmPassword && (
-          <div className="flex items-center text-sm text-red-error">
+          <div className="text-red-error flex items-center text-sm">
             <RiErrorWarningFill className="mr-2" />
             {errors.confirmPassword}
           </div>
@@ -201,7 +201,7 @@ const ResetPasswordForm = ({ user, token }) => {
       </div>
 
       {errors.expired && (
-        <div className="flex items-center text-sm text-red-error">
+        <div className="text-red-error flex items-center text-sm">
           <RiErrorWarningFill className="mr-2" />
           <Link to="/forgot-password" className="underline">
             Réinitialisation expirée
@@ -212,13 +212,13 @@ const ResetPasswordForm = ({ user, token }) => {
       {!success ? (
         <button
           type="submit"
-          className="button mt-6 bg-blue-france text-white hover:bg-blue-france-hover"
+          className="button bg-blue-france hover:bg-blue-france-hover mt-6 text-white"
           disabled={loading || errors.confirmPassword || errors.password || errors.expired}
         >
           {loading ? "Enregistrement..." : "Enregister"}
         </button>
       ) : (
-        <div className="mt-4 flex items-center text-sm text-green-success">
+        <div className="text-green-success mt-4 flex items-center text-sm">
           <RiCheckboxCircleFill className="mr-2" />
           <p>
             Nouveau mot de passe enregistré <br />

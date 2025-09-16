@@ -64,38 +64,38 @@ const Login = () => {
       <h2 className="font-light">Connexion</h2>
       <h1 className="text-4xl font-bold">Accedez à votre espace</h1>
 
-      <label className="mb-2 mt-6 text-sm" htmlFor="email">
+      <label className="mt-6 mb-2 text-sm" htmlFor="email">
         E-mail
       </label>
       <input className={`input mb-2 ${errors.email ? "border-b-red-error" : "border-b-black"}`} name="email" id="email" type="email" />
       {errors.email && (
-        <div className="flex items-center text-sm text-red-error">
+        <div className="text-red-error flex items-center text-sm">
           <RiErrorWarningFill className="mr-2" />
           {errors.email}
         </div>
       )}
 
-      <label className="mb-2 mt-6 text-sm" htmlFor="password">
+      <label className="mt-6 mb-2 text-sm" htmlFor="password">
         Mot de passe
       </label>
       <input className={`input mb-2 ${errors.password ? "border-b-red-error" : "border-b-black"}`} name="password" type="password" id="password" />
       {errors.password && (
-        <div className="flex items-center text-sm text-red-error">
+        <div className="text-red-error flex items-center text-sm">
           <RiErrorWarningFill className="mr-2" />
           {errors.password}
         </div>
       )}
 
-      <div className="mb-6 mt-2 text-right text-xs">
+      <div className="mt-2 mb-6 text-right text-xs">
         <Link to="/forgot-password" className="text-back underline">
           Mot de passe oublié ?
         </Link>
       </div>
-      <button type="submit" className="button bg-blue-france text-white hover:bg-blue-france-hover" disabled={loading}>
+      <button type="submit" className="button bg-blue-france hover:bg-blue-france-hover text-white" disabled={loading}>
         {loading ? "Chargement..." : "Se connecter"}
       </button>
       {errors.login && (
-        <div className="mt-4 flex items-center text-sm text-red-error">
+        <div className="text-red-error mt-4 flex items-center text-sm">
           <RiErrorWarningFill className="mr-2" />
           {errors.login}
         </div>

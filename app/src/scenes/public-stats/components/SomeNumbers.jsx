@@ -110,7 +110,7 @@ const SomeNumbers = ({ filters, onFiltersChange }) => {
         </div>
       </div>
       {loading ? (
-        <div className="flex justify-center items-center h-96">
+        <div className="flex h-96 items-center justify-center">
           <Loader />
         </div>
       ) : (
@@ -120,16 +120,16 @@ const SomeNumbers = ({ filters, onFiltersChange }) => {
               <h2 className="mb-2 text-2xl font-semibold">
                 {graphTotal.organizations ? `${graphTotal.organizations.toLocaleString("fr")} organisations actives` : "Pas de données"}
               </h2>
-              <div className="relative group">
-                <RiQuestionLine className="text-lg text-gray-425" />
+              <div className="group relative">
+                <RiQuestionLine className="text-gray-425 text-lg" />
 
-                <div className="hidden group-hover:block absolute left-0 top-8 z-10 w-56 border border-gray-900 bg-white p-4 shadow-lg">
+                <div className="absolute top-8 left-0 z-10 hidden w-56 border border-gray-900 bg-white p-4 shadow-lg group-hover:block">
                   <p className="text-xs text-black">Il s'agit des structures ayant au moins 1 mission en cours sur la période sélectionnée</p>
                 </div>
               </div>
             </div>
-            <p className="text-lg font-semibold text-gray-425">Evolution {filters.year}</p>
-            <div className="mb-1 mt-4 h-px bg-gray-900" />
+            <p className="text-gray-425 text-lg font-semibold">Evolution {filters.year}</p>
+            <div className="mt-4 mb-1 h-px bg-gray-900" />
             <div className="mb-2 h-60">
               <BarChart data={graphData.organizations} dataKey="Organisations" />
             </div>
@@ -139,16 +139,16 @@ const SomeNumbers = ({ filters, onFiltersChange }) => {
             <div className="flex justify-between">
               <h2 className="mb-2 text-2xl font-semibold">{graphTotal.missions ? `${graphTotal.missions.toLocaleString("fr")} missions partagées` : "Pas de données"}</h2>
 
-              <div className="relative group">
-                <RiQuestionLine className="text-lg text-gray-425" />
+              <div className="group relative">
+                <RiQuestionLine className="text-gray-425 text-lg" />
 
-                <div className="hidden group-hover:block absolute left-0 top-8 z-10 w-56 border border-gray-900 bg-white p-4 shadow-lg">
+                <div className="absolute top-8 left-0 z-10 hidden w-56 border border-gray-900 bg-white p-4 shadow-lg group-hover:block">
                   <p className="text-xs text-black">Il s'agit des missions partagées sur l'API Engagement et en cours au moins un jour de la période sélectionnée</p>
                 </div>
               </div>
             </div>
-            <p className="text-lg font-semibold text-gray-425">Evolution {filters.year}</p>
-            <div className="mb-1 mt-4 h-px bg-gray-900" />
+            <p className="text-gray-425 text-lg font-semibold">Evolution {filters.year}</p>
+            <div className="mt-4 mb-1 h-px bg-gray-900" />
             <div className="mb-2 h-60">
               <BarChart data={graphData.missions} dataKey="Missions" />
             </div>
@@ -157,8 +157,8 @@ const SomeNumbers = ({ filters, onFiltersChange }) => {
           <div className="border border-gray-900 p-8">
             <h2 className="mb-2 text-2xl font-semibold">{graphTotal.clicks ? `${graphTotal.clicks.toLocaleString("fr")} redirections` : "Pas de données"}</h2>
 
-            <p className="text-lg font-semibold text-gray-425">Evolution {filters.year}</p>
-            <div className="mb-1 mt-4 h-px bg-gray-900" />
+            <p className="text-gray-425 text-lg font-semibold">Evolution {filters.year}</p>
+            <div className="mt-4 mb-1 h-px bg-gray-900" />
             <div className="mb-2 h-60">
               <BarChart data={graphData.clicks} dataKey="Redirections" />
             </div>
@@ -166,8 +166,8 @@ const SomeNumbers = ({ filters, onFiltersChange }) => {
 
           <div className="border border-gray-900 p-8">
             <h2 className="mb-2 text-2xl font-semibold">{graphTotal.applies ? `${graphTotal.applies.toLocaleString("fr")} candidatures` : "Pas de données"}</h2>
-            <p className="text-lg font-semibold text-gray-425">Evolution {filters.year}</p>
-            <div className="mb-1 mt-4 h-px bg-gray-900" />
+            <p className="text-gray-425 text-lg font-semibold">Evolution {filters.year}</p>
+            <div className="mt-4 mb-1 h-px bg-gray-900" />
             <div className="mb-2 h-60">
               <BarChart data={graphData.applies} dataKey="Candidatures" />
             </div>

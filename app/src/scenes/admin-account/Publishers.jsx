@@ -105,11 +105,11 @@ const Publishers = () => {
         </div>
 
         <div className="flex">
-          <button className="button flex items-center text-blue-france hover:bg-gray-975" onClick={handleExport}>
+          <button className="button text-blue-france hover:bg-gray-975 flex items-center" onClick={handleExport}>
             {exporting ? <Loader /> : <RiFileDownloadLine className="mr-2" />}
             Exporter
           </button>
-          <Link to="/publisher/new" className="button flex items-center text-blue-france hover:bg-gray-975">
+          <Link to="/publisher/new" className="button text-blue-france hover:bg-gray-975 flex items-center">
             Nouveau partenaire <HiOutlinePlus className="ml-2" />
           </Link>
         </div>
@@ -202,7 +202,7 @@ const Publishers = () => {
                 <span className="w-32 text-center text-xs">{users.filter((e) => e.publishers.find((j) => j === item._id)).length}</span>
                 <div className="w-32 text-center text-xs">
                   {item.sendReport ? (
-                    <span className="rounded bg-blue-france-975 px-1">{`Oui (${item.sendReportTo.length} receveur${item.sendReportTo.length > 1 ? "s" : ""})`}</span>
+                    <span className="bg-blue-france-975 rounded px-1">{`Oui (${item.sendReportTo.length} receveur${item.sendReportTo.length > 1 ? "s" : ""})`}</span>
                   ) : (
                     <span className="rounded bg-red-300 px-1">Non</span>
                   )}

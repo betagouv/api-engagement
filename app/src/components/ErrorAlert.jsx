@@ -13,7 +13,7 @@ const ErrorAlert = ({ children, onClose }) => {
       <div className="bg-[#e1000f] p-2 text-white">
         <ErrorIconSvg fill="#fff" />
       </div>
-      <div className="bg-white p-4 flex-1 space-y-2">{children}</div>
+      <div className="flex-1 space-y-2 bg-white p-4">{children}</div>
     </div>
   );
 };
