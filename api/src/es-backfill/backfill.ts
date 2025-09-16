@@ -61,7 +61,7 @@ const saveState = async (state: BackfillState) => {
   }
 };
 
-const mapDoc = (doc: Stats) => {
+const mapDoc = (doc: Stats, esId?: string) => {
   const allowedSources = new Set(["api", "widget", "campaign", "seo", "jstag", "publisher"]);
   const allowedTypes = new Set(["click", "print", "apply", "account"]);
   const allowedStatuses = new Set(["PENDING", "VALIDATED", "CANCEL", "CANCELED", "REFUSED", "CARRIED_OUT"]);
@@ -113,8 +113,8 @@ const mapDoc = (doc: Stats) => {
   };
 
   // Store legacy Elasticsearch id in dedicated es_id field; keep PG id as uuid().
-  if ((doc as any)._id) {
-    obj.es_id = String((doc as any)._id);
+  if (esId) {
+    obj.es_id = String(esId);
   }
 
   return obj;
@@ -158,7 +158,7 @@ const handler = async () => {
         break;
       }
 
-      dataToCreate = hits.map((h) => mapDoc(h._source));
+      dataToCreate = hits.map((h) => mapDoc(h._source, h._id));
       if (dataToCreate.length) {
         const res = await prismaCore.statEvent.createMany({ data: dataToCreate, skipDuplicates: true });
         created += res.count;
