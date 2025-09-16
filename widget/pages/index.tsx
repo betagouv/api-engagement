@@ -1,6 +1,7 @@
 import * as Sentry from "@sentry/nextjs";
 import iso from "i18n-iso-countries";
 import isoFR from "i18n-iso-countries/langs/fr.json";
+import { GetServerSideProps } from "next";
 import Image from "next/image";
 import { useRouter } from "next/router";
 import Script from "next/script";
@@ -13,11 +14,12 @@ import Filters from "../components/Filters";
 import Grid from "../components/Grid";
 import { API_URL, ENV } from "../config";
 import LogoSC from "../public/images/logo-sc.svg";
+import { Filters as FilterTypes, Location, Mission, PageProps, ServerSideContext, Widget } from "../types";
 import resizeHelper from "../utils/resizeHelper";
 import useStore from "../utils/store";
 import { calculateDistance } from "../utils/utils";
 
-const getContainerHeight = (widget) => {
+const getContainerHeight = (widget: Widget): string => {
   const isBenevolat = widget?.type === "benevolat";
   const isCarousel = widget?.style === "carousel";
 
@@ -51,7 +53,7 @@ const getContainerHeight = (widget) => {
   return "h-[2200px] sm:h-[1350px] lg:h-[1050px]";
 };
 
-const getInitialFilters = (widget) => {
+const getInitialFilters = (widget: Widget): FilterTypes => {
   const isBenevolat = widget?.type === "benevolat";
 
   return {
@@ -80,7 +82,7 @@ const getInitialFilters = (widget) => {
   };
 };
 
-const Home = ({ widget, apiUrl, missions, total, request, environment }) => {
+const Home = ({ widget, apiUrl, missions, total, request, environment }: PageProps) => {
   const isBenevolat = widget?.type === "benevolat";
   const color = widget?.color ? widget.color : "#71A246";
 
@@ -88,10 +90,10 @@ const Home = ({ widget, apiUrl, missions, total, request, environment }) => {
   const plausible = usePlausible();
 
   const { setUrl, setColor, setMobile } = useStore();
-  const [filters, setFilters] = useState(() => getInitialFilters(widget));
+  const [filters, setFilters] = useState<FilterTypes>(() => getInitialFilters(widget!));
   const [showFilters, setShowFilters] = useState(false);
 
-  const fetchLocation = async (lat, lon) => {
+  const fetchLocation = async (lat: number, lon: number): Promise<Location | null> => {
     try {
       const url = `https://api-adresse.data.gouv.fr/reverse?lon=${lon}&lat=${lat}&limit=1`;
       const result = await fetch(url).then((response) => response.json());
@@ -125,7 +127,7 @@ const Home = ({ widget, apiUrl, missions, total, request, environment }) => {
     plausible("pageview", { u });
 
     if (widget.location) {
-      setFilters((f) => ({ ...f, location: widget.location }));
+      setFilters((f) => ({ ...f, location: widget.location || null }));
       return;
     }
 
@@ -148,14 +150,15 @@ const Home = ({ widget, apiUrl, missions, total, request, environment }) => {
 
   useEffect(() => {
     setMobile(window.innerWidth < 768);
-    window.addEventListener("resize", () => setMobile(window.innerWidth < 768));
+    const handleResize = () => setMobile(window.innerWidth < 768);
+    window.addEventListener("resize", handleResize);
 
     const cleanup = resizeHelper.setupResizeObserver();
     return () => {
       if (typeof cleanup === "function") {
         cleanup();
       }
-      window.removeEventListener("resize", () => {});
+      window.removeEventListener("resize", handleResize);
     };
   }, []);
 
@@ -165,7 +168,7 @@ const Home = ({ widget, apiUrl, missions, total, request, environment }) => {
     }
 
     const timeoutId = setTimeout(() => {
-      const query = {
+      const query: Record<string, any> = {
         widget: widget._id,
         size: filters.size,
         ...(router.query.notrack && { notrack: router.query.notrack }),
@@ -245,24 +248,15 @@ const Home = ({ widget, apiUrl, missions, total, request, environment }) => {
           apiUrl={apiUrl}
           values={filters}
           onChange={(newFilters) => setFilters({ ...filters, ...newFilters, page: 1 })}
-          disabledLocation={!!widget.location}
           show={showFilters}
           onShow={setShowFilters}
         />
       </header>
       <div className={`w-full ${showFilters ? (widget?.style === "carousel" ? "hidden" : "opacity-40 pointer-events-none") : "h-auto"}`}>
         {widget?.style === "carousel" ? (
-          <Carousel widget={widget} missions={missions} total={total} request={request} />
+          <Carousel widget={widget} missions={missions} request={request} />
         ) : (
-          <Grid
-            widget={widget}
-            missions={missions}
-            color={color}
-            total={total}
-            request={request}
-            page={filters.page}
-            handlePageChange={(page) => setFilters({ ...filters, page })}
-          />
+          <Grid widget={widget} missions={missions} total={total} request={request} page={filters.page} handlePageChange={(page) => setFilters({ ...filters, page })} />
         )}
       </div>
       {environment === "production" && !router.query.notrack && <Script src="https://app.api-engagement.beta.gouv.fr/jstag.js" />}
@@ -281,31 +275,31 @@ const Home = ({ widget, apiUrl, missions, total, request, environment }) => {
   );
 };
 
-export const getServerSideProps = async (context) => {
+export const getServerSideProps: GetServerSideProps<PageProps> = async (context: ServerSideContext) => {
   if (!context.query.widgetName && !context.query.widget) {
-    return { props: { widget: null } };
+    return { props: { widget: null, missions: [], total: 0, apiUrl: API_URL, request: null, environment: ENV } };
   }
 
-  let widget = null;
+  let widget: Widget | null = null;
   try {
     const q = context.query.widget ? `id=${context.query.widget}` : `name=${context.query.widgetName}`;
     const res = await fetch(`${API_URL}/iframe/widget?${q}`).then((e) => e.json());
     if (!res.ok) {
       if (res.code === "NOT_FOUND") {
-        return { props: { widget: null } };
+        return { props: { widget: null, missions: [], total: 0, apiUrl: API_URL, request: null, environment: ENV } };
       }
       throw res;
     }
     widget = res.data;
   } catch (error) {
     console.error("error", error);
-    Sentry.captureException(error, { extra: { context } });
-    return { props: { widget: null } };
+    Sentry.captureException(error, { extra: { context: context } });
+    return { props: { widget: null, missions: [], total: 0, apiUrl: API_URL, request: null, environment: ENV } };
   }
 
   try {
     const searchParams = new URLSearchParams();
-    const isBenevolat = widget.type === "benevolat";
+    const isBenevolat = widget!.type === "benevolat";
 
     if (isBenevolat) {
       if (context.query.domain) {
@@ -353,28 +347,28 @@ export const getServerSideProps = async (context) => {
     }
 
     if (context.query.size) {
-      searchParams.append("size", parseInt(context.query.size, 10));
+      searchParams.append("size", parseInt(context.query.size, 10).toString());
     }
     if (context.query.from) {
-      searchParams.append("from", parseInt(context.query.from, 10));
+      searchParams.append("from", parseInt(context.query.from, 10).toString());
     }
     if (context.query.lat && context.query.lon) {
-      searchParams.append("lat", parseFloat(context.query.lat));
-      searchParams.append("lon", parseFloat(context.query.lon));
-      searchParams.append("city", context.query.city);
+      searchParams.append("lat", parseFloat(context.query.lat).toString());
+      searchParams.append("lon", parseFloat(context.query.lon).toString());
+      searchParams.append("city", context.query.city || "");
     }
 
-    const response = await fetch(`${API_URL}/iframe/${widget._id}/search?${searchParams.toString()}`).then((res) => res.json());
+    const response = await fetch(`${API_URL}/iframe/${widget!._id}/search?${searchParams.toString()}`).then((res) => res.json());
 
     if (!response.ok) {
       throw response;
     }
     const query = new URLSearchParams({
-      widgetId: widget._id,
+      widgetId: widget!._id,
       requestId: response.request,
     });
 
-    const missions = response.data.map((h) => ({
+    const missions: Mission[] = response.data.map((h: any) => ({
       ...h,
       url: `${API_URL}/r/${context.query.notrack ? "notrack" : "widget"}/${h._id}?${query.toString()}`,
     }));
@@ -402,9 +396,9 @@ export const getServerSideProps = async (context) => {
     return { props: { widget, missions, total: response.total, apiUrl: API_URL, request: response.request || null, environment: ENV } };
   } catch (error) {
     console.error(error);
-    Sentry.captureException(error, { extra: { context } });
+    Sentry.captureException(error, { extra: { context: context } });
   }
-  return { props: { widget, missions: [], total: 0, options: {} } };
+  return { props: { widget, missions: [], total: 0, apiUrl: API_URL, request: null, environment: ENV } };
 };
 
 export default Home;

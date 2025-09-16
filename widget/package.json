@@ -11,7 +11,8 @@
     "test:e2e:report": "playwright show-report tests/e2e/_playwright-report --port 58724",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
-    "prettier": "prettier --write . --plugin=prettier-plugin-organize-imports"
+    "prettier": "prettier --write . --plugin=prettier-plugin-organize-imports",
+    "type-check": "tsc --noEmit"
   },
   "prettier": {
     "printWidth": 180
@@ -39,6 +40,8 @@
     "@testing-library/jest-dom": "^6.8.0",
     "@testing-library/react": "^16.3.0",
     "@types/node": "^24.3.0",
+    "@types/react": "^19.0.1",
+    "@types/react-dom": "^19.0.1",
     "@next/eslint-plugin-next": "^15.5.2",
     "@typescript-eslint/eslint-plugin": "^8.0.0",
     "@typescript-eslint/parser": "^8.0.0",
@@ -52,6 +55,7 @@
     "globals": "^16.3.0",
     "jsdom": "^26.1.0",
     "postcss": "^8.5.6",
-    "tailwindcss": "^4.1.4"
+    "tailwindcss": "^4.1.4",
+    "typescript": "^5.7.2"
   }
 }

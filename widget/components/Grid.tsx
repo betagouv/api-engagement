@@ -2,11 +2,21 @@ import { usePlausible } from "next-plausible";
 import { useEffect, useState } from "react";
 import { RiArrowLeftSLine, RiArrowRightSLine, RiSkipLeftLine, RiSkipRightLine } from "react-icons/ri";
 
+import { Mission, Widget } from "../types";
 import useStore from "../utils/store";
 import Card from "./Card";
 
-const Grid = ({ widget, missions, total, page, handlePageChange, request }) => {
-  const { color, mobile } = useStore();
+interface GridProps {
+  widget: Widget;
+  missions: Mission[];
+  total: number;
+  page: number;
+  handlePageChange: (page: number) => void;
+  request: string | null;
+}
+
+const Grid = ({ widget, missions, total, page, handlePageChange, request }: GridProps) => {
+  const { mobile } = useStore();
 
   if (total === 0) {
     return (
@@ -25,18 +35,24 @@ const Grid = ({ widget, missions, total, page, handlePageChange, request }) => {
         ))}
       </main>
       {mobile ? (
-        <MobilePagination page={page} setPage={handlePageChange} end={parseInt(total / 6) + (total % 6 !== 0 && 1)} />
+        <MobilePagination page={page} setPage={handlePageChange} end={Math.floor(total / 6) + (total % 6 !== 0 ? 1 : 0)} />
       ) : (
-        <Pagination page={page} setPage={handlePageChange} end={parseInt(total / 6) + (total % 6 !== 0 && 1)} color={color} />
+        <Pagination page={page} setPage={handlePageChange} end={Math.floor(total / 6) + (total % 6 !== 0 ? 1 : 0)} />
       )}
     </div>
   );
 };
 
-const Pagination = ({ page, setPage, end }) => {
+interface PaginationProps {
+  page: number;
+  setPage: (page: number) => void;
+  end: number;
+}
+
+const Pagination = ({ page, setPage, end }: PaginationProps) => {
   const { url, color } = useStore();
   const plausible = usePlausible();
-  const [pages, setPages] = useState([...Array(end).keys()].map((i) => i + 1));
+  const [pages, setPages] = useState(Array.from({ length: end }, (_, i) => i + 1));
 
   useEffect(() => {
     if (page < 1) {
@@ -46,7 +62,7 @@ const Pagination = ({ page, setPage, end }) => {
       setPage(end);
     }
     if (end !== pages.length) {
-      setPages([...Array(end).keys()].map((i) => i + 1));
+      setPages(Array.from({ length: end }, (_, i) => i + 1));
     }
   }, [end]);
 
@@ -56,7 +72,7 @@ const Pagination = ({ page, setPage, end }) => {
         className="mr-4 flex cursor-pointer items-center rounded-lg px-3 py-2 hover:bg-[#f5f5f5] disabled:cursor-default disabled:bg-transparent disabled:opacity-50"
         onClick={() => {
           setPage(page - 1);
-          plausible("Page changed", { u: url });
+          plausible("Page changed", { u: url || undefined });
         }}
         disabled={page === 1}
         aria-label="Page précédente"
@@ -75,10 +91,10 @@ const Pagination = ({ page, setPage, end }) => {
                 style={p === page ? { backgroundColor: color, color: "white" } : {}}
                 onClick={() => {
                   setPage(p);
-                  plausible("Page changed", { u: url });
+                  plausible("Page changed", { u: url || undefined });
                 }}
                 aria-label={`Page ${p}${p === page ? ", page actuelle" : ""}`}
-                aria-current={p === page ? "page" : null}
+                aria-current={p === page ? "page" : undefined}
               >
                 {p}
               </button>
@@ -88,7 +104,7 @@ const Pagination = ({ page, setPage, end }) => {
               className="hover:bg-gray-hover flex h-8 w-8 cursor-pointer items-center justify-center rounded-full"
               onClick={() => {
                 setPage(end);
-                plausible("Page changed", { u: url });
+                plausible("Page changed", { u: url || undefined });
               }}
               aria-label={`Page ${end}, dernière page`}
             >
@@ -108,10 +124,10 @@ const Pagination = ({ page, setPage, end }) => {
                 style={p === page ? { backgroundColor: color, color: "white" } : {}}
                 onClick={() => {
                   setPage(p);
-                  plausible("Page changed", { u: url });
+                  plausible("Page changed", { u: url || undefined });
                 }}
                 aria-label={`Page ${p}${p === end ? ", dernière page" : ""}${p === page ? ", page actuelle" : ""}`}
-                aria-current={p === page ? "page" : null}
+                aria-current={p === page ? "page" : undefined}
               >
                 {p}
               </button>
@@ -130,10 +146,10 @@ const Pagination = ({ page, setPage, end }) => {
                 style={p === page ? { backgroundColor: color, color: "white" } : {}}
                 onClick={() => {
                   setPage(p);
-                  plausible("Page changed", { u: url });
+                  plausible("Page changed", { u: url || undefined });
                 }}
                 aria-label={`Page ${p}${p === page ? ", page actuelle" : ""}`}
-                aria-current={p === page ? "page" : null}
+                aria-current={p === page ? "page" : undefined}
               >
                 {p}
               </button>
@@ -156,10 +172,10 @@ const Pagination = ({ page, setPage, end }) => {
             style={p === page ? { backgroundColor: color, color: "white" } : {}}
             onClick={() => {
               setPage(p);
-              plausible("Page changed", { u: url });
+              plausible("Page changed", { u: url || undefined });
             }}
             aria-label={`Page ${p}${p === end ? ", dernière page" : ""}${p === page ? ", page actuelle" : ""}`}
-            aria-current={p === page ? "page" : null}
+            aria-current={p === page ? "page" : undefined}
           >
             {p}
           </button>
@@ -170,7 +186,7 @@ const Pagination = ({ page, setPage, end }) => {
         className="ml-4 flex cursor-pointer items-center rounded-lg px-3 py-2 hover:bg-[#f5f5f5] disabled:cursor-default disabled:opacity-50"
         onClick={() => {
           setPage(page + 1);
-          plausible("Page changed", { u: url });
+          plausible("Page changed", { u: url || undefined });
         }}
         disabled={page === end}
         aria-label="Page suivante"
@@ -182,17 +198,23 @@ const Pagination = ({ page, setPage, end }) => {
   );
 };
 
-export const MobilePagination = ({ page, setPage, end }) => {
+interface MobilePaginationProps {
+  page: number;
+  setPage: (page: number) => void;
+  end: number;
+}
+
+export const MobilePagination = ({ page, setPage, end }: MobilePaginationProps) => {
   const { url, color } = useStore();
   const plausible = usePlausible();
-  const [pages, setPages] = useState([...Array(end).keys()].map((i) => i + 1));
+  const [pages, setPages] = useState(Array.from({ length: end }, (_, i) => i + 1));
 
   useEffect(() => {
     if (page > end) {
       setPage(end);
     }
     if (end !== pages.length) {
-      setPages([...Array(end).keys()].map((i) => i + 1));
+      setPages(Array.from({ length: end }, (_, i) => i + 1));
     }
   }, [end]);
 
@@ -202,7 +224,7 @@ export const MobilePagination = ({ page, setPage, end }) => {
         className="flex h-8 min-w-[2rem] items-center justify-center rounded focus:outline-none focus-visible:ring focus-visible:ring-[#000091]"
         onClick={() => {
           setPage(1);
-          plausible("Page changed", { u: url });
+          plausible("Page changed", { u: url || undefined });
         }}
         disabled={page === 1}
         aria-label="Retour première page"
@@ -213,7 +235,7 @@ export const MobilePagination = ({ page, setPage, end }) => {
         className="flex h-8 min-w-[2rem] mr-4 items-center justify-center rounded focus:outline-none focus-visible:ring focus-visible:ring-[#000091]"
         onClick={() => {
           setPage(page - 1);
-          plausible("Page changed", { u: url });
+          plausible("Page changed", { u: url || undefined });
         }}
         disabled={page === 1}
         aria-label="Page précédente"
@@ -231,10 +253,10 @@ export const MobilePagination = ({ page, setPage, end }) => {
                 style={p === page ? { backgroundColor: color, color: "white" } : {}}
                 onClick={() => {
                   setPage(p);
-                  plausible("Page changed", { u: url });
+                  plausible("Page changed", { u: url || undefined });
                 }}
                 aria-label={`Page ${p}${p === page ? ", page actuelle" : ""}`}
-                aria-current={p === page ? "page" : null}
+                aria-current={p === page ? "page" : undefined}
               >
                 {p}
               </button>
@@ -246,7 +268,7 @@ export const MobilePagination = ({ page, setPage, end }) => {
               className="hover:bg-gray-hover flex h-8 min-w-[2rem] items-center justify-center rounded-full p-1 focus:outline-none focus-visible:ring focus-visible:ring-[#000091]"
               onClick={() => {
                 setPage(end);
-                plausible("Page changed", { u: url });
+                plausible("Page changed", { u: url || undefined });
               }}
               aria-label={`Page ${end}, dernière page`}
             >
@@ -259,7 +281,7 @@ export const MobilePagination = ({ page, setPage, end }) => {
               className="hover:bg-gray-hover flex h-8 min-w-[2rem] items-center justify-center rounded-full focus:outline-none focus-visible:ring focus-visible:ring-[#000091]"
               onClick={() => {
                 setPage(1);
-                plausible("Page changed", { u: url });
+                plausible("Page changed", { u: url || undefined });
               }}
               aria-label="Page 1"
             >
@@ -275,10 +297,10 @@ export const MobilePagination = ({ page, setPage, end }) => {
                 style={p === page ? { backgroundColor: color, color: "white" } : {}}
                 onClick={() => {
                   setPage(p);
-                  plausible("Page changed", { u: url });
+                  plausible("Page changed", { u: url || undefined });
                 }}
                 aria-label={`Page ${p}${p === page ? ", page actuelle" : ""}`}
-                aria-current={p === page ? "page" : null}
+                aria-current={p === page ? "page" : undefined}
               >
                 {p}
               </button>
@@ -293,10 +315,10 @@ export const MobilePagination = ({ page, setPage, end }) => {
                 style={p === page ? { backgroundColor: color, color: "white" } : {}}
                 onClick={() => {
                   setPage(p);
-                  plausible("Page changed", { u: url });
+                  plausible("Page changed", { u: url || undefined });
                 }}
                 aria-label={`Page ${p}${p === page ? ", page actuelle" : ""}`}
-                aria-current={p === page ? "page" : null}
+                aria-current={p === page ? "page" : undefined}
               >
                 {p}
               </button>
@@ -308,7 +330,7 @@ export const MobilePagination = ({ page, setPage, end }) => {
               className="hover:bg-gray-hover flex h-8 min-w-[2rem] items-center justify-center rounded focus:outline-none focus-visible:ring focus-visible:ring-[#000091]"
               onClick={() => {
                 setPage(end);
-                plausible("Page changed", { u: url });
+                plausible("Page changed", { u: url || undefined });
               }}
               aria-label={`Page ${end}, dernière page`}
             >
@@ -324,10 +346,10 @@ export const MobilePagination = ({ page, setPage, end }) => {
             style={p === page ? { backgroundColor: color, color: "white" } : {}}
             onClick={() => {
               setPage(p);
-              plausible("Page changed", { u: url });
+              plausible("Page changed", { u: url || undefined });
             }}
             aria-label={`Page ${p}${p === end ? ", dernière page" : ""}${p === page ? ", page actuelle" : ""}`}
-            aria-current={p === page ? "page" : null}
+            aria-current={p === page ? "page" : undefined}
           >
             {p}
           </button>
@@ -338,7 +360,7 @@ export const MobilePagination = ({ page, setPage, end }) => {
         className="flex h-8 min-w-[2rem] ml-4 items-center justify-center rounded focus:outline-none focus-visible:ring focus-visible:ring-[#000091]"
         onClick={() => {
           setPage(page + 1);
-          plausible("Page changed", { u: url });
+          plausible("Page changed", { u: url || undefined });
         }}
         aria-label="Page suivante"
         disabled={page === end}
@@ -349,7 +371,7 @@ export const MobilePagination = ({ page, setPage, end }) => {
         className="flex h-8 min-w-[2rem] items-center justify-center rounded focus:outline-none focus-visible:ring focus-visible:ring-[#000091]"
         onClick={() => {
           setPage(end);
-          plausible("Page changed", { u: url });
+          plausible("Page changed", { u: url || undefined });
         }}
         aria-label="Dernière page"
         disabled={page === end}
