@@ -1,5 +1,6 @@
 import dotenv from "dotenv";
-import type { Prisma } from "../db/core";
+import fs from "node:fs/promises";
+import path from "node:path";
 import type { Stats } from "../types";
 
 const args = process.argv.slice(2);
@@ -31,40 +32,33 @@ const { prismaCore } = require("../db/postgres");
 const { STATS_INDEX } = require("../config");
 
 const BATCH_SIZE = 1000;
-const BACKFILL_KEY = "stat_event_es_to_pg";
+// Persist backfill state in a local file within the es-backfill directory
+const STATE_FILE = path.join(__dirname, "backfill-state.json");
 
 type BackfillState = {
   lastCreatedAt?: string;
 };
 
-const ensureBackfillTable = async () => {
-  await prismaCore.$executeRaw`
-    CREATE TABLE IF NOT EXISTS backfill_state (
-      id TEXT PRIMARY KEY,
-      state JSONB NOT NULL DEFAULT '{}'::jsonb
-    )
-  `;
-};
-
 const getState = async (): Promise<BackfillState> => {
-  await ensureBackfillTable();
-  const rows = await prismaCore.$queryRaw<{ state: Prisma.JsonValue }[]>`
-    SELECT state FROM backfill_state WHERE id = ${BACKFILL_KEY}
-  `;
-  if (rows.length) {
-    const value = rows[0].state as any;
-    return value || {};
+  try {
+    const raw = await fs.readFile(STATE_FILE, "utf-8");
+    const parsed = JSON.parse(raw);
+    return parsed && typeof parsed === "object" ? parsed : {};
+  } catch (e: any) {
+    if (e && e.code === "ENOENT") {
+      return {};
+    }
+    console.warn("[Backfill] Unable to read state file, starting fresh:", e?.message ?? e);
+    return {};
   }
-  return {};
 };
 
 const saveState = async (state: BackfillState) => {
-  await ensureBackfillTable();
-  await prismaCore.$executeRaw`
-    INSERT INTO backfill_state(id, state)
-    VALUES (${BACKFILL_KEY}, ${state}::jsonb)
-    ON CONFLICT (id) DO UPDATE SET state = EXCLUDED.state
-  `;
+  try {
+    await fs.writeFile(STATE_FILE, JSON.stringify(state), "utf-8");
+  } catch (e) {
+    console.warn("[Backfill] Unable to persist state file:", e);
+  }
 };
 
 const mapDoc = (doc: Stats) => {
@@ -118,9 +112,9 @@ const mapDoc = (doc: Stats) => {
     tags: Array.isArray((doc as any).tags) ? (doc as any).tags.map((t: any) => String(t)) : [],
   };
 
-  // Only set id if present; otherwise let Prisma default (uuid()) apply.
+  // Store legacy Elasticsearch id in dedicated es_id field; keep PG id as uuid().
   if ((doc as any)._id) {
-    obj.id = String((doc as any)._id);
+    obj.es_id = String((doc as any)._id);
   }
 
   return obj;
@@ -168,7 +162,7 @@ const handler = async () => {
       if (dataToCreate.length) {
         const res = await prismaCore.statEvent.createMany({ data: dataToCreate, skipDuplicates: true });
         created += res.count;
-        console.log(`[Backfill] Created ${res.count} docs, ${created} so far (${dataToCreate[0].created_at.toISOString()}).`);
+        console.log(`[Backfill] Created ${res.count} docs, ${created} so far.`);
       }
 
       const last = hits[hits.length - 1];

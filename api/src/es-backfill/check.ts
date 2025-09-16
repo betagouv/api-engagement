@@ -1,5 +1,6 @@
 import dotenv from "dotenv";
-import type { Prisma } from "../db/core";
+import fs from "node:fs/promises";
+import path from "node:path";
 
 const args = process.argv.slice(2);
 
@@ -25,17 +26,25 @@ const { prismaCore } = require("../db/postgres");
 const { STATS_INDEX } = require("../config");
 const { captureException } = require("../error");
 
-const BACKFILL_KEY = "stat_event_es_to_pg";
+// Persist backfill state in a local file within the es-backfill directory
+const STATE_FILE = path.join(__dirname, "backfill-state.json");
 
 type BackfillState = {
   lastCreatedAt?: string;
 };
 
 const getState = async (): Promise<BackfillState> => {
-  const rows = await prismaCore.$queryRaw<{ state: Prisma.JsonValue }[]>`
-    SELECT state FROM backfill_state WHERE id = ${BACKFILL_KEY}
-  `;
-  return rows.length ? (rows[0].state as any) || {} : {};
+  try {
+    const raw = await fs.readFile(STATE_FILE, "utf-8");
+    const parsed = JSON.parse(raw);
+    return parsed && typeof parsed === "object" ? parsed : {};
+  } catch (e: any) {
+    if (e && e.code === "ENOENT") {
+      return {};
+    }
+    console.warn("[Verify] Unable to read state file, starting fresh:", e?.message ?? e);
+    return {};
+  }
 };
 
 const verifyCounts = async (start: Date, end: Date) => {
@@ -72,7 +81,7 @@ const verifyCounts = async (start: Date, end: Date) => {
     }[]
   >`
     SELECT date_trunc('day', created_at) as day, type, COUNT(*) as count
-    FROM stat_event
+    FROM "public"."StatEvent"
     WHERE created_at >= ${start} AND created_at < ${end}
     GROUP BY 1,2
     ORDER BY 1,2
@@ -106,7 +115,11 @@ const spotCheckIds = async (start: Date, end: Date) => {
   });
   const hits = body.hits.hits as { _id: string }[];
   for (const h of hits) {
-    const exists = await prismaCore.statEvent.count({ where: { id: h._id } });
+    const exists = await prismaCore.statEvent.count({
+      where: {
+        es_id: h._id,
+      },
+    });
     console.log(`[SpotCheck] ${h._id} ${exists ? "found" : "missing"}`);
   }
 };
