@@ -46,8 +46,6 @@ router.get("/:id/stat", passport.authenticate("admin", { session: false }), asyn
 
     const publishers = await PublisherModel.find({ _id: { $in: response.body.aggregations.publisherTo.buckets.map((b: { [key: string]: any }) => b.key) } }).lean();
 
-    console.log(response.body.aggregations);
-
     const aggs = {
       type: response.body.aggregations.type.buckets.map((b: { [key: string]: any }) => ({
         key: b.key,
