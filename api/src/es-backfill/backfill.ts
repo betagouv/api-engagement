@@ -136,20 +136,22 @@ const handler = async () => {
       let hits: { _id: string; _source: Stats }[] = [];
 
       if (scrollId) {
-        const { body } = await esClient.scroll({
+        const scrollResp: any = await esClient.scroll({
           scroll: "5m",
           scroll_id: scrollId,
         });
-        scrollId = body._scroll_id;
-        hits = body.hits.hits;
+        const body = scrollResp.body as any;
+        scrollId = body._scroll_id as string;
+        hits = body.hits.hits as { _id: string; _source: Stats }[];
       } else {
-        const { body } = await esClient.search({
+        const searchResp: any = await esClient.search({
           index: STATS_INDEX,
           scroll: "5m",
           size: BATCH_SIZE,
           body: { query, sort: [{ createdAt: "asc" }] },
         });
-        scrollId = body._scroll_id;
+        const body = searchResp.body as any;
+        scrollId = body._scroll_id as string;
         hits = body.hits.hits as { _id: string; _source: Stats }[];
         console.log(`[Backfill] Total hits ${body.hits.total.value}, scrollId ${scrollId}`);
       }
