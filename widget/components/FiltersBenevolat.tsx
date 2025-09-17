@@ -3,11 +3,12 @@ import { useEffect, useState } from "react";
 import { RiArrowDownSLine, RiArrowUpSLine } from "react-icons/ri";
 
 import { DOMAINS } from "../config";
+import { AggregationData, ApiResponse, FilterOptions, Filters, Widget } from "../types";
 import useStore from "../utils/store";
 import LocationFilter from "./LocationFilter";
 import SelectFilter from "./SelectFilter";
 
-const getAPI = async (path) => {
+const getAPI = async (path: string): Promise<ApiResponse<AggregationData>> => {
   const response = await fetch(path, { method: "GET" });
 
   if (!response.ok) {
@@ -16,9 +17,18 @@ const getAPI = async (path) => {
   return response.json();
 };
 
-const Filters = ({ widget, apiUrl, values, onChange, show, onShow }) => {
+interface FiltersBenevolatProps {
+  widget: Widget;
+  apiUrl: string;
+  values: Filters;
+  onChange: (filters: Partial<Filters>) => void;
+  show: boolean;
+  onShow: (show: boolean) => void;
+}
+
+const FiltersBenevolat = ({ widget, apiUrl, values, onChange, show, onShow }: FiltersBenevolatProps) => {
   const { mobile } = useStore();
-  const [options, setOptions] = useState({
+  const [options, setOptions] = useState<FilterOptions>({
     organizations: [],
     domains: [],
     departments: [],
@@ -31,21 +41,21 @@ const Filters = ({ widget, apiUrl, values, onChange, show, onShow }) => {
         const searchParams = new URLSearchParams();
 
         if (values.domain && values.domain.length) {
-          values.domain.forEach((item) => searchParams.append("domain", item.value));
+          values.domain.forEach((item) => searchParams.append("domain", item.value.toString()));
         }
         if (values.organization && values.organization.length) {
-          values.organization.forEach((item) => searchParams.append("organization", item.value));
+          values.organization.forEach((item) => searchParams.append("organization", item.value.toString()));
         }
         if (values.department && values.department.length) {
-          values.department.forEach((item) => searchParams.append("department", item.value === "" ? "none" : item.value));
+          values.department.forEach((item) => searchParams.append("department", item.value === "" ? "none" : item.value.toString()));
         }
         if (values.remote && values.remote.length) {
-          values.remote.forEach((item) => searchParams.append("remote", item.value));
+          values.remote.forEach((item) => searchParams.append("remote", item.value.toString()));
         }
 
         if (values.location && values.location.lat && values.location.lon) {
-          searchParams.append("lat", values.location.lat);
-          searchParams.append("lon", values.location.lon);
+          searchParams.append("lat", values.location.lat.toString());
+          searchParams.append("lon", values.location.lon.toString());
         }
         ["domain", "organization", "department", "remote"].forEach((key) => searchParams.append("aggs", key));
 
@@ -57,7 +67,7 @@ const Filters = ({ widget, apiUrl, values, onChange, show, onShow }) => {
 
         const remote = data.remote.filter((b) => b.key === "full" || b.key === "possible");
         const presentiel = data.remote.filter((b) => b.key === "no");
-        const newOptions = {
+        const newOptions: FilterOptions = {
           organizations: data.organization.map((b) => ({ value: b.key, count: b.doc_count, label: b.key })),
           domains: data.domain.map((b) => ({ value: b.key, count: b.doc_count, label: DOMAINS[b.key] ? DOMAINS[b.key].label : b.key })),
           departments: data.department.map((b) => ({
@@ -77,12 +87,12 @@ const Filters = ({ widget, apiUrl, values, onChange, show, onShow }) => {
     };
 
     fetchData();
-  }, [widget._id, values]);
+  }, [widget._id, values, apiUrl]);
 
   if (mobile) {
     return (
       <div className="flex w-full flex-col items-center gap-2">
-        <MobileFilters
+        <MobileBenevolatFilters
           options={options}
           values={values}
           onChange={(newFilters) => onChange({ ...values, ...newFilters })}
@@ -96,12 +106,21 @@ const Filters = ({ widget, apiUrl, values, onChange, show, onShow }) => {
 
   return (
     <div className="m-auto flex items-center justify-between">
-      <DesktopFilters options={options} values={values} onChange={(v) => onChange({ ...values, ...v })} disabledLocation={!!widget.location} />
+      <DesktopFiltersBenevolat options={options} values={values} onChange={(v) => onChange({ ...values, ...v })} disabledLocation={!!widget.location} />
     </div>
   );
 };
 
-const MobileFilters = ({ options, values, onChange, show, onShow, disabledLocation = false }) => {
+interface MobileBenevolatFiltersProps {
+  options: FilterOptions;
+  values: Filters;
+  onChange: (filters: Partial<Filters>) => void;
+  show: boolean;
+  onShow: (show: boolean) => void;
+  disabledLocation?: boolean;
+}
+
+const MobileBenevolatFilters = ({ options, values, onChange, show, onShow, disabledLocation = false }: MobileBenevolatFiltersProps) => {
   const { url, color } = useStore();
 
   const plausible = usePlausible();
@@ -130,7 +149,7 @@ const MobileFilters = ({ options, values, onChange, show, onShow, disabledLocati
           className="flex h-[40px] w-full items-center justify-between bg-white px-4 focus:outline-none focus-visible:ring focus-visible:ring-[#000091]"
           onClick={() => {
             onShow(!show);
-            plausible(show ? "Filters closed" : "Filters opened", { u: url });
+            plausible(show ? "Filters closed" : "Filters opened", { u: url || undefined });
           }}
         >
           Filtrer les missions
@@ -142,8 +161,8 @@ const MobileFilters = ({ options, values, onChange, show, onShow, disabledLocati
             <div className="mb-4 w-full">
               <SelectFilter
                 id="remote"
-                options={options.remote}
-                selectedOptions={values.remote}
+                options={options.remote || []}
+                selectedOptions={values.remote || []}
                 onChange={(f) => onChange({ ...values, remote: f })}
                 placeholder="Présentiel / Distance"
                 width="w-full"
@@ -152,7 +171,7 @@ const MobileFilters = ({ options, values, onChange, show, onShow, disabledLocati
             <div className="mb-4 w-full">
               <SelectFilter
                 id="domain"
-                options={options.domains}
+                options={options.domains || []}
                 selectedOptions={values.domain}
                 onChange={(v) => onChange({ ...values, domain: v })}
                 placeholder="Domaines"
@@ -163,8 +182,8 @@ const MobileFilters = ({ options, values, onChange, show, onShow, disabledLocati
             <div className="mb-4 w-full">
               <SelectFilter
                 id="department"
-                options={options.departments}
-                selectedOptions={values.department}
+                options={options.departments || []}
+                selectedOptions={values.department || []}
                 onChange={(v) => onChange({ ...values, department: v })}
                 placeholder="Départements"
                 width="w-full"
@@ -174,8 +193,8 @@ const MobileFilters = ({ options, values, onChange, show, onShow, disabledLocati
             <div className="mb-4 w-full">
               <SelectFilter
                 id="organization"
-                options={options.organizations}
-                selectedOptions={values.organization}
+                options={options.organizations || []}
+                selectedOptions={values.organization || []}
                 onChange={(v) => onChange({ ...values, organization: v })}
                 placeholder="Organisations"
                 width="w-full"
@@ -188,7 +207,7 @@ const MobileFilters = ({ options, values, onChange, show, onShow, disabledLocati
                 className="w-full border-none p-3 text-center text-sm text-white focus:outline-none focus-visible:ring focus-visible:ring-[#000091]"
                 onClick={() => {
                   onShow(false);
-                  plausible("Filters closed", { u: url });
+                  plausible("Filters closed", { u: url || undefined });
                 }}
                 style={{ backgroundColor: color }}
               >
@@ -200,7 +219,7 @@ const MobileFilters = ({ options, values, onChange, show, onShow, disabledLocati
                 style={{ color }}
                 onClick={() => {
                   handleReset();
-                  plausible("Filters reset", { u: url });
+                  plausible("Filters reset", { u: url || undefined });
                 }}
               >
                 Réinitialiser les filtres
@@ -213,7 +232,14 @@ const MobileFilters = ({ options, values, onChange, show, onShow, disabledLocati
   );
 };
 
-const DesktopFilters = ({ options, values, onChange, disabledLocation = false }) => {
+interface DesktopFiltersBenevolatProps {
+  options: FilterOptions;
+  values: Filters;
+  onChange: (filters: Partial<Filters>) => void;
+  disabledLocation?: boolean;
+}
+
+const DesktopFiltersBenevolat = ({ options, values, onChange, disabledLocation = false }: DesktopFiltersBenevolatProps) => {
   return (
     <>
       <div className="w-[20%] pr-2">
@@ -222,20 +248,27 @@ const DesktopFilters = ({ options, values, onChange, disabledLocation = false })
       <div className="w-[20%] px-2">
         <SelectFilter
           id="remote"
-          options={options.remote}
-          selectedOptions={values.remote}
+          options={options.remote || []}
+          selectedOptions={values.remote || []}
           onChange={(f) => onChange({ ...values, remote: f })}
           placeholder="Présentiel / Distance"
         />
       </div>
       <div className="w-[20%] px-2">
-        <SelectFilter id="domain" options={options.domains} selected={values.domain} onChange={(v) => onChange({ ...values, domain: v })} placeholder="Domaines" searchable />
+        <SelectFilter
+          id="domain"
+          options={options.domains || []}
+          selectedOptions={values.domain}
+          onChange={(v) => onChange({ ...values, domain: v })}
+          placeholder="Domaines"
+          searchable
+        />
       </div>
       <div className="w-[20%] px-2">
         <SelectFilter
           id="department"
-          options={options.departments}
-          selected={values.department}
+          options={options.departments || []}
+          selectedOptions={values.department || []}
           onChange={(v) => onChange({ ...values, department: v })}
           placeholder="Départements"
           searchable
@@ -244,8 +277,8 @@ const DesktopFilters = ({ options, values, onChange, disabledLocation = false })
       <div className="w-[20%] pl-2">
         <SelectFilter
           id="organization"
-          options={options.organizations}
-          selected={values.organization}
+          options={options.organizations || []}
+          selectedOptions={values.organization || []}
           onChange={(v) => onChange({ ...values, organization: v })}
           placeholder="Organisations"
           position="right-0"
@@ -257,4 +290,4 @@ const DesktopFilters = ({ options, values, onChange, disabledLocation = false })
   );
 };
 
-export default Filters;
+export default FiltersBenevolat;

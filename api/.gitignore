@@ -6,3 +6,7 @@ coverage
 
 linkedin.xml
 talent.xml
+
+# Prisma
+src/db/analytics
+src/db/core

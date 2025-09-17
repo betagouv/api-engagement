@@ -2,7 +2,13 @@ const ENV = process.env.ENV || "development";
 const API_URL = process.env.API_URL || "http://localhost:4000";
 const SENTRY_DSN = process.env.SENTRY_DSN || "";
 
-const DOMAINS = {
+interface DomainConfig {
+  label: string;
+  icon: string;
+  color: string;
+}
+
+const DOMAINS: Record<string, DomainConfig> = {
   environnement: {
     label: "Environnement",
     icon: "",
@@ -80,13 +86,13 @@ const DOMAINS = {
   },
 };
 
-const SCHEDULES = {
+const SCHEDULES: Record<string, string> = {
   part_time: "24 à 30h par semaine",
   full_time: "Plus de 30h par semaine",
   special: "Horaires spécifiques",
 };
 
-const BENEFICIARIES = {
+const BENEFICIARIES: Record<string, string> = {
   tous_publics: "Tous publics",
   young: "Jeunes",
   seniors: "Seniors",
@@ -96,7 +102,7 @@ const BENEFICIARIES = {
   adultes: "Adultes",
 };
 
-const ACTIONS = {
+const ACTIONS: Record<string, string> = {
   soutien_accompagnement: "Soutien, accompagnement",
   animation_valorisation: "Animation, valorisation",
   transmission_pedagogie: "Transmission, pédagogie",
@@ -106,12 +112,12 @@ const ACTIONS = {
   prevention_sensibilisation: "Prévention, sensibilisation",
 };
 
-const ACCESSIBILITIES = {
+const ACCESSIBILITIES: Record<string, string> = {
   reducedMobilityAccessible: "Aux personnes à mobilité réduite",
   closeToTransport: "En transports en commun",
 };
 
-const MINORS = {
+const MINORS: Record<string, string> = {
   yes: "Accessible à tous dès 16 ans",
   no: "Majeur uniquement",
 };

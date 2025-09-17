@@ -1,5 +1,5 @@
-import { Organization as PgOrganization } from "@prisma/client";
-import prisma from "../../../db/postgres";
+import { Organization as PgOrganization } from "../../../db/analytics";
+import { prismaAnalytics as prismaClient } from "../../../db/postgres";
 import { captureException } from "../../../error";
 import OrganizationModel from "../../../models/organization";
 import { Organization as MongoOrganization } from "../../../types";
@@ -69,7 +69,7 @@ const handler = async () => {
     let created = 0;
     let updated = 0;
 
-    const count = await prisma.organization.count();
+    const count = await prismaClient.organization.count();
     console.log(`[Organization] Found ${count} docs in database.`);
 
     const where = { $or: [{ lastExportedToPgAt: null }, { $expr: { $lt: ["$lastExportedToPgAt", "$updatedAt"] } }] };
@@ -93,7 +93,7 @@ const handler = async () => {
       // Fetch all existing Orga in one go
       const stored = {} as { [key: string]: Date };
 
-      await prisma.organization
+      await prismaClient.organization
         .findMany({
           where: { old_id: { in: data.map((hit) => hit._id.toString()) } },
           select: { old_id: true, updated_at: true },
@@ -127,7 +127,7 @@ const handler = async () => {
 
       // Create data
       if (dataToCreate.length) {
-        const res = await prisma.organization.createMany({
+        const res = await prismaClient.organization.createMany({
           data: dataToCreate,
           skipDuplicates: true,
         });
@@ -138,10 +138,10 @@ const handler = async () => {
       if (dataToUpdate.length) {
         const transactions = [];
         for (const obj of dataToUpdate) {
-          transactions.push(prisma.organization.update({ where: { old_id: obj.old_id }, data: obj }));
+          transactions.push(prismaClient.organization.update({ where: { old_id: obj.old_id }, data: obj }));
         }
         for (let i = 0; i < transactions.length; i += 100) {
-          await prisma.$transaction(transactions.slice(i, i + 100));
+          await prismaClient.$transaction(transactions.slice(i, i + 100));
         }
 
         updated += dataToUpdate.length;

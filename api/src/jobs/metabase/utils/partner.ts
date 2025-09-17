@@ -1,5 +1,5 @@
-import { Partner as PgPartner } from "@prisma/client";
-import prisma from "../../../db/postgres";
+import { Partner as PgPartner } from "../../../db/analytics";
+import { prismaAnalytics as prismaClient } from "../../../db/postgres";
 import { captureException } from "../../../error";
 import PublisherModel from "../../../models/publisher";
 import { Publisher } from "../../../types";
@@ -32,7 +32,7 @@ const handler = async () => {
     console.log(`[Partners] Found ${data.length} docs to sync.`);
 
     const stored = {} as { [key: string]: { old_id: string; id: string; updated_at: Date } };
-    await prisma.partner.findMany({ select: { old_id: true, id: true, updated_at: true } }).then((data) => data.forEach((d) => (stored[d.old_id] = d)));
+    await prismaClient.partner.findMany({ select: { old_id: true, id: true, updated_at: true } }).then((data) => data.forEach((d) => (stored[d.old_id] = d)));
     console.log(`[Partners] Found ${Object.keys(stored).length} docs in database.`);
 
     let created = 0;
@@ -47,10 +47,10 @@ const handler = async () => {
       const exists = stored[doc._id.toString()];
       const obj = buildData(doc as Publisher);
       if (!exists) {
-        await prisma.partner.create({ data: obj });
+        await prismaClient.partner.create({ data: obj });
         created++;
       } else if (!isDateEqual(exists.updated_at, obj.updated_at)) {
-        await prisma.partner.update({ where: { old_id: obj.old_id }, data: obj });
+        await prismaClient.partner.update({ where: { old_id: obj.old_id }, data: obj });
         updated++;
       }
       processed++;

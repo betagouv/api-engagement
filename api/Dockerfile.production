@@ -29,6 +29,7 @@ COPY package*.json ./
 RUN npm ci --omit=dev
 
 COPY --from=builder /app/dist ./dist
+COPY --from=builder /app/src/db ./dist/db
 COPY --from=builder /app/node_modules/.prisma ./node_modules/.prisma
 COPY --from=builder /app/prisma ./prisma
 COPY docker-entrypoint.sh /app/docker-entrypoint.sh

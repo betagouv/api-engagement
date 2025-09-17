@@ -1,4 +1,4 @@
-import prisma from "../../../db/postgres";
+import { prismaAnalytics as prisma } from "../../../db/postgres";
 import MissionModel from "../../../models/mission";
 import { Mission } from "../../../types";
 

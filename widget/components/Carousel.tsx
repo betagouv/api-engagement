@@ -2,15 +2,22 @@ import { usePlausible } from "next-plausible";
 import { useEffect, useRef, useState } from "react";
 import { RiArrowLeftLine, RiArrowRightLine } from "react-icons/ri";
 
+import { Mission, Widget } from "../types";
 import useStore from "../utils/store";
 import Card from "./Card";
 
-const Carousel = ({ widget, missions, request }) => {
+interface CarouselProps {
+  widget: Widget;
+  missions: Mission[];
+  request: string | null;
+}
+
+const Carousel = ({ widget, missions, request }: CarouselProps) => {
   const { url, color, mobile } = useStore();
-  const ref = useRef(null);
-  const prevButtonRef = useRef(null);
-  const nextButtonRef = useRef(null);
-  const [cardsRef, setCardsRef] = useState(missions.map(() => null));
+  const ref = useRef<HTMLElement>(null);
+  const prevButtonRef = useRef<HTMLButtonElement>(null);
+  const nextButtonRef = useRef<HTMLButtonElement>(null);
+  const [cardsRef, setCardsRef] = useState<(React.RefObject<HTMLAnchorElement | null> | null)[]>(missions.map(() => null));
   const plausible = usePlausible();
   const [currentSlide, setCurrentSlide] = useState(0);
   const [slidesToShow, setSlidesToShow] = useState(3);
@@ -39,16 +46,16 @@ const Carousel = ({ widget, missions, request }) => {
   }, []);
 
   const handleNextPage = () => {
-    setCurrentSlide((prev) => {
+    setFocusedSlideIndex((prev) => {
       const nextSlide = prev + slidesToShow;
       // If we've reached or passed the end, loop back to the beginning
       return nextSlide >= missions.length ? 0 : nextSlide;
     });
-    plausible("Slide changed", { u: url });
+    plausible("Slide changed", { u: url || undefined });
   };
 
   const handlePrevPage = () => {
-    setCurrentSlide((prev) => {
+    setFocusedSlideIndex((prev) => {
       // If we're at the beginning, loop to the last possible slide position
       if (prev <= 0) {
         const lastSlidePosition = Math.floor((missions.length - 1) / slidesToShow) * slidesToShow;
@@ -56,7 +63,7 @@ const Carousel = ({ widget, missions, request }) => {
       }
       return prev - slidesToShow;
     });
-    plausible("Slide changed", { u: url });
+    plausible("Slide changed", { u: url || undefined });
   };
 
   useEffect(() => {
@@ -64,20 +71,20 @@ const Carousel = ({ widget, missions, request }) => {
     if (slidePosition !== currentSlide) {
       setCurrentSlide(slidePosition);
     }
-  }, [focusedSlideIndex, slidesToShow]);
+  }, [focusedSlideIndex, slidesToShow, currentSlide]);
 
-  const handleKeyDown = (e) => {
+  const handleKeyDown = (e: React.KeyboardEvent) => {
     switch (e.key) {
       case "Tab":
         e.preventDefault();
         if (e.shiftKey) {
-          prevButtonRef.current.focus();
+          prevButtonRef.current?.focus();
         } else {
-          nextButtonRef.current.focus();
+          nextButtonRef.current?.focus();
         }
-        if (cardsRef[focusedSlideIndex] && cardsRef[focusedSlideIndex].current) {
-          cardsRef[focusedSlideIndex].current.blur();
-          cardsRef[focusedSlideIndex].current.setAttribute("aria-focused", "false");
+        if (cardsRef[focusedSlideIndex] && cardsRef[focusedSlideIndex]?.current) {
+          cardsRef[focusedSlideIndex]?.current?.blur();
+          cardsRef[focusedSlideIndex]?.current?.setAttribute("aria-focused", "false");
         }
         break;
       case "Left":
@@ -93,8 +100,8 @@ const Carousel = ({ widget, missions, request }) => {
           setCurrentSlide(newPage * slidesToShow);
         }
 
-        if (cardsRef[newIndex] && cardsRef[newIndex].current) {
-          cardsRef[newIndex].current.focus({ preventScroll: true });
+        if (cardsRef[newIndex] && cardsRef[newIndex]?.current) {
+          cardsRef[newIndex]?.current?.focus({ preventScroll: true });
         }
         setFocusedSlideIndex(newIndex);
         break;
@@ -112,16 +119,16 @@ const Carousel = ({ widget, missions, request }) => {
           setCurrentSlide(newPage * slidesToShow);
         }
 
-        if (cardsRef[newIndex] && cardsRef[newIndex].current) {
-          cardsRef[newIndex].current.focus({ preventScroll: true });
+        if (cardsRef[newIndex] && cardsRef[newIndex]?.current) {
+          cardsRef[newIndex]?.current?.focus({ preventScroll: true });
         }
         setFocusedSlideIndex(newIndex);
         break;
       }
       case "Enter":
         e.preventDefault();
-        if (cardsRef[focusedSlideIndex] && cardsRef[focusedSlideIndex].current) {
-          cardsRef[focusedSlideIndex].current.click();
+        if (cardsRef[focusedSlideIndex] && cardsRef[focusedSlideIndex]?.current) {
+          cardsRef[focusedSlideIndex]?.current?.click();
         }
         break;
     }
@@ -190,18 +197,18 @@ const Carousel = ({ widget, missions, request }) => {
                 <Card
                   widget={widget}
                   mission={mission}
-                  color={color}
                   request={request}
                   focused={i === focusedSlideIndex}
                   onKeyDown={handleKeyDown}
-                  onRef={(ref) => {
-                    setCardsRef((prev) => {
-                      const newRefs = [...prev];
-                      newRefs[i] = ref;
-                      return newRefs;
-                    });
+                  onRef={(ref: React.RefObject<HTMLAnchorElement | null>) => {
+                    if (!cardsRef[i]) {
+                      setCardsRef((prev) => {
+                        const newRefs = [...prev];
+                        newRefs[i] = ref;
+                        return newRefs;
+                      });
+                    }
                   }}
-                  onFocus={() => setFocusedSlideIndex(i)}
                 />
               </div>
             ))}

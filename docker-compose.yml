@@ -12,27 +12,41 @@ services:
     volumes:
       - mongo-data:/data/db
 
-  postgres:
+  postgres-analytics:
     image: postgres:13
     restart: always
     environment:
       POSTGRES_USER: user
       POSTGRES_PASSWORD: password
-      POSTGRES_DB: api-engagement
+      POSTGRES_DB: api-engagement-analytics
     ports:
-      - "5432:5432"
+      - "5431:5432"
     volumes:
-      - postgres-data:/var/lib/postgresql/data
+      - postgres-analytics-data:/var/lib/postgresql/data
+
+  postgres-core:
+    image: postgres:13
+    restart: always
+    environment:
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: api-engagement-core
+    ports:
+      - "5433:5432"
+    volumes:
+      - postgres-core-data:/var/lib/postgresql/data
 
   api:
     build: ./api
     depends_on:
       - mongo
-      - postgres
+      - postgres-analytics
+      - postgres-core
     environment:
       PORT: 3002
       DB_ENDPOINT: mongodb://mongo:27017/api-engagement
-      PG_ENDPOINT: postgres://user:password@postgres:5432/api-engagement
+      DATABASE_URL_ANALYTICS: postgres://user:password@postgres-analytics:5432/api-engagement-analytics
+      DATABASE_URL_CORE: postgres://user:password@postgres-core:5432/api-engagement-core
     volumes:
       - ./api:/app
       - /app/node_modules
@@ -67,4 +81,5 @@ services:
 
 volumes:
   mongo-data:
-  postgres-data:
+  postgres-analytics-data:
+  postgres-core-data:

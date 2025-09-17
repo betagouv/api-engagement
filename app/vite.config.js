@@ -14,7 +14,7 @@ export default defineConfig((env) => {
       sentryVitePlugin({
         org: "sentry",
         project: "app",
-        url: "https://sentry.api-engagement.beta.gouv.fr/",
+        url: process.env.SENTRY_HOST,
         environment: env.mode,
         release: {
           name: "app",

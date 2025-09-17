@@ -41,7 +41,8 @@ resource "scaleway_container" "api" {
     "SECRET"            = local.secrets.SECRET
     "DB_ENDPOINT"       = local.secrets.DB_ENDPOINT
     "ES_ENDPOINT"       = local.secrets.ES_ENDPOINT
-    "PG_ENDPOINT"       = local.secrets.PG_ENDPOINT
+    "DATABASE_URL_CORE" = local.secrets.DATABASE_URL_CORE
+    "DATABASE_URL_ANALYTICS" = local.secrets.DATABASE_URL_ANALYTICS
     "SENTRY_DSN_API"    = local.secrets.SENTRY_DSN_API
     "SENDINBLUE_APIKEY" = local.secrets.SENDINBLUE_APIKEY
     "SLACK_TOKEN"       = local.secrets.SLACK_TOKEN

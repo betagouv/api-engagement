@@ -1,5 +1,5 @@
-import { MissionHistoryEvent, MissionHistoryEventType, MissionType, Address as PgAddress, Mission as PgMission, Prisma } from "@prisma/client";
 import { PUBLISHER_IDS } from "../../../config";
+import { MissionHistoryEvent, MissionHistoryEventType, MissionType, Address as PgAddress, Mission as PgMission, Prisma } from "../../../db/analytics";
 import { Mission as MongoMission, MissionEvent as MongoMissionEvent } from "../../../types";
 import { MissionTransformResult } from "../types";
 

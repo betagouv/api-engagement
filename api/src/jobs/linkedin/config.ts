@@ -114,18 +114,18 @@ export const AUDIENCE_MAPPING = {
 
 // Missions removed periodically for republication testing
 export const MISSIONS_PERIODIC_REMOVAL_IDS: string[] = [
-  "68b8162d23a2ea139a627de9",
-  "68b718f148f4f87b5d9ede26",
-  "68b6c48fe8b5f195918020c9",
-  "68b5c7673a5d74365e957458",
-  "68b572d1db8e5bb5cefbe8b1",
-  "68b572abdb8e5bb5cefbaaeb",
-  "68b57297db8e5bb5cefb89f4",
-  "68b1d2cb217fdbb919d63f55",
-  "68b1d2cb217fdbb919d63f58",
-  "68b1d2b4217fdbb919d61654",
+  "615fcef097167a074eb83fa2",
+  "6493221f47103de658a5ebc7",
+  "6529895e51eabbf2d16549c3",
+  "6703be1573fbd982c101af2b",
+  "662f73a4518d9b6a398e0b0a",
+  "6490ef92da824026f5bd33ac",
+  "670581c673fbd982c1141595",
+  "672bcb3673fbd982c1db3ee5",
+  "6781288373fbd982c1338679",
+  "678ab72e73fbd982c1951cac",
 ];
 
 export const MISSIONS_PERIODIC_ONLINE_DAYS = 10;
 export const MISSIONS_PERIODIC_OFFLINE_DAYS = 1;
-export const MISSIONS_PERIODIC_CYCLE_START_DATE = "2025-09-08";
+export const MISSIONS_PERIODIC_CYCLE_START_DATE = "2025-09-13";
