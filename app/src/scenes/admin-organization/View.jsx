@@ -116,7 +116,7 @@ const View = () => {
         </div>
 
         <div className="mt-6">
-          <button className="button border-blue-france text-blue-france border" onClick={() => setShowRaw(!showRaw)}>
+          <button className="tertiary-btn" onClick={() => setShowRaw(!showRaw)}>
             Données brutes
           </button>
         </div>

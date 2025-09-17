@@ -141,7 +141,7 @@ const Diffuseur = ({ values, onChange, errors, setErrors }) => {
           {editing ? (
             <div className="flex items-center gap-2">
               <button
-                className="empty-button"
+                className="secondary-btn"
                 onClick={() => {
                   setEditing(false);
                   setSelectedPublishers(values.publishers);
@@ -150,7 +150,7 @@ const Diffuseur = ({ values, onChange, errors, setErrors }) => {
                 Annuler
               </button>
               <button
-                className="filled-button"
+                className="primary-btn"
                 onClick={() => {
                   setEditing(false);
                   onChange({ ...values, publishers: selectedPublishers });
@@ -160,7 +160,7 @@ const Diffuseur = ({ values, onChange, errors, setErrors }) => {
               </button>
             </div>
           ) : (
-            <button className="empty-button" onClick={() => setEditing(true)}>
+            <button className="secondary-btn" onClick={() => setEditing(true)}>
               Modifier les annonceurs
             </button>
           )}

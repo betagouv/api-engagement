@@ -207,7 +207,7 @@ const Flux = () => {
                   </a>
                 </p>
                 <Link to={`moderated-mission/${m._id.toString()}`}>
-                  <div className="empty-button w-56">Suivre la modération</div>
+                  <div className="secondary-btn w-56">Suivre la modération</div>
                 </Link>
               </div>
             </InfoAlert>
@@ -231,7 +231,7 @@ const Flux = () => {
             </div>
           </div>
 
-          <button className="button text-blue-france hover:bg-gray-975 flex items-center border border-gray-900" onClick={handleExport}>
+          <button className="tertiary-btn" onClick={handleExport}>
             {exporting ? <Loader /> : <RiFileDownloadLine className="mr-2" />}
             Exporter
           </button>

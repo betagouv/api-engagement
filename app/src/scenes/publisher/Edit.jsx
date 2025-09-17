@@ -180,12 +180,12 @@ const Edit = () => {
         <Members values={values} onChange={setValues} />
 
         <div className="flex items-center justify-end gap-2">
-          <button className="button text-red-error flex items-center border border-gray-400" onClick={handleDelete}>
+          <button className="red-btn flex items-center" onClick={handleDelete}>
             <TrashSvg className="mr-2" />
             <span>Supprimer</span>
           </button>
 
-          <button className="filled-button" disabled={!isChanged(values)} onClick={handleSubmit}>
+          <button className="primary-btn" disabled={!isChanged(values)} onClick={handleSubmit}>
             Enregistrer
           </button>
         </div>

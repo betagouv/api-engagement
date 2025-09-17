@@ -261,7 +261,7 @@ const UpdateNoteModal = ({ isOpen, onChange, onClose, data }) => {
               </label>
               <textarea id="note" className="input" rows={4} name="note" value={note} onChange={(e) => setNote(e.target.value)} required />
               <div className="mt-6 flex justify-end">
-                <button className="filled-button w-full" type="submit">
+                <button className="primary-btn w-full" type="submit">
                   Enregistrer
                 </button>
               </div>

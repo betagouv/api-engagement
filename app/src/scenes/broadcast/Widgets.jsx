@@ -69,7 +69,7 @@ const Widgets = () => {
           <RiSearchLine className="absolute top-1/2 right-3 -translate-y-1/2 transform" />
         </div>
         {user.role === "admin" && (
-          <Link to="/broadcast/widget/new" className="filled-button flex items-center">
+          <Link to="/broadcast/widget/new" className="primary-btn flex items-center">
             Créer un widget <RiAddFill className="ml-2" />
           </Link>
         )}
@@ -108,16 +108,16 @@ const Widgets = () => {
                 </td>
                 <td className={`${!item.active ? "opacity-50" : "opacity-100"} px-4`}>{new Date(item.createdAt).toLocaleDateString("fr")}</td>
                 <td className="mt-3 flex gap-2 px-4 text-lg">
-                  <Link className="border-blue-france cursor-pointer border p-2" to={`/broadcast/widget/${item._id}`}>
-                    <RiEditFill className="text-blue-france" />
+                  <Link className="secondary-btn flex items-center" to={`/broadcast/widget/${item._id}`}>
+                    <RiEditFill className="text-lg" />
                   </Link>
                   <a
-                    className="border-blue-france cursor-pointer border p-2"
+                    className="secondary-btn flex items-center"
                     href={`${item.type === "volontariat" ? VOLONTARIAT_URL : BENEVOLAT_URL}?widget=${item._id}&notrack=true`}
                     target="_blank"
                     rel="noopener noreferrer"
                   >
-                    <RiEyeFill className="text-blue-france" />
+                    <RiEyeFill className="text-lg" />
                   </a>
                 </td>
                 {user.role === "admin" && (

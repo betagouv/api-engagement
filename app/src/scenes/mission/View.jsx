@@ -74,7 +74,7 @@ const View = () => {
             <p className="mt-2">Mise à jour le {new Date(mission.lastSyncAt).toLocaleString().replace(" ", " à ")}</p>
           </div>
 
-          <a className="button text-blue-france flex cursor-pointer items-center text-sm" href={buildLink(mission)} target="_blank">
+          <a className="tertiary-bis-btn flex items-center h-fit" href={buildLink(mission)} target="_blank">
             <RiCursorFill className="mr-2" />
             <span>Lien vers la mission</span>
           </a>
@@ -107,7 +107,7 @@ const View = () => {
         </div>
 
         <div className="mt-6">
-          <button className="button border-blue-france text-blue-france border" onClick={() => setShowRaw(!showRaw)}>
+          <button className="tertiary-btn" onClick={() => setShowRaw(!showRaw)}>
             Données brutes
           </button>
         </div>

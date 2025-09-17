@@ -131,7 +131,7 @@ const Edit = () => {
             <Toggle value={widget.active} onChange={(value) => handleActivate(value)} />
             <label className="text-blue-france text-xs">{widget.active ? "Actif" : "Inactif"}</label>
           </div>
-          <button type="submit" className="filled-button" onClick={handleSubmit} ref={(node) => setSaveButton(node)} disabled={!canSubmit()}>
+          <button type="submit" className="primary-btn" onClick={handleSubmit} ref={(node) => setSaveButton(node)} disabled={!canSubmit()}>
             Enregistrer
           </button>
         </div>
@@ -228,7 +228,7 @@ const Code = ({ widget }) => {
       <h2 className="text-2xl font-bold">Code à intégrer</h2>
       <div className="flex items-center justify-between">
         <p>Vous n’avez plus qu’à intégrer ce code pour afficher le widget sur votre site</p>
-        <button className="empty-button flex items-center" onClick={handleCopy}>
+        <button className="secondary-btn flex items-center" onClick={handleCopy}>
           <RiCodeSSlashFill className="mr-2" />
           Copier le code
         </button>
@@ -257,7 +257,7 @@ const StickyBar = ({ onEdit, visible, widget, handleActivate, canSubmit }) => {
             <Toggle value={widget.active} onChange={(value) => handleActivate(value)} />
             <label className="text-blue-france text-xs">{widget.active ? "Actif" : "Inactif"}</label>
           </div>
-          <button type="button" className="filled-button" onClick={onEdit} disabled={!canSubmit()}>
+          <button type="button" className="primary-btn" onClick={onEdit} disabled={!canSubmit()}>
             Enregistrer
           </button>
         </div>

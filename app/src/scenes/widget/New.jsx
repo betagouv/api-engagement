@@ -103,7 +103,7 @@ const New = () => {
 
       <div className="flex items-center justify-between align-baseline">
         <h1 className="text-4xl font-bold">Créer un widget</h1>
-        <button type="submit" className="filled-button" onClick={handleSubmit} ref={(node) => setSaveButton(node)} disabled={!canSubmit()}>
+        <button type="submit" className="primary-btn" onClick={handleSubmit} ref={(node) => setSaveButton(node)} disabled={!canSubmit()}>
           Créer le widget
         </button>
       </div>
@@ -120,7 +120,7 @@ const StickyBar = ({ onEdit, visible, canSubmit }) => {
     <div className="fixed top-0 left-0 z-50 w-full items-center bg-white py-4 shadow-lg">
       <div className="m-auto flex w-[90%] items-center justify-between">
         <h1 className="text-2xl font-bold">Créer un widget</h1>
-        <button type="button" className="filled-button" onClick={onEdit} disabled={!canSubmit()}>
+        <button type="button" className="primary-btn" onClick={onEdit} disabled={!canSubmit()}>
           Créer le widget
         </button>
       </div>

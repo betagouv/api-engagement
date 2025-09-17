@@ -36,7 +36,6 @@ const Forgot = () => {
       <Helmet>
         <title>Mot de passe oublié - API Engagement</title>
       </Helmet>
-      <h2 className="font-light">Mot de passe oublié</h2>
       <h1 className="text-4xl font-bold">Récupérez votre mot de passe</h1>
 
       <label className="mt-6 mb-2 text-sm" htmlFor="email">
@@ -56,7 +55,7 @@ const Forgot = () => {
         </div>
       )}
 
-      <button type="submit" className="button bg-blue-france hover:bg-blue-france-hover mt-6 text-white" disabled={errors.email || loading || done}>
+      <button type="submit" className="primary-btn w-full mt-6" disabled={errors.email || loading || done}>
         {loading ? "Chargement..." : "Réinitialisez votre mot de passe"}
       </button>
 

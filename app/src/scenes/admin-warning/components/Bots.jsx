@@ -125,12 +125,12 @@ const BotRow = ({ bot }) => {
             <div className="flex items-center gap-2">
               <RiCheckboxCircleFill className="text-green-success" /> <p className="text-green-success">Marqué comme bots (les stats n'apparaîtront pas dans le dashboard)</p>
             </div>
-            <button className="red-button w-56" onClick={handleUnblock} disabled={loading}>
+            <button className="red-btn w-56" onClick={handleUnblock} disabled={loading}>
               {loading ? <Loader className="h-4 w-4 text-white" /> : "Démarquer comme bots"}
             </button>
           </div>
         ) : (
-          <button className="filled-button w-56" onClick={handleBlock} disabled={loading}>
+          <button className="primary-btn w-56" onClick={handleBlock} disabled={loading}>
             {loading ? <Loader className="h-4 w-4 text-white" /> : "Marquer comme bots"}
           </button>
         )}

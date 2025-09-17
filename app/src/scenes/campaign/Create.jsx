@@ -254,7 +254,7 @@ const Create = () => {
                     </div>
                     <div className="flex w-10 justify-end">
                       {values.trackers.length > 1 && (
-                        <button type="button h-full w-10" className="border border-gray-900 p-2" onClick={() => handleDeleteTracker(i)}>
+                        <button type="button" className="tertiary-btn" onClick={() => handleDeleteTracker(i)}>
                           <RiDeleteBin6Line className="text-red-error" />
                         </button>
                       )}
@@ -263,16 +263,16 @@ const Create = () => {
                 ))}
               </div>
 
-              <button type="button" className="empty-button mt-4" onClick={() => setValues({ ...values, trackers: [...values.trackers, { key: "", value: "" }] })}>
+              <button type="button" className="secondary-btn mt-4" onClick={() => setValues({ ...values, trackers: [...values.trackers, { key: "", value: "" }] })}>
                 Ajouter un tracker
               </button>
             </div>
           )}
           <div className="flex justify-end gap-4">
-            <Link to="/broadcast" className="button hover:bg-gray-975 border border-black text-black">
+            <Link to="/broadcast" className="tertiary-btn">
               Retour
             </Link>
-            <button type="submit" className="button bg-blue-france hover:bg-blue-france-hover text-white" disabled={isErrors(errors) || isEmpty(values)} onClick={handleSubmit}>
+            <button type="submit" className="primary-btn" disabled={isErrors(errors) || isEmpty(values)} onClick={handleSubmit}>
               Créer la campagne
             </button>
           </div>
@@ -299,9 +299,9 @@ const CopyModal = ({ isOpen, campaignId, onClose }) => {
           Pour commencer à diffuser des missions et suivre les statistiques, insérez ce lien dans le contenu de votre campagne (votre site web, vos emails, des bannières, etc.).
         </p>
 
-        <div className="bg-blue-france-975 my-4 flex items-center justify-between border px-4 py-4">
+        <div className="border-blue-france-925 bg-blue-france-975 my-4 flex items-center justify-between border px-4 py-4">
           <span className="truncate text-sm">{trackedLink}</span>
-          <button type="button" className="button border-blue-france text-blue-france hover:bg-gray-975 ml-3 border bg-transparent" onClick={handleCopy}>
+          <button type="button" className="secondary-btn" onClick={handleCopy}>
             Copier
           </button>
         </div>
@@ -314,10 +314,10 @@ const CopyModal = ({ isOpen, campaignId, onClose }) => {
         <div className="col-span-2 mt-8 flex justify-end gap-6">
           <button
             type="button"
-            className="button bg-blue-france hover:bg-blue-france-hover text-white"
+            className="primary-btn"
             onClick={() => {
               onClose(false);
-              navigate(`/campaign/${campaignId}`);
+              navigate(`/broadcast/campaign/${campaignId}`);
             }}
           >
             C'est fait

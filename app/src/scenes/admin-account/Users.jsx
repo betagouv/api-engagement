@@ -53,7 +53,7 @@ const Users = () => {
             Rechercher par nom ou par email
           </label>
           <input id="user-search" name="user-search" className="input flex-1" placeholder="Chercher par nom ou par email" onChange={(e) => setSearch(e.target.value)} />
-          <Link to="/user/new" className="button bg-blue-france flex items-center border border-gray-900 text-white">
+          <Link to="/user/new" className="primary-btn flex items-center">
             Nouvel utilisateur <HiOutlinePlus className="ml-2" />
           </Link>
         </div>

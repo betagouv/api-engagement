@@ -101,7 +101,7 @@ const ManyUpdateModal = ({ onClose, selected, onChange }) => {
 
   return (
     <>
-      <button className="button border-blue-france text-blue-france hover:bg-gray-975 border" onClick={() => setIsOpen(true)}>
+      <button className="secondary-btn" onClick={() => setIsOpen(true)}>
         Modérer
       </button>
 
@@ -152,7 +152,7 @@ const ManyUpdateModal = ({ onClose, selected, onChange }) => {
                 </label>
                 <textarea id="note" className="input" rows={4} name="note" value={note} onChange={(e) => setNote(e.target.value)} />
                 <div className="mt-6 flex justify-end">
-                  <button className="filled-button flex w-full justify-center" type="submit" disabled={!status || (status === "REFUSED" && !comment) || loading}>
+                  <button className="primary-btn flex w-full justify-center" type="submit" disabled={!status || (status === "REFUSED" && !comment) || loading}>
                     {loading ? <Loader className="h-6 w-6" /> : "Enregistrer"}
                   </button>
                 </div>

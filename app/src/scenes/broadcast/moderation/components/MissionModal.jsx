@@ -236,7 +236,7 @@ const MissionTab = ({ data, onChange }) => {
             {data.title}
           </p>
           {newTitle !== data.title && newTitle !== data.newTitle && (
-            <button className="button bg-blue-france hover:bg-blue-france-hover mt-4 w-[25%] text-white" type="submit">
+            <button className="primary-btn mt-4 w-[25%]" type="submit">
               Enregistrer
             </button>
           )}
@@ -369,7 +369,7 @@ const OrganizationTab = ({ data, onChange }) => {
           </p>
         </div>
         {(values.organizationSirenVerified !== data.organizationSirenVerified || values.organizationRNAVerified !== data.organizationRNAVerified) && (
-          <button className="button bg-blue-france hover:bg-blue-france-hover mt-4 w-[25%] text-white" type="submit">
+          <button className="primary-btn mt-4 w-[25%]" type="submit">
             Enregistrer
           </button>
         )}

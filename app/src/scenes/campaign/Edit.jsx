@@ -211,11 +211,11 @@ const Edit = () => {
             <span>Créée le {new Date(campaign.createdAt).toLocaleDateString("fr")}</span>
           </div>
           <div className="flex items-center gap-6">
-            <button className="text-blue-france border-blue-france flex items-center border p-2 text-sm" onClick={() => setIsReassignModalOpen(true)}>
+            <button className="secondary-btn flex items-center" onClick={() => setIsReassignModalOpen(true)}>
               <RiFileTransferLine className="mr-2" />
               <span>Déplacer</span>
             </button>
-            <button className="text-red-error flex items-center border p-2 text-sm" onClick={handleDelete}>
+            <button className="red-btn flex items-center" onClick={handleDelete}>
               <RiDeleteBin6Line className="mr-2" />
               <span>Supprimer</span>
             </button>
@@ -354,7 +354,7 @@ const Edit = () => {
                     </div>
                     <div className="flex w-10 justify-end">
                       {values.trackers.length > 1 && (
-                        <button type="button h-full w-10" className="border border-gray-900 p-2" onClick={() => handleDeleteTracker(i)}>
+                        <button type="button" className="tertiary-btn" onClick={() => handleDeleteTracker(i)}>
                           <RiDeleteBin6Line className="text-red-error" />
                         </button>
                       )}
@@ -363,7 +363,7 @@ const Edit = () => {
                 ))}
               </div>
 
-              <button type="button" className="empty-button mt-4" onClick={() => setValues({ ...values, trackers: [...values.trackers, { key: "", value: "" }] })}>
+              <button type="button" className="secondary-btn mt-4" onClick={() => setValues({ ...values, trackers: [...values.trackers, { key: "", value: "" }] })}>
                 Ajouter un tracker
               </button>
             </div>
@@ -373,26 +373,22 @@ const Edit = () => {
             <label className="text-sm">Lien à insérer dans le contenu de votre campagne</label>
             <div className="border-blue-france-925 bg-blue-france-975 my-2 flex items-center justify-between border px-4 py-4">
               <span className="truncate text-sm">{trackedLink}</span>
-              <button
-                type="button"
-                className="button border-blue-france border-blue-france text-blue-france hover:bg-blue-france-925 ml-3 border bg-transparent"
-                onClick={handleCopy}
-              >
+              <button type="button" className="secondary-btn" onClick={handleCopy}>
                 Copier
               </button>
             </div>
             <div>
-              <span className="textbg-[#FEECC2] flex flex-row items-center text-xs">
+              <span className="text-[#FEECC2] flex flex-row items-center text-xs">
                 <AiFillWarning className="mr-2" />
                 Copiez exactement ce lien !
               </span>
             </div>
           </div>
           <div className="col-span-2 flex justify-end gap-4">
-            <Link to="/broadcast/campaigns" className="button border-blue-france text-blue-france hover:bg-gray-975 border">
+            <Link to="/broadcast/campaigns" className="tertiary-btn">
               Retour
             </Link>
-            <button className="button bg-blue-france hover:bg-blue-france-hover text-white" disabled={!isChanged(values) || isErrors(errors)} onClick={handleSubmit}>
+            <button className="primary-btn" disabled={!isChanged(values) || isErrors(errors)} onClick={handleSubmit}>
               Enregistrer
             </button>
           </div>
@@ -464,11 +460,11 @@ const ReassignModal = ({ isOpen, onClose, campaign, values, setValues, setCampai
           />
         </div>
         <div className="mt-10 flex justify-end gap-2">
-          <button className="button text-blue-france hover:bg-gray-975 border px-4 py-2" type="button" onClick={onClose}>
+          <button className="tertiary-btn" type="button" onClick={onClose}>
             Annuler
           </button>
           <button
-            className="button bg-blue-france hover:bg-blue-france-hover px-4 py-2 text-white"
+            className="primary-btn"
             type="submit"
             onClick={handleReassignSubmit}
             disabled={!values.fromPublisherId || values.fromPublisherId === campaign.fromPublisherId || loading}

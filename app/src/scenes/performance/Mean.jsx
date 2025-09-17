@@ -77,7 +77,12 @@ const Mean = ({ filters, onFiltersChange }) => {
     fetchData();
   }, [source, filters, publisher]);
 
-  if (!source) return null;
+  if (!source)
+    return (
+      <div className="p-12 flex justify-center">
+        <Loader />
+      </div>
+    );
 
   return (
     <div className="space-y-12 p-12">
@@ -179,7 +184,7 @@ const Mean = ({ filters, onFiltersChange }) => {
           </div>
 
           <div>
-            <a href={publisher.missionType === "benevolat" ? "mailto:nassim.merzouk@beta.gouv.fr" : "mailto:jessica.maitte@beta.gouv.fr"} className="empty-button">
+            <a href={publisher.missionType === "benevolat" ? "mailto:nassim.merzouk@beta.gouv.fr" : "mailto:jessica.maitte@beta.gouv.fr"} className="secondary-btn">
               Nous contacter
             </a>
           </div>

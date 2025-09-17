@@ -61,7 +61,7 @@ const Login = () => {
       <Helmet>
         <title>Connexion - API Engagement</title>
       </Helmet>
-      <h2 className="font-light">Connexion</h2>
+
       <h1 className="text-4xl font-bold">Accedez à votre espace</h1>
 
       <label className="mt-6 mb-2 text-sm" htmlFor="email">
@@ -91,7 +91,7 @@ const Login = () => {
           Mot de passe oublié ?
         </Link>
       </div>
-      <button type="submit" className="button bg-blue-france hover:bg-blue-france-hover text-white" disabled={loading}>
+      <button type="submit" className="primary-btn w-full" disabled={loading}>
         {loading ? "Chargement..." : "Se connecter"}
       </button>
       {errors.login && (

@@ -30,7 +30,7 @@ const QueryBuilder = ({ fields, rules, setRules, onSearch }) => {
           </span>
         </div>
       ))}
-      <span className="empty-button flex w-fit items-center" onClick={handleAddRule}>
+      <span className="secondary-btn flex w-fit items-center" onClick={handleAddRule}>
         Ajouter un filtre
         <RiAddFill className="ml-2" />
       </span>

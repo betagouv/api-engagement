@@ -259,13 +259,13 @@ const Edit = () => {
           </div>
 
           <div className="col-span-2 flex justify-end gap-4">
-            <Link to="/accounts?tab=users" className="button hover:bg-gray-975 border border-black text-black">
+            <Link to="/accounts?tab=users" className="tertiary-btn">
               Retour
             </Link>
-            <button type="button" className="button bg-blue-france hover:bg-blue-france-hover text-white" onClick={handleInviteAgain}>
+            <button type="button" className="primary-btn" onClick={handleInviteAgain}>
               Renvoyer l'invitation
             </button>
-            <button type="submit" className="button bg-blue-france hover:bg-blue-france-hover text-white" disabled={!isChanged() || isErrors()}>
+            <button type="submit" className="primary-btn" disabled={!isChanged() || isErrors()}>
               Mettre à jour
             </button>
           </div>
@@ -305,25 +305,27 @@ const ResetPasswordModal = ({ user }) => {
 
   return (
     <div className="mb-2.5 text-right">
-      <button type="button" className="button border-blue-france text-blue-france border" onClick={() => setOpen(true)}>
+      <button type="button" className="tertiary-btn" onClick={() => setOpen(true)}>
         Réinitialiser le mot de passe
       </button>
       <Modal className="w-full max-w-3xl" isOpen={open} onClose={() => setOpen(false)}>
         <div className="p-6">
           <h2 className="mb-12 text-center">Réinitialisation du mot de passe de {user.firstname}</h2>
-          {isConfirm ? (
+          {/* {isConfirm ? ( */}
+          {true ? (
             <div>
-              {newPassword ? (
+              {/* {newPassword ? ( */}
+              {true ? (
                 <>
                   <h4 className="mb-6 text-center">Voici le mot de passe temporaire</h4>
                   <div className="mb-12 flex items-center justify-center px-20">
                     <span className="input w-1/2">{newPassword}</span>
-                    <button type="button" className="border-blue-france text-blue-france ml-2 border p-2" onClick={() => handleCopy(newPassword)}>
+                    <button type="button" className="secondary-btn ml-2" onClick={() => handleCopy(newPassword)}>
                       <RiFileCopyFill className="text-lg" />
                     </button>
                   </div>
                   <div className="w-full pr-6 text-right">
-                    <button className="button bg-blue-france text-white" onClick={() => setOpen(false)}>
+                    <button className="primary-btn" onClick={() => setOpen(false)}>
                       Fermer
                     </button>
                   </div>
@@ -336,7 +338,7 @@ const ResetPasswordModal = ({ user }) => {
             <>
               <h4 className="mb-6 text-center">Êtes-vous sûr de réinitialiser le mot de passe ?</h4>
               <div className="w-full pr-6 text-right">
-                <button className="button bg-blue-france text-white" onClick={handleConfirm}>
+                <button className="primary-btn" onClick={handleConfirm}>
                   Confirmer
                 </button>
               </div>

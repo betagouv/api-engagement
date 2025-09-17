@@ -150,7 +150,7 @@ const Moderation = () => {
   return (
     <div className="space-y-12 p-12">
       <div className="mb-6 flex items-center justify-between">
-        <Link className="empty-button flex w-56 items-center" to="/my-missions/partners">
+        <Link className="secondary-btn flex w-56 items-center" to="/my-missions/partners">
           <RiArrowLeftLine className="mr-2" />
           Retour aux partenaires
         </Link>

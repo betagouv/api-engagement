@@ -59,7 +59,7 @@ const Api = () => {
           <p>Je deviens diffuseur pour mes partenaires en partageant leurs missions</p>
         </div>
 
-        <a href="https://doc.api-engagement.beta.gouv.fr/" className="button border-blue-france text-blue-france flex items-center border" target="_blank">
+        <a href="https://doc.api-engagement.beta.gouv.fr/" className="secondary-btn flex items-center" target="_blank">
           <RiBookletFill className="mr-2" />
           Documentation
         </a>
@@ -70,16 +70,16 @@ const Api = () => {
             Votre clé API
           </label>
           <input id="apikey" className="input flex-1" name="apikey" disabled={true} value={publisher.apikey || ""} />
-          <button className="empty-button flex h-10 w-10 items-center justify-center p-0" onClick={handleCopy}>
+          <button className="secondary-btn flex h-10 w-10 items-center justify-center p-0" onClick={handleCopy}>
             <RiFileCopyFill />
           </button>
           <div className="">
-            <button className="empty-button h-10 truncate" onClick={handleNewApiKey}>
+            <button className="secondary-btn h-10 truncate" onClick={handleNewApiKey}>
               Générer une nouvelle clé
             </button>
           </div>
           <div className="">
-            <button className="empty-button h-10 truncate" onClick={handleDelete}>
+            <button className="secondary-btn h-10 truncate" onClick={handleDelete}>
               Supprimer la clé
             </button>
           </div>

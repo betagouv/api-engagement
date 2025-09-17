@@ -29,14 +29,14 @@ const Header = () => {
           </div>
         </Link>
         <div className="text-blue-france flex items-center gap-3 text-sm">
-          <div className="hover:bg-gray-975 flex items-center gap-2 p-2">
-            <RiBookletLine />
+          <div className="tertiary-bis-btn flex items-center">
+            <RiBookletLine className="mr-2" />
             <a href="https://doc.api-engagement.beta.gouv.fr/" target="_blank">
               Documentation
             </a>
           </div>
           {!user ? (
-            <Link to="/login" className="button hover:bg-gray-975 flex cursor-pointer items-center border border-gray-900">
+            <Link to="/login" className="tertiary-btn flex items-center">
               <RiUserLine className="mr-2" />
               Connexion
             </Link>
@@ -319,7 +319,7 @@ const AccountMenu = () => {
 
   return (
     <Menu>
-      <MenuButton className="button data-[focus]:bg-gray-975 hover:bg-gray-975 flex cursor-pointer items-center gap-4">
+      <MenuButton className="btn data-[focus]:bg-gray-975 hover:bg-gray-975 flex cursor-pointer items-center gap-4">
         <div className="bg-blue-france flex h-8 w-8 items-center justify-center rounded-full">
           <RiUserLine className="text-white" />
         </div>

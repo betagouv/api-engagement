@@ -239,7 +239,7 @@ const SignupForm = ({ user }) => {
           </div>
         )}
       </div>
-      <button type="submit" className="button bg-blue-france hover:bg-blue-france-hover mt-6 text-white" disabled={loading}>
+      <button type="submit" className="primary-btn w-full mt-6" disabled={loading}>
         {loading ? "Chargement..." : "S'inscrire"}
       </button>
     </form>

@@ -153,7 +153,7 @@ const ModifyModal = () => {
 
   return (
     <>
-      <button className="bg-blue-france hover:bg-blue-france-hover flex cursor-pointer items-center border px-4 py-2 text-white" onClick={() => setIsOpen(!isOpen)}>
+      <button className="primary-btn" onClick={() => setIsOpen(!isOpen)}>
         Modifier
       </button>
       <Modal isOpen={isOpen} onClose={() => setIsOpen(false)}>
@@ -164,10 +164,10 @@ const ModifyModal = () => {
             <input className="input w-full border-b-0 bg-gray-100 p-4 focus:ring-2" value={feed} disabled={false} onChange={(e) => setFeed(e.target.value)} />
           </div>
           <div className="col-span-2 mt-8 flex justify-end gap-6">
-            <button type="button" className="button border-blue-france text-blue-france hover:bg-gray-975 border" onClick={() => setIsOpen(false)}>
+            <button type="button" className="tertiary-btn" onClick={() => setIsOpen(false)}>
               Annuler
             </button>
-            <button type="button" className="button bg-blue-france hover:bg-blue-france-hover text-white" onClick={handleFeedSubmit} disabled={loading}>
+            <button type="button" className="primary-btn" onClick={handleFeedSubmit} disabled={loading}>
               {loading ? <Loader className="mr-2" /> : "Enregister"}
             </button>
           </div>

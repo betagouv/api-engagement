@@ -210,11 +210,7 @@ const ResetPasswordForm = ({ user, token }) => {
       )}
 
       {!success ? (
-        <button
-          type="submit"
-          className="button bg-blue-france hover:bg-blue-france-hover mt-6 text-white"
-          disabled={loading || errors.confirmPassword || errors.password || errors.expired}
-        >
+        <button type="submit" className="primary-btn w-full mt-6" disabled={loading || errors.confirmPassword || errors.password || errors.expired}>
           {loading ? "Enregistrement..." : "Enregister"}
         </button>
       ) : (

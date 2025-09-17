@@ -117,7 +117,7 @@ const Campaigns = () => {
         </div>
         <div className="flex items-center gap-4">
           {user.role === "admin" && (
-            <Link to="/broadcast/campaign/new" className="button bg-blue-france hover:bg-blue-france-hover flex items-center text-white">
+            <Link to="/broadcast/campaign/new" className="primary-btn flex items-center">
               Nouvelle campagne <RiAddFill className="ml-2" />
             </Link>
           )}
@@ -150,11 +150,11 @@ const Campaigns = () => {
               <td className={`px-4 ${!item.active ? "opacity-50" : "opacity-100"}`}>{new Date(item.createdAt).toLocaleDateString("fr")}</td>
               <td className="px-4">
                 <div className="flex gap-2 text-lg">
-                  <button className="border-blue-france cursor-pointer border p-2" onClick={() => handleCopy(item._id)}>
-                    <HiLink className="text-blue-france" />
+                  <button className="secondary-btn flex items-center" onClick={() => handleCopy(item._id)}>
+                    <HiLink className="text-lg" />
                   </button>
-                  <button className="border-blue-france cursor-pointer border p-2" onClick={() => handleDuplicate(item._id)}>
-                    <RiFileCopyLine className="text-blue-france" />
+                  <button className="secondary-btn flex items-center" onClick={() => handleDuplicate(item._id)}>
+                    <RiFileCopyLine className="text-lg" />
                   </button>
                 </div>
               </td>

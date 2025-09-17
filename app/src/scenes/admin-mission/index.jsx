@@ -233,7 +233,7 @@ const AdminMission = () => {
               )}
             </div>
           </div>
-          <button className="button text-blue-france hover:bg-gray-975 flex items-center border border-gray-900" onClick={handleExport}>
+          <button className="tertiary-btn flex items-center" onClick={handleExport}>
             {exporting ? <Loader /> : <RiFileDownloadLine className="mr-2" />}
             Exporter
           </button>

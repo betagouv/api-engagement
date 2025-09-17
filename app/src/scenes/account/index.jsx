@@ -103,7 +103,7 @@ const Account = () => {
           <div className="col-span-2 flex justify-end gap-4">
             <ResetPasswordModal />
 
-            <button type="submit" className="filled-button" disabled={!isChanged() || isErrors()}>
+            <button type="submit" className="primary-btn" disabled={!isChanged() || isErrors()}>
               Mettre à jour
             </button>
           </div>
@@ -170,7 +170,7 @@ const ResetPasswordModal = () => {
 
   return (
     <>
-      <button type="button" className="empty-button" onClick={() => setOpen(true)}>
+      <button type="button" className="secondary-btn" onClick={() => setOpen(true)}>
         Réinitialiser le mot de passe
       </button>
 
@@ -275,10 +275,10 @@ const ResetPasswordModal = () => {
             </div>
 
             <div className="mt-8 flex justify-end gap-2">
-              <button type="button" className="button text-blue-france hover:bg-gray-975 border border-gray-900 px-4 py-2" onClick={() => setOpen(false)}>
+              <button type="button" className="tertiary-btn" onClick={() => setOpen(false)}>
                 Annuler
               </button>
-              <button type="button" className="filled-button" disabled={isErrors()} onClick={handleSubmit}>
+              <button type="button" className="primary-btn" disabled={isErrors()} onClick={handleSubmit}>
                 Mettre à jour
               </button>
             </div>

@@ -216,10 +216,10 @@ const Create = () => {
           </div>
 
           <div className="col-span-2 flex justify-end gap-4">
-            <Link to="/accounts?tab=users" className="button hover:bg-gray-975 border border-black text-black">
+            <Link to="/accounts?tab=users" className="tertiary-btn">
               Retour
             </Link>
-            <button type="submit" className="button bg-blue-france hover:bg-blue-france-hover text-white" disabled={!isChanged() || isErrors()}>
+            <button type="submit" className="primary-btn" disabled={!isChanged() || isErrors()}>
               Inviter
             </button>
           </div>

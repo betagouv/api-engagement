@@ -77,7 +77,7 @@ const Create = () => {
         </div>
 
         <div className="flex items-center justify-end gap-2">
-          <button className="filled-button" disabled={!canSubmit(values)} onClick={handleSubmit}>
+          <button className="primary-btn" disabled={!canSubmit(values)} onClick={handleSubmit}>
             Enregistrer
           </button>
         </div>

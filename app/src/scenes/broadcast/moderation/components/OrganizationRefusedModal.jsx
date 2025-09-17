@@ -61,10 +61,10 @@ const OrganizationRefusedModal = ({ isOpen, onClose, organizationName, comment, 
           <b>{JVA_MODERATION_COMMENTS_LABELS[comment]}</b> ?
         </p>
         <div className="flex justify-end gap-4">
-          <button className="empty-button" onClick={onClose}>
+          <button className="secondary-btn" onClick={onClose}>
             Non, je vais vérifier
           </button>
-          <button className="filled-button flex justify-center" onClick={handleSubmit}>
+          <button className="primary-btn flex justify-center" onClick={handleSubmit}>
             {loading ? <Loader className="h-6 w-6" /> : "Oui, refuser les missions"}
           </button>
         </div>
