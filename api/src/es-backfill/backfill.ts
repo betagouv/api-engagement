@@ -18,12 +18,15 @@ if (envArgIndex !== -1 && args[envArgIndex + 1]) {
  */
 
 const esArgIndex = args.indexOf("--es");
+console.log(esArgIndex);
 if (esArgIndex !== -1 && args[esArgIndex + 1]) {
+  console.log("[Backfill] Using Elasticsearch endpoint:", args[esArgIndex + 1]);
   process.env.ES_ENDPOINT = args[esArgIndex + 1];
 }
 
 const dbArgIndex = args.indexOf("--db");
 if (dbArgIndex !== -1 && args[dbArgIndex + 1]) {
+  console.log("[Backfill] Using PostgreSQL endpoint:", args[dbArgIndex + 1]);
   process.env.DATABASE_URL_CORE = args[dbArgIndex + 1];
 }
 
@@ -31,8 +34,7 @@ const esClient = require("../db/elastic").default;
 const { prismaCore } = require("../db/postgres");
 const { STATS_INDEX } = require("../config");
 
-const BATCH_SIZE = 1000;
-// Persist backfill state in a local file within the es-backfill directory
+const BATCH_SIZE = 10000;
 const STATE_FILE = path.join(__dirname, "backfill-state.json");
 
 type BackfillState = {
@@ -164,7 +166,7 @@ const handler = async () => {
       if (dataToCreate.length) {
         const res = await prismaCore.statEvent.createMany({ data: dataToCreate, skipDuplicates: true });
         created += res.count;
-        console.log(`[Backfill] Created ${res.count} docs, ${created} so far.`);
+        console.log(`[Backfill] Created ${res.count} docs, ${created} so far (${dataToCreate[dataToCreate.length - 1].created_at.toISOString()}).`);
       }
 
       const last = hits[hits.length - 1];

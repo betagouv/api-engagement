@@ -4,21 +4,34 @@ import path from "node:path";
 
 const args = process.argv.slice(2);
 
-const envArgIndex = args.indexOf("--env");
-if (envArgIndex !== -1 && args[envArgIndex + 1]) {
-  dotenv.config({ path: args[envArgIndex + 1] });
+// Simple argv parser supporting both "--key value" and "--key=value" forms
+const getArgValue = (key: string): string | undefined => {
+  const idx = args.indexOf(key);
+  if (idx !== -1 && args[idx + 1] && !String(args[idx + 1]).startsWith("--")) {
+    return String(args[idx + 1]);
+  }
+  const withEq = args.find((a) => a.startsWith(`${key}=`));
+  if (withEq) {
+    return withEq.split("=")[1];
+  }
+  return undefined;
+};
+
+const envPath = getArgValue("--env");
+if (envPath) {
+  dotenv.config({ path: envPath });
 } else {
   dotenv.config();
 }
 
-const esArgIndex = args.indexOf("--es");
-if (esArgIndex !== -1 && args[esArgIndex + 1]) {
-  process.env.ES_ENDPOINT = args[esArgIndex + 1];
+const esFromArg = getArgValue("--es");
+if (esFromArg) {
+  process.env.ES_ENDPOINT = esFromArg;
 }
 
-const dbArgIndex = args.indexOf("--db");
-if (dbArgIndex !== -1 && args[dbArgIndex + 1]) {
-  process.env.DATABASE_URL_CORE = args[dbArgIndex + 1];
+const dbFromArg = getArgValue("--db");
+if (dbFromArg) {
+  process.env.DATABASE_URL_CORE = dbFromArg;
 }
 
 const esClient = require("../db/elastic").default;
