@@ -1,16 +1,16 @@
 import { Client } from "@elastic/elasticsearch";
-
-import { ES_ENDPOINT } from "../config";
 import { captureException } from "../error";
+
+const ES_ENDPOINT = process.env.ES_ENDPOINT;
 
 console.log("[ElasticSearch] Connecting to ElasticSearch...");
 if (!ES_ENDPOINT) {
   throw new Error("[ElasticSearch] No ElasticSearch endpoint provided!");
 }
 
+console.log("[ElasticSearch] Using endpoint:", ES_ENDPOINT);
 const esClient = new Client({ node: ES_ENDPOINT });
 
-// Create a promise that resolves when ElasticSearch is connected
 export const esConnected = new Promise<void>((resolve, reject) => {
   esClient.ping({}, (error) => {
     if (error) {

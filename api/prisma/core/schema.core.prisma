@@ -35,6 +35,7 @@ enum StatEventStatus {
 
 model StatEvent {
   id                          String      @id @default(uuid())
+  es_id                       String?     @unique
   type                        StatEventType
   created_at                  DateTime    @default(now())
   click_user                  String?
