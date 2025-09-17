@@ -136,7 +136,7 @@ const handler = async () => {
         });
         scrollId = body._scroll_id;
         data = body.hits.hits as { _id: string; _source: Stats }[];
-        console.log(`[Prints] Total hits ${body.hits.total.value}, scrollId ${scrollId}`);
+        console.log(`[Prints] Total hits ${body.hits.total.value}`);
       }
 
       if (data.length === 0) {

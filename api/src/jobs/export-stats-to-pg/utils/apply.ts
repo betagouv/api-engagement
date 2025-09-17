@@ -122,7 +122,7 @@ const handler = async () => {
         });
         scrollId = body._scroll_id;
         data = body.hits.hits;
-        console.log(`[Applies] Total hits ${body.hits.total.value}, scrollId ${scrollId}`);
+        console.log(`[Applies] Total hits ${body.hits.total.value}`);
       }
 
       if (data.length === 0) {
