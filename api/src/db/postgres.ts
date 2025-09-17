@@ -10,16 +10,19 @@ const prismaAnalytics = new PrismaClientAnalytics({
 });
 
 const pgConnected = Promise.all(
-  [prismaCore, prismaAnalytics].map((prisma) => {
+  [
+    { name: "Core", prisma: prismaCore },
+    { name: "Analytics", prisma: prismaAnalytics },
+  ].map(({ name, prisma }) => {
     return new Promise<void>((resolve, reject) => {
       prisma
         .$connect()
         .then(() => {
-          console.log(`[PostgreSQL] ${prisma} connected`);
+          console.log(`[PostgreSQL] ${name} connected`);
           resolve();
         })
         .catch((error) => {
-          console.error(`[PostgreSQL] ${prisma} Connection error:`, error);
+          console.error(`[PostgreSQL] ${name} Connection error:`, error);
           reject(error);
         });
     });
