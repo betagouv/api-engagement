@@ -50,7 +50,7 @@ const CardBenevolat = ({ widget, mission, request, focused = false, onKeyDown, o
       data-testid="mission-card"
       className={`${
         widget.style === "carousel" ? "w-full lg:max-w-[336px]" : "w-full"
-      } relative group mx-auto flex h-full flex-col overflow-hidden border border-gray-900 transition-shadow duration-300 hover:shadow-lg focus-within:ring-2 focus-within:ring-[#000091] focus-within:ring-offset-0`}
+      } relative group mx-auto flex h-full flex-col overflow-hidden border border-[#DDDDDD] transition-shadow duration-300 hover:shadow-lg focus-within:ring-2 focus-within:ring-[#000091] focus-within:ring-offset-0`}
     >
       <div className="h-[192px] sm:h-[200px] overflow-hidden">
         <Image

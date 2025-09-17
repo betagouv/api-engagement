@@ -183,7 +183,7 @@ const LocationFilter = ({ selected, onChange, width = "w-80", disabled = false }
         id="location-list"
         aria-label="Liste des villes"
         role="listbox"
-        className={`absolute z-50 mt-1 max-h-60 ${width} overflow-auto border border-gray-900 bg-white p-[1px] shadow-md ${show ? "block" : "hidden"}`}
+        className={`absolute z-50 mt-1 max-h-60 ${width} overflow-auto border border-[#DDDDDD] bg-white p-[1px] shadow-md ${show ? "block" : "hidden"}`}
       >
         {options.length === 0 && show && (
           <li className="cursor-pointer flex items-center justify-between py-2 px-3">
