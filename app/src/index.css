@@ -1,6 +1,26 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
+
+/* https://www.systeme-de-design.gouv.fr/version-courante/fr/fondamentaux/couleurs-palette#accent */
+@theme {
+  --color-black: #161616;
+  --color-blue-france: #000091; /* main-525 */
+  --color-blue-france-hover: #1212ff;
+  --color-blue-france-975: #f5f5fe;
+  --color-blue-france-925: #e3e3fd;
+  --color-blue-france-925-hover: #c1c1fb;
+  --color-blue-info-425: #0063cb;
+  --color-green-success: #1f8d49; /* main-525 */
+  --color-red-marianne: #e1000f; /* main-525 */
+  --color-red-error: #f60700; /* main-525 */
+  --color-gray-1000-active: #ededed;
+  --color-gray-975: #f6f6f6;
+  --color-gray-950: #eeeeee;
+  --color-gray-925: #e5e5e5;
+  --color-gray-900: #dddddd;
+  --color-gray-425: #666666;
+  --color-gray-200: #3a3a3a;
+  --color-beige-gris-galet-975: #f9f6f2;
+}
 
 @font-face {
   font-display: swap;
@@ -86,46 +106,44 @@ html {
   font-family: "Marianne";
 }
 
-@layer components {
-  body {
-    @apply text-black;
-  }
+body {
+  color: black;
+}
 
-  .button {
-    @apply px-5 py-2 text-center text-sm transition-all focus:ring-0 disabled:opacity-40;
-  }
-  .filled-button {
-    @apply bg-blue-dark px-5 py-2 text-center text-sm text-white transition-all hover:bg-blue-main focus:ring-0 disabled:bg-gray-border disabled:text-gray-disabled disabled:hover:bg-gray-border;
-  }
-  .empty-button {
-    @apply border border-blue-dark px-5 py-2 text-center text-sm text-blue-dark transition-all hover:bg-gray-hover focus:ring-0 disabled:border-gray-border disabled:text-gray-disabled disabled:hover:bg-white;
-  }
-  .red-button {
-    @apply button bg-red-dark text-white hover:bg-red-main;
-  }
-  .red-emtpy-button {
-    @apply button border border-red-dark text-red-dark hover:bg-red-main;
-  }
+@utility button {
+  @apply px-5 py-2 text-center text-sm transition-all focus:ring-0 disabled:opacity-40;
+}
+@utility filled-button {
+  @apply bg-blue-france hover:bg-blue-france-hover disabled:text-gray-425 px-5 py-2 text-center text-sm text-white transition-all focus:ring-0 disabled:bg-gray-900 disabled:hover:bg-gray-900;
+}
+@utility empty-button {
+  @apply border-blue-france text-blue-france hover:bg-gray-975 disabled:text-gray-425 border px-5 py-2 text-center text-sm transition-all focus:ring-0 disabled:border-gray-900 disabled:hover:bg-white;
+}
+@utility red-button {
+  @apply button bg-red-error hover:bg-red-error text-white;
+}
+@utility red-emtpy-button {
+  @apply button border-red-error text-red-error hover:bg-red-error border;
+}
 
-  .input {
-    @apply rounded-t border-0 border-b border-b-black bg-gray-light h-10 px-4 py-2 text-sm text-black outline-[#0a76f6] placeholder:text-gray-dark focus-visible:outline-2 focus-visible:outline-offset-2 disabled:opacity-60;
-  }
-  .select {
-    @apply appearance-none rounded-none rounded-t border-0 border-b border-b-black bg-gray-light h-10 py-2 pl-4 pr-10 text-sm text-black outline-[#0a76f6] placeholder:text-gray-dark focus-visible:outline-2 focus-visible:outline-offset-2 disabled:opacity-60;
-  }
+@utility input {
+  @apply placeholder:text-gray-425 h-10 rounded-t border-0 border-b border-b-black bg-gray-950 px-4 py-2 text-sm text-black outline-[#0a76f6] focus-visible:outline-2 focus-visible:outline-offset-2 disabled:opacity-60;
+}
+@utility select {
+  @apply placeholder:text-gray-425 h-10 appearance-none rounded-none rounded-t border-0 border-b border-b-black bg-gray-950 py-2 pr-10 pl-4 text-sm text-black outline-[#0a76f6] focus-visible:outline-2 focus-visible:outline-offset-2 disabled:opacity-60;
+}
 
-  .link {
-    @apply text-blue-dark underline;
-  }
-  .checkbox {
-    @apply h-4 w-4 rounded border border-black checked:bg-blue-dark checked:hover:bg-blue-dark checked:focus:bg-blue-dark active:bg-blue-dark;
-  }
-  .table-header {
-    @apply bg-gray-100 px-4 border-b-2 border-b-black text-left text-sm font-bold text-black h-12;
-  }
-  .table-item {
-    @apply border-b border-b-gray-main text-left text-sm text-black h-16;
-  }
+@utility link {
+  @apply text-blue-france underline;
+}
+@utility checkbox {
+  @apply checked:bg-blue-france checked:hover:bg-blue-france checked:focus:bg-blue-france active:bg-blue-france h-4 w-4 rounded border border-black;
+}
+@utility table-header {
+  @apply bg-gray-1000-active h-12 border-b-2 border-b-black px-4 text-left text-sm font-bold text-black;
+}
+@utility table-item {
+  @apply border-b-gray-925 h-16 border-b text-left text-sm text-black;
 }
 
 select {

@@ -7,17 +7,17 @@ const SettingsModal = () => {
 
   return (
     <>
-      <button className="flex items-center text-blue-dark" onClick={() => setIsOpen(true)}>
+      <button className="text-blue-france flex items-center" onClick={() => setIsOpen(true)}>
         <RiSettings3Fill className="mr-2" />
         <span>Paramétrage</span>
       </button>
 
       <Modal isOpen={isOpen} onClose={() => setIsOpen(false)} className="h-[90%] w-[75%]">
-        <div className="bg-white p-16 h-full">
+        <div className="h-full bg-white p-16">
           <div className="mb-10 flex items-center justify-between">
             <h1 className="text-2xl font-bold">Paramétrages de la modération automatique</h1>
           </div>
-          <div className="mb-10 flex flex-col border border-gray-border p-4">
+          <div className="mb-10 flex flex-col border border-gray-900 p-4">
             <div className="flex items-start gap-3">
               <div className="w-[20%]">
                 <h2 className="text-lg">Conditions</h2>
@@ -43,7 +43,7 @@ const SettingsModal = () => {
                 <input className="input" type="text" defaultValue="À modérer" disabled />
               </div>
             </div>
-            <div className="my-4 border-t border-gray-border" />
+            <div className="my-4 border-t border-gray-900" />
             <div className="flex items-start gap-3">
               <div className="w-[20%]">
                 <h2 className="text-lg">Action</h2>
@@ -70,7 +70,7 @@ const SettingsModal = () => {
               </div>
             </div>
           </div>
-          <div className="flex flex-col border border-gray-border p-4">
+          <div className="flex flex-col border border-gray-900 p-4">
             <div className="flex items-start gap-3">
               <div className="w-[20%]">
                 <h2 className="text-lg">Conditions</h2>
@@ -103,7 +103,7 @@ const SettingsModal = () => {
                 <input className="input" type="text" defaultValue="À modérer" disabled />
               </div>
             </div>
-            <div className="my-4 border-t border-gray-border" />
+            <div className="my-4 border-t border-gray-900" />
             <div className="flex items-start gap-3">
               <div className="w-[20%]">
                 <h2 className="text-lg">Action</h2>
@@ -130,7 +130,7 @@ const SettingsModal = () => {
               </div>
             </div>
           </div>
-          <div className="flex flex-col border border-gray-border p-4">
+          <div className="flex flex-col border border-gray-900 p-4">
             <div className="flex items-start gap-3">
               <div className="w-[20%]">
                 <h2 className="text-lg">Conditions</h2>
@@ -156,7 +156,7 @@ const SettingsModal = () => {
                 <input className="input" type="text" defaultValue="À modérer" disabled />
               </div>
             </div>
-            <div className="my-4 border-t border-gray-border" />
+            <div className="my-4 border-t border-gray-900" />
             <div className="flex items-start gap-3">
               <div className="w-[20%]">
                 <h2 className="text-lg">Action</h2>
@@ -183,7 +183,7 @@ const SettingsModal = () => {
               </div>
             </div>
           </div>
-          <div className="flex flex-col border border-gray-border p-4">
+          <div className="flex flex-col border border-gray-900 p-4">
             <div className="flex items-start gap-3">
               <div className="w-[20%]">
                 <h2 className="text-lg">Conditions</h2>
@@ -209,7 +209,7 @@ const SettingsModal = () => {
                 <input className="input" type="text" defaultValue="À modérer" disabled />
               </div>
             </div>
-            <div className="my-4 border-t border-gray-border" />
+            <div className="my-4 border-t border-gray-900" />
             <div className="flex items-start gap-3">
               <div className="w-[20%]">
                 <h2 className="text-lg">Action</h2>

@@ -149,7 +149,7 @@ const Edit = () => {
       <div className="mb-10 flex items-center">
         <label
           htmlFor="logo"
-          className="h-24 w-32 flex cursor-pointer flex-col items-center justify-center hover:bg-gray-900/10 bg-white transition-all duration-500 p-2 shadow-lg"
+          className="flex h-24 w-32 cursor-pointer flex-col items-center justify-center bg-white p-2 shadow-lg transition-all duration-500 hover:bg-gray-900/10"
         >
           <img src={`${[publisher.logo]}?${Date.now()}`} className="object-scale-down" />
         </label>
@@ -159,9 +159,9 @@ const Edit = () => {
           <h1 className="text-4xl font-bold">Compte partenaire de {values.name}</h1>
         </div>
       </div>
-      <div className="bg-white p-12 space-y-12 shadow-lg">
+      <div className="space-y-12 bg-white p-12 shadow-lg">
         <Informations values={values} onChange={setValues} />
-        <div className="w-full h-px bg-gray-border" />
+        <div className="h-px w-full bg-gray-900" />
         <div className="space-y-6">
           <h2 className="text-3xl font-bold">Paramètres</h2>
           {errors.settings && <p className="text-red-700">{errors.settings}</p>}
@@ -174,13 +174,13 @@ const Edit = () => {
             </div>
           </div>
         </div>
-        <div className="w-full h-px bg-gray-border" />
+        <div className="h-px w-full bg-gray-900" />
         <Administration values={values} onChange={setValues} />
-        <div className="w-full h-px bg-gray-border" />
+        <div className="h-px w-full bg-gray-900" />
         <Members values={values} onChange={setValues} />
 
         <div className="flex items-center justify-end gap-2">
-          <button className="button border border-gray-400 flex items-center text-red-main" onClick={handleDelete}>
+          <button className="button text-red-error flex items-center border border-gray-400" onClick={handleDelete}>
             <TrashSvg className="mr-2" />
             <span>Supprimer</span>
           </button>

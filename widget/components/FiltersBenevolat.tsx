@@ -144,7 +144,7 @@ const MobileBenevolatFilters = ({ options, values, onChange, show, onShow, disab
       <div className="w-full">
         <LocationFilter selected={values.location} onChange={(l) => onChange({ ...values, location: l })} disabled={disabledLocation} width="w-full" />
       </div>
-      <div className="w-full border-y border-[#DDD]">
+      <div className="w-full border-y border-gray-900">
         <button
           className="flex h-[40px] w-full items-center justify-between bg-white px-4 focus:outline-none focus-visible:ring focus-visible:ring-[#000091]"
           onClick={() => {

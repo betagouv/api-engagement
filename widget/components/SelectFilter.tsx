@@ -153,7 +153,7 @@ const SelectFilter = ({
         role="dialog"
         aria-modal="true"
         aria-labelledby={id}
-        className={`absolute ${position} mt-1 z-50 ${width} border border-[#DDDDDD] bg-white shadow-md ${show ? "block" : "hidden"}`}
+        className={`absolute ${position} mt-1 z-50 ${width} border border-gray-900 bg-white shadow-md ${show ? "block" : "hidden"}`}
       >
         {searchable && (
           <div className="mx-4 mt-4 relative">
@@ -206,7 +206,7 @@ const SelectFilter = ({
               })
           )}
         </ul>
-        <div className="p-4 w-full flex items-center justify-between border-t border-[#DDDDDD]">
+        <div className="p-4 w-full flex items-center justify-between border-t border-gray-900">
           <button
             ref={resetButtonRef}
             className="text-sm cursor-pointer px-2 focus:outline-none focus-visible:ring focus-visible:ring-[#000091]"

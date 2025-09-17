@@ -59,18 +59,18 @@ const Api = () => {
           <p>Je deviens diffuseur pour mes partenaires en partageant leurs missions</p>
         </div>
 
-        <a href="https://doc.api-engagement.beta.gouv.fr/" className="button flex items-center border border-blue-dark text-blue-dark" target="_blank">
+        <a href="https://doc.api-engagement.beta.gouv.fr/" className="button border-blue-france text-blue-france flex items-center border" target="_blank">
           <RiBookletFill className="mr-2" />
           Documentation
         </a>
       </div>
-      <div className="border border-gray-border p-6">
-        <div className="flex items-center justify-between gap-4 border-b border-b-gray-main pb-6">
+      <div className="border border-gray-900 p-6">
+        <div className="border-b-gray-925 flex items-center justify-between gap-4 border-b pb-6">
           <label htmlFor="apikey" className="w-1/4 font-semibold">
             Votre clé API
           </label>
           <input id="apikey" className="input flex-1" name="apikey" disabled={true} value={publisher.apikey || ""} />
-          <button className="empty-button h-10 w-10 p-0 flex justify-center items-center" onClick={handleCopy}>
+          <button className="empty-button flex h-10 w-10 items-center justify-center p-0" onClick={handleCopy}>
             <RiFileCopyFill />
           </button>
           <div className="">
@@ -85,7 +85,7 @@ const Api = () => {
           </div>
           {/* {user.role === "admin" && (
             <>
-              <button className="flex cursor-pointer items-center border border-blue-dark p-2 text-blue-dark" onClick={handleReset}>
+              <button className="flex cursor-pointer items-center border border-blue-france p-2 text-blue-france" onClick={handleReset}>
                 <IoSync />
               </button>
             </>
@@ -95,7 +95,7 @@ const Api = () => {
           <div className="flex items-center justify-between gap-4">
             <p className="w-1/4 font-semibold">Exemple d'appel</p>
           </div>
-          <textarea className="px-4 py-2 text-sm font-mono rounded-none disabled:opacity-80 w-full bg-[#F5F5FE] border border-[#E3E3FD]" rows={2} disabled={true} value={curl} />
+          <textarea className="w-full rounded-none border border-[#E3E3FD] bg-[#F5F5FE] px-4 py-2 font-mono text-sm disabled:opacity-80" rows={2} disabled={true} value={curl} />
         </div>
       </div>
     </div>

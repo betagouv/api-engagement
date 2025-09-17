@@ -58,17 +58,17 @@ const AdminReport = () => {
   }, [filters]);
 
   return (
-    <div className="bg-white shadow-lg p-12 space-y-12">
+    <div className="space-y-12 bg-white p-12 shadow-lg">
       <Helmet>
         <title>Rapports d'impacts - Administration - API Engagement</title>
       </Helmet>
       <div className="flex items-center justify-between">
-        <h2 className="text-2xl font-semibold flex-1">{total.toLocaleString("fr")} rapports d'impacts</h2>
+        <h2 className="flex-1 text-2xl font-semibold">{total.toLocaleString("fr")} rapports d'impacts</h2>
       </div>
 
-      <div className="border border-gray-border p-6 space-y-6">
+      <div className="space-y-6 border border-gray-900 p-6">
         <p className="font-bold">Filtrer les resultats</p>
-        <div className="flex items-center gap-4 border-b border-b-gray-border pb-6">
+        <div className="flex items-center gap-4 border-b border-b-gray-900 pb-6">
           <SearchSelect
             options={options.publishers.sort((a, b) => b.count - a.count).map((e) => ({ value: e._id, label: e.name, count: e.count }))}
             value={filters.publisherId}
@@ -102,16 +102,16 @@ const AdminReport = () => {
           onSort={(sortBy) => setFilters({ ...filters, sortBy })}
         >
           {data.map((item, i) => (
-            <tr key={i} className={`${i % 2 === 0 ? "bg-gray-100" : "bg-gray-50"} table-item`}>
-              <td className="p-4 space-y-1">
-                <Link className="font-bold text-base link" to={`/publisher/${item.publisherId}`}>
+            <tr key={i} className={`${i % 2 === 0 ? "bg-gray-975" : "bg-gray-1000-active"} table-item`}>
+              <td className="space-y-1 p-4">
+                <Link className="link text-base font-bold" to={`/publisher/${item.publisherId}`}>
                   {item.publisherName}
                 </Link>
                 <div className="flex items-center gap-2">
-                  <span className="text-gray-700 rounded-xl bg-[#dae6fd] px-2 py-1" style={{ fontSize: 12 }}>
+                  <span className="rounded-xl bg-[#dae6fd] px-2 py-1 text-gray-700" style={{ fontSize: 12 }}>
                     {MONTHS[item.month]}
                   </span>
-                  <span className="text-gray-700 rounded-xl bg-[#dae6fd] px-2 py-1" style={{ fontSize: 12 }}>
+                  <span className="rounded-xl bg-[#dae6fd] px-2 py-1 text-gray-700" style={{ fontSize: 12 }}>
                     {item.year}
                   </span>
                 </div>
@@ -120,7 +120,7 @@ const AdminReport = () => {
                 {item.status === "SENT" ? (
                   <>
                     <div className="flex items-center gap-2">
-                      <div className="h-2 w-2 bg-green-500 rounded-full" />
+                      <div className="h-2 w-2 rounded-full bg-green-500" />
                       <p className="flex-1 text-sm font-bold">Envoyé le {new Date(item.sentAt).toLocaleDateString("fr")}</p>
                     </div>
                     <p className="text-xs">{item.sentTo.length ? item.sentTo.join(", ") : "Aucun destinataire"}</p>
@@ -128,7 +128,7 @@ const AdminReport = () => {
                 ) : (
                   <>
                     <div className="flex items-center gap-2">
-                      <div className="h-2 w-2 bg-red-500 rounded-full" />
+                      <div className="h-2 w-2 rounded-full bg-red-500" />
                       <p className="flex-1 text-sm font-bold">Non envoyé</p>
                     </div>
                     <p className="flex-1 text-xs">{REPORT_STATUS[item.status] || item.status}</p>
@@ -138,7 +138,7 @@ const AdminReport = () => {
 
               <td className="p-4">
                 <div className="flex items-center gap-4">
-                  <div className="flex-1 grid grid-cols-2 gap-2">
+                  <div className="grid flex-1 grid-cols-2 gap-2">
                     {item.data?.receive !== undefined && item.data?.receive.general !== undefined && <p className="text-xs"> Pas de statistiques disponibles</p>}
                     {item.data?.receive !== undefined && (
                       <>
@@ -158,7 +158,7 @@ const AdminReport = () => {
                     )}
                   </div>
                   {item.url !== null && (
-                    <a className="border border-blue-dark p-2 text-blue-dark" href={item.url} target="_blank" rel="noreferrer">
+                    <a className="border-blue-france text-blue-france border p-2" href={item.url} target="_blank" rel="noreferrer">
                       <RiDownload2Line className="text-blue-800" />
                     </a>
                   )}

@@ -29,7 +29,7 @@ const Bots = () => {
     <div className="mb-6 space-y-6">
       <h2 className="text-2xl font-bold">Bots</h2>
       {loading ? (
-        <div className="flex justify-center items-center h-96">
+        <div className="flex h-96 items-center justify-center">
           <Loader />
         </div>
       ) : (
@@ -103,7 +103,7 @@ const BotRow = ({ bot }) => {
 
   if (!stats) return null;
   return (
-    <div className="bg-white shadow-sm p-6">
+    <div className="bg-white p-6 shadow-sm">
       <p className="text-lg font-bold">Identifiant: {bot.hash}</p>
       <p className="text-sm">User Agent: {bot.userAgent}</p>
       <p className="mt-6 text-sm">
@@ -123,15 +123,15 @@ const BotRow = ({ bot }) => {
         {statBot ? (
           <div className="flex flex-col items-end justify-end gap-2">
             <div className="flex items-center gap-2">
-              <RiCheckboxCircleFill className="text-green-main" /> <p className="text-green-main">Marqué comme bots (les stats n'apparaîtront pas dans le dashboard)</p>
+              <RiCheckboxCircleFill className="text-green-success" /> <p className="text-green-success">Marqué comme bots (les stats n'apparaîtront pas dans le dashboard)</p>
             </div>
             <button className="red-button w-56" onClick={handleUnblock} disabled={loading}>
-              {loading ? <Loader className="w-4 h-4 text-white" /> : "Démarquer comme bots"}
+              {loading ? <Loader className="h-4 w-4 text-white" /> : "Démarquer comme bots"}
             </button>
           </div>
         ) : (
           <button className="filled-button w-56" onClick={handleBlock} disabled={loading}>
-            {loading ? <Loader className="w-4 h-4 text-white" /> : "Marquer comme bots"}
+            {loading ? <Loader className="h-4 w-4 text-white" /> : "Marquer comme bots"}
           </button>
         )}
       </div>

@@ -22,7 +22,7 @@ export const colors = [
   "rgba(255,239,213,255)",
 ];
 const Pie = ({ data, labelKey, keys, legendPosition = "bottom" }) => {
-  if (!data || !data.length) return <div className={` p-4 text-center text-sm font-bold text-black`}>Aucune donnée</div>;
+  if (!data || !data.length) return <div className={`p-4 text-center text-sm font-bold text-black`}>Aucune donnée</div>;
 
   const options = {
     responsive: true,

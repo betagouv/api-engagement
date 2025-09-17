@@ -2,23 +2,23 @@ import { Link } from "react-router-dom";
 
 const Footer = () => {
   return (
-    <footer className="flex w-full flex-col justify-center bg-white border-t-2 border-blue-dark">
-      <div className="border-b-border flex w-full items-center justify-between border-b px-20 py-10">
-        <Link className="flex items-center p-2 hover:bg-gray-hover" to="/">
+    <footer className="border-blue-france flex w-full flex-col justify-center border-t-2 bg-white">
+      <div className="border-b-border flex w-full items-center justify-between border-b border-gray-900 px-20 py-10">
+        <Link className="hover:bg-gray-975 flex items-center p-2" to="/">
           <div className="h-full w-24">
-            <p className="gouv-logo my-2 text-xs font-bold uppercase leading-3 text-black">
+            <p className="gouv-logo my-2 text-xs leading-3 font-bold text-black uppercase">
               République
               <br />
               française
             </p>
           </div>
           <div>
-            <h2 className="m-0 text-xl font-bold leading-7 text-black">API Engagement</h2>
-            <p className="text-sm text-grey-150">Plateforme de partage de missions de bénévolat et de volontariat</p>
+            <h2 className="m-0 text-xl leading-7 font-bold text-black">API Engagement</h2>
+            <p className="text-sm text-gray-200">Plateforme de partage de missions de bénévolat et de volontariat</p>
           </div>
         </Link>
         <div>
-          <p className="mb-4 max-w-lg text-sm text-grey-150">
+          <p className="mb-4 max-w-lg text-sm text-gray-200">
             L'API vous permet de faciliter l'engagement en simplifiant la démarche de recherche d'une mission de bénévolat ou de volontariat
           </p>
 
@@ -39,7 +39,7 @@ const Footer = () => {
           </div>
         </div>
       </div>
-      <div className="flex w-full items-center divide-x divide-gray-dark px-20 py-4 text-xs text-black">
+      <div className="divide-gray-425 flex w-full items-center divide-x px-20 py-4 text-xs text-black">
         <a href="https://api-engagement.beta.gouv.fr/accessibilite/" className="pr-3 underline">
           Accessibilité : non conforme
         </a>
@@ -62,7 +62,7 @@ const Footer = () => {
           CGU
         </Link>
       </div>
-      <div className="items-baseliner inline-flex px-20 pb-4 pt-2 text-sm text-grey-150">
+      <div className="items-baseliner inline-flex px-20 pt-2 pb-4 text-sm text-gray-200">
         Sauf mention contraire, tous les textes de ce site sont sous
         <a href="https://github.com/etalab/licence-ouverte/blob/master/LO.md" target="_blank" className="ml-1 underline">
           licence etalab-2.0

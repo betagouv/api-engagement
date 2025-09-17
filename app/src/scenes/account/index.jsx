@@ -47,11 +47,11 @@ const Account = () => {
     <div className="space-y-12">
       <h1 className="text-4xl font-bold">Mon compte</h1>
 
-      <form onSubmit={handleSubmit} className="bg-white shadow-lg p-12">
+      <form onSubmit={handleSubmit} className="bg-white p-12 shadow-lg">
         <div className="mb-6 flex justify-between">
           <h2 className="text-3xl font-bold">Vos informations</h2>
           <div
-            className="flex cursor-pointer items-center text-sm text-red-main"
+            className="text-red-error flex cursor-pointer items-center text-sm"
             onClick={() => {
               api.removeToken();
               setAuth(null, null);
@@ -68,13 +68,13 @@ const Account = () => {
             </label>
             <input
               id="firstname"
-              className={`input mb-2 ${errors.firstname ? "border-b-red-main" : "border-b-black"}`}
+              className={`input mb-2 ${errors.firstname ? "border-b-red-error" : "border-b-black"}`}
               name="firstname"
               value={values.firstname}
               onChange={(e) => setValues({ ...values, firstname: e.target.value })}
             />
             {errors.firstname && (
-              <div className="flex items-center text-sm text-red-main">
+              <div className="text-red-error flex items-center text-sm">
                 <RiErrorWarningFill className="mr-2" />
                 {errors.firstname}
               </div>
@@ -87,7 +87,7 @@ const Account = () => {
             </label>
             <input
               id="lastname"
-              className={`input mb-2 ${errors.lastname ? "border-b-red-main" : "border-b-black"}`}
+              className={`input mb-2 ${errors.lastname ? "border-b-red-error" : "border-b-black"}`}
               name="lastname"
               value={values.lastname}
               onChange={(e) => setValues({ ...values, lastname: e.target.value })}
@@ -176,7 +176,7 @@ const ResetPasswordModal = () => {
 
       <Modal isOpen={open} onClose={onClose}>
         <div className="p-12">
-          <h2 className="text-lg font-bold mb-12">Changement du mot de passe</h2>
+          <h2 className="mb-12 text-lg font-bold">Changement du mot de passe</h2>
           <div className="flex flex-col">
             <div className="flex flex-col">
               <label className="mb-2 text-sm" htmlFor="old-password">
@@ -184,32 +184,32 @@ const ResetPasswordModal = () => {
               </label>
               <input
                 id="old-password"
-                className={`input mb-2 ${errors.oldPassword ? "border-b-red-main" : "border-b-black"}`}
+                className={`input mb-2 ${errors.oldPassword ? "border-b-red-error" : "border-b-black"}`}
                 name="oldPassword"
                 type="password"
                 value={values.oldPassword}
                 onChange={(e) => setValues({ ...values, oldPassword: e.target.value })}
               />
               {errors.oldPassword && (
-                <div className="flex items-center text-sm text-red-main">
+                <div className="text-red-error flex items-center text-sm">
                   <RiErrorWarningFill className="mr-2" />
                   {errors.oldPassword}
                 </div>
               )}
             </div>
-            <div className="flex flex-col mt-4">
+            <div className="mt-4 flex flex-col">
               <div className="flex justify-between">
                 <label className="mb-2 text-sm" htmlFor="new-password">
                   Nouveau mot de passe
                 </label>
-                <div className="flex items-center gap-1 cursor-pointer" onClick={() => setShowNewPassword(!showNewPassword)}>
-                  {showNewPassword ? <IoMdEyeOff className="text-blue-dark" /> : <IoMdEye className="text-blue-dark" />}
-                  <span className="text-xs font-bold text-blue-dark">{showNewPassword ? "CACHER" : "AFFICHER"}</span>
+                <div className="flex cursor-pointer items-center gap-1" onClick={() => setShowNewPassword(!showNewPassword)}>
+                  {showNewPassword ? <IoMdEyeOff className="text-blue-france" /> : <IoMdEye className="text-blue-france" />}
+                  <span className="text-blue-france text-xs font-bold">{showNewPassword ? "CACHER" : "AFFICHER"}</span>
                 </div>
               </div>
               <input
                 id="new-password"
-                className={`input mb-2 ${errors.newPassword ? "border-b-red-main" : "border-b-black"}`}
+                className={`input mb-2 ${errors.newPassword ? "border-b-red-error" : "border-b-black"}`}
                 name="newPassword"
                 type={showNewPassword ? "text" : "password"}
                 value={values.newPassword}
@@ -217,56 +217,56 @@ const ResetPasswordModal = () => {
                 autoComplete="new-password"
               />
               {errors.newPassword && (
-                <div className="flex items-center text-sm text-red-main">
+                <div className="text-red-error flex items-center text-sm">
                   <RiErrorWarningFill className="mr-2" />
                   {errors.newPassword}
                 </div>
               )}
             </div>
-            <div className="flex flex-col mt-4">
+            <div className="mt-4 flex flex-col">
               <div className="flex justify-between">
                 <label className="mb-2 text-sm" htmlFor="confirm-password">
                   Confirmez le nouveau mot de passe
                 </label>
-                <div className="flex items-center gap-1 cursor-pointer" onClick={() => setShowConfirmPassword(!showConfirmPassword)}>
-                  {showConfirmPassword ? <IoMdEyeOff className="text-blue-dark" /> : <IoMdEye className="text-blue-dark" />}
-                  <span className="text-xs font-bold text-blue-dark">{showConfirmPassword ? "CACHER" : "AFFICHER"}</span>
+                <div className="flex cursor-pointer items-center gap-1" onClick={() => setShowConfirmPassword(!showConfirmPassword)}>
+                  {showConfirmPassword ? <IoMdEyeOff className="text-blue-france" /> : <IoMdEye className="text-blue-france" />}
+                  <span className="text-blue-france text-xs font-bold">{showConfirmPassword ? "CACHER" : "AFFICHER"}</span>
                 </div>
               </div>
               <input
                 id="confirm-password"
-                className={`input mb-2 ${errors.confirmPassword ? "border-b-red-main" : "border-b-black"}`}
+                className={`input mb-2 ${errors.confirmPassword ? "border-b-red-error" : "border-b-black"}`}
                 name="confirmPassword"
                 type={showConfirmPassword ? "text" : "password"}
                 value={values.confirmPassword}
                 onChange={(e) => setValues({ ...values, confirmPassword: e.target.value })}
               />
               {errors.confirmPassword && (
-                <div className="flex items-center text-sm text-red-main">
+                <div className="text-red-error flex items-center text-sm">
                   <RiErrorWarningFill className="mr-2" />
                   {errors.confirmPassword}
                 </div>
               )}
             </div>
 
-            <div className="flex flex-col gap-2 mt-2">
-              <div className="flex gap-2 items-center">
+            <div className="mt-2 flex flex-col gap-2">
+              <div className="flex items-center gap-2">
                 {(values.newPassword || "").length >= 12 ? <RiCheckboxCircleFill className="text-green-700" /> : <RiCheckboxCircleFill className="text-gray-600" />}
                 <span className={`align-middle text-sm ${values.newPassword && (values.newPassword || "").length >= 12 ? "text-green-600" : "text-gray-600"}`}>
                   Au moins 12 caractères
                 </span>
               </div>
-              <div className="flex gap-2 items-center">
+              <div className="flex items-center gap-2">
                 {/[a-zA-Z]/.test(values.newPassword) ? <RiCheckboxCircleFill className="text-green-700" /> : <RiCheckboxCircleFill className="text-gray-600" />}
                 <span className={`align-middle text-sm ${values.newPassword && /[a-zA-Z]/.test(values.newPassword) ? "text-green-600" : "text-gray-600"}`}>
                   Au moins une lettre
                 </span>
               </div>
-              <div className="flex gap-2 items-center">
+              <div className="flex items-center gap-2">
                 {/[0-9]/.test(values.newPassword) ? <RiCheckboxCircleFill className="text-green-700" /> : <RiCheckboxCircleFill className="text-gray-600" />}
                 <span className={`align-middle text-sm ${values.newPassword && /[0-9]/.test(values.newPassword) ? "text-green-600" : "text-gray-600"}`}>Au moins un chiffre</span>
               </div>
-              <div className="flex gap-2 items-center">
+              <div className="flex items-center gap-2">
                 {/[!-@#$%^&*(),.?":{}|<>]/.test(values.newPassword) ? <RiCheckboxCircleFill className="text-green-700" /> : <RiCheckboxCircleFill className="text-gray-600" />}
                 <span className={`align-middle text-sm ${values.newPassword && /[!-@#$%^&*(),.?":{}|<>]/.test(values.newPassword) ? "text-green-600" : "text-gray-600"}`}>
                   Au moins un caractère spécial
@@ -274,8 +274,8 @@ const ResetPasswordModal = () => {
               </div>
             </div>
 
-            <div className="mt-8 flex gap-2 justify-end">
-              <button type="button" className="button border text-blue-dark py-2 px-4 hover:bg-gray-hover" onClick={() => setOpen(false)}>
+            <div className="mt-8 flex justify-end gap-2">
+              <button type="button" className="button text-blue-france hover:bg-gray-975 border border-gray-900 px-4 py-2" onClick={() => setOpen(false)}>
                 Annuler
               </button>
               <button type="button" className="filled-button" disabled={isErrors()} onClick={handleSubmit}>

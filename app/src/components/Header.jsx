@@ -12,11 +12,11 @@ import { slugify } from "../services/utils";
 const Header = () => {
   const { user } = useStore();
   return (
-    <header className="flex w-full justify-center border-b border-b-[#ddd] bg-white">
-      <div className="w-full max-w-[78rem] flex items-center justify-between py-3">
-        <Link className="flex items-center gap-4 p-4 hover:bg-gray-hover" to={user ? "/" : "/login"}>
-          <div className="h-24 flex items-center justify-center">
-            <p className="gouv-logo text-xs font-bold uppercase leading-3 text-black">
+    <header className="flex w-full justify-center border-b border-b-[#dddddd] bg-white">
+      <div className="flex w-full max-w-7xl items-center justify-between py-3">
+        <Link className="hover:bg-gray-975 flex items-center gap-4 p-4" to={user ? "/" : "/login"}>
+          <div className="flex h-24 items-center justify-center">
+            <p className="gouv-logo text-xs leading-3 font-bold text-black uppercase">
               République
               <br />
               française
@@ -28,15 +28,15 @@ const Header = () => {
             <p className="text-sm">Plateforme de partage de missions de bénévolat et de volontariat</p>
           </div>
         </Link>
-        <div className="flex items-center gap-3 text-sm text-blue-dark">
-          <div className="flex items-center gap-2 p-2 hover:bg-gray-hover">
+        <div className="text-blue-france flex items-center gap-3 text-sm">
+          <div className="hover:bg-gray-975 flex items-center gap-2 p-2">
             <RiBookletLine />
             <a href="https://doc.api-engagement.beta.gouv.fr/" target="_blank">
               Documentation
             </a>
           </div>
           {!user ? (
-            <Link to="/login" className="button flex cursor-pointer items-center border border-gray-border hover:bg-gray-hover">
+            <Link to="/login" className="button hover:bg-gray-975 flex cursor-pointer items-center border border-gray-900">
               <RiUserLine className="mr-2" />
               Connexion
             </Link>
@@ -95,20 +95,20 @@ const NotificationMenu = () => {
 
   return (
     <Menu>
-      <MenuButton as="div" className="relative p-2 text-lg data-[focus]:bg-gray-hover hover:bg-gray-hover">
+      <MenuButton as="div" className="data-[focus]:bg-gray-975 hover:bg-gray-975 relative p-2 text-lg">
         <RiDashboard3Line />
-        {warnings.length > 0 && <div className="absolute right-1.5 top-2 h-[9px] w-[9px] rounded-full border border-white bg-red-notif"></div>}
+        {warnings.length > 0 && <div className="absolute top-2 right-1.5 h-[9px] w-[9px] rounded-full border border-white bg-[#ff5655]" />}
       </MenuButton>
 
       <MenuItems
         transition
         anchor="bottom end"
-        className="mt-2 w-[400px] origin-top-right bg-white text-black shadow-lg focus:outline-none transition duration-200 ease-out data-[closed]:scale-95 data-[closed]:opacity-0"
+        className="mt-2 w-[400px] origin-top-right bg-white text-black shadow-lg transition duration-200 ease-out focus:outline-none data-closed:scale-95 data-closed:opacity-0"
       >
         <MenuItem>
           <div className="flex items-center justify-between p-6">
             <h3 className="m-0 text-lg font-bold text-black">État du service</h3>
-            <Link to="/warning" className="flex items-center text-blue-dark">
+            <Link to="/warning" className="text-blue-france flex items-center">
               <span>Détails</span>
               <RiArrowDropRightLine className="mt-1 text-lg" />
             </Link>
@@ -116,7 +116,7 @@ const NotificationMenu = () => {
         </MenuItem>
         {state && (
           <MenuItem>
-            <Link to="/warning" className="flex items-center justify-between gap-6 p-6 hover:bg-gray-light border-t border-gray-border">
+            <Link to="/warning" className="flex items-center justify-between gap-6 border-t border-gray-900 p-6 hover:bg-gray-950">
               <div className="flex w-6 items-center">
                 <LogoSvg alt="API Engagement" />
               </div>
@@ -135,7 +135,7 @@ const NotificationMenu = () => {
         {warnings.length ? (
           <>
             <MenuItem>
-              <Link to="/warning" className="flex items-center justify-between gap-6 p-6 hover:bg-gray-light border-t border-gray-border">
+              <Link to="/warning" className="flex items-center justify-between gap-6 border-t border-gray-900 p-6 hover:bg-gray-950">
                 <div className="flex w-6 items-center">
                   <span>❌</span>
                 </div>
@@ -148,19 +148,19 @@ const NotificationMenu = () => {
               const label = WARNINGS[w.type] || { emoji: "🤔", name: w.type };
               return (
                 <MenuItem key={w._id}>
-                  <Link to="/warning" className="flex items-center justify-between gap-6 p-6 hover:bg-gray-light border-t border-gray-border">
+                  <Link to="/warning" className="flex items-center justify-between gap-6 border-t border-gray-900 p-6 hover:bg-gray-950">
                     <div className="flex w-6 items-center">
                       <span>{label.emoji}</span>
                     </div>
                     <div className="flex flex-1 flex-col gap-2">
                       <div>
-                        <span className="truncate rounded bg-orange-light p-1 text-center text-xs font-semibold uppercase text-orange-dark">{label.name}</span>
+                        <span className="bgbg-[#FEECC2] textbg-[#716043] truncate rounded p-1 text-center text-xs font-semibold uppercase">{label.name}</span>
                       </div>
                       <h4 className="m-0 text-sm font-bold text-black">{w.title}</h4>
-                      <p className="m-0 text-xs text-gray-dark">{new Date(w.createdAt).toLocaleDateString("fr-FR")}</p>
+                      <p className="text-gray-425 m-0 text-xs">{new Date(w.createdAt).toLocaleDateString("fr-FR")}</p>
                     </div>
                     <div className="flex w-6 items-center justify-center">
-                      <div className="h-3 w-3 rounded-full bg-red-notif" />
+                      <div className="h-3 w-3 rounded-full bg-[#ff5655]" />
                     </div>
                   </Link>
                 </MenuItem>
@@ -168,8 +168,8 @@ const NotificationMenu = () => {
             })}
             {warnings.length > 2 && (
               <MenuItem>
-                <Link to="/warning" className={`flex items-center justify-end gap-6 p-6 hover:bg-gray-light border-t border-gray-border`}>
-                  <div className="flex text-blue-dark">
+                <Link to="/warning" className={`flex items-center justify-end gap-6 border-t border-gray-900 p-6 hover:bg-gray-950`}>
+                  <div className="text-blue-france flex">
                     <span>Voir toutes les alertes</span>
                     <RiArrowDropRightLine className="mt-1 text-lg" />
                   </div>
@@ -179,7 +179,7 @@ const NotificationMenu = () => {
           </>
         ) : (
           <MenuItem>
-            <Link to="/warning" className="flex items-center justify-between gap-6 p-6 hover:bg-gray-light border-t border-gray-border">
+            <Link to="/warning" className="flex items-center justify-between gap-6 border-t border-gray-900 p-6 hover:bg-gray-950">
               <div className="flex w-6 items-center">
                 <span>✅</span>
               </div>
@@ -217,19 +217,19 @@ const AdminNotificationMenu = () => {
 
   return (
     <Menu>
-      <MenuButton className="relative p-2 text-lg data-[focus]:bg-gray-hover hover:bg-gray-hover">
+      <MenuButton className="data-[focus]:bg-gray-975 hover:bg-gray-975 relative p-2 text-lg">
         <RiDashboard3Line />
-        {warnings.length > 0 && <div className="absolute right-1.5 top-2 h-[9px] w-[9px] rounded-full border border-white bg-red-notif"></div>}
+        {warnings.length > 0 && <div className="absolute top-2 right-1.5 h-[9px] w-[9px] rounded-full border border-white bg-[#ff5655]" />}
       </MenuButton>
       <MenuItems
         transition
         anchor="bottom end"
-        className="w-[400px] origin-top-right bg-white text-black shadow-lg focus:outline-none transition duration-200 ease-out data-[closed]:scale-95 data-[closed]:opacity-0"
+        className="w-[400px] origin-top-right bg-white text-black shadow-lg transition duration-200 ease-out focus:outline-none data-closed:scale-95 data-closed:opacity-0"
       >
         <MenuItem>
           <div className="flex items-center justify-between p-6">
             <h3 className="m-0 text-lg font-bold text-black">État du service</h3>
-            <Link to="/admin-warning" className="flex items-center text-blue-dark">
+            <Link to="/admin-warning" className="text-blue-france flex items-center">
               <span>Détails</span>
               <RiArrowDropRightLine className="mt-1 text-lg" />
             </Link>
@@ -237,7 +237,7 @@ const AdminNotificationMenu = () => {
         </MenuItem>
         {state && (
           <MenuItem>
-            <Link to="/admin-warning" className="flex items-center justify-between gap-6 p-6 hover:bg-gray-light border-t border-gray-border">
+            <Link to="/admin-warning" className="flex items-center justify-between gap-6 border-t border-gray-900 p-6 hover:bg-gray-950">
               <div className="flex w-6 items-center">
                 <LogoSvg alt="API Engagement" />
               </div>
@@ -264,18 +264,18 @@ const AdminNotificationMenu = () => {
                       pathname: `/admin-warning`,
                       hash: slugify(`${w.type}-${w.publisherName}`),
                     }}
-                    className="flex items-center justify-between gap-6 p-6 hover:bg-gray-light border-t border-gray-borde"
+                    className="border-gray-borde flex items-center justify-between gap-6 border-t p-6 hover:bg-gray-950"
                   >
                     <div className="flex w-6 items-center">
                       <span>{label.emoji}</span>
                     </div>
                     <div className="flex flex-1 flex-col gap-2">
-                      <p className="m-0 text-xs text-gray-dark">{w.publisherName}</p>
+                      <p className="text-gray-425 m-0 text-xs">{w.publisherName}</p>
                       <div>
-                        <span className="truncate rounded bg-orange-light p-1 text-center text-xs font-semibold uppercase text-orange-dark">{label.name}</span>
+                        <span className="bgbg-[#FEECC2] textbg-[#716043] truncate rounded p-1 text-center text-xs font-semibold uppercase">{label.name}</span>
                       </div>
                       <h4 className="m-0 text-sm font-bold text-black">{w.title}</h4>
-                      <p className="m-0 text-xs text-gray-dark">{new Date(w.createdAt).toLocaleDateString("fr-FR")}</p>
+                      <p className="text-gray-425 m-0 text-xs">{new Date(w.createdAt).toLocaleDateString("fr-FR")}</p>
                     </div>
                   </Link>
                 </MenuItem>
@@ -283,8 +283,8 @@ const AdminNotificationMenu = () => {
             })}
             {warnings.length > 3 && (
               <MenuItem>
-                <Link to={`/admin-warning`} className={`flex items-center justify-end gap-6 p-6 hover:bg-gray-light border-t border-gray-border`}>
-                  <div className="flex text-blue-dark">
+                <Link to={`/admin-warning`} className={`flex items-center justify-end gap-6 border-t border-gray-900 p-6 hover:bg-gray-950`}>
+                  <div className="text-blue-france flex">
                     <span>Voir toutes les alertes</span>
                     <RiArrowDropRightLine className="mt-1 text-lg" />
                   </div>
@@ -294,7 +294,7 @@ const AdminNotificationMenu = () => {
           </>
         ) : (
           <MenuItem>
-            <Link to="/admin-warning" className="flex items-center justify-between gap-6 p-6 hover:bg-gray-light border-t border-gray-border">
+            <Link to="/admin-warning" className="flex items-center justify-between gap-6 border-t border-gray-900 p-6 hover:bg-gray-950">
               <div className="flex w-6 items-center">
                 <span>✅</span>
               </div>
@@ -319,13 +319,13 @@ const AccountMenu = () => {
 
   return (
     <Menu>
-      <MenuButton className="button flex cursor-pointer items-center gap-4 data-[focus]:bg-gray-hover hover:bg-gray-hover">
-        <div className="bg-blue-dark w-8 h-8 flex justify-center items-center rounded-full">
+      <MenuButton className="button data-[focus]:bg-gray-975 hover:bg-gray-975 flex cursor-pointer items-center gap-4">
+        <div className="bg-blue-france flex h-8 w-8 items-center justify-center rounded-full">
           <RiUserLine className="text-white" />
         </div>
         <div className="space-y-0 text-left">
-          <p className="text-blue-dark">{user.firstname}</p>
-          <p className="text-sm text-gray-dark">{user.publishers.length ? (user.role === "admin" ? "Administrateur" : "Utilisateur") : publisher.name}</p>
+          <p className="text-blue-france">{user.firstname}</p>
+          <p className="text-gray-425 text-sm">{user.publishers.length ? (user.role === "admin" ? "Administrateur" : "Utilisateur") : publisher.name}</p>
         </div>
         <RiArrowDownSLine className="text-base" />
       </MenuButton>
@@ -333,15 +333,15 @@ const AccountMenu = () => {
       <MenuItems
         transition
         anchor="bottom end"
-        className="w-52 origin-top-right bg-white shadow-lg focus:outline-none transition duration-200 ease-out data-[closed]:scale-95 data-[closed]:opacity-0"
+        className="w-52 origin-top-right bg-white shadow-lg transition duration-200 ease-out focus:outline-none data-closed:scale-95 data-closed:opacity-0"
       >
         <MenuItem>
-          <Link to="my-account" className="block w-full p-4 text-sm data-[focus]:bg-gray-hover">
+          <Link to="my-account" className="data-[focus]:bg-gray-975 block w-full p-4 text-sm">
             Mon compte
           </Link>
         </MenuItem>
         <MenuItem>
-          <button className="w-full p-4 text-sm text-left data-[focus]:bg-gray-hover" onClick={handleLogout}>
+          <button className="data-[focus]:bg-gray-975 w-full p-4 text-left text-sm" onClick={handleLogout}>
             Se déconnecter
           </button>
         </MenuItem>

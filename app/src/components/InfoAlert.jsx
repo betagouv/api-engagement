@@ -9,9 +9,9 @@ const InfoAlert = ({ children, onClose }) => {
         </button>
       )}
       <div className="bg-[#0078f3] p-2">
-        <RiInformationFill className="text-white text-2xl" />
+        <RiInformationFill className="text-2xl text-white" />
       </div>
-      <div className="bg-white p-4 flex-1">{children}</div>
+      <div className="flex-1 bg-white p-4">{children}</div>
     </div>
   );
 };

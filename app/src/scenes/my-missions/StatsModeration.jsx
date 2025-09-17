@@ -62,10 +62,10 @@ const StatsModeration = () => {
         <title>Statistiques de modération - Vos Missions - API Engagement</title>
       </Helmet>
       <div className="space-y-2">
-        <label className="text-sm text-gray-dark uppercase font-semibold">Période</label>
+        <label className="text-gray-425 text-sm font-semibold uppercase">Période</label>
         <DateRangePicker value={filters} onChange={(value) => setFilters({ ...filters, ...value })} />
       </div>
-      <div className="h-px w-full bg-gray-border" />
+      <div className="h-px w-full bg-gray-900" />
       {loading ? (
         <Loader />
       ) : total === 0 ? (
@@ -73,8 +73,8 @@ const StatsModeration = () => {
           <p className="text-center">Aucune mission partagée sur cette période</p>
         </div>
       ) : (
-        <div className="flex gap-6 items-start">
-          <div className="w-1/3 border border-gray-border p-6 space-y-6">
+        <div className="flex items-start gap-6">
+          <div className="w-1/3 space-y-6 border border-gray-900 p-6">
             <h2 className="text-3xl font-bold">
               {data.rate === 1
                 ? `😎 Aucune mission n'a été refusée par l'API Engagement`
@@ -82,7 +82,7 @@ const StatsModeration = () => {
                   ? `${data.rate.toLocaleString("fr", { style: "percent", minimumFractionDigits: 2 })} de vos missions ont été acceptées 😎`
                   : `${(1 - data.rate).toLocaleString("fr", { style: "percent", minimumFractionDigits: 2 })} de vos missions ont été refusées 😞`}
             </h2>
-            <div className="w-full h-56">
+            <div className="h-56 w-full">
               <Pie
                 data={[
                   { name: "Acceptées", value: data.accepted, color: "#6ED5C5" },
@@ -92,12 +92,12 @@ const StatsModeration = () => {
               />
             </div>
           </div>
-          <div className="flex-1 border border-gray-border p-6 space-y-6">
+          <div className="flex-1 space-y-6 border border-gray-900 p-6">
             <h2 className="text-3xl font-bold">Top des motifs de refus</h2>
 
             <Table header={TABLE_HEADER}>
               {data.comments.map((item, i) => (
-                <tr key={i} className={`${i % 2 === 0 ? "bg-gray-100" : "bg-gray-50"} table-item`}>
+                <tr key={i} className={`${i % 2 === 0 ? "bg-gray-975" : "bg-gray-1000-active"} table-item`}>
                   <td className="px-4">{i + 1}</td>
                   <td className="px-4" colSpan={4}>
                     {item.comment}

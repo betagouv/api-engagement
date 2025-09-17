@@ -44,7 +44,7 @@ const Members = ({ values, onChange }) => {
             </td>
             <td className="p-4">
               <div className="flex justify-center">
-                {item.role === "admin" ? <span className="rounded bg-red-light p-2">Admin</span> : <span className="rounded bg-green-light p-2">Utilisateur</span>}
+                {item.role === "admin" ? <span className="rounded bg-red-300 p-2">Admin</span> : <span className="rounded bg-green-300 p-2">Utilisateur</span>}
               </div>
             </td>
           </tr>

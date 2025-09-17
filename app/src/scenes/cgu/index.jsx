@@ -8,9 +8,9 @@ const Index = () => {
       </Helmet>
 
       <div className="mx-auto my-14 w-4/5 max-w-[1200px] flex-1 space-y-10">
-        <h1 className="text-4xl font-bold mb-2">Conditions Générales d’Utilisation</h1>
+        <h1 className="mb-2 text-4xl font-bold">Conditions Générales d’Utilisation</h1>
 
-        <div className="bg-white py-12 px-24 border space-y-10 text-base">
+        <div className="space-y-10 border bg-white px-24 py-12 text-base">
           <p>En vigueur à partir du 20/03/2025</p>
           <div className="space-y-6">
             <h2 className="text-lg font-bold">Article 1 - Champ d’application</h2>
@@ -44,7 +44,7 @@ const Index = () => {
           <div className="space-y-6">
             <h2 className="text-lg font-bold">Article 4 - Fonctionnalités de la Plateforme</h2>
             <p>Chaque Utilisateur peut :</p>
-            <ul className="list-disc list-inside">
+            <ul className="list-inside list-disc">
               <li>Paramétrer et suivre la performance des flux de missions diffusées ; </li>
               <li>Suivre la performance des impressions, redirections, création de compte et candidatures effectuées par le biais de la Plateforme ; </li>
               <li>Paramétrer des widgets en vue de multidiffuser des missions sur des sites tiers ;</li>

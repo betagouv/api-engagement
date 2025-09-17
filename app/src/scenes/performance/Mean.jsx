@@ -86,14 +86,14 @@ const Mean = ({ filters, onFiltersChange }) => {
       </Helmet>
       <div className="flex items-center justify-between">
         <div className="space-y-2">
-          <label className="text-sm text-gray-dark uppercase font-semibold">Période</label>
+          <label className="text-gray-425 text-sm font-semibold uppercase">Période</label>
           <DateRangePicker value={filters} onChange={(value) => onFiltersChange({ ...filters, ...value })} />
         </div>
         {options.length > 1 && (
           <>
-            <div className="h-16 w-px mx-10 bg-gray-border" />
-            <div className="space-y-2 flex-1">
-              <label htmlFor="mean-of-diffusion" className="text-sm text-gray-dark uppercase font-semibold">
+            <div className="mx-10 h-16 w-px bg-gray-900" />
+            <div className="flex-1 space-y-2">
+              <label htmlFor="mean-of-diffusion" className="text-gray-425 text-sm font-semibold uppercase">
                 Moyen de diffusion
               </label>
               <select id="mean-of-diffusion" className="select w-full" value={source} onChange={(e) => setSource(e.target.value)}>
@@ -108,7 +108,7 @@ const Mean = ({ filters, onFiltersChange }) => {
         )}
       </div>
 
-      <div className="border-b border-b-gray-border" />
+      <div className="border-b border-b-gray-900" />
 
       <div className="flex flex-col gap-4">
         <h2 className="text-[28px] font-bold">
@@ -120,31 +120,31 @@ const Mean = ({ filters, onFiltersChange }) => {
             }[source]
           }
         </h2>
-        <div className="border p-6 flex items-start gap-6">
+        <div className="flex items-start gap-6 border border-gray-900 p-6">
           {loading ? (
-            <div className="w-full py-10 flex justify-center">
+            <div className="flex w-full justify-center py-10">
               <Loader />
             </div>
           ) : (
             <>
-              <div className="w-[20%] h-full p-4">
+              <div className="h-full w-[20%] p-4">
                 <h1 className="text-4xl font-bold">
                   {data.graph.clickCount ? (data.graph.applyCount / data.graph.clickCount).toLocaleString("fr-FR", { style: "percent", maximumFractionDigits: 2 }) : "-"}
                 </h1>
-                <p className="text-base mt-2">taux de conversion de l'API</p>
+                <p className="mt-2 text-base">taux de conversion de l'API</p>
                 <p className="mt-4 text-sm text-[#666666]">
-                  entre le nombre de <span className="text-black font-semibold">redirections</span> et le nombre de <span className="text-black font-semibold">candidatures</span>
+                  entre le nombre de <span className="font-semibold text-black">redirections</span> et le nombre de <span className="font-semibold text-black">candidatures</span>
                 </p>
               </div>
-              <div className="flex-1 flex items-end h-full gap-8">
-                <div className="flex-1 h-full px-4 flex flex-col gap-4 group justify-end">
+              <div className="flex h-full flex-1 items-end gap-8">
+                <div className="group flex h-full flex-1 flex-col justify-end gap-4 px-4">
                   <Bar value={100} height={BAR_HEIGHT} />
                   <div className="h-24">
                     <h4 className="text-3xl font-semibold text-gray-700 group-hover:text-black">{data.graph.clickCount.toLocaleString("fr")}</h4>
                     <p className="text-base text-gray-700 group-hover:text-black">redirections vers une mission</p>
                   </div>
                 </div>
-                <div className="flex-1 h-full px-4 flex flex-col gap-4 group justify-end">
+                <div className="group flex h-full flex-1 flex-col justify-end gap-4 px-4">
                   <Bar value={data.graph.clickCount ? (data.graph.applyCount * 100) / data.graph.clickCount : 100} height={BAR_HEIGHT} />
                   <div className="h-24">
                     <h4 className="text-3xl font-semibold text-gray-700 group-hover:text-black">{data.graph.applyCount.toLocaleString("fr")}</h4>
@@ -156,21 +156,21 @@ const Mean = ({ filters, onFiltersChange }) => {
           )}
         </div>
         <div className="grid grid-cols-2 gap-4">
-          <div className="border p-6">
-            <p className="font-bold text-[28px]">{data.graph.printCount.toLocaleString("fr")}</p>
+          <div className="border border-gray-900 p-6">
+            <p className="text-[28px] font-bold">{data.graph.printCount.toLocaleString("fr")}</p>
             <p className="text-base">impressions</p>
           </div>
-          <div className="border p-6">
-            <p className="font-bold text-[28px]">{data.graph.accountCount.toLocaleString("fr")}</p>
+          <div className="border border-gray-900 p-6">
+            <p className="text-[28px] font-bold">{data.graph.accountCount.toLocaleString("fr")}</p>
             <p className="text-base">créations de compte</p>
           </div>
         </div>
       </div>
 
-      <div className="border p-8 bg-[#F5F5FE] flex items-center gap-8">
-        <div className="w-[128px] h-full relative">
-          <img src={JessicaSvg} alt="Jessica" className="w-[72px] h-[72px] rounded-full absolute top-1/2 -translate-y-1/2 left-0" />
-          <img src={NassimSvg} alt="Nassim" className="w-[72px] h-[72px] rounded-full absolute top-1/2 -translate-y-1/2 right-0" />
+      <div className="flex items-center gap-8 border border-gray-900 bg-[#F5F5FE] p-8">
+        <div className="relative h-full w-[128px]">
+          <img src={JessicaSvg} alt="Jessica" className="absolute top-1/2 left-0 h-[72px] w-[72px] -translate-y-1/2 rounded-full" />
+          <img src={NassimSvg} alt="Nassim" className="absolute top-1/2 right-0 h-[72px] w-[72px] -translate-y-1/2 rounded-full" />
         </div>
         <div className="space-y-8">
           <div className="space-y-2">
@@ -205,9 +205,9 @@ const Bar = ({ value, height = BAR_HEIGHT }) => {
 
   return (
     <div className="relative w-full" style={{ height }}>
-      <div className="absolute bottom-0 bg-[#6A6AF4]/10 w-full h-full rounded" />
-      <div className="absolute bottom-0 bg-[#ADADF9] group-hover:bg-[#6A6AF4] w-full rounded transition-all duration-300 ease-in-out" style={{ height: `${value}%` }} />
-      <div className="absolute bg-white border shadow-lg px-2 py-1 rounded left-1/2 -translate-x-1/2 text-sm" style={{ bottom: getLabelPosition(value) }}>
+      <div className="absolute bottom-0 h-full w-full rounded bg-[#6A6AF4]/10" />
+      <div className="absolute bottom-0 w-full rounded bg-[#ADADF9] transition-all duration-300 ease-in-out group-hover:bg-[#6A6AF4]" style={{ height: `${value}%` }} />
+      <div className="absolute left-1/2 -translate-x-1/2 rounded border bg-white px-2 py-1 text-sm shadow-lg" style={{ bottom: getLabelPosition(value) }}>
         {value.toFixed(0)}%
       </div>
     </div>
@@ -226,13 +226,13 @@ const TABLE_HEADER = (source) => [
 const SourcePerformance = ({ data, source }) => {
   const [sortBy, setSortBy] = useState("applyCount");
   return (
-    <div className="border p-6 space-y-4">
+    <div className="space-y-4 border border-gray-900 p-6">
       <h3 className="text-2xl font-semibold">Performance par {source === "widget" ? "widget" : "campagne"}</h3>
       <Table header={TABLE_HEADER(source)} total={data.length} sortBy={sortBy} onSort={setSortBy}>
         {data
           .sort((a, b) => (sortBy === "name" ? (a.name || "").localeCompare(b.name) : b[sortBy] - a[sortBy]))
           .map((item, i) => (
-            <tr key={i} className={`${i % 2 === 0 ? "bg-gray-100" : "bg-gray-50"} table-item`}>
+            <tr key={i} className={`${i % 2 === 0 ? "bg-gray-975" : "bg-gray-1000-active"} table-item`}>
               <td colSpan={2} className="px-4">
                 {item.name}
               </td>

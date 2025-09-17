@@ -105,7 +105,7 @@ const Edit = () => {
         <div className="mb-6 flex justify-between">
           <h2 className="text-3xl font-bold">Les informations</h2>
 
-          <div className="flex cursor-pointer items-center text-sm text-red-main" onClick={handleDelete}>
+          <div className="text-red-error flex cursor-pointer items-center text-sm" onClick={handleDelete}>
             <TiDeleteOutline className="mr-2" />
             <span>Supprimer</span>
           </div>
@@ -117,13 +117,13 @@ const Edit = () => {
             </label>
             <input
               id="firstname"
-              className={`input mb-2 ${errors.firstname ? "border-b-red-main" : "border-b-black"}`}
+              className={`input mb-2 ${errors.firstname ? "border-b-red-error" : "border-b-black"}`}
               name="firstname"
               value={values.firstname}
               onChange={(e) => setValues({ ...values, firstname: e.target.value })}
             />
             {errors.firstname && (
-              <div className="flex items-center text-sm text-red-main">
+              <div className="text-red-error flex items-center text-sm">
                 <RiErrorWarningFill className="mr-2" />
                 {errors.firstname}
               </div>
@@ -136,13 +136,13 @@ const Edit = () => {
             </label>
             <input
               id="lastname"
-              className={`input mb-2 ${errors.lastname ? "border-b-red-main" : "border-b-black"}`}
+              className={`input mb-2 ${errors.lastname ? "border-b-red-error" : "border-b-black"}`}
               name="lastname"
               value={values.lastname}
               onChange={(e) => setValues({ ...values, lastname: e.target.value })}
             />
             {errors.lastname && (
-              <div className="flex items-center text-sm text-red-main">
+              <div className="text-red-error flex items-center text-sm">
                 <RiErrorWarningFill className="mr-2" />
                 {errors.lastname}
               </div>
@@ -155,13 +155,13 @@ const Edit = () => {
             </label>
             <input
               id="email"
-              className={`input mb-2 ${errors.email ? "border-b-red-main" : "border-b-black"}`}
+              className={`input mb-2 ${errors.email ? "border-b-red-error" : "border-b-black"}`}
               name="email"
               value={values.email}
               onChange={(e) => setValues({ ...values, email: e.target.value })}
             />
             {errors.email && (
-              <div className="flex items-center text-sm text-red-main">
+              <div className="text-red-error flex items-center text-sm">
                 <RiErrorWarningFill className="mr-2" />
                 {errors.email}
               </div>
@@ -174,7 +174,7 @@ const Edit = () => {
 
             <select
               id="role"
-              className={`input mb-2 ${errors.role ? "border-b-red-main" : "border-b-black"}`}
+              className={`input mb-2 ${errors.role ? "border-b-red-error" : "border-b-black"}`}
               value={values.role}
               onChange={(e) => setValues({ ...values, role: e.target.value })}
               name="role"
@@ -183,14 +183,14 @@ const Edit = () => {
               <option value="admin">Admin</option>
             </select>
             {errors.role && (
-              <div className="flex items-center text-sm text-red-main">
+              <div className="text-red-error flex items-center text-sm">
                 <RiErrorWarningFill className="mr-2" />
                 {errors.role}
               </div>
             )}
           </div>
 
-          <div className="flex w-full justify-center pt-[1.625rem] text-right">
+          <div className="flex w-full justify-center pt-6.5 text-right">
             <ResetPasswordModal user={user} />
           </div>
 
@@ -201,7 +201,7 @@ const Edit = () => {
 
             <input
               id="publishers"
-              className="w-64 mb-4 input flex-1 bg-gray-light px-3 py-2 text-sm"
+              className="input mb-4 w-64 flex-1 bg-gray-950 px-3 py-2 text-sm"
               placeholder="Rechercher"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
@@ -210,7 +210,7 @@ const Edit = () => {
             {values.publishers.length > 0 && (
               <div className="mb-2 flex flex-wrap gap-2">
                 {values.publishers.map((p, i) => (
-                  <div key={i} className="flex items-center rounded bg-blue-light p-2">
+                  <div key={i} className="bg-blue-france-975 flex items-center rounded p-2">
                     <span className="text-xs">{publishers.find((pub) => pub._id === p)?.name}</span>
                     <button type="button" className="ml-2" onClick={() => setValues({ ...values, publishers: values.publishers.filter((pub) => pub !== p) })}>
                       <RiCloseFill className="text-xs" />
@@ -247,10 +247,10 @@ const Edit = () => {
                   <div className="flex-1">{item.name}</div>
                   <div className="flex-1">
                     <div className="flex flex-wrap justify-center gap-2">
-                      {item.isAnnonceur && <span className="rounded bg-red-light p-2">Annonceur</span>}
-                      {item.hasApiRights && <span className="rounded bg-green-light p-2">Diffuseur API</span>}
-                      {item.hasWidgetRights && <span className="rounded bg-green-light p-2">Diffuseur Widget</span>}
-                      {item.hasCampaignRights && <span className="rounded bg-green-light p-2">Diffuseur Campagne</span>}
+                      {item.isAnnonceur && <span className="rounded bg-red-300 p-2">Annonceur</span>}
+                      {item.hasApiRights && <span className="rounded bg-green-300 p-2">Diffuseur API</span>}
+                      {item.hasWidgetRights && <span className="rounded bg-green-300 p-2">Diffuseur Widget</span>}
+                      {item.hasCampaignRights && <span className="rounded bg-green-300 p-2">Diffuseur Campagne</span>}
                     </div>
                   </div>
                 </>
@@ -259,13 +259,13 @@ const Edit = () => {
           </div>
 
           <div className="col-span-2 flex justify-end gap-4">
-            <Link to="/accounts?tab=users" className="button border border-black text-black hover:bg-gray-hover">
+            <Link to="/accounts?tab=users" className="button hover:bg-gray-975 border border-black text-black">
               Retour
             </Link>
-            <button type="button" className="button bg-blue-dark text-white hover:bg-blue-main" onClick={handleInviteAgain}>
+            <button type="button" className="button bg-blue-france hover:bg-blue-france-hover text-white" onClick={handleInviteAgain}>
               Renvoyer l'invitation
             </button>
-            <button type="submit" className="button bg-blue-dark text-white hover:bg-blue-main" disabled={!isChanged() || isErrors()}>
+            <button type="submit" className="button bg-blue-france hover:bg-blue-france-hover text-white" disabled={!isChanged() || isErrors()}>
               Mettre à jour
             </button>
           </div>
@@ -305,7 +305,7 @@ const ResetPasswordModal = ({ user }) => {
 
   return (
     <div className="mb-2.5 text-right">
-      <button type="button" className="button border border-blue-dark text-blue-dark" onClick={() => setOpen(true)}>
+      <button type="button" className="button border-blue-france text-blue-france border" onClick={() => setOpen(true)}>
         Réinitialiser le mot de passe
       </button>
       <Modal className="w-full max-w-3xl" isOpen={open} onClose={() => setOpen(false)}>
@@ -318,12 +318,12 @@ const ResetPasswordModal = ({ user }) => {
                   <h4 className="mb-6 text-center">Voici le mot de passe temporaire</h4>
                   <div className="mb-12 flex items-center justify-center px-20">
                     <span className="input w-1/2">{newPassword}</span>
-                    <button type="button" className="ml-2 border border-blue-dark p-2 text-blue-dark" onClick={() => handleCopy(newPassword)}>
+                    <button type="button" className="border-blue-france text-blue-france ml-2 border p-2" onClick={() => handleCopy(newPassword)}>
                       <RiFileCopyFill className="text-lg" />
                     </button>
                   </div>
                   <div className="w-full pr-6 text-right">
-                    <button className="button bg-blue-dark text-white" onClick={() => setOpen(false)}>
+                    <button className="button bg-blue-france text-white" onClick={() => setOpen(false)}>
                       Fermer
                     </button>
                   </div>
@@ -336,7 +336,7 @@ const ResetPasswordModal = ({ user }) => {
             <>
               <h4 className="mb-6 text-center">Êtes-vous sûr de réinitialiser le mot de passe ?</h4>
               <div className="w-full pr-6 text-right">
-                <button className="button bg-blue-dark text-white" onClick={handleConfirm}>
+                <button className="button bg-blue-france text-white" onClick={handleConfirm}>
                   Confirmer
                 </button>
               </div>

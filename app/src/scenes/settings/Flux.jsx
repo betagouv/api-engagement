@@ -60,39 +60,39 @@ const Flux = () => {
       <Helmet>
         <title>Flux de missions - Paramètres - API Engagement</title>
       </Helmet>
-      <div className="border border-gray-border p-8 space-y-8">
+      <div className="space-y-8 border border-gray-900 p-8">
         <h2 className="text-3xl font-bold">Configurer votre flux de missions</h2>
 
-        <div className="flex justify-between gap-6 items-center">
-          <label className="font-semibold flex-none w-[35%]">Lien du fichier XML à synchroniser</label>
+        <div className="flex items-center justify-between gap-6">
+          <label className="w-[35%] flex-none font-semibold">Lien du fichier XML à synchroniser</label>
           <div className="flex flex-1 gap-2">
-            <input className="input disabled:opacity-80 w-full bg-[#F5F5FE] border border-[#E3E3FD]" value={publisher.feed} disabled={true} />
+            <input className="input w-full border border-[#E3E3FD] bg-[#F5F5FE] disabled:opacity-80" value={publisher.feed} disabled={true} />
             {user.role === "admin" && <ModifyModal />}
           </div>
         </div>
 
-        <div className="w-full h-px bg-gray-border" />
+        <div className="h-px w-full bg-gray-900" />
 
-        <div className="flex justify-between gap-6 items-center">
-          <label className="font-semibold w-[35%]">Dernière synchronisation</label>
+        <div className="flex items-center justify-between gap-6">
+          <label className="w-[35%] font-semibold">Dernière synchronisation</label>
           <div className="flex flex-1 gap-2">
             {imports.length > 0 && lastSync < new Date(Date.now() - 24 * 60 * 60 * 1000) ? (
               <div className="items-center">
                 <p className="inline align-middle">{new Date(lastSync).toLocaleString("fr").replace(" ", " à ")}</p>
-                <RiCloseCircleFill className="h-5 w-5 ml-2 align-middle text-red-500 inline" />
+                <RiCloseCircleFill className="ml-2 inline h-5 w-5 align-middle text-red-500" />
                 <p className="text-xs">Dernière synchronisation il y a plus de 24h.</p>
               </div>
             ) : (
               <div className="flex items-center gap-2">
                 <p>{imports.length > 0 && new Date(lastSync).toLocaleString("fr").replace(" ", " à ")}</p>
-                <RiCheckboxCircleFill className="h-5 w-5 mr-1 text-green-700" />
+                <RiCheckboxCircleFill className="mr-1 h-5 w-5 text-green-700" />
               </div>
             )}
           </div>
         </div>
       </div>
 
-      <div className="border border-gray-border p-6 space-y-6">
+      <div className="space-y-6 border border-gray-900 p-6">
         <h2 className="text-3xl font-bold">Historique des synchronisations</h2>
 
         <TablePaginator
@@ -153,21 +153,21 @@ const ModifyModal = () => {
 
   return (
     <>
-      <button className="flex cursor-pointer items-center bg-blue-dark hover:bg-blue-main py-2 px-4 border text-white" onClick={() => setIsOpen(!isOpen)}>
+      <button className="bg-blue-france hover:bg-blue-france-hover flex cursor-pointer items-center border px-4 py-2 text-white" onClick={() => setIsOpen(!isOpen)}>
         Modifier
       </button>
       <Modal isOpen={isOpen} onClose={() => setIsOpen(false)}>
         <div className="p-10">
-          <h2 className="text-lg font-bold mb-8">⚙️ Modifier votre flux de missions</h2>
-          <div className="flex flex-col items-start gap-4 justify-between">
+          <h2 className="mb-8 text-lg font-bold">⚙️ Modifier votre flux de missions</h2>
+          <div className="flex flex-col items-start justify-between gap-4">
             <div>Lien du fichier XML à synchroniser</div>
-            <input className="input w-full border-b-0 bg-gray-100 focus:ring-2 p-4" value={feed} disabled={false} onChange={(e) => setFeed(e.target.value)} />
+            <input className="input w-full border-b-0 bg-gray-100 p-4 focus:ring-2" value={feed} disabled={false} onChange={(e) => setFeed(e.target.value)} />
           </div>
           <div className="col-span-2 mt-8 flex justify-end gap-6">
-            <button type="button" className="button border border-blue-dark text-blue-dark hover:bg-gray-hover" onClick={() => setIsOpen(false)}>
+            <button type="button" className="button border-blue-france text-blue-france hover:bg-gray-975 border" onClick={() => setIsOpen(false)}>
               Annuler
             </button>
-            <button type="button" className="button bg-blue-dark text-white hover:bg-blue-main" onClick={handleFeedSubmit} disabled={loading}>
+            <button type="button" className="button bg-blue-france hover:bg-blue-france-hover text-white" onClick={handleFeedSubmit} disabled={loading}>
               {loading ? <Loader className="mr-2" /> : "Enregister"}
             </button>
           </div>

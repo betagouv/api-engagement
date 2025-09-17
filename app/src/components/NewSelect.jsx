@@ -28,42 +28,42 @@ const Select = ({ options, value, onChange, className, placeholder = "Sélection
   }, [ref]);
 
   return (
-    <div className="w-full relative" ref={ref}>
+    <div className="relative w-full" ref={ref}>
       <div className="relative w-full">
-        <button className={`relative select w-full py-2 px-4 ${selected ? "pr-16" : ""} text-left truncate`} onClick={() => setIsOpen(!isOpen)}>
+        <button className={`select relative w-full px-4 py-2 ${selected ? "pr-16" : ""} truncate text-left`} onClick={() => setIsOpen(!isOpen)}>
           {selected ? selected.label : placeholder}
-          <RiArrowDownSLine className="text-lg absolute right-4 top-1/2 transform -translate-y-1/2" />
+          <RiArrowDownSLine className="absolute top-1/2 right-4 -translate-y-1/2 transform text-lg" />
         </button>
         {selected && (
-          <button className="absolute right-8 top-1/2 transform -translate-y-1/2" onClick={handleClear}>
+          <button className="absolute top-1/2 right-8 -translate-y-1/2 transform" onClick={handleClear}>
             <RiCloseFill className="text-base" />
           </button>
         )}
       </div>
       {isOpen && (
-        <ul className={`absolute z-10 top-10 max-h-80 overflow-y-scroll transition duration-100 ease-in bg-white shadow-lg ${className || "w-full"}`} tabIndex={0}>
+        <ul className={`absolute top-10 z-10 max-h-80 overflow-y-scroll bg-white shadow-lg transition duration-100 ease-in ${className || "w-full"}`} tabIndex={0}>
           {loading ? (
-            <li className="group flex cursor-default items-center justify-center px-4 py-2 data-[focus]:bg-gray-hover">
+            <li className="group data-[focus]:bg-gray-975 flex cursor-default items-center justify-center px-4 py-2">
               <Loader />
             </li>
           ) : !options.length ? (
-            <li className="group flex cursor-default items-center justify-center px-4 py-2 data-[focus]:bg-gray-hover">
+            <li className="group data-[focus]:bg-gray-975 flex cursor-default items-center justify-center px-4 py-2">
               <p className="text-sm">Aucune option trouvée</p>
             </li>
           ) : (
             options.map((option, i) => (
               <Fragment key={i}>
-                {i !== 0 ? <div className="h-px mx-4 bg-gray-100" /> : null}
+                {i !== 0 ? <div className="mx-4 h-px bg-gray-100" /> : null}
                 <li
                   tabIndex={-1}
                   key={option.value}
-                  className={`relative flex gap-4 cursor-default select-none list-none items-center justify-between px-4 py-3 text-sm hover:bg-gray-100 hover:text-blue-dark bg-white text-black`}
+                  className={`hover:text-blue-france relative flex cursor-default list-none items-center justify-between gap-4 bg-white px-4 py-3 text-sm text-black select-none hover:bg-gray-100`}
                   onClick={() => {
                     onChange(option);
                     setIsOpen(false);
                   }}
                 >
-                  <p className="text-sm truncate whitespace-nowrap">{option.label}</p>
+                  <p className="truncate text-sm whitespace-nowrap">{option.label}</p>
                   {option.count && <p className="text-sm">{option.count}</p>}
                 </li>
               </Fragment>

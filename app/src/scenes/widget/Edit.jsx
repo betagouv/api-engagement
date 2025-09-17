@@ -115,7 +115,7 @@ const Edit = () => {
     <div className="space-y-6">
       <StickyBar onEdit={handleSubmit} visible={stickyVisible} widget={widget} handleActivate={handleActivate} canSubmit={canSubmit} />
       <div className="flex">
-        <Link to={`/broadcast/widgets`} className="flex items-center space-x-1 text-blue-dark">
+        <Link to={`/broadcast/widgets`} className="text-blue-france flex items-center space-x-1">
           <RiArrowLeftLine />
           <span>Retour</span>
         </Link>
@@ -124,12 +124,12 @@ const Edit = () => {
       <div className="flex items-center justify-between align-baseline">
         <div>
           <h1 className="text-4xl font-bold">Modifier un widget</h1>
-          <span className="text-gray-dark">Créé le {new Date(widget.createdAt).toLocaleDateString("fr")}</span>
+          <span className="text-gray-425">Créé le {new Date(widget.createdAt).toLocaleDateString("fr")}</span>
         </div>
         <div className="flex items-center gap-6">
           <div className="flex flex-col items-end">
             <Toggle value={widget.active} onChange={(value) => handleActivate(value)} />
-            <label className="text-blue-dark text-xs">{widget.active ? "Actif" : "Inactif"}</label>
+            <label className="text-blue-france text-xs">{widget.active ? "Actif" : "Inactif"}</label>
           </div>
           <button type="submit" className="filled-button" onClick={handleSubmit} ref={(node) => setSaveButton(node)} disabled={!canSubmit()}>
             Enregistrer
@@ -177,13 +177,13 @@ const Frame = ({ widget }) => {
   };
 
   return (
-    <div className="bg-white p-16 space-y-10 shadow-lg">
+    <div className="space-y-10 bg-white p-16 shadow-lg">
       <div className="flex flex-col gap-2">
         <h2 className="text-2xl font-bold">Aperçu du widget</h2>
         <span>Enregistrez le widget pour mettre à jour l'aperçu</span>
       </div>
 
-      <div className="my-10 border-b border-gray-border shadow-lg" />
+      <div className="my-10 border-b border-gray-900 shadow-lg" />
       <iframe
         key={iframeKey}
         border="0"
@@ -224,7 +224,7 @@ const Code = ({ widget }) => {
   };
 
   return (
-    <div className="bg-white p-12 space-y-12 shadow-lg">
+    <div className="space-y-12 bg-white p-12 shadow-lg">
       <h2 className="text-2xl font-bold">Code à intégrer</h2>
       <div className="flex items-center justify-between">
         <p>Vous n’avez plus qu’à intégrer ce code pour afficher le widget sur votre site</p>
@@ -235,7 +235,7 @@ const Code = ({ widget }) => {
       </div>
       <div className="mt-6 w-full">
         <textarea
-          className="px-4 py-2 text-base rounded-none disabled:opacity-80 w-full bg-[#F5F5FE] border border-[#E3E3FD]"
+          className="w-full rounded-none border border-[#E3E3FD] bg-[#F5F5FE] px-4 py-2 text-base disabled:opacity-80"
           rows={widget.type === "benevolat" ? 11 : 4}
           disabled={true}
           value={`${IFRAMES[widget.type][widget.style].replace("{{widgetId}}", widget._id)}${widget.type === "benevolat" ? `\n\n${JVA_LOGO}` : ""}`}
@@ -249,13 +249,13 @@ const StickyBar = ({ onEdit, visible, widget, handleActivate, canSubmit }) => {
   if (!visible) return null;
 
   return (
-    <div className="fixed top-0 left-0 bg-white w-full shadow-lg py-4 items-center z-50">
-      <div className="flex items-center justify-between w-[90%] m-auto">
+    <div className="fixed top-0 left-0 z-50 w-full items-center bg-white py-4 shadow-lg">
+      <div className="m-auto flex w-[90%] items-center justify-between">
         <h1 className="text-2xl font-bold">Modifier un widget</h1>
         <div className="flex items-center gap-6">
           <div className="flex flex-col items-end">
             <Toggle value={widget.active} onChange={(value) => handleActivate(value)} />
-            <label className="text-blue-dark text-xs">{widget.active ? "Actif" : "Inactif"}</label>
+            <label className="text-blue-france text-xs">{widget.active ? "Actif" : "Inactif"}</label>
           </div>
           <button type="button" className="filled-button" onClick={onEdit} disabled={!canSubmit()}>
             Enregistrer

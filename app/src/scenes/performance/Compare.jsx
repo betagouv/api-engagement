@@ -127,24 +127,24 @@ const Compare = () => {
       </Helmet>
       <div className="flex items-center gap-8">
         <div className="space-y-2">
-          <label className="text-sm text-[#666] uppercase font-semibold">Comparer la période</label>
+          <label className="text-sm font-semibold text-[#666] uppercase">Comparer la période</label>
           <DateInput value={filters1} onChange={setFilters1} />
         </div>
         <div className="space-y-2">
-          <label className="text-sm text-[#666] uppercase font-semibold">à la période</label>
+          <label className="text-sm font-semibold text-[#666] uppercase">à la période</label>
           <DateInput value={filters2} onChange={setFilters2} />
         </div>
       </div>
 
-      <div className="border-b border-b-gray-border" />
+      <div className="border-b border-b-gray-900" />
 
-      <div className="border p-6 space-y-4">
+      <div className="space-y-4 border border-gray-900 p-6">
         <div className="space-y-2">
           <h3 className="text-2xl font-semibold">Performance globale</h3>
           <p className="text-sm text-[#666]">{flux === "to" ? "Trafic reçu grâce à vos partenaires diffuseurs" : "Trafic généré pour vos partenaires annonceurs"}</p>
         </div>
         <Table header={buildHeader(filters1, filters2)} loading={loading}>
-          <tr className="bg-gray-100 table-item">
+          <tr className="table-item bg-gray-100">
             <td colSpan={2} className="px-4">
               Impressions
             </td>
@@ -152,7 +152,7 @@ const Compare = () => {
             <td className="px-4 text-right">{(data2.performance.printCount || 0).toLocaleString("fr")}</td>
             <td className="px-4 text-right">{(dataT.performance.printCount || 0).toLocaleString("fr")}</td>
           </tr>
-          <tr className="bg-gray-50 table-item">
+          <tr className="table-item bg-gray-50">
             <td colSpan={2} className="px-4">
               Redirections
             </td>
@@ -160,7 +160,7 @@ const Compare = () => {
             <td className="px-4 text-right">{(data2.performance.clickCount || 0).toLocaleString("fr")}</td>
             <td className="px-4 text-right">{(dataT.performance.clickCount || 0).toLocaleString("fr")}</td>
           </tr>
-          <tr className="bg-gray-100 table-item">
+          <tr className="table-item bg-gray-100">
             <td colSpan={2} className="px-4">
               Créations de compte
             </td>
@@ -168,7 +168,7 @@ const Compare = () => {
             <td className="px-4 text-right">{(data2.performance.accountCount || 0).toLocaleString("fr")}</td>
             <td className="px-4 text-right">{(dataT.performance.accountCount || 0).toLocaleString("fr")}</td>
           </tr>
-          <tr className="bg-gray-50 table-item">
+          <tr className="table-item bg-gray-50">
             <td colSpan={2} className="px-4">
               Candidatures
             </td>
@@ -179,28 +179,28 @@ const Compare = () => {
         </Table>
       </div>
 
-      <div className="border p-6 space-y-4">
+      <div className="space-y-4 border border-gray-900 p-6">
         <div className="space-y-2">
           <h3 className="text-2xl font-semibold">Vos partenaires {flux === "to" ? "diffuseurs" : "annonceurs"}</h3>
           <p className="text-sm text-[#666]">{flux === "to" ? "Trafic reçu par partenaire diffuseur" : "Trafic généré pour vos partenaires annonceurs, par partenaire"}</p>
         </div>
-        <div className="flex items-center text-sm gap-8 mb-8">
-          <button onClick={() => setType("printCount")} className={`pb-1 ${type === "printCount" ? "border-b-2 border-blue-dark text-blue-dark font-semibold" : ""}`}>
+        <div className="mb-8 flex items-center gap-8 text-sm">
+          <button onClick={() => setType("printCount")} className={`pb-1 ${type === "printCount" ? "border-blue-france text-blue-france border-b-2 font-semibold" : ""}`}>
             Impressions
           </button>
 
-          <button onClick={() => setType("clickCount")} className={`pb-1 ${type === "clickCount" ? "border-b-2 border-blue-dark text-blue-dark font-semibold" : ""}`}>
+          <button onClick={() => setType("clickCount")} className={`pb-1 ${type === "clickCount" ? "border-blue-france text-blue-france border-b-2 font-semibold" : ""}`}>
             Redirections
           </button>
 
-          <button onClick={() => setType("accountCount")} className={`pb-1 ${type === "accountCount" ? "border-b-2 border-blue-dark text-blue-dark font-semibold" : ""}`}>
+          <button onClick={() => setType("accountCount")} className={`pb-1 ${type === "accountCount" ? "border-blue-france text-blue-france border-b-2 font-semibold" : ""}`}>
             Créations de compte
           </button>
 
-          <button onClick={() => setType("applyCount")} className={`pb-1 ${type === "applyCount" ? "border-b-2 border-blue-dark text-blue-dark font-semibold" : ""}`}>
+          <button onClick={() => setType("applyCount")} className={`pb-1 ${type === "applyCount" ? "border-blue-france text-blue-france border-b-2 font-semibold" : ""}`}>
             Candidatures
           </button>
-          <button onClick={() => setType("rate")} className={`pb-1 ${type === "rate" ? "border-b-2 border-blue-dark text-blue-dark font-semibold" : ""}`}>
+          <button onClick={() => setType("rate")} className={`pb-1 ${type === "rate" ? "border-blue-france text-blue-france border-b-2 font-semibold" : ""}`}>
             Taux de conversion
           </button>
         </div>
@@ -218,7 +218,7 @@ const Compare = () => {
             .sort((a, b) => (tableSettings.sortBy === "name" ? a.name.localeCompare(b.name) : b[tableSettings.sortBy] - a[tableSettings.sortBy]))
             .slice((tableSettings.page - 1) * tableSettings.pageSize, tableSettings.page * tableSettings.pageSize)
             .map((item, i) => (
-              <tr key={i} className={`${i % 2 === 0 ? "bg-gray-100" : "bg-gray-50"} table-item`}>
+              <tr key={i} className={`${i % 2 === 0 ? "bg-gray-975" : "bg-gray-1000-active"} table-item`}>
                 <td className="px-4" colSpan={2}>
                   {item.name}
                 </td>

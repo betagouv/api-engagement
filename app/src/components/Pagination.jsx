@@ -14,14 +14,14 @@ const Pagination = ({ page, setPage, end }) => {
   return (
     <div className="flex flex-row items-center justify-center gap-1 text-sm">
       <button
-        className="flex h-8 w-8 items-center justify-center hover:bg-gray-hover disabled:opacity-60 disabled:hover:bg-transparent"
+        className="hover:bg-gray-975 flex h-8 w-8 items-center justify-center disabled:opacity-60 disabled:hover:bg-transparent"
         onClick={() => setPage(1)}
         disabled={page === 1}
       >
         <BiFirstPage />
       </button>
       <button
-        className="mr-4 flex h-8 items-center gap-1 px-2 hover:bg-gray-hover disabled:opacity-60 disabled:hover:bg-transparent"
+        className="hover:bg-gray-975 mr-4 flex h-8 items-center gap-1 px-2 disabled:opacity-60 disabled:hover:bg-transparent"
         onClick={() => setPage(page - 1)}
         disabled={page === 1}
       >
@@ -32,55 +32,55 @@ const Pagination = ({ page, setPage, end }) => {
         page < 4 ? (
           <>
             {pages.slice(0, 4).map((p) => (
-              <button key={p} className={`flex h-8 w-8 items-center justify-center hover:bg-gray-hover ${p === page ? "bg-blue-dark text-white" : ""}`} onClick={() => setPage(p)}>
+              <button key={p} className={`hover:bg-gray-975 flex h-8 w-8 items-center justify-center ${p === page ? "bg-blue-france text-white" : ""}`} onClick={() => setPage(p)}>
                 {p}
               </button>
             ))}
-            <button className="flex h-8 w-8 items-center justify-center hover:bg-gray-hover">...</button>
-            <button className="flex h-8 w-8 items-center justify-center hover:bg-gray-hover" onClick={() => setPage(end)}>
+            <button className="hover:bg-gray-975 flex h-8 w-8 items-center justify-center">...</button>
+            <button className="hover:bg-gray-975 flex h-8 w-8 items-center justify-center" onClick={() => setPage(end)}>
               {end}
             </button>
           </>
         ) : page > end - 3 ? (
           <>
-            <button className="flex h-8 w-8 items-center justify-center hover:bg-gray-hover" onClick={() => setPage(1)}>
+            <button className="hover:bg-gray-975 flex h-8 w-8 items-center justify-center" onClick={() => setPage(1)}>
               1
             </button>
-            <button className="flex h-8 w-8 items-center justify-center hover:bg-gray-hover">...</button>
+            <button className="hover:bg-gray-975 flex h-8 w-8 items-center justify-center">...</button>
             {pages.slice(end - 4, end).map((p) => (
-              <button key={p} className={`flex h-8 w-8 items-center justify-center hover:bg-gray-hover ${p === page ? "bg-blue-dark text-white" : ""}`} onClick={() => setPage(p)}>
+              <button key={p} className={`hover:bg-gray-975 flex h-8 w-8 items-center justify-center ${p === page ? "bg-blue-france text-white" : ""}`} onClick={() => setPage(p)}>
                 {p}
               </button>
             ))}
           </>
         ) : (
           <>
-            <button className="flex h-8 w-8 items-center justify-center hover:bg-gray-hover" onClick={() => setPage(1)}>
+            <button className="hover:bg-gray-975 flex h-8 w-8 items-center justify-center" onClick={() => setPage(1)}>
               1
             </button>
-            <button className="flex h-8 w-8 items-center justify-center hover:bg-gray-hover">...</button>
+            <button className="hover:bg-gray-975 flex h-8 w-8 items-center justify-center">...</button>
             {pages.slice(page - 2, page + 1).map((p) => (
-              <button key={p} className={`flex h-8 w-8 items-center justify-center hover:bg-gray-hover ${p === page ? "bg-blue-dark text-white" : ""}`} onClick={() => setPage(p)}>
+              <button key={p} className={`hover:bg-gray-975 flex h-8 w-8 items-center justify-center ${p === page ? "bg-blue-france text-white" : ""}`} onClick={() => setPage(p)}>
                 {p}
               </button>
             ))}
-            <button className="flex h-8 w-8 items-center justify-center hover:bg-gray-hover" disabled={true}>
+            <button className="hover:bg-gray-975 flex h-8 w-8 items-center justify-center" disabled={true}>
               ...
             </button>
-            <button className="flex h-8 w-8 items-center justify-center hover:bg-gray-hover" onClick={() => setPage(end)}>
+            <button className="hover:bg-gray-975 flex h-8 w-8 items-center justify-center" onClick={() => setPage(end)}>
               {end}
             </button>
           </>
         )
       ) : (
         pages.map((p) => (
-          <button key={p} className={`flex h-8 w-8 items-center justify-center hover:bg-gray-hover ${p === page ? "bg-blue-dark text-white" : ""}`} onClick={() => setPage(p)}>
+          <button key={p} className={`hover:bg-gray-975 flex h-8 w-8 items-center justify-center ${p === page ? "bg-blue-france text-white" : ""}`} onClick={() => setPage(p)}>
             {p}
           </button>
         ))
       )}
       <button
-        className="ml-4 flex h-8 items-center gap-1 px-2 hover:bg-gray-hover disabled:opacity-60 disabled:hover:bg-transparent"
+        className="hover:bg-gray-975 ml-4 flex h-8 items-center gap-1 px-2 disabled:opacity-60 disabled:hover:bg-transparent"
         onClick={() => setPage(page + 1)}
         disabled={page === end}
       >
@@ -88,7 +88,7 @@ const Pagination = ({ page, setPage, end }) => {
         <MdNavigateNext className="ml-1" />
       </button>
       <button
-        className="flex h-8 w-8 items-center justify-center hover:bg-gray-hover disabled:opacity-60 disabled:hover:bg-transparent"
+        className="hover:bg-gray-975 flex h-8 w-8 items-center justify-center disabled:opacity-60 disabled:hover:bg-transparent"
         onClick={() => setPage(end)}
         disabled={page === end}
       >

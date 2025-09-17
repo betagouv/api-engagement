@@ -19,7 +19,7 @@ const Settings = () => {
         </Helmet>
         <div className="space-y-4">
           <h1 className="text-4xl font-bold">Paramètres de tracking</h1>
-          <p className="text-base text-gray-dark">
+          <p className="text-gray-425 text-base">
             Suivez les instructions ci-dessous pour que les impressions de vos liens de campagnes et des missions que vous diffusez par API soient comptabilisées.
           </p>
         </div>
@@ -61,8 +61,8 @@ const Tab = ({ title, route = "" }) => {
     <Link to={`/settings/${route}`}>
       <div
         className={`${
-          active ? "border-t-2 border-blue-dark bg-white text-blue-dark hover:bg-gray-hover" : "border-0 bg-tab-main hover:bg-tab-hover"
-        } flex translate-y-[1px] cursor-pointer items-center border-x border-x-gray-border px-4 py-2`}
+          active ? "border-blue-france text-blue-france hover:bg-gray-975 border-t-2 bg-white" : "bg-blue-france-925 hover:bg-blue-france-925-hover border-0"
+        } flex translate-y-px cursor-pointer items-center border-x border-x-gray-900 px-4 py-2`}
       >
         <p>{title}</p>
       </div>

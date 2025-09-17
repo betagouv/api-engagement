@@ -55,9 +55,9 @@ const Apercu = () => {
       </Helmet>
 
       {stickyVisible && (
-        <div className="fixed top-0 left-0 w-full bg-white shadow-lg z-50 px-48 items-center justify-center py-4">
+        <div className="fixed top-0 left-0 z-50 w-full items-center justify-center bg-white px-48 py-4 shadow-lg">
           <div className="flex items-end gap-4">
-            <div className="space-y-2 flex-1">
+            <div className="flex-1 space-y-2">
               <DateRangePicker value={filters} onChange={(value) => setFilters({ ...filters, from: value.from, to: value.to })} />
             </div>
             <label htmlFor="mission-type-sticky" className="sr-only">
@@ -74,8 +74,8 @@ const Apercu = () => {
 
       <div ref={(node) => setFilterSection(node)}>
         <div className="flex items-end gap-4">
-          <div className="space-y-2 flex-1">
-            <label className="text-sm text-gray-dark uppercase font-semibold">Période</label>
+          <div className="flex-1 space-y-2">
+            <label className="text-gray-425 text-sm font-semibold uppercase">Période</label>
             <DateRangePicker value={filters} onChange={(value) => setFilters({ ...filters, from: value.from, to: value.to })} />
           </div>
           <label htmlFor="mission-type" className="sr-only">
@@ -88,7 +88,7 @@ const Apercu = () => {
           </select>
         </div>
       </div>
-      <div className="border-b border-b-gray-border" />
+      <div className="border-b border-b-gray-900" />
 
       <Engagement filters={filters} />
       <Mission filters={filters} />
@@ -198,11 +198,11 @@ const Engagement = ({ filters }) => {
         </div>
       ) : (
         <>
-          <div className="border border-gray-border p-4">
-            <div className="flex justify-between mb-4">
+          <div className="border border-gray-900 p-4">
+            <div className="mb-4 flex justify-between">
               <div>
-                <span className="text-lg font-bold mr-2">{data.totalClicks.toLocaleString("fr")}</span>
-                <span className="text-gray-600 text-lg">redirections</span>
+                <span className="mr-2 text-lg font-bold">{data.totalClicks.toLocaleString("fr")}</span>
+                <span className="text-lg text-gray-600">redirections</span>
               </div>
               <div>
                 {filters.type === "" || filters.type === "benevolat" ? (
@@ -221,8 +221,8 @@ const Engagement = ({ filters }) => {
               </div>
             </div>
             {!histogramClicks.length ? (
-              <div className="w-full h-[248px] bg-[#f6f6f6] flex flex-col justify-center items-center border border-dashed border-[#ddddd]">
-                <img src={EmptySVG} alt="empty" className="w-16 h-16" />
+              <div className="flex h-[248px] w-full flex-col items-center justify-center border border-dashed border-gray-900 bg-[#f6f6f6]">
+                <img src={EmptySVG} alt="empty" className="h-16 w-16" />
                 <p className="text-base text-[#666]">Aucune donnée disponible pour la période</p>
               </div>
             ) : (
@@ -232,11 +232,11 @@ const Engagement = ({ filters }) => {
             )}
           </div>
 
-          <div className="border border-gray-border p-4">
-            <div className="flex justify-between mb-4">
+          <div className="border border-gray-900 p-4">
+            <div className="mb-4 flex justify-between">
               <div>
-                <span className="text-lg font-bold mr-2">{data.totalApplies.toLocaleString("fr")}</span>
-                <span className="text-gray-600 text-lg">candidatures</span>
+                <span className="mr-2 text-lg font-bold">{data.totalApplies.toLocaleString("fr")}</span>
+                <span className="text-lg text-gray-600">candidatures</span>
               </div>
               <div>
                 {filters.type === "" || filters.type === "benevolat" ? (
@@ -255,8 +255,8 @@ const Engagement = ({ filters }) => {
               </div>
             </div>
             {!histogramApplies.length ? (
-              <div className="w-full h-[248px] bg-[#f6f6f6] flex flex-col justify-center items-center border border-dashed border-[#ddddd]">
-                <img src={EmptySVG} alt="empty" className="w-16 h-16" />
+              <div className="flex h-[248px] w-full flex-col items-center justify-center border border-dashed border-[#ddddd] bg-[#f6f6f6]">
+                <img src={EmptySVG} alt="empty" className="h-16 w-16" />
                 <p className="text-base text-[#666]">Aucune donnée disponible pour la période</p>
               </div>
             ) : (
@@ -266,8 +266,8 @@ const Engagement = ({ filters }) => {
             )}
           </div>
 
-          <div className="border border-gray-border p-4">
-            <div className="flex justify-between mb-6">
+          <div className="border border-gray-900 p-4">
+            <div className="mb-6 flex justify-between">
               <div className="">
                 <span className="text-lg font-bold">Evolution de l'engagement</span>
               </div>
@@ -357,17 +357,17 @@ const Mission = ({ filters }) => {
         </div>
       ) : (
         <>
-          <div className="border border-gray-border p-4">
-            <div className="flex justify-between mb-4">
+          <div className="border border-gray-900 p-4">
+            <div className="mb-4 flex justify-between">
               <div>
-                <span className="text-lg font-bold mr-2">
+                <span className="mr-2 text-lg font-bold">
                   {filters.type === ""
                     ? data.totalActiveMissions.toLocaleString("fr")
                     : filters.type === "benevolat"
                       ? data.activeBenevolatMissions.toLocaleString("fr")
                       : data.activeVolontariatMissions.toLocaleString("fr")}
                 </span>
-                <span className="text-gray-600 text-lg">missions actives</span>
+                <span className="text-lg text-gray-600">missions actives</span>
               </div>
               <div>
                 {filters.type === "" || filters.type === "benevolat" ? (
@@ -386,8 +386,8 @@ const Mission = ({ filters }) => {
               </div>
             </div>
             {!histogramActives.length ? (
-              <div className="w-full h-[248px] bg-[#f6f6f6] flex flex-col justify-center items-center border border-dashed border-[#ddddd]">
-                <img src={EmptySVG} alt="empty" className="w-16 h-16" />
+              <div className="flex h-[248px] w-full flex-col items-center justify-center border border-dashed border-[#ddddd] bg-[#f6f6f6]">
+                <img src={EmptySVG} alt="empty" className="h-16 w-16" />
                 <p className="text-base text-[#666]">Aucune donnée disponible pour la période</p>
               </div>
             ) : (
@@ -396,17 +396,17 @@ const Mission = ({ filters }) => {
               </div>
             )}
           </div>
-          <div className="border border-gray-border p-4">
-            <div className="flex justify-between mb-4">
+          <div className="border border-gray-900 p-4">
+            <div className="mb-4 flex justify-between">
               <div>
-                <span className="text-lg font-bold mr-2">
+                <span className="mr-2 text-lg font-bold">
                   {filters.type === ""
                     ? data.totalMission.toLocaleString("fr")
                     : filters.type === "benevolat"
                       ? data.totalBenevolatMissions.toLocaleString("fr")
                       : data.totalVolontariatMissions.toLocaleString("fr")}
                 </span>
-                <span className="text-gray-600 text-lg">missions créées</span>
+                <span className="text-lg text-gray-600">missions créées</span>
               </div>
 
               <div>
@@ -427,8 +427,8 @@ const Mission = ({ filters }) => {
               </div>
             </div>
             {!histogramCreated.length ? (
-              <div className="w-full h-[248px] bg-[#f6f6f6] flex flex-col justify-center items-center border border-dashed border-[#ddddd]">
-                <img src={EmptySVG} alt="empty" className="w-16 h-16" />
+              <div className="flex h-[248px] w-full flex-col items-center justify-center border border-dashed border-[#ddddd] bg-[#f6f6f6]">
+                <img src={EmptySVG} alt="empty" className="h-16 w-16" />
                 <p className="text-base text-[#666]">Aucune donnée disponible pour la période</p>
               </div>
             ) : (
@@ -502,17 +502,17 @@ const Patners = ({ filters }) => {
         </div>
       ) : (
         <>
-          <div className="border border-gray-border p-4 space-y-6">
+          <div className="space-y-6 border border-gray-900 p-4">
             <div className="space-y-2">
               <h3 className="text-lg font-bold">
                 {total.broadcasters.toLocaleString("fr")}
-                <span className="text-[#666] ml-2 font-normal text-lg">diffuseurs</span>
+                <span className="ml-2 text-lg font-normal text-[#666]">diffuseurs</span>
               </h3>
-              <p className="text-[#666] text-sm">Top des diffuseurs ayant généré le plus de candidatures</p>
+              <p className="text-sm text-[#666]">Top des diffuseurs ayant généré le plus de candidatures</p>
             </div>
             {!data.filter((d) => d.hasApiRights || d.hasWidgetRights || d.hasCampaignRights).length ? (
-              <div className="w-full h-[248px] bg-[#f6f6f6] flex flex-col justify-center items-center border border-dashed border-[#ddddd]">
-                <img src={EmptySVG} alt="empty" className="w-16 h-16" />
+              <div className="flex h-[248px] w-full flex-col items-center justify-center border border-dashed border-[#ddddd] bg-[#f6f6f6]">
+                <img src={EmptySVG} alt="empty" className="h-16 w-16" />
                 <p className="text-base text-[#666]">Aucune donnée disponible pour la période</p>
               </div>
             ) : (
@@ -520,7 +520,7 @@ const Patners = ({ filters }) => {
                 <div className="w-2/3">
                   <table className="w-full table-fixed">
                     <thead className="text-left">
-                      <tr className="text-gray-500 text-xs uppercase">
+                      <tr className="text-xs text-gray-500 uppercase">
                         <th colSpan={3} className="px-4">
                           Diffuseur
                         </th>
@@ -537,7 +537,7 @@ const Patners = ({ filters }) => {
                           <tr key={i}>
                             <td colSpan={3} className="p-4">
                               <div className="flex items-center gap-2">
-                                <span className="w-6 h-4 mr-2" style={{ backgroundColor: COLORS[i % COLORS.length] }} />
+                                <span className="mr-2 h-4 w-6" style={{ backgroundColor: COLORS[i % COLORS.length] }} />
                                 <div className="flex-1 text-sm font-semibold">{item.name}</div>
                               </div>
                             </td>
@@ -547,15 +547,15 @@ const Patners = ({ filters }) => {
                         ))}
                     </tbody>
                   </table>
-                  <div className="flex gap-1 mt-2">
-                    <Link to={`/admin-stats/diffuseur?from=${filters.from.toISOString()}&to=${filters.to.toISOString()}`} className="text-blue-900 text-sm px-4 flex items-center">
+                  <div className="mt-2 flex gap-1">
+                    <Link to={`/admin-stats/diffuseur?from=${filters.from.toISOString()}&to=${filters.to.toISOString()}`} className="flex items-center px-4 text-sm text-blue-900">
                       Tout voir
                       <HiChevronRight className="flex items-center pt-1" />
                     </Link>
                   </div>
                 </div>
-                <div className="w-1/3 flex justify-center items-center ml-24 mr-8">
-                  <div className="w-full h-56">
+                <div className="mr-8 ml-24 flex w-1/3 items-center justify-center">
+                  <div className="h-56 w-full">
                     <Pie data={broadcastPie} innerRadius="0%" unit="missions" />
                   </div>
                 </div>
@@ -563,17 +563,17 @@ const Patners = ({ filters }) => {
             )}
           </div>
 
-          <div className="border border-gray-border p-4 space-y-6">
+          <div className="space-y-6 border border-gray-900 p-4">
             <div className="space-y-2">
               <h3 className="text-lg font-bold">
                 {total.announcers.toLocaleString("fr")}
-                <span className="text-[#666] ml-2 font-normal text-lg">annonceurs</span>
+                <span className="ml-2 text-lg font-normal text-[#666]">annonceurs</span>
               </h3>
-              <p className="text-[#666] text-sm">Top des annonceurs ayant reçu le plus de candidatures</p>
+              <p className="text-sm text-[#666]">Top des annonceurs ayant reçu le plus de candidatures</p>
             </div>
             {!data.filter((d) => d.isAnnonceur).length ? (
-              <div className="w-full h-[248px] bg-[#f6f6f6] flex flex-col justify-center items-center border border-dashed border-[#ddddd]">
-                <img src={EmptySVG} alt="empty" className="w-16 h-16" />
+              <div className="flex h-[248px] w-full flex-col items-center justify-center border border-dashed border-[#ddddd] bg-[#f6f6f6]">
+                <img src={EmptySVG} alt="empty" className="h-16 w-16" />
                 <p className="text-base text-[#666]">Aucune donnée disponible pour la période</p>
               </div>
             ) : (
@@ -581,7 +581,7 @@ const Patners = ({ filters }) => {
                 <div className="w-2/3">
                   <table className="w-full table-fixed">
                     <thead className="text-left">
-                      <tr className="text-gray-500 text-xs uppercase">
+                      <tr className="text-xs text-gray-500 uppercase">
                         <th colSpan={3} className="px-4">
                           Annonceur
                         </th>
@@ -598,7 +598,7 @@ const Patners = ({ filters }) => {
                           <tr key={i}>
                             <td colSpan={3} className="p-4">
                               <div className="flex items-center gap-2">
-                                <span className="w-6 h-4 mr-2" style={{ backgroundColor: COLORS[i % COLORS.length] }} />
+                                <span className="mr-2 h-4 w-6" style={{ backgroundColor: COLORS[i % COLORS.length] }} />
                                 <div className="flex-1 text-sm font-semibold">{item.name}</div>
                               </div>
                             </td>
@@ -608,15 +608,15 @@ const Patners = ({ filters }) => {
                         ))}
                     </tbody>
                   </table>
-                  <div className="flex gap-1 mt-2">
-                    <Link to={`/admin-stats/annonceur?from=${filters.from.toISOString()}&to=${filters.to.toISOString()}`} className="text-blue-900 text-sm px-4 flex items-center">
+                  <div className="mt-2 flex gap-1">
+                    <Link to={`/admin-stats/annonceur?from=${filters.from.toISOString()}&to=${filters.to.toISOString()}`} className="flex items-center px-4 text-sm text-blue-900">
                       Tout voir
                       <HiChevronRight className="flex items-center pt-1" />
                     </Link>
                   </div>
                 </div>
-                <div className="w-1/3 flex justify-center items-center ml-24 mr-8">
-                  <div className="w-full h-56">
+                <div className="mr-8 ml-24 flex w-1/3 items-center justify-center">
+                  <div className="h-56 w-full">
                     <Pie data={announcePie} innerRadius="0%" unit="missions" />
                   </div>
                 </div>

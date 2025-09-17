@@ -59,10 +59,10 @@ export const JVA_MODERATION_COMMENTS_LABELS = {
 // ];
 
 export const moderationStatusBadges = {
-  PENDING: <span className="rounded bg-[#fff2ea] px-2 py-1 text-sm font-semibold uppercase text-[#fc5d00]">À modérer</span>,
-  ONGOING: <span className="rounded bg-[#fff2ea] px-2 py-1 text-sm font-semibold uppercase text-[#fc5d00]">En cours de traitement</span>,
-  ACCEPTED: <span className="rounded bg-[#B8FEC9] px-2 py-1 text-sm font-semibold uppercase text-[#18753C]">Acceptée</span>,
-  REFUSED: <span className="rounded bg-[#ce0500]/10 px-2 py-1 text-sm font-semibold uppercase text-[#ce0500]">Refusée</span>,
+  PENDING: <span className="rounded bg-[#fff2ea] px-2 py-1 text-sm font-semibold text-[#fc5d00] uppercase">À modérer</span>,
+  ONGOING: <span className="rounded bg-[#fff2ea] px-2 py-1 text-sm font-semibold text-[#fc5d00] uppercase">En cours de traitement</span>,
+  ACCEPTED: <span className="rounded bg-[#B8FEC9] px-2 py-1 text-sm font-semibold text-[#18753C] uppercase">Acceptée</span>,
+  REFUSED: <span className="rounded bg-[#ce0500]/10 px-2 py-1 text-sm font-semibold text-[#ce0500] uppercase">Refusée</span>,
 };
 
 export const DEPARTMENT_LABELS = {
@@ -171,18 +171,18 @@ export const DEPARTMENT_LABELS = {
 };
 
 export const DOMAINS = {
-  environnement: <span className="rounded bg-[#FEE7FC] px-2 py-1 text-sm font-semibold uppercase text-[#6E445A]">Environnement</span>,
-  "solidarite-insertion": <span className="rounded bg-[#FEE7FC] px-2 py-1 text-sm font-semibold uppercase text-[#6E445A]">Solidarité et insertion</span>,
-  "prevention-protection": <span className="rounded bg-[#FEE7FC] px-2 py-1 text-sm font-semibold uppercase text-[#6E445A]">Prévention et protection</span>,
-  sante: <span className="rounded bg-[#FEE7FC] px-2 py-1 text-sm font-semibold uppercase text-[#6E445A]">Santé</span>,
-  "culture-loisirs": <span className="rounded bg-[#FEE7FC] px-2 py-1 text-sm font-semibold uppercase text-[#6E445A]">Culture et loisirs</span>,
-  education: <span className="rounded bg-[#FEE7FC] px-2 py-1 text-sm font-semibold uppercase text-[#6E445A]">Éducation pour tous</span>,
-  emploi: <span className="rounded bg-[#FEE7FC] px-2 py-1 text-sm font-semibold uppercase text-[#6E445A]">Emploi</span>,
-  sport: <span className="rounded bg-[#FEE7FC] px-2 py-1 text-sm font-semibold uppercase text-[#6E445A]">Sport</span>,
-  humanitaire: <span className="rounded bg-[#FEE7FC] px-2 py-1 text-sm font-semibold uppercase text-[#6E445A]">Humanitaire</span>,
-  animaux: <span className="rounded bg-[#FEE7FC] px-2 py-1 text-sm font-semibold uppercase text-[#6E445A]">Animaux</span>,
-  "vivre-ensemble": <span className="rounded bg-[#FEE7FC] px-2 py-1 text-sm font-semibold uppercase text-[#6E445A]">Vivre ensemble</span>,
-  autre: <span className="rounded bg-[#FEE7FC] px-2 py-1 text-sm font-semibold uppercase text-[#6E445A]">Autre</span>,
+  environnement: <span className="rounded bg-[#FEE7FC] px-2 py-1 text-sm font-semibold text-[#6E445A] uppercase">Environnement</span>,
+  "solidarite-insertion": <span className="rounded bg-[#FEE7FC] px-2 py-1 text-sm font-semibold text-[#6E445A] uppercase">Solidarité et insertion</span>,
+  "prevention-protection": <span className="rounded bg-[#FEE7FC] px-2 py-1 text-sm font-semibold text-[#6E445A] uppercase">Prévention et protection</span>,
+  sante: <span className="rounded bg-[#FEE7FC] px-2 py-1 text-sm font-semibold text-[#6E445A] uppercase">Santé</span>,
+  "culture-loisirs": <span className="rounded bg-[#FEE7FC] px-2 py-1 text-sm font-semibold text-[#6E445A] uppercase">Culture et loisirs</span>,
+  education: <span className="rounded bg-[#FEE7FC] px-2 py-1 text-sm font-semibold text-[#6E445A] uppercase">Éducation pour tous</span>,
+  emploi: <span className="rounded bg-[#FEE7FC] px-2 py-1 text-sm font-semibold text-[#6E445A] uppercase">Emploi</span>,
+  sport: <span className="rounded bg-[#FEE7FC] px-2 py-1 text-sm font-semibold text-[#6E445A] uppercase">Sport</span>,
+  humanitaire: <span className="rounded bg-[#FEE7FC] px-2 py-1 text-sm font-semibold text-[#6E445A] uppercase">Humanitaire</span>,
+  animaux: <span className="rounded bg-[#FEE7FC] px-2 py-1 text-sm font-semibold text-[#6E445A] uppercase">Animaux</span>,
+  "vivre-ensemble": <span className="rounded bg-[#FEE7FC] px-2 py-1 text-sm font-semibold text-[#6E445A] uppercase">Vivre ensemble</span>,
+  autre: <span className="rounded bg-[#FEE7FC] px-2 py-1 text-sm font-semibold text-[#6E445A] uppercase">Autre</span>,
 };
 
 export default STATUS;

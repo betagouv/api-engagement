@@ -39,29 +39,29 @@ const Forgot = () => {
       <h2 className="font-light">Mot de passe oublié</h2>
       <h1 className="text-4xl font-bold">Récupérez votre mot de passe</h1>
 
-      <label className="mb-2 mt-6 text-sm" htmlFor="email">
+      <label className="mt-6 mb-2 text-sm" htmlFor="email">
         E-mail
       </label>
       <input
-        className={`input mb-2 ${errors.email ? "border-b-red-main" : "border-b-black"}`}
+        className={`input mb-2 ${errors.email ? "border-b-red-error" : "border-b-black"}`}
         name="email"
         id="email"
         value={values.email}
         onChange={(e) => setValues({ ...values, email: e.target.value })}
       />
       {errors.email && (
-        <div className="flex items-center text-sm text-red-main">
+        <div className="text-red-error flex items-center text-sm">
           <RiErrorWarningFill className="mr-2" />
           Adresse email invalide
         </div>
       )}
 
-      <button type="submit" className="button mt-6 bg-blue-dark text-white hover:bg-blue-main" disabled={errors.email || loading || done}>
+      <button type="submit" className="button bg-blue-france hover:bg-blue-france-hover mt-6 text-white" disabled={errors.email || loading || done}>
         {loading ? "Chargement..." : "Réinitialisez votre mot de passe"}
       </button>
 
       {done && (
-        <div className="mt-4 flex items-center text-sm text-green-main">
+        <div className="text-green-success mt-4 flex items-center text-sm">
           <RiCheckboxCircleFill className="mr-2" />
           <p>Si votre adresse email est valide, un e-mail vous a été envoyé pour vous permettre de réinitialiser votre mot de passe.</p>
         </div>

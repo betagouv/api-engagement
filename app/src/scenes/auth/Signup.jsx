@@ -140,13 +140,13 @@ const SignupForm = ({ user }) => {
         </label>
         <input
           id="firstname"
-          className={`input mb-2 ${submitted && errors.firstname ? "border-b-red-main" : "border-b-black"}`}
+          className={`input mb-2 ${submitted && errors.firstname ? "border-b-red-error" : "border-b-black"}`}
           name="firstname"
           value={values.firstname}
           onChange={handleChange}
         />
         {submitted && errors.firstname && (
-          <div className="flex items-center text-sm text-red-main">
+          <div className="text-red-error flex items-center text-sm">
             <RiErrorWarningFill className="mr-2" />
             {errors.firstname}
           </div>
@@ -158,13 +158,13 @@ const SignupForm = ({ user }) => {
         </label>
         <input
           id="lastname"
-          className={`input mb-2 ${submitted && errors.lastname ? "border-b-red-main" : "border-b-black"}`}
+          className={`input mb-2 ${submitted && errors.lastname ? "border-b-red-error" : "border-b-black"}`}
           name="lastname"
           value={values.lastname}
           onChange={handleChange}
         />
         {submitted && errors.lastname && (
-          <div className="flex items-center text-sm text-red-main">
+          <div className="text-red-error flex items-center text-sm">
             <RiErrorWarningFill className="mr-2" />
             {errors.lastname}
           </div>
@@ -175,71 +175,71 @@ const SignupForm = ({ user }) => {
           <label className="mb-1" htmlFor="password">
             Mot de passe
           </label>
-          <div className="flex items-center gap-1 cursor-pointer" onClick={() => setShow(!show)}>
-            {show ? <IoMdEyeOff className="text-blue-dark" /> : <IoMdEye className="text-blue-dark" />}
-            <span className="text-xs font-bold text-blue-dark">{show ? "CACHER" : "AFFICHER"}</span>
+          <div className="flex cursor-pointer items-center gap-1" onClick={() => setShow(!show)}>
+            {show ? <IoMdEyeOff className="text-blue-france" /> : <IoMdEye className="text-blue-france" />}
+            <span className="text-blue-france text-xs font-bold">{show ? "CACHER" : "AFFICHER"}</span>
           </div>
         </div>
         <input
           id="password"
-          className={`input mb-2 ${submitted && errors.password ? "border-2 border-b-red-main" : "border-b-black"}`}
+          className={`input mb-2 ${submitted && errors.password ? "border-b-red-error border-2" : "border-b-black"}`}
           name="password"
           type={show ? "text" : "password"}
           value={values.password}
           onChange={handleChange}
         />
         {submitted && errors.password && (
-          <div className="flex items-center text-sm text-red-main">
+          <div className="text-red-error flex items-center text-sm">
             <RiErrorWarningFill className="mr-2" />
             {errors.password}
           </div>
         )}
       </div>
-      <div className="flex flex-col gap-2 mt-1">
-        <div className="flex gap-2 items-center">
+      <div className="mt-1 flex flex-col gap-2">
+        <div className="flex items-center gap-2">
           {values.password.length >= 12 ? <AiFillCloseCircle className="text-green-700" /> : <AiFillCloseCircle className="text-gray-600" />}
           <span className={`align-middle text-sm ${values.password.length >= 12 ? "text-green-600" : "text-gray-600"}`}>Au moins 12 caractères</span>
         </div>
-        <div className="flex gap-2 items-center">
+        <div className="flex items-center gap-2">
           {hasLetter(values.password) ? <AiFillCloseCircle className="text-green-700" /> : <AiFillCloseCircle className="text-gray-600" />}
           <span className={`align-middle text-sm ${hasLetter(values.password) ? "text-green-600" : "text-gray-600"}`}>Au moins une lettre</span>
         </div>
-        <div className="flex gap-2 items-center">
+        <div className="flex items-center gap-2">
           {hasNumber(values.password) ? <AiFillCloseCircle className="text-green-700" /> : <AiFillCloseCircle className="text-gray-600" />}
           <span className={`align-middle text-sm ${hasNumber(values.password) ? "text-green-600" : "text-gray-600"}`}>Au moins un chiffre</span>
         </div>
 
-        <div className="flex gap-2 items-center">
+        <div className="flex items-center gap-2">
           {hasSpecialChar(values.password) ? <AiFillCloseCircle className="text-green-700" /> : <AiFillCloseCircle className="text-gray-600" />}
           <span className={`align-middle text-sm ${hasSpecialChar(values.password) ? "text-green-600" : "text-gray-600"}`}>Au moins un caractère spécial</span>
         </div>
       </div>
-      <div className="flex flex-col mt-4">
+      <div className="mt-4 flex flex-col">
         <div className="flex justify-between">
           <label className="mb-1" htmlFor="confirm-password">
             Confirmation du mot de passe
           </label>
-          <div className="flex items-center gap-1 cursor-pointer" onClick={() => setShowConfirm(!showConfirm)}>
-            {showConfirm ? <IoMdEyeOff className="text-blue-dark" /> : <IoMdEye className="text-blue-dark" />}
-            <span className="text-xs font-bold text-blue-dark">{showConfirm ? "CACHER" : "AFFICHER"}</span>
+          <div className="flex cursor-pointer items-center gap-1" onClick={() => setShowConfirm(!showConfirm)}>
+            {showConfirm ? <IoMdEyeOff className="text-blue-france" /> : <IoMdEye className="text-blue-france" />}
+            <span className="text-blue-france text-xs font-bold">{showConfirm ? "CACHER" : "AFFICHER"}</span>
           </div>
         </div>
         <input
           id="confirm-password"
-          className={`input mb-2 ${submitted && errors.confirmPassword ? "border-2 border-b-red-main" : "border-b-black"}`}
+          className={`input mb-2 ${submitted && errors.confirmPassword ? "border-b-red-error border-2" : "border-b-black"}`}
           name="confirmPassword"
           type={showConfirm ? "text" : "password"}
           value={values.confirmPassword}
           onChange={handleChange}
         />
         {submitted && errors.confirmPassword && (
-          <div className="flex items-center text-sm text-red-main">
+          <div className="text-red-error flex items-center text-sm">
             <RiErrorWarningFill className="mr-2" />
             {errors.confirmPassword}
           </div>
         )}
       </div>
-      <button type="submit" className="button mt-6 bg-blue-dark text-white hover:bg-blue-main" disabled={loading}>
+      <button type="submit" className="button bg-blue-france hover:bg-blue-france-hover mt-6 text-white" disabled={loading}>
         {loading ? "Chargement..." : "S'inscrire"}
       </button>
     </form>

@@ -22,20 +22,20 @@ const Header = ({ total, data, size, sort, selected, onSize, onSort, onSelect, o
 
   if (selected.length > 0)
     return (
-      <div ref={headerRef} className={`sticky top-0 z-10 bg-white ${isSticky ? "shadow-md px-12" : "mx-12"}`}>
-        <div className="flex justify-between gap-4 items-center py-4">
+      <div ref={headerRef} className={`sticky top-0 z-10 bg-white ${isSticky ? "px-12 shadow-md" : "mx-12"}`}>
+        <div className="flex items-center justify-between gap-4 py-4">
           {isSticky ? (
             <div>
               <button className="button" onClick={() => onSelect(data.map((d) => d._id))}>
-                {selected.length === data.length ? <RiCheckboxFill className="text-blue-500 text-2xl" /> : <RiCheckboxIndeterminateFill className="text-blue-500 text-2xl" />}
+                {selected.length === data.length ? <RiCheckboxFill className="text-2xl text-blue-500" /> : <RiCheckboxIndeterminateFill className="text-2xl text-blue-500" />}
               </button>
             </div>
           ) : (
             <h2 className="text-xl font-semibold">{total.toLocaleString("fr")} missions diffusables</h2>
           )}
           <div className="flex items-center gap-4">
-            <span className="text-gray-dark text-sm">{selected.length === 1 ? `1 sélectionnée` : `${selected.length} sélectionnées`}</span>
-            <span className="text-blue-dark text-sm underline cursor-pointer" onClick={() => onSelect([])}>
+            <span className="text-gray-425 text-sm">{selected.length === 1 ? `1 sélectionnée` : `${selected.length} sélectionnées`}</span>
+            <span className="text-blue-france cursor-pointer text-sm underline" onClick={() => onSelect([])}>
               Désélectionner
             </span>
             <ManyUpdateModal onClose={() => onSelect([])} selected={selected} onChange={onChange} />
@@ -45,11 +45,11 @@ const Header = ({ total, data, size, sort, selected, onSize, onSort, onSelect, o
     );
 
   return (
-    <div className="flex justify-between gap-4 items-center py-4 mx-12">
+    <div className="mx-12 flex items-center justify-between gap-4 py-4">
       <h2 className="text-xl font-semibold">{total.toLocaleString("fr")} missions diffusables</h2>
 
-      <div className="flex gap-2 items-center">
-        <label htmlFor="missions-per-page" className="text-xs text-gray-dark">
+      <div className="flex items-center gap-2">
+        <label htmlFor="missions-per-page" className="text-gray-425 text-xs">
           Missions affichées par page
         </label>
         <select id="missions-per-page" className="input w-18" value={size} onChange={(e) => onSize(Number(e.target.value))}>
@@ -58,7 +58,7 @@ const Header = ({ total, data, size, sort, selected, onSize, onSort, onSelect, o
           <option value={75}>75</option>
           <option value={100}>100</option>
         </select>
-        <label htmlFor="sort-by" className="text-xs text-gray-dark sr-only">
+        <label htmlFor="sort-by" className="text-gray-425 sr-only text-xs">
           Trier par
         </label>
         <select id="sort-by" className="input w-60" value={sort} onChange={(e) => onSort(e.target.value)}>
@@ -101,7 +101,7 @@ const ManyUpdateModal = ({ onClose, selected, onChange }) => {
 
   return (
     <>
-      <button className="button border border-blue-dark text-blue-dark hover:bg-gray-hover" onClick={() => setIsOpen(true)}>
+      <button className="button border-blue-france text-blue-france hover:bg-gray-975 border" onClick={() => setIsOpen(true)}>
         Modérer
       </button>
 
@@ -112,7 +112,7 @@ const ManyUpdateModal = ({ onClose, selected, onChange }) => {
             <div className="flex w-full flex-col justify-center gap-4">
               <div className="flex flex-col gap-2">
                 <label htmlFor="status" className="text-sm">
-                  Statut<span className="ml-1 text-red-main">*</span>
+                  Statut<span className="text-red-error ml-1">*</span>
                 </label>
                 <select
                   id="status"
@@ -131,9 +131,9 @@ const ManyUpdateModal = ({ onClose, selected, onChange }) => {
                   ))}
                 </select>
                 {status === "REFUSED" && (
-                  <div className="flex flex-col gap-2 mt-2">
+                  <div className="mt-2 flex flex-col gap-2">
                     <label htmlFor="comment" className="text-sm">
-                      Motif<span className="ml-1 text-red-main">*</span>
+                      Motif<span className="text-red-error ml-1">*</span>
                     </label>
                     <select id="comment" className="select" name="comment" value={comment} onChange={(e) => setComment(e.target.value)} required>
                       <option value="">Sélectionner un motif</option>
@@ -152,8 +152,8 @@ const ManyUpdateModal = ({ onClose, selected, onChange }) => {
                 </label>
                 <textarea id="note" className="input" rows={4} name="note" value={note} onChange={(e) => setNote(e.target.value)} />
                 <div className="mt-6 flex justify-end">
-                  <button className="filled-button w-full flex justify-center" type="submit" disabled={!status || (status === "REFUSED" && !comment) || loading}>
-                    {loading ? <Loader className="w-6 h-6" /> : "Enregistrer"}
+                  <button className="filled-button flex w-full justify-center" type="submit" disabled={!status || (status === "REFUSED" && !comment) || loading}>
+                    {loading ? <Loader className="h-6 w-6" /> : "Enregistrer"}
                   </button>
                 </div>
               </div>

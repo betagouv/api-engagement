@@ -132,18 +132,18 @@ const Broacaster = () => {
       </Helmet>
       <div className="flex justify-between">
         <h2 className="text-2xl font-bold">{total.broadcasters} diffuseurs</h2>
-        <button className="py-2 px-4 flex items-center text-blue-900 hover:bg-gray-hover border transition delay-50 " onClick={handleExport} disabled={exporting}>
+        <button className="hover:bg-gray-975 flex items-center border px-4 py-2 text-blue-900 transition delay-50" onClick={handleExport} disabled={exporting}>
           {exporting ? (
-            <Loader className="w-4 h-" />
+            <Loader className="h- w-4" />
           ) : (
             <>
-              <RiFileDownloadLine className="inline align-middle mr-2" /> Exporter
+              <RiFileDownloadLine className="mr-2 inline align-middle" /> Exporter
             </>
           )}
         </button>
       </div>
-      <div className="flex box-border bg-white">
-        <div className="flex gap-2 justify-between">
+      <div className="box-border flex bg-white">
+        <div className="flex justify-between gap-2">
           <DateInput value={{ from: filters.from, to: filters.to }} onChange={(v) => setFilters({ ...filters, from: v.from, to: v.to })} />
           <MultiSearchSelect options={partners} value={filters.publishers} onChange={(e) => setFilters({ ...filters, publishers: e.value })} placeholder="Partenaires" />
           <label htmlFor="mission-type" className="sr-only">
@@ -171,7 +171,7 @@ const Broacaster = () => {
       </div>
       <div>
         <Table header={TABLE_HEADER} loading={loading} sortBy={sortBy} onSort={setSortBy} pageSize={500}>
-          <tr className="bg-gray-50 table-header">
+          <tr className="table-header bg-gray-50">
             <th className="p-4" colSpan={2}>
               <h4 className="text-base font-medium">Total</h4>
             </th>
@@ -183,7 +183,7 @@ const Broacaster = () => {
             .filter((p) => p.clickFrom !== 0)
             .sort((a, b) => (sortBy === "name" ? a.name.localeCompare(b.name) : b[sortBy] - a[sortBy]))
             .map((item, i) => (
-              <tr key={i} className={`${i % 2 === 0 ? "bg-gray-100" : "bg-gray-50"} table-item`}>
+              <tr key={i} className={`${i % 2 === 0 ? "bg-gray-975" : "bg-gray-1000-active"} table-item`}>
                 <td className="p-4" colSpan={2}>
                   <div className="flex flex-1 flex-wrap gap-x-2 text-left">
                     <div>
@@ -191,24 +191,24 @@ const Broacaster = () => {
                         <span className="text-base font-medium text-blue-800 hover:font-semibold hover:text-blue-900">{item.name}</span>
                       </div>
                       <>
-                        <div className="flex gap-2 flex-wrap">
+                        <div className="flex flex-wrap gap-2">
                           {item.isAnnonceur && (
-                            <span className="text-gray-700 rounded-xl bg-[#fee2b5] px-2 py-1" style={{ fontSize: "12px" }}>
+                            <span className="rounded-xl bg-[#fee2b5] px-2 py-1 text-gray-700" style={{ fontSize: "12px" }}>
                               Annonceur
                             </span>
                           )}
                           {item.hasApiRights && (
-                            <span className="text-gray-700 rounded-xl bg-[#dae6fd] px-2 py-1" style={{ fontSize: "12px" }}>
+                            <span className="rounded-xl bg-[#dae6fd] px-2 py-1 text-gray-700" style={{ fontSize: "12px" }}>
                               Diffuseur API
                             </span>
                           )}
                           {item.hasCampaignRights && (
-                            <span className="text-gray-700 rounded-xl bg-[#dae6fd] px-2 py-1" style={{ fontSize: "12px" }}>
+                            <span className="rounded-xl bg-[#dae6fd] px-2 py-1 text-gray-700" style={{ fontSize: "12px" }}>
                               Diffuseur Campagne
                             </span>
                           )}
                           {item.hasWidgetRights && (
-                            <span className="text-gray-700 rounded-xl bg-[#dae6fd] px-2 py-1" style={{ fontSize: "12px" }}>
+                            <span className="rounded-xl bg-[#dae6fd] px-2 py-1 text-gray-700" style={{ fontSize: "12px" }}>
                               Diffuseur Widget
                             </span>
                           )}
