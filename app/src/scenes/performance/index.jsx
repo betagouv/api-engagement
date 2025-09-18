@@ -4,11 +4,9 @@ import { Link, Route, Routes, useLocation, useSearchParams } from "react-router-
 
 import useStore from "../../services/store";
 
-import Compare from "./Compare";
 import GlobalAnnounce from "./GlobalAnnounce";
 import GlobalBroadcast from "./GlobalBroadcast";
 import Means from "./Mean";
-import Mission from "./Mission";
 
 const Performance = () => {
   const { flux } = useStore();
@@ -36,18 +34,7 @@ const Performance = () => {
       <div>
         <nav className="flex items-center space-x-4 pl-4 font-semibold text-black">
           <Tab route="" title="Au global" />
-          {flux === "to" ? (
-            <>
-              <Tab route="mission" title="Missions" />
-              <Tab route="compare" title="Comparer des périodes" />
-            </>
-          ) : (
-            <>
-              <Tab route="mission" title="Missions" />
-              <Tab route="means" title="Moyens de diffusion" />
-              <Tab route="compare" title="Comparer des périodes" />
-            </>
-          )}
+          {flux === "from" && <Tab route="means" title="Moyens de diffusion" />}
         </nav>
 
         <section className="bg-white shadow-lg">
@@ -56,9 +43,7 @@ const Performance = () => {
               path="/"
               element={flux === "from" ? <GlobalBroadcast filters={filters} onFiltersChange={setFilters} /> : <GlobalAnnounce filters={filters} onFiltersChange={setFilters} />}
             />
-            <Route path="/mission" element={<Mission filters={filters} onFiltersChange={setFilters} />} />
             <Route path="/means" element={<Means filters={filters} onFiltersChange={setFilters} />} />
-            <Route path="/compare" element={<Compare filters={filters} onFiltersChange={setFilters} />} />
           </Routes>
         </section>
       </div>

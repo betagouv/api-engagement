@@ -3,8 +3,6 @@ import { Link, Route, Routes, useLocation } from "react-router-dom";
 
 import Flux from "./Flux";
 import Moderation from "./Moderation";
-import Partners from "./Partners";
-import StatsModeration from "./StatsModeration";
 
 const MyMissions = () => {
   return (
@@ -14,14 +12,10 @@ const MyMissions = () => {
       <div>
         <div className="flex items-center space-x-4 pl-4 font-semibold text-black">
           <Tab title="Mission partagées" />
-          <Tab title="Statistiques de modération" route="moderation" />
-          <Tab title="Partenaires diffuseurs" route="partners" actives={["partners", "moderated-mission"]} />
         </div>
         <section className="bg-white shadow-lg">
           <Routes>
             <Route path="/" element={<Flux />} />
-            <Route path="/moderation" element={<StatsModeration />} />
-            <Route path="/partners" element={<Partners />} />
             <Route path="/moderated-mission/:id" element={<Moderation />} />
           </Routes>
         </section>
