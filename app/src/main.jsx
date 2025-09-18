@@ -4,7 +4,6 @@ import { createRoutesFromChildren, matchRoutes, useLocation, useNavigationType }
 
 import ReactDOM from "react-dom/client";
 
-import "react-day-picker/dist/style.css";
 import "react-toastify/dist/ReactToastify.css";
 import "react-tooltip/dist/react-tooltip.css";
 
