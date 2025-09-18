@@ -2,7 +2,6 @@ import { usePlausible } from "next-plausible";
 import { useEffect, useRef, useState } from "react";
 import { RiArrowDownSLine, RiArrowUpSLine } from "react-icons/ri";
 
-import "react-day-picker/dist/style.css";
 import { ACCESSIBILITIES, ACTIONS, BENEFICIARIES, DOMAINS, MINORS, SCHEDULES } from "../config";
 import { AggregationData, ApiResponse, FilterOptions, Filters, Widget } from "../types";
 import useStore from "../utils/store";
@@ -171,7 +170,7 @@ const MobileFiltersVolontariat = ({ options, values, onChange, show, onShow, dis
       <div className="w-full">
         <LocationFilter selected={values.location} onChange={(l) => onChange({ ...values, location: l })} disabled={disabledLocation} width="w-full" />
       </div>
-      <div className="w-full border-y border-gray-900">
+      <div className="w-full border-y border-[#DDDDDD]">
         <button
           className="flex h-[40px] items-center justify-between w-full bg-white focus:outline-none focus-visible:ring focus-visible:ring-[#000091] px-4"
           onClick={() => {
@@ -320,7 +319,7 @@ const DesktopFiltersVolontariat = ({ options, values, onChange, disabledLocation
         ) : (
           <button
             aria-label="plus de filtres"
-            className="cursor-pointer border truncate w-full bg-white border-gray-900 py-2 px-4 h-[40px] focus:outline-none focus-visible:ring focus-visible:ring-[#000091] font-medium"
+            className="cursor-pointer border truncate w-full bg-white border-[#DDDDDD] py-2 px-4 h-[40px] focus:outline-none focus-visible:ring focus-visible:ring-[#000091] font-medium"
             onClick={() => {
               setMoreFilters(true);
               plausible("More filters", { u: url || undefined });
@@ -379,7 +378,7 @@ const DesktopFiltersVolontariat = ({ options, values, onChange, disabledLocation
 
           <button
             aria-label="moins de filtres"
-            className="border truncate w-full bg-white border-gray-900 py-2 px-4 h-[40px] focus:outline-none focus-visible:ring focus-visible:ring-[#000091] font-medium"
+            className="border truncate w-full bg-white border-[#DDDDDD] py-2 px-4 h-[40px] focus:outline-none focus-visible:ring focus-visible:ring-[#000091] font-medium"
             onClick={() => {
               setMoreFilters(false);
               plausible("Less filters", { u: url || undefined });

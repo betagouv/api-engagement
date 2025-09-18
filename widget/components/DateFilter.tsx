@@ -1,10 +1,10 @@
 import { fr } from "date-fns/locale/fr";
 import { usePlausible } from "next-plausible";
 import { useEffect, useRef, useState } from "react";
-import { DayPicker } from "react-day-picker";
-import { RiArrowDownSLine } from "react-icons/ri";
+import ReactDatePicker from "react-datepicker";
+import { RiArrowDownSLine, RiArrowLeftSLine, RiArrowRightSLine } from "react-icons/ri";
 
-import "react-day-picker/dist/style.css";
+import "react-datepicker/dist/react-datepicker.css";
 import useStore from "../utils/store";
 
 interface DateFilterProps {
@@ -51,60 +51,36 @@ const DateFilter = ({ selected, onChange, position = "left-0", width = "w-80" }:
         role="dialog"
         aria-modal="true"
         aria-label="Calendrier de disponibilité"
-        className={`absolute ${position} mt-1 z-50 ${width} min-w-[384px] p-6 border border-gray-900 bg-white shadow-md ${show ? "block" : "hidden"}`}
+        className={`absolute ${position} mt-1 z-50 ${width} min-w-[384px] p-6 border border-[#DDDDDD] bg-white shadow-md ${show ? "block" : "hidden"}`}
+        style={{ "--dp-accent-color": color, "--dp-accent-color-hover": `${color}30` } as React.CSSProperties}
       >
-        <div className="border-b border-gray-900 pb-4">
+        <div className="border-b border-[#DDDDDD] pb-4">
           <p>Je suis disponible à partir du</p>
         </div>
+
         <div className="mt-4 flex items-center justify-center">
-          <DayPicker
-            mode="single"
+          <ReactDatePicker
+            inline
             locale={fr}
-            aria-label="disponible à partir du"
-            role="dialog"
-            selected={selected?.value}
-            onDayClick={(date) => {
-              if (date) {
+            ariaLabelledBy="date"
+            calendarContainer={CalendarContainer}
+            renderCustomHeader={(props) => <CalendarHeader color={color} {...props} />}
+            selected={selected?.value ?? null}
+            dateFormat="ddd"
+            chooseDayAriaLabelPrefix="Choisir le"
+            disabledDayAriaLabelPrefix="Non disponible le"
+            minDate={new Date()}
+            onChange={(date) => {
+              if (date instanceof Date && !isNaN(date.getTime())) {
                 onChange({ label: date.toLocaleDateString("fr"), value: date });
                 setShow(false);
                 plausible("Date selected", { props: { date: date.toLocaleDateString("fr") }, u: url || undefined });
               }
             }}
-            style={
-              {
-                "--rdp-accent-color": color,
-                "--rdp-day_button-width": "48px",
-                "--rdp-day_button-height": "48px",
-              } as React.CSSProperties
-            }
-            modifiers={{
-              selected: (date) => !!selected && date.toLocaleDateString("fr") === selected.value.toLocaleDateString("fr"),
-            }}
-            autoFocus
-            modifiersStyles={{
-              today: {
-                backgroundColor: "transparent",
-                color: "black",
-                textDecoration: "underline",
-              },
-              selected: {
-                backgroundColor: color,
-                color: "white",
-                fontWeight: "normal",
-                borderRadius: "9999px",
-                textAlign: "center",
-              },
-            }}
-            labels={{
-              labelDayButton: (date, { today, selected }) => {
-                return `${today ? "Aujourd'hui, " : ""}${date.toLocaleDateString("fr", { weekday: "long", day: "numeric", month: "long" })}${selected ? ", sélectionné" : ""}`;
-              },
-              labelNext: () => "Mois suivant",
-              labelPrevious: () => "Mois précédent",
-            }}
           />
         </div>
-        <div className="p-4 w-full border-t border-gray-900">
+
+        <div className="p-4 w-full border-t border-[#DDDDDD]">
           <button
             className="text-sm cursor-pointer"
             style={{ color: color ? color : "" }}
@@ -117,6 +93,45 @@ const DateFilter = ({ selected, onChange, position = "left-0", width = "w-80" }:
             Réinitialiser
           </button>
         </div>
+      </div>
+    </div>
+  );
+};
+
+const CalendarContainer = ({ children }: { children: React.ReactNode; className: string }) => {
+  return <div className="bg-white flex-1 w-full">{children}</div>;
+};
+
+const CalendarHeader = ({
+  date,
+  color,
+  decreaseMonth,
+  increaseMonth,
+  prevMonthButtonDisabled,
+  nextMonthButtonDisabled,
+}: {
+  color: string;
+  date: Date;
+  decreaseMonth: () => void;
+  increaseMonth: () => void;
+  prevMonthButtonDisabled: boolean;
+  nextMonthButtonDisabled: boolean;
+}) => {
+  return (
+    <div className="p-4 flex items-center justify-between gap-4">
+      <h2 className="text-base font-bold" aria-live="polite">
+        {date.toLocaleString("fr-FR", {
+          month: "long",
+          year: "numeric",
+        })}
+      </h2>
+      <div className="flex items-center">
+        <button aria-label="Mois précédent" className="hover:bg-gray-975" style={prevMonthButtonDisabled ? { visibility: "hidden" } : undefined} onClick={decreaseMonth}>
+          <RiArrowLeftSLine className="text-[32px]" style={{ color }} />
+        </button>
+        <button aria-label="Mois suivant" className="hover:bg-gray-975" style={nextMonthButtonDisabled ? { visibility: "hidden" } : undefined} onClick={increaseMonth}>
+          <RiArrowRightSLine className="text-[32px]" style={{ color }} />
+        </button>
       </div>
     </div>
   );
