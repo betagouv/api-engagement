@@ -2,10 +2,10 @@ import request from "supertest";
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from "vitest";
 import { v4 as uuidv4 } from "uuid";
 import type { Client as ElasticsearchClient } from "@elastic/elasticsearch";
+import type express from "express";
 import type { PrismaClient as PrismaClientCore } from "../../../src/db/core";
 import { createTestMission, createTestPublisher } from "../../fixtures";
 import type { Stats } from "../../../src/types";
-import { createTestApp } from "../../testApp";
 
 // Requires docker-compose.test.yml to be running
 describe("RedirectController /r/apply integration with docker-compose services", () => {
@@ -13,7 +13,7 @@ describe("RedirectController /r/apply integration with docker-compose services",
   let esClient: ElasticsearchClient;
   let statsIndex: string;
   let statEventRepository: typeof import("../../../src/repositories/stat-event");
-  const app = createTestApp();
+  let app!: express.Express;
 
   const previousReadStatsFrom = process.env.READ_STATS_FROM;
   const previousWriteStatsDual = process.env.WRITE_STATS_DUAL;
@@ -22,11 +22,18 @@ describe("RedirectController /r/apply integration with docker-compose services",
     process.env.READ_STATS_FROM = "pg";
     process.env.WRITE_STATS_DUAL = "true";
 
-    const [postgresModule, elasticModule, configModule, statEventModule] = await Promise.all([
+    const [
+      postgresModule,
+      elasticModule,
+      configModule,
+      statEventModule,
+      testAppModule,
+    ] = await Promise.all([
       import("../../../src/db/postgres"),
       import("../../../src/db/elastic"),
       import("../../../src/config"),
       import("../../../src/repositories/stat-event"),
+      import("../../testApp"),
     ]);
 
     await Promise.all([postgresModule.pgConnected, elasticModule.esConnected]);
@@ -35,6 +42,7 @@ describe("RedirectController /r/apply integration with docker-compose services",
     esClient = elasticModule.default;
     statsIndex = configModule.STATS_INDEX;
     statEventRepository = statEventModule;
+    app = testAppModule.createTestApp();
   }, 120000);
 
   afterAll(() => {
