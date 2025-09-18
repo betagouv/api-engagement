@@ -109,21 +109,51 @@ npm run start
 
 ## Tests
 
-### Exécution des tests
+### Tests unitaires
 
-Pour exécuter tous les tests une fois :
-
-```bash
-npm test
-````
-
-Pour exécuter les tests en mode watch pendant le développement :
+Les tests unitaires utilisent des bases de données mockées via `mongodb-memory-server`. Ils peuvent être lancés avec :
 
 ```bash
-npm run test:watch
+npm run test:unit
 ```
 
-Pour exécuter les tests dans un environnement CI (optimisé pour les pipelines CI) :
+Pour lancer les tests unitaires en mode watch :
+
+```bash
+npm run test:unit:watch
+```
+
+La commande `npm test` est un alias de `npm run test:unit`.
+
+### Tests d'intégration
+
+Les tests d'intégration (dossier `tests/integration/redirect/`) s'exécutent contre les services PostgreSQL et Elasticsearch démarrés via `docker-compose.test.yml`. Avant de lancer la suite, assurez-vous que les conteneurs sont démarrés depuis la racine du dépôt :
+
+```bash
+docker compose -f docker-compose.test.yml up -d
+```
+
+Ensuite, vous pouvez exécuter les tests :
+
+```bash
+npm run test:integration
+```
+
+Un mode watch est également disponible :
+
+```bash
+npm run test:integration:watch
+```
+
+Une fois les tests terminés, vous pouvez arrêter les services :
+
+```bash
+docker compose -f docker-compose.test.yml down -v
+```
+
+### Tests en CI
+
+Pour lancer l'ensemble des suites (unitaires + intégration) comme en CI :
 
 ```bash
 npm run test:ci

@@ -1,6 +1,7 @@
 import { MongoMemoryServer } from "mongodb-memory-server";
 import mongoose from "mongoose";
 import { afterAll, beforeAll, beforeEach, vi } from "vitest";
+
 import { dataSubventionMock, elasticMock, pgMock, sentryMock } from "./mocks";
 
 process.env.JWT_SECRET = "test-jwt-secret";
@@ -41,7 +42,6 @@ vi.mock("@sentry/node", () => ({
   ...sentryMock,
 }));
 
-// Mock services
 vi.mock("../src/services/api-datasubvention", () => ({
   default: dataSubventionMock,
 }));
@@ -55,7 +55,6 @@ beforeAll(async () => {
 });
 
 beforeEach(async () => {
-  // Clear all collections before each test
   const collections = mongoose.connection.collections;
   for (const key in collections) {
     const collection = collections[key];
@@ -65,5 +64,7 @@ beforeEach(async () => {
 
 afterAll(async () => {
   await mongoose.disconnect();
-  await mongoServer.stop();
+  if (mongoServer) {
+    await mongoServer.stop();
+  }
 });
