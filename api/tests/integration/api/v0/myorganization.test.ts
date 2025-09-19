@@ -1,12 +1,14 @@
+import type { Client as ElasticsearchClient } from "@elastic/elasticsearch";
 import request from "supertest";
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { beforeAll, beforeEach, describe, expect, it } from "vitest";
 import OrganizationExclusionModel from "../../../../src/models/organization-exclusion";
 import { Mission, MissionType, Publisher } from "../../../../src/types";
 import { createTestMission, createTestPublisher } from "../../../fixtures";
-import elasticMock from "../../../mocks/elasticMock";
 import { createTestApp } from "../../../testApp";
 
-vi.mock("../../../src/es", () => ({ esClient: elasticMock }));
+// Real Elasticsearch client and config
+let esClient: ElasticsearchClient;
+let statsIndex: string;
 
 describe("MyOrganization API Integration Tests", () => {
   const app = createTestApp();
@@ -17,9 +19,33 @@ describe("MyOrganization API Integration Tests", () => {
   let publisher2: Publisher;
   let orgId: string;
 
+  beforeAll(async () => {
+    // Ensure services are connected and retrieve ES client and index
+    const [elasticModule, configModule] = await Promise.all([import("../../../../src/db/elastic"), import("../../../../src/config")]);
+
+    // Wait for elastic connection (exported promise in module)
+    await elasticModule.esConnected;
+    esClient = elasticModule.default;
+    statsIndex = configModule.STATS_INDEX;
+  }, 120000);
+
   beforeEach(async () => {
-    elasticMock.search.mockReset();
-    elasticMock.msearch.mockReset();
+    // Clear Elasticsearch stats index between tests
+    try {
+      await esClient.deleteByQuery({ index: statsIndex, body: { query: { match_all: {} } }, refresh: true });
+    } catch (error: any) {
+      if (error?.meta?.statusCode !== 404) {
+        throw error;
+      }
+    }
+
+    try {
+      await esClient.indices.refresh({ index: statsIndex });
+    } catch (error: any) {
+      if (error?.meta?.statusCode !== 404) {
+        throw error;
+      }
+    }
 
     publisher = await createTestPublisher();
     apiKey = publisher.apikey || "";
@@ -46,19 +72,19 @@ describe("MyOrganization API Integration Tests", () => {
     });
 
     it("should return list of publishers for the organization with correct format", async () => {
-      // Mock ES result with random clicks values
-      elasticMock.search.mockResolvedValueOnce({
-        body: {
-          aggregations: {
-            fromPublisherId: {
-              buckets: [
-                { key: publisher1._id.toString(), doc_count: 7 },
-                { key: publisher2._id.toString(), doc_count: 0 },
-              ],
-            },
-          },
-        },
-      });
+      // Insert 7 click events for publisher1 in ES
+      const now = new Date();
+      const docs = Array.from({ length: 7 }).map(() => ({
+        type: "click",
+        createdAt: now,
+        isBot: false,
+        fromPublisherId: publisher1._id.toString(),
+        missionOrganizationClientId: orgId,
+      }));
+      for (const body of docs) {
+        await esClient.index({ index: statsIndex, body });
+      }
+      await esClient.indices.refresh({ index: statsIndex });
 
       const response = await request(app).get(`/v0/myorganization/${orgId}`).set("x-api-key", apiKey);
 
@@ -91,19 +117,7 @@ describe("MyOrganization API Integration Tests", () => {
     });
 
     it("should return correct exclusion status for publishers", async () => {
-      // Mock ES: all clicks to 0
-      elasticMock.search.mockResolvedValueOnce({
-        body: {
-          aggregations: {
-            fromPublisherId: {
-              buckets: [
-                { key: publisher1._id.toString(), doc_count: 0 },
-                { key: publisher2._id.toString(), doc_count: 0 },
-              ],
-            },
-          },
-        },
-      });
+      // No clicks inserted -> both partners should have 0 clicks
 
       // Add exclusion for publisher2
       await OrganizationExclusionModel.create({

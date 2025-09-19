@@ -109,24 +109,47 @@ npm run start
 
 ## Tests
 
-### Exécution des tests
+### Tests unitaires
 
-Pour exécuter tous les tests une fois :
-
-```bash
-npm test
-````
-
-Pour exécuter les tests en mode watch pendant le développement :
+Les tests unitaires utilisent des bases de données mockées via `mongodb-memory-server`. Ils peuvent être lancés avec :
 
 ```bash
-npm run test:watch
+npm run test:unit
 ```
 
-Pour exécuter les tests dans un environnement CI (optimisé pour les pipelines CI) :
+Pour lancer les tests unitaires en mode watch :
 
 ```bash
-npm run test:ci
+npm run test:unit:watch
+```
+
+La commande `npm test` est un alias de `npm run test:unit`.
+
+### Tests d'intégration
+
+Les tests d'intégration (dossier `tests/integration/`) s'exécutent contre les services PostgreSQL et Elasticsearch. La commande ci-dessous démarre automatiquement l'environnement Docker nécessaire, lance les tests puis arrête l'environnement à la fin :
+
+```bash
+npm run test:integration
+```
+
+Remarques :
+- Docker Desktop (ou équivalent) doit être installé et démarré.
+- En mode watch, l'environnement reste actif jusqu'à l'arrêt des tests.
+- Pour gérer l'environnement manuellement, vous pouvez utiliser :
+  - Démarrer: `npm run testenv:up`
+  - Arrêter: `npm run testenv:down`
+
+Un mode watch est également disponible :
+
+```bash
+npm run test:integration -- --watch
+```
+
+En mode watch, pensez à arrêter les services quand vous avez terminé si nécessaire :
+
+```bash
+npm run testenv:down
 ```
 
 ## Autres commandes
@@ -152,3 +175,4 @@ Pour formater le code avec Prettier :
 ```bash
 npm run prettier
 ```
+````

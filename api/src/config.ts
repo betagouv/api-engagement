@@ -18,6 +18,10 @@ export const MISSION_INDEX = "mission";
 export const ASSOS_INDEX = "association";
 export const STATS_INDEX = "stats";
 
+// ES to PG migration: feature flags
+export const READ_STATS_FROM = (process.env.READ_STATS_FROM as "es" | "pg") || "es";
+export const WRITE_STATS_DUAL = process.env.WRITE_STATS_DUAL === "true";
+
 export const SENDINBLUE_APIKEY = process.env.SENDINBLUE_APIKEY;
 
 export const SENTRY_DSN_API = process.env.SENTRY_DSN_API;
