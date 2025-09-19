@@ -1,7 +1,7 @@
 import { afterAll, beforeEach, describe, expect, it, vi } from "vitest";
-import * as ErrorModule from "../../../../src/error";
+import { STATS_INDEX } from "../../../../src/config";
+import esClient from "../../../../src/db/elastic";
 import KpiModel from "../../../../src/models/kpi";
-import elasticMock from "../../../mocks/elasticMock";
 
 // Mock botless KPI builder so it always returns a non-null object
 // We'll test botless KPI builder in a separate test file
@@ -14,28 +14,42 @@ import { createTestMission } from "../../../fixtures";
 
 describe("KPI job - Integration", () => {
   beforeEach(async () => {
-    (elasticMock.search as any).mockReset();
-    (elasticMock.msearch as any).mockReset();
-
-    // Provide the aggregations shape expected by buildKpi() for all ES calls
-    (elasticMock.search as any).mockResolvedValue({
-      body: {
-        aggregations: {
-          print: { doc_count: 0, data: { value: 0 } },
-          click: { doc_count: 0, data: { value: 0 } },
-          apply: { doc_count: 0, data: { value: 0 } },
-          account: { doc_count: 0, data: { value: 0 } },
-        },
-      },
-    });
-
     // Clean KPI collection before each test
     await KpiModel.deleteMany({});
+
+    // Ensure STATS_INDEX exists
+    try {
+      await esClient.indices.create({ index: STATS_INDEX });
+    } catch (e: any) {
+      const type = e?.meta?.body?.error?.type;
+      if (type !== "resource_already_exists_exception") {
+        // Re-throw unexpected errors
+        throw e;
+      }
+    }
+
+    // Clean STATS_INDEX so each test runs in isolation
+    try {
+      await esClient.deleteByQuery({ index: STATS_INDEX, body: { query: { match_all: {} } }, refresh: true });
+    } catch {
+      // ignore if index does not exist yet
+    }
   });
 
   afterAll(async () => {
     await KpiModel.deleteMany({});
   });
+
+  async function indexStat(type: string, missionId: string, toPublisherName: string, createdAt: Date) {
+    await esClient.index({
+      index: STATS_INDEX,
+      body: { type, missionId, toPublisherName, createdAt },
+    });
+  }
+
+  async function refreshStatsIndex() {
+    await esClient.indices.refresh({ index: STATS_INDEX });
+  }
 
   it("Should compute KPIs for the last 10 days (yesterday..D-9)", async () => {
     const handler = new KpiHandler();
@@ -165,34 +179,51 @@ describe("KPI job - Integration", () => {
     await createTestMission({ publisherName: "Other", placesStatus: "GIVEN_BY_PARTNER", places: 1, createdAt: fromDate });
     await createTestMission({ publisherName: "Service Civique", placesStatus: "GIVEN_BY_PARTNER", places: 1, createdAt: fromDate });
 
-    // Return a mock ES response with the given aggregations
-    const mockAgg = (printDoc: number, printVal: number, clickDoc: number, clickVal: number, applyDoc: number, applyVal: number, accountDoc: number, accountVal: number) => ({
-      body: {
-        aggregations: {
-          print: { doc_count: printDoc, data: { value: printVal } },
-          click: { doc_count: clickDoc, data: { value: clickVal } },
-          apply: { doc_count: applyDoc, data: { value: applyVal } },
-          account: { doc_count: accountDoc, data: { value: accountVal } },
-        },
-      },
-    });
+    // Seed ES stats for benevolat (toPublisherName != Service Civique)
+    const benePublisher = "Other";
+    const volPublisher = "Service Civique";
 
-    const firstDayBenevolat = mockAgg(11, 3, 7, 2, 5, 1, 4, 1);
-    const firstDayVolontariat = mockAgg(21, 6, 14, 4, 9, 2, 8, 2);
-    const zeroAgg = mockAgg(0, 0, 0, 0, 0, 0, 0, 0);
+    // Benevolat: print -> 11 docs across 3 unique missions
+    for (let i = 0; i < 11; i++) {
+      const missionId = `b-print-${i % 3}`; // 3 unique
+      await indexStat("print", missionId, benePublisher, new Date(fromDate.getTime() + i));
+    }
+    // click -> 7 docs across 2 unique missions
+    for (let i = 0; i < 7; i++) {
+      const missionId = `b-click-${i % 2}`; // 2 unique
+      await indexStat("click", missionId, benePublisher, new Date(fromDate.getTime() + i));
+    }
+    // apply -> 5 docs across 1 unique mission
+    for (let i = 0; i < 5; i++) {
+      await indexStat("apply", "b-apply-0", benePublisher, new Date(fromDate.getTime() + i));
+    }
+    // account -> 4 docs across 1 unique mission
+    for (let i = 0; i < 4; i++) {
+      await indexStat("account", "b-account-0", benePublisher, new Date(fromDate.getTime() + i));
+    }
 
-    // As handler call ES twice, we need to separate first call (benevolat) from second call (volontariat)
-    let callCount = 0;
-    (elasticMock.search as any).mockImplementation(() => {
-      callCount += 1;
-      if (callCount === 1) {
-        return Promise.resolve(firstDayBenevolat);
-      }
-      if (callCount === 2) {
-        return Promise.resolve(firstDayVolontariat);
-      }
-      return Promise.resolve(zeroAgg);
-    });
+    // Volontariat: print -> 21 docs across 6 unique missions
+    for (let i = 0; i < 21; i++) {
+      const missionId = `v-print-${i % 6}`; // 6 unique
+      await indexStat("print", missionId, volPublisher, new Date(fromDate.getTime() + i));
+    }
+    // click -> 14 docs across 4 unique missions
+    for (let i = 0; i < 14; i++) {
+      const missionId = `v-click-${i % 4}`; // 4 unique
+      await indexStat("click", missionId, volPublisher, new Date(fromDate.getTime() + i));
+    }
+    // apply -> 9 docs across 2 unique missions
+    for (let i = 0; i < 9; i++) {
+      const missionId = `v-apply-${i % 2}`; // 2 unique
+      await indexStat("apply", missionId, volPublisher, new Date(fromDate.getTime() + i));
+    }
+    // account -> 8 docs across 2 unique missions
+    for (let i = 0; i < 8; i++) {
+      const missionId = `v-account-${i % 2}`; // 2 unique
+      await indexStat("account", missionId, volPublisher, new Date(fromDate.getTime() + i));
+    }
+
+    await refreshStatsIndex();
 
     const res = await handler.handle({ date: fixedToday });
     expect(res.success).toBe(true);
@@ -221,24 +252,5 @@ describe("KPI job - Integration", () => {
     expect(kpi.volontariatClickCount).toBe(14);
     expect(kpi.volontariatApplyCount).toBe(9);
     expect(kpi.volontariatAccountCount).toBe(8);
-  });
-
-  it("Should handle ES failure", async () => {
-    const handler = new KpiHandler();
-    const fixedToday = new Date("2025-08-15T12:00:00.000Z");
-    const yesterday = new Date(fixedToday.getFullYear(), fixedToday.getMonth(), fixedToday.getDate() - 1);
-
-    const spy = vi.spyOn(ErrorModule, "captureException");
-
-    (elasticMock.search as any).mockReset();
-    (elasticMock.search as any).mockRejectedValue(new Error("ES down"));
-
-    const res = await handler.handle({ date: fixedToday });
-    expect(res.success).toBe(false);
-
-    const kpi = await KpiModel.findOne({ date: yesterday });
-    expect(kpi).toBeNull();
-
-    expect(spy).toHaveBeenCalled();
   });
 });

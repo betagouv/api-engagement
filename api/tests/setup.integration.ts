@@ -11,7 +11,6 @@ process.env.JWT_SECRET = "test-jwt-secret";
 process.env.MONGODB_URI = "mongodb://localhost:27017/test";
 process.env.NODE_ENV = "test";
 process.env.DATABASE_URL_CORE ||= "postgresql://test:test@localhost:5544/api_engagement_test_core";
-process.env.DATABASE_URL_ANALYTICS ||= "postgresql://test:test@localhost:5544/api_engagement_test_analytics";
 process.env.ES_ENDPOINT ||= "http://localhost:9201";
 
 vi.mock("@sentry/node", () => ({
@@ -55,37 +54,24 @@ async function ensureDatabasesReady() {
   try {
     runPrismaMigrations(projectRoot);
   } catch (error) {
-    console.error(
-      "Failed to apply Prisma migrations for the docker-compose test databases. Did you run docker-compose.test.yml?",
-    );
+    console.error("Failed to apply Prisma migrations for the docker-compose test databases. Did you run docker-compose.test.yml?");
     throw error;
   }
 
   try {
-    const [postgresModule, elasticModule] = await Promise.all([
-      import("../src/db/postgres"),
-      import("../src/db/elastic"),
-    ]);
+    const [postgresModule, elasticModule] = await Promise.all([import("../src/db/postgres"), import("../src/db/elastic")]);
 
     await Promise.all([postgresModule.pgConnected, elasticModule.esConnected]);
   } catch (error) {
-    console.error(
-      "Failed to connect to PostgreSQL or Elasticsearch test services. Ensure docker-compose.test.yml is running.",
-    );
+    console.error("Failed to connect to PostgreSQL or Elasticsearch test services. Ensure docker-compose.test.yml is running.");
     throw error;
   }
 }
 
 async function closeRealDatabaseConnections() {
-  const [postgresModule, elasticModule] = await Promise.all([
-    import("../src/db/postgres"),
-    import("../src/db/elastic"),
-  ]);
+  const [postgresModule, elasticModule] = await Promise.all([import("../src/db/postgres"), import("../src/db/elastic")]);
 
-  const closeTasks: Promise<unknown>[] = [
-    postgresModule.prismaCore.$disconnect(),
-    postgresModule.prismaAnalytics.$disconnect(),
-  ];
+  const closeTasks: Promise<unknown>[] = [postgresModule.prismaCore.$disconnect(), postgresModule.prismaAnalytics.$disconnect()];
 
   const elasticClient = elasticModule.default as { close?: () => Promise<void> | void };
   if (elasticClient.close) {
@@ -103,5 +89,4 @@ function runPrismaMigrations(projectRoot: string) {
   };
 
   execSync("npx prisma migrate deploy --schema ./prisma/core/schema.core.prisma", execOptions);
-  execSync("npx prisma migrate deploy --schema ./prisma/analytics/schema.analytics.prisma", execOptions);
 }

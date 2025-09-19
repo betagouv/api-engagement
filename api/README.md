@@ -127,36 +127,29 @@ La commande `npm test` est un alias de `npm run test:unit`.
 
 ### Tests d'intégration
 
-Les tests d'intégration (dossier `tests/integration/redirect/`) s'exécutent contre les services PostgreSQL et Elasticsearch démarrés via `docker-compose.test.yml`. Avant de lancer la suite, assurez-vous que les conteneurs sont démarrés depuis la racine du dépôt :
-
-```bash
-docker compose -f docker-compose.test.yml up -d
-```
-
-Ensuite, vous pouvez exécuter les tests :
+Les tests d'intégration (dossier `tests/integration/`) s'exécutent contre les services PostgreSQL et Elasticsearch. La commande ci-dessous démarre automatiquement l'environnement Docker nécessaire, lance les tests puis arrête l'environnement à la fin :
 
 ```bash
 npm run test:integration
 ```
 
+Remarques :
+- Docker Desktop (ou équivalent) doit être installé et démarré.
+- En mode watch, l'environnement reste actif jusqu'à l'arrêt des tests.
+- Pour gérer l'environnement manuellement, vous pouvez utiliser :
+  - Démarrer: `npm run testenv:up`
+  - Arrêter: `npm run testenv:down`
+
 Un mode watch est également disponible :
 
 ```bash
-npm run test:integration:watch
+npm run test:integration -- --watch
 ```
 
-Une fois les tests terminés, vous pouvez arrêter les services :
+En mode watch, pensez à arrêter les services quand vous avez terminé si nécessaire :
 
 ```bash
-docker compose -f docker-compose.test.yml down -v
-```
-
-### Tests en CI
-
-Pour lancer l'ensemble des suites (unitaires + intégration) comme en CI :
-
-```bash
-npm run test:ci
+npm run testenv:down
 ```
 
 ## Autres commandes
@@ -182,3 +175,4 @@ Pour formater le code avec Prettier :
 ```bash
 npm run prettier
 ```
+````
