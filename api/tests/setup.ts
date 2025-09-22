@@ -1,7 +1,7 @@
 import { MongoMemoryServer } from "mongodb-memory-server";
 import mongoose from "mongoose";
 import { afterAll, beforeAll, beforeEach, vi } from "vitest";
-import { dataSubventionMock, elasticMock, sentryMock } from "./mocks";
+import { dataSubventionMock, elasticMock, pgMock, sentryMock } from "./mocks";
 
 process.env.JWT_SECRET = "test-jwt-secret";
 process.env.MONGODB_URI = "mongodb://localhost:27017/test";
@@ -9,6 +9,12 @@ process.env.NODE_ENV = "test";
 
 vi.mock("../src/db/elastic", () => ({
   default: elasticMock,
+}));
+
+vi.mock("../src/db/postgres", () => ({
+  prismaCore: pgMock,
+  prismaAnalytics: pgMock,
+  pgConnected: Promise.resolve(),
 }));
 
 vi.mock("@sentry/node", () => ({
