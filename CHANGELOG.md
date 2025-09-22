@@ -2,6 +2,90 @@
 Vous retrouverez ici l'historique des différents déploiements effectués sur l'API Engagement.
 
 
+## 15/09/2025
+
+
+### Bug Fixes
+
+-  Fix change route label ([`ea8b3e1`](https://github.com/betagouv/api-engagement/commit/ea8b3e1cfb70c2f56a67bb63c5c970199ee9fd4d))
+
+-  Fix test ([`2e7dc47`](https://github.com/betagouv/api-engagement/commit/2e7dc470838a273991695ca903deccfde25fe146))
+
+-  Fix sentry xml parse and asso datasub fetching ([`7d80a05`](https://github.com/betagouv/api-engagement/commit/7d80a05a8750be0006ed5d65193e7f188f03f4dc))
+
+-  Fix xml import and dashboard feed update ([`fd741ec`](https://github.com/betagouv/api-engagement/commit/fd741ecabde19bb5464c25917916ad321f3e5ee1))
+
+-  Fix sentry + deploy docker ([`521f754`](https://github.com/betagouv/api-engagement/commit/521f7546310f3e79ad7bbc3545024ab1d0a6802d))
+
+-  Fix job containers name ([`756b72f`](https://github.com/betagouv/api-engagement/commit/756b72f72f5810cf642fe61ef786de55eccc32a7))
+
+-  Fix labels missing ([`d851f1a`](https://github.com/betagouv/api-engagement/commit/d851f1a2cda8b65f879fa15d2f5880a0745f60ae))
+
+-  Fix label mistakes ([`27132d7`](https://github.com/betagouv/api-engagement/commit/27132d7e790b613f6f51009cb935f0cc3c7e3879))
+
+- (**api**) Add deterministic sort for my mission list (#426) ([`7225f0f`](https://github.com/betagouv/api-engagement/commit/7225f0fbef6dab24894befa57842ad0f27c9f23c))
+
+-  Handle zero coordinates in distance calc (#423) ([`a05bc19`](https://github.com/betagouv/api-engagement/commit/a05bc19b42d8afc70b046360a7f5f66546da1005))
+
+-  Fix api container tag ([`426752d`](https://github.com/betagouv/api-engagement/commit/426752d70e38e537f25747c50b91894ef2986bd0))
+
+
+### CI/CD
+
+- (**deps**) Bump actions/setup-node from 3 to 5 (#414) ([`3fef845`](https://github.com/betagouv/api-engagement/commit/3fef845b5f978c2192faadbc319132cb7607bc3e))
+
+- (**deps**) Bump actions/checkout from 4 to 5 (#402) ([`3d61faa`](https://github.com/betagouv/api-engagement/commit/3d61faaad3bf699723d054d1e5db7e42828938e7))
+
+
+### Features
+
+- (**linkedin**) Cycle test missions (#427) ([`9a11a50`](https://github.com/betagouv/api-engagement/commit/9a11a503d8c874328d6c22e7d087b094d1b8eb5e))
+
+-  Add default mission logo ([`24723f6`](https://github.com/betagouv/api-engagement/commit/24723f6983a7697d3dc57ebe211266d363702f4f))
+
+
+### Miscellaneous Tasks
+
+- (**changelog**) Update CHANGELOG.md ([`f67af3b`](https://github.com/betagouv/api-engagement/commit/f67af3b89af395f07b4d0af0f357887252c28015))
+
+-  Merge changelog from main ([`959ce29`](https://github.com/betagouv/api-engagement/commit/959ce2964ee6bd85e6dbd02681d32d62c109f423))
+
+- (**deps-dev**) Bump globals from 15.15.0 to 16.3.0 in /widget (#417) ([`b09e504`](https://github.com/betagouv/api-engagement/commit/b09e50494f07414eb6bb64c9c6150ebf25a04619))
+
+- (**deps**) Bump the production-dependencies group (#420) ([`1e28515`](https://github.com/betagouv/api-engagement/commit/1e285154f9f9e1a46ca0d1a7257d5da77ee7cb88))
+
+- (**deps**) Bump @sentry/cli (#416) ([`7c4e2aa`](https://github.com/betagouv/api-engagement/commit/7c4e2aad17191ccb950b655e62b12dceb4d43ad6))
+
+- (**deps-dev**) Bump @types/node from 22.15.30 to 24.3.0 in /widget ([`8d0fb25`](https://github.com/betagouv/api-engagement/commit/8d0fb25ada8bf04689615d59d7c221857b663f89))
+
+- (**deps**) Bump react-router-dom and sentry-react ([`973059b`](https://github.com/betagouv/api-engagement/commit/973059bbec6441b6764a11c1b5f11ab52941961e))
+
+- (**deps-dev**) Bump @vitejs/plugin-react from 4.7.0 to 5.0.2 in /app (#394) ([`2145c85`](https://github.com/betagouv/api-engagement/commit/2145c85594d8f1db1b5c06033f172ddae58ee154))
+
+- (**deps**) Bump @sentry/vite-plugin from 2.22.6 to 4.2.0 in /app (#391) ([`247b52b`](https://github.com/betagouv/api-engagement/commit/247b52b289130c3dafb2e33958a7c3e406ca8372))
+
+- (**deps-dev**) Bump @vitejs/plugin-react in /widget (#397) ([`0a00b75`](https://github.com/betagouv/api-engagement/commit/0a00b7510189c9b9db157cce023df32830a152d4))
+
+- (**deps-dev**) Bump eslint from 8.57.1 to 9.34.0 in /api (#400) ([`fc44c30`](https://github.com/betagouv/api-engagement/commit/fc44c30d5c94042ef65953ea58350efc8d5406dc))
+
+- (**deps**) Bump @sentry/node from 9.42.1 to 10.8.0 in /api (#401) ([`466922e`](https://github.com/betagouv/api-engagement/commit/466922ea7bf77d4f9049d4e0e61eb394a722500b))
+
+- (**deps-dev**) Bump @types/supertest from 2.0.16 to 6.0.3 in /api (#395) ([`db61e93`](https://github.com/betagouv/api-engagement/commit/db61e9344882842bc99d10847ba58a7d6a7157eb))
+
+- (**deps-dev**) Bump mongodb-memory-server from 9.5.0 to 10.2.0 in /api (#404) ([`22082bd`](https://github.com/betagouv/api-engagement/commit/22082bdcc6e61c4914c5c5d56c9638af4abb5ebf))
+
+- (**deps**) Bump the production-dependencies group (#387) ([`5070a57`](https://github.com/betagouv/api-engagement/commit/5070a57a9084cb926a5e1ecd1e051f2e5b2f1ec2))
+
+- (**deps**) Bump the production-dependencies group (#399) ([`57f921b`](https://github.com/betagouv/api-engagement/commit/57f921bbed200a680c1920053ee8015fb47aa946))
+
+- (**deps-dev**) Bump the dev-dependencies group (#405) ([`6692105`](https://github.com/betagouv/api-engagement/commit/6692105ddf6b1f7440b7c0a29b387d66c999959c))
+
+- (**deps**) Bump the production-dependencies group (#396) ([`b1284e7`](https://github.com/betagouv/api-engagement/commit/b1284e776b55ff6f8f25fc575845408973136549))
+
+# API Engagement - Changelog
+Vous retrouverez ici l'historique des différents déploiements effectués sur l'API Engagement.
+
+
 ## 08/09/2025
 
 
