@@ -5,7 +5,8 @@ import esClient from "../db/elastic";
 import { prismaCore } from "../db/postgres";
 import { Stats } from "../types";
 
-function toPg(data: Partial<Stats>) {
+function toPg(data: Partial<Stats>, options: { includeDefaults?: boolean } = {}) {
+  const { includeDefaults = true } = options;
   const mapped: any = {
     type: data.type,
     created_at: data.createdAt,
@@ -18,15 +19,21 @@ function toPg(data: Partial<Stats>) {
     host: data.host,
     user: data.user,
     is_bot: data.isBot,
-    is_human: data.isHuman ?? false,
-    source: data.source || "publisher",
-    source_id: data.sourceId || "",
-    source_name: data.sourceName || "",
-    status: data.status || "PENDING",
-    from_publisher_id: data.fromPublisherId || "",
-    from_publisher_name: data.fromPublisherName || "",
-    to_publisher_id: data.toPublisherId || "",
-    to_publisher_name: data.toPublisherName || "",
+    is_human: includeDefaults ? data.isHuman ?? false : data.isHuman,
+    source: includeDefaults ? data.source ?? "publisher" : data.source,
+    source_id: includeDefaults ? data.sourceId ?? "" : data.sourceId,
+    source_name: includeDefaults ? data.sourceName ?? "" : data.sourceName,
+    status: includeDefaults ? data.status ?? "PENDING" : data.status,
+    from_publisher_id: includeDefaults
+      ? data.fromPublisherId ?? ""
+      : data.fromPublisherId,
+    from_publisher_name: includeDefaults
+      ? data.fromPublisherName ?? ""
+      : data.fromPublisherName,
+    to_publisher_id: includeDefaults ? data.toPublisherId ?? "" : data.toPublisherId,
+    to_publisher_name: includeDefaults
+      ? data.toPublisherName ?? ""
+      : data.toPublisherName,
     mission_id: data.missionId,
     mission_client_id: data.missionClientId,
     mission_domain: data.missionDomain,
@@ -104,7 +111,7 @@ export async function createStatEvent(event: Stats): Promise<string> {
 }
 
 export async function updateStatEventById(id: string, patch: Partial<Stats>) {
-  const data = toPg(patch);
+  const data = toPg(patch, { includeDefaults: false });
   if (getReadStatsFrom() === "pg") {
     await prismaCore.statEvent.update({ where: { id }, data });
     if (getWriteStatsDual()) {

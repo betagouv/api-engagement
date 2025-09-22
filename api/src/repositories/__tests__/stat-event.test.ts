@@ -73,6 +73,35 @@ describe("stat-event repository", () => {
     expect(elasticMock.get).not.toHaveBeenCalled();
     expect(res?._id).toBe("1");
   });
+
+  it("does not override unspecified fields during pg updates", async () => {
+    initFeatureFlags("pg");
+
+    await statEventRepository.updateStatEventById("event-id", { status: "VALIDATED" });
+
+    expect(pgMock.statEvent.update).toHaveBeenCalledWith({
+      where: { id: "event-id" },
+      data: { status: "VALIDATED" },
+    });
+    expect(elasticMock.update).not.toHaveBeenCalled();
+  });
+
+  it("updates only provided fields in pg when dual writing from es", async () => {
+    initFeatureFlags("es", "true");
+    const patch: Partial<Stats> = { sourceName: "updated", isHuman: false };
+
+    await statEventRepository.updateStatEventById("event-id", patch);
+
+    expect(elasticMock.update).toHaveBeenCalledWith({
+      index: expect.any(String),
+      id: "event-id",
+      body: { doc: patch },
+    });
+    expect(pgMock.statEvent.update).toHaveBeenCalledWith({
+      where: { id: "event-id" },
+      data: { source_name: "updated", is_human: false },
+    });
+  });
 });
 
 function initFeatureFlags(readFrom: "pg" | "es", dual = "false") {
