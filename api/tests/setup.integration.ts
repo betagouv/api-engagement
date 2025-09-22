@@ -11,7 +11,7 @@ process.env.JWT_SECRET = "test-jwt-secret";
 process.env.MONGODB_URI = "mongodb://localhost:27017/test";
 process.env.NODE_ENV = "test";
 process.env.DATABASE_URL_CORE ||= "postgresql://test:test@localhost:5544/api_engagement_test_core";
-process.env.ES_ENDPOINT ||= "http://localhost:9201";
+process.env.ES_ENDPOINT ||= "http://localhost:39201";
 
 vi.mock("@sentry/node", () => ({
   default: sentryMock,

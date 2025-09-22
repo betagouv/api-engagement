@@ -54,18 +54,11 @@ jobs:
       - name: Generate Prisma client
         run: cd api && npm run prisma:generate
 
-      - name: Start integration services
-        run: docker compose -f docker-compose.test.yml up -d
-
       - name: Run unit tests
-        run: npm --prefix api run test:unit --pool=forks
+        run: npm --prefix api run test:unit -- --pool=forks
 
       - name: Run integration tests
-        run: npm --prefix api run test:integration --pool=forks
-
-      - name: Stop integration services
-        if: always()
-        run: docker compose -f docker-compose.test.yml down -v
+        run: npm --prefix api run test:integration -- --pool=forks
 
   widgets-tests:
     name: Widget Tests
