@@ -1,7 +1,6 @@
 import { Schema } from "mongoose";
 import { describe, expect, it } from "vitest";
 import { PUBLISHER_IDS } from "../../../../config";
-import { MissionHistoryEventType } from "../../../../db/analytics";
 import { AddressItem, Mission as MongoMission, MissionEvent as MongoMissionEvent } from "../../../../types";
 import { EVENT_TYPES } from "../../../../utils/mission";
 import { transformMongoMissionEventToPg, transformMongoMissionToPg } from "../transformers";
@@ -11,6 +10,20 @@ const randomObjectId = (id: string) =>
   ({
     toString: () => id,
   }) as unknown as Schema.Types.ObjectId;
+
+// Local enum used only for assertions in test
+const MissionHistoryEventType = {
+  Created: "Created",
+  Deleted: "Deleted",
+  UpdatedStartDate: "UpdatedStartDate",
+  UpdatedEndDate: "UpdatedEndDate",
+  UpdatedDescription: "UpdatedDescription",
+  UpdatedActivityDomain: "UpdatedActivityDomain",
+  UpdatedPlaces: "UpdatedPlaces",
+  UpdatedJVAModerationStatus: "UpdatedJVAModerationStatus",
+  UpdatedApiEngModerationStatus: "UpdatedApiEngModerationStatus",
+  UpdatedOther: "UpdatedOther",
+} as const;
 
 describe("transformMongoMissionToPg", () => {
   const baseAddress: AddressItem = {
