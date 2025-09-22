@@ -17,16 +17,30 @@ describe("KPI job - Integration", () => {
     // Clean KPI collection before each test
     await KpiModel.deleteMany({});
 
-    // Ensure STATS_INDEX exists
+    // Recreate STATS_INDEX with proper mappings to support `.keyword` fields used by KPI queries
     try {
-      await esClient.indices.create({ index: STATS_INDEX });
+      await esClient.indices.delete({ index: STATS_INDEX });
     } catch (e: any) {
-      const type = e?.meta?.body?.error?.type;
-      if (type !== "resource_already_exists_exception") {
-        // Re-throw unexpected errors
+      if (e?.meta?.statusCode !== 404) {
         throw e;
       }
     }
+    await esClient.indices.create({
+      index: STATS_INDEX,
+      body: {
+        mappings: {
+          properties: {
+            // Fields queried with .keyword in KPI
+            toPublisherName: { type: "text", fields: { keyword: { type: "keyword", ignore_above: 256 } } },
+            missionId: { type: "text", fields: { keyword: { type: "keyword", ignore_above: 256 } } },
+            type: { type: "text", fields: { keyword: { type: "keyword", ignore_above: 256 } } },
+            // Other fields used in filters/sorts
+            createdAt: { type: "date" },
+            isBot: { type: "boolean" },
+          },
+        },
+      },
+    });
 
     // Clean STATS_INDEX so each test runs in isolation
     try {
@@ -40,14 +54,15 @@ describe("KPI job - Integration", () => {
     await KpiModel.deleteMany({});
   });
 
-  async function indexStat(type: string, missionId: string, toPublisherName: string, createdAt: Date) {
+  async function insertStatEvent(type: string, missionId: string, toPublisherName: string, createdAt: Date) {
     await esClient.index({
       index: STATS_INDEX,
       body: { type, missionId, toPublisherName, createdAt },
+      refresh: true,
     });
   }
 
-  async function refreshStatsIndex() {
+  async function refreshStatEvents() {
     await esClient.indices.refresh({ index: STATS_INDEX });
   }
 
@@ -170,7 +185,7 @@ describe("KPI job - Integration", () => {
     expect(kpi.percentageBenevolatAttributedPlaces).toBe(0);
   });
 
-  it("Should map ES aggregations to KPI fields (benevolat & volontariat)", async () => {
+  it("Should map statevents fields to KPI fields (benevolat & volontariat)", async () => {
     const handler = new KpiHandler();
     const fixedToday = new Date("2025-08-15T12:00:00.000Z");
     const yesterday = new Date(fixedToday.getFullYear(), fixedToday.getMonth(), fixedToday.getDate() - 1);
@@ -179,51 +194,51 @@ describe("KPI job - Integration", () => {
     await createTestMission({ publisherName: "Other", placesStatus: "GIVEN_BY_PARTNER", places: 1, createdAt: fromDate });
     await createTestMission({ publisherName: "Service Civique", placesStatus: "GIVEN_BY_PARTNER", places: 1, createdAt: fromDate });
 
-    // Seed ES stats for benevolat (toPublisherName != Service Civique)
+    // Seed stats for benevolat (toPublisherName != Service Civique)
     const benePublisher = "Other";
     const volPublisher = "Service Civique";
 
     // Benevolat: print -> 11 docs across 3 unique missions
     for (let i = 0; i < 11; i++) {
       const missionId = `b-print-${i % 3}`; // 3 unique
-      await indexStat("print", missionId, benePublisher, new Date(fromDate.getTime() + i));
+      await insertStatEvent("print", missionId, benePublisher, new Date(fromDate.getTime() + i));
     }
     // click -> 7 docs across 2 unique missions
     for (let i = 0; i < 7; i++) {
       const missionId = `b-click-${i % 2}`; // 2 unique
-      await indexStat("click", missionId, benePublisher, new Date(fromDate.getTime() + i));
+      await insertStatEvent("click", missionId, benePublisher, new Date(fromDate.getTime() + i));
     }
     // apply -> 5 docs across 1 unique mission
     for (let i = 0; i < 5; i++) {
-      await indexStat("apply", "b-apply-0", benePublisher, new Date(fromDate.getTime() + i));
+      await insertStatEvent("apply", "b-apply-0", benePublisher, new Date(fromDate.getTime() + i));
     }
     // account -> 4 docs across 1 unique mission
     for (let i = 0; i < 4; i++) {
-      await indexStat("account", "b-account-0", benePublisher, new Date(fromDate.getTime() + i));
+      await insertStatEvent("account", "b-account-0", benePublisher, new Date(fromDate.getTime() + i));
     }
 
     // Volontariat: print -> 21 docs across 6 unique missions
     for (let i = 0; i < 21; i++) {
       const missionId = `v-print-${i % 6}`; // 6 unique
-      await indexStat("print", missionId, volPublisher, new Date(fromDate.getTime() + i));
+      await insertStatEvent("print", missionId, volPublisher, new Date(fromDate.getTime() + i));
     }
     // click -> 14 docs across 4 unique missions
     for (let i = 0; i < 14; i++) {
       const missionId = `v-click-${i % 4}`; // 4 unique
-      await indexStat("click", missionId, volPublisher, new Date(fromDate.getTime() + i));
+      await insertStatEvent("click", missionId, volPublisher, new Date(fromDate.getTime() + i));
     }
     // apply -> 9 docs across 2 unique missions
     for (let i = 0; i < 9; i++) {
       const missionId = `v-apply-${i % 2}`; // 2 unique
-      await indexStat("apply", missionId, volPublisher, new Date(fromDate.getTime() + i));
+      await insertStatEvent("apply", missionId, volPublisher, new Date(fromDate.getTime() + i));
     }
     // account -> 8 docs across 2 unique missions
     for (let i = 0; i < 8; i++) {
       const missionId = `v-account-${i % 2}`; // 2 unique
-      await indexStat("account", missionId, volPublisher, new Date(fromDate.getTime() + i));
+      await insertStatEvent("account", missionId, volPublisher, new Date(fromDate.getTime() + i));
     }
 
-    await refreshStatsIndex();
+    await refreshStatEvents();
 
     const res = await handler.handle({ date: fixedToday });
     expect(res.success).toBe(true);
@@ -233,7 +248,7 @@ describe("KPI job - Integration", () => {
       return;
     }
 
-    // Benevolat ES mappings
+    // Benevolat statevents
     expect(kpi.benevolatPrintMissionCount).toBe(3);
     expect(kpi.benevolatClickMissionCount).toBe(2);
     expect(kpi.benevolatApplyMissionCount).toBe(1);
@@ -243,7 +258,7 @@ describe("KPI job - Integration", () => {
     expect(kpi.benevolatApplyCount).toBe(5);
     expect(kpi.benevolatAccountCount).toBe(4);
 
-    // Volontariat ES mappings
+    // Volontariat statevents
     expect(kpi.volontariatPrintMissionCount).toBe(6);
     expect(kpi.volontariatClickMissionCount).toBe(4);
     expect(kpi.volontariatApplyMissionCount).toBe(2);

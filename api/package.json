@@ -19,8 +19,8 @@
       "test:integration": "vitest run --config vitest.integration.config.ts",
       "pretest:integration": "npm run testenv:up",
       "posttest:integration": "npm run testenv:down",
-      "testenv:up": "docker compose -f ../docker-compose.test.yml up -d",
-      "testenv:down": "docker compose -f ../docker-compose.test.yml down -v",
+      "testenv:up": "docker compose -p api-engagement-test -f ../docker-compose.test.yml up -d",
+      "testenv:down": "docker compose -p api-engagement-test -f ../docker-compose.test.yml down -v --remove-orphans",
       "job": "ts-node src/jobs/run-job.ts"
     },
     "dependencies": {

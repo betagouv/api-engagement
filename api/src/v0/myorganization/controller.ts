@@ -75,7 +75,7 @@ router.get("/:organizationClientId", passport.authenticate(["apikey", "api"], { 
               { term: { "type.keyword": "click" } },
               // Warning: publishers array may be quite large, so performance may be impacted
               { terms: { "fromPublisherId.keyword": publishers.map((e) => e._id.toString()) } },
-              { term: { missionOrganizationClientId: params.data.organizationClientId } },
+              { term: { "missionOrganizationClientId.keyword": params.data.organizationClientId } },
               { range: { createdAt: { gte: oneMonthAgo.toISOString() } } },
             ],
             must_not: [{ term: { isBot: true } }],

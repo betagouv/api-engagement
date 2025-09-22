@@ -1,6 +1,6 @@
 import { v4 as uuidv4 } from "uuid";
 
-import { READ_STATS_FROM, STATS_INDEX, WRITE_STATS_DUAL } from "../config";
+import { STATS_INDEX } from "../config";
 import { StatEventType } from "../db/core";
 import esClient from "../db/elastic";
 import { prismaCore } from "../db/postgres";
@@ -44,6 +44,12 @@ function toPg(data: Partial<Stats>) {
   return mapped;
 }
 
+// Map to Elasticsearch document by removing reserved/internal fields.
+function toEs(data: Partial<Stats>) {
+  const { _id, ...rest } = data as any;
+  return rest;
+}
+
 function fromPg(row: any): Stats {
   return {
     _id: row.id,
@@ -84,15 +90,15 @@ function fromPg(row: any): Stats {
 export async function createStatEvent(event: Stats): Promise<string> {
   // Render id here to share it between es and pg
   const id = event._id || uuidv4();
-  if (READ_STATS_FROM === "pg") {
+  if (getReadStatsFrom() === "pg") {
     await prismaCore.statEvent.create({ data: { id, ...toPg(event) } });
-    if (WRITE_STATS_DUAL) {
-      await esClient.index({ index: STATS_INDEX, id, body: event });
+    if (getWriteStatsDual()) {
+      await esClient.index({ index: STATS_INDEX, id, body: toEs(event) });
     }
     return id;
   }
-  await esClient.index({ index: STATS_INDEX, id, body: event });
-  if (WRITE_STATS_DUAL) {
+  await esClient.index({ index: STATS_INDEX, id, body: toEs(event) });
+  if (getWriteStatsDual()) {
     await prismaCore.statEvent.create({ data: { id, ...toPg(event) } });
   }
   return id;
@@ -100,15 +106,15 @@ export async function createStatEvent(event: Stats): Promise<string> {
 
 export async function updateStatEventById(id: string, patch: Partial<Stats>) {
   const data = toPg(patch);
-  if (READ_STATS_FROM === "pg") {
+  if (getReadStatsFrom() === "pg") {
     await prismaCore.statEvent.update({ where: { id }, data });
-    if (WRITE_STATS_DUAL) {
+    if (getWriteStatsDual()) {
       await esClient.update({ index: STATS_INDEX, id, body: { doc: patch } });
     }
     return;
   }
   await esClient.update({ index: STATS_INDEX, id, body: { doc: patch } });
-  if (WRITE_STATS_DUAL) {
+  if (getWriteStatsDual()) {
     try {
       await prismaCore.statEvent.update({ where: { id }, data });
     } catch (error) {
@@ -118,7 +124,7 @@ export async function updateStatEventById(id: string, patch: Partial<Stats>) {
 }
 
 export async function getStatEventById(id: string): Promise<Stats | null> {
-  if (READ_STATS_FROM === "pg") {
+  if (getReadStatsFrom() === "pg") {
     const pgRes = await prismaCore.statEvent.findUnique({ where: { id } });
     return pgRes ? fromPg(pgRes) : null;
   }
@@ -131,7 +137,7 @@ export async function getStatEventById(id: string): Promise<Stats | null> {
 }
 
 export async function findRecentByTypeAndClickId(type: StatEventType, clickId: string, minutes: number): Promise<Stats | null> {
-  if (READ_STATS_FROM === "pg") {
+  if (getReadStatsFrom() === "pg") {
     const from = new Date(Date.now() - minutes * 60 * 1000);
     const pgRes = await prismaCore.statEvent.findFirst({
       where: { type, click_id: clickId, created_at: { gte: from } },
@@ -158,7 +164,7 @@ export async function findRecentByTypeAndClickId(type: StatEventType, clickId: s
 }
 
 export async function count() {
-  if (READ_STATS_FROM === "pg") {
+  if (getReadStatsFrom() === "pg") {
     return prismaCore.statEvent.count();
   }
   const { body } = await esClient.count({ index: STATS_INDEX });
@@ -174,3 +180,12 @@ const statEventRepository = {
 };
 
 export default statEventRepository;
+
+// Helpers to evaluate feature flags at call time to avoid stale values due to module caching in tests
+function getReadStatsFrom(): "es" | "pg" {
+  return (process.env.READ_STATS_FROM as "es" | "pg") || "es";
+}
+
+function getWriteStatsDual(): boolean {
+  return process.env.WRITE_STATS_DUAL === "true";
+}

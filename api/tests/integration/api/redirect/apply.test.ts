@@ -1,18 +1,16 @@
-import type { Client as ElasticsearchClient } from "@elastic/elasticsearch";
 import type express from "express";
 import request from "supertest";
 import { v4 as uuidv4 } from "uuid";
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from "vitest";
-import type { PrismaClient as PrismaClientCore } from "../../../../src/db/core";
+import { STATS_INDEX } from "../../../../src/config";
+import esClient, { esConnected } from "../../../../src/db/elastic";
+import { prismaCore, pgConnected } from "../../../../src/db/postgres";
+import * as statEventRepository from "../../../../src/repositories/stat-event";
 import type { Stats } from "../../../../src/types";
 import { createTestMission, createTestPublisher } from "../../../fixtures";
+import { createTestApp } from "../../../testApp";
 
-// Requires docker-compose.test.yml to be running
-describe("RedirectController /r/apply integration with docker-compose services", () => {
-  let prismaCore: PrismaClientCore;
-  let esClient: ElasticsearchClient;
-  let statsIndex: string;
-  let statEventRepository: typeof import("../../../../src/repositories/stat-event");
+describe("RedirectController /r/apply", () => {
   let app!: express.Express;
 
   const previousReadStatsFrom = process.env.READ_STATS_FROM;
@@ -22,21 +20,8 @@ describe("RedirectController /r/apply integration with docker-compose services",
     process.env.READ_STATS_FROM = "pg";
     process.env.WRITE_STATS_DUAL = "true";
 
-    const [postgresModule, elasticModule, configModule, statEventModule, testAppModule] = await Promise.all([
-      import("../../../../src/db/postgres"),
-      import("../../../../src/db/elastic"),
-      import("../../../../src/config"),
-      import("../../../../src/repositories/stat-event"),
-      import("../../../testApp"),
-    ]);
-
-    await Promise.all([postgresModule.pgConnected, elasticModule.esConnected]);
-
-    prismaCore = postgresModule.prismaCore;
-    esClient = elasticModule.default;
-    statsIndex = configModule.STATS_INDEX;
-    statEventRepository = statEventModule;
-    app = testAppModule.createTestApp();
+    await Promise.all([pgConnected, esConnected]);
+    app = createTestApp();
   }, 120000);
 
   afterAll(() => {
@@ -58,7 +43,7 @@ describe("RedirectController /r/apply integration with docker-compose services",
 
     try {
       await esClient.deleteByQuery({
-        index: statsIndex,
+        index: STATS_INDEX,
         body: { query: { match_all: {} } },
         refresh: true,
       });
@@ -69,7 +54,7 @@ describe("RedirectController /r/apply integration with docker-compose services",
     }
 
     try {
-      await esClient.indices.refresh({ index: statsIndex });
+      await esClient.indices.refresh({ index: STATS_INDEX });
     } catch (error: any) {
       if (error?.meta?.statusCode !== 404) {
         throw error;
@@ -149,8 +134,8 @@ describe("RedirectController /r/apply integration with docker-compose services",
     expect(stored?.mission_title).toBe(mission.title);
     expect(stored?.is_bot).toBe(false);
 
-    await esClient.indices.refresh({ index: statsIndex });
-    const esResult = await esClient.get({ index: statsIndex, id: createdId });
+    await esClient.indices.refresh({ index: STATS_INDEX });
+    const esResult = await esClient.get({ index: STATS_INDEX, id: createdId });
     expect(esResult.body._source.type).toBe("apply");
     expect(esResult.body._source.missionClientId).toBe(mission.clientId);
   }, 120000);
