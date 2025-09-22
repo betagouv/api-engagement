@@ -55,10 +55,10 @@ jobs:
         run: cd api && npm run prisma:generate
 
       - name: Run unit tests
-        run: npm --prefix api run test:unit -- --pool=forks
+        run: npm --prefix api run test:unit
 
       - name: Run integration tests
-        run: npm --prefix api run test:integration -- --pool=forks
+        run: npm --prefix api run test:integration
 
   widgets-tests:
     name: Widget Tests

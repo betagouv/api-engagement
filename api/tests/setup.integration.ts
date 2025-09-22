@@ -1,6 +1,5 @@
 import { execSync } from "node:child_process";
 import path from "node:path";
-import net from "node:net";
 
 import { MongoMemoryServer } from "mongodb-memory-server";
 import mongoose from "mongoose";
@@ -53,36 +52,13 @@ afterAll(async () => {
 
 async function ensureDatabasesReady() {
   const projectRoot = path.resolve(__dirname, "..");
-  // Ensure Postgres and Elasticsearch are reachable before attempting migrations
-  try {
-    const coreUrl = new URL(process.env.DATABASE_URL_CORE!);
-    const pgHost = coreUrl.hostname;
-    const pgPort = Number(coreUrl.port || 5432);
-    await waitForTcpOpen(pgHost, pgPort, 120_000);
-  } catch (e) {
-    console.error("PostgreSQL did not become reachable on time.");
-    throw e;
-  }
 
-  try {
-    const esEndpoint = process.env.ES_ENDPOINT!;
-    await waitForHttpOk(`${esEndpoint}/_cluster/health`, 60_000);
-  } catch (e) {
-    console.error("Elasticsearch did not become reachable on time.");
-    throw e;
-  }
+  // Apply Prisma migrations (core)
+  runPrismaMigrations(projectRoot);
 
-  // Run migrations with retries to cope with Postgres starting up but not yet accepting queries
-  await retry(async () => runPrismaMigrations(projectRoot), 8, 1500);
-
-  try {
-    const [postgresModule, elasticModule] = await Promise.all([import("../src/db/postgres"), import("../src/db/elastic")]);
-
-    await Promise.all([postgresModule.pgConnected, elasticModule.esConnected]);
-  } catch (error) {
-    console.error("Failed to connect to PostgreSQL or Elasticsearch test services. Ensure docker-compose.test.yml is running.");
-    throw error;
-  }
+  // Await DB connections using existing connection utilities
+  const [postgresModule, elasticModule] = await Promise.all([import("../src/db/postgres"), import("../src/db/elastic")]);
+  await Promise.all([postgresModule.pgConnected, elasticModule.esConnected]);
 }
 
 async function closeRealDatabaseConnections() {
@@ -106,76 +82,4 @@ function runPrismaMigrations(projectRoot: string) {
   };
 
   execSync("npx prisma migrate deploy --schema ./prisma/core/schema.core.prisma", execOptions);
-}
-
-async function retry(fn: () => void | Promise<void>, attempts: number, delayMs: number) {
-  let lastErr: unknown;
-  for (let i = 0; i < attempts; i += 1) {
-    try {
-      await fn();
-      return;
-    } catch (err) {
-      lastErr = err;
-      if (i < attempts - 1) {
-        await new Promise((r) => setTimeout(r, delayMs));
-      }
-    }
-  }
-  throw lastErr instanceof Error ? lastErr : new Error("Operation failed after retries");
-}
-
-function waitForTcpOpen(host: string, port: number, timeoutMs: number) {
-  const start = Date.now();
-  return new Promise<void>((resolve, reject) => {
-    const tryOnce = () => {
-      const socket = net.createConnection({ host, port });
-      let done = false;
-      const cleanup = () => {
-        if (!done) {
-          return;
-        }
-        socket.destroy();
-      };
-      socket.once("connect", () => {
-        done = true;
-        socket.end();
-        resolve();
-      });
-      socket.once("error", () => {
-        socket.destroy();
-        if (Date.now() - start >= timeoutMs) {
-          reject(new Error(`Timeout waiting for TCP ${host}:${port}`));
-        } else {
-          setTimeout(tryOnce, 500);
-        }
-      });
-      socket.setTimeout(2000, () => {
-        socket.destroy();
-        if (Date.now() - start >= timeoutMs) {
-          reject(new Error(`Timeout waiting for TCP ${host}:${port}`));
-        } else {
-          setTimeout(tryOnce, 500);
-        }
-      });
-    };
-    tryOnce();
-  });
-}
-
-async function waitForHttpOk(url: string, timeoutMs: number) {
-  const start = Date.now();
-  while (true) {
-    try {
-      const res = await fetch(url, { method: "GET" });
-      if (res.ok) {
-        return;
-      }
-    } catch (_) {
-      // ignore
-    }
-    if (Date.now() - start >= timeoutMs) {
-      throw new Error(`Timeout waiting for HTTP ${url}`);
-    }
-    await new Promise((r) => setTimeout(r, 500));
-  }
 }
