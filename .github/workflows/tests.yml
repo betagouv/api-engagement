@@ -51,6 +51,9 @@ jobs:
       - name: Install dependencies
         run: cd api && npm ci
 
+      - name: Generate Prisma client
+        run: cd api && npm run prisma:generate
+
       - name: Start integration services
         run: docker compose -f docker-compose.test.yml up -d
 
