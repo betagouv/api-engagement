@@ -447,17 +447,17 @@ const HistoryTab = ({ data }) => {
                 {
                   {
                     PENDING: (
-                      <div className="flex h-8 w-8 items-center justify-center rounded-full bg-[#B34000]">
+                      <div className="bg-orange-warning-425 flex h-8 w-8 items-center justify-center rounded-full">
                         <RiTimeLine className="text-white" size={16} />
                       </div>
                     ),
                     ACCEPTED: (
-                      <div className="flex h-8 w-8 items-center justify-center rounded-full bg-[#18753C]">
+                      <div className="bg-green-success flex h-8 w-8 items-center justify-center rounded-full">
                         <RiCheckboxCircleFill className="text-white" size={16} />
                       </div>
                     ),
                     REFUSED: (
-                      <div className="flex h-8 w-8 items-center justify-center rounded-full bg-[#CE0500]">
+                      <div className="bg-red-marianne flex h-8 w-8 items-center justify-center rounded-full">
                         <RiCloseFill className="text-white" size={16} />
                       </div>
                     ),

@@ -5,8 +5,8 @@ import { v4 as uuid } from "uuid";
 import zod from "zod";
 
 import { HydratedDocument } from "mongoose";
-import { DEFAULT_AVATAR } from "../config";
-import { FORBIDDEN, INVALID_BODY, INVALID_PARAMS, NOT_FOUND, RESSOURCE_ALREADY_EXIST } from "../error";
+import { DEFAULT_AVATAR, PUBLISHER_IDS } from "../config";
+import { captureException, FORBIDDEN, INVALID_BODY, INVALID_PARAMS, NOT_FOUND, RESSOURCE_ALREADY_EXIST } from "../error";
 import OrganizationExclusionModel from "../models/organization-exclusion";
 import PublisherModel from "../models/publisher";
 import UserModel from "../models/user";
@@ -114,6 +114,34 @@ router.get("/:id", passport.authenticate("user", { session: false }), async (req
 
     // Double write, remove publisher later
     return res.status(200).send({ ok: true, publisher, data: publisher });
+  } catch (error) {
+    next(error);
+  }
+});
+
+router.get("/:id/moderated", passport.authenticate("user", { session: false }), async (req: UserRequest, res: Response, next: NextFunction) => {
+  try {
+    const params = zod
+      .object({
+        id: zod.string(),
+      })
+      .safeParse(req.params);
+
+    if (!params.success) {
+      return res.status(400).send({ ok: false, code: INVALID_PARAMS, error: params.error });
+    }
+
+    const jva = await PublisherModel.findById(PUBLISHER_IDS.JEVEUXAIDER);
+    if (!jva) {
+      captureException(new Error("JVA not found"));
+      return res.status(404).send({ ok: false, code: NOT_FOUND, message: "JVA not found" });
+    }
+
+    if (jva.publishers.some((p) => p.publisherId === params.data.id)) {
+      return res.status(200).send({ ok: true, data: true });
+    }
+
+    return res.status(200).send({ ok: true, data: false });
   } catch (error) {
     next(error);
   }

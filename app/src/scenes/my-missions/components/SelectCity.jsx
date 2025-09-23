@@ -46,7 +46,7 @@ const SelectCity = ({ onChange }) => {
         setSearch("");
         onChange(null);
       }}
-      placeholder="Ville"
+      placeholder="Villes"
       className="w-96"
     />
   );

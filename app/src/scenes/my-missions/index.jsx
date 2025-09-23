@@ -1,22 +1,42 @@
 import { useEffect, useState } from "react";
 import { Link, Route, Routes, useLocation } from "react-router-dom";
 
+import api from "../../services/api";
+import { captureError } from "../../services/error";
+import useStore from "../../services/store";
 import Flux from "./Flux";
 import Moderation from "./Moderation";
 
 const MyMissions = () => {
+  const { publisher } = useStore();
+  const [moderated, setModerated] = useState(false);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const resM = await api.get(`/publisher/${publisher._id}/moderated`);
+        if (!resM.ok) throw resM;
+        setModerated(resM.data);
+      } catch (error) {
+        captureError(error, "Erreur lors de la récupération des données");
+      }
+    };
+    fetchData();
+  }, [publisher._id]);
+
   return (
     <div className="space-y-12">
       <h1 className="text-4xl font-bold">Vos missions partagées</h1>
 
       <div>
         <div className="flex items-center space-x-4 pl-4 font-semibold text-black">
-          <Tab title="Mission partagées" />
+          <Tab route="" title="Mission partagées" />
+          {moderated && <Tab route="moderated-mission" title="Modération" />}
         </div>
         <section className="bg-white shadow-lg">
           <Routes>
-            <Route path="/" element={<Flux />} />
-            <Route path="/moderated-mission/:id" element={<Moderation />} />
+            <Route path="/" element={<Flux moderated={moderated} />} />
+            <Route path="/moderated-mission" element={<Moderation />} />
           </Routes>
         </section>
       </div>

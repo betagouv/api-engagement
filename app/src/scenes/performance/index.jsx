@@ -25,29 +25,31 @@ const Performance = () => {
   }, [filters, location.pathname]);
 
   return (
-    <div className="space-y-12">
+    <>
       <Helmet>
         <title>Au global - Performance - API Engagement</title>
       </Helmet>
-      <h1 className="text-4xl font-bold">Votre activité {flux === "from" ? "de diffuseur" : "d'annonceur"}</h1>
+      <h1 className="mb-12 text-4xl font-bold">Votre activité {flux === "from" ? "de diffuseur" : "d'annonceur"}</h1>
 
-      <div>
-        <nav className="flex items-center space-x-4 pl-4 font-semibold text-black">
-          <Tab route="" title="Au global" />
-          {flux === "from" && <Tab route="means" title="Moyens de diffusion" />}
-        </nav>
+      {flux === "from" && (
+        <>
+          <nav className="flex items-center space-x-4 pl-4 font-semibold text-black">
+            <Tab route="" title="Au global" />
+            <Tab route="means" title="Moyens de diffusion" />
+          </nav>
+        </>
+      )}
 
-        <section className="bg-white shadow-lg">
-          <Routes>
-            <Route
-              path="/"
-              element={flux === "from" ? <GlobalBroadcast filters={filters} onFiltersChange={setFilters} /> : <GlobalAnnounce filters={filters} onFiltersChange={setFilters} />}
-            />
-            <Route path="/means" element={<Means filters={filters} onFiltersChange={setFilters} />} />
-          </Routes>
-        </section>
-      </div>
-    </div>
+      <section className="bg-white shadow-lg">
+        <Routes>
+          <Route
+            path="/"
+            element={flux === "from" ? <GlobalBroadcast filters={filters} onFiltersChange={setFilters} /> : <GlobalAnnounce filters={filters} onFiltersChange={setFilters} />}
+          />
+          <Route path="/means" element={<Means filters={filters} onFiltersChange={setFilters} />} />
+        </Routes>
+      </section>
+    </>
   );
 };
 

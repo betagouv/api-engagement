@@ -22,10 +22,10 @@ const TABLE_HEADER = [
   { title: "Places disponibles", key: "places" },
   { title: "Ville", key: "city.keyword", colSpan: 2 },
   { title: "Créée le", key: "createdAt" },
-  { title: "Statut", key: "statusCode.keyword" },
+  { title: "Acceptées par l'API ?", key: "statusCode.keyword" },
 ];
 
-const Flux = () => {
+const Flux = ({ moderated }) => {
   const { publisher } = useStore();
   const [searchParams, setSearchParams] = useSearchParams();
   const [filters, setFilters] = useState({
@@ -33,6 +33,7 @@ const Flux = () => {
     page: Number(searchParams.get("page")) || 1,
     sortBy: "createdAt",
     status: searchParams.get("status") || null,
+    comment: searchParams.get("comment") || null,
     domain: searchParams.get("domain") || null,
     activity: searchParams.get("activity") || null,
     city: searchParams.get("city") || null,
@@ -41,30 +42,23 @@ const Flux = () => {
   });
   const [options, setOptions] = useState({
     status: [],
+    comments: [],
     domains: [],
     activities: [],
   });
   const [lastImport, setLastImport] = useState();
-  const [moderators, setModerators] = useState();
   const [data, setData] = useState([]);
   const [total, setTotal] = useState(0);
   const [loading, setLoading] = useState(false);
   const [exporting, setExporting] = useState(false);
-  const [hideAlert, setHideAlert] = useState({});
+  const [hideAlert, setHideAlert] = useState(false);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const resI = await api.post("/import/search", { publisherId: publisher._id, size: 1 });
-        if (!resI.ok) throw resI;
-        setLastImport(resI.data.length ? resI.data[0] : null);
-
-        const resM = await api.post("/publisher/search", { diffuseursOf: publisher._id, moderator: true });
-        if (!resM.ok) throw resM;
-        const newHideAlter = {};
-        resM.data.forEach((m) => (newHideAlter[m._id] = false));
-        setHideAlert(newHideAlter);
-        setModerators(resM.data);
+        const res = await api.post("/import/search", { publisherId: publisher._id, size: 1 });
+        if (!res.ok) throw res;
+        setLastImport(res.data.length ? res.data[0] : null);
       } catch (error) {
         captureError(error, "Erreur lors de la récupération des modérateurs");
       }
@@ -83,6 +77,7 @@ const Flux = () => {
           from: (filters.page - 1) * filters.size,
         };
         if (filters.status) query.status = filters.status;
+        if (filters.comment) query.comment = filters.comment;
         if (filters.domain) query.domain = filters.domain;
         if (filters.activity) query.activity = filters.activity;
         if (filters.city) query.city = filters.city;
@@ -100,6 +95,7 @@ const Flux = () => {
         newSearchParams.append("size", filters.size);
         newSearchParams.append("page", filters.page);
         if (filters.status) newSearchParams.append("status", filters.status);
+        if (filters.comment) newSearchParams.append("comment", filters.comment);
         if (filters.domain) newSearchParams.append("domain", filters.domain);
         if (filters.activity) newSearchParams.append("activity", filters.activity);
         if (filters.city) newSearchParams.append("city", filters.city);
@@ -162,6 +158,14 @@ const Flux = () => {
       <Helmet>
         <title>Missions partagées - Vos Missions - API Engagement</title>
       </Helmet>
+      {moderated && !hideAlert && (
+        <InfoAlert onClose={() => setHideAlert(true)}>
+          <p className="text-base">Pour toutes les missions acceptées par l’API, JeVeuxAider.gouv.fr pratique une modération avant de les diffuser.</p>
+          <Link to="moderated-mission" className="text-blue-france underline">
+            Suivre la modération
+          </Link>
+        </InfoAlert>
+      )}
       <div className="space-y-4">
         <SearchInput className="w-96" value={filters.search} onChange={(search) => setFilters({ ...filters, search })} placeholder="Rechercher par mot-clé" />
         <div className="flex items-center gap-4">
@@ -169,14 +173,21 @@ const Flux = () => {
             options={options.status.map((e) => ({ value: e.key, label: STATUS_PLR[e.key], count: e.doc_count }))}
             value={filters.status}
             onChange={(e) => setFilters({ ...filters, status: e.value })}
-            placeholder="Statut"
+            placeholder="Acceptées par l'API ?"
+            loading={loading}
+          />
+          <Select
+            options={options.comments.filter((e) => Boolean(e.key)).map((e) => ({ value: e.key, label: e.key, count: e.doc_count }))}
+            value={filters.comment}
+            onChange={(e) => setFilters({ ...filters, comment: e.value })}
+            placeholder="Motif d'erreur"
             loading={loading}
           />
           <Select
             options={options.domains.map((e) => ({ value: e.key === "" ? "none" : e.key, label: e.key === "" ? "Non renseignée" : e.key, count: e.doc_count }))}
             value={filters.domain}
             onChange={(e) => setFilters({ ...filters, domain: e.value })}
-            placeholder="Domaine"
+            placeholder="Domaines"
             loading={loading}
           />
         </div>
@@ -185,34 +196,13 @@ const Flux = () => {
             options={options.activities.map((e) => ({ value: e.key === "" ? "none" : e.key, label: e.key === "" ? "Non renseignée" : e.key, count: e.doc_count }))}
             value={filters.activity}
             onChange={(e) => setFilters({ ...filters, activity: e.value })}
-            placeholder="Activité"
+            placeholder="Activités"
             loading={loading}
           />
           <SelectCity value={filters.city} onChange={(city) => setFilters({ ...filters, city })} />
           <SelectOrganization value={filters.organization} onChange={(organization) => setFilters({ ...filters, organization })} />
         </div>
       </div>
-
-      {moderators &&
-        moderators.map((m, i) => {
-          if (hideAlert[m._id.toString()]) return null;
-          return (
-            <InfoAlert key={i} onClose={() => setHideAlert({ ...hideAlert, [m._id.toString()]: true })}>
-              <div className="text-sm font-bold">Votre partenaire {m.name} pratique une modération de vos missions</div>
-              <div>
-                <p className="mb-4 text-xs">
-                  Consultez les
-                  <a href={m.moderatorLink} target="_blank" className="text-gray-425 ml-1 cursor-pointer underline">
-                    règles de modération du partenaire
-                  </a>
-                </p>
-                <Link to={`moderated-mission/${m._id.toString()}`}>
-                  <div className="secondary-btn w-56">Suivre la modération</div>
-                </Link>
-              </div>
-            </InfoAlert>
-          );
-        })}
 
       <div className="space-y-6">
         <div className="flex items-center justify-between gap-4">

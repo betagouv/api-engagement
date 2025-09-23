@@ -2,6 +2,7 @@ import { NextFunction, Response, Router } from "express";
 import passport from "passport";
 import zod from "zod";
 
+import { PUBLISHER_IDS } from "../config";
 import { FORBIDDEN, INVALID_BODY, INVALID_PARAMS, INVALID_QUERY, NOT_FOUND } from "../error";
 import MissionModel from "../models/mission";
 import PublisherModel from "../models/publisher";
@@ -18,7 +19,7 @@ router.post("/search", passport.authenticate("user", { session: false }), async 
       .object({
         status: zod.enum(["ACCEPTED", "REFUSED", "PENDING", "ONGOING", ""]).optional(),
         publisherId: zod.string().optional(),
-        moderatorId: zod.string(),
+        moderatorId: zod.string().default(PUBLISHER_IDS.JEVEUXAIDER),
         comment: zod.string().nullable().optional(),
         domain: zod.string().nullable().optional(),
         city: zod.string().nullable().optional(),
@@ -128,7 +129,7 @@ router.post("/aggs", passport.authenticate("user", { session: false }), async (r
       .object({
         status: zod.enum(["ACCEPTED", "REFUSED", "PENDING", "ONGOING", ""]).optional(),
         publisherId: zod.string().optional(),
-        moderatorId: zod.string(),
+        moderatorId: zod.string().default(PUBLISHER_IDS.JEVEUXAIDER),
         comment: zod.string().nullable().optional(),
         domain: zod.string().nullable().optional(),
         city: zod.string().nullable().optional(),
