@@ -2,8 +2,6 @@ import { NextFunction, Response, Router } from "express";
 import passport from "passport";
 import zod from "zod";
 
-import { STATS_INDEX } from "../../config";
-import esClient from "../../db/elastic";
 import { INVALID_BODY, INVALID_PARAMS } from "../../error";
 import MissionModel from "../../models/mission";
 import OrganizationExclusionModel from "../../models/organization-exclusion";
@@ -11,6 +9,7 @@ import PublisherModel from "../../models/publisher";
 import RequestModel from "../../models/request";
 import { Publisher } from "../../types";
 import { PublisherRequest } from "../../types/passport";
+import statEventRepository from "../../repositories/stat-event";
 import { buildPublisherData } from "./transformer";
 const router = Router();
 
@@ -66,38 +65,18 @@ router.get("/:organizationClientId", passport.authenticate(["apikey", "api"], { 
     const exclusionSet = new Set(organizationExclusions.map((o) => `${o.organizationClientId}:${o.excludedForPublisherId}`));
 
     const oneMonthAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
-    const aggs = await esClient.search({
-      index: STATS_INDEX,
-      body: {
-        query: {
-          bool: {
-            filter: [
-              { term: { "type.keyword": "click" } },
-              // Warning: publishers array may be quite large, so performance may be impacted
-              { terms: { "fromPublisherId.keyword": publishers.map((e) => e._id.toString()) } },
-              { term: { missionOrganizationClientId: params.data.organizationClientId } },
-              { range: { createdAt: { gte: oneMonthAgo.toISOString() } } },
-            ],
-            must_not: [{ term: { isBot: true } }],
-          },
-        },
-        aggs: {
-          fromPublisherId: {
-            terms: { field: "fromPublisherId.keyword", size: publishers.length },
-          },
-        },
-      },
+    const publisherIds = publishers.map((publisher) => publisher._id.toString());
+    const clicksByPublisher = await statEventRepository.countClicksByPublisherForOrganizationSince({
+      publisherIds,
+      organizationClientId: params.data.organizationClientId,
+      from: oneMonthAgo,
     });
-
-    // Build Map for clicks lookup
-    const clickMap = new Map<string, number>();
-    aggs.body.aggregations?.fromPublisherId?.buckets?.forEach((b: { key: string; doc_count: number }) => clickMap.set(b.key, b.doc_count));
 
     // Build response data
     const data = [] as any[];
     publishers.forEach((publisher) => {
       const isExcluded = exclusionSet.has(`${params.data.organizationClientId}:${publisher._id.toString()}`);
-      const clicks = clickMap.get(publisher._id.toString()) || 0;
+      const clicks = clicksByPublisher[publisher._id.toString()] || 0;
 
       data.push(buildPublisherData(publisher, clicks, isExcluded));
     });

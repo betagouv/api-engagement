@@ -4,9 +4,8 @@ import OrganizationExclusionModel from "../../../../src/models/organization-excl
 import { Mission, MissionType, Publisher } from "../../../../src/types";
 import { createTestMission, createTestPublisher } from "../../../fixtures";
 import elasticMock from "../../../mocks/elasticMock";
+import pgMock from "../../../mocks/pgMock";
 import { createTestApp } from "../../../testApp";
-
-vi.mock("../../../src/es", () => ({ esClient: elasticMock }));
 
 describe("MyOrganization API Integration Tests", () => {
   const app = createTestApp();
@@ -20,6 +19,8 @@ describe("MyOrganization API Integration Tests", () => {
   beforeEach(async () => {
     elasticMock.search.mockReset();
     elasticMock.msearch.mockReset();
+    pgMock.statEvent.groupBy.mockReset();
+    process.env.READ_STATS_FROM = "es";
 
     publisher = await createTestPublisher();
     apiKey = publisher.apikey || "";
@@ -121,6 +122,24 @@ describe("MyOrganization API Integration Tests", () => {
       const partner2 = response.body.data.find((p: any) => p._id === publisher2._id.toString());
       expect(partner1.excluded).toBe(false);
       expect(partner2.excluded).toBe(true);
+    });
+
+    it("should retrieve clicks from postgres when feature flag is enabled", async () => {
+      process.env.READ_STATS_FROM = "pg";
+      pgMock.statEvent.groupBy.mockResolvedValueOnce([
+        { from_publisher_id: publisher1._id.toString(), _count: { _all: 4 } },
+      ]);
+
+      const response = await request(app).get(`/v0/myorganization/${orgId}`).set("x-api-key", apiKey);
+
+      expect(response.status).toBe(200);
+      expect(pgMock.statEvent.groupBy).toHaveBeenCalled();
+      expect(elasticMock.search).not.toHaveBeenCalled();
+
+      const partner1 = response.body.data.find((p: any) => p._id === publisher1._id.toString());
+      const partner2 = response.body.data.find((p: any) => p._id === publisher2._id.toString());
+      expect(partner1.clicks).toBe(4);
+      expect(partner2.clicks).toBe(0);
     });
   });
 
