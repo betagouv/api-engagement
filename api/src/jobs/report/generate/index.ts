@@ -2,7 +2,7 @@ import { jsPDF } from "jspdf";
 
 import PublisherModel from "../../../models/publisher";
 import { BUCKET_URL, OBJECT_ACL, putObject } from "../../../services/s3";
-import { Publisher, Report } from "../../../types";
+import { Publisher, Report, StatsReport } from "../../../types";
 
 import Marianne from "../fonts/Marianne";
 import MarianneBold from "../fonts/MarianneBold";
@@ -14,6 +14,16 @@ import { getData, MONTHS } from "./data";
 import { generateHeader } from "./header";
 import { generateOverview } from "./overview";
 import { PAGE_HEIGHT, PAGE_WIDTH } from "./utils";
+
+export interface GeneratedReportPreview {
+  publisherId: string;
+  publisherName: string;
+  status: string;
+  data: StatsReport | undefined;
+  dataTemplate?: "BOTH" | "RECEIVE" | "SEND";
+  url?: string | null;
+  objectName?: string | null;
+}
 
 export const generateReport = async (publisher: Publisher, year: number, month: number) => {
   try {
@@ -80,6 +90,7 @@ export const generateReports = async (year: number, month: number) => {
   const publishers = await PublisherModel.find({ sendReport: true });
   let count = 0;
   const errors = [] as { id: string; name: string; error: string }[];
+  const reports: GeneratedReportPreview[] = [];
   console.log(`[Report] Generating report for ${year}-${month} for ${publishers.length} publishers`);
   for (let i = 0; i < publishers.length; i++) {
     const publisher = publishers[i];
@@ -122,7 +133,17 @@ export const generateReports = async (year: number, month: number) => {
       console.log(`[${publisher.name}] Report object created`);
     }
     count += 1;
+
+    reports.push({
+      publisherId: obj.publisherId,
+      publisherName: obj.publisherName,
+      status: obj.status,
+      data: res.data,
+      dataTemplate: obj.dataTemplate,
+      url: obj.url,
+      objectName: obj.objectName,
+    });
   }
 
-  return { count, errors };
+  return { count, errors, reports };
 };

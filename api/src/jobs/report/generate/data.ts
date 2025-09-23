@@ -1,10 +1,10 @@
-import { STATS_INDEX } from "../../../config";
-import esClient from "../../../db/elastic";
 import { Publisher, StatsReport } from "../../../types";
+
+import { getReportAggregations } from "./report-stats-source";
 
 export const MONTHS = ["Janvier", "Février", "Mars", "Avril", "Mai", "Juin", "Juillet", "Août", "Septembre", "Octobre", "Novembre", "Décembre"];
 
-const search = async (id: string, month: number, year: number, flux: string) => {
+const search = async (id: string, month: number, year: number, flux: "to" | "from") => {
   // timezone remove
   const startMonth = new Date(year, month, 1);
   const startLastMonth = new Date(year, month - 1, 1);
@@ -19,141 +19,12 @@ const search = async (id: string, month: number, year: number, flux: string) => 
   const startLastYear = new Date(year - 2, month + 1, 1);
   const endLastYear = new Date(year - 1, month + 1, 1);
 
-  const publisherName = flux === "to" ? "fromPublisherName.keyword" : "toPublisherName.keyword";
-  const publisherId = flux === "to" ? "toPublisherId.keyword" : "fromPublisherId.keyword";
-
-  const response = await esClient.search({
-    index: STATS_INDEX,
-    body: {
-      query: {
-        bool: {
-          must_not: { term: { isBot: true } },
-          filter: { term: { [publisherId]: id } },
-        },
-      },
-      aggs: {
-        print: {
-          filter: { term: { "type.keyword": "print" } },
-          aggs: {
-            month: {
-              filter: { range: { createdAt: { gte: startMonth, lte: endMonth } } },
-              aggs: { top: { terms: { field: publisherName, size: 3 } } },
-            },
-            lastMonth: {
-              filter: { range: { createdAt: { gte: startLastMonth, lte: endLastMonth } } },
-            },
-          },
-        },
-        click: {
-          filter: { term: { "type.keyword": "click" } },
-          aggs: {
-            month: {
-              filter: { range: { createdAt: { gte: startMonth, lte: endMonth } } },
-              aggs: {
-                topPublishers: { terms: { field: publisherName, size: 5 } },
-                topOrganizations: { terms: { field: "missionOrganizationName.keyword", size: 5 } },
-              },
-            },
-            lastMonth: {
-              filter: { range: { createdAt: { gte: startLastMonth, lte: endLastMonth } } },
-            },
-            year: {
-              filter: { range: { createdAt: { gte: startYear, lte: endYear } } },
-              aggs: {
-                histogram: {
-                  date_histogram: {
-                    field: "createdAt",
-                    interval: "month",
-                    min_doc_count: 0,
-                    time_zone: "Europe/Paris",
-                  },
-                },
-              },
-            },
-            lastYear: {
-              filter: { range: { createdAt: { gte: startLastYear, lte: endLastYear } } },
-              aggs: {
-                histogram: {
-                  date_histogram: {
-                    field: "createdAt",
-                    interval: "month",
-                    min_doc_count: 0,
-                    time_zone: "Europe/Paris",
-                  },
-                },
-              },
-            },
-            lastSixMonths: {
-              filter: { range: { createdAt: { gte: startLastSixMonths, lte: endLastSixMonths } } },
-              aggs: {
-                histogram: {
-                  date_histogram: {
-                    field: "createdAt",
-                    interval: "month",
-                    time_zone: "Europe/Paris",
-                  },
-                  aggs: {
-                    orga: { terms: { field: "missionOrganizationName.keyword", size: 100 } },
-                  },
-                },
-              },
-            },
-          },
-        },
-        apply: {
-          filter: { term: { "type.keyword": "apply" } },
-          aggs: {
-            month: {
-              filter: { range: { createdAt: { gte: startMonth, lte: endMonth } } },
-              aggs: { top: { terms: { field: publisherName, size: 3 } } },
-            },
-            lastMonth: {
-              filter: { range: { createdAt: { gte: startLastMonth, lte: endLastMonth } } },
-            },
-            year: {
-              filter: { range: { createdAt: { gte: startYear, lte: endYear } } },
-              aggs: {
-                histogram: {
-                  date_histogram: {
-                    field: "createdAt",
-                    interval: "month",
-                    min_doc_count: 0,
-                    time_zone: "Europe/Paris",
-                  },
-                },
-              },
-            },
-            lastYear: {
-              filter: { range: { createdAt: { gte: startLastYear, lte: endLastYear } } },
-              aggs: {
-                histogram: {
-                  date_histogram: {
-                    field: "createdAt",
-                    interval: "month",
-                    time_zone: "Europe/Paris",
-                  },
-                },
-              },
-            },
-          },
-        },
-        acccount: {
-          filter: { term: { "type.keyword": "account" } },
-          aggs: {
-            month: {
-              filter: { range: { createdAt: { gte: startMonth, lte: endMonth } } },
-            },
-            lastMonth: {
-              filter: { range: { createdAt: { gte: startLastMonth, lte: endLastMonth } } },
-            },
-          },
-        },
-      },
-      size: 0,
-    },
+  const aggregations = await getReportAggregations({
+    publisherId: id,
+    month,
+    year,
+    flux,
   });
-
-  const aggregations = response.body.aggregations;
 
   const data = {
     hasStats: aggregations.click.month.doc_count > 9 && aggregations.apply.month.doc_count !== 0, // Abritrary threshold so the report is not empty
