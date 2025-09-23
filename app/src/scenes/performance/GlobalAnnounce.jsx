@@ -61,7 +61,7 @@ const GlobalAnnounce = ({ filters, onFiltersChange }) => {
   return (
     <div className="space-y-12 p-12">
       <div className="space-y-2">
-        <label className="text-gray-425 text-sm font-semibold uppercase">Période</label>
+        <p className="text-gray-425 text-sm font-semibold uppercase">Période</p>
         <DateRangePicker value={filters} onChange={(value) => onFiltersChange({ ...filters, ...value })} />
       </div>
       <div className="h-px w-full bg-gray-900" />
@@ -92,7 +92,7 @@ const GlobalAnnounce = ({ filters, onFiltersChange }) => {
                   <p className="text-[28px] font-bold">{data.totalPrint !== 0 ? data.totalPrint.toLocaleString("fr") : "N/A"}</p>
                   {data.totalPrint === 0 ? (
                     <div className="group relative">
-                      <RiAlertFill className="cursor-pointer text-2xl text-[#b34000]" />
+                      <RiAlertFill className="text-orange-warning-425 cursor-pointer text-2xl" />
                       <div className="absolute bottom-8 z-10 hidden w-80 -translate-x-1/2 border border-gray-900 bg-white p-4 shadow-lg group-hover:block">
                         <p className="text-xs">Ils semblerait que les impressions de vos campagnes ou missions ne soient pas comptabilisées</p>
                       </div>

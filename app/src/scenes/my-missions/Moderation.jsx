@@ -1,8 +1,9 @@
 import { useEffect, useState } from "react";
-import { RiArrowLeftLine, RiCloseFill, RiInformationLine } from "react-icons/ri";
-import { Link, useParams } from "react-router-dom";
+import { RiCloseFill, RiInformationLine } from "react-icons/ri";
+import { Link } from "react-router-dom";
 import { Tooltip } from "react-tooltip";
 
+import JvaLogoPng from "../../assets/img/jva-logo.png";
 import Loader from "../../components/Loader";
 import Select from "../../components/NewSelect";
 import Pie, { colors } from "../../components/Pie";
@@ -14,17 +15,6 @@ import { captureError } from "../../services/error";
 import useStore from "../../services/store";
 import { DEPARTMENT_LABELS, JVA_MODERATION_COMMENTS_LABELS, STATUS, STATUS_GRAPH_COLORS, STATUS_ICONS, STATUS_PLR } from "../broadcast/moderation/components/Constants";
 
-const STATUS_COMMENT = [
-  "La mission a déjà été publiée sur JeVeuxAider.gouv.fr",
-  "Le contenu est insuffisant / non qualitatif",
-  "La date de la mission n’est pas compatible avec le recrutement de bénévoles",
-  "La mission ne respecte pas la charte de la Réserve Civique",
-  "L'organisation est déjà inscrite sur JeVeuxAider.gouv.fr",
-  "L’organisation n’est pas conforme à la charte de la Réserve Civique",
-  "Les informations sont insuffisantes pour modérer l’organisation",
-  "La mission est refusée car la date de création est trop ancienne (> 6 mois)",
-];
-
 const FILTERS = {
   status: "Statut",
   domain: "Domaine",
@@ -35,9 +25,7 @@ const FILTERS = {
 };
 
 const Moderation = () => {
-  const { id: moderatorId } = useParams();
   const { publisher } = useStore();
-  const [moderator, setModerator] = useState();
   const [data, setData] = useState();
   const [total, setTotal] = useState(0);
   const [stats, setStats] = useState();
@@ -60,22 +48,7 @@ const Moderation = () => {
 
   useEffect(() => {
     const fetchData = async () => {
-      try {
-        const res = await api.get(`/publisher/${moderatorId}`);
-        if (!res.ok) throw res;
-        setModerator(res.publisher);
-      } catch (error) {
-        captureError(error, "Erreur lors de la récupération des informations du modérateur");
-      }
-    };
-
-    fetchData();
-  }, [moderatorId]);
-
-  useEffect(() => {
-    const fetchData = async () => {
       const query = {
-        moderatorId,
         publisherId: publisher._id,
         status: filters.status,
         comment: filters.comment,
@@ -98,14 +71,8 @@ const Moderation = () => {
         captureError(error, "Erreur lors de la récupération des missions");
       }
     };
-
-    fetchData();
-  }, [filters, moderatorId, publisher._id]);
-
-  useEffect(() => {
-    const fetchData = async () => {
+    const fetchAggs = async () => {
       const query = {
-        moderatorId,
         publisherId: publisher._id,
         status: filters.status,
         comment: filters.comment,
@@ -128,7 +95,8 @@ const Moderation = () => {
     };
 
     fetchData();
-  }, [filters, moderatorId, publisher._id]);
+    fetchAggs();
+  }, [filters, publisher._id]);
 
   const buildStats = (options) => {
     const status = options.status.filter((s) => s.key !== undefined).map((s) => ({ key: STATUS_PLR[s.key], doc_count: s.doc_count, color: STATUS_GRAPH_COLORS[s.key] }));
@@ -140,7 +108,7 @@ const Moderation = () => {
     setStats({ status, comments, refused });
   };
 
-  if (!moderator || !stats)
+  if (!stats)
     return (
       <div className="flex justify-center bg-white p-12">
         <Loader />
@@ -149,31 +117,23 @@ const Moderation = () => {
 
   return (
     <div className="space-y-12 p-12">
-      <div className="mb-6 flex items-center justify-between">
-        <Link className="secondary-btn flex w-56 items-center" to="/my-missions/partners">
-          <RiArrowLeftLine className="mr-2" />
-          Retour aux partenaires
-        </Link>
-        <img className="w-1/5" src={moderator.logo} />
-      </div>
-
-      <div className="mb-6 flex items-end justify-between gap-4">
+      <div className="mb-8 flex items-end justify-between gap-4">
         <div>
-          <h2 className="text-3xl font-bold">Modération de {moderator.name}</h2>
+          <h2 className="text-3xl font-bold">Modération de JeVeuxAider.gouv.fr</h2>
           <p className="text-gray-425 text-sm">
             Consultez les
-            <a href={moderator.moderatorLink} target="_blank" className="text-gray-425 ml-1 cursor-pointer underline">
-              règles de modération du partenaire
+            <a href="https://api-engagement.beta.gouv.fr/regles-de-moderation-de-jeveuxaider-gouv-fr/" target="_blank" className="text-gray-425 ml-1 cursor-pointer underline">
+              règles de modération
             </a>
           </p>
         </div>
-        <SearchInput value={filters.search} onChange={(search) => setFilters({ ...filters, search })} className="w-1/4" placeholder="Rechercher par mot-clé" />
+        <img className="w-2/5" src={JvaLogoPng} />
       </div>
 
-      <div className="flex items-center gap-4 border-b border-b-gray-900 pb-6">
-        <p className="font-bold">Filtrer les résultats</p>
+      <div className="border-b border-b-gray-900 pb-8">
+        <SearchInput value={filters.search} onChange={(search) => setFilters({ ...filters, search })} className="w-96" placeholder="Rechercher par mot-clé" />
 
-        <div className="flex flex-1 items-center gap-4">
+        <div className="mt-4 flex flex-1 items-center gap-4">
           <Select
             options={options.status.map((e) => ({ value: e.key === "" ? "none" : e.key, label: e.key === "" ? "Non renseigné" : STATUS[e.key], count: e.doc_count }))}
             value={filters.status}

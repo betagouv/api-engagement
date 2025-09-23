@@ -41,7 +41,7 @@ const TrackingAnnounce = () => {
           </div>
           <div className="flex items-center gap-2">
             <div className="w-[535px] rounded-none border border-[#E3E3FD] bg-[#F5F5FE] px-4 py-2 text-base whitespace-nowrap disabled:opacity-80">
-              window.apieng && window.apieng("trackApplication", <span className="font-['courier'] text-[#b34000]">clientId</span>)
+              window.apieng && window.apieng("trackApplication", <span className="text-orange-warning-425 font-['courier']">clientId</span>)
             </div>
             <button className="secondary-btn px-4 py-2 text-base" onClick={() => handleCopyCommand(`window.apieng && window.apieng("trackApplication", "clientId")`)}>
               Copier
@@ -58,7 +58,7 @@ const TrackingAnnounce = () => {
             </div>
             <div className="flex items-center gap-2">
               <div className="w-[535px] rounded-none border border-[#E3E3FD] bg-[#F5F5FE] px-4 py-2 text-base whitespace-nowrap disabled:opacity-80">
-                window.apieng && window.apieng("trackAccount", <span className="font-['courier'] text-[#b34000]">clientId</span>)
+                window.apieng && window.apieng("trackAccount", <span className="text-orange-warning-425 font-['courier']">clientId</span>)
               </div>
               <button className="secondary-btn px-4 py-2 text-base" onClick={() => handleCopyCommand(`window.apieng && window.apieng("trackAccount", "clientId")`)}>
                 Copier

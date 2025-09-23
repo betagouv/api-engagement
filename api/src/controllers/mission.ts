@@ -15,6 +15,7 @@ router.post("/search", passport.authenticate("user", { session: false }), async 
     const body = zod
       .object({
         status: zod.union([zod.string(), zod.array(zod.string())]).optional(),
+        comment: zod.string().optional(),
         type: zod.union([zod.string(), zod.array(zod.string())]).optional(),
         publisherId: zod.string().optional(),
         domain: zod.union([zod.string(), zod.array(zod.string())]).optional(),
@@ -101,6 +102,9 @@ router.post("/search", passport.authenticate("user", { session: false }), async 
       } else {
         where.statusCode = body.data.status;
       }
+    }
+    if (body.data.comment) {
+      where.statusComment = body.data.comment;
     }
 
     if (body.data.leboncoinStatus === "none") {
@@ -192,6 +196,7 @@ router.post("/search", passport.authenticate("user", { session: false }), async 
       {
         $facet: {
           status: [{ $group: { _id: "$statusCode", count: { $sum: 1 } } }, { $sort: { count: -1 } }],
+          comments: [{ $group: { _id: "$statusComment", count: { $sum: 1 } } }, { $sort: { count: -1 } }],
           type: [{ $group: { _id: "$type", count: { $sum: 1 } } }, { $sort: { count: -1 } }],
           domains: [{ $group: { _id: "$domain", count: { $sum: 1 } } }, { $sort: { count: -1 } }],
           organizations: [{ $group: { _id: "$organizationName", count: { $sum: 1 } } }, { $sort: { count: -1 } }],
@@ -215,6 +220,10 @@ router.post("/search", passport.authenticate("user", { session: false }), async 
 
     const aggs = {
       status: facets[0].status.map((b: { _id: string; count: number }) => ({
+        key: b._id,
+        doc_count: b.count,
+      })),
+      comments: facets[0].comments.map((b: { _id: string; count: number }) => ({
         key: b._id,
         doc_count: b.count,
       })),

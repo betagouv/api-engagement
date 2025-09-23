@@ -46,7 +46,7 @@ const SelectOrganization = ({ onChange }) => {
         setSearch("");
         onChange(null);
       }}
-      placeholder="Organisation"
+      placeholder="Organisations"
       className="w-96"
     />
   );
