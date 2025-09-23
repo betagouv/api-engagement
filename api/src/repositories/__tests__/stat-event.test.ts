@@ -170,9 +170,7 @@ describe("stat-event repository", () => {
   });
 
   it("aggregates click counts by publisher from postgres", async () => {
-    pgMock.statEvent.groupBy.mockResolvedValueOnce([
-      { from_publisher_id: "pub-1", _count: { _all: 5 } },
-    ]);
+    pgMock.statEvent.groupBy.mockResolvedValueOnce([{ from_publisher_id: "pub-1", _count: { _all: 5 } }]);
 
     initFeatureFlags("pg");
 
@@ -186,7 +184,7 @@ describe("stat-event repository", () => {
       by: ["from_publisher_id"],
       where: {
         type: "click",
-        is_bot: false,
+        is_bot: { not: true },
         mission_organization_client_id: "org-1",
         from_publisher_id: { in: ["pub-1", "pub-2"] },
         created_at: { gte: expect.any(Date) },
