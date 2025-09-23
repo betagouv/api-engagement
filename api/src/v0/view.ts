@@ -1,6 +1,6 @@
 import { NextFunction, Response, Router } from "express";
-import Joi from "joi";
 import passport from "passport";
+import zod from "zod";
 
 import { STATS_INDEX } from "../config";
 import esClient from "../db/elastic";
@@ -37,21 +37,23 @@ router.use(async (req: PublisherRequest, res: Response, next: NextFunction) => {
 router.get("/stats", passport.authenticate(["apikey", "api"], { session: false }), async (req: PublisherRequest, res: Response, next: NextFunction) => {
   try {
     const user = req.user as Publisher;
-    const { error: queryError, value: query } = Joi.object({
-      fromPublisherId: Joi.string().allow("").optional(),
-      toPublisherId: Joi.string().allow("").optional(),
-      fromPublisherName: Joi.string().allow("").optional(),
-      toPublisherName: Joi.string().allow("").optional(),
-      missionDomain: Joi.string().allow("").optional(),
-      type: Joi.string().allow("").optional(),
-      source: Joi.string().allow("").optional(),
-      createdAt: Joi.alternatives(Joi.string(), Joi.array().items(Joi.string())).allow("").optional(),
-      size: Joi.number().min(1).max(10000).default(10),
-      facets: Joi.string().allow("").optional(),
-    }).validate(req.query);
+    const query = zod
+      .object({
+        fromPublisherId: zod.string().optional(),
+        toPublisherId: zod.string().optional(),
+        fromPublisherName: zod.string().optional(),
+        toPublisherName: zod.string().optional(),
+        missionDomain: zod.string().optional(),
+        type: zod.string().optional(),
+        source: zod.string().optional(),
+        createdAt: zod.union([zod.string(), zod.array(zod.string())]).optional(),
+        size: zod.coerce.number().min(1).max(10000).default(10),
+        facets: zod.string().optional(),
+      })
+      .safeParse(req.query);
 
-    if (queryError) {
-      return res.status(400).send({ ok: false, code: INVALID_QUERY, error: queryError.details });
+    if (!query.success) {
+      return res.status(400).send({ ok: false, code: INVALID_QUERY, error: query.error });
     }
 
     const where = {
@@ -63,38 +65,38 @@ router.get("/stats", passport.authenticate(["apikey", "api"], { session: false }
           filter: [],
         },
       },
-      size: query.size,
+      size: query.data.size,
       track_total_hits: true,
     } as { [key: string]: any };
 
-    if (query.fromPublisherName) {
+    if (query.data.fromPublisherName) {
       where.query.bool.must.push({
-        term: { "fromPublisherName.keyword": query.fromPublisherName },
+        term: { "fromPublisherName.keyword": query.data.fromPublisherName },
       });
     }
-    if (query.toPublisherName) {
-      where.query.bool.must.push({ term: { "toPublisherName.keyword": query.toPublisherName } });
+    if (query.data.toPublisherName) {
+      where.query.bool.must.push({ term: { "toPublisherName.keyword": query.data.toPublisherName } });
     }
 
-    if (query.fromPublisherId) {
-      where.query.bool.must.push({ term: { "fromPublisherId.keyword": query.fromPublisherId } });
+    if (query.data.fromPublisherId) {
+      where.query.bool.must.push({ term: { "fromPublisherId.keyword": query.data.fromPublisherId } });
     }
-    if (query.toPublisherId) {
-      where.query.bool.must.push({ term: { "toPublisherId.keyword": query.toPublisherId } });
-    }
-
-    if (query.missionDomain) {
-      where.query.bool.must.push({ term: { "missionDomain.keyword": query.missionDomain } });
-    }
-    if (query.type) {
-      where.query.bool.must.push({ term: { "type.keyword": query.type } });
-    }
-    if (query.source) {
-      where.query.bool.must.push({ term: { "source.keyword": query.source } });
+    if (query.data.toPublisherId) {
+      where.query.bool.must.push({ term: { "toPublisherId.keyword": query.data.toPublisherId } });
     }
 
-    if (query.createdAt) {
-      const createdAt = Array.isArray(query.createdAt) ? query.createdAt : [req.query.createdAt];
+    if (query.data.missionDomain) {
+      where.query.bool.must.push({ term: { "missionDomain.keyword": query.data.missionDomain } });
+    }
+    if (query.data.type) {
+      where.query.bool.must.push({ term: { "type.keyword": query.data.type } });
+    }
+    if (query.data.source) {
+      where.query.bool.must.push({ term: { "source.keyword": query.data.source } });
+    }
+
+    if (query.data.createdAt) {
+      const createdAt = Array.isArray(query.data.createdAt) ? query.data.createdAt : [query.data.createdAt];
       for (let i = 0; i < createdAt.length; i++) {
         if (createdAt[i].startsWith("gt:")) {
           const date = new Date(createdAt[i].replace("gt:", ""));
@@ -107,9 +109,9 @@ router.get("/stats", passport.authenticate(["apikey", "api"], { session: false }
       }
     }
 
-    if (query.facets) {
-      const size = query.size || 10;
-      const aggregations = query.facets.split(",");
+    if (query.data.facets) {
+      const size = query.data.size || 10;
+      const aggregations = query.data.facets.split(",");
       where.aggs = {};
       for (let i = 0; i < aggregations.length; i++) {
         where.aggs[aggregations[i]] = { terms: { field: `${aggregations[i]}.keyword`, size } };
