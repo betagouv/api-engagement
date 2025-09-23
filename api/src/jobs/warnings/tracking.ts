@@ -1,6 +1,6 @@
-import { SLACK_WARNING_CHANNEL_ID, STATS_INDEX } from "../../config";
-import esClient from "../../db/elastic";
+import { SLACK_WARNING_CHANNEL_ID } from "../../config";
 import WarningModel from "../../models/warning";
+import statEventRepository from "../../repositories/stat-event";
 import { postMessage } from "../../services/slack";
 import { Publisher } from "../../types";
 
@@ -10,24 +10,14 @@ const getStats = async (publisherId: string) => {
   const now = new Date();
   const twoWeeksAgo = new Date(now.getTime() - 14 * 24 * 60 * 60 * 1000);
 
-  const body = {
-    query: {
-      bool: {
-        must: [{ term: { "toPublisherId.keyword": publisherId } }, { range: { createdAt: { gte: twoWeeksAgo } } }],
-      },
-    },
-    aggs: {
-      click: { filter: { term: { "type.keyword": "click" } } },
-      apply: { filter: { term: { "type.keyword": "apply" } } },
-    },
-    size: 0,
-  };
-
-  const response = await esClient.search({ index: STATS_INDEX, body });
-  const aggs = response.body.aggregations;
+  const aggs = await statEventRepository.countByTypeSince({
+    publisherId,
+    from: twoWeeksAgo,
+    types: ["click", "apply"],
+  });
   return {
-    click: aggs.click.doc_count,
-    apply: aggs.apply.doc_count,
+    click: aggs.click ?? 0,
+    apply: aggs.apply ?? 0,
   };
 };
 
