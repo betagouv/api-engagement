@@ -215,11 +215,7 @@ export async function countByTypeSince({ publisherId, from, types }: CountByType
   return counts;
 }
 
-export async function countClicksByPublisherForOrganizationSince({
-  publisherIds,
-  organizationClientId,
-  from,
-}: CountClicksByPublisherForOrganizationSinceParams) {
+export async function countClicksByPublisherForOrganizationSince({ publisherIds, organizationClientId, from }: CountClicksByPublisherForOrganizationSinceParams) {
   if (!publisherIds.length) {
     return {} as Record<string, number>;
   }
@@ -229,18 +225,21 @@ export async function countClicksByPublisherForOrganizationSince({
       by: ["from_publisher_id"],
       where: {
         type: "click",
-        is_bot: false,
+        is_bot: { not: true },
         mission_organization_client_id: organizationClientId,
         from_publisher_id: { in: publisherIds },
         created_at: { gte: from },
       },
       _count: { _all: true },
-    })) as { from_publisher_id: string; _count: { _all: number } }[];
+    } as any)) as { from_publisher_id: string; _count: { _all: number } }[];
 
-    return rows.reduce((acc, row) => {
-      acc[row.from_publisher_id] = row._count._all;
-      return acc;
-    }, {} as Record<string, number>);
+    return rows.reduce(
+      (acc, row) => {
+        acc[row.from_publisher_id] = row._count._all;
+        return acc;
+      },
+      {} as Record<string, number>
+    );
   }
 
   const response = await esClient.search({
@@ -266,13 +265,15 @@ export async function countClicksByPublisherForOrganizationSince({
     },
   });
 
-  const buckets =
-    response.body.aggregations?.fromPublisherId?.buckets ?? ([] as { key: string; doc_count: number }[]);
+  const buckets: { key: string; doc_count: number }[] = (response.body.aggregations?.fromPublisherId?.buckets as { key: string; doc_count: number }[]) ?? [];
 
-  return buckets.reduce((acc, bucket) => {
-    acc[bucket.key] = bucket.doc_count;
-    return acc;
-  }, {} as Record<string, number>);
+  return buckets.reduce<Record<string, number>>(
+    (acc, bucket) => {
+      acc[bucket.key] = bucket.doc_count;
+      return acc;
+    },
+    {} as Record<string, number>
+  );
 }
 
 const statEventRepository = {
