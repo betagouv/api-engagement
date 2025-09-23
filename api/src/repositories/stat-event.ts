@@ -5,6 +5,16 @@ import esClient from "../db/elastic";
 import { prismaCore } from "../db/postgres";
 import { Stats } from "../types";
 
+type StatEventType = Stats["type"];
+
+interface CountByTypeParams {
+  publisherId: string;
+  from: Date;
+  types?: StatEventType[];
+}
+
+const DEFAULT_TYPES: StatEventType[] = ["click", "print", "apply", "account"];
+
 function toPg(data: Partial<Stats>, options: { includeDefaults?: boolean } = {}) {
   const { includeDefaults = true } = options;
   const mapped: any = {
@@ -19,21 +29,15 @@ function toPg(data: Partial<Stats>, options: { includeDefaults?: boolean } = {})
     host: data.host,
     user: data.user,
     is_bot: data.isBot,
-    is_human: includeDefaults ? data.isHuman ?? false : data.isHuman,
-    source: includeDefaults ? data.source ?? "publisher" : data.source,
-    source_id: includeDefaults ? data.sourceId ?? "" : data.sourceId,
-    source_name: includeDefaults ? data.sourceName ?? "" : data.sourceName,
-    status: includeDefaults ? data.status ?? "PENDING" : data.status,
-    from_publisher_id: includeDefaults
-      ? data.fromPublisherId ?? ""
-      : data.fromPublisherId,
-    from_publisher_name: includeDefaults
-      ? data.fromPublisherName ?? ""
-      : data.fromPublisherName,
-    to_publisher_id: includeDefaults ? data.toPublisherId ?? "" : data.toPublisherId,
-    to_publisher_name: includeDefaults
-      ? data.toPublisherName ?? ""
-      : data.toPublisherName,
+    is_human: includeDefaults ? (data.isHuman ?? false) : data.isHuman,
+    source: includeDefaults ? (data.source ?? "publisher") : data.source,
+    source_id: includeDefaults ? (data.sourceId ?? "") : data.sourceId,
+    source_name: includeDefaults ? (data.sourceName ?? "") : data.sourceName,
+    status: includeDefaults ? (data.status ?? "PENDING") : data.status,
+    from_publisher_id: includeDefaults ? (data.fromPublisherId ?? "") : data.fromPublisherId,
+    from_publisher_name: includeDefaults ? (data.fromPublisherName ?? "") : data.fromPublisherName,
+    to_publisher_id: includeDefaults ? (data.toPublisherId ?? "") : data.toPublisherId,
+    to_publisher_name: includeDefaults ? (data.toPublisherName ?? "") : data.toPublisherName,
     mission_id: data.missionId,
     mission_client_id: data.missionClientId,
     mission_domain: data.missionDomain,
@@ -150,11 +154,67 @@ export async function count() {
   return body.count as number;
 }
 
+export async function countByTypeSince({ publisherId, from, types }: CountByTypeParams) {
+  const statTypes = types?.length ? types : DEFAULT_TYPES;
+  const counts: Record<StatEventType, number> = {
+    click: 0,
+    print: 0,
+    apply: 0,
+    account: 0,
+  };
+
+  if (getReadStatsFrom() === "pg") {
+    await Promise.all(
+      statTypes.map(async (type) => {
+        const total = await prismaCore.statEvent.count({
+          where: {
+            to_publisher_id: publisherId,
+            created_at: { gte: from },
+            type: type as any,
+          },
+        });
+        counts[type] = total;
+      })
+    );
+    return counts;
+  }
+
+  const aggs = statTypes.reduce(
+    (acc, type) => {
+      acc[type] = { filter: { term: { "type.keyword": type } } };
+      return acc;
+    },
+    {} as Record<string, { filter: { term: { "type.keyword": StatEventType } } }>
+  );
+
+  const response = await esClient.search({
+    index: STATS_INDEX,
+    body: {
+      query: {
+        bool: {
+          must: [{ term: { "toPublisherId.keyword": publisherId } }, { range: { createdAt: { gte: from } } }],
+        },
+      },
+      aggs,
+      size: 0,
+    },
+  });
+
+  const aggregations = response.body.aggregations ?? {};
+  statTypes.forEach((type) => {
+    const bucket = aggregations[type as keyof typeof aggregations] as { doc_count?: number } | undefined;
+    counts[type] = bucket?.doc_count ?? 0;
+  });
+
+  return counts;
+}
+
 const statEventRepository = {
   createStatEvent,
   updateStatEventById,
   getStatEventById,
   count,
+  countByTypeSince,
 };
 
 export default statEventRepository;

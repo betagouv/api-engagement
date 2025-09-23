@@ -102,6 +102,45 @@ describe("stat-event repository", () => {
       data: { source_name: "updated", is_human: false },
     });
   });
+
+  it("aggregates counts by type from elasticsearch", async () => {
+    elasticMock.search.mockResolvedValueOnce({
+      body: {
+        aggregations: {
+          click: { doc_count: 42 },
+          apply: { doc_count: 5 },
+        },
+      },
+    });
+    initFeatureFlags("es");
+
+    const res = await statEventRepository.countByTypeSince({
+      publisherId: "pub-1",
+      from: new Date(),
+      types: ["click", "apply"],
+    });
+
+    expect(elasticMock.search).toHaveBeenCalled();
+    expect(pgMock.statEvent.count).not.toHaveBeenCalled();
+    expect(res).toMatchObject({ click: 42, apply: 5 });
+  });
+
+  it("aggregates counts by type from postgres", async () => {
+    pgMock.statEvent.count.mockResolvedValueOnce(12);
+    pgMock.statEvent.count.mockResolvedValueOnce(0);
+
+    initFeatureFlags("pg");
+
+    const res = await statEventRepository.countByTypeSince({
+      publisherId: "pub-1",
+      from: new Date(),
+      types: ["click", "apply"],
+    });
+
+    expect(pgMock.statEvent.count).toHaveBeenCalledTimes(2);
+    expect(elasticMock.search).not.toHaveBeenCalled();
+    expect(res).toMatchObject({ click: 12, apply: 0 });
+  });
 });
 
 function initFeatureFlags(readFrom: "pg" | "es", dual = "false") {
