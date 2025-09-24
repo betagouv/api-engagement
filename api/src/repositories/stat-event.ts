@@ -19,6 +19,36 @@ interface CountClicksByPublisherForOrganizationSinceParams {
   from: Date;
 }
 
+type ViewStatsDateFilter = {
+  operator: "gt" | "lt";
+  date: Date;
+};
+
+interface ViewStatsFilters {
+  fromPublisherName?: string;
+  toPublisherName?: string;
+  fromPublisherId?: string;
+  toPublisherId?: string;
+  missionDomain?: string;
+  type?: string;
+  source?: string;
+  createdAt?: ViewStatsDateFilter[];
+}
+
+interface SearchViewStatsParams {
+  publisherId: string;
+  size?: number;
+  filters?: ViewStatsFilters;
+  facets?: string[];
+}
+
+type ViewStatsFacet = { key: string; doc_count: number };
+
+interface SearchViewStatsResult {
+  total: number;
+  facets: Record<string, ViewStatsFacet[]>;
+}
+
 const DEFAULT_TYPES: StatEventType[] = ["click", "print", "apply", "account"];
 
 function toPg(data: Partial<Stats>, options: { includeDefaults?: boolean } = {}) {
@@ -276,6 +306,162 @@ export async function countClicksByPublisherForOrganizationSince({ publisherIds,
   );
 }
 
+export async function searchViewStats({
+  publisherId,
+  size = 10,
+  filters = {},
+  facets = [],
+}: SearchViewStatsParams): Promise<SearchViewStatsResult> {
+  if (getReadStatsFrom() === "pg") {
+    const where: Record<string, any> = {
+      NOT: { is_bot: true },
+      OR: [{ to_publisher_id: publisherId }, { from_publisher_id: publisherId }],
+    };
+
+    const andFilters: Record<string, any>[] = [];
+
+    if (filters.fromPublisherName) {
+      andFilters.push({ from_publisher_name: filters.fromPublisherName });
+    }
+    if (filters.toPublisherName) {
+      andFilters.push({ to_publisher_name: filters.toPublisherName });
+    }
+    if (filters.fromPublisherId) {
+      andFilters.push({ from_publisher_id: filters.fromPublisherId });
+    }
+    if (filters.toPublisherId) {
+      andFilters.push({ to_publisher_id: filters.toPublisherId });
+    }
+    if (filters.missionDomain) {
+      andFilters.push({ mission_domain: filters.missionDomain });
+    }
+    if (filters.type) {
+      andFilters.push({ type: filters.type });
+    }
+    if (filters.source) {
+      andFilters.push({ source: filters.source });
+    }
+
+    if (filters.createdAt?.length) {
+      const createdAtFilter: Record<string, Date> = {};
+      filters.createdAt.forEach(({ operator, date }) => {
+        if (!(date instanceof Date) || Number.isNaN(date.getTime())) {
+          return;
+        }
+        if (operator === "gt") {
+          createdAtFilter.gte = date;
+        }
+        if (operator === "lt") {
+          createdAtFilter.lte = date;
+        }
+      });
+      if (Object.keys(createdAtFilter).length) {
+        andFilters.push({ created_at: createdAtFilter });
+      }
+    }
+
+    if (andFilters.length) {
+      where.AND = andFilters;
+    }
+
+    const total = await prismaCore.statEvent.count({ where });
+
+    const facetsResult: Record<string, ViewStatsFacet[]> = {};
+    await Promise.all(
+      facets.map(async (facet) => {
+        if (typeof facet !== "string" || !facet) {
+          return;
+        }
+        const column = toPgColumnName(facet);
+        if (!column) {
+          return;
+        }
+        try {
+          const rows = (await prismaCore.statEvent.groupBy({
+            by: [column],
+            where,
+            _count: { _all: true },
+            orderBy: { _count: { _all: "desc" } },
+            take: size,
+          } as any)) as { [key: string]: any; _count: { _all: number } }[];
+
+          facetsResult[facet] = rows
+            .filter((row) => row[column] !== null && row[column] !== undefined && row[column] !== "")
+            .map((row) => ({ key: row[column], doc_count: row._count._all }));
+        } catch (error) {
+          console.error(`[StatEvent] Error aggregating facet ${facet}:`, error);
+        }
+      })
+    );
+
+    return { total, facets: facetsResult };
+  }
+
+  const body: { [key: string]: any } = {
+    query: {
+      bool: {
+        must_not: [{ term: { isBot: true } }],
+        must: [],
+        should: [
+          { term: { "toPublisherId.keyword": publisherId } },
+          { term: { "fromPublisherId.keyword": publisherId } },
+        ],
+        filter: [],
+      },
+    },
+    size,
+    track_total_hits: true,
+  };
+
+  const pushTerm = (field: string, value?: string) => {
+    if (value) {
+      body.query.bool.must.push({ term: { [`${field}.keyword`]: value } });
+    }
+  };
+
+  pushTerm("fromPublisherName", filters.fromPublisherName);
+  pushTerm("toPublisherName", filters.toPublisherName);
+  pushTerm("fromPublisherId", filters.fromPublisherId);
+  pushTerm("toPublisherId", filters.toPublisherId);
+  pushTerm("missionDomain", filters.missionDomain);
+  pushTerm("type", filters.type);
+  pushTerm("source", filters.source);
+
+  filters.createdAt?.forEach(({ operator, date }) => {
+    if (!(date instanceof Date) || Number.isNaN(date.getTime())) {
+      return;
+    }
+    if (operator === "gt") {
+      body.query.bool.must.push({ range: { createdAt: { gt: date } } });
+    }
+    if (operator === "lt") {
+      body.query.bool.must.push({ range: { createdAt: { lt: date } } });
+    }
+  });
+
+  if (facets.length) {
+    body.aggs = {};
+    facets.forEach((facet) => {
+      if (typeof facet === "string" && facet) {
+        body.aggs[facet] = { terms: { field: `${facet}.keyword`, size } };
+      }
+    });
+  }
+
+  const response = await esClient.search({ index: STATS_INDEX, body });
+
+  const total = response.body.hits.total.value as number;
+  const aggregations = response.body.aggregations || {};
+  const facetsResult: Record<string, ViewStatsFacet[]> = {};
+
+  Object.keys(aggregations).forEach((key) => {
+    const buckets = aggregations[key]?.buckets || [];
+    facetsResult[key] = buckets;
+  });
+
+  return { total, facets: facetsResult };
+}
+
 const statEventRepository = {
   createStatEvent,
   updateStatEventById,
@@ -283,6 +469,7 @@ const statEventRepository = {
   count,
   countByTypeSince,
   countClicksByPublisherForOrganizationSince,
+  searchViewStats,
 };
 
 export default statEventRepository;
@@ -294,4 +481,16 @@ function getReadStatsFrom(): "es" | "pg" {
 
 function getWriteStatsDual(): boolean {
   return process.env.WRITE_STATS_DUAL === "true";
+}
+
+function toPgColumnName(field: string): string | null {
+  if (typeof field !== "string" || field.length === 0) {
+    return null;
+  }
+
+  const placeholderValue = "__pg_column__";
+  const mapped = toPg({ [field]: placeholderValue } as Partial<Stats>, { includeDefaults: false });
+  const [column] = Object.keys(mapped);
+
+  return column ?? null;
 }
