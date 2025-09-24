@@ -48,8 +48,6 @@ interface ReportAggregationsParams {
   flux: ReportFlux;
 }
 
-type StatEventType = "click" | "print" | "apply" | "account";
-
 type Sql = ReturnType<typeof Prisma.sql>;
 
 export async function getReportAggregations(params: ReportAggregationsParams): Promise<ReportAggregations> {
@@ -60,18 +58,10 @@ export async function getReportAggregations(params: ReportAggregationsParams): P
 }
 
 async function getReportAggregationsFromEs({ publisherId, month, year, flux }: ReportAggregationsParams) {
-  const {
-    startMonth,
-    startLastMonth,
-    endMonth,
-    endLastMonth,
-    startYear,
-    endYear,
-    startLastYear,
-    endLastYear,
-    startLastSixMonths,
-    endLastSixMonths,
-  } = getReportDateRanges(month, year);
+  const { startMonth, startLastMonth, endMonth, endLastMonth, startYear, endYear, startLastYear, endLastYear, startLastSixMonths, endLastSixMonths } = getReportDateRanges(
+    month,
+    year
+  );
 
   const publisherName = flux === "to" ? "fromPublisherName.keyword" : "toPublisherName.keyword";
   const publisherIdField = flux === "to" ? "toPublisherId.keyword" : "fromPublisherId.keyword";
@@ -213,47 +203,32 @@ async function getReportAggregationsFromEs({ publisherId, month, year, flux }: R
 async function getReportAggregationsFromPg({ publisherId, month, year, flux }: ReportAggregationsParams) {
   const ranges = getReportDateRanges(month, year);
   const columns = getReportColumnDefinitions(flux);
-  const baseWhere: Record<string, any> = {
-    is_bot: false,
-    [columns.publisherIdField]: publisherId,
-  };
 
-  const [
-    printMonth,
-    printLastMonth,
-    clickMonth,
-    clickLastMonth,
-    applyMonth,
-    applyLastMonth,
-    accountMonth,
-    accountLastMonth,
-  ] = await Promise.all([
-    countByTypeBetween("print", ranges.startMonth, ranges.endMonth, baseWhere),
-    countByTypeBetween("print", ranges.startLastMonth, ranges.endLastMonth, baseWhere),
-    countByTypeBetween("click", ranges.startMonth, ranges.endMonth, baseWhere),
-    countByTypeBetween("click", ranges.startLastMonth, ranges.endLastMonth, baseWhere),
-    countByTypeBetween("apply", ranges.startMonth, ranges.endMonth, baseWhere),
-    countByTypeBetween("apply", ranges.startLastMonth, ranges.endLastMonth, baseWhere),
-    countByTypeBetween("account", ranges.startMonth, ranges.endMonth, baseWhere),
-    countByTypeBetween("account", ranges.startLastMonth, ranges.endLastMonth, baseWhere),
-  ]);
+  const counts = await getCounts(publisherId, columns, {
+    startMonth: ranges.startMonth,
+    endMonth: ranges.endMonth,
+    startLastMonth: ranges.startLastMonth,
+    endLastMonth: ranges.endLastMonth,
+  });
 
-  const [
-    clickYearBuckets,
-    clickLastYearBuckets,
-    applyYearBuckets,
-    applyLastYearBuckets,
-  ] = await Promise.all([
-    getMonthlyBuckets("click", ranges.startYear, ranges.endYear, publisherId, columns.publisherIdColumnSql),
-    getMonthlyBuckets("click", ranges.startLastYear, ranges.endLastYear, publisherId, columns.publisherIdColumnSql),
-    getMonthlyBuckets("apply", ranges.startYear, ranges.endYear, publisherId, columns.publisherIdColumnSql),
-    getMonthlyBuckets("apply", ranges.startLastYear, ranges.endLastYear, publisherId, columns.publisherIdColumnSql),
-  ]);
+  const printMonth = counts.print_month;
+  const printLastMonth = counts.print_last_month;
+  const clickMonth = counts.click_month;
+  const clickLastMonth = counts.click_last_month;
+  const applyMonth = counts.apply_month;
+  const applyLastMonth = counts.apply_last_month;
+  const accountMonth = counts.account_month;
+  const accountLastMonth = counts.account_last_month;
 
-  const [topPublishersRaw, topOrganizationsRaw] = await Promise.all([
-    getTopPublishers(publisherId, columns, ranges.startMonth, ranges.endMonth),
-    getTopOrganizations(publisherId, columns, ranges.startMonth, ranges.endMonth),
-  ]);
+  const { clickYearBuckets, clickLastYearBuckets, applyYearBuckets, applyLastYearBuckets } = await getMonthlyBuckets(publisherId, columns, {
+    startYear: ranges.startYear,
+    endYear: ranges.endYear,
+    startLastYear: ranges.startLastYear,
+    endLastYear: ranges.endLastYear,
+  });
+
+  const topPublishersRaw = await getTopPublishers(publisherId, columns, ranges.startMonth, ranges.endMonth);
+  const topOrganizationsRaw = await getTopOrganizations(publisherId, columns, ranges.startMonth, ranges.endMonth);
 
   const topPublishers = topPublishersRaw.filter((bucket) => bucket.key);
   const topOrganizations = topOrganizationsRaw.filter((bucket) => bucket.key);
@@ -295,39 +270,107 @@ async function getReportAggregationsFromPg({ publisherId, month, year, flux }: R
   };
 }
 
-async function countByTypeBetween(type: StatEventType, start: Date, end: Date, baseWhere: Record<string, any>) {
-  return prismaCore.statEvent.count({
-    where: {
-      ...baseWhere,
-      type,
-      created_at: { gte: start, lt: end },
-    },
-  });
+async function getCounts(
+  publisherId: string,
+  columns: ReportColumnDefinitions,
+  { startMonth, endMonth, startLastMonth, endLastMonth }: { startMonth: Date; endMonth: Date; startLastMonth: Date; endLastMonth: Date }
+) {
+  const rows = await prismaCore.$queryRaw<
+    Array<{
+      print_month: bigint;
+      print_last_month: bigint;
+      click_month: bigint;
+      click_last_month: bigint;
+      apply_month: bigint;
+      apply_last_month: bigint;
+      account_month: bigint;
+      account_last_month: bigint;
+    }>
+  >(
+    Prisma.sql`
+      WITH bounds AS (
+        SELECT ${startMonth}::timestamptz AS sm,
+               ${endMonth}::timestamptz AS em,
+               ${startLastMonth}::timestamptz AS slm,
+               ${endLastMonth}::timestamptz AS elm
+      )
+      SELECT
+        SUM(CASE WHEN type = 'print'  AND created_at >= b.sm  AND created_at < b.em  THEN 1 ELSE 0 END)::bigint AS print_month,
+        SUM(CASE WHEN type = 'print'  AND created_at >= b.slm AND created_at < b.elm THEN 1 ELSE 0 END)::bigint AS print_last_month,
+        SUM(CASE WHEN type = 'click'  AND created_at >= b.sm  AND created_at < b.em  THEN 1 ELSE 0 END)::bigint AS click_month,
+        SUM(CASE WHEN type = 'click'  AND created_at >= b.slm AND created_at < b.elm THEN 1 ELSE 0 END)::bigint AS click_last_month,
+        SUM(CASE WHEN type = 'apply'  AND created_at >= b.sm  AND created_at < b.em  THEN 1 ELSE 0 END)::bigint AS apply_month,
+        SUM(CASE WHEN type = 'apply'  AND created_at >= b.slm AND created_at < b.elm THEN 1 ELSE 0 END)::bigint AS apply_last_month,
+        SUM(CASE WHEN type = 'account' AND created_at >= b.sm  AND created_at < b.em  THEN 1 ELSE 0 END)::bigint AS account_month,
+        SUM(CASE WHEN type = 'account' AND created_at >= b.slm AND created_at < b.elm THEN 1 ELSE 0 END)::bigint AS account_last_month
+      FROM "StatEvent" s
+      CROSS JOIN bounds b
+      WHERE s.is_bot IS NOT TRUE
+        AND ${columns.publisherIdColumnSql} = ${publisherId}
+        AND s.type IN ('print','click','apply','account')
+        AND s.created_at >= b.slm
+        AND s.created_at < b.em
+    `
+  );
+
+  const r = rows[0];
+  return {
+    print_month: Number(r?.print_month ?? 0n),
+    print_last_month: Number(r?.print_last_month ?? 0n),
+    click_month: Number(r?.click_month ?? 0n),
+    click_last_month: Number(r?.click_last_month ?? 0n),
+    apply_month: Number(r?.apply_month ?? 0n),
+    apply_last_month: Number(r?.apply_last_month ?? 0n),
+    account_month: Number(r?.account_month ?? 0n),
+    account_last_month: Number(r?.account_last_month ?? 0n),
+  };
 }
 
 async function getMonthlyBuckets(
-  type: StatEventType,
-  start: Date,
-  end: Date,
   publisherId: string,
-  publisherIdColumnSql: Sql,
+  columns: ReportColumnDefinitions,
+  { startYear, endYear, startLastYear, endLastYear }: { startYear: Date; endYear: Date; startLastYear: Date; endLastYear: Date }
 ) {
-  const rows = await prismaCore.$queryRaw<{ month: Date; doc_count: bigint }[]>(
+  const rows = await prismaCore.$queryRaw<Array<{ period: "year" | "lastYear"; type: "click" | "apply"; month: Date; doc_count: bigint }>>(
     Prisma.sql`
-      SELECT date_trunc('month', created_at) AS month,
-             COUNT(*)::bigint AS doc_count
-      FROM "StatEvent"
-      WHERE is_bot = false
-        AND ${publisherIdColumnSql} = ${publisherId}
-        AND type = ${type}
-        AND created_at >= ${start}
-        AND created_at < ${end}
-      GROUP BY month
+      WITH bounds AS (
+        SELECT ${startLastYear}::timestamptz AS sly,
+               ${endLastYear}::timestamptz   AS ely,
+               ${startYear}::timestamptz     AS sy,
+               ${endYear}::timestamptz       AS ey
+      ), base AS (
+        SELECT
+          CASE WHEN s.created_at >= b.sy  AND s.created_at < b.ey  THEN 'year'
+               WHEN s.created_at >= b.sly AND s.created_at < b.ely THEN 'lastYear'
+          END AS period,
+          s.type,
+          date_trunc('month', s.created_at) AS month,
+          COUNT(*)::bigint AS doc_count
+        FROM "StatEvent" s
+        CROSS JOIN bounds b
+        WHERE s.is_bot IS NOT TRUE
+          AND ${columns.publisherIdColumnSql} = ${publisherId}
+          AND s.type IN ('click','apply')
+          AND s.created_at >= b.sly AND s.created_at < b.ey
+        GROUP BY period, s.type, month
+      )
+      SELECT period, type, month, doc_count
+      FROM base
       ORDER BY month
-    `,
+    `
   );
 
-  return buildHistogramBuckets(start, end, rows);
+  const clickYear = rows.filter((r) => r.type === "click" && r.period === "year").map((r) => ({ month: r.month, doc_count: r.doc_count }));
+  const clickLastYear = rows.filter((r) => r.type === "click" && r.period === "lastYear").map((r) => ({ month: r.month, doc_count: r.doc_count }));
+  const applyYear = rows.filter((r) => r.type === "apply" && r.period === "year").map((r) => ({ month: r.month, doc_count: r.doc_count }));
+  const applyLastYear = rows.filter((r) => r.type === "apply" && r.period === "lastYear").map((r) => ({ month: r.month, doc_count: r.doc_count }));
+
+  const clickYearBuckets = buildHistogramBuckets(startYear, endYear, clickYear as any);
+  const clickLastYearBuckets = buildHistogramBuckets(startLastYear, endLastYear, clickLastYear as any);
+  const applyYearBuckets = buildHistogramBuckets(startYear, endYear, applyYear as any);
+  const applyLastYearBuckets = buildHistogramBuckets(startLastYear, endLastYear, applyLastYear as any);
+
+  return { clickYearBuckets, clickLastYearBuckets, applyYearBuckets, applyLastYearBuckets };
 }
 
 async function getTopPublishers(publisherId: string, columns: ReportColumnDefinitions, start: Date, end: Date) {
@@ -336,7 +379,7 @@ async function getTopPublishers(publisherId: string, columns: ReportColumnDefini
       SELECT ${columns.publisherNameColumnSql} AS key,
              COUNT(*)::bigint AS doc_count
       FROM "StatEvent"
-      WHERE is_bot = false
+      WHERE is_bot is NOT true
         AND ${columns.publisherIdColumnSql} = ${publisherId}
         AND type = 'click'
         AND created_at >= ${start}
@@ -346,7 +389,7 @@ async function getTopPublishers(publisherId: string, columns: ReportColumnDefini
       GROUP BY ${columns.publisherNameColumnSql}
       ORDER BY doc_count DESC
       LIMIT 5
-    `,
+    `
   );
 
   return rows.map((row) => ({ key: row.key ?? "", doc_count: Number(row.doc_count) }));
@@ -358,7 +401,7 @@ async function getTopOrganizations(publisherId: string, columns: ReportColumnDef
       SELECT "mission_organization_name" AS key,
              COUNT(*)::bigint AS doc_count
       FROM "StatEvent"
-      WHERE is_bot = false
+      WHERE is_bot is NOT true
         AND ${columns.publisherIdColumnSql} = ${publisherId}
         AND type = 'click'
         AND created_at >= ${start}
@@ -368,7 +411,7 @@ async function getTopOrganizations(publisherId: string, columns: ReportColumnDef
       GROUP BY "mission_organization_name"
       ORDER BY doc_count DESC
       LIMIT 5
-    `,
+    `
   );
 
   return rows.map((row) => ({ key: row.key ?? "", doc_count: Number(row.doc_count) }));
@@ -387,28 +430,49 @@ async function getLastSixMonthsBuckets({
   end: Date;
   topOrganizations: TermsBucket[];
 }) {
-  const rows = await prismaCore.$queryRaw<{ month: Date; key: string | null; doc_count: bigint }[]>(
+  // Totals per month
+  const totals = await prismaCore.$queryRaw<{ month: Date; doc_count: bigint }[]>(
     Prisma.sql`
       SELECT date_trunc('month', created_at) AS month,
-             mission_organization_name AS key,
              COUNT(*)::bigint AS doc_count
       FROM "StatEvent"
-      WHERE is_bot = false
+      WHERE is_bot IS NOT TRUE
         AND ${columns.publisherIdColumnSql} = ${publisherId}
         AND type = 'click'
         AND created_at >= ${start}
         AND created_at < ${end}
-      GROUP BY month, mission_organization_name
-    `,
+      GROUP BY month
+      ORDER BY month
+    `
   );
 
-  const series = getMonthSeries(start, end);
+  // Per-top-org per month only
+  const topKeys = topOrganizations.map((o) => o.key).filter((k) => !!k);
+  const perOrg = topKeys.length
+    ? await prismaCore.$queryRaw<{ month: Date; key: string | null; doc_count: bigint }[]>(
+        Prisma.sql`
+          SELECT date_trunc('month', created_at) AS month,
+                 mission_organization_name AS key,
+                 COUNT(*)::bigint AS doc_count
+          FROM "StatEvent"
+          WHERE is_bot IS NOT TRUE
+            AND ${columns.publisherIdColumnSql} = ${publisherId}
+            AND type = 'click'
+            AND created_at >= ${start}
+            AND created_at < ${end}
+            AND mission_organization_name = ANY(${Prisma.sql`ARRAY[${Prisma.join(topKeys)}]`})
+          GROUP BY month, mission_organization_name
+          ORDER BY month
+        `
+      )
+    : [];
 
+  const series = getMonthSeries(start, end);
   return series.map((date) => {
-    const monthRows = rows.filter((row) => isSameMonth(row.month, date));
-    const total = monthRows.reduce((sum, row) => sum + Number(row.doc_count), 0);
+    const totalRow = totals.find((r) => isSameMonth(r.month, date));
+    const total = totalRow ? Number(totalRow.doc_count) : 0;
     const orgBuckets = topOrganizations.map((org) => {
-      const match = monthRows.find((row) => row.key === org.key);
+      const match = perOrg.find((row) => row.key === org.key && isSameMonth(row.month, date));
       return { key: org.key, doc_count: match ? Number(match.doc_count) : 0 };
     });
     return {

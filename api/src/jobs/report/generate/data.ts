@@ -1,6 +1,6 @@
 import { Publisher, StatsReport } from "../../../types";
 
-import { getReportAggregations } from "./report-stats-source";
+import { getReportAggregations, HistogramBucket } from "./report-stats-source";
 
 export const MONTHS = ["Janvier", "Février", "Mars", "Avril", "Mai", "Juin", "Juillet", "Août", "Septembre", "Octobre", "Novembre", "Décembre"];
 
@@ -57,10 +57,10 @@ const search = async (id: string, month: number, year: number, flux: "to" | "fro
 };
 
 const buildGraph = (
-  clickBucket: { key: string; doc_count: number }[],
-  clickLastYearBucket: { key: string; doc_count: number }[],
-  applyBucket: { key: string; doc_count: number }[],
-  applyLastYearBucket: { key: string; doc_count: number }[],
+  clickBucket: HistogramBucket[],
+  clickLastYearBucket: HistogramBucket[],
+  applyBucket: HistogramBucket[],
+  applyLastYearBucket: HistogramBucket[],
   startDate: Date
 ) => {
   // Construct labels, with all months between start and end of the 1st bucket

@@ -56,8 +56,12 @@ const sendReport = async (report: Report): Promise<{ ok: boolean; data?: any }> 
   }
 };
 
-export const sendReports = async (year: number, month: number) => {
-  const publishers = await PublisherModel.find({ sendReport: true });
+export const sendReports = async (year: number, month: number, publisherId?: string) => {
+  const query: any = { sendReport: true };
+  if (publisherId) {
+    query._id = publisherId;
+  }
+  const publishers = await PublisherModel.find(query);
   const users = await UserModel.find({});
 
   let count = 0;
@@ -66,6 +70,9 @@ export const sendReports = async (year: number, month: number) => {
 
   for (let i = 0; i < publishers.length; i++) {
     const publisher = publishers[i];
+    if (publisherId) {
+      console.log(`[Report] Targeting single publisher ${publisherId}`);
+    }
 
     const report = await ReportModel.findOne({ publisherId: publisher._id, month, year });
     if (!report) {

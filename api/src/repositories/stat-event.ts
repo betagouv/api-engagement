@@ -224,7 +224,7 @@ export async function countClicksByPublisherForOrganizationSince({ publisherIds,
     const rows = (await prismaCore.statEvent.groupBy({
       by: ["from_publisher_id"],
       where: {
-        type: "click",
+        type: "click" as any,
         is_bot: { not: true },
         mission_organization_client_id: organizationClientId,
         from_publisher_id: { in: publisherIds },

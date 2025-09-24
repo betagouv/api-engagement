@@ -8,6 +8,8 @@ import { sendReports } from "./send";
 
 export interface ReportJobPayload {
   dryRun?: boolean;
+  // Optional: restrict generation/sending to a single publisher ID
+  publisherId?: string;
 }
 
 export interface ReportJobResult extends JobResult {}
@@ -17,6 +19,7 @@ export class ReportHandler implements BaseHandler<ReportJobPayload, ReportJobRes
 
   async handle(payload: ReportJobPayload): Promise<ReportJobResult> {
     const dryRun = payload?.dryRun ?? false;
+    const publisherId = payload?.publisherId;
     const start = new Date();
     let jobMessage = "Reports sent successfully";
     console.log(`[Report] Starting at ${start.toISOString()}`);
@@ -24,8 +27,10 @@ export class ReportHandler implements BaseHandler<ReportJobPayload, ReportJobRes
       const month = new Date().getMonth() !== 0 ? new Date().getMonth() - 1 : 11;
       const year = month === 11 ? new Date().getFullYear() - 1 : new Date().getFullYear();
 
-      console.log(`[Report] Generating report for ${year}-${month}`);
-      const generationRes = await generateReports(year, month);
+      console.log(
+        `[Report] Generating report for ${year}-${month}${publisherId ? ` (single publisher: ${publisherId})` : ""}`
+      );
+      const generationRes = await generateReports(year, month, publisherId);
       console.log(`[Report] Generated ${generationRes.count} report with ${generationRes.errors.length} errors`);
       if (generationRes.errors.length > 0) {
         console.error(`[Report] Errors`, JSON.stringify(generationRes.errors, null, 2));
@@ -40,8 +45,10 @@ export class ReportHandler implements BaseHandler<ReportJobPayload, ReportJobRes
         });
         jobMessage = `Reports generated in dry-run mode (${generationRes.count} processed)`;
       } else {
-        console.log(`[Report] Sending report for ${year}-${month}`);
-        const sendingRes = await sendReports(year, month);
+        console.log(
+          `[Report] Sending report for ${year}-${month}${publisherId ? ` (single publisher: ${publisherId})` : ""}`
+        );
+        const sendingRes = await sendReports(year, month, publisherId);
         console.log(`[Report] Sent ${sendingRes.count} report, ${sendingRes.skipped.length} skipped and ${sendingRes.errors.length} errors`);
         if (sendingRes.errors.length > 0) {
           console.error(`[Report] Errors`, JSON.stringify(sendingRes.errors, null, 2));

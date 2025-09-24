@@ -86,12 +86,20 @@ export const generateReport = async (publisher: Publisher, year: number, month: 
   }
 };
 
-export const generateReports = async (year: number, month: number) => {
-  const publishers = await PublisherModel.find({ sendReport: true });
+export const generateReports = async (year: number, month: number, publisherId?: string) => {
+  const query: any = { sendReport: true };
+  if (publisherId) {
+    query._id = publisherId;
+  }
+  const publishers = await PublisherModel.find(query);
   let count = 0;
   const errors = [] as { id: string; name: string; error: string }[];
   const reports: GeneratedReportPreview[] = [];
-  console.log(`[Report] Generating report for ${year}-${month} for ${publishers.length} publishers`);
+  console.log(
+    `[Report] Generating report for ${year}-${month} for ${publishers.length} publisher(s)${
+      publisherId ? ` [filtered: ${publisherId}]` : ""
+    }`
+  );
   for (let i = 0; i < publishers.length; i++) {
     const publisher = publishers[i];
     console.log(`[Report] Generating report for ${year}-${month} for ${publisher.name}`);
