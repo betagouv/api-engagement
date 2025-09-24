@@ -166,7 +166,7 @@ const Carousel = ({ widget, missions, request }: CarouselProps) => {
           <button
             ref={prevButtonRef}
             onClick={handlePrevPage}
-            className="h-10 w-10 flex flex-shrink-0 items-center justify-center rounded-full p-2 focus:outline-none focus-visible:ring focus-visible:ring-[#000091] text-white transition-opacity hover:opacity-90"
+            className="h-10 w-10 flex flex-shrink-0 items-center justify-center rounded-full p-2 focus:outline-2 focus:outline-[#0a76f6] focus:outline-offset-2 text-white transition-opacity hover:opacity-90"
             style={{ backgroundColor: color }}
             aria-label="Diapositive précédente"
             aria-controls="carousel-content"
@@ -175,7 +175,7 @@ const Carousel = ({ widget, missions, request }: CarouselProps) => {
           </button>
         )}
 
-        <div id="carousel-content" className="overflow-hidden md:max-w-[1056px] w-full md:p-[1px] md:my-2">
+        <div id="carousel-content" className="overflow-hidden md:max-w-[1056px] w-full">
           <div
             className="flex transition-transform duration-500 ease-in-out -mx-[0.75rem]"
             aria-live="polite"
@@ -192,7 +192,7 @@ const Carousel = ({ widget, missions, request }: CarouselProps) => {
                 aria-roledescription="slide"
                 aria-label={`Mission ${i + 1} sur ${missions.length}: ${mission.title}`}
                 aria-current={i === focusedSlideIndex}
-                className={`h-auto flex-shrink-0 ${missions.length <= 2 ? "w-full flex-shrink-0 sm:w-1/2 lg:w-auto" : "w-full sm:w-1/2 lg:w-1/3"} px-3 transition-all duration-200`}
+                className={`h-auto flex-shrink-0 ${missions.length <= 2 ? "w-full flex-shrink-0 sm:w-1/2 lg:w-auto" : "w-full sm:w-1/2 lg:w-1/3"} p-3 transition-all duration-200`}
               >
                 <Card
                   widget={widget}
@@ -219,7 +219,7 @@ const Carousel = ({ widget, missions, request }: CarouselProps) => {
           <button
             ref={nextButtonRef}
             onClick={handleNextPage}
-            className="h-10 w-10 flex flex-shrink-0 items-center justify-center rounded-full p-2 focus:outline-none focus-visible:ring focus-visible:ring-[#000091] text-white transition-opacity hover:opacity-90"
+            className="h-10 w-10 flex flex-shrink-0 items-center justify-center rounded-full p-2 focus:outline-2 focus:outline-[#0a76f6] focus:outline-offset-2 text-white transition-opacity hover:opacity-90"
             style={{ backgroundColor: color }}
             aria-label="Diapositive suivante"
             aria-controls="carousel-content"
@@ -235,7 +235,7 @@ const Carousel = ({ widget, missions, request }: CarouselProps) => {
             <button
               ref={prevButtonRef}
               onClick={handlePrevPage}
-              className="flex h-10 w-10 items-center justify-center rounded-full p-2 focus:outline-none focus-visible:ring focus-visible:ring-[#000091] text-white transition-opacity hover:opacity-90"
+              className="flex h-10 w-10 items-center justify-center rounded-full p-2 focus:outline-2 focus:outline-[#0a76f6] focus:outline-offset-2 text-white transition-opacity hover:opacity-90"
               style={{ backgroundColor: color }}
               aria-label="Diapositive précédente"
               aria-controls="carousel-content"
@@ -246,7 +246,7 @@ const Carousel = ({ widget, missions, request }: CarouselProps) => {
             <button
               ref={nextButtonRef}
               onClick={handleNextPage}
-              className="flex h-10 w-10 items-center justify-center rounded-full p-2 focus:outline-none focus-visible:ring focus-visible:ring-[#000091] text-white transition-opacity hover:opacity-90"
+              className="flex h-10 w-10 items-center justify-center rounded-full p-2 focus:outline-2 focus:outline-[#0a76f6] focus:outline-offset-2 text-white transition-opacity hover:opacity-90"
               style={{ backgroundColor: color }}
               aria-label="Diapositive suivante"
               aria-controls="carousel-content"
