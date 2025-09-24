@@ -5,7 +5,7 @@ import { buildKpi } from "./kpi";
 import { buildKpiBotless } from "./kpi-botless";
 
 export interface KpiJobPayload {
-  date?: Date;
+  date?: string;
 }
 
 export interface KpiJobResult extends JobResult {
@@ -22,7 +22,7 @@ export class KpiHandler implements BaseHandler<KpiJobPayload, KpiJobResult> {
 
   public async handle(payload: KpiJobPayload): Promise<KpiJobResult> {
     const { date } = payload;
-    const today = date || new Date();
+    const today = date ? new Date(date) : new Date();
     const yesterday = new Date(today.getFullYear(), today.getMonth(), today.getDate() - 1);
 
     const result: KpiJobResult["result"] = [];
