@@ -141,6 +141,59 @@ describe("stat-event repository", () => {
     expect(elasticMock.search).not.toHaveBeenCalled();
     expect(res).toMatchObject({ click: 12, apply: 0 });
   });
+
+  it("aggregates click counts by publisher from elasticsearch", async () => {
+    elasticMock.search.mockResolvedValueOnce({
+      body: {
+        aggregations: {
+          fromPublisherId: {
+            buckets: [
+              { key: "pub-1", doc_count: 3 },
+              { key: "pub-2", doc_count: 0 },
+            ],
+          },
+        },
+      },
+    });
+
+    initFeatureFlags("es");
+
+    const res = await statEventRepository.countClicksByPublisherForOrganizationSince({
+      publisherIds: ["pub-1", "pub-2"],
+      organizationClientId: "org-1",
+      from: new Date(),
+    });
+
+    expect(elasticMock.search).toHaveBeenCalled();
+    expect(pgMock.statEvent.groupBy).not.toHaveBeenCalled();
+    expect(res).toMatchObject({ "pub-1": 3, "pub-2": 0 });
+  });
+
+  it("aggregates click counts by publisher from postgres", async () => {
+    pgMock.statEvent.groupBy.mockResolvedValueOnce([{ from_publisher_id: "pub-1", _count: { _all: 5 } }]);
+
+    initFeatureFlags("pg");
+
+    const res = await statEventRepository.countClicksByPublisherForOrganizationSince({
+      publisherIds: ["pub-1", "pub-2"],
+      organizationClientId: "org-1",
+      from: new Date(),
+    });
+
+    expect(pgMock.statEvent.groupBy).toHaveBeenCalledWith({
+      by: ["from_publisher_id"],
+      where: {
+        type: "click",
+        is_bot: { not: true },
+        mission_organization_client_id: "org-1",
+        from_publisher_id: { in: ["pub-1", "pub-2"] },
+        created_at: { gte: expect.any(Date) },
+      },
+      _count: { _all: true },
+    });
+    expect(elasticMock.search).not.toHaveBeenCalled();
+    expect(res).toMatchObject({ "pub-1": 5 });
+  });
 });
 
 function initFeatureFlags(readFrom: "pg" | "es", dual = "false") {
