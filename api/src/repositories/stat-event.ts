@@ -13,6 +13,12 @@ interface CountByTypeParams {
   types?: StatEventType[];
 }
 
+interface CountClicksByPublisherForOrganizationSinceParams {
+  publisherIds: string[];
+  organizationClientId: string;
+  from: Date;
+}
+
 const DEFAULT_TYPES: StatEventType[] = ["click", "print", "apply", "account"];
 
 function toPg(data: Partial<Stats>, options: { includeDefaults?: boolean } = {}) {
@@ -209,12 +215,74 @@ export async function countByTypeSince({ publisherId, from, types }: CountByType
   return counts;
 }
 
+export async function countClicksByPublisherForOrganizationSince({ publisherIds, organizationClientId, from }: CountClicksByPublisherForOrganizationSinceParams) {
+  if (!publisherIds.length) {
+    return {} as Record<string, number>;
+  }
+
+  if (getReadStatsFrom() === "pg") {
+    const rows = (await prismaCore.statEvent.groupBy({
+      by: ["from_publisher_id"],
+      where: {
+        type: "click",
+        is_bot: { not: true },
+        mission_organization_client_id: organizationClientId,
+        from_publisher_id: { in: publisherIds },
+        created_at: { gte: from },
+      },
+      _count: { _all: true },
+    } as any)) as { from_publisher_id: string; _count: { _all: number } }[];
+
+    return rows.reduce(
+      (acc, row) => {
+        acc[row.from_publisher_id] = row._count._all;
+        return acc;
+      },
+      {} as Record<string, number>
+    );
+  }
+
+  const response = await esClient.search({
+    index: STATS_INDEX,
+    body: {
+      query: {
+        bool: {
+          filter: [
+            { term: { "type.keyword": "click" } },
+            { terms: { "fromPublisherId.keyword": publisherIds } },
+            { term: { missionOrganizationClientId: organizationClientId } },
+            { range: { createdAt: { gte: from.toISOString() } } },
+          ],
+          must_not: [{ term: { isBot: true } }],
+        },
+      },
+      aggs: {
+        fromPublisherId: {
+          terms: { field: "fromPublisherId.keyword", size: publisherIds.length },
+        },
+      },
+      size: 0,
+    },
+  });
+
+  const buckets: { key: string; doc_count: number }[] = (response.body.aggregations?.fromPublisherId?.buckets as { key: string; doc_count: number }[]) ?? [];
+
+  return buckets.reduce<Record<string, number>>(
+    (acc, bucket) => {
+      acc[bucket.key] = bucket.doc_count;
+      return acc;
+    },
+    {} as Record<string, number>
+  );
+}
+
 const statEventRepository = {
   createStatEvent,
   updateStatEventById,
   getStatEventById,
   count,
   countByTypeSince,
+  countClicksByPublisherForOrganizationSince,
 };
 
 export default statEventRepository;

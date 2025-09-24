@@ -7,6 +7,7 @@ const pgMock = {
     findUnique: vi.fn(),
     findFirst: vi.fn(),
     count: vi.fn(),
+    groupBy: vi.fn(),
   },
 };
 
