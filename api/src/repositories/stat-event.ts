@@ -177,6 +177,31 @@ export async function count() {
   return body.count as number;
 }
 
+export async function findFirstByMissionId(missionId: string): Promise<Stats | null> {
+  if (getReadStatsFrom() === "pg") {
+    const pgRes = await prismaCore.statEvent.findFirst({
+      where: { mission_id: missionId },
+      orderBy: { created_at: "desc" },
+    });
+    return pgRes ? fromPg(pgRes) : null;
+  }
+
+  const esRes = await esClient.search({
+    index: STATS_INDEX,
+    body: {
+      query: { term: { "missionId.keyword": missionId } },
+      size: 1,
+    },
+  });
+
+  const hit = esRes.body.hits?.hits?.[0];
+  if (!hit) {
+    return null;
+  }
+
+  return { _id: hit._id, ...hit._source } as Stats;
+}
+
 export async function countByTypeSince({ publisherId, from, types }: CountByTypeParams) {
   const statTypes = types?.length ? types : DEFAULT_TYPES;
   const counts: Record<StatEventType, number> = {
@@ -420,6 +445,7 @@ const statEventRepository = {
   countByTypeSince,
   countClicksByPublisherForOrganizationSince,
   aggregateMissionStats,
+  findFirstByMissionId,
 };
 
 export default statEventRepository;

@@ -1,8 +1,6 @@
-import { STATS_INDEX } from "../../config";
-import esClient from "../../db/elastic";
 import { captureMessage } from "../../error";
 import MissionModel from "../../models/mission";
-import { Stats } from "../../types";
+import statEventRepository from "../../repositories/stat-event";
 import { EARTH_RADIUS } from "../../utils";
 
 export const buildArrayQuery = (query: string | string[]) => {
@@ -56,15 +54,8 @@ export const findMissionTemp = async (missionId: string) => {
     return mission;
   }
 
-  const response2 = await esClient.search({
-    index: STATS_INDEX,
-    body: { query: { term: { "missionId.keyword": missionId } }, size: 1 },
-  });
-  if (response2.body.hits.total.value > 0) {
-    const stats = {
-      _id: response2.body.hits.hits[0]._id,
-      ...response2.body.hits.hits[0]._source,
-    } as Stats;
+  const stats = await statEventRepository.findFirstByMissionId(missionId);
+  if (stats) {
     const mission = await MissionModel.findOne({
       clientId: stats.missionClientId?.toString(),
       publisherId: stats.toPublisherId,
