@@ -1,5 +1,4 @@
 import { NextFunction, Response, Router } from "express";
-import Joi from "joi";
 import passport from "passport";
 import zod from "zod";
 
@@ -42,17 +41,19 @@ router.post("/search", passport.authenticate("user", { session: false }), async 
 
 router.get("/", passport.authenticate("user", { session: false }), async (req: UserRequest, res: Response, next: NextFunction) => {
   try {
-    const { error: queryError, value: query } = Joi.object({
-      publisherId: Joi.string().allow("").optional(),
-      skip: Joi.number().min(0).max(10000).default(0),
-      size: Joi.number().min(1).max(100).default(25),
-    })
-      .unknown()
-      .validate(req.query);
+    const queryParsed = zod
+      .object({
+        publisherId: zod.string().optional(),
+        skip: zod.coerce.number().min(0).max(10000).default(0),
+        size: zod.coerce.number().min(1).max(100).default(25),
+      })
+      .passthrough()
+      .safeParse(req.query);
 
-    if (queryError) {
-      return res.status(400).send({ ok: false, code: INVALID_PARAMS, error: queryError.details });
+    if (!queryParsed.success) {
+      return res.status(400).send({ ok: false, code: INVALID_PARAMS, error: queryParsed.error });
     }
+    const query = queryParsed.data;
 
     if (req.user.role !== "admin" && !query.publisherId) {
       return res.status(403).send({ ok: false, code: FORBIDDEN });
