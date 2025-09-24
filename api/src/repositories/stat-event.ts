@@ -339,15 +339,13 @@ export async function aggregateMissionStats({
           type: type as StatEventType,
         };
 
-        const [eventCount, missionGroups] = await Promise.all([
+        const [eventCount, missionCount] = await Promise.all([
           prismaCore.statEvent.count({ where }),
-          prismaCore.statEvent.groupBy({
-            by: ["mission_id"],
+          prismaCore.statEvent.count({
             where: { ...where, mission_id: { not: null } },
+            distinct: ["mission_id"],
           } as any),
         ]);
-
-        const missionCount = (missionGroups as Array<{ mission_id: string }>).length;
 
         result[type] = { eventCount, missionCount };
       })
