@@ -103,10 +103,6 @@ const handler = async () => {
     const stored = await prismaClient.click.count();
     console.log(`[Clicks] Found ${stored} docs in database.`);
 
-    const missions = {} as { [key: string]: string };
-    await prismaClient.mission
-      .findMany({ select: { id: true, client_id: true, partner: { select: { old_id: true } } } })
-      .then((data) => data.forEach((d) => (missions[`${d.client_id}-${d.partner?.old_id}`] = d.id)));
     const partners = {} as { [key: string]: string };
     await prismaClient.partner.findMany({ select: { id: true, old_id: true } }).then((data) => data.forEach((d) => (partners[d.old_id] = d.id)));
     const campaigns = {} as { [key: string]: string };
@@ -159,6 +155,19 @@ const handler = async () => {
       if (data.length === 0) {
         break;
       }
+
+      const missions = {} as { [key: string]: string };
+      const missionIds = new Set<string>(data.map((hit: { _source: Stats }) => hit._source.missionClientId?.toString()));
+      console.log(`[Clicks] Found ${missionIds.size} missions in Elasticsearch`);
+      await prismaClient.mission
+        .findMany({
+          where: {
+            client_id: { in: Array.from(missionIds).filter((id) => id !== undefined) },
+          },
+          select: { id: true, client_id: true, partner: { select: { old_id: true } } },
+        })
+        .then((data) => data.forEach((d) => (missions[`${d.client_id}-${d.partner?.old_id}`] = d.id)));
+      console.log(`[Clicks] Found ${Object.keys(missions).length} missions in database PG`);
 
       const dataToCreate = [];
       for (const hit of data) {

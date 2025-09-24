@@ -29,6 +29,7 @@ const buildData = async (
   if (doc.missionClientId && doc.toPublisherId) {
     missionId = missions[`${doc.missionClientId}-${doc.toPublisherId}`];
     if (!missionId) {
+      console.log(`[Prints] Mission ${doc.missionId?.toString()} not found for doc ${doc._id.toString()}`);
       const m = await prismaClient.mission.findFirst({
         where: { old_id: doc.missionId?.toString() },
         select: { id: true },
@@ -84,12 +85,8 @@ const handler = async () => {
     let scrollId = null;
 
     const stored = await prismaClient.impression.count();
-    console.log(`[Prints] Found ${stored} docs in database.`);
+    console.log(`[Prints] Found ${stored} docs in database PG`);
 
-    const missions = {} as { [key: string]: string };
-    await prismaClient.mission
-      .findMany({ select: { id: true, client_id: true, partner: { select: { old_id: true } } } })
-      .then((data) => data.forEach((d) => (missions[`${d.client_id}-${d.partner?.old_id}`] = d.id)));
     const partners = {} as { [key: string]: string };
     await prismaClient.partner.findMany({ select: { id: true, old_id: true } }).then((data) => data.forEach((d) => (partners[d.old_id] = d.id)));
     const campaigns = {} as { [key: string]: string };
@@ -142,6 +139,19 @@ const handler = async () => {
       if (data.length === 0) {
         break;
       }
+
+      const missions = {} as { [key: string]: string };
+      const missionIds = new Set<string>(data.map((hit: { _source: Stats }) => hit._source.missionClientId?.toString()).filter((id: string | undefined) => id !== undefined));
+      console.log(`[Prints] Found ${missionIds.size} missions in Elasticsearch`);
+      await prismaClient.mission
+        .findMany({
+          where: {
+            client_id: { in: Array.from(missionIds) },
+          },
+          select: { id: true, client_id: true, partner: { select: { old_id: true } } },
+        })
+        .then((data) => data.forEach((d) => (missions[`${d.client_id}-${d.partner?.old_id}`] = d.id)));
+      console.log(`[Prints] Found ${Object.keys(missions).length} missions in database PG`);
 
       const dataToCreate = [];
       for (const hit of data) {
