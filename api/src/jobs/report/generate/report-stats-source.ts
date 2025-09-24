@@ -1,4 +1,4 @@
-import { Prisma } from "@prisma/client";
+import { Prisma } from "../../../db/core";
 
 import { STATS_INDEX } from "../../../config";
 import esClient from "../../../db/elastic";
