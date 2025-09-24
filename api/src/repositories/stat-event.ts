@@ -1,6 +1,6 @@
 import { v4 as uuidv4 } from "uuid";
 
-import type { Prisma } from "@prisma/client";
+import type { Prisma } from "../db/core";
 
 import { STATS_INDEX } from "../config";
 import esClient from "../db/elastic";

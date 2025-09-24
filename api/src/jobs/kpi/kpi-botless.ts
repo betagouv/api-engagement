@@ -80,7 +80,7 @@ export const buildKpiBotless = async (start: Date): Promise<Kpi | null> => {
 
     const statsBots = await StatsBotModel.find({}).lean();
 
-    const excludedUsers = statsBots.map((e) => e.user).filter(Boolean) as string[];
+    const excludeUsers = statsBots.map((e) => e.user).filter(Boolean) as string[];
 
     const statsBenevolatAggs = await statEventRepository.aggregateMissionStats({
       from: fromDate,
