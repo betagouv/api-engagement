@@ -4,7 +4,7 @@ import cors from "cors";
 import express from "express";
 import passport from "../src/middlewares/passport";
 import MissionV0Controller from "../src/v0/mission/controller";
-import MyMissionV0Controller from "../src/v0/mymission";
+import MyMissionV0Controller from "../src/v0/mymission/controller";
 import MyOrganizationV0Controller from "../src/v0/myorganization/controller";
 
 // Create a test Express app with minimal configuration
