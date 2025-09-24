@@ -2,14 +2,13 @@ import { NextFunction, Response, Router } from "express";
 import passport from "passport";
 import zod from "zod";
 
-import { STATS_INDEX } from "../config";
-import { JVA_MODERATION_COMMENTS_LABELS } from "../constants/moderation";
-import esClient from "../db/elastic";
-import { INVALID_PARAMS, INVALID_QUERY, NOT_FOUND } from "../error";
-import MissionModel from "../models/mission";
-import RequestModel from "../models/request";
-import { Mission, Publisher } from "../types";
-import { PublisherRequest } from "../types/passport";
+import { JVA_MODERATION_COMMENTS_LABELS } from "../../constants/moderation";
+import { INVALID_PARAMS, INVALID_QUERY, NOT_FOUND } from "../../error";
+import MissionModel from "../../models/mission";
+import RequestModel from "../../models/request";
+import { Mission, Publisher } from "../../types";
+import { PublisherRequest } from "../../types/passport";
+import { getMissionStatsSummary, getMissionStatsWithDetails } from "./stats";
 
 const router = Router();
 
@@ -95,62 +94,9 @@ router.get("/:clientId", passport.authenticate(["apikey", "api"], { session: fal
       return res.status(404).send({ ok: false, code: NOT_FOUND });
     }
 
-    const query = {
-      query: {
-        bool: {
-          must_not: [{ term: { isBot: true } }],
-          must: [{ term: { "missionId.keyword": mission._id } }],
-        },
-      },
-      aggs: {
-        apply: {
-          filter: { term: { type: "apply" } },
-          aggs: {
-            data: {
-              terms: { field: "fromPublisherId.keyword", size: 100 },
-              aggs: { hits: { top_hits: { size: 1 } } },
-            },
-          },
-        },
-        click: {
-          filter: { term: { type: "click" } },
-          aggs: {
-            data: {
-              terms: { field: "fromPublisherId.keyword", size: 100 },
-              aggs: { hits: { top_hits: { size: 1 } } },
-            },
-          },
-        },
-      },
-      size: 0,
-    };
-
-    const raw = await esClient.msearch({ body: [{ index: STATS_INDEX }, query] });
-    const applications = raw.body.responses[0].aggregations.apply.data.buckets.map(({ key, hits, doc_count }: { key: string; hits: any; doc_count: number }) => {
-      const count = doc_count;
-      const { fromPublisherLogo, fromPublisherName, fromPublisherUrl } = hits.hits.hits[0]._source;
-      return {
-        key,
-        logo: fromPublisherLogo,
-        name: fromPublisherName,
-        url: fromPublisherUrl,
-        doc_count: count,
-      };
-    });
-    const clicks = raw.body.responses[0].aggregations.click.data.buckets.map(({ key, hits, doc_count }: { key: string; hits: any; doc_count: number }) => {
-      const count = doc_count;
-      const { fromPublisherLogo, fromPublisherName, fromPublisherUrl } = hits.hits.hits[0]._source;
-      return {
-        key,
-        logo: fromPublisherLogo,
-        name: fromPublisherName,
-        url: fromPublisherUrl,
-        doc_count: count,
-      };
-    });
-
+    const stats = await getMissionStatsWithDetails(mission._id.toString());
     res.locals = { total: 1 };
-    return res.status(200).send({ ok: true, data: { ...buildData(mission), stats: { applications, clicks } } });
+    return res.status(200).send({ ok: true, data: { ...buildData(mission), stats } });
   } catch (error: any) {
     next(error);
   }
@@ -178,39 +124,7 @@ router.get("/:clientId/stats", passport.authenticate(["apikey", "api"], { sessio
       return res.status(404).send({ ok: false, code: NOT_FOUND });
     }
 
-    const clicks = {
-      query: {
-        bool: {
-          must_not: [{ term: { isBot: true } }],
-          must: [{ term: { "missionId.keyword": mission._id } }, { term: { "type.keyword": "click" } }],
-        },
-      },
-      aggs: { mission: { terms: { field: "fromPublisherName.keyword" } } },
-      size: 0,
-    };
-
-    const applications = {
-      query: {
-        bool: {
-          must_not: [{ term: { isBot: true } }],
-          must: [{ term: { "missionId.keyword": mission._id } }, { term: { "type.keyword": "apply" } }],
-        },
-      },
-      aggs: { mission: { terms: { field: "fromPublisherName.keyword" } } },
-      size: 0,
-    };
-
-    const stats = await esClient.msearch({
-      body: [{ index: STATS_INDEX }, clicks, { index: STATS_INDEX }, applications],
-    });
-    const d = stats.body.responses.map((e: any) => {
-      return e.aggregations?.mission?.buckets?.map(({ key, doc_count }: { key: string; doc_count: number }) => ({ key, doc_count }));
-    });
-
-    const data = {} as { clicks: any; applications: any };
-    data.clicks = d[0];
-    data.applications = d[1];
-
+    const data = await getMissionStatsSummary(mission._id.toString());
     res.locals = { total: 1 };
     return res.status(200).send({ ok: true, data });
   } catch (error: any) {
