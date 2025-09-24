@@ -1,6 +1,6 @@
 import { v4 as uuidv4 } from "uuid";
 
-import type { Prisma } from "../db/core";
+import { Prisma } from "../db/core";
 
 import { STATS_INDEX } from "../config";
 import esClient from "../db/elastic";
@@ -300,7 +300,13 @@ function createEmptyAggregations(): MissionStatsAggregations {
   }, {} as MissionStatsAggregations);
 }
 
-export async function aggregateMissionStats({ from, to, toPublisherName, excludeToPublisherName, excludeUsers = [] }: AggregateMissionStatsParams): Promise<MissionStatsAggregations> {
+export async function aggregateMissionStats({
+  from,
+  to,
+  toPublisherName,
+  excludeToPublisherName,
+  excludeUsers = [],
+}: AggregateMissionStatsParams): Promise<MissionStatsAggregations> {
   if (getReadStatsFrom() === "pg") {
     const baseWhere: Prisma.StatEventWhereInput = {
       created_at: { gte: from, lt: to },
@@ -330,16 +336,18 @@ export async function aggregateMissionStats({ from, to, toPublisherName, exclude
       DEFAULT_TYPES.map(async (type) => {
         const where: Prisma.StatEventWhereInput = {
           ...baseWhere,
-          type: type as Prisma.StatEventType,
+          type: type as StatEventType,
         };
 
-        const [eventCount, missionCount] = await Promise.all([
+        const [eventCount, missionGroups] = await Promise.all([
           prismaCore.statEvent.count({ where }),
-          prismaCore.statEvent.count({
+          prismaCore.statEvent.groupBy({
+            by: ["mission_id"],
             where: { ...where, mission_id: { not: null } },
-            distinct: ["mission_id"] as Prisma.StatEventScalarFieldEnum[],
-          }),
+          } as any),
         ]);
+
+        const missionCount = (missionGroups as Array<{ mission_id: string }>).length;
 
         result[type] = { eventCount, missionCount };
       })
@@ -348,9 +356,7 @@ export async function aggregateMissionStats({ from, to, toPublisherName, exclude
     return result;
   }
 
-  const filter: any[] = [
-    { range: { createdAt: { gte: from.toISOString(), lt: to.toISOString() } } },
-  ];
+  const filter: any[] = [{ range: { createdAt: { gte: from.toISOString(), lt: to.toISOString() } } }];
 
   if (toPublisherName) {
     filter.push({ term: { "toPublisherName.keyword": toPublisherName } });
