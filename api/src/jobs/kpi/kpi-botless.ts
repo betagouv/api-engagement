@@ -1,9 +1,8 @@
-import { STATS_INDEX } from "../../config";
-import esClient from "../../db/elastic";
 import { captureException } from "../../error";
 import KpiBotlessModel from "../../models/kpi-botless";
 import MissionModel from "../../models/mission";
 import StatsBotModel from "../../models/stats-bot";
+import statEventRepository from "../../repositories/stat-event";
 import { Kpi } from "../../types";
 import { safeDivision } from "./utils/math";
 
@@ -81,93 +80,20 @@ export const buildKpiBotless = async (start: Date): Promise<Kpi | null> => {
 
     const statsBots = await StatsBotModel.find({}).lean();
 
-    const statsBenevolatAggs = await esClient.search({
-      index: STATS_INDEX,
-      body: {
-        query: {
-          bool: {
-            must_not: [
-              {
-                term: { "toPublisherName.keyword": "Service Civique" },
-              },
-              {
-                terms: { "user.keyword": statsBots.map((e) => e.user) },
-              },
-            ],
-            filter: [{ range: { createdAt: { gte: fromDate, lt: endDate } } }],
-          },
-        },
-        aggs: {
-          print: {
-            filter: { term: { "type.keyword": "print" } },
-            aggs: {
-              data: {
-                cardinality: { field: "missionId.keyword" },
-              },
-            },
-          },
-          click: {
-            filter: { term: { "type.keyword": "click" } },
-            aggs: {
-              data: { cardinality: { field: "missionId.keyword" } },
-            },
-          },
-          apply: {
-            filter: { term: { "type.keyword": "apply" } },
-            aggs: {
-              data: { cardinality: { field: "missionId.keyword" } },
-            },
-          },
-          account: {
-            filter: { term: { "type.keyword": "account" } },
-            aggs: {
-              data: { cardinality: { field: "missionId.keyword" } },
-            },
-          },
-        },
-      },
+    const excludeUsers = statsBots.map((e) => e.user).filter(Boolean) as string[];
+
+    const statsBenevolatAggs = await statEventRepository.aggregateMissionStats({
+      from: fromDate,
+      to: endDate,
+      excludeToPublisherName: "Service Civique",
+      excludeUsers,
     });
 
-    const statsVolontariatAggs = await esClient.search({
-      index: STATS_INDEX,
-      body: {
-        query: {
-          bool: {
-            must_not: [
-              {
-                terms: { "user.keyword": statsBots.map((e) => e.user) },
-              },
-            ],
-            filter: [{ term: { "toPublisherName.keyword": "Service Civique" } }, { range: { createdAt: { gte: fromDate, lt: endDate } } }],
-          },
-        },
-        aggs: {
-          print: {
-            filter: { term: { "type.keyword": "print" } },
-            aggs: {
-              data: { cardinality: { field: "missionId.keyword" } },
-            },
-          },
-          click: {
-            filter: { term: { "type.keyword": "click" } },
-            aggs: {
-              data: { cardinality: { field: "missionId.keyword" } },
-            },
-          },
-          apply: {
-            filter: { term: { "type.keyword": "apply" } },
-            aggs: {
-              data: { cardinality: { field: "missionId.keyword" } },
-            },
-          },
-          account: {
-            filter: { term: { "type.keyword": "account" } },
-            aggs: {
-              data: { cardinality: { field: "missionId.keyword" } },
-            },
-          },
-        },
-      },
+    const statsVolontariatAggs = await statEventRepository.aggregateMissionStats({
+      from: fromDate,
+      to: endDate,
+      toPublisherName: "Service Civique",
+      excludeUsers,
     });
 
     body.availableBenevolatMissionCount = availableBenevolatMissionCount;
@@ -185,29 +111,29 @@ export const buildKpiBotless = async (start: Date): Promise<Kpi | null> => {
     body.percentageBenevolatAttributedPlaces = percentageBenevolatAttributedPlaces;
     body.percentageVolontariatAttributedPlaces = percentageVolontariatAttributedPlaces;
 
-    body.benevolatPrintMissionCount = statsBenevolatAggs.body.aggregations.print.data.value || 0;
-    body.volontariatPrintMissionCount = statsVolontariatAggs.body.aggregations.print.data.value || 0;
+    body.benevolatPrintMissionCount = statsBenevolatAggs.print.missionCount;
+    body.volontariatPrintMissionCount = statsVolontariatAggs.print.missionCount;
 
-    body.benevolatClickMissionCount = statsBenevolatAggs.body.aggregations.click.data.value || 0;
-    body.volontariatClickMissionCount = statsVolontariatAggs.body.aggregations.click.data.value || 0;
+    body.benevolatClickMissionCount = statsBenevolatAggs.click.missionCount;
+    body.volontariatClickMissionCount = statsVolontariatAggs.click.missionCount;
 
-    body.benevolatApplyMissionCount = statsBenevolatAggs.body.aggregations.apply.data.value || 0;
-    body.volontariatApplyMissionCount = statsVolontariatAggs.body.aggregations.apply.data.value || 0;
+    body.benevolatApplyMissionCount = statsBenevolatAggs.apply.missionCount;
+    body.volontariatApplyMissionCount = statsVolontariatAggs.apply.missionCount;
 
-    body.benevolatAccountMissionCount = statsBenevolatAggs.body.aggregations.account.data.value || 0;
-    body.volontariatAccountMissionCount = statsVolontariatAggs.body.aggregations.account.data.value || 0;
+    body.benevolatAccountMissionCount = statsBenevolatAggs.account.missionCount;
+    body.volontariatAccountMissionCount = statsVolontariatAggs.account.missionCount;
 
-    body.benevolatPrintCount = statsBenevolatAggs.body.aggregations.print.doc_count || 0;
-    body.volontariatPrintCount = statsVolontariatAggs.body.aggregations.print.doc_count || 0;
+    body.benevolatPrintCount = statsBenevolatAggs.print.eventCount;
+    body.volontariatPrintCount = statsVolontariatAggs.print.eventCount;
 
-    body.benevolatClickCount = statsBenevolatAggs.body.aggregations.click.doc_count || 0;
-    body.volontariatClickCount = statsVolontariatAggs.body.aggregations.click.doc_count || 0;
+    body.benevolatClickCount = statsBenevolatAggs.click.eventCount;
+    body.volontariatClickCount = statsVolontariatAggs.click.eventCount;
 
-    body.benevolatApplyCount = statsBenevolatAggs.body.aggregations.apply.doc_count || 0;
-    body.volontariatApplyCount = statsVolontariatAggs.body.aggregations.apply.doc_count || 0;
+    body.benevolatApplyCount = statsBenevolatAggs.apply.eventCount;
+    body.volontariatApplyCount = statsVolontariatAggs.apply.eventCount;
 
-    body.benevolatAccountCount = statsBenevolatAggs.body.aggregations.account.doc_count || 0;
-    body.volontariatAccountCount = statsVolontariatAggs.body.aggregations.account.doc_count || 0;
+    body.benevolatAccountCount = statsBenevolatAggs.account.eventCount;
+    body.volontariatAccountCount = statsVolontariatAggs.account.eventCount;
 
     const data = await KpiBotlessModel.create(body);
     console.log(`[KPI Botless] Created kpi for ${start.toISOString()}`);
