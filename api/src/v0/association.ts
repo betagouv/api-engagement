@@ -1,6 +1,6 @@
 import { NextFunction, Response, Router } from "express";
-import Joi from "joi";
 import passport from "passport";
+import zod from "zod";
 
 import { ASSOS_INDEX } from "../config";
 import esClient from "../db/elastic";
@@ -49,26 +49,30 @@ const SHOULD_EXIST = ["url", "linkedin", "facebook", "twitter", "donation", "coo
 // Search in all etablissements.
 router.post("/snu", passport.authenticate("api", { session: false }), async (req: PublisherRequest, res: Response, next: NextFunction) => {
   try {
-    const { error: bodyError, value: body } = Joi.object({
-      filter: Joi.object({
-        searchbar: Joi.array().items(Joi.string()).allow(null),
-        coordonnees_adresse_region: Joi.array().items(Joi.string()).allow(null),
-        coordonnees_adresse_departement: Joi.array().items(Joi.string()).allow(null),
-        activites_lib_theme1: Joi.array().items(Joi.string()).allow(null),
-      }),
+    const body = zod
+      .object({
+        filters: zod
+          .object({
+            searchbar: zod.array(zod.string()).nullable().optional(),
+            coordonnees_adresse_region: zod.array(zod.string()).nullable().optional(),
+            coordonnees_adresse_departement: zod.array(zod.string()).nullable().optional(),
+            activites_lib_theme1: zod.array(zod.string()).nullable().optional(),
+          })
+          .optional(),
+        sort: zod
+          .object({
+            field: zod.string(),
+            order: zod.enum(["asc", "desc"]),
+          })
+          .nullable()
+          .optional(),
+        size: zod.coerce.number().max(100).default(10),
+        page: zod.coerce.number().default(0),
+      })
+      .safeParse(req.body);
 
-      sort: Joi.object({
-        field: Joi.string(),
-        order: Joi.string().valid("asc", "desc"),
-      }).allow(null),
-      size: Joi.number().default(10).max(100),
-      page: Joi.number().default(0),
-    })
-      .unknown()
-      .validate(req.body);
-
-    if (bodyError) {
-      return res.status(400).send({ ok: false, code: INVALID_BODY, message: bodyError.details });
+    if (!body.success) {
+      return res.status(400).send({ ok: false, code: INVALID_BODY, message: body.error });
     }
 
     const hitsQuery = {
@@ -113,9 +117,9 @@ router.post("/snu", passport.authenticate("api", { session: false }), async (req
     } as { [key: string]: any };
 
     // Searchbar
-    if (body.filters?.searchbar?.length > 0) {
+    if ((body.data.filters?.searchbar?.length ?? 0) > 0) {
       const filter = {} as { [key: string]: any };
-      const words = body.filters.searchbar[0].trim().split(" ");
+      const words = (body.data.filters?.searchbar?.[0] ?? "").trim().split(" ");
       filter.bool = { should: [] } as { should: any[] };
       words.forEach((word: string) => {
         filter.bool.should.push({
@@ -142,22 +146,23 @@ router.post("/snu", passport.authenticate("api", { session: false }), async (req
     }
 
     // Region
-    if (body.filters?.coordonnees_adresse_region?.length > 0) {
+    if ((body.data.filters?.coordonnees_adresse_region?.length ?? 0) > 0) {
       const filter = {} as { [key: string]: any };
-      if (body.filters.coordonnees_adresse_region.includes("N/A")) {
+      const regions = body.data.filters?.coordonnees_adresse_region ?? [];
+      if (regions.includes("N/A")) {
         filter.bool = {
           should: [
             { bool: { must_not: { exists: { field: "coordonnees_adresse_region" } } } },
             {
               terms: {
-                "coordonnees_adresse_region.keyword": body.filters.coordonnees_adresse_region.filter((e: string) => e !== "N/A"),
+                "coordonnees_adresse_region.keyword": regions.filter((e: string) => e !== "N/A"),
               },
             },
           ],
         };
       } else {
         filter.terms = {
-          "coordonnees_adresse_region.keyword": body.filters.coordonnees_adresse_region,
+          "coordonnees_adresse_region.keyword": regions,
         };
       }
       hitsQuery.bool.filter.push(filter);
@@ -167,22 +172,23 @@ router.post("/snu", passport.authenticate("api", { session: false }), async (req
     }
 
     // Departement
-    if (body.filters?.coordonnees_adresse_departement?.length > 0) {
+    if ((body.data.filters?.coordonnees_adresse_departement?.length ?? 0) > 0) {
       const filter = {} as { [key: string]: any };
-      if (body.filters.coordonnees_adresse_departement.includes("N/A")) {
+      const departements = body.data.filters?.coordonnees_adresse_departement ?? [];
+      if (departements.includes("N/A")) {
         filter.bool = {
           should: [
             { bool: { must_not: { exists: { field: "coordonnees_adresse_departement" } } } },
             {
               terms: {
-                "coordonnees_adresse_departement.keyword": body.filters.coordonnees_adresse_departement.filter((e: string) => e !== "N/A"),
+                "coordonnees_adresse_departement.keyword": departements.filter((e: string) => e !== "N/A"),
               },
             },
           ],
         };
       } else {
         filter.terms = {
-          "coordonnees_adresse_departement.keyword": body.filters.coordonnees_adresse_departement,
+          "coordonnees_adresse_departement.keyword": departements,
         };
       }
       hitsQuery.bool.filter.push(filter);
@@ -192,21 +198,22 @@ router.post("/snu", passport.authenticate("api", { session: false }), async (req
     }
 
     // Actitivies
-    if (body.filters?.activites_lib_theme1?.length > 0) {
+    if ((body.data.filters?.activites_lib_theme1?.length ?? 0) > 0) {
       const filter = {} as { [key: string]: any };
-      if (body.filters.activites_lib_theme1.includes("N/A")) {
+      const activities = body.data.filters?.activites_lib_theme1 ?? [];
+      if (activities.includes("N/A")) {
         filter.bool = {
           should: [
             { bool: { must_not: { exists: { field: "activites_lib_theme1" } } } },
             {
               terms: {
-                "activites_lib_theme1.keyword": body.filters.activites_lib_theme1.filter((e: string) => e !== "N/A"),
+                "activites_lib_theme1.keyword": activities.filter((e: string) => e !== "N/A"),
               },
             },
           ],
         };
       } else {
-        filter.terms = { "activites_lib_theme1.keyword": body.filters.activites_lib_theme1 };
+        filter.terms = { "activites_lib_theme1.keyword": activities };
       }
       hitsQuery.bool.filter.push(filter);
       Object.keys(facetsAggs)
@@ -216,9 +223,9 @@ router.post("/snu", passport.authenticate("api", { session: false }), async (req
 
     const hitsBody = {
       query: hitsQuery,
-      size: body.size,
-      from: body.page > 0 ? body.page * body.size : 0,
-      sort: body.sort ? [{ [body.sort.field]: body.sort.order }] : [{ createdAt: "desc" }],
+      size: body.data.size,
+      from: body.data.page > 0 ? body.data.page * body.data.size : 0,
+      sort: body.data.sort ? [{ [body.data.sort.field]: body.data.sort.order }] : [{ createdAt: "desc" }],
     };
     const aggsBody = {
       query: facetsQuery,
