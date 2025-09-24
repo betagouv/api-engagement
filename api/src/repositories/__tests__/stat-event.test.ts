@@ -194,6 +194,101 @@ describe("stat-event repository", () => {
     expect(elasticMock.search).not.toHaveBeenCalled();
     expect(res).toMatchObject({ "pub-1": 5 });
   });
+
+  it("aggregates mission stats from elasticsearch", async () => {
+    elasticMock.search.mockResolvedValueOnce({
+      body: {
+        aggregations: {
+          click: { doc_count: 12, data: { value: 4 } },
+          print: { doc_count: 18, data: { value: 6 } },
+          apply: { doc_count: 7, data: { value: 3 } },
+          account: { doc_count: 2, data: { value: 1 } },
+        },
+      },
+    });
+
+    initFeatureFlags("es");
+
+    const res = await statEventRepository.aggregateMissionStats({
+      from: new Date("2024-01-01"),
+      to: new Date("2024-01-02"),
+      excludeToPublisherName: "Service Civique",
+    });
+
+    expect(elasticMock.search).toHaveBeenCalledWith(
+      expect.objectContaining({
+        index: expect.any(String),
+        body: expect.objectContaining({
+          query: expect.objectContaining({
+            bool: expect.objectContaining({
+              must_not: expect.arrayContaining([
+                { term: { "toPublisherName.keyword": "Service Civique" } },
+              ]),
+            }),
+          }),
+        }),
+      })
+    );
+
+    expect(res).toEqual({
+      click: { eventCount: 12, missionCount: 4 },
+      print: { eventCount: 18, missionCount: 6 },
+      apply: { eventCount: 7, missionCount: 3 },
+      account: { eventCount: 2, missionCount: 1 },
+    });
+  });
+
+  it("aggregates mission stats from postgres", async () => {
+    pgMock.statEvent.count
+      .mockResolvedValueOnce(10) // click events
+      .mockResolvedValueOnce(3) // click missions
+      .mockResolvedValueOnce(20) // print events
+      .mockResolvedValueOnce(5) // print missions
+      .mockResolvedValueOnce(4) // apply events
+      .mockResolvedValueOnce(2) // apply missions
+      .mockResolvedValueOnce(1) // account events
+      .mockResolvedValueOnce(1); // account missions
+
+    initFeatureFlags("pg");
+
+    const res = await statEventRepository.aggregateMissionStats({
+      from: new Date("2024-01-01"),
+      to: new Date("2024-01-02"),
+      toPublisherName: "Service Civique",
+      excludeUsers: ["bot"]
+    });
+
+    expect(pgMock.statEvent.count).toHaveBeenCalledTimes(8);
+    expect(pgMock.statEvent.count).toHaveBeenCalledWith({
+      where: {
+        created_at: { gte: expect.any(Date), lt: expect.any(Date) },
+        type: "click",
+        AND: [
+          { to_publisher_name: "Service Civique" },
+          { NOT: { user: { in: ["bot"] } } },
+        ],
+      },
+    });
+    expect(pgMock.statEvent.count).toHaveBeenCalledWith({
+      where: {
+        created_at: { gte: expect.any(Date), lt: expect.any(Date) },
+        type: "click",
+        AND: [
+          { to_publisher_name: "Service Civique" },
+          { NOT: { user: { in: ["bot"] } } },
+        ],
+        mission_id: { not: null },
+      },
+      distinct: ["mission_id"],
+    });
+
+    expect(res).toEqual({
+      click: { eventCount: 10, missionCount: 3 },
+      print: { eventCount: 20, missionCount: 5 },
+      apply: { eventCount: 4, missionCount: 2 },
+      account: { eventCount: 1, missionCount: 1 },
+    });
+  });
 });
 
 function initFeatureFlags(readFrom: "pg" | "es", dual = "false") {
