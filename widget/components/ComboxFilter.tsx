@@ -1,6 +1,6 @@
 import { usePlausible } from "next-plausible";
 import { useEffect, useRef, useState } from "react";
-import { RiArrowDownSLine, RiCheckFill, RiCloseCircleLine, RiSearchLine } from "react-icons/ri";
+import { RiArrowDownSLine, RiCheckFill, RiSearchLine } from "react-icons/ri";
 
 import useStore from "@/utils/store";
 import { FilterOption } from "../types";
@@ -162,34 +162,18 @@ const ComboboxFilter = ({
         className={`absolute ${position} mt-1 z-50 ${className} border border-[#DDDDDD] bg-white py-4 shadow-md ${show ? "block" : "hidden"}`}
       >
         {searchable && (
-          <div className="mx-4">
-            <button
-              ref={resetButtonRef}
-              className="btn w-full mb-4 flex items-center justify-center"
-              style={{ color: color && selection.length > 0 ? color : "" }}
-              onClick={() => {
-                onChange([]);
-                plausible(`Filter ${id} erased`, { u: url || undefined });
-              }}
-              disabled={selection.length === 0}
-            >
-              <RiCloseCircleLine className="text-base mr-2" />
-              Tout désélectionner
-            </button>
-
-            <div className="relative">
-              <input
-                ref={inputRef}
-                aria-label={`Rechercher dans ${placeholder.toLowerCase()}`}
-                role="searchbox"
-                type="text"
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-                placeholder={placeholder}
-                className="input mb-4"
-              />
-              <RiSearchLine className="text-black text-base absolute right-4 top-1/2 -translate-y-1/2" />
-            </div>
+          <div className="relative mx-4">
+            <input
+              ref={inputRef}
+              aria-label={`Rechercher dans ${placeholder.toLowerCase()}`}
+              role="searchbox"
+              type="text"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              placeholder={placeholder}
+              className="input mb-4"
+            />
+            <RiSearchLine className="text-black text-base absolute right-4 top-1/2 -translate-y-1/2" />
           </div>
         )}
 
