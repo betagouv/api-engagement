@@ -35,16 +35,13 @@ const DateFilter = ({ selected, onChange, position = "left-0", width = "w-80" }:
       <label htmlFor="date" className="sr-only">
         Date
       </label>
-      <button
-        id="date"
-        aria-label="date"
-        className={`w-full cursor-pointer rounded-t-md bg-[#EEE] h-[40px] border-b-2 border-[#3A3A3A] p-3 focus:outline-none focus-visible:ring focus-visible:ring-[#000091] flex items-center justify-between ${
-          !selected ? "text-[#666666]" : "text-[#161616]"
-        }`}
-        onClick={() => setShow(!show)}
-      >
-        <span className="pr-3 truncate max-w-60">{selected ? selected.label : "Date"}</span>
-        {show ? <RiArrowDownSLine className="text-xl transform rotate-180" /> : <RiArrowDownSLine className="text-xl" />}
+      <button id="date" aria-label="date" className={`select relative truncate text-left ${!selected ? "text-[#666666]" : "text-[#161616]"}`} onClick={() => setShow(!show)}>
+        {selected ? selected.label : "Date"}
+        {show ? (
+          <RiArrowDownSLine className="text-base transform rotate-180 absolute right-4 top-1/2 -translate-y-1/2" />
+        ) : (
+          <RiArrowDownSLine className="text-base absolute right-4 top-1/2 -translate-y-1/2" />
+        )}
       </button>
 
       <div

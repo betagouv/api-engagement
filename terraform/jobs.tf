@@ -259,7 +259,7 @@ resource "scaleway_job_definition" "export-stats-to-pg" {
   memory_limit = 2048
   image_uri    = local.image_uri
   command      = "node --max-old-space-size=1800 dist/jobs/run-job.js export-stats-to-pg"
-  timeout      = "30m"
+  timeout      = "120m"
 
   cron {
     schedule = "0 3 * * *" # Every day at 3:00 AM
@@ -276,7 +276,7 @@ resource "scaleway_job_definition" "export-organizations-to-pg" {
   memory_limit = 2048
   image_uri    = local.image_uri
   command      = "node --max-old-space-size=1800 dist/jobs/run-job.js export-organizations-to-pg"
-  timeout      = "30m"
+  timeout      = "120m"
 
   cron {
     schedule = "0 4 * * *" # Every day at 4:00 AM
