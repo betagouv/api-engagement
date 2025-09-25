@@ -1,12 +1,13 @@
 import { NextFunction, Request, Response, Router } from "express";
 import zod from "zod";
 
-import { STATS_INDEX } from "../../config";
 import { INVALID_QUERY } from "../../error";
-import esClient from "../../db/elastic";
 import MissionModel from "../../models/mission";
-import { EsQuery } from "../../types";
-import { getPublicGraphStats } from "./utils";
+import {
+  getPublicDepartmentStats,
+  getPublicDomainStats,
+  getPublicGraphStats,
+} from "./utils";
 
 const router = Router();
 
@@ -121,80 +122,11 @@ router.get("/domains", async (req: Request, res: Response, next: NextFunction) =
       return res.status(400).send({ ok: false, code: INVALID_QUERY, error: query.error });
     }
 
-    const filters = [
-      {
-        range: {
-          createdAt: {
-            gte: new Date(query.data.year, 0, 1).toISOString(),
-            lte: new Date(query.data.year, 11, 31).toISOString(),
-          },
-        },
-      },
-    ] as EsQuery["bool"]["filter"];
-
-    if (query.data.department) {
-      filters.push({ term: { "missionDepartmentName.keyword": query.data.department } });
-    }
-
-    if (query.data.type === "volontariat") {
-      filters.push({ term: { "toPublisherName.keyword": "Service Civique" } });
-    } else if (query.data.type === "benevolat") {
-      filters.push({
-        bool: { must_not: { term: { "toPublisherName.keyword": "Service Civique" } } },
-      });
-    }
-
-    const body = {
-      track_total_hits: true,
-      query: {
-        bool: {
-          must_not: [{ term: { isBot: true } }],
-          must: filters.length > 0 ? filters : [{ match_all: {} }],
-        },
-      },
-      aggs: {
-        per_year: {
-          date_histogram: {
-            field: "createdAt",
-            calendar_interval: "year",
-          },
-          aggs: {
-            domains: {
-              terms: { field: "missionDomain.keyword", size: 100 },
-              aggs: {
-                unique_missions: {
-                  cardinality: { field: "missionId.keyword" },
-                },
-                click: {
-                  filter: { term: { "type.keyword": "click" } },
-                },
-                apply: {
-                  filter: { term: { "type.keyword": "apply" } },
-                },
-              },
-            },
-          },
-        },
-      },
-      size: 0,
-    };
-
-    const response = await esClient.search({ index: STATS_INDEX, body });
-    if (response.statusCode !== 200) {
-      return next(response.body.error);
-    }
-
-    const aggs = response.body.aggregations;
-
-    const data = aggs.per_year.buckets.map((yearBucket: { key: string; domains: { buckets: any[] } }) => ({
-      year: new Date(yearBucket.key).getFullYear(),
-      domains: yearBucket.domains.buckets.map((domainBucket) => ({
-        key: domainBucket.key,
-        doc_count: domainBucket.unique_missions.value,
-        click: domainBucket.click.doc_count,
-        apply: domainBucket.apply.doc_count,
-      })),
-    }));
+    const data = await getPublicDomainStats({
+      department: query.data.department,
+      type: query.data.type,
+      year: query.data.year,
+    });
 
     return res.status(200).send({ ok: true, data });
   } catch (error) {
@@ -216,65 +148,10 @@ router.get("/departments", async (req: Request, res: Response, next: NextFunctio
       return res.status(400).send({ ok: false, code: INVALID_QUERY, error: query.error });
     }
 
-    const filter = [
-      {
-        range: {
-          createdAt: {
-            gte: new Date(query.data.year, 0, 1).toISOString(),
-            lte: new Date(query.data.year, 11, 31).toISOString(),
-          },
-        },
-      },
-    ] as EsQuery["bool"]["filter"];
-
-    if (query.data.type === "volontariat") {
-      filter.push({ term: { "toPublisherName.keyword": "Service Civique" } });
-    } else if (query.data.type === "benevolat") {
-      filter.push({
-        bool: { must_not: { term: { "toPublisherName.keyword": "Service Civique" } } },
-      });
-    }
-    const aggBody = {
-      size: 0,
-      query: {
-        bool: {
-          must_not: [{ term: { isBot: true } }],
-          filter,
-        },
-      },
-      aggs: {
-        departments: {
-          terms: {
-            field: "missionPostalCode.keyword",
-            size: 120,
-          },
-          aggs: {
-            unique_missions: {
-              cardinality: {
-                field: "missionId.keyword",
-              },
-            },
-            clicks: {
-              filter: { term: { "type.keyword": "click" } },
-            },
-            applies: {
-              filter: { term: { "type.keyword": "apply" } },
-            },
-          },
-        },
-      },
-    };
-
-    const response = await esClient.search({ index: STATS_INDEX, body: aggBody });
-
-    const data = response.body.aggregations.departments.buckets.map(
-      (b: { key: string; unique_missions: { value: number }; clicks: { doc_count: number }; applies: { doc_count: number } }) => ({
-        key: b.key,
-        mission_count: b.unique_missions.value,
-        click_count: b.clicks.doc_count,
-        apply_count: b.applies.doc_count,
-      })
-    );
+    const data = await getPublicDepartmentStats({
+      type: query.data.type,
+      year: query.data.year,
+    });
 
     return res.status(200).send({ ok: true, data });
   } catch (error) {
