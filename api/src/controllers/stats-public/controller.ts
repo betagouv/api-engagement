@@ -1,11 +1,12 @@
 import { NextFunction, Request, Response, Router } from "express";
 import zod from "zod";
 
-import { STATS_INDEX } from "../config";
-import esClient from "../db/elastic";
-import { INVALID_QUERY } from "../error";
-import MissionModel from "../models/mission";
-import { EsQuery } from "../types";
+import { STATS_INDEX } from "../../config";
+import { INVALID_QUERY } from "../../error";
+import esClient from "../../db/elastic";
+import MissionModel from "../../models/mission";
+import { EsQuery } from "../../types";
+import { getPublicGraphStats } from "./utils";
 
 const router = Router();
 
@@ -46,103 +47,11 @@ router.get("/graph-stats", async (req: Request, res: Response, next: NextFunctio
       return res.status(400).send({ ok: false, code: INVALID_QUERY, error: query.error });
     }
 
-    const viewQuery = {
-      bool: { must_not: [{ term: { isBot: true } }], filter: [] } as { [key: string]: any },
-    };
-
-    if (query.data.department) {
-      viewQuery.bool.filter.push({
-        term: { "missionDepartmentName.keyword": query.data.department },
-      });
-    }
-
-    if (query.data.type === "volontariat") {
-      viewQuery.bool.filter.push({ term: { "toPublisherName.keyword": "Service Civique" } });
-    } else if (query.data.type === "benevolat") {
-      viewQuery.bool.filter.push({
-        bool: { must_not: { term: { "toPublisherName.keyword": "Service Civique" } } },
-      });
-    }
-
-    if (query.data.year) {
-      viewQuery.bool.filter.push({
-        range: {
-          createdAt: {
-            gte: new Date(query.data.year, 0, 1).toISOString(),
-            lte: new Date(query.data.year, 11, 31).toISOString(),
-          },
-        },
-      });
-    }
-
-    const viewBody = {
-      track_total_hits: true,
-      query: viewQuery,
-      aggs: {
-        months: {
-          date_histogram: { field: "createdAt", calendar_interval: "month", format: "yyyy-MM" },
-          aggs: {
-            click: {
-              filter: { term: { "type.keyword": "click" } },
-            },
-            apply: {
-              filter: { term: { "type.keyword": "apply" } },
-            },
-          },
-        },
-
-        organizations: {
-          date_histogram: {
-            field: "createdAt",
-            calendar_interval: "month",
-            format: "yyyy-MM",
-          },
-          aggs: {
-            unique_organizations: {
-              cardinality: {
-                field: "missionOrganizationName.keyword",
-              },
-            },
-          },
-        },
-        organizations_count: {
-          cardinality: {
-            field: "missionOrganizationName.keyword",
-          },
-        },
-      },
-      size: 0,
-    };
-
-    const viewResponse = await esClient.search({ index: STATS_INDEX, body: viewBody });
-    if (viewResponse.statusCode !== 200) {
-      next(viewResponse.body.error);
-    }
-
-    const data = {
-      clicks: viewResponse.body.aggregations.months.buckets
-        .filter((bucket: { key_as_string: string }) => bucket.key_as_string.startsWith(query.data.year.toString()))
-        .map((bucket: { key_as_string: string; click: { doc_count: number } }) => ({
-          key: bucket.key_as_string,
-          doc_count: bucket.click.doc_count,
-        })),
-      totalClicks: viewResponse.body.aggregations.months.buckets.reduce((acc: number, bucket: { click: { doc_count: number } }) => acc + bucket.click.doc_count, 0),
-      applies: viewResponse.body.aggregations.months.buckets
-        .filter((bucket: { key_as_string: string }) => bucket.key_as_string.startsWith(query.data.year.toString()))
-        .map((bucket: { key_as_string: string; apply: { doc_count: number } }) => ({
-          key: bucket.key_as_string,
-          doc_count: bucket.apply.doc_count,
-        })),
-      totalApplies: viewResponse.body.aggregations.months.buckets.reduce((acc: number, bucket: { apply: { doc_count: number } }) => acc + bucket.apply.doc_count, 0),
-
-      organizations: viewResponse.body.aggregations.organizations.buckets
-        .filter((bucket: { key_as_string: string }) => bucket.key_as_string.startsWith(query.data.year.toString()))
-        .map((bucket: { key_as_string: string; unique_organizations: { value: number } }) => ({
-          key: bucket.key_as_string,
-          doc_count: bucket.unique_organizations.value,
-        })),
-      totalOrganizations: viewResponse.body.aggregations.organizations_count.value,
-    };
+    const data = await getPublicGraphStats({
+      department: query.data.department,
+      type: query.data.type,
+      year: query.data.year,
+    });
 
     return res.status(200).send({ ok: true, data });
   } catch (error) {
