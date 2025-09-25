@@ -12,7 +12,7 @@ import { PublisherRequest } from "../../types/passport";
 import { diacriticSensitiveRegex, getDistanceFromLatLonInKm, getDistanceKm } from "../../utils";
 import { MISSION_FIELDS, NO_PARTNER, NO_PARTNER_MESSAGE } from "./constants";
 import { buildData } from "./transformer";
-import { buildArrayQuery, buildDateQuery, findMissionTemp, nearSphereToGeoWithin } from "./utils";
+import { buildArrayQuery, buildDateQuery, findMissionById, nearSphereToGeoWithin } from "./utils";
 
 export const missionQuerySchema = zod.object({
   activity: zod.union([zod.string(), zod.array(zod.string())]).optional(),
@@ -454,9 +454,7 @@ router.get("/:id", passport.authenticate(["apikey", "api"], { session: false }),
       return res.status(400).send({ ok: false, code: INVALID_PARAMS, message: params.error });
     }
 
-    // const mission = await MissionModel.findOne({ _id: params.data.id });
-    // TODO: temporary hack: still used?
-    const mission = await findMissionTemp(params.data.id);
+    const mission = await findMissionById(params.data.id);
     if (!mission) {
       return res.status(404).send({ ok: false, code: NOT_FOUND });
     }

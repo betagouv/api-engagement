@@ -74,9 +74,9 @@ model StatEvent {
   @@index([type, created_at], map: "stats_event_type_created_at_desc_idx")
   @@index([mission_id, created_at], map: "stats_event_mission_id_created_at_idx")
   @@index([mission_client_id, created_at], map: "stats_event_mission_client_id_created_at_idx")
-  @@index([to_publisher_id, created_at], map: "stats_event_to_publisher_id_created_at_idx")
-  @@index([from_publisher_id, created_at], map: "stats_event_from_publisher_id_created_at_idx")
   @@index([mission_department_name, created_at], map: "stats_event_mission_department_name_created_at_idx")
   @@index([mission_domain, created_at], map: "stats_event_mission_domain_created_at_idx")
   @@index([tags], type: Gin, map: "stats_event_tags_idx")
+  @@index([from_publisher_id, type, created_at], map: "stats_event_from_publisher_type_created_at_idx")
+  @@index([to_publisher_id, type, created_at], map: "stats_event_to_publisher_type_created_at_idx")
 }

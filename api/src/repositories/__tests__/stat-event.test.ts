@@ -74,6 +74,89 @@ describe("stat-event repository", () => {
     expect(res?._id).toBe("1");
   });
 
+  it("finds events by missionId from elasticsearch", async () => {
+    elasticMock.search.mockResolvedValueOnce({
+      body: {
+        hits: {
+          hits: [
+            {
+              _id: "event-1",
+              _source: {
+                type: "click",
+                createdAt: new Date(),
+                origin: "",
+                referer: "",
+                userAgent: "",
+                host: "",
+                isBot: false,
+                isHuman: true,
+                source: "publisher",
+                sourceId: "",
+                sourceName: "",
+                status: "PENDING",
+                fromPublisherId: "",
+                fromPublisherName: "",
+                toPublisherId: "",
+                toPublisherName: "",
+                missionId: "mission-1",
+              },
+            },
+          ],
+        },
+      },
+    });
+
+    initFeatureFlags("es");
+
+    const res = await statEventRepository.findFirstByMissionId("mission-1");
+
+    expect(elasticMock.search).toHaveBeenCalledWith(
+      expect.objectContaining({
+        body: {
+          query: { term: { "missionId.keyword": "mission-1" } },
+          size: 1,
+        },
+      })
+    );
+    expect(pgMock.statEvent.findFirst).not.toHaveBeenCalled();
+    expect(res?._id).toBe("event-1");
+  });
+
+  it("finds events by missionId from postgres", async () => {
+    const createdAt = new Date();
+    pgMock.statEvent.findFirst.mockResolvedValueOnce({
+      id: "event-2",
+      type: "click",
+      created_at: createdAt,
+      origin: "",
+      referer: "",
+      user_agent: "",
+      host: "",
+      is_bot: false,
+      is_human: true,
+      source: "publisher",
+      source_id: "",
+      source_name: "",
+      status: "PENDING",
+      from_publisher_id: "",
+      from_publisher_name: "",
+      to_publisher_id: "",
+      to_publisher_name: "",
+      mission_id: "mission-1",
+    });
+
+    initFeatureFlags("pg");
+
+    const res = await statEventRepository.findFirstByMissionId("mission-1");
+
+    expect(pgMock.statEvent.findFirst).toHaveBeenCalledWith({
+      where: { mission_id: "mission-1" },
+      orderBy: { created_at: "desc" },
+    });
+    expect(elasticMock.search).not.toHaveBeenCalled();
+    expect(res?._id).toBe("event-2");
+  });
+
   it("does not override unspecified fields during pg updates", async () => {
     initFeatureFlags("pg");
 
@@ -224,14 +307,8 @@ describe("stat-event repository", () => {
         size: 5,
         query: expect.objectContaining({
           bool: expect.objectContaining({
-            must: expect.arrayContaining([
-              { term: { "fromPublisherName.keyword": "Alice" } },
-              { range: { createdAt: { gt: fromDate } } },
-            ]),
-            should: [
-              { term: { "toPublisherId.keyword": "pub-1" } },
-              { term: { "fromPublisherId.keyword": "pub-1" } },
-            ],
+            must: expect.arrayContaining([{ term: { "fromPublisherName.keyword": "Alice" } }, { range: { createdAt: { gt: fromDate } } }]),
+            should: [{ term: { "toPublisherId.keyword": "pub-1" } }, { term: { "fromPublisherId.keyword": "pub-1" } }],
           }),
         }),
         aggs: { type: { terms: { field: "type.keyword", size: 5 } } },
@@ -269,11 +346,7 @@ describe("stat-event repository", () => {
       where: {
         NOT: { is_bot: true },
         OR: [{ to_publisher_id: "pub-1" }, { from_publisher_id: "pub-1" }],
-        AND: [
-          { to_publisher_id: "pub-2" },
-          { source: "api" },
-          { created_at: { gt: fromDate, lt: toDate } },
-        ],
+        AND: [{ to_publisher_id: "pub-2" }, { source: "api" }, { created_at: { gt: fromDate, lt: toDate } }],
       },
     });
     expect(pgMock.statEvent.groupBy).toHaveBeenCalledWith({
@@ -292,6 +365,91 @@ describe("stat-event repository", () => {
           { key: "apply", doc_count: 2 },
         ],
       },
+    });
+  });
+
+  it("aggregates mission stats from elasticsearch", async () => {
+    elasticMock.search.mockResolvedValueOnce({
+      body: {
+        aggregations: {
+          click: { doc_count: 12, data: { value: 4 } },
+          print: { doc_count: 18, data: { value: 6 } },
+          apply: { doc_count: 7, data: { value: 3 } },
+          account: { doc_count: 2, data: { value: 1 } },
+        },
+      },
+    });
+
+    const res = await statEventRepository.aggregateMissionStats({
+      from: new Date("2024-01-01"),
+      to: new Date("2024-01-02"),
+      excludeToPublisherName: "Service Civique",
+    });
+
+    expect(elasticMock.search).toHaveBeenCalledWith(
+      expect.objectContaining({
+        index: expect.any(String),
+        body: expect.objectContaining({
+          query: expect.objectContaining({
+            bool: expect.objectContaining({
+              must_not: expect.arrayContaining([{ term: { "toPublisherName.keyword": "Service Civique" } }]),
+            }),
+          }),
+        }),
+      })
+    );
+
+    expect(res).toEqual({
+      click: { eventCount: 12, missionCount: 4 },
+      print: { eventCount: 18, missionCount: 6 },
+      apply: { eventCount: 7, missionCount: 3 },
+      account: { eventCount: 2, missionCount: 1 },
+    });
+  });
+
+  it("aggregates mission stats from postgres", async () => {
+    pgMock.statEvent.count
+      .mockResolvedValueOnce(10) // click events
+      .mockResolvedValueOnce(3) // click missions
+      .mockResolvedValueOnce(20) // print events
+      .mockResolvedValueOnce(5) // print missions
+      .mockResolvedValueOnce(4) // apply events
+      .mockResolvedValueOnce(2) // apply missions
+      .mockResolvedValueOnce(1) // account events
+      .mockResolvedValueOnce(1); // account missions
+
+    initFeatureFlags("pg");
+
+    const res = await statEventRepository.aggregateMissionStats({
+      from: new Date("2024-01-01"),
+      to: new Date("2024-01-02"),
+      toPublisherName: "Service Civique",
+      excludeUsers: ["bot"],
+    });
+
+    expect(pgMock.statEvent.count).toHaveBeenCalledTimes(8);
+    expect(pgMock.statEvent.count).toHaveBeenCalledWith({
+      where: {
+        created_at: { gte: expect.any(Date), lt: expect.any(Date) },
+        type: "click",
+        AND: [{ to_publisher_name: "Service Civique" }, { NOT: { user: { in: ["bot"] } } }],
+      },
+    });
+    expect(pgMock.statEvent.count).toHaveBeenCalledWith({
+      where: {
+        created_at: { gte: expect.any(Date), lt: expect.any(Date) },
+        type: "click",
+        AND: [{ to_publisher_name: "Service Civique" }, { NOT: { user: { in: ["bot"] } } }],
+        mission_id: { not: null },
+      },
+      distinct: ["mission_id"],
+    });
+
+    expect(res).toEqual({
+      click: { eventCount: 10, missionCount: 3 },
+      print: { eventCount: 20, missionCount: 5 },
+      apply: { eventCount: 4, missionCount: 2 },
+      account: { eventCount: 1, missionCount: 1 },
     });
   });
 });

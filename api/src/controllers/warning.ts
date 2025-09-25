@@ -1,5 +1,4 @@
 import { NextFunction, Response, Router } from "express";
-import Joi from "joi";
 import passport from "passport";
 import zod from "zod";
 
@@ -56,17 +55,20 @@ router.post("/search", passport.authenticate("admin", { session: false }), async
 
 router.get("/", passport.authenticate("admin", { session: false }), async (req: UserRequest, res: Response, next: NextFunction) => {
   try {
-    const { error: queryError, value: query } = Joi.object({
-      fixed: Joi.boolean().default(false),
-      publisherId: Joi.string().allow("").optional(),
-      type: Joi.string(),
-      month: Joi.number().min(1).max(12).allow("").optional(),
-      year: Joi.number().min(2000).max(3000).allow("").optional(),
-    }).validate(req.query);
+    const queryParsed = zod
+      .object({
+        fixed: zod.coerce.boolean().default(false),
+        publisherId: zod.string().optional(),
+        type: zod.string().optional(),
+        month: zod.coerce.number().min(1).max(12).optional(),
+        year: zod.coerce.number().min(2000).max(3000).optional(),
+      })
+      .safeParse(req.query);
 
-    if (queryError) {
-      return res.status(400).send({ ok: false, code: INVALID_QUERY, message: queryError.details });
+    if (!queryParsed.success) {
+      return res.status(400).send({ ok: false, code: INVALID_QUERY, message: queryParsed.error });
     }
+    const query = queryParsed.data;
 
     const where = { fixed: query.fixed } as { [key: string]: any };
     if (query.publisherId) {
@@ -75,16 +77,16 @@ router.get("/", passport.authenticate("admin", { session: false }), async (req: 
     if (query.type) {
       where.type = query.type;
     }
-    if (query.month && query.year) {
+    if (query.month !== undefined && query.year !== undefined) {
       const startMonth = new Date(query.year, query.month - 1, 1, 0, 0, 0);
       const endMonth = new Date(query.year, query.month, 1, 0, 0, 0);
       where.createdAt = { $gte: startMonth, $lt: endMonth };
-    } else if (query.year) {
-      const year = parseInt(query.year);
+    } else if (query.year !== undefined) {
+      const year = query.year;
       const startYear = new Date(year, 0, 1, 0, 0, 0);
       const endYear = new Date(year + 1, 0, 1, 0, 0, 0);
       where.createdAt = { $gte: startYear, $lt: endYear };
-    } else if (query.month) {
+    } else if (query.month !== undefined) {
       const startMonth = new Date(new Date().getFullYear(), query.month - 1, 1, 0, 0, 0);
       const endMonth = new Date(new Date().getFullYear(), query.month, 1, 0, 0, 0);
       where.createdAt = { $gte: startMonth, $lt: endMonth };
@@ -145,23 +147,29 @@ router.get("/admin-state", passport.authenticate("user", { session: false }), as
 
 router.get("/:publisherId", passport.authenticate("user", { session: false }), async (req: UserRequest, res: Response, next: NextFunction) => {
   try {
-    const { error: queryError, value: query } = Joi.object({
-      fixed: Joi.boolean().default(false),
-      type: Joi.string(),
-      month: Joi.number().min(1).max(12).allow("").optional(),
-      year: Joi.number().min(2000).max(3000).allow("").optional(),
-    }).validate(req.query);
+    const queryParsed = zod
+      .object({
+        fixed: zod.coerce.boolean().default(false),
+        type: zod.string().optional(),
+        month: zod.coerce.number().min(1).max(12).optional(),
+        year: zod.coerce.number().min(2000).max(3000).optional(),
+      })
+      .safeParse(req.query);
 
-    const { error: paramsError, value: params } = Joi.object({
-      publisherId: Joi.string().required(),
-    }).validate(req.params);
+    const paramsParsed = zod
+      .object({
+        publisherId: zod.string(),
+      })
+      .safeParse(req.params);
 
-    if (queryError) {
-      return res.status(400).send({ ok: false, code: INVALID_QUERY, message: queryError.details });
+    if (!queryParsed.success) {
+      return res.status(400).send({ ok: false, code: INVALID_QUERY, message: queryParsed.error });
     }
-    if (paramsError) {
-      return res.status(400).send({ ok: false, code: INVALID_PARAMS, message: paramsError.details });
+    if (!paramsParsed.success) {
+      return res.status(400).send({ ok: false, code: INVALID_PARAMS, message: paramsParsed.error });
     }
+    const query = queryParsed.data;
+    const params = paramsParsed.data;
 
     const where = { publisherId: params.publisherId, fixed: query.fixed } as {
       [key: string]: any;
@@ -169,16 +177,16 @@ router.get("/:publisherId", passport.authenticate("user", { session: false }), a
     if (query.type) {
       where.type = query.type;
     }
-    if (query.month && query.year) {
+    if (query.month !== undefined && query.year !== undefined) {
       const startMonth = new Date(query.year, query.month - 1, 1, 0, 0, 0);
       const endMonth = new Date(query.year, query.month, 1, 0, 0, 0);
       where.createdAt = { $gte: startMonth, $lt: endMonth };
-    } else if (query.year) {
-      const year = parseInt(query.year);
+    } else if (query.year !== undefined) {
+      const year = query.year;
       const startYear = new Date(year, 0, 1, 0, 0, 0);
       const endYear = new Date(year + 1, 0, 1, 0, 0, 0);
       where.createdAt = { $gte: startYear, $lt: endYear };
-    } else if (query.month) {
+    } else if (query.month !== undefined) {
       const startMonth = new Date(new Date().getFullYear(), query.month - 1, 1, 0, 0, 0);
       const endMonth = new Date(new Date().getFullYear(), query.month, 1, 0, 0, 0);
       where.createdAt = { $gte: startMonth, $lt: endMonth };

@@ -1,5 +1,4 @@
 import { NextFunction, Response, Router } from "express";
-import Joi from "joi";
 import passport from "passport";
 import zod from "zod";
 
@@ -65,23 +64,23 @@ router.post("/search", passport.authenticate("user", { session: false }), async 
 
 router.get("/", passport.authenticate("user", { session: false }), async (req: UserRequest, res: Response, next: NextFunction) => {
   try {
-    const { error: queryError, value: query } = Joi.object({
-      fromPublisherId: Joi.string().allow("").optional(),
-      active: Joi.boolean().optional(),
-    })
-      .unknown()
-      .validate(req.query);
+    const query = zod
+      .object({
+        fromPublisherId: zod.string().optional(),
+        active: zod.boolean().optional(),
+      })
+      .safeParse(req.query);
 
-    if (queryError) {
-      return res.status(400).send({ ok: false, code: INVALID_QUERY, message: queryError.details });
+    if (query.error) {
+      return res.status(400).send({ ok: false, code: INVALID_QUERY, message: query.error });
     }
 
     const where = { deleted: false } as { [key: string]: any };
-    if (query.fromPublisherId) {
-      if (req.user.role !== "admin" && !req.user.publishers.includes(query.fromPublisherId)) {
+    if (query.data.fromPublisherId) {
+      if (req.user.role !== "admin" && !req.user.publishers.includes(query.data.fromPublisherId)) {
         return res.status(403).send({ ok: false, code: FORBIDDEN, message: "Not allowed" });
       } else {
-        where.fromPublisherId = query.fromPublisherId;
+        where.fromPublisherId = query.data.fromPublisherId;
       }
     } else if (req.user.role !== "admin") {
       where.fromPublisherId = { $in: req.user.publishers };

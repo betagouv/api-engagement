@@ -1,5 +1,7 @@
 import { v4 as uuidv4 } from "uuid";
 
+import { Prisma } from "../db/core";
+
 import { STATS_INDEX } from "../config";
 import esClient from "../db/elastic";
 import { prismaCore } from "../db/postgres";
@@ -50,6 +52,21 @@ interface SearchViewStatsResult {
 }
 
 const DEFAULT_TYPES: StatEventType[] = ["click", "print", "apply", "account"];
+
+interface AggregateMissionStatsParams {
+  from: Date;
+  to: Date;
+  toPublisherName?: string;
+  excludeToPublisherName?: string;
+  excludeUsers?: string[];
+}
+
+export interface MissionStatsAggregationBucket {
+  eventCount: number;
+  missionCount: number;
+}
+
+export type MissionStatsAggregations = Record<StatEventType, MissionStatsAggregationBucket>;
 
 function toPg(data: Partial<Stats>, options: { includeDefaults?: boolean } = {}) {
   const { includeDefaults = true } = options;
@@ -190,6 +207,31 @@ export async function count() {
   return body.count as number;
 }
 
+export async function findFirstByMissionId(missionId: string): Promise<Stats | null> {
+  if (getReadStatsFrom() === "pg") {
+    const pgRes = await prismaCore.statEvent.findFirst({
+      where: { mission_id: missionId },
+      orderBy: { created_at: "desc" },
+    });
+    return pgRes ? fromPg(pgRes) : null;
+  }
+
+  const esRes = await esClient.search({
+    index: STATS_INDEX,
+    body: {
+      query: { term: { "missionId.keyword": missionId } },
+      size: 1,
+    },
+  });
+
+  const hit = esRes.body.hits?.hits?.[0];
+  if (!hit) {
+    return null;
+  }
+
+  return { _id: hit._id, ...hit._source } as Stats;
+}
+
 export async function countByTypeSince({ publisherId, from, types }: CountByTypeParams) {
   const statTypes = types?.length ? types : DEFAULT_TYPES;
   const counts: Record<StatEventType, number> = {
@@ -254,7 +296,7 @@ export async function countClicksByPublisherForOrganizationSince({ publisherIds,
     const rows = (await prismaCore.statEvent.groupBy({
       by: ["from_publisher_id"],
       where: {
-        type: "click",
+        type: "click" as any,
         is_bot: { not: true },
         mission_organization_client_id: organizationClientId,
         from_publisher_id: { in: publisherIds },
@@ -306,12 +348,7 @@ export async function countClicksByPublisherForOrganizationSince({ publisherIds,
   );
 }
 
-export async function searchViewStats({
-  publisherId,
-  size = 10,
-  filters = {},
-  facets = [],
-}: SearchViewStatsParams): Promise<SearchViewStatsResult> {
+export async function searchViewStats({ publisherId, size = 10, filters = {}, facets = [] }: SearchViewStatsParams): Promise<SearchViewStatsResult> {
   if (getReadStatsFrom() === "pg") {
     const where: Record<string, any> = {
       NOT: { is_bot: true },
@@ -402,10 +439,7 @@ export async function searchViewStats({
       bool: {
         must_not: [{ term: { isBot: true } }],
         must: [],
-        should: [
-          { term: { "toPublisherId.keyword": publisherId } },
-          { term: { "fromPublisherId.keyword": publisherId } },
-        ],
+        should: [{ term: { "toPublisherId.keyword": publisherId } }, { term: { "fromPublisherId.keyword": publisherId } }],
         filter: [],
       },
     },
@@ -462,17 +496,124 @@ export async function searchViewStats({
   return { total, facets: facetsResult };
 }
 
-const statEventRepository = {
-  createStatEvent,
-  updateStatEventById,
-  getStatEventById,
-  count,
-  countByTypeSince,
-  countClicksByPublisherForOrganizationSince,
-  searchViewStats,
-};
+function createEmptyAggregations(): MissionStatsAggregations {
+  return DEFAULT_TYPES.reduce((acc, type) => {
+    acc[type] = { eventCount: 0, missionCount: 0 };
+    return acc;
+  }, {} as MissionStatsAggregations);
+}
 
-export default statEventRepository;
+export async function aggregateMissionStats({
+  from,
+  to,
+  toPublisherName,
+  excludeToPublisherName,
+  excludeUsers = [],
+}: AggregateMissionStatsParams): Promise<MissionStatsAggregations> {
+  if (getReadStatsFrom() === "pg") {
+    const baseWhere: Prisma.StatEventWhereInput = {
+      created_at: { gte: from, lt: to },
+    };
+
+    const andConditions: Prisma.StatEventWhereInput[] = [];
+
+    if (toPublisherName) {
+      andConditions.push({ to_publisher_name: toPublisherName });
+    }
+
+    if (excludeToPublisherName) {
+      andConditions.push({ NOT: { to_publisher_name: excludeToPublisherName } });
+    }
+
+    if (excludeUsers.length) {
+      andConditions.push({ NOT: { user: { in: excludeUsers } } });
+    }
+
+    if (andConditions.length) {
+      baseWhere.AND = andConditions;
+    }
+
+    const result = createEmptyAggregations();
+
+    await Promise.all(
+      DEFAULT_TYPES.map(async (type) => {
+        const where: Prisma.StatEventWhereInput = {
+          ...baseWhere,
+          type: type as StatEventType,
+        };
+
+        const [eventCount, missionCount] = await Promise.all([
+          prismaCore.statEvent.count({ where }),
+          prismaCore.statEvent.count({
+            where: { ...where, mission_id: { not: null } },
+            distinct: ["mission_id"],
+          } as any),
+        ]);
+
+        result[type] = { eventCount, missionCount };
+      })
+    );
+
+    return result;
+  }
+
+  const filter: any[] = [{ range: { createdAt: { gte: from.toISOString(), lt: to.toISOString() } } }];
+
+  if (toPublisherName) {
+    filter.push({ term: { "toPublisherName.keyword": toPublisherName } });
+  }
+
+  const mustNot: any[] = [];
+
+  if (excludeToPublisherName) {
+    mustNot.push({ term: { "toPublisherName.keyword": excludeToPublisherName } });
+  }
+
+  if (excludeUsers.length) {
+    mustNot.push({ terms: { "user.keyword": excludeUsers } });
+  }
+
+  const aggs = DEFAULT_TYPES.reduce(
+    (acc, type) => {
+      acc[type] = {
+        filter: { term: { "type.keyword": type } },
+        aggs: {
+          data: { cardinality: { field: "missionId.keyword" } },
+        },
+      };
+      return acc;
+    },
+    {} as Record<StatEventType, unknown>
+  );
+
+  const query: any = { bool: { filter } };
+
+  if (mustNot.length) {
+    query.bool.must_not = mustNot;
+  }
+
+  const response = await esClient.search({
+    index: STATS_INDEX,
+    body: {
+      query,
+      aggs,
+      size: 0,
+    },
+  });
+
+  const aggregations = response.body.aggregations ?? {};
+  const result = createEmptyAggregations();
+
+  DEFAULT_TYPES.forEach((type) => {
+    const bucket = aggregations[type as keyof typeof aggregations] as { doc_count?: number; data?: { value?: number } } | undefined;
+    result[type] = {
+      eventCount: bucket?.doc_count ?? 0,
+      missionCount: bucket?.data?.value ?? 0,
+    };
+  });
+
+  return result;
+}
 
 // Helpers to evaluate feature flags
 function getReadStatsFrom(): "es" | "pg" {
@@ -494,3 +635,17 @@ function toPgColumnName(field: string): string | null {
 
   return column ?? null;
 }
+
+const statEventRepository = {
+  createStatEvent,
+  updateStatEventById,
+  getStatEventById,
+  count,
+  countByTypeSince,
+  countClicksByPublisherForOrganizationSince,
+  searchViewStats,
+  aggregateMissionStats,
+  findFirstByMissionId,
+};
+
+export default statEventRepository;

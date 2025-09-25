@@ -1,12 +1,12 @@
 import { NextFunction, Response, Router } from "express";
-import Joi from "joi";
 import passport from "passport";
+import zod from "zod";
 
 import { INVALID_QUERY } from "../error";
 import RequestModel from "../models/request";
+import statEventRepository from "../repositories/stat-event";
 import { Publisher } from "../types";
 import { PublisherRequest } from "../types/passport";
-import statEventRepository from "../repositories/stat-event";
 
 const router = Router();
 
@@ -36,26 +36,28 @@ router.use(async (req: PublisherRequest, res: Response, next: NextFunction) => {
 router.get("/stats", passport.authenticate(["apikey", "api"], { session: false }), async (req: PublisherRequest, res: Response, next: NextFunction) => {
   try {
     const user = req.user as Publisher;
-    const { error: queryError, value: query } = Joi.object({
-      fromPublisherId: Joi.string().allow("").optional(),
-      toPublisherId: Joi.string().allow("").optional(),
-      fromPublisherName: Joi.string().allow("").optional(),
-      toPublisherName: Joi.string().allow("").optional(),
-      missionDomain: Joi.string().allow("").optional(),
-      type: Joi.string().allow("").optional(),
-      source: Joi.string().allow("").optional(),
-      createdAt: Joi.alternatives(Joi.string(), Joi.array().items(Joi.string())).allow("").optional(),
-      size: Joi.number().min(1).max(10000).default(10),
-      facets: Joi.string().allow("").optional(),
-    }).validate(req.query);
+    const query = zod
+      .object({
+        fromPublisherId: zod.string().optional(),
+        toPublisherId: zod.string().optional(),
+        fromPublisherName: zod.string().optional(),
+        toPublisherName: zod.string().optional(),
+        missionDomain: zod.string().optional(),
+        type: zod.string().optional(),
+        source: zod.string().optional(),
+        createdAt: zod.union([zod.string(), zod.array(zod.string())]).optional(),
+        size: zod.coerce.number().min(1).max(10000).default(10),
+        facets: zod.string().optional(),
+      })
+      .safeParse(req.query);
 
-    if (queryError) {
-      return res.status(400).send({ ok: false, code: INVALID_QUERY, error: queryError.details });
+    if (!query.success) {
+      return res.status(400).send({ ok: false, code: INVALID_QUERY, error: query.error });
     }
 
     const createdAtFilters: { operator: "gt" | "lt"; date: Date }[] = [];
-    if (query.createdAt) {
-      const createdAtValues = Array.isArray(query.createdAt) ? query.createdAt : [query.createdAt];
+    if (query.data.createdAt) {
+      const createdAtValues = Array.isArray(query.data.createdAt) ? query.data.createdAt : [query.data.createdAt];
       createdAtValues
         .filter((value): value is string => typeof value === "string" && value.length > 0)
         .forEach((value) => {
@@ -74,8 +76,8 @@ router.get("/stats", passport.authenticate(["apikey", "api"], { session: false }
         });
     }
 
-    const facets = query.facets
-      ? query.facets
+    const facets = query.data.facets
+      ? query.data.facets
           .split(",")
           .map((facet) => facet.trim())
           .filter((facet) => facet.length)
@@ -83,15 +85,15 @@ router.get("/stats", passport.authenticate(["apikey", "api"], { session: false }
 
     const { total, facets: facetBuckets } = await statEventRepository.searchViewStats({
       publisherId: user._id.toString(),
-      size: query.size,
+      size: query.data.size,
       filters: {
-        fromPublisherName: query.fromPublisherName || undefined,
-        toPublisherName: query.toPublisherName || undefined,
-        fromPublisherId: query.fromPublisherId || undefined,
-        toPublisherId: query.toPublisherId || undefined,
-        missionDomain: query.missionDomain || undefined,
-        type: query.type || undefined,
-        source: query.source || undefined,
+        fromPublisherName: query.data.fromPublisherName || undefined,
+        toPublisherName: query.data.toPublisherName || undefined,
+        fromPublisherId: query.data.fromPublisherId || undefined,
+        toPublisherId: query.data.toPublisherId || undefined,
+        missionDomain: query.data.missionDomain || undefined,
+        type: query.data.type || undefined,
+        source: query.data.source || undefined,
         createdAt: createdAtFilters.length ? createdAtFilters : undefined,
       },
       facets,
