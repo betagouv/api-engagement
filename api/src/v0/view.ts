@@ -2,10 +2,9 @@ import { NextFunction, Response, Router } from "express";
 import passport from "passport";
 import zod from "zod";
 
-import { STATS_INDEX } from "../config";
-import esClient from "../db/elastic";
 import { INVALID_QUERY } from "../error";
 import RequestModel from "../models/request";
+import statEventRepository from "../repositories/stat-event";
 import { Publisher } from "../types";
 import { PublisherRequest } from "../types/passport";
 
@@ -56,79 +55,52 @@ router.get("/stats", passport.authenticate(["apikey", "api"], { session: false }
       return res.status(400).send({ ok: false, code: INVALID_QUERY, error: query.error });
     }
 
-    const where = {
-      query: {
-        bool: {
-          must_not: [{ term: { isBot: true } }],
-          must: [],
-          should: [{ term: { "toPublisherId.keyword": user._id } }, { term: { "fromPublisherId.keyword": user._id } }],
-          filter: [],
-        },
-      },
-      size: query.data.size,
-      track_total_hits: true,
-    } as { [key: string]: any };
-
-    if (query.data.fromPublisherName) {
-      where.query.bool.must.push({
-        term: { "fromPublisherName.keyword": query.data.fromPublisherName },
-      });
-    }
-    if (query.data.toPublisherName) {
-      where.query.bool.must.push({ term: { "toPublisherName.keyword": query.data.toPublisherName } });
-    }
-
-    if (query.data.fromPublisherId) {
-      where.query.bool.must.push({ term: { "fromPublisherId.keyword": query.data.fromPublisherId } });
-    }
-    if (query.data.toPublisherId) {
-      where.query.bool.must.push({ term: { "toPublisherId.keyword": query.data.toPublisherId } });
-    }
-
-    if (query.data.missionDomain) {
-      where.query.bool.must.push({ term: { "missionDomain.keyword": query.data.missionDomain } });
-    }
-    if (query.data.type) {
-      where.query.bool.must.push({ term: { "type.keyword": query.data.type } });
-    }
-    if (query.data.source) {
-      where.query.bool.must.push({ term: { "source.keyword": query.data.source } });
-    }
-
+    const createdAtFilters: { operator: "gt" | "lt"; date: Date }[] = [];
     if (query.data.createdAt) {
-      const createdAt = Array.isArray(query.data.createdAt) ? query.data.createdAt : [query.data.createdAt];
-      for (let i = 0; i < createdAt.length; i++) {
-        if (createdAt[i].startsWith("gt:")) {
-          const date = new Date(createdAt[i].replace("gt:", ""));
-          where.query.bool.must.push({ range: { createdAt: { gt: date } } });
-        }
-        if (createdAt[i].startsWith("lt:")) {
-          const date = new Date(createdAt[i].replace("lt:", ""));
-          where.query.bool.must.push({ range: { createdAt: { lt: date } } });
-        }
-      }
+      const createdAtValues = Array.isArray(query.data.createdAt) ? query.data.createdAt : [query.data.createdAt];
+      createdAtValues
+        .filter((value): value is string => typeof value === "string" && value.length > 0)
+        .forEach((value) => {
+          if (value.startsWith("gt:")) {
+            const date = new Date(value.replace("gt:", ""));
+            if (!Number.isNaN(date.getTime())) {
+              createdAtFilters.push({ operator: "gt", date });
+            }
+          }
+          if (value.startsWith("lt:")) {
+            const date = new Date(value.replace("lt:", ""));
+            if (!Number.isNaN(date.getTime())) {
+              createdAtFilters.push({ operator: "lt", date });
+            }
+          }
+        });
     }
 
-    if (query.data.facets) {
-      const size = query.data.size || 10;
-      const aggregations = query.data.facets.split(",");
-      where.aggs = {};
-      for (let i = 0; i < aggregations.length; i++) {
-        where.aggs[aggregations[i]] = { terms: { field: `${aggregations[i]}.keyword`, size } };
-      }
-    }
+    const facets = query.data.facets
+      ? query.data.facets
+          .split(",")
+          .map((facet) => facet.trim())
+          .filter((facet) => facet.length)
+      : [];
 
-    const response = await esClient.search({ index: STATS_INDEX, body: where });
-
-    const total = response.body.hits.total.value;
-    const facets = {} as { [key: string]: any };
-    for (let i = 0; i < Object.keys(response.body.aggregations || {}).length; i++) {
-      const key = Object.keys(response.body.aggregations)[i];
-      facets[key] = response.body.aggregations[key].buckets;
-    }
+    const { total, facets: facetBuckets } = await statEventRepository.searchViewStats({
+      publisherId: user._id.toString(),
+      size: query.data.size,
+      filters: {
+        fromPublisherName: query.data.fromPublisherName || undefined,
+        toPublisherName: query.data.toPublisherName || undefined,
+        fromPublisherId: query.data.fromPublisherId || undefined,
+        toPublisherId: query.data.toPublisherId || undefined,
+        missionDomain: query.data.missionDomain || undefined,
+        type: query.data.type || undefined,
+        source: query.data.source || undefined,
+        createdAt: createdAtFilters.length ? createdAtFilters : undefined,
+      },
+      facets,
+    });
 
     res.locals = { total };
-    return res.status(200).send({ total, facets });
+    return res.status(200).send({ total, facets: facetBuckets });
   } catch (error) {
     next(error);
   }

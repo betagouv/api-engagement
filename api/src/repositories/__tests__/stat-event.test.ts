@@ -116,7 +116,7 @@ describe("stat-event repository", () => {
           query: { term: { "missionId.keyword": "mission-1" } },
           size: 1,
         },
-      }),
+      })
     );
     expect(pgMock.statEvent.findFirst).not.toHaveBeenCalled();
     expect(res?._id).toBe("event-1");
@@ -278,6 +278,96 @@ describe("stat-event repository", () => {
     expect(res).toMatchObject({ "pub-1": 5 });
   });
 
+  it("searches view stats from elasticsearch", async () => {
+    const aggregationBuckets = [{ key: "click", doc_count: 4 }];
+    elasticMock.search.mockResolvedValueOnce({
+      body: {
+        hits: { total: { value: 4 } },
+        aggregations: { type: { buckets: aggregationBuckets } },
+      },
+    });
+
+    initFeatureFlags("es");
+
+    const fromDate = new Date("2024-01-01T00:00:00.000Z");
+
+    const res = await statEventRepository.searchViewStats({
+      publisherId: "pub-1",
+      size: 5,
+      filters: {
+        fromPublisherName: "Alice",
+        createdAt: [{ operator: "gt", date: fromDate }],
+      },
+      facets: ["type"],
+    });
+
+    expect(elasticMock.search).toHaveBeenCalledWith({
+      index: expect.any(String),
+      body: expect.objectContaining({
+        size: 5,
+        query: expect.objectContaining({
+          bool: expect.objectContaining({
+            must: expect.arrayContaining([{ term: { "fromPublisherName.keyword": "Alice" } }, { range: { createdAt: { gt: fromDate } } }]),
+            should: [{ term: { "toPublisherId.keyword": "pub-1" } }, { term: { "fromPublisherId.keyword": "pub-1" } }],
+          }),
+        }),
+        aggs: { type: { terms: { field: "type.keyword", size: 5 } } },
+      }),
+    });
+    expect(res).toEqual({ total: 4, facets: { type: aggregationBuckets } });
+  });
+
+  it("searches view stats from postgres", async () => {
+    pgMock.statEvent.count.mockResolvedValueOnce(7);
+    pgMock.statEvent.groupBy.mockResolvedValueOnce([
+      { type: "click", _count: { _all: 5 } },
+      { type: "apply", _count: { _all: 2 } },
+    ]);
+
+    initFeatureFlags("pg");
+
+    const fromDate = new Date("2024-01-01T00:00:00.000Z");
+    const toDate = new Date("2024-02-01T00:00:00.000Z");
+
+    const res = await statEventRepository.searchViewStats({
+      publisherId: "pub-1",
+      filters: {
+        toPublisherId: "pub-2",
+        source: "api",
+        createdAt: [
+          { operator: "gt", date: fromDate },
+          { operator: "lt", date: toDate },
+        ],
+      },
+      facets: ["type"],
+    });
+
+    expect(pgMock.statEvent.count).toHaveBeenCalledWith({
+      where: {
+        NOT: { is_bot: true },
+        OR: [{ to_publisher_id: "pub-1" }, { from_publisher_id: "pub-1" }],
+        AND: [{ to_publisher_id: "pub-2" }, { source: "api" }, { created_at: { gt: fromDate, lt: toDate } }],
+      },
+    });
+    expect(pgMock.statEvent.groupBy).toHaveBeenCalledWith({
+      by: ["type"],
+      where: expect.any(Object),
+      _count: { _all: true },
+      orderBy: { _count: { _all: "desc" } },
+      take: 10,
+    });
+
+    expect(res).toEqual({
+      total: 7,
+      facets: {
+        type: [
+          { key: "click", doc_count: 5 },
+          { key: "apply", doc_count: 2 },
+        ],
+      },
+    });
+  });
+
   it("aggregates mission stats from elasticsearch", async () => {
     elasticMock.search.mockResolvedValueOnce({
       body: {
@@ -304,9 +394,7 @@ describe("stat-event repository", () => {
         body: expect.objectContaining({
           query: expect.objectContaining({
             bool: expect.objectContaining({
-              must_not: expect.arrayContaining([
-                { term: { "toPublisherName.keyword": "Service Civique" } },
-              ]),
+              must_not: expect.arrayContaining([{ term: { "toPublisherName.keyword": "Service Civique" } }]),
             }),
           }),
         }),
@@ -338,7 +426,7 @@ describe("stat-event repository", () => {
       from: new Date("2024-01-01"),
       to: new Date("2024-01-02"),
       toPublisherName: "Service Civique",
-      excludeUsers: ["bot"]
+      excludeUsers: ["bot"],
     });
 
     expect(pgMock.statEvent.count).toHaveBeenCalledTimes(8);
@@ -346,20 +434,14 @@ describe("stat-event repository", () => {
       where: {
         created_at: { gte: expect.any(Date), lt: expect.any(Date) },
         type: "click",
-        AND: [
-          { to_publisher_name: "Service Civique" },
-          { NOT: { user: { in: ["bot"] } } },
-        ],
+        AND: [{ to_publisher_name: "Service Civique" }, { NOT: { user: { in: ["bot"] } } }],
       },
     });
     expect(pgMock.statEvent.count).toHaveBeenCalledWith({
       where: {
         created_at: { gte: expect.any(Date), lt: expect.any(Date) },
         type: "click",
-        AND: [
-          { to_publisher_name: "Service Civique" },
-          { NOT: { user: { in: ["bot"] } } },
-        ],
+        AND: [{ to_publisher_name: "Service Civique" }, { NOT: { user: { in: ["bot"] } } }],
         mission_id: { not: null },
       },
       distinct: ["mission_id"],
