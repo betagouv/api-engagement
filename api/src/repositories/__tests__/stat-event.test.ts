@@ -74,6 +74,89 @@ describe("stat-event repository", () => {
     expect(res?._id).toBe("1");
   });
 
+  it("finds events by missionId from elasticsearch", async () => {
+    elasticMock.search.mockResolvedValueOnce({
+      body: {
+        hits: {
+          hits: [
+            {
+              _id: "event-1",
+              _source: {
+                type: "click",
+                createdAt: new Date(),
+                origin: "",
+                referer: "",
+                userAgent: "",
+                host: "",
+                isBot: false,
+                isHuman: true,
+                source: "publisher",
+                sourceId: "",
+                sourceName: "",
+                status: "PENDING",
+                fromPublisherId: "",
+                fromPublisherName: "",
+                toPublisherId: "",
+                toPublisherName: "",
+                missionId: "mission-1",
+              },
+            },
+          ],
+        },
+      },
+    });
+
+    initFeatureFlags("es");
+
+    const res = await statEventRepository.findFirstByMissionId("mission-1");
+
+    expect(elasticMock.search).toHaveBeenCalledWith(
+      expect.objectContaining({
+        body: {
+          query: { term: { "missionId.keyword": "mission-1" } },
+          size: 1,
+        },
+      }),
+    );
+    expect(pgMock.statEvent.findFirst).not.toHaveBeenCalled();
+    expect(res?._id).toBe("event-1");
+  });
+
+  it("finds events by missionId from postgres", async () => {
+    const createdAt = new Date();
+    pgMock.statEvent.findFirst.mockResolvedValueOnce({
+      id: "event-2",
+      type: "click",
+      created_at: createdAt,
+      origin: "",
+      referer: "",
+      user_agent: "",
+      host: "",
+      is_bot: false,
+      is_human: true,
+      source: "publisher",
+      source_id: "",
+      source_name: "",
+      status: "PENDING",
+      from_publisher_id: "",
+      from_publisher_name: "",
+      to_publisher_id: "",
+      to_publisher_name: "",
+      mission_id: "mission-1",
+    });
+
+    initFeatureFlags("pg");
+
+    const res = await statEventRepository.findFirstByMissionId("mission-1");
+
+    expect(pgMock.statEvent.findFirst).toHaveBeenCalledWith({
+      where: { mission_id: "mission-1" },
+      orderBy: { created_at: "desc" },
+    });
+    expect(elasticMock.search).not.toHaveBeenCalled();
+    expect(res?._id).toBe("event-2");
+  });
+
   it("does not override unspecified fields during pg updates", async () => {
     initFeatureFlags("pg");
 
