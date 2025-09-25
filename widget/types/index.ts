@@ -56,13 +56,13 @@ export interface Filters {
   // Benevolat specific filters
   organization?: FilterOption[];
   department?: FilterOption[];
-  remote?: FilterOption[];
+  remote?: FilterOption | null;
   // Volontariat specific filters
   start?: { label: string; value: Date } | null;
   duration?: FilterOption | null;
-  schedule?: FilterOption[];
-  minor?: FilterOption[];
-  accessibility?: FilterOption[];
+  schedule?: FilterOption | null;
+  minor?: FilterOption | null;
+  accessibility?: FilterOption | null;
   action?: FilterOption[];
   beneficiary?: FilterOption[];
   country?: FilterOption[];

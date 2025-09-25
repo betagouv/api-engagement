@@ -66,15 +66,15 @@ const getInitialFilters = (widget: Widget): FilterTypes => {
           // Benevolat filters
           organization: [],
           department: [],
-          remote: [],
+          remote: null,
         }
       : {
           // Volontariat filters
           start: null,
           duration: null,
-          schedule: [],
-          minor: [],
-          accessibility: [],
+          schedule: null,
+          minor: null,
+          accessibility: null,
           action: [],
           beneficiary: [],
           country: [],
@@ -184,36 +184,36 @@ const Home = ({ widget, apiUrl, missions, total, request, environment }: PagePro
         if (filters.department?.length) {
           query.department = filters.department.map((item) => (item.value === "" ? "none" : item.value)).join(",");
         }
-        if (filters.remote?.length) {
-          query.remote = filters.remote.map((item) => item.value).join(",");
+        if (filters.remote && filters.remote.value) {
+          query.remote = filters.remote.value;
         }
       } else {
-        if (filters.accessibility?.length) {
-          query.accessibility = filters.accessibility.map((item) => item.value).join(",");
+        if (filters.accessibility && filters.accessibility.value) {
+          query.accessibility = filters.accessibility.value;
         }
-        if (filters.action?.length) {
-          query.action = filters.action.map((item) => item.value).join(",");
+        if (filters.minor && filters.minor.value) {
+          query.minor = filters.minor.value;
         }
-        if (filters.beneficiary?.length) {
-          query.beneficiary = filters.beneficiary.map((item) => item.value).join(",");
+        if (filters.schedule && filters.schedule.value) {
+          query.schedule = filters.schedule.value;
         }
-        if (filters.country?.length) {
-          query.country = filters.country.map((item) => item.value).join(",");
-        }
-        if (filters.domain?.length) {
-          query.domain = filters.domain.map((item) => item.value).join(",");
-        }
-        if (filters.duration) {
+        if (filters.duration && filters.duration.value) {
           query.duration = filters.duration.value;
         }
-        if (filters.minor?.length) {
-          query.minor = filters.minor.map((item) => item.value).join(",");
-        }
-        if (filters.schedule?.length) {
-          query.schedule = filters.schedule.map((item) => item.value).join(",");
-        }
-        if (filters.start) {
+        if (filters.start && filters.start.value) {
           query.start = filters.start.value.toISOString();
+        }
+        if (filters.action && filters.action.length) {
+          query.action = filters.action.map((item) => item.value).join(",");
+        }
+        if (filters.beneficiary && filters.beneficiary.length) {
+          query.beneficiary = filters.beneficiary.map((item) => item.value).join(",");
+        }
+        if (filters.country && filters.country.length) {
+          query.country = filters.country.map((item) => item.value).join(",");
+        }
+        if (filters.domain && filters.domain.length) {
+          query.domain = filters.domain.map((item) => item.value).join(",");
         }
       }
 
@@ -237,16 +237,16 @@ const Home = ({ widget, apiUrl, missions, total, request, environment }: PagePro
   }
 
   return (
-    <div className={`p-4 xl:px-0 ${getContainerHeight(widget)} md:max-w-[1200px] gap-6 flex flex-col justify-start items-center mx-auto`}>
+    <div className={`p-4 xl:px-0 ${getContainerHeight(widget)} md:max-w-[1200px] flex flex-col justify-start items-center mx-auto`}>
       <header role="banner" className={`w-full space-y-4 md:space-y-8 ${widget?.style === "carousel" ? "md:max-w-[1168px] md:px-14" : ""}`}>
         <div className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
           <h1 className="text-[28px] font-bold leading-[36px] md:p-0">{isBenevolat ? "Trouver une mission de bénévolat" : "Trouver une mission de Service Civique"}</h1>
-          <p className="text-[18px] leading-[28px] text-[#666]">{total > 1 ? `${total.toLocaleString("fr")} missions` : `${total} mission`}</p>
         </div>
         <Filters
           widget={widget}
           apiUrl={apiUrl}
           values={filters}
+          total={total}
           onChange={(newFilters) => setFilters({ ...filters, ...newFilters, page: 1 })}
           show={showFilters}
           onShow={setShowFilters}
@@ -261,7 +261,7 @@ const Home = ({ widget, apiUrl, missions, total, request, environment }: PagePro
       </div>
       {environment === "production" && !router.query.notrack && <Script src="https://app.api-engagement.beta.gouv.fr/jstag.js" />}
       {!isBenevolat && (
-        <footer role="contentinfo" className={`flex w-full justify-center items-center gap-4 px-4 ${showFilters ? "opacity-40 pointer-events-none" : ""}`}>
+        <footer role="contentinfo" className={`mt-8 flex w-full justify-center items-center gap-4 px-4 ${showFilters ? "opacity-40 pointer-events-none" : ""}`}>
           <Image src={LogoSC} width="100" height="0" style={{ width: "53px", height: "auto" }} alt="Service Civique" />
           <p className=" text-xs text-[#666]">
             Proposé par l'Agence du Service Civique{" "}

@@ -5,6 +5,86 @@ body {
   height: 100%;
 }
 
+.input {
+  --idle: transparent;
+  --hover: #d2d2d2; /* grey-950-100-hover */
+  --active: #c1c1c1; /* grey-950-100-active */
+  background-color: #eee; /* grey-950-100 */
+  border-radius: 0.25rem 0.25rem 0 0;
+  box-shadow: inset 0 -2px 0 0 #3a3a3a; /* grey-200-850 */
+  color: #3a3a3a; /* grey-200-850 */
+  display: block;
+  font-size: 1rem;
+  line-height: 1.5rem;
+  padding: 0.5rem 1rem;
+  width: 100%;
+}
+input:disabled {
+  box-shadow: inset 0 -2px 0 0 #e5e5e5; /* grey-925-125 */
+  color: #929292; /* grey-625-425 */
+}
+
+.select {
+  --idle: transparent;
+  --hover: #d2d2d2; /* grey-950-100-hover */
+  --active: #c1c1c1; /* grey-950-100-active */
+  --data-uri-svg: ;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  background-color: #eee; /* grey-950-100 */
+  border-radius: 0.25rem 0.25rem 0 0;
+  box-shadow: inset 0 -2px 0 0 #3a3a3a; /* grey-200-850 */
+  color: #3a3a3a; /* grey-200-850 */
+  display: block;
+  font-size: 1rem;
+  line-height: 1.5rem;
+  padding: 0.5rem 2.5rem 0.5rem 1rem;
+  width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.select:focus,
+.input:focus {
+  outline-color: #0a76f6;
+  outline-offset: 2px;
+  outline-style: solid;
+  outline-width: 2px;
+}
+
+.select-chevron {
+  background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='%23161616' d='m12 13.1 5-4.9 1.4 1.4-6.4 6.3-6.4-6.4L7 8.1l5 5z'/%3E%3C/svg%3E");
+  background-position: calc(100% - 1rem) 50%;
+  background-repeat: no-repeat;
+  background-size: 1rem 1rem;
+}
+
+.btn {
+  --text-spacing: 0;
+  --title-spacing: 0;
+  --underline-img: none;
+  --hover-tint: #f6f6f6;
+  --idle: transparent;
+  --hover: #f6f6f6;
+  --active: #f6f6f6;
+  box-shadow: inset 0 0 0 1px #e5e5e5;
+  align-items: center;
+  background-color: transparent;
+  color: #000091;
+  display: inline-flex;
+  flex-direction: row;
+  font-size: 1rem;
+  font-weight: 500;
+  line-height: 1.5rem;
+  min-height: 2.5rem;
+  padding: 0.5rem 1rem;
+}
+.btn:disabled {
+  color: #929292; /* grey-625-425 */
+  cursor: not-allowed;
+}
+
 #__next {
   height: 100%;
 }
