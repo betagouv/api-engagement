@@ -380,6 +380,8 @@ describe("stat-event repository", () => {
       },
     });
 
+    initFeatureFlags("es");
+
     const res = await statEventRepository.aggregateMissionStats({
       from: new Date("2024-01-01"),
       to: new Date("2024-01-02"),
