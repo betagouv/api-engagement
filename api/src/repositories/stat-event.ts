@@ -349,10 +349,10 @@ export async function searchViewStats({
           return;
         }
         if (operator === "gt") {
-          createdAtFilter.gte = date;
+          createdAtFilter.gt = date;
         }
         if (operator === "lt") {
-          createdAtFilter.lte = date;
+          createdAtFilter.lt = date;
         }
       });
       if (Object.keys(createdAtFilter).length) {

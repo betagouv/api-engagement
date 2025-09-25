@@ -272,7 +272,7 @@ describe("stat-event repository", () => {
         AND: [
           { to_publisher_id: "pub-2" },
           { source: "api" },
-          { created_at: { gte: fromDate, lte: toDate } },
+          { created_at: { gt: fromDate, lt: toDate } },
         ],
       },
     });
