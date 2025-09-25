@@ -6,6 +6,7 @@ interface FiltersProps {
   widget: Widget;
   apiUrl: string;
   values: FilterTypes;
+  total: number;
   onChange: (filters: Partial<FilterTypes>) => void;
   show: boolean;
   onShow: (show: boolean) => void;

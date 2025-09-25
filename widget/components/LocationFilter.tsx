@@ -24,11 +24,11 @@ interface AddressApiResponse {
 interface LocationFilterProps {
   selected: Location | null;
   onChange: (location: Location | null) => void;
-  width?: string;
+  className?: string;
   disabled?: boolean;
 }
 
-const LocationFilter = ({ selected, onChange, width = "w-80", disabled = false }: LocationFilterProps) => {
+const LocationFilter = ({ selected, onChange, className = "w-80", disabled = false }: LocationFilterProps) => {
   const { url } = useStore();
   const plausible = usePlausible();
   const [show, setShow] = useState(false);
@@ -134,38 +134,34 @@ const LocationFilter = ({ selected, onChange, width = "w-80", disabled = false }
   return (
     <div className="relative w-full" ref={ref}>
       <label htmlFor="location" className="sr-only">
-        Localisation
+        Ville
       </label>
       <div className="relative w-full h-10">
         <div className="absolute left-2 top-1/2 -translate-y-1/2">
           <RiMapPin2Fill className="text-[#929292]" />
         </div>
         {disabled ? (
-          <input
-            className="bg-[#EEE] rounded-t-md border-b-2 border-[#3A3A3A] px-6 h-full w-full text-sm ring-0 focus:ring-0 focus:outline-none opacity-75"
-            defaultValue={selected?.label}
-            disabled
-          />
+          <input className="input" defaultValue={selected?.label} disabled />
         ) : (
           <>
             <input
               id="location"
-              aria-label="Localisation"
+              aria-label="Ville"
               aria-expanded={show}
               aria-controls="location-list"
               role="combobox"
               aria-autocomplete="both"
               aria-activedescendant={focusedIndex >= 0 ? `location-option-${focusedIndex}` : undefined}
-              className="bg-[#EEE] rounded-t-md border-b-2 border-[#3A3A3A] px-8 h-full w-full focus:outline-none focus-visible:ring focus-visible:ring-[#000091] placeholder-[#666666]"
+              className="input !px-6"
               value={inputValue}
-              placeholder="Localisation"
+              placeholder="Ville"
               onChange={handleInputChange}
               onKeyDown={handleKeyDown}
             />
             {selected && (
               <button
                 className="text-sm text-neutral-grey-700 absolute right-2 top-1/2 -translate-y-1/2"
-                aria-label="Effacer la localisation"
+                aria-label="Effacer la ville"
                 onClick={() => {
                   onChange(null);
                   setInputValue("");
@@ -183,7 +179,7 @@ const LocationFilter = ({ selected, onChange, width = "w-80", disabled = false }
         id="location-list"
         aria-label="Liste des villes"
         role="listbox"
-        className={`absolute z-50 mt-1 max-h-60 ${width} overflow-auto border border-[#DDDDDD] bg-white p-[1px] shadow-md ${show ? "block" : "hidden"}`}
+        className={`absolute z-50 mt-1 max-h-60 ${className} overflow-auto border border-[#DDDDDD] bg-white p-[1px] shadow-md ${show ? "block" : "hidden"}`}
       >
         {options.length === 0 && show && (
           <li className="cursor-pointer flex items-center justify-between py-2 px-3">
@@ -196,7 +192,7 @@ const LocationFilter = ({ selected, onChange, width = "w-80", disabled = false }
             <li
               key={index}
               id={`location-option-${index}`}
-              className={`cursor-pointer flex items-center justify-between py-2 px-3 ${index === focusedIndex ? "bg-[#0000000A] ring ring-[#000091]" : "hover:bg-[#0000000A]"}`}
+              className={`cursor-pointer flex items-center justify-between py-2 px-3 ${index === focusedIndex ? "bg-[#0000000A] ring ring-blue-500" : "hover:bg-[#0000000A]"}`}
               role="option"
               aria-selected={focusedIndex === index}
               aria-label={option.label}

@@ -5,8 +5,8 @@ import { RiArrowDownSLine, RiArrowUpSLine } from "react-icons/ri";
 import { ACCESSIBILITIES, ACTIONS, BENEFICIARIES, DOMAINS, MINORS, SCHEDULES } from "../config";
 import { AggregationData, ApiResponse, FilterOptions, Filters, Widget } from "../types";
 import useStore from "../utils/store";
+import ComboboxFilter from "./ComboxFilter";
 import DateFilter from "./DateFilter";
-import DurationFilter from "./DurationFilter";
 import LocationFilter from "./LocationFilter";
 import SelectFilter from "./SelectFilter";
 
@@ -23,13 +23,15 @@ interface FiltersVolontariatProps {
   widget: Widget;
   apiUrl: string;
   values: Filters;
+  total: number;
   onChange: (filters: Partial<Filters>) => void;
   show: boolean;
   onShow: (show: boolean) => void;
 }
 
-const FiltersVolontariat = ({ widget, apiUrl, values, onChange, show, onShow }: FiltersVolontariatProps) => {
-  const { mobile } = useStore();
+const FiltersVolontariat = ({ widget, apiUrl, values, total, onChange, show, onShow }: FiltersVolontariatProps) => {
+  const { mobile, url } = useStore();
+  const plausible = usePlausible();
   const [options, setOptions] = useState<FilterOptions>({
     accessibility: [],
     action: [],
@@ -45,33 +47,35 @@ const FiltersVolontariat = ({ widget, apiUrl, values, onChange, show, onShow }: 
       try {
         const searchParams = new URLSearchParams();
 
-        if (values.accessibility && values.accessibility.length) {
-          values.accessibility.forEach((o) => searchParams.append("accessibility", o.value.toString()));
+        if (values.accessibility && values.accessibility.value) {
+          searchParams.append("accessibility", values.accessibility.value.toString());
         }
-        if (values.action && values.action.length) {
-          values.action.forEach((o) => searchParams.append("action", o.value.toString()));
-        }
-        if (values.beneficiary && values.beneficiary.length) {
-          values.beneficiary.forEach((o) => searchParams.append("beneficiary", o.value.toString()));
-        }
-        if (values.country && values.country.length) {
-          values.country.forEach((o) => searchParams.append("country", o.value.toString()));
-        }
-        if (values.domain && values.domain.length) {
-          values.domain.forEach((o) => searchParams.append("domain", o.value.toString()));
-        }
-        if (values.duration) {
+        if (values.duration && values.duration.value) {
           searchParams.append("duration", values.duration.value.toString());
         }
-        if (values.minor && values.minor.length) {
-          values.minor.forEach((o) => searchParams.append("minor", o.value.toString()));
+        if (values.minor && values.minor.value) {
+          searchParams.append("minor", values.minor.value.toString());
         }
-        if (values.schedule && values.schedule.length) {
-          values.schedule.forEach((o) => searchParams.append("schedule", o.value.toString()));
+        if (values.schedule && values.schedule.value) {
+          searchParams.append("schedule", values.schedule.value.toString());
         }
-        if (values.start) {
+        if (values.start && values.start.value) {
           searchParams.append("start", values.start.value.toISOString());
         }
+
+        if (values.action && values.action.length) {
+          values.action.filter((o) => o.value).forEach((o) => searchParams.append("action", o.value.toString() || ""));
+        }
+        if (values.beneficiary && values.beneficiary.length) {
+          values.beneficiary.forEach((o) => searchParams.append("beneficiary", o.value.toString() || ""));
+        }
+        if (values.country && values.country.length) {
+          values.country.forEach((o) => searchParams.append("country", o.value.toString() || ""));
+        }
+        if (values.domain && values.domain.length) {
+          values.domain.forEach((o) => searchParams.append("domain", o.value.toString() || ""));
+        }
+
         if (values.location && values.location.lat && values.location.lon) {
           searchParams.append("lat", values.location.lat.toString());
           searchParams.append("lon", values.location.lon.toString());
@@ -110,6 +114,24 @@ const FiltersVolontariat = ({ widget, apiUrl, values, onChange, show, onShow }: 
     fetchData();
   }, [widget._id, values, apiUrl]);
 
+  const handleReset = () => {
+    onChange({
+      domain: [],
+      location: null,
+      page: 1,
+      size: 40,
+      start: null,
+      duration: null,
+      schedule: null,
+      minor: null,
+      accessibility: null,
+      action: [],
+      beneficiary: [],
+      country: [],
+    });
+    plausible("Filters reset", { u: url || undefined });
+  };
+
   if (mobile) {
     return (
       <div className="w-full flex flex-col items-center gap-2">
@@ -120,14 +142,22 @@ const FiltersVolontariat = ({ widget, apiUrl, values, onChange, show, onShow }: 
           disabledLocation={!!widget.location}
           show={show}
           onShow={onShow}
+          onReset={handleReset}
         />
       </div>
     );
   }
 
   return (
-    <div className="w-full mb-2">
-      <DesktopFiltersVolontariat options={options} values={values} onChange={(v) => onChange({ ...values, ...v })} disabledLocation={!!widget.location} />
+    <div className={`w-full mb-2 ${mobile ? "flex flex-col items-center gap-2" : ""}`}>
+      <DesktopFiltersVolontariat total={total} options={options} values={values} onChange={(v) => onChange({ ...values, ...v })} disabledLocation={!!widget.location} />
+      <div className="flex justify-between items-center mt-8">
+        <p className="text-base text-[#666666]">{total > 1 ? `${total.toLocaleString("fr")} missions` : `${total} mission`}</p>
+
+        <button className="text-base font-medium underline" onClick={handleReset}>
+          Réinitialiser
+        </button>
+      </div>
     </div>
   );
 };
@@ -139,40 +169,25 @@ interface MobileFiltersVolontariatProps {
   show: boolean;
   onShow: (show: boolean) => void;
   disabledLocation?: boolean;
+  onReset: () => void;
 }
 
-const MobileFiltersVolontariat = ({ options, values, onChange, show, onShow, disabledLocation = false }: MobileFiltersVolontariatProps) => {
+const MobileFiltersVolontariat = ({ options, values, onChange, show, onShow, onReset, disabledLocation = false }: MobileFiltersVolontariatProps) => {
   const { url, color } = useStore();
-
   const plausible = usePlausible();
+
   if (!Object.keys(options).length) {
     return null;
   }
 
-  const handleReset = () => {
-    onChange({
-      accessibility: [],
-      action: [],
-      beneficiary: [],
-      country: [],
-      domain: [],
-      minor: [],
-      schedule: [],
-      duration: null,
-      location: null,
-      start: null,
-      page: 1,
-    });
-  };
-
   return (
     <>
       <div className="w-full">
-        <LocationFilter selected={values.location} onChange={(l) => onChange({ ...values, location: l })} disabled={disabledLocation} width="w-full" />
+        <LocationFilter selected={values.location} onChange={(l) => onChange({ ...values, location: l })} disabled={disabledLocation} className="w-full" />
       </div>
       <div className="w-full border-y border-[#DDDDDD]">
         <button
-          className="flex h-[40px] items-center justify-between w-full bg-white focus:outline-none focus-visible:ring focus-visible:ring-[#000091] px-4"
+          className="flex h-[40px] items-center justify-between w-full bg-white focus:outline-2 focus:outline-[#0a76f6] focus:outline-offset-2 px-4"
           onClick={() => {
             onShow(!show);
             plausible(show ? "Filters closed" : "Filters opened", { u: url || undefined });
@@ -188,71 +203,85 @@ const MobileFiltersVolontariat = ({ options, values, onChange, show, onShow, dis
               <DateFilter selected={values.start || null} onChange={(f) => onChange({ ...values, start: f })} width="w-full" />
             </div>
             <div className="w-full">
-              <DurationFilter selected={values.duration || null} onChange={(v) => onChange({ ...values, duration: v })} width="w-full" />
+              <SelectFilter
+                id="duration"
+                options={[
+                  { label: "6 mois", value: 6 },
+                  { label: "7 mois", value: 7 },
+                  { label: "8 mois", value: 8 },
+                  { label: "9 mois", value: 9 },
+                  { label: "10 mois", value: 10 },
+                  { label: "11 mois", value: 11 },
+                  { label: "12 mois", value: 12 },
+                ]}
+                value={values.duration || null}
+                onChange={(v) => onChange({ ...values, duration: v })}
+                placeholder="Durée maximale"
+              />
             </div>
             <div className="w-full">
-              <SelectFilter
+              <ComboboxFilter
                 id="domain"
                 options={options.domain || []}
-                selectedOptions={values.domain}
+                values={values.domain || []}
                 onChange={(v) => onChange({ ...values, domain: v })}
-                placeholder="Domaines"
-                width="w-full"
+                placeholder="Thèmes"
+                className="w-full"
               />
             </div>
             <div className="w-full ">
               <SelectFilter
                 id="schedule"
                 options={options.schedule || []}
-                selectedOptions={values.schedule || []}
+                value={values.schedule || null}
                 onChange={(v) => onChange({ ...values, schedule: v })}
                 placeholder="Horaires"
-                width="w-full"
+                className="w-full"
               />
             </div>
             <div className="w-full">
               <SelectFilter
                 id="accessibility"
                 options={options.accessibility || []}
-                selectedOptions={values.accessibility || []}
+                value={values.accessibility || null}
                 onChange={(v) => onChange({ ...values, accessibility: v })}
                 placeholder="Accessibilité"
-                width="w-full"
+                className="w-full"
               />
             </div>
             <div className="w-full">
-              <SelectFilter
+              <ComboboxFilter
                 id="beneficiary"
                 options={options.beneficiary || []}
-                selectedOptions={values.beneficiary || []}
+                values={values.beneficiary || []}
                 onChange={(v) => onChange({ ...values, beneficiary: v })}
                 placeholder="Public bénéficiaire"
-                width="w-full"
+                className="w-full"
               />
             </div>
             <div className="w-full">
-              <SelectFilter
+              <ComboboxFilter
                 id="action"
                 options={options.action || []}
-                selectedOptions={values.action || []}
+                values={values.action || []}
                 onChange={(v) => onChange({ ...values, action: v })}
                 placeholder="Actions clés"
-                width="w-full"
+                className="w-full"
               />
             </div>
             <div className="w-full">
-              <SelectFilter
+              <ComboboxFilter
                 id="country"
                 options={options.country || []}
-                selectedOptions={values.country || []}
+                values={values.country || []}
                 onChange={(v) => onChange({ ...values, country: v })}
                 placeholder="France / Etranger"
-                width="w-full"
+                className="w-full"
               />
             </div>
             <button
               aria-label="Voir les missions"
-              className="w-full p-3 text-center border-none bg-black text-white focus:outline-none focus-visible:ring focus-visible:ring-[#000091] cursor-pointer"
+              className="w-full p-3 text-center border-none bg-black text-white focus:outline-2 focus:outline-[#0a76f6] focus:outline-offset-2 cursor-pointer"
               onClick={() => {
                 onShow(false);
                 plausible("Filters closed", { u: url || undefined });
@@ -265,11 +294,8 @@ const MobileFiltersVolontariat = ({ options, values, onChange, show, onShow, dis
               Voir les missions
             </button>
             <button
-              className="w-full cursor-pointer p-3 text-center bg-transparent focus:outline-none focus-visible:ring focus-visible:ring-[#000091]"
-              onClick={() => {
-                handleReset();
-                plausible("Filters reset", { u: url || undefined });
-              }}
+              className="w-full cursor-pointer p-3 text-center bg-transparent focus:outline-2 focus:outline-[#0a76f6] focus:outline-offset-2"
+              onClick={onReset}
               style={{ color }}
             >
               Réinitialiser
@@ -282,13 +308,14 @@ const MobileFiltersVolontariat = ({ options, values, onChange, show, onShow, dis
 };
 
 interface DesktopFiltersVolontariatProps {
+  total: number;
   options: FilterOptions;
   values: Filters;
   onChange: (filters: Partial<Filters>) => void;
   disabledLocation?: boolean;
 }
 
-const DesktopFiltersVolontariat = ({ options, values, onChange, disabledLocation = false }: DesktopFiltersVolontariatProps) => {
+const DesktopFiltersVolontariat = ({ total, options, values, onChange, disabledLocation = false }: DesktopFiltersVolontariatProps) => {
   const { url, color } = useStore();
   const plausible = usePlausible();
   const [moreFilters, setMoreFilters] = useState(false);
@@ -300,18 +327,51 @@ const DesktopFiltersVolontariat = ({ options, values, onChange, disabledLocation
     }
   }, [options.country]);
 
+  const handleReset = () => {
+    onChange({
+      domain: [],
+      location: null,
+      page: 1,
+      size: 40,
+      start: null,
+      duration: null,
+      schedule: null,
+      minor: null,
+      accessibility: null,
+      action: [],
+      beneficiary: [],
+      country: [],
+    });
+  };
+
   return (
     <div className="flex-1">
       <div className="grid grid-cols-5 gap-4 h-10">
         <LocationFilter selected={values.location} onChange={(l) => onChange({ ...values, location: l })} disabled={disabledLocation} />
         <DateFilter selected={values.start || null} onChange={(f) => onChange({ ...values, start: f })} />
-        <DurationFilter selected={values.duration || null} onChange={(v) => onChange({ ...values, duration: v })} />
-        <SelectFilter id="domain" options={options.domain || []} selectedOptions={values.domain} onChange={(v) => onChange({ ...values, domain: v })} placeholder="Thèmes" />
+        <SelectFilter
+          id="duration"
+          options={[
+            { label: "6 mois", value: 6 },
+            { label: "7 mois", value: 7 },
+            { label: "8 mois", value: 8 },
+            { label: "9 mois", value: 9 },
+            { label: "10 mois", value: 10 },
+            { label: "11 mois", value: 11 },
+            { label: "12 mois", value: 12 },
+          ]}
+          value={values.duration || null}
+          onChange={(v) => onChange({ ...values, duration: v })}
+          placeholder="Durée maximale"
+        />
+
+        <ComboboxFilter id="domain" options={options.domain || []} values={values.domain || []} onChange={(v) => onChange({ ...values, domain: v })} placeholder="Thèmes" />
+
         {moreFilters ? (
           <SelectFilter
             id="minor"
             options={options.minor || []}
-            selectedOptions={values.minor || []}
+            value={values.minor || null}
             onChange={(v) => onChange({ ...values, minor: v })}
             placeholder="Accès aux mineurs"
             position="right-0"
@@ -319,7 +379,7 @@ const DesktopFiltersVolontariat = ({ options, values, onChange, disabledLocation
         ) : (
           <button
             aria-label="plus de filtres"
-            className="cursor-pointer border truncate w-full bg-white border-[#DDDDDD] py-2 px-4 h-[40px] focus:outline-none focus-visible:ring focus-visible:ring-[#000091] font-medium"
+            className="border truncate w-full bg-white border-[#DDDDDD] py-2 px-4 h-[40px] focus:outline-2 focus:outline-[#0a76f6] focus:outline-offset-2 font-medium"
             onClick={() => {
               setMoreFilters(true);
               plausible("More filters", { u: url || undefined });
@@ -339,37 +399,31 @@ const DesktopFiltersVolontariat = ({ options, values, onChange, disabledLocation
           <SelectFilter
             id="schedule"
             options={options.schedule || []}
-            selectedOptions={values.schedule || []}
+            value={values.schedule || null}
             onChange={(v) => onChange({ ...values, schedule: v })}
             placeholder="Horaires"
           />
           <SelectFilter
             id="accessibility"
             options={options.accessibility || []}
-            selectedOptions={values.accessibility || []}
+            value={values.accessibility || null}
             onChange={(v) => onChange({ ...values, accessibility: v })}
             placeholder="Accessibilité"
-            width="w-96"
+            className="w-96"
           />
-          <SelectFilter
+          <ComboboxFilter
             id="beneficiary"
             options={options.beneficiary || []}
-            selectedOptions={values.beneficiary || []}
+            values={values.beneficiary || []}
             onChange={(v) => onChange({ ...values, beneficiary: v })}
             placeholder="Public bénéficiaire"
           />
-          <SelectFilter
-            id="action"
-            options={options.action || []}
-            selectedOptions={values.action || []}
-            onChange={(v) => onChange({ ...values, action: v })}
-            placeholder="Actions clés"
-          />
+          <ComboboxFilter id="action" options={options.action || []} values={values.action || []} onChange={(v) => onChange({ ...values, action: v })} placeholder="Actions clés" />
           {missionsAbroad.current && (
-            <SelectFilter
+            <ComboboxFilter
               id="country"
               options={options.country || []}
-              selectedOptions={values.country || []}
+              values={values.country || []}
               onChange={(v) => onChange({ ...values, country: v })}
               placeholder="France / Etranger"
               position="right-0"
@@ -378,7 +432,7 @@ const DesktopFiltersVolontariat = ({ options, values, onChange, disabledLocation
 
           <button
             aria-label="moins de filtres"
-            className="border truncate w-full bg-white border-[#DDDDDD] py-2 px-4 h-[40px] focus:outline-none focus-visible:ring focus-visible:ring-[#000091] font-medium"
+            className="border truncate w-full bg-white border-[#DDDDDD] py-2 px-4 h-[40px] focus:outline-2 focus:outline-[#0a76f6] focus:outline-offset-2 font-medium"
             onClick={() => {
               setMoreFilters(false);
               plausible("Less filters", { u: url || undefined });
