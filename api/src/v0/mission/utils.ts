@@ -1,6 +1,5 @@
 import { captureMessage } from "../../error";
 import MissionModel from "../../models/mission";
-import statEventRepository from "../../repositories/stat-event";
 import { EARTH_RADIUS } from "../../utils";
 
 export const buildArrayQuery = (query: string | string[]) => {
@@ -40,30 +39,12 @@ export const nearSphereToGeoWithin = (nearSphere: any) => {
   return geoWithin;
 };
 
-export const findMissionTemp = async (missionId: string) => {
-  if (!missionId.match(/[^0-9a-fA-F]/) && missionId.length === 24) {
-    const mission = await MissionModel.findById(missionId);
-    if (mission) {
-      return mission;
-    }
-  }
-
-  const mission = await MissionModel.findOne({ _old_ids: { $in: [missionId] } });
+export const findMissionById = async (missionId: string) => {
+  const mission = await MissionModel.findById(missionId);
   if (mission) {
-    captureMessage("[Temp] Mission found with _old_ids", `mission ${missionId}`);
     return mission;
   }
 
-  const stats = await statEventRepository.findFirstByMissionId(missionId);
-  if (stats) {
-    const mission = await MissionModel.findOne({
-      clientId: stats.missionClientId?.toString(),
-      publisherId: stats.toPublisherId,
-    });
-    if (mission) {
-      captureMessage("[Temp] Mission found with click", `mission ${missionId}`);
-      return mission;
-    }
-  }
+  captureMessage("[findMissionById] Mission not found", `mission ${missionId}`);
   return null;
 };
