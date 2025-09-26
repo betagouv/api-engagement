@@ -278,6 +278,147 @@ describe("stat-event repository", () => {
     expect(res).toMatchObject({ "pub-1": 5 });
   });
 
+  it("searches stat events from elasticsearch", async () => {
+    const createdAt = new Date().toISOString();
+    elasticMock.search.mockResolvedValueOnce({
+      body: {
+        hits: {
+          hits: [
+            {
+              _id: "event-1",
+              _source: {
+                ...baseEvent,
+                createdAt,
+                fromPublisherId: "pub-1",
+                toPublisherId: "pub-2",
+                sourceId: "src-1",
+              },
+            },
+          ],
+          total: { value: 1 },
+        },
+      },
+    });
+
+    initFeatureFlags("es");
+
+    const res = await statEventRepository.searchStatEvents({
+      fromPublisherId: "pub-1",
+      toPublisherId: "pub-2",
+      type: "click",
+      sourceId: "src-1",
+      size: 10,
+      skip: 5,
+    });
+
+    expect(elasticMock.search).toHaveBeenCalledWith({
+      index: expect.any(String),
+      body: expect.objectContaining({
+        track_total_hits: true,
+        sort: [{ createdAt: { order: "desc" } }],
+        size: 10,
+        from: 5,
+        query: {
+          bool: {
+            must: [],
+            must_not: [{ term: { isBot: true } }],
+            should: [],
+            filter: [
+              { term: { fromPublisherId: "pub-1" } },
+              { term: { toPublisherId: "pub-2" } },
+              { term: { type: "click" } },
+              { term: { sourceId: "src-1" } },
+            ],
+          },
+        },
+      }),
+    });
+    expect(pgMock.statEvent.findMany).not.toHaveBeenCalled();
+    expect(res).toEqual({
+      data: [
+        expect.objectContaining({
+          _id: "event-1",
+          type: "click",
+          sourceId: "src-1",
+          fromPublisherId: "pub-1",
+          toPublisherId: "pub-2",
+        }),
+      ],
+      total: 1,
+    });
+  });
+
+  it("searches stat events from postgres", async () => {
+    const createdAt = new Date();
+    pgMock.statEvent.findMany.mockResolvedValueOnce([
+      {
+        id: "event-2",
+        type: "apply",
+        created_at: createdAt,
+        origin: "",
+        referer: "",
+        user_agent: "",
+        host: "",
+        is_bot: false,
+        is_human: true,
+        source: "publisher",
+        source_id: "src-2",
+        source_name: "",
+        status: "PENDING",
+        from_publisher_id: "pub-2",
+        from_publisher_name: "",
+        to_publisher_id: "pub-3",
+        to_publisher_name: "",
+      },
+    ]);
+    pgMock.statEvent.count.mockResolvedValueOnce(1);
+
+    initFeatureFlags("pg");
+
+    const res = await statEventRepository.searchStatEvents({
+      fromPublisherId: "pub-2",
+      toPublisherId: "pub-3",
+      type: "apply",
+      sourceId: "src-2",
+      size: 5,
+      skip: 2,
+    });
+
+    expect(pgMock.statEvent.findMany).toHaveBeenCalledWith({
+      where: {
+        NOT: { is_bot: true },
+        from_publisher_id: "pub-2",
+        to_publisher_id: "pub-3",
+        type: "apply",
+        source_id: "src-2",
+      },
+      orderBy: { created_at: "desc" },
+      skip: 2,
+      take: 5,
+    });
+    expect(pgMock.statEvent.count).toHaveBeenCalledWith({
+      where: {
+        NOT: { is_bot: true },
+        from_publisher_id: "pub-2",
+        to_publisher_id: "pub-3",
+        type: "apply",
+        source_id: "src-2",
+      },
+    });
+    expect(elasticMock.search).not.toHaveBeenCalled();
+    expect(res).toEqual({
+      data: [
+        expect.objectContaining({
+          _id: "event-2",
+          type: "apply",
+          createdAt,
+          sourceId: "src-2",
+        }),
+      ],
+      total: 1,
+    });
+  });
+
   it("searches view stats from elasticsearch", async () => {
     const aggregationBuckets = [{ key: "click", doc_count: 4 }];
     elasticMock.search.mockResolvedValueOnce({
