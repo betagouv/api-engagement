@@ -28,8 +28,8 @@ const Grid = ({ widget, missions, total, page, handlePageChange, request }: Grid
     );
   }
   return (
-    <div className="mx-auto w-full">
-      <main role="main" className="grid grid-cols-1 gap-x-6 gap-y-6 sm:grid-cols-2 lg:grid-cols-3">
+    <>
+      <main role="main" className="grid grid-cols-1 gap-x-6 gap-y-6 sm:grid-cols-2 lg:grid-cols-3 mt-4">
         {missions.map((mission, i) => (
           <Card key={i} widget={widget} mission={mission} request={request} />
         ))}
@@ -39,7 +39,7 @@ const Grid = ({ widget, missions, total, page, handlePageChange, request }: Grid
       ) : (
         <Pagination page={page} setPage={handlePageChange} end={Math.floor(total / 6) + (total % 6 !== 0 ? 1 : 0)} />
       )}
-    </div>
+    </>
   );
 };
 
@@ -67,7 +67,7 @@ const Pagination = ({ page, setPage, end }: PaginationProps) => {
   }, [end]);
 
   return (
-    <nav role="navigation" className="flex flex-row items-center justify-center gap-1 pt-10" aria-label="pagination">
+    <nav role="navigation" className="flex flex-row items-center justify-center gap-1 pt-6" aria-label="pagination">
       <button
         className="mr-4 flex cursor-pointer items-center rounded-lg px-3 py-2 hover:bg-[#f5f5f5] disabled:cursor-default disabled:bg-transparent disabled:opacity-50"
         onClick={() => {

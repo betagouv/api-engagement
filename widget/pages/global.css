@@ -19,9 +19,12 @@ body {
   padding: 0.5rem 1rem;
   width: 100%;
 }
-input:disabled {
+.input:disabled {
   box-shadow: inset 0 -2px 0 0 #e5e5e5; /* grey-925-125 */
   color: #929292; /* grey-625-425 */
+}
+.input::placeholder {
+  color: #666666;
 }
 
 .select {

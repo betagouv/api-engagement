@@ -175,9 +175,9 @@ const Carousel = ({ widget, missions, request }: CarouselProps) => {
           </button>
         )}
 
-        <div id="carousel-content" className="overflow-hidden md:max-w-[1056px] w-full">
+        <div id="carousel-content" className="overflow-hidden md:max-w-[1062px] w-full">
           <div
-            className="flex transition-transform duration-500 ease-in-out -mx-[0.75rem]"
+            className="flex transition-transform duration-500 ease-in-out -mx-2 py-4"
             aria-live="polite"
             aria-atomic="false"
             style={{
@@ -192,7 +192,7 @@ const Carousel = ({ widget, missions, request }: CarouselProps) => {
                 aria-roledescription="slide"
                 aria-label={`Mission ${i + 1} sur ${missions.length}: ${mission.title}`}
                 aria-current={i === focusedSlideIndex}
-                className={`h-auto flex-shrink-0 ${missions.length <= 2 ? "w-full flex-shrink-0 sm:w-1/2 lg:w-auto" : "w-full sm:w-1/2 lg:w-1/3"} p-3 transition-all duration-200`}
+                className={`h-auto flex-shrink-0 ${missions.length <= 2 ? "w-full flex-shrink-0 sm:w-1/2 lg:w-auto" : "w-full sm:w-1/2 lg:w-1/3"} px-3 transition-all duration-200`}
               >
                 <Card
                   widget={widget}

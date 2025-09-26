@@ -50,7 +50,7 @@ const CardVolontariat = ({ widget, mission, request, focused = false, onKeyDown,
       data-testid="mission-card"
       className={`relative ${
         widget.style === "carousel" ? "w-full lg:max-w-[336px]" : "w-full"
-      } relative border h-[290px] md:h-[310px] flex flex-col p-6 md:p-8 border-[#DDDDDD] bg-white group overflow-hidden focus-within:outline-2 focus-within:outline-[#0a76f6] focus-within:outline-offset-2`}
+      } relative border h-[290px] md:h-[310px] flex flex-col p-6 md:p-8 border-[#DDDDDD] bg-white hover:bg-[#F6F6F6] group overflow-hidden focus-within:outline-2 focus-within:outline-[#0a76f6] focus-within:outline-offset-2`}
     >
       <div className="flex-1">
         <div className="flex items-start mb-4">

@@ -24,7 +24,14 @@ const SelectFilter = ({ options, value, onChange, id, placeholder = "Choissiez u
       <label htmlFor={id} className="sr-only">
         {placeholder}
       </label>
-      <select id={id} aria-label={placeholder} className={`select select-chevron ${className}`} value={value?.value ? String(value.value) : ""} onChange={handleChange}>
+      <select
+        id={id}
+        aria-label={placeholder}
+        className={`select select-chevron ${className}`}
+        value={value?.value ? String(value.value) : ""}
+        onChange={handleChange}
+        style={{ color: value?.value ? undefined : "#666" }}
+      >
         <option value="" disabled selected>
           {placeholder}
         </option>
