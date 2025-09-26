@@ -330,14 +330,15 @@ async function getPublicDepartmentStatsFromEs(params: Pick<GraphStatsParams, "ty
   );
 }
 
+/**
+ * Note: This function uses the public stats material views
+ * See migration: prisma/core/migrations/20251010120000_create_public_stats_materialized_views/migration.sql
+ */
 async function getPublicGraphStatsFromPg(params: GraphStatsParams): Promise<GraphStatsData> {
   const { department, type, year } = params;
   const publisherCategory = resolvePublisherCategory(type);
 
-  const monthlyFilters: Prisma.Sql[] = [
-    Prisma.sql`"year" = ${year}`,
-    Prisma.sql`"publisher_category" = ${publisherCategory}`,
-  ];
+  const monthlyFilters: Prisma.Sql[] = [Prisma.sql`"year" = ${year}`, Prisma.sql`"publisher_category" = ${publisherCategory}`];
 
   if (department) {
     monthlyFilters.push(Prisma.sql`"is_all_department" = FALSE`);
@@ -349,9 +350,7 @@ async function getPublicGraphStatsFromPg(params: GraphStatsParams): Promise<Grap
 
   const monthlyWhere = joinFilters(monthlyFilters);
 
-  const monthlyRows = await prismaCore.$queryRaw<
-    Array<{ month: number; click_count: bigint; apply_count: bigint; organization_count: bigint }>
-  >(
+  const monthlyRows = await prismaCore.$queryRaw<Array<{ month: number; click_count: bigint; apply_count: bigint; organization_count: bigint }>>(
     Prisma.sql`
       SELECT "month", "click_count", "apply_count", "organization_count"
       FROM "PublicStatsGraphMonthly"
@@ -370,10 +369,7 @@ async function getPublicGraphStatsFromPg(params: GraphStatsParams): Promise<Grap
     });
   });
 
-  const totalFilters: Prisma.Sql[] = [
-    Prisma.sql`"year" = ${year}`,
-    Prisma.sql`"publisher_category" = ${publisherCategory}`,
-  ];
+  const totalFilters: Prisma.Sql[] = [Prisma.sql`"year" = ${year}`, Prisma.sql`"publisher_category" = ${publisherCategory}`];
 
   if (department) {
     totalFilters.push(Prisma.sql`"is_all_department" = FALSE`);
@@ -421,10 +417,7 @@ async function getPublicDomainStatsFromPg(params: GraphStatsParams): Promise<Dom
   const { department, type, year } = params;
   const publisherCategory = resolvePublisherCategory(type);
 
-  const filters: Prisma.Sql[] = [
-    Prisma.sql`"year" = ${year}`,
-    Prisma.sql`"publisher_category" = ${publisherCategory}`,
-  ];
+  const filters: Prisma.Sql[] = [Prisma.sql`"year" = ${year}`, Prisma.sql`"publisher_category" = ${publisherCategory}`];
 
   if (department) {
     filters.push(Prisma.sql`"is_all_department" = FALSE`);
@@ -436,9 +429,7 @@ async function getPublicDomainStatsFromPg(params: GraphStatsParams): Promise<Dom
 
   const whereClause = joinFilters(filters);
 
-  const rows = await prismaCore.$queryRaw<
-    Array<{ domain: string; mission_count: bigint; click_count: bigint; apply_count: bigint }>
-  >(
+  const rows = await prismaCore.$queryRaw<Array<{ domain: string; mission_count: bigint; click_count: bigint; apply_count: bigint }>>(
     Prisma.sql`
       SELECT "domain", "mission_count", "click_count", "apply_count"
       FROM "PublicStatsDomains"
@@ -467,9 +458,7 @@ async function getPublicDepartmentStatsFromPg(params: Pick<GraphStatsParams, "ty
   const { type, year } = params;
   const publisherCategory = resolvePublisherCategory(type);
 
-  const rows = await prismaCore.$queryRaw<
-    Array<{ postal_code: string; mission_count: bigint; click_count: bigint; apply_count: bigint }>
-  >(
+  const rows = await prismaCore.$queryRaw<Array<{ postal_code: string; mission_count: bigint; click_count: bigint; apply_count: bigint }>>(
     Prisma.sql`
       SELECT "postal_code", "mission_count", "click_count", "apply_count"
       FROM "PublicStatsDepartments"
