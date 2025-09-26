@@ -12,10 +12,11 @@ import useStore from "../../../../services/store";
 import { JVA_MODERATION_COMMENTS_LABELS, STATUS, STATUS_COLORS } from "./Constants";
 import OrganizationRefusedModal from "./OrganizationRefusedModal";
 
-const MissionItem = ({ data, history, selected, onChange, onSelect, onFilter }) => {
+const MissionItem = ({ data, history, selected, onChange, onSelect, onFilter, onChangeMany }) => {
   const { publisher } = useStore();
   const [searchParams, setSearchParams] = useSearchParams();
   const [values, setValues] = useState(data);
+  const [potentialUpdates, setPotentialUpdates] = useState(0);
   const [isOrganizationRefusedOpen, setIsOrganizationRefusedOpen] = useState(false);
 
   useEffect(() => {
@@ -43,8 +44,14 @@ const MissionItem = ({ data, history, selected, onChange, onSelect, onFilter }) 
       }
       toast.success("La mission a été modérée avec succès");
       onChange(res.data);
-
-      if (v.status === "REFUSED" && v.comment.includes("L'organisation")) setIsOrganizationRefusedOpen(true);
+      if (v.status === "REFUSED" && ["ORGANIZATION_NOT_COMPLIANT", "ORGANIZATION_ALREADY_PUBLISHED"].includes(v.comment)) {
+        const resO = await api.post("/moderation/search", { moderatorId: publisher._id, organizationName: data.organizationName, status: "PENDING", size: 0 });
+        if (!resO.ok) throw resO;
+        if (resO.total > 0) {
+          setPotentialUpdates(resO.total);
+          setIsOrganizationRefusedOpen(true);
+        }
+      }
     } catch (error) {
       captureError(error, "Une erreur est survenue");
     }
@@ -61,9 +68,10 @@ const MissionItem = ({ data, history, selected, onChange, onSelect, onFilter }) 
       <OrganizationRefusedModal
         isOpen={isOrganizationRefusedOpen}
         onClose={() => setIsOrganizationRefusedOpen(false)}
-        organizationName={data.organizationName}
-        comment={values.comment}
-        onChange={onChange}
+        data={data}
+        update={values}
+        onChange={onChangeMany}
+        total={potentialUpdates}
       />
       <span className="flex w-[5%] items-center">
         <label htmlFor="moderation-select" className="sr-only">

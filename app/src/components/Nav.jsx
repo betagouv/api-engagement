@@ -174,12 +174,12 @@ const PublisherMenu = ({ options, value, onChange }) => {
       <div className={`absolute z-10 mt-1 origin-top-right transition duration-200 ease-in-out ${isOpen ? "" : "pointer-events-none scale-95 opacity-0"}`}>
         {isOpen && (
           <div className={`w-72 border border-gray-900 bg-white shadow-lg focus:outline-none`}>
-            <div className="flex items-center gap-4 border-b border-gray-900 p-3 focus-visible:ring-2 focus-visible:ring-[#015fcc]">
+            <div className="flex items-center gap-2 border-b border-gray-900 p-3 focus-visible:ring-2 focus-visible:ring-[#015fcc]">
               <RiSearchLine />
               <label htmlFor="publisher-search" className="sr-only">
                 Rechercher un partenaire
               </label>
-              <input id="publisher-search" name="publisher-search" className="w-full focus:outline-none" onChange={(e) => setSearch(e.target.value)} />
+              <input id="publisher-search" name="publisher-search" className="w-full pl-2 focus:outline-none" onChange={(e) => setSearch(e.target.value)} />
             </div>
             <div className="max-h-80 overflow-y-scroll">
               {options
