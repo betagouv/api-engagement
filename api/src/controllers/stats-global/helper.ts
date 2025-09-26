@@ -1,7 +1,7 @@
+import { STATS_INDEX } from "../../config";
 import { Prisma } from "../../db/core";
 import esClient from "../../db/elastic";
 import { prismaCore } from "../../db/postgres";
-import { STATS_INDEX } from "../../config";
 import { EsQuery } from "../../types";
 
 type StatEventType = "click" | "apply" | "print" | "account";
@@ -65,7 +65,7 @@ function createWhereClause(conditions: Prisma.Sql[]): Prisma.Sql {
     return Prisma.sql``;
   }
 
-  return Prisma.sql`WHERE ${Prisma.join(conditions, Prisma.raw(" AND "))}`;
+  return Prisma.sql`WHERE ${Prisma.join(conditions, " AND ")}`;
 }
 
 function createEventsConditions({
@@ -313,12 +313,14 @@ async function getBroadcastPreviewStatsFromEs({ publisherId, from, to }: Broadca
 async function getBroadcastPreviewStatsFromPg({ publisherId, from, to }: BroadcastPreviewParams) {
   const eventsWhere = createWhereClause(createEventsConditions({ publisherId, publisherField: "from_publisher_id", from, to }));
 
-  const [totalsRow] = await prismaCore.$queryRaw<Array<{
-    total_click: bigint;
-    total_apply: bigint;
-    total_print: bigint;
-    total_account: bigint;
-  }>>(
+  const [totalsRow] = await prismaCore.$queryRaw<
+    Array<{
+      total_click: bigint;
+      total_apply: bigint;
+      total_print: bigint;
+      total_account: bigint;
+    }>
+  >(
     Prisma.sql`
       SELECT
         SUM(CASE WHEN "type" = 'click' THEN 1 ELSE 0 END)::bigint AS total_click,
@@ -333,18 +335,8 @@ async function getBroadcastPreviewStatsFromPg({ publisherId, from, to }: Broadca
   const missionWhereBase = createMissionConditions({ publisherId, publisherField: "from_publisher_id", from, to });
 
   const [totalMissionApply, totalMissionClick] = await Promise.all([
-    countMissions(
-      createWhereClause([
-        ...missionWhereBase,
-        Prisma.sql`"type" = 'apply'::"StatEventType"`,
-      ])
-    ),
-    countMissions(
-      createWhereClause([
-        ...missionWhereBase,
-        Prisma.sql`"type" = 'click'::"StatEventType"`,
-      ])
-    ),
+    countMissions(createWhereClause([...missionWhereBase, Prisma.sql`"type" = 'apply'::"StatEventType"`])),
+    countMissions(createWhereClause([...missionWhereBase, Prisma.sql`"type" = 'click'::"StatEventType"`])),
   ]);
 
   return {
@@ -415,12 +407,14 @@ async function getAnnouncePreviewStatsFromEs({ publisherId, from, to }: Announce
 async function getAnnouncePreviewStatsFromPg({ publisherId, from, to }: AnnounceParams) {
   const eventsWhere = createWhereClause(createEventsConditions({ publisherId, publisherField: "to_publisher_id", from, to }));
 
-  const [totalsRow] = await prismaCore.$queryRaw<Array<{
-    total_click: bigint;
-    total_apply: bigint;
-    total_print: bigint;
-    total_account: bigint;
-  }>>(
+  const [totalsRow] = await prismaCore.$queryRaw<
+    Array<{
+      total_click: bigint;
+      total_apply: bigint;
+      total_print: bigint;
+      total_account: bigint;
+    }>
+  >(
     Prisma.sql`
       SELECT
         SUM(CASE WHEN "type" = 'click' THEN 1 ELSE 0 END)::bigint AS total_click,
@@ -434,12 +428,7 @@ async function getAnnouncePreviewStatsFromPg({ publisherId, from, to }: Announce
 
   const missionWhereBase = createMissionConditions({ publisherId, publisherField: "to_publisher_id", from, to });
 
-  const totalMissionClicked = await countMissions(
-    createWhereClause([
-      ...missionWhereBase,
-      Prisma.sql`"type" = 'click'::"StatEventType"`,
-    ])
-  );
+  const totalMissionClicked = await countMissions(createWhereClause([...missionWhereBase, Prisma.sql`"type" = 'click'::"StatEventType"`]));
 
   return {
     totalPrint: Number(totalsRow?.total_print ?? 0n),
@@ -502,9 +491,7 @@ async function getDistributionStatsFromPg({ publisherId, from, to, type }: Distr
     `
   );
 
-  return rows
-    .filter((row) => !!row.source)
-    .map((row) => ({ key: row.source as string, doc_count: Number(row.doc_count) }));
+  return rows.filter((row) => !!row.source).map((row) => ({ key: row.source as string, doc_count: Number(row.doc_count) }));
 }
 
 async function getEvolutionStatsFromEs({ publisherId, from, to, type, flux }: EvolutionParams) {
@@ -571,10 +558,7 @@ async function getEvolutionStatsFromPg({ publisherId, from, to, type, flux }: Ev
   const baseConditions = createEventsConditions({ publisherId, publisherField, from, to, type });
   const total = await countEvents(createWhereClause(baseConditions));
 
-  const additionalConditions = [
-    Prisma.sql`${Prisma.raw(`"${publisherNameField}"`)} IS NOT NULL`,
-    Prisma.sql`TRIM(${Prisma.raw(`"${publisherNameField}"`)}) <> ''`,
-  ];
+  const additionalConditions = [Prisma.sql`${Prisma.raw(`"${publisherNameField}"`)} IS NOT NULL`, Prisma.sql`TRIM(${Prisma.raw(`"${publisherNameField}"`)}) <> ''`];
   const whereSql = createWhereClause([...baseConditions, ...additionalConditions]);
 
   const histogramRows = await prismaCore.$queryRaw<Array<{ bucket: Date; publisher_name: string | null; doc_count: bigint }>>(
@@ -622,9 +606,7 @@ async function getEvolutionStatsFromPg({ publisherId, from, to, type, flux }: Ev
     .map((bucket) => ({
       ...bucket,
       publishers: {
-        buckets: bucket.publishers.buckets
-          .sort((a, b) => b.doc_count - a.doc_count)
-          .slice(0, 80),
+        buckets: bucket.publishers.buckets.sort((a, b) => b.doc_count - a.doc_count).slice(0, 80),
       },
     }))
     .sort((a, b) => a.key - b.key);
@@ -642,9 +624,7 @@ async function getEvolutionStatsFromPg({ publisherId, from, to, type, flux }: Ev
     `
   );
 
-  const topPublishers = topPublisherRows
-    .map((row) => row.publisher_name)
-    .filter((name): name is string => !!name && name.trim().length > 0);
+  const topPublishers = topPublisherRows.map((row) => row.publisher_name).filter((name): name is string => !!name && name.trim().length > 0);
 
   return {
     histogram,
@@ -825,9 +805,7 @@ async function getAnnouncePublishersFromPg({ publisherId, from, to, type, flux }
     `
   );
 
-  const data = rows
-    .map((row) => ({ key: row.publisher_name ?? "", doc_count: Number(row.doc_count) }))
-    .filter((row) => row.key.trim().length > 0);
+  const data = rows.map((row) => ({ key: row.publisher_name ?? "", doc_count: Number(row.doc_count) })).filter((row) => row.key.trim().length > 0);
 
   return {
     data,
@@ -878,9 +856,7 @@ async function getMissionsStatsFromEs({ publisherId, from, to }: MissionsParams)
 }
 
 async function getMissionsStatsFromPg({ publisherId, from, to }: MissionsParams) {
-  const total = await countEvents(
-    createWhereClause(createEventsConditions({ publisherId, publisherField: "from_publisher_id", from, to }))
-  );
+  const total = await countEvents(createWhereClause(createEventsConditions({ publisherId, publisherField: "from_publisher_id", from, to })));
 
   const missionWhere = createWhereClause(
     createMissionConditions({
@@ -888,10 +864,7 @@ async function getMissionsStatsFromPg({ publisherId, from, to }: MissionsParams)
       publisherField: "from_publisher_id",
       from,
       to,
-      additionalConditions: [
-        Prisma.sql`${Prisma.raw('"to_publisher_name"')} IS NOT NULL`,
-        Prisma.sql`TRIM(${Prisma.raw('"to_publisher_name"')}) <> ''`,
-      ],
+      additionalConditions: [Prisma.sql`${Prisma.raw('"to_publisher_name"')} IS NOT NULL`, Prisma.sql`TRIM(${Prisma.raw('"to_publisher_name"')}) <> ''`],
     })
   );
 
@@ -907,9 +880,7 @@ async function getMissionsStatsFromPg({ publisherId, from, to }: MissionsParams)
     `
   );
 
-  const data = rows
-    .map((row) => ({ key: row.publisher_name ?? "", doc_count: Number(row.mission_count) }))
-    .filter((row) => row.key.trim().length > 0);
+  const data = rows.map((row) => ({ key: row.publisher_name ?? "", doc_count: Number(row.mission_count) })).filter((row) => row.key.trim().length > 0);
 
   return {
     data,
