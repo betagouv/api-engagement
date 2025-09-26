@@ -39,8 +39,8 @@ const buildData = async (
   }
 
   let missionId;
-  if (doc.missionClientId && doc.toPublisherId) {
-    missionId = missions[`${doc.missionClientId}-${doc.toPublisherId}`];
+  if (doc.missionId) {
+    missionId = missions[doc.missionId?.toString()];
     if (!missionId) {
       const m = await prismaClient.mission.findFirst({
         where: { old_id: doc.missionId?.toString() },
@@ -52,6 +52,19 @@ const buildData = async (
         console.log(`[Clicks] Mission ${doc.missionId?.toString()} not found for doc ${doc._id.toString()}`);
       }
     }
+  } else if (doc.missionClientId && doc.toPublisherId) {
+    const m = await prismaClient.mission.findFirst({
+      where: { client_id: doc.missionClientId?.toString(), partner: { old_id: doc.toPublisherId?.toString() } },
+      select: { id: true, old_id: true },
+    });
+    if (m) {
+      missionId = m.id;
+      missions[m.old_id] = missionId;
+    } else {
+      console.log(`[Clicks] Mission ${doc.missionClientId?.toString()} not found for doc ${doc._id.toString()}`);
+    }
+  } else if (["widget", "publisher"].includes(doc.source)) {
+    console.log(`[Clicks] No mission found for doc ${doc._id.toString()} and source ${doc.source}`);
   }
 
   let sourceId;
@@ -97,6 +110,8 @@ const handler = async () => {
   try {
     const start = new Date();
     console.log(`[Clicks] Started at ${start.toISOString()}.`);
+    let total = 0;
+    let processed = 0;
     let created = 0;
     let scrollId = null;
 
@@ -133,12 +148,11 @@ const handler = async () => {
                       "type.keyword": "click",
                     },
                   },
+                ],
+                must_not: [
                   {
-                    range: {
-                      createdAt: {
-                        gte: "now-14d/d",
-                        lte: "now/d",
-                      },
+                    exists: {
+                      field: "exportToPgStatus",
                     },
                   },
                 ],
@@ -149,42 +163,69 @@ const handler = async () => {
         });
         scrollId = body._scroll_id;
         data = body.hits.hits as { _id: string; _source: Stats }[];
-        console.log(`[Clicks] Total hits ${body.hits.total.value}`);
+        total = body.hits.total.value;
+        console.log(`[Clicks] Total hits ${total}`);
       }
 
       if (data.length === 0) {
         break;
       }
+      console.log(`[Clicks] Found ${data.length} docs in Elasticsearch, processed ${processed} docs so far, ${total - processed} docs left.`);
 
       const missions = {} as { [key: string]: string };
-      const missionIds = new Set<string>(data.map((hit: { _source: Stats }) => hit._source.missionClientId?.toString()));
-      console.log(`[Clicks] Found ${missionIds.size} missions in Elasticsearch`);
-      await prismaClient.mission
-        .findMany({
-          where: {
-            client_id: { in: Array.from(missionIds).filter((id) => id !== undefined) },
-          },
-          select: { id: true, client_id: true, partner: { select: { old_id: true } } },
-        })
-        .then((data) => data.forEach((d) => (missions[`${d.client_id}-${d.partner?.old_id}`] = d.id)));
-      console.log(`[Clicks] Found ${Object.keys(missions).length} missions in database PG`);
+      const missionIds = new Set<string>(data.map((hit: { _source: Stats }) => hit._source.missionId?.toString()).filter((id: string | undefined) => id !== undefined));
+      if (missionIds.size) {
+        await prismaClient.mission
+          .findMany({
+            where: {
+              old_id: { in: Array.from(missionIds).filter((id) => id !== undefined) },
+            },
+            select: { id: true, old_id: true },
+          })
+          .then((data) => data.forEach((d) => (missions[d.old_id] = d.id)));
+      }
 
-      const dataToCreate = [];
-      for (const hit of data) {
-        const obj = await buildData({ _id: hit._id, ...hit._source }, partners, missions, campaigns, widgets);
+      const toCreate: Click[] = [];
+      const successIds: string[] = [];
+      const failureIds: string[] = [];
+      for (const hit of data as { _id: string; _source: Stats }[]) {
+        const obj = await buildData({ ...hit._source, _id: hit._id }, partners, missions, campaigns, widgets);
         if (!obj) {
+          failureIds.push(hit._id);
           continue;
         }
-
-        dataToCreate.push(obj);
+        toCreate.push(obj);
       }
 
-      // Create data
-      if (dataToCreate.length) {
-        const res = await prismaClient.click.createMany({ data: dataToCreate, skipDuplicates: true });
-        created += res.count;
-        console.log(`[Clicks] Created ${res.count} docs, ${created} created so far.`);
+      // Create data in PG
+      if (toCreate.length) {
+        try {
+          const res = await prismaClient.click.createMany({ data: toCreate, skipDuplicates: true });
+          created += res.count;
+          successIds.push(...toCreate.map((t) => t.old_id));
+          console.log(`[Clicks] Created ${res.count} docs, ${created} created so far.`);
+        } catch (error) {
+          captureException(error, "[Clicks] Error during bulk createMany to PG");
+          failureIds.push(...toCreate.map((t) => t.old_id));
+        }
       }
+
+      // Bulk update ES status for processed docs
+      if (successIds.length > 0) {
+        await esClient.bulk({
+          refresh: false,
+          body: successIds.flatMap((id) => [{ update: { _index: STATS_INDEX, _id: id } }, { doc: { exportToPgStatus: "SUCCESS" } }]),
+        });
+        console.log(`[Clicks] Marked ${successIds.length} docs as SUCCESS in Elasticsearch.`);
+      }
+      if (failureIds.length > 0) {
+        await esClient.bulk({
+          refresh: false,
+          body: failureIds.flatMap((id) => [{ update: { _index: STATS_INDEX, _id: id } }, { doc: { exportToPgStatus: "FAILURE" } }]),
+        });
+        console.log(`[Clicks] Marked ${failureIds.length} docs as FAILURE in Elasticsearch.`);
+      }
+      processed += data.length;
     }
 
     console.log(`[Clicks] Ended at ${new Date().toISOString()} in ${(Date.now() - start.getTime()) / 1000}s.`);

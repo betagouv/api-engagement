@@ -86,6 +86,8 @@ const handler = async () => {
   try {
     const start = new Date();
     console.log(`[Applies] Started at ${start.toISOString()}.`);
+    let total = 0;
+    let processed = 0;
     let created = 0;
     let updated = 0;
     let scrollId = null;
@@ -113,17 +115,26 @@ const handler = async () => {
           index: STATS_INDEX,
           scroll: "20m",
           size: BATCH_SIZE,
-          body: { query: { term: { "type.keyword": "apply" } } },
+          body: {
+            query: {
+              bool: {
+                must: [{ term: { "type.keyword": "apply" } }],
+                must_not: [{ exists: { field: "exportToPgStatus" } }],
+              },
+            },
+          },
           track_total_hits: true,
         });
         scrollId = body._scroll_id;
         data = body.hits.hits;
-        console.log(`[Applies] Total hits ${body.hits.total.value}`);
+        total = body.hits.total.value;
+        console.log(`[Applies] Total hits ${total}`);
       }
 
       if (data.length === 0) {
         break;
       }
+      console.log(`[Applies] Found ${data.length} docs in Elasticsearch, processed ${processed} docs so far, ${total - processed} docs left.`);
 
       const stored = {} as { [key: string]: { status: string | null; click_id: string | null } };
       await prismaClient.apply
@@ -144,7 +155,7 @@ const handler = async () => {
 
       const missions = {} as { [key: string]: string };
       const missionIds = new Set<string>(data.map((hit: { _source: Stats }) => hit._source.missionClientId?.toString()).filter((id) => id !== undefined));
-      console.log(`[Applies] Found ${missionIds.size} missions in Elasticsearch`);
+
       await prismaClient.mission
         .findMany({
           where: {
@@ -157,6 +168,8 @@ const handler = async () => {
 
       const dataToCreate = [] as Apply[];
       const dataToUpdate = [] as Apply[];
+      const successIds: string[] = [];
+      const failureIds: string[] = [];
 
       for (const hit of data) {
         let clickId;
@@ -177,6 +190,7 @@ const handler = async () => {
         }
         const obj = await buildData({ ...hit._source, _id: hit._id }, partners, missions, campaigns, widgets, clickId);
         if (!obj) {
+          failureIds.push(hit._id);
           continue;
         }
 
@@ -187,6 +201,8 @@ const handler = async () => {
           dataToUpdate.push(obj);
         } else if (!stored[hit._id.toString()]) {
           dataToCreate.push(obj);
+        } else {
+          successIds.push(hit._id);
         }
       }
 
@@ -194,23 +210,49 @@ const handler = async () => {
 
       if (dataToCreate.length) {
         console.log(`[Applies] Creating ${dataToCreate.length} docs.`);
-        const res = await prismaClient.apply.createMany({ data: dataToCreate, skipDuplicates: true });
-        created += res.count;
-        console.log(`[Applies] Created ${res.count} docs, ${created} created so far.`);
+        try {
+          const res = await prismaClient.apply.createMany({ data: dataToCreate, skipDuplicates: true });
+          created += res.count;
+          successIds.push(...dataToCreate.map((t) => (t as any).old_id));
+          console.log(`[Applies] Created ${res.count} docs, ${created} created so far.`);
+        } catch (error) {
+          captureException(error, "[Applies] Error during bulk createMany to PG");
+          failureIds.push(...dataToCreate.map((t) => (t as any).old_id));
+        }
       }
 
       if (dataToUpdate.length) {
         console.log(`[Applies] Updating ${dataToUpdate.length} docs.`);
         const transactions = [];
+        const toMarkUpdated: string[] = [];
         for (const obj of dataToUpdate) {
           transactions.push(prismaClient.apply.update({ where: { old_id: obj.old_id }, data: obj }));
+          toMarkUpdated.push((obj as any).old_id);
         }
         for (let i = 0; i < transactions.length; i += 100) {
           await prismaClient.$transaction(transactions.slice(i, i + 100));
         }
+        successIds.push(...toMarkUpdated);
       }
       updated += dataToUpdate.length;
       console.log(`[Applies] Updated ${dataToUpdate.length} docs, ${updated} updated so far.`);
+
+      // Bulk update ES status for processed docs
+      if (successIds.length > 0) {
+        await esClient.bulk({
+          refresh: false,
+          body: successIds.flatMap((id) => [{ update: { _index: STATS_INDEX, _id: id } }, { doc: { exportToPgStatus: "SUCCESS" } }]),
+        });
+        console.log(`[Applies] Marked ${successIds.length} docs as SUCCESS in Elasticsearch.`);
+      }
+      if (failureIds.length > 0) {
+        await esClient.bulk({
+          refresh: false,
+          body: failureIds.flatMap((id) => [{ update: { _index: STATS_INDEX, _id: id } }, { doc: { exportToPgStatus: "FAILURE" } }]),
+        });
+        console.log(`[Applies] Marked ${failureIds.length} docs as FAILURE in Elasticsearch.`);
+      }
+      processed += data.length;
     }
     console.log(`[Applies] Ended at ${new Date().toISOString()} in ${(Date.now() - start.getTime()) / 1000}s.`);
     return { created, updated };

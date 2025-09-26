@@ -84,6 +84,8 @@ const handler = async () => {
   try {
     const start = new Date();
     console.log(`[Accounts] Started at ${start.toISOString()}.`);
+    let total = 0;
+    let processed = 0;
     let created = 0;
     let updated = 0;
     let scrollId = null;
@@ -117,17 +119,26 @@ const handler = async () => {
           index: STATS_INDEX,
           scroll: "20m",
           size: BATCH_SIZE,
-          body: { query: { term: { "type.keyword": "account" } } },
+          body: {
+            query: {
+              bool: {
+                must: [{ term: { "type.keyword": "account" } }],
+                must_not: [{ exists: { field: "exportToPgStatus" } }],
+              },
+            },
+          },
           track_total_hits: true,
         });
         scrollId = body._scroll_id;
         data = body.hits.hits as { _id: string; _source: Stats }[];
-        console.log(`[Accounts] Total hits ${body.hits.total.value}`);
+        total = body.hits.total.value;
+        console.log(`[Accounts] Total hits ${total}`);
       }
 
       if (data.length === 0) {
         break;
       }
+      console.log(`[Accounts] Found ${data.length} docs in Elasticsearch, processed ${processed} docs so far, ${total - processed} docs left.`);
 
       const stored = {} as { [key: string]: { click_id: string | null } };
       await prismaClient.account
@@ -148,17 +159,18 @@ const handler = async () => {
 
       const dataToCreate: Account[] = [];
       const dataToUpdate: Account[] = [];
+      const successIds: string[] = [];
+      const failureIds: string[] = [];
 
       const missions = {} as { [key: string]: string };
       const missionIds = new Set<string>(data.map((hit: { _source: Stats }) => hit._source.missionClientId?.toString()).filter((id: string | undefined) => id !== undefined));
-      console.log(`[Accounts] Found ${missionIds.size} missions in Elasticsearch`);
+
       await prismaClient.mission
         .findMany({
           where: { client_id: { in: Array.from(missionIds) } },
           select: { id: true, client_id: true, partner: { select: { old_id: true } } },
         })
         .then((data) => data.forEach((d) => (missions[`${d.client_id}-${d.partner?.old_id}`] = d.id)));
-      console.log(`[Accounts] Found ${Object.keys(missions).length} missions in database PG`);
 
       for (const hit of data) {
         let clickId;
@@ -179,6 +191,7 @@ const handler = async () => {
         }
         const obj = await buildData({ ...hit._source, _id: hit._id }, partners, missions, campaigns, widgets, clickId);
         if (!obj) {
+          failureIds.push(hit._id);
           continue;
         }
 
@@ -186,29 +199,57 @@ const handler = async () => {
           dataToUpdate.push(obj);
         } else if (!stored[hit._id.toString()]) {
           dataToCreate.push(obj);
+        } else {
+          successIds.push(hit._id);
         }
       }
 
       console.log(`[Accounts] ${dataToCreate.length} docs to create, ${dataToUpdate.length} docs to update.`);
 
       if (dataToCreate.length) {
-        const res = await prismaClient.account.createMany({ data: dataToCreate, skipDuplicates: true });
-        created += res.count;
-        console.log(`[Accounts] Created ${res.count} docs, ${created} created so far.`);
+        try {
+          const res = await prismaClient.account.createMany({ data: dataToCreate, skipDuplicates: true });
+          created += res.count;
+          successIds.push(...dataToCreate.map((t) => (t as any).old_id));
+          console.log(`[Accounts] Created ${res.count} docs, ${created} created so far.`);
+        } catch (error) {
+          captureException(error, "[Accounts] Error during bulk createMany to PG");
+          failureIds.push(...dataToCreate.map((t) => (t as any).old_id));
+        }
       }
 
       if (dataToUpdate.length) {
         console.log(`[Accounts] Updating ${dataToUpdate.length} docs.`);
         const transactions = [];
+        const toMarkUpdated: string[] = [];
         for (const obj of dataToUpdate) {
           transactions.push(prismaClient.account.update({ where: { old_id: obj.old_id }, data: obj }));
+          toMarkUpdated.push((obj as any).old_id);
         }
         for (let i = 0; i < transactions.length; i += 100) {
           await prismaClient.$transaction(transactions.slice(i, i + 100));
         }
+        successIds.push(...toMarkUpdated);
       }
       updated += dataToUpdate.length;
       console.log(`[Accounts] Updated ${dataToUpdate.length} docs, ${updated} updated so far.`);
+
+      // Bulk update ES status for processed docs
+      if (successIds.length > 0) {
+        await esClient.bulk({
+          refresh: false,
+          body: successIds.flatMap((id) => [{ update: { _index: STATS_INDEX, _id: id } }, { doc: { exportToPgStatus: "SUCCESS" } }]),
+        });
+        console.log(`[Accounts] Marked ${successIds.length} docs as SUCCESS in Elasticsearch.`);
+      }
+      if (failureIds.length > 0) {
+        await esClient.bulk({
+          refresh: false,
+          body: failureIds.flatMap((id) => [{ update: { _index: STATS_INDEX, _id: id } }, { doc: { exportToPgStatus: "FAILURE" } }]),
+        });
+        console.log(`[Accounts] Marked ${failureIds.length} docs as FAILURE in Elasticsearch.`);
+      }
+      processed += data.length;
     }
 
     console.log(`[Accounts] Ended at ${new Date().toISOString()} in ${(Date.now() - start.getTime()) / 1000}s.`);
