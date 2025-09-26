@@ -201,10 +201,13 @@ CREATE MATERIALIZED VIEW "PublicStatsDepartments" AS
 WITH base AS (
   SELECT
     EXTRACT(YEAR FROM "created_at")::int AS year,
+    -- Derive departement from postal code: '20' for Corse (20*), '97' for any 97* or 98* (group all DOM/TOM), else first 2 digits
     CASE
-      WHEN "mission_postal_code" IS NOT NULL AND "mission_postal_code" <> '' THEN "mission_postal_code"
-      ELSE NULL
-    END AS postal_code,
+      WHEN "mission_postal_code" IS NULL OR "mission_postal_code" = '' THEN NULL
+      WHEN "mission_postal_code" LIKE '20%' THEN '20'
+      WHEN "mission_postal_code" ~ '^(97|98)' THEN '97'
+      ELSE substring("mission_postal_code" from 1 for 2)
+    END AS departement,
     CASE WHEN "to_publisher_name" = 'Service Civique' THEN 'volontariat' ELSE 'benevolat' END AS publisher_category,
     CASE
       WHEN "mission_id" IS NOT NULL AND "mission_id" <> '' THEN "mission_id"
@@ -218,24 +221,24 @@ WITH base AS (
 )
 SELECT
   year,
-  postal_code,
+  departement,
   publisher_category,
   COUNT(DISTINCT mission_id)::bigint AS mission_count,
   SUM(CASE WHEN type = 'click' THEN 1 ELSE 0 END)::bigint AS click_count,
   SUM(CASE WHEN type = 'apply' THEN 1 ELSE 0 END)::bigint AS apply_count
 FROM base
-GROUP BY year, postal_code, publisher_category
+GROUP BY year, departement, publisher_category
 
 UNION ALL
 SELECT
   year,
-  postal_code,
+  departement,
   'all' AS publisher_category,
   COUNT(DISTINCT mission_id)::bigint AS mission_count,
   SUM(CASE WHEN type = 'click' THEN 1 ELSE 0 END)::bigint AS click_count,
   SUM(CASE WHEN type = 'apply' THEN 1 ELSE 0 END)::bigint AS apply_count
 FROM base
-GROUP BY year, postal_code;
+GROUP BY year, departement;
 
 CREATE UNIQUE INDEX "PublicStatsDepartments_unique_idx"
-  ON "PublicStatsDepartments" ("year", "postal_code", "publisher_category");
+  ON "PublicStatsDepartments" ("year", "departement", "publisher_category");

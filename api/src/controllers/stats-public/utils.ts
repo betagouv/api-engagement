@@ -458,9 +458,9 @@ async function getPublicDepartmentStatsFromPg(params: Pick<GraphStatsParams, "ty
   const { type, year } = params;
   const publisherCategory = resolvePublisherCategory(type);
 
-  const rows = await prismaCore.$queryRaw<Array<{ postal_code: string; mission_count: bigint; click_count: bigint; apply_count: bigint }>>(
+  const rows = await prismaCore.$queryRaw<Array<{ departement: string; mission_count: bigint; click_count: bigint; apply_count: bigint }>>(
     Prisma.sql`
-      SELECT "postal_code", "mission_count", "click_count", "apply_count"
+      SELECT "departement", "mission_count", "click_count", "apply_count"
       FROM "PublicStatsDepartments"
       WHERE "year" = ${year}
         AND "publisher_category" = ${publisherCategory}
@@ -468,7 +468,7 @@ async function getPublicDepartmentStatsFromPg(params: Pick<GraphStatsParams, "ty
   );
 
   return rows.map((row) => ({
-    key: row.postal_code,
+    key: row.departement,
     mission_count: Number(row.mission_count ?? 0n),
     click_count: Number(row.click_count ?? 0n),
     apply_count: Number(row.apply_count ?? 0n),
