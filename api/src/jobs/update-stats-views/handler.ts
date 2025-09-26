@@ -8,6 +8,8 @@ const VIEWS = [
   "PublicStatsGraphYearlyOrganizations",
   "PublicStatsDomains",
   "PublicStatsDepartments",
+  "StatsGlobalEvents",
+  "StatsGlobalMissionActivity",
 ] as const;
 
 export interface UpdateStatsViewsJobResult extends JobResult {
