@@ -1,5 +1,5 @@
-import { Prisma } from "../../db/core";
 import { STATS_INDEX } from "../../config";
+import { Prisma } from "../../db/core";
 import esClient from "../../db/elastic";
 import { prismaCore } from "../../db/postgres";
 import { EsQuery } from "../../types";
@@ -113,24 +113,25 @@ async function getStatsMeanFromEs(filters: StatsMeanFilters): Promise<StatsMeanR
   };
   graph.rate = graph.clickCount ? graph.applyCount / graph.clickCount : 0;
 
-  const sources = (response.body.aggregations?.sources?.buckets as Array<Record<string, any>> | undefined)
-    ?.filter((bucket) => bucket.key)
-    .map((bucket) => {
-      const printCount = bucket.print?.doc_count ?? 0;
-      const clickCount = bucket.click?.doc_count ?? 0;
-      const applyCount = bucket.apply?.doc_count ?? 0;
-      const accountCount = bucket.account?.doc_count ?? 0;
-      const topHit = bucket.name?.hits?.hits?.[0];
-      return {
-        id: bucket.key as string,
-        name: topHit?._source?.sourceName as string | undefined,
-        printCount,
-        clickCount,
-        applyCount,
-        accountCount,
-        rate: bucket.rate?.value ?? (clickCount ? applyCount / clickCount : 0),
-      };
-    }) ?? [];
+  const sources =
+    (response.body.aggregations?.sources?.buckets as Array<Record<string, any>> | undefined)
+      ?.filter((bucket) => bucket.key)
+      .map((bucket) => {
+        const printCount = bucket.print?.doc_count ?? 0;
+        const clickCount = bucket.click?.doc_count ?? 0;
+        const applyCount = bucket.apply?.doc_count ?? 0;
+        const accountCount = bucket.account?.doc_count ?? 0;
+        const topHit = bucket.name?.hits?.hits?.[0];
+        return {
+          id: bucket.key as string,
+          name: topHit?._source?.sourceName as string | undefined,
+          printCount,
+          clickCount,
+          applyCount,
+          accountCount,
+          rate: bucket.rate?.value ?? (clickCount ? applyCount / clickCount : 0),
+        };
+      }) ?? [];
 
   return { graph, sources };
 }
@@ -153,7 +154,7 @@ async function getStatsMeanFromPg(filters: StatsMeanFilters): Promise<StatsMeanR
   const sourceFilters = resolveSourceFilters(filters.source);
   if (sourceFilters.length) {
     const values = sourceFilters.map((source) => Prisma.sql`${source}`);
-    whereClauses.push(Prisma.sql`"source" IN (${Prisma.join(values)})`);
+    whereClauses.push(Prisma.sql`"source"::text IN (${Prisma.join(values)})`);
   }
 
   const whereClause = joinFilters(whereClauses);

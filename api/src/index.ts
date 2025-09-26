@@ -38,7 +38,7 @@ import ReportController from "./controllers/report";
 import StatsController from "./controllers/stats";
 import StatsAdminController from "./controllers/stats-admin";
 import StatsGlobalController from "./controllers/stats-global";
-import StatsMeanController from "./controllers/stats-mean";
+import StatsMeanController from "./controllers/stats-mean/controller";
 import PublicStatsController from "./controllers/stats-public/controller";
 import UserController from "./controllers/user";
 import WarningController from "./controllers/warning";
