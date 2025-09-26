@@ -5,7 +5,7 @@ import { Prisma } from "../db/core";
 import { STATS_INDEX } from "../config";
 import esClient from "../db/elastic";
 import { prismaCore } from "../db/postgres";
-import { Stats } from "../types";
+import { EsQuery, Stats } from "../types";
 
 type StatEventType = Stats["type"];
 
@@ -19,6 +19,20 @@ interface CountClicksByPublisherForOrganizationSinceParams {
   publisherIds: string[];
   organizationClientId: string;
   from: Date;
+}
+
+interface SearchStatEventsParams {
+  fromPublisherId?: string;
+  toPublisherId?: string;
+  type?: StatEventType;
+  sourceId?: string;
+  size?: number;
+  skip?: number;
+}
+
+interface SearchStatEventsResult {
+  data: Stats[];
+  total: number;
 }
 
 type ViewStatsDateFilter = {
@@ -348,6 +362,95 @@ export async function countClicksByPublisherForOrganizationSince({ publisherIds,
   );
 }
 
+export async function searchStatEvents({
+  fromPublisherId,
+  toPublisherId,
+  type,
+  sourceId,
+  size = 25,
+  skip = 0,
+}: SearchStatEventsParams): Promise<SearchStatEventsResult> {
+  if (getReadStatsFrom() === "pg") {
+    const where: Prisma.StatEventWhereInput = {
+      NOT: { is_bot: true },
+    };
+
+    if (fromPublisherId) {
+      where.from_publisher_id = fromPublisherId;
+    }
+
+    if (toPublisherId) {
+      where.to_publisher_id = toPublisherId;
+    }
+
+    if (type) {
+      where.type = type as any;
+    }
+
+    if (sourceId) {
+      where.source_id = sourceId;
+    }
+
+    const [rows, total] = await Promise.all([
+      prismaCore.statEvent.findMany({
+        where,
+        orderBy: { created_at: "desc" },
+        skip,
+        take: size,
+      }),
+      prismaCore.statEvent.count({ where }),
+    ]);
+
+    return {
+      data: rows.map(fromPg),
+      total,
+    };
+  }
+
+  const query: EsQuery = {
+    bool: {
+      must: [],
+      must_not: [{ term: { isBot: true } }],
+      should: [],
+      filter: [],
+    },
+  };
+
+  if (fromPublisherId) {
+    query.bool.filter.push({ term: { fromPublisherId } });
+  }
+
+  if (toPublisherId) {
+    query.bool.filter.push({ term: { toPublisherId } });
+  }
+
+  if (type) {
+    query.bool.filter.push({ term: { type } });
+  }
+
+  if (sourceId) {
+    query.bool.filter.push({ term: { sourceId } });
+  }
+
+  const response = await esClient.search({
+    index: STATS_INDEX,
+    body: {
+      track_total_hits: true,
+      query,
+      sort: [{ createdAt: { order: "desc" } }],
+      size,
+      from: skip,
+    },
+  });
+
+  const hits = (response.body.hits?.hits as any[]) ?? [];
+
+  return {
+    data: hits.map((hit) => ({ ...hit._source, _id: hit._id } as Stats)),
+    total: response.body.hits?.total?.value ?? 0,
+  };
+}
+
 export async function searchViewStats({ publisherId, size = 10, filters = {}, facets = [] }: SearchViewStatsParams): Promise<SearchViewStatsResult> {
   if (getReadStatsFrom() === "pg") {
     const where: Record<string, any> = {
@@ -643,6 +746,7 @@ const statEventRepository = {
   count,
   countByTypeSince,
   countClicksByPublisherForOrganizationSince,
+  searchStatEvents,
   searchViewStats,
   aggregateMissionStats,
   findFirstByMissionId,
