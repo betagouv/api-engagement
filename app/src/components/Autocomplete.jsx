@@ -47,7 +47,7 @@ const Autocomplete = ({ options, value, onChange, onSelect, onClear, loading = f
             <RiCloseLine className="text-sm" />
           </button>
         )}
-        <button className="absolute inset-y-2 right-0 flex items-center pr-2" onClick={() => setIsOpen(!isOpen)}>
+        <button type="button" className="absolute inset-y-2 right-0 flex items-center pr-2" onClick={() => setIsOpen(!isOpen)}>
           <RiArrowDownSLine className={`text-sm ${isOpen ? "rotate-180 transform" : ""}`} />
         </button>
       </div>

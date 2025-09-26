@@ -66,10 +66,12 @@ schema.index({ updatedAt: 1, lastExportedToPgAt: 1 });
 schema.index({ rna: 1 });
 schema.index({ title: 1 });
 schema.index({ titleSlug: 1 });
-schema.index({ siret: 1 });
+schema.index({ sirets: 1 });
+schema.index({ siren: 1 });
+schema.index({ names: 1 });
 schema.index({ addressDepartmentName: 1 });
 schema.index({ addressCity: 1 });
-schema.index({ title: "text", shortTitle: "text", rna: "text", siret: "text" });
+schema.index({ title: "text", shortTitle: "text", rna: "text", sirets: "text", siren: "text", names: "text" });
 
 const OrganizationModel = model<Organization>(MODELNAME, schema);
 export default OrganizationModel;
