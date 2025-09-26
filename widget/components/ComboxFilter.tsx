@@ -57,20 +57,11 @@ const ComboboxFilter = ({
 
   const handleToggle = (option: FilterOption) => {
     let newSelection = [];
-
-    console.log(
-      selection.map((o) => o.value),
-      option.value,
-    );
     if (selection.some((o) => o.value === option.value)) {
       newSelection = selection.filter((o) => o.value !== option.value);
     } else {
       newSelection = [...selection, option];
     }
-    console.log(
-      "newSelection",
-      newSelection.map((o) => o.value),
-    );
     onChange(newSelection);
   };
 
@@ -142,7 +133,7 @@ const ComboboxFilter = ({
         id={id}
         aria-label={placeholder}
         aria-expanded={show}
-        className={`select relative truncate text-left ${!values || values.length === 0 ? "text-[#666666]" : "text-[#161616]"}`}
+        className={`select relative truncate text-left ${!values || values.length === 0 ? "!text-[#666666]" : ""}`}
         onClick={() => setShow(!show)}
         onKeyDown={handleButtonKeyDown}
       >

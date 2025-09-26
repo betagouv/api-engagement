@@ -29,8 +29,23 @@ interface FiltersVolontariatProps {
   onShow: (show: boolean) => void;
 }
 
+const hasFilters = (filters: Filters, disabledLocation: boolean) => {
+  return (
+    filters.accessibility?.value ||
+    filters.duration?.value ||
+    filters.minor?.value ||
+    filters.schedule?.value ||
+    filters.action?.length ||
+    filters.beneficiary?.length ||
+    filters.country?.length ||
+    filters.domain?.length ||
+    filters.start?.value ||
+    (filters.location && !disabledLocation)
+  );
+};
+
 const FiltersVolontariat = ({ widget, apiUrl, values, total, onChange, show, onShow }: FiltersVolontariatProps) => {
-  const { mobile, url } = useStore();
+  const { mobile, url, color } = useStore();
   const plausible = usePlausible();
   const [options, setOptions] = useState<FilterOptions>({
     accessibility: [],
@@ -117,9 +132,8 @@ const FiltersVolontariat = ({ widget, apiUrl, values, total, onChange, show, onS
   const handleReset = () => {
     onChange({
       domain: [],
-      location: null,
+      location: widget.location || null,
       page: 1,
-      size: 40,
       start: null,
       duration: null,
       schedule: null,
@@ -149,14 +163,15 @@ const FiltersVolontariat = ({ widget, apiUrl, values, total, onChange, show, onS
   }
 
   return (
-    <div className={`w-full mb-2 ${mobile ? "flex flex-col items-center gap-2" : ""}`}>
+    <div className={`w-full ${mobile ? "flex flex-col items-center gap-2" : ""}`}>
       <DesktopFiltersVolontariat total={total} options={options} values={values} onChange={(v) => onChange({ ...values, ...v })} disabledLocation={!!widget.location} />
       <div className="flex justify-between items-center mt-8">
         <p className="text-base text-[#666666]">{total > 1 ? `${total.toLocaleString("fr")} missions` : `${total} mission`}</p>
-
-        <button className="text-base font-medium underline" onClick={handleReset}>
-          Réinitialiser
-        </button>
+        {hasFilters(values, !!widget.location) && (
+          <button className="text-base font-medium underline cursor-pointer hover:no-underline" onClick={handleReset} style={{ color }}>
+            Réinitialiser
+          </button>
+        )}
       </div>
     </div>
   );
@@ -206,13 +221,13 @@ const MobileFiltersVolontariat = ({ options, values, onChange, show, onShow, onR
               <SelectFilter
                 id="duration"
                 options={[
-                  { label: "6 mois", value: 6 },
-                  { label: "7 mois", value: 7 },
-                  { label: "8 mois", value: 8 },
-                  { label: "9 mois", value: 9 },
-                  { label: "10 mois", value: 10 },
-                  { label: "11 mois", value: 11 },
-                  { label: "12 mois", value: 12 },
+                  { label: "6 mois", value: "6" },
+                  { label: "7 mois", value: "7" },
+                  { label: "8 mois", value: "8" },
+                  { label: "9 mois", value: "9" },
+                  { label: "10 mois", value: "10" },
+                  { label: "11 mois", value: "11" },
+                  { label: "12 mois", value: "12" },
                 ]}
                 value={values.duration || null}
                 onChange={(v) => onChange({ ...values, duration: v })}
@@ -315,7 +330,7 @@ interface DesktopFiltersVolontariatProps {
   disabledLocation?: boolean;
 }
 
-const DesktopFiltersVolontariat = ({ total, options, values, onChange, disabledLocation = false }: DesktopFiltersVolontariatProps) => {
+const DesktopFiltersVolontariat = ({ options, values, onChange, disabledLocation = false }: DesktopFiltersVolontariatProps) => {
   const { url, color } = useStore();
   const plausible = usePlausible();
   const [moreFilters, setMoreFilters] = useState(false);
@@ -352,13 +367,13 @@ const DesktopFiltersVolontariat = ({ total, options, values, onChange, disabledL
         <SelectFilter
           id="duration"
           options={[
-            { label: "6 mois", value: 6 },
-            { label: "7 mois", value: 7 },
-            { label: "8 mois", value: 8 },
-            { label: "9 mois", value: 9 },
-            { label: "10 mois", value: 10 },
-            { label: "11 mois", value: 11 },
-            { label: "12 mois", value: 12 },
+            { label: "6 mois", value: "6" },
+            { label: "7 mois", value: "7" },
+            { label: "8 mois", value: "8" },
+            { label: "9 mois", value: "9" },
+            { label: "10 mois", value: "10" },
+            { label: "11 mois", value: "11" },
+            { label: "12 mois", value: "12" },
           ]}
           value={values.duration || null}
           onChange={(v) => onChange({ ...values, duration: v })}

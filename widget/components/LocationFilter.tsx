@@ -141,7 +141,7 @@ const LocationFilter = ({ selected, onChange, className = "w-80", disabled = fal
           <RiMapPin2Fill className="text-[#929292]" />
         </div>
         {disabled ? (
-          <input className="input" defaultValue={selected?.label} disabled />
+          <input className="input !pl-7" defaultValue={selected?.label} disabled />
         ) : (
           <>
             <input
@@ -152,7 +152,7 @@ const LocationFilter = ({ selected, onChange, className = "w-80", disabled = fal
               role="combobox"
               aria-autocomplete="both"
               aria-activedescendant={focusedIndex >= 0 ? `location-option-${focusedIndex}` : undefined}
-              className="input !px-6"
+              className="input !px-7"
               value={inputValue}
               placeholder="Ville"
               onChange={handleInputChange}

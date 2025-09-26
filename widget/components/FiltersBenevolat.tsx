@@ -18,6 +18,10 @@ const getAPI = async (path: string): Promise<ApiResponse<AggregationData>> => {
   return response.json();
 };
 
+const hasFilters = (filters: Filters, disabledLocation: boolean) => {
+  return filters.domain?.length || filters.organization?.length || filters.department?.length || filters.remote?.value || (filters.location && !disabledLocation);
+};
+
 interface FiltersBenevolatProps {
   widget: Widget;
   apiUrl: string;
@@ -99,6 +103,7 @@ const FiltersBenevolat = ({ widget, apiUrl, values, total, onChange, show, onSho
       department: [],
       remote: null,
       page: 1,
+      location: widget.location || null,
     });
     plausible("Filters reset", { u: url || undefined });
   };
@@ -124,10 +129,11 @@ const FiltersBenevolat = ({ widget, apiUrl, values, total, onChange, show, onSho
       <DesktopFiltersBenevolat options={options} values={values} onChange={(v) => onChange({ ...values, ...v })} disabledLocation={!!widget.location} />
       <div className="flex justify-between items-center mt-8">
         <p className="text-base text-[#666666]">{total > 1 ? `${total.toLocaleString("fr")} missions` : `${total} mission`}</p>
-
-        <button className="text-base font-medium underline" style={{ color }} onClick={handleReset}>
-          Réinitialiser
-        </button>
+        {hasFilters(values, !!widget.location) && (
+          <button className="text-base font-medium underline cursor-pointer hover:no-underline" style={{ color }} onClick={handleReset}>
+            Réinitialiser
+          </button>
+        )}
       </div>
     </div>
   );
