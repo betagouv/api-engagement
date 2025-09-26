@@ -39,7 +39,7 @@ import StatsController from "./controllers/stats";
 import StatsAdminController from "./controllers/stats-admin";
 import StatsGlobalController from "./controllers/stats-global/controller";
 import StatsMeanController from "./controllers/stats-mean";
-import PublicStatsController from "./controllers/stats-public";
+import PublicStatsController from "./controllers/stats-public/controller";
 import UserController from "./controllers/user";
 import WarningController from "./controllers/warning";
 import WarningBotController from "./controllers/warning-bot";
