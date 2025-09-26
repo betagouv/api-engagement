@@ -1,7 +1,7 @@
+import { STATS_INDEX } from "../../config";
 import { Prisma } from "../../db/core";
 import esClient from "../../db/elastic";
 import { prismaCore } from "../../db/postgres";
-import { STATS_INDEX } from "../../config";
 import { EsQuery } from "../../types";
 
 interface GraphStatsParams {
@@ -59,9 +59,7 @@ export async function getPublicDomainStats(params: GraphStatsParams): Promise<Do
   return getPublicDomainStatsFromEs(params);
 }
 
-export async function getPublicDepartmentStats(
-  params: Pick<GraphStatsParams, "type" | "year">
-): Promise<DepartmentStatsBucket[]> {
+export async function getPublicDepartmentStats(params: Pick<GraphStatsParams, "type" | "year">): Promise<DepartmentStatsBucket[]> {
   if (getReadStatsFrom() === "pg") {
     return getPublicDepartmentStatsFromPg(params);
   }
@@ -70,7 +68,14 @@ export async function getPublicDepartmentStats(
 }
 
 async function getPublicGraphStatsFromEs(params: GraphStatsParams): Promise<GraphStatsData> {
-  const viewQuery: EsQuery = { bool: { must_not: [{ term: { isBot: true } }], filter: [] } };
+  const viewQuery: EsQuery = {
+    bool: {
+      must_not: [{ term: { isBot: true } }],
+      filter: [],
+      must: [],
+      should: [],
+    },
+  };
 
   if (params.department) {
     viewQuery.bool.filter.push({
@@ -259,9 +264,7 @@ async function getPublicDomainStatsFromEs(params: GraphStatsParams): Promise<Dom
   }));
 }
 
-async function getPublicDepartmentStatsFromEs(
-  params: Pick<GraphStatsParams, "type" | "year">
-): Promise<DepartmentStatsBucket[]> {
+async function getPublicDepartmentStatsFromEs(params: Pick<GraphStatsParams, "type" | "year">): Promise<DepartmentStatsBucket[]> {
   const filter: EsQuery["bool"]["filter"] = [
     {
       range: {
@@ -332,11 +335,7 @@ async function getPublicGraphStatsFromPg(params: GraphStatsParams): Promise<Grap
   const start = new Date(year, 0, 1);
   const end = new Date(year + 1, 0, 1);
 
-  const filters: Prisma.Sql[] = [
-    Prisma.sql`"is_bot" IS NOT TRUE`,
-    Prisma.sql`"created_at" >= ${start}`,
-    Prisma.sql`"created_at" < ${end}`,
-  ];
+  const filters: Prisma.Sql[] = [Prisma.sql`"is_bot" IS NOT TRUE`, Prisma.sql`"created_at" >= ${start}`, Prisma.sql`"created_at" < ${end}`];
 
   if (department) {
     filters.push(Prisma.sql`"mission_department_name" = ${department}`);
@@ -350,9 +349,7 @@ async function getPublicGraphStatsFromPg(params: GraphStatsParams): Promise<Grap
 
   const whereClause = joinFilters(filters);
 
-  const monthlyEvents = await prismaCore.$queryRaw<
-    Array<{ month: number; type: "click" | "apply"; doc_count: bigint }>
-  >(
+  const monthlyEvents = await prismaCore.$queryRaw<Array<{ month: number; type: "click" | "apply"; doc_count: bigint }>>(
     Prisma.sql`
       SELECT
         EXTRACT(MONTH FROM "created_at")::int AS month,
@@ -365,9 +362,7 @@ async function getPublicGraphStatsFromPg(params: GraphStatsParams): Promise<Grap
     `
   );
 
-  const monthlyOrganizations = await prismaCore.$queryRaw<
-    Array<{ month: number; doc_count: bigint }>
-  >(
+  const monthlyOrganizations = await prismaCore.$queryRaw<Array<{ month: number; doc_count: bigint }>>(
     Prisma.sql`
       SELECT
         EXTRACT(MONTH FROM "created_at")::int AS month,
@@ -443,11 +438,7 @@ async function getPublicDomainStatsFromPg(params: GraphStatsParams): Promise<Dom
   const start = new Date(year, 0, 1);
   const end = new Date(year + 1, 0, 1);
 
-  const filters: Prisma.Sql[] = [
-    Prisma.sql`"is_bot" IS NOT TRUE`,
-    Prisma.sql`"created_at" >= ${start}`,
-    Prisma.sql`"created_at" < ${end}`,
-  ];
+  const filters: Prisma.Sql[] = [Prisma.sql`"is_bot" IS NOT TRUE`, Prisma.sql`"created_at" >= ${start}`, Prisma.sql`"created_at" < ${end}`];
 
   if (department) {
     filters.push(Prisma.sql`"mission_department_name" = ${department}`);
@@ -461,9 +452,7 @@ async function getPublicDomainStatsFromPg(params: GraphStatsParams): Promise<Dom
 
   const whereClause = joinFilters(filters);
 
-  const rows = await prismaCore.$queryRaw<
-    Array<{ domain: string; mission_count: bigint; click_count: bigint; apply_count: bigint }>
-  >(
+  const rows = await prismaCore.$queryRaw<Array<{ domain: string; mission_count: bigint; click_count: bigint; apply_count: bigint }>>(
     Prisma.sql`
       SELECT
         "mission_domain" AS domain,
@@ -495,18 +484,12 @@ async function getPublicDomainStatsFromPg(params: GraphStatsParams): Promise<Dom
   ];
 }
 
-async function getPublicDepartmentStatsFromPg(
-  params: Pick<GraphStatsParams, "type" | "year">
-): Promise<DepartmentStatsBucket[]> {
+async function getPublicDepartmentStatsFromPg(params: Pick<GraphStatsParams, "type" | "year">): Promise<DepartmentStatsBucket[]> {
   const { type, year } = params;
   const start = new Date(year, 0, 1);
   const end = new Date(year + 1, 0, 1);
 
-  const filters: Prisma.Sql[] = [
-    Prisma.sql`"is_bot" IS NOT TRUE`,
-    Prisma.sql`"created_at" >= ${start}`,
-    Prisma.sql`"created_at" < ${end}`,
-  ];
+  const filters: Prisma.Sql[] = [Prisma.sql`"is_bot" IS NOT TRUE`, Prisma.sql`"created_at" >= ${start}`, Prisma.sql`"created_at" < ${end}`];
 
   if (type === "volontariat") {
     filters.push(Prisma.sql`"to_publisher_name" = 'Service Civique'`);
@@ -516,9 +499,7 @@ async function getPublicDepartmentStatsFromPg(
 
   const whereClause = joinFilters(filters);
 
-  const rows = await prismaCore.$queryRaw<
-    Array<{ postal_code: string; mission_count: bigint; click_count: bigint; apply_count: bigint }>
-  >(
+  const rows = await prismaCore.$queryRaw<Array<{ postal_code: string; mission_count: bigint; click_count: bigint; apply_count: bigint }>>(
     Prisma.sql`
       SELECT
         "mission_postal_code" AS postal_code,
