@@ -81,6 +81,8 @@ const handler = async () => {
   try {
     const start = new Date();
     console.log(`[Prints] Started at ${start.toISOString()}.`);
+    let total = 0;
+    let processed = 0;
     let created = 0;
     let scrollId = null;
 
@@ -117,12 +119,11 @@ const handler = async () => {
                       "type.keyword": "print",
                     },
                   },
+                ],
+                must_not: [
                   {
-                    range: {
-                      createdAt: {
-                        gte: "now-14d/d",
-                        lte: "now/d",
-                      },
+                    exists: {
+                      field: "exportToPgStatus",
                     },
                   },
                 ],
@@ -133,16 +134,18 @@ const handler = async () => {
         });
         scrollId = body._scroll_id;
         data = body.hits.hits as { _id: string; _source: Stats }[];
-        console.log(`[Prints] Total hits ${body.hits.total.value}`);
+        total = body.hits.total.value;
+        console.log(`[Prints] Total hits ${total}`);
       }
 
       if (data.length === 0) {
         break;
       }
+      console.log(`[Prints] Found ${data.length} docs in Elasticsearch, processed ${processed} docs so far, ${total - processed} docs left.`);
 
       const missions = {} as { [key: string]: string };
       const missionIds = new Set<string>(data.map((hit: { _source: Stats }) => hit._source.missionClientId?.toString()).filter((id: string | undefined) => id !== undefined));
-      console.log(`[Prints] Found ${missionIds.size} missions in Elasticsearch`);
+
       await prismaClient.mission
         .findMany({
           where: {
@@ -151,12 +154,14 @@ const handler = async () => {
           select: { id: true, client_id: true, partner: { select: { old_id: true } } },
         })
         .then((data) => data.forEach((d) => (missions[`${d.client_id}-${d.partner?.old_id}`] = d.id)));
-      console.log(`[Prints] Found ${Object.keys(missions).length} missions in database PG`);
 
-      const dataToCreate = [];
-      for (const hit of data) {
-        const obj = await buildData({ _id: hit._id, ...hit._source }, partners, missions, campaigns, widgets);
+      const dataToCreate = [] as Impression[];
+      const successIds: string[] = [];
+      const failureIds: string[] = [];
+      for (const hit of data as { _id: string; _source: Stats }[]) {
+        const obj = await buildData({ ...hit._source, _id: hit._id }, partners, missions, campaigns, widgets);
         if (!obj) {
+          failureIds.push(hit._id);
           continue;
         }
         dataToCreate.push(obj);
@@ -164,15 +169,37 @@ const handler = async () => {
 
       // Create data
       if (dataToCreate.length) {
-        const res = await prismaClient.impression.createMany({
-          data: dataToCreate,
-          skipDuplicates: true,
-        });
-        created += res.count;
-        console.log(`[Prints] Created ${res.count} docs, ${created} created so far.`);
+        try {
+          const res = await prismaClient.impression.createMany({
+            data: dataToCreate,
+            skipDuplicates: true,
+          });
+          created += res.count;
+          successIds.push(...dataToCreate.map((t) => (t as any).old_id));
+          console.log(`[Prints] Created ${res.count} docs, ${created} created so far.`);
+        } catch (error) {
+          captureException(error, "[Prints] Error during bulk createMany to PG");
+          failureIds.push(...dataToCreate.map((t) => (t as any).old_id));
+        }
       }
 
-      console.log(`[Prints] Processed ${data.length} docs.`);
+      // Bulk update ES status for processed docs
+      if (successIds.length > 0) {
+        await esClient.bulk({
+          refresh: false,
+          body: successIds.flatMap((id) => [{ update: { _index: STATS_INDEX, _id: id } }, { doc: { exportToPgStatus: "SUCCESS" } }]),
+        });
+        console.log(`[Prints] Marked ${successIds.length} docs as SUCCESS in Elasticsearch.`);
+      }
+      if (failureIds.length > 0) {
+        await esClient.bulk({
+          refresh: false,
+          body: failureIds.flatMap((id) => [{ update: { _index: STATS_INDEX, _id: id } }, { doc: { exportToPgStatus: "FAILURE" } }]),
+        });
+        console.log(`[Prints] Marked ${failureIds.length} docs as FAILURE in Elasticsearch.`);
+      }
+
+      processed += data.length;
     }
 
     console.log(`[Prints] Ended at ${new Date().toISOString()} in ${(Date.now() - start.getTime()) / 1000}s.`);
