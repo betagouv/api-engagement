@@ -51,7 +51,7 @@ const Distribution = ({ filters, onFiltersChange }) => {
         const resDepartments = await api.get(`/stats-public/departments?${query.toString()}`);
         if (!resDepartments.ok) throw new Error("Erreur lors de la récupération des statistiques");
 
-        setDepartmentStats(resDepartments.data.map((d) => ({ ...d, name: getDepartement(getDepartmentCode(d.key)) || "Non renseigné" })));
+        setDepartmentStats(resDepartments.data.map((d) => ({ ...d, name: getDepartement(d.key) || "Non renseigné" })));
       } catch (error) {
         captureError(error, "Une erreur est survenue lors de la récupération des statistiques");
       }
