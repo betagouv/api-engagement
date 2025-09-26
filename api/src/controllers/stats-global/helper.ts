@@ -49,11 +49,128 @@ interface HistogramBucket {
   };
 }
 
+// Note: stats-global endpoints rely on materialized views refreshed by the update-stats-views job.
+// See migration: prisma/core/migrations/20250211090000_create_stats_global_materialized_views/migration.sql
+const STATS_GLOBAL_EVENTS_VIEW = Prisma.raw('"StatsGlobalEvents"');
+const STATS_GLOBAL_MISSION_VIEW = Prisma.raw('"StatsGlobalMissionActivity"');
+
 const HISTOGRAM_INTERVAL_SQL: Record<string, Prisma.Sql> = {
   hour: Prisma.raw("'hour'"),
   day: Prisma.raw("'day'"),
   month: Prisma.raw("'month'"),
 };
+
+function createWhereClause(conditions: Prisma.Sql[]): Prisma.Sql {
+  if (!conditions.length) {
+    return Prisma.sql``;
+  }
+
+  return Prisma.sql`WHERE ${Prisma.join(conditions, Prisma.raw(" AND "))}`;
+}
+
+function createEventsConditions({
+  publisherId,
+  publisherField,
+  from,
+  to,
+  type,
+  additionalConditions = [],
+}: {
+  publisherId?: string;
+  publisherField?: PublisherIdField;
+  from?: Date;
+  to?: Date;
+  type?: StatEventType;
+  additionalConditions?: Prisma.Sql[];
+}): Prisma.Sql[] {
+  const conditions: Prisma.Sql[] = [];
+
+  if (publisherId && publisherField) {
+    conditions.push(Prisma.sql`${Prisma.raw(`"${publisherField}"`)} = ${publisherId}`);
+  }
+
+  if (from) {
+    conditions.push(Prisma.sql`"created_at" >= ${from}`);
+  }
+
+  if (to) {
+    conditions.push(Prisma.sql`"created_at" <= ${to}`);
+  }
+
+  if (type) {
+    conditions.push(Prisma.sql`"type" = ${type}::"StatEventType"`);
+  }
+
+  if (additionalConditions.length) {
+    conditions.push(...additionalConditions);
+  }
+
+  return conditions;
+}
+
+function createMissionConditions({
+  publisherId,
+  publisherField,
+  from,
+  to,
+  type,
+  additionalConditions = [],
+}: {
+  publisherId?: string;
+  publisherField?: PublisherIdField;
+  from?: Date;
+  to?: Date;
+  type?: StatEventType;
+  additionalConditions?: Prisma.Sql[];
+}): Prisma.Sql[] {
+  const conditions: Prisma.Sql[] = [];
+
+  if (publisherId && publisherField) {
+    conditions.push(Prisma.sql`${Prisma.raw(`"${publisherField}"`)} = ${publisherId}`);
+  }
+
+  if (from) {
+    conditions.push(Prisma.sql`"last_created_at" >= ${from}`);
+  }
+
+  if (to) {
+    conditions.push(Prisma.sql`"first_created_at" <= ${to}`);
+  }
+
+  if (type) {
+    conditions.push(Prisma.sql`"type" = ${type}::"StatEventType"`);
+  }
+
+  if (additionalConditions.length) {
+    conditions.push(...additionalConditions);
+  }
+
+  return conditions;
+}
+
+async function countEvents(whereClause: Prisma.Sql): Promise<number> {
+  const rows = await prismaCore.$queryRaw<Array<{ total: bigint }>>(
+    Prisma.sql`
+      SELECT COUNT(*)::bigint AS total
+      FROM ${STATS_GLOBAL_EVENTS_VIEW}
+      ${whereClause}
+    `
+  );
+
+  return Number(rows[0]?.total ?? 0n);
+}
+
+async function countMissions(whereClause: Prisma.Sql): Promise<number> {
+  const rows = await prismaCore.$queryRaw<Array<{ total: bigint }>>(
+    Prisma.sql`
+      SELECT COUNT(*)::bigint AS total
+      FROM ${STATS_GLOBAL_MISSION_VIEW}
+      ${whereClause}
+    `
+  );
+
+  return Number(rows[0]?.total ?? 0n);
+}
 
 export async function getBroadcastPreviewStats(params: BroadcastPreviewParams) {
   if (getReadStatsFrom() === "pg") {
@@ -132,88 +249,6 @@ function applyDateFiltersToEsQuery(query: EsQuery, from?: Date, to?: Date) {
   }
 }
 
-function createPgWhere({
-  publisherId,
-  publisherField,
-  from,
-  to,
-  type,
-}: {
-  publisherId?: string;
-  publisherField?: PublisherIdField;
-  from?: Date;
-  to?: Date;
-  type?: StatEventType;
-}): Prisma.StatEventWhereInput {
-  const where: Prisma.StatEventWhereInput = {
-    NOT: { is_bot: true },
-  };
-
-  if (publisherId && publisherField) {
-    (where as any)[publisherField] = publisherId;
-  }
-
-  if (from || to) {
-    const createdAt: Prisma.DateTimeFilter = {};
-    if (from) {
-      createdAt.gte = from;
-    }
-    if (to) {
-      createdAt.lte = to;
-    }
-    where.created_at = createdAt;
-  }
-
-  if (type) {
-    (where as any).type = type;
-  }
-
-  return where;
-}
-
-function createWhereSql({
-  publisherId,
-  publisherField,
-  from,
-  to,
-  type,
-  additionalConditions = [],
-}: {
-  publisherId?: string;
-  publisherField?: PublisherIdField;
-  from?: Date;
-  to?: Date;
-  type?: StatEventType;
-  additionalConditions?: Prisma.Sql[];
-}) {
-  const conditions: Prisma.Sql[] = [Prisma.sql`"is_bot" = false`];
-
-  if (publisherId && publisherField) {
-    conditions.push(Prisma.sql`${Prisma.raw(`"${publisherField}"`)} = ${publisherId}`);
-  }
-
-  if (from) {
-    conditions.push(Prisma.sql`"created_at" >= ${from}`);
-  }
-  if (to) {
-    conditions.push(Prisma.sql`"created_at" <= ${to}`);
-  }
-
-  if (type) {
-    conditions.push(Prisma.sql`"type" = ${type}::"StatEventType"`);
-  }
-
-  if (additionalConditions.length) {
-    conditions.push(...additionalConditions);
-  }
-
-  if (!conditions.length) {
-    return Prisma.sql``;
-  }
-
-  return Prisma.sql`WHERE ${Prisma.join(conditions, " AND ")}`;
-}
-
 async function getBroadcastPreviewStatsFromEs({ publisherId, from, to }: BroadcastPreviewParams) {
   const where = createBaseEsQuery();
 
@@ -276,28 +311,47 @@ async function getBroadcastPreviewStatsFromEs({ publisherId, from, to }: Broadca
 }
 
 async function getBroadcastPreviewStatsFromPg({ publisherId, from, to }: BroadcastPreviewParams) {
-  const baseWhere = createPgWhere({ publisherId, publisherField: "from_publisher_id", from, to });
+  const eventsWhere = createWhereClause(createEventsConditions({ publisherId, publisherField: "from_publisher_id", from, to }));
 
-  const [totalClick, totalApply, totalPrint, totalAccount, totalMissionApply, totalMissionClick] = await Promise.all([
-    prismaCore.statEvent.count({ where: { ...baseWhere, type: "click" as any } }),
-    prismaCore.statEvent.count({ where: { ...baseWhere, type: "apply" as any } }),
-    prismaCore.statEvent.count({ where: { ...baseWhere, type: "print" as any } }),
-    prismaCore.statEvent.count({ where: { ...baseWhere, type: "account" as any } }),
-    prismaCore.statEvent.count({
-      where: { ...baseWhere, type: "apply" as any, mission_id: { not: null } },
-      distinct: ["mission_id"],
-    } as any),
-    prismaCore.statEvent.count({
-      where: { ...baseWhere, type: "click" as any, mission_id: { not: null } },
-      distinct: ["mission_id"],
-    } as any),
+  const [totalsRow] = await prismaCore.$queryRaw<Array<{
+    total_click: bigint;
+    total_apply: bigint;
+    total_print: bigint;
+    total_account: bigint;
+  }>>(
+    Prisma.sql`
+      SELECT
+        SUM(CASE WHEN "type" = 'click' THEN 1 ELSE 0 END)::bigint AS total_click,
+        SUM(CASE WHEN "type" = 'apply' THEN 1 ELSE 0 END)::bigint AS total_apply,
+        SUM(CASE WHEN "type" = 'print' THEN 1 ELSE 0 END)::bigint AS total_print,
+        SUM(CASE WHEN "type" = 'account' THEN 1 ELSE 0 END)::bigint AS total_account
+      FROM ${STATS_GLOBAL_EVENTS_VIEW}
+      ${eventsWhere}
+    `
+  );
+
+  const missionWhereBase = createMissionConditions({ publisherId, publisherField: "from_publisher_id", from, to });
+
+  const [totalMissionApply, totalMissionClick] = await Promise.all([
+    countMissions(
+      createWhereClause([
+        ...missionWhereBase,
+        Prisma.sql`"type" = 'apply'::"StatEventType"`,
+      ])
+    ),
+    countMissions(
+      createWhereClause([
+        ...missionWhereBase,
+        Prisma.sql`"type" = 'click'::"StatEventType"`,
+      ])
+    ),
   ]);
 
   return {
-    totalClick,
-    totalApply,
-    totalPrint,
-    totalAccount,
+    totalClick: Number(totalsRow?.total_click ?? 0n),
+    totalApply: Number(totalsRow?.total_apply ?? 0n),
+    totalPrint: Number(totalsRow?.total_print ?? 0n),
+    totalAccount: Number(totalsRow?.total_account ?? 0n),
     totalMissionApply,
     totalMissionClick,
   };
@@ -359,24 +413,39 @@ async function getAnnouncePreviewStatsFromEs({ publisherId, from, to }: Announce
 }
 
 async function getAnnouncePreviewStatsFromPg({ publisherId, from, to }: AnnounceParams) {
-  const baseWhere = createPgWhere({ publisherId, publisherField: "to_publisher_id", from, to });
+  const eventsWhere = createWhereClause(createEventsConditions({ publisherId, publisherField: "to_publisher_id", from, to }));
 
-  const [totalClick, totalApply, totalPrint, totalAccount, totalMissionClicked] = await Promise.all([
-    prismaCore.statEvent.count({ where: { ...baseWhere, type: "click" as any } }),
-    prismaCore.statEvent.count({ where: { ...baseWhere, type: "apply" as any } }),
-    prismaCore.statEvent.count({ where: { ...baseWhere, type: "print" as any } }),
-    prismaCore.statEvent.count({ where: { ...baseWhere, type: "account" as any } }),
-    prismaCore.statEvent.count({
-      where: { ...baseWhere, type: "click" as any, mission_id: { not: null } },
-      distinct: ["mission_id"],
-    } as any),
-  ]);
+  const [totalsRow] = await prismaCore.$queryRaw<Array<{
+    total_click: bigint;
+    total_apply: bigint;
+    total_print: bigint;
+    total_account: bigint;
+  }>>(
+    Prisma.sql`
+      SELECT
+        SUM(CASE WHEN "type" = 'click' THEN 1 ELSE 0 END)::bigint AS total_click,
+        SUM(CASE WHEN "type" = 'apply' THEN 1 ELSE 0 END)::bigint AS total_apply,
+        SUM(CASE WHEN "type" = 'print' THEN 1 ELSE 0 END)::bigint AS total_print,
+        SUM(CASE WHEN "type" = 'account' THEN 1 ELSE 0 END)::bigint AS total_account
+      FROM ${STATS_GLOBAL_EVENTS_VIEW}
+      ${eventsWhere}
+    `
+  );
+
+  const missionWhereBase = createMissionConditions({ publisherId, publisherField: "to_publisher_id", from, to });
+
+  const totalMissionClicked = await countMissions(
+    createWhereClause([
+      ...missionWhereBase,
+      Prisma.sql`"type" = 'click'::"StatEventType"`,
+    ])
+  );
 
   return {
-    totalPrint,
-    totalClick,
-    totalApply,
-    totalAccount,
+    totalPrint: Number(totalsRow?.total_print ?? 0n),
+    totalClick: Number(totalsRow?.total_click ?? 0n),
+    totalApply: Number(totalsRow?.total_apply ?? 0n),
+    totalAccount: Number(totalsRow?.total_account ?? 0n),
     totalMissionClicked,
   };
 }
@@ -419,18 +488,23 @@ async function getDistributionStatsFromEs({ publisherId, from, to, type }: Distr
 }
 
 async function getDistributionStatsFromPg({ publisherId, from, to, type }: DistributionParams) {
-  const where = createPgWhere({ publisherId, publisherField: "from_publisher_id", from, to, type });
+  const whereClause = createWhereClause(createEventsConditions({ publisherId, publisherField: "from_publisher_id", from, to, type }));
 
-  const rows = await prismaCore.statEvent.groupBy({
-    by: ["source"],
-    where,
-    _count: { _all: true },
-    orderBy: { _count: { _all: "desc" } },
-  });
+  const rows = await prismaCore.$queryRaw<Array<{ source: string | null; doc_count: bigint }>>(
+    Prisma.sql`
+      SELECT
+        "source",
+        COUNT(*)::bigint AS doc_count
+      FROM ${STATS_GLOBAL_EVENTS_VIEW}
+      ${whereClause}
+      GROUP BY "source"
+      ORDER BY doc_count DESC
+    `
+  );
 
   return rows
     .filter((row) => !!row.source)
-    .map((row) => ({ key: row.source, doc_count: row._count._all }));
+    .map((row) => ({ key: row.source as string, doc_count: Number(row.doc_count) }));
 }
 
 async function getEvolutionStatsFromEs({ publisherId, from, to, type, flux }: EvolutionParams) {
@@ -494,14 +568,14 @@ async function getEvolutionStatsFromPg({ publisherId, from, to, type, flux }: Ev
   const publisherField: PublisherIdField = flux === "to" ? "to_publisher_id" : "from_publisher_id";
   const publisherNameField: PublisherNameField = flux === "to" ? "from_publisher_name" : "to_publisher_name";
 
-  const where = createPgWhere({ publisherId, publisherField, from, to, type });
-  const total = await prismaCore.statEvent.count({ where });
+  const baseConditions = createEventsConditions({ publisherId, publisherField, from, to, type });
+  const total = await countEvents(createWhereClause(baseConditions));
 
   const additionalConditions = [
     Prisma.sql`${Prisma.raw(`"${publisherNameField}"`)} IS NOT NULL`,
     Prisma.sql`TRIM(${Prisma.raw(`"${publisherNameField}"`)}) <> ''`,
   ];
-  const whereSql = createWhereSql({ publisherId, publisherField, from, to, type, additionalConditions });
+  const whereSql = createWhereClause([...baseConditions, ...additionalConditions]);
 
   const histogramRows = await prismaCore.$queryRaw<Array<{ bucket: Date; publisher_name: string | null; doc_count: bigint }>>(
     Prisma.sql`
@@ -509,7 +583,7 @@ async function getEvolutionStatsFromPg({ publisherId, from, to, type, flux }: Ev
         date_trunc(${intervalSql}, "created_at" AT TIME ZONE 'Europe/Paris') AS bucket,
         ${Prisma.raw(`"${publisherNameField}"`)} AS publisher_name,
         COUNT(*)::bigint AS doc_count
-      FROM "StatEvent"
+      FROM ${STATS_GLOBAL_EVENTS_VIEW}
       ${whereSql}
       GROUP BY bucket, ${Prisma.raw(`"${publisherNameField}"`)}
       ORDER BY bucket ASC, doc_count DESC
@@ -560,7 +634,7 @@ async function getEvolutionStatsFromPg({ publisherId, from, to, type, flux }: Ev
       SELECT
         ${Prisma.raw(`"${publisherNameField}"`)} AS publisher_name,
         COUNT(*)::bigint AS doc_count
-      FROM "StatEvent"
+      FROM ${STATS_GLOBAL_EVENTS_VIEW}
       ${whereSql}
       GROUP BY ${Prisma.raw(`"${publisherNameField}"`)}
       ORDER BY doc_count DESC
@@ -646,16 +720,12 @@ async function getBroadcastPublishersFromPg({ publisherId, from, to, flux }: Pub
   const publisherField: PublisherIdField = flux === "to" ? "to_publisher_id" : "from_publisher_id";
   const publisherNameField: PublisherNameField = flux === "to" ? "from_publisher_name" : "to_publisher_name";
 
-  const whereSql = createWhereSql({
-    publisherId,
-    publisherField,
-    from,
-    to,
-    additionalConditions: [
-      Prisma.sql`${Prisma.raw(`"${publisherNameField}"`)} IS NOT NULL`,
-      Prisma.sql`TRIM(${Prisma.raw(`"${publisherNameField}"`)}) <> ''`,
-    ],
-  });
+  const baseConditions = createEventsConditions({ publisherId, publisherField, from, to });
+  const whereSql = createWhereClause([
+    ...baseConditions,
+    Prisma.sql`${Prisma.raw(`"${publisherNameField}"`)} IS NOT NULL`,
+    Prisma.sql`TRIM(${Prisma.raw(`"${publisherNameField}"`)}) <> ''`,
+  ]);
 
   const rows = await prismaCore.$queryRaw<
     Array<{
@@ -673,7 +743,7 @@ async function getBroadcastPublishersFromPg({ publisherId, from, to, flux }: Pub
         SUM(CASE WHEN "type" = 'apply' THEN 1 ELSE 0 END)::bigint AS apply_count,
         SUM(CASE WHEN "type" = 'account' THEN 1 ELSE 0 END)::bigint AS account_count,
         SUM(CASE WHEN "type" = 'print' THEN 1 ELSE 0 END)::bigint AS print_count
-      FROM "StatEvent"
+      FROM ${STATS_GLOBAL_EVENTS_VIEW}
       ${whereSql}
       GROUP BY ${Prisma.raw(`"${publisherNameField}"`)}
       ORDER BY click_count DESC
@@ -735,24 +805,19 @@ async function getAnnouncePublishersFromPg({ publisherId, from, to, type, flux }
   const publisherField: PublisherIdField = flux === "to" ? "to_publisher_id" : "from_publisher_id";
   const publisherNameField: PublisherNameField = flux === "to" ? "from_publisher_name" : "to_publisher_name";
 
-  const whereSql = createWhereSql({
-    publisherId,
-    publisherField,
-    from,
-    to,
-    type,
-    additionalConditions: [
-      Prisma.sql`${Prisma.raw(`"${publisherNameField}"`)} IS NOT NULL`,
-      Prisma.sql`TRIM(${Prisma.raw(`"${publisherNameField}"`)}) <> ''`,
-    ],
-  });
+  const baseConditions = createEventsConditions({ publisherId, publisherField, from, to, type });
+  const whereSql = createWhereClause([
+    ...baseConditions,
+    Prisma.sql`${Prisma.raw(`"${publisherNameField}"`)} IS NOT NULL`,
+    Prisma.sql`TRIM(${Prisma.raw(`"${publisherNameField}"`)}) <> ''`,
+  ]);
 
   const rows = await prismaCore.$queryRaw<Array<{ publisher_name: string | null; doc_count: bigint }>>(
     Prisma.sql`
       SELECT
         ${Prisma.raw(`"${publisherNameField}"`)} AS publisher_name,
         COUNT(*)::bigint AS doc_count
-      FROM "StatEvent"
+      FROM ${STATS_GLOBAL_EVENTS_VIEW}
       ${whereSql}
       GROUP BY ${Prisma.raw(`"${publisherNameField}"`)}
       ORDER BY doc_count DESC
@@ -813,28 +878,30 @@ async function getMissionsStatsFromEs({ publisherId, from, to }: MissionsParams)
 }
 
 async function getMissionsStatsFromPg({ publisherId, from, to }: MissionsParams) {
-  const where = createPgWhere({ publisherId, publisherField: "from_publisher_id", from, to });
-  const total = await prismaCore.statEvent.count({ where });
+  const total = await countEvents(
+    createWhereClause(createEventsConditions({ publisherId, publisherField: "from_publisher_id", from, to }))
+  );
 
-  const whereSql = createWhereSql({
-    publisherId,
-    publisherField: "from_publisher_id",
-    from,
-    to,
-    additionalConditions: [
-      Prisma.sql`"mission_id" IS NOT NULL`,
-      Prisma.sql`${Prisma.raw('"to_publisher_name"')} IS NOT NULL`,
-      Prisma.sql`TRIM(${Prisma.raw('"to_publisher_name"')}) <> ''`,
-    ],
-  });
+  const missionWhere = createWhereClause(
+    createMissionConditions({
+      publisherId,
+      publisherField: "from_publisher_id",
+      from,
+      to,
+      additionalConditions: [
+        Prisma.sql`${Prisma.raw('"to_publisher_name"')} IS NOT NULL`,
+        Prisma.sql`TRIM(${Prisma.raw('"to_publisher_name"')}) <> ''`,
+      ],
+    })
+  );
 
   const rows = await prismaCore.$queryRaw<Array<{ publisher_name: string | null; mission_count: bigint }>>(
     Prisma.sql`
       SELECT
         ${Prisma.raw('"to_publisher_name"')} AS publisher_name,
-        COUNT(DISTINCT "mission_id")::bigint AS mission_count
-      FROM "StatEvent"
-      ${whereSql}
+        COUNT(*)::bigint AS mission_count
+      FROM ${STATS_GLOBAL_MISSION_VIEW}
+      ${missionWhere}
       GROUP BY ${Prisma.raw('"to_publisher_name"')}
       ORDER BY mission_count DESC
     `
