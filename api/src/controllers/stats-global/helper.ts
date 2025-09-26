@@ -163,7 +163,7 @@ async function countEvents(whereClause: Prisma.Sql): Promise<number> {
 async function countMissions(whereClause: Prisma.Sql): Promise<number> {
   const rows = await prismaCore.$queryRaw<Array<{ total: bigint }>>(
     Prisma.sql`
-      SELECT COUNT(*)::bigint AS total
+      SELECT COUNT(DISTINCT ${Prisma.raw('"mission_id"')})::bigint AS total
       FROM ${STATS_GLOBAL_MISSION_VIEW}
       ${whereClause}
     `
@@ -899,7 +899,7 @@ async function getMissionsStatsFromPg({ publisherId, from, to }: MissionsParams)
     Prisma.sql`
       SELECT
         ${Prisma.raw('"to_publisher_name"')} AS publisher_name,
-        COUNT(*)::bigint AS mission_count
+        COUNT(DISTINCT ${Prisma.raw('"mission_id"')})::bigint AS mission_count
       FROM ${STATS_GLOBAL_MISSION_VIEW}
       ${missionWhere}
       GROUP BY ${Prisma.raw('"to_publisher_name"')}
