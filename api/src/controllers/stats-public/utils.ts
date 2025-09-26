@@ -332,56 +332,65 @@ async function getPublicDepartmentStatsFromEs(params: Pick<GraphStatsParams, "ty
 
 async function getPublicGraphStatsFromPg(params: GraphStatsParams): Promise<GraphStatsData> {
   const { department, type, year } = params;
-  const start = new Date(year, 0, 1);
-  const end = new Date(year + 1, 0, 1);
+  const publisherCategory = resolvePublisherCategory(type);
 
-  const filters: Prisma.Sql[] = [Prisma.sql`"is_bot" IS NOT TRUE`, Prisma.sql`"created_at" >= ${start}`, Prisma.sql`"created_at" < ${end}`];
+  const monthlyFilters: Prisma.Sql[] = [
+    Prisma.sql`"year" = ${year}`,
+    Prisma.sql`"publisher_category" = ${publisherCategory}`,
+  ];
 
   if (department) {
-    filters.push(Prisma.sql`"mission_department_name" = ${department}`);
+    monthlyFilters.push(Prisma.sql`"is_all_department" = FALSE`);
+    monthlyFilters.push(Prisma.sql`"department" = ${department}`);
+  } else {
+    monthlyFilters.push(Prisma.sql`"is_all_department" = TRUE`);
+    monthlyFilters.push(Prisma.sql`"department" IS NULL`);
   }
 
-  if (type === "volontariat") {
-    filters.push(Prisma.sql`"to_publisher_name" = 'Service Civique'`);
-  } else if (type === "benevolat") {
-    filters.push(Prisma.sql`"to_publisher_name" IS DISTINCT FROM 'Service Civique'`);
-  }
+  const monthlyWhere = joinFilters(monthlyFilters);
 
-  const whereClause = joinFilters(filters);
-
-  const monthlyEvents = await prismaCore.$queryRaw<Array<{ month: number; type: "click" | "apply"; doc_count: bigint }>>(
+  const monthlyRows = await prismaCore.$queryRaw<
+    Array<{ month: number; click_count: bigint; apply_count: bigint; organization_count: bigint }>
+  >(
     Prisma.sql`
-      SELECT
-        EXTRACT(MONTH FROM "created_at")::int AS month,
-        "type" AS type,
-        COUNT(*)::bigint AS doc_count
-      FROM "StatEvent"
-      WHERE ${whereClause}
-        AND "type" IN ('click', 'apply')
-      GROUP BY month, type
+      SELECT "month", "click_count", "apply_count", "organization_count"
+      FROM "PublicStatsGraphMonthly"
+      WHERE ${monthlyWhere}
+      ORDER BY "month"
     `
   );
 
-  const monthlyOrganizations = await prismaCore.$queryRaw<Array<{ month: number; doc_count: bigint }>>(
-    Prisma.sql`
-      SELECT
-        EXTRACT(MONTH FROM "created_at")::int AS month,
-        COUNT(DISTINCT "mission_organization_name")::bigint AS doc_count
-      FROM "StatEvent"
-      WHERE ${whereClause}
-        AND "mission_organization_name" IS NOT NULL
-        AND "mission_organization_name" <> ''
-      GROUP BY month
-    `
-  );
+  const monthlyMap = new Map<number, { click: number; apply: number; organization: number }>();
+  monthlyRows.forEach((row) => {
+    const monthIndex = Number(row.month);
+    monthlyMap.set(monthIndex, {
+      click: Number(row.click_count ?? 0n),
+      apply: Number(row.apply_count ?? 0n),
+      organization: Number(row.organization_count ?? 0n),
+    });
+  });
 
-  const totalOrganizationsRow = await prismaCore.$queryRaw<Array<{ doc_count: bigint }>>(
+  const totalFilters: Prisma.Sql[] = [
+    Prisma.sql`"year" = ${year}`,
+    Prisma.sql`"publisher_category" = ${publisherCategory}`,
+  ];
+
+  if (department) {
+    totalFilters.push(Prisma.sql`"is_all_department" = FALSE`);
+    totalFilters.push(Prisma.sql`"department" = ${department}`);
+  } else {
+    totalFilters.push(Prisma.sql`"is_all_department" = TRUE`);
+    totalFilters.push(Prisma.sql`"department" IS NULL`);
+  }
+
+  const totalWhere = joinFilters(totalFilters);
+
+  const totalRow = await prismaCore.$queryRaw<Array<{ organization_count: bigint }>>(
     Prisma.sql`
-      SELECT COUNT(DISTINCT "mission_organization_name")::bigint AS doc_count
-      FROM "StatEvent"
-      WHERE ${whereClause}
-        AND "mission_organization_name" IS NOT NULL
-        AND "mission_organization_name" <> ''
+      SELECT "organization_count"
+      FROM "PublicStatsGraphYearlyOrganizations"
+      WHERE ${totalWhere}
+      LIMIT 1
     `
   );
 
@@ -389,81 +398,51 @@ async function getPublicGraphStatsFromPg(params: GraphStatsParams): Promise<Grap
   const currentMonth = new Date().getMonth();
   const lastMonth = year === currentYear ? currentMonth : 11;
 
-  const clickCounts: Record<number, number> = {};
-  const applyCounts: Record<number, number> = {};
-
-  monthlyEvents.forEach((row) => {
-    const monthIndex = Number(row.month) - 1;
-    if (monthIndex < 0 || monthIndex > lastMonth) {
-      return;
-    }
-
-    const value = Number(row.doc_count ?? 0n);
-    if (row.type === "click") {
-      clickCounts[monthIndex] = value;
-    } else if (row.type === "apply") {
-      applyCounts[monthIndex] = value;
-    }
-  });
-
-  const organizationCounts: Record<number, number> = {};
-  monthlyOrganizations.forEach((row) => {
-    const monthIndex = Number(row.month) - 1;
-    if (monthIndex < 0 || monthIndex > lastMonth) {
-      return;
-    }
-    organizationCounts[monthIndex] = Number(row.doc_count ?? 0n);
-  });
-
   const clicks: HistogramBucket[] = [];
   const applies: HistogramBucket[] = [];
   const organizations: HistogramBucket[] = [];
 
   for (let month = 0; month <= lastMonth; month += 1) {
+    const row = monthlyMap.get(month + 1);
     const key = buildMonthKey(year, month);
-    clicks.push({ key, doc_count: clickCounts[month] ?? 0 });
-    applies.push({ key, doc_count: applyCounts[month] ?? 0 });
-    organizations.push({ key, doc_count: organizationCounts[month] ?? 0 });
+    clicks.push({ key, doc_count: row?.click ?? 0 });
+    applies.push({ key, doc_count: row?.apply ?? 0 });
+    organizations.push({ key, doc_count: row?.organization ?? 0 });
   }
 
   const totalClicks = clicks.reduce((acc, bucket) => acc + bucket.doc_count, 0);
   const totalApplies = applies.reduce((acc, bucket) => acc + bucket.doc_count, 0);
-  const totalOrganizations = Number(totalOrganizationsRow[0]?.doc_count ?? 0n);
+  const totalOrganizations = Number(totalRow[0]?.organization_count ?? 0n);
 
   return { clicks, totalClicks, applies, totalApplies, organizations, totalOrganizations };
 }
 
 async function getPublicDomainStatsFromPg(params: GraphStatsParams): Promise<DomainStatsData[]> {
   const { department, type, year } = params;
-  const start = new Date(year, 0, 1);
-  const end = new Date(year + 1, 0, 1);
+  const publisherCategory = resolvePublisherCategory(type);
 
-  const filters: Prisma.Sql[] = [Prisma.sql`"is_bot" IS NOT TRUE`, Prisma.sql`"created_at" >= ${start}`, Prisma.sql`"created_at" < ${end}`];
+  const filters: Prisma.Sql[] = [
+    Prisma.sql`"year" = ${year}`,
+    Prisma.sql`"publisher_category" = ${publisherCategory}`,
+  ];
 
   if (department) {
-    filters.push(Prisma.sql`"mission_department_name" = ${department}`);
-  }
-
-  if (type === "volontariat") {
-    filters.push(Prisma.sql`"to_publisher_name" = 'Service Civique'`);
-  } else if (type === "benevolat") {
-    filters.push(Prisma.sql`"to_publisher_name" IS DISTINCT FROM 'Service Civique'`);
+    filters.push(Prisma.sql`"is_all_department" = FALSE`);
+    filters.push(Prisma.sql`"department" = ${department}`);
+  } else {
+    filters.push(Prisma.sql`"is_all_department" = TRUE`);
+    filters.push(Prisma.sql`"department" IS NULL`);
   }
 
   const whereClause = joinFilters(filters);
 
-  const rows = await prismaCore.$queryRaw<Array<{ domain: string; mission_count: bigint; click_count: bigint; apply_count: bigint }>>(
+  const rows = await prismaCore.$queryRaw<
+    Array<{ domain: string; mission_count: bigint; click_count: bigint; apply_count: bigint }>
+  >(
     Prisma.sql`
-      SELECT
-        "mission_domain" AS domain,
-        COUNT(DISTINCT "mission_id")::bigint AS mission_count,
-        SUM(CASE WHEN "type" = 'click' THEN 1 ELSE 0 END)::bigint AS click_count,
-        SUM(CASE WHEN "type" = 'apply' THEN 1 ELSE 0 END)::bigint AS apply_count
-      FROM "StatEvent"
+      SELECT "domain", "mission_count", "click_count", "apply_count"
+      FROM "PublicStatsDomains"
       WHERE ${whereClause}
-        AND "mission_domain" IS NOT NULL
-        AND "mission_domain" <> ''
-      GROUP BY "mission_domain"
     `
   );
 
@@ -486,31 +465,16 @@ async function getPublicDomainStatsFromPg(params: GraphStatsParams): Promise<Dom
 
 async function getPublicDepartmentStatsFromPg(params: Pick<GraphStatsParams, "type" | "year">): Promise<DepartmentStatsBucket[]> {
   const { type, year } = params;
-  const start = new Date(year, 0, 1);
-  const end = new Date(year + 1, 0, 1);
+  const publisherCategory = resolvePublisherCategory(type);
 
-  const filters: Prisma.Sql[] = [Prisma.sql`"is_bot" IS NOT TRUE`, Prisma.sql`"created_at" >= ${start}`, Prisma.sql`"created_at" < ${end}`];
-
-  if (type === "volontariat") {
-    filters.push(Prisma.sql`"to_publisher_name" = 'Service Civique'`);
-  } else if (type === "benevolat") {
-    filters.push(Prisma.sql`"to_publisher_name" IS DISTINCT FROM 'Service Civique'`);
-  }
-
-  const whereClause = joinFilters(filters);
-
-  const rows = await prismaCore.$queryRaw<Array<{ postal_code: string; mission_count: bigint; click_count: bigint; apply_count: bigint }>>(
+  const rows = await prismaCore.$queryRaw<
+    Array<{ postal_code: string; mission_count: bigint; click_count: bigint; apply_count: bigint }>
+  >(
     Prisma.sql`
-      SELECT
-        "mission_postal_code" AS postal_code,
-        COUNT(DISTINCT "mission_id")::bigint AS mission_count,
-        SUM(CASE WHEN "type" = 'click' THEN 1 ELSE 0 END)::bigint AS click_count,
-        SUM(CASE WHEN "type" = 'apply' THEN 1 ELSE 0 END)::bigint AS apply_count
-      FROM "StatEvent"
-      WHERE ${whereClause}
-        AND "mission_postal_code" IS NOT NULL
-        AND "mission_postal_code" <> ''
-      GROUP BY "mission_postal_code"
+      SELECT "postal_code", "mission_count", "click_count", "apply_count"
+      FROM "PublicStatsDepartments"
+      WHERE "year" = ${year}
+        AND "publisher_category" = ${publisherCategory}
     `
   );
 
@@ -536,6 +500,18 @@ function joinFilters(filters: Prisma.Sql[]): Prisma.Sql {
 
 function buildMonthKey(year: number, month: number): string {
   return `${year}-${month < 9 ? "0" : ""}${month + 1}`;
+}
+
+function resolvePublisherCategory(type?: string): "volontariat" | "benevolat" | "all" {
+  if (type === "volontariat") {
+    return "volontariat";
+  }
+
+  if (type === "benevolat") {
+    return "benevolat";
+  }
+
+  return "all";
 }
 
 function getReadStatsFrom(): "es" | "pg" {
