@@ -130,8 +130,8 @@ model Click {
   mission_old_id  String?
   accounts        Account[]
   applies         Apply[]
-  is_bot          Boolean?
-  is_human        Boolean?
+  is_bot          Boolean     @default(false)
+  is_human        Boolean     @default(false)
   campaign        Campaign?   @relation(fields: [campaign_id], references: [id])
   from_partner    Partner?    @relation("FromClick", fields: [from_partner_id], references: [id])
   mission         Mission?    @relation(fields: [mission_id], references: [id])

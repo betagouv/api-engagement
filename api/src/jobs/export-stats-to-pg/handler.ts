@@ -1,5 +1,6 @@
 import importAccounts from "./utils/account";
 import importApplies from "./utils/apply";
+import updateBotHuman from "./utils/bot-human";
 import importClicks from "./utils/click";
 import importImpressions from "./utils/print";
 
@@ -28,7 +29,8 @@ export class ExportStatsToPgHandler implements BaseHandler<ExportStatsToPgJobPay
       clicks: { created: 0, updated: null },
       applies: { created: 0, updated: null },
       accounts: { created: 0, updated: 0 },
-    };
+      botHuman: { bot: 0, human: 0 },
+    } as any;
 
     const jobs = payload?.jobs ? payload.jobs.split(",") : null;
 
@@ -53,16 +55,17 @@ export class ExportStatsToPgHandler implements BaseHandler<ExportStatsToPgJobPay
       stats.accounts.updated += accounts?.updated || 0;
     }
 
-    // Send message to slack
-    const text = `${Object.entries(stats)
-      .map(([key, value]) => `${key}: ${value.created} created${value.updated !== null ? `, ${value.updated} updated` : ""}`)
-      .join("\n")}`;
+    if (jobs === null || jobs.includes("bot-human")) {
+      const botHuman = await updateBotHuman();
+      stats.botHuman.bot += botHuman?.updatedBot || 0;
+      stats.botHuman.human += botHuman?.updatedHuman || 0;
+    }
 
     return {
       stats,
       success: true,
       timestamp: new Date(),
-      message: text,
+      message: JSON.stringify(stats),
     };
   }
 }
