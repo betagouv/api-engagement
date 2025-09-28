@@ -12,8 +12,8 @@ import useStore from "../../../services/store";
 import Filters from "./components/Filters";
 import Header from "./components/Header";
 import MissionItem from "./components/MissionItem";
-import MissionModal from "./components/MissionModal";
 import SettingsModal from "./components/SettingsModal";
+import MissionModal from "./modal";
 
 const Moderation = () => {
   const { publisher } = useStore();
@@ -63,7 +63,7 @@ const Moderation = () => {
           city: filters.city,
           domain: filters.domain,
           department: filters.department,
-          organization: filters.organization,
+          organizationName: filters.organization,
           activity: filters.activity,
           search: filters.search,
           from: (filters.page - 1) * filters.size,
@@ -223,6 +223,17 @@ const Moderation = () => {
                 selected={selected.includes(item._id)}
                 onChange={(values) => {
                   setData(data.map((d) => (d._id === item._id ? { ...d, ...values } : d)));
+                  fetchHistory();
+                  setReloadFilters(!reloadFilters);
+                }}
+                onChangeMany={(values) => {
+                  setData(
+                    data.map((d) => {
+                      const changed = values.find((v) => v._id === d._id);
+                      if (changed) return { ...d, ...changed };
+                      return d;
+                    }),
+                  );
                   fetchHistory();
                   setReloadFilters(!reloadFilters);
                 }}
