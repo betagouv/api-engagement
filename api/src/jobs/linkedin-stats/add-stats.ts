@@ -162,6 +162,38 @@ export const processData = async (data: (string | number)[][], from: Date, to: D
     failed: { data: [] as any[] },
   };
 
+  const batchSize = 100;
+  const pendingPrints: Stats[] = [];
+
+  const flushPendingPrints = async () => {
+    if (!pendingPrints.length) {
+      return;
+    }
+
+    const printsToPersist = pendingPrints.splice(0, pendingPrints.length);
+    const settleResults = await Promise.allSettled(
+      printsToPersist.map((print) => statEventRepository.createStatEvent(print)),
+    );
+
+    settleResults.forEach((settled, index) => {
+      const print = printsToPersist[index];
+      if (settled.status === "fulfilled") {
+        result.created += 1;
+        return;
+      }
+
+      console.error(`[Linkedin Stats] Failed to create stat`, settled.reason);
+      captureException(
+        settled.reason,
+        `[Linkedin Stats] Failed to create stat for mission ${print.missionId}`,
+      );
+      result.failed.data.push({
+        error: (settled.reason as Error)?.message,
+        stat: print,
+      });
+    });
+  };
+
   for (let i = 1; i < data.length; i++) {
     if (i % 100 === 0) {
       console.log(`[Linkedin Stats] Processed ${i} rows`);
@@ -176,16 +208,13 @@ export const processData = async (data: (string | number)[][], from: Date, to: D
       continue;
     }
 
-    for (const print of res) {
-      try {
-        await statEventRepository.createStatEvent(print);
-        result.created += 1;
-      } catch (error) {
-        console.error(`[Linkedin Stats] Failed to create stat`, error);
-        captureException(error, `[Linkedin Stats] Failed to create stat for mission ${print.missionId}`);
-        result.failed.data.push({ error: (error as Error)?.message, stat: print });
-      }
+    pendingPrints.push(...res);
+
+    if (pendingPrints.length >= batchSize) {
+      await flushPendingPrints();
     }
   }
+
+  await flushPendingPrints();
   return result;
 };
