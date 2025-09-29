@@ -860,35 +860,90 @@ function buildScrollFilters(filters: ScrollStatEventsFilters | undefined) {
 
 export async function scrollStatEvents({ type, batchSize = 5000, cursor = null, filters, sourceFields }: ScrollStatEventsParams): Promise<ScrollStatEventsResult> {
   if (getReadStatsFrom() === "pg") {
-    const skip = cursor ? Number(cursor) : 0;
-    const where: Prisma.StatEventWhereInput = {
-      type: type as any,
-    };
+    type PgCursor = { createdAt: string; id: string };
+
+    let parsedCursor: PgCursor | null = null;
+    if (cursor) {
+      try {
+        const rawCursor = JSON.parse(cursor);
+        if (rawCursor && typeof rawCursor === "object" && typeof rawCursor.createdAt === "string" && typeof rawCursor.id === "string") {
+          parsedCursor = rawCursor as PgCursor;
+        }
+      } catch (error) {
+        // Ignore malformed cursor and fall back to the first page
+      }
+    }
+
+    const sharedFilters: Prisma.StatEventWhereInput[] = [];
 
     if (filters?.hasBotOrHumanFlag) {
-      where.OR = [{ is_bot: true }, { is_human: true }];
+      sharedFilters.push({ OR: [{ is_bot: true }, { is_human: true }] });
     }
 
     if (filters?.exportToPgStatusMissing) {
-      where.export_to_analytics = null;
+      sharedFilters.push({ export_to_analytics: null });
+    }
+
+    const cursorFilter: Prisma.StatEventWhereInput | undefined = (() => {
+      if (!parsedCursor) {
+        return undefined;
+      }
+
+      const cursorDate = new Date(parsedCursor.createdAt);
+      if (Number.isNaN(cursorDate.getTime())) {
+        return undefined;
+      }
+
+      return {
+        OR: [
+          { created_at: { gt: cursorDate } },
+          {
+            AND: [
+              { created_at: { equals: cursorDate } },
+              { id: { gt: parsedCursor.id } },
+            ],
+          },
+        ],
+      };
+    })();
+
+    const whereForRows: Prisma.StatEventWhereInput = { type: type as any };
+    if (sharedFilters.length || cursorFilter) {
+      whereForRows.AND = [];
+      if (sharedFilters.length) {
+        whereForRows.AND.push(...sharedFilters);
+      }
+      if (cursorFilter) {
+        whereForRows.AND.push(cursorFilter);
+      }
+    }
+
+    const whereForCount: Prisma.StatEventWhereInput = { type: type as any };
+    if (sharedFilters.length) {
+      whereForCount.AND = [...sharedFilters];
     }
 
     const [rows, total] = await Promise.all([
       prismaCore.statEvent.findMany({
-        where,
-        orderBy: { created_at: "asc" },
-        skip,
+        where: whereForRows,
+        orderBy: [{ created_at: "asc" }, { id: "asc" }],
         take: batchSize,
       }),
-      skip === 0 ? prismaCore.statEvent.count({ where }) : Promise.resolve(0),
+      cursor ? Promise.resolve(0) : prismaCore.statEvent.count({ where: whereForCount }),
     ]);
 
-    const nextCursor = rows.length < batchSize ? null : String(skip + rows.length);
+    const nextCursor =
+      rows.length < batchSize
+        ? null
+        : JSON.stringify({
+            createdAt: rows[rows.length - 1].created_at.toISOString(),
+            id: rows[rows.length - 1].id,
+          });
 
     return {
       events: rows.map(fromPg),
       cursor: nextCursor,
-      total: skip === 0 ? total : 0,
+      total: cursor ? 0 : total,
     };
   }
 
