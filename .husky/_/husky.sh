@@ -1,15 +1,9 @@
-#!/bin/sh
-if [ -z "$husky_skip_init" ]; then
-  husky_skip_init=1
+echo "husky - DEPRECATED
 
-  if [ "$HUSKY" = "0" ]; then
-    return
-  fi
+Please remove the following two lines from $0:
 
-  command -v sh >/dev/null 2>&1 || {
-    echo 'sh is not installed.' >&2
-    exit 127
-  }
+#!/usr/bin/env sh
+. \"\$(dirname -- \"\$0\")/_/husky.sh\"
 
-  sh "$@" || exit $?
-fi
+They WILL FAIL in v10.0.0
+"
