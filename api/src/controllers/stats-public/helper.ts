@@ -292,10 +292,19 @@ async function getPublicDepartmentStatsFromEs(params: Pick<GraphStatsParams, "ty
         filter,
       },
     },
+    runtime_mappings: {
+      department_code: {
+        type: "keyword",
+        script: {
+          // Extract the first two characters of the postal code to front-end transformation
+          source: "if (doc['missionPostalCode.keyword'].size()!=0) { def v = doc['missionPostalCode.keyword'].value; emit(v.length() >= 2 ? v.substring(0,2) : v); }",
+        },
+      },
+    },
     aggs: {
       departments: {
         terms: {
-          field: "missionPostalCode.keyword",
+          field: "department_code",
           size: 120,
         },
         aggs: {
