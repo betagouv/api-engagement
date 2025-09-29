@@ -8,6 +8,7 @@ const VIEWS = [
   "PublicStatsGraphYearlyOrganizations",
   "PublicStatsDomains",
   "PublicStatsDepartments",
+  "StatsAdminEvents",
   "StatsGlobalEvents",
   "StatsGlobalMissionActivity",
 ] as const;
