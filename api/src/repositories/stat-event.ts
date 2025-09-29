@@ -23,6 +23,13 @@ interface CountByTypeParams {
   types?: StatEventType[];
 }
 
+interface CountEventsParams {
+  type?: StatEventType;
+  user?: string;
+  clickUser?: string;
+  from?: Date;
+}
+
 interface CountClicksByPublisherForOrganizationSinceParams {
   publisherIds: string[];
   organizationClientId: string;
@@ -89,6 +96,18 @@ export interface MissionStatsAggregationBucket {
 }
 
 export type MissionStatsAggregations = Record<StatEventType, MissionStatsAggregationBucket>;
+
+interface FindWarningBotCandidatesParams {
+  from: Date;
+  minClicks: number;
+}
+
+interface WarningBotCandidate {
+  user: string;
+  clickCount: number;
+  publishers: WarningBotAggregationBucket[];
+  userAgents: WarningBotAggregationBucket[];
+}
 
 function toPg(data: Partial<Stats>, options: { includeDefaults?: boolean } = {}) {
   const { includeDefaults = true } = options;
@@ -307,6 +326,56 @@ export async function countByTypeSince({ publisherId, from, types }: CountByType
   });
 
   return counts;
+}
+
+export async function countEvents({ type, user, clickUser, from }: CountEventsParams): Promise<number> {
+  if (getReadStatsFrom() === "pg") {
+    const where: Prisma.StatEventWhereInput = {};
+
+    if (type) {
+      where.type = type as any;
+    }
+
+    if (user) {
+      where.user = user;
+    }
+
+    if (clickUser) {
+      where.click_user = clickUser;
+    }
+
+    if (from) {
+      where.created_at = { gte: from };
+    }
+
+    return prismaCore.statEvent.count({ where });
+  }
+
+  const filters: any[] = [];
+
+  if (type) {
+    filters.push({ term: { "type.keyword": type } });
+  }
+
+  if (user) {
+    filters.push({ term: { "user.keyword": user } });
+  }
+
+  if (clickUser) {
+    filters.push({ term: { "clickUser.keyword": clickUser } });
+  }
+
+  if (from) {
+    filters.push({ range: { createdAt: { gte: from.toISOString() } } });
+  }
+
+  const body: Record<string, unknown> = { query: { match_all: {} } };
+  if (filters.length > 0) {
+    body.query = { bool: { filter: filters } } as EsQuery;
+  }
+
+  const res = await esClient.count({ index: STATS_INDEX, body });
+  return res.body.count ?? 0;
 }
 
 export async function countClicksByPublisherForOrganizationSince({ publisherIds, organizationClientId, from }: CountClicksByPublisherForOrganizationSinceParams) {
@@ -615,6 +684,121 @@ function mapAggregationRow(row: any, field: string): WarningBotAggregationBucket
   };
 }
 
+export async function findWarningBotCandidatesSince({ from, minClicks }: FindWarningBotCandidatesParams): Promise<WarningBotCandidate[]> {
+  if (getReadStatsFrom() === "pg") {
+    const where: Prisma.StatEventWhereInput = {
+      type: "click" as any,
+      created_at: { gte: from },
+    };
+
+    const grouped = (await prismaCore.statEvent.groupBy({
+      by: ["user"],
+      where,
+      _count: { _all: true },
+      having: {
+        _count: {
+          _all: { gte: minClicks },
+        },
+      },
+    } as any)) as { user: string | null; _count: { _all: number } }[];
+
+    const users = grouped
+      .map((row) => row.user)
+      .filter((value): value is string => typeof value === "string" && value.length > 0);
+
+    if (!users.length) {
+      return [];
+    }
+
+    const [publisherRows, userAgentRows] = await Promise.all([
+      prismaCore.statEvent.groupBy({
+        by: ["user", "from_publisher_name"],
+        where: { ...where, user: { in: users } },
+        _count: { _all: true },
+      } as any),
+      prismaCore.statEvent.groupBy({
+        by: ["user", "user_agent"],
+        where: { ...where, user: { in: users } },
+        _count: { _all: true },
+      } as any),
+    ]);
+
+    const aggregateByUser = (rows: any[], field: string) => {
+      const buckets = new Map<string, WarningBotAggregationBucket[]>();
+      rows.forEach((row) => {
+        const user = row.user as string | null;
+        if (!user) {
+          return;
+        }
+        const list = buckets.get(user) ?? [];
+        list.push({ key: row[field] ?? "", doc_count: row._count?._all ?? 0 });
+        buckets.set(user, list);
+      });
+      return buckets;
+    };
+
+    const publishersByUser = aggregateByUser(publisherRows as any[], "from_publisher_name");
+    const userAgentsByUser = aggregateByUser(userAgentRows as any[], "user_agent");
+
+    return grouped
+      .filter((row): row is { user: string; _count: { _all: number } } => Boolean(row.user))
+      .map((row) => ({
+        user: row.user,
+        clickCount: row._count?._all ?? 0,
+        publishers: publishersByUser.get(row.user) ?? [],
+        userAgents: userAgentsByUser.get(row.user) ?? [],
+      }));
+  }
+
+  const body = {
+    size: 0,
+    query: {
+      bool: {
+        must: [
+          { range: { createdAt: { gte: from } } },
+          { term: { "type.keyword": "click" } },
+        ],
+      },
+    },
+    aggs: {
+      by_user: {
+        terms: {
+          field: "user.keyword",
+          min_doc_count: minClicks,
+          size: 1000,
+        },
+        aggs: {
+          clicks: {
+            filter: { term: { "type.keyword": "click" } },
+          },
+          publishers: {
+            terms: { field: "fromPublisherName.keyword", size: 10 },
+          },
+          userAgent: {
+            terms: { field: "userAgent.keyword", size: 10 },
+          },
+        },
+      },
+    },
+  } as const;
+
+  const response = await esClient.search({ index: STATS_INDEX, body });
+  const buckets = (response.body.aggregations?.by_user?.buckets ?? []) as any[];
+
+  return buckets.map((bucket) => ({
+    user: bucket.key as string,
+    clickCount: bucket.clicks?.doc_count ?? bucket.doc_count ?? 0,
+    publishers: ((bucket.publishers?.buckets as any[]) ?? []).map((publisherBucket) => ({
+      key: publisherBucket.key,
+      doc_count: publisherBucket.doc_count,
+    })),
+    userAgents: ((bucket.userAgent?.buckets as any[]) ?? []).map((userAgentBucket) => ({
+      key: userAgentBucket.key,
+      doc_count: userAgentBucket.doc_count,
+    })),
+  }));
+}
+
 async function aggregateWarningBotStatsByUser(user: string): Promise<WarningBotAggregations> {
   if (getReadStatsFrom() === "pg") {
     const where: Prisma.StatEventWhereInput = { user };
@@ -847,11 +1031,13 @@ const statEventRepository = {
   getStatEventById,
   count,
   countByTypeSince,
+  countEvents,
   countClicksByPublisherForOrganizationSince,
   searchStatEvents,
   searchViewStats,
   aggregateMissionStats,
   findFirstByMissionId,
+  findWarningBotCandidatesSince,
   aggregateWarningBotStatsByUser,
   updateIsBotForUser,
 };
