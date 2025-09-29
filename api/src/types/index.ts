@@ -639,6 +639,7 @@ export interface Stats {
   tags?: string[];
   type: "print" | "apply" | "click" | "account";
   status: "PENDING" | "VALIDATED" | "CANCEL" | "CANCELED" | "REFUSED" | "CARRIED_OUT" | undefined;
+  exportToAnalytics?: "SUCCESS" | "FAILURE";
 }
 
 export type StatsBot = {

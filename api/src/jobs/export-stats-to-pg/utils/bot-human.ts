@@ -1,9 +1,8 @@
-import esClient from "../../../db/elastic";
 import { prismaAnalytics as prismaClient } from "../../../db/postgres";
 
-import { STATS_INDEX } from "../../../config";
 import { captureException } from "../../../error";
 import { Stats } from "../../../types";
+import statEventRepository from "../../../repositories/stat-event";
 
 const BATCH_SIZE = 5000;
 
@@ -16,45 +15,23 @@ const handler = async () => {
     let total = 0;
     let updatedBot = 0;
     let updatedHuman = 0;
-    let scrollId: string | null = null;
+    let cursor: string | null = null;
 
     while (true) {
-      let hits: { _id: string; _source: Stats }[] = [];
+      const { events, cursor: nextCursor, total: count } = await statEventRepository.scrollStatEvents({
+        type: "click",
+        batchSize: BATCH_SIZE,
+        cursor,
+        filters: { hasBotOrHumanFlag: true },
+        sourceFields: ["isBot", "isHuman"],
+      });
 
-      if (scrollId) {
-        const { body } = await esClient.scroll({
-          scroll: "20m",
-          scroll_id: scrollId,
-        });
-        hits = body.hits.hits;
-      } else {
-        const { body } = await esClient.search({
-          index: STATS_INDEX,
-          scroll: "5m",
-          size: BATCH_SIZE,
-          body: {
-            query: {
-              bool: {
-                filter: [
-                  { term: { "type.keyword": "click" } },
-                  {
-                    bool: {
-                      should: [{ term: { isBot: true } }, { term: { isHuman: true } }],
-                      minimum_should_match: 1,
-                    },
-                  },
-                ],
-              },
-            },
-            _source: ["isBot", "isHuman"],
-          },
-          track_total_hits: true,
-        });
-        scrollId = body._scroll_id;
-        hits = body.hits.hits;
-        total = body.hits.total.value;
+      const hits = events;
+      if (!cursor) {
+        total = count;
         console.log(`[BotSync] Total hits ${total}`);
       }
+      cursor = nextCursor;
 
       if (!hits.length) {
         break;
@@ -63,13 +40,12 @@ const handler = async () => {
       const idsBot = new Set<string>();
       const idsHuman = new Set<string>();
 
-      for (const h of hits) {
-        const s = h._source;
-        if (s.isBot === true) {
-          idsBot.add(h._id);
+      for (const s of hits) {
+        if (s.isBot === true && s._id) {
+          idsBot.add(s._id);
         }
-        if (s.isHuman === true) {
-          idsHuman.add(h._id);
+        if (s.isHuman === true && s._id) {
+          idsHuman.add(s._id);
         }
       }
 
