@@ -723,21 +723,32 @@ export async function findWarningBotCandidatesSince({ from, minClicks }: FindWar
       } as any),
     ]);
 
-    const aggregateByUser = (rows: any[], field: string) => {
+    const aggregateByUser = (
+      rows: any[],
+      field: string,
+      options: { skipNullKeys?: boolean } = {}
+    ) => {
+      const { skipNullKeys = false } = options;
       const buckets = new Map<string, WarningBotAggregationBucket[]>();
       rows.forEach((row) => {
         const user = row.user as string | null;
         if (!user) {
           return;
         }
+        const rawKey = row[field];
+        if (skipNullKeys && (rawKey === null || rawKey === undefined)) {
+          return;
+        }
         const list = buckets.get(user) ?? [];
-        list.push({ key: row[field] ?? "", doc_count: row._count?._all ?? 0 });
+        list.push({ key: rawKey ?? "", doc_count: row._count?._all ?? 0 });
         buckets.set(user, list);
       });
       return buckets;
     };
 
-    const publishersByUser = aggregateByUser(publisherRows as any[], "from_publisher_name");
+    const publishersByUser = aggregateByUser(publisherRows as any[], "from_publisher_name", {
+      skipNullKeys: true,
+    });
     const userAgentsByUser = aggregateByUser(userAgentRows as any[], "user_agent");
 
     return grouped
