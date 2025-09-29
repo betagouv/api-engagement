@@ -44,7 +44,7 @@ import UserController from "./controllers/user";
 import WarningController from "./controllers/warning";
 import WarningBotController from "./controllers/warning-bot";
 import WidgetController from "./controllers/widget";
-import AssociationV0Controller from "./v0/association";
+import AssociationV0Controller from "./v0/association/controller";
 import MissionV0Controller from "./v0/mission/controller";
 import MyMissionV0Controller from "./v0/mymission/controller";
 import MyOrganizationV0Controller from "./v0/myorganization/controller";

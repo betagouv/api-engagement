@@ -2,8 +2,8 @@ import { prismaAnalytics as prismaClient } from "../../../db/postgres";
 
 import { Apply } from "../../../db/analytics";
 import { captureException } from "../../../error";
-import { Stats } from "../../../types";
 import statEventRepository from "../../../repositories/stat-event";
+import { Stats } from "../../../types";
 
 const BATCH_SIZE = 5000;
 
@@ -101,7 +101,11 @@ const handler = async () => {
     await prismaClient.widget.findMany({ select: { id: true, old_id: true } }).then((data) => data.forEach((d) => (widgets[d.old_id] = d.id)));
 
     while (true) {
-      const { events, cursor: nextCursor, total: count } = await statEventRepository.scrollStatEvents({
+      const {
+        events,
+        cursor: nextCursor,
+        total: count,
+      } = await statEventRepository.scrollStatEvents({
         type: "apply",
         batchSize: BATCH_SIZE,
         cursor,
@@ -223,11 +227,11 @@ const handler = async () => {
 
       // Update export status for processed docs
       if (successIds.length > 0) {
-        await statEventRepository.markStatEventsExportStatus(successIds, "SUCCESS");
+        await statEventRepository.setStatEventsExportStatus(successIds, "SUCCESS");
         console.log(`[Applies] Marked ${successIds.length} docs as SUCCESS in stats storage.`);
       }
       if (failureIds.length > 0) {
-        await statEventRepository.markStatEventsExportStatus(failureIds, "FAILURE");
+        await statEventRepository.setStatEventsExportStatus(failureIds, "FAILURE");
         console.log(`[Applies] Marked ${failureIds.length} docs as FAILURE in stats storage.`);
       }
       processed += data.length;

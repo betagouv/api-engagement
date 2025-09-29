@@ -2,8 +2,8 @@ import { prismaAnalytics as prismaClient } from "../../../db/postgres";
 
 import { Account } from "../../../db/analytics";
 import { captureException } from "../../../error";
-import { Stats } from "../../../types";
 import statEventRepository from "../../../repositories/stat-event";
+import { Stats } from "../../../types";
 
 const BATCH_SIZE = 5000;
 
@@ -220,11 +220,11 @@ const handler = async () => {
 
       // Update export status for processed docs
       if (successIds.length > 0) {
-        await statEventRepository.markStatEventsExportStatus(successIds, "SUCCESS");
+        await statEventRepository.setStatEventsExportStatus(successIds, "SUCCESS");
         console.log(`[Accounts] Marked ${successIds.length} docs as SUCCESS in stats storage.`);
       }
       if (failureIds.length > 0) {
-        await statEventRepository.markStatEventsExportStatus(failureIds, "FAILURE");
+        await statEventRepository.setStatEventsExportStatus(failureIds, "FAILURE");
         console.log(`[Accounts] Marked ${failureIds.length} docs as FAILURE in stats storage.`);
       }
       processed += data.length;
