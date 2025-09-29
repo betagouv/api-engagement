@@ -1,10 +1,9 @@
-import esClient from "../../../db/elastic";
 import { prismaAnalytics as prismaClient } from "../../../db/postgres";
 
-import { STATS_INDEX } from "../../../config";
 import { Apply } from "../../../db/analytics";
 import { captureException } from "../../../error";
 import { Stats } from "../../../types";
+import statEventRepository from "../../../repositories/stat-event";
 
 const BATCH_SIZE = 5000;
 
@@ -90,7 +89,7 @@ const handler = async () => {
     let processed = 0;
     let created = 0;
     let updated = 0;
-    let scrollId = null;
+    let cursor: string | null = null;
 
     const count = await prismaClient.apply.count();
     console.log(`[Applies] Found ${count} docs in database.`);
@@ -102,39 +101,24 @@ const handler = async () => {
     await prismaClient.widget.findMany({ select: { id: true, old_id: true } }).then((data) => data.forEach((d) => (widgets[d.old_id] = d.id)));
 
     while (true) {
-      let data: { _id: string; _source: Stats }[] = [];
+      const { events, cursor: nextCursor, total: count } = await statEventRepository.scrollStatEvents({
+        type: "apply",
+        batchSize: BATCH_SIZE,
+        cursor,
+        filters: { exportToPgStatusMissing: true },
+      });
 
-      if (scrollId) {
-        const { body } = await esClient.scroll({
-          scroll: "20m",
-          scroll_id: scrollId,
-        });
-        data = body.hits.hits;
-      } else {
-        const { body } = await esClient.search({
-          index: STATS_INDEX,
-          scroll: "20m",
-          size: BATCH_SIZE,
-          body: {
-            query: {
-              bool: {
-                must: [{ term: { "type.keyword": "apply" } }],
-                must_not: [{ exists: { field: "exportToPgStatus" } }],
-              },
-            },
-          },
-          track_total_hits: true,
-        });
-        scrollId = body._scroll_id;
-        data = body.hits.hits;
-        total = body.hits.total.value;
+      const data = events;
+      if (!cursor) {
+        total = count;
         console.log(`[Applies] Total hits ${total}`);
       }
+      cursor = nextCursor;
 
       if (data.length === 0) {
         break;
       }
-      console.log(`[Applies] Found ${data.length} docs in Elasticsearch, processed ${processed} docs so far, ${total - processed} docs left.`);
+      console.log(`[Applies] Found ${data.length} docs in stats storage, processed ${processed} docs so far, ${total - processed} docs left.`);
 
       const stored = {} as { [key: string]: { status: string | null; click_id: string | null } };
       await prismaClient.apply
@@ -146,7 +130,7 @@ const handler = async () => {
 
       const clicks = {} as { [key: string]: string };
       const clickIds: string[] = [];
-      data.forEach((hit) => hit._source.clickId && clickIds.push(hit._source.clickId));
+      data.forEach((hit) => hit.clickId && clickIds.push(hit.clickId));
       if (clickIds.length) {
         await prismaClient.click
           .findMany({ where: { old_id: { in: clickIds } }, select: { id: true, old_id: true } })
@@ -154,7 +138,7 @@ const handler = async () => {
       }
 
       const missions = {} as { [key: string]: string };
-      const missionIds = new Set<string>(data.map((hit: { _source: Stats }) => hit._source.missionClientId?.toString()).filter((id) => id !== undefined));
+      const missionIds = new Set<string>(data.map((hit: Stats) => hit.missionClientId?.toString()).filter((id) => id !== undefined));
 
       await prismaClient.mission
         .findMany({
@@ -173,24 +157,24 @@ const handler = async () => {
 
       for (const hit of data) {
         let clickId;
-        if (hit._source.clickId) {
-          clickId = clicks[hit._source.clickId];
+        if (hit.clickId) {
+          clickId = clicks[hit.clickId];
           if (!clickId) {
             const res = await prismaClient.click.findFirst({
-              where: { old_id: hit._source.clickId },
+              where: { old_id: hit.clickId },
               select: { id: true },
             });
             if (res) {
               clickId = res.id;
-              clicks[hit._source.clickId] = clickId;
+              clicks[hit.clickId] = clickId;
             } else {
-              console.log(`[Applies] Click ${hit._source.clickId} not found for doc ${hit._id.toString()}`);
+              console.log(`[Applies] Click ${hit.clickId} not found for doc ${hit._id.toString()}`);
             }
           }
         }
-        const obj = await buildData({ ...hit._source, _id: hit._id }, partners, missions, campaigns, widgets, clickId);
+        const obj = await buildData(hit, partners, missions, campaigns, widgets, clickId);
         if (!obj) {
-          failureIds.push(hit._id);
+          failureIds.push(hit._id as string);
           continue;
         }
 
@@ -202,7 +186,7 @@ const handler = async () => {
         } else if (!stored[hit._id.toString()]) {
           dataToCreate.push(obj);
         } else {
-          successIds.push(hit._id);
+          successIds.push(hit._id as string);
         }
       }
 
@@ -237,20 +221,14 @@ const handler = async () => {
       updated += dataToUpdate.length;
       console.log(`[Applies] Updated ${dataToUpdate.length} docs, ${updated} updated so far.`);
 
-      // Bulk update ES status for processed docs
+      // Update export status for processed docs
       if (successIds.length > 0) {
-        await esClient.bulk({
-          refresh: false,
-          body: successIds.flatMap((id) => [{ update: { _index: STATS_INDEX, _id: id } }, { doc: { exportToPgStatus: "SUCCESS" } }]),
-        });
-        console.log(`[Applies] Marked ${successIds.length} docs as SUCCESS in Elasticsearch.`);
+        await statEventRepository.markStatEventsExportStatus(successIds, "SUCCESS");
+        console.log(`[Applies] Marked ${successIds.length} docs as SUCCESS in stats storage.`);
       }
       if (failureIds.length > 0) {
-        await esClient.bulk({
-          refresh: false,
-          body: failureIds.flatMap((id) => [{ update: { _index: STATS_INDEX, _id: id } }, { doc: { exportToPgStatus: "FAILURE" } }]),
-        });
-        console.log(`[Applies] Marked ${failureIds.length} docs as FAILURE in Elasticsearch.`);
+        await statEventRepository.markStatEventsExportStatus(failureIds, "FAILURE");
+        console.log(`[Applies] Marked ${failureIds.length} docs as FAILURE in stats storage.`);
       }
       processed += data.length;
     }

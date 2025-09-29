@@ -1,10 +1,9 @@
-import esClient from "../../../db/elastic";
 import { prismaAnalytics as prismaClient } from "../../../db/postgres";
 
-import { STATS_INDEX } from "../../../config";
 import { Click } from "../../../db/analytics";
 import { captureException } from "../../../error";
 import { Stats } from "../../../types";
+import statEventRepository from "../../../repositories/stat-event";
 
 const BATCH_SIZE = 5000;
 
@@ -113,7 +112,7 @@ const handler = async () => {
     let total = 0;
     let processed = 0;
     let created = 0;
-    let scrollId = null;
+    let cursor: string | null = null;
 
     const stored = await prismaClient.click.count();
     console.log(`[Clicks] Found ${stored} docs in database.`);
@@ -126,54 +125,27 @@ const handler = async () => {
     await prismaClient.widget.findMany({ select: { id: true, old_id: true } }).then((data) => data.forEach((d) => (widgets[d.old_id] = d.id)));
 
     while (true) {
-      let data = [];
+      const { events, cursor: nextCursor, total: count } = await statEventRepository.scrollStatEvents({
+        type: "click",
+        batchSize: BATCH_SIZE,
+        cursor,
+        filters: { exportToPgStatusMissing: true },
+      });
 
-      if (scrollId) {
-        const { body } = await esClient.scroll({
-          scroll: "20m",
-          scroll_id: scrollId,
-        });
-        data = body.hits.hits;
-      } else {
-        const { body } = await esClient.search({
-          index: STATS_INDEX,
-          scroll: "20m",
-          size: BATCH_SIZE,
-          body: {
-            query: {
-              bool: {
-                must: [
-                  {
-                    term: {
-                      "type.keyword": "click",
-                    },
-                  },
-                ],
-                must_not: [
-                  {
-                    exists: {
-                      field: "exportToPgStatus",
-                    },
-                  },
-                ],
-              },
-            },
-          },
-          track_total_hits: true,
-        });
-        scrollId = body._scroll_id;
-        data = body.hits.hits as { _id: string; _source: Stats }[];
-        total = body.hits.total.value;
+      const data = events;
+      if (!cursor) {
+        total = count;
         console.log(`[Clicks] Total hits ${total}`);
       }
+      cursor = nextCursor;
 
       if (data.length === 0) {
         break;
       }
-      console.log(`[Clicks] Found ${data.length} docs in Elasticsearch, processed ${processed} docs so far, ${total - processed} docs left.`);
+      console.log(`[Clicks] Found ${data.length} docs in stats storage, processed ${processed} docs so far, ${total - processed} docs left.`);
 
       const missions = {} as { [key: string]: string };
-      const missionIds = new Set<string>(data.map((hit: { _source: Stats }) => hit._source.missionId?.toString()).filter((id: string | undefined) => id !== undefined));
+      const missionIds = new Set<string>(data.map((hit: Stats) => hit.missionId?.toString()).filter((id: string | undefined) => id !== undefined));
       if (missionIds.size) {
         await prismaClient.mission
           .findMany({
@@ -188,10 +160,10 @@ const handler = async () => {
       const toCreate: Click[] = [];
       const successIds: string[] = [];
       const failureIds: string[] = [];
-      for (const hit of data as { _id: string; _source: Stats }[]) {
-        const obj = await buildData({ ...hit._source, _id: hit._id }, partners, missions, campaigns, widgets);
+      for (const hit of data as Stats[]) {
+        const obj = await buildData(hit, partners, missions, campaigns, widgets);
         if (!obj) {
-          failureIds.push(hit._id);
+          failureIds.push(hit._id as string);
           continue;
         }
         toCreate.push(obj);
@@ -210,20 +182,14 @@ const handler = async () => {
         }
       }
 
-      // Bulk update ES status for processed docs
+      // Update export status for processed docs
       if (successIds.length > 0) {
-        await esClient.bulk({
-          refresh: false,
-          body: successIds.flatMap((id) => [{ update: { _index: STATS_INDEX, _id: id } }, { doc: { exportToPgStatus: "SUCCESS" } }]),
-        });
-        console.log(`[Clicks] Marked ${successIds.length} docs as SUCCESS in Elasticsearch.`);
+        await statEventRepository.markStatEventsExportStatus(successIds, "SUCCESS");
+        console.log(`[Clicks] Marked ${successIds.length} docs as SUCCESS in stats storage.`);
       }
       if (failureIds.length > 0) {
-        await esClient.bulk({
-          refresh: false,
-          body: failureIds.flatMap((id) => [{ update: { _index: STATS_INDEX, _id: id } }, { doc: { exportToPgStatus: "FAILURE" } }]),
-        });
-        console.log(`[Clicks] Marked ${failureIds.length} docs as FAILURE in Elasticsearch.`);
+        await statEventRepository.markStatEventsExportStatus(failureIds, "FAILURE");
+        console.log(`[Clicks] Marked ${failureIds.length} docs as FAILURE in stats storage.`);
       }
       processed += data.length;
     }

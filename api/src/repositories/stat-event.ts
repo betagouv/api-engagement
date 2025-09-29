@@ -75,6 +75,25 @@ interface AggregateMissionStatsParams {
   excludeUsers?: string[];
 }
 
+interface ScrollStatEventsFilters {
+  exportToPgStatusMissing?: boolean;
+  hasBotOrHumanFlag?: boolean;
+}
+
+interface ScrollStatEventsParams {
+  type: StatEventType;
+  batchSize?: number;
+  cursor?: string | null;
+  filters?: ScrollStatEventsFilters;
+  sourceFields?: string[];
+}
+
+interface ScrollStatEventsResult {
+  events: Stats[];
+  cursor: string | null;
+  total: number;
+}
+
 export interface MissionStatsAggregationBucket {
   eventCount: number;
   missionCount: number;
@@ -116,6 +135,7 @@ function toPg(data: Partial<Stats>, options: { includeDefaults?: boolean } = {})
     mission_organization_client_id: data.missionOrganizationClientId,
     tag: data.tag,
     tags: data.tags,
+    export_to_analytics: data.exportToAnalytics,
   };
   Object.keys(mapped).forEach((key) => mapped[key] === undefined && delete mapped[key]);
   return mapped;
@@ -161,6 +181,7 @@ function fromPg(row: any): Stats {
     missionOrganizationClientId: row.mission_organization_client_id ?? undefined,
     tag: row.tag ?? undefined,
     tags: row.tags ?? undefined,
+    exportToAnalytics: row.export_to_analytics ?? undefined,
   } as Stats;
 }
 
@@ -718,6 +739,134 @@ export async function aggregateMissionStats({
   return result;
 }
 
+function buildScrollFilters(filters: ScrollStatEventsFilters | undefined) {
+  const filter: any[] = [];
+  const mustNot: any[] = [];
+
+  if (!filters) {
+    return { filter, mustNot };
+  }
+
+  if (filters.hasBotOrHumanFlag) {
+    filter.push({
+      bool: {
+        should: [{ term: { isBot: true } }, { term: { isHuman: true } }],
+        minimum_should_match: 1,
+      },
+    });
+  }
+
+  if (filters.exportToPgStatusMissing) {
+    mustNot.push({ exists: { field: "exportToPgStatus" } });
+  }
+
+  return { filter, mustNot };
+}
+
+export async function scrollStatEvents({
+  type,
+  batchSize = 5000,
+  cursor = null,
+  filters,
+  sourceFields,
+}: ScrollStatEventsParams): Promise<ScrollStatEventsResult> {
+  if (getReadStatsFrom() === "pg") {
+    const skip = cursor ? Number(cursor) : 0;
+    const where: Prisma.StatEventWhereInput = {
+      type: type as any,
+    };
+
+    if (filters?.hasBotOrHumanFlag) {
+      where.OR = [{ is_bot: true }, { is_human: true }];
+    }
+
+    if (filters?.exportToPgStatusMissing) {
+      where.export_to_analytics = null;
+    }
+
+    const [rows, total] = await Promise.all([
+      prismaCore.statEvent.findMany({
+        where,
+        orderBy: { created_at: "asc" },
+        skip,
+        take: batchSize,
+      }),
+      skip === 0 ? prismaCore.statEvent.count({ where }) : Promise.resolve(0),
+    ]);
+
+    const nextCursor = rows.length < batchSize ? null : String(skip + rows.length);
+
+    return {
+      events: rows.map(fromPg),
+      cursor: nextCursor,
+      total: skip === 0 ? total : 0,
+    };
+  }
+
+  if (cursor) {
+    const { body } = await esClient.scroll({
+      scroll: "20m",
+      scroll_id: cursor,
+    });
+
+    const hits = (body.hits?.hits as { _id: string; _source: Stats }[]) ?? [];
+
+    return {
+      events: hits.map((hit) => ({ ...hit._source, _id: hit._id } as Stats)),
+      cursor: body._scroll_id ?? null,
+      total: body.hits?.total?.value ?? 0,
+    };
+  }
+
+  const { filter, mustNot } = buildScrollFilters(filters);
+  filter.unshift({ term: { "type.keyword": type } });
+
+  const { body } = await esClient.search({
+    index: STATS_INDEX,
+    scroll: "20m",
+    size: batchSize,
+    body: {
+      query: {
+        bool: {
+          filter,
+          must_not: mustNot,
+        },
+      },
+    },
+    track_total_hits: true,
+    _source: sourceFields,
+  });
+
+  const hits = (body.hits?.hits as { _id: string; _source: Stats }[]) ?? [];
+
+  return {
+    events: hits.map((hit) => ({ ...hit._source, _id: hit._id } as Stats)),
+    cursor: body._scroll_id ?? null,
+    total: body.hits?.total?.value ?? 0,
+  };
+}
+
+export async function markStatEventsExportStatus(ids: string[], status: "SUCCESS" | "FAILURE") {
+  if (!ids.length) {
+    return;
+  }
+
+  await esClient.bulk({
+    refresh: false,
+    body: ids.flatMap((id) => [
+      { update: { _index: STATS_INDEX, _id: id } },
+      { doc: { exportToPgStatus: status } },
+    ]),
+  });
+
+  if (getWriteStatsDual()) {
+    await prismaCore.statEvent.updateMany({
+      where: { id: { in: ids } },
+      data: { export_to_analytics: status },
+    });
+  }
+}
+
 // Helpers to evaluate feature flags
 function getReadStatsFrom(): "es" | "pg" {
   return (process.env.READ_STATS_FROM as "es" | "pg") || "es";
@@ -750,6 +899,8 @@ const statEventRepository = {
   searchViewStats,
   aggregateMissionStats,
   findFirstByMissionId,
+  scrollStatEvents,
+  markStatEventsExportStatus,
 };
 
 export default statEventRepository;

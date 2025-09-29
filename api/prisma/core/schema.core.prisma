@@ -67,9 +67,10 @@ model StatEvent {
   mission_department_name     String?
   mission_organization_id     String?
   mission_organization_name   String?
-  mission_organization_client_id String?  
+  mission_organization_client_id String?
   tag                         String?
   tags                        String[]
+  export_to_analytics         String?
 
   @@index([type, created_at], map: "stats_event_type_created_at_desc_idx")
   @@index([mission_id, created_at], map: "stats_event_mission_id_created_at_idx")
