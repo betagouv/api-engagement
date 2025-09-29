@@ -1,51 +1,15 @@
-import { SLACK_WARNING_CHANNEL_ID, STATS_INDEX } from "../../config";
-import esClient from "../../db/elastic";
+import { SLACK_WARNING_CHANNEL_ID } from "../../config";
 import PublisherModel from "../../models/publisher";
 import WarningBotModel from "../../models/warning-bot";
+import statEventRepository from "../../repositories/stat-event";
 import { postMessage } from "../../services/slack";
 import { WarningBot } from "../../types";
 
-const countClick = async (user: string) => {
-  const res = await esClient.count({
-    body: {
-      query: {
-        bool: {
-          must: [{ term: { "type.keyword": "click" } }, { term: { "user.keyword": user } }],
-        },
-      },
-    },
-    index: STATS_INDEX,
-  });
-  return res.body.count;
-};
+const countClick = (user: string) => statEventRepository.countEvents({ type: "click", user });
 
-const countApply = async (user: string) => {
-  const res = await esClient.count({
-    body: {
-      query: {
-        bool: {
-          must: [{ term: { "type.keyword": "apply" } }, { term: { "clickUser.keyword": user } }],
-        },
-      },
-    },
-    index: STATS_INDEX,
-  });
-  return res.body.count;
-};
+const countApply = (user: string) => statEventRepository.countEvents({ type: "apply", clickUser: user });
 
-const countAccount = async (user: string) => {
-  const res = await esClient.count({
-    body: {
-      query: {
-        bool: {
-          must: [{ term: { "type.keyword": "account" } }, { term: { "clickUser.keyword": user } }],
-        },
-      },
-    },
-    index: STATS_INDEX,
-  });
-  return res.body.count;
-};
+const countAccount = (user: string) => statEventRepository.countEvents({ type: "account", clickUser: user });
 
 export const checkBotClicks = async () => {
   console.log(`Checking bot from stats`);
@@ -53,78 +17,48 @@ export const checkBotClicks = async () => {
   const now = new Date();
   const oneDayAgo = new Date(now.getTime() - 24 * 60 * 60 * 1000);
 
-  // Query to find users with high click counts and check for matched applies
-  const body = {
-    size: 0,
-    query: {
-      bool: {
-        must: [{ range: { createdAt: { gte: oneDayAgo } } }, { term: { "type.keyword": "click" } }],
-      },
-    },
-    aggs: {
-      by_user: {
-        terms: {
-          field: "user.keyword",
-          min_doc_count: 200,
-        },
-        aggs: {
-          clicks: {
-            filter: { term: { "type.keyword": "click" } },
-          },
-          publishers: {
-            terms: {
-              field: "fromPublisherName.keyword",
-              size: 2,
-            },
-          },
-          userAgent: {
-            terms: {
-              field: "userAgent.keyword",
-              size: 1,
-            },
-          },
-        },
-      },
-    },
-  };
+  const candidates = await statEventRepository.findWarningBotCandidatesSince({
+    from: oneDayAgo,
+    minClicks: 200,
+  });
 
-  const response = await esClient.search({ index: STATS_INDEX, body });
+  const suspiciousUsers = [] as typeof candidates;
 
-  const suspiciousUsers: any[] = [];
-
-  for (const bucket of response.body.aggregations.by_user.buckets) {
-    const totalClicks = bucket.clicks.doc_count;
-    const applies = await countApply(bucket.key);
-    const accounts = await countAccount(bucket.key);
-    const publishers = bucket.publishers.buckets;
+  for (const candidate of candidates) {
+    const applies = await countApply(candidate.user);
+    const accounts = await countAccount(candidate.user);
+    const publishers = candidate.publishers;
 
     // Suspicious if: many clicks, no applies, and all clicks from same publisher
-    if (totalClicks >= 200 && applies === 0 && accounts === 0 && publishers.length === 1) {
-      suspiciousUsers.push(bucket);
+    if (candidate.clickCount >= 200 && applies === 0 && accounts === 0 && publishers.length === 1) {
+      suspiciousUsers.push(candidate);
     }
   }
 
   if (suspiciousUsers.length > 0) {
     const newWarnings: WarningBot[] = [];
-    for (const bucket of suspiciousUsers) {
-      const publisherId = bucket.publishers.buckets[0];
-      const userAgent = bucket.userAgent.buckets[0];
-      const exists = await WarningBotModel.findOne({ hash: bucket.key });
+    for (const candidate of suspiciousUsers) {
+      const publisherBucket = candidate.publishers[0];
+      const userAgentBucket = candidate.userAgents[0];
+      const exists = await WarningBotModel.findOne({ hash: candidate.user });
       if (!exists) {
-        const publisher = await PublisherModel.findOne({ name: publisherId.key });
+        if (!publisherBucket?.key) {
+          continue;
+        }
+        const publisher = await PublisherModel.findOne({ name: publisherBucket.key });
         if (!publisher) {
           continue;
         }
         const newWarning = await WarningBotModel.create({
-          hash: bucket.key,
-          userAgent: userAgent.key,
-          clickCount: bucket.clicks.doc_count,
+          hash: candidate.user,
+          userAgent: userAgentBucket?.key ?? "",
+          clickCount: candidate.clickCount,
           publisherId: publisher._id.toString(),
           publisherName: publisher.name,
         });
         newWarnings.push(newWarning);
       } else {
-        exists.clickCount = await countClick(bucket.key);
+        exists.clickCount = await countClick(candidate.user);
         await exists.save();
       }
     }
