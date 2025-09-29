@@ -9,6 +9,14 @@ import { EsQuery, Stats } from "../types";
 
 type StatEventType = Stats["type"];
 
+type WarningBotAggregationBucket = { key: string; doc_count: number };
+
+interface WarningBotAggregations {
+  type: WarningBotAggregationBucket[];
+  publisherTo: WarningBotAggregationBucket[];
+  publisherFrom: WarningBotAggregationBucket[];
+}
+
 interface CountByTypeParams {
   publisherId: string;
   from: Date;
@@ -599,6 +607,100 @@ export async function searchViewStats({ publisherId, size = 10, filters = {}, fa
   return { total, facets: facetsResult };
 }
 
+function mapAggregationRow(row: any, field: string): WarningBotAggregationBucket {
+  const value = row[field];
+  return {
+    key: value ?? "",
+    doc_count: row._count?._all ?? 0,
+  };
+}
+
+async function aggregateWarningBotStatsByUser(user: string): Promise<WarningBotAggregations> {
+  if (getReadStatsFrom() === "pg") {
+    const where: Prisma.StatEventWhereInput = { user };
+
+    const [typeRows, toRows, fromRows] = await Promise.all([
+      prismaCore.statEvent.groupBy({
+        by: ["type"],
+        where,
+        _count: { _all: true },
+      } as any),
+      prismaCore.statEvent.groupBy({
+        by: ["to_publisher_id"],
+        where,
+        _count: { _all: true },
+      } as any),
+      prismaCore.statEvent.groupBy({
+        by: ["from_publisher_id"],
+        where,
+        _count: { _all: true },
+      } as any),
+    ]);
+
+    const mapAggregationRow = (row: any, field: string): WarningBotAggregationBucket => ({
+      key: row[field] ?? "",
+      doc_count: row._count?._all ?? 0,
+    });
+
+    return {
+      type: (typeRows as any[]).map((row) => mapAggregationRow(row, "type")),
+      publisherTo: (toRows as any[]).map((row) => mapAggregationRow(row, "to_publisher_id")),
+      publisherFrom: (fromRows as any[]).map((row) => mapAggregationRow(row, "from_publisher_id")),
+    };
+  }
+
+  const response = await esClient.search({
+    index: STATS_INDEX,
+    body: {
+      query: {
+        term: { user },
+      },
+      size: 0,
+      aggs: {
+        type: { terms: { field: "type.keyword" } },
+        publisherTo: { terms: { field: "toPublisherId.keyword" } },
+        publisherFrom: { terms: { field: "fromPublisherId.keyword" } },
+      },
+    },
+  });
+
+  const aggregations = response.body.aggregations ?? {};
+
+  const getBuckets = (key: string) =>
+    ((aggregations[key] as { buckets?: WarningBotAggregationBucket[] } | undefined)?.buckets ?? []).map((bucket) => ({
+      key: bucket.key,
+      doc_count: bucket.doc_count,
+    }));
+
+  return {
+    type: getBuckets("type"),
+    publisherTo: getBuckets("publisherTo"),
+    publisherFrom: getBuckets("publisherFrom"),
+  };
+}
+
+async function updateIsBotForUser(user: string, isBot: boolean): Promise<void> {
+  const promises: Promise<unknown>[] = [
+    esClient.updateByQuery({
+      index: STATS_INDEX,
+      body: {
+        query: { term: { user } },
+        script: {
+          lang: "painless",
+          source: "ctx._source.isBot = params.isBot;",
+          params: { isBot },
+        },
+      },
+    }),
+  ];
+
+  if (getWriteStatsDual()) {
+    promises.push(prismaCore.statEvent.updateMany({ where: { user }, data: { is_bot: isBot } }));
+  }
+
+  await Promise.all(promises);
+}
+
 function createEmptyAggregations(): MissionStatsAggregations {
   return DEFAULT_TYPES.reduce((acc, type) => {
     acc[type] = { eventCount: 0, missionCount: 0 };
@@ -750,6 +852,8 @@ const statEventRepository = {
   searchViewStats,
   aggregateMissionStats,
   findFirstByMissionId,
+  aggregateWarningBotStatsByUser,
+  updateIsBotForUser,
 };
 
 export default statEventRepository;

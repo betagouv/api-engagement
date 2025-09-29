@@ -3,6 +3,7 @@ import { vi } from "vitest";
 const elasticMock = {
   index: vi.fn().mockResolvedValue({}),
   update: vi.fn().mockResolvedValue({}),
+  updateByQuery: vi.fn().mockResolvedValue({}),
   get: vi.fn().mockResolvedValue({ body: { _source: {}, _id: "1" } }),
   count: vi.fn().mockResolvedValue({ body: { count: 0 } }),
   msearch: vi.fn().mockResolvedValue({

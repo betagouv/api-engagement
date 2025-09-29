@@ -595,6 +595,140 @@ describe("stat-event repository", () => {
       account: { eventCount: 1, missionCount: 1 },
     });
   });
+
+  it("aggregates warning bot stats from elasticsearch", async () => {
+    elasticMock.search.mockResolvedValueOnce({
+      body: {
+        aggregations: {
+          type: { buckets: [{ key: "click", doc_count: 5 }] },
+          publisherTo: { buckets: [{ key: "pub-to", doc_count: 3 }] },
+          publisherFrom: { buckets: [{ key: "pub-from", doc_count: 2 }] },
+        },
+      },
+    });
+
+    initFeatureFlags("es");
+
+    const res = await statEventRepository.aggregateWarningBotStatsByUser("user-1");
+
+    expect(elasticMock.search).toHaveBeenCalledWith(
+      expect.objectContaining({
+        index: expect.any(String),
+        body: {
+          query: { term: { user: "user-1" } },
+          size: 0,
+          aggs: {
+            type: { terms: { field: "type.keyword" } },
+            publisherTo: { terms: { field: "toPublisherId.keyword" } },
+            publisherFrom: { terms: { field: "fromPublisherId.keyword" } },
+          },
+        },
+      })
+    );
+
+    expect(pgMock.statEvent.groupBy).not.toHaveBeenCalled();
+    expect(res).toEqual({
+      type: [{ key: "click", doc_count: 5 }],
+      publisherTo: [{ key: "pub-to", doc_count: 3 }],
+      publisherFrom: [{ key: "pub-from", doc_count: 2 }],
+    });
+  });
+
+  it("aggregates warning bot stats from postgres", async () => {
+    pgMock.statEvent.groupBy
+      .mockResolvedValueOnce([{ type: "click", _count: { _all: 4 } }])
+      .mockResolvedValueOnce([{ to_publisher_id: "pub-to", _count: { _all: 2 } }])
+      .mockResolvedValueOnce([{ from_publisher_id: "pub-from", _count: { _all: 1 } }]);
+
+    initFeatureFlags("pg");
+
+    const res = await statEventRepository.aggregateWarningBotStatsByUser("user-1");
+
+    expect(pgMock.statEvent.groupBy).toHaveBeenNthCalledWith(1, {
+      by: ["type"],
+      where: { user: "user-1" },
+      _count: { _all: true },
+    });
+    expect(pgMock.statEvent.groupBy).toHaveBeenNthCalledWith(2, {
+      by: ["to_publisher_id"],
+      where: { user: "user-1" },
+      _count: { _all: true },
+    });
+    expect(pgMock.statEvent.groupBy).toHaveBeenNthCalledWith(3, {
+      by: ["from_publisher_id"],
+      where: { user: "user-1" },
+      _count: { _all: true },
+    });
+
+    expect(elasticMock.search).not.toHaveBeenCalled();
+    expect(res).toEqual({
+      type: [{ key: "click", doc_count: 4 }],
+      publisherTo: [{ key: "pub-to", doc_count: 2 }],
+      publisherFrom: [{ key: "pub-from", doc_count: 1 }],
+    });
+  });
+
+  it("updates isBot flag from elasticsearch", async () => {
+    initFeatureFlags("es");
+
+    await statEventRepository.updateIsBotForUser("user-1", true);
+
+    expect(elasticMock.updateByQuery).toHaveBeenCalledWith({
+      index: expect.any(String),
+      body: {
+        query: { term: { user: "user-1" } },
+        script: {
+          lang: "painless",
+          source: "ctx._source.isBot = params.isBot;",
+          params: { isBot: true },
+        },
+      },
+    });
+    expect(pgMock.statEvent.updateMany).not.toHaveBeenCalled();
+  });
+
+  it("updates isBot flag from postgres", async () => {
+    initFeatureFlags("pg");
+
+    await statEventRepository.updateIsBotForUser("user-1", false);
+
+    expect(elasticMock.updateByQuery).toHaveBeenCalledWith({
+      index: expect.any(String),
+      body: {
+        query: { term: { user: "user-1" } },
+        script: {
+          lang: "painless",
+          source: "ctx._source.isBot = params.isBot;",
+          params: { isBot: false },
+        },
+      },
+    });
+    expect(pgMock.statEvent.updateMany).not.toHaveBeenCalled();
+  });
+
+  it("dual writes isBot update when reading from es", async () => {
+    initFeatureFlags("es", "true");
+
+    await statEventRepository.updateIsBotForUser("user-1", true);
+
+    expect(elasticMock.updateByQuery).toHaveBeenCalled();
+    expect(pgMock.statEvent.updateMany).toHaveBeenCalledWith({
+      where: { user: "user-1" },
+      data: { is_bot: true },
+    });
+  });
+
+  it("dual writes isBot update when reading from pg", async () => {
+    initFeatureFlags("pg", "true");
+
+    await statEventRepository.updateIsBotForUser("user-1", false);
+
+    expect(elasticMock.updateByQuery).toHaveBeenCalled();
+    expect(pgMock.statEvent.updateMany).toHaveBeenCalledWith({
+      where: { user: "user-1" },
+      data: { is_bot: false },
+    });
+  });
 });
 
 function initFeatureFlags(readFrom: "pg" | "es", dual = "false") {
