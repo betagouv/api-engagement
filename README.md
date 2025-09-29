@@ -40,3 +40,22 @@ Pour arrêter les services :
 ```bash
 docker-compose down
 ```
+
+## Convention de commits
+
+Les messages de commit doivent respecter le format [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/#summary) avec les types et scopes suivants :
+
+- Types autorisés : `feat`, `refactor`, `fix`, `chore`, `test`
+- Scopes autorisés : `app`, `api`, `widget`, `jobs`, `ci`
+
+Un message valide doit donc suivre le format `type(scope): message`.
+
+Pour faciliter la rédaction, utilisez l'assistant interactif Commitizen :
+
+```bash
+npm run commit
+```
+
+Ce script guide la saisie du type, du scope et du message, puis exécute automatiquement le commit formaté.
+
+Une vérification locale est également exécutée grâce à Husky, qui bloque les commits ne respectant pas les règles avant même la CI.
