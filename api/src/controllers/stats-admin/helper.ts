@@ -23,13 +23,15 @@ interface ViewsParams {
   to?: Date;
 }
 
+type PublisherViewsSourceFilter = "widget" | "campaign" | "publisher";
+
 interface PublisherViewsParams {
   from?: Date;
   to?: Date;
   broadcaster?: string;
   announcer?: string;
   type?: "volontariat" | "benevolat" | "";
-  source?: "widget" | "campaign" | "publisher" | "";
+  source?: PublisherViewsSourceFilter | "";
 }
 
 interface ViewsStatsResponse {
@@ -108,7 +110,7 @@ interface AdminPublisherViewsParams {
   broadcasterIds?: string[];
   announcerIds?: string[];
   missionType?: MissionTypeFilter;
-  source?: string;
+  source?: PublisherViewsSourceFilter;
 }
 
 interface AdminPublisherViewsResult {
@@ -556,8 +558,8 @@ export async function getPublisherViewsStats(params: PublisherViewsParams): Prom
         .filter((id) => id.length)
     : [];
 
-  const missionType = params.type && params.type !== "" ? params.type : undefined;
-  const source = params.source && params.source !== "" ? params.source : undefined;
+  const missionType = params.type?.length ? (params.type as MissionTypeFilter) : undefined;
+  const source = params.source?.length ? (params.source as PublisherViewsSourceFilter) : undefined;
 
   const stats = await getAdminPublisherViewsStats({
     from: params.from,
@@ -571,7 +573,7 @@ export async function getPublisherViewsStats(params: PublisherViewsParams): Prom
   const publishers = await PublisherModel.find().lean();
 
   const data = publishers.map((p) => ({
-    _id: p._id,
+    _id: p._id?.toString?.() ?? String(p._id),
     name: p.name,
     isAnnonceur: p.isAnnonceur,
     hasApiRights: p.hasApiRights,
@@ -823,7 +825,10 @@ function createWhereClause(conditions: Prisma.Sql[]): Prisma.Sql {
     return Prisma.sql``;
   }
 
-  return Prisma.sql`WHERE ${Prisma.join(conditions, Prisma.sql` AND `)}`;
+  const [first, ...rest] = conditions;
+  const combined = rest.reduce<Prisma.Sql>((acc, condition) => Prisma.sql`${acc} AND ${condition}`, first);
+
+  return Prisma.sql`WHERE ${combined}`;
 }
 
 function createAdminBaseConditions({
@@ -839,7 +844,7 @@ function createAdminBaseConditions({
   missionType?: MissionTypeFilter;
   broadcasterIds?: string[];
   announcerIds?: string[];
-  source?: string;
+  source?: PublisherViewsSourceFilter;
 }): Prisma.Sql[] {
   const conditions: Prisma.Sql[] = [];
 
@@ -856,26 +861,33 @@ function createAdminBaseConditions({
   }
 
   if (broadcasterIds.length) {
-    const values = Prisma.join(
-      broadcasterIds.map((id) => Prisma.sql`${id}`),
-      Prisma.sql`, `
-    );
-    conditions.push(Prisma.sql`"from_publisher_id" IN (${values})`);
+    const values = joinSqlValues(broadcasterIds.map((id) => Prisma.sql`${id}`));
+    if (values) {
+      conditions.push(Prisma.sql`"from_publisher_id" IN (${values})`);
+    }
   }
 
   if (announcerIds.length) {
-    const values = Prisma.join(
-      announcerIds.map((id) => Prisma.sql`${id}`),
-      Prisma.sql`, `
-    );
-    conditions.push(Prisma.sql`"to_publisher_id" IN (${values})`);
+    const values = joinSqlValues(announcerIds.map((id) => Prisma.sql`${id}`));
+    if (values) {
+      conditions.push(Prisma.sql`"to_publisher_id" IN (${values})`);
+    }
   }
 
   if (source) {
-    conditions.push(Prisma.sql`"source" = ${source}`);
+    conditions.push(Prisma.sql`"source" = ${source}::"StatSource"`);
   }
 
   return conditions;
+}
+
+function joinSqlValues(values: Prisma.Sql[]): Prisma.Sql | null {
+  if (!values.length) {
+    return null;
+  }
+
+  const [first, ...rest] = values;
+  return rest.reduce<Prisma.Sql>((acc, value) => Prisma.sql`${acc}, ${value}`, first);
 }
 
 function getReadStatsFrom(): "es" | "pg" {
