@@ -716,13 +716,7 @@ export async function findWarningBotCandidatesSince({ from, minClicks }: FindWar
       },
     } as any)) as { user: string | null; _count: { _all: number } }[];
 
-<<<<<<< HEAD
     const users = grouped.map((row) => row.user).filter((value): value is string => typeof value === "string" && value.length > 0);
-=======
-    const users = grouped
-      .map((row) => row.user)
-      .filter((value): value is string => typeof value === "string" && value.length > 0);
->>>>>>> staging
 
     if (!users.length) {
       return [];
@@ -741,15 +735,7 @@ export async function findWarningBotCandidatesSince({ from, minClicks }: FindWar
       } as any),
     ]);
 
-<<<<<<< HEAD
     const aggregateByUser = (rows: any[], field: string, options: { skipNullKeys?: boolean } = {}) => {
-=======
-    const aggregateByUser = (
-      rows: any[],
-      field: string,
-      options: { skipNullKeys?: boolean } = {}
-    ) => {
->>>>>>> staging
       const { skipNullKeys = false } = options;
       const buckets = new Map<string, WarningBotAggregationBucket[]>();
       rows.forEach((row) => {
@@ -787,14 +773,7 @@ export async function findWarningBotCandidatesSince({ from, minClicks }: FindWar
     size: 0,
     query: {
       bool: {
-<<<<<<< HEAD
         must: [{ range: { createdAt: { gte: from } } }, { term: { "type.keyword": "click" } }],
-=======
-        must: [
-          { range: { createdAt: { gte: from } } },
-          { term: { "type.keyword": "click" } },
-        ],
->>>>>>> staging
       },
     },
     aggs: {
