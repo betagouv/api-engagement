@@ -25,5 +25,7 @@ jobs:
             widget
             jobs
             ci
+            deps
+            deps-dev
     env:
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
