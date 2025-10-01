@@ -1,20 +1,17 @@
+import { Types } from "mongoose";
 import request from "supertest";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { Types } from "mongoose";
 
-import RedirectController from "../../../../src/controllers/redirect";
 import { JVA_URL, STATS_INDEX } from "../../../../src/config";
 import CampaignModel from "../../../../src/models/campaign";
 import StatsBotModel from "../../../../src/models/stats-bot";
-import { elasticMock } from "../../../mocks";
 import * as utils from "../../../../src/utils";
+import { elasticMock } from "../../../mocks";
 import { createTestApp } from "../../../testApp";
 
-const app = createTestApp((application) => {
-  application.use("/r", RedirectController);
-});
-
 describe("RedirectController /campaign/:id", () => {
+  const app = createTestApp();
+
   beforeEach(async () => {
     await CampaignModel.deleteMany({});
 
@@ -82,17 +79,13 @@ describe("RedirectController /campaign/:id", () => {
     };
 
     vi.spyOn(utils, "identify").mockReturnValue(identity);
-    const statsBotFindOneSpy = vi
-      .spyOn(StatsBotModel, "findOne")
-      .mockResolvedValue({ user: identity.user } as any);
+    const statsBotFindOneSpy = vi.spyOn(StatsBotModel, "findOne").mockResolvedValue({ user: identity.user } as any);
     elasticMock.index.mockResolvedValueOnce({ body: { _id: "click-123" } });
 
     const response = await request(app).get(`/r/campaign/${campaign._id.toString()}`);
 
     expect(response.status).toBe(302);
-    expect(response.headers.location).toBe(
-      "https://campaign.example.com/path?utm_source=api_engagement&utm_medium=campaign&utm_campaign=campaign-name&apiengagement_id=click-123"
-    );
+    expect(response.headers.location).toBe("https://campaign.example.com/path?utm_source=api_engagement&utm_medium=campaign&utm_campaign=campaign-name&apiengagement_id=click-123");
 
     expect(elasticMock.index).toHaveBeenCalledTimes(1);
     expect(elasticMock.index).toHaveBeenCalledWith({

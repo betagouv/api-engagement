@@ -1,17 +1,14 @@
 import request from "supertest";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
-import RedirectController from "../../../../src/controllers/redirect";
 import { STATS_INDEX } from "../../../../src/config";
 import MissionModel from "../../../../src/models/mission";
 import StatsBotModel from "../../../../src/models/stats-bot";
-import { elasticMock } from "../../../mocks";
 import * as utils from "../../../../src/utils";
+import { elasticMock } from "../../../mocks";
 import { createTestApp } from "../../../testApp";
 
-const app = createTestApp((application) => {
-  application.use("/r", RedirectController);
-});
+const app = createTestApp();
 
 describe("RedirectController /apply", () => {
   beforeEach(async () => {
@@ -86,9 +83,7 @@ describe("RedirectController /apply", () => {
     };
 
     vi.spyOn(utils, "identify").mockReturnValue(identity);
-    const statsBotFindOneSpy = vi
-      .spyOn(StatsBotModel, "findOne")
-      .mockResolvedValue({ user: identity.user } as any);
+    const statsBotFindOneSpy = vi.spyOn(StatsBotModel, "findOne").mockResolvedValue({ user: identity.user } as any);
 
     const clickStat = {
       user: "click-user",
