@@ -1,7 +1,7 @@
 import bodyParser from "body-parser";
 import cookieParser from "cookie-parser";
 import cors from "cors";
-import express from "express";
+import express, { Express } from "express";
 import passport from "../src/middlewares/passport";
 import MissionV0Controller from "../src/v0/mission/controller";
 import MyMissionV0Controller from "../src/v0/mymission/controller";
@@ -9,8 +9,10 @@ import MyOrganizationV0Controller from "../src/v0/myorganization/controller";
 import ViewV0Controller from "../src/v0/view";
 
 // Create a test Express app with minimal configuration
-export const createTestApp = () => {
+export const createTestApp = (configure?: (app: Express) => void) => {
   const app = express();
+
+  app.set("trust proxy", true);
 
   // Configure middleware
   app.use(cors({ credentials: true, origin: "*" }));
@@ -24,6 +26,8 @@ export const createTestApp = () => {
   app.use("/v0/mymission", MyMissionV0Controller);
   app.use("/v0/mission", MissionV0Controller);
   app.use("/v0/view", ViewV0Controller);
+
+  configure?.(app);
 
   // Error handler
   app.use((err: any, req: express.Request, res: express.Response, _: express.NextFunction) => {
