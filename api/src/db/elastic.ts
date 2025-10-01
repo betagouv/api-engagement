@@ -8,7 +8,6 @@ if (!ES_ENDPOINT) {
   throw new Error("[ElasticSearch] No ElasticSearch endpoint provided!");
 }
 
-console.log("[ElasticSearch] Using endpoint:", ES_ENDPOINT);
 const esClient = new Client({ node: ES_ENDPOINT });
 
 export const esConnected = new Promise<void>((resolve, reject) => {
