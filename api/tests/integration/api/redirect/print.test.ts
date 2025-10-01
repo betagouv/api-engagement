@@ -151,7 +151,7 @@ describe("RedirectController /impression/:missionId/:publisherId", () => {
     expect(response.status).toBe(200);
     expect(response.body.ok).toBe(true);
     expect(response.body.data).toMatchObject({
-      _id: "print-id",
+      _id: expect.any(String),
       type: "print",
       tag: "tag",
       source: "widget",
@@ -173,28 +173,28 @@ describe("RedirectController /impression/:missionId/:publisherId", () => {
       isBot: true,
     });
 
-    expect(elasticMock.index).toHaveBeenCalledWith({
-      index: STATS_INDEX,
-      body: expect.objectContaining({
-        type: "print",
-        host: "redirect.test",
-        origin: "https://app.example.com",
-        referer: identity.referer,
-        userAgent: identity.userAgent,
-        user: identity.user,
-        requestId,
-        tag: "tag",
-        source: "widget",
-        sourceId: widget._id.toString(),
-        sourceName: widget.name,
-        missionId: mission._id.toString(),
-        missionClientId: mission.clientId,
-        toPublisherId: mission.publisherId,
-        toPublisherName: mission.publisherName,
-        fromPublisherId: publisher._id.toString(),
-        fromPublisherName: publisher.name,
-        isBot: true,
-      }),
+    expect(elasticMock.index).toHaveBeenCalledTimes(1);
+    const [indexArgs] = elasticMock.index.mock.calls;
+    expect(indexArgs[0].index).toBe(STATS_INDEX);
+    expect(indexArgs[0].body).toMatchObject({
+      type: "print",
+      host: "redirect.test",
+      origin: "https://app.example.com",
+      referer: identity.referer,
+      userAgent: identity.userAgent,
+      user: identity.user,
+      requestId,
+      tag: "tag",
+      source: "widget",
+      sourceId: widget._id.toString(),
+      sourceName: widget.name,
+      missionId: mission._id.toString(),
+      missionClientId: mission.clientId,
+      toPublisherId: mission.publisherId,
+      toPublisherName: mission.publisherName,
+      fromPublisherId: publisher._id.toString(),
+      fromPublisherName: publisher.name,
+      isBot: true,
     });
 
     expect(statsBotFindOneSpy).toHaveBeenCalledWith({ user: identity.user });

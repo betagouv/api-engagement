@@ -102,47 +102,47 @@ describe("RedirectController /widget/:id", () => {
     expect(response.status).toBe(302);
     const redirectUrl = new URL(response.headers.location);
     expect(`${redirectUrl.origin}${redirectUrl.pathname}`).toBe("https://mission.example.com/apply");
-    expect(redirectUrl.searchParams.get("apiengagement_id")).toBe("widget-click-id");
+    expect(redirectUrl.searchParams.get("apiengagement_id")).toEqual(expect.any(String));
     expect(redirectUrl.searchParams.get("utm_source")).toBe("api_engagement");
     expect(redirectUrl.searchParams.get("utm_medium")).toBe("widget");
     expect(redirectUrl.searchParams.get("utm_campaign")).toBe("widget-name");
 
-    expect(elasticMock.index).toHaveBeenCalledWith({
-      index: STATS_INDEX,
-      body: expect.objectContaining({
-        type: "click",
-        user: identity.user,
-        referer: identity.referer,
-        userAgent: identity.userAgent,
-        host: "redirect.test",
-        origin: "https://app.example.com",
-        requestId,
-        source: "widget",
-        sourceId: widget._id.toString(),
-        sourceName: widget.name,
-        missionId: mission._id.toString(),
-        missionClientId: mission.clientId,
-        missionDomain: mission.domain,
-        missionTitle: mission.title,
-        missionPostalCode: mission.postalCode,
-        missionDepartmentName: mission.departmentName,
-        missionOrganizationName: mission.organizationName,
-        missionOrganizationId: mission.organizationId,
-        missionOrganizationClientId: mission.organizationClientId,
-        toPublisherId: mission.publisherId,
-        toPublisherName: mission.publisherName,
-        fromPublisherId: widget.fromPublisherId,
-        fromPublisherName: widget.fromPublisherName,
-        isBot: false,
-      }),
+    expect(elasticMock.index).toHaveBeenCalledTimes(1);
+    const [indexArgs] = elasticMock.index.mock.calls;
+    expect(indexArgs[0].index).toBe(STATS_INDEX);
+    expect(indexArgs[0].body).toMatchObject({
+      type: "click",
+      user: identity.user,
+      referer: identity.referer,
+      userAgent: identity.userAgent,
+      host: "redirect.test",
+      origin: "https://app.example.com",
+      requestId,
+      source: "widget",
+      sourceId: widget._id.toString(),
+      sourceName: widget.name,
+      missionId: mission._id.toString(),
+      missionClientId: mission.clientId,
+      missionDomain: mission.domain,
+      missionTitle: mission.title,
+      missionPostalCode: mission.postalCode,
+      missionDepartmentName: mission.departmentName,
+      missionOrganizationName: mission.organizationName,
+      missionOrganizationId: mission.organizationId,
+      missionOrganizationClientId: mission.organizationClientId,
+      toPublisherId: mission.publisherId,
+      toPublisherName: mission.publisherName,
+      fromPublisherId: widget.fromPublisherId,
+      fromPublisherName: widget.fromPublisherName,
+      isBot: false,
     });
 
     expect(statsBotFindOneSpy).toHaveBeenCalledWith({ user: identity.user });
-    expect(elasticMock.update).toHaveBeenCalledWith({
-      index: STATS_INDEX,
-      id: "widget-click-id",
-      body: { doc: { isBot: true } },
-    });
+    expect(elasticMock.update).toHaveBeenCalledTimes(1);
+    const updateArgs = elasticMock.update.mock.calls[0][0];
+    expect(updateArgs.index).toBe(STATS_INDEX);
+    expect(updateArgs.body).toEqual({ doc: { isBot: true } });
+    expect(updateArgs.id).toBe(indexArgs[0].id);
   });
 
   it("uses mtm tracking parameters when mission publisher is service civique", async () => {
@@ -185,7 +185,7 @@ describe("RedirectController /widget/:id", () => {
       expect(response.status).toBe(302);
       const redirectUrl = new URL(response.headers.location);
       expect(`${redirectUrl.origin}${redirectUrl.pathname}`).toBe("https://mission.example.com/apply");
-      expect(redirectUrl.searchParams.get("apiengagement_id")).toBe("widget-click-id");
+      expect(redirectUrl.searchParams.get("apiengagement_id")).toEqual(expect.any(String));
       expect(redirectUrl.searchParams.get("mtm_source")).toBe("api_engagement");
       expect(redirectUrl.searchParams.get("mtm_medium")).toBe("widget");
       expect(redirectUrl.searchParams.get("mtm_campaign")).toBe("widget-special");

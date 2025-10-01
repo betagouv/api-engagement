@@ -30,6 +30,16 @@ interface CountEventsParams {
   from?: Date;
 }
 
+interface UpdateStatEventOptions {
+  retryOnConflict?: number;
+}
+
+interface HasRecentStatEventWithClickIdParams {
+  type: StatEventType;
+  clickId: string;
+  since: Date;
+}
+
 interface CountClicksByPublisherForOrganizationSinceParams {
   publisherIds: string[];
   organizationClientId: string;
@@ -215,44 +225,47 @@ function fromPg(row: any): Stats {
 export async function createStatEvent(event: Stats): Promise<string> {
   // Render id here to share it between es and pg
   const id = event._id || uuidv4();
-  if (getReadStatsFrom() === "pg") {
-    await prismaCore.statEvent.create({ data: { id, ...toPg(event) } });
-    if (getWriteStatsDual()) {
-      await esClient.index({ index: STATS_INDEX, id, body: toEs(event) });
-    }
-    return id;
-  }
+
   await esClient.index({ index: STATS_INDEX, id, body: toEs(event) });
+
   if (getWriteStatsDual()) {
-    await prismaCore.statEvent.create({ data: { id, ...toPg(event) } });
+    try {
+      await prismaCore.statEvent.create({ data: { id, ...toPg(event) } });
+    } catch (error) {
+      console.error(`[StatEvent] Error creating stat event ${id} in Postgres:`, error);
+    }
   }
+
   return id;
 }
 
-export async function updateStatEventById(id: string, patch: Partial<Stats>) {
+export async function updateStatEventById(id: string, patch: Partial<Stats>, options: UpdateStatEventOptions = {}) {
   const data = toPg(patch, { includeDefaults: false });
-  if (getReadStatsFrom() === "pg") {
-    await prismaCore.statEvent.update({ where: { id }, data });
-    if (getWriteStatsDual()) {
-      await esClient.update({ index: STATS_INDEX, id, body: { doc: patch } });
-    }
-    return;
-  }
-  await esClient.update({ index: STATS_INDEX, id, body: { doc: patch } });
+  const { retryOnConflict } = options;
+
+  await esClient.update({ index: STATS_INDEX, id, body: { doc: patch }, retry_on_conflict: retryOnConflict });
+
   if (getWriteStatsDual()) {
     try {
       await prismaCore.statEvent.update({ where: { id }, data });
     } catch (error) {
-      console.error(`[StatEvent] Error updating stat event ${id}:`, error);
+      console.error(`[StatEvent] Error updating stat event ${id} in Postgres:`, error);
     }
   }
 }
 
 export async function getStatEventById(id: string): Promise<Stats | null> {
   if (getReadStatsFrom() === "pg") {
-    const pgRes = await prismaCore.statEvent.findUnique({ where: { id } });
-    return pgRes ? fromPg(pgRes) : null;
+    try {
+      const pgRes = await prismaCore.statEvent.findUnique({ where: { id } });
+      if (pgRes) {
+        return fromPg(pgRes);
+      }
+    } catch (error) {
+      console.error(`[StatEvent] Error fetching stat event ${id} from Postgres:`, error);
+    }
   }
+
   try {
     const esRes = await esClient.get({ index: STATS_INDEX, id });
     return { ...esRes.body._source, _id: esRes.body._id } as Stats;
@@ -397,6 +410,47 @@ export async function countEvents({ type, user, clickUser, from }: CountEventsPa
 
   const res = await esClient.count({ index: STATS_INDEX, body });
   return res.body.count ?? 0;
+}
+
+export async function hasRecentStatEventWithClickId({ type, clickId, since }: HasRecentStatEventWithClickIdParams): Promise<boolean> {
+  const shouldCheckPg = getWriteStatsDual() || getReadStatsFrom() === "pg";
+
+  if (shouldCheckPg) {
+    try {
+      const total = await prismaCore.statEvent.count({
+        where: {
+          type: type as any,
+          click_id: clickId,
+          created_at: { gte: since },
+        },
+      });
+      if (total > 0) {
+        return true;
+      }
+    } catch (error) {
+      console.error(`[StatEvent] Error counting stat events for click ${clickId} in Postgres:`, error);
+    }
+  }
+
+  const body: EsQuery = {
+    query: {
+      bool: {
+        must: [
+          { term: { "type.keyword": type } },
+          { term: { "clickId.keyword": clickId } },
+          { range: { createdAt: { gte: since.toISOString() } } },
+        ],
+      },
+    },
+  };
+
+  try {
+    const { body: countBody } = await esClient.count({ index: STATS_INDEX, body });
+    return (countBody.count as number) > 0;
+  } catch (error) {
+    console.error(`[StatEvent] Error counting stat events for click ${clickId} in Elasticsearch:`, error);
+    return false;
+  }
 }
 
 export async function countClicksByPublisherForOrganizationSince({ publisherIds, organizationClientId, from }: CountClicksByPublisherForOrganizationSinceParams) {
@@ -1229,6 +1283,7 @@ const statEventRepository = {
   findWarningBotCandidatesSince,
   aggregateWarningBotStatsByUser,
   updateIsBotForUser,
+  hasRecentStatEventWithClickId,
 };
 
 export default statEventRepository;

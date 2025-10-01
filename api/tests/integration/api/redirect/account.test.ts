@@ -15,17 +15,11 @@ describe("RedirectController /account", () => {
     await MissionModel.deleteMany({});
 
     elasticMock.index.mockReset();
-    elasticMock.search.mockReset();
+    elasticMock.count.mockReset();
     elasticMock.get.mockReset();
 
     elasticMock.index.mockResolvedValue({ body: { _id: "default-account-id" } });
-    elasticMock.search.mockResolvedValue({
-      body: {
-        hits: {
-          total: { value: 0 },
-        },
-      },
-    });
+    elasticMock.count.mockResolvedValue({ body: { count: 0 } });
     elasticMock.get.mockResolvedValue({
       body: {
         _id: "default-click-id",
@@ -122,40 +116,41 @@ describe("RedirectController /account", () => {
       .query({ view: "click-123", mission: mission.clientId, publisher: mission.publisherId });
 
     expect(response.status).toBe(200);
-    expect(response.body).toEqual({ ok: true, id: "account-123" });
+    expect(response.body).toEqual({ ok: true, id: expect.any(String) });
 
     expect(elasticMock.get).toHaveBeenCalledWith({ index: STATS_INDEX, id: "click-123" });
+    expect(elasticMock.count).toHaveBeenCalled();
     expect(statsBotFindOneSpy).toHaveBeenCalledWith({ user: identity.user });
 
-    expect(elasticMock.index).toHaveBeenCalledWith({
-      index: STATS_INDEX,
-      body: expect.objectContaining({
-        type: "account",
-        user: identity.user,
-        referer: identity.referer,
-        userAgent: identity.userAgent,
-        host: "redirect.test",
-        origin: "https://app.example.com",
-        clickUser: clickStat.user,
-        clickId: "click-123",
-        source: clickStat.source,
-        sourceId: clickStat.sourceId,
-        sourceName: clickStat.sourceName,
-        fromPublisherId: clickStat.fromPublisherId,
-        fromPublisherName: clickStat.fromPublisherName,
-        toPublisherId: mission.publisherId,
-        toPublisherName: mission.publisherName,
-        missionId: mission._id.toString(),
-        missionClientId: mission.clientId,
-        missionDomain: mission.domain,
-        missionTitle: mission.title,
-        missionPostalCode: mission.postalCode,
-        missionDepartmentName: mission.departmentName,
-        missionOrganizationName: mission.organizationName,
-        missionOrganizationId: mission.organizationId,
-        missionOrganizationClientId: mission.organizationClientId,
-        isBot: true,
-      }),
+    expect(elasticMock.index).toHaveBeenCalledTimes(1);
+    const [indexArgs] = elasticMock.index.mock.calls;
+    expect(indexArgs[0].index).toBe(STATS_INDEX);
+    expect(indexArgs[0].body).toMatchObject({
+      type: "account",
+      user: identity.user,
+      referer: identity.referer,
+      userAgent: identity.userAgent,
+      host: "redirect.test",
+      origin: "https://app.example.com",
+      clickUser: clickStat.user,
+      clickId: "click-123",
+      source: clickStat.source,
+      sourceId: clickStat.sourceId,
+      sourceName: clickStat.sourceName,
+      fromPublisherId: clickStat.fromPublisherId,
+      fromPublisherName: clickStat.fromPublisherName,
+      toPublisherId: mission.publisherId,
+      toPublisherName: mission.publisherName,
+      missionId: mission._id.toString(),
+      missionClientId: mission.clientId,
+      missionDomain: mission.domain,
+      missionTitle: mission.title,
+      missionPostalCode: mission.postalCode,
+      missionDepartmentName: mission.departmentName,
+      missionOrganizationName: mission.organizationName,
+      missionOrganizationId: mission.organizationId,
+      missionOrganizationClientId: mission.organizationClientId,
+      isBot: true,
     });
   });
 
@@ -198,25 +193,36 @@ describe("RedirectController /account", () => {
     const response = await request(app).get("/r/account").query({ view: "click-456" });
 
     expect(response.status).toBe(200);
-    expect(response.body).toEqual({ ok: true, id: "account-456" });
+    expect(response.body).toEqual({ ok: true, id: expect.any(String) });
 
     expect(statsBotFindOneSpy).toHaveBeenCalledWith({ user: identity.user });
-    expect(elasticMock.index).toHaveBeenCalledWith({
-      index: STATS_INDEX,
-      body: expect.objectContaining({
-        type: "account",
-        clickUser: clickStat.user,
-        clickId: "click-456",
-        missionId: clickStat.missionId,
-        missionClientId: clickStat.missionClientId,
-        missionTitle: clickStat.missionTitle,
-        missionDomain: clickStat.missionDomain,
-        missionOrganizationName: clickStat.missionOrganizationName,
-        missionOrganizationId: clickStat.missionOrganizationId,
-        toPublisherId: clickStat.toPublisherId,
-        toPublisherName: clickStat.toPublisherName,
-        isBot: false,
-      }),
+    expect(elasticMock.count).toHaveBeenCalled();
+    expect(elasticMock.index).toHaveBeenCalledTimes(1);
+    const [accountCall] = elasticMock.index.mock.calls;
+    expect(accountCall[0].index).toBe(STATS_INDEX);
+    expect(accountCall[0].body).toMatchObject({
+      type: "account",
+      user: identity.user,
+      referer: identity.referer,
+      userAgent: identity.userAgent,
+      clickUser: clickStat.user,
+      clickId: "click-456",
+      source: clickStat.source,
+      sourceId: clickStat.sourceId,
+      sourceName: clickStat.sourceName,
+      fromPublisherId: clickStat.fromPublisherId,
+      fromPublisherName: clickStat.fromPublisherName,
+      toPublisherId: clickStat.toPublisherId,
+      toPublisherName: clickStat.toPublisherName,
+      missionId: clickStat.missionId,
+      missionClientId: clickStat.missionClientId,
+      missionTitle: clickStat.missionTitle,
+      missionDomain: clickStat.missionDomain,
+      missionOrganizationName: clickStat.missionOrganizationName,
+      missionOrganizationId: clickStat.missionOrganizationId,
+      missionPostalCode: clickStat.missionPostalCode,
+      missionDepartmentName: clickStat.missionDepartmentName,
+      isBot: false,
     });
   });
 });
