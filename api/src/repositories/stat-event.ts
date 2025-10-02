@@ -226,14 +226,9 @@ export async function createStatEvent(event: Stats): Promise<string> {
   // Render id here to share it between es and pg
   const id = event._id || uuidv4();
 
-  const shouldWriteEs = getWriteStatsDual() || getReadStatsFrom() === "es";
-  const shouldWritePg = getWriteStatsDual() || getReadStatsFrom() === "pg";
+  await esClient.index({ index: STATS_INDEX, id, body: toEs(event) });
 
-  if (shouldWriteEs) {
-    await esClient.index({ index: STATS_INDEX, id, body: toEs(event) });
-  }
-
-  if (shouldWritePg) {
+  if (getWriteStatsDual()) {
     try {
       await prismaCore.statEvent.create({ data: { id, ...toPg(event) } });
     } catch (error) {
@@ -248,14 +243,9 @@ export async function updateStatEventById(id: string, patch: Partial<Stats>, opt
   const data = toPg(patch, { includeDefaults: false });
   const { retryOnConflict } = options;
 
-  const shouldWriteEs = getWriteStatsDual() || getReadStatsFrom() === "es";
-  const shouldWritePg = getWriteStatsDual() || getReadStatsFrom() === "pg";
+  await esClient.update({ index: STATS_INDEX, id, body: { doc: patch }, retry_on_conflict: retryOnConflict });
 
-  if (shouldWriteEs) {
-    await esClient.update({ index: STATS_INDEX, id, body: { doc: patch }, retry_on_conflict: retryOnConflict });
-  }
-
-  if (shouldWritePg) {
+  if (getWriteStatsDual()) {
     try {
       await prismaCore.statEvent.update({ where: { id }, data });
     } catch (error) {
@@ -420,9 +410,7 @@ export async function countEvents({ type, user, clickUser, from }: CountEventsPa
 }
 
 export async function hasRecentStatEventWithClickId({ type, clickId, since }: HasRecentStatEventWithClickIdParams): Promise<boolean> {
-  const shouldCheckPg = getWriteStatsDual() || getReadStatsFrom() === "pg";
-
-  if (shouldCheckPg) {
+  if (getReadStatsFrom() === "pg") {
     try {
       const total = await prismaCore.statEvent.count({
         where: {
@@ -441,11 +429,7 @@ export async function hasRecentStatEventWithClickId({ type, clickId, since }: Ha
 
   const query: EsQuery = {
     bool: {
-      must: [
-        { term: { "type.keyword": type } },
-        { term: { "clickId.keyword": clickId } },
-        { range: { createdAt: { gte: since.toISOString() } } },
-      ],
+      must: [{ term: { "type.keyword": type } }, { term: { "clickId.keyword": clickId } }, { range: { createdAt: { gte: since.toISOString() } } }],
       must_not: [],
       should: [],
       filter: [],
