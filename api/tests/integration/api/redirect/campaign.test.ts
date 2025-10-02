@@ -6,7 +6,7 @@ import { JVA_URL, STATS_INDEX } from "../../../../src/config";
 import CampaignModel from "../../../../src/models/campaign";
 import StatsBotModel from "../../../../src/models/stats-bot";
 import * as utils from "../../../../src/utils";
-import { elasticMock } from "../../../mocks";
+import { elasticMock, pgMock } from "../../../mocks";
 import { createTestApp } from "../../../testApp";
 
 describe("RedirectController /campaign/:id", () => {
@@ -17,6 +17,8 @@ describe("RedirectController /campaign/:id", () => {
 
     elasticMock.index.mockReset();
     elasticMock.update.mockReset();
+    pgMock.statEvent.create.mockReset();
+    pgMock.statEvent.update.mockReset();
     elasticMock.index.mockResolvedValue({ body: { _id: "default-click-id" } });
     elasticMock.update.mockResolvedValue({});
   });
@@ -24,6 +26,7 @@ describe("RedirectController /campaign/:id", () => {
   afterEach(async () => {
     vi.restoreAllMocks();
     await CampaignModel.deleteMany({});
+    delete process.env.WRITE_STATS_DUAL;
   });
 
   it("redirects to JVA when campaign id is invalid", async () => {
@@ -85,33 +88,79 @@ describe("RedirectController /campaign/:id", () => {
     const response = await request(app).get(`/r/campaign/${campaign._id.toString()}`);
 
     expect(response.status).toBe(302);
-    expect(response.headers.location).toBe("https://campaign.example.com/path?utm_source=api_engagement&utm_medium=campaign&utm_campaign=campaign-name&apiengagement_id=click-123");
+    const redirectUrl = new URL(response.headers.location);
+    expect(`${redirectUrl.origin}${redirectUrl.pathname}`).toBe("https://campaign.example.com/path");
+    expect(redirectUrl.searchParams.get("utm_source")).toBe("api_engagement");
+    expect(redirectUrl.searchParams.get("utm_medium")).toBe("campaign");
+    expect(redirectUrl.searchParams.get("utm_campaign")).toBe("campaign-name");
+    expect(redirectUrl.searchParams.get("apiengagement_id")).toEqual(expect.any(String));
 
     expect(elasticMock.index).toHaveBeenCalledTimes(1);
-    expect(elasticMock.index).toHaveBeenCalledWith({
-      index: STATS_INDEX,
-      body: expect.objectContaining({
-        type: "click",
-        user: identity.user,
-        referer: identity.referer,
-        userAgent: identity.userAgent,
-        source: "campaign",
-        sourceId: campaign._id.toString(),
-        sourceName: campaign.name,
-        toPublisherId: campaign.toPublisherId,
-        toPublisherName: campaign.toPublisherName,
-        fromPublisherId: campaign.fromPublisherId,
-        fromPublisherName: campaign.fromPublisherName,
-        isBot: false,
-      }),
+    const [indexArgs] = elasticMock.index.mock.calls;
+    expect(indexArgs[0].index).toBe(STATS_INDEX);
+    expect(indexArgs[0].body).toMatchObject({
+      type: "click",
+      user: identity.user,
+      referer: identity.referer,
+      userAgent: identity.userAgent,
+      source: "campaign",
+      sourceId: campaign._id.toString(),
+      sourceName: campaign.name,
+      toPublisherId: campaign.toPublisherId,
+      toPublisherName: campaign.toPublisherName,
+      fromPublisherId: campaign.fromPublisherId,
+      fromPublisherName: campaign.fromPublisherName,
+      isBot: false,
     });
 
     expect(statsBotFindOneSpy).toHaveBeenCalledWith({ user: identity.user });
 
-    expect(elasticMock.update).toHaveBeenCalledWith({
-      index: STATS_INDEX,
-      id: "click-123",
-      body: { doc: { isBot: true } },
+    expect(elasticMock.update).toHaveBeenCalledTimes(1);
+    const updateArgs = elasticMock.update.mock.calls[0][0];
+    expect(updateArgs.index).toBe(STATS_INDEX);
+    expect(updateArgs.body).toEqual({ doc: { isBot: true } });
+    expect(updateArgs.id).toBe(indexArgs[0].id);
+  });
+
+  it("writes stats to Postgres when dual write flag is enabled", async () => {
+    process.env.WRITE_STATS_DUAL = "true";
+
+    const campaign = await CampaignModel.create({
+      name: "Dual Write Campaign",
+      url: "https://dual-write.example.com/path",
+      fromPublisherId: "from-publisher",
+      fromPublisherName: "From Publisher",
+      toPublisherId: "to-publisher",
+      toPublisherName: "To Publisher",
     });
+
+    const identity = {
+      user: "dual-user",
+      referer: "https://dual-referrer.example.com",
+      userAgent: "Mozilla/5.0",
+    };
+
+    vi.spyOn(utils, "identify").mockReturnValue(identity);
+    vi.spyOn(StatsBotModel, "findOne").mockResolvedValue({ user: identity.user } as any);
+    elasticMock.index.mockResolvedValueOnce({ body: { _id: "dual-click" } });
+
+    const response = await request(app).get(`/r/campaign/${campaign._id.toString()}`);
+
+    expect(response.status).toBe(302);
+    expect(pgMock.statEvent.create).toHaveBeenCalledTimes(1);
+    expect(pgMock.statEvent.update).toHaveBeenCalledTimes(1);
+
+    const [[createArgs]] = pgMock.statEvent.create.mock.calls;
+    expect(createArgs.data).toMatchObject({
+      id: expect.any(String),
+      type: "click",
+      user: identity.user,
+      source: "campaign",
+      source_id: campaign._id.toString(),
+    });
+
+    const [[updateArgs]] = pgMock.statEvent.update.mock.calls;
+    expect(updateArgs.where).toEqual({ id: expect.any(String) });
+    expect(updateArgs.data).toMatchObject({ is_bot: true });
   });
 });

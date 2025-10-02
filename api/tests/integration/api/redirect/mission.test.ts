@@ -107,7 +107,7 @@ describe("RedirectController /:missionId/:publisherId", () => {
     expect(response.status).toBe(302);
     const redirectUrl = new URL(response.headers.location);
     expect(`${redirectUrl.origin}${redirectUrl.pathname}`).toBe("https://mission.example.com/apply");
-    expect(redirectUrl.searchParams.get("apiengagement_id")).toBe("mission-click-id");
+    expect(redirectUrl.searchParams.get("apiengagement_id")).toEqual(expect.any(String));
     expect(redirectUrl.searchParams.get("utm_source")).toBe("api_engagement");
     expect(redirectUrl.searchParams.get("utm_medium")).toBe("api");
     expect(redirectUrl.searchParams.get("utm_campaign")).toBe("from-publisher");
@@ -144,11 +144,11 @@ describe("RedirectController /:missionId/:publisherId", () => {
     expect(indexedBody.sourceId?.toString()).toBe(fromPublisher._id.toString());
 
     expect(statsBotFindOneSpy).toHaveBeenCalledWith({ user: identity.user });
-    expect(elasticMock.update).toHaveBeenCalledWith({
-      index: STATS_INDEX,
-      id: "mission-click-id",
-      body: { doc: { isBot: true } },
-    });
+    expect(elasticMock.update).toHaveBeenCalledTimes(1);
+    const updateArgs = elasticMock.update.mock.calls[0][0];
+    expect(updateArgs.index).toBe(STATS_INDEX);
+    expect(updateArgs.body).toEqual({ doc: { isBot: true } });
+    expect(updateArgs.id).toBe(indexCall[0].id);
   });
 
   it("uses mtm tracking parameters for Service Civique missions", async () => {
@@ -189,7 +189,7 @@ describe("RedirectController /:missionId/:publisherId", () => {
       expect(response.status).toBe(302);
       const redirectUrl = new URL(response.headers.location);
       expect(`${redirectUrl.origin}${redirectUrl.pathname}`).toBe("https://mission.example.com/apply");
-      expect(redirectUrl.searchParams.get("apiengagement_id")).toBe("mission-click-id");
+      expect(redirectUrl.searchParams.get("apiengagement_id")).toEqual(expect.any(String));
       expect(redirectUrl.searchParams.get("mtm_source")).toBe("api_engagement");
       expect(redirectUrl.searchParams.get("mtm_medium")).toBe("api");
       expect(redirectUrl.searchParams.get("mtm_campaign")).toBe("from-publisher");
