@@ -1,16 +1,14 @@
 import { NextFunction, Response, Router } from "express";
 import passport from "passport";
-import { v4 as uuidv4 } from "uuid";
 import zod from "zod";
 
-import { STATS_INDEX } from "../config";
-import esClient from "../db/elastic";
 import { captureMessage, INVALID_BODY, INVALID_PARAMS, INVALID_QUERY, NOT_FOUND } from "../error";
 import MissionModel from "../models/mission";
 import PublisherModel from "../models/publisher";
 import RequestModel from "../models/request";
 import { Publisher, Stats } from "../types";
 import { PublisherRequest } from "../types/passport";
+import statEventRepository from "../repositories/stat-event";
 
 const router = Router();
 
@@ -50,16 +48,16 @@ router.get("/:id", passport.authenticate(["apikey", "api"], { session: false }),
       return res.status(400).send({ ok: false, code: INVALID_PARAMS, error: params.error });
     }
 
-    const response = await esClient.get({ index: STATS_INDEX, id: params.data.id });
-    const data = { _id: response.body._id, ...response.body._source };
+    const statEvent = await statEventRepository.getStatEventById(params.data.id);
 
-    res.locals = { total: 1 };
-    return res.status(200).send({ ok: true, data });
-  } catch (error: any) {
-    if (error.statusCode === 404) {
+    if (!statEvent) {
       res.locals = { code: NOT_FOUND };
       return res.status(404).send({ ok: false, code: NOT_FOUND });
     }
+
+    res.locals = { total: 1 };
+    return res.status(200).send({ ok: true, data: statEvent });
+  } catch (error: any) {
     next(error);
   }
 });
@@ -78,15 +76,8 @@ const findMissionTemp = async (missionId: string) => {
     return mission;
   }
 
-  const response2 = await esClient.search({
-    index: STATS_INDEX,
-    body: { query: { term: { "missionId.keyword": missionId } }, size: 1 },
-  });
-  if (response2.body.hits.total.value > 0) {
-    const stats = {
-      _id: response2.body.hits.hits[0]._id,
-      ...response2.body.hits.hits[0]._source,
-    } as Stats;
+  const stats = await statEventRepository.findFirstByMissionId(missionId);
+  if (stats) {
     const mission = await MissionModel.findOne({
       clientId: stats.missionClientId?.toString(),
       publisherId: stats.toPublisherId,
@@ -165,8 +156,7 @@ router.post("/:missionId/:publisherId/click", async (req: PublisherRequest, res:
       type: "click",
     } as Stats;
 
-    const id = uuidv4();
-    await esClient.index({ index: STATS_INDEX, id, body: obj });
+    const id = await statEventRepository.createStatEvent(obj);
 
     return res.status(200).send({ ok: true, data: { ...obj, _id: id } });
   } catch (error: any) {
@@ -210,8 +200,10 @@ router.post("/:missionId/apply", passport.authenticate(["apikey", "api"], { sess
     let clickId;
     if (query.data.clickId) {
       try {
-        const response = await esClient.get({ index: STATS_INDEX, id: query.data.clickId });
-        clickId = { _id: response.body._id, ...response.body._source };
+        const response = await statEventRepository.getStatEventById(query.data.clickId);
+        if (response) {
+          clickId = response;
+        }
       } catch (error) {}
     }
 
@@ -246,8 +238,7 @@ router.post("/:missionId/apply", passport.authenticate(["apikey", "api"], { sess
       status: "PENDING",
     } as Stats;
 
-    const id = uuidv4();
-    await esClient.index({ index: STATS_INDEX, id, body: obj });
+    const id = await statEventRepository.createStatEvent(obj);
 
     return res.status(200).send({ ok: true, data: { ...obj, _id: id } });
   } catch (error: any) {
@@ -278,21 +269,21 @@ router.put("/:activityId", passport.authenticate(["apikey", "api"], { session: f
       return res.status(400).send({ ok: false, code: INVALID_PARAMS, error: body.error });
     }
 
-    const response = await esClient.get({ index: STATS_INDEX, id: params.data.activityId });
-    const stats = { _id: response.body._id, ...response.body._source };
+    const stats = await statEventRepository.getStatEventById(params.data.activityId);
+
+    if (!stats) {
+      res.locals = { code: NOT_FOUND };
+      return res.status(404).send({ ok: false, code: NOT_FOUND });
+    }
 
     const obj = {
       status: body.data.status,
     };
 
-    await esClient.update({ index: STATS_INDEX, id: params.data.activityId, body: { doc: obj } });
+    await statEventRepository.updateStatEventById(params.data.activityId, obj);
 
     return res.status(200).send({ ok: true, data: { ...stats, ...obj } });
   } catch (error: any) {
-    if (error.statusCode === 404) {
-      res.locals = { code: NOT_FOUND };
-      return res.status(404).send({ ok: false, code: NOT_FOUND });
-    }
     next(error);
   }
 });
