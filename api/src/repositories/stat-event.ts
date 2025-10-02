@@ -226,9 +226,14 @@ export async function createStatEvent(event: Stats): Promise<string> {
   // Render id here to share it between es and pg
   const id = event._id || uuidv4();
 
-  await esClient.index({ index: STATS_INDEX, id, body: toEs(event) });
+  const shouldWriteEs = getWriteStatsDual() || getReadStatsFrom() === "es";
+  const shouldWritePg = getWriteStatsDual() || getReadStatsFrom() === "pg";
 
-  if (getWriteStatsDual()) {
+  if (shouldWriteEs) {
+    await esClient.index({ index: STATS_INDEX, id, body: toEs(event) });
+  }
+
+  if (shouldWritePg) {
     try {
       await prismaCore.statEvent.create({ data: { id, ...toPg(event) } });
     } catch (error) {
@@ -243,9 +248,14 @@ export async function updateStatEventById(id: string, patch: Partial<Stats>, opt
   const data = toPg(patch, { includeDefaults: false });
   const { retryOnConflict } = options;
 
-  await esClient.update({ index: STATS_INDEX, id, body: { doc: patch }, retry_on_conflict: retryOnConflict });
+  const shouldWriteEs = getWriteStatsDual() || getReadStatsFrom() === "es";
+  const shouldWritePg = getWriteStatsDual() || getReadStatsFrom() === "pg";
 
-  if (getWriteStatsDual()) {
+  if (shouldWriteEs) {
+    await esClient.update({ index: STATS_INDEX, id, body: { doc: patch }, retry_on_conflict: retryOnConflict });
+  }
+
+  if (shouldWritePg) {
     try {
       await prismaCore.statEvent.update({ where: { id }, data });
     } catch (error) {
@@ -403,12 +413,9 @@ export async function countEvents({ type, user, clickUser, from }: CountEventsPa
     filters.push({ range: { createdAt: { gte: from.toISOString() } } });
   }
 
-  const body: Record<string, unknown> = { query: { match_all: {} } };
-  if (filters.length > 0) {
-    body.query = { bool: { filter: filters } } as EsQuery;
-  }
+  const queryBody = filters.length > 0 ? { bool: { filter: filters } } : { match_all: {} };
 
-  const res = await esClient.count({ index: STATS_INDEX, body });
+  const res = await esClient.count({ index: STATS_INDEX, body: { query: queryBody } });
   return res.body.count ?? 0;
 }
 
@@ -432,20 +439,21 @@ export async function hasRecentStatEventWithClickId({ type, clickId, since }: Ha
     }
   }
 
-  const body: EsQuery = {
-    query: {
-      bool: {
-        must: [
-          { term: { "type.keyword": type } },
-          { term: { "clickId.keyword": clickId } },
-          { range: { createdAt: { gte: since.toISOString() } } },
-        ],
-      },
+  const query: EsQuery = {
+    bool: {
+      must: [
+        { term: { "type.keyword": type } },
+        { term: { "clickId.keyword": clickId } },
+        { range: { createdAt: { gte: since.toISOString() } } },
+      ],
+      must_not: [],
+      should: [],
+      filter: [],
     },
   };
 
   try {
-    const { body: countBody } = await esClient.count({ index: STATS_INDEX, body });
+    const { body: countBody } = await esClient.count({ index: STATS_INDEX, body: { query } });
     return (countBody.count as number) > 0;
   } catch (error) {
     console.error(`[StatEvent] Error counting stat events for click ${clickId} in Elasticsearch:`, error);
