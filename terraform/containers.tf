@@ -49,6 +49,10 @@ resource "scaleway_container" "api" {
     "SCW_ACCESS_KEY"    = local.secrets.SCW_ACCESS_KEY
     "SCW_SECRET_KEY"    = local.secrets.SCW_SECRET_KEY
     "LETUDIANT_PILOTY_TOKEN" = local.secrets.LETUDIANT_PILOTY_TOKEN
+
+    # Feature flags ES migration
+    "WRITE_STATS_DUAL" = terraform.workspace == "staging" ? "true" : "false"
+    "READ_STATS_FROM" = "es"
   }
 }
 
