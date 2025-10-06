@@ -40,6 +40,7 @@ router.get("/apply", cors({ origin: "*" }), async (req: Request, res: Response) 
         view: zod.string().optional(),
         publisher: zod.string().optional(),
         mission: zod.string().optional(),
+        customAttributes: zod.string().optional(),
       })
       .safeParse(req.query);
 
@@ -50,6 +51,19 @@ router.get("/apply", cors({ origin: "*" }), async (req: Request, res: Response) 
 
     let click = null as Stats | null;
     let mission = null as HydratedDocument<Mission> | null;
+    let customAttributes: Record<string, unknown> | undefined;
+
+    if (query.data.customAttributes) {
+      try {
+        const parsed = JSON.parse(query.data.customAttributes);
+        if (parsed && typeof parsed === "object") {
+          customAttributes = parsed as Record<string, unknown>;
+        }
+      } catch (error) {
+        captureException(`[Apply] Invalid customAttributes`, JSON.stringify(error, null, 2));
+        return res.status(204).send();
+      }
+    }
     if (query.data.view) {
       const clickEvent = await getStatEventById(query.data.view);
       if (clickEvent) {
@@ -93,6 +107,10 @@ router.get("/apply", cors({ origin: "*" }), async (req: Request, res: Response) 
       missionClientId: query.data.mission || "",
       isBot: statBot ? true : false,
     } as Stats;
+
+    if (customAttributes) {
+      obj.customAttributes = customAttributes;
+    }
 
     if (mission) {
       obj.missionId = mission._id.toString();

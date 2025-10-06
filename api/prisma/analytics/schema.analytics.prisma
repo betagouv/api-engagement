@@ -58,6 +58,7 @@ model Apply {
   click_id        String?
   source_id       String?
   mission_old_id  String?
+  custom_attributes Json?
   campaign        Campaign?   @relation(fields: [campaign_id], references: [id])
   click           Click?      @relation(fields: [click_id], references: [id])
   from_partner    Partner?    @relation("FromApply", fields: [from_partner_id], references: [id])

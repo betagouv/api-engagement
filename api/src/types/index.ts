@@ -635,6 +635,7 @@ export interface Stats {
   source: "api" | "widget" | "campaign" | "seo" | "jstag" | "publisher";
   sourceId: string;
   sourceName: string;
+  customAttributes?: Record<string, unknown>;
   tag?: string;
   tags?: string[];
   type: "print" | "apply" | "click" | "account";
