@@ -1,6 +1,6 @@
 import { prismaAnalytics as prismaClient } from "../../../db/postgres";
 
-import { Apply } from "../../../db/analytics";
+import { Prisma } from "../../../db/analytics";
 import { captureException } from "../../../error";
 import statEventRepository from "../../../repositories/stat-event";
 import { Stats } from "../../../types";
@@ -60,7 +60,7 @@ const buildData = async (
     }
   }
 
-  const obj = {
+  const obj: Prisma.ApplyCreateManyInput = {
     old_id: doc._id,
     old_view_id: doc.clickId,
     mission_id: missionId ? missionId : null,
@@ -76,8 +76,11 @@ const buildData = async (
     to_partner_id: partnerToId,
     from_partner_id: partnerFromId,
     status: doc.status || null,
-    custom_attributes: (doc.customAttributes as any) ?? null,
-  } as Apply;
+    custom_attributes:
+      doc.customAttributes === undefined || doc.customAttributes === null
+        ? Prisma.NullableJsonNullValueInput.DbNull
+        : (doc.customAttributes as Prisma.InputJsonValue),
+  };
 
   return obj;
 };
@@ -155,8 +158,8 @@ const handler = async () => {
         .then((data) => data.forEach((d) => (missions[`${d.client_id}-${d.partner?.old_id}`] = d.id)));
       console.log(`[Applies] Found ${Object.keys(missions).length} missions in database PG`);
 
-      const dataToCreate = [] as Apply[];
-      const dataToUpdate = [] as Apply[];
+      const dataToCreate: Prisma.ApplyCreateManyInput[] = [];
+      const dataToUpdate: { oldId: string; data: Prisma.ApplyUncheckedUpdateInput }[] = [];
       const successIds: string[] = [];
       const failureIds: string[] = [];
 
@@ -187,7 +190,11 @@ const handler = async () => {
           console.log("UPDATE");
           console.log("status", stored[hit._id.toString()].status !== obj.status, stored[hit._id.toString()].status, obj.status);
           console.log("click_id", stored[hit._id.toString()].click_id !== obj.click_id, stored[hit._id.toString()].click_id, obj.click_id);
-          dataToUpdate.push(obj);
+          const { old_id, ...updateData } = obj;
+          dataToUpdate.push({
+            oldId: old_id,
+            data: updateData as Prisma.ApplyUncheckedUpdateInput,
+          });
         } else if (!stored[hit._id.toString()]) {
           dataToCreate.push(obj);
         } else {
@@ -202,11 +209,11 @@ const handler = async () => {
         try {
           const res = await prismaClient.apply.createMany({ data: dataToCreate, skipDuplicates: true });
           created += res.count;
-          successIds.push(...dataToCreate.map((t) => (t as any).old_id));
+          successIds.push(...dataToCreate.map((t) => t.old_id));
           console.log(`[Applies] Created ${res.count} docs, ${created} created so far.`);
         } catch (error) {
           captureException(error, "[Applies] Error during bulk createMany to PG");
-          failureIds.push(...dataToCreate.map((t) => (t as any).old_id));
+          failureIds.push(...dataToCreate.map((t) => t.old_id));
         }
       }
 
@@ -214,9 +221,9 @@ const handler = async () => {
         console.log(`[Applies] Updating ${dataToUpdate.length} docs.`);
         const transactions = [];
         const toMarkUpdated: string[] = [];
-        for (const obj of dataToUpdate) {
-          transactions.push(prismaClient.apply.update({ where: { old_id: obj.old_id }, data: obj }));
-          toMarkUpdated.push((obj as any).old_id);
+        for (const { oldId, data } of dataToUpdate) {
+          transactions.push(prismaClient.apply.update({ where: { old_id: oldId }, data }));
+          toMarkUpdated.push(oldId);
         }
         for (let i = 0; i < transactions.length; i += 100) {
           await prismaClient.$transaction(transactions.slice(i, i + 100));
