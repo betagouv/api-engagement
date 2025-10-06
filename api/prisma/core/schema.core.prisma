@@ -51,6 +51,7 @@ model StatEvent {
   source                      StatSource
   source_id                   String
   source_name                 String
+  custom_attributes           Json?
   status                      StatEventStatus
 
   from_publisher_id           String

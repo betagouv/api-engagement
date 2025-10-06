@@ -320,4 +320,61 @@ describe("RedirectController /apply", () => {
       missionClientId: "mission-client-id",
     });
   });
+
+  it("records apply stats with custom attributes when provided", async () => {
+    const identity = {
+      user: "custom-identity-user",
+      referer: "https://custom-referrer.example.com",
+      userAgent: "Mozilla/5.0",
+    };
+
+    vi.spyOn(utils, "identify").mockReturnValue(identity);
+    vi.spyOn(StatsBotModel, "findOne").mockResolvedValue(null);
+
+    const clickStat = {
+      user: "click-user",
+      source: "publisher",
+      sourceId: "source-id",
+      sourceName: "Source Name",
+      fromPublisherId: "source-publisher-id",
+      fromPublisherName: "Source Publisher",
+      toPublisherId: "to-publisher-id",
+      toPublisherName: "To Publisher",
+    };
+
+    elasticMock.get.mockResolvedValueOnce({
+      body: {
+        _id: "click-789",
+        _source: clickStat,
+      },
+    });
+
+    const customAttributes = { candidateId: "candidate-123", metadata: { source: "asc" } };
+
+    const response = await request(app)
+      .get("/r/apply")
+      .query({ view: "click-789", customAttributes: JSON.stringify(customAttributes) });
+
+    expect(response.status).toBe(200);
+    const [applyCall] = elasticMock.index.mock.calls.slice(-1);
+    expect(applyCall[0].body).toMatchObject({
+      customAttributes,
+    });
+  });
+
+  it("returns 204 when custom attributes payload is invalid JSON", async () => {
+    vi.spyOn(utils, "identify").mockReturnValue({
+      user: "invalid-identity-user",
+      referer: "https://invalid.example.com",
+      userAgent: "Mozilla/5.0",
+    });
+
+    const response = await request(app)
+      .get("/r/apply")
+      .query({ view: "click-invalid", customAttributes: "{invalid" });
+
+    expect(response.status).toBe(204);
+    expect(elasticMock.get).not.toHaveBeenCalled();
+    expect(elasticMock.index).not.toHaveBeenCalled();
+  });
 });

@@ -166,7 +166,7 @@
         return null;
       }),
       // Application
-      (window._apieng.trackApplication = function (m) {
+      (window._apieng.trackApplication = function (m, c) {
         let e = window._apieng.getQueryParameter("apiengagement_id");
         if ((null != e && window._apieng.setCookieValue("apiengagement", e), e || (e = window._apieng.getCookieValue("apiengagement")), console.log("trackApplication: ", e), !e))
           return;
@@ -176,6 +176,17 @@
         if (window.location.href) o.append("url", window.location.href);
         if (window._apieng.accountId) o.append("publisher", window._apieng.accountId);
         if (m) o.append("mission", m);
+        if (c) {
+          let t = c;
+          if ("object" == typeof c) {
+            try {
+              t = JSON.stringify(c);
+            } catch (n) {
+              t = null;
+            }
+          }
+          t && o.append("customAttributes", t);
+        }
         fetch(window._apieng.eventHost + n + "?" + o);
       }),
       // Account

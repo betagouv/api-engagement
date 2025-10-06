@@ -76,6 +76,7 @@ const buildData = async (
     to_partner_id: partnerToId,
     from_partner_id: partnerFromId,
     status: doc.status || null,
+    custom_attributes: (doc.customAttributes as any) ?? null,
   } as Apply;
 
   return obj;
