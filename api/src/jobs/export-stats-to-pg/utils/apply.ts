@@ -77,9 +77,7 @@ const buildData = async (
     from_partner_id: partnerFromId,
     status: doc.status || null,
     custom_attributes:
-      doc.customAttributes === undefined || doc.customAttributes === null
-        ? Prisma.NullableJsonNullValueInput.DbNull
-        : (doc.customAttributes as Prisma.InputJsonValue),
+      doc.customAttributes === undefined || doc.customAttributes === null ? Prisma.NullableJsonNullValueInput.DbNull : (doc.customAttributes as Prisma.InputJsonValue),
   };
 
   return obj;
@@ -146,7 +144,7 @@ const handler = async () => {
       }
 
       const missions = {} as { [key: string]: string };
-      const missionIds = new Set<string>(data.map((hit: Stats) => hit.missionClientId?.toString()).filter((id) => id !== undefined));
+      const missionIds = new Set<string>(data.map((hit: Stats) => hit.missionClientId?.toString()).filter((id): id is string => id !== undefined));
 
       await prismaClient.mission
         .findMany({
