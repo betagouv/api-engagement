@@ -51,7 +51,7 @@ resource "scaleway_container" "api" {
     "LETUDIANT_PILOTY_TOKEN" = local.secrets.LETUDIANT_PILOTY_TOKEN
 
     # Feature flags ES migration
-    "WRITE_STATS_DUAL" = terraform.workspace == "staging" ? "true" : "false"
+    "WRITE_STATS_DUAL" = "true"
     "READ_STATS_FROM" = "es"
   }
 }
