@@ -35,6 +35,10 @@ resource "scaleway_container" "api" {
     "PILOTY_BASE_URL" = local.piloty_hostname
     "BUCKET_NAME"   = local.bucket_name
     "SLACK_JOBTEASER_CHANNEL_ID" = terraform.workspace == "production" ? "C080H9MH56W" : ""
+      
+    # Feature flags ES migration
+    "WRITE_STATS_DUAL" = "true"
+    "READ_STATS_FROM" = "es"
   }
 
   secret_environment_variables = {
@@ -49,10 +53,6 @@ resource "scaleway_container" "api" {
     "SCW_ACCESS_KEY"    = local.secrets.SCW_ACCESS_KEY
     "SCW_SECRET_KEY"    = local.secrets.SCW_SECRET_KEY
     "LETUDIANT_PILOTY_TOKEN" = local.secrets.LETUDIANT_PILOTY_TOKEN
-
-    # Feature flags ES migration
-    "WRITE_STATS_DUAL" = "true"
-    "READ_STATS_FROM" = "es"
   }
 }
 

@@ -1,6 +1,4 @@
 import dotenv from "dotenv";
-import fs from "node:fs/promises";
-import path from "node:path";
 
 const args = process.argv.slice(2);
 
@@ -38,27 +36,6 @@ const esClient = require("../db/elastic").default;
 const { prismaCore } = require("../db/postgres");
 const { STATS_INDEX } = require("../config");
 const { captureException } = require("../error");
-
-// Persist backfill state in a local file within the es-backfill directory
-const STATE_FILE = path.join(__dirname, "backfill-state.json");
-
-type BackfillState = {
-  lastCreatedAt?: string;
-};
-
-const getState = async (): Promise<BackfillState> => {
-  try {
-    const raw = await fs.readFile(STATE_FILE, "utf-8");
-    const parsed = JSON.parse(raw);
-    return parsed && typeof parsed === "object" ? parsed : {};
-  } catch (e: any) {
-    if (e && e.code === "ENOENT") {
-      return {};
-    }
-    console.warn("[Verify] Unable to read state file, starting fresh:", e?.message ?? e);
-    return {};
-  }
-};
 
 const verifyCounts = async (start: Date, end: Date) => {
   const esRes: any = await esClient.search({
@@ -139,8 +116,7 @@ const spotCheckIds = async (start: Date, end: Date) => {
 
 const handler = async () => {
   try {
-    const state = await getState();
-    const end = state.lastCreatedAt ? new Date(state.lastCreatedAt) : new Date();
+    const end = new Date();
     const start = new Date(end);
     start.setDate(start.getDate() - 7);
     console.log(`[Verify] Comparing counts between ${start.toISOString()} and ${end.toISOString()}`);
