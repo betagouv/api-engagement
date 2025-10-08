@@ -31,9 +31,56 @@ jobs:
             widget:
               - 'widget/**'
 
+  api-migrations:
+    name: Verify API migrations
+    needs: changes
+    if: needs.changes.outputs.api == 'true'
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: postgres
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: "18"
+          cache: "npm"
+          cache-dependency-path: "api/package-lock.json"
+
+      - name: Install dependencies
+        run: cd api && npm ci
+
+      - name: Prepare temporary databases
+        env:
+          PGPASSWORD: postgres
+        run: |
+          psql -h localhost -U postgres -d postgres -c 'CREATE DATABASE core;'
+          psql -h localhost -U postgres -d postgres -c 'CREATE DATABASE analytics;'
+
+      - name: Check Prisma migrations
+        working-directory: api
+        env:
+          DATABASE_URL_CORE: postgresql://postgres:postgres@localhost:5432/core
+          DATABASE_URL_ANALYTICS: postgresql://postgres:postgres@localhost:5432/analytics
+        run: npm run prisma:migrate:deploy
+
   api-tests:
     name: API Tests
-    needs: changes
+    needs:
+      - changes
+      - api-migrations
     if: needs.changes.outputs.api == 'true'
     runs-on: ubuntu-latest
     permissions:
