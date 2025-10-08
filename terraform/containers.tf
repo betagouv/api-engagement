@@ -37,7 +37,7 @@ resource "scaleway_container" "api" {
     "SLACK_JOBTEASER_CHANNEL_ID" = terraform.workspace == "production" ? "C080H9MH56W" : ""
       
     # Feature flags ES migration
-    "WRITE_STATS_DUAL" = terraform.workspace == "production" ? "false" : "true"
+    "WRITE_STATS_DUAL" = "true"
     "READ_STATS_FROM" = "es"
   }
 
