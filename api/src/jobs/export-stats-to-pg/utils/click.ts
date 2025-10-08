@@ -91,15 +91,15 @@ const buildData = async (
     created_at: new Date(doc.createdAt),
     url_origin: getReferer(doc),
     tag: doc.tag,
-    tags: doc.tags,
+    tags: Array.isArray(doc.tags) ? doc.tags : [],
     source: !doc.source || doc.source === "publisher" ? "api" : doc.source,
     source_id: sourceId ? sourceId : null,
     campaign_id: sourceId && doc.source === "campaign" ? sourceId : null,
     widget_id: sourceId && doc.source === "widget" ? sourceId : null,
     to_partner_id: partnerToId,
     from_partner_id: partnerFromId,
-    is_bot: doc.isBot || null,
-    is_human: doc.isHuman || null,
+    is_bot: typeof doc.isBot === "boolean" ? doc.isBot : false,
+    is_human: typeof doc.isHuman === "boolean" ? doc.isHuman : false,
   } as Click;
 
   return obj;
@@ -149,12 +149,12 @@ const handler = async () => {
       console.log(`[Clicks] Found ${data.length} docs in stats storage, processed ${processed} docs so far, ${total - processed} docs left.`);
 
       const missions = {} as { [key: string]: string };
-      const missionIds = new Set<string>(data.map((hit: Stats) => hit.missionId?.toString()).filter((id: string | undefined) => id !== undefined));
+      const missionIds = new Set<string>((data as Stats[]).map((hit) => hit.missionId?.toString()).filter((id): id is string => typeof id === "string"));
       if (missionIds.size) {
         await prismaClient.mission
           .findMany({
             where: {
-              old_id: { in: Array.from(missionIds).filter((id) => id !== undefined) },
+              old_id: { in: Array.from(missionIds) },
             },
             select: { id: true, old_id: true },
           })

@@ -120,7 +120,7 @@ const handler = async () => {
       console.log(`[Prints] Found ${data.length} docs in stats storage, processed ${processed} docs so far, ${total - processed} docs left.`);
 
       const missions = {} as { [key: string]: string };
-      const missionIds = new Set<string>(data.map((hit: Stats) => hit.missionClientId?.toString()).filter((id: string | undefined) => id !== undefined));
+      const missionIds = new Set<string>((data as Stats[]).map((hit) => hit.missionId?.toString()).filter((id): id is string => typeof id === "string"));
 
       await prismaClient.mission
         .findMany({
