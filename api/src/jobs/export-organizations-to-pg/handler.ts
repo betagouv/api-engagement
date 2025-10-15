@@ -23,9 +23,9 @@ export interface ExportOrganizationsToPgResult extends JobResult {
 }
 
 type BatchItem = {
-  _id: ObjectId,
-  updatedAt: Date,
-}
+  _id: ObjectId;
+  updatedAt: Date;
+};
 
 const isDateEqual = (a: Date, b: Date) => new Date(a).getTime() === new Date(b).getTime();
 
@@ -51,11 +51,7 @@ export class ExportOrganizationsToPgHandler implements BaseHandler<ExportOrganiz
 
       const start = new Date();
       console.log(`[Organization] Fetching docs from ${start.toISOString()}`);
-      const cursor = OrganizationModel.find(where)
-        .select("_id updatedAt")
-        .sort({ _id: 1 })
-        .lean()
-        .cursor({ batchSize: BULK_SIZE });
+      const cursor = OrganizationModel.find(where).select("_id updatedAt").sort({ _id: 1 }).lean().cursor({ batchSize: BULK_SIZE });
 
       const buffer: BatchItem[] = [];
 
@@ -71,7 +67,7 @@ export class ExportOrganizationsToPgHandler implements BaseHandler<ExportOrganiz
         if (buffer.length === BULK_SIZE) {
           await this.processBatch(buffer, batchFetchAt, counter);
 
-          console.log(`[Organization] Processed ${counter.processed} / ${countToSync} docs`)
+          console.log(`[Organization] Processed ${counter.processed} / ${countToSync} docs`);
           buffer.length = 0;
         }
       }
@@ -79,7 +75,7 @@ export class ExportOrganizationsToPgHandler implements BaseHandler<ExportOrganiz
       if (buffer.length > 0) {
         await this.processBatch(buffer, batchFetchAt, counter);
 
-        console.log(`[Organization] Processed ${counter.processed} / ${countToSync} docs`)
+        console.log(`[Organization] Processed ${counter.processed} / ${countToSync} docs`);
         buffer.length = 0;
       }
 
@@ -99,10 +95,7 @@ export class ExportOrganizationsToPgHandler implements BaseHandler<ExportOrganiz
     }
   }
 
-  private async processCreate(
-    dataToCreate: PgOrganization[],
-    counter: ExportOrganizationsToPgResult["counter"],
-  ): Promise<boolean> {
+  private async processCreate(dataToCreate: PgOrganization[], counter: ExportOrganizationsToPgResult["counter"]): Promise<boolean> {
     if (!dataToCreate.length) {
       return true;
     }
@@ -122,10 +115,7 @@ export class ExportOrganizationsToPgHandler implements BaseHandler<ExportOrganiz
     }
   }
 
-  private async processUpdate(
-    dataToUpdate: PgOrganization[],
-    counter: ExportOrganizationsToPgResult["counter"],
-  ): Promise<boolean> {
+  private async processUpdate(dataToUpdate: PgOrganization[], counter: ExportOrganizationsToPgResult["counter"]): Promise<boolean> {
     if (!dataToUpdate.length) {
       return true;
     }
@@ -144,11 +134,7 @@ export class ExportOrganizationsToPgHandler implements BaseHandler<ExportOrganiz
     return true;
   }
 
-  private async processBatch(
-    batch: BatchItem[],
-    fetchedAt: number,
-    counter: ExportOrganizationsToPgResult["counter"],
-  ) {
+  private async processBatch(batch: BatchItem[], fetchedAt: number, counter: ExportOrganizationsToPgResult["counter"]) {
     if (!batch.length) {
       return;
     }
@@ -239,15 +225,9 @@ export class ExportOrganizationsToPgHandler implements BaseHandler<ExportOrganiz
     }
 
     if (createSuccess && updateSuccess) {
-      await OrganizationModel.updateMany(
-        { _id: { $in: batch.map((hit) => hit._id) } },
-        { $set: { lastExportedToPgAt: new Date() } },
-        { timestamps: false },
-      );
+      await OrganizationModel.updateMany({ _id: { $in: batch.map((hit) => hit._id) } }, { $set: { lastExportedToPgAt: new Date() } }, { timestamps: false });
 
-      console.log(
-        `[Organization] Processed batch in ${(Date.now() - batchStart) / 1000}s.`,
-      );
+      console.log(`[Organization] Processed batch in ${(Date.now() - batchStart) / 1000}s.`);
     }
   }
 }
