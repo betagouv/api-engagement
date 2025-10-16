@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import { Helmet } from "react-helmet-async";
 import { AiFillCloseCircle } from "react-icons/ai";
 import { IoMdEye, IoMdEyeOff } from "react-icons/io";
 import { RiCheckboxCircleFill, RiErrorWarningFill } from "react-icons/ri";
@@ -37,9 +36,7 @@ const ResetPassword = () => {
 
   return (
     <div className="h-full w-full bg-white px-32 py-10">
-      <Helmet>
-        <title>Réinitialisation du mot de passe - API Engagement</title>
-      </Helmet>
+      <title>Réinitialisation du mot de passe - API Engagement</title>
       {error === "invalide" ? (
         <ErrorAlert>
           <p className="text-xl font-bold">La clé n'est pas valide</p>

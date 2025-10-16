@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import { HelmetProvider } from "react-helmet-async";
 import { BrowserRouter, Navigate, Outlet, Route, Routes, useLocation, useNavigate } from "react-router-dom";
 import { ToastContainer } from "react-toastify";
 
@@ -59,9 +58,8 @@ const App = () => {
         position="top-right"
         autoClose={5000}
       />
-      <HelmetProvider>
-        <BrowserRouter>
-          <Routes>
+      <BrowserRouter>
+        <Routes>
             <Route element={<AuthLayout />}>
               <Route path="/login" element={<Login />} />
               <Route path="/signup" element={<Signup />} />
@@ -97,9 +95,8 @@ const App = () => {
               </Route>
             </Route>
             <Route path="*" element={<Navigate to="/performance" />} />
-          </Routes>
-        </BrowserRouter>
-      </HelmetProvider>
+        </Routes>
+      </BrowserRouter>
     </>
   );
 };

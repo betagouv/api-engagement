@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import { Helmet } from "react-helmet-async";
 import { RiCheckboxCircleFill, RiFileDownloadLine, RiInformationLine } from "react-icons/ri";
 import { Link, useSearchParams } from "react-router-dom";
 
@@ -155,9 +154,7 @@ const Flux = ({ moderated }) => {
 
   return (
     <div className="space-y-12 p-12">
-      <Helmet>
-        <title>Missions partagées - Vos Missions - API Engagement</title>
-      </Helmet>
+      <title>Missions partagées - Vos Missions - API Engagement</title>
       {moderated && !hideAlert && (
         <InfoAlert onClose={() => setHideAlert(true)}>
           <p className="text-base">Pour toutes les missions acceptées par l’API, JeVeuxAider.gouv.fr pratique une modération avant de les diffuser.</p>

@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import { Helmet } from "react-helmet-async";
 import { HiChevronRight } from "react-icons/hi";
 import { Link, useSearchParams } from "react-router-dom";
 
@@ -50,10 +49,7 @@ const Apercu = () => {
 
   return (
     <div className="space-y-12 p-12">
-      <Helmet>
-        <title>Aperçu - Statistiques - Administration - API Engagement</title>
-      </Helmet>
-
+      <title>Aperçu - Statistiques - Administration - API Engagement</title>
       {stickyVisible && (
         <div className="fixed top-0 left-0 z-50 w-full items-center justify-center bg-white px-48 py-4 shadow-lg">
           <div className="flex items-end gap-4">
