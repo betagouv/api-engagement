@@ -70,13 +70,13 @@ const Edit = () => {
     const fetchData = async () => {
       if (!campaign) return;
       try {
-        const resC = await api.post(`/stats/search`, { type: "click", sourceId: id, size: 0, fromPublisherId: campaign.fromPublisherId });
+        const resC = await api.post(`/stats/search`, { type: "click", sourceId: id, size: 1, fromPublisherId: campaign.fromPublisherId });
         if (!resC.ok) throw resC;
 
-        const resI = await api.post(`/stats/search`, { type: "print", sourceId: id, size: 0, fromPublisherId: campaign.fromPublisherId });
+        const resI = await api.post(`/stats/search`, { type: "print", sourceId: id, size: 1, fromPublisherId: campaign.fromPublisherId });
         if (!resI.ok) throw resI;
 
-        if (resC.total > 0 && resI.total === 0) setTracking(true);
+        if ((resC.data?.length || 0) > 0 && (resI.data?.length || 0) === 0) setTracking(true);
       } catch (error) {
         captureError(error, "Erreur lors de la récupération des données");
       }
