@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import { Helmet } from "react-helmet-async";
 import { RiAddFill, RiEditFill, RiEyeFill, RiSearchLine } from "react-icons/ri";
 import { Link } from "react-router-dom";
 
@@ -57,9 +56,7 @@ const Widgets = () => {
 
   return (
     <div className="space-y-6 p-12">
-      <Helmet>
-        <title>Widgets - Diffuser des missions - API Engagement</title>
-      </Helmet>
+      <title>Widgets - Diffuser des missions - API Engagement</title>
       <div className="mb-10 flex items-center justify-between gap-4">
         <div className="relative flex-1">
           <label htmlFor="widget-search" className="sr-only">

@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import { Helmet } from "react-helmet-async";
 import DateRangePicker from "../../components/NewDateRangePicker";
 import useStore from "../../services/store";
 
@@ -86,9 +85,7 @@ const Mean = ({ filters, onFiltersChange }) => {
 
   return (
     <div className="space-y-12 p-12">
-      <Helmet>
-        <title>Moyens de diffusion - Performance - API Engagement</title>
-      </Helmet>
+      <title>Moyens de diffusion - Performance - API Engagement</title>
       <div className="flex items-center justify-between">
         <div className="space-y-2">
           <label className="text-gray-425 text-sm font-semibold uppercase">Période</label>

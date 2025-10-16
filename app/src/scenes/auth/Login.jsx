@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import { Helmet } from "react-helmet-async";
 import { RiErrorWarningFill } from "react-icons/ri";
 import { Link, useNavigate } from "react-router-dom";
 
@@ -58,10 +57,7 @@ const Login = () => {
 
   return (
     <form onSubmit={handleSubmit} className="flex h-full flex-col bg-white px-32 py-10">
-      <Helmet>
-        <title>Connexion - API Engagement</title>
-      </Helmet>
-
+      <title>Connexion - API Engagement</title>
       <h1 className="text-4xl font-bold">Accedez à votre espace</h1>
 
       <label className="mt-6 mb-2 text-sm" htmlFor="email">

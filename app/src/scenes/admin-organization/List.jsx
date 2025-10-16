@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import { Helmet } from "react-helmet-async";
 import { RiCheckboxCircleFill, RiCloseCircleFill } from "react-icons/ri";
 import { Link, useSearchParams } from "react-router-dom";
 
@@ -49,9 +48,7 @@ const List = () => {
 
   return (
     <div className="space-y-12 bg-white p-12 shadow-lg">
-      <Helmet>
-        <title>RNA - Administration - API Engagement</title>
-      </Helmet>
+      <title>RNA - Administration - API Engagement</title>
       <div className="flex items-center justify-between">
         <h2 className="flex-1 text-2xl font-semibold">{total.toLocaleString("fr")} d'associations référencées</h2>
 

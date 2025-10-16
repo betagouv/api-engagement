@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import { Helmet } from "react-helmet-async";
 import { useNavigate, useSearchParams } from "react-router-dom";
 
 import ModerationAutoIcon from "../../../assets/svg/moderation-auto.svg";
@@ -129,9 +128,7 @@ const Moderation = () => {
 
   return (
     <div className="space-y-12 py-12">
-      <Helmet>
-        <title>Modération - Diffuser des missions - API Engagement</title>
-      </Helmet>
+      <title>Modération - Diffuser des missions - API Engagement</title>
       <MissionModal
         onChange={(values) => {
           setData(data.map((d) => (d._id === values._id ? { ...d, ...values } : d)));

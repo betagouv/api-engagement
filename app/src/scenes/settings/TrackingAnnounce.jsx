@@ -1,4 +1,3 @@
-import { Helmet } from "react-helmet-async";
 import { toast } from "react-toastify";
 
 import { BiSolidInfoSquare } from "react-icons/bi";
@@ -26,9 +25,7 @@ const TrackingAnnounce = () => {
 
   return (
     <div className="space-y-12 p-12">
-      <Helmet>
-        <title>Tracking des événements - Paramètres - API Engagement</title>
-      </Helmet>
+      <title>Tracking des événements - Paramètres - API Engagement</title>
       <div className="space-y-8 border border-gray-900 p-8">
         <h2 className="text-2xl font-bold">Tracking des événements</h2>
 

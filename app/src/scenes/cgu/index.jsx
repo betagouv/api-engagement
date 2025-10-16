@@ -1,12 +1,8 @@
-import { Helmet } from "react-helmet-async";
 
 const Index = () => {
   return (
     <>
-      <Helmet>
-        <title>Conditions Générales d’Utilisation</title>
-      </Helmet>
-
+      <title>Conditions Générales d’Utilisation</title>
       <div className="mx-auto my-14 w-4/5 max-w-[1200px] flex-1 space-y-10">
         <h1 className="mb-2 text-4xl font-bold">Conditions Générales d’Utilisation</h1>
 

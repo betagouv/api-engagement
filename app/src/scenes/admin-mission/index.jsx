@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import { Helmet } from "react-helmet-async";
 import { RiCheckboxCircleFill, RiFileDownloadLine, RiInformationLine } from "react-icons/ri";
 import { Link, useSearchParams } from "react-router-dom";
 
@@ -159,9 +158,7 @@ const AdminMission = () => {
 
   return (
     <div className="space-y-12 bg-white p-12 shadow-lg">
-      <Helmet>
-        <title>Missions - Administration - API Engagement</title>
-      </Helmet>
+      <title>Missions - Administration - API Engagement</title>
       <div className="space-y-4">
         <SearchInput className="w-96" value={filters.search} onChange={(search) => setFilters({ ...filters, search })} placeholder="Rechercher par mot-clé" />
         <div className="flex items-center gap-4">

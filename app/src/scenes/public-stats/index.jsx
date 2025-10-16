@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import { Helmet } from "react-helmet-async";
 
 import { useSearchParams } from "react-router-dom";
 import dataViz from "../../assets/svg/data-visualization.svg";
@@ -29,9 +28,7 @@ const PublicStats = () => {
 
   return (
     <div className="flex w-full flex-col bg-white">
-      <Helmet>
-        <title>Statistiques - API Engagement</title>
-      </Helmet>
+      <title>Statistiques - API Engagement</title>
       <div className="mx-auto my-14 w-4/5 max-w-[1200px] flex-1">
         <div className="flex justify-between">
           <div>
