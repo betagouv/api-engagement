@@ -128,6 +128,7 @@ export const reassignStats = async (where: ReassignStatsWhere, update: ReassignS
     let processed = 0;
     let scrollId = null;
 
+    let encounteredBulkErrors = false;
     while (true) {
       let hits = [];
 
@@ -166,10 +167,16 @@ export const reassignStats = async (where: ReassignStatsWhere, update: ReassignS
       processed += response.items.length;
 
       if (response.errors) {
+        encounteredBulkErrors = true;
         processed -= response.items.filter((item: any) => item.update?.error).length;
         const errors = response.items.filter((item: any) => item.update && item.update.error);
         captureException("Reassign stats failed", JSON.stringify(errors, null, 2));
       }
+    }
+
+    if (encounteredBulkErrors) {
+      console.warn("Skipping PostgreSQL update due to Elasticsearch bulk errors");
+      return processed;
     }
 
     if (shouldWriteStatsDual()) {
