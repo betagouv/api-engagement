@@ -58,7 +58,10 @@ const ES_KEYWORD_FIELDS: Set<ReassignStatsField> = new Set([
 const shouldWriteStatsDual = () => process.env.WRITE_STATS_DUAL === "true";
 
 const camelToSnake = (value: string) =>
-  value.replace(/([a-z0-9])([A-Z])/g, "$1_$2").replace(/([A-Z])([A-Z][a-z])/g, "$1_$2").toLowerCase();
+  value
+    .replace(/([a-z0-9])([A-Z])/g, "$1_$2")
+    .replace(/([A-Z])([A-Z][a-z])/g, "$1_$2")
+    .toLowerCase();
 
 const toEsField = (field: ReassignStatsField) => {
   if (field === "id") {
@@ -133,7 +136,14 @@ export const reassignStats = async (where: ReassignStatsWhere, update: ReassignS
       let hits = [];
 
       if (scrollId) {
-        const { body } = await esClient.scroll({
+        const {
+          body,
+        }: {
+          body: {
+            _scroll_id?: string | null;
+            hits: { hits: Array<{ _id: string }> };
+          };
+        } = await esClient.scroll({
           scroll: "20m",
           scroll_id: scrollId,
         });
