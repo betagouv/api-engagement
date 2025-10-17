@@ -1,8 +1,8 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Helmet } from "react-helmet-async";
 import { useSearchParams } from "react-router-dom";
 
-import TablePagination from "../../components/NewTablePagination";
+import Table from "../../components/NewTable";
 import RadioInput from "../../components/RadioInput";
 import api from "../../services/api";
 import { API_URL } from "../../services/config";
@@ -11,25 +11,36 @@ import useStore from "../../services/store";
 import { timeSince } from "../../services/utils";
 
 const TABLE_HEADER = [{ title: "Mission", colSpan: 2 }, { title: "Type" }, { title: "Source" }, { title: "Destination" }, { title: "Activité", position: "right" }];
+const MAX_EVENTS = 25;
 
 const RealTime = () => {
   const { publisher, flux } = useStore();
   const [searchParams, setSearchParams] = useSearchParams();
-  const [filters, setFilters] = useState({
-    type: searchParams.get("type") || "print",
-    page: searchParams.get("page") || 1,
-    pageSize: searchParams.get("pageSize") || 25,
-  });
-  const [data, setData] = useState([]);
-  const [total, setTotal] = useState(0);
+  const [type, setType] = useState(searchParams.get("type") || "print");
+  const [events, setEvents] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  const titleSuffix = useMemo(
+    () => ({ apply: "des candidatures", click: "des redirections", print: "des impressions", account: "des créations de compte" }[type] || "des activités"),
+    [type]
+  );
+
+  const descriptionSuffix = useMemo(
+    () =>
+      ({
+        apply: " des dernières candidatures",
+        click: " des dernières redirections",
+        print: " des dernières impressions",
+      }[type] || " de toutes les dernières activités"),
+    [type]
+  );
 
   useEffect(() => {
     const fetchData = async () => {
       try {
         const query = {
-          type: filters.type,
-          size: filters.pageSize,
-          skip: (filters.page - 1) * filters.pageSize,
+          type,
+          size: MAX_EVENTS,
         };
 
         if (flux === "from") query.fromPublisherId = publisher._id;
@@ -38,17 +49,21 @@ const RealTime = () => {
         const res = await api.post("/stats/search", query);
 
         if (!res.ok) throw res;
-        setData(res.data);
-        setTotal(res.total);
-        setSearchParams({ type: filters.type });
+        setEvents((res.data || []).slice(0, MAX_EVENTS));
+        setSearchParams(type ? { type } : {});
       } catch (error) {
         captureError(error, "Une erreur est survenue lors de la récupération des données");
       }
+      setLoading(false);
     };
-    fetchData();
-  }, [filters, flux, publisher]);
 
-  if (!data) return <h2 className="p-3">Chargement...</h2>;
+    if (!publisher?._id) {
+      return;
+    }
+
+    setLoading(true);
+    fetchData();
+  }, [flux, publisher, setSearchParams, type]);
 
   return (
     <div className="space-y-12 p-12">
@@ -58,32 +73,26 @@ const RealTime = () => {
       <div className="space-y-8 border border-gray-900 p-8">
         <div className="flex items-center justify-between gap-4">
           <div className="w-[40%] space-y-2">
-            <h2 className="text-3xl font-bold">
-              Activité {{ apply: "des candidatures", click: "des redirections", print: "des impressions", account: "des créations de compte" }[filters.type]} en temps réel
-            </h2>
-            <p className="text-gray-425 mb-4 text-xs">
-              L'historique
-              {{ apply: " des dernières candidatures", click: " des dernières redirections", impressions: " des dernières impressions" }[filters.type] ||
-                " de toutes les dernières activités"}
-            </p>
+            <h2 className="text-3xl font-bold">Activité {titleSuffix} en temps réel</h2>
+            <p className="text-gray-425 mb-4 text-xs">L'historique{descriptionSuffix}</p>
           </div>
           <div className="flex items-center gap-4">
-            <RadioInput id="type-print" name="type" value="print" label="Impressions" checked={filters.type === "print"} onChange={(e) => setFilters({ type: e.target.value })} />
-            <RadioInput id="type-click" name="type" value="click" label="Redirections" checked={filters.type === "click"} onChange={(e) => setFilters({ type: e.target.value })} />
-            <RadioInput id="type-apply" name="type" value="apply" label="Candidatures" checked={filters.type === "apply"} onChange={(e) => setFilters({ type: e.target.value })} />
+            <RadioInput id="type-print" name="type" value="print" label="Impressions" checked={type === "print"} onChange={(e) => setType(e.target.value)} />
+            <RadioInput id="type-click" name="type" value="click" label="Redirections" checked={type === "click"} onChange={(e) => setType(e.target.value)} />
+            <RadioInput id="type-apply" name="type" value="apply" label="Candidatures" checked={type === "apply"} onChange={(e) => setType(e.target.value)} />
             <RadioInput
               id="type-account"
               name="type"
               value="account"
               label="Créations de compte"
-              checked={filters.type === "account"}
-              onChange={(e) => setFilters({ type: e.target.value })}
+              checked={type === "account"}
+              onChange={(e) => setType(e.target.value)}
             />
           </div>
         </div>
 
-        <TablePagination header={TABLE_HEADER} page={filters.page} total={total} pageSize={filters.pageSize} onPageChange={(page) => setFilters({ ...filters, page })}>
-          {data.map((item, i) => (
+        <Table header={TABLE_HEADER} total={events.length} loading={loading}>
+          {events.map((item, i) => (
             <tr key={i} className={`${i % 2 === 0 ? "bg-gray-975" : "bg-gray-1000-active"} table-item`}>
               <td colSpan={2} className="px-4">
                 {item.missionId && item.missionTitle ? (
@@ -100,7 +109,7 @@ const RealTime = () => {
               <td className="px-4 text-right">{timeSince(new Date(item.createdAt))}</td>
             </tr>
           ))}
-        </TablePagination>
+        </Table>
       </div>
     </div>
   );

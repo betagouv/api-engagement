@@ -335,18 +335,15 @@ describe("stat-event repository", () => {
         }),
       });
       expect(pgMock.statEvent.findMany).not.toHaveBeenCalled();
-      expect(res).toEqual({
-        data: [
-          expect.objectContaining({
-            _id: "event-1",
-            type: "click",
-            sourceId: "src-1",
-            fromPublisherId: "pub-1",
-            toPublisherId: "pub-2",
-          }),
-        ],
-        total: 1,
-      });
+      expect(res).toEqual([
+        expect.objectContaining({
+          _id: "event-1",
+          type: "click",
+          sourceId: "src-1",
+          fromPublisherId: "pub-1",
+          toPublisherId: "pub-2",
+        }),
+      ]);
     });
 
     it("searches stat events from postgres", async () => {
@@ -372,8 +369,6 @@ describe("stat-event repository", () => {
           to_publisher_name: "",
         },
       ]);
-      pgMock.statEvent.count.mockResolvedValueOnce(1);
-
       initFeatureFlags("pg");
 
       const res = await statEventRepository.searchStatEvents({
@@ -387,7 +382,7 @@ describe("stat-event repository", () => {
 
       expect(pgMock.statEvent.findMany).toHaveBeenCalledWith({
         where: {
-          NOT: { is_bot: true },
+          is_bot: false,
           from_publisher_id: "pub-2",
           to_publisher_id: "pub-3",
           type: "apply",
@@ -397,27 +392,16 @@ describe("stat-event repository", () => {
         skip: 2,
         take: 5,
       });
-      expect(pgMock.statEvent.count).toHaveBeenCalledWith({
-        where: {
-          NOT: { is_bot: true },
-          from_publisher_id: "pub-2",
-          to_publisher_id: "pub-3",
-          type: "apply",
-          source_id: "src-2",
-        },
-      });
+      expect(pgMock.statEvent.count).not.toHaveBeenCalled();
       expect(elasticMock.search).not.toHaveBeenCalled();
-      expect(res).toEqual({
-        data: [
-          expect.objectContaining({
-            _id: "event-2",
-            type: "apply",
-            createdAt,
-            sourceId: "src-2",
-          }),
-        ],
-        total: 1,
-      });
+      expect(res).toEqual([
+        expect.objectContaining({
+          _id: "event-2",
+          type: "apply",
+          createdAt,
+          sourceId: "src-2",
+        }),
+      ]);
     });
   });
 
