@@ -16,6 +16,18 @@ const elasticMock = {
       hits: { total: { value: 0 } },
     },
   }),
+  scroll: vi.fn().mockResolvedValue({
+    body: {
+      _scroll_id: undefined,
+      hits: { hits: [] },
+    },
+  }),
+  bulk: vi.fn().mockResolvedValue({
+    body: {
+      items: [],
+      errors: false,
+    },
+  }),
   ping: vi.fn().mockResolvedValue({ statusCode: 200 }),
 };
 

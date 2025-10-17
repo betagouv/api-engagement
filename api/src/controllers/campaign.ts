@@ -7,7 +7,6 @@ import { FORBIDDEN, INVALID_BODY, INVALID_PARAMS, INVALID_QUERY, NOT_FOUND, RESS
 import CampaignModel from "../models/campaign";
 import PublisherModel from "../models/publisher";
 import { reassignStats } from "../services/reassign-stats";
-import { EsQuery } from "../types";
 import { UserRequest } from "../types/passport";
 import { slugify } from "../utils";
 
@@ -299,15 +298,7 @@ router.put("/:id", passport.authenticate("admin", { session: false }), async (re
         toPublisherName: newToPublisher.name,
       };
 
-      const whereAccount = {
-        bool: {
-          must: [],
-          must_not: [],
-          should: [],
-          filter: [{ term: { "sourceId.keyword": campaign._id.toString() } }],
-        },
-      } as EsQuery;
-      await reassignStats(whereAccount, update);
+      await reassignStats({ sourceId: campaign._id.toString() }, update);
 
       campaign.toPublisherId = newToPublisher._id.toString();
       campaign.toPublisherName = newToPublisher.name;
@@ -379,15 +370,13 @@ router.put("/:id/reassign", passport.authenticate("admin", { session: false }), 
       fromPublisherId: newFromPublisher._id.toString(),
       fromPublisherName: newFromPublisher.name,
     };
-    const where = {
-      bool: {
-        must: [],
-        must_not: [],
-        should: [],
-        filter: [{ term: { "sourceId.keyword": campaign._id.toString() } }, { term: { "fromPublisherId.keyword": prevFromPublisher._id.toString() } }],
+    await reassignStats(
+      {
+        sourceId: campaign._id.toString(),
+        fromPublisherId: prevFromPublisher._id.toString(),
       },
-    } as EsQuery;
-    await reassignStats(where, update);
+      update,
+    );
 
     return res.status(200).send({ ok: true, data: campaign });
   } catch (error) {
