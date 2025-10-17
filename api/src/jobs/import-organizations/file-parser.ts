@@ -154,7 +154,9 @@ const createOrganizationFromRecord = (doc: DataGouvRnaRecord): Organization => {
   const department = findDepartment(doc.adrs_codepostal);
   return {
     rna: doc.id,
+    siren: doc.siret ? doc.siret.slice(0, 9) : undefined,
     siret: doc.siret,
+    sirets: doc.siret ? [doc.siret] : [],
     rupMi: doc.rup_mi,
     gestion: doc.gestion,
     status: findStatus(doc.position),
