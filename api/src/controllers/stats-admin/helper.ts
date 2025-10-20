@@ -1,6 +1,6 @@
 import { STATS_INDEX } from "../../config";
-import esClient from "../../db/elastic";
 import { Prisma } from "../../db/core";
+import esClient from "../../db/elastic";
 import { prismaCore } from "../../db/postgres";
 import MissionModel from "../../models/mission";
 import PublisherModel from "../../models/publisher";
@@ -10,10 +10,6 @@ const SERVICE_CIVIQUE = "Service Civique";
 // Note: stats-admin endpoints rely on the StatsAdminEvents materialized view refreshed by the
 // update-stats-views job.
 const STATS_ADMIN_EVENTS_VIEW = Prisma.raw('"StatsAdminEvents"');
-const HISTOGRAM_INTERVAL_SQL: Record<"day" | "month", Prisma.Sql> = {
-  day: Prisma.raw("'day'"),
-  month: Prisma.raw("'month'"),
-};
 
 type MissionTypeFilter = "volontariat" | "benevolat";
 
@@ -32,54 +28,6 @@ interface PublisherViewsParams {
   announcer?: string;
   type?: "volontariat" | "benevolat" | "";
   source?: PublisherViewsSourceFilter | "";
-}
-
-interface ViewsStatsResponse {
-  totalClicks: number;
-  totalApplies: number;
-  totalVolontariatClicks: number;
-  totalBenevolatClicks: number;
-  totalVolontariatApplies: number;
-  totalBenevolatApplies: number;
-  histogram: Array<{
-    key_as_string: string;
-    key: string;
-    doc_count: number;
-    clicks: { total: number; volontariat: number; benevolat: number };
-    applies: { total: number; volontariat: number; benevolat: number };
-  }>;
-}
-
-interface AdminViewsParams {
-  from?: Date;
-  to?: Date;
-  missionType?: MissionTypeFilter;
-  interval: "day" | "month";
-}
-
-interface AdminViewsHistogramBucket {
-  bucket: Date;
-  docCount: number;
-  clicks: {
-    total: number;
-    volontariat: number;
-    benevolat: number;
-  };
-  applies: {
-    total: number;
-    volontariat: number;
-    benevolat: number;
-  };
-}
-
-interface AdminViewsStatsResult {
-  totalClicks: number;
-  totalApplies: number;
-  totalVolontariatClicks: number;
-  totalBenevolatClicks: number;
-  totalVolontariatApplies: number;
-  totalBenevolatApplies: number;
-  histogram: AdminViewsHistogramBucket[];
 }
 
 interface PublisherViewsResponse {
@@ -122,326 +70,10 @@ interface AdminPublisherViewsResult {
   totalApply: number;
 }
 
-export async function getViewsStats(params: ViewsParams): Promise<ViewsStatsResponse> {
-  const { type, from, to } = params;
-
-  const interval: "day" | "month" =
-    from && to
-      ? (to.getTime() - from.getTime()) / (1000 * 60 * 60 * 24) > 62
-        ? "month"
-        : "day"
-      : "month";
-
-  const stats = await getAdminViewsStats({
-    from,
-    to,
-    missionType: type,
-    interval,
-  });
-
-  const histogram = stats.histogram.map((bucket) => {
-    const key = bucket.bucket.toISOString();
-    return {
-      key_as_string: key,
-      key,
-      doc_count: bucket.docCount,
-      clicks: bucket.clicks,
-      applies: bucket.applies,
-    };
-  });
-
-  return {
-    totalClicks: stats.totalClicks,
-    totalApplies: stats.totalApplies,
-    totalVolontariatClicks: stats.totalVolontariatClicks,
-    totalBenevolatClicks: stats.totalBenevolatClicks,
-    totalVolontariatApplies: stats.totalVolontariatApplies,
-    totalBenevolatApplies: stats.totalBenevolatApplies,
-    histogram,
-  };
-}
-
-async function getAdminViewsStats(params: AdminViewsParams): Promise<AdminViewsStatsResult> {
-  if (getReadStatsFrom() === "pg") {
-    return getAdminViewsStatsFromPg(params);
-  }
-  return getAdminViewsStatsFromEs(params);
-}
-
-async function getAdminViewsStatsFromPg({
-  from,
-  to,
-  missionType,
-  interval,
-}: AdminViewsParams): Promise<AdminViewsStatsResult> {
-  const baseConditions = createAdminBaseConditions({ from, to, missionType });
-  const whereClause = createWhereClause(baseConditions);
-
-  const totalsRows = await prismaCore.$queryRaw<
-    Array<{
-      total_clicks: bigint | null;
-      total_applies: bigint | null;
-      total_volontariat_clicks: bigint | null;
-      total_benevolat_clicks: bigint | null;
-      total_volontariat_applies: bigint | null;
-      total_benevolat_applies: bigint | null;
-    }>
-  >(
-    Prisma.sql`
-      SELECT
-        SUM(CASE WHEN "type" = 'click' THEN 1 ELSE 0 END)::bigint AS total_clicks,
-        SUM(CASE WHEN "type" = 'apply' THEN 1 ELSE 0 END)::bigint AS total_applies,
-        SUM(
-          CASE WHEN "type" = 'click' AND "mission_type" = 'volontariat' THEN 1 ELSE 0 END
-        )::bigint AS total_volontariat_clicks,
-        SUM(
-          CASE WHEN "type" = 'click' AND "mission_type" = 'benevolat' THEN 1 ELSE 0 END
-        )::bigint AS total_benevolat_clicks,
-        SUM(
-          CASE WHEN "type" = 'apply' AND "mission_type" = 'volontariat' THEN 1 ELSE 0 END
-        )::bigint AS total_volontariat_applies,
-        SUM(
-          CASE WHEN "type" = 'apply' AND "mission_type" = 'benevolat' THEN 1 ELSE 0 END
-        )::bigint AS total_benevolat_applies
-      FROM ${STATS_ADMIN_EVENTS_VIEW}
-      ${whereClause}
-    `
-  );
-
-  const totals = totalsRows[0] ?? {
-    total_clicks: 0n,
-    total_applies: 0n,
-    total_volontariat_clicks: 0n,
-    total_benevolat_clicks: 0n,
-    total_volontariat_applies: 0n,
-    total_benevolat_applies: 0n,
-  };
-
-  const histogramRows = await prismaCore.$queryRaw<
-    Array<{
-      bucket: Date;
-      doc_count: bigint | null;
-      clicks_total: bigint | null;
-      clicks_volontariat: bigint | null;
-      clicks_benevolat: bigint | null;
-      applies_total: bigint | null;
-      applies_volontariat: bigint | null;
-      applies_benevolat: bigint | null;
-    }>
-  >(
-    Prisma.sql`
-      SELECT
-        date_trunc(${HISTOGRAM_INTERVAL_SQL[interval]}, "created_at") AS bucket,
-        COUNT(*)::bigint AS doc_count,
-        SUM(CASE WHEN "type" = 'click' THEN 1 ELSE 0 END)::bigint AS clicks_total,
-        SUM(
-          CASE WHEN "type" = 'click' AND "mission_type" = 'volontariat' THEN 1 ELSE 0 END
-        )::bigint AS clicks_volontariat,
-        SUM(
-          CASE WHEN "type" = 'click' AND "mission_type" = 'benevolat' THEN 1 ELSE 0 END
-        )::bigint AS clicks_benevolat,
-        SUM(CASE WHEN "type" = 'apply' THEN 1 ELSE 0 END)::bigint AS applies_total,
-        SUM(
-          CASE WHEN "type" = 'apply' AND "mission_type" = 'volontariat' THEN 1 ELSE 0 END
-        )::bigint AS applies_volontariat,
-        SUM(
-          CASE WHEN "type" = 'apply' AND "mission_type" = 'benevolat' THEN 1 ELSE 0 END
-        )::bigint AS applies_benevolat
-      FROM ${STATS_ADMIN_EVENTS_VIEW}
-      ${whereClause}
-      GROUP BY bucket
-      ORDER BY bucket
-    `
-  );
-
-  const histogram: AdminViewsHistogramBucket[] = histogramRows.map((row) => ({
-    bucket: row.bucket,
-    docCount: Number(row.doc_count ?? 0n),
-    clicks: {
-      total: Number(row.clicks_total ?? 0n),
-      volontariat: Number(row.clicks_volontariat ?? 0n),
-      benevolat: Number(row.clicks_benevolat ?? 0n),
-    },
-    applies: {
-      total: Number(row.applies_total ?? 0n),
-      volontariat: Number(row.applies_volontariat ?? 0n),
-      benevolat: Number(row.applies_benevolat ?? 0n),
-    },
-  }));
-
-  return {
-    totalClicks: Number(totals.total_clicks ?? 0n),
-    totalApplies: Number(totals.total_applies ?? 0n),
-    totalVolontariatClicks: Number(totals.total_volontariat_clicks ?? 0n),
-    totalBenevolatClicks: Number(totals.total_benevolat_clicks ?? 0n),
-    totalVolontariatApplies: Number(totals.total_volontariat_applies ?? 0n),
-    totalBenevolatApplies: Number(totals.total_benevolat_applies ?? 0n),
-    histogram,
-  };
-}
-
-async function getAdminViewsStatsFromEs({
-  from,
-  to,
-  missionType,
-  interval,
-}: AdminViewsParams): Promise<AdminViewsStatsResult> {
-  const where = {
-    bool: { must: [], must_not: [{ term: { isBot: true } }], should: [], filter: [] },
-  } as EsQuery;
-
-  if (from && to) {
-    where.bool.filter.push({ range: { createdAt: { gte: from, lte: to } } });
-  } else if (from) {
-    where.bool.filter.push({ range: { createdAt: { gte: from } } });
-  } else if (to) {
-    where.bool.filter.push({ range: { createdAt: { lte: to } } });
-  }
-
-  if (missionType === "volontariat") {
-    where.bool.filter.push({ term: { "toPublisherName.keyword": SERVICE_CIVIQUE } });
-  } else if (missionType === "benevolat") {
-    where.bool.filter.push({ bool: { must_not: { term: { "toPublisherName.keyword": SERVICE_CIVIQUE } } } });
-  }
-
-  const aggs = {
-    period: {
-      date_histogram: {
-        field: "createdAt",
-        calendar_interval: interval,
-        time_zone: "Europe/Paris",
-      },
-      aggs: {
-        clicks_per_period: {
-          filter: { term: { "type.keyword": "click" } },
-          aggs: {
-            volontariat: { filter: { term: { "toPublisherName.keyword": SERVICE_CIVIQUE } } },
-            benevolat: {
-              filter: { bool: { must_not: { term: { "toPublisherName.keyword": SERVICE_CIVIQUE } } } },
-            },
-          },
-        },
-        applies_per_period: {
-          filter: { term: { "type.keyword": "apply" } },
-          aggs: {
-            volontariat: { filter: { term: { "toPublisherName.keyword": SERVICE_CIVIQUE } } },
-            benevolat: {
-              filter: { bool: { must_not: { term: { "toPublisherName.keyword": SERVICE_CIVIQUE } } } },
-            },
-          },
-        },
-      },
-    },
-    total_clicks: {
-      filter: { term: { "type.keyword": "click" } },
-    },
-    total_applies: {
-      filter: { term: { "type.keyword": "apply" } },
-    },
-    total_volontariat_clicks: {
-      filter: {
-        bool: {
-          must: [
-            { term: { "type.keyword": "click" } },
-            { term: { "toPublisherName.keyword": SERVICE_CIVIQUE } },
-          ],
-        },
-      },
-    },
-    total_benevolat_clicks: {
-      filter: {
-        bool: {
-          must: [
-            { term: { "type.keyword": "click" } },
-            { bool: { must_not: { term: { "toPublisherName.keyword": SERVICE_CIVIQUE } } } },
-          ],
-        },
-      },
-    },
-    total_volontariat_applies: {
-      filter: {
-        bool: {
-          must: [
-            { term: { "type.keyword": "apply" } },
-            { term: { "toPublisherName.keyword": SERVICE_CIVIQUE } },
-          ],
-        },
-      },
-    },
-    total_benevolat_applies: {
-      filter: {
-        bool: {
-          must: [
-            { term: { "type.keyword": "apply" } },
-            { bool: { must_not: { term: { "toPublisherName.keyword": SERVICE_CIVIQUE } } } },
-          ],
-        },
-      },
-    },
-  } as const;
-
-  const body = {
-    track_total_hits: true,
-    query: where,
-    aggs,
-    size: 0,
-  };
-
-  const response = await esClient.search({ index: STATS_INDEX, body });
-
-  if (response.statusCode !== 200) {
-    throw response.body.error;
-  }
-
-  const histogram: AdminViewsHistogramBucket[] = (response.body.aggregations.period
-    .buckets as Array<{
-    key: number;
-    doc_count: number;
-    clicks_per_period: {
-      doc_count: number;
-      volontariat: { doc_count: number };
-      benevolat: { doc_count: number };
-    };
-    applies_per_period: {
-      doc_count: number;
-      volontariat: { doc_count: number };
-      benevolat: { doc_count: number };
-    };
-  }>).map((bucket) => ({
-    bucket: new Date(bucket.key),
-    docCount: bucket.doc_count,
-    clicks: {
-      total: bucket.clicks_per_period.doc_count,
-      volontariat: bucket.clicks_per_period.volontariat.doc_count,
-      benevolat: bucket.clicks_per_period.benevolat.doc_count,
-    },
-    applies: {
-      total: bucket.applies_per_period.doc_count,
-      volontariat: bucket.applies_per_period.volontariat.doc_count,
-      benevolat: bucket.applies_per_period.benevolat.doc_count,
-    },
-  }));
-
-  return {
-    totalClicks: response.body.aggregations.total_clicks.doc_count,
-    totalApplies: response.body.aggregations.total_applies.doc_count,
-    totalVolontariatClicks: response.body.aggregations.total_volontariat_clicks.doc_count,
-    totalBenevolatClicks: response.body.aggregations.total_benevolat_clicks.doc_count,
-    totalVolontariatApplies: response.body.aggregations.total_volontariat_applies.doc_count,
-    totalBenevolatApplies: response.body.aggregations.total_benevolat_applies.doc_count,
-    histogram,
-  };
-}
-
 export async function getCreatedMissionsStats(params: ViewsParams) {
   const { from, to } = params;
 
-  const interval: "day" | "month" =
-    from && to
-      ? (to.getTime() - from.getTime()) / (1000 * 60 * 60 * 24) > 62
-        ? "month"
-        : "day"
-      : "month";
+  const interval: "day" | "month" = from && to ? ((to.getTime() - from.getTime()) / (1000 * 60 * 60 * 24) > 62 ? "month" : "day") : "month";
 
   const createdFacet = await MissionModel.aggregate([
     {
@@ -619,9 +251,7 @@ export async function getPublisherViewsStats(params: PublisherViewsParams): Prom
   return { data, total };
 }
 
-async function getAdminPublisherViewsStats(
-  params: AdminPublisherViewsParams
-): Promise<AdminPublisherViewsResult> {
+async function getAdminPublisherViewsStats(params: AdminPublisherViewsParams): Promise<AdminPublisherViewsResult> {
   if (getReadStatsFrom() === "pg") {
     return getAdminPublisherViewsStatsFromPg(params);
   }
@@ -646,9 +276,7 @@ async function getAdminPublisherViewsStatsFromPg({
   });
   const whereClause = createWhereClause(baseConditions);
 
-  const totalsRows = await prismaCore.$queryRaw<
-    Array<{ total_clicks: bigint | null; total_applies: bigint | null }>
-  >(
+  const totalsRows = await prismaCore.$queryRaw<Array<{ total_clicks: bigint | null; total_applies: bigint | null }>>(
     Prisma.sql`
       SELECT
         SUM(CASE WHEN "type" = 'click' THEN 1 ELSE 0 END)::bigint AS total_clicks,
@@ -956,4 +584,3 @@ function buildDaysFacets(from: Date, to: Date) {
 
   return facets;
 }
-
