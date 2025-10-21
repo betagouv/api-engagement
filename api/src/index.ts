@@ -36,7 +36,6 @@ import PublisherController from "./controllers/publisher";
 import RedirectController from "./controllers/redirect";
 import ReportController from "./controllers/report";
 import StatsController from "./controllers/stats";
-import StatsAdminController from "./controllers/stats-admin/controller";
 import StatsGlobalController from "./controllers/stats-global/controller";
 import StatsMeanController from "./controllers/stats-mean/controller";
 import PublicStatsController from "./controllers/stats-public/controller";
@@ -105,7 +104,6 @@ const main = async () => {
   app.use("/publisher", PublisherController);
   app.use("/organization", OrganizationController);
   app.use("/stats", StatsController);
-  app.use("/stats-admin", StatsAdminController);
   app.use("/stats-global", StatsGlobalController);
   app.use("/stats-mean", StatsMeanController);
   app.use("/user", UserController);
