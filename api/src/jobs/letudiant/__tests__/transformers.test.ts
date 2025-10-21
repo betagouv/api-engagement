@@ -98,6 +98,7 @@ describe("L'Etudiant Transformers", () => {
       const results = missionToPilotyJobs(mission, mockCompanyId, mockMandatoryData);
       const result = results[0];
       expect(result.contract_id).toBe(mockMandatoryData.contracts.volontariat);
+      expect(result.name).toBe(`Volontariat - ${mission.title}`);
     });
 
     it("should set localisation to 'organization City' for full remote missions", () => {
