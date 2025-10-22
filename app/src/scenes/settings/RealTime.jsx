@@ -1,5 +1,4 @@
 import { useEffect, useMemo, useState } from "react";
-import { Helmet } from "react-helmet-async";
 import { useSearchParams } from "react-router-dom";
 
 import Table from "../../components/NewTable";
@@ -21,8 +20,8 @@ const RealTime = () => {
   const [loading, setLoading] = useState(true);
 
   const titleSuffix = useMemo(
-    () => ({ apply: "des candidatures", click: "des redirections", print: "des impressions", account: "des créations de compte" }[type] || "des activités"),
-    [type]
+    () => ({ apply: "des candidatures", click: "des redirections", print: "des impressions", account: "des créations de compte" })[type] || "des activités",
+    [type],
   );
 
   const descriptionSuffix = useMemo(
@@ -31,8 +30,8 @@ const RealTime = () => {
         apply: " des dernières candidatures",
         click: " des dernières redirections",
         print: " des dernières impressions",
-      }[type] || " de toutes les dernières activités"),
-    [type]
+      })[type] || " de toutes les dernières activités",
+    [type],
   );
 
   useEffect(() => {
@@ -67,9 +66,7 @@ const RealTime = () => {
 
   return (
     <div className="space-y-12 p-12">
-      <Helmet>
-        <title>Événements en temps réel - Paramètres - API Engagement</title>
-      </Helmet>
+      <title>Événements en temps réel - Paramètres - API Engagement</title>
       <div className="space-y-8 border border-gray-900 p-8">
         <div className="flex items-center justify-between gap-4">
           <div className="w-[40%] space-y-2">
@@ -80,14 +77,7 @@ const RealTime = () => {
             <RadioInput id="type-print" name="type" value="print" label="Impressions" checked={type === "print"} onChange={(e) => setType(e.target.value)} />
             <RadioInput id="type-click" name="type" value="click" label="Redirections" checked={type === "click"} onChange={(e) => setType(e.target.value)} />
             <RadioInput id="type-apply" name="type" value="apply" label="Candidatures" checked={type === "apply"} onChange={(e) => setType(e.target.value)} />
-            <RadioInput
-              id="type-account"
-              name="type"
-              value="account"
-              label="Créations de compte"
-              checked={type === "account"}
-              onChange={(e) => setType(e.target.value)}
-            />
+            <RadioInput id="type-account" name="type" value="account" label="Créations de compte" checked={type === "account"} onChange={(e) => setType(e.target.value)} />
           </div>
         </div>
 
