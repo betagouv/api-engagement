@@ -23,39 +23,44 @@ export const processDefinition = async (definition: ExportDefinition, batchSizeO
 
   const state = await getExportState(definition.key);
   const transform = definition.transform ?? ((row: Record<string, any>) => row);
-  const cursorField = definition.source.cursorField;
+  const cursorField = definition.source.cursor.field;
+  const cursorIdField = definition.source.cursor.idField ?? null;
 
   let cursorValue = formatTimestamp(state?.cursorValue ?? null);
+  let cursorId = cursorIdField ? (state?.cursorId ?? null) : null;
 
   const selectQuery = buildSelectQuery({
     table: definition.source.table,
     schema: definition.source.schema ?? "public",
     cursorField,
+    cursorIdField: cursorIdField ?? undefined,
     columns: definition.source.columns,
   });
 
-  const fetchBatch = async (value: string | null) => {
+  const fetchBatch = async (value: string | null, id: string | null) => {
     try {
-      const { rows } = await withCoreClient((client) => client.query(selectQuery, [value, batchSize]));
+      const params = cursorIdField ? [value, id ?? "", batchSize] : [value, batchSize];
+      const { rows } = await withCoreClient((client) => client.query(selectQuery, params));
 
       return rows;
     } catch (error) {
       summary.errors += 1;
-      captureException(error, { extra: { definition: definition.key, cursorValue: value } });
+      captureException(error, { extra: { definition: definition.key, cursorValue: value, cursorId: id } });
       throw error;
     }
   };
 
   let batchIndex = 0;
-  let batch = await fetchBatch(cursorValue);
-  console.log(`[Export] '${definition.key}' -> premier lot: ${batch.length} lignes (cursor=${cursorValue ?? "null"})`);
+  let batch = await fetchBatch(cursorValue, cursorId);
+  console.log(`[Export] '${definition.key}' -> premier lot: ${batch.length} lignes (cursor=${cursorValue ?? "null"}, cursorId=${cursorId ?? "null"})`);
 
   while (batch.length > 0) {
     batchIndex += 1;
     console.log(`[Export] '${definition.key}' -> traitement lot #${batchIndex} (taille=${batch.length})`);
 
     let lastCursorValueInBatch: string | null = null;
-    const entries: { data: Record<string, any>; cursorValue: string }[] = [];
+    let lastCursorIdInBatch: string | null = null;
+    const entries: { data: Record<string, any>; cursorValue: string; cursorId: string | null }[] = [];
 
     for (const record of batch) {
       summary.processed += 1;
@@ -66,7 +71,6 @@ export const processDefinition = async (definition: ExportDefinition, batchSizeO
         captureException(new Error("Invalid cursor value for export"), {
           extra: { definition: definition.key, record },
         });
-
         continue;
       }
 
@@ -76,11 +80,23 @@ export const processDefinition = async (definition: ExportDefinition, batchSizeO
         captureException(new Error("Unable to convert cursor value for export"), {
           extra: { definition: definition.key, record, cursorValueType: typeof rawCursorValue },
         });
-
         continue;
       }
 
       lastCursorValueInBatch = currentCursorValue;
+      let currentCursorId: string | null = null;
+      if (cursorIdField) {
+        const rawCursorId = record[cursorIdField];
+        if (rawCursorId === undefined || rawCursorId === null) {
+          summary.errors += 1;
+          captureException(new Error("Invalid cursor identifier for export"), {
+            extra: { definition: definition.key, record },
+          });
+          continue;
+        }
+        currentCursorId = String(rawCursorId);
+        lastCursorIdInBatch = currentCursorId;
+      }
 
       try {
         const transformed = transform(record);
@@ -88,7 +104,7 @@ export const processDefinition = async (definition: ExportDefinition, batchSizeO
           summary.skipped += 1;
           continue;
         }
-        entries.push({ data: transformed, cursorValue: currentCursorValue });
+        entries.push({ data: transformed, cursorValue: currentCursorValue, cursorId: currentCursorId });
       } catch (error) {
         summary.errors += 1;
         captureException(error, { extra: { definition: definition.key, record } });
@@ -98,11 +114,11 @@ export const processDefinition = async (definition: ExportDefinition, batchSizeO
     if (entries.length === 0) {
       if (lastCursorValueInBatch) {
         const nextCursor = lastCursorValueInBatch;
+        const nextCursorId = lastCursorIdInBatch;
         cursorValue = nextCursor;
-
-        await updateExportState(definition.key, nextCursor);
-
-        batch = await fetchBatch(nextCursor);
+        cursorId = nextCursorId;
+        await updateExportState(definition.key, nextCursor, nextCursorId ?? undefined);
+        batch = await fetchBatch(nextCursor, nextCursorId);
         continue;
       }
       throw new Error(`[Export PG] No record found for ${definition.key} during this batch.`);
@@ -122,19 +138,20 @@ export const processDefinition = async (definition: ExportDefinition, batchSizeO
 
       const lastEntry = entries[entries.length - 1];
       const nextCursor = lastEntry.cursorValue;
+      const nextCursorId = lastEntry.cursorId;
       cursorValue = nextCursor;
+      cursorId = nextCursorId;
 
-      await updateExportState(definition.key, nextCursor);
+      await updateExportState(definition.key, nextCursor, nextCursorId ?? undefined);
 
-      console.log(`[Export] '${definition.key}' -> upsert ${payload.length} lignes (cursor=${nextCursor})`);
+      console.log(`[Export] '${definition.key}' -> upsert ${payload.length} lignes (cursor=${nextCursor}, cursorId=${nextCursorId ?? "null"})`);
     } catch (error) {
       summary.errors += payload.length;
       captureException(error, { extra: { definition: definition.key, batchSize: payload.length } });
-
       throw error;
     }
 
-    batch = await fetchBatch(cursorValue);
+    batch = await fetchBatch(cursorValue, cursorId);
   }
 
   summary.durationMs = Date.now() - start;

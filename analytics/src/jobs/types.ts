@@ -16,10 +16,15 @@ export interface ExportSummary {
   durationMs: number;
 }
 
+interface PgSourceCursorConfig {
+  field: string;
+  idField?: string;
+}
+
 interface PgSourceConfig {
   schema?: string;
   table: string;
-  cursorField: string;
+  cursor: PgSourceCursorConfig;
   columns?: string[];
 }
 

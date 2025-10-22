@@ -5,6 +5,7 @@ import formatTimestamp from "../utils/format-timestamp";
 
 interface ExportStateRecord {
   cursorValue: string | null;
+  cursorId: string | null;
 }
 
 let stateTableEnsured = false;
@@ -13,6 +14,7 @@ const ensureTableSql = `
   CREATE TABLE IF NOT EXISTS pg_export_state (
     key TEXT PRIMARY KEY,
     cursor_value TIMESTAMP(3),
+    cursor_id TEXT,
     synced_at TIMESTAMP(3) DEFAULT NOW()
   )
 `;
@@ -25,16 +27,17 @@ const ensureStateTable = async (client: PoolClient) => {
   stateTableEnsured = true;
 };
 
-const mapRowToState = (row: { cursor_value: unknown }): ExportStateRecord => {
+const mapRowToState = (row: { cursor_value: unknown; cursor_id: string | null }): ExportStateRecord => {
   return {
     cursorValue: formatTimestamp(row?.cursor_value),
+    cursorId: row?.cursor_id ?? null,
   };
 };
 
 export const getExportState = async (key: string): Promise<ExportStateRecord | null> => {
   return withAnalyticsClient(async (client) => {
     await ensureStateTable(client);
-    const result = await client.query("SELECT cursor_value FROM pg_export_state WHERE key = $1", [key]);
+    const result = await client.query("SELECT cursor_value, cursor_id FROM pg_export_state WHERE key = $1", [key]);
     if (!result.rowCount) {
       return null;
     }
@@ -42,7 +45,7 @@ export const getExportState = async (key: string): Promise<ExportStateRecord | n
   });
 };
 
-export const updateExportState = async (key: string, cursorValue: string) => {
+export const updateExportState = async (key: string, cursorValue: string, cursorId?: string | null) => {
   const formattedCursor = formatTimestamp(cursorValue);
   if (!formattedCursor) {
     return;
@@ -51,12 +54,12 @@ export const updateExportState = async (key: string, cursorValue: string) => {
     await ensureStateTable(client);
     await client.query(
       `
-        INSERT INTO pg_export_state (key, cursor_value, synced_at)
-        VALUES ($1, $2::timestamp, NOW())
+        INSERT INTO pg_export_state (key, cursor_value, cursor_id, synced_at)
+        VALUES ($1, $2::timestamp, $3, NOW())
         ON CONFLICT (key)
-        DO UPDATE SET cursor_value = EXCLUDED.cursor_value, synced_at = NOW()
+        DO UPDATE SET cursor_value = EXCLUDED.cursor_value, cursor_id = EXCLUDED.cursor_id, synced_at = NOW()
       `,
-      [key, formattedCursor]
+      [key, formattedCursor, cursorId ?? null]
     );
   });
 };

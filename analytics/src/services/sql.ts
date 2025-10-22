@@ -19,14 +19,29 @@ export interface SelectQueryOptions {
   table: string;
   schema?: string;
   cursorField: string;
+  cursorIdField?: string;
   columns?: string[];
 }
 
 export const buildSelectQuery = (options: SelectQueryOptions) => {
   const tableName = options.schema ? `${formatIdentifier(options.schema)}.${formatIdentifier(options.table)}` : formatIdentifier(options.table);
   const cursorField = formatIdentifier(options.cursorField);
+  const cursorIdField = options.cursorIdField ? formatIdentifier(options.cursorIdField) : undefined;
   const columns = options.columns && options.columns.length > 0 ? options.columns.map((column) => formatIdentifier(column)).join(", ") : "*";
-  const orderByClause = `ORDER BY ${cursorField} ASC`;
+  const orderByClause = cursorIdField ? `ORDER BY ${cursorField} ASC, ${cursorIdField} ASC` : `ORDER BY ${cursorField} ASC`;
+
+  if (cursorIdField) {
+    return `
+      SELECT ${columns}
+      FROM ${tableName}
+      WHERE (
+        $1::timestamp IS NULL
+        OR (${cursorField}, ${cursorIdField}::text) > ($1::timestamp, $2::text)
+      )
+      ${orderByClause}
+      LIMIT $3
+    `;
+  }
 
   return `
     SELECT ${columns}
