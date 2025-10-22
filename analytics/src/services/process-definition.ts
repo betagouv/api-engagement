@@ -71,7 +71,7 @@ export const processDefinition = async (definition: ExportDefinition, batchSizeO
         captureException(new Error("Invalid cursor value for export"), {
           extra: { definition: definition.key, record },
         });
-        continue;
+        throw new Error("Invalid cursor value for export");
       }
 
       const currentCursorValue = formatTimestamp(rawCursorValue);
@@ -80,7 +80,7 @@ export const processDefinition = async (definition: ExportDefinition, batchSizeO
         captureException(new Error("Unable to convert cursor value for export"), {
           extra: { definition: definition.key, record, cursorValueType: typeof rawCursorValue },
         });
-        continue;
+        throw new Error("Unable to convert cursor value for export");
       }
 
       lastCursorValueInBatch = currentCursorValue;
@@ -92,7 +92,7 @@ export const processDefinition = async (definition: ExportDefinition, batchSizeO
           captureException(new Error("Invalid cursor identifier for export"), {
             extra: { definition: definition.key, record },
           });
-          continue;
+          throw new Error("Invalid cursor identifier for export");
         }
         currentCursorId = String(rawCursorId);
         lastCursorIdInBatch = currentCursorId;
@@ -108,6 +108,7 @@ export const processDefinition = async (definition: ExportDefinition, batchSizeO
       } catch (error) {
         summary.errors += 1;
         captureException(error, { extra: { definition: definition.key, record } });
+        throw error;
       }
     }
 
