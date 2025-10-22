@@ -40,10 +40,10 @@ const GlobalDiffuseur = ({ filters, onFiltersChange }) => {
     const fetchData = async () => {
       setLoading(true);
       try {
-        const res = await api.post("/stats/search", { type: print, size: 0, fromPublisherId: publisher._id });
+        const res = await api.post("/stats/search", { type: print, size: 3, fromPublisherId: publisher._id });
         if (!res.ok) throw res;
 
-        setTrackingWarning(res.total < 3);
+        setTrackingWarning((res.data?.length || 0) < 3);
       } catch (error) {
         captureError(error, "Erreur lors de la récupération des données");
       }

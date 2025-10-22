@@ -201,12 +201,12 @@ const Frame = ({ widget }) => {
 
 const IFRAMES = {
   benevolat: {
-    carousel: `<iframe id="engagement-widget" title="Trouver une mission de bénévolat" border="0" frameborder="0" style="display:block; width:100%; transition: height 0.3s ease;" loading="lazy" allowfullscreen allow="geolocation" src="${BENEVOLAT_URL}?widget={{widgetId}}" onload="this.style.height=this.offsetWidth < 768 ? '780px': '686px'"></iframe>`,
-    page: `<iframe id="engagement-widget" title="Trouver une mission de bénévolat" border="0" frameborder="0" style="display:block; width:100%; transition: height 0.3s ease;" loading="lazy" allowfullscreen allow="geolocation" src="${BENEVOLAT_URL}?widget={{widgetId}}" onload="this.style.height=this.offsetWidth < 640 ? '3424px': this.offsetWidth < 1024 ? '1862px': '1314px'"></iframe>`,
+    carousel: `<iframe id="engagement-widget" title="Widget Trouver une mission de bénévolat" border="0" frameborder="0" style="display:block; width:100%; transition: height 0.3s ease;" loading="lazy" allowfullscreen allow="geolocation" src="${BENEVOLAT_URL}?widget={{widgetId}}" onload="this.style.height=this.offsetWidth < 768 ? '780px': '686px'"></iframe>`,
+    page: `<iframe id="engagement-widget" title="Widget Trouver une mission de bénévolat" border="0" frameborder="0" style="display:block; width:100%; transition: height 0.3s ease;" loading="lazy" allowfullscreen allow="geolocation" src="${BENEVOLAT_URL}?widget={{widgetId}}" onload="this.style.height=this.offsetWidth < 640 ? '3424px': this.offsetWidth < 1024 ? '1862px': '1314px'"></iframe>`,
   },
   volontariat: {
-    carousel: `<iframe id="engagement-widget" title="Trouver une mission de volontariat" border="0" frameborder="0" style="display:block; width:100%; transition: height 0.3s ease;" loading="lazy" allowfullscreen allow="geolocation" src="${VOLONTARIAT_URL}?widget={{widgetId}}" onload="this.style.height=this.offsetWidth < 768 ? '670px': '600px'"></iframe>`,
-    page: `<iframe id="engagement-widget" title="Trouver une mission de volontariat" border="0" frameborder="0" style="display:block; width:100%; transition: height 0.3s ease;" loading="lazy" allowfullscreen allow="geolocation" src="${VOLONTARIAT_URL}?widget={{widgetId}}" onload="this.style.height=this.offsetWidth < 640 ? '2200px': this.offsetWidth < 1024 ? '1350px': '1050px'"></iframe>`,
+    carousel: `<iframe id="engagement-widget" title="Widget Trouver une mission de volontariat" border="0" frameborder="0" style="display:block; width:100%; transition: height 0.3s ease;" loading="lazy" allowfullscreen allow="geolocation" src="${VOLONTARIAT_URL}?widget={{widgetId}}" onload="this.style.height=this.offsetWidth < 768 ? '670px': '600px'"></iframe>`,
+    page: `<iframe id="engagement-widget" title="Widget Trouver une mission de volontariat" border="0" frameborder="0" style="display:block; width:100%; transition: height 0.3s ease;" loading="lazy" allowfullscreen allow="geolocation" src="${VOLONTARIAT_URL}?widget={{widgetId}}" onload="this.style.height=this.offsetWidth < 640 ? '2200px': this.offsetWidth < 1024 ? '1350px': '1050px'"></iframe>`,
   },
 };
 

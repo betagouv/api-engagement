@@ -43,6 +43,7 @@ const Distribution = ({ filters, onFiltersChange }) => {
     const fetchData = async () => {
       setLoading(true);
       try {
+        const FALLBACK_DEPARTMENT_NAME = "Non renseigné";
         const query = new URLSearchParams();
 
         if (filters.year) query.append("year", filters.year);
@@ -51,7 +52,30 @@ const Distribution = ({ filters, onFiltersChange }) => {
         const resDepartments = await api.get(`/stats-public/departments?${query.toString()}`);
         if (!resDepartments.ok) throw new Error("Erreur lors de la récupération des statistiques");
 
-        setDepartmentStats(resDepartments.data.map((d) => ({ ...d, name: getDepartement(d.key) || "Non renseigné" })));
+        // Map department code to display name
+        const departments = resDepartments.data.map((d) => ({ ...d, name: getDepartement(d.key) || FALLBACK_DEPARTMENT_NAME }));
+
+        // Group all "Non renseigné" into a single row by summing counts
+        const groupedDepartments = departments.reduce((acc, item) => {
+          if (item.name === FALLBACK_DEPARTMENT_NAME) {
+            const existing = acc.find((x) => x.name === FALLBACK_DEPARTMENT_NAME);
+            if (existing) {
+              existing.mission_count = (existing.mission_count || 0) + (item.mission_count || 0);
+              existing.click_count = (existing.click_count || 0) + (item.click_count || 0);
+              existing.apply_count = (existing.apply_count || 0) + (item.apply_count || 0);
+            } else {
+              acc.push({ ...item });
+            }
+          } else {
+            acc.push(item);
+          }
+          return acc;
+        }, []);
+
+        // Sort by department name
+        groupedDepartments.sort((a, b) => a.name.localeCompare(b.name, "fr", { sensitivity: "base" }));
+
+        setDepartmentStats(groupedDepartments);
       } catch (error) {
         captureError(error, "Une erreur est survenue lors de la récupération des statistiques");
       }

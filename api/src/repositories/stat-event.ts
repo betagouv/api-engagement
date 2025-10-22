@@ -55,11 +55,6 @@ interface SearchStatEventsParams {
   skip?: number;
 }
 
-interface SearchStatEventsResult {
-  data: Stats[];
-  total: number;
-}
-
 type ViewStatsDateFilter = {
   operator: "gt" | "lt";
   date: Date;
@@ -508,10 +503,10 @@ export async function countClicksByPublisherForOrganizationSince({ publisherIds,
   );
 }
 
-export async function searchStatEvents({ fromPublisherId, toPublisherId, type, sourceId, size = 25, skip = 0 }: SearchStatEventsParams): Promise<SearchStatEventsResult> {
+export async function searchStatEvents({ fromPublisherId, toPublisherId, type, sourceId, size = 25, skip = 0 }: SearchStatEventsParams): Promise<Stats[]> {
   if (getReadStatsFrom() === "pg") {
     const where: Prisma.StatEventWhereInput = {
-      NOT: { is_bot: true },
+      is_bot: false,
     };
 
     if (fromPublisherId) {
@@ -530,20 +525,14 @@ export async function searchStatEvents({ fromPublisherId, toPublisherId, type, s
       where.source_id = sourceId;
     }
 
-    const [rows, total] = await Promise.all([
-      prismaCore.statEvent.findMany({
-        where,
-        orderBy: { created_at: "desc" },
-        skip,
-        take: size,
-      }),
-      prismaCore.statEvent.count({ where }),
-    ]);
+    const rows = await prismaCore.statEvent.findMany({
+      where,
+      orderBy: { created_at: "desc" },
+      skip,
+      take: size,
+    });
 
-    return {
-      data: rows.map(fromPg),
-      total,
-    };
+    return rows.map(fromPg);
   }
 
   const query: EsQuery = {
@@ -584,10 +573,7 @@ export async function searchStatEvents({ fromPublisherId, toPublisherId, type, s
 
   const hits = (response.body.hits?.hits as any[]) ?? [];
 
-  return {
-    data: hits.map((hit) => ({ ...hit._source, _id: hit._id }) as Stats),
-    total: response.body.hits?.total?.value ?? 0,
-  };
+  return hits.map((hit) => ({ ...hit._source, _id: hit._id }) as Stats);
 }
 
 export async function searchViewStats({ publisherId, size = 10, filters = {}, facets = [] }: SearchViewStatsParams): Promise<SearchViewStatsResult> {

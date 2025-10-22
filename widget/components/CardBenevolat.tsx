@@ -75,7 +75,7 @@ const CardBenevolat = ({ widget, mission, request, focused = false, onKeyDown, o
           />
           <div className="w-fit flex items-center rounded-full bg-[#EEE] px-2 h-6 text-xs leading-5 mb-3">{domain.label || mission.domain}</div>
           <div className="flex items-center gap-2 text-[#666] mb-4">
-            <RiBuildingFill />
+            <RiBuildingFill aria-hidden="true" />
             <span className="line-clamp-1 text-xs leading-5">{mission.organizationName}</span>
           </div>
           <a

@@ -11,7 +11,7 @@ const SearchSelect = ({ id, options, value, onChange, placeholder, className, lo
   useEffect(() => {
     const selected = options.find((option) => option.value === value);
     setSelected(selected || null);
-  }, [value, loading]);
+  }, [value, options, loading]);
 
   useEffect(() => {
     const handleClickOutside = (event) => {

@@ -33,7 +33,7 @@ router.post("/search", passport.authenticate("user", { session: false }), async 
       });
     }
 
-    const { data: events, total } = await statEventRepository.searchStatEvents({
+    const events = await statEventRepository.searchStatEvents({
       fromPublisherId: body.data.fromPublisherId,
       toPublisherId: body.data.toPublisherId,
       type: body.data.type,
@@ -43,7 +43,7 @@ router.post("/search", passport.authenticate("user", { session: false }), async 
     });
 
     const data = events.map(({ _id, ...rest }) => ({ ...rest, id: _id }));
-    return res.status(200).send({ ok: true, data, total });
+    return res.status(200).send({ ok: true, data });
   } catch (error) {
     next(error);
   }

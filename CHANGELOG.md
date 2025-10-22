@@ -2,6 +2,59 @@
 Vous retrouverez ici l'historique des différents déploiements effectués sur l'API Engagement.
 
 
+## 13/10/2025
+
+
+### Bug Fixes
+
+- (**jobs**) Fix click metabase sync ([`50b4dd5`](https://github.com/betagouv/api-engagement/commit/50b4dd5378e1dd49922bb7f4f1b71a42045f0d17))
+
+- (**api**) Add missing stat-event migrations ([`e985da2`](https://github.com/betagouv/api-engagement/commit/e985da2d146eaf2b5cafb6e85c0f403955c90fdc))
+
+- (**ci**) Cz config ([`4e956f1`](https://github.com/betagouv/api-engagement/commit/4e956f1ed320744c6da786767d39e2cf24638219))
+
+- (**ci**) Update PR title lint ([`3de3431`](https://github.com/betagouv/api-engagement/commit/3de3431f6be951c536db57786fddcba5dc6e3e8d))
+
+
+### Features
+
+- (**app**) Support apply custom attributes in SDK tracking (#480) ([`ceab577`](https://github.com/betagouv/api-engagement/commit/ceab577b182629ae7b6ef80beeed10f8bfc6d70a))
+
+- (**api**) Migrate activity controller to stat-event repo (#479) ([`6014fcd`](https://github.com/betagouv/api-engagement/commit/6014fcdbac25764c77a87ae4935b868e0accd735))
+
+
+### Miscellaneous Tasks
+
+- (**changelog**) Update CHANGELOG.md ([`524c523`](https://github.com/betagouv/api-engagement/commit/524c5238074df4c3a3bcf57e95a61a5d1730d82a))
+
+- (**ci**) Reactivate WRITE_STATS_DUAL for production ([`7c39a65`](https://github.com/betagouv/api-engagement/commit/7c39a6586c5e6215a7d81ed266adfa7216101c1f))
+
+- (**ci**) Disable DUAL_STATS in production ([`494570e`](https://github.com/betagouv/api-engagement/commit/494570ecb029b8d17b7af7436b7a71e4f172cd00))
+
+- (**ci**) Set feature flag as env variables ([`4647e14`](https://github.com/betagouv/api-engagement/commit/4647e14c0f5cd29e93e8c27a758b3074d9781e2c))
+
+- (**ci**) Activate \"WRITE_STATS_DUAL\" for production ([`abeafb6`](https://github.com/betagouv/api-engagement/commit/abeafb6992310ea89c5a2365cdf9f5444fa04458))
+
+-  Merge changelog from main ([`7e63b23`](https://github.com/betagouv/api-engagement/commit/7e63b2324d683aebb53fd9750c2d78e8e19edb35))
+
+- (**ci**) Set WRITE_STATS_DUAL to true for staging env ([`2bd4c10`](https://github.com/betagouv/api-engagement/commit/2bd4c1076e007b1f6f162dd85b561654e5e3ef69))
+
+- (**ci**) Add commitizen and PR title validation rules (#466) ([`8a5a167`](https://github.com/betagouv/api-engagement/commit/8a5a1671b9ed6b5207c134b575c4b91b56dbaad5))
+
+
+### Refactoring
+
+- (**api**) Migrate redirect controller to stat-event repository (#478) ([`fb5b2d4`](https://github.com/betagouv/api-engagement/commit/fb5b2d4d8b14693ad273dc4fc748d04b8110773a))
+
+
+### Testing
+
+- (**api**) Add redirect integration tests (#476) ([`4bed4ab`](https://github.com/betagouv/api-engagement/commit/4bed4ab4adce214663fe215f9e5494b6ff256f00))
+
+# API Engagement - Changelog
+Vous retrouverez ici l'historique des différents déploiements effectués sur l'API Engagement.
+
+
 ## 06/10/2025
 
 

@@ -30,7 +30,7 @@ export function missionToPilotyJobs(mission: Mission, companyId: string, mandato
     return {
       media_public_id: MEDIA_PUBLIC_ID,
       company_public_id: companyId,
-      name: mission.title,
+      name: mission.type === MissionType.VOLONTARIAT ? `Volontariat - ${mission.title}` : mission.title,
       contract_id: mission.type === MissionType.VOLONTARIAT ? mandatoryData.contracts.volontariat : mandatoryData.contracts.benevolat,
       job_category_id: mandatoryData.jobCategories[mission.domain] ?? mandatoryData.jobCategories["autre"],
       localisation: localisation || "France",

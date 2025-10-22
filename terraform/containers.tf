@@ -38,7 +38,7 @@ resource "scaleway_container" "api" {
       
     # Feature flags ES migration
     "WRITE_STATS_DUAL" = "true"
-    "READ_STATS_FROM" = "es"
+    "READ_STATS_FROM" = "pg"
   }
 
   secret_environment_variables = {
