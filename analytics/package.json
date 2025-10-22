@@ -6,7 +6,9 @@
   "scripts": {
     "db:new": "dbmate --env DATABASE_URL_ANALYTICS --migrations-dir db/migrations new",
     "db:migrate": "dbmate --env DATABASE_URL_ANALYTICS --migrations-dir db/migrations up",
-    "job": "ts-node src/jobs/run-job.ts"
+    "job": "ts-node src/jobs/run-job.ts",
+    "prettier": "prettier --write . --plugin=prettier-plugin-organize-imports",
+    "lint": "eslint . --ext .ts"
   },
   "dependencies": {
     "@sentry/node": "10.21.0",
@@ -15,6 +17,12 @@
     "pg": "8.16.3"
   },
   "devDependencies": {
-    "ts-node": "10.9.2"
+    "@eslint/js": "9.38.0",
+    "@typescript-eslint/eslint-plugin": "8.0.0",
+    "@typescript-eslint/parser": "8.46.2",
+    "eslint": "9.38.0",
+    "eslint-plugin-import": "2.32.0",
+    "ts-node": "10.9.2",
+    "typescript": "5.9.3"
   }
 }
