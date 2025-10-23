@@ -107,13 +107,14 @@ async function runJob() {
     };
 
     const result = await handler.handle(payload);
-    console.log(`Job '${jobName}' executed successfully:`, result);
+    console.log(`Job '${jobName}' ${result.success ? "Job executed successfully" : "Job failed"}:`, result);
 
     const time = getJobTime(start);
+
     await postMessage(
       {
         title: `${handler.name} terminée en ${time}`,
-        text: result.message || (result.success ? "Job executed successfully" : "Job failed"),
+        text: result.message,
         color: result.success ? "good" : "danger",
       },
       SLACK_CRON_CHANNEL_ID
