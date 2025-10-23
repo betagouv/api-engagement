@@ -5,7 +5,7 @@ Ce dossier fournit un mini-framework pour synchroniser des tables PostgreSQL via
 ## Exécution d’un job
 
 ```
-npm run job -- export-to-pg StatEvent
+npm run job export-to-pg StatEvent
 ```
 
 - `export-to-pg` correspond au dossier `src/jobs/export-to-pg`.
@@ -21,25 +21,26 @@ Le script `run-job.ts` charge dynamiquement le handler associé, exécute `handl
 
 ### Paramètres `source`
 
-| Champ              | Description                                                                     |
-|--------------------|---------------------------------------------------------------------------------|
-| `schema` (option)  | Schéma source (défaut : `public`)                                              |
-| `table`            | Nom de la table source                                                          |
-| `cursorField`      | Colonne utilisée comme curseur (timestamp)                                     |
-| `columns` (option) | Colonnes sélectionnées (`*` par défaut)                                        |
-| `additionalWhere`  | Clause WHERE supplémentaire (sera ANDée)                                       |
+| Champ              | Description                                                               |
+| ------------------ | ------------------------------------------------------------------------- |
+| `schema` (option)  | Schéma source (défaut : `public`)                                         |
+| `table`            | Nom de la table source                                                    |
+| `cursor.field`     | Colonne utilisée comme curseur (timestamp)                                |
+| `cursor.idField`   | (Optionnel) Clé de tie-breaker si plusieurs lignes partagent la même date |
+| `columns` (option) | Colonnes sélectionnées (`*` par défaut)                                   |
 
 ### Paramètres `destination`
 
-| Champ                 | Description                                                                      |
-|-----------------------|----------------------------------------------------------------------------------|
-| `schema` (option)     | Schéma destination (défaut : `analytics_raw`)                                   |
-| `table`               | Table cible dans la base analytics                                               |
-| `conflictColumns`     | Colonnes uniques pour `ON CONFLICT` (définissent l’upsert)                       |
+| Champ             | Description                                                |
+| ----------------- | ---------------------------------------------------------- |
+| `schema` (option) | Schéma destination (défaut : `analytics_raw`)              |
+| `table`           | Table cible dans la base analytics                         |
+| `conflictColumns` | Colonnes uniques pour `ON CONFLICT` (définissent l’upsert) |
 
 ### Transformation
 
 `transform?: (row) => Record<string, any> | null` permet d’adapter chaque ligne :
+
 - renommer/filtrer des champs
 - enrichir ou normaliser les données
 - retourner `null` pour ignorer un enregistrement
@@ -59,23 +60,15 @@ transform: (row) => {
     // on peut ajouter des champs dérivés
     is_widget: row.source === "widget",
   };
-}
+};
 ```
-
-## Fonctions utilitaires
-
-- `withCoreClient` (`src/db/pg-core.ts`) : accès PG source (pool).
-- `withAnalyticsClient` (`src/db/pg-analytics.ts`) : accès PG destination.
-- `buildSelectQuery` / `bulkUpsert` (`src/services/sql.ts`) : requêtes SQL génériques.
-- `getExportState` / `updateExportState` (`src/services/state.ts`) : gestion du curseur incrémental (`pg_export_state`).
 
 ## Dépendances requises
 
 - Variables d’environnement : `DATABASE_URL_CORE`, `DATABASE_URL_ANALYTICS`.
-- Packages : `pg`, `ts-node`, `dbmate`.
 
 ## Workflow type
 
-1. Créer/mettre à jour le schéma destination via `dbmate`.
+1. Créer/mettre à jour le schéma destination via `dbmate`: `npm run db:new -- <migrationName>` / `npm run db:migrate`
 2. Ajouter la définition d’export dans `config.ts`.
-3. Exécuter `npm run job -- export-to-pg <Table>` pour peupler la table analytics.
+3. Exécuter `npm run job export-to-pg <Table>` pour peupler la table analytics. En cas d’erreur dans un lot, le job s’arrête immédiatement : corrige la donnée, relance, le curseur reprend là où il s’est arrêté.
