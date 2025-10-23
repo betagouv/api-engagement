@@ -5,18 +5,18 @@ Ce dossier fournit un mini-framework pour synchroniser des tables PostgreSQL via
 ## Exécution d’un job
 
 ```
-npm run job export-to-pg StatEvent
+npm run job export-to-analytics-raw StatEvent
 ```
 
-- `export-to-pg` correspond au dossier `src/jobs/export-to-pg`.
-- `StatEvent` est la clé déclarée dans `src/jobs/export-to-pg/config.ts`.
+- `export-to-analytics-raw` correspond au dossier `src/jobs/export-to-analytics-raw`.
+- `StatEvent` est la clé déclarée dans `src/jobs/export-to-analytics-raw/config.ts`.
 
 Le script `run-job.ts` charge dynamiquement le handler associé, exécute `handle(table)` et journalise le résultat (console + Slack si configuré).
 
 ## Structure d’un job
 
-- `src/jobs/export-to-pg/config.ts` : liste des définitions d’export (`ExportDefinition`).
-- `src/jobs/export-to-pg/handler.ts` : handler qui invoque `processDefinition`.
+- `src/jobs/export-to-analytics-raw/config.ts` : liste des définitions d’export (`ExportDefinition`).
+- `src/jobs/export-to-analytics-raw/handler.ts` : handler qui invoque `processDefinition`.
 - `src/services/process-definition.ts` : lecture incrémentale source → transformation → `bulkUpsert`.
 
 ### Paramètres `source`
@@ -71,4 +71,4 @@ transform: (row) => {
 
 1. Créer/mettre à jour le schéma destination via `dbmate`: `npm run db:new -- <migrationName>` / `npm run db:migrate`
 2. Ajouter la définition d’export dans `config.ts`.
-3. Exécuter `npm run job export-to-pg <Table>` pour peupler la table analytics. En cas d’erreur dans un lot, le job s’arrête immédiatement : corrige la donnée, relance, le curseur reprend là où il s’est arrêté.
+3. Exécuter `npm run job export-to-analytics-raw <Table>` pour peupler la table analytics. En cas d’erreur dans un lot, le job s’arrête immédiatement : corrige la donnée, relance, le curseur reprend là où il s’est arrêté.

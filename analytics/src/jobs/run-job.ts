@@ -2,7 +2,7 @@
 /**
  * CLI script to run a job manually
  * Usage: npm run job -- <job-name> <table>
- * Example: npm run job -- export-to-pg StatEvent
+ * Example: npm run job -- export-to-analytics-raw StatEvent
  */
 
 import * as Sentry from "@sentry/node";

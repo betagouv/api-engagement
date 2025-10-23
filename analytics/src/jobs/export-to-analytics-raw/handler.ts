@@ -14,7 +14,7 @@ type ExportToPgJobResult = JobResult & {
   summary: ExportSummary;
 };
 
-export class ExportToPgHandler implements BaseHandler<ExportToPgJobPayload, ExportToPgJobResult> {
+export class ExportToAnalyticsRawHandler implements BaseHandler<ExportToPgJobPayload, ExportToPgJobResult> {
   name = "Generic PostgreSQL export";
 
   public async handle(payload: ExportToPgJobPayload): Promise<ExportToPgJobResult> {
