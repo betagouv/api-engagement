@@ -15,7 +15,6 @@ locals {
   )
 
   image_uri = "ghcr.io/${var.github_repository}/api:${terraform.workspace == "production" ? "production" : "staging"}${var.image_tag == "latest" ? "" : "-${var.image_tag}"}"
-  image_analytics_uri = "ghcr.io/${var.github_repository}/analytics:${terraform.workspace == "production" ? "production" : "staging"}${var.image_tag == "latest" ? "" : "-${var.image_tag}"}"
 }
 
 # Job Definition for the 'letudiant' task
@@ -298,23 +297,6 @@ resource "scaleway_job_definition" "update-stats-views" {
 
   cron {
     schedule = "0 5 * * *" # Every day at 5:00 AM
-    timezone = "Europe/Paris"
-  }
-
-  env = local.all_env_vars
-}
-
-resource "scaleway_job_definition" "export-stat-event-to-analytics-raw" {
-  name         = "${terraform.workspace}-export-stat-event-to-analytics-raw"
-  project_id   = var.project_id
-  cpu_limit    = 1000
-  memory_limit = 2048
-  image_uri    = local.image_analytics_uri
-  command      = "node dist/jobs/run-job.js export-to-analytics-raw StatEvent"
-  timeout      = "120m"
-
-  cron {
-    schedule = "0 3 * * *" # Every day at 3:00 AM
     timezone = "Europe/Paris"
   }
 
