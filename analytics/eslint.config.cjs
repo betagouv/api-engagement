@@ -34,23 +34,7 @@ module.exports = [
       "no-console": "off",
       "no-control-regex": "off",
       curly: ["error", "all"],
-
-      // Proper API rules
-      // We should fix code and activate each rule
-      "no-underscore-dangle": "off",
-      "@typescript-eslint/dot-notation": "off",
-      "@typescript-eslint/no-shadow": "off",
-      "@typescript-eslint/no-use-before-define": "off",
-      "@typescript-eslint/no-redeclare": "off",
-      "@typescript-eslint/no-unused-vars": "off",
-      "@typescript-eslint/no-explicit-any": "off",
-      "@typescript-eslint/no-this-alias": "off",
-      "no-self-assign": "off",
-      "no-constant-condition": "off",
-      "no-import-assign": "off",
-      "no-empty": "off",
       "no-undef": "off",
-      "no-useless-escape": "off",
       "no-unused-vars": "off",
 
       // Import plugin adjustments
