@@ -76,6 +76,49 @@ jobs:
           DATABASE_URL_ANALYTICS: postgresql://postgres:postgres@localhost:5432/analytics
         run: npm run prisma:migrate:deploy
 
+  analytics-migrations:
+    name: Verify Analytics migrations
+    needs: changes
+    if: needs.changes.outputs.analytics == 'true'
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: postgres
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: "22"
+          cache: "npm"
+          cache-dependency-path: "analytics/package-lock.json"
+
+      - name: Install dependencies
+        run: cd analytics && npm ci
+
+      - name: Prepare temporary databases
+        env:
+          PGPASSWORD: postgres
+        run: |
+          psql -h localhost -U postgres -d postgres -c 'CREATE DATABASE analytics;'
+
+      - name: Check dbmate migrations
+        working-directory: analytics
+        env:
+          DATABASE_URL_ANALYTICS: postgresql://postgres:postgres@localhost:5432/analytics
+        run: npm run db:migrate
+
   api-tests:
     name: API Tests
     needs:

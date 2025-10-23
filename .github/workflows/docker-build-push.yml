@@ -2,7 +2,7 @@
 # - main branch: production
 # - staging branch: staging
 #
-# For each service (app, api, widget)
+# For each service (app, api, analytics, widget)
 # - use build args to pass environment variables
 # - build and push image to GitHub Container Registry
 #
@@ -52,6 +52,7 @@ jobs:
           - service: app
           - service: widget
           - service: api
+          - service: analytics
     steps:
       - name: Checkout code
         uses: actions/checkout@v5

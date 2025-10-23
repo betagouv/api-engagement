@@ -6,7 +6,9 @@
   "scripts": {
     "db:new": "dbmate --env DATABASE_URL_ANALYTICS --migrations-dir db/migrations new",
     "db:migrate": "dbmate --env DATABASE_URL_ANALYTICS --migrations-dir db/migrations up",
+    "build": "tsc",
     "job": "ts-node src/jobs/run-job.ts",
+    "job:dist": "node dist/jobs/run-job.js",
     "prettier": "prettier --write . --plugin=prettier-plugin-organize-imports",
     "lint": "eslint . --ext .ts"
   },

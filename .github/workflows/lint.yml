@@ -39,5 +39,8 @@ jobs:
       - name: Install widget dependencies
         run: cd widget && npm ci
 
+      - name: Install analytics dependencies
+        run: cd analytics && npm ci
+
       - name: Run ESLint
         run: npm run lint
