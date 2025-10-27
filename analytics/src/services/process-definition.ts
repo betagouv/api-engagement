@@ -10,7 +10,8 @@ const DEFAULT_BATCH_SIZE = 1000;
 
 export const processDefinition = async (definition: ExportDefinition, batchSizeOverride?: number): Promise<ExportSummary> => {
   const start = Date.now();
-  const batchSize = batchSizeOverride ?? definition.batchSize ?? DEFAULT_BATCH_SIZE;
+  const envBatchSize = process.env.BATCH_SIZE;
+  const batchSize = batchSizeOverride ?? envBatchSize ?? definition.batchSize ?? DEFAULT_BATCH_SIZE;
   console.log(`[Export] Début '${definition.key}' (batch=${batchSize})`);
 
   const summary: ExportSummary = {
@@ -58,6 +59,7 @@ export const processDefinition = async (definition: ExportDefinition, batchSizeO
     batchIndex += 1;
     console.log(`[Export] '${definition.key}' -> traitement lot #${batchIndex} (taille=${batch.length})`);
 
+    const insertStart = Date.now();
     let lastCursorValueInBatch: string | null = null;
     let lastCursorIdInBatch: string | null = null;
     const entries: { data: Record<string, any>; cursorValue: string; cursorId: string | null }[] = [];
@@ -135,6 +137,7 @@ export const processDefinition = async (definition: ExportDefinition, batchSizeO
           conflictColumns: definition.destination.conflictColumns,
         })
       );
+      const insertDuration = Date.now() - insertStart;
       summary.written += payload.length;
 
       const lastEntry = entries[entries.length - 1];
@@ -145,7 +148,7 @@ export const processDefinition = async (definition: ExportDefinition, batchSizeO
 
       await updateExportState(definition.key, nextCursor, nextCursorId ?? undefined);
 
-      console.log(`[Export] '${definition.key}' -> upsert ${payload.length} lignes (cursor=${nextCursor}, cursorId=${nextCursorId ?? "null"})`);
+      console.log(`[Export] '${definition.key}' -> upsert ${payload.length} lignes (cursor=${nextCursor}, cursorId=${nextCursorId ?? "null"}) in ${insertDuration}ms`);
     } catch (error) {
       summary.errors += payload.length;
       captureException(error, { extra: { definition: definition.key, batchSize: payload.length } });

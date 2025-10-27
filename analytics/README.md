@@ -65,7 +65,8 @@ transform: (row) => {
 
 ## Dépendances requises
 
-- Variables d’environnement : `DATABASE_URL_CORE`, `DATABASE_URL_ANALYTICS`.
+- Variables d’environnement obligatoires : `DATABASE_URL_CORE`, `DATABASE_URL_ANALYTICS`.
+- Optionnel : `BATCH_SIZE`pour surcharger la taille des lots direction dans Scalway lors d'un `Run with option` lors d’un `Run job with options` sans modifier le code/config.
 
 ## Workflow type
 
