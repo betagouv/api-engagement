@@ -2,6 +2,32 @@
 Vous retrouverez ici l'historique des différents déploiements effectués sur l'API Engagement.
 
 
+## 20/10/2025
+
+
+### Bug Fixes
+
+- (**widget**) Add aria-hidden property to icons ([`c68bf39`](https://github.com/betagouv/api-engagement/commit/c68bf394920430d293f8bd1d9360b91f2c331b41))
+
+- (**jobs**) Try to correctly catch the job error for scalway serverless jobs (#485) ([`0aa8028`](https://github.com/betagouv/api-engagement/commit/0aa8028495dc2ce83addc8e80ab5e5e28980e366))
+
+- (**jobs**) Export organizations infinit loop (#482) ([`927906c`](https://github.com/betagouv/api-engagement/commit/927906ceb38b27fa1a45f03ed5dbf985b09f01ff))
+
+
+### Miscellaneous Tasks
+
+- (**changelog**) Update CHANGELOG.md ([`24ccede`](https://github.com/betagouv/api-engagement/commit/24ccedef6a8441a139f16946f77868bf062ffba1))
+
+- (**jobs**) Optimize StatsGlobalMissionActivity MV and refresh views job (#483) ([`011ab0a`](https://github.com/betagouv/api-engagement/commit/011ab0aef8845a67908183341a087e2b0897602a))
+
+- (**ci**) Handle Prisma migration failures (#481) ([`7fd524c`](https://github.com/betagouv/api-engagement/commit/7fd524c4b9441c52bf0b1552f6d640f4275a4c7e))
+
+-  Merge changelog from main ([`c634d3d`](https://github.com/betagouv/api-engagement/commit/c634d3dc019dcaffaec51c56a628c4c8926cec10))
+
+# API Engagement - Changelog
+Vous retrouverez ici l'historique des différents déploiements effectués sur l'API Engagement.
+
+
 ## 13/10/2025
 
 
