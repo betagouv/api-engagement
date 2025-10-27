@@ -3,7 +3,7 @@ locals {
     "ENV"                     = terraform.workspace
     "DATABASE_URL_CORE"       = local.secrets.DATABASE_URL_CORE
     "DATABASE_URL_ANALYTICS"  = local.secrets.DATABASE_URL_ANALYTICS
-    "SENTRY_DSN_API"          = local.secrets.SENTRY_DSN_API
+    "SENTRY_DSN_JOBS"         = local.secrets.SENTRY_DSN_JOBS
     "SLACK_TOKEN"             = local.secrets.SLACK_TOKEN
   }
 
