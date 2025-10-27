@@ -1,0 +1,28 @@
+locals {
+  common_env_vars = {
+    "ENV"                     = terraform.workspace
+    "DATABASE_URL_CORE"       = local.secrets.DATABASE_URL_CORE
+    "DATABASE_URL_ANALYTICS"  = local.secrets.DATABASE_URL_ANALYTICS
+    "SENTRY_DSN_API"          = local.secrets.SENTRY_DSN_API
+    "SLACK_TOKEN"             = local.secrets.SLACK_TOKEN
+  }
+
+  image_analytics_uri = "ghcr.io/${var.github_repository}/analytics:${terraform.workspace == "production" ? "production" : "staging"}${var.image_tag == "latest" ? "" : "-${var.image_tag}"}"
+}
+
+resource "scaleway_job_definition" "analytics-stat-event" {
+  name         = "analytics-${terraform.workspace}-stat-event"
+  project_id   = var.project_id
+  cpu_limit    = 1000
+  memory_limit = 2048
+  image_uri    = local.image_analytics_uri
+  command      = "node dist/jobs/run-job.js export-to-analytics-raw StatEvent"
+  timeout      = "120m"
+
+  cron {
+    schedule = "0 3 * * *" # Every day at 3:00 AM
+    timezone = "Europe/Paris"
+  }
+
+  env = local.common_env_vars
+}

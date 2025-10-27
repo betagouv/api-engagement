@@ -2,10 +2,11 @@
   "name": "api-engagement",
   "version": "1.0.0",
   "scripts": {
-    "lint": "npm run lint:api && npm run lint:widget",
+    "lint": "npm run lint:api && npm run lint:analytics && npm run lint:widget",
     "lint:fix": "npm run lint:fix:api && npm run lint:fix:widget",
     "lint:api": "cd api && npm run lint",
     "lint:fix:api": "cd api && npm run lint:fix",
+    "lint:analytics": "cd analytics && npm run lint",
     "lint:widget": "cd widget && npm run lint",
     "lint:fix:widget": "cd widget && npm run lint:fix",
     "format": "prettier --write \"**/*.{js,jsx,ts,tsx,json,md,yml}\" --ignore-path .prettierignore",

@@ -22,6 +22,7 @@ jobs:
           scopes: |
             app
             api
+            analytics
             widget
             jobs
             ci
