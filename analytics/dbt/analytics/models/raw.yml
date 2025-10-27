@@ -1,0 +1,59 @@
+version: 2
+
+sources:
+  - name: public
+    description: Tables déjà présentes dans le schéma `public`.
+    schema: public
+    tables:
+      - name: Partner
+      - name: Mission
+      - name: Widget
+      - name: Campaign
+      - name: Click
+  - name: analytics_raw
+    description: Données brutes synchronisées depuis la base opérationnelle `analytics_raw`.
+    schema: analytics_raw
+    loader: node job export-to-analytics-raw
+    tables:
+      - name: StatEvent
+        description: >-
+          Événements de statistiques (impressions, clics, candidatures, création de compte) exportés depuis la base `core`
+          pour alimenter l'entrepôt analytics. Chaque ligne correspond à une action utilisateur observée, enrichie des
+          identifiants partenaires et missions.
+        columns:
+          - name: id
+            description: Identifiant unique de l'événement issu de l'application source.
+          - name: type
+            description: Type d'événement (`click`, `print`, `apply`, `account`).
+          - name: created_at
+            description: Horodatage (UTC) de la collecte de l'événement.
+          - name: click_id
+            description: Identifiant d'un clic associé (si pertinent).
+          - name: referer
+            description: URL de provenance envoyée par le navigateur.
+          - name: host
+            description: Domaine sur lequel l'événement a été déclenché.
+          - name: is_bot
+            description: Indique si l'événement est classé comme bot (`true`) selon les règles de détection actuelles.
+          - name: is_human
+            description: Indique si l'événement est classé comme humain (`true`).
+          - name: source
+            description: Origine de la collecte (`api`, `widget`, `campaign`, `seo`, `jstag`, `publisher`).
+          - name: source_id
+            description: Identifiant métier associé à la source (id widget, campagne, etc.).
+          - name: from_publisher_id
+            description: Identifiant du partenaire diffuseur (source).
+          - name: to_publisher_id
+            description: Identifiant du partenaire receveur (annonceur).
+          - name: mission_id
+            description: Identifiant de la mission dans la base analytics (nullable).
+          - name: mission_client_id
+            description: Identifiant métier de la mission côté client/source (nullable).
+          - name: tag
+            description: Tag principal associé à l'événement (nullable).
+          - name: tags
+            description: Liste (array) de tags complémentaires (nullable).
+          - name: status
+            description: Statut métier de l'événement (ex. `PENDING`, `VALIDATED`, `CANCELED`).
+          - name: custom_attributes
+            description: Attributs personnalisés en JSON (nullable) fournis par la source.
