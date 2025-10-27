@@ -1,0 +1,12 @@
+analytics:
+  target: dev
+  outputs:
+    dev:
+      type: postgres
+      host: "{{ env_var('DBT_DB_HOST') }}"
+      port: "{{ env_var('DBT_DB_PORT') | default('5431') | int }}"
+      user: "{{ env_var('DBT_DB_USER') }}"
+      password: "{{ env_var('DBT_DB_PASSWORD') }}"
+      dbname: "{{ env_var('DBT_DB_NAME') }}"
+      schema: analytics_raw
+      threads: 4
