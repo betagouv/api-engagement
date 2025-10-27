@@ -1,5 +1,5 @@
 locals {
-  common_env_vars = {
+  common_analytics_env_vars = {
     "ENV"                     = terraform.workspace
     "DATABASE_URL_CORE"       = local.secrets.DATABASE_URL_CORE
     "DATABASE_URL_ANALYTICS"  = local.secrets.DATABASE_URL_ANALYTICS
@@ -24,5 +24,5 @@ resource "scaleway_job_definition" "analytics-stat-event" {
     timezone = "Europe/Paris"
   }
 
-  env = local.common_env_vars
+  env = local.common_analytics_env_vars
 }
