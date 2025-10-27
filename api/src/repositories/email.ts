@@ -20,6 +20,8 @@ export const emailRepository = {
         status: params.status,
         ...(params.toEmail ? { toEmails: { has: params.toEmail } } : {}),
         ...(params.includeDeleted ? {} : { deletedAt: null }),
+        ...(params.dateFrom ? { createdAt: { gte: params.dateFrom } } : {}),
+        ...(params.dateTo ? { createdAt: { lte: params.dateTo } } : {}),
       },
       orderBy: { createdAt: "desc" },
     }) as unknown as EmailRecord | null;
