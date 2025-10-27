@@ -3,16 +3,16 @@ CREATE TYPE "analytics_raw"."StatEventType" AS ENUM ('click', 'print', 'apply', 
 CREATE TYPE "analytics_raw"."StatSource" AS ENUM ('api', 'widget', 'campaign', 'seo', 'jstag', 'publisher');
 CREATE TYPE "analytics_raw"."StatEventStatus" AS ENUM ('PENDING', 'VALIDATED', 'CANCEL', 'CANCELED', 'REFUSED', 'CARRIED_OUT');
 
-CREATE TABLE "analytics_raw"."StatEvent" (
+CREATE TABLE IF NOT EXISTS "analytics_raw"."StatEvent" (
   "id" TEXT NOT NULL,
-  "type" "public"."StatEventType" NOT NULL,
+  "type" "analytics_raw"."StatEventType" NOT NULL,
   "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
   "click_id" TEXT,
   "referer" TEXT,
   "host" TEXT,
   "is_bot" BOOLEAN NOT NULL DEFAULT FALSE,
   "is_human" BOOLEAN NOT NULL DEFAULT FALSE,
-  "source" "public"."StatSource" NOT NULL,
+  "source" "analytics_raw"."StatSource" NOT NULL,
   "source_id" TEXT NOT NULL,
   "from_publisher_id" TEXT NOT NULL,
   "to_publisher_id" TEXT NOT NULL,
@@ -20,7 +20,7 @@ CREATE TABLE "analytics_raw"."StatEvent" (
   "mission_client_id" TEXT,
   "tag" TEXT,
   "tags" TEXT[],
-  "status" "public"."StatEventStatus",
+  "status" "analytics_raw"."StatEventStatus",
   "custom_attributes" JSONB,
 
   CONSTRAINT "StatEvent_pkey" PRIMARY KEY ("id")

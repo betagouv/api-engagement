@@ -16,7 +16,6 @@ resource "scaleway_job_definition" "analytics-stat-event" {
   cpu_limit    = 1000
   memory_limit = 2048
   image_uri    = local.image_analytics_uri
-  command      = "node dist/jobs/run-job.js export-to-analytics-raw StatEvent"
   timeout      = "120m"
 
   cron {
@@ -24,5 +23,7 @@ resource "scaleway_job_definition" "analytics-stat-event" {
     timezone = "Europe/Paris"
   }
 
-  env = local.common_analytics_env_vars
+  env = merge(local.common_analytics_env_vars, {
+    JOB_CMD = "node dist/jobs/run-job.js export-to-analytics-raw StatEvent"
+  })
 }
