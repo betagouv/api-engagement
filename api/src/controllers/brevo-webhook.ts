@@ -1,9 +1,9 @@
 import { Router } from "express";
 import { captureException, captureMessage, INVALID_BODY } from "../error";
-import EmailModel from "../models/email";
+import { emailRepository } from "../repositories/email";
 import { putObject } from "../services/s3";
-import { Email } from "../types";
 import { BrevoInboundEmail } from "../types/brevo";
+import { EmailCreateInput, EmailRecord } from "../types/email";
 
 const router = Router();
 
@@ -51,14 +51,13 @@ router.post("/", async (req, res, next) => {
           token: attachment["DownloadToken"],
         })),
         deletedAt: null,
-      } as Email;
+      } as EmailCreateInput;
 
-      const email = await EmailModel.create(obj);
+      const email = await emailRepository.create(obj);
       const objectName = await downloadFile(email);
       if (objectName) {
-        email.fileObjectName = objectName;
+        await emailRepository.update(email.id, { fileObjectName: objectName });
       }
-      await email.save();
     }
     return res.status(200).send({ ok: true });
   } catch (error) {
@@ -66,7 +65,7 @@ router.post("/", async (req, res, next) => {
   }
 });
 
-const downloadFile = async (email: Email) => {
+const downloadFile = async (email: EmailRecord) => {
   try {
     if (!email.mdTextBody) {
       return null;
@@ -75,12 +74,12 @@ const downloadFile = async (email: Email) => {
     // find link the md_text_body of the text [Download report](https://www.linkedin.com/e/v2?...)
     const match = email.mdTextBody.match(/\[Download report\]\((https:\/\/www\.linkedin\.com\/e\/v2\?[^)]+)\)/);
     if (!match) {
-      captureException("[Linkedin Stats] No link found", `No link found in email ${email._id}`);
+      captureException("[Linkedin Stats] No link found", `No link found in email ${email.id}`);
       return;
     }
 
     const link = match[0].slice("[Download report](".length, -1).replaceAll("&amp;", "&");
-    console.log(`[Linkedin Stats] Found link in email ${email._id}: ${link}`);
+    console.log(`[Linkedin Stats] Found link in email ${email.id}: ${link}`);
 
     const response = await fetch(link);
     if (!response.ok) {
@@ -89,7 +88,7 @@ const downloadFile = async (email: Email) => {
 
     const arrayBuffer = await response.arrayBuffer();
 
-    const objectName = `linkedin-report/${email._id}.xlsx`;
+    const objectName = `linkedin-report/${email.id}.xlsx`;
     const res = await putObject(objectName, Buffer.from(arrayBuffer));
     if (res instanceof Error) {
       throw new Error(`Failed to upload to S3 ${res}`);

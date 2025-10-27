@@ -1,4 +1,3 @@
-// src/repos/email.repo.ts
 import { prismaCore } from "../db/postgres";
 
 import type { EmailCreateInput, EmailFindParams, EmailRecord, EmailUpdatePatch } from "../types/email";
@@ -31,7 +30,6 @@ export const emailRepository = {
   },
 
   async create(data: EmailCreateInput): Promise<EmailRecord> {
-    // dérive toEmails si `to` est un array d’objets
     let toEmails: string[] | undefined = undefined;
     if ("to" in data) {
       if (data.to === null) {
