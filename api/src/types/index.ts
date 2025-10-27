@@ -1,5 +1,4 @@
 import { Schema } from "mongoose";
-import { BrevoInboundEmail } from "./brevo";
 
 export interface Organization {
   _id: Schema.Types.ObjectId;
@@ -834,41 +833,6 @@ export type EsQuery = {
   };
 };
 
-export interface Email {
-  _id: Schema.Types.ObjectId;
-  raw: BrevoInboundEmail;
-  messageId: string;
-  inReplyTo?: string;
-  fromName: string;
-  fromEmail: string;
-  to: { name: string; email: string }[];
-  subject: string;
-  sentAt: Date;
-  rawTextBody?: string;
-  rawHtmlBody?: string;
-  mdTextBody: string;
-  attachments: {
-    name: string;
-    contentType: string;
-    contentLength: number;
-    contentId: string;
-    token: string;
-    url: string;
-  }[];
-
-  status: "PENDING" | "PROCESSED" | "FAILED" | "DUPLICATE";
-  reportUrl: string | null;
-  fileObjectName: string | null;
-  dateFrom: Date | null;
-  dateTo: Date | null;
-  createdCount: number | null;
-  failed: any | null;
-
-  deletedAt: Date | null;
-  createdAt: Date;
-  updatedAt: Date;
-}
-
 export interface Kpi {
   _id: Schema.Types.ObjectId;
 
@@ -923,3 +887,5 @@ export enum MissionType {
   BENEVOLAT = "benevolat",
   VOLONTARIAT = "volontariat-service-civique",
 }
+
+export * from "./email";

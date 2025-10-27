@@ -8,6 +8,16 @@ datasource db_core {
   url      = env("DATABASE_URL_CORE")
 }
 
+//
+// Enums
+//
+enum EmailStatus {
+  PENDING
+  PROCESSED
+  DUPLICATE
+  FAILED
+}
+
 enum StatEventType {
   click
   print
@@ -32,6 +42,41 @@ enum StatEventStatus {
   REFUSED
   CARRIED_OUT
 }
+
+//
+// Models
+//
+model Email {
+  id               String       @id @default(uuid())
+  messageId       String? @map("message_id")
+  inReplyTo      String? @map("in_reply_to")
+  fromName        String? @map("from_name")
+  fromEmail       String? @map("from_email")
+  to               Json?
+  toEmails        String[]     @default([]) @map("to_emails")
+  subject          String? @map("subject")
+  sentAt          DateTime? @map("sent_at")
+  rawTextBody    String? @map("raw_text_body")
+  rawHtmlBody    String? @map("raw_html_body")
+  mdTextBody     String? @map("md_text_body")
+  attachments      Json?
+  raw              Json?
+  status           EmailStatus  @default(PENDING)
+  reportUrl       String? @map("report_url")
+  fileObjectName String? @map("file_object_name")
+  dateFrom        DateTime? @map("date_from")
+  dateTo          DateTime? @map("date_to")
+  createdCount    Int? @map("created_count")
+  failed           Json?
+  deletedAt       DateTime? @map("deleted_at")
+  createdAt       DateTime     @default(now()) @map("created_at")
+  updatedAt       DateTime     @updatedAt @map("updated_at")
+
+  @@index([status], map: "email_status_idx")
+  @@index([dateFrom, dateTo], map: "email_date_from_to_idx")
+  @@index([toEmails], type: Gin, map: "email_to_emails_idx")
+}
+
 
 model StatEvent {
   id                          String      @id @default(uuid())
@@ -84,3 +129,4 @@ model StatEvent {
   @@index([from_publisher_id, type, created_at], map: "stats_event_from_publisher_type_created_at_idx")
   @@index([to_publisher_id, type, created_at], map: "stats_event_to_publisher_type_created_at_idx")
 }
+
