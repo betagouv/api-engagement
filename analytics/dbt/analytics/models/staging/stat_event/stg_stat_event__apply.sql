@@ -25,7 +25,7 @@ widgets as (
 ),
 
 clicks as (
-  select id, old_id from {{ source('public', 'Click') }}
+  select event_id from {{ ref('stg_stat_event__click') }}
 ),
 
 mission_map as (
@@ -44,7 +44,7 @@ select
   p_from.id as from_partner_id,
   p_to.id as to_partner_id,
   mm.mission_id,
-  clk.id as click_id,
+  clk.event_id as click_id,
   e.click_old_id as old_view_id,
   e.status_clean as status,
   e.custom_attributes,
@@ -67,4 +67,4 @@ left join mission_map as mm on e.id = mm.event_id
 left join partners as p_source on e.source = 'publisher' and e.source_id_clean = p_source.old_id
 left join campaigns as c_source on e.source = 'campaign' and e.source_id_clean = c_source.old_id
 left join widgets as w_source on e.source = 'widget' and e.source_id_clean = w_source.old_id
-left join clicks as clk on e.click_old_id = clk.old_id
+left join clicks as clk on e.click_old_id = clk.event_id
