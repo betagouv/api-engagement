@@ -2,7 +2,7 @@ import { BUCKET_NAME, PUBLISHER_IDS } from "../../config";
 
 export const TALENT_XML_URL = `https://${BUCKET_NAME}.s3.fr-par.scw.cloud/xml/talent`;
 
-export const TALENT_PUBLISHER_ID = PUBLISHER_IDS.LINKEDIN;
+export const TALENT_PUBLISHER_ID = PUBLISHER_IDS.TALENT;
 
 export const CATEGORY_MAPPING = {
   "taches-administratives": "Administration",
