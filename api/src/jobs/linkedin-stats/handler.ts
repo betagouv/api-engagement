@@ -2,7 +2,7 @@ import * as XLSX from "xlsx";
 
 import { Email } from "../../db/core";
 import { captureException } from "../../error";
-import { emailRepository } from "../../repositories/email";
+import { emailService } from "../../services/email";
 import { getObject } from "../../services/s3";
 import { BaseHandler } from "../base/handler";
 import { JobResult } from "../types";
@@ -73,7 +73,7 @@ export class LinkedinStatsHandler implements BaseHandler<LinkedinStatsJobPayload
     };
     console.log(`[Linkedin Stats] Starting at ${start.toISOString()}`);
     try {
-      const emails = await emailRepository.find({
+      const emails = await emailService.findEmails({
         status: "PENDING",
         toEmail: "linkedin@api-engagement-dev.fr",
       });
@@ -90,18 +90,18 @@ export class LinkedinStatsHandler implements BaseHandler<LinkedinStatsJobPayload
       for (const email of emails) {
         const data = await getData(email);
         if (!data) {
-          await emailRepository.update(email.id, { status: "FAILED" });
+          await emailService.updateEmail(email.id, { status: "FAILED" });
           continue;
         }
 
-        const exists = await emailRepository.find({
+        const exists = await emailService.findEmails({
           status: "PROCESSED",
           dateFrom: data.from,
           dateTo: data.to,
         });
         if (exists.length > 0) {
           console.log(`[Linkedin Stats] Report already processed for email ${email.id}`);
-          await emailRepository.update(email.id, { status: "DUPLICATE", dateFrom: data.from, dateTo: data.to });
+          await emailService.updateEmail(email.id, { status: "DUPLICATE", dateFrom: data.from, dateTo: data.to });
           continue;
         }
 
@@ -111,7 +111,7 @@ export class LinkedinStatsHandler implements BaseHandler<LinkedinStatsJobPayload
         result.created += res.created;
         result.failed.data.push(...res.failed.data);
 
-        await emailRepository.update(email.id, {
+        await emailService.updateEmail(email.id, {
           status: "PROCESSED",
           dateFrom: data.from,
           dateTo: data.to,
