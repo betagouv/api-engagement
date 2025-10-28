@@ -18,6 +18,7 @@ export const fetchXML = async (publisher: Publisher): Promise<string | null> => 
     const response = await fetch(publisher.feed.trim(), { headers });
 
     if (!response.ok) {
+      captureException(`Failed to fetch xml (Response non OK)`, { extra: { publisher, response } });
       return null;
     }
     return await response.text();
