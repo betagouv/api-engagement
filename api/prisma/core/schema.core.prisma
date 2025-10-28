@@ -46,7 +46,7 @@ enum StatEventStatus {
 //
 // Models
 //
-model Email {
+model Email { @map("email")
   id               String       @id @default(uuid())
   messageId       String? @map("message_id")
   inReplyTo      String? @map("in_reply_to")

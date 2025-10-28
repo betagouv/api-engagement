@@ -2,7 +2,7 @@
 CREATE TYPE "public"."EmailStatus" AS ENUM ('PENDING', 'PROCESSED', 'DUPLICATE', 'FAILED');
 
 -- CreateTable
-CREATE TABLE "public"."Email" (
+CREATE TABLE "public"."email" (
     "id" TEXT NOT NULL,
     "message_id" TEXT,
     "in_reply_to" TEXT,
@@ -28,14 +28,14 @@ CREATE TABLE "public"."Email" (
     "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updated_at" TIMESTAMP(3) NOT NULL,
 
-    CONSTRAINT "Email_pkey" PRIMARY KEY ("id")
+    CONSTRAINT "email_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateIndex
-CREATE INDEX "email_status_idx" ON "public"."Email"("status");
+CREATE INDEX "email_status_idx" ON "public"."email"("status");
 
 -- CreateIndex
-CREATE INDEX "email_date_from_to_idx" ON "public"."Email"("date_from", "date_to");
+CREATE INDEX "email_date_from_to_idx" ON "public"."email"("date_from", "date_to");
 
 -- CreateIndex
-CREATE INDEX "email_to_emails_idx" ON "public"."Email" USING GIN ("to_emails");
+CREATE INDEX "email_to_emails_idx" ON "public"."email" USING GIN ("to_emails");
