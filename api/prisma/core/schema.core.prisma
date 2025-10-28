@@ -46,77 +46,77 @@ enum StatEventStatus {
 //
 // Models
 //
-model Email { @map("email")
-  id               String       @id @default(uuid())
-  messageId       String? @map("message_id")
-  inReplyTo      String? @map("in_reply_to")
-  fromName        String? @map("from_name")
-  fromEmail       String? @map("from_email")
-  to               Json?
-  toEmails        String[]     @default([]) @map("to_emails")
-  subject          String? @map("subject")
-  sentAt          DateTime? @map("sent_at")
-  rawTextBody    String? @map("raw_text_body")
-  rawHtmlBody    String? @map("raw_html_body")
-  mdTextBody     String? @map("md_text_body")
-  attachments      Json?
-  raw              Json?
-  status           EmailStatus  @default(PENDING)
-  reportUrl       String? @map("report_url")
-  fileObjectName String? @map("file_object_name")
-  dateFrom        DateTime? @map("date_from")
-  dateTo          DateTime? @map("date_to")
-  createdCount    Int? @map("created_count")
-  failed           Json?
-  deletedAt       DateTime? @map("deleted_at")
-  createdAt       DateTime     @default(now()) @map("created_at")
-  updatedAt       DateTime     @updatedAt @map("updated_at")
+model Email {
+  id             String      @id @default(uuid())
+  messageId      String?     @map("message_id")
+  inReplyTo      String?     @map("in_reply_to")
+  fromName       String?     @map("from_name")
+  fromEmail      String?     @map("from_email")
+  to             Json?
+  toEmails       String[]    @default([]) @map("to_emails")
+  subject        String?     @map("subject")
+  sentAt         DateTime?   @map("sent_at")
+  rawTextBody    String?     @map("raw_text_body")
+  rawHtmlBody    String?     @map("raw_html_body")
+  mdTextBody     String?     @map("md_text_body")
+  attachments    Json?
+  raw            Json?
+  status         EmailStatus @default(PENDING)
+  reportUrl      String?     @map("report_url")
+  fileObjectName String?     @map("file_object_name")
+  dateFrom       DateTime?   @map("date_from")
+  dateTo         DateTime?   @map("date_to")
+  createdCount   Int?        @map("created_count")
+  failed         Json?
+  deletedAt      DateTime?   @map("deleted_at")
+  createdAt      DateTime    @default(now()) @map("created_at")
+  updatedAt      DateTime    @updatedAt @map("updated_at")
 
   @@index([status], map: "email_status_idx")
   @@index([dateFrom, dateTo], map: "email_date_from_to_idx")
   @@index([toEmails], type: Gin, map: "email_to_emails_idx")
+  @@map("email")
 }
 
-
 model StatEvent {
-  id                          String      @id @default(uuid())
-  es_id                       String?     @unique
-  type                        StatEventType
-  created_at                  DateTime    @default(now())
-  click_user                  String?
-  click_id                    String?
-  request_id                  String?
-  origin                      String
-  referer                     String
-  user_agent                  String
-  host                        String
-  user                        String?
-  is_bot                      Boolean
-  is_human                    Boolean
-  source                      StatSource
-  source_id                   String
-  source_name                 String
-  custom_attributes           Json?
-  status                      StatEventStatus
+  id                String          @id @default(uuid())
+  es_id             String?         @unique
+  type              StatEventType
+  created_at        DateTime        @default(now())
+  click_user        String?
+  click_id          String?
+  request_id        String?
+  origin            String
+  referer           String
+  user_agent        String
+  host              String
+  user              String?
+  is_bot            Boolean
+  is_human          Boolean
+  source            StatSource
+  source_id         String
+  source_name       String
+  custom_attributes Json?
+  status            StatEventStatus
 
-  from_publisher_id           String
-  from_publisher_name         String
-  to_publisher_id             String
-  to_publisher_name           String
+  from_publisher_id   String
+  from_publisher_name String
+  to_publisher_id     String
+  to_publisher_name   String
 
   // Mission fields. Should be replaced by foreign keys to existing models when migrated
-  mission_id                  String?
-  mission_client_id           String?
-  mission_domain              String?
-  mission_title               String?
-  mission_postal_code         String?
-  mission_department_name     String?
-  mission_organization_id     String?
-  mission_organization_name   String?
+  mission_id                     String?
+  mission_client_id              String?
+  mission_domain                 String?
+  mission_title                  String?
+  mission_postal_code            String?
+  mission_department_name        String?
+  mission_organization_id        String?
+  mission_organization_name      String?
   mission_organization_client_id String?
-  tag                         String?
-  tags                        String[]
-  export_to_analytics         String?
+  tag                            String?
+  tags                           String[]
+  export_to_analytics            String?
 
   @@index([type, created_at], map: "stats_event_type_created_at_desc_idx")
   @@index([mission_id, created_at], map: "stats_event_mission_id_created_at_idx")
@@ -129,4 +129,3 @@ model StatEvent {
   @@index([from_publisher_id, type, created_at], map: "stats_event_from_publisher_type_created_at_idx")
   @@index([to_publisher_id, type, created_at], map: "stats_event_to_publisher_type_created_at_idx")
 }
-
