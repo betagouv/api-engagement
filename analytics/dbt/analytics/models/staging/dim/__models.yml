@@ -1,0 +1,67 @@
+version: 2
+
+models:
+  - name: dim_partner
+    description: >
+      Vue légère sur la table `Partner` (schema public) qui expose uniquement
+      les identifiants nécessaires aux lookups analytics (`id`, `old_id`).
+    columns:
+      - name: id
+        description: Identifiant UUID du partenaire dans l’entrepôt analytics.
+        tests:
+          - not_null
+          - unique
+      - name: old_id
+        description: Ancien identifiant partenaire (valeur historique utilisée dans StatEvent).
+        tests:
+          - not_null
+          - unique
+
+  - name: dim_mission
+    description: >
+      Extraction des identifiants de mission (UUID et ancien ID) enrichis du partner
+      associé afin de rebasculer les événements StatEvent vers les missions analytics.
+    columns:
+      - name: id
+        description: Identifiant UUID de la mission dans l’entrepôt analytics.
+        tests:
+          - not_null
+          - unique
+      - name: old_id
+        description: Ancien identifiant mission (valeur historisée côté sources).
+      - name: client_id
+        description: Identifiant client de la mission (clé métier utilisée par StatEvent).
+      - name: partner_old_id
+        description: Ancien identifiant partenaire rattaché à la mission.
+
+  - name: dim_campaign
+    description: >
+      Mapping simple entre les UUID campagne analytics et leurs anciens identifiants
+      afin de résoudre les références présentes dans StatEvent.
+    columns:
+      - name: id
+        description: Identifiant UUID de la campagne.
+        tests:
+          - not_null
+          - unique
+      - name: old_id
+        description: Ancien identifiant campagne utilisé dans StatEvent.
+        tests:
+          - not_null
+          - unique
+
+  - name: dim_widget
+    description: >
+      Correspondance entre les widgets analytics (UUID) et leur ancien identifiant
+      pour rapprocher les événements StatEvent de type widget.
+    columns:
+      - name: id
+        description: Identifiant UUID du widget.
+        tests:
+          - not_null
+          - unique
+      - name: old_id
+        description: Ancien identifiant widget.
+        tests:
+          - not_null
+          - unique
