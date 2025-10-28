@@ -1,0 +1,166 @@
+version: 2
+
+models:
+  - name: stg_stat_event
+    description: >
+      Extraction brute de la table `analytics_raw.StatEvent`. Ce modèle applique
+      uniquement le typage de base (timestamps, booléens) tout en conservant la
+      granularité événementielle d’origine avant enrichissements.
+    columns:
+      - name: id
+        description: Identifiant unique de l’événement côté application source.
+        tests:
+          - not_null
+          - unique
+      - name: type
+        description: Type d’événement collecté (`click`, `apply`, `account`, `print`).
+        tests:
+          - not_null
+      - name: created_at
+        description: Horodatage (UTC) de la collecte.
+        tests:
+          - not_null
+      - name: source
+        description: Origine déclarée de l’événement (api, widget, campagne, etc.).
+      - name: source_id
+        description: Identifiant métier transmis par la source (widget_id, campaign_id…).
+      - name: from_publisher_id
+        description: Identifiant partenaire « diffuseur » issu de la base core.
+      - name: to_publisher_id
+        description: Identifiant partenaire « annonceur » issu de la base core.
+      - name: mission_id
+        description: Identifiant de mission connu côté analytics (peut être nul).
+      - name: mission_client_id
+        description: Identifiant client de mission (clé métier provenant du diffuseur).
+      - name: click_id
+        description: Identifiant de clic associé lorsqu’il existe, sinon chaîne vide.
+
+  - name: stg_stat_event__mission_map
+    description: >
+      Vue intermédiaire qui résout l’identifiant de mission analytics pour chaque
+      événement StatEvent en combinant plusieurs clés (mission_id, mission_client_id,
+      partenaire). Ce mapping est partagé par tous les modèles de staging dérivés.
+    columns:
+      - name: event_id
+        description: Identifiant de l’événement StatEvent concerné.
+        tests:
+          - not_null
+          - unique
+      - name: mission_id
+        description: Identifiant de mission résolu dans l’entrepôt analytics (UUID).
+      - name: mission_old_id
+        description: Identifiant historique de mission (ancien ID) retrouvé via le mapping.
+      - name: resolved_mission_old_id
+        description: Identifiant mission final (ancien ID) retenu après les règles de priorité.
+
+  - name: stg_stat_event__click
+    description: >
+      Transformation des événements StatEvent de type `click`. Le modèle enrichit les
+      identifiants partenaires, missions et sources pour reproduire la logique du job
+      Node `export-stats-to-pg/utils/click.ts`.
+    columns:
+      - name: event_id
+        description: Identifiant source de l’événement.
+        tests:
+          - not_null
+          - unique
+      - name: created_at
+        description: Horodatage du clic.
+        tests:
+          - not_null
+      - name: from_partner_id
+        description: UUID du partenaire diffuseur (analytics).
+        tests:
+          - not_null
+      - name: to_partner_id
+        description: UUID du partenaire annonceur (analytics).
+        tests:
+          - not_null
+      - name: mission_id
+        description: UUID de la mission associée si retrouvée.
+      - name: mission_old_id
+        description: Identifiant historique de la mission.
+      - name: source
+        description: Origine normalisée du clic (api/widget/campaign…).
+      - name: click_id
+        description: Identifiant du clic dans l’entrepôt analytics.
+
+  - name: stg_stat_event__apply
+    description: >
+      Transformation des événements StatEvent de type `apply`. Le modèle reproduit
+      l’enrichissement métier du job Node pour les candidatures (partenaires, missions,
+      sources, statut et attributs personnalisés).
+    columns:
+      - name: event_id
+        description: Identifiant source de l’événement.
+        tests:
+          - not_null
+          - unique
+      - name: from_partner_id
+        description: UUID du partenaire diffuseur.
+        tests:
+          - not_null
+      - name: to_partner_id
+        description: UUID du partenaire annonceur.
+        tests:
+          - not_null
+      - name: mission_id
+        description: UUID de la mission associée si retrouvée.
+      - name: mission_old_id
+        description: Identifiant historique de la mission.
+      - name: status
+        description: Statut métier de la candidature (pending, validated…).
+      - name: custom_attributes
+        description: Payload JSON d’attributs personnalisés.
+
+  - name: stg_stat_event__account
+    description: >
+      Transformation des événements StatEvent de type `account` (création de compte).
+      On retrouve les identifiants analytics (partenaires, mission, clic, sources)
+      alignés sur la table Prisma `Account`.
+    columns:
+      - name: event_id
+        description: Identifiant source de l’événement.
+        tests:
+          - not_null
+          - unique
+      - name: from_partner_id
+        description: UUID du partenaire diffuseur.
+        tests:
+          - not_null
+      - name: to_partner_id
+        description: UUID du partenaire annonceur.
+        tests:
+          - not_null
+      - name: mission_id
+        description: UUID de la mission associée si retrouvée.
+      - name: mission_old_id
+        description: Identifiant historique de la mission.
+      - name: click_id
+        description: Identifiant du clic lié au compte (le cas échéant).
+
+  - name: stg_stat_event__print
+    description: >
+      Transformation des événements StatEvent de type `print`. Ce modèle produit les
+      colonnes attendues par la table Prisma `Impression`, y compris la normalisation
+      de la source et le mapping des partenaires/missions.
+    columns:
+      - name: event_id
+        description: Identifiant source de l’événement.
+        tests:
+          - not_null
+          - unique
+      - name: from_partner_id
+        description: UUID du partenaire diffuseur.
+        tests:
+          - not_null
+      - name: to_partner_id
+        description: UUID du partenaire annonceur.
+        tests:
+          - not_null
+      - name: mission_id
+        description: UUID de la mission associée si retrouvée.
+      - name: mission_old_id
+        description: Identifiant historique de la mission.
+      - name: source
+        description: Origine normalisée de l’impression (api/widget/campaign…).

@@ -9,7 +9,6 @@ sources:
       - name: Mission
       - name: Widget
       - name: Campaign
-      - name: Click
   - name: analytics_raw
     description: Données brutes synchronisées depuis la base opérationnelle `analytics_raw`.
     schema: analytics_raw
