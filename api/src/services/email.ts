@@ -1,6 +1,33 @@
-import { Prisma } from "../db/core";
+import { Email, Prisma } from "../db/core";
 import { emailRepository } from "../repositories/email";
 import type { EmailCreateInput, EmailFindParams, EmailRecord, EmailUpdatePatch } from "../types/email";
+
+const toEmailRecord = (email: Email): EmailRecord => ({
+  id: email.id,
+  messageId: email.messageId,
+  inReplyTo: email.inReplyTo,
+  fromName: email.fromName,
+  fromEmail: email.fromEmail,
+  to: email.to as any, // JSON field
+  toEmails: email.toEmails,
+  subject: email.subject,
+  sentAt: email.sentAt,
+  rawTextBody: email.rawTextBody,
+  rawHtmlBody: email.rawHtmlBody,
+  mdTextBody: email.mdTextBody,
+  attachments: email.attachments as any, // JSON field
+  raw: email.raw as any, // JSON field
+  status: email.status,
+  reportUrl: email.reportUrl,
+  fileObjectName: email.fileObjectName,
+  dateFrom: email.dateFrom,
+  dateTo: email.dateTo,
+  createdCount: email.createdCount,
+  failed: email.failed as any, // JSON field
+  deletedAt: email.deletedAt,
+  createdAt: email.createdAt,
+  updatedAt: email.updatedAt,
+});
 
 export const emailService = {
   async findEmails(params: EmailFindParams = {}): Promise<EmailRecord[]> {
@@ -12,7 +39,7 @@ export const emailService = {
       },
       orderBy: { createdAt: Prisma.SortOrder.desc },
     };
-    return await emailRepository.find(findParams);
+    return (await emailRepository.find(findParams)).map(toEmailRecord);
   },
 
   async createEmail(input: EmailCreateInput): Promise<EmailRecord> {
@@ -48,7 +75,7 @@ export const emailService = {
       failed: input.failed ?? undefined,
     };
 
-    return await emailRepository.create(data);
+    return toEmailRecord(await emailRepository.create(data));
   },
 
   async updateEmail(id: string, patch: EmailUpdatePatch): Promise<EmailRecord> {
@@ -123,6 +150,6 @@ export const emailService = {
       data.deletedAt = patch.deletedAt ?? undefined;
     }
 
-    return await emailRepository.update(id, data);
+    return toEmailRecord(await emailRepository.update(id, data));
   },
 };
