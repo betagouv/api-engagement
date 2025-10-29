@@ -168,7 +168,7 @@ const Moderation = () => {
         <div className="h-px w-full bg-gray-900" />
       </div>
 
-      <Filters filters={filters} onChange={setFilters} searchParams={searchParams} reload={reloadFilters} />
+      <Filters filters={filters} onChange={(next) => setFilters({ ...filters, ...next, page: 1 })} searchParams={searchParams} reload={reloadFilters} />
       <div className="px-12">
         <div className="h-px w-full bg-gray-900" />
       </div>
