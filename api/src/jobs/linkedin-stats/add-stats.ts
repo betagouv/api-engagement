@@ -1,8 +1,8 @@
 import { PUBLISHER_IDS } from "../../config";
 import { captureException, captureMessage } from "../../error";
 import MissionModel from "../../models/mission";
-import { Stats } from "../../types";
 import statEventRepository from "../../repositories/stat-event";
+import { Stats } from "../../types";
 
 const ROWS = [
   "LinkedIn Job ID",
@@ -171,27 +171,24 @@ export const processData = async (data: (string | number)[][], from: Date, to: D
     }
 
     const printsToPersist = pendingPrints.splice(0, pendingPrints.length);
-    const settleResults = await Promise.allSettled(
-      printsToPersist.map((print) => statEventRepository.createStatEvent(print)),
-    );
-
-    settleResults.forEach((settled, index) => {
-      const print = printsToPersist[index];
-      if (settled.status === "fulfilled") {
-        result.created += 1;
-        return;
-      }
-
-      console.error(`[Linkedin Stats] Failed to create stat`, settled.reason);
-      captureException(
-        settled.reason,
-        `[Linkedin Stats] Failed to create stat for mission ${print.missionId}`,
+    const concurrency = 10;
+    for (let i = 0; i < printsToPersist.length; i += concurrency) {
+      const slice = printsToPersist.slice(i, i + concurrency);
+      await Promise.all(
+        slice.map(async (print) => {
+          const created = await statEventRepository.createStatEvent(print);
+          if (created) {
+            result.created += 1;
+          } else {
+            console.error(`[Linkedin Stats] Failed to create stat`, print);
+            result.failed.data.push({
+              error: "Failed to create stat",
+              stat: print,
+            });
+          }
+        })
       );
-      result.failed.data.push({
-        error: (settled.reason as Error)?.message,
-        stat: print,
-      });
-    });
+    }
   };
 
   for (let i = 1; i < data.length; i++) {

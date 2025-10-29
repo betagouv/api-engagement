@@ -1,0 +1,35 @@
+import { captureException, captureMessage } from "../../../error";
+import { putObject } from "../../../services/s3";
+import { EmailRecord } from "../../../types/email";
+import { ExtractLinkedinReportLinkParams, extractLinkedinReportLink } from "./link-extractor";
+
+export const downloadFile = async (email: EmailRecord) => {
+  try {
+    const link = extractLinkedinReportLink(email as ExtractLinkedinReportLinkParams);
+
+    if (!link) {
+      captureException("[Linkedin Stats] No link found", `No link found in email ${email.id}`);
+      return null;
+    }
+
+    console.log(`[Linkedin Stats] Found link in email ${email.id}: ${link}`);
+
+    const response = await fetch(link);
+    if (!response.ok) {
+      throw new Error(`Failed to fetch ${link}: ${response.statusText}`);
+    }
+
+    const arrayBuffer = await response.arrayBuffer();
+
+    const objectName = `linkedin-report/${email.id}.xlsx`;
+    const res = await putObject(objectName, Buffer.from(arrayBuffer));
+    if (res instanceof Error) {
+      throw new Error(`Failed to upload to S3 ${res}`);
+    }
+
+    return objectName;
+  } catch (error: any) {
+    captureMessage("Failed to download attachment", error.message);
+    return null;
+  }
+};
