@@ -16,7 +16,7 @@ const OrganizationRefusedModal = ({ isOpen, onClose, organizationName, comment, 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const res = await api.post("/moderation/search", { moderatorId: publisher._id, organization: organizationName, status: "PENDING", size: 100 });
+        const res = await api.post("/moderation/search", { moderatorId: publisher._id, organization: organizationName, size: 100 });
         if (!res.ok) throw res;
         setMissions(res.data);
       } catch (error) {
