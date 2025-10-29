@@ -126,6 +126,11 @@ const Moderation = () => {
     window.scrollTo({ top: 500, behavior: "smooth" });
   };
 
+  const resetPaginator = () => {
+    setFilters({ ...filters, page: 1 });
+    window.scrollTo({ top: 500, behavior: "smooth" });
+  };
+
   const handleSelectAll = (e) => {
     const checked = e.target.checked;
     if (checked) setSelected(data.map((m) => m._id.toString()));
@@ -178,7 +183,10 @@ const Moderation = () => {
         size={size}
         sort={sort}
         selected={selected}
-        onSize={setSize}
+        onSize={(s) => {
+          setSize(s);
+          setFilters({ ...filters, page: 1 });
+        }}
         onSort={setSort}
         onSelect={setSelected}
         onChange={(values) => {
@@ -194,6 +202,7 @@ const Moderation = () => {
           pageSize={size}
           length={total}
           loading={loading}
+          page={filters.page}
           onPageChange={handlePageChange}
           renderHeader={() => (
             <>
