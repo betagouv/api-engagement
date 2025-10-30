@@ -18,6 +18,7 @@ jobs:
     outputs:
       api: ${{ steps.filter.outputs.api }}
       app: ${{ steps.filter.outputs.app }}
+      analytics: ${{ steps.filter.outputs.analytics }}
       widget: ${{ steps.filter.outputs.widget }}
     steps:
       - uses: actions/checkout@v5
