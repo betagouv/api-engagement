@@ -1,9 +1,9 @@
 import * as XLSX from "xlsx";
 
+import { Email } from "../../db/core";
 import { captureException } from "../../error";
-import EmailModel from "../../models/email";
+import { emailService } from "../../services/email";
 import { getObject } from "../../services/s3";
-import { Email } from "../../types";
 import { BaseHandler } from "../base/handler";
 import { JobResult } from "../types";
 import { processData } from "./add-stats";
@@ -31,19 +31,19 @@ const downloadXlsx = async (url: string) => {
 const getData = async (email: Email) => {
   try {
     if (!email.fileObjectName) {
-      captureException("[Linkedin Stats] No file found", `No file found in email ${email._id}`);
+      captureException("[Linkedin Stats] No file found", `No file found in email ${email.id}`);
       return;
     }
 
     const data = await downloadXlsx(email.fileObjectName);
     if (!data) {
-      captureException("[Linkedin Stats] Failed to download", `Failed to download link in email ${email._id}`);
+      captureException("[Linkedin Stats] Failed to download", `Failed to download link in email ${email.id}`);
       return;
     }
 
     const dateRangeIndex = data.overview.findIndex((row) => row[0] === "Date range");
     if (dateRangeIndex === -1) {
-      captureException("[Linkedin Stats] No date range found", `No date range found in email ${email._id}`);
+      captureException("[Linkedin Stats] No date range found", `No date range found in email ${email.id}`);
       return;
     }
     const dateRange = data.overview[dateRangeIndex + 1][1].split(" - ").map((date) => new Date(date));
@@ -54,7 +54,7 @@ const getData = async (email: Email) => {
 
     return { data: data.jobReporting, from, to };
   } catch (error) {
-    captureException(error, `Failed to process email ${email._id}`);
+    captureException(error, `Failed to process email ${email.id}`);
   }
 };
 
@@ -73,9 +73,9 @@ export class LinkedinStatsHandler implements BaseHandler<LinkedinStatsJobPayload
     };
     console.log(`[Linkedin Stats] Starting at ${start.toISOString()}`);
     try {
-      const emails = await EmailModel.find({
+      const emails = await emailService.findEmails({
         status: "PENDING",
-        "to.email": "linkedin@api-engagement-dev.fr",
+        toEmail: "linkedin@api-engagement-dev.fr",
       });
       if (!emails.length) {
         console.log(`[Linkedin Stats] No email to process`);
@@ -90,40 +90,34 @@ export class LinkedinStatsHandler implements BaseHandler<LinkedinStatsJobPayload
       for (const email of emails) {
         const data = await getData(email);
         if (!data) {
-          email.status = "FAILED";
-          email.updatedAt = new Date();
-          await email.save();
+          await emailService.updateEmail(email.id, { status: "FAILED" });
           continue;
         }
 
-        const exists = await EmailModel.exists({
+        const exists = await emailService.findEmails({
           status: "PROCESSED",
           dateFrom: data.from,
           dateTo: data.to,
         });
-        if (exists) {
-          console.log(`[Linkedin Stats] Report already processed for email ${email._id}`);
-          email.status = "DUPLICATE";
-          email.dateFrom = data.from;
-          email.dateTo = data.to;
-          email.updatedAt = new Date();
-          await email.save();
+        if (exists.length > 0) {
+          console.log(`[Linkedin Stats] Report already processed for email ${email.id}`);
+          await emailService.updateEmail(email.id, { status: "DUPLICATE", dateFrom: data.from, dateTo: data.to });
           continue;
         }
 
-        const res = await processData(data.data, data.from, data.to, email._id.toString());
+        const res = await processData(data.data, data.from, data.to, email.id);
         console.log(`[Linkedin Stats] Created ${res.created} stats with ${res.failed.data.length} failed`);
 
         result.created += res.created;
         result.failed.data.push(...res.failed.data);
 
-        email.status = "PROCESSED";
-        email.dateFrom = data.from;
-        email.dateTo = data.to;
-        email.createdCount = res.created;
-        email.failed = res.failed.data.length ? res.failed : null;
-        email.updatedAt = new Date();
-        await email.save();
+        await emailService.updateEmail(email.id, {
+          status: "PROCESSED",
+          dateFrom: data.from,
+          dateTo: data.to,
+          createdCount: res.created,
+          failed: res.failed.data.length ? res.failed : null,
+        });
       }
 
       console.log(`[Linkedin Stats] Created ${result.created} stats`);
