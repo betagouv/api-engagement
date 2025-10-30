@@ -12,15 +12,24 @@ with events as (
 ),
 
 partners as (
-  select id, old_id from {{ ref('dim_partner') }}
+  select
+    id,
+    old_id
+  from {{ ref('dim_partner') }}
 ),
 
 campaigns as (
-  select id, old_id from {{ ref('dim_campaign') }}
+  select
+    id,
+    old_id
+  from {{ ref('dim_campaign') }}
 ),
 
 widgets as (
-  select id, old_id from {{ ref('dim_widget') }}
+  select
+    id,
+    old_id
+  from {{ ref('dim_widget') }}
 ),
 
 clicks as (
@@ -61,8 +70,14 @@ select
 from events as e
 inner join partners as p_from on e.from_partner_old_id = p_from.old_id
 inner join partners as p_to on e.to_partner_old_id = p_to.old_id
-left join mission_map as mm on e.id = mm.stat_event_id
-left join partners as p_source on e.source = 'publisher' and e.source_id_clean = p_source.old_id
-left join campaigns as c_source on e.source = 'campaign' and e.source_id_clean = c_source.old_id
-left join widgets as w_source on e.source = 'widget' and e.source_id_clean = w_source.old_id
-left join clicks as clk on e.click_old_id = clk.stat_event_id
+left join mission_map as mm on e.id = mm.event_id
+left join
+  partners as p_source
+  on e.source = 'publisher' and e.source_id_clean = p_source.old_id
+left join
+  campaigns as c_source
+  on e.source = 'campaign' and e.source_id_clean = c_source.old_id
+left join
+  widgets as w_source
+  on e.source = 'widget' and e.source_id_clean = w_source.old_id
+left join clicks as clk on e.click_old_id = clk.event_id

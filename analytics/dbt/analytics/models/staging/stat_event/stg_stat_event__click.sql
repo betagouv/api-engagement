@@ -48,9 +48,9 @@ select
   e.is_bot,
   e.is_human,
   e.referer as url_origin,
-  click_id,
-  coalesce(e.tags, array[]::text []) as tags,
+  e.click_id,
   mm.resolved_mission_old_id as mission_old_id,
+  coalesce(e.tags, array[]::text []) as tags,
   case
     when coalesce(e.source, 'publisher') in ('publisher', 'api') then 'api'
     else e.source

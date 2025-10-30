@@ -6,7 +6,7 @@ with events as (
     nullif(e.mission_id, '')        as mission_id_clean,
     e.mission_id                    as mission_id_raw,
     nullif(e.mission_client_id, '') as mission_client_id_clean,
-    nullif(e.to_publisher_id, '')   as to_partner_old_id
+    nullif(e.to_publisher_id, '') as to_partner_old_id
   from {{ ref('stg_stat_event') }} as e
 ),
 
@@ -38,10 +38,11 @@ mission_client_partner as (
     1 as priority
   from events as e
   inner join missions as m
-    on e.mission_id_clean is null
-   and e.mission_client_id_clean is not null
-   and e.mission_client_id_clean = m.client_id
-   and e.to_partner_old_id = m.partner_old_id
+    on
+      e.mission_id_clean is null
+      and e.mission_client_id_clean is not null
+      and e.mission_client_id_clean = m.client_id
+      and e.to_partner_old_id = m.partner_old_id
 ),
 
 mission_lookup as (
@@ -52,9 +53,10 @@ mission_lookup as (
     2 as priority
   from events as e
   inner join missions as m
-    on e.mission_id_clean is null
-   and m.old_id is not null
-   and m.old_id = nullif(e.mission_id_raw, '')
+    on
+      e.mission_id_clean is null
+      and m.old_id is not null
+      and m.old_id = nullif(e.mission_id_raw, '')
 ),
 
 mission_match as (
@@ -87,6 +89,7 @@ select
   e.mission_id_clean,
   mission_match.mission_id,
   mission_match.mission_old_id,
-  coalesce(e.mission_id_clean, mission_match.mission_old_id) as resolved_mission_old_id
+  coalesce(e.mission_id_clean, mission_match.mission_old_id)
+    as resolved_mission_old_id
 from events as e
 left join mission_match on mission_match.stat_event_id = e.stat_event_id

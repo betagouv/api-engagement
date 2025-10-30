@@ -47,10 +47,10 @@ jobs:
           python-version: "3.11"
 
       - name: Install sqlfluff
-        run: pip install --no-cache-dir sqlfluff==3.2.0
+        run: pip install --no-cache-dir sqlfluff==3.5.0
 
       - name: Lint dbt project
-        run: sqlfluff lint --config analytics/dbt/analytics/.sqlfluff analytics/dbt/analytics
+        run: sqlfluff lint --config analytics/dbt/analytics/.sqlfluff analytics/dbt/analytics/models
 
   api-migrations:
     name: Verify API migrations
@@ -137,7 +137,7 @@ jobs:
       - name: Check dbmate migrations
         working-directory: analytics
         env:
-          DATABASE_URL_ANALYTICS: postgresql://postgres:postgres@localhost:5432/analytics
+          DATABASE_URL_ANALYTICS: postgresql://postgres:postgres@localhost:5432/analytics?sslmode=disable
         run: npm run db:migrate
 
   api-tests:

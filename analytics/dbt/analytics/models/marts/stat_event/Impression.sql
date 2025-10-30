@@ -16,7 +16,7 @@ with src as (
   {% if is_incremental() %}
     where
       created_at
-      > (select coalesce(max(created_at), '1900-01-01') from {{ this }})
+      > (select coalesce(max(i.created_at), '1900-01-01') from {{ this }} as i)
   {% endif %}
 ),
 
