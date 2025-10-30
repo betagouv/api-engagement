@@ -174,9 +174,20 @@ export const processData = async (data: (string | number)[][], from: Date, to: D
     const concurrency = 10;
     for (let i = 0; i < printsToPersist.length; i += concurrency) {
       const slice = printsToPersist.slice(i, i + concurrency);
-      await Promise.all(
+      const settledPrints = await Promise.allSettled(
         slice.map(async (print) => {
-          const created = await statEventRepository.createStatEvent(print);
+          try {
+            const created = await statEventRepository.createStatEvent(print);
+            return { print, created };
+          } catch (error) {
+            throw { error, print };
+          }
+        })
+      );
+
+      settledPrints.forEach((printResult) => {
+        if (printResult.status === "fulfilled") {
+          const { print, created } = printResult.value;
           if (created) {
             result.created += 1;
           } else {
@@ -186,8 +197,15 @@ export const processData = async (data: (string | number)[][], from: Date, to: D
               stat: print,
             });
           }
-        })
-      );
+        } else {
+          const { error, print } = printResult.reason ?? {};
+          captureException(error ?? printResult.reason, "[Linkedin Stats] Failed to create stat");
+          result.failed.data.push({
+            error: error?.message ?? "Failed to create stat",
+            stat: print,
+          });
+        }
+      });
     }
   };
 
