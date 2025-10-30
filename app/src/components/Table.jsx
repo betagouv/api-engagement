@@ -38,11 +38,13 @@ export const TablePaginator = ({
   itemHeight = "h-16",
   pageSize = 10,
   loading = false,
+  page: controlledPage,
 }) => {
-  const [page, setPage] = useState(1);
+  const [internalPage, setInternalPage] = useState(1);
+  const currentPage = controlledPage ?? internalPage;
 
   const handlePageChange = (page) => {
-    setPage(page);
+    setInternalPage(page);
     if (onPageChange) onPageChange(page);
   };
 
@@ -71,7 +73,7 @@ export const TablePaginator = ({
         </div>
       </div>
       <div className="mt-3">
-        <Pagination page={page} setPage={handlePageChange} end={parseInt(length / pageSize) + (length % pageSize !== 0 && 1)} />
+        <Pagination page={currentPage} setPage={handlePageChange} end={parseInt(length / pageSize) + (length % pageSize !== 0 && 1)} />
       </div>
     </div>
   );
