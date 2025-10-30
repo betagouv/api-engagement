@@ -1,6 +1,9 @@
 {{ config (
   materialized = 'incremental',
   unique_key = 'apply_id',
+  post_hook = [
+    'create unique index if not exists "ApplyServiceCiviqueAttrs_apply_id_idx" on {{ this }} (apply_id)',
+  ]
 ) }}
 
 with src as (
