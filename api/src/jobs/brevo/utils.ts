@@ -1,6 +1,6 @@
 import { captureException } from "../../error";
-import PublisherModel from "../../models/publisher";
 import UserModel from "../../models/user";
+import { publisherService } from "../../services/publisher";
 import Brevo from "../../services/brevo";
 import { slugify } from "../../utils";
 import { BrevoContact } from "./types";
@@ -13,7 +13,7 @@ export const syncContact = async () => {
   let created = 0;
   try {
     const users = await UserModel.find({});
-    const publishers = await PublisherModel.find({});
+    const publishers = await publisherService.findPublishers();
     console.log(`[Brevo Contacts] Syncing ${users.length} contacts`);
 
     const res = await Brevo.api(`/contacts?limit=${BREVO_CONTACTS_LIMIT}`, {}, "GET");

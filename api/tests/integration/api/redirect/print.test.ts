@@ -5,11 +5,12 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { STATS_INDEX } from "../../../../src/config";
 import { INVALID_PARAMS, INVALID_QUERY, NOT_FOUND } from "../../../../src/error";
 import MissionModel from "../../../../src/models/mission";
-import PublisherModel from "../../../../src/models/publisher";
 import StatsBotModel from "../../../../src/models/stats-bot";
 import WidgetModel from "../../../../src/models/widget";
+import { publisherService } from "../../../../src/services/publisher";
 import * as utils from "../../../../src/utils";
 import { elasticMock } from "../../../mocks";
+import { resetPublisherStore } from "../../../mocks/publisherServiceMock";
 import { createTestApp } from "../../../testApp";
 
 const app = createTestApp();
@@ -17,8 +18,8 @@ const app = createTestApp();
 describe("RedirectController /impression/:missionId/:publisherId", () => {
   beforeEach(async () => {
     await MissionModel.deleteMany({});
-    await PublisherModel.deleteMany({});
     await WidgetModel.deleteMany({});
+    resetPublisherStore();
 
     elasticMock.index.mockReset();
     elasticMock.index.mockResolvedValue({ body: { _id: "default-print-id" } });
@@ -27,8 +28,8 @@ describe("RedirectController /impression/:missionId/:publisherId", () => {
   afterEach(async () => {
     vi.restoreAllMocks();
     await MissionModel.deleteMany({});
-    await PublisherModel.deleteMany({});
     await WidgetModel.deleteMany({});
+    resetPublisherStore();
   });
 
   it("returns 204 when identity is missing", async () => {
@@ -64,12 +65,10 @@ describe("RedirectController /impression/:missionId/:publisherId", () => {
       title: "Mission Title",
     });
 
-    const publisher = await PublisherModel.create({
-      name: "From Publisher",
-    });
+    const publisher = await publisherService.createPublisher({ name: "From Publisher" });
 
     const response = await request(app)
-      .get(`/r/impression/${mission._id.toString()}/${publisher._id.toString()}`)
+      .get(`/r/impression/${mission._id.toString()}/${publisher.id}`)
       .query({ sourceId: "not-a-valid-object-id" });
 
     expect(response.status).toBe(400);
@@ -121,9 +120,7 @@ describe("RedirectController /impression/:missionId/:publisherId", () => {
       publisherName: "Mission Publisher",
     });
 
-    const publisher = await PublisherModel.create({
-      name: "From Publisher",
-    });
+    const publisher = await publisherService.createPublisher({ name: "From Publisher" });
 
     const widget = await WidgetModel.create({
       name: "Widget Name",
@@ -143,7 +140,7 @@ describe("RedirectController /impression/:missionId/:publisherId", () => {
 
     const requestId = new Types.ObjectId().toString();
     const response = await request(app)
-      .get(`/r/impression/${mission._id.toString()}/${publisher._id.toString()}`)
+      .get(`/r/impression/${mission._id.toString()}/${publisher.id}`)
       .set("Host", "redirect.test")
       .set("Origin", "https://app.example.com")
       .query({ tracker: "tag", sourceId: widget._id.toString(), requestId });
@@ -168,7 +165,7 @@ describe("RedirectController /impression/:missionId/:publisherId", () => {
       missionOrganizationClientId: mission.organizationClientId,
       toPublisherId: mission.publisherId,
       toPublisherName: mission.publisherName,
-      fromPublisherId: publisher._id.toString(),
+      fromPublisherId: publisher.id,
       fromPublisherName: publisher.name,
       isBot: true,
     });
@@ -192,7 +189,7 @@ describe("RedirectController /impression/:missionId/:publisherId", () => {
       missionClientId: mission.clientId,
       toPublisherId: mission.publisherId,
       toPublisherName: mission.publisherName,
-      fromPublisherId: publisher._id.toString(),
+      fromPublisherId: publisher.id,
       fromPublisherName: publisher.name,
       isBot: true,
     });
@@ -210,9 +207,7 @@ describe("RedirectController /impression/:missionId/:publisherId", () => {
       title: "Mission Title",
     });
 
-    const publisher = await PublisherModel.create({
-      name: "From Publisher",
-    });
+    const publisher = await publisherService.createPublisher({ name: "From Publisher" });
 
     const identity = {
       user: "print-user",
@@ -225,7 +220,7 @@ describe("RedirectController /impression/:missionId/:publisherId", () => {
     elasticMock.index.mockResolvedValueOnce({ body: { _id: "print-id" } });
 
     const response = await request(app)
-      .get(`/r/impression/${mission._id.toString()}/${publisher._id.toString()}`)
+      .get(`/r/impression/${mission._id.toString()}/${publisher.id}`)
       .query({ tracker: "tag" });
 
     expect(response.status).toBe(200);

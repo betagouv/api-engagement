@@ -5,11 +5,11 @@ import zod from "zod";
 import { INVALID_BODY, INVALID_PARAMS } from "../../error";
 import MissionModel from "../../models/mission";
 import OrganizationExclusionModel from "../../models/organization-exclusion";
-import PublisherModel from "../../models/publisher";
 import RequestModel from "../../models/request";
-import { Publisher } from "../../types";
-import { PublisherRequest } from "../../types/passport";
 import statEventRepository from "../../repositories/stat-event";
+import { publisherService } from "../../services/publisher";
+import type { PublisherRecord } from "../../types/publisher";
+import { PublisherRequest } from "../../types/passport";
 import { buildPublisherData } from "./transformer";
 const router = Router();
 
@@ -38,7 +38,7 @@ router.use(async (req: PublisherRequest, res: Response, next: NextFunction) => {
 
 router.get("/:organizationClientId", passport.authenticate(["apikey", "api"], { session: false }), async (req: PublisherRequest, res: Response, next: NextFunction) => {
   try {
-    const user = req.user as Publisher;
+    const user = req.user as PublisherRecord;
 
     const params = zod
       .object({
@@ -52,12 +52,9 @@ router.get("/:organizationClientId", passport.authenticate(["apikey", "api"], { 
     }
 
     const [publishers, organizationExclusions] = await Promise.all([
-      PublisherModel.find({
-        "publishers.publisherId": user._id.toString(),
-        // $or: [{ hasApiRights: true }, { hasCampaignRights: true }, { hasWidgetRights: true }], TODO ?
-      }),
+      publisherService.findPublishers({ diffuseurOf: user.id }),
       OrganizationExclusionModel.find({
-        excludedByPublisherId: user._id.toString(),
+        excludedByPublisherId: user.id,
       }),
     ]);
 
@@ -65,7 +62,7 @@ router.get("/:organizationClientId", passport.authenticate(["apikey", "api"], { 
     const exclusionSet = new Set(organizationExclusions.map((o) => `${o.organizationClientId}:${o.excludedForPublisherId}`));
 
     const oneMonthAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
-    const publisherIds = publishers.map((publisher) => publisher._id.toString());
+    const publisherIds = publishers.map((publisher) => publisher.id);
     const clicksByPublisher = await statEventRepository.countClicksByPublisherForOrganizationSince({
       publisherIds,
       organizationClientId: params.data.organizationClientId,
@@ -75,8 +72,8 @@ router.get("/:organizationClientId", passport.authenticate(["apikey", "api"], { 
     // Build response data
     const data = [] as any[];
     publishers.forEach((publisher) => {
-      const isExcluded = exclusionSet.has(`${params.data.organizationClientId}:${publisher._id.toString()}`);
-      const clicks = clicksByPublisher[publisher._id.toString()] || 0;
+      const isExcluded = exclusionSet.has(`${params.data.organizationClientId}:${publisher.id}`);
+      const clicks = clicksByPublisher[publisher.id] || 0;
 
       data.push(buildPublisherData(publisher, clicks, isExcluded));
     });
@@ -93,7 +90,7 @@ router.get("/:organizationClientId", passport.authenticate(["apikey", "api"], { 
 
 router.put("/:organizationClientId", passport.authenticate(["apikey", "api"], { session: false }), async (req: PublisherRequest, res: Response, next: NextFunction) => {
   try {
-    const user = req.user as Publisher;
+    const user = req.user as PublisherRecord;
 
     const params = zod
       .object({
@@ -117,9 +114,7 @@ router.put("/:organizationClientId", passport.authenticate(["apikey", "api"], { 
       return res.status(400).send({ ok: false, code: INVALID_BODY, message: body.error });
     }
 
-    const publishers = await PublisherModel.find({
-      "publishers.publisherId": user._id.toString(),
-    });
+    const publishers = await publisherService.findPublishers({ diffuseurOf: user.id });
 
     if (!body.data.organizationName) {
       const organization = await MissionModel.findOne({
@@ -132,19 +127,19 @@ router.put("/:organizationClientId", passport.authenticate(["apikey", "api"], { 
     }
 
     await OrganizationExclusionModel.deleteMany({
-      excludedByPublisherId: user._id.toString(),
+      excludedByPublisherId: user.id,
       organizationClientId: params.data.organizationClientId,
     });
 
     const bulk: any[] = [];
     publishers
-      .filter((e) => !body.data.publisherIds.includes(e._id.toString()))
-      .forEach((e) => {
+      .filter((publisher) => !body.data.publisherIds.includes(publisher.id))
+      .forEach((publisher) => {
         bulk.push({
-          excludedByPublisherId: user._id.toString(),
+          excludedByPublisherId: user.id,
           excludedByPublisherName: user.name,
-          excludedForPublisherId: e._id.toString(),
-          excludedForPublisherName: e.name,
+          excludedForPublisherId: publisher.id,
+          excludedForPublisherName: publisher.name,
           organizationClientId: params.data.organizationClientId,
           organizationName: body.data.organizationName || "",
         });
@@ -153,24 +148,24 @@ router.put("/:organizationClientId", passport.authenticate(["apikey", "api"], { 
     await OrganizationExclusionModel.insertMany(bulk);
 
     const newOrganizationExclusions = await OrganizationExclusionModel.find({
-      excludedByPublisherId: user._id.toString(),
+      excludedByPublisherId: user.id,
       organizationClientId: params.data.organizationClientId,
     });
 
     const data = [] as any[];
-    publishers.forEach((e) => {
-      const isExcluded = newOrganizationExclusions.some((o) => o.excludedForPublisherId === e._id.toString());
+    publishers.forEach((publisher) => {
+      const isExcluded = newOrganizationExclusions.some((o) => o.excludedForPublisherId === publisher.id);
       data.push({
-        _id: e._id,
-        name: e.name,
-        category: e.category,
-        url: e.url,
-        logo: e.logo,
-        description: e.description,
-        widget: e.hasWidgetRights,
-        api: e.hasApiRights,
-        campaign: e.hasCampaignRights,
-        annonceur: e.isAnnonceur,
+        _id: publisher.id,
+        name: publisher.name,
+        category: publisher.category,
+        url: publisher.url,
+        logo: publisher.logo,
+        description: publisher.description,
+        widget: publisher.hasWidgetRights,
+        api: publisher.hasApiRights,
+        campaign: publisher.hasCampaignRights,
+        annonceur: publisher.isAnnonceur,
         excluded: isExcluded,
       });
     });

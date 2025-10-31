@@ -1,6 +1,6 @@
 import { PUBLISHER_IDS } from "../../config";
 import { captureException } from "../../error";
-import PublisherModel from "../../models/publisher";
+import { publisherService } from "../../services/publisher";
 import { BaseHandler } from "../base/handler";
 import { JobResult } from "../types";
 import { createModerations, findMissions } from "./utils";
@@ -31,7 +31,7 @@ export class ModerationHandler implements BaseHandler<ModerationJobPayload, Mode
       const start = new Date();
       console.log(`[Moderation JVA] Starting at ${start.toISOString()}`);
 
-      const jva = await PublisherModel.findById(PUBLISHER_IDS.JEVEUXAIDER);
+      const jva = await publisherService.getPublisherById(PUBLISHER_IDS.JEVEUXAIDER);
 
       if (!jva) {
         throw new Error("JVA not found");
@@ -71,7 +71,7 @@ export class ModerationHandler implements BaseHandler<ModerationJobPayload, Mode
         success: true,
         timestamp: new Date(),
         moderators: result,
-        message: `\t• Nombre de missions traitées: ${data.length} (dont ${data.filter((e) => e[`moderation_${jva._id}_status`] === "PENDING").length} en attente de modération)\n\t• Nombre de missions refusées: ${res.refused}\n\t• Nombre de missions mises en attente de modération: ${res.pending}`,
+        message: `\t• Nombre de missions traitées: ${data.length} (dont ${data.filter((e) => e[`moderation_${jva.id}_status`] === "PENDING").length} en attente de modération)\n\t• Nombre de missions refusées: ${res.refused}\n\t• Nombre de missions mises en attente de modération: ${res.pending}`,
       };
     } catch (error) {
       captureException(error);

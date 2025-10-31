@@ -3,8 +3,8 @@ import passport from "passport";
 import zod from "zod";
 
 import { FORBIDDEN, INVALID_BODY, INVALID_PARAMS, INVALID_QUERY, NOT_FOUND, RESSOURCE_ALREADY_EXIST } from "../error";
-import PublisherModel from "../models/publisher";
 import WidgetModel from "../models/widget";
+import { publisherService } from "../services/publisher";
 import { UserRequest } from "../types/passport";
 
 const router = Router();
@@ -44,14 +44,14 @@ router.post("/search", passport.authenticate("user", { session: false }), async 
 
     const widgets = await WidgetModel.find(where).sort({ createdAt: -1 }).lean();
     const total = await WidgetModel.countDocuments(where);
-    const publishers = await PublisherModel.find().select("_id name").lean();
+    const publishers = await publisherService.listPublishersSummary();
 
     const data = widgets.map((w) => ({
       ...w,
       publishers: w.publishers
         .map((p) => {
-          const pub = publishers.find((pub) => pub._id.toString() === p);
-          return pub ? { _id: pub._id, name: pub.name } : null;
+          const pub = publishers.find((publisher) => publisher.id === p);
+          return pub ? { _id: pub.id, name: pub.name } : null;
         })
         .filter((p) => p),
     }));
@@ -88,14 +88,14 @@ router.get("/", passport.authenticate("user", { session: false }), async (req: U
 
     const widgets = await WidgetModel.find(where).sort({ createdAt: -1 }).lean();
     const total = await WidgetModel.countDocuments(where);
-    const publishers = await PublisherModel.find().select("_id name").lean();
+    const publishers = await publisherService.listPublishersSummary();
 
     const data = widgets.map((w) => ({
       ...w,
       publishers: w.publishers
         .map((p) => {
-          const pub = publishers.find((pub) => pub._id.toString() === p);
-          return pub ? { _id: pub._id, name: pub.name } : null;
+          const pub = publishers.find((publisher) => publisher.id === p);
+          return pub ? { _id: pub.id, name: pub.name } : null;
         })
         .filter((p) => p),
     }));
@@ -183,7 +183,7 @@ router.post("/", passport.authenticate("admin", { session: false }), async (req:
       });
     }
 
-    const fromPublisher = await PublisherModel.findById(body.data.fromPublisherId);
+    const fromPublisher = await publisherService.getPublisherById(body.data.fromPublisherId);
     if (!fromPublisher) {
       return res.status(404).send({
         ok: false,
@@ -194,7 +194,7 @@ router.post("/", passport.authenticate("admin", { session: false }), async (req:
 
     const obj = {
       name: body.data.name,
-      fromPublisherId: fromPublisher._id.toString(),
+      fromPublisherId: fromPublisher.id,
       fromPublisherName: fromPublisher.name,
       type: body.data.type,
       distance: body.data.distance,

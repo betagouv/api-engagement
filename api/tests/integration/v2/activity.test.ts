@@ -3,15 +3,17 @@ import { Types } from "mongoose";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 
 import MissionModel from "../../../src/models/mission";
-import PublisherModel from "../../../src/models/publisher";
 import type { Stats } from "../../../src/types";
+import { publisherService } from "../../../src/services/publisher";
 import { elasticMock, pgMock } from "../../mocks";
+import { resetPublisherStore } from "../../mocks/publisherServiceMock";
 import { createTestApp } from "../../testApp";
 
 const app = createTestApp();
 
 describe("Activity V2 controller", () => {
   beforeEach(() => {
+    resetPublisherStore();
     elasticMock.index.mockReset();
     elasticMock.update.mockReset();
     elasticMock.get.mockReset();
@@ -41,14 +43,12 @@ describe("Activity V2 controller", () => {
   afterEach(() => {
     delete process.env.WRITE_STATS_DUAL;
     delete process.env.READ_STATS_FROM;
+    resetPublisherStore();
   });
 
   describe("GET /v2/activity/:id", () => {
     it("returns the stat event when it exists", async () => {
-      const publisher = await PublisherModel.create({
-        name: "Test Publisher",
-        apikey: "get-activity-key",
-      });
+      const publisher = await publisherService.createPublisher({ name: "Test Publisher", apikey: "get-activity-key" });
 
       const stat: Partial<Stats> = {
         type: "click",
@@ -73,10 +73,7 @@ describe("Activity V2 controller", () => {
     });
 
     it("returns 404 when the stat event does not exist", async () => {
-      await PublisherModel.create({
-        name: "Missing Stat Publisher",
-        apikey: "missing-activity-key",
-      });
+      await publisherService.createPublisher({ name: "Missing Stat Publisher", apikey: "missing-activity-key" });
 
       elasticMock.get.mockRejectedValueOnce({ statusCode: 404 });
 
@@ -103,15 +100,10 @@ describe("Activity V2 controller", () => {
         statusCode: "ACCEPTED",
       });
 
-      const publisherId = new Types.ObjectId();
-      const publisher = await PublisherModel.create({
-        _id: publisherId,
-        name: "Click Publisher",
-        apikey: "click-key",
-      });
+      const publisher = await publisherService.createPublisher({ name: "Click Publisher", apikey: "click-key" });
 
       const response = await request(app)
-        .post(`/v2/activity/${mission._id.toString()}/${publisher._id.toString()}/click`)
+        .post(`/v2/activity/${mission._id.toString()}/${publisher.id}/click`)
         .set("Host", "click.test")
         .set("Origin", "https://app.test")
         .set("Referer", "https://referer.test");
@@ -125,7 +117,7 @@ describe("Activity V2 controller", () => {
       expect(indexArgs[0].body).toMatchObject({
         type: "click",
         missionId: mission._id.toString(),
-        fromPublisherId: publisher._id.toString(),
+        fromPublisherId: publisher.id,
         toPublisherId: mission.publisherId,
       });
 
@@ -148,10 +140,7 @@ describe("Activity V2 controller", () => {
         statusCode: "ACCEPTED",
       });
 
-      const publisher = await PublisherModel.create({
-        name: "Apply Publisher",
-        apikey: "apply-key",
-      });
+      const publisher = await publisherService.createPublisher({ name: "Apply Publisher", apikey: "apply-key" });
 
       const clickStat: Stats = {
         _id: "click-apply",
@@ -188,7 +177,7 @@ describe("Activity V2 controller", () => {
 
       const response = await request(app)
         .post(`/v2/activity/${mission._id.toString()}/apply`)
-        .set("apikey", "apply-key")
+        .set("apikey", publisher.apikey ?? "")
         .set("Host", "apply.test")
         .set("Origin", "https://app.test")
         .set("Referer", "https://referer.test")
@@ -203,7 +192,7 @@ describe("Activity V2 controller", () => {
       expect(applyIndexArgs[0].body).toMatchObject({
         type: "apply",
         clickId: clickStat._id,
-        fromPublisherId: publisher._id.toString(),
+        fromPublisherId: publisher.id,
         toPublisherId: mission.publisherId,
       });
 
@@ -216,10 +205,7 @@ describe("Activity V2 controller", () => {
     it("updates the activity status using the repository", async () => {
       process.env.WRITE_STATS_DUAL = "true";
 
-      const publisher = await PublisherModel.create({
-        name: "Update Publisher",
-        apikey: "update-key",
-      });
+      const publisher = await publisherService.createPublisher({ name: "Update Publisher", apikey: "update-key" });
 
       const statEvent: Stats = {
         _id: "activity-update",

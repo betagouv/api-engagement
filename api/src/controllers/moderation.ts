@@ -5,7 +5,7 @@ import zod from "zod";
 import { PUBLISHER_IDS } from "../config";
 import { FORBIDDEN, INVALID_BODY, INVALID_PARAMS, INVALID_QUERY, NOT_FOUND } from "../error";
 import MissionModel from "../models/mission";
-import PublisherModel from "../models/publisher";
+import { publisherService } from "../services/publisher";
 import { logModeration } from "../services/log";
 import { Mission } from "../types";
 import { UserRequest } from "../types/passport";
@@ -41,7 +41,7 @@ router.post("/search", passport.authenticate("user", { session: false }), async 
       return res.status(403).send({ ok: false, code: FORBIDDEN });
     }
 
-    const moderator = await PublisherModel.findById(body.data.moderatorId);
+    const moderator = await publisherService.getPublisherById(body.data.moderatorId);
     if (!moderator || !moderator.moderator) {
       return res.status(403).send({ ok: false, code: FORBIDDEN });
     }
@@ -148,7 +148,7 @@ router.post("/aggs", passport.authenticate("user", { session: false }), async (r
       return res.status(403).send({ ok: false, code: FORBIDDEN });
     }
 
-    const moderator = await PublisherModel.findById(body.data.moderatorId);
+    const moderator = await publisherService.getPublisherById(body.data.moderatorId);
     if (!moderator || !moderator.moderator) {
       return res.status(403).send({ ok: false, code: FORBIDDEN });
     }
@@ -240,14 +240,14 @@ router.post("/aggs", passport.authenticate("user", { session: false }), async (r
       },
     ]);
 
-    const publishers = await PublisherModel.find({}, { _id: 1, name: 1 });
+    const publishers = await publisherService.listPublishersSummary();
 
     const data = {
       status: facets[0].status.filter((b: { _id: string }) => b._id).map((b: { _id: string; count: number }) => ({ key: b._id, doc_count: b.count })),
       comments: facets[0].comments.filter((b: { _id: string }) => b._id).map((b: { _id: string; count: number }) => ({ key: b._id, doc_count: b.count })),
       publishers: facets[0].publishers.map((b: { _id: string; count: number }) => ({
         key: b._id,
-        label: publishers.find((p) => p._id.toString() === b._id)?.name,
+        label: publishers.find((p) => p.id === b._id)?.name,
         doc_count: b.count,
       })),
       organizations: facets[0].organization.map((b: { _id: string; count: number }) => ({
@@ -406,7 +406,7 @@ router.get("/:id", passport.authenticate("user", { session: false }), async (req
       return res.status(404).send({ ok: false, code: NOT_FOUND });
     }
 
-    const moderator = await PublisherModel.findById(query.data.moderatorId);
+    const moderator = await publisherService.getPublisherById(query.data.moderatorId);
     if (!moderator) {
       return res.status(404).send({ ok: false, code: NOT_FOUND, message: "Moderator not found" });
     }
@@ -414,7 +414,8 @@ router.get("/:id", passport.authenticate("user", { session: false }), async (req
       return res.status(403).send({ ok: false, code: FORBIDDEN, message: "Moderator not found" });
     }
 
-    if (req.user.role !== "admin" && !req.user.publishers.includes(moderator)) {
+    const userPublisherIds = req.user.publishers.map((publisherId: string) => publisherId.toString());
+    if (req.user.role !== "admin" && !userPublisherIds.includes(moderator.id)) {
       return res.status(403).send({ ok: false, code: FORBIDDEN, message: "Moderator not found" });
     }
 
@@ -464,11 +465,12 @@ router.put("/:id", passport.authenticate("user", { session: false }), async (req
       return res.status(400).send({ ok: false, code: INVALID_BODY, error: "COMMENT_REQUIRED" });
     }
 
-    const moderator = await PublisherModel.findById(body.data.moderatorId);
+    const moderator = await publisherService.getPublisherById(body.data.moderatorId);
     if (!moderator || !moderator.moderator) {
       return res.status(403).send({ ok: false, code: FORBIDDEN });
     }
-    if (req.user.role !== "admin" && !req.user.publishers.includes(body.data.moderatorId)) {
+    const userPublisherIds = req.user.publishers.map((publisherId: string) => publisherId.toString());
+    if (req.user.role !== "admin" && !userPublisherIds.includes(body.data.moderatorId)) {
       return res.status(403).send({ ok: false, code: FORBIDDEN });
     }
 

@@ -1,23 +1,20 @@
 import mongoose from "mongoose";
 import ImportModel from "../../src/models/import";
 import MissionModel from "../../src/models/mission";
-import PublisherModel from "../../src/models/publisher";
-import { Import, Mission, MissionType, Publisher } from "../../src/types";
+import { publisherService } from "../../src/services/publisher";
+import { Import, Mission, MissionType } from "../../src/types";
+import type { PublisherRecord } from "../../src/types/publisher";
 
 /**
  * Create a test publisher with random API key
  */
-export const createTestPublisher = async (data: Partial<Publisher> = {}): Promise<Publisher> => {
+export const createTestPublisher = async (data: Partial<PublisherRecord> = {}): Promise<PublisherRecord> => {
   const apiKey = "test-api-key-" + Date.now().toString();
-  const organizationClientId = "org-" + Date.now().toString();
 
   const defaultData = {
     name: "Test Publisher",
     email: `test-${Date.now()}@example.com`,
-    password: "password123",
     apikey: apiKey,
-    organizationClientId,
-    organizationName: "Test Organization",
     missionType: MissionType.BENEVOLAT,
     url: "https://example.com",
     logo: "https://example.com/logo.png",
@@ -29,16 +26,15 @@ export const createTestPublisher = async (data: Partial<Publisher> = {}): Promis
       {
         publisherId: new mongoose.Types.ObjectId().toString(),
         publisherName: "Test Publisher Name",
+        moderator: false,
       },
     ],
-    excludedOrganizations: [],
+    sendReport: false,
+    sendReportTo: [],
   };
 
   const publisherData = { ...defaultData, ...data };
-  const publisher = new PublisherModel(publisherData);
-
-  await publisher.save();
-  return publisher.toObject() as Publisher;
+  return publisherService.createPublisher(publisherData);
 };
 
 /**

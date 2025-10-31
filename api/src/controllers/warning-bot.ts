@@ -2,10 +2,10 @@ import { Router } from "express";
 import passport from "passport";
 
 import { NOT_FOUND } from "../error";
-import PublisherModel from "../models/publisher";
 import StatsBotModel from "../models/stats-bot";
 import WarningBotModel from "../models/warning-bot";
 import statEventRepository from "../repositories/stat-event";
+import { publisherService } from "../services/publisher";
 
 const router = Router();
 
@@ -38,7 +38,8 @@ router.get("/:id/stat", passport.authenticate("admin", { session: false }), asyn
       )
     );
 
-    const publishers = await PublisherModel.find({ _id: { $in: publisherIds } }).lean();
+    const publishers = await publisherService.getPublishersByIds(publisherIds);
+    const publisherMap = new Map(publishers.map((publisher) => [publisher.id, publisher.name]));
 
     const aggs = {
       type: aggregations.type.map((bucket) => ({
@@ -48,12 +49,12 @@ router.get("/:id/stat", passport.authenticate("admin", { session: false }), asyn
       publisherTo: aggregations.publisherTo.map((bucket) => ({
         key: bucket.key,
         doc_count: bucket.doc_count,
-        name: publishers.find((p) => p._id.toString() === bucket.key)?.name,
+        name: publisherMap.get(bucket.key ?? ""),
       })),
       publisherFrom: aggregations.publisherFrom.map((bucket) => ({
         key: bucket.key,
         doc_count: bucket.doc_count,
-        name: publishers.find((p) => p._id.toString() === bucket.key)?.name,
+        name: publisherMap.get(bucket.key ?? ""),
       })),
     };
 

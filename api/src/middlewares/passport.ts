@@ -6,8 +6,8 @@ import { ExtractJwt, Strategy as JwtStrategy } from "passport-jwt";
 
 import { PUBLISHER_IDS, SECRET } from "../config";
 import { captureException } from "../error";
-import PublisherModel from "../models/publisher";
 import UserModel from "../models/user";
+import { publisherService } from "../services/publisher";
 
 const userOptions = {
   jwtFromRequest: (req: Request) => ExtractJwt.fromAuthHeaderWithScheme("jwt")(req),
@@ -68,10 +68,10 @@ passport.use(
   "apikey",
   new HeaderAPIKeyStrategy({ header: "apikey", prefix: "" }, false, async (apikey, done) => {
     try {
-      const publisher = await PublisherModel.findOne({ apikey });
+      const publisher = await publisherService.findByApiKey(apikey);
       if (publisher) {
         Sentry.setUser({
-          id: publisher._id.toString(),
+          id: publisher.id,
           username: publisher.name,
           email: publisher.email,
         });
@@ -89,10 +89,10 @@ passport.use(
   "api",
   new HeaderAPIKeyStrategy({ header: "x-api-key", prefix: "" }, false, async (apikey, done) => {
     try {
-      const publisher = await PublisherModel.findOne({ apikey });
+      const publisher = await publisherService.findByApiKey(apikey);
       if (publisher) {
         Sentry.setUser({
-          id: publisher._id.toString(),
+          id: publisher.id,
           username: publisher.name,
           email: publisher.email,
         });
@@ -110,10 +110,10 @@ passport.use(
   "leboncoin",
   new HeaderAPIKeyStrategy({ header: "Authorization", prefix: "" }, false, async (apikey, done) => {
     try {
-      const publisher = await PublisherModel.findOne({ apikey, _id: PUBLISHER_IDS.LEBONCOIN });
+      const publisher = await publisherService.findByApiKey(apikey, PUBLISHER_IDS.LEBONCOIN);
       if (publisher) {
         Sentry.setUser({
-          id: publisher._id.toString(),
+          id: publisher.id,
           username: publisher.name,
           email: publisher.email,
         });
@@ -131,10 +131,10 @@ passport.use(
   "jobteaser",
   new HeaderAPIKeyStrategy({ header: "x-api-key", prefix: "" }, false, async (apikey, done) => {
     try {
-      const publisher = await PublisherModel.findOne({ apikey, _id: PUBLISHER_IDS.JOBTEASER });
+      const publisher = await publisherService.findByApiKey(apikey, PUBLISHER_IDS.JOBTEASER);
       if (publisher) {
         Sentry.setUser({
-          id: publisher._id.toString(),
+          id: publisher.id,
           username: publisher.name,
           email: publisher.email,
         });

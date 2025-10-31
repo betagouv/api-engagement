@@ -13,9 +13,9 @@ import {
 import { INVALID_PARAMS, INVALID_QUERY, NOT_FOUND, SERVER_ERROR, captureException, captureMessage } from "../error";
 import CampaignModel from "../models/campaign";
 import MissionModel from "../models/mission";
-import PublisherModel from "../models/publisher";
 import StatsBotModel from "../models/stats-bot";
 import WidgetModel from "../models/widget";
+import { publisherService } from "../services/publisher";
 import { Mission, Stats } from "../types";
 import { identify, slugify } from "../utils";
 
@@ -696,7 +696,7 @@ router.get("/:missionId/:publisherId", cors({ origin: "*" }), async function tra
     }
     href = mission.applicationUrl;
 
-    const fromPublisher = await PublisherModel.findById(params.data.publisherId);
+    const fromPublisher = await publisherService.getPublisherById(params.data.publisherId);
 
     const obj = {
       type: "click",
@@ -706,7 +706,7 @@ router.get("/:missionId/:publisherId", cors({ origin: "*" }), async function tra
       userAgent: identity.userAgent,
       user: identity.user,
       source: "publisher",
-      sourceId: fromPublisher?._id || "",
+      sourceId: fromPublisher?.id || "",
       sourceName: fromPublisher?.name || "",
       createdAt: new Date(),
       missionId: mission._id.toString(),
@@ -721,8 +721,8 @@ router.get("/:missionId/:publisherId", cors({ origin: "*" }), async function tra
       toPublisherId: mission.publisherId,
       toPublisherName: mission.publisherName,
 
-      fromPublisherId: fromPublisher && fromPublisher._id.toString(),
-      fromPublisherName: fromPublisher && fromPublisher.name,
+      fromPublisherId: fromPublisher?.id || "",
+      fromPublisherName: fromPublisher?.name || "",
       isBot: false,
       tags: query.data?.tags ? (query.data.tags.includes(",") ? query.data.tags.split(",").map((tag) => tag.trim()) : [query.data.tags]) : undefined,
     } as Stats;
@@ -788,7 +788,7 @@ router.get("/impression/campaign/:campaignId", cors({ origin: "*" }), async (req
       return res.status(404).send({ ok: false, code: NOT_FOUND });
     }
 
-    const fromPublisher = await PublisherModel.findById(campaign.fromPublisherId);
+    const fromPublisher = await publisherService.getPublisherById(campaign.fromPublisherId);
     if (!fromPublisher) {
       captureException(`[Impression Campaign] Publisher not found`, `publisher ${campaign.fromPublisherId}`);
       return res.status(404).send({ ok: false, code: NOT_FOUND });
@@ -809,7 +809,7 @@ router.get("/impression/campaign/:campaignId", cors({ origin: "*" }), async (req
       toPublisherId: campaign.toPublisherId,
       toPublisherName: campaign.toPublisherName,
 
-      fromPublisherId: fromPublisher._id.toString(),
+      fromPublisherId: fromPublisher.id,
       fromPublisherName: fromPublisher.name,
 
       source: "campaign",
@@ -868,7 +868,7 @@ router.get("/impression/:missionId/:publisherId", cors({ origin: "*" }), async (
       return res.status(404).send({ ok: false, code: NOT_FOUND });
     }
 
-    const fromPublisher = await PublisherModel.findById(params.data.publisherId);
+    const fromPublisher = await publisherService.getPublisherById(params.data.publisherId);
     if (!fromPublisher) {
       captureException(`[Impression Widget] Publisher not found`, `publisher ${params.data.publisherId}`);
       return res.status(404).send({ ok: false, code: NOT_FOUND });
@@ -906,7 +906,7 @@ router.get("/impression/:missionId/:publisherId", cors({ origin: "*" }), async (
       toPublisherId: mission.publisherId,
       toPublisherName: mission.publisherName,
 
-      fromPublisherId: fromPublisher._id.toString(),
+      fromPublisherId: fromPublisher.id,
       fromPublisherName: fromPublisher.name,
 
       isBot: statBot ? true : false,

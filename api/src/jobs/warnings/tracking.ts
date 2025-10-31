@@ -2,7 +2,7 @@ import { SLACK_WARNING_CHANNEL_ID } from "../../config";
 import WarningModel from "../../models/warning";
 import statEventRepository from "../../repositories/stat-event";
 import { postMessage } from "../../services/slack";
-import { Publisher } from "../../types";
+import type { PublisherRecord } from "../../types/publisher";
 
 const TRACKING_WARNING = "TRACKING_WARNING";
 
@@ -21,17 +21,17 @@ const getStats = async (publisherId: string) => {
   };
 };
 
-export const checkTracking = async (publishers: Publisher[]) => {
+export const checkTracking = async (publishers: PublisherRecord[]) => {
   console.log(`Checking stats from ${publishers.filter((p) => p.isAnnonceur).length} publishers`);
 
   for (const publisher of publishers.filter((p) => p.isAnnonceur)) {
-    const stats = await getStats(publisher._id.toString());
+    const stats = await getStats(publisher.id);
     if (!stats) {
       continue;
     }
     console.log(`[${publisher.name}] ${stats.click} clicks and ${stats.apply} applies`);
 
-    const statsWarning = await WarningModel.findOne({ publisherId: publisher._id.toString(), type: TRACKING_WARNING, fixed: false }, null, { sort: { createdAt: -1 } });
+    const statsWarning = await WarningModel.findOne({ publisherId: publisher.id, type: TRACKING_WARNING, fixed: false }, null, { sort: { createdAt: -1 } });
     if (stats.apply === 0 && stats.click >= 70) {
       console.log(`[${publisher.name}] No application but more than 70 redirections`);
       if (statsWarning) {
@@ -43,7 +43,7 @@ export const checkTracking = async (publishers: Publisher[]) => {
         const obj = {
           type: TRACKING_WARNING,
           title: `Aucune candidature n’a été détectée, alors que ${stats.click} redirections ont été réalisées.`,
-          publisherId: publisher._id.toString(),
+          publisherId: publisher.id,
           publisherName: publisher.name,
           publisherLogo: publisher.logo,
         };

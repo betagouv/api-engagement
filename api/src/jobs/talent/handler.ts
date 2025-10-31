@@ -3,7 +3,7 @@ import fs from "fs";
 import { ENV, PUBLISHER_IDS } from "../../config";
 import { captureException } from "../../error";
 import ImportModel from "../../models/import";
-import PublisherModel from "../../models/publisher";
+import { publisherService } from "../../services/publisher";
 import { BaseHandler } from "../base/handler";
 import { JobResult } from "../types";
 import { TALENT_PUBLISHER_ID } from "./config";
@@ -26,7 +26,7 @@ export class TalentHandler implements BaseHandler<TalentJobPayload, TalentJobRes
   public async handle(payload: TalentJobPayload): Promise<TalentJobResult> {
     const start = new Date();
     try {
-      const talent = await PublisherModel.findById(TALENT_PUBLISHER_ID);
+      const talent = await publisherService.getPublisherById(TALENT_PUBLISHER_ID);
       if (!talent) {
         throw new Error("Talent publisher not found");
       }

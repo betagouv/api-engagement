@@ -3,7 +3,7 @@ import fs from "fs";
 import { ENV, PUBLISHER_IDS } from "../../config";
 import { captureException } from "../../error";
 import ImportModel from "../../models/import";
-import PublisherModel from "../../models/publisher";
+import { publisherService } from "../../services/publisher";
 import { BaseHandler } from "../base/handler";
 import { JobResult } from "../types";
 import { PARTNERS_IDS } from "./config";
@@ -28,7 +28,7 @@ export class LinkedinHandler implements BaseHandler<LinkedinJobPayload, Linkedin
   public async handle(payload: LinkedinJobPayload): Promise<LinkedinJobResult> {
     const start = new Date();
     try {
-      const linkedin = await PublisherModel.findById(PUBLISHER_IDS.LINKEDIN);
+      const linkedin = await publisherService.getPublisherById(PUBLISHER_IDS.LINKEDIN);
       if (!linkedin) {
         throw new Error("Linkedin publisher not found");
       }

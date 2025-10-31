@@ -1,15 +1,16 @@
 import mongoose from "mongoose";
 import request from "supertest";
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import MissionModel from "../../../../src/models/mission";
-import PublisherModel from "../../../../src/models/publisher";
-import { Mission, MissionType, Publisher } from "../../../../src/types";
+import { Mission, MissionType } from "../../../../src/types";
+import type { PublisherRecord } from "../../../../src/types/publisher";
 import { createTestMission, createTestPublisher } from "../../../fixtures";
+import { resetPublisherStore } from "../../../mocks/publisherServiceMock";
 import { createTestApp } from "../../../testApp";
 
 describe("Mission API Integration Tests", () => {
   const app = createTestApp();
-  let publisher: Publisher;
+  let publisher: PublisherRecord;
   let apiKey: string;
   let mission1: Mission;
   let mission2: Mission;
@@ -18,7 +19,7 @@ describe("Mission API Integration Tests", () => {
   beforeEach(async () => {
     // Clean up
     await MissionModel.deleteMany({});
-    await PublisherModel.deleteMany({});
+    resetPublisherStore();
 
     // Create publishers
     const publisher1Data = await createTestPublisher({ name: "Publisher A" });
@@ -29,13 +30,13 @@ describe("Mission API Integration Tests", () => {
       name: "Main Publisher",
       publishers: [
         {
-          publisherId: publisher1Data._id.toString(),
+          publisherId: publisher1Data.id,
           publisherName: "Publisher A",
           moderator: true,
           missionType: MissionType.BENEVOLAT,
         },
         {
-          publisherId: publisher2Data._id.toString(),
+          publisherId: publisher2Data.id,
           publisherName: "Publisher B",
           moderator: true,
           missionType: MissionType.BENEVOLAT,
@@ -47,7 +48,7 @@ describe("Mission API Integration Tests", () => {
     // Create missions
     mission1 = await createTestMission({
       organizationClientId: "org-1",
-      publisherId: publisher1Data._id.toString(),
+      publisherId: publisher1Data.id,
       title: "Mission in Paris",
       city: "Paris",
       domain: "culture",
@@ -78,7 +79,7 @@ describe("Mission API Integration Tests", () => {
 
     mission2 = await createTestMission({
       organizationClientId: "org-2",
-      publisherId: publisher2Data._id.toString(),
+      publisherId: publisher2Data.id,
       title: "Mission in Lyon",
       city: "Lyon",
       domain: "sport",
@@ -101,7 +102,7 @@ describe("Mission API Integration Tests", () => {
 
     mission3 = await createTestMission({
       organizationClientId: "org-3",
-      publisherId: publisher1Data._id.toString(),
+      publisherId: publisher1Data.id,
       title: "Another mission in Paris",
       city: "Paris",
       domain: "environment",
@@ -123,6 +124,10 @@ describe("Mission API Integration Tests", () => {
     });
 
     vi.clearAllMocks();
+  });
+
+  afterEach(() => {
+    resetPublisherStore();
   });
 
   describe("GET /v0/mission", () => {
@@ -193,7 +198,7 @@ describe("Mission API Integration Tests", () => {
     });
 
     it("should filter by publisherId", async () => {
-      const publisherIdToFilter = publisher.publishers[1].publisherId;
+    const publisherIdToFilter = publisher.publishers[1].publisherId;
       const response = await request(app).get(`/v0/mission?publisher=${publisherIdToFilter}`).set("x-api-key", apiKey);
       expect(response.status).toBe(200);
       expect(response.body.total).toBe(1);

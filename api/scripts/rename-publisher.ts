@@ -9,7 +9,7 @@ import esClient, { esConnected } from "../src/db/elastic";
 import { mongoConnected } from "../src/db/mongo";
 import { pgConnected, prismaCore } from "../src/db/postgres";
 import MissionModel from "../src/models/mission";
-import PublisherModel from "../src/models/publisher";
+import { publisherService } from "../src/services/publisher";
 import { reassignStats } from "../src/services/reassign-stats";
 import { EsQuery } from "../src/types";
 
@@ -98,19 +98,22 @@ const renamePublisher = async (oldName: string, newName: string, { dryRun }: Ren
   console.log(`[RenamePublisher] Starting${dryRun ? " (dry-run)" : ""}`);
   console.log(`[RenamePublisher] Renaming '${oldName}' -> '${newName}'`);
 
-  const publisherFilter = { name: oldName };
   const missionFilter = { publisherName: oldName };
-
-  const publishersMatched = await PublisherModel.countDocuments(publisherFilter);
+  const existingPublisher = await publisherService.findPublisherByName(oldName);
+  const publishersMatched = existingPublisher ? 1 : 0;
   const missionsMatched = await MissionModel.countDocuments(missionFilter);
 
   let publishersUpdated = 0;
   let missionsUpdated = 0;
 
   if (!dryRun) {
-    const publisherUpdateResult = await PublisherModel.updateMany(publisherFilter, { $set: { name: newName } });
-    publishersUpdated = publisherUpdateResult.modifiedCount ?? 0;
-    console.log(`[RenamePublisher] Updated ${publishersUpdated} publisher document(s)`);
+    if (existingPublisher) {
+      await publisherService.updatePublisher(existingPublisher.id, { name: newName });
+      publishersUpdated = 1;
+      console.log(`[RenamePublisher] Updated publisher '${existingPublisher.name}' to '${newName}'`);
+    } else {
+      console.log(`[RenamePublisher] No publisher found with name '${oldName}'`);
+    }
 
     const missionUpdateResult = await MissionModel.updateMany(missionFilter, { $set: { publisherName: newName } });
     missionsUpdated = missionUpdateResult.modifiedCount ?? 0;

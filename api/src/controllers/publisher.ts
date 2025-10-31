@@ -1,21 +1,42 @@
 import { NextFunction, Response, Router } from "express";
 import multer from "multer";
 import passport from "passport";
-import { v4 as uuid } from "uuid";
 import zod from "zod";
 
 import { HydratedDocument } from "mongoose";
 import { DEFAULT_AVATAR, PUBLISHER_IDS } from "../config";
-import { captureException, FORBIDDEN, INVALID_BODY, INVALID_PARAMS, NOT_FOUND, RESSOURCE_ALREADY_EXIST } from "../error";
+import { FORBIDDEN, INVALID_BODY, INVALID_PARAMS, NOT_FOUND, RESSOURCE_ALREADY_EXIST, captureException } from "../error";
 import OrganizationExclusionModel from "../models/organization-exclusion";
-import PublisherModel from "../models/publisher";
 import UserModel from "../models/user";
+import { PublisherNotFoundError, publisherService } from "../services/publisher";
 import { OBJECT_ACL, putObject } from "../services/s3";
 import { User } from "../types";
 import { UserRequest } from "../types/passport";
+import type { PublisherDiffuseurInput, PublisherRoleFilter } from "../types/publisher";
 
 const upload = multer();
 const router = Router();
+
+const sanitizePublishersPayload = (
+  publishers?:
+    | Array<{
+        publisherId: string;
+        publisherName: string;
+        missionType: string | null;
+        moderator: boolean;
+      }>
+    | undefined
+): PublisherDiffuseurInput[] | undefined => {
+  if (!publishers) {
+    return undefined;
+  }
+  return publishers.map((publisher) => ({
+    publisherId: publisher.publisherId,
+    publisherName: publisher.publisherName,
+    missionType: publisher.missionType ?? null,
+    moderator: publisher.moderator ?? false,
+  }));
+};
 
 router.post("/search", passport.authenticate(["user", "admin"], { session: false }), async (req: UserRequest, res: Response, next: NextFunction) => {
   try {
@@ -36,54 +57,30 @@ router.post("/search", passport.authenticate(["user", "admin"], { session: false
       return res.status(400).send({ ok: false, code: INVALID_BODY, error: body.error });
     }
 
-    const where = { deletedAt: null } as { [key: string]: any };
-
-    if (body.data.role === "annonceur") {
-      where.isAnnonceur = true;
-    }
-    if (body.data.role === "diffuseur") {
-      where.$or = [{ hasApiRights: true }, { hasWidgetRights: true }, { hasCampaignRights: true }];
-    }
-    if (body.data.role === "api") {
-      where.hasApiRights = true;
-    }
-    if (body.data.role === "widget") {
-      where.hasWidgetRights = true;
-    }
-    if (body.data.role === "campaign") {
-      where.hasCampaignRights = true;
-    }
-    if (body.data.sendReport !== undefined) {
-      where.sendReport = body.data.sendReport;
-    }
-    if (body.data.missionType) {
-      where.missionType = body.data.missionType;
-    }
-
-    if (body.data.name) {
-      where.name = { $regex: `.*${body.data.name}.*`, $options: "i" };
-    }
-    if (body.data.ids) {
-      where._id = { $in: body.data.ids };
-    }
-
+    let diffuseurOf: string | undefined = undefined;
     if (body.data.diffuseursOf) {
-      if (user.role === "admin" || user.publishers.some((e: string) => e === body.data.diffuseursOf)) {
-        where["publishers.publisherId"] = body.data.diffuseursOf;
+      if (user.role === "admin" || user.publishers.some((publisherId: string) => publisherId === body.data.diffuseursOf)) {
+        diffuseurOf = body.data.diffuseursOf;
       } else {
-        return res.status(403).send({ ok: false, code: FORBIDDEN, message: `Not allowed` });
+        return res.status(403).send({ ok: false, code: FORBIDDEN, message: "Not allowed" });
       }
     }
-    if (body.data.moderator) {
-      where.moderator = true;
-    }
 
-    if (!where._id && !where["publishers.publisherId"] && user.role !== "admin") {
-      where._id = { $in: user.publishers };
-    }
+    const allowedRoles: PublisherRoleFilter[] = ["annonceur", "diffuseur", "api", "widget", "campaign"];
+    const role = allowedRoles.includes(body.data.role as PublisherRoleFilter) ? (body.data.role as PublisherRoleFilter) : undefined;
 
-    const data = await PublisherModel.find(where).sort({ name: 1 }).lean();
-    const total = await PublisherModel.countDocuments(where);
+    const filters = {
+      diffuseurOf,
+      moderator: body.data.moderator,
+      name: body.data.name,
+      ids: body.data.ids,
+      role,
+      sendReport: body.data.sendReport,
+      missionType: body.data.missionType,
+      accessiblePublisherIds: user.role === "admin" ? undefined : user.publishers.map((value: string) => value.toString()),
+    };
+
+    const { data, total } = await publisherService.findPublishersWithCount(filters);
 
     return res.status(200).send({ ok: true, data, total });
   } catch (error) {
@@ -103,16 +100,19 @@ router.get("/:id", passport.authenticate("user", { session: false }), async (req
       return res.status(400).send({ ok: false, code: INVALID_PARAMS, error: params.error });
     }
 
-    const publisher = await PublisherModel.findById(params.data.id);
+    const publisher = await publisherService.getPublisherById(params.data.id);
     if (!publisher) {
       return res.status(404).send({ ok: false, code: NOT_FOUND, message: "Publisher not found" });
     }
 
-    if (req.user.role !== "admin" && !req.user.publishers.find((e: string) => e === params.data.id || publisher.publishers.find((p) => p.publisherId === e))) {
+    const userPublisherIds = req.user.publishers.map((value: string) => value.toString());
+    const hasAccess =
+      req.user.role === "admin" || userPublisherIds.includes(params.data.id) || publisher.publishers.some((diffuseur) => userPublisherIds.includes(diffuseur.publisherId));
+
+    if (!hasAccess) {
       return res.status(403).send({ ok: false, code: FORBIDDEN, message: `Not allowed` });
     }
 
-    // Double write, remove publisher later
     return res.status(200).send({ ok: true, publisher, data: publisher });
   } catch (error) {
     next(error);
@@ -131,7 +131,7 @@ router.get("/:id/moderated", passport.authenticate("user", { session: false }), 
       return res.status(400).send({ ok: false, code: INVALID_PARAMS, error: params.error });
     }
 
-    const jva = await PublisherModel.findById(PUBLISHER_IDS.JEVEUXAIDER);
+    const jva = await publisherService.getPublisherById(PUBLISHER_IDS.JEVEUXAIDER);
     if (!jva) {
       captureException(new Error("JVA not found"));
       return res.status(404).send({ ok: false, code: NOT_FOUND, message: "JVA not found" });
@@ -159,13 +159,13 @@ router.get("/:id/excluded-organizations", passport.authenticate("user", { sessio
       return res.status(400).send({ ok: false, code: INVALID_PARAMS, error: params.error });
     }
 
-    const publisher = await PublisherModel.findById(params.data.id);
+    const publisher = await publisherService.getPublisherById(params.data.id);
     if (!publisher) {
       return res.status(404).send({ ok: false, code: NOT_FOUND, message: "Publisher not found" });
     }
 
     const organizationExclusions = await OrganizationExclusionModel.find({
-      excludedForPublisherId: publisher._id.toString(),
+      excludedForPublisherId: publisher.id,
     });
     return res.status(200).send({ ok: true, data: organizationExclusions });
   } catch (error) {
@@ -211,7 +211,11 @@ router.post("/", passport.authenticate("admin", { session: false }), async (req:
       return res.status(400).send({ ok: false, code: INVALID_BODY, error: body.error });
     }
 
-    const exists = await PublisherModel.exists({ name: body.data.name });
+    if (!body.data.name) {
+      return res.status(400).send({ ok: false, code: INVALID_BODY, message: "Name is required" });
+    }
+
+    const exists = await publisherService.existsByName(body.data.name);
     if (exists) {
       return res.status(409).send({
         ok: false,
@@ -220,9 +224,36 @@ router.post("/", passport.authenticate("admin", { session: false }), async (req:
       });
     }
 
-    body.data.logo = DEFAULT_AVATAR;
+    const publishers = sanitizePublishersPayload(
+      body.data.publishers?.map((publisher) => ({
+        publisherId: publisher.publisherId,
+        publisherName: publisher.publisherName,
+        missionType: publisher.missionType,
+        moderator: publisher.moderator,
+      }))
+    );
 
-    const data = await PublisherModel.create(body.data);
+    const payload = {
+      name: body.data.name,
+      sendReport: body.data.sendReport,
+      sendReportTo: body.data.sendReportTo,
+      isAnnonceur: body.data.isAnnonceur,
+      missionType: body.data.missionType,
+      hasApiRights: body.data.hasApiRights,
+      hasWidgetRights: body.data.hasWidgetRights,
+      hasCampaignRights: body.data.hasCampaignRights,
+      category: body.data.category,
+      documentation: body.data.documentation,
+      description: body.data.description,
+      lead: body.data.lead,
+      logo: DEFAULT_AVATAR,
+      url: body.data.url,
+      email: body.data.email,
+      feed: body.data.feed,
+      publishers,
+    };
+
+    const data = await publisherService.createPublisher(payload);
 
     return res.status(200).send({ ok: true, data });
   } catch (error) {
@@ -245,7 +276,7 @@ router.post("/:id/image", passport.authenticate("user", { session: false }), upl
       return res.status(400).send({ ok: false, code: INVALID_BODY, message: "No file uploaded" });
     }
 
-    const publisher = await PublisherModel.findById(params.data.id);
+    const publisher = await publisherService.getPublisherById(params.data.id);
     if (!publisher) {
       return res.status(404).send({ ok: false, code: NOT_FOUND, message: "Publisher not found" });
     }
@@ -260,10 +291,9 @@ router.post("/:id/image", passport.authenticate("user", { session: false }), upl
       ACL: OBJECT_ACL.PUBLIC_READ,
     });
 
-    publisher.logo = response.Location;
-    await publisher.save();
+    const updated = await publisherService.updatePublisher(params.data.id, { logo: response.Location });
 
-    return res.status(200).send({ ok: true, data: publisher });
+    return res.status(200).send({ ok: true, data: updated });
   } catch (error) {
     next(error);
   }
@@ -281,16 +311,15 @@ router.post("/:id/apikey", passport.authenticate("user", { session: false }), as
       return res.status(400).send({ ok: false, code: INVALID_PARAMS, error: params.error });
     }
 
-    const publisher = await PublisherModel.findById(params.data.id);
-    if (!publisher) {
-      return res.status(404).send({ ok: false, code: NOT_FOUND, message: "Publisher not found" });
+    try {
+      const { apikey } = await publisherService.regenerateApiKey(params.data.id);
+      return res.status(200).send({ ok: true, data: apikey });
+    } catch (error) {
+      if (error instanceof PublisherNotFoundError) {
+        return res.status(404).send({ ok: false, code: NOT_FOUND, message: "Publisher not found" });
+      }
+      throw error;
     }
-
-    const apikey = uuid();
-    publisher.apikey = apikey;
-    await publisher.save();
-
-    return res.status(200).send({ ok: true, data: apikey });
   } catch (error) {
     next(error);
   }
@@ -348,72 +377,34 @@ router.put("/:id", passport.authenticate("admin", { session: false }), async (re
       return res.status(400).send({ ok: false, code: INVALID_BODY, message: "Category is required" });
     }
 
-    const publisher = await PublisherModel.findById(params.data.id);
-    if (!publisher) {
-      return res.status(404).send({ ok: false, code: NOT_FOUND, message: "Publisher not found" });
-    }
+    const patch = {
+      sendReport: body.data.sendReport,
+      sendReportTo: body.data.sendReportTo,
+      isAnnonceur: body.data.isAnnonceur,
+      missionType: body.data.missionType,
+      hasApiRights: body.data.hasApiRights,
+      hasWidgetRights: body.data.hasWidgetRights,
+      hasCampaignRights: body.data.hasCampaignRights,
+      category: body.data.category,
+      publishers: body.data.publishers !== undefined ? (sanitizePublishersPayload(body.data.publishers) ?? []) : undefined,
+      documentation: body.data.documentation,
+      description: body.data.description,
+      lead: body.data.lead,
+      logo: body.data.logo,
+      url: body.data.url,
+      email: body.data.email,
+      feed: body.data.feed,
+    };
 
-    if (body.data.sendReport !== undefined) {
-      publisher.sendReport = body.data.sendReport;
+    try {
+      const updated = await publisherService.updatePublisher(params.data.id, patch);
+      res.status(200).send({ ok: true, data: updated });
+    } catch (error) {
+      if (error instanceof PublisherNotFoundError) {
+        return res.status(404).send({ ok: false, code: NOT_FOUND, message: "Publisher not found" });
+      }
+      throw error;
     }
-    if (body.data.sendReportTo !== undefined) {
-      publisher.sendReportTo = body.data.sendReportTo;
-    }
-    if (body.data.isAnnonceur !== undefined) {
-      publisher.isAnnonceur = body.data.isAnnonceur;
-    }
-    if (body.data.missionType !== undefined) {
-      publisher.missionType = body.data.missionType;
-    }
-    if (body.data.hasApiRights !== undefined) {
-      publisher.hasApiRights = body.data.hasApiRights;
-    }
-    if (body.data.hasWidgetRights !== undefined) {
-      publisher.hasWidgetRights = body.data.hasWidgetRights;
-    }
-    if (body.data.hasCampaignRights !== undefined) {
-      publisher.hasCampaignRights = body.data.hasCampaignRights;
-    }
-    if (body.data.hasWidgetRights !== undefined) {
-      publisher.hasWidgetRights = body.data.hasWidgetRights;
-    }
-    if (body.data.hasCampaignRights !== undefined) {
-      publisher.hasCampaignRights = body.data.hasCampaignRights;
-    }
-    if (body.data.category !== undefined) {
-      publisher.category = body.data.category;
-    }
-
-    if (!(publisher.hasApiRights || publisher.hasWidgetRights || publisher.hasCampaignRights)) {
-      publisher.publishers = [];
-    } else if (body.data.publishers !== undefined) {
-      publisher.publishers = body.data.publishers;
-    }
-
-    if (body.data.documentation !== undefined) {
-      publisher.documentation = body.data.documentation;
-    }
-    if (body.data.description !== undefined) {
-      publisher.description = body.data.description;
-    }
-    if (body.data.lead !== undefined) {
-      publisher.lead = body.data.lead;
-    }
-    if (body.data.logo !== undefined) {
-      publisher.logo = body.data.logo;
-    }
-    if (body.data.url !== undefined) {
-      publisher.url = body.data.url;
-    }
-    if (body.data.email !== undefined) {
-      publisher.email = body.data.email;
-    }
-    if (body.data.feed !== undefined) {
-      publisher.feed = body.data.feed;
-    }
-    await publisher.save();
-
-    res.status(200).send({ ok: true, data: publisher });
   } catch (error) {
     next(error);
   }
@@ -430,19 +421,20 @@ router.delete("/:id", passport.authenticate("admin", { session: false }), async 
     if (!params.success) {
       return res.status(400).send({ ok: false, code: INVALID_PARAMS, error: params.error });
     }
-    const publisher = await PublisherModel.findById(params.data.id);
+    const publisher = await publisherService.getPublisherById(params.data.id);
     if (!publisher) {
       return res.status(200).send({ ok: true });
     }
 
     const users = await UserModel.find({ publishers: params.data.id });
-    for (let i = 0; i < users.length; i++) {
-      users[i].publishers = users[i].publishers.filter((e) => e !== params.data.id);
-      users[i].save();
-    }
+    await Promise.all(
+      users.map(async (user) => {
+        user.publishers = user.publishers.filter((e) => e !== params.data.id);
+        await user.save();
+      })
+    );
 
-    publisher.deletedAt = new Date();
-    await publisher.save();
+    await publisherService.softDeletePublisher(params.data.id);
 
     res.status(200).send({ ok: true });
   } catch (error) {
@@ -461,15 +453,15 @@ router.delete("/:id/apikey", passport.authenticate("admin", { session: false }),
     if (!params.success) {
       return res.status(400).send({ ok: false, code: INVALID_PARAMS, error: params.error });
     }
-    const publisher = await PublisherModel.findById(params.data.id);
-    if (!publisher) {
-      return res.status(404).send({ ok: false, code: NOT_FOUND, message: "Publisher not found" });
+    try {
+      await publisherService.updatePublisher(params.data.id, { apikey: null });
+      res.status(200).send({ ok: true });
+    } catch (error) {
+      if (error instanceof PublisherNotFoundError) {
+        return res.status(404).send({ ok: false, code: NOT_FOUND, message: "Publisher not found" });
+      }
+      throw error;
     }
-
-    publisher.apikey = null;
-    await publisher.save();
-
-    res.status(200).send({ ok: true });
   } catch (error) {
     next(error);
   }
