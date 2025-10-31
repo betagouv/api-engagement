@@ -456,15 +456,6 @@ export interface StatsReport {
   };
 }
 
-export type RequestWidget = {
-  _id: Schema.Types.ObjectId;
-  widgetId: Schema.Types.ObjectId;
-  query: any;
-  total: number;
-  missions: string[];
-  createdAt: Date;
-};
-
 export type Request = {
   _id: Schema.Types.ObjectId;
   route: string;

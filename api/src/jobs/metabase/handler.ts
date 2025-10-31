@@ -8,7 +8,6 @@ import importOrganizationExclusion from "./utils/organization-exclusion";
 import importPartners from "./utils/partner";
 import importUsers from "./utils/user";
 import importWidgets from "./utils/widget";
-import importRequestWidgets from "./utils/widget-query";
 
 import { BaseHandler } from "../base/handler";
 import { JobResult } from "../types";
@@ -85,11 +84,6 @@ export class MetabaseHandler implements BaseHandler<MetabaseJobPayload, Metabase
     if (jobs === null || jobs.includes("imports")) {
       const imports = await importImports();
       stats.imports.created += imports?.created || 0;
-    }
-
-    if (jobs === null || jobs.includes("requests")) {
-      const requests = await importRequestWidgets();
-      stats.requests.created += requests?.created || 0;
     }
 
     if (jobs === null || jobs.includes("login_history")) {
