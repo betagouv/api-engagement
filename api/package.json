@@ -26,7 +26,6 @@
         "@types/geoip-lite": "1.4.4",
         "aws-sdk": "2.1692.0",
         "bcryptjs": "3.0.2",
-        "bullmq": "5.58.5",
         "cookie-parser": "1.4.7",
         "cors": "2.8.5",
         "csv-parse": "6.1.0",
