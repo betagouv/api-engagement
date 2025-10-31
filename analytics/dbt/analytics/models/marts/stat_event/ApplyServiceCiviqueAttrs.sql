@@ -22,7 +22,7 @@ with src as (
 
 service_civique as (
   select id from {{ ref('dim_partner') }}
-  where name = 'Service Civique'
+  where name = '{{ var('PARTNER_SERVICE_CIVIQUE_NAME') }}'
 )
 
 select

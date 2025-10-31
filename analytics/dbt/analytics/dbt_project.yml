@@ -38,3 +38,6 @@ models:
       +materialized: table
       +schema: "public"
       +tags: marts
+
+vars:
+  PARTNER_SERVICE_CIVIQUE_NAME: "Service Civique"
