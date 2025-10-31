@@ -24,7 +24,7 @@ import { mongoConnected } from "./db/mongo";
 import middlewares from "./middlewares";
 
 import AdminReportController from "./controllers/admin-report";
-import BrevoWebhookController from "./controllers/brevo-webhook";
+import BrevoWebhookController from "./controllers/brevo-webhook/controller";
 import CampaignController from "./controllers/campaign";
 import IframeController from "./controllers/iframe";
 import ImportController from "./controllers/import";

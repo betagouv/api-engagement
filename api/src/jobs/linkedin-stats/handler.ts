@@ -110,8 +110,6 @@ export class LinkedinStatsHandler implements BaseHandler<LinkedinStatsJobPayload
           dateTo: data.to,
         });
         if (exists.length > 0) {
-          console.log(exists[0].dateFrom, exists[0].dateTo, exists[0].id);
-          console.log(data.from, data.to);
           console.log(`[Linkedin Stats] Report already processed for email ${email.id}`);
           await emailService.updateEmail(email.id, { status: "DUPLICATE", dateFrom: data.from, dateTo: data.to });
           continue;
