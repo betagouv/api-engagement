@@ -26,6 +26,8 @@ sources:
             description: Type d'événement (`click`, `print`, `apply`, `account`).
           - name: created_at
             description: Horodatage (UTC) de la collecte de l'événement.
+          - name: updated_at
+            description: Horodatage (UTC) de la mise à jour de l'événement.
           - name: click_id
             description: Identifiant d'un clic associé (si pertinent).
           - name: referer
