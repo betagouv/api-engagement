@@ -1,5 +1,6 @@
 import * as XLSX from "xlsx";
 
+import { downloadFile } from "../../controllers/brevo-webhook/helpers/download-file";
 import { Email } from "../../db/core";
 import { captureException } from "../../error";
 import { emailService } from "../../services/email";
@@ -31,8 +32,17 @@ const downloadXlsx = async (url: string) => {
 const getData = async (email: Email) => {
   try {
     if (!email.fileObjectName) {
-      captureException("[Linkedin Stats] No file found", `No file found in email ${email.id}`);
-      return;
+      // Link should be extracted, but try to extract it and download the file from the email once again
+      const link = await downloadFile(email);
+
+      if (link) {
+        console.log(`[Linkedin Stats] Found link in email ${email.id}: ${link}`);
+        email.fileObjectName = link;
+        await emailService.updateEmail(email.id, { fileObjectName: link });
+      } else {
+        captureException("[Linkedin Stats] No file found", `No file found in email ${email.id}`);
+        return;
+      }
     }
 
     const data = await downloadXlsx(email.fileObjectName);

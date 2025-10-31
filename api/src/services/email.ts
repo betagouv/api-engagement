@@ -36,6 +36,8 @@ export const emailService = {
         status: params.status,
         ...(params.toEmail ? { toEmails: { has: params.toEmail } } : {}),
         ...(params.includeDeleted ? {} : { deletedAt: null }),
+        ...(params.dateFrom ? { dateFrom: params.dateFrom } : {}),
+        ...(params.dateTo ? { dateTo: params.dateTo } : {}),
       },
       orderBy: { createdAt: Prisma.SortOrder.desc },
     };

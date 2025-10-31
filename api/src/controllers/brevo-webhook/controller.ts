@@ -1,9 +1,9 @@
 import { Router } from "express";
-import { captureException, captureMessage, INVALID_BODY } from "../error";
-import { emailService } from "../services/email";
-import { putObject } from "../services/s3";
-import { BrevoInboundEmail } from "../types/brevo";
-import { EmailCreateInput, EmailRecord } from "../types/email";
+import { captureMessage, INVALID_BODY } from "../../error";
+import { emailService } from "../../services/email";
+import { BrevoInboundEmail } from "../../types/brevo";
+import { EmailCreateInput } from "../../types/email";
+import { downloadFile } from "./helpers/download-file";
 
 const router = Router();
 
@@ -42,7 +42,6 @@ router.post("/", async (req, res, next) => {
         rawTextBody: item["RawTextBody"],
         rawHtmlBody: item["RawHtmlBody"],
         mdTextBody: item["ExtractedMarkdownMessage"],
-
         attachments: item["Attachments"].map((attachment) => ({
           name: attachment["Name"],
           contentType: attachment["ContentType"],
@@ -64,40 +63,5 @@ router.post("/", async (req, res, next) => {
     next(error);
   }
 });
-
-const downloadFile = async (email: EmailRecord) => {
-  try {
-    if (!email.mdTextBody) {
-      return null;
-    }
-
-    // find link the md_text_body of the text [Download report](https://www.linkedin.com/e/v2?...)
-    const match = email.mdTextBody.match(/\[Download report\]\((https:\/\/www\.linkedin\.com\/e\/v2\?[^)]+)\)/);
-    if (!match) {
-      captureException("[Linkedin Stats] No link found", `No link found in email ${email.id}`);
-      return;
-    }
-
-    const link = match[0].slice("[Download report](".length, -1).replaceAll("&amp;", "&");
-    console.log(`[Linkedin Stats] Found link in email ${email.id}: ${link}`);
-
-    const response = await fetch(link);
-    if (!response.ok) {
-      throw new Error(`Failed to fetch ${link}: ${response.statusText}`);
-    }
-
-    const arrayBuffer = await response.arrayBuffer();
-
-    const objectName = `linkedin-report/${email.id}.xlsx`;
-    const res = await putObject(objectName, Buffer.from(arrayBuffer));
-    if (res instanceof Error) {
-      throw new Error(`Failed to upload to S3 ${res}`);
-    }
-
-    return objectName;
-  } catch (error: any) {
-    captureMessage("Failed to download attachment", error.message);
-  }
-};
 
 export default router;
