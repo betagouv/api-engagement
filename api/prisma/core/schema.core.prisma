@@ -83,7 +83,7 @@ model StatEvent {
   es_id             String?         @unique
   type              StatEventType
   created_at        DateTime        @default(now())
-  updated_at        DateTime        @updatedAt
+  updated_at        DateTime?       @updatedAt
   click_user        String?
   click_id          String?
   request_id        String?
