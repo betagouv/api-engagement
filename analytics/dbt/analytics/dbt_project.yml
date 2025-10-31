@@ -40,4 +40,4 @@ models:
       +tags: marts
 
 vars:
-  PARTNER_SERVICE_CIVIQUE_NAME: "Service Civique"
+  PUBLISHER_SERVICE_CIVIQUE_NAME: "Service Civique"

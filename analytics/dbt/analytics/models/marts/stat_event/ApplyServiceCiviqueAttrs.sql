@@ -21,8 +21,8 @@ with src as (
 ),
 
 service_civique as (
-  select id from {{ ref('dim_partner') }}
-  where name = '{{ var('PARTNER_SERVICE_CIVIQUE_NAME') }}'
+  select id from {{ ref('dim_publisher') }}
+  where name = '{{ var('PUBLISHER_SERVICE_CIVIQUE_NAME') }}'
 )
 
 select
