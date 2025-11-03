@@ -4,8 +4,8 @@
   "description": "",
   "main": "src/index.js",
   "scripts": {
-    "db:new": "dbmate --env DATABASE_URL_ANALYTICS --migrations-dir db/migrations new",
-    "db:migrate": "dbmate --env DATABASE_URL_ANALYTICS --migrations-dir db/migrations up",
+    "db:new": "dbmate --env DATABASE_URL_ANALYTICS --migrations-table analytics_raw.schema_migrations --migrations-dir db/migrations new",
+    "db:migrate": "dbmate --env DATABASE_URL_ANALYTICS --migrations-table analytics_raw.schema_migrations --migrations-dir db/migrations up",
     "build": "tsc",
     "job": "ts-node src/jobs/run-job.ts",
     "job:dist": "node dist/jobs/run-job.js",
