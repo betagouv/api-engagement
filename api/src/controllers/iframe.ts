@@ -2,10 +2,9 @@ import cors from "cors";
 import { NextFunction, Request, Response, Router } from "express";
 import zod from "zod";
 
-import { ENV, PUBLISHER_IDS } from "../config";
+import { PUBLISHER_IDS } from "../config";
 import { INVALID_PARAMS, INVALID_QUERY, NOT_FOUND, captureMessage } from "../error";
 import MissionModel from "../models/mission";
-import RequestWidgetModel from "../models/request-widget";
 import WidgetModel from "../models/widget";
 import { Mission, Widget } from "../types";
 import { EARTH_RADIUS, buildQueryMongo, capitalizeFirstLetter, getDistanceKm, isValidObjectId } from "../utils";
@@ -266,20 +265,7 @@ router.get("/:id/search", async (req: Request, res: Response, next: NextFunction
       })),
     }));
 
-    if (ENV !== "production") {
-      return res.status(200).send({ ok: true, data, total });
-    }
-    const request = await RequestWidgetModel.create({
-      query: {
-        ...query.data,
-        distance: where["addresses.geoPoint"] ? "50km" : undefined,
-        jvaModeration: widget.jvaModeration,
-      },
-      widgetId: params.data.id,
-      total,
-      missions: missions.map((h) => h._id.toString()),
-    });
-    return res.status(200).send({ ok: true, data, total, request: request._id });
+    return res.status(200).send({ ok: true, data, total });
   } catch (error) {
     next(error);
   }

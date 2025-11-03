@@ -2,6 +2,46 @@
 Vous retrouverez ici l'historique des différents déploiements effectués sur l'API Engagement.
 
 
+## 27/10/2025
+
+
+### Bug Fixes
+
+- (**app**) Search select default value ([`3548db8`](https://github.com/betagouv/api-engagement/commit/3548db835ce8a56064f210fd9f00e7658311e13a))
+
+- (**api**) Add dual write support to reassign-stats service (#488) ([`e922a26`](https://github.com/betagouv/api-engagement/commit/e922a268cfd981d6d1adc95f6df6d3c3d1346992))
+
+- (**app**) Public stats departements graph (#487) ([`4e258a9`](https://github.com/betagouv/api-engagement/commit/4e258a9597ddde746e7e6f46619ddc18308d385c))
+
+- (**app**) Optimize real-time activity feed (#486) ([`41a33d1`](https://github.com/betagouv/api-engagement/commit/41a33d1b45effe33e3b8e954710acf922092112f))
+
+
+### Features
+
+- (**api**) Add Service Civique support for L'Etudiant (#491) ([`cc6c6f5`](https://github.com/betagouv/api-engagement/commit/cc6c6f59e7999b7037b2402435800ee4aa4536a5))
+
+
+### Miscellaneous Tasks
+
+- (**changelog**) Update CHANGELOG.md ([`334a8d2`](https://github.com/betagouv/api-engagement/commit/334a8d231413c70435afccc1bb3a1c4cd358ac45))
+
+- (**ci**) Activate READ_STATS_FROM pg for both prod and staging ([`af3a2de`](https://github.com/betagouv/api-engagement/commit/af3a2de75eeff0153add5beb47a9143e47bc2ef0))
+
+- (**app**) Add \"iframe\" in embed iframe title ([`2d6c785`](https://github.com/betagouv/api-engagement/commit/2d6c78530245734588d51c4fe8923f1d029143bd))
+
+-  Merge changelog from main ([`9537801`](https://github.com/betagouv/api-engagement/commit/9537801587bb6fe1cb61d531be05d90294dc2372))
+
+
+### Refactoring
+
+- (**app**) Update to React 19.2.0 (#484) ([`7854892`](https://github.com/betagouv/api-engagement/commit/78548927c41057bb4a287c305f9caf06a67e0050))
+
+- (**app**) Use metabase embed in stats-admin admin screen (#490) ([`7c277fb`](https://github.com/betagouv/api-engagement/commit/7c277fb9cea86541cb35e142c61ac953e73b289e))
+
+# API Engagement - Changelog
+Vous retrouverez ici l'historique des différents déploiements effectués sur l'API Engagement.
+
+
 ## 20/10/2025
 
 

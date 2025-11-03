@@ -47,5 +47,5 @@ select
     substr(event_hash, 17, 4),
     substr(event_hash, 21, 12)
   ) as id,
-  now() as updated_at
+  updated_at
 from prepared

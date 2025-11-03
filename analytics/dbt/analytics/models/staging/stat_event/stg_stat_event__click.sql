@@ -40,6 +40,7 @@ mission_map as (
 select
   e.id as event_id,
   e.created_at,
+  e.updated_at,
   e.tag,
   p_from.id as from_partner_id,
   p_to.id as to_partner_id,

@@ -88,6 +88,7 @@ model StatEvent {
   es_id             String?         @unique
   type              StatEventType
   created_at        DateTime        @default(now())
+  updated_at        DateTime?       @updatedAt
   click_user        String?
   click_id          String?
   request_id        String?
@@ -133,6 +134,7 @@ model StatEvent {
   @@index([to_publisher_id, created_at], map: "stats_event_to_publisher_created_at_idx")
   @@index([from_publisher_id, type, created_at], map: "stats_event_from_publisher_type_created_at_idx")
   @@index([to_publisher_id, type, created_at], map: "stats_event_to_publisher_type_created_at_idx")
+  @@index([updated_at(sort: Asc)], map: "stats_event_updated_at_asc_idx")
 }
 
 model Publisher {

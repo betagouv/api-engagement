@@ -20,6 +20,10 @@ models:
         description: Horodatage (UTC) de la collecte.
         tests:
           - not_null
+      - name: updated_at
+        description: Dernière date de mise à jour de la ligne (suit le curseur incrémental).
+        tests:
+          - not_null
       - name: source
         description: Origine déclarée de l’événement (api, widget, campagne, etc.).
       - name: source_id
