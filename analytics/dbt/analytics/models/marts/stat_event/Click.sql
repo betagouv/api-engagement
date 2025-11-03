@@ -24,12 +24,13 @@ with src as (
 prepared as (
   select
     *,
-    md5(event_id::text) as event_hash
+    md5(stat_event_id::text) as event_hash
   from src
 )
 
 select
-  event_id as old_id,
+  stat_event_id,
+  stat_event_id as old_id,
   created_at,
   url_origin,
   tag,
