@@ -5,8 +5,8 @@ import zod from "zod";
 import { PUBLISHER_IDS } from "../config";
 import { FORBIDDEN, INVALID_BODY, INVALID_PARAMS, INVALID_QUERY, NOT_FOUND } from "../error";
 import MissionModel from "../models/mission";
-import { publisherService } from "../services/publisher";
 import { logModeration } from "../services/log";
+import { publisherService } from "../services/publisher";
 import { Mission } from "../types";
 import { UserRequest } from "../types/passport";
 import { diacriticSensitiveRegex } from "../utils";
@@ -240,7 +240,7 @@ router.post("/aggs", passport.authenticate("user", { session: false }), async (r
       },
     ]);
 
-    const publishers = await publisherService.listPublishersSummary();
+    const publishers = await publisherService.findPublishers();
 
     const data = {
       status: facets[0].status.filter((b: { _id: string }) => b._id).map((b: { _id: string; count: number }) => ({ key: b._id, doc_count: b.count })),

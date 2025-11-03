@@ -1,7 +1,9 @@
 import dotenv from "dotenv";
 import mongoose from "mongoose";
 
-import type { Prisma, Publisher as PrismaPublisher, PublisherDiffuseur as PrismaPublisherDiffuseur } from "../../src/db/core";
+import fs from "fs";
+import path from "path";
+import type { Prisma, Publisher as PrismaPublisher, PublisherDiffusion as PrismaPublisherDiffusion } from "../../src/db/core";
 import { mongoConnected } from "../../src/db/mongo";
 import { pgConnected, prismaCore } from "../../src/db/postgres";
 import { publisherRepository } from "../../src/repositories/publisher";
@@ -42,6 +44,23 @@ const parseOptions = (argv: string[]): ScriptOptions => {
 };
 
 const options = parseOptions(process.argv.slice(2));
+const env = options.envPath ? path.basename(options.envPath, ".env") : null;
+
+const envFile = env ? `.env.${env}` : null;
+let envPath;
+if (envFile) {
+  envPath = path.resolve(__dirname, "..", "..", envFile);
+}
+
+if (envPath && fs.existsSync(envPath)) {
+  console.log(`Loading environment variables from ${envFile}`);
+  dotenv.config({ path: envPath });
+} else {
+  if (env) {
+    console.log(`Warning: .env file for environment '${env}' not found. Falling back to default .env`);
+  }
+  dotenv.config();
+}
 
 if (options.envPath) {
   console.log(`[MigratePublishers] Loading environment from ${options.envPath}`);
@@ -181,7 +200,7 @@ const normalizeDiffuseurs = (value: unknown) => {
   return Array.from(map.values()).sort((a, b) => a.publisherId.localeCompare(b.publisherId));
 };
 
-const toPublisherRecord = (publisher: PrismaPublisher & { diffuseurs: PrismaPublisherDiffuseur[] }): PublisherRecord => ({
+const toPublisherRecord = (publisher: PrismaPublisher & { diffuseurs: PrismaPublisherDiffusion[] }): PublisherRecord => ({
   id: publisher.id,
   _id: publisher.id,
   name: publisher.name,
@@ -409,10 +428,7 @@ const compareStringArrays = (a: string[], b: string[]) => {
   return true;
 };
 
-const comparePublishers = (
-  existing: PublisherRecord["publishers"],
-  target: PublisherRecord["publishers"]
-) => {
+const comparePublishers = (existing: PublisherRecord["publishers"], target: PublisherRecord["publishers"]) => {
   if (existing.length !== target.length) {
     return false;
   }

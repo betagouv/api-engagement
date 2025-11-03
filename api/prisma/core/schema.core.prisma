@@ -165,7 +165,7 @@ model Publisher {
   createdAt          DateTime     @default(now()) @map("created_at")
   updatedAt          DateTime     @updatedAt @map("updated_at")
 
-  diffuseurs PublisherDiffuseur[]
+  diffuseurs PublisherDiffusion[]
 
   @@index([name], map: "publisher_name_idx")
   @@index([apikey], map: "publisher_apikey_idx")
@@ -179,7 +179,7 @@ model Publisher {
   @@map("publisher")
 }
 
-model PublisherDiffuseur {
+model PublisherDiffusion {
   id                  String       @id @default(uuid())
   publisherRelationId String       @map("publisher_id")
   linkedPublisherId   String       @map("linked_publisher_id")
@@ -190,6 +190,6 @@ model PublisherDiffuseur {
 
   publisher Publisher @relation(fields: [publisherRelationId], references: [id], onDelete: Cascade)
 
-  @@index([linkedPublisherId], map: "publisher_diffuseur_linked_id_idx")
-  @@map("publisher_diffuseur")
+  @@index([linkedPublisherId], map: "publisher_diffusion_linked_id_idx")
+  @@map("publisher_diffusion")
 }

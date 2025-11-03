@@ -6,7 +6,7 @@ import { JVA_URL, STATS_INDEX } from "../../../../src/config";
 import CampaignModel from "../../../../src/models/campaign";
 import StatsBotModel from "../../../../src/models/stats-bot";
 import * as utils from "../../../../src/utils";
-import { elasticMock, pgMock } from "../../../mocks";
+import { elasticMock } from "../../../mocks";
 import { createTestApp } from "../../../testApp";
 
 describe("RedirectController /campaign/:id", () => {
@@ -17,8 +17,6 @@ describe("RedirectController /campaign/:id", () => {
 
     elasticMock.index.mockReset();
     elasticMock.update.mockReset();
-    pgMock.statEvent.create.mockReset();
-    pgMock.statEvent.update.mockReset();
     elasticMock.index.mockResolvedValue({ body: { _id: "default-click-id" } });
     elasticMock.update.mockResolvedValue({});
   });
@@ -120,47 +118,5 @@ describe("RedirectController /campaign/:id", () => {
     expect(updateArgs.index).toBe(STATS_INDEX);
     expect(updateArgs.body).toEqual({ doc: { isBot: true } });
     expect(updateArgs.id).toBe(indexArgs[0].id);
-  });
-
-  it("writes stats to Postgres when dual write flag is enabled", async () => {
-    process.env.WRITE_STATS_DUAL = "true";
-
-    const campaign = await CampaignModel.create({
-      name: "Dual Write Campaign",
-      url: "https://dual-write.example.com/path",
-      fromPublisherId: "from-publisher",
-      fromPublisherName: "From Publisher",
-      toPublisherId: "to-publisher",
-      toPublisherName: "To Publisher",
-    });
-
-    const identity = {
-      user: "dual-user",
-      referer: "https://dual-referrer.example.com",
-      userAgent: "Mozilla/5.0",
-    };
-
-    vi.spyOn(utils, "identify").mockReturnValue(identity);
-    vi.spyOn(StatsBotModel, "findOne").mockResolvedValue({ user: identity.user } as any);
-    elasticMock.index.mockResolvedValueOnce({ body: { _id: "dual-click" } });
-
-    const response = await request(app).get(`/r/campaign/${campaign._id.toString()}`);
-
-    expect(response.status).toBe(302);
-    expect(pgMock.statEvent.create).toHaveBeenCalledTimes(1);
-    expect(pgMock.statEvent.update).toHaveBeenCalledTimes(1);
-
-    const [[createArgs]] = pgMock.statEvent.create.mock.calls;
-    expect(createArgs.data).toMatchObject({
-      id: expect.any(String),
-      type: "click",
-      user: identity.user,
-      source: "campaign",
-      source_id: campaign._id.toString(),
-    });
-
-    const [[updateArgs]] = pgMock.statEvent.update.mock.calls;
-    expect(updateArgs.where).toEqual({ id: expect.any(String) });
-    expect(updateArgs.data).toMatchObject({ is_bot: true });
   });
 });

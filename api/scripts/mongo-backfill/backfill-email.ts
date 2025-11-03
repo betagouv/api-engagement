@@ -1,5 +1,6 @@
 import dotenv from "dotenv";
-
+import fs from "fs";
+import path from "path";
 import type { EmailStatus } from "../../src/db/core";
 
 type ScriptOptions = {
@@ -37,11 +38,21 @@ const parseOptions = (argv: string[]): ScriptOptions => {
 };
 
 const options = parseOptions(process.argv.slice(2));
+const env = options.envPath ? path.basename(options.envPath, ".env") : null;
 
-if (options.envPath) {
-  console.log(`[MigrateEmails] Loading environment from ${options.envPath}`);
-  dotenv.config({ path: options.envPath });
+const envFile = env ? `.env.${env}` : null;
+let envPath;
+if (envFile) {
+  envPath = path.resolve(__dirname, "..", "..", envFile);
+}
+
+if (envPath && fs.existsSync(envPath)) {
+  console.log(`Loading environment variables from ${envFile}`);
+  dotenv.config({ path: envPath });
 } else {
+  if (env) {
+    console.log(`Warning: .env file for environment '${env}' not found. Falling back to default .env`);
+  }
   dotenv.config();
 }
 

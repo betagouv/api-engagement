@@ -1,7 +1,7 @@
 import request from "supertest";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { createTestMission, createTestPublisher } from "../../../fixtures";
-import { elasticMock, pgMock } from "../../../mocks";
+import { elasticMock } from "../../../mocks";
 import { createTestApp } from "../../../testApp";
 
 describe("MyMission API Integration Tests", () => {
@@ -19,9 +19,7 @@ describe("MyMission API Integration Tests", () => {
     mission2 = await createTestMission({ organizationClientId: orgId, publisherId: publisher._id.toString() });
 
     vi.clearAllMocks();
-    process.env.READ_STATS_FROM = "es";
-    process.env.WRITE_STATS_DUAL = "false";
-    pgMock.statEvent.groupBy.mockResolvedValue([]);
+
     elasticMock.msearch.mockResolvedValue({
       body: {
         responses: [
@@ -185,39 +183,6 @@ describe("MyMission API Integration Tests", () => {
       validateStatsStructure(mission.stats);
     });
 
-    it("should return mission details with stats from postgres", async () => {
-      process.env.READ_STATS_FROM = "pg";
-      pgMock.statEvent.groupBy.mockResolvedValueOnce([
-        {
-          from_publisher_id: "publisher1",
-          from_publisher_name: "Publisher 1",
-          _count: { _all: 2 },
-        },
-      ]);
-      pgMock.statEvent.groupBy.mockResolvedValueOnce([
-        {
-          from_publisher_id: "publisher2",
-          from_publisher_name: "Publisher 2",
-          _count: { _all: 4 },
-        },
-      ]);
-
-      const response = await request(app).get(`/v0/mymission/${mission1.clientId}`).set("x-api-key", apiKey);
-
-      expect(response.status).toBe(200);
-      expect(pgMock.statEvent.groupBy).toHaveBeenCalledTimes(2);
-      expect(response.body.data.stats.applications[0]).toMatchObject({
-        key: "publisher1",
-        doc_count: 2,
-        name: "Publisher 1",
-      });
-      expect(response.body.data.stats.clicks[0]).toMatchObject({
-        key: "publisher2",
-        doc_count: 4,
-        name: "Publisher 2",
-      });
-    });
-
     it("should return 400 for invalid parameters", async () => {
       const response = await request(app).get(`/v0/mymission/${mission1.clientId}`).set("x-api-key", apiKey).query({ someInvalidParam: "value" });
 
@@ -282,25 +247,6 @@ describe("MyMission API Integration Tests", () => {
       expect(response.body.data).toBeDefined();
 
       validateStatsStructure(response.body.data);
-    });
-
-    it("should return mission stats from postgres", async () => {
-      process.env.READ_STATS_FROM = "pg";
-      pgMock.statEvent.groupBy.mockResolvedValueOnce([
-        { from_publisher_name: "Publisher 1", _count: { _all: 5 } },
-      ]);
-      pgMock.statEvent.groupBy.mockResolvedValueOnce([
-        { from_publisher_name: "Publisher 2", _count: { _all: 3 } },
-      ]);
-
-      const response = await request(app).get(`/v0/mymission/${mission1.clientId}/stats`).set("x-api-key", apiKey);
-
-      expect(response.status).toBe(200);
-      expect(pgMock.statEvent.groupBy).toHaveBeenCalledTimes(2);
-      expect(response.body.data).toEqual({
-        clicks: [{ key: "Publisher 1", doc_count: 5 }],
-        applications: [{ key: "Publisher 2", doc_count: 3 }],
-      });
     });
 
     it("should return 400 for invalid parameters", async () => {

@@ -1,13 +1,13 @@
 export type PublisherRoleFilter = "annonceur" | "diffuseur" | "api" | "widget" | "campaign";
 
-export interface PublisherDiffuseurInput {
+export interface PublisherDiffusionInput {
   publisherId: string;
   publisherName: string;
   moderator?: boolean;
   missionType?: string | null;
 }
 
-export interface PublisherDiffuseurRecord {
+export interface PublisherDiffusionRecord {
   id: string;
   publisherId: string;
   moderator: boolean;
@@ -44,7 +44,7 @@ export interface PublisherRecord {
   deletedAt: Date | null;
   createdAt: Date;
   updatedAt: Date;
-  publishers: PublisherDiffuseurRecord[];
+  publishers: PublisherDiffusionRecord[];
 }
 
 export interface PublisherSearchParams {
@@ -82,12 +82,12 @@ export interface PublisherCreateInput {
   hasCampaignRights?: boolean;
   sendReport?: boolean;
   sendReportTo?: string[];
-  publishers?: PublisherDiffuseurInput[];
+  publishers?: PublisherDiffusionInput[];
 }
 
 export type PublisherUpdatePatch = Partial<Omit<PublisherCreateInput, "publishers" | "name">> & {
   name?: string;
-  publishers?: PublisherDiffuseurInput[] | null;
+  publishers?: PublisherDiffusionInput[] | null;
   deletedAt?: Date | null;
   apikey?: string | null;
   logo?: string | null;

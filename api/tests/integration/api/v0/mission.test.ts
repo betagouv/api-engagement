@@ -5,7 +5,6 @@ import MissionModel from "../../../../src/models/mission";
 import { Mission, MissionType } from "../../../../src/types";
 import type { PublisherRecord } from "../../../../src/types/publisher";
 import { createTestMission, createTestPublisher } from "../../../fixtures";
-import { resetPublisherStore } from "../../../mocks/publisherServiceMock";
 import { createTestApp } from "../../../testApp";
 
 describe("Mission API Integration Tests", () => {
@@ -19,7 +18,6 @@ describe("Mission API Integration Tests", () => {
   beforeEach(async () => {
     // Clean up
     await MissionModel.deleteMany({});
-    resetPublisherStore();
 
     // Create publishers
     const publisher1Data = await createTestPublisher({ name: "Publisher A" });
@@ -124,10 +122,6 @@ describe("Mission API Integration Tests", () => {
     });
 
     vi.clearAllMocks();
-  });
-
-  afterEach(() => {
-    resetPublisherStore();
   });
 
   describe("GET /v0/mission", () => {

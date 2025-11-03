@@ -1,10 +1,11 @@
 import { v4 as uuid } from "uuid";
 
-import { Prisma, Publisher, PublisherDiffuseur } from "../db/core";
+import { MissionType, Prisma, Publisher, PublisherDiffusion } from "../db/core";
 import { publisherRepository } from "../repositories/publisher";
-import { PublisherCreateInput, PublisherDiffuseurInput, PublisherDiffuseurRecord, PublisherRecord, PublisherSearchParams, PublisherUpdatePatch } from "../types/publisher";
+import { PublisherCreateInput, PublisherDiffusionInput, PublisherDiffusionRecord, PublisherRecord, PublisherSearchParams, PublisherUpdatePatch } from "../types/publisher";
+import { normalizeCollection, normalizeOptionalString } from "../utils";
 
-type PublisherWithDiffuseurs = Publisher & { diffuseurs: PublisherDiffuseur[] };
+type PublisherWithDiffusion = Publisher & { diffuseurs?: PublisherDiffusion[] };
 
 export class PublisherNotFoundError extends Error {
   constructor(id: string) {
@@ -13,254 +14,163 @@ export class PublisherNotFoundError extends Error {
   }
 }
 
-const toDiffuseurRecord = (diffuseur: PublisherDiffuseur): PublisherDiffuseurRecord => ({
-  id: diffuseur.id,
-  publisherId: diffuseur.linkedPublisherId,
-  moderator: diffuseur.moderator,
-  missionType: diffuseur.missionType ?? null,
-  createdAt: diffuseur.createdAt,
-  updatedAt: diffuseur.updatedAt,
-});
+export const publisherService = (() => {
+  const defaultInclude = Object.freeze({ diffuseurs: true }) satisfies Prisma.PublisherInclude;
 
-const toPublisherRecord = (publisher: PublisherWithDiffuseurs): PublisherRecord => ({
-  id: publisher.id,
-  _id: publisher.id,
-  name: publisher.name,
-  category: publisher.category ?? null,
-  url: publisher.url ?? null,
-  moderator: publisher.moderator,
-  moderatorLink: publisher.moderatorLink ?? null,
-  email: publisher.email ?? null,
-  documentation: publisher.documentation ?? null,
-  logo: publisher.logo ?? null,
-  defaultMissionLogo: publisher.defaultMissionLogo ?? null,
-  lead: publisher.lead ?? null,
-  feed: publisher.feed ?? null,
-  feedUsername: publisher.feedUsername ?? null,
-  feedPassword: publisher.feedPassword ?? null,
-  apikey: publisher.apikey ?? null,
-  description: publisher.description ?? "",
-  missionType: publisher.missionType ?? null,
-  isAnnonceur: publisher.isAnnonceur,
-  hasApiRights: publisher.hasApiRights,
-  hasWidgetRights: publisher.hasWidgetRights,
-  hasCampaignRights: publisher.hasCampaignRights,
-  sendReport: publisher.sendReport,
-  sendReportTo: publisher.sendReportTo ?? [],
-  deletedAt: publisher.deletedAt ?? null,
-  createdAt: publisher.createdAt,
-  updatedAt: publisher.updatedAt,
-  publishers: (publisher.diffuseurs ?? []).map(toDiffuseurRecord),
-});
+  const toDiffusionRecord = (diffusion: PublisherDiffusion): PublisherDiffusionRecord => ({
+    id: diffusion.id,
+    publisherId: diffusion.linkedPublisherId,
+    moderator: diffusion.moderator,
+    missionType: diffusion.missionType ?? null,
+    createdAt: diffusion.createdAt,
+    updatedAt: diffusion.updatedAt,
+  });
 
-const normalizeString = (value: string | null | undefined): string | null | undefined => {
-  if (value === undefined) {
-    return undefined;
-  }
-  if (value === null) {
-    return null;
-  }
-  const trimmed = value.trim();
-  return trimmed.length ? trimmed : null;
-};
+  const toPublisherRecord = (publisher: PublisherWithDiffusion): PublisherRecord => ({
+    id: publisher.id,
+    _id: publisher.id,
+    name: publisher.name,
+    category: publisher.category ?? null,
+    url: publisher.url ?? null,
+    moderator: publisher.moderator,
+    moderatorLink: publisher.moderatorLink ?? null,
+    email: publisher.email ?? null,
+    documentation: publisher.documentation ?? null,
+    logo: publisher.logo ?? null,
+    defaultMissionLogo: publisher.defaultMissionLogo ?? null,
+    lead: publisher.lead ?? null,
+    feed: publisher.feed ?? null,
+    feedUsername: publisher.feedUsername ?? null,
+    feedPassword: publisher.feedPassword ?? null,
+    apikey: publisher.apikey ?? null,
+    description: publisher.description ?? "",
+    missionType: publisher.missionType ?? null,
+    isAnnonceur: publisher.isAnnonceur,
+    hasApiRights: publisher.hasApiRights,
+    hasWidgetRights: publisher.hasWidgetRights,
+    hasCampaignRights: publisher.hasCampaignRights,
+    sendReport: publisher.sendReport,
+    sendReportTo: publisher.sendReportTo ?? [],
+    deletedAt: publisher.deletedAt ?? null,
+    createdAt: publisher.createdAt,
+    updatedAt: publisher.updatedAt,
+    publishers: (publisher.diffuseurs ?? []).map(toDiffusionRecord),
+  });
 
-const normalizePublishersInput = (publishers?: PublisherDiffuseurInput[] | null) => {
-  if (!publishers || publishers.length === 0) {
-    return [];
-  }
+  const normalizeDiffusions = (publishers?: PublisherDiffusionInput[] | null) =>
+    normalizeCollection(
+      publishers,
+      (diffusion) => {
+        const publisherId = diffusion.publisherId?.trim();
+        if (!publisherId) {
+          return null;
+        }
 
-  const uniqueById = new Map<string, PublisherDiffuseurInput>();
-  for (const diffuseur of publishers) {
-    if (!diffuseur.publisherId) {
-      continue;
+        const publisherName = normalizeOptionalString(diffusion.publisherName) ?? publisherId;
+        const missionType = normalizeOptionalString(diffusion.missionType);
+
+        return {
+          publisherId,
+          publisherName,
+          moderator: diffusion.moderator ?? false,
+          missionType: missionType ?? null,
+        };
+      },
+      {
+        key: (diffusion) => diffusion.publisherId,
+      }
+    );
+
+  const buildWhereClause = (params: PublisherSearchParams): Prisma.PublisherWhereInput => {
+    const and: Prisma.PublisherWhereInput[] = [];
+
+    if (!params.includeDeleted) {
+      and.push({ deletedAt: null });
     }
-    const normalized: PublisherDiffuseurInput = {
-      publisherId: diffuseur.publisherId,
-      publisherName: diffuseur.publisherName?.trim() ?? diffuseur.publisherId,
-      moderator: diffuseur.moderator ?? false,
-      missionType: diffuseur.missionType ?? null,
-    };
-    uniqueById.set(normalized.publisherId, normalized);
-  }
-  return Array.from(uniqueById.values());
-};
 
-const buildFilters = (params: PublisherSearchParams): Prisma.PublisherWhereInput => {
-  const and: Prisma.PublisherWhereInput[] = [];
+    if (params.moderator) {
+      and.push({ moderator: true });
+    }
 
-  if (!params.includeDeleted) {
-    and.push({ deletedAt: null });
-  }
+    if (params.name) {
+      and.push({ name: { contains: params.name, mode: "insensitive" } });
+    }
 
-  if (params.moderator) {
-    and.push({ moderator: true });
-  }
-
-  if (params.name) {
-    and.push({ name: { contains: params.name, mode: "insensitive" } });
-  }
-
-  if (params.role) {
-    switch (params.role) {
-      case "annonceur":
-        and.push({ isAnnonceur: true });
-        break;
-      case "diffuseur":
-        and.push({
+    if (params.role) {
+      const roleCondition: Record<string, Prisma.PublisherWhereInput> = {
+        annonceur: { isAnnonceur: true },
+        api: { hasApiRights: true },
+        campaign: { hasCampaignRights: true },
+        diffuseur: {
           OR: [{ hasApiRights: true }, { hasWidgetRights: true }, { hasCampaignRights: true }],
-        });
-        break;
-      case "api":
-        and.push({ hasApiRights: true });
-        break;
-      case "widget":
-        and.push({ hasWidgetRights: true });
-        break;
-      case "campaign":
-        and.push({ hasCampaignRights: true });
-        break;
+        },
+        widget: { hasWidgetRights: true },
+      };
+      and.push(roleCondition[params.role]);
     }
-  }
 
-  if (params.sendReport !== undefined) {
-    and.push({ sendReport: params.sendReport });
-  }
+    if (params.sendReport !== undefined) {
+      and.push({ sendReport: params.sendReport });
+    }
 
-  if (params.missionType === null) {
-    and.push({ missionType: null });
-  } else if (params.missionType !== undefined) {
-    and.push({ missionType: params.missionType });
-  }
+    if (params.missionType === null) {
+      and.push({ missionType: null });
+    } else if (params.missionType !== undefined) {
+      and.push({ missionType: params.missionType as MissionType });
+    }
 
-  if (params.diffuseurOf) {
-    and.push({ diffuseurs: { some: { linkedPublisherId: params.diffuseurOf } } });
-  }
+    if (params.diffuseurOf) {
+      and.push({ diffuseurs: { some: { linkedPublisherId: params.diffuseurOf } } });
+    }
 
-  const allowedIds = (() => {
     const ids = params.ids ?? undefined;
     const accessible = params.accessiblePublisherIds ?? undefined;
+    let allowedIds: string[] | undefined;
+
     if (ids && accessible) {
       const set = new Set(accessible);
-      const intersection = ids.filter((value) => set.has(value));
-      return intersection;
+      allowedIds = ids.filter((value) => set.has(value));
+    } else if (ids) {
+      allowedIds = ids;
+    } else if (accessible) {
+      allowedIds = accessible;
     }
-    if (ids) {
-      return ids;
+
+    if (allowedIds && allowedIds.length > 0) {
+      and.push({ id: { in: allowedIds } });
+    } else if (allowedIds && allowedIds.length === 0) {
+      and.push({ id: { in: ["__none__"] } });
     }
-    if (accessible) {
-      return accessible;
-    }
-    return undefined;
-  })();
 
-  if (allowedIds && allowedIds.length > 0) {
-    and.push({ id: { in: allowedIds } });
-  } else if (allowedIds && allowedIds.length === 0) {
-    // Empty intersection, force non-matching condition
-    and.push({ id: { in: ["__none__"] } });
-  }
+    return and.length ? { AND: and } : {};
+  };
 
-  if (and.length === 0) {
-    return {};
-  }
-
-  return { AND: and };
-};
-
-const defaultInclude = Object.freeze({ diffuseurs: true }) satisfies Prisma.PublisherInclude;
-
-export const publisherService = {
-  async findPublishers(params: PublisherSearchParams = {}): Promise<PublisherRecord[]> {
-    const where = buildFilters(params);
-    const publishers = await publisherRepository.findMany({
-      where,
-      orderBy: [{ name: Prisma.SortOrder.asc }],
-      include: defaultInclude,
-    });
-    return publishers.map(toPublisherRecord);
-  },
-
-  async countPublishers(params: PublisherSearchParams = {}): Promise<number> {
-    const where = buildFilters(params);
+  const countPublishers = async (params: PublisherSearchParams = {}): Promise<number> => {
+    const where = buildWhereClause(params);
     return publisherRepository.count({ where });
-  },
+  };
 
-  async findPublishersWithCount(params: PublisherSearchParams = {}): Promise<{ data: PublisherRecord[]; total: number }> {
-    const [data, total] = await Promise.all([this.findPublishers(params), this.countPublishers(params)]);
-    return { data, total };
-  },
-
-  async getPublisherById(id: string): Promise<PublisherRecord | null> {
-    const publisher = await publisherRepository.findUnique({ where: { id }, include: defaultInclude });
-    return publisher ? toPublisherRecord(publisher) : null;
-  },
-
-  async getPublishersByIds(ids: string[]): Promise<PublisherRecord[]> {
-    if (!ids.length) {
-      return [];
-    }
-    const publishers = await publisherRepository.findMany({
-      where: { id: { in: ids } },
-      include: defaultInclude,
-    });
-    return publishers.map(toPublisherRecord);
-  },
-
-  async listPublishersSummary(): Promise<Array<Pick<PublisherRecord, "id" | "_id" | "name">>> {
-    const publishers = await publisherRepository.findMany({
-      where: { deletedAt: null },
-      orderBy: [{ name: Prisma.SortOrder.asc }],
-      select: { id: true, name: true },
-    });
-    return publishers.map((publisher) => ({
-      id: publisher.id,
-      _id: publisher.id,
-      name: publisher.name,
-    }));
-  },
-
-  async findByApiKey(apikey: string, publisherId?: string): Promise<PublisherRecord | null> {
-    const publisher = await publisherRepository.findFirst({
-      where: { apikey, ...(publisherId ? { id: publisherId } : {}) },
-      include: defaultInclude,
-    });
-    return publisher ? toPublisherRecord(publisher) : null;
-  },
-
-  async findPublisherByName(name: string): Promise<PublisherRecord | null> {
-    const publisher = await publisherRepository.findFirst({
-      where: { name },
-      include: defaultInclude,
-    });
-    return publisher ? toPublisherRecord(publisher) : null;
-  },
-
-  async existsByName(name: string): Promise<boolean> {
-    const count = await publisherRepository.count({ where: { name } });
-    return count > 0;
-  },
-
-  async createPublisher(input: PublisherCreateInput): Promise<PublisherRecord> {
-    const normalizedPublishers = normalizePublishersInput(input.publishers);
+  const createPublisher = async (input: PublisherCreateInput): Promise<PublisherRecord> => {
+    const normalizedPublishers = normalizeDiffusions(input.publishers);
     const rightsEnabled = Boolean(input.hasApiRights || input.hasWidgetRights || input.hasCampaignRights);
 
     const data: Prisma.PublisherCreateInput = {
       name: input.name.trim(),
-      category: input.category ?? null,
-      url: normalizeString(input.url),
+      category: normalizeOptionalString(input.category) ?? null,
+      url: normalizeOptionalString(input.url),
       moderator: input.moderator ?? false,
-      moderatorLink: normalizeString(input.moderatorLink),
-      email: normalizeString(input.email),
-      documentation: normalizeString(input.documentation),
-      logo: normalizeString(input.logo),
-      defaultMissionLogo: normalizeString(input.defaultMissionLogo),
-      lead: normalizeString(input.lead),
-      feed: normalizeString(input.feed),
-      feedUsername: normalizeString(input.feedUsername),
-      feedPassword: normalizeString(input.feedPassword),
-      apikey: normalizeString(input.apikey),
-      description: input.description?.trim() ?? "",
-      missionType: input.missionType ?? null,
+      moderatorLink: normalizeOptionalString(input.moderatorLink),
+      email: normalizeOptionalString(input.email),
+      documentation: normalizeOptionalString(input.documentation),
+      logo: normalizeOptionalString(input.logo),
+      defaultMissionLogo: normalizeOptionalString(input.defaultMissionLogo),
+      lead: normalizeOptionalString(input.lead),
+      feed: normalizeOptionalString(input.feed),
+      feedUsername: normalizeOptionalString(input.feedUsername),
+      feedPassword: normalizeOptionalString(input.feedPassword),
+      apikey: normalizeOptionalString(input.apikey),
+      description: normalizeOptionalString(input.description) ?? "",
+      missionType: (normalizeOptionalString(input.missionType) as MissionType) ?? null,
       isAnnonceur: input.isAnnonceur ?? false,
       hasApiRights: input.hasApiRights ?? false,
       hasWidgetRights: input.hasWidgetRights ?? false,
@@ -271,11 +181,10 @@ export const publisherService = {
 
     if (rightsEnabled && normalizedPublishers.length) {
       data.diffuseurs = {
-        create: normalizedPublishers.map((diffuseur) => ({
-          linkedPublisherId: diffuseur.publisherId,
-          linkedPublisherName: diffuseur.publisherName,
-          moderator: diffuseur.moderator ?? false,
-          missionType: diffuseur.missionType ?? null,
+        create: normalizedPublishers.map((diffusion) => ({
+          linkedPublisherId: diffusion.publisherId,
+          moderator: diffusion.moderator,
+          missionType: (normalizeOptionalString(diffusion.missionType) as MissionType) ?? null,
         })),
       };
     }
@@ -285,28 +194,91 @@ export const publisherService = {
       include: defaultInclude,
     });
 
-    return toPublisherRecord(created);
-  },
+    return toPublisherRecord(created as PublisherWithDiffusion);
+  };
 
-  async updatePublisher(id: string, patch: PublisherUpdatePatch): Promise<PublisherRecord> {
-    const normalizedPatch = {
-      category: patch.category ?? null,
-      url: normalizeString(patch.url),
-      moderator: patch.moderator,
-      moderatorLink: normalizeString(patch.moderatorLink),
-      email: normalizeString(patch.email),
-      documentation: normalizeString(patch.documentation),
-      logo: normalizeString(patch.logo),
-      defaultMissionLogo: normalizeString(patch.defaultMissionLogo),
-      description: patch.description?.trim(),
-      lead: normalizeString(patch.lead),
-      feed: normalizeString(patch.feed),
-      feedUsername: normalizeString(patch.feedUsername),
-      feedPassword: normalizeString(patch.feedPassword),
-      apikey: normalizeString(patch.apikey),
-      missionType: patch.missionType ?? null,
-    };
+  const existsByName = async (name: string): Promise<boolean> => {
+    const count = await publisherRepository.count({ where: { name } });
+    return count > 0;
+  };
 
+  const findByApiKey = async (apikey: string, publisherId?: string): Promise<PublisherRecord | null> => {
+    const publisher = await publisherRepository.findFirst({
+      where: { apikey, ...(publisherId ? { id: publisherId } : {}) },
+      include: defaultInclude,
+    });
+    return publisher ? toPublisherRecord(publisher as PublisherWithDiffusion) : null;
+  };
+
+  const findPublisherByName = async (name: string): Promise<PublisherRecord | null> => {
+    const publisher = await publisherRepository.findFirst({
+      where: { name },
+      include: defaultInclude,
+    });
+    return publisher ? toPublisherRecord(publisher as PublisherWithDiffusion) : null;
+  };
+
+  const findPublishers = async (params: PublisherSearchParams = {}): Promise<PublisherRecord[]> => {
+    const where = buildWhereClause(params);
+    const publishers = await publisherRepository.findMany({
+      where,
+      orderBy: [{ name: Prisma.SortOrder.asc }],
+      include: defaultInclude,
+    });
+    return publishers.map((publisher) => toPublisherRecord(publisher as PublisherWithDiffusion));
+  };
+
+  const findPublishersWithCount = async (params: PublisherSearchParams = {}): Promise<{ data: PublisherRecord[]; total: number }> => {
+    const [data, total] = await Promise.all([findPublishers(params), countPublishers(params)]);
+    return { data, total };
+  };
+
+  const getPublisherById = async (id: string): Promise<PublisherRecord | null> => {
+    const publisher = await publisherRepository.findUnique({ where: { id }, include: defaultInclude });
+    return publisher ? toPublisherRecord(publisher as PublisherWithDiffusion) : null;
+  };
+
+  const getPublishersByIds = async (ids: string[]): Promise<PublisherRecord[]> => {
+    if (!ids.length) {
+      return [];
+    }
+    const publishers = await publisherRepository.findMany({
+      where: { id: { in: ids } },
+      include: defaultInclude,
+    });
+    return publishers.map((publisher) => toPublisherRecord(publisher as PublisherWithDiffusion));
+  };
+
+  const purgeAll = async (): Promise<void> => {
+    await publisherRepository.deleteMany({});
+  };
+
+  const regenerateApiKey = async (id: string): Promise<{ apikey: string; publisher: PublisherRecord }> => {
+    const apikey = uuid();
+    const updated = await publisherRepository.update({
+      where: { id },
+      data: { apikey },
+      include: defaultInclude,
+    });
+    return { apikey, publisher: toPublisherRecord(updated as PublisherWithDiffusion) };
+  };
+
+  const softDeletePublisher = async (id: string): Promise<PublisherRecord> => {
+    const updated = await publisherRepository.update({
+      where: { id },
+      data: { deletedAt: new Date() },
+      include: defaultInclude,
+    });
+    return toPublisherRecord(updated as PublisherWithDiffusion);
+  };
+
+  const updatePublisher = async (id: string, patch: PublisherUpdatePatch): Promise<PublisherRecord> => {
+    const existing: PublisherWithDiffusion | null = await publisherRepository.findUnique({ where: { id }, include: defaultInclude });
+    if (!existing) {
+      throw new PublisherNotFoundError(id);
+    }
+
+    const normalizedPublishers = Array.isArray(patch.publishers) ? normalizeDiffusions(patch.publishers) : null;
     const effectiveRights = {
       hasApiRights: patch.hasApiRights ?? existing.hasApiRights,
       hasWidgetRights: patch.hasWidgetRights ?? existing.hasWidgetRights,
@@ -319,51 +291,50 @@ export const publisherService = {
     if (patch.name !== undefined) {
       data.name = patch.name.trim();
     }
-
     if (patch.category !== undefined) {
-      data.category = normalizedPatch.category;
+      data.category = normalizeOptionalString(patch.category) ?? null;
     }
     if (patch.url !== undefined) {
-      data.url = normalizedPatch.url;
+      data.url = normalizeOptionalString(patch.url);
     }
     if (patch.moderator !== undefined) {
       data.moderator = patch.moderator;
     }
     if (patch.moderatorLink !== undefined) {
-      data.moderatorLink = normalizedPatch.moderatorLink;
+      data.moderatorLink = normalizeOptionalString(patch.moderatorLink);
     }
     if (patch.email !== undefined) {
-      data.email = normalizedPatch.email;
+      data.email = normalizeOptionalString(patch.email);
     }
     if (patch.documentation !== undefined) {
-      data.documentation = normalizedPatch.documentation;
+      data.documentation = normalizeOptionalString(patch.documentation);
     }
     if (patch.logo !== undefined) {
-      data.logo = normalizedPatch.logo;
+      data.logo = normalizeOptionalString(patch.logo);
     }
     if (patch.defaultMissionLogo !== undefined) {
-      data.defaultMissionLogo = normalizedPatch.defaultMissionLogo;
+      data.defaultMissionLogo = normalizeOptionalString(patch.defaultMissionLogo);
     }
     if (patch.description !== undefined) {
-      data.description = normalizedPatch.description ?? "";
+      data.description = normalizeOptionalString(patch.description) ?? "";
     }
     if (patch.lead !== undefined) {
-      data.lead = normalizedPatch.lead;
+      data.lead = normalizeOptionalString(patch.lead);
     }
     if (patch.feed !== undefined) {
-      data.feed = normalizedPatch.feed;
+      data.feed = normalizeOptionalString(patch.feed);
     }
     if (patch.feedUsername !== undefined) {
-      data.feedUsername = normalizedPatch.feedUsername;
+      data.feedUsername = normalizeOptionalString(patch.feedUsername);
     }
     if (patch.feedPassword !== undefined) {
-      data.feedPassword = normalizedPatch.feedPassword;
+      data.feedPassword = normalizeOptionalString(patch.feedPassword);
     }
     if (patch.apikey !== undefined) {
-      data.apikey = normalizedPatch.apikey;
+      data.apikey = normalizeOptionalString(patch.apikey);
     }
     if (patch.missionType !== undefined) {
-      data.missionType = normalizedPatch.missionType;
+      data.missionType = (normalizeOptionalString(patch.missionType) as MissionType) ?? null;
     }
     if (patch.isAnnonceur !== undefined) {
       data.isAnnonceur = patch.isAnnonceur;
@@ -387,19 +358,15 @@ export const publisherService = {
       data.deletedAt = patch.deletedAt ?? null;
     }
 
-    const shouldResetPublishers = (!rightsEnabled && existing.diffuseurs.length > 0) || patch.publishers === null || (Array.isArray(patch.publishers) && !rightsEnabled);
-
-    if (shouldResetPublishers) {
+    if (patch.publishers === null || (!rightsEnabled && (existing.diffuseurs?.length ?? 0) > 0)) {
       data.diffuseurs = { deleteMany: {} };
-    } else if (Array.isArray(patch.publishers)) {
-      const normalizedPublishers = normalizePublishersInput(patch.publishers);
+    } else if (normalizedPublishers) {
       data.diffuseurs = {
         deleteMany: {},
-        create: normalizedPublishers.map((diffuseur) => ({
-          linkedPublisherId: diffuseur.publisherId,
-          linkedPublisherName: diffuseur.publisherName,
-          moderator: diffuseur.moderator ?? false,
-          missionType: diffuseur.missionType ?? null,
+        create: normalizedPublishers.map((diffusion) => ({
+          linkedPublisherId: diffusion.publisherId,
+          moderator: diffusion.moderator,
+          missionType: (normalizeOptionalString(diffusion.missionType) as MissionType) ?? null,
         })),
       };
     }
@@ -410,29 +377,22 @@ export const publisherService = {
       include: defaultInclude,
     });
 
-    return toPublisherRecord(updated);
-  },
+    return toPublisherRecord(updated as PublisherWithDiffusion);
+  };
 
-  async softDeletePublisher(id: string): Promise<PublisherRecord> {
-    const updated = await publisherRepository.update({
-      where: { id },
-      data: { deletedAt: new Date() },
-      include: defaultInclude,
-    });
-    return toPublisherRecord(updated);
-  },
-
-  async regenerateApiKey(id: string): Promise<{ apikey: string; publisher: PublisherRecord }> {
-    const apikey = uuid();
-    const updated = await publisherRepository.update({
-      where: { id },
-      data: { apikey },
-      include: defaultInclude,
-    });
-    return { apikey, publisher: toPublisherRecord(updated) };
-  },
-
-  async purgeAll(): Promise<void> {
-    await publisherRepository.deleteMany({});
-  },
-};
+  return {
+    countPublishers,
+    createPublisher,
+    existsByName,
+    findByApiKey,
+    findPublisherByName,
+    findPublishers,
+    findPublishersWithCount,
+    getPublisherById,
+    getPublishersByIds,
+    purgeAll,
+    regenerateApiKey,
+    softDeletePublisher,
+    updatePublisher,
+  };
+})();

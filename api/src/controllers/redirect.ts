@@ -4,17 +4,12 @@ import zod from "zod";
 
 import { HydratedDocument } from "mongoose";
 import { JVA_URL, PUBLISHER_IDS } from "../config";
-import {
-  createStatEvent,
-  getStatEventById,
-  hasRecentStatEventWithClickId,
-  updateStatEventById,
-} from "../repositories/stat-event";
 import { INVALID_PARAMS, INVALID_QUERY, NOT_FOUND, SERVER_ERROR, captureException, captureMessage } from "../error";
 import CampaignModel from "../models/campaign";
 import MissionModel from "../models/mission";
 import StatsBotModel from "../models/stats-bot";
 import WidgetModel from "../models/widget";
+import { createStatEvent, getStatEventById, hasRecentStatEventWithClickId, updateStatEventById } from "../repositories/stat-event";
 import { publisherService } from "../services/publisher";
 import { Mission, Stats } from "../types";
 import { identify, slugify } from "../utils";
@@ -666,7 +661,7 @@ router.get("/:missionId/:publisherId", cors({ origin: "*" }), async function tra
     const params = zod
       .object({
         missionId: zod.string(),
-        publisherId: zod.string().regex(/^[0-9a-fA-F]{24}$/),
+        publisherId: zod.string(),
       })
       .safeParse(req.params);
 
@@ -835,17 +830,14 @@ router.get("/impression/:missionId/:publisherId", cors({ origin: "*" }), async (
     const params = zod
       .object({
         missionId: zod.string(),
-        publisherId: zod.string().regex(/^[0-9a-fA-F]{24}$/),
+        publisherId: zod.string(),
       })
       .safeParse(req.params);
 
     const query = zod
       .object({
         tracker: zod.string().optional(),
-        sourceId: zod
-          .string()
-          .regex(/^[0-9a-fA-F]{24}$/)
-          .optional(),
+        sourceId: zod.string().optional(),
         requestId: zod
           .string()
           .regex(/^[0-9a-fA-F]{24}$/)

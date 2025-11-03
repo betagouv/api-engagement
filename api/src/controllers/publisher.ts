@@ -12,31 +12,10 @@ import { PublisherNotFoundError, publisherService } from "../services/publisher"
 import { OBJECT_ACL, putObject } from "../services/s3";
 import { User } from "../types";
 import { UserRequest } from "../types/passport";
-import type { PublisherDiffuseurInput, PublisherRoleFilter } from "../types/publisher";
+import type { PublisherRoleFilter } from "../types/publisher";
 
 const upload = multer();
 const router = Router();
-
-const sanitizePublishersPayload = (
-  publishers?:
-    | Array<{
-        publisherId: string;
-        publisherName: string;
-        missionType: string | null;
-        moderator: boolean;
-      }>
-    | undefined
-): PublisherDiffuseurInput[] | undefined => {
-  if (!publishers) {
-    return undefined;
-  }
-  return publishers.map((publisher) => ({
-    publisherId: publisher.publisherId,
-    publisherName: publisher.publisherName,
-    missionType: publisher.missionType ?? null,
-    moderator: publisher.moderator ?? false,
-  }));
-};
 
 router.post("/search", passport.authenticate(["user", "admin"], { session: false }), async (req: UserRequest, res: Response, next: NextFunction) => {
   try {
@@ -224,15 +203,6 @@ router.post("/", passport.authenticate("admin", { session: false }), async (req:
       });
     }
 
-    const publishers = sanitizePublishersPayload(
-      body.data.publishers?.map((publisher) => ({
-        publisherId: publisher.publisherId,
-        publisherName: publisher.publisherName,
-        missionType: publisher.missionType,
-        moderator: publisher.moderator,
-      }))
-    );
-
     const payload = {
       name: body.data.name,
       sendReport: body.data.sendReport,
@@ -250,7 +220,12 @@ router.post("/", passport.authenticate("admin", { session: false }), async (req:
       url: body.data.url,
       email: body.data.email,
       feed: body.data.feed,
-      publishers,
+      publishers: body.data.publishers?.map((publisher) => ({
+        publisherId: publisher.publisherId,
+        publisherName: publisher.publisherName,
+        missionType: publisher.missionType,
+        moderator: publisher.moderator,
+      })),
     };
 
     const data = await publisherService.createPublisher(payload);
@@ -386,7 +361,16 @@ router.put("/:id", passport.authenticate("admin", { session: false }), async (re
       hasWidgetRights: body.data.hasWidgetRights,
       hasCampaignRights: body.data.hasCampaignRights,
       category: body.data.category,
-      publishers: body.data.publishers !== undefined ? (sanitizePublishersPayload(body.data.publishers) ?? []) : undefined,
+      publishers:
+        body.data.publishers !== undefined
+          ? (body.data.publishers.map((p) => ({
+              publisherId: p.publisherId,
+              publisherName: p.publisherName,
+              publisherLogo: p.publisherLogo,
+              missionType: p.missionType,
+              moderator: p.moderator,
+            })) ?? [])
+          : undefined,
       documentation: body.data.documentation,
       description: body.data.description,
       lead: body.data.lead,

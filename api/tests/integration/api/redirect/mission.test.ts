@@ -8,7 +8,6 @@ import StatsBotModel from "../../../../src/models/stats-bot";
 import { publisherService } from "../../../../src/services/publisher";
 import * as utils from "../../../../src/utils";
 import { elasticMock } from "../../../mocks";
-import { resetPublisherStore } from "../../../mocks/publisherServiceMock";
 import { createTestApp } from "../../../testApp";
 
 const app = createTestApp();
@@ -16,7 +15,6 @@ const app = createTestApp();
 describe("RedirectController /:missionId/:publisherId", () => {
   beforeEach(async () => {
     await MissionModel.deleteMany({});
-    resetPublisherStore();
 
     elasticMock.index.mockReset();
     elasticMock.update.mockReset();
@@ -27,7 +25,6 @@ describe("RedirectController /:missionId/:publisherId", () => {
   afterEach(async () => {
     vi.restoreAllMocks();
     await MissionModel.deleteMany({});
-    resetPublisherStore();
   });
 
   it("redirects to Service Civique when params are invalid", async () => {

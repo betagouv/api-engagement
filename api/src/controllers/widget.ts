@@ -44,7 +44,7 @@ router.post("/search", passport.authenticate("user", { session: false }), async 
 
     const widgets = await WidgetModel.find(where).sort({ createdAt: -1 }).lean();
     const total = await WidgetModel.countDocuments(where);
-    const publishers = await publisherService.listPublishersSummary();
+    const publishers = await publisherService.findPublishers();
 
     const data = widgets.map((w) => ({
       ...w,
@@ -88,7 +88,7 @@ router.get("/", passport.authenticate("user", { session: false }), async (req: U
 
     const widgets = await WidgetModel.find(where).sort({ createdAt: -1 }).lean();
     const total = await WidgetModel.countDocuments(where);
-    const publishers = await publisherService.listPublishersSummary();
+    const publishers = await publisherService.findPublishers();
 
     const data = widgets.map((w) => ({
       ...w,
