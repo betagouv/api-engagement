@@ -8,7 +8,7 @@ export const exportDefinitions: ExportDefinition[] = [
       schema: "public",
       table: "StatEvent",
       cursor: {
-        field: "created_at",
+        field: "updated_at",
         idField: "id",
       },
       columns: [
