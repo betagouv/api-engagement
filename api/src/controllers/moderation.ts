@@ -473,7 +473,7 @@ router.put("/many", passport.authenticate("user", { session: false }), async (re
       return res.status(400).send({ ok: false, code: INVALID_BODY, error: body.error });
     }
 
-    const moderator = await PublisherModel.findById(body.data.moderatorId);
+    const moderator = await publisherService.getPublisherById(body.data.moderatorId);
     if (!moderator || !moderator.moderator) {
       return res.status(403).send({ ok: false, code: FORBIDDEN });
     }
