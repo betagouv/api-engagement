@@ -54,7 +54,7 @@ const Moderation = () => {
         comment: filters.comment,
         domain: filters.domain,
         department: filters.department,
-        organization: filters.organization,
+        organizationName: filters.organization,
         search: filters.search,
         from: (filters.page - 1) * pageSize,
         size: pageSize,
