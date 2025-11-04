@@ -3,6 +3,7 @@ import { vi } from "vitest";
 const elasticMock = {
   index: vi.fn().mockResolvedValue({}),
   update: vi.fn().mockResolvedValue({}),
+  updateByQuery: vi.fn().mockResolvedValue({}),
   get: vi.fn().mockResolvedValue({ body: { _source: {}, _id: "1" } }),
   count: vi.fn().mockResolvedValue({ body: { count: 0 } }),
   msearch: vi.fn().mockResolvedValue({
@@ -13,6 +14,18 @@ const elasticMock = {
   search: vi.fn().mockResolvedValue({
     body: {
       hits: { total: { value: 0 } },
+    },
+  }),
+  scroll: vi.fn().mockResolvedValue({
+    body: {
+      _scroll_id: undefined,
+      hits: { hits: [] },
+    },
+  }),
+  bulk: vi.fn().mockResolvedValue({
+    body: {
+      items: [],
+      errors: false,
     },
   }),
   ping: vi.fn().mockResolvedValue({ statusCode: 200 }),

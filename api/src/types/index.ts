@@ -1,5 +1,4 @@
 import { Schema } from "mongoose";
-import { BrevoInboundEmail } from "./brevo";
 
 export interface Organization {
   _id: Schema.Types.ObjectId;
@@ -80,105 +79,6 @@ export type AddressItem = {
 export type GeoPoint = {
   type: string;
   coordinates: number[];
-};
-
-export type Association = {
-  _id?: Schema.Types.ObjectId | string;
-  score?: number;
-  id_siren: string;
-  id_rna: string;
-  id_correspondance: string;
-  logo: string;
-  url: string;
-  linkedin: string;
-  facebook: string;
-  twitter: string;
-  description: string;
-  donation: string;
-  statut_juridique: string;
-  publics_beneficiaires: string[];
-  domaines: string[];
-  parent_nom: string;
-  parent_id: string;
-  tags: string[];
-  etablissements_nb_actifs: string;
-  est_etablissement_secondaire: string;
-  etablissements_etablissement: string[];
-  etablissements: string[];
-  identite_nom: string;
-  identite_sigle: string;
-  identite_id_rna: string;
-  identite_id_ex: string;
-  identite_id_siren: string;
-  identite_id_siret_siege: string;
-  identite_id_correspondance: string;
-  identite_id_forme_juridique: string;
-  identite_lib_forme_juridique: string;
-  identite_date_pub_jo: Date;
-  identite_date_creation_sirene: Date;
-  identite_date_modif_rna: Date;
-  identite_date_modif_siren: Date;
-  identite_active: string;
-  identite_nature: string;
-  identite_util_publique: string;
-  identite_eligibilite_cec: string;
-  identite_groupement: string;
-  identite_regime: string;
-  identite_impots_commerciaux: string;
-  activites_objet: string;
-  activites_id_objet_social1: string;
-  activites_lib_objet_social1: string;
-  activites_id_famille1: string;
-  activites_lib_famille1: string;
-  activites_id_theme1: string;
-  activites_lib_theme1: string;
-  activites_id_activite_principale: string;
-  activites_lib_activite_principale: string;
-  activites_annee_activite_principale: string;
-  activites_id_tranche_effectif: string;
-  activites_lib_tranche_effectif: string;
-  activites_effectif_salarie_cent: string;
-  activites_annee_effectif_salarie_cent: string;
-  activites_appartenance_ess: string;
-  activites_date_appartenance_ess: string;
-  coordonnees_telephone: string[];
-  coordonnees_courriel: string[];
-  coordonnees_courriel_status: string;
-  coordonnees_adresse_location: {
-    lat: number;
-    lon: number;
-  };
-  coordonnees_adresse_nom_complet: string;
-  coordonnees_adresse_score_api_adresse: string;
-  coordonnees_adresse_id_api_adresse: string;
-  coordonnees_adresse_nom: string;
-  coordonnees_adresse_code_postal: string;
-  coordonnees_adresse_code_insee: string;
-  coordonnees_adresse_rue: string;
-  coordonnees_adresse_numero: string;
-  coordonnees_adresse_commune: string;
-  coordonnees_adresse_commune_ancienne: string;
-  coordonnees_adresse_contexte: string;
-  coordonnees_adresse_departement_numero: string;
-  coordonnees_adresse_departement: string;
-  coordonnees_adresse_region: string;
-  coordonnees_adresse_type: string;
-  coordonnees_adresse_siege_num_voie: string;
-  coordonnees_adresse_siege_code_type_voie: string;
-  coordonnees_adresse_siege_type_voie: string;
-  coordonnees_adresse_siege_code_type_voie_insee: string;
-  coordonnees_adresse_siege_voie: string;
-  coordonnees_adresse_siege_cp: string;
-  coordonnees_adresse_siege_commune: string;
-  coordonnees_adresse_siege_code_insee: string;
-  coordonnees_adresse_gestion_voie: string;
-  coordonnees_adresse_gestion_cp: string;
-  coordonnees_adresse_gestion_commune: string;
-  coordonnees_adresse_gestion_pays: string;
-  schema_version: string;
-  history: string[];
-  created_at: Date;
-  updated_at: Date;
 };
 
 export type Campaign = {
@@ -556,15 +456,6 @@ export interface StatsReport {
   };
 }
 
-export type RequestWidget = {
-  _id: Schema.Types.ObjectId;
-  widgetId: Schema.Types.ObjectId;
-  query: any;
-  total: number;
-  missions: string[];
-  createdAt: Date;
-};
-
 export type Request = {
   _id: Schema.Types.ObjectId;
   route: string;
@@ -635,10 +526,12 @@ export interface Stats {
   source: "api" | "widget" | "campaign" | "seo" | "jstag" | "publisher";
   sourceId: string;
   sourceName: string;
+  customAttributes?: Record<string, unknown>;
   tag?: string;
   tags?: string[];
   type: "print" | "apply" | "click" | "account";
   status: "PENDING" | "VALIDATED" | "CANCEL" | "CANCELED" | "REFUSED" | "CARRIED_OUT" | undefined;
+  exportToAnalytics?: "SUCCESS" | "FAILURE";
 }
 
 export type StatsBot = {
@@ -832,41 +725,6 @@ export type EsQuery = {
   };
 };
 
-export interface Email {
-  _id: Schema.Types.ObjectId;
-  raw: BrevoInboundEmail;
-  messageId: string;
-  inReplyTo?: string;
-  fromName: string;
-  fromEmail: string;
-  to: { name: string; email: string }[];
-  subject: string;
-  sentAt: Date;
-  rawTextBody?: string;
-  rawHtmlBody?: string;
-  mdTextBody: string;
-  attachments: {
-    name: string;
-    contentType: string;
-    contentLength: number;
-    contentId: string;
-    token: string;
-    url: string;
-  }[];
-
-  status: "PENDING" | "PROCESSED" | "FAILED" | "DUPLICATE";
-  reportUrl: string | null;
-  fileObjectName: string | null;
-  dateFrom: Date | null;
-  dateTo: Date | null;
-  createdCount: number | null;
-  failed: any | null;
-
-  deletedAt: Date | null;
-  createdAt: Date;
-  updatedAt: Date;
-}
-
 export interface Kpi {
   _id: Schema.Types.ObjectId;
 
@@ -921,3 +779,5 @@ export enum MissionType {
   BENEVOLAT = "benevolat",
   VOLONTARIAT = "volontariat-service-civique",
 }
+
+export * from "./email";

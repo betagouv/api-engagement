@@ -1,0 +1,9 @@
+/node_modules
+/dist
+.env
+
+# DBT files
+target
+dbt_packages
+logs
+.user.yml

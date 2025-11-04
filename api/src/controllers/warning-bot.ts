@@ -1,12 +1,11 @@
 import { Router } from "express";
 import passport from "passport";
 
-import { STATS_INDEX } from "../config";
-import esClient from "../db/elastic";
 import { NOT_FOUND } from "../error";
 import PublisherModel from "../models/publisher";
 import StatsBotModel from "../models/stats-bot";
 import WarningBotModel from "../models/warning-bot";
+import statEventRepository from "../repositories/stat-event";
 
 const router = Router();
 
@@ -29,37 +28,32 @@ router.get("/:id/stat", passport.authenticate("admin", { session: false }), asyn
       return res.status(404).send({ ok: false, code: NOT_FOUND });
     }
 
-    const response = await esClient.search({
-      index: STATS_INDEX,
-      body: {
-        query: {
-          term: { user: warningBot.hash },
-        },
-        size: 0,
-        aggs: {
-          type: { terms: { field: "type.keyword" } },
-          publisherTo: { terms: { field: "toPublisherId.keyword" } },
-          publisherFrom: { terms: { field: "fromPublisherId.keyword" } },
-        },
-      },
-    });
+    const aggregations = await statEventRepository.aggregateWarningBotStatsByUser(warningBot.hash);
 
-    const publishers = await PublisherModel.find({ _id: { $in: response.body.aggregations.publisherTo.buckets.map((b: { [key: string]: any }) => b.key) } }).lean();
+    const publisherIds = Array.from(
+      new Set(
+        [...aggregations.publisherTo, ...aggregations.publisherFrom]
+          .map((bucket) => bucket.key)
+          .filter((key): key is string => Boolean(key))
+      )
+    );
+
+    const publishers = await PublisherModel.find({ _id: { $in: publisherIds } }).lean();
 
     const aggs = {
-      type: response.body.aggregations.type.buckets.map((b: { [key: string]: any }) => ({
-        key: b.key,
-        doc_count: b.doc_count,
+      type: aggregations.type.map((bucket) => ({
+        key: bucket.key,
+        doc_count: bucket.doc_count,
       })),
-      publisherTo: response.body.aggregations.publisherTo.buckets.map((b: { [key: string]: any }) => ({
-        key: b.key,
-        doc_count: b.doc_count,
-        name: publishers.find((p) => p._id.toString() === b.key)?.name,
+      publisherTo: aggregations.publisherTo.map((bucket) => ({
+        key: bucket.key,
+        doc_count: bucket.doc_count,
+        name: publishers.find((p) => p._id.toString() === bucket.key)?.name,
       })),
-      publisherFrom: response.body.aggregations.publisherFrom.buckets.map((b: { [key: string]: any }) => ({
-        key: b.key,
-        doc_count: b.doc_count,
-        name: publishers.find((p) => p._id.toString() === b.key)?.name,
+      publisherFrom: aggregations.publisherFrom.map((bucket) => ({
+        key: bucket.key,
+        doc_count: bucket.doc_count,
+        name: publishers.find((p) => p._id.toString() === bucket.key)?.name,
       })),
     };
 
@@ -88,16 +82,7 @@ router.post("/:id/block", passport.authenticate("admin", { session: false }), as
       });
     }
 
-    await esClient.updateByQuery({
-      index: STATS_INDEX,
-      body: {
-        query: { term: { user: warningBot.hash } },
-        script: {
-          lang: "painless",
-          source: "ctx._source.isBot = true;",
-        },
-      },
-    });
+    await statEventRepository.updateIsBotForUser(warningBot.hash, true);
 
     return res.status(200).send({ ok: true, data: statsBot });
   } catch (error) {
@@ -116,17 +101,7 @@ router.post("/:id/unblock", passport.authenticate("admin", { session: false }), 
 
     await StatsBotModel.deleteOne({ user: warningBot.hash });
 
-    await esClient.updateByQuery({
-      index: STATS_INDEX,
-      body: {
-        query: { term: { user: warningBot.hash } },
-
-        script: {
-          lang: "painless",
-          source: "ctx._source.isBot = false;",
-        },
-      },
-    });
+    await statEventRepository.updateIsBotForUser(warningBot.hash, false);
 
     return res.status(200).send({ ok: true });
   } catch (error) {

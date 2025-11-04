@@ -2,6 +2,199 @@
 Vous retrouverez ici l'historique des différents déploiements effectués sur l'API Engagement.
 
 
+## 27/10/2025
+
+
+### Bug Fixes
+
+- (**app**) Search select default value ([`3548db8`](https://github.com/betagouv/api-engagement/commit/3548db835ce8a56064f210fd9f00e7658311e13a))
+
+- (**api**) Add dual write support to reassign-stats service (#488) ([`e922a26`](https://github.com/betagouv/api-engagement/commit/e922a268cfd981d6d1adc95f6df6d3c3d1346992))
+
+- (**app**) Public stats departements graph (#487) ([`4e258a9`](https://github.com/betagouv/api-engagement/commit/4e258a9597ddde746e7e6f46619ddc18308d385c))
+
+- (**app**) Optimize real-time activity feed (#486) ([`41a33d1`](https://github.com/betagouv/api-engagement/commit/41a33d1b45effe33e3b8e954710acf922092112f))
+
+
+### Features
+
+- (**api**) Add Service Civique support for L'Etudiant (#491) ([`cc6c6f5`](https://github.com/betagouv/api-engagement/commit/cc6c6f59e7999b7037b2402435800ee4aa4536a5))
+
+
+### Miscellaneous Tasks
+
+- (**changelog**) Update CHANGELOG.md ([`334a8d2`](https://github.com/betagouv/api-engagement/commit/334a8d231413c70435afccc1bb3a1c4cd358ac45))
+
+- (**ci**) Activate READ_STATS_FROM pg for both prod and staging ([`af3a2de`](https://github.com/betagouv/api-engagement/commit/af3a2de75eeff0153add5beb47a9143e47bc2ef0))
+
+- (**app**) Add \"iframe\" in embed iframe title ([`2d6c785`](https://github.com/betagouv/api-engagement/commit/2d6c78530245734588d51c4fe8923f1d029143bd))
+
+-  Merge changelog from main ([`9537801`](https://github.com/betagouv/api-engagement/commit/9537801587bb6fe1cb61d531be05d90294dc2372))
+
+
+### Refactoring
+
+- (**app**) Update to React 19.2.0 (#484) ([`7854892`](https://github.com/betagouv/api-engagement/commit/78548927c41057bb4a287c305f9caf06a67e0050))
+
+- (**app**) Use metabase embed in stats-admin admin screen (#490) ([`7c277fb`](https://github.com/betagouv/api-engagement/commit/7c277fb9cea86541cb35e142c61ac953e73b289e))
+
+# API Engagement - Changelog
+Vous retrouverez ici l'historique des différents déploiements effectués sur l'API Engagement.
+
+
+## 20/10/2025
+
+
+### Bug Fixes
+
+- (**widget**) Add aria-hidden property to icons ([`c68bf39`](https://github.com/betagouv/api-engagement/commit/c68bf394920430d293f8bd1d9360b91f2c331b41))
+
+- (**jobs**) Try to correctly catch the job error for scalway serverless jobs (#485) ([`0aa8028`](https://github.com/betagouv/api-engagement/commit/0aa8028495dc2ce83addc8e80ab5e5e28980e366))
+
+- (**jobs**) Export organizations infinit loop (#482) ([`927906c`](https://github.com/betagouv/api-engagement/commit/927906ceb38b27fa1a45f03ed5dbf985b09f01ff))
+
+
+### Miscellaneous Tasks
+
+- (**changelog**) Update CHANGELOG.md ([`24ccede`](https://github.com/betagouv/api-engagement/commit/24ccedef6a8441a139f16946f77868bf062ffba1))
+
+- (**jobs**) Optimize StatsGlobalMissionActivity MV and refresh views job (#483) ([`011ab0a`](https://github.com/betagouv/api-engagement/commit/011ab0aef8845a67908183341a087e2b0897602a))
+
+- (**ci**) Handle Prisma migration failures (#481) ([`7fd524c`](https://github.com/betagouv/api-engagement/commit/7fd524c4b9441c52bf0b1552f6d640f4275a4c7e))
+
+-  Merge changelog from main ([`c634d3d`](https://github.com/betagouv/api-engagement/commit/c634d3dc019dcaffaec51c56a628c4c8926cec10))
+
+# API Engagement - Changelog
+Vous retrouverez ici l'historique des différents déploiements effectués sur l'API Engagement.
+
+
+## 13/10/2025
+
+
+### Bug Fixes
+
+- (**jobs**) Fix click metabase sync ([`50b4dd5`](https://github.com/betagouv/api-engagement/commit/50b4dd5378e1dd49922bb7f4f1b71a42045f0d17))
+
+- (**api**) Add missing stat-event migrations ([`e985da2`](https://github.com/betagouv/api-engagement/commit/e985da2d146eaf2b5cafb6e85c0f403955c90fdc))
+
+- (**ci**) Cz config ([`4e956f1`](https://github.com/betagouv/api-engagement/commit/4e956f1ed320744c6da786767d39e2cf24638219))
+
+- (**ci**) Update PR title lint ([`3de3431`](https://github.com/betagouv/api-engagement/commit/3de3431f6be951c536db57786fddcba5dc6e3e8d))
+
+
+### Features
+
+- (**app**) Support apply custom attributes in SDK tracking (#480) ([`ceab577`](https://github.com/betagouv/api-engagement/commit/ceab577b182629ae7b6ef80beeed10f8bfc6d70a))
+
+- (**api**) Migrate activity controller to stat-event repo (#479) ([`6014fcd`](https://github.com/betagouv/api-engagement/commit/6014fcdbac25764c77a87ae4935b868e0accd735))
+
+
+### Miscellaneous Tasks
+
+- (**changelog**) Update CHANGELOG.md ([`524c523`](https://github.com/betagouv/api-engagement/commit/524c5238074df4c3a3bcf57e95a61a5d1730d82a))
+
+- (**ci**) Reactivate WRITE_STATS_DUAL for production ([`7c39a65`](https://github.com/betagouv/api-engagement/commit/7c39a6586c5e6215a7d81ed266adfa7216101c1f))
+
+- (**ci**) Disable DUAL_STATS in production ([`494570e`](https://github.com/betagouv/api-engagement/commit/494570ecb029b8d17b7af7436b7a71e4f172cd00))
+
+- (**ci**) Set feature flag as env variables ([`4647e14`](https://github.com/betagouv/api-engagement/commit/4647e14c0f5cd29e93e8c27a758b3074d9781e2c))
+
+- (**ci**) Activate \"WRITE_STATS_DUAL\" for production ([`abeafb6`](https://github.com/betagouv/api-engagement/commit/abeafb6992310ea89c5a2365cdf9f5444fa04458))
+
+-  Merge changelog from main ([`7e63b23`](https://github.com/betagouv/api-engagement/commit/7e63b2324d683aebb53fd9750c2d78e8e19edb35))
+
+- (**ci**) Set WRITE_STATS_DUAL to true for staging env ([`2bd4c10`](https://github.com/betagouv/api-engagement/commit/2bd4c1076e007b1f6f162dd85b561654e5e3ef69))
+
+- (**ci**) Add commitizen and PR title validation rules (#466) ([`8a5a167`](https://github.com/betagouv/api-engagement/commit/8a5a1671b9ed6b5207c134b575c4b91b56dbaad5))
+
+
+### Refactoring
+
+- (**api**) Migrate redirect controller to stat-event repository (#478) ([`fb5b2d4`](https://github.com/betagouv/api-engagement/commit/fb5b2d4d8b14693ad273dc4fc748d04b8110773a))
+
+
+### Testing
+
+- (**api**) Add redirect integration tests (#476) ([`4bed4ab`](https://github.com/betagouv/api-engagement/commit/4bed4ab4adce214663fe215f9e5494b6ff256f00))
+
+# API Engagement - Changelog
+Vous retrouverez ici l'historique des différents déploiements effectués sur l'API Engagement.
+
+
+## 06/10/2025
+
+
+### Bug Fixes
+
+-  App Dockerfile ([`653f072`](https://github.com/betagouv/api-engagement/commit/653f072f4333031bb5ee45480b239de2a3470199))
+
+
+### Miscellaneous Tasks
+
+- (**changelog**) Update CHANGELOG.md ([`c2f69ab`](https://github.com/betagouv/api-engagement/commit/c2f69ab5de12c220219d2085199b75e66474ab09))
+
+-  Merge changelog from main ([`4595f2e`](https://github.com/betagouv/api-engagement/commit/4595f2efebecbb2450d56ebaa47eece775533277))
+
+
+### Refactoring
+
+-  Migrate "export-stats-to-pg" job to stat-event (#463) ([`d60d14f`](https://github.com/betagouv/api-engagement/commit/d60d14f993dbfb9eb7cfd89d8a6bbeec0fb19963))
+
+-  Migrate warnings bot job to stat event repository (#465) ([`92f260f`](https://github.com/betagouv/api-engagement/commit/92f260fae6421036e9a94d9cfe02f728cbce9be3))
+
+-  Use stat event repo in linkedin stats job (#464) ([`f36c542`](https://github.com/betagouv/api-engagement/commit/f36c542ff612da20008ed85b24860a70c5082c0d))
+
+-  Migrate stats/search to repository (#459) ([`e507bea`](https://github.com/betagouv/api-engagement/commit/e507beaba6a75d6c4fe8cb95339738fe398c6b6f))
+
+-  Migrate stats-public endpoints to stat-event repository using PG views (#453) ([`fbc0bba`](https://github.com/betagouv/api-engagement/commit/fbc0bba59c6c6a862aca17ee5b5f154bd1fd52c8))
+
+-  Use stat-event repository in kpi job (#449) ([`b58ac45`](https://github.com/betagouv/api-engagement/commit/b58ac45f3a41d9344c933c731d2b0b85aba4cc9d))
+
+-  Migrate report job to PG and add dry-run option (#446) ([`9cbdb1b`](https://github.com/betagouv/api-engagement/commit/9cbdb1b895ce7c577ed7eba460861315d2aeacb4))
+
+-  Use stat-event repo for mymission endpoint (#448) ([`59c506e`](https://github.com/betagouv/api-engagement/commit/59c506e76c07b6f09a3be98f6450af635bd7fc8f))
+
+
+### Refacto
+
+-  Migrate warning-bot endpoint using stat-event (#461) ([`58bbd77`](https://github.com/betagouv/api-engagement/commit/58bbd7778ad5ec0e79df36acd39546cfd5742e7c))
+
+-  Migrate stats-admin to pg materialized view (#460) ([`86d2158`](https://github.com/betagouv/api-engagement/commit/86d2158e3d36cc534f4517092deb564cc74e19a7))
+
+-  Migrate v0/view endpoint to stat-event repository (#450) ([`552b035`](https://github.com/betagouv/api-engagement/commit/552b035909ce75e068ba5f66fe26f90b77742767))
+
+-  Migrate v0/mission to stat-event repository (#451) ([`cbbeafc`](https://github.com/betagouv/api-engagement/commit/cbbeafc16d55267fcf4543e8ca5ddf5385dabc15))
+
+# API Engagement - Changelog
+Vous retrouverez ici l'historique des différents déploiements effectués sur l'API Engagement.
+
+
+## 29/09/2025
+
+
+### Miscellaneous Tasks
+
+- (**changelog**) Update CHANGELOG.md ([`1fe406b`](https://github.com/betagouv/api-engagement/commit/1fe406ba6f4a5bb38ea0ee204b713e8db1f62f8c))
+
+-  Merge changelog from main ([`faa6707`](https://github.com/betagouv/api-engagement/commit/faa67070fbcb5b7559054e936f227f7795d932a3))
+
+# API Engagement - Changelog
+Vous retrouverez ici l'historique des différents déploiements effectués sur l'API Engagement.
+
+
+## 22/09/2025
+
+
+### Miscellaneous Tasks
+
+- (**changelog**) Update CHANGELOG.md ([`632e0ca`](https://github.com/betagouv/api-engagement/commit/632e0cafe71a41ba13b7d6f1f99e4c9c12b7da9d))
+
+-  Merge changelog from main ([`8f9ee34`](https://github.com/betagouv/api-engagement/commit/8f9ee3447b3b4b16584279fa8adc728ff8d017ce))
+
+# API Engagement - Changelog
+Vous retrouverez ici l'historique des différents déploiements effectués sur l'API Engagement.
+
+
 ## 15/09/2025
 
 

@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import { Helmet } from "react-helmet-async";
 import { RiAlertFill, RiInformationFill } from "react-icons/ri";
 import { Link } from "react-router-dom";
 
@@ -41,10 +40,10 @@ const GlobalDiffuseur = ({ filters, onFiltersChange }) => {
     const fetchData = async () => {
       setLoading(true);
       try {
-        const res = await api.post("/stats/search", { type: print, size: 0, fromPublisherId: publisher._id });
+        const res = await api.post("/stats/search", { type: print, size: 3, fromPublisherId: publisher._id });
         if (!res.ok) throw res;
 
-        setTrackingWarning(res.total < 3);
+        setTrackingWarning((res.data?.length || 0) < 3);
       } catch (error) {
         captureError(error, "Erreur lors de la récupération des données");
       }
@@ -77,9 +76,7 @@ const GlobalDiffuseur = ({ filters, onFiltersChange }) => {
 
   return (
     <div className="space-y-12 p-12">
-      <Helmet>
-        <title>Au global - Performance - API Engagement</title>
-      </Helmet>
+      <title>Au global - Performance - API Engagement</title>
       <div className="space-y-2">
         <p className="text-gray-425 text-sm font-semibold uppercase">Période</p>
         <DateRangePicker value={filters} onChange={(value) => onFiltersChange({ ...filters, ...value })} />

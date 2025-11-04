@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { Helmet } from "react-helmet-async";
 import { RiCheckboxCircleFill, RiErrorWarningFill } from "react-icons/ri";
 
 import api from "../../services/api";
@@ -33,9 +32,7 @@ const Forgot = () => {
 
   return (
     <form onSubmit={handleSubmit} className="flex h-full flex-col bg-white px-32 py-10">
-      <Helmet>
-        <title>Mot de passe oublié - API Engagement</title>
-      </Helmet>
+      <title>Mot de passe oublié - API Engagement</title>
       <h1 className="text-4xl font-bold">Récupérez votre mot de passe</h1>
 
       <label className="mt-6 mb-2 text-sm" htmlFor="email">

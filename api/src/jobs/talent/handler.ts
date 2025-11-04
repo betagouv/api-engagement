@@ -51,8 +51,7 @@ export class TalentHandler implements BaseHandler<TalentJobPayload, TalentJobRes
 
       const jvaJobs = await generateJobs(JvaMissionsCursor);
       console.log(`[Talent Job] ${jvaJobs.processed} JeVeuxAider missions processed, ${jvaJobs.jobs.length} jobs added to the feed`);
-      jobs.push(...jvaJobs.jobs.slice(0, 100));
-      // jobs.push(...jvaJobs.jobs);
+      jobs.push(...jvaJobs.jobs);
       result.counter.processed += jvaJobs.processed;
       result.counter.sent += jvaJobs.jobs.length;
       result.counter.expired += jvaJobs.expired;

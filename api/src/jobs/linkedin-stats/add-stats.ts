@@ -1,8 +1,7 @@
-import { BulkOperationContainer } from "@elastic/elasticsearch/api/types";
-import { PUBLISHER_IDS, STATS_INDEX } from "../../config";
-import esClient from "../../db/elastic";
+import { PUBLISHER_IDS } from "../../config";
 import { captureException, captureMessage } from "../../error";
 import MissionModel from "../../models/mission";
+import statEventRepository from "../../repositories/stat-event";
 import { Stats } from "../../types";
 
 const ROWS = [
@@ -41,8 +40,6 @@ const ROWS = [
   "ATS Posting Method",
   "ATS Posting Method Detail",
 ];
-
-const BULK_SIZE = 1000;
 
 const getDate = (date: string, full: boolean = false) => {
   const s = date.split("-");
@@ -92,11 +89,8 @@ const parseRow = async (row: (string | number)[], from: Date, to: Date, sourceId
 
     let mission = await MissionModel.findOne({ _old_ids: { $in: [missionId] } });
     if (!mission) {
-      const response2 = await esClient.search({
-        index: STATS_INDEX,
-        body: { query: { term: { "missionId.keyword": missionId } }, size: 1 },
-      });
-      if (response2.body.hits.total.value === 0) {
+      const existingStat = await statEventRepository.findFirstByMissionId(missionId.toString());
+      if (!existingStat) {
         if (MISSION_NOT_FOUND[missionId.toString()]) {
           mission = await MissionModel.findById(MISSION_NOT_FOUND[missionId.toString()]);
           if (!mission) {
@@ -108,13 +102,9 @@ const parseRow = async (row: (string | number)[], from: Date, to: Date, sourceId
           return;
         }
       } else {
-        const stats = {
-          _id: response2.body.hits.hits[0]._id,
-          ...response2.body.hits.hits[0]._source,
-        } as Stats;
         mission = await MissionModel.findOne({
-          clientId: stats.missionClientId?.toString(),
-          publisherId: stats.toPublisherId,
+          clientId: existingStat.missionClientId?.toString(),
+          publisherId: existingStat.toPublisherId,
         });
         if (!mission) {
           if (MISSION_NOT_FOUND[missionId.toString()]) {
@@ -167,10 +157,56 @@ const parseRow = async (row: (string | number)[], from: Date, to: Date, sourceId
 };
 
 export const processData = async (data: (string | number)[][], from: Date, to: Date, sourceId: string) => {
-  const bulk = [] as (BulkOperationContainer | Stats)[];
   const result = {
     created: 0,
     failed: { data: [] as any[] },
+  };
+
+  const batchSize = 100;
+  const pendingPrints: Stats[] = [];
+
+  const flushPendingPrints = async () => {
+    if (!pendingPrints.length) {
+      return;
+    }
+
+    const printsToPersist = pendingPrints.splice(0, pendingPrints.length);
+    const concurrency = 10;
+    for (let i = 0; i < printsToPersist.length; i += concurrency) {
+      const slice = printsToPersist.slice(i, i + concurrency);
+      const settledPrints = await Promise.allSettled(
+        slice.map(async (print) => {
+          try {
+            const created = await statEventRepository.createStatEvent(print);
+            return { print, created };
+          } catch (error) {
+            throw { error, print };
+          }
+        })
+      );
+
+      settledPrints.forEach((printResult) => {
+        if (printResult.status === "fulfilled") {
+          const { print, created } = printResult.value;
+          if (created) {
+            result.created += 1;
+          } else {
+            console.error(`[Linkedin Stats] Failed to create stat`, print);
+            result.failed.data.push({
+              error: "Failed to create stat",
+              stat: print,
+            });
+          }
+        } else {
+          const { error, print } = printResult.reason ?? {};
+          captureException(error ?? printResult.reason, "[Linkedin Stats] Failed to create stat");
+          result.failed.data.push({
+            error: error?.message ?? "Failed to create stat",
+            stat: print,
+          });
+        }
+      });
+    }
   };
 
   for (let i = 1; i < data.length; i++) {
@@ -187,24 +223,13 @@ export const processData = async (data: (string | number)[][], from: Date, to: D
       continue;
     }
 
-    res.forEach((print) => {
-      bulk.push({ index: { _index: STATS_INDEX } });
-      bulk.push(print);
-    });
+    pendingPrints.push(...res);
 
-    if (bulk.length >= BULK_SIZE || i === data.length - 1) {
-      const { body } = await esClient.bulk({ refresh: true, body: bulk });
-      result.created += body.items.filter((e: any) => e.index._index === STATS_INDEX).length;
-      if (body.errors) {
-        const errors = body.items.filter((e: any) => e.index.error);
-        errors.forEach((e: any) => {
-          console.error(JSON.stringify(e, null, 2));
-        });
-        captureException(`ES bulk failed`, JSON.stringify(errors, null, 2));
-        result.failed.data.push(...errors);
-      }
-      bulk.length = 0;
+    if (pendingPrints.length >= batchSize) {
+      await flushPendingPrints();
     }
   }
+
+  await flushPendingPrints();
   return result;
 };

@@ -35,6 +35,10 @@ resource "scaleway_container" "api" {
     "PILOTY_BASE_URL" = local.piloty_hostname
     "BUCKET_NAME"   = local.bucket_name
     "SLACK_JOBTEASER_CHANNEL_ID" = terraform.workspace == "production" ? "C080H9MH56W" : ""
+      
+    # Feature flags ES migration
+    "WRITE_STATS_DUAL" = "true"
+    "READ_STATS_FROM" = "pg"
   }
 
   secret_environment_variables = {

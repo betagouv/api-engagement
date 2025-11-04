@@ -1,0 +1,32 @@
+name: PR title lint
+
+on:
+  pull_request:
+    types: [opened, edited, synchronize, reopened, ready_for_review]
+
+jobs:
+  lint:
+    permissions:
+      pull-requests: read
+    name: Validate PR title
+    runs-on: ubuntu-latest
+    steps:
+      - uses: amannn/action-semantic-pull-request@v5
+        with:
+          types: |
+            feat
+            refactor
+            fix
+            chore
+            test
+          scopes: |
+            app
+            api
+            analytics
+            widget
+            jobs
+            ci
+            deps
+            deps-dev
+    env:
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

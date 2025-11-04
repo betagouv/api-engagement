@@ -63,7 +63,7 @@ export const DEPARTMENT_NAMES = {
   "2A": ["Corse-du-Sud", "Corse"],
   "2B": ["Haute-Corse", "Corse"],
   21: ["Côte-d'Or", "Bourgogne-Franche-Comté"],
-  22: ["Côtesd'Armor", "Bretagne"],
+  22: ["Côtes d'Armor", "Bretagne"],
   23: ["Creuse", "Nouvelle-Aquitaine"],
   24: ["Dordogne", "Nouvelle-Aquitaine"],
   25: ["Doubs", "Bourgogne-Franche-Comté"],
@@ -131,7 +131,7 @@ export const DEPARTMENT_NAMES = {
   87: ["Haute-Vienne", "Nouvelle-Aquitaine"],
   88: ["Vosges", "Grand Est"],
   89: ["Yonne", "Bourgogne-Franche-Comté"],
-  90: ["TerritoiredeBelfort", "Bourgogne-Franche-Comté"],
+  90: ["Territoire de Belfort", "Bourgogne-Franche-Comté"],
   91: ["Essonne", "Île-de-France"],
   92: ["Hauts-de-Seine", "Île-de-France"],
   93: ["Seine-St-Denis", "Île-de-France"],
@@ -140,7 +140,7 @@ export const DEPARTMENT_NAMES = {
   971: ["Guadeloupe", "Guadeloupe"],
   972: ["Martinique", "Martinique"],
   973: ["Guyane", "Guyane"],
-  974: ["LaRéunion", "La Réunion"],
+  974: ["La Réunion", "La Réunion"],
   976: ["Mayotte", "Mayotte"],
 };
 

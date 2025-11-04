@@ -1,8 +1,8 @@
 /node_modules
-/scripts
 /dist
 .env
 coverage
+/scripts-local
 
 linkedin.xml
 talent.xml

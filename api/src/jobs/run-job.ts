@@ -133,6 +133,7 @@ async function runJob() {
   } catch (error) {
     console.error(`Error executing job '${jobName}':`, error);
     captureException(error, { extra: { jobName } });
+    process.exit(1);
   } finally {
     process.exit(0);
   }

@@ -59,7 +59,7 @@ const CardVolontariat = ({ widget, mission, request, focused = false, onKeyDown,
           <div className="ml-3 flex-1 min-w-0" style={{ color: domain.color }}>
             <p className="uppercase font-bold text-sm leading-5 whitespace-nowrap truncate tracking-wider">{domain.label || mission.domain}</p>
             <div className="text-[#666666] flex items-center">
-              <RiBuildingFill className="text-sm flex-shrink-0" />
+              <RiBuildingFill aria-hidden="true" className="text-sm flex-shrink-0" />
               <p className="ml-2 text-xs line-clamp-1">{mission.organizationName}</p>
             </div>
           </div>
@@ -88,7 +88,7 @@ const CardVolontariat = ({ widget, mission, request, focused = false, onKeyDown,
       </div>
 
       <div className={`flex items-center min-w-[120px] text-[#666666] ${address.length > 60 ? "group-hover:hidden group-focus-within:hidden" : ""}`}>
-        <RiCalendarEventFill className="h-5" />
+        <RiCalendarEventFill aria-hidden="true" className="h-5" />
         <p className="text-xs ml-2 whitespace-nowrap leading-5">Dès que possible</p>
       </div>
 

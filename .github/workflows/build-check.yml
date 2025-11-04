@@ -29,6 +29,8 @@ jobs:
               - 'api/**'
             app:
               - 'app/**'
+            analytics:
+              - 'analytics/**'
             widget:
               - 'widget/**'
 
@@ -65,6 +67,23 @@ jobs:
         run: cd app && npm ci
       - name: Build (vite)
         run: cd app && npm run build
+
+  analytics-build:
+    name: Analytics build
+    needs: changes
+    if: needs.changes.outputs.analytics == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: "22"
+          cache: "npm"
+          cache-dependency-path: "analytics/package-lock.json"
+      - name: Install dependencies
+        run: cd analytics && npm ci
+      - name: Build (tsc)
+        run: cd analytics && npm run build
 
   widget-build:
     name: Widget build

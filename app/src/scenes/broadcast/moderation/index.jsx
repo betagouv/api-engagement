@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import { Helmet } from "react-helmet-async";
 import { useNavigate, useSearchParams } from "react-router-dom";
 
 import ModerationAutoIcon from "../../../assets/svg/moderation-auto.svg";
@@ -109,8 +108,26 @@ const Moderation = () => {
     }
   };
 
+  const applyMissionUpdates = (updates) => {
+    const list = Array.isArray(updates) ? updates : updates ? [updates] : [];
+    if (!list.length) return;
+    setData((prev) => {
+      const map = new Map(list.filter((mission) => mission && mission._id).map((mission) => [mission._id, mission]));
+      if (!map.size) return prev;
+      return prev.map((mission) => {
+        const updated = map.get(mission._id);
+        return updated ? { ...mission, ...updated } : mission;
+      });
+    });
+  };
+
   const handlePageChange = (page) => {
     setFilters({ ...filters, page });
+    window.scrollTo({ top: 500, behavior: "smooth" });
+  };
+
+  const resetPaginator = () => {
+    setFilters({ ...filters, page: 1 });
     window.scrollTo({ top: 500, behavior: "smooth" });
   };
 
@@ -129,12 +146,10 @@ const Moderation = () => {
 
   return (
     <div className="space-y-12 py-12">
-      <Helmet>
-        <title>Modération - Diffuser des missions - API Engagement</title>
-      </Helmet>
+      <title>Modération - Diffuser des missions - API Engagement</title>
       <MissionModal
         onChange={(values) => {
-          setData(data.map((d) => (d._id === values._id ? { ...d, ...values } : d)));
+          applyMissionUpdates(values);
           fetchHistory();
         }}
       />
@@ -158,7 +173,7 @@ const Moderation = () => {
         <div className="h-px w-full bg-gray-900" />
       </div>
 
-      <Filters filters={filters} onChange={setFilters} searchParams={searchParams} reload={reloadFilters} />
+      <Filters filters={filters} onChange={(next) => setFilters({ ...filters, ...next, page: 1 })} searchParams={searchParams} reload={reloadFilters} />
       <div className="px-12">
         <div className="h-px w-full bg-gray-900" />
       </div>
@@ -168,17 +183,15 @@ const Moderation = () => {
         size={size}
         sort={sort}
         selected={selected}
-        onSize={setSize}
+        onSize={(s) => {
+          setSize(s);
+          setFilters({ ...filters, page: 1 });
+        }}
         onSort={setSort}
         onSelect={setSelected}
         onChange={(values) => {
-          const newData = data.map((d) => {
-            const changed = values.find((v) => v._id === d._id);
-            if (changed) return { ...d, ...changed };
-            return d;
-          });
-          setData(newData);
-          setReloadFilters(!reloadFilters);
+          applyMissionUpdates(values);
+          setReloadFilters((prev) => !prev);
           fetchHistory();
         }}
       />
@@ -189,6 +202,7 @@ const Moderation = () => {
           pageSize={size}
           length={total}
           loading={loading}
+          page={filters.page}
           onPageChange={handlePageChange}
           renderHeader={() => (
             <>
@@ -222,9 +236,9 @@ const Moderation = () => {
                 history={history.organization[item.organizationName] || { ACCEPTED: 0, REFUSED: 0 }}
                 selected={selected.includes(item._id)}
                 onChange={(values) => {
-                  setData(data.map((d) => (d._id === item._id ? { ...d, ...values } : d)));
+                  applyMissionUpdates(values);
                   fetchHistory();
-                  setReloadFilters(!reloadFilters);
+                  setReloadFilters((prev) => !prev);
                 }}
                 onChangeMany={(values) => {
                   setData(

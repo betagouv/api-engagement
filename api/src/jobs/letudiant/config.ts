@@ -4,7 +4,7 @@ export const DEFAULT_LIMIT = ENV === "production" ? 1000 : 1;
 // Don't want to republish missions in staging
 export const DAYS_AFTER_REPUBLISH = ENV === "production" ? 15 : 10000;
 
-export const WHITELISTED_PUBLISHERS_IDS = [PUBLISHER_IDS.JEVEUXAIDER];
+export const WHITELISTED_PUBLISHERS_IDS = [PUBLISHER_IDS.JEVEUXAIDER, PUBLISHER_IDS.SERVICE_CIVIQUE];
 
 // Used to sign every Piloty API requests
 export const MEDIA_PUBLIC_ID = "letudiant";

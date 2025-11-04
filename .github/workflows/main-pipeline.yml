@@ -16,6 +16,7 @@ on:
       - ".github/workflows/tests.yml"
       - "api/**"
       - "app/**"
+      - "analytics/**"
       - "widget/**"
       - "terraform/**"
 
