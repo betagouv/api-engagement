@@ -262,7 +262,7 @@ const parseMission = (publisher: PublisherRecord, missionXML: MissionXML, missio
 export const buildData = async (startTime: Date, publisher: PublisherRecord, missionXML: MissionXML) => {
   try {
     const missionDB = await MissionModel.findOne({
-    publisherId: publisher.id,
+      publisherId: publisher.id,
       clientId: missionXML.clientId,
     });
 
@@ -273,8 +273,8 @@ export const buildData = async (startTime: Date, publisher: PublisherRecord, mis
     mission.lastSyncAt = startTime;
     mission.publisherId = publisher.id;
     mission.publisherName = publisher.name;
-    mission.publisherLogo = publisher.logo;
-    mission.publisherUrl = publisher.url;
+    mission.publisherLogo = publisher.logo || "";
+    mission.publisherUrl = publisher.url || "";
     mission.updatedAt = startTime;
 
     return mission;

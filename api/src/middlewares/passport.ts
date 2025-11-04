@@ -73,7 +73,7 @@ passport.use(
         Sentry.setUser({
           id: publisher.id,
           username: publisher.name,
-          email: publisher.email,
+          email: publisher.email || "",
         });
         return done(null, publisher);
       }
@@ -94,7 +94,7 @@ passport.use(
         Sentry.setUser({
           id: publisher.id,
           username: publisher.name,
-          email: publisher.email,
+          email: publisher.email || "",
         });
         return done(null, publisher);
       }
@@ -115,7 +115,7 @@ passport.use(
         Sentry.setUser({
           id: publisher.id,
           username: publisher.name,
-          email: publisher.email,
+          email: publisher.email || "",
         });
         return done(null, publisher);
       }
@@ -136,7 +136,7 @@ passport.use(
         Sentry.setUser({
           id: publisher.id,
           username: publisher.name,
-          email: publisher.email,
+          email: publisher.email || "",
         });
         return done(null, publisher);
       }
