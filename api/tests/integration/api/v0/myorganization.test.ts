@@ -16,6 +16,8 @@ describe("MyOrganization API Integration Tests", () => {
   let orgId: string;
 
   beforeEach(async () => {
+    process.env.READ_STATS_FROM = "es";
+
     elasticMock.search.mockReset();
     elasticMock.msearch.mockReset();
 

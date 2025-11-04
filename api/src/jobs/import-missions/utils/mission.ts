@@ -83,7 +83,31 @@ const parseDate = (value: string | Date | undefined) => {
   if (value instanceof Date) {
     return value;
   }
-  return isNaN(new Date(value).getTime()) ? null : new Date(value);
+  const parsed = new Date(value);
+  if (isNaN(parsed.getTime())) {
+    return null;
+  }
+
+  if (typeof value === "string") {
+    const trimmed = value.trim();
+    const hasTimezoneDesignator = /[zZ]$/.test(trimmed) || /[+\-]\d{2}:?\d{2}$/.test(trimmed);
+
+    if (!hasTimezoneDesignator) {
+      return new Date(
+        Date.UTC(
+          parsed.getFullYear(),
+          parsed.getMonth(),
+          parsed.getDate(),
+          parsed.getHours(),
+          parsed.getMinutes(),
+          parsed.getSeconds(),
+          parsed.getMilliseconds()
+        )
+      );
+    }
+  }
+
+  return parsed;
 };
 
 const parseNumber = (value: number | string | undefined) => {

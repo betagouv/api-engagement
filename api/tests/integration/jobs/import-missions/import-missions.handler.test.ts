@@ -66,7 +66,7 @@ describe("Import missions job (integration test)", () => {
     expect(mission.description).toBe("Description de la mission");
     expect(mission.domain).toBe("environnement");
     expect(mission.duration).toBe(10);
-    expect(mission.endAt?.toISOString()).toBe("2025-10-31T23:00:00.000Z"); // TODO: GMT issue?
+    expect(mission.endAt?.toISOString()).toBe("2025-11-01T00:00:00.000Z");
     expect(mission.openToMinors).toBe("yes");
     expect(mission.organizationBeneficiaries).toEqual(["Tous"]);
     expect(mission.organizationCity).toBe("Paris");
@@ -83,7 +83,7 @@ describe("Import missions job (integration test)", () => {
     expect(mission.publisherId).toBe(publisher._id.toString());
     expect(mission.remote).toBe("full");
     expect(mission.schedule).toBe("1 demi-journée par semaine");
-    expect(mission.startAt.toISOString()).toBe("2024-12-31T23:00:00.000Z"); // TODO: GMT issue?
+    expect(mission.startAt.toISOString()).toBe("2025-01-01T00:00:00.000Z");
     expect(mission.tags).toEqual(expect.arrayContaining(["environnement", "écologie"]));
     expect(mission.title).toBe("Titre de la mission");
   });
