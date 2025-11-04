@@ -21,6 +21,17 @@ describe("MyOrganization API Integration Tests", () => {
     elasticMock.search.mockReset();
     elasticMock.msearch.mockReset();
 
+    elasticMock.search.mockResolvedValue({
+      body: {
+        hits: { total: { value: 0 } },
+        aggregations: {
+          fromPublisherId: {
+            buckets: [],
+          },
+        },
+      },
+    });
+
     publisher = await createTestPublisher();
     apiKey = publisher.apikey || "";
     orgId = "test-org-id";
