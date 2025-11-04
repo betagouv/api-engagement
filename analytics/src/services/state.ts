@@ -11,7 +11,7 @@ interface ExportStateRecord {
 let stateTableEnsured = false;
 
 const ensureTableSql = `
-  CREATE TABLE IF NOT EXISTS pg_export_state (
+  CREATE TABLE IF NOT EXISTS analytics_raw.pg_export_state (
     key TEXT PRIMARY KEY,
     cursor_value TIMESTAMP(3),
     cursor_id TEXT,
@@ -37,7 +37,7 @@ const mapRowToState = (row: { cursor_value: unknown; cursor_id: string | null })
 export const getExportState = async (key: string): Promise<ExportStateRecord | null> => {
   return withAnalyticsClient(async (client) => {
     await ensureStateTable(client);
-    const result = await client.query("SELECT cursor_value, cursor_id FROM pg_export_state WHERE key = $1", [key]);
+    const result = await client.query("SELECT cursor_value, cursor_id FROM analytics_raw.pg_export_state WHERE key = $1", [key]);
     if (!result.rowCount) {
       return null;
     }
@@ -54,7 +54,7 @@ export const updateExportState = async (key: string, cursorValue: string, cursor
     await ensureStateTable(client);
     await client.query(
       `
-        INSERT INTO pg_export_state (key, cursor_value, cursor_id, synced_at)
+        INSERT INTO analytics_raw.pg_export_state (key, cursor_value, cursor_id, synced_at)
         VALUES ($1, $2::timestamp, $3, NOW())
         ON CONFLICT (key)
         DO UPDATE SET cursor_value = EXCLUDED.cursor_value, cursor_id = EXCLUDED.cursor_id, synced_at = NOW()

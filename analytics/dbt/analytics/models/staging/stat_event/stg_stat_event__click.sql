@@ -31,14 +31,14 @@ widgets as (
 
 mission_map as (
   select
-    event_id,
+    stat_event_id,
     mission_id,
     resolved_mission_old_id
   from {{ ref('stg_stat_event__mission_map') }}
 )
 
 select
-  e.id as event_id,
+  e.id as stat_event_id,
   e.created_at,
   e.updated_at,
   e.tag,
@@ -62,7 +62,7 @@ select
 from events as e
 inner join partners as p_from on e.from_publisher_id = p_from.old_id
 inner join partners as p_to on e.to_publisher_id = p_to.old_id
-left join mission_map as mm on e.id = mm.event_id
+left join mission_map as mm on e.id = mm.stat_event_id
 left join
   partners as p_source
   on e.source = 'publisher' and e.source_id = p_source.old_id
