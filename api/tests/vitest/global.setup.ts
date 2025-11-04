@@ -6,7 +6,7 @@ import { PostgreSqlContainer, StartedPostgreSqlContainer } from "@testcontainers
 
 const execFileAsync = promisify(execFile);
 
-const API_ROOT = path.resolve(__dirname, "..");
+const API_ROOT = path.resolve(__dirname, "../..");
 const CORE_DB_NAME = "core";
 const POSTGRES_IMAGE = process.env.TESTCONTAINERS_POSTGRES_IMAGE || "postgres:16-alpine";
 

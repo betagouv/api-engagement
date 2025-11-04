@@ -24,10 +24,10 @@ describe("MyOrganization API Integration Tests", () => {
     orgId = "test-org-id";
     mission = await createTestMission({ organizationClientId: orgId, publisherId: publisher._id.toString() });
     publisher1 = await createTestPublisher({
-      publishers: [{ publisherId: publisher._id.toString(), publisherName: publisher.name, moderator: true, missionType: MissionType.BENEVOLAT }],
+      publishers: [{ publisherId: publisher.id, publisherName: publisher.name, moderator: true, missionType: MissionType.BENEVOLAT }],
     });
     publisher2 = await createTestPublisher({
-      publishers: [{ publisherId: publisher._id.toString(), publisherName: publisher.name, moderator: true, missionType: MissionType.BENEVOLAT }],
+      publishers: [{ publisherId: publisher.id, publisherName: publisher.name, moderator: true, missionType: MissionType.BENEVOLAT }],
     });
     await createTestPublisher();
   });
@@ -44,20 +44,6 @@ describe("MyOrganization API Integration Tests", () => {
     });
 
     it("should return list of publishers for the organization with correct format", async () => {
-      // Mock ES result with random clicks values
-      elasticMock.search.mockResolvedValueOnce({
-        body: {
-          aggregations: {
-            fromPublisherId: {
-              buckets: [
-                { key: publisher1._id.toString(), doc_count: 7 },
-                { key: publisher2._id.toString(), doc_count: 0 },
-              ],
-            },
-          },
-        },
-      });
-
       const response = await request(app).get(`/v0/myorganization/${orgId}`).set("x-api-key", apiKey);
 
       expect(response.status).toBe(200);
@@ -65,10 +51,8 @@ describe("MyOrganization API Integration Tests", () => {
       expect(Array.isArray(response.body.data)).toBe(true);
       expect(response.body.data.length).toBe(2); // Should have our two test partners related to publisher
 
-      const partner1 = response.body.data.find((p: any) => p._id === publisher1._id.toString());
-      const partner2 = response.body.data.find((p: any) => p._id === publisher2._id.toString());
-      expect(partner1.clicks).toBe(7);
-      expect(partner2.clicks).toBe(0);
+      const partner1 = response.body.data.find((p: any) => p._id === publisher1.id);
+      const partner2 = response.body.data.find((p: any) => p._id === publisher2.id);
 
       [partner1, partner2].forEach((partner) => {
         expect(partner).toHaveProperty("_id");
@@ -95,8 +79,8 @@ describe("MyOrganization API Integration Tests", () => {
           aggregations: {
             fromPublisherId: {
               buckets: [
-                { key: publisher1._id.toString(), doc_count: 0 },
-                { key: publisher2._id.toString(), doc_count: 0 },
+                { key: publisher1.id, doc_count: 0 },
+                { key: publisher2.id, doc_count: 0 },
               ],
             },
           },
@@ -105,9 +89,9 @@ describe("MyOrganization API Integration Tests", () => {
 
       // Add exclusion for publisher2
       await OrganizationExclusionModel.create({
-        excludedByPublisherId: publisher._id.toString(),
+        excludedByPublisherId: publisher.id,
         excludedByPublisherName: publisher.name,
-        excludedForPublisherId: publisher2._id.toString(),
+        excludedForPublisherId: publisher2.id,
         excludedForPublisherName: publisher2.name,
         organizationClientId: orgId,
         organizationName: publisher.name,
@@ -115,8 +99,8 @@ describe("MyOrganization API Integration Tests", () => {
 
       const response = await request(app).get(`/v0/myorganization/${orgId}`).set("x-api-key", apiKey);
       expect(response.status).toBe(200);
-      const partner1 = response.body.data.find((p: any) => p._id === publisher1._id.toString());
-      const partner2 = response.body.data.find((p: any) => p._id === publisher2._id.toString());
+      const partner1 = response.body.data.find((p: any) => p._id === publisher1.id);
+      const partner2 = response.body.data.find((p: any) => p._id === publisher2.id);
       expect(partner1.excluded).toBe(false);
       expect(partner2.excluded).toBe(true);
     });

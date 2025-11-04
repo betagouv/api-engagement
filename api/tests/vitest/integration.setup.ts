@@ -1,28 +1,11 @@
+import "./shared";
+
 import { MongoMemoryServer } from "mongodb-memory-server";
 import mongoose from "mongoose";
-import { afterAll, beforeAll, beforeEach, vi } from "vitest";
-import { dataSubventionMock, elasticMock, sentryMock } from "./mocks";
-
-process.env.JWT_SECRET = "test-jwt-secret";
-process.env.MONGODB_URI = "mongodb://localhost:27017/test";
-process.env.NODE_ENV = "test";
-
-vi.mock("../src/db/elastic", () => ({
-  default: elasticMock,
-}));
-
-vi.mock("@sentry/node", () => ({
-  default: sentryMock,
-  ...sentryMock,
-}));
-
-// Mock services
-vi.mock("../src/services/api-datasubvention", () => ({
-  default: dataSubventionMock,
-}));
+import { afterAll, beforeAll, beforeEach } from "vitest";
 
 let mongoServer: MongoMemoryServer;
-type PostgresModule = typeof import("../src/db/postgres");
+type PostgresModule = typeof import("../../src/db/postgres");
 let prismaCore: PostgresModule["prismaCore"] | null = null;
 let prismaAnalytics: PostgresModule["prismaAnalytics"] | null = null;
 
@@ -31,7 +14,7 @@ beforeAll(async () => {
   const mongoUri = mongoServer.getUri();
   await mongoose.connect(mongoUri);
 
-  const postgresModule = await import("../src/db/postgres");
+  const postgresModule = await import("../../src/db/postgres");
   prismaCore = postgresModule.prismaCore;
   prismaAnalytics = postgresModule.prismaAnalytics;
 

@@ -14,9 +14,13 @@
         "prettier": "prettier --write . --plugin=prettier-plugin-organize-imports",
         "lint": "eslint . --ext .ts,.tsx",
         "lint:fix": "eslint . --ext .ts,.tsx --fix",
-        "test": "vitest run",
-        "test:watch": "vitest",
-        "test:ci": "npm run prisma:generate && vitest run --pool=forks",
+        "test": "npm run test:unit && npm run test:integration",
+        "test:unit": "vitest run --config vitest.unit.config.ts",
+        "test:unit:watch": "vitest --config vitest.unit.config.ts",
+        "test:integration": "vitest run --config vitest.integration.config.ts",
+        "test:integration:watch": "vitest --config vitest.integration.config.ts",
+        "test:watch": "npm run test:unit:watch",
+        "test:ci": "npm run prisma:generate && npm run test:unit && npm run test:integration",
         "job": "ts-node src/jobs/run-job.ts"
     },
     "dependencies": {

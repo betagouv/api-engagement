@@ -1,13 +1,6 @@
-import { defineConfig } from "vitest/config";
+import integrationConfig from "./vitest.integration.config";
+import unitConfig from "./vitest.unit.config";
 
-export default defineConfig({
-  test: {
-    globals: true,
-    environment: "node",
-    setupFiles: ["./tests/setup.ts"],
-    globalSetup: ["./tests/globalSetup.ts"],
-    include: ["tests/**/*.test.ts", "**/*.test.ts"],
-    exclude: ["node_modules", "dist"],
-    hookTimeout: 30000,
-  },
-});
+const suite = process.env.VITEST_SUITE === "integration" ? "integration" : "unit";
+
+export default suite === "integration" ? integrationConfig : unitConfig;

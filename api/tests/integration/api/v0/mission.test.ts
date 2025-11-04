@@ -1,7 +1,6 @@
 import mongoose from "mongoose";
 import request from "supertest";
-import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import MissionModel from "../../../../src/models/mission";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import { Mission, MissionType } from "../../../../src/types";
 import type { PublisherRecord } from "../../../../src/types/publisher";
 import { createTestMission, createTestPublisher } from "../../../fixtures";
@@ -16,25 +15,22 @@ describe("Mission API Integration Tests", () => {
   let mission3: Mission;
 
   beforeEach(async () => {
-    // Clean up
-    await MissionModel.deleteMany({});
-
     // Create publishers
-    const publisher1Data = await createTestPublisher({ name: "Publisher A" });
-    const publisher2Data = await createTestPublisher({ name: "Publisher B" });
+    const publisher1 = await createTestPublisher({ name: "Publisher A" });
+    const publisher2 = await createTestPublisher({ name: "Publisher B" });
 
     // Create a main publisher for testing who has access to both
     publisher = await createTestPublisher({
       name: "Main Publisher",
       publishers: [
         {
-          publisherId: publisher1Data.id,
+          publisherId: publisher1.id,
           publisherName: "Publisher A",
           moderator: true,
           missionType: MissionType.BENEVOLAT,
         },
         {
-          publisherId: publisher2Data.id,
+          publisherId: publisher2.id,
           publisherName: "Publisher B",
           moderator: true,
           missionType: MissionType.BENEVOLAT,
@@ -46,7 +42,7 @@ describe("Mission API Integration Tests", () => {
     // Create missions
     mission1 = await createTestMission({
       organizationClientId: "org-1",
-      publisherId: publisher1Data.id,
+      publisherId: publisher1.id,
       title: "Mission in Paris",
       city: "Paris",
       domain: "culture",
@@ -77,7 +73,7 @@ describe("Mission API Integration Tests", () => {
 
     mission2 = await createTestMission({
       organizationClientId: "org-2",
-      publisherId: publisher2Data.id,
+      publisherId: publisher2.id,
       title: "Mission in Lyon",
       city: "Lyon",
       domain: "sport",
@@ -100,7 +96,7 @@ describe("Mission API Integration Tests", () => {
 
     mission3 = await createTestMission({
       organizationClientId: "org-3",
-      publisherId: publisher1Data.id,
+      publisherId: publisher1.id,
       title: "Another mission in Paris",
       city: "Paris",
       domain: "environment",
@@ -192,7 +188,7 @@ describe("Mission API Integration Tests", () => {
     });
 
     it("should filter by publisherId", async () => {
-    const publisherIdToFilter = publisher.publishers[1].publisherId;
+      const publisherIdToFilter = publisher.publishers[1].publisherId;
       const response = await request(app).get(`/v0/mission?publisher=${publisherIdToFilter}`).set("x-api-key", apiKey);
       expect(response.status).toBe(200);
       expect(response.body.total).toBe(1);
