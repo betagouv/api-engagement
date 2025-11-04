@@ -2,6 +2,7 @@
 /dist
 .env
 coverage
+/scripts-local
 
 linkedin.xml
 talent.xml
