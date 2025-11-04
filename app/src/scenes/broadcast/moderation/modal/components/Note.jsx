@@ -1,7 +1,13 @@
 import { useEffect, useState } from "react";
 import { RiPencilFill } from "react-icons/ri";
+import { toast } from "react-toastify";
+
+import api from "@/services/api";
+import { captureError } from "@/services/error";
+import useStore from "@/services/store";
 
 const Note = ({ data, onChange }) => {
+  const { publisher } = useStore();
   const [note, setNote] = useState(data.note);
   const [editing, setEditing] = useState(false);
 
@@ -9,9 +15,22 @@ const Note = ({ data, onChange }) => {
     setNote(data.note);
   }, [data.note]);
 
-  const handleSave = () => {
-    onChange({ note });
-    setEditing(false);
+  const handleSave = async () => {
+    try {
+      const res = await api.put(`/moderation/${data._id}`, { note, moderatorId: publisher._id });
+      if (!res.ok) throw res;
+
+      toast.success("La note a été modifiée avec succès", {
+        position: "bottom-right",
+      });
+      onChange(res.data);
+    } catch (error) {
+      captureError(error, "Erreur lors de la mise à jour de la mission", {
+        position: "bottom-right",
+      });
+    } finally {
+      setEditing(false);
+    }
   };
 
   return (

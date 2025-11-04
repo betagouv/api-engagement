@@ -52,6 +52,14 @@ Ce répertoire contient des scripts de maintenance/migration pour l’API. Les s
     - Vérification: `npx ts-node scripts/es-backfill/check.ts [--env <chemin>] [--es <url>] [--db <url>]`
 
 - **mongo-backfill/**
+
   - Sous-dossier dédié à la migration des modèles MongoDB vers PostgreSQL.
   - Voir `scripts/mongo-backfill/README.md` pour les commandes complètes:
     - Email: `npx ts-node scripts/mongo-backfill/backfill-email.ts [--env <chemin>]`
+
+- **fill-stat-event-updated-at.ts**
+
+  - Exécution: `npx ts-node scripts/fill-stat-event-updated-at.ts [--batch <taille>]`
+  - Usage: Met à jour le champ `updated_at` de la table `StatEvent` lorsqu'il est `NULL`, en le remplaçant par `created_at` (traitement par lots).
+  - Options: `--batch <taille>` pour définir la taille de lot (défaut: 5000).
+  - Prérequis: Nécessite l'accès à Postgres `core`.

@@ -45,7 +45,7 @@ models:
       événement StatEvent en combinant plusieurs clés (mission_id, mission_client_id,
       partenaire). Ce mapping est partagé par tous les modèles de staging dérivés.
     columns:
-      - name: event_id
+      - name: stat_event_id
         description: Identifiant de l’événement StatEvent concerné.
         tests:
           - not_null
@@ -63,7 +63,7 @@ models:
       identifiants partenaires, missions et sources pour reproduire la logique du job
       Node `export-stats-to-pg/utils/click.ts`.
     columns:
-      - name: event_id
+      - name: stat_event_id
         description: Identifiant source de l’événement.
         tests:
           - not_null
@@ -95,7 +95,7 @@ models:
       l’enrichissement métier du job Node pour les candidatures (partenaires, missions,
       sources, statut et attributs personnalisés).
     columns:
-      - name: event_id
+      - name: stat_event_id
         description: Identifiant source de l’événement.
         tests:
           - not_null
@@ -149,7 +149,7 @@ models:
       colonnes attendues par la table Prisma `Impression`, y compris la normalisation
       de la source et le mapping des partenaires/missions.
     columns:
-      - name: event_id
+      - name: stat_event_id
         description: Identifiant source de l’événement.
         tests:
           - not_null

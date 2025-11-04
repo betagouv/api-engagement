@@ -3,9 +3,9 @@ import { Schema } from "mongoose";
 export interface Organization {
   _id: Schema.Types.ObjectId;
   esId: string;
-  rna: string;
-  siren?: string;
-  siret?: string;
+  rna: string | null;
+  siren?: string | null;
+  siret?: string | null;
   sirets?: string[];
   rupMi?: string;
   gestion?: string;
@@ -178,12 +178,12 @@ export interface Mission {
   organizationReseaux: string[];
 
   organizationId: string | null;
-  organizationNameVerified: string;
-  organizationRNAVerified: string;
-  organizationSirenVerified: string;
-  organizationSiretVerified: string;
-  organizationAddressVerified: string;
-  organizationCityVerified: string;
+  organizationNameVerified: string | null;
+  organizationRNAVerified: string | null;
+  organizationSirenVerified: string | null;
+  organizationSiretVerified: string | null;
+  organizationAddressVerified: string | null;
+  organizationCityVerified: string | null;
   organizationPostalCodeVerified: string;
   organizationDepartmentCodeVerified: string;
   organizationDepartmentNameVerified: string;

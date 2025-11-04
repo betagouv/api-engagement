@@ -24,12 +24,14 @@ router.post("/search", passport.authenticate("user", { session: false }), async 
         domain: zod.string().nullable().optional(),
         city: zod.string().nullable().optional(),
         department: zod.string().nullable().optional(),
-        organization: zod.string().nullable().optional(),
+        organizationName: zod.string().nullable().optional(),
         search: zod.string().nullable().optional(),
         activity: zod.string().nullable().optional(),
-        size: zod.coerce.number().min(1).default(25),
+        size: zod.coerce.number().min(0).default(25),
         from: zod.coerce.number().int().min(0).default(0),
         sort: zod.enum(["asc", "desc", ""]).nullable().optional(),
+        organizationRNAVerified: zod.union([zod.string(), zod.object({ $ne: zod.string() })]).optional(),
+        organizationSirenVerified: zod.union([zod.string(), zod.object({ $ne: zod.string() })]).optional(),
       })
       .safeParse(req.body);
 
@@ -63,10 +65,10 @@ router.post("/search", passport.authenticate("user", { session: false }), async 
     } else {
       where.publisherId = { $in: moderator.publishers.map((p) => p.publisherId) };
     }
-    if (body.data.organization === "none") {
+    if (body.data.organizationName === "none") {
       where.$or = [{ organizationName: "" }, { organizationName: null }];
-    } else if (body.data.organization) {
-      where.organizationName = body.data.organization;
+    } else if (body.data.organizationName) {
+      where.organizationName = body.data.organizationName;
     }
 
     if (body.data.domain === "none") {
@@ -107,7 +109,19 @@ router.post("/search", passport.authenticate("user", { session: false }), async 
       ];
     }
 
+    if (body.data.organizationRNAVerified && body.data.organizationSirenVerified) {
+      where.$or = [{ organizationRNAVerified: body.data.organizationRNAVerified }, { organizationSirenVerified: body.data.organizationSirenVerified }];
+    } else if (body.data.organizationRNAVerified) {
+      where.organizationRNAVerified = body.data.organizationRNAVerified;
+    } else if (body.data.organizationSirenVerified) {
+      where.organizationSirenVerified = body.data.organizationSirenVerified;
+    }
+
     const total = await MissionModel.countDocuments(where);
+    if (body.data.size === 0) {
+      return res.status(200).send({ ok: true, data: [], total });
+    }
+
     const data = await MissionModel.find(where)
       .sort({ postedAt: body.data.sort === "asc" ? 1 : -1 })
       .limit(body.data.size)
@@ -433,6 +447,92 @@ router.get("/:id", passport.authenticate("user", { session: false }), async (req
   }
 });
 
+router.put("/many", passport.authenticate("user", { session: false }), async (req: UserRequest, res: Response, next: NextFunction) => {
+  try {
+    const body = zod
+      .object({
+        moderatorId: zod.string(),
+        where: zod.object({
+          status: zod.enum(["ACCEPTED", "REFUSED", "PENDING", "ONGOING"]).optional(),
+          organizationName: zod.string(),
+          organizationRNAVerified: zod.union([zod.string(), zod.object({ $ne: zod.string() })]).optional(),
+          organizationSirenVerified: zod.union([zod.string(), zod.object({ $ne: zod.string() })]).optional(),
+        }),
+        update: zod.object({
+          status: zod.enum(["ACCEPTED", "REFUSED", "PENDING", "ONGOING"]).optional(),
+          comment: zod.string().optional(),
+          organizationId: zod.string().nullable().optional(),
+          organizationRNAVerified: zod.string().nullable().optional(),
+          organizationSirenVerified: zod.string().nullable().optional(),
+        }),
+      })
+      .required()
+      .safeParse(req.body);
+
+    if (!body.success) {
+      return res.status(400).send({ ok: false, code: INVALID_BODY, error: body.error });
+    }
+
+    const moderator = await PublisherModel.findById(body.data.moderatorId);
+    if (!moderator || !moderator.moderator) {
+      return res.status(403).send({ ok: false, code: FORBIDDEN });
+    }
+    if (req.user.role !== "admin" && !req.user.publishers.includes(body.data.moderatorId)) {
+      return res.status(403).send({ ok: false, code: FORBIDDEN });
+    }
+
+    const where = {
+      deletedAt: null,
+      publisherId: { $in: moderator.publishers.map((p) => p.publisherId) },
+    } as any;
+    if (body.data.where.status) {
+      where[`moderation_${body.data.moderatorId}_status`] = body.data.where.status;
+    }
+    if (body.data.where.organizationName) {
+      where.organizationName = body.data.where.organizationName;
+    }
+    if (body.data.where.organizationRNAVerified && body.data.where.organizationSirenVerified) {
+      where.$or = [{ organizationRNAVerified: body.data.where.organizationRNAVerified }, { organizationSirenVerified: body.data.where.organizationSirenVerified }];
+    } else if (body.data.where.organizationRNAVerified) {
+      where.organizationRNAVerified = body.data.where.organizationRNAVerified;
+    } else if (body.data.where.organizationSirenVerified) {
+      where.organizationSirenVerified = body.data.where.organizationSirenVerified;
+    }
+
+    const missions = await MissionModel.find(where);
+
+    const update = {} as Mission;
+
+    if (body.data.update.status) {
+      update[`moderation_${body.data.moderatorId}_status`] = body.data.update.status;
+    }
+    if (body.data.update.comment) {
+      update[`moderation_${body.data.moderatorId}_comment`] = body.data.update.comment;
+    }
+    if (body.data.update.organizationId !== undefined) {
+      update.organizationId = body.data.update.organizationId;
+    }
+
+    if (body.data.update.organizationRNAVerified !== undefined) {
+      update.organizationRNAVerified = body.data.update.organizationRNAVerified;
+    }
+    if (body.data.update.organizationSirenVerified !== undefined) {
+      update.organizationSirenVerified = body.data.update.organizationSirenVerified;
+    }
+    for (const mission of missions) {
+      const previous = { ...mission.toObject() };
+      mission.set(update);
+      await mission.save();
+      await logModeration(previous, mission, req.user, body.data.moderatorId);
+    }
+
+    const data = missions.map((mission) => buildData(mission, body.data.moderatorId));
+    return res.status(200).send({ ok: true, data });
+  } catch (error: any) {
+    next(error);
+  }
+});
+
 router.put("/:id", passport.authenticate("user", { session: false }), async (req: UserRequest, res: Response, next: NextFunction) => {
   try {
     const params = zod
@@ -449,6 +549,7 @@ router.put("/:id", passport.authenticate("user", { session: false }), async (req
         comment: zod.string().nullable().optional(),
         note: zod.string().nullable().optional(),
         newTitle: zod.string().nullable().optional(),
+        organizationId: zod.string().nullable().optional(),
         organizationRNAVerified: zod.string().nullable().optional(),
         organizationSirenVerified: zod.string().nullable().optional(),
       })
@@ -496,12 +597,16 @@ router.put("/:id", passport.authenticate("user", { session: false }), async (req
       mission[`moderation_${body.data.moderatorId}_title`] = body.data.newTitle;
     }
 
-    if (body.data.organizationRNAVerified) {
-      mission.organizationRNAVerified = body.data.organizationRNAVerified;
+    if (body.data.organizationId) {
+      mission.organizationId = body.data.organizationId;
+    }
+
+    if (body.data.organizationRNAVerified !== undefined) {
+      mission.organizationRNAVerified = body.data.organizationRNAVerified || null;
       mission.organizationVerificationStatus = "DATA_MANUALLY_ADDED";
     }
-    if (body.data.organizationSirenVerified) {
-      mission.organizationSirenVerified = body.data.organizationSirenVerified;
+    if (body.data.organizationSirenVerified !== undefined) {
+      mission.organizationSirenVerified = body.data.organizationSirenVerified || null;
       mission.organizationVerificationStatus = "DATA_MANUALLY_ADDED";
     }
 

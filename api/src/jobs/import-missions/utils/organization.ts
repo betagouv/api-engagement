@@ -371,7 +371,7 @@ const findBySiret = async (siret: string) => {
 };
 
 const findByName = async (name: string) => {
-  const exactMatch = await OrganizationModel.find({ titleSlug: slugify(name) });
+  const exactMatch = await OrganizationModel.find({ names: slugify(name) });
   if (exactMatch.length === 1) {
     return exactMatch[0];
   }
