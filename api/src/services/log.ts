@@ -1,5 +1,5 @@
-import ModerationEventModel from "../models/moderation-event";
-import { ModerationEvent } from "../types";
+import { ModerationEventCreateInput } from "../types/moderation-event";
+import { moderationEventService } from "./moderation-event";
 
 export const logModeration = async (previous: any, update: any, user: any, moderatorId: string) => {
   const data = {
@@ -7,7 +7,6 @@ export const logModeration = async (previous: any, update: any, user: any, moder
     missionId: previous._id,
     userId: user._id.toString(),
     userName: user.firstname + " " + user.lastname,
-    createdAt: new Date(),
     initialStatus: previous[`moderation_${moderatorId}_status`],
     newStatus: update[`moderation_${moderatorId}_status`],
     initialComment: previous[`moderation_${moderatorId}_comment`],
@@ -20,18 +19,17 @@ export const logModeration = async (previous: any, update: any, user: any, moder
     newSiren: update.organizationSirenVerified,
     initialRNA: previous.organizationRNAVerified,
     newRNA: update.organizationRNAVerified,
-  } as ModerationEvent;
+  } as ModerationEventCreateInput;
 
-  const obj = {
+  const obj: ModerationEventCreateInput = {
     moderatorId,
     missionId: data.missionId,
     userId: data.userId,
     userName: data.userName,
-    createdAt: new Date(),
-  } as ModerationEvent;
+  };
 
   if (data.newStatus && data.initialStatus !== data.newStatus) {
-    obj.initialStatus = data.initialStatus;
+    obj.initialStatus = data.initialStatus ?? null;
     obj.newStatus = data.newStatus;
   }
   if (data.newTitle && data.initialTitle !== data.newTitle) {
@@ -47,13 +45,13 @@ export const logModeration = async (previous: any, update: any, user: any, moder
     obj.newNote = data.newNote;
   }
   if (data.newSiren && (data.initialSiren !== data.newSiren || data.initialSiren === null)) {
-    obj.initialSiren = data.initialSiren;
+    obj.initialSiren = data.initialSiren ?? null;
     obj.newSiren = data.newSiren;
   }
   if (data.newRNA && (data.initialRNA !== data.newRNA || data.initialRNA === null)) {
-    obj.initialRNA = data.initialRNA;
+    obj.initialRNA = data.initialRNA ?? null;
     obj.newRNA = data.newRNA;
   }
 
-  await ModerationEventModel.create(obj);
+  await moderationEventService.createModerationEvent(obj);
 };
