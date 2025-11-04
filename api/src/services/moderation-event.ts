@@ -9,6 +9,29 @@ const buildWhereClause = (params: ModerationEventParams): Prisma.ModerationEvent
   };
 };
 
+const buildInput = (input: ModerationEventCreateInput): Prisma.ModerationEventCreateInput => {
+  const data: Prisma.ModerationEventCreateInput = {
+    missionId: input.missionId,
+    moderatorId: input.moderatorId,
+    userId: input.userId ?? null,
+    userName: input.userName ?? null,
+    initialStatus: input.initialStatus ?? null,
+    newStatus: input.newStatus ?? null,
+    initialComment: input.initialComment ?? null,
+    newComment: input.newComment ?? null,
+    initialNote: input.initialNote ?? null,
+    newNote: input.newNote ?? null,
+    initialTitle: input.initialTitle ?? null,
+    newTitle: input.newTitle ?? null,
+    initialSiren: input.initialSiren ?? null,
+    newSiren: input.newSiren ?? null,
+    initialRNA: input.initialRNA ?? null,
+    newRNA: input.newRNA ?? null,
+  };
+
+  return data;
+};
+
 export const moderationEventService = {
   async findModerationEvents(params: ModerationEventParams = {}): Promise<ModerationEventRecord[]> {
     const findParams: Prisma.ModerationEventFindManyArgs = {
@@ -28,25 +51,19 @@ export const moderationEventService = {
   },
 
   async createModerationEvent(input: ModerationEventCreateInput): Promise<ModerationEventRecord> {
-    const data: Prisma.ModerationEventCreateInput = {
-      missionId: input.missionId,
-      moderatorId: input.moderatorId,
-      userId: input.userId ?? null,
-      userName: input.userName ?? null,
-      initialStatus: input.initialStatus ?? null,
-      newStatus: input.newStatus ?? null,
-      initialComment: input.initialComment ?? null,
-      newComment: input.newComment ?? null,
-      initialNote: input.initialNote ?? null,
-      newNote: input.newNote ?? null,
-      initialTitle: input.initialTitle ?? null,
-      newTitle: input.newTitle ?? null,
-      initialSiren: input.initialSiren ?? null,
-      newSiren: input.newSiren ?? null,
-      initialRNA: input.initialRNA ?? null,
-      newRNA: input.newRNA ?? null,
-    };
+    const data = buildInput(input);
 
     return await moderationEventRepository.create(data);
+  },
+
+  async createModerationEvents(inputs: ModerationEventCreateInput[]): Promise<number> {
+    if (inputs.length === 0) {
+      return 0;
+    }
+
+    const data: Prisma.ModerationEventCreateManyInput[] = inputs.map(buildInput);
+
+    const { count } = await moderationEventRepository.createMany(data);
+    return count;
   },
 };

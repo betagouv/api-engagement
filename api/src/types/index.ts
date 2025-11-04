@@ -134,7 +134,7 @@ export interface MissionEvent {
 }
 
 export interface Mission {
-  _id?: Schema.Types.ObjectId;
+  _id: Schema.Types.ObjectId;
 
   publisherId: string;
   publisherName: string;
