@@ -5,4 +5,8 @@ export const moderationEventRepository = {
   async find(params: Prisma.ModerationEventFindManyArgs = {}): Promise<ModerationEvent[]> {
     return prismaCore.moderationEvent.findMany(params);
   },
+
+  async create(data: Prisma.ModerationEventCreateInput): Promise<ModerationEvent> {
+    return prismaCore.moderationEvent.create({ data });
+  },
 };
