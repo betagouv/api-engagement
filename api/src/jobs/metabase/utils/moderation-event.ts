@@ -9,12 +9,12 @@ const BATCH_SIZE = 5000;
 const buildData = (doc: ModerationEventRecord, missions: { [key: string]: string }, users: { [key: string]: string }) => {
   const missionId = missions[doc.missionId];
   if (!missionId) {
-    captureMessage("[Metabase-ModerationEvent] Mission not found", `${doc.missionId} not found for doc ${doc._id.toString()}`);
+    captureMessage("[Metabase-ModerationEvent] Mission not found", `${doc.missionId} not found for doc ${doc.id}`);
     return null;
   }
   const userId = doc.userId ? users[doc.userId] : null;
   if (!userId && doc.userId) {
-    captureMessage("[Metabase-ModerationEvent] User not found", `${doc.userId} not found for doc ${doc._id.toString()}`);
+    captureMessage("[Metabase-ModerationEvent] User not found", `${doc.userId} not found for doc ${doc.id}`);
     return null;
   }
   const obj = {
@@ -62,7 +62,7 @@ const handler = async () => {
     while (true) {
       const data = await moderationEventService.findModerationEvents({
         take: BATCH_SIZE,
-        skip: offset * BATCH_SIZE,
+        skip: offset,
       });
 
       if (!data.length) {
