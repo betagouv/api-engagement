@@ -6,7 +6,7 @@ import { PUBLISHER_IDS } from "../config";
 import { FORBIDDEN, INVALID_BODY, INVALID_PARAMS, INVALID_QUERY, NOT_FOUND } from "../error";
 import MissionModel from "../models/mission";
 import PublisherModel from "../models/publisher";
-import { moderationEventService } from "../services/moderation-event";
+import { logModeration } from "../services/log";
 import { Mission } from "../types";
 import { UserRequest } from "../types/passport";
 import { diacriticSensitiveRegex } from "../utils";
@@ -510,7 +510,7 @@ router.put("/:id", passport.authenticate("user", { session: false }), async (req
       return res.status(404).send({ ok: false, code: NOT_FOUND });
     }
 
-    await moderationEventService.logModeration(previous, mission, req.user, body.data.moderatorId);
+    await logModeration(previous, mission, req.user, body.data.moderatorId);
 
     const data = buildData(mission, body.data.moderatorId);
     return res.status(200).send({ ok: true, data });
