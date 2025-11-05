@@ -278,27 +278,49 @@ export interface Mission {
   _old_ids?: string[];
 }
 
-export type ModerationEvent = {
+export interface Publisher {
   _id: Schema.Types.ObjectId;
-  missionId: string;
-  moderatorId: string;
-  initialStatus: "ACCEPTED" | "REFUSED" | "PENDING" | "ONGOING" | null;
-  newStatus: "ACCEPTED" | "REFUSED" | "PENDING" | "ONGOING" | null;
-  initialComment: string | null;
-  newComment: string | null;
-  initialNote: string | null;
-  newNote: string | null;
-  initialTitle: string | null;
-  newTitle: string | null;
-  userId: string | null;
-  userName: string | null;
-  initialSiren: string | null;
-  newSiren: string | null;
-  initialRNA: string | null;
-  newRNA: string | null;
+  name: string;
+  lead: string;
+  category: string | null;
+  url: string;
+  email: string;
+  logo: string;
+  defaultMissionLogo?: string;
+  documentation: string;
+  description: string;
+
+  missionType: string | null;
+  feed: string;
+  feedUsername: string;
+  feedPassword: string;
+
+  isAnnonceur: boolean;
+  hasApiRights: boolean;
+  hasWidgetRights: boolean;
+  hasCampaignRights: boolean;
+
+  moderator: boolean;
+  moderatorLink: string;
+  apikey: string | null;
+  broadcasters: string[];
+  publishers: Diffuseur[];
+
+  sendReport: boolean;
+  sendReportTo: string[];
+
+  deletedAt: Date | null;
   createdAt: Date;
   updatedAt: Date;
-};
+}
+
+export interface Diffuseur {
+  _id?: Schema.Types.ObjectId;
+  publisherId: string;
+  publisherName: string;
+  moderator: boolean;
+  missionType: string | null;
+}
 
 export interface OrganizationExclusion {
   _id?: Schema.Types.ObjectId;
