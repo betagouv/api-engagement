@@ -99,7 +99,7 @@ model Report {
   status        String
   data          Json
 
-  @@index([publisherId, month, year], map: "report_publisher_id_month_year_idx")
+  @@unique([publisherId, month, year], map: "report_publisher_id_month_year_key")
   @@map("report")
 }
 
