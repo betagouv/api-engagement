@@ -1,4 +1,5 @@
-import { Publisher, StatsReport } from "../../../types";
+import { Publisher } from "../../../types";
+import { StatsReport } from "../../../types/report";
 
 import { getReportAggregations, HistogramBucket } from "./report-stats-source";
 

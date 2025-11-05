@@ -3,8 +3,7 @@ import PublisherModel from "../../models/publisher";
 import UserModel from "../../models/user";
 import { sendTemplate } from "../../services/brevo";
 import { reportService } from "../../services/report";
-import type { StatsReport } from "../../types";
-import type { ReportRecord } from "../../types/report";
+import type { ReportRecord, StatsReport } from "../../types/report";
 
 const ANNOUNCE_TEMPLATE_ID = 20;
 const BROADCAST_TEMPLATE_ID = 9;

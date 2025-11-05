@@ -1,10 +1,11 @@
 import { jsPDF } from "jspdf";
 
 import PublisherModel from "../../../models/publisher";
-import { BUCKET_URL, OBJECT_ACL, putObject } from "../../../services/s3";
 import { reportService } from "../../../services/report";
-import { Publisher, StatsReport } from "../../../types";
+import { BUCKET_URL, OBJECT_ACL, putObject } from "../../../services/s3";
+import { Publisher } from "../../../types";
 import type { ReportCreateInput, ReportDataTemplate, ReportUpdatePatch } from "../../../types/report";
+import { StatsReport } from "../../../types/report";
 
 import Marianne from "../fonts/Marianne";
 import MarianneBold from "../fonts/MarianneBold";
@@ -117,15 +118,10 @@ export const generateReports = async (year: number, month: number, publisherId?:
   let count = 0;
   const errors = [] as { id: string; name: string; error: string }[];
   const reports: GeneratedReportPreview[] = [];
-  console.log(
-    `[Report] Generating report for ${year}-${month} for ${publishers.length} publisher(s)${
-      publisherId ? ` [filtered: ${publisherId}]` : ""
-    }`
-  );
+  console.log(`[Report] Generating report for ${year}-${month} for ${publishers.length} publisher(s)${publisherId ? ` [filtered: ${publisherId}]` : ""}`);
   for (let i = 0; i < publishers.length; i++) {
     const publisher = publishers[i];
     console.log(`[Report] Generating report for ${year}-${month} for ${publisher.name}`);
-    const publisherIdAsString = publisher._id.toString();
     const res = await generateReport(publisher, year, month);
 
     const name = `Rapport ${MONTHS[month]} ${year}`;
@@ -139,7 +135,7 @@ export const generateReports = async (year: number, month: number, publisherId?:
       console.error(`[Report] Error generating report for ${year}-${month} for ${publisher.name}:`, res.error);
       status = "NOT_GENERATED_ERROR_GENERATION";
       errors.push({
-        id: publisherIdAsString,
+        id: publisher._id.toString(),
         name: publisher.name,
         error: "Erreur lors de la génération du rapport",
       });
@@ -153,14 +149,14 @@ export const generateReports = async (year: number, month: number, publisherId?:
       dataTemplate = computeReportDataTemplate(res.data);
     }
 
-    const existing = await reportService.findReportByPublisherAndPeriod(publisherIdAsString, year, month);
+    const existing = await reportService.findReportByPublisherAndPeriod(publisher._id.toString(), year, month);
 
     if (existing) {
       const patch: ReportUpdatePatch = {
         name,
         month,
         year,
-        publisherId: publisherIdAsString,
+        publisherId: publisher._id.toString(),
         publisherName: publisher.name,
         status,
       };
@@ -187,7 +183,7 @@ export const generateReports = async (year: number, month: number, publisherId?:
         year,
         url: url ?? "",
         objectName: objectName ?? null,
-        publisherId: publisherIdAsString,
+        publisherId: publisher._id.toString(),
         publisherName: publisher.name,
         dataTemplate: typeof dataTemplate !== "undefined" ? dataTemplate : null,
         sentAt: null,
@@ -202,13 +198,13 @@ export const generateReports = async (year: number, month: number, publisherId?:
 
     count += 1;
     reports.push({
-      publisherId: publisherIdAsString,
+      publisherId: publisher._id.toString(),
       publisherName: publisher.name,
       status,
       data,
-      dataTemplate: typeof dataTemplate !== "undefined" ? dataTemplate : existing?.dataTemplate ?? null,
-      url: typeof url !== "undefined" ? url : existing?.url ?? null,
-      objectName: typeof objectName !== "undefined" ? objectName : existing?.objectName ?? null,
+      dataTemplate: typeof dataTemplate !== "undefined" ? dataTemplate : (existing?.dataTemplate ?? null),
+      url: typeof url !== "undefined" ? url : (existing?.url ?? null),
+      objectName: typeof objectName !== "undefined" ? objectName : (existing?.objectName ?? null),
     });
   }
 

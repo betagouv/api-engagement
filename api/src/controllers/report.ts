@@ -5,9 +5,6 @@ import { captureException, INVALID_PARAMS, INVALID_QUERY, NOT_FOUND } from "../e
 import { reportService } from "../services/report";
 
 const router = Router();
-const objectIdSchema = zod.string().regex(/^[0-9a-fA-F]{24}$/);
-const uuidSchema = zod.string().uuid();
-const reportIdSchema = zod.union([objectIdSchema, uuidSchema]);
 
 // Keep because old version of the report
 router.get("/pdf/:publisherId", async (req: Request, res: Response, next: NextFunction) => {
@@ -50,7 +47,7 @@ router.get("/:id", async (req: Request, res: Response, next: NextFunction) => {
   try {
     const params = zod
       .object({
-        id: reportIdSchema,
+        id: zod.string(),
       })
       .safeParse(req.params);
 

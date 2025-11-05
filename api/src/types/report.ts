@@ -67,3 +67,44 @@ export type ReportCreateInput = {
 export type ReportUpdatePatch = Partial<ReportCreateInput> & {
   deletedAt?: Date | null;
 };
+
+export interface StatsReportData {
+  account: number;
+  accountLastMonth: number;
+  apply: number;
+  applyLastMonth: number;
+  applyYear: number;
+  applyLastYear: number;
+  click: number;
+  clickLastMonth: number;
+  clickYear: number;
+  clickLastYear: number;
+  graphYears: {
+    apply: number;
+    applyLastYear: number;
+    click: number;
+    clickLastYear: number;
+    month: Date;
+  }[];
+  hasStats: boolean;
+  organizationHistogram: {
+    month: number;
+    [key: string]: number;
+  }[];
+  print: number;
+  printLastMonth: number;
+  topPublishers: { key: string; doc_count: number }[];
+  topOrganizations: { key: string; doc_count: number }[];
+}
+
+export interface StatsReport {
+  publisherId: string;
+  publisherName: string;
+  publisherLogo: string;
+  month: number;
+  monthName: string;
+  year: number;
+  id: string;
+  receive: StatsReportData;
+  send: StatsReportData;
+}
