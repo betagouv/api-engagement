@@ -68,7 +68,7 @@ export const moderationEventService = {
     return count;
   },
 
-  async logModeration(previous: Mission, update: Mission, user: User, moderatorId: string) {
+  async createLogModeration(previous: Mission, update: Mission, user: User, moderatorId: string): Promise<void> {
     const data = {
       moderatorId,
       missionId: previous._id.toString(),
