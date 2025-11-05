@@ -5,7 +5,7 @@ import zod from "zod";
 import { PUBLISHER_IDS } from "../config";
 import { FORBIDDEN, INVALID_BODY, INVALID_PARAMS, INVALID_QUERY, NOT_FOUND } from "../error";
 import MissionModel from "../models/mission";
-import { logModeration } from "../services/log";
+import { moderationEventService } from "../services/moderation-event";
 import { publisherService } from "../services/publisher";
 import { Mission } from "../types";
 import { UserRequest } from "../types/passport";
@@ -621,7 +621,7 @@ router.put("/:id", passport.authenticate("user", { session: false }), async (req
       return res.status(404).send({ ok: false, code: NOT_FOUND });
     }
 
-    await logModeration(previous, mission, req.user, body.data.moderatorId);
+    await moderationEventService.logModeration(previous, mission, req.user, body.data.moderatorId);
 
     const data = buildData(mission, body.data.moderatorId);
     return res.status(200).send({ ok: true, data });
