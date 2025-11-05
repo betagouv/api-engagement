@@ -18,7 +18,8 @@ const OrganizationTab = ({ data, onChange }) => {
   });
   const [search, setSearch] = useState("");
   const [organizations, setOrganizations] = useState([]);
-  const [potentialUpdates, setPotentialUpdates] = useState(0);
+  const [manyUpdateWhere, setManyUpdateWhere] = useState({});
+  const [manyUpdateTotal, setManyUpdateTotal] = useState(0);
   const [loading, setLoading] = useState(false);
   const [isOrganizationUpdateOpen, setIsOrganizationUpdateOpen] = useState(false);
 
@@ -76,6 +77,7 @@ const OrganizationTab = ({ data, onChange }) => {
         position: "bottom-right",
       });
 
+      // Update organization
       if (values.organizationId) {
         const resO = await api.put(`/organization/${values.organizationId}`, {
           name: data.organizationName,
@@ -83,17 +85,37 @@ const OrganizationTab = ({ data, onChange }) => {
           siren: values.organizationSirenVerified || "",
         });
         if (!resO.ok) throw resO;
-      }
 
-      const where = { moderatorId: publisher._id, organizationName: data.organizationName, size: 0 };
-      if (values.organizationRNAVerified) where.organizationRNAVerified = { $ne: values.organizationRNAVerified };
-      if (values.organizationSirenVerified) where.organizationSirenVerified = { $ne: values.organizationSirenVerified };
-      const resM = await api.post("/moderation/search", where);
-      if (!resM.ok) throw resM;
+        const where = { moderatorId: publisher._id, organizationClientId: data.organizationClientId, size: 0 };
+        if (values.organizationRNAVerified) where.organizationRNAVerified = { $ne: values.organizationRNAVerified };
+        if (values.organizationSirenVerified) where.organizationSirenVerified = { $ne: values.organizationSirenVerified };
+        const resM = await api.post("/moderation/search", where);
+        if (!resM.ok) throw resM;
 
-      if (resM.total > 0) {
-        setPotentialUpdates(resM.total);
-        setIsOrganizationUpdateOpen(true);
+        if (resM.total > 0) {
+          setManyUpdateWhere({ ...where, organizationName: data.organizationName });
+          setManyUpdateTotal(resM.total);
+          setIsOrganizationUpdateOpen(true);
+        }
+
+        // Clear organization
+      } else if (data.organizationId) {
+        const resO = await api.put(`/organization/${data.organizationId}`, {
+          unnamed: data.organizationName,
+        });
+        if (!resO.ok) throw resO;
+
+        const where = { moderatorId: publisher._id, organizationClientId: data.organizationClientId, size: 0 };
+        if (data.organizationRNAVerified) where.organizationRNAVerified = data.organizationRNAVerified;
+        if (data.organizationSirenVerified) where.organizationSirenVerified = data.organizationSirenVerified;
+        const resM = await api.post("/moderation/search", where);
+        if (!resM.ok) throw resM;
+
+        if (resM.total > 0) {
+          setManyUpdateWhere({ ...where, organizationName: data.organizationName });
+          setManyUpdateTotal(resM.total);
+          setIsOrganizationUpdateOpen(true);
+        }
       }
 
       onChange(resU.data);
@@ -108,9 +130,9 @@ const OrganizationTab = ({ data, onChange }) => {
     <>
       <OrganizationUpdateModal
         isOpen={isOrganizationUpdateOpen}
-        total={potentialUpdates}
+        total={manyUpdateTotal}
+        where={manyUpdateWhere}
         onClose={() => setIsOrganizationUpdateOpen(false)}
-        data={data}
         update={values}
         onChange={onChange}
       />
@@ -132,7 +154,7 @@ const OrganizationTab = ({ data, onChange }) => {
               value={values.organizationSirenVerified}
               onChange={(e) => setValues({ ...values, organizationSirenVerified: e })}
               onSelect={(e) => setValues({ ...values, organizationSirenVerified: e.siren, organizationId: e.id, organizationRNAVerified: e.rna })}
-              onClear={() => setValues({ ...values, organizationSirenVerified: "", organizationId: "", organizationRNAVerified: "" })}
+              onClear={() => setValues({ ...values, organizationSirenVerified: null, organizationId: null, organizationRNAVerified: null })}
               placeholder="SIREN"
               className="w-full"
             />
@@ -154,7 +176,7 @@ const OrganizationTab = ({ data, onChange }) => {
                 setSearch(e);
               }}
               onSelect={(e) => setValues({ ...values, organizationRNAVerified: e.rna, organizationId: e.id, organizationSirenVerified: e.siren })}
-              onClear={() => setValues({ ...values, organizationRNAVerified: "", organizationId: "", organizationSirenVerified: "" })}
+              onClear={() => setValues({ ...values, organizationRNAVerified: null, organizationId: null, organizationSirenVerified: null })}
               placeholder="RNA"
               className="w-full"
             />
@@ -203,17 +225,13 @@ const OrganizationTab = ({ data, onChange }) => {
   );
 };
 
-const OrganizationUpdateModal = ({ isOpen, onClose, total, data, update, onChange }) => {
+const OrganizationUpdateModal = ({ isOpen, onClose, total, where, update, onChange }) => {
   const { publisher } = useStore();
   const [loading, setLoading] = useState(false);
 
   const handleSubmit = async () => {
     setLoading(true);
     try {
-      const where = { moderatorId: publisher._id, organizationName: data.organizationName };
-      if (update.organizationRNAVerified) where.organizationRNAVerified = { $ne: update.organizationRNAVerified };
-      if (update.organizationSirenVerified) where.organizationSirenVerified = { $ne: update.organizationSirenVerified };
-
       const res = await api.put(`/moderation/many`, {
         where,
         update: {
@@ -239,22 +257,25 @@ const OrganizationUpdateModal = ({ isOpen, onClose, total, data, update, onChang
 
   return (
     <Modal isOpen={isOpen} onClose={onClose} className="w-2/3">
-      <div className="space-y-8 p-12">
+      <div className="space-y-8 p-6">
         <h1 className="text-xl font-semibold">
-          L'organisation {data.organizationName} a {total} missions
+          L'organisation {where.organizationName} a {total > 1 ? `${total} missions` : "une mission"}
         </h1>
         <p className="text-sm text-black">
           Vous venez de mettre à jour {update.organizationSirenVerified ? `le Siren pour ${update.organizationSirenVerified}` : ""}{" "}
           {update.organizationRNAVerified && update.organizationSirenVerified ? "et" : ""} {update.organizationRNAVerified ? `le RNA pour ${update.organizationRNAVerified}` : ""}{" "}
-          les données de l’organisation <b>{data.organizationName}</b>.
+          les données de l’organisation <b>{where.organizationName}</b>.
         </p>
-        <p className="text-sm text-black">Cette organisation a {total} autres missions à mettre à jour, voulez-vous modifier les données de l'organisation de ces missions ?</p>
+        <p className="text-sm text-black">
+          Cette organisation a {total > 1 ? `${total} autres missions` : "une autre mission"} à mettre à jour, voulez-vous modifier les données de l'organisation de{" "}
+          {total > 1 ? "ces missions" : "cette mission"} ?
+        </p>
         <div className="flex justify-end gap-4">
           <button className="secondary-btn" onClick={onClose}>
             Non, je vais vérifier
           </button>
-          <button className="primary-btn flex justify-center" onClick={handleSubmit}>
-            {loading ? <Loader className="h-6 w-6" /> : "Oui, mettre à jour les missions"}
+          <button className="primary-btn flex justify-center" onClick={handleSubmit} disabled={loading}>
+            {loading ? <Loader className="h-6 w-6" /> : "Oui, mettre à jour"}
           </button>
         </div>
       </div>

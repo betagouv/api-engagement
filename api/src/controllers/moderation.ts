@@ -25,6 +25,7 @@ router.post("/search", passport.authenticate("user", { session: false }), async 
         city: zod.string().nullable().optional(),
         department: zod.string().nullable().optional(),
         organizationName: zod.string().nullable().optional(),
+        organizationClientId: zod.string().nullable().optional(),
         search: zod.string().nullable().optional(),
         activity: zod.string().nullable().optional(),
         size: zod.coerce.number().min(0).default(25),
@@ -69,6 +70,9 @@ router.post("/search", passport.authenticate("user", { session: false }), async 
       where.$or = [{ organizationName: "" }, { organizationName: null }];
     } else if (body.data.organizationName) {
       where.organizationName = body.data.organizationName;
+    }
+    if (body.data.organizationClientId) {
+      where.organizationClientId = body.data.organizationClientId;
     }
 
     if (body.data.domain === "none") {
@@ -454,7 +458,7 @@ router.put("/many", passport.authenticate("user", { session: false }), async (re
         moderatorId: zod.string(),
         where: zod.object({
           status: zod.enum(["ACCEPTED", "REFUSED", "PENDING", "ONGOING"]).optional(),
-          organizationName: zod.string(),
+          organizationClientId: zod.string().optional(),
           organizationRNAVerified: zod.union([zod.string(), zod.object({ $ne: zod.string() })]).optional(),
           organizationSirenVerified: zod.union([zod.string(), zod.object({ $ne: zod.string() })]).optional(),
         }),
@@ -488,8 +492,8 @@ router.put("/many", passport.authenticate("user", { session: false }), async (re
     if (body.data.where.status) {
       where[`moderation_${body.data.moderatorId}_status`] = body.data.where.status;
     }
-    if (body.data.where.organizationName) {
-      where.organizationName = body.data.where.organizationName;
+    if (body.data.where.organizationClientId) {
+      where.organizationClientId = body.data.where.organizationClientId;
     }
     if (body.data.where.organizationRNAVerified && body.data.where.organizationSirenVerified) {
       where.$or = [{ organizationRNAVerified: body.data.where.organizationRNAVerified }, { organizationSirenVerified: body.data.where.organizationSirenVerified }];
@@ -597,8 +601,8 @@ router.put("/:id", passport.authenticate("user", { session: false }), async (req
       mission[`moderation_${body.data.moderatorId}_title`] = body.data.newTitle;
     }
 
-    if (body.data.organizationId) {
-      mission.organizationId = body.data.organizationId;
+    if (body.data.organizationId !== undefined) {
+      mission.organizationId = body.data.organizationId || null;
     }
 
     if (body.data.organizationRNAVerified !== undefined) {
