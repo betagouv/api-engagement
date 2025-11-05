@@ -53,7 +53,6 @@ export const reportService = {
           return { publisherName: Prisma.SortOrder.desc };
         case "sentAt":
           return { sentAt: Prisma.SortOrder.desc };
-        case "createdAt":
         default:
           return { sentAt: Prisma.SortOrder.desc };
       }
