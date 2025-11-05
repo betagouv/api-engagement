@@ -4,7 +4,6 @@ export type ReportDataTemplate = "BOTH" | "RECEIVED" | "SENT";
 
 export interface ReportRecord {
   id: string;
-  _id: string;
   name: string;
   month: number;
   year: number;

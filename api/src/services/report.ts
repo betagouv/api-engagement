@@ -1,9 +1,8 @@
-import { Prisma, Report } from "../db/core";
+import { Prisma } from "../db/core";
 import { reportRepository } from "../repositories/report";
 import type {
   ReportAggregations,
   ReportCreateInput,
-  ReportDataTemplate,
   ReportFindParams,
   ReportRecord,
   ReportSearchFilters,
@@ -12,25 +11,6 @@ import type {
   ReportSortField,
   ReportUpdatePatch,
 } from "../types/report";
-
-const toReportRecord = (report: Report): ReportRecord => ({
-  id: report.id,
-  _id: report.id,
-  name: report.name,
-  month: report.month,
-  year: report.year,
-  url: report.url,
-  objectName: report.objectName,
-  publisherId: report.publisherId,
-  publisherName: report.publisherName,
-  dataTemplate: report.dataTemplate as ReportDataTemplate,
-  sentAt: report.sentAt,
-  sentTo: report.sentTo,
-  status: report.status,
-  data: report.data as any, // JSON
-  createdAt: (report as any).createdAt ?? null,
-  updatedAt: (report as any).updatedAt ?? null,
-});
 
 const buildWhere = (filters: ReportSearchFilters = {}): Prisma.ReportWhereInput => {
   const where: Prisma.ReportWhereInput = {};
@@ -51,35 +31,6 @@ const buildWhere = (filters: ReportSearchFilters = {}): Prisma.ReportWhereInput 
   return where;
 };
 
-const sortFieldToOrderBy = (sortBy: ReportSortField): Prisma.ReportOrderByWithRelationInput => {
-  switch (sortBy) {
-    case "publisherName":
-      return { publisherName: Prisma.SortOrder.desc };
-    case "sentAt":
-      return { sentAt: Prisma.SortOrder.desc };
-    case "createdAt":
-    default:
-      return { sentAt: Prisma.SortOrder.desc };
-  }
-};
-
-const toAggregations = (
-  publishers: Array<{ publisherId: string; publisherName: string; count: number }>,
-  status: Array<{ status: string | null; count: number }>
-): ReportAggregations => ({
-  publishers: publishers.map((row) => ({
-    _id: row.publisherId,
-    count: row.count,
-    name: row.publisherName,
-  })),
-  status: status
-    .filter((row) => !!row.status)
-    .map((row) => ({
-      _id: row.status as string,
-      count: row.count,
-    })),
-});
-
 export const reportService = {
   async findReports(params: ReportFindParams = {}): Promise<ReportRecord[]> {
     const where = buildWhere(params);
@@ -87,7 +38,7 @@ export const reportService = {
       where,
       orderBy: { sentAt: Prisma.SortOrder.desc },
     });
-    return reports.map(toReportRecord);
+    return reports;
   },
 
   async searchReports(params: ReportSearchParams): Promise<ReportSearchResult> {
@@ -95,6 +46,35 @@ export const reportService = {
     const where = buildWhere({ status, publisherId, month, year });
     const skip = Math.max(0, from);
     const take = Math.max(1, Math.min(size, 100));
+
+    const sortFieldToOrderBy = (sortBy: ReportSortField): Prisma.ReportOrderByWithRelationInput => {
+      switch (sortBy) {
+        case "publisherName":
+          return { publisherName: Prisma.SortOrder.desc };
+        case "sentAt":
+          return { sentAt: Prisma.SortOrder.desc };
+        case "createdAt":
+        default:
+          return { sentAt: Prisma.SortOrder.desc };
+      }
+    };
+
+    const toAggregations = (
+      publishers: Array<{ publisherId: string; publisherName: string; count: number }>,
+      status: Array<{ status: string | null; count: number }>
+    ): ReportAggregations => ({
+      publishers: publishers.map((row) => ({
+        _id: row.publisherId,
+        count: row.count,
+        name: row.publisherName,
+      })),
+      status: status
+        .filter((row) => !!row.status)
+        .map((row) => ({
+          _id: row.status as string,
+          count: row.count,
+        })),
+    });
 
     const [reports, total, publisherBuckets, statusBuckets] = await Promise.all([
       reportRepository.find({
@@ -109,26 +89,24 @@ export const reportService = {
     ]);
 
     return {
-      data: reports.map(toReportRecord),
+      data: reports,
       total,
       aggs: toAggregations(publisherBuckets, statusBuckets),
     };
   },
 
   async getReportById(id: string): Promise<ReportRecord | null> {
-    const report = await reportRepository.findById(id);
-    return report ? toReportRecord(report) : null;
+    return await reportRepository.findById(id);
   },
 
   async findReportByPublisherAndPeriod(publisherId: string, year: number, month: number): Promise<ReportRecord | null> {
-    const report = await reportRepository.findFirst({
+    return await reportRepository.findFirst({
       where: {
         publisherId,
         year,
         month,
       },
     });
-    return report ? toReportRecord(report) : null;
   },
 
   async createReport(input: ReportCreateInput): Promise<ReportRecord> {
@@ -147,7 +125,7 @@ export const reportService = {
       data: input.data ?? {},
     };
 
-    return toReportRecord(await reportRepository.create(data));
+    return await reportRepository.create(data);
   },
 
   async updateReport(id: string, patch: ReportUpdatePatch): Promise<ReportRecord> {
@@ -190,6 +168,6 @@ export const reportService = {
       data.data = patch.data ?? undefined;
     }
 
-    return toReportRecord(await reportRepository.update(id, data));
+    return await reportRepository.update(id, data);
   },
 };
