@@ -2,9 +2,12 @@ import { NextFunction, Request, Response, Router } from "express";
 import zod from "zod";
 
 import { captureException, INVALID_PARAMS, INVALID_QUERY, NOT_FOUND } from "../error";
-import ReportModel from "../models/report";
+import { reportService } from "../services/report";
 
 const router = Router();
+const objectIdSchema = zod.string().regex(/^[0-9a-fA-F]{24}$/);
+const uuidSchema = zod.string().uuid();
+const reportIdSchema = zod.union([objectIdSchema, uuidSchema]);
 
 // Keep because old version of the report
 router.get("/pdf/:publisherId", async (req: Request, res: Response, next: NextFunction) => {
@@ -29,11 +32,7 @@ router.get("/pdf/:publisherId", async (req: Request, res: Response, next: NextFu
       return res.status(400).send({ ok: false, code: INVALID_QUERY, message: query.error });
     }
 
-    const report = await ReportModel.findOne({
-      publisherId: params.data.publisherId,
-      month: query.data.month,
-      year: query.data.year,
-    });
+    const report = await reportService.findReportByPublisherAndPeriod(params.data.publisherId, query.data.year, query.data.month);
     if (!report) {
       return res.status(404).send({ ok: false, code: NOT_FOUND, message: "Report not found" });
     }
@@ -51,7 +50,7 @@ router.get("/:id", async (req: Request, res: Response, next: NextFunction) => {
   try {
     const params = zod
       .object({
-        id: zod.string().regex(/^[0-9a-fA-F]{24}$/),
+        id: reportIdSchema,
       })
       .safeParse(req.params);
 
@@ -59,7 +58,7 @@ router.get("/:id", async (req: Request, res: Response, next: NextFunction) => {
       return res.status(400).send({ ok: false, code: INVALID_PARAMS, message: params.error });
     }
 
-    const report = await ReportModel.findById(params.data.id);
+    const report = await reportService.getReportById(params.data.id);
     if (!report) {
       return res.status(404).send({ ok: false, code: NOT_FOUND, message: "Report not found" });
     }

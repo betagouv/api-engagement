@@ -2,12 +2,13 @@ import { jsPDF } from "jspdf";
 
 import PublisherModel from "../../../models/publisher";
 import { BUCKET_URL, OBJECT_ACL, putObject } from "../../../services/s3";
-import { Publisher, Report, StatsReport } from "../../../types";
+import { reportService } from "../../../services/report";
+import { Publisher, StatsReport } from "../../../types";
+import type { ReportCreateInput, ReportDataTemplate, ReportUpdatePatch } from "../../../types/report";
 
 import Marianne from "../fonts/Marianne";
 import MarianneBold from "../fonts/MarianneBold";
 
-import ReportModel from "../../../models/report";
 import { generateAnnounce } from "./announce";
 import { generateBroadcast } from "./broadcast";
 import { getData, MONTHS } from "./data";
@@ -20,10 +21,31 @@ export interface GeneratedReportPreview {
   publisherName: string;
   status: string;
   data: StatsReport | undefined;
-  dataTemplate?: "BOTH" | "RECEIVE" | "SEND";
+  dataTemplate?: ReportDataTemplate | null;
   url?: string | null;
   objectName?: string | null;
 }
+
+const computeReportDataTemplate = (data?: StatsReport): ReportDataTemplate | null => {
+  if (!data) {
+    return null;
+  }
+
+  const hasReceive = data.receive?.hasStats ?? false;
+  const hasSend = data.send?.hasStats ?? false;
+
+  if (hasReceive && hasSend) {
+    return "BOTH";
+  }
+  if (hasSend) {
+    return "SENT";
+  }
+  if (hasReceive) {
+    return "RECEIVED";
+  }
+
+  return null;
+};
 
 export const generateReport = async (publisher: Publisher, year: number, month: number) => {
   try {
@@ -103,53 +125,90 @@ export const generateReports = async (year: number, month: number, publisherId?:
   for (let i = 0; i < publishers.length; i++) {
     const publisher = publishers[i];
     console.log(`[Report] Generating report for ${year}-${month} for ${publisher.name}`);
+    const publisherIdAsString = publisher._id.toString();
     const res = await generateReport(publisher, year, month);
 
-    const obj = {
-      name: `Rapport ${MONTHS[month]} ${year}`,
-      month,
-      year,
-      publisherId: publisher._id.toString(),
-      publisherName: publisher.name,
-      data: res.data,
-    } as Report;
+    const name = `Rapport ${MONTHS[month]} ${year}`;
+    let status = "GENERATED";
+    let url: string | undefined;
+    let objectName: string | undefined;
+    let dataTemplate: ReportDataTemplate | null | undefined;
+    const data = res.data;
 
     if (res.error) {
       console.error(`[Report] Error generating report for ${year}-${month} for ${publisher.name}:`, res.error);
-      obj.status = "NOT_GENERATED_ERROR_GENERATION";
+      status = "NOT_GENERATED_ERROR_GENERATION";
       errors.push({
-        id: publisher._id.toString(),
+        id: publisherIdAsString,
         name: publisher.name,
         error: "Erreur lors de la génération du rapport",
       });
     } else if (!res.objectName) {
       console.error(`[Report] No data for ${year}-${month} for ${publisher.name}`);
-      obj.status = "NOT_GENERATED_NO_DATA";
+      status = "NOT_GENERATED_NO_DATA";
     } else {
       console.log(`[Report] Report generated for ${year}-${month} for ${publisher.name}`);
-      obj.objectName = res.objectName;
-      obj.url = res.url;
-      obj.dataTemplate = res.data.receive?.hasStats && res.data.send?.hasStats ? "BOTH" : res.data.receive?.hasStats ? "RECEIVE" : "SEND";
-      obj.status = "GENERATED";
+      objectName = res.objectName ?? undefined;
+      url = res.url ?? undefined;
+      dataTemplate = computeReportDataTemplate(res.data);
     }
-    const existing = await ReportModel.findOne({ publisherId: publisher._id, year, month });
+
+    const existing = await reportService.findReportByPublisherAndPeriod(publisherIdAsString, year, month);
+
     if (existing) {
-      await ReportModel.updateOne({ _id: existing._id }, obj);
+      const patch: ReportUpdatePatch = {
+        name,
+        month,
+        year,
+        publisherId: publisherIdAsString,
+        publisherName: publisher.name,
+        status,
+      };
+
+      if (typeof url !== "undefined") {
+        patch.url = url;
+      }
+      if (typeof objectName !== "undefined") {
+        patch.objectName = objectName;
+      }
+      if (typeof dataTemplate !== "undefined") {
+        patch.dataTemplate = dataTemplate;
+      }
+      if (typeof data !== "undefined") {
+        patch.data = data;
+      }
+
+      await reportService.updateReport(existing.id, patch);
       console.log(`[${publisher.name}] Report object updated`);
     } else {
-      await ReportModel.create(obj);
+      const payload: ReportCreateInput = {
+        name,
+        month,
+        year,
+        url: url ?? "",
+        objectName: objectName ?? null,
+        publisherId: publisherIdAsString,
+        publisherName: publisher.name,
+        dataTemplate: typeof dataTemplate !== "undefined" ? dataTemplate : null,
+        sentAt: null,
+        sentTo: [],
+        status,
+        data: data ?? {},
+      };
+
+      await reportService.createReport(payload);
       console.log(`[${publisher.name}] Report object created`);
     }
-    count += 1;
 
+    count += 1;
     reports.push({
-      publisherId: obj.publisherId,
-      publisherName: obj.publisherName,
-      status: obj.status,
-      data: res.data,
-      dataTemplate: obj.dataTemplate,
-      url: obj.url,
-      objectName: obj.objectName,
+      publisherId: publisherIdAsString,
+      publisherName: publisher.name,
+      status,
+      data,
+      dataTemplate: typeof dataTemplate !== "undefined" ? dataTemplate : existing?.dataTemplate ?? null,
+      url: typeof url !== "undefined" ? url : existing?.url ?? null,
+      objectName: typeof objectName !== "undefined" ? objectName : existing?.objectName ?? null,
     });
   }
 
