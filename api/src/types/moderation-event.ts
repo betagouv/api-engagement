@@ -22,8 +22,6 @@ export interface ModerationEventRecord {
   updatedAt: Date;
 }
 
-export type SortOrder = "asc" | "desc";
-
 export interface ModerationEventParams {
   missionId?: string;
   moderatorId?: string;

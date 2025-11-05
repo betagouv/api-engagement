@@ -2,6 +2,7 @@ import MissionModel from "../../models/mission";
 import { moderationEventService } from "../../services/moderation-event";
 import { Mission } from "../../types";
 import { ModerationEventCreateInput, ModerationEventStatus } from "../../types/moderation-event";
+import type { PublisherRecord } from "../../types/publisher";
 import { ModerationUpdate } from "./types";
 
 export const findMissions = async (moderator: PublisherRecord) => {

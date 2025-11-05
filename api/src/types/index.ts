@@ -278,50 +278,6 @@ export interface Mission {
   _old_ids?: string[];
 }
 
-export interface Publisher {
-  _id: Schema.Types.ObjectId;
-  name: string;
-  lead: string;
-  category: string | null;
-  url: string;
-  email: string;
-  logo: string;
-  defaultMissionLogo?: string;
-  documentation: string;
-  description: string;
-
-  missionType: string | null;
-  feed: string;
-  feedUsername: string;
-  feedPassword: string;
-
-  isAnnonceur: boolean;
-  hasApiRights: boolean;
-  hasWidgetRights: boolean;
-  hasCampaignRights: boolean;
-
-  moderator: boolean;
-  moderatorLink: string;
-  apikey: string | null;
-  broadcasters: string[];
-  publishers: Diffuseur[];
-
-  sendReport: boolean;
-  sendReportTo: string[];
-
-  deletedAt: Date | null;
-  createdAt: Date;
-  updatedAt: Date;
-}
-
-export interface Diffuseur {
-  _id?: Schema.Types.ObjectId;
-  publisherId: string;
-  publisherName: string;
-  moderator: boolean;
-  missionType: string | null;
-}
-
 export interface OrganizationExclusion {
   _id?: Schema.Types.ObjectId;
   excludedByPublisherId: string;
