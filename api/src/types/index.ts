@@ -278,28 +278,6 @@ export interface Mission {
   _old_ids?: string[];
 }
 
-export type ModerationEvent = {
-  _id: Schema.Types.ObjectId;
-  missionId: string;
-  moderatorId: string;
-  initialStatus: "ACCEPTED" | "REFUSED" | "PENDING" | "ONGOING" | null;
-  newStatus: "ACCEPTED" | "REFUSED" | "PENDING" | "ONGOING" | null;
-  initialComment: string | null;
-  newComment: string | null;
-  initialNote: string | null;
-  newNote: string | null;
-  initialTitle: string | null;
-  newTitle: string | null;
-  userId: string | null;
-  userName: string | null;
-  initialSiren: string | null;
-  newSiren: string | null;
-  initialRNA: string | null;
-  newRNA: string | null;
-  createdAt: Date;
-  updatedAt: Date;
-};
-
 export interface Publisher {
   _id: Schema.Types.ObjectId;
   name: string;

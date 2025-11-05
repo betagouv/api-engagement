@@ -56,7 +56,7 @@ const handler = async () => {
     await prismaClient.user.findMany({ select: { id: true, old_id: true } }).then((data) => data.forEach((d) => (users[d.old_id] = d.id)));
     console.log(`[ModerationEvent] Mapped ${Object.keys(users).length} users to database IDs.`);
 
-    const stored = {} as { [key: string]: { updatedAt: Date } };
+    const stored = {} as { [key: string]: { updated_at: Date } };
     await prismaClient.moderationEvent.findMany({ select: { old_id: true, updated_at: true } }).then((data) => data.forEach((d) => (stored[d.old_id] = d)));
 
     while (true) {
@@ -86,7 +86,7 @@ const handler = async () => {
         if (!res) {
           continue;
         }
-        if (stored[doc.id] && !isDateEqual(stored[doc.id].updatedAt, res.updated_at)) {
+        if (stored[doc.id] && !isDateEqual(stored[doc.id].updated_at, res.updated_at)) {
           dataToUpdate.push(res);
         } else if (!stored[doc.id]) {
           dataToCreate.push(res);
