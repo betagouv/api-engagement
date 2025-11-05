@@ -39,7 +39,7 @@ const sendReport = async (report: ReportRecord): Promise<{ ok: boolean; data?: a
         applyImprove: `${applyRaise < 0 ? "-" : "+"} ${Math.abs(applyRaise).toLocaleString("fr", { style: "percent", maximumFractionDigits: 2 })}`,
         rate: rate.toLocaleString("fr", { style: "percent", maximumFractionDigits: 2 }),
         rateImprove: `${rateRaise < 0 ? "-" : "+"} ${Math.abs(rateRaise).toLocaleString("fr", { style: "percent", maximumFractionDigits: 2 })}`,
-        reportURL: `https://api.api-engagement.beta.gouv.fr/report/${report._id}`,
+        reportURL: `https://api.api-engagement.beta.gouv.fr/report/${report.id}`,
         dashboardURL: `https://app.api-engagement.beta.gouv.fr/performance?from=${new Date(report.year, report.month, 1).toISOString()}&to=${new Date(report.year, report.month + 1, 1).toISOString()}`,
       } as any,
     };
