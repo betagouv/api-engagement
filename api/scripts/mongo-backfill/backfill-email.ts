@@ -5,9 +5,6 @@ import { loadEnvironment, parseScriptOptions } from "./utils/options";
 import mongoose from "mongoose";
 
 import type { Prisma } from "../../src/db/core";
-import { mongoConnected } from "../../src/db/mongo";
-import { pgConnected, prismaCore } from "../../src/db/postgres";
-import { emailRepository } from "../../src/repositories/email";
 import type { EmailRecord } from "../../src/types/email";
 import { compareDates, compareJsons, compareNumbers, compareStringArrays, compareStrings } from "./utils/compare";
 import { normalizeDate, normalizeNumber, toJsonValue } from "./utils/normalize";
@@ -233,11 +230,24 @@ const formatRecordForLog = (record: EmailRecord) => ({
 });
 
 const cleanup = async () => {
-  await Promise.allSettled([prismaCore.$disconnect(), mongoose.connection.close()]);
+  // prismaCore is loaded dynamically; guard if not loaded yet
+  try {
+    const { prismaCore } = await import("../../src/db/postgres");
+    await Promise.allSettled([prismaCore.$disconnect(), mongoose.connection.close()]);
+  } catch {
+    await Promise.allSettled([mongoose.connection.close()]);
+  }
 };
 
 const main = async () => {
   console.log(`[MigrateEmails] Starting${options.dryRun ? " (dry-run)" : ""}`);
+  // Load env-dependent modules after dotenv has been configured
+  const [{ mongoConnected }, { pgConnected, prismaCore }, { emailRepository }] = await Promise.all([
+    import("../../src/db/mongo"),
+    import("../../src/db/postgres"),
+    import("../../src/repositories/email"),
+  ]);
+
   await Promise.all([mongoConnected, pgConnected]);
 
   const collection = mongoose.connection.collection("emails");

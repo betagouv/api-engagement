@@ -1,9 +1,6 @@
 import mongoose from "mongoose";
 
 import type { Prisma, Publisher as PrismaPublisher, PublisherDiffusion as PrismaPublisherDiffusion } from "../../src/db/core";
-import { mongoConnected } from "../../src/db/mongo";
-import { pgConnected, prismaCore } from "../../src/db/postgres";
-import { publisherRepository } from "../../src/repositories/publisher";
 import type { PublisherRecord } from "../../src/types/publisher";
 import { asBoolean, asDate, asString, asStringArray } from "./utils/cast";
 import { compareBooleans, compareDates, compareStringArrays, compareStrings } from "./utils/compare";
@@ -23,7 +20,6 @@ type MongoDiffuseur = {
 
 type MongoPublisherDocument = {
   _id?: { toString(): string } | string;
-  id?: string;
   name?: unknown;
   category?: unknown;
   url?: unknown;
@@ -54,6 +50,39 @@ type MongoPublisherDocument = {
 
 const BATCH_SIZE = 100;
 
+const toMongoObjectIdString = (value: unknown): string | null => {
+  if (!value) {
+    return null;
+  }
+
+  if (mongoose.isValidObjectId(value)) {
+    if (typeof value === "string") {
+      return value;
+    }
+    if (typeof (value as { toHexString?: () => string }).toHexString === "function") {
+      return (value as { toHexString: () => string }).toHexString();
+    }
+    if (typeof (value as { toString?: () => string }).toString === "function") {
+      return (value as { toString: () => string }).toString();
+    }
+  }
+
+  if (typeof value === "string" && /^[0-9a-fA-F]{24}$/.test(value)) {
+    return value.toLowerCase();
+  }
+
+  return null;
+};
+
+const extractPublisherId = (doc: MongoPublisherDocument): string => {
+  const idFromObjectId = toMongoObjectIdString(doc._id);
+  if (idFromObjectId) {
+    return idFromObjectId;
+  }
+
+  throw new Error("[MigratePublishers] Encountered publisher document without a valid Mongo ObjectId");
+};
+
 const normalizeDiffuseurs = (value: unknown) => {
   if (!Array.isArray(value)) {
     return [];
@@ -75,16 +104,18 @@ const normalizeDiffuseurs = (value: unknown) => {
   return Array.from(map.values()).sort((a, b) => a.diffuseurPublisherId.localeCompare(b.diffuseurPublisherId));
 };
 
+const PRISMA_MISSION_TYPES: readonly MissionType[] = ["benevolat", "volontariat_service_civique"] as const;
+
 const asPrismaMissionType = (value: string | null): MissionType | null => {
   if (!value) {
     return null;
   }
-  return value as MissionType;
+
+  return PRISMA_MISSION_TYPES.includes(value as MissionType) ? (value as MissionType) : null;
 };
 
 const toPublisherRecord = (publisher: PrismaPublisher & { diffuseurs: PrismaPublisherDiffusion[] }): PublisherRecord => ({
   id: publisher.id,
-  _id: publisher.id,
   name: publisher.name,
   category: publisher.category ?? null,
   url: publisher.url ?? null,
@@ -128,10 +159,11 @@ type NormalizedPublisherData = {
   record: PublisherRecord;
   create: Prisma.PublisherCreateInput;
   update: Prisma.PublisherUpdateInput;
+  diffusions: Prisma.PublisherDiffusionUncheckedCreateWithoutAnnonceurInput[];
 };
 
 const normalizePublisher = (doc: MongoPublisherDocument): NormalizedPublisherData => {
-  const id = asString(doc.id) ?? (typeof doc._id === "string" ? doc._id : doc._id?.toString());
+  const id = extractPublisherId(doc);
   if (!id) {
     throw new Error("[MigratePublishers] Encountered publisher document without an identifier");
   }
@@ -169,7 +201,6 @@ const normalizePublisher = (doc: MongoPublisherDocument): NormalizedPublisherDat
 
   const record: PublisherRecord = {
     id,
-    _id: id,
     name,
     category,
     url,
@@ -215,12 +246,6 @@ const normalizePublisher = (doc: MongoPublisherDocument): NormalizedPublisherDat
     updatedAt,
   }));
 
-  const diffuseurCreate = publishers.length
-    ? {
-        create: diffusionInputs,
-      }
-    : undefined;
-
   const create: Prisma.PublisherCreateInput = {
     id,
     name,
@@ -248,7 +273,6 @@ const normalizePublisher = (doc: MongoPublisherDocument): NormalizedPublisherDat
     deletedAt,
     createdAt,
     updatedAt,
-    diffuseurs: diffuseurCreate,
   };
 
   const update: Prisma.PublisherUpdateInput = {
@@ -277,13 +301,9 @@ const normalizePublisher = (doc: MongoPublisherDocument): NormalizedPublisherDat
     deletedAt,
     createdAt,
     updatedAt,
-    diffuseurs: {
-      deleteMany: {},
-      create: diffusionInputs,
-    },
   };
 
-  return { record, create, update };
+  return { record, create, update, diffusions: diffusionInputs };
 };
 
 const comparePublishers = (existing: PublisherRecord["publishers"], target: PublisherRecord["publishers"]) => {
@@ -301,7 +321,7 @@ const comparePublishers = (existing: PublisherRecord["publishers"], target: Publ
   return true;
 };
 
-const hasDifferences = (existing: PublisherRecord, target: PublisherRecord) => {
+const hasBaseDifferences = (existing: PublisherRecord, target: PublisherRecord) => {
   if (!compareStrings(existing.name, target.name)) return true;
   if (!compareStrings(existing.category, target.category)) return true;
   if (!compareStrings(existing.url, target.url)) return true;
@@ -327,11 +347,20 @@ const hasDifferences = (existing: PublisherRecord, target: PublisherRecord) => {
   if (!compareDates(existing.deletedAt, target.deletedAt)) return true;
   if (!compareDates(existing.createdAt, target.createdAt)) return true;
   if (!compareDates(existing.updatedAt, target.updatedAt)) return true;
-  if (!comparePublishers(existing.publishers, target.publishers)) return true;
   return false;
 };
 
+const hasDiffusionDifferences = (existing: PublisherRecord, target: PublisherRecord) => {
+  return !comparePublishers(existing.publishers, target.publishers);
+};
+
 const migratePublishers = async () => {
+  const [{ mongoConnected }, { pgConnected, prismaCore }, { publisherRepository }] = await Promise.all([
+    import("../../src/db/mongo"),
+    import("../../src/db/postgres"),
+    import("../../src/repositories/publisher"),
+  ]);
+
   await mongoConnected;
   await pgConnected;
 
@@ -346,6 +375,15 @@ const migratePublishers = async () => {
   let processed = 0;
   let created = 0;
   let updated = 0;
+  let errors = 0;
+  const pendingDiffusions: Array<{
+    annonceurId: string;
+    annonceurName: string;
+    diffusions: Prisma.PublisherDiffusionUncheckedCreateWithoutAnnonceurInput[];
+    shouldSync: boolean;
+  }> = [];
+  const knownPublisherIds = new Set<string>();
+  const publisherExistenceCache = new Map<string, boolean>();
 
   while (await cursor.hasNext()) {
     const doc = (await cursor.next()) as MongoPublisherDocument;
@@ -360,31 +398,43 @@ const migratePublishers = async () => {
         include: { diffuseurs: true },
       });
 
+      let shouldSyncDiffusions = true;
+
       if (!existing) {
         if (options.dryRun) {
-          console.log(`[MigratePublishers][Dry-run] Would create publisher ${normalized.record.id}`);
+          console.log(`[MigratePublishers][Dry-run] Would create publisher ${normalized.record.id} (${normalized.record.name})`);
         } else {
           await publisherRepository.create({
             data: normalized.create,
-            include: { diffuseurs: true },
           });
         }
         created++;
       } else {
         const existingRecord = toPublisherRecord(existing as PrismaPublisher & { diffuseurs: PrismaPublisherDiffusion[] });
-        if (hasDifferences(existingRecord, normalized.record)) {
+        const baseDifferences = hasBaseDifferences(existingRecord, normalized.record);
+        const diffusionDifferences = hasDiffusionDifferences(existingRecord, normalized.record);
+        shouldSyncDiffusions = diffusionDifferences;
+
+        if (baseDifferences) {
           if (options.dryRun) {
-            console.log(`[MigratePublishers][Dry-run] Would update publisher ${normalized.record.id}`);
+            console.log(`[MigratePublishers][Dry-run] Would update publisher ${normalized.record.id} (${normalized.record.name})`);
           } else {
             await publisherRepository.update({
               where: { id: normalized.record.id },
               data: normalized.update,
-              include: { diffuseurs: true },
             });
           }
           updated++;
         }
       }
+      pendingDiffusions.push({
+        annonceurId: normalized.record.id,
+        annonceurName: normalized.record.name,
+        diffusions: normalized.diffusions,
+        shouldSync: shouldSyncDiffusions,
+      });
+      knownPublisherIds.add(normalized.record.id);
+      publisherExistenceCache.set(normalized.record.id, true);
       processed++;
 
       if (processed % BATCH_SIZE === 0) {
@@ -392,17 +442,140 @@ const migratePublishers = async () => {
       }
     } catch (error) {
       console.error("[MigratePublishers] Failed to process publisher document", error);
+      errors++;
     }
   }
 
-  console.log(`[MigratePublishers] Completed. Processed: ${processed}, created: ${created}, updated: ${updated}`);
+  let diffusionPublishersSynced = 0;
+  let diffusionPublishersSkipped = 0;
+  let diffusionRecordsCreated = 0;
+  let diffusionRecordsMissing = 0;
+
+  for (const { annonceurId, annonceurName, diffusions, shouldSync } of pendingDiffusions) {
+    if (!shouldSync) {
+      diffusionPublishersSkipped++;
+      continue;
+    }
+
+    const validDiffusions: Prisma.PublisherDiffusionUncheckedCreateWithoutAnnonceurInput[] = [];
+    const missingDiffusions: Prisma.PublisherDiffusionUncheckedCreateWithoutAnnonceurInput[] = [];
+
+    for (const diffusion of diffusions) {
+      const diffuseurId = diffusion.diffuseurPublisherId;
+
+      if (knownPublisherIds.has(diffuseurId)) {
+        validDiffusions.push(diffusion);
+        continue;
+      }
+
+      if (publisherExistenceCache.has(diffuseurId)) {
+        if (publisherExistenceCache.get(diffuseurId) === true) {
+          validDiffusions.push(diffusion);
+        } else {
+          missingDiffusions.push(diffusion);
+        }
+        continue;
+      }
+
+      const diffuseurExists = Boolean(
+        await publisherRepository.findUnique({
+          where: { id: diffuseurId },
+          select: { id: true },
+        })
+      );
+
+      publisherExistenceCache.set(diffuseurId, diffuseurExists);
+
+      if (diffuseurExists) {
+        knownPublisherIds.add(diffuseurId);
+        validDiffusions.push(diffusion);
+      } else {
+        missingDiffusions.push(diffusion);
+      }
+    }
+
+    if (missingDiffusions.length > 0) {
+      diffusionRecordsMissing += missingDiffusions.length;
+      console.warn(
+        `[MigratePublishers] Skipping ${missingDiffusions.length} diffusion(s) for publisher ${annonceurId} (${annonceurName}) because diffuseur(s) are missing: ${missingDiffusions
+          .map((diffusion) => diffusion.diffuseurPublisherId)
+          .join(", ")}`
+      );
+    }
+
+    if (options.dryRun) {
+      console.log(
+        `[MigratePublishers][Dry-run] Would replace ${validDiffusions.length} diffusion(s) for publisher ${annonceurId} (${annonceurName})`
+      );
+      diffusionRecordsCreated += validDiffusions.length;
+      diffusionPublishersSynced++;
+      continue;
+    }
+
+    let sanitizedDiffusions: Prisma.PublisherDiffusionUncheckedCreateInput[] = [];
+    try {
+      await prismaCore.publisherDiffusion.deleteMany({
+        where: { annonceurPublisherId: annonceurId },
+      });
+      if (validDiffusions.length > 0) {
+        sanitizedDiffusions = validDiffusions.map((diffusion) => ({
+          annonceurPublisherId: annonceurId,
+          diffuseurPublisherId: diffusion.diffuseurPublisherId,
+          moderator: Boolean(diffusion.moderator),
+          missionType: diffusion.missionType ?? null,
+          createdAt: diffusion.createdAt ? new Date(diffusion.createdAt) : new Date(),
+          updatedAt: diffusion.updatedAt ? new Date(diffusion.updatedAt) : new Date(),
+        }));
+        await prismaCore.$transaction(
+          sanitizedDiffusions.map((data) =>
+            prismaCore.publisherDiffusion.create({
+              data,
+            })
+          )
+        );
+        diffusionRecordsCreated += sanitizedDiffusions.length;
+      }
+      diffusionPublishersSynced++;
+    } catch (error) {
+      console.error(`[MigratePublishers] Failed to sync diffusions for publisher ${annonceurId} (${annonceurName})`, error);
+      if (sanitizedDiffusions.length > 0) {
+        console.error(
+          `[MigratePublishers] Diffusion payload that triggered error for publisher ${annonceurId}:`,
+          JSON.stringify(sanitizedDiffusions.slice(0, 5))
+        );
+      }
+      errors++;
+    }
+  }
+
+  if (pendingDiffusions.length > 0) {
+    console.log(
+      `[MigratePublishers] Diffusions processed for ${pendingDiffusions.length} publisher(s): synced ${diffusionPublishersSynced} (records created ${diffusionRecordsCreated}), skipped ${diffusionPublishersSkipped}, missing references ${diffusionRecordsMissing}`
+    );
+  }
+
+  console.log(`[MigratePublishers] Completed. Processed: ${processed}, created: ${created}, updated: ${updated}, errors: ${errors}`);
 };
 
-migratePublishers()
-  .catch((error) => {
-    console.error("[MigratePublishers] Migration failed", error);
-    process.exitCode = 1;
-  })
-  .finally(async () => {
+const run = async () => {
+  try {
+    await migratePublishers();
+    await cleanup();
+    process.exit(0);
+  } catch (error) {
+    console.error("[MigratePublishers] Unexpected error:", error);
+    await cleanup();
+    process.exit(1);
+  }
+};
+
+const cleanup = async () => {
+  try {
+    const { prismaCore } = await import("../../src/db/postgres");
     await Promise.allSettled([prismaCore.$disconnect(), mongoose.connection.close()]);
-  });
+  } catch {
+    await Promise.allSettled([mongoose.connection.close()]);
+  }
+};
+
+run();

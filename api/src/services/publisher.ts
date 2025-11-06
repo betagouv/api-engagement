@@ -1,3 +1,4 @@
+import { randomBytes } from "crypto";
 import { v4 as uuid } from "uuid";
 
 import { MissionType, Prisma, Publisher, PublisherDiffusion } from "../db/core";
@@ -30,7 +31,6 @@ export const publisherService = (() => {
 
   const toPublisherRecord = (publisher: PublisherWithDiffusion): PublisherRecord => ({
     id: publisher.id,
-    _id: publisher.id,
     name: publisher.name,
     category: publisher.category ?? null,
     url: publisher.url ?? null,
@@ -154,8 +154,10 @@ export const publisherService = (() => {
   const createPublisher = async (input: PublisherCreateInput): Promise<PublisherRecord> => {
     const normalizedPublishers = normalizeDiffusions(input.publishers);
     const rightsEnabled = Boolean(input.hasApiRights || input.hasWidgetRights || input.hasCampaignRights);
+    const generatedId = await generateUniquePublisherId();
 
     const data: Prisma.PublisherCreateInput = {
+      id: generatedId,
       name: input.name.trim(),
       category: normalizeOptionalString(input.category) ?? null,
       url: normalizeOptionalString(input.url),
@@ -232,6 +234,23 @@ export const publisherService = (() => {
   const findPublishersWithCount = async (params: PublisherSearchParams = {}): Promise<{ data: PublisherRecord[]; total: number }> => {
     const [data, total] = await Promise.all([findPublishers(params), countPublishers(params)]);
     return { data, total };
+  };
+
+  const generateUniquePublisherId = async (): Promise<string> => {
+    const MONGO_OBJECT_ID_BYTES = 12;
+    const MAX_ID_GENERATION_ATTEMPTS = 5;
+
+    const generateMongoObjectId = () => randomBytes(MONGO_OBJECT_ID_BYTES).toString("hex");
+
+    for (let attempt = 0; attempt < MAX_ID_GENERATION_ATTEMPTS; attempt++) {
+      const candidate = generateMongoObjectId();
+      const existing = await publisherRepository.findUnique({ where: { id: candidate } });
+      if (!existing) {
+        return candidate;
+      }
+    }
+
+    throw new Error("Failed to generate a unique publisher identifier");
   };
 
   const getPublisherById = async (id: string): Promise<PublisherRecord | null> => {

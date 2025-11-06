@@ -23,7 +23,6 @@ export interface PublisherDiffusionRecord {
 
 export interface PublisherRecord {
   id: string;
-  _id: string;
   name: string;
   category: string | null;
   url: string | null;
