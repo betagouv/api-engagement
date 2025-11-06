@@ -10,6 +10,8 @@ import { loadEnvironment, parseScriptOptions, type ScriptOptions } from "./utils
 const options: ScriptOptions = parseScriptOptions(process.argv.slice(2), "MigratePublishers");
 loadEnvironment(options, __dirname, "MigratePublishers");
 
+type MissionType = "benevolat" | "volontariat_service_civique";
+
 type MongoDiffuseur = {
   publisherId?: unknown;
   publisherName?: unknown;
@@ -122,23 +124,28 @@ const normalizeDiffuseurs = (value: unknown) => {
   if (!Array.isArray(value)) {
     return [];
   }
-  const map = new Map<string, { publisherId: string; publisherName: string; moderator: boolean; missionType: string | null }>();
+  const map = new Map<string, { diffuseurPublisherId: string; moderator: boolean; missionType: string | null }>();
   for (const raw of value as MongoDiffuseur[]) {
     const publisherId = asString(raw.publisherId);
     if (!publisherId) {
       continue;
     }
-    const publisherName = asString(raw.publisherName) ?? publisherId;
     const missionType = asString(raw.missionType);
     const moderator = asBoolean(raw.moderator, false);
     map.set(publisherId, {
-      publisherId,
-      publisherName,
+      diffuseurPublisherId: publisherId,
       moderator,
       missionType: missionType ?? null,
     });
   }
-  return Array.from(map.values()).sort((a, b) => a.publisherId.localeCompare(b.publisherId));
+  return Array.from(map.values()).sort((a, b) => a.diffuseurPublisherId.localeCompare(b.diffuseurPublisherId));
+};
+
+const asPrismaMissionType = (value: string | null): MissionType | null => {
+  if (!value) {
+    return null;
+  }
+  return value as MissionType;
 };
 
 const toPublisherRecord = (publisher: PrismaPublisher & { diffuseurs: PrismaPublisherDiffusion[] }): PublisherRecord => ({
@@ -172,13 +179,15 @@ const toPublisherRecord = (publisher: PrismaPublisher & { diffuseurs: PrismaPubl
   publishers: publisher.diffuseurs
     .map((diffuseur) => ({
       id: diffuseur.id,
-      publisherId: diffuseur.publisherId,
+      diffuseurPublisherId: diffuseur.diffuseurPublisherId,
+      annonceurPublisherId: diffuseur.annonceurPublisherId,
       moderator: diffuseur.moderator,
       missionType: diffuseur.missionType ?? null,
       createdAt: diffuseur.createdAt,
       updatedAt: diffuseur.updatedAt,
+      publisherId: diffuseur.diffuseurPublisherId,
     }))
-    .sort((a, b) => a.publisherId.localeCompare(b.publisherId)),
+    .sort((a, b) => a.diffuseurPublisherId.localeCompare(b.diffuseurPublisherId)),
 });
 
 type NormalizedPublisherData = {
@@ -253,24 +262,28 @@ const normalizePublisher = (doc: MongoPublisherDocument): NormalizedPublisherDat
     createdAt,
     updatedAt,
     publishers: publishers.map((diffuseur) => ({
-      id: `${id}:${diffuseur.publisherId}`,
-      publisherId: diffuseur.publisherId,
+      id: `${id}:${diffuseur.diffuseurPublisherId}`,
+      diffuseurPublisherId: diffuseur.diffuseurPublisherId,
+      annonceurPublisherId: id,
       moderator: diffuseur.moderator,
       missionType: diffuseur.missionType,
       createdAt,
       updatedAt,
+      publisherId: diffuseur.diffuseurPublisherId,
     })),
   };
 
+  const diffusionInputs: Prisma.PublisherDiffusionUncheckedCreateWithoutAnnonceurInput[] = publishers.map((diffuseur) => ({
+    diffuseurPublisherId: diffuseur.diffuseurPublisherId,
+    moderator: diffuseur.moderator,
+    missionType: asPrismaMissionType(diffuseur.missionType),
+    createdAt,
+    updatedAt,
+  }));
+
   const diffuseurCreate = publishers.length
     ? {
-        create: publishers.map((diffuseur) => ({
-          publisherId: diffuseur.publisherId,
-          moderator: diffuseur.moderator,
-          missionType: diffuseur.missionType ? (diffuseur.missionType as Prisma.MissionType) : null,
-          createdAt,
-          updatedAt,
-        })),
+        create: diffusionInputs,
       }
     : undefined;
 
@@ -291,7 +304,7 @@ const normalizePublisher = (doc: MongoPublisherDocument): NormalizedPublisherDat
     feedPassword,
     apikey,
     description,
-    missionType: missionType ? (missionType as Prisma.MissionType) : null,
+    missionType: asPrismaMissionType(missionType),
     isAnnonceur,
     hasApiRights,
     hasWidgetRights,
@@ -301,7 +314,7 @@ const normalizePublisher = (doc: MongoPublisherDocument): NormalizedPublisherDat
     deletedAt,
     createdAt,
     updatedAt,
-    publishers: diffuseurCreate,
+    diffuseurs: diffuseurCreate,
   };
 
   const update: Prisma.PublisherUpdateInput = {
@@ -320,7 +333,7 @@ const normalizePublisher = (doc: MongoPublisherDocument): NormalizedPublisherDat
     feedPassword,
     apikey,
     description,
-    missionType: missionType as MissionType,
+    missionType: asPrismaMissionType(missionType),
     isAnnonceur,
     hasApiRights,
     hasWidgetRights,
@@ -332,13 +345,7 @@ const normalizePublisher = (doc: MongoPublisherDocument): NormalizedPublisherDat
     updatedAt,
     diffuseurs: {
       deleteMany: {},
-      create: publishers.map((diffuseur) => ({
-        publisherId: diffuseur.publisherId,
-        moderator: diffuseur.moderator,
-        missionType: diffuseur.missionType,
-        createdAt,
-        updatedAt,
-      })),
+      create: diffusionInputs,
     },
   };
 
@@ -372,8 +379,8 @@ const comparePublishers = (existing: PublisherRecord["publishers"], target: Publ
   for (let i = 0; i < existing.length; i++) {
     const a = existing[i];
     const b = target[i];
-    if (!compareStrings(a.publisherId, b.publisherId)) return false;
-    if (!compareStrings(a.publisherName, b.publisherName)) return false;
+    if (!compareStrings(a.diffuseurPublisherId, b.diffuseurPublisherId)) return false;
+    if (!compareStrings(a.annonceurPublisherId, b.annonceurPublisherId)) return false;
     if (!compareStrings(a.missionType, b.missionType)) return false;
     if (!compareBooleans(a.moderator, b.moderator)) return false;
   }
@@ -450,7 +457,7 @@ const migratePublishers = async () => {
         }
         created++;
       } else {
-        const existingRecord = toPublisherRecord(existing);
+        const existingRecord = toPublisherRecord(existing as PrismaPublisher & { diffuseurs: PrismaPublisherDiffusion[] });
         if (hasDifferences(existingRecord, normalized.record)) {
           if (options.dryRun) {
             console.log(`[MigratePublishers][Dry-run] Would update publisher ${normalized.record.id}`);

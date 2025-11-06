@@ -1,19 +1,24 @@
 export type PublisherRoleFilter = "annonceur" | "diffuseur" | "api" | "widget" | "campaign";
 
 export interface PublisherDiffusionInput {
-  publisherId: string;
-  publisherName: string;
+  diffuseurPublisherId?: string;
+  publisherId?: string;
+  diffuseurPublisherName?: string;
+  publisherName?: string;
   moderator?: boolean;
   missionType?: string | null;
 }
 
 export interface PublisherDiffusionRecord {
   id: string;
-  publisherId: string;
+  diffuseurPublisherId: string;
+  annonceurPublisherId: string;
   moderator: boolean;
   missionType: string | null;
   createdAt: Date;
   updatedAt: Date;
+  /** @deprecated Use diffuseurPublisherId instead. */
+  publisherId: string;
 }
 
 export interface PublisherRecord {

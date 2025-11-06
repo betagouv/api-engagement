@@ -36,8 +36,8 @@ CREATE TABLE "public"."publisher" (
 -- CreateTable
 CREATE TABLE "public"."publisher_diffusion" (
     "id" TEXT NOT NULL,
-    "publisher_id" TEXT NOT NULL,
-    "linked_publisher_id" TEXT NOT NULL,
+    "diffuseur_publisher_id" TEXT NOT NULL,
+    "annonceur_publisher_id" TEXT NOT NULL,
     "moderator" BOOLEAN NOT NULL DEFAULT false,
     "mission_type" "public"."MissionType",
     "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -74,7 +74,13 @@ CREATE INDEX "publisher_has_campaign_rights_idx" ON "public"."publisher"("has_ca
 CREATE INDEX "publisher_send_report_idx" ON "public"."publisher"("send_report");
 
 -- CreateIndex
-CREATE INDEX "publisher_diffusion_linked_id_idx" ON "public"."publisher_diffusion"("linked_publisher_id");
+CREATE INDEX "publisher_diffusion_diffuseur_id_idx" ON "public"."publisher_diffusion"("diffuseur_publisher_id");
+
+-- CreateIndex
+CREATE INDEX "publisher_diffusion_annonceur_id_idx" ON "public"."publisher_diffusion"("annonceur_publisher_id");
 
 -- AddForeignKey
-ALTER TABLE "public"."publisher_diffusion" ADD CONSTRAINT "publisher_diffusion_publisher_id_fkey" FOREIGN KEY ("publisher_id") REFERENCES "public"."publisher"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "public"."publisher_diffusion" ADD CONSTRAINT "publisher_diffusion_diffuseur_publisher_id_fkey" FOREIGN KEY ("diffuseur_publisher_id") REFERENCES "public"."publisher"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "public"."publisher_diffusion" ADD CONSTRAINT "publisher_diffusion_annonceur_publisher_id_fkey" FOREIGN KEY ("annonceur_publisher_id") REFERENCES "public"."publisher"("id") ON DELETE CASCADE ON UPDATE CASCADE;

@@ -19,11 +19,13 @@ export const publisherService = (() => {
 
   const toDiffusionRecord = (diffusion: PublisherDiffusion): PublisherDiffusionRecord => ({
     id: diffusion.id,
-    publisherId: diffusion.linkedPublisherId,
+    diffuseurPublisherId: diffusion.diffuseurPublisherId,
+    annonceurPublisherId: diffusion.annonceurPublisherId,
     moderator: diffusion.moderator,
     missionType: diffusion.missionType ?? null,
     createdAt: diffusion.createdAt,
     updatedAt: diffusion.updatedAt,
+    publisherId: diffusion.diffuseurPublisherId,
   });
 
   const toPublisherRecord = (publisher: PublisherWithDiffusion): PublisherRecord => ({
@@ -61,23 +63,22 @@ export const publisherService = (() => {
     normalizeCollection(
       publishers,
       (diffusion) => {
-        const publisherId = diffusion.publisherId?.trim();
-        if (!publisherId) {
+        const publisherId = diffusion.diffuseurPublisherId ?? diffusion.publisherId;
+        const diffuseurPublisherId = publisherId?.trim();
+        if (!diffuseurPublisherId) {
           return null;
         }
 
-        const publisherName = normalizeOptionalString(diffusion.publisherName) ?? publisherId;
         const missionType = normalizeOptionalString(diffusion.missionType);
 
         return {
-          publisherId,
-          publisherName,
+          diffuseurPublisherId,
           moderator: diffusion.moderator ?? false,
           missionType: missionType ?? null,
         };
       },
       {
-        key: (diffusion) => diffusion.publisherId,
+        key: (diffusion) => diffusion.diffuseurPublisherId,
       }
     );
 
@@ -120,7 +121,7 @@ export const publisherService = (() => {
     }
 
     if (params.diffuseurOf) {
-      and.push({ diffuseurs: { some: { linkedPublisherId: params.diffuseurOf } } });
+      and.push({ diffuseurs: { some: { diffuseurPublisherId: params.diffuseurOf } } });
     }
 
     const ids = params.ids ?? undefined;
@@ -182,7 +183,7 @@ export const publisherService = (() => {
     if (rightsEnabled && normalizedPublishers.length) {
       data.diffuseurs = {
         create: normalizedPublishers.map((diffusion) => ({
-          linkedPublisherId: diffusion.publisherId,
+          diffuseurPublisherId: diffusion.diffuseurPublisherId,
           moderator: diffusion.moderator,
           missionType: (normalizeOptionalString(diffusion.missionType) as MissionType) ?? null,
         })),
@@ -364,7 +365,7 @@ export const publisherService = (() => {
       data.diffuseurs = {
         deleteMany: {},
         create: normalizedPublishers.map((diffusion) => ({
-          linkedPublisherId: diffusion.publisherId,
+          diffuseurPublisherId: diffusion.diffuseurPublisherId,
           moderator: diffusion.moderator,
           missionType: (normalizeOptionalString(diffusion.missionType) as MissionType) ?? null,
         })),
