@@ -50,6 +50,8 @@ const looksLikeFilePath = (envPath: string) => {
 export const loadEnvironment = (options: ScriptOptions, scriptDir: string, scriptLabel?: string) => {
   const { envPath } = options;
 
+  console.log("envPath", envPath);
+
   if (envPath) {
     if (looksLikeFilePath(envPath)) {
       const candidate = resolveExplicitPath(envPath);
