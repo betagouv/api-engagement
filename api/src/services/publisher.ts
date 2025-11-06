@@ -377,7 +377,9 @@ export const publisherService = (() => {
       data.deletedAt = patch.deletedAt ?? null;
     }
 
-    if (patch.publishers === null || (!rightsEnabled && (existing.diffuseurs?.length ?? 0) > 0)) {
+    const shouldClearDiffusions = patch.publishers === null || !rightsEnabled;
+
+    if (shouldClearDiffusions) {
       data.diffuseurs = { deleteMany: {} };
     } else if (normalizedPublishers) {
       data.diffuseurs = {
