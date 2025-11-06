@@ -29,7 +29,6 @@ const ComboboxFilter = ({
   const { url, color } = useStore();
   const ref = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
-  const resetButtonRef = useRef<HTMLButtonElement>(null);
   const [listRef, setListRef] = useState<(HTMLLIElement | undefined)[]>(options.map(() => undefined));
   const plausible = usePlausible();
   const [show, setShow] = useState(false);
@@ -90,8 +89,7 @@ const ComboboxFilter = ({
             inputRef.current.focus();
           }
         } else {
-          e.preventDefault();
-          resetButtonRef.current?.focus();
+          setShow(false);
         }
         break;
       case " ":
