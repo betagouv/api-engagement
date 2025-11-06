@@ -50,12 +50,14 @@ models:
         tests:
           - not_null
           - unique
+      - name: mission_id_raw_input
+        description: Identifiant mission brut provenant directement de StatEvent (après nettoyage).
       - name: mission_id
         description: Identifiant de mission résolu dans l’entrepôt analytics (UUID).
-      - name: mission_old_id
-        description: Identifiant historique de mission (ancien ID) retrouvé via le mapping.
-      - name: resolved_mission_old_id
-        description: Identifiant mission final (ancien ID) retenu après les règles de priorité.
+      - name: mission_id_raw
+        description: Identifiant mission brut issu de la base core retrouvé via le mapping.
+      - name: resolved_mission_id_raw
+        description: Identifiant mission brut final retenu après les règles de priorité.
 
   - name: stg_stat_event__click
     description: >
@@ -72,18 +74,18 @@ models:
         description: Horodatage du clic.
         tests:
           - not_null
-      - name: from_partner_id
+      - name: from_publisher_id
         description: UUID du partenaire diffuseur (analytics).
         tests:
           - not_null
-      - name: to_partner_id
+      - name: to_publisher_id
         description: UUID du partenaire annonceur (analytics).
         tests:
           - not_null
       - name: mission_id
         description: UUID de la mission associée si retrouvée.
-      - name: mission_old_id
-        description: Identifiant historique de la mission.
+      - name: mission_id_raw
+        description: Identifiant brut de la mission issu de la base core.
       - name: source
         description: Origine normalisée du clic (api/widget/campaign…).
       - name: click_id
@@ -100,18 +102,18 @@ models:
         tests:
           - not_null
           - unique
-      - name: from_partner_id
+      - name: from_publisher_id
         description: UUID du partenaire diffuseur.
         tests:
           - not_null
-      - name: to_partner_id
+      - name: to_publisher_id
         description: UUID du partenaire annonceur.
         tests:
           - not_null
       - name: mission_id
         description: UUID de la mission associée si retrouvée.
-      - name: mission_old_id
-        description: Identifiant historique de la mission.
+      - name: mission_id_raw
+        description: Identifiant brut de la mission issu de la base core.
       - name: status
         description: Statut métier de la candidature (pending, validated…).
       - name: custom_attributes
@@ -128,18 +130,18 @@ models:
         tests:
           - not_null
           - unique
-      - name: from_partner_id
+      - name: from_publisher_id
         description: UUID du partenaire diffuseur.
         tests:
           - not_null
-      - name: to_partner_id
+      - name: to_publisher_id
         description: UUID du partenaire annonceur.
         tests:
           - not_null
       - name: mission_id
         description: UUID de la mission associée si retrouvée.
-      - name: mission_old_id
-        description: Identifiant historique de la mission.
+      - name: mission_id_raw
+        description: Identifiant brut de la mission issu de la base core.
       - name: click_id
         description: Identifiant du clic lié au compte (le cas échéant).
 
@@ -154,17 +156,17 @@ models:
         tests:
           - not_null
           - unique
-      - name: from_partner_id
+      - name: from_publisher_id
         description: UUID du partenaire diffuseur.
         tests:
           - not_null
-      - name: to_partner_id
+      - name: to_publisher_id
         description: UUID du partenaire annonceur.
         tests:
           - not_null
       - name: mission_id
         description: UUID de la mission associée si retrouvée.
-      - name: mission_old_id
-        description: Identifiant historique de la mission.
+      - name: mission_id_raw
+        description: Identifiant brut de la mission issu de la base core.
       - name: source
         description: Origine normalisée de l’impression (api/widget/campaign…).
