@@ -1,6 +1,6 @@
 import dataSubventionMock from "./dataSubventionMock";
 import elasticMock from "./elasticMock";
-import pgMock from "./pgMock";
+import pgMock, { createPrismaClientMock, createPrismaCrudMock } from "./pgMock";
 import sentryMock from "./sentryMock";
 
-export { dataSubventionMock, elasticMock, pgMock, sentryMock };
+export { createPrismaClientMock, createPrismaCrudMock, dataSubventionMock, elasticMock, pgMock, sentryMock };

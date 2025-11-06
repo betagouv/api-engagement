@@ -7,8 +7,9 @@ import { INVALID_PARAMS, INVALID_QUERY, NOT_FOUND } from "../../error";
 import MissionModel from "../../models/mission";
 import OrganizationExclusionModel from "../../models/organization-exclusion";
 import RequestModel from "../../models/request";
-import { Mission, Publisher } from "../../types";
+import { Mission } from "../../types";
 import { PublisherRequest } from "../../types/passport";
+import type { PublisherRecord } from "../../types/publisher";
 import { diacriticSensitiveRegex, getDistanceFromLatLonInKm, getDistanceKm } from "../../utils";
 import { MISSION_FIELDS, NO_PARTNER, NO_PARTNER_MESSAGE } from "./constants";
 import { buildData } from "./transformer";
@@ -69,7 +70,7 @@ router.use(async (req: PublisherRequest, res: Response, next: NextFunction) => {
 
 router.get("/", passport.authenticate(["apikey", "api"], { session: false }), async (req: PublisherRequest, res: Response, next: NextFunction) => {
   try {
-    const user = req.user as Publisher;
+    const user = req.user as PublisherRecord;
 
     const query = missionQuerySchema.safeParse(req.query);
 
@@ -90,7 +91,7 @@ router.get("/", passport.authenticate(["apikey", "api"], { session: false }), as
 
     // Exclude organizations from other publishers
     const organizationExclusions = await OrganizationExclusionModel.find({
-      excludedForPublisherId: user._id.toString(),
+      excludedForPublisherId: user.id,
     });
     if (organizationExclusions.length) {
       where.organizationClientId = {
@@ -107,16 +108,16 @@ router.get("/", passport.authenticate(["apikey", "api"], { session: false }), as
         query.data.publisher = query.data.publisher.map((e: string) => e.trim());
       }
 
-      query.data.publisher = query.data.publisher.filter((e: string) => user.publishers.some((p: { publisherId: string }) => p.publisherId === e));
+      query.data.publisher = query.data.publisher.filter((publisherId: string) => user.publishers.some((p) => p.diffuseurPublisherId === publisherId));
       where.publisherId = { $in: query.data.publisher };
     } else {
-      where.publisherId = { $in: user.publishers.map((e: { publisherId: string }) => e.publisherId) };
+      where.publisherId = { $in: user.publishers.map((publisher) => publisher.diffuseurPublisherId) };
     }
     if (user.moderator) {
-      where[`moderation_${user._id}_status`] = "ACCEPTED";
+      where[`moderation_${user.id}_status`] = "ACCEPTED";
     }
     // Special case for Bouygues Telecom
-    if (user._id.toString() === PUBLISHER_IDS.BOUYGUES_TELECOM) {
+    if (user.id === PUBLISHER_IDS.BOUYGUES_TELECOM) {
       where.organizationName = {
         $ne: "APF France handicap - Délégations de Haute-Saône et du Territoire de Belfort",
       };
@@ -232,7 +233,7 @@ router.get("/", passport.authenticate(["apikey", "api"], { session: false }), as
     return res.status(200).send({
       ok: true,
       total,
-      data: data.map((e: Mission) => buildData(e, user._id.toString(), user.moderator)),
+      data: data.map((e: Mission) => buildData(e, user.id, user.moderator)),
       limit: query.data.limit,
       skip: query.data.skip,
     });
@@ -243,7 +244,7 @@ router.get("/", passport.authenticate(["apikey", "api"], { session: false }), as
 
 router.get("/search", passport.authenticate(["apikey", "api"], { session: false }), async (req: PublisherRequest, res: Response, next: NextFunction) => {
   try {
-    const user = req.user as Publisher;
+    const user = req.user as PublisherRecord;
 
     const query = missionQuerySchema
       .extend({
@@ -267,7 +268,7 @@ router.get("/search", passport.authenticate(["apikey", "api"], { session: false 
     } as { [key: string]: any };
 
     const organizationExclusions = await OrganizationExclusionModel.find({
-      excludedForPublisherId: user._id.toString(),
+      excludedForPublisherId: user.id,
     });
     if (organizationExclusions.length) {
       where.organizationClientId = {
@@ -284,13 +285,13 @@ router.get("/search", passport.authenticate(["apikey", "api"], { session: false 
         query.data.publisher = query.data.publisher.map((e: string) => e.trim());
       }
 
-      query.data.publisher = query.data.publisher.filter((e: string) => user.publishers.some((p: { publisherId: string }) => p.publisherId === e));
+      query.data.publisher = query.data.publisher.filter((publisherId: string) => user.publishers.some((p) => p.diffuseurPublisherId === publisherId));
       where.publisherId = { $in: query.data.publisher };
     } else {
-      where.publisherId = { $in: user.publishers.map((e: { publisherId: string }) => e.publisherId) };
+      where.publisherId = { $in: user.publishers.map((publisher) => publisher.diffuseurPublisherId) };
     }
     if (user.moderator) {
-      where[`moderation_${user._id}_status`] = "ACCEPTED";
+      where[`moderation_${user.id}_status`] = "ACCEPTED";
     }
 
     if (query.data.activity) {
@@ -416,7 +417,7 @@ router.get("/search", passport.authenticate(["apikey", "api"], { session: false 
       ok: true,
       total,
       hits: data.map((e: Mission) => ({
-        ...buildData(e, user._id.toString(), user.moderator),
+        ...buildData(e, user.id, user.moderator),
         _distance: getDistanceFromLatLonInKm(query.data.lat, query.data.lon, e.addresses[0]?.location?.lat, e.addresses[0]?.location?.lon),
       })),
       facets: {
@@ -441,7 +442,7 @@ router.get("/search", passport.authenticate(["apikey", "api"], { session: false 
 
 router.get("/:id", passport.authenticate(["apikey", "api"], { session: false }), async (req: PublisherRequest, res: Response, next: NextFunction) => {
   try {
-    const user = req.user as Publisher;
+    const user = req.user as PublisherRecord;
 
     const params = zod
       .object({
@@ -460,7 +461,7 @@ router.get("/:id", passport.authenticate(["apikey", "api"], { session: false }),
     }
 
     res.locals = { total: 1 };
-    return res.status(200).send({ ok: true, data: buildData(mission, user._id.toString(), user.moderator) });
+    return res.status(200).send({ ok: true, data: buildData(mission, user.id, user.moderator) });
   } catch (error: any) {
     next(error);
   }

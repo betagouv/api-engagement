@@ -1,9 +1,9 @@
 import { jsPDF } from "jspdf";
 
-import PublisherModel from "../../../models/publisher";
+import { publisherService } from "../../../services/publisher";
 import { reportService } from "../../../services/report";
 import { BUCKET_URL, OBJECT_ACL, putObject } from "../../../services/s3";
-import { Publisher } from "../../../types";
+import type { PublisherRecord } from "../../../types/publisher";
 import type { ReportCreateInput, ReportDataTemplate, ReportUpdatePatch } from "../../../types/report";
 import { StatsReport } from "../../../types/report";
 
@@ -48,7 +48,7 @@ const computeReportDataTemplate = (data?: StatsReport): ReportDataTemplate | nul
   return null;
 };
 
-export const generateReport = async (publisher: Publisher, year: number, month: number) => {
+export const generateReport = async (publisher: PublisherRecord, year: number, month: number) => {
   try {
     // For now using fake data, later will use fetchData
     const data = await getData(year, month, publisher);
@@ -94,7 +94,7 @@ export const generateReport = async (publisher: Publisher, year: number, month: 
     }
 
     // Save and upload file
-    const objectName = `publishers/${publisher._id}/reports/${year}${month + 1 < 10 ? `0${month + 1}` : month + 1}.pdf`;
+    const objectName = `publishers/${publisher.id}/reports/${year}${month + 1 < 10 ? `0${month + 1}` : month + 1}.pdf`;
     const buffer = Buffer.from(doc.output("arraybuffer"));
     await putObject(objectName, buffer, { ACL: OBJECT_ACL.PUBLIC_READ });
 
@@ -110,11 +110,11 @@ export const generateReport = async (publisher: Publisher, year: number, month: 
 };
 
 export const generateReports = async (year: number, month: number, publisherId?: string) => {
-  const query: any = { sendReport: true };
+  const filters: any = { sendReport: true };
   if (publisherId) {
-    query._id = publisherId;
+    filters.ids = [publisherId];
   }
-  const publishers = await PublisherModel.find(query);
+  const publishers = await publisherService.findPublishers(filters);
   let count = 0;
   const errors = [] as { id: string; name: string; error: string }[];
   const reports: GeneratedReportPreview[] = [];
@@ -135,7 +135,7 @@ export const generateReports = async (year: number, month: number, publisherId?:
       console.error(`[Report] Error generating report for ${year}-${month} for ${publisher.name}:`, res.error);
       status = "NOT_GENERATED_ERROR_GENERATION";
       errors.push({
-        id: publisher._id.toString(),
+        id: publisher.id,
         name: publisher.name,
         error: "Erreur lors de la génération du rapport",
       });
@@ -149,14 +149,14 @@ export const generateReports = async (year: number, month: number, publisherId?:
       dataTemplate = computeReportDataTemplate(res.data);
     }
 
-    const existing = await reportService.findReportByPublisherAndPeriod(publisher._id.toString(), year, month);
+    const existing = await reportService.findReportByPublisherAndPeriod(publisher.id, year, month);
 
     if (existing) {
       const patch: ReportUpdatePatch = {
         name,
         month,
         year,
-        publisherId: publisher._id.toString(),
+        publisherId: publisher.id,
         publisherName: publisher.name,
         status,
       };
@@ -183,7 +183,7 @@ export const generateReports = async (year: number, month: number, publisherId?:
         year,
         url: url ?? "",
         objectName: objectName ?? null,
-        publisherId: publisher._id.toString(),
+        publisherId: publisher.id,
         publisherName: publisher.name,
         dataTemplate: typeof dataTemplate !== "undefined" ? dataTemplate : null,
         sentAt: null,
@@ -198,7 +198,7 @@ export const generateReports = async (year: number, month: number, publisherId?:
 
     count += 1;
     reports.push({
-      publisherId: publisher._id.toString(),
+      publisherId: publisher.id,
       publisherName: publisher.name,
       status,
       data,

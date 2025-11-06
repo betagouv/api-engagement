@@ -1,8 +1,8 @@
-import { Publisher } from "../../types";
+import type { PublisherRecord } from "../../types/publisher";
 
-export const buildPublisherData = (publisher: Publisher, clicks: number, isExcluded: boolean) => {
+export const buildPublisherData = (publisher: PublisherRecord, clicks: number, isExcluded: boolean) => {
   return {
-    _id: publisher._id,
+    _id: publisher.id,
     name: publisher.name,
     category: publisher.category,
     url: publisher.url,

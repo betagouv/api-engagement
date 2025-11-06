@@ -1,18 +1,18 @@
 import { Partner as PgPartner } from "../../../db/analytics";
 import { prismaAnalytics as prismaClient } from "../../../db/postgres";
 import { captureException } from "../../../error";
-import PublisherModel from "../../../models/publisher";
-import { Publisher } from "../../../types";
+import { publisherService } from "../../../services/publisher";
+import type { PublisherRecord } from "../../../types/publisher";
 
-const buildData = (doc: Publisher) => {
+const buildData = (doc: PublisherRecord) => {
   const obj = {
-    old_id: doc._id.toString(),
+    old_id: doc.id,
     name: doc.name,
     diffuseur_api: doc.hasApiRights,
     diffuseur_widget: doc.hasWidgetRights,
     diffuseur_campaign: doc.hasCampaignRights,
     annonceur: doc.isAnnonceur,
-    partners: doc.publishers.map((p) => p.publisherId).filter((p) => p !== undefined),
+    partners: doc.publishers.map((p) => p.diffuseurPublisherId).filter((p) => p !== undefined),
     created_at: new Date(doc.createdAt),
     updated_at: new Date(doc.updatedAt),
     deleted_at: doc.deletedAt ? new Date(doc.deletedAt) : null,
@@ -28,7 +28,7 @@ const handler = async () => {
     const start = new Date();
     console.log(`[Partners] Starting at ${start.toISOString()}`);
 
-    const data = await PublisherModel.find().lean();
+    const data = await publisherService.findPublishers({ includeDeleted: true });
     console.log(`[Partners] Found ${data.length} docs to sync.`);
 
     const stored = {} as { [key: string]: { old_id: string; id: string; updated_at: Date } };
@@ -44,8 +44,8 @@ const handler = async () => {
         console.log(`[Partners] Processed ${processed}/${data.length} docs, created ${created}, updated ${updated}`);
       }
 
-      const exists = stored[doc._id.toString()];
-      const obj = buildData(doc as Publisher);
+      const exists = stored[doc.id];
+      const obj = buildData(doc);
       if (!exists) {
         await prismaClient.partner.create({ data: obj });
         created++;

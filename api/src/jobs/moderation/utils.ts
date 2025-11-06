@@ -1,37 +1,38 @@
 import MissionModel from "../../models/mission";
 import ModerationEventModel from "../../models/moderation-event";
-import { Mission, Publisher } from "../../types";
+import { Mission } from "../../types";
+import type { PublisherRecord } from "../../types/publisher";
 import { ModerationUpdate } from "./types";
 
-export const findMissions = async (moderator: Publisher) => {
-  const publishers = moderator.publishers.map((p) => p.publisherId);
+export const findMissions = async (moderator: PublisherRecord) => {
+  const publishers = moderator.publishers.map((p) => p.diffuseurPublisherId);
   const where = {
     publisherId: { $in: publishers },
     statusCode: "ACCEPTED",
     deleted: false,
-    $or: [{ [`moderation_${moderator._id}_status`]: { $exists: false } }, { [`moderation_${moderator._id}_status`]: null }, { [`moderation_${moderator._id}_status`]: "PENDING" }],
+    $or: [{ [`moderation_${moderator.id}_status`]: { $exists: false } }, { [`moderation_${moderator.id}_status`]: null }, { [`moderation_${moderator.id}_status`]: "PENDING" }],
   };
   const missions = await MissionModel.find(where).sort({ createdAt: "desc" });
   return missions;
 };
 
-export const hasModerationChanges = (m: Mission, moderator: Publisher, update: ModerationUpdate) => {
-  if (!m[`moderation_${moderator._id}_status`]) {
+export const hasModerationChanges = (m: Mission, moderator: PublisherRecord, update: ModerationUpdate) => {
+  if (!m[`moderation_${moderator.id}_status`]) {
     return true;
   }
-  if ((m[`moderation_${moderator._id}_status`] || null) !== update.status) {
+  if ((m[`moderation_${moderator.id}_status`] || null) !== update.status) {
     return true;
   }
-  if ((m[`moderation_${moderator._id}_comment`] || null) !== update.comment) {
+  if ((m[`moderation_${moderator.id}_comment`] || null) !== update.comment) {
     return true;
   }
-  if ((m[`moderation_${moderator._id}_note`] || null) !== update.note) {
+  if ((m[`moderation_${moderator.id}_note`] || null) !== update.note) {
     return true;
   }
   return false;
 };
 
-export const createModerations = async (missions: Mission[], moderator: Publisher) => {
+export const createModerations = async (missions: Mission[], moderator: PublisherRecord) => {
   const missionBulk = [] as any[];
   const eventBulk = [] as any[];
 
@@ -92,14 +93,14 @@ export const createModerations = async (missions: Mission[], moderator: Publishe
       insertOne: {
         document: {
           missionId: mission._id,
-          moderatorId: moderator._id,
+          moderatorId: moderator.id,
           userId: null,
           userName: "Modération automatique",
-          initialStatus: mission[`moderation_${moderator._id}_status`] || null,
+          initialStatus: mission[`moderation_${moderator.id}_status`] || null,
           newStatus: update.status,
-          initialComment: mission[`moderation_${moderator._id}_comment`] || null,
+          initialComment: mission[`moderation_${moderator.id}_comment`] || null,
           newComment: update.comment,
-          initialNote: mission[`moderation_${moderator._id}_note`] || null,
+          initialNote: mission[`moderation_${moderator.id}_note`] || null,
           newNote:
             update.status === "REFUSED"
               ? `Data de la mission refusée: date de création=${createdAt.toLocaleDateString("fr")}, date de début=${startAt.toLocaleDateString("fr")}, date defin=${endAt ? endAt.toLocaleDateString("fr") : "non renseigné"}, nombre caractères description=${mission.description.length}, ville=${mission.city}`
@@ -112,10 +113,10 @@ export const createModerations = async (missions: Mission[], moderator: Publishe
         filter: { _id: mission._id },
         update: {
           $set: {
-            [`moderation_${moderator._id}_status`]: update.status,
-            [`moderation_${moderator._id}_comment`]: update.comment,
-            [`moderation_${moderator._id}_note`]: update.note,
-            [`moderation_${moderator._id}_date`]: update.date,
+            [`moderation_${moderator.id}_status`]: update.status,
+            [`moderation_${moderator.id}_comment`]: update.comment,
+            [`moderation_${moderator.id}_note`]: update.note,
+            [`moderation_${moderator.id}_date`]: update.date,
           },
         },
       },

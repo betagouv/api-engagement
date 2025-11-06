@@ -4,11 +4,12 @@ import zod from "zod";
 
 import { captureMessage, INVALID_BODY, INVALID_PARAMS, INVALID_QUERY, NOT_FOUND } from "../error";
 import MissionModel from "../models/mission";
-import PublisherModel from "../models/publisher";
 import RequestModel from "../models/request";
-import { Publisher, Stats } from "../types";
-import { PublisherRequest } from "../types/passport";
 import statEventRepository from "../repositories/stat-event";
+import { publisherService } from "../services/publisher";
+import { Stats } from "../types";
+import { PublisherRequest } from "../types/passport";
+import type { PublisherRecord } from "../types/publisher";
 
 const router = Router();
 
@@ -122,7 +123,7 @@ router.post("/:missionId/:publisherId/click", async (req: PublisherRequest, res:
       return res.status(404).send({ ok: false, code: NOT_FOUND, message: "Mission not found" });
     }
 
-    const publisher = await PublisherModel.findById(params.data.publisherId);
+    const publisher = await publisherService.findOnePublisherById(params.data.publisherId);
     if (!publisher) {
       res.locals = { code: NOT_FOUND };
       return res.status(404).send({ ok: false, code: NOT_FOUND, message: "Publisher not found" });
@@ -141,7 +142,7 @@ router.post("/:missionId/:publisherId/click", async (req: PublisherRequest, res:
       toPublisherId: mission.publisherId,
       toPublisherName: mission.publisherName,
 
-      fromPublisherId: publisher._id.toString(),
+      fromPublisherId: publisher.id,
       fromPublisherName: publisher.name,
 
       tag: query.data.tag || "",
@@ -152,7 +153,7 @@ router.post("/:missionId/:publisherId/click", async (req: PublisherRequest, res:
       createdAt: new Date(),
       source: "publisher",
       sourceName: publisher.name,
-      sourceId: publisher._id.toString(),
+      sourceId: publisher.id,
       type: "click",
     } as Stats;
 
@@ -166,7 +167,7 @@ router.post("/:missionId/:publisherId/click", async (req: PublisherRequest, res:
 
 router.post("/:missionId/apply", passport.authenticate(["apikey", "api"], { session: false }), async (req: PublisherRequest, res: Response, next: NextFunction) => {
   try {
-    const user = req.user as Publisher;
+    const user = req.user as PublisherRecord;
     const query = zod
       .object({
         tag: zod.string().optional(),
@@ -222,7 +223,7 @@ router.post("/:missionId/apply", passport.authenticate(["apikey", "api"], { sess
       toPublisherId: mission.publisherId,
       toPublisherName: mission.publisherName,
 
-      fromPublisherId: user._id.toString(),
+      fromPublisherId: user.id,
       fromPublisherName: user.name,
 
       tag: query.data.tag || clickId?.tag || "",
@@ -233,7 +234,7 @@ router.post("/:missionId/apply", passport.authenticate(["apikey", "api"], { sess
       createdAt: new Date(),
       source: "publisher",
       sourceName: user.name,
-      sourceId: user._id.toString(),
+      sourceId: user.id,
       type: "apply",
       status: "PENDING",
     } as Stats;

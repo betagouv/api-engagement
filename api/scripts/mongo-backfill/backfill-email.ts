@@ -1,57 +1,13 @@
-import dotenv from "dotenv";
-
+console.log("launch");
 import type { EmailStatus } from "../../src/db/core";
-
-type ScriptOptions = {
-  dryRun: boolean;
-  envPath?: string;
-};
-
-const parseOptions = (argv: string[]): ScriptOptions => {
-  const args = [...argv];
-  const options: ScriptOptions = { dryRun: false };
-
-  const envIndex = args.indexOf("--env");
-  if (envIndex !== -1) {
-    const envPath = args[envIndex + 1];
-    if (envPath) {
-      options.envPath = envPath;
-      args.splice(envIndex, 2);
-    } else {
-      console.warn("[MigrateEmails] Flag --env provided without a value, defaulting to .env");
-      args.splice(envIndex, 1);
-    }
-  }
-
-  const dryRunIndex = args.indexOf("--dry-run");
-  if (dryRunIndex !== -1) {
-    options.dryRun = true;
-    args.splice(dryRunIndex, 1);
-  }
-
-  if (args.length) {
-    console.warn(`[MigrateEmails] Ignoring unexpected arguments: ${args.join(", ")}`);
-  }
-
-  return options;
-};
-
-const options = parseOptions(process.argv.slice(2));
-
-if (options.envPath) {
-  console.log(`[MigrateEmails] Loading environment from ${options.envPath}`);
-  dotenv.config({ path: options.envPath });
-} else {
-  dotenv.config();
-}
+import { loadEnvironment, parseScriptOptions } from "./utils/options";
 
 import mongoose from "mongoose";
 
 import type { Prisma } from "../../src/db/core";
-import { mongoConnected } from "../../src/db/mongo";
-import { pgConnected, prismaCore } from "../../src/db/postgres";
-import { emailRepository } from "../../src/repositories/email";
 import type { EmailRecord } from "../../src/types/email";
+import { compareDates, compareJsons, compareNumbers, compareStringArrays, compareStrings } from "./utils/compare";
+import { normalizeDate, normalizeNumber, toJsonValue } from "./utils/normalize";
 
 type MongoEmailDocument = {
   _id?: { toString(): string } | string;
@@ -89,39 +45,8 @@ type NormalizedEmailData = {
 
 const BATCH_SIZE = 100;
 
-const normalizeDate = (value: Date | string | null | undefined): Date | null => {
-  if (value == null) {
-    return null;
-  }
-  if (value instanceof Date) {
-    return isNaN(value.getTime()) ? null : value;
-  }
-  const parsed = new Date(value);
-  return isNaN(parsed.getTime()) ? null : parsed;
-};
-
-const normalizeNumber = (value: number | string | null | undefined): number | null => {
-  if (value == null) {
-    return null;
-  }
-  if (typeof value === "number") {
-    return Number.isFinite(value) ? value : null;
-  }
-  const parsed = Number(value);
-  return Number.isFinite(parsed) ? parsed : null;
-};
-
-const toJsonValue = (value: unknown): Prisma.InputJsonValue | null => {
-  if (value == null) {
-    return null;
-  }
-  try {
-    return JSON.parse(JSON.stringify(value));
-  } catch (error) {
-    console.warn("[MigrateEmails] Unable to serialize JSON value, defaulting to null:", error);
-    return null;
-  }
-};
+const options = parseScriptOptions(process.argv.slice(2), "MigrateEmails");
+loadEnvironment(options, __dirname, "MigrateEmails");
 
 const normalizeStatus = (value: string | null | undefined): EmailStatus => {
   const allowed: EmailStatus[] = ["PENDING", "PROCESSED", "DUPLICATE", "FAILED"];
@@ -166,69 +91,30 @@ const extractToEmails = (doc: MongoEmailDocument): string[] => {
   return uniqueSortedEmails(collected);
 };
 
-const stringifyJson = (value: unknown): string => {
-  const sorter = (input: unknown): unknown => {
-    if (Array.isArray(input)) {
-      return input.map((item) => sorter(item));
-    }
-    if (input && typeof input === "object") {
-      const entries = Object.entries(input as Record<string, unknown>).sort(([a], [b]) => a.localeCompare(b));
-      const result: Record<string, unknown> = {};
-      for (const [key, val] of entries) {
-        result[key] = sorter(val);
-      }
-      return result;
-    }
-    return input;
-  };
-
-  return JSON.stringify(sorter(value));
-};
-
 const hasDifferences = (existing: EmailRecord, target: EmailRecord): boolean => {
-  const compareString = (a: string | null, b: string | null) => (a ?? null) === (b ?? null);
-  const compareNumber = (a: number | null, b: number | null) => (a ?? null) === (b ?? null);
-  const compareDate = (a: Date | null, b: Date | null) => {
-    const timeA = a ? a.getTime() : null;
-    const timeB = b ? b.getTime() : null;
-    return timeA === timeB;
-  };
-  const compareEmails = (a: string[], b: string[]) => {
-    if (a.length !== b.length) {
-      return false;
-    }
-    for (let i = 0; i < a.length; i++) {
-      if (a[i] !== b[i]) {
-        return false;
-      }
-    }
-    return true;
-  };
-  const compareJson = (a: unknown, b: unknown) => stringifyJson(a ?? null) === stringifyJson(b ?? null);
-
-  if (!compareString(existing.messageId, target.messageId)) return true;
-  if (!compareString(existing.inReplyTo, target.inReplyTo)) return true;
-  if (!compareString(existing.fromName, target.fromName)) return true;
-  if (!compareString(existing.fromEmail, target.fromEmail)) return true;
-  if (!compareJson(existing.to, target.to)) return true;
-  if (!compareEmails(uniqueSortedEmails(existing.toEmails), target.toEmails)) return true;
-  if (!compareString(existing.subject, target.subject)) return true;
-  if (!compareDate(existing.sentAt, target.sentAt)) return true;
-  if (!compareString(existing.rawTextBody, target.rawTextBody)) return true;
-  if (!compareString(existing.rawHtmlBody, target.rawHtmlBody)) return true;
-  if (!compareString(existing.mdTextBody, target.mdTextBody)) return true;
-  if (!compareJson(existing.attachments, target.attachments)) return true;
-  if (!compareJson(existing.raw, target.raw)) return true;
+  if (!compareStrings(existing.messageId, target.messageId)) return true;
+  if (!compareStrings(existing.inReplyTo, target.inReplyTo)) return true;
+  if (!compareStrings(existing.fromName, target.fromName)) return true;
+  if (!compareStrings(existing.fromEmail, target.fromEmail)) return true;
+  if (!compareJsons(existing.to, target.to)) return true;
+  if (!compareStringArrays(uniqueSortedEmails(existing.toEmails), target.toEmails)) return true;
+  if (!compareStrings(existing.subject, target.subject)) return true;
+  if (!compareDates(existing.sentAt, target.sentAt)) return true;
+  if (!compareStrings(existing.rawTextBody, target.rawTextBody)) return true;
+  if (!compareStrings(existing.rawHtmlBody, target.rawHtmlBody)) return true;
+  if (!compareStrings(existing.mdTextBody, target.mdTextBody)) return true;
+  if (!compareJsons(existing.attachments, target.attachments)) return true;
+  if (!compareJsons(existing.raw, target.raw)) return true;
   if (existing.status !== target.status) return true;
-  if (!compareString(existing.reportUrl, target.reportUrl)) return true;
-  if (!compareString(existing.fileObjectName, target.fileObjectName)) return true;
-  if (!compareDate(existing.dateFrom, target.dateFrom)) return true;
-  if (!compareDate(existing.dateTo, target.dateTo)) return true;
-  if (!compareNumber(existing.createdCount, target.createdCount)) return true;
-  if (!compareJson(existing.failed, target.failed)) return true;
-  if (!compareDate(existing.deletedAt, target.deletedAt)) return true;
-  if (!compareDate(existing.createdAt, target.createdAt)) return true;
-  if (!compareDate(existing.updatedAt, target.updatedAt)) return true;
+  if (!compareStrings(existing.reportUrl, target.reportUrl)) return true;
+  if (!compareStrings(existing.fileObjectName, target.fileObjectName)) return true;
+  if (!compareDates(existing.dateFrom, target.dateFrom)) return true;
+  if (!compareDates(existing.dateTo, target.dateTo)) return true;
+  if (!compareNumbers(existing.createdCount, target.createdCount)) return true;
+  if (!compareJsons(existing.failed, target.failed)) return true;
+  if (!compareDates(existing.deletedAt, target.deletedAt)) return true;
+  if (!compareDates(existing.createdAt, target.createdAt)) return true;
+  if (!compareDates(existing.updatedAt, target.updatedAt)) return true;
 
   return false;
 };
@@ -344,11 +230,24 @@ const formatRecordForLog = (record: EmailRecord) => ({
 });
 
 const cleanup = async () => {
-  await Promise.allSettled([prismaCore.$disconnect(), mongoose.connection.close()]);
+  // prismaCore is loaded dynamically; guard if not loaded yet
+  try {
+    const { prismaCore } = await import("../../src/db/postgres");
+    await Promise.allSettled([prismaCore.$disconnect(), mongoose.connection.close()]);
+  } catch {
+    await Promise.allSettled([mongoose.connection.close()]);
+  }
 };
 
 const main = async () => {
   console.log(`[MigrateEmails] Starting${options.dryRun ? " (dry-run)" : ""}`);
+  // Load env-dependent modules after dotenv has been configured
+  const [{ mongoConnected }, { pgConnected, prismaCore }, { emailRepository }] = await Promise.all([
+    import("../../src/db/mongo"),
+    import("../../src/db/postgres"),
+    import("../../src/repositories/email"),
+  ]);
+
   await Promise.all([mongoConnected, pgConnected]);
 
   const collection = mongoose.connection.collection("emails");

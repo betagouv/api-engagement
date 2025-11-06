@@ -1,7 +1,7 @@
 import { captureException } from "../../error";
-import PublisherModel from "../../models/publisher";
 import UserModel from "../../models/user";
 import { sendTemplate } from "../../services/brevo";
+import { publisherService } from "../../services/publisher";
 import { reportService } from "../../services/report";
 import type { ReportRecord, StatsReport } from "../../types/report";
 
@@ -62,11 +62,11 @@ const sendReport = async (report: ReportRecord): Promise<{ ok: boolean; data?: a
 };
 
 export const sendReports = async (year: number, month: number, publisherId?: string) => {
-  const query: any = { sendReport: true };
+  const filters: any = { sendReport: true };
   if (publisherId) {
-    query._id = publisherId;
+    filters.ids = [publisherId];
   }
-  const publishers = await PublisherModel.find(query);
+  const publishers = await publisherService.findPublishers(filters);
   const users = await UserModel.find({});
 
   let count = 0;
@@ -79,7 +79,7 @@ export const sendReports = async (year: number, month: number, publisherId?: str
       console.log(`[Report] Targeting single publisher ${publisherId}`);
     }
 
-    let report = await reportService.findReportByPublisherAndPeriod(publisher._id.toString(), year, month);
+    let report = await reportService.findReportByPublisherAndPeriod(publisher.id, year, month);
     if (!report) {
       console.log(`[${publisher.name}] Report not found`);
       errors.push({

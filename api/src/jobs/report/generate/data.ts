@@ -1,4 +1,4 @@
-import { Publisher } from "../../../types";
+import type { PublisherRecord } from "../../../types/publisher";
 import { StatsReport } from "../../../types/report";
 
 import { getReportAggregations, HistogramBucket } from "./report-stats-source";
@@ -102,21 +102,21 @@ const buildHistogram = (buckets: any[], topOrganizations: { key: string }[]) => 
   return data;
 };
 
-export const getData = async (year: number, month: number, publisher: Publisher) => {
+export const getData = async (year: number, month: number, publisher: PublisherRecord) => {
   const data = {
     publisherName: publisher.name,
     publisherLogo: publisher.logo,
     year,
     month,
     monthName: MONTHS[month],
-    id: publisher._id.toString(),
+    id: publisher.id,
   } as StatsReport;
 
   if (publisher.isAnnonceur) {
-    data.receive = await search(publisher._id.toString(), month, year, "to");
+    data.receive = await search(publisher.id, month, year, "to");
   }
   if (publisher.hasApiRights || publisher.hasWidgetRights || publisher.hasCampaignRights) {
-    data.send = await search(publisher._id.toString(), month, year, "from");
+    data.send = await search(publisher.id, month, year, "from");
   }
 
   return data;

@@ -1,7 +1,7 @@
 import { SLACK_WARNING_CHANNEL_ID } from "../../config";
-import PublisherModel from "../../models/publisher";
 import WarningBotModel from "../../models/warning-bot";
 import statEventRepository from "../../repositories/stat-event";
+import { publisherService } from "../../services/publisher";
 import { postMessage } from "../../services/slack";
 import { WarningBot } from "../../types";
 
@@ -45,7 +45,7 @@ export const checkBotClicks = async () => {
         if (!publisherBucket?.key) {
           continue;
         }
-        const publisher = await PublisherModel.findOne({ name: publisherBucket.key });
+        const publisher = await publisherService.findOnePublisherByName(publisherBucket.key);
         if (!publisher) {
           continue;
         }
@@ -53,7 +53,7 @@ export const checkBotClicks = async () => {
           hash: candidate.user,
           userAgent: userAgentBucket?.key ?? "",
           clickCount: candidate.clickCount,
-          publisherId: publisher._id.toString(),
+          publisherId: publisher.id,
           publisherName: publisher.name,
         });
         newWarnings.push(newWarning);

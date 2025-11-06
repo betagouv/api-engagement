@@ -31,9 +31,9 @@ describe("Import missions job (integration test)", () => {
     const publisher = await createTestPublisher({ feed: "https://fixture-feed" });
     (global.fetch as any).mockResolvedValueOnce({ ok: true, text: async () => xml });
 
-    const result = await handler.handle({ publisherId: publisher._id.toString() });
+    const result = await handler.handle({ publisherId: publisher.id });
 
-    const missions = await MissionModel.find({ publisherId: publisher._id.toString() });
+    const missions = await MissionModel.find({ publisherId: publisher.id });
     expect(missions.length).toBeGreaterThan(0);
     expect(result.success).toBe(true);
     expect(result.imports[0].status).toBe("SUCCESS");
@@ -66,7 +66,7 @@ describe("Import missions job (integration test)", () => {
     expect(mission.description).toBe("Description de la mission");
     expect(mission.domain).toBe("environnement");
     expect(mission.duration).toBe(10);
-    expect(mission.endAt?.toISOString()).toBe("2025-10-31T23:00:00.000Z"); // TODO: GMT issue?
+    expect(mission.endAt?.toISOString()).toBe("2025-11-01T00:00:00.000Z");
     expect(mission.openToMinors).toBe("yes");
     expect(mission.organizationBeneficiaries).toEqual(["Tous"]);
     expect(mission.organizationCity).toBe("Paris");
@@ -80,10 +80,10 @@ describe("Import missions job (integration test)", () => {
     expect(mission.organizationType).toBe("1901");
     expect(mission.organizationUrl).toBe("https://www.organizationname.com");
     expect(mission.places).toBe(2);
-    expect(mission.publisherId).toBe(publisher._id.toString());
+    expect(mission.publisherId).toBe(publisher.id);
     expect(mission.remote).toBe("full");
     expect(mission.schedule).toBe("1 demi-journée par semaine");
-    expect(mission.startAt.toISOString()).toBe("2024-12-31T23:00:00.000Z"); // TODO: GMT issue?
+    expect(mission.startAt.toISOString()).toBe("2025-01-01T00:00:00.000Z");
     expect(mission.tags).toEqual(expect.arrayContaining(["environnement", "écologie"]));
     expect(mission.title).toBe("Titre de la mission");
   });
@@ -94,23 +94,23 @@ describe("Import missions job (integration test)", () => {
     const publisher = await createTestPublisher({ feed: "https://fixture-missing-logo", defaultMissionLogo: defaultLogo });
     (global.fetch as any).mockResolvedValueOnce({ ok: true, text: async () => xml });
 
-    await handler.handle({ publisherId: publisher._id.toString() });
+    await handler.handle({ publisherId: publisher.id });
 
-    const missions = await MissionModel.find({ publisherId: publisher._id.toString() });
+    const missions = await MissionModel.find({ publisherId: publisher.id });
     expect(missions.length).toBeGreaterThan(0);
     expect(missions[0].organizationLogo).toBe(defaultLogo);
   });
 
   it("If feed is empty for the first time, missions related to publisher should not be deleted", async () => {
     const publisher = await createTestPublisher({ feed: "https://empty-feed" });
-    await createTestMission({ publisherId: publisher._id.toString(), clientId: "client-old" });
-    await createTestImport({ publisherId: publisher._id.toString(), status: "SUCCESS" });
+    await createTestMission({ publisherId: publisher.id, clientId: "client-old" });
+    await createTestImport({ publisherId: publisher.id, status: "SUCCESS" });
     (global.fetch as any).mockResolvedValueOnce({ ok: true, text: async () => emptyXml });
 
-    const result = await handler.handle({ publisherId: publisher._id.toString() });
+    const result = await handler.handle({ publisherId: publisher.id });
 
-    const onlineMissions = await MissionModel.find({ publisherId: publisher._id.toString(), deleted: false });
-    const failedImports = await ImportModel.find({ publisherId: publisher._id.toString(), status: "FAILED" });
+    const onlineMissions = await MissionModel.find({ publisherId: publisher.id, deleted: false });
+    const failedImports = await ImportModel.find({ publisherId: publisher.id, status: "FAILED" });
 
     expect(onlineMissions.length).toBe(1);
     expect(result.success).toBe(true);
@@ -123,21 +123,21 @@ describe("Import missions job (integration test)", () => {
 
   it("If feed is empty and no import is successful for 7 days, missions should be deleted", async () => {
     const publisher = await createTestPublisher({ feed: "https://empty-feed" });
-    await createTestMission({ publisherId: publisher._id.toString(), clientId: "client-old" });
-    await createTestImport({ publisherId: publisher._id.toString(), status: "FAILED", endedAt: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000) });
-    await createTestImport({ publisherId: publisher._id.toString(), status: "FAILED", endedAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000) });
+    await createTestMission({ publisherId: publisher.id, clientId: "client-old" });
+    await createTestImport({ publisherId: publisher.id, status: "FAILED", endedAt: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000) });
+    await createTestImport({ publisherId: publisher.id, status: "FAILED", endedAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000) });
     (global.fetch as any).mockResolvedValueOnce({ ok: true, text: async () => emptyXml });
 
-    await handler.handle({ publisherId: publisher._id.toString() });
+    await handler.handle({ publisherId: publisher.id });
 
-    const deletedMissions = await MissionModel.find({ publisherId: publisher._id.toString(), deleted: true });
+    const deletedMissions = await MissionModel.find({ publisherId: publisher.id, deleted: true });
 
     expect(deletedMissions.length).toBe(1);
   });
 
   it("If publisher has no feed, skip import", async () => {
     const publisher = await createTestPublisher({ feed: undefined });
-    const result = await handler.handle({ publisherId: publisher._id.toString() });
+    const result = await handler.handle({ publisherId: publisher.id });
     expect((global.fetch as any).mock.calls.length).toBe(0);
     expect(result.imports.length).toBe(0);
     expect(result.success).toBe(true);
@@ -146,7 +146,7 @@ describe("Import missions job (integration test)", () => {
   it("If feed returns a network error, import should fail", async () => {
     const publisher = await createTestPublisher({ feed: "https://error-feed" });
     (global.fetch as any).mockRejectedValueOnce(new Error("Network error"));
-    const result = await handler.handle({ publisherId: publisher._id.toString() });
+    const result = await handler.handle({ publisherId: publisher.id });
     expect(result.imports[0].status).toBe("FAILED");
     expect(result.imports[0].error).toMatch("Failed to fetch xml");
   });
@@ -155,7 +155,7 @@ describe("Import missions job (integration test)", () => {
     const malformedXml = `<missions><mission><title>Oops</title></mission>`; // missing closing tags
     const publisher = await createTestPublisher({ feed: "https://malformed-feed" });
     (global.fetch as any).mockResolvedValueOnce({ ok: true, text: async () => malformedXml });
-    const result = await handler.handle({ publisherId: publisher._id.toString() });
+    const result = await handler.handle({ publisherId: publisher.id });
     expect(result.imports[0].status).toBe("FAILED");
   });
 
@@ -174,7 +174,7 @@ describe("Import missions job (integration test)", () => {
       expect(auth).toMatch(/^Basic /);
       return Promise.resolve({ ok: true, text: async () => xml });
     });
-    const result = await handler.handle({ publisherId: publisher._id.toString() });
+    const result = await handler.handle({ publisherId: publisher.id });
     expect(result.imports[0].status).toBe("SUCCESS");
   });
 
@@ -183,7 +183,7 @@ describe("Import missions job (integration test)", () => {
     const publisher = await createTestPublisher({ feed: "https://fixture-feed" });
     // Create a mission with the same clientId as the one in the XML
     await createTestMission({
-      publisherId: publisher._id.toString(),
+      publisherId: publisher.id,
       clientId: "32132143",
       title: "Ancien titre",
       description: "Ancienne description",
@@ -191,10 +191,10 @@ describe("Import missions job (integration test)", () => {
     });
 
     (global.fetch as any).mockResolvedValueOnce({ ok: true, text: async () => xml });
-    const result = await handler.handle({ publisherId: publisher._id.toString() });
+    const result = await handler.handle({ publisherId: publisher.id });
     expect(result.imports[0].status).toBe("SUCCESS");
 
-    const missions = await MissionModel.find({ publisherId: publisher._id.toString(), clientId: "32132143" });
+    const missions = await MissionModel.find({ publisherId: publisher.id, clientId: "32132143" });
     expect(missions.length).toBe(1);
     const mission = missions[0];
     expect(mission.title).toBe("Titre de la mission");
@@ -208,16 +208,16 @@ describe("Import missions job (integration test)", () => {
 
     // Import feed once to create mission
     (global.fetch as any).mockResolvedValueOnce({ ok: true, text: async () => xml });
-    await handler.handle({ publisherId: publisher._id.toString() });
+    await handler.handle({ publisherId: publisher.id });
 
     // Update updatedAt to simulate older mission
-    await MissionModel.updateOne({ publisherId: publisher._id.toString(), clientId: "32132143" }, { updatedAt: new Date("2025-01-01") }, { timestamps: false });
+    await MissionModel.updateOne({ publisherId: publisher.id, clientId: "32132143" }, { updatedAt: new Date("2025-01-01") }, { timestamps: false });
 
     // Import feed again to update mission (no change)
     (global.fetch as any).mockResolvedValueOnce({ ok: true, text: async () => xml });
-    await handler.handle({ publisherId: publisher._id.toString() });
+    await handler.handle({ publisherId: publisher.id });
 
-    const missions = await MissionModel.find({ publisherId: publisher._id.toString(), clientId: "32132143" });
+    const missions = await MissionModel.find({ publisherId: publisher.id, clientId: "32132143" });
 
     expect(missions.length).toBe(1);
     const mission = missions[0];
@@ -265,11 +265,11 @@ describe("Import missions job (integration test)", () => {
     const importDate = new Date();
     (global.fetch as any).mockResolvedValueOnce({ ok: true, text: async () => xmlWithoutStartAt });
 
-    const result = await handler.handle({ publisherId: publisher._id.toString() });
+    const result = await handler.handle({ publisherId: publisher.id });
     expect(result.success).toBe(true);
     expect(result.imports[0].status).toBe("SUCCESS");
 
-    const missions = await MissionModel.find({ publisherId: publisher._id.toString(), clientId: "TEST_NO_START_DATE" });
+    const missions = await MissionModel.find({ publisherId: publisher.id, clientId: "TEST_NO_START_DATE" });
     expect(missions.length).toBe(1);
 
     const mission = missions[0];
@@ -288,11 +288,11 @@ describe("Import missions job (integration test)", () => {
     const secondImportDate = new Date();
     (global.fetch as any).mockResolvedValueOnce({ ok: true, text: async () => xmlWithoutStartAt });
 
-    const result2 = await handler.handle({ publisherId: publisher._id.toString() });
+    const result2 = await handler.handle({ publisherId: publisher.id });
     expect(result2.success).toBe(true);
     expect(result2.imports[0].status).toBe("SUCCESS");
 
-    const missionsAfterUpdate = await MissionModel.find({ publisherId: publisher._id.toString(), clientId: "TEST_NO_START_DATE" });
+    const missionsAfterUpdate = await MissionModel.find({ publisherId: publisher.id, clientId: "TEST_NO_START_DATE" });
     expect(missionsAfterUpdate.length).toBe(1);
 
     const updatedMission = missionsAfterUpdate[0];

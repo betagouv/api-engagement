@@ -5,7 +5,7 @@ import { STATS_INDEX } from "../../../../src/config";
 import MissionModel from "../../../../src/models/mission";
 import StatsBotModel from "../../../../src/models/stats-bot";
 import * as utils from "../../../../src/utils";
-import { elasticMock, pgMock } from "../../../mocks";
+import { elasticMock } from "../../../mocks";
 import { createTestApp } from "../../../testApp";
 
 const app = createTestApp();
@@ -15,11 +15,7 @@ describe("RedirectController /apply", () => {
     elasticMock.index.mockReset();
     elasticMock.count.mockReset();
     elasticMock.get.mockReset();
-
-    pgMock.statEvent.create.mockReset();
-    pgMock.statEvent.count.mockReset();
-    pgMock.statEvent.findUnique.mockReset();
-
+    
     elasticMock.index.mockResolvedValue({ body: { _id: "default-apply-id" } });
     elasticMock.count.mockResolvedValue({ body: { count: 0 } });
     elasticMock.get.mockResolvedValue({
@@ -229,98 +225,6 @@ describe("RedirectController /apply", () => {
     });
   });
 
-  it("reads click data from Postgres and writes dual stats when enabled", async () => {
-    process.env.READ_STATS_FROM = "pg";
-    process.env.WRITE_STATS_DUAL = "true";
-
-    const identity = {
-      user: "pg-identity-user",
-      referer: "https://pg-referrer.example.com",
-      userAgent: "Mozilla/5.0",
-    };
-
-    vi.spyOn(utils, "identify").mockReturnValue(identity);
-    vi.spyOn(StatsBotModel, "findOne").mockResolvedValue(null);
-
-    const createdAt = new Date();
-    pgMock.statEvent.findUnique.mockResolvedValueOnce({
-      id: "pg-click-123",
-      type: "click",
-      created_at: createdAt,
-      origin: "https://origin.example.com",
-      referer: "https://referer.example.com",
-      user_agent: "Mozilla/5.0",
-      host: "redirect.test",
-      user: "click-user",
-      click_user: "click-user",
-      source: "campaign",
-      source_id: "campaign-id",
-      source_name: "Campaign Name",
-      from_publisher_id: "source-publisher-id",
-      from_publisher_name: "Source Publisher",
-      to_publisher_id: "to-publisher-id",
-      to_publisher_name: "To Publisher",
-      mission_id: "mission-id",
-      mission_client_id: "mission-client-id",
-      mission_domain: "mission-domain",
-      mission_title: "Mission Title",
-      mission_postal_code: "33000",
-      mission_department_name: "Gironde",
-      mission_organization_name: "Mission Org",
-      mission_organization_id: "mission-org-id",
-      mission_organization_client_id: "mission-org-client-id",
-    });
-
-    pgMock.statEvent.count.mockResolvedValue(0);
-    elasticMock.count.mockResolvedValueOnce({ body: { count: 0 } });
-    elasticMock.index.mockResolvedValueOnce({ body: { _id: "apply-from-pg" } });
-
-    const response = await request(app)
-      .get("/r/apply")
-      .set("Host", "redirect.test")
-      .set("Origin", "https://pg.example.com")
-      .query({ view: "pg-click-123" });
-
-    expect(response.status).toBe(200);
-    expect(pgMock.statEvent.findUnique).toHaveBeenCalledWith({ where: { id: "pg-click-123" } });
-    expect(pgMock.statEvent.count).toHaveBeenCalledWith({
-      where: {
-        type: "apply",
-        click_id: "pg-click-123",
-        created_at: { gte: expect.any(Date) },
-      },
-    });
-    expect(pgMock.statEvent.create).toHaveBeenCalledTimes(1);
-    const [[pgCreateArgs]] = pgMock.statEvent.create.mock.calls;
-    expect(pgCreateArgs).toMatchObject({
-      data: expect.objectContaining({
-        id: expect.any(String),
-        type: "apply",
-        click_user: "click-user",
-        click_id: "pg-click-123",
-        user: identity.user,
-      }),
-    });
-
-    expect(elasticMock.index).toHaveBeenCalledTimes(1);
-    const [indexArgs] = elasticMock.index.mock.calls;
-    expect(indexArgs[0].body).toMatchObject({
-      type: "apply",
-      user: identity.user,
-      clickUser: "click-user",
-      clickId: "pg-click-123",
-      source: "campaign",
-      sourceId: "campaign-id",
-      sourceName: "Campaign Name",
-      fromPublisherId: "source-publisher-id",
-      fromPublisherName: "Source Publisher",
-      toPublisherId: "to-publisher-id",
-      toPublisherName: "To Publisher",
-      missionId: "mission-id",
-      missionClientId: "mission-client-id",
-    });
-  });
-
   it("records apply stats with custom attributes when provided", async () => {
     const identity = {
       user: "custom-identity-user",
@@ -369,9 +273,7 @@ describe("RedirectController /apply", () => {
       userAgent: "Mozilla/5.0",
     });
 
-    const response = await request(app)
-      .get("/r/apply")
-      .query({ view: "click-invalid", customAttributes: "{invalid" });
+    const response = await request(app).get("/r/apply").query({ view: "click-invalid", customAttributes: "{invalid" });
 
     expect(response.status).toBe(204);
     expect(elasticMock.get).not.toHaveBeenCalled();

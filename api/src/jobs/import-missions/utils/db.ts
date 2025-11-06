@@ -1,7 +1,8 @@
 import { captureException } from "../../../error";
 import MissionModel from "../../../models/mission";
 import MissionEventModel from "../../../models/mission-event";
-import { Import, Mission, MissionEvent, Publisher } from "../../../types";
+import { Import, Mission, MissionEvent } from "../../../types";
+import type { PublisherRecord } from "../../../types/publisher";
 import { getJobTime } from "../../../utils/job";
 import { EVENT_TYPES, getMissionChanges } from "../../../utils/mission";
 
@@ -13,7 +14,7 @@ import { EVENT_TYPES, getMissionChanges } from "../../../utils/mission";
  * @param importDoc - Import document to update
  * @returns true if the import was successful, false otherwise
  */
-export const bulkDB = async (bulk: Mission[], publisher: Publisher, importDoc: Import): Promise<boolean> => {
+export const bulkDB = async (bulk: Mission[], publisher: PublisherRecord, importDoc: Import): Promise<boolean> => {
   try {
     const startedAt = new Date();
     console.log(`[${publisher.name}] Starting mongo write at ${startedAt.toISOString()}`);
@@ -21,7 +22,7 @@ export const bulkDB = async (bulk: Mission[], publisher: Publisher, importDoc: I
     // Get existing missions in DB, to compare with new missions
     const clientIds = bulk.filter((e) => e && e.clientId).map((e) => e.clientId);
     const existingMissions = await MissionModel.find({
-      publisherId: publisher._id,
+      publisherId: publisher.id,
       clientId: { $in: clientIds },
     }).lean();
     const existingMap = new Map(existingMissions.map((m) => [m.clientId, m]));
@@ -105,10 +106,10 @@ export const bulkDB = async (bulk: Mission[], publisher: Publisher, importDoc: I
  * @param publisher - Publisher of the missions
  * @param importDoc - Import document to update
  */
-export const cleanDB = async (missionsClientIds: string[], publisher: Publisher, importDoc: Import) => {
+export const cleanDB = async (missionsClientIds: string[], publisher: PublisherRecord, importDoc: Import) => {
   console.log(`[${publisher.name}] Cleaning Mongo missions...`);
 
-  const missions = await MissionModel.find({ publisherId: publisher._id, deletedAt: null, clientId: { $nin: missionsClientIds } })
+  const missions = await MissionModel.find({ publisherId: publisher.id, deletedAt: null, clientId: { $nin: missionsClientIds } })
     .select("_id")
     .lean();
 

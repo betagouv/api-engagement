@@ -5,7 +5,7 @@ import zod from "zod";
 import { INVALID_QUERY } from "../error";
 import RequestModel from "../models/request";
 import statEventRepository from "../repositories/stat-event";
-import { Publisher } from "../types";
+import type { PublisherRecord } from "../types/publisher";
 import { PublisherRequest } from "../types/passport";
 
 const router = Router();
@@ -35,7 +35,7 @@ router.use(async (req: PublisherRequest, res: Response, next: NextFunction) => {
 
 router.get("/stats", passport.authenticate(["apikey", "api"], { session: false }), async (req: PublisherRequest, res: Response, next: NextFunction) => {
   try {
-    const user = req.user as Publisher;
+    const user = req.user as PublisherRecord;
     const query = zod
       .object({
         fromPublisherId: zod.string().optional(),
@@ -84,7 +84,7 @@ router.get("/stats", passport.authenticate(["apikey", "api"], { session: false }
       : [];
 
     const { total, facets: facetBuckets } = await statEventRepository.searchViewStats({
-      publisherId: user._id.toString(),
+      publisherId: user.id,
       size: query.data.size,
       filters: {
         fromPublisherName: query.data.fromPublisherName || undefined,
