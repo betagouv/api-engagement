@@ -1,73 +1,14 @@
-import dotenv from "dotenv";
 import mongoose from "mongoose";
 
-import fs from "fs";
-import path from "path";
 import type { Prisma, Publisher as PrismaPublisher, PublisherDiffusion as PrismaPublisherDiffusion } from "../../src/db/core";
 import { mongoConnected } from "../../src/db/mongo";
 import { pgConnected, prismaCore } from "../../src/db/postgres";
 import { publisherRepository } from "../../src/repositories/publisher";
 import type { PublisherRecord } from "../../src/types/publisher";
+import { loadEnvironment, parseScriptOptions, type ScriptOptions } from "./utils/options";
 
-type ScriptOptions = {
-  dryRun: boolean;
-  envPath?: string;
-};
-
-const parseOptions = (argv: string[]): ScriptOptions => {
-  const args = [...argv];
-  const options: ScriptOptions = { dryRun: false };
-
-  const envIndex = args.indexOf("--env");
-  if (envIndex !== -1) {
-    const envPath = args[envIndex + 1];
-    if (envPath) {
-      options.envPath = envPath;
-      args.splice(envIndex, 2);
-    } else {
-      console.warn("[MigratePublishers] Flag --env provided without a value, defaulting to .env");
-      args.splice(envIndex, 1);
-    }
-  }
-
-  const dryRunIndex = args.indexOf("--dry-run");
-  if (dryRunIndex !== -1) {
-    options.dryRun = true;
-    args.splice(dryRunIndex, 1);
-  }
-
-  if (args.length) {
-    console.warn(`[MigratePublishers] Ignoring unexpected arguments: ${args.join(", ")}`);
-  }
-
-  return options;
-};
-
-const options = parseOptions(process.argv.slice(2));
-const env = options.envPath ? path.basename(options.envPath, ".env") : null;
-
-const envFile = env ? `.env.${env}` : null;
-let envPath;
-if (envFile) {
-  envPath = path.resolve(__dirname, "..", "..", envFile);
-}
-
-if (envPath && fs.existsSync(envPath)) {
-  console.log(`Loading environment variables from ${envFile}`);
-  dotenv.config({ path: envPath });
-} else {
-  if (env) {
-    console.log(`Warning: .env file for environment '${env}' not found. Falling back to default .env`);
-  }
-  dotenv.config();
-}
-
-if (options.envPath) {
-  console.log(`[MigratePublishers] Loading environment from ${options.envPath}`);
-  dotenv.config({ path: options.envPath });
-} else {
-  dotenv.config();
-}
+const options: ScriptOptions = parseScriptOptions(process.argv.slice(2), "MigratePublishers");
+loadEnvironment(options, __dirname, "MigratePublishers");
 
 type MongoDiffuseur = {
   publisherId?: unknown;
@@ -231,8 +172,7 @@ const toPublisherRecord = (publisher: PrismaPublisher & { diffuseurs: PrismaPubl
   publishers: publisher.diffuseurs
     .map((diffuseur) => ({
       id: diffuseur.id,
-      publisherId: diffuseur.linkedPublisherId,
-      publisherName: diffuseur.linkedPublisherName,
+      publisherId: diffuseur.publisherId,
       moderator: diffuseur.moderator,
       missionType: diffuseur.missionType ?? null,
       createdAt: diffuseur.createdAt,
@@ -315,7 +255,6 @@ const normalizePublisher = (doc: MongoPublisherDocument): NormalizedPublisherDat
     publishers: publishers.map((diffuseur) => ({
       id: `${id}:${diffuseur.publisherId}`,
       publisherId: diffuseur.publisherId,
-      publisherName: diffuseur.publisherName,
       moderator: diffuseur.moderator,
       missionType: diffuseur.missionType,
       createdAt,
@@ -326,10 +265,9 @@ const normalizePublisher = (doc: MongoPublisherDocument): NormalizedPublisherDat
   const diffuseurCreate = publishers.length
     ? {
         create: publishers.map((diffuseur) => ({
-          linkedPublisherId: diffuseur.publisherId,
-          linkedPublisherName: diffuseur.publisherName,
+          publisherId: diffuseur.publisherId,
           moderator: diffuseur.moderator,
-          missionType: diffuseur.missionType,
+          missionType: diffuseur.missionType ? (diffuseur.missionType as Prisma.MissionType) : null,
           createdAt,
           updatedAt,
         })),
@@ -353,7 +291,7 @@ const normalizePublisher = (doc: MongoPublisherDocument): NormalizedPublisherDat
     feedPassword,
     apikey,
     description,
-    missionType,
+    missionType: missionType ? (missionType as Prisma.MissionType) : null,
     isAnnonceur,
     hasApiRights,
     hasWidgetRights,
@@ -363,7 +301,7 @@ const normalizePublisher = (doc: MongoPublisherDocument): NormalizedPublisherDat
     deletedAt,
     createdAt,
     updatedAt,
-    diffuseurs: diffuseurCreate,
+    publishers: diffuseurCreate,
   };
 
   const update: Prisma.PublisherUpdateInput = {
@@ -382,7 +320,7 @@ const normalizePublisher = (doc: MongoPublisherDocument): NormalizedPublisherDat
     feedPassword,
     apikey,
     description,
-    missionType,
+    missionType: missionType as MissionType,
     isAnnonceur,
     hasApiRights,
     hasWidgetRights,
@@ -395,8 +333,7 @@ const normalizePublisher = (doc: MongoPublisherDocument): NormalizedPublisherDat
     diffuseurs: {
       deleteMany: {},
       create: publishers.map((diffuseur) => ({
-        linkedPublisherId: diffuseur.publisherId,
-        linkedPublisherName: diffuseur.publisherName,
+        publisherId: diffuseur.publisherId,
         moderator: diffuseur.moderator,
         missionType: diffuseur.missionType,
         createdAt,

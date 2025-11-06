@@ -1,60 +1,5 @@
-import dotenv from "dotenv";
-import fs from "fs";
-import path from "path";
 import type { EmailStatus } from "../../src/db/core";
-
-type ScriptOptions = {
-  dryRun: boolean;
-  envPath?: string;
-};
-
-const parseOptions = (argv: string[]): ScriptOptions => {
-  const args = [...argv];
-  const options: ScriptOptions = { dryRun: false };
-
-  const envIndex = args.indexOf("--env");
-  if (envIndex !== -1) {
-    const envPath = args[envIndex + 1];
-    if (envPath) {
-      options.envPath = envPath;
-      args.splice(envIndex, 2);
-    } else {
-      console.warn("[MigrateEmails] Flag --env provided without a value, defaulting to .env");
-      args.splice(envIndex, 1);
-    }
-  }
-
-  const dryRunIndex = args.indexOf("--dry-run");
-  if (dryRunIndex !== -1) {
-    options.dryRun = true;
-    args.splice(dryRunIndex, 1);
-  }
-
-  if (args.length) {
-    console.warn(`[MigrateEmails] Ignoring unexpected arguments: ${args.join(", ")}`);
-  }
-
-  return options;
-};
-
-const options = parseOptions(process.argv.slice(2));
-const env = options.envPath ? path.basename(options.envPath, ".env") : null;
-
-const envFile = env ? `.env.${env}` : null;
-let envPath;
-if (envFile) {
-  envPath = path.resolve(__dirname, "..", "..", envFile);
-}
-
-if (envPath && fs.existsSync(envPath)) {
-  console.log(`Loading environment variables from ${envFile}`);
-  dotenv.config({ path: envPath });
-} else {
-  if (env) {
-    console.log(`Warning: .env file for environment '${env}' not found. Falling back to default .env`);
-  }
-  dotenv.config();
-}
+import { loadEnvironment, parseScriptOptions } from "./utils/options";
 
 import mongoose from "mongoose";
 
@@ -99,6 +44,9 @@ type NormalizedEmailData = {
 };
 
 const BATCH_SIZE = 100;
+
+const options = parseScriptOptions(process.argv.slice(2), "MigrateEmails");
+loadEnvironment(options, __dirname, "MigrateEmails");
 
 const normalizeDate = (value: Date | string | null | undefined): Date | null => {
   if (value == null) {
