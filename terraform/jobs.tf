@@ -252,6 +252,23 @@ resource "scaleway_job_definition" "metabase" {
   env = local.all_env_vars
 }
 
+resource "scaleway_job_definition" "export-stats-to-pg" {
+  name         = "${terraform.workspace}-export-stats-to-pg"
+  project_id   = var.project_id
+  cpu_limit    = 1000
+  memory_limit = 2048
+  image_uri    = local.image_uri
+  command      = "node --max-old-space-size=1800 dist/jobs/run-job.js export-stats-to-pg"
+  timeout      = "120m"
+
+  cron {
+    schedule = "0 3 * * *" # Every day at 3:00 AM
+    timezone = "Europe/Paris"
+  }
+
+  env = local.all_env_vars
+}
+
 resource "scaleway_job_definition" "export-organizations-to-pg" {
   name         = "${terraform.workspace}-export-organizations-to-pg"
   project_id   = var.project_id
