@@ -300,7 +300,6 @@ export type ModerationEvent = {
   updatedAt: Date;
 };
 
-
 export interface OrganizationExclusion {
   _id?: Schema.Types.ObjectId;
   excludedByPublisherId: string;
@@ -641,8 +640,5 @@ export enum MissionType {
 }
 
 export * from "./email";
-<<<<<<< HEAD
-export * from "./report";
-=======
 export * from "./publisher";
->>>>>>> valentin/refacto/migrate-publisher-model
+export * from "./report";

@@ -1,17 +1,23 @@
-import { Prisma, Report } from "../db/core";
+import { Prisma } from "../db/core";
 import { prismaCore } from "../db/postgres";
 
 export const reportRepository = {
-  async find(params: Prisma.ReportFindManyArgs = {}): Promise<Report[]> {
+  async find<T extends Prisma.ReportFindManyArgs>(
+    params: Prisma.SelectSubset<T, Prisma.ReportFindManyArgs>
+  ): Promise<Prisma.ReportGetPayload<T>[]> {
     return prismaCore.report.findMany(params);
   },
 
-  async findFirst(params: Prisma.ReportFindFirstArgs): Promise<Report | null> {
+  async findFirst<T extends Prisma.ReportFindFirstArgs>(
+    params: Prisma.SelectSubset<T, Prisma.ReportFindFirstArgs>
+  ): Promise<Prisma.ReportGetPayload<T> | null> {
     return prismaCore.report.findFirst(params);
   },
 
-  async findById(id: string): Promise<Report | null> {
-    return prismaCore.report.findUnique({ where: { id } });
+  async findById<T extends Prisma.ReportFindUniqueArgs>(
+    params: Prisma.SelectSubset<T, Prisma.ReportFindUniqueArgs>
+  ): Promise<Prisma.ReportGetPayload<T> | null> {
+    return prismaCore.report.findUnique(params);
   },
 
   async count(where: Prisma.ReportWhereInput = {}): Promise<number> {
@@ -20,15 +26,33 @@ export const reportRepository = {
 
   async groupByPublisher(where: Prisma.ReportWhereInput = {}): Promise<Array<{ publisherId: string; publisherName: string; count: number }>> {
     const rows = await prismaCore.report.groupBy({
-      by: ["publisherId", "publisherName"],
+      by: ["publisherId"],
       where,
       _count: { _all: true },
     });
 
+    if (!rows.length) {
+      return [];
+    }
+
+    const publishers = await prismaCore.publisher.findMany({
+      where: {
+        id: {
+          in: rows.map((row) => row.publisherId),
+        },
+      },
+      select: {
+        id: true,
+        name: true,
+      },
+    });
+
+    const nameById = new Map(publishers.map(({ id, name }) => [id, name]));
+
     return rows.map((row) => ({
       publisherId: row.publisherId,
-      publisherName: row.publisherName,
-      count: row._count._all,
+      publisherName: nameById.get(row.publisherId) ?? "",
+      count: row._count?._all ?? 0,
     }));
   },
 
@@ -45,13 +69,15 @@ export const reportRepository = {
     }));
   },
 
-  async create(data: Prisma.ReportCreateInput): Promise<Report> {
-    return await prismaCore.report.create({
-      data,
-    });
+  async create<T extends Prisma.ReportCreateArgs>(
+    params: Prisma.SelectSubset<T, Prisma.ReportCreateArgs>
+  ): Promise<Prisma.ReportGetPayload<T>> {
+    return prismaCore.report.create(params);
   },
 
-  async update(id: string, patch: Prisma.ReportUpdateInput): Promise<Report> {
-    return await prismaCore.report.update({ where: { id }, data: patch });
+  async update<T extends Prisma.ReportUpdateArgs>(
+    params: Prisma.SelectSubset<T, Prisma.ReportUpdateArgs>
+  ): Promise<Prisma.ReportGetPayload<T>> {
+    return prismaCore.report.update(params);
   },
 };

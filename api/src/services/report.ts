@@ -31,14 +31,24 @@ const buildWhere = (filters: ReportSearchFilters = {}): Prisma.ReportWhereInput 
   return where;
 };
 
+const defaultInclude = { publisher: true } as const satisfies Prisma.ReportInclude;
+
+type ReportWithPublisher = Prisma.ReportGetPayload<{ include: typeof defaultInclude }>;
+
+const toReportRecord = ({ publisher, ...report }: ReportWithPublisher): ReportRecord => ({
+  ...report,
+  publisherName: publisher.name,
+});
+
 export const reportService = {
   async findReports(params: ReportFindParams = {}): Promise<ReportRecord[]> {
     const where = buildWhere(params);
     const reports = await reportRepository.find({
       where,
       orderBy: { sentAt: Prisma.SortOrder.desc },
+      include: defaultInclude,
     });
-    return reports;
+    return reports.map(toReportRecord);
   },
 
   async searchReports(params: ReportSearchParams): Promise<ReportSearchResult> {
@@ -50,11 +60,11 @@ export const reportService = {
     const sortFieldToOrderBy = (sortBy: ReportSortField): Prisma.ReportOrderByWithRelationInput => {
       switch (sortBy) {
         case "publisherName":
-          return { publisherName: Prisma.SortOrder.desc };
+          return { publisher: { name: Prisma.SortOrder.desc } };
         case "sentAt":
           return { sentAt: Prisma.SortOrder.desc };
         default:
-          return { sentAt: Prisma.SortOrder.desc };
+          return { createdAt: Prisma.SortOrder.desc };
       }
     };
 
@@ -81,6 +91,7 @@ export const reportService = {
         skip,
         take,
         orderBy: sortFieldToOrderBy(sortBy),
+        include: defaultInclude,
       }),
       reportRepository.count(where),
       reportRepository.groupByPublisher(where),
@@ -88,24 +99,32 @@ export const reportService = {
     ]);
 
     return {
-      data: reports,
+      data: reports.map(toReportRecord),
       total,
       aggs: toAggregations(publisherBuckets, statusBuckets),
     };
   },
 
   async getReportById(id: string): Promise<ReportRecord | null> {
-    return await reportRepository.findById(id);
+    const report = await reportRepository.findById({
+      where: { id },
+      include: defaultInclude,
+    });
+
+    return report ? toReportRecord(report) : null;
   },
 
   async findReportByPublisherAndPeriod(publisherId: string, year: number, month: number): Promise<ReportRecord | null> {
-    return await reportRepository.findFirst({
+    const report = await reportRepository.findFirst({
       where: {
         publisherId,
         year,
         month,
       },
+      include: defaultInclude,
     });
+
+    return report ? toReportRecord(report) : null;
   },
 
   async createReport(input: ReportCreateInput): Promise<ReportRecord> {
@@ -115,8 +134,11 @@ export const reportService = {
       year: input.year,
       url: input.url,
       objectName: input.objectName ?? null,
-      publisherId: input.publisherId,
-      publisherName: input.publisherName,
+      publisher: {
+        connect: {
+          id: input.publisherId,
+        },
+      },
       dataTemplate: input.dataTemplate ?? null,
       sentAt: input.sentAt ?? null,
       sentTo: input.sentTo ?? [],
@@ -124,7 +146,12 @@ export const reportService = {
       data: input.data ?? {},
     };
 
-    return await reportRepository.create(data);
+    const report = await reportRepository.create({
+      data,
+      include: defaultInclude,
+    });
+
+    return toReportRecord(report);
   },
 
   async updateReport(id: string, patch: ReportUpdatePatch): Promise<ReportRecord> {
@@ -167,6 +194,12 @@ export const reportService = {
       data.data = patch.data ?? undefined;
     }
 
-    return await reportRepository.update(id, data);
+    const report = await reportRepository.update({
+      where: { id },
+      data,
+      include: defaultInclude,
+    });
+
+    return toReportRecord(report);
   },
 };

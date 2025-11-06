@@ -90,21 +90,25 @@ model Email {
 }
 
 model Report {
-  id            String              @id @default(uuid())
-  name          String
-  month         Int
-  year          Int
-  url           String
-  objectName    String?             @map("object_name")
-  publisherId   String              @map("publisher_id")
-  publisherName String              @map("publisher_name") // TODO: remove when Publisher PR is merged
-  dataTemplate  ReportDataTemplate? @map("data_template")
-  sentAt        DateTime?           @map("sent_at")
-  sentTo        String[]            @map("sent_to")
-  status        String
-  data          Json
+  id           String              @id @default(uuid())
+  name         String
+  month        Int
+  year         Int
+  url          String
+  objectName   String?             @map("object_name")
+  publisherId  String              @map("publisher_id")
+  dataTemplate ReportDataTemplate? @map("data_template")
+  sentAt       DateTime?           @map("sent_at")
+  sentTo       String[]            @map("sent_to")
+  status       String
+  data         Json
+  createdAt    DateTime            @default(now()) @map("created_at")
+  updatedAt    DateTime            @updatedAt @map("updated_at")
+
+  publisher Publisher @relation("PublisherReportRelation", fields: [publisherId], references: [id])
 
   @@unique([publisherId, month, year], map: "report_publisher_id_month_year_key")
+  @@index([publisherId], map: "report_publisher_id_idx")
   @@map("report")
 }
 
@@ -192,6 +196,7 @@ model Publisher {
 
   diffuseurs            PublisherDiffusion[] @relation("PublisherAnnonceurRelation")
   diffusionsAsDiffuseur PublisherDiffusion[] @relation("PublisherDiffuseurRelation")
+  reports               Report[]             @relation("PublisherReportRelation")
 
   @@index([name], map: "publisher_name_idx")
   @@index([apikey], map: "publisher_apikey_idx")

@@ -1,4 +1,3 @@
-import { Types } from "mongoose";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { Mission } from "../../../types";
 import { missionToLinkedinJob } from "../transformers";
@@ -35,7 +34,6 @@ vi.mock("../utils", () => ({
 const defaultCompany = "benevolt";
 
 const baseMission: Partial<Mission> = {
-  _id: new Types.ObjectId("000000000000000000000123"),
   title: "Développeur Web",
   description: "Ceci est une description de mission de plus de 100 caractères pour passer la validation initiale. Il faut que ce soit assez long pour que le test passe.",
   organizationName: "Mon asso",
@@ -56,6 +54,10 @@ const baseMission: Partial<Mission> = {
       location: {
         lat: 48.8566,
         lon: 2.3522,
+      },
+      geoPoint: {
+        type: "Point",
+        coordinates: [2.3522, 48.8566],
       },
       geolocStatus: "ENRICHED_BY_PUBLISHER",
     },

@@ -1,55 +1,16 @@
-import dotenv from "dotenv";
-
-type ScriptOptions = {
-  dryRun: boolean;
-  envPath?: string;
-};
-
-const parseOptions = (argv: string[]): ScriptOptions => {
-  const args = [...argv];
-  const options: ScriptOptions = { dryRun: false };
-
-  const envIndex = args.indexOf("--env");
-  if (envIndex !== -1) {
-    const envPath = args[envIndex + 1];
-    if (envPath) {
-      options.envPath = envPath;
-      args.splice(envIndex, 2);
-    } else {
-      console.warn("[BackfillReports] Flag --env provided without a value, defaulting to .env");
-      args.splice(envIndex, 1);
-    }
-  }
-
-  const dryRunIndex = args.indexOf("--dry-run");
-  if (dryRunIndex !== -1) {
-    options.dryRun = true;
-    args.splice(dryRunIndex, 1);
-  }
-
-  if (args.length) {
-    console.warn(`[BackfillReports] Ignoring unexpected arguments: ${args.join(", ")}`);
-  }
-
-  return options;
-};
-
-const options = parseOptions(process.argv.slice(2));
-
-if (options.envPath) {
-  console.log(`[BackfillReports] Loading environment from ${options.envPath}`);
-  dotenv.config({ path: options.envPath });
-} else {
-  dotenv.config();
-}
-
 import mongoose from "mongoose";
 
 import type { Prisma, Report } from "../../src/db/core";
-import { mongoConnected } from "../../src/db/mongo";
-import { pgConnected, prismaCore } from "../../src/db/postgres";
-import { reportRepository } from "../../src/repositories/report";
 import type { ReportDataTemplate } from "../../src/types/report";
+import { asString, asStringArray } from "./utils/cast";
+import { compareDates, compareJsons, compareNumbers, compareStringArrays, compareStrings } from "./utils/compare";
+import { normalizeDate, normalizeNumber, toJsonValue } from "./utils/normalize";
+import { loadEnvironment, parseScriptOptions } from "./utils/options";
+
+const SCRIPT_LABEL = "BackfillReports";
+
+const options = parseScriptOptions(process.argv.slice(2), SCRIPT_LABEL);
+loadEnvironment(options, __dirname, SCRIPT_LABEL);
 
 type MongoReportDocument = {
   _id?: { toString(): string } | string;
@@ -78,60 +39,23 @@ type NormalizedReportRecord = {
   url: string;
   objectName: string | null;
   publisherId: string;
-  publisherName: string;
   dataTemplate: ReportDataTemplate | null;
   sentAt: Date | null;
   sentTo: string[];
   status: string;
   data: Prisma.InputJsonValue;
+  createdAt: Date | null;
+  updatedAt: Date | null;
 };
 
 const BATCH_SIZE = 100;
 
-const normalizeDate = (value: Date | string | null | undefined): Date | null => {
-  if (value == null) {
-    return null;
-  }
-  if (value instanceof Date) {
-    return isNaN(value.getTime()) ? null : value;
-  }
-  const parsed = new Date(value);
-  return isNaN(parsed.getTime()) ? null : parsed;
-};
-
-const normalizeInt = (value: number | string | null | undefined, fallback: number): number => {
-  if (typeof value === "number" && Number.isFinite(value)) {
-    return Math.trunc(value);
-  }
-  if (typeof value === "string") {
-    const parsed = Number.parseInt(value, 10);
-    if (Number.isFinite(parsed)) {
-      return parsed;
-    }
-  }
-  return fallback;
-};
-
-const normalizeOptionalString = (value: unknown): string | null => {
-  if (typeof value === "string") {
-    const trimmed = value.trim();
-    return trimmed.length ? trimmed : null;
-  }
-  return null;
-};
-
-const normalizeUrl = (value: unknown): string => {
-  if (typeof value === "string") {
-    return value.trim();
-  }
-  return "";
-};
-
 const normalizeDataTemplate = (value: string | null | undefined): ReportDataTemplate | null => {
-  if (!value) {
+  const candidate = asString(value);
+  if (!candidate) {
     return null;
   }
-  const normalized = value.toUpperCase();
+  const normalized = candidate.toUpperCase();
   if (normalized === "SEND") {
     return "SENT";
   }
@@ -144,82 +68,32 @@ const normalizeDataTemplate = (value: string | null | undefined): ReportDataTemp
   return null;
 };
 
-const uniqueSortedStrings = (values: readonly unknown[]): string[] => {
-  const set = new Set<string>();
-  for (const value of values) {
-    if (typeof value === "string") {
-      const trimmed = value.trim();
-      if (trimmed) {
-        set.add(trimmed);
-      }
-    }
+const normalizeSentTo = (value: unknown): string[] => asStringArray(value);
+
+const normalizeNumberWithDefault = (value: number | string | null | undefined, fallback: number): number => {
+  const normalized = normalizeNumber(value);
+  if (normalized == null || Number.isNaN(normalized)) {
+    return fallback;
   }
-  return Array.from(set).sort((a, b) => a.localeCompare(b));
-};
-
-const normalizeSentTo = (value: unknown): string[] => {
-  if (!Array.isArray(value)) {
-    return [];
-  }
-  return uniqueSortedStrings(value);
-};
-
-const toJsonValue = (value: unknown): Prisma.InputJsonValue => {
-  try {
-    return JSON.parse(JSON.stringify(value ?? {}));
-  } catch (error) {
-    console.warn("[BackfillReports] Unable to serialize JSON value, defaulting to empty object:", error);
-    return {};
-  }
-};
-
-const stringifyJson = (value: unknown): string => {
-  const sorter = (input: unknown): unknown => {
-    if (Array.isArray(input)) {
-      return input.map((item) => sorter(item));
-    }
-    if (input && typeof input === "object") {
-      const entries = Object.entries(input as Record<string, unknown>).sort(([a], [b]) => a.localeCompare(b));
-      const result: Record<string, unknown> = {};
-      for (const [key, val] of entries) {
-        result[key] = sorter(val);
-      }
-      return result;
-    }
-    return input;
-  };
-
-  return JSON.stringify(sorter(value ?? null));
-};
-
-const equalDates = (a: Date | null, b: Date | null): boolean => {
-  const timeA = a ? a.getTime() : null;
-  const timeB = b ? b.getTime() : null;
-  return timeA === timeB;
+  return Math.trunc(normalized);
 };
 
 const hasDifferences = (existing: NormalizedReportRecord, target: NormalizedReportRecord): boolean => {
-  if (existing.name !== target.name) return true;
-  if (existing.month !== target.month) return true;
-  if (existing.year !== target.year) return true;
-  if (existing.url !== target.url) return true;
-  if ((existing.objectName ?? null) !== (target.objectName ?? null)) return true;
-  if (existing.publisherId !== target.publisherId) return true;
-  if (existing.publisherName !== target.publisherName) return true;
-  if ((existing.dataTemplate ?? null) !== (target.dataTemplate ?? null)) return true;
-  if (!equalDates(existing.sentAt, target.sentAt)) return true;
+  if (!compareStrings(existing.name, target.name)) return true;
+  if (!compareNumbers(existing.month, target.month)) return true;
+  if (!compareNumbers(existing.year, target.year)) return true;
+  if (!compareStrings(existing.url, target.url)) return true;
+  if (!compareStrings(existing.objectName ?? null, target.objectName ?? null)) return true;
+  if (!compareStrings(existing.publisherId, target.publisherId)) return true;
+  if (!compareStrings(existing.dataTemplate ?? null, target.dataTemplate ?? null)) return true;
+  if (!compareDates(existing.sentAt, target.sentAt)) return true;
 
-  const existingSentTo = uniqueSortedStrings(existing.sentTo);
-  const targetSentTo = uniqueSortedStrings(target.sentTo);
-  if (existingSentTo.length !== targetSentTo.length) return true;
-  for (let i = 0; i < existingSentTo.length; i++) {
-    if (existingSentTo[i] !== targetSentTo[i]) {
-      return true;
-    }
-  }
+  const existingSentTo = asStringArray(existing.sentTo);
+  const targetSentTo = asStringArray(target.sentTo);
+  if (!compareStringArrays(existingSentTo, targetSentTo)) return true;
 
-  if (existing.status !== target.status) return true;
-  if (stringifyJson(existing.data) !== stringifyJson(target.data)) return true;
+  if (!compareStrings(existing.status, target.status)) return true;
+  if (!compareJsons(existing.data, target.data)) return true;
 
   return false;
 };
@@ -237,20 +111,20 @@ const normalizeMongoDoc = (doc: MongoReportDocument): NormalizedReportData => {
   }
 
   const requireString = (value: unknown, fieldName: string, fallback = ""): string => {
-    if (typeof value === "string" && value.trim()) {
-      return value.trim();
+    const str = asString(value);
+    if (str) {
+      return str;
     }
     if (!fallback) {
-      console.warn(`[BackfillReports] Report ${id} missing "${fieldName}", defaulting to empty string`);
+      console.warn(`[${SCRIPT_LABEL}] Report ${id} missing "${fieldName}", defaulting to empty string`);
     }
     return fallback;
   };
 
   const name = requireString(doc.name, "name");
-  const month = normalizeInt(doc.month, new Date().getMonth());
-  const year = normalizeInt(doc.year, new Date().getFullYear());
+  const month = normalizeNumberWithDefault(doc.month, new Date().getMonth());
+  const year = normalizeNumberWithDefault(doc.year, new Date().getFullYear());
   const publisherId = requireString(typeof doc.publisherId === "string" ? doc.publisherId : doc.publisherId?.toString(), "publisherId");
-  const publisherName = requireString(doc.publisherName, "publisherName");
   const status = requireString(doc.status, "status", "UNKNOWN");
 
   const record: NormalizedReportRecord = {
@@ -258,15 +132,16 @@ const normalizeMongoDoc = (doc: MongoReportDocument): NormalizedReportData => {
     name,
     month,
     year,
-    url: normalizeUrl(doc.url),
-    objectName: normalizeOptionalString(doc.objectName),
+    url: asString(doc.url) ?? "",
+    objectName: asString(doc.objectName),
     publisherId,
-    publisherName,
     dataTemplate: normalizeDataTemplate(doc.dataTemplate),
     sentAt: normalizeDate(doc.sentAt),
     sentTo: normalizeSentTo(doc.sentTo),
     status,
-    data: toJsonValue(doc.data),
+    data: toJsonValue(doc.data) ?? {},
+    createdAt: normalizeDate(doc.sentAt),
+    updatedAt: normalizeDate(doc.sentAt),
   };
 
   const create: Prisma.ReportCreateInput = {
@@ -276,8 +151,11 @@ const normalizeMongoDoc = (doc: MongoReportDocument): NormalizedReportData => {
     year: record.year,
     url: record.url,
     objectName: record.objectName,
-    publisherId: record.publisherId,
-    publisherName: record.publisherName,
+    publisher: {
+      connect: {
+        id: record.publisherId,
+      },
+    },
     dataTemplate: record.dataTemplate,
     sentAt: record.sentAt,
     sentTo: record.sentTo,
@@ -291,8 +169,11 @@ const normalizeMongoDoc = (doc: MongoReportDocument): NormalizedReportData => {
     year: record.year,
     url: record.url,
     objectName: record.objectName,
-    publisherId: record.publisherId,
-    publisherName: record.publisherName,
+    publisher: {
+      connect: {
+        id: record.publisherId,
+      },
+    },
     dataTemplate: record.dataTemplate,
     sentAt: record.sentAt,
     sentTo: { set: record.sentTo },
@@ -311,12 +192,13 @@ const normalizePrismaReport = (report: Report): NormalizedReportRecord => ({
   url: report.url,
   objectName: report.objectName ?? null,
   publisherId: report.publisherId,
-  publisherName: report.publisherName,
   dataTemplate: (report.dataTemplate ?? null) as ReportDataTemplate | null,
   sentAt: report.sentAt ?? null,
-  sentTo: [...report.sentTo],
+  sentTo: asStringArray(report.sentTo),
   status: report.status,
   data: report.data as Prisma.InputJsonValue,
+  createdAt: report.sentAt,
+  updatedAt: report.sentAt,
 });
 
 const chunkArray = <T>(items: T[], size: number): T[][] => {
@@ -330,7 +212,6 @@ const chunkArray = <T>(items: T[], size: number): T[][] => {
 const formatRecordForLog = (record: NormalizedReportRecord) => ({
   id: record.id,
   publisherId: record.publisherId,
-  publisherName: record.publisherName,
   month: record.month,
   year: record.year,
   status: record.status,
@@ -341,11 +222,23 @@ const formatRecordForLog = (record: NormalizedReportRecord) => ({
 });
 
 const cleanup = async () => {
-  await Promise.allSettled([prismaCore.$disconnect(), mongoose.connection.close()]);
+  try {
+    const { prismaCore } = await import("../../src/db/postgres");
+    await Promise.allSettled([prismaCore.$disconnect(), mongoose.connection.close()]);
+  } catch {
+    await Promise.allSettled([mongoose.connection.close()]);
+  }
 };
 
 const main = async () => {
   console.log(`[BackfillReports] Starting${options.dryRun ? " (dry-run)" : ""}`);
+  const [{ mongoConnected }, postgresModule, { reportRepository }] = await Promise.all([
+    import("../../src/db/mongo"),
+    import("../../src/db/postgres"),
+    import("../../src/repositories/report"),
+  ]);
+  const { pgConnected } = postgresModule;
+
   await Promise.all([mongoConnected, pgConnected]);
 
   const collection = mongoose.connection.collection("reports");
@@ -378,7 +271,7 @@ const main = async () => {
             sampleCreates.push(entry.record);
           }
         } else {
-          await reportRepository.create(entry.create);
+          await reportRepository.create({ data: entry.create });
         }
         continue;
       }
@@ -394,7 +287,7 @@ const main = async () => {
           sampleUpdates.push({ before: existing, after: entry.record });
         }
       } else {
-        await reportRepository.update(entry.record.id, entry.update);
+        await reportRepository.update({ where: { id: entry.record.id }, data: entry.update });
       }
     }
   }
