@@ -32,7 +32,7 @@ export interface ReportSearchFilters extends ReportFindParams {
 
 export type ReportSortField = "createdAt" | "publisherName" | "sentAt";
 
-export interface ReportSearchParams extends ReportSearchFilters {
+export interface ReportFindWithAggregationsParams extends ReportSearchFilters {
   sortBy: ReportSortField;
   from: number;
   size: number;
