@@ -1,9 +1,10 @@
 import { captureException } from "../../error";
 import ImportModel from "../../models/import";
-import PublisherModel from "../../models/publisher";
 
 import MissionModel from "../../models/mission";
-import { Import, Mission, Publisher } from "../../types";
+import { publisherService } from "../../services/publisher";
+import type { Import, Mission } from "../../types";
+import type { PublisherRecord } from "../../types/publisher";
 import { BaseHandler } from "../base/handler";
 import { JobResult } from "../types";
 import { bulkDB, cleanDB } from "./utils/db";
@@ -32,11 +33,15 @@ export class ImportMissionsHandler implements BaseHandler<ImportMissionsJobPaylo
     console.log(`[Import XML] Starting at ${start.toISOString()}`);
 
     const imports = [] as Import[];
-    let publishers = [] as Publisher[];
+    let publishers: PublisherRecord[] = [];
     if (payload.publisherId) {
-      publishers = [await PublisherModel.findById(payload.publisherId)] as Publisher[];
+      const publisher = await publisherService.findOnePublisherById(payload.publisherId);
+      if (!publisher) {
+        throw new Error(`Publisher ${payload.publisherId} not found`);
+      }
+      publishers = [publisher];
     } else {
-      publishers = await PublisherModel.find({ isAnnonceur: true });
+      publishers = await publisherService.findPublishers({ role: "annonceur" });
     }
 
     let processed = 0;
@@ -78,14 +83,14 @@ export class ImportMissionsHandler implements BaseHandler<ImportMissionsJobPaylo
   }
 }
 
-async function importMissionssForPublisher(publisher: Publisher, start: Date): Promise<Import | undefined> {
+async function importMissionssForPublisher(publisher: PublisherRecord, start: Date): Promise<Import | undefined> {
   if (!publisher) {
     return;
   }
 
   const obj = {
     name: `${publisher.name}`,
-    publisherId: publisher._id,
+    publisherId: publisher.id,
     createdCount: 0,
     updatedCount: 0,
     deletedCount: 0,
@@ -113,9 +118,9 @@ async function importMissionssForPublisher(publisher: Publisher, start: Date): P
 
     // Clean missions if no XML feed is sucessful for 7 days
     if (typeof missionsXML === "string" || !missionsXML.length) {
-      if (await shouldCleanMissionsForPublisher(publisher._id.toString())) {
+      if (await shouldCleanMissionsForPublisher(publisher.id)) {
         console.log(`[${publisher.name}] Empty xml, cleaning missions...`);
-        const mongoRes = await MissionModel.updateMany({ publisherId: publisher._id, deletedAt: null, updatedAt: { $lt: start } }, { deleted: true, deletedAt: new Date() });
+        const mongoRes = await MissionModel.updateMany({ publisherId: publisher.id, deletedAt: null, updatedAt: { $lt: start } }, { deleted: true, deletedAt: new Date() });
         console.log(`[${publisher.name}] Deleted ${mongoRes.modifiedCount} missions`);
         obj.deletedCount = mongoRes.modifiedCount;
       } else {
@@ -131,7 +136,7 @@ async function importMissionssForPublisher(publisher: Publisher, start: Date): P
 
     // GET COUNT MISSIONS IN DB
     const missionsDB = await MissionModel.countDocuments({
-      publisherId: publisher._id,
+      publisherId: publisher.id,
       deletedAt: null,
     });
     console.log(`[${publisher.name}] Found ${missionsDB} missions in DB`);
@@ -199,11 +204,11 @@ async function importMissionssForPublisher(publisher: Publisher, start: Date): P
 
     // STATS
     obj.missionCount = await MissionModel.countDocuments({
-      publisherId: publisher._id,
+      publisherId: publisher.id,
       deletedAt: null,
     });
     obj.refusedCount = await MissionModel.countDocuments({
-      publisherId: publisher._id,
+      publisherId: publisher.id,
       deletedAt: null,
       statusCode: "REFUSED",
     });

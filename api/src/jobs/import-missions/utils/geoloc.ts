@@ -4,7 +4,8 @@ import { DEPARTMENTS } from "../../../constants/departments";
 
 import { captureException } from "../../../error";
 import { getAddressCsv } from "../../../services/data-gouv/api";
-import { GeolocStatus, Mission, Publisher } from "../../../types";
+import { GeolocStatus, Mission } from "../../../types";
+import type { PublisherRecord } from "../../../types/publisher";
 
 export interface GeolocResult {
   clientId: string;
@@ -28,7 +29,7 @@ export interface GeolocResult {
   geolocStatus: GeolocStatus;
 }
 
-export const enrichWithGeoloc = async (publisher: Publisher, missions: Mission[]): Promise<GeolocResult[]> => {
+export const enrichWithGeoloc = async (publisher: PublisherRecord, missions: Mission[]): Promise<GeolocResult[]> => {
   if (!missions.length) {
     return [];
   }

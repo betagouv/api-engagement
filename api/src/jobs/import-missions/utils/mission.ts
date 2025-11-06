@@ -6,7 +6,8 @@ import { PUBLISHER_IDS } from "../../../config";
 import { AUTRE_IMAGE, DOMAIN_IMAGES } from "../../../constants/domains";
 import { captureException } from "../../../error";
 import MissionModel from "../../../models/mission";
-import { Mission, Publisher } from "../../../types";
+import { Mission } from "../../../types";
+import type { PublisherRecord } from "../../../types/publisher";
 import { MissionXML } from "../types";
 import { getAddress, getAddresses } from "./address";
 import { getModeration } from "./moderation";
@@ -82,7 +83,31 @@ const parseDate = (value: string | Date | undefined) => {
   if (value instanceof Date) {
     return value;
   }
-  return isNaN(new Date(value).getTime()) ? null : new Date(value);
+  const parsed = new Date(value);
+  if (isNaN(parsed.getTime())) {
+    return null;
+  }
+
+  if (typeof value === "string") {
+    const trimmed = value.trim();
+    const hasTimezoneDesignator = /[zZ]$/.test(trimmed) || /[+\-]\d{2}:?\d{2}$/.test(trimmed);
+
+    if (!hasTimezoneDesignator) {
+      return new Date(
+        Date.UTC(
+          parsed.getFullYear(),
+          parsed.getMonth(),
+          parsed.getDate(),
+          parsed.getHours(),
+          parsed.getMinutes(),
+          parsed.getSeconds(),
+          parsed.getMilliseconds()
+        )
+      );
+    }
+  }
+
+  return parsed;
 };
 
 const parseNumber = (value: number | string | undefined) => {
@@ -114,7 +139,7 @@ const parseArray = (value: string | { value: string[] | string } | undefined, in
   return [value];
 };
 
-const parseMission = (publisher: Publisher, missionXML: MissionXML, missionDB: Mission | null) => {
+const parseMission = (publisher: PublisherRecord, missionXML: MissionXML, missionDB: Mission | null) => {
   const organizationLogo = parseString(missionXML.organizationLogo);
 
   const mission = {
@@ -171,7 +196,7 @@ const parseMission = (publisher: Publisher, missionXML: MissionXML, missionDB: M
   mission.statusCode = "ACCEPTED";
   mission.duration = mission.endAt ? getMonthDifference(new Date(mission.startAt), new Date(mission.endAt)) : null;
 
-  if (publisher._id.toString() !== PUBLISHER_IDS.SERVICE_CIVIQUE) {
+  if (publisher.id !== PUBLISHER_IDS.SERVICE_CIVIQUE) {
     getModeration(mission);
   }
 
@@ -202,7 +227,7 @@ const parseMission = (publisher: Publisher, missionXML: MissionXML, missionDB: M
   }
 
   // Dirty dirty hack for j'agis pour la nature
-  if (publisher._id.toString() === PUBLISHER_IDS.JAGIS_POUR_LA_NATURE) {
+  if (publisher.id === PUBLISHER_IDS.JAGIS_POUR_LA_NATURE) {
     const index = mission.description.indexOf("MODALITÉS D'INSCRIPTION");
     if (index !== -1) {
       mission.description = mission.description.substring(0, index); // remove stuff
@@ -213,12 +238,12 @@ const parseMission = (publisher: Publisher, missionXML: MissionXML, missionDB: M
   }
 
   // Dirty dirty hack for Prevention routiere
-  if (publisher._id.toString() === PUBLISHER_IDS.PREVENTION_ROUTIERE) {
+  if (publisher.id === PUBLISHER_IDS.PREVENTION_ROUTIERE) {
     mission.domain = "prevention-protection";
   }
 
   // Dirty dirty hack for service civique
-  if (publisher._id.toString() === PUBLISHER_IDS.SERVICE_CIVIQUE) {
+  if (publisher.id === PUBLISHER_IDS.SERVICE_CIVIQUE) {
     if (missionXML.parentOrganizationName) {
       mission.organizationReseaux = Array.isArray(missionXML.parentOrganizationName) ? missionXML.parentOrganizationName : [missionXML.parentOrganizationName];
     } else {
@@ -258,10 +283,10 @@ const parseMission = (publisher: Publisher, missionXML: MissionXML, missionDB: M
   return mission;
 };
 
-export const buildData = async (startTime: Date, publisher: Publisher, missionXML: MissionXML) => {
+export const buildData = async (startTime: Date, publisher: PublisherRecord, missionXML: MissionXML) => {
   try {
     const missionDB = await MissionModel.findOne({
-      publisherId: publisher._id,
+      publisherId: publisher.id,
       clientId: missionXML.clientId,
     });
 
@@ -270,10 +295,10 @@ export const buildData = async (startTime: Date, publisher: Publisher, missionXM
     mission.deleted = false;
     mission.deletedAt = null;
     mission.lastSyncAt = startTime;
-    mission.publisherId = publisher._id.toString();
+    mission.publisherId = publisher.id;
     mission.publisherName = publisher.name;
-    mission.publisherLogo = publisher.logo;
-    mission.publisherUrl = publisher.url;
+    mission.publisherLogo = publisher.logo || "";
+    mission.publisherUrl = publisher.url || "";
     mission.updatedAt = startTime;
 
     return mission;

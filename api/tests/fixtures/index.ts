@@ -1,23 +1,20 @@
-import mongoose from "mongoose";
+import { randomUUID } from "node:crypto";
 import ImportModel from "../../src/models/import";
 import MissionModel from "../../src/models/mission";
-import PublisherModel from "../../src/models/publisher";
-import { Import, Mission, MissionType, Publisher } from "../../src/types";
+import { publisherService } from "../../src/services/publisher";
+import { Import, Mission, MissionType } from "../../src/types";
+import type { PublisherCreateInput, PublisherRecord } from "../../src/types/publisher";
 
 /**
  * Create a test publisher with random API key
  */
-export const createTestPublisher = async (data: Partial<Publisher> = {}): Promise<Publisher> => {
-  const apiKey = "test-api-key-" + Date.now().toString();
-  const organizationClientId = "org-" + Date.now().toString();
+export const createTestPublisher = async (data: Partial<PublisherCreateInput> = {}): Promise<PublisherRecord> => {
+  const uniqueSuffix = randomUUID();
 
   const defaultData = {
-    name: "Test Publisher",
-    email: `test-${Date.now()}@example.com`,
-    password: "password123",
-    apikey: apiKey,
-    organizationClientId,
-    organizationName: "Test Organization",
+    name: `Test Publisher ${uniqueSuffix.slice(0, 8)}`,
+    email: `test-${uniqueSuffix}@example.com`,
+    apikey: `test-api-key-${uniqueSuffix}`,
     missionType: MissionType.BENEVOLAT,
     url: "https://example.com",
     logo: "https://example.com/logo.png",
@@ -25,20 +22,20 @@ export const createTestPublisher = async (data: Partial<Publisher> = {}): Promis
     hasWidgetRights: true,
     hasCampaignRights: true,
     hasApiRights: true,
-    publishers: [
-      {
-        publisherId: new mongoose.Types.ObjectId().toString(),
-        publisherName: "Test Publisher Name",
-      },
-    ],
-    excludedOrganizations: [],
+    publishers: [],
+    sendReport: false,
+    sendReportTo: [],
   };
 
-  const publisherData = { ...defaultData, ...data };
-  const publisher = new PublisherModel(publisherData);
-
-  await publisher.save();
-  return publisher.toObject() as Publisher;
+  const publisherData = {
+    ...defaultData,
+    ...data,
+    apikey: data.apikey ?? defaultData.apikey,
+    email: data.email ?? defaultData.email,
+    name: data.name ?? defaultData.name,
+    publishers: data.publishers ?? defaultData.publishers,
+  };
+  return publisherService.createPublisher(publisherData);
 };
 
 /**

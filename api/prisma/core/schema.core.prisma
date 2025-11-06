@@ -18,6 +18,11 @@ enum EmailStatus {
   FAILED
 }
 
+enum MissionType {
+  benevolat
+  volontariat_service_civique
+}
+
 enum StatEventType {
   click
   print
@@ -130,4 +135,64 @@ model StatEvent {
   @@index([from_publisher_id, type, created_at], map: "stats_event_from_publisher_type_created_at_idx")
   @@index([to_publisher_id, type, created_at], map: "stats_event_to_publisher_type_created_at_idx")
   @@index([updated_at(sort: Asc)], map: "stats_event_updated_at_asc_idx")
+}
+
+model Publisher {
+  id                 String       @id @default(uuid())
+  name               String
+  category           String?      @map("category")
+  url                String?      @map("url")
+  moderator          Boolean      @default(false) @map("moderator")
+  moderatorLink      String?      @map("moderator_link")
+  email              String?      @map("email")
+  documentation      String?      @map("documentation")
+  logo               String?      @map("logo")
+  defaultMissionLogo String?      @map("default_mission_logo")
+  lead               String?      @map("lead")
+  feed               String?      @map("feed")
+  feedUsername       String?      @map("feed_username")
+  feedPassword       String?      @map("feed_password")
+  apikey             String?      @map("apikey")
+  description        String       @default("") @map("description")
+  missionType        MissionType? @map("mission_type")
+  isAnnonceur        Boolean      @default(false) @map("is_annonceur")
+  hasApiRights       Boolean      @default(false) @map("has_api_rights")
+  hasWidgetRights    Boolean      @default(false) @map("has_widget_rights")
+  hasCampaignRights  Boolean      @default(false) @map("has_campaign_rights")
+  sendReport         Boolean      @default(false) @map("send_report")
+  sendReportTo       String[]     @default([]) @map("send_report_to")
+  deletedAt          DateTime?    @map("deleted_at")
+  createdAt          DateTime     @default(now()) @map("created_at")
+  updatedAt          DateTime     @updatedAt @map("updated_at")
+
+  diffuseurs PublisherDiffusion[] @relation("PublisherAnnonceurRelation")
+  diffusionsAsDiffuseur PublisherDiffusion[] @relation("PublisherDiffuseurRelation")
+
+  @@index([name], map: "publisher_name_idx")
+  @@index([apikey], map: "publisher_apikey_idx")
+  @@index([missionType], map: "publisher_mission_type_idx")
+  @@index([deletedAt], map: "publisher_deleted_at_idx")
+  @@index([isAnnonceur], map: "publisher_is_annonceur_idx")
+  @@index([hasApiRights], map: "publisher_has_api_rights_idx")
+  @@index([hasWidgetRights], map: "publisher_has_widget_rights_idx")
+  @@index([hasCampaignRights], map: "publisher_has_campaign_rights_idx")
+  @@index([sendReport], map: "publisher_send_report_idx")
+  @@map("publisher")
+}
+
+model PublisherDiffusion {
+  id                   String       @id @default(uuid())
+  diffuseurPublisherId String       @map("diffuseur_publisher_id")
+  annonceurPublisherId String       @map("annonceur_publisher_id")
+  moderator            Boolean      @default(false) @map("moderator")
+  missionType          MissionType? @map("mission_type")
+  createdAt            DateTime     @default(now()) @map("created_at")
+  updatedAt            DateTime     @updatedAt @map("updated_at")
+
+  diffuseur Publisher @relation("PublisherDiffuseurRelation", fields: [diffuseurPublisherId], references: [id], onDelete: Cascade)
+  annonceur Publisher @relation("PublisherAnnonceurRelation", fields: [annonceurPublisherId], references: [id], onDelete: Cascade)
+
+  @@index([diffuseurPublisherId], map: "publisher_diffusion_diffuseur_id_idx")
+  @@index([annonceurPublisherId], map: "publisher_diffusion_annonceur_id_idx")
+  @@map("publisher_diffusion")
 }

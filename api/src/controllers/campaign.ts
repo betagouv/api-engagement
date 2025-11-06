@@ -5,7 +5,7 @@ import zod from "zod";
 import { PUBLISHER_IDS } from "../config";
 import { FORBIDDEN, INVALID_BODY, INVALID_PARAMS, INVALID_QUERY, NOT_FOUND, RESSOURCE_ALREADY_EXIST } from "../error";
 import CampaignModel from "../models/campaign";
-import PublisherModel from "../models/publisher";
+import { publisherService } from "../services/publisher";
 import { reassignStats } from "../services/reassign-stats";
 import { UserRequest } from "../types/passport";
 import { slugify } from "../utils";
@@ -107,18 +107,18 @@ router.post("/", passport.authenticate("admin", { session: false }), async (req:
       return res.status(400).send({ ok: false, code: INVALID_BODY, error: body.error });
     }
 
-    const fromPublisher = await PublisherModel.findById(body.data.fromPublisherId);
+    const fromPublisher = await publisherService.findOnePublisherById(body.data.fromPublisherId);
     if (!fromPublisher) {
       return res.status(404).send({ ok: false, code: NOT_FOUND, error: "Publisher not found" });
     }
 
-    const toPublisher = await PublisherModel.findById(body.data.toPublisherId);
+    const toPublisher = await publisherService.findOnePublisherById(body.data.toPublisherId);
     if (!toPublisher) {
       return res.status(404).send({ ok: false, code: NOT_FOUND, error: "Publisher not found" });
     }
 
     if (!body.data.trackers || !body.data.trackers.length) {
-      if (toPublisher._id.toString() === PUBLISHER_IDS.SERVICE_CIVIQUE) {
+      if (toPublisher.id === PUBLISHER_IDS.SERVICE_CIVIQUE) {
         body.data.trackers = [
           { key: "mtm_source", value: "api_engagement" },
           { key: "mtm_medium", value: "campaign" },
@@ -149,9 +149,9 @@ router.post("/", passport.authenticate("admin", { session: false }), async (req:
     const newCampaign = {
       name: body.data.name,
       type: body.data.type,
-      fromPublisherId: fromPublisher._id.toString(),
+      fromPublisherId: fromPublisher.id,
       fromPublisherName: fromPublisher.name,
-      toPublisherId: toPublisher._id.toString(),
+      toPublisherId: toPublisher.id,
       toPublisherName: toPublisher.name,
       trackers: body.data.trackers,
       url: body.data.url,
@@ -284,8 +284,8 @@ router.put("/:id", passport.authenticate("admin", { session: false }), async (re
     }
 
     if (body.data.toPublisherId && body.data.toPublisherId !== campaign.toPublisherId) {
-      const prevToPublisher = await PublisherModel.findById(campaign.toPublisherId);
-      const newToPublisher = await PublisherModel.findById(body.data.toPublisherId);
+      const prevToPublisher = await publisherService.findOnePublisherById(campaign.toPublisherId);
+      const newToPublisher = await publisherService.findOnePublisherById(body.data.toPublisherId);
       if (!prevToPublisher) {
         return res.status(404).send({ ok: false, code: NOT_FOUND, error: "Previous publisher not found" });
       }
@@ -294,13 +294,13 @@ router.put("/:id", passport.authenticate("admin", { session: false }), async (re
       }
 
       const update = {
-        toPublisherId: newToPublisher._id.toString(),
+        toPublisherId: newToPublisher.id,
         toPublisherName: newToPublisher.name,
       };
 
       await reassignStats({ sourceId: campaign._id.toString() }, update);
 
-      campaign.toPublisherId = newToPublisher._id.toString();
+      campaign.toPublisherId = newToPublisher.id;
       campaign.toPublisherName = newToPublisher.name;
     }
 
@@ -350,8 +350,8 @@ router.put("/:id/reassign", passport.authenticate("admin", { session: false }), 
       });
     }
 
-    const prevFromPublisher = await PublisherModel.findById(campaign.fromPublisherId);
-    const newFromPublisher = await PublisherModel.findById(body.data.fromPublisherId);
+    const prevFromPublisher = await publisherService.findOnePublisherById(campaign.fromPublisherId);
+    const newFromPublisher = await publisherService.findOnePublisherById(body.data.fromPublisherId);
     if (!prevFromPublisher) {
       return res.status(404).send({ ok: false, code: NOT_FOUND, error: "Previous publisher not found" });
     }
@@ -359,7 +359,7 @@ router.put("/:id/reassign", passport.authenticate("admin", { session: false }), 
       return res.status(404).send({ ok: false, code: NOT_FOUND, error: "New publisher not found" });
     }
 
-    campaign.fromPublisherId = newFromPublisher._id.toString();
+    campaign.fromPublisherId = newFromPublisher.id;
     campaign.fromPublisherName = newFromPublisher.name;
     campaign.reassignedAt = new Date();
     campaign.reassignedByUsername = req.user.firstname + " " + req.user.lastname;
@@ -367,15 +367,15 @@ router.put("/:id/reassign", passport.authenticate("admin", { session: false }), 
     await campaign.save();
 
     const update = {
-      fromPublisherId: newFromPublisher._id.toString(),
+      fromPublisherId: newFromPublisher.id,
       fromPublisherName: newFromPublisher.name,
     };
     await reassignStats(
       {
         sourceId: campaign._id.toString(),
-        fromPublisherId: prevFromPublisher._id.toString(),
+        fromPublisherId: prevFromPublisher.id,
       },
-      update,
+      update
     );
 
     return res.status(200).send({ ok: true, data: campaign });

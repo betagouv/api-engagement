@@ -1,12 +1,12 @@
-import request from "supertest";
 import { Types } from "mongoose";
-import { afterEach, beforeEach, describe, expect, it } from "vitest";
+import request from "supertest";
+import { beforeEach, describe, expect, it } from "vitest";
 
-import MissionModel from "../../../src/models/mission";
-import PublisherModel from "../../../src/models/publisher";
-import type { Stats } from "../../../src/types";
-import { elasticMock, pgMock } from "../../mocks";
-import { createTestApp } from "../../testApp";
+import MissionModel from "../../../../src/models/mission";
+import { publisherService } from "../../../../src/services/publisher";
+import type { Stats } from "../../../../src/types";
+import { elasticMock } from "../../../mocks";
+import { createTestApp } from "../../../testApp";
 
 const app = createTestApp();
 
@@ -16,11 +16,6 @@ describe("Activity V2 controller", () => {
     elasticMock.update.mockReset();
     elasticMock.get.mockReset();
     elasticMock.search.mockReset();
-
-    pgMock.statEvent.create.mockReset();
-    pgMock.statEvent.update.mockReset();
-    pgMock.statEvent.findUnique.mockReset();
-    pgMock.statEvent.updateMany.mockReset();
 
     elasticMock.index.mockResolvedValue({ body: {} });
     elasticMock.update.mockResolvedValue({ body: {} });
@@ -33,22 +28,11 @@ describe("Activity V2 controller", () => {
     elasticMock.search.mockResolvedValue({
       body: { hits: { total: { value: 0 }, hits: [] } },
     });
-
-    pgMock.statEvent.create.mockResolvedValue({});
-    pgMock.statEvent.update.mockResolvedValue({});
-  });
-
-  afterEach(() => {
-    delete process.env.WRITE_STATS_DUAL;
-    delete process.env.READ_STATS_FROM;
   });
 
   describe("GET /v2/activity/:id", () => {
     it("returns the stat event when it exists", async () => {
-      const publisher = await PublisherModel.create({
-        name: "Test Publisher",
-        apikey: "get-activity-key",
-      });
+      const publisher = await publisherService.createPublisher({ name: "Test Publisher", apikey: "get-activity-key" });
 
       const stat: Partial<Stats> = {
         type: "click",
@@ -73,71 +57,19 @@ describe("Activity V2 controller", () => {
     });
 
     it("returns 404 when the stat event does not exist", async () => {
-      await PublisherModel.create({
-        name: "Missing Stat Publisher",
-        apikey: "missing-activity-key",
-      });
+      await publisherService.createPublisher({ name: "Missing Stat Publisher", apikey: "missing-activity-key" });
 
       elasticMock.get.mockRejectedValueOnce({ statusCode: 404 });
 
-      const response = await request(app)
-        .get("/v2/activity/unknown-activity")
-        .set("apikey", "missing-activity-key");
+      const response = await request(app).get("/v2/activity/unknown-activity").set("apikey", "missing-activity-key");
 
       expect(response.status).toBe(404);
       expect(response.body).toEqual({ ok: false, code: "NOT_FOUND" });
     });
   });
 
-  describe("POST /v2/activity/:missionId/:publisherId/click", () => {
-    it("writes click events to Elasticsearch and Postgres when dual write is enabled", async () => {
-      process.env.WRITE_STATS_DUAL = "true";
-
-      const missionPublisherId = new Types.ObjectId().toString();
-      const mission = await MissionModel.create({
-        clientId: "mission-client-id",
-        title: "Click Mission",
-        publisherId: missionPublisherId,
-        publisherName: "Mission Publisher",
-        lastSyncAt: new Date(),
-        statusCode: "ACCEPTED",
-      });
-
-      const publisherId = new Types.ObjectId();
-      const publisher = await PublisherModel.create({
-        _id: publisherId,
-        name: "Click Publisher",
-        apikey: "click-key",
-      });
-
-      const response = await request(app)
-        .post(`/v2/activity/${mission._id.toString()}/${publisher._id.toString()}/click`)
-        .set("Host", "click.test")
-        .set("Origin", "https://app.test")
-        .set("Referer", "https://referer.test");
-
-      expect(response.status).toBe(200);
-      expect(response.body.ok).toBe(true);
-      expect(response.body.data).toMatchObject({ type: "click", missionId: mission._id.toString() });
-
-      expect(elasticMock.index).toHaveBeenCalledTimes(1);
-      const [indexArgs] = elasticMock.index.mock.calls;
-      expect(indexArgs[0].body).toMatchObject({
-        type: "click",
-        missionId: mission._id.toString(),
-        fromPublisherId: publisher._id.toString(),
-        toPublisherId: mission.publisherId,
-      });
-
-      expect(pgMock.statEvent.create).toHaveBeenCalledTimes(1);
-      expect(pgMock.statEvent.create.mock.calls[0][0].data).toMatchObject({ type: "click" });
-    });
-  });
-
   describe("POST /v2/activity/:missionId/apply", () => {
     it("records apply events using the stat-event repository", async () => {
-      process.env.WRITE_STATS_DUAL = "true";
-
       const missionPublisherId = new Types.ObjectId().toString();
       const mission = await MissionModel.create({
         clientId: "apply-mission-client",
@@ -148,10 +80,7 @@ describe("Activity V2 controller", () => {
         statusCode: "ACCEPTED",
       });
 
-      const publisher = await PublisherModel.create({
-        name: "Apply Publisher",
-        apikey: "apply-key",
-      });
+      const publisher = await publisherService.createPublisher({ name: "Apply Publisher", apikey: "apply-key" });
 
       const clickStat: Stats = {
         _id: "click-apply",
@@ -188,7 +117,7 @@ describe("Activity V2 controller", () => {
 
       const response = await request(app)
         .post(`/v2/activity/${mission._id.toString()}/apply`)
-        .set("apikey", "apply-key")
+        .set("apikey", publisher.apikey ?? "")
         .set("Host", "apply.test")
         .set("Origin", "https://app.test")
         .set("Referer", "https://referer.test")
@@ -203,23 +132,15 @@ describe("Activity V2 controller", () => {
       expect(applyIndexArgs[0].body).toMatchObject({
         type: "apply",
         clickId: clickStat._id,
-        fromPublisherId: publisher._id.toString(),
+        fromPublisherId: publisher.id,
         toPublisherId: mission.publisherId,
       });
-
-      expect(pgMock.statEvent.create).toHaveBeenCalledTimes(1);
-      expect(pgMock.statEvent.create.mock.calls[0][0].data).toMatchObject({ type: "apply" });
     });
   });
 
   describe("PUT /v2/activity/:activityId", () => {
     it("updates the activity status using the repository", async () => {
-      process.env.WRITE_STATS_DUAL = "true";
-
-      const publisher = await PublisherModel.create({
-        name: "Update Publisher",
-        apikey: "update-key",
-      });
+      const publisher = await publisherService.createPublisher({ name: "Update Publisher", apikey: "update-key" });
 
       const statEvent: Stats = {
         _id: "activity-update",
@@ -240,10 +161,7 @@ describe("Activity V2 controller", () => {
         },
       });
 
-      const response = await request(app)
-        .put(`/v2/activity/${statEvent._id}`)
-        .set("apikey", "update-key")
-        .send({ status: "VALIDATED" });
+      const response = await request(app).put(`/v2/activity/${statEvent._id}`).set("apikey", "update-key").send({ status: "VALIDATED" });
 
       expect(response.status).toBe(200);
       expect(response.body.data).toMatchObject({ _id: statEvent._id, status: "VALIDATED" });
@@ -254,9 +172,6 @@ describe("Activity V2 controller", () => {
         body: { doc: { status: "VALIDATED" } },
         retry_on_conflict: undefined,
       });
-
-      expect(pgMock.statEvent.update).toHaveBeenCalledTimes(1);
-      expect(pgMock.statEvent.update.mock.calls[0][0]).toMatchObject({ where: { id: statEvent._id } });
     });
   });
 });

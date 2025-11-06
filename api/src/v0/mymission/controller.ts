@@ -6,7 +6,7 @@ import { JVA_MODERATION_COMMENTS_LABELS } from "../../constants/moderation";
 import { INVALID_PARAMS, INVALID_QUERY, NOT_FOUND } from "../../error";
 import MissionModel from "../../models/mission";
 import RequestModel from "../../models/request";
-import { Mission, Publisher } from "../../types";
+import { Mission, PublisherRecord } from "../../types";
 import { PublisherRequest } from "../../types/passport";
 import { getMissionStatsSummary, getMissionStatsWithDetails } from "./stats";
 
@@ -37,7 +37,7 @@ router.use(async (req: PublisherRequest, res: Response, next: NextFunction) => {
 
 router.get("/", passport.authenticate(["apikey", "api"], { session: false }), async (req: PublisherRequest, res: Response, next: NextFunction) => {
   try {
-    const user = req.user as Publisher;
+    const user = req.user as PublisherRecord;
     const query = zod
       .object({
         limit: zod.coerce.number().int().max(10000).default(50),
@@ -50,14 +50,10 @@ router.get("/", passport.authenticate(["apikey", "api"], { session: false }), as
       return res.status(400).send({ ok: false, code: INVALID_QUERY, message: query.error });
     }
 
-    const where = { deleted: false, publisherId: user._id.toString() };
+    const where = { deleted: false, publisherId: user.id };
 
     const total = await MissionModel.countDocuments(where);
-    const data = await MissionModel.find(where)
-      .sort({ createdAt: -1 })
-      .skip(query.data.skip)
-      .limit(query.data.limit)
-      .lean();
+    const data = await MissionModel.find(where).sort({ createdAt: -1 }).skip(query.data.skip).limit(query.data.limit).lean();
 
     res.locals = { total };
     return res.status(200).send({
@@ -74,7 +70,7 @@ router.get("/", passport.authenticate(["apikey", "api"], { session: false }), as
 
 router.get("/:clientId", passport.authenticate(["apikey", "api"], { session: false }), async (req: PublisherRequest, res: Response, next: NextFunction) => {
   try {
-    const user = req.user as Publisher;
+    const user = req.user as PublisherRecord;
     const params = zod
       .object({
         clientId: zod.string(),
@@ -88,7 +84,7 @@ router.get("/:clientId", passport.authenticate(["apikey", "api"], { session: fal
 
     const mission = await MissionModel.findOne({
       clientId: params.data.clientId,
-      publisherId: user._id.toString(),
+      publisherId: user.id,
     }).lean();
     if (!mission) {
       return res.status(404).send({ ok: false, code: NOT_FOUND });
@@ -104,7 +100,7 @@ router.get("/:clientId", passport.authenticate(["apikey", "api"], { session: fal
 
 router.get("/:clientId/stats", passport.authenticate(["apikey", "api"], { session: false }), async (req: PublisherRequest, res: Response, next: NextFunction) => {
   try {
-    const user = req.user as Publisher;
+    const user = req.user as PublisherRecord;
     const params = zod
       .object({
         clientId: zod.string(),
@@ -118,7 +114,7 @@ router.get("/:clientId/stats", passport.authenticate(["apikey", "api"], { sessio
 
     const mission = await MissionModel.findOne({
       clientId: params.data.clientId,
-      publisherId: user._id.toString(),
+      publisherId: user.id,
     }).lean();
     if (!mission) {
       return res.status(404).send({ ok: false, code: NOT_FOUND });

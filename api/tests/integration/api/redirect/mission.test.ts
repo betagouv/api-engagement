@@ -4,8 +4,8 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import { PUBLISHER_IDS, STATS_INDEX } from "../../../../src/config";
 import MissionModel from "../../../../src/models/mission";
-import PublisherModel from "../../../../src/models/publisher";
 import StatsBotModel from "../../../../src/models/stats-bot";
+import { publisherService } from "../../../../src/services/publisher";
 import * as utils from "../../../../src/utils";
 import { elasticMock } from "../../../mocks";
 import { createTestApp } from "../../../testApp";
@@ -15,7 +15,6 @@ const app = createTestApp();
 describe("RedirectController /:missionId/:publisherId", () => {
   beforeEach(async () => {
     await MissionModel.deleteMany({});
-    await PublisherModel.deleteMany({});
 
     elasticMock.index.mockReset();
     elasticMock.update.mockReset();
@@ -26,7 +25,6 @@ describe("RedirectController /:missionId/:publisherId", () => {
   afterEach(async () => {
     vi.restoreAllMocks();
     await MissionModel.deleteMany({});
-    await PublisherModel.deleteMany({});
   });
 
   it("redirects to Service Civique when params are invalid", async () => {
@@ -69,9 +67,7 @@ describe("RedirectController /:missionId/:publisherId", () => {
   });
 
   it("records click stats and appends tracking parameters when identity and publisher exist", async () => {
-    const fromPublisher = await PublisherModel.create({
-      name: "From Publisher",
-    });
+    const fromPublisher = await publisherService.createPublisher({ name: "From Publisher" });
 
     const mission = await MissionModel.create({
       applicationUrl: "https://mission.example.com/apply",
@@ -99,7 +95,7 @@ describe("RedirectController /:missionId/:publisherId", () => {
     elasticMock.index.mockResolvedValueOnce({ body: { _id: "mission-click-id" } });
 
     const response = await request(app)
-      .get(`/r/${mission._id.toString()}/${fromPublisher._id.toString()}`)
+      .get(`/r/${mission._id.toString()}/${fromPublisher.id}`)
       .set("Host", "redirect.test")
       .set("Origin", "https://app.example.com")
       .query({ tags: "foo,bar" });
@@ -136,12 +132,12 @@ describe("RedirectController /:missionId/:publisherId", () => {
       missionOrganizationClientId: mission.organizationClientId,
       toPublisherId: mission.publisherId,
       toPublisherName: mission.publisherName,
-      fromPublisherId: fromPublisher._id.toString(),
+      fromPublisherId: fromPublisher.id,
       fromPublisherName: fromPublisher.name,
       isBot: false,
       tags: ["foo", "bar"],
     });
-    expect(indexedBody.sourceId?.toString()).toBe(fromPublisher._id.toString());
+    expect(indexedBody.sourceId?.toString()).toBe(fromPublisher.id);
 
     expect(statsBotFindOneSpy).toHaveBeenCalledWith({ user: identity.user });
     expect(elasticMock.update).toHaveBeenCalledTimes(1);
@@ -152,9 +148,7 @@ describe("RedirectController /:missionId/:publisherId", () => {
   });
 
   it("uses mtm tracking parameters for Service Civique missions", async () => {
-    const fromPublisher = await PublisherModel.create({
-      name: "From Publisher",
-    });
+    const fromPublisher = await publisherService.createPublisher({ name: "From Publisher" });
 
     const originalServicePublisherId = PUBLISHER_IDS.SERVICE_CIVIQUE;
     const servicePublisherId = originalServicePublisherId || new Types.ObjectId().toString();
@@ -183,7 +177,7 @@ describe("RedirectController /:missionId/:publisherId", () => {
       elasticMock.index.mockResolvedValueOnce({ body: { _id: "mission-click-id" } });
 
       const response = await request(app)
-        .get(`/r/${mission._id.toString()}/${fromPublisher._id.toString()}`)
+        .get(`/r/${mission._id.toString()}/${fromPublisher.id}`)
         .query({ tags: "foo" });
 
       expect(response.status).toBe(302);

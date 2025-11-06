@@ -55,7 +55,7 @@ jobs:
 
       - uses: actions/setup-node@v5
         with:
-          node-version: "18"
+          node-version: "22"
           cache: "npm"
           cache-dependency-path: "api/package-lock.json"
 
@@ -132,21 +132,24 @@ jobs:
     steps:
       - uses: actions/checkout@v5
 
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
-
-      - name: Build test image
-        uses: docker/build-push-action@v6
+      - uses: actions/setup-node@v5
         with:
-          context: ./api
-          file: ./api/Dockerfile
-          load: true
-          tags: api-test:latest
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
+          node-version: "22"
+          cache: "npm"
+          cache-dependency-path: "api/package-lock.json"
+
+      - name: Install dependencies
+        run: cd api && npm ci
+
+      - name: Generate Prisma clients
+        working-directory: api
+        run: npm run prisma:generate
 
       - name: Run tests
-        run: docker run --rm api-test:latest npm run test:ci
+        working-directory: api
+        env:
+          TESTCONTAINERS_RYUK_DISABLED: "true"
+        run: npm run test:ci
 
   widgets-tests:
     name: Widget Tests

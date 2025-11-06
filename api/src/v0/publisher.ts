@@ -4,10 +4,10 @@ import zod from "zod";
 
 import { INVALID_PARAMS, NOT_FOUND } from "../error";
 import OrganizationExclusionModel from "../models/organization-exclusion";
-import PublisherModel from "../models/publisher";
 import RequestModel from "../models/request";
-import { Publisher } from "../types";
+import { publisherService } from "../services/publisher";
 import { PublisherRequest } from "../types/passport";
+import type { PublisherRecord } from "../types/publisher";
 const router = Router();
 
 router.use(async (req: PublisherRequest, res: Response, next: NextFunction) => {
@@ -35,15 +35,15 @@ router.use(async (req: PublisherRequest, res: Response, next: NextFunction) => {
 
 router.get("/", passport.authenticate(["apikey", "api"], { session: false }), async (req: PublisherRequest, res: Response, next: NextFunction) => {
   try {
-    const user = req.user as Publisher;
-    const partners = await PublisherModel.find({ "publishers.publisherId": user._id.toString() });
+    const user = req.user as PublisherRecord;
+    const partners = await publisherService.findPublishers({ diffuseurOf: user.id });
     const organizationExclusions = await OrganizationExclusionModel.find({
-      excludedByPublisherId: user._id.toString(),
+      excludedByPublisherId: user.id,
     });
 
     const data = partners.map((e) => {
       return {
-        _id: e._id,
+        _id: e.id,
         name: e.name,
         category: e.category,
         url: e.url,
@@ -53,7 +53,7 @@ router.get("/", passport.authenticate(["apikey", "api"], { session: false }), as
         api: e.hasApiRights,
         campaign: e.hasCampaignRights,
         annonceur: e.isAnnonceur,
-        excludedOrganizations: organizationExclusions.filter((o) => o.excludedForPublisherId === e._id.toString()),
+        excludedOrganizations: organizationExclusions.filter((o) => o.excludedForPublisherId === e.id),
       };
     });
 
@@ -70,7 +70,7 @@ router.get("/", passport.authenticate(["apikey", "api"], { session: false }), as
 
 router.get("/:id", passport.authenticate(["apikey", "api"], { session: false }), async (req: PublisherRequest, res: Response, next: NextFunction) => {
   try {
-    const user = req.user as Publisher;
+    const user = req.user as PublisherRecord;
     const params = zod
       .object({
         id: zod.string(),
@@ -82,22 +82,19 @@ router.get("/:id", passport.authenticate(["apikey", "api"], { session: false }),
       return res.status(400).send({ ok: false, code: INVALID_PARAMS, message: params.error });
     }
 
-    const publisher = await PublisherModel.findOne({
-      _id: params.data.id,
-      "publishers.publisherId": user._id.toString(),
-    });
-    if (!publisher) {
+    const publisher = await publisherService.findOnePublisherById(params.data.id);
+    if (!publisher || !publisher.publishers.some((p) => p.diffuseurPublisherId === user.id)) {
       res.locals = { code: NOT_FOUND, message: "Publisher not found" };
       return res.status(404).send({ ok: false, code: NOT_FOUND, message: "Publisher not found" });
     }
 
     const organizationExclusions = await OrganizationExclusionModel.find({
-      excludedForPublisherId: publisher._id.toString(),
-      excludedByPublisherId: user._id.toString(),
+      excludedForPublisherId: publisher.id,
+      excludedByPublisherId: user.id,
     });
 
     const data = {
-      _id: publisher._id,
+      _id: publisher.id,
       name: publisher.name,
       category: publisher.category,
       url: publisher.url,

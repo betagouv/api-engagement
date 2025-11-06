@@ -7,9 +7,9 @@ import zod from "zod";
 import { HydratedDocument } from "mongoose";
 import { APP_URL, SECRET } from "../config";
 import { FORBIDDEN, INVALID_BODY, INVALID_PARAMS, INVALID_QUERY, NOT_FOUND, REQUEST_EXPIRED, RESSOURCE_ALREADY_EXIST } from "../error";
-import PublisherModel from "../models/publisher";
 import UserModel from "../models/user";
 import { sendTemplate } from "../services/brevo";
+import { publisherService } from "../services/publisher";
 import { User } from "../types";
 import { UserRequest } from "../types/passport";
 import { hasLetter, hasNumber, hasSpecialChar } from "../utils";
@@ -70,12 +70,12 @@ router.get("/refresh", passport.authenticate("user", { session: false }), async 
       return res.send({ ok: true, data: { token, user, publisher: null } });
     }
 
-    let publisher;
+    let publisher = null;
     if (query.data.publisherId && (user.publishers.includes(query.data.publisherId) || user.role === "admin")) {
-      publisher = await PublisherModel.findById(query.data.publisherId);
+      publisher = await publisherService.findOnePublisherById(query.data.publisherId);
     }
-    if (!publisher) {
-      publisher = await PublisherModel.findById(user.publishers[0]);
+    if (!publisher && user.publishers[0]) {
+      publisher = await publisherService.findOnePublisherById(user.publishers[0].toString());
     }
 
     return res.send({ ok: true, data: { token, user, publisher } });
@@ -124,7 +124,7 @@ router.get("/loginas/:id", passport.authenticate("admin", { session: false }), a
       return res.status(404).send({ ok: false, code: NOT_FOUND, message: `User not found` });
     }
 
-    const publisher = await PublisherModel.findById(user.publishers[0]);
+    const publisher = user.publishers[0] ? await publisherService.findOnePublisherById(user.publishers[0].toString()) : null;
     if (!publisher) {
       return res.status(404).send({ ok: false, code: NOT_FOUND, message: `Publisher not found` });
     }
@@ -302,7 +302,7 @@ router.post("/login", async (req: UserRequest, res: Response, next: NextFunction
           return res.status(404).send({ ok: false, code: NOT_FOUND, message: `Incorrect email or password` });
         }
 
-        const publisher = user.publishers.length ? await PublisherModel.findById(user.publishers[0]) : null;
+        const publisher = user.publishers.length ? await publisherService.findOnePublisherById(user.publishers[0].toString()) : null;
 
         user.lastActivityAt = new Date();
         if (!user.loginAt) {

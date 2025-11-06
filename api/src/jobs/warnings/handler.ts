@@ -1,9 +1,8 @@
-import PublisherModel from "../../models/publisher";
-import { BaseHandler } from "../base/handler";
-import { checkBotClicks } from "./bot";
-
 import { captureException } from "../../error";
+import { publisherService } from "../../services/publisher";
+import { BaseHandler } from "../base/handler";
 import { JobResult } from "../types";
+import { checkBotClicks } from "./bot";
 import { checkImports } from "./import";
 import { checkTracking } from "./tracking";
 
@@ -18,7 +17,7 @@ export class WarningsHandler implements BaseHandler<WarningsJobPayload, Warnings
     const start = new Date();
     try {
       console.log(`[Warnings] Starting at ${start.toISOString()}`);
-      const publishers = await PublisherModel.find({ isAnnonceur: true });
+      const publishers = await publisherService.findPublishers({ role: "annonceur" });
 
       console.log("Checking imports");
       await checkImports(publishers);

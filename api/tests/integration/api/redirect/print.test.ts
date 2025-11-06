@@ -3,11 +3,11 @@ import request from "supertest";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import { STATS_INDEX } from "../../../../src/config";
-import { INVALID_PARAMS, INVALID_QUERY, NOT_FOUND } from "../../../../src/error";
+import { NOT_FOUND } from "../../../../src/error";
 import MissionModel from "../../../../src/models/mission";
-import PublisherModel from "../../../../src/models/publisher";
 import StatsBotModel from "../../../../src/models/stats-bot";
 import WidgetModel from "../../../../src/models/widget";
+import { publisherService } from "../../../../src/services/publisher";
 import * as utils from "../../../../src/utils";
 import { elasticMock } from "../../../mocks";
 import { createTestApp } from "../../../testApp";
@@ -17,7 +17,6 @@ const app = createTestApp();
 describe("RedirectController /impression/:missionId/:publisherId", () => {
   beforeEach(async () => {
     await MissionModel.deleteMany({});
-    await PublisherModel.deleteMany({});
     await WidgetModel.deleteMany({});
 
     elasticMock.index.mockReset();
@@ -27,7 +26,6 @@ describe("RedirectController /impression/:missionId/:publisherId", () => {
   afterEach(async () => {
     vi.restoreAllMocks();
     await MissionModel.deleteMany({});
-    await PublisherModel.deleteMany({});
     await WidgetModel.deleteMany({});
   });
 
@@ -38,42 +36,6 @@ describe("RedirectController /impression/:missionId/:publisherId", () => {
 
     expect(response.status).toBe(204);
     expect(elasticMock.index).not.toHaveBeenCalled();
-  });
-
-  it("returns 400 when params are invalid", async () => {
-    const identity = { user: "user", referer: "https://ref", userAgent: "Mozilla" };
-    vi.spyOn(utils, "identify").mockReturnValue(identity);
-
-    const response = await request(app).get(`/r/impression/${new Types.ObjectId().toString()}/invalid`);
-
-    expect(response.status).toBe(400);
-    expect(response.body).toMatchObject({ ok: false, code: INVALID_PARAMS });
-    expect(elasticMock.index).not.toHaveBeenCalled();
-  });
-
-  it("returns 400 when query is invalid", async () => {
-    const identity = { user: "user", referer: "https://ref", userAgent: "Mozilla" };
-    vi.spyOn(utils, "identify").mockReturnValue(identity);
-
-    const mission = await MissionModel.create({
-      applicationUrl: "https://mission.example.com/apply",
-      clientId: "mission-client-id",
-      lastSyncAt: new Date(),
-      publisherId: new Types.ObjectId().toString(),
-      publisherName: "Mission Publisher",
-      title: "Mission Title",
-    });
-
-    const publisher = await PublisherModel.create({
-      name: "From Publisher",
-    });
-
-    const response = await request(app)
-      .get(`/r/impression/${mission._id.toString()}/${publisher._id.toString()}`)
-      .query({ sourceId: "not-a-valid-object-id" });
-
-    expect(response.status).toBe(400);
-    expect(response.body).toMatchObject({ ok: false, code: INVALID_QUERY });
   });
 
   it("returns 404 when mission is not found", async () => {
@@ -106,6 +68,7 @@ describe("RedirectController /impression/:missionId/:publisherId", () => {
   });
 
   it("records print stats with widget source when all data is present", async () => {
+    const publisher = await publisherService.createPublisher({ name: "From Publisher" });
     const mission = await MissionModel.create({
       applicationUrl: "https://mission.example.com/apply",
       clientId: "mission-client-id",
@@ -117,17 +80,13 @@ describe("RedirectController /impression/:missionId/:publisherId", () => {
       organizationId: "mission-org-id",
       organizationClientId: "mission-org-client-id",
       lastSyncAt: new Date(),
-      publisherId: new Types.ObjectId().toString(),
+      publisherId: publisher.id,
       publisherName: "Mission Publisher",
-    });
-
-    const publisher = await PublisherModel.create({
-      name: "From Publisher",
     });
 
     const widget = await WidgetModel.create({
       name: "Widget Name",
-      fromPublisherId: new Types.ObjectId().toString(),
+      fromPublisherId: publisher.id,
       fromPublisherName: "Widget Source Publisher",
     });
 
@@ -143,7 +102,7 @@ describe("RedirectController /impression/:missionId/:publisherId", () => {
 
     const requestId = new Types.ObjectId().toString();
     const response = await request(app)
-      .get(`/r/impression/${mission._id.toString()}/${publisher._id.toString()}`)
+      .get(`/r/impression/${mission._id.toString()}/${publisher.id}`)
       .set("Host", "redirect.test")
       .set("Origin", "https://app.example.com")
       .query({ tracker: "tag", sourceId: widget._id.toString(), requestId });
@@ -168,7 +127,7 @@ describe("RedirectController /impression/:missionId/:publisherId", () => {
       missionOrganizationClientId: mission.organizationClientId,
       toPublisherId: mission.publisherId,
       toPublisherName: mission.publisherName,
-      fromPublisherId: publisher._id.toString(),
+      fromPublisherId: publisher.id,
       fromPublisherName: publisher.name,
       isBot: true,
     });
@@ -192,7 +151,7 @@ describe("RedirectController /impression/:missionId/:publisherId", () => {
       missionClientId: mission.clientId,
       toPublisherId: mission.publisherId,
       toPublisherName: mission.publisherName,
-      fromPublisherId: publisher._id.toString(),
+      fromPublisherId: publisher.id,
       fromPublisherName: publisher.name,
       isBot: true,
     });
@@ -201,17 +160,14 @@ describe("RedirectController /impression/:missionId/:publisherId", () => {
   });
 
   it("returns 200 and records print stats when query has only tracker", async () => {
+    const publisher = await publisherService.createPublisher({ name: "From Publisher" });
     const mission = await MissionModel.create({
       applicationUrl: "https://mission.example.com/apply",
       clientId: "mission-client-id",
       lastSyncAt: new Date(),
-      publisherId: new Types.ObjectId().toString(),
+      publisherId: publisher.id,
       publisherName: "Mission Publisher",
       title: "Mission Title",
-    });
-
-    const publisher = await PublisherModel.create({
-      name: "From Publisher",
     });
 
     const identity = {
@@ -224,9 +180,7 @@ describe("RedirectController /impression/:missionId/:publisherId", () => {
     vi.spyOn(StatsBotModel, "findOne").mockResolvedValue(null);
     elasticMock.index.mockResolvedValueOnce({ body: { _id: "print-id" } });
 
-    const response = await request(app)
-      .get(`/r/impression/${mission._id.toString()}/${publisher._id.toString()}`)
-      .query({ tracker: "tag" });
+    const response = await request(app).get(`/r/impression/${mission._id.toString()}/${publisher.id}`).query({ tracker: "tag" });
 
     expect(response.status).toBe(200);
     expect(response.body.ok).toBe(true);

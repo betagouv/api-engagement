@@ -8,17 +8,15 @@
 import mongoose from "mongoose";
 import { mongoConnected } from "../src/db/mongo";
 import MissionModel from "../src/models/mission";
-import PublisherModel from "../src/models/publisher";
+import { publisherService } from "../src/services/publisher";
 
 async function run() {
   await mongoConnected;
 
-  const publishers = await PublisherModel.find({
-    defaultMissionLogo: { $exists: true, $ne: "" },
-  }).select({ _id: 1, name: 1, defaultMissionLogo: 1 });
+  const publishers = (await publisherService.findPublishers({ includeDeleted: true })).filter((publisher) => !!publisher.defaultMissionLogo);
 
   for (const publisher of publishers) {
-    const publisherId = publisher._id.toString();
+    const publisherId = publisher.id;
     const logo = publisher.defaultMissionLogo as string;
 
     const res = await MissionModel.updateMany(

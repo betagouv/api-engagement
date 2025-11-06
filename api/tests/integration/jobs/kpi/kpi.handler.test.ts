@@ -14,6 +14,8 @@ import { createTestMission } from "../../../fixtures";
 
 describe("KPI job - Integration", () => {
   beforeEach(async () => {
+    process.env.READ_STATS_FROM = "es";
+
     (elasticMock.search as any).mockReset();
     (elasticMock.msearch as any).mockReset();
 
@@ -43,7 +45,7 @@ describe("KPI job - Integration", () => {
     const fixedToday = new Date("2025-08-15T12:00:00.000Z");
     const yesterday = new Date(fixedToday.getFullYear(), fixedToday.getMonth(), fixedToday.getDate() - 1);
 
-    const result = await handler.handle({ date: fixedToday });
+    const result = await handler.handle({ date: fixedToday.toISOString() });
 
     const expectedDates = Array.from({ length: 10 }).map((_, i) => {
       return new Date(yesterday.getFullYear(), yesterday.getMonth(), yesterday.getDate() - i);
@@ -62,7 +64,7 @@ describe("KPI job - Integration", () => {
     const yesterday = new Date(fixedToday.getFullYear(), fixedToday.getMonth(), fixedToday.getDate() - 1);
 
     await KpiModel.create({ date: yesterday });
-    const result = await handler.handle({ date: fixedToday });
+    const result = await handler.handle({ date: fixedToday.toISOString() });
     const kpis = await KpiModel.find();
 
     expect(result.success).toBe(true);
@@ -102,7 +104,7 @@ describe("KPI job - Integration", () => {
     await createTestMission({ publisherName: "Service Civique", placesStatus: "ATTRIBUTED_BY_API", places: 2, createdAt: fromDate, deleted: false });
     await createTestMission({ publisherName: "Service Civique", placesStatus: "ATTRIBUTED_BY_API", places: 6, createdAt: fromDate, deleted: false });
 
-    const res = await handler.handle({ date: fixedToday });
+    const res = await handler.handle({ date: fixedToday.toISOString() });
     expect(res.success).toBe(true);
 
     const kpi = await KpiModel.findOne({ date: yesterday });
@@ -143,7 +145,7 @@ describe("KPI job - Integration", () => {
     // Only ASC missions -> benevolat available count should be 0
     await createTestMission({ publisherName: "Service Civique", placesStatus: "GIVEN_BY_PARTNER", places: 1, createdAt: fromDate });
 
-    const res = await handler.handle({ date: fixedToday });
+    const res = await handler.handle({ date: fixedToday.toISOString() });
     expect(res.success).toBe(true);
     const kpi = await KpiModel.findOne({ date: yesterday });
     expect(kpi).toBeTruthy();
@@ -194,7 +196,7 @@ describe("KPI job - Integration", () => {
       return Promise.resolve(zeroAgg);
     });
 
-    const res = await handler.handle({ date: fixedToday });
+    const res = await handler.handle({ date: fixedToday.toISOString() });
     expect(res.success).toBe(true);
     const kpi = await KpiModel.findOne({ date: yesterday });
     expect(kpi).toBeTruthy();
@@ -233,7 +235,7 @@ describe("KPI job - Integration", () => {
     (elasticMock.search as any).mockReset();
     (elasticMock.search as any).mockRejectedValue(new Error("ES down"));
 
-    const res = await handler.handle({ date: fixedToday });
+    const res = await handler.handle({ date: fixedToday.toISOString() });
     expect(res.success).toBe(false);
 
     const kpi = await KpiModel.findOne({ date: yesterday });

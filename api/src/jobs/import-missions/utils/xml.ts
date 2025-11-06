@@ -1,10 +1,10 @@
 import { XMLParser } from "fast-xml-parser";
 
 import { captureException } from "../../../error";
-import { Publisher } from "../../../types";
+import type { PublisherRecord } from "../../../types/publisher";
 import { MissionXML } from "../types";
 
-export const fetchXML = async (publisher: Publisher): Promise<string | null> => {
+export const fetchXML = async (publisher: PublisherRecord): Promise<string | null> => {
   try {
     if (!publisher.feed) {
       return null;

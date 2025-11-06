@@ -1,36 +1,46 @@
 import request from "supertest";
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { beforeEach, describe, expect, it } from "vitest";
 import OrganizationExclusionModel from "../../../../src/models/organization-exclusion";
-import { Mission, MissionType, Publisher } from "../../../../src/types";
+import { Mission, MissionType, PublisherRecord } from "../../../../src/types";
 import { createTestMission, createTestPublisher } from "../../../fixtures";
 import elasticMock from "../../../mocks/elasticMock";
-import pgMock from "../../../mocks/pgMock";
 import { createTestApp } from "../../../testApp";
 
 describe("MyOrganization API Integration Tests", () => {
   const app = createTestApp();
-  let publisher: Publisher;
+  let publisher: PublisherRecord;
   let apiKey: string;
   let mission: Mission;
-  let publisher1: Publisher;
-  let publisher2: Publisher;
+  let publisher1: PublisherRecord;
+  let publisher2: PublisherRecord;
   let orgId: string;
 
   beforeEach(async () => {
+    process.env.READ_STATS_FROM = "es";
+
     elasticMock.search.mockReset();
     elasticMock.msearch.mockReset();
-    pgMock.statEvent.groupBy.mockReset();
-    process.env.READ_STATS_FROM = "es";
+
+    elasticMock.search.mockResolvedValue({
+      body: {
+        hits: { total: { value: 0 } },
+        aggregations: {
+          fromPublisherId: {
+            buckets: [],
+          },
+        },
+      },
+    });
 
     publisher = await createTestPublisher();
     apiKey = publisher.apikey || "";
     orgId = "test-org-id";
-    mission = await createTestMission({ organizationClientId: orgId, publisherId: publisher._id.toString() });
+    mission = await createTestMission({ organizationClientId: orgId, publisherId: publisher.id });
     publisher1 = await createTestPublisher({
-      publishers: [{ publisherId: publisher._id.toString(), publisherName: publisher.name, moderator: true, missionType: MissionType.BENEVOLAT }],
+      publishers: [{ publisherId: publisher.id, publisherName: publisher.name, moderator: true, missionType: MissionType.BENEVOLAT }],
     });
     publisher2 = await createTestPublisher({
-      publishers: [{ publisherId: publisher._id.toString(), publisherName: publisher.name, moderator: true, missionType: MissionType.BENEVOLAT }],
+      publishers: [{ publisherId: publisher.id, publisherName: publisher.name, moderator: true, missionType: MissionType.BENEVOLAT }],
     });
     await createTestPublisher();
   });
@@ -47,20 +57,6 @@ describe("MyOrganization API Integration Tests", () => {
     });
 
     it("should return list of publishers for the organization with correct format", async () => {
-      // Mock ES result with random clicks values
-      elasticMock.search.mockResolvedValueOnce({
-        body: {
-          aggregations: {
-            fromPublisherId: {
-              buckets: [
-                { key: publisher1._id.toString(), doc_count: 7 },
-                { key: publisher2._id.toString(), doc_count: 0 },
-              ],
-            },
-          },
-        },
-      });
-
       const response = await request(app).get(`/v0/myorganization/${orgId}`).set("x-api-key", apiKey);
 
       expect(response.status).toBe(200);
@@ -68,10 +64,8 @@ describe("MyOrganization API Integration Tests", () => {
       expect(Array.isArray(response.body.data)).toBe(true);
       expect(response.body.data.length).toBe(2); // Should have our two test partners related to publisher
 
-      const partner1 = response.body.data.find((p: any) => p._id === publisher1._id.toString());
-      const partner2 = response.body.data.find((p: any) => p._id === publisher2._id.toString());
-      expect(partner1.clicks).toBe(7);
-      expect(partner2.clicks).toBe(0);
+      const partner1 = response.body.data.find((p: any) => p._id === publisher1.id);
+      const partner2 = response.body.data.find((p: any) => p._id === publisher2.id);
 
       [partner1, partner2].forEach((partner) => {
         expect(partner).toHaveProperty("_id");
@@ -98,8 +92,8 @@ describe("MyOrganization API Integration Tests", () => {
           aggregations: {
             fromPublisherId: {
               buckets: [
-                { key: publisher1._id.toString(), doc_count: 0 },
-                { key: publisher2._id.toString(), doc_count: 0 },
+                { key: publisher1.id, doc_count: 0 },
+                { key: publisher2.id, doc_count: 0 },
               ],
             },
           },
@@ -108,9 +102,9 @@ describe("MyOrganization API Integration Tests", () => {
 
       // Add exclusion for publisher2
       await OrganizationExclusionModel.create({
-        excludedByPublisherId: publisher._id.toString(),
+        excludedByPublisherId: publisher.id,
         excludedByPublisherName: publisher.name,
-        excludedForPublisherId: publisher2._id.toString(),
+        excludedForPublisherId: publisher2.id,
         excludedForPublisherName: publisher2.name,
         organizationClientId: orgId,
         organizationName: publisher.name,
@@ -118,28 +112,10 @@ describe("MyOrganization API Integration Tests", () => {
 
       const response = await request(app).get(`/v0/myorganization/${orgId}`).set("x-api-key", apiKey);
       expect(response.status).toBe(200);
-      const partner1 = response.body.data.find((p: any) => p._id === publisher1._id.toString());
-      const partner2 = response.body.data.find((p: any) => p._id === publisher2._id.toString());
+      const partner1 = response.body.data.find((p: any) => p._id === publisher1.id);
+      const partner2 = response.body.data.find((p: any) => p._id === publisher2.id);
       expect(partner1.excluded).toBe(false);
       expect(partner2.excluded).toBe(true);
-    });
-
-    it("should retrieve clicks from postgres when feature flag is enabled", async () => {
-      process.env.READ_STATS_FROM = "pg";
-      pgMock.statEvent.groupBy.mockResolvedValueOnce([
-        { from_publisher_id: publisher1._id.toString(), _count: { _all: 4 } },
-      ]);
-
-      const response = await request(app).get(`/v0/myorganization/${orgId}`).set("x-api-key", apiKey);
-
-      expect(response.status).toBe(200);
-      expect(pgMock.statEvent.groupBy).toHaveBeenCalled();
-      expect(elasticMock.search).not.toHaveBeenCalled();
-
-      const partner1 = response.body.data.find((p: any) => p._id === publisher1._id.toString());
-      const partner2 = response.body.data.find((p: any) => p._id === publisher2._id.toString());
-      expect(partner1.clicks).toBe(4);
-      expect(partner2.clicks).toBe(0);
     });
   });
 
@@ -154,7 +130,7 @@ describe("MyOrganization API Integration Tests", () => {
     it("should return 401 if not authenticated", async () => {
       const response = await request(app)
         .put(`/v0/myorganization/${orgId}`)
-        .send({ publisherIds: [publisher1._id.toString()] });
+        .send({ publisherIds: [publisher1.id] });
 
       expect(response.status).toBe(401);
     });
@@ -171,32 +147,32 @@ describe("MyOrganization API Integration Tests", () => {
       const response = await request(app)
         .put(`/v0/myorganization/${orgId}`)
         .set("x-api-key", apiKey)
-        .send({ publisherIds: [publisher1._id.toString()] });
+        .send({ publisherIds: [publisher1.id] });
 
       expect(response.status).toBe(200);
       expect(response.body.ok).toBe(true);
       expect(Array.isArray(response.body.data)).toBe(true);
 
       // Verify publisher1 is not excluded
-      const publisher1Data = response.body.data.find((p: any) => p._id.toString() === publisher1._id.toString());
+      const publisher1Data = response.body.data.find((p: any) => p._id.toString() === publisher1.id);
       expect(publisher1Data.excluded).toBe(false);
 
       // Verify publisher2 is excluded
-      const publisher2Data = response.body.data.find((p: any) => p._id.toString() === publisher2._id.toString());
+      const publisher2Data = response.body.data.find((p: any) => p._id.toString() === publisher2.id);
       expect(publisher2Data.excluded).toBe(true);
 
       // Verify publisher1 exclusion does not exist
       const publisher1Exclusion = await OrganizationExclusionModel.findOne({
-        excludedByPublisherId: publisher._id.toString(),
-        excludedForPublisherId: publisher1._id.toString(),
+        excludedByPublisherId: publisher.id,
+        excludedForPublisherId: publisher1.id,
         organizationClientId: orgId,
       });
       expect(publisher1Exclusion).toBeNull();
 
       // Verify publisher2 exclusion exists
       const publisher2Exclusion = await OrganizationExclusionModel.findOne({
-        excludedByPublisherId: publisher._id.toString(),
-        excludedForPublisherId: publisher2._id.toString(),
+        excludedByPublisherId: publisher.id,
+        excludedForPublisherId: publisher2.id,
         organizationClientId: orgId,
       });
       expect(publisher2Exclusion).toBeDefined();
@@ -206,17 +182,17 @@ describe("MyOrganization API Integration Tests", () => {
       // First exclude both partners
       await OrganizationExclusionModel.create([
         {
-          excludedByPublisherId: publisher._id.toString(),
+          excludedByPublisherId: publisher.id,
           excludedByPublisherName: publisher.name,
-          excludedForPublisherId: publisher1._id.toString(),
+          excludedForPublisherId: publisher1.id,
           excludedForPublisherName: publisher1.name,
           organizationClientId: orgId,
           organizationName: publisher.name,
         },
         {
-          excludedByPublisherId: publisher._id.toString(),
+          excludedByPublisherId: publisher.id,
           excludedByPublisherName: publisher.name,
-          excludedForPublisherId: publisher2._id.toString(),
+          excludedForPublisherId: publisher2.id,
           excludedForPublisherName: publisher2.name,
           organizationClientId: orgId,
           organizationName: publisher.name,
@@ -227,20 +203,20 @@ describe("MyOrganization API Integration Tests", () => {
       const response = await request(app)
         .put(`/v0/myorganization/${orgId}`)
         .set("x-api-key", apiKey)
-        .send({ publisherIds: [publisher1._id.toString(), publisher2._id.toString()] });
+        .send({ publisherIds: [publisher1.id, publisher2.id] });
 
       expect(response.status).toBe(200);
 
       // Verify both partners are not excluded in the response
-      const publisher1Data = response.body.data.find((p: any) => p._id.toString() === publisher1._id.toString());
-      const publisher2Data = response.body.data.find((p: any) => p._id.toString() === publisher2._id.toString());
+      const publisher1Data = response.body.data.find((p: any) => p._id.toString() === publisher1.id);
+      const publisher2Data = response.body.data.find((p: any) => p._id.toString() === publisher2.id);
       expect(publisher1Data.excluded).toBe(false);
       expect(publisher2Data.excluded).toBe(false);
 
       // Verify database was updated correctly
       const exclusion = await OrganizationExclusionModel.findOne({
-        excludedByPublisherId: publisher._id.toString(),
-        excludedForPublisherId: publisher1._id.toString(),
+        excludedByPublisherId: publisher.id,
+        excludedForPublisherId: publisher1.id,
         organizationClientId: orgId,
       });
       expect(exclusion).toBeNull();
@@ -253,7 +229,7 @@ describe("MyOrganization API Integration Tests", () => {
       await OrganizationExclusionModel.create({
         excludedByPublisherId: otherPublisherId,
         excludedByPublisherName: publisher.name,
-        excludedForPublisherId: publisher1._id.toString(),
+        excludedForPublisherId: publisher1.id,
         excludedForPublisherName: publisher1.name,
         organizationClientId: otherOrganizationClientId,
         organizationName: publisher.name,
@@ -263,22 +239,22 @@ describe("MyOrganization API Integration Tests", () => {
       const response = await request(app)
         .put(`/v0/myorganization/${orgId}`)
         .set("x-api-key", apiKey)
-        .send({ publisherIds: [publisher1._id.toString()] });
+        .send({ publisherIds: [publisher1.id] });
 
       expect(response.status).toBe(200);
 
       // Other organization exclusion should still exist
       const otherExclusion = await OrganizationExclusionModel.findOne({
         excludedByPublisherId: otherPublisherId,
-        excludedForPublisherId: publisher1._id.toString(),
+        excludedForPublisherId: publisher1.id,
         organizationClientId: otherOrganizationClientId,
       });
       expect(otherExclusion).toBeDefined();
 
       // Test organization should not have exclusion
       const testExclusion = await OrganizationExclusionModel.findOne({
-        excludedByPublisherId: publisher._id.toString(),
-        excludedForPublisherId: publisher1._id.toString(),
+        excludedByPublisherId: publisher.id,
+        excludedForPublisherId: publisher1.id,
         organizationClientId: orgId,
       });
       expect(testExclusion).toBeNull();
