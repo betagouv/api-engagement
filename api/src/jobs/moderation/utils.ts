@@ -5,16 +5,12 @@ import type { PublisherRecord } from "../../types/publisher";
 import { ModerationUpdate } from "./types";
 
 export const findMissions = async (moderator: PublisherRecord) => {
-  const publishers = moderator.publishers.map((p) => p.publisherId);
+  const publishers = moderator.publishers.map((p) => p.diffuseurPublisherId);
   const where = {
     publisherId: { $in: publishers },
     statusCode: "ACCEPTED",
     deleted: false,
-    $or: [
-      { [`moderation_${moderator.id}_status`]: { $exists: false } },
-      { [`moderation_${moderator.id}_status`]: null },
-      { [`moderation_${moderator.id}_status`]: "PENDING" },
-    ],
+    $or: [{ [`moderation_${moderator.id}_status`]: { $exists: false } }, { [`moderation_${moderator.id}_status`]: null }, { [`moderation_${moderator.id}_status`]: "PENDING" }],
   };
   const missions = await MissionModel.find(where).sort({ createdAt: "desc" });
   return missions;

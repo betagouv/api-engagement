@@ -50,7 +50,7 @@ router.get("/", passport.authenticate(["apikey", "api"], { session: false }), as
       return res.status(400).send({ ok: false, code: INVALID_QUERY, message: query.error });
     }
 
-    const where = { deleted: false, publisherId: user._id.toString() };
+    const where = { deleted: false, publisherId: user.id };
 
     const total = await MissionModel.countDocuments(where);
     const data = await MissionModel.find(where).sort({ createdAt: -1 }).skip(query.data.skip).limit(query.data.limit).lean();
@@ -84,7 +84,7 @@ router.get("/:clientId", passport.authenticate(["apikey", "api"], { session: fal
 
     const mission = await MissionModel.findOne({
       clientId: params.data.clientId,
-      publisherId: user._id.toString(),
+      publisherId: user.id,
     }).lean();
     if (!mission) {
       return res.status(404).send({ ok: false, code: NOT_FOUND });
@@ -114,7 +114,7 @@ router.get("/:clientId/stats", passport.authenticate(["apikey", "api"], { sessio
 
     const mission = await MissionModel.findOne({
       clientId: params.data.clientId,
-      publisherId: user._id.toString(),
+      publisherId: user.id,
     }).lean();
     if (!mission) {
       return res.status(404).send({ ok: false, code: NOT_FOUND });

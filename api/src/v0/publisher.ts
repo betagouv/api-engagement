@@ -6,8 +6,8 @@ import { INVALID_PARAMS, NOT_FOUND } from "../error";
 import OrganizationExclusionModel from "../models/organization-exclusion";
 import RequestModel from "../models/request";
 import { publisherService } from "../services/publisher";
-import type { PublisherRecord } from "../types/publisher";
 import { PublisherRequest } from "../types/passport";
+import type { PublisherRecord } from "../types/publisher";
 const router = Router();
 
 router.use(async (req: PublisherRequest, res: Response, next: NextFunction) => {
@@ -83,7 +83,7 @@ router.get("/:id", passport.authenticate(["apikey", "api"], { session: false }),
     }
 
     const publisher = await publisherService.getPublisherById(params.data.id);
-    if (!publisher || !publisher.publishers.some((p) => p.publisherId === user.id)) {
+    if (!publisher || !publisher.publishers.some((p) => p.diffuseurPublisherId === user.id)) {
       res.locals = { code: NOT_FOUND, message: "Publisher not found" };
       return res.status(404).send({ ok: false, code: NOT_FOUND, message: "Publisher not found" });
     }

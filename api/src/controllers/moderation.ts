@@ -64,7 +64,7 @@ router.post("/search", passport.authenticate("user", { session: false }), async 
     if (body.data.publisherId) {
       where.publisherId = body.data.publisherId;
     } else {
-      where.publisherId = { $in: moderator.publishers.map((p) => p.publisherId) };
+      where.publisherId = { $in: moderator.publishers.map((p) => p.diffuseurPublisherId) };
     }
     if (body.data.organizationName === "none") {
       where.$or = [{ organizationName: "" }, { organizationName: null }];
@@ -186,7 +186,7 @@ router.post("/aggs", passport.authenticate("user", { session: false }), async (r
     if (body.data.publisherId) {
       where.publisherId = body.data.publisherId;
     } else {
-      where.publisherId = { $in: moderator.publishers.map((p) => p.publisherId) };
+      where.publisherId = { $in: moderator.publishers.map((p) => p.diffuseurPublisherId) };
     }
     if (body.data.organization === "none") {
       where.$or = [{ organizationName: "" }, { organizationName: null }];
@@ -487,7 +487,7 @@ router.put("/many", passport.authenticate("user", { session: false }), async (re
 
     const where = {
       deletedAt: null,
-      publisherId: { $in: moderator.publishers.map((p) => p.publisherId) },
+      publisherId: { $in: moderator.publishers.map((p) => p.diffuseurPublisherId) },
     } as any;
     if (body.data.where.status) {
       where[`moderation_${body.data.moderatorId}_status`] = body.data.where.status;

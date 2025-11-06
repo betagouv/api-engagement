@@ -8,8 +8,8 @@ import MissionModel from "../../models/mission";
 import OrganizationExclusionModel from "../../models/organization-exclusion";
 import RequestModel from "../../models/request";
 import { Mission } from "../../types";
-import type { PublisherRecord } from "../../types/publisher";
 import { PublisherRequest } from "../../types/passport";
+import type { PublisherRecord } from "../../types/publisher";
 import { diacriticSensitiveRegex, getDistanceFromLatLonInKm, getDistanceKm } from "../../utils";
 import { MISSION_FIELDS, NO_PARTNER, NO_PARTNER_MESSAGE } from "./constants";
 import { buildData } from "./transformer";
@@ -108,10 +108,10 @@ router.get("/", passport.authenticate(["apikey", "api"], { session: false }), as
         query.data.publisher = query.data.publisher.map((e: string) => e.trim());
       }
 
-      query.data.publisher = query.data.publisher.filter((publisherId: string) => user.publishers.some((p) => p.publisherId === publisherId));
+      query.data.publisher = query.data.publisher.filter((publisherId: string) => user.publishers.some((p) => p.diffuseurPublisherId === publisherId));
       where.publisherId = { $in: query.data.publisher };
     } else {
-      where.publisherId = { $in: user.publishers.map((publisher) => publisher.publisherId) };
+      where.publisherId = { $in: user.publishers.map((publisher) => publisher.diffuseurPublisherId) };
     }
     if (user.moderator) {
       where[`moderation_${user.id}_status`] = "ACCEPTED";
@@ -285,10 +285,10 @@ router.get("/search", passport.authenticate(["apikey", "api"], { session: false 
         query.data.publisher = query.data.publisher.map((e: string) => e.trim());
       }
 
-      query.data.publisher = query.data.publisher.filter((publisherId: string) => user.publishers.some((p) => p.publisherId === publisherId));
+      query.data.publisher = query.data.publisher.filter((publisherId: string) => user.publishers.some((p) => p.diffuseurPublisherId === publisherId));
       where.publisherId = { $in: query.data.publisher };
     } else {
-      where.publisherId = { $in: user.publishers.map((publisher) => publisher.publisherId) };
+      where.publisherId = { $in: user.publishers.map((publisher) => publisher.diffuseurPublisherId) };
     }
     if (user.moderator) {
       where[`moderation_${user.id}_status`] = "ACCEPTED";

@@ -17,8 +17,6 @@ export interface PublisherDiffusionRecord {
   missionType: string | null;
   createdAt: Date;
   updatedAt: Date;
-  /** @deprecated Use diffuseurPublisherId instead. */
-  publisherId: string;
 }
 
 export interface PublisherRecord {

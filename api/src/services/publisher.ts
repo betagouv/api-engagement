@@ -26,7 +26,6 @@ export const publisherService = (() => {
     missionType: diffusion.missionType ?? null,
     createdAt: diffusion.createdAt,
     updatedAt: diffusion.updatedAt,
-    publisherId: diffusion.diffuseurPublisherId,
   });
 
   const toPublisherRecord = (publisher: PublisherWithDiffusion): PublisherRecord => ({

@@ -12,7 +12,7 @@ const buildData = (doc: PublisherRecord) => {
     diffuseur_widget: doc.hasWidgetRights,
     diffuseur_campaign: doc.hasCampaignRights,
     annonceur: doc.isAnnonceur,
-    partners: doc.publishers.map((p) => p.publisherId).filter((p) => p !== undefined),
+    partners: doc.publishers.map((p) => p.diffuseurPublisherId).filter((p) => p !== undefined),
     created_at: new Date(doc.createdAt),
     updated_at: new Date(doc.updatedAt),
     deleted_at: doc.deletedAt ? new Date(doc.deletedAt) : null,

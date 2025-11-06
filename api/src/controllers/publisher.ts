@@ -86,7 +86,7 @@ router.get("/:id", passport.authenticate("user", { session: false }), async (req
 
     const userPublisherIds = req.user.publishers.map((value: string) => value.toString());
     const hasAccess =
-      req.user.role === "admin" || userPublisherIds.includes(params.data.id) || publisher.publishers.some((diffuseur) => userPublisherIds.includes(diffuseur.publisherId));
+      req.user.role === "admin" || userPublisherIds.includes(params.data.id) || publisher.publishers.some((diffuseur) => userPublisherIds.includes(diffuseur.diffuseurPublisherId));
 
     if (!hasAccess) {
       return res.status(403).send({ ok: false, code: FORBIDDEN, message: `Not allowed` });
@@ -116,7 +116,7 @@ router.get("/:id/moderated", passport.authenticate("user", { session: false }), 
       return res.status(404).send({ ok: false, code: NOT_FOUND, message: "JVA not found" });
     }
 
-    if (jva.publishers.some((p) => p.publisherId === params.data.id)) {
+    if (jva.publishers.some((p) => p.diffuseurPublisherId === params.data.id)) {
       return res.status(200).send({ ok: true, data: true });
     }
 
@@ -260,7 +260,7 @@ router.post("/:id/image", passport.authenticate("user", { session: false }), upl
     if (files.length === 0) {
       return res.status(400).send({ ok: false, code: INVALID_BODY, message: "No file uploaded" });
     }
-    const objectName = `publishers/${publisher._id}/${files[0].originalname}`;
+    const objectName = `publishers/${publisher.id}/${files[0].originalname}`;
 
     const response = await putObject(objectName, files[0].buffer, {
       ACL: OBJECT_ACL.PUBLIC_READ,
