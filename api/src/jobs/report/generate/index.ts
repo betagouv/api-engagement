@@ -149,7 +149,7 @@ export const generateReports = async (year: number, month: number, publisherId?:
       dataTemplate = computeReportDataTemplate(res.data);
     }
 
-    const existing = await reportService.findReportByPublisherAndPeriod(publisher.id, year, month);
+    const existing = await reportService.findOneReportByPublisherAndPeriod(publisher.id, year, month);
 
     if (existing) {
       const patch: ReportUpdatePatch = {

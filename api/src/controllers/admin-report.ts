@@ -25,7 +25,7 @@ router.post("/search", passport.authenticate("admin", { session: false }), async
       return res.status(400).send({ ok: false, code: INVALID_BODY, message: body.error });
     }
 
-    const result = await reportService.searchReports({
+    const result = await reportService.findReportsWithAggregations({
       status: body.data.status,
       publisherId: body.data.publisherId,
       month: body.data.month,

@@ -4,9 +4,9 @@ import type {
   ReportAggregations,
   ReportCreateInput,
   ReportFindParams,
+  ReportFindWithAggregationsParams,
   ReportRecord,
   ReportSearchFilters,
-  ReportSearchParams,
   ReportSearchResult,
   ReportSortField,
   ReportUpdatePatch,
@@ -51,7 +51,7 @@ export const reportService = {
     return reports.map(toReportRecord);
   },
 
-  async searchReports(params: ReportSearchParams): Promise<ReportSearchResult> {
+  async findReportsWithAggregations(params: ReportFindWithAggregationsParams): Promise<ReportSearchResult> {
     const { from, size, sortBy, status, publisherId, month, year } = params;
     const where = buildWhere({ status, publisherId, month, year });
     const skip = Math.max(0, from);
@@ -105,7 +105,7 @@ export const reportService = {
     };
   },
 
-  async getReportById(id: string): Promise<ReportRecord | null> {
+  async findOneReportById(id: string): Promise<ReportRecord | null> {
     const report = await reportRepository.findById({
       where: { id },
       include: defaultInclude,
@@ -114,7 +114,7 @@ export const reportService = {
     return report ? toReportRecord(report) : null;
   },
 
-  async findReportByPublisherAndPeriod(publisherId: string, year: number, month: number): Promise<ReportRecord | null> {
+  async findOneReportByPublisherAndPeriod(publisherId: string, year: number, month: number): Promise<ReportRecord | null> {
     const report = await reportRepository.findFirst({
       where: {
         publisherId,
@@ -144,6 +144,7 @@ export const reportService = {
       sentTo: input.sentTo ?? [],
       status: input.status,
       data: input.data ?? {},
+      updatedAt: new Date(),
     };
 
     const report = await reportRepository.create({
@@ -155,7 +156,9 @@ export const reportService = {
   },
 
   async updateReport(id: string, patch: ReportUpdatePatch): Promise<ReportRecord> {
-    const data: any = {};
+    const data: any = {
+      updatedAt: new Date(),
+    };
 
     if ("name" in patch) {
       data.name = patch.name ?? undefined;

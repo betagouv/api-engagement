@@ -79,7 +79,7 @@ export const sendReports = async (year: number, month: number, publisherId?: str
       console.log(`[Report] Targeting single publisher ${publisherId}`);
     }
 
-    let report = await reportService.findReportByPublisherAndPeriod(publisher.id, year, month);
+    let report = await reportService.findOneReportByPublisherAndPeriod(publisher.id, year, month);
     if (!report) {
       console.log(`[${publisher.name}] Report not found`);
       errors.push({

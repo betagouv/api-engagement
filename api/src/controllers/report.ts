@@ -29,7 +29,7 @@ router.get("/pdf/:publisherId", async (req: Request, res: Response, next: NextFu
       return res.status(400).send({ ok: false, code: INVALID_QUERY, message: query.error });
     }
 
-    const report = await reportService.findReportByPublisherAndPeriod(params.data.publisherId, query.data.year, query.data.month);
+    const report = await reportService.findOneReportByPublisherAndPeriod(params.data.publisherId, query.data.year, query.data.month);
     if (!report) {
       return res.status(404).send({ ok: false, code: NOT_FOUND, message: "Report not found" });
     }
@@ -47,7 +47,7 @@ router.get("/:id", async (req: Request, res: Response, next: NextFunction) => {
   try {
     const params = zod
       .object({
-        id: zod.string(),
+        id: zod.uuid(),
       })
       .safeParse(req.params);
 
@@ -55,7 +55,7 @@ router.get("/:id", async (req: Request, res: Response, next: NextFunction) => {
       return res.status(400).send({ ok: false, code: INVALID_PARAMS, message: params.error });
     }
 
-    const report = await reportService.getReportById(params.data.id);
+    const report = await reportService.findOneReportById(params.data.id);
     if (!report) {
       return res.status(404).send({ ok: false, code: NOT_FOUND, message: "Report not found" });
     }
