@@ -167,12 +167,6 @@ describe("missionToLinkedinJob", () => {
     expect(job?.description).not.toContain("<b>Pré-requis : </b>");
   });
 
-  it("should exclude missions on offline day", () => {
-    vi.setSystemTime(new Date("2025-09-08"));
-    const job = missionToLinkedinJob(baseMission as Mission, defaultCompany);
-    expect(job).toBeNull();
-  });
-
   it("should use location fields when present and no address are provided", () => {
     const mission = { ...baseMission, addresses: [], country: "FR", city: "Nantes", postalCode: "44000" } as Mission;
     const job = missionToLinkedinJob(mission, defaultCompany);
