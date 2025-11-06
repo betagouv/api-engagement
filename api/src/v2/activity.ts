@@ -7,9 +7,9 @@ import MissionModel from "../models/mission";
 import RequestModel from "../models/request";
 import statEventRepository from "../repositories/stat-event";
 import { publisherService } from "../services/publisher";
-import type { PublisherRecord } from "../types/publisher";
-import { PublisherRequest } from "../types/passport";
 import { Stats } from "../types";
+import { PublisherRequest } from "../types/passport";
+import type { PublisherRecord } from "../types/publisher";
 
 const router = Router();
 
@@ -123,7 +123,7 @@ router.post("/:missionId/:publisherId/click", async (req: PublisherRequest, res:
       return res.status(404).send({ ok: false, code: NOT_FOUND, message: "Mission not found" });
     }
 
-    const publisher = await publisherService.getPublisherById(params.data.publisherId);
+    const publisher = await publisherService.findOnePublisherById(params.data.publisherId);
     if (!publisher) {
       res.locals = { code: NOT_FOUND };
       return res.status(404).send({ ok: false, code: NOT_FOUND, message: "Publisher not found" });

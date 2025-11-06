@@ -68,7 +68,7 @@ passport.use(
   "apikey",
   new HeaderAPIKeyStrategy({ header: "apikey", prefix: "" }, false, async (apikey, done) => {
     try {
-      const publisher = await publisherService.findByApiKey(apikey);
+      const publisher = await publisherService.findOnePublisherByApiKey(apikey);
       if (publisher) {
         Sentry.setUser({
           id: publisher.id,
@@ -89,7 +89,7 @@ passport.use(
   "api",
   new HeaderAPIKeyStrategy({ header: "x-api-key", prefix: "" }, false, async (apikey, done) => {
     try {
-      const publisher = await publisherService.findByApiKey(apikey);
+      const publisher = await publisherService.findOnePublisherByApiKey(apikey);
       if (publisher) {
         Sentry.setUser({
           id: publisher.id,
@@ -110,7 +110,7 @@ passport.use(
   "leboncoin",
   new HeaderAPIKeyStrategy({ header: "Authorization", prefix: "" }, false, async (apikey, done) => {
     try {
-      const publisher = await publisherService.findByApiKey(apikey, PUBLISHER_IDS.LEBONCOIN);
+      const publisher = await publisherService.findOnePublisherByApiKey(apikey, PUBLISHER_IDS.LEBONCOIN);
       if (publisher) {
         Sentry.setUser({
           id: publisher.id,
@@ -131,7 +131,7 @@ passport.use(
   "jobteaser",
   new HeaderAPIKeyStrategy({ header: "x-api-key", prefix: "" }, false, async (apikey, done) => {
     try {
-      const publisher = await publisherService.findByApiKey(apikey, PUBLISHER_IDS.JOBTEASER);
+      const publisher = await publisherService.findOnePublisherByApiKey(apikey, PUBLISHER_IDS.JOBTEASER);
       if (publisher) {
         Sentry.setUser({
           id: publisher.id,

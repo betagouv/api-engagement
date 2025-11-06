@@ -44,7 +44,7 @@ router.post("/search", passport.authenticate("user", { session: false }), async 
       return res.status(403).send({ ok: false, code: FORBIDDEN });
     }
 
-    const moderator = await publisherService.getPublisherById(body.data.moderatorId);
+    const moderator = await publisherService.findOnePublisherById(body.data.moderatorId);
     if (!moderator || !moderator.moderator) {
       return res.status(403).send({ ok: false, code: FORBIDDEN });
     }
@@ -166,7 +166,7 @@ router.post("/aggs", passport.authenticate("user", { session: false }), async (r
       return res.status(403).send({ ok: false, code: FORBIDDEN });
     }
 
-    const moderator = await publisherService.getPublisherById(body.data.moderatorId);
+    const moderator = await publisherService.findOnePublisherById(body.data.moderatorId);
     if (!moderator || !moderator.moderator) {
       return res.status(403).send({ ok: false, code: FORBIDDEN });
     }
@@ -424,7 +424,7 @@ router.get("/:id", passport.authenticate("user", { session: false }), async (req
       return res.status(404).send({ ok: false, code: NOT_FOUND });
     }
 
-    const moderator = await publisherService.getPublisherById(query.data.moderatorId);
+    const moderator = await publisherService.findOnePublisherById(query.data.moderatorId);
     if (!moderator) {
       return res.status(404).send({ ok: false, code: NOT_FOUND, message: "Moderator not found" });
     }
@@ -477,7 +477,7 @@ router.put("/many", passport.authenticate("user", { session: false }), async (re
       return res.status(400).send({ ok: false, code: INVALID_BODY, error: body.error });
     }
 
-    const moderator = await publisherService.getPublisherById(body.data.moderatorId);
+    const moderator = await publisherService.findOnePublisherById(body.data.moderatorId);
     if (!moderator || !moderator.moderator) {
       return res.status(403).send({ ok: false, code: FORBIDDEN });
     }
@@ -570,7 +570,7 @@ router.put("/:id", passport.authenticate("user", { session: false }), async (req
       return res.status(400).send({ ok: false, code: INVALID_BODY, error: "COMMENT_REQUIRED" });
     }
 
-    const moderator = await publisherService.getPublisherById(body.data.moderatorId);
+    const moderator = await publisherService.findOnePublisherById(body.data.moderatorId);
     if (!moderator || !moderator.moderator) {
       return res.status(403).send({ ok: false, code: FORBIDDEN });
     }

@@ -82,7 +82,7 @@ router.get("/:id", passport.authenticate(["apikey", "api"], { session: false }),
       return res.status(400).send({ ok: false, code: INVALID_PARAMS, message: params.error });
     }
 
-    const publisher = await publisherService.getPublisherById(params.data.id);
+    const publisher = await publisherService.findOnePublisherById(params.data.id);
     if (!publisher || !publisher.publishers.some((p) => p.diffuseurPublisherId === user.id)) {
       res.locals = { code: NOT_FOUND, message: "Publisher not found" };
       return res.status(404).send({ ok: false, code: NOT_FOUND, message: "Publisher not found" });

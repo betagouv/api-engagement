@@ -35,7 +35,7 @@ export class ImportMissionsHandler implements BaseHandler<ImportMissionsJobPaylo
     const imports = [] as Import[];
     let publishers: PublisherRecord[] = [];
     if (payload.publisherId) {
-      const publisher = await publisherService.getPublisherById(payload.publisherId);
+      const publisher = await publisherService.findOnePublisherById(payload.publisherId);
       if (!publisher) {
         throw new Error(`Publisher ${payload.publisherId} not found`);
       }

@@ -199,12 +199,12 @@ export const publisherService = (() => {
     return toPublisherRecord(created as PublisherWithDiffusion);
   };
 
-  const existsByName = async (name: string): Promise<boolean> => {
+  const publisherExistsByName = async (name: string): Promise<boolean> => {
     const count = await publisherRepository.count({ where: { name } });
     return count > 0;
   };
 
-  const findByApiKey = async (apikey: string, publisherId?: string): Promise<PublisherRecord | null> => {
+  const findOnePublisherByApiKey = async (apikey: string, publisherId?: string): Promise<PublisherRecord | null> => {
     const publisher = await publisherRepository.findFirst({
       where: { apikey, ...(publisherId ? { id: publisherId } : {}) },
       include: defaultInclude,
@@ -212,7 +212,7 @@ export const publisherService = (() => {
     return publisher ? toPublisherRecord(publisher as PublisherWithDiffusion) : null;
   };
 
-  const findPublisherByName = async (name: string): Promise<PublisherRecord | null> => {
+  const findOnePublisherByName = async (name: string): Promise<PublisherRecord | null> => {
     const publisher = await publisherRepository.findFirst({
       where: { name },
       include: defaultInclude,
@@ -252,12 +252,12 @@ export const publisherService = (() => {
     throw new Error("Failed to generate a unique publisher identifier");
   };
 
-  const getPublisherById = async (id: string): Promise<PublisherRecord | null> => {
+  const findOnePublisherById = async (id: string): Promise<PublisherRecord | null> => {
     const publisher = await publisherRepository.findUnique({ where: { id }, include: defaultInclude });
     return publisher ? toPublisherRecord(publisher as PublisherWithDiffusion) : null;
   };
 
-  const getPublishersByIds = async (ids: string[]): Promise<PublisherRecord[]> => {
+  const findPublishersByIds = async (ids: string[]): Promise<PublisherRecord[]> => {
     if (!ids.length) {
       return [];
     }
@@ -404,16 +404,16 @@ export const publisherService = (() => {
   return {
     countPublishers,
     createPublisher,
-    existsByName,
-    findByApiKey,
-    findPublisherByName,
+    updatePublisher,
+    publisherExistsByName,
+    findOnePublisherByApiKey,
+    findOnePublisherById,
+    findOnePublisherByName,
     findPublishers,
+    findPublishersByIds,
     findPublishersWithCount,
-    getPublisherById,
-    getPublishersByIds,
     purgeAll,
     regenerateApiKey,
     softDeletePublisher,
-    updatePublisher,
   };
 })();

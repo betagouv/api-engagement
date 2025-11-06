@@ -691,7 +691,7 @@ router.get("/:missionId/:publisherId", cors({ origin: "*" }), async function tra
     }
     href = mission.applicationUrl;
 
-    const fromPublisher = await publisherService.getPublisherById(params.data.publisherId);
+    const fromPublisher = await publisherService.findOnePublisherById(params.data.publisherId);
 
     const obj = {
       type: "click",
@@ -783,7 +783,7 @@ router.get("/impression/campaign/:campaignId", cors({ origin: "*" }), async (req
       return res.status(404).send({ ok: false, code: NOT_FOUND });
     }
 
-    const fromPublisher = await publisherService.getPublisherById(campaign.fromPublisherId);
+    const fromPublisher = await publisherService.findOnePublisherById(campaign.fromPublisherId);
     if (!fromPublisher) {
       captureException(`[Impression Campaign] Publisher not found`, `publisher ${campaign.fromPublisherId}`);
       return res.status(404).send({ ok: false, code: NOT_FOUND });
@@ -860,7 +860,7 @@ router.get("/impression/:missionId/:publisherId", cors({ origin: "*" }), async (
       return res.status(404).send({ ok: false, code: NOT_FOUND });
     }
 
-    const fromPublisher = await publisherService.getPublisherById(params.data.publisherId);
+    const fromPublisher = await publisherService.findOnePublisherById(params.data.publisherId);
     if (!fromPublisher) {
       captureException(`[Impression Widget] Publisher not found`, `publisher ${params.data.publisherId}`);
       return res.status(404).send({ ok: false, code: NOT_FOUND });

@@ -26,7 +26,7 @@ export class TalentHandler implements BaseHandler<TalentJobPayload, TalentJobRes
   public async handle(payload: TalentJobPayload): Promise<TalentJobResult> {
     const start = new Date();
     try {
-      const talent = await publisherService.getPublisherById(TALENT_PUBLISHER_ID);
+      const talent = await publisherService.findOnePublisherById(TALENT_PUBLISHER_ID);
       if (!talent) {
         throw new Error("Talent publisher not found");
       }

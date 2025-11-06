@@ -45,7 +45,7 @@ export const checkBotClicks = async () => {
         if (!publisherBucket?.key) {
           continue;
         }
-        const publisher = await publisherService.findPublisherByName(publisherBucket.key);
+        const publisher = await publisherService.findOnePublisherByName(publisherBucket.key);
         if (!publisher) {
           continue;
         }

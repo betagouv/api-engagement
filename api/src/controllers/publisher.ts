@@ -79,7 +79,7 @@ router.get("/:id", passport.authenticate("user", { session: false }), async (req
       return res.status(400).send({ ok: false, code: INVALID_PARAMS, error: params.error });
     }
 
-    const publisher = await publisherService.getPublisherById(params.data.id);
+    const publisher = await publisherService.findOnePublisherById(params.data.id);
     if (!publisher) {
       return res.status(404).send({ ok: false, code: NOT_FOUND, message: "Publisher not found" });
     }
@@ -110,7 +110,7 @@ router.get("/:id/moderated", passport.authenticate("user", { session: false }), 
       return res.status(400).send({ ok: false, code: INVALID_PARAMS, error: params.error });
     }
 
-    const jva = await publisherService.getPublisherById(PUBLISHER_IDS.JEVEUXAIDER);
+    const jva = await publisherService.findOnePublisherById(PUBLISHER_IDS.JEVEUXAIDER);
     if (!jva) {
       captureException(new Error("JVA not found"));
       return res.status(404).send({ ok: false, code: NOT_FOUND, message: "JVA not found" });
@@ -138,7 +138,7 @@ router.get("/:id/excluded-organizations", passport.authenticate("user", { sessio
       return res.status(400).send({ ok: false, code: INVALID_PARAMS, error: params.error });
     }
 
-    const publisher = await publisherService.getPublisherById(params.data.id);
+    const publisher = await publisherService.findOnePublisherById(params.data.id);
     if (!publisher) {
       return res.status(404).send({ ok: false, code: NOT_FOUND, message: "Publisher not found" });
     }
@@ -194,7 +194,7 @@ router.post("/", passport.authenticate("admin", { session: false }), async (req:
       return res.status(400).send({ ok: false, code: INVALID_BODY, message: "Name is required" });
     }
 
-    const exists = await publisherService.existsByName(body.data.name);
+    const exists = await publisherService.publisherExistsByName(body.data.name);
     if (exists) {
       return res.status(409).send({
         ok: false,
@@ -251,7 +251,7 @@ router.post("/:id/image", passport.authenticate("user", { session: false }), upl
       return res.status(400).send({ ok: false, code: INVALID_BODY, message: "No file uploaded" });
     }
 
-    const publisher = await publisherService.getPublisherById(params.data.id);
+    const publisher = await publisherService.findOnePublisherById(params.data.id);
     if (!publisher) {
       return res.status(404).send({ ok: false, code: NOT_FOUND, message: "Publisher not found" });
     }
@@ -405,7 +405,7 @@ router.delete("/:id", passport.authenticate("admin", { session: false }), async 
     if (!params.success) {
       return res.status(400).send({ ok: false, code: INVALID_PARAMS, error: params.error });
     }
-    const publisher = await publisherService.getPublisherById(params.data.id);
+    const publisher = await publisherService.findOnePublisherById(params.data.id);
     if (!publisher) {
       return res.status(200).send({ ok: true });
     }

@@ -30,15 +30,9 @@ router.get("/:id/stat", passport.authenticate("admin", { session: false }), asyn
 
     const aggregations = await statEventRepository.aggregateWarningBotStatsByUser(warningBot.hash);
 
-    const publisherIds = Array.from(
-      new Set(
-        [...aggregations.publisherTo, ...aggregations.publisherFrom]
-          .map((bucket) => bucket.key)
-          .filter((key): key is string => Boolean(key))
-      )
-    );
+    const publisherIds = Array.from(new Set([...aggregations.publisherTo, ...aggregations.publisherFrom].map((bucket) => bucket.key).filter((key): key is string => Boolean(key))));
 
-    const publishers = await publisherService.getPublishersByIds(publisherIds);
+    const publishers = await publisherService.findPublishersByIds(publisherIds);
     const publisherMap = new Map(publishers.map((publisher) => [publisher.id, publisher.name]));
 
     const aggs = {

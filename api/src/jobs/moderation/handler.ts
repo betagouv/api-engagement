@@ -31,7 +31,7 @@ export class ModerationHandler implements BaseHandler<ModerationJobPayload, Mode
       const start = new Date();
       console.log(`[Moderation JVA] Starting at ${start.toISOString()}`);
 
-      const jva = await publisherService.getPublisherById(PUBLISHER_IDS.JEVEUXAIDER);
+      const jva = await publisherService.findOnePublisherById(PUBLISHER_IDS.JEVEUXAIDER);
 
       if (!jva) {
         throw new Error("JVA not found");

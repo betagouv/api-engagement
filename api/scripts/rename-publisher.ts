@@ -99,7 +99,7 @@ const renamePublisher = async (oldName: string, newName: string, { dryRun }: Ren
   console.log(`[RenamePublisher] Renaming '${oldName}' -> '${newName}'`);
 
   const missionFilter = { publisherName: oldName };
-  const existingPublisher = await publisherService.findPublisherByName(oldName);
+  const existingPublisher = await publisherService.findOnePublisherByName(oldName);
   const publishersMatched = existingPublisher ? 1 : 0;
   const missionsMatched = await MissionModel.countDocuments(missionFilter);
 

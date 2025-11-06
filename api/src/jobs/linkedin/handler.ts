@@ -28,7 +28,7 @@ export class LinkedinHandler implements BaseHandler<LinkedinJobPayload, Linkedin
   public async handle(payload: LinkedinJobPayload): Promise<LinkedinJobResult> {
     const start = new Date();
     try {
-      const linkedin = await publisherService.getPublisherById(PUBLISHER_IDS.LINKEDIN);
+      const linkedin = await publisherService.findOnePublisherById(PUBLISHER_IDS.LINKEDIN);
       if (!linkedin) {
         throw new Error("Linkedin publisher not found");
       }

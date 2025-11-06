@@ -107,12 +107,12 @@ router.post("/", passport.authenticate("admin", { session: false }), async (req:
       return res.status(400).send({ ok: false, code: INVALID_BODY, error: body.error });
     }
 
-    const fromPublisher = await publisherService.getPublisherById(body.data.fromPublisherId);
+    const fromPublisher = await publisherService.findOnePublisherById(body.data.fromPublisherId);
     if (!fromPublisher) {
       return res.status(404).send({ ok: false, code: NOT_FOUND, error: "Publisher not found" });
     }
 
-    const toPublisher = await publisherService.getPublisherById(body.data.toPublisherId);
+    const toPublisher = await publisherService.findOnePublisherById(body.data.toPublisherId);
     if (!toPublisher) {
       return res.status(404).send({ ok: false, code: NOT_FOUND, error: "Publisher not found" });
     }
@@ -284,8 +284,8 @@ router.put("/:id", passport.authenticate("admin", { session: false }), async (re
     }
 
     if (body.data.toPublisherId && body.data.toPublisherId !== campaign.toPublisherId) {
-      const prevToPublisher = await publisherService.getPublisherById(campaign.toPublisherId);
-      const newToPublisher = await publisherService.getPublisherById(body.data.toPublisherId);
+      const prevToPublisher = await publisherService.findOnePublisherById(campaign.toPublisherId);
+      const newToPublisher = await publisherService.findOnePublisherById(body.data.toPublisherId);
       if (!prevToPublisher) {
         return res.status(404).send({ ok: false, code: NOT_FOUND, error: "Previous publisher not found" });
       }
@@ -350,8 +350,8 @@ router.put("/:id/reassign", passport.authenticate("admin", { session: false }), 
       });
     }
 
-    const prevFromPublisher = await publisherService.getPublisherById(campaign.fromPublisherId);
-    const newFromPublisher = await publisherService.getPublisherById(body.data.fromPublisherId);
+    const prevFromPublisher = await publisherService.findOnePublisherById(campaign.fromPublisherId);
+    const newFromPublisher = await publisherService.findOnePublisherById(body.data.fromPublisherId);
     if (!prevFromPublisher) {
       return res.status(404).send({ ok: false, code: NOT_FOUND, error: "Previous publisher not found" });
     }
@@ -375,7 +375,7 @@ router.put("/:id/reassign", passport.authenticate("admin", { session: false }), 
         sourceId: campaign._id.toString(),
         fromPublisherId: prevFromPublisher.id,
       },
-      update,
+      update
     );
 
     return res.status(200).send({ ok: true, data: campaign });

@@ -183,7 +183,7 @@ router.post("/", passport.authenticate("admin", { session: false }), async (req:
       });
     }
 
-    const fromPublisher = await publisherService.getPublisherById(body.data.fromPublisherId);
+    const fromPublisher = await publisherService.findOnePublisherById(body.data.fromPublisherId);
     if (!fromPublisher) {
       return res.status(404).send({
         ok: false,
