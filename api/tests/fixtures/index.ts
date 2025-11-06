@@ -22,13 +22,7 @@ export const createTestPublisher = async (data: Partial<PublisherCreateInput> = 
     hasWidgetRights: true,
     hasCampaignRights: true,
     hasApiRights: true,
-    publishers: [
-      {
-        publisherId: randomUUID(),
-        publisherName: "Test Publisher Name",
-        moderator: false,
-      },
-    ],
+    publishers: [],
     sendReport: false,
     sendReportTo: [],
   };

@@ -15,8 +15,8 @@ describe("MyMission API Integration Tests", () => {
     publisher = await createTestPublisher();
     apiKey = publisher.apikey;
     const orgId = "test-org-id";
-    mission1 = await createTestMission({ organizationClientId: orgId, publisherId: publisher._id.toString() });
-    mission2 = await createTestMission({ organizationClientId: orgId, publisherId: publisher._id.toString() });
+    mission1 = await createTestMission({ organizationClientId: orgId, publisherId: publisher.id });
+    mission2 = await createTestMission({ organizationClientId: orgId, publisherId: publisher.id });
 
     vi.clearAllMocks();
 

@@ -14,7 +14,7 @@ describe("View API Integration Tests", () => {
   beforeEach(async () => {
     const publisher = await createTestPublisher({ name: "View Publisher" });
     apiKey = publisher.apikey!;
-    publisherId = publisher._id.toString();
+    publisherId = publisher.id;
 
     elasticMock.search.mockReset();
     vi.clearAllMocks();
