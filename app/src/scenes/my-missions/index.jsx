@@ -14,7 +14,7 @@ const MyMissions = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const resM = await api.get(`/publisher/${publisher._id}/moderated`);
+        const resM = await api.get(`/publisher/${publisher.id}/moderated`);
         if (!resM.ok) throw resM;
         setModerated(resM.data);
       } catch (error) {
@@ -22,7 +22,7 @@ const MyMissions = () => {
       }
     };
     fetchData();
-  }, [publisher._id]);
+  }, [publisher.id]);
 
   return (
     <div className="space-y-12">

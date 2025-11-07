@@ -12,10 +12,51 @@ import { PublisherNotFoundError, publisherService } from "../services/publisher"
 import { OBJECT_ACL, putObject } from "../services/s3";
 import { User } from "../types";
 import { UserRequest } from "../types/passport";
-import type { PublisherRoleFilter } from "../types/publisher";
+import type { PublisherDiffusionInput, PublisherRoleFilter } from "../types/publisher";
 
 const upload = multer();
 const router = Router();
+
+const nullableString = zod.string().nullish();
+const publisherDiffusionSchema = zod
+  .object({
+    publisherId: zod.string().min(1).optional(),
+    diffuseurPublisherId: zod.string().min(1).optional(),
+    publisherName: zod.string().optional(),
+    publisherLogo: zod.string().optional(),
+    missionType: zod.string().nullable().optional(),
+    moderator: zod.boolean().optional(),
+  })
+  .refine((value) => Boolean(value.publisherId ?? value.diffuseurPublisherId), {
+    message: "publisherId or diffuseurPublisherId is required",
+    path: ["publisherId"],
+  });
+
+type PublisherDiffusionBody = zod.infer<typeof publisherDiffusionSchema>;
+
+const mapPublishersForService = (publishers?: PublisherDiffusionBody[]): PublisherDiffusionInput[] | undefined => {
+  if (!publishers) {
+    return undefined;
+  }
+
+  const mapped = publishers
+    .map((publisher) => {
+      const publisherId = publisher.publisherId ?? publisher.diffuseurPublisherId;
+      if (!publisherId) {
+        return null;
+      }
+
+      return {
+        publisherId,
+        publisherName: publisher.publisherName,
+        missionType: publisher.missionType ?? null,
+        moderator: publisher.moderator ?? false,
+      } satisfies PublisherDiffusionInput;
+    })
+    .filter((publisher): publisher is PublisherDiffusionInput => Boolean(publisher));
+
+  return mapped;
+};
 
 router.post("/search", passport.authenticate(["user", "admin"], { session: false }), async (req: UserRequest, res: Response, next: NextFunction) => {
   try {
@@ -165,25 +206,15 @@ router.post("/", passport.authenticate("admin", { session: false }), async (req:
         hasCampaignRights: zod.boolean().default(false),
         category: zod.string().nullable().default(null),
         name: zod.string().optional(),
-        publishers: zod
-          .array(
-            zod.object({
-              publisherId: zod.string(),
-              publisherName: zod.string(),
-              publisherLogo: zod.string().optional(),
-              missionType: zod.string().nullable().default(null),
-              moderator: zod.boolean().default(false),
-            })
-          )
-          .optional(),
-        documentation: zod.string().optional(),
-        description: zod.string().optional(),
-        lead: zod.string().optional(),
-        logo: zod.string().optional(),
-        url: zod.string().optional(),
-        email: zod.string().optional(),
-        feed: zod.string().optional(),
-      })
+    publishers: zod.array(publisherDiffusionSchema).optional(),
+    documentation: nullableString,
+    description: zod.string().optional(),
+    lead: nullableString,
+    logo: zod.string().optional(),
+    url: nullableString,
+    email: nullableString,
+    feed: nullableString,
+  })
       .safeParse(req.body);
 
     if (!body.success) {
@@ -220,12 +251,7 @@ router.post("/", passport.authenticate("admin", { session: false }), async (req:
       url: body.data.url,
       email: body.data.email,
       feed: body.data.feed,
-      publishers: body.data.publishers?.map((publisher) => ({
-        publisherId: publisher.publisherId,
-        publisherName: publisher.publisherName,
-        missionType: publisher.missionType,
-        moderator: publisher.moderator,
-      })),
+      publishers: mapPublishersForService(body.data.publishers),
     };
 
     const data = await publisherService.createPublisher(payload);
@@ -318,25 +344,15 @@ router.put("/:id", passport.authenticate("admin", { session: false }), async (re
         hasWidgetRights: zod.boolean().optional(),
         hasCampaignRights: zod.boolean().optional(),
         category: zod.string().nullable().optional(),
-        publishers: zod
-          .array(
-            zod.object({
-              publisherId: zod.string(),
-              publisherName: zod.string(),
-              publisherLogo: zod.string().optional(),
-              missionType: zod.string().nullable().default(null),
-              moderator: zod.boolean().default(false),
-            })
-          )
-          .optional(),
-        documentation: zod.string().optional(),
-        description: zod.string().optional(),
-        lead: zod.string().optional(),
-        logo: zod.string().optional(),
-        url: zod.string().optional(),
-        email: zod.string().optional(),
-        feed: zod.string().optional(),
-      })
+    publishers: zod.array(publisherDiffusionSchema).optional(),
+    documentation: nullableString,
+    description: zod.string().optional(),
+    lead: nullableString,
+    logo: zod.string().optional(),
+    url: nullableString,
+    email: nullableString,
+    feed: nullableString,
+  })
       .safeParse(req.body);
 
     if (!params.success) {
@@ -352,6 +368,8 @@ router.put("/:id", passport.authenticate("admin", { session: false }), async (re
       return res.status(400).send({ ok: false, code: INVALID_BODY, message: "Category is required" });
     }
 
+    const publishers = body.data.publishers !== undefined ? mapPublishersForService(body.data.publishers) ?? [] : undefined;
+
     const patch = {
       sendReport: body.data.sendReport,
       sendReportTo: body.data.sendReportTo,
@@ -361,16 +379,7 @@ router.put("/:id", passport.authenticate("admin", { session: false }), async (re
       hasWidgetRights: body.data.hasWidgetRights,
       hasCampaignRights: body.data.hasCampaignRights,
       category: body.data.category,
-      publishers:
-        body.data.publishers !== undefined
-          ? (body.data.publishers.map((p) => ({
-              publisherId: p.publisherId,
-              publisherName: p.publisherName,
-              publisherLogo: p.publisherLogo,
-              missionType: p.missionType,
-              moderator: p.moderator,
-            })) ?? [])
-          : undefined,
+      publishers,
       documentation: body.data.documentation,
       description: body.data.description,
       lead: body.data.lead,

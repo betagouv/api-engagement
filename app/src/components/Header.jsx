@@ -79,7 +79,7 @@ const NotificationMenu = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const resW = await api.get(`/warning/${publisher._id}`);
+        const resW = await api.get(`/warning/${publisher.id}`);
         if (!resW.ok) throw resW;
         setWarnings(resW.data);
 

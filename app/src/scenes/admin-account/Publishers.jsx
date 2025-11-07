@@ -65,7 +65,7 @@ const Publishers = () => {
     const data = [];
     publishers.forEach((publisher) => {
       const val = {};
-      val["Id"] = publisher._id;
+      val["Id"] = publisher.id;
       val["Nom"] = publisher.name;
       val["Email"] = publisher.email;
       val["URL"] = publisher.url;
@@ -76,10 +76,10 @@ const Publishers = () => {
       const annonceurs = publisher.publishers.map((p) => p.publisherName);
       val["Nombre d'annonceurs"] = annonceurs.length;
       val["Annonceurs"] = annonceurs;
-      const broadcasters = publishers.filter((p) => p.publishers.find((e) => e.publisher === publisher._id.toString())).map((p) => p.name);
+      const broadcasters = publishers.filter((p) => p.publishers.find((e) => e.publisher === publisher.id.toString())).map((p) => p.name);
       val["Nombre de diffuseurs"] = broadcasters.length;
       val["Diffuseurs"] = broadcasters;
-      const members = users.filter((e) => e.publishers.find((j) => j === publisher._id.toString())).map((e) => `${e.name} - ${e.email}`);
+      const members = users.filter((e) => e.publishers.find((j) => j === publisher.id.toString())).map((e) => `${e.name} - ${e.email}`);
       val["Nombre de membres"] = members.length;
       val["Membres"] = members;
       val["Rapport automatique"] = publisher.sendReport;
@@ -185,7 +185,7 @@ const Publishers = () => {
             itemHeight="min-h-12"
             renderItem={(item) => (
               <>
-                <Link to={`/publisher/${item._id.toString()}`} className="link flex-1">
+                <Link to={`/publisher/${item.id}`} className="link flex-1">
                   {item.name}
                 </Link>
                 <div className="flex flex-1 flex-wrap justify-center gap-2">

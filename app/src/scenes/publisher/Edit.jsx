@@ -13,6 +13,7 @@ import Annonceur from "./components/Annonceur";
 import Diffuseur from "./components/Diffuseur";
 import Informations from "./components/Informations";
 import Members from "./components/Members";
+import { buildPublisherPayload } from "./utils";
 
 const Edit = () => {
   const { id } = useParams();
@@ -73,7 +74,7 @@ const Edit = () => {
       toast.success("Image mise à jour");
       setValues(res.data);
       setPublisher(res.data);
-      if (sessionPublisher._id === values._id) setSessionPublisher(res.data);
+      if (sessionPublisher.id === values.id) setSessionPublisher(res.data);
     } catch (error) {
       captureError(error, "Erreur lors de la mise à jour de l'image");
     }
@@ -84,11 +85,11 @@ const Edit = () => {
     if (!confirm) return;
 
     try {
-      const res = await api.delete(`/publisher/${values._id}`);
+      const res = await api.delete(`/publisher/${values.id}`);
       if (!res.ok) throw res;
       toast.success("Partenaire supprimé");
 
-      if (sessionPublisher._id === values._id) {
+      if (sessionPublisher.id === values.id) {
         const res = await api.get(`/publisher/${user.publishers[0]}`);
         if (!res.ok) throw res;
         setSessionPublisher(publisher);
@@ -121,13 +122,15 @@ const Edit = () => {
         return;
       }
 
-      const res = await api.put(`/publisher/${id}`, values);
+      const payload = buildPublisherPayload(values);
+
+      const res = await api.put(`/publisher/${id}`, payload);
       if (!res.ok) {
         throw res;
       }
       toast.success("Partenaire mis à jour");
       setPublisher(res.data);
-      if (sessionPublisher._id === values._id) {
+      if (sessionPublisher.id === values.id) {
         setSessionPublisher(res.data);
       }
     } catch (error) {
@@ -137,7 +140,7 @@ const Edit = () => {
 
   const isChanged = (v) => !_.isEqual(v, publisher);
 
-  if (!publisher || !values._id)
+  if (!publisher || !values.id)
     return (
       <div className="flex h-full items-center justify-center">
         <Loader />

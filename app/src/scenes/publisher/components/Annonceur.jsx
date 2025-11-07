@@ -17,7 +17,7 @@ const Annonceur = ({ values, onChange, errors, setErrors }) => {
     const fetchData = async () => {
       try {
         const res = await api.post("/publisher/search", {
-          diffuseursOf: values._id,
+          diffuseursOf: values.id,
         });
         if (!res.ok) throw res;
         setData(res.data);
@@ -26,7 +26,7 @@ const Annonceur = ({ values, onChange, errors, setErrors }) => {
       }
     };
     fetchData();
-  }, [values._id]);
+  }, [values.id]);
 
   return (
     <div className="space-y-6 border border-gray-900 p-6">

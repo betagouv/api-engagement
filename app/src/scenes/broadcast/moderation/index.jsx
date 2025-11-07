@@ -55,7 +55,7 @@ const Moderation = () => {
       setLoading(true);
       try {
         const query = {
-          moderatorId: publisher._id,
+          moderatorId: publisher.id,
           status: filters.status,
           comment: filters.comment,
           publisherId: filters.publisherId,
@@ -100,7 +100,7 @@ const Moderation = () => {
 
   const fetchHistory = async () => {
     try {
-      const res = await api.post("/moderation/search-history", { moderatorId: publisher._id });
+      const res = await api.post("/moderation/search-history", { moderatorId: publisher.id });
       if (!res.ok) throw res;
       setHistory(res.data);
     } catch (error) {

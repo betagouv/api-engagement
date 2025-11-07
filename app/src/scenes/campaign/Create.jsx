@@ -22,7 +22,7 @@ const Create = () => {
   const [values, setValues] = useState({
     name: "",
     type: "",
-    fromPublisherId: publisher._id,
+    fromPublisherId: publisher.id,
     toPublisherId: "",
     url: "",
     trackers: [],

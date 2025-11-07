@@ -49,7 +49,7 @@ const Moderation = () => {
   useEffect(() => {
     const fetchData = async () => {
       const query = {
-        publisherId: publisher._id,
+        publisherId: publisher.id,
         status: filters.status,
         comment: filters.comment,
         domain: filters.domain,
@@ -73,7 +73,7 @@ const Moderation = () => {
     };
     const fetchAggs = async () => {
       const query = {
-        publisherId: publisher._id,
+        publisherId: publisher.id,
         status: filters.status,
         comment: filters.comment,
         domain: filters.domain,
@@ -96,7 +96,7 @@ const Moderation = () => {
 
     fetchData();
     fetchAggs();
-  }, [filters, publisher._id]);
+  }, [filters, publisher.id]);
 
   const buildStats = (options) => {
     const status = options.status.filter((s) => s.key !== undefined).map((s) => ({ key: STATUS_PLR[s.key], doc_count: s.doc_count, color: STATUS_GRAPH_COLORS[s.key] }));

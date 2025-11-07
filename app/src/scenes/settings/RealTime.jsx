@@ -42,8 +42,8 @@ const RealTime = () => {
           size: MAX_EVENTS,
         };
 
-        if (flux === "from") query.fromPublisherId = publisher._id;
-        if (flux === "to") query.toPublisherId = publisher._id;
+        if (flux === "from") query.fromPublisherId = publisher.id;
+        if (flux === "to") query.toPublisherId = publisher.id;
 
         const res = await api.post("/stats/search", query);
 

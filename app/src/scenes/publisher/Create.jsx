@@ -7,6 +7,7 @@ import { captureError } from "../../services/error";
 import AnnonceurCreation from "./components/AnnonceurCreation";
 import DiffuseurCreation from "./components/DiffuseurCreation";
 import Informations from "./components/Informations";
+import { buildPublisherPayload } from "./utils";
 
 const canSubmit = (values) => {
   if (values.name === "") return false;
@@ -42,7 +43,8 @@ const Create = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const res = await api.post(`/publisher/`, values);
+      const payload = buildPublisherPayload(values);
+      const res = await api.post(`/publisher/`, payload);
       if (!res.ok) {
         throw res;
       }

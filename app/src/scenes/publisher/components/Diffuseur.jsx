@@ -102,12 +102,12 @@ const Diffuseur = ({ values, onChange, errors, setErrors }) => {
           </div>
           <div className="h-px w-full bg-gray-900" />
           <p className="text-base">
-            {values.name} diffuse les missions de {publishers.filter((item) => values.publishers.find((p) => p.publisherId === item._id)).length} annonceurs
+            {values.name} diffuse les missions de {publishers.filter((item) => values.publishers.find((p) => p.publisherId === item.id)).length} annonceurs
           </p>
           <SearchInput value={search} onChange={setSearch} placeholder="Rechercher un annonceur" timeout={0} />
           <Table header={[{ title: "Annonceurs" }]} className="h-full max-h-96">
             {publishers
-              .filter((item) => (editing ? item._id !== values._id : values.publishers.find((p) => p.publisherId === item._id)))
+              .filter((item) => (editing ? item.id !== values.id : values.publishers.find((p) => p.publisherId === item.id)))
               .filter((item) => item.name.toLowerCase().includes(search.toLowerCase()))
               .map((item, index) => (
                 <tr key={index} className={`${index % 2 === 0 ? "bg-gray-100" : "bg-gray-50"} table-item`}>
@@ -115,23 +115,23 @@ const Diffuseur = ({ values, onChange, errors, setErrors }) => {
                     <div className="flex items-center gap-2">
                       {editing && (
                         <input
-                          id={item._id}
+                          id={item.id}
                           type="checkbox"
                           className="checkbox"
-                          checked={selectedPublishers.find((p) => p.publisherId === item._id) || false}
+                          checked={selectedPublishers.find((p) => p.publisherId === item.id) || false}
                           onChange={(e) => {
                             if (e.target.checked) {
                               setSelectedPublishers([
                                 ...selectedPublishers,
-                                { publisherId: item._id, publisherName: item.name, publisherLogo: item.logo, moderator: item.moderator, missionType: item.missionType },
+                                { publisherId: item.id, publisherName: item.name, publisherLogo: item.logo, moderator: item.moderator, missionType: item.missionType },
                               ]);
                             } else {
-                              setSelectedPublishers(selectedPublishers.filter((p) => p.publisherId !== item._id));
+                              setSelectedPublishers(selectedPublishers.filter((p) => p.publisherId !== item.id));
                             }
                           }}
                         />
                       )}
-                      <label htmlFor={item._id}>{item.name}</label>
+                      <label htmlFor={item.id}>{item.name}</label>
                     </div>
                   </td>
                 </tr>

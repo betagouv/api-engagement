@@ -17,7 +17,7 @@ const HistoryTab = ({ data }) => {
     const fetchData = async () => {
       try {
         setLoading(true);
-        const res = await api.post(`/moderation-event/search`, { missionId: data._id, moderatorId: publisher._id });
+        const res = await api.post(`/moderation-event/search`, { missionId: data._id, moderatorId: publisher.id });
         if (!res.ok) throw res;
 
         setStatus(res.data.filter((event) => event.newStatus || event.newComment));
@@ -30,7 +30,7 @@ const HistoryTab = ({ data }) => {
     };
 
     fetchData();
-  }, [data, publisher._id]);
+  }, [data, publisher.id]);
 
   if (loading) return <Loader />;
 
