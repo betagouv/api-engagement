@@ -6,6 +6,7 @@ import Toggle from "../../../components/Toggle";
 import { PUBLISHER_CATEGORIES } from "../../../constants";
 import api from "../../../services/api";
 import { captureError } from "../../../services/error";
+import { withLegacyPublishers } from "../../../utils/publisher";
 
 const Diffuseur = ({ values, onChange, errors, setErrors }) => {
   const [editing, setEditing] = useState(false);
@@ -25,7 +26,7 @@ const Diffuseur = ({ values, onChange, errors, setErrors }) => {
         });
         if (!res.ok) throw res;
 
-        setPublishers(res.data);
+        setPublishers(withLegacyPublishers(res.data));
         setErrors({});
       } catch (error) {
         captureError(error, "Erreur lors de la récupération des diffuseurs");

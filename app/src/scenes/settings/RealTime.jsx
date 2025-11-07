@@ -56,7 +56,7 @@ const RealTime = () => {
       setLoading(false);
     };
 
-    if (!publisher?._id) {
+    if (!publisher?.id) {
       return;
     }
 

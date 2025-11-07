@@ -8,6 +8,7 @@ import Table from "../../components/Table";
 import api from "../../services/api";
 import { captureError } from "../../services/error";
 import exportCSV from "../../services/utils";
+import { withLegacyPublishers } from "../../utils/publisher";
 
 const Publishers = () => {
   const [filters, setFilters] = useState({ name: "", role: "", sendReport: "", missionType: "" });
@@ -46,9 +47,10 @@ const Publishers = () => {
 
         const res = await api.post("/publisher/search", query);
         if (!res.ok) throw res;
-        setPublishers(res.data);
+        const normalized = withLegacyPublishers(res.data);
+        setPublishers(normalized);
         if (!Object.keys(query).length) {
-          setDiffuseurs(res.data);
+          setDiffuseurs(normalized);
         }
       } catch (error) {
         captureError(error, "Erreur lors de la récupération des partenaires");
@@ -195,8 +197,8 @@ const Publishers = () => {
                   {item.hasCampaignRights && <span className="rounded bg-green-300 px-1 text-[10px]">Diffuseur Campagne</span>}
                 </div>
                 <span className="w-32 text-center text-xs">{item.publishers.length}</span>
-                <span className="w-32 text-center text-xs">{diffuseurs.filter((e) => e.publishers.some((j) => j.publisherId === item._id)).length}</span>
-                <span className="w-32 text-center text-xs">{users.filter((e) => e.publishers.find((j) => j === item._id)).length}</span>
+                <span className="w-32 text-center text-xs">{diffuseurs.filter((e) => e.publishers.some((j) => j.publisherId === item.id)).length}</span>
+                <span className="w-32 text-center text-xs">{users.filter((e) => e.publishers.find((j) => j === item.id)).length}</span>
                 <div className="w-32 text-center text-xs">
                   {item.sendReport ? (
                     <span className="bg-blue-france-975 rounded px-1">{`Oui (${item.sendReportTo.length} receveur${item.sendReportTo.length > 1 ? "s" : ""})`}</span>

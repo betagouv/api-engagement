@@ -8,6 +8,7 @@ import { DAYS, MONTHS, WARNINGS, YEARS } from "../../constants";
 import api from "../../services/api";
 import { captureError } from "../../services/error";
 import { slugify } from "../../services/utils";
+import { withLegacyPublishers } from "../../utils/publisher";
 import Bots from "./components/Bots";
 
 const Index = () => {
@@ -38,7 +39,7 @@ const Index = () => {
       try {
         const resP = await api.post("/publisher/search");
         if (!resP.ok) throw resP;
-        setPublishers(resP.data);
+        setPublishers(withLegacyPublishers(resP.data));
 
         const resS = await api.get("/warning/admin-state");
         if (!resS.ok) throw resS;
@@ -180,7 +181,7 @@ const Index = () => {
         <h2 className="text-2xl font-bold">Alertes en cours</h2>
         <div className="flex w-2/3 items-center justify-start gap-4">
           <Select
-            options={publishers.map((e) => ({ value: e._id, label: e.name }))}
+            options={publishers.map((e) => ({ value: e.id, label: e.name }))}
             value={currentFilters.publisher}
             onChange={(e) => setCurrentFilters({ ...currentFilters, publisher: e.value })}
             placeholder="Partenaire"
@@ -208,7 +209,7 @@ const Index = () => {
           <div className="flex flex-wrap gap-3">
             <Badge
               label="Partenaire"
-              value={publishers.find((p) => p._id === currentFilters.publisher)?.name}
+              value={publishers.find((p) => p.id === currentFilters.publisher)?.name}
               onDelete={() => setCurrentFilters({ ...currentFilters, publisher: "" })}
             />
             <Badge label="Type" value={WARNINGS[currentFilters.type]?.name} onDelete={() => setCurrentFilters({ ...currentFilters, type: "" })} />
@@ -249,7 +250,7 @@ const Index = () => {
         <h2 className="text-2xl font-bold">Historiques des alertes passées</h2>
         <div className="flex w-2/3 items-center justify-start gap-4">
           <Select
-            options={publishers.map((e) => ({ value: e._id, label: e.name }))}
+            options={publishers.map((e) => ({ value: e.id, label: e.name }))}
             value={archivedFilters.publisher}
             onChange={(e) => setArchivedFilters({ ...archivedFilters, publisher: e.value })}
             placeholder="Partenaire"
@@ -277,7 +278,7 @@ const Index = () => {
           <div className="flex flex-wrap gap-3">
             <Badge
               label="Partenaire"
-              value={publishers.find((p) => p._id === archivedFilters.publisher)?.name}
+              value={publishers.find((p) => p.id === archivedFilters.publisher)?.name}
               onDelete={() => setArchivedFilters({ ...archivedFilters, publisher: "" })}
             />
             <Badge label="Type" value={WARNINGS[archivedFilters.type]?.name} onDelete={() => setArchivedFilters({ ...archivedFilters, type: "" })} />

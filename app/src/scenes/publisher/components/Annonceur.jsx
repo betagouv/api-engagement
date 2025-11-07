@@ -8,6 +8,7 @@ import Toggle from "../../../components/Toggle";
 import { MISSION_TYPES } from "../../../constants";
 import api from "../../../services/api";
 import { captureError } from "../../../services/error";
+import { withLegacyPublishers } from "../../../utils/publisher";
 
 const Annonceur = ({ values, onChange, errors, setErrors }) => {
   const [data, setData] = useState([]);
@@ -20,7 +21,7 @@ const Annonceur = ({ values, onChange, errors, setErrors }) => {
           diffuseursOf: values.id,
         });
         if (!res.ok) throw res;
-        setData(res.data);
+        setData(withLegacyPublishers(res.data));
       } catch (error) {
         captureError(error, "Erreur lors de la récupération des diffuseurs");
       }

@@ -38,4 +38,18 @@ export const buildPublisherPayload = (values) => ({
   feed: sanitizeNullableString(values.feed),
 });
 
+export const withLegacyPublisher = (publisher = {}) => {
+  if (!publisher) return publisher;
+  const relations = Array.isArray(publisher.publishers)
+    ? publisher.publishers.map((relation) => ({
+        ...relation,
+        publisherId: relation.publisherId ?? relation.annonceurPublisherId ?? relation.diffuseurPublisherId ?? relation.id,
+      }))
+    : publisher.publishers;
+
+  return { ...publisher, _id: publisher._id ?? publisher.id, publishers: relations || [] };
+};
+
+export const withLegacyPublishers = (items = []) => items.map((publisher) => withLegacyPublisher(publisher));
+
 export { sanitizeNullableString, formatPublishersForApi };

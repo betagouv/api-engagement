@@ -8,12 +8,12 @@ import Loader from "../../components/Loader";
 import api from "../../services/api";
 import { captureError } from "../../services/error";
 import useStore from "../../services/store";
+import { buildPublisherPayload, withLegacyPublisher } from "../../utils/publisher";
 import Administration from "./components/Administration";
 import Annonceur from "./components/Annonceur";
 import Diffuseur from "./components/Diffuseur";
 import Informations from "./components/Informations";
 import Members from "./components/Members";
-import { buildPublisherPayload } from "./utils";
 
 const Edit = () => {
   const { id } = useParams();
@@ -57,7 +57,8 @@ const Edit = () => {
           }
           throw res;
         }
-        setPublisher(res.data);
+        const normalized = withLegacyPublisher(res.data);
+        setPublisher(normalized);
       } catch (error) {
         captureError(error, "Erreur lors de la récupération du partenaire");
       }
@@ -72,9 +73,10 @@ const Edit = () => {
       const res = await api.postFormData(`/publisher/${id}/image`, formData);
       if (!res.ok) throw res;
       toast.success("Image mise à jour");
-      setValues(res.data);
-      setPublisher(res.data);
-      if (sessionPublisher.id === values.id) setSessionPublisher(res.data);
+      const updated = withLegacyPublisher(res.data);
+      setValues(updated);
+      setPublisher(updated);
+      if (sessionPublisher?.id === values.id) setSessionPublisher(updated);
     } catch (error) {
       captureError(error, "Erreur lors de la mise à jour de l'image");
     }
@@ -89,10 +91,10 @@ const Edit = () => {
       if (!res.ok) throw res;
       toast.success("Partenaire supprimé");
 
-      if (sessionPublisher.id === values.id) {
+      if (sessionPublisher?.id === values.id) {
         const res = await api.get(`/publisher/${user.publishers[0]}`);
         if (!res.ok) throw res;
-        setSessionPublisher(publisher);
+        setSessionPublisher(withLegacyPublisher(res.data));
       }
       navigate("/accounts?tab=publishers");
     } catch (error) {
@@ -129,9 +131,10 @@ const Edit = () => {
         throw res;
       }
       toast.success("Partenaire mis à jour");
-      setPublisher(res.data);
-      if (sessionPublisher.id === values.id) {
-        setSessionPublisher(res.data);
+      const updated = withLegacyPublisher(res.data);
+      setPublisher(updated);
+      if (sessionPublisher?.id === values.id) {
+        setSessionPublisher(updated);
       }
     } catch (error) {
       captureError(error, "Erreur lors de la mise à jour du partenaire");

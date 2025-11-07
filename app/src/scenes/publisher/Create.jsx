@@ -7,7 +7,7 @@ import { captureError } from "../../services/error";
 import AnnonceurCreation from "./components/AnnonceurCreation";
 import DiffuseurCreation from "./components/DiffuseurCreation";
 import Informations from "./components/Informations";
-import { buildPublisherPayload } from "./utils";
+import { buildPublisherPayload } from "../../utils/publisher";
 
 const canSubmit = (values) => {
   if (values.name === "") return false;
@@ -49,7 +49,7 @@ const Create = () => {
         throw res;
       }
       toast.success("Partenaire créé avec succès");
-      navigate(`/publisher/${res.data._id}`);
+      navigate(`/publisher/${res.data.id}`);
     } catch (error) {
       captureError(error, "Erreur lors de la création du partenaire");
     }

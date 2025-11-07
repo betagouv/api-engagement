@@ -7,6 +7,7 @@ import { isValidEmail } from "../../services/utils";
 import { Table } from "../../components/Table";
 import api from "../../services/api";
 import { captureError } from "../../services/error";
+import { withLegacyPublishers } from "../../utils/publisher";
 
 const Create = () => {
   const [publishers, setPublishers] = useState([]);
@@ -20,7 +21,7 @@ const Create = () => {
       try {
         const resP = await api.post("/publisher/search", {});
         if (!resP.ok) throw resP;
-        setPublishers(resP.data.sort((a, b) => a.name.localeCompare(b.name)));
+        setPublishers(withLegacyPublishers(resP.data).sort((a, b) => a.name.localeCompare(b.name)));
       } catch (error) {
         captureError(error, "Une erreur est survenue lors de la récupération des partenaires");
         navigate("/admin-account");
@@ -158,7 +159,7 @@ const Create = () => {
               <div className="mb-2 flex flex-wrap gap-2">
                 {values.publishers.map((p, i) => (
                   <div key={i} className="bg-blue-france-975 flex items-center rounded p-2">
-                    <span className="text-xs">{publishers.find((pub) => pub._id === p)?.name}</span>
+                    <span className="text-xs">{publishers.find((pub) => pub.id === p || pub._id === p)?.name}</span>
                     <button
                       type="button"
                       className="ml-2"
@@ -195,10 +196,10 @@ const Create = () => {
                       type="checkbox"
                       className="checkbox"
                       onChange={(e) => {
-                        if (e.target.checked) setValues({ ...values, publishers: [...values.publishers, item._id.toString()] });
-                        else setValues({ ...values, publishers: values.publishers.filter((p) => p !== item._id.toString()) });
+                        if (e.target.checked) setValues({ ...values, publishers: [...values.publishers, (item.id || item._id).toString()] });
+                        else setValues({ ...values, publishers: values.publishers.filter((p) => p !== (item.id || item._id).toString()) });
                       }}
-                      checked={values.publishers.includes(item._id.toString())}
+                      checked={values.publishers.includes((item.id || item._id).toString())}
                     />
                   </div>
                   <div className="flex-1">{item.name}</div>
