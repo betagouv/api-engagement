@@ -107,12 +107,12 @@ router.put("/:id", passport.authenticate("user", { session: false }), async (req
     if (body.data.name) {
       const slug = slugify(body.data.name);
       if (!organization.names.includes(slug)) {
-        organization.names = [...organization.names, slug];
+        organization.names = Array.from(new Set([...organization.names, slug]));
       }
     }
     if (body.data.unnamed) {
       const slug = slugify(body.data.unnamed);
-      organization.names = organization.names.filter((name) => name !== slug);
+      organization.names = Array.from(new Set(organization.names.filter((name) => name !== slug)));
       if (organization.names.length === 0) {
         organization.names = [slugify(organization.title)];
       }
