@@ -40,7 +40,7 @@ const GlobalDiffuseur = ({ filters, onFiltersChange }) => {
     const fetchData = async () => {
       setLoading(true);
       try {
-        const res = await api.post("/stats/search", { type: print, size: 3, fromPublisherId: publisher._id });
+        const res = await api.post("/stats/search", { type: print, size: 3, fromPublisherId: publisher.id });
         if (!res.ok) throw res;
 
         setTrackingWarning((res.data?.length || 0) < 3);
@@ -61,7 +61,7 @@ const GlobalDiffuseur = ({ filters, onFiltersChange }) => {
         if (filters.from) query.append("from", filters.from.toISOString());
         if (filters.to) query.append("to", filters.to.toISOString());
 
-        query.append("publisherId", publisher._id);
+        query.append("publisherId", publisher.id);
 
         const res = await api.get(`/stats-global/broadcast-preview?${query.toString()}`);
         if (!res.ok) throw res;
@@ -184,7 +184,7 @@ const DistributionMean = ({ filters, defaultType = "print" }) => {
         if (filters.to) query.append("to", filters.to.toISOString());
         if (type) query.append("type", type);
 
-        query.append("publisherId", publisher._id);
+        query.append("publisherId", publisher.id);
 
         const res = await api.get(`/stats-global/distribution?${query.toString()}`);
         if (!res.ok) throw res;
@@ -285,7 +285,7 @@ const Evolution = ({ filters, defaultType = "print" }) => {
         if (type) query.append("type", type);
 
         query.append("flux", "from");
-        query.append("publisherId", publisher._id);
+        query.append("publisherId", publisher.id);
 
         const res = await api.get(`/stats-global/evolution?${query.toString()}`);
         if (!res.ok) throw res;
@@ -385,7 +385,7 @@ const Announcers = ({ filters }) => {
         if (filters.from) query.append("from", filters.from.toISOString());
         if (filters.to) query.append("to", filters.to.toISOString());
 
-        query.append("publisherId", publisher._id);
+        query.append("publisherId", publisher.id);
         query.append("flux", "from");
 
         const resA = await api.get(`/stats-global/broadcast-publishers?${query.toString()}`);

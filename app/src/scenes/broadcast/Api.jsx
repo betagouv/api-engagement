@@ -18,7 +18,7 @@ const Api = () => {
     const confirm = window.confirm("Êtes-vous sûr de vouloir générer une nouvelle clé API ?");
     if (!confirm) return;
     try {
-      const res = await api.post(`/publisher/${publisher._id}/apikey`);
+      const res = await api.post(`/publisher/${publisher.id}/apikey`);
       if (!res.ok) throw res;
       setPublisher({ ...publisher, apikey: res.data });
       toast.success("Nouvelle clé API générée");
@@ -31,7 +31,7 @@ const Api = () => {
     const confirm = window.confirm("Êtes-vous sûr de vouloir supprimer la clé API ?");
     if (!confirm) return;
     try {
-      const res = await api.delete(`/publisher/${publisher._id}/apikey`);
+      const res = await api.delete(`/publisher/${publisher.id}/apikey`);
       if (!res.ok) throw res;
       setPublisher({ ...publisher, apikey: undefined });
       toast.success("Clé API supprimée");

@@ -15,7 +15,7 @@ const TABLE_HEADER = [{ title: "Nom", colSpan: 3 }, { title: "Diffuse des missio
 const Widgets = () => {
   const { user, publisher } = useStore();
   const [filters, setFilters] = useState({
-    fromPublisherId: publisher?._id || "",
+    fromPublisherId: publisher?.id || "",
     active: true,
     page: 1,
     pageSize: 10,

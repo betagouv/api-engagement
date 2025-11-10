@@ -55,7 +55,7 @@ const Flux = ({ moderated }) => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const res = await api.post("/import/search", { publisherId: publisher._id, size: 1 });
+        const res = await api.post("/import/search", { publisherId: publisher.id, size: 1 });
         if (!res.ok) throw res;
         setLastImport(res.data.length ? res.data[0] : null);
       } catch (error) {
@@ -71,7 +71,7 @@ const Flux = ({ moderated }) => {
       setLoading(true);
       try {
         const query = {
-          publisherId: publisher._id,
+          publisherId: publisher.id,
           size: filters.size,
           from: (filters.page - 1) * filters.size,
         };
@@ -116,7 +116,7 @@ const Flux = ({ moderated }) => {
     setExporting(true);
     try {
       const query = {
-        publisherId: publisher._id,
+        publisherId: publisher.id,
         size: 10000,
         from: 0,
       };

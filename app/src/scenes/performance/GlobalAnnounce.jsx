@@ -32,13 +32,13 @@ const GlobalAnnounce = ({ filters, onFiltersChange }) => {
         if (filters.from) queryP.append("from", filters.from.toISOString());
         if (filters.to) queryP.append("to", filters.to.toISOString());
 
-        queryP.append("publisherId", publisher._id);
+        queryP.append("publisherId", publisher.id);
 
         const resP = await api.get(`/stats-global/announce-preview?${queryP.toString()}`);
         if (!resP.ok) throw resP;
 
         const queryM = {
-          publisherId: publisher._id,
+          publisherId: publisher.id,
           availableFrom: filters.from,
           availableTo: filters.to,
           size: 0,
@@ -152,7 +152,7 @@ const Evolution = ({ filters, defaultType = "print" }) => {
         if (type) query.append("type", type);
 
         query.append("flux", "to");
-        query.append("publisherId", publisher._id);
+        query.append("publisherId", publisher.id);
 
         const res = await api.get(`/stats-global/evolution?${query.toString()}`);
         if (!res.ok) throw res;
@@ -243,7 +243,7 @@ const Announcers = ({ filters, defaultType = "print" }) => {
         if (filters.from) query.append("from", filters.from.toISOString());
         if (filters.to) query.append("to", filters.to.toISOString());
 
-        query.append("publisherId", publisher._id);
+        query.append("publisherId", publisher.id);
         query.append("flux", "to");
         query.append("type", type);
 

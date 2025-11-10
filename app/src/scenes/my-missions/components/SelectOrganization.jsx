@@ -17,7 +17,7 @@ const SelectOrganization = ({ onChange }) => {
           setOptions([]);
           return;
         }
-        const res = await api.get(`/mission/autocomplete?field=organizationName&search=${search}&publisherId=${publisher._id}`);
+        const res = await api.get(`/mission/autocomplete?field=organizationName&search=${search}&publisherId=${publisher.id}`);
         if (!res.ok) throw res;
         setOptions(
           res.data.map((org) => ({
@@ -30,7 +30,7 @@ const SelectOrganization = ({ onChange }) => {
       }
     };
     fetchOptions();
-  }, [search, publisher._id]);
+  }, [search, publisher.id]);
 
   return (
     <Autocomplete

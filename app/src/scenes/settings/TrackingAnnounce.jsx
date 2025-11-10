@@ -19,7 +19,7 @@ const TrackingAnnounce = () => {
     toast.success("Commande copiée");
   };
   const handleCopyScript = () => {
-    navigator.clipboard.writeText(script.replace("{{publisherId}}", publisher._id));
+    navigator.clipboard.writeText(script.replace("{{publisherId}}", publisher.id));
     toast.success("Script copié");
   };
 
@@ -84,7 +84,7 @@ const TrackingAnnounce = () => {
         <textarea
           className="w-full rounded-none border border-[#E3E3FD] bg-[#F5F5FE] px-4 py-2 text-base disabled:opacity-80"
           rows={8}
-          value={script.replace("{{publisherId}}", publisher._id)}
+          value={script.replace("{{publisherId}}", publisher.id)}
           disabled={true}
         />
       </div>
