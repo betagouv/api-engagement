@@ -20,13 +20,6 @@ with src as (
       created_at
       > (select coalesce(max(a.created_at), '1900-01-01') from {{ this }} as a)
   {% endif %}
-),
-
-prepared as (
-  select
-    *,
-    md5(stat_event_id::text) as event_hash
-  from src
 )
 
 select
@@ -46,4 +39,4 @@ select
   view_id_raw,
   null::text as url,
   updated_at
-from prepared
+from src

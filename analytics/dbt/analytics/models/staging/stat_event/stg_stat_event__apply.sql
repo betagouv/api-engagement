@@ -34,7 +34,9 @@ widgets as (
 ),
 
 clicks as (
-  select stat_event_id from {{ ref('stg_stat_event__click') }}
+  select id as stat_event_id
+  from {{ ref('stg_stat_event') }}
+  where type = 'click'
 ),
 
 mission_map as (

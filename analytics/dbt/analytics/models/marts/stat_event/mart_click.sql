@@ -20,13 +20,6 @@ with src as (
       created_at
       > (select coalesce(max(c.created_at), '1900-01-01') from {{ this }} as c)
   {% endif %}
-),
-
-prepared as (
-  select
-    *,
-    md5(stat_event_id::text) as event_hash
-  from src
 )
 
 select
@@ -46,13 +39,5 @@ select
   mission_id_raw,
   is_bot,
   is_human,
-  updated_at,
-  concat_ws(
-    '-',
-    substr(event_hash, 1, 8),
-    substr(event_hash, 9, 4),
-    substr(event_hash, 13, 4),
-    substr(event_hash, 17, 4),
-    substr(event_hash, 21, 12)
-  ) as id
-from prepared
+  updated_at
+from src
