@@ -11,7 +11,7 @@ export interface ImportRecord {
   deletedCount: number;
   updatedCount: number;
   startedAt: Date | null;
-  endedAt: Date | null;
+  finishedAt: Date | null;
   status: ImportStatus;
   error: string | null;
   failed: unknown;
@@ -25,8 +25,8 @@ export interface ImportSearchParams {
   status?: ImportStatus;
   startedAtGte?: Date;
   startedAtLt?: Date;
-  endedAtGt?: Date;
-  endedAtGte?: Date;
+  finishedAtGt?: Date;
+  finishedAtGte?: Date;
 }
 
 export interface ImportCreateInput {
@@ -47,5 +47,3 @@ export interface ImportCreateInput {
 export type ImportUpdatePatch = Partial<Omit<ImportCreateInput, "publisherId" | "name">> & {
   name?: string;
 };
-
-

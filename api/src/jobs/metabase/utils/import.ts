@@ -19,7 +19,7 @@ const buildData = (doc: ImportRecord, partners: { [key: string]: string }) => {
     updated_count: doc.updatedCount,
     partner_id: partnerId,
     started_at: doc.startedAt,
-    ended_at: doc.endedAt,
+    ended_at: doc.finishedAt,
   } as PrismaImport;
   return obj;
 };
@@ -45,7 +45,7 @@ const handler = async () => {
     while (data && data.length) {
       const dataToCreate = [];
       for (const doc of data) {
-        const obj = buildData(doc as Import, partners);
+        const obj = buildData(doc as ImportRecord, partners);
         if (!obj) {
           continue;
         }

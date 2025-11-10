@@ -100,22 +100,6 @@ export type Campaign = {
   updatedAt: Date;
 };
 
-export interface Import {
-  _id: Schema.Types.ObjectId;
-  name: string;
-  publisherId: Schema.Types.ObjectId | string;
-  createdCount: number;
-  deletedCount: number;
-  updatedCount: number;
-  missionCount: number;
-  refusedCount: number;
-  startedAt: Date;
-  endedAt: Date | null;
-  status: "SUCCESS" | "FAILED";
-  error: string | null;
-  failed: any;
-}
-
 export interface MissionHistory {
   date: Date;
   state: Record<string, any>;
@@ -299,7 +283,6 @@ export type ModerationEvent = {
   createdAt: Date;
   updatedAt: Date;
 };
-
 
 export interface OrganizationExclusion {
   _id?: Schema.Types.ObjectId;

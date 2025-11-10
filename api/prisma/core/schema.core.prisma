@@ -213,7 +213,7 @@ model Import {
   deletedCount Int    @default(0) @map("deleted_count")
   updatedCount Int    @default(0) @map("updated_count")
 
-  publisher Publisher @relation("ImportPublisherRelation", fields: [publisherId], references: [id])
+  publisher Publisher @relation("ImportPublisherRelation", fields: [publisherId], references: [id], onDelete: Cascade)
 
   startedAt  DateTime?    @map("started_at")
   finishedAt DateTime?    @map("finished_at")

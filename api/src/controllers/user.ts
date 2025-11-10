@@ -294,8 +294,6 @@ router.post("/login", async (req: UserRequest, res: Response, next: NextFunction
     const email = body.data.email.toLowerCase().trim();
     const user = await UserModel.findOne({ email });
 
-    console.log("user", user);
-
     const match = user ? await user.comparePassword(body.data.password) : false;
     const delay = 1000 - (Date.now() - start);
 
@@ -305,8 +303,7 @@ router.post("/login", async (req: UserRequest, res: Response, next: NextFunction
           return res.status(404).send({ ok: false, code: NOT_FOUND, message: `Incorrect email or password` });
         }
 
-        // const publisher = user.publishers.length ? await publisherService.findOnePublisherById(user.publishers[0].toString()) : null;
-        const publisher = null;
+        const publisher = user.publishers.length ? await publisherService.findOnePublisherById(user.publishers[0].toString()) : null;
 
         user.lastActivityAt = new Date();
         if (!user.loginAt) {

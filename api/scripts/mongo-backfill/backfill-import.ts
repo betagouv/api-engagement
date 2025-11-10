@@ -67,7 +67,7 @@ const toRecord = (value: PrismaImport): ImportRecord => ({
   deletedCount: value.deletedCount,
   updatedCount: value.updatedCount,
   startedAt: value.startedAt ?? null,
-  endedAt: value.finishedAt ?? null,
+  finishedAt: value.finishedAt ?? null,
   status: value.status,
   error: value.error ?? null,
   failed: value.failed ?? [],
@@ -82,7 +82,7 @@ const hasDifferences = (existing: ImportRecord, target: ImportRecord): boolean =
   if (!compareNumbers(existing.deletedCount, target.deletedCount)) return true;
   if (!compareNumbers(existing.updatedCount, target.updatedCount)) return true;
   if (!compareDates(existing.startedAt, target.startedAt)) return true;
-  if (!compareDates(existing.endedAt, target.endedAt)) return true;
+  if (!compareDates(existing.finishedAt, target.finishedAt)) return true;
   if (existing.status !== target.status) return true;
   if (!compareStrings(existing.error, target.error)) return true;
   if (!compareJsons(existing.failed, target.failed)) return true;
@@ -104,7 +104,7 @@ const normalizeImport = (doc: MongoImportDocument) => {
     deletedCount: normalizeNumber(doc.deletedCount) ?? 0,
     updatedCount: normalizeNumber(doc.updatedCount) ?? 0,
     startedAt: normalizeDate(doc.startedAt) ?? null,
-    endedAt: normalizeDate(doc.endedAt) ?? null,
+    finishedAt: normalizeDate(doc.endedAt) ?? null,
     status: normalizeStatus(doc.status ?? undefined),
     error: doc.error ?? null,
     failed: toJsonValue(doc.failed),
@@ -120,7 +120,7 @@ const normalizeImport = (doc: MongoImportDocument) => {
     deletedCount: record.deletedCount,
     updatedCount: record.updatedCount,
     startedAt: record.startedAt,
-    finishedAt: record.endedAt,
+    finishedAt: record.finishedAt,
     status: record.status,
     error: record.error,
     failed: record.failed as Prisma.InputJsonValue,
@@ -134,7 +134,7 @@ const normalizeImport = (doc: MongoImportDocument) => {
     deletedCount: record.deletedCount,
     updatedCount: record.updatedCount,
     startedAt: record.startedAt,
-    finishedAt: record.endedAt,
+    finishedAt: record.finishedAt,
     status: record.status,
     error: record.error,
     failed: record.failed as Prisma.InputJsonValue,
@@ -143,20 +143,12 @@ const normalizeImport = (doc: MongoImportDocument) => {
   return { record, create, update };
 };
 
-const chunkArray = <T>(items: T[], size: number): T[][] => {
-  const chunks: T[][] = [];
-  for (let i = 0; i < items.length; i += size) {
-    chunks.push(items.slice(i, i + size));
-  }
-  return chunks;
-};
-
 const formatRecordForLog = (record: ImportRecord) => ({
   id: record.id,
   name: record.name,
   publisherId: record.publisherId,
   startedAt: record.startedAt ? record.startedAt.toISOString() : null,
-  endedAt: record.endedAt ? record.endedAt.toISOString() : null,
+  finishedAt: record.finishedAt ? record.finishedAt.toISOString() : null,
   status: record.status,
   counts: {
     created: record.createdCount,

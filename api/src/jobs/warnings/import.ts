@@ -1,6 +1,6 @@
 import { SLACK_WARNING_CHANNEL_ID } from "../../config";
-import { importService } from "../../services/import";
 import WarningModel from "../../models/warning";
+import { importService } from "../../services/import";
 import { postMessage } from "../../services/slack";
 import type { PublisherRecord } from "../../types/publisher";
 
@@ -127,7 +127,7 @@ export const checkImports = async (publishers: PublisherRecord[]) => {
         continue;
       }
     } else {
-      console.log(`[${publisher.name}] ${Math.round((lastImport.doc.refusedCount / lastImport.doc.missionCount) * 100)}% of missions refused`);
+      console.log(`[${publisher.name}] ${Math.round((lastImport.refusedCount / lastImport.missionCount) * 100)}% of missions refused`);
       if (validationWarning) {
         validationWarning.fixed = true;
         validationWarning.fixedAt = new Date();

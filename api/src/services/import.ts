@@ -14,23 +14,13 @@ export const importService = (() => {
     deletedCount: value.deletedCount,
     updatedCount: value.updatedCount,
     startedAt: value.startedAt ?? null,
-    endedAt: value.finishedAt ?? null,
+    finishedAt: value.finishedAt ?? null,
     status: value.status,
     error: value.error ?? null,
     failed: value.failed ?? [],
   });
 
-  const buildWhereClause = (
-    params: {
-      publisherId?: string;
-      publisherIds?: string[];
-      status?: "SUCCESS" | "FAILED";
-      startedAtGte?: Date;
-      startedAtLt?: Date;
-      endedAtGt?: Date;
-      endedAtGte?: Date;
-    } = {}
-  ): Prisma.ImportWhereInput => {
+  const buildWhereClause = (params: ImportSearchParams = {}): Prisma.ImportWhereInput => {
     const and: Prisma.ImportWhereInput[] = [];
 
     if (params.publisherId) {
@@ -50,11 +40,11 @@ export const importService = (() => {
         },
       });
     }
-    if (params.endedAtGt || params.endedAtGte) {
+    if (params.finishedAtGt || params.finishedAtGte) {
       and.push({
         finishedAt: {
-          ...(params.endedAtGt ? { gt: params.endedAtGt } : {}),
-          ...(params.endedAtGte ? { gte: params.endedAtGte } : {}),
+          ...(params.finishedAtGt ? { gt: params.finishedAtGt } : {}),
+          ...(params.finishedAtGte ? { gte: params.finishedAtGte } : {}),
         },
       });
     }
@@ -62,7 +52,7 @@ export const importService = (() => {
     return and.length ? { AND: and } : {};
   };
 
-  const countImports = async (params: { publisherId?: string } = {}): Promise<number> => {
+  const countImports = async (params: ImportSearchParams = {}): Promise<number> => {
     const where = buildWhereClause(params);
     return importRepository.count({ where });
   };
@@ -76,6 +66,21 @@ export const importService = (() => {
       take: params.size ?? 25,
     });
     return data.map(toImportRecord);
+  };
+
+  const findImportsWithCount = async (params: ImportSearchParams = {}): Promise<{ data: ImportRecord[]; total: number }> => {
+    const where = buildWhereClause(params);
+
+    const [data, total] = await Promise.all([
+      importRepository.findMany({
+        where,
+        orderBy: { startedAt: Prisma.SortOrder.desc },
+        skip: params.skip ?? 0,
+        take: params.size ?? 25,
+      }),
+      importRepository.count({ where }),
+    ]);
+    return { data: data.map(toImportRecord), total };
   };
 
   const findLastImportsPerPublisher = async (params: { publisherId?: string } = {}): Promise<ImportRecord[]> => {
@@ -132,6 +137,7 @@ export const importService = (() => {
   return {
     countImports,
     findImports,
+    findImportsWithCount,
     findLastImportsPerPublisher,
     findOneImportById,
     createImport,

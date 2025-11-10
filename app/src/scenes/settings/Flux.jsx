@@ -4,30 +4,43 @@ import { toast } from "react-toastify";
 
 import Loader from "../../components/Loader";
 import Modal from "../../components/New-Modal";
-import { TablePaginator } from "../../components/Table";
+
+import TablePagination from "../../components/NewTablePagination";
 import api from "../../services/api";
 import { captureError } from "../../services/error";
 import useStore from "../../services/store";
 
+const TABLE_HEADER = [
+  { title: "Date", key: "endedAt", position: "left" },
+  { title: "Durée (en secondes)", key: "duration", position: "center" },
+  { title: "Mise à jour", key: "updatedCount", position: "center" },
+  { title: "Création", key: "createdCount", position: "center" },
+  { title: "Suppressions", key: "deletedCount", position: "center" },
+  { title: "Total des missions", key: "missionCount", position: "center" },
+];
+
 const Flux = () => {
   const { user, publisher } = useStore();
   const [filters, setFilters] = useState({
+    page: 1,
     size: 5,
-    skip: 0,
   });
   const [imports, setImports] = useState([]);
   const [total, setTotal] = useState(0);
   const [lastSync, setLastSync] = useState(null);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const query = new URLSearchParams();
-        if (publisher._id) query.set("publisherId", publisher._id);
-        if (filters.size) query.set("size", filters.size);
-        if (filters.skip) query.set("skip", filters.skip);
+        setLoading(true);
+        const query = {
+          publisherId: publisher._id,
+          size: filters.size,
+          skip: (filters.page - 1) * filters.size,
+        };
 
-        const res = await api.get(`/import?${query.toString()}`);
+        const res = await api.post(`/import/search`, query);
 
         if (!res.ok) throw res;
         setImports(res.data);
@@ -39,6 +52,8 @@ const Flux = () => {
         }
       } catch (error) {
         captureError(error, "Erreur lors de la récupération des données");
+      } finally {
+        setLoading(false);
       }
     };
     fetchData();
@@ -92,30 +107,25 @@ const Flux = () => {
       <div className="space-y-6 border border-gray-900 p-6">
         <h2 className="text-3xl font-bold">Historique des synchronisations</h2>
 
-        <TablePaginator
-          data={imports}
+        <TablePagination
+          header={TABLE_HEADER}
+          page={filters.page}
           pageSize={filters.size}
-          length={total}
-          onPageChange={(page) => setFilters({ ...filters, skip: (page - 1) * filters.size })}
-          renderHeader={() => (
-            <>
-              <h4 className="flex-1 pl-3">Date</h4>
-              <h4 className="flex-1">Durée (en secondes)</h4>
-              <h4 className="flex-1">Mise à jour</h4>
-              <h4 className="flex-1">Création</h4>
-              <h4 className="flex-1">Suppressions</h4>
-            </>
-          )}
-          renderItem={(item) => (
-            <>
-              <span className="flex-1 pl-3">{new Date(item.endedAt).toLocaleString("fr").replace(" ", " • ")}</span>
-              <span className="flex-1 pl-2">{buildDuration(new Date(item.startedAt), new Date(item.endedAt))}</span>
-              <span className="flex-1 pl-2">{item.updatedCount}</span>
-              <span className="flex-1 pl-2">{item.createdCount}</span>
-              <span className="flex-1 pl-2">{item.deletedCount}</span>
-            </>
-          )}
-        />
+          onPageChange={(page) => setFilters({ ...filters, page })}
+          total={total}
+          loading={loading}
+        >
+          {imports.map((item, i) => (
+            <tr key={i} className={`${i % 2 === 0 ? "bg-gray-975" : "bg-gray-1000-active"} table-item`}>
+              <td className="px-2">{new Date(item.endedAt).toLocaleString("fr").replace(" ", " • ")}</td>
+              <td className="px-4 text-center">{buildDuration(new Date(item.startedAt), new Date(item.endedAt))}</td>
+              <td className="px-4 text-center">{item.updatedCount?.toLocaleString("fr") || "-"}</td>
+              <td className="px-4 text-center">{item.createdCount?.toLocaleString("fr") || "-"}</td>
+              <td className="px-4 text-center">{item.deletedCount?.toLocaleString("fr") || "-"}</td>
+              <td className="px-4 text-center">{item.missionCount?.toLocaleString("fr") || "-"}</td>
+            </tr>
+          ))}
+        </TablePagination>
       </div>
     </div>
   );
