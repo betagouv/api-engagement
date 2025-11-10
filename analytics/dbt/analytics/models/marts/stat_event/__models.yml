@@ -136,3 +136,25 @@ models:
           - not_null
       - name: source
         description: Origine normalisée de l’impression (`SourceType`).
+
+  - name: mart_apply_service_civique_attrs
+    description: >
+      Extraction des attributs personnalisés pour les candidatures liées au
+      partenaire "Service Civique". Ce modèle dérive des colonnes dédiées à partir
+      du champ JSON et référence la table `Apply` via `apply_id`.
+    columns:
+      - name: apply_id
+        description: Identifiant de la candidature (référence à `public."Apply"`).
+        tests:
+          - not_null
+          - unique
+      - name: has_application_file
+        description: Indique si un dossier de candidature a été fourni.
+      - name: has_candidate_motivation
+        description: Indique si une motivation est associée.
+      - name: candidate_age
+        description: Âge déclaré du candidat.
+      - name: candidate_gender
+        description: Genre déclaré du candidat.
+      - name: candidate_postal_code
+        description: Code postal du candidat.
