@@ -9,4 +9,4 @@ analytics:
       password: "{{ env_var('DBT_DB_PASSWORD') }}"
       dbname: "{{ env_var('DBT_DB_NAME') }}"
       schema: analytics_raw
-      threads: 4
+      threads: 1

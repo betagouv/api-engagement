@@ -137,7 +137,7 @@ models:
       - name: source
         description: Origine normalisée de l’impression (`SourceType`).
 
-  - name: ApplyServiceCiviqueAttrs
+  - name: mart_apply_service_civique_attrs
     description: >
       Extraction des attributs personnalisés pour les candidatures liées au
       partenaire "Service Civique". Ce modèle dérive des colonnes dédiées à partir
