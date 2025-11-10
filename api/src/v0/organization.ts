@@ -3,7 +3,7 @@ import zod from "zod";
 
 import passport from "passport";
 import { INVALID_QUERY } from "../error";
-import OrganizationModel from "../models/organization";
+import { organizationService } from "../services/organization";
 import RequestModel from "../models/request";
 import { PublisherRequest } from "../types/passport";
 
@@ -49,22 +49,16 @@ router.get("/", passport.authenticate(["apikey", "api"], { session: false }), as
       return res.status(400).send({ ok: false, code: INVALID_QUERY, message: query.error });
     }
 
-    const where = {} as { [key: string]: any };
+    const { results, total } = await organizationService.findOrganizationsByFilters({
+      query: query.data.q,
+      rna: query.data.rna,
+      siret: query.data.siret,
+      offset: query.data.skip,
+      limit: query.data.limit,
+      includeTotal: "filtered",
+    });
 
-    if (query.data.q) {
-      where.$text = { $search: query.data.q };
-    }
-    if (query.data.rna) {
-      where.rna = query.data.rna;
-    }
-    if (query.data.siret) {
-      where.siret = query.data.siret;
-    }
-
-    const data = await OrganizationModel.find(where).skip(query.data.skip).limit(query.data.limit);
-    const total = await OrganizationModel.countDocuments(where);
-
-    return res.status(200).send({ ok: true, data: data, total });
+    return res.status(200).send({ ok: true, data: results, total });
   } catch (error) {
     next(error);
   }

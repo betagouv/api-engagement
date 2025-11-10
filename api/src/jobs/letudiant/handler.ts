@@ -2,10 +2,11 @@ import { HydratedDocument } from "mongoose";
 import { LETUDIANT_PILOTY_TOKEN } from "../../config";
 import { captureException } from "../../error";
 import MissionModel from "../../models/mission";
-import OrganizationModel from "../../models/organization";
+import { organizationService } from "../../services/organization";
 import { PilotyClient, PilotyError } from "../../services/piloty/";
 import { PilotyJob } from "../../services/piloty/types";
-import { Mission, Organization } from "../../types";
+import { Mission } from "../../types";
+import { OrganizationRecord } from "../../types/organization";
 import { BaseHandler } from "../base/handler";
 import { JobResult } from "../types";
 import { DEFAULT_LIMIT, MEDIA_PUBLIC_ID } from "./config";
@@ -68,7 +69,13 @@ export class LetudiantHandler implements BaseHandler<LetudiantJobPayload, Letudi
 
     for (const mission of missions) {
       try {
-        const organization = await OrganizationModel.findOne({ _id: mission.organizationId });
+        const organizationId = mission.organizationId;
+        if (!organizationId) {
+          console.log(`[LetudiantHandler] Mission ${mission._id} has no organization, skipping`);
+          counter.skipped++;
+          continue;
+        }
+        const organization = await organizationService.findOneOrganizationById(organizationId);
         if (!organization) {
           console.log(`[LetudiantHandler] Mission ${mission._id} has no organization, skipping`);
           counter.skipped++;
@@ -155,7 +162,7 @@ export class LetudiantHandler implements BaseHandler<LetudiantJobPayload, Letudi
   }
 }
 
-const getCompanyPilotyId = async (pilotyClient: PilotyClient, mission: HydratedDocument<Mission>, organization: HydratedDocument<Organization>): Promise<string | null> => {
+const getCompanyPilotyId = async (pilotyClient: PilotyClient, mission: HydratedDocument<Mission>, organization: OrganizationRecord): Promise<string | null> => {
   let pilotyCompanyPublicId: string | null = null;
 
   if (organization.letudiantPublicId) {
@@ -180,7 +187,7 @@ const getCompanyPilotyId = async (pilotyClient: PilotyClient, mission: HydratedD
     }
 
     if (pilotyCompanyPublicId) {
-      await OrganizationModel.updateOne({ _id: organization._id }, { letudiantPublicId: pilotyCompanyPublicId, letudiantUpdatedAt: new Date() });
+      await organizationService.update(organization.id, { letudiantPublicId: pilotyCompanyPublicId, letudiantUpdatedAt: new Date() });
       console.log(`[LetudiantHandler] Organization ${organization.title} updated with letudiantPublicId ${pilotyCompanyPublicId}`);
     }
   }
