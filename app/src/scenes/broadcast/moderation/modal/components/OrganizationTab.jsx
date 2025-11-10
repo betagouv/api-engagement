@@ -77,8 +77,16 @@ const OrganizationTab = ({ data, onChange }) => {
         position: "bottom-right",
       });
 
-      // Update organization
+      // Remove name from previous organization
+      if (data.organizationId) {
+        const resO = await api.put(`/organization/${data.organizationId}`, {
+          unnamed: data.organizationName,
+        });
+        if (!resO.ok) throw resO;
+      }
+
       if (values.organizationId) {
+        // Update new organization
         const resO = await api.put(`/organization/${values.organizationId}`, {
           name: data.organizationName,
           rna: values.organizationRNAVerified || "",
@@ -97,15 +105,9 @@ const OrganizationTab = ({ data, onChange }) => {
           setManyUpdateTotal(resM.total);
           setIsOrganizationUpdateOpen(true);
         }
-
+      } else {
         // Clear organization
-      } else if (data.organizationId) {
-        const resO = await api.put(`/organization/${data.organizationId}`, {
-          unnamed: data.organizationName,
-        });
-        if (!resO.ok) throw resO;
-
-        const where = { moderatorId: publisher.id, organizationClientId: data.organizationClientId, size: 0 };
+        const where = { moderatorId: publisher._id, organizationClientId: data.organizationClientId, size: 0 };
         if (data.organizationRNAVerified) where.organizationRNAVerified = data.organizationRNAVerified;
         if (data.organizationSirenVerified) where.organizationSirenVerified = data.organizationSirenVerified;
         const resM = await api.post("/moderation/search", where);
@@ -153,7 +155,7 @@ const OrganizationTab = ({ data, onChange }) => {
               loading={loading}
               value={values.organizationSirenVerified}
               onChange={(e) => setValues({ ...values, organizationSirenVerified: e })}
-              onSelect={(e) => setValues({ ...values, organizationSirenVerified: e.siren, organizationId: e.id, organizationRNAVerified: e.rna })}
+              onSelect={(e) => setValues({ ...values, organizationSirenVerified: e.siren || null, organizationId: e.id, organizationRNAVerified: e.rna || null })}
               onClear={() => setValues({ ...values, organizationSirenVerified: null, organizationId: null, organizationRNAVerified: null })}
               placeholder="SIREN"
               className="w-full"
@@ -175,7 +177,7 @@ const OrganizationTab = ({ data, onChange }) => {
                 setValues({ ...values, organizationRNAVerified: e });
                 setSearch(e);
               }}
-              onSelect={(e) => setValues({ ...values, organizationRNAVerified: e.rna, organizationId: e.id, organizationSirenVerified: e.siren })}
+              onSelect={(e) => setValues({ ...values, organizationRNAVerified: e.rna || null, organizationId: e.id, organizationSirenVerified: e.siren || null })}
               onClear={() => setValues({ ...values, organizationRNAVerified: null, organizationId: null, organizationSirenVerified: null })}
               placeholder="RNA"
               className="w-full"

@@ -1,4 +1,5 @@
 [sqlfluff]
+dialect = postgres
 indent_unit = space
 
 [sqlfluff:indentation]

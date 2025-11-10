@@ -80,3 +80,47 @@ Le script `scripts/dbt-env.sh` charge `analytics/.env` (si présent), découpe a
 
 - Toujours lancer `dbt ls` avant un `dbt run` pour vérifier que le profil est bien résolu.
 - Les migrations (dbmate) doivent être exécutées avant `dbt run` pour s’assurer que les tables dans `analytics_raw` sont à jour.
+
+## Lint SQL avec sqlfluff
+
+Le projet utilise [sqlfluff](https://docs.sqlfluff.com/) pour garantir une mise en forme homogène des modèles dbt.
+
+### Installation locale
+
+1. Installe Python 3 et pip.
+2. Ajoute les dépendances :
+   ```bash
+   pip install sqlfluff
+   ```
+3. Vérifie la version :
+   ```bash
+   sqlfluff version
+   ```
+
+### Lancer un lint
+
+Depuis `analytics/dbt/analytics` :
+
+```bash
+sqlfluff lint models/staging/stat_event
+```
+
+ou pour un fichier précis :
+
+```bash
+sqlfluff lint models/staging/stat_event/stg_stat_event__click.sql
+```
+
+### Auto-format
+
+Pour appliquer les corrections :
+
+```bash
+sqlfluff fix path/to/file.sql
+```
+
+Ajoute `--force` pour réécrire sans confirmation :
+
+```bash
+sqlfluff fix models/ --force
+```

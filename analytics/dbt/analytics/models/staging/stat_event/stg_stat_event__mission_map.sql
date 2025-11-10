@@ -3,19 +3,19 @@
 with events as (
   select
     e.id as stat_event_id,
-    nullif(e.mission_id, '')        as mission_id_clean,
-    e.mission_id                    as mission_id_raw,
-    nullif(e.mission_client_id, '') as mission_client_id_clean,
-    nullif(e.to_publisher_id, '')   as to_partner_old_id
+    e.mission_id as mission_id_raw_source,
+    nullif(e.mission_id, '') as mission_id_raw,
+    nullif(e.mission_client_id, '') as mission_client_id_raw,
+    nullif(e.to_publisher_id, '') as to_publisher_id_raw
   from {{ ref('stg_stat_event') }} as e
 ),
 
 missions as (
   select
     id,
-    old_id,
+    mission_id_raw,
     client_id,
-    partner_old_id
+    publisher_id_raw
   from {{ ref('dim_mission') }}
 ),
 
@@ -23,50 +23,52 @@ mission_exact as (
   select
     e.stat_event_id,
     m.id,
-    m.old_id,
+    m.mission_id_raw,
     0 as priority
   from events as e
   inner join missions as m
-    on e.mission_id_clean = m.old_id
+    on e.mission_id_raw = m.mission_id_raw
 ),
 
 mission_client_partner as (
   select
     e.stat_event_id,
     m.id,
-    m.old_id,
+    m.mission_id_raw,
     1 as priority
   from events as e
   inner join missions as m
-    on e.mission_id_clean is null
-   and e.mission_client_id_clean is not null
-   and e.mission_client_id_clean = m.client_id
-   and e.to_partner_old_id = m.partner_old_id
+    on
+      e.mission_id_raw is null
+      and e.mission_client_id_raw is not null
+      and e.mission_client_id_raw = m.client_id
+      and e.to_publisher_id_raw = m.publisher_id_raw
 ),
 
 mission_lookup as (
   select
     e.stat_event_id,
     m.id,
-    m.old_id,
+    m.mission_id_raw,
     2 as priority
   from events as e
   inner join missions as m
-    on e.mission_id_clean is null
-   and m.old_id is not null
-   and m.old_id = nullif(e.mission_id_raw, '')
+    on
+      e.mission_id_raw is null
+      and m.mission_id_raw is not null
+      and m.mission_id_raw = nullif(e.mission_id_raw_source, '')
 ),
 
 mission_match as (
   select
     stat_event_id,
     id as mission_id,
-    old_id as mission_old_id
+    mission_id_raw
   from (
     select
       stat_event_id,
       id,
-      old_id,
+      mission_id_raw,
       row_number() over (
         partition by stat_event_id
         order by priority, id
@@ -84,9 +86,10 @@ mission_match as (
 
 select
   e.stat_event_id,
-  e.mission_id_clean,
+  e.mission_id_raw as mission_id_raw_input,
   mission_match.mission_id,
-  mission_match.mission_old_id,
-  coalesce(e.mission_id_clean, mission_match.mission_old_id) as resolved_mission_old_id
+  mission_match.mission_id_raw,
+  coalesce(e.mission_id_raw, mission_match.mission_id_raw)
+    as resolved_mission_id_raw
 from events as e
-left join mission_match on mission_match.stat_event_id = e.stat_event_id
+left join mission_match on e.stat_event_id = mission_match.stat_event_id

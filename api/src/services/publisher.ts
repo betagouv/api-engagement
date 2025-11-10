@@ -29,6 +29,7 @@ export const publisherService = (() => {
   });
 
   const toPublisherRecord = (publisher: PublisherWithDiffusion): PublisherRecord => ({
+    _id: publisher.id,
     id: publisher.id,
     name: publisher.name,
     category: publisher.category ?? null,

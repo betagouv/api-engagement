@@ -14,8 +14,30 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  lint:
-    name: Run ESLint
+  changes:
+    name: Detect changes
+    runs-on: ubuntu-latest
+    outputs:
+      api: ${{ steps.filter.outputs.api }}
+      widget: ${{ steps.filter.outputs.widget }}
+      analytics: ${{ steps.filter.outputs.analytics }}
+    steps:
+      - uses: actions/checkout@v5
+      - uses: dorny/paths-filter@v3
+        id: filter
+        with:
+          filters: |
+            api:
+              - 'api/**'
+            widget:
+              - 'widget/**'
+            analytics:
+              - 'analytics/**'
+
+  lint-api:
+    name: Run ESLint on API
+    needs: changes
+    if: needs.changes.outputs.api == 'true'
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -29,18 +51,82 @@ jobs:
         with:
           node-version: "18"
           cache: "npm"
-
-      - name: Install root dependencies
-        run: npm ci
+          cache-dependency-path: "api/package-lock.json"
 
       - name: Install API dependencies
         run: cd api && npm ci
 
+      - name: Run ESLint
+        run: cd api && npm run lint
+
+  lint-widget:
+    name: Run ESLint on Widget
+    needs: changes
+    if: needs.changes.outputs.widget == 'true'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      actions: write
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v5
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v5
+        with:
+          node-version: "18"
+          cache: "npm"
+          cache-dependency-path: "widget/package-lock.json"
+
       - name: Install widget dependencies
         run: cd widget && npm ci
+
+      - name: Run ESLint
+        run: cd widget && npm run lint
+
+  lint-analytics:
+    name: Run ESLint on Analytics
+    needs: changes
+    if: needs.changes.outputs.analytics == 'true'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      actions: write
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v5
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v5
+        with:
+          node-version: "22"
+          cache: "npm"
+          cache-dependency-path: "analytics/package-lock.json"
 
       - name: Install analytics dependencies
         run: cd analytics && npm ci
 
       - name: Run ESLint
-        run: npm run lint
+        run: cd analytics && npm run lint
+
+  lint-analytics-models:
+    name: Run SQLFluff on Analytics models
+    needs: changes
+    if: needs.changes.outputs.analytics == 'true'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      actions: write
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v5
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install sqlfluff
+        run: pip install --no-cache-dir sqlfluff==3.5.0
+
+      - name: Lint dbt project
+        run: sqlfluff lint --config analytics/dbt/analytics/.sqlfluff analytics/dbt/analytics/models

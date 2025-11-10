@@ -1,7 +1,7 @@
 version: 2
 
 models:
-  - name: Account
+  - name: mart_account
     description: >
       Table analytique reproduisant la structure Prisma `Account`. Alimentée
       depuis `stg_stat_event__account`, elle normalise les identifiants mission,
@@ -12,27 +12,31 @@ models:
         tests:
           - not_null
           - unique
-      - name: old_id
+      - name: stat_event_id
         description: Identifiant historique de la création de compte (StatEvent).
         tests:
           - not_null
           - unique
       - name: mission_id
         description: UUID de la mission associée si retrouvée.
-      - name: from_partner_id
+      - name: mission_id_raw
+        description: Identifiant mission brut issu de StatEvent.
+      - name: from_publisher_id
         description: UUID du partenaire diffuseur.
         tests:
           - not_null
-      - name: to_partner_id
+      - name: to_publisher_id
         description: UUID du partenaire annonceur.
         tests:
           - not_null
       - name: click_id
         description: Référence vers la table `Click` lorsqu’un clic est associé.
+      - name: view_id_raw
+        description: Identifiant brut de la vue transmis par StatEvent.
       - name: source
         description: Origine normalisée (enum `SourceType`).
 
-  - name: Apply
+  - name: mart_apply
     description: >
       Table analytique des candidatures (équivalent Prisma `Apply`) construite
       depuis `stg_stat_event__apply`. On y retrouve les champs statut, mission,
@@ -43,27 +47,31 @@ models:
         tests:
           - not_null
           - unique
-      - name: old_id
-        description: Identifiant StatEvent de la candidature.
+      - name: stat_event_id
+        description: Identifiant StatEvent de la candidature (clé d’origine).
         tests:
           - not_null
           - unique
       - name: mission_id
         description: UUID de la mission associée.
+      - name: mission_id_raw
+        description: Identifiant mission brut provenant de StatEvent.
       - name: status
         description: Statut métier de la candidature.
-      - name: from_partner_id
+      - name: from_publisher_id
         description: UUID du partenaire diffuseur.
         tests:
           - not_null
-      - name: to_partner_id
+      - name: to_publisher_id
         description: UUID du partenaire annonceur.
         tests:
           - not_null
       - name: custom_attributes
         description: Champs JSON contenant les attributs personnalisés.
+      - name: view_id_raw
+        description: Identifiant brut de la vue lié à la candidature.
 
-  - name: Click
+  - name: mart_click
     description: >
       Table analytique des clics reconstruite depuis `stg_stat_event__click`.
       Elle alimente la structure Prisma `Click` avec les lookups de missions,
@@ -74,18 +82,20 @@ models:
         tests:
           - not_null
           - unique
-      - name: old_id
-        description: Ancien identifiant du clic (StatEvent).
+      - name: stat_event_id
+        description: Identifiant StatEvent du clic (clé d’origine).
         tests:
           - not_null
           - unique
       - name: mission_id
         description: UUID de la mission associée si remontée.
-      - name: from_partner_id
+      - name: mission_id_raw
+        description: Identifiant mission brut remonté par StatEvent.
+      - name: from_publisher_id
         description: UUID du partenaire diffuseur.
         tests:
           - not_null
-      - name: to_partner_id
+      - name: to_publisher_id
         description: UUID du partenaire annonceur.
         tests:
           - not_null
@@ -96,7 +106,7 @@ models:
       - name: is_human
         description: Indicateur flagguant le clic comme humain.
 
-  - name: Impression
+  - name: mart_impression
     description: >
       Table analytique des impressions (équivalent Prisma `Impression`) construite
       depuis `stg_stat_event__print`. Elle expose les identifiants mission, partenaires,
@@ -107,20 +117,44 @@ models:
         tests:
           - not_null
           - unique
-      - name: old_id
+      - name: stat_event_id
         description: Identifiant StatEvent de l’impression.
         tests:
           - not_null
           - unique
       - name: mission_id
         description: UUID de la mission associée (nullable).
-      - name: from_partner_id
+      - name: mission_id_raw
+        description: Identifiant mission brut provenant de StatEvent.
+      - name: from_publisher_id
         description: UUID du partenaire diffuseur.
         tests:
           - not_null
-      - name: to_partner_id
+      - name: to_publisher_id
         description: UUID du partenaire annonceur.
         tests:
           - not_null
       - name: source
         description: Origine normalisée de l’impression (`SourceType`).
+
+  - name: mart_apply_service_civique_attrs
+    description: >
+      Extraction des attributs personnalisés pour les candidatures liées au
+      partenaire "Service Civique". Ce modèle dérive des colonnes dédiées à partir
+      du champ JSON et référence la table `Apply` via `apply_id`.
+    columns:
+      - name: apply_id
+        description: Identifiant de la candidature (référence à `public."Apply"`).
+        tests:
+          - not_null
+          - unique
+      - name: has_application_file
+        description: Indique si un dossier de candidature a été fourni.
+      - name: has_candidate_motivation
+        description: Indique si une motivation est associée.
+      - name: candidate_age
+        description: Âge déclaré du candidat.
+      - name: candidate_gender
+        description: Genre déclaré du candidat.
+      - name: candidate_postal_code
+        description: Code postal du candidat.

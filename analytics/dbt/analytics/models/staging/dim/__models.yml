@@ -1,25 +1,25 @@
 version: 2
 
 models:
-  - name: dim_partner
+  - name: dim_publisher
     description: >
       Vue légère sur la table `Partner` (schema public) qui expose uniquement
-      les identifiants nécessaires aux lookups analytics (`id`, `old_id`).
+      les identifiants nécessaires aux lookups analytics.
     columns:
       - name: id
-        description: Identifiant UUID du partenaire dans l’entrepôt analytics.
+        description: Identifiant UUID du publisher dans l’entrepôt analytics.
         tests:
           - not_null
           - unique
-      - name: old_id
-        description: Ancien identifiant partenaire (valeur historique utilisée dans StatEvent).
+      - name: publisher_id_raw
+        description: Identifiant partenaire utilisé dans StatEvent de la base core.
         tests:
           - not_null
           - unique
 
   - name: dim_mission
     description: >
-      Extraction des identifiants de mission (UUID et ancien ID) enrichis du partner
+      Extraction des identifiants de mission (UUID et ancien ID) enrichis du publisher
       associé afin de rebasculer les événements StatEvent vers les missions analytics.
     columns:
       - name: id
@@ -27,12 +27,12 @@ models:
         tests:
           - not_null
           - unique
-      - name: old_id
-        description: Ancien identifiant mission (valeur historisée côté sources).
+      - name: mission_id_raw
+        description: Identifiant mission utilisé dans StatEvent de la base core.
       - name: client_id
         description: Identifiant client de la mission (clé métier utilisée par StatEvent).
-      - name: partner_old_id
-        description: Ancien identifiant partenaire rattaché à la mission.
+      - name: publisher_id_raw
+        description: Identifiant partenaire utilisé dans StatEvent de la base core.
 
   - name: dim_campaign
     description: >
@@ -44,8 +44,8 @@ models:
         tests:
           - not_null
           - unique
-      - name: old_id
-        description: Ancien identifiant campagne utilisé dans StatEvent.
+      - name: campaign_id_raw
+        description: Identifiant campaign utilisé dans StatEvent de la base core.
         tests:
           - not_null
           - unique
@@ -60,8 +60,8 @@ models:
         tests:
           - not_null
           - unique
-      - name: old_id
-        description: Ancien identifiant widget.
+      - name: widget_id_raw
+        description: Identifiant widget utilisé dans StatEvent de la base core.
         tests:
           - not_null
           - unique

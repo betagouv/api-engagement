@@ -20,6 +20,7 @@ export interface PublisherDiffusionRecord {
 }
 
 export interface PublisherRecord {
+  _id: string; // Temporary field for backward compatibility in the app
   id: string;
   name: string;
   category: string | null;
