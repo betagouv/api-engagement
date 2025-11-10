@@ -38,7 +38,7 @@ const GlobalAnnounce = ({ filters, onFiltersChange }) => {
         const res = await api.get(`/stats-global/announce-preview?${queryP.toString()}`);
         if (!res.ok) throw res;
 
-        setData({ ...data, ...res.data });
+        setData((prev) => ({ ...prev, ...res.data }));
       } catch (error) {
         captureError(error, "Erreur lors de la récupération des données");
       }
