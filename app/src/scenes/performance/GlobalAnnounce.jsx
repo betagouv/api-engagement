@@ -22,6 +22,7 @@ const GlobalAnnounce = ({ filters, onFiltersChange }) => {
   const { publisher } = useStore();
   const [data, setData] = useState({ totalMissionAvailable: 0, totalMissionClicked: 0, totalPrint: 0, totalClick: 0, totalAccount: 0, totalApply: 0 });
   const [loading, setLoading] = useState(true);
+  const [loadingMission, setLoadingMission] = useState(true);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -34,28 +35,34 @@ const GlobalAnnounce = ({ filters, onFiltersChange }) => {
 
         queryP.append("publisherId", publisher._id);
 
-        const resP = await api.get(`/stats-global/announce-preview?${queryP.toString()}`);
-        if (!resP.ok) throw resP;
+        const res = await api.get(`/stats-global/announce-preview?${queryP.toString()}`);
+        if (!res.ok) throw res;
 
-        const queryM = {
-          publisherId: publisher._id,
-          availableFrom: filters.from,
-          availableTo: filters.to,
-          size: 0,
-        };
-        const resM = await api.post("/mission/search", queryM);
-        if (!resM.ok) throw resM;
-
-        setData({
-          ...resP.data,
-          totalMissionAvailable: resM.total,
-        });
+        setData({ ...data, ...res.data });
       } catch (error) {
         captureError(error, "Erreur lors de la récupération des données");
       }
       setLoading(false);
     };
+    const fetchAvailableMission = async () => {
+      setLoadingMission(true);
+      try {
+        const res = await api.post("/mission/search", {
+          publisherId: publisher._id,
+          availableFrom: filters.from,
+          availableTo: filters.to,
+          size: 0,
+        });
+        if (!res.ok) throw res;
+        setData((prev) => ({ ...prev, totalMissionAvailable: res.total }));
+      } catch (error) {
+        captureError(error, "Erreur lors de la récupération des données");
+      }
+      setLoadingMission(false);
+    };
+
     fetchData();
+    fetchAvailableMission();
   }, [filters, publisher]);
 
   return (
@@ -78,8 +85,16 @@ const GlobalAnnounce = ({ filters, onFiltersChange }) => {
           <div className="mt-4 grid gap-4">
             <div className="grid grid-cols-2 gap-4">
               <div className="border border-gray-900 p-6">
-                <p className="text-[28px] font-bold">{data.totalMissionAvailable.toLocaleString("fr")}</p>
-                <p className="text-base">{data.totalMissionAvailable > 1 ? "missions disponibles sur la période" : "mission disponible sur la période"}</p>
+                {loadingMission ? (
+                  <div className="flex w-full justify-center py-10">
+                    <Loader />
+                  </div>
+                ) : (
+                  <>
+                    <p className="text-[28px] font-bold">{data.totalMissionAvailable.toLocaleString("fr")}</p>
+                    <p className="text-base">{data.totalMissionAvailable > 1 ? "missions disponibles sur la période" : "mission disponible sur la période"}</p>
+                  </>
+                )}
               </div>
               <div className="border border-gray-900 p-6">
                 <p className="text-[28px] font-bold">{data.totalMissionClicked.toLocaleString("fr")}</p>
