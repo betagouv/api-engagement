@@ -6,6 +6,7 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
 import api from "../services/api";
 import { captureError } from "../services/error";
 import useStore from "../services/store";
+import { withLegacyPublishers } from "../utils/publisher";
 
 const Nav = () => {
   const { user, publisher, flux, setPublisher, setFlux } = useStore();
@@ -19,7 +20,8 @@ const Nav = () => {
         const query = user.role === "admin" ? {} : { ids: user.publishers };
         const res = await api.post("/publisher/search", query);
         if (!res.ok) throw res;
-        setPublishers(res.data.sort((a, b) => (a.name || "").localeCompare(b.name)));
+        const normalized = withLegacyPublishers(res.data);
+        setPublishers(normalized.sort((a, b) => (a.name || "").localeCompare(b.name || "")));
       } catch (error) {
         captureError(error, "Erreur lors de la récupération des partenaires");
       }
@@ -195,7 +197,7 @@ const PublisherMenu = ({ options, value, onChange }) => {
                     }}
                   >
                     <span>{option.name}</span>
-                    {value._id === option._id && <RiCheckLine className="text-blue-france text-lg" />}
+                    {(value.id ?? value._id) === (option.id ?? option._id) && <RiCheckLine className="text-blue-france text-lg" />}
                   </button>
                 ))}
             </div>

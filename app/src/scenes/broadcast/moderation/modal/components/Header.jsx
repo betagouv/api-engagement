@@ -26,7 +26,7 @@ const Header = ({ data, onChange }) => {
     try {
       setValues({ ...values, ...v });
       if (v.status === "REFUSED" && !v.comment) return;
-      const resM = await api.put(`/moderation/${data._id}`, { ...values, ...v, moderatorId: publisher._id });
+      const resM = await api.put(`/moderation/${data._id}`, { ...values, ...v, moderatorId: publisher.id });
       if (!resM.ok) {
         if (resM.error === "COMMENT_REQUIRED") {
           toast.error("Le commentaire est requis pour refuser la mission");
@@ -40,7 +40,7 @@ const Header = ({ data, onChange }) => {
       onChange(resM.data);
 
       if (v.status === "REFUSED" && ["ORGANIZATION_NOT_COMPLIANT", "ORGANIZATION_ALREADY_PUBLISHED"].includes(v.comment)) {
-        const resO = await api.post("/moderation/search", { moderatorId: publisher._id, organizationName: data.organizationName, status: "PENDING", size: 0 });
+        const resO = await api.post("/moderation/search", { moderatorId: publisher.id, organizationName: data.organizationName, status: "PENDING", size: 0 });
         if (!resO.ok) throw resO;
         if (resO.total > 0) setIsOrganizationRefusedOpen(true);
       }

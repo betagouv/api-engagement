@@ -29,7 +29,7 @@ const Filters = ({ filters, onChange, reload }) => {
       setLoading(true);
       try {
         const query = {
-          moderatorId: publisher._id,
+          moderatorId: publisher.id,
           status: filters.status,
           comment: filters.comment,
           publisherId: filters.publisherId,

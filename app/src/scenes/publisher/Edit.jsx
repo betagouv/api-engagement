@@ -8,6 +8,7 @@ import Loader from "../../components/Loader";
 import api from "../../services/api";
 import { captureError } from "../../services/error";
 import useStore from "../../services/store";
+import { buildPublisherPayload, withLegacyPublisher } from "../../utils/publisher";
 import Administration from "./components/Administration";
 import Annonceur from "./components/Annonceur";
 import Diffuseur from "./components/Diffuseur";
@@ -56,7 +57,8 @@ const Edit = () => {
           }
           throw res;
         }
-        setPublisher(res.data);
+        const normalized = withLegacyPublisher(res.data);
+        setPublisher(normalized);
       } catch (error) {
         captureError(error, "Erreur lors de la récupération du partenaire");
       }
@@ -71,9 +73,10 @@ const Edit = () => {
       const res = await api.postFormData(`/publisher/${id}/image`, formData);
       if (!res.ok) throw res;
       toast.success("Image mise à jour");
-      setValues(res.data);
-      setPublisher(res.data);
-      if (sessionPublisher._id === values._id) setSessionPublisher(res.data);
+      const updated = withLegacyPublisher(res.data);
+      setValues(updated);
+      setPublisher(updated);
+      if (sessionPublisher?.id === values.id) setSessionPublisher(updated);
     } catch (error) {
       captureError(error, "Erreur lors de la mise à jour de l'image");
     }
@@ -84,14 +87,14 @@ const Edit = () => {
     if (!confirm) return;
 
     try {
-      const res = await api.delete(`/publisher/${values._id}`);
+      const res = await api.delete(`/publisher/${values.id}`);
       if (!res.ok) throw res;
       toast.success("Partenaire supprimé");
 
-      if (sessionPublisher._id === values._id) {
+      if (sessionPublisher?.id === values.id) {
         const res = await api.get(`/publisher/${user.publishers[0]}`);
         if (!res.ok) throw res;
-        setSessionPublisher(publisher);
+        setSessionPublisher(withLegacyPublisher(res.data));
       }
       navigate("/accounts?tab=publishers");
     } catch (error) {
@@ -121,14 +124,17 @@ const Edit = () => {
         return;
       }
 
-      const res = await api.put(`/publisher/${id}`, values);
+      const payload = buildPublisherPayload(values);
+
+      const res = await api.put(`/publisher/${id}`, payload);
       if (!res.ok) {
         throw res;
       }
       toast.success("Partenaire mis à jour");
-      setPublisher(res.data);
-      if (sessionPublisher._id === values._id) {
-        setSessionPublisher(res.data);
+      const updated = withLegacyPublisher(res.data);
+      setPublisher(updated);
+      if (sessionPublisher?.id === values.id) {
+        setSessionPublisher(updated);
       }
     } catch (error) {
       captureError(error, "Erreur lors de la mise à jour du partenaire");
@@ -137,7 +143,7 @@ const Edit = () => {
 
   const isChanged = (v) => !_.isEqual(v, publisher);
 
-  if (!publisher || !values._id)
+  if (!publisher || !values.id)
     return (
       <div className="flex h-full items-center justify-center">
         <Loader />

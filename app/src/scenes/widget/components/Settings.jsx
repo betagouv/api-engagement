@@ -25,7 +25,7 @@ const Settings = ({ widget, values, onChange, loading }) => {
     const fetchMissions = async () => {
       try {
         const publishers = publisher.publishers.map((p) => p.publisherId);
-        if (publisher.isAnnonceur) publishers.push(publisher._id);
+        if (publisher.isAnnonceur) publishers.push(publisher.id);
         const query = {
           publishers,
           lat: values.location?.lat,
@@ -39,7 +39,7 @@ const Settings = ({ widget, values, onChange, loading }) => {
         const res = await api.post("/mission/search", query);
         if (!res.ok) throw res;
         const newPublishers = res.aggs.partners;
-        if (publisher.isAnnonceur && !newPublishers.some((p) => p._id === publisher._id)) newPublishers.push({ _id: publisher._id, name: publisher.name, count: 0 });
+        if (publisher.isAnnonceur && !newPublishers.some((p) => p._id === publisher.id)) newPublishers.push({ _id: publisher.id, name: publisher.name, count: 0 });
         setPublishers(newPublishers);
       } catch (error) {
         captureError(error, "Erreur lors de la récupération des missions");

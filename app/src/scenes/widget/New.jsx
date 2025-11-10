@@ -22,7 +22,7 @@ const New = () => {
     jvaModeration: false,
     color: "#000091",
     style: "page",
-    fromPublisherId: publisher._id.toString(),
+    fromPublisherId: publisher.id.toString(),
   });
   const [errors, setErrors] = useState({});
   const [stickyVisible, setStickyVisible] = useState(false);

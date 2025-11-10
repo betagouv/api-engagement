@@ -6,6 +6,7 @@ import Toggle from "../../../components/Toggle";
 import { PUBLISHER_CATEGORIES } from "../../../constants";
 import api from "../../../services/api";
 import { captureError } from "../../../services/error";
+import { withLegacyPublishers } from "../../../utils/publisher";
 
 const DiffuseurCreation = ({ values, onChange, errors }) => {
   const [data, setData] = useState([]);
@@ -19,7 +20,7 @@ const DiffuseurCreation = ({ values, onChange, errors }) => {
         });
         if (!res.ok) throw res;
 
-        setData(res.data);
+        setData(withLegacyPublishers(res.data));
       } catch (error) {
         captureError(error, "Erreur lors de la récupération des diffuseurs");
       }
@@ -92,35 +93,35 @@ const DiffuseurCreation = ({ values, onChange, errors }) => {
           </div>
           <div className="h-px w-full bg-gray-900" />
           <p className="text-base">
-            {values.name} diffuse les missions de {data.filter((item) => values.publishers.find((p) => p.publisherId === item._id)).length} annonceurs
+            {values.name} diffuse les missions de {data.filter((item) => values.publishers.find((p) => p.publisherId === item.id)).length} annonceurs
           </p>
           <SearchInput value={search} onChange={setSearch} placeholder="Rechercher un annonceur" timeout={0} />
           <Table header={[{ title: "Annonceurs" }]} className="h-full max-h-96">
             {data
-              .filter((item) => item._id !== values._id && item.name.toLowerCase().includes(search.toLowerCase()))
+              .filter((item) => item.id !== values.id && item.name.toLowerCase().includes(search.toLowerCase()))
               .map((item, index) => (
                 <tr key={index} className={`${index % 2 === 0 ? "bg-gray-100" : "bg-gray-50"} table-item`}>
                   <td className="p-4">
                     <div className="flex items-center gap-2">
                       <input
-                        id={item._id}
+                        id={item.id}
                         type="checkbox"
                         className="checkbox"
-                        checked={values.publishers.find((p) => p.publisherId === item._id) || false}
+                        checked={values.publishers.find((p) => p.publisherId === item.id) || false}
                         onChange={(e) =>
                           e.target.checked
                             ? onChange({
                                 ...values,
                                 publishers: [
                                   ...values.publishers,
-                                  { publisherId: item._id, publisherName: item.name, publisherLogo: item.logo, moderator: item.moderator, missionType: item.missionType },
+                                  { publisherId: item.id, publisherName: item.name, publisherLogo: item.logo, moderator: item.moderator, missionType: item.missionType },
                                 ],
                               })
-                            : onChange({ ...values, publishers: values.publishers.filter((p) => p.publisherId !== item._id) })
+                            : onChange({ ...values, publishers: values.publishers.filter((p) => p.publisherId !== item.id) })
                         }
                       />
 
-                      <label htmlFor={item._id}>{item.name}</label>
+                      <label htmlFor={item.id}>{item.name}</label>
                     </div>
                   </td>
                 </tr>

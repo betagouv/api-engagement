@@ -23,7 +23,7 @@ const Flux = () => {
     const fetchData = async () => {
       try {
         const query = new URLSearchParams();
-        if (publisher._id) query.set("publisherId", publisher._id);
+        if (publisher.id) query.set("publisherId", publisher.id);
         if (filters.size) query.set("size", filters.size);
         if (filters.skip) query.set("skip", filters.skip);
 
@@ -134,7 +134,7 @@ const ModifyModal = () => {
   const handleFeedSubmit = async () => {
     try {
       setLoading(true);
-      const res = await api.put(`/publisher/${publisher._id}`, { feed });
+      const res = await api.put(`/publisher/${publisher.id}`, { feed });
 
       if (!res.ok) throw res;
 
