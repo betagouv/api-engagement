@@ -1,7 +1,7 @@
 version: 2
 
 models:
-  - name: dim_partner
+  - name: dim_publisher
     description: >
       Vue légère sur la table `Partner` (schema public) qui expose uniquement
       les identifiants nécessaires aux lookups analytics.
