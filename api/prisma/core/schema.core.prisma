@@ -165,8 +165,9 @@ model Publisher {
   createdAt          DateTime     @default(now()) @map("created_at")
   updatedAt          DateTime     @updatedAt @map("updated_at")
 
-  diffuseurs PublisherDiffusion[] @relation("PublisherAnnonceurRelation")
+  diffuseurs            PublisherDiffusion[] @relation("PublisherAnnonceurRelation")
   diffusionsAsDiffuseur PublisherDiffusion[] @relation("PublisherDiffuseurRelation")
+  imports               Import[]             @relation("ImportPublisherRelation")
 
   @@index([name], map: "publisher_name_idx")
   @@index([apikey], map: "publisher_apikey_idx")
@@ -195,4 +196,33 @@ model PublisherDiffusion {
   @@index([diffuseurPublisherId], map: "publisher_diffusion_diffuseur_id_idx")
   @@index([annonceurPublisherId], map: "publisher_diffusion_annonceur_id_idx")
   @@map("publisher_diffusion")
+}
+
+enum ImportStatus {
+  SUCCESS
+  FAILED
+}
+
+model Import {
+  id           String @id @default(uuid())
+  name         String
+  publisherId  String @map("publisher_id")
+  missionCount Int    @default(0) @map("mission_count")
+  refusedCount Int    @default(0) @map("refused_count")
+  createdCount Int    @default(0) @map("created_count")
+  deletedCount Int    @default(0) @map("deleted_count")
+  updatedCount Int    @default(0) @map("updated_count")
+
+  publisher Publisher @relation("ImportPublisherRelation", fields: [publisherId], references: [id])
+
+  startedAt  DateTime?    @map("started_at")
+  finishedAt DateTime?    @map("finished_at")
+  status     ImportStatus @default(SUCCESS) @map("status")
+  error      String?      @map("error")
+  failed     Json?        @map("failed")
+
+  @@index([publisherId], map: "import_publisher_id_idx")
+  @@index([startedAt], map: "import_started_at_idx")
+  @@index([status], map: "import_status_idx")
+  @@map("import")
 }

@@ -1,19 +1,19 @@
 import { Import as PrismaImport } from "../../../db/analytics";
 import { prismaAnalytics as prismaClient } from "../../../db/postgres";
 import { captureException } from "../../../error";
-import ImportModel from "../../../models/import";
-import { Import } from "../../../types";
+import { importService } from "../../../services/import";
+import type { ImportRecord } from "../../../types/import";
 
 const BATCH_SIZE = 5000;
 
-const buildData = (doc: Import, partners: { [key: string]: string }) => {
-  const partnerId = partners[doc.publisherId.toString()];
+const buildData = (doc: ImportRecord, partners: { [key: string]: string }) => {
+  const partnerId = partners[doc.publisherId];
   if (!partnerId) {
-    console.log(`[Imports] Patner ${doc.publisherId.toString()} not found for doc ${doc._id?.toString()}`);
+    console.log(`[Imports] Patner ${doc.publisherId.toString()} not found for doc ${doc._id}`);
     return null;
   }
   const obj = {
-    old_id: doc._id.toString(),
+    old_id: doc._id,
     created_count: doc.createdCount,
     deleted_count: doc.deletedCount,
     updated_count: doc.updatedCount,
@@ -31,13 +31,10 @@ const handler = async () => {
     let page = 0;
 
     // Get data from 7 days ago
-    const where = { startedAt: { $gte: new Date(Date.now() - 1000 * 60 * 60 * 24 * 7) } };
+    const since = new Date(Date.now() - 1000 * 60 * 60 * 24 * 7);
 
-    const total = await ImportModel.countDocuments(where);
-    let data = await ImportModel.find(where)
-      .limit(BATCH_SIZE)
-      .skip(page * BATCH_SIZE)
-      .lean();
+    const total = await importService.countImports({ startedAtGte: since });
+    let data = await importService.findImports({ startedAtGte: since, size: BATCH_SIZE, skip: page * BATCH_SIZE });
     console.log(`[Imports] Found ${total} docs to sync.`);
 
     const stored = await prismaClient.import.count();
@@ -64,10 +61,7 @@ const handler = async () => {
       }
 
       page++;
-      data = await ImportModel.find(where)
-        .limit(BATCH_SIZE)
-        .skip(page * BATCH_SIZE)
-        .lean();
+      data = await importService.findImports({ startedAtGte: since, size: BATCH_SIZE, skip: page * BATCH_SIZE });
     }
 
     console.log(`[Imports] Ended at ${new Date().toISOString()} in ${(Date.now() - start.getTime()) / 1000}s.`);

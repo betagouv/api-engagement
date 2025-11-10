@@ -2,7 +2,7 @@ import fs from "fs";
 
 import { ENV, PUBLISHER_IDS } from "../../config";
 import { captureException } from "../../error";
-import ImportModel from "../../models/import";
+import { importService } from "../../services/import";
 import { publisherService } from "../../services/publisher";
 import { BaseHandler } from "../base/handler";
 import { JobResult } from "../types";
@@ -90,7 +90,7 @@ export class TalentHandler implements BaseHandler<TalentJobPayload, TalentJobRes
       const url = await storeXML(xml);
       console.log(`[Talent Job] XML stored at ${url}`);
 
-      await ImportModel.create({
+      await importService.createImport({
         name: `TALENT`,
         publisherId: PUBLISHER_IDS.TALENT,
         createdCount: result.counter.sent,
@@ -99,7 +99,7 @@ export class TalentHandler implements BaseHandler<TalentJobPayload, TalentJobRes
         missionCount: 0,
         refusedCount: 0,
         startedAt: start,
-        endedAt: new Date(),
+        finishedAt: new Date(),
         status: "SUCCESS",
         failed: { data: [] },
       });
@@ -114,11 +114,11 @@ export class TalentHandler implements BaseHandler<TalentJobPayload, TalentJobRes
     } catch (error) {
       captureException(error);
 
-      await ImportModel.create({
+      await importService.createImport({
         name: `TALENT`,
         publisherId: PUBLISHER_IDS.TALENT,
         startedAt: start,
-        endedAt: new Date(),
+        finishedAt: new Date(),
         status: "FAILED",
         failed: { data: [] },
       });

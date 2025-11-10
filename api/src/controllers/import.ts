@@ -3,7 +3,7 @@ import passport from "passport";
 import zod from "zod";
 
 import { FORBIDDEN, INVALID_BODY, INVALID_PARAMS } from "../error";
-import ImportModel from "../models/import";
+import { importService } from "../services/import";
 import { UserRequest } from "../types/passport";
 
 const router = Router();
@@ -31,8 +31,8 @@ router.post("/search", passport.authenticate("user", { session: false }), async 
       where.publisherId = body.data.publisherId;
     }
 
-    const total = await ImportModel.countDocuments(where);
-    const data = await ImportModel.find(where).sort({ startedAt: -1 }).limit(body.data.size).skip(body.data.skip);
+    const total = await importService.countImports({ publisherId: where.publisherId });
+    const data = await importService.findImports({ publisherId: where.publisherId, size: body.data.size, skip: body.data.skip });
     return res.status(200).send({ ok: true, data, total });
   } catch (error) {
     next(error);
@@ -70,8 +70,15 @@ router.get("/", passport.authenticate("user", { session: false }), async (req: U
       where.publisherId = { $in: req.user.publishers };
     }
 
-    const total = await ImportModel.countDocuments(where);
-    const data = await ImportModel.find(where).sort({ startedAt: -1 }).limit(query.size).skip(query.skip);
+    const isSingle = typeof (where as any).publisherId === "string";
+    const singlePublisherId = isSingle ? ((where as any).publisherId as string) : undefined;
+    const multiplePublisherIds = !isSingle ? (((where as any).publisherId?.$in as string[]) ?? undefined) : undefined;
+
+    const total = isSingle ? await importService.countImports({ publisherId: singlePublisherId }) : await importService.countImports({ publisherIds: multiplePublisherIds });
+
+    const data = isSingle
+      ? await importService.findImports({ publisherId: singlePublisherId, size: query.size, skip: query.skip })
+      : await importService.findImports({ publisherIds: multiplePublisherIds, size: query.size, skip: query.skip });
     return res.status(200).send({ ok: true, data, total });
   } catch (error) {
     next(error);
@@ -80,19 +87,19 @@ router.get("/", passport.authenticate("user", { session: false }), async (req: U
 
 router.get("/last", passport.authenticate("admin", { session: false }), async (req: UserRequest, res: Response, next: NextFunction) => {
   try {
-    const imports = await ImportModel.aggregate([{ $group: { _id: "$publisherId", doc: { $last: "$$ROOT" } } }]);
+    const imports = await importService.findLastImportsPerPublisher();
     const data = imports.map((i) => ({
-      _id: i.doc._id,
-      publisherId: i.doc.publisherId,
-      publisherName: i.doc.name,
-      startedAt: i.doc.startedAt,
-      endedAt: i.doc.endedAt,
-      status: i.doc.status,
-      createdCount: i.doc.createdCount,
-      deletedCount: i.doc.deletedCount,
-      updatedCount: i.doc.updatedCount,
-      missionCount: i.doc.missionCount,
-      refusedCount: i.doc.refusedCount,
+      _id: i._id,
+      publisherId: i.publisherId,
+      publisherName: i.name,
+      startedAt: i.startedAt,
+      endedAt: i.endedAt,
+      status: i.status,
+      createdCount: i.createdCount,
+      deletedCount: i.deletedCount,
+      updatedCount: i.updatedCount,
+      missionCount: i.missionCount,
+      refusedCount: i.refusedCount,
     }));
 
     return res.status(200).send({ ok: true, data });

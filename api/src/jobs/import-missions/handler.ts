@@ -1,5 +1,5 @@
 import { captureException } from "../../error";
-import ImportModel from "../../models/import";
+import { importService } from "../../services/import";
 
 import MissionModel from "../../models/mission";
 import { publisherService } from "../../services/publisher";
@@ -59,7 +59,20 @@ export class ImportMissionsHandler implements BaseHandler<ImportMissionsJobPaylo
         if (!res) {
           continue;
         }
-        await ImportModel.create(res);
+        await importService.createImport({
+          name: res.name,
+          publisherId: res.publisherId as unknown as string,
+          startedAt: res.startedAt,
+          finishedAt: res.endedAt ?? null,
+          status: res.status,
+          missionCount: res.missionCount,
+          refusedCount: res.refusedCount,
+          createdCount: res.createdCount,
+          deletedCount: res.deletedCount,
+          updatedCount: res.updatedCount,
+          error: res.error ?? null,
+          failed: res.failed,
+        });
 
         processed += res.missionCount;
         updated += res.updatedCount;
