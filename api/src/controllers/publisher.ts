@@ -18,45 +18,20 @@ const upload = multer();
 const router = Router();
 
 const nullableString = zod.string().nullish();
-const publisherDiffusionSchema = zod
-  .object({
-    publisherId: zod.string().min(1).optional(),
-    diffuseurPublisherId: zod.string().min(1).optional(),
-    publisherName: zod.string().optional(),
-    publisherLogo: zod.string().optional(),
-    missionType: zod.string().nullable().optional(),
-    moderator: zod.boolean().optional(),
-  })
-  .refine((value) => Boolean(value.publisherId ?? value.diffuseurPublisherId), {
-    message: "publisherId or diffuseurPublisherId is required",
-    path: ["publisherId"],
-  });
+const publisherDiffusionSchema = zod.object({
+  publisherId: zod.string().min(1),
+  missionType: zod.string().nullable().optional(),
+  moderator: zod.boolean().optional(),
+});
 
 type PublisherDiffusionBody = zod.infer<typeof publisherDiffusionSchema>;
 
-const mapPublishersForService = (publishers?: PublisherDiffusionBody[]): PublisherDiffusionInput[] | undefined => {
-  if (!publishers) {
-    return undefined;
-  }
-
-  const mapped = publishers
-    .map((publisher) => {
-      const publisherId = publisher.publisherId ?? publisher.diffuseurPublisherId;
-      if (!publisherId) {
-        return null;
-      }
-
-      return {
-        publisherId,
-        publisherName: publisher.publisherName,
-        missionType: publisher.missionType ?? null,
-        moderator: publisher.moderator ?? false,
-      } satisfies PublisherDiffusionInput;
-    })
-    .filter((publisher): publisher is PublisherDiffusionInput => Boolean(publisher));
-
-  return mapped;
-};
+const mapPublishersForService = (publishers?: PublisherDiffusionBody[]): PublisherDiffusionInput[] | undefined =>
+  publishers?.map(({ publisherId, missionType, moderator }) => ({
+    publisherId,
+    missionType: missionType ?? null,
+    moderator: moderator ?? false,
+  }));
 
 router.post("/search", passport.authenticate(["user", "admin"], { session: false }), async (req: UserRequest, res: Response, next: NextFunction) => {
   try {
@@ -206,15 +181,15 @@ router.post("/", passport.authenticate("admin", { session: false }), async (req:
         hasCampaignRights: zod.boolean().default(false),
         category: zod.string().nullable().default(null),
         name: zod.string().optional(),
-    publishers: zod.array(publisherDiffusionSchema).optional(),
-    documentation: nullableString,
-    description: zod.string().optional(),
-    lead: nullableString,
-    logo: zod.string().optional(),
-    url: nullableString,
-    email: nullableString,
-    feed: nullableString,
-  })
+        publishers: zod.array(publisherDiffusionSchema).optional(),
+        documentation: nullableString,
+        description: zod.string().optional(),
+        lead: nullableString,
+        logo: zod.string().optional(),
+        url: nullableString,
+        email: nullableString,
+        feed: nullableString,
+      })
       .safeParse(req.body);
 
     if (!body.success) {
@@ -344,15 +319,15 @@ router.put("/:id", passport.authenticate("admin", { session: false }), async (re
         hasWidgetRights: zod.boolean().optional(),
         hasCampaignRights: zod.boolean().optional(),
         category: zod.string().nullable().optional(),
-    publishers: zod.array(publisherDiffusionSchema).optional(),
-    documentation: nullableString,
-    description: zod.string().optional(),
-    lead: nullableString,
-    logo: zod.string().optional(),
-    url: nullableString,
-    email: nullableString,
-    feed: nullableString,
-  })
+        publishers: zod.array(publisherDiffusionSchema).optional(),
+        documentation: nullableString,
+        description: zod.string().optional(),
+        lead: nullableString,
+        logo: zod.string().optional(),
+        url: nullableString,
+        email: nullableString,
+        feed: nullableString,
+      })
       .safeParse(req.body);
 
     if (!params.success) {
@@ -368,7 +343,7 @@ router.put("/:id", passport.authenticate("admin", { session: false }), async (re
       return res.status(400).send({ ok: false, code: INVALID_BODY, message: "Category is required" });
     }
 
-    const publishers = body.data.publishers !== undefined ? mapPublishersForService(body.data.publishers) ?? [] : undefined;
+    const publishers = body.data.publishers !== undefined ? (mapPublishersForService(body.data.publishers) ?? []) : undefined;
 
     const patch = {
       sendReport: body.data.sendReport,
