@@ -20,6 +20,7 @@ jobs:
     outputs:
       api: ${{ steps.filter.outputs.api }}
       widget: ${{ steps.filter.outputs.widget }}
+      analytics: ${{ steps.filter.outputs.analytics }}
     steps:
       - uses: actions/checkout@v5
       - uses: dorny/paths-filter@v3
@@ -30,6 +31,8 @@ jobs:
               - 'api/**'
             widget:
               - 'widget/**'
+            analytics:
+              - 'analytics/**'
 
   api-migrations:
     name: Verify API migrations
@@ -116,7 +119,7 @@ jobs:
       - name: Check dbmate migrations
         working-directory: analytics
         env:
-          DATABASE_URL_ANALYTICS: postgresql://postgres:postgres@localhost:5432/analytics
+          DATABASE_URL_ANALYTICS: postgresql://postgres:postgres@localhost:5432/analytics?sslmode=disable
         run: npm run db:migrate
 
   api-tests:

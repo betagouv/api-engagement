@@ -1,26 +1,35 @@
 with events as (
   select
     e.*,
-    nullif(e.mission_id, '') as mission_id_clean,
-    nullif(e.mission_client_id, '') as mission_client_id_clean,
-    nullif(e.to_publisher_id, '') as to_partner_old_id,
-    nullif(e.from_publisher_id, '') as from_partner_old_id,
-    nullif(e.source_id, '') as source_id_clean,
-    nullif(e.click_id, '') as click_old_id
+    nullif(e.mission_id, '') as mission_id_raw,
+    nullif(e.mission_client_id, '') as mission_client_id_raw,
+    nullif(e.to_publisher_id, '') as to_publisher_id_raw,
+    nullif(e.from_publisher_id, '') as from_publisher_id_raw,
+    nullif(e.source_id, '') as source_id_raw,
+    nullif(e.click_id, '') as click_id_raw
   from {{ ref('stg_stat_event') }} as e
   where e.type = 'account'
 ),
 
 partners as (
-  select id, old_id from {{ ref('dim_partner') }}
+  select
+    id,
+    publisher_id_raw
+  from {{ ref('dim_partner') }}
 ),
 
 campaigns as (
-  select id, old_id from {{ ref('dim_campaign') }}
+  select
+    id,
+    campaign_id_raw
+  from {{ ref('dim_campaign') }}
 ),
 
 widgets as (
-  select id, old_id from {{ ref('dim_widget') }}
+  select
+    id,
+    widget_id_raw
+  from {{ ref('dim_widget') }}
 ),
 
 clicks as (
@@ -31,7 +40,8 @@ mission_map as (
   select
     stat_event_id,
     mission_id,
-    resolved_mission_old_id
+    mission_id_raw,
+    resolved_mission_id_raw
   from {{ ref('stg_stat_event__mission_map') }}
 )
 
@@ -41,12 +51,12 @@ select
   e.updated_at,
   e.host,
   e.tag,
-  p_from.id as from_partner_id,
-  p_to.id as to_partner_id,
+  p_from.id as from_publisher_id,
+  p_to.id as to_publisher_id,
   mm.mission_id,
   clk.stat_event_id as click_id,
-  e.click_old_id as old_view_id,
-  mm.resolved_mission_old_id as mission_old_id,
+  e.click_id_raw as view_id_raw,
+  mm.resolved_mission_id_raw,
   case
     when coalesce(e.source, 'publisher') in ('publisher', 'api') then 'api'
     else e.source
@@ -59,10 +69,18 @@ select
   case when e.source = 'campaign' then c_source.id end as campaign_id,
   case when e.source = 'widget' then w_source.id end as widget_id
 from events as e
-inner join partners as p_from on e.from_partner_old_id = p_from.old_id
-inner join partners as p_to on e.to_partner_old_id = p_to.old_id
+left join
+  partners as p_from
+  on e.from_publisher_id_raw = p_from.publisher_id_raw
+left join partners as p_to on e.to_publisher_id_raw = p_to.publisher_id_raw
 left join mission_map as mm on e.id = mm.stat_event_id
-left join partners as p_source on e.source = 'publisher' and e.source_id_clean = p_source.old_id
-left join campaigns as c_source on e.source = 'campaign' and e.source_id_clean = c_source.old_id
-left join widgets as w_source on e.source = 'widget' and e.source_id_clean = w_source.old_id
-left join clicks as clk on e.click_old_id = clk.stat_event_id
+left join
+  partners as p_source
+  on e.source = 'publisher' and e.source_id_raw = p_source.publisher_id_raw
+left join
+  campaigns as c_source
+  on e.source = 'campaign' and e.source_id_raw = c_source.campaign_id_raw
+left join
+  widgets as w_source
+  on e.source = 'widget' and e.source_id_raw = w_source.widget_id_raw
+left join clicks as clk on e.click_id_raw = clk.stat_event_id
