@@ -6,7 +6,7 @@ const sanitizeNullableString = (value) => {
 const formatPublishersForApi = (publishers = []) =>
   (publishers || [])
     .map((publisher) => {
-      const publisherId = publisher.publisherId ?? publisher.annonceurPublisherId ?? publisher.diffuseurPublisherId ?? publisher.id;
+      const publisherId = publisher.publisherId ?? publisher.diffuseurPublisherId ?? publisher.annonceurPublisherId ?? publisher.id;
       if (!publisherId) return null;
 
       return {
@@ -43,7 +43,7 @@ export const withLegacyPublisher = (publisher = {}) => {
   const relations = Array.isArray(publisher.publishers)
     ? publisher.publishers.map((relation) => ({
         ...relation,
-        publisherId: relation.publisherId ?? relation.annonceurPublisherId ?? relation.diffuseurPublisherId ?? relation.id,
+        publisherId: relation.publisherId ?? relation.diffuseurPublisherId ?? relation.annonceurPublisherId ?? relation.id,
       }))
     : publisher.publishers;
 
