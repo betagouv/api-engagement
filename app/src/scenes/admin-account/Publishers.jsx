@@ -164,7 +164,7 @@ const Publishers = () => {
           >
             <option value="">Type de mission</option>
             <option value="benevolat">Missions de bénévolat</option>
-            <option value="volontariat">Missions de volontariat</option>
+            <option value="volontariat_service_civique">Missions de volontariat</option>
           </select>
         </div>
         {loading ? (
