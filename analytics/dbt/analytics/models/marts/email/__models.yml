@@ -3,7 +3,7 @@ version: 2
 models:
   - name: email
     description: >
-      Table mart exposant les emails et rapports envoyés par l'application.
+      Table mart exposant des rapports reçus qui sont créés à la réception d'un e-mail.
       Cette table reprend la structure Prisma `Email` afin de faciliter les
       analyses historiques (synchronisée depuis `stg_email`).
     columns:
