@@ -77,7 +77,7 @@ export interface MissionEvent {
 }
 
 export interface Mission {
-  _id?: Schema.Types.ObjectId;
+  _id: Schema.Types.ObjectId;
 
   publisherId: string;
   publisherName: string;
@@ -221,28 +221,6 @@ export interface Mission {
   _old_ids?: string[];
 }
 
-export type ModerationEvent = {
-  _id: Schema.Types.ObjectId;
-  missionId: string;
-  moderatorId: string;
-  initialStatus: "ACCEPTED" | "REFUSED" | "PENDING" | "ONGOING" | null;
-  newStatus: "ACCEPTED" | "REFUSED" | "PENDING" | "ONGOING" | null;
-  initialComment: string | null;
-  newComment: string | null;
-  initialNote: string | null;
-  newNote: string | null;
-  initialTitle: string | null;
-  newTitle: string | null;
-  userId: string | null;
-  userName: string | null;
-  initialSiren: string | null;
-  newSiren: string | null;
-  initialRNA: string | null;
-  newRNA: string | null;
-  createdAt: Date;
-  updatedAt: Date;
-};
-
 export interface OrganizationExclusion {
   _id?: Schema.Types.ObjectId;
   excludedByPublisherId: string;
@@ -256,103 +234,6 @@ export interface OrganizationExclusion {
 
   createdAt: Date;
   updatedAt: Date;
-}
-
-export interface Report {
-  _id: Schema.Types.ObjectId;
-  name: string;
-  month: number;
-  year: number;
-  url: string | null;
-  objectName: string | null;
-  publisherId: string;
-  publisherName: string;
-  sent: boolean;
-  sentAt: Date | null;
-  sentTo: string[];
-  dataTemplate: "BOTH" | "RECEIVE" | "SEND";
-  data: StatsReport;
-  status: string;
-  createdAt: Date;
-  updatedAt: Date;
-}
-
-export interface StatsReport {
-  publisherId: string;
-  publisherName: string;
-  publisherLogo: string;
-  month: number;
-  monthName: string;
-  year: number;
-  id: string;
-  receive: {
-    hasStats: boolean;
-    print: number;
-    printLastMonth: number;
-    click: number;
-    clickLastMonth: number;
-    clickYear: number;
-    clickLastYear: number;
-    apply: number;
-    applyLastMonth: number;
-    applyYear: number;
-    applyLastYear: number;
-    account: number;
-    accountLastMonth: number;
-    topPublishers: {
-      key: string;
-      doc_count: number;
-    }[];
-    topOrganizations: {
-      key: string;
-      doc_count: number;
-    }[];
-    graphYears: {
-      month: Date;
-      click: number;
-      clickLastYear: number;
-      apply: number;
-      applyLastYear: number;
-    }[];
-    organizationHistogram: {
-      month: number;
-      [key: string]: number;
-    }[];
-  };
-  send: {
-    hasStats: boolean;
-    print: number;
-    printLastMonth: number;
-    click: number;
-    clickLastMonth: number;
-    clickYear: number;
-    clickLastYear: number;
-    apply: number;
-    applyLastMonth: number;
-    applyYear: number;
-    applyLastYear: number;
-    account: number;
-    accountLastMonth: number;
-    topPublishers: {
-      key: string;
-      doc_count: number;
-    }[];
-    topOrganizations: {
-      key: string;
-      doc_count: number;
-    }[];
-    graphYears: {
-      month: Date;
-      click: number;
-      clickLastYear: number;
-      apply: number;
-      applyLastYear: number;
-    }[];
-    organizationHistogram: {
-      month: number;
-      [key: string]: number;
-    }[];
-  };
 }
 
 export type Request = {
@@ -680,5 +561,7 @@ export enum MissionType {
 }
 
 export * from "./email";
+export * from "./moderation-event";
 export * from "./organization";
 export * from "./publisher";
+export * from "./report";

@@ -76,6 +76,8 @@ if (!fs.existsSync(handlerPath)) {
 }
 
 async function runJob() {
+  const start = new Date();
+
   try {
     const handlerModule = await import(`./${jobName}/handler`);
     // Convert to camelCase
@@ -87,44 +89,56 @@ async function runJob() {
     const HandlerClass = handlerModule[HandlerClassName];
 
     if (!HandlerClass || typeof HandlerClass !== "function") {
-      console.error(`Error: Handler class '${HandlerClassName}' not found or not a constructor in ${handlerPath}`);
-      process.exit(1);
+      throw new Error(`Handler class '${HandlerClassName}' not found or not a constructor in ${handlerPath}`);
     }
 
     const handler = new HandlerClass();
     if (typeof handler.handle !== "function") {
-      console.error(`Error: 'handle' method not found on handler class for job '${jobName}'`);
-      process.exit(1);
+      throw new Error(`'handle' method not found on handler class for job '${jobName}'`);
     }
 
     console.log(`Executing handler for job '${jobName}'...`);
-
-    // Extract args from command line
-    const start = new Date();
 
     const payload = {
       table: tableName,
     };
 
     const result = await handler.handle(payload);
-    console.log(`Job '${jobName}' ${result.success ? "Job executed successfully" : "Job failed"}:`, result);
+    console.log(`Job '${jobName}' ${result.success ? "executed successfully" : "failed"}:`, result);
 
     const time = getJobTime(start);
 
     await postMessage(
       {
         title: `${handler.name} terminée en ${time}`,
-        text: result.message,
-        color: result.success ? "good" : "danger",
+        text: result.message ?? `Job '${jobName}' ${result.success ? "terminé" : "terminé avec des erreurs"}.`,
+        color: result.success ? "good" : "warning",
       },
       SLACK_CRON_CHANNEL_ID
     );
+
+    process.exit(result.success ? 0 : 1);
   } catch (error) {
+    const message = error instanceof Error ? error.message : String(error);
     console.error(`Error executing job '${jobName}':`, error);
     captureException(error, { extra: { jobName } });
+
+    const time = getJobTime(start);
+    try {
+      await postMessage(
+        {
+          title: `${jobName} échoué en ${time}`,
+          text: message,
+          color: "danger",
+        },
+        SLACK_CRON_CHANNEL_ID
+      );
+    } catch (slackError) {
+      console.error("Failed to post Slack error message:", slackError);
+      captureException(slackError, { extra: { jobName, stage: "slackNotification" } });
+    }
+
     process.exit(1);
-  } finally {
-    process.exit(0);
   }
 }
 

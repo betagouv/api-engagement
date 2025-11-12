@@ -18,6 +18,12 @@ enum EmailStatus {
   FAILED
 }
 
+enum ReportDataTemplate {
+  BOTH
+  RECEIVED
+  SENT
+}
+
 enum MissionType {
   benevolat
   volontariat_service_civique
@@ -46,6 +52,13 @@ enum StatEventStatus {
   CANCELED
   REFUSED
   CARRIED_OUT
+}
+
+enum ModerationEventStatus {
+  ACCEPTED
+  REFUSED
+  PENDING
+  ONGOING
 }
 
 //
@@ -81,6 +94,29 @@ model Email {
   @@index([dateFrom, dateTo], map: "email_date_from_to_idx")
   @@index([toEmails], type: Gin, map: "email_to_emails_idx")
   @@map("email")
+}
+
+model Report {
+  id           String              @id @default(uuid())
+  name         String
+  month        Int
+  year         Int
+  url          String
+  objectName   String?             @map("object_name")
+  publisherId  String              @map("publisher_id")
+  dataTemplate ReportDataTemplate? @map("data_template")
+  sentAt       DateTime?           @map("sent_at")
+  sentTo       String[]            @map("sent_to")
+  status       String
+  data         Json
+  createdAt    DateTime            @default(now()) @map("created_at")
+  updatedAt    DateTime            @updatedAt @map("updated_at")
+
+  publisher Publisher @relation("PublisherReportRelation", fields: [publisherId], references: [id])
+
+  @@unique([publisherId, month, year], map: "report_publisher_id_month_year_key")
+  @@index([publisherId], map: "report_publisher_id_idx")
+  @@map("report")
 }
 
 model StatEvent {
@@ -130,11 +166,39 @@ model StatEvent {
   @@index([mission_department_name, created_at], map: "stats_event_mission_department_name_created_at_idx")
   @@index([mission_domain, created_at], map: "stats_event_mission_domain_created_at_idx")
   @@index([tags], type: Gin, map: "stats_event_tags_idx")
-  @@index([from_publisher_id, created_at], map: "stats_event_from_publisher_created_at_idx")
-  @@index([to_publisher_id, created_at], map: "stats_event_to_publisher_created_at_idx")
+  @@index([from_publisher_id, created_at(sort: Desc)], map: "stats_event_from_publisher_created_at_idx")
+  @@index([to_publisher_id, created_at(sort: Desc)], map: "stats_event_to_publisher_created_at_idx")
   @@index([from_publisher_id, type, created_at], map: "stats_event_from_publisher_type_created_at_idx")
   @@index([to_publisher_id, type, created_at], map: "stats_event_to_publisher_type_created_at_idx")
   @@index([updated_at(sort: Asc)], map: "stats_event_updated_at_asc_idx")
+}
+
+model ModerationEvent {
+  id             String                 @id @default(uuid())
+  missionId      String                 @map("mission_id")
+  moderatorId    String                 @map("moderator_id")
+  userId         String?                @map("user_id")
+  userName       String?                @map("user_name")
+  initialStatus  ModerationEventStatus? @map("initial_status")
+  newStatus      ModerationEventStatus? @map("new_status")
+  initialComment String?                @map("initial_comment")
+  newComment     String?                @map("new_comment")
+  initialNote    String?                @map("initial_note")
+  newNote        String?                @map("new_note")
+  initialTitle   String?                @map("initial_title")
+  newTitle       String?                @map("new_title")
+  initialSiren   String?                @map("initial_siren")
+  newSiren       String?                @map("new_siren")
+  initialRNA     String?                @map("initial_rna")
+  newRNA         String?                @map("new_rna")
+  createdAt      DateTime               @default(now()) @map("created_at")
+  updatedAt      DateTime               @updatedAt @map("updated_at")
+
+  @@index([updatedAt(sort: Asc)], map: "moderation_event_updated_at_idx")
+  @@index([missionId], map: "moderation_event_mission_id_idx")
+  @@index([moderatorId], map: "moderation_event_moderator_id_idx")
+  @@index([userId], map: "moderation_event_user_id_idx")
+  @@map("moderation_event")
 }
 
 model Publisher {
@@ -165,8 +229,9 @@ model Publisher {
   createdAt          DateTime     @default(now()) @map("created_at")
   updatedAt          DateTime     @updatedAt @map("updated_at")
 
-  diffuseurs PublisherDiffusion[] @relation("PublisherAnnonceurRelation")
+  diffuseurs            PublisherDiffusion[] @relation("PublisherAnnonceurRelation")
   diffusionsAsDiffuseur PublisherDiffusion[] @relation("PublisherDiffuseurRelation")
+  reports               Report[]             @relation("PublisherReportRelation")
 
   @@index([name], map: "publisher_name_idx")
   @@index([apikey], map: "publisher_apikey_idx")

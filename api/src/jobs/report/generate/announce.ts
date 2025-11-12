@@ -1,5 +1,5 @@
 import { jsPDF } from "jspdf";
-import { StatsReport } from "../../../types";
+import { StatsReport } from "../../../types/report";
 import { COLORS, drawBarChart, drawBoxText, drawLineChart, drawText, formatNumber, PAGE_WIDTH, TEXT_BODY_LINE_HEIGHT, TOP_COLORS } from "./utils";
 
 const CONTAINER_PADDING = 32;

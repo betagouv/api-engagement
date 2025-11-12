@@ -19,11 +19,17 @@ const ensureTableSql = `
   )
 `;
 
+const ensureIndexSql = `
+  CREATE UNIQUE INDEX IF NOT EXISTS analytics_raw_pg_export_state_key_idx
+  ON analytics_raw.pg_export_state (key)
+`;
+
 const ensureStateTable = async (client: PoolClient) => {
   if (stateTableEnsured) {
     return;
   }
   await client.query(ensureTableSql);
+  await client.query(ensureIndexSql);
   stateTableEnsured = true;
 };
 

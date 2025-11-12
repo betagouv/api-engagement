@@ -48,3 +48,8 @@ npx ts-node api/scripts/mongo-backfill/backfill-publisher.ts --env api/.env.prod
 
 - Les imports dépendants des variables d'environnement (Mongo/PG/repos) sont chargés dynamiquement dans les scripts afin que `dotenv` soit appliqué avant l'initialisation des connexions.
 - En cas d'échec, vérifiez que `DB_ENDPOINT` est bien défini et que les variables PostgreSQL attendues par Prisma sont présentes.
+
+## backfill-moderation-event.ts
+
+- Exécution: `npx ts-node scripts/mongo-backfill/backfill-moderation-event.ts [--env <chemin>] [--dry-run]`
+- Usage: Migration des événements de modération depuis MongoDB vers PostgreSQL (bulk insert/update).

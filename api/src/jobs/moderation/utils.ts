@@ -1,6 +1,7 @@
 import MissionModel from "../../models/mission";
-import ModerationEventModel from "../../models/moderation-event";
+import { moderationEventService } from "../../services/moderation-event";
 import { Mission } from "../../types";
+import { ModerationEventCreateInput, ModerationEventStatus } from "../../types/moderation-event";
 import type { PublisherRecord } from "../../types/publisher";
 import { ModerationUpdate } from "./types";
 
@@ -34,7 +35,7 @@ export const hasModerationChanges = (m: Mission, moderator: PublisherRecord, upd
 
 export const createModerations = async (missions: Mission[], moderator: PublisherRecord) => {
   const missionBulk = [] as any[];
-  const eventBulk = [] as any[];
+  const eventBulk: ModerationEventCreateInput[] = [];
 
   let refused = 0;
   let pending = 0;
@@ -89,25 +90,24 @@ export const createModerations = async (missions: Mission[], moderator: Publishe
       continue;
     }
 
+    const initialStatus = (mission[`moderation_${moderator._id}_status`] ?? null) as ModerationEventStatus | null;
+
     eventBulk.push({
-      insertOne: {
-        document: {
-          missionId: mission._id,
-          moderatorId: moderator.id,
-          userId: null,
-          userName: "Modération automatique",
-          initialStatus: mission[`moderation_${moderator.id}_status`] || null,
-          newStatus: update.status,
-          initialComment: mission[`moderation_${moderator.id}_comment`] || null,
-          newComment: update.comment,
-          initialNote: mission[`moderation_${moderator.id}_note`] || null,
-          newNote:
-            update.status === "REFUSED"
-              ? `Data de la mission refusée: date de création=${createdAt.toLocaleDateString("fr")}, date de début=${startAt.toLocaleDateString("fr")}, date defin=${endAt ? endAt.toLocaleDateString("fr") : "non renseigné"}, nombre caractères description=${mission.description.length}, ville=${mission.city}`
-              : "",
-        },
-      },
+      missionId: mission._id.toString(),
+      moderatorId: moderator._id.toString(),
+      userId: null,
+      userName: "Modération automatique",
+      initialStatus,
+      newStatus: update.status,
+      initialComment: mission[`moderation_${moderator._id}_comment`] || null,
+      newComment: update.comment,
+      initialNote: mission[`moderation_${moderator._id}_note`] || null,
+      newNote:
+        update.status === "REFUSED"
+          ? `Data de la mission refusée: date de création=${createdAt.toLocaleDateString("fr")}, date de début=${startAt.toLocaleDateString("fr")}, date defin=${endAt ? endAt.toLocaleDateString("fr") : "non renseigné"}, nombre caractères description=${mission.description.length}, ville=${mission.city}`
+          : "",
     });
+
     missionBulk.push({
       updateOne: {
         filter: { _id: mission._id },
@@ -132,6 +132,6 @@ export const createModerations = async (missions: Mission[], moderator: Publishe
 
   console.log(`[Moderation JVA] Bulk update ${missionBulk.length} missions, ${eventBulk.length} events`);
   const resMission = await MissionModel.bulkWrite(missionBulk);
-  const resEvent = await ModerationEventModel.bulkWrite(eventBulk);
-  return { updated: resMission.modifiedCount, events: resEvent.insertedCount, refused, pending };
+  const eventsCount = await moderationEventService.createModerationEvents(eventBulk);
+  return { updated: resMission.modifiedCount, events: eventsCount, refused, pending };
 };

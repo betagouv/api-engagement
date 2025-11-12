@@ -1,24 +1,24 @@
 import { ModerationEvent as PgModerationEvent } from "../../../db/analytics";
 import { prismaAnalytics as prismaClient } from "../../../db/postgres";
 import { captureException, captureMessage } from "../../../error";
-import ModerationEventModel from "../../../models/moderation-event";
-import { ModerationEvent } from "../../../types";
+import { moderationEventService } from "../../../services/moderation-event";
+import { ModerationEventRecord } from "../../../types/moderation-event";
 
 const BATCH_SIZE = 5000;
 
-const buildData = (doc: ModerationEvent, missions: { [key: string]: string }, users: { [key: string]: string }) => {
+const buildData = (doc: ModerationEventRecord, missions: { [key: string]: string }, users: { [key: string]: string }) => {
   const missionId = missions[doc.missionId];
   if (!missionId) {
-    captureMessage("[Metabase-ModerationEvent] Mission not found", `${doc.missionId} not found for doc ${doc._id.toString()}`);
+    captureMessage("[Metabase-ModerationEvent] Mission not found", `${doc.missionId} not found for doc ${doc.id}`);
     return null;
   }
   const userId = doc.userId ? users[doc.userId] : null;
   if (!userId && doc.userId) {
-    captureMessage("[Metabase-ModerationEvent] User not found", `${doc.userId} not found for doc ${doc._id.toString()}`);
+    captureMessage("[Metabase-ModerationEvent] User not found", `${doc.userId} not found for doc ${doc.id}`);
     return null;
   }
   const obj = {
-    old_id: doc._id.toString(),
+    old_id: doc.id,
     mission_id: missionId,
     user_id: userId,
     user_name: doc.userName,
@@ -50,23 +50,21 @@ const handler = async () => {
     let offset = 0;
 
     const count = await prismaClient.moderationEvent.count();
-    console.log(`[Widget-Requests] Found ${count} docs in database.`);
+    console.log(`[ModerationEvent] Found ${count} docs in database.`);
 
     const users = {} as { [key: string]: string };
     await prismaClient.user.findMany({ select: { id: true, old_id: true } }).then((data) => data.forEach((d) => (users[d.old_id] = d.id)));
     console.log(`[ModerationEvent] Mapped ${Object.keys(users).length} users to database IDs.`);
 
-    const countToSync = await ModerationEventModel.countDocuments();
-    console.log(`[ModerationEvent] Found ${countToSync} docs to sync.`);
-
     const stored = {} as { [key: string]: { updated_at: Date } };
     await prismaClient.moderationEvent.findMany({ select: { old_id: true, updated_at: true } }).then((data) => data.forEach((d) => (stored[d.old_id] = d)));
 
     while (true) {
-      const data = await ModerationEventModel.find()
-        .limit(BATCH_SIZE)
-        .skip(offset * BATCH_SIZE)
-        .lean();
+      const data = await moderationEventService.findModerationEvents({
+        take: BATCH_SIZE,
+        skip: offset,
+      });
+
       if (!data.length) {
         break;
       }
@@ -84,13 +82,13 @@ const handler = async () => {
       const dataToUpdate = [] as PgModerationEvent[];
 
       for (const doc of data) {
-        const res = buildData(doc as ModerationEvent, missions, users);
+        const res = buildData(doc as ModerationEventRecord, missions, users);
         if (!res) {
           continue;
         }
-        if (stored[doc._id.toString()] && !isDateEqual(stored[doc._id.toString()].updated_at, res.updated_at)) {
+        if (stored[doc.id] && !isDateEqual(stored[doc.id].updated_at, res.updated_at)) {
           dataToUpdate.push(res);
-        } else if (!stored[doc._id.toString()]) {
+        } else if (!stored[doc.id]) {
           dataToCreate.push(res);
         }
       }

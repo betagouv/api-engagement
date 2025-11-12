@@ -1,9 +1,9 @@
 import { captureException } from "../../error";
-import ReportModel from "../../models/report";
 import UserModel from "../../models/user";
-import { publisherService } from "../../services/publisher";
 import { sendTemplate } from "../../services/brevo";
-import { Report } from "../../types";
+import { publisherService } from "../../services/publisher";
+import { reportService } from "../../services/report";
+import type { ReportRecord, StatsReport } from "../../types/report";
 
 const ANNOUNCE_TEMPLATE_ID = 20;
 const BROADCAST_TEMPLATE_ID = 9;
@@ -11,9 +11,14 @@ const BROADCAST_TEMPLATE_ID = 9;
 const MONTHS = ["Janvier", "Février", "Mars", "Avril", "Mai", "Juin", "Juillet", "Août", "Septembre", "Octobre", "Novembre", "Décembre"];
 const compare = (a: number, b: number) => (a - b) / (a || 1);
 
-const sendReport = async (report: Report): Promise<{ ok: boolean; data?: any }> => {
+const sendReport = async (report: ReportRecord): Promise<{ ok: boolean; data?: any }> => {
   try {
-    const data = report.dataTemplate === "SEND" ? report.data.send : report.data.receive;
+    const stats = report.data as StatsReport;
+    const isBroadcastTemplate = report.dataTemplate === "SENT";
+    const data = isBroadcastTemplate ? stats.send : stats.receive;
+    if (!data) {
+      throw new Error(`Report ${report.id} has no ${isBroadcastTemplate ? "send" : "receive"} data`);
+    }
     const rate = data.apply / (data.click || 1);
     const lastMonthRate = data.applyLastMonth / (data.clickLastMonth || 1);
     const rateRaise = compare(rate, lastMonthRate);
@@ -33,7 +38,7 @@ const sendReport = async (report: Report): Promise<{ ok: boolean; data?: any }> 
         applyImprove: `${applyRaise < 0 ? "-" : "+"} ${Math.abs(applyRaise).toLocaleString("fr", { style: "percent", maximumFractionDigits: 2 })}`,
         rate: rate.toLocaleString("fr", { style: "percent", maximumFractionDigits: 2 }),
         rateImprove: `${rateRaise < 0 ? "-" : "+"} ${Math.abs(rateRaise).toLocaleString("fr", { style: "percent", maximumFractionDigits: 2 })}`,
-        reportURL: `https://api.api-engagement.beta.gouv.fr/report/${report._id}`,
+        reportURL: `https://api.api-engagement.beta.gouv.fr/report/${report.id}`,
         dashboardURL: `https://app.api-engagement.beta.gouv.fr/performance?from=${new Date(report.year, report.month, 1).toISOString()}&to=${new Date(report.year, report.month + 1, 1).toISOString()}`,
       } as any,
     };
@@ -48,7 +53,7 @@ const sendReport = async (report: Report): Promise<{ ok: boolean; data?: any }> 
       body.params.top3 = ` 3. ${data.topPublishers[2].key} - ${data.topPublishers[2].doc_count} redirections`;
     }
 
-    const templateId = report.dataTemplate === "SEND" ? BROADCAST_TEMPLATE_ID : ANNOUNCE_TEMPLATE_ID;
+    const templateId = isBroadcastTemplate ? BROADCAST_TEMPLATE_ID : ANNOUNCE_TEMPLATE_ID;
     return await sendTemplate(templateId, body);
   } catch (error) {
     captureException(error, "Error sending report");
@@ -74,7 +79,7 @@ export const sendReports = async (year: number, month: number, publisherId?: str
       console.log(`[Report] Targeting single publisher ${publisherId}`);
     }
 
-    const report = await ReportModel.findOne({ publisherId: publisher.id, month, year });
+    let report = await reportService.findOneReportByPublisherAndPeriod(publisher.id, year, month);
     if (!report) {
       console.log(`[${publisher.name}] Report not found`);
       errors.push({
@@ -90,8 +95,7 @@ export const sendReports = async (year: number, month: number, publisherId?: str
         name: publisher.name,
         error: `Aucun email de contact renseigné`,
       });
-      report.status = "NOT_SENT_NO_RECIPIENT";
-      await report.save();
+      await reportService.updateReport(report.id, { status: "NOT_SENT_NO_RECIPIENT", sentTo: [] });
       continue;
     }
 
@@ -110,15 +114,15 @@ export const sendReports = async (year: number, month: number, publisherId?: str
         name: publisher.name,
         error: `Rapport non envoyé car URL manquante`,
       });
-      report.status = "NOT_SENT_MISSING_URL";
-      await report.save();
+      await reportService.updateReport(report.id, { status: "NOT_SENT_MISSING_URL" });
       continue;
     }
 
     const receivers = users.filter((user) => publisher.sendReportTo.includes(user._id.toString()));
-    report.sentTo = receivers.map((r) => r.email);
+    const sentTo = receivers.map((r) => r.email);
+    report = { ...report, sentTo };
 
-    console.log(`[${publisher.name}] Sending report to ${report.sentTo.map((e) => e).join(", ")}`);
+    console.log(`[${publisher.name}] Sending report to ${sentTo.map((e) => e).join(", ")}`);
     const res = await sendReport(report);
     if (!res.ok) {
       console.log(`[${publisher.name}] ERROR - Error sending report`, res);
@@ -127,15 +131,13 @@ export const sendReports = async (year: number, month: number, publisherId?: str
         name: publisher.name,
         error: `Error sending report ${JSON.stringify(res)}`,
       });
-      report.status = "NOT_SENT_ERROR_SENDING";
-      await report.save();
+      await reportService.updateReport(report.id, { status: "NOT_SENT_ERROR_SENDING", sentTo });
       continue;
     }
 
-    report.status = "SENT";
-    report.sentAt = new Date();
-    await report.save();
-    count += report.sentTo.length;
+    const updated = await reportService.updateReport(report.id, { status: "SENT", sentAt: new Date(), sentTo });
+    report = updated;
+    count += sentTo.length;
   }
 
   return { count, errors, skipped };
