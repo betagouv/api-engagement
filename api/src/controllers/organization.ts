@@ -118,7 +118,7 @@ router.put("/:id", passport.authenticate("user", { session: false }), async (req
       return res.status(200).send({ ok: true, data: organization });
     }
 
-    const data = await organizationService.update(organization.id, patch);
+    const data = await organizationService.updateOrganization(organization.id, patch);
 
     return res.status(200).send({ ok: true, data });
   } catch (error: any) {
