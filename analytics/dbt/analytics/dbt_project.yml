@@ -36,7 +36,7 @@ models:
       +tags: staging
     marts:
       +materialized: table
-      +schema: "public"
+      +schema: "analytics"
       +tags: marts
 
 vars:
