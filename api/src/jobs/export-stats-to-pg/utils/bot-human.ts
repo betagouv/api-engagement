@@ -1,8 +1,8 @@
 import { prismaAnalytics as prismaClient } from "../../../db/postgres";
 
 import { captureException } from "../../../error";
-import { Stats } from "../../../types";
-import statEventRepository from "../../../repositories/stat-event";
+import { StatEventRecord } from "../../../types";
+import { statEventService } from "../../../services/stat-event";
 
 const BATCH_SIZE = 5000;
 
@@ -18,7 +18,7 @@ const handler = async () => {
     let cursor: string | null = null;
 
     while (true) {
-      const { events, cursor: nextCursor, total: count } = await statEventRepository.scrollStatEvents({
+      const { events, cursor: nextCursor, total: count } = await statEventService.scrollStatEvents({
         type: "click",
         batchSize: BATCH_SIZE,
         cursor,

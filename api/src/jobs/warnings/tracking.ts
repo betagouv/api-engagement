@@ -1,6 +1,6 @@
 import { SLACK_WARNING_CHANNEL_ID } from "../../config";
 import WarningModel from "../../models/warning";
-import statEventRepository from "../../repositories/stat-event";
+import { statEventService } from "../../services/stat-event";
 import { postMessage } from "../../services/slack";
 import type { PublisherRecord } from "../../types/publisher";
 
@@ -10,7 +10,7 @@ const getStats = async (publisherId: string) => {
   const now = new Date();
   const twoWeeksAgo = new Date(now.getTime() - 14 * 24 * 60 * 60 * 1000);
 
-  const aggs = await statEventRepository.countByTypeSince({
+  const aggs = await statEventService.countStatEventsByTypeSince({
     publisherId,
     from: twoWeeksAgo,
     types: ["click", "apply"],
