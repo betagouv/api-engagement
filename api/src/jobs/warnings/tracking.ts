@@ -1,7 +1,7 @@
 import { SLACK_WARNING_CHANNEL_ID } from "../../config";
-import WarningModel from "../../models/warning";
 import statEventRepository from "../../repositories/stat-event";
 import { postMessage } from "../../services/slack";
+import { warningService } from "../../services/warning";
 import type { PublisherRecord } from "../../types/publisher";
 
 const TRACKING_WARNING = "TRACKING_WARNING";
@@ -31,23 +31,25 @@ export const checkTracking = async (publishers: PublisherRecord[]) => {
     }
     console.log(`[${publisher.name}] ${stats.click} clicks and ${stats.apply} applies`);
 
-    const statsWarning = await WarningModel.findOne({ publisherId: publisher.id, type: TRACKING_WARNING, fixed: false }, null, { sort: { createdAt: -1 } });
+    const statsWarning = await warningService.findOneWarning({
+      publisherId: publisher.id,
+      type: TRACKING_WARNING,
+      fixed: false,
+    });
     if (stats.apply === 0 && stats.click >= 70) {
       console.log(`[${publisher.name}] No application but more than 70 redirections`);
       if (statsWarning) {
-        statsWarning.title = `Aucune candidature n’a été détectée, alors que ${stats.click} redirections ont été réalisées.`;
-        statsWarning.occurrences += 1;
-        await statsWarning.save();
+        await warningService.updateWarning(statsWarning.id, {
+          title: `Aucune candidature n’a été détectée, alors que ${stats.click} redirections ont été réalisées.`,
+          occurrences: statsWarning.occurrences + 1,
+        });
         continue;
       } else {
-        const obj = {
+        await warningService.createWarning({
           type: TRACKING_WARNING,
           title: `Aucune candidature n’a été détectée, alors que ${stats.click} redirections ont été réalisées.`,
           publisherId: publisher.id,
-          publisherName: publisher.name,
-          publisherLogo: publisher.logo,
-        };
-        await WarningModel.create(obj);
+        });
         const res = await postMessage({ text: `Alerte détectée: ${publisher.name} - Problème de tracking` }, SLACK_WARNING_CHANNEL_ID);
         if (res.error) {
           console.error(res.error);
@@ -59,9 +61,10 @@ export const checkTracking = async (publishers: PublisherRecord[]) => {
     } else {
       console.log(`[${publisher.name}] No problem with tracking`);
       if (statsWarning) {
-        statsWarning.fixed = true;
-        statsWarning.fixedAt = new Date();
-        await statsWarning.save();
+        await warningService.updateWarning(statsWarning.id, {
+          fixed: true,
+          fixedAt: new Date(),
+        });
       }
     }
   }

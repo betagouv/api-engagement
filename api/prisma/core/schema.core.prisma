@@ -165,8 +165,9 @@ model Publisher {
   createdAt          DateTime     @default(now()) @map("created_at")
   updatedAt          DateTime     @updatedAt @map("updated_at")
 
-  diffuseurs PublisherDiffusion[] @relation("PublisherAnnonceurRelation")
+  diffuseurs            PublisherDiffusion[] @relation("PublisherAnnonceurRelation")
   diffusionsAsDiffuseur PublisherDiffusion[] @relation("PublisherDiffuseurRelation")
+  warnings              Warning[]            @relation("WarningPublisherRelation")
 
   @@index([name], map: "publisher_name_idx")
   @@index([apikey], map: "publisher_apikey_idx")
@@ -195,4 +196,26 @@ model PublisherDiffusion {
   @@index([diffuseurPublisherId], map: "publisher_diffusion_diffuseur_id_idx")
   @@index([annonceurPublisherId], map: "publisher_diffusion_annonceur_id_idx")
   @@map("publisher_diffusion")
+}
+
+model Warning {
+  id          String    @id @default(uuid())
+  type        String
+  title       String?
+  description String?
+  publisherId String    @map("publisher_id")
+  seen        Boolean   @default(false)
+  fixed       Boolean   @default(false)
+  fixedAt     DateTime? @map("fixed_at")
+  occurrences Int       @default(1)
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime  @updatedAt @map("updated_at")
+
+  publisher Publisher @relation("WarningPublisherRelation", fields: [publisherId], references: [id], onDelete: Cascade)
+
+  @@index([publisherId], map: "warning_publisher_id_idx")
+  @@index([type], map: "warning_type_idx")
+  @@index([fixed], map: "warning_fixed_idx")
+  @@index([createdAt], map: "warning_created_at_idx")
+  @@map("warning")
 }
