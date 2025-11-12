@@ -1,62 +1,5 @@
 import { Schema } from "mongoose";
 
-export interface Organization {
-  _id: Schema.Types.ObjectId;
-  esId: string;
-  rna: string | null;
-  siren?: string | null;
-  siret?: string | null;
-  sirets?: string[];
-  rupMi?: string;
-  gestion?: string;
-  status?: string;
-  createdAt?: Date;
-  lastDeclaredAt?: Date;
-  publishedAt?: Date;
-  dissolvedAt?: Date;
-  updatedAt: Date;
-  nature?: string;
-  groupement?: string;
-  title: string;
-  names: string[];
-  shortTitle?: string;
-  titleSlug?: string;
-  shortTitleSlug?: string;
-  object?: string;
-  socialObject1?: string;
-  socialObject2?: string;
-  addressComplement?: string;
-  addressNumber: string | undefined;
-  addressRepetition: string | undefined;
-  addressType: string | undefined;
-  addressStreet?: string;
-  addressDistribution?: string;
-  addressInseeCode?: string;
-  addressPostalCode: string | undefined;
-  addressDepartmentCode: string | undefined;
-  addressDepartmentName: string | undefined;
-  addressRegion: string | undefined;
-  addressCity: string | undefined;
-  managementDeclarant?: string;
-  managementComplement?: string;
-  managementStreet?: string;
-  managementDistribution?: string;
-  managementPostalCode?: string;
-  managementCity?: string;
-  managementCountry?: string;
-  directorCivility?: string;
-  website?: string;
-  observation?: string;
-  syncAt?: Date;
-  source?: string;
-  isRUP?: boolean;
-  letudiantPublicId?: string;
-  letudiantUpdatedAt?: Date;
-
-  // Metabase
-  lastExportedToPgAt: Date | null;
-}
-
 export type GeolocStatus = "ENRICHED_BY_PUBLISHER" | "ENRICHED_BY_API" | "NOT_FOUND" | "NO_DATA" | "SHOULD_ENRICH" | "FAILED";
 
 export type AddressItem = {
@@ -618,5 +561,7 @@ export enum MissionType {
 }
 
 export * from "./email";
+export * from "./moderation-event";
+export * from "./organization";
 export * from "./publisher";
 export * from "./report";

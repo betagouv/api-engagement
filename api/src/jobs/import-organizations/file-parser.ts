@@ -2,9 +2,9 @@ import { parse } from "csv-parse";
 import { Readable } from "stream";
 
 import { DEPARTMENTS } from "../../constants/departments";
-import OrganizationModel from "../../models/organization";
 import { DataGouvRnaRecord } from "../../services/data-gouv/types";
-import { Organization } from "../../types";
+import { organizationService } from "../../services/organization";
+import { OrganizationUpsertInput } from "../../types/organization";
 import { slugify } from "../../utils";
 
 const findStatus = (position: string) => {
@@ -150,7 +150,7 @@ const processRecord = (record: string[]): DataGouvRnaRecord => {
   } as DataGouvRnaRecord;
 };
 
-const createOrganizationFromRecord = (doc: DataGouvRnaRecord): Organization => {
+const createOrganizationFromRecord = (doc: DataGouvRnaRecord): OrganizationUpsertInput => {
   const department = findDepartment(doc.adrs_codepostal);
   return {
     rna: doc.id,
@@ -197,12 +197,12 @@ const createOrganizationFromRecord = (doc: DataGouvRnaRecord): Organization => {
     website: doc.siteweb,
     observation: doc.observation,
     syncAt: new Date(),
-  } as Organization;
+  };
 };
 
 const writeBatch = async (records: DataGouvRnaRecord[]): Promise<number> => {
-  const bulk = [];
   let count = 0;
+  const payload: OrganizationUpsertInput[] = [];
 
   for (const doc of records) {
     // Remove header
@@ -211,13 +211,13 @@ const writeBatch = async (records: DataGouvRnaRecord[]): Promise<number> => {
     }
 
     const obj = createOrganizationFromRecord(doc);
-    bulk.push({ updateOne: { filter: { rna: doc.id }, update: obj, upsert: true } });
+    payload.push(obj);
     count++;
   }
 
-  if (bulk.length > 0) {
-    const res = await OrganizationModel.bulkWrite(bulk);
-    console.log(`[Organizations] Updated ${res.modifiedCount} organizations, upserted ${res.upsertedCount} organizations`);
+  if (payload.length > 0) {
+    await organizationService.bulkUpsertByRna(payload);
+    console.log(`[Organizations] Upserted ${payload.length} organizations`);
   }
 
   return count;

@@ -64,33 +64,36 @@ const List = () => {
           length={total}
           loading={loading}
         >
-          {data.map((item, i) => (
-            <tr key={i} className={`${i % 2 === 0 ? "bg-gray-975" : "bg-gray-1000-active"} table-item`}>
-              <td className="p-4" colSpan={3}>
-                <Link to={`/admin-organization/${item._id}`} className="text-blue-france line-clamp-3 max-w-xl flex-1 px-2">
-                  {item.title}
-                </Link>
-              </td>
-              <td className="px-4">{item.rna}</td>
-              <td className="px-4">{item.siret}</td>
-              <td className="px-4">{item.createdAt ? new Date(item.createdAt).toLocaleDateString("fr") : "-"}</td>
-              <td className="px-6">
-                <div className="flex w-16 items-center">
-                  {item.status === "ACTIVE" ? (
-                    <div className="flex items-center gap-2">
-                      <p>Active</p>
-                      <RiCheckboxCircleFill className="text-green-success" />
-                    </div>
-                  ) : (
-                    <div className="flex items-center gap-2">
-                      <p>Inactive</p>
-                      <RiCloseCircleFill className="text-red-error" />
-                    </div>
-                  )}
-                </div>
-              </td>
-            </tr>
-          ))}
+          {data.map((item, i) => {
+            const organizationId = item.id ?? `organization-${i}`;
+            return (
+              <tr key={organizationId} className={`${i % 2 === 0 ? "bg-gray-975" : "bg-gray-1000-active"} table-item`}>
+                <td className="p-4" colSpan={3}>
+                  <Link to={`/admin-organization/${organizationId}`} className="text-blue-france line-clamp-3 max-w-xl flex-1 px-2">
+                    {item.title}
+                  </Link>
+                </td>
+                <td className="px-4">{item.rna}</td>
+                <td className="px-4">{item.siret}</td>
+                <td className="px-4">{item.createdAt ? new Date(item.createdAt).toLocaleDateString("fr") : "-"}</td>
+                <td className="px-6">
+                  <div className="flex w-16 items-center">
+                    {item.status === "ACTIVE" ? (
+                      <div className="flex items-center gap-2">
+                        <p>Active</p>
+                        <RiCheckboxCircleFill className="text-green-success" />
+                      </div>
+                    ) : (
+                      <div className="flex items-center gap-2">
+                        <p>Inactive</p>
+                        <RiCloseCircleFill className="text-red-error" />
+                      </div>
+                    )}
+                  </div>
+                </td>
+              </tr>
+            );
+          })}
         </TablePagination>
       </div>
     </div>

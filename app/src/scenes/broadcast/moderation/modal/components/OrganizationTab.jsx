@@ -43,7 +43,7 @@ const OrganizationTab = ({ data, onChange }) => {
           setOrganizations(
             res.data.map((org) => ({
               label: `${org.title}${org.rna ? ` - ${org.rna}` : ""}${org.siren ? ` - ${org.siren}` : ""}`,
-              id: org._id,
+              id: org.id,
               rna: org.rna,
               siren: org.siren,
             })),
