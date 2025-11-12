@@ -1,25 +1,8 @@
 import { Prisma, Import as PrismaImport } from "../db/core";
 import { importRepository } from "../repositories/import";
-import { ImportCreateInput, ImportRecord, ImportSearchParams, ImportUpdatePatch } from "../types/import";
+import { ImportCreateInput, ImportSearchParams, ImportUpdatePatch } from "../types/import";
 
 export const importService = (() => {
-  const toImportRecord = (value: PrismaImport): ImportRecord => ({
-    _id: value.id,
-    id: value.id,
-    name: value.name,
-    publisherId: value.publisherId,
-    missionCount: value.missionCount,
-    refusedCount: value.refusedCount,
-    createdCount: value.createdCount,
-    deletedCount: value.deletedCount,
-    updatedCount: value.updatedCount,
-    startedAt: value.startedAt ?? null,
-    finishedAt: value.finishedAt ?? null,
-    status: value.status,
-    error: value.error ?? null,
-    failed: value.failed ?? [],
-  });
-
   const buildWhereClause = (params: ImportSearchParams = {}): Prisma.ImportWhereInput => {
     const and: Prisma.ImportWhereInput[] = [];
 
@@ -57,7 +40,7 @@ export const importService = (() => {
     return importRepository.count({ where });
   };
 
-  const findImports = async (params: ImportSearchParams = {}): Promise<ImportRecord[]> => {
+  const findImports = async (params: ImportSearchParams = {}): Promise<PrismaImport[]> => {
     const where = buildWhereClause(params);
     const data = await importRepository.findMany({
       where,
@@ -65,10 +48,10 @@ export const importService = (() => {
       skip: params.skip ?? 0,
       take: params.size ?? 25,
     });
-    return data.map(toImportRecord);
+    return data;
   };
 
-  const findImportsWithCount = async (params: ImportSearchParams = {}): Promise<{ data: ImportRecord[]; total: number }> => {
+  const findImportsWithCount = async (params: ImportSearchParams = {}): Promise<{ data: PrismaImport[]; total: number }> => {
     const where = buildWhereClause(params);
 
     const [data, total] = await Promise.all([
@@ -80,21 +63,26 @@ export const importService = (() => {
       }),
       importRepository.count({ where }),
     ]);
-    return { data: data.map(toImportRecord), total };
+    return { data, total };
   };
 
-  const findLastImportsPerPublisher = async (params: { publisherId?: string } = {}): Promise<ImportRecord[]> => {
+  const findLastImportsPerPublisher = async (params: { publisherId?: string } = {}): Promise<PrismaImport[]> => {
     const where = buildWhereClause(params);
-    const data = await importRepository.findLastPerPublisher({ where });
-    return data.map(toImportRecord);
+    const data = await importRepository.findMany({
+      where,
+      orderBy: { startedAt: "desc" },
+      distinct: ["publisherId"],
+      include: { publisher: true },
+    });
+    return data;
   };
 
-  const findOneImportById = async (id: string): Promise<ImportRecord | null> => {
+  const findOneImportById = async (id: string): Promise<PrismaImport | null> => {
     const doc = await importRepository.findUnique({ where: { id } });
-    return doc ? toImportRecord(doc) : null;
+    return doc ?? null;
   };
 
-  const createImport = async (input: ImportCreateInput): Promise<ImportRecord> => {
+  const createImport = async (input: ImportCreateInput): Promise<PrismaImport> => {
     const created = await importRepository.create({
       data: {
         name: input.name,
@@ -111,10 +99,10 @@ export const importService = (() => {
         failed: input.failed ?? [],
       },
     });
-    return toImportRecord(created);
+    return created;
   };
 
-  const updateImport = async (id: string, patch: ImportUpdatePatch): Promise<ImportRecord> => {
+  const updateImport = async (id: string, patch: ImportUpdatePatch): Promise<PrismaImport> => {
     const updated = await importRepository.update({
       where: { id },
       data: {
@@ -131,7 +119,7 @@ export const importService = (() => {
         ...(patch.failed !== undefined ? { failed: patch.failed as unknown as Prisma.InputJsonValue } : {}),
       },
     });
-    return toImportRecord(updated);
+    return updated;
   };
 
   return {

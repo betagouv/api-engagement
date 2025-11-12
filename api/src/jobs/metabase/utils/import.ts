@@ -1,26 +1,27 @@
-import { Import as PrismaImport } from "../../../db/analytics";
+import { Import as PrismaAnalyticsImport } from "../../../db/analytics";
+import { Import as PrismaCoreImport } from "../../../db/core";
 import { prismaAnalytics as prismaClient } from "../../../db/postgres";
 import { captureException } from "../../../error";
 import { importService } from "../../../services/import";
-import type { ImportRecord } from "../../../types/import";
+import type {} from "../../../types/import";
 
 const BATCH_SIZE = 5000;
 
-const buildData = (doc: ImportRecord, partners: { [key: string]: string }) => {
+const buildData = (doc: PrismaCoreImport, partners: { [key: string]: string }) => {
   const partnerId = partners[doc.publisherId];
   if (!partnerId) {
-    console.log(`[Imports] Patner ${doc.publisherId.toString()} not found for doc ${doc._id}`);
+    console.log(`[Imports] Patner ${doc.publisherId.toString()} not found for doc ${doc.id}`);
     return null;
   }
   const obj = {
-    old_id: doc._id,
+    old_id: doc.id,
     created_count: doc.createdCount,
     deleted_count: doc.deletedCount,
     updated_count: doc.updatedCount,
     partner_id: partnerId,
     started_at: doc.startedAt,
     ended_at: doc.finishedAt,
-  } as PrismaImport;
+  } as PrismaAnalyticsImport;
   return obj;
 };
 
@@ -45,7 +46,7 @@ const handler = async () => {
     while (data && data.length) {
       const dataToCreate = [];
       for (const doc of data) {
-        const obj = buildData(doc as ImportRecord, partners);
+        const obj = buildData(doc as PrismaCoreImport, partners);
         if (!obj) {
           continue;
         }

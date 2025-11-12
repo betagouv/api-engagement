@@ -1,9 +1,10 @@
 import { randomUUID } from "node:crypto";
+import { Import as PrismaImport } from "../../src/db/core";
 import MissionModel from "../../src/models/mission";
 import { importService } from "../../src/services/import";
 import { publisherService } from "../../src/services/publisher";
 import { Mission, MissionType } from "../../src/types";
-import type { ImportCreateInput, ImportRecord } from "../../src/types/import";
+import type { ImportCreateInput } from "../../src/types/import";
 import type { PublisherCreateInput, PublisherRecord } from "../../src/types/publisher";
 
 /**
@@ -125,7 +126,7 @@ export const createTestMission = async (data: Partial<Mission> = {}) => {
   return mission.toObject();
 };
 
-export const createTestImport = async (data: Partial<ImportCreateInput> = {}): Promise<ImportRecord> => {
+export const createTestImport = async (data: Partial<ImportCreateInput> = {}): Promise<PrismaImport> => {
   const defaultData = {
     name: "Test import",
     publisherId: "test-publisher-id",

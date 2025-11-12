@@ -37,15 +37,4 @@ export const importRepository = {
   async deleteMany(params: Prisma.ImportDeleteManyArgs): Promise<Prisma.BatchPayload> {
     return prismaCore.import.deleteMany(params);
   },
-
-  // Helper: fetch most recent import per publisher
-  async findLastPerPublisher(params?: { where?: Prisma.ImportWhereInput; includePublisher?: boolean }): Promise<Import[]> {
-    const { where, includePublisher } = params ?? {};
-    return prismaCore.import.findMany({
-      where,
-      orderBy: { startedAt: "desc" },
-      distinct: ["publisherId"],
-      include: includePublisher ? { publisher: true } : undefined,
-    });
-  },
 };

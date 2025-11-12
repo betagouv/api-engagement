@@ -1,8 +1,8 @@
+import { Import as PrismaImport } from "../../../db/core";
 import { captureException } from "../../../error";
 import MissionModel from "../../../models/mission";
 import MissionEventModel from "../../../models/mission-event";
 import { Mission, MissionEvent } from "../../../types";
-import { ImportRecord } from "../../../types/import";
 import type { PublisherRecord } from "../../../types/publisher";
 import { getJobTime } from "../../../utils/job";
 import { EVENT_TYPES, getMissionChanges } from "../../../utils/mission";
@@ -15,7 +15,7 @@ import { EVENT_TYPES, getMissionChanges } from "../../../utils/mission";
  * @param importDoc - Import document to update
  * @returns true if the import was successful, false otherwise
  */
-export const bulkDB = async (bulk: Mission[], publisher: PublisherRecord, importDoc: ImportRecord): Promise<boolean> => {
+export const bulkDB = async (bulk: Mission[], publisher: PublisherRecord, importDoc: PrismaImport): Promise<boolean> => {
   try {
     const startedAt = new Date();
     console.log(`[${publisher.name}] Starting mongo write at ${startedAt.toISOString()}`);
@@ -107,7 +107,7 @@ export const bulkDB = async (bulk: Mission[], publisher: PublisherRecord, import
  * @param publisher - Publisher of the missions
  * @param importDoc - Import document to update
  */
-export const cleanDB = async (missionsClientIds: string[], publisher: PublisherRecord, importDoc: ImportRecord) => {
+export const cleanDB = async (missionsClientIds: string[], publisher: PublisherRecord, importDoc: PrismaImport) => {
   console.log(`[${publisher.name}] Cleaning Mongo missions...`);
 
   const missions = await MissionModel.find({ publisherId: publisher.id, deletedAt: null, clientId: { $nin: missionsClientIds } })

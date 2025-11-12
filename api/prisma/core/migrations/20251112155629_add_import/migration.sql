@@ -1,11 +1,8 @@
 -- CreateEnum
 CREATE TYPE "public"."ImportStatus" AS ENUM ('SUCCESS', 'FAILED');
 
--- DropIndex
-DROP INDEX "public"."stats_event_from_publisher_created_at_idx";
-
--- DropIndex
-DROP INDEX "public"."stats_event_to_publisher_created_at_idx";
+-- AlterTable
+ALTER TABLE "public"."organization" ALTER COLUMN "updated_at" DROP DEFAULT;
 
 -- CreateTable
 CREATE TABLE "public"."import" (
@@ -35,11 +32,5 @@ CREATE INDEX "import_started_at_idx" ON "public"."import"("started_at");
 -- CreateIndex
 CREATE INDEX "import_status_idx" ON "public"."import"("status");
 
--- CreateIndex
-CREATE INDEX "stats_event_from_publisher_created_at_idx" ON "public"."StatEvent"("from_publisher_id", "created_at");
-
--- CreateIndex
-CREATE INDEX "stats_event_to_publisher_created_at_idx" ON "public"."StatEvent"("to_publisher_id", "created_at");
-
 -- AddForeignKey
-ALTER TABLE "public"."import" ADD CONSTRAINT "import_publisher_id_fkey" FOREIGN KEY ("publisher_id") REFERENCES "public"."publisher"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "public"."import" ADD CONSTRAINT "import_publisher_id_fkey" FOREIGN KEY ("publisher_id") REFERENCES "public"."publisher"("id") ON DELETE CASCADE ON UPDATE CASCADE;

@@ -1,10 +1,10 @@
 import { captureException } from "../../error";
 import { importService } from "../../services/import";
 
+import { Import as PrismaImport } from "../../db/core";
 import MissionModel from "../../models/mission";
 import { publisherService } from "../../services/publisher";
 import type { Mission } from "../../types";
-import { ImportRecord } from "../../types/import";
 import type { PublisherRecord } from "../../types/publisher";
 import { BaseHandler } from "../base/handler";
 import { JobResult } from "../types";
@@ -23,7 +23,7 @@ export interface ImportMissionsJobPayload {
 
 export interface ImportMissionsJobResult extends JobResult {
   start: Date;
-  imports: ImportRecord[];
+  imports: PrismaImport[];
 }
 
 export class ImportMissionsHandler implements BaseHandler<ImportMissionsJobPayload, ImportMissionsJobResult> {
@@ -33,7 +33,7 @@ export class ImportMissionsHandler implements BaseHandler<ImportMissionsJobPaylo
     const start = new Date();
     console.log(`[Import XML] Starting at ${start.toISOString()}`);
 
-    const imports = [] as ImportRecord[];
+    const imports = [] as PrismaImport[];
     let publishers: PublisherRecord[] = [];
     if (payload.publisherId) {
       const publisher = await publisherService.findOnePublisherById(payload.publisherId);
@@ -98,7 +98,7 @@ export class ImportMissionsHandler implements BaseHandler<ImportMissionsJobPaylo
   }
 }
 
-async function importMissionssForPublisher(publisher: PublisherRecord, start: Date): Promise<ImportRecord | undefined> {
+async function importMissionssForPublisher(publisher: PublisherRecord, start: Date): Promise<PrismaImport | undefined> {
   if (!publisher) {
     return;
   }
@@ -115,7 +115,7 @@ async function importMissionssForPublisher(publisher: PublisherRecord, start: Da
     finishedAt: null,
     status: "SUCCESS",
     failed: { data: [] },
-  } as ImportRecord;
+  } as PrismaImport;
 
   try {
     // PARSE XML

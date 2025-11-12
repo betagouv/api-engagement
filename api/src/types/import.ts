@@ -1,22 +1,5 @@
 export type ImportStatus = "SUCCESS" | "FAILED";
 
-export interface ImportRecord {
-  _id: string; // Temporary field for backward compatibility in the app
-  id: string;
-  name: string;
-  publisherId: string;
-  missionCount: number;
-  refusedCount: number;
-  createdCount: number;
-  deletedCount: number;
-  updatedCount: number;
-  startedAt: Date | null;
-  finishedAt: Date | null;
-  status: ImportStatus;
-  error: string | null;
-  failed: unknown;
-}
-
 export interface ImportSearchParams {
   publisherId?: string;
   publisherIds?: string[];

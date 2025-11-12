@@ -18,6 +18,11 @@ enum EmailStatus {
   FAILED
 }
 
+enum ImportStatus {
+  SUCCESS
+  FAILED
+}
+
 enum ReportDataTemplate {
   BOTH
   RECEIVED
@@ -261,11 +266,6 @@ model PublisherDiffusion {
   @@index([diffuseurPublisherId], map: "publisher_diffusion_diffuseur_id_idx")
   @@index([annonceurPublisherId], map: "publisher_diffusion_annonceur_id_idx")
   @@map("publisher_diffusion")
-}
-
-enum ImportStatus {
-  SUCCESS
-  FAILED
 }
 
 model Import {
