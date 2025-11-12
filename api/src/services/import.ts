@@ -1,6 +1,6 @@
 import { Prisma, Import as PrismaImport } from "../db/core";
 import { importRepository } from "../repositories/import";
-import { ImportCreateInput, ImportSearchParams, ImportUpdatePatch } from "../types/import";
+import { ImportCreateInput, ImportSearchParams, ImportUpdatePatch } from "../types";
 
 export const importService = (() => {
   const buildWhereClause = (params: ImportSearchParams = {}): Prisma.ImportWhereInput => {

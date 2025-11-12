@@ -3,7 +3,6 @@ import { Import as PrismaCoreImport } from "../../../db/core";
 import { prismaAnalytics as prismaClient } from "../../../db/postgres";
 import { captureException } from "../../../error";
 import { importService } from "../../../services/import";
-import type {} from "../../../types/import";
 
 const BATCH_SIZE = 5000;
 

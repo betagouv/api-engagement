@@ -567,6 +567,7 @@ export enum MissionType {
 }
 
 export * from "./email";
+export * from "./import";
 export * from "./moderation-event";
 export * from "./organization";
 export * from "./publisher";
