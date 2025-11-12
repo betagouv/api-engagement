@@ -165,7 +165,6 @@ const normalizeModerationEvent = (doc: MongoModerationEventDocument): Normalized
   };
 
   const create: Prisma.ModerationEventCreateInput = {
-    id: record.id,
     missionId: record.missionId,
     moderatorId: record.moderatorId,
     userId: record.userId,
