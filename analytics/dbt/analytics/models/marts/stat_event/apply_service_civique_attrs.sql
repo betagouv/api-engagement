@@ -28,8 +28,10 @@ service_civique as (
 select
   s.stat_event_id as apply_id,
   s.created_at,
-  (s.attrs ->> 'hasApplicationFile')::boolean as has_application_file,
-  (s.attrs ->> 'hasCandidateMotivation')::boolean as has_candidate_motivation,
+  coalesce((s.attrs ->> 'hasApplicationFile')::boolean, false)
+    as has_application_file,
+  coalesce((s.attrs ->> 'hasCandidateMotivation')::boolean, false)
+    as has_candidate_motivation,
   s.attrs ->> 'candidateAge' as candidate_age,
   s.attrs ->> 'candidateGender' as candidate_gender,
   s.attrs ->> 'candidatePostalCode' as candidate_postal_code
