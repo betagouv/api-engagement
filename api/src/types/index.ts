@@ -1,62 +1,5 @@
 import { Schema } from "mongoose";
 
-export interface Organization {
-  _id: Schema.Types.ObjectId;
-  esId: string;
-  rna: string | null;
-  siren?: string | null;
-  siret?: string | null;
-  sirets?: string[];
-  rupMi?: string;
-  gestion?: string;
-  status?: string;
-  createdAt?: Date;
-  lastDeclaredAt?: Date;
-  publishedAt?: Date;
-  dissolvedAt?: Date;
-  updatedAt: Date;
-  nature?: string;
-  groupement?: string;
-  title: string;
-  names: string[];
-  shortTitle?: string;
-  titleSlug?: string;
-  shortTitleSlug?: string;
-  object?: string;
-  socialObject1?: string;
-  socialObject2?: string;
-  addressComplement?: string;
-  addressNumber: string | undefined;
-  addressRepetition: string | undefined;
-  addressType: string | undefined;
-  addressStreet?: string;
-  addressDistribution?: string;
-  addressInseeCode?: string;
-  addressPostalCode: string | undefined;
-  addressDepartmentCode: string | undefined;
-  addressDepartmentName: string | undefined;
-  addressRegion: string | undefined;
-  addressCity: string | undefined;
-  managementDeclarant?: string;
-  managementComplement?: string;
-  managementStreet?: string;
-  managementDistribution?: string;
-  managementPostalCode?: string;
-  managementCity?: string;
-  managementCountry?: string;
-  directorCivility?: string;
-  website?: string;
-  observation?: string;
-  syncAt?: Date;
-  source?: string;
-  isRUP?: boolean;
-  letudiantPublicId?: string;
-  letudiantUpdatedAt?: Date;
-
-  // Metabase
-  lastExportedToPgAt: Date | null;
-}
-
 export type GeolocStatus = "ENRICHED_BY_PUBLISHER" | "ENRICHED_BY_API" | "NOT_FOUND" | "NO_DATA" | "SHOULD_ENRICH" | "FAILED";
 
 export type AddressItem = {
@@ -118,7 +61,7 @@ export interface MissionEvent {
 }
 
 export interface Mission {
-  _id?: Schema.Types.ObjectId;
+  _id: Schema.Types.ObjectId;
 
   publisherId: string;
   publisherName: string;
@@ -297,103 +240,6 @@ export interface OrganizationExclusion {
 
   createdAt: Date;
   updatedAt: Date;
-}
-
-export interface Report {
-  _id: Schema.Types.ObjectId;
-  name: string;
-  month: number;
-  year: number;
-  url: string | null;
-  objectName: string | null;
-  publisherId: string;
-  publisherName: string;
-  sent: boolean;
-  sentAt: Date | null;
-  sentTo: string[];
-  dataTemplate: "BOTH" | "RECEIVE" | "SEND";
-  data: StatsReport;
-  status: string;
-  createdAt: Date;
-  updatedAt: Date;
-}
-
-export interface StatsReport {
-  publisherId: string;
-  publisherName: string;
-  publisherLogo: string;
-  month: number;
-  monthName: string;
-  year: number;
-  id: string;
-  receive: {
-    hasStats: boolean;
-    print: number;
-    printLastMonth: number;
-    click: number;
-    clickLastMonth: number;
-    clickYear: number;
-    clickLastYear: number;
-    apply: number;
-    applyLastMonth: number;
-    applyYear: number;
-    applyLastYear: number;
-    account: number;
-    accountLastMonth: number;
-    topPublishers: {
-      key: string;
-      doc_count: number;
-    }[];
-    topOrganizations: {
-      key: string;
-      doc_count: number;
-    }[];
-    graphYears: {
-      month: Date;
-      click: number;
-      clickLastYear: number;
-      apply: number;
-      applyLastYear: number;
-    }[];
-    organizationHistogram: {
-      month: number;
-      [key: string]: number;
-    }[];
-  };
-  send: {
-    hasStats: boolean;
-    print: number;
-    printLastMonth: number;
-    click: number;
-    clickLastMonth: number;
-    clickYear: number;
-    clickLastYear: number;
-    apply: number;
-    applyLastMonth: number;
-    applyYear: number;
-    applyLastYear: number;
-    account: number;
-    accountLastMonth: number;
-    topPublishers: {
-      key: string;
-      doc_count: number;
-    }[];
-    topOrganizations: {
-      key: string;
-      doc_count: number;
-    }[];
-    graphYears: {
-      month: Date;
-      click: number;
-      clickLastYear: number;
-      apply: number;
-      applyLastYear: number;
-    }[];
-    organizationHistogram: {
-      month: number;
-      [key: string]: number;
-    }[];
-  };
 }
 
 export type Request = {
@@ -721,4 +567,7 @@ export enum MissionType {
 }
 
 export * from "./email";
+export * from "./moderation-event";
+export * from "./organization";
 export * from "./publisher";
+export * from "./report";

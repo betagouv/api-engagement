@@ -11,7 +11,7 @@ const Members = ({ values, onChange }) => {
     const fetchData = async () => {
       try {
         const res = await api.post("/user/search", {
-          publisherId: values._id,
+          publisherId: values.id,
         });
         if (!res.ok) throw res;
         setMembers(res.data);
@@ -20,7 +20,7 @@ const Members = ({ values, onChange }) => {
       }
     };
     fetchData();
-  }, [values._id]);
+  }, [values.id]);
 
   return (
     <div className="space-y-6">

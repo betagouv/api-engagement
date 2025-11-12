@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 import Table from "../../../components/NewTable";
 import SearchInput from "../../../components/SearchInput";
@@ -6,6 +6,18 @@ import Toggle from "../../../components/Toggle";
 import { PUBLISHER_CATEGORIES } from "../../../constants";
 import api from "../../../services/api";
 import { captureError } from "../../../services/error";
+import { withLegacyPublishers } from "../../../utils/publisher";
+
+const resolvePublisherId = (publisher) => publisher?.publisherId ?? publisher?.diffuseurPublisherId ?? publisher?.annonceurPublisherId ?? publisher?.id ?? null;
+
+const normalizeSelectedPublishers = (items = []) =>
+  (items || [])
+    .map((publisher) => {
+      const publisherId = resolvePublisherId(publisher);
+      if (!publisherId) return null;
+      return { ...publisher, publisherId };
+    })
+    .filter(Boolean);
 
 const Diffuseur = ({ values, onChange, errors, setErrors }) => {
   const [editing, setEditing] = useState(false);
@@ -14,8 +26,13 @@ const Diffuseur = ({ values, onChange, errors, setErrors }) => {
   const [search, setSearch] = useState("");
 
   useEffect(() => {
-    setSelectedPublishers(values.publishers);
+    setSelectedPublishers(normalizeSelectedPublishers(values.publishers));
   }, [values.publishers]);
+
+  const selectedPublisherIds = useMemo(
+    () => new Set(selectedPublishers.map((publisher) => publisher.publisherId).filter(Boolean)),
+    [selectedPublishers]
+  );
 
   useEffect(() => {
     const fetchData = async () => {
@@ -25,7 +42,7 @@ const Diffuseur = ({ values, onChange, errors, setErrors }) => {
         });
         if (!res.ok) throw res;
 
-        setPublishers(res.data);
+        setPublishers(withLegacyPublishers(res.data));
         setErrors({});
       } catch (error) {
         captureError(error, "Erreur lors de la récupération des diffuseurs");
@@ -102,36 +119,51 @@ const Diffuseur = ({ values, onChange, errors, setErrors }) => {
           </div>
           <div className="h-px w-full bg-gray-900" />
           <p className="text-base">
-            {values.name} diffuse les missions de {publishers.filter((item) => values.publishers.find((p) => p.publisherId === item._id)).length} annonceurs
+            {values.name} diffuse les missions de {selectedPublisherIds.size} annonceurs
           </p>
           <SearchInput value={search} onChange={setSearch} placeholder="Rechercher un annonceur" timeout={0} />
           <Table header={[{ title: "Annonceurs" }]} className="h-full max-h-96">
             {publishers
-              .filter((item) => (editing ? item._id !== values._id : values.publishers.find((p) => p.publisherId === item._id)))
-              .filter((item) => item.name.toLowerCase().includes(search.toLowerCase()))
+              .filter((item) => {
+                if (!item?.name) return false;
+                const matchesSelection = editing ? item.id !== values.id : selectedPublisherIds.has(item.id);
+                if (!matchesSelection) return false;
+                return item.name.toLowerCase().includes(search.toLowerCase());
+              })
               .map((item, index) => (
                 <tr key={index} className={`${index % 2 === 0 ? "bg-gray-100" : "bg-gray-50"} table-item`}>
                   <td className="p-4">
                     <div className="flex items-center gap-2">
                       {editing && (
                         <input
-                          id={item._id}
+                          id={item.id}
                           type="checkbox"
                           className="checkbox"
-                          checked={selectedPublishers.find((p) => p.publisherId === item._id) || false}
+                          checked={selectedPublisherIds.has(item.id)}
                           onChange={(e) => {
                             if (e.target.checked) {
-                              setSelectedPublishers([
-                                ...selectedPublishers,
-                                { publisherId: item._id, publisherName: item.name, publisherLogo: item.logo, moderator: item.moderator, missionType: item.missionType },
-                              ]);
+                              setSelectedPublishers((prev) => {
+                                if (prev.some((publisher) => publisher.publisherId === item.id)) {
+                                  return prev;
+                                }
+                                return [
+                                  ...prev,
+                                  {
+                                    publisherId: item.id,
+                                    publisherName: item.name,
+                                    publisherLogo: item.logo,
+                                    moderator: item.moderator,
+                                    missionType: item.missionType,
+                                  },
+                                ];
+                              });
                             } else {
-                              setSelectedPublishers(selectedPublishers.filter((p) => p.publisherId !== item._id));
+                              setSelectedPublishers((prev) => prev.filter((publisher) => publisher.publisherId !== item.id));
                             }
                           }}
                         />
                       )}
-                      <label htmlFor={item._id}>{item.name}</label>
+                      <label htmlFor={item.id}>{item.name}</label>
                     </div>
                   </td>
                 </tr>
@@ -144,7 +176,7 @@ const Diffuseur = ({ values, onChange, errors, setErrors }) => {
                 className="secondary-btn"
                 onClick={() => {
                   setEditing(false);
-                  setSelectedPublishers(values.publishers);
+                  setSelectedPublishers(normalizeSelectedPublishers(values.publishers));
                 }}
               >
                 Annuler

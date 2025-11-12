@@ -14,6 +14,7 @@ export interface ExportSummary {
   skipped: number;
   errors: number;
   durationMs: number;
+  errorMessage?: string;
 }
 
 interface PgSourceCursorConfig {

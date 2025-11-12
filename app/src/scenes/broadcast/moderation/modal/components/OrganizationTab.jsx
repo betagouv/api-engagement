@@ -43,7 +43,7 @@ const OrganizationTab = ({ data, onChange }) => {
           setOrganizations(
             res.data.map((org) => ({
               label: `${org.title}${org.rna ? ` - ${org.rna}` : ""}${org.siren ? ` - ${org.siren}` : ""}`,
-              id: org._id,
+              id: org.id,
               rna: org.rna,
               siren: org.siren,
             })),
@@ -71,7 +71,7 @@ const OrganizationTab = ({ data, onChange }) => {
       if (values.organizationSirenVerified !== data.organizationSirenVerified) obj.organizationSirenVerified = values.organizationSirenVerified;
       if (values.organizationRNAVerified !== data.organizationRNAVerified) obj.organizationRNAVerified = values.organizationRNAVerified;
 
-      const resU = await api.put(`/moderation/${data._id}`, { ...obj, moderatorId: publisher._id });
+      const resU = await api.put(`/moderation/${data._id}`, { ...obj, moderatorId: publisher.id });
       if (!resU.ok) throw resU;
       toast.success("Les données de l'organisation ont été modifiées avec succès", {
         position: "bottom-right",
@@ -94,7 +94,7 @@ const OrganizationTab = ({ data, onChange }) => {
         });
         if (!resO.ok) throw resO;
 
-        const where = { moderatorId: publisher._id, organizationClientId: data.organizationClientId, size: 0 };
+        const where = { moderatorId: publisher.id, organizationClientId: data.organizationClientId, size: 0 };
         if (values.organizationRNAVerified) where.organizationRNAVerified = { $ne: values.organizationRNAVerified };
         if (values.organizationSirenVerified) where.organizationSirenVerified = { $ne: values.organizationSirenVerified };
         const resM = await api.post("/moderation/search", where);
@@ -241,7 +241,7 @@ const OrganizationUpdateModal = ({ isOpen, onClose, total, where, update, onChan
           organizationSirenVerified: update.organizationSirenVerified || null,
           organizationId: update.organizationId || null,
         },
-        moderatorId: publisher._id,
+        moderatorId: publisher.id,
       });
       if (!res.ok) throw res;
       toast.success("Les missions ont été modérées avec succès", {

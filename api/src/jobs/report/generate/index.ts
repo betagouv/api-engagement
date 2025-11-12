@@ -1,14 +1,15 @@
 import { jsPDF } from "jspdf";
 
 import { publisherService } from "../../../services/publisher";
+import { reportService } from "../../../services/report";
 import { BUCKET_URL, OBJECT_ACL, putObject } from "../../../services/s3";
 import type { PublisherRecord } from "../../../types/publisher";
-import { Report, StatsReport } from "../../../types";
+import type { ReportCreateInput, ReportDataTemplate, ReportUpdatePatch } from "../../../types/report";
+import { StatsReport } from "../../../types/report";
 
 import Marianne from "../fonts/Marianne";
 import MarianneBold from "../fonts/MarianneBold";
 
-import ReportModel from "../../../models/report";
 import { generateAnnounce } from "./announce";
 import { generateBroadcast } from "./broadcast";
 import { getData, MONTHS } from "./data";
@@ -21,10 +22,31 @@ export interface GeneratedReportPreview {
   publisherName: string;
   status: string;
   data: StatsReport | undefined;
-  dataTemplate?: "BOTH" | "RECEIVE" | "SEND";
+  dataTemplate?: ReportDataTemplate | null;
   url?: string | null;
   objectName?: string | null;
 }
+
+const computeReportDataTemplate = (data?: StatsReport): ReportDataTemplate | null => {
+  if (!data) {
+    return null;
+  }
+
+  const hasReceive = data.receive?.hasStats ?? false;
+  const hasSend = data.send?.hasStats ?? false;
+
+  if (hasReceive && hasSend) {
+    return "BOTH";
+  }
+  if (hasSend) {
+    return "SENT";
+  }
+  if (hasReceive) {
+    return "RECEIVED";
+  }
+
+  return null;
+};
 
 export const generateReport = async (publisher: PublisherRecord, year: number, month: number) => {
   try {
@@ -96,28 +118,22 @@ export const generateReports = async (year: number, month: number, publisherId?:
   let count = 0;
   const errors = [] as { id: string; name: string; error: string }[];
   const reports: GeneratedReportPreview[] = [];
-  console.log(
-    `[Report] Generating report for ${year}-${month} for ${publishers.length} publisher(s)${
-      publisherId ? ` [filtered: ${publisherId}]` : ""
-    }`
-  );
+  console.log(`[Report] Generating report for ${year}-${month} for ${publishers.length} publisher(s)${publisherId ? ` [filtered: ${publisherId}]` : ""}`);
   for (let i = 0; i < publishers.length; i++) {
     const publisher = publishers[i];
     console.log(`[Report] Generating report for ${year}-${month} for ${publisher.name}`);
     const res = await generateReport(publisher, year, month);
 
-    const obj = {
-      name: `Rapport ${MONTHS[month]} ${year}`,
-      month,
-      year,
-      publisherId: publisher.id,
-      publisherName: publisher.name,
-      data: res.data,
-    } as Report;
+    const name = `Rapport ${MONTHS[month]} ${year}`;
+    let status = "GENERATED";
+    let url: string | undefined;
+    let objectName: string | undefined;
+    let dataTemplate: ReportDataTemplate | null | undefined;
+    const data = res.data;
 
     if (res.error) {
       console.error(`[Report] Error generating report for ${year}-${month} for ${publisher.name}:`, res.error);
-      obj.status = "NOT_GENERATED_ERROR_GENERATION";
+      status = "NOT_GENERATED_ERROR_GENERATION";
       errors.push({
         id: publisher.id,
         name: publisher.name,
@@ -125,32 +141,70 @@ export const generateReports = async (year: number, month: number, publisherId?:
       });
     } else if (!res.objectName) {
       console.error(`[Report] No data for ${year}-${month} for ${publisher.name}`);
-      obj.status = "NOT_GENERATED_NO_DATA";
+      status = "NOT_GENERATED_NO_DATA";
     } else {
       console.log(`[Report] Report generated for ${year}-${month} for ${publisher.name}`);
-      obj.objectName = res.objectName;
-      obj.url = res.url;
-      obj.dataTemplate = res.data.receive?.hasStats && res.data.send?.hasStats ? "BOTH" : res.data.receive?.hasStats ? "RECEIVE" : "SEND";
-      obj.status = "GENERATED";
+      objectName = res.objectName ?? undefined;
+      url = res.url ?? undefined;
+      dataTemplate = computeReportDataTemplate(res.data);
     }
-    const existing = await ReportModel.findOne({ publisherId: publisher.id, year, month });
+
+    const existing = await reportService.findOneReportByPublisherAndPeriod(publisher.id, year, month);
+
     if (existing) {
-      await ReportModel.updateOne({ _id: existing._id }, obj);
+      const patch: ReportUpdatePatch = {
+        name,
+        month,
+        year,
+        publisherId: publisher.id,
+        publisherName: publisher.name,
+        status,
+      };
+
+      if (typeof url !== "undefined") {
+        patch.url = url;
+      }
+      if (typeof objectName !== "undefined") {
+        patch.objectName = objectName;
+      }
+      if (typeof dataTemplate !== "undefined") {
+        patch.dataTemplate = dataTemplate;
+      }
+      if (typeof data !== "undefined") {
+        patch.data = data;
+      }
+
+      await reportService.updateReport(existing.id, patch);
       console.log(`[${publisher.name}] Report object updated`);
     } else {
-      await ReportModel.create(obj);
+      const payload: ReportCreateInput = {
+        name,
+        month,
+        year,
+        url: url ?? "",
+        objectName: objectName ?? null,
+        publisherId: publisher.id,
+        publisherName: publisher.name,
+        dataTemplate: typeof dataTemplate !== "undefined" ? dataTemplate : null,
+        sentAt: null,
+        sentTo: [],
+        status,
+        data: data ?? {},
+      };
+
+      await reportService.createReport(payload);
       console.log(`[${publisher.name}] Report object created`);
     }
-    count += 1;
 
+    count += 1;
     reports.push({
-      publisherId: obj.publisherId,
-      publisherName: obj.publisherName,
-      status: obj.status,
-      data: res.data,
-      dataTemplate: obj.dataTemplate,
-      url: obj.url,
-      objectName: obj.objectName,
+      publisherId: publisher.id,
+      publisherName: publisher.name,
+      status,
+      data,
+      dataTemplate: typeof dataTemplate !== "undefined" ? dataTemplate : (existing?.dataTemplate ?? null),
+      url: typeof url !== "undefined" ? url : (existing?.url ?? null),
+      objectName: typeof objectName !== "undefined" ? objectName : (existing?.objectName ?? null),
     });
   }
 

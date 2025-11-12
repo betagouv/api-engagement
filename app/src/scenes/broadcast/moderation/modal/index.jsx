@@ -26,7 +26,7 @@ const MissionModal = ({ onChange }) => {
     if (!data || !data.organizationName) return;
     const fetchData = async () => {
       try {
-        const res = await api.post("/moderation/search-history", { organizationName: data.organizationName, moderatorId: publisher._id });
+        const res = await api.post("/moderation/search-history", { organizationName: data.organizationName, moderatorId: publisher.id });
         if (!res.ok) throw res;
         setHistory(res.data.organization[data.organizationName] || { ACCEPTED: 0, REFUSED: 0, PENDING: 0 });
       } catch (error) {
@@ -40,7 +40,7 @@ const MissionModal = ({ onChange }) => {
     if (!searchParams.has("mission")) return;
     const fetchData = async () => {
       try {
-        const res = await api.get(`/moderation/${searchParams.get("mission")}?moderatorId=${publisher._id}`);
+        const res = await api.get(`/moderation/${searchParams.get("mission")}?moderatorId=${publisher.id}`);
         if (!res.ok) throw res;
 
         setData(res.data);

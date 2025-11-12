@@ -37,7 +37,7 @@ const List = () => {
         const resS = await api.get(`/warning/state`);
         if (!resS.ok) throw resS;
         setState(resS.data);
-        const resP = await api.post("/warning/search", { publisherId: publisher._id });
+        const resP = await api.post("/warning/search", { publisherId: publisher.id });
         if (!resP.ok) throw resP;
         setCurrentWarnings(resP.data);
         setCurrentByDays(
@@ -61,7 +61,7 @@ const List = () => {
       try {
         const query = {
           fixed: "true",
-          publisherId: publisher._id,
+          publisherId: publisher.id,
           type: archivedFilters.type,
           month: archivedFilters.month,
           year: archivedFilters.year,

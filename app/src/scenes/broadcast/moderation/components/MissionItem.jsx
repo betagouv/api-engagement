@@ -34,7 +34,7 @@ const MissionItem = ({ data, history, selected, onChange, onSelect, onFilter, on
 
       if (v.status === "REFUSED" && !v.comment) return;
 
-      const res = await api.put(`/moderation/${data._id}`, { ...v, moderatorId: publisher._id });
+      const res = await api.put(`/moderation/${data._id}`, { ...v, moderatorId: publisher.id });
       if (!res.ok) {
         if (res.error === "COMMENT_REQUIRED") {
           toast.error("Le commentaire est requis pour refuser la mission");
@@ -45,7 +45,7 @@ const MissionItem = ({ data, history, selected, onChange, onSelect, onFilter, on
       toast.success("La mission a été modérée avec succès");
       onChange(res.data);
       if (v.status === "REFUSED" && ["ORGANIZATION_NOT_COMPLIANT", "ORGANIZATION_ALREADY_PUBLISHED"].includes(v.comment)) {
-        const resO = await api.post("/moderation/search", { moderatorId: publisher._id, organizationName: data.organizationName, status: "PENDING", size: 0 });
+        const resO = await api.post("/moderation/search", { moderatorId: publisher.id, organizationName: data.organizationName, status: "PENDING", size: 0 });
         if (!resO.ok) throw resO;
         if (resO.total > 0) {
           setPotentialUpdates(resO.total);
@@ -247,7 +247,7 @@ const UpdateNoteModal = ({ isOpen, onChange, onClose, data }) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const res = await api.put(`/moderation/${data._id}`, { note, moderatorId: publisher._id });
+      const res = await api.put(`/moderation/${data._id}`, { note, moderatorId: publisher.id });
       if (!res.ok) throw res;
       toast.success("La note a été mise à jour avec succès");
       onChange({ note });

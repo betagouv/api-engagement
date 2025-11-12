@@ -7,6 +7,7 @@ import Loader from "../../components/Loader";
 import { Table } from "../../components/Table";
 import api from "../../services/api";
 import { captureError } from "../../services/error";
+import { withLegacyPublishers } from "../../utils/publisher";
 
 const Users = () => {
   const [search, setSearch] = useState("");
@@ -24,7 +25,7 @@ const Users = () => {
 
         const resP = await api.post("/publisher/search");
         if (!resP.ok) throw resP;
-        setPublishers(resP.data);
+        setPublishers(withLegacyPublishers(resP.data));
       } catch (error) {
         captureError(error, "Erreur lors de la récupération des données");
       } finally {
@@ -102,7 +103,7 @@ const Users = () => {
                   ) : (
                     <>
                       {item.publishers.slice(0, 2).map((p, i) => {
-                        const publisher = publishers.find((pub) => pub._id === p);
+                        const publisher = publishers.find((pub) => pub.id === p || pub._id === p);
                         if (!publisher) return null;
                         return (
                           <span key={i} className="text-2xs bg-blue-france-975 max-w-48 truncate rounded p-1">

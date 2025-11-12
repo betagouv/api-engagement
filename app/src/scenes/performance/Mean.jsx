@@ -28,7 +28,7 @@ const Mean = ({ filters, onFiltersChange }) => {
         }
 
         if (publisher.hasCampaignRights) {
-          const resC = await api.post("/campaign/search", { fromPublisherId: publisher._id, size: 0 });
+          const resC = await api.post("/campaign/search", { fromPublisherId: publisher.id, size: 0 });
           if (!resC.ok) throw resC;
           if (resC.total) {
             source = "campaign";
@@ -37,7 +37,7 @@ const Mean = ({ filters, onFiltersChange }) => {
         }
 
         if (publisher.hasWidgetRights) {
-          const resW = await api.post("/widget/search", { fromPublisherId: publisher._id, size: 0 });
+          const resW = await api.post("/widget/search", { fromPublisherId: publisher.id, size: 0 });
           if (!resW.ok) throw resW;
           if (resW.total) {
             source = "widget";
@@ -63,7 +63,7 @@ const Mean = ({ filters, onFiltersChange }) => {
         if (filters.from) query.append("from", filters.from);
         if (filters.to) query.append("to", filters.to);
         query.append("source", source);
-        query.append("publisherId", publisher._id);
+        query.append("publisherId", publisher.id);
         const resP = await api.get(`/stats-mean?${query.toString()}`);
 
         if (!resP.ok) throw resP;
@@ -78,7 +78,7 @@ const Mean = ({ filters, onFiltersChange }) => {
 
   if (!source)
     return (
-      <div className="p-12 flex justify-center">
+      <div className="flex justify-center p-12">
         <Loader />
       </div>
     );

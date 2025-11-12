@@ -1,13 +1,13 @@
 version: 2
 
 models:
-  - name: dim_partner
+  - name: dim_publisher
     description: >
       Vue légère sur la table `Partner` (schema public) qui expose uniquement
       les identifiants nécessaires aux lookups analytics.
     columns:
       - name: id
-        description: Identifiant UUID du partenaire dans l’entrepôt analytics.
+        description: Identifiant UUID du publisher dans l’entrepôt analytics.
         tests:
           - not_null
           - unique
@@ -19,7 +19,7 @@ models:
 
   - name: dim_mission
     description: >
-      Extraction des identifiants de mission (UUID et ancien ID) enrichis du partner
+      Extraction des identifiants de mission (UUID et ancien ID) enrichis du publisher
       associé afin de rebasculer les événements StatEvent vers les missions analytics.
     columns:
       - name: id

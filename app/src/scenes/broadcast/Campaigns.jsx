@@ -23,7 +23,7 @@ const Campaigns = () => {
   const { user, publisher } = useStore();
   const [data, setData] = useState([]);
   const [filters, setFilters] = useState({
-    fromPublisherId: publisher?._id || "",
+    fromPublisherId: publisher?.id || "",
     toPublisherId: "",
     search: "",
     page: 1,

@@ -26,7 +26,7 @@ import { mongoConnected } from "../src/db/mongo";
 import { MEDIA_PUBLIC_ID } from "../src/jobs/letudiant/config";
 import { rateLimit } from "../src/jobs/letudiant/utils";
 import MissionModel from "../src/models/mission";
-import OrganizationModel from "../src/models/organization";
+import { organizationService } from "../src/services/organization";
 import { PilotyClient } from "../src/services/piloty/client";
 import { PilotyCompanyPayload } from "../src/services/piloty/types";
 
@@ -92,7 +92,7 @@ async function main() {
 
   for (const orgId of organizationIds) {
     try {
-      const organization = await OrganizationModel.findById(orgId);
+      const organization = await organizationService.findOneOrganizationById(orgId);
       if (!organization) {
         console.warn(`[Script] Organization ${orgId} not found. Skipping.`);
         skipped++;

@@ -9,6 +9,7 @@ import Modal from "../../components/Modal";
 import { Table } from "../../components/Table";
 import api from "../../services/api";
 import { captureError } from "../../services/error";
+import { withLegacyPublishers } from "../../utils/publisher";
 import { isValidEmail } from "../../services/utils";
 
 const Edit = () => {
@@ -36,7 +37,7 @@ const Edit = () => {
 
         const resP = await api.post("/publisher/search", {});
         if (!resP.ok) throw resP;
-        setPublishers(resP.data.sort((a, b) => a.name.localeCompare(b.name)));
+        setPublishers(withLegacyPublishers(resP.data).sort((a, b) => a.name.localeCompare(b.name)));
       } catch (error) {
         captureError(error, "Erreur lors de la récupération des partenaires");
       }
@@ -211,7 +212,7 @@ const Edit = () => {
               <div className="mb-2 flex flex-wrap gap-2">
                 {values.publishers.map((p, i) => (
                   <div key={i} className="bg-blue-france-975 flex items-center rounded p-2">
-                    <span className="text-xs">{publishers.find((pub) => pub._id === p)?.name}</span>
+                    <span className="text-xs">{publishers.find((pub) => pub.id === p || pub._id === p)?.name}</span>
                     <button type="button" className="ml-2" onClick={() => setValues({ ...values, publishers: values.publishers.filter((pub) => pub !== p) })}>
                       <RiCloseFill className="text-xs" />
                     </button>
@@ -238,10 +239,10 @@ const Edit = () => {
                       onChange={(e) =>
                         setValues({
                           ...values,
-                          publishers: e.target.checked ? [...values.publishers, item._id.toString()] : values.publishers.filter((pub) => pub !== item._id.toString()),
+                          publishers: e.target.checked ? [...values.publishers, (item.id || item._id).toString()] : values.publishers.filter((pub) => pub !== (item.id || item._id).toString()),
                         })
                       }
-                      checked={values.publishers.includes(item._id.toString())}
+                      checked={values.publishers.includes((item.id || item._id).toString())}
                     />
                   </div>
                   <div className="flex-1">{item.name}</div>

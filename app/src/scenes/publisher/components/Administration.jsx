@@ -7,10 +7,10 @@ const Administration = ({ values, onChange }) => {
   const [excludedOrganizations, setExcludedOrganizations] = useState([]);
 
   useEffect(() => {
-    if (!values._id) return;
+    if (!values.id) return;
     const fetchExcludedOrganizations = async () => {
       try {
-        const res = await api.get(`/publisher/${values._id}/excluded-organizations`);
+        const res = await api.get(`/publisher/${values.id}/excluded-organizations`);
         if (!res.ok) throw res;
         setExcludedOrganizations(res.data);
       } catch (error) {
@@ -18,7 +18,7 @@ const Administration = ({ values, onChange }) => {
       }
     };
     fetchExcludedOrganizations();
-  }, [values._id]);
+  }, [values.id]);
 
   return (
     <div className="flex items-center gap-6">

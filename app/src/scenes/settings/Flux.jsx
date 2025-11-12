@@ -35,7 +35,7 @@ const Flux = () => {
       try {
         setLoading(true);
         const query = {
-          publisherId: publisher._id,
+          publisherId: publisher.id,
           size: filters.size,
           skip: (filters.page - 1) * filters.size,
         };
@@ -144,7 +144,7 @@ const ModifyModal = () => {
   const handleFeedSubmit = async () => {
     try {
       setLoading(true);
-      const res = await api.put(`/publisher/${publisher._id}`, { feed });
+      const res = await api.put(`/publisher/${publisher.id}`, { feed });
 
       if (!res.ok) throw res;
 

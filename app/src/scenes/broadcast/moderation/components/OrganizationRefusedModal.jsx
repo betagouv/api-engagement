@@ -15,12 +15,12 @@ const OrganizationRefusedModal = ({ isOpen, onClose, data, update, onChange, tot
   const handleSubmit = async () => {
     setLoading(true);
     try {
-      const where = { moderatorId: publisher._id, organizationName: data.organizationName, status: "PENDING" };
+      const where = { moderatorId: publisher.id, organizationName: data.organizationName, status: "PENDING" };
 
       const res = await api.put(`/moderation/many`, {
         where,
-        update: { status: "REFUSED", comment: update.comment, moderatorId: publisher._id },
-        moderatorId: publisher._id,
+        update: { status: "REFUSED", comment: update.comment, moderatorId: publisher.id },
+        moderatorId: publisher.id,
       });
       if (!res.ok) throw res;
       toast.success("Les missions ont été modérées avec succès", {

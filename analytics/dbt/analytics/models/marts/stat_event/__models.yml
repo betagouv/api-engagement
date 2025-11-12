@@ -1,7 +1,7 @@
 version: 2
 
 models:
-  - name: mart_account
+  - name: account
     description: >
       Table analytique reproduisant la structure Prisma `Account`. Alimentée
       depuis `stg_stat_event__account`, elle normalise les identifiants mission,
@@ -36,7 +36,7 @@ models:
       - name: source
         description: Origine normalisée (enum `SourceType`).
 
-  - name: mart_apply
+  - name: apply
     description: >
       Table analytique des candidatures (équivalent Prisma `Apply`) construite
       depuis `stg_stat_event__apply`. On y retrouve les champs statut, mission,
@@ -71,7 +71,7 @@ models:
       - name: view_id_raw
         description: Identifiant brut de la vue lié à la candidature.
 
-  - name: mart_click
+  - name: click
     description: >
       Table analytique des clics reconstruite depuis `stg_stat_event__click`.
       Elle alimente la structure Prisma `Click` avec les lookups de missions,
@@ -106,7 +106,7 @@ models:
       - name: is_human
         description: Indicateur flagguant le clic comme humain.
 
-  - name: mart_impression
+  - name: impression
     description: >
       Table analytique des impressions (équivalent Prisma `Impression`) construite
       depuis `stg_stat_event__print`. Elle expose les identifiants mission, partenaires,
@@ -136,3 +136,25 @@ models:
           - not_null
       - name: source
         description: Origine normalisée de l’impression (`SourceType`).
+
+  - name: apply_service_civique_attrs
+    description: >
+      Extraction des attributs personnalisés pour les candidatures liées au
+      partenaire "Service Civique". Ce modèle dérive des colonnes dédiées à partir
+      du champ JSON et référence la table `Apply` via `apply_id`.
+    columns:
+      - name: apply_id
+        description: Identifiant de la candidature (référence à `public."Apply"`).
+        tests:
+          - not_null
+          - unique
+      - name: has_application_file
+        description: Indique si un dossier de candidature a été fourni.
+      - name: has_candidate_motivation
+        description: Indique si une motivation est associée.
+      - name: candidate_age
+        description: Âge déclaré du candidat.
+      - name: candidate_gender
+        description: Genre déclaré du candidat.
+      - name: candidate_postal_code
+        description: Code postal du candidat.

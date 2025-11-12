@@ -1,14 +1,6 @@
 import { AddressItem, Mission } from "../../types";
 import { getMissionTrackedApplicationUrl } from "../../utils";
-import {
-  LINKEDIN_COMPANY_ID,
-  LINKEDIN_INDUSTRY_CODE,
-  LINKEDIN_PUBLISHER_ID,
-  MISSIONS_PERIODIC_CYCLE_START_DATE,
-  MISSIONS_PERIODIC_OFFLINE_DAYS,
-  MISSIONS_PERIODIC_ONLINE_DAYS,
-  MISSIONS_PERIODIC_REMOVAL_IDS,
-} from "./config";
+import { LINKEDIN_COMPANY_ID, LINKEDIN_INDUSTRY_CODE, LINKEDIN_PUBLISHER_ID } from "./config";
 import { LinkedInJob } from "./types";
 import { getAudienceLabel, getDomainLabel } from "./utils";
 
@@ -29,18 +21,6 @@ export function missionToLinkedinJob(mission: Mission, defaultCompany: string): 
   }
   if (!mission.organizationName) {
     return null;
-  }
-
-  const missionId = mission._id?.toString() || "";
-  if (MISSIONS_PERIODIC_REMOVAL_IDS.includes(missionId)) {
-    const diffMs = Date.now() - new Date(MISSIONS_PERIODIC_CYCLE_START_DATE).getTime();
-    if (diffMs >= 0) {
-      const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
-      const cycleLength = MISSIONS_PERIODIC_ONLINE_DAYS + MISSIONS_PERIODIC_OFFLINE_DAYS;
-      if (diffDays % cycleLength < MISSIONS_PERIODIC_OFFLINE_DAYS) {
-        return null;
-      }
-    }
   }
 
   const job = {

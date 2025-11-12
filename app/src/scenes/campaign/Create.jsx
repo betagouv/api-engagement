@@ -13,6 +13,7 @@ import { API_URL } from "../../services/config";
 import { captureError } from "../../services/error";
 import useStore from "../../services/store";
 import { isValidUrl } from "../../services/utils";
+import { withLegacyPublishers } from "../../utils/publisher";
 
 const Create = () => {
   const { publisher } = useStore();
@@ -22,7 +23,7 @@ const Create = () => {
   const [values, setValues] = useState({
     name: "",
     type: "",
-    fromPublisherId: publisher._id,
+    fromPublisherId: publisher.id,
     toPublisherId: "",
     url: "",
     trackers: [],
@@ -35,7 +36,11 @@ const Create = () => {
       try {
         const res = await api.post("/publisher/search", { role: "annonceur" });
         if (!res.ok) throw res;
-        setPulishers(res.data.sort((a, b) => a.name.localeCompare(b.name)).map((p) => ({ ...p, label: p.name })));
+        setPulishers(
+          withLegacyPublishers(res.data)
+            .sort((a, b) => a.name.localeCompare(b.name))
+            .map((p) => ({ ...p, label: p.name })),
+        );
       } catch (error) {
         captureError(error, "Erreur lors de la récupération des données");
         navigate("/broadcast/campaigns");
@@ -183,7 +188,7 @@ const Create = () => {
               </label>
               <SearchSelect
                 id="to-publisher-id"
-                options={publishers.map((e) => ({ value: e._id, label: e.name }))}
+                options={publishers.map((e) => ({ value: e.id, label: e.name }))}
                 placeholder="Sélectionner un annonceur"
                 value={values.toPublisherId}
                 onChange={(e) => setValues({ ...values, toPublisherId: e.value })}

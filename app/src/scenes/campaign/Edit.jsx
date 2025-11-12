@@ -15,6 +15,7 @@ import api from "../../services/api";
 import { API_URL } from "../../services/config";
 import { captureError } from "../../services/error";
 import { isValidUrl } from "../../services/utils";
+import { withLegacyPublishers } from "../../utils/publisher";
 
 const Edit = () => {
   const { id } = useParams();
@@ -40,7 +41,11 @@ const Edit = () => {
       try {
         const res = await api.post(`/publisher/search`, { role: "annonceur" });
         if (!res.ok) throw new Error("Erreur lors de la récupération des données");
-        setPublishers(res.data.sort((a, b) => a.name.localeCompare(b.name)).map((p) => ({ ...p, label: p.name })));
+        setPublishers(
+          withLegacyPublishers(res.data)
+            .sort((a, b) => a.name.localeCompare(b.name))
+            .map((p) => ({ ...p, label: p.name })),
+        );
       } catch (error) {
         captureError(error, "Erreur lors de la récupération des données");
         navigate("/broadcast");
@@ -290,7 +295,7 @@ const Edit = () => {
               </label>
               <SearchSelect
                 id="to-publisher-id"
-                options={publishers.map((e) => ({ value: e._id, label: e.name }))}
+                options={publishers.map((e) => ({ value: e.id, label: e.name }))}
                 value={values.toPublisherId}
                 onChange={(e) => setValues({ ...values, toPublisherId: e.value })}
               />
@@ -408,7 +413,11 @@ const ReassignModal = ({ isOpen, onClose, campaign, values, setValues, setCampai
       try {
         const res = await api.post(`/publisher/search`, { role: "campaign" });
         if (!res.ok) throw new Error("Erreur lors de la récupération des données");
-        setPublishers(res.data.sort((a, b) => a.name.localeCompare(b.name)).map((p) => ({ ...p, label: p.name })));
+        setPublishers(
+          withLegacyPublishers(res.data)
+            .sort((a, b) => a.name.localeCompare(b.name))
+            .map((p) => ({ ...p, label: p.name })),
+        );
       } catch (error) {
         captureError(error, "Erreur lors de la récupération des données");
       }
@@ -453,7 +462,7 @@ const ReassignModal = ({ isOpen, onClose, campaign, values, setValues, setCampai
         </span>
         <div className="mt-8 flex flex-1 gap-2">
           <SearchSelect
-            options={publishers.map((p) => ({ value: p._id, label: p.name }))}
+            options={publishers.map((p) => ({ value: p.id, label: p.name }))}
             placeholder="Sélectionner un compte"
             value={values.fromPublisherId}
             onChange={(e) => setValues({ ...values, fromPublisherId: e.value })}

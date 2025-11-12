@@ -22,6 +22,7 @@ const GlobalAnnounce = ({ filters, onFiltersChange }) => {
   const { publisher } = useStore();
   const [data, setData] = useState({ totalMissionAvailable: 0, totalMissionClicked: 0, totalPrint: 0, totalClick: 0, totalAccount: 0, totalApply: 0 });
   const [loading, setLoading] = useState(true);
+  const [loadingMission, setLoadingMission] = useState(true);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -32,30 +33,36 @@ const GlobalAnnounce = ({ filters, onFiltersChange }) => {
         if (filters.from) queryP.append("from", filters.from.toISOString());
         if (filters.to) queryP.append("to", filters.to.toISOString());
 
-        queryP.append("publisherId", publisher._id);
+        queryP.append("publisherId", publisher.id);
 
-        const resP = await api.get(`/stats-global/announce-preview?${queryP.toString()}`);
-        if (!resP.ok) throw resP;
+        const res = await api.get(`/stats-global/announce-preview?${queryP.toString()}`);
+        if (!res.ok) throw res;
 
-        const queryM = {
-          publisherId: publisher._id,
-          availableFrom: filters.from,
-          availableTo: filters.to,
-          size: 0,
-        };
-        const resM = await api.post("/mission/search", queryM);
-        if (!resM.ok) throw resM;
-
-        setData({
-          ...resP.data,
-          totalMissionAvailable: resM.total,
-        });
+        setData((prev) => ({ ...prev, ...res.data }));
       } catch (error) {
         captureError(error, "Erreur lors de la récupération des données");
       }
       setLoading(false);
     };
+    const fetchAvailableMission = async () => {
+      setLoadingMission(true);
+      try {
+        const res = await api.post("/mission/search", {
+          publisherId: publisher.id,
+          availableFrom: filters.from,
+          availableTo: filters.to,
+          size: 0,
+        });
+        if (!res.ok) throw res;
+        setData((prev) => ({ ...prev, totalMissionAvailable: res.total }));
+      } catch (error) {
+        captureError(error, "Erreur lors de la récupération des données");
+      }
+      setLoadingMission(false);
+    };
+
     fetchData();
+    fetchAvailableMission();
   }, [filters, publisher]);
 
   return (
@@ -78,8 +85,16 @@ const GlobalAnnounce = ({ filters, onFiltersChange }) => {
           <div className="mt-4 grid gap-4">
             <div className="grid grid-cols-2 gap-4">
               <div className="border border-gray-900 p-6">
-                <p className="text-[28px] font-bold">{data.totalMissionAvailable.toLocaleString("fr")}</p>
-                <p className="text-base">{data.totalMissionAvailable > 1 ? "missions disponibles sur la période" : "mission disponible sur la période"}</p>
+                {loadingMission ? (
+                  <div className="flex w-full justify-center py-10">
+                    <Loader />
+                  </div>
+                ) : (
+                  <>
+                    <p className="text-[28px] font-bold">{data.totalMissionAvailable.toLocaleString("fr")}</p>
+                    <p className="text-base">{data.totalMissionAvailable > 1 ? "missions disponibles sur la période" : "mission disponible sur la période"}</p>
+                  </>
+                )}
               </div>
               <div className="border border-gray-900 p-6">
                 <p className="text-[28px] font-bold">{data.totalMissionClicked.toLocaleString("fr")}</p>
@@ -152,7 +167,7 @@ const Evolution = ({ filters, defaultType = "print" }) => {
         if (type) query.append("type", type);
 
         query.append("flux", "to");
-        query.append("publisherId", publisher._id);
+        query.append("publisherId", publisher.id);
 
         const res = await api.get(`/stats-global/evolution?${query.toString()}`);
         if (!res.ok) throw res;
@@ -243,7 +258,7 @@ const Announcers = ({ filters, defaultType = "print" }) => {
         if (filters.from) query.append("from", filters.from.toISOString());
         if (filters.to) query.append("to", filters.to.toISOString());
 
-        query.append("publisherId", publisher._id);
+        query.append("publisherId", publisher.id);
         query.append("flux", "to");
         query.append("type", type);
 

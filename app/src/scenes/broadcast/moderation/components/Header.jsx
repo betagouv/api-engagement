@@ -86,7 +86,7 @@ const ManyUpdateModal = ({ onClose, selected, onChange }) => {
       if (status === "REFUSED" && !comment) return;
       const data = [];
       for (const id of selected) {
-        const res = await api.put(`/moderation/${id}`, { status, comment, note, moderatorId: publisher._id });
+        const res = await api.put(`/moderation/${id}`, { status, comment, note, moderatorId: publisher.id });
         if (!res.ok) throw res;
         data.push(res.data);
       }

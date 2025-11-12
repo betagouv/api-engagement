@@ -7,6 +7,7 @@ import { captureError } from "../../services/error";
 import AnnonceurCreation from "./components/AnnonceurCreation";
 import DiffuseurCreation from "./components/DiffuseurCreation";
 import Informations from "./components/Informations";
+import { buildPublisherPayload } from "../../utils/publisher";
 
 const canSubmit = (values) => {
   if (values.name === "") return false;
@@ -42,12 +43,13 @@ const Create = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const res = await api.post(`/publisher/`, values);
+      const payload = buildPublisherPayload(values);
+      const res = await api.post(`/publisher/`, payload);
       if (!res.ok) {
         throw res;
       }
       toast.success("Partenaire créé avec succès");
-      navigate(`/publisher/${res.data._id}`);
+      navigate(`/publisher/${res.data.id}`);
     } catch (error) {
       captureError(error, "Erreur lors de la création du partenaire");
     }

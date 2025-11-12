@@ -8,6 +8,7 @@ import Table from "../../components/Table";
 import api from "../../services/api";
 import { captureError } from "../../services/error";
 import exportCSV from "../../services/utils";
+import { withLegacyPublishers } from "../../utils/publisher";
 
 const Publishers = () => {
   const [filters, setFilters] = useState({ name: "", role: "", sendReport: "", missionType: "" });
@@ -46,9 +47,10 @@ const Publishers = () => {
 
         const res = await api.post("/publisher/search", query);
         if (!res.ok) throw res;
-        setPublishers(res.data);
+        const normalized = withLegacyPublishers(res.data);
+        setPublishers(normalized);
         if (!Object.keys(query).length) {
-          setDiffuseurs(res.data);
+          setDiffuseurs(normalized);
         }
       } catch (error) {
         captureError(error, "Erreur lors de la récupération des partenaires");
@@ -65,7 +67,7 @@ const Publishers = () => {
     const data = [];
     publishers.forEach((publisher) => {
       const val = {};
-      val["Id"] = publisher._id;
+      val["Id"] = publisher.id;
       val["Nom"] = publisher.name;
       val["Email"] = publisher.email;
       val["URL"] = publisher.url;
@@ -76,10 +78,10 @@ const Publishers = () => {
       const annonceurs = publisher.publishers.map((p) => p.publisherName);
       val["Nombre d'annonceurs"] = annonceurs.length;
       val["Annonceurs"] = annonceurs;
-      const broadcasters = publishers.filter((p) => p.publishers.find((e) => e.publisher === publisher._id.toString())).map((p) => p.name);
+      const broadcasters = publishers.filter((p) => p.publishers.find((e) => e.publisher === publisher.id.toString())).map((p) => p.name);
       val["Nombre de diffuseurs"] = broadcasters.length;
       val["Diffuseurs"] = broadcasters;
-      const members = users.filter((e) => e.publishers.find((j) => j === publisher._id.toString())).map((e) => `${e.name} - ${e.email}`);
+      const members = users.filter((e) => e.publishers.find((j) => j === publisher.id.toString())).map((e) => `${e.name} - ${e.email}`);
       val["Nombre de membres"] = members.length;
       val["Membres"] = members;
       val["Rapport automatique"] = publisher.sendReport;
@@ -162,7 +164,7 @@ const Publishers = () => {
           >
             <option value="">Type de mission</option>
             <option value="benevolat">Missions de bénévolat</option>
-            <option value="volontariat">Missions de volontariat</option>
+            <option value="volontariat_service_civique">Missions de volontariat</option>
           </select>
         </div>
         {loading ? (
@@ -185,7 +187,7 @@ const Publishers = () => {
             itemHeight="min-h-12"
             renderItem={(item) => (
               <>
-                <Link to={`/publisher/${item._id.toString()}`} className="link flex-1">
+                <Link to={`/publisher/${item.id}`} className="link flex-1">
                   {item.name}
                 </Link>
                 <div className="flex flex-1 flex-wrap justify-center gap-2">
@@ -195,8 +197,8 @@ const Publishers = () => {
                   {item.hasCampaignRights && <span className="rounded bg-green-300 px-1 text-[10px]">Diffuseur Campagne</span>}
                 </div>
                 <span className="w-32 text-center text-xs">{item.publishers.length}</span>
-                <span className="w-32 text-center text-xs">{diffuseurs.filter((e) => e.publishers.some((j) => j.publisherId === item._id)).length}</span>
-                <span className="w-32 text-center text-xs">{users.filter((e) => e.publishers.find((j) => j === item._id)).length}</span>
+                <span className="w-32 text-center text-xs">{diffuseurs.filter((e) => e.publishers.some((j) => j.publisherId === item.id)).length}</span>
+                <span className="w-32 text-center text-xs">{users.filter((e) => e.publishers.find((j) => j === item.id)).length}</span>
                 <div className="w-32 text-center text-xs">
                   {item.sendReport ? (
                     <span className="bg-blue-france-975 rounded px-1">{`Oui (${item.sendReportTo.length} receveur${item.sendReportTo.length > 1 ? "s" : ""})`}</span>

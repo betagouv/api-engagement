@@ -10,11 +10,11 @@ with events as (
   where e.type = 'click'
 ),
 
-partners as (
+publishers as (
   select
     id,
     publisher_id_raw
-  from {{ ref('dim_partner') }}
+  from {{ ref('dim_publisher') }}
 ),
 
 campaigns as (
@@ -63,12 +63,12 @@ select
   case when e.source = 'widget' then w_source.id end as widget_id
 from events as e
 left join
-  partners as p_from
+  publishers as p_from
   on e.from_publisher_id_raw = p_from.publisher_id_raw
-left join partners as p_to on e.to_publisher_id_raw = p_to.publisher_id_raw
+left join publishers as p_to on e.to_publisher_id_raw = p_to.publisher_id_raw
 left join mission_map as mm on e.id = mm.stat_event_id
 left join
-  partners as p_source
+  publishers as p_source
   on e.source = 'publisher' and e.source_id_raw = p_source.publisher_id_raw
 left join
   campaigns as c_source
