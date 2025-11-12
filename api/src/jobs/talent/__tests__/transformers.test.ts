@@ -44,6 +44,10 @@ const baseMission: Partial<Mission> = {
         lat: 48.8566,
         lon: 2.3522,
       },
+      geoPoint: {
+        type: "Point",
+        coordinates: [2.3522, 48.8566],
+      },
       geolocStatus: "ENRICHED_BY_PUBLISHER",
     },
   ],
@@ -143,7 +147,7 @@ describe("missionToTalentJob", () => {
   });
 
   it("should use default logo when organizationLogo is undefined", () => {
-    const mission = { ...baseMission, organizationLogo: undefined } as Mission;
+    const mission = { ...baseMission, organizationLogo: undefined } as unknown as Mission;
     const jobs = missionToTalentJob(mission);
     expect(jobs[0].logo).toBe("https://default-logo.com/logo.png");
   });

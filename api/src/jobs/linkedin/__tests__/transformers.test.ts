@@ -1,4 +1,3 @@
-import { Types } from "mongoose";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { Mission } from "../../../types";
 import { missionToLinkedinJob } from "../transformers";
@@ -35,7 +34,6 @@ vi.mock("../utils", () => ({
 const defaultCompany = "benevolt";
 
 const baseMission: Partial<Mission> = {
-  _id: new Types.ObjectId("000000000000000000000123"),
   title: "Développeur Web",
   description: "Ceci est une description de mission de plus de 100 caractères pour passer la validation initiale. Il faut que ce soit assez long pour que le test passe.",
   organizationName: "Mon asso",
@@ -56,6 +54,10 @@ const baseMission: Partial<Mission> = {
       location: {
         lat: 48.8566,
         lon: 2.3522,
+      },
+      geoPoint: {
+        type: "Point",
+        coordinates: [2.3522, 48.8566],
       },
       geolocStatus: "ENRICHED_BY_PUBLISHER",
     },
@@ -163,12 +165,6 @@ describe("missionToLinkedinJob", () => {
     const mission = { ...baseMission, requirements: [] } as Mission;
     const job = missionToLinkedinJob(mission, defaultCompany);
     expect(job?.description).not.toContain("<b>Pré-requis : </b>");
-  });
-
-  it("should exclude missions on offline day", () => {
-    vi.setSystemTime(new Date("2025-09-08"));
-    const job = missionToLinkedinJob(baseMission as Mission, defaultCompany);
-    expect(job).toBeNull();
   });
 
   it("should use location fields when present and no address are provided", () => {

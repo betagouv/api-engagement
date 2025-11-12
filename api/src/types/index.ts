@@ -300,7 +300,6 @@ export type ModerationEvent = {
   updatedAt: Date;
 };
 
-
 export interface OrganizationExclusion {
   _id?: Schema.Types.ObjectId;
   excludedByPublisherId: string;
@@ -314,103 +313,6 @@ export interface OrganizationExclusion {
 
   createdAt: Date;
   updatedAt: Date;
-}
-
-export interface Report {
-  _id: Schema.Types.ObjectId;
-  name: string;
-  month: number;
-  year: number;
-  url: string | null;
-  objectName: string | null;
-  publisherId: string;
-  publisherName: string;
-  sent: boolean;
-  sentAt: Date | null;
-  sentTo: string[];
-  dataTemplate: "BOTH" | "RECEIVE" | "SEND";
-  data: StatsReport;
-  status: string;
-  createdAt: Date;
-  updatedAt: Date;
-}
-
-export interface StatsReport {
-  publisherId: string;
-  publisherName: string;
-  publisherLogo: string;
-  month: number;
-  monthName: string;
-  year: number;
-  id: string;
-  receive: {
-    hasStats: boolean;
-    print: number;
-    printLastMonth: number;
-    click: number;
-    clickLastMonth: number;
-    clickYear: number;
-    clickLastYear: number;
-    apply: number;
-    applyLastMonth: number;
-    applyYear: number;
-    applyLastYear: number;
-    account: number;
-    accountLastMonth: number;
-    topPublishers: {
-      key: string;
-      doc_count: number;
-    }[];
-    topOrganizations: {
-      key: string;
-      doc_count: number;
-    }[];
-    graphYears: {
-      month: Date;
-      click: number;
-      clickLastYear: number;
-      apply: number;
-      applyLastYear: number;
-    }[];
-    organizationHistogram: {
-      month: number;
-      [key: string]: number;
-    }[];
-  };
-  send: {
-    hasStats: boolean;
-    print: number;
-    printLastMonth: number;
-    click: number;
-    clickLastMonth: number;
-    clickYear: number;
-    clickLastYear: number;
-    apply: number;
-    applyLastMonth: number;
-    applyYear: number;
-    applyLastYear: number;
-    account: number;
-    accountLastMonth: number;
-    topPublishers: {
-      key: string;
-      doc_count: number;
-    }[];
-    topOrganizations: {
-      key: string;
-      doc_count: number;
-    }[];
-    graphYears: {
-      month: Date;
-      click: number;
-      clickLastYear: number;
-      apply: number;
-      applyLastYear: number;
-    }[];
-    organizationHistogram: {
-      month: number;
-      [key: string]: number;
-    }[];
-  };
 }
 
 export type Request = {
@@ -739,3 +641,4 @@ export enum MissionType {
 
 export * from "./email";
 export * from "./publisher";
+export * from "./report";
