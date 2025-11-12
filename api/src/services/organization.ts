@@ -1,6 +1,6 @@
 import { randomBytes } from "crypto";
 
-import { Prisma, Organization as PrismaOrganization } from "../db/core";
+import { Prisma } from "../db/core";
 import { prismaCore } from "../db/postgres";
 import { organizationRepository } from "../repositories/organization";
 import {
@@ -12,50 +12,17 @@ import {
   OrganizationUpdatePatch,
   OrganizationUpsertInput,
 } from "../types/organization";
-import { normalizeOptionalString } from "../utils";
+import { normalizeOptionalString, normalizeStringArray } from "../utils/normalize";
+import { isValidRNA, isValidSiret } from "../utils/organization";
 import { slugify } from "../utils/string";
-
-type PrismaOrganizationRecord = PrismaOrganization;
-
-export class OrganizationNotFoundError extends Error {
-  constructor(id: string) {
-    super(`Organization ${id} not found`);
-    this.name = "OrganizationNotFoundError";
-  }
-}
 
 const DEFAULT_LIMIT = 25;
 const MAX_LIMIT = 100;
 
 const generateOrganizationId = (): string => randomBytes(12).toString("hex");
 
-const sanitizeStringArray = (values?: readonly (string | null | undefined)[] | null, options?: { slugifyItems?: boolean }) => {
-  if (!values || values.length === 0) {
-    return [] as string[];
-  }
-  const result: string[] = [];
-  const seen = new Set<string>();
-  const shouldSlugify = options?.slugifyItems ?? false;
-  for (const value of values) {
-    const normalized = normalizeOptionalString(value);
-    if (!normalized) {
-      continue;
-    }
-    const slugged = shouldSlugify ? slugify(normalized) : normalized;
-    if (!slugged) {
-      continue;
-    }
-    if (seen.has(slugged)) {
-      continue;
-    }
-    seen.add(slugged);
-    result.push(slugged);
-  }
-  return result;
-};
-
 const resolveNames = (names?: string[] | null, fallbackTitle?: string): string[] => {
-  const resolved = sanitizeStringArray(names, { slugifyItems: true });
+  const resolved = normalizeStringArray(names, { slugifyItems: true });
   if (resolved.length === 0 && fallbackTitle) {
     const fallback = slugify(fallbackTitle);
     if (fallback) {
@@ -65,74 +32,7 @@ const resolveNames = (names?: string[] | null, fallbackTitle?: string): string[]
   return resolved;
 };
 
-const resolveSirets = (sirets?: string[] | null): string[] => sanitizeStringArray(sirets);
-
-const isValidRNA = (rna: string): boolean => Boolean(rna && rna.length === 10 && rna.startsWith("W") && /^[W0-9]+$/.test(rna));
-const isValidSiret = (siret: string): boolean => Boolean(siret && siret.length === 14 && /^[0-9]+$/.test(siret));
-
-const toRecord = (organization: PrismaOrganizationRecord): OrganizationRecord => ({
-  _id: organization.id,
-  id: organization.id,
-  rna: organization.rna ?? null,
-  siren: organization.siren ?? null,
-  siret: organization.siret ?? null,
-  sirets: organization.sirets ?? [],
-  rupMi: organization.rupMi ?? null,
-  gestion: organization.gestion ?? null,
-  status: organization.status ?? null,
-  createdAt: organization.createdAt,
-  lastDeclaredAt: organization.lastDeclaredAt ?? null,
-  publishedAt: organization.publishedAt ?? null,
-  dissolvedAt: organization.dissolvedAt ?? null,
-  updatedAt: organization.updatedAt,
-  nature: organization.nature ?? null,
-  groupement: organization.groupement ?? null,
-  title: organization.title,
-  names: organization.names ?? [],
-  shortTitle: organization.shortTitle ?? null,
-  titleSlug: organization.titleSlug ?? null,
-  shortTitleSlug: organization.shortTitleSlug ?? null,
-  object: organization.object ?? null,
-  socialObject1: organization.socialObject1 ?? null,
-  socialObject2: organization.socialObject2 ?? null,
-  addressComplement: organization.addressComplement ?? null,
-  addressNumber: organization.addressNumber ?? null,
-  addressRepetition: organization.addressRepetition ?? null,
-  addressType: organization.addressType ?? null,
-  addressStreet: organization.addressStreet ?? null,
-  addressDistribution: organization.addressDistribution ?? null,
-  addressInseeCode: organization.addressInseeCode ?? null,
-  addressPostalCode: organization.addressPostalCode ?? null,
-  addressDepartmentCode: organization.addressDepartmentCode ?? null,
-  addressDepartmentName: organization.addressDepartmentName ?? null,
-  addressRegion: organization.addressRegion ?? null,
-  addressCity: organization.addressCity ?? null,
-  managementDeclarant: organization.managementDeclarant ?? null,
-  managementComplement: organization.managementComplement ?? null,
-  managementStreet: organization.managementStreet ?? null,
-  managementDistribution: organization.managementDistribution ?? null,
-  managementPostalCode: organization.managementPostalCode ?? null,
-  managementCity: organization.managementCity ?? null,
-  managementCountry: organization.managementCountry ?? null,
-  directorCivility: organization.directorCivility ?? null,
-  website: organization.website ?? null,
-  observation: organization.observation ?? null,
-  syncAt: organization.syncAt ?? null,
-  source: organization.source ?? null,
-  isRUP: organization.isRUP ?? false,
-  letudiantPublicId: organization.letudiantPublicId ?? null,
-  letudiantUpdatedAt: organization.letudiantUpdatedAt ?? null,
-  lastExportedToPgAt: organization.lastExportedToPgAt ?? null,
-});
-
-const buildOrderBy = (params: OrganizationSearchParams): Prisma.OrganizationOrderByWithRelationInput => {
-  const orderBy = params.orderBy ?? "updatedAt";
-  const orderDirection = params.orderDirection ?? (orderBy === "title" ? "asc" : "desc");
-  if (orderBy === "title") {
-    return { title: orderDirection };
-  }
-  return { updatedAt: orderDirection };
-};
+const resolveSirets = (sirets?: string[] | null): string[] => normalizeStringArray(sirets);
 
 const applyInsensitiveEquals = (value?: string | null) => {
   if (!value) {
@@ -292,49 +192,135 @@ const mapUpdateInput = (patch: OrganizationUpdatePatch): Prisma.OrganizationUpda
     data.shortTitleSlug = normalizeOptionalString(patch.shortTitleSlug);
   }
 
-  if (patch.rna !== undefined) data.rna = normalizeOptionalString(patch.rna);
-  if (patch.siren !== undefined) data.siren = normalizeOptionalString(patch.siren);
-  if (patch.siret !== undefined) data.siret = normalizeOptionalString(patch.siret);
-  if (patch.sirets !== undefined) data.sirets = resolveSirets(patch.sirets);
-  if (patch.rupMi !== undefined) data.rupMi = normalizeOptionalString(patch.rupMi);
-  if (patch.gestion !== undefined) data.gestion = normalizeOptionalString(patch.gestion);
-  if (patch.status !== undefined) data.status = normalizeOptionalString(patch.status);
-  if (patch.lastDeclaredAt !== undefined) data.lastDeclaredAt = patch.lastDeclaredAt ?? null;
-  if (patch.publishedAt !== undefined) data.publishedAt = patch.publishedAt ?? null;
-  if (patch.dissolvedAt !== undefined) data.dissolvedAt = patch.dissolvedAt ?? null;
-  if (patch.nature !== undefined) data.nature = normalizeOptionalString(patch.nature);
-  if (patch.groupement !== undefined) data.groupement = normalizeOptionalString(patch.groupement);
-  if (patch.object !== undefined) data.object = normalizeOptionalString(patch.object);
-  if (patch.socialObject1 !== undefined) data.socialObject1 = normalizeOptionalString(patch.socialObject1);
-  if (patch.socialObject2 !== undefined) data.socialObject2 = normalizeOptionalString(patch.socialObject2);
-  if (patch.addressComplement !== undefined) data.addressComplement = normalizeOptionalString(patch.addressComplement);
-  if (patch.addressNumber !== undefined) data.addressNumber = normalizeOptionalString(patch.addressNumber);
-  if (patch.addressRepetition !== undefined) data.addressRepetition = normalizeOptionalString(patch.addressRepetition);
-  if (patch.addressType !== undefined) data.addressType = normalizeOptionalString(patch.addressType);
-  if (patch.addressStreet !== undefined) data.addressStreet = normalizeOptionalString(patch.addressStreet);
-  if (patch.addressDistribution !== undefined) data.addressDistribution = normalizeOptionalString(patch.addressDistribution);
-  if (patch.addressInseeCode !== undefined) data.addressInseeCode = normalizeOptionalString(patch.addressInseeCode);
-  if (patch.addressPostalCode !== undefined) data.addressPostalCode = normalizeOptionalString(patch.addressPostalCode);
-  if (patch.addressDepartmentCode !== undefined) data.addressDepartmentCode = normalizeOptionalString(patch.addressDepartmentCode);
-  if (patch.addressDepartmentName !== undefined) data.addressDepartmentName = normalizeOptionalString(patch.addressDepartmentName);
-  if (patch.addressRegion !== undefined) data.addressRegion = normalizeOptionalString(patch.addressRegion);
-  if (patch.addressCity !== undefined) data.addressCity = normalizeOptionalString(patch.addressCity);
-  if (patch.managementDeclarant !== undefined) data.managementDeclarant = normalizeOptionalString(patch.managementDeclarant);
-  if (patch.managementComplement !== undefined) data.managementComplement = normalizeOptionalString(patch.managementComplement);
-  if (patch.managementStreet !== undefined) data.managementStreet = normalizeOptionalString(patch.managementStreet);
-  if (patch.managementDistribution !== undefined) data.managementDistribution = normalizeOptionalString(patch.managementDistribution);
-  if (patch.managementPostalCode !== undefined) data.managementPostalCode = normalizeOptionalString(patch.managementPostalCode);
-  if (patch.managementCity !== undefined) data.managementCity = normalizeOptionalString(patch.managementCity);
-  if (patch.managementCountry !== undefined) data.managementCountry = normalizeOptionalString(patch.managementCountry);
-  if (patch.directorCivility !== undefined) data.directorCivility = normalizeOptionalString(patch.directorCivility);
-  if (patch.website !== undefined) data.website = normalizeOptionalString(patch.website);
-  if (patch.observation !== undefined) data.observation = normalizeOptionalString(patch.observation);
-  if (patch.syncAt !== undefined) data.syncAt = patch.syncAt ?? null;
-  if (patch.source !== undefined) data.source = normalizeOptionalString(patch.source);
-  if (patch.isRUP !== undefined) data.isRUP = Boolean(patch.isRUP);
-  if (patch.letudiantPublicId !== undefined) data.letudiantPublicId = normalizeOptionalString(patch.letudiantPublicId);
-  if (patch.letudiantUpdatedAt !== undefined) data.letudiantUpdatedAt = patch.letudiantUpdatedAt ?? null;
-  if (patch.lastExportedToPgAt !== undefined) data.lastExportedToPgAt = patch.lastExportedToPgAt ?? null;
+  if (patch.rna !== undefined) {
+    data.rna = normalizeOptionalString(patch.rna);
+  }
+  if (patch.siren !== undefined) {
+    data.siren = normalizeOptionalString(patch.siren);
+  }
+  if (patch.siret !== undefined) {
+    data.siret = normalizeOptionalString(patch.siret);
+  }
+  if (patch.sirets !== undefined) {
+    data.sirets = resolveSirets(patch.sirets);
+  }
+  if (patch.rupMi !== undefined) {
+    data.rupMi = normalizeOptionalString(patch.rupMi);
+  }
+  if (patch.gestion !== undefined) {
+    data.gestion = normalizeOptionalString(patch.gestion);
+  }
+  if (patch.status !== undefined) {
+    data.status = normalizeOptionalString(patch.status);
+  }
+  if (patch.lastDeclaredAt !== undefined) {
+    data.lastDeclaredAt = patch.lastDeclaredAt ?? null;
+  }
+  if (patch.publishedAt !== undefined) {
+    data.publishedAt = patch.publishedAt ?? null;
+  }
+  if (patch.dissolvedAt !== undefined) {
+    data.dissolvedAt = patch.dissolvedAt ?? null;
+  }
+  if (patch.nature !== undefined) {
+    data.nature = normalizeOptionalString(patch.nature);
+  }
+  if (patch.groupement !== undefined) {
+    data.groupement = normalizeOptionalString(patch.groupement);
+  }
+  if (patch.object !== undefined) {
+    data.object = normalizeOptionalString(patch.object);
+  }
+  if (patch.socialObject1 !== undefined) {
+    data.socialObject1 = normalizeOptionalString(patch.socialObject1);
+  }
+  if (patch.socialObject2 !== undefined) {
+    data.socialObject2 = normalizeOptionalString(patch.socialObject2);
+  }
+  if (patch.addressComplement !== undefined) {
+    data.addressComplement = normalizeOptionalString(patch.addressComplement);
+  }
+  if (patch.addressNumber !== undefined) {
+    data.addressNumber = normalizeOptionalString(patch.addressNumber);
+  }
+  if (patch.addressRepetition !== undefined) {
+    data.addressRepetition = normalizeOptionalString(patch.addressRepetition);
+  }
+  if (patch.addressType !== undefined) {
+    data.addressType = normalizeOptionalString(patch.addressType);
+  }
+  if (patch.addressStreet !== undefined) {
+    data.addressStreet = normalizeOptionalString(patch.addressStreet);
+  }
+  if (patch.addressDistribution !== undefined) {
+    data.addressDistribution = normalizeOptionalString(patch.addressDistribution);
+  }
+  if (patch.addressInseeCode !== undefined) {
+    data.addressInseeCode = normalizeOptionalString(patch.addressInseeCode);
+  }
+  if (patch.addressPostalCode !== undefined) {
+    data.addressPostalCode = normalizeOptionalString(patch.addressPostalCode);
+  }
+  if (patch.addressDepartmentCode !== undefined) {
+    data.addressDepartmentCode = normalizeOptionalString(patch.addressDepartmentCode);
+  }
+  if (patch.addressDepartmentName !== undefined) {
+    data.addressDepartmentName = normalizeOptionalString(patch.addressDepartmentName);
+  }
+  if (patch.addressRegion !== undefined) {
+    data.addressRegion = normalizeOptionalString(patch.addressRegion);
+  }
+  if (patch.addressCity !== undefined) {
+    data.addressCity = normalizeOptionalString(patch.addressCity);
+  }
+  if (patch.managementDeclarant !== undefined) {
+    data.managementDeclarant = normalizeOptionalString(patch.managementDeclarant);
+  }
+  if (patch.managementComplement !== undefined) {
+    data.managementComplement = normalizeOptionalString(patch.managementComplement);
+  }
+  if (patch.managementStreet !== undefined) {
+    data.managementStreet = normalizeOptionalString(patch.managementStreet);
+  }
+  if (patch.managementDistribution !== undefined) {
+    data.managementDistribution = normalizeOptionalString(patch.managementDistribution);
+  }
+  if (patch.managementPostalCode !== undefined) {
+    data.managementPostalCode = normalizeOptionalString(patch.managementPostalCode);
+  }
+  if (patch.managementCity !== undefined) {
+    data.managementCity = normalizeOptionalString(patch.managementCity);
+  }
+  if (patch.managementCountry !== undefined) {
+    data.managementCountry = normalizeOptionalString(patch.managementCountry);
+  }
+  if (patch.directorCivility !== undefined) {
+    data.directorCivility = normalizeOptionalString(patch.directorCivility);
+  }
+  if (patch.website !== undefined) {
+    data.website = normalizeOptionalString(patch.website);
+  }
+  if (patch.observation !== undefined) {
+    data.observation = normalizeOptionalString(patch.observation);
+  }
+  if (patch.syncAt !== undefined) {
+    data.syncAt = patch.syncAt ?? null;
+  }
+  if (patch.source !== undefined) {
+    data.source = normalizeOptionalString(patch.source);
+  }
+  if (patch.isRUP !== undefined) {
+    data.isRUP = Boolean(patch.isRUP);
+  }
+  if (patch.letudiantPublicId !== undefined) {
+    data.letudiantPublicId = normalizeOptionalString(patch.letudiantPublicId);
+  }
+  if (patch.letudiantUpdatedAt !== undefined) {
+    data.letudiantUpdatedAt = patch.letudiantUpdatedAt ?? null;
+  }
+  if (patch.lastExportedToPgAt !== undefined) {
+    data.lastExportedToPgAt = patch.lastExportedToPgAt ?? null;
+  }
   if (patch.updatedAt instanceof Date) {
     data.updatedAt = patch.updatedAt;
   }
@@ -366,13 +352,20 @@ export const organizationService = (() => {
         where,
         skip: offset,
         take: limit,
-        orderBy: buildOrderBy(params),
+        orderBy: () => {
+          const orderBy = params.orderBy ?? "updatedAt";
+          const orderDirection = params.orderDirection ?? (orderBy === "title" ? "asc" : "desc");
+          if (orderBy === "title") {
+            return { title: orderDirection };
+          }
+          return { updatedAt: orderDirection };
+        },
       }),
     ]);
 
     return {
       total,
-      results: organizations.map(toRecord),
+      results: organizations,
     };
   };
 
@@ -380,37 +373,33 @@ export const organizationService = (() => {
     if (!id) {
       return null;
     }
-    const organization = await organizationRepository.findUnique({ where: { id } });
-    return organization ? toRecord(organization) : null;
+    return await organizationRepository.findUnique({ where: { id } });
   };
 
   const findOrganizationsByIds = async (ids: string[]): Promise<OrganizationRecord[]> => {
     if (!ids.length) {
       return [];
     }
-    const organizations = await organizationRepository.findMany({
+    return await organizationRepository.findMany({
       where: { id: { in: ids } },
     });
-    return organizations.map(toRecord);
   };
 
-  const create = async (input: OrganizationCreateInput): Promise<OrganizationRecord> => {
-    const created = await organizationRepository.create({
+  const createOrganization = async (input: OrganizationCreateInput): Promise<OrganizationRecord> => {
+    return await organizationRepository.create({
       data: mapCreateInput(input),
     });
-    return toRecord(created);
   };
 
-  const update = async (id: string, patch: OrganizationUpdatePatch): Promise<OrganizationRecord> => {
+  const updateOrganization = async (id: string, patch: OrganizationUpdatePatch): Promise<OrganizationRecord> => {
     try {
-      const updated = await organizationRepository.update({
+      return await organizationRepository.update({
         where: { id },
         data: mapUpdateInput(patch),
       });
-      return toRecord(updated);
     } catch (error: unknown) {
       if (error instanceof Error && "code" in error && (error as { code?: string }).code === "P2025") {
-        throw new OrganizationNotFoundError(id);
+        throw new Error("Organization not found");
       }
       throw error;
     }
@@ -420,30 +409,27 @@ export const organizationService = (() => {
     if (!rna) {
       return null;
     }
-    const organization = await organizationRepository.findFirst({
+    return await organizationRepository.findFirst({
       where: { rna },
     });
-    return organization ? toRecord(organization) : null;
   };
 
   const findOneOrganizationBySiret = async (siret: string): Promise<OrganizationRecord | null> => {
     if (!siret) {
       return null;
     }
-    const organization = await organizationRepository.findFirst({
+    return await organizationRepository.findFirst({
       where: { OR: [{ siret }, { sirets: { has: siret } }] },
     });
-    return organization ? toRecord(organization) : null;
   };
 
   const findOneOrganizationBySiren = async (siren: string): Promise<OrganizationRecord | null> => {
     if (!siren) {
       return null;
     }
-    const organization = await organizationRepository.findFirst({
+    return await organizationRepository.findFirst({
       where: { siren },
     });
-    return organization ? toRecord(organization) : null;
   };
 
   const findOneOrganizationByName = async (name: string): Promise<OrganizationRecord | null> => {
@@ -456,7 +442,7 @@ export const organizationService = (() => {
       take: 2,
     });
     if (organizations.length === 1) {
-      return toRecord(organizations[0]);
+      return organizations[0];
     }
     return null;
   };
@@ -499,8 +485,8 @@ export const organizationService = (() => {
     findOrganizationsByFilters,
     findOneOrganizationById,
     findOrganizationsByIds,
-    create,
-    update,
+    createOrganization,
+    updateOrganization,
     findOneOrganizationByRna,
     findOneOrganizationBySiret,
     findOneOrganizationBySiren,
@@ -509,7 +495,5 @@ export const organizationService = (() => {
     findOrganizationsByExportBacklog,
     countOrganizationsByExportBacklog,
     markExported,
-    isValidRNA,
-    isValidSiret,
   };
 })();

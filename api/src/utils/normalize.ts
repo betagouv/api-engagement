@@ -1,3 +1,5 @@
+import { slugify } from "./string";
+
 export const normalizeOptionalString = (value: string | null | undefined): string | null | undefined => {
   if (value === undefined) {
     return undefined;
@@ -37,4 +39,29 @@ export const normalizeCollection = <Input, Output>(
   });
 
   return Array.from(unique.values());
+};
+
+export const normalizeStringArray = (values?: readonly (string | null | undefined)[] | null, options?: { slugifyItems?: boolean }) => {
+  if (!values || values.length === 0) {
+    return [] as string[];
+  }
+  const result: string[] = [];
+  const seen = new Set<string>();
+  const shouldSlugify = options?.slugifyItems ?? false;
+  for (const value of values) {
+    const normalized = normalizeOptionalString(value);
+    if (!normalized) {
+      continue;
+    }
+    const slugged = shouldSlugify ? slugify(normalized) : normalized;
+    if (!slugged) {
+      continue;
+    }
+    if (seen.has(slugged)) {
+      continue;
+    }
+    seen.add(slugged);
+    result.push(slugged);
+  }
+  return result;
 };

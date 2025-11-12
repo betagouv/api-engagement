@@ -4,6 +4,7 @@ import apiDatasubvention from "../../../services/api-datasubvention";
 import { organizationService } from "../../../services/organization";
 import { Mission } from "../../../types";
 import { OrganizationCreateInput, OrganizationRecord, OrganizationUpdatePatch } from "../../../types/organization";
+import { isValidRNA, isValidSiret } from "../../../utils/organization";
 
 export const ORGANIZATION_VERIFICATION_STATUS = {
   RNA_MATCHED_WITH_DATA_DB: "RNA_MATCHED_WITH_DATA_DB",
@@ -17,10 +18,6 @@ export const ORGANIZATION_VERIFICATION_STATUS = {
   NAME_NOT_MATCHED: "NAME_NOT_MATCHED",
   NO_DATA: "NO_DATA",
 };
-
-export const isValidRNA = organizationService.isValidRNA;
-
-export const isValidSiret = organizationService.isValidSiret;
 
 export const isVerified = (mission: Partial<Mission>): boolean => {
   return [
@@ -224,7 +221,7 @@ const mergeOrganizationData = async (existing: OrganizationRecord, incoming: Org
     return existing;
   }
 
-  return organizationService.update(existing.id, patch);
+  return organizationService.updateOrganization(existing.id, patch);
 };
 
 const findExistingByIdentifiers = async (siret?: string | null, siren?: string | null): Promise<OrganizationRecord | null> => {
@@ -253,8 +250,7 @@ const findByRNA = async (rna: string) => {
       const departement = data.association.adresse_siege_rna ? getDepartement(data.association.adresse_siege_rna[0]?.value?.code_postal) : null;
       const siret = Array.isArray(data.association.etablisements_siret) ? data.association.etablisements_siret[0]?.value[0] : data.association.etablisements_siret?.value;
       const siren = data.association.siren?.[0]?.value || siret?.slice(0, 9);
-      const title =
-        data.association.denomination_rna?.[0]?.value || data.association.denomination_siren?.[0]?.value || data.association.objet_social?.[0]?.value || rna;
+      const title = data.association.denomination_rna?.[0]?.value || data.association.denomination_siren?.[0]?.value || data.association.objet_social?.[0]?.value || rna;
       const payload: OrganizationCreateInput = {
         rna,
         title,
@@ -281,7 +277,7 @@ const findByRNA = async (rna: string) => {
         return mergeOrganizationData(existing, payload);
       }
 
-      return organizationService.create(payload);
+      return organizationService.createOrganization(payload);
     } else {
       console.log(`[Organization-RNA] No valid RNA data found for rna ${rna}`);
     }
@@ -322,8 +318,7 @@ const findBySiret = async (siret: string) => {
       const asso = await apiDatasubvention.get(`/association/${siret}`);
       if (asso && asso.association) {
         payload.rna = asso.association.rna?.[0]?.value;
-        payload.title =
-          asso.association.denomination_rna?.[0]?.value || asso.association.denomination_siren?.[0]?.value || payload.title || payload.rna || siret;
+        payload.title = asso.association.denomination_rna?.[0]?.value || asso.association.denomination_siren?.[0]?.value || payload.title || payload.rna || siret;
       }
 
       if (payload.rna) {
@@ -339,7 +334,7 @@ const findBySiret = async (siret: string) => {
       }
 
       if (payload.title) {
-        return organizationService.create(payload);
+        return organizationService.createOrganization(payload);
       }
       return null;
     }

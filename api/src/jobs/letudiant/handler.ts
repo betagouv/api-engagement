@@ -187,7 +187,7 @@ const getCompanyPilotyId = async (pilotyClient: PilotyClient, mission: HydratedD
     }
 
     if (pilotyCompanyPublicId) {
-      await organizationService.update(organization.id, { letudiantPublicId: pilotyCompanyPublicId, letudiantUpdatedAt: new Date() });
+      await organizationService.updateOrganization(organization.id, { letudiantPublicId: pilotyCompanyPublicId, letudiantUpdatedAt: new Date() });
       console.log(`[LetudiantHandler] Organization ${organization.title} updated with letudiantPublicId ${pilotyCompanyPublicId}`);
     }
   }

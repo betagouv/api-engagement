@@ -1,7 +1,7 @@
 import mongoose from "mongoose";
 
 import type { OrganizationCreateInput } from "../../src/types/organization";
-import { asBoolean, asDate, asString, asStringArray } from "./utils/cast";
+import { asBoolean, asDate, asString, asStringArray, toMongoObjectIdString } from "./utils/cast";
 import { loadEnvironment, parseScriptOptions, type ScriptOptions } from "./utils/options";
 
 type MongoOrganizationDocument = {
@@ -61,30 +61,6 @@ type MongoOrganizationDocument = {
 const BATCH_SIZE = 500;
 const options: ScriptOptions = parseScriptOptions(process.argv.slice(2), "MigrateOrganizations");
 loadEnvironment(options, __dirname, "MigrateOrganizations");
-
-const toMongoObjectIdString = (value: unknown): string | null => {
-  if (!value) {
-    return null;
-  }
-
-  if (mongoose.isValidObjectId(value)) {
-    if (typeof value === "string") {
-      return value;
-    }
-    if (typeof (value as { toHexString?: () => string }).toHexString === "function") {
-      return (value as { toHexString: () => string }).toHexString();
-    }
-    if (typeof (value as { toString?: () => string }).toString === "function") {
-      return (value as { toString: () => string }).toString();
-    }
-  }
-
-  if (typeof value === "string" && /^[0-9a-fA-F]{24}$/.test(value)) {
-    return value.toLowerCase();
-  }
-
-  return null;
-};
 
 const ensureSirets = (doc: MongoOrganizationDocument, fallbackSiret: string | null): string[] => {
   const sirets = asStringArray(doc.sirets);
@@ -197,23 +173,23 @@ const migrateOrganizations = async () => {
       const normalized = normalizeOrganization(doc);
       if (options.dryRun) {
         console.log(`[MigrateOrganizations][Dry-run] Would upsert organization ${normalized.id} (${normalized.title})`);
-      } else {
+      } else if (normalized.id) {
         const existing = await organizationService.findOneOrganizationById(normalized.id);
         if (!existing) {
-          await organizationService.create(normalized);
+          await organizationService.createOrganization(normalized);
           created++;
         } else {
           const { id, ...patch } = normalized;
-          await organizationService.update(id, patch);
+          await organizationService.updateOrganization(id, patch);
           updated++;
         }
+      } else {
+        throw new Error("Missing organization ID");
       }
       processed++;
 
       if (processed % BATCH_SIZE === 0) {
-        console.log(
-          `[MigrateOrganizations] Processed ${processed}/${total} (created: ${created}, updated: ${updated}, errors: ${errors}, dry-run: ${options.dryRun})`
-        );
+        console.log(`[MigrateOrganizations] Processed ${processed}/${total} (created: ${created}, updated: ${updated}, errors: ${errors}, dry-run: ${options.dryRun})`);
       }
     } catch (error) {
       errors++;
@@ -221,9 +197,7 @@ const migrateOrganizations = async () => {
     }
   }
 
-  console.log(
-    `[MigrateOrganizations] Completed. Processed: ${processed}, created: ${created}, updated: ${updated}, errors: ${errors}, dry-run: ${options.dryRun}`
-  );
+  console.log(`[MigrateOrganizations] Completed. Processed: ${processed}, created: ${created}, updated: ${updated}, errors: ${errors}, dry-run: ${options.dryRun}`);
 
   await Promise.allSettled([mongoose.connection.close(), prismaCore.$disconnect()]);
 };

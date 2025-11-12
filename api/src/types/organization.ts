@@ -1,5 +1,4 @@
 export interface OrganizationRecord {
-  _id: string;
   id: string;
   rna: string | null;
   siren: string | null;
