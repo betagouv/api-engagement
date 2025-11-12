@@ -1,16 +1,5 @@
 import { Schema } from "mongoose";
 
-export type {
-  OrganizationRecord,
-  OrganizationRecord as Organization,
-  OrganizationSearchParams,
-  OrganizationSearchResult,
-  OrganizationCreateInput,
-  OrganizationUpdatePatch,
-  OrganizationUpsertInput,
-  OrganizationExportCandidate,
-} from "./organization";
-
 export type GeolocStatus = "ENRICHED_BY_PUBLISHER" | "ENRICHED_BY_API" | "NOT_FOUND" | "NO_DATA" | "SHOULD_ENRICH" | "FAILED";
 
 export type AddressItem = {
@@ -253,7 +242,6 @@ export type ModerationEvent = {
   createdAt: Date;
   updatedAt: Date;
 };
-
 
 export interface OrganizationExclusion {
   _id?: Schema.Types.ObjectId;
@@ -692,4 +680,5 @@ export enum MissionType {
 }
 
 export * from "./email";
+export * from "./organization";
 export * from "./publisher";
