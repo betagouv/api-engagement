@@ -2,9 +2,9 @@ import { NextFunction, Response, Router } from "express";
 import passport from "passport";
 import zod from "zod";
 
-import { INVALID_BODY, INVALID_PARAMS, INVALID_QUERY } from "../error";
+import { FORBIDDEN, INVALID_BODY } from "../error";
 import ImportModel from "../models/import";
-import WarningModel from "../models/warning";
+import { warningService } from "../services/warning";
 import { UserRequest } from "../types/passport";
 
 const router = Router();
@@ -25,74 +25,31 @@ router.post("/search", passport.authenticate("admin", { session: false }), async
       return res.status(400).send({ ok: false, code: INVALID_BODY, message: body.error });
     }
 
-    const where = { fixed: body.data.fixed } as { [key: string]: any };
-    if (body.data.publisherId) {
-      where.publisherId = body.data.publisherId;
-    }
-    if (body.data.type) {
-      where.type = body.data.type;
-    }
+    let createdAtGte: Date | undefined;
+    let createdAtLt: Date | undefined;
+
     if (body.data.month !== undefined && body.data.year !== undefined) {
-      const startMonth = new Date(body.data.year, body.data.month, 1, 0, 0, 0);
-      const endMonth = new Date(body.data.year, body.data.month + 1, 1, 0, 0, 0);
-      where.createdAt = { $gte: startMonth, $lt: endMonth };
+      createdAtGte = new Date(body.data.year, body.data.month, 1, 0, 0, 0);
+      createdAtLt = new Date(body.data.year, body.data.month + 1, 1, 0, 0, 0);
     } else if (body.data.year !== undefined) {
-      const startYear = new Date(body.data.year, 0, 1, 0, 0, 0);
-      const endYear = new Date(body.data.year + 1, 0, 1, 0, 0, 0);
-      where.createdAt = { $gte: startYear, $lt: endYear };
+      createdAtGte = new Date(body.data.year, 0, 1, 0, 0, 0);
+      createdAtLt = new Date(body.data.year + 1, 0, 1, 0, 0, 0);
     } else if (body.data.month !== undefined) {
-      const startMonth = new Date(new Date().getFullYear(), body.data.month, 1, 0, 0, 0);
-      const endMonth = new Date(new Date().getFullYear(), body.data.month + 1, 1, 0, 0, 0);
-      where.createdAt = { $gte: startMonth, $lt: endMonth };
+      createdAtGte = new Date(new Date().getFullYear(), body.data.month, 1, 0, 0, 0);
+      createdAtLt = new Date(new Date().getFullYear(), body.data.month + 1, 1, 0, 0, 0);
     }
 
-    const data = await WarningModel.find(where).sort({ createdAt: -1 }).lean();
-    return res.status(200).send({ ok: true, data });
-  } catch (error) {
-    next(error);
-  }
-});
-
-router.get("/", passport.authenticate("admin", { session: false }), async (req: UserRequest, res: Response, next: NextFunction) => {
-  try {
-    const queryParsed = zod
-      .object({
-        fixed: zod.coerce.boolean().default(false),
-        publisherId: zod.string().optional(),
-        type: zod.string().optional(),
-        month: zod.coerce.number().min(1).max(12).optional(),
-        year: zod.coerce.number().min(2000).max(3000).optional(),
-      })
-      .safeParse(req.query);
-
-    if (!queryParsed.success) {
-      return res.status(400).send({ ok: false, code: INVALID_QUERY, message: queryParsed.error });
-    }
-    const query = queryParsed.data;
-
-    const where = { fixed: query.fixed } as { [key: string]: any };
-    if (query.publisherId) {
-      where.publisherId = query.publisherId;
-    }
-    if (query.type) {
-      where.type = query.type;
-    }
-    if (query.month !== undefined && query.year !== undefined) {
-      const startMonth = new Date(query.year, query.month - 1, 1, 0, 0, 0);
-      const endMonth = new Date(query.year, query.month, 1, 0, 0, 0);
-      where.createdAt = { $gte: startMonth, $lt: endMonth };
-    } else if (query.year !== undefined) {
-      const year = query.year;
-      const startYear = new Date(year, 0, 1, 0, 0, 0);
-      const endYear = new Date(year + 1, 0, 1, 0, 0, 0);
-      where.createdAt = { $gte: startYear, $lt: endYear };
-    } else if (query.month !== undefined) {
-      const startMonth = new Date(new Date().getFullYear(), query.month - 1, 1, 0, 0, 0);
-      const endMonth = new Date(new Date().getFullYear(), query.month, 1, 0, 0, 0);
-      where.createdAt = { $gte: startMonth, $lt: endMonth };
+    if (req.user.role !== "admin" && (!body.data.publisherId || !req.user.publishers.includes(body.data.publisherId))) {
+      return res.status(403).send({ ok: false, code: FORBIDDEN });
     }
 
-    const data = await WarningModel.find(where).sort({ createdAt: -1 }).lean();
+    const data = await warningService.findWarnings({
+      fixed: body.data.fixed,
+      publisherId: body.data.publisherId,
+      type: body.data.type,
+      createdAtGte,
+      createdAtLt,
+    });
     return res.status(200).send({ ok: true, data });
   } catch (error) {
     next(error);
@@ -140,63 +97,6 @@ router.get("/admin-state", passport.authenticate("user", { session: false }), as
     });
 
     return res.status(200).send({ ok: true, data: { success, imports: imports.length, last } });
-  } catch (error) {
-    next(error);
-  }
-});
-
-router.get("/:publisherId", passport.authenticate("user", { session: false }), async (req: UserRequest, res: Response, next: NextFunction) => {
-  try {
-    const queryParsed = zod
-      .object({
-        fixed: zod.coerce.boolean().default(false),
-        type: zod.string().optional(),
-        month: zod.coerce.number().min(1).max(12).optional(),
-        year: zod.coerce.number().min(2000).max(3000).optional(),
-      })
-      .safeParse(req.query);
-
-    const paramsParsed = zod
-      .object({
-        publisherId: zod.string(),
-      })
-      .safeParse(req.params);
-
-    if (!queryParsed.success) {
-      return res.status(400).send({ ok: false, code: INVALID_QUERY, message: queryParsed.error });
-    }
-    if (!paramsParsed.success) {
-      return res.status(400).send({ ok: false, code: INVALID_PARAMS, message: paramsParsed.error });
-    }
-    const query = queryParsed.data;
-    const params = paramsParsed.data;
-
-    const where = { publisherId: params.publisherId, fixed: query.fixed } as {
-      [key: string]: any;
-    };
-    if (query.type) {
-      where.type = query.type;
-    }
-    if (query.month !== undefined && query.year !== undefined) {
-      const startMonth = new Date(query.year, query.month - 1, 1, 0, 0, 0);
-      const endMonth = new Date(query.year, query.month, 1, 0, 0, 0);
-      where.createdAt = { $gte: startMonth, $lt: endMonth };
-    } else if (query.year !== undefined) {
-      const year = query.year;
-      const startYear = new Date(year, 0, 1, 0, 0, 0);
-      const endYear = new Date(year + 1, 0, 1, 0, 0, 0);
-      where.createdAt = { $gte: startYear, $lt: endYear };
-    } else if (query.month !== undefined) {
-      const startMonth = new Date(new Date().getFullYear(), query.month - 1, 1, 0, 0, 0);
-      const endMonth = new Date(new Date().getFullYear(), query.month, 1, 0, 0, 0);
-      where.createdAt = { $gte: startMonth, $lt: endMonth };
-    }
-
-    const data = await WarningModel.find(where)
-      .sort({ createdAt: -1 })
-      .limit(where.fixed ? 5 : 30)
-      .lean();
-    return res.status(200).send({ ok: true, data });
   } catch (error) {
     next(error);
   }

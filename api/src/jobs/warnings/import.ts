@@ -1,7 +1,7 @@
 import { SLACK_WARNING_CHANNEL_ID } from "../../config";
 import ImportModel from "../../models/import";
-import WarningModel from "../../models/warning";
 import { postMessage } from "../../services/slack";
+import { warningService } from "../../services/warning";
 import { Import } from "../../types";
 import type { PublisherRecord } from "../../types/publisher";
 
@@ -26,24 +26,26 @@ export const checkImports = async (publishers: PublisherRecord[]) => {
     }
     console.log(`[${publisher.name}] Last import at ${lastImport.doc.startedAt}`);
 
-    const errorWarning = await WarningModel.findOne({ publisherId: publisher.id, type: ERROR_WARNING, fixed: false }, null, { sort: { createdAt: -1 } });
+    const errorWarning = await warningService.findOneWarning({
+      publisherId: publisher.id,
+      type: ERROR_WARNING,
+      fixed: false,
+    });
     if (lastImport.doc.status === "FAILED") {
       console.log(`[${publisher.name}] Error while importing`);
       if (errorWarning) {
-        errorWarning.description = lastImport.doc.status;
-        errorWarning.occurrences += 1;
-        await errorWarning.save();
+        await warningService.updateWarning(errorWarning.id, {
+          description: lastImport.doc.status,
+          occurrences: errorWarning.occurrences + 1,
+        });
         continue;
       } else {
-        const obj = {
+        await warningService.createWarning({
           type: ERROR_WARNING,
-          title: "Le flux XML n’est pas valable, il renvoie une erreur.",
+          title: "Le flux XML n'est pas valable, il renvoie une erreur.",
           description: lastImport.doc.status,
           publisherId: publisher.id,
-          publisherName: publisher.name,
-          publisherLogo: publisher.logo,
-        };
-        await WarningModel.create(obj);
+        });
         const res = await postMessage(
           {
             text: `Alerte détectée: ${publisher.name} - Erreur de flux \n ${lastImport.doc.error}`,
@@ -60,31 +62,34 @@ export const checkImports = async (publishers: PublisherRecord[]) => {
     } else {
       console.log(`[${publisher.name}] No error while importing`);
       if (errorWarning) {
-        errorWarning.fixed = true;
-        errorWarning.fixedAt = new Date();
-        await errorWarning.save();
+        await warningService.updateWarning(errorWarning.id, {
+          fixed: true,
+          fixedAt: new Date(),
+        });
       }
     }
 
-    const importWarning = await WarningModel.findOne({ publisherId: publisher.id, type: EMPTY_WARNING, fixed: false }, null, { sort: { createdAt: -1 } });
+    const importWarning = await warningService.findOneWarning({
+      publisherId: publisher.id,
+      type: EMPTY_WARNING,
+      fixed: false,
+    });
     if (lastImport.doc.missionCount === 0) {
       console.log(`[${publisher.name}] No mission imported`);
       if (importWarning) {
-        importWarning.title = "Aucune mission n’est disponible dans le flux XML.";
-        importWarning.description = `Dernière importation : ${lastImport.doc.startedAt}`;
-        importWarning.occurrences += 1;
-        await importWarning.save();
+        await warningService.updateWarning(importWarning.id, {
+          title: "Aucune mission n'est disponible dans le flux XML.",
+          description: `Dernière importation : ${lastImport.doc.startedAt}`,
+          occurrences: importWarning.occurrences + 1,
+        });
         continue;
       } else {
-        const obj = {
+        await warningService.createWarning({
           type: EMPTY_WARNING,
-          title: "Aucune mission n’est disponible dans le flux XML.",
+          title: "Aucune mission n'est disponible dans le flux XML.",
           description: `Nombre missions refusées : ${lastImport.doc.refusedCount} / Nombre missions total : ${lastImport.doc.missionCount}`,
           publisherId: publisher.id,
-          publisherName: publisher.name,
-          publisherLogo: publisher.logo,
-        };
-        await WarningModel.create(obj);
+        });
         const res = await postMessage({ text: `Alerte détectée: ${publisher.name} - Flux vide` }, SLACK_WARNING_CHANNEL_ID);
         if (res.error) {
           console.error(res.error);
@@ -96,33 +101,34 @@ export const checkImports = async (publishers: PublisherRecord[]) => {
     } else {
       console.log(`[${publisher.name}] ${lastImport.doc.missionCount} missions imported`);
       if (importWarning) {
-        importWarning.fixed = true;
-        importWarning.fixedAt = new Date();
-        await importWarning.save();
+        await warningService.updateWarning(importWarning.id, {
+          fixed: true,
+          fixedAt: new Date(),
+        });
       }
     }
 
-    const validationWarning = await WarningModel.findOne({ publisherId: publisher.id, type: VALIDATION_WARNING, fixed: false }, null, {
-      sort: { createdAt: -1 },
+    const validationWarning = await warningService.findOneWarning({
+      publisherId: publisher.id,
+      type: VALIDATION_WARNING,
+      fixed: false,
     });
     if (lastImport.doc.refusedCount / lastImport.doc.missionCount > 0.75) {
       console.log(`[${publisher.name}] ${Math.round((lastImport.doc.refusedCount / lastImport.doc.missionCount) * 100)}% of missions refused`);
       if (validationWarning) {
-        validationWarning.title = `${Math.round((lastImport.doc.refusedCount / lastImport.doc.missionCount) * 100)}% des missions sont refusées par l’API.`;
-        validationWarning.description = `Nombre missions refusées : ${lastImport.doc.refusedCount} / Nombre missions total : ${lastImport.doc.missionCount}, dernière importation : ${lastImport.doc.startedAt}`;
-        validationWarning.occurrences += 1;
-        await validationWarning.save();
+        await warningService.updateWarning(validationWarning.id, {
+          title: `${Math.round((lastImport.doc.refusedCount / lastImport.doc.missionCount) * 100)}% des missions sont refusées par l'API.`,
+          description: `Nombre missions refusées : ${lastImport.doc.refusedCount} / Nombre missions total : ${lastImport.doc.missionCount}, dernière importation : ${lastImport.doc.startedAt}`,
+          occurrences: validationWarning.occurrences + 1,
+        });
         continue;
       } else {
-        const obj = {
+        await warningService.createWarning({
           type: VALIDATION_WARNING,
-          title: `${Math.round((lastImport.doc.refusedCount / lastImport.doc.missionCount) * 100)}% des missions sont refusées par l’API.`,
+          title: `${Math.round((lastImport.doc.refusedCount / lastImport.doc.missionCount) * 100)}% des missions sont refusées par l'API.`,
           description: `Nombre missions refusées : ${lastImport.doc.refusedCount} / Nombre missions total : ${lastImport.doc.missionCount}, dernière importation : ${lastImport.doc.startedAt}`,
           publisherId: publisher.id,
-          publisherName: publisher.name,
-          publisherLogo: publisher.logo,
-        };
-        await WarningModel.create(obj);
+        });
         const res = await postMessage({ text: `Alerte détectée: ${publisher.name} - Taux de validation critique` }, SLACK_WARNING_CHANNEL_ID);
         if (res.error) {
           console.error(res.error);
@@ -134,9 +140,10 @@ export const checkImports = async (publishers: PublisherRecord[]) => {
     } else {
       console.log(`[${publisher.name}] ${Math.round((lastImport.doc.refusedCount / lastImport.doc.missionCount) * 100)}% of missions refused`);
       if (validationWarning) {
-        validationWarning.fixed = true;
-        validationWarning.fixedAt = new Date();
-        await validationWarning.save();
+        await warningService.updateWarning(validationWarning.id, {
+          fixed: true,
+          fixedAt: new Date(),
+        });
       }
     }
   }

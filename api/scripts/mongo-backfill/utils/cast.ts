@@ -65,3 +65,14 @@ export const asStringArray = (value: unknown): string[] => {
   }
   return Array.from(unique).sort((a, b) => a.localeCompare(b));
 };
+
+export const asNumber = (value: unknown, fallback = 0): number => {
+  if (typeof value === "number") {
+    return Number.isFinite(value) ? value : fallback;
+  }
+  if (typeof value === "string") {
+    const parsed = Number(value);
+    return Number.isFinite(parsed) ? parsed : fallback;
+  }
+  return fallback;
+};
