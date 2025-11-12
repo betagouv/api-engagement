@@ -1,0 +1,34 @@
+version: 2
+
+models:
+  - name: stg_moderation_event
+    description: >
+      Staging des événements de modération exportés depuis la base `analytics_raw`.
+      Le modèle applique uniquement le typage (timestamps, enums en texte) afin
+      d'alimenter les marts sans altérer la granularité d'origine.
+    columns:
+      - name: id
+        description: Identifiant unique de l'événement.
+        tests:
+          - not_null
+          - unique
+      - name: mission_id
+        description: Identifiant analytics de la mission concernée.
+        tests:
+          - not_null
+      - name: created_at
+        description: Date de création de l'événement.
+        tests:
+          - not_null
+      - name: updated_at
+        description: Date de dernière mise à jour (curseur incrémental).
+        tests:
+          - not_null
+      - name: moderator_id
+        description: Identifiant du modérateur à l'origine du changement.
+      - name: user_name
+        description: Nom libre renseigné lors de l'action.
+      - name: initial_status
+        description: Statut avant modération (enum text).
+      - name: new_status
+        description: Statut après modération (enum text).
