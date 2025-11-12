@@ -209,6 +209,9 @@ const chunkArray = <T>(items: T[], size: number): T[][] => {
   return chunks;
 };
 
+const buildCompositeKey = (record: Pick<NormalizedReportRecord, "publisherId" | "month" | "year">): string =>
+  `${record.publisherId}:${record.year}:${record.month}`;
+
 const formatRecordForLog = (record: NormalizedReportRecord) => ({
   id: record.id,
   publisherId: record.publisherId,
@@ -259,10 +262,50 @@ const main = async () => {
   for (const chunk of chunkArray(normalized, BATCH_SIZE)) {
     const chunkIds = chunk.map(({ record }) => record.id);
     const existingRecords = await reportRepository.find({ where: { id: { in: chunkIds } } });
-    const existingById = new Map(existingRecords.map((report) => [report.id, normalizePrismaReport(report)]));
+    const normalizedExisting = existingRecords.map((report) => normalizePrismaReport(report));
+    const existingById = new Map(normalizedExisting.map((report) => [report.id, report]));
+    const existingByComposite = new Map(normalizedExisting.map((report) => [buildCompositeKey(report), report]));
+
+    const missingById = chunk
+      .filter(({ record }) => !existingById.has(record.id))
+      .map(({ record }) => record);
+
+    if (missingById.length) {
+      const seenCompositeKeys = new Set<string>();
+      const compositeWhereClauses: Prisma.ReportWhereInput[] = [];
+
+      for (const record of missingById) {
+        const compositeKey = buildCompositeKey(record);
+        if (seenCompositeKeys.has(compositeKey) || existingByComposite.has(compositeKey)) {
+          continue;
+        }
+        seenCompositeKeys.add(compositeKey);
+        compositeWhereClauses.push({
+          publisherId: record.publisherId,
+          month: record.month,
+          year: record.year,
+        });
+      }
+
+      if (compositeWhereClauses.length) {
+        const conflictingRecords = await reportRepository.find({
+          where: {
+            OR: compositeWhereClauses,
+          },
+        });
+
+        for (const conflict of conflictingRecords) {
+          const normalizedConflict = normalizePrismaReport(conflict);
+          const conflictKey = buildCompositeKey(normalizedConflict);
+          existingByComposite.set(conflictKey, normalizedConflict);
+          existingById.set(normalizedConflict.id, normalizedConflict);
+        }
+      }
+    }
 
     for (const entry of chunk) {
-      const existing = existingById.get(entry.record.id);
+      const compositeKey = buildCompositeKey(entry.record);
+      const existing = existingById.get(entry.record.id) ?? existingByComposite.get(compositeKey);
 
       if (!existing) {
         stats.created += 1;
@@ -272,6 +315,8 @@ const main = async () => {
           }
         } else {
           await reportRepository.create({ data: entry.create });
+          existingById.set(entry.record.id, entry.record);
+          existingByComposite.set(compositeKey, entry.record);
         }
         continue;
       }
@@ -287,7 +332,10 @@ const main = async () => {
           sampleUpdates.push({ before: existing, after: entry.record });
         }
       } else {
-        await reportRepository.update({ where: { id: entry.record.id }, data: entry.update });
+        await reportRepository.update({ where: { id: existing.id }, data: entry.update });
+        const updatedRecord: NormalizedReportRecord = { ...entry.record, id: existing.id };
+        existingById.set(existing.id, updatedRecord);
+        existingByComposite.set(compositeKey, updatedRecord);
       }
     }
   }
