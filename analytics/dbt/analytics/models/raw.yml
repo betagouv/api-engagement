@@ -58,3 +58,44 @@ sources:
             description: Statut métier de l'événement (ex. `PENDING`, `VALIDATED`, `CANCELED`).
           - name: custom_attributes
             description: Attributs personnalisés en JSON (nullable) fournis par la source.
+      - name: moderation_event
+        description: >-
+          Historique des actions de modération issues de la base core. Chaque enregistrement trace l'état initial et
+          final d'une mission après intervention d'un modérateur (automatique ou humain).
+        columns:
+          - name: id
+            description: Identifiant unique de l'événement de modération côté analytics.
+          - name: mission_id
+            description: Identifiant de la mission concernée.
+          - name: created_at
+            description: Date de création de l'événement (UTC).
+          - name: updated_at
+            description: Dernière mise à jour (UTC), utilisée pour l'incrémentalité.
+          - name: moderator_id
+            description: Identifiant de l'utilisateur/modérateur à l'origine du changement.
+          - name: user_name
+            description: Nom libre stocké lors de l'action (ex. modération automatique).
+          - name: initial_status
+            description: Statut de la mission avant la modération.
+          - name: new_status
+            description: Statut de la mission après la modération.
+          - name: initial_comment
+            description: Commentaire initial (le cas échéant).
+          - name: new_comment
+            description: Nouveau commentaire appliqué.
+          - name: initial_note
+            description: Note initiale.
+          - name: new_note
+            description: Nouvelle note.
+          - name: initial_title
+            description: Ancien titre de mission connu avant modification.
+          - name: new_title
+            description: Nouveau titre de mission.
+          - name: initial_siren
+            description: Ancien numéro SIREN associé.
+          - name: new_siren
+            description: Nouveau numéro SIREN.
+          - name: initial_rna
+            description: Ancien identifiant RNA.
+          - name: new_rna
+            description: Nouvel identifiant RNA.

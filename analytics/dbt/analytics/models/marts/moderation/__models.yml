@@ -1,0 +1,33 @@
+version: 2
+
+models:
+  - name: moderation_event
+    description: >
+      Table analytics exposant l’historique des événements de modération (mission,
+      modérateur, statuts, commentaires, champs organisation) à partir du staging
+      `stg_moderation_event`. Matérialisée en incrémental pour faciliter les
+      rafraîchissements partiels depuis `updated_at`.
+    columns:
+      - name: id
+        description: Identifiant unique de l’événement.
+        tests:
+          - not_null
+          - unique
+      - name: mission_id
+        description: Mission concernée par la modération.
+        tests:
+          - not_null
+      - name: moderator_id
+        description: Identifiant de l’utilisateur à l’origine de la modération.
+      - name: initial_status
+        description: Statut de mission avant modification.
+      - name: new_status
+        description: Statut de mission après modification.
+      - name: created_at
+        description: Date/heure de création de l’événement.
+        tests:
+          - not_null
+      - name: updated_at
+        description: Date/heure de dernière mise à jour (curseur incrémental).
+        tests:
+          - not_null
