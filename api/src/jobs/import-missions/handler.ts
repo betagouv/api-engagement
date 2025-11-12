@@ -1,7 +1,7 @@
 import { captureException } from "../../error";
 import { importService } from "../../services/import";
 
-import { Import as PrismaImport } from "../../db/core";
+import { Prisma, Import as PrismaImport } from "../../db/core";
 import MissionModel from "../../models/mission";
 import { publisherService } from "../../services/publisher";
 import type { Mission } from "../../types";
@@ -114,7 +114,7 @@ async function importMissionssForPublisher(publisher: PublisherRecord, start: Da
     startedAt: start,
     finishedAt: null,
     status: "SUCCESS",
-    failed: { data: [] },
+    failed: { data: [] } as unknown as Prisma.JsonValue,
   } as PrismaImport;
 
   try {
