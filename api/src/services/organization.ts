@@ -12,7 +12,8 @@ import {
   OrganizationUpdatePatch,
   OrganizationUpsertInput,
 } from "../types/organization";
-import { normalizeOptionalString, normalizeStringArray } from "../utils/normalize";
+import { chunk } from "../utils/array";
+import { normalizeOptionalString, normalizeSlug, normalizeStringArray } from "../utils/normalize";
 import { isValidRNA, isValidSiret } from "../utils/organization";
 import { slugify } from "../utils/string";
 
@@ -21,34 +22,14 @@ const MAX_LIMIT = 100;
 
 const generateOrganizationId = (): string => randomBytes(12).toString("hex");
 
-const resolveNames = (names?: string[] | null, fallbackTitle?: string): string[] => {
-  const resolved = normalizeStringArray(names, { slugifyItems: true });
-  if (resolved.length === 0 && fallbackTitle) {
-    const fallback = slugify(fallbackTitle);
-    if (fallback) {
-      resolved.push(fallback);
-    }
-  }
-  return resolved;
-};
-
-const resolveSirets = (sirets?: string[] | null): string[] => normalizeStringArray(sirets);
-
-const applyInsensitiveEquals = (value?: string | null) => {
-  if (!value) {
-    return undefined;
-  }
-  return { equals: value, mode: "insensitive" as const };
-};
-
 const buildSearchWhere = (params: OrganizationSearchParams): Prisma.OrganizationWhereInput => {
   const and: Prisma.OrganizationWhereInput[] = [];
 
   if (params.department) {
-    and.push({ addressDepartmentName: applyInsensitiveEquals(params.department) });
+    and.push({ addressDepartmentName: { equals: params.department, mode: "insensitive" } });
   }
   if (params.city) {
-    and.push({ addressCity: applyInsensitiveEquals(params.city) });
+    and.push({ addressCity: { equals: params.city, mode: "insensitive" } });
   }
   if (params.rna) {
     and.push({ rna: params.rna });
@@ -94,24 +75,17 @@ const buildSearchWhere = (params: OrganizationSearchParams): Prisma.Organization
   return { AND: and };
 };
 
-const resolveTitleSlug = (title?: string | null, providedSlug?: string | null): string | null => {
-  if (normalizeOptionalString(providedSlug)) {
-    return providedSlug!.trim();
-  }
-  if (!title) {
-    return null;
-  }
-  const slug = slugify(title);
-  return slug || null;
-};
-
 const mapCreateInput = (input: OrganizationCreateInput): Prisma.OrganizationCreateInput => {
   const title = input.title?.trim();
   if (!title) {
     throw new Error("Organization title is required");
   }
-  const names = resolveNames(input.names ?? null, title);
-  const sirets = resolveSirets(input.sirets);
+  let names = normalizeStringArray(input.names ?? null, { slugifyItems: true });
+  if (!names.length) {
+    const fallback = slugify(title);
+    names = fallback ? [fallback] : [];
+  }
+  const sirets = normalizeStringArray(input.sirets);
   const id = (input.id && input.id.trim()) || generateOrganizationId();
 
   return {
@@ -133,8 +107,8 @@ const mapCreateInput = (input: OrganizationCreateInput): Prisma.OrganizationCrea
     groupement: normalizeOptionalString(input.groupement),
     names,
     shortTitle: normalizeOptionalString(input.shortTitle),
-    titleSlug: resolveTitleSlug(title, input.titleSlug ?? null) ?? undefined,
-    shortTitleSlug: resolveTitleSlug(input.shortTitle ?? null, input.shortTitleSlug ?? null) ?? undefined,
+    titleSlug: normalizeSlug(title, input.titleSlug ?? null) ?? undefined,
+    shortTitleSlug: normalizeSlug(input.shortTitle ?? null, input.shortTitleSlug ?? null) ?? undefined,
     object: normalizeOptionalString(input.object),
     socialObject1: normalizeOptionalString(input.socialObject1),
     socialObject2: normalizeOptionalString(input.socialObject2),
@@ -176,18 +150,23 @@ const mapUpdateInput = (patch: OrganizationUpdatePatch): Prisma.OrganizationUpda
     const title = normalizeOptionalString(patch.title);
     if (title) {
       data.title = title;
-      data.titleSlug = resolveTitleSlug(title, patch.titleSlug ?? null) ?? null;
+      data.titleSlug = normalizeSlug(title, patch.titleSlug ?? null);
     }
   }
 
   if (patch.names !== undefined) {
-    data.names = resolveNames(patch.names, patch.title);
+    let names = normalizeStringArray(patch.names, { slugifyItems: true });
+    if (!names.length && patch.title) {
+      const fallback = slugify(patch.title);
+      names = fallback ? [fallback] : [];
+    }
+    data.names = names;
   }
 
   if (patch.shortTitle !== undefined) {
     const shortTitle = normalizeOptionalString(patch.shortTitle);
     data.shortTitle = shortTitle ?? null;
-    data.shortTitleSlug = resolveTitleSlug(shortTitle ?? null, patch.shortTitleSlug ?? null);
+    data.shortTitleSlug = normalizeSlug(shortTitle ?? null, patch.shortTitleSlug ?? null);
   } else if (patch.shortTitleSlug !== undefined) {
     data.shortTitleSlug = normalizeOptionalString(patch.shortTitleSlug);
   }
@@ -202,7 +181,7 @@ const mapUpdateInput = (patch: OrganizationUpdatePatch): Prisma.OrganizationUpda
     data.siret = normalizeOptionalString(patch.siret);
   }
   if (patch.sirets !== undefined) {
-    data.sirets = resolveSirets(patch.sirets);
+    data.sirets = normalizeStringArray(patch.sirets);
   }
   if (patch.rupMi !== undefined) {
     data.rupMi = normalizeOptionalString(patch.rupMi);
@@ -328,23 +307,15 @@ const mapUpdateInput = (patch: OrganizationUpdatePatch): Prisma.OrganizationUpda
   return data;
 };
 
-const chunkArray = <T>(items: readonly T[], size: number): T[][] => {
-  if (size <= 0) {
-    return [items.slice()] as T[][];
-  }
-  const chunks: T[][] = [];
-  for (let i = 0; i < items.length; i += size) {
-    chunks.push(items.slice(i, i + size));
-  }
-  return chunks;
-};
-
 export const organizationService = (() => {
   const findOrganizationsByFilters = async (params: OrganizationSearchParams = {}): Promise<OrganizationSearchResult> => {
     const where = buildSearchWhere(params);
     const limit = Math.min(Math.max(params.limit ?? DEFAULT_LIMIT, 1), MAX_LIMIT);
     const offset = Math.max(params.offset ?? 0, 0);
     const includeTotal = params.includeTotal ?? "filtered";
+    const orderByField = params.orderBy ?? "updatedAt";
+    const orderDirection = params.orderDirection ?? (orderByField === "title" ? "asc" : "desc");
+    const orderBy: Prisma.OrganizationOrderByWithRelationInput = orderByField === "title" ? { title: orderDirection } : { updatedAt: orderDirection };
 
     const [total, organizations] = await Promise.all([
       includeTotal === "none" ? Promise.resolve(0) : includeTotal === "all" ? organizationRepository.count() : organizationRepository.count({ where }),
@@ -352,14 +323,7 @@ export const organizationService = (() => {
         where,
         skip: offset,
         take: limit,
-        orderBy: () => {
-          const orderBy = params.orderBy ?? "updatedAt";
-          const orderDirection = params.orderDirection ?? (orderBy === "title" ? "asc" : "desc");
-          if (orderBy === "title") {
-            return { title: orderDirection };
-          }
-          return { updatedAt: orderDirection };
-        },
+        orderBy,
       }),
     ]);
 
@@ -452,10 +416,10 @@ export const organizationService = (() => {
       return;
     }
     const chunkSize = options.chunkSize ?? 25;
-    const chunks = chunkArray(records, chunkSize);
-    for (const chunk of chunks) {
+    const chunkedRecords = chunk(records, chunkSize);
+    for (const chunkRecords of chunkedRecords) {
       await prismaCore.$transaction(
-        chunk.map((record) =>
+        chunkRecords.map((record) =>
           prismaCore.organization.upsert({
             where: { rna: record.rna },
             create: mapCreateInput(record),

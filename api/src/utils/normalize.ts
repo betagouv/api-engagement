@@ -65,3 +65,16 @@ export const normalizeStringArray = (values?: readonly (string | null | undefine
   }
   return result;
 };
+
+export const normalizeSlug = (source?: string | null, override?: string | null): string | null => {
+  const normalizedOverride = normalizeOptionalString(override ?? undefined);
+  if (normalizedOverride) {
+    return normalizedOverride;
+  }
+  const normalizedSource = normalizeOptionalString(source ?? undefined);
+  if (!normalizedSource) {
+    return null;
+  }
+  const slug = slugify(normalizedSource);
+  return slug || null;
+};
