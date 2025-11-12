@@ -43,7 +43,6 @@ import UserController from "./controllers/user";
 import WarningController from "./controllers/warning";
 import WarningBotController from "./controllers/warning-bot";
 import WidgetController from "./controllers/widget";
-import AssociationV0Controller from "./v0/association/controller";
 import MissionV0Controller from "./v0/mission/controller";
 import MyMissionV0Controller from "./v0/mymission/controller";
 import MyOrganizationV0Controller from "./v0/myorganization/controller";
@@ -84,7 +83,6 @@ const main = async () => {
   app.use("/v0/mission", cors({ origin: "*" }), MissionV0Controller);
   app.use("/v0/publisher", cors({ origin: "*" }), PublisherV0Controller);
   app.use("/v0/view", cors({ origin: "*" }), ViewV0Controller);
-  app.use("/v0/association", AssociationV0Controller);
   app.use("/v0/organization", OrganizationV0Controller);
   app.use("/v1/association", AssociationV1Controller);
   // /v2/mission redirects to /v0/mission
