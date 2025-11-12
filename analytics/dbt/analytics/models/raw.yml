@@ -58,6 +58,59 @@ sources:
             description: Statut métier de l'événement (ex. `PENDING`, `VALIDATED`, `CANCELED`).
           - name: custom_attributes
             description: Attributs personnalisés en JSON (nullable) fournis par la source.
+      - name: email
+        description: >-
+          Emails transactionnels et rapports générés côté application (table `public.email` de la base core)
+          synchronisés tels quels dans le schéma `analytics_raw`.
+        columns:
+          - name: id
+            description: Identifiant unique de l'email (UUID).
+          - name: message_id
+            description: Identifiant du message dans le provider SMTP (nullable).
+          - name: in_reply_to
+            description: Identifiant du message parent (si réponse).
+          - name: from_name
+            description: Nom complet de l'expéditeur.
+          - name: from_email
+            description: Adresse email de l'expéditeur.
+          - name: to
+            description: Payload JSON des destinataires (format brut).
+          - name: to_emails
+            description: Tableau textuel des adresses email destinataires.
+          - name: subject
+            description: Sujet de l'email.
+          - name: sent_at
+            description: Timestamp d'envoi effectif.
+          - name: raw_text_body
+            description: Contenu texte brut.
+          - name: raw_html_body
+            description: Contenu HTML brut.
+          - name: md_text_body
+            description: Contenu Markdown pré-calculé.
+          - name: attachments
+            description: Pièces jointes (JSON listant les métadonnées).
+          - name: raw
+            description: Payload complet sérialisé (JSON).
+          - name: status
+            description: Statut métier (`PENDING`, `PROCESSED`, etc.).
+          - name: report_url
+            description: URL publique vers le rapport généré (nullable).
+          - name: file_object_name
+            description: Nom de l'objet correspondant dans le stockage fichier.
+          - name: date_from
+            description: Date de début couverte par le rapport (nullable).
+          - name: date_to
+            description: Date de fin couverte par le rapport (nullable).
+          - name: created_count
+            description: Nombre de lignes/objets créés lors de la génération (nullable).
+          - name: failed
+            description: Détails des erreurs éventuelles (JSON).
+          - name: deleted_at
+            description: Horodatage de suppression logique.
+          - name: created_at
+            description: Timestamp de création de la ligne.
+          - name: updated_at
+            description: Timestamp de dernière mise à jour (curseur d'export).
       - name: moderation_event
         description: >-
           Historique des actions de modération issues de la base core. Chaque enregistrement trace l'état initial et

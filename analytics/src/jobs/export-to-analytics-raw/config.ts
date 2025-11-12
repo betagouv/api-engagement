@@ -39,6 +39,37 @@ export const exportDefinitions: ExportDefinition[] = [
     },
   },
   {
+    key: "email",
+    source: {
+      schema: "public",
+      table: "email",
+      cursor: {
+        field: "updated_at",
+        idField: "id",
+      },
+      columns: [
+        "id",
+        "message_id",
+        "in_reply_to",
+        "from_name",
+        "from_email",
+        "subject",
+        "sent_at",
+        "status",
+        "date_from",
+        "date_to",
+        "created_count",
+        "deleted_at",
+        "created_at",
+        "updated_at",
+      ],
+    },
+    destination: {
+      table: "email",
+      conflictColumns: ["id"],
+    },
+  },
+  {
     key: "moderation_event",
     batchSize: 2000,
     source: {
