@@ -3,8 +3,8 @@ import passport from "passport";
 import zod from "zod";
 
 import { INVALID_BODY, INVALID_PARAMS, INVALID_QUERY } from "../error";
-import { importService } from "../services/import";
 import WarningModel from "../models/warning";
+import { importService } from "../services/import";
 import { UserRequest } from "../types/passport";
 
 const router = Router();
@@ -101,7 +101,17 @@ router.get("/", passport.authenticate("admin", { session: false }), async (req: 
 
 router.get("/state", passport.authenticate("user", { session: false }), async (req: UserRequest, res: Response, next: NextFunction) => {
   try {
-    const imports = await importService.findLastImportsPerPublisher();
+    const query = zod
+      .object({
+        publisherId: zod.string().optional(),
+      })
+      .safeParse(req.query);
+
+    if (!query.success) {
+      return res.status(400).send({ ok: false, code: INVALID_QUERY, message: query.error });
+    }
+
+    const imports = await importService.findImports({ publisherId: query.data.publisherId, size: 100 });
     let success = 0;
     let last = null as Date | null;
     imports.forEach((doc) => {
