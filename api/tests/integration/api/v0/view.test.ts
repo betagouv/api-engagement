@@ -1,8 +1,8 @@
 import request from "supertest";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 
-import { createTestPublisher } from "../../../fixtures";
 import { prismaCore } from "../../../../src/db/postgres";
+import { createTestPublisher } from "../../../fixtures";
 import { createStatEventFixture } from "../../../fixtures/stat-event";
 import { createTestApp } from "../../../testApp";
 

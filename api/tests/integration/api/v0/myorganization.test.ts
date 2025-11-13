@@ -51,11 +51,13 @@ describe("MyOrganization API Integration Tests", () => {
         publisherId: publisher1.id,
         publisherName: publisher1.name,
         count: 2,
+        organizationClientId: orgId,
       });
       await seedClicks({
         publisherId: publisher2.id,
         publisherName: publisher2.name,
         count: 1,
+        organizationClientId: orgId,
       });
 
       const response = await request(app).get(`/v0/myorganization/${orgId}`).set("x-api-key", apiKey);
@@ -90,8 +92,8 @@ describe("MyOrganization API Integration Tests", () => {
     });
 
     it("should return correct exclusion status for publishers", async () => {
-      await seedClicks({ publisherId: publisher1.id, publisherName: publisher1.name, count: 1 });
-      await seedClicks({ publisherId: publisher2.id, publisherName: publisher2.name, count: 1 });
+      await seedClicks({ publisherId: publisher1.id, publisherName: publisher1.name, count: 1, organizationClientId: orgId });
+      await seedClicks({ publisherId: publisher2.id, publisherName: publisher2.name, count: 1, organizationClientId: orgId });
 
       // Add exclusion for publisher2
       await OrganizationExclusionModel.create({
@@ -255,13 +257,24 @@ describe("MyOrganization API Integration Tests", () => {
   });
 });
 
-async function seedClicks({ publisherId, publisherName, count }: { publisherId: string; publisherName: string; count: number }) {
+async function seedClicks({
+  publisherId,
+  publisherName,
+  count,
+  organizationClientId,
+}: {
+  publisherId: string;
+  publisherName: string;
+  count: number;
+  organizationClientId: string;
+}) {
   for (let i = 0; i < count; i += 1) {
     await createStatEventFixture({
       type: "click",
       isBot: false,
       fromPublisherId: publisherId,
       fromPublisherName: publisherName,
+      missionOrganizationClientId: organizationClientId,
     });
   }
 }

@@ -8,23 +8,22 @@ import {
   CountByTypeParams,
   CountClicksByPublisherForOrganizationSinceParams,
   CountEventsParams,
+  FindWarningBotCandidatesParams,
   HasRecentStatEventWithClickIdParams,
   MissionStatsAggregations,
-  ScrollStatEventsFilters,
   ScrollStatEventsParams,
   ScrollStatEventsResult,
   SearchStatEventsParams,
   SearchViewStatsParams,
   SearchViewStatsResult,
-  StatEventType,
-  StatEventRecord,
-  UpdateStatEventOptions,
   StatEventMissionStatsDetails,
   StatEventMissionStatsSummary,
+  StatEventRecord,
+  StatEventType,
+  UpdateStatEventOptions,
   ViewStatsFacet,
   WarningBotAggregationBucket,
   WarningBotAggregations,
-  FindWarningBotCandidatesParams,
   WarningBotCandidate,
 } from "../types/stat-event";
 
@@ -321,7 +320,7 @@ async function findStatEventViews({ publisherId, size = 10, filters = {}, facets
           by: [column],
           where,
           _count: { _all: true },
-          orderBy: { _count: { _all: "desc" } },
+          orderBy: { _count: { id: "desc" } },
           take: size,
         } as any)) as { [key: string]: any; _count: { _all: number } }[];
 
@@ -335,14 +334,6 @@ async function findStatEventViews({ publisherId, size = 10, filters = {}, facets
   );
 
   return { total, facets: facetsResult };
-}
-
-function mapAggregationRow(row: any, field: string): WarningBotAggregationBucket {
-  const value = row[field];
-  return {
-    key: value ?? "",
-    doc_count: row._count?._all ?? 0,
-  };
 }
 
 async function findStatEventWarningBotCandidatesSince({ from, minClicks }: FindWarningBotCandidatesParams): Promise<WarningBotCandidate[]> {
@@ -497,13 +488,16 @@ async function aggregateStatEventsForMission({
         type: type as StatEventType,
       };
 
-      const [eventCount, missionCount] = await Promise.all([
+      const [eventCount, missionGroups] = await Promise.all([
         statEventRepository.count({ where }),
-        statEventRepository.count({
+        statEventRepository.groupBy({
+          by: ["mission_id"],
           where: { ...where, mission_id: { not: null } },
-          distinct: ["mission_id"],
-        } as any),
+          _count: { _all: true },
+        } as Prisma.StatEventGroupByArgs) as Promise<{ mission_id: string | null; _count: { _all: number } }[]>,
       ]);
+
+      const missionCount = missionGroups.length;
 
       result[type] = { eventCount, missionCount };
     })
@@ -512,9 +506,7 @@ async function aggregateStatEventsForMission({
   return result;
 }
 
-async function findStatEventMissionStatsWithDetails(
-  missionId: string
-): Promise<{ clicks: StatEventMissionStatsDetails[]; applications: StatEventMissionStatsDetails[] }> {
+async function findStatEventMissionStatsWithDetails(missionId: string): Promise<{ clicks: StatEventMissionStatsDetails[]; applications: StatEventMissionStatsDetails[] }> {
   const [applications, clicks] = await Promise.all([
     statEventRepository.groupBy({
       by: ["from_publisher_id", "from_publisher_name"],
@@ -538,7 +530,7 @@ async function findStatEventMissionStatsWithDetails(
 
   const mapGroup = (group: { from_publisher_id: string | null; from_publisher_name: string | null; _count: { _all: number } }): StatEventMissionStatsDetails => ({
     key: group.from_publisher_id ?? "",
-    name: group.from_publisher_name ?? undefined,
+    name: undefined,
     logo: undefined,
     url: undefined,
     doc_count: group._count._all,
@@ -550,12 +542,10 @@ async function findStatEventMissionStatsWithDetails(
   };
 }
 
-async function findStatEventMissionStatsSummary(
-  missionId: string
-): Promise<{ clicks: StatEventMissionStatsSummary[]; applications: StatEventMissionStatsSummary[] }> {
+async function findStatEventMissionStatsSummary(missionId: string): Promise<{ clicks: StatEventMissionStatsSummary[]; applications: StatEventMissionStatsSummary[] }> {
   const [clicks, applications] = await Promise.all([
     statEventRepository.groupBy({
-      by: ["from_publisher_name"],
+      by: ["from_publisher_id"],
       where: {
         mission_id: missionId,
         is_bot: false,
@@ -564,7 +554,7 @@ async function findStatEventMissionStatsSummary(
       _count: { _all: true },
     } as Prisma.StatEventGroupByArgs),
     statEventRepository.groupBy({
-      by: ["from_publisher_name"],
+      by: ["from_publisher_id"],
       where: {
         mission_id: missionId,
         is_bot: false,
@@ -574,8 +564,8 @@ async function findStatEventMissionStatsSummary(
     } as Prisma.StatEventGroupByArgs),
   ]);
 
-  const mapGroup = (group: { from_publisher_name: string | null; _count: { _all: number } }): StatEventMissionStatsSummary => ({
-    key: group.from_publisher_name ?? "",
+  const mapGroup = (group: { from_publisher_id: string | null; _count: { _all: number } }): StatEventMissionStatsSummary => ({
+    key: group.from_publisher_id ?? "",
     doc_count: group._count._all,
   });
 

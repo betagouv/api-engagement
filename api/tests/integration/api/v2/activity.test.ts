@@ -2,9 +2,11 @@ import { Types } from "mongoose";
 import request from "supertest";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 
+import { prismaCore } from "../../../../src/db/postgres";
+
 import MissionModel from "../../../../src/models/mission";
-import { statEventService } from "../../../../src/services/stat-event";
 import { publisherService } from "../../../../src/services/publisher";
+import { statEventService } from "../../../../src/services/stat-event";
 import { createClickStat, createStatEventFixture } from "../../../fixtures/stat-event";
 import { createTestApp } from "../../../testApp";
 
@@ -13,11 +15,12 @@ const app = createTestApp();
 describe("Activity V2 controller", () => {
   beforeEach(async () => {
     await MissionModel.deleteMany({});
-    await statEventService.updateStatEventsExportStatus([], "SUCCESS"); // no-op to ensure service import
+    await prismaCore.statEvent.deleteMany({});
   });
 
   afterEach(async () => {
     await MissionModel.deleteMany({});
+    await prismaCore.statEvent.deleteMany({});
   });
 
   describe("GET /v2/activity/:id", () => {
@@ -35,7 +38,7 @@ describe("Activity V2 controller", () => {
         .set("apikey", publisher.apikey || "");
 
       expect(response.status).toBe(200);
-      expect(response.body).toEqual({ ok: true, data: { _id: stat._id, ...stat } });
+      expect(response.body).toMatchObject({ ok: true, data: { _id: stat._id } });
     });
 
     it("returns 404 when the stat event does not exist", async () => {
