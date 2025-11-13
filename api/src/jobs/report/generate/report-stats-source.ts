@@ -1,7 +1,5 @@
 import { Prisma } from "../../../db/core";
 
-import { STATS_INDEX } from "../../../config";
-import esClient from "../../../db/elastic";
 import { prismaCore } from "../../../db/postgres";
 
 export type ReportFlux = "from" | "to";
@@ -50,157 +48,7 @@ interface ReportAggregationsParams {
 
 type Sql = ReturnType<typeof Prisma.sql>;
 
-export async function getReportAggregations(params: ReportAggregationsParams): Promise<ReportAggregations> {
-  if (getReadStatsFrom() === "pg") {
-    return getReportAggregationsFromPg(params);
-  }
-  return getReportAggregationsFromEs(params);
-}
-
-async function getReportAggregationsFromEs({ publisherId, month, year, flux }: ReportAggregationsParams) {
-  const { startMonth, startLastMonth, endMonth, endLastMonth, startYear, endYear, startLastYear, endLastYear, startLastSixMonths, endLastSixMonths } = getReportDateRanges(
-    month,
-    year
-  );
-
-  const publisherName = flux === "to" ? "fromPublisherName.keyword" : "toPublisherName.keyword";
-  const publisherIdField = flux === "to" ? "toPublisherId.keyword" : "fromPublisherId.keyword";
-
-  const response = await esClient.search({
-    index: STATS_INDEX,
-    body: {
-      query: {
-        bool: {
-          must_not: { term: { isBot: true } },
-          filter: { term: { [publisherIdField]: publisherId } },
-        },
-      },
-      aggs: {
-        print: {
-          filter: { term: { "type.keyword": "print" } },
-          aggs: {
-            month: {
-              filter: { range: { createdAt: { gte: startMonth, lte: endMonth } } },
-              aggs: { top: { terms: { field: publisherName, size: 3 } } },
-            },
-            lastMonth: {
-              filter: { range: { createdAt: { gte: startLastMonth, lte: endLastMonth } } },
-            },
-          },
-        },
-        click: {
-          filter: { term: { "type.keyword": "click" } },
-          aggs: {
-            month: {
-              filter: { range: { createdAt: { gte: startMonth, lte: endMonth } } },
-              aggs: {
-                topPublishers: { terms: { field: publisherName, size: 5 } },
-                topOrganizations: { terms: { field: "missionOrganizationName.keyword", size: 5 } },
-              },
-            },
-            lastMonth: {
-              filter: { range: { createdAt: { gte: startLastMonth, lte: endLastMonth } } },
-            },
-            year: {
-              filter: { range: { createdAt: { gte: startYear, lte: endYear } } },
-              aggs: {
-                histogram: {
-                  date_histogram: {
-                    field: "createdAt",
-                    interval: "month",
-                    min_doc_count: 0,
-                    time_zone: "Europe/Paris",
-                  },
-                },
-              },
-            },
-            lastYear: {
-              filter: { range: { createdAt: { gte: startLastYear, lte: endLastYear } } },
-              aggs: {
-                histogram: {
-                  date_histogram: {
-                    field: "createdAt",
-                    interval: "month",
-                    min_doc_count: 0,
-                    time_zone: "Europe/Paris",
-                  },
-                },
-              },
-            },
-            lastSixMonths: {
-              filter: { range: { createdAt: { gte: startLastSixMonths, lte: endLastSixMonths } } },
-              aggs: {
-                histogram: {
-                  date_histogram: {
-                    field: "createdAt",
-                    interval: "month",
-                    time_zone: "Europe/Paris",
-                  },
-                  aggs: {
-                    orga: { terms: { field: "missionOrganizationName.keyword", size: 100 } },
-                  },
-                },
-              },
-            },
-          },
-        },
-        apply: {
-          filter: { term: { "type.keyword": "apply" } },
-          aggs: {
-            month: {
-              filter: { range: { createdAt: { gte: startMonth, lte: endMonth } } },
-              aggs: { top: { terms: { field: publisherName, size: 3 } } },
-            },
-            lastMonth: {
-              filter: { range: { createdAt: { gte: startLastMonth, lte: endLastMonth } } },
-            },
-            year: {
-              filter: { range: { createdAt: { gte: startYear, lte: endYear } } },
-              aggs: {
-                histogram: {
-                  date_histogram: {
-                    field: "createdAt",
-                    interval: "month",
-                    min_doc_count: 0,
-                    time_zone: "Europe/Paris",
-                  },
-                },
-              },
-            },
-            lastYear: {
-              filter: { range: { createdAt: { gte: startLastYear, lte: endLastYear } } },
-              aggs: {
-                histogram: {
-                  date_histogram: {
-                    field: "createdAt",
-                    interval: "month",
-                    time_zone: "Europe/Paris",
-                  },
-                },
-              },
-            },
-          },
-        },
-        acccount: {
-          filter: { term: { "type.keyword": "account" } },
-          aggs: {
-            month: {
-              filter: { range: { createdAt: { gte: startMonth, lte: endMonth } } },
-            },
-            lastMonth: {
-              filter: { range: { createdAt: { gte: startLastMonth, lte: endLastMonth } } },
-            },
-          },
-        },
-      },
-      size: 0,
-    },
-  });
-
-  return response.body.aggregations as ReportAggregations;
-}
-
-async function getReportAggregationsFromPg({ publisherId, month, year, flux }: ReportAggregationsParams) {
+export async function getReportAggregations({ publisherId, month, year, flux }: ReportAggregationsParams) {
   const ranges = getReportDateRanges(month, year);
   const columns = getReportColumnDefinitions(flux);
 
@@ -562,8 +410,4 @@ function getReportDateRanges(month: number, year: number) {
     startLastYear,
     endLastYear,
   };
-}
-
-function getReadStatsFrom(): "es" | "pg" {
-  return (process.env.READ_STATS_FROM as "es" | "pg") || "es";
 }
