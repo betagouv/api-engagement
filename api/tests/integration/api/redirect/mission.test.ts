@@ -2,12 +2,12 @@ import { Types } from "mongoose";
 import request from "supertest";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
-import { PUBLISHER_IDS, STATS_INDEX } from "../../../../src/config";
+import { PUBLISHER_IDS } from "../../../../src/config";
+import { prismaCore } from "../../../../src/db/postgres";
 import MissionModel from "../../../../src/models/mission";
 import StatsBotModel from "../../../../src/models/stats-bot";
 import { publisherService } from "../../../../src/services/publisher";
 import * as utils from "../../../../src/utils";
-import { elasticMock } from "../../../mocks";
 import { createTestApp } from "../../../testApp";
 
 const app = createTestApp();
@@ -15,16 +15,13 @@ const app = createTestApp();
 describe("RedirectController /:missionId/:publisherId", () => {
   beforeEach(async () => {
     await MissionModel.deleteMany({});
-
-    elasticMock.index.mockReset();
-    elasticMock.update.mockReset();
-    elasticMock.index.mockResolvedValue({ body: { _id: "default-click-id" } });
-    elasticMock.update.mockResolvedValue({});
+    await prismaCore.statEvent.deleteMany({});
   });
 
   afterEach(async () => {
     vi.restoreAllMocks();
     await MissionModel.deleteMany({});
+    await prismaCore.statEvent.deleteMany({});
   });
 
   it("redirects to Service Civique when params are invalid", async () => {
@@ -32,7 +29,7 @@ describe("RedirectController /:missionId/:publisherId", () => {
 
     expect(response.status).toBe(302);
     expect(response.headers.location).toBe("https://www.service-civique.gouv.fr/");
-    expect(elasticMock.index).not.toHaveBeenCalled();
+    expect(await prismaCore.statEvent.count()).toBe(0);
   });
 
   it("redirects to Service Civique when mission is not found and identity is missing", async () => {
@@ -44,7 +41,7 @@ describe("RedirectController /:missionId/:publisherId", () => {
 
     expect(response.status).toBe(302);
     expect(response.headers.location).toBe("https://www.service-civique.gouv.fr/");
-    expect(elasticMock.index).not.toHaveBeenCalled();
+    expect(await prismaCore.statEvent.count()).toBe(0);
   });
 
   it("redirects to mission application URL when identity is missing but mission exists", async () => {
@@ -63,7 +60,7 @@ describe("RedirectController /:missionId/:publisherId", () => {
 
     expect(response.status).toBe(302);
     expect(response.headers.location).toBe("https://mission.example.com/apply");
-    expect(elasticMock.index).not.toHaveBeenCalled();
+    expect(await prismaCore.statEvent.count()).toBe(0);
   });
 
   it("records click stats and appends tracking parameters when identity and publisher exist", async () => {
@@ -92,7 +89,6 @@ describe("RedirectController /:missionId/:publisherId", () => {
 
     vi.spyOn(utils, "identify").mockReturnValue(identity);
     const statsBotFindOneSpy = vi.spyOn(StatsBotModel, "findOne").mockResolvedValue({ user: identity.user } as any);
-    elasticMock.index.mockResolvedValueOnce({ body: { _id: "mission-click-id" } });
 
     const response = await request(app)
       .get(`/r/${mission._id.toString()}/${fromPublisher.id}`)
@@ -103,48 +99,40 @@ describe("RedirectController /:missionId/:publisherId", () => {
     expect(response.status).toBe(302);
     const redirectUrl = new URL(response.headers.location);
     expect(`${redirectUrl.origin}${redirectUrl.pathname}`).toBe("https://mission.example.com/apply");
-    expect(redirectUrl.searchParams.get("apiengagement_id")).toEqual(expect.any(String));
+    const clickId = redirectUrl.searchParams.get("apiengagement_id");
+    expect(clickId).toBeTruthy();
     expect(redirectUrl.searchParams.get("utm_source")).toBe("api_engagement");
     expect(redirectUrl.searchParams.get("utm_medium")).toBe("api");
     expect(redirectUrl.searchParams.get("utm_campaign")).toBe("from-publisher");
 
-    expect(elasticMock.index).toHaveBeenCalled();
-    const [indexCall] = elasticMock.index.mock.calls;
-    expect(indexCall[0].index).toBe(STATS_INDEX);
-    const indexedBody = indexCall[0].body as any;
-    expect(indexedBody).toMatchObject({
+    const storedClick = await prismaCore.statEvent.findUnique({ where: { id: clickId! } });
+    expect(storedClick).toMatchObject({
       type: "click",
       user: identity.user,
       referer: identity.referer,
-      userAgent: identity.userAgent,
+      user_agent: identity.userAgent,
       host: "redirect.test",
       origin: "https://app.example.com",
       source: "publisher",
-      sourceName: fromPublisher.name,
-      missionId: mission._id.toString(),
-      missionClientId: mission.clientId,
-      missionDomain: mission.domain,
-      missionTitle: mission.title,
-      missionPostalCode: mission.postalCode,
-      missionDepartmentName: mission.departmentName,
-      missionOrganizationName: mission.organizationName,
-      missionOrganizationId: mission.organizationId,
-      missionOrganizationClientId: mission.organizationClientId,
-      toPublisherId: mission.publisherId,
-      toPublisherName: mission.publisherName,
-      fromPublisherId: fromPublisher.id,
-      fromPublisherName: fromPublisher.name,
-      isBot: false,
+      source_name: fromPublisher.name,
+      mission_id: mission._id.toString(),
+      mission_client_id: mission.clientId,
+      mission_domain: mission.domain,
+      mission_title: mission.title,
+      mission_postal_code: mission.postalCode,
+      mission_department_name: mission.departmentName,
+      mission_organization_name: mission.organizationName,
+      mission_organization_id: mission.organizationId,
+      mission_organization_client_id: mission.organizationClientId,
+      to_publisher_id: mission.publisherId,
+      to_publisher_name: mission.publisherName,
+      from_publisher_id: fromPublisher.id,
+      from_publisher_name: fromPublisher.name,
       tags: ["foo", "bar"],
+      is_bot: true,
     });
-    expect(indexedBody.sourceId?.toString()).toBe(fromPublisher.id);
 
     expect(statsBotFindOneSpy).toHaveBeenCalledWith({ user: identity.user });
-    expect(elasticMock.update).toHaveBeenCalledTimes(1);
-    const updateArgs = elasticMock.update.mock.calls[0][0];
-    expect(updateArgs.index).toBe(STATS_INDEX);
-    expect(updateArgs.body).toEqual({ doc: { isBot: true } });
-    expect(updateArgs.id).toBe(indexCall[0].id);
   });
 
   it("uses mtm tracking parameters for Service Civique missions", async () => {
@@ -174,7 +162,6 @@ describe("RedirectController /:missionId/:publisherId", () => {
 
       vi.spyOn(utils, "identify").mockReturnValue(identity);
       vi.spyOn(StatsBotModel, "findOne").mockResolvedValue(null);
-      elasticMock.index.mockResolvedValueOnce({ body: { _id: "mission-click-id" } });
 
       const response = await request(app)
         .get(`/r/${mission._id.toString()}/${fromPublisher.id}`)
