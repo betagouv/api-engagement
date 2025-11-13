@@ -2,7 +2,7 @@ import fs from "fs";
 
 import { ENV, PUBLISHER_IDS } from "../../config";
 import { captureException } from "../../error";
-import ImportModel from "../../models/import";
+import { importService } from "../../services/import";
 import { publisherService } from "../../services/publisher";
 import { BaseHandler } from "../base/handler";
 import { JobResult } from "../types";
@@ -93,7 +93,7 @@ export class LinkedinHandler implements BaseHandler<LinkedinJobPayload, Linkedin
       const url = await storeXML(xml);
       console.log(`[LinkedinHandler] XML stored at ${url}`);
 
-      await ImportModel.create({
+      await importService.createImport({
         name: `LINKEDIN`,
         publisherId: PUBLISHER_IDS.LINKEDIN,
         createdCount: result.counter.sent,
@@ -102,7 +102,7 @@ export class LinkedinHandler implements BaseHandler<LinkedinJobPayload, Linkedin
         missionCount: 0,
         refusedCount: 0,
         startedAt: start,
-        endedAt: new Date(),
+        finishedAt: new Date(),
         status: "SUCCESS",
         failed: { data: [] },
       });
@@ -117,11 +117,11 @@ export class LinkedinHandler implements BaseHandler<LinkedinJobPayload, Linkedin
     } catch (error) {
       captureException(error);
 
-      await ImportModel.create({
+      await importService.createImport({
         name: `LINKEDIN`,
         publisherId: PUBLISHER_IDS.LINKEDIN,
         startedAt: start,
-        endedAt: new Date(),
+        finishedAt: new Date(),
         status: "FAILED",
         failed: { data: [] },
       });

@@ -2,7 +2,7 @@ import { readFile } from "fs/promises";
 import path from "path";
 import { afterAll, beforeEach, describe, expect, it, vi } from "vitest";
 import { ImportMissionsHandler } from "../../../../src/jobs/import-missions/handler";
-import ImportModel from "../../../../src/models/import";
+import { importService } from "../../../../src/services/import";
 import MissionModel from "../../../../src/models/mission";
 import { createTestImport, createTestMission, createTestPublisher } from "../../../fixtures";
 
@@ -110,7 +110,7 @@ describe("Import missions job (integration test)", () => {
     const result = await handler.handle({ publisherId: publisher.id });
 
     const onlineMissions = await MissionModel.find({ publisherId: publisher.id, deleted: false });
-    const failedImports = await ImportModel.find({ publisherId: publisher.id, status: "FAILED" });
+    const failedImports = await importService.findImports({ publisherId: publisher.id, status: "FAILED" });
 
     expect(onlineMissions.length).toBe(1);
     expect(result.success).toBe(true);

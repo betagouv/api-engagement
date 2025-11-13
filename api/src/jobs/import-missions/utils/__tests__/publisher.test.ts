@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import ImportModel from "../../../../models/import";
+import { importService } from "../../../../services/import";
 import { shouldCleanMissionsForPublisher } from "../publisher";
 
 // Helper to compute dates
@@ -20,27 +20,24 @@ describe("shouldCleanMissionsForPublisher", () => {
   });
 
   it("Should return true when there are failures and no successes in the last 7 days", async () => {
-    const spy = vi.spyOn(ImportModel as any, "find").mockResolvedValue([
-      { status: "FAILED", endedAt: new Date(NOW.getTime() - days(1)) },
-      { status: "FAILED", endedAt: new Date(NOW.getTime() - days(3)) },
+    const spy = vi.spyOn(importService as any, "findImports").mockResolvedValue([
+      { status: "FAILED", finishedAt: new Date(NOW.getTime() - days(1)) },
+      { status: "FAILED", finishedAt: new Date(NOW.getTime() - days(3)) },
     ]);
 
     const result = await shouldCleanMissionsForPublisher(PUBLISHER_ID);
 
     // Assert DB query filter uses 7-day threshold
     const expectedThreshold = new Date(NOW.getTime() - days(7));
-    expect(spy).toHaveBeenCalledWith({
-      publisherId: PUBLISHER_ID,
-      endedAt: { $gt: expectedThreshold },
-    });
+    expect(spy).toHaveBeenCalledWith({ publisherId: PUBLISHER_ID, finishedAtGt: expectedThreshold });
 
     expect(result).toBe(true);
   });
 
   it("Should return false when there is at least one success in the last 7 days", async () => {
-    vi.spyOn(ImportModel as any, "find").mockResolvedValue([
-      { status: "FAILED", endedAt: new Date(NOW.getTime() - days(2)) },
-      { status: "SUCCESS", endedAt: new Date(NOW.getTime() - days(1)) },
+    vi.spyOn(importService as any, "findImports").mockResolvedValue([
+      { status: "FAILED", finishedAt: new Date(NOW.getTime() - days(2)) },
+      { status: "SUCCESS", finishedAt: new Date(NOW.getTime() - days(1)) },
     ]);
 
     const result = await shouldCleanMissionsForPublisher(PUBLISHER_ID);
@@ -49,7 +46,7 @@ describe("shouldCleanMissionsForPublisher", () => {
   });
 
   it("Should return false when there are no imports in the last 7 days", async () => {
-    vi.spyOn(ImportModel as any, "find").mockResolvedValue([]);
+    vi.spyOn(importService as any, "findImports").mockResolvedValue([]);
 
     const result = await shouldCleanMissionsForPublisher(PUBLISHER_ID);
 
@@ -57,9 +54,9 @@ describe("shouldCleanMissionsForPublisher", () => {
   });
 
   it("Should return false when there are only successes in the last 7 days", async () => {
-    vi.spyOn(ImportModel as any, "find").mockResolvedValue([
-      { status: "SUCCESS", endedAt: new Date(NOW.getTime() - days(4)) },
-      { status: "SUCCESS", endedAt: new Date(NOW.getTime() - days(5)) },
+    vi.spyOn(importService as any, "findImports").mockResolvedValue([
+      { status: "SUCCESS", finishedAt: new Date(NOW.getTime() - days(4)) },
+      { status: "SUCCESS", finishedAt: new Date(NOW.getTime() - days(5)) },
     ]);
 
     const result = await shouldCleanMissionsForPublisher(PUBLISHER_ID);
