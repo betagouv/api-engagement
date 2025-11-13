@@ -107,8 +107,17 @@ jobs:
           cache: "npm"
           cache-dependency-path: "analytics/package-lock.json"
 
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
       - name: Install dependencies
         run: cd analytics && npm ci
+
+      - name: Install dbt
+        run: |
+          python -m pip install --upgrade pip
+          pip install --no-cache-dir dbt-postgres
 
       - name: Prepare temporary databases
         env:
@@ -121,6 +130,12 @@ jobs:
         env:
           DATABASE_URL_ANALYTICS: postgresql://postgres:postgres@localhost:5432/analytics?sslmode=disable
         run: npm run db:migrate
+
+      - name: dbt compile
+        working-directory: analytics
+        env:
+          DATABASE_URL_ANALYTICS: postgresql://postgres:postgres@localhost:5432/analytics?sslmode=disable
+        run: ./scripts/dbt-env.sh compile
 
   api-tests:
     name: API Tests
