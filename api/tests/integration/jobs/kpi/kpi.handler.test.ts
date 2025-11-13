@@ -1,7 +1,10 @@
 import { afterAll, beforeEach, describe, expect, it, vi } from "vitest";
+
 import * as ErrorModule from "../../../../src/error";
 import KpiModel from "../../../../src/models/kpi";
-import elasticMock from "../../../mocks/elasticMock";
+import { statEventService } from "../../../../src/services/stat-event";
+import { prismaCore } from "../../../../src/db/postgres";
+import { createStatEventFixture } from "../../../fixtures/stat-event";
 
 // Mock botless KPI builder so it always returns a non-null object
 // We'll test botless KPI builder in a separate test file
@@ -14,25 +17,12 @@ import { createTestMission } from "../../../fixtures";
 
 describe("KPI job - Integration", () => {
   beforeEach(async () => {
-    process.env.READ_STATS_FROM = "es";
-
-    (elasticMock.search as any).mockReset();
-    (elasticMock.msearch as any).mockReset();
-
-    // Provide the aggregations shape expected by buildKpi() for all ES calls
-    (elasticMock.search as any).mockResolvedValue({
-      body: {
-        aggregations: {
-          print: { doc_count: 0, data: { value: 0 } },
-          click: { doc_count: 0, data: { value: 0 } },
-          apply: { doc_count: 0, data: { value: 0 } },
-          account: { doc_count: 0, data: { value: 0 } },
-        },
-      },
-    });
-
-    // Clean KPI collection before each test
+    await prismaCore.statEvent.deleteMany({});
     await KpiModel.deleteMany({});
+  });
+
+  afterEach(async () => {
+    await prismaCore.statEvent.deleteMany({});
   });
 
   afterAll(async () => {
@@ -158,7 +148,7 @@ describe("KPI job - Integration", () => {
     expect(kpi.percentageBenevolatAttributedPlaces).toBe(0);
   });
 
-  it("Should map ES aggregations to KPI fields (benevolat & volontariat)", async () => {
+  it("Should aggregate stat events from PostgreSQL (benevolat & volontariat)", async () => {
     const handler = new KpiHandler();
     const fixedToday = new Date("2025-08-15T12:00:00.000Z");
     const yesterday = new Date(fixedToday.getFullYear(), fixedToday.getMonth(), fixedToday.getDate() - 1);
@@ -167,34 +157,43 @@ describe("KPI job - Integration", () => {
     await createTestMission({ publisherName: "Other", placesStatus: "GIVEN_BY_PARTNER", places: 1, createdAt: fromDate });
     await createTestMission({ publisherName: "Service Civique", placesStatus: "GIVEN_BY_PARTNER", places: 1, createdAt: fromDate });
 
-    // Return a mock ES response with the given aggregations
-    const mockAgg = (printDoc: number, printVal: number, clickDoc: number, clickVal: number, applyDoc: number, applyVal: number, accountDoc: number, accountVal: number) => ({
-      body: {
-        aggregations: {
-          print: { doc_count: printDoc, data: { value: printVal } },
-          click: { doc_count: clickDoc, data: { value: clickVal } },
-          apply: { doc_count: applyDoc, data: { value: applyVal } },
-          account: { doc_count: accountDoc, data: { value: accountVal } },
-        },
-      },
-    });
+    const withinRangeDate = new Date(fromDate.getTime() + 60 * 60 * 1000);
 
-    const firstDayBenevolat = mockAgg(11, 3, 7, 2, 5, 1, 4, 1);
-    const firstDayVolontariat = mockAgg(21, 6, 14, 4, 9, 2, 8, 2);
-    const zeroAgg = mockAgg(0, 0, 0, 0, 0, 0, 0, 0);
+    const createEvents = async (toPublisherName: string) => {
+      await createStatEventFixture({
+        type: "print",
+        createdAt: withinRangeDate,
+        toPublisherName,
+        missionId: `${toPublisherName}-print-1`,
+      });
+      await createStatEventFixture({
+        type: "print",
+        createdAt: withinRangeDate,
+        toPublisherName,
+        missionId: `${toPublisherName}-print-2`,
+      });
+      await createStatEventFixture({
+        type: "click",
+        createdAt: withinRangeDate,
+        toPublisherName,
+        missionId: `${toPublisherName}-click-1`,
+      });
+      await createStatEventFixture({
+        type: "apply",
+        createdAt: withinRangeDate,
+        toPublisherName,
+        missionId: `${toPublisherName}-apply-1`,
+      });
+      await createStatEventFixture({
+        type: "account",
+        createdAt: withinRangeDate,
+        toPublisherName,
+        missionId: `${toPublisherName}-account-1`,
+      });
+    };
 
-    // As handler call ES twice, we need to separate first call (benevolat) from second call (volontariat)
-    let callCount = 0;
-    (elasticMock.search as any).mockImplementation(() => {
-      callCount += 1;
-      if (callCount === 1) {
-        return Promise.resolve(firstDayBenevolat);
-      }
-      if (callCount === 2) {
-        return Promise.resolve(firstDayVolontariat);
-      }
-      return Promise.resolve(zeroAgg);
-    });
+    await createEvents("Other");
+    await createEvents("Service Civique");
 
     const res = await handler.handle({ date: fixedToday.toISOString() });
     expect(res.success).toBe(true);
@@ -204,25 +203,25 @@ describe("KPI job - Integration", () => {
       return;
     }
 
-    // Benevolat ES mappings
-    expect(kpi.benevolatPrintMissionCount).toBe(3);
-    expect(kpi.benevolatClickMissionCount).toBe(2);
+    // Benevolat stats (Other)
+    expect(kpi.benevolatPrintMissionCount).toBe(2);
+    expect(kpi.benevolatClickMissionCount).toBe(1);
     expect(kpi.benevolatApplyMissionCount).toBe(1);
     expect(kpi.benevolatAccountMissionCount).toBe(1);
-    expect(kpi.benevolatPrintCount).toBe(11);
-    expect(kpi.benevolatClickCount).toBe(7);
-    expect(kpi.benevolatApplyCount).toBe(5);
-    expect(kpi.benevolatAccountCount).toBe(4);
+    expect(kpi.benevolatPrintCount).toBe(2);
+    expect(kpi.benevolatClickCount).toBe(1);
+    expect(kpi.benevolatApplyCount).toBe(1);
+    expect(kpi.benevolatAccountCount).toBe(1);
 
-    // Volontariat ES mappings
-    expect(kpi.volontariatPrintMissionCount).toBe(6);
-    expect(kpi.volontariatClickMissionCount).toBe(4);
-    expect(kpi.volontariatApplyMissionCount).toBe(2);
-    expect(kpi.volontariatAccountMissionCount).toBe(2);
-    expect(kpi.volontariatPrintCount).toBe(21);
-    expect(kpi.volontariatClickCount).toBe(14);
-    expect(kpi.volontariatApplyCount).toBe(9);
-    expect(kpi.volontariatAccountCount).toBe(8);
+    // Volontariat stats (Service Civique)
+    expect(kpi.volontariatPrintMissionCount).toBe(2);
+    expect(kpi.volontariatClickMissionCount).toBe(1);
+    expect(kpi.volontariatApplyMissionCount).toBe(1);
+    expect(kpi.volontariatAccountMissionCount).toBe(1);
+    expect(kpi.volontariatPrintCount).toBe(2);
+    expect(kpi.volontariatClickCount).toBe(1);
+    expect(kpi.volontariatApplyCount).toBe(1);
+    expect(kpi.volontariatAccountCount).toBe(1);
   });
 
   it("Should handle ES failure", async () => {
@@ -231,9 +230,7 @@ describe("KPI job - Integration", () => {
     const yesterday = new Date(fixedToday.getFullYear(), fixedToday.getMonth(), fixedToday.getDate() - 1);
 
     const spy = vi.spyOn(ErrorModule, "captureException");
-
-    (elasticMock.search as any).mockReset();
-    (elasticMock.search as any).mockRejectedValue(new Error("ES down"));
+    const aggregateSpy = vi.spyOn(statEventService, "aggregateStatEventsForMission").mockRejectedValue(new Error("Stats down"));
 
     const res = await handler.handle({ date: fixedToday.toISOString() });
     expect(res.success).toBe(false);
@@ -242,5 +239,6 @@ describe("KPI job - Integration", () => {
     expect(kpi).toBeNull();
 
     expect(spy).toHaveBeenCalled();
+    aggregateSpy.mockRestore();
   });
 });

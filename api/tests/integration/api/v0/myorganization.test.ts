@@ -255,27 +255,13 @@ describe("MyOrganization API Integration Tests", () => {
   });
 });
 
-async function seedClicks({
-  publisherId,
-  publisherName,
-  count,
-}: {
-  publisherId: string;
-  publisherName: string;
-  count: number;
-}) {
+async function seedClicks({ publisherId, publisherName, count }: { publisherId: string; publisherName: string; count: number }) {
   for (let i = 0; i < count; i += 1) {
     await createStatEventFixture({
       type: "click",
       isBot: false,
       fromPublisherId: publisherId,
       fromPublisherName: publisherName,
-      toPublisherId: mission.publisherId,
-      toPublisherName: mission.publisherName,
-      missionId: mission._id.toString(),
-      missionClientId: mission.clientId,
-      missionOrganizationClientId: orgId,
-      missionOrganizationId: mission.organizationId || undefined,
     });
   }
 }

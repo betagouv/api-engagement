@@ -44,13 +44,6 @@ Ce répertoire contient des scripts de maintenance/migration pour l’API. Les s
   - Usage: Archive des offres côté Piloty à partir d’une liste d’identifiants publics (à éditer dans le script).
   - Prérequis: `LETUDIANT_PILOTY_TOKEN` (env).
 
-- **es-backfill/**
-
-  - Sous-dossier dédié à la migration des événements analytics d’Elasticsearch vers PostgreSQL et à leur vérification.
-  - Voir `scripts/es-backfill/README.md` pour les commandes complètes:
-    - Backfill: `npx ts-node scripts/es-backfill/backfill.ts [--env <chemin>] [--es <url>] [--db <url>]`
-    - Vérification: `npx ts-node scripts/es-backfill/check.ts [--env <chemin>] [--es <url>] [--db <url>]`
-
 - **mongo-backfill/**
 
   - Sous-dossier dédié à la migration des modèles MongoDB vers PostgreSQL.
