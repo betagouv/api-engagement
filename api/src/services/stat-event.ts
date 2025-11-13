@@ -19,6 +19,8 @@ import {
   StatEventType,
   StatEventRecord,
   UpdateStatEventOptions,
+  StatEventMissionStatsDetails,
+  StatEventMissionStatsSummary,
   ViewStatsFacet,
   WarningBotAggregationBucket,
   WarningBotAggregations,
@@ -510,6 +512,79 @@ async function aggregateStatEventsForMission({
   return result;
 }
 
+async function findStatEventMissionStatsWithDetails(
+  missionId: string
+): Promise<{ clicks: StatEventMissionStatsDetails[]; applications: StatEventMissionStatsDetails[] }> {
+  const [applications, clicks] = await Promise.all([
+    statEventRepository.groupBy({
+      by: ["from_publisher_id", "from_publisher_name"],
+      where: {
+        mission_id: missionId,
+        is_bot: false,
+        type: "apply",
+      },
+      _count: { _all: true },
+    } as Prisma.StatEventGroupByArgs),
+    statEventRepository.groupBy({
+      by: ["from_publisher_id", "from_publisher_name"],
+      where: {
+        mission_id: missionId,
+        is_bot: false,
+        type: "click",
+      },
+      _count: { _all: true },
+    } as Prisma.StatEventGroupByArgs),
+  ]);
+
+  const mapGroup = (group: { from_publisher_id: string | null; from_publisher_name: string | null; _count: { _all: number } }): StatEventMissionStatsDetails => ({
+    key: group.from_publisher_id ?? "",
+    name: group.from_publisher_name ?? undefined,
+    logo: undefined,
+    url: undefined,
+    doc_count: group._count._all,
+  });
+
+  return {
+    applications: applications.map(mapGroup),
+    clicks: clicks.map(mapGroup),
+  };
+}
+
+async function findStatEventMissionStatsSummary(
+  missionId: string
+): Promise<{ clicks: StatEventMissionStatsSummary[]; applications: StatEventMissionStatsSummary[] }> {
+  const [clicks, applications] = await Promise.all([
+    statEventRepository.groupBy({
+      by: ["from_publisher_name"],
+      where: {
+        mission_id: missionId,
+        is_bot: false,
+        type: "click",
+      },
+      _count: { _all: true },
+    } as Prisma.StatEventGroupByArgs),
+    statEventRepository.groupBy({
+      by: ["from_publisher_name"],
+      where: {
+        mission_id: missionId,
+        is_bot: false,
+        type: "apply",
+      },
+      _count: { _all: true },
+    } as Prisma.StatEventGroupByArgs),
+  ]);
+
+  const mapGroup = (group: { from_publisher_name: string | null; _count: { _all: number } }): StatEventMissionStatsSummary => ({
+    key: group.from_publisher_name ?? "",
+    doc_count: group._count._all,
+  });
+
+  return {
+    clicks: clicks.map(mapGroup),
+    applications: applications.map(mapGroup),
+  };
+}
+
 async function scrollStatEvents({ type, batchSize = 5000, cursor = null, filters }: ScrollStatEventsParams): Promise<ScrollStatEventsResult> {
   type PgCursor = { createdAt: string; id: string };
 
@@ -630,6 +705,8 @@ export const statEventService = {
   countStatEventsByCriteria,
   countStatEventClicksByPublisherForOrganizationSince,
   aggregateStatEventsForMission,
+  findStatEventMissionStatsWithDetails,
+  findStatEventMissionStatsSummary,
   scrollStatEvents,
   updateStatEventsExportStatus,
   findStatEventWarningBotCandidatesSince,
