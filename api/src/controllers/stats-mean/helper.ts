@@ -31,7 +31,7 @@ export interface StatsMeanResult {
   sources: StatsMeanSource[];
 }
 
-async function getStatsMean(filters: StatsMeanFilters): Promise<StatsMeanResult> {
+export async function getStatsMean(filters: StatsMeanFilters): Promise<StatsMeanResult> {
   const whereClauses: Prisma.Sql[] = [Prisma.sql`"is_bot" IS NOT TRUE`];
 
   if (filters.publisherId) {
