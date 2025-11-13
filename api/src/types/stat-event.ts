@@ -64,10 +64,6 @@ export interface CountEventsParams {
   from?: Date;
 }
 
-export interface UpdateStatEventOptions {
-  retryOnConflict?: number;
-}
-
 export interface HasRecentStatEventWithClickIdParams {
   type: StatEventType;
   clickId: string;

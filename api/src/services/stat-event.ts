@@ -20,7 +20,6 @@ import {
   StatEventMissionStatsSummary,
   StatEventRecord,
   StatEventType,
-  UpdateStatEventOptions,
   ViewStatsFacet,
   WarningBotAggregationBucket,
   WarningBotAggregations,
@@ -115,7 +114,7 @@ async function createStatEvent(event: StatEventRecord): Promise<string> {
   return id;
 }
 
-async function updateStatEvent(id: string, patch: Partial<StatEventRecord>, _options: UpdateStatEventOptions = {}) {
+async function updateStatEvent(id: string, patch: Partial<StatEventRecord>) {
   const data = toPg(patch, { includeDefaults: false });
   await statEventRepository.update({ where: { id }, data });
 }
@@ -488,15 +487,16 @@ async function aggregateStatEventsForMission({
         type: type as StatEventType,
       };
 
-      const [eventCount, missionGroups] = await Promise.all([
+      const [eventCount, missionGroupsRaw] = await Promise.all([
         statEventRepository.count({ where }),
         statEventRepository.groupBy({
           by: ["mission_id"],
           where: { ...where, mission_id: { not: null } },
           _count: { _all: true },
-        } as Prisma.StatEventGroupByArgs) as Promise<{ mission_id: string | null; _count: { _all: number } }[]>,
+        }),
       ]);
 
+      const missionGroups = missionGroupsRaw as { mission_id: string | null; _count: { _all: number } }[];
       const missionCount = missionGroups.length;
 
       result[type] = { eventCount, missionCount };
@@ -507,7 +507,9 @@ async function aggregateStatEventsForMission({
 }
 
 async function findStatEventMissionStatsWithDetails(missionId: string): Promise<{ clicks: StatEventMissionStatsDetails[]; applications: StatEventMissionStatsDetails[] }> {
-  const [applications, clicks] = await Promise.all([
+  type MissionStatsDetailsGroup = { from_publisher_id: string | null; from_publisher_name: string | null; _count: { _all: number } };
+
+  const [applicationsRaw, clicksRaw] = await Promise.all([
     statEventRepository.groupBy({
       by: ["from_publisher_id", "from_publisher_name"],
       where: {
@@ -516,7 +518,7 @@ async function findStatEventMissionStatsWithDetails(missionId: string): Promise<
         type: "apply",
       },
       _count: { _all: true },
-    } as Prisma.StatEventGroupByArgs),
+    }),
     statEventRepository.groupBy({
       by: ["from_publisher_id", "from_publisher_name"],
       where: {
@@ -525,10 +527,13 @@ async function findStatEventMissionStatsWithDetails(missionId: string): Promise<
         type: "click",
       },
       _count: { _all: true },
-    } as Prisma.StatEventGroupByArgs),
+    }),
   ]);
 
-  const mapGroup = (group: { from_publisher_id: string | null; from_publisher_name: string | null; _count: { _all: number } }): StatEventMissionStatsDetails => ({
+  const applications = applicationsRaw as MissionStatsDetailsGroup[];
+  const clicks = clicksRaw as MissionStatsDetailsGroup[];
+
+  const mapGroup = (group: MissionStatsDetailsGroup): StatEventMissionStatsDetails => ({
     key: group.from_publisher_id ?? "",
     name: undefined,
     logo: undefined,
@@ -543,7 +548,9 @@ async function findStatEventMissionStatsWithDetails(missionId: string): Promise<
 }
 
 async function findStatEventMissionStatsSummary(missionId: string): Promise<{ clicks: StatEventMissionStatsSummary[]; applications: StatEventMissionStatsSummary[] }> {
-  const [clicks, applications] = await Promise.all([
+  type MissionStatsSummaryGroup = { from_publisher_id: string | null; _count: { _all: number } };
+
+  const [clicksRaw, applicationsRaw] = await Promise.all([
     statEventRepository.groupBy({
       by: ["from_publisher_id"],
       where: {
@@ -552,7 +559,7 @@ async function findStatEventMissionStatsSummary(missionId: string): Promise<{ cl
         type: "click",
       },
       _count: { _all: true },
-    } as Prisma.StatEventGroupByArgs),
+    }),
     statEventRepository.groupBy({
       by: ["from_publisher_id"],
       where: {
@@ -561,10 +568,13 @@ async function findStatEventMissionStatsSummary(missionId: string): Promise<{ cl
         type: "apply",
       },
       _count: { _all: true },
-    } as Prisma.StatEventGroupByArgs),
+    }),
   ]);
 
-  const mapGroup = (group: { from_publisher_id: string | null; _count: { _all: number } }): StatEventMissionStatsSummary => ({
+  const clicks = clicksRaw as MissionStatsSummaryGroup[];
+  const applications = applicationsRaw as MissionStatsSummaryGroup[];
+
+  const mapGroup = (group: MissionStatsSummaryGroup): StatEventMissionStatsSummary => ({
     key: group.from_publisher_id ?? "",
     doc_count: group._count._all,
   });

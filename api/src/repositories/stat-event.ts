@@ -30,8 +30,8 @@ export const statEventRepository = {
     return prismaCore.statEvent.updateMany(params);
   },
 
-  async groupBy(params: Prisma.StatEventGroupByArgs): Promise<Prisma.GetStatEventGroupByPayload<typeof params>> {
-    return prismaCore.statEvent.groupBy(params);
+  async groupBy<T extends Prisma.StatEventGroupByArgs>(params: Prisma.SelectSubset<T, Prisma.StatEventGroupByArgs>): Promise<Prisma.GetStatEventGroupByPayload<T>> {
+    return prismaCore.statEvent.groupBy(params as any) as Prisma.GetStatEventGroupByPayload<T>;
   },
 };
 

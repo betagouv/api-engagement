@@ -9,8 +9,8 @@ import CampaignModel from "../models/campaign";
 import MissionModel from "../models/mission";
 import StatsBotModel from "../models/stats-bot";
 import WidgetModel from "../models/widget";
-import { statEventService } from "../services/stat-event";
 import { publisherService } from "../services/publisher";
+import { statEventService } from "../services/stat-event";
 import { Mission, StatEventRecord } from "../types";
 import { identify, slugify } from "../utils";
 
@@ -639,7 +639,7 @@ router.get("/:statsId/confirm-human", cors({ origin: "*" }), async (req, res) =>
       captureMessage(`[Update Stats] Invalid params`, JSON.stringify(params.error, null, 2));
       return res.status(400).send({ ok: false, code: INVALID_PARAMS, message: params.error });
     }
-    await statEventService.updateStatEvent(params.data.statsId, { isHuman: true }, { retryOnConflict: 5 });
+    await statEventService.updateStatEvent(params.data.statsId, { isHuman: true });
 
     return res.status(200).send({ ok: true });
   } catch (error: any) {
