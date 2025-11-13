@@ -1,9 +1,10 @@
 import request from "supertest";
-import { beforeEach, describe, expect, it } from "vitest";
+import { afterEach, beforeEach, describe, expect, it } from "vitest";
+import { prismaCore } from "../../../../src/db/postgres";
 import OrganizationExclusionModel from "../../../../src/models/organization-exclusion";
 import { Mission, MissionType, PublisherRecord } from "../../../../src/types";
 import { createTestMission, createTestPublisher } from "../../../fixtures";
-import elasticMock from "../../../mocks/elasticMock";
+import { createStatEventFixture } from "../../../fixtures/stat-event";
 import { createTestApp } from "../../../testApp";
 
 describe("MyOrganization API Integration Tests", () => {
@@ -16,22 +17,6 @@ describe("MyOrganization API Integration Tests", () => {
   let orgId: string;
 
   beforeEach(async () => {
-    process.env.READ_STATS_FROM = "es";
-
-    elasticMock.search.mockReset();
-    elasticMock.msearch.mockReset();
-
-    elasticMock.search.mockResolvedValue({
-      body: {
-        hits: { total: { value: 0 } },
-        aggregations: {
-          fromPublisherId: {
-            buckets: [],
-          },
-        },
-      },
-    });
-
     publisher = await createTestPublisher();
     apiKey = publisher.apikey || "";
     orgId = "test-org-id";
@@ -43,6 +28,11 @@ describe("MyOrganization API Integration Tests", () => {
       publishers: [{ publisherId: publisher.id, publisherName: publisher.name, moderator: true, missionType: MissionType.BENEVOLAT }],
     });
     await createTestPublisher();
+    await prismaCore.statEvent.deleteMany({});
+  });
+
+  afterEach(async () => {
+    await prismaCore.statEvent.deleteMany({});
   });
 
   /**
@@ -57,6 +47,17 @@ describe("MyOrganization API Integration Tests", () => {
     });
 
     it("should return list of publishers for the organization with correct format", async () => {
+      await seedClicks({
+        publisherId: publisher1.id,
+        publisherName: publisher1.name,
+        count: 2,
+      });
+      await seedClicks({
+        publisherId: publisher2.id,
+        publisherName: publisher2.name,
+        count: 1,
+      });
+
       const response = await request(app).get(`/v0/myorganization/${orgId}`).set("x-api-key", apiKey);
 
       expect(response.status).toBe(200);
@@ -83,22 +84,14 @@ describe("MyOrganization API Integration Tests", () => {
         expect(typeof partner.excluded).toBe("boolean");
         expect(typeof partner.clicks).toBe("number");
       });
+
+      expect(partner1.clicks).toBe(2);
+      expect(partner2.clicks).toBe(1);
     });
 
     it("should return correct exclusion status for publishers", async () => {
-      // Mock ES: all clicks to 0
-      elasticMock.search.mockResolvedValueOnce({
-        body: {
-          aggregations: {
-            fromPublisherId: {
-              buckets: [
-                { key: publisher1.id, doc_count: 0 },
-                { key: publisher2.id, doc_count: 0 },
-              ],
-            },
-          },
-        },
-      });
+      await seedClicks({ publisherId: publisher1.id, publisherName: publisher1.name, count: 1 });
+      await seedClicks({ publisherId: publisher2.id, publisherName: publisher2.name, count: 1 });
 
       // Add exclusion for publisher2
       await OrganizationExclusionModel.create({
@@ -261,3 +254,28 @@ describe("MyOrganization API Integration Tests", () => {
     });
   });
 });
+
+async function seedClicks({
+  publisherId,
+  publisherName,
+  count,
+}: {
+  publisherId: string;
+  publisherName: string;
+  count: number;
+}) {
+  for (let i = 0; i < count; i += 1) {
+    await createStatEventFixture({
+      type: "click",
+      isBot: false,
+      fromPublisherId: publisherId,
+      fromPublisherName: publisherName,
+      toPublisherId: mission.publisherId,
+      toPublisherName: mission.publisherName,
+      missionId: mission._id.toString(),
+      missionClientId: mission.clientId,
+      missionOrganizationClientId: orgId,
+      missionOrganizationId: mission.organizationId || undefined,
+    });
+  }
+}
