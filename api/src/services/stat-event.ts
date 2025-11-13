@@ -1,6 +1,5 @@
-import { v4 as uuidv4 } from "uuid";
-
 import { Prisma } from "../db/core";
+import { StatEvent as PrismaStatEvent } from "../db/core/client";
 
 import { statEventRepository } from "../repositories/stat-event";
 import {
@@ -28,7 +27,7 @@ import {
 
 const DEFAULT_TYPES: StatEventType[] = ["click", "print", "apply", "account"];
 
-function toPg(data: Partial<StatEventRecord>, options: { includeDefaults?: boolean } = {}) {
+function toPrisma(data: Partial<StatEventRecord>, options: { includeDefaults?: boolean } = {}) {
   const { includeDefaults = true } = options;
   const mapped: any = {
     type: data.type,
@@ -69,7 +68,7 @@ function toPg(data: Partial<StatEventRecord>, options: { includeDefaults?: boole
   return mapped;
 }
 
-function fromPg(row: any): StatEventRecord {
+function toStatEventRecord(row: PrismaStatEvent): StatEventRecord {
   return {
     _id: row.id,
     type: row.type,
@@ -109,19 +108,18 @@ function fromPg(row: any): StatEventRecord {
 }
 
 async function createStatEvent(event: StatEventRecord): Promise<string> {
-  const id = event._id || uuidv4();
-  await statEventRepository.create({ data: { id, ...toPg(event) } });
-  return id;
+  const result = await statEventRepository.create({ data: toPrisma(event) });
+  return result.id;
 }
 
 async function updateStatEvent(id: string, patch: Partial<StatEventRecord>) {
-  const data = toPg(patch, { includeDefaults: false });
+  const data = toPrisma(patch, { includeDefaults: false });
   await statEventRepository.update({ where: { id }, data });
 }
 
 async function findOneStatEventById(id: string): Promise<StatEventRecord | null> {
-  const pgRes = await statEventRepository.findUnique({ where: { id } });
-  return pgRes ? fromPg(pgRes) : null;
+  const result = await statEventRepository.findUnique({ where: { id } });
+  return result ? toStatEventRecord(result) : null;
 }
 
 async function countStatEvents() {
@@ -129,11 +127,11 @@ async function countStatEvents() {
 }
 
 async function findOneStatEventByMissionId(missionId: string): Promise<StatEventRecord | null> {
-  const pgRes = await statEventRepository.findFirst({
+  const result = await statEventRepository.findFirst({
     where: { mission_id: missionId },
     orderBy: { created_at: "desc" },
   });
-  return pgRes ? fromPg(pgRes) : null;
+  return result ? toStatEventRecord(result) : null;
 }
 
 async function countStatEventsByTypeSince({ publisherId, from, types }: CountByTypeParams) {
@@ -247,7 +245,7 @@ async function findStatEvents({ fromPublisherId, toPublisherId, type, sourceId, 
     take: size,
   });
 
-  return rows.map(fromPg);
+  return rows.map(toStatEventRecord);
 }
 
 async function findStatEventViews({ publisherId, size = 10, filters = {}, facets = [] }: SearchViewStatsParams): Promise<SearchViewStatsResult> {
@@ -310,7 +308,7 @@ async function findStatEventViews({ publisherId, size = 10, filters = {}, facets
       if (typeof facet !== "string" || !facet) {
         return;
       }
-      const column = toPgColumnName(facet);
+      const column = toPrismaColumnName(facet);
       if (!column) {
         return;
       }
@@ -442,13 +440,6 @@ async function updateStatEventsBotFlagForUser(user: string, isBot: boolean): Pro
   await statEventRepository.updateMany({ where: { user }, data: { is_bot: isBot } });
 }
 
-function createEmptyAggregations(): MissionStatsAggregations {
-  return DEFAULT_TYPES.reduce((acc, type) => {
-    acc[type] = { eventCount: 0, missionCount: 0 };
-    return acc;
-  }, {} as MissionStatsAggregations);
-}
-
 async function aggregateStatEventsForMission({
   from,
   to,
@@ -478,6 +469,12 @@ async function aggregateStatEventsForMission({
     baseWhere.AND = andConditions;
   }
 
+  const createEmptyAggregations = () => {
+    return DEFAULT_TYPES.reduce((acc, type) => {
+      acc[type] = { eventCount: 0, missionCount: 0 };
+      return acc;
+    }, {} as MissionStatsAggregations);
+  };
   const result = createEmptyAggregations();
 
   await Promise.all(
@@ -664,7 +661,7 @@ async function scrollStatEvents({ type, batchSize = 5000, cursor = null, filters
         });
 
   return {
-    events: rows.map(fromPg),
+    events: rows.map(toStatEventRecord),
     cursor: nextCursor,
     total: cursor ? 0 : total,
   };
@@ -681,13 +678,13 @@ async function updateStatEventsExportStatus(ids: string[], status: "SUCCESS" | "
   });
 }
 
-function toPgColumnName(field: string): string | null {
+function toPrismaColumnName(field: string): string | null {
   if (typeof field !== "string" || field.length === 0) {
     return null;
   }
 
   const placeholderValue = "__pg_column__";
-  const mapped = toPg({ [field]: placeholderValue } as Partial<StatEventRecord>, { includeDefaults: false });
+  const mapped = toPrisma({ [field]: placeholderValue } as Partial<StatEventRecord>, { includeDefaults: false });
   const [column] = Object.keys(mapped);
 
   return column ?? null;

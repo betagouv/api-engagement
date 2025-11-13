@@ -1,7 +1,5 @@
 import { Schema } from "mongoose";
 
-export * from "./stat-event";
-
 export type GeolocStatus = "ENRICHED_BY_PUBLISHER" | "ENRICHED_BY_API" | "NOT_FOUND" | "NO_DATA" | "SHOULD_ENRICH" | "FAILED";
 
 export type AddressItem = {
@@ -530,3 +528,4 @@ export * from "./moderation-event";
 export * from "./organization";
 export * from "./publisher";
 export * from "./report";
+export * from "./stat-event";
