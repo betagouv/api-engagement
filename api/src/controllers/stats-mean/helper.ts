@@ -1,8 +1,5 @@
-import { STATS_INDEX } from "../../config";
 import { Prisma } from "../../db/core";
-import esClient from "../../db/elastic";
 import { prismaCore } from "../../db/postgres";
-import { EsQuery } from "../../types";
 
 export interface StatsMeanFilters {
   publisherId?: string;
@@ -34,109 +31,7 @@ export interface StatsMeanResult {
   sources: StatsMeanSource[];
 }
 
-export async function getStatsMean(filters: StatsMeanFilters): Promise<StatsMeanResult> {
-  if (getReadStatsFrom() === "pg") {
-    return getStatsMeanFromPg(filters);
-  }
-  return getStatsMeanFromEs(filters);
-}
-
-async function getStatsMeanFromEs(filters: StatsMeanFilters): Promise<StatsMeanResult> {
-  const where = { bool: { must: [], must_not: [{ term: { isBot: true } }], should: [], filter: [] } } as EsQuery;
-
-  if (filters.publisherId) {
-    where.bool.filter.push({ term: { "fromPublisherId.keyword": filters.publisherId } });
-  }
-
-  if (filters.from && filters.to) {
-    where.bool.filter.push({ range: { createdAt: { gte: filters.from, lte: filters.to } } });
-  } else if (filters.from) {
-    where.bool.filter.push({ range: { createdAt: { gte: filters.from } } });
-  } else if (filters.to) {
-    where.bool.filter.push({ range: { createdAt: { lte: filters.to } } });
-  }
-
-  const sourceFilters = resolveSourceFilters(filters.source);
-  if (sourceFilters.length === 1) {
-    where.bool.filter.push({ term: { "source.keyword": sourceFilters[0] } });
-  } else if (sourceFilters.length > 1) {
-    where.bool.filter.push({
-      bool: {
-        minimum_should_match: 1,
-        should: sourceFilters.map((value) => ({ term: { "source.keyword": value } })),
-      },
-    });
-  }
-
-  const body = {
-    query: where,
-    size: 0,
-    track_total_hits: true,
-    aggs: {
-      type: { terms: { field: "type.keyword", size: 10 } },
-      sources: {
-        terms: { field: "sourceId.keyword", size: 1000 },
-        aggs: {
-          print: { filter: { term: { "type.keyword": "print" } } },
-          apply: { filter: { term: { "type.keyword": "apply" } } },
-          account: { filter: { term: { "type.keyword": "account" } } },
-          click: { filter: { term: { "type.keyword": "click" } } },
-          rate: {
-            bucket_script: {
-              buckets_path: {
-                apply: "apply._count",
-                click: "click._count",
-              },
-              script: "params.click > 0 ? params.apply / params.click : 0",
-            },
-          },
-          name: {
-            top_hits: {
-              _source: { includes: ["sourceName"] },
-              size: 1,
-            },
-          },
-        },
-      },
-    },
-  };
-
-  const response = await esClient.search({ index: STATS_INDEX, body });
-
-  const graphBuckets = response.body.aggregations?.type?.buckets ?? [];
-  const graph = {
-    printCount: getBucketCount(graphBuckets, "print"),
-    clickCount: getBucketCount(graphBuckets, "click"),
-    applyCount: getBucketCount(graphBuckets, "apply"),
-    accountCount: getBucketCount(graphBuckets, "account"),
-    rate: 0,
-  };
-  graph.rate = graph.clickCount ? graph.applyCount / graph.clickCount : 0;
-
-  const sources =
-    (response.body.aggregations?.sources?.buckets as Array<Record<string, any>> | undefined)
-      ?.filter((bucket) => bucket.key)
-      .map((bucket) => {
-        const printCount = bucket.print?.doc_count ?? 0;
-        const clickCount = bucket.click?.doc_count ?? 0;
-        const applyCount = bucket.apply?.doc_count ?? 0;
-        const accountCount = bucket.account?.doc_count ?? 0;
-        const topHit = bucket.name?.hits?.hits?.[0];
-        return {
-          id: bucket.key as string,
-          name: topHit?._source?.sourceName as string | undefined,
-          printCount,
-          clickCount,
-          applyCount,
-          accountCount,
-          rate: bucket.rate?.value ?? (clickCount ? applyCount / clickCount : 0),
-        };
-      }) ?? [];
-
-  return { graph, sources };
-}
-
-async function getStatsMeanFromPg(filters: StatsMeanFilters): Promise<StatsMeanResult> {
+async function getStatsMean(filters: StatsMeanFilters): Promise<StatsMeanResult> {
   const whereClauses: Prisma.Sql[] = [Prisma.sql`"is_bot" IS NOT TRUE`];
 
   if (filters.publisherId) {
@@ -258,12 +153,4 @@ function joinFilters(filters: Prisma.Sql[]): Prisma.Sql {
     clause = Prisma.sql`${clause} AND ${filters[i]}`;
   }
   return clause;
-}
-
-function getBucketCount(buckets: Array<{ key: string; doc_count: number }>, key: string): number {
-  return buckets.find((bucket) => bucket.key === key)?.doc_count ?? 0;
-}
-
-function getReadStatsFrom(): "es" | "pg" {
-  return (process.env.READ_STATS_FROM as "es" | "pg") || "es";
 }
