@@ -2,14 +2,14 @@ import { Types } from "mongoose";
 import request from "supertest";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
-import { STATS_INDEX } from "../../../../src/config";
 import { NOT_FOUND } from "../../../../src/error";
+import { prismaCore } from "../../../../src/db/postgres";
 import MissionModel from "../../../../src/models/mission";
 import StatsBotModel from "../../../../src/models/stats-bot";
 import WidgetModel from "../../../../src/models/widget";
 import { publisherService } from "../../../../src/services/publisher";
 import * as utils from "../../../../src/utils";
-import { elasticMock } from "../../../mocks";
+import { StatEventRecord } from "../../../../src/types";
 import { createTestApp } from "../../../testApp";
 
 const app = createTestApp();
@@ -18,34 +18,38 @@ describe("RedirectController /impression/:missionId/:publisherId", () => {
   beforeEach(async () => {
     await MissionModel.deleteMany({});
     await WidgetModel.deleteMany({});
-
-    elasticMock.index.mockReset();
-    elasticMock.index.mockResolvedValue({ body: { _id: "default-print-id" } });
+    await prismaCore.statEvent.deleteMany({});
   });
 
   afterEach(async () => {
     vi.restoreAllMocks();
     await MissionModel.deleteMany({});
     await WidgetModel.deleteMany({});
+    await prismaCore.statEvent.deleteMany({});
   });
 
   it("returns 204 when identity is missing", async () => {
     vi.spyOn(utils, "identify").mockReturnValue(null);
 
-    const response = await request(app).get(`/r/impression/${new Types.ObjectId().toString()}/${new Types.ObjectId().toString()}`);
+    const missionId = new Types.ObjectId().toString();
+    const publisherId = new Types.ObjectId().toString();
+    const response = await request(app).get(`/r/impression/${missionId}/${publisherId}`);
 
     expect(response.status).toBe(204);
-    expect(elasticMock.index).not.toHaveBeenCalled();
+    expect(await prismaCore.statEvent.count()).toBe(0);
   });
 
   it("returns 404 when mission is not found", async () => {
     const identity = { user: "user", referer: "https://ref", userAgent: "Mozilla" };
     vi.spyOn(utils, "identify").mockReturnValue(identity);
 
-    const response = await request(app).get(`/r/impression/${new Types.ObjectId().toString()}/${new Types.ObjectId().toString()}`);
+    const missionId = new Types.ObjectId().toString();
+    const publisherId = new Types.ObjectId().toString();
+    const response = await request(app).get(`/r/impression/${missionId}/${publisherId}`);
 
     expect(response.status).toBe(404);
     expect(response.body).toMatchObject({ ok: false, code: NOT_FOUND });
+    expect(await prismaCore.statEvent.count()).toBe(0);
   });
 
   it("returns 404 when publisher is not found", async () => {
@@ -65,6 +69,7 @@ describe("RedirectController /impression/:missionId/:publisherId", () => {
 
     expect(response.status).toBe(404);
     expect(response.body).toMatchObject({ ok: false, code: NOT_FOUND });
+    expect(await prismaCore.statEvent.count()).toBe(0);
   });
 
   it("records print stats with widget source when all data is present", async () => {
@@ -98,7 +103,6 @@ describe("RedirectController /impression/:missionId/:publisherId", () => {
 
     vi.spyOn(utils, "identify").mockReturnValue(identity);
     const statsBotFindOneSpy = vi.spyOn(StatsBotModel, "findOne").mockResolvedValue({ user: identity.user } as any);
-    elasticMock.index.mockResolvedValueOnce({ body: { _id: "print-id" } });
 
     const requestId = new Types.ObjectId().toString();
     const response = await request(app)
@@ -109,8 +113,39 @@ describe("RedirectController /impression/:missionId/:publisherId", () => {
 
     expect(response.status).toBe(200);
     expect(response.body.ok).toBe(true);
+    expect(statsBotFindOneSpy).toHaveBeenCalledWith({ user: identity.user });
+
+    const createdPrint = await prismaCore.statEvent.findUnique({ where: { id: response.body.data._id } });
+    expect(createdPrint).toMatchObject({
+      type: "print",
+      user: identity.user,
+      referer: identity.referer,
+      user_agent: identity.userAgent,
+      host: "redirect.test",
+      origin: "https://app.example.com",
+      request_id: requestId,
+      tag: "tag",
+      source: "widget",
+      source_id: widget._id.toString(),
+      source_name: widget.name,
+      mission_id: mission._id.toString(),
+      mission_client_id: mission.clientId,
+      mission_domain: mission.domain,
+      mission_title: mission.title,
+      mission_postal_code: mission.postalCode,
+      mission_department_name: mission.departmentName,
+      mission_organization_name: mission.organizationName,
+      mission_organization_id: mission.organizationId,
+      mission_organization_client_id: mission.organizationClientId,
+      to_publisher_id: mission.publisherId,
+      to_publisher_name: mission.publisherName,
+      from_publisher_id: publisher.id,
+      from_publisher_name: publisher.name,
+      is_bot: true,
+    });
+
     expect(response.body.data).toMatchObject({
-      _id: expect.any(String),
+      _id: createdPrint?.id,
       type: "print",
       tag: "tag",
       source: "widget",
@@ -131,32 +166,6 @@ describe("RedirectController /impression/:missionId/:publisherId", () => {
       fromPublisherName: publisher.name,
       isBot: true,
     });
-
-    expect(elasticMock.index).toHaveBeenCalledTimes(1);
-    const [indexArgs] = elasticMock.index.mock.calls;
-    expect(indexArgs[0].index).toBe(STATS_INDEX);
-    expect(indexArgs[0].body).toMatchObject({
-      type: "print",
-      host: "redirect.test",
-      origin: "https://app.example.com",
-      referer: identity.referer,
-      userAgent: identity.userAgent,
-      user: identity.user,
-      requestId,
-      tag: "tag",
-      source: "widget",
-      sourceId: widget._id.toString(),
-      sourceName: widget.name,
-      missionId: mission._id.toString(),
-      missionClientId: mission.clientId,
-      toPublisherId: mission.publisherId,
-      toPublisherName: mission.publisherName,
-      fromPublisherId: publisher.id,
-      fromPublisherName: publisher.name,
-      isBot: true,
-    });
-
-    expect(statsBotFindOneSpy).toHaveBeenCalledWith({ user: identity.user });
   });
 
   it("returns 200 and records print stats when query has only tracker", async () => {
@@ -178,7 +187,6 @@ describe("RedirectController /impression/:missionId/:publisherId", () => {
 
     vi.spyOn(utils, "identify").mockReturnValue(identity);
     vi.spyOn(StatsBotModel, "findOne").mockResolvedValue(null);
-    elasticMock.index.mockResolvedValueOnce({ body: { _id: "print-id" } });
 
     const response = await request(app).get(`/r/impression/${mission._id.toString()}/${publisher.id}`).query({ tracker: "tag" });
 
@@ -186,6 +194,16 @@ describe("RedirectController /impression/:missionId/:publisherId", () => {
     expect(response.body.ok).toBe(true);
     expect(response.body.data.source).toBe("jstag");
     expect(response.body.data.isBot).toBe(false);
-    expect(response.body.data.sourceId).toBeUndefined();
+
+    const storedPrint = await prismaCore.statEvent.findUnique({ where: { id: response.body.data._id } });
+    expect(storedPrint).toMatchObject({
+      type: "print",
+      tag: "tag",
+      source: "jstag",
+      source_id: "",
+      is_bot: false,
+      mission_id: mission._id.toString(),
+      to_publisher_id: mission.publisherId,
+    } as Partial<StatEventRecord>);
   });
 });

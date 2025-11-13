@@ -1,16 +1,18 @@
+import { randomUUID } from "crypto";
+
 import { statEventService } from "../../src/services/stat-event";
 import { StatEventRecord } from "../../src/types";
 
-export async function createClickStat(id: string, overrides: Partial<StatEventRecord> = {}) {
+export async function createStatEventFixture(overrides: Partial<StatEventRecord> = {}) {
   const record: StatEventRecord = {
-    _id: id,
-    type: "click",
+    _id: overrides._id ?? randomUUID(),
+    type: overrides.type ?? "print",
     createdAt: overrides.createdAt ?? new Date(),
     origin: overrides.origin ?? "https://origin.example.com",
     referer: overrides.referer ?? "https://referrer.example.com",
     userAgent: overrides.userAgent ?? "Mozilla/5.0",
     host: overrides.host ?? "redirect.test",
-    user: overrides.user ?? "click-user",
+    user: overrides.user ?? "stat-user",
     isBot: overrides.isBot ?? false,
     isHuman: overrides.isHuman ?? false,
     source: overrides.source ?? "publisher",
@@ -41,4 +43,12 @@ export async function createClickStat(id: string, overrides: Partial<StatEventRe
 
   await statEventService.createStatEvent(record);
   return record;
+}
+
+export async function createClickStat(id: string, overrides: Partial<StatEventRecord> = {}) {
+  return createStatEventFixture({
+    _id: id,
+    type: "click",
+    ...overrides,
+  });
 }

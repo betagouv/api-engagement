@@ -1,11 +1,11 @@
 import request from "supertest";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
-import { STATS_INDEX } from "../../../../src/config";
+import { prismaCore } from "../../../../src/db/postgres";
 import MissionModel from "../../../../src/models/mission";
 import StatsBotModel from "../../../../src/models/stats-bot";
 import * as utils from "../../../../src/utils";
-import { elasticMock } from "../../../mocks";
+import { createClickStat } from "../../../fixtures/stat-event";
 import { createTestApp } from "../../../testApp";
 
 const app = createTestApp();
@@ -13,24 +13,13 @@ const app = createTestApp();
 describe("RedirectController /account", () => {
   beforeEach(async () => {
     await MissionModel.deleteMany({});
-
-    elasticMock.index.mockReset();
-    elasticMock.count.mockReset();
-    elasticMock.get.mockReset();
-
-    elasticMock.index.mockResolvedValue({ body: { _id: "default-account-id" } });
-    elasticMock.count.mockResolvedValue({ body: { count: 0 } });
-    elasticMock.get.mockResolvedValue({
-      body: {
-        _id: "default-click-id",
-        _source: {},
-      },
-    });
+    await prismaCore.statEvent.deleteMany({});
   });
 
   afterEach(async () => {
     vi.restoreAllMocks();
     await MissionModel.deleteMany({});
+    await prismaCore.statEvent.deleteMany({});
   });
 
   it("returns 204 when identity is missing", async () => {
@@ -40,8 +29,7 @@ describe("RedirectController /account", () => {
 
     expect(response.status).toBe(204);
     expect(identifySpy).toHaveBeenCalled();
-    expect(elasticMock.get).not.toHaveBeenCalled();
-    expect(elasticMock.index).not.toHaveBeenCalled();
+    expect(await prismaCore.statEvent.count()).toBe(0);
   });
 
   it("returns 204 when query params are invalid", async () => {
@@ -54,8 +42,7 @@ describe("RedirectController /account", () => {
     const response = await request(app).get("/r/account?view[foo]=bar");
 
     expect(response.status).toBe(204);
-    expect(elasticMock.get).not.toHaveBeenCalled();
-    expect(elasticMock.index).not.toHaveBeenCalled();
+    expect(await prismaCore.statEvent.count()).toBe(0);
   });
 
   it("records account stats with mission details when available", async () => {
@@ -82,7 +69,7 @@ describe("RedirectController /account", () => {
     vi.spyOn(utils, "identify").mockReturnValue(identity);
     const statsBotFindOneSpy = vi.spyOn(StatsBotModel, "findOne").mockResolvedValue({ user: identity.user } as any);
 
-    const clickStat = {
+    const clickStat = await createClickStat("click-123", {
       user: "click-user",
       source: "campaign",
       sourceId: "campaign-id",
@@ -99,15 +86,7 @@ describe("RedirectController /account", () => {
       missionDepartmentName: "Lyon",
       missionOrganizationName: "Click Org",
       missionOrganizationId: "click-org-id",
-    };
-
-    elasticMock.get.mockResolvedValueOnce({
-      body: {
-        _id: "click-123",
-        _source: clickStat,
-      },
     });
-    elasticMock.index.mockResolvedValueOnce({ body: { _id: "account-123" } });
 
     const response = await request(app)
       .get("/r/account")
@@ -117,40 +96,35 @@ describe("RedirectController /account", () => {
 
     expect(response.status).toBe(200);
     expect(response.body).toEqual({ ok: true, id: expect.any(String) });
-
-    expect(elasticMock.get).toHaveBeenCalledWith({ index: STATS_INDEX, id: "click-123" });
-    expect(elasticMock.count).toHaveBeenCalled();
     expect(statsBotFindOneSpy).toHaveBeenCalledWith({ user: identity.user });
 
-    expect(elasticMock.index).toHaveBeenCalledTimes(1);
-    const [indexArgs] = elasticMock.index.mock.calls;
-    expect(indexArgs[0].index).toBe(STATS_INDEX);
-    expect(indexArgs[0].body).toMatchObject({
+    const createdAccount = await prismaCore.statEvent.findUnique({ where: { id: response.body.id } });
+    expect(createdAccount).toMatchObject({
       type: "account",
       user: identity.user,
       referer: identity.referer,
-      userAgent: identity.userAgent,
+      user_agent: identity.userAgent,
       host: "redirect.test",
       origin: "https://app.example.com",
-      clickUser: clickStat.user,
-      clickId: "click-123",
+      click_user: clickStat.user,
+      click_id: "click-123",
       source: clickStat.source,
-      sourceId: clickStat.sourceId,
-      sourceName: clickStat.sourceName,
-      fromPublisherId: clickStat.fromPublisherId,
-      fromPublisherName: clickStat.fromPublisherName,
-      toPublisherId: mission.publisherId,
-      toPublisherName: mission.publisherName,
-      missionId: mission._id.toString(),
-      missionClientId: mission.clientId,
-      missionDomain: mission.domain,
-      missionTitle: mission.title,
-      missionPostalCode: mission.postalCode,
-      missionDepartmentName: mission.departmentName,
-      missionOrganizationName: mission.organizationName,
-      missionOrganizationId: mission.organizationId,
-      missionOrganizationClientId: mission.organizationClientId,
-      isBot: true,
+      source_id: clickStat.sourceId,
+      source_name: clickStat.sourceName,
+      from_publisher_id: clickStat.fromPublisherId,
+      from_publisher_name: clickStat.fromPublisherName,
+      to_publisher_id: mission.publisherId,
+      to_publisher_name: mission.publisherName,
+      mission_id: mission._id.toString(),
+      mission_client_id: mission.clientId,
+      mission_domain: mission.domain,
+      mission_title: mission.title,
+      mission_postal_code: mission.postalCode,
+      mission_department_name: mission.departmentName,
+      mission_organization_name: mission.organizationName,
+      mission_organization_id: mission.organizationId,
+      mission_organization_client_id: mission.organizationClientId,
+      is_bot: true,
     });
   });
 
@@ -163,7 +137,7 @@ describe("RedirectController /account", () => {
     vi.spyOn(utils, "identify").mockReturnValue(identity);
     const statsBotFindOneSpy = vi.spyOn(StatsBotModel, "findOne").mockResolvedValue(null);
 
-    const clickStat = {
+    const clickStat = await createClickStat("click-456", {
       user: "click-user",
       source: "publisher",
       sourceId: "source-id",
@@ -180,49 +154,38 @@ describe("RedirectController /account", () => {
       missionDepartmentName: "Bordeaux",
       missionOrganizationName: "Click Org",
       missionOrganizationId: "click-org-id",
-    };
-
-    elasticMock.get.mockResolvedValueOnce({
-      body: {
-        _id: "click-456",
-        _source: clickStat,
-      },
     });
-    elasticMock.index.mockResolvedValueOnce({ body: { _id: "account-456" } });
 
     const response = await request(app).get("/r/account").query({ view: "click-456" });
 
     expect(response.status).toBe(200);
     expect(response.body).toEqual({ ok: true, id: expect.any(String) });
-
     expect(statsBotFindOneSpy).toHaveBeenCalledWith({ user: identity.user });
-    expect(elasticMock.count).toHaveBeenCalled();
-    expect(elasticMock.index).toHaveBeenCalledTimes(1);
-    const [accountCall] = elasticMock.index.mock.calls;
-    expect(accountCall[0].index).toBe(STATS_INDEX);
-    expect(accountCall[0].body).toMatchObject({
+
+    const storedAccount = await prismaCore.statEvent.findUnique({ where: { id: response.body.id } });
+    expect(storedAccount).toMatchObject({
       type: "account",
       user: identity.user,
       referer: identity.referer,
-      userAgent: identity.userAgent,
-      clickUser: clickStat.user,
-      clickId: "click-456",
+      user_agent: identity.userAgent,
+      click_user: clickStat.user,
+      click_id: "click-456",
       source: clickStat.source,
-      sourceId: clickStat.sourceId,
-      sourceName: clickStat.sourceName,
-      fromPublisherId: clickStat.fromPublisherId,
-      fromPublisherName: clickStat.fromPublisherName,
-      toPublisherId: clickStat.toPublisherId,
-      toPublisherName: clickStat.toPublisherName,
-      missionId: clickStat.missionId,
-      missionClientId: clickStat.missionClientId,
-      missionTitle: clickStat.missionTitle,
-      missionDomain: clickStat.missionDomain,
-      missionOrganizationName: clickStat.missionOrganizationName,
-      missionOrganizationId: clickStat.missionOrganizationId,
-      missionPostalCode: clickStat.missionPostalCode,
-      missionDepartmentName: clickStat.missionDepartmentName,
-      isBot: false,
+      source_id: clickStat.sourceId,
+      source_name: clickStat.sourceName,
+      from_publisher_id: clickStat.fromPublisherId,
+      from_publisher_name: clickStat.fromPublisherName,
+      to_publisher_id: clickStat.toPublisherId,
+      to_publisher_name: clickStat.toPublisherName,
+      mission_id: clickStat.missionId,
+      mission_client_id: clickStat.missionClientId,
+      mission_title: clickStat.missionTitle,
+      mission_domain: clickStat.missionDomain,
+      mission_organization_name: clickStat.missionOrganizationName,
+      mission_organization_id: clickStat.missionOrganizationId,
+      mission_postal_code: clickStat.missionPostalCode,
+      mission_department_name: clickStat.missionDepartmentName,
+      is_bot: false,
     });
   });
 });

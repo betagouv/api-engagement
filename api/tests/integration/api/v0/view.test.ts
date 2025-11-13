@@ -1,8 +1,9 @@
 import request from "supertest";
-import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it } from "vitest";
 
 import { createTestPublisher } from "../../../fixtures";
-import { elasticMock } from "../../../mocks";
+import { prismaCore } from "../../../../src/db/postgres";
+import { createStatEventFixture } from "../../../fixtures/stat-event";
 import { createTestApp } from "../../../testApp";
 
 describe("View API Integration Tests", () => {
@@ -15,45 +16,49 @@ describe("View API Integration Tests", () => {
     const publisher = await createTestPublisher({ name: "View Publisher" });
     apiKey = publisher.apikey!;
     publisherId = publisher.id;
-
-    elasticMock.search.mockReset();
-    vi.clearAllMocks();
+    await prismaCore.statEvent.deleteMany({});
   });
 
-  afterEach(() => {
-    delete process.env.READ_STATS_FROM;
+  afterEach(async () => {
+    await prismaCore.statEvent.deleteMany({});
   });
 
-  it("should return Elasticsearch stats", async () => {
-    process.env.READ_STATS_FROM = "es";
+  it("returns stats aggregated from PostgreSQL", async () => {
+    const otherPublisherId = "publisher-partner";
 
-    elasticMock.search.mockResolvedValue({
-      body: {
-        hits: { total: { value: 12 } },
-        aggregations: {
-          fromPublisherName: {
-            buckets: [
-              { key: "View Publisher", doc_count: 5 },
-              { key: "Partner Publisher", doc_count: 3 },
-            ],
-          },
-        },
-      },
-    });
+    await Promise.all(
+      Array.from({ length: 5 }).map(() =>
+        createStatEventFixture({
+          type: "print",
+          isBot: false,
+          fromPublisherId: otherPublisherId,
+          fromPublisherName: "View Publisher",
+          toPublisherId: publisherId,
+          toPublisherName: "View Publisher",
+        })
+      )
+    );
+
+    await Promise.all(
+      Array.from({ length: 3 }).map(() =>
+        createStatEventFixture({
+          type: "print",
+          isBot: false,
+          fromPublisherId: "partner-id",
+          fromPublisherName: "Partner Publisher",
+          toPublisherId: publisherId,
+          toPublisherName: "View Publisher",
+        })
+      )
+    );
 
     const response = await request(app).get("/v0/view/stats?facets=fromPublisherName").set("x-api-key", apiKey);
 
     expect(response.status).toBe(200);
-    expect(response.body).toEqual({
-      total: 12,
-      facets: {
-        fromPublisherName: [
-          { key: "View Publisher", doc_count: 5 },
-          { key: "Partner Publisher", doc_count: 3 },
-        ],
-      },
-    });
-
-    expect(elasticMock.search).toHaveBeenCalledTimes(1);
+    expect(response.body.total).toBe(8);
+    expect(response.body.facets.fromPublisherName).toEqual([
+      { key: "View Publisher", doc_count: 5 },
+      { key: "Partner Publisher", doc_count: 3 },
+    ]);
   });
 });
