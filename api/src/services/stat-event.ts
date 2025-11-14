@@ -30,6 +30,7 @@ const DEFAULT_TYPES: StatEventType[] = ["click", "print", "apply", "account"];
 function toPrisma(data: Partial<StatEventRecord>, options: { includeDefaults?: boolean } = {}) {
   const { includeDefaults = true } = options;
   const mapped: any = {
+    id: data._id,
     type: data.type,
     created_at: data.createdAt,
     click_user: data.clickUser,
