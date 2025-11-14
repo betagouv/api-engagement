@@ -4,14 +4,10 @@ dotenv.config();
 
 import mongoose from "mongoose";
 
-import { STATS_INDEX } from "../src/config";
-import esClient, { esConnected } from "../src/db/elastic";
 import { mongoConnected } from "../src/db/mongo";
 import { pgConnected, prismaCore } from "../src/db/postgres";
 import MissionModel from "../src/models/mission";
 import { publisherService } from "../src/services/publisher";
-import { reassignStats } from "../src/services/reassign-stats";
-import { EsQuery } from "../src/types";
 
 interface RenamePublisherOptions {
   dryRun: boolean;
@@ -21,7 +17,6 @@ interface RenamePublisherResult {
   publishers: { matched: number; updated: number };
   missions: { matched: number; updated: number };
   statEvents: { fromPublisher: number; toPublisher: number };
-  elasticsearch: { fromPublisher: number; toPublisher: number };
   dryRun: boolean;
 }
 
@@ -68,32 +63,6 @@ const updateStatEventsColumn = async (column: StatEventColumn, oldName: string, 
   return count;
 };
 
-const updateStatsInElastic = async (field: StatField, oldName: string, newName: string, dryRun: boolean): Promise<number> => {
-  const filter = { term: { [`${field}.keyword`]: oldName } };
-  const query: EsQuery = {
-    bool: {
-      must: [],
-      must_not: [],
-      should: [],
-      filter: [filter],
-    },
-  };
-
-  if (dryRun) {
-    const { body } = await esClient.count({ index: STATS_INDEX, body: { query } });
-    const count = (body as { count: number }).count;
-    console.log(`[RenamePublisher][Dry-run] Would update ${count} ElasticSearch stat document(s) for field ${field}`);
-    return count;
-  }
-
-  const update = field === "fromPublisherName" ? { fromPublisherName: newName } : { toPublisherName: newName };
-  const from = field === "fromPublisherName" ? { fromPublisherName: oldName } : { toPublisherName: oldName };
-  const updated = await reassignStats(from, update);
-  const totalUpdated = updated ?? 0;
-  console.log(`[RenamePublisher] Updated ${totalUpdated} ElasticSearch stat document(s) for field ${field}`);
-  return totalUpdated;
-};
-
 const renamePublisher = async (oldName: string, newName: string, { dryRun }: RenamePublisherOptions): Promise<RenamePublisherResult> => {
   console.log(`[RenamePublisher] Starting${dryRun ? " (dry-run)" : ""}`);
   console.log(`[RenamePublisher] Renaming '${oldName}' -> '${newName}'`);
@@ -126,19 +95,12 @@ const renamePublisher = async (oldName: string, newName: string, { dryRun }: Ren
   const statEventsFromResult = await updateStatEventsColumn("from_publisher_name", oldName, newName, dryRun);
   const statEventsToResult = await updateStatEventsColumn("to_publisher_name", oldName, newName, dryRun);
 
-  const esFromResult = await updateStatsInElastic("fromPublisherName", oldName, newName, dryRun);
-  const esToResult = await updateStatsInElastic("toPublisherName", oldName, newName, dryRun);
-
   const result: RenamePublisherResult = {
     publishers: { matched: publishersMatched, updated: dryRun ? publishersMatched : publishersUpdated },
     missions: { matched: missionsMatched, updated: dryRun ? missionsMatched : missionsUpdated },
     statEvents: {
       fromPublisher: statEventsFromResult,
       toPublisher: statEventsToResult,
-    },
-    elasticsearch: {
-      fromPublisher: esFromResult,
-      toPublisher: esToResult,
     },
     dryRun,
   };
@@ -151,23 +113,13 @@ const renamePublisher = async (oldName: string, newName: string, { dryRun }: Ren
 const cleanup = async () => {
   const cleanupPromises: Array<Promise<unknown>> = [prismaCore.$disconnect(), mongoose.connection.close()];
 
-  const elastic = esClient as unknown as {
-    close?: () => Promise<void>;
-    transport?: { close?: () => Promise<void> };
-  };
-  if (typeof elastic.close === "function") {
-    cleanupPromises.push(elastic.close());
-  } else if (typeof elastic.transport?.close === "function") {
-    cleanupPromises.push(elastic.transport.close());
-  }
-
   await Promise.allSettled(cleanupPromises);
 };
 
 const main = async () => {
   const { oldName, newName, options } = parseArgs();
 
-  await Promise.all([mongoConnected, esConnected, pgConnected]);
+  await Promise.all([mongoConnected, pgConnected]);
 
   try {
     await renamePublisher(oldName, newName, options);

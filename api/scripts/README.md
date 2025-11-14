@@ -5,7 +5,7 @@ Ce répertoire contient des scripts de maintenance/migration pour l’API. Les s
 ## Prérequis généraux
 
 - Node.js 18+
-- Accès aux bases et services nécessaires (MongoDB, PostgreSQL, Elasticsearch, APIs externes)
+- Accès aux bases et services nécessaires (MongoDB, PostgreSQL, APIs externes)
 - Variables d’environnement chargées (fichiers `.env*` ou flags `--env` lorsque disponible)
 - Prisma généré quand Postgres est utilisé: `npm run prisma:generate` (dans `api/`)
 
@@ -23,7 +23,6 @@ Ce répertoire contient des scripts de maintenance/migration pour l’API. Les s
   - Usage: Renomme un publisher et propage le changement:
     - MongoDB: `Publisher.name` et `Mission.publisherName`
     - PostgreSQL: colonnes `StatEvent.from_publisher_name` et `StatEvent.to_publisher_name`
-    - Elasticsearch (index stats): champs `fromPublisherName` et `toPublisherName`
   - Options: `--dry-run` pour voir les volumes sans modifier les données.
 
 - **update-mission-default-logo.ts**
