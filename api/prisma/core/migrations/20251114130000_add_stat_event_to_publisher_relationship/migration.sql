@@ -13,15 +13,18 @@ DROP MATERIALIZED VIEW IF EXISTS "public"."PublicStatsDomains";
 DROP MATERIALIZED VIEW IF EXISTS "public"."PublicStatsGraphYearlyOrganizations";
 DROP MATERIALIZED VIEW IF EXISTS "public"."PublicStatsGraphMonthly";
 
+-- Rename StatEvent table to snake_case
+ALTER TABLE "public"."StatEvent" RENAME TO "stat_event";
+
 -- AlterTable
-ALTER TABLE "public"."StatEvent" DROP COLUMN "from_publisher_name",
+ALTER TABLE "public"."stat_event" DROP COLUMN "from_publisher_name",
 DROP COLUMN "to_publisher_name";
 
 -- AddForeignKey
-ALTER TABLE "public"."StatEvent" ADD CONSTRAINT "StatEvent_from_publisher_id_fkey" FOREIGN KEY ("from_publisher_id") REFERENCES "public"."publisher"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "public"."stat_event" ADD CONSTRAINT "StatEvent_from_publisher_id_fkey" FOREIGN KEY ("from_publisher_id") REFERENCES "public"."publisher"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "public"."StatEvent" ADD CONSTRAINT "StatEvent_to_publisher_id_fkey" FOREIGN KEY ("to_publisher_id") REFERENCES "public"."publisher"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "public"."stat_event" ADD CONSTRAINT "StatEvent_to_publisher_id_fkey" FOREIGN KEY ("to_publisher_id") REFERENCES "public"."publisher"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- Recreate materialized views using publisher relations
 CREATE MATERIALIZED VIEW "public"."StatsGlobalEvents" AS
@@ -35,7 +38,7 @@ SELECT
   se."to_publisher_id",
   tp."name" AS "to_publisher_name",
   se."mission_id"
-FROM "public"."StatEvent" se
+FROM "public"."stat_event" se
 LEFT JOIN "public"."publisher" fp ON fp."id" = se."from_publisher_id"
 LEFT JOIN "public"."publisher" tp ON tp."id" = se."to_publisher_id"
 WHERE se."is_bot" IS NOT TRUE
@@ -66,7 +69,7 @@ SELECT
   tp."name" AS "to_publisher_name",
   MIN(se."created_at") AS "first_created_at",
   MAX(se."created_at") AS "last_created_at"
-FROM "public"."StatEvent" se
+FROM "public"."stat_event" se
 LEFT JOIN "public"."publisher" fp ON fp."id" = se."from_publisher_id"
 LEFT JOIN "public"."publisher" tp ON tp."id" = se."to_publisher_id"
 WHERE se."is_bot" IS NOT TRUE
@@ -114,7 +117,7 @@ WITH base AS (
       ELSE NULL
     END AS organization_name,
     se."type"
-  FROM "public"."StatEvent" se
+  FROM "public"."stat_event" se
   LEFT JOIN "public"."publisher" tp ON tp."id" = se."to_publisher_id"
   WHERE se."is_bot" IS NOT TRUE
 )
@@ -183,7 +186,7 @@ WITH base AS (
       WHEN se."mission_organization_name" IS NOT NULL AND se."mission_organization_name" <> '' THEN se."mission_organization_name"
       ELSE NULL
     END AS organization_name
-  FROM "public"."StatEvent" se
+  FROM "public"."stat_event" se
   LEFT JOIN "public"."publisher" tp ON tp."id" = se."to_publisher_id"
   WHERE se."is_bot" IS NOT TRUE
 )
@@ -245,7 +248,7 @@ WITH base AS (
       ELSE NULL
     END AS mission_id,
     se."type"
-  FROM "public"."StatEvent" se
+  FROM "public"."stat_event" se
   LEFT JOIN "public"."publisher" tp ON tp."id" = se."to_publisher_id"
   WHERE se."is_bot" IS NOT TRUE
     AND se."mission_domain" IS NOT NULL
@@ -322,7 +325,7 @@ WITH base AS (
       ELSE NULL
     END AS mission_id,
     se."type"
-  FROM "public"."StatEvent" se
+  FROM "public"."stat_event" se
   LEFT JOIN "public"."publisher" tp ON tp."id" = se."to_publisher_id"
   WHERE se."is_bot" IS NOT TRUE
     AND se."mission_postal_code" IS NOT NULL

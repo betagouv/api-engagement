@@ -121,58 +121,60 @@ model Report {
 
 model StatEvent {
   id                String          @id @default(uuid())
-  es_id             String?         @unique
+  esId              String?         @unique @map("es_id")
   type              StatEventType
-  created_at        DateTime        @default(now())
-  updated_at        DateTime?       @updatedAt
-  click_user        String?
-  click_id          String?
-  request_id        String?
+  createdAt         DateTime        @default(now()) @map("created_at")
+  updatedAt         DateTime?       @updatedAt @map("updated_at")
+  clickUser         String?         @map("click_user")
+  clickId           String?         @map("click_id")
+  requestId         String?         @map("request_id")
   origin            String
   referer           String
-  user_agent        String
+  userAgent         String          @map("user_agent")
   host              String
   user              String?
-  is_bot            Boolean
-  is_human          Boolean
+  isBot             Boolean         @map("is_bot")
+  isHuman           Boolean         @map("is_human")
   source            StatSource
-  source_id         String
-  source_name       String
-  custom_attributes Json?
+  sourceId          String          @map("source_id")
+  sourceName        String          @map("source_name")
+  customAttributes  Json?           @map("custom_attributes")
   status            StatEventStatus
 
-  from_publisher_id String
-  to_publisher_id   String
+  fromPublisherId   String          @map("from_publisher_id")
+  toPublisherId     String          @map("to_publisher_id")
 
-  fromPublisher Publisher @relation("StatEventFromPublisher", fields: [from_publisher_id], references: [id])
-  toPublisher   Publisher @relation("StatEventToPublisher", fields: [to_publisher_id], references: [id])
+  fromPublisher Publisher @relation("StatEventFromPublisher", fields: [fromPublisherId], references: [id])
+  toPublisher   Publisher @relation("StatEventToPublisher", fields: [toPublisherId], references: [id])
 
   // Mission fields. Should be replaced by foreign keys to existing models when migrated
-  mission_id                     String?
-  mission_client_id              String?
-  mission_domain                 String?
-  mission_title                  String?
-  mission_postal_code            String?
-  mission_department_name        String?
-  mission_organization_id        String?
-  mission_organization_name      String?
-  mission_organization_client_id String?
-  tag                            String?
-  tags                           String[]
-  export_to_analytics            String?
+  missionId                     String? @map("mission_id")
+  missionClientId               String? @map("mission_client_id")
+  missionDomain                 String? @map("mission_domain")
+  missionTitle                  String? @map("mission_title")
+  missionPostalCode             String? @map("mission_postal_code")
+  missionDepartmentName         String? @map("mission_department_name")
+  missionOrganizationId         String? @map("mission_organization_id")
+  missionOrganizationName       String? @map("mission_organization_name")
+  missionOrganizationClientId   String? @map("mission_organization_client_id")
+  tag                           String?
+  tags                          String[]
+  exportToAnalytics             String? @map("export_to_analytics")
 
-  @@index([type, created_at], map: "stats_event_type_created_at_desc_idx")
-  @@index([mission_id, created_at], map: "stats_event_mission_id_created_at_idx")
-  @@index([mission_client_id, created_at], map: "stats_event_mission_client_id_created_at_idx")
-  @@index([mission_department_name, created_at], map: "stats_event_mission_department_name_created_at_idx")
-  @@index([mission_domain, created_at], map: "stats_event_mission_domain_created_at_idx")
+  @@index([type, createdAt], map: "stats_event_type_created_at_desc_idx")
+  @@index([missionId, createdAt], map: "stats_event_mission_id_created_at_idx")
+  @@index([missionClientId, createdAt], map: "stats_event_mission_client_id_created_at_idx")
+  @@index([missionDepartmentName, createdAt], map: "stats_event_mission_department_name_created_at_idx")
+  @@index([missionDomain, createdAt], map: "stats_event_mission_domain_created_at_idx")
   @@index([tags], type: Gin, map: "stats_event_tags_idx")
-  @@index([from_publisher_id, created_at(sort: Desc)], map: "stats_event_from_publisher_created_at_idx")
-  @@index([to_publisher_id, created_at(sort: Desc)], map: "stats_event_to_publisher_created_at_idx")
-  @@index([from_publisher_id, type, created_at], map: "stats_event_from_publisher_type_created_at_idx")
-  @@index([to_publisher_id, type, created_at], map: "stats_event_to_publisher_type_created_at_idx")
-  @@index([updated_at(sort: Asc)], map: "stats_event_updated_at_asc_idx")
+  @@index([fromPublisherId, createdAt(sort: Desc)], map: "stats_event_from_publisher_created_at_idx")
+  @@index([toPublisherId, createdAt(sort: Desc)], map: "stats_event_to_publisher_created_at_idx")
+  @@index([fromPublisherId, type, createdAt], map: "stats_event_from_publisher_type_created_at_idx")
+  @@index([toPublisherId, type, createdAt], map: "stats_event_to_publisher_type_created_at_idx")
+  @@index([updatedAt(sort: Asc)], map: "stats_event_updated_at_asc_idx")
   @@index([user], map: "stats_event_user_idx")
+
+  @@map("stat_event")
 }
 
 model ModerationEvent {

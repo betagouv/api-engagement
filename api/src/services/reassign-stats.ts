@@ -27,18 +27,12 @@ type ReassignStatsField =
 export type ReassignStatsWhere = Partial<Record<ReassignStatsField, string | string[]>>;
 export type ReassignStatsUpdate = Partial<Record<ReassignStatsField, string>>;
 
-const camelToSnake = (value: string) =>
-  value
-    .replace(/([a-z0-9])([A-Z])/g, "$1_$2")
-    .replace(/([A-Z])([A-Z][a-z])/g, "$1_$2")
-    .toLowerCase();
-
 const buildPgWhere = (where: ReassignStatsWhere) => {
   return Object.entries(where).reduce<Record<string, unknown>>((acc, [key, value]) => {
     if (value === undefined || value === null) {
       return acc;
     }
-    const column = key === "id" ? "id" : camelToSnake(key);
+    const column = key as ReassignStatsField;
     acc[column] = Array.isArray(value) ? { in: value } : value;
     return acc;
   }, {});
@@ -49,7 +43,7 @@ const buildPgUpdate = (update: ReassignStatsUpdate) => {
     if (value === undefined || value === null) {
       return acc;
     }
-    const column = key === "id" ? "id" : camelToSnake(key);
+    const column = key as ReassignStatsField;
     acc[column] = value;
     return acc;
   }, {});

@@ -22,7 +22,7 @@ interface RenamePublisherResult {
 
 const USAGE = `Usage: ts-node scripts/rename-publisher.ts <oldName> <newName> [--dry-run]`;
 
-type StatEventColumn = "from_publisher_name" | "to_publisher_name";
+type StatEventColumn = "fromPublisherName" | "toPublisherName";
 type StatField = "fromPublisherName" | "toPublisherName";
 
 const parseArgs = (): { oldName: string; newName: string; options: RenamePublisherOptions } => {
@@ -92,8 +92,8 @@ const renamePublisher = async (oldName: string, newName: string, { dryRun }: Ren
     console.log(`[RenamePublisher][Dry-run] Would update ${missionsMatched} mission document(s)`);
   }
 
-  const statEventsFromResult = await updateStatEventsColumn("from_publisher_name", oldName, newName, dryRun);
-  const statEventsToResult = await updateStatEventsColumn("to_publisher_name", oldName, newName, dryRun);
+  const statEventsFromResult = await updateStatEventsColumn("fromPublisherName", oldName, newName, dryRun);
+  const statEventsToResult = await updateStatEventsColumn("toPublisherName", oldName, newName, dryRun);
 
   const result: RenamePublisherResult = {
     publishers: { matched: publishersMatched, updated: dryRun ? publishersMatched : publishersUpdated },
