@@ -55,3 +55,8 @@ Ce répertoire contient des scripts de maintenance/migration pour l’API. Les s
   - Usage: Met à jour le champ `updated_at` de la table `StatEvent` lorsqu'il est `NULL`, en le remplaçant par `created_at` (traitement par lots).
   - Options: `--batch <taille>` pour définir la taille de lot (défaut: 5000).
   - Prérequis: Nécessite l'accès à Postgres `core`.
+
+- **fixtures/**
+
+  - Scripts d’initialisation/d’échantillonnage de données (voir `scripts/fixtures/README.md`), dont:
+    - `populate-stat-events-from-missions.ts`: génère des `StatEvent` réalistes pour un ou plusieurs publishers à partir de missions Mongo.
