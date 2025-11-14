@@ -33,6 +33,34 @@ export const statEventRepository = {
   async groupBy<T extends Prisma.StatEventGroupByArgs>(params: Prisma.SelectSubset<T, Prisma.StatEventGroupByArgs>): Promise<Prisma.GetStatEventGroupByPayload<T>> {
     return prismaCore.statEvent.groupBy(params as any) as Prisma.GetStatEventGroupByPayload<T>;
   },
+
+  async aggregateWarningBotBuckets(user: string): Promise<
+    { bucket: "type" | "publisherTo" | "publisherFrom"; key: string; doc_count: number }[]
+  > {
+    const rows = await prismaCore.$queryRaw<
+      { bucket: "type" | "publisherTo" | "publisherFrom"; key: string | null; doc_count: bigint }[]
+    >(
+      Prisma.sql`
+        SELECT
+          CASE
+            WHEN GROUPING(type) = 0 THEN 'type'
+            WHEN GROUPING(to_publisher_id) = 0 THEN 'publisherTo'
+            ELSE 'publisherFrom'
+          END AS bucket,
+          COALESCE(type::text, to_publisher_id::text, from_publisher_id::text, '') AS key,
+          COUNT(*)::bigint AS doc_count
+        FROM "StatEvent"
+        WHERE "user" = ${user}
+        GROUP BY GROUPING SETS ((type), (to_publisher_id), (from_publisher_id))
+      `
+    );
+
+    return rows.map((row) => ({
+      bucket: row.bucket,
+      key: row.key ?? "",
+      doc_count: Number(row.doc_count ?? 0n),
+    }));
+  },
 };
 
 export default statEventRepository;

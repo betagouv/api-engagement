@@ -405,36 +405,22 @@ async function findStatEventWarningBotCandidatesSince({ from, minClicks }: FindW
 }
 
 async function aggregateStatEventWarningBotByUser(user: string): Promise<WarningBotAggregations> {
-  const where: Prisma.StatEventWhereInput = { user };
+  const rows = await statEventRepository.aggregateWarningBotBuckets(user);
 
-  const [typeRows, toRows, fromRows] = await Promise.all([
-    statEventRepository.groupBy({
-      by: ["type"],
-      where,
-      _count: { _all: true },
-    } as any),
-    statEventRepository.groupBy({
-      by: ["to_publisher_id"],
-      where,
-      _count: { _all: true },
-    } as any),
-    statEventRepository.groupBy({
-      by: ["from_publisher_id"],
-      where,
-      _count: { _all: true },
-    } as any),
-  ]);
+  const aggregations: WarningBotAggregations = {
+    type: [],
+    publisherTo: [],
+    publisherFrom: [],
+  };
 
-  const mapAggregationRow = (row: any, field: string): WarningBotAggregationBucket => ({
-    key: row[field] ?? "",
-    doc_count: row._count?._all ?? 0,
+  rows.forEach((row) => {
+    const bucket = row.bucket;
+    const target =
+      bucket === "type" ? aggregations.type : bucket === "publisherTo" ? aggregations.publisherTo : aggregations.publisherFrom;
+    target.push({ key: row.key, doc_count: row.doc_count });
   });
 
-  return {
-    type: (typeRows as any[]).map((row) => mapAggregationRow(row, "type")),
-    publisherTo: (toRows as any[]).map((row) => mapAggregationRow(row, "to_publisher_id")),
-    publisherFrom: (fromRows as any[]).map((row) => mapAggregationRow(row, "from_publisher_id")),
-  };
+  return aggregations;
 }
 
 async function updateStatEventsBotFlagForUser(user: string, isBot: boolean): Promise<void> {
