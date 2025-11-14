@@ -2,12 +2,12 @@ import { prismaAnalytics as prismaClient } from "../../../db/postgres";
 
 import { Click } from "../../../db/analytics";
 import { captureException } from "../../../error";
-import statEventRepository from "../../../repositories/stat-event";
-import { Stats } from "../../../types";
+import { statEventService } from "../../../services/stat-event";
+import { StatEventRecord } from "../../../types";
 
 const BATCH_SIZE = 5000;
 
-const getReferer = (doc: Stats) => {
+const getReferer = (doc: StatEventRecord) => {
   if (!doc.referer) {
     return null;
   }
@@ -20,7 +20,7 @@ const getReferer = (doc: Stats) => {
 };
 
 const buildData = async (
-  doc: Stats,
+  doc: StatEventRecord,
   partners: { [key: string]: string },
   missions: { [key: string]: string },
   campaigns: { [key: string]: string },
@@ -129,7 +129,7 @@ const handler = async () => {
         events,
         cursor: nextCursor,
         total: count,
-      } = await statEventRepository.scrollStatEvents({
+      } = await statEventService.scrollStatEvents({
         type: "click",
         batchSize: BATCH_SIZE,
         cursor,
@@ -149,7 +149,7 @@ const handler = async () => {
       console.log(`[Clicks] Found ${data.length} docs in stats storage, processed ${processed} docs so far, ${total - processed} docs left.`);
 
       const missions = {} as { [key: string]: string };
-      const missionIds = new Set<string>((data as Stats[]).map((hit) => hit.missionId?.toString()).filter((id): id is string => typeof id === "string"));
+      const missionIds = new Set<string>((data as StatEventRecord[]).map((hit) => hit.missionId?.toString()).filter((id): id is string => typeof id === "string"));
       if (missionIds.size) {
         await prismaClient.mission
           .findMany({
@@ -164,7 +164,7 @@ const handler = async () => {
       const toCreate: Click[] = [];
       const successIds: string[] = [];
       const failureIds: string[] = [];
-      for (const hit of data as Stats[]) {
+      for (const hit of data as StatEventRecord[]) {
         const obj = await buildData(hit, partners, missions, campaigns, widgets);
         if (!obj) {
           failureIds.push(hit._id as string);
@@ -188,11 +188,11 @@ const handler = async () => {
 
       // Update export status for processed docs
       if (successIds.length > 0) {
-        await statEventRepository.setStatEventsExportStatus(successIds, "SUCCESS");
+        await statEventService.updateStatEventsExportStatus(successIds, "SUCCESS");
         console.log(`[Clicks] Marked ${successIds.length} docs as SUCCESS in stats storage.`);
       }
       if (failureIds.length > 0) {
-        await statEventRepository.setStatEventsExportStatus(failureIds, "FAILURE");
+        await statEventService.updateStatEventsExportStatus(failureIds, "FAILURE");
         console.log(`[Clicks] Marked ${failureIds.length} docs as FAILURE in stats storage.`);
       }
       processed += data.length;

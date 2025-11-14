@@ -1,7 +1,7 @@
 import { captureException } from "../../error";
 import KpiModel from "../../models/kpi";
 import MissionModel from "../../models/mission";
-import statEventRepository from "../../repositories/stat-event";
+import { statEventService } from "../../services/stat-event";
 import { Kpi } from "../../types";
 import { safeDivision } from "./utils/math";
 
@@ -77,12 +77,12 @@ export const buildKpi = async (start: Date): Promise<Kpi | null> => {
     const percentageBenevolatAttributedPlaces = safeDivision(availableBenevolatAttributedMissionCount, availableBenevolatMissionCount);
     const percentageVolontariatAttributedPlaces = safeDivision(availableVolontariatAttributedMissionCount, availableVolontariatMissionCount);
 
-    const statsBenevolatAggs = await statEventRepository.aggregateMissionStats({
+    const statsBenevolatAggs = await statEventService.aggregateStatEventsForMission({
       from: fromDate,
       to: endDate,
       excludeToPublisherName: "Service Civique",
     });
-    const statsVolontariatAggs = await statEventRepository.aggregateMissionStats({
+    const statsVolontariatAggs = await statEventService.aggregateStatEventsForMission({
       from: fromDate,
       to: endDate,
       toPublisherName: "Service Civique",

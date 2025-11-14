@@ -1,15 +1,15 @@
 import { SLACK_WARNING_CHANNEL_ID } from "../../config";
 import WarningBotModel from "../../models/warning-bot";
-import statEventRepository from "../../repositories/stat-event";
+import { statEventService } from "../../services/stat-event";
 import { publisherService } from "../../services/publisher";
 import { postMessage } from "../../services/slack";
 import { WarningBot } from "../../types";
 
-const countClick = (user: string) => statEventRepository.countEvents({ type: "click", user });
+const countClick = (user: string) => statEventService.countStatEventsByCriteria({ type: "click", user });
 
-const countApply = (user: string) => statEventRepository.countEvents({ type: "apply", clickUser: user });
+const countApply = (user: string) => statEventService.countStatEventsByCriteria({ type: "apply", clickUser: user });
 
-const countAccount = (user: string) => statEventRepository.countEvents({ type: "account", clickUser: user });
+const countAccount = (user: string) => statEventService.countStatEventsByCriteria({ type: "account", clickUser: user });
 
 export const checkBotClicks = async () => {
   console.log(`Checking bot from stats`);
@@ -17,7 +17,7 @@ export const checkBotClicks = async () => {
   const now = new Date();
   const oneDayAgo = new Date(now.getTime() - 24 * 60 * 60 * 1000);
 
-  const candidates = await statEventRepository.findWarningBotCandidatesSince({
+  const candidates = await statEventService.findStatEventWarningBotCandidatesSince({
     from: oneDayAgo,
     minClicks: 200,
   });

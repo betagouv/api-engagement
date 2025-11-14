@@ -4,7 +4,7 @@ import zod from "zod";
 
 import { INVALID_QUERY } from "../error";
 import RequestModel from "../models/request";
-import statEventRepository from "../repositories/stat-event";
+import { statEventService } from "../services/stat-event";
 import type { PublisherRecord } from "../types/publisher";
 import { PublisherRequest } from "../types/passport";
 
@@ -83,7 +83,7 @@ router.get("/stats", passport.authenticate(["apikey", "api"], { session: false }
           .filter((facet) => facet.length)
       : [];
 
-    const { total, facets: facetBuckets } = await statEventRepository.searchViewStats({
+    const { total, facets: facetBuckets } = await statEventService.findStatEventViews({
       publisherId: user.id,
       size: query.data.size,
       filters: {

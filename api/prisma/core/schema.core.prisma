@@ -171,6 +171,7 @@ model StatEvent {
   @@index([from_publisher_id, type, created_at], map: "stats_event_from_publisher_type_created_at_idx")
   @@index([to_publisher_id, type, created_at], map: "stats_event_to_publisher_type_created_at_idx")
   @@index([updated_at(sort: Asc)], map: "stats_event_updated_at_asc_idx")
+  @@index([user], map: "stats_event_user_idx")
 }
 
 model ModerationEvent {

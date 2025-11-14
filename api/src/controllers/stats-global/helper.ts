@@ -1,8 +1,5 @@
-import { STATS_INDEX } from "../../config";
 import { Prisma } from "../../db/core";
-import esClient from "../../db/elastic";
 import { prismaCore } from "../../db/postgres";
-import { EsQuery } from "../../types";
 
 type StatEventType = "click" | "apply" | "print" | "account";
 type Flux = "to" | "from";
@@ -172,145 +169,7 @@ async function countMissions(whereClause: Prisma.Sql): Promise<number> {
   return Number(rows[0]?.total ?? 0n);
 }
 
-export async function getBroadcastPreviewStats(params: BroadcastPreviewParams) {
-  if (getReadStatsFrom() === "pg") {
-    return getBroadcastPreviewStatsFromPg(params);
-  }
-  return getBroadcastPreviewStatsFromEs(params);
-}
-
-export async function getAnnouncePreviewStats(params: AnnounceParams) {
-  if (getReadStatsFrom() === "pg") {
-    return getAnnouncePreviewStatsFromPg(params);
-  }
-  return getAnnouncePreviewStatsFromEs(params);
-}
-
-export async function getDistributionStats(params: DistributionParams) {
-  if (getReadStatsFrom() === "pg") {
-    return getDistributionStatsFromPg(params);
-  }
-  return getDistributionStatsFromEs(params);
-}
-
-export async function getEvolutionStats(params: EvolutionParams) {
-  if (getReadStatsFrom() === "pg") {
-    return getEvolutionStatsFromPg(params);
-  }
-  return getEvolutionStatsFromEs(params);
-}
-
-export async function getBroadcastPublishers(params: PublisherParams) {
-  if (getReadStatsFrom() === "pg") {
-    return getBroadcastPublishersFromPg(params);
-  }
-  return getBroadcastPublishersFromEs(params);
-}
-
-export async function getAnnouncePublishers(params: AnnouncePublishersParams) {
-  if (getReadStatsFrom() === "pg") {
-    return getAnnouncePublishersFromPg(params);
-  }
-  return getAnnouncePublishersFromEs(params);
-}
-
-export async function getMissionsStats(params: MissionsParams) {
-  if (getReadStatsFrom() === "pg") {
-    return getMissionsStatsFromPg(params);
-  }
-  return getMissionsStatsFromEs(params);
-}
-
-function getReadStatsFrom(): "es" | "pg" {
-  return (process.env.READ_STATS_FROM as "es" | "pg") === "pg" ? "pg" : "es";
-}
-
-function createBaseEsQuery(): EsQuery {
-  return {
-    bool: {
-      must: [],
-      must_not: [{ term: { isBot: true } }],
-      should: [],
-      filter: [],
-    },
-  } as EsQuery;
-}
-
-function applyDateFiltersToEsQuery(query: EsQuery, from?: Date, to?: Date) {
-  if (from && to) {
-    query.bool.filter.push({ range: { createdAt: { gte: from.toISOString(), lte: to.toISOString() } } });
-    return;
-  }
-  if (from) {
-    query.bool.filter.push({ range: { createdAt: { gte: from.toISOString() } } });
-  }
-  if (to) {
-    query.bool.filter.push({ range: { createdAt: { lte: to.toISOString() } } });
-  }
-}
-
-async function getBroadcastPreviewStatsFromEs({ publisherId, from, to }: BroadcastPreviewParams) {
-  const where = createBaseEsQuery();
-
-  if (publisherId) {
-    where.bool.filter.push({ term: { "fromPublisherId.keyword": publisherId } });
-  }
-
-  applyDateFiltersToEsQuery(where, from, to);
-
-  const body = {
-    query: where,
-    size: 0,
-    track_total_hits: true,
-    aggs: {
-      totalClick: {
-        filter: { term: { type: "click" } },
-      },
-      totalApply: {
-        filter: { term: { type: "apply" } },
-      },
-      totalPrint: {
-        filter: { term: { type: "print" } },
-      },
-      totalAccount: {
-        filter: { term: { type: "account" } },
-      },
-      totalMissionApply: {
-        filter: { term: { type: "apply" } },
-        aggs: {
-          missions: {
-            cardinality: {
-              field: "missionId.keyword",
-            },
-          },
-        },
-      },
-      totalMissionClick: {
-        filter: { term: { type: "click" } },
-        aggs: {
-          missions: {
-            cardinality: {
-              field: "missionId.keyword",
-            },
-          },
-        },
-      },
-    },
-  };
-
-  const response = await esClient.search({ index: STATS_INDEX, body });
-
-  return {
-    totalClick: response.body.aggregations.totalClick.doc_count as number,
-    totalApply: response.body.aggregations.totalApply.doc_count as number,
-    totalPrint: response.body.aggregations.totalPrint.doc_count as number,
-    totalAccount: response.body.aggregations.totalAccount.doc_count as number,
-    totalMissionApply: response.body.aggregations.totalMissionApply.missions.value as number,
-    totalMissionClick: response.body.aggregations.totalMissionClick.missions.value as number,
-  };
-}
-
-async function getBroadcastPreviewStatsFromPg({ publisherId, from, to }: BroadcastPreviewParams) {
+export async function getBroadcastPreviewStats({ publisherId, from, to }: BroadcastPreviewParams) {
   const eventsWhere = createWhereClause(createEventsConditions({ publisherId, publisherField: "from_publisher_id", from, to }));
 
   const [totalsRow] = await prismaCore.$queryRaw<
@@ -349,62 +208,7 @@ async function getBroadcastPreviewStatsFromPg({ publisherId, from, to }: Broadca
   };
 }
 
-async function getAnnouncePreviewStatsFromEs({ publisherId, from, to }: AnnounceParams) {
-  const where = createBaseEsQuery();
-
-  if (publisherId) {
-    where.bool.filter.push({ term: { "toPublisherId.keyword": publisherId } });
-  }
-
-  if (from) {
-    where.bool.must.push({ range: { createdAt: { gte: from.toISOString() } } });
-  }
-  if (to) {
-    where.bool.must.push({ range: { createdAt: { lte: to.toISOString() } } });
-  }
-
-  const body = {
-    query: where,
-    size: 0,
-    track_total_hits: true,
-    aggs: {
-      totalClick: {
-        filter: { term: { type: "click" } },
-      },
-      totalApply: {
-        filter: { term: { type: "apply" } },
-      },
-      totalPrint: {
-        filter: { term: { type: "print" } },
-      },
-      totalAccount: {
-        filter: { term: { type: "account" } },
-      },
-      totalMissionClicked: {
-        filter: { term: { type: "click" } },
-        aggs: {
-          missions: {
-            cardinality: {
-              field: "missionId.keyword",
-            },
-          },
-        },
-      },
-    },
-  };
-
-  const response = await esClient.search({ index: STATS_INDEX, body });
-
-  return {
-    totalPrint: response.body.aggregations.totalPrint.doc_count as number,
-    totalClick: response.body.aggregations.totalClick.doc_count as number,
-    totalApply: response.body.aggregations.totalApply.doc_count as number,
-    totalAccount: response.body.aggregations.totalAccount.doc_count as number,
-    totalMissionClicked: response.body.aggregations.totalMissionClicked.missions.value as number,
-  };
-}
-
-async function getAnnouncePreviewStatsFromPg({ publisherId, from, to }: AnnounceParams) {
+export async function getAnnouncePreviewStats({ publisherId, from, to }: AnnounceParams) {
   const eventsWhere = createWhereClause(createEventsConditions({ publisherId, publisherField: "to_publisher_id", from, to }));
 
   const [totalsRow] = await prismaCore.$queryRaw<
@@ -439,44 +243,7 @@ async function getAnnouncePreviewStatsFromPg({ publisherId, from, to }: Announce
   };
 }
 
-async function getDistributionStatsFromEs({ publisherId, from, to, type }: DistributionParams) {
-  const where = createBaseEsQuery();
-
-  if (publisherId) {
-    where.bool.filter.push({ term: { "fromPublisherId.keyword": publisherId } });
-  }
-  applyDateFiltersToEsQuery(where, from, to);
-  if (type) {
-    where.bool.filter.push({ term: { type } });
-  }
-
-  const body = {
-    query: where,
-    size: 0,
-    track_total_hits: true,
-    aggs: {
-      by_source: {
-        terms: {
-          field: "source.keyword",
-        },
-        aggs: {
-          total_count: {
-            value_count: { field: "_id" },
-          },
-        },
-      },
-    },
-  };
-
-  const response = await esClient.search({ index: STATS_INDEX, body });
-
-  return (response.body.aggregations.by_source.buckets as { key: string; total_count: { value: number } }[]).map((bucket) => ({
-    key: bucket.key,
-    doc_count: bucket.total_count.value,
-  }));
-}
-
-async function getDistributionStatsFromPg({ publisherId, from, to, type }: DistributionParams) {
+export async function getDistributionStats({ publisherId, from, to, type }: DistributionParams) {
   const whereClause = createWhereClause(createEventsConditions({ publisherId, publisherField: "from_publisher_id", from, to, type }));
 
   const rows = await prismaCore.$queryRaw<Array<{ source: string | null; doc_count: bigint }>>(
@@ -494,60 +261,7 @@ async function getDistributionStatsFromPg({ publisherId, from, to, type }: Distr
   return rows.filter((row) => !!row.source).map((row) => ({ key: row.source as string, doc_count: Number(row.doc_count) }));
 }
 
-async function getEvolutionStatsFromEs({ publisherId, from, to, type, flux }: EvolutionParams) {
-  const diff = (to.getTime() - from.getTime()) / (1000 * 60 * 60 * 24);
-  const interval = diff < 1 ? "hour" : diff < 61 ? "day" : "month";
-
-  const where = createBaseEsQuery();
-
-  if (publisherId) {
-    where.bool.filter.push({ term: { [`${flux}PublisherId.keyword`]: publisherId } });
-  }
-  applyDateFiltersToEsQuery(where, from, to);
-  if (type) {
-    where.bool.filter.push({ term: { type: type.toString() } });
-  }
-
-  const body = {
-    track_total_hits: true,
-    query: where,
-    aggs: {
-      topPublishers: {
-        terms: {
-          field: flux === "to" ? "fromPublisherName.keyword" : "toPublisherName.keyword",
-          size: 4,
-        },
-      },
-      histogram: {
-        date_histogram: {
-          field: "createdAt",
-          calendar_interval: interval,
-          time_zone: "Europe/Paris",
-        },
-        aggs: {
-          publishers: {
-            terms: {
-              field: flux === "to" ? "fromPublisherName.keyword" : "toPublisherName.keyword",
-              size: 80,
-            },
-          },
-        },
-      },
-    },
-    sort: [{ createdAt: { order: "desc" } }],
-    size: 0,
-  };
-
-  const response = await esClient.search({ index: STATS_INDEX, body });
-
-  return {
-    histogram: response.body.aggregations.histogram.buckets as HistogramBucket[],
-    topPublishers: (response.body.aggregations.topPublishers.buckets as { key: string }[]).map((bucket) => bucket.key),
-    total: response.body.hits.total.value as number,
-  };
-}
-
-async function getEvolutionStatsFromPg({ publisherId, from, to, type, flux }: EvolutionParams) {
+export async function getEvolutionStats({ publisherId, from, to, type, flux }: EvolutionParams) {
   const diff = (to.getTime() - from.getTime()) / (1000 * 60 * 60 * 24);
   const interval = diff < 1 ? "hour" : diff < 61 ? "day" : "month";
   const intervalSql = HISTOGRAM_INTERVAL_SQL[interval];
@@ -633,70 +347,7 @@ async function getEvolutionStatsFromPg({ publisherId, from, to, type, flux }: Ev
   };
 }
 
-async function getBroadcastPublishersFromEs({ publisherId, from, to, flux }: PublisherParams) {
-  const where = createBaseEsQuery();
-
-  if (publisherId) {
-    where.bool.filter.push({
-      term: { [`${flux}PublisherId.keyword`]: publisherId },
-    });
-  }
-  applyDateFiltersToEsQuery(where, from, to);
-
-  const field = flux === "to" ? "fromPublisherName.keyword" : "toPublisherName.keyword";
-
-  const body = {
-    query: where,
-    aggs: {
-      by_announcer: {
-        terms: {
-          field,
-          size: 1000,
-        },
-        aggs: {
-          total_click: {
-            filter: { term: { type: "click" } },
-            aggs: {
-              count: { value_count: { field: "_id" } },
-            },
-          },
-          total_apply: {
-            filter: { term: { type: "apply" } },
-            aggs: {
-              count: { value_count: { field: "_id" } },
-            },
-          },
-          total_account: {
-            filter: { term: { type: "account" } },
-            aggs: {
-              count: { value_count: { field: "_id" } },
-            },
-          },
-          total_print: {
-            filter: { term: { type: "print" } },
-            aggs: {
-              count: { value_count: { field: "_id" } },
-            },
-          },
-        },
-      },
-    },
-    size: 0,
-  };
-
-  const response = await esClient.search({ index: STATS_INDEX, body });
-
-  return (response.body.aggregations.by_announcer.buckets as any[]).map((bucket) => ({
-    publisherName: bucket.key,
-    clickCount: bucket.total_click.count.value as number,
-    applyCount: bucket.total_apply.count.value as number,
-    accountCount: bucket.total_account.count.value as number,
-    printCount: bucket.total_print.count.value as number,
-    rate: bucket.total_click.count.value ? bucket.total_apply.count.value / bucket.total_click.count.value : 0,
-  }));
-}
-
-async function getBroadcastPublishersFromPg({ publisherId, from, to, flux }: PublisherParams) {
+export async function getBroadcastPublishers({ publisherId, from, to, flux }: PublisherParams) {
   const publisherField: PublisherIdField = flux === "to" ? "to_publisher_id" : "from_publisher_id";
   const publisherNameField: PublisherNameField = flux === "to" ? "from_publisher_name" : "to_publisher_name";
 
@@ -746,42 +397,7 @@ async function getBroadcastPublishersFromPg({ publisherId, from, to, flux }: Pub
   });
 }
 
-async function getAnnouncePublishersFromEs({ publisherId, from, to, type, flux }: AnnouncePublishersParams) {
-  const where = createBaseEsQuery();
-
-  if (publisherId) {
-    where.bool.filter.push({ term: { [`${flux}PublisherId.keyword`]: publisherId } });
-  }
-  applyDateFiltersToEsQuery(where, from, to);
-  if (type) {
-    where.bool.filter.push({ term: { type } });
-  }
-
-  const field = flux === "to" ? "fromPublisherName.keyword" : "toPublisherName.keyword";
-
-  const body = {
-    query: where,
-    aggs: {
-      announcer: {
-        terms: {
-          field,
-          size: 100,
-        },
-      },
-    },
-    size: 0,
-  };
-
-  const response = await esClient.search({ index: STATS_INDEX, body });
-  const buckets = response.body.aggregations.announcer.buckets as { key: string; doc_count: number }[];
-
-  return {
-    data: buckets,
-    total: buckets.length,
-  };
-}
-
-async function getAnnouncePublishersFromPg({ publisherId, from, to, type, flux }: AnnouncePublishersParams) {
+export async function getAnnouncePublishers({ publisherId, from, to, type, flux }: AnnouncePublishersParams) {
   const publisherField: PublisherIdField = flux === "to" ? "to_publisher_id" : "from_publisher_id";
   const publisherNameField: PublisherNameField = flux === "to" ? "from_publisher_name" : "to_publisher_name";
 
@@ -813,49 +429,7 @@ async function getAnnouncePublishersFromPg({ publisherId, from, to, type, flux }
   };
 }
 
-async function getMissionsStatsFromEs({ publisherId, from, to }: MissionsParams) {
-  const where = createBaseEsQuery();
-
-  if (publisherId) {
-    where.bool.filter.push({ term: { "fromPublisherId.keyword": publisherId } });
-  }
-
-  if (from) {
-    where.bool.filter.push({ range: { createdAt: { gte: from.toISOString() } } });
-  }
-  if (to) {
-    where.bool.filter.push({ range: { createdAt: { lte: to.toISOString() } } });
-  }
-
-  const body = {
-    query: where,
-    track_total_hits: true,
-    aggs: {
-      by_announcer: {
-        terms: {
-          field: "toPublisherName.keyword",
-          size: 1000,
-        },
-        aggs: {
-          uniqueMissions: {
-            cardinality: { field: "missionId.keyword" },
-          },
-        },
-      },
-    },
-    size: 0,
-  };
-
-  const response = await esClient.search({ index: STATS_INDEX, body });
-  const buckets = response.body.aggregations.by_announcer.buckets as { key: string; uniqueMissions: { value: number } }[];
-
-  return {
-    data: buckets.map((bucket) => ({ key: bucket.key, doc_count: bucket.uniqueMissions.value })),
-    total: response.body.hits.total.value as number,
-  };
-}
-
-async function getMissionsStatsFromPg({ publisherId, from, to }: MissionsParams) {
+export async function getMissionsStats({ publisherId, from, to }: MissionsParams) {
   const total = await countEvents(createWhereClause(createEventsConditions({ publisherId, publisherField: "from_publisher_id", from, to })));
 
   const missionWhere = createWhereClause(

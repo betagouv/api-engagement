@@ -9,9 +9,9 @@ import CampaignModel from "../models/campaign";
 import MissionModel from "../models/mission";
 import StatsBotModel from "../models/stats-bot";
 import WidgetModel from "../models/widget";
-import { createStatEvent, getStatEventById, hasRecentStatEventWithClickId, updateStatEventById } from "../repositories/stat-event";
 import { publisherService } from "../services/publisher";
-import { Mission, Stats } from "../types";
+import { statEventService } from "../services/stat-event";
+import { Mission, StatEventRecord } from "../types";
 import { identify, slugify } from "../utils";
 
 const router = Router();
@@ -44,7 +44,7 @@ router.get("/apply", cors({ origin: "*" }), async (req: Request, res: Response) 
       return res.status(204).send();
     }
 
-    let click = null as Stats | null;
+    let click = null as StatEventRecord | null;
     let mission = null as HydratedDocument<Mission> | null;
     let customAttributes: Record<string, unknown> | undefined;
 
@@ -60,9 +60,9 @@ router.get("/apply", cors({ origin: "*" }), async (req: Request, res: Response) 
       }
     }
     if (query.data.view) {
-      const clickEvent = await getStatEventById(query.data.view);
+      const clickEvent = await statEventService.findOneStatEventById(query.data.view);
       if (clickEvent) {
-        const hasRecentApply = await hasRecentStatEventWithClickId({
+        const hasRecentApply = await statEventService.hasStatEventWithRecentClickId({
           type: "apply",
           clickId: query.data.view,
           since: fiveMinutesAgo(),
@@ -101,7 +101,7 @@ router.get("/apply", cors({ origin: "*" }), async (req: Request, res: Response) 
       createdAt: new Date(),
       missionClientId: query.data.mission || "",
       isBot: statBot ? true : false,
-    } as Stats;
+    } as StatEventRecord;
 
     if (customAttributes) {
       obj.customAttributes = customAttributes;
@@ -143,7 +143,7 @@ router.get("/apply", cors({ origin: "*" }), async (req: Request, res: Response) 
       obj.toPublisherName = click.toPublisherName;
     }
 
-    const id = await createStatEvent(obj);
+    const id = await statEventService.createStatEvent(obj);
     return res.status(200).send({ ok: true, id });
   } catch (error) {
     captureException(error);
@@ -171,13 +171,13 @@ router.get("/account", cors({ origin: "*" }), async (req: Request, res: Response
       return res.status(204).send();
     }
 
-    let click = null as Stats | null;
+    let click = null as StatEventRecord | null;
     let mission = null as HydratedDocument<Mission> | null;
 
     if (query.data.view) {
-      const clickEvent = await getStatEventById(query.data.view);
+      const clickEvent = await statEventService.findOneStatEventById(query.data.view);
       if (clickEvent) {
-        const hasRecentAccount = await hasRecentStatEventWithClickId({
+        const hasRecentAccount = await statEventService.hasStatEventWithRecentClickId({
           type: "account",
           clickId: query.data.view,
           since: fiveMinutesAgo(),
@@ -216,7 +216,7 @@ router.get("/account", cors({ origin: "*" }), async (req: Request, res: Response
       createdAt: new Date(),
       missionClientId: query.data.mission || "",
       isBot: statBot ? true : false,
-    } as Stats;
+    } as StatEventRecord;
 
     if (mission) {
       obj.missionId = mission._id.toString();
@@ -254,7 +254,7 @@ router.get("/account", cors({ origin: "*" }), async (req: Request, res: Response
       obj.toPublisherName = click.toPublisherName;
     }
 
-    const id = await createStatEvent(obj);
+    const id = await statEventService.createStatEvent(obj);
     return res.status(200).send({ ok: true, id });
   } catch (error: any) {
     captureException(error);
@@ -317,9 +317,9 @@ router.get("/campaign/:id", cors({ origin: "*" }), async (req, res) => {
       fromPublisherId: campaign.fromPublisherId,
       fromPublisherName: campaign.fromPublisherName,
       isBot: false,
-    } as Stats;
+    } as StatEventRecord;
 
-    const clickId = await createStatEvent(obj);
+    const clickId = await statEventService.createStatEvent(obj);
     const url = new URL(campaign.url);
 
     if (!url.search) {
@@ -340,7 +340,7 @@ router.get("/campaign/:id", cors({ origin: "*" }), async (req, res) => {
     // Update stats just created to add isBot (do it after redirect to avoid delay)
     const statBot = await StatsBotModel.findOne({ user: identity.user });
     if (statBot) {
-      await updateStatEventById(clickId, { isBot: true });
+      await statEventService.updateStatEvent(clickId, { isBot: true });
     }
   } catch (error) {
     captureException(error);
@@ -396,15 +396,6 @@ const findMissionTemp = async (missionId: string) => {
     return mission;
   }
 
-  // const response2 = await esClient.search({ index: STATS_INDEX, body: { query: { term: { "missionId.keyword": missionId } }, size: 1 } });
-  // if (response2.body.hits.total.value > 0) {
-  //   const stats = { _id: response2.body.hits.hits[0]._id, ...response2.body.hits.hits[0]._source } as Stats;
-  //   const mission = await MissionModel.findOne({ clientId: stats.missionClientId?.toString(), publisherId: stats.toPublisherId });
-  //   if (mission) {
-  //     captureMessage("[Temp] Mission found with click", `mission ${missionId}`);
-  //     return mission;
-  //   }
-  // }
   return null;
 };
 
@@ -485,8 +476,8 @@ router.get("/widget/:id", cors({ origin: "*" }), async (req: Request, res: Respo
       fromPublisherId: widget.fromPublisherId,
       fromPublisherName: widget.fromPublisherName,
       isBot: false,
-    } as Stats;
-    const clickId = await createStatEvent(obj);
+    } as StatEventRecord;
+    const clickId = await statEventService.createStatEvent(obj);
 
     if (mission.applicationUrl.indexOf("http://") === -1 && mission.applicationUrl.indexOf("https://") === -1) {
       mission.applicationUrl = "https://" + mission.applicationUrl;
@@ -511,7 +502,7 @@ router.get("/widget/:id", cors({ origin: "*" }), async (req: Request, res: Respo
     // Update stats just created to add isBot (do it after redirect to avoid delay)
     const statBot = await StatsBotModel.findOne({ user: identity.user });
     if (statBot) {
-      await updateStatEventById(clickId, { isBot: true });
+      await statEventService.updateStatEvent(clickId, { isBot: true });
     }
   } catch (error: any) {
     captureException(error);
@@ -576,9 +567,9 @@ router.get("/seo/:id", cors({ origin: "*" }), async (req: Request, res: Response
       fromPublisherId: PUBLISHER_IDS.API_ENGAGEMENT,
       fromPublisherName: "API Engagement",
       isBot: false,
-    } as Stats;
+    } as StatEventRecord;
 
-    const clickId = await createStatEvent(obj);
+    const clickId = await statEventService.createStatEvent(obj);
     const url = new URL(mission.applicationUrl || JVA_URL);
 
     url.searchParams.set("apiengagement_id", clickId);
@@ -590,7 +581,7 @@ router.get("/seo/:id", cors({ origin: "*" }), async (req: Request, res: Response
     // Update stats just created to add isBot (do it after redirect to avoid delay)
     const statBot = await StatsBotModel.findOne({ user: identity.user });
     if (statBot) {
-      await updateStatEventById(clickId, { isBot: true });
+      await statEventService.updateStatEvent(clickId, { isBot: true });
     }
   } catch (error: any) {
     captureException(error);
@@ -639,7 +630,7 @@ router.get("/:statsId/confirm-human", cors({ origin: "*" }), async (req, res) =>
       captureMessage(`[Update Stats] Invalid params`, JSON.stringify(params.error, null, 2));
       return res.status(400).send({ ok: false, code: INVALID_PARAMS, message: params.error });
     }
-    await updateStatEventById(params.data.statsId, { isHuman: true }, { retryOnConflict: 5 });
+    await statEventService.updateStatEvent(params.data.statsId, { isHuman: true });
 
     return res.status(200).send({ ok: true });
   } catch (error: any) {
@@ -720,9 +711,9 @@ router.get("/:missionId/:publisherId", cors({ origin: "*" }), async function tra
       fromPublisherName: fromPublisher?.name || "",
       isBot: false,
       tags: query.data?.tags ? (query.data.tags.includes(",") ? query.data.tags.split(",").map((tag) => tag.trim()) : [query.data.tags]) : undefined,
-    } as Stats;
+    } as StatEventRecord;
 
-    const clickId = await createStatEvent(obj);
+    const clickId = await statEventService.createStatEvent(obj);
 
     if (mission.applicationUrl.indexOf("http://") === -1 && mission.applicationUrl.indexOf("https://") === -1) {
       mission.applicationUrl = "https://" + mission.applicationUrl;
@@ -747,7 +738,7 @@ router.get("/:missionId/:publisherId", cors({ origin: "*" }), async function tra
     // Update stats just created to add isBot (do it after redirect to avoid delay)
     const statBot = await StatsBotModel.findOne({ user: identity.user });
     if (statBot) {
-      await updateStatEventById(clickId, { isBot: true });
+      await statEventService.updateStatEvent(clickId, { isBot: true });
     }
   } catch (error: any) {
     captureException(error);
@@ -811,9 +802,9 @@ router.get("/impression/campaign/:campaignId", cors({ origin: "*" }), async (req
       sourceId: campaign._id.toString(),
       sourceName: campaign.name,
       isBot: statBot ? true : false,
-    } as Stats;
+    } as StatEventRecord;
 
-    const printId = await createStatEvent(obj);
+    const printId = await statEventService.createStatEvent(obj);
     res.status(200).send({ ok: true, data: { ...obj, _id: printId } });
   } catch (error) {
     captureException(error);
@@ -902,9 +893,9 @@ router.get("/impression/:missionId/:publisherId", cors({ origin: "*" }), async (
       fromPublisherName: fromPublisher.name,
 
       isBot: statBot ? true : false,
-    } as Stats;
+    } as StatEventRecord;
 
-    const printId = await createStatEvent(obj);
+    const printId = await statEventService.createStatEvent(obj);
 
     res.status(200).send({ ok: true, data: { ...obj, _id: printId } });
   } catch (error: any) {

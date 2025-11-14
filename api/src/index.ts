@@ -19,8 +19,8 @@ import path from "path";
 import "./db/mongo";
 import { SERVER_ERROR, captureException, captureMessage } from "./error";
 
-import { esConnected } from "./db/elastic";
 import { mongoConnected } from "./db/mongo";
+import { pgConnected } from "./db/postgres";
 import middlewares from "./middlewares";
 
 import AdminReportController from "./controllers/admin-report";
@@ -56,7 +56,7 @@ import LeboncoinV2Controller from "./v2/leboncoin";
 
 const main = async () => {
   console.log("[API] Waiting for database connections...");
-  await Promise.all([mongoConnected, esConnected]);
+  await Promise.all([mongoConnected, pgConnected]);
   console.log("[API] All database connections established successfully.");
 
   console.log("[API] Starting API server...");

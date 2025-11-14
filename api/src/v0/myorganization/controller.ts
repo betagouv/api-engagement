@@ -6,7 +6,7 @@ import { INVALID_BODY, INVALID_PARAMS } from "../../error";
 import MissionModel from "../../models/mission";
 import OrganizationExclusionModel from "../../models/organization-exclusion";
 import RequestModel from "../../models/request";
-import statEventRepository from "../../repositories/stat-event";
+import { statEventService } from "../../services/stat-event";
 import { publisherService } from "../../services/publisher";
 import type { PublisherRecord } from "../../types/publisher";
 import { PublisherRequest } from "../../types/passport";
@@ -63,7 +63,7 @@ router.get("/:organizationClientId", passport.authenticate(["apikey", "api"], { 
 
     const oneMonthAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
     const publisherIds = publishers.map((publisher) => publisher.id);
-    const clicksByPublisher = await statEventRepository.countClicksByPublisherForOrganizationSince({
+    const clicksByPublisher = await statEventService.countStatEventClicksByPublisherForOrganizationSince({
       publisherIds,
       organizationClientId: params.data.organizationClientId,
       from: oneMonthAgo,
