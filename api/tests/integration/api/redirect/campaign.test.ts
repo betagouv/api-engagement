@@ -100,9 +100,7 @@ describe("RedirectController /campaign/:id", () => {
       source_id: campaign._id.toString(),
       source_name: campaign.name,
       to_publisher_id: campaign.toPublisherId,
-      to_publisher_name: campaign.toPublisherName,
       from_publisher_id: campaign.fromPublisherId,
-      from_publisher_name: campaign.fromPublisherName,
       is_bot: true,
     });
 

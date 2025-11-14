@@ -125,9 +125,7 @@ describe("RedirectController /:missionId/:publisherId", () => {
       mission_organization_id: mission.organizationId,
       mission_organization_client_id: mission.organizationClientId,
       to_publisher_id: mission.publisherId,
-      to_publisher_name: mission.publisherName,
       from_publisher_id: fromPublisher.id,
-      from_publisher_name: fromPublisher.name,
       tags: ["foo", "bar"],
       is_bot: true,
     });
