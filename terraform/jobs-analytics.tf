@@ -5,6 +5,7 @@ locals {
     "DATABASE_URL_ANALYTICS"  = local.secrets.DATABASE_URL_ANALYTICS
     "SENTRY_DSN_JOBS"         = local.secrets.SENTRY_DSN_JOBS
     "SLACK_TOKEN"             = local.secrets.SLACK_TOKEN
+    "SLACK_CRON_CHANNEL_ID"   = local.secrets.SLACK_CRON_CHANNEL_ID
   }
 
   image_analytics_uri = "ghcr.io/${var.github_repository}/analytics:${terraform.workspace == "production" ? "production" : "staging"}${var.image_tag == "latest" ? "" : "-${var.image_tag}"}"
