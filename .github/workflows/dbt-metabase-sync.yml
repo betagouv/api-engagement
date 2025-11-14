@@ -29,6 +29,7 @@ jobs:
     env:
       METABASE_URL: ${{ vars.METABASE_URL }}
       METABASE_DATABASE_NAME: ${{ vars.METABASE_DATABASE_NAME }}
+      METABASE_API_KEY: ${{ secrets.METABASE_API_KEY }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v5
@@ -60,4 +61,5 @@ jobs:
             --manifest-path analytics/dbt/analytics/target/manifest.json \
             --metabase-url ${METABASE_URL} \
             --metabase-database ${METABASE_DATABASE_NAME} \
+            --metabase-api-key ${METABASE_API_KEY}
             --include-schemas analytics
