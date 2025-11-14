@@ -402,6 +402,20 @@ export const publisherService = (() => {
     return toPublisherRecord(updated as PublisherWithDiffusion);
   };
 
+  async function getPublisherNameMap(publisherIds: string[]): Promise<Map<string, string>> {
+    if (!publisherIds.length) {
+      return new Map();
+    }
+
+    const uniqueIds = Array.from(new Set(publisherIds));
+    const publishers = await publisherRepository.findMany({
+      where: { id: { in: uniqueIds } },
+      select: { id: true, name: true },
+    });
+
+    return new Map(publishers.map((publisher) => [publisher.id, publisher.name]));
+  }
+
   return {
     countPublishers,
     createPublisher,
@@ -416,5 +430,6 @@ export const publisherService = (() => {
     purgeAll,
     regenerateApiKey,
     softDeletePublisher,
+    getPublisherNameMap,
   };
 })();

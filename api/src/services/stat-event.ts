@@ -1,7 +1,7 @@
 import { Prisma } from "../db/core";
 
-import { publisherRepository } from "../repositories/publisher";
 import { statEventRepository } from "../repositories/stat-event";
+import { publisherService } from "../services/publisher";
 import {
   AggregateMissionStatsParams,
   CountByTypeParams,
@@ -34,20 +34,6 @@ type PrismaStatEventWithPublishers = Prisma.StatEventGetPayload<{
     toPublisher: { select: { id: true; name: true } };
   };
 }>;
-
-async function getPublisherNameMap(publisherIds: string[]): Promise<Map<string, string>> {
-  if (!publisherIds.length) {
-    return new Map();
-  }
-
-  const uniqueIds = Array.from(new Set(publisherIds));
-  const publishers = await publisherRepository.findMany({
-    where: { id: { in: uniqueIds } },
-    select: { id: true, name: true },
-  });
-
-  return new Map(publishers.map((publisher) => [publisher.id, publisher.name]));
-}
 
 function toPrisma(data: Partial<StatEventRecord>, options: { includeDefaults?: boolean } = {}) {
   const { includeDefaults = true } = options;
@@ -90,41 +76,12 @@ function toPrisma(data: Partial<StatEventRecord>, options: { includeDefaults?: b
 }
 
 function toStatEventRecord(row: PrismaStatEventWithPublishers): StatEventRecord {
+  const { fromPublisher, toPublisher, id, ...rest } = row;
   return {
-    _id: row.id,
-    type: row.type,
-    createdAt: row.createdAt,
-    clickUser: row.clickUser ?? undefined,
-    clickId: row.clickId ?? undefined,
-    requestId: row.requestId ?? undefined,
-    origin: row.origin,
-    referer: row.referer,
-    userAgent: row.userAgent,
-    host: row.host,
-    user: row.user ?? undefined,
-    isBot: row.isBot,
-    isHuman: row.isHuman,
-    source: row.source,
-    sourceId: row.sourceId,
-    sourceName: row.sourceName,
-    customAttributes: row.customAttributes ?? undefined,
-    status: row.status,
-    fromPublisherId: row.fromPublisherId,
-    fromPublisherName: row.fromPublisher?.name ?? "",
-    toPublisherId: row.toPublisherId,
-    toPublisherName: row.toPublisher?.name ?? "",
-    missionId: row.missionId ?? undefined,
-    missionClientId: row.missionClientId ?? undefined,
-    missionDomain: row.missionDomain ?? undefined,
-    missionTitle: row.missionTitle ?? undefined,
-    missionPostalCode: row.missionPostalCode ?? undefined,
-    missionDepartmentName: row.missionDepartmentName ?? undefined,
-    missionOrganizationId: row.missionOrganizationId ?? undefined,
-    missionOrganizationName: row.missionOrganizationName ?? undefined,
-    missionOrganizationClientId: row.missionOrganizationClientId ?? undefined,
-    tag: row.tag ?? undefined,
-    tags: row.tags ?? undefined,
-    exportToAnalytics: row.exportToAnalytics ?? undefined,
+    _id: id,
+    fromPublisherName: fromPublisher?.name,
+    toPublisherName: toPublisher?.name,
+    ...rest,
   } as StatEventRecord;
 }
 
@@ -342,7 +299,7 @@ async function findStatEventViews({ publisherId, size = 10, filters = {}, facets
           } as any)) as { [key: string]: any; _count: { _all: number } }[];
 
           const publisherIds = rows.map((row) => row[column] as string | null).filter((value): value is string => typeof value === "string" && value.length > 0);
-          const publisherNameMap = await getPublisherNameMap(publisherIds);
+          const publisherNameMap = await publisherService.getPublisherNameMap(publisherIds);
 
           facetsResult[facet] = rows
             .filter((row) => !!row[column])
@@ -423,7 +380,7 @@ async function findStatEventWarningBotCandidatesSince({ from, minClicks }: FindW
   const publisherIds = (publisherRows as { fromPublisherId: string | null }[])
     .map((row) => row.fromPublisherId)
     .filter((value): value is string => typeof value === "string" && value.length > 0);
-  const publisherNameMap = await getPublisherNameMap(publisherIds);
+  const publisherNameMap = await publisherService.getPublisherNameMap(publisherIds);
 
   const aggregateByUser = (rows: any[], keyExtractor: (row: any) => string | null | undefined, options: { skipNullKeys?: boolean } = {}) => {
     const { skipNullKeys = false } = options;
