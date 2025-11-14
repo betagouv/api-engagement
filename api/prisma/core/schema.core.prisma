@@ -158,7 +158,7 @@ model StatEvent {
   missionOrganizationName       String? @map("mission_organization_name")
   missionOrganizationClientId   String? @map("mission_organization_client_id")
   tag                           String?
-  tags                          String[]
+  tags                          String[] @default([])
   exportToAnalytics             String? @map("export_to_analytics")
 
   @@index([type, createdAt], map: "stats_event_type_created_at_desc_idx")

@@ -17,8 +17,10 @@ DROP MATERIALIZED VIEW IF EXISTS "public"."PublicStatsGraphMonthly";
 ALTER TABLE "public"."StatEvent" RENAME TO "stat_event";
 
 -- AlterTable
-ALTER TABLE "public"."stat_event" DROP COLUMN "from_publisher_name",
-DROP COLUMN "to_publisher_name";
+ALTER TABLE "public"."stat_event"
+  DROP COLUMN "from_publisher_name",
+  DROP COLUMN "to_publisher_name",
+  ALTER COLUMN "tags" SET DEFAULT ARRAY[]::text[];
 
 -- AddForeignKey
 ALTER TABLE "public"."stat_event" ADD CONSTRAINT "StatEvent_from_publisher_id_fkey" FOREIGN KEY ("from_publisher_id") REFERENCES "public"."publisher"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
