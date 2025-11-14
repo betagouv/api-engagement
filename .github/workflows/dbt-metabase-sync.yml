@@ -1,0 +1,65 @@
+name: Sync dbt metadata to Metabase
+
+on:
+  workflow_dispatch:
+  workflow_call:
+
+permissions:
+  contents: read
+
+jobs:
+  sync:
+    name: Export dbt docs to Metabase
+    runs-on: ubuntu-latest
+    environment: ${{ github.ref_name == 'main' && 'production' || 'staging' }}
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: postgres
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    env:
+      METABASE_URL: ${{ vars.METABASE_URL }}
+      METABASE_DATABASE_NAME: ${{ vars.METABASE_DATABASE_NAME }}
+      METABASE_API_KEY: ${{ secrets.METABASE_API_KEY }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v5
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dbt and dbt-metabase
+        run: |
+          python -m pip install --upgrade pip
+          pip install --no-cache-dir dbt-postgres dbt-metabase
+
+      - name: Prepare temporary databases
+        env:
+          PGPASSWORD: postgres
+        run: |
+          psql -h localhost -U postgres -d postgres -c 'CREATE DATABASE analytics;'
+
+      - name: Generate dbt manifest
+        env:
+          DATABASE_URL_ANALYTICS: postgresql://postgres:postgres@localhost:5432/analytics
+        run: ./analytics/scripts/dbt-env.sh docs generate
+
+      - name: Sync documentation to Metabase
+        run: |
+          dbt-metabase models \
+            --manifest-path analytics/dbt/analytics/target/manifest.json \
+            --metabase-url ${METABASE_URL} \
+            --metabase-database "${METABASE_DATABASE_NAME}" \
+            --metabase-api-key ${METABASE_API_KEY} \
+            --include-schemas analytics

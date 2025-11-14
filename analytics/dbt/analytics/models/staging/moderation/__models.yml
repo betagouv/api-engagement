@@ -16,6 +16,10 @@ models:
         description: Identifiant analytics de la mission concernée.
         tests:
           - not_null
+          - relationships:
+              arguments:
+                to: source('public', 'Mission')
+                field: id
       - name: created_at
         description: Date de création de l'événement.
         tests:

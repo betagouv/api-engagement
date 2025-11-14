@@ -14,6 +14,7 @@ on:
       - ".github/workflows/docker-build-push.yml"
       - ".github/workflows/terraform-deploy.yml"
       - ".github/workflows/tests.yml"
+      - ".github/workflows/dbt-metabase-sync.yml"
       - "api/**"
       - "app/**"
       - "analytics/**"
@@ -27,7 +28,22 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  detect-changes:
+    name: Detect analytics changes
+    runs-on: ubuntu-latest
+    outputs:
+      analytics: ${{ steps.filter.outputs.analytics }}
+    steps:
+      - uses: actions/checkout@v5
+      - uses: dorny/paths-filter@v3
+        id: filter
+        with:
+          filters: |
+            analytics:
+              - 'analytics/**'
+
   test:
+    needs: detect-changes
     uses: ./.github/workflows/tests.yml
     permissions:
       contents: read
@@ -49,3 +65,11 @@ jobs:
     secrets: inherit
     with:
       branch: ${{ github.ref_name }}
+
+  dbt-metabase-sync:
+    needs:
+      - deploy
+      - detect-changes
+    if: ${{ needs.detect-changes.outputs.analytics == 'true' }}
+    uses: ./.github/workflows/dbt-metabase-sync.yml
+    secrets: inherit
