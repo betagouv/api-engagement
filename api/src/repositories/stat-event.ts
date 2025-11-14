@@ -69,7 +69,7 @@ export const statEventRepository = {
           END AS bucket,
           COALESCE(type::text, to_publisher_id::text, from_publisher_id::text, '') AS key,
           COUNT(*)::bigint AS doc_count
-        FROM "StatEvent"
+        FROM "stat_event"
         WHERE "user" = ${user}
         GROUP BY GROUPING SETS ((type), (to_publisher_id), (from_publisher_id))
       `

@@ -151,7 +151,7 @@ async function getCounts(
         SUM(CASE WHEN type = 'apply'  AND created_at >= b.slm AND created_at < b.elm THEN 1 ELSE 0 END)::bigint AS apply_last_month,
         SUM(CASE WHEN type = 'account' AND created_at >= b.sm  AND created_at < b.em  THEN 1 ELSE 0 END)::bigint AS account_month,
         SUM(CASE WHEN type = 'account' AND created_at >= b.slm AND created_at < b.elm THEN 1 ELSE 0 END)::bigint AS account_last_month
-      FROM "StatEvent" s
+      FROM "stat_event" s
       CROSS JOIN bounds b
       WHERE s.is_bot IS NOT TRUE
         AND ${columns.publisherIdColumnSql} = ${publisherId}
@@ -194,7 +194,7 @@ async function getMonthlyBuckets(
           s.type,
           date_trunc('month', s.created_at) AS month,
           COUNT(*)::bigint AS doc_count
-        FROM "StatEvent" s
+        FROM "stat_event" s
         CROSS JOIN bounds b
         WHERE s.is_bot IS NOT TRUE
           AND ${columns.publisherIdColumnSql} = ${publisherId}
@@ -226,7 +226,7 @@ async function getTopPublishers(publisherId: string, columns: ReportColumnDefini
     Prisma.sql`
       SELECT ${columns.publisherNameColumnSql} AS key,
              COUNT(*)::bigint AS doc_count
-      FROM "StatEvent"
+      FROM "stat_event"
       WHERE is_bot is NOT true
         AND ${columns.publisherIdColumnSql} = ${publisherId}
         AND type = 'click'
@@ -248,7 +248,7 @@ async function getTopOrganizations(publisherId: string, columns: ReportColumnDef
     Prisma.sql`
       SELECT "mission_organization_name" AS key,
              COUNT(*)::bigint AS doc_count
-      FROM "StatEvent"
+      FROM "stat_event"
       WHERE is_bot is NOT true
         AND ${columns.publisherIdColumnSql} = ${publisherId}
         AND type = 'click'
@@ -283,7 +283,7 @@ async function getLastSixMonthsBuckets({
     Prisma.sql`
       SELECT date_trunc('month', created_at) AS month,
              COUNT(*)::bigint AS doc_count
-      FROM "StatEvent"
+      FROM "stat_event"
       WHERE is_bot IS NOT TRUE
         AND ${columns.publisherIdColumnSql} = ${publisherId}
         AND type = 'click'
@@ -302,7 +302,7 @@ async function getLastSixMonthsBuckets({
           SELECT date_trunc('month', created_at) AS month,
                  mission_organization_name AS key,
                  COUNT(*)::bigint AS doc_count
-          FROM "StatEvent"
+          FROM "stat_event"
           WHERE is_bot IS NOT TRUE
             AND ${columns.publisherIdColumnSql} = ${publisherId}
             AND type = 'click'

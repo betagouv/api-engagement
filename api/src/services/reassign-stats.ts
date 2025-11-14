@@ -57,12 +57,6 @@ const ES_KEYWORD_FIELDS: Set<ReassignStatsField> = new Set([
 
 const shouldWriteStatsDual = () => process.env.WRITE_STATS_DUAL === "true";
 
-const camelToSnake = (value: string) =>
-  value
-    .replace(/([a-z0-9])([A-Z])/g, "$1_$2")
-    .replace(/([A-Z])([A-Z][a-z])/g, "$1_$2")
-    .toLowerCase();
-
 const toEsField = (field: ReassignStatsField) => {
   if (field === "id") {
     return "_id";
@@ -101,7 +95,7 @@ const buildPgWhere = (where: ReassignStatsWhere) => {
     if (value === undefined || value === null) {
       return acc;
     }
-    const column = key === "id" ? "id" : camelToSnake(key);
+    const column = key as ReassignStatsField;
     acc[column] = Array.isArray(value) ? { in: value } : value;
     return acc;
   }, {});
@@ -112,7 +106,7 @@ const buildPgUpdate = (update: ReassignStatsUpdate) => {
     if (value === undefined || value === null) {
       return acc;
     }
-    const column = key === "id" ? "id" : camelToSnake(key);
+    const column = key as ReassignStatsField;
     acc[column] = value;
     return acc;
   }, {});
