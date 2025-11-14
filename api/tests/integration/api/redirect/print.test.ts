@@ -138,9 +138,7 @@ describe("RedirectController /impression/:missionId/:publisherId", () => {
       mission_organization_id: mission.organizationId,
       mission_organization_client_id: mission.organizationClientId,
       to_publisher_id: mission.publisherId,
-      to_publisher_name: mission.publisherName,
       from_publisher_id: publisher.id,
-      from_publisher_name: publisher.name,
       is_bot: true,
     });
 

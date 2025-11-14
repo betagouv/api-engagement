@@ -1,17 +1,35 @@
 import { Prisma, StatEvent } from "../db/core";
 import { prismaCore } from "../db/postgres";
 
+const defaultInclude = Prisma.validator<Prisma.StatEventInclude>()({
+  fromPublisher: {
+    select: { id: true, name: true },
+  },
+  toPublisher: {
+    select: { id: true, name: true },
+  },
+});
+
 export const statEventRepository = {
   async findMany(params: Prisma.StatEventFindManyArgs = {}): Promise<StatEvent[]> {
-    return prismaCore.statEvent.findMany(params);
+    return prismaCore.statEvent.findMany({
+      ...params,
+      include: params.include ?? defaultInclude,
+    }) as Promise<StatEvent[]>;
   },
 
   async findFirst(params: Prisma.StatEventFindFirstArgs): Promise<StatEvent | null> {
-    return prismaCore.statEvent.findFirst(params);
+    return prismaCore.statEvent.findFirst({
+      ...params,
+      include: params.include ?? defaultInclude,
+    }) as Promise<StatEvent | null>;
   },
 
   async findUnique(params: Prisma.StatEventFindUniqueArgs): Promise<StatEvent | null> {
-    return prismaCore.statEvent.findUnique(params);
+    return prismaCore.statEvent.findUnique({
+      ...params,
+      include: params.include ?? defaultInclude,
+    }) as Promise<StatEvent | null>;
   },
 
   async count(params: Prisma.StatEventCountArgs = {}): Promise<number> {
@@ -19,11 +37,17 @@ export const statEventRepository = {
   },
 
   async create(params: Prisma.StatEventCreateArgs): Promise<StatEvent> {
-    return prismaCore.statEvent.create(params);
+    return prismaCore.statEvent.create({
+      ...params,
+      include: params.include ?? defaultInclude,
+    });
   },
 
   async update(params: Prisma.StatEventUpdateArgs): Promise<StatEvent> {
-    return prismaCore.statEvent.update(params);
+    return prismaCore.statEvent.update({
+      ...params,
+      include: params.include ?? defaultInclude,
+    });
   },
 
   async updateMany(params: Prisma.StatEventUpdateManyArgs): Promise<Prisma.BatchPayload> {
@@ -34,12 +58,8 @@ export const statEventRepository = {
     return prismaCore.statEvent.groupBy(params as any) as Prisma.GetStatEventGroupByPayload<T>;
   },
 
-  async aggregateWarningBotBuckets(user: string): Promise<
-    { bucket: "type" | "publisherTo" | "publisherFrom"; key: string; doc_count: number }[]
-  > {
-    const rows = await prismaCore.$queryRaw<
-      { bucket: "type" | "publisherTo" | "publisherFrom"; key: string | null; doc_count: bigint }[]
-    >(
+  async aggregateWarningBotBuckets(user: string): Promise<{ bucket: "type" | "publisherTo" | "publisherFrom"; key: string; doc_count: number }[]> {
+    const rows = await prismaCore.$queryRaw<{ bucket: "type" | "publisherTo" | "publisherFrom"; key: string | null; doc_count: bigint }[]>(
       Prisma.sql`
         SELECT
           CASE

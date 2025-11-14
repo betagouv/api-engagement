@@ -141,10 +141,11 @@ model StatEvent {
   custom_attributes Json?
   status            StatEventStatus
 
-  from_publisher_id   String
-  from_publisher_name String
-  to_publisher_id     String
-  to_publisher_name   String
+  from_publisher_id String
+  to_publisher_id   String
+
+  fromPublisher Publisher @relation("StatEventFromPublisher", fields: [from_publisher_id], references: [id])
+  toPublisher   Publisher @relation("StatEventToPublisher", fields: [to_publisher_id], references: [id])
 
   // Mission fields. Should be replaced by foreign keys to existing models when migrated
   mission_id                     String?
@@ -233,6 +234,8 @@ model Publisher {
   diffuseurs            PublisherDiffusion[] @relation("PublisherAnnonceurRelation")
   diffusionsAsDiffuseur PublisherDiffusion[] @relation("PublisherDiffuseurRelation")
   reports               Report[]             @relation("PublisherReportRelation")
+  statEventsFrom        StatEvent[]          @relation("StatEventFromPublisher")
+  statEventsTo          StatEvent[]          @relation("StatEventToPublisher")
 
   @@index([name], map: "publisher_name_idx")
   @@index([apikey], map: "publisher_apikey_idx")
