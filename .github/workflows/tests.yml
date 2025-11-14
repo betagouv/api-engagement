@@ -131,10 +131,10 @@ jobs:
           DATABASE_URL_ANALYTICS: postgresql://postgres:postgres@localhost:5432/analytics?sslmode=disable
         run: npm run db:migrate
 
-      - name: dbt compile
+      - name: Check dbt compile
         working-directory: analytics
         env:
-          DATABASE_URL_ANALYTICS: postgresql://postgres:postgres@localhost:5432/analytics?sslmode=disable
+          DATABASE_URL_ANALYTICS: postgresql://postgres:postgres@localhost:5432/analytics
         run: ./scripts/dbt-env.sh compile
 
   api-tests:
