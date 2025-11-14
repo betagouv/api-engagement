@@ -14,6 +14,7 @@ describe("MyOrganization API Integration Tests", () => {
   let mission: Mission;
   let publisher1: PublisherRecord;
   let publisher2: PublisherRecord;
+  let publisher3: PublisherRecord;
   let orgId: string;
 
   beforeEach(async () => {
@@ -27,6 +28,7 @@ describe("MyOrganization API Integration Tests", () => {
     publisher2 = await createTestPublisher({
       publishers: [{ publisherId: publisher.id, publisherName: publisher.name, moderator: true, missionType: MissionType.BENEVOLAT }],
     });
+    publisher3 = await createTestPublisher();
     await createTestPublisher();
     await prismaCore.statEvent.deleteMany({});
   });
@@ -48,14 +50,14 @@ describe("MyOrganization API Integration Tests", () => {
 
     it("should return list of publishers for the organization with correct format", async () => {
       await seedClicks({
-        publisherId: publisher1.id,
-        publisherName: publisher1.name,
+        fromPublisherId: publisher1.id,
+        toPublisherId: publisher3.id,
         count: 2,
         organizationClientId: orgId,
       });
       await seedClicks({
-        publisherId: publisher2.id,
-        publisherName: publisher2.name,
+        fromPublisherId: publisher2.id,
+        toPublisherId: publisher3.id,
         count: 1,
         organizationClientId: orgId,
       });
@@ -92,8 +94,8 @@ describe("MyOrganization API Integration Tests", () => {
     });
 
     it("should return correct exclusion status for publishers", async () => {
-      await seedClicks({ publisherId: publisher1.id, publisherName: publisher1.name, count: 1, organizationClientId: orgId });
-      await seedClicks({ publisherId: publisher2.id, publisherName: publisher2.name, count: 1, organizationClientId: orgId });
+      await seedClicks({ fromPublisherId: publisher.id, toPublisherId: publisher1.id, count: 1, organizationClientId: orgId });
+      await seedClicks({ fromPublisherId: publisher2.id, toPublisherId: publisher1.id, count: 1, organizationClientId: orgId });
 
       // Add exclusion for publisher2
       await OrganizationExclusionModel.create({
@@ -258,13 +260,13 @@ describe("MyOrganization API Integration Tests", () => {
 });
 
 async function seedClicks({
-  publisherId,
-  publisherName,
+  fromPublisherId,
+  toPublisherId,
   count,
   organizationClientId,
 }: {
-  publisherId: string;
-  publisherName: string;
+  fromPublisherId: string;
+  toPublisherId: string;
   count: number;
   organizationClientId: string;
 }) {
@@ -272,8 +274,8 @@ async function seedClicks({
     await createStatEventFixture({
       type: "click",
       isBot: false,
-      fromPublisherId: publisherId,
-      fromPublisherName: publisherName,
+      fromPublisherId,
+      toPublisherId,
       missionOrganizationClientId: organizationClientId,
     });
   }
