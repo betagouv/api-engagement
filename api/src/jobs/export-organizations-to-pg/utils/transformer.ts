@@ -1,12 +1,12 @@
 import { Organization as PgOrganization } from "../../../db/analytics";
-import { Organization as MongoOrganization } from "../../../types";
+import { OrganizationRecord } from "../../../types/organization";
 import { slugify } from "../../../utils";
 
-export const transformMongoOrganizationToPg = (doc: MongoOrganization) => {
+export const transformMongoOrganizationToPg = (doc: OrganizationRecord) => {
   const obj = {
-    old_id: doc._id.toString(),
+    old_id: doc.id,
     rna: doc.rna,
-    siren: doc.siren || doc.siret?.slice(0, 9),
+    siren: doc.siren || doc.siret?.slice(0, 9) || null,
     siret: doc.siret,
     rup_mi: doc.rupMi,
     gestion: doc.gestion,
@@ -18,9 +18,9 @@ export const transformMongoOrganizationToPg = (doc: MongoOrganization) => {
     updated_at: doc.updatedAt,
     nature: doc.nature,
     groupement: doc.groupement,
-    title: doc.title || '',
+    title: doc.title || "",
     short_title: doc.shortTitle,
-    title_slug: doc.titleSlug || (doc.title ? slugify(doc.title) : '') ,
+    title_slug: doc.titleSlug || (doc.title ? slugify(doc.title) : ""),
     short_title_slug: doc.shortTitleSlug || (doc.shortTitle ? slugify(doc.shortTitle) : null),
     names: doc.names,
     object: doc.object,

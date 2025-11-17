@@ -3,8 +3,7 @@ import passport from "passport";
 import zod from "zod";
 
 import { INVALID_BODY, NOT_FOUND } from "../error";
-import ModerationEventModel from "../models/moderation-event";
-import { ModerationEvent } from "../types";
+import { moderationEventService } from "../services/moderation-event";
 import { UserRequest } from "../types/passport";
 
 const router = Router();
@@ -30,7 +29,7 @@ router.post("/search", passport.authenticate("user", { session: false }), async 
       where.moderatorId = body.data.moderatorId;
     }
 
-    const data = await ModerationEventModel.find(where).sort({ createdAt: 1 }).lean();
+    const data = await moderationEventService.findModerationEvents(where);
     if (!data) {
       return res.status(404).send({
         ok: false,
@@ -48,30 +47,10 @@ router.post("/search", passport.authenticate("user", { session: false }), async 
       });
     }
 
-    return res.status(200).send({ ok: true, data: data.map(buildData), total });
+    return res.status(200).send({ ok: true, data, total });
   } catch (error) {
     next(error);
   }
 });
-
-const buildData = (data: ModerationEvent) => {
-  return {
-    ...data,
-    initialNote: data.initialNote || null,
-    newNote: data.newNote || null,
-    newStatus: data.newStatus || null,
-    initialStatus: data.initialStatus || null,
-    newTitle: data.newTitle || null,
-    initialTitle: data.initialTitle || null,
-    newSiren: data.newSiren || null,
-    initialSiren: data.initialSiren || null,
-    newRNA: data.newRNA || null,
-    initialRNA: data.initialRNA || null,
-    userName: data.userName || null,
-    userId: data.userId || null,
-    newComment: data.newComment || null,
-    initialComment: data.initialComment || null,
-  };
-};
 
 export default router;

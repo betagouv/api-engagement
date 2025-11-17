@@ -4,5 +4,6 @@ export * from "./job";
 export * from "./mission";
 export * from "./mongo";
 export * from "./normalize";
+export * from "./array";
 export * from "./request";
 export * from "./string";

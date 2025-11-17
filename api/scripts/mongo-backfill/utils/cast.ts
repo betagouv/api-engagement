@@ -1,3 +1,5 @@
+import mongoose from "mongoose";
+
 export const asString = (value: unknown): string | null => {
   if (typeof value === "string") {
     const trimmed = value.trim();
@@ -75,4 +77,27 @@ export const asNumber = (value: unknown, fallback = 0): number => {
     return Number.isFinite(parsed) ? parsed : fallback;
   }
   return fallback;
+};
+export const toMongoObjectIdString = (value: unknown): string | null => {
+  if (!value) {
+    return null;
+  }
+
+  if (mongoose.isValidObjectId(value)) {
+    if (typeof value === "string") {
+      return value;
+    }
+    if (typeof (value as { toHexString?: () => string }).toHexString === "function") {
+      return (value as { toHexString: () => string }).toHexString();
+    }
+    if (typeof (value as { toString?: () => string }).toString === "function") {
+      return (value as { toString: () => string }).toString();
+    }
+  }
+
+  if (typeof value === "string" && /^[0-9a-fA-F]{24}$/.test(value)) {
+    return value.toLowerCase();
+  }
+
+  return null;
 };

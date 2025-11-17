@@ -1,8 +1,8 @@
-import { ObjectId } from "mongoose";
 import { Organization as PgOrganization } from "../../db/analytics";
 import { prismaAnalytics as prismaClient } from "../../db/postgres";
 import { captureException } from "../../error";
-import OrganizationModel from "../../models/organization";
+import { organizationService } from "../../services/organization";
+import { OrganizationExportCandidate, OrganizationRecord } from "../../types/organization";
 import { BaseHandler } from "../base/handler";
 import { JobResult } from "../types";
 import { transformMongoOrganizationToPg } from "./utils/transformer";
@@ -22,11 +22,6 @@ export interface ExportOrganizationsToPgResult extends JobResult {
   };
 }
 
-type BatchItem = {
-  _id: ObjectId;
-  updatedAt: Date;
-};
-
 const isDateEqual = (a: Date, b: Date) => new Date(a).getTime() === new Date(b).getTime();
 
 export class ExportOrganizationsToPgHandler implements BaseHandler<ExportOrganizationsToPgPayload, ExportOrganizationsToPgResult> {
@@ -45,38 +40,21 @@ export class ExportOrganizationsToPgHandler implements BaseHandler<ExportOrganiz
       const count = await prismaClient.organization.count();
       console.log(`[Organization] Found ${count} docs in database.`);
 
-      const where = { $or: [{ lastExportedToPgAt: null }, { $expr: { $lt: ["$lastExportedToPgAt", "$updatedAt"] } }] };
-      const countToSync = await OrganizationModel.countDocuments(where);
+      const countToSync = await organizationService.countOrganizationsByExportBacklog();
       console.log(`[Organization] Found ${countToSync} docs to sync.`);
 
       const start = new Date();
       console.log(`[Organization] Fetching docs from ${start.toISOString()}`);
-      const cursor = OrganizationModel.find(where).select("_id updatedAt").sort({ _id: 1 }).lean().cursor({ batchSize: BULK_SIZE });
-
-      const buffer: BatchItem[] = [];
-
-      let batchFetchAt = Date.now();
-
-      for await (const doc of cursor) {
-        if (buffer.length === 0) {
-          batchFetchAt = Date.now();
+      let cursor: string | null = null;
+      while (true) {
+        const batch = await organizationService.findOrganizationsByExportBacklog(BULK_SIZE, cursor);
+        if (!batch.length) {
+          break;
         }
-
-        buffer.push(doc);
-
-        if (buffer.length === BULK_SIZE) {
-          await this.processBatch(buffer, batchFetchAt, counter);
-
-          console.log(`[Organization] Processed ${counter.processed} / ${countToSync} docs`);
-          buffer.length = 0;
-        }
-      }
-
-      if (buffer.length > 0) {
-        await this.processBatch(buffer, batchFetchAt, counter);
-
+        cursor = batch[batch.length - 1].id;
+        await this.processBatch(batch, counter);
+        counter.processed += batch.length;
         console.log(`[Organization] Processed ${counter.processed} / ${countToSync} docs`);
-        buffer.length = 0;
       }
 
       console.log(`[Organization] Ended at ${new Date().toISOString()} in ${(Date.now() - start.getTime()) / 1000}s.`);
@@ -134,14 +112,11 @@ export class ExportOrganizationsToPgHandler implements BaseHandler<ExportOrganiz
     return true;
   }
 
-  private async processBatch(batch: BatchItem[], fetchedAt: number, counter: ExportOrganizationsToPgResult["counter"]) {
+  private async processBatch(batch: OrganizationExportCandidate[], counter: ExportOrganizationsToPgResult["counter"]) {
     if (!batch.length) {
       return;
     }
 
-    console.log(`[Organization] Fetched ${batch.length} docs in ${(Date.now() - fetchedAt) / 1000}s.`);
-
-    counter.processed += batch.length;
     const batchStart = Date.now();
 
     const dataToCreate = [] as PgOrganization[];
@@ -152,38 +127,38 @@ export class ExportOrganizationsToPgHandler implements BaseHandler<ExportOrganiz
 
     await prismaClient.organization
       .findMany({
-        where: { old_id: { in: batch.map((hit) => hit._id.toString()) } },
+        where: { old_id: { in: batch.map((hit) => hit.id) } },
         select: { old_id: true, updated_at: true },
       })
       .then((data) => data.forEach((d) => (stored[d.old_id] = d.updated_at)));
 
-    const idsToCreate: ObjectId[] = [];
-    const idsToUpdate: ObjectId[] = [];
+    const idsToCreate: string[] = [];
+    const idsToUpdate: string[] = [];
 
     for (const hit of batch) {
-      const idString = hit._id.toString();
+      const idString = hit.id;
       if (!stored[idString]) {
-        idsToCreate.push(hit._id);
+        idsToCreate.push(idString);
         continue;
       }
 
       if (!isDateEqual(stored[idString], hit.updatedAt)) {
-        idsToUpdate.push(hit._id);
+        idsToUpdate.push(idString);
       }
     }
 
     const idsToFetch = [...idsToCreate, ...idsToUpdate];
-    const docById = new Map<string, any>();
+    const docById = new Map<string, OrganizationRecord>();
 
     if (idsToFetch.length) {
-      const docs = await OrganizationModel.find({ _id: { $in: idsToFetch } }).lean();
+      const docs = await organizationService.findOrganizationsByIds(idsToFetch);
       docs.forEach((doc) => {
-        docById.set(doc._id.toString(), doc);
+        docById.set(doc.id, doc);
       });
     }
 
     for (const id of idsToCreate) {
-      const doc = docById.get(id.toString());
+      const doc = docById.get(id);
       if (!doc) {
         continue;
       }
@@ -195,7 +170,7 @@ export class ExportOrganizationsToPgHandler implements BaseHandler<ExportOrganiz
     }
 
     for (const id of idsToUpdate) {
-      const doc = docById.get(id.toString());
+      const doc = docById.get(id);
       if (!doc) {
         continue;
       }
@@ -225,7 +200,7 @@ export class ExportOrganizationsToPgHandler implements BaseHandler<ExportOrganiz
     }
 
     if (createSuccess && updateSuccess) {
-      await OrganizationModel.updateMany({ _id: { $in: batch.map((hit) => hit._id) } }, { $set: { lastExportedToPgAt: new Date() } }, { timestamps: false });
+      await organizationService.markExported(batch.map((hit) => hit.id));
 
       console.log(`[Organization] Processed batch in ${(Date.now() - batchStart) / 1000}s.`);
     }

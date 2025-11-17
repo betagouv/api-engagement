@@ -1,0 +1,25 @@
+version: 2
+
+models:
+  - name: stg_email
+    description: >
+      Vue de staging alignée sur la table `analytics_raw.email`, appliquant les
+      casts nécessaires (timestamps, enum -> texte) avant exposition au niveau mart.
+    columns:
+      - name: id
+        description: Identifiant unique de l'email.
+        tests:
+          - not_null
+          - unique
+      - name: status
+        description: Statut actuel de l'email (pending, processed, failed…).
+        tests:
+          - not_null
+      - name: created_at
+        description: Timestamp de création côté application source.
+        tests:
+          - not_null
+      - name: updated_at
+        description: Timestamp de dernière mise à jour (curseur d'export).
+        tests:
+          - not_null
