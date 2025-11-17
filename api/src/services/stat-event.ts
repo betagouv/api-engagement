@@ -305,11 +305,11 @@ async function findStatEventViews({ publisherId, size = 10, filters = {}, facets
           by: [column],
           where,
           _count: { _all: true },
-          orderBy: { _count: { _all: "desc" } },
-          take: size,
         } as any)) as { [key: string]: any; _count: { _all: number } }[];
+        rows.sort((a, b) => (b._count._all ?? 0) - (a._count._all ?? 0));
+        const limited = rows.slice(0, size);
 
-        facetsResult[facet] = rows
+        facetsResult[facet] = limited
           .filter((row) => row[column] !== null && row[column] !== undefined && row[column] !== "")
           .map((row) => ({ key: row[column], doc_count: row._count._all }));
       } catch (error) {

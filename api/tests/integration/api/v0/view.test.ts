@@ -17,15 +17,16 @@ describe("View API Integration Tests", () => {
     publisherId = publisher.id;
   });
 
-  it("returns stats aggregated from PostgreSQL", async () => {
-    const otherPublisherId = "publisher-partner";
+  it("returns aggregated stats", async () => {
+    const otherPublisher = await createTestPublisher({ name: "Other Publisher" });
+    const otherPublisher2 = await createTestPublisher({ name: "Other Publisher 2" });
 
     await Promise.all(
       Array.from({ length: 5 }).map(() =>
         createStatEventFixture({
           type: "print",
           isBot: false,
-          fromPublisherId: otherPublisherId,
+          fromPublisherId: otherPublisher.id,
           toPublisherId: publisherId,
         })
       )
@@ -36,7 +37,7 @@ describe("View API Integration Tests", () => {
         createStatEventFixture({
           type: "print",
           isBot: false,
-          fromPublisherId: "partner-id",
+          fromPublisherId: otherPublisher2.id,
           toPublisherId: publisherId,
         })
       )
@@ -46,9 +47,9 @@ describe("View API Integration Tests", () => {
 
     expect(response.status).toBe(200);
     expect(response.body.total).toBe(8);
-    expect(response.body.facets.fromPublisherId).toEqual([
-      { key: otherPublisherId, doc_count: 5 },
-      { key: "partner-id", doc_count: 3 },
+    expect(response.body.facets.fromPublisherId).toMatchObject([
+      { key: otherPublisher.id, doc_count: 5 },
+      { key: otherPublisher2.id, doc_count: 3 },
     ]);
   });
 });

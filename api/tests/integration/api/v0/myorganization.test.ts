@@ -56,7 +56,7 @@ describe("MyOrganization API Integration Tests", () => {
         organizationClientId: orgId,
       });
 
-      const response = await request(app).get(`/v0/myorganization/${orgId}`).set("x-api-key", apiKey);
+      const response = await request(app).get(`/v0/myorganization/${orgId}`).set("x-api-key", apiKey).set("apikey", apiKey);
 
       expect(response.status).toBe(200);
       expect(response.body.ok).toBe(true);
@@ -101,7 +101,7 @@ describe("MyOrganization API Integration Tests", () => {
         organizationName: publisher.name,
       });
 
-      const response = await request(app).get(`/v0/myorganization/${orgId}`).set("x-api-key", apiKey);
+      const response = await request(app).get(`/v0/myorganization/${orgId}`).set("x-api-key", apiKey).set("apikey", apiKey);
       expect(response.status).toBe(200);
       const partner1 = response.body.data.find((p: any) => p._id === publisher1.id);
       const partner2 = response.body.data.find((p: any) => p._id === publisher2.id);
@@ -127,7 +127,11 @@ describe("MyOrganization API Integration Tests", () => {
     });
 
     it("should return 400 for invalid request body", async () => {
-      const response = await request(app).put(`/v0/myorganization/${orgId}`).set("x-api-key", apiKey).send({ invalidField: "value" }); // Missing required publisherIds
+      const response = await request(app)
+        .put(`/v0/myorganization/${orgId}`)
+        .set("x-api-key", apiKey)
+        .set("apikey", apiKey)
+        .send({ invalidField: "value" }); // Missing required publisherIds
 
       expect(response.status).toBe(400);
       expect(response.body.ok).toBe(false);
@@ -138,6 +142,7 @@ describe("MyOrganization API Integration Tests", () => {
       const response = await request(app)
         .put(`/v0/myorganization/${orgId}`)
         .set("x-api-key", apiKey)
+        .set("apikey", apiKey)
         .send({ publisherIds: [publisher1.id] });
 
       expect(response.status).toBe(200);
@@ -194,6 +199,7 @@ describe("MyOrganization API Integration Tests", () => {
       const response = await request(app)
         .put(`/v0/myorganization/${orgId}`)
         .set("x-api-key", apiKey)
+        .set("apikey", apiKey)
         .send({ publisherIds: [publisher1.id, publisher2.id] });
 
       expect(response.status).toBe(200);
@@ -230,6 +236,7 @@ describe("MyOrganization API Integration Tests", () => {
       const response = await request(app)
         .put(`/v0/myorganization/${orgId}`)
         .set("x-api-key", apiKey)
+        .set("apikey", apiKey)
         .send({ publisherIds: [publisher1.id] });
 
       expect(response.status).toBe(200);
