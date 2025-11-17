@@ -7,11 +7,6 @@ models:
       depuis `stg_stat_event__account`, elle normalise les identifiants mission,
       partenaires, source et clic afin de remplacer l’ancien job Node.
     columns:
-      - name: id
-        description: Identifiant UUID généré pour la table `Account`.
-        tests:
-          - not_null
-          - unique
       - name: stat_event_id
         description: Identifiant historique de la création de compte (`stat_event`).
         tests:
@@ -19,18 +14,43 @@ models:
           - unique
       - name: mission_id
         description: UUID de la mission associée si retrouvée.
+        tests:
+          - relationships:
+              arguments:
+                to: source('public', 'Mission')
+                field: id
       - name: mission_id_raw
         description: Identifiant mission brut issu de `stat_event`.
       - name: from_publisher_id
         description: UUID du partenaire diffuseur.
         tests:
           - not_null
+          - relationships:
+              arguments:
+                to: source('public', 'Partner')
+                field: id
       - name: to_publisher_id
         description: UUID du partenaire annonceur.
         tests:
           - not_null
+          - relationships:
+              arguments:
+                to: source('public', 'Partner')
+                field: id
       - name: click_id
         description: Référence vers la table `Click` lorsqu’un clic est associé.
+        tests:
+          - relationships:
+              arguments:
+                to: ref('click')
+                field: stat_event_id
+      - name: widget_id
+        description: Référence vers la table `Widget`.
+        tests:
+          - relationships:
+              arguments:
+                to: source('public', 'Widget')
+                field: id
       - name: view_id_raw
         description: Identifiant brut de la vue transmis par `stat_event`.
       - name: source
@@ -42,18 +62,18 @@ models:
       depuis `stg_stat_event__apply`. On y retrouve les champs statut, mission,
       partenaires, source et attributs personnalisés.
     columns:
-      - name: id
-        description: Identifiant UUID généré pour la table `Apply`.
-        tests:
-          - not_null
-          - unique
       - name: stat_event_id
         description: Identifiant `stat_event` de la candidature (clé d’origine).
         tests:
           - not_null
           - unique
       - name: mission_id
-        description: UUID de la mission associée.
+        description: UUID de la mission associée si retrouvée.
+        tests:
+          - relationships:
+              arguments:
+                to: source('public', 'Mission')
+                field: id
       - name: mission_id_raw
         description: Identifiant mission brut provenant de `stat_event`.
       - name: status
@@ -62,10 +82,18 @@ models:
         description: UUID du partenaire diffuseur.
         tests:
           - not_null
+          - relationships:
+              arguments:
+                to: source('public', 'Partner')
+                field: id
       - name: to_publisher_id
         description: UUID du partenaire annonceur.
         tests:
           - not_null
+          - relationships:
+              arguments:
+                to: source('public', 'Partner')
+                field: id
       - name: custom_attributes
         description: Champs JSON contenant les attributs personnalisés.
       - name: view_id_raw
@@ -77,28 +105,36 @@ models:
       Elle alimente la structure Prisma `Click` avec les lookups de missions,
       partenaires et sources.
     columns:
-      - name: id
-        description: Identifiant UUID du clic.
-        tests:
-          - not_null
-          - unique
       - name: stat_event_id
         description: Identifiant `stat_event` du clic (clé d’origine).
         tests:
           - not_null
           - unique
       - name: mission_id
-        description: UUID de la mission associée si remontée.
+        description: UUID de la mission associée si retrouvée.
+        tests:
+          - relationships:
+              arguments:
+                to: source('public', 'Mission')
+                field: id
       - name: mission_id_raw
         description: Identifiant mission brut remonté par `stat_event`.
       - name: from_publisher_id
         description: UUID du partenaire diffuseur.
         tests:
           - not_null
+          - relationships:
+              arguments:
+                to: source('public', 'Partner')
+                field: id
       - name: to_publisher_id
         description: UUID du partenaire annonceur.
         tests:
           - not_null
+          - relationships:
+              arguments:
+                to: source('public', 'Partner')
+                field: id
       - name: source
         description: Origine normalisée du clic (`SourceType`).
       - name: is_bot
@@ -112,28 +148,36 @@ models:
       depuis `stg_stat_event__print`. Elle expose les identifiants mission, partenaires,
       sources et les timestamps requis.
     columns:
-      - name: id
-        description: Identifiant UUID de l’impression.
-        tests:
-          - not_null
-          - unique
       - name: stat_event_id
         description: Identifiant `stat_event` de l’impression.
         tests:
           - not_null
           - unique
       - name: mission_id
-        description: UUID de la mission associée (nullable).
+        description: UUID de la mission associée si retrouvée.
+        tests:
+          - relationships:
+              arguments:
+                to: source('public', 'Mission')
+                field: id
       - name: mission_id_raw
         description: Identifiant mission brut provenant de `stat_event`.
       - name: from_publisher_id
         description: UUID du partenaire diffuseur.
         tests:
           - not_null
+          - relationships:
+              arguments:
+                to: source('public', 'Partner')
+                field: id
       - name: to_publisher_id
         description: UUID du partenaire annonceur.
         tests:
           - not_null
+          - relationships:
+              arguments:
+                to: source('public', 'Partner')
+                field: id
       - name: source
         description: Origine normalisée de l’impression (`SourceType`).
 
@@ -148,6 +192,10 @@ models:
         tests:
           - not_null
           - unique
+          - relationships:
+              arguments:
+                to: ref('apply')
+                field: stat_event_id
       - name: has_application_file
         description: Indique si un dossier de candidature a été fourni.
       - name: has_candidate_motivation
