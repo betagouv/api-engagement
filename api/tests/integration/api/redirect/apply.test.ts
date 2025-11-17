@@ -1,5 +1,5 @@
 import request from "supertest";
-import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 
 import { prismaCore } from "../../../../src/db/postgres";
 import MissionModel from "../../../../src/models/mission";
@@ -12,12 +12,6 @@ import { createTestApp } from "../../../testApp";
 const app = createTestApp();
 
 describe("RedirectController /apply", () => {
-  beforeEach(async () => {
-    await prismaCore.statEvent.deleteMany({});
-    await prismaCore.publisherDiffusion.deleteMany({});
-    await prismaCore.publisher.deleteMany({});
-  });
-
   afterEach(() => {
     vi.restoreAllMocks();
   });

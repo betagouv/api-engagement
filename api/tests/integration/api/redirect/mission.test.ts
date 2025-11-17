@@ -1,6 +1,6 @@
 import { Types } from "mongoose";
 import request from "supertest";
-import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 
 import { PUBLISHER_IDS } from "../../../../src/config";
 import { prismaCore } from "../../../../src/db/postgres";
@@ -13,15 +13,8 @@ import { createTestApp } from "../../../testApp";
 const app = createTestApp();
 
 describe("RedirectController /:missionId/:publisherId", () => {
-  beforeEach(async () => {
-    await MissionModel.deleteMany({});
-    await prismaCore.statEvent.deleteMany({});
-  });
-
   afterEach(async () => {
     vi.restoreAllMocks();
-    await MissionModel.deleteMany({});
-    await prismaCore.statEvent.deleteMany({});
   });
 
   it("redirects to Service Civique when params are invalid", async () => {

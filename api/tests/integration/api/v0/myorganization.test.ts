@@ -1,6 +1,5 @@
 import request from "supertest";
-import { afterEach, beforeEach, describe, expect, it } from "vitest";
-import { prismaCore } from "../../../../src/db/postgres";
+import { beforeEach, describe, expect, it } from "vitest";
 import OrganizationExclusionModel from "../../../../src/models/organization-exclusion";
 import { Mission, MissionType, PublisherRecord } from "../../../../src/types";
 import { createTestMission, createTestPublisher } from "../../../fixtures";
@@ -30,11 +29,6 @@ describe("MyOrganization API Integration Tests", () => {
     });
     publisher3 = await createTestPublisher();
     await createTestPublisher();
-    await prismaCore.statEvent.deleteMany({});
-  });
-
-  afterEach(async () => {
-    await prismaCore.statEvent.deleteMany({});
   });
 
   /**

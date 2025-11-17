@@ -1,6 +1,6 @@
 import { Types } from "mongoose";
 import request from "supertest";
-import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 
 import { JVA_URL } from "../../../../src/config";
 import { prismaCore } from "../../../../src/db/postgres";
@@ -12,15 +12,8 @@ import { createTestApp } from "../../../testApp";
 describe("RedirectController /campaign/:id", () => {
   const app = createTestApp();
 
-  beforeEach(async () => {
-    await CampaignModel.deleteMany({});
-    await prismaCore.statEvent.deleteMany({});
-  });
-
   afterEach(async () => {
     vi.restoreAllMocks();
-    await CampaignModel.deleteMany({});
-    await prismaCore.statEvent.deleteMany({});
   });
 
   it("redirects to JVA when campaign id is invalid", async () => {

@@ -1,6 +1,5 @@
-import { afterAll, afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 
-import { prismaCore } from "../../../../src/db/postgres";
 import * as ErrorModule from "../../../../src/error";
 import KpiModel from "../../../../src/models/kpi";
 import { statEventService } from "../../../../src/services/stat-event";
@@ -16,19 +15,6 @@ import { KpiHandler } from "../../../../src/jobs/kpi/handler";
 import { createTestMission, createTestPublisher } from "../../../fixtures";
 
 describe("KPI job - Integration", () => {
-  beforeEach(async () => {
-    await prismaCore.statEvent.deleteMany({});
-    await KpiModel.deleteMany({});
-  });
-
-  afterEach(async () => {
-    await prismaCore.statEvent.deleteMany({});
-  });
-
-  afterAll(async () => {
-    await KpiModel.deleteMany({});
-  });
-
   it("Should compute KPIs for the last 10 days (yesterday..D-9)", async () => {
     const handler = new KpiHandler();
 

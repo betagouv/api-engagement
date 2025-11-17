@@ -1,7 +1,6 @@
 import request from "supertest";
-import { afterEach, beforeEach, describe, expect, it } from "vitest";
+import { beforeEach, describe, expect, it } from "vitest";
 
-import { prismaCore } from "../../../../src/db/postgres";
 import { createTestPublisher } from "../../../fixtures";
 import { createStatEventFixture } from "../../../fixtures/stat-event";
 import { createTestApp } from "../../../testApp";
@@ -16,11 +15,6 @@ describe("View API Integration Tests", () => {
     const publisher = await createTestPublisher({ name: "View Publisher" });
     apiKey = publisher.apikey!;
     publisherId = publisher.id;
-    await prismaCore.statEvent.deleteMany({});
-  });
-
-  afterEach(async () => {
-    await prismaCore.statEvent.deleteMany({});
   });
 
   it("returns stats aggregated from PostgreSQL", async () => {

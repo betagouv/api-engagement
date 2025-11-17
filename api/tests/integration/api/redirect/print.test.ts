@@ -1,6 +1,6 @@
 import { Types } from "mongoose";
 import request from "supertest";
-import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 
 import { prismaCore } from "../../../../src/db/postgres";
 import { NOT_FOUND } from "../../../../src/error";
@@ -15,17 +15,8 @@ import { createTestApp } from "../../../testApp";
 const app = createTestApp();
 
 describe("RedirectController /impression/:missionId/:publisherId", () => {
-  beforeEach(async () => {
-    await MissionModel.deleteMany({});
-    await WidgetModel.deleteMany({});
-    await prismaCore.statEvent.deleteMany({});
-  });
-
   afterEach(async () => {
     vi.restoreAllMocks();
-    await MissionModel.deleteMany({});
-    await WidgetModel.deleteMany({});
-    await prismaCore.statEvent.deleteMany({});
   });
 
   it("returns 204 when identity is missing", async () => {
