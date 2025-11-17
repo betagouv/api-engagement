@@ -1,7 +1,6 @@
 import request from "supertest";
-import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import { prismaCore } from "../../../../src/db/postgres";
 import { createTestMission, createTestPublisher } from "../../../fixtures";
 import { createStatEventFixture } from "../../../fixtures/stat-event";
 import { createTestApp } from "../../../testApp";
@@ -21,11 +20,6 @@ describe("MyMission API Integration Tests", () => {
     mission2 = await createTestMission({ organizationClientId: orgId, publisherId: publisher.id });
 
     vi.clearAllMocks();
-    await prismaCore.statEvent.deleteMany({});
-  });
-
-  afterEach(async () => {
-    await prismaCore.statEvent.deleteMany({});
   });
 
   /**

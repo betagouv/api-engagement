@@ -1,9 +1,8 @@
-import { afterAll, afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 
 import * as ErrorModule from "../../../../src/error";
 import KpiModel from "../../../../src/models/kpi";
 import { statEventService } from "../../../../src/services/stat-event";
-import { prismaCore } from "../../../../src/db/postgres";
 import { createStatEventFixture } from "../../../fixtures/stat-event";
 
 // Mock botless KPI builder so it always returns a non-null object
@@ -13,22 +12,9 @@ vi.mock("../../../../src/jobs/kpi/kpi-botless", () => ({
 }));
 
 import { KpiHandler } from "../../../../src/jobs/kpi/handler";
-import { createTestMission } from "../../../fixtures";
+import { createTestMission, createTestPublisher } from "../../../fixtures";
 
 describe("KPI job - Integration", () => {
-  beforeEach(async () => {
-    await prismaCore.statEvent.deleteMany({});
-    await KpiModel.deleteMany({});
-  });
-
-  afterEach(async () => {
-    await prismaCore.statEvent.deleteMany({});
-  });
-
-  afterAll(async () => {
-    await KpiModel.deleteMany({});
-  });
-
   it("Should compute KPIs for the last 10 days (yesterday..D-9)", async () => {
     const handler = new KpiHandler();
 
@@ -153,47 +139,55 @@ describe("KPI job - Integration", () => {
     const fixedToday = new Date("2025-08-15T12:00:00.000Z");
     const yesterday = new Date(fixedToday.getFullYear(), fixedToday.getMonth(), fixedToday.getDate() - 1);
     const fromDate = new Date(yesterday.getFullYear(), yesterday.getMonth(), yesterday.getDate() - 1);
+    const fromPublisher = await createTestPublisher();
+    const publisher1 = await createTestPublisher({ name: "Other" });
+    const publisher2 = await createTestPublisher({ name: "Service Civique" });
 
-    await createTestMission({ publisherName: "Other", placesStatus: "GIVEN_BY_PARTNER", places: 1, createdAt: fromDate });
-    await createTestMission({ publisherName: "Service Civique", placesStatus: "GIVEN_BY_PARTNER", places: 1, createdAt: fromDate });
+    await createTestMission({ publisherId: publisher1.id, publisherName: publisher1.name, placesStatus: "GIVEN_BY_PARTNER", places: 1, createdAt: fromDate });
+    await createTestMission({ publisherId: publisher2.id, publisherName: publisher2.name, placesStatus: "GIVEN_BY_PARTNER", places: 1, createdAt: fromDate });
 
     const withinRangeDate = new Date(fromDate.getTime() + 60 * 60 * 1000);
 
-    const createEvents = async (toPublisherName: string) => {
+    const createEvents = async (toPublisherId: string) => {
       await createStatEventFixture({
         type: "print",
         createdAt: withinRangeDate,
-        toPublisherName,
-        missionId: `${toPublisherName}-print-1`,
+        fromPublisherId: fromPublisher.id,
+        toPublisherId,
+        missionId: `${toPublisherId}-print-1`,
       });
       await createStatEventFixture({
         type: "print",
         createdAt: withinRangeDate,
-        toPublisherName,
-        missionId: `${toPublisherName}-print-2`,
+        fromPublisherId: fromPublisher.id,
+        toPublisherId,
+        missionId: `${toPublisherId}-print-2`,
       });
       await createStatEventFixture({
         type: "click",
         createdAt: withinRangeDate,
-        toPublisherName,
-        missionId: `${toPublisherName}-click-1`,
+        fromPublisherId: fromPublisher.id,
+        toPublisherId,
+        missionId: `${toPublisherId}-click-1`,
       });
       await createStatEventFixture({
         type: "apply",
         createdAt: withinRangeDate,
-        toPublisherName,
-        missionId: `${toPublisherName}-apply-1`,
+        fromPublisherId: fromPublisher.id,
+        toPublisherId,
+        missionId: `${toPublisherId}-apply-1`,
       });
       await createStatEventFixture({
         type: "account",
         createdAt: withinRangeDate,
-        toPublisherName,
-        missionId: `${toPublisherName}-account-1`,
+        fromPublisherId: fromPublisher.id,
+        toPublisherId,
+        missionId: `${toPublisherId}-account-1`,
       });
     };
 
-    await createEvents("Other");
-    await createEvents("Service Civique");
+    await createEvents(publisher1.id);
+    await createEvents(publisher2.id);
 
     const res = await handler.handle({ date: fixedToday.toISOString() });
     expect(res.success).toBe(true);

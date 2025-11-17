@@ -1,6 +1,5 @@
 import request from "supertest";
-import { afterEach, beforeEach, describe, expect, it } from "vitest";
-import { prismaCore } from "../../../../src/db/postgres";
+import { beforeEach, describe, expect, it } from "vitest";
 import OrganizationExclusionModel from "../../../../src/models/organization-exclusion";
 import { Mission, MissionType, PublisherRecord } from "../../../../src/types";
 import { createTestMission, createTestPublisher } from "../../../fixtures";
@@ -14,6 +13,7 @@ describe("MyOrganization API Integration Tests", () => {
   let mission: Mission;
   let publisher1: PublisherRecord;
   let publisher2: PublisherRecord;
+  let publisher3: PublisherRecord;
   let orgId: string;
 
   beforeEach(async () => {
@@ -27,12 +27,8 @@ describe("MyOrganization API Integration Tests", () => {
     publisher2 = await createTestPublisher({
       publishers: [{ publisherId: publisher.id, publisherName: publisher.name, moderator: true, missionType: MissionType.BENEVOLAT }],
     });
+    publisher3 = await createTestPublisher();
     await createTestPublisher();
-    await prismaCore.statEvent.deleteMany({});
-  });
-
-  afterEach(async () => {
-    await prismaCore.statEvent.deleteMany({});
   });
 
   /**
@@ -48,19 +44,19 @@ describe("MyOrganization API Integration Tests", () => {
 
     it("should return list of publishers for the organization with correct format", async () => {
       await seedClicks({
-        publisherId: publisher1.id,
-        publisherName: publisher1.name,
+        fromPublisherId: publisher1.id,
+        toPublisherId: publisher3.id,
         count: 2,
         organizationClientId: orgId,
       });
       await seedClicks({
-        publisherId: publisher2.id,
-        publisherName: publisher2.name,
+        fromPublisherId: publisher2.id,
+        toPublisherId: publisher3.id,
         count: 1,
         organizationClientId: orgId,
       });
 
-      const response = await request(app).get(`/v0/myorganization/${orgId}`).set("x-api-key", apiKey);
+      const response = await request(app).get(`/v0/myorganization/${orgId}`).set("x-api-key", apiKey).set("apikey", apiKey);
 
       expect(response.status).toBe(200);
       expect(response.body.ok).toBe(true);
@@ -92,8 +88,8 @@ describe("MyOrganization API Integration Tests", () => {
     });
 
     it("should return correct exclusion status for publishers", async () => {
-      await seedClicks({ publisherId: publisher1.id, publisherName: publisher1.name, count: 1, organizationClientId: orgId });
-      await seedClicks({ publisherId: publisher2.id, publisherName: publisher2.name, count: 1, organizationClientId: orgId });
+      await seedClicks({ fromPublisherId: publisher.id, toPublisherId: publisher1.id, count: 1, organizationClientId: orgId });
+      await seedClicks({ fromPublisherId: publisher2.id, toPublisherId: publisher1.id, count: 1, organizationClientId: orgId });
 
       // Add exclusion for publisher2
       await OrganizationExclusionModel.create({
@@ -105,7 +101,7 @@ describe("MyOrganization API Integration Tests", () => {
         organizationName: publisher.name,
       });
 
-      const response = await request(app).get(`/v0/myorganization/${orgId}`).set("x-api-key", apiKey);
+      const response = await request(app).get(`/v0/myorganization/${orgId}`).set("x-api-key", apiKey).set("apikey", apiKey);
       expect(response.status).toBe(200);
       const partner1 = response.body.data.find((p: any) => p._id === publisher1.id);
       const partner2 = response.body.data.find((p: any) => p._id === publisher2.id);
@@ -131,7 +127,11 @@ describe("MyOrganization API Integration Tests", () => {
     });
 
     it("should return 400 for invalid request body", async () => {
-      const response = await request(app).put(`/v0/myorganization/${orgId}`).set("x-api-key", apiKey).send({ invalidField: "value" }); // Missing required publisherIds
+      const response = await request(app)
+        .put(`/v0/myorganization/${orgId}`)
+        .set("x-api-key", apiKey)
+        .set("apikey", apiKey)
+        .send({ invalidField: "value" }); // Missing required publisherIds
 
       expect(response.status).toBe(400);
       expect(response.body.ok).toBe(false);
@@ -142,6 +142,7 @@ describe("MyOrganization API Integration Tests", () => {
       const response = await request(app)
         .put(`/v0/myorganization/${orgId}`)
         .set("x-api-key", apiKey)
+        .set("apikey", apiKey)
         .send({ publisherIds: [publisher1.id] });
 
       expect(response.status).toBe(200);
@@ -198,6 +199,7 @@ describe("MyOrganization API Integration Tests", () => {
       const response = await request(app)
         .put(`/v0/myorganization/${orgId}`)
         .set("x-api-key", apiKey)
+        .set("apikey", apiKey)
         .send({ publisherIds: [publisher1.id, publisher2.id] });
 
       expect(response.status).toBe(200);
@@ -234,6 +236,7 @@ describe("MyOrganization API Integration Tests", () => {
       const response = await request(app)
         .put(`/v0/myorganization/${orgId}`)
         .set("x-api-key", apiKey)
+        .set("apikey", apiKey)
         .send({ publisherIds: [publisher1.id] });
 
       expect(response.status).toBe(200);
@@ -258,13 +261,13 @@ describe("MyOrganization API Integration Tests", () => {
 });
 
 async function seedClicks({
-  publisherId,
-  publisherName,
+  fromPublisherId,
+  toPublisherId,
   count,
   organizationClientId,
 }: {
-  publisherId: string;
-  publisherName: string;
+  fromPublisherId: string;
+  toPublisherId: string;
   count: number;
   organizationClientId: string;
 }) {
@@ -272,8 +275,8 @@ async function seedClicks({
     await createStatEventFixture({
       type: "click",
       isBot: false,
-      fromPublisherId: publisherId,
-      fromPublisherName: publisherName,
+      fromPublisherId,
+      toPublisherId,
       missionOrganizationClientId: organizationClientId,
     });
   }

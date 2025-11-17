@@ -1,7 +1,7 @@
 import { Prisma } from "../db/core";
-import { StatEvent as PrismaStatEvent } from "../db/core/client";
 
 import { statEventRepository } from "../repositories/stat-event";
+import { publisherService } from "../services/publisher";
 import {
   AggregateMissionStatsParams,
   CountByTypeParams,
@@ -18,8 +18,10 @@ import {
   StatEventMissionStatsDetails,
   StatEventMissionStatsSummary,
   StatEventRecord,
+  StatEventSource,
   StatEventType,
   ViewStatsFacet,
+  ViewStatsFacetField,
   WarningBotAggregationBucket,
   WarningBotAggregations,
   WarningBotCandidate,
@@ -27,84 +29,71 @@ import {
 
 const DEFAULT_TYPES: StatEventType[] = ["click", "print", "apply", "account"];
 
+const VIEW_STATS_FACET_FIELDS = [
+  "type",
+  "source",
+  "missionDomain",
+  "missionDepartmentName",
+  "missionOrganizationId",
+  "fromPublisherId",
+  "toPublisherId",
+  "tag",
+] as const;
+
+type PrismaStatEventWithPublishers = Prisma.StatEventGetPayload<{
+  include: {
+    fromPublisher: { select: { id: true; name: true } };
+    toPublisher: { select: { id: true; name: true } };
+  };
+}>;
+
 function toPrisma(data: Partial<StatEventRecord>, options: { includeDefaults?: boolean } = {}) {
   const { includeDefaults = true } = options;
   const mapped: any = {
     id: data._id,
     type: data.type,
-    created_at: data.createdAt,
-    click_user: data.clickUser,
-    click_id: data.clickId,
-    request_id: data.requestId,
+    createdAt: data.createdAt,
+    clickUser: data.clickUser,
+    clickId: data.clickId,
+    requestId: data.requestId,
     origin: includeDefaults ? (data.origin ?? "") : data.origin,
     referer: includeDefaults ? (data.referer ?? "") : data.referer,
-    user_agent: includeDefaults ? (data.userAgent ?? "") : data.userAgent,
+    userAgent: includeDefaults ? (data.userAgent ?? "") : data.userAgent,
     host: includeDefaults ? (data.host ?? "") : data.host,
     user: data.user,
-    is_bot: includeDefaults ? (data.isBot ?? false) : data.isBot,
-    is_human: includeDefaults ? (data.isHuman ?? false) : data.isHuman,
+    isBot: includeDefaults ? (data.isBot ?? false) : data.isBot,
+    isHuman: includeDefaults ? (data.isHuman ?? false) : data.isHuman,
     source: includeDefaults ? (data.source ?? "publisher") : data.source,
-    source_id: includeDefaults ? (data.sourceId ?? "") : data.sourceId,
-    source_name: includeDefaults ? (data.sourceName ?? "") : data.sourceName,
-    custom_attributes: data.customAttributes as Prisma.JsonValue | undefined,
+    sourceId: includeDefaults ? (data.sourceId ?? "") : data.sourceId,
+    sourceName: includeDefaults ? (data.sourceName ?? "") : data.sourceName,
+    customAttributes: data.customAttributes as Prisma.JsonValue | undefined,
     status: includeDefaults ? (data.status ?? "PENDING") : data.status,
-    from_publisher_id: includeDefaults ? (data.fromPublisherId ?? "") : data.fromPublisherId,
-    from_publisher_name: includeDefaults ? (data.fromPublisherName ?? "") : data.fromPublisherName,
-    to_publisher_id: includeDefaults ? (data.toPublisherId ?? "") : data.toPublisherId,
-    to_publisher_name: includeDefaults ? (data.toPublisherName ?? "") : data.toPublisherName,
-    mission_id: data.missionId,
-    mission_client_id: data.missionClientId,
-    mission_domain: data.missionDomain,
-    mission_title: data.missionTitle,
-    mission_postal_code: data.missionPostalCode,
-    mission_department_name: data.missionDepartmentName,
-    mission_organization_id: data.missionOrganizationId,
-    mission_organization_name: data.missionOrganizationName,
-    mission_organization_client_id: data.missionOrganizationClientId,
+    fromPublisherId: includeDefaults ? (data.fromPublisherId ?? "") : data.fromPublisherId,
+    toPublisherId: includeDefaults ? (data.toPublisherId ?? "") : data.toPublisherId,
+    missionId: data.missionId,
+    missionClientId: data.missionClientId,
+    missionDomain: data.missionDomain,
+    missionTitle: data.missionTitle,
+    missionPostalCode: data.missionPostalCode,
+    missionDepartmentName: data.missionDepartmentName,
+    missionOrganizationId: data.missionOrganizationId,
+    missionOrganizationName: data.missionOrganizationName,
+    missionOrganizationClientId: data.missionOrganizationClientId,
     tag: data.tag,
     tags: includeDefaults ? (data.tags ?? []) : data.tags,
-    export_to_analytics: data.exportToAnalytics,
+    exportToAnalytics: data.exportToAnalytics,
   };
   Object.keys(mapped).forEach((key) => mapped[key] === undefined && delete mapped[key]);
   return mapped;
 }
 
-function toStatEventRecord(row: PrismaStatEvent): StatEventRecord {
+function toStatEventRecord(row: PrismaStatEventWithPublishers): StatEventRecord {
+  const { fromPublisher, toPublisher, id, ...rest } = row;
   return {
-    _id: row.id,
-    type: row.type,
-    createdAt: row.created_at,
-    clickUser: row.click_user ?? undefined,
-    clickId: row.click_id ?? undefined,
-    requestId: row.request_id ?? undefined,
-    origin: row.origin,
-    referer: row.referer,
-    userAgent: row.user_agent,
-    host: row.host,
-    user: row.user ?? undefined,
-    isBot: row.is_bot,
-    isHuman: row.is_human,
-    source: row.source,
-    sourceId: row.source_id,
-    sourceName: row.source_name,
-    customAttributes: row.custom_attributes ?? undefined,
-    status: row.status,
-    fromPublisherId: row.from_publisher_id,
-    fromPublisherName: row.from_publisher_name,
-    toPublisherId: row.to_publisher_id,
-    toPublisherName: row.to_publisher_name,
-    missionId: row.mission_id ?? undefined,
-    missionClientId: row.mission_client_id ?? undefined,
-    missionDomain: row.mission_domain ?? undefined,
-    missionTitle: row.mission_title ?? undefined,
-    missionPostalCode: row.mission_postal_code ?? undefined,
-    missionDepartmentName: row.mission_department_name ?? undefined,
-    missionOrganizationId: row.mission_organization_id ?? undefined,
-    missionOrganizationName: row.mission_organization_name ?? undefined,
-    missionOrganizationClientId: row.mission_organization_client_id ?? undefined,
-    tag: row.tag ?? undefined,
-    tags: row.tags ?? undefined,
-    exportToAnalytics: row.export_to_analytics ?? undefined,
+    _id: id,
+    fromPublisherName: fromPublisher?.name,
+    toPublisherName: toPublisher?.name,
+    ...rest,
   } as StatEventRecord;
 }
 
@@ -119,7 +108,7 @@ async function updateStatEvent(id: string, patch: Partial<StatEventRecord>) {
 }
 
 async function findOneStatEventById(id: string): Promise<StatEventRecord | null> {
-  const result = await statEventRepository.findUnique({ where: { id } });
+  const result = (await statEventRepository.findUnique({ where: { id } })) as PrismaStatEventWithPublishers | null;
   return result ? toStatEventRecord(result) : null;
 }
 
@@ -128,10 +117,10 @@ async function countStatEvents() {
 }
 
 async function findOneStatEventByMissionId(missionId: string): Promise<StatEventRecord | null> {
-  const result = await statEventRepository.findFirst({
-    where: { mission_id: missionId },
-    orderBy: { created_at: "desc" },
-  });
+  const result = (await statEventRepository.findFirst({
+    where: { missionId },
+    orderBy: { createdAt: "desc" },
+  })) as PrismaStatEventWithPublishers | null;
   return result ? toStatEventRecord(result) : null;
 }
 
@@ -148,8 +137,8 @@ async function countStatEventsByTypeSince({ publisherId, from, types }: CountByT
     statTypes.map(async (type) => {
       const total = await statEventRepository.count({
         where: {
-          to_publisher_id: publisherId,
-          created_at: { gte: from },
+          toPublisherId: publisherId,
+          createdAt: { gte: from },
           type: type as any,
         },
       });
@@ -171,11 +160,11 @@ async function countStatEventsByCriteria({ type, user, clickUser, from }: CountE
   }
 
   if (clickUser) {
-    where.click_user = clickUser;
+    where.clickUser = clickUser;
   }
 
   if (from) {
-    where.created_at = { gte: from };
+    where.createdAt = { gte: from };
   }
 
   return statEventRepository.count({ where });
@@ -185,8 +174,8 @@ async function hasStatEventWithRecentClickId({ type, clickId, since }: HasRecent
   const total = await statEventRepository.count({
     where: {
       type: type as any,
-      click_id: clickId,
-      created_at: { gte: since },
+      clickId: clickId,
+      createdAt: { gte: since },
     },
   });
   return total > 0;
@@ -198,20 +187,20 @@ async function countStatEventClicksByPublisherForOrganizationSince({ publisherId
   }
 
   const rows = (await statEventRepository.groupBy({
-    by: ["from_publisher_id"],
+    by: ["fromPublisherId"],
     where: {
       type: "click" as any,
-      is_bot: { not: true },
-      mission_organization_client_id: organizationClientId,
-      from_publisher_id: { in: publisherIds },
-      created_at: { gte: from },
+      isBot: { not: true },
+      missionOrganizationClientId: organizationClientId,
+      fromPublisherId: { in: publisherIds },
+      createdAt: { gte: from },
     },
     _count: { _all: true },
-  } as any)) as { from_publisher_id: string; _count: { _all: number } }[];
+  } as any)) as { fromPublisherId: string; _count: { _all: number } }[];
 
   return rows.reduce(
     (acc, row) => {
-      acc[row.from_publisher_id] = row._count._all;
+      acc[row.fromPublisherId] = row._count._all;
       return acc;
     },
     {} as Record<string, number>
@@ -220,15 +209,15 @@ async function countStatEventClicksByPublisherForOrganizationSince({ publisherId
 
 async function findStatEvents({ fromPublisherId, toPublisherId, type, sourceId, size = 25, skip = 0 }: SearchStatEventsParams): Promise<StatEventRecord[]> {
   const where: Prisma.StatEventWhereInput = {
-    is_bot: false,
+    isBot: false,
   };
 
   if (fromPublisherId) {
-    where.from_publisher_id = fromPublisherId;
+    where.fromPublisherId = fromPublisherId;
   }
 
   if (toPublisherId) {
-    where.to_publisher_id = toPublisherId;
+    where.toPublisherId = toPublisherId;
   }
 
   if (type) {
@@ -236,51 +225,51 @@ async function findStatEvents({ fromPublisherId, toPublisherId, type, sourceId, 
   }
 
   if (sourceId) {
-    where.source_id = sourceId;
+    where.sourceId = sourceId;
   }
 
-  const rows = await statEventRepository.findMany({
+  const rows = (await statEventRepository.findMany({
     where,
-    orderBy: { created_at: "desc" },
+    orderBy: { createdAt: "desc" },
     skip,
     take: size,
-  });
+  })) as PrismaStatEventWithPublishers[];
 
   return rows.map(toStatEventRecord);
 }
 
 async function findStatEventViews({ publisherId, size = 10, filters = {}, facets = [] }: SearchViewStatsParams): Promise<SearchViewStatsResult> {
-  const where: Record<string, any> = {
-    NOT: { is_bot: true },
-    OR: [{ to_publisher_id: publisherId }, { from_publisher_id: publisherId }],
+  const where: Prisma.StatEventWhereInput = {
+    NOT: { isBot: true },
+    OR: [{ toPublisherId: publisherId }, { fromPublisherId: publisherId }],
   };
 
-  const andFilters: Record<string, any>[] = [];
+  const andFilters: Prisma.StatEventWhereInput[] = [];
 
   if (filters.fromPublisherName) {
-    andFilters.push({ from_publisher_name: filters.fromPublisherName });
+    andFilters.push({ fromPublisher: { is: { name: filters.fromPublisherName } } });
   }
   if (filters.toPublisherName) {
-    andFilters.push({ to_publisher_name: filters.toPublisherName });
+    andFilters.push({ toPublisher: { is: { name: filters.toPublisherName } } });
   }
   if (filters.fromPublisherId) {
-    andFilters.push({ from_publisher_id: filters.fromPublisherId });
+    andFilters.push({ fromPublisherId: filters.fromPublisherId });
   }
   if (filters.toPublisherId) {
-    andFilters.push({ to_publisher_id: filters.toPublisherId });
+    andFilters.push({ toPublisherId: filters.toPublisherId });
   }
   if (filters.missionDomain) {
-    andFilters.push({ mission_domain: filters.missionDomain });
+    andFilters.push({ missionDomain: filters.missionDomain });
   }
   if (filters.type) {
-    andFilters.push({ type: filters.type });
+    andFilters.push({ type: filters.type as StatEventType });
   }
   if (filters.source) {
-    andFilters.push({ source: filters.source });
+    andFilters.push({ source: filters.source as StatEventSource });
   }
 
   if (filters.createdAt?.length) {
-    const createdAtFilter: Record<string, Date> = {};
+    const createdAtFilter: Prisma.DateTimeFilter = {};
     filters.createdAt.forEach(({ operator, date }) => {
       if (!(date instanceof Date) || Number.isNaN(date.getTime())) {
         return;
@@ -293,7 +282,7 @@ async function findStatEventViews({ publisherId, size = 10, filters = {}, facets
       }
     });
     if (Object.keys(createdAtFilter).length) {
-      andFilters.push({ created_at: createdAtFilter });
+      andFilters.push({ createdAt: createdAtFilter });
     }
   }
 
@@ -306,23 +295,21 @@ async function findStatEventViews({ publisherId, size = 10, filters = {}, facets
   const facetsResult: Record<string, ViewStatsFacet[]> = {};
   await Promise.all(
     facets.map(async (facet) => {
-      if (typeof facet !== "string" || !facet) {
+      if (!VIEW_STATS_FACET_FIELDS.includes(facet as ViewStatsFacetField)) {
         return;
       }
-      const column = toPrismaColumnName(facet);
-      if (!column) {
-        return;
-      }
+
+      const column = facet as ViewStatsFacetField;
       try {
         const rows = (await statEventRepository.groupBy({
           by: [column],
           where,
           _count: { _all: true },
-          orderBy: { _count: { id: "desc" } },
-          take: size,
         } as any)) as { [key: string]: any; _count: { _all: number } }[];
+        rows.sort((a, b) => (b._count._all ?? 0) - (a._count._all ?? 0));
+        const limited = rows.slice(0, size);
 
-        facetsResult[facet] = rows
+        facetsResult[facet] = limited
           .filter((row) => row[column] !== null && row[column] !== undefined && row[column] !== "")
           .map((row) => ({ key: row[column], doc_count: row._count._all }));
       } catch (error) {
@@ -337,7 +324,7 @@ async function findStatEventViews({ publisherId, size = 10, filters = {}, facets
 async function findStatEventWarningBotCandidatesSince({ from, minClicks }: FindWarningBotCandidatesParams): Promise<WarningBotCandidate[]> {
   const where: Prisma.StatEventWhereInput = {
     type: "click" as any,
-    created_at: { gte: from },
+    createdAt: { gte: from },
   };
 
   const grouped = (await statEventRepository.groupBy({
@@ -359,18 +346,23 @@ async function findStatEventWarningBotCandidatesSince({ from, minClicks }: FindW
 
   const [publisherRows, userAgentRows] = await Promise.all([
     statEventRepository.groupBy({
-      by: ["user", "from_publisher_name"],
+      by: ["user", "fromPublisherId"],
       where: { ...where, user: { in: users } },
       _count: { _all: true },
     } as any),
     statEventRepository.groupBy({
-      by: ["user", "user_agent"],
+      by: ["user", "userAgent"],
       where: { ...where, user: { in: users } },
       _count: { _all: true },
     } as any),
   ]);
 
-  const aggregateByUser = (rows: any[], field: string, options: { skipNullKeys?: boolean } = {}) => {
+  const publisherIds = (publisherRows as { fromPublisherId: string | null }[])
+    .map((row) => row.fromPublisherId)
+    .filter((value): value is string => typeof value === "string" && value.length > 0);
+  const publisherNameMap = await publisherService.getPublisherNameMap(publisherIds);
+
+  const aggregateByUser = (rows: any[], keyExtractor: (row: any) => string | null | undefined, options: { skipNullKeys?: boolean } = {}) => {
     const { skipNullKeys = false } = options;
     const buckets = new Map<string, WarningBotAggregationBucket[]>();
     rows.forEach((row) => {
@@ -378,7 +370,7 @@ async function findStatEventWarningBotCandidatesSince({ from, minClicks }: FindW
       if (!user) {
         return;
       }
-      const rawKey = row[field];
+      const rawKey = keyExtractor(row);
       if (skipNullKeys && (rawKey === null || rawKey === undefined)) {
         return;
       }
@@ -389,10 +381,20 @@ async function findStatEventWarningBotCandidatesSince({ from, minClicks }: FindW
     return buckets;
   };
 
-  const publishersByUser = aggregateByUser(publisherRows as any[], "from_publisher_name", {
-    skipNullKeys: true,
-  });
-  const userAgentsByUser = aggregateByUser(userAgentRows as any[], "user_agent");
+  const publishersByUser = aggregateByUser(
+    publisherRows as any[],
+    (row) => {
+      const publisherId = row.fromPublisherId as string | null;
+      if (!publisherId) {
+        return null;
+      }
+      return publisherNameMap.get(publisherId) ?? publisherId;
+    },
+    {
+      skipNullKeys: true,
+    }
+  );
+  const userAgentsByUser = aggregateByUser(userAgentRows as any[], (row) => row.userAgent);
 
   return grouped
     .filter((row): row is { user: string; _count: { _all: number } } => Boolean(row.user))
@@ -415,8 +417,7 @@ async function aggregateStatEventWarningBotByUser(user: string): Promise<Warning
 
   rows.forEach((row) => {
     const bucket = row.bucket;
-    const target =
-      bucket === "type" ? aggregations.type : bucket === "publisherTo" ? aggregations.publisherTo : aggregations.publisherFrom;
+    const target = bucket === "type" ? aggregations.type : bucket === "publisherTo" ? aggregations.publisherTo : aggregations.publisherFrom;
     target.push({ key: row.key, doc_count: row.doc_count });
   });
 
@@ -424,7 +425,7 @@ async function aggregateStatEventWarningBotByUser(user: string): Promise<Warning
 }
 
 async function updateStatEventsBotFlagForUser(user: string, isBot: boolean): Promise<void> {
-  await statEventRepository.updateMany({ where: { user }, data: { is_bot: isBot } });
+  await statEventRepository.updateMany({ where: { user }, data: { isBot } });
 }
 
 async function aggregateStatEventsForMission({
@@ -435,17 +436,17 @@ async function aggregateStatEventsForMission({
   excludeUsers = [],
 }: AggregateMissionStatsParams): Promise<MissionStatsAggregations> {
   const baseWhere: Prisma.StatEventWhereInput = {
-    created_at: { gte: from, lt: to },
+    createdAt: { gte: from, lt: to },
   };
 
   const andConditions: Prisma.StatEventWhereInput[] = [];
 
   if (toPublisherName) {
-    andConditions.push({ to_publisher_name: toPublisherName });
+    andConditions.push({ toPublisher: { is: { name: toPublisherName } } });
   }
 
   if (excludeToPublisherName) {
-    andConditions.push({ NOT: { to_publisher_name: excludeToPublisherName } });
+    andConditions.push({ NOT: { toPublisher: { is: { name: excludeToPublisherName } } } });
   }
 
   if (excludeUsers.length) {
@@ -474,13 +475,13 @@ async function aggregateStatEventsForMission({
       const [eventCount, missionGroupsRaw] = await Promise.all([
         statEventRepository.count({ where }),
         statEventRepository.groupBy({
-          by: ["mission_id"],
-          where: { ...where, mission_id: { not: null } },
+          by: ["missionId"],
+          where: { ...where, missionId: { not: null } },
           _count: { _all: true },
         }),
       ]);
 
-      const missionGroups = missionGroupsRaw as { mission_id: string | null; _count: { _all: number } }[];
+      const missionGroups = missionGroupsRaw as { missionId: string | null; _count: { _all: number } }[];
       const missionCount = missionGroups.length;
 
       result[type] = { eventCount, missionCount };
@@ -491,23 +492,23 @@ async function aggregateStatEventsForMission({
 }
 
 async function findStatEventMissionStatsWithDetails(missionId: string): Promise<{ clicks: StatEventMissionStatsDetails[]; applications: StatEventMissionStatsDetails[] }> {
-  type MissionStatsDetailsGroup = { from_publisher_id: string | null; from_publisher_name: string | null; _count: { _all: number } };
+  type MissionStatsDetailsGroup = { fromPublisherId: string | null; _count: { _all: number } };
 
   const [applicationsRaw, clicksRaw] = await Promise.all([
     statEventRepository.groupBy({
-      by: ["from_publisher_id", "from_publisher_name"],
+      by: ["fromPublisherId"],
       where: {
-        mission_id: missionId,
-        is_bot: false,
+        missionId,
+        isBot: false,
         type: "apply",
       },
       _count: { _all: true },
     }),
     statEventRepository.groupBy({
-      by: ["from_publisher_id", "from_publisher_name"],
+      by: ["fromPublisherId"],
       where: {
-        mission_id: missionId,
-        is_bot: false,
+        missionId,
+        isBot: false,
         type: "click",
       },
       _count: { _all: true },
@@ -518,7 +519,7 @@ async function findStatEventMissionStatsWithDetails(missionId: string): Promise<
   const clicks = clicksRaw as MissionStatsDetailsGroup[];
 
   const mapGroup = (group: MissionStatsDetailsGroup): StatEventMissionStatsDetails => ({
-    key: group.from_publisher_id ?? "",
+    key: group.fromPublisherId ?? "",
     name: undefined,
     logo: undefined,
     url: undefined,
@@ -532,23 +533,23 @@ async function findStatEventMissionStatsWithDetails(missionId: string): Promise<
 }
 
 async function findStatEventMissionStatsSummary(missionId: string): Promise<{ clicks: StatEventMissionStatsSummary[]; applications: StatEventMissionStatsSummary[] }> {
-  type MissionStatsSummaryGroup = { from_publisher_id: string | null; _count: { _all: number } };
+  type MissionStatsSummaryGroup = { fromPublisherId: string | null; _count: { _all: number } };
 
   const [clicksRaw, applicationsRaw] = await Promise.all([
     statEventRepository.groupBy({
-      by: ["from_publisher_id"],
+      by: ["fromPublisherId"],
       where: {
-        mission_id: missionId,
-        is_bot: false,
+        missionId,
+        isBot: false,
         type: "click",
       },
       _count: { _all: true },
     }),
     statEventRepository.groupBy({
-      by: ["from_publisher_id"],
+      by: ["fromPublisherId"],
       where: {
-        mission_id: missionId,
-        is_bot: false,
+        missionId,
+        isBot: false,
         type: "apply",
       },
       _count: { _all: true },
@@ -559,7 +560,7 @@ async function findStatEventMissionStatsSummary(missionId: string): Promise<{ cl
   const applications = applicationsRaw as MissionStatsSummaryGroup[];
 
   const mapGroup = (group: MissionStatsSummaryGroup): StatEventMissionStatsSummary => ({
-    key: group.from_publisher_id ?? "",
+    key: group.fromPublisherId ?? "",
     doc_count: group._count._all,
   });
 
@@ -587,11 +588,11 @@ async function scrollStatEvents({ type, batchSize = 5000, cursor = null, filters
   const sharedFilters: Prisma.StatEventWhereInput[] = [];
 
   if (filters?.hasBotOrHumanFlag) {
-    sharedFilters.push({ OR: [{ is_bot: true }, { is_human: true }] });
+    sharedFilters.push({ OR: [{ isBot: true }, { isHuman: true }] });
   }
 
   if (filters?.exportToPgStatusMissing) {
-    sharedFilters.push({ export_to_analytics: null });
+    sharedFilters.push({ exportToAnalytics: null });
   }
 
   const cursorFilter: Prisma.StatEventWhereInput | undefined = (() => {
@@ -606,9 +607,9 @@ async function scrollStatEvents({ type, batchSize = 5000, cursor = null, filters
 
     return {
       OR: [
-        { created_at: { gt: cursorDate } },
+        { createdAt: { gt: cursorDate } },
         {
-          AND: [{ created_at: { equals: cursorDate } }, { id: { gt: parsedCursor.id } }],
+          AND: [{ createdAt: { equals: cursorDate } }, { id: { gt: parsedCursor.id } }],
         },
       ],
     };
@@ -633,9 +634,9 @@ async function scrollStatEvents({ type, batchSize = 5000, cursor = null, filters
   const [rows, total] = await Promise.all([
     statEventRepository.findMany({
       where: whereForRows,
-      orderBy: [{ created_at: "asc" }, { id: "asc" }],
+      orderBy: [{ createdAt: "asc" }, { id: "asc" }],
       take: batchSize,
-    }),
+    }) as Promise<PrismaStatEventWithPublishers[]>,
     cursor ? Promise.resolve(0) : statEventRepository.count({ where: whereForCount }),
   ]);
 
@@ -643,7 +644,7 @@ async function scrollStatEvents({ type, batchSize = 5000, cursor = null, filters
     rows.length < batchSize
       ? null
       : JSON.stringify({
-          createdAt: rows[rows.length - 1].created_at.toISOString(),
+          createdAt: rows[rows.length - 1].createdAt.toISOString(),
           id: rows[rows.length - 1].id,
         });
 
@@ -661,20 +662,8 @@ async function updateStatEventsExportStatus(ids: string[], status: "SUCCESS" | "
 
   await statEventRepository.updateMany({
     where: { id: { in: ids } },
-    data: { export_to_analytics: status },
+    data: { exportToAnalytics: status },
   });
-}
-
-function toPrismaColumnName(field: string): string | null {
-  if (typeof field !== "string" || field.length === 0) {
-    return null;
-  }
-
-  const placeholderValue = "__pg_column__";
-  const mapped = toPrisma({ [field]: placeholderValue } as Partial<StatEventRecord>, { includeDefaults: false });
-  const [column] = Object.keys(mapped);
-
-  return column ?? null;
 }
 
 export const statEventService = {

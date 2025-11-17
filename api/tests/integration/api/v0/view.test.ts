@@ -1,7 +1,6 @@
 import request from "supertest";
-import { afterEach, beforeEach, describe, expect, it } from "vitest";
+import { beforeEach, describe, expect, it } from "vitest";
 
-import { prismaCore } from "../../../../src/db/postgres";
 import { createTestPublisher } from "../../../fixtures";
 import { createStatEventFixture } from "../../../fixtures/stat-event";
 import { createTestApp } from "../../../testApp";
@@ -16,25 +15,19 @@ describe("View API Integration Tests", () => {
     const publisher = await createTestPublisher({ name: "View Publisher" });
     apiKey = publisher.apikey!;
     publisherId = publisher.id;
-    await prismaCore.statEvent.deleteMany({});
   });
 
-  afterEach(async () => {
-    await prismaCore.statEvent.deleteMany({});
-  });
-
-  it("returns stats aggregated from PostgreSQL", async () => {
-    const otherPublisherId = "publisher-partner";
+  it("returns aggregated stats", async () => {
+    const otherPublisher = await createTestPublisher({ name: "Other Publisher" });
+    const otherPublisher2 = await createTestPublisher({ name: "Other Publisher 2" });
 
     await Promise.all(
       Array.from({ length: 5 }).map(() =>
         createStatEventFixture({
           type: "print",
           isBot: false,
-          fromPublisherId: otherPublisherId,
-          fromPublisherName: "View Publisher",
+          fromPublisherId: otherPublisher.id,
           toPublisherId: publisherId,
-          toPublisherName: "View Publisher",
         })
       )
     );
@@ -44,21 +37,19 @@ describe("View API Integration Tests", () => {
         createStatEventFixture({
           type: "print",
           isBot: false,
-          fromPublisherId: "partner-id",
-          fromPublisherName: "Partner Publisher",
+          fromPublisherId: otherPublisher2.id,
           toPublisherId: publisherId,
-          toPublisherName: "View Publisher",
         })
       )
     );
 
-    const response = await request(app).get("/v0/view/stats?facets=fromPublisherName").set("x-api-key", apiKey);
+    const response = await request(app).get("/v0/view/stats?facets=fromPublisherId").set("x-api-key", apiKey);
 
     expect(response.status).toBe(200);
     expect(response.body.total).toBe(8);
-    expect(response.body.facets.fromPublisherName).toEqual([
-      { key: "View Publisher", doc_count: 5 },
-      { key: "Partner Publisher", doc_count: 3 },
+    expect(response.body.facets.fromPublisherId).toMatchObject([
+      { key: otherPublisher.id, doc_count: 5 },
+      { key: otherPublisher2.id, doc_count: 3 },
     ]);
   });
 });

@@ -1,6 +1,6 @@
 import { Types } from "mongoose";
 import request from "supertest";
-import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 
 import { JVA_URL, PUBLISHER_IDS } from "../../../../src/config";
 import { prismaCore } from "../../../../src/db/postgres";
@@ -13,17 +13,8 @@ import { createTestApp } from "../../../testApp";
 const app = createTestApp();
 
 describe("RedirectController /widget/:id", () => {
-  beforeEach(async () => {
-    await MissionModel.deleteMany({});
-    await WidgetModel.deleteMany({});
-    await prismaCore.statEvent.deleteMany({});
-  });
-
   afterEach(async () => {
     vi.restoreAllMocks();
-    await MissionModel.deleteMany({});
-    await WidgetModel.deleteMany({});
-    await prismaCore.statEvent.deleteMany({});
   });
 
   it("redirects to JVA when mission is not found and identity is missing", async () => {
@@ -57,6 +48,11 @@ describe("RedirectController /widget/:id", () => {
   });
 
   it("records click stats and appends tracking parameters when widget and identity are present", async () => {
+    const missionPublisherId = new Types.ObjectId().toString();
+    const widgetPublisherId = new Types.ObjectId().toString();
+    await prismaCore.publisher.create({ data: { id: missionPublisherId, name: "Mission Publisher" } });
+    await prismaCore.publisher.create({ data: { id: widgetPublisherId, name: "From Publisher" } });
+
     const mission = await MissionModel.create({
       applicationUrl: "https://mission.example.com/apply",
       clientId: "mission-client-id",
@@ -68,13 +64,13 @@ describe("RedirectController /widget/:id", () => {
       organizationId: "mission-org-id",
       organizationClientId: "mission-org-client-id",
       lastSyncAt: new Date(),
-      publisherId: new Types.ObjectId().toString(),
+      publisherId: missionPublisherId,
       publisherName: "Mission Publisher",
     });
 
     const widget = await WidgetModel.create({
       name: "Widget Name",
-      fromPublisherId: new Types.ObjectId().toString(),
+      fromPublisherId: widgetPublisherId,
       fromPublisherName: "From Publisher",
     });
 
@@ -108,27 +104,25 @@ describe("RedirectController /widget/:id", () => {
       type: "click",
       user: identity.user,
       referer: identity.referer,
-      user_agent: identity.userAgent,
+      userAgent: identity.userAgent,
       host: "redirect.test",
       origin: "https://app.example.com",
-      request_id: requestId,
+      requestId,
       source: "widget",
-      source_id: widget._id.toString(),
-      source_name: widget.name,
-      mission_id: mission._id.toString(),
-      mission_client_id: mission.clientId,
-      mission_domain: mission.domain,
-      mission_title: mission.title,
-      mission_postal_code: mission.postalCode,
-      mission_department_name: mission.departmentName,
-      mission_organization_name: mission.organizationName,
-      mission_organization_id: mission.organizationId,
-      mission_organization_client_id: mission.organizationClientId,
-      to_publisher_id: mission.publisherId,
-      to_publisher_name: mission.publisherName,
-      from_publisher_id: widget.fromPublisherId,
-      from_publisher_name: widget.fromPublisherName,
-      is_bot: true,
+      sourceId: widget._id.toString(),
+      sourceName: widget.name,
+      missionId: mission._id.toString(),
+      missionClientId: mission.clientId,
+      missionDomain: mission.domain,
+      missionTitle: mission.title,
+      missionPostalCode: mission.postalCode,
+      missionDepartmentName: mission.departmentName,
+      missionOrganizationName: mission.organizationName,
+      missionOrganizationId: mission.organizationId,
+      missionOrganizationClientId: mission.organizationClientId,
+      toPublisherId: mission.publisherId,
+      fromPublisherId: widget.fromPublisherId,
+      isBot: true,
     });
 
     expect(statsBotFindOneSpy).toHaveBeenCalledWith({ user: identity.user });
@@ -140,6 +134,9 @@ describe("RedirectController /widget/:id", () => {
     if (!originalServicePublisherId) {
       PUBLISHER_IDS.SERVICE_CIVIQUE = servicePublisherId;
     }
+    await prismaCore.publisher.create({ data: { id: servicePublisherId, name: "Service Civique" } });
+    const widgetPublisherId = new Types.ObjectId().toString();
+    await prismaCore.publisher.create({ data: { id: widgetPublisherId, name: "From Publisher" } });
 
     try {
       const mission = await MissionModel.create({
@@ -153,7 +150,7 @@ describe("RedirectController /widget/:id", () => {
 
       const widget = await WidgetModel.create({
         name: "Widget Special",
-        fromPublisherId: new Types.ObjectId().toString(),
+        fromPublisherId: widgetPublisherId,
         fromPublisherName: "From Publisher",
       });
 
@@ -166,9 +163,7 @@ describe("RedirectController /widget/:id", () => {
       vi.spyOn(utils, "identify").mockReturnValue(identity);
       vi.spyOn(StatsBotModel, "findOne").mockResolvedValue(null);
 
-      const response = await request(app)
-        .get(`/r/widget/${mission._id.toString()}`)
-        .query({ widgetId: widget._id.toString() });
+      const response = await request(app).get(`/r/widget/${mission._id.toString()}`).query({ widgetId: widget._id.toString() });
 
       expect(response.status).toBe(302);
       const redirectUrl = new URL(response.headers.location);

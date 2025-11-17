@@ -1,8 +1,6 @@
 import { Types } from "mongoose";
 import request from "supertest";
-import { afterEach, beforeEach, describe, expect, it } from "vitest";
-
-import { prismaCore } from "../../../../src/db/postgres";
+import { describe, expect, it } from "vitest";
 
 import MissionModel from "../../../../src/models/mission";
 import { publisherService } from "../../../../src/services/publisher";
@@ -13,16 +11,6 @@ import { createTestApp } from "../../../testApp";
 const app = createTestApp();
 
 describe("Activity V2 controller", () => {
-  beforeEach(async () => {
-    await MissionModel.deleteMany({});
-    await prismaCore.statEvent.deleteMany({});
-  });
-
-  afterEach(async () => {
-    await MissionModel.deleteMany({});
-    await prismaCore.statEvent.deleteMany({});
-  });
-
   describe("GET /v2/activity/:id", () => {
     it("returns the stat event when it exists", async () => {
       const publisher = await publisherService.createPublisher({ name: "Test Publisher", apikey: "get-activity-key" });

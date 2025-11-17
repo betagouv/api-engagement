@@ -2,11 +2,11 @@ import { ExportDefinition } from "../types";
 
 export const exportDefinitions: ExportDefinition[] = [
   {
-    key: "StatEvent",
+    key: "stat_event",
     batchSize: 2000,
     source: {
       schema: "public",
-      table: "StatEvent",
+      table: "stat_event",
       cursor: {
         field: "updated_at",
         idField: "id",
@@ -34,7 +34,7 @@ export const exportDefinitions: ExportDefinition[] = [
       ],
     },
     destination: {
-      table: "StatEvent",
+      table: "stat_event",
       conflictColumns: ["id"],
     },
   },

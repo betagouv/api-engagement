@@ -16,14 +16,10 @@ interface RenamePublisherOptions {
 interface RenamePublisherResult {
   publishers: { matched: number; updated: number };
   missions: { matched: number; updated: number };
-  statEvents: { fromPublisher: number; toPublisher: number };
   dryRun: boolean;
 }
 
 const USAGE = `Usage: ts-node scripts/rename-publisher.ts <oldName> <newName> [--dry-run]`;
-
-type StatEventColumn = "from_publisher_name" | "to_publisher_name";
-type StatField = "fromPublisherName" | "toPublisherName";
 
 const parseArgs = (): { oldName: string; newName: string; options: RenamePublisherOptions } => {
   const args = process.argv.slice(2);
@@ -49,18 +45,6 @@ const parseArgs = (): { oldName: string; newName: string; options: RenamePublish
   }
 
   return { oldName, newName, options };
-};
-
-const updateStatEventsColumn = async (column: StatEventColumn, oldName: string, newName: string, dryRun: boolean): Promise<number> => {
-  if (dryRun) {
-    const count = await prismaCore.statEvent.count({ where: { [column]: oldName } });
-    console.log(`[RenamePublisher][Dry-run] Would update ${count} StatEvent row(s) in column ${column}`);
-    return count;
-  }
-
-  const { count } = await prismaCore.statEvent.updateMany({ where: { [column]: oldName }, data: { [column]: newName } });
-  console.log(`[RenamePublisher] Updated ${count} StatEvent row(s) in column ${column}`);
-  return count;
 };
 
 const renamePublisher = async (oldName: string, newName: string, { dryRun }: RenamePublisherOptions): Promise<RenamePublisherResult> => {
@@ -92,16 +76,9 @@ const renamePublisher = async (oldName: string, newName: string, { dryRun }: Ren
     console.log(`[RenamePublisher][Dry-run] Would update ${missionsMatched} mission document(s)`);
   }
 
-  const statEventsFromResult = await updateStatEventsColumn("from_publisher_name", oldName, newName, dryRun);
-  const statEventsToResult = await updateStatEventsColumn("to_publisher_name", oldName, newName, dryRun);
-
   const result: RenamePublisherResult = {
     publishers: { matched: publishersMatched, updated: dryRun ? publishersMatched : publishersUpdated },
     missions: { matched: missionsMatched, updated: dryRun ? missionsMatched : missionsUpdated },
-    statEvents: {
-      fromPublisher: statEventsFromResult,
-      toPublisher: statEventsToResult,
-    },
     dryRun,
   };
 

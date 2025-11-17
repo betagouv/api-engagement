@@ -57,7 +57,7 @@ export async function getStatsMean(filters: StatsMeanFilters): Promise<StatsMean
   const graphRows = await prismaCore.$queryRaw<Array<{ type: "click" | "print" | "apply" | "account"; count: bigint }>>(
     Prisma.sql`
       SELECT "type", COUNT(*)::bigint AS count
-      FROM "StatEvent"
+      FROM "stat_event"
       WHERE ${whereClause}
       GROUP BY "type"
     `
@@ -108,7 +108,7 @@ export async function getStatsMean(filters: StatsMeanFilters): Promise<StatsMean
              SUM(CASE WHEN "type" = 'click' THEN 1 ELSE 0 END)::bigint AS click_count,
              SUM(CASE WHEN "type" = 'apply' THEN 1 ELSE 0 END)::bigint AS apply_count,
              SUM(CASE WHEN "type" = 'account' THEN 1 ELSE 0 END)::bigint AS account_count
-      FROM "StatEvent"
+      FROM "stat_event"
       WHERE ${whereClause}
         AND "source_id" IS NOT NULL
         AND "source_id" <> ''

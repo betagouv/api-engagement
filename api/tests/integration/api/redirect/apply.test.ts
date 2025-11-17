@@ -1,20 +1,17 @@
 import request from "supertest";
-import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 
 import { prismaCore } from "../../../../src/db/postgres";
 import MissionModel from "../../../../src/models/mission";
 import StatsBotModel from "../../../../src/models/stats-bot";
 import * as utils from "../../../../src/utils";
+import { createTestPublisher } from "../../../fixtures/index";
 import { createClickStat } from "../../../fixtures/stat-event";
 import { createTestApp } from "../../../testApp";
 
 const app = createTestApp();
 
 describe("RedirectController /apply", () => {
-  beforeEach(async () => {
-    await prismaCore.statEvent.deleteMany({});
-  });
-
   afterEach(() => {
     vi.restoreAllMocks();
   });
@@ -43,11 +40,12 @@ describe("RedirectController /apply", () => {
   });
 
   it("records apply stats with mission details when available", async () => {
+    const publisher = await createTestPublisher();
     const mission = await MissionModel.create({
       clientId: "mission-client-id",
       title: "Mission Title",
-      publisherId: "mission-publisher-id",
-      publisherName: "Mission Publisher",
+      publisherId: publisher.id,
+      publisherName: publisher.name,
       lastSyncAt: new Date(),
       domain: "mission-domain",
       postalCode: "75001",
@@ -71,18 +69,10 @@ describe("RedirectController /apply", () => {
       source: "campaign",
       sourceId: "campaign-id",
       sourceName: "Campaign Name",
-      fromPublisherId: "source-publisher-id",
-      fromPublisherName: "Source Publisher",
-      toPublisherId: "click-publisher-id",
-      toPublisherName: "Click Publisher",
-      missionId: "click-mission-id",
-      missionClientId: "click-mission-client-id",
-      missionDomain: "click-domain",
-      missionTitle: "Click Mission Title",
-      missionPostalCode: "69000",
-      missionDepartmentName: "Lyon",
-      missionOrganizationName: "Click Org",
-      missionOrganizationId: "click-org-id",
+      fromPublisherId: publisher.id,
+      toPublisherId: publisher.id,
+      missionId: mission.id,
+      missionClientId: mission.clientId,
     });
 
     const response = await request(app)
@@ -100,28 +90,19 @@ describe("RedirectController /apply", () => {
       type: "apply",
       user: identity.user,
       referer: identity.referer,
-      user_agent: identity.userAgent,
+      userAgent: identity.userAgent,
       host: "redirect.test",
       origin: "https://app.example.com",
-      click_user: clickStat.user,
-      click_id: "click-123",
+      clickUser: clickStat.user,
+      clickId: "click-123",
       source: clickStat.source,
-      source_id: clickStat.sourceId,
-      source_name: clickStat.sourceName,
-      from_publisher_id: clickStat.fromPublisherId,
-      from_publisher_name: clickStat.fromPublisherName,
-      to_publisher_id: mission.publisherId,
-      to_publisher_name: mission.publisherName,
-      mission_id: mission._id.toString(),
-      mission_client_id: mission.clientId,
-      mission_domain: mission.domain,
-      mission_title: mission.title,
-      mission_postal_code: mission.postalCode,
-      mission_department_name: mission.departmentName,
-      mission_organization_name: mission.organizationName,
-      mission_organization_id: mission.organizationId,
-      mission_organization_client_id: mission.organizationClientId,
-      is_bot: true,
+      sourceId: clickStat.sourceId,
+      sourceName: clickStat.sourceName,
+      fromPublisherId: clickStat.fromPublisherId,
+      toPublisherId: mission.publisherId,
+      missionId: mission._id.toString(),
+      missionClientId: mission.clientId,
+      isBot: true,
     });
   });
 
@@ -134,23 +115,16 @@ describe("RedirectController /apply", () => {
     vi.spyOn(utils, "identify").mockReturnValue(identity);
     const statsBotFindOneSpy = vi.spyOn(StatsBotModel, "findOne").mockResolvedValue(null);
 
+    const publisher = await createTestPublisher();
+
     const clickStat = await createClickStat("click-456", {
       user: "click-user",
       source: "publisher",
       sourceId: "source-id",
       sourceName: "Source Name",
-      fromPublisherId: "source-publisher-id",
-      fromPublisherName: "Source Publisher",
-      toPublisherId: "to-publisher-id",
-      toPublisherName: "To Publisher",
       missionId: "click-mission-id",
       missionClientId: "click-mission-client-id",
-      missionDomain: "click-domain",
-      missionTitle: "Click Mission Title",
-      missionPostalCode: "33000",
-      missionDepartmentName: "Bordeaux",
-      missionOrganizationName: "Click Org",
-      missionOrganizationId: "click-org-id",
+      toPublisherId: publisher.id,
     });
 
     const response = await request(app).get("/r/apply").query({ view: "click-456" });
@@ -164,25 +138,17 @@ describe("RedirectController /apply", () => {
       type: "apply",
       user: identity.user,
       referer: identity.referer,
-      user_agent: identity.userAgent,
-      click_user: clickStat.user,
-      click_id: "click-456",
+      userAgent: identity.userAgent,
+      clickUser: clickStat.user,
+      clickId: "click-456",
       source: clickStat.source,
-      source_id: clickStat.sourceId,
-      source_name: clickStat.sourceName,
-      from_publisher_id: clickStat.fromPublisherId,
-      from_publisher_name: clickStat.fromPublisherName,
-      to_publisher_id: clickStat.toPublisherId,
-      to_publisher_name: clickStat.toPublisherName,
-      mission_id: clickStat.missionId,
-      mission_client_id: clickStat.missionClientId,
-      mission_title: clickStat.missionTitle,
-      mission_domain: clickStat.missionDomain,
-      mission_organization_name: clickStat.missionOrganizationName,
-      mission_organization_id: clickStat.missionOrganizationId,
-      mission_postal_code: clickStat.missionPostalCode,
-      mission_department_name: clickStat.missionDepartmentName,
-      is_bot: false,
+      sourceId: clickStat.sourceId,
+      sourceName: clickStat.sourceName,
+      fromPublisherId: clickStat.fromPublisherId,
+      toPublisherId: clickStat.toPublisherId,
+      missionId: clickStat.missionId,
+      missionClientId: clickStat.missionClientId,
+      isBot: false,
     });
   });
 
@@ -215,7 +181,7 @@ describe("RedirectController /apply", () => {
 
     expect(response.status).toBe(200);
     const storedApply = await prismaCore.statEvent.findUnique({ where: { id: response.body.id } });
-    expect(storedApply?.custom_attributes).toEqual(customAttributes);
+    expect(storedApply?.customAttributes).toEqual(customAttributes);
   });
 
   it("returns 204 when custom attributes payload is invalid JSON", async () => {
