@@ -24,7 +24,7 @@ resource "scaleway_job_definition" "analytics-stat-event" {
   }
 
   env = merge(local.common_analytics_env_vars, {
-    JOB_CMD = "node dist/jobs/run-job.js export-to-analytics-raw StatEvent"
+    JOB_CMD = "node dist/jobs/run-job.js export-to-analytics-raw stat_event"
   })
 }
 
