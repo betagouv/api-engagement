@@ -1,6 +1,6 @@
 import { Prisma, Warning as PrismaWarning } from "../db/core";
 import { warningRepository } from "../repositories/warning";
-import { WarningCreateInput, WarningRecord, WarningUpdatePatch } from "../types/warning";
+import { WarningCreateInput, WarningFindParams, WarningRecord, WarningUpdatePatch } from "../types/warning";
 
 type WarningWithPublisher = PrismaWarning & {
   publisher: {
@@ -27,7 +27,7 @@ export const warningService = (() => {
     updatedAt: warning.updatedAt,
   });
 
-  const findOneWarning = async (params: { publisherId: string; type: string; fixed?: boolean }): Promise<WarningRecord | null> => {
+  const findOneWarning = async (params: WarningFindParams = {}): Promise<WarningRecord | null> => {
     const where: Prisma.WarningWhereInput = {
       publisherId: params.publisherId,
       type: params.type,

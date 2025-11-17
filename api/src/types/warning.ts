@@ -14,6 +14,15 @@ export interface WarningRecord {
   updatedAt: Date;
 }
 
+export interface WarningFindParams {
+  fixed?: boolean;
+  publisherId?: string;
+  type?: string;
+  createdAtGte?: Date;
+  createdAtLt?: Date;
+  limit?: number;
+}
+
 export interface WarningCreateInput {
   type: string;
   title?: string | null;
