@@ -60,13 +60,16 @@ describe("RedirectController /campaign/:id", () => {
   });
 
   it("records stats and appends tracking parameters when identity is present", async () => {
+    const fromPublisher = await prismaCore.publisher.create({ data: { id: "from-publisher", name: "From Publisher" } });
+    const toPublisher = await prismaCore.publisher.create({ data: { id: "to-publisher", name: "To Publisher" } });
+
     const campaign = await CampaignModel.create({
       name: "Campaign Name",
       url: "https://campaign.example.com/path",
-      fromPublisherId: "from-publisher",
-      fromPublisherName: "From Publisher",
-      toPublisherId: "to-publisher",
-      toPublisherName: "To Publisher",
+      fromPublisherId: fromPublisher.id,
+      fromPublisherName: fromPublisher.name,
+      toPublisherId: toPublisher.id,
+      toPublisherName: toPublisher.name,
     });
 
     const identity = {
@@ -95,13 +98,13 @@ describe("RedirectController /campaign/:id", () => {
       type: "click",
       user: identity.user,
       referer: identity.referer,
-      user_agent: identity.userAgent,
+      userAgent: identity.userAgent,
       source: "campaign",
-      source_id: campaign._id.toString(),
-      source_name: campaign.name,
-      to_publisher_id: campaign.toPublisherId,
-      from_publisher_id: campaign.fromPublisherId,
-      is_bot: true,
+      sourceId: campaign._id.toString(),
+      sourceName: campaign.name,
+      toPublisherId: campaign.toPublisherId,
+      fromPublisherId: campaign.fromPublisherId,
+      isBot: true,
     });
 
     expect(statsBotFindOneSpy).toHaveBeenCalledWith({ user: identity.user });

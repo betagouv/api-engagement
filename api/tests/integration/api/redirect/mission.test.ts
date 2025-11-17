@@ -65,6 +65,12 @@ describe("RedirectController /:missionId/:publisherId", () => {
 
   it("records click stats and appends tracking parameters when identity and publisher exist", async () => {
     const fromPublisher = await publisherService.createPublisher({ name: "From Publisher" });
+    const missionPublisher = await prismaCore.publisher.create({
+      data: {
+        id: new Types.ObjectId().toString(),
+        name: "Mission Publisher",
+      },
+    });
 
     const mission = await MissionModel.create({
       applicationUrl: "https://mission.example.com/apply",
@@ -77,8 +83,8 @@ describe("RedirectController /:missionId/:publisherId", () => {
       organizationId: "mission-org-id",
       organizationClientId: "mission-org-client-id",
       lastSyncAt: new Date(),
-      publisherId: new Types.ObjectId().toString(),
-      publisherName: "Mission Publisher",
+      publisherId: missionPublisher.id,
+      publisherName: missionPublisher.name,
     });
 
     const identity = {
@@ -110,24 +116,24 @@ describe("RedirectController /:missionId/:publisherId", () => {
       type: "click",
       user: identity.user,
       referer: identity.referer,
-      user_agent: identity.userAgent,
+      userAgent: identity.userAgent,
       host: "redirect.test",
       origin: "https://app.example.com",
       source: "publisher",
-      source_name: fromPublisher.name,
-      mission_id: mission._id.toString(),
-      mission_client_id: mission.clientId,
-      mission_domain: mission.domain,
-      mission_title: mission.title,
-      mission_postal_code: mission.postalCode,
-      mission_department_name: mission.departmentName,
-      mission_organization_name: mission.organizationName,
-      mission_organization_id: mission.organizationId,
-      mission_organization_client_id: mission.organizationClientId,
-      to_publisher_id: mission.publisherId,
-      from_publisher_id: fromPublisher.id,
+      sourceName: fromPublisher.name,
+      missionId: mission._id.toString(),
+      missionClientId: mission.clientId,
+      missionDomain: mission.domain,
+      missionTitle: mission.title,
+      missionPostalCode: mission.postalCode,
+      missionDepartmentName: mission.departmentName,
+      missionOrganizationName: mission.organizationName,
+      missionOrganizationId: mission.organizationId,
+      missionOrganizationClientId: mission.organizationClientId,
+      toPublisherId: mission.publisherId,
+      fromPublisherId: fromPublisher.id,
       tags: ["foo", "bar"],
-      is_bot: true,
+      isBot: true,
     });
 
     expect(statsBotFindOneSpy).toHaveBeenCalledWith({ user: identity.user });
@@ -135,47 +141,40 @@ describe("RedirectController /:missionId/:publisherId", () => {
 
   it("uses mtm tracking parameters for Service Civique missions", async () => {
     const fromPublisher = await publisherService.createPublisher({ name: "From Publisher" });
-
-    const originalServicePublisherId = PUBLISHER_IDS.SERVICE_CIVIQUE;
-    const servicePublisherId = originalServicePublisherId || new Types.ObjectId().toString();
-    if (!originalServicePublisherId) {
-      PUBLISHER_IDS.SERVICE_CIVIQUE = servicePublisherId;
+    const serviceCiviquePublisherId = PUBLISHER_IDS.SERVICE_CIVIQUE || new Types.ObjectId().toString();
+    if (!PUBLISHER_IDS.SERVICE_CIVIQUE) {
+      PUBLISHER_IDS.SERVICE_CIVIQUE = serviceCiviquePublisherId;
     }
+    const serviceCiviquePublisher = await prismaCore.publisher.create({
+      data: { id: serviceCiviquePublisherId, name: "Service Civique" },
+    });
 
-    try {
-      const mission = await MissionModel.create({
-        applicationUrl: "https://mission.example.com/apply",
-        clientId: "mission-client-id",
-        lastSyncAt: new Date(),
-        publisherId: servicePublisherId,
-        publisherName: "Service Civique",
-        title: "Mission Title",
-      });
+    const mission = await MissionModel.create({
+      applicationUrl: "https://mission.example.com/apply",
+      clientId: "mission-client-id",
+      lastSyncAt: new Date(),
+      publisherId: serviceCiviquePublisher.id,
+      publisherName: "Service Civique",
+      title: "Mission Title",
+    });
 
-      const identity = {
-        user: "mission-user",
-        referer: "https://referrer.example.com",
-        userAgent: "Mozilla/5.0",
-      };
+    const identity = {
+      user: "mission-user",
+      referer: "https://referrer.example.com",
+      userAgent: "Mozilla/5.0",
+    };
 
-      vi.spyOn(utils, "identify").mockReturnValue(identity);
-      vi.spyOn(StatsBotModel, "findOne").mockResolvedValue(null);
+    vi.spyOn(utils, "identify").mockReturnValue(identity);
+    vi.spyOn(StatsBotModel, "findOne").mockResolvedValue(null);
 
-      const response = await request(app)
-        .get(`/r/${mission._id.toString()}/${fromPublisher.id}`)
-        .query({ tags: "foo" });
+    const response = await request(app).get(`/r/${mission._id.toString()}/${fromPublisher.id}`).query({ tags: "foo" });
 
-      expect(response.status).toBe(302);
-      const redirectUrl = new URL(response.headers.location);
-      expect(`${redirectUrl.origin}${redirectUrl.pathname}`).toBe("https://mission.example.com/apply");
-      expect(redirectUrl.searchParams.get("apiengagement_id")).toEqual(expect.any(String));
-      expect(redirectUrl.searchParams.get("mtm_source")).toBe("api_engagement");
-      expect(redirectUrl.searchParams.get("mtm_medium")).toBe("api");
-      expect(redirectUrl.searchParams.get("mtm_campaign")).toBe("from-publisher");
-    } finally {
-      if (!originalServicePublisherId) {
-        PUBLISHER_IDS.SERVICE_CIVIQUE = originalServicePublisherId;
-      }
-    }
+    expect(response.status).toBe(302);
+    const redirectUrl = new URL(response.headers.location);
+    expect(`${redirectUrl.origin}${redirectUrl.pathname}`).toBe("https://mission.example.com/apply");
+    expect(redirectUrl.searchParams.get("apiengagement_id")).toEqual(expect.any(String));
+    expect(redirectUrl.searchParams.get("mtm_source")).toBe("api_engagement");
+    expect(redirectUrl.searchParams.get("mtm_medium")).toBe("api");
+    expect(redirectUrl.searchParams.get("mtm_campaign")).toBe("from-publisher");
   });
 });

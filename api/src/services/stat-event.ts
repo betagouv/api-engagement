@@ -21,12 +21,24 @@ import {
   StatEventSource,
   StatEventType,
   ViewStatsFacet,
+  ViewStatsFacetField,
   WarningBotAggregationBucket,
   WarningBotAggregations,
   WarningBotCandidate,
 } from "../types/stat-event";
 
 const DEFAULT_TYPES: StatEventType[] = ["click", "print", "apply", "account"];
+
+const VIEW_STATS_FACET_FIELDS = [
+  "type",
+  "source",
+  "missionDomain",
+  "missionDepartmentName",
+  "missionOrganizationId",
+  "fromPublisherId",
+  "toPublisherId",
+  "tag",
+] as const;
 
 type PrismaStatEventWithPublishers = Prisma.StatEventGetPayload<{
   include: {
@@ -283,49 +295,17 @@ async function findStatEventViews({ publisherId, size = 10, filters = {}, facets
   const facetsResult: Record<string, ViewStatsFacet[]> = {};
   await Promise.all(
     facets.map(async (facet) => {
-      if (typeof facet !== "string" || !facet) {
+      if (!VIEW_STATS_FACET_FIELDS.includes(facet as ViewStatsFacetField)) {
         return;
       }
 
-      if (facet === "fromPublisherName" || facet === "toPublisherName") {
-        const column = facet === "fromPublisherName" ? "fromPublisherId" : "toPublisherId";
-        try {
-          const rows = (await statEventRepository.groupBy({
-            by: [column],
-            where,
-            _count: { _all: true },
-            orderBy: { _count: { id: "desc" } },
-            take: size,
-          } as any)) as { [key: string]: any; _count: { _all: number } }[];
-
-          const publisherIds = rows.map((row) => row[column] as string | null).filter((value): value is string => typeof value === "string" && value.length > 0);
-          const publisherNameMap = await publisherService.getPublisherNameMap(publisherIds);
-
-          facetsResult[facet] = rows
-            .filter((row) => !!row[column])
-            .map((row) => {
-              const publisherId = row[column] as string;
-              return {
-                key: publisherNameMap.get(publisherId) ?? publisherId,
-                doc_count: row._count._all,
-              };
-            });
-        } catch (error) {
-          console.error(`[StatEvent] Error aggregating facet ${facet}:`, error);
-        }
-        return;
-      }
-
-      const column = toPrismaColumnName(facet);
-      if (!column) {
-        return;
-      }
+      const column = facet as ViewStatsFacetField;
       try {
         const rows = (await statEventRepository.groupBy({
           by: [column],
           where,
           _count: { _all: true },
-          orderBy: { _count: { id: "desc" } },
+          orderBy: { _count: { _all: "desc" } },
           take: size,
         } as any)) as { [key: string]: any; _count: { _all: number } }[];
 
@@ -684,18 +664,6 @@ async function updateStatEventsExportStatus(ids: string[], status: "SUCCESS" | "
     where: { id: { in: ids } },
     data: { exportToAnalytics: status },
   });
-}
-
-function toPrismaColumnName(field: string): string | null {
-  if (typeof field !== "string" || field.length === 0) {
-    return null;
-  }
-
-  const placeholderValue = "__pg_column__";
-  const mapped = toPrisma({ [field]: placeholderValue } as Partial<StatEventRecord>, { includeDefaults: false });
-  const [column] = Object.keys(mapped);
-
-  return column ?? null;
 }
 
 export const statEventService = {

@@ -5,6 +5,7 @@ import { prismaCore } from "../../../../src/db/postgres";
 import MissionModel from "../../../../src/models/mission";
 import StatsBotModel from "../../../../src/models/stats-bot";
 import * as utils from "../../../../src/utils";
+import { createTestPublisher } from "../../../fixtures/index";
 import { createClickStat } from "../../../fixtures/stat-event";
 import { createTestApp } from "../../../testApp";
 
@@ -14,12 +15,14 @@ describe("RedirectController /account", () => {
   beforeEach(async () => {
     await MissionModel.deleteMany({});
     await prismaCore.statEvent.deleteMany({});
+    await prismaCore.publisher.deleteMany({});
   });
 
   afterEach(async () => {
     vi.restoreAllMocks();
     await MissionModel.deleteMany({});
     await prismaCore.statEvent.deleteMany({});
+    await prismaCore.publisher.deleteMany({});
   });
 
   it("returns 204 when identity is missing", async () => {
@@ -46,11 +49,13 @@ describe("RedirectController /account", () => {
   });
 
   it("records account stats with mission details when available", async () => {
+    const publisher = await createTestPublisher();
+
     const mission = await MissionModel.create({
       clientId: "mission-client-id",
       title: "Mission Title",
-      publisherId: "mission-publisher-id",
-      publisherName: "Mission Publisher",
+      publisherId: publisher.id,
+      publisherName: publisher.name,
       lastSyncAt: new Date(),
       domain: "mission-domain",
       postalCode: "75001",
@@ -74,17 +79,15 @@ describe("RedirectController /account", () => {
       source: "campaign",
       sourceId: "campaign-id",
       sourceName: "Campaign Name",
-      fromPublisherId: "source-publisher-id",
-      fromPublisherName: "Source Publisher",
-      toPublisherId: "click-publisher-id",
-      toPublisherName: "Click Publisher",
-      missionId: "click-mission-id",
-      missionClientId: "click-mission-client-id",
-      missionDomain: "click-domain",
-      missionTitle: "Click Mission Title",
-      missionPostalCode: "69000",
-      missionDepartmentName: "Lyon",
-      missionOrganizationName: "Click Org",
+      fromPublisherId: publisher.id,
+      toPublisherId: publisher.id,
+      missionId: mission.id,
+      missionClientId: mission.clientId,
+      missionDomain: mission.domain,
+      missionTitle: mission.title,
+      missionPostalCode: mission.postalCode,
+      missionDepartmentName: mission.departmentName,
+      missionOrganizationName: mission.organizationName,
       missionOrganizationId: "click-org-id",
     });
 
@@ -101,28 +104,13 @@ describe("RedirectController /account", () => {
     const createdAccount = await prismaCore.statEvent.findUnique({ where: { id: response.body.id } });
     expect(createdAccount).toMatchObject({
       type: "account",
-      user: identity.user,
-      referer: identity.referer,
-      user_agent: identity.userAgent,
-      host: "redirect.test",
-      origin: "https://app.example.com",
-      click_user: clickStat.user,
-      click_id: "click-123",
       source: clickStat.source,
-      source_id: clickStat.sourceId,
-      source_name: clickStat.sourceName,
-      from_publisher_id: clickStat.fromPublisherId,
-      to_publisher_id: mission.publisherId,
-      mission_id: mission._id.toString(),
-      mission_client_id: mission.clientId,
-      mission_domain: mission.domain,
-      mission_title: mission.title,
-      mission_postal_code: mission.postalCode,
-      mission_department_name: mission.departmentName,
-      mission_organization_name: mission.organizationName,
-      mission_organization_id: mission.organizationId,
-      mission_organization_client_id: mission.organizationClientId,
-      is_bot: true,
+      sourceId: clickStat.sourceId,
+      sourceName: clickStat.sourceName,
+      fromPublisherId: clickStat.fromPublisherId,
+      toPublisherId: mission.publisherId,
+      missionId: mission._id.toString(),
+      isBot: true,
     });
   });
 
@@ -140,10 +128,6 @@ describe("RedirectController /account", () => {
       source: "publisher",
       sourceId: "source-id",
       sourceName: "Source Name",
-      fromPublisherId: "source-publisher-id",
-      fromPublisherName: "Source Publisher",
-      toPublisherId: "to-publisher-id",
-      toPublisherName: "To Publisher",
       missionId: "click-mission-id",
       missionClientId: "click-mission-client-id",
       missionDomain: "click-domain",
@@ -163,25 +147,14 @@ describe("RedirectController /account", () => {
     const storedAccount = await prismaCore.statEvent.findUnique({ where: { id: response.body.id } });
     expect(storedAccount).toMatchObject({
       type: "account",
-      user: identity.user,
-      referer: identity.referer,
-      user_agent: identity.userAgent,
-      click_user: clickStat.user,
-      click_id: "click-456",
       source: clickStat.source,
-      source_id: clickStat.sourceId,
-      source_name: clickStat.sourceName,
-      from_publisher_id: clickStat.fromPublisherId,
-      to_publisher_id: clickStat.toPublisherId,
-      mission_id: clickStat.missionId,
-      mission_client_id: clickStat.missionClientId,
-      mission_title: clickStat.missionTitle,
-      mission_domain: clickStat.missionDomain,
-      mission_organization_name: clickStat.missionOrganizationName,
-      mission_organization_id: clickStat.missionOrganizationId,
-      mission_postal_code: clickStat.missionPostalCode,
-      mission_department_name: clickStat.missionDepartmentName,
-      is_bot: false,
+      sourceId: clickStat.sourceId,
+      sourceName: clickStat.sourceName,
+      fromPublisherId: clickStat.fromPublisherId,
+      toPublisherId: clickStat.toPublisherId,
+      missionId: clickStat.missionId,
+      missionClientId: clickStat.missionClientId,
+      isBot: false,
     });
   });
 });

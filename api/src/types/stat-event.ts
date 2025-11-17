@@ -17,9 +17,9 @@ export interface StatEventRecord {
   isHuman: boolean;
   createdAt: Date;
   fromPublisherId: string;
-  fromPublisherName: string;
+  fromPublisherName?: string;
   toPublisherId: string;
-  toPublisherName: string;
+  toPublisherName?: string;
   missionId?: string;
   missionClientId?: string;
   missionDomain?: string;
@@ -101,11 +101,21 @@ export interface ViewStatsFilters {
   createdAt?: ViewStatsDateFilter[];
 }
 
+export type ViewStatsFacetField =
+  | "type"
+  | "source"
+  | "missionDomain"
+  | "missionDepartmentName"
+  | "missionOrganizationId"
+  | "fromPublisherId"
+  | "toPublisherId"
+  | "tag";
+
 export interface SearchViewStatsParams {
   publisherId: string;
   size?: number;
   filters?: ViewStatsFilters;
-  facets?: string[];
+  facets?: ViewStatsFacetField[];
 }
 
 export type ViewStatsFacet = { key: string; doc_count: number };

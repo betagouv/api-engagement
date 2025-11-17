@@ -1,9 +1,38 @@
 import { randomUUID } from "crypto";
 
+import { prismaCore } from "../../src/db/postgres";
 import { statEventService } from "../../src/services/stat-event";
 import { StatEventRecord } from "../../src/types";
+import { createTestPublisher } from "./index";
 
 export async function createStatEventFixture(overrides: Partial<StatEventRecord> = {}) {
+  const ensurePublisherExists = async (id: string, name?: string) => {
+    const existing = await prismaCore.publisher.findUnique({ where: { id } });
+    if (existing) {
+      return existing.id;
+    }
+
+    const created = await prismaCore.publisher.create({
+      data: {
+        id,
+        name: name ?? `Test Publisher ${id.slice(0, 8)}`,
+      },
+    });
+    return created.id;
+  };
+
+  const fromPublisherId =
+    overrides.fromPublisherId ?? (await createTestPublisher({ name: overrides.fromPublisherName })).id;
+  const toPublisherId = overrides.toPublisherId ?? (await createTestPublisher({ name: overrides.toPublisherName })).id;
+
+  if (overrides.fromPublisherId) {
+    await ensurePublisherExists(fromPublisherId, overrides.fromPublisherName);
+  }
+
+  if (overrides.toPublisherId) {
+    await ensurePublisherExists(toPublisherId, overrides.toPublisherName);
+  }
+
   const record: StatEventRecord = {
     _id: overrides._id ?? randomUUID(),
     type: overrides.type ?? "print",
@@ -20,10 +49,8 @@ export async function createStatEventFixture(overrides: Partial<StatEventRecord>
     sourceName: overrides.sourceName ?? "Source Name",
     customAttributes: overrides.customAttributes,
     status: overrides.status ?? "PENDING",
-    fromPublisherId: overrides.fromPublisherId ?? "source-publisher-id",
-    fromPublisherName: overrides.fromPublisherName ?? "Source Publisher",
-    toPublisherId: overrides.toPublisherId ?? "destination-publisher-id",
-    toPublisherName: overrides.toPublisherName ?? "Destination Publisher",
+    fromPublisherId,
+    toPublisherId,
     missionId: overrides.missionId ?? "mission-id",
     missionClientId: overrides.missionClientId ?? "mission-client-id",
     missionDomain: overrides.missionDomain ?? "mission-domain",

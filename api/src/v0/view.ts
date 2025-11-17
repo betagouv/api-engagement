@@ -5,8 +5,9 @@ import zod from "zod";
 import { INVALID_QUERY } from "../error";
 import RequestModel from "../models/request";
 import { statEventService } from "../services/stat-event";
-import type { PublisherRecord } from "../types/publisher";
 import { PublisherRequest } from "../types/passport";
+import type { ViewStatsFacetField } from "../types/stat-event";
+import type { PublisherRecord } from "../types/publisher";
 
 const router = Router();
 
@@ -40,8 +41,6 @@ router.get("/stats", passport.authenticate(["apikey", "api"], { session: false }
       .object({
         fromPublisherId: zod.string().optional(),
         toPublisherId: zod.string().optional(),
-        fromPublisherName: zod.string().optional(),
-        toPublisherName: zod.string().optional(),
         missionDomain: zod.string().optional(),
         type: zod.string().optional(),
         source: zod.string().optional(),
@@ -76,19 +75,17 @@ router.get("/stats", passport.authenticate(["apikey", "api"], { session: false }
         });
     }
 
-    const facets = query.data.facets
+    const facets = (query.data.facets
       ? query.data.facets
           .split(",")
           .map((facet) => facet.trim())
           .filter((facet) => facet.length)
-      : [];
+      : []) as ViewStatsFacetField[];
 
     const { total, facets: facetBuckets } = await statEventService.findStatEventViews({
       publisherId: user.id,
       size: query.data.size,
       filters: {
-        fromPublisherName: query.data.fromPublisherName || undefined,
-        toPublisherName: query.data.toPublisherName || undefined,
         fromPublisherId: query.data.fromPublisherId || undefined,
         toPublisherId: query.data.toPublisherId || undefined,
         missionDomain: query.data.missionDomain || undefined,

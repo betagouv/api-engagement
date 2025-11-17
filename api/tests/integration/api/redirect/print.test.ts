@@ -2,14 +2,14 @@ import { Types } from "mongoose";
 import request from "supertest";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
-import { NOT_FOUND } from "../../../../src/error";
 import { prismaCore } from "../../../../src/db/postgres";
+import { NOT_FOUND } from "../../../../src/error";
 import MissionModel from "../../../../src/models/mission";
 import StatsBotModel from "../../../../src/models/stats-bot";
 import WidgetModel from "../../../../src/models/widget";
 import { publisherService } from "../../../../src/services/publisher";
-import * as utils from "../../../../src/utils";
 import { StatEventRecord } from "../../../../src/types";
+import * as utils from "../../../../src/utils";
 import { createTestApp } from "../../../testApp";
 
 const app = createTestApp();
@@ -120,26 +120,26 @@ describe("RedirectController /impression/:missionId/:publisherId", () => {
       type: "print",
       user: identity.user,
       referer: identity.referer,
-      user_agent: identity.userAgent,
+      userAgent: identity.userAgent,
       host: "redirect.test",
       origin: "https://app.example.com",
-      request_id: requestId,
+      requestId,
       tag: "tag",
       source: "widget",
-      source_id: widget._id.toString(),
-      source_name: widget.name,
-      mission_id: mission._id.toString(),
-      mission_client_id: mission.clientId,
-      mission_domain: mission.domain,
-      mission_title: mission.title,
-      mission_postal_code: mission.postalCode,
-      mission_department_name: mission.departmentName,
-      mission_organization_name: mission.organizationName,
-      mission_organization_id: mission.organizationId,
-      mission_organization_client_id: mission.organizationClientId,
-      to_publisher_id: mission.publisherId,
-      from_publisher_id: publisher.id,
-      is_bot: true,
+      sourceId: widget._id.toString(),
+      sourceName: widget.name,
+      missionId: mission._id.toString(),
+      missionClientId: mission.clientId,
+      missionDomain: mission.domain,
+      missionTitle: mission.title,
+      missionPostalCode: mission.postalCode,
+      missionDepartmentName: mission.departmentName,
+      missionOrganizationName: mission.organizationName,
+      missionOrganizationId: mission.organizationId,
+      missionOrganizationClientId: mission.organizationClientId,
+      toPublisherId: mission.publisherId,
+      fromPublisherId: publisher.id,
+      isBot: true,
     });
 
     expect(response.body.data).toMatchObject({
@@ -198,10 +198,10 @@ describe("RedirectController /impression/:missionId/:publisherId", () => {
       type: "print",
       tag: "tag",
       source: "jstag",
-      source_id: "",
-      is_bot: false,
-      mission_id: mission._id.toString(),
-      to_publisher_id: mission.publisherId,
+      sourceId: "",
+      isBot: false,
+      missionId: mission._id.toString(),
+      toPublisherId: mission.publisherId,
     } as Partial<StatEventRecord>);
   });
 });

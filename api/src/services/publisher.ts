@@ -151,13 +151,13 @@ export const publisherService = (() => {
     return publisherRepository.count({ where });
   };
 
-  const createPublisher = async (input: PublisherCreateInput): Promise<PublisherRecord> => {
+  const createPublisher = async (input: PublisherCreateInput & { id?: string }): Promise<PublisherRecord> => {
     const normalizedPublishers = normalizeDiffusions(input.publishers);
     const rightsEnabled = Boolean(input.hasApiRights || input.hasWidgetRights || input.hasCampaignRights);
     const generatedId = await generateUniquePublisherId();
 
     const data: Prisma.PublisherCreateInput = {
-      id: generatedId,
+      id: input.id || generatedId,
       name: input.name.trim(),
       category: normalizeOptionalString(input.category) ?? null,
       url: normalizeOptionalString(input.url),

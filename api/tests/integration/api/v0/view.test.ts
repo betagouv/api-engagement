@@ -32,9 +32,7 @@ describe("View API Integration Tests", () => {
           type: "print",
           isBot: false,
           fromPublisherId: otherPublisherId,
-          fromPublisherName: "View Publisher",
           toPublisherId: publisherId,
-          toPublisherName: "View Publisher",
         })
       )
     );
@@ -45,20 +43,18 @@ describe("View API Integration Tests", () => {
           type: "print",
           isBot: false,
           fromPublisherId: "partner-id",
-          fromPublisherName: "Partner Publisher",
           toPublisherId: publisherId,
-          toPublisherName: "View Publisher",
         })
       )
     );
 
-    const response = await request(app).get("/v0/view/stats?facets=fromPublisherName").set("x-api-key", apiKey);
+    const response = await request(app).get("/v0/view/stats?facets=fromPublisherId").set("x-api-key", apiKey);
 
     expect(response.status).toBe(200);
     expect(response.body.total).toBe(8);
-    expect(response.body.facets.fromPublisherName).toEqual([
-      { key: "View Publisher", doc_count: 5 },
-      { key: "Partner Publisher", doc_count: 3 },
+    expect(response.body.facets.fromPublisherId).toEqual([
+      { key: otherPublisherId, doc_count: 5 },
+      { key: "partner-id", doc_count: 3 },
     ]);
   });
 });
