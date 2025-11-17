@@ -50,9 +50,6 @@ export async function generatePartnersJobs(missionsCursor: AsyncIterable<Mission
     if (slot >= 50) {
       break;
     }
-    job.description += `<br><br><br> Mission proposée par notre partenaire Benevolt`;
-    job.companyId = "11100845";
-    job.company = "jeveuxaider.gouv.fr";
     jobs.push(job);
     slot++;
   }
