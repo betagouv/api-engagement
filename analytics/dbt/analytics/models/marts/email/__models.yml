@@ -1,0 +1,32 @@
+version: 2
+
+models:
+  - name: email
+    description: >
+      Table mart exposant des rapports reçus qui sont créés à la réception d'un e-mail.
+      Cette table reprend la structure Prisma `Email` afin de faciliter les
+      analyses historiques (synchronisée depuis `stg_email`).
+    columns:
+      - name: id
+        description: Identifiant unique de l'email.
+        tests:
+          - not_null
+          - unique
+      - name: status
+        description: Statut métier (`PENDING`, `PROCESSED`, `FAILED`, etc.).
+        tests:
+          - not_null
+      - name: sent_at
+        description: Timestamp d'envoi effectif (nullable).
+      - name: date_from
+        description: Date de début couverte par l'email/rapport.
+      - name: date_to
+        description: Date de fin couverte par l'email/rapport.
+      - name: created_at
+        description: Timestamp de création de la ligne.
+        tests:
+          - not_null
+      - name: updated_at
+        description: Timestamp de dernière mise à jour, utilisé comme curseur incrémental.
+        tests:
+          - not_null

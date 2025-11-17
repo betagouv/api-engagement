@@ -58,3 +58,97 @@ sources:
             description: Statut métier de l'événement (ex. `PENDING`, `VALIDATED`, `CANCELED`).
           - name: custom_attributes
             description: Attributs personnalisés en JSON (nullable) fournis par la source.
+      - name: email
+        description: >-
+          Emails transactionnels et rapports générés côté application (table `public.email` de la base core)
+          synchronisés tels quels dans le schéma `analytics_raw`.
+        columns:
+          - name: id
+            description: Identifiant unique de l'email (UUID).
+          - name: message_id
+            description: Identifiant du message dans le provider SMTP (nullable).
+          - name: in_reply_to
+            description: Identifiant du message parent (si réponse).
+          - name: from_name
+            description: Nom complet de l'expéditeur.
+          - name: from_email
+            description: Adresse email de l'expéditeur.
+          - name: to
+            description: Payload JSON des destinataires (format brut).
+          - name: to_emails
+            description: Tableau textuel des adresses email destinataires.
+          - name: subject
+            description: Sujet de l'email.
+          - name: sent_at
+            description: Timestamp d'envoi effectif.
+          - name: raw_text_body
+            description: Contenu texte brut.
+          - name: raw_html_body
+            description: Contenu HTML brut.
+          - name: md_text_body
+            description: Contenu Markdown pré-calculé.
+          - name: attachments
+            description: Pièces jointes (JSON listant les métadonnées).
+          - name: raw
+            description: Payload complet sérialisé (JSON).
+          - name: status
+            description: Statut métier (`PENDING`, `PROCESSED`, etc.).
+          - name: report_url
+            description: URL publique vers le rapport généré (nullable).
+          - name: file_object_name
+            description: Nom de l'objet correspondant dans le stockage fichier.
+          - name: date_from
+            description: Date de début couverte par le rapport (nullable).
+          - name: date_to
+            description: Date de fin couverte par le rapport (nullable).
+          - name: created_count
+            description: Nombre de lignes/objets créés lors de la génération (nullable).
+          - name: failed
+            description: Détails des erreurs éventuelles (JSON).
+          - name: deleted_at
+            description: Horodatage de suppression logique.
+          - name: created_at
+            description: Timestamp de création de la ligne.
+          - name: updated_at
+            description: Timestamp de dernière mise à jour (curseur d'export).
+      - name: moderation_event
+        description: >-
+          Historique des actions de modération issues de la base core. Chaque enregistrement trace l'état initial et
+          final d'une mission après intervention d'un modérateur (automatique ou humain).
+        columns:
+          - name: id
+            description: Identifiant unique de l'événement de modération côté analytics.
+          - name: mission_id
+            description: Identifiant de la mission concernée.
+          - name: created_at
+            description: Date de création de l'événement (UTC).
+          - name: updated_at
+            description: Dernière mise à jour (UTC), utilisée pour l'incrémentalité.
+          - name: moderator_id
+            description: Identifiant de l'utilisateur/modérateur à l'origine du changement.
+          - name: user_name
+            description: Nom libre stocké lors de l'action (ex. modération automatique).
+          - name: initial_status
+            description: Statut de la mission avant la modération.
+          - name: new_status
+            description: Statut de la mission après la modération.
+          - name: initial_comment
+            description: Commentaire initial (le cas échéant).
+          - name: new_comment
+            description: Nouveau commentaire appliqué.
+          - name: initial_note
+            description: Note initiale.
+          - name: new_note
+            description: Nouvelle note.
+          - name: initial_title
+            description: Ancien titre de mission connu avant modification.
+          - name: new_title
+            description: Nouveau titre de mission.
+          - name: initial_siren
+            description: Ancien numéro SIREN associé.
+          - name: new_siren
+            description: Nouveau numéro SIREN.
+          - name: initial_rna
+            description: Ancien identifiant RNA.
+          - name: new_rna
+            description: Nouvel identifiant RNA.
