@@ -1,6 +1,17 @@
 export type ImportStatus = "SUCCESS" | "FAILED";
 
-export interface ImportSearchParams {
+export interface ImportRecord {
+  id: string;
+  name: string;
+  publisherId: string;
+  publisherName: string;
+  publisherLogo: string | null;
+  startedAt: Date | null;
+  finishedAt: Date | null;
+  status: ImportStatus;
+}
+
+export interface ImportFindParams {
   publisherId?: string;
   publisherIds?: string[];
   skip?: number;

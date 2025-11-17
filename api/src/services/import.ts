@@ -1,9 +1,9 @@
 import { Prisma, Import as PrismaImport } from "../db/core";
 import { importRepository } from "../repositories/import";
-import { ImportCreateInput, ImportSearchParams, ImportUpdatePatch } from "../types";
+import { ImportCreateInput, ImportFindParams, ImportRecord, ImportUpdatePatch } from "../types";
 
 export const importService = (() => {
-  const buildWhereClause = (params: ImportSearchParams = {}): Prisma.ImportWhereInput => {
+  const buildWhereClause = (params: ImportFindParams = {}): Prisma.ImportWhereInput => {
     const and: Prisma.ImportWhereInput[] = [];
 
     if (params.publisherId) {
@@ -35,12 +35,12 @@ export const importService = (() => {
     return and.length ? { AND: and } : {};
   };
 
-  const countImports = async (params: ImportSearchParams = {}): Promise<number> => {
+  const countImports = async (params: ImportFindParams = {}): Promise<number> => {
     const where = buildWhereClause(params);
     return importRepository.count({ where });
   };
 
-  const findImports = async (params: ImportSearchParams = {}): Promise<PrismaImport[]> => {
+  const findImports = async (params: ImportFindParams = {}): Promise<ImportRecord[]> => {
     const where = buildWhereClause(params);
     const data = await importRepository.findMany({
       where,
@@ -51,7 +51,7 @@ export const importService = (() => {
     return data;
   };
 
-  const findImportsWithCount = async (params: ImportSearchParams = {}): Promise<{ data: PrismaImport[]; total: number }> => {
+  const findImportsWithCount = async (params: ImportFindParams = {}): Promise<{ data: ImportRecord[]; total: number }> => {
     const where = buildWhereClause(params);
 
     const [data, total] = await Promise.all([
@@ -66,7 +66,7 @@ export const importService = (() => {
     return { data, total };
   };
 
-  const findLastImportsPerPublisher = async (params: { publisherId?: string } = {}): Promise<PrismaImport[]> => {
+  const findLastImportsPerPublisher = async (params: { publisherId?: string } = {}): Promise<ImportRecord[]> => {
     const where = buildWhereClause(params);
     const data = await importRepository.findMany({
       where,
@@ -77,12 +77,12 @@ export const importService = (() => {
     return data;
   };
 
-  const findOneImportById = async (id: string): Promise<PrismaImport | null> => {
+  const findOneImportById = async (id: string): Promise<ImportRecord | null> => {
     const doc = await importRepository.findUnique({ where: { id } });
     return doc ?? null;
   };
 
-  const createImport = async (input: ImportCreateInput): Promise<PrismaImport> => {
+  const createImport = async (input: ImportCreateInput): Promise<ImportRecord> => {
     const created = await importRepository.create({
       data: {
         name: input.name,
@@ -102,7 +102,7 @@ export const importService = (() => {
     return created;
   };
 
-  const updateImport = async (id: string, patch: ImportUpdatePatch): Promise<PrismaImport> => {
+  const updateImport = async (id: string, patch: ImportUpdatePatch): Promise<ImportRecord> => {
     const updated = await importRepository.update({
       where: { id },
       data: {
