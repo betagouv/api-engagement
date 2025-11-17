@@ -3,6 +3,26 @@ import { importRepository } from "../repositories/import";
 import { ImportCreateInput, ImportFindParams, ImportRecord, ImportUpdatePatch } from "../types";
 
 export const importService = (() => {
+  const toImportRecord = (data: PrismaImport & { publisher?: { name: string; logo: string } }): ImportRecord => {
+    return {
+      id: data.id,
+      name: data.name,
+      publisherId: data.publisherId,
+      publisherName: data.publisher?.name,
+      publisherLogo: data.publisher?.logo,
+      startedAt: data.startedAt,
+      finishedAt: data.finishedAt,
+      status: data.status,
+      missionCount: data.missionCount,
+      refusedCount: data.refusedCount,
+      createdCount: data.createdCount,
+      deletedCount: data.deletedCount,
+      updatedCount: data.updatedCount,
+      error: data.error,
+      failed: data.failed,
+    };
+  };
+
   const buildWhereClause = (params: ImportFindParams = {}): Prisma.ImportWhereInput => {
     const and: Prisma.ImportWhereInput[] = [];
 
@@ -44,11 +64,12 @@ export const importService = (() => {
     const where = buildWhereClause(params);
     const data = await importRepository.findMany({
       where,
+      include: { publisher: { select: { name: true, logo: true } } },
       orderBy: { startedAt: Prisma.SortOrder.desc },
       skip: params.skip ?? 0,
       take: params.size ?? 25,
     });
-    return data;
+    return data.map(toImportRecord);
   };
 
   const findImportsWithCount = async (params: ImportFindParams = {}): Promise<{ data: ImportRecord[]; total: number }> => {
@@ -63,7 +84,7 @@ export const importService = (() => {
       }),
       importRepository.count({ where }),
     ]);
-    return { data, total };
+    return { data: data.map(toImportRecord), total };
   };
 
   const findLastImportsPerPublisher = async (params: { publisherId?: string } = {}): Promise<ImportRecord[]> => {
@@ -74,12 +95,12 @@ export const importService = (() => {
       distinct: ["publisherId"],
       include: { publisher: true },
     });
-    return data;
+    return data.map(toImportRecord);
   };
 
   const findOneImportById = async (id: string): Promise<ImportRecord | null> => {
-    const doc = await importRepository.findUnique({ where: { id } });
-    return doc ?? null;
+    const doc = await importRepository.findUnique({ where: { id }, include: { publisher: { select: { name: true, logo: true } } } });
+    return doc ? toImportRecord(doc) : null;
   };
 
   const createImport = async (input: ImportCreateInput): Promise<ImportRecord> => {
@@ -99,7 +120,7 @@ export const importService = (() => {
         failed: input.failed ?? [],
       },
     });
-    return created;
+    return toImportRecord(created);
   };
 
   const updateImport = async (id: string, patch: ImportUpdatePatch): Promise<ImportRecord> => {
@@ -119,7 +140,7 @@ export const importService = (() => {
         ...(patch.failed !== undefined ? { failed: patch.failed as unknown as Prisma.InputJsonValue } : {}),
       },
     });
-    return updated;
+    return toImportRecord(updated);
   };
 
   return {

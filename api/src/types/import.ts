@@ -4,11 +4,18 @@ export interface ImportRecord {
   id: string;
   name: string;
   publisherId: string;
-  publisherName: string;
-  publisherLogo: string | null;
+  publisherName?: string;
+  publisherLogo?: string;
   startedAt: Date | null;
   finishedAt: Date | null;
   status: ImportStatus;
+  missionCount: number;
+  refusedCount: number;
+  createdCount: number;
+  deletedCount: number;
+  updatedCount: number;
+  error: string | null;
+  failed: any;
 }
 
 export interface ImportFindParams {
@@ -35,7 +42,7 @@ export interface ImportCreateInput {
   deletedCount?: number;
   updatedCount?: number;
   error?: string | null;
-  failed?: unknown;
+  failed?: any;
 }
 
 export type ImportUpdatePatch = Partial<Omit<ImportCreateInput, "publisherId" | "name">> & {
