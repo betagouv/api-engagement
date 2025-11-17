@@ -26,6 +26,14 @@ if (ENV !== "development") {
     ],
     environment: ENV,
     tracesSampleRate: 0.1,
+    beforeSend(event, hint) {
+      // Ignore AbortError - these are expected when requests are cancelled
+      const error = hint.originalException || hint.syntheticException;
+      if (error && (error.name === "AbortError" || error.message?.includes("signal is aborted"))) {
+        return null;
+      }
+      return event;
+    },
   });
 }
 

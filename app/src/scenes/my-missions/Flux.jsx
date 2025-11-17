@@ -102,7 +102,6 @@ const Flux = ({ moderated }) => {
         if (filters.search) newSearchParams.append("search", filters.search);
         setSearchParams(newSearchParams);
       } catch (error) {
-        if (error.name === "AbortError") return;
         captureError(error, "Erreur lors de la récupération des données");
       }
       setLoading(false);

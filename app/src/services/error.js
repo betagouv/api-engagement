@@ -3,6 +3,11 @@ import { toast } from "react-toastify";
 import { ENV } from "./config";
 
 export const captureError = (error, message, toastOptions = {}) => {
+  // Ignore AbortError - these are expected when requests are cancelled
+  if (error && (error.name === "AbortError" || error.message?.includes("signal is aborted"))) {
+    console.log("[Sentry] AbortError ignored");
+    return;
+  }
   console.log("[Sentry] Error", JSON.stringify(error, null, 2));
 
   if (error && error.status === 401) {
