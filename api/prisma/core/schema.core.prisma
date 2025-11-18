@@ -18,6 +18,11 @@ enum EmailStatus {
   FAILED
 }
 
+enum ImportStatus {
+  SUCCESS
+  FAILED
+}
+
 enum ReportDataTemplate {
   BOTH
   RECEIVED
@@ -231,6 +236,8 @@ model Publisher {
 
   diffuseurs               PublisherDiffusion[]    @relation("PublisherAnnonceurRelation")
   diffusionsAsDiffuseur    PublisherDiffusion[]    @relation("PublisherDiffuseurRelation")
+  warnings                 Warning[]               @relation("WarningPublisherRelation")
+  imports                  Import[]                @relation("ImportPublisherRelation")
   reports                  Report[]                @relation("PublisherReportRelation")
   excludedOrganizationsBy  OrganizationExclusion[] @relation("ExcludedByPublisher")
   excludedOrganizationsFor OrganizationExclusion[] @relation("ExcludedForPublisher")
@@ -262,6 +269,51 @@ model PublisherDiffusion {
   @@index([diffuseurPublisherId], map: "publisher_diffusion_diffuseur_id_idx")
   @@index([annonceurPublisherId], map: "publisher_diffusion_annonceur_id_idx")
   @@map("publisher_diffusion")
+}
+
+model Warning {
+  id          String    @id @default(uuid())
+  type        String
+  title       String?
+  description String?
+  publisherId String    @map("publisher_id")
+  seen        Boolean   @default(false)
+  fixed       Boolean   @default(false)
+  fixedAt     DateTime? @map("fixed_at")
+  occurrences Int       @default(1)
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime  @updatedAt @map("updated_at")
+
+  publisher Publisher @relation("WarningPublisherRelation", fields: [publisherId], references: [id], onDelete: Cascade)
+
+  @@index([publisherId], map: "warning_publisher_id_idx")
+  @@index([type], map: "warning_type_idx")
+  @@index([fixed], map: "warning_fixed_idx")
+  @@index([createdAt], map: "warning_created_at_idx")
+  @@map("warning")
+}
+
+model Import {
+  id           String       @id @default(uuid())
+  name         String
+  publisherId  String       @map("publisher_id")
+  missionCount Int          @default(0) @map("mission_count")
+  refusedCount Int          @default(0) @map("refused_count")
+  createdCount Int          @default(0) @map("created_count")
+  deletedCount Int          @default(0) @map("deleted_count")
+  updatedCount Int          @default(0) @map("updated_count")
+  startedAt    DateTime?    @map("started_at")
+  finishedAt   DateTime?    @map("finished_at")
+  status       ImportStatus @default(SUCCESS) @map("status")
+  error        String?      @map("error")
+  failed       Json?        @map("failed")
+
+  publisher Publisher @relation("ImportPublisherRelation", fields: [publisherId], references: [id], onDelete: Cascade)
+
+  @@index([publisherId], map: "import_publisher_id_idx")
+  @@index([startedAt], map: "import_started_at_idx")
+  @@index([status], map: "import_status_idx")
+  @@map("import")
 }
 
 model Organization {
