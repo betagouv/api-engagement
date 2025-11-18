@@ -4,6 +4,7 @@ import zod from "zod";
 
 import { INVALID_QUERY } from "../../error";
 import { UserRequest } from "../../types/passport";
+import { normalizeDateRange } from "../../utils";
 import {
   getAnnouncePreviewStats,
   getAnnouncePublishers,
@@ -15,6 +16,7 @@ import {
 } from "./helper";
 
 const router = Router();
+const router = Router();
 
 router.get(
   "/broadcast-preview",
@@ -24,8 +26,8 @@ router.get(
       const query = zod
         .object({
           publisherId: zod.string().optional(),
-          from: zod.coerce.date().optional(),
-          to: zod.coerce.date().optional(),
+          from: zod.string().date().optional(),
+          to: zod.string().date().optional(),
         })
         .safeParse(req.query);
 
@@ -33,7 +35,7 @@ router.get(
         return res.status(400).send({ ok: false, code: INVALID_QUERY, error: query.error });
       }
 
-      const data = await getBroadcastPreviewStats(query.data);
+      const data = await getBroadcastPreviewStats(normalizeDateRange(query.data));
 
       return res.status(200).send({ ok: true, data });
     } catch (error) {
@@ -47,8 +49,8 @@ router.get("/announce-preview", async (req: UserRequest, res: Response, next: Ne
     const query = zod
       .object({
         publisherId: zod.string().optional(),
-        from: zod.coerce.date().optional(),
-        to: zod.coerce.date().optional(),
+        from: zod.string().date().optional(),
+        to: zod.string().date().optional(),
       })
       .safeParse(req.query);
 
@@ -56,7 +58,7 @@ router.get("/announce-preview", async (req: UserRequest, res: Response, next: Ne
       return res.status(400).send({ ok: false, error: query.error });
     }
 
-    const data = await getAnnouncePreviewStats(query.data);
+    const data = await getAnnouncePreviewStats(normalizeDateRange(query.data));
 
     return res.status(200).send({ ok: true, data });
   } catch (error) {
@@ -72,8 +74,8 @@ router.get(
       const query = zod
         .object({
           publisherId: zod.string().optional(),
-          from: zod.coerce.date().optional(),
-          to: zod.coerce.date().optional(),
+          from: zod.string().date().optional(),
+          to: zod.string().date().optional(),
           type: zod.enum(["click", "apply", "print", "account"]).optional(),
         })
         .safeParse(req.query);
@@ -82,7 +84,7 @@ router.get(
         return res.status(400).send({ ok: false, code: INVALID_QUERY, error: query.error });
       }
 
-      const data = await getDistributionStats(query.data);
+      const data = await getDistributionStats(normalizeDateRange(query.data));
 
       return res.status(200).send({ ok: true, data });
     } catch (error) {
@@ -96,8 +98,8 @@ router.get("/evolution", async (req: UserRequest, res: Response, next: NextFunct
     const query = zod
       .object({
         publisherId: zod.string().optional(),
-        from: zod.coerce.date(),
-        to: zod.coerce.date(),
+        from: zod.string().date(),
+        to: zod.string().date(),
         type: zod.enum(["click", "apply", "print", "account"]).optional(),
         flux: zod.enum(["to", "from"]).default("to"),
       })
@@ -107,7 +109,7 @@ router.get("/evolution", async (req: UserRequest, res: Response, next: NextFunct
       return res.status(400).send({ ok: false, code: INVALID_QUERY, error: query.error });
     }
 
-    const data = await getEvolutionStats(query.data);
+    const data = await getEvolutionStats(normalizeDateRange(query.data));
 
     return res.status(200).send({ ok: true, data });
   } catch (error) {
@@ -123,8 +125,8 @@ router.get(
       const query = zod
         .object({
           publisherId: zod.string().optional(),
-          from: zod.coerce.date().optional(),
-          to: zod.coerce.date().optional(),
+          from: zod.string().date().optional(),
+          to: zod.string().date().optional(),
           flux: zod.enum(["to", "from"]).default("to"),
         })
         .safeParse(req.query);
@@ -133,7 +135,7 @@ router.get(
         return res.status(400).send({ ok: false, code: INVALID_QUERY, error: query.error });
       }
 
-      const data = await getBroadcastPublishers(query.data);
+      const data = await getBroadcastPublishers(normalizeDateRange(query.data));
 
       return res.status(200).send({ ok: true, data });
     } catch (error) {
@@ -151,8 +153,8 @@ router.get(
         .object({
           publisherId: zod.string().optional(),
           type: zod.enum(["click", "apply", "print", "account"]).optional(),
-          from: zod.coerce.date().optional(),
-          to: zod.coerce.date().optional(),
+          from: zod.string().date().optional(),
+          to: zod.string().date().optional(),
           flux: zod.enum(["to", "from"]).default("to"),
         })
         .safeParse(req.query);
@@ -161,7 +163,7 @@ router.get(
         return res.status(400).send({ ok: false, code: INVALID_QUERY, error: query.error });
       }
 
-      const { data, total } = await getAnnouncePublishers(query.data);
+      const { data, total } = await getAnnouncePublishers(normalizeDateRange(query.data));
 
       return res.status(200).send({ ok: true, data, total });
     } catch (error) {
@@ -175,8 +177,8 @@ router.get("/missions", async (req: UserRequest, res: Response, next: NextFuncti
     const query = zod
       .object({
         publisherId: zod.string().optional(),
-        from: zod.coerce.date().optional(),
-        to: zod.coerce.date().optional(),
+        from: zod.string().date().optional(),
+        to: zod.string().date().optional(),
       })
       .safeParse(req.query);
 
@@ -184,7 +186,7 @@ router.get("/missions", async (req: UserRequest, res: Response, next: NextFuncti
       return res.status(400).send({ ok: false, code: INVALID_QUERY, error: query.error });
     }
 
-    const { data, total } = await getMissionsStats(query.data);
+    const { data, total } = await getMissionsStats(normalizeDateRange(query.data));
 
     return res.status(200).send({ ok: true, data, total });
   } catch (error) {

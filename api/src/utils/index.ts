@@ -1,4 +1,5 @@
 export * from "./es";
+export * from "./date";
 export * from "./geo";
 export * from "./job";
 export * from "./mission";
