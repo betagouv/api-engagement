@@ -79,11 +79,11 @@ const NotificationMenu = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const resW = await api.get(`/warning/${publisher.id}`);
+        const resW = await api.post("/warning/search", { publisherId: publisher.id, fixed: false });
         if (!resW.ok) throw resW;
         setWarnings(resW.data);
 
-        const resS = await api.get(`/warning/state`);
+        const resS = await api.get("/warning/state");
         if (!resS.ok) throw resS;
         setState(resS.data);
       } catch (error) {
@@ -144,10 +144,10 @@ const NotificationMenu = () => {
                 </div>
               </Link>
             </MenuItem>
-            {warnings.slice(0, 2).map((w) => {
+            {warnings.slice(0, 2).map((w, index) => {
               const label = WARNINGS[w.type] || { emoji: "🤔", name: w.type };
               return (
-                <MenuItem key={w._id}>
+                <MenuItem key={index}>
                   <Link to="/warning" className="flex items-center justify-between gap-6 border-t border-gray-900 p-6 hover:bg-gray-950">
                     <div className="flex w-6 items-center">
                       <span>{label.emoji}</span>
@@ -201,11 +201,11 @@ const AdminNotificationMenu = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const resW = await api.get(`/warning`);
+        const resW = await api.post("/warning/search", { fixed: false });
         if (!resW.ok) throw resW;
         setWarnings(resW.data);
 
-        const resS = await api.get(`/warning/admin-state`);
+        const resS = await api.get("/warning/admin-state");
         if (!resS.ok) throw resS;
         setState(resS.data);
       } catch (error) {
@@ -255,16 +255,16 @@ const AdminNotificationMenu = () => {
         )}
         {warnings.length ? (
           <>
-            {warnings.slice(0, 3).map((w) => {
+            {warnings.slice(0, 3).map((w, index) => {
               const label = WARNINGS[w.type] || { emoji: "🤔", name: w.type };
               return (
-                <MenuItem key={w._id}>
+                <MenuItem key={index}>
                   <Link
                     to={{
                       pathname: `/admin-warning`,
                       hash: slugify(`${w.type}-${w.publisherName}`),
                     }}
-                    className="border-gray-borde flex items-center justify-between gap-6 border-t p-6 hover:bg-gray-950"
+                    className="flex items-center justify-between gap-6 border-t border-gray-900 p-6 hover:bg-gray-950"
                   >
                     <div className="flex w-6 items-center">
                       <span>{label.emoji}</span>

@@ -162,7 +162,7 @@ const Index = () => {
               <div className="flex h-40 flex-col items-center border border-gray-900" key={i}>
                 <div className="text-gray-425 mt-2 text-center text-xs">{p.name}</div>
                 <div className="flex h-24 items-center justify-center">
-                  {p.logo ? <img className="h-20 w-4/5 object-contain" src={p.logo} alt={p.name} /> : <div className="h-20 w-20 bg-gray-200" />}
+                  {p.logo ? <img className="h-20 w-4/5 object-contain" src={p.logo} alt={p.name} /> : <div className="h-20 w-4/5 bg-gray-200" />}
                 </div>
 
                 <div className="flex h-12 w-full items-center justify-center gap-2 border-t border-gray-900 px-3">
@@ -227,7 +227,7 @@ const Index = () => {
                   const label = WARNINGS[w.type] || { emoji: "🤔", name: "Alerte" };
                   return (
                     <div className="flex items-center gap-8 bg-white p-6 shadow-sm" key={i} id={slugify(`${w.type}-${w.publisherName}`)}>
-                      {w.publisherLogo ? <img className="h-20 w-36 object-contain" src={w.publisherLogo} alt={w.publisherName} /> : <div className="h-4/5 w-4/5 bg-gray-200" />}
+                      {w.publisherLogo ? <img className="h-20 w-36 object-contain" src={w.publisherLogo} alt={w.publisherName} /> : <div className="h-20 w-36 bg-gray-200" />}
                       <div className="flex flex-col justify-between">
                         <div className="mb-2">
                           <span className="bgbg-[#FEECC2] textbg-[#716043] truncate rounded p-1 text-center text-xs font-semibold uppercase">{label.name}</span>
@@ -296,7 +296,8 @@ const Index = () => {
                   const label = WARNINGS[w.type] || { emoji: "🤔", name: "Alerte" };
                   return (
                     <div className="flex items-center gap-8 bg-white p-6 shadow-sm" key={i}>
-                      {w.publisherLogo ? <img className="h-20 w-36 object-contain" src={w.publisherLogo} alt={w.publisherName} /> : <div className="h-4/5 w-4/5 bg-gray-200" />}
+                      {w.publisherLogo ? <img className="h-20 w-36 object-contain" src={w.publisherLogo} alt={w.publisherName} /> : <div className="h-20 w-36 bg-gray-200" />}
+
                       <div className="flex flex-col justify-between">
                         <div className="mb-2">
                           <span className="bgbg-[#FEECC2] textbg-[#716043] truncate rounded p-1 text-center text-xs font-semibold uppercase">{label.name}</span>
