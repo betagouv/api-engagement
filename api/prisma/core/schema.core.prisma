@@ -18,6 +18,11 @@ enum EmailStatus {
   FAILED
 }
 
+enum ImportStatus {
+  SUCCESS
+  FAILED
+}
+
 enum ReportDataTemplate {
   BOTH
   RECEIVED
@@ -235,6 +240,7 @@ model Publisher {
 
   diffuseurs            PublisherDiffusion[] @relation("PublisherAnnonceurRelation")
   diffusionsAsDiffuseur PublisherDiffusion[] @relation("PublisherDiffuseurRelation")
+  imports               Import[]             @relation("ImportPublisherRelation")
   reports               Report[]             @relation("PublisherReportRelation")
   statEventsFrom        StatEvent[]          @relation("StatEventFromPublisher")
   statEventsTo          StatEvent[]          @relation("StatEventToPublisher")
@@ -268,58 +274,82 @@ model PublisherDiffusion {
   @@map("publisher_diffusion")
 }
 
+model Import {
+  id           String @id @default(uuid())
+  name         String
+  publisherId  String @map("publisher_id")
+  missionCount Int    @default(0) @map("mission_count")
+  refusedCount Int    @default(0) @map("refused_count")
+  createdCount Int    @default(0) @map("created_count")
+  deletedCount Int    @default(0) @map("deleted_count")
+  updatedCount Int    @default(0) @map("updated_count")
+
+  publisher Publisher @relation("ImportPublisherRelation", fields: [publisherId], references: [id], onDelete: Cascade)
+
+  startedAt  DateTime?    @map("started_at")
+  finishedAt DateTime?    @map("finished_at")
+  status     ImportStatus @default(SUCCESS) @map("status")
+  error      String?      @map("error")
+  failed     Json?        @map("failed")
+
+  @@index([publisherId], map: "import_publisher_id_idx")
+  @@index([startedAt], map: "import_started_at_idx")
+  @@index([status], map: "import_status_idx")
+  @@map("import")
+}
+
 model Organization {
-  id                   String    @id
-  rna                  String?   @unique
-  siren                String?
-  siret                String?
-  sirets               String[]  @default([])
-  rupMi                String?   @map("rup_mi")
-  gestion              String?
-  status               String?
-  createdAt            DateTime  @default(now()) @map("created_at")
-  lastDeclaredAt       DateTime? @map("last_declared_at")
-  publishedAt          DateTime? @map("published_at")
-  dissolvedAt          DateTime? @map("dissolved_at")
-  updatedAt            DateTime  @updatedAt @map("updated_at")
-  nature               String?
-  groupement           String?
-  title                String
-  names                String[]  @default([])
-  shortTitle           String?   @map("short_title")
-  titleSlug            String?   @map("title_slug")
-  shortTitleSlug       String?   @map("short_title_slug")
-  object               String?
-  socialObject1        String?   @map("social_object1")
-  socialObject2        String?   @map("social_object2")
-  addressComplement    String?   @map("address_complement")
-  addressNumber        String?   @map("address_number")
-  addressRepetition    String?   @map("address_repetition")
-  addressType          String?   @map("address_type")
-  addressStreet        String?   @map("address_street")
-  addressDistribution  String?   @map("address_distribution")
-  addressInseeCode     String?   @map("address_insee_code")
-  addressPostalCode    String?   @map("address_postal_code")
-  addressDepartmentCode String?  @map("address_department_code")
-  addressDepartmentName String?  @map("address_department_name")
-  addressRegion        String?   @map("address_region")
-  addressCity          String?   @map("address_city")
-  managementDeclarant  String?   @map("management_declarant")
-  managementComplement String?   @map("management_complement")
-  managementStreet     String?   @map("management_street")
-  managementDistribution String? @map("management_distribution")
-  managementPostalCode String?   @map("management_postal_code")
-  managementCity       String?   @map("management_city")
-  managementCountry    String?   @map("management_country")
-  directorCivility     String?   @map("director_civility")
-  website              String?
-  observation          String?
-  syncAt               DateTime? @map("sync_at")
-  source               String?
-  isRUP                Boolean   @default(false) @map("is_rup")
-  letudiantPublicId    String?   @map("letudiant_public_id")
-  letudiantUpdatedAt   DateTime? @map("letudiant_updated_at")
-  lastExportedToPgAt   DateTime? @map("last_exported_to_pg_at")
+  id                     String    @id
+  rna                    String?   @unique
+  siren                  String?
+  siret                  String?
+  sirets                 String[]  @default([])
+  rupMi                  String?   @map("rup_mi")
+  gestion                String?
+  status                 String?
+  createdAt              DateTime  @default(now()) @map("created_at")
+  lastDeclaredAt         DateTime? @map("last_declared_at")
+  publishedAt            DateTime? @map("published_at")
+  dissolvedAt            DateTime? @map("dissolved_at")
+  updatedAt              DateTime  @updatedAt @map("updated_at")
+  nature                 String?
+  groupement             String?
+  title                  String
+  names                  String[]  @default([])
+  shortTitle             String?   @map("short_title")
+  titleSlug              String?   @map("title_slug")
+  shortTitleSlug         String?   @map("short_title_slug")
+  object                 String?
+  socialObject1          String?   @map("social_object1")
+  socialObject2          String?   @map("social_object2")
+  addressComplement      String?   @map("address_complement")
+  addressNumber          String?   @map("address_number")
+  addressRepetition      String?   @map("address_repetition")
+  addressType            String?   @map("address_type")
+  addressStreet          String?   @map("address_street")
+  addressDistribution    String?   @map("address_distribution")
+  addressInseeCode       String?   @map("address_insee_code")
+  addressPostalCode      String?   @map("address_postal_code")
+  addressDepartmentCode  String?   @map("address_department_code")
+  addressDepartmentName  String?   @map("address_department_name")
+  addressRegion          String?   @map("address_region")
+  addressCity            String?   @map("address_city")
+  managementDeclarant    String?   @map("management_declarant")
+  managementComplement   String?   @map("management_complement")
+  managementStreet       String?   @map("management_street")
+  managementDistribution String?   @map("management_distribution")
+  managementPostalCode   String?   @map("management_postal_code")
+  managementCity         String?   @map("management_city")
+  managementCountry      String?   @map("management_country")
+  directorCivility       String?   @map("director_civility")
+  website                String?
+  observation            String?
+  syncAt                 DateTime? @map("sync_at")
+  source                 String?
+  isRUP                  Boolean   @default(false) @map("is_rup")
+  letudiantPublicId      String?   @map("letudiant_public_id")
+  letudiantUpdatedAt     DateTime? @map("letudiant_updated_at")
+  lastExportedToPgAt     DateTime? @map("last_exported_to_pg_at")
 
   @@index([updatedAt, lastExportedToPgAt], map: "organization_updated_last_exported_idx")
   @@index([rna], map: "organization_rna_idx")

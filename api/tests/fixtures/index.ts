@@ -1,8 +1,10 @@
 import { randomUUID } from "node:crypto";
-import ImportModel from "../../src/models/import";
+import { Import as PrismaImport } from "../../src/db/core";
 import MissionModel from "../../src/models/mission";
+import { importService } from "../../src/services/import";
 import { publisherService } from "../../src/services/publisher";
-import { Import, Mission, MissionType } from "../../src/types";
+import { Mission, MissionType } from "../../src/types";
+import type { ImportCreateInput } from "../../src/types/import";
 import type { PublisherCreateInput, PublisherRecord } from "../../src/types/publisher";
 
 /**
@@ -124,13 +126,13 @@ export const createTestMission = async (data: Partial<Mission> = {}) => {
   return mission.toObject();
 };
 
-export const createTestImport = async (data: Partial<Import> = {}): Promise<Import> => {
+export const createTestImport = async (data: Partial<ImportCreateInput> = {}): Promise<PrismaImport> => {
   const defaultData = {
     name: "Test import",
     publisherId: "test-publisher-id",
     status: "SUCCESS",
     startedAt: new Date(),
-    endedAt: new Date(),
+    finishedAt: new Date(),
     createdCount: 0,
     deletedCount: 0,
     updatedCount: 0,
@@ -140,7 +142,5 @@ export const createTestImport = async (data: Partial<Import> = {}): Promise<Impo
     failed: [],
   };
   const importData = { ...defaultData, ...data };
-  const object = new ImportModel(importData);
-  await object.save();
-  return object.toObject() as Import;
+  return importService.createImport(importData as ImportCreateInput);
 };
