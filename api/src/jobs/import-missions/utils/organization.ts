@@ -56,6 +56,7 @@ export const verifyOrganization = async (missions: Mission[]) => {
     const foundNames: Record<string, OrganizationRecord | "not_found"> = {};
 
     let alreadyVerified = 0;
+    let toVerify = 0;
     let rnaFound = 0;
     let rnaNotFound = 0;
     let siretFound = 0;
@@ -69,6 +70,7 @@ export const verifyOrganization = async (missions: Mission[]) => {
         alreadyVerified++;
         continue;
       }
+      toVerify++;
 
       // remove all non alphanumeric characters and convert to uppercase
       const identifier = (mission.organizationRNA || "").replace(/[^a-zA-Z0-9]/g, "").toUpperCase();
@@ -145,11 +147,9 @@ export const verifyOrganization = async (missions: Mission[]) => {
       noData++;
     }
 
-    console.log(`[Organization] Already verified ${alreadyVerified} missions`);
-    console.log(`[Organization] Found ${rnaFound} RNAs, ${rnaNotFound} RNAs not found`);
-    console.log(`[Organization] Found ${siretFound} SIRETs, ${siretNotFound} SIRETs not found`);
-    console.log(`[Organization] Found ${nameFound} names, ${nameNotFound} names not found`);
-    console.log(`[Organization] ${noData} missions with no data`);
+    console.log(`[Organization] Already verified ${alreadyVerified} missions, to verify ${toVerify} missions (${noData} with no data)`);
+    console.log(`[Organization] Found ${rnaFound + siretFound + nameFound} / ${toVerify} organizations (${rnaFound} RNAs, ${siretFound} SIRETs, ${nameFound} names)`);
+    console.log(`[Organization] Not found ${rnaNotFound} RNAs, ${siretNotFound} SIRETs, ${nameNotFound} names`);
   } catch (error) {
     captureException(error, `[Organization] Failure during rna enrichment`);
   }
