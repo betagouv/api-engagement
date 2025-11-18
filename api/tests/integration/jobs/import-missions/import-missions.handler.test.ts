@@ -2,8 +2,8 @@ import { readFile } from "fs/promises";
 import path from "path";
 import { afterAll, beforeEach, describe, expect, it, vi } from "vitest";
 import { ImportMissionsHandler } from "../../../../src/jobs/import-missions/handler";
-import ImportModel from "../../../../src/models/import";
 import MissionModel from "../../../../src/models/mission";
+import { importService } from "../../../../src/services/import";
 import { createTestImport, createTestMission, createTestPublisher } from "../../../fixtures";
 
 const originalFetch = global.fetch;
@@ -110,7 +110,7 @@ describe("Import missions job (integration test)", () => {
     const result = await handler.handle({ publisherId: publisher.id });
 
     const onlineMissions = await MissionModel.find({ publisherId: publisher.id, deleted: false });
-    const failedImports = await ImportModel.find({ publisherId: publisher.id, status: "FAILED" });
+    const failedImports = await importService.findImports({ publisherId: publisher.id, status: "FAILED" });
 
     expect(onlineMissions.length).toBe(1);
     expect(result.success).toBe(true);
@@ -124,8 +124,8 @@ describe("Import missions job (integration test)", () => {
   it("If feed is empty and no import is successful for 7 days, missions should be deleted", async () => {
     const publisher = await createTestPublisher({ feed: "https://empty-feed" });
     await createTestMission({ publisherId: publisher.id, clientId: "client-old" });
-    await createTestImport({ publisherId: publisher.id, status: "FAILED", endedAt: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000) });
-    await createTestImport({ publisherId: publisher.id, status: "FAILED", endedAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000) });
+    await createTestImport({ publisherId: publisher.id, status: "FAILED", finishedAt: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000) });
+    await createTestImport({ publisherId: publisher.id, status: "FAILED", finishedAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000) });
     (global.fetch as any).mockResolvedValueOnce({ ok: true, text: async () => emptyXml });
 
     await handler.handle({ publisherId: publisher.id });

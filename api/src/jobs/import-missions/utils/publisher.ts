@@ -1,4 +1,4 @@
-import ImportModel from "../../../models/import";
+import { importService } from "../../../services/import";
 import { NUMBER_OF_DAYS_TO_CLEAN } from "../config";
 
 /**
@@ -9,7 +9,7 @@ import { NUMBER_OF_DAYS_TO_CLEAN } from "../config";
  */
 export const shouldCleanMissionsForPublisher = async (publisherId: string): Promise<boolean> => {
   const thresholdDate = new Date(Date.now() - 1000 * 60 * 60 * 24 * NUMBER_OF_DAYS_TO_CLEAN);
-  const imports = await ImportModel.find({ publisherId, endedAt: { $gt: thresholdDate } });
+  const imports = await importService.findImports({ publisherId, finishedAtGt: thresholdDate });
 
   return imports.length > 0 && imports.every((i) => i.status === "FAILED");
 };

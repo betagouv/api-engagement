@@ -43,22 +43,6 @@ export type Campaign = {
   updatedAt: Date;
 };
 
-export interface Import {
-  _id: Schema.Types.ObjectId;
-  name: string;
-  publisherId: Schema.Types.ObjectId | string;
-  createdCount: number;
-  deletedCount: number;
-  updatedCount: number;
-  missionCount: number;
-  refusedCount: number;
-  startedAt: Date;
-  endedAt: Date | null;
-  status: "SUCCESS" | "FAILED";
-  error: string | null;
-  failed: any;
-}
-
 export interface MissionHistory {
   date: Date;
   state: Record<string, any>;
@@ -220,6 +204,28 @@ export interface Mission {
   _old_id?: string;
   _old_ids?: string[];
 }
+
+export type ModerationEvent = {
+  _id: Schema.Types.ObjectId;
+  missionId: string;
+  moderatorId: string;
+  initialStatus: "ACCEPTED" | "REFUSED" | "PENDING" | "ONGOING" | null;
+  newStatus: "ACCEPTED" | "REFUSED" | "PENDING" | "ONGOING" | null;
+  initialComment: string | null;
+  newComment: string | null;
+  initialNote: string | null;
+  newNote: string | null;
+  initialTitle: string | null;
+  newTitle: string | null;
+  userId: string | null;
+  userName: string | null;
+  initialSiren: string | null;
+  newSiren: string | null;
+  initialRNA: string | null;
+  newRNA: string | null;
+  createdAt: Date;
+  updatedAt: Date;
+};
 
 export interface OrganizationExclusion {
   _id?: Schema.Types.ObjectId;
@@ -561,6 +567,7 @@ export enum MissionType {
 }
 
 export * from "./email";
+export * from "./import";
 export * from "./moderation-event";
 export * from "./organization";
 export * from "./publisher";

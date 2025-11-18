@@ -17,6 +17,10 @@ models:
         description: Mission concernée par la modération.
         tests:
           - not_null
+          - relationships:
+              arguments:
+                to: source('public', 'Mission')
+                field: id
       - name: moderator_id
         description: Identifiant de l’utilisateur à l’origine de la modération.
       - name: initial_status

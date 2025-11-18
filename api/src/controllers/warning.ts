@@ -2,8 +2,8 @@ import { NextFunction, Response, Router } from "express";
 import passport from "passport";
 import zod from "zod";
 
-import { FORBIDDEN, INVALID_BODY } from "../error";
-import ImportModel from "../models/import";
+import { FORBIDDEN, INVALID_BODY, INVALID_QUERY } from "../error";
+import { importService } from "../services/import";
 import { warningService } from "../services/warning";
 import { UserRequest } from "../types/passport";
 
@@ -58,15 +58,25 @@ router.post("/search", passport.authenticate("admin", { session: false }), async
 
 router.get("/state", passport.authenticate("user", { session: false }), async (req: UserRequest, res: Response, next: NextFunction) => {
   try {
-    const imports = await ImportModel.aggregate([{ $group: { _id: "$publisherId", doc: { $last: "$$ROOT" } } }]);
+    const query = zod
+      .object({
+        publisherId: zod.string().optional(),
+      })
+      .safeParse(req.query);
+
+    if (!query.success) {
+      return res.status(400).send({ ok: false, code: INVALID_QUERY, message: query.error });
+    }
+
+    const imports = await importService.findImports({ publisherId: query.data.publisherId, size: 100 });
     let success = 0;
     let last = null as Date | null;
-    imports.forEach(({ doc }) => {
-      if (doc.status === "success") {
+    imports.forEach((doc) => {
+      if (doc.status === "SUCCESS") {
         success++;
       }
-      if (!last || new Date(doc.startedAt) > last) {
-        last = new Date(doc.startedAt);
+      if (!last || (doc.startedAt && doc.startedAt > last)) {
+        last = doc.startedAt ? new Date(doc.startedAt) : last;
       }
     });
 
@@ -84,15 +94,15 @@ router.get("/state", passport.authenticate("user", { session: false }), async (r
 
 router.get("/admin-state", passport.authenticate("user", { session: false }), async (req: UserRequest, res: Response, next: NextFunction) => {
   try {
-    const imports = await ImportModel.aggregate([{ $group: { _id: "$publisherId", doc: { $last: "$$ROOT" } } }]);
+    const imports = await importService.findLastImportsPerPublisher();
     let success = 0;
     let last = null as Date | null;
-    imports.forEach(({ doc }) => {
+    imports.forEach((doc) => {
       if (doc.status === "SUCCESS") {
         success++;
       }
-      if (!last || new Date(doc.startedAt) > last) {
-        last = new Date(doc.startedAt);
+      if (!last || (doc.startedAt && doc.startedAt > last)) {
+        last = doc.startedAt ? new Date(doc.startedAt) : last;
       }
     });
 
