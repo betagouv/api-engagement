@@ -3,8 +3,8 @@ import passport from "passport";
 import zod from "zod";
 
 import { INVALID_PARAMS, NOT_FOUND } from "../error";
-import OrganizationExclusionModel from "../models/organization-exclusion";
 import RequestModel from "../models/request";
+import { organizationExclusionService } from "../services/organization-exclusion";
 import { publisherService } from "../services/publisher";
 import { PublisherRequest } from "../types/passport";
 import type { PublisherRecord } from "../types/publisher";
@@ -37,9 +37,7 @@ router.get("/", passport.authenticate(["apikey", "api"], { session: false }), as
   try {
     const user = req.user as PublisherRecord;
     const partners = await publisherService.findPublishers({ diffuseurOf: user.id });
-    const organizationExclusions = await OrganizationExclusionModel.find({
-      excludedByPublisherId: user.id,
-    });
+    const organizationExclusions = await organizationExclusionService.findExclusionsByExcludedByPublisherId(user.id);
 
     const data = partners.map((e) => {
       return {
@@ -88,10 +86,7 @@ router.get("/:id", passport.authenticate(["apikey", "api"], { session: false }),
       return res.status(404).send({ ok: false, code: NOT_FOUND, message: "Publisher not found" });
     }
 
-    const organizationExclusions = await OrganizationExclusionModel.find({
-      excludedForPublisherId: publisher.id,
-      excludedByPublisherId: user.id,
-    });
+    const organizationExclusions = await organizationExclusionService.findExclusionsByPublisherIds(user.id, publisher.id);
 
     const data = {
       _id: publisher.id,

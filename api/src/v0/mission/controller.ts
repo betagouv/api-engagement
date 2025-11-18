@@ -5,8 +5,8 @@ import zod from "zod";
 import { PUBLISHER_IDS } from "../../config";
 import { INVALID_PARAMS, INVALID_QUERY, NOT_FOUND } from "../../error";
 import MissionModel from "../../models/mission";
-import OrganizationExclusionModel from "../../models/organization-exclusion";
 import RequestModel from "../../models/request";
+import { organizationExclusionService } from "../../services/organization-exclusion";
 import { Mission } from "../../types";
 import { PublisherRequest } from "../../types/passport";
 import type { PublisherRecord } from "../../types/publisher";
@@ -90,13 +90,14 @@ router.get("/", passport.authenticate(["apikey", "api"], { session: false }), as
     } as { [key: string]: any };
 
     // Exclude organizations from other publishers
-    const organizationExclusions = await OrganizationExclusionModel.find({
-      excludedForPublisherId: user.id,
-    });
+    const organizationExclusions = await organizationExclusionService.findExclusionsByExcludedForPublisherId(user.id);
     if (organizationExclusions.length) {
-      where.organizationClientId = {
-        $nin: organizationExclusions.map((e) => e.organizationClientId),
-      };
+      const excludedIds = organizationExclusions.map((e) => e.organizationClientId).filter((id): id is string => id !== null);
+      if (excludedIds.length) {
+        where.organizationClientId = {
+          $nin: excludedIds,
+        };
+      }
     }
 
     if (query.data.publisher) {
@@ -267,13 +268,14 @@ router.get("/search", passport.authenticate(["apikey", "api"], { session: false 
       deletedAt: null,
     } as { [key: string]: any };
 
-    const organizationExclusions = await OrganizationExclusionModel.find({
-      excludedForPublisherId: user.id,
-    });
+    const organizationExclusions = await organizationExclusionService.findExclusionsByExcludedForPublisherId(user.id);
     if (organizationExclusions.length) {
-      where.organizationClientId = {
-        $nin: organizationExclusions.map((e) => e.organizationClientId),
-      };
+      const excludedIds = organizationExclusions.map((e) => e.organizationClientId).filter((id): id is string => id !== null);
+      if (excludedIds.length) {
+        where.organizationClientId = {
+          $nin: excludedIds,
+        };
+      }
     }
 
     if (query.data.publisher) {

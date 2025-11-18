@@ -222,15 +222,16 @@ export interface Mission {
 }
 
 export interface OrganizationExclusion {
-  _id?: Schema.Types.ObjectId;
+  _id?: Schema.Types.ObjectId; // Deprecated: kept for backward compatibility with MongoDB migration
+  id?: string;
   excludedByPublisherId: string;
   excludedByPublisherName: string;
 
   excludedForPublisherId: string;
   excludedForPublisherName: string;
 
-  organizationClientId: string;
-  organizationName: string;
+  organizationClientId: string | null;
+  organizationName: string | null;
 
   createdAt: Date;
   updatedAt: Date;

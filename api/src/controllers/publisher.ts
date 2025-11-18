@@ -6,8 +6,8 @@ import zod from "zod";
 import { HydratedDocument } from "mongoose";
 import { DEFAULT_AVATAR, PUBLISHER_IDS } from "../config";
 import { FORBIDDEN, INVALID_BODY, INVALID_PARAMS, NOT_FOUND, RESSOURCE_ALREADY_EXIST, captureException } from "../error";
-import OrganizationExclusionModel from "../models/organization-exclusion";
 import UserModel from "../models/user";
+import { organizationExclusionService } from "../services/organization-exclusion";
 import { PublisherNotFoundError, publisherService } from "../services/publisher";
 import { OBJECT_ACL, putObject } from "../services/s3";
 import { User } from "../types";
@@ -159,9 +159,7 @@ router.get("/:id/excluded-organizations", passport.authenticate("user", { sessio
       return res.status(404).send({ ok: false, code: NOT_FOUND, message: "Publisher not found" });
     }
 
-    const organizationExclusions = await OrganizationExclusionModel.find({
-      excludedForPublisherId: publisher.id,
-    });
+    const organizationExclusions = await organizationExclusionService.findExclusionsByExcludedForPublisherId(publisher.id);
     return res.status(200).send({ ok: true, data: organizationExclusions });
   } catch (error) {
     next(error);
