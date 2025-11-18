@@ -16,7 +16,9 @@ export const SERVER_ERROR = "SERVER_ERROR";
 
 export const captureException = (error: any, context?: string | { extra: any }) => {
   if (ENV === "development") {
-    console.log("[Sentry] Context", context);
+    if (context) {
+      console.log("[Sentry] Context", context);
+    }
     console.log("[Sentry] Capture exception", error);
     return;
   }
@@ -35,14 +37,18 @@ export const captureException = (error: any, context?: string | { extra: any }) 
       extra: context.extra,
     });
   } else {
-    console.log("[Sentry] Context", context);
+    if (context) {
+      console.log("[Sentry] Context", context);
+    }
     Sentry.captureException(error);
   }
 };
 
 export const captureMessage = (message: string, context?: string | { extra: any }) => {
   if (ENV === "development") {
-    console.log("[Sentry] Context", context);
+    if (context) {
+      console.log("[Sentry] Context", context);
+    }
     console.log("[Sentry] Capture message", message);
     return;
   }
@@ -61,7 +67,9 @@ export const captureMessage = (message: string, context?: string | { extra: any 
       extra: context.extra,
     });
   } else {
-    console.log("[Sentry] Context", message);
+    if (context) {
+      console.log("[Sentry] Context", message);
+    }
     Sentry.captureMessage(message);
   }
 };

@@ -1,7 +1,7 @@
 import { DATA_SUBVENTION_TOKEN } from "../config";
 import { captureException, captureMessage } from "../error";
 
-const get = async (path: string, body?: BodyInit, options?: RequestInit) => {
+const get = async (path: string, body?: BodyInit, options?: RequestInit, retries = 0) => {
   try {
     const response = await fetch(`https://api.datasubvention.beta.gouv.fr${path}`, {
       method: "GET",
@@ -14,25 +14,41 @@ const get = async (path: string, body?: BodyInit, options?: RequestInit) => {
     });
 
     if (!response.ok) {
+      if (response.status === 401) {
+        captureException("[DataSubvention] Unauthorized", { extra: { path, body } });
+        return null;
+      }
       if (response.status === 404) {
         return null;
       }
+      if (response.status === 429) {
+        console.log(`[DataSubvention] Rate limit exceeded, retrying...${retries + 1}/3`);
+        await new Promise((resolve) => setTimeout(resolve, 3000));
+        // Retry the request
+        if (retries < 3) {
+          return await get(path, body, options, retries + 1);
+        } else {
+          captureException("[DataSubvention] Rate limit exceeded after 3 retries", { extra: { path, body } });
+          return null;
+        }
+      }
       const error = await response.json();
       if (error.message?.includes("Multiple associations found")) {
-        captureMessage(`Multiple associations found`, { extra: { path, body } });
+        captureMessage("[DataSubvention] Multiple associations found", { extra: { path, body } });
         return null;
       }
       if (error.message?.includes("Votre recherche pointe vers une entité qui n'est pas une association")) {
-        captureMessage(`Entity not an association`, { extra: { path, body } });
+        captureMessage("[DataSubvention] Entity not an association", { extra: { path, body } });
         return null;
       }
-      throw new Error(`Failed to fetch data from ${path}`);
+      console.error(response.statusText);
+      throw new Error("[DataSubvention] Failed to fetch data");
     }
 
     const data = await response.json();
     return data;
   } catch (error) {
-    captureException(error);
+    captureException(error, { extra: { path, body, retries } });
     return null;
   }
 };
