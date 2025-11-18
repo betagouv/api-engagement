@@ -1,9 +1,10 @@
 import { captureException } from "../../error";
-import ImportModel from "../../models/import";
+import { importService } from "../../services/import";
 
+import { Prisma, Import as PrismaImport } from "../../db/core";
 import MissionModel from "../../models/mission";
 import { publisherService } from "../../services/publisher";
-import type { Import, Mission } from "../../types";
+import type { Mission } from "../../types";
 import type { PublisherRecord } from "../../types/publisher";
 import { BaseHandler } from "../base/handler";
 import { JobResult } from "../types";
@@ -22,7 +23,7 @@ export interface ImportMissionsJobPayload {
 
 export interface ImportMissionsJobResult extends JobResult {
   start: Date;
-  imports: Import[];
+  imports: PrismaImport[];
 }
 
 export class ImportMissionsHandler implements BaseHandler<ImportMissionsJobPayload, ImportMissionsJobResult> {
@@ -32,7 +33,7 @@ export class ImportMissionsHandler implements BaseHandler<ImportMissionsJobPaylo
     const start = new Date();
     console.log(`[Import XML] Starting at ${start.toISOString()}`);
 
-    const imports = [] as Import[];
+    const imports = [] as PrismaImport[];
     let publishers: PublisherRecord[] = [];
     if (payload.publisherId) {
       const publisher = await publisherService.findOnePublisherById(payload.publisherId);
@@ -49,6 +50,7 @@ export class ImportMissionsHandler implements BaseHandler<ImportMissionsJobPaylo
     let created = 0;
     let deleted = 0;
     for (let i = 0; i < publishers.length; i++) {
+      const startPublisherImportAt = new Date();
       const publisher = publishers[i];
       try {
         if (!publisher.feed) {
@@ -59,7 +61,20 @@ export class ImportMissionsHandler implements BaseHandler<ImportMissionsJobPaylo
         if (!res) {
           continue;
         }
-        await ImportModel.create(res);
+        await importService.createImport({
+          name: res.name,
+          publisherId: res.publisherId as unknown as string,
+          startedAt: startPublisherImportAt,
+          finishedAt: res.finishedAt ?? null,
+          status: res.status,
+          missionCount: res.missionCount,
+          refusedCount: res.refusedCount,
+          createdCount: res.createdCount,
+          deletedCount: res.deletedCount,
+          updatedCount: res.updatedCount,
+          error: res.error ?? null,
+          failed: res.failed,
+        });
 
         processed += res.missionCount;
         updated += res.updatedCount;
@@ -83,7 +98,7 @@ export class ImportMissionsHandler implements BaseHandler<ImportMissionsJobPaylo
   }
 }
 
-async function importMissionssForPublisher(publisher: PublisherRecord, start: Date): Promise<Import | undefined> {
+async function importMissionssForPublisher(publisher: PublisherRecord, start: Date): Promise<PrismaImport | undefined> {
   if (!publisher) {
     return;
   }
@@ -97,17 +112,17 @@ async function importMissionssForPublisher(publisher: PublisherRecord, start: Da
     missionCount: 0,
     refusedCount: 0,
     startedAt: start,
-    endedAt: null,
+    finishedAt: null,
     status: "SUCCESS",
-    failed: { data: [] },
-  } as Import;
+    failed: { data: [] } as unknown as Prisma.JsonValue,
+  } as PrismaImport;
 
   try {
     // PARSE XML
     const xml = await fetchXML(publisher);
     if (!xml) {
       console.log(`[${publisher.name}] Failed to fetch xml`);
-      obj.endedAt = new Date();
+      obj.finishedAt = new Date();
       obj.status = "FAILED";
       obj.error = "Failed to fetch xml";
       return obj;
@@ -127,7 +142,7 @@ async function importMissionssForPublisher(publisher: PublisherRecord, start: Da
         console.log(`[${publisher.name}] Empty xml, but do not clean missions for now`);
       }
 
-      obj.endedAt = new Date();
+      obj.finishedAt = new Date();
       obj.status = "FAILED";
       obj.error = typeof missionsXML === "string" ? missionsXML : "Empty xml";
       return obj;
@@ -152,7 +167,7 @@ async function importMissionssForPublisher(publisher: PublisherRecord, start: Da
       const promises = [] as Promise<Mission | undefined>[];
       for (let j = 0; j < chunk.length; j++) {
         const missionXML = chunk[j];
-        promises.push(buildData(obj.startedAt, publisher, missionXML));
+        promises.push(buildData(obj.startedAt ?? new Date(), publisher, missionXML));
 
         if (j % 50 === 0) {
           const res = await Promise.all(promises);
@@ -219,6 +234,6 @@ async function importMissionssForPublisher(publisher: PublisherRecord, start: Da
   }
 
   console.log(`[${publisher.name}] Ended at ${new Date().toISOString()} in ${(Date.now() - start.getTime()) / 1000}s`);
-  obj.endedAt = new Date();
+  obj.finishedAt = new Date();
   return obj;
 }
