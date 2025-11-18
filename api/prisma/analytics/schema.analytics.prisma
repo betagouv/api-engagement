@@ -346,44 +346,18 @@ model Mission {
   is_siret_verified                     Boolean?
   is_rna_verified                       Boolean?
 
-  accounts          Account[]
-  applies           Apply[]
-  clicks            Click[]
-  impressions       Impression[]
-  organization      Organization?         @relation(fields: [matched_organization_id], references: [id])
-  partner           Partner?              @relation(fields: [partner_id], references: [id])
-  moderation_events ModerationEvent[]
-  history_events    MissionHistoryEvent[] @relation("MissionHistoryEvent")
+  accounts       Account[]
+  applies        Apply[]
+  clicks         Click[]
+  impressions    Impression[]
+  organization   Organization?         @relation(fields: [matched_organization_id], references: [id])
+  partner        Partner?              @relation(fields: [partner_id], references: [id])
+  history_events MissionHistoryEvent[] @relation("MissionHistoryEvent")
 
   @@index([client_id], map: "mission_client_id")
   @@index([matched_organization_id], map: "mission_matched_organization_id")
   @@index([partner_id], map: "mission_partner_id")
   @@index([old_id], map: "mission_old_id")
-}
-
-model ModerationEvent {
-  id              String                 @id @default(uuid())
-  old_id          String                 @unique
-  mission_id      String
-  created_at      DateTime               @default(now())
-  updated_at      DateTime               @updatedAt
-  user_id         String?
-  user_name       String?
-  initial_status  ModerationEventStatus?
-  new_status      ModerationEventStatus?
-  initial_comment String?
-  new_comment     String?
-  initial_note    String?
-  new_note        String?
-  initial_title   String?
-  new_title       String?
-  initial_siren   String?
-  new_siren       String?
-  initial_rna     String?
-  new_rna         String?
-
-  user    User?   @relation(fields: [user_id], references: [id])
-  mission Mission @relation(fields: [mission_id], references: [id], onDelete: Cascade)
 }
 
 model Address {
@@ -537,9 +511,8 @@ model User {
   updated_at DateTime  @updatedAt
   deleted_at DateTime?
 
-  login_history     LoginHistory[]
-  partners          PartnerToUser[]
-  moderation_events ModerationEvent[]
+  login_history LoginHistory[]
+  partners      PartnerToUser[]
 }
 
 model LoginHistory {
@@ -672,11 +645,4 @@ enum SourceType {
   campaign
   seo
   jstag
-}
-
-enum ModerationEventStatus {
-  accepted
-  refused
-  pending
-  ongoing
 }
