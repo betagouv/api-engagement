@@ -28,22 +28,7 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  detect-changes:
-    name: Detect analytics changes
-    runs-on: ubuntu-latest
-    outputs:
-      analytics: ${{ steps.filter.outputs.analytics }}
-    steps:
-      - uses: actions/checkout@v5
-      - uses: dorny/paths-filter@v3
-        id: filter
-        with:
-          filters: |
-            analytics:
-              - 'analytics/**'
-
   test:
-    needs: detect-changes
     uses: ./.github/workflows/tests.yml
     permissions:
       contents: read
@@ -69,7 +54,5 @@ jobs:
   dbt-metabase-sync:
     needs:
       - deploy
-      - detect-changes
-    if: ${{ needs.detect-changes.outputs.analytics == 'true' }}
     uses: ./.github/workflows/dbt-metabase-sync.yml
     secrets: inherit
