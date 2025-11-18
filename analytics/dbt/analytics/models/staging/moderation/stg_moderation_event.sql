@@ -1,7 +1,6 @@
 with source as (
   select
     id,
-    nullif(mission_id, '') as mission_id_raw_input,
     created_at::timestamp as created_at,
     updated_at::timestamp as updated_at,
     moderator_id,
@@ -17,7 +16,8 @@ with source as (
     initial_siren,
     new_siren,
     initial_rna,
-    new_rna
+    new_rna,
+    nullif(mission_id, '') as mission_id_raw_input
   from {{ source('analytics_raw', 'moderation_event') }}
 ),
 
@@ -30,7 +30,7 @@ missions as (
 
 select
   s.id,
-  m.mission_id as mission_id,
+  m.mission_id,
   m.mission_id_raw,
   s.created_at,
   s.updated_at,
