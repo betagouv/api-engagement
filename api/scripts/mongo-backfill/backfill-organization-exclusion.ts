@@ -1,7 +1,7 @@
 import mongoose from "mongoose";
 
 import type { OrganizationExclusionCreateInput } from "../../src/types/organization-exclusion";
-import { asDate, asString, toMongoObjectIdString } from "./utils/cast";
+import { asString } from "./utils/cast";
 import { loadEnvironment, parseScriptOptions, type ScriptOptions } from "./utils/options";
 
 type MongoOrganizationExclusionDocument = {
@@ -21,14 +21,14 @@ const options: ScriptOptions = parseScriptOptions(process.argv.slice(2), "Migrat
 loadEnvironment(options, __dirname, "MigrateOrganizationExclusions");
 
 const normalizeOrganizationExclusion = (doc: MongoOrganizationExclusionDocument): OrganizationExclusionCreateInput | null => {
-  const excludedByPublisherId = asString(doc.excludedByPublisherId);
-  if (!excludedByPublisherId) {
+  const excludedByAnnonceurId = asString(doc.excludedByPublisherId);
+  if (!excludedByAnnonceurId) {
     console.warn("[MigrateOrganizationExclusions] Skipping document without excludedByPublisherId");
     return null;
   }
 
-  const excludedForPublisherId = asString(doc.excludedForPublisherId);
-  if (!excludedForPublisherId) {
+  const excludedForDiffuseurId = asString(doc.excludedForPublisherId);
+  if (!excludedForDiffuseurId) {
     console.warn("[MigrateOrganizationExclusions] Skipping document without excludedForPublisherId");
     return null;
   }
@@ -36,8 +36,8 @@ const normalizeOrganizationExclusion = (doc: MongoOrganizationExclusionDocument)
   const organizationClientId = asString(doc.organizationClientId);
 
   return {
-    excludedByPublisherId,
-    excludedForPublisherId,
+    excludedByAnnonceurId,
+    excludedForDiffuseurId,
     organizationClientId: organizationClientId ?? null,
     organizationName: asString(doc.organizationName) ?? null,
   };
@@ -77,7 +77,7 @@ const migrateOrganizationExclusions = async () => {
         console.log(`[MigrateOrganizationExclusions][Dry-run] Would create ${batch.length} exclusion(s)`);
         batch.forEach((exclusion) => {
           console.log(
-            `  - excludedByPublisherId: ${exclusion.excludedByPublisherId}, excludedForPublisherId: ${exclusion.excludedForPublisherId}, organizationClientId: ${exclusion.organizationClientId ?? "null"}`
+            `  - excludedByAnnonceurId: ${exclusion.excludedByAnnonceurId}, excludedForDiffuseurId: ${exclusion.excludedForDiffuseurId}, organizationClientId: ${exclusion.organizationClientId ?? "null"}`
           );
         });
         created += batch.length;
@@ -123,9 +123,7 @@ const migrateOrganizationExclusions = async () => {
 
       if (processed % BATCH_SIZE === 0) {
         await flushBatch();
-        console.log(
-          `[MigrateOrganizationExclusions] Processed ${processed}/${total} (created: ${created}, skipped: ${skipped}, errors: ${errors}, dry-run: ${options.dryRun})`
-        );
+        console.log(`[MigrateOrganizationExclusions] Processed ${processed}/${total} (created: ${created}, skipped: ${skipped}, errors: ${errors}, dry-run: ${options.dryRun})`);
       }
     } catch (error) {
       errors++;
@@ -137,9 +135,7 @@ const migrateOrganizationExclusions = async () => {
   // Flush remaining batch
   await flushBatch();
 
-  console.log(
-    `[MigrateOrganizationExclusions] Completed. Processed: ${processed}, created: ${created}, skipped: ${skipped}, errors: ${errors}, dry-run: ${options.dryRun}`
-  );
+  console.log(`[MigrateOrganizationExclusions] Completed. Processed: ${processed}, created: ${created}, skipped: ${skipped}, errors: ${errors}, dry-run: ${options.dryRun}`);
 
   await Promise.allSettled([mongoose.connection.close(), prismaCore.$disconnect()]);
 };
@@ -158,4 +154,3 @@ migrateOrganizationExclusions()
     }
     process.exit(1);
   });
-

@@ -239,8 +239,8 @@ model Publisher {
   warnings                 Warning[]               @relation("WarningPublisherRelation")
   imports                  Import[]                @relation("ImportPublisherRelation")
   reports                  Report[]                @relation("PublisherReportRelation")
-  excludedOrganizationsBy  OrganizationExclusion[] @relation("ExcludedByPublisher")
-  excludedOrganizationsFor OrganizationExclusion[] @relation("ExcludedForPublisher")
+  excludedOrganizationsBy  OrganizationExclusion[] @relation("PublisherExcludedByAnnonceurRelation")
+  excludedOrganizationsFor OrganizationExclusion[] @relation("PublisherExcludedForDiffuseurRelation")
 
   @@index([name], map: "publisher_name_idx")
   @@index([apikey], map: "publisher_apikey_idx")
@@ -383,17 +383,17 @@ model Organization {
 
 model OrganizationExclusion {
   id                     String   @id @default(uuid())
-  excludedByPublisherId  String   @map("excluded_by_publisher_id")
-  excludedForPublisherId String   @map("excluded_for_publisher_id")
+  excludedByAnnonceurId  String   @map("excluded_by_annonceur_id")
+  excludedForDiffuseurId String   @map("excluded_for_diffuseur_id")
   organizationClientId   String?  @map("organization_client_id")
   organizationName       String?  @map("organization_name")
   createdAt              DateTime @default(now()) @map("created_at")
   updatedAt              DateTime @updatedAt @map("updated_at")
 
-  excludedByPublisher  Publisher @relation("ExcludedByPublisher", fields: [excludedByPublisherId], references: [id], onDelete: Cascade)
-  excludedForPublisher Publisher @relation("ExcludedForPublisher", fields: [excludedForPublisherId], references: [id], onDelete: Cascade)
+  excludedByAnnonceur  Publisher @relation("PublisherExcludedByAnnonceurRelation", fields: [excludedByAnnonceurId], references: [id], onDelete: Cascade)
+  excludedForDiffuseur Publisher @relation("PublisherExcludedForDiffuseurRelation", fields: [excludedForDiffuseurId], references: [id], onDelete: Cascade)
 
-  @@unique([excludedByPublisherId, excludedForPublisherId, organizationClientId], map: "organization_exclusion_unique_key")
-  @@index([excludedForPublisherId], map: "organization_exclusion_excluded_for_publisher_id_idx")
+  @@unique([excludedByAnnonceurId, excludedForDiffuseurId, organizationClientId], map: "organization_exclusion_unique_key")
+  @@index([excludedForDiffuseurId], map: "organization_exclusion_excluded_for_diffuseur_id_idx")
   @@map("organization_exclusion")
 }

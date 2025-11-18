@@ -6,6 +6,7 @@ import { PUBLISHER_IDS } from "../config";
 import { INVALID_PARAMS, INVALID_QUERY, NOT_FOUND, captureMessage } from "../error";
 import MissionModel from "../models/mission";
 import WidgetModel from "../models/widget";
+import { organizationExclusionService } from "../services/organization-exclusion";
 import { Mission, Widget } from "../types";
 import { EARTH_RADIUS, buildQueryMongo, capitalizeFirstLetter, getDistanceKm, isValidObjectId } from "../utils";
 
@@ -121,8 +122,15 @@ router.get("/:id/search", async (req: Request, res: Response, next: NextFunction
 
     const sort = {} as { [key: string]: any };
     // Todo: test
-    // const organizationExclusions = await OrganizationExclusionModel.find({ excludedForPublisherId: widget.publishers });
-    // if (organizationExclusions.length) where.organizationClientId = { $nin: organizationExclusions.map((e) => e.organizationClientId) };
+    const organizationExclusions = await organizationExclusionService.findExclusionsForDiffuseurId(widget.fromPublisherId);
+    if (organizationExclusions.length) {
+      const excludedIds = organizationExclusions.map((e) => e.organizationClientId).filter((id): id is string => id !== null);
+      if (excludedIds.length) {
+        where.organizationClientId = {
+          $nin: excludedIds,
+        };
+      }
+    }
 
     if (widget.jvaModeration) {
       const $or = [] as { [key: string]: any }[];
@@ -325,9 +333,15 @@ router.get("/:id/aggs", cors({ origin: "*" }), async (req: Request, res: Respons
       deleted: false,
     } as { [key: string]: any };
 
-    // Todo: test
-    // const organizationExclusions = await OrganizationExclusionModel.find({ excludedForPublisherId: widget.publishers });
-    // if (organizationExclusions.length) where.organizationClientId = { $nin: organizationExclusions.map((e) => e.organizationClientId) };
+    const organizationExclusions = await organizationExclusionService.findExclusionsForDiffuseurId(widget.fromPublisherId);
+    if (organizationExclusions.length) {
+      const excludedIds = organizationExclusions.map((e) => e.organizationClientId).filter((id): id is string => id !== null);
+      if (excludedIds.length) {
+        where.organizationClientId = {
+          $nin: excludedIds,
+        };
+      }
+    }
 
     if (query.data.start) {
       where.startAt = { $gte: new Date(query.data.start).toISOString() };

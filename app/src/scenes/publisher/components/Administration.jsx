@@ -40,7 +40,7 @@ const Administration = ({ values, onChange }) => {
           <div className="flex flex-wrap items-center gap-2">
             {excludedOrganizations.length === 0 && <p className="text-gray-500">Aucune organisation exclue</p>}
             {excludedOrganizations
-              .filter((item) => item.excludedByPublisherName === "JeVeuxAider.gouv.fr")
+              .filter((item) => item.excludedByAnnonceurName === "JeVeuxAider.gouv.fr")
               .map((item, index) => (
                 <div key={index} className="relative rounded-md bg-gray-100 px-2 py-1 text-sm">
                   {item.organizationName} ({item.organizationClientId})

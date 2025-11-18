@@ -8,8 +8,9 @@ import RequestModel from "../../models/request";
 import statEventRepository from "../../repositories/stat-event";
 import { organizationExclusionService } from "../../services/organization-exclusion";
 import { publisherService } from "../../services/publisher";
-import type { PublisherRecord } from "../../types/publisher";
+import { OrganizationExclusionCreateManyInput } from "../../types/organization-exclusion";
 import { PublisherRequest } from "../../types/passport";
+import type { PublisherRecord } from "../../types/publisher";
 import { buildPublisherData } from "./transformer";
 const router = Router();
 
@@ -53,13 +54,11 @@ router.get("/:organizationClientId", passport.authenticate(["apikey", "api"], { 
 
     const [publishers, organizationExclusions] = await Promise.all([
       publisherService.findPublishers({ diffuseurOf: user.id }),
-      organizationExclusionService.findExclusionsByExcludedByPublisherId(user.id),
+      organizationExclusionService.findExclusions({ excludedByAnnonceurId: user.id, organizationClientId: params.data.organizationClientId }),
     ]);
 
     // Build Set of exclusions to lookup clicks with .has() for better performance
-    const exclusionSet = new Set(
-      organizationExclusions.map((o) => `${o.organizationClientId ?? ""}:${o.excludedForPublisherId}`)
-    );
+    const exclusionSet = new Set(organizationExclusions.map((o) => o.excludedForDiffuseurId));
 
     const oneMonthAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
     const publisherIds = publishers.map((publisher) => publisher.id);
@@ -72,7 +71,7 @@ router.get("/:organizationClientId", passport.authenticate(["apikey", "api"], { 
     // Build response data
     const data = [] as any[];
     publishers.forEach((publisher) => {
-      const isExcluded = exclusionSet.has(`${params.data.organizationClientId}:${publisher.id}`);
+      const isExcluded = exclusionSet.has(publisher.id);
       const clicks = clicksByPublisher[publisher.id] || 0;
 
       data.push(buildPublisherData(publisher, clicks, isExcluded));
@@ -126,20 +125,15 @@ router.put("/:organizationClientId", passport.authenticate(["apikey", "api"], { 
       }
     }
 
-    await organizationExclusionService.deleteExclusionsByPublisherAndOrganization(user.id, params.data.organizationClientId);
+    await organizationExclusionService.deleteExclusionsByAnnonceurAndOrganization(user.id, params.data.organizationClientId);
 
-    const bulk: Array<{
-      excludedByPublisherId: string;
-      excludedForPublisherId: string;
-      organizationClientId: string;
-      organizationName: string | null;
-    }> = [];
+    const bulk: Array<OrganizationExclusionCreateManyInput> = [];
     publishers
       .filter((publisher) => !body.data.publisherIds.includes(publisher.id))
       .forEach((publisher) => {
         bulk.push({
-          excludedByPublisherId: user.id,
-          excludedForPublisherId: publisher.id,
+          excludedForDiffuseurId: publisher.id,
+          excludedByAnnonceurId: user.id,
           organizationClientId: params.data.organizationClientId,
           organizationName: body.data.organizationName || null,
         });
@@ -147,14 +141,14 @@ router.put("/:organizationClientId", passport.authenticate(["apikey", "api"], { 
 
     await organizationExclusionService.createManyExclusions(bulk);
 
-    const newOrganizationExclusions = await organizationExclusionService.findExclusionsByPublisherAndOrganization(
-      user.id,
-      params.data.organizationClientId
-    );
+    const newOrganizationExclusions = await organizationExclusionService.findExclusions({
+      excludedByAnnonceurId: user.id,
+      organizationClientId: params.data.organizationClientId,
+    });
 
     const data = [] as any[];
     publishers.forEach((publisher) => {
-      const isExcluded = newOrganizationExclusions.some((o) => o.excludedForPublisherId === publisher.id);
+      const isExcluded = newOrganizationExclusions.some((o) => o.excludedForDiffuseurId === publisher.id);
       data.push({
         _id: publisher.id,
         name: publisher.name,

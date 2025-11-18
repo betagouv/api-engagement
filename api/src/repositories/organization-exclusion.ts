@@ -1,4 +1,4 @@
-import { Prisma, OrganizationExclusion } from "../db/core";
+import { OrganizationExclusion, Prisma } from "../db/core";
 import { prismaCore } from "../db/postgres";
 
 export const organizationExclusionRepository = {
@@ -38,4 +38,3 @@ export const organizationExclusionRepository = {
     return prismaCore.organizationExclusion.deleteMany(params);
   },
 };
-

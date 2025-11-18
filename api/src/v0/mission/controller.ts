@@ -90,7 +90,7 @@ router.get("/", passport.authenticate(["apikey", "api"], { session: false }), as
     } as { [key: string]: any };
 
     // Exclude organizations from other publishers
-    const organizationExclusions = await organizationExclusionService.findExclusionsByExcludedForPublisherId(user.id);
+    const organizationExclusions = await organizationExclusionService.findExclusionsForDiffuseurId(user.id);
     if (organizationExclusions.length) {
       const excludedIds = organizationExclusions.map((e) => e.organizationClientId).filter((id): id is string => id !== null);
       if (excludedIds.length) {
@@ -268,7 +268,7 @@ router.get("/search", passport.authenticate(["apikey", "api"], { session: false 
       deletedAt: null,
     } as { [key: string]: any };
 
-    const organizationExclusions = await organizationExclusionService.findExclusionsByExcludedForPublisherId(user.id);
+    const organizationExclusions = await organizationExclusionService.findExclusionsForDiffuseurId(user.id);
     if (organizationExclusions.length) {
       const excludedIds = organizationExclusions.map((e) => e.organizationClientId).filter((id): id is string => id !== null);
       if (excludedIds.length) {

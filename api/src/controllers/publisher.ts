@@ -159,7 +159,8 @@ router.get("/:id/excluded-organizations", passport.authenticate("user", { sessio
       return res.status(404).send({ ok: false, code: NOT_FOUND, message: "Publisher not found" });
     }
 
-    const organizationExclusions = await organizationExclusionService.findExclusionsByExcludedForPublisherId(publisher.id);
+    const organizationExclusions = await organizationExclusionService.findExclusionsForDiffuseurId(publisher.id);
+
     return res.status(200).send({ ok: true, data: organizationExclusions });
   } catch (error) {
     next(error);
