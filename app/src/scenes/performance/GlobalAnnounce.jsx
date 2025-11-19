@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { RiAlertFill, RiInformationFill } from "react-icons/ri";
 
 import EmptySVG from "../../assets/svg/empty-info.svg";
@@ -24,24 +24,6 @@ const GlobalAnnounce = ({ filters, onFiltersChange }) => {
   const [data, setData] = useState({ totalMissionAvailable: 0, totalMissionClicked: 0, totalPrint: 0, totalClick: 0, totalAccount: 0, totalApply: 0 });
   const [loading, setLoading] = useState(true);
   const [loadingMission, setLoadingMission] = useState(true);
-  const hasAdjustedDefaultRange = useRef(false);
-
-  useEffect(() => {
-    if (hasAdjustedDefaultRange.current || !filters?.to) {
-      return;
-    }
-
-    const todayEnd = new Date();
-    todayEnd.setHours(23, 59, 59, 999);
-
-    if (filters.to.getTime() === todayEnd.getTime()) {
-      const yesterdayEnd = new Date(todayEnd);
-      yesterdayEnd.setDate(yesterdayEnd.getDate() - 1);
-      onFiltersChange((prev) => ({ ...prev, to: yesterdayEnd }));
-    }
-
-    hasAdjustedDefaultRange.current = true;
-  }, [filters?.to, onFiltersChange]);
 
   useEffect(() => {
     const fetchData = async () => {

@@ -7,20 +7,17 @@ type Flux = "to" | "from";
 type PublisherIdField = "from_publisher_id" | "to_publisher_id";
 type PublisherNameField = "from_publisher_name" | "to_publisher_name";
 
-type DateRange = {
+type BroadcastPreviewParams = {
+  publisherId?: string;
   from?: string;
   to?: string;
-};
-
-type BroadcastPreviewParams = DateRange & {
-  publisherId?: string;
 };
 
 type DistributionParams = BroadcastPreviewParams & {
   type?: StatEventType;
 };
 
-type EvolutionParams = DateRange & {
+type EvolutionParams = {
   publisherId?: string;
   from: string;
   to: string;

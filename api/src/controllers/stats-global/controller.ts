@@ -4,7 +4,7 @@ import zod from "zod";
 
 import { INVALID_QUERY } from "../../error";
 import { UserRequest } from "../../types/passport";
-import { normalizeDateRange } from "../../utils";
+import { normalizeDateRange } from "../../utils/date";
 import {
   getAnnouncePreviewStats,
   getAnnouncePublishers,
