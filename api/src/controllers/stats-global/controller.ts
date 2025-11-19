@@ -22,8 +22,8 @@ router.get("/broadcast-preview", passport.authenticate("user", { session: false 
     const query = zod
       .object({
         publisherId: zod.string().optional(),
-        from: zod.date().optional(),
-        to: zod.date().optional(),
+        from: zod.coerce.date().optional(),
+        to: zod.coerce.date().optional(),
       })
       .safeParse(req.query);
 
@@ -47,8 +47,8 @@ router.get("/announce-preview", async (req: UserRequest, res: Response, next: Ne
     const query = zod
       .object({
         publisherId: zod.string().optional(),
-        from: zod.date().optional(),
-        to: zod.date().optional(),
+        from: zod.coerce.date().optional(),
+        to: zod.coerce.date().optional(),
       })
       .safeParse(req.query);
 
@@ -72,8 +72,8 @@ router.get("/distribution", passport.authenticate("user", { session: false }), a
     const query = zod
       .object({
         publisherId: zod.string().optional(),
-        from: zod.date().optional(),
-        to: zod.date().optional(),
+        from: zod.coerce.date().optional(),
+        to: zod.coerce.date().optional(),
         type: zod.enum(["click", "apply", "print", "account"]).optional(),
       })
       .safeParse(req.query);
@@ -99,8 +99,8 @@ router.get("/evolution", async (req: UserRequest, res: Response, next: NextFunct
     const query = zod
       .object({
         publisherId: zod.string().optional(),
-        from: zod.date(),
-        to: zod.date(),
+        from: zod.coerce.date(),
+        to: zod.coerce.date(),
         type: zod.enum(["click", "apply", "print", "account"]).optional(),
         flux: zod.enum(["to", "from"]).default("to"),
       })
@@ -131,8 +131,8 @@ router.get("/broadcast-publishers", passport.authenticate("user", { session: fal
     const query = zod
       .object({
         publisherId: zod.string().optional(),
-        from: zod.date().optional(),
-        to: zod.date().optional(),
+        from: zod.coerce.date().optional(),
+        to: zod.coerce.date().optional(),
         flux: zod.enum(["to", "from"]).default("to"),
       })
       .safeParse(req.query);
@@ -159,8 +159,8 @@ router.get("/announce-publishers", passport.authenticate("user", { session: fals
       .object({
         publisherId: zod.string().optional(),
         type: zod.enum(["click", "apply", "print", "account"]).optional(),
-        from: zod.date().optional(),
-        to: zod.date().optional(),
+        from: zod.coerce.date().optional(),
+        to: zod.coerce.date().optional(),
         flux: zod.enum(["to", "from"]).default("to"),
       })
       .safeParse(req.query);
@@ -187,8 +187,8 @@ router.get("/missions", async (req: UserRequest, res: Response, next: NextFuncti
     const query = zod
       .object({
         publisherId: zod.string().optional(),
-        from: zod.date().optional(),
-        to: zod.date().optional(),
+        from: zod.coerce.date().optional(),
+        to: zod.coerce.date().optional(),
       })
       .safeParse(req.query);
 
