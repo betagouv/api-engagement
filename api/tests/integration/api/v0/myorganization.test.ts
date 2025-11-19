@@ -238,7 +238,7 @@ describe("MyOrganization API Integration Tests", () => {
         .put(`/v0/myorganization/${orgId}`)
         .set("x-api-key", apiKey)
         .set("apikey", apiKey)
-        .send({ publisherIds: [publisher1.id], organizationName: newOrgName });
+        .send({ publisherIds: [], organizationName: newOrgName });
 
       expect(response.status).toBe(200);
       expect(response.body.ok).toBe(true);
