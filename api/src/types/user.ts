@@ -2,7 +2,6 @@ export type UserRole = "user" | "admin";
 
 export interface UserRecord {
   id: string;
-  _id: string;
   firstname: string;
   lastname: string | null;
   publishers: string[];

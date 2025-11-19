@@ -73,7 +73,7 @@ export const moderationEventService = {
     const data = {
       moderatorId,
       missionId: previous._id.toString(),
-      userId: user._id.toString(),
+      userId: user.id,
       userName: user.firstname + " " + user.lastname,
       initialStatus: previous[`moderation_${moderatorId}_status`],
       newStatus: update[`moderation_${moderatorId}_status`],

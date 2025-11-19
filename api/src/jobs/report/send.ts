@@ -118,7 +118,7 @@ export const sendReports = async (year: number, month: number, publisherId?: str
       continue;
     }
 
-    const receivers = users.filter((user) => publisher.sendReportTo.includes(user._id.toString()));
+    const receivers = users.filter((user) => publisher.sendReportTo.includes(user.id));
     const sentTo = receivers.map((r) => r.email);
     report = { ...report, sentTo };
 

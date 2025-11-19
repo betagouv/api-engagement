@@ -34,7 +34,7 @@ const handler = async () => {
 
     const dataToCreate = [] as LoginHistory[];
     for (const user of data) {
-      const userId = users[user._id.toString()];
+      const userId = users[user.id];
       const latestLoginAt = logins[userId];
 
       if (userId && user.loginAt && user.loginAt.length) {

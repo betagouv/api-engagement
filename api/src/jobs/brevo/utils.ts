@@ -64,8 +64,8 @@ export const syncContact = async () => {
       if (contact.attributes.NOM !== user.lastname && user.lastname) {
         updates.attributes.NOM = user.lastname;
       }
-      if (contact.attributes.EXT_ID !== user._id.toString()) {
-        updates.ext_id = user._id.toString();
+      if (contact.attributes.EXT_ID !== user.id) {
+        updates.ext_id = user.id;
       }
 
       if (user.publishers.length > 0) {
@@ -108,7 +108,7 @@ export const syncContact = async () => {
       console.log(`[Brevo Contacts] Creating ${user.email}`);
       const body = {
         email: user.email,
-        ext_id: user._id.toString(),
+        ext_id: user.id,
         attributes: { PRENOM: user.firstname, NOM: user.lastname } as Record<string, any>,
       };
 

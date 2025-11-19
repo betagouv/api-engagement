@@ -55,7 +55,7 @@ const Create = () => {
         throw res;
       }
       toast.success("Utilisateur créé avec succès");
-      navigate(`/user/${res.data._id}`);
+      navigate(`/user/${res.data.id}`);
     } catch (error) {
       captureError(error, "Erreur lors de la création de l'utilisateur");
     }

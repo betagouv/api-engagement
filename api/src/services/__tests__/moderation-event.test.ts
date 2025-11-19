@@ -12,7 +12,7 @@ const buildId = (value: string) =>
 describe("moderationEventService.logModeration", () => {
   const moderatorId = "moderator-123";
   const user = {
-    _id: "user-1",
+    id: "user-1",
     firstname: "Alice",
     lastname: "Doe",
   } as unknown as UserRecord;

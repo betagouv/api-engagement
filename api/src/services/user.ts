@@ -8,7 +8,6 @@ const SALT_ROUNDS = 10;
 
 const toUserRecord = (user: User): UserRecord => ({
   id: user.id,
-  _id: user.id,
   firstname: user.firstname,
   lastname: user.lastname ?? null,
   publishers: user.publishers ?? [],

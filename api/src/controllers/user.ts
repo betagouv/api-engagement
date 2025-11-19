@@ -61,7 +61,7 @@ router.get("/refresh", passport.authenticate("user", { session: false }), async 
       return res.status(404).send({ ok: false, code: NOT_FOUND, message: "User not found" });
     }
 
-    const token = jwt.sign({ _id: user._id.toString() }, SECRET, {
+    const token = jwt.sign({ _id: user.id }, SECRET, {
       expiresIn: AUTH_TOKEN_EXPIRATION,
     });
 
@@ -95,7 +95,7 @@ router.get("/:id", passport.authenticate("user", { session: false }), async (req
       return res.status(400).send({ ok: false, code: INVALID_PARAMS, message: params.error });
     }
 
-    if (req.user.role !== "admin" && req.user._id.toString() !== params.data.id) {
+    if (req.user.role !== "admin" && req.user.id !== params.data.id) {
       return res.status(403).send({ ok: false, code: FORBIDDEN, message: `Not allowed` });
     }
 
@@ -128,7 +128,7 @@ router.get("/loginas/:id", passport.authenticate("admin", { session: false }), a
       return res.status(404).send({ ok: false, code: NOT_FOUND, message: `Publisher not found` });
     }
 
-    const token = jwt.sign({ _id: user._id.toString() }, SECRET, {
+    const token = jwt.sign({ _id: user.id }, SECRET, {
       expiresIn: AUTH_TOKEN_EXPIRATION,
     });
     return res.status(200).send({ ok: true, data: { user, publisher, token } });
@@ -308,7 +308,7 @@ router.post("/login", async (req: UserRequest, res: Response, next: NextFunction
         const loginAt = [...user.loginAt, now];
         const updatedUser = await userService.updateUser(user.id, { lastActivityAt: now, loginAt });
 
-        const token = jwt.sign({ _id: updatedUser._id.toString() }, SECRET, { expiresIn: AUTH_TOKEN_EXPIRATION });
+        const token = jwt.sign({ _id: updatedUser.id }, SECRET, { expiresIn: AUTH_TOKEN_EXPIRATION });
         return res.status(200).send({ ok: true, data: { user: updatedUser, publisher, token } });
       },
       delay > 0 ? delay : 0

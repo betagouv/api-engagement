@@ -137,7 +137,6 @@ const normalizeUser = (doc: MongoUserDocument): NormalizedUserData => {
 
   const record: UserRecord = {
     id,
-    _id: id,
     firstname,
     lastname: lastname.length ? lastname : null,
     publishers: toPublishers(doc.publishers),

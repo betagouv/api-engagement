@@ -8,11 +8,11 @@ const buildData = (doc: UserRecord, partners: { [key: string]: string }) => {
   const partnerIds = doc.publishers.map((p) => partners[p.toString()]);
   if (partnerIds.some((p) => !p)) {
     const missing = doc.publishers.filter((p) => !partners[p.toString()]);
-    captureMessage(`[Users] Partner ${missing.join(", ")} not found for user ${doc._id.toString()}`);
+    captureMessage(`[Users] Partner ${missing.join(", ")} not found for user ${doc.id}`);
   }
 
   const obj = {
-    old_id: doc._id.toString(),
+    old_id: doc.id,
     brevo_contact_id: doc.brevoContactId,
     first_name: doc.firstname,
     last_name: doc.lastname,
@@ -54,7 +54,7 @@ const handler = async () => {
     const dataToCreate = [];
     const dataToUpdate = [];
     for (const doc of data) {
-      const exists = stored[doc._id.toString()];
+      const exists = stored[doc.id];
       const obj = buildData(doc, partners);
       if (!obj) {
         continue;

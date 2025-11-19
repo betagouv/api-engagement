@@ -24,7 +24,7 @@ passport.use(
       const user = await userService.findUserById(jwtPayload._id);
       if (user) {
         Sentry.setUser({
-          id: user._id.toString(),
+          id: user.id,
           username: user.firstname + user.lastname,
           email: user.email,
         });
@@ -49,7 +49,7 @@ passport.use(
       const user = await userService.findUserById(jwtPayload._id);
       if (user && user.role === "admin") {
         Sentry.setUser({
-          id: user._id.toString(),
+          id: user.id,
           username: user.firstname + user.lastname,
           email: user.email,
         });
