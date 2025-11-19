@@ -2,10 +2,10 @@ import { Router } from "express";
 import passport from "passport";
 
 import { NOT_FOUND } from "../error";
-import StatsBotModel from "../models/stats-bot";
 import WarningBotModel from "../models/warning-bot";
 import { statEventService } from "../services/stat-event";
 import { publisherService } from "../services/publisher";
+import { statsBotService } from "../services/stats-bot";
 
 const router = Router();
 
@@ -52,7 +52,7 @@ router.get("/:id/stat", passport.authenticate("admin", { session: false }), asyn
       })),
     };
 
-    const statsBot = await StatsBotModel.findOne({ user: warningBot.hash });
+    const statsBot = await statsBotService.findStatsBotByUser(warningBot.hash);
 
     return res.status(200).send({ ok: true, data: statsBot || null, aggs });
   } catch (error) {
@@ -69,9 +69,9 @@ router.post("/:id/block", passport.authenticate("admin", { session: false }), as
       return res.status(404).send({ ok: false, code: NOT_FOUND });
     }
 
-    let statsBot = await StatsBotModel.findOne({ user: warningBot.hash });
+    let statsBot = await statsBotService.findStatsBotByUser(warningBot.hash);
     if (!statsBot) {
-      statsBot = await StatsBotModel.create({
+      statsBot = await statsBotService.createStatsBot({
         user: warningBot.hash,
         userAgent: warningBot.userAgent,
       });
@@ -94,7 +94,7 @@ router.post("/:id/unblock", passport.authenticate("admin", { session: false }), 
       return res.status(404).send({ ok: false, code: NOT_FOUND });
     }
 
-    await StatsBotModel.deleteOne({ user: warningBot.hash });
+    await statsBotService.deleteStatsBotByUser(warningBot.hash);
 
     await statEventService.updateStatEventsBotFlagForUser(warningBot.hash, false);
 

@@ -7,10 +7,10 @@ import { JVA_URL, PUBLISHER_IDS } from "../config";
 import { INVALID_PARAMS, INVALID_QUERY, NOT_FOUND, SERVER_ERROR, captureException, captureMessage } from "../error";
 import CampaignModel from "../models/campaign";
 import MissionModel from "../models/mission";
-import StatsBotModel from "../models/stats-bot";
 import WidgetModel from "../models/widget";
 import { publisherService } from "../services/publisher";
 import { statEventService } from "../services/stat-event";
+import { statsBotService } from "../services/stats-bot";
 import { Mission, StatEventRecord } from "../types";
 import { identify, slugify } from "../utils";
 
@@ -89,7 +89,7 @@ router.get("/apply", cors({ origin: "*" }), async (req: Request, res: Response) 
       }
     }
 
-    const statBot = await StatsBotModel.findOne({ user: identity.user });
+    const statBot = await statsBotService.findStatsBotByUser(identity.user);
 
     const obj = {
       referer: identity.referer,
@@ -204,7 +204,7 @@ router.get("/account", cors({ origin: "*" }), async (req: Request, res: Response
       }
     }
 
-    const statBot = await StatsBotModel.findOne({ user: identity.user });
+    const statBot = await statsBotService.findStatsBotByUser(identity.user);
 
     const obj = {
       referer: identity.referer,
@@ -338,7 +338,7 @@ router.get("/campaign/:id", cors({ origin: "*" }), async (req, res) => {
     res.redirect(302, url.href);
 
     // Update stats just created to add isBot (do it after redirect to avoid delay)
-    const statBot = await StatsBotModel.findOne({ user: identity.user });
+    const statBot = await statsBotService.findStatsBotByUser(identity.user);
     if (statBot) {
       await statEventService.updateStatEvent(clickId, { isBot: true });
     }
@@ -500,7 +500,7 @@ router.get("/widget/:id", cors({ origin: "*" }), async (req: Request, res: Respo
     res.redirect(302, url.href);
 
     // Update stats just created to add isBot (do it after redirect to avoid delay)
-    const statBot = await StatsBotModel.findOne({ user: identity.user });
+    const statBot = await statsBotService.findStatsBotByUser(identity.user);
     if (statBot) {
       await statEventService.updateStatEvent(clickId, { isBot: true });
     }
@@ -579,7 +579,7 @@ router.get("/seo/:id", cors({ origin: "*" }), async (req: Request, res: Response
     res.redirect(302, url.href);
 
     // Update stats just created to add isBot (do it after redirect to avoid delay)
-    const statBot = await StatsBotModel.findOne({ user: identity.user });
+    const statBot = await statsBotService.findStatsBotByUser(identity.user);
     if (statBot) {
       await statEventService.updateStatEvent(clickId, { isBot: true });
     }
@@ -736,7 +736,7 @@ router.get("/:missionId/:publisherId", cors({ origin: "*" }), async function tra
     res.redirect(302, url.href);
 
     // Update stats just created to add isBot (do it after redirect to avoid delay)
-    const statBot = await StatsBotModel.findOne({ user: identity.user });
+    const statBot = await statsBotService.findStatsBotByUser(identity.user);
     if (statBot) {
       await statEventService.updateStatEvent(clickId, { isBot: true });
     }
@@ -780,7 +780,7 @@ router.get("/impression/campaign/:campaignId", cors({ origin: "*" }), async (req
       return res.status(404).send({ ok: false, code: NOT_FOUND });
     }
 
-    const statBot = await StatsBotModel.findOne({ user: identity.user });
+    const statBot = await statsBotService.findStatsBotByUser(identity.user);
 
     const obj = {
       type: "print",
@@ -862,7 +862,7 @@ router.get("/impression/:missionId/:publisherId", cors({ origin: "*" }), async (
       captureMessage(`[Impression] Source not found`, `source ${query.data.sourceId}`);
     }
 
-    const statBot = await StatsBotModel.findOne({ user: identity.user });
+    const statBot = await statsBotService.findStatsBotByUser(identity.user);
     const obj = {
       type: "print",
       requestId: query.data.requestId,
