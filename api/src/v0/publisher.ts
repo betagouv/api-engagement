@@ -37,7 +37,7 @@ router.get("/", passport.authenticate(["apikey", "api"], { session: false }), as
   try {
     const user = req.user as PublisherRecord;
     const partners = await publisherService.findPublishers({ diffuseurOf: user.id });
-    const organizationExclusions = await organizationExclusionService.findExclusionsByExcludedByPublisherId(user.id);
+    const organizationExclusions = await organizationExclusionService.findExclusions({ excludedByAnnonceurId: user.id });
 
     const data = partners.map((e) => {
       return {
@@ -51,7 +51,7 @@ router.get("/", passport.authenticate(["apikey", "api"], { session: false }), as
         api: e.hasApiRights,
         campaign: e.hasCampaignRights,
         annonceur: e.isAnnonceur,
-        excludedOrganizations: organizationExclusions.filter((o) => o.excludedForPublisherId === e.id),
+        excludedOrganizations: organizationExclusions.filter((o) => o.excludedForDiffuseurId === e.id),
       };
     });
 
@@ -86,7 +86,7 @@ router.get("/:id", passport.authenticate(["apikey", "api"], { session: false }),
       return res.status(404).send({ ok: false, code: NOT_FOUND, message: "Publisher not found" });
     }
 
-    const organizationExclusions = await organizationExclusionService.findExclusionsByPublisherIds(user.id, publisher.id);
+    const organizationExclusions = await organizationExclusionService.findExclusions({ excludedByAnnonceurId: user.id, excludedForDiffuseurId: publisher.id });
 
     const data = {
       _id: publisher.id,

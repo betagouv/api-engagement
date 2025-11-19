@@ -102,8 +102,8 @@ describe("MyOrganization API Integration Tests", () => {
 
       // Add exclusion for publisher2
       await organizationExclusionService.createExclusion({
-        excludedByPublisherId: publisher.id,
-        excludedForPublisherId: publisher2.id,
+        excludedByAnnonceurId: publisher.id,
+        excludedForDiffuseurId: publisher2.id,
         organizationClientId: orgId,
         organizationName: publisher.name,
       });
@@ -160,12 +160,12 @@ describe("MyOrganization API Integration Tests", () => {
       expect(publisher2Data.excluded).toBe(true);
 
       // Verify publisher1 exclusion does not exist
-      const publisher1Exclusions = await organizationExclusionService.findExclusionsByPublisherIds(publisher.id, publisher1.id);
+      const publisher1Exclusions = await organizationExclusionService.findExclusions({ excludedByAnnonceurId: publisher.id, excludedForDiffuseurId: publisher1.id });
       const publisher1Exclusion = publisher1Exclusions.find((e) => e.organizationClientId === orgId);
       expect(publisher1Exclusion).toBeUndefined();
 
       // Verify publisher2 exclusion exists
-      const publisher2Exclusions = await organizationExclusionService.findExclusionsByPublisherIds(publisher.id, publisher2.id);
+      const publisher2Exclusions = await organizationExclusionService.findExclusions({ excludedByAnnonceurId: publisher.id, excludedForDiffuseurId: publisher2.id });
       const publisher2Exclusion = publisher2Exclusions.find((e) => e.organizationClientId === orgId);
       expect(publisher2Exclusion).toBeDefined();
     });
@@ -174,14 +174,14 @@ describe("MyOrganization API Integration Tests", () => {
       // First exclude both partners
       await organizationExclusionService.createManyExclusions([
         {
-          excludedByPublisherId: publisher.id,
-          excludedForPublisherId: publisher1.id,
+          excludedByAnnonceurId: publisher.id,
+          excludedForDiffuseurId: publisher1.id,
           organizationClientId: orgId,
           organizationName: publisher.name,
         },
         {
-          excludedByPublisherId: publisher.id,
-          excludedForPublisherId: publisher2.id,
+          excludedByAnnonceurId: publisher.id,
+          excludedForDiffuseurId: publisher2.id,
           organizationClientId: orgId,
           organizationName: publisher.name,
         },
@@ -202,7 +202,7 @@ describe("MyOrganization API Integration Tests", () => {
       expect(publisher2Data.excluded).toBe(false);
 
       // Verify database was updated correctly
-      const exclusions = await organizationExclusionService.findExclusionsByPublisherIds(publisher.id, publisher1.id);
+      const exclusions = await organizationExclusionService.findExclusions({ excludedByAnnonceurId: publisher.id, excludedForDiffuseurId: publisher1.id });
       const exclusion = exclusions.find((e) => e.organizationClientId === orgId);
       expect(exclusion).toBeUndefined();
     });
@@ -212,8 +212,8 @@ describe("MyOrganization API Integration Tests", () => {
       const otherOrganizationClientId = "other-org-" + Date.now().toString();
       const otherPublisherId = "other-publisher-" + Date.now().toString();
       await organizationExclusionService.createExclusion({
-        excludedByPublisherId: otherPublisherId,
-        excludedForPublisherId: publisher1.id,
+        excludedByAnnonceurId: otherPublisherId,
+        excludedForDiffuseurId: publisher1.id,
         organizationClientId: otherOrganizationClientId,
         organizationName: publisher.name,
       });
@@ -227,12 +227,12 @@ describe("MyOrganization API Integration Tests", () => {
       expect(response.status).toBe(200);
 
       // Other organization exclusion should still exist
-      const otherExclusions = await organizationExclusionService.findExclusionsByPublisherIds(otherPublisherId, publisher1.id);
+      const otherExclusions = await organizationExclusionService.findExclusions({ excludedByAnnonceurId: otherPublisherId, excludedForDiffuseurId: publisher1.id });
       const otherExclusion = otherExclusions.find((e) => e.organizationClientId === otherOrganizationClientId);
       expect(otherExclusion).toBeDefined();
 
       // Test organization should not have exclusion
-      const testExclusions = await organizationExclusionService.findExclusionsByPublisherIds(publisher.id, publisher1.id);
+      const testExclusions = await organizationExclusionService.findExclusions({ excludedByAnnonceurId: publisher.id, excludedForDiffuseurId: publisher1.id });
       const testExclusion = testExclusions.find((e) => e.organizationClientId === orgId);
       expect(testExclusion).toBeUndefined();
     });

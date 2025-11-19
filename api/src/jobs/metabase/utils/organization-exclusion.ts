@@ -1,17 +1,18 @@
 import { OrganizationExclusion as PgOrganizationExclusion } from "../../../db/analytics";
 import { prismaAnalytics as prismaClient } from "../../../db/postgres";
 import { captureException } from "../../../error";
-import { organizationExclusionRepository } from "../../../repositories/organization-exclusion";
+import { organizationExclusionService } from "../../../services/organization-exclusion";
+import { OrganizationExclusionRecord } from "../../../types/organization-exclusion";
 
-const buildData = (doc: { id: string; excludedByPublisherId: string; excludedForPublisherId: string; organizationClientId: string | null; organizationName: string | null; createdAt: Date; updatedAt: Date }, partners: { [key: string]: string }) => {
-  const partnerIdBy = partners[doc.excludedByPublisherId];
+const buildData = (doc: OrganizationExclusionRecord, partners: { [key: string]: string }) => {
+  const partnerIdBy = partners[doc.excludedByAnnonceurId];
   if (!partnerIdBy) {
-    console.log(`[OrganizationExclusion] Partner ${doc.excludedByPublisherId} not found for excluded organization ${doc.organizationClientId}`);
+    console.log(`[OrganizationExclusion] Partner ${doc.excludedByAnnonceurId} not found for excluded organization ${doc.organizationClientId}`);
     return null;
   }
-  const partnerIdFor = partners[doc.excludedForPublisherId];
+  const partnerIdFor = partners[doc.excludedForDiffuseurId];
   if (!partnerIdFor) {
-    console.log(`[OrganizationExclusion] Partner ${doc.excludedForPublisherId} not found for excluded organization ${doc.organizationClientId}`);
+    console.log(`[OrganizationExclusion] Partner ${doc.excludedForDiffuseurId} not found for excluded organization ${doc.organizationClientId}`);
     return null;
   }
 
@@ -33,7 +34,7 @@ const handler = async () => {
     const start = new Date();
     console.log(`[OrganizationExclusion] Starting at ${start.toISOString()}`);
 
-    const data = await organizationExclusionRepository.findMany({});
+    const data = await organizationExclusionService.findExclusions({});
     console.log(`[OrganizationExclusion] Found ${data.length} docs to sync.`);
 
     const stored = await prismaClient.organizationExclusion.count();
