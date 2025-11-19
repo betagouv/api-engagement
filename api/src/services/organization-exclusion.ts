@@ -64,7 +64,7 @@ export const organizationExclusionService = (() => {
 
     const exclusions = (await organizationExclusionRepository.findMany({
       where: { AND: and },
-      include: { excludedByAnnonceur: true, excludedForDiffuseur: true },
+      include: { excludedByAnnonceur: { select: { id: true, name: true } }, excludedForDiffuseur: { select: { id: true, name: true } } },
     })) as OrganizationExclusionWithPublishers[];
     return exclusions.map(toOrganizationExclusionRecord);
   };
@@ -75,7 +75,7 @@ export const organizationExclusionService = (() => {
     }
     const exclusions = (await organizationExclusionRepository.findMany({
       where: { excludedForDiffuseurId: publisherId },
-      include: { excludedByAnnonceur: true, excludedForDiffuseur: true },
+      include: { excludedByAnnonceur: { select: { id: true, name: true } }, excludedForDiffuseur: { select: { id: true, name: true } } },
     })) as OrganizationExclusionWithPublishers[];
     return exclusions.map(toOrganizationExclusionRecord);
   };
@@ -83,6 +83,7 @@ export const organizationExclusionService = (() => {
   const createExclusion = async (input: OrganizationExclusionCreateInput): Promise<OrganizationExclusionRecord> => {
     const exclusion = (await organizationExclusionRepository.create({
       data: mapCreateInput(input),
+      include: { excludedByAnnonceur: { select: { id: true, name: true } }, excludedForDiffuseur: { select: { id: true, name: true } } },
     })) as OrganizationExclusionWithPublishers;
     return toOrganizationExclusionRecord(exclusion);
   };

@@ -227,22 +227,6 @@ export type ModerationEvent = {
   updatedAt: Date;
 };
 
-export interface OrganizationExclusion {
-  _id?: Schema.Types.ObjectId; // Deprecated: kept for backward compatibility with MongoDB migration
-  id?: string;
-  excludedByPublisherId: string;
-  excludedByPublisherName: string;
-
-  excludedForPublisherId: string;
-  excludedForPublisherName: string;
-
-  organizationClientId: string | null;
-  organizationName: string | null;
-
-  createdAt: Date;
-  updatedAt: Date;
-}
-
 export type Request = {
   _id: Schema.Types.ObjectId;
   route: string;

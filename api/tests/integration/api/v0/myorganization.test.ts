@@ -15,11 +15,13 @@ describe("MyOrganization API Integration Tests", () => {
   let publisher2: PublisherRecord;
   let publisher3: PublisherRecord;
   let orgId: string;
+  let orgName: string;
 
   beforeEach(async () => {
     publisher = await createTestPublisher();
     apiKey = publisher.apikey || "";
     orgId = "test-org-id";
+    orgName = "Test Organization";
     mission = await createTestMission({ organizationClientId: orgId, publisherId: publisher.id });
     publisher1 = await createTestPublisher({
       publishers: [{ publisherId: publisher.id, publisherName: publisher.name, moderator: true, missionType: MissionType.BENEVOLAT }],
@@ -28,7 +30,6 @@ describe("MyOrganization API Integration Tests", () => {
       publishers: [{ publisherId: publisher.id, publisherName: publisher.name, moderator: true, missionType: MissionType.BENEVOLAT }],
     });
     publisher3 = await createTestPublisher();
-    await createTestPublisher();
   });
 
   /**
@@ -96,7 +97,7 @@ describe("MyOrganization API Integration Tests", () => {
         excludedByAnnonceurId: publisher.id,
         excludedForDiffuseurId: publisher2.id,
         organizationClientId: orgId,
-        organizationName: publisher.name,
+        organizationName: orgName,
       });
 
       const response = await request(app).get(`/v0/myorganization/${orgId}`).set("x-api-key", apiKey).set("apikey", apiKey);
@@ -125,11 +126,7 @@ describe("MyOrganization API Integration Tests", () => {
     });
 
     it("should return 400 for invalid request body", async () => {
-      const response = await request(app)
-        .put(`/v0/myorganization/${orgId}`)
-        .set("x-api-key", apiKey)
-        .set("apikey", apiKey)
-        .send({ invalidField: "value" }); // Missing required publisherIds
+      const response = await request(app).put(`/v0/myorganization/${orgId}`).set("x-api-key", apiKey).set("apikey", apiKey).send({ invalidField: "value" }); // Missing required publisherIds
 
       expect(response.status).toBe(400);
       expect(response.body.ok).toBe(false);
@@ -173,13 +170,13 @@ describe("MyOrganization API Integration Tests", () => {
           excludedByAnnonceurId: publisher.id,
           excludedForDiffuseurId: publisher1.id,
           organizationClientId: orgId,
-          organizationName: publisher.name,
+          organizationName: orgName,
         },
         {
           excludedByAnnonceurId: publisher.id,
           excludedForDiffuseurId: publisher2.id,
           organizationClientId: orgId,
-          organizationName: publisher.name,
+          organizationName: orgName,
         },
       ]);
 
@@ -207,12 +204,12 @@ describe("MyOrganization API Integration Tests", () => {
     it("should not overwrite exclusions when receiving publisherId of a different publisher", async () => {
       // Exclude organization from different publisher
       const otherOrganizationClientId = "other-org-" + Date.now().toString();
-      const otherPublisherId = "other-publisher-" + Date.now().toString();
+      const otherOrganizationName = "Other Organization";
       await organizationExclusionService.createExclusion({
-        excludedByAnnonceurId: otherPublisherId,
+        excludedByAnnonceurId: publisher3.id,
         excludedForDiffuseurId: publisher1.id,
         organizationClientId: otherOrganizationClientId,
-        organizationName: publisher.name,
+        organizationName: otherOrganizationName,
       });
 
       // Include publisher1 in the test organization
@@ -225,7 +222,7 @@ describe("MyOrganization API Integration Tests", () => {
       expect(response.status).toBe(200);
 
       // Other organization exclusion should still exist
-      const otherExclusions = await organizationExclusionService.findExclusions({ excludedByAnnonceurId: otherPublisherId, excludedForDiffuseurId: publisher1.id });
+      const otherExclusions = await organizationExclusionService.findExclusions({ excludedByAnnonceurId: publisher3.id, excludedForDiffuseurId: publisher1.id });
       const otherExclusion = otherExclusions.find((e) => e.organizationClientId === otherOrganizationClientId);
       expect(otherExclusion).toBeDefined();
 
@@ -233,6 +230,22 @@ describe("MyOrganization API Integration Tests", () => {
       const testExclusions = await organizationExclusionService.findExclusions({ excludedByAnnonceurId: publisher.id, excludedForDiffuseurId: publisher1.id });
       const testExclusion = testExclusions.find((e) => e.organizationClientId === orgId);
       expect(testExclusion).toBeUndefined();
+    });
+
+    it("should record the organization name in the exclusion", async () => {
+      const newOrgName = "New Organization";
+      const response = await request(app)
+        .put(`/v0/myorganization/${orgId}`)
+        .set("x-api-key", apiKey)
+        .set("apikey", apiKey)
+        .send({ publisherIds: [publisher1.id], organizationName: newOrgName });
+
+      expect(response.status).toBe(200);
+      expect(response.body.ok).toBe(true);
+
+      const exclusions = await organizationExclusionService.findExclusions({ excludedByAnnonceurId: publisher.id, excludedForDiffuseurId: publisher1.id });
+      const exclusion = exclusions.find((e) => e.organizationClientId === orgId);
+      expect(exclusion?.organizationName).toBe(newOrgName);
     });
   });
 });
