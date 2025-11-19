@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { BrowserRouter, Navigate, Outlet, Route, Routes, useLocation, useNavigate } from "react-router-dom";
-import { toast, ToastContainer } from "react-toastify";
+import { ToastContainer } from "react-toastify";
 
 import Footer from "./components/Footer";
 import Header from "./components/Header";
@@ -199,7 +199,6 @@ const ProtectedLayout = () => {
     );
   if (!user) return <Navigate to="/login" />;
 
-  toast.error("test");
   return (
     <div className="bg-beige-gris-galet-975 flex min-h-screen w-screen min-w-3xl flex-col">
       {ENV === "staging" && (
