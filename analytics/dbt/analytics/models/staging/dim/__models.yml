@@ -12,7 +12,7 @@ models:
           - not_null
           - unique
       - name: publisher_id_raw
-        description: Identifiant partenaire utilisé dans StatEvent de la base core.
+        description: Identifiant partenaire utilisé dans `stat_event` de la base core.
         tests:
           - not_null
           - unique
@@ -20,7 +20,7 @@ models:
   - name: dim_mission
     description: >
       Extraction des identifiants de mission (UUID et ancien ID) enrichis du publisher
-      associé afin de rebasculer les événements StatEvent vers les missions analytics.
+      associé afin de rebasculer les événements `stat_event` vers les missions analytics.
     columns:
       - name: id
         description: Identifiant UUID de la mission dans l’entrepôt analytics.
@@ -28,16 +28,16 @@ models:
           - not_null
           - unique
       - name: mission_id_raw
-        description: Identifiant mission utilisé dans StatEvent de la base core.
+        description: Identifiant mission utilisé dans `stat_event` de la base core.
       - name: client_id
-        description: Identifiant client de la mission (clé métier utilisée par StatEvent).
+        description: Identifiant client de la mission (clé métier utilisée par `stat_event`).
       - name: publisher_id_raw
-        description: Identifiant partenaire utilisé dans StatEvent de la base core.
+        description: Identifiant partenaire utilisé dans `stat_event` de la base core.
 
   - name: dim_campaign
     description: >
       Mapping simple entre les UUID campagne analytics et leurs anciens identifiants
-      afin de résoudre les références présentes dans StatEvent.
+      afin de résoudre les références présentes dans `stat_event`.
     columns:
       - name: id
         description: Identifiant UUID de la campagne.
@@ -45,7 +45,7 @@ models:
           - not_null
           - unique
       - name: campaign_id_raw
-        description: Identifiant campaign utilisé dans StatEvent de la base core.
+        description: Identifiant campaign utilisé dans `stat_event` de la base core.
         tests:
           - not_null
           - unique
@@ -53,7 +53,7 @@ models:
   - name: dim_widget
     description: >
       Correspondance entre les widgets analytics (UUID) et leur ancien identifiant
-      pour rapprocher les événements StatEvent de type widget.
+      pour rapprocher les événements `stat_event` de type widget.
     columns:
       - name: id
         description: Identifiant UUID du widget.
@@ -61,7 +61,7 @@ models:
           - not_null
           - unique
       - name: widget_id_raw
-        description: Identifiant widget utilisé dans StatEvent de la base core.
+        description: Identifiant widget utilisé dans `stat_event` de la base core.
         tests:
           - not_null
           - unique

@@ -4,7 +4,7 @@ import passport from "passport";
 import { NOT_FOUND } from "../error";
 import StatsBotModel from "../models/stats-bot";
 import WarningBotModel from "../models/warning-bot";
-import statEventRepository from "../repositories/stat-event";
+import { statEventService } from "../services/stat-event";
 import { publisherService } from "../services/publisher";
 
 const router = Router();
@@ -28,7 +28,7 @@ router.get("/:id/stat", passport.authenticate("admin", { session: false }), asyn
       return res.status(404).send({ ok: false, code: NOT_FOUND });
     }
 
-    const aggregations = await statEventRepository.aggregateWarningBotStatsByUser(warningBot.hash);
+    const aggregations = await statEventService.aggregateStatEventWarningBotByUser(warningBot.hash);
 
     const publisherIds = Array.from(new Set([...aggregations.publisherTo, ...aggregations.publisherFrom].map((bucket) => bucket.key).filter((key): key is string => Boolean(key))));
 
@@ -77,7 +77,7 @@ router.post("/:id/block", passport.authenticate("admin", { session: false }), as
       });
     }
 
-    await statEventRepository.updateIsBotForUser(warningBot.hash, true);
+    await statEventService.updateStatEventsBotFlagForUser(warningBot.hash, true);
 
     return res.status(200).send({ ok: true, data: statsBot });
   } catch (error) {
@@ -96,7 +96,7 @@ router.post("/:id/unblock", passport.authenticate("admin", { session: false }), 
 
     await StatsBotModel.deleteOne({ user: warningBot.hash });
 
-    await statEventRepository.updateIsBotForUser(warningBot.hash, false);
+    await statEventService.updateStatEventsBotFlagForUser(warningBot.hash, false);
 
     return res.status(200).send({ ok: true });
   } catch (error) {

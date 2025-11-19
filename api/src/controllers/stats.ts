@@ -4,7 +4,7 @@ import zod from "zod";
 
 import { INVALID_BODY } from "../error";
 import { UserRequest } from "../types/passport";
-import statEventRepository from "../repositories/stat-event";
+import { statEventService } from "../services/stat-event";
 
 const router = Router();
 
@@ -33,7 +33,7 @@ router.post("/search", passport.authenticate("user", { session: false }), async 
       });
     }
 
-    const events = await statEventRepository.searchStatEvents({
+    const events = await statEventService.findStatEvents({
       fromPublisherId: body.data.fromPublisherId,
       toPublisherId: body.data.toPublisherId,
       type: body.data.type,

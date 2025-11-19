@@ -5,9 +5,9 @@ import zod from "zod";
 import { captureMessage, INVALID_BODY, INVALID_PARAMS, INVALID_QUERY, NOT_FOUND } from "../error";
 import MissionModel from "../models/mission";
 import RequestModel from "../models/request";
-import statEventRepository from "../repositories/stat-event";
+import { statEventService } from "../services/stat-event";
 import { publisherService } from "../services/publisher";
-import { Stats } from "../types";
+import { StatEventRecord } from "../types";
 import { PublisherRequest } from "../types/passport";
 import type { PublisherRecord } from "../types/publisher";
 
@@ -49,7 +49,7 @@ router.get("/:id", passport.authenticate(["apikey", "api"], { session: false }),
       return res.status(400).send({ ok: false, code: INVALID_PARAMS, error: params.error });
     }
 
-    const statEvent = await statEventRepository.getStatEventById(params.data.id);
+    const statEvent = await statEventService.findOneStatEventById(params.data.id);
 
     if (!statEvent) {
       res.locals = { code: NOT_FOUND };
@@ -77,7 +77,7 @@ const findMissionTemp = async (missionId: string) => {
     return mission;
   }
 
-  const stats = await statEventRepository.findFirstByMissionId(missionId);
+  const stats = await statEventService.findOneStatEventByMissionId(missionId);
   if (stats) {
     const mission = await MissionModel.findOne({
       clientId: stats.missionClientId?.toString(),
@@ -155,9 +155,9 @@ router.post("/:missionId/:publisherId/click", async (req: PublisherRequest, res:
       sourceName: publisher.name,
       sourceId: publisher.id,
       type: "click",
-    } as Stats;
+    } as StatEventRecord;
 
-    const id = await statEventRepository.createStatEvent(obj);
+    const id = await statEventService.createStatEvent(obj);
 
     return res.status(200).send({ ok: true, data: { ...obj, _id: id } });
   } catch (error: any) {
@@ -201,7 +201,7 @@ router.post("/:missionId/apply", passport.authenticate(["apikey", "api"], { sess
     let clickId;
     if (query.data.clickId) {
       try {
-        const response = await statEventRepository.getStatEventById(query.data.clickId);
+        const response = await statEventService.findOneStatEventById(query.data.clickId);
         if (response) {
           clickId = response;
         }
@@ -237,9 +237,9 @@ router.post("/:missionId/apply", passport.authenticate(["apikey", "api"], { sess
       sourceId: user.id,
       type: "apply",
       status: "PENDING",
-    } as Stats;
+    } as StatEventRecord;
 
-    const id = await statEventRepository.createStatEvent(obj);
+    const id = await statEventService.createStatEvent(obj);
 
     return res.status(200).send({ ok: true, data: { ...obj, _id: id } });
   } catch (error: any) {
@@ -270,7 +270,7 @@ router.put("/:activityId", passport.authenticate(["apikey", "api"], { session: f
       return res.status(400).send({ ok: false, code: INVALID_PARAMS, error: body.error });
     }
 
-    const stats = await statEventRepository.getStatEventById(params.data.activityId);
+    const stats = await statEventService.findOneStatEventById(params.data.activityId);
 
     if (!stats) {
       res.locals = { code: NOT_FOUND };
@@ -281,7 +281,7 @@ router.put("/:activityId", passport.authenticate(["apikey", "api"], { session: f
       status: body.data.status,
     };
 
-    await statEventRepository.updateStatEventById(params.data.activityId, obj);
+    await statEventService.updateStatEvent(params.data.activityId, obj);
 
     return res.status(200).send({ ok: true, data: { ...stats, ...obj } });
   } catch (error: any) {

@@ -14,7 +14,7 @@ sources:
     schema: analytics_raw
     loader: node job export-to-analytics-raw
     tables:
-      - name: StatEvent
+      - name: stat_event
         description: >-
           Événements de statistiques (impressions, clics, candidatures, création de compte) exportés depuis la base `core`
           pour alimenter l'entrepôt analytics. Chaque ligne correspond à une action utilisateur observée, enrichie des
