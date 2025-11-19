@@ -112,12 +112,16 @@ router.get("/evolution", async (req: UserRequest, res: Response, next: NextFunct
 
     const { to, from } = normalizeDateRange(query.data.from, query.data.to);
 
+    if (!from || !to) {
+      return res.status(400).send({ ok: false, code: INVALID_QUERY });
+    }
+
     const data = await getEvolutionStats({
       publisherId: query.data.publisherId,
       type: query.data.type,
       flux: query.data.flux,
-      to: to || new Date(),
-      from: from || new Date(),
+      to,
+      from,
     });
 
     return res.status(200).send({ ok: true, data });

@@ -7,20 +7,23 @@ type Flux = "to" | "from";
 type PublisherIdField = "from_publisher_id" | "to_publisher_id";
 type PublisherNameField = "from_publisher_name" | "to_publisher_name";
 
-type BroadcastPreviewParams = {
+type DateRange = {
+  from?: string;
+  to?: string;
+};
+
+type BroadcastPreviewParams = DateRange & {
   publisherId?: string;
-  from?: Date;
-  to?: Date;
 };
 
 type DistributionParams = BroadcastPreviewParams & {
   type?: StatEventType;
 };
 
-type EvolutionParams = {
+type EvolutionParams = DateRange & {
   publisherId?: string;
-  from: Date;
-  to: Date;
+  from: string;
+  to: string;
   type?: StatEventType;
   flux: Flux;
 };
@@ -75,8 +78,8 @@ function createEventsConditions({
 }: {
   publisherId?: string;
   publisherField?: PublisherIdField;
-  from?: Date;
-  to?: Date;
+  from?: string;
+  to?: string;
   type?: StatEventType;
   additionalConditions?: Prisma.Sql[];
 }): Prisma.Sql[] {
@@ -86,12 +89,14 @@ function createEventsConditions({
     conditions.push(Prisma.sql`${Prisma.raw(`"${publisherField}"`)} = ${publisherId}`);
   }
 
+  const createdAtColumn = Prisma.raw('"created_at"');
+
   if (from) {
-    conditions.push(Prisma.sql`"created_at" >= ${from}`);
+    conditions.push(Prisma.sql`DATE(${createdAtColumn} AT TIME ZONE 'Europe/Paris') >= ${from}`);
   }
 
   if (to) {
-    conditions.push(Prisma.sql`"created_at" <= ${to}`);
+    conditions.push(Prisma.sql`DATE(${createdAtColumn} AT TIME ZONE 'Europe/Paris') <= ${to}`);
   }
 
   if (type) {
@@ -115,8 +120,8 @@ function createMissionConditions({
 }: {
   publisherId?: string;
   publisherField?: PublisherIdField;
-  from?: Date;
-  to?: Date;
+  from?: string;
+  to?: string;
   type?: StatEventType;
   additionalConditions?: Prisma.Sql[];
 }): Prisma.Sql[] {
@@ -126,12 +131,15 @@ function createMissionConditions({
     conditions.push(Prisma.sql`${Prisma.raw(`"${publisherField}"`)} = ${publisherId}`);
   }
 
+  const lastCreatedAt = Prisma.raw('"last_created_at"');
+  const firstCreatedAt = Prisma.raw('"first_created_at"');
+
   if (from) {
-    conditions.push(Prisma.sql`"last_created_at" >= ${from}`);
+    conditions.push(Prisma.sql`DATE(${lastCreatedAt} AT TIME ZONE 'Europe/Paris') >= ${from}`);
   }
 
   if (to) {
-    conditions.push(Prisma.sql`"first_created_at" <= ${to}`);
+    conditions.push(Prisma.sql`DATE(${firstCreatedAt} AT TIME ZONE 'Europe/Paris') <= ${to}`);
   }
 
   if (type) {
@@ -261,8 +269,12 @@ export async function getDistributionStats({ publisherId, from, to, type }: Dist
   return rows.filter((row) => !!row.source).map((row) => ({ key: row.source as string, doc_count: Number(row.doc_count) }));
 }
 
+const parseDateString = (value: string): Date => new Date(`${value}T00:00:00.000Z`);
+
 export async function getEvolutionStats({ publisherId, from, to, type, flux }: EvolutionParams) {
-  const diff = (to.getTime() - from.getTime()) / (1000 * 60 * 60 * 24);
+  const fromDate = parseDateString(from);
+  const toDate = parseDateString(to);
+  const diff = (toDate.getTime() - fromDate.getTime()) / (1000 * 60 * 60 * 24);
   const interval = diff < 1 ? "hour" : diff < 61 ? "day" : "month";
   const intervalSql = HISTOGRAM_INTERVAL_SQL[interval];
 

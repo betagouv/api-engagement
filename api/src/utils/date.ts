@@ -1,20 +1,12 @@
-const normalizeBoundary = (value?: Date, endOfDay = false): Date | undefined => {
+const formatDateOnly = (value?: Date) => {
   if (!value) {
     return undefined;
   }
 
-  const normalized = new Date(value);
-
-  if (endOfDay) {
-    normalized.setUTCHours(23, 59, 59, 999);
-    return normalized;
-  }
-
-  normalized.setUTCHours(0, 0, 0, 0);
-  return normalized;
+  return value.toISOString().slice(0, 10);
 };
 
-export const normalizeDateRange = (from?: Date | undefined, to?: Date | undefined) => ({
-  from: normalizeBoundary(from),
-  to: normalizeBoundary(to, true),
+export const normalizeDateRange = (from?: Date, to?: Date) => ({
+  from: formatDateOnly(from),
+  to: formatDateOnly(to),
 });
