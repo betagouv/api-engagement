@@ -1,9 +1,20 @@
-export const startOfDayUtc = (value: string): Date => new Date(`${value}T00:00:00.000Z`);
+const normalizeBoundary = (value?: Date, endOfDay = false): Date | undefined => {
+  if (!value) {
+    return undefined;
+  }
 
-export const endOfDayUtc = (value: string): Date => new Date(`${value}T23:59:59.999Z`);
+  const normalized = new Date(value);
 
-export const normalizeDateRange = <T extends { from?: string; to?: string }>(data: T) => ({
-  ...data,
-  from: data.from ? startOfDayUtc(data.from) : undefined,
-  to: data.to ? endOfDayUtc(data.to) : undefined,
+  if (endOfDay) {
+    normalized.setUTCHours(23, 59, 59, 999);
+    return normalized;
+  }
+
+  normalized.setUTCHours(0, 0, 0, 0);
+  return normalized;
+};
+
+export const normalizeDateRange = (from?: Date | undefined, to?: Date | undefined) => ({
+  from: normalizeBoundary(from),
+  to: normalizeBoundary(to, true),
 });
