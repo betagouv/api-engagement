@@ -1,8 +1,8 @@
 import { PUBLISHER_IDS } from "../../config";
 import { captureException, captureMessage } from "../../error";
 import MissionModel from "../../models/mission";
-import statEventRepository from "../../repositories/stat-event";
-import { Stats } from "../../types";
+import { statEventService } from "../../services/stat-event";
+import { StatEventRecord } from "../../types";
 
 const ROWS = [
   "LinkedIn Job ID",
@@ -85,11 +85,11 @@ const parseRow = async (row: (string | number)[], from: Date, to: Date, sourceId
 
   const views = parseInt(row[ROWS.indexOf("Total Views")].toString()) || 0;
   try {
-    const data = [] as Stats[];
+    const data = [] as StatEventRecord[];
 
     let mission = await MissionModel.findOne({ _old_ids: { $in: [missionId] } });
     if (!mission) {
-      const existingStat = await statEventRepository.findFirstByMissionId(missionId.toString());
+      const existingStat = await statEventService.findOneStatEventByMissionId(missionId.toString());
       if (!existingStat) {
         if (MISSION_NOT_FOUND[missionId.toString()]) {
           mission = await MissionModel.findById(MISSION_NOT_FOUND[missionId.toString()]);
@@ -147,7 +147,7 @@ const parseRow = async (row: (string | number)[], from: Date, to: Date, sourceId
         toPublisherName: mission.publisherName,
         fromPublisherId: PUBLISHER_IDS.LINKEDIN,
         fromPublisherName: "Linkedin",
-      } as Stats);
+      } as StatEventRecord);
     }
 
     return data;
@@ -163,7 +163,7 @@ export const processData = async (data: (string | number)[][], from: Date, to: D
   };
 
   const batchSize = 100;
-  const pendingPrints: Stats[] = [];
+  const pendingPrints: StatEventRecord[] = [];
 
   const flushPendingPrints = async () => {
     if (!pendingPrints.length) {
@@ -177,7 +177,7 @@ export const processData = async (data: (string | number)[][], from: Date, to: D
       const settledPrints = await Promise.allSettled(
         slice.map(async (print) => {
           try {
-            const created = await statEventRepository.createStatEvent(print);
+            const created = await statEventService.createStatEvent(print);
             return { print, created };
           } catch (error) {
             throw { error, print };

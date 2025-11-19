@@ -1,65 +1,36 @@
 import { Types } from "mongoose";
 import request from "supertest";
-import { beforeEach, describe, expect, it } from "vitest";
+import { describe, expect, it } from "vitest";
 
 import MissionModel from "../../../../src/models/mission";
 import { publisherService } from "../../../../src/services/publisher";
-import type { Stats } from "../../../../src/types";
-import { elasticMock } from "../../../mocks";
+import { statEventService } from "../../../../src/services/stat-event";
+import { createClickStat, createStatEventFixture } from "../../../fixtures/stat-event";
 import { createTestApp } from "../../../testApp";
 
 const app = createTestApp();
 
 describe("Activity V2 controller", () => {
-  beforeEach(() => {
-    elasticMock.index.mockReset();
-    elasticMock.update.mockReset();
-    elasticMock.get.mockReset();
-    elasticMock.search.mockReset();
-
-    elasticMock.index.mockResolvedValue({ body: {} });
-    elasticMock.update.mockResolvedValue({ body: {} });
-    elasticMock.get.mockResolvedValue({
-      body: {
-        _id: "stat-123",
-        _source: { type: "click" },
-      },
-    });
-    elasticMock.search.mockResolvedValue({
-      body: { hits: { total: { value: 0 }, hits: [] } },
-    });
-  });
-
   describe("GET /v2/activity/:id", () => {
     it("returns the stat event when it exists", async () => {
       const publisher = await publisherService.createPublisher({ name: "Test Publisher", apikey: "get-activity-key" });
 
-      const stat: Partial<Stats> = {
+      const stat = await createStatEventFixture({
         type: "click",
         missionId: "mission-123",
         fromPublisherId: "from-123",
-      };
-
-      elasticMock.get.mockResolvedValueOnce({
-        body: {
-          _id: "activity-123",
-          _source: stat,
-        },
       });
 
       const response = await request(app)
-        .get("/v2/activity/activity-123")
+        .get(`/v2/activity/${stat._id}`)
         .set("apikey", publisher.apikey || "");
 
       expect(response.status).toBe(200);
-      expect(response.body).toEqual({ ok: true, data: { _id: "activity-123", ...stat } });
-      expect(elasticMock.get).toHaveBeenCalledWith({ index: expect.any(String), id: "activity-123" });
+      expect(response.body).toMatchObject({ ok: true, data: { _id: stat._id } });
     });
 
     it("returns 404 when the stat event does not exist", async () => {
       await publisherService.createPublisher({ name: "Missing Stat Publisher", apikey: "missing-activity-key" });
-
-      elasticMock.get.mockRejectedValueOnce({ statusCode: 404 });
 
       const response = await request(app).get("/v2/activity/unknown-activity").set("apikey", "missing-activity-key");
 
@@ -82,10 +53,7 @@ describe("Activity V2 controller", () => {
 
       const publisher = await publisherService.createPublisher({ name: "Apply Publisher", apikey: "apply-key" });
 
-      const clickStat: Stats = {
-        _id: "click-apply",
-        type: "click",
-        createdAt: new Date(),
+      const clickStat = await createClickStat("click-apply", {
         missionId: mission._id.toString(),
         missionClientId: mission.clientId,
         missionDomain: "mission-domain",
@@ -106,13 +74,6 @@ describe("Activity V2 controller", () => {
         source: "publisher",
         sourceName: "Click Source",
         sourceId: "click-source-id",
-      } as Stats;
-
-      elasticMock.get.mockResolvedValueOnce({
-        body: {
-          _id: clickStat._id,
-          _source: clickStat,
-        },
       });
 
       const response = await request(app)
@@ -127,9 +88,8 @@ describe("Activity V2 controller", () => {
       expect(response.body.ok).toBe(true);
       expect(response.body.data).toMatchObject({ type: "apply", clickId: clickStat._id, tag: "new-tag" });
 
-      expect(elasticMock.index).toHaveBeenCalledTimes(1);
-      const [applyIndexArgs] = elasticMock.index.mock.calls;
-      expect(applyIndexArgs[0].body).toMatchObject({
+      const createdApply = await statEventService.findOneStatEventById(response.body.data._id);
+      expect(createdApply).toMatchObject({
         type: "apply",
         clickId: clickStat._id,
         fromPublisherId: publisher.id,
@@ -142,36 +102,23 @@ describe("Activity V2 controller", () => {
     it("updates the activity status using the repository", async () => {
       const publisher = await publisherService.createPublisher({ name: "Update Publisher", apikey: "update-key" });
 
-      const statEvent: Stats = {
+      const statEvent = await createStatEventFixture({
         _id: "activity-update",
         type: "apply",
         status: "PENDING",
-        createdAt: new Date(),
         missionId: "mission-update",
         toPublisherId: "to-publisher",
         toPublisherName: "To Publisher",
         fromPublisherId: "from-publisher",
         fromPublisherName: "From Publisher",
-      } as Stats;
-
-      elasticMock.get.mockResolvedValueOnce({
-        body: {
-          _id: statEvent._id,
-          _source: statEvent,
-        },
       });
 
       const response = await request(app).put(`/v2/activity/${statEvent._id}`).set("apikey", "update-key").send({ status: "VALIDATED" });
 
       expect(response.status).toBe(200);
       expect(response.body.data).toMatchObject({ _id: statEvent._id, status: "VALIDATED" });
-
-      expect(elasticMock.update).toHaveBeenCalledWith({
-        index: expect.any(String),
-        id: statEvent._id,
-        body: { doc: { status: "VALIDATED" } },
-        retry_on_conflict: undefined,
-      });
+      const updated = await statEventService.findOneStatEventById(statEvent._id);
+      expect(updated?.status).toBe("VALIDATED");
     });
   });
 });

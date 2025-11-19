@@ -64,7 +64,7 @@ Le script `scripts/dbt-env.sh` charge `analytics/.env` (si présent), découpe a
     dbt run
   ```
 
-- **Terraform** : dans `terraform/jobs-analytics.tf`, on déclare un `scaleway_job_definition` qui utilise l’image Docker, injecte les mêmes variables d’environnement et lance `node dist/jobs/run-job.js export-to-analytics-raw StatEvent` (ou `dbt run …` selon le besoin). Les secrets sont fournis via `local.secrets` ou la gestion standard Scaleway.
+- **Terraform** : dans `terraform/jobs-analytics.tf`, on déclare un `scaleway_job_definition` qui utilise l’image Docker, injecte les mêmes variables d’environnement et lance `node dist/jobs/run-job.js export-to-analytics-raw stat_event` (ou `dbt run …` selon le besoin). Les secrets sont fournis via `local.secrets` ou la gestion standard Scaleway.
 
 ## Tests & documentation
 

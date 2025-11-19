@@ -1,33 +1,20 @@
 import { Types } from "mongoose";
 import request from "supertest";
-import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 
-import { JVA_URL, PUBLISHER_IDS, STATS_INDEX } from "../../../../src/config";
+import { JVA_URL, PUBLISHER_IDS } from "../../../../src/config";
+import { prismaCore } from "../../../../src/db/postgres";
 import MissionModel from "../../../../src/models/mission";
 import StatsBotModel from "../../../../src/models/stats-bot";
 import WidgetModel from "../../../../src/models/widget";
 import * as utils from "../../../../src/utils";
-import { elasticMock } from "../../../mocks";
 import { createTestApp } from "../../../testApp";
 
 const app = createTestApp();
 
 describe("RedirectController /widget/:id", () => {
-  beforeEach(async () => {
-    await MissionModel.deleteMany({});
-    await WidgetModel.deleteMany({});
-
-    elasticMock.index.mockReset();
-    elasticMock.update.mockReset();
-
-    elasticMock.index.mockResolvedValue({ body: { _id: "default-widget-click" } });
-    elasticMock.update.mockResolvedValue({});
-  });
-
   afterEach(async () => {
     vi.restoreAllMocks();
-    await MissionModel.deleteMany({});
-    await WidgetModel.deleteMany({});
   });
 
   it("redirects to JVA when mission is not found and identity is missing", async () => {
@@ -38,7 +25,7 @@ describe("RedirectController /widget/:id", () => {
 
     expect(response.status).toBe(302);
     expect(response.headers.location).toBe(JVA_URL);
-    expect(elasticMock.index).not.toHaveBeenCalled();
+    expect(await prismaCore.statEvent.count()).toBe(0);
   });
 
   it("redirects to mission application URL when identity is missing but mission exists", async () => {
@@ -57,10 +44,15 @@ describe("RedirectController /widget/:id", () => {
 
     expect(response.status).toBe(302);
     expect(response.headers.location).toBe("https://mission.example.com/apply");
-    expect(elasticMock.index).not.toHaveBeenCalled();
+    expect(await prismaCore.statEvent.count()).toBe(0);
   });
 
   it("records click stats and appends tracking parameters when widget and identity are present", async () => {
+    const missionPublisherId = new Types.ObjectId().toString();
+    const widgetPublisherId = new Types.ObjectId().toString();
+    await prismaCore.publisher.create({ data: { id: missionPublisherId, name: "Mission Publisher" } });
+    await prismaCore.publisher.create({ data: { id: widgetPublisherId, name: "From Publisher" } });
+
     const mission = await MissionModel.create({
       applicationUrl: "https://mission.example.com/apply",
       clientId: "mission-client-id",
@@ -72,13 +64,13 @@ describe("RedirectController /widget/:id", () => {
       organizationId: "mission-org-id",
       organizationClientId: "mission-org-client-id",
       lastSyncAt: new Date(),
-      publisherId: new Types.ObjectId().toString(),
+      publisherId: missionPublisherId,
       publisherName: "Mission Publisher",
     });
 
     const widget = await WidgetModel.create({
       name: "Widget Name",
-      fromPublisherId: new Types.ObjectId().toString(),
+      fromPublisherId: widgetPublisherId,
       fromPublisherName: "From Publisher",
     });
 
@@ -90,7 +82,6 @@ describe("RedirectController /widget/:id", () => {
 
     vi.spyOn(utils, "identify").mockReturnValue(identity);
     const statsBotFindOneSpy = vi.spyOn(StatsBotModel, "findOne").mockResolvedValue({ user: identity.user } as any);
-    elasticMock.index.mockResolvedValueOnce({ body: { _id: "widget-click-id" } });
 
     const requestId = new Types.ObjectId().toString();
     const response = await request(app)
@@ -107,10 +98,9 @@ describe("RedirectController /widget/:id", () => {
     expect(redirectUrl.searchParams.get("utm_medium")).toBe("widget");
     expect(redirectUrl.searchParams.get("utm_campaign")).toBe("widget-name");
 
-    expect(elasticMock.index).toHaveBeenCalledTimes(1);
-    const [indexArgs] = elasticMock.index.mock.calls;
-    expect(indexArgs[0].index).toBe(STATS_INDEX);
-    expect(indexArgs[0].body).toMatchObject({
+    const clickId = redirectUrl.searchParams.get("apiengagement_id");
+    const storedClick = await prismaCore.statEvent.findUnique({ where: { id: clickId! } });
+    expect(storedClick).toMatchObject({
       type: "click",
       user: identity.user,
       referer: identity.referer,
@@ -131,26 +121,22 @@ describe("RedirectController /widget/:id", () => {
       missionOrganizationId: mission.organizationId,
       missionOrganizationClientId: mission.organizationClientId,
       toPublisherId: mission.publisherId,
-      toPublisherName: mission.publisherName,
       fromPublisherId: widget.fromPublisherId,
-      fromPublisherName: widget.fromPublisherName,
-      isBot: false,
+      isBot: true,
     });
 
     expect(statsBotFindOneSpy).toHaveBeenCalledWith({ user: identity.user });
-    expect(elasticMock.update).toHaveBeenCalledTimes(1);
-    const updateArgs = elasticMock.update.mock.calls[0][0];
-    expect(updateArgs.index).toBe(STATS_INDEX);
-    expect(updateArgs.body).toEqual({ doc: { isBot: true } });
-    expect(updateArgs.id).toBe(indexArgs[0].id);
   });
 
-  it("uses mtm tracking parameters when mission publisher is service civique", async () => {
+  it("uses mtm tracking parameters when mission publisher is Service Civique", async () => {
     const originalServicePublisherId = PUBLISHER_IDS.SERVICE_CIVIQUE;
     const servicePublisherId = originalServicePublisherId || new Types.ObjectId().toString();
     if (!originalServicePublisherId) {
       PUBLISHER_IDS.SERVICE_CIVIQUE = servicePublisherId;
     }
+    await prismaCore.publisher.create({ data: { id: servicePublisherId, name: "Service Civique" } });
+    const widgetPublisherId = new Types.ObjectId().toString();
+    await prismaCore.publisher.create({ data: { id: widgetPublisherId, name: "From Publisher" } });
 
     try {
       const mission = await MissionModel.create({
@@ -164,7 +150,7 @@ describe("RedirectController /widget/:id", () => {
 
       const widget = await WidgetModel.create({
         name: "Widget Special",
-        fromPublisherId: new Types.ObjectId().toString(),
+        fromPublisherId: widgetPublisherId,
         fromPublisherName: "From Publisher",
       });
 
@@ -176,11 +162,8 @@ describe("RedirectController /widget/:id", () => {
 
       vi.spyOn(utils, "identify").mockReturnValue(identity);
       vi.spyOn(StatsBotModel, "findOne").mockResolvedValue(null);
-      elasticMock.index.mockResolvedValueOnce({ body: { _id: "widget-click-id" } });
 
-      const response = await request(app)
-        .get(`/r/widget/${mission._id.toString()}`)
-        .query({ widgetId: widget._id.toString() });
+      const response = await request(app).get(`/r/widget/${mission._id.toString()}`).query({ widgetId: widget._id.toString() });
 
       expect(response.status).toBe(302);
       const redirectUrl = new URL(response.headers.location);
