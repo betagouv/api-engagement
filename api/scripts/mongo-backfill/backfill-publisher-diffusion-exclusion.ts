@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
 
-import type { OrganizationExclusionCreateInput } from "../../src/types/organization-exclusion";
+import type { PublisherDiffusionExclusionCreateInput } from "../../src/types/publisher-diffusion-exclusion";
 import { asString } from "./utils/cast";
 import { loadEnvironment, parseScriptOptions, type ScriptOptions } from "./utils/options";
 
@@ -20,7 +20,7 @@ const BATCH_SIZE = 500;
 const options: ScriptOptions = parseScriptOptions(process.argv.slice(2), "MigrateOrganizationExclusions");
 loadEnvironment(options, __dirname, "MigrateOrganizationExclusions");
 
-const normalizeOrganizationExclusion = (doc: MongoOrganizationExclusionDocument): OrganizationExclusionCreateInput | null => {
+const normalizeOrganizationExclusion = (doc: MongoOrganizationExclusionDocument): PublisherDiffusionExclusionCreateInput | null => {
   const excludedByAnnonceurId = asString(doc.excludedByPublisherId);
   if (!excludedByAnnonceurId) {
     console.warn("[MigrateOrganizationExclusions] Skipping document without excludedByPublisherId");
@@ -44,10 +44,10 @@ const normalizeOrganizationExclusion = (doc: MongoOrganizationExclusionDocument)
 };
 
 const migrateOrganizationExclusions = async () => {
-  const [{ mongoConnected }, { pgConnected, prismaCore }, { organizationExclusionService }] = await Promise.all([
+  const [{ mongoConnected }, { pgConnected, prismaCore }, { publisherDiffusionExclusionService: organizationExclusionService }] = await Promise.all([
     import("../../src/db/mongo"),
     import("../../src/db/postgres"),
-    import("../../src/services/organization-exclusion"),
+    import("../../src/services/publisher-diffusion-exclusion"),
   ]);
 
   await mongoConnected;
@@ -65,7 +65,7 @@ const migrateOrganizationExclusions = async () => {
   let created = 0;
   let skipped = 0;
   let errors = 0;
-  const batch: OrganizationExclusionCreateInput[] = [];
+  const batch: PublisherDiffusionExclusionCreateInput[] = [];
 
   const flushBatch = async () => {
     if (batch.length === 0) {

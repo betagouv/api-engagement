@@ -1,11 +1,11 @@
-export interface OrganizationExclusionFindParams {
+export interface PublisherDiffusionExclusionFindParams {
   excludedByAnnonceurId?: string;
   excludedForDiffuseurId?: string;
   organizationClientId?: string | null;
   organizationName?: string | null;
 }
 
-export interface OrganizationExclusionRecord {
+export interface PublisherDiffusionExclusionRecord {
   id: string;
   excludedByAnnonceurId: string;
   excludedByAnnonceurName: string;
@@ -17,14 +17,14 @@ export interface OrganizationExclusionRecord {
   updatedAt: Date;
 }
 
-export interface OrganizationExclusionCreateInput {
+export interface PublisherDiffusionExclusionCreateInput {
   excludedByAnnonceurId: string;
   excludedForDiffuseurId: string;
   organizationClientId?: string | null;
   organizationName?: string | null;
 }
 
-export interface OrganizationExclusionCreateManyInput {
+export interface PublisherDiffusionExclusionCreateManyInput {
   excludedByAnnonceurId: string;
   excludedForDiffuseurId: string;
   organizationClientId?: string | null;
