@@ -5,11 +5,11 @@ import zod from "zod";
 import { HydratedDocument } from "mongoose";
 import { JVA_URL, PUBLISHER_IDS } from "../config";
 import { INVALID_PARAMS, INVALID_QUERY, NOT_FOUND, SERVER_ERROR, captureException, captureMessage } from "../error";
-import CampaignModel from "../models/campaign";
 import MissionModel from "../models/mission";
 import StatsBotModel from "../models/stats-bot";
 import WidgetModel from "../models/widget";
 import { createStatEvent, getStatEventById, hasRecentStatEventWithClickId, updateStatEventById } from "../repositories/stat-event";
+import { campaignService } from "../services/campaign";
 import { publisherService } from "../services/publisher";
 import { Mission, Stats } from "../types";
 import { identify, slugify } from "../utils";
@@ -280,12 +280,14 @@ router.get("/campaign/:id", cors({ origin: "*" }), async (req, res) => {
       params.data.id = params.data.id.slice(0, 24);
     }
 
-    if (params.data.id.match(/[^0-9a-fA-F]/) || params.data.id.length !== 24) {
+    // Support both MongoDB ObjectId (24 chars) and UUID formats
+    const isValidId = params.data.id.length === 24 ? /^[0-9a-fA-F]{24}$/.test(params.data.id) : /^[0-9a-fA-F-]{36}$/.test(params.data.id);
+    if (!isValidId) {
       captureMessage(`[Redirection Campaign] Invalid id`, `campaign id ${params.data.id}`);
       return res.redirect(302, JVA_URL);
     }
 
-    const campaign = await CampaignModel.findById(params.data.id);
+    const campaign = await campaignService.findCampaignById(params.data.id);
     if (!campaign) {
       captureMessage(`[Redirection Campaign] Campaign not found`, `campaign id ${params.data.id}`);
       return res.redirect(302, JVA_URL);
@@ -301,6 +303,9 @@ router.get("/campaign/:id", cors({ origin: "*" }), async (req, res) => {
       return res.redirect(302, campaign.url);
     }
 
+    const fromPublisher = await publisherService.findOnePublisherById(campaign.fromPublisherId);
+    const toPublisher = await publisherService.findOnePublisherById(campaign.toPublisherId);
+
     const obj = {
       type: "click",
       user: identity.user,
@@ -310,12 +315,12 @@ router.get("/campaign/:id", cors({ origin: "*" }), async (req, res) => {
       origin: req.get("origin") || "",
       source: "campaign",
       sourceName: campaign.name || "",
-      sourceId: campaign._id.toString() || "",
+      sourceId: campaign.id || "",
       createdAt: new Date(),
       toPublisherId: campaign.toPublisherId,
-      toPublisherName: campaign.toPublisherName,
+      toPublisherName: toPublisher?.name || "",
       fromPublisherId: campaign.fromPublisherId,
-      fromPublisherName: campaign.fromPublisherName,
+      fromPublisherName: fromPublisher?.name || "",
       isBot: false,
     } as Stats;
 
@@ -768,7 +773,7 @@ router.get("/impression/campaign/:campaignId", cors({ origin: "*" }), async (req
 
     const params = zod
       .object({
-        campaignId: zod.string().regex(/^[0-9a-fA-F]{24}$/),
+        campaignId: zod.string(),
       })
       .safeParse(req.params);
 
@@ -777,7 +782,7 @@ router.get("/impression/campaign/:campaignId", cors({ origin: "*" }), async (req
       return res.status(400).send({ ok: false, code: INVALID_PARAMS, message: params.error });
     }
 
-    const campaign = await CampaignModel.findById(params.data.campaignId);
+    const campaign = await campaignService.findCampaignById(params.data.campaignId);
     if (!campaign) {
       captureException(`[Impression Campaign] Campaign not found`, `campaign ${params.data.campaignId}`);
       return res.status(404).send({ ok: false, code: NOT_FOUND });
@@ -802,13 +807,13 @@ router.get("/impression/campaign/:campaignId", cors({ origin: "*" }), async (req
       tag: "link",
 
       toPublisherId: campaign.toPublisherId,
-      toPublisherName: campaign.toPublisherName,
+      toPublisherName: (await publisherService.findOnePublisherById(campaign.toPublisherId))?.name || "",
 
       fromPublisherId: fromPublisher.id,
       fromPublisherName: fromPublisher.name,
 
       source: "campaign",
-      sourceId: campaign._id.toString(),
+      sourceId: campaign.id,
       sourceName: campaign.name,
       isBot: statBot ? true : false,
     } as Stats;

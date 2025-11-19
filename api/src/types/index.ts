@@ -25,15 +25,16 @@ export type GeoPoint = {
 };
 
 export type Campaign = {
-  _id: Schema.Types.ObjectId;
+  _id?: Schema.Types.ObjectId; // Deprecated: kept for backward compatibility with MongoDB migration
+  id?: string;
   name: string;
   type: string;
   url: string;
   trackers: { key: string; value: string }[];
   fromPublisherId: string;
-  fromPublisherName: string;
+  fromPublisherName?: string; // Deprecated: fetch from Publisher relation when needed
   toPublisherId: string;
-  toPublisherName: string;
+  toPublisherName?: string; // Deprecated: fetch from Publisher relation when needed
   active: boolean;
   deletedAt: Date | null;
   reassignedAt: Date | null;

@@ -1,9 +1,9 @@
-import { Types } from "mongoose";
 import request from "supertest";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import { JVA_URL, STATS_INDEX } from "../../../../src/config";
-import CampaignModel from "../../../../src/models/campaign";
+import { campaignRepository } from "../../../../src/repositories/campaign";
+import { campaignService } from "../../../../src/services/campaign";
 import StatsBotModel from "../../../../src/models/stats-bot";
 import * as utils from "../../../../src/utils";
 import { elasticMock } from "../../../mocks";
@@ -13,7 +13,7 @@ describe("RedirectController /campaign/:id", () => {
   const app = createTestApp();
 
   beforeEach(async () => {
-    await CampaignModel.deleteMany({});
+    await campaignRepository.deleteMany({});
 
     elasticMock.index.mockReset();
     elasticMock.update.mockReset();
@@ -23,7 +23,7 @@ describe("RedirectController /campaign/:id", () => {
 
   afterEach(async () => {
     vi.restoreAllMocks();
-    await CampaignModel.deleteMany({});
+    await campaignRepository.deleteMany({});
     delete process.env.WRITE_STATS_DUAL;
   });
 
@@ -36,7 +36,7 @@ describe("RedirectController /campaign/:id", () => {
   });
 
   it("redirects to JVA when campaign does not exist", async () => {
-    const unknownId = new Types.ObjectId().toString();
+    const unknownId = "000000000000000000000000"; // MongoDB ObjectId format for backward compatibility
 
     const response = await request(app).get(`/r/campaign/${unknownId}`);
 
@@ -46,8 +46,9 @@ describe("RedirectController /campaign/:id", () => {
   });
 
   it("redirects to campaign url when identity is missing", async () => {
-    const campaign = await CampaignModel.create({
+    const campaign = await campaignService.createCampaign({
       name: "Missing Identity",
+      type: "autre",
       url: "https://campaign.example.com/landing",
       fromPublisherId: "from-publisher",
       toPublisherId: "to-publisher",
@@ -55,7 +56,7 @@ describe("RedirectController /campaign/:id", () => {
 
     const identifySpy = vi.spyOn(utils, "identify").mockReturnValue(null);
 
-    const response = await request(app).get(`/r/campaign/${campaign._id.toString()}`);
+    const response = await request(app).get(`/r/campaign/${campaign.id}`);
 
     expect(response.status).toBe(302);
     expect(response.headers.location).toBe("https://campaign.example.com/landing");
@@ -64,13 +65,12 @@ describe("RedirectController /campaign/:id", () => {
   });
 
   it("records stats and appends tracking parameters when identity is present", async () => {
-    const campaign = await CampaignModel.create({
+    const campaign = await campaignService.createCampaign({
       name: "Campaign Name",
+      type: "autre",
       url: "https://campaign.example.com/path",
       fromPublisherId: "from-publisher",
-      fromPublisherName: "From Publisher",
       toPublisherId: "to-publisher",
-      toPublisherName: "To Publisher",
     });
 
     const identity = {
@@ -83,7 +83,7 @@ describe("RedirectController /campaign/:id", () => {
     const statsBotFindOneSpy = vi.spyOn(StatsBotModel, "findOne").mockResolvedValue({ user: identity.user } as any);
     elasticMock.index.mockResolvedValueOnce({ body: { _id: "click-123" } });
 
-    const response = await request(app).get(`/r/campaign/${campaign._id.toString()}`);
+    const response = await request(app).get(`/r/campaign/${campaign.id}`);
 
     expect(response.status).toBe(302);
     const redirectUrl = new URL(response.headers.location);
@@ -102,12 +102,10 @@ describe("RedirectController /campaign/:id", () => {
       referer: identity.referer,
       userAgent: identity.userAgent,
       source: "campaign",
-      sourceId: campaign._id.toString(),
+      sourceId: campaign.id,
       sourceName: campaign.name,
       toPublisherId: campaign.toPublisherId,
-      toPublisherName: campaign.toPublisherName,
       fromPublisherId: campaign.fromPublisherId,
-      fromPublisherName: campaign.fromPublisherName,
       isBot: false,
     });
 
