@@ -1,10 +1,10 @@
 import { User as PgUser } from "../../../db/analytics";
 import { prismaAnalytics as prismaClient } from "../../../db/postgres";
 import { captureException, captureMessage } from "../../../error";
-import UserModel from "../../../models/user";
-import { User } from "../../../types";
+import { userService } from "../../../services/user";
+import type { UserRecord } from "../../../types/user";
 
-const buildData = (doc: User, partners: { [key: string]: string }) => {
+const buildData = (doc: UserRecord, partners: { [key: string]: string }) => {
   const partnerIds = doc.publishers.map((p) => partners[p.toString()]);
   if (partnerIds.some((p) => !p)) {
     const missing = doc.publishers.filter((p) => !partners[p.toString()]);
@@ -41,7 +41,7 @@ const handler = async () => {
     const start = new Date();
     console.log(`[Users] Starting at ${start.toISOString()}`);
 
-    const data = await UserModel.find().lean();
+    const data = await userService.findUsers({ includeDeleted: true });
     console.log(`[Users] Found ${data.length} doc to sync.`);
 
     const stored = {} as { [key: string]: { old_id: string; id: string } };
@@ -55,7 +55,7 @@ const handler = async () => {
     const dataToUpdate = [];
     for (const doc of data) {
       const exists = stored[doc._id.toString()];
-      const obj = buildData(doc as User, partners);
+      const obj = buildData(doc, partners);
       if (!obj) {
         continue;
       }

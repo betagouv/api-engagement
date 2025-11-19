@@ -53,3 +53,19 @@ npx ts-node api/scripts/mongo-backfill/backfill-publisher.ts --env api/.env.prod
 
 - Exécution: `npx ts-node scripts/mongo-backfill/backfill-moderation-event.ts [--env <chemin>] [--dry-run]`
 - Usage: Migration des événements de modération depuis MongoDB vers PostgreSQL (bulk insert/update).
+
+## backfill-user.ts
+
+- Rôle: migrer la collection Mongo `users` vers la table Prisma `user`.
+- Options:
+  - `--dry-run` affiche les créations/mises à jour sans écrire en base.
+  - `--env <nom|chemin>` charge le fichier d'environnement à utiliser avant les connexions Mongo/PostgreSQL.
+- Exemples:
+
+```bash
+# Dry-run avec les variables de api/.env.production
+npx ts-node api/scripts/mongo-backfill/backfill-user.ts --env production --dry-run
+
+# Exécution réelle avec un fichier .env explicite
+npx ts-node api/scripts/mongo-backfill/backfill-user.ts --env api/.env.production
+```

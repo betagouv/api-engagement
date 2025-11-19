@@ -1,6 +1,7 @@
 import { Prisma } from "../db/core";
 import { moderationEventRepository } from "../repositories/moderation-event";
-import { Mission, User } from "../types";
+import { Mission } from "../types";
+import type { UserRecord } from "../types/user";
 import { ModerationEventCreateInput, ModerationEventParams, ModerationEventRecord } from "../types/moderation-event";
 
 const buildWhereClause = (params: ModerationEventParams): Prisma.ModerationEventWhereInput => {
@@ -68,7 +69,7 @@ export const moderationEventService = {
     return count;
   },
 
-  async logModeration(previous: Mission, update: Mission, user: User, moderatorId: string) {
+  async logModeration(previous: Mission, update: Mission, user: UserRecord, moderatorId: string) {
     const data = {
       moderatorId,
       missionId: previous._id.toString(),

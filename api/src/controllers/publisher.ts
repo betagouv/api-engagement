@@ -3,14 +3,12 @@ import multer from "multer";
 import passport from "passport";
 import zod from "zod";
 
-import { HydratedDocument } from "mongoose";
 import { DEFAULT_AVATAR, PUBLISHER_IDS } from "../config";
 import { FORBIDDEN, INVALID_BODY, INVALID_PARAMS, NOT_FOUND, RESSOURCE_ALREADY_EXIST, captureException } from "../error";
 import OrganizationExclusionModel from "../models/organization-exclusion";
-import UserModel from "../models/user";
 import { PublisherNotFoundError, publisherService } from "../services/publisher";
 import { OBJECT_ACL, putObject } from "../services/s3";
-import { User } from "../types";
+import { userService } from "../services/user";
 import { UserRequest } from "../types/passport";
 import type { PublisherDiffusionInput, PublisherRoleFilter } from "../types/publisher";
 
@@ -35,7 +33,7 @@ const mapPublishersForService = (publishers?: PublisherDiffusionBody[]): Publish
 
 router.post("/search", passport.authenticate(["user", "admin"], { session: false }), async (req: UserRequest, res: Response, next: NextFunction) => {
   try {
-    const user = req.user as HydratedDocument<User>;
+    const user = req.user;
     const body = zod
       .object({
         diffuseursOf: zod.string().optional(),
@@ -394,13 +392,7 @@ router.delete("/:id", passport.authenticate("admin", { session: false }), async 
       return res.status(200).send({ ok: true });
     }
 
-    const users = await UserModel.find({ publishers: params.data.id });
-    await Promise.all(
-      users.map(async (user) => {
-        user.publishers = user.publishers.filter((e) => e !== params.data.id);
-        await user.save();
-      })
-    );
+    await userService.removePublisherFromUsers(params.data.id);
 
     await publisherService.softDeletePublisher(params.data.id);
 

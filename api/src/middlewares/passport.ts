@@ -6,8 +6,8 @@ import { ExtractJwt, Strategy as JwtStrategy } from "passport-jwt";
 
 import { PUBLISHER_IDS, SECRET } from "../config";
 import { captureException } from "../error";
-import UserModel from "../models/user";
 import { publisherService } from "../services/publisher";
+import { userService } from "../services/user";
 
 const userOptions = {
   jwtFromRequest: (req: Request) => ExtractJwt.fromAuthHeaderWithScheme("jwt")(req),
@@ -21,16 +21,15 @@ passport.use(
       if (!jwtPayload._id) {
         return done(null, false);
       }
-      const user = await UserModel.findById({ _id: jwtPayload._id });
+      const user = await userService.findUserById(jwtPayload._id);
       if (user) {
         Sentry.setUser({
           id: user._id.toString(),
           username: user.firstname + user.lastname,
           email: user.email,
         });
-        user.lastActivityAt = new Date();
-        await user.save();
-        return done(null, user);
+        const updatedUser = await userService.updateUser(user.id, { lastActivityAt: new Date() });
+        return done(null, updatedUser);
       }
     } catch (error) {
       captureException(error);
@@ -47,7 +46,7 @@ passport.use(
       if (!jwtPayload._id) {
         return done(null, false);
       }
-      const user = await UserModel.findById({ _id: jwtPayload._id });
+      const user = await userService.findUserById(jwtPayload._id);
       if (user && user.role === "admin") {
         Sentry.setUser({
           id: user._id.toString(),

@@ -4,14 +4,13 @@ import jwt from "jsonwebtoken";
 import passport from "passport";
 import zod from "zod";
 
-import { HydratedDocument } from "mongoose";
 import { APP_URL, SECRET } from "../config";
 import { FORBIDDEN, INVALID_BODY, INVALID_PARAMS, INVALID_QUERY, NOT_FOUND, REQUEST_EXPIRED, RESSOURCE_ALREADY_EXIST } from "../error";
-import UserModel from "../models/user";
 import { sendTemplate } from "../services/brevo";
 import { publisherService } from "../services/publisher";
-import { User } from "../types";
+import { userService } from "../services/user";
 import { UserRequest } from "../types/passport";
+import type { UserUpdatePatch } from "../types/user";
 import { hasLetter, hasNumber, hasSpecialChar } from "../utils";
 
 const FORGET_PASSWORD_EXPIRATION = 1000 * 60 * 60 * 2; // 2 hours
@@ -32,15 +31,13 @@ router.post("/search", passport.authenticate("admin", { session: false }), async
       return res.status(400).send({ ok: false, code: INVALID_BODY, message: body.error });
     }
 
-    const where = { deletedAt: null } as { [key: string]: any };
-    if (body.data.email) {
-      where.email = body.data.email;
-    }
-    if (body.data.publisherId) {
-      where.publishers = { $in: body.data.publisherId };
-    }
+    const filters = {
+      includeDeleted: false,
+      email: body.data.email,
+      publisherId: body.data.publisherId,
+    };
 
-    const users = await UserModel.find(where);
+    const users = await userService.findUsers(filters);
     return res.status(200).send({ ok: true, data: users });
   } catch (error) {
     next(error);
@@ -49,7 +46,6 @@ router.post("/search", passport.authenticate("admin", { session: false }), async
 
 router.get("/refresh", passport.authenticate("user", { session: false }), async (req: UserRequest, res: Response, next: NextFunction) => {
   try {
-    const user = req.user as HydratedDocument<User>;
     const query = zod
       .object({
         publisherId: zod.string().optional(),
@@ -60,9 +56,12 @@ router.get("/refresh", passport.authenticate("user", { session: false }), async 
       return res.status(400).send({ ok: false, code: INVALID_QUERY, message: query.error });
     }
 
-    await user.save();
+    const user = await userService.findUserById(req.user.id, { includeDeleted: true });
+    if (!user) {
+      return res.status(404).send({ ok: false, code: NOT_FOUND, message: "User not found" });
+    }
 
-    const token = jwt.sign({ _id: req.user._id.toString() }, SECRET, {
+    const token = jwt.sign({ _id: user._id.toString() }, SECRET, {
       expiresIn: AUTH_TOKEN_EXPIRATION,
     });
 
@@ -75,7 +74,7 @@ router.get("/refresh", passport.authenticate("user", { session: false }), async 
       publisher = await publisherService.findOnePublisherById(query.data.publisherId);
     }
     if (!publisher && user.publishers[0]) {
-      publisher = await publisherService.findOnePublisherById(user.publishers[0].toString());
+      publisher = await publisherService.findOnePublisherById(user.publishers[0]);
     }
 
     return res.send({ ok: true, data: { token, user, publisher } });
@@ -100,7 +99,7 @@ router.get("/:id", passport.authenticate("user", { session: false }), async (req
       return res.status(403).send({ ok: false, code: FORBIDDEN, message: `Not allowed` });
     }
 
-    const data = await UserModel.findById(params.data.id);
+    const data = await userService.findUserById(params.data.id, { includeDeleted: true });
     return res.status(200).send({ ok: true, data });
   } catch (error) {
     next(error);
@@ -119,12 +118,12 @@ router.get("/loginas/:id", passport.authenticate("admin", { session: false }), a
       return res.status(400).send({ ok: false, code: INVALID_PARAMS, message: params.error });
     }
 
-    const user = await UserModel.findById(params.data.id);
+    const user = await userService.findUserById(params.data.id, { includeDeleted: true });
     if (!user) {
       return res.status(404).send({ ok: false, code: NOT_FOUND, message: `User not found` });
     }
 
-    const publisher = user.publishers[0] ? await publisherService.findOnePublisherById(user.publishers[0].toString()) : null;
+    const publisher = user.publishers[0] ? await publisherService.findOnePublisherById(user.publishers[0]) : null;
     if (!publisher) {
       return res.status(404).send({ ok: false, code: NOT_FOUND, message: `Publisher not found` });
     }
@@ -155,22 +154,22 @@ router.post("/invite", passport.authenticate("admin", { session: false }), async
     }
 
     const email = body.data.email.toLowerCase().trim();
-    const exists = await UserModel.findOne({ email });
+    const exists = await userService.findUserByEmail(email);
     if (exists) {
       return res.status(409).send({ ok: false, code: RESSOURCE_ALREADY_EXIST, message: `User already exists` });
     }
 
-    const user = new UserModel({
+    const invitationToken = crypto.randomBytes(20).toString("hex");
+    const invitationExpiresAt = new Date(Date.now() + 1000 * 60 * 60 * 72);
+    const user = await userService.createUser({
       email,
       firstname: body.data.firstname,
-      lastname: body.data.lastname,
+      lastname: body.data.lastname ?? null,
       publishers: body.data.publishers,
       role: body.data.role,
-      invitedAt: new Date(),
-      invitationToken: crypto.randomBytes(20).toString("hex"),
-      invitationExpiresAt: Date.now() + 1000 * 60 * 60 * 72, // 72 hours
+      invitationToken,
+      invitationExpiresAt,
     });
-    await user.save();
 
     await sendTemplate(1, {
       emailTo: [user.email],
@@ -196,7 +195,7 @@ router.post("/verify-token", async (req: UserRequest, res: Response, next: NextF
       return res.status(400).send({ ok: false, code: INVALID_BODY, message: body.error });
     }
 
-    const user = await UserModel.findOne({ invitationToken: body.data.token });
+    const user = await userService.findUserByInvitationToken(body.data.token);
     if (!user) {
       return res.status(404).send({ ok: false, code: NOT_FOUND, message: `User not found` });
     }
@@ -223,7 +222,7 @@ router.post("/verify-reset-password-token", async (req: UserRequest, res: Respon
       return res.status(400).send({ ok: false, code: INVALID_BODY, message: body.error });
     }
 
-    const user = await UserModel.findOne({ forgotPasswordToken: body.data.token });
+    const user = await userService.findUserByForgotPasswordToken(body.data.token);
     if (!user) {
       return res.status(404).send({ ok: false, code: NOT_FOUND, message: `User not found` });
     }
@@ -258,18 +257,19 @@ router.post("/signup", async (req: UserRequest, res: Response, next: NextFunctio
       return res.status(400).send({ ok: false, code: "INVALID_PASSWORD" });
     }
 
-    const user = await UserModel.findById(body.data.id);
+    const user = await userService.findUserById(body.data.id, { includeDeleted: true });
     if (!user) {
       return res.status(404).send({ ok: false, code: NOT_FOUND, message: `User not found` });
     }
 
-    user.firstname = body.data.firstname;
-    user.lastname = body.data.lastname;
-    user.password = body.data.password;
-    user.invitationToken = null;
-    user.invitationExpiresAt = null;
-    user.invitationCompletedAt = new Date();
-    await user.save();
+    await userService.updateUser(user.id, {
+      firstname: body.data.firstname,
+      lastname: body.data.lastname,
+      password: body.data.password,
+      invitationToken: null,
+      invitationExpiresAt: null,
+      invitationCompletedAt: new Date(),
+    });
 
     return res.status(200).send({ ok: true });
   } catch (error) {
@@ -292,9 +292,9 @@ router.post("/login", async (req: UserRequest, res: Response, next: NextFunction
 
     const start = Date.now();
     const email = body.data.email.toLowerCase().trim();
-    const user = await UserModel.findOne({ email });
+    const user = await userService.findUserByEmail(email);
 
-    const match = user ? await user.comparePassword(body.data.password) : false;
+    const match = user ? await userService.comparePassword(user, body.data.password) : false;
     const delay = 1000 - (Date.now() - start);
 
     setTimeout(
@@ -303,17 +303,13 @@ router.post("/login", async (req: UserRequest, res: Response, next: NextFunction
           return res.status(404).send({ ok: false, code: NOT_FOUND, message: `Incorrect email or password` });
         }
 
-        const publisher = user.publishers.length ? await publisherService.findOnePublisherById(user.publishers[0].toString()) : null;
+        const publisher = user.publishers.length ? await publisherService.findOnePublisherById(user.publishers[0]) : null;
+        const now = new Date();
+        const loginAt = [...user.loginAt, now];
+        const updatedUser = await userService.updateUser(user.id, { lastActivityAt: now, loginAt });
 
-        user.lastActivityAt = new Date();
-        if (!user.loginAt) {
-          user.loginAt = [];
-        }
-        user.loginAt.push(new Date());
-        await user.save();
-
-        const token = jwt.sign({ _id: user.id }, SECRET, { expiresIn: AUTH_TOKEN_EXPIRATION });
-        return res.status(200).send({ ok: true, data: { user, publisher, token } });
+        const token = jwt.sign({ _id: updatedUser._id.toString() }, SECRET, { expiresIn: AUTH_TOKEN_EXPIRATION });
+        return res.status(200).send({ ok: true, data: { user: updatedUser, publisher, token } });
       },
       delay > 0 ? delay : 0
     );
@@ -335,16 +331,19 @@ router.post("/forgot-password", async (req: UserRequest, res: Response, next: Ne
       return res.status(400).send({ ok: false, code: INVALID_BODY, message: body.error });
     }
 
-    const user = await UserModel.findOne({ email: body.data.email });
+    const email = body.data.email.toLowerCase().trim();
+    const user = await userService.findUserByEmail(email);
 
     if (user) {
-      user.forgotPasswordToken = crypto.randomBytes(20).toString("hex");
-      user.forgotPasswordExpiresAt = new Date(Date.now() + FORGET_PASSWORD_EXPIRATION);
-      await user.save();
+      const token = crypto.randomBytes(20).toString("hex");
+      await userService.updateUser(user.id, {
+        forgotPasswordToken: token,
+        forgotPasswordExpiresAt: new Date(Date.now() + FORGET_PASSWORD_EXPIRATION),
+      });
 
       await sendTemplate(5, {
         emailTo: [body.data.email],
-        params: { link: `${APP_URL}/reset-password?token=${user.forgotPasswordToken}` },
+        params: { link: `${APP_URL}/reset-password?token=${token}` },
       });
     }
     res.status(200).send({ ok: true });
@@ -366,11 +365,12 @@ router.put("/", passport.authenticate("user", { session: false }), async (req: U
       return res.status(400).send({ ok: false, code: INVALID_BODY, message: body.error });
     }
 
-    req.user.lastname = body.data.lastname;
-    req.user.firstname = body.data.firstname;
-    await req.user.save();
+    const updated = await userService.updateUser(req.user.id, {
+      firstname: body.data.firstname,
+      lastname: body.data.lastname ?? null,
+    });
 
-    res.status(200).send({ ok: true, data: req.user });
+    res.status(200).send({ ok: true, data: updated });
   } catch (error) {
     next(error);
   }
@@ -394,13 +394,12 @@ router.put("/change-password", passport.authenticate("user", { session: false })
       return res.status(400).send({ ok: false, code: "INVALID_PASSWORD" });
     }
 
-    const match = await req.user.comparePassword(body.data.oldPassword);
+    const match = await userService.comparePassword(req.user, body.data.oldPassword);
     if (!match) {
       return res.status(400).send({ ok: false, code: INVALID_QUERY, message: `Old password is not correct` });
     }
 
-    req.user.password = body.data.newPassword;
-    await req.user.save();
+    await userService.updateUser(req.user.id, { password: body.data.newPassword });
 
     res.status(200).send({ ok: true });
   } catch (error) {
@@ -422,7 +421,7 @@ router.put("/reset-password", async (req: UserRequest, res: Response, next: Next
       return res.status(400).send({ ok: false, code: INVALID_BODY, message: body.error });
     }
 
-    const user = await UserModel.findOne({ forgotPasswordToken: body.data.token });
+    const user = await userService.findUserByForgotPasswordToken(body.data.token);
     if (!user) {
       return res.status(404).send({ ok: false, code: NOT_FOUND, message: `User not found` });
     }
@@ -435,10 +434,11 @@ router.put("/reset-password", async (req: UserRequest, res: Response, next: Next
       return res.status(400).send({ ok: false, code: "INVALID_PASSWORD" });
     }
 
-    user.password = body.data.password;
-    user.forgotPasswordToken = null;
-    user.forgotPasswordExpiresAt = null;
-    await user.save();
+    await userService.updateUser(user.id, {
+      password: body.data.password,
+      forgotPasswordToken: null,
+      forgotPasswordExpiresAt: null,
+    });
 
     res.status(200).send({ ok: true });
   } catch (error) {
@@ -458,13 +458,12 @@ router.put("/:id/reset-password", passport.authenticate("admin", { session: fals
       return res.status(400).send({ ok: false, code: INVALID_PARAMS, message: params.error });
     }
 
-    const user = await UserModel.findById(params.data.id);
+    const user = await userService.findUserById(params.data.id, { includeDeleted: true });
     if (!user) {
       return res.status(404).send({ ok: false, code: NOT_FOUND, message: `User not found` });
     }
     const password = Math.random().toString(36).slice(-8);
-    user.password = password;
-    await user.save();
+    await userService.updateUser(user.id, { password });
 
     return res.status(200).send({ ok: true, data: password });
   } catch (error) {
@@ -484,20 +483,22 @@ router.put("/:id/invite-again", passport.authenticate("admin", { session: false 
       return res.status(400).send({ ok: false, code: INVALID_PARAMS, message: params.error });
     }
 
-    const user = await UserModel.findById(params.data.id);
+    const user = await userService.findUserById(params.data.id, { includeDeleted: true });
     if (!user) {
       return res.status(404).send({ ok: false, code: NOT_FOUND, message: `User not found` });
     }
 
-    user.password = null;
-    user.invitationToken = crypto.randomBytes(20).toString("hex");
-    user.invitationExpiresAt = new Date(Date.now() + 1000 * 60 * 60 * 72); // 72 hours
-    user.invitationCompletedAt = null;
-    await user.save();
+    const invitationToken = crypto.randomBytes(20).toString("hex");
+    await userService.updateUser(user.id, {
+      password: null,
+      invitationToken,
+      invitationExpiresAt: new Date(Date.now() + 1000 * 60 * 60 * 72),
+      invitationCompletedAt: null,
+    });
 
     await sendTemplate(1, {
       emailTo: [user.email],
-      params: { link: `${APP_URL}/signup?token=${user.invitationToken}` },
+      params: { link: `${APP_URL}/signup?token=${invitationToken}` },
     });
 
     return res.status(200).send({ ok: true });
@@ -531,27 +532,31 @@ router.put("/:id", passport.authenticate("admin", { session: false }), async (re
       return res.status(400).send({ ok: false, code: INVALID_BODY, message: body.error });
     }
 
-    const user = await UserModel.findById(params.data.id);
+    const user = await userService.findUserById(params.data.id, { includeDeleted: true });
     if (!user) {
       return res.status(404).send({ ok: false, code: NOT_FOUND, message: `User not found` });
     }
 
-    user.lastname = body.data.lastname;
+    const patch: UserUpdatePatch = {};
+    if (typeof body.data.lastname !== "undefined") {
+      patch.lastname = body.data.lastname ?? null;
+    }
     if (body.data.firstname) {
-      user.firstname = body.data.firstname;
+      patch.firstname = body.data.firstname;
     }
     if (body.data.email) {
-      user.email = body.data.email;
+      patch.email = body.data.email.toLowerCase().trim();
     }
     if (body.data.publishers) {
-      user.publishers = body.data.publishers;
+      patch.publishers = body.data.publishers;
     }
     if (body.data.role) {
-      user.role = body.data.role;
+      patch.role = body.data.role;
     }
-    await user.save();
 
-    res.status(200).send({ ok: true, data: user });
+    const updated = Object.keys(patch).length ? await userService.updateUser(user.id, patch) : user;
+
+    res.status(200).send({ ok: true, data: updated });
   } catch (error) {
     next(error);
   }
@@ -569,13 +574,12 @@ router.delete("/:id", passport.authenticate("admin", { session: false }), async 
       return res.status(400).send({ ok: false, code: INVALID_PARAMS, message: params.error });
     }
 
-    const user = await UserModel.findById(params.data.id);
+    const user = await userService.findUserById(params.data.id, { includeDeleted: true });
     if (!user) {
       return res.status(404).send({ ok: false, code: NOT_FOUND, message: `User not found` });
     }
 
-    user.deletedAt = new Date();
-    await user.save();
+    await userService.updateUser(user.id, { deletedAt: new Date() });
 
     res.status(200).send({ ok: true });
   } catch (error) {

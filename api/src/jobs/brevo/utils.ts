@@ -1,7 +1,7 @@
 import { captureException } from "../../error";
-import UserModel from "../../models/user";
-import { publisherService } from "../../services/publisher";
 import Brevo from "../../services/brevo";
+import { publisherService } from "../../services/publisher";
+import { userService } from "../../services/user";
 import { slugify } from "../../utils";
 import { BrevoContact } from "./types";
 
@@ -12,7 +12,7 @@ export const syncContact = async () => {
   let deleted = 0;
   let created = 0;
   try {
-    const users = await UserModel.find({});
+    const users = await userService.findUsers({ includeDeleted: true });
     const publishers = await publisherService.findPublishers();
     console.log(`[Brevo Contacts] Syncing ${users.length} contacts`);
 
@@ -98,8 +98,7 @@ export const syncContact = async () => {
       if (!res.ok) {
         throw new Error(JSON.stringify(res));
       }
-      user.brevoContactId = contact.id;
-      await user.save();
+      await userService.updateUser(user.id, { brevoContactId: contact.id ?? null });
       updated++;
     }
     console.log(`[Brevo Contacts] Updated ${updated} contacts`);
@@ -131,8 +130,7 @@ export const syncContact = async () => {
       if (!res.ok) {
         throw new Error(JSON.stringify(res));
       }
-      user.brevoContactId = res.data.id;
-      await user.save();
+      await userService.updateUser(user.id, { brevoContactId: res.data.id ?? null });
       created++;
     }
     console.log(`[Brevo Contacts] Created ${created} contacts`);

@@ -1,8 +1,8 @@
 import { captureException } from "../../error";
-import UserModel from "../../models/user";
 import { sendTemplate } from "../../services/brevo";
 import { publisherService } from "../../services/publisher";
 import { reportService } from "../../services/report";
+import { userService } from "../../services/user";
 import type { ReportRecord, StatsReport } from "../../types/report";
 
 const ANNOUNCE_TEMPLATE_ID = 20;
@@ -67,7 +67,7 @@ export const sendReports = async (year: number, month: number, publisherId?: str
     filters.ids = [publisherId];
   }
   const publishers = await publisherService.findPublishers(filters);
-  const users = await UserModel.find({});
+  const users = await userService.findUsers({ includeDeleted: true });
 
   let count = 0;
   const errors = [];
