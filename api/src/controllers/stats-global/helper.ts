@@ -92,11 +92,11 @@ function createEventsConditions({
   const createdAtColumn = Prisma.raw('"created_at"');
 
   if (from) {
-    conditions.push(Prisma.sql`DATE(${createdAtColumn} AT TIME ZONE 'Europe/Paris') >= ${from}`);
+    conditions.push(Prisma.sql`DATE(${createdAtColumn} AT TIME ZONE 'Europe/Paris') >= TO_DATE(${from}, 'YYYY-MM-DD')`);
   }
 
   if (to) {
-    conditions.push(Prisma.sql`DATE(${createdAtColumn} AT TIME ZONE 'Europe/Paris') <= ${to}`);
+    conditions.push(Prisma.sql`DATE(${createdAtColumn} AT TIME ZONE 'Europe/Paris') <= TO_DATE(${to}, 'YYYY-MM-DD')`);
   }
 
   if (type) {
@@ -135,11 +135,11 @@ function createMissionConditions({
   const firstCreatedAt = Prisma.raw('"first_created_at"');
 
   if (from) {
-    conditions.push(Prisma.sql`DATE(${lastCreatedAt} AT TIME ZONE 'Europe/Paris') >= ${from}`);
+    conditions.push(Prisma.sql`DATE(${lastCreatedAt} AT TIME ZONE 'Europe/Paris') >= TO_DATE(${from}, 'YYYY-MM-DD')`);
   }
 
   if (to) {
-    conditions.push(Prisma.sql`DATE(${firstCreatedAt} AT TIME ZONE 'Europe/Paris') <= ${to}`);
+    conditions.push(Prisma.sql`DATE(${firstCreatedAt} AT TIME ZONE 'Europe/Paris') <= TO_DATE(${to}, 'YYYY-MM-DD')`);
   }
 
   if (type) {
