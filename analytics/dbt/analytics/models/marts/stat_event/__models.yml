@@ -8,7 +8,7 @@ models:
       partenaires, source et clic afin de remplacer l’ancien job Node.
     columns:
       - name: stat_event_id
-        description: Identifiant historique de la création de compte (StatEvent).
+        description: Identifiant historique de la création de compte (`stat_event`).
         tests:
           - not_null
           - unique
@@ -20,7 +20,7 @@ models:
                 to: source('public', 'Mission')
                 field: id
       - name: mission_id_raw
-        description: Identifiant mission brut issu de StatEvent.
+        description: Identifiant mission brut issu de `stat_event`.
       - name: from_publisher_id
         description: UUID du partenaire diffuseur.
         tests:
@@ -52,7 +52,7 @@ models:
                 to: source('public', 'Widget')
                 field: id
       - name: view_id_raw
-        description: Identifiant brut de la vue transmis par StatEvent.
+        description: Identifiant brut de la vue transmis par `stat_event`.
       - name: source
         description: Origine normalisée (enum `SourceType`).
 
@@ -63,7 +63,7 @@ models:
       partenaires, source et attributs personnalisés.
     columns:
       - name: stat_event_id
-        description: Identifiant StatEvent de la candidature (clé d’origine).
+        description: Identifiant `stat_event` de la candidature (clé d’origine).
         tests:
           - not_null
           - unique
@@ -75,7 +75,7 @@ models:
                 to: source('public', 'Mission')
                 field: id
       - name: mission_id_raw
-        description: Identifiant mission brut provenant de StatEvent.
+        description: Identifiant mission brut provenant de `stat_event`.
       - name: status
         description: Statut métier de la candidature.
       - name: from_publisher_id
@@ -106,7 +106,7 @@ models:
       partenaires et sources.
     columns:
       - name: stat_event_id
-        description: Identifiant StatEvent du clic (clé d’origine).
+        description: Identifiant `stat_event` du clic (clé d’origine).
         tests:
           - not_null
           - unique
@@ -118,7 +118,7 @@ models:
                 to: source('public', 'Mission')
                 field: id
       - name: mission_id_raw
-        description: Identifiant mission brut remonté par StatEvent.
+        description: Identifiant mission brut remonté par `stat_event`.
       - name: from_publisher_id
         description: UUID du partenaire diffuseur.
         tests:
@@ -149,7 +149,7 @@ models:
       sources et les timestamps requis.
     columns:
       - name: stat_event_id
-        description: Identifiant StatEvent de l’impression.
+        description: Identifiant `stat_event` de l’impression.
         tests:
           - not_null
           - unique
@@ -161,7 +161,7 @@ models:
                 to: source('public', 'Mission')
                 field: id
       - name: mission_id_raw
-        description: Identifiant mission brut provenant de StatEvent.
+        description: Identifiant mission brut provenant de `stat_event`.
       - name: from_publisher_id
         description: UUID du partenaire diffuseur.
         tests:

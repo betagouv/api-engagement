@@ -57,6 +57,20 @@ export class UpdateStatsViewsHandler implements BaseHandler<UpdateStatsViewsPayl
           } catch (err: any) {
             const code = err?.meta?.code || err?.code;
             const message = err?.meta?.message || err?.message;
+
+            if (this.isNotPopulatedError(code, message)) {
+              console.warn(`View ${view} is empty, refreshing without CONCURRENTLY to populate it...`);
+              try {
+                await prismaCore.$executeRawUnsafe(`REFRESH MATERIALIZED VIEW "${view}"`);
+                const duration = (new Date().getTime() - startedAt.getTime()) / 1000;
+                console.log(`View ${view} refreshed (initial population) in ${duration}s`);
+                refreshed.push({ view, duration });
+                break;
+              } catch (fallbackError) {
+                captureException(fallbackError, { extra: { view, concurrent: false } });
+              }
+            }
+
             const attemptMsg = `Attempt ${attempt}/${MAX_RETRIES} failed for ${view}${code ? ` (code ${code})` : ""}${message ? `: ${message}` : ""}`;
             console.warn(attemptMsg);
 
@@ -93,6 +107,17 @@ export class UpdateStatsViewsHandler implements BaseHandler<UpdateStatsViewsPayl
 
   private sleep(ms: number) {
     return new Promise((resolve) => setTimeout(resolve, ms));
+  }
+
+  private isNotPopulatedError(code?: string, message?: string) {
+    if (!code && !message) {
+      return false;
+    }
+    const normalizedCode = code?.toUpperCase();
+    if (normalizedCode === "0A000") {
+      return true;
+    }
+    return message?.toLowerCase().includes("materialized view is not populated") ?? false;
   }
 }
 

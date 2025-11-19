@@ -1,7 +1,8 @@
 import request from "supertest";
 import { beforeEach, describe, expect, it, vi } from "vitest";
+
 import { createTestMission, createTestPublisher } from "../../../fixtures";
-import { elasticMock } from "../../../mocks";
+import { createStatEventFixture } from "../../../fixtures/stat-event";
 import { createTestApp } from "../../../testApp";
 
 describe("MyMission API Integration Tests", () => {
@@ -19,27 +20,6 @@ describe("MyMission API Integration Tests", () => {
     mission2 = await createTestMission({ organizationClientId: orgId, publisherId: publisher.id });
 
     vi.clearAllMocks();
-
-    elasticMock.msearch.mockResolvedValue({
-      body: {
-        responses: [
-          {
-            aggregations: {
-              apply: {
-                data: {
-                  buckets: [],
-                },
-              },
-              click: {
-                data: {
-                  buckets: [],
-                },
-              },
-            },
-          },
-        ],
-      },
-    });
   });
 
   /**
@@ -114,62 +94,23 @@ describe("MyMission API Integration Tests", () => {
     });
 
     it("should return mission details with stats", async () => {
-      // Mock ES reponse with stats
-      elasticMock.msearch.mockResolvedValueOnce({
-        body: {
-          responses: [
-            {
-              aggregations: {
-                apply: {
-                  data: {
-                    buckets: [
-                      {
-                        key: "publisher1",
-                        doc_count: 5,
-                        hits: {
-                          hits: {
-                            hits: [
-                              {
-                                _source: {
-                                  fromPublisherLogo: "logo1.png",
-                                  fromPublisherName: "Publisher 1",
-                                  fromPublisherUrl: "https://publisher1.com",
-                                },
-                              },
-                            ],
-                          },
-                        },
-                      },
-                    ],
-                  },
-                },
-                click: {
-                  data: {
-                    buckets: [
-                      {
-                        key: "publisher2",
-                        doc_count: 3,
-                        hits: {
-                          hits: {
-                            hits: [
-                              {
-                                _source: {
-                                  fromPublisherLogo: "logo2.png",
-                                  fromPublisherName: "Publisher 2",
-                                  fromPublisherUrl: "https://publisher2.com",
-                                },
-                              },
-                            ],
-                          },
-                        },
-                      },
-                    ],
-                  },
-                },
-              },
-            },
-          ],
-        },
+      await createStatEventFixture({
+        type: "apply",
+        missionId: mission1._id.toString(),
+        fromPublisherId: "publisher1",
+        fromPublisherName: "Publisher 1",
+        isBot: false,
+        toPublisherId: mission1.publisherId,
+        toPublisherName: mission1.publisherName,
+      });
+      await createStatEventFixture({
+        type: "click",
+        missionId: mission1._id.toString(),
+        fromPublisherId: "publisher2",
+        fromPublisherName: "Publisher 2",
+        isBot: false,
+        toPublisherId: mission1.publisherId,
+        toPublisherName: mission1.publisherName,
       });
 
       const response = await request(app).get(`/v0/mymission/${mission1.clientId}`).set("x-api-key", apiKey);
@@ -180,7 +121,8 @@ describe("MyMission API Integration Tests", () => {
 
       const mission = response.body.data;
       validateMissionStructure(mission);
-      validateStatsStructure(mission.stats);
+      expect(mission.stats.clicks).toEqual([{ key: "publisher2", doc_count: 1, name: undefined, logo: undefined, url: undefined }]);
+      expect(mission.stats.applications).toEqual([{ key: "publisher1", doc_count: 1, name: undefined, logo: undefined, url: undefined }]);
     });
 
     it("should return 400 for invalid parameters", async () => {
@@ -212,32 +154,23 @@ describe("MyMission API Integration Tests", () => {
     });
 
     it("should return mission stats", async () => {
-      // Mock ES response with stats
-      elasticMock.msearch.mockResolvedValueOnce({
-        body: {
-          responses: [
-            {
-              aggregations: {
-                mission: {
-                  buckets: [
-                    { key: "publisher1", doc_count: 5 },
-                    { key: "publisher2", doc_count: 3 },
-                  ],
-                },
-              },
-            },
-            {
-              aggregations: {
-                mission: {
-                  buckets: [
-                    { key: "publisher1", doc_count: 2 },
-                    { key: "publisher3", doc_count: 1 },
-                  ],
-                },
-              },
-            },
-          ],
-        },
+      await createStatEventFixture({
+        type: "click",
+        missionId: mission1._id.toString(),
+        fromPublisherId: "publisher1",
+        fromPublisherName: "Publisher 1",
+        isBot: false,
+        toPublisherId: mission1.publisherId,
+        toPublisherName: mission1.publisherName,
+      });
+      await createStatEventFixture({
+        type: "apply",
+        missionId: mission1._id.toString(),
+        fromPublisherId: "publisher3",
+        fromPublisherName: "Publisher 3",
+        isBot: false,
+        toPublisherId: mission1.publisherId,
+        toPublisherName: mission1.publisherName,
       });
 
       const response = await request(app).get(`/v0/mymission/${mission1.clientId}/stats`).set("x-api-key", apiKey);
@@ -246,7 +179,8 @@ describe("MyMission API Integration Tests", () => {
       expect(response.body.ok).toBe(true);
       expect(response.body.data).toBeDefined();
 
-      validateStatsStructure(response.body.data);
+      expect(response.body.data.clicks).toEqual([{ key: "publisher1", doc_count: 1 }]);
+      expect(response.body.data.applications).toEqual([{ key: "publisher3", doc_count: 1 }]);
     });
 
     it("should return 400 for invalid parameters", async () => {
@@ -315,35 +249,4 @@ function validateMissionStructure(mission: any) {
   expect(Array.isArray(mission.softSkills)).toBe(true);
   expect(Array.isArray(mission.romeSkills)).toBe(true);
   expect(Array.isArray(mission.requirements)).toBe(true);
-}
-
-function validateStatsStructure(stats: any) {
-  expect(stats).toHaveProperty("clicks");
-  expect(stats).toHaveProperty("applications");
-  expect(Array.isArray(stats.clicks)).toBe(true);
-  expect(Array.isArray(stats.applications)).toBe(true);
-
-  if (stats.clicks.length > 0) {
-    const click = stats.clicks[0];
-    expect(click).toHaveProperty("key");
-    expect(click).toHaveProperty("doc_count");
-
-    if (click.logo !== undefined) {
-      expect(click).toHaveProperty("logo");
-      expect(click).toHaveProperty("name");
-      expect(click).toHaveProperty("url");
-    }
-  }
-
-  if (stats.applications.length > 0) {
-    const application = stats.applications[0];
-    expect(application).toHaveProperty("key");
-    expect(application).toHaveProperty("doc_count");
-
-    if (application.logo !== undefined) {
-      expect(application).toHaveProperty("logo");
-      expect(application).toHaveProperty("name");
-      expect(application).toHaveProperty("url");
-    }
-  }
 }

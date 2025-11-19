@@ -2,13 +2,13 @@ import { prismaAnalytics as prismaClient } from "../../../db/postgres";
 
 import { Account } from "../../../db/analytics";
 import { captureException } from "../../../error";
-import statEventRepository from "../../../repositories/stat-event";
-import { Stats } from "../../../types";
+import { statEventService } from "../../../services/stat-event";
+import { StatEventRecord } from "../../../types";
 
 const BATCH_SIZE = 5000;
 
 const buildData = async (
-  doc: Stats,
+  doc: StatEventRecord,
   partners: { [key: string]: string },
   missions: { [key: string]: string },
   campaigns: { [key: string]: string },
@@ -105,7 +105,7 @@ const handler = async () => {
     await prismaClient.widget.findMany({ select: { id: true, old_id: true } }).then((data) => data.forEach((d) => (widgets[d.old_id] = d.id)));
 
     while (true) {
-      const { events, cursor: nextCursor, total: count } = await statEventRepository.scrollStatEvents({
+      const { events, cursor: nextCursor, total: count } = await statEventService.scrollStatEvents({
         type: "account",
         batchSize: BATCH_SIZE,
         cursor,
@@ -147,7 +147,7 @@ const handler = async () => {
       const failureIds: string[] = [];
 
       const missions = {} as { [key: string]: string };
-      const missionIds = new Set<string>(data.map((hit: Stats) => hit.missionClientId?.toString()).filter((id: string | undefined) => id !== undefined));
+      const missionIds = new Set<string>(data.map((hit: StatEventRecord) => hit.missionClientId?.toString()).filter((id: string | undefined) => id !== undefined));
 
       await prismaClient.mission
         .findMany({
@@ -220,11 +220,11 @@ const handler = async () => {
 
       // Update export status for processed docs
       if (successIds.length > 0) {
-        await statEventRepository.setStatEventsExportStatus(successIds, "SUCCESS");
+        await statEventService.updateStatEventsExportStatus(successIds, "SUCCESS");
         console.log(`[Accounts] Marked ${successIds.length} docs as SUCCESS in stats storage.`);
       }
       if (failureIds.length > 0) {
-        await statEventRepository.setStatEventsExportStatus(failureIds, "FAILURE");
+        await statEventService.updateStatEventsExportStatus(failureIds, "FAILURE");
         console.log(`[Accounts] Marked ${failureIds.length} docs as FAILURE in stats storage.`);
       }
       processed += data.length;

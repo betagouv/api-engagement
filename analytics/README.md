@@ -5,11 +5,11 @@ Ce dossier fournit un mini-framework pour synchroniser des tables PostgreSQL via
 ## Exécution d’un job
 
 ```
-npm run job export-to-analytics-raw StatEvent
+npm run job export-to-analytics-raw stat_event
 ```
 
 - `export-to-analytics-raw` correspond au dossier `src/jobs/export-to-analytics-raw`.
-- `StatEvent` est la clé déclarée dans `src/jobs/export-to-analytics-raw/config.ts`.
+- `stat_event` est la clé déclarée dans `src/jobs/export-to-analytics-raw/config.ts`.
 
 Le script `run-job.ts` charge dynamiquement le handler associé, exécute `handle(table)` et journalise le résultat (console + Slack si configuré).
 

@@ -46,8 +46,8 @@ const Flux = () => {
         setImports(res.data);
         setTotal(res.total);
         if (res.data.length > 0) {
-          if (!lastSync || new Date(res.data[0].endedAt) > new Date(lastSync)) {
-            setLastSync(new Date(res.data[0].endedAt).toISOString());
+          if (!lastSync || new Date(res.data[0].finishedAt) > new Date(lastSync)) {
+            setLastSync(new Date(res.data[0].finishedAt).toISOString());
           }
         }
       } catch (error) {
@@ -117,8 +117,8 @@ const Flux = () => {
         >
           {imports.map((item, i) => (
             <tr key={i} className={`${i % 2 === 0 ? "bg-gray-975" : "bg-gray-1000-active"} table-item`}>
-              <td className="px-2">{new Date(item.endedAt).toLocaleString("fr").replace(" ", " • ")}</td>
-              <td className="px-4 text-center">{buildDuration(new Date(item.startedAt), new Date(item.endedAt))}</td>
+              <td className="px-2">{new Date(item.finishedAt).toLocaleString("fr").replace(" ", " • ")}</td>
+              <td className="px-4 text-center">{buildDuration(new Date(item.startedAt), new Date(item.finishedAt))}</td>
               <td className="px-4 text-center">{item.updatedCount?.toLocaleString("fr") || "-"}</td>
               <td className="px-4 text-center">{item.createdCount?.toLocaleString("fr") || "-"}</td>
               <td className="px-4 text-center">{item.deletedCount?.toLocaleString("fr") || "-"}</td>

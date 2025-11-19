@@ -29,7 +29,7 @@ async function backfill() {
 
     const batch = await prismaCore.statEvent.findMany({
       where,
-      select: { id: true, created_at: true, updated_at: true },
+      select: { id: true, createdAt: true, updatedAt: true },
       orderBy: { id: "asc" },
       take: BATCH_SIZE,
     });
@@ -38,11 +38,11 @@ async function backfill() {
       break;
     }
 
-    const ids = batch.filter((row) => row.updated_at === null || row.updated_at < row.created_at).map((row) => row.id);
+    const ids = batch.filter((row) => row.updatedAt === null || row.updatedAt < row.createdAt).map((row) => row.id);
 
     if (ids.length > 0) {
       const placeholders = ids.map((_, index) => `$${index + 1}`).join(", ");
-      const sql = `UPDATE "StatEvent" SET updated_at = created_at WHERE id IN (${placeholders})`;
+      const sql = `UPDATE "stat_event" SET updated_at = created_at WHERE id IN (${placeholders})`;
       await prismaCore.$executeRawUnsafe(sql, ...ids);
 
       total += ids.length;

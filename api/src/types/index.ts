@@ -284,43 +284,6 @@ export interface User {
   brevoContactId: number | null;
 }
 
-export interface Stats {
-  _id: string;
-  clickUser?: string;
-  clickId?: string;
-  requestId?: string;
-  origin: string;
-  referer: string;
-  userAgent: string;
-  host: string;
-  user?: string;
-  isBot: boolean;
-  isHuman: boolean;
-  createdAt: Date;
-  fromPublisherId: string;
-  fromPublisherName: string;
-  toPublisherId: string;
-  toPublisherName: string;
-  missionId?: string;
-  missionClientId?: string;
-  missionDomain?: string;
-  missionTitle?: string;
-  missionPostalCode?: string;
-  missionDepartmentName?: string;
-  missionOrganizationId?: string;
-  missionOrganizationName?: string;
-  missionOrganizationClientId?: string;
-  source: "api" | "widget" | "campaign" | "seo" | "jstag" | "publisher";
-  sourceId: string;
-  sourceName: string;
-  customAttributes?: Record<string, unknown>;
-  tag?: string;
-  tags?: string[];
-  type: "print" | "apply" | "click" | "account";
-  status: "PENDING" | "VALIDATED" | "CANCEL" | "CANCELED" | "REFUSED" | "CARRIED_OUT" | undefined;
-  exportToAnalytics?: "SUCCESS" | "FAILURE";
-}
-
 export type StatsBot = {
   _id: Schema.Types.ObjectId;
   origin?: string;
@@ -573,3 +536,4 @@ export * from "./moderation-event";
 export * from "./organization";
 export * from "./publisher";
 export * from "./report";
+export * from "./stat-event";

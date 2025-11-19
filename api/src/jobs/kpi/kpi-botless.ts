@@ -2,7 +2,7 @@ import { captureException } from "../../error";
 import KpiBotlessModel from "../../models/kpi-botless";
 import MissionModel from "../../models/mission";
 import StatsBotModel from "../../models/stats-bot";
-import statEventRepository from "../../repositories/stat-event";
+import { statEventService } from "../../services/stat-event";
 import { Kpi } from "../../types";
 import { safeDivision } from "./utils/math";
 
@@ -82,14 +82,14 @@ export const buildKpiBotless = async (start: Date): Promise<Kpi | null> => {
 
     const excludeUsers = statsBots.map((e) => e.user).filter(Boolean) as string[];
 
-    const statsBenevolatAggs = await statEventRepository.aggregateMissionStats({
+    const statsBenevolatAggs = await statEventService.aggregateStatEventsForMission({
       from: fromDate,
       to: endDate,
       excludeToPublisherName: "Service Civique",
       excludeUsers,
     });
 
-    const statsVolontariatAggs = await statEventRepository.aggregateMissionStats({
+    const statsVolontariatAggs = await statEventService.aggregateStatEventsForMission({
       from: fromDate,
       to: endDate,
       toPublisherName: "Service Civique",

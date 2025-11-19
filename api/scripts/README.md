@@ -5,7 +5,7 @@ Ce répertoire contient des scripts de maintenance/migration pour l’API. Les s
 ## Prérequis généraux
 
 - Node.js 18+
-- Accès aux bases et services nécessaires (MongoDB, PostgreSQL, Elasticsearch, APIs externes)
+- Accès aux bases et services nécessaires (MongoDB, PostgreSQL, APIs externes)
 - Variables d’environnement chargées (fichiers `.env*` ou flags `--env` lorsque disponible)
 - Prisma généré quand Postgres est utilisé: `npm run prisma:generate` (dans `api/`)
 
@@ -23,7 +23,6 @@ Ce répertoire contient des scripts de maintenance/migration pour l’API. Les s
   - Usage: Renomme un publisher et propage le changement:
     - MongoDB: `Publisher.name` et `Mission.publisherName`
     - PostgreSQL: colonnes `StatEvent.from_publisher_name` et `StatEvent.to_publisher_name`
-    - Elasticsearch (index stats): champs `fromPublisherName` et `toPublisherName`
   - Options: `--dry-run` pour voir les volumes sans modifier les données.
 
 - **update-mission-default-logo.ts**
@@ -44,13 +43,6 @@ Ce répertoire contient des scripts de maintenance/migration pour l’API. Les s
   - Usage: Archive des offres côté Piloty à partir d’une liste d’identifiants publics (à éditer dans le script).
   - Prérequis: `LETUDIANT_PILOTY_TOKEN` (env).
 
-- **es-backfill/**
-
-  - Sous-dossier dédié à la migration des événements analytics d’Elasticsearch vers PostgreSQL et à leur vérification.
-  - Voir `scripts/es-backfill/README.md` pour les commandes complètes:
-    - Backfill: `npx ts-node scripts/es-backfill/backfill.ts [--env <chemin>] [--es <url>] [--db <url>]`
-    - Vérification: `npx ts-node scripts/es-backfill/check.ts [--env <chemin>] [--es <url>] [--db <url>]`
-
 - **mongo-backfill/**
 
   - Sous-dossier dédié à la migration des modèles MongoDB vers PostgreSQL.
@@ -63,3 +55,8 @@ Ce répertoire contient des scripts de maintenance/migration pour l’API. Les s
   - Usage: Met à jour le champ `updated_at` de la table `StatEvent` lorsqu'il est `NULL`, en le remplaçant par `created_at` (traitement par lots).
   - Options: `--batch <taille>` pour définir la taille de lot (défaut: 5000).
   - Prérequis: Nécessite l'accès à Postgres `core`.
+
+- **fixtures/**
+
+  - Scripts d’initialisation/d’échantillonnage de données (voir `scripts/fixtures/README.md`), dont:
+    - `populate-stat-events-from-missions.ts`: génère des `StatEvent` réalistes pour un ou plusieurs publishers à partir de missions Mongo.
