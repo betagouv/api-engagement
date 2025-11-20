@@ -10,15 +10,9 @@ import Means from "./Mean";
 const Performance = () => {
   const { flux } = useStore();
   const [searchParams, setSearchParams] = useSearchParams();
-  const [filters, setFilters] = useState(() => {
-    const now = new Date();
-    const defaultFrom = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 30);
-    const defaultTo = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0, -1);
-
-    return {
-      from: searchParams.has("from") ? new Date(searchParams.get("from")) : defaultFrom,
-      to: searchParams.has("to") ? new Date(searchParams.get("to")) : defaultTo,
-    };
+  const [filters, setFilters] = useState({
+    from: searchParams.has("from") ? new Date(searchParams.get("from")) : new Date(new Date().getFullYear(), new Date().getMonth(), new Date().getDate() - 30),
+    to: searchParams.has("to") ? new Date(searchParams.get("to")) : new Date(new Date().getFullYear(), new Date().getMonth(), new Date().getDate() + 1, 0, 0, 0, -1),
   });
   const location = useLocation();
 

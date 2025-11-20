@@ -9,7 +9,6 @@ import { MONTHS } from "../../constants";
 import api from "../../services/api";
 import { captureError } from "../../services/error";
 import useStore from "../../services/store";
-import { appendDateRange } from "../../utils/date";
 
 const COLORS = ["rgba(250,117,117,255)", "rgba(252,205,109,255)", "rgba(251,146,107,255)", "rgba(110,213,197,255)", "rgba(114,183,122,255)", "rgba(146,146,146,255)"];
 const TYPE = {
@@ -31,7 +30,8 @@ const GlobalAnnounce = ({ filters, onFiltersChange }) => {
       try {
         const queryP = new URLSearchParams();
 
-        appendDateRange(queryP, filters);
+        if (filters.from) queryP.append("from", filters.from.toISOString());
+        if (filters.to) queryP.append("to", filters.to.toISOString());
 
         queryP.append("publisherId", publisher.id);
 
@@ -162,7 +162,8 @@ const Evolution = ({ filters, defaultType = "print" }) => {
       try {
         const query = new URLSearchParams();
 
-        appendDateRange(query, filters);
+        if (filters.from) query.append("from", filters.from.toISOString());
+        if (filters.to) query.append("to", filters.to.toISOString());
         if (type) query.append("type", type);
 
         query.append("flux", "to");
@@ -254,7 +255,8 @@ const Announcers = ({ filters, defaultType = "print" }) => {
       try {
         const query = new URLSearchParams();
 
-        appendDateRange(query, filters);
+        if (filters.from) query.append("from", filters.from.toISOString());
+        if (filters.to) query.append("to", filters.to.toISOString());
 
         query.append("publisherId", publisher.id);
         query.append("flux", "to");

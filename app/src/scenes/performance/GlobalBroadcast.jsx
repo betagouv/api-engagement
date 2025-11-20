@@ -12,7 +12,6 @@ import { MONTHS } from "../../constants";
 import api from "../../services/api";
 import { captureError } from "../../services/error";
 import useStore from "../../services/store";
-import { appendDateRange } from "../../utils/date";
 
 const KEYS = {
   jstag: "API",
@@ -59,7 +58,8 @@ const GlobalDiffuseur = ({ filters, onFiltersChange }) => {
       try {
         const query = new URLSearchParams();
 
-        appendDateRange(query, filters);
+        if (filters.from) query.append("from", filters.from.toISOString());
+        if (filters.to) query.append("to", filters.to.toISOString());
 
         query.append("publisherId", publisher.id);
 
@@ -180,7 +180,8 @@ const DistributionMean = ({ filters, defaultType = "print" }) => {
       try {
         const query = new URLSearchParams();
 
-        appendDateRange(query, filters);
+        if (filters.from) query.append("from", filters.from.toISOString());
+        if (filters.to) query.append("to", filters.to.toISOString());
         if (type) query.append("type", type);
 
         query.append("publisherId", publisher.id);
@@ -279,7 +280,8 @@ const Evolution = ({ filters, defaultType = "print" }) => {
       try {
         const query = new URLSearchParams();
 
-        appendDateRange(query, filters);
+        if (filters.from) query.append("from", filters.from.toISOString());
+        if (filters.to) query.append("to", filters.to.toISOString());
         if (type) query.append("type", type);
 
         query.append("flux", "from");
@@ -380,7 +382,8 @@ const Announcers = ({ filters }) => {
       try {
         const query = new URLSearchParams();
 
-        appendDateRange(query, filters);
+        if (filters.from) query.append("from", filters.from.toISOString());
+        if (filters.to) query.append("to", filters.to.toISOString());
 
         query.append("publisherId", publisher.id);
         query.append("flux", "from");
