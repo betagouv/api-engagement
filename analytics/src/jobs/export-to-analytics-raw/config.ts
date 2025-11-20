@@ -170,4 +170,20 @@ export const exportDefinitions: ExportDefinition[] = [
       conflictColumns: ["id"],
     },
   },
+  {
+    key: "mission_event",
+    batchSize: 2000,
+    source: {
+      table: "mission_event",
+      cursor: {
+        field: "updated_at",
+        idField: "id",
+      },
+      columns: ["id", "mission_id", "created_at", "updated_at", "type", "changes", "created_by"],
+    },
+    destination: {
+      table: "mission_event",
+      conflictColumns: ["id"],
+    },
+  },
 ];
