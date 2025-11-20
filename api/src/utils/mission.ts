@@ -67,6 +67,9 @@ export const IMPORT_FIELDS_TO_COMPARE = [
   "tags",
   "title",
   "type",
+  "compensationAmount",
+  "compensationType",
+  "compensationUnit",
 ] as (keyof Mission)[];
 
 /**
