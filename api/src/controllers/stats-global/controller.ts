@@ -4,6 +4,7 @@ import zod from "zod";
 
 import { INVALID_QUERY } from "../../error";
 import { UserRequest } from "../../types/passport";
+import { normalizeDateRange } from "../../utils/date";
 import {
   getAnnouncePreviewStats,
   getAnnouncePublishers,
@@ -16,31 +17,30 @@ import {
 
 const router = Router();
 
-router.get(
-  "/broadcast-preview",
-  passport.authenticate("user", { session: false }),
-  async (req: UserRequest, res: Response, next: NextFunction) => {
-    try {
-      const query = zod
-        .object({
-          publisherId: zod.string().optional(),
-          from: zod.coerce.date().optional(),
-          to: zod.coerce.date().optional(),
-        })
-        .safeParse(req.query);
+router.get("/broadcast-preview", passport.authenticate("user", { session: false }), async (req: UserRequest, res: Response, next: NextFunction) => {
+  try {
+    const query = zod
+      .object({
+        publisherId: zod.string().optional(),
+        from: zod.coerce.date().optional(),
+        to: zod.coerce.date().optional(),
+      })
+      .safeParse(req.query);
 
-      if (!query.success) {
-        return res.status(400).send({ ok: false, code: INVALID_QUERY, error: query.error });
-      }
-
-      const data = await getBroadcastPreviewStats(query.data);
-
-      return res.status(200).send({ ok: true, data });
-    } catch (error) {
-      next(error);
+    if (!query.success) {
+      return res.status(400).send({ ok: false, code: INVALID_QUERY, error: query.error });
     }
+
+    const data = await getBroadcastPreviewStats({
+      publisherId: query.data.publisherId,
+      ...normalizeDateRange(query.data.from, query.data.to),
+    });
+
+    return res.status(200).send({ ok: true, data });
+  } catch (error) {
+    next(error);
   }
-);
+});
 
 router.get("/announce-preview", async (req: UserRequest, res: Response, next: NextFunction) => {
   try {
@@ -56,7 +56,10 @@ router.get("/announce-preview", async (req: UserRequest, res: Response, next: Ne
       return res.status(400).send({ ok: false, error: query.error });
     }
 
-    const data = await getAnnouncePreviewStats(query.data);
+    const data = await getAnnouncePreviewStats({
+      publisherId: query.data.publisherId,
+      ...normalizeDateRange(query.data.from, query.data.to),
+    });
 
     return res.status(200).send({ ok: true, data });
   } catch (error) {
@@ -64,32 +67,32 @@ router.get("/announce-preview", async (req: UserRequest, res: Response, next: Ne
   }
 });
 
-router.get(
-  "/distribution",
-  passport.authenticate("user", { session: false }),
-  async (req: UserRequest, res: Response, next: NextFunction) => {
-    try {
-      const query = zod
-        .object({
-          publisherId: zod.string().optional(),
-          from: zod.coerce.date().optional(),
-          to: zod.coerce.date().optional(),
-          type: zod.enum(["click", "apply", "print", "account"]).optional(),
-        })
-        .safeParse(req.query);
+router.get("/distribution", passport.authenticate("user", { session: false }), async (req: UserRequest, res: Response, next: NextFunction) => {
+  try {
+    const query = zod
+      .object({
+        publisherId: zod.string().optional(),
+        from: zod.coerce.date().optional(),
+        to: zod.coerce.date().optional(),
+        type: zod.enum(["click", "apply", "print", "account"]).optional(),
+      })
+      .safeParse(req.query);
 
-      if (!query.success) {
-        return res.status(400).send({ ok: false, code: INVALID_QUERY, error: query.error });
-      }
-
-      const data = await getDistributionStats(query.data);
-
-      return res.status(200).send({ ok: true, data });
-    } catch (error) {
-      next(error);
+    if (!query.success) {
+      return res.status(400).send({ ok: false, code: INVALID_QUERY, error: query.error });
     }
+
+    const data = await getDistributionStats({
+      publisherId: query.data.publisherId,
+      type: query.data.type,
+      ...normalizeDateRange(query.data.from, query.data.to),
+    });
+
+    return res.status(200).send({ ok: true, data });
+  } catch (error) {
+    next(error);
   }
-);
+});
 
 router.get("/evolution", async (req: UserRequest, res: Response, next: NextFunction) => {
   try {
@@ -107,7 +110,19 @@ router.get("/evolution", async (req: UserRequest, res: Response, next: NextFunct
       return res.status(400).send({ ok: false, code: INVALID_QUERY, error: query.error });
     }
 
-    const data = await getEvolutionStats(query.data);
+    const { to, from } = normalizeDateRange(query.data.from, query.data.to);
+
+    if (!from || !to) {
+      return res.status(400).send({ ok: false, code: INVALID_QUERY });
+    }
+
+    const data = await getEvolutionStats({
+      publisherId: query.data.publisherId,
+      type: query.data.type,
+      flux: query.data.flux,
+      to,
+      from,
+    });
 
     return res.status(200).send({ ok: true, data });
   } catch (error) {
@@ -115,60 +130,61 @@ router.get("/evolution", async (req: UserRequest, res: Response, next: NextFunct
   }
 });
 
-router.get(
-  "/broadcast-publishers",
-  passport.authenticate("user", { session: false }),
-  async (req: UserRequest, res: Response, next: NextFunction) => {
-    try {
-      const query = zod
-        .object({
-          publisherId: zod.string().optional(),
-          from: zod.coerce.date().optional(),
-          to: zod.coerce.date().optional(),
-          flux: zod.enum(["to", "from"]).default("to"),
-        })
-        .safeParse(req.query);
+router.get("/broadcast-publishers", passport.authenticate("user", { session: false }), async (req: UserRequest, res: Response, next: NextFunction) => {
+  try {
+    const query = zod
+      .object({
+        publisherId: zod.string().optional(),
+        from: zod.coerce.date().optional(),
+        to: zod.coerce.date().optional(),
+        flux: zod.enum(["to", "from"]).default("to"),
+      })
+      .safeParse(req.query);
 
-      if (!query.success) {
-        return res.status(400).send({ ok: false, code: INVALID_QUERY, error: query.error });
-      }
-
-      const data = await getBroadcastPublishers(query.data);
-
-      return res.status(200).send({ ok: true, data });
-    } catch (error) {
-      next(error);
+    if (!query.success) {
+      return res.status(400).send({ ok: false, code: INVALID_QUERY, error: query.error });
     }
+
+    const data = await getBroadcastPublishers({
+      publisherId: query.data.publisherId,
+      flux: query.data.flux,
+      ...normalizeDateRange(query.data.from, query.data.to),
+    });
+
+    return res.status(200).send({ ok: true, data });
+  } catch (error) {
+    next(error);
   }
-);
+});
 
-router.get(
-  "/announce-publishers",
-  passport.authenticate("user", { session: false }),
-  async (req: UserRequest, res: Response, next: NextFunction) => {
-    try {
-      const query = zod
-        .object({
-          publisherId: zod.string().optional(),
-          type: zod.enum(["click", "apply", "print", "account"]).optional(),
-          from: zod.coerce.date().optional(),
-          to: zod.coerce.date().optional(),
-          flux: zod.enum(["to", "from"]).default("to"),
-        })
-        .safeParse(req.query);
+router.get("/announce-publishers", passport.authenticate("user", { session: false }), async (req: UserRequest, res: Response, next: NextFunction) => {
+  try {
+    const query = zod
+      .object({
+        publisherId: zod.string().optional(),
+        type: zod.enum(["click", "apply", "print", "account"]).optional(),
+        from: zod.coerce.date().optional(),
+        to: zod.coerce.date().optional(),
+        flux: zod.enum(["to", "from"]).default("to"),
+      })
+      .safeParse(req.query);
 
-      if (!query.success) {
-        return res.status(400).send({ ok: false, code: INVALID_QUERY, error: query.error });
-      }
-
-      const { data, total } = await getAnnouncePublishers(query.data);
-
-      return res.status(200).send({ ok: true, data, total });
-    } catch (error) {
-      next(error);
+    if (!query.success) {
+      return res.status(400).send({ ok: false, code: INVALID_QUERY, error: query.error });
     }
+
+    const { data, total } = await getAnnouncePublishers({
+      publisherId: query.data.publisherId,
+      type: query.data.type,
+      flux: query.data.flux,
+      ...normalizeDateRange(query.data.from, query.data.to),
+    });
+
+    return res.status(200).send({ ok: true, data, total });
+  } catch (error) {
+    next(error);
   }
-);
+});
 
 router.get("/missions", async (req: UserRequest, res: Response, next: NextFunction) => {
   try {
@@ -184,7 +200,10 @@ router.get("/missions", async (req: UserRequest, res: Response, next: NextFuncti
       return res.status(400).send({ ok: false, code: INVALID_QUERY, error: query.error });
     }
 
-    const { data, total } = await getMissionsStats(query.data);
+    const { data, total } = await getMissionsStats({
+      publisherId: query.data.publisherId,
+      ...normalizeDateRange(query.data.from, query.data.to),
+    });
 
     return res.status(200).send({ ok: true, data, total });
   } catch (error) {
