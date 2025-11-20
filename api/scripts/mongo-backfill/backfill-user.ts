@@ -1,11 +1,10 @@
-console.log("launch");
 import mongoose from "mongoose";
 
 import type { Prisma } from "../../src/db/core";
 import type { UserRecord } from "../../src/types/user";
 import { compareDates, compareNumbers, compareStringArrays, compareStrings } from "./utils/compare";
-import { loadEnvironment, parseScriptOptions } from "./utils/options";
 import { normalizeDate, normalizeNumber } from "./utils/normalize";
+import { loadEnvironment, parseScriptOptions } from "./utils/options";
 
 type MongoUserDocument = {
   _id?: { toString(): string } | string;
