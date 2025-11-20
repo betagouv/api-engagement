@@ -1,5 +1,7 @@
 import { Schema } from "mongoose";
 
+import { CompensationType, CompensationUnit } from "../constants/compensation";
+
 export type GeolocStatus = "ENRICHED_BY_PUBLISHER" | "ENRICHED_BY_API" | "NOT_FOUND" | "NO_DATA" | "SHOULD_ENRICH" | "FAILED";
 
 export type AddressItem = {
@@ -82,6 +84,10 @@ export interface Mission {
   descriptionHtml: string;
   tags: string[];
   audience: string[];
+
+  compensationAmount: number | null;
+  compensationUnit: CompensationUnit | null;
+  compensationType: CompensationType | null;
 
   softSkills: string[];
   requirements: string[];

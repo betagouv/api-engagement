@@ -54,6 +54,9 @@ describe("transformMongoMissionToPg", () => {
     softSkills: ["Communication", "Travail en équipe"],
     romeSkills: ["123456"],
     requirements: ["Pré-requis 1", "Pré-requis 2"],
+    compensationAmount: 10,
+    compensationUnit: "hour",
+    compensationType: "gross",
     organizationId: "mongo-org-123",
     organizationUrl: "https://org.test",
     organizationName: "Organisation Test",
@@ -153,6 +156,9 @@ describe("transformMongoMissionToPg", () => {
     expect(result?.mission.is_siren_verified).toBe(true);
     expect(result?.mission.is_siret_verified).toBe(true);
     expect(result?.mission.partner_id).toBe("partner-123");
+    expect(result?.mission.compensation_amount).toBe(10);
+    expect(result?.mission.compensation_unit).toBe("hour");
+    expect(result?.mission.compensation_type).toBe("gross");
 
     expect(result?.addresses.length).toBe(1);
     expect(result?.addresses[0].old_id).toBe("address-123");

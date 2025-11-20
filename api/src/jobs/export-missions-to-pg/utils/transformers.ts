@@ -46,6 +46,9 @@ export const transformMongoMissionToPg = (doc: MongoMission | null, partnerId: s
     type: getMissionType(doc.type),
     snu: doc.snu,
     snu_places: doc.snuPlaces,
+    compensation_amount: doc.compensationAmount,
+    compensation_unit: doc.compensationUnit,
+    compensation_type: doc.compensationType,
 
     address: doc.address ? doc.address.toString() : "",
     postal_code: doc.postalCode ? doc.postalCode.toString() : "",

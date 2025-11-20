@@ -16,7 +16,13 @@ describe("MyMission API Integration Tests", () => {
     publisher = await createTestPublisher();
     apiKey = publisher.apikey;
     const orgId = "test-org-id";
-    mission1 = await createTestMission({ organizationClientId: orgId, publisherId: publisher.id });
+    mission1 = await createTestMission({
+      organizationClientId: orgId,
+      publisherId: publisher.id,
+      compensationAmount: 150,
+      compensationUnit: "day",
+      compensationType: "net",
+    });
     mission2 = await createTestMission({ organizationClientId: orgId, publisherId: publisher.id });
 
     vi.clearAllMocks();
@@ -48,6 +54,16 @@ describe("MyMission API Integration Tests", () => {
 
       const mission = response.body.data[0];
       validateMissionStructure(mission);
+    });
+
+    it("should expose compensation fields on missions", async () => {
+      const response = await request(app).get("/v0/mymission").set("x-api-key", apiKey);
+      expect(response.status).toBe(200);
+      const mission = response.body.data.find((m: any) => m._id === mission1._id!.toString());
+      expect(mission).toBeDefined();
+      expect(mission.compensationAmount).toBe(150);
+      expect(mission.compensationUnit).toBe("day");
+      expect(mission.compensationType).toBe("net");
     });
 
     it("should respect limit and skip parameters", async () => {
@@ -207,6 +223,9 @@ function validateMissionStructure(mission: any) {
   expect(mission).toHaveProperty("type");
   expect(mission).toHaveProperty("domain");
   expect(mission).toHaveProperty("activity");
+  expect(mission).toHaveProperty("compensationAmount");
+  expect(mission).toHaveProperty("compensationUnit");
+  expect(mission).toHaveProperty("compensationType");
 
   expect(mission).toHaveProperty("addresses");
   expect(mission).toHaveProperty("city");

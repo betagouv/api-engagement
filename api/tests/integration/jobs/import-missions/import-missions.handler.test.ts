@@ -83,9 +83,26 @@ describe("Import missions job (integration test)", () => {
     expect(mission.publisherId).toBe(publisher.id);
     expect(mission.remote).toBe("full");
     expect(mission.schedule).toBe("1 demi-journée par semaine");
+    expect(mission.compensationAmount).toBe(10);
+    expect(mission.compensationUnit).toBe("hour");
+    expect(mission.compensationType).toBe("gross");
     expect(mission.startAt.toISOString()).toBe("2025-01-01T00:00:00.000Z");
     expect(mission.tags).toEqual(expect.arrayContaining(["environnement", "écologie"]));
     expect(mission.title).toBe("Titre de la mission");
+  });
+
+  it("refuses missions when compensation data is invalid", async () => {
+    const xml = await readFile(path.join(__dirname, "data/invalid-compensation-feed.xml"), "utf-8");
+    const publisher = await createTestPublisher({ feed: "https://invalid-compensation-feed" });
+    (global.fetch as any).mockResolvedValueOnce({ ok: true, text: async () => xml });
+
+    await handler.handle({ publisherId: publisher.id });
+
+    const mission = await MissionModel.findOne({ publisherId: publisher.id, clientId: "INVALID_COMPENSATION" });
+    expect(mission).toBeDefined();
+    expect(mission?.statusCode).toBe("REFUSED");
+    expect(mission?.statusComment).toBe("Montant de la compensation invalide (nombre positif attendu)");
+    expect(mission?.compensationAmount).toBe(-10);
   });
 
   it("uses publisher defaultMissionLogo when organizationLogo is missing", async () => {

@@ -1,5 +1,6 @@
 import { COUNTRIES } from "../../../constants/countries";
 import { DOMAINS } from "../../../constants/domains";
+import { COMPENSATION_TYPES, COMPENSATION_UNITS } from "../../../constants/compensation";
 import { Mission } from "../../../types";
 
 export const getModeration = (mission: Mission) => {
@@ -31,6 +32,12 @@ export const getModeration = (mission: Mission) => {
     statusComment = `Domaine non valide : "${mission.domain}"`;
   } else if (hasEncodageIssue(mission.organizationName)) {
     statusComment = "Problème d'encodage dans le nom de l'organisation";
+  } else if (typeof mission.compensationAmount === "number" && mission.compensationAmount < 0) {
+    statusComment = "Montant de la compensation invalide (nombre positif attendu)";
+  } else if (mission.compensationUnit && !COMPENSATION_UNITS.includes(mission.compensationUnit)) {
+    statusComment = `Unité de compensation invalide (${COMPENSATION_UNITS.join(", ")})`;
+  } else if (mission.compensationType && !COMPENSATION_TYPES.includes(mission.compensationType)) {
+    statusComment = `Type de compensation invalide (${COMPENSATION_TYPES.join(", ")})`;
   }
 
   mission.statusCode = statusComment ? "REFUSED" : "ACCEPTED";
