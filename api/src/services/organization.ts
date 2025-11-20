@@ -56,7 +56,6 @@ const buildSearchWhere = (params: OrganizationSearchParams): Prisma.Organization
         const textConditions: Prisma.OrganizationWhereInput[] = [
           { title: { contains: query, mode: "insensitive" } },
           { shortTitle: { contains: query, mode: "insensitive" } },
-          { object: { contains: query, mode: "insensitive" } },
           { rna: { contains: query, mode: "insensitive" } },
           { siret: { contains: query, mode: "insensitive" } },
           { siren: { contains: query, mode: "insensitive" } },
