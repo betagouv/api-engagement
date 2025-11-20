@@ -4,12 +4,13 @@ import zod from "zod";
 
 import { INVALID_BODY, INVALID_PARAMS } from "../../error";
 import MissionModel from "../../models/mission";
-import OrganizationExclusionModel from "../../models/organization-exclusion";
 import RequestModel from "../../models/request";
-import { statEventService } from "../../services/stat-event";
 import { publisherService } from "../../services/publisher";
-import type { PublisherRecord } from "../../types/publisher";
+import { publisherDiffusionExclusionService } from "../../services/publisher-diffusion-exclusion";
+import { statEventService } from "../../services/stat-event";
 import { PublisherRequest } from "../../types/passport";
+import type { PublisherRecord } from "../../types/publisher";
+import { PublisherDiffusionExclusionCreateManyInput } from "../../types/publisher-diffusion-exclusion";
 import { buildPublisherData } from "./transformer";
 const router = Router();
 
@@ -53,13 +54,11 @@ router.get("/:organizationClientId", passport.authenticate(["apikey", "api"], { 
 
     const [publishers, organizationExclusions] = await Promise.all([
       publisherService.findPublishers({ diffuseurOf: user.id }),
-      OrganizationExclusionModel.find({
-        excludedByPublisherId: user.id,
-      }),
+      publisherDiffusionExclusionService.findExclusions({ excludedByAnnonceurId: user.id, organizationClientId: params.data.organizationClientId }),
     ]);
 
     // Build Set of exclusions to lookup clicks with .has() for better performance
-    const exclusionSet = new Set(organizationExclusions.map((o) => `${o.organizationClientId}:${o.excludedForPublisherId}`));
+    const exclusionSet = new Set(organizationExclusions.map((o) => o.excludedForDiffuseurId));
 
     const oneMonthAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
     const publisherIds = publishers.map((publisher) => publisher.id);
@@ -72,7 +71,7 @@ router.get("/:organizationClientId", passport.authenticate(["apikey", "api"], { 
     // Build response data
     const data = [] as any[];
     publishers.forEach((publisher) => {
-      const isExcluded = exclusionSet.has(`${params.data.organizationClientId}:${publisher.id}`);
+      const isExcluded = exclusionSet.has(publisher.id);
       const clicks = clicksByPublisher[publisher.id] || 0;
 
       data.push(buildPublisherData(publisher, clicks, isExcluded));
@@ -126,35 +125,30 @@ router.put("/:organizationClientId", passport.authenticate(["apikey", "api"], { 
       }
     }
 
-    await OrganizationExclusionModel.deleteMany({
-      excludedByPublisherId: user.id,
-      organizationClientId: params.data.organizationClientId,
-    });
+    await publisherDiffusionExclusionService.deleteExclusionsByAnnonceurAndOrganization(user.id, params.data.organizationClientId);
 
-    const bulk: any[] = [];
+    const bulk: Array<PublisherDiffusionExclusionCreateManyInput> = [];
     publishers
       .filter((publisher) => !body.data.publisherIds.includes(publisher.id))
       .forEach((publisher) => {
         bulk.push({
-          excludedByPublisherId: user.id,
-          excludedByPublisherName: user.name,
-          excludedForPublisherId: publisher.id,
-          excludedForPublisherName: publisher.name,
+          excludedForDiffuseurId: publisher.id,
+          excludedByAnnonceurId: user.id,
           organizationClientId: params.data.organizationClientId,
-          organizationName: body.data.organizationName || "",
+          organizationName: body.data.organizationName || null,
         });
       });
 
-    await OrganizationExclusionModel.insertMany(bulk);
+    await publisherDiffusionExclusionService.createManyExclusions(bulk);
 
-    const newOrganizationExclusions = await OrganizationExclusionModel.find({
-      excludedByPublisherId: user.id,
+    const newDiffusionExclusions = await publisherDiffusionExclusionService.findExclusions({
+      excludedByAnnonceurId: user.id,
       organizationClientId: params.data.organizationClientId,
     });
 
     const data = [] as any[];
     publishers.forEach((publisher) => {
-      const isExcluded = newOrganizationExclusions.some((o) => o.excludedForPublisherId === publisher.id);
+      const isExcluded = newDiffusionExclusions.some((o) => o.excludedForDiffuseurId === publisher.id);
       data.push({
         _id: publisher.id,
         name: publisher.name,
