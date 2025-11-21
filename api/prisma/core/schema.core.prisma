@@ -317,6 +317,7 @@ model Import {
   @@index([publisherId], map: "import_publisher_id_idx")
   @@index([startedAt], map: "import_started_at_idx")
   @@index([status], map: "import_status_idx")
+  @@index([publisherId, startedAt(sort: Desc)], map: "import_publisher_started_at_desc_idx")
   @@map("import")
 }
 

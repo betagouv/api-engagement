@@ -48,3 +48,9 @@ export interface ImportCreateInput {
 export type ImportUpdatePatch = Partial<Omit<ImportCreateInput, "publisherId" | "name">> & {
   name?: string;
 };
+
+export interface ImportStateSummary {
+  imports: number;
+  success: number;
+  last: Date | null;
+}
