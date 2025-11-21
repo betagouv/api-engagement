@@ -53,3 +53,20 @@ npx ts-node api/scripts/mongo-backfill/backfill-publisher.ts --env api/.env.prod
 
 - Exécution: `npx ts-node scripts/mongo-backfill/backfill-moderation-event.ts [--env <chemin>] [--dry-run]`
 - Usage: Migration des événements de modération depuis MongoDB vers PostgreSQL (bulk insert/update).
+
+## backfill-mission-event.ts
+
+- Rôle: migrer les événements de mission (`mission-events`) depuis MongoDB vers la table `mission_event` de Postgres.
+- Idempotent: chaque run compare les documents Mongo existants avec les lignes Postgres (création si absentes, update si différences, sinon ignoré).
+- Options:
+  - `--dry-run` pour simuler sans écrire en base et afficher des exemples.
+  - `--env <nom|chemin>` pour charger l'environnement adéquat.
+- Exemples:
+
+```bash
+# Simulation
+npx ts-node scripts/mongo-backfill/backfill-mission-event.ts --env production --dry-run
+
+# Migration effective
+npx ts-node scripts/mongo-backfill/backfill-mission-event.ts --env api/.env.production
+```

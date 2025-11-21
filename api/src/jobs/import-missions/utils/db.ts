@@ -1,8 +1,9 @@
 import { Import as PrismaImport } from "../../../db/core";
 import { captureException } from "../../../error";
 import MissionModel from "../../../models/mission";
-import MissionEventModel from "../../../models/mission-event";
-import { Mission, MissionEvent } from "../../../types";
+import { missionEventService } from "../../../services/mission-event";
+import { Mission } from "../../../types";
+import { MissionEventCreateParams } from "../../../types/mission-event";
 import type { PublisherRecord } from "../../../types/publisher";
 import { getJobTime } from "../../../utils/job";
 import { EVENT_TYPES, getMissionChanges } from "../../../utils/mission";
@@ -30,7 +31,7 @@ export const bulkDB = async (bulk: Mission[], publisher: PublisherRecord, import
 
     // Build bulk write operations
     const missionBulk = [] as any[];
-    const missionEventsBulk = [] as any[];
+    const missionEvents: MissionEventCreateParams[] = [];
 
     for (const e of bulk) {
       if (!e) {
@@ -51,14 +52,10 @@ export const bulkDB = async (bulk: Mission[], publisher: PublisherRecord, import
       const changes = getMissionChanges(current, e);
       if (changes) {
         missionBulk.push({ updateOne: { filter: { _id: current._id }, update: { $set: { ...e, updatedAt: startedAt } }, upsert: true } });
-        missionEventsBulk.push({
-          insertOne: {
-            document: {
-              missionId: current._id,
-              type: changes.deletedAt?.current === null ? EVENT_TYPES.DELETE : EVENT_TYPES.UPDATE,
-              changes,
-            },
-          },
+        missionEvents.push({
+          missionId: current._id.toString(),
+          type: changes.deletedAt?.current === null ? EVENT_TYPES.DELETE : EVENT_TYPES.UPDATE,
+          changes,
         });
       }
     }
@@ -71,10 +68,10 @@ export const bulkDB = async (bulk: Mission[], publisher: PublisherRecord, import
       }
 
       Object.values(resMission.insertedIds).forEach((id) => {
-        missionEventsBulk.push({
-          insertOne: {
-            document: { missionId: id, type: EVENT_TYPES.CREATE, changes: null },
-          },
+        missionEvents.push({
+          missionId: id.toString(),
+          type: EVENT_TYPES.CREATE,
+          changes: null,
         });
       });
 
@@ -82,12 +79,8 @@ export const bulkDB = async (bulk: Mission[], publisher: PublisherRecord, import
       importDoc.updatedCount += resMission.modifiedCount;
     }
 
-    if (missionEventsBulk.length > 0) {
-      const resMissionEvents = await (MissionEventModel as any).bulkWrite(missionEventsBulk, { ordered: false }); // ordered: false to avoid stopping the import if one mission fails
-
-      if (resMissionEvents.hasWriteErrors()) {
-        captureException("Mongo bulk failed", JSON.stringify(resMissionEvents.getWriteErrors(), null, 2));
-      }
+    if (missionEvents.length > 0) {
+      await missionEventService.createMissionEvents(missionEvents);
     }
 
     const time = getJobTime(startedAt);
@@ -114,22 +107,21 @@ export const cleanDB = async (missionsClientIds: string[], publisher: PublisherR
     .select("_id")
     .lean();
 
-  const events = [] as Omit<MissionEvent, "createdAt" | "_id">[];
+  const events: MissionEventCreateParams[] = [];
   for (const mission of missions) {
     events.push({
-      missionId: mission._id,
+      missionId: mission._id.toString(),
       type: EVENT_TYPES.DELETE,
       changes: {
         deletedAt: { previous: null, current: importDoc.startedAt },
       },
-      lastExportedToPgAt: null,
     });
   }
 
   const res = await MissionModel.updateMany({ _id: { $in: missions.map((m) => m._id) } }, { deleted: true, deletedAt: importDoc.startedAt });
 
   if (events.length > 0) {
-    await MissionEventModel.insertMany(events);
+    await missionEventService.createMissionEvents(events);
   }
 
   importDoc.deletedCount = res.modifiedCount;

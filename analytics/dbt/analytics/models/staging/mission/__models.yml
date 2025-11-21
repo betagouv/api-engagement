@@ -1,0 +1,46 @@
+version: 2
+
+models:
+  - name: stg_mission_event
+    description: >
+      Staging des événements métier liés aux missions provenant de la table
+      `analytics_raw.mission_event`. Le modèle applique les conversions de types
+      (timestamps, enums en texte) et relie chaque événement à la mission
+      correspondante via l'ancien identifiant Mission.old_id.
+    columns:
+      - name: id
+        description: Identifiant unique de l'événement.
+        tests:
+          - not_null
+          - unique
+      - name: mission_id
+        description: Identifiant analytics de la mission concernée (Mission.id).
+        tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: source('public', 'Mission')
+                field: id
+      - name: mission_id_raw
+        description: Ancien identifiant Mission.old_id utilisé lors de l'export.
+        tests:
+          - relationships:
+              arguments:
+                to: source('public', 'Mission')
+                field: old_id
+      - name: type
+        description: Type d'événement généré (`create`, `update`, `delete`).
+        tests:
+          - not_null
+      - name: changes
+        description: Détail JSON des changements appliqués à la mission.
+      - name: created_by
+        description: Identifiant ou nom libre de l'auteur de l'événement.
+      - name: created_at
+        description: Date de création de l'événement.
+        tests:
+          - not_null
+      - name: updated_at
+        description: Date de dernière mise à jour (curseur incrémental).
+        tests:
+          - not_null

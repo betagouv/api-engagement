@@ -65,6 +65,24 @@ resource "scaleway_job_definition" "analytics-email" {
   })
 }
 
+resource "scaleway_job_definition" "analytics-mission-event" {
+  name         = "analytics-${terraform.workspace}-mission-event"
+  project_id   = var.project_id
+  cpu_limit    = 1000
+  memory_limit = 2048
+  image_uri    = local.image_analytics_uri
+  timeout      = "120m"
+
+  cron {
+    schedule = "0 3 * * *" # Every day at 3:00 AM
+    timezone = "Europe/Paris"
+  }
+
+  env = merge(local.common_analytics_env_vars, {
+    JOB_CMD = "node dist/jobs/run-job.js export-to-analytics-raw mission_event"
+  })
+}
+
 resource "scaleway_job_definition" "analytics-dbt-run" {
   name         = "analytics-${terraform.workspace}-dbt-run"
   project_id   = var.project_id

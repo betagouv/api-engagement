@@ -1,7 +1,5 @@
-import { MissionHistoryEvent, Address as PgAddress, Mission as PgMission } from "../../db/analytics";
+import { Address as PgAddress, Mission as PgMission } from "../../db/analytics";
 import { JobResult } from "../types";
-
-export type MissionHistoryEntry = Omit<MissionHistoryEvent, "id">; // Prisma renders uuid when saving
 
 export interface ExportMissionsToPgJobPayload {
   id?: string;
@@ -14,11 +12,6 @@ export interface ExportMissionsToPgJobResult extends JobResult {
     success: number;
     error: number;
     deleted: number;
-  };
-  counterEvent: {
-    processed: number;
-    created: number;
-    error: number;
   };
 }
 

@@ -1,14 +1,12 @@
-import { Schema } from "mongoose";
-import { MissionHistoryEvent, Prisma } from "../../db/analytics";
+import { Prisma } from "../../db/analytics";
 import { prismaAnalytics as prismaClient } from "../../db/postgres";
 import { captureException } from "../../error";
 import MissionModel from "../../models/mission";
-import MissionEventModel from "../../models/mission-event";
-import { Mission, MissionEvent } from "../../types";
+import { Mission } from "../../types";
 import { BaseHandler } from "../base/handler";
 import { ExportMissionsToPgJobPayload, ExportMissionsToPgJobResult } from "./types";
 import { countMongoMissionsToSync, getMongoMissionsToSync, getOrganizationsFromMissions } from "./utils/helpers";
-import { transformMongoMissionEventToPg, transformMongoMissionToPg } from "./utils/transformers";
+import { transformMongoMissionToPg } from "./utils/transformers";
 
 const BULK_SIZE = 10000;
 const PG_CHUNK_SIZE = 100;
@@ -21,13 +19,11 @@ export class ExportMissionsToPgHandler implements BaseHandler<ExportMissionsToPg
     console.log(`[Export missions to PG] Starting at ${start.toISOString()}`);
 
     const counter = await exportMission();
-    const counterEvent = await exportMissionEvent();
     return {
       success: true,
       timestamp: new Date(),
       counter,
-      counterEvent,
-      message: `\t• Nombre de missions traitées: ${counter.processed}\n\t• Nombre de missions traitées avec succès: ${counter.success}\n\t• Nombre de missions en erreur: ${counter.error}\n\t• Nombre de missions supprimées: ${counter.deleted}\n\t• Nombre d'evenements traités: ${counterEvent.processed}\n\t• Nombre d'evenements traités avec succès: ${counterEvent.created}\n\t• Nombre d'evenements en erreur: ${counterEvent.error}`,
+      message: `\t• Nombre de missions traitées: ${counter.processed}\n\t• Nombre de missions traitées avec succès: ${counter.success}\n\t• Nombre de missions en erreur: ${counter.error}\n\t• Nombre de missions supprimées: ${counter.deleted}`,
     };
   }
 }
@@ -124,83 +120,6 @@ const exportMission = async () => {
       await MissionModel.updateMany({ _id: { $in: missionsUpdatedIds } }, { $set: { lastExportedToPgAt: new Date() } }, { timestamps: false });
       missionsUpdatedIds.length = 0;
       console.log(`[Export missions to PG] Updated lastExportedToPgAt for ${batch.length} missions (batch)`);
-    }
-    batchCount++;
-  }
-
-  return counter;
-};
-
-const exportMissionEvent = async () => {
-  const count = await MissionEventModel.countDocuments({ lastExportedToPgAt: null });
-  console.log(`[Export missions events to PG] Found ${count} missions to sync`);
-
-  const counter = {
-    processed: 0,
-    created: 0,
-    error: 0,
-  };
-
-  let prevCount = 0;
-  let batchCount = 0;
-
-  while (true) {
-    const events = await MissionEventModel.find({ lastExportedToPgAt: null }).limit(BULK_SIZE).lean();
-    if (events.length === 0 || (events.length === prevCount && events.length !== BULK_SIZE)) {
-      console.log(`[Export missions events to PG] No more events can be processed (${events.length} left)`);
-      break;
-    }
-
-    prevCount = events.length;
-    const missionIds: string[] = [...new Set(events.map((e) => e.missionId.toString()).filter((e) => e !== undefined))] as string[];
-    const missions = {} as { [key: string]: string };
-    await prismaClient.mission
-      .findMany({
-        where: { old_id: { in: missionIds } },
-        select: { id: true, old_id: true },
-      })
-      .then((data) => data.forEach((d) => (missions[d.old_id] = d.id)));
-    console.log(`[Export missions events to PG] Found ${Object.keys(missions).length} missions related to events`);
-
-    console.log(`[Export missions events to PG] Processing batch ${batchCount + 1} / ${Math.ceil(count / BULK_SIZE)} (${events.length} events)`);
-    for (let i = 0; i < events.length; i += PG_CHUNK_SIZE) {
-      const batch = events.slice(i, i + PG_CHUNK_SIZE) as MissionEvent[];
-      console.log(`[Export missions events to PG] Batch ${i / PG_CHUNK_SIZE + 1} / ${Math.ceil(events.length / PG_CHUNK_SIZE)}`);
-
-      const eventsToCreate: Omit<MissionHistoryEvent, "id">[] = [];
-      const updatedIds: Schema.Types.ObjectId[] = [];
-      for (const event of batch) {
-        counter.processed++;
-
-        const mission = missions[event.missionId.toString()];
-        if (!mission) {
-          console.error(`[Export missions events to PG] No mission found for event ${event._id.toString()} (missionId: ${event.missionId})`);
-          counter.error++;
-          continue;
-        }
-        const result = transformMongoMissionEventToPg(event, mission);
-        if (result && result.length > 0) {
-          eventsToCreate.push(...result);
-          updatedIds.push(event._id);
-        }
-      }
-      try {
-        if (eventsToCreate.length > 0) {
-          const res = await prismaClient.missionHistoryEvent.createMany({
-            data: eventsToCreate.map((e) => ({
-              ...e,
-              changes: e.changes === null ? undefined : (e.changes as any),
-            })),
-          });
-          counter.created += res.count;
-        }
-      } catch (error) {
-        captureException(error, { extra: { eventsToCreate } });
-      }
-
-      await MissionEventModel.updateMany({ _id: { $in: updatedIds } }, { $set: { lastExportedToPgAt: new Date() } });
-      updatedIds.length = 0;
-      console.log(`[Export missions events to PG] Updated lastExportedToPgAt for ${batch.length} events (batch)`);
     }
     batchCount++;
   }
