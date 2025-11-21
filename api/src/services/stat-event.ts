@@ -332,8 +332,8 @@ async function findStatEventWarningBotCandidatesSince({ from, minClicks }: FindW
     where,
     _count: { _all: true },
     having: {
-      _count: {
-        _all: { gte: minClicks },
+      id: {
+        _count: { gte: minClicks },
       },
     },
   } as any)) as { user: string | null; _count: { _all: number } }[];
