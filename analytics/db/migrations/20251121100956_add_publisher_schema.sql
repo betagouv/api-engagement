@@ -7,8 +7,6 @@ CREATE TABLE IF NOT EXISTS "analytics_raw"."publisher" (
   "has_api_rights" BOOLEAN NOT NULL DEFAULT FALSE,
   "has_widget_rights" BOOLEAN NOT NULL DEFAULT FALSE,
   "has_campaign_rights" BOOLEAN NOT NULL DEFAULT FALSE,
-  "api_key" TEXT,
-  "publishers" JSONB NOT NULL DEFAULT '[]'::jsonb,
   "deleted_at" TIMESTAMP(3),
   "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
   "updated_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP
