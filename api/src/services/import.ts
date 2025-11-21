@@ -1,6 +1,6 @@
 import { Prisma, Import as PrismaImport } from "../db/core";
 import { importRepository } from "../repositories/import";
-import { ImportCreateInput, ImportFindParams, ImportRecord, ImportUpdatePatch } from "../types";
+import { ImportCreateInput, ImportFindParams, ImportRecord, ImportStateSummary, ImportUpdatePatch } from "../types";
 
 export const importService = (() => {
   const toImportRecord = (data: PrismaImport & { publisher?: { name: string; logo: string } }): ImportRecord => {
@@ -143,6 +143,15 @@ export const importService = (() => {
     return toImportRecord(updated);
   };
 
+  const getLastImportSummary = async (): Promise<ImportStateSummary> => {
+    const summary = await importRepository.getLastImportSummary();
+    return {
+      imports: summary.total,
+      success: summary.success,
+      last: summary.last,
+    };
+  };
+
   return {
     countImports,
     findImports,
@@ -151,5 +160,6 @@ export const importService = (() => {
     findOneImportById,
     createImport,
     updateImport,
+    getLastImportSummary,
   };
 })();
