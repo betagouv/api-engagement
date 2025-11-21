@@ -197,3 +197,57 @@ sources:
             description: Date de création de l'événement (UTC).
           - name: updated_at
             description: Dernière mise à jour (UTC), utilisée comme curseur d'export.
+      - name: organization
+        description: >-
+          Référentiel des organisations synchronisé depuis la base opérationnelle (`core.Organization`). Ces données
+          décrivent les associations/réseaux partenaires (identité, adresses, informations administratives) nécessaires
+          pour les analyses métiers et les jointures avec les missions/partenaires.
+        columns:
+          - name: id
+            description: Identifiant unique de l'organisation (UUID).
+          - name: gestion
+            description: Code ou libellé de gestion remonté par l'application source (nullable).
+          - name: status
+            description: Statut administratif/associatif déclaré (nullable).
+          - name: created_at
+            description: Horodatage de création de l'organisation côté source.
+          - name: last_declared_at
+            description: Date de dernière déclaration connue (nullable).
+          - name: published_at
+            description: Date de publication officielle (nullable).
+          - name: dissolved_at
+            description: Date de dissolution si l'organisation n'est plus active (nullable).
+          - name: updated_at
+            description: Horodatage de dernière mise à jour, utilisé comme curseur d'export incrémental.
+          - name: nature
+            description: Nature juridique déclarée (nullable).
+          - name: groupement
+            description: Information de groupement ou fédération (nullable).
+          - name: title
+            description: Titre long officiel de l'organisation.
+          - name: short_title
+            description: Titre court utilisé dans certaines interfaces (nullable).
+          - name: names
+            description: Variantes de noms déclarés (tableau textuel).
+          - name: address_insee_code
+            description: Code INSEE correspondant à l'adresse principale (nullable).
+          - name: address_postal_code
+            description: Code postal de l'adresse principale (nullable).
+          - name: address_department_code
+            description: Code du département lié à l'adresse principale (nullable).
+          - name: address_department_name
+            description: Libellé du département lié à l'adresse principale (nullable).
+          - name: address_region
+            description: Région correspondant à l'adresse principale (nullable).
+          - name: address_city
+            description: Ville correspondant à l'adresse principale (nullable).
+          - name: management_postal_code
+            description: Code postal utilisé pour l'adresse de gestion (nullable).
+          - name: management_city
+            description: Ville utilisée pour l'adresse de gestion (nullable).
+          - name: management_country
+            description: Pays utilisé pour l'adresse de gestion (nullable).
+          - name: director_civility
+            description: Civilité du dirigeant/président déclaré (nullable).
+          - name: source
+            description: Origine de la donnée (ex. `rna`, `api`, `manual`).

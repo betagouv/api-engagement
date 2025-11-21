@@ -1,0 +1,61 @@
+version: 2
+
+models:
+  - name: organization
+    description: >
+      Dimension des organisations exposée à Metabase. Cette table est un miroir du staging `stg_organization` et sert de
+      référentiel pour joindre missions, partenaires et exclusions.
+    columns:
+      - name: id
+        description: Identifiant unique de l'organisation utilisé dans l'entrepôt analytics.
+        tests:
+          - not_null
+          - unique
+      - name: title
+        description: Nom officiel complet de l'organisation.
+        tests:
+          - not_null
+      - name: short_title
+        description: Nom court utilisé dans certaines interfaces (nullable).
+      - name: names
+        description: Ensemble des variantes de noms déclarées.
+      - name: nature
+        description: Nature juridique de l'organisation (nullable).
+      - name: groupement
+        description: Appartenance à un groupement ou réseau (nullable).
+      - name: status
+        description: Statut administratif déclaré (nullable).
+      - name: created_at
+        description: Horodatage de création initial.
+        tests:
+          - not_null
+      - name: updated_at
+        description: Horodatage de dernière mise à jour.
+        tests:
+          - not_null
+      - name: last_declared_at
+        description: Timestamp de dernière déclaration légale (nullable).
+      - name: published_at
+        description: Timestamp de publication officielle (nullable).
+      - name: dissolved_at
+        description: Timestamp de dissolution s'il y a lieu (nullable).
+      - name: address_city
+        description: Ville de l'adresse principale (nullable).
+      - name: address_postal_code
+        description: Code postal de l'adresse principale (nullable).
+      - name: address_department_code
+        description: Code départemental de l'adresse principale (nullable).
+      - name: address_department_name
+        description: Libellé du département principal (nullable).
+      - name: address_region
+        description: Région principale de l'organisation (nullable).
+      - name: management_city
+        description: Ville renseignée pour l'adresse de gestion (nullable).
+      - name: management_postal_code
+        description: Code postal renseigné pour l'adresse de gestion (nullable).
+      - name: management_country
+        description: Pays renseigné pour l'adresse de gestion (nullable).
+      - name: director_civility
+        description: Civilité du dirigeant déclaré (nullable).
+      - name: source
+        description: Origine du flux de donnée (`rna`, `manual`, etc.).
