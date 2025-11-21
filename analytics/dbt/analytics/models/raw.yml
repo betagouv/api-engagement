@@ -152,6 +152,32 @@ sources:
             description: Ancien identifiant RNA.
           - name: new_rna
             description: Nouvel identifiant RNA.
+      - name: publisher
+        description: >-
+          Instantané des partenaires / diffuseurs tels qu'ils existent dans la base opérationnelle. Chaque ligne
+          correspond à un partenaire et inclut les droits d'accès ainsi que les liaisons diffuseurs-annonceurs
+          nécessaires pour reconstruire le champ `partners`.
+        columns:
+          - name: id
+            description: Identifiant unique du partenaire (UUID `publisher.id`).
+          - name: name
+            description: Nom public du partenaire.
+          - name: category
+            description: Catégorie fonctionnelle saisie dans l'application source (nullable).
+          - name: is_annonceur
+            description: Indique si le partenaire agit comme annonceur côté API.
+          - name: has_api_rights
+            description: Droit d'accès aux flux API sortants.
+          - name: has_widget_rights
+            description: Droit d'accès aux widgets embarqués.
+          - name: has_campaign_rights
+            description: Droit d'accès aux campagnes (Sendinblue, emailing).
+          - name: deleted_at
+            description: Timestamp de suppression logique dans l'app source (nullable).
+          - name: created_at
+            description: Timestamp de création du partenaire.
+          - name: updated_at
+            description: Timestamp de dernière mise à jour, utilisé comme curseur d'export.
       - name: mission_event
         description: >-
           Événements de mission générés lors des imports (create/update/delete) sur la base Mongo historique,

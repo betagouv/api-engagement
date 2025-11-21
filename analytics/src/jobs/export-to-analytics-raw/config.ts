@@ -171,6 +171,22 @@ export const exportDefinitions: ExportDefinition[] = [
     },
   },
   {
+    key: "publisher",
+    batchSize: 2000,
+    source: {
+      table: "publisher",
+      cursor: {
+        field: "updated_at",
+        idField: "id",
+      },
+      columns: ["id", "name", "category", "is_annonceur", "has_api_rights", "has_widget_rights", "has_campaign_rights", "deleted_at", "created_at", "updated_at"],
+    },
+    destination: {
+      table: "publisher",
+      conflictColumns: ["id"],
+    },
+  },
+  {
     key: "mission_event",
     batchSize: 2000,
     source: {
