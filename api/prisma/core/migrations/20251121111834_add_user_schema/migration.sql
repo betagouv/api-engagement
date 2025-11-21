@@ -1,9 +1,6 @@
 -- CreateEnum
 CREATE TYPE "public"."UserRole" AS ENUM ('user', 'admin');
 
--- AlterTable
-ALTER TABLE "public"."stat_event" RENAME CONSTRAINT "StatEvent_pkey" TO "stat_event_pkey";
-
 -- CreateTable
 CREATE TABLE "public"."user" (
     "id" TEXT NOT NULL,
@@ -53,17 +50,8 @@ CREATE INDEX "user_publisher_publisher_id_idx" ON "public"."user_publisher"("pub
 -- CreateIndex
 CREATE UNIQUE INDEX "user_publisher_user_id_publisher_id_key" ON "public"."user_publisher"("user_id", "publisher_id");
 
--- RenameForeignKey
-ALTER TABLE "public"."stat_event" RENAME CONSTRAINT "StatEvent_from_publisher_id_fkey" TO "stat_event_from_publisher_id_fkey";
-
--- RenameForeignKey
-ALTER TABLE "public"."stat_event" RENAME CONSTRAINT "StatEvent_to_publisher_id_fkey" TO "stat_event_to_publisher_id_fkey";
-
 -- AddForeignKey
 ALTER TABLE "public"."user_publisher" ADD CONSTRAINT "user_publisher_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "public"."user"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "public"."user_publisher" ADD CONSTRAINT "user_publisher_publisher_id_fkey" FOREIGN KEY ("publisher_id") REFERENCES "public"."publisher"("id") ON DELETE CASCADE ON UPDATE CASCADE;
-
--- RenameIndex
-ALTER INDEX "public"."StatEvent_es_id_key" RENAME TO "stat_event_es_id_key";
