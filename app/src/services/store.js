@@ -17,7 +17,7 @@ const useStore = create((set) => ({
   },
   setAuth: (user, publisher) => {
     const normalizedPublisher = publisher ? { ...publisher, _id: publisher._id ?? publisher.id } : publisher;
-    if (user) Sentry.setUser({ email: user.email, id: user._id, username: `${user.firstname} ${user.lastname}` });
+    if (user) Sentry.setUser({ email: user.email, id: user.id, username: `${user.firstname} ${user.lastname}` });
     else Sentry.setUser(null);
     set(() => ({ user, publisher: normalizedPublisher }));
   },

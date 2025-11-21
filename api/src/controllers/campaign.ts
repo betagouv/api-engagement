@@ -363,7 +363,7 @@ router.put("/:id/reassign", passport.authenticate("admin", { session: false }), 
     campaign.fromPublisherName = newFromPublisher.name;
     campaign.reassignedAt = new Date();
     campaign.reassignedByUsername = req.user.firstname + " " + req.user.lastname;
-    campaign.reassignedByUserId = req.user._id.toString();
+    campaign.reassignedByUserId = req.user.id;
     await campaign.save();
 
     const update = {

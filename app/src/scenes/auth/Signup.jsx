@@ -112,7 +112,7 @@ const SignupForm = ({ user }) => {
 
     setLoading(true);
     try {
-      const res = await api.post("/user/signup", { ...values, id: user._id.toString() });
+      const res = await api.post("/user/signup", { ...values, id: user.id });
       if (!res.ok) {
         if (res.code === "INVALID_PASSWORD") setErrors({ password: "Le mot de passe ne respecte pas les critères de sécurité" });
         else throw res;

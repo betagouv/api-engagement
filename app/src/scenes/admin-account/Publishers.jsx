@@ -86,7 +86,11 @@ const Publishers = () => {
       val["Membres"] = members;
       val["Rapport automatique"] = publisher.sendReport;
       val["Nombre de destinataires"] = publisher.sendReportTo.length;
-      val["Destinataires"] = publisher.sendReportTo.map((e) => users.find((j) => j._id.toString() === e).email);
+      const recipients = publisher.sendReportTo
+        .map((e) => users.find((j) => j.id === e))
+        .filter((user) => !!user)
+        .map((user) => user.email);
+      val["Destinataires"] = recipients;
 
       data.push(val);
     });

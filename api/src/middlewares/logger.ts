@@ -5,7 +5,7 @@ const SENSITIVE_FIELDS = ["password", "apikey"];
 
 const logger = morgan<Request, Response>(
   (tokens, req, res) => {
-    const user = req.user;
+    const user = req.user as any;
     const isUser = user ? "firstname" in user : false;
 
     const log: { [key: string]: any } = {
@@ -19,9 +19,9 @@ const logger = morgan<Request, Response>(
 
     if (user) {
       if (isUser) {
-        log.user_id = user._id;
+        log.user_id = user.id ?? undefined;
       } else {
-        log.publisher_id = user._id;
+        log.publisher_id = user.id ?? undefined;
       }
     }
 

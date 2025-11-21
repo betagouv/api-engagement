@@ -1,5 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi, type MockInstance } from "vitest";
-import type { Mission, User } from "../../types";
+import type { Mission } from "../../types";
+import type { UserRecord } from "../../types/user";
 import type { ModerationEventRecord } from "../../types/moderation-event";
 import { moderationEventService } from "../moderation-event";
 
@@ -11,10 +12,10 @@ const buildId = (value: string) =>
 describe("moderationEventService.logModeration", () => {
   const moderatorId = "moderator-123";
   const user = {
-    _id: buildId("user-1"),
+    id: "user-1",
     firstname: "Alice",
     lastname: "Doe",
-  } as unknown as User;
+  } as unknown as UserRecord;
 
   let createEventSpy: MockInstance<typeof moderationEventService.createModerationEvent>;
 

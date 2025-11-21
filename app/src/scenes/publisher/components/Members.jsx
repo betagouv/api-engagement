@@ -35,9 +35,9 @@ const Members = ({ values, onChange }) => {
                 <input
                   type="checkbox"
                   className="checkbox"
-                  checked={values.sendReportTo.includes(item._id)}
+                  checked={values.sendReportTo.includes(item.id)}
                   onChange={(e) =>
-                    onChange({ ...values, sendReportTo: e.target.checked ? [...values.sendReportTo, item._id] : values.sendReportTo.filter((id) => id !== item._id) })
+                    onChange({ ...values, sendReportTo: e.target.checked ? [...values.sendReportTo, item.id] : values.sendReportTo.filter((id) => id !== item.id) })
                   }
                 />
               </div>
