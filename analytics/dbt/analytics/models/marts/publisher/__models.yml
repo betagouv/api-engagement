@@ -38,3 +38,43 @@ models:
           - not_null
       - name: deleted_at
         description: Horodatage de suppression logique (nullable).
+  - name: annonceur
+    description: >
+      Vue filtrée des partenaires marqués comme annonceurs (`is_annonceur = true`). Le modèle expose les mêmes colonnes
+      que `stg_publisher` mais restreint aux entités recevant des candidatures.
+    columns:
+      - name: id
+        description: Identifiant unique du partenaire annonceur.
+        tests:
+          - not_null
+          - unique
+      - name: name
+        description: Nom du partenaire.
+      - name: is_annonceur
+        description: Flag toujours à `true`, rappelant le filtre appliqué.
+      - name: created_at
+        description: Horodatage de création.
+      - name: updated_at
+        description: Horodatage de dernière mise à jour.
+        tests:
+          - not_null
+  - name: diffuseur
+    description: >
+      Vue filtrée des partenaires qui ne sont pas annonceurs (`is_annonceur = false`). Utile pour isoler les diffuseurs
+      historiques (widgets/API/campagnes) dans Metabase.
+    columns:
+      - name: id
+        description: Identifiant unique du partenaire diffuseur.
+        tests:
+          - not_null
+          - unique
+      - name: name
+        description: Nom du partenaire.
+      - name: is_annonceur
+        description: Flag toujours à `false`, rappelant le filtre appliqué.
+      - name: created_at
+        description: Horodatage de création.
+      - name: updated_at
+        description: Horodatage de dernière mise à jour.
+        tests:
+          - not_null
