@@ -1,16 +1,26 @@
 import bcrypt from "bcryptjs";
 
-import { Prisma, User } from "../db/core";
+import { Prisma } from "../db/core";
 import { userRepository } from "../repositories/user";
 import type { UserCreateInput, UserFindParams, UserRecord, UserUpdatePatch } from "../types/user";
 
 const SALT_ROUNDS = 10;
 
-const toUserRecord = (user: User): UserRecord => ({
+const defaultInclude = {
+  userPublishers: {
+    select: {
+      publisherId: true,
+    },
+  },
+} as const satisfies Prisma.UserInclude;
+
+type UserWithPublishers = Prisma.UserGetPayload<{ include: typeof defaultInclude }>;
+
+const toUserRecord = (user: UserWithPublishers): UserRecord => ({
   id: user.id,
   firstname: user.firstname,
   lastname: user.lastname ?? null,
-  publishers: user.publishers ?? [],
+  publishers: user.userPublishers?.map((relation) => relation.publisherId) ?? [],
   email: user.email,
   password: user.password ?? null,
   role: user.role,
@@ -38,7 +48,7 @@ const buildWhere = (params: UserFindParams = {}): Prisma.UserWhereInput => {
     where.email = params.email;
   }
   if (params.publisherId) {
-    where.publishers = { has: params.publisherId };
+    where.userPublishers = { some: { publisherId: params.publisherId } };
   }
   if (params.ids && params.ids.length > 0) {
     where.id = { in: params.ids };
@@ -47,11 +57,11 @@ const buildWhere = (params: UserFindParams = {}): Prisma.UserWhereInput => {
 };
 
 const buildCreateData = async (input: UserCreateInput): Promise<Prisma.UserCreateInput> => {
+  const publisherIds = input.publishers ?? [];
   const data: Prisma.UserCreateInput = {
     id: input.id,
     firstname: input.firstname,
     lastname: input.lastname ?? null,
-    publishers: input.publishers,
     email: input.email,
     password: input.password ? await hashPassword(input.password) : null,
     role: input.role ?? "user",
@@ -67,6 +77,15 @@ const buildCreateData = async (input: UserCreateInput): Promise<Prisma.UserCreat
     createdAt: input.createdAt,
     updatedAt: input.updatedAt,
   };
+
+  if (publisherIds.length) {
+    data.userPublishers = {
+      createMany: {
+        data: publisherIds.map((publisherId) => ({ publisherId })),
+        skipDuplicates: true,
+      },
+    };
+  }
 
   if (data.password === null) {
     delete data.password;
@@ -97,7 +116,18 @@ const buildUpdateData = async (patch: UserUpdatePatch): Promise<Prisma.UserUpdat
     data.role = patch.role;
   }
   if ("publishers" in patch && patch.publishers !== undefined) {
-    data.publishers = { set: patch.publishers ?? [] };
+    const publisherIds = patch.publishers ?? [];
+    data.userPublishers = {
+      deleteMany: {},
+      ...(publisherIds.length
+        ? {
+            createMany: {
+              data: publisherIds.map((publisherId) => ({ publisherId })),
+              skipDuplicates: true,
+            },
+          }
+        : {}),
+    };
   }
   if ("loginAt" in patch) {
     data.loginAt = { set: patch.loginAt ?? [] };
@@ -135,12 +165,16 @@ const buildUpdateData = async (patch: UserUpdatePatch): Promise<Prisma.UserUpdat
 
 export const userService = {
   async findUsers(params: UserFindParams = {}): Promise<UserRecord[]> {
-    const users = await userRepository.findMany({ where: buildWhere(params), orderBy: { createdAt: Prisma.SortOrder.desc } });
+    const users = await userRepository.findMany({
+      where: buildWhere(params),
+      orderBy: { createdAt: Prisma.SortOrder.desc },
+      include: defaultInclude,
+    });
     return users.map(toUserRecord);
   },
 
   async findUserById(id: string, options: { includeDeleted?: boolean } = {}): Promise<UserRecord | null> {
-    const user = await userRepository.findUnique({ where: { id } });
+    const user = await userRepository.findUnique({ where: { id }, include: defaultInclude });
     if (!user) {
       return null;
     }
@@ -151,29 +185,29 @@ export const userService = {
   },
 
   async findUserByEmail(email: string): Promise<UserRecord | null> {
-    const user = await userRepository.findFirst({ where: { email } });
+    const user = await userRepository.findFirst({ where: { email }, include: defaultInclude });
     return user ? toUserRecord(user) : null;
   },
 
   async findUserByInvitationToken(token: string): Promise<UserRecord | null> {
-    const user = await userRepository.findFirst({ where: { invitationToken: token } });
+    const user = await userRepository.findFirst({ where: { invitationToken: token }, include: defaultInclude });
     return user ? toUserRecord(user) : null;
   },
 
   async findUserByForgotPasswordToken(token: string): Promise<UserRecord | null> {
-    const user = await userRepository.findFirst({ where: { forgotPasswordToken: token } });
+    const user = await userRepository.findFirst({ where: { forgotPasswordToken: token }, include: defaultInclude });
     return user ? toUserRecord(user) : null;
   },
 
   async createUser(input: UserCreateInput): Promise<UserRecord> {
     const data = await buildCreateData(input);
-    const created = await userRepository.create(data);
+    const created = await userRepository.create({ data, include: defaultInclude });
     return toUserRecord(created);
   },
 
   async updateUser(id: string, patch: UserUpdatePatch): Promise<UserRecord> {
     const data = await buildUpdateData(patch);
-    const updated = await userRepository.update({ id }, data);
+    const updated = await userRepository.update({ where: { id }, data, include: defaultInclude });
     return toUserRecord(updated);
   },
 

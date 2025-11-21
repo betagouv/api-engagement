@@ -159,7 +159,6 @@ const normalizeUser = (doc: MongoUserDocument): NormalizedUserData => {
     id: record.id,
     firstname: record.firstname,
     lastname: record.lastname,
-    publishers: record.publishers,
     email: record.email,
     password: record.password ?? undefined,
     role: record.role,
@@ -174,6 +173,15 @@ const normalizeUser = (doc: MongoUserDocument): NormalizedUserData => {
     brevoContactId: record.brevoContactId,
     createdAt: record.createdAt,
     updatedAt: record.updatedAt,
+    userPublishers:
+      record.publishers.length > 0
+        ? {
+            createMany: {
+              data: record.publishers.map((publisherId) => ({ publisherId })),
+              skipDuplicates: true,
+            },
+          }
+        : undefined,
   };
 
   if (!create.password) {
@@ -183,7 +191,6 @@ const normalizeUser = (doc: MongoUserDocument): NormalizedUserData => {
   const update: Prisma.UserUpdateInput = {
     firstname: record.firstname,
     lastname: record.lastname,
-    publishers: { set: record.publishers },
     email: record.email,
     password: record.password ?? null,
     role: record.role,
@@ -196,6 +203,17 @@ const normalizeUser = (doc: MongoUserDocument): NormalizedUserData => {
     forgotPasswordExpiresAt: record.forgotPasswordExpiresAt,
     deletedAt: record.deletedAt,
     brevoContactId: record.brevoContactId,
+    userPublishers: {
+      deleteMany: {},
+      ...(record.publishers.length
+        ? {
+            createMany: {
+              data: record.publishers.map((publisherId) => ({ publisherId })),
+              skipDuplicates: true,
+            },
+          }
+        : {}),
+    },
   };
 
   return { record, create, update };
@@ -271,7 +289,7 @@ const main = async () => {
             sampleCreates.push(entry.record);
           }
         } else {
-          await userRepository.create(entry.create);
+          await userRepository.create({ data: entry.create });
         }
         continue;
       }
@@ -287,7 +305,7 @@ const main = async () => {
           sampleUpdates.push({ before: existing, after: entry.record });
         }
       } else {
-        await userRepository.update({ id: entry.record.id }, entry.update);
+        await userRepository.update({ where: { id: entry.record.id }, data: entry.update });
       }
     }
   }
