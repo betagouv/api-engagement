@@ -8,3 +8,6 @@ tab_space_size = 2
 [sqlfluff:layout:type:comma]
 spacing_before = touch
 line_position = trailing
+
+[sqlfluff:rules:references.keywords]
+ignore_words = type
