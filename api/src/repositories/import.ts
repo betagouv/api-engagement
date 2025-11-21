@@ -9,7 +9,9 @@ export const importRepository = {
     return prismaCore.import.createMany(params);
   },
   async findExistingIds(ids: string[]): Promise<string[]> {
-    if (!ids.length) return [];
+    if (!ids.length) {
+      return [];
+    }
     const rows = await prismaCore.import.findMany({
       where: { id: { in: ids } },
       select: { id: true },

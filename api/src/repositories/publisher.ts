@@ -6,7 +6,9 @@ export const publisherRepository = {
     return prismaCore.publisher.findMany(params);
   },
   async findExistingIds(ids: string[]): Promise<string[]> {
-    if (!ids.length) return [];
+    if (!ids.length) {
+      return [];
+    }
     const rows = await prismaCore.publisher.findMany({
       where: { id: { in: ids } },
       select: { id: true },
