@@ -1,0 +1,31 @@
+version: 2
+
+models:
+  - name: stg_publisher
+    description: >
+      Staging des partenaires exportés depuis `analytics_raw.publisher`. Ce modèle applique simplement les conversions
+      de type nécessaires (timestamps, booléens) avant exposition aux marts.
+    columns:
+      - name: id
+        description: Identifiant unique du partenaire (UUID de la table source).
+        tests:
+          - not_null
+          - unique
+      - name: name
+        description: Nom du partenaire tel que saisi côté application.
+      - name: is_annonceur
+        description: Indique si le partenaire agit comme annonceur.
+      - name: diffuseur_api
+        description: Droit d'accès API sortant.
+      - name: diffuseur_widget
+        description: Droit d'accès aux widgets embarqués.
+      - name: diffuseur_campaign
+        description: Droit d'accès aux campagnes emailing.
+      - name: created_at
+        description: Timestamp de création initial.
+        tests:
+          - not_null
+      - name: updated_at
+        description: Timestamp de dernière mise à jour (curseur d'incrément).
+        tests:
+          - not_null
