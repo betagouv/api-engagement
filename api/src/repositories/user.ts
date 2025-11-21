@@ -1,34 +1,24 @@
-import { Prisma } from "../db/core";
+import { Prisma, User } from "../db/core";
 import { prismaCore } from "../db/postgres";
 
 export const userRepository = {
-  async findMany<T extends Prisma.UserFindManyArgs>(
-    params: Prisma.SelectSubset<T, Prisma.UserFindManyArgs>
-  ): Promise<Prisma.UserGetPayload<T>[]> {
+  async findMany(params: Prisma.UserFindManyArgs = {}): Promise<User[]> {
     return prismaCore.user.findMany(params);
   },
 
-  async findUnique<T extends Prisma.UserFindUniqueArgs>(
-    params: Prisma.SelectSubset<T, Prisma.UserFindUniqueArgs>
-  ): Promise<Prisma.UserGetPayload<T> | null> {
+  async findUnique(params: Prisma.UserFindUniqueArgs): Promise<User | null> {
     return prismaCore.user.findUnique(params);
   },
 
-  async findFirst<T extends Prisma.UserFindFirstArgs>(
-    params: Prisma.SelectSubset<T, Prisma.UserFindFirstArgs>
-  ): Promise<Prisma.UserGetPayload<T> | null> {
+  async findFirst(params: Prisma.UserFindFirstArgs): Promise<User | null> {
     return prismaCore.user.findFirst(params);
   },
 
-  async create<T extends Prisma.UserCreateArgs>(
-    params: Prisma.SelectSubset<T, Prisma.UserCreateArgs>
-  ): Promise<Prisma.UserGetPayload<T>> {
+  async create(params: Prisma.UserCreateArgs): Promise<User> {
     return prismaCore.user.create(params);
   },
 
-  async update<T extends Prisma.UserUpdateArgs>(
-    params: Prisma.SelectSubset<T, Prisma.UserUpdateArgs>
-  ): Promise<Prisma.UserGetPayload<T>> {
+  async update(params: Prisma.UserUpdateArgs): Promise<User> {
     return prismaCore.user.update(params);
   },
 
