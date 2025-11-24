@@ -27,7 +27,7 @@ models:
           - not_null
           - relationships:
               arguments:
-                to: source('public', 'Partner')
+                to: ref('publisher')
                 field: id
       - name: to_publisher_id
         description: UUID du partenaire annonceur.
@@ -35,7 +35,7 @@ models:
           - not_null
           - relationships:
               arguments:
-                to: source('public', 'Partner')
+                to: ref('publisher')
                 field: id
       - name: click_id
         description: Référence vers la table `Click` lorsqu’un clic est associé.
@@ -84,7 +84,7 @@ models:
           - not_null
           - relationships:
               arguments:
-                to: source('public', 'Partner')
+                to: ref('publisher')
                 field: id
       - name: to_publisher_id
         description: UUID du partenaire annonceur.
@@ -92,7 +92,7 @@ models:
           - not_null
           - relationships:
               arguments:
-                to: source('public', 'Partner')
+                to: ref('publisher')
                 field: id
       - name: custom_attributes
         description: Champs JSON contenant les attributs personnalisés.
@@ -125,7 +125,7 @@ models:
           - not_null
           - relationships:
               arguments:
-                to: source('public', 'Partner')
+                to: ref('publisher')
                 field: id
       - name: to_publisher_id
         description: UUID du partenaire annonceur.
@@ -133,7 +133,7 @@ models:
           - not_null
           - relationships:
               arguments:
-                to: source('public', 'Partner')
+                to: ref('publisher')
                 field: id
       - name: source
         description: Origine normalisée du clic (`SourceType`).
@@ -168,7 +168,7 @@ models:
           - not_null
           - relationships:
               arguments:
-                to: source('public', 'Partner')
+                to: ref('publisher')
                 field: id
       - name: to_publisher_id
         description: UUID du partenaire annonceur.
@@ -176,7 +176,7 @@ models:
           - not_null
           - relationships:
               arguments:
-                to: source('public', 'Partner')
+                to: ref('publisher')
                 field: id
       - name: source
         description: Origine normalisée de l’impression (`SourceType`).
