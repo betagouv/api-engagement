@@ -6,7 +6,7 @@ with events as (
     e.mission_id as mission_id_raw_source,
     nullif(e.mission_id, '') as mission_id_raw,
     nullif(e.mission_client_id, '') as mission_client_id_raw,
-    nullif(e.to_publisher_id, '') as to_publisher_id_raw
+    nullif(e.to_publisher_id, '') as to_publisher_id
   from {{ ref('stg_stat_event') }} as e
 ),
 
@@ -15,7 +15,7 @@ missions as (
     id,
     mission_id_raw,
     client_id,
-    publisher_id_raw
+    publisher_id
   from {{ ref('dim_mission') }}
 ),
 
@@ -42,7 +42,7 @@ mission_client_partner as (
       e.mission_id_raw is null
       and e.mission_client_id_raw is not null
       and e.mission_client_id_raw = m.client_id
-      and e.to_publisher_id_raw = m.publisher_id_raw
+      and e.to_publisher_id = m.publisher_id
 ),
 
 mission_lookup as (
