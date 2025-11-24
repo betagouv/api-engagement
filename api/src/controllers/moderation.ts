@@ -621,7 +621,7 @@ router.put("/:id", passport.authenticate("user", { session: false }), async (req
     if (!mission) {
       return res.status(404).send({ ok: false, code: NOT_FOUND });
     }
-    const previous = { ...mission.toObject() };
+    const previous = { ...mission.toObject() } as Mission;
 
     if (body.data.status) {
       mission[`moderation_${body.data.moderatorId}_status`] = body.data.status;
@@ -659,7 +659,8 @@ router.put("/:id", passport.authenticate("user", { session: false }), async (req
       return res.status(404).send({ ok: false, code: NOT_FOUND });
     }
 
-    await moderationEventService.logModeration(previous, mission, req.user, body.data.moderatorId);
+    const eventPayload = moderationEventService.buildModerationEventPayload(previous, mission, req.user, body.data.moderatorId);
+    await moderationEventService.createModerationEvent(eventPayload);
 
     const data = buildData(mission, body.data.moderatorId);
     return res.status(200).send({ ok: true, data });
