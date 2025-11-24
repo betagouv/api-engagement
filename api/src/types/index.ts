@@ -51,17 +51,6 @@ export interface MissionHistory {
   metadata?: Record<string, any>;
 }
 
-export interface MissionEvent {
-  _id: Schema.Types.ObjectId;
-  type: "create" | "update" | "delete";
-  missionId: Schema.Types.ObjectId;
-  changes: Record<string, { previous: any; current: any }> | null;
-  createdAt: Date;
-  createdBy?: Schema.Types.ObjectId; // User
-  // PG export
-  lastExportedToPgAt: Date | null;
-}
-
 export interface Mission {
   _id: Schema.Types.ObjectId;
 
@@ -507,7 +496,7 @@ export interface Kpi {
 
 export enum MissionType {
   BENEVOLAT = "benevolat",
-  VOLONTARIAT = "volontariat-service-civique",
+  VOLONTARIAT = "volontariat_service_civique",
 }
 
 export * from "./email";

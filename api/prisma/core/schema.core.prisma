@@ -34,6 +34,12 @@ enum MissionType {
   volontariat_service_civique
 }
 
+enum MissionEventType {
+  create
+  update
+  delete
+}
+
 enum StatEventType {
   click
   print
@@ -366,6 +372,20 @@ model Import {
   @@index([status], map: "import_status_idx")
   @@index([publisherId, startedAt(sort: Desc)], map: "import_publisher_started_at_desc_idx")
   @@map("import")
+}
+
+model MissionEvent {
+  id        String           @id @default(uuid())
+  missionId String           @map("mission_id")
+  type      MissionEventType
+  changes   Json?
+  createdBy String?          @map("created_by")
+  createdAt DateTime         @default(now()) @map("created_at")
+  updatedAt DateTime         @updatedAt @map("updated_at")
+
+  @@index([missionId], map: "mission_event_mission_id_idx")
+  @@index([updatedAt(sort: Asc)], map: "mission_event_updated_at_asc_idx")
+  @@map("mission_event")
 }
 
 model Organization {
