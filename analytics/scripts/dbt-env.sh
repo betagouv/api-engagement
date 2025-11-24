@@ -33,4 +33,19 @@ export DBT_DB_NAME="${dbname%%\?*}"
 
 cd "$PROJECT_ROOT/dbt/analytics"
 
-exec dbt "$@"
+dbt "$@"
+
+if [ -n "${METABASE_URL:-}" ] && [ -n "${METABASE_DATABASE_NAME:-}" ] && [ -n "${METABASE_API_KEY:-}" ]; then
+  if [ ! -f target/manifest.json ]; then
+    echo "Metabase sync skipped: target/manifest.json not found" >&2
+    exit 0
+  fi
+
+  echo "Syncing dbt metadata to Metabase..."
+  dbt-metabase models \
+    --manifest-path target/manifest.json \
+    --metabase-url "$METABASE_URL" \
+    --metabase-database "$METABASE_DATABASE_NAME" \
+    --metabase-api-key "$METABASE_API_KEY" \
+    --include-schemas analytics
+fi
