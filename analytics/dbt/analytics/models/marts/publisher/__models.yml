@@ -1,0 +1,80 @@
+version: 2
+
+models:
+  - name: publisher
+    description: >
+      Table mart dimensionnelle des partenaires, construite à partir du staging `stg_publisher` et alignée sur le
+      schéma attendu par Metabase (`diffuseur_*`, `annonceur`). Ce modèle remplace la table alimentée historiquement
+      par le job Prisma.
+    columns:
+      - name: id
+        description: Identifiant unique du partenaire.
+        tests:
+          - not_null
+          - unique
+      - name: name
+        description: Nom officiel du partenaire tel qu'il sera affiché dans Metabase.
+      - name: diffuseur_api
+        description: Flag indiquant si le partenaire diffuse des missions via l'API.
+        tests:
+          - not_null
+      - name: diffuseur_widget
+        description: Flag indiquant l'accès aux widgets embarqués.
+        tests:
+          - not_null
+      - name: diffuseur_campaign
+        description: Flag indiquant l'accès aux campagnes / emails.
+        tests:
+          - not_null
+      - name: annonceur
+        description: Flag indiquant si le partenaire agit comme annonceur (receveur de candidatures).
+        tests:
+          - not_null
+      - name: created_at
+        description: Horodatage de création (UTC).
+      - name: updated_at
+        description: Horodatage de dernière mise à jour, utilisé pour l'incrémental.
+        tests:
+          - not_null
+      - name: deleted_at
+        description: Horodatage de suppression logique (nullable).
+  - name: annonceur
+    description: >
+      Vue filtrée des partenaires marqués comme annonceurs (`is_annonceur = true`). Le modèle expose les mêmes colonnes
+      que `stg_publisher` mais restreint aux entités recevant des candidatures.
+    columns:
+      - name: id
+        description: Identifiant unique du partenaire annonceur.
+        tests:
+          - not_null
+          - unique
+      - name: name
+        description: Nom du partenaire.
+      - name: is_annonceur
+        description: Flag toujours à `true`, rappelant le filtre appliqué.
+      - name: created_at
+        description: Horodatage de création.
+      - name: updated_at
+        description: Horodatage de dernière mise à jour.
+        tests:
+          - not_null
+  - name: diffuseur
+    description: >
+      Vue filtrée des partenaires qui ne sont pas annonceurs (`is_annonceur = false`). Utile pour isoler les diffuseurs
+      historiques (widgets/API/campagnes) dans Metabase.
+    columns:
+      - name: id
+        description: Identifiant unique du partenaire diffuseur.
+        tests:
+          - not_null
+          - unique
+      - name: name
+        description: Nom du partenaire.
+      - name: is_annonceur
+        description: Flag toujours à `false`, rappelant le filtre appliqué.
+      - name: created_at
+        description: Horodatage de création.
+      - name: updated_at
+        description: Horodatage de dernière mise à jour.
+        tests:
+          - not_null
