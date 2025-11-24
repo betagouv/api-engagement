@@ -2,12 +2,12 @@ import { Kpi as PgKpi } from "../../../db/analytics";
 import { prismaAnalytics as prismaClient } from "../../../db/postgres";
 
 import { captureException } from "../../../error";
-import KpiModel from "../../../models/kpi";
-import { Kpi } from "../../../types";
+import { kpiService } from "../../../services/kpi";
+import type { KpiRecord } from "../../../types/kpi";
 
-const buildData = (doc: Kpi) => {
+const buildData = (doc: KpiRecord) => {
   const obj = {
-    old_id: doc._id.toString(),
+    old_id: doc.id,
     date: doc.date,
     available_benevolat_mission_count: doc.availableBenevolatMissionCount,
     available_volontariat_mission_count: doc.availableVolontariatMissionCount,
@@ -58,7 +58,7 @@ const handler = async () => {
     const start = new Date();
     console.log(`[KPI] Starting at ${start.toISOString()}`);
 
-    const data = await KpiModel.find().lean();
+    const data = await kpiService.findKpis({ order: "asc" });
     console.log(`[KPI] Found ${data.length} docs to sync.`);
 
     const stored = [] as string[];
@@ -67,11 +67,11 @@ const handler = async () => {
 
     const dataToCreate = [];
     for (const doc of data) {
-      const exists = stored.includes(doc._id.toString());
+      const exists = stored.includes(doc.id);
       if (exists) {
         continue;
       }
-      const obj = buildData(doc as Kpi);
+      const obj = buildData(doc);
       dataToCreate.push(obj);
     }
 

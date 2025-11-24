@@ -1,4 +1,4 @@
-import { Kpi } from "../../types";
+import type { Kpi, KpiRecord } from "../../types";
 import { BaseHandler } from "../base/handler";
 import { JobResult } from "../types";
 import { buildKpi } from "./kpi";
@@ -13,7 +13,7 @@ export interface KpiJobResult extends JobResult {
   result: {
     date: Date;
     kpiBotless: Kpi | null;
-    kpi: Kpi | null;
+    kpi: KpiRecord | null;
   }[];
 }
 

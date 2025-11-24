@@ -1,15 +1,15 @@
 import { captureException } from "../../error";
-import KpiModel from "../../models/kpi";
 import MissionModel from "../../models/mission";
 import { statEventService } from "../../services/stat-event";
-import { Kpi } from "../../types";
+import { kpiService } from "../../services/kpi";
+import type { KpiCreateInput, KpiRecord } from "../../types/kpi";
 import { safeDivision } from "./utils/math";
 
 // Cron that create a kpi doc every with the data available
-export const buildKpi = async (start: Date): Promise<Kpi | null> => {
-  const body = { date: start } as Kpi;
+export const buildKpi = async (start: Date): Promise<KpiRecord | null> => {
+  const body: KpiCreateInput = { date: start };
   try {
-    const exists = await KpiModel.findOne({ date: start });
+    const exists = await kpiService.findOneKpiByDate(start);
     if (exists) {
       console.log(`[KPI] KPI already exists for ${start.toISOString()}`);
       return exists;
@@ -127,7 +127,7 @@ export const buildKpi = async (start: Date): Promise<Kpi | null> => {
     body.benevolatAccountCount = statsBenevolatAggs.account.eventCount;
     body.volontariatAccountCount = statsVolontariatAggs.account.eventCount;
 
-    const data = await KpiModel.create(body);
+    const data = await kpiService.createKpi(body);
     console.log(`[KPI] Created kpi for ${start.toISOString()}`);
     return data;
   } catch (error) {

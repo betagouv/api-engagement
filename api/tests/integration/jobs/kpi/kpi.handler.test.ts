@@ -1,7 +1,7 @@
 import { describe, expect, it, vi } from "vitest";
 
 import * as ErrorModule from "../../../../src/error";
-import KpiModel from "../../../../src/models/kpi";
+import { kpiService } from "../../../../src/services/kpi";
 import { statEventService } from "../../../../src/services/stat-event";
 import { createStatEventFixture } from "../../../fixtures/stat-event";
 
@@ -26,7 +26,7 @@ describe("KPI job - Integration", () => {
     const expectedDates = Array.from({ length: 10 }).map((_, i) => {
       return new Date(yesterday.getFullYear(), yesterday.getMonth(), yesterday.getDate() - i);
     });
-    const kpis = await KpiModel.find();
+    const kpis = await kpiService.findKpis();
 
     expect(result.result.length).toBe(10);
     expect(result.success).toBe(true);
@@ -39,9 +39,9 @@ describe("KPI job - Integration", () => {
     const fixedToday = new Date("2025-08-15T12:00:00.000Z");
     const yesterday = new Date(fixedToday.getFullYear(), fixedToday.getMonth(), fixedToday.getDate() - 1);
 
-    await KpiModel.create({ date: yesterday });
+    await kpiService.createKpi({ date: yesterday });
     const result = await handler.handle({ date: fixedToday.toISOString() });
-    const kpis = await KpiModel.find();
+    const kpis = await kpiService.findKpis();
 
     expect(result.success).toBe(true);
     expect(result.result.length).toBe(10);
@@ -83,7 +83,7 @@ describe("KPI job - Integration", () => {
     const res = await handler.handle({ date: fixedToday.toISOString() });
     expect(res.success).toBe(true);
 
-    const kpi = await KpiModel.findOne({ date: yesterday });
+    const kpi = await kpiService.findOneKpiByDate(yesterday);
     expect(kpi).toBeTruthy();
     if (!kpi) {
       return;
@@ -123,7 +123,7 @@ describe("KPI job - Integration", () => {
 
     const res = await handler.handle({ date: fixedToday.toISOString() });
     expect(res.success).toBe(true);
-    const kpi = await KpiModel.findOne({ date: yesterday });
+    const kpi = await kpiService.findOneKpiByDate(yesterday);
     expect(kpi).toBeTruthy();
     if (!kpi) {
       return;
@@ -191,7 +191,7 @@ describe("KPI job - Integration", () => {
 
     const res = await handler.handle({ date: fixedToday.toISOString() });
     expect(res.success).toBe(true);
-    const kpi = await KpiModel.findOne({ date: yesterday });
+    const kpi = await kpiService.findOneKpiByDate(yesterday);
     expect(kpi).toBeTruthy();
     if (!kpi) {
       return;
@@ -229,7 +229,7 @@ describe("KPI job - Integration", () => {
     const res = await handler.handle({ date: fixedToday.toISOString() });
     expect(res.success).toBe(false);
 
-    const kpi = await KpiModel.findOne({ date: yesterday });
+    const kpi = await kpiService.findOneKpiByDate(yesterday);
     expect(kpi).toBeNull();
 
     expect(spy).toHaveBeenCalled();
