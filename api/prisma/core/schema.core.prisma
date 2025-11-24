@@ -72,6 +72,11 @@ enum ModerationEventStatus {
   ONGOING
 }
 
+enum UserRole {
+  user
+  admin
+}
+
 //
 // Models
 //
@@ -105,6 +110,31 @@ model Email {
   @@index([dateFrom, dateTo], map: "email_date_from_to_idx")
   @@index([toEmails], type: Gin, map: "email_to_emails_idx")
   @@map("email")
+}
+
+model User {
+  id                      String     @id @default(uuid())
+  firstname               String     @map("first_name")
+  lastname                String?    @map("last_name")
+  email                   String     @unique
+  password                String?
+  role                    UserRole   @default(user)
+  invitationToken         String?    @map("invitation_token")
+  invitationExpiresAt     DateTime?  @map("invitation_expires_at")
+  invitationCompletedAt   DateTime?  @map("invitation_completed_at")
+  lastActivityAt          DateTime?  @map("last_activity_at")
+  loginAt                 DateTime[] @default([]) @map("login_at")
+  forgotPasswordToken     String?    @map("forgot_password_token")
+  forgotPasswordExpiresAt DateTime?  @map("forgot_password_expires_at")
+  deletedAt               DateTime?  @map("deleted_at")
+  brevoContactId          Int?       @map("brevo_contact_id")
+  createdAt               DateTime   @default(now()) @map("created_at")
+  updatedAt               DateTime   @updatedAt @map("updated_at")
+
+  userPublishers          UserPublisher[]
+
+  @@index([deletedAt], map: "user_deleted_at_idx")
+  @@map("user")
 }
 
 model Report {
@@ -251,6 +281,7 @@ model Publisher {
   reports               Report[]             @relation("PublisherReportRelation")
   statEventsFrom        StatEvent[]          @relation("StatEventFromPublisher")
   statEventsTo          StatEvent[]          @relation("StatEventToPublisher")
+  userPublishers        UserPublisher[]
 
   @@index([name], map: "publisher_name_idx")
   @@index([apikey], map: "publisher_apikey_idx")
@@ -262,6 +293,22 @@ model Publisher {
   @@index([hasCampaignRights], map: "publisher_has_campaign_rights_idx")
   @@index([sendReport], map: "publisher_send_report_idx")
   @@map("publisher")
+}
+
+model UserPublisher {
+  id          String    @id @default(uuid())
+  userId      String    @map("user_id")
+  publisherId String    @map("publisher_id")
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime  @updatedAt @map("updated_at")
+
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  publisher Publisher @relation(fields: [publisherId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, publisherId], map: "user_publisher_user_id_publisher_id_key")
+  @@index([userId], map: "user_publisher_user_id_idx")
+  @@index([publisherId], map: "user_publisher_publisher_id_idx")
+  @@map("user_publisher")
 }
 
 model PublisherDiffusion {

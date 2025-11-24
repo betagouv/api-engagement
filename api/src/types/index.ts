@@ -253,31 +253,6 @@ export type Request = {
   createdAt: Date;
 };
 
-export interface User {
-  _id: Schema.Types.ObjectId;
-  firstname: string;
-  lastname: string | undefined;
-  publishers: string[];
-  email: string;
-  password: string | null;
-  role: "user" | "admin";
-  invitationToken: string | null;
-  invitationExpiresAt: Date | null;
-  invitationCompletedAt: Date | null;
-
-  comparePassword: (password: string) => Promise<boolean>;
-
-  createdAt: Date;
-  updatedAt: Date;
-  deletedAt: Date | null;
-  lastActivityAt: Date | null;
-  loginAt: Date[] | null;
-  forgotPasswordToken: string | null;
-  forgotPasswordExpiresAt: Date | null;
-
-  brevoContactId: number | null;
-}
-
 export type StatsBot = {
   _id: Schema.Types.ObjectId;
   origin?: string;
@@ -531,3 +506,4 @@ export * from "./organization";
 export * from "./publisher";
 export * from "./report";
 export * from "./stat-event";
+export * from "./user";
