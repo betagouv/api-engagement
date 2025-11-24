@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import type { Mission, User } from "../../types";
+import type { Mission, UserRecord } from "../../types";
 import { moderationEventService } from "../moderation-event";
 
 const buildId = (value: string) =>
@@ -10,10 +10,10 @@ const buildId = (value: string) =>
 describe("moderationEventService.buildModerationEventPayload", () => {
   const moderatorId = "moderator-123";
   const user = {
-    _id: buildId("user-1"),
+    id: "user-1",
     firstname: "Alice",
     lastname: "Doe",
-  } as unknown as User;
+  } as unknown as UserRecord;
 
   it("logs status changes with base metadata", () => {
     const previous = {

@@ -1,4 +1,3 @@
-console.log("launch");
 import type { EmailStatus } from "../../src/db/core";
 import { loadEnvironment, parseScriptOptions } from "./utils/options";
 
