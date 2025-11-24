@@ -521,7 +521,7 @@ export interface Kpi {
 
 export enum MissionType {
   BENEVOLAT = "benevolat",
-  VOLONTARIAT = "volontariat-service-civique",
+  VOLONTARIAT = "volontariat_service_civique",
 }
 
 export * from "./email";

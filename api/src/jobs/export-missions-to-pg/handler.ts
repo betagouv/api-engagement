@@ -55,7 +55,14 @@ const exportMission = async () => {
 
     // Get partners for mission mapping
     const partners = {} as { [key: string]: string };
-    await prismaClient.partner.findMany({ select: { id: true, old_id: true } }).then((data) => data.forEach((d) => (partners[d.old_id] = d.id)));
+    await prismaClient.partner
+      .findMany({
+        select: {
+          id: true,
+          old_id: true,
+        },
+      })
+      .then((data) => data.forEach((d) => (partners[d.old_id] = d.id)));
     console.log(`[Export missions to PG] Found ${Object.keys(partners).length} partners`);
 
     for (let i = 0; i < missions.length; i += PG_CHUNK_SIZE) {
