@@ -2,6 +2,12 @@
 dialect = postgres
 indent_unit = space
 
+[sqlfluff:templater]
+templater = jinja
+
+[sqlfluff:templater:jinja]
+load_macros_from_path = macros
+
 [sqlfluff:indentation]
 tab_space_size = 2
 
