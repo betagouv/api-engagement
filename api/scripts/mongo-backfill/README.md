@@ -28,6 +28,22 @@ npx ts-node api/scripts/mongo-backfill/backfill-email.ts --env production --dry-
 npx ts-node api/scripts/mongo-backfill/backfill-email.ts --env api/.env.production
 ```
 
+## backfill-kpi.ts
+
+- Rôle: migrer la collection Mongo `kpis` vers la table Prisma `kpi`.
+- Options:
+  - `--dry-run` affiche les créations/mises à jour sans écrire en base.
+  - `--env <nom|chemin>` charge le fichier d'environnement à utiliser.
+- Exemples:
+
+```bash
+# Simulation
+npx ts-node api/scripts/mongo-backfill/backfill-kpi.ts --env production --dry-run
+
+# Migration réelle
+npx ts-node api/scripts/mongo-backfill/backfill-kpi.ts --env api/.env.production
+```
+
 ## backfill-publisher.ts
 
 - Rôle: migrer la collection Mongo `publishers` (et ses diffuseurs) vers PostgreSQL.
