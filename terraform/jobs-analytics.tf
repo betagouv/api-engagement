@@ -3,6 +3,9 @@ locals {
     "ENV"                     = terraform.workspace
     "DATABASE_URL_CORE"       = local.secrets.DATABASE_URL_CORE
     "DATABASE_URL_ANALYTICS"  = local.secrets.DATABASE_URL_ANALYTICS
+    "METABASE_DATABASE_NAME"  = local.secrets.METABASE_DATABASE_NAME
+    "METABASE_URL"            = local.secrets.METABASE_URL
+    "METABASE_API_KEY"        = local.secrets.METABASE_API_KEY
     "SENTRY_DSN_JOBS"         = local.secrets.SENTRY_DSN_JOBS
     "SLACK_TOKEN"             = local.secrets.SLACK_TOKEN
     "SLACK_CRON_CHANNEL_ID"   = local.secrets.SLACK_CRON_CHANNEL_ID

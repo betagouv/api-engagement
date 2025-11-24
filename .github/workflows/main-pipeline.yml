@@ -14,7 +14,6 @@ on:
       - ".github/workflows/docker-build-push.yml"
       - ".github/workflows/terraform-deploy.yml"
       - ".github/workflows/tests.yml"
-      - ".github/workflows/dbt-metabase-sync.yml"
       - "api/**"
       - "app/**"
       - "analytics/**"
@@ -50,9 +49,3 @@ jobs:
     secrets: inherit
     with:
       branch: ${{ github.ref_name }}
-
-  dbt-metabase-sync:
-    needs:
-      - deploy
-    uses: ./.github/workflows/dbt-metabase-sync.yml
-    secrets: inherit
