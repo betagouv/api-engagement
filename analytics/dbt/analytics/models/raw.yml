@@ -152,3 +152,22 @@ sources:
             description: Ancien identifiant RNA.
           - name: new_rna
             description: Nouvel identifiant RNA.
+      - name: mission_event
+        description: >-
+          Événements de mission générés lors des imports (create/update/delete) sur la base Mongo historique,
+          exportés vers Postgres pour tracer les modifications des missions et alimenter les historiques analytics.
+        columns:
+          - name: id
+            description: Identifiant unique de l'événement.
+          - name: mission_id
+            description: Identifiant Mongo de la mission concernée (Mission.old_id).
+          - name: type
+            description: Type brut de l'événement (`create`, `update`, `delete`).
+          - name: changes
+            description: Payload JSON décrivant les champs modifiés (previous/current).
+          - name: created_by
+            description: Identifiant ou libellé de l'utilisateur/processus à l'origine de l'événement.
+          - name: created_at
+            description: Date de création de l'événement (UTC).
+          - name: updated_at
+            description: Dernière mise à jour (UTC), utilisée comme curseur d'export.

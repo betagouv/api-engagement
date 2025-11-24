@@ -1,0 +1,49 @@
+version: 2
+
+models:
+  - name: mission_event
+    description: >
+      Mart des événements de missions. Chaque ligne reprend les informations de
+      `stg_mission_event` et reclasse le champ `type` selon les règles du
+      transformer historique (Created, Deleted, UpdatedStartDate, etc.) en se
+      basant sur le contenu de `changes`.
+    columns:
+      - name: id
+        description: Identifiant unique de l'événement.
+        tests:
+          - not_null
+          - unique
+      - name: mission_id
+        description: Identifiant analytics de la mission concernée (Mission.id).
+        tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: source('public', 'Mission')
+                field: id
+      - name: mission_id_raw
+        description: Ancien identifiant Mission.old_id utilisé lors de l'import.
+        tests:
+          - relationships:
+              arguments:
+                to: source('public', 'Mission')
+                field: old_id
+      - name: type
+        description: >
+          Catégorie fonctionnelle de l'événement (`Created`, `Deleted`,
+          `UpdatedStartDate`, `UpdatedEndDate`, `UpdatedDescription`,
+          `UpdatedActivityDomain`, `UpdatedPlaces`,
+          `UpdatedJVAModerationStatus`, `UpdatedApiEngModerationStatus`,
+          `UpdatedOther`).
+        tests:
+          - not_null
+      - name: created_by
+        description: Identifiant ou nom libre de l'auteur de l'événement.
+      - name: created_at
+        description: Date de création de l'événement.
+        tests:
+          - not_null
+      - name: updated_at
+        description: Date de dernière mise à jour (curseur incrémental).
+        tests:
+          - not_null
