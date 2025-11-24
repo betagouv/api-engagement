@@ -137,7 +137,7 @@ export const transformMongoMissionToPg = (doc: MongoMission | null, partnerId: s
 };
 
 const getMissionType = (type?: string | null) => {
-  if (type === "volontariat-service-civique") {
+  if (type === "volontariat_service_civique") {
     return MissionType.volontariat_service_civique;
   }
   return MissionType.benevolat;

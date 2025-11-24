@@ -11,7 +11,7 @@ import { MissionType as MongoMissionType } from "../src/types";
 const DRY_RUN = process.argv.includes("--dry-run");
 
 const MISSING_TYPE_FILTER = {
-  $or: [{ type: { $exists: false } }, { type: null }, { type: "" }, { type: "volontariat" }],
+  $or: [{ type: { $exists: false } }, { type: null }, { type: "" }, { type: "null" }, { type: "volontariat-service-civique" }],
 };
 
 const MISSING_PUBLISHER_FILTER = {
