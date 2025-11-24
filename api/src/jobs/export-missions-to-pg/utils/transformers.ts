@@ -136,59 +136,9 @@ export const transformMongoMissionToPg = (doc: MongoMission | null, partnerId: s
   return { mission: obj, addresses };
 };
 
-const getMissionType = (type: string) => {
-  if (type === "benevolat") {
-    return MissionType.benevolat;
+const getMissionType = (type?: string | null) => {
+  if (type === "volontariat-service-civique") {
+    return MissionType.volontariat_service_civique;
   }
-  return MissionType.volontariat_service_civique;
-};
-
-const MONGO_TO_PG_FIELDS = {
-  activity: "activity",
-  applicationUrl: "application_url",
-  audience: "audience",
-  clientId: "client_id",
-  closeToTransport: "close_to_transport",
-  deletedAt: "deleted_at",
-  description: "description",
-  descriptionHtml: "description_html",
-  domain: "domain",
-  domainLogo: "domain_logo",
-  duration: "duration",
-  endAt: "end_at",
-  metadata: "metadata",
-  openToMinors: "open_to_minors",
-  organizationName: "organization_name",
-  organizationRNA: "organization_rna",
-  organizationSiren: "organization_siren",
-  organizationUrl: "organization_url",
-  organizationLogo: "organization_logo",
-  organizationDescription: "organization_description",
-  organizationClientId: "organization_client_id",
-  organizationStatusJuridique: "organization_status_juridique",
-  organizationType: "organization_type",
-  organizationActions: "organization_actions",
-  organizationFullAddress: "organization_full_address",
-  organizationPostCode: "organization_post_code",
-  organizationCity: "organization_city",
-  organizationBeneficiaries: "organization_beneficiaries",
-  organizationReseaux: "organization_reseaux",
-  organizationVerificationStatus: "organization_verification_status",
-  places: "places",
-  postedAt: "posted_at",
-  priority: "priority",
-  reducedMobilityAccessible: "reduced_mobility_accessible",
-  remote: "remote",
-  requirements: "requirements",
-  romeSkills: "rome_skills",
-  schedule: "schedule",
-  snu: "snu",
-  snuPlaces: "snu_places",
-  softSkills: "soft_skills",
-  startAt: "start_at",
-  statusCode: "status",
-  statusComment: "status_comment",
-  tags: "tags",
-  title: "title",
-  type: "type",
+  return MissionType.benevolat;
 };
