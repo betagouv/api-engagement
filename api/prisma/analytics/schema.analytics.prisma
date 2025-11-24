@@ -275,7 +275,6 @@ model Mission {
   applies        Apply[]
   clicks         Click[]
   impressions    Impression[]
-  organization   Organization?         @relation(fields: [matched_organization_id], references: [id])
   partner        Partner?              @relation(fields: [partner_id], references: [id])
   history_events MissionHistoryEvent[] @relation("MissionHistoryEvent")
 
@@ -304,59 +303,6 @@ model Address {
   @@unique([mission_id, old_id], map: "address_mission_id_old_id")
   @@index([mission_id], map: "address_mission_id")
   @@index([old_id], map: "address_old_id")
-}
-
-model Organization {
-  id                      String    @id @default(uuid())
-  old_id                  String    @unique
-  rna                     String?
-  siren                   String?
-  siret                   String?
-  rup_mi                  String?
-  gestion                 String?
-  status                  String?
-  created_at              DateTime  @default(now())
-  last_declared_at        DateTime?
-  published_at            DateTime?
-  dissolved_at            DateTime?
-  updated_at              DateTime
-  nature                  String?
-  groupement              String?
-  title                   String
-  short_title             String?
-  title_slug              String
-  short_title_slug        String?
-  names                   String[]
-  object                  String?
-  social_object1          String?
-  social_object2          String?
-  address_complement      String?
-  address_number          String?
-  address_repetition      String?
-  address_type            String?
-  address_street          String?
-  address_distribution    String?
-  address_insee_code      String?
-  address_postal_code     String?
-  address_department_code String?
-  address_department_name String?
-  address_region          String?
-  address_city            String?
-  management_declarant    String?
-  management_complement   String?
-  management_street       String?
-  management_distribution String?
-  management_postal_code  String?
-  management_city         String?
-  management_country      String?
-  director_civility       String?
-  website                 String?
-  observation             String?
-  sync_at                 DateTime?
-  source                  String?
-  missions                Mission[]
-
-  @@index([old_id], map: "organization_old_id")
 }
 
 model Partner {
