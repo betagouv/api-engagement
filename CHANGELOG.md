@@ -2,6 +2,44 @@
 Vous retrouverez ici l'historique des différents déploiements effectués sur l'API Engagement.
 
 
+## 17/11/2025
+
+
+### Bug Fixes
+
+- (**app**) Add separate loader to performance screen for available mission count (#534) ([`95dc654`](https://github.com/betagouv/api-engagement/commit/95dc654d5957e95be85f1b813cec3b446e3657e3))
+
+- (**app**) New publisher format in BO (#532) ([`3cd0a10`](https://github.com/betagouv/api-engagement/commit/3cd0a1087a6d20bb904b15aa9ad4a373785ebb66))
+
+- (**analytics**) Reduce dbt run complexity for apply table (#536) ([`659fd21`](https://github.com/betagouv/api-engagement/commit/659fd21d90de322979d85c07495ab5ffab51fee6))
+
+- (**analytics**) Renaming partner to publisher (#533) ([`dc730a8`](https://github.com/betagouv/api-engagement/commit/dc730a8fae0791b86118cbeb2dc056d9e3aacf81))
+
+- (**app**) Change organisation names when change rna in multi update rna ([`6593171`](https://github.com/betagouv/api-engagement/commit/6593171fec9a54a30fa4772e3f560fb8369f7bdc))
+
+
+### Features
+
+- (**analytics**) Apply ServiceCivique custom attributes model (#510) ([`0588609`](https://github.com/betagouv/api-engagement/commit/0588609ad0d36bb3e5803110234dbf189a9c786f))
+
+
+### Miscellaneous Tasks
+
+- (**changelog**) Update CHANGELOG.md ([`c71563f`](https://github.com/betagouv/api-engagement/commit/c71563fffacb82f7fabed5349c52ec43a54a5430))
+
+-  Merge changelog from main ([`9f62324`](https://github.com/betagouv/api-engagement/commit/9f62324e7c130132197759e83c77b385872675e6))
+
+
+### Refactoring
+
+- (**jobs**) Split statEvent table into new models (#505) ([`368ed1d`](https://github.com/betagouv/api-engagement/commit/368ed1d3b6b597d58b93ef39d58a3af2767a25f0))
+
+- (**api**) Migrate publisher model to service pattern (#524) ([`bbfaf59`](https://github.com/betagouv/api-engagement/commit/bbfaf59e4cd742574d7cea07ab42b47110292017))
+
+# API Engagement - Changelog
+Vous retrouverez ici l'historique des différents déploiements effectués sur l'API Engagement.
+
+
 ## 10/11/2025
 
 
