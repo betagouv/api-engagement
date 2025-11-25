@@ -71,8 +71,9 @@ const Create = () => {
         if (res.status === 409) return toast.error("Une campagne avec ce nom existe déjà");
         else throw res;
       }
-      setCampaignId(res.data._id);
+      setCampaignId(res.data.id);
       setIsCopyModalOpen(true);
+      toast.success("Campagne créée avec succès");
     } catch (error) {
       captureError(error, "Erreur lors de la création de la campagne");
     }
@@ -170,7 +171,7 @@ const Create = () => {
                 <option value="" disabled>
                   Sélectionner un type
                 </option>
-                <option value="banniere/publicité">Bannière/publicité</option>
+                <option value="AD_BANNER">Bannière/publicité</option>
                 <option value="mailing">Mailing</option>
                 <option value="tuile/bouton">Tuile/Bouton</option>
                 <option value="autre">Autre</option>

@@ -36,7 +36,7 @@ describe("RedirectController /campaign/:id", () => {
   it("redirects to campaign url when identity is missing", async () => {
     const campaign = await campaignService.createCampaign({
       name: "Missing Identity",
-      type: "autre",
+      type: "OTHER",
       url: "https://campaign.example.com/landing",
       fromPublisherId: "from-publisher",
       toPublisherId: "to-publisher",
@@ -55,7 +55,7 @@ describe("RedirectController /campaign/:id", () => {
   it("records stats and appends tracking parameters when identity is present", async () => {
     const campaign = await campaignService.createCampaign({
       name: "Campaign Name",
-      type: "autre",
+      type: "OTHER",
       url: "https://campaign.example.com/path",
       fromPublisherId: "from-publisher",
       toPublisherId: "to-publisher",

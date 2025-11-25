@@ -275,16 +275,9 @@ router.get("/campaign/:id", cors({ origin: "*" }), async (req, res) => {
       captureMessage(`[Redirection Campaign] Invalid params`, JSON.stringify(params.error, null, 2));
       return res.redirect(302, JVA_URL);
     }
-    // Fix to save badly copy pasted id
-    if (params.data.id.length > 24) {
-      params.data.id = params.data.id.slice(0, 24);
-    }
 
-    // Support both MongoDB ObjectId (24 chars) and UUID formats
-    const isValidId = params.data.id.length === 24 ? /^[0-9a-fA-F]{24}$/.test(params.data.id) : /^[0-9a-fA-F-]{36}$/.test(params.data.id);
-    if (!isValidId) {
-      captureMessage(`[Redirection Campaign] Invalid id`, `campaign id ${params.data.id}`);
-      return res.redirect(302, JVA_URL);
+    if (params.data.id.length > 24 && !params.data.id.includes("-")) {
+      params.data.id = params.data.id.slice(0, 24); // Fix some badly copy pasted mongo ids
     }
 
     const campaign = await campaignService.findCampaignById(params.data.id);

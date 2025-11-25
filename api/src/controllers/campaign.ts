@@ -2,13 +2,10 @@ import { NextFunction, Response, Router } from "express";
 import passport from "passport";
 import zod from "zod";
 
-import { PUBLISHER_IDS } from "../config";
 import { FORBIDDEN, INVALID_BODY, INVALID_PARAMS, INVALID_QUERY, NOT_FOUND, RESSOURCE_ALREADY_EXIST } from "../error";
-import { campaignService } from "../services/campaign";
-import { publisherService } from "../services/publisher";
-import { reassignStats } from "../services/reassign-stats";
+import { campaignService, InvalidUrlError } from "../services/campaign";
+import { CampaignCreateInput, CampaignSearchParams, CampaignUpdatePatch } from "../types/campaign";
 import { UserRequest } from "../types/passport";
-import { slugify } from "../utils";
 
 const router = Router();
 
@@ -30,7 +27,7 @@ router.post("/search", passport.authenticate("user", { session: false }), async 
     }
 
     // Build search params with access control
-    const searchParams: any = {
+    const searchParams: CampaignSearchParams = {
       active: body.data.active,
       offset: body.data.from,
       limit: body.data.size,
@@ -91,21 +88,12 @@ router.get("/:id", passport.authenticate("user", { session: false }), async (req
   }
 });
 
-const isValidUrl = (url: string) => {
-  try {
-    new URL(url);
-    return true;
-  } catch (error) {
-    return false;
-  }
-};
-
 router.post("/", passport.authenticate("admin", { session: false }), async (req: UserRequest, res: Response, next: NextFunction) => {
   try {
     const body = zod
       .object({
         name: zod.string(),
-        type: zod.enum(["banniere/publicité", "mailing", "tuile/bouton", "autre"]),
+        type: zod.enum(["AD_BANNER", "MAILING", "TILE_BUTTON", "OTHER"]),
         url: zod.string(),
         fromPublisherId: zod.string(),
         toPublisherId: zod.string(),
@@ -117,67 +105,79 @@ router.post("/", passport.authenticate("admin", { session: false }), async (req:
       return res.status(400).send({ ok: false, code: INVALID_BODY, error: body.error });
     }
 
-    const fromPublisher = await publisherService.findOnePublisherById(body.data.fromPublisherId);
-    if (!fromPublisher) {
-      return res.status(404).send({ ok: false, code: NOT_FOUND, error: "Publisher not found" });
-    }
+    const payload: CampaignCreateInput = {
+      name: body.data.name,
+      type: body.data.type,
+      url: body.data.url,
+      fromPublisherId: body.data.fromPublisherId,
+      toPublisherId: body.data.toPublisherId,
+      trackers: body.data.trackers || [],
+    };
 
-    const toPublisher = await publisherService.findOnePublisherById(body.data.toPublisherId);
-    if (!toPublisher) {
-      return res.status(404).send({ ok: false, code: NOT_FOUND, error: "Publisher not found" });
-    }
-
-    let trackers = body.data.trackers || [];
-    let url = body.data.url;
-
-    if (!trackers.length) {
-      if (toPublisher.id === PUBLISHER_IDS.SERVICE_CIVIQUE) {
-        trackers = [
-          { key: "mtm_source", value: "api_engagement" },
-          { key: "mtm_medium", value: "campaign" },
-          { key: "mtm_campaign", value: slugify(body.data.name) },
-        ];
-      } else {
-        trackers = [
-          { key: "utm_source", value: "api_engagement" },
-          { key: "utm_medium", value: "campaign" },
-          { key: "utm_campaign", value: slugify(body.data.name) },
-        ];
-      }
-      const searchParams = new URLSearchParams();
-      trackers.forEach((tracker: { key: string; value: string }) => searchParams.append(tracker.key, tracker.value));
-      url = `${url}${url.includes("?") ? "&" : "?"}${searchParams.toString()}`;
-    }
-
-    if (url) {
-      if (url.indexOf("http") === -1) {
-        url = `https://${url}`;
-      }
-      if (!isValidUrl(url)) {
-        return res.status(400).send({ ok: false, code: INVALID_BODY, error: "Invalid url" });
-      }
-    }
-
-    try {
-      const data = await campaignService.createCampaign({
-        name: body.data.name,
-        type: body.data.type,
-        url,
-        fromPublisherId: fromPublisher.id,
-        toPublisherId: toPublisher.id,
-        trackers: trackers.map((t) => ({ key: t.key, value: t.value })),
-      });
-      return res.status(200).send({ ok: true, data });
-    } catch (error: any) {
-      if (error.message?.includes("already exists")) {
-        return res.status(409).send({ ok: false, code: RESSOURCE_ALREADY_EXIST, error: "Campaign already exists" });
-      }
-      throw error;
-    }
+    const data = await campaignService.createCampaign(payload);
+    return res.status(200).send({ ok: true, data: data });
   } catch (error) {
     next(error);
   }
 });
+
+// const fromPublisher = await publisherService.findOnePublisherById(body.data.fromPublisherId);
+// if (!fromPublisher) {
+//   return res.status(404).send({ ok: false, code: NOT_FOUND, error: "Publisher not found" });
+// }
+
+// const toPublisher = await publisherService.findOnePublisherById(body.data.toPublisherId);
+// if (!toPublisher) {
+//   return res.status(404).send({ ok: false, code: NOT_FOUND, error: "Publisher not found" });
+// }
+
+// let trackers = body.data.trackers || [];
+// let url = body.data.url;
+
+// if (!trackers.length) {
+//   if (toPublisher.id === PUBLISHER_IDS.SERVICE_CIVIQUE) {
+//     trackers = [
+//       { key: "mtm_source", value: "api_engagement" },
+//       { key: "mtm_medium", value: "campaign" },
+//       { key: "mtm_campaign", value: slugify(body.data.name) },
+//     ];
+//   } else {
+//     trackers = [
+//       { key: "utm_source", value: "api_engagement" },
+//       { key: "utm_medium", value: "campaign" },
+//       { key: "utm_campaign", value: slugify(body.data.name) },
+//     ];
+//   }
+//   const searchParams = new URLSearchParams();
+//   trackers.forEach((tracker: { key: string; value: string }) => searchParams.append(tracker.key, tracker.value));
+//   url = `${url}${url.includes("?") ? "&" : "?"}${searchParams.toString()}`;
+// }
+
+// if (url) {
+//   if (url.indexOf("http") === -1) {
+//     url = `https://${url}`;
+//   }
+//   if (!isValidUrl(url)) {
+//     return res.status(400).send({ ok: false, code: INVALID_BODY, error: "Invalid url" });
+//   }
+// }
+
+// try {
+//   const data = await campaignService.createCampaign({
+//     name: body.data.name,
+//     type: body.data.type,
+//     url,
+//     fromPublisherId: fromPublisher.id,
+//     toPublisherId: toPublisher.id,
+//     trackers: trackers.map((t) => ({ key: t.key, value: t.value })),
+//   });
+//   return res.status(200).send({ ok: true, data });
+// } catch (error: any) {
+//   if (error.message?.includes("already exists")) {
+//     return res.status(409).send({ ok: false, code: RESSOURCE_ALREADY_EXIST, error: "Campaign already exists" });
+//   }
+//   throw error;
+// }
 
 router.post("/:id/duplicate", passport.authenticate("admin", { session: false }), async (req: UserRequest, res: Response, next: NextFunction) => {
   try {
@@ -220,11 +220,11 @@ router.put("/:id", passport.authenticate("admin", { session: false }), async (re
     const body = zod
       .object({
         name: zod.string().optional(),
-        type: zod.enum(["banniere/publicité", "mailing", "tuile/bouton", "autre"]).optional(),
+        type: zod.enum(["AD_BANNER", "MAILING", "TILE_BUTTON", "OTHER"]).optional(),
         url: zod.string().optional(),
         active: zod.boolean().default(true),
         toPublisherId: zod.string().optional(),
-        trackers: zod.array(zod.object({ key: zod.string(), value: zod.string(), _id: zod.string().optional() })).optional(),
+        trackers: zod.array(zod.object({ key: zod.string(), value: zod.string() })).optional(),
       })
       .safeParse(req.body);
 
@@ -235,92 +235,33 @@ router.put("/:id", passport.authenticate("admin", { session: false }), async (re
       return res.status(400).send({ ok: false, code: INVALID_BODY, error: body.error });
     }
 
-    const existing = await campaignService.findCampaignById(params.data.id);
-    if (!existing) {
-      return res.status(404).send({ ok: false, code: NOT_FOUND, error: "Campaign not found" });
-    }
-
-    const updatePatch: any = {};
+    const payload: CampaignUpdatePatch = {};
 
     if (body.data.name !== undefined) {
-      updatePatch.name = body.data.name;
+      payload.name = body.data.name;
     }
     if (body.data.type !== undefined) {
-      updatePatch.type = body.data.type;
+      payload.type = body.data.type;
     }
     if (body.data.active !== undefined) {
-      updatePatch.active = body.data.active;
+      payload.active = body.data.active;
     }
-
-    let trackers = body.data.trackers;
-    let url = body.data.url;
-
-    // Handle trackers logic
-    if (trackers && trackers.length) {
-      updatePatch.trackers = trackers.map((t) => ({ key: t.key, value: t.value }));
-    } else if (trackers !== undefined && trackers.length === 0) {
-      // Empty array means remove trackers and regenerate
-      const toPublisherId = body.data.toPublisherId || existing.toPublisherId;
-      const toPublisher = await publisherService.findOnePublisherById(toPublisherId);
-      if (!toPublisher) {
-        return res.status(404).send({ ok: false, code: NOT_FOUND, error: "Publisher not found" });
-      }
-
-      if (toPublisher.id === PUBLISHER_IDS.SERVICE_CIVIQUE) {
-        trackers = [
-          { key: "mtm_source", value: "api_engagement" },
-          { key: "mtm_medium", value: "campaign" },
-          { key: "mtm_campaign", value: slugify(body.data.name || existing.name) },
-        ];
-      } else {
-        trackers = [
-          { key: "utm_source", value: "api_engagement" },
-          { key: "utm_medium", value: "campaign" },
-          { key: "utm_campaign", value: slugify(body.data.name || existing.name) },
-        ];
-      }
-      updatePatch.trackers = trackers.map((t) => ({ key: t.key, value: t.value }));
-
-      const searchParams = new URLSearchParams();
-      trackers.forEach((tracker) => searchParams.append(tracker.key, tracker.value));
-      const baseUrl = url || existing.url;
-      url = `${baseUrl}${baseUrl.includes("?") ? "&" : "?"}${searchParams.toString()}`;
+    if (body.data.toPublisherId !== undefined) {
+      payload.toPublisherId = body.data.toPublisherId;
     }
-
-    if (url !== undefined) {
-      if (url.indexOf("http") === -1) {
-        url = `https://${url}`;
-      }
-      if (!isValidUrl(url)) {
-        return res.status(400).send({ ok: false, code: INVALID_BODY, error: "Invalid url" });
-      }
-      updatePatch.url = url;
+    if (body.data.trackers !== undefined) {
+      payload.trackers = body.data.trackers.map((t) => ({ key: t.key, value: t.value }));
     }
-
-    if (body.data.toPublisherId && body.data.toPublisherId !== existing.toPublisherId) {
-      const prevToPublisher = await publisherService.findOnePublisherById(existing.toPublisherId);
-      const newToPublisher = await publisherService.findOnePublisherById(body.data.toPublisherId);
-      if (!prevToPublisher) {
-        return res.status(404).send({ ok: false, code: NOT_FOUND, error: "Previous publisher not found" });
-      }
-      if (!newToPublisher) {
-        return res.status(404).send({ ok: false, code: NOT_FOUND, error: "New publisher not found" });
-      }
-
-      updatePatch.toPublisherId = newToPublisher.id;
-
-      await reassignStats({ sourceId: existing.id }, { toPublisherId: newToPublisher.id });
+    if (body.data.url !== undefined) {
+      payload.url = body.data.url;
     }
 
     try {
-      const data = await campaignService.updateCampaign(params.data.id, updatePatch);
+      const data = await campaignService.updateCampaign(params.data.id, payload);
       return res.status(200).send({ ok: true, data });
-    } catch (error: any) {
-      if (error.message === "Campaign not found") {
-        return res.status(404).send({ ok: false, code: NOT_FOUND, error: "Campaign not found" });
-      }
-      if (error.message?.includes("already exists")) {
-        return res.status(409).send({ ok: false, code: RESSOURCE_ALREADY_EXIST, error: "Campaign already exists" });
+    } catch (error: unknown) {
+      if (error instanceof InvalidUrlError) {
+        return res.status(400).send({ ok: false, code: INVALID_BODY, error: "Invalid url" });
       }
       throw error;
     }
@@ -352,42 +293,7 @@ router.put("/:id/reassign", passport.authenticate("admin", { session: false }), 
       return res.status(400).send({ ok: false, code: INVALID_BODY, error: body.error });
     }
 
-    const existing = await campaignService.findCampaignById(params.data.id);
-    if (!existing) {
-      return res.status(404).send({ ok: false, code: NOT_FOUND, error: "Campaign not found" });
-    }
-
-    if (existing.fromPublisherId === body.data.fromPublisherId) {
-      return res.status(400).send({
-        ok: false,
-        code: INVALID_BODY,
-        error: "Campaign is already assigned to this publisher",
-      });
-    }
-
-    const prevFromPublisher = await publisherService.findOnePublisherById(existing.fromPublisherId);
-    const newFromPublisher = await publisherService.findOnePublisherById(body.data.fromPublisherId);
-    if (!prevFromPublisher) {
-      return res.status(404).send({ ok: false, code: NOT_FOUND, error: "Previous publisher not found" });
-    }
-    if (!newFromPublisher) {
-      return res.status(404).send({ ok: false, code: NOT_FOUND, error: "New publisher not found" });
-    }
-
-    const reassignedByUsername = req.user.firstname + " " + req.user.lastname;
-    const reassignedByUserId = req.user._id?.toString() || "";
-
-    const data = await campaignService.reassignCampaign(params.data.id, body.data.fromPublisherId, reassignedByUsername, reassignedByUserId);
-
-    await reassignStats(
-      {
-        sourceId: existing.id,
-        fromPublisherId: prevFromPublisher.id,
-      },
-      {
-        fromPublisherId: newFromPublisher.id,
-      }
-    );
+    const data = await campaignService.updateCampaign(params.data.id, { fromPublisherId: body.data.fromPublisherId });
 
     return res.status(200).send({ ok: true, data });
   } catch (error) {

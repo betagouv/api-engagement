@@ -1,163 +1,101 @@
-import { Prisma } from "../db/core";
+import { PUBLISHER_IDS } from "../config";
+import { Campaign, CampaignTracker, Prisma, Publisher, User } from "../db/core";
 import { campaignRepository } from "../repositories/campaign";
-import { CampaignCreateInput, CampaignRecord, CampaignSearchParams, CampaignSearchResult, CampaignTrackerInput, CampaignType, CampaignUpdatePatch } from "../types/campaign";
-import { normalizeOptionalString } from "../utils/normalize";
+import { CampaignCreateInput, CampaignRecord, CampaignSearchParams, CampaignSearchResult, CampaignUpdatePatch } from "../types/campaign";
+import { slugify } from "../utils/string";
+import statEventService from "./stat-event";
 
 // Map MongoDB campaign type to Prisma enum
-const mapCampaignType = (type: string): CampaignType => {
-  switch (type) {
-    case "banniere/publicité":
-      return "AD_BANNER";
-    case "mailing":
-      return "MAILING";
-    case "tuile/bouton":
-      return "TILE_BUTTON";
-    case "autre":
-      return "OTHER";
-    default:
-      return "OTHER";
+export class InvalidUrlError extends Error {
+  constructor(url: string) {
+    super(`Invalid url: ${url}`);
+    this.name = "InvalidUrlError";
   }
-};
-
-// Map Prisma enum to MongoDB campaign type format
-const mapCampaignTypeToString = (type: CampaignType): string => {
-  switch (type) {
-    case CampaignType.banniere_publicite:
-      return "banniere/publicité";
-    case CampaignType.mailing:
-      return "mailing";
-    case CampaignType.tuile_bouton:
-      return "tuile/bouton";
-    case CampaignType.autre:
-      return "autre";
-    default:
-      return "autre";
-  }
-};
-
+}
 const DEFAULT_LIMIT = 25;
 const MAX_LIMIT = 100;
 
-type CampaignWithTrackers = CampaignRecord & {
-  trackers: { key: string; value: string }[];
-};
-
-const toCampaignRecord = (campaign: CampaignWithTrackers): CampaignRecord => {
-  return {
-    ...campaign,
-    type: mapCampaignTypeToString(campaign.type) as any, // Convert enum back to string format for API compatibility
-    trackers: campaign.trackers,
-  };
-};
-
-const buildSearchWhere = (params: CampaignSearchParams, fromPublisherIds?: string[]): Prisma.CampaignWhereInput => {
-  const and: Prisma.CampaignWhereInput[] = [];
-
-  // Always filter out deleted campaigns
-  and.push({ deletedAt: null });
-
-  if (params.active !== undefined) {
-    and.push({ active: params.active });
-  }
-
-  if (params.fromPublisherId) {
-    and.push({ fromPublisherId: params.fromPublisherId });
-  } else if (fromPublisherIds && fromPublisherIds.length > 0) {
-    // Support filtering by multiple publisher IDs
-    and.push({ fromPublisherId: { in: fromPublisherIds } });
-  }
-
-  if (params.toPublisherId) {
-    and.push({ toPublisherId: params.toPublisherId });
-  }
-
-  if (params.search) {
-    const search = params.search.trim();
-    if (search) {
-      and.push({ name: { contains: search, mode: "insensitive" } });
-    }
-  }
-
-  if (!and.length) {
-    return { deletedAt: null };
-  }
-  return { AND: and };
-};
-
-const mapCreateInput = (input: CampaignCreateInput): Prisma.CampaignCreateInput => {
-  const name = normalizeOptionalString(input.name);
-  if (!name) {
-    throw new Error("Campaign name is required");
-  }
-
-  const url = normalizeOptionalString(input.url);
-  if (!url) {
-    throw new Error("Campaign URL is required");
-  }
-
-  const type = typeof input.type === "string" ? mapCampaignType(input.type) : input.type;
-
-  return {
-    name,
-    type,
-    url,
-    fromPublisherId: input.fromPublisherId.trim(),
-    toPublisherId: input.toPublisherId.trim(),
-    active: input.active ?? true,
-    trackers: {
-      create: (input.trackers || []).map((tracker) => ({
-        key: tracker.key.trim(),
-        value: tracker.value.trim(),
-      })),
-    },
-  };
-};
-
-const mapUpdateInput = (patch: CampaignUpdatePatch, existingTrackers?: CampaignTrackerInput[]): Prisma.CampaignUpdateInput => {
-  const data: Prisma.CampaignUpdateInput = {};
-
-  if (patch.name !== undefined) {
-    const name = normalizeOptionalString(patch.name);
-    if (name) {
-      data.name = name;
-    }
-  }
-
-  if (patch.type !== undefined) {
-    const type = typeof patch.type === "string" ? mapCampaignType(patch.type) : patch.type;
-    data.type = type;
-  }
-
-  if (patch.url !== undefined) {
-    const url = normalizeOptionalString(patch.url);
-    if (url) {
-      data.url = url;
-    }
-  }
-
-  if (patch.toPublisherId !== undefined) {
-    data.toPublisherId = patch.toPublisherId.trim();
-  }
-
-  if (patch.active !== undefined) {
-    data.active = patch.active;
-  }
-
-  // Handle trackers update - replace all trackers
-  if (patch.trackers !== undefined) {
-    data.trackers = {
-      deleteMany: {},
-      create: patch.trackers.map((tracker) => ({
-        key: tracker.key.trim(),
-        value: tracker.value.trim(),
-      })),
-    };
-  }
-
-  return data;
+type CampaignEnriched = Campaign & {
+  fromPublisher: Publisher;
+  toPublisher: Publisher;
+  reassignedByUser: User;
+  trackers: CampaignTracker[];
 };
 
 export const campaignService = (() => {
+  const defaultInclude = Object.freeze({
+    trackers: true,
+    fromPublisher: { select: { id: true, name: true } },
+    toPublisher: { select: { id: true, name: true } },
+    reassignedByUser: { select: { id: true, firstname: true, lastname: true } },
+  }) satisfies Prisma.CampaignInclude;
+
+  const isValidUrl = (url: string) => {
+    try {
+      new URL(url);
+      return true;
+    } catch (error) {
+      return false;
+    }
+  };
+
+  const toUrl = (value: string): string | null => {
+    const url = value;
+    if (!url) {
+      return null;
+    }
+    if (!url.startsWith("http")) {
+      return `https://${url}`;
+    }
+    if (!isValidUrl(url)) {
+      return null;
+    }
+    return url;
+  };
+
+  const toCampaignRecord = (campaign: CampaignEnriched): CampaignRecord => {
+    return {
+      ...campaign,
+      fromPublisherName: campaign.fromPublisher.name,
+      toPublisherName: campaign.toPublisher.name,
+      reassignedByUsername: campaign.reassignedByUser ? `${campaign.reassignedByUser.firstname} ${campaign.reassignedByUser.lastname}` : null,
+    };
+  };
+
+  const buildSearchWhere = (params: CampaignSearchParams, fromPublisherIds?: string[]): Prisma.CampaignWhereInput => {
+    const and: Prisma.CampaignWhereInput[] = [];
+
+    // Always filter out deleted campaigns
+    and.push({ deletedAt: null });
+
+    if (params.active !== undefined) {
+      and.push({ active: params.active });
+    }
+
+    if (params.fromPublisherId) {
+      and.push({ fromPublisherId: params.fromPublisherId });
+    } else if (fromPublisherIds && fromPublisherIds.length > 0) {
+      // Support filtering by multiple publisher IDs
+      and.push({ fromPublisherId: { in: fromPublisherIds } });
+    }
+
+    if (params.toPublisherId) {
+      and.push({ toPublisherId: params.toPublisherId });
+    }
+
+    if (params.search) {
+      const search = params.search.trim();
+      if (search) {
+        and.push({ name: { contains: search, mode: "insensitive" } });
+      }
+    }
+
+    if (!and.length) {
+      return { deletedAt: null };
+    }
+    return { AND: and };
+  };
+
   const findCampaigns = async (params: CampaignSearchParams = {}, fromPublisherIds?: string[]): Promise<CampaignSearchResult> => {
     const where = buildSearchWhere(params, fromPublisherIds);
     const limit = Math.min(Math.max(params.limit ?? DEFAULT_LIMIT, 1), MAX_LIMIT);
@@ -171,13 +109,13 @@ export const campaignService = (() => {
         skip: offset,
         take: limit,
         orderBy: { createdAt: "desc" },
-        include: { trackers: true },
+        include: defaultInclude,
       }),
     ]);
 
     return {
       total,
-      results: campaigns.map(toCampaignRecord),
+      results: campaigns.map((campaign) => toCampaignRecord(campaign as CampaignEnriched)),
     };
   };
 
@@ -187,59 +125,127 @@ export const campaignService = (() => {
     }
     const campaign = await campaignRepository.findUnique({
       where: { id },
-      include: { trackers: true },
+      include: defaultInclude,
     });
     if (!campaign || campaign.deletedAt) {
       return null;
     }
-    return toCampaignRecord(campaign);
+    return toCampaignRecord(campaign as CampaignEnriched);
   };
 
   const createCampaign = async (input: CampaignCreateInput): Promise<CampaignRecord> => {
-    try {
-      const campaign = await campaignRepository.create({
-        data: mapCreateInput(input),
-        include: { trackers: true },
-      });
-      return toCampaignRecord(campaign);
-    } catch (error: unknown) {
-      if (error instanceof Error && "code" in error && (error as { code?: string }).code === "P2002") {
-        throw new Error("Campaign with this name already exists for this publisher");
-      }
-      throw error;
-    }
+    const data: Prisma.CampaignCreateInput = {
+      id: input.id ?? undefined,
+      name: input.name.trim(),
+      type: input.type,
+      url: input.url,
+      fromPublisher: { connect: { id: input.fromPublisherId.trim() } },
+      toPublisher: { connect: { id: input.toPublisherId.trim() } },
+      active: input.active ?? true,
+      trackers: {
+        create: (input.trackers || []).map((tracker) => ({
+          key: tracker.key.trim(),
+          value: tracker.value.trim(),
+        })),
+      },
+    };
+
+    const searchParams = new URLSearchParams();
+    (input.trackers || []).forEach((tracker) => searchParams.append(tracker.key, tracker.value));
+    const baseUrl = data.url.split("?")[0];
+    data.url = `${baseUrl}${searchParams.size ? `?${searchParams.toString()}` : ""}`;
+
+    const campaign = await campaignRepository.create({
+      data,
+      include: defaultInclude,
+    });
+    return toCampaignRecord(campaign as CampaignEnriched);
   };
 
   const updateCampaign = async (id: string, patch: CampaignUpdatePatch): Promise<CampaignRecord> => {
-    try {
-      const existing = await campaignRepository.findUnique({
-        where: { id },
-        include: { trackers: true },
-      });
+    const existing = (await campaignRepository.findUnique({
+      where: { id },
+      include: { trackers: true },
+    })) as CampaignEnriched | null;
 
-      if (!existing || existing.deletedAt) {
-        throw new Error("Campaign not found");
-      }
-
-      const campaign = await campaignRepository.update({
-        where: { id },
-        data: mapUpdateInput(
-          patch,
-          existing.trackers.map((t) => ({ key: t.key, value: t.value }))
-        ),
-        include: { trackers: true },
-      });
-
-      return toCampaignRecord(campaign);
-    } catch (error: unknown) {
-      if (error instanceof Error && "code" in error && (error as { code?: string }).code === "P2025") {
-        throw new Error("Campaign not found");
-      }
-      if (error instanceof Error && "code" in error && (error as { code?: string }).code === "P2002") {
-        throw new Error("Campaign with this name already exists for this publisher");
-      }
-      throw error;
+    if (!existing || existing.deletedAt) {
+      throw new Error("Campaign not found");
     }
+
+    const data: Prisma.CampaignUpdateInput = {};
+    if (patch.name !== undefined) {
+      data.name = patch.name.trim();
+    }
+    if (patch.type !== undefined) {
+      data.type = patch.type;
+    }
+    // Handle trackers logic
+    if (patch.trackers && patch.trackers.length) {
+      data.trackers = {
+        deleteMany: {},
+        create: patch.trackers.map((t) => ({ key: t.key, value: t.value })),
+      };
+    } else if (patch.trackers !== undefined && patch.trackers.length === 0) {
+      // Empty array means remove trackers and regenerate
+      const toPublisherId = patch.toPublisherId || existing.toPublisherId;
+
+      if (toPublisherId === PUBLISHER_IDS.SERVICE_CIVIQUE) {
+        patch.trackers = [
+          { key: "mtm_source", value: "api_engagement" },
+          { key: "mtm_medium", value: "campaign" },
+          { key: "mtm_campaign", value: slugify(patch.name || existing.name) },
+        ];
+      } else {
+        patch.trackers = [
+          { key: "utm_source", value: "api_engagement" },
+          { key: "utm_medium", value: "campaign" },
+          { key: "utm_campaign", value: slugify(patch.name || existing.name) },
+        ];
+      }
+      data.trackers = {
+        deleteMany: {},
+        create: patch.trackers.map((t) => ({ key: t.key, value: t.value })),
+      };
+    }
+    if (patch.url !== undefined) {
+      const url = toUrl(patch.url);
+      if (!url) {
+        throw new InvalidUrlError(patch.url);
+      }
+      data.url = url;
+    } else {
+      data.url = existing.url;
+    }
+
+    if (patch.toPublisherId !== undefined) {
+      data.toPublisher = { connect: { id: patch.toPublisherId.trim() } };
+    }
+    if (patch.fromPublisherId !== undefined) {
+      data.fromPublisher = { connect: { id: patch.fromPublisherId.trim() } };
+    }
+    if (patch.active !== undefined) {
+      data.active = patch.active;
+    }
+
+    const searchParams = new URLSearchParams();
+    (patch.trackers || existing.trackers || []).forEach((tracker) => searchParams.append(tracker.key, tracker.value));
+    const baseUrl = (data.url || existing.url).split("?")[0];
+    data.url = `${baseUrl}${searchParams.size ? `?${searchParams.toString()}` : ""}`;
+
+    const campaign = await campaignRepository.update({
+      where: { id },
+      data,
+      include: defaultInclude,
+    });
+
+    if (campaign.fromPublisherId !== existing.fromPublisherId) {
+      await statEventService.reassignStatEventsForSource(campaign.id, { fromPublisherId: campaign.fromPublisherId });
+    }
+    if (campaign.toPublisherId !== existing.toPublisherId) {
+      await statEventService.reassignStatEventsForSource(campaign.id, { toPublisherId: campaign.toPublisherId });
+    }
+
+    return toCampaignRecord(campaign as CampaignEnriched);
   };
 
   const duplicateCampaign = async (id: string): Promise<CampaignRecord> => {
@@ -248,40 +254,15 @@ export const campaignService = (() => {
       throw new Error("Campaign not found");
     }
 
-    const existingType = typeof existing.type === "string" ? mapCampaignType(existing.type) : existing.type;
     return await createCampaign({
       name: `${existing.name} copie`,
-      type: existingType,
+      type: existing.type,
       url: existing.url,
       fromPublisherId: existing.fromPublisherId,
       toPublisherId: existing.toPublisherId,
       trackers: existing.trackers.map((t) => ({ key: t.key, value: t.value })),
       active: existing.active,
     });
-  };
-
-  const reassignCampaign = async (id: string, fromPublisherId: string, reassignedByUsername: string, reassignedByUserId: string): Promise<CampaignRecord> => {
-    const existing = await findCampaignById(id);
-    if (!existing) {
-      throw new Error("Campaign not found");
-    }
-
-    if (existing.fromPublisherId === fromPublisherId) {
-      throw new Error("Campaign is already assigned to this publisher");
-    }
-
-    const campaign = await campaignRepository.update({
-      where: { id },
-      data: {
-        fromPublisherId: fromPublisherId.trim(),
-        reassignedAt: new Date(),
-        reassignedByUsername: reassignedByUsername.trim(),
-        reassignedByUserId: reassignedByUserId.trim(),
-      },
-      include: { trackers: true },
-    });
-
-    return toCampaignRecord(campaign);
   };
 
   const softDeleteCampaign = async (id: string): Promise<void> => {
@@ -307,7 +288,6 @@ export const campaignService = (() => {
     createCampaign,
     updateCampaign,
     duplicateCampaign,
-    reassignCampaign,
     softDeleteCampaign,
   };
 })();

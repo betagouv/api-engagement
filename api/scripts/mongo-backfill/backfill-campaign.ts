@@ -1,6 +1,7 @@
 import mongoose from "mongoose";
 
-import type { CampaignType } from "../../src/types/campaign";
+import { PublisherRecord } from "../../src/types";
+import type { CampaignCreateInput, CampaignType } from "../../src/types/campaign";
 import { asBoolean, asDate, asString, toMongoObjectIdString } from "./utils/cast";
 import { loadEnvironment, parseScriptOptions, type ScriptOptions } from "./utils/options";
 
@@ -63,7 +64,7 @@ const normalizeTrackers = (trackers: unknown): Array<{ key: string; value: strin
   return result;
 };
 
-const normalizeCampaign = (doc: MongoCampaignDocument): Prisma.CampaignCreateInput | null => {
+const normalizeCampaign = (doc: MongoCampaignDocument, publishers: PublisherRecord[]): CampaignCreateInput | null => {
   const name = asString(doc.name);
   if (!name) {
     console.warn("[MigrateCampaigns] Skipping document without name");
@@ -76,15 +77,15 @@ const normalizeCampaign = (doc: MongoCampaignDocument): Prisma.CampaignCreateInp
     return null;
   }
 
-  const fromPublisherId = asString(doc.fromPublisherId);
-  if (!fromPublisherId) {
-    console.warn("[MigrateCampaigns] Skipping document without fromPublisherId");
+  const fromPublisher = publishers.find((p) => p.id === asString(doc.fromPublisherId));
+  if (!fromPublisher) {
+    console.warn(`[MigrateCampaigns] Skipping document without fromPublisherId: ${asString(doc.fromPublisherId)}`);
     return null;
   }
 
-  const toPublisherId = asString(doc.toPublisherId);
-  if (!toPublisherId) {
-    console.warn("[MigrateCampaigns] Skipping document without toPublisherId");
+  const toPublisher = publishers.find((p) => p.id === asString(doc.toPublisherId));
+  if (!toPublisher) {
+    console.warn(`[MigrateCampaigns] Skipping document without toPublisherId: ${asString(doc.toPublisherId)}`);
     return null;
   }
 
@@ -99,12 +100,12 @@ const normalizeCampaign = (doc: MongoCampaignDocument): Prisma.CampaignCreateInp
   }
 
   return {
-    id: toMongoObjectIdString(doc._id),
+    id: toMongoObjectIdString(doc._id) ?? undefined,
     name,
     type,
     url,
-    fromPublisherId,
-    toPublisherId,
+    fromPublisherId: fromPublisher.id,
+    toPublisherId: toPublisher.id,
     trackers,
     active,
   };
@@ -122,7 +123,7 @@ const migrateCampaigns = async () => {
 
   console.log("[MigrateCampaigns] Starting migration");
 
-  const collection = mongoose.connection.collection("campaign");
+  const collection = mongoose.connection.collection("campaigns");
   const total = await collection.countDocuments();
   console.log(`[MigrateCampaigns] Found ${total} campaign document(s) in MongoDB`);
 
@@ -133,6 +134,8 @@ const migrateCampaigns = async () => {
   let skipped = 0;
   let errors = 0;
 
+  const publishers = (await prismaCore.publisher.findMany()) as PublisherRecord[];
+
   while (await cursor.hasNext()) {
     const doc = (await cursor.next()) as MongoCampaignDocument;
     if (!doc) {
@@ -140,7 +143,7 @@ const migrateCampaigns = async () => {
     }
 
     try {
-      const normalized = normalizeCampaign(doc);
+      const normalized = normalizeCampaign(doc, publishers);
       if (!normalized) {
         skipped++;
         processed++;
@@ -148,18 +151,67 @@ const migrateCampaigns = async () => {
       }
 
       if (options.dryRun) {
-        console.log(`[MigrateCampaigns][Dry-run] Would create campaign: ${normalized.name} (${normalized.fromPublisherId} -> ${normalized.toPublisherId})`);
+        if (normalized.id) {
+          const existing = await campaignService.findCampaignById(normalized.id);
+          if (existing) {
+            console.log(`[MigrateCampaigns][Dry-run] Would update campaign: ${normalized.name} (${normalized.fromPublisherId} -> ${normalized.toPublisherId})`);
+          } else {
+            console.log(`[MigrateCampaigns][Dry-run] Would create campaign: ${normalized.name} (${normalized.fromPublisherId} -> ${normalized.toPublisherId})`);
+          }
+        } else {
+          console.log(`[MigrateCampaigns][Dry-run] Would create campaign: ${normalized.name} (${normalized.fromPublisherId} -> ${normalized.toPublisherId})`);
+        }
         created++;
       } else {
-        try {
-          await campaignService.createCampaign(normalized);
-          created++;
-        } catch (error: any) {
-          if (error.message?.includes("already exists")) {
-            skipped++;
-            console.log(`[MigrateCampaigns] Skipping duplicate campaign: ${normalized.name} for publisher ${normalized.fromPublisherId}`);
-          } else {
-            throw error;
+        let updated = false;
+        if (normalized.id) {
+          const existing = await campaignService.findCampaignById(normalized.id);
+          if (existing) {
+            await campaignService.updateCampaign(normalized.id, {
+              name: normalized.name,
+              type: normalized.type,
+              url: normalized.url,
+              toPublisherId: normalized.toPublisherId,
+              trackers: normalized.trackers,
+              active: normalized.active,
+            });
+            updated = true;
+            created++;
+            console.log(`[MigrateCampaigns] Updated campaign: ${normalized.name} (${normalized.fromPublisherId} -> ${normalized.toPublisherId})`);
+          }
+        }
+
+        if (!updated) {
+          try {
+            await campaignService.createCampaign(normalized);
+            created++;
+          } catch (error: any) {
+            if (error.message?.includes("already exists")) {
+              // Try to find and update by name and publisher if ID lookup failed
+              if (normalized.id) {
+                const existing = await campaignService.findCampaignById(normalized.id);
+                if (existing) {
+                  await campaignService.updateCampaign(normalized.id, {
+                    name: normalized.name,
+                    type: normalized.type,
+                    url: normalized.url,
+                    toPublisherId: normalized.toPublisherId,
+                    trackers: normalized.trackers,
+                    active: normalized.active,
+                  });
+                  created++;
+                  console.log(`[MigrateCampaigns] Updated existing campaign: ${normalized.name} (${normalized.fromPublisherId} -> ${normalized.toPublisherId})`);
+                } else {
+                  skipped++;
+                  console.log(`[MigrateCampaigns] Skipping duplicate campaign: ${normalized.name} for publisher ${normalized.fromPublisherId}`);
+                }
+              } else {
+                skipped++;
+                console.log(`[MigrateCampaigns] Skipping duplicate campaign: ${normalized.name} for publisher ${normalized.fromPublisherId}`);
+              }
+            } else {
+              throw error;
+            }
           }
         }
       }

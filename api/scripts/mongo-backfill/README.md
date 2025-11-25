@@ -89,12 +89,14 @@ npx ts-node api/scripts/mongo-backfill/backfill-campaign.ts --env api/.env.produ
   - `--env <nom|chemin>` charge le fichier d'environnement à utiliser avant les connexions Mongo/PostgreSQL.
 - Exemples:
 
-````bash
+```bash
 # Dry-run avec les variables de api/.env.production
 npx ts-node api/scripts/mongo-backfill/backfill-user.ts --env production --dry-run
 
 # Exécution réelle avec un fichier .env explicite
 npx ts-node api/scripts/mongo-backfill/backfill-user.ts --env api/.env.production
+```
+
 ## backfill-mission-event.ts
 
 - Rôle: migrer les événements de mission (`mission-events`) depuis MongoDB vers la table `mission_event` de Postgres.
@@ -110,4 +112,4 @@ npx ts-node scripts/mongo-backfill/backfill-mission-event.ts --env production --
 
 # Migration effective
 npx ts-node scripts/mongo-backfill/backfill-mission-event.ts --env api/.env.production
-````
+```

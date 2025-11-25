@@ -35,6 +35,7 @@ export interface CampaignSearchResult {
 }
 
 export interface CampaignCreateInput {
+  id?: string;
   name: string;
   type: CampaignType;
   url: string;
@@ -51,8 +52,9 @@ export interface CampaignTrackerInput {
 
 export interface CampaignUpdatePatch {
   name?: string;
-  type?: CampaignType | string; // Accept both enum and string format
+  type?: CampaignType;
   url?: string;
+  fromPublisherId?: string;
   toPublisherId?: string;
   trackers?: CampaignTrackerInput[];
   active?: boolean;
