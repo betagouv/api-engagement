@@ -222,21 +222,6 @@ export type ModerationEvent = {
   updatedAt: Date;
 };
 
-export interface OrganizationExclusion {
-  _id?: Schema.Types.ObjectId;
-  excludedByPublisherId: string;
-  excludedByPublisherName: string;
-
-  excludedForPublisherId: string;
-  excludedForPublisherName: string;
-
-  organizationClientId: string;
-  organizationName: string;
-
-  createdAt: Date;
-  updatedAt: Date;
-}
-
 export type Request = {
   _id: Schema.Types.ObjectId;
   route: string;
