@@ -139,3 +139,21 @@ resource "scaleway_job_definition" "analytics-dbt-run" {
     JOB_CMD = "sh scripts/dbt-env.sh run"
   })
 }
+
+resource "scaleway_job_definition" "analytics-kpi-daily" {
+  name         = "analytics-${terraform.workspace}-kpi-daily"
+  project_id   = var.project_id
+  cpu_limit    = 1000
+  memory_limit = 2048
+  image_uri    = local.image_analytics_uri
+  timeout      = "60m"
+
+  cron {
+    schedule = "30 4 * * *" # Every day at 4:30 AM (after raw exports, before global dbt run)
+    timezone = "Europe/Paris"
+  }
+
+  env = merge(local.common_analytics_env_vars, {
+    JOB_CMD = "sh scripts/dbt-env.sh run --select +kpi_daily"
+  })
+}

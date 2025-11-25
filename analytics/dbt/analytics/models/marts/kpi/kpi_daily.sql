@@ -5,27 +5,34 @@
 ) }}
 
 with mission_source as (
-  select * from {{ ref('stg_kpi__mission_daily') }}
+  select *
+  from {{ ref('stg_kpi__mission_daily') }}
+  {% if is_incremental() %}
+    where metric_date > (
+      select coalesce(max(k.kpi_date), '1900-01-01')
+      from {{ this }} as k
+    )
+  {% endif %}
 ),
 
 event_source as (
-  select * from {{ ref('stg_kpi__events_daily') }}
+  select *
+  from {{ ref('stg_kpi__events_daily') }}
+  {% if is_incremental() %}
+    where metric_date > (
+      select coalesce(max(k.kpi_date), '1900-01-01')
+      from {{ this }} as k
+    )
+  {% endif %}
 ),
 
 date_spine as (
-  {% if is_incremental() %}
-    select (current_date - interval '1 day')::date as metric_date
-  {% else %}
-    select metric_date
-    from (
-      select distinct metric_date from mission_source
-    ) as mission_dates
+  select metric_date
+  from (
+    select distinct metric_date from mission_source
     union
-    select metric_date
-    from (
-      select distinct metric_date from event_source
-    ) as event_dates
-  {% endif %}
+    select distinct metric_date from event_source
+  ) as all_dates
 ),
 
 mission_stats as (
