@@ -1,4 +1,4 @@
-export interface StatsBotRecord {
+export interface StatBotRecord {
   id: string;
   origin: string | null;
   referer: string | null;
@@ -9,14 +9,14 @@ export interface StatsBotRecord {
   updatedAt: Date;
 }
 
-export interface StatsBotSearchParams {
+export interface StatBotSearchParams {
   user?: string;
   offset?: number;
   limit?: number;
   includeTotal?: "all" | "filtered" | "none";
 }
 
-export interface StatsBotCreateInput {
+export interface StatBotCreateInput {
   user: string;
   origin?: string | null;
   referer?: string | null;

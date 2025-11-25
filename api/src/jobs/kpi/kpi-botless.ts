@@ -1,8 +1,8 @@
 import { captureException } from "../../error";
 import KpiBotlessModel from "../../models/kpi-botless";
 import MissionModel from "../../models/mission";
+import { statBotService } from "../../services/stat-bot";
 import { statEventService } from "../../services/stat-event";
-import { statsBotService } from "../../services/stats-bot";
 import { Kpi } from "../../types";
 import { safeDivision } from "./utils/math";
 
@@ -78,9 +78,9 @@ export const buildKpiBotless = async (start: Date): Promise<Kpi | null> => {
     const percentageBenevolatAttributedPlaces = safeDivision(availableBenevolatAttributedMissionCount, availableBenevolatMissionCount);
     const percentageVolontariatAttributedPlaces = safeDivision(availableVolontariatAttributedMissionCount, availableVolontariatMissionCount);
 
-    const statsBots = await statsBotService.findStatsBots();
+    const statBots = await statBotService.findStatBots();
 
-    const excludeUsers = statsBots.map((e) => e.user).filter(Boolean) as string[];
+    const excludeUsers = statBots.map((e) => e.user).filter(Boolean) as string[];
 
     const statsBenevolatAggs = await statEventService.aggregateStatEventsForMission({
       from: fromDate,

@@ -474,7 +474,7 @@ model PublisherDiffusionExclusion {
   @@map("publisher_diffusion_exclusion")
 }
 
-model StatsBot {
+model StatBot {
   id        String   @id @default(uuid())
   origin    String?  @map("origin")
   referer   String?  @map("referer")
@@ -485,5 +485,5 @@ model StatsBot {
   updatedAt DateTime @updatedAt @map("updated_at")
 
   @@index([user], map: "stats_bot_user_idx")
-  @@map("stats_bot")
+  @@map("stat_bot")
 }

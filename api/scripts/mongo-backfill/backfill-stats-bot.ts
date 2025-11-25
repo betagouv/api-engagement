@@ -1,7 +1,5 @@
 import mongoose from "mongoose";
 
-import { mongoConnected } from "../../src/db/mongo";
-import { pgConnected, prismaCore } from "../../src/db/postgres";
 import { statsBotService } from "../../src/services/stats-bot";
 import type { StatsBotCreateInput } from "../../src/types/stats-bot";
 import { asString, toMongoObjectIdString } from "./utils/cast";
@@ -39,7 +37,10 @@ const normalizeStatsBot = (doc: MongoStatsBotDocument): StatsBotCreateInput | nu
 };
 
 const migrateStatsBots = async () => {
-  await Promise.all([mongoConnected, pgConnected]);
+  const [{ mongoConnected }, { pgConnected, prismaCore }] = await Promise.all([import("../../src/db/mongo"), import("../../src/db/postgres")]);
+
+  await mongoConnected;
+  await pgConnected;
 
   console.log("[MigrateStatsBots] Starting migration");
 

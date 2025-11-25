@@ -1,13 +1,13 @@
 import { Prisma } from "../db/core";
-import { statsBotRepository } from "../repositories/stats-bot";
-import { StatsBotCreateInput, StatsBotRecord, StatsBotSearchParams } from "../types/stats-bot";
+import { statBotRepository } from "../repositories/stat-bot";
+import { StatBotCreateInput, StatBotRecord, StatBotSearchParams } from "../types/stat-bot";
 import { normalizeOptionalString } from "../utils/normalize";
 
 const DEFAULT_LIMIT = 25;
 const MAX_LIMIT = 100;
 
-const buildSearchWhere = (params: StatsBotSearchParams): Prisma.StatsBotWhereInput => {
-  const and: Prisma.StatsBotWhereInput[] = [];
+const buildSearchWhere = (params: StatBotSearchParams): Prisma.StatBotWhereInput => {
+  const and: Prisma.StatBotWhereInput[] = [];
 
   if (params.user) {
     const user = params.user.trim();
@@ -22,39 +22,39 @@ const buildSearchWhere = (params: StatsBotSearchParams): Prisma.StatsBotWhereInp
   return { AND: and };
 };
 
-export const statsBotService = {
-  async findStatsBotByUser(user: string): Promise<StatsBotRecord | null> {
+export const statBotService = {
+  async findStatBotByUser(user: string): Promise<StatBotRecord | null> {
     if (!user) {
       return null;
     }
-    return statsBotRepository.findUnique({
+    return statBotRepository.findUnique({
       where: { user: user.trim() },
     });
   },
 
-  async findStatsBots(params: StatsBotSearchParams = {}): Promise<StatsBotRecord[]> {
+  async findStatBots(params: StatBotSearchParams = {}): Promise<StatBotRecord[]> {
     const where = buildSearchWhere(params);
     const limit = Math.min(Math.max(params.limit ?? DEFAULT_LIMIT, 1), MAX_LIMIT);
     const offset = Math.max(params.offset ?? 0, 0);
 
-    const statsBots = await statsBotRepository.findMany({
+    const statBots = await statBotRepository.findMany({
       where,
       skip: offset,
       take: limit,
       orderBy: { createdAt: "desc" },
     });
 
-    return statsBots;
+    return statBots;
   },
 
-  async createStatsBot(input: StatsBotCreateInput): Promise<StatsBotRecord> {
+  async createStatBot(input: StatBotCreateInput): Promise<StatBotRecord> {
     const user = normalizeOptionalString(input.user);
     if (!user) {
-      throw new Error("StatsBot user is required");
+      throw new Error("StatBot user is required");
     }
 
     try {
-      return await statsBotRepository.create({
+      return await statBotRepository.create({
         data: {
           user: user.trim(),
           origin: normalizeOptionalString(input.origin) ?? null,
@@ -65,14 +65,14 @@ export const statsBotService = {
       });
     } catch (error: unknown) {
       if (error instanceof Error && "code" in error && (error as { code?: string }).code === "P2002") {
-        throw new Error("StatsBot with this user already exists");
+        throw new Error("StatBot with this user already exists");
       }
       throw error;
     }
   },
 
-  async deleteStatsBotByUser(user: string): Promise<void> {
-    await statsBotRepository.deleteMany({
+  async deleteStatBotByUser(user: string): Promise<void> {
+    await statBotRepository.deleteMany({
       where: { user: user.trim() },
     });
   },
