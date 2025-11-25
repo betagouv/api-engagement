@@ -5,35 +5,11 @@ import zod from "zod";
 import { JVA_MODERATION_COMMENTS_LABELS } from "../../constants/moderation";
 import { INVALID_PARAMS, INVALID_QUERY, NOT_FOUND } from "../../error";
 import MissionModel from "../../models/mission";
-import RequestModel from "../../models/request";
 import { Mission, PublisherRecord } from "../../types";
 import { PublisherRequest } from "../../types/passport";
 import { getMissionStatsSummary, getMissionStatsWithDetails } from "./stats";
 
 const router = Router();
-
-router.use(async (req: PublisherRequest, res: Response, next: NextFunction) => {
-  res.on("finish", async () => {
-    if (!req.route) {
-      return;
-    }
-    const request = new RequestModel({
-      method: req.method,
-      key: req.headers["x-api-key"] || req.headers["apikey"],
-      header: req.headers,
-      route: `/v0/mymission${req.route.path}`,
-      query: req.query,
-      params: req.params,
-      body: req.body,
-      status: res.statusCode,
-      code: res.locals.code,
-      message: res.locals.message,
-      total: res.locals.total,
-    });
-    await request.save();
-  });
-  next();
-});
 
 router.get("/", passport.authenticate(["apikey", "api"], { session: false }), async (req: PublisherRequest, res: Response, next: NextFunction) => {
   try {
