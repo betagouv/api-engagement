@@ -1,15 +1,25 @@
 import request from "supertest";
-import { afterEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import { JVA_URL } from "../../../../src/config";
 import { prismaCore } from "../../../../src/db/postgres";
 import StatsBotModel from "../../../../src/models/stats-bot";
 import { campaignService } from "../../../../src/services/campaign";
+import { PublisherRecord } from "../../../../src/types/publisher";
 import * as utils from "../../../../src/utils";
+import { createTestPublisher } from "../../../fixtures";
 import { createTestApp } from "../../../testApp";
 
 describe("RedirectController /campaign/:id", () => {
   const app = createTestApp();
+
+  let publisher1: PublisherRecord;
+  let publisher2: PublisherRecord;
+
+  beforeEach(async () => {
+    publisher1 = await createTestPublisher();
+    publisher2 = await createTestPublisher();
+  });
 
   afterEach(async () => {
     vi.restoreAllMocks();
@@ -38,8 +48,8 @@ describe("RedirectController /campaign/:id", () => {
       name: "Missing Identity",
       type: "OTHER",
       url: "https://campaign.example.com/landing",
-      fromPublisherId: "from-publisher",
-      toPublisherId: "to-publisher",
+      fromPublisherId: publisher1.id,
+      toPublisherId: publisher2.id,
     });
 
     const identifySpy = vi.spyOn(utils, "identify").mockReturnValue(null);
@@ -57,8 +67,8 @@ describe("RedirectController /campaign/:id", () => {
       name: "Campaign Name",
       type: "OTHER",
       url: "https://campaign.example.com/path",
-      fromPublisherId: "from-publisher",
-      toPublisherId: "to-publisher",
+      fromPublisherId: publisher1.id,
+      toPublisherId: publisher2.id,
     });
 
     const identity = {
@@ -93,7 +103,7 @@ describe("RedirectController /campaign/:id", () => {
       sourceName: campaign.name,
       toPublisherId: campaign.toPublisherId,
       fromPublisherId: campaign.fromPublisherId,
-      isBot: false,
+      isBot: true,
     });
 
     expect(statsBotFindOneSpy).toHaveBeenCalledWith({ user: identity.user });
