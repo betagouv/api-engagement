@@ -1,7 +1,7 @@
 {{ config(
   materialized='incremental',
   unique_key=['kpi_date', 'is_bot_filtered'],
-  incremental_strategy='delete+insert'
+  on_schema_change = 'sync_all_columns'
 ) }}
 
 with mission_source as (
@@ -33,6 +33,7 @@ date_spine as (
     union
     select distinct metric_date from event_source
   ) as all_dates
+  where metric_date <= (current_date - interval '1 day')
 ),
 
 mission_stats as (
