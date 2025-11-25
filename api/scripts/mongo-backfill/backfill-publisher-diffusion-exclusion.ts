@@ -1,5 +1,6 @@
 import mongoose from "mongoose";
 
+import { PublisherRecord } from "../../src/types";
 import type { PublisherDiffusionExclusionCreateInput } from "../../src/types/publisher-diffusion-exclusion";
 import { asString } from "./utils/cast";
 import { loadEnvironment, parseScriptOptions, type ScriptOptions } from "./utils/options";
@@ -20,34 +21,34 @@ const BATCH_SIZE = 500;
 const options: ScriptOptions = parseScriptOptions(process.argv.slice(2), "MigrateOrganizationExclusions");
 loadEnvironment(options, __dirname, "MigrateOrganizationExclusions");
 
-const normalizeOrganizationExclusion = (doc: MongoOrganizationExclusionDocument): PublisherDiffusionExclusionCreateInput | null => {
-  const excludedByAnnonceurId = asString(doc.excludedByPublisherId);
-  if (!excludedByAnnonceurId) {
-    console.warn("[MigrateOrganizationExclusions] Skipping document without excludedByPublisherId");
+const normalizeOrganizationExclusion = (doc: MongoOrganizationExclusionDocument, publishers: PublisherRecord[]): PublisherDiffusionExclusionCreateInput | null => {
+  const excludedByAnnonceur = publishers.find((p) => p.id === asString(doc.excludedByPublisherId));
+  if (!excludedByAnnonceur) {
+    console.warn(`[MigrateOrganizationExclusions] Skipping document without excludedByPublisherId: ${asString(doc.excludedByPublisherId)}`);
     return null;
   }
-
-  const excludedForDiffuseurId = asString(doc.excludedForPublisherId);
-  if (!excludedForDiffuseurId) {
-    console.warn("[MigrateOrganizationExclusions] Skipping document without excludedForPublisherId");
+  const excludedForDiffuseur = publishers.find((p) => p.id === asString(doc.excludedForPublisherId));
+  if (!excludedForDiffuseur) {
+    console.warn(`[MigrateOrganizationExclusions] Skipping document without excludedForPublisherId: ${asString(doc.excludedForPublisherId)}`);
     return null;
   }
 
   const organizationClientId = asString(doc.organizationClientId);
 
   return {
-    excludedByAnnonceurId,
-    excludedForDiffuseurId,
+    excludedByAnnonceurId: excludedByAnnonceur.id,
+    excludedForDiffuseurId: excludedForDiffuseur.id,
     organizationClientId: organizationClientId ?? null,
     organizationName: asString(doc.organizationName) ?? null,
   };
 };
 
 const migrateOrganizationExclusions = async () => {
-  const [{ mongoConnected }, { pgConnected, prismaCore }, { publisherDiffusionExclusionService: organizationExclusionService }] = await Promise.all([
+  const [{ mongoConnected }, { pgConnected, prismaCore }, { publisherDiffusionExclusionService }, { publisherService }] = await Promise.all([
     import("../../src/db/mongo"),
     import("../../src/db/postgres"),
     import("../../src/services/publisher-diffusion-exclusion"),
+    import("../../src/services/publisher"),
   ]);
 
   await mongoConnected;
@@ -55,7 +56,7 @@ const migrateOrganizationExclusions = async () => {
 
   console.log("[MigrateOrganizationExclusions] Starting migration");
 
-  const collection = mongoose.connection.collection("organization-exclusion");
+  const collection = mongoose.connection.collection("organization-exclusions");
   const total = await collection.countDocuments();
   console.log(`[MigrateOrganizationExclusions] Found ${total} organization exclusion document(s) in MongoDB`);
 
@@ -82,7 +83,7 @@ const migrateOrganizationExclusions = async () => {
         });
         created += batch.length;
       } else {
-        const count = await organizationExclusionService.createManyExclusions(batch);
+        const count = await publisherDiffusionExclusionService.createManyExclusions(batch);
         created += count;
       }
       batch.length = 0;
@@ -93,6 +94,8 @@ const migrateOrganizationExclusions = async () => {
     }
   };
 
+  const publishers = await publisherService.findPublishers();
+
   while (await cursor.hasNext()) {
     const doc = (await cursor.next()) as MongoOrganizationExclusionDocument;
     if (!doc) {
@@ -100,7 +103,7 @@ const migrateOrganizationExclusions = async () => {
     }
 
     try {
-      const normalized = normalizeOrganizationExclusion(doc);
+      const normalized = normalizeOrganizationExclusion(doc, publishers);
       if (!normalized) {
         skipped++;
         processed++;
