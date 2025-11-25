@@ -5,7 +5,6 @@ import zod from "zod";
 import { SLACK_JOBTEASER_CHANNEL_ID } from "../config";
 import { captureMessage, INVALID_BODY, NOT_FOUND } from "../error";
 import MissionModel from "../models/mission";
-import RequestModel from "../models/request";
 import { postMessage } from "../services/slack";
 import { PublisherRequest } from "../types/passport";
 
@@ -16,30 +15,6 @@ const router = Router();
  * webhook called for each mission to give back a status of the moderation of the partner in front
  * doc here https://www.notion.so/jeveuxaider/Leboincoin-API-Feedback-de-l-API-Engagement-12672a322d508087ab8bf02951b534b8?pvs=4
  */
-
-router.use(async (req: PublisherRequest, res: Response, next: NextFunction) => {
-  res.on("finish", async () => {
-    if (!req.route) {
-      return;
-    }
-    const request = new RequestModel({
-      method: req.method,
-      key: req.headers["x-api-key"] || req.headers["apikey"],
-      header: req.headers,
-      route: `/v2/jobteaser${req.route.path}`,
-      query: req.query,
-      params: req.params,
-      body: req.body,
-      status: res.statusCode,
-      code: res.locals.code,
-      message: res.locals.message,
-      total: res.locals.total,
-    });
-    await request.save();
-  });
-  next();
-});
-
 router.post("/feedback", passport.authenticate(["jobteaser"], { session: false }), async (req: PublisherRequest, res: Response, next: NextFunction) => {
   try {
     const body = zod

@@ -3,35 +3,11 @@ import passport from "passport";
 import zod from "zod";
 
 import { INVALID_PARAMS, NOT_FOUND } from "../error";
-import RequestModel from "../models/request";
 import { publisherService } from "../services/publisher";
 import { publisherDiffusionExclusionService } from "../services/publisher-diffusion-exclusion";
 import { PublisherRequest } from "../types/passport";
 import type { PublisherRecord } from "../types/publisher";
 const router = Router();
-
-router.use(async (req: PublisherRequest, res: Response, next: NextFunction) => {
-  res.on("finish", async () => {
-    if (!req.route) {
-      return;
-    }
-    const request = new RequestModel({
-      method: req.method,
-      key: req.headers["x-api-key"] || req.headers["apikey"],
-      header: req.headers,
-      route: `/v0/publisher${req.route.path}`,
-      query: req.query,
-      params: req.params,
-      body: req.body,
-      status: res.statusCode,
-      code: res.locals.code,
-      message: res.locals.message,
-      total: res.locals.total,
-    });
-    await request.save();
-  });
-  next();
-});
 
 router.get("/", passport.authenticate(["apikey", "api"], { session: false }), async (req: PublisherRequest, res: Response, next: NextFunction) => {
   try {
