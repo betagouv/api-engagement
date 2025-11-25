@@ -61,3 +61,22 @@ models:
         description: Timestamp de dernière mise à jour du rattachement (curseur d'incrément).
         tests:
           - not_null
+  - name: login_history
+    description: >
+      Historique des connexions utilisateurs produit à partir du champ `login_at` synchronisé dans `stg_user`. Chaque
+      ligne correspond à une connexion unique pour un utilisateur donné.
+    columns:
+      - name: user_id
+        description: Identifiant de l'utilisateur connecté.
+        tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('user')
+                field: id
+      - name: login_at
+        description: Timestamp de la connexion rapportée par l'application.
+        tests:
+          - not_null
+      - name: user_updated_at
+        description: Timestamp `updated_at` du compte utilisateur au moment de la synchronisation (curseur d'incrément).

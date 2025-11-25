@@ -284,7 +284,7 @@ export const exportDefinitions: ExportDefinition[] = [
         field: "updated_at",
         idField: "id",
       },
-      columns: ["id", "first_name", "last_name", "email", "role", "deleted_at", "last_activity_at", "created_at", "updated_at"],
+      columns: ["id", "first_name", "last_name", "email", "role", "deleted_at", "last_activity_at", "login_at", "created_at", "updated_at"],
     },
     destination: {
       table: "user",
