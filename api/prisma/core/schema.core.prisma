@@ -131,7 +131,7 @@ model User {
   createdAt               DateTime   @default(now()) @map("created_at")
   updatedAt               DateTime   @updatedAt @map("updated_at")
 
-  userPublishers          UserPublisher[]
+  userPublishers UserPublisher[]
 
   @@index([deletedAt], map: "user_deleted_at_idx")
   @@map("user")
@@ -161,46 +161,46 @@ model Report {
 }
 
 model StatEvent {
-  id                String          @id @default(uuid())
-  esId              String?         @unique @map("es_id")
-  type              StatEventType
-  createdAt         DateTime        @default(now()) @map("created_at")
-  updatedAt         DateTime?       @updatedAt @map("updated_at")
-  clickUser         String?         @map("click_user")
-  clickId           String?         @map("click_id")
-  requestId         String?         @map("request_id")
-  origin            String
-  referer           String
-  userAgent         String          @map("user_agent")
-  host              String
-  user              String?
-  isBot             Boolean         @map("is_bot")
-  isHuman           Boolean         @map("is_human")
-  source            StatSource
-  sourceId          String          @map("source_id")
-  sourceName        String          @map("source_name")
-  customAttributes  Json?           @map("custom_attributes")
-  status            StatEventStatus
+  id               String          @id @default(uuid())
+  esId             String?         @unique @map("es_id")
+  type             StatEventType
+  createdAt        DateTime        @default(now()) @map("created_at")
+  updatedAt        DateTime?       @updatedAt @map("updated_at")
+  clickUser        String?         @map("click_user")
+  clickId          String?         @map("click_id")
+  requestId        String?         @map("request_id")
+  origin           String
+  referer          String
+  userAgent        String          @map("user_agent")
+  host             String
+  user             String?
+  isBot            Boolean         @map("is_bot")
+  isHuman          Boolean         @map("is_human")
+  source           StatSource
+  sourceId         String          @map("source_id")
+  sourceName       String          @map("source_name")
+  customAttributes Json?           @map("custom_attributes")
+  status           StatEventStatus
 
-  fromPublisherId   String          @map("from_publisher_id")
-  toPublisherId     String          @map("to_publisher_id")
+  fromPublisherId String @map("from_publisher_id")
+  toPublisherId   String @map("to_publisher_id")
 
   fromPublisher Publisher @relation("StatEventFromPublisher", fields: [fromPublisherId], references: [id])
   toPublisher   Publisher @relation("StatEventToPublisher", fields: [toPublisherId], references: [id])
 
   // Mission fields. Should be replaced by foreign keys to existing models when migrated
-  missionId                     String? @map("mission_id")
-  missionClientId               String? @map("mission_client_id")
-  missionDomain                 String? @map("mission_domain")
-  missionTitle                  String? @map("mission_title")
-  missionPostalCode             String? @map("mission_postal_code")
-  missionDepartmentName         String? @map("mission_department_name")
-  missionOrganizationId         String? @map("mission_organization_id")
-  missionOrganizationName       String? @map("mission_organization_name")
-  missionOrganizationClientId   String? @map("mission_organization_client_id")
-  tag                           String?
-  tags                          String[] @default([])
-  exportToAnalytics             String? @map("export_to_analytics")
+  missionId                   String?  @map("mission_id")
+  missionClientId             String?  @map("mission_client_id")
+  missionDomain               String?  @map("mission_domain")
+  missionTitle                String?  @map("mission_title")
+  missionPostalCode           String?  @map("mission_postal_code")
+  missionDepartmentName       String?  @map("mission_department_name")
+  missionOrganizationId       String?  @map("mission_organization_id")
+  missionOrganizationName     String?  @map("mission_organization_name")
+  missionOrganizationClientId String?  @map("mission_organization_client_id")
+  tag                         String?
+  tags                        String[] @default([])
+  exportToAnalytics           String?  @map("export_to_analytics")
 
   @@index([type, createdAt], map: "stats_event_type_created_at_desc_idx")
   @@index([missionId, createdAt], map: "stats_event_mission_id_created_at_idx")
@@ -214,7 +214,6 @@ model StatEvent {
   @@index([toPublisherId, type, createdAt], map: "stats_event_to_publisher_type_created_at_idx")
   @@index([updatedAt(sort: Asc)], map: "stats_event_updated_at_asc_idx")
   @@index([user], map: "stats_event_user_idx")
-
   @@map("stat_event")
 }
 
@@ -274,14 +273,16 @@ model Publisher {
   createdAt          DateTime     @default(now()) @map("created_at")
   updatedAt          DateTime     @updatedAt @map("updated_at")
 
-  diffuseurs            PublisherDiffusion[] @relation("PublisherAnnonceurRelation")
-  diffusionsAsDiffuseur PublisherDiffusion[] @relation("PublisherDiffuseurRelation")
-  warnings              Warning[]            @relation("WarningPublisherRelation")
-  imports               Import[]             @relation("ImportPublisherRelation")
-  reports               Report[]             @relation("PublisherReportRelation")
-  statEventsFrom        StatEvent[]          @relation("StatEventFromPublisher")
-  statEventsTo          StatEvent[]          @relation("StatEventToPublisher")
-  userPublishers        UserPublisher[]
+  diffuseurs             PublisherDiffusion[]          @relation("PublisherAnnonceurRelation")
+  diffusionsAsDiffuseur  PublisherDiffusion[]          @relation("PublisherDiffuseurRelation")
+  warnings               Warning[]                     @relation("WarningPublisherRelation")
+  imports                Import[]                      @relation("ImportPublisherRelation")
+  reports                Report[]                      @relation("PublisherReportRelation")
+  diffusionExclusionsBy  PublisherDiffusionExclusion[] @relation("PublisherDiffusionExclusionByAnnonceurRelation")
+  diffusionExclusionsFor PublisherDiffusionExclusion[] @relation("PublisherDiffusionExclusionForDiffuseurRelation")
+  statEventsFrom         StatEvent[]                   @relation("StatEventFromPublisher")
+  statEventsTo           StatEvent[]                   @relation("StatEventToPublisher")
+  userPublishers         UserPublisher[]
 
   @@index([name], map: "publisher_name_idx")
   @@index([apikey], map: "publisher_apikey_idx")
@@ -296,11 +297,11 @@ model Publisher {
 }
 
 model UserPublisher {
-  id          String    @id @default(uuid())
-  userId      String    @map("user_id")
-  publisherId String    @map("publisher_id")
-  createdAt   DateTime  @default(now()) @map("created_at")
-  updatedAt   DateTime  @updatedAt @map("updated_at")
+  id          String   @id @default(uuid())
+  userId      String   @map("user_id")
+  publisherId String   @map("publisher_id")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
 
   user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
   publisher Publisher @relation(fields: [publisherId], references: [id], onDelete: Cascade)
@@ -454,4 +455,21 @@ model Organization {
   @@index([addressDepartmentName], map: "organization_department_name_idx")
   @@index([addressCity], map: "organization_city_idx")
   @@map("organization")
+}
+
+model PublisherDiffusionExclusion {
+  id                     String   @id @default(uuid())
+  excludedByAnnonceurId  String   @map("excluded_by_annonceur_id")
+  excludedForDiffuseurId String   @map("excluded_for_diffuseur_id")
+  organizationClientId   String?  @map("organization_client_id")
+  organizationName       String?  @map("organization_name")
+  createdAt              DateTime @default(now()) @map("created_at")
+  updatedAt              DateTime @updatedAt @map("updated_at")
+
+  excludedByAnnonceur  Publisher @relation("PublisherDiffusionExclusionByAnnonceurRelation", fields: [excludedByAnnonceurId], references: [id], onDelete: Cascade, map: "pde_excluded_by_annonceur_id_fkey")
+  excludedForDiffuseur Publisher @relation("PublisherDiffusionExclusionForDiffuseurRelation", fields: [excludedForDiffuseurId], references: [id], onDelete: Cascade, map: "pde_excluded_for_diffuseur_id_fkey")
+
+  @@unique([excludedByAnnonceurId, excludedForDiffuseurId, organizationClientId], map: "pde_by_annonceur_for_diffuseur_org_key")
+  @@index([excludedForDiffuseurId], map: "publisher_diffusion_exclusion_for_diffuseur_id_idx")
+  @@map("publisher_diffusion_exclusion")
 }

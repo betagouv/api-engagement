@@ -5,8 +5,8 @@ import zod from "zod";
 
 import { DEFAULT_AVATAR, PUBLISHER_IDS } from "../config";
 import { FORBIDDEN, INVALID_BODY, INVALID_PARAMS, NOT_FOUND, RESSOURCE_ALREADY_EXIST, captureException } from "../error";
-import OrganizationExclusionModel from "../models/organization-exclusion";
 import { PublisherNotFoundError, publisherService } from "../services/publisher";
+import { publisherDiffusionExclusionService } from "../services/publisher-diffusion-exclusion";
 import { OBJECT_ACL, putObject } from "../services/s3";
 import { userService } from "../services/user";
 import { UserRequest } from "../types/passport";
@@ -157,10 +157,9 @@ router.get("/:id/excluded-organizations", passport.authenticate("user", { sessio
       return res.status(404).send({ ok: false, code: NOT_FOUND, message: "Publisher not found" });
     }
 
-    const organizationExclusions = await OrganizationExclusionModel.find({
-      excludedForPublisherId: publisher.id,
-    });
-    return res.status(200).send({ ok: true, data: organizationExclusions });
+    const diffusionExclusions = await publisherDiffusionExclusionService.findExclusionsForDiffuseurId(publisher.id);
+
+    return res.status(200).send({ ok: true, data: diffusionExclusions });
   } catch (error) {
     next(error);
   }

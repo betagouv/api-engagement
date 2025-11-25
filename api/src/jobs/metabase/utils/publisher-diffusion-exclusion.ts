@@ -1,25 +1,25 @@
 import { OrganizationExclusion as PgOrganizationExclusion } from "../../../db/analytics";
 import { prismaAnalytics as prismaClient } from "../../../db/postgres";
 import { captureException } from "../../../error";
-import OrganizationExclusionModel from "../../../models/organization-exclusion";
-import { OrganizationExclusion } from "../../../types";
+import { publisherDiffusionExclusionService } from "../../../services/publisher-diffusion-exclusion";
+import { PublisherDiffusionExclusionRecord } from "../../../types/publisher-diffusion-exclusion";
 
-const buildData = (doc: OrganizationExclusion, partners: { [key: string]: string }) => {
-  const partnerIdBy = partners[doc.excludedByPublisherId.toString()];
+const buildData = (doc: PublisherDiffusionExclusionRecord, partners: { [key: string]: string }) => {
+  const partnerIdBy = partners[doc.excludedByAnnonceurId];
   if (!partnerIdBy) {
-    console.log(`[OrganizationExclusion] Partner ${doc.excludedByPublisherId.toString()} not found for excluded organization ${doc.organizationClientId}`);
+    console.log(`[OrganizationExclusion] Partner ${doc.excludedByAnnonceurId} not found for excluded organization ${doc.organizationClientId}`);
     return null;
   }
-  const partnerIdFor = partners[doc.excludedForPublisherId.toString()];
+  const partnerIdFor = partners[doc.excludedForDiffuseurId];
   if (!partnerIdFor) {
-    console.log(`[OrganizationExclusion] Partner ${doc.excludedForPublisherId.toString()} not found for excluded organization ${doc.organizationClientId}`);
+    console.log(`[OrganizationExclusion] Partner ${doc.excludedForDiffuseurId} not found for excluded organization ${doc.organizationClientId}`);
     return null;
   }
 
   const obj = {
-    old_id: doc._id?.toString(),
-    organization_client_id: doc.organizationClientId,
-    organization_name: doc.organizationName,
+    old_id: doc.id,
+    organization_client_id: doc.organizationClientId ?? "",
+    organization_name: doc.organizationName ?? null,
     excluded_by_publisher_id: partnerIdBy,
     excluded_for_publisher_id: partnerIdFor,
     created_at: new Date(doc.createdAt),
@@ -34,7 +34,7 @@ const handler = async () => {
     const start = new Date();
     console.log(`[OrganizationExclusion] Starting at ${start.toISOString()}`);
 
-    const data = await OrganizationExclusionModel.find().lean();
+    const data = await publisherDiffusionExclusionService.findExclusions({});
     console.log(`[OrganizationExclusion] Found ${data.length} docs to sync.`);
 
     const stored = await prismaClient.organizationExclusion.count();
