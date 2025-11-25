@@ -1,9 +1,49 @@
-with mission_stats as (
+{{ config(
+  materialized='incremental',
+  unique_key=['kpi_date', 'is_bot_filtered'],
+  incremental_strategy='delete+insert'
+) }}
+
+with mission_source as (
   select * from {{ ref('stg_kpi__mission_daily') }}
 ),
 
-event_stats as (
+event_source as (
   select * from {{ ref('stg_kpi__events_daily') }}
+),
+
+date_spine as (
+  {% if is_incremental() %}
+    select (current_date - interval '1 day')::date as metric_date
+  {% else %}
+    select metric_date
+    from (
+      select distinct metric_date from mission_source
+    ) as mission_dates
+    union
+    select metric_date
+    from (
+      select distinct metric_date from event_source
+    ) as event_dates
+  {% endif %}
+),
+
+mission_stats as (
+  select *
+  from mission_source
+  where metric_date in (
+    select ds.metric_date
+    from date_spine as ds
+  )
+),
+
+event_stats as (
+  select *
+  from event_source
+  where metric_date in (
+    select ds.metric_date
+    from date_spine as ds
+  )
 ),
 
 event_pivot as (
@@ -143,9 +183,7 @@ event_pivot as (
 ),
 
 distinct_dates as (
-  select metric_date from mission_stats
-  union
-  select metric_date from event_stats
+  select metric_date from date_spine
 ),
 
 scenarios as (

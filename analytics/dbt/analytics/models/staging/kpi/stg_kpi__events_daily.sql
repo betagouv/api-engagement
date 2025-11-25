@@ -12,7 +12,7 @@ with events as (
     p.name as to_publisher_name,
     case
       when
-        coalesce(p.name, '') = {{ publisher_service_civique }}
+        coalesce(p.name, '') = '{{ publisher_service_civique }}'
         then 'volontariat'
       else 'benevolat'
     end as publisher_category,
@@ -21,7 +21,7 @@ with events as (
   from {{ ref('stg_stat_event') }} as e
   left join {{ ref('stg_stat_event__mission_map') }} as map
     on e.id = map.stat_event_id
-  left join {{ ref('dim_publisher') }} as p
+  left join {{ ref('publisher') }} as p
     on e.to_publisher_id = p.id
 ),
 

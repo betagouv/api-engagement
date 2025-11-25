@@ -4,7 +4,7 @@ models:
   - name: kpi_daily
     description: "Mart remplaçant le job Mongo historique pour les KPI quotidiens (bénévolat / volontariat, avec ou sans bots)."
     columns:
-      - name: date
+      - name: kpi_date
         description: "Date de rattachement du KPI (période observée = date - 1 jour)."
         tests:
           - not_null

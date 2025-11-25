@@ -12,7 +12,7 @@ with mission_source as (
     coalesce(m.places, 0) as places,
     upper(coalesce(m.places_status, 'ATTRIBUTED_BY_API')) as places_status
   from {{ source('public', 'Mission') }} as m
-  left join {{ source('public', 'Partner') }} as p on m.partner_id = p.id
+  left join {{ ref('publisher') }} as p on m.partner_id = p.id
 ),
 
 missions as (
@@ -25,11 +25,11 @@ missions as (
     coalesce(publisher_name, '') as publisher_name,
     case
       when
-        coalesce(publisher_name, '') = {{ publisher_service_civique }}
+        coalesce(publisher_name, '') = '{{ publisher_service_civique }}'
         then 'volontariat'
       else 'benevolat'
     end as publisher_category,
-    coalesce(publisher_name, '') = {{ publisher_jva }} as is_jva
+    coalesce(publisher_name, '') = '{{ publisher_jva }}' as is_jva
   from mission_source
 ),
 
