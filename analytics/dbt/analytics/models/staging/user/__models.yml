@@ -1,0 +1,39 @@
+version: 2
+
+models:
+  - name: stg_user
+    description: >
+      Staging des utilisateurs applicatifs exportés depuis `analytics_raw.user`. Ce modèle assure uniquement la
+      normalisation des timestamps avant exposition aux modèles marts.
+    columns:
+      - name: id
+        description: Identifiant unique de l'utilisateur (UUID provenant de la base opérationnelle).
+        tests:
+          - not_null
+          - unique
+      - name: first_name
+        description: Prénom renseigné par l'utilisateur.
+        tests:
+          - not_null
+      - name: last_name
+        description: Nom de famille renseigné (nullable).
+      - name: email
+        description: Adresse email professionnelle utilisée pour se connecter.
+        tests:
+          - not_null
+      - name: role
+        description: Rôle applicatif (`ADMIN`, `PUBLISHER`, etc.).
+        tests:
+          - not_null
+      - name: deleted_at
+        description: Timestamp de suppression logique (nullable).
+      - name: last_activity_at
+        description: Dernière activité connue dans l'application (nullable).
+      - name: created_at
+        description: Timestamp de création initiale du compte.
+        tests:
+          - not_null
+      - name: updated_at
+        description: Timestamp de dernière mise à jour (curseur de réplication).
+        tests:
+          - not_null

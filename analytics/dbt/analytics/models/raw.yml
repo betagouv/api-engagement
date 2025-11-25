@@ -298,3 +298,41 @@ sources:
             description: Timestamp de création de la règle côté application source.
           - name: updated_at
             description: Timestamp de dernière mise à jour, utilisé comme curseur d'export incrémental.
+      - name: user
+        description: >-
+          Comptes utilisateurs applicatifs synchronisés depuis la base `core.user`. Ces données servent de référentiel
+          pour analyser les habilitations, rôles et activités dans Metabase.
+        columns:
+          - name: id
+            description: Identifiant unique du compte utilisateur (UUID).
+          - name: first_name
+            description: Prénom renseigné lors de la création du compte.
+          - name: last_name
+            description: Nom de famille renseigné (nullable).
+          - name: email
+            description: Adresse email utilisée pour se connecter à la plateforme.
+          - name: role
+            description: Rôle applicatif (`ADMIN`, `PUBLISHER`, `OPERATOR`, etc.).
+          - name: deleted_at
+            description: Timestamp de suppression logique (nullable).
+          - name: last_activity_at
+            description: Dernière activité connue dans l'application (nullable).
+          - name: created_at
+            description: Timestamp de création du compte.
+          - name: updated_at
+            description: Timestamp de dernière mise à jour, utilisé comme curseur d'export incrémental.
+      - name: user_publisher
+        description: >-
+          Table de liaison entre les comptes utilisateurs et les partenaires qu'ils administrent. Permet de suivre les
+          rattachements et leurs dates de création/mise à jour.
+        columns:
+          - name: id
+            description: Identifiant unique du rattachement.
+          - name: user_id
+            description: Identifiant de l'utilisateur référencé dans `analytics_raw.user`.
+          - name: publisher_id
+            description: Identifiant du partenaire référencé dans `analytics_raw.publisher`.
+          - name: created_at
+            description: Timestamp de création du rattachement.
+          - name: updated_at
+            description: Timestamp de dernière mise à jour (curseur d'export).

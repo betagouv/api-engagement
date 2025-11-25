@@ -1,0 +1,63 @@
+version: 2
+
+models:
+  - name: user
+    description: >
+      Dimension des comptes utilisateurs exposée à Metabase. Ce modèle reprend la table `stg_user` et est incrémenté sur
+      le champ `updated_at` pour faciliter les analyses des habilitations et de l'activité.
+    columns:
+      - name: id
+        description: Identifiant unique du compte utilisateur.
+        tests:
+          - not_null
+          - unique
+      - name: first_name
+        description: Prénom déclaré par l'utilisateur.
+      - name: last_name
+        description: Nom de famille déclaré (nullable).
+      - name: email
+        description: Adresse email de connexion.
+      - name: role
+        description: Rôle applicatif (`ADMIN`, `PUBLISHER`, `OPERATOR`, ...).
+      - name: deleted_at
+        description: Timestamp de suppression logique (nullable).
+      - name: last_activity_at
+        description: Dernière activité observée dans l'application (nullable).
+      - name: created_at
+        description: Timestamp de création du compte.
+      - name: updated_at
+        description: Timestamp de dernière mise à jour, utilisé comme curseur d'incrément.
+        tests:
+          - not_null
+  - name: user_publisher
+    description: >
+      Table de faits légère liant les utilisateurs aux partenaires dont ils gèrent les missions. Permet de suivre les
+      rattachements et leur fraîcheur dans l'entrepôt analytics.
+    columns:
+      - name: id
+        description: Identifiant unique du rattachement.
+        tests:
+          - not_null
+          - unique
+      - name: user_id
+        description: Identifiant de l'utilisateur rattaché.
+        tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('user')
+                field: id
+      - name: publisher_id
+        description: Identifiant du partenaire associé à l'utilisateur.
+        tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('publisher')
+                field: id
+      - name: created_at
+        description: Timestamp de création du rattachement.
+      - name: updated_at
+        description: Timestamp de dernière mise à jour du rattachement (curseur d'incrément).
+        tests:
+          - not_null
