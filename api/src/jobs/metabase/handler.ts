@@ -1,4 +1,3 @@
-import importCampaigns from "./utils/campaign";
 import importImports from "./utils/import";
 import importKpi from "./utils/kpi";
 import importKpiBotless from "./utils/kpi-botless";
@@ -30,7 +29,6 @@ export class MetabaseHandler implements BaseHandler<MetabaseJobPayload, Metabase
     const stats = {
       partners: { created: 0, updated: 0 },
       users: { created: 0, updated: 0 },
-      campaigns: { created: 0, updated: 0 },
       widgets: { created: 0, updated: 0 },
       organization_name_matches: { created: 0, updated: 0 },
       publisher_diffusion_exclusion: { created: 0, updated: 0 },
@@ -59,12 +57,6 @@ export class MetabaseHandler implements BaseHandler<MetabaseJobPayload, Metabase
       const users = await importUsers();
       stats.users.created += users?.created || 0;
       stats.users.updated += users?.updated || 0;
-    }
-
-    if (jobs === null || jobs.includes("campaigns")) {
-      const campaigns = await importCampaigns();
-      stats.campaigns.created += campaigns?.created || 0;
-      stats.campaigns.updated += campaigns?.updated || 0;
     }
 
     if (jobs === null || jobs.includes("widgets")) {
