@@ -1,6 +1,6 @@
 -- migrate:up
 CREATE TABLE IF NOT EXISTS analytics_raw.kpi_daily (
-    date DATE NOT NULL,
+    kpi_date DATE NOT NULL,
     is_bot_filtered BOOLEAN NOT NULL DEFAULT FALSE,
     available_benevolat_mission_count INTEGER NOT NULL DEFAULT 0,
     available_volontariat_mission_count INTEGER NOT NULL DEFAULT 0,
@@ -35,10 +35,10 @@ CREATE TABLE IF NOT EXISTS analytics_raw.kpi_daily (
     volontariat_account_count INTEGER NOT NULL DEFAULT 0,
     created_at TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    CONSTRAINT kpi_daily_pk PRIMARY KEY (date, is_bot_filtered)
+    CONSTRAINT kpi_daily_pk PRIMARY KEY (kpi_date, is_bot_filtered)
 );
 
-CREATE INDEX IF NOT EXISTS kpi_daily_date_idx ON analytics_raw.kpi_daily (date);
+CREATE INDEX IF NOT EXISTS kpi_daily_date_idx ON analytics_raw.kpi_daily (kpi_date);
 
 -- migrate:down
 DROP TABLE IF EXISTS analytics_raw.kpi_daily;
