@@ -1,0 +1,29 @@
+version: 2
+
+models:
+  - name: stg_user_publisher
+    description: >
+      Staging de la table de lien `analytics_raw.user_publisher` reliant un utilisateur à un partenaire diffuseur.
+      Aucune transformation n'est appliquée en dehors du typage des timestamps.
+    columns:
+      - name: id
+        description: Identifiant unique de l'association utilisateur-partenaire.
+        tests:
+          - not_null
+          - unique
+      - name: user_id
+        description: Identifiant de l'utilisateur concerné.
+        tests:
+          - not_null
+      - name: publisher_id
+        description: Identifiant du partenaire rattaché.
+        tests:
+          - not_null
+      - name: created_at
+        description: Timestamp de création du rattachement.
+        tests:
+          - not_null
+      - name: updated_at
+        description: Timestamp de dernière mise à jour du rattachement.
+        tests:
+          - not_null

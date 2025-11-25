@@ -26,7 +26,7 @@ select
   created_at,
   campaign_id,
   widget_id,
-  source::"SourceType" as source,
+  source::text as source,
   source_id,
   host,
   from_publisher_id,
