@@ -1,0 +1,35 @@
+version: 2
+
+models:
+  - name: stg_import
+    description: >
+      Staging des journaux d'import issus de `analytics_raw.import`. Les conversions de type assurent l'utilisation
+      d'entiers et de timestamps cohérents avant exposition aux marts incrémentaux.
+    columns:
+      - name: id
+        description: Identifiant unique de l'import.
+        tests:
+          - not_null
+          - unique
+      - name: name
+        description: Libellé de l'import (job ou intégration).
+      - name: publisher_id
+        description: Identifiant du partenaire concerné par l'import.
+        tests:
+          - not_null
+      - name: mission_count
+        description: Volume total de missions parcourues pendant l'exécution.
+      - name: refused_count
+        description: Volume de missions refusées/sautées.
+      - name: created_count
+        description: Missions créées pendant l'import.
+      - name: deleted_count
+        description: Missions supprimées pendant l'import.
+      - name: updated_count
+        description: Missions mises à jour pendant l'import.
+      - name: started_at
+        description: Horodatage de début d'exécution (UTC).
+      - name: finished_at
+        description: Horodatage de fin d'exécution (UTC) servant de curseur pour les marts incrémentaux.
+      - name: status
+        description: Statut final retourné par le job (`SUCCESS`, `FAILED`, etc.).

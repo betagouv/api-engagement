@@ -1,0 +1,32 @@
+version: 2
+
+models:
+  - name: import
+    description: >
+      Mart incrémental listant les exécutions d'import par partenaire. Les dénombrements (created/deleted/updated) sont
+      préservés tels quels depuis `stg_import` et la colonne `finished_at` est exposée sous le nom `ended_at` pour
+      harmoniser la lecture côté produit.
+    columns:
+      - name: id
+        description: Identifiant unique de l'import.
+        tests:
+          - not_null
+          - unique
+      - name: created_count
+        description: Nombre de missions créées durant l'import.
+      - name: deleted_count
+        description: Nombre de missions supprimées durant l'import.
+      - name: updated_count
+        description: Nombre de missions mises à jour durant l'import.
+      - name: publisher_id
+        description: Identifiant du partenaire déclencheur.
+        tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('publisher')
+                field: id
+      - name: started_at
+        description: Timestamp de démarrage (UTC) utilisé pour les analyses temporelles.
+      - name: ended_at
+        description: Timestamp de fin d'exécution (renommage de `finished_at`) servant de curseur incrémental.
