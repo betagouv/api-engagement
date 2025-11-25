@@ -251,3 +251,30 @@ sources:
             description: Civilité du dirigeant/président déclaré (nullable).
           - name: source
             description: Origine de la donnée (ex. `rna`, `api`, `manual`).
+      - name: import
+        description: >-
+          Journal d'exécution des imports de missions côté partenaires (job `export-to-analytics-raw`). Chaque ligne
+          agrège les totaux créés/supprimés/mis à jour ainsi que le partenaire et la fenêtre temporelle de l'import.
+        columns:
+          - name: id
+            description: Identifiant unique de l'import dans la base source.
+          - name: name
+            description: Nom libre de l'import (généralement décrit par le job déclencheur).
+          - name: publisher_id
+            description: Identifiant du partenaire concerné par l'import.
+          - name: mission_count
+            description: Volume total de missions parcourues pendant l'import.
+          - name: refused_count
+            description: Nombre de missions refusées (statut non importé) durant l'import.
+          - name: created_count
+            description: Nombre de missions créées côté application durant cette exécution.
+          - name: deleted_count
+            description: Nombre de missions supprimées/supprimées logiquement durant cette exécution.
+          - name: updated_count
+            description: Nombre de missions mises à jour durant cette exécution.
+          - name: started_at
+            description: Horodatage de démarrage de l'import (UTC).
+          - name: finished_at
+            description: Horodatage de fin de l'import, utilisé comme curseur temporel pour l'incrémentalité.
+          - name: status
+            description: Statut global retourné par le job (`SUCCESS`, `FAILED`, etc.).

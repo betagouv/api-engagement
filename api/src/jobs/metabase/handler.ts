@@ -1,5 +1,4 @@
 import importCampaigns from "./utils/campaign";
-import importImports from "./utils/import";
 import importKpi from "./utils/kpi";
 import importKpiBotless from "./utils/kpi-botless";
 import importLoginHistory from "./utils/login-history";
@@ -34,7 +33,6 @@ export class MetabaseHandler implements BaseHandler<MetabaseJobPayload, Metabase
       widgets: { created: 0, updated: 0 },
       organization_name_matches: { created: 0, updated: 0 },
       publisher_diffusion_exclusion: { created: 0, updated: 0 },
-      imports: { created: 0, updated: null },
       requests: { created: 0, updated: null },
       login_history: { created: 0, updated: null },
       kpi: { created: 0, updated: null },
@@ -71,11 +69,6 @@ export class MetabaseHandler implements BaseHandler<MetabaseJobPayload, Metabase
       const widgets = await importWidgets();
       stats.widgets.created += widgets?.created || 0;
       stats.widgets.updated += widgets?.updated || 0;
-    }
-
-    if (jobs === null || jobs.includes("imports")) {
-      const imports = await importImports();
-      stats.imports.created += imports?.created || 0;
     }
 
     if (jobs === null || jobs.includes("login_history")) {
