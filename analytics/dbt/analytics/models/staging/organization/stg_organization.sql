@@ -8,6 +8,7 @@ select
   o.dissolved_at::timestamp as dissolved_at,
   o.updated_at::timestamp as updated_at,
   o.nature,
+  o.names,
   o.groupement,
   o.title,
   {{ slugify("o.title") }} as title_slug,
