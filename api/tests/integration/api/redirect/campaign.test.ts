@@ -1,30 +1,18 @@
 import request from "supertest";
-import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 
-import { JVA_URL, STATS_INDEX } from "../../../../src/config";
-import { campaignRepository } from "../../../../src/repositories/campaign";
-import { campaignService } from "../../../../src/services/campaign";
+import { JVA_URL } from "../../../../src/config";
+import { prismaCore } from "../../../../src/db/postgres";
 import StatsBotModel from "../../../../src/models/stats-bot";
+import { campaignService } from "../../../../src/services/campaign";
 import * as utils from "../../../../src/utils";
-import { elasticMock } from "../../../mocks";
 import { createTestApp } from "../../../testApp";
 
 describe("RedirectController /campaign/:id", () => {
   const app = createTestApp();
 
-  beforeEach(async () => {
-    await campaignRepository.deleteMany({});
-
-    elasticMock.index.mockReset();
-    elasticMock.update.mockReset();
-    elasticMock.index.mockResolvedValue({ body: { _id: "default-click-id" } });
-    elasticMock.update.mockResolvedValue({});
-  });
-
   afterEach(async () => {
     vi.restoreAllMocks();
-    await campaignRepository.deleteMany({});
-    delete process.env.WRITE_STATS_DUAL;
   });
 
   it("redirects to JVA when campaign id is invalid", async () => {
@@ -32,7 +20,7 @@ describe("RedirectController /campaign/:id", () => {
 
     expect(response.status).toBe(302);
     expect(response.headers.location).toBe(JVA_URL);
-    expect(elasticMock.index).not.toHaveBeenCalled();
+    expect(await prismaCore.statEvent.count()).toBe(0);
   });
 
   it("redirects to JVA when campaign does not exist", async () => {
@@ -42,7 +30,7 @@ describe("RedirectController /campaign/:id", () => {
 
     expect(response.status).toBe(302);
     expect(response.headers.location).toBe(JVA_URL);
-    expect(elasticMock.index).not.toHaveBeenCalled();
+    expect(await prismaCore.statEvent.count()).toBe(0);
   });
 
   it("redirects to campaign url when identity is missing", async () => {
@@ -60,8 +48,8 @@ describe("RedirectController /campaign/:id", () => {
 
     expect(response.status).toBe(302);
     expect(response.headers.location).toBe("https://campaign.example.com/landing");
-    expect(elasticMock.index).not.toHaveBeenCalled();
     expect(identifySpy).toHaveBeenCalled();
+    expect(await prismaCore.statEvent.count()).toBe(0);
   });
 
   it("records stats and appends tracking parameters when identity is present", async () => {
@@ -81,7 +69,6 @@ describe("RedirectController /campaign/:id", () => {
 
     vi.spyOn(utils, "identify").mockReturnValue(identity);
     const statsBotFindOneSpy = vi.spyOn(StatsBotModel, "findOne").mockResolvedValue({ user: identity.user } as any);
-    elasticMock.index.mockResolvedValueOnce({ body: { _id: "click-123" } });
 
     const response = await request(app).get(`/r/campaign/${campaign.id}`);
 
@@ -91,12 +78,12 @@ describe("RedirectController /campaign/:id", () => {
     expect(redirectUrl.searchParams.get("utm_source")).toBe("api_engagement");
     expect(redirectUrl.searchParams.get("utm_medium")).toBe("campaign");
     expect(redirectUrl.searchParams.get("utm_campaign")).toBe("campaign-name");
-    expect(redirectUrl.searchParams.get("apiengagement_id")).toEqual(expect.any(String));
 
-    expect(elasticMock.index).toHaveBeenCalledTimes(1);
-    const [indexArgs] = elasticMock.index.mock.calls;
-    expect(indexArgs[0].index).toBe(STATS_INDEX);
-    expect(indexArgs[0].body).toMatchObject({
+    const clickId = redirectUrl.searchParams.get("apiengagement_id");
+    expect(clickId).toBeTruthy();
+
+    const storedClick = await prismaCore.statEvent.findUnique({ where: { id: clickId! } });
+    expect(storedClick).toMatchObject({
       type: "click",
       user: identity.user,
       referer: identity.referer,
@@ -110,11 +97,5 @@ describe("RedirectController /campaign/:id", () => {
     });
 
     expect(statsBotFindOneSpy).toHaveBeenCalledWith({ user: identity.user });
-
-    expect(elasticMock.update).toHaveBeenCalledTimes(1);
-    const updateArgs = elasticMock.update.mock.calls[0][0];
-    expect(updateArgs.index).toBe(STATS_INDEX);
-    expect(updateArgs.body).toEqual({ doc: { isBot: true } });
-    expect(updateArgs.id).toBe(indexArgs[0].id);
   });
 });

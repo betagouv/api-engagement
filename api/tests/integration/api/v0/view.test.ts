@@ -1,8 +1,8 @@
 import request from "supertest";
-import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { beforeEach, describe, expect, it } from "vitest";
 
 import { createTestPublisher } from "../../../fixtures";
-import { elasticMock } from "../../../mocks";
+import { createStatEventFixture } from "../../../fixtures/stat-event";
 import { createTestApp } from "../../../testApp";
 
 describe("View API Integration Tests", () => {
@@ -15,45 +15,41 @@ describe("View API Integration Tests", () => {
     const publisher = await createTestPublisher({ name: "View Publisher" });
     apiKey = publisher.apikey!;
     publisherId = publisher.id;
-
-    elasticMock.search.mockReset();
-    vi.clearAllMocks();
   });
 
-  afterEach(() => {
-    delete process.env.READ_STATS_FROM;
-  });
+  it("returns aggregated stats", async () => {
+    const otherPublisher = await createTestPublisher({ name: "Other Publisher" });
+    const otherPublisher2 = await createTestPublisher({ name: "Other Publisher 2" });
 
-  it("should return Elasticsearch stats", async () => {
-    process.env.READ_STATS_FROM = "es";
+    await Promise.all(
+      Array.from({ length: 5 }).map(() =>
+        createStatEventFixture({
+          type: "print",
+          isBot: false,
+          fromPublisherId: otherPublisher.id,
+          toPublisherId: publisherId,
+        })
+      )
+    );
 
-    elasticMock.search.mockResolvedValue({
-      body: {
-        hits: { total: { value: 12 } },
-        aggregations: {
-          fromPublisherName: {
-            buckets: [
-              { key: "View Publisher", doc_count: 5 },
-              { key: "Partner Publisher", doc_count: 3 },
-            ],
-          },
-        },
-      },
-    });
+    await Promise.all(
+      Array.from({ length: 3 }).map(() =>
+        createStatEventFixture({
+          type: "print",
+          isBot: false,
+          fromPublisherId: otherPublisher2.id,
+          toPublisherId: publisherId,
+        })
+      )
+    );
 
-    const response = await request(app).get("/v0/view/stats?facets=fromPublisherName").set("x-api-key", apiKey);
+    const response = await request(app).get("/v0/view/stats?facets=fromPublisherId").set("x-api-key", apiKey);
 
     expect(response.status).toBe(200);
-    expect(response.body).toEqual({
-      total: 12,
-      facets: {
-        fromPublisherName: [
-          { key: "View Publisher", doc_count: 5 },
-          { key: "Partner Publisher", doc_count: 3 },
-        ],
-      },
-    });
-
-    expect(elasticMock.search).toHaveBeenCalledTimes(1);
+    expect(response.body.total).toBe(8);
+    expect(response.body.facets.fromPublisherId).toMatchObject([
+      { key: otherPublisher.id, doc_count: 5 },
+      { key: otherPublisher2.id, doc_count: 3 },
+    ]);
   });
 });

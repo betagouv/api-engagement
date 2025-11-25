@@ -44,11 +44,6 @@ npx ts-node api/scripts/mongo-backfill/backfill-publisher.ts --env production --
 npx ts-node api/scripts/mongo-backfill/backfill-publisher.ts --env api/.env.production
 ```
 
-## Notes d'implémentation
-
-- Les imports dépendants des variables d'environnement (Mongo/PG/repos) sont chargés dynamiquement dans les scripts afin que `dotenv` soit appliqué avant l'initialisation des connexions.
-- En cas d'échec, vérifiez que `DB_ENDPOINT` est bien défini et que les variables PostgreSQL attendues par Prisma sont présentes.
-
 ## backfill-moderation-event.ts
 
 - Exécution: `npx ts-node scripts/mongo-backfill/backfill-moderation-event.ts [--env <chemin>] [--dry-run]`
@@ -85,3 +80,34 @@ npx ts-node api/scripts/mongo-backfill/backfill-campaign.ts --env production --d
 # Exécution réelle en pointant explicitement un fichier .env
 npx ts-node api/scripts/mongo-backfill/backfill-campaign.ts --env api/.env.production
 ```
+
+## backfill-user.ts
+
+- Rôle: migrer la collection Mongo `users` vers la table Prisma `user`.
+- Options:
+  - `--dry-run` affiche les créations/mises à jour sans écrire en base.
+  - `--env <nom|chemin>` charge le fichier d'environnement à utiliser avant les connexions Mongo/PostgreSQL.
+- Exemples:
+
+````bash
+# Dry-run avec les variables de api/.env.production
+npx ts-node api/scripts/mongo-backfill/backfill-user.ts --env production --dry-run
+
+# Exécution réelle avec un fichier .env explicite
+npx ts-node api/scripts/mongo-backfill/backfill-user.ts --env api/.env.production
+## backfill-mission-event.ts
+
+- Rôle: migrer les événements de mission (`mission-events`) depuis MongoDB vers la table `mission_event` de Postgres.
+- Idempotent: chaque run compare les documents Mongo existants avec les lignes Postgres (création si absentes, update si différences, sinon ignoré).
+- Options:
+  - `--dry-run` pour simuler sans écrire en base et afficher des exemples.
+  - `--env <nom|chemin>` pour charger l'environnement adéquat.
+- Exemples:
+
+```bash
+# Simulation
+npx ts-node scripts/mongo-backfill/backfill-mission-event.ts --env production --dry-run
+
+# Migration effective
+npx ts-node scripts/mongo-backfill/backfill-mission-event.ts --env api/.env.production
+````

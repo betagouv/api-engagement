@@ -2,11 +2,11 @@ import { ExportDefinition } from "../types";
 
 export const exportDefinitions: ExportDefinition[] = [
   {
-    key: "StatEvent",
+    key: "stat_event",
     batchSize: 2000,
     source: {
       schema: "public",
-      table: "StatEvent",
+      table: "stat_event",
       cursor: {
         field: "updated_at",
         idField: "id",
@@ -34,7 +34,7 @@ export const exportDefinitions: ExportDefinition[] = [
       ],
     },
     destination: {
-      table: "StatEvent",
+      table: "stat_event",
       conflictColumns: ["id"],
     },
   },
@@ -101,6 +101,145 @@ export const exportDefinitions: ExportDefinition[] = [
     },
     destination: {
       table: "moderation_event",
+      conflictColumns: ["id"],
+    },
+  },
+  {
+    key: "email",
+    source: {
+      schema: "public",
+      table: "email",
+      cursor: {
+        field: "updated_at",
+        idField: "id",
+      },
+      columns: [
+        "id",
+        "message_id",
+        "in_reply_to",
+        "from_name",
+        "from_email",
+        "subject",
+        "sent_at",
+        "status",
+        "date_from",
+        "date_to",
+        "created_count",
+        "deleted_at",
+        "created_at",
+        "updated_at",
+      ],
+    },
+    destination: {
+      table: "email",
+      conflictColumns: ["id"],
+    },
+  },
+  {
+    key: "moderation_event",
+    batchSize: 2000,
+    source: {
+      table: "moderation_event",
+      cursor: {
+        field: "updated_at",
+        idField: "id",
+      },
+      columns: [
+        "id",
+        "mission_id",
+        "created_at",
+        "updated_at",
+        "moderator_id",
+        "user_name",
+        "initial_status",
+        "new_status",
+        "initial_comment",
+        "new_comment",
+        "initial_note",
+        "new_note",
+        "initial_title",
+        "new_title",
+        "initial_siren",
+        "new_siren",
+        "initial_rna",
+        "new_rna",
+      ],
+    },
+    destination: {
+      table: "moderation_event",
+      conflictColumns: ["id"],
+    },
+  },
+  {
+    key: "organization",
+    batchSize: 2000,
+    source: {
+      table: "organization",
+      cursor: {
+        field: "updated_at",
+        idField: "id",
+      },
+      columns: [
+        "id",
+        "gestion",
+        "status",
+        "created_at",
+        "last_declared_at",
+        "published_at",
+        "dissolved_at",
+        "updated_at",
+        "nature",
+        "groupement",
+        "title",
+        "short_title",
+        "names",
+        "address_insee_code",
+        "address_postal_code",
+        "address_department_code",
+        "address_department_name",
+        "address_region",
+        "address_city",
+        "management_postal_code",
+        "management_city",
+        "management_country",
+        "director_civility",
+        "source",
+      ],
+    },
+    destination: {
+      table: "organization",
+      conflictColumns: ["id"],
+    },
+  },
+  {
+    key: "publisher",
+    batchSize: 2000,
+    source: {
+      table: "publisher",
+      cursor: {
+        field: "updated_at",
+        idField: "id",
+      },
+      columns: ["id", "name", "category", "is_annonceur", "has_api_rights", "has_widget_rights", "has_campaign_rights", "deleted_at", "created_at", "updated_at"],
+    },
+    destination: {
+      table: "publisher",
+      conflictColumns: ["id"],
+    },
+  },
+  {
+    key: "mission_event",
+    batchSize: 2000,
+    source: {
+      table: "mission_event",
+      cursor: {
+        field: "updated_at",
+        idField: "id",
+      },
+      columns: ["id", "mission_id", "created_at", "updated_at", "type", "changes", "created_by"],
+    },
+    destination: {
+      table: "mission_event",
       conflictColumns: ["id"],
     },
   },

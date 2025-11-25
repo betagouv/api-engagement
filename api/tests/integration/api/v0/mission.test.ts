@@ -69,6 +69,9 @@ describe("Mission API Integration Tests", () => {
           geolocStatus: "ENRICHED_BY_PUBLISHER",
         },
       ],
+      compensationAmount: 90,
+      compensationUnit: "day",
+      compensationType: "net",
     });
 
     mission2 = await createTestMission({
@@ -138,6 +141,16 @@ describe("Mission API Integration Tests", () => {
       expect(response.body.skip).toBe(0);
 
       validateMissionStructure(response.body.data[0]);
+    });
+
+    it("should expose compensation fields on missions", async () => {
+      const response = await request(app).get("/v0/mission").set("x-api-key", apiKey);
+      expect(response.status).toBe(200);
+      const target = response.body.data.find((mission: any) => mission._id === mission1._id!.toString());
+      expect(target).toBeDefined();
+      expect(target.compensationAmount).toBe(90);
+      expect(target.compensationUnit).toBe("day");
+      expect(target.compensationType).toBe("net");
     });
 
     it("should respect limit and skip parameters", async () => {
@@ -340,6 +353,16 @@ describe("Mission API Integration Tests", () => {
       });
     });
 
+    it("should expose compensation fields within search results", async () => {
+      const response = await request(app).get("/v0/mission/search").set("x-api-key", apiKey);
+      expect(response.status).toBe(200);
+      const target = response.body.hits.find((mission: any) => mission._id === mission1._id!.toString());
+      expect(target).toBeDefined();
+      expect(target.compensationAmount).toBe(90);
+      expect(target.compensationUnit).toBe("day");
+      expect(target.compensationType).toBe("net");
+    });
+
     it("should filter by keywords", async () => {
       const response = await request(app).get("/v0/mission/search?keywords=Lyon").set("x-api-key", apiKey);
       expect(response.status).toBe(200);
@@ -520,6 +543,9 @@ function validateMissionStructure(mission: any) {
   });
   expect(mission).toHaveProperty("applicationUrl");
   expect(mission).toHaveProperty("audience");
+  expect(mission).toHaveProperty("compensationAmount");
+  expect(mission).toHaveProperty("compensationUnit");
+  expect(mission).toHaveProperty("compensationType");
   expect(mission).toHaveProperty("closeToTransport");
   expect(mission).toHaveProperty("createdAt");
   expect(mission).toHaveProperty("deleted");

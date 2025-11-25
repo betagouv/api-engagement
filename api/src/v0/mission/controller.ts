@@ -6,7 +6,7 @@ import { PUBLISHER_IDS } from "../../config";
 import { INVALID_PARAMS, INVALID_QUERY, NOT_FOUND } from "../../error";
 import MissionModel from "../../models/mission";
 import RequestModel from "../../models/request";
-import { organizationExclusionService } from "../../services/organization-exclusion";
+import { publisherDiffusionExclusionService } from "../../services/publisher-diffusion-exclusion";
 import { Mission } from "../../types";
 import { PublisherRequest } from "../../types/passport";
 import type { PublisherRecord } from "../../types/publisher";
@@ -90,9 +90,9 @@ router.get("/", passport.authenticate(["apikey", "api"], { session: false }), as
     } as { [key: string]: any };
 
     // Exclude organizations from other publishers
-    const organizationExclusions = await organizationExclusionService.findExclusionsForDiffuseurId(user.id);
-    if (organizationExclusions.length) {
-      const excludedIds = organizationExclusions.map((e) => e.organizationClientId).filter((id): id is string => id !== null);
+    const diffusionExclusions = await publisherDiffusionExclusionService.findExclusionsForDiffuseurId(user.id);
+    if (diffusionExclusions.length) {
+      const excludedIds = diffusionExclusions.map((e) => e.organizationClientId).filter((id): id is string => id !== null);
       if (excludedIds.length) {
         where.organizationClientId = {
           $nin: excludedIds,
@@ -268,9 +268,9 @@ router.get("/search", passport.authenticate(["apikey", "api"], { session: false 
       deletedAt: null,
     } as { [key: string]: any };
 
-    const organizationExclusions = await organizationExclusionService.findExclusionsForDiffuseurId(user.id);
-    if (organizationExclusions.length) {
-      const excludedIds = organizationExclusions.map((e) => e.organizationClientId).filter((id): id is string => id !== null);
+    const diffusionExclusions = await publisherDiffusionExclusionService.findExclusionsForDiffuseurId(user.id);
+    if (diffusionExclusions.length) {
+      const excludedIds = diffusionExclusions.map((e) => e.organizationClientId).filter((id): id is string => id !== null);
       if (excludedIds.length) {
         where.organizationClientId = {
           $nin: excludedIds,

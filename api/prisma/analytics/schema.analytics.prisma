@@ -308,11 +308,16 @@ model Mission {
   snu                           Boolean?
   snu_places                    Int?
   tags                          String[]
-  jva_moderation_comment        String?
-  jva_moderation_status         String?
-  jva_moderation_title          String?
-  jva_moderation_user_id        String?
-  jva_moderation_updated_at     DateTime?
+
+  compensation_amount Float?
+  compensation_unit   String?
+  compensation_type   String?
+
+  jva_moderation_comment    String?
+  jva_moderation_status     String?
+  jva_moderation_title      String?
+  jva_moderation_user_id    String?
+  jva_moderation_updated_at DateTime?
 
   organization_client_id                String?
   organization_department               String?

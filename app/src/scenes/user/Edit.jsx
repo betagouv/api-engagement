@@ -296,7 +296,7 @@ const ResetPasswordModal = ({ user }) => {
   const handleConfirm = async () => {
     setIsConfirm(true);
     try {
-      const res = await api.put(`/user/${user._id}/reset-password`);
+      const res = await api.put(`/user/${user.id}/reset-password`);
       if (!res.ok) throw res;
       setNewPassword(res.data);
     } catch (error) {

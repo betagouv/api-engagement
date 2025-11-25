@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<source>
+  <publisher><![CDATA[Example Job Site]]></publisher>
+  <publisherurl><![CDATA[http://www.examplemissionsite.com]]></publisherurl>
+  <lastBuildDate><![CDATA[Fri, 10 March 2020 22:49:39 GMT]]></lastBuildDate>
+  <mission>
+    <title><![CDATA[Titre mission compensation invalide]]></title>
+    <clientId><![CDATA[INVALID_COMPENSATION]]></clientId>
+    <description><![CDATA[Description de la mission]]></description>
+    <applicationUrl><![CDATA[https://www.urltomymission.org]]></applicationUrl>
+    <postedAt><![CDATA[01/01/2023]]></postedAt>
+    <startAt><![CDATA[01/01/2025]]></startAt>
+    <endAt><![CDATA[11/01/2025]]></endAt>
+    <addresses>
+      <address>
+        <street><![CDATA[46 Rue Saint-Antoine]]></street>
+        <postalCode><![CDATA[75004]]></postalCode>
+        <city><![CDATA[Paris]]></city>
+        <departmentCode><![CDATA[75]]></departmentCode>
+        <departmentName><![CDATA[Paris]]></departmentName>
+        <region><![CDATA[Île-de-France]]></region>
+        <country><![CDATA[France]]></country>
+      </address>
+    </addresses>
+    <schedule><![CDATA[1 demi-journée par semaine]]></schedule>
+    <places><![CDATA[2]]></places>
+    <compensationAmount><![CDATA[-10]]></compensationAmount>
+    <compensationUnit><![CDATA[hour]]></compensationUnit>
+    <compensationType><![CDATA[gross]]></compensationType>
+    <activity><![CDATA[logistique]]></activity>
+    <remote><![CDATA[full]]></remote>
+    <domain><![CDATA[environnement]]></domain>
+    <organizationName><![CDATA[Mon asso]]></organizationName>
+    <organizationRNA><![CDATA[W922000733]]></organizationRNA>
+    <organizationSiren><![CDATA[332737394]]></organizationSiren>
+    <organizationUrl><![CDATA[https://www.organizationname.com]]></organizationUrl>
+    <organizationClientId><![CDATA[123312321]]></organizationClientId>
+    <organizationType><![CDATA[1901]]></organizationType>
+  </mission>
+</source>

@@ -1,10 +1,10 @@
 import { OrganizationExclusion as PgOrganizationExclusion } from "../../../db/analytics";
 import { prismaAnalytics as prismaClient } from "../../../db/postgres";
 import { captureException } from "../../../error";
-import { organizationExclusionService } from "../../../services/organization-exclusion";
-import { OrganizationExclusionRecord } from "../../../types/organization-exclusion";
+import { publisherDiffusionExclusionService } from "../../../services/publisher-diffusion-exclusion";
+import { PublisherDiffusionExclusionRecord } from "../../../types/publisher-diffusion-exclusion";
 
-const buildData = (doc: OrganizationExclusionRecord, partners: { [key: string]: string }) => {
+const buildData = (doc: PublisherDiffusionExclusionRecord, partners: { [key: string]: string }) => {
   const partnerIdBy = partners[doc.excludedByAnnonceurId];
   if (!partnerIdBy) {
     console.log(`[OrganizationExclusion] Partner ${doc.excludedByAnnonceurId} not found for excluded organization ${doc.organizationClientId}`);
@@ -34,7 +34,7 @@ const handler = async () => {
     const start = new Date();
     console.log(`[OrganizationExclusion] Starting at ${start.toISOString()}`);
 
-    const data = await organizationExclusionService.findExclusions({});
+    const data = await publisherDiffusionExclusionService.findExclusions({});
     console.log(`[OrganizationExclusion] Found ${data.length} docs to sync.`);
 
     const stored = await prismaClient.organizationExclusion.count();

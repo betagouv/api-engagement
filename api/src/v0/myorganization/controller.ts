@@ -5,12 +5,12 @@ import zod from "zod";
 import { INVALID_BODY, INVALID_PARAMS } from "../../error";
 import MissionModel from "../../models/mission";
 import RequestModel from "../../models/request";
-import statEventRepository from "../../repositories/stat-event";
-import { organizationExclusionService } from "../../services/organization-exclusion";
 import { publisherService } from "../../services/publisher";
-import { OrganizationExclusionCreateManyInput } from "../../types/organization-exclusion";
+import { publisherDiffusionExclusionService } from "../../services/publisher-diffusion-exclusion";
+import { statEventService } from "../../services/stat-event";
 import { PublisherRequest } from "../../types/passport";
 import type { PublisherRecord } from "../../types/publisher";
+import { PublisherDiffusionExclusionCreateManyInput } from "../../types/publisher-diffusion-exclusion";
 import { buildPublisherData } from "./transformer";
 const router = Router();
 
@@ -54,7 +54,7 @@ router.get("/:organizationClientId", passport.authenticate(["apikey", "api"], { 
 
     const [publishers, organizationExclusions] = await Promise.all([
       publisherService.findPublishers({ diffuseurOf: user.id }),
-      organizationExclusionService.findExclusions({ excludedByAnnonceurId: user.id, organizationClientId: params.data.organizationClientId }),
+      publisherDiffusionExclusionService.findExclusions({ excludedByAnnonceurId: user.id, organizationClientId: params.data.organizationClientId }),
     ]);
 
     // Build Set of exclusions to lookup clicks with .has() for better performance
@@ -62,7 +62,7 @@ router.get("/:organizationClientId", passport.authenticate(["apikey", "api"], { 
 
     const oneMonthAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
     const publisherIds = publishers.map((publisher) => publisher.id);
-    const clicksByPublisher = await statEventRepository.countClicksByPublisherForOrganizationSince({
+    const clicksByPublisher = await statEventService.countStatEventClicksByPublisherForOrganizationSince({
       publisherIds,
       organizationClientId: params.data.organizationClientId,
       from: oneMonthAgo,
@@ -125,9 +125,9 @@ router.put("/:organizationClientId", passport.authenticate(["apikey", "api"], { 
       }
     }
 
-    await organizationExclusionService.deleteExclusionsByAnnonceurAndOrganization(user.id, params.data.organizationClientId);
+    await publisherDiffusionExclusionService.deleteExclusionsByAnnonceurAndOrganization(user.id, params.data.organizationClientId);
 
-    const bulk: Array<OrganizationExclusionCreateManyInput> = [];
+    const bulk: Array<PublisherDiffusionExclusionCreateManyInput> = [];
     publishers
       .filter((publisher) => !body.data.publisherIds.includes(publisher.id))
       .forEach((publisher) => {
@@ -139,16 +139,16 @@ router.put("/:organizationClientId", passport.authenticate(["apikey", "api"], { 
         });
       });
 
-    await organizationExclusionService.createManyExclusions(bulk);
+    await publisherDiffusionExclusionService.createManyExclusions(bulk);
 
-    const newOrganizationExclusions = await organizationExclusionService.findExclusions({
+    const newDiffusionExclusions = await publisherDiffusionExclusionService.findExclusions({
       excludedByAnnonceurId: user.id,
       organizationClientId: params.data.organizationClientId,
     });
 
     const data = [] as any[];
     publishers.forEach((publisher) => {
-      const isExcluded = newOrganizationExclusions.some((o) => o.excludedForDiffuseurId === publisher.id);
+      const isExcluded = newDiffusionExclusions.some((o) => o.excludedForDiffuseurId === publisher.id);
       data.push({
         _id: publisher.id,
         name: publisher.name,

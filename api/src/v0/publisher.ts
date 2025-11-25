@@ -4,8 +4,8 @@ import zod from "zod";
 
 import { INVALID_PARAMS, NOT_FOUND } from "../error";
 import RequestModel from "../models/request";
-import { organizationExclusionService } from "../services/organization-exclusion";
 import { publisherService } from "../services/publisher";
+import { publisherDiffusionExclusionService } from "../services/publisher-diffusion-exclusion";
 import { PublisherRequest } from "../types/passport";
 import type { PublisherRecord } from "../types/publisher";
 const router = Router();
@@ -37,7 +37,7 @@ router.get("/", passport.authenticate(["apikey", "api"], { session: false }), as
   try {
     const user = req.user as PublisherRecord;
     const partners = await publisherService.findPublishers({ diffuseurOf: user.id });
-    const organizationExclusions = await organizationExclusionService.findExclusions({ excludedByAnnonceurId: user.id });
+    const exclusions = await publisherDiffusionExclusionService.findExclusions({ excludedByAnnonceurId: user.id });
 
     const data = partners.map((e) => {
       return {
@@ -51,7 +51,7 @@ router.get("/", passport.authenticate(["apikey", "api"], { session: false }), as
         api: e.hasApiRights,
         campaign: e.hasCampaignRights,
         annonceur: e.isAnnonceur,
-        excludedOrganizations: organizationExclusions.filter((o) => o.excludedForDiffuseurId === e.id),
+        excludedOrganizations: exclusions.filter((o) => o.excludedForDiffuseurId === e.id),
       };
     });
 
@@ -86,7 +86,7 @@ router.get("/:id", passport.authenticate(["apikey", "api"], { session: false }),
       return res.status(404).send({ ok: false, code: NOT_FOUND, message: "Publisher not found" });
     }
 
-    const organizationExclusions = await organizationExclusionService.findExclusions({ excludedByAnnonceurId: user.id, excludedForDiffuseurId: publisher.id });
+    const exclusions = await publisherDiffusionExclusionService.findExclusions({ excludedByAnnonceurId: user.id, excludedForDiffuseurId: publisher.id });
 
     const data = {
       _id: publisher.id,
@@ -99,7 +99,7 @@ router.get("/:id", passport.authenticate(["apikey", "api"], { session: false }),
       api: publisher.hasApiRights,
       campaign: publisher.hasCampaignRights,
       annonceur: publisher.isAnnonceur,
-      excludedOrganizations: organizationExclusions,
+      excludedOrganizations: exclusions,
     };
 
     res.locals = { total: 1 };
