@@ -15,8 +15,12 @@ models:
         description: Nom officiel (long) de l'organisation tel que synchronisé depuis la base source.
         tests:
           - not_null
+      - name: title_slug
+        description: Slug normalisé du titre (utilisé pour les jointures texte).
       - name: short_title
         description: Variante courte du titre (nullable).
+      - name: short_title_slug
+        description: Slug du titre court ; null si aucun titre court n'est renseigné.
       - name: names
         description: Tableau des différentes variantes de noms déclarées.
         tests:
