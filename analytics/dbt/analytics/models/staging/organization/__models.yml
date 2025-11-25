@@ -1,0 +1,71 @@
+version: 2
+
+models:
+  - name: stg_organization
+    description: >
+      Staging des organisations exportées dans `analytics_raw.organization`. Ce modèle applique uniquement les
+      conversions de types nécessaires (timestamps) avant exposition aux marts analytics.
+    columns:
+      - name: id
+        description: Identifiant unique de l'organisation.
+        tests:
+          - not_null
+          - unique
+      - name: title
+        description: Nom officiel (long) de l'organisation tel que synchronisé depuis la base source.
+        tests:
+          - not_null
+      - name: title_slug
+        description: Slug normalisé du titre (utilisé pour les jointures texte).
+      - name: short_title
+        description: Variante courte du titre (nullable).
+      - name: short_title_slug
+        description: Slug du titre court ; null si aucun titre court n'est renseigné.
+      - name: names
+        description: Tableau des différentes variantes de noms déclarées.
+        tests:
+          - not_null
+      - name: nature
+        description: Nature juridique déclarée (nullable).
+      - name: groupement
+        description: Indication d'appartenance à un groupement ou réseau (nullable).
+      - name: gestion
+        description: Code/label lié au mode de gestion (nullable).
+      - name: status
+        description: Statut administratif connu (nullable).
+      - name: created_at
+        description: Timestamp de création.
+        tests:
+          - not_null
+      - name: updated_at
+        description: Timestamp de dernière mise à jour, utilisé pour l'incrémental.
+        tests:
+          - not_null
+      - name: last_declared_at
+        description: Date de dernière déclaration légale (nullable).
+      - name: published_at
+        description: Date de publication officielle dans le registre (nullable).
+      - name: dissolved_at
+        description: Date de dissolution (nullable).
+      - name: address_insee_code
+        description: Code INSEE de l'adresse principale (nullable).
+      - name: address_postal_code
+        description: Code postal de l'adresse principale (nullable).
+      - name: address_department_code
+        description: Code du département de l'adresse principale (nullable).
+      - name: address_department_name
+        description: Libellé du département lié à l'adresse principale (nullable).
+      - name: address_region
+        description: Région de l'adresse principale (nullable).
+      - name: address_city
+        description: Ville de l'adresse principale (nullable).
+      - name: management_postal_code
+        description: Code postal utilisé pour l'adresse de gestion (nullable).
+      - name: management_city
+        description: Ville utilisée pour l'adresse de gestion (nullable).
+      - name: management_country
+        description: Pays utilisé pour l'adresse de gestion (nullable).
+      - name: director_civility
+        description: Civilité du dirigeant déclaré (nullable).
+      - name: source
+        description: Origine du flux de synchronisation (`rna`, `manual`, etc.).

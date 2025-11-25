@@ -4,37 +4,13 @@ import zod from "zod";
 
 import { captureMessage, INVALID_BODY, INVALID_PARAMS, INVALID_QUERY, NOT_FOUND } from "../error";
 import MissionModel from "../models/mission";
-import RequestModel from "../models/request";
-import { statEventService } from "../services/stat-event";
 import { publisherService } from "../services/publisher";
+import { statEventService } from "../services/stat-event";
 import { StatEventRecord } from "../types";
 import { PublisherRequest } from "../types/passport";
 import type { PublisherRecord } from "../types/publisher";
 
 const router = Router();
-
-router.use(async (req: PublisherRequest, res: Response, next: NextFunction) => {
-  res.on("finish", async () => {
-    if (!req.route) {
-      return;
-    }
-    const request = new RequestModel({
-      method: req.method,
-      key: req.headers["x-api-key"] || req.headers["apikey"],
-      header: req.headers,
-      route: `/v2/activity${req.route.path}`,
-      query: req.query,
-      params: req.params,
-      body: req.body,
-      status: res.statusCode,
-      code: res.locals.code,
-      message: res.locals.message,
-      total: res.locals.total,
-    });
-    await request.save();
-  });
-  next();
-});
 
 router.get("/:id", passport.authenticate(["apikey", "api"], { session: false }), async (req: PublisherRequest, res: Response, next: NextFunction) => {
   try {

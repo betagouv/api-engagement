@@ -13,20 +13,35 @@ DROP MATERIALIZED VIEW IF EXISTS "public"."PublicStatsDomains";
 DROP MATERIALIZED VIEW IF EXISTS "public"."PublicStatsGraphYearlyOrganizations";
 DROP MATERIALIZED VIEW IF EXISTS "public"."PublicStatsGraphMonthly";
 
--- Rename StatEvent table to snake_case
-ALTER TABLE "public"."StatEvent" RENAME TO "stat_event";
 
 -- AlterTable
-ALTER TABLE "public"."stat_event"
+ALTER TABLE "public"."StatEvent"
   DROP COLUMN "from_publisher_name",
   DROP COLUMN "to_publisher_name",
   ALTER COLUMN "tags" SET DEFAULT ARRAY[]::text[];
 
--- AddForeignKey
-ALTER TABLE "public"."stat_event" ADD CONSTRAINT "StatEvent_from_publisher_id_fkey" FOREIGN KEY ("from_publisher_id") REFERENCES "public"."publisher"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+-- AddForeignKey (only if it does not already exist)
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_constraint WHERE conname = 'StatEvent_from_publisher_id_fkey'
+  ) THEN
+    ALTER TABLE "public"."StatEvent" ADD CONSTRAINT "StatEvent_from_publisher_id_fkey" FOREIGN KEY ("from_publisher_id") REFERENCES "public"."publisher"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+  END IF;
+END $$;
 
--- AddForeignKey
-ALTER TABLE "public"."stat_event" ADD CONSTRAINT "StatEvent_to_publisher_id_fkey" FOREIGN KEY ("to_publisher_id") REFERENCES "public"."publisher"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+-- AddForeignKey (only if it does not already exist)
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_constraint WHERE conname = 'StatEvent_to_publisher_id_fkey'
+  ) THEN
+    ALTER TABLE "public"."StatEvent" ADD CONSTRAINT "StatEvent_to_publisher_id_fkey" FOREIGN KEY ("to_publisher_id") REFERENCES "public"."publisher"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+  END IF;
+END $$;
+
+-- Rename StatEvent table to snake_case
+ALTER TABLE "public"."StatEvent" RENAME TO "stat_event";
 
 -- Recreate materialized views using publisher relations
 CREATE MATERIALIZED VIEW "public"."StatsGlobalEvents" AS

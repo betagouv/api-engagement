@@ -5,8 +5,7 @@ import zod from "zod";
 import { PUBLISHER_IDS } from "../../config";
 import { INVALID_PARAMS, INVALID_QUERY, NOT_FOUND } from "../../error";
 import MissionModel from "../../models/mission";
-import OrganizationExclusionModel from "../../models/organization-exclusion";
-import RequestModel from "../../models/request";
+import { publisherDiffusionExclusionService } from "../../services/publisher-diffusion-exclusion";
 import { Mission } from "../../types";
 import { PublisherRequest } from "../../types/passport";
 import type { PublisherRecord } from "../../types/publisher";
@@ -45,29 +44,6 @@ export const missionQuerySchema = zod.object({
 
 const router = Router();
 
-router.use(async (req: PublisherRequest, res: Response, next: NextFunction) => {
-  res.on("finish", async () => {
-    if (!req.route) {
-      return;
-    }
-    const request = new RequestModel({
-      method: req.method,
-      key: req.headers["x-api-key"] || req.headers["apikey"],
-      header: req.headers,
-      route: `/v0/mission${req.route.path}`,
-      query: req.query,
-      params: req.params,
-      body: req.body,
-      status: res.statusCode,
-      code: res.locals.code,
-      message: res.locals.message,
-      total: res.locals.total,
-    });
-    await request.save();
-  });
-  next();
-});
-
 router.get("/", passport.authenticate(["apikey", "api"], { session: false }), async (req: PublisherRequest, res: Response, next: NextFunction) => {
   try {
     const user = req.user as PublisherRecord;
@@ -90,13 +66,14 @@ router.get("/", passport.authenticate(["apikey", "api"], { session: false }), as
     } as { [key: string]: any };
 
     // Exclude organizations from other publishers
-    const organizationExclusions = await OrganizationExclusionModel.find({
-      excludedForPublisherId: user.id,
-    });
-    if (organizationExclusions.length) {
-      where.organizationClientId = {
-        $nin: organizationExclusions.map((e) => e.organizationClientId),
-      };
+    const diffusionExclusions = await publisherDiffusionExclusionService.findExclusionsForDiffuseurId(user.id);
+    if (diffusionExclusions.length) {
+      const excludedIds = diffusionExclusions.map((e) => e.organizationClientId).filter((id): id is string => id !== null);
+      if (excludedIds.length) {
+        where.organizationClientId = {
+          $nin: excludedIds,
+        };
+      }
     }
 
     if (query.data.publisher) {
@@ -267,13 +244,14 @@ router.get("/search", passport.authenticate(["apikey", "api"], { session: false 
       deletedAt: null,
     } as { [key: string]: any };
 
-    const organizationExclusions = await OrganizationExclusionModel.find({
-      excludedForPublisherId: user.id,
-    });
-    if (organizationExclusions.length) {
-      where.organizationClientId = {
-        $nin: organizationExclusions.map((e) => e.organizationClientId),
-      };
+    const diffusionExclusions = await publisherDiffusionExclusionService.findExclusionsForDiffuseurId(user.id);
+    if (diffusionExclusions.length) {
+      const excludedIds = diffusionExclusions.map((e) => e.organizationClientId).filter((id): id is string => id !== null);
+      if (excludedIds.length) {
+        where.organizationClientId = {
+          $nin: excludedIds,
+        };
+      }
     }
 
     if (query.data.publisher) {

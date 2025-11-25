@@ -170,4 +170,93 @@ export const exportDefinitions: ExportDefinition[] = [
       conflictColumns: ["id"],
     },
   },
+  {
+    key: "organization",
+    batchSize: 2000,
+    source: {
+      table: "organization",
+      cursor: {
+        field: "updated_at",
+        idField: "id",
+      },
+      columns: [
+        "id",
+        "gestion",
+        "status",
+        "created_at",
+        "last_declared_at",
+        "published_at",
+        "dissolved_at",
+        "updated_at",
+        "nature",
+        "groupement",
+        "title",
+        "short_title",
+        "names",
+        "address_insee_code",
+        "address_postal_code",
+        "address_department_code",
+        "address_department_name",
+        "address_region",
+        "address_city",
+        "management_postal_code",
+        "management_city",
+        "management_country",
+        "director_civility",
+        "source",
+      ],
+    },
+    destination: {
+      table: "organization",
+      conflictColumns: ["id"],
+    },
+  },
+  {
+    key: "publisher",
+    batchSize: 2000,
+    source: {
+      table: "publisher",
+      cursor: {
+        field: "updated_at",
+        idField: "id",
+      },
+      columns: ["id", "name", "category", "is_annonceur", "has_api_rights", "has_widget_rights", "has_campaign_rights", "deleted_at", "created_at", "updated_at"],
+    },
+    destination: {
+      table: "publisher",
+      conflictColumns: ["id"],
+    },
+  },
+  {
+    key: "mission_event",
+    batchSize: 2000,
+    source: {
+      table: "mission_event",
+      cursor: {
+        field: "updated_at",
+        idField: "id",
+      },
+      columns: ["id", "mission_id", "created_at", "updated_at", "type", "changes", "created_by"],
+    },
+    destination: {
+      table: "mission_event",
+      conflictColumns: ["id"],
+    },
+  },
+  {
+    key: "import",
+    batchSize: 2000,
+    source: {
+      table: "import",
+      cursor: {
+        field: "started_at",
+        idField: "id",
+      },
+      columns: ["id", "name", "publisher_id", "mission_count", "refused_count", "created_count", "deleted_count", "updated_count", "started_at", "finished_at", "status"],
+    },
+    destination: {
+      table: "import",
+      conflictColumns: ["id"],
+    },
+  },
 ];

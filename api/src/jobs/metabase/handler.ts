@@ -1,10 +1,9 @@
 import importCampaigns from "./utils/campaign";
-import importImports from "./utils/import";
 import importKpi from "./utils/kpi";
 import importKpiBotless from "./utils/kpi-botless";
 import importLoginHistory from "./utils/login-history";
-import importOrganizationExclusion from "./utils/organization-exclusion";
 import importPartners from "./utils/partner";
+import importPublisherDiffusionExclusion from "./utils/publisher-diffusion-exclusion";
 import importUsers from "./utils/user";
 import importWidgets from "./utils/widget";
 
@@ -33,8 +32,7 @@ export class MetabaseHandler implements BaseHandler<MetabaseJobPayload, Metabase
       campaigns: { created: 0, updated: 0 },
       widgets: { created: 0, updated: 0 },
       organization_name_matches: { created: 0, updated: 0 },
-      organization_exclusion: { created: 0, updated: 0 },
-      imports: { created: 0, updated: null },
+      publisher_diffusion_exclusion: { created: 0, updated: 0 },
       requests: { created: 0, updated: null },
       login_history: { created: 0, updated: null },
       kpi: { created: 0, updated: null },
@@ -50,9 +48,9 @@ export class MetabaseHandler implements BaseHandler<MetabaseJobPayload, Metabase
     }
 
     if (jobs === null || jobs.includes("organization_exclusion")) {
-      const organizationExclusions = await importOrganizationExclusion();
-      stats.organization_exclusion.created += organizationExclusions?.created || 0;
-      stats.organization_exclusion.updated += organizationExclusions?.updated || 0;
+      const diffusionExclusions = await importPublisherDiffusionExclusion();
+      stats.publisher_diffusion_exclusion.created += diffusionExclusions?.created || 0;
+      stats.publisher_diffusion_exclusion.updated += diffusionExclusions?.updated || 0;
     }
 
     if (jobs === null || jobs.includes("users")) {
@@ -71,11 +69,6 @@ export class MetabaseHandler implements BaseHandler<MetabaseJobPayload, Metabase
       const widgets = await importWidgets();
       stats.widgets.created += widgets?.created || 0;
       stats.widgets.updated += widgets?.updated || 0;
-    }
-
-    if (jobs === null || jobs.includes("imports")) {
-      const imports = await importImports();
-      stats.imports.created += imports?.created || 0;
     }
 
     if (jobs === null || jobs.includes("login_history")) {

@@ -3,36 +3,12 @@ import passport from "passport";
 import zod from "zod";
 
 import { INVALID_QUERY } from "../error";
-import RequestModel from "../models/request";
 import { statEventService } from "../services/stat-event";
 import { PublisherRequest } from "../types/passport";
-import type { ViewStatsFacetField } from "../types/stat-event";
 import type { PublisherRecord } from "../types/publisher";
+import type { ViewStatsFacetField } from "../types/stat-event";
 
 const router = Router();
-
-router.use(async (req: PublisherRequest, res: Response, next: NextFunction) => {
-  res.on("finish", async () => {
-    if (!req.route) {
-      return;
-    }
-    const request = new RequestModel({
-      method: req.method,
-      key: req.headers["x-api-key"] || req.headers["apikey"],
-      header: req.headers,
-      route: `/v0/view${req.route.path}`,
-      query: req.query,
-      params: req.params,
-      body: req.body,
-      status: res.statusCode,
-      code: res.locals.code,
-      message: res.locals.message,
-      total: res.locals.total,
-    });
-    await request.save();
-  });
-  next();
-});
 
 router.get("/stats", passport.authenticate(["apikey", "api"], { session: false }), async (req: PublisherRequest, res: Response, next: NextFunction) => {
   try {
@@ -75,12 +51,14 @@ router.get("/stats", passport.authenticate(["apikey", "api"], { session: false }
         });
     }
 
-    const facets = (query.data.facets
-      ? query.data.facets
-          .split(",")
-          .map((facet) => facet.trim())
-          .filter((facet) => facet.length)
-      : []) as ViewStatsFacetField[];
+    const facets = (
+      query.data.facets
+        ? query.data.facets
+            .split(",")
+            .map((facet) => facet.trim())
+            .filter((facet) => facet.length)
+        : []
+    ) as ViewStatsFacetField[];
 
     const { total, facets: facetBuckets } = await statEventService.findStatEventViews({
       publisherId: user.id,

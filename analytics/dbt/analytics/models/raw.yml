@@ -152,3 +152,129 @@ sources:
             description: Ancien identifiant RNA.
           - name: new_rna
             description: Nouvel identifiant RNA.
+      - name: publisher
+        description: >-
+          Instantané des partenaires / diffuseurs tels qu'ils existent dans la base opérationnelle. Chaque ligne
+          correspond à un partenaire et inclut les droits d'accès ainsi que les liaisons diffuseurs-annonceurs
+          nécessaires pour reconstruire le champ `partners`.
+        columns:
+          - name: id
+            description: Identifiant unique du partenaire (UUID `publisher.id`).
+          - name: name
+            description: Nom public du partenaire.
+          - name: category
+            description: Catégorie fonctionnelle saisie dans l'application source (nullable).
+          - name: is_annonceur
+            description: Indique si le partenaire agit comme annonceur côté API.
+          - name: has_api_rights
+            description: Droit d'accès aux flux API sortants.
+          - name: has_widget_rights
+            description: Droit d'accès aux widgets embarqués.
+          - name: has_campaign_rights
+            description: Droit d'accès aux campagnes (Sendinblue, emailing).
+          - name: deleted_at
+            description: Timestamp de suppression logique dans l'app source (nullable).
+          - name: created_at
+            description: Timestamp de création du partenaire.
+          - name: updated_at
+            description: Timestamp de dernière mise à jour, utilisé comme curseur d'export.
+      - name: mission_event
+        description: >-
+          Événements de mission générés lors des imports (create/update/delete) sur la base Mongo historique,
+          exportés vers Postgres pour tracer les modifications des missions et alimenter les historiques analytics.
+        columns:
+          - name: id
+            description: Identifiant unique de l'événement.
+          - name: mission_id
+            description: Identifiant Mongo de la mission concernée (Mission.old_id).
+          - name: type
+            description: Type brut de l'événement (`create`, `update`, `delete`).
+          - name: changes
+            description: Payload JSON décrivant les champs modifiés (previous/current).
+          - name: created_by
+            description: Identifiant ou libellé de l'utilisateur/processus à l'origine de l'événement.
+          - name: created_at
+            description: Date de création de l'événement (UTC).
+          - name: updated_at
+            description: Dernière mise à jour (UTC), utilisée comme curseur d'export.
+      - name: organization
+        description: >-
+          Référentiel des organisations synchronisé depuis la base opérationnelle (`core.Organization`). Ces données
+          décrivent les associations/réseaux partenaires (identité, adresses, informations administratives) nécessaires
+          pour les analyses métiers et les jointures avec les missions/partenaires.
+        columns:
+          - name: id
+            description: Identifiant unique de l'organisation (UUID).
+          - name: gestion
+            description: Code ou libellé de gestion remonté par l'application source (nullable).
+          - name: status
+            description: Statut administratif/associatif déclaré (nullable).
+          - name: created_at
+            description: Horodatage de création de l'organisation côté source.
+          - name: last_declared_at
+            description: Date de dernière déclaration connue (nullable).
+          - name: published_at
+            description: Date de publication officielle (nullable).
+          - name: dissolved_at
+            description: Date de dissolution si l'organisation n'est plus active (nullable).
+          - name: updated_at
+            description: Horodatage de dernière mise à jour, utilisé comme curseur d'export incrémental.
+          - name: nature
+            description: Nature juridique déclarée (nullable).
+          - name: groupement
+            description: Information de groupement ou fédération (nullable).
+          - name: title
+            description: Titre long officiel de l'organisation.
+          - name: short_title
+            description: Titre court utilisé dans certaines interfaces (nullable).
+          - name: names
+            description: Variantes de noms déclarés (tableau textuel).
+          - name: address_insee_code
+            description: Code INSEE correspondant à l'adresse principale (nullable).
+          - name: address_postal_code
+            description: Code postal de l'adresse principale (nullable).
+          - name: address_department_code
+            description: Code du département lié à l'adresse principale (nullable).
+          - name: address_department_name
+            description: Libellé du département lié à l'adresse principale (nullable).
+          - name: address_region
+            description: Région correspondant à l'adresse principale (nullable).
+          - name: address_city
+            description: Ville correspondant à l'adresse principale (nullable).
+          - name: management_postal_code
+            description: Code postal utilisé pour l'adresse de gestion (nullable).
+          - name: management_city
+            description: Ville utilisée pour l'adresse de gestion (nullable).
+          - name: management_country
+            description: Pays utilisé pour l'adresse de gestion (nullable).
+          - name: director_civility
+            description: Civilité du dirigeant/président déclaré (nullable).
+          - name: source
+            description: Origine de la donnée (ex. `rna`, `api`, `manual`).
+      - name: import
+        description: >-
+          Journal d'exécution des imports de missions côté partenaires (job `export-to-analytics-raw`). Chaque ligne
+          agrège les totaux créés/supprimés/mis à jour ainsi que le partenaire et la fenêtre temporelle de l'import.
+        columns:
+          - name: id
+            description: Identifiant unique de l'import dans la base source.
+          - name: name
+            description: Nom libre de l'import (généralement décrit par le job déclencheur).
+          - name: publisher_id
+            description: Identifiant du partenaire concerné par l'import.
+          - name: mission_count
+            description: Volume total de missions parcourues pendant l'import.
+          - name: refused_count
+            description: Nombre de missions refusées (statut non importé) durant l'import.
+          - name: created_count
+            description: Nombre de missions créées côté application durant cette exécution.
+          - name: deleted_count
+            description: Nombre de missions supprimées/supprimées logiquement durant cette exécution.
+          - name: updated_count
+            description: Nombre de missions mises à jour durant cette exécution.
+          - name: started_at
+            description: Horodatage de démarrage de l'import (UTC).
+          - name: finished_at
+            description: Horodatage de fin de l'import, utilisé comme curseur temporel pour l'incrémentalité.
+          - name: status
+            description: Statut global retourné par le job (`SUCCESS`, `FAILED`, etc.).

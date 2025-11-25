@@ -5,7 +5,6 @@ import zod from "zod";
 import { HydratedDocument } from "mongoose";
 import { captureMessage, INVALID_BODY, NOT_FOUND } from "../error";
 import MissionModel from "../models/mission";
-import RequestModel from "../models/request";
 import { Mission } from "../types";
 import { PublisherRequest } from "../types/passport";
 
@@ -16,30 +15,6 @@ const router = Router();
  * webhook called for each mission to give back a status of the moderation of the partner in front
  * doc here https://www.notion.so/jeveuxaider/Leboincoin-API-Feedback-de-l-API-Engagement-12672a322d508087ab8bf02951b534b8?pvs=4
  */
-
-router.use(async (req: PublisherRequest, res: Response, next: NextFunction) => {
-  res.on("finish", async () => {
-    if (!req.route) {
-      return;
-    }
-    const request = new RequestModel({
-      method: req.method,
-      key: req.headers["x-api-key"] || req.headers["apikey"],
-      header: req.headers,
-      route: `/v2/leboncoin${req.route.path}`,
-      query: req.query,
-      params: req.params,
-      body: req.body,
-      status: res.statusCode,
-      code: res.locals.code,
-      message: res.locals.message,
-      total: res.locals.total,
-    });
-    await request.save();
-  });
-  next();
-});
-
 const STATUS_MAP = {
   ad_online: "ACCEPTED",
   ad_edited: "EDITED",

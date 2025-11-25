@@ -93,7 +93,7 @@ const Users = () => {
             itemHeight="min-h-12"
             renderItem={(item) => (
               <>
-                <Link to={`/user/${item._id}`} className="link w-[15%] truncate">
+                <Link to={`/user/${item.id}`} className="link w-[15%] truncate">
                   {item.firstname} {item.lastname}
                 </Link>
                 <span className="w-[20%] truncate">{item.email}</span>
@@ -120,7 +120,7 @@ const Users = () => {
                 </span>
                 <span className="w-[12%] text-center">{new Date(item.createdAt).toLocaleDateString("fr")}</span>
                 <span className="flex w-[10%] justify-center">{item.lastActivityAt ? new Date(item.lastActivityAt).toLocaleDateString("fr") : "-"}</span>
-                <Link to={`/connect?id=${item._id}`} target="_blank" className="text-blue-france flex w-[12%] items-center justify-center">
+                <Link to={`/connect?id=${item.id}`} target="_blank" className="text-blue-france flex w-[12%] items-center justify-center">
                   Se connecter
                   <RiLoginBoxLine className="ml-2" />
                 </Link>

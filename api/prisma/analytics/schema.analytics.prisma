@@ -148,18 +148,6 @@ model Click {
   @@index([to_partner_id], map: "click_to_partner_id")
 }
 
-model Import {
-  id            String   @id @default(uuid())
-  old_id        String   @unique
-  created_count Int?
-  deleted_count Int?
-  updated_count Int?
-  partner_id    String
-  started_at    DateTime @default(now())
-  ended_at      DateTime @default(now())
-  partner       Partner  @relation(fields: [partner_id], references: [id])
-}
-
 model Impression {
   id              String      @id @default(uuid())
   stat_event_id   String?
@@ -308,11 +296,16 @@ model Mission {
   snu                           Boolean?
   snu_places                    Int?
   tags                          String[]
-  jva_moderation_comment        String?
-  jva_moderation_status         String?
-  jva_moderation_title          String?
-  jva_moderation_user_id        String?
-  jva_moderation_updated_at     DateTime?
+
+  compensation_amount Float?
+  compensation_unit   String?
+  compensation_type   String?
+
+  jva_moderation_comment    String?
+  jva_moderation_status     String?
+  jva_moderation_title      String?
+  jva_moderation_user_id    String?
+  jva_moderation_updated_at DateTime?
 
   organization_client_id                String?
   organization_department               String?
@@ -456,7 +449,6 @@ model Partner {
   diffuseur_campaigns Campaign[]        @relation("DiffuseurCampaign")
   click_from          Click[]           @relation("FromClick")
   click_to            Click[]           @relation("ToClick")
-  imports             Import[]
   impression_from     Impression[]      @relation("FromImpression")
   impression_to       Impression[]      @relation("ToImpression")
   missions            Mission[]

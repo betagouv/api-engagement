@@ -1,8 +1,7 @@
 import mongoose from "mongoose";
 
-import type { Prisma, Import as PrismaImport } from "../../src/db/core";
+import type { Prisma } from "../../src/db/core";
 import type { ImportRecord } from "../../src/types/import";
-import { compareDates, compareJsons, compareNumbers, compareStrings } from "./utils/compare";
 import { normalizeDate, normalizeNumber, toJsonValue } from "./utils/normalize";
 import { loadEnvironment, parseScriptOptions, type ScriptOptions } from "./utils/options";
 
@@ -26,7 +25,7 @@ type MongoImportDocument = {
   failed?: unknown;
 };
 
-const BATCH_SIZE = 100;
+const BATCH_SIZE = 1000;
 
 const normalizeStatus = (value: string | null | undefined): "SUCCESS" | "FAILED" => {
   const normalized = (value ?? "SUCCESS").toUpperCase().trim();
@@ -56,45 +55,11 @@ const extractPublisherId = (value: MongoImportDocument["publisherId"]): string =
   throw new Error("[MigrateImports] Invalid publisherId type");
 };
 
-const toRecord = (value: PrismaImport): ImportRecord => ({
-  _id: value.id,
-  id: value.id,
-  name: value.name,
-  publisherId: value.publisherId,
-  missionCount: value.missionCount,
-  refusedCount: value.refusedCount,
-  createdCount: value.createdCount,
-  deletedCount: value.deletedCount,
-  updatedCount: value.updatedCount,
-  startedAt: value.startedAt ?? null,
-  finishedAt: value.finishedAt ?? null,
-  status: value.status,
-  error: value.error ?? null,
-  failed: value.failed ?? [],
-});
-
-const hasDifferences = (existing: ImportRecord, target: ImportRecord): boolean => {
-  if (!compareStrings(existing.name, target.name)) return true;
-  if (!compareStrings(existing.publisherId, target.publisherId)) return true;
-  if (!compareNumbers(existing.missionCount, target.missionCount)) return true;
-  if (!compareNumbers(existing.refusedCount, target.refusedCount)) return true;
-  if (!compareNumbers(existing.createdCount, target.createdCount)) return true;
-  if (!compareNumbers(existing.deletedCount, target.deletedCount)) return true;
-  if (!compareNumbers(existing.updatedCount, target.updatedCount)) return true;
-  if (!compareDates(existing.startedAt, target.startedAt)) return true;
-  if (!compareDates(existing.finishedAt, target.finishedAt)) return true;
-  if (existing.status !== target.status) return true;
-  if (!compareStrings(existing.error, target.error)) return true;
-  if (!compareJsons(existing.failed, target.failed)) return true;
-  return false;
-};
-
 const normalizeImport = (doc: MongoImportDocument) => {
   const id = extractId(doc);
   const publisherId = extractPublisherId(doc.publisherId);
 
   const record: ImportRecord = {
-    _id: id,
     id,
     name: (doc.name ?? "").toString(),
     publisherId,
@@ -126,21 +91,7 @@ const normalizeImport = (doc: MongoImportDocument) => {
     failed: record.failed as Prisma.InputJsonValue,
   };
 
-  const update: Prisma.ImportUpdateInput = {
-    name: record.name,
-    missionCount: record.missionCount,
-    refusedCount: record.refusedCount,
-    createdCount: record.createdCount,
-    deletedCount: record.deletedCount,
-    updatedCount: record.updatedCount,
-    startedAt: record.startedAt,
-    finishedAt: record.finishedAt,
-    status: record.status,
-    error: record.error,
-    failed: record.failed as Prisma.InputJsonValue,
-  };
-
-  return { record, create, update };
+  return { record, create };
 };
 
 const formatRecordForLog = (record: ImportRecord) => ({
@@ -160,10 +111,11 @@ const formatRecordForLog = (record: ImportRecord) => ({
 });
 
 const migrateImports = async () => {
-  const [{ mongoConnected }, { pgConnected }, { importRepository }] = await Promise.all([
+  const [{ mongoConnected }, { pgConnected }, { importRepository }, { publisherRepository }] = await Promise.all([
     import("../../src/db/mongo"),
     import("../../src/db/postgres"),
     import("../../src/repositories/import"),
+    import("../../src/repositories/publisher"),
   ]);
 
   await mongoConnected;
@@ -179,9 +131,10 @@ const migrateImports = async () => {
 
   let processed = 0;
   let created = 0;
-  let updated = 0;
-  let unchanged = 0;
+  let skippedExisting = 0;
+  let skippedMissingPublisher = 0;
   let errors = 0;
+  const missingPublishersLogged = new Set<string>();
 
   while (await cursor.hasNext()) {
     const docs: MongoImportDocument[] = [];
@@ -194,43 +147,61 @@ const migrateImports = async () => {
     }
 
     const normalized = docs.map((doc) => normalizeImport(doc));
-    const ids = normalized.map(({ record }) => record.id);
-    const existing = await importRepository.findMany({ where: { id: { in: ids } } });
-    const existingById = new Map(existing.map((e) => [e.id, toRecord(e)]));
 
-    for (const entry of normalized) {
-      try {
-        const existingRecord = existingById.get(entry.record.id);
-        if (!existingRecord) {
-          if (options.dryRun) {
-            console.log(`[MigrateImports][Dry-run] Would create import ${entry.record.id} (${entry.record.name})`, JSON.stringify(formatRecordForLog(entry.record)));
-          } else {
-            await importRepository.create({ data: entry.create });
-          }
-          created++;
-        } else {
-          if (hasDifferences(existingRecord, entry.record)) {
-            if (options.dryRun) {
-              console.log(`[MigrateImports][Dry-run] Would update import ${entry.record.id} (${entry.record.name})`, JSON.stringify(formatRecordForLog(entry.record)));
-            } else {
-              await importRepository.update({ where: { id: entry.record.id }, data: entry.update });
+    const publisherIds = Array.from(new Set(normalized.map(({ record }) => record.publisherId)));
+    const existingPublisherIds = new Set(await publisherRepository.findExistingIds(publisherIds));
+    const readyForInsert = normalized.filter(({ record }) => {
+      if (!existingPublisherIds.has(record.publisherId)) {
+        if (!missingPublishersLogged.has(record.publisherId)) {
+          console.warn(`[MigrateImports] Missing publisher ${record.publisherId}, skipping associated imports`);
+          missingPublishersLogged.add(record.publisherId);
+        }
+        skippedMissingPublisher++;
+        return false;
+      }
+      return true;
+    });
+
+    const ids = readyForInsert.map(({ record }) => record.id);
+    const existingIds = new Set(await importRepository.findExistingIds(ids));
+    const toCreate = readyForInsert.filter(({ record }) => !existingIds.has(record.id));
+
+    const alreadyExisting = readyForInsert.length - toCreate.length;
+    skippedExisting += alreadyExisting;
+
+    if (toCreate.length) {
+      if (options.dryRun) {
+        toCreate.forEach((entry) =>
+          console.log(`[MigrateImports][Dry-run] Would create import ${entry.record.id} (${entry.record.name})`, JSON.stringify(formatRecordForLog(entry.record)))
+        );
+      } else {
+        try {
+          await importRepository.createMany({ data: toCreate.map((entry) => entry.create), skipDuplicates: true });
+        } catch (error) {
+          console.error("[MigrateImports] Failed to insert batch, falling back to individual inserts", error);
+          for (const entry of toCreate) {
+            try {
+              await importRepository.create({ data: entry.create });
+            } catch (innerError) {
+              console.error("[MigrateImports] Failed to create import", entry.record.id, innerError);
+              errors++;
             }
-            updated++;
-          } else {
-            unchanged++;
           }
         }
-        processed++;
-      } catch (error) {
-        console.error("[MigrateImports] Failed to process import document", error);
-        errors++;
       }
+      created += toCreate.length;
     }
 
-    console.log(`[MigrateImports] Progress ${processed}/${total} (created: ${created}, updated: ${updated}, unchanged: ${unchanged}, errors: ${errors})`);
+    processed += normalized.length;
+
+    console.log(
+      `[MigrateImports] Progress ${processed}/${total} (created: ${created}, skippedExisting: ${skippedExisting}, skippedMissingPublisher: ${skippedMissingPublisher}, errors: ${errors})`
+    );
   }
 
-  console.log(`[MigrateImports] Completed. Processed: ${processed}, created: ${created}, updated: ${updated}, unchanged: ${unchanged}, errors: ${errors}`);
+  console.log(
+    `[MigrateImports] Completed. Processed: ${processed}, created: ${created}, skippedExisting: ${skippedExisting}, skippedMissingPublisher: ${skippedMissingPublisher}, errors: ${errors}`
+  );
 };
 
 const cleanup = async () => {
