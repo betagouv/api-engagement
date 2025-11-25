@@ -94,19 +94,8 @@ router.get("/state", passport.authenticate("user", { session: false }), async (r
 
 router.get("/admin-state", passport.authenticate("user", { session: false }), async (req: UserRequest, res: Response, next: NextFunction) => {
   try {
-    const imports = await importService.findLastImportsPerPublisher();
-    let success = 0;
-    let last = null as Date | null;
-    imports.forEach((doc) => {
-      if (doc.status === "SUCCESS") {
-        success++;
-      }
-      if (!last || (doc.startedAt && doc.startedAt > last)) {
-        last = doc.startedAt ? new Date(doc.startedAt) : last;
-      }
-    });
-
-    return res.status(200).send({ ok: true, data: { success, imports: imports.length, last } });
+    const state = await importService.getLastImportSummary();
+    return res.status(200).send({ ok: true, data: state });
   } catch (error) {
     next(error);
   }

@@ -93,17 +93,7 @@ const parseDate = (value: string | Date | undefined) => {
     const hasTimezoneDesignator = /[zZ]$/.test(trimmed) || /[+\-]\d{2}:?\d{2}$/.test(trimmed);
 
     if (!hasTimezoneDesignator) {
-      return new Date(
-        Date.UTC(
-          parsed.getFullYear(),
-          parsed.getMonth(),
-          parsed.getDate(),
-          parsed.getHours(),
-          parsed.getMinutes(),
-          parsed.getSeconds(),
-          parsed.getMilliseconds()
-        )
-      );
+      return new Date(Date.UTC(parsed.getFullYear(), parsed.getMonth(), parsed.getDate(), parsed.getHours(), parsed.getMinutes(), parsed.getSeconds(), parsed.getMilliseconds()));
     }
   }
 
@@ -111,7 +101,7 @@ const parseDate = (value: string | Date | undefined) => {
 };
 
 const parseNumber = (value: number | string | undefined) => {
-  if (!value) {
+  if (value === undefined || value === null || value === "") {
     return null;
   }
   if (isNaN(Number(value))) {
@@ -137,6 +127,11 @@ const parseArray = (value: string | { value: string[] | string } | undefined, in
     return value.split(" ").map((i) => i.trim());
   }
   return [value];
+};
+
+const parseLowercase = (value: string | undefined) => {
+  const parsed = parseString(value);
+  return parsed ? parsed.toLowerCase() : null;
 };
 
 const parseMission = (publisher: PublisherRecord, missionXML: MissionXML, missionDB: Mission | null) => {
@@ -173,6 +168,9 @@ const parseMission = (publisher: PublisherRecord, missionXML: MissionXML, missio
     placesStatus: missionXML.places !== undefined ? "GIVEN_BY_PARTNER" : "ATTRIBUTED_BY_API",
     snu: parseString(missionXML.snu) === "yes",
     snuPlaces: parseNumber(missionXML.snuPlaces),
+    compensationAmount: parseNumber(missionXML.compensationAmount),
+    compensationUnit: parseLowercase(missionXML.compensationUnit as string | undefined) as Mission["compensationUnit"],
+    compensationType: parseLowercase(missionXML.compensationType as string | undefined) as Mission["compensationType"],
     metadata: parseString(missionXML.metadata),
     organizationName: parseString(missionXML.organizationName),
     organizationRNA: parseString(missionXML.organizationRNA) || parseString(missionXML.organizationRna) || "",

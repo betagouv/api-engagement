@@ -1,5 +1,6 @@
 import { Schema, model } from "mongoose";
 
+import { COMPENSATION_TYPES, COMPENSATION_UNITS } from "../constants/compensation";
 import { AddressItem, GeoPoint, Mission, MissionType } from "../types";
 
 const MODELNAME = "mission";
@@ -69,6 +70,11 @@ const schema = new Schema<Mission>(
     type: { type: String, enum: MissionType, default: MissionType.VOLONTARIAT },
     snu: { type: Boolean },
     snuPlaces: { type: Number },
+
+    // Compensation
+    compensationAmount: { type: Number, default: null },
+    compensationUnit: { type: String, enum: [...COMPENSATION_UNITS, null], default: null },
+    compensationType: { type: String, enum: [...COMPENSATION_TYPES, null], default: null },
 
     // Address
     adresse: { type: String }, // Misspelled in the doc but used in the code

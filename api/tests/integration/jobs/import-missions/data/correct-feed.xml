@@ -41,6 +41,9 @@
     </addresses>
     <schedule><![CDATA[1 demi-journée par semaine]]></schedule>
     <places><![CDATA[2]]></places>
+    <compensationAmount><![CDATA[10]]></compensationAmount>
+    <compensationUnit><![CDATA[hour]]></compensationUnit>
+    <compensationType><![CDATA[gross]]></compensationType>
     <activity><![CDATA[logistique]]></activity>
     <remote><![CDATA[full]]></remote>
     <domain><![CDATA[environnement]]></domain>

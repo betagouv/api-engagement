@@ -1,3 +1,5 @@
+import { CompensationType, CompensationUnit } from "../../constants/compensation";
+
 export interface MissionXML {
   id: string;
   title: string;
@@ -58,10 +60,14 @@ export interface MissionXML {
   priority: string;
   metadata: string;
   places: number | string;
+
+  compensationAmount?: number | string;
+  compensationUnit?: CompensationUnit | string;
+  compensationType?: CompensationType | string;
+
   organizationName: string;
   organizationRNA: string;
   organizationRna: string; // Partner makes errors but we save them cause we're cool
-
   organizationSiren: string;
   organizationUrl: string;
   organizationLogo?: string;

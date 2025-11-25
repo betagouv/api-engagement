@@ -125,4 +125,16 @@ describe("getModeration", () => {
     getModeration(mission as Mission);
     expect(mission.statusComment).toBe("Titre manquant");
   });
+
+  it("should refuse mission when compensation amount is negative", () => {
+    mission.compensationAmount = -10;
+    getModeration(mission as Mission);
+    expect(mission.statusComment).toBe("Montant de la compensation invalide (nombre positif attendu)");
+  });
+
+  it("should refuse mission when compensation unit is invalid", () => {
+    mission.compensationUnit = "invalid" as any;
+    getModeration(mission as Mission);
+    expect(mission.statusComment).toBe("Unité de compensation invalide (hour, day, month, year)");
+  });
 });

@@ -1,5 +1,7 @@
 import { Schema } from "mongoose";
 
+import { CompensationType, CompensationUnit } from "../constants/compensation";
+
 export type GeolocStatus = "ENRICHED_BY_PUBLISHER" | "ENRICHED_BY_API" | "NOT_FOUND" | "NO_DATA" | "SHOULD_ENRICH" | "FAILED";
 
 export type AddressItem = {
@@ -49,17 +51,6 @@ export interface MissionHistory {
   metadata?: Record<string, any>;
 }
 
-export interface MissionEvent {
-  _id: Schema.Types.ObjectId;
-  type: "create" | "update" | "delete";
-  missionId: Schema.Types.ObjectId;
-  changes: Record<string, { previous: any; current: any }> | null;
-  createdAt: Date;
-  createdBy?: Schema.Types.ObjectId; // User
-  // PG export
-  lastExportedToPgAt: Date | null;
-}
-
 export interface Mission {
   _id: Schema.Types.ObjectId;
 
@@ -82,6 +73,10 @@ export interface Mission {
   descriptionHtml: string;
   tags: string[];
   audience: string[];
+
+  compensationAmount: number | null;
+  compensationUnit: CompensationUnit | null;
+  compensationType: CompensationType | null;
 
   softSkills: string[];
   requirements: string[];
@@ -242,31 +237,6 @@ export type Request = {
   total: number;
   createdAt: Date;
 };
-
-export interface User {
-  _id: Schema.Types.ObjectId;
-  firstname: string;
-  lastname: string | undefined;
-  publishers: string[];
-  email: string;
-  password: string | null;
-  role: "user" | "admin";
-  invitationToken: string | null;
-  invitationExpiresAt: Date | null;
-  invitationCompletedAt: Date | null;
-
-  comparePassword: (password: string) => Promise<boolean>;
-
-  createdAt: Date;
-  updatedAt: Date;
-  deletedAt: Date | null;
-  lastActivityAt: Date | null;
-  loginAt: Date[] | null;
-  forgotPasswordToken: string | null;
-  forgotPasswordExpiresAt: Date | null;
-
-  brevoContactId: number | null;
-}
 
 export type StatsBot = {
   _id: Schema.Types.ObjectId;
@@ -511,7 +481,7 @@ export interface Kpi {
 
 export enum MissionType {
   BENEVOLAT = "benevolat",
-  VOLONTARIAT = "volontariat-service-civique",
+  VOLONTARIAT = "volontariat_service_civique",
 }
 
 export * from "./email";
@@ -521,3 +491,4 @@ export * from "./organization";
 export * from "./publisher";
 export * from "./report";
 export * from "./stat-event";
+export * from "./user";

@@ -24,7 +24,7 @@ const Settings = ({ widget, values, onChange, loading }) => {
     if (loading) return;
     const fetchMissions = async () => {
       try {
-        const publishers = publisher.publishers.map((p) => p.publisherId);
+        const publishers = publisher.publishers.map((p) => p.diffuseurPublisherId);
         if (publisher.isAnnonceur) publishers.push(publisher.id);
         const query = {
           publishers,

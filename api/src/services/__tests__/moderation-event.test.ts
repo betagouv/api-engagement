@@ -1,6 +1,5 @@
-import { afterEach, beforeEach, describe, expect, it, vi, type MockInstance } from "vitest";
-import type { Mission, User } from "../../types";
-import type { ModerationEventRecord } from "../../types/moderation-event";
+import { describe, expect, it } from "vitest";
+import type { Mission, UserRecord } from "../../types";
 import { moderationEventService } from "../moderation-event";
 
 const buildId = (value: string) =>
@@ -8,26 +7,15 @@ const buildId = (value: string) =>
     toString: () => value,
   }) as { toString(): string };
 
-describe("moderationEventService.logModeration", () => {
+describe("moderationEventService.buildModerationEventPayload", () => {
   const moderatorId = "moderator-123";
   const user = {
-    _id: buildId("user-1"),
+    id: "user-1",
     firstname: "Alice",
     lastname: "Doe",
-  } as unknown as User;
+  } as unknown as UserRecord;
 
-  let createEventSpy: MockInstance<typeof moderationEventService.createModerationEvent>;
-
-  beforeEach(() => {
-    createEventSpy = vi.spyOn(moderationEventService, "createModerationEvent");
-    createEventSpy.mockResolvedValue({} as unknown as ModerationEventRecord);
-  });
-
-  afterEach(() => {
-    vi.restoreAllMocks();
-  });
-
-  it("logs status changes with base metadata", async () => {
+  it("logs status changes with base metadata", () => {
     const previous = {
       _id: buildId("mission-1"),
       title: "Original Title",
@@ -49,10 +37,9 @@ describe("moderationEventService.logModeration", () => {
       organizationRNAVerified: "RNA-1",
     } as unknown as Mission;
 
-    await moderationEventService.logModeration(previous, update, user, moderatorId);
+    const payload = moderationEventService.buildModerationEventPayload(previous, update, user, moderatorId);
 
-    expect(createEventSpy).toHaveBeenCalledTimes(1);
-    expect(createEventSpy).toHaveBeenCalledWith({
+    expect(payload).toEqual({
       moderatorId,
       missionId: "mission-1",
       userId: "user-1",
@@ -62,7 +49,7 @@ describe("moderationEventService.logModeration", () => {
     });
   });
 
-  it("captures comment changes when a moderator adds a comment", async () => {
+  it("captures comment changes when a moderator adds a comment", () => {
     const previous = {
       _id: buildId("mission-2"),
       title: "Mission Title",
@@ -78,10 +65,9 @@ describe("moderationEventService.logModeration", () => {
       organizationRNAVerified: undefined,
     } as unknown as Mission;
 
-    await moderationEventService.logModeration(previous, update, user, moderatorId);
+    const payload = moderationEventService.buildModerationEventPayload(previous, update, user, moderatorId);
 
-    expect(createEventSpy).toHaveBeenCalledTimes(1);
-    expect(createEventSpy).toHaveBeenCalledWith({
+    expect(payload).toEqual({
       moderatorId,
       missionId: "mission-2",
       userId: "user-1",
@@ -91,7 +77,7 @@ describe("moderationEventService.logModeration", () => {
     });
   });
 
-  it("uses the mission title as the initial title when no previous moderator title exists", async () => {
+  it("uses the mission title as the initial title when no previous moderator title exists", () => {
     const previous = {
       _id: buildId("mission-3"),
       title: "Public Mission Title",
@@ -106,10 +92,9 @@ describe("moderationEventService.logModeration", () => {
       organizationRNAVerified: undefined,
     } as unknown as Mission;
 
-    await moderationEventService.logModeration(previous, update, user, moderatorId);
+    const payload = moderationEventService.buildModerationEventPayload(previous, update, user, moderatorId);
 
-    expect(createEventSpy).toHaveBeenCalledTimes(1);
-    expect(createEventSpy).toHaveBeenCalledWith({
+    expect(payload).toEqual({
       moderatorId,
       missionId: "mission-3",
       userId: "user-1",
@@ -119,7 +104,7 @@ describe("moderationEventService.logModeration", () => {
     });
   });
 
-  it("records siren and RNA changes when identifiers are updated", async () => {
+  it("records siren and RNA changes when identifiers are updated", () => {
     const previous = {
       _id: buildId("mission-4"),
       title: "Mission Title",
@@ -133,10 +118,9 @@ describe("moderationEventService.logModeration", () => {
       organizationRNAVerified: "RNA-NEW",
     } as unknown as Mission;
 
-    await moderationEventService.logModeration(previous, update, user, moderatorId);
+    const payload = moderationEventService.buildModerationEventPayload(previous, update, user, moderatorId);
 
-    expect(createEventSpy).toHaveBeenCalledTimes(1);
-    expect(createEventSpy).toHaveBeenCalledWith({
+    expect(payload).toEqual({
       moderatorId,
       missionId: "mission-4",
       userId: "user-1",

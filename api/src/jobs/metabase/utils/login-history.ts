@@ -1,7 +1,7 @@
 import { LoginHistory } from "../../../db/analytics";
 import { prismaAnalytics as prismaClient } from "../../../db/postgres";
 import { captureException } from "../../../error";
-import UserModel from "../../../models/user";
+import { userService } from "../../../services/user";
 
 const buildData = (userId: string, loginTime: Date) => {
   return {
@@ -14,7 +14,7 @@ const handler = async () => {
   try {
     const start = new Date();
 
-    const data = await UserModel.find().lean();
+    const data = await userService.findUsers({ includeDeleted: true });
     console.log(`[User] Found ${data.length} users to process.`);
 
     const users = {} as { [key: string]: string };
@@ -34,7 +34,7 @@ const handler = async () => {
 
     const dataToCreate = [] as LoginHistory[];
     for (const user of data) {
-      const userId = users[user._id.toString()];
+      const userId = users[user.id];
       const latestLoginAt = logins[userId];
 
       if (userId && user.loginAt && user.loginAt.length) {

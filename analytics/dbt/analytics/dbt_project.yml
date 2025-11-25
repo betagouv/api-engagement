@@ -41,3 +41,4 @@ models:
 
 vars:
   PUBLISHER_SERVICE_CIVIQUE_NAME: "Service Civique"
+  PUBLISHER_JEVEUXAIDER_NAME: "JeVeuxAider.gouv.fr"
