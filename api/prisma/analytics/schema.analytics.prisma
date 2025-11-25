@@ -478,14 +478,6 @@ model OrganizationExclusion {
   @@unique([excluded_by_publisher_id, excluded_for_publisher_id, organization_client_id])
 }
 
-model LoginHistory {
-  id       String   @id @default(uuid())
-  user_id  String
-  login_at DateTime @default(now())
-
-  @@index([user_id], map: "login_history")
-}
-
 model Widget {
   id             String       @id @default(uuid())
   name           String

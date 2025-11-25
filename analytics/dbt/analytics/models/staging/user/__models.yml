@@ -29,6 +29,8 @@ models:
         description: Timestamp de suppression logique (nullable).
       - name: last_activity_at
         description: Dernière activité connue dans l'application (nullable).
+      - name: login_at
+        description: Historique des connexions de l'utilisateur (array de timestamps UTC).
       - name: created_at
         description: Timestamp de création initiale du compte.
         tests:
