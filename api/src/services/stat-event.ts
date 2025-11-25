@@ -29,16 +29,7 @@ import {
 
 const DEFAULT_TYPES: StatEventType[] = ["click", "print", "apply", "account"];
 
-const VIEW_STATS_FACET_FIELDS = [
-  "type",
-  "source",
-  "missionDomain",
-  "missionDepartmentName",
-  "missionOrganizationId",
-  "fromPublisherId",
-  "toPublisherId",
-  "tag",
-] as const;
+const VIEW_STATS_FACET_FIELDS = ["type", "source", "missionDomain", "missionDepartmentName", "missionOrganizationId", "fromPublisherId", "toPublisherId", "tag"] as const;
 
 type PrismaStatEventWithPublishers = Prisma.StatEventGetPayload<{
   include: {
@@ -428,6 +419,17 @@ async function updateStatEventsBotFlagForUser(user: string, isBot: boolean): Pro
   await statEventRepository.updateMany({ where: { user }, data: { isBot } });
 }
 
+async function reassignStatEventsForSource(sourceId: string, update: { fromPublisherId?: string; toPublisherId?: string }): Promise<void> {
+  const data: Prisma.StatEventUpdateManyArgs["data"] = {};
+  if (update.fromPublisherId) {
+    data.fromPublisherId = update.fromPublisherId;
+  }
+  if (update.toPublisherId) {
+    data.toPublisherId = update.toPublisherId;
+  }
+  await statEventRepository.updateMany({ where: { sourceId }, data });
+}
+
 async function aggregateStatEventsForMission({
   from,
   to,
@@ -682,6 +684,7 @@ export const statEventService = {
   findStatEventMissionStatsSummary,
   scrollStatEvents,
   updateStatEventsExportStatus,
+  reassignStatEventsForSource,
   findStatEventWarningBotCandidatesSince,
   aggregateStatEventWarningBotByUser,
   updateStatEventsBotFlagForUser,

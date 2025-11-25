@@ -1,25 +1,32 @@
 import { Campaign as PrismaCampaign } from "../../../db/analytics";
 import { prismaAnalytics as prismaClient } from "../../../db/postgres";
 import { captureException, captureMessage } from "../../../error";
-import CampaignModel from "../../../models/campaign";
-import { Campaign } from "../../../types";
+import { campaignRepository } from "../../../repositories/campaign";
 
-const buildData = (doc: Campaign, partners: { [key: string]: string }) => {
-  const diffuseurId = partners[doc.fromPublisherId?.toString()];
+const buildData = (doc: { id: string; name: string; type: string; url: string; active: boolean; fromPublisherId: string; toPublisherId: string; reassignedAt: Date | null; reassignedByUserId: string | null; reassignedByUsername: string | null; deletedAt: Date | null; createdAt: Date; updatedAt: Date; trackers: Array<{ key: string; value: string }> }, partners: { [key: string]: string }) => {
+  const diffuseurId = partners[doc.fromPublisherId];
   if (!diffuseurId) {
-    captureMessage(`[Campaigns] Diffuseur ${doc.fromPublisherId?.toString()} not found for doc ${doc._id.toString()}`);
+    captureMessage(`[Campaigns] Diffuseur ${doc.fromPublisherId} not found for doc ${doc.id}`);
     return null;
   }
-  const annonceurId = partners[doc.toPublisherId?.toString()];
+  const annonceurId = partners[doc.toPublisherId];
   if (!annonceurId) {
-    captureMessage(`[Campaigns] Annonceur ${doc.toPublisherId?.toString()} not found for doc ${doc._id.toString()}`);
+    captureMessage(`[Campaigns] Annonceur ${doc.toPublisherId} not found for doc ${doc.id}`);
     return null;
+  }
+
+  // Map Prisma enum type back to string format for analytics
+  let typeString = doc.type;
+  if (doc.type === "banniere_publicite") {
+    typeString = "banniere/publicité";
+  } else if (doc.type === "tuile_bouton") {
+    typeString = "tuile/bouton";
   }
 
   const campaign = {
-    old_id: doc._id.toString(),
+    old_id: doc.id,
     name: doc.name,
-    type: doc.type,
+    type: typeString,
     url: doc.url,
     active: doc.active,
     annonceur_id: annonceurId,
@@ -47,7 +54,10 @@ const handler = async () => {
     const start = new Date();
     console.log(`[Campaigns] Starting at ${start.toISOString()}`);
 
-    const data = await CampaignModel.find().lean();
+    const data = await campaignRepository.findMany({
+      where: { deletedAt: null },
+      include: { trackers: true },
+    });
     console.log(`[Campaigns] Found ${data.length} docs to sync.`);
 
     const stored = {} as { [key: string]: { id: string; old_id: string; updated_at: Date } };
@@ -60,8 +70,8 @@ const handler = async () => {
     const dataToCreate = [];
     const dataToUpdate = [];
     for (const doc of data) {
-      const exists = stored[doc._id.toString()];
-      const obj = buildData(doc as Campaign, partners);
+      const exists = stored[doc.id];
+      const obj = buildData(doc, partners);
       if (!obj) {
         continue;
       }
