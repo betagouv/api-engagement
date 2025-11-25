@@ -138,7 +138,7 @@ model User {
   createdAt               DateTime   @default(now()) @map("created_at")
   updatedAt               DateTime   @updatedAt @map("updated_at")
 
-  userPublishers          UserPublisher[]
+  userPublishers UserPublisher[]
 
   @@index([deletedAt], map: "user_deleted_at_idx")
   @@map("user")
@@ -289,9 +289,9 @@ model Publisher {
   diffusionExclusionsFor PublisherDiffusionExclusion[] @relation("PublisherDiffusionExclusionForDiffuseurRelation")
   statEventsFrom         StatEvent[]                   @relation("StatEventFromPublisher")
   statEventsTo           StatEvent[]                   @relation("StatEventToPublisher")
-  userPublishers        UserPublisher[]
-  campaignsFrom            Campaign[]              @relation("CampaignFromPublisher")
-  campaignsTo              Campaign[]              @relation("CampaignToPublisher")
+  userPublishers         UserPublisher[]
+  campaignsFrom          Campaign[]              @relation("CampaignFromPublisher")
+  campaignsTo            Campaign[]              @relation("CampaignToPublisher")
   
   @@index([name], map: "publisher_name_idx")
   @@index([apikey], map: "publisher_apikey_idx")
@@ -306,11 +306,11 @@ model Publisher {
 }
 
 model UserPublisher {
-  id          String    @id @default(uuid())
-  userId      String    @map("user_id")
-  publisherId String    @map("publisher_id")
-  createdAt   DateTime  @default(now()) @map("created_at")
-  updatedAt   DateTime  @updatedAt @map("updated_at")
+  id          String   @id @default(uuid())
+  userId      String   @map("user_id")
+  publisherId String   @map("publisher_id")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
 
   user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
   publisher Publisher @relation(fields: [publisherId], references: [id], onDelete: Cascade)
@@ -480,7 +480,7 @@ model PublisherDiffusionExclusion {
 
   @@unique([excludedByAnnonceurId, excludedForDiffuseurId, organizationClientId], map: "pde_by_annonceur_for_diffuseur_org_key")
   @@index([excludedForDiffuseurId], map: "publisher_diffusion_exclusion_for_diffuseur_id_idx")
-  @@map("publisher_diffusion_exclusion_by_annonceur_for_diffuseur")
+  @@map("publisher_diffusion_exclusion")
 }
 
 
