@@ -50,18 +50,8 @@ export class ImportOrganizationsHandler implements BaseHandler<ImportOrganizatio
     console.log(`[ImportOrganizations] Found resource ${resource.id} ${resource.url}`);
 
     const existingImport = await importRnaService.findOneImportRnaByResourceId(resource.id);
-    if (existingImport) {
-      console.log(`[ImportOrganizations] Already exists, updated at ${new Date()}`);
-      await importRnaService.createImportRna({
-        year: new Date().getFullYear(),
-        month: new Date().getMonth(),
-        resourceId: resource.id,
-        resourceCreatedAt: new Date(resource.created_at),
-        resourceUrl: resource.url,
-        startedAt: start,
-        endedAt: new Date(),
-        status: "ALREADY_UPDATED",
-      });
+    if (existingImport && existingImport.status !== "FAILED") {
+      console.log(`[ImportOrganizations] Already exists with status=${existingImport.status}, skipping at ${new Date().toISOString()}`);
       return {
         success: true,
         timestamp: new Date(),
@@ -119,8 +109,8 @@ export class ImportOrganizationsHandler implements BaseHandler<ImportOrganizatio
       success = true;
       console.log(`[ImportOrganizations] Ended at ${new Date().toISOString()} in ${(Date.now() - start.getTime()) / 1000}s`);
     } catch (error) {
-      captureException("RNA import failed", { extra: { resource } });
-      await importRnaService.createImportRna({
+      captureException("RNA import failed", { extra: { resource, error } });
+      const failedImport = await importRnaService.createImportRna({
         year: new Date().getFullYear(),
         month: new Date().getMonth(),
         resourceId: resource.id,
@@ -131,6 +121,7 @@ export class ImportOrganizationsHandler implements BaseHandler<ImportOrganizatio
         endedAt: new Date(),
         status: "FAILED",
       });
+      console.log(`[ImportOrganizations] Recorded failed import ${failedImport.id}`);
       success = false;
     } finally {
       console.log(`[ImportOrganizations] Cleaning up files`);

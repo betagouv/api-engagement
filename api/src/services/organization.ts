@@ -432,11 +432,16 @@ export const organizationService = (() => {
     const chunkedRecords = chunk(Array.from(byRna.values()), chunkSize);
     for (const chunkRecords of chunkedRecords) {
       for (const record of chunkRecords) {
-        await prismaCore.organization.upsert({
-          where: { rna: record.rna as string },
-          create: mapCreateInput(record),
-          update: mapUpdateInput(record),
-        });
+        try {
+          await prismaCore.organization.upsert({
+            where: { rna: record.rna as string },
+            create: mapCreateInput(record),
+            update: mapUpdateInput(record),
+          });
+        } catch (error) {
+          // Skip invalid records while logging the issue to keep the batch moving
+          console.warn(`[OrganizationUpsert] Skipping record with RNA=${record.rna}:`, error);
+        }
       }
     }
   };

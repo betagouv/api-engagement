@@ -1,3 +1,5 @@
+import { randomUUID } from "crypto";
+
 import { Prisma } from "../db/core";
 import { importRnaRepository } from "../repositories/import-rna";
 import type { ImportRnaCreateInput, ImportRnaFindParams, ImportRnaRecord, ImportRnaUpdatePatch } from "../types/import-rna";
@@ -27,7 +29,7 @@ export const importRnaService = {
 
   async createImportRna(input: ImportRnaCreateInput): Promise<ImportRnaRecord> {
     const data: Prisma.ImportRnaCreateInput = {
-      id: input.id ?? undefined,
+      id: input.id ?? randomUUID(),
       year: input.year ?? undefined,
       month: input.month ?? undefined,
       resourceId: input.resourceId ?? undefined,
