@@ -5,7 +5,7 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import { JVA_URL } from "../../../../src/config";
 import { prismaCore } from "../../../../src/db/postgres";
 import CampaignModel from "../../../../src/models/campaign";
-import StatsBotModel from "../../../../src/models/stats-bot";
+import { statBotService } from "../../../../src/services/stat-bot";
 import * as utils from "../../../../src/utils";
 import { createTestApp } from "../../../testApp";
 
@@ -72,7 +72,7 @@ describe("RedirectController /campaign/:id", () => {
     };
 
     vi.spyOn(utils, "identify").mockReturnValue(identity);
-    const statsBotFindOneSpy = vi.spyOn(StatsBotModel, "findOne").mockResolvedValue({ user: identity.user } as any);
+    const statsBotFindOneSpy = vi.spyOn(statBotService, "findStatBotByUser").mockResolvedValue({ user: identity.user } as any);
 
     const response = await request(app).get(`/r/campaign/${campaign._id.toString()}`);
 
@@ -100,6 +100,6 @@ describe("RedirectController /campaign/:id", () => {
       isBot: true,
     });
 
-    expect(statsBotFindOneSpy).toHaveBeenCalledWith({ user: identity.user });
+    expect(statsBotFindOneSpy).toHaveBeenCalledWith(identity.user);
   });
 });
