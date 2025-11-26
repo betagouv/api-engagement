@@ -11,6 +11,9 @@ const CORE_DB_NAME = "core";
 const POSTGRES_IMAGE = process.env.TESTCONTAINERS_POSTGRES_IMAGE || "postgres:16-alpine";
 
 let container: StartedPostgreSqlContainer | null = null;
+type PostgresModule = typeof import("../../src/db/postgres");
+let prismaCore: PostgresModule["prismaCore"] | null = null;
+let prismaAnalytics: PostgresModule["prismaAnalytics"] | null = null;
 
 async function runPrismaMigrate(schemaPath: string, env: NodeJS.ProcessEnv) {
   try {
@@ -48,23 +51,24 @@ export default async function globalSetup() {
 
   await runPrismaMigrate("./prisma/core/schema.core.prisma", envForPrisma);
 
-  return async () => {
-    // Disconnect Prisma clients before stopping the container
-    // This prevents NAPI reference counting errors when multiple test files run
-    try {
-      const postgresModule = await import("../../src/db/postgres");
-      await Promise.allSettled([
-        postgresModule.prismaCore.$disconnect(),
-        postgresModule.prismaAnalytics.$disconnect(),
-      ]);
-    } catch (error) {
-      // Ignore errors during teardown - clients may already be disconnected
-      console.warn("[GlobalTeardown] Error disconnecting Prisma clients:", error);
-    }
+  // Store references to Prisma clients for cleanup in teardown
+  const postgresModule = await import("../../src/db/postgres");
+  prismaCore = postgresModule.prismaCore;
+  prismaAnalytics = postgresModule.prismaAnalytics;
 
+  return async () => {
+    // Stop the container - this closes all database connections
+    // Do NOT explicitly disconnect Prisma clients here as it causes
+    // NAPI reference counting errors. The clients will be cleaned up
+    // automatically when the Node.js process exits.
     if (container) {
       await container.stop();
       container = null;
     }
+
+    // Clear references to allow garbage collection
+    // The Prisma clients themselves will be cleaned up by Node.js on process exit
+    prismaCore = null;
+    prismaAnalytics = null;
   };
 }
