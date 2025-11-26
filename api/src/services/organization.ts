@@ -414,13 +414,27 @@ export const organizationService = (() => {
     if (!records.length) {
       return;
     }
+
+    // Deduplicate by RNA to avoid multiple upserts with the same unique key inside a transaction
+    const byRna = new Map<string, OrganizationUpsertInput>();
+    for (const record of records) {
+      const rna = normalizeOptionalString(record.rna);
+      if (!rna) {
+        continue;
+      }
+      byRna.set(rna, { ...record, rna });
+    }
+    if (!byRna.size) {
+      return;
+    }
+
     const chunkSize = options.chunkSize ?? 25;
-    const chunkedRecords = chunk(records, chunkSize);
+    const chunkedRecords = chunk(Array.from(byRna.values()), chunkSize);
     for (const chunkRecords of chunkedRecords) {
       await prismaCore.$transaction(
         chunkRecords.map((record) =>
           prismaCore.organization.upsert({
-            where: { rna: record.rna },
+            where: { rna: record.rna as string },
             create: mapCreateInput(record),
             update: mapUpdateInput(record),
           })
