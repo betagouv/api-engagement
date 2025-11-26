@@ -3,9 +3,10 @@ import passport from "passport";
 import zod from "zod";
 
 import { FORBIDDEN, INVALID_BODY, INVALID_PARAMS, INVALID_QUERY, NOT_FOUND, RESSOURCE_ALREADY_EXIST } from "../error";
-import WidgetModel from "../models/widget";
 import { publisherService } from "../services/publisher";
+import { widgetService } from "../services/widget";
 import { UserRequest } from "../types/passport";
+import type { WidgetSearchParams } from "../types/widget";
 
 const router = Router();
 
@@ -26,24 +27,25 @@ router.post("/search", passport.authenticate("user", { session: false }), async 
       return res.status(400).send({ ok: false, code: INVALID_BODY, error: body.error });
     }
 
-    const where = { deletedAt: null, active: body.data.active } as { [key: string]: any };
+    const searchParams: WidgetSearchParams = {
+      active: body.data.active,
+      search: body.data.search,
+      includeDeleted: false,
+      skip: body.data.from ?? undefined,
+      take: body.data.size ?? undefined,
+    };
 
     if (body.data.fromPublisherId) {
       if (req.user.role !== "admin" && !req.user.publishers.includes(body.data.fromPublisherId)) {
         return res.status(403).send({ ok: false, code: FORBIDDEN, message: "Not allowed" });
       } else {
-        where.fromPublisherId = body.data.fromPublisherId;
+        searchParams.fromPublisherId = body.data.fromPublisherId;
       }
     } else if (req.user.role !== "admin") {
-      where.fromPublisherId = { $in: req.user.publishers };
+      searchParams.fromPublisherIds = req.user.publishers;
     }
 
-    if (body.data.search) {
-      where.$or = [{ name: new RegExp(body.data.search, "i") }];
-    }
-
-    const widgets = await WidgetModel.find(where).sort({ createdAt: -1 }).lean();
-    const total = await WidgetModel.countDocuments(where);
+    const { widgets, total } = await widgetService.findWidgets(searchParams);
     const publishers = await publisherService.findPublishers();
 
     const data = widgets.map((w) => ({
@@ -75,19 +77,23 @@ router.get("/", passport.authenticate("user", { session: false }), async (req: U
       return res.status(400).send({ ok: false, code: INVALID_QUERY, message: query.error });
     }
 
-    const where = { deleted: false } as { [key: string]: any };
+    const searchParams: WidgetSearchParams = {
+      includeDeleted: false,
+      skip: undefined,
+      take: undefined,
+      active: query.data.active,
+    };
     if (query.data.fromPublisherId) {
       if (req.user.role !== "admin" && !req.user.publishers.includes(query.data.fromPublisherId)) {
         return res.status(403).send({ ok: false, code: FORBIDDEN, message: "Not allowed" });
       } else {
-        where.fromPublisherId = query.data.fromPublisherId;
+        searchParams.fromPublisherId = query.data.fromPublisherId;
       }
     } else if (req.user.role !== "admin") {
-      where.fromPublisherId = { $in: req.user.publishers };
+      searchParams.fromPublisherIds = req.user.publishers;
     }
 
-    const widgets = await WidgetModel.find(where).sort({ createdAt: -1 }).lean();
-    const total = await WidgetModel.countDocuments(where);
+    const { widgets, total } = await widgetService.findWidgets(searchParams);
     const publishers = await publisherService.findPublishers();
 
     const data = widgets.map((w) => ({
@@ -119,7 +125,7 @@ router.get("/:id", passport.authenticate("user", { session: false }), async (req
       return res.status(400).send({ ok: false, code: INVALID_PARAMS, message: params.error });
     }
 
-    const data = await WidgetModel.findById(params.data.id);
+    const data = await widgetService.findOneWidgetById(params.data.id, { includeDeleted: true });
     if (!data) {
       return res.status(404).send({ ok: false, code: NOT_FOUND });
     }
@@ -174,7 +180,7 @@ router.post("/", passport.authenticate("admin", { session: false }), async (req:
       return res.status(400).send({ ok: false, code: INVALID_BODY, error: body.error });
     }
 
-    const exists = await WidgetModel.findOne({ name: body.data.name });
+    const exists = await widgetService.findOneWidgetByName(body.data.name ?? "", { includeDeleted: true });
     if (exists) {
       return res.status(409).send({
         ok: false,
@@ -203,12 +209,12 @@ router.post("/", passport.authenticate("admin", { session: false }), async (req:
       style: body.data.style,
       color: body.data.color,
       active: body.data.active,
-      publishers: Array.from(new Set(body.data.publishers)),
+      publishers: Array.from(new Set(body.data.publishers ?? [])),
       jvaModeration: body.data.jvaModeration,
       location: body.data.location,
     };
 
-    const data = await WidgetModel.create(obj);
+    const data = await widgetService.createWidget(obj);
 
     return res.status(200).send({ ok: true, data });
   } catch (error) {
@@ -268,53 +274,26 @@ router.put("/:id", passport.authenticate("admin", { session: false }), async (re
       return res.status(400).send({ ok: false, code: INVALID_BODY, error: body.error });
     }
 
-    const widget = await WidgetModel.findById(params.data.id);
+    const widget = await widgetService.findOneWidgetById(params.data.id, { includeDeleted: true });
     if (!widget) {
       return res.status(404).send({ ok: false, code: NOT_FOUND });
     }
 
-    if (body.data.distance) {
-      widget.distance = body.data.distance;
-    }
-    if (body.data.name) {
-      widget.name = body.data.name;
-    }
-    if (body.data.url) {
-      widget.url = body.data.url;
-    }
-    if (body.data.rules) {
-      widget.rules = body.data.rules;
-    }
+    const updated = await widgetService.updateWidget(params.data.id, {
+      distance: body.data.distance,
+      name: body.data.name,
+      url: body.data.url,
+      rules: body.data.rules,
+      style: body.data.style,
+      color: body.data.color,
+      type: body.data.type,
+      active: body.data.active,
+      publishers: body.data.publishers,
+      jvaModeration: body.data.jvaModeration,
+      location: body.data.location,
+    });
 
-    if (body.data.style) {
-      widget.style = body.data.style;
-    }
-    if (body.data.color) {
-      widget.color = body.data.color;
-    }
-    if (body.data.type) {
-      widget.type = body.data.type;
-    }
-    if (body.data.active !== undefined) {
-      widget.active = body.data.active;
-    }
-    if (body.data.publishers) {
-      widget.publishers = body.data.publishers;
-    }
-    if (body.data.jvaModeration !== undefined) {
-      widget.jvaModeration = body.data.jvaModeration;
-    }
-
-    // If no location is provided, remove the location
-    if (body.data.location) {
-      widget.location = body.data.location;
-    } else if (body.data.location === null) {
-      widget.location = null;
-    }
-
-    await widget.save();
-
-    return res.status(200).json({ ok: true, data: widget });
+    return res.status(200).json({ ok: true, data: updated });
   } catch (error) {
     next(error);
   }
@@ -332,12 +311,8 @@ router.delete("/:id", passport.authenticate("admin", { session: false }), async 
       return res.status(400).send({ ok: false, code: INVALID_PARAMS, error: params.error });
     }
 
-    const widget = await WidgetModel.findById(params.data.id);
-    if (!widget) {
-      return res.status(200).send({ ok: true });
-    }
-    widget.deletedAt = new Date();
-    await widget.save();
+    const now = new Date();
+    await widgetService.updateWidget(params.data.id, { deletedAt: now });
     res.status(200).send({ ok: true });
   } catch (error) {
     next(error);
