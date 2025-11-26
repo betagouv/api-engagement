@@ -428,18 +428,16 @@ export const organizationService = (() => {
       return;
     }
 
-    const chunkSize = options.chunkSize ?? 25;
+    const chunkSize = options.chunkSize ?? 10;
     const chunkedRecords = chunk(Array.from(byRna.values()), chunkSize);
     for (const chunkRecords of chunkedRecords) {
-      await prismaCore.$transaction(
-        chunkRecords.map((record) =>
-          prismaCore.organization.upsert({
-            where: { rna: record.rna as string },
-            create: mapCreateInput(record),
-            update: mapUpdateInput(record),
-          })
-        )
-      );
+      for (const record of chunkRecords) {
+        await prismaCore.organization.upsert({
+          where: { rna: record.rna as string },
+          create: mapCreateInput(record),
+          update: mapUpdateInput(record),
+        });
+      }
     }
   };
 
