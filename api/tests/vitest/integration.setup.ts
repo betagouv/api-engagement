@@ -7,7 +7,6 @@ import { afterAll, beforeAll, beforeEach } from "vitest";
 let mongoServer: MongoMemoryServer;
 type PostgresModule = typeof import("../../src/db/postgres");
 let prismaCore: PostgresModule["prismaCore"] | null = null;
-let prismaAnalytics: PostgresModule["prismaAnalytics"] | null = null;
 
 beforeAll(async () => {
   mongoServer = await MongoMemoryServer.create();
@@ -16,7 +15,6 @@ beforeAll(async () => {
 
   const postgresModule = await import("../../src/db/postgres");
   prismaCore = postgresModule.prismaCore;
-  prismaAnalytics = postgresModule.prismaAnalytics;
 
   try {
     await postgresModule.pgConnected;
@@ -41,12 +39,10 @@ beforeEach(async () => {
 });
 
 afterAll(async () => {
-  if (prismaCore) {
-    await prismaCore.$disconnect();
-  }
-  if (prismaAnalytics) {
-    await prismaAnalytics.$disconnect();
-  }
+  // Do NOT call prisma.$disconnect() here - it causes NAPI reference counting errors
+  // when running tests with Vitest threads. The PostgreSQL container stop in global
+  // teardown will properly close all database connections.
+
   await mongoose.disconnect();
   await mongoServer.stop();
 });
