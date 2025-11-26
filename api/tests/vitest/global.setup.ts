@@ -49,6 +49,19 @@ export default async function globalSetup() {
   await runPrismaMigrate("./prisma/core/schema.core.prisma", envForPrisma);
 
   return async () => {
+    // Disconnect Prisma clients before stopping the container
+    // This prevents NAPI reference counting errors when multiple test files run
+    try {
+      const postgresModule = await import("../../src/db/postgres");
+      await Promise.allSettled([
+        postgresModule.prismaCore.$disconnect(),
+        postgresModule.prismaAnalytics.$disconnect(),
+      ]);
+    } catch (error) {
+      // Ignore errors during teardown - clients may already be disconnected
+      console.warn("[GlobalTeardown] Error disconnecting Prisma clients:", error);
+    }
+
     if (container) {
       await container.stop();
       container = null;

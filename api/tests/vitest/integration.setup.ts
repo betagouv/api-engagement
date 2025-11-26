@@ -45,12 +45,9 @@ beforeEach(async () => {
 });
 
 afterAll(async () => {
-  if (prismaCore) {
-    await prismaCore.$disconnect();
-  }
-  if (prismaAnalytics) {
-    await prismaAnalytics.$disconnect();
-  }
+  // Note: Prisma clients are disconnected in global teardown to prevent
+  // NAPI reference counting errors when multiple test files run.
+  // Only disconnect MongoDB here as it's test-specific.
 
   await mongoose.disconnect();
   await mongoServer.stop();
