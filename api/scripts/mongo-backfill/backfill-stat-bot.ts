@@ -1,7 +1,7 @@
 import mongoose from "mongoose";
 
-import { statsBotService } from "../../src/services/stats-bot";
-import type { StatsBotCreateInput } from "../../src/types/stats-bot";
+import { statBotService } from "../../src/services/stat-bot";
+import type { StatBotCreateInput } from "../../src/types/stat-bot";
 import { asString, toMongoObjectIdString } from "./utils/cast";
 import { loadEnvironment, parseScriptOptions, type ScriptOptions } from "./utils/options";
 
@@ -20,7 +20,7 @@ const BATCH_SIZE = 500;
 const options: ScriptOptions = parseScriptOptions(process.argv.slice(2), "MigrateStatsBots");
 loadEnvironment(options, __dirname, "MigrateStatsBots");
 
-const normalizeStatsBot = (doc: MongoStatsBotDocument): StatsBotCreateInput | null => {
+const normalizeStatsBot = (doc: MongoStatsBotDocument): StatBotCreateInput | null => {
   const user = asString(doc.user);
   if (!user) {
     console.warn(`[MigrateStatsBots] Skipping document due to missing user: ${toMongoObjectIdString(doc._id)}`);
@@ -70,18 +70,42 @@ const migrateStatsBots = async () => {
       }
 
       if (options.dryRun) {
-        console.log(`[MigrateStatsBots][Dry-run] Would create stats bot for user: ${normalized.user}`);
+        const existing = await statBotService.findStatBotByUser(normalized.user);
+        if (existing) {
+          console.log(`[MigrateStatsBots][Dry-run] Would update stats bot for user: ${normalized.user}`);
+        } else {
+          console.log(`[MigrateStatsBots][Dry-run] Would create stats bot for user: ${normalized.user}`);
+        }
         created++;
       } else {
-        try {
-          await statsBotService.createStatsBot(normalized);
+        let updated = false;
+        const existing = await statBotService.findStatBotByUser(normalized.user);
+        if (existing) {
+          await statBotService.updateStatBot(normalized.user, normalized);
+          updated = true;
           created++;
-        } catch (error: any) {
-          if (error.message?.includes("already exists")) {
-            skipped++;
-            console.log(`[MigrateStatsBots] Skipping duplicate stats bot for user: ${normalized.user}`);
-          } else {
-            throw error;
+          console.log(`[MigrateStatsBots] Updated stats bot for user: ${normalized.user}`);
+        }
+
+        if (!updated) {
+          try {
+            await statBotService.createStatBot(normalized);
+            created++;
+          } catch (error: any) {
+            if (error.message?.includes("already exists")) {
+              // Try to find and update as fallback
+              const existing = await statBotService.findStatBotByUser(normalized.user);
+              if (existing) {
+                await statBotService.updateStatBot(normalized.user, normalized);
+                created++;
+                console.log(`[MigrateStatsBots] Updated existing stats bot for user: ${normalized.user}`);
+              } else {
+                skipped++;
+                console.log(`[MigrateStatsBots] Skipping duplicate stats bot for user: ${normalized.user}`);
+              }
+            } else {
+              throw error;
+            }
           }
         }
       }

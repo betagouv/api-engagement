@@ -71,6 +71,30 @@ export const statBotService = {
     }
   },
 
+  async updateStatBot(user: string, input: StatBotCreateInput): Promise<StatBotRecord> {
+    const normalizedUser = normalizeOptionalString(user);
+    if (!normalizedUser) {
+      throw new Error("StatBot user is required");
+    }
+
+    try {
+      return await statBotRepository.update({
+        where: { user: normalizedUser.trim() },
+        data: {
+          origin: normalizeOptionalString(input.origin) ?? null,
+          referer: normalizeOptionalString(input.referer) ?? null,
+          userAgent: normalizeOptionalString(input.userAgent) ?? null,
+          host: normalizeOptionalString(input.host) ?? null,
+        },
+      });
+    } catch (error: unknown) {
+      if (error instanceof Error && "code" in error && (error as { code?: string }).code === "P2025") {
+        throw new Error("StatBot not found");
+      }
+      throw error;
+    }
+  },
+
   async deleteStatBotByUser(user: string): Promise<void> {
     await statBotRepository.deleteMany({
       where: { user: user.trim() },
