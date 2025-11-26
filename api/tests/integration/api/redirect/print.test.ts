@@ -6,8 +6,8 @@ import { prismaCore } from "../../../../src/db/postgres";
 import { NOT_FOUND } from "../../../../src/error";
 import MissionModel from "../../../../src/models/mission";
 import StatsBotModel from "../../../../src/models/stats-bot";
-import WidgetModel from "../../../../src/models/widget";
 import { publisherService } from "../../../../src/services/publisher";
+import { widgetService } from "../../../../src/services/widget";
 import { StatEventRecord } from "../../../../src/types";
 import * as utils from "../../../../src/utils";
 import { createTestApp } from "../../../testApp";
@@ -80,11 +80,7 @@ describe("RedirectController /impression/:missionId/:publisherId", () => {
       publisherName: "Mission Publisher",
     });
 
-    const widget = await WidgetModel.create({
-      name: "Widget Name",
-      fromPublisherId: publisher.id,
-      fromPublisherName: "Widget Source Publisher",
-    });
+    const widget = await widgetService.createWidget({ name: "Widget Name", fromPublisherId: publisher.id, fromPublisherName: "Widget Source Publisher" });
 
     const identity = {
       user: "print-user",

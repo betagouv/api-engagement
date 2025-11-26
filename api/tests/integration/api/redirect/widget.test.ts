@@ -6,7 +6,7 @@ import { JVA_URL, PUBLISHER_IDS } from "../../../../src/config";
 import { prismaCore } from "../../../../src/db/postgres";
 import MissionModel from "../../../../src/models/mission";
 import StatsBotModel from "../../../../src/models/stats-bot";
-import WidgetModel from "../../../../src/models/widget";
+import { widgetService } from "../../../../src/services/widget";
 import * as utils from "../../../../src/utils";
 import { createTestApp } from "../../../testApp";
 
@@ -68,11 +68,7 @@ describe("RedirectController /widget/:id", () => {
       publisherName: "Mission Publisher",
     });
 
-    const widget = await WidgetModel.create({
-      name: "Widget Name",
-      fromPublisherId: widgetPublisherId,
-      fromPublisherName: "From Publisher",
-    });
+    const widget = await widgetService.createWidget({ name: "Widget Name", fromPublisherId: widgetPublisherId, fromPublisherName: "From Publisher" });
 
     const identity = {
       user: "widget-user",
@@ -148,7 +144,7 @@ describe("RedirectController /widget/:id", () => {
         title: "Mission Title",
       });
 
-      const widget = await WidgetModel.create({
+      const widget = await widgetService.createWidget({
         name: "Widget Special",
         fromPublisherId: widgetPublisherId,
         fromPublisherName: "From Publisher",

@@ -1,10 +1,10 @@
 import { Widget as PgWidget } from "../../../db/analytics";
 import { prismaAnalytics as prismaClient } from "../../../db/postgres";
 import { captureException, captureMessage } from "../../../error";
-import WidgetModel from "../../../models/widget";
-import { Widget } from "../../../types";
+import { widgetService } from "../../../services/widget";
+import type { WidgetRecord } from "../../../types/widget";
 
-const buildData = (doc: Widget, partners: { [key: string]: string }) => {
+const buildData = (doc: WidgetRecord, partners: { [key: string]: string }) => {
   const diffuseurId = partners[doc.fromPublisherId?.toString()];
   if (!diffuseurId) {
     captureMessage(`[Widgets] Diffuseur ${doc.fromPublisherId.toString()} not found for widget ${doc._id.toString()}`);
@@ -47,7 +47,7 @@ const handler = async () => {
     const start = new Date();
     console.log(`[Widgets] Starting at ${start.toISOString()}`);
 
-    const data = await WidgetModel.find().lean();
+    const data = await widgetService.findWidgetsForSync();
     console.log(`[Widgets] Found ${data.length} docs to sync.`);
 
     const stored = {} as { [key: string]: { old_id: string; id: string; updated_at: Date } };
