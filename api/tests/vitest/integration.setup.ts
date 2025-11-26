@@ -36,19 +36,17 @@ beforeEach(async () => {
 
   if (prismaCore) {
     // Clean dependent tables before parents to satisfy foreign keys (StatEvent -> PublisherDiffusion)
-    await prismaCore.$transaction([
-      prismaCore.statEvent.deleteMany({}),
-      prismaCore.publisherDiffusion.deleteMany({}),
-      prismaCore.publisher.deleteMany({}),
-    ]);
+    await prismaCore.$transaction([prismaCore.statEvent.deleteMany({}), prismaCore.publisherDiffusion.deleteMany({}), prismaCore.publisher.deleteMany({})]);
   }
 });
 
 afterAll(async () => {
-  // Note: Prisma clients are disconnected in global teardown to prevent
-  // NAPI reference counting errors when multiple test files run.
-  // Only disconnect MongoDB here as it's test-specific.
-
+  if (prismaCore) {
+    await prismaCore.$disconnect();
+  }
+  if (prismaAnalytics) {
+    await prismaAnalytics.$disconnect();
+  }
   await mongoose.disconnect();
   await mongoServer.stop();
 });
