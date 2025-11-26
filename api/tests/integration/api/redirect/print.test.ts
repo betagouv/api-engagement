@@ -5,9 +5,9 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import { prismaCore } from "../../../../src/db/postgres";
 import { NOT_FOUND } from "../../../../src/error";
 import MissionModel from "../../../../src/models/mission";
-import StatsBotModel from "../../../../src/models/stats-bot";
 import WidgetModel from "../../../../src/models/widget";
 import { publisherService } from "../../../../src/services/publisher";
+import { statBotService } from "../../../../src/services/stat-bot";
 import { StatEventRecord } from "../../../../src/types";
 import * as utils from "../../../../src/utils";
 import { createTestApp } from "../../../testApp";
@@ -93,7 +93,7 @@ describe("RedirectController /impression/:missionId/:publisherId", () => {
     };
 
     vi.spyOn(utils, "identify").mockReturnValue(identity);
-    const statsBotFindOneSpy = vi.spyOn(StatsBotModel, "findOne").mockResolvedValue({ user: identity.user } as any);
+    const statsBotFindOneSpy = vi.spyOn(statBotService, "findStatBotByUser").mockResolvedValue({ user: identity.user } as any);
 
     const requestId = new Types.ObjectId().toString();
     const response = await request(app)
@@ -104,7 +104,7 @@ describe("RedirectController /impression/:missionId/:publisherId", () => {
 
     expect(response.status).toBe(200);
     expect(response.body.ok).toBe(true);
-    expect(statsBotFindOneSpy).toHaveBeenCalledWith({ user: identity.user });
+    expect(statsBotFindOneSpy).toHaveBeenCalledWith(identity.user);
 
     const createdPrint = await prismaCore.statEvent.findUnique({ where: { id: response.body.data._id } });
     expect(createdPrint).toMatchObject({
@@ -175,7 +175,7 @@ describe("RedirectController /impression/:missionId/:publisherId", () => {
     };
 
     vi.spyOn(utils, "identify").mockReturnValue(identity);
-    vi.spyOn(StatsBotModel, "findOne").mockResolvedValue(null);
+    vi.spyOn(statBotService, "findStatBotByUser").mockResolvedValue(null);
 
     const response = await request(app).get(`/r/impression/${mission._id.toString()}/${publisher.id}`).query({ tracker: "tag" });
 

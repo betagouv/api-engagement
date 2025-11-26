@@ -5,8 +5,8 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import { PUBLISHER_IDS } from "../../../../src/config";
 import { prismaCore } from "../../../../src/db/postgres";
 import MissionModel from "../../../../src/models/mission";
-import StatsBotModel from "../../../../src/models/stats-bot";
 import { publisherService } from "../../../../src/services/publisher";
+import { statBotService } from "../../../../src/services/stat-bot";
 import * as utils from "../../../../src/utils";
 import { createTestApp } from "../../../testApp";
 
@@ -87,7 +87,7 @@ describe("RedirectController /:missionId/:publisherId", () => {
     };
 
     vi.spyOn(utils, "identify").mockReturnValue(identity);
-    const statsBotFindOneSpy = vi.spyOn(StatsBotModel, "findOne").mockResolvedValue({ user: identity.user } as any);
+    const statsBotFindOneSpy = vi.spyOn(statBotService, "findStatBotByUser").mockResolvedValue({ user: identity.user } as any);
 
     const response = await request(app)
       .get(`/r/${mission._id.toString()}/${fromPublisher.id}`)
@@ -129,7 +129,7 @@ describe("RedirectController /:missionId/:publisherId", () => {
       isBot: true,
     });
 
-    expect(statsBotFindOneSpy).toHaveBeenCalledWith({ user: identity.user });
+    expect(statsBotFindOneSpy).toHaveBeenCalledWith(identity.user);
   });
 
   it("uses mtm tracking parameters for Service Civique missions", async () => {
@@ -158,7 +158,7 @@ describe("RedirectController /:missionId/:publisherId", () => {
     };
 
     vi.spyOn(utils, "identify").mockReturnValue(identity);
-    vi.spyOn(StatsBotModel, "findOne").mockResolvedValue(null);
+    vi.spyOn(statBotService, "findStatBotByUser").mockResolvedValue(null);
 
     const response = await request(app).get(`/r/${mission._id.toString()}/${fromPublisher.id}`).query({ tags: "foo" });
 

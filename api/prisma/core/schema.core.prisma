@@ -473,3 +473,17 @@ model PublisherDiffusionExclusion {
   @@index([excludedForDiffuseurId], map: "publisher_diffusion_exclusion_for_diffuseur_id_idx")
   @@map("publisher_diffusion_exclusion")
 }
+
+model StatBot {
+  id        String   @id @default(uuid())
+  origin    String?  @map("origin")
+  referer   String?  @map("referer")
+  userAgent String?  @map("user_agent")
+  host      String?  @map("host")
+  user      String   @unique @map("user")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@index([user], map: "stats_bot_user_idx")
+  @@map("stat_bot")
+}

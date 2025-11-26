@@ -2,10 +2,10 @@ import { Router } from "express";
 import passport from "passport";
 
 import { NOT_FOUND } from "../error";
-import StatsBotModel from "../models/stats-bot";
 import WarningBotModel from "../models/warning-bot";
-import { statEventService } from "../services/stat-event";
 import { publisherService } from "../services/publisher";
+import { statBotService } from "../services/stat-bot";
+import { statEventService } from "../services/stat-event";
 
 const router = Router();
 
@@ -52,9 +52,9 @@ router.get("/:id/stat", passport.authenticate("admin", { session: false }), asyn
       })),
     };
 
-    const statsBot = await StatsBotModel.findOne({ user: warningBot.hash });
+    const data = await statBotService.findStatBotByUser(warningBot.hash);
 
-    return res.status(200).send({ ok: true, data: statsBot || null, aggs });
+    return res.status(200).send({ ok: true, data, aggs });
   } catch (error) {
     next(error);
   }
@@ -69,9 +69,9 @@ router.post("/:id/block", passport.authenticate("admin", { session: false }), as
       return res.status(404).send({ ok: false, code: NOT_FOUND });
     }
 
-    let statsBot = await StatsBotModel.findOne({ user: warningBot.hash });
-    if (!statsBot) {
-      statsBot = await StatsBotModel.create({
+    let data = await statBotService.findStatBotByUser(warningBot.hash);
+    if (!data) {
+      data = await statBotService.createStatBot({
         user: warningBot.hash,
         userAgent: warningBot.userAgent,
       });
@@ -79,7 +79,7 @@ router.post("/:id/block", passport.authenticate("admin", { session: false }), as
 
     await statEventService.updateStatEventsBotFlagForUser(warningBot.hash, true);
 
-    return res.status(200).send({ ok: true, data: statsBot });
+    return res.status(200).send({ ok: true, data });
   } catch (error) {
     next(error);
   }
@@ -94,7 +94,7 @@ router.post("/:id/unblock", passport.authenticate("admin", { session: false }), 
       return res.status(404).send({ ok: false, code: NOT_FOUND });
     }
 
-    await StatsBotModel.deleteOne({ user: warningBot.hash });
+    await statBotService.deleteStatBotByUser(warningBot.hash);
 
     await statEventService.updateStatEventsBotFlagForUser(warningBot.hash, false);
 

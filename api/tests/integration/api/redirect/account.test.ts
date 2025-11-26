@@ -3,7 +3,7 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 
 import { prismaCore } from "../../../../src/db/postgres";
 import MissionModel from "../../../../src/models/mission";
-import StatsBotModel from "../../../../src/models/stats-bot";
+import { statBotService } from "../../../../src/services/stat-bot";
 import * as utils from "../../../../src/utils";
 import { createTestPublisher } from "../../../fixtures/index";
 import { createClickStat } from "../../../fixtures/stat-event";
@@ -63,7 +63,7 @@ describe("RedirectController /account", () => {
     };
 
     vi.spyOn(utils, "identify").mockReturnValue(identity);
-    const statsBotFindOneSpy = vi.spyOn(StatsBotModel, "findOne").mockResolvedValue({ user: identity.user } as any);
+    const statsBotFindOneSpy = vi.spyOn(statBotService, "findStatBotByUser").mockResolvedValue({ user: identity.user } as any);
 
     const clickStat = await createClickStat("click-123", {
       user: "click-user",
@@ -90,7 +90,7 @@ describe("RedirectController /account", () => {
 
     expect(response.status).toBe(200);
     expect(response.body).toEqual({ ok: true, id: expect.any(String) });
-    expect(statsBotFindOneSpy).toHaveBeenCalledWith({ user: identity.user });
+    expect(statsBotFindOneSpy).toHaveBeenCalledWith(identity.user);
 
     const createdAccount = await prismaCore.statEvent.findUnique({ where: { id: response.body.id } });
     expect(createdAccount).toMatchObject({
@@ -112,7 +112,7 @@ describe("RedirectController /account", () => {
       userAgent: "Mozilla/5.0",
     };
     vi.spyOn(utils, "identify").mockReturnValue(identity);
-    const statsBotFindOneSpy = vi.spyOn(StatsBotModel, "findOne").mockResolvedValue(null);
+    const statsBotFindOneSpy = vi.spyOn(statBotService, "findStatBotByUser").mockResolvedValue(null);
 
     const clickStat = await createClickStat("click-456", {
       user: "click-user",
@@ -133,7 +133,7 @@ describe("RedirectController /account", () => {
 
     expect(response.status).toBe(200);
     expect(response.body).toEqual({ ok: true, id: expect.any(String) });
-    expect(statsBotFindOneSpy).toHaveBeenCalledWith({ user: identity.user });
+    expect(statsBotFindOneSpy).toHaveBeenCalledWith(identity.user);
 
     const storedAccount = await prismaCore.statEvent.findUnique({ where: { id: response.body.id } });
     expect(storedAccount).toMatchObject({
