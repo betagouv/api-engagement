@@ -23,6 +23,12 @@ enum ImportStatus {
   FAILED
 }
 
+enum ImportRnaStatus {
+  SUCCESS
+  ALREADY_UPDATED
+  FAILED
+}
+
 enum ReportDataTemplate {
   BOTH
   RECEIVED
@@ -373,6 +379,24 @@ model Import {
   @@index([status], map: "import_status_idx")
   @@index([publisherId, startedAt(sort: Desc)], map: "import_publisher_started_at_desc_idx")
   @@map("import")
+}
+
+model ImportRna {
+  id                String           @id @default(uuid())
+  year              Int?
+  month             Int?
+  resourceId        String?          @map("resource_id")
+  resourceCreatedAt DateTime?        @map("resource_created_at")
+  resourceUrl       String?          @map("resource_url")
+  count             Int              @default(0)
+  startedAt         DateTime         @map("started_at")
+  endedAt           DateTime         @map("ended_at")
+  status            ImportRnaStatus? @default(SUCCESS)
+  createdAt         DateTime         @default(now()) @map("created_at")
+  updatedAt         DateTime         @updatedAt @map("updated_at")
+
+  @@index([resourceId], map: "import_rna_resource_id_idx")
+  @@map("import_rna")
 }
 
 model MissionEvent {
