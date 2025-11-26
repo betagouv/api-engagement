@@ -9,7 +9,7 @@ import { UserRequest } from "../types/passport";
 
 const router = Router();
 
-router.post("/search", passport.authenticate("admin", { session: false }), async (req: UserRequest, res: Response, next: NextFunction) => {
+router.post("/search", passport.authenticate(["user", "admin"], { session: false }), async (req: UserRequest, res: Response, next: NextFunction) => {
   try {
     const body = zod
       .object({
