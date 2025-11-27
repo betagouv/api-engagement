@@ -24,7 +24,7 @@
         "job": "ts-node src/jobs/run-job.ts"
     },
     "dependencies": {
-        "@prisma/client": "6.19.0",
+        "@prisma/client": "7.0.0",
         "@sentry/node": "10.25.0",
         "@types/geoip-lite": "1.4.4",
         "aws-sdk": "2.1692.0",
