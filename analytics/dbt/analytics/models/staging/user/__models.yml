@@ -29,8 +29,6 @@ models:
         description: Timestamp de suppression logique (nullable).
       - name: last_activity_at
         description: Dernière activité connue dans l'application (nullable).
-      - name: login_at
-        description: Historique des connexions de l'utilisateur (array de timestamps UTC).
       - name: created_at
         description: Timestamp de création initiale du compte.
         tests:
@@ -39,3 +37,27 @@ models:
         description: Timestamp de dernière mise à jour (curseur de réplication).
         tests:
           - not_null
+  - name: stg_login_history
+    description: >
+      Staging de l'historique des connexions utilisateurs exporté depuis la table `analytics_raw.login_history`. Chaque
+      ligne correspond à une occurrence de connexion enregistrée côté application source.
+    columns:
+      - name: id
+        description: Identifiant unique de l'entrée d'historique.
+        tests:
+          - not_null
+          - unique
+      - name: user_id
+        description: Identifiant de l'utilisateur connecté.
+        tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('stg_user')
+                field: id
+      - name: login_at
+        description: Horodatage de la connexion dans le fuseau UTC.
+        tests:
+          - not_null
+      - name: created_at
+        description: Timestamp de création de l'entrée.

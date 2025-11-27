@@ -12,7 +12,6 @@ export interface UserRecord {
   invitationExpiresAt: Date | null;
   invitationCompletedAt: Date | null;
   lastActivityAt: Date | null;
-  loginAt: Date[];
   forgotPasswordToken: string | null;
   forgotPasswordExpiresAt: Date | null;
   deletedAt: Date | null;
@@ -40,7 +39,6 @@ export interface UserCreateInput {
   invitationExpiresAt?: Date | null;
   invitationCompletedAt?: Date | null;
   lastActivityAt?: Date | null;
-  loginAt?: Date[];
   forgotPasswordToken?: string | null;
   forgotPasswordExpiresAt?: Date | null;
   deletedAt?: Date | null;

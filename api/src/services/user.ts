@@ -28,7 +28,6 @@ const toUserRecord = (user: UserWithPublishers): UserRecord => ({
   invitationExpiresAt: user.invitationExpiresAt ?? null,
   invitationCompletedAt: user.invitationCompletedAt ?? null,
   lastActivityAt: user.lastActivityAt ?? null,
-  loginAt: user.loginAt ?? [],
   forgotPasswordToken: user.forgotPasswordToken ?? null,
   forgotPasswordExpiresAt: user.forgotPasswordExpiresAt ?? null,
   deletedAt: user.deletedAt ?? null,
@@ -69,7 +68,6 @@ const buildCreateData = async (input: UserCreateInput): Promise<Prisma.UserCreat
     invitationExpiresAt: input.invitationExpiresAt ?? null,
     invitationCompletedAt: input.invitationCompletedAt ?? null,
     lastActivityAt: input.lastActivityAt ?? null,
-    loginAt: input.loginAt ?? [],
     forgotPasswordToken: input.forgotPasswordToken ?? null,
     forgotPasswordExpiresAt: input.forgotPasswordExpiresAt ?? null,
     deletedAt: input.deletedAt ?? null,
@@ -128,9 +126,6 @@ const buildUpdateData = async (patch: UserUpdatePatch): Promise<Prisma.UserUpdat
           }
         : {}),
     };
-  }
-  if ("loginAt" in patch) {
-    data.loginAt = { set: patch.loginAt ?? [] };
   }
   if ("lastActivityAt" in patch) {
     data.lastActivityAt = patch.lastActivityAt ?? null;
