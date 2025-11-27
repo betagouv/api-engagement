@@ -58,12 +58,16 @@ export const PUBLISHER_IDS = {
   PREVENTION_ROUTIERE: "619fab857d373e07aea8be1e",
   SERVICE_CIVIQUE: ENV === "production" ? "5f99dbe75eb1ad767733b206" : "",
   TALENT: ENV === "production" ? "6891e7994a3ae7f2f0c9d71a" : "6891e7ecb804a451c68368eb",
+  GRIMPIO: ENV === "production" ? "9ccdd7fdb2715f6c766fd989" : "237ff477c3c4bc897e81c249",
   VACANCES_ET_FAMILLES: "619fb1e17d373e07aea8be32",
   VILLE_DE_NANTES: "6347be8883b660072d4c1c53",
 };
 
 export const DEFAULT_AVATAR = "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/default.jpg";
 export const JVA_LOGO_URL = "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/jva-logo.png";
+export const JVA_100_LOGO_URL = "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/jva-logo-100x100.png";
+export const ASC_LOGO_URL = "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/asc-logo.png";
+export const ASC_100_LOGO_URL = "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/asc-logo-100x100.png";
 
 // Piloty job boards
 export const PILOTY_BASE_URL = process.env.PILOTY_BASE_URL || "https://sandbox-api.piloty.fr";

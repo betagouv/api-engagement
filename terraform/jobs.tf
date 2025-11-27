@@ -54,6 +54,26 @@ resource "scaleway_job_definition" "talent" {
   env = local.all_env_vars
 }
 
+# Job Definition for the 'grimpio' task
+# TODO: Uncomment when Grimpio is available
+# resource "scaleway_job_definition" "grimpio" {
+#   name         = "${terraform.workspace}-grimpio"
+#   project_id   = var.project_id
+#   cpu_limit    = 1000
+#   memory_limit = 2048
+#   image_uri    = local.image_uri
+#   # Max old space workaround: https://stackoverflow.com/questions/48387040/how-do-i-determine-the-correct-max-old-space-size-for-node-js
+#   command      = "node --max-old-space-size=1800 dist/jobs/run-job.js grimpio"
+#   timeout      = "45m"
+
+#   cron {
+#     schedule = "0 1 * * *" # Every day at 1:00 AM
+#     timezone = "Europe/Paris"
+#   }
+
+#   env = local.all_env_vars
+# }
+
 # Job Definition for the 'linkedin' task
 resource "scaleway_job_definition" "linkedin" {
   name         = "${terraform.workspace}-linkedin"
