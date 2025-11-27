@@ -29,3 +29,33 @@ models:
         description: Timestamp de dernière mise à jour (curseur d'incrément).
         tests:
           - not_null
+  - name: stg_publisher_diffusion_exclusion
+    description: >
+      Staging des exclusions de diffusion entre partenaires, exportées depuis `analytics_raw.publisher_diffusion_exclusion`.
+      Chaque ligne décrit la relation annonceur/diffuseur et l'éventuelle organisation ciblée.
+    columns:
+      - name: id
+        description: Identifiant unique de la règle d'exclusion.
+        tests:
+          - not_null
+          - unique
+      - name: excluded_by_annonceur_id
+        description: Identifiant du partenaire annonceur à l'origine de l'exclusion.
+        tests:
+          - not_null
+      - name: excluded_for_diffuseur_id
+        description: Identifiant du partenaire diffuseur concerné.
+        tests:
+          - not_null
+      - name: organization_client_id
+        description: Identifiant client de l'organisation ciblée (nullable).
+      - name: organization_name
+        description: Libellé libre de l'organisation ciblée (nullable).
+      - name: created_at
+        description: Horodatage de création de la règle dans la base source.
+        tests:
+          - not_null
+      - name: updated_at
+        description: Horodatage de dernière mise à jour, utilisé comme curseur d'incrément.
+        tests:
+          - not_null
