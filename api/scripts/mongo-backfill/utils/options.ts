@@ -44,7 +44,8 @@ const looksLikeFilePath = (envPath: string) => {
   if (!envPath) {
     return false;
   }
-  return envPath.includes(path.sep) || envPath.endsWith(".env");
+
+  return envPath.includes(path.sep) || envPath.startsWith(".env");
 };
 
 export const loadEnvironment = (options: ScriptOptions, scriptDir: string, scriptLabel?: string) => {
@@ -57,7 +58,7 @@ export const loadEnvironment = (options: ScriptOptions, scriptDir: string, scrip
       const candidate = resolveExplicitPath(envPath);
       if (fs.existsSync(candidate)) {
         console.log(withLabel(scriptLabel, `Loading environment variables from ${candidate}`));
-        dotenv.config({ path: candidate });
+        dotenv.config({ path: candidate, override: true });
         return;
       }
       console.warn(withLabel(scriptLabel, `Provided env file '${envPath}' not found. Falling back to default .env`));
@@ -67,7 +68,7 @@ export const loadEnvironment = (options: ScriptOptions, scriptDir: string, scrip
       const candidate = path.resolve(scriptDir, "..", "..", envFile);
       if (fs.existsSync(candidate)) {
         console.log(withLabel(scriptLabel, `Loading environment variables from ${envFile}`));
-        dotenv.config({ path: candidate });
+        dotenv.config({ path: candidate, override: true });
         return;
       }
       console.warn(withLabel(scriptLabel, `Warning: .env file for environment '${envName}' not found. Falling back to default .env`));

@@ -7,6 +7,7 @@ import zod from "zod";
 import { APP_URL, SECRET } from "../config";
 import { FORBIDDEN, INVALID_BODY, INVALID_PARAMS, INVALID_QUERY, NOT_FOUND, REQUEST_EXPIRED, RESSOURCE_ALREADY_EXIST } from "../error";
 import { sendTemplate } from "../services/brevo";
+import { loginHistoryService } from "../services/login-history";
 import { publisherService } from "../services/publisher";
 import { userService } from "../services/user";
 import { UserRequest } from "../types/passport";
@@ -305,8 +306,8 @@ router.post("/login", async (req: UserRequest, res: Response, next: NextFunction
 
         const publisher = user.publishers.length ? await publisherService.findOnePublisherById(user.publishers[0]) : null;
         const now = new Date();
-        const loginAt = [...user.loginAt, now];
-        const updatedUser = await userService.updateUser(user.id, { lastActivityAt: now, loginAt });
+        const updatedUser = await userService.updateUser(user.id, { lastActivityAt: now });
+        await loginHistoryService.recordLogin(user.id, now);
 
         const token = jwt.sign({ _id: updatedUser.id }, SECRET, { expiresIn: AUTH_TOKEN_EXPIRATION });
         return res.status(200).send({ ok: true, data: { user: updatedUser, publisher, token } });
