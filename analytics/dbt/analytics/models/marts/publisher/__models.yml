@@ -78,3 +78,47 @@ models:
         description: Horodatage de dernière mise à jour.
         tests:
           - not_null
+  - name: publisher_diffusion_exclusion
+    description: >
+      Table de faits légère listant les exclusions de diffusion entre partenaires, enrichie des libellés annonceur et
+      diffuseur pour faciliter les analyses Metabase.
+    columns:
+      - name: id
+        description: Identifiant unique de la règle d'exclusion.
+        tests:
+          - not_null
+          - unique
+      - name: excluded_by_annonceur_id
+        description: Identifiant du partenaire annonceur à l'origine du blocage.
+        tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('publisher')
+                field: id
+      - name: excluded_by_annonceur_name
+        description: Nom du partenaire annonceur (nullable si inconnu).
+      - name: excluded_by_annonceur_deleted_at
+        description: Timestamp de suppression logique de l'annonceur (nullable).
+      - name: excluded_for_diffuseur_id
+        description: Identifiant du partenaire diffuseur ciblé.
+        tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('publisher')
+                field: id
+      - name: excluded_for_diffuseur_name
+        description: Nom du partenaire diffuseur (nullable si inconnu).
+      - name: excluded_for_diffuseur_deleted_at
+        description: Timestamp de suppression logique du diffuseur (nullable).
+      - name: organization_client_id
+        description: Identifiant client de l'organisation exclue (nullable).
+      - name: organization_name
+        description: Nom libre de l'organisation exclue (nullable).
+      - name: created_at
+        description: Horodatage de création de la règle.
+      - name: updated_at
+        description: Horodatage de dernière mise à jour, utilisé comme curseur d'export.
+        tests:
+          - not_null
