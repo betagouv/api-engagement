@@ -125,7 +125,7 @@ models:
       On retrouve les identifiants analytics (partenaires, mission, clic, sources)
       alignés sur la table Prisma `Account`.
     columns:
-      - name: event_id
+      - name: stat_event_id
         description: Identifiant source de l’événement.
         tests:
           - not_null

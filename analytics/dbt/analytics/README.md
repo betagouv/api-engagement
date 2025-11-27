@@ -34,20 +34,30 @@ Le script `scripts/dbt-env.sh` charge `analytics/.env` (si présent), découpe a
 
 ## Lancer dbt en local
 
-1. Copier le fichier `.env.example` (si disponible) ou renseigner vos valeurs dans `analytics/.env` :
+1. Préparer l'environnement Python (une seule fois) au niveau `analytics/dbt/analytics` :
+
+   ```bash
+   cd analytics/dbt/analytics
+   python3 -m venv .venv
+   source .venv/bin/activate
+   pip install --upgrade pip
+   pip install -r requirements.txt
+   ```
+
+2. Copier le fichier `.env.example` (si disponible) ou renseigner vos valeurs dans `analytics/.env` :
 
    ```env
    DATABASE_URL_ANALYTICS=postgresql://user:password@localhost:5431/analytics?sslmode=disable
    ```
 
-2. Utiliser le script helper :
+3. Utiliser le script helper (qui s'appuie sur l'environnement Python précédent, activez-le avant si besoin) :
 
    ```bash
    analytics/scripts/dbt-env.sh \
      ls   # ou run / test / build
    ```
 
-3. Pour un seul modèle :
+4. Pour exécuter un seul modèle :
 
    ```bash
    analytics/scripts/dbt-env.sh run --models stg_stat_event__clicks

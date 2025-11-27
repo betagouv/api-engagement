@@ -104,7 +104,14 @@ const exportMission = async () => {
           addressesToCreate.push(...result.addresses.map((a) => ({ ...a, mission_id: upsert.id })));
         } catch (error) {
           console.error(`[Export missions to PG] Error while upserting mission ${mission._id?.toString()}`);
-          captureException(error, { extra: { mission, result } });
+          captureException(error, {
+            extra: {
+              missionId: mission._id?.toString(),
+              missionOldId: result.mission.old_id,
+              publisherId: mission.publisherId,
+            },
+          });
+
           counter.error++;
         }
       }

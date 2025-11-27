@@ -1,0 +1,55 @@
+version: 2
+
+models:
+  - name: stg_kpi__mission_daily
+    description: "Vue journalière des missions disponibles pour le calcul des KPI (stock, places, statuts)."
+    columns:
+      - name: metric_date
+        description: "Date (UTC) associée au document KPI, correspondant au lendemain de la période observée."
+        tests:
+          - not_null
+      - name: available_benevolat_mission_count
+        description: "Nombre de missions bénévolat disponibles (toutes places confondues)."
+      - name: available_volontariat_mission_count
+        description: "Nombre de missions Service Civique disponibles."
+      - name: available_jva_mission_count
+        description: "Nombre de missions diffusées par JeVeuxAider.gouv.fr."
+      - name: available_benevolat_given_mission_count
+        description: "Missions bénévolat dont les places sont fournies par le partenaire."
+      - name: available_volontariat_given_mission_count
+        description: "Missions Service Civique dont les places sont fournies par le partenaire."
+      - name: available_benevolat_attributed_mission_count
+        description: "Missions bénévolat dont les places sont attribuées par l'API."
+      - name: available_volontariat_attributed_mission_count
+        description: "Missions Service Civique dont les places sont attribuées par l'API."
+      - name: available_benevolat_given_place_count
+        description: "Total de places bénévolat fournies par les partenaires."
+      - name: available_volontariat_given_place_count
+        description: "Total de places Service Civique fournies par les partenaires."
+      - name: available_benevolat_attributed_place_count
+        description: "Total de places bénévolat attribuées par l'API."
+      - name: available_volontariat_attributed_place_count
+        description: "Total de places Service Civique attribuées par l'API."
+  - name: stg_kpi__events_daily
+    description: "Comptages journaliers des événements statistiques ventilés par type et catégorie éditeur."
+    columns:
+      - name: metric_date
+        description: "Date (UTC) associée au document KPI."
+        tests:
+          - not_null
+      - name: is_bot_filtered
+        description: "Indique si seuls les événements non marqués comme bot sont conservés."
+        tests:
+          - not_null
+      - name: publisher_category
+        description: "Catégorie du partenaire receveur (benevolat ou volontariat)."
+        tests:
+          - not_null
+      - name: event_type
+        description: "Type d'événement (print, click, apply, account)."
+        tests:
+          - not_null
+      - name: event_count
+        description: "Nombre d'événements constatés pour la combinaison (date, catégorie, type, filtre bot)."
+      - name: mission_count
+        description: "Nombre de missions distinctes ayant généré au moins un événement."
