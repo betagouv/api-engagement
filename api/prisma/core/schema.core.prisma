@@ -138,9 +138,23 @@ model User {
   updatedAt               DateTime   @updatedAt @map("updated_at")
 
   userPublishers UserPublisher[]
+  loginHistory   LoginHistory[]
 
   @@index([deletedAt], map: "user_deleted_at_idx")
   @@map("user")
+}
+
+model LoginHistory {
+  id        String   @id @default(uuid())
+  userId    String   @map("user_id")
+  loginAt   DateTime @map("login_at")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  user User @relation(fields: [userId], references: [id])
+
+  @@index([userId], map: "login_history_user_id_idx")
+  @@index([createdAt(sort: Asc)], map: "login_history_created_at_asc_idx")
+  @@map("login_history")
 }
 
 model Report {

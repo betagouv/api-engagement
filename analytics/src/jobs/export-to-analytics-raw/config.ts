@@ -284,10 +284,26 @@ export const exportDefinitions: ExportDefinition[] = [
         field: "updated_at",
         idField: "id",
       },
-      columns: ["id", "first_name", "last_name", "email", "role", "deleted_at", "last_activity_at", "login_at", "created_at", "updated_at"],
+      columns: ["id", "first_name", "last_name", "email", "role", "deleted_at", "last_activity_at", "created_at", "updated_at"],
     },
     destination: {
       table: "user",
+      conflictColumns: ["id"],
+    },
+  },
+  {
+    key: "login_history",
+    batchSize: 2000,
+    source: {
+      table: "login_history",
+      cursor: {
+        field: "created_at",
+        idField: "id",
+      },
+      columns: ["id", "user_id", "login_at", "created_at"],
+    },
+    destination: {
+      table: "login_history",
       conflictColumns: ["id"],
     },
   },

@@ -317,12 +317,25 @@ sources:
             description: Timestamp de suppression logique (nullable).
           - name: last_activity_at
             description: Dernière activité connue dans l'application (nullable).
-          - name: login_at
-            description: Tableau de date (timestamp) de connexion de l'utilisateur.
           - name: created_at
             description: Timestamp de création du compte.
           - name: updated_at
             description: Timestamp de dernière mise à jour, utilisé comme curseur d'export incrémental.
+      - name: login_history
+        description: >-
+          Historique des connexions utilisateurs synchronisé depuis la table opérationnelle `core.login_history`. Une
+          ligne correspond à un login unique observé dans l'application.
+        columns:
+          - name: id
+            description: Identifiant unique de la ligne d'historique.
+          - name: user_id
+            description: Identifiant de l'utilisateur connecté (référence `analytics_raw.user.id`).
+          - name: login_at
+            description: Timestamp de la connexion.
+          - name: created_at
+            description: Timestamp de création de l'entrée (UTC).
+          - name: updated_at
+            description: Timestamp de dernière mise à jour utilisé comme curseur.
       - name: user_publisher
         description: >-
           Table de liaison entre les comptes utilisateurs et les partenaires qu'ils administrent. Permet de suivre les
