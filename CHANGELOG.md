@@ -2,6 +2,94 @@
 Vous retrouverez ici l'historique des différents déploiements effectués sur l'API Engagement.
 
 
+## 24/11/2025
+
+
+### Bug Fixes
+
+- (**api**) Improve admin-state response time (#563) ([`4726795`](https://github.com/betagouv/api-engagement/commit/47267957cca2faf0d7d6c97cdac9fd262352e3fb))
+
+- (**api**) Improve Organization models index for search purpose (#554) (#562) ([`dde2d3d`](https://github.com/betagouv/api-engagement/commit/dde2d3da33253885c2c9ea9ed03dd42b0e9114b1))
+
+- (**app**) Revert stats dates ranges (#557) ([`bb837ce`](https://github.com/betagouv/api-engagement/commit/bb837ce7e4ed7999407c184edc5d9d4f0c60521a))
+
+- (**api**) Stat-event migration index (#560) ([`55b122a`](https://github.com/betagouv/api-engagement/commit/55b122a7d2751de6561a0d35c9e234b2796fca12))
+
+- (**app**) Stat graphs date ranges (#557) ([`2777465`](https://github.com/betagouv/api-engagement/commit/2777465054718863f80f40dd71774eb2afec74bb))
+
+- (**api**) Improve Organization models index for search purpose (#554) ([`ed68fc3`](https://github.com/betagouv/api-engagement/commit/ed68fc387baf9fed9d6117c7f06ac699e5ba32f0))
+
+- (**app**) Test remove ([`f34d8b7`](https://github.com/betagouv/api-engagement/commit/f34d8b78fc20e60a2c1986f461b47ec9650272cf))
+
+- (**app**) Toast progress bar + import date ([`2da84eb`](https://github.com/betagouv/api-engagement/commit/2da84eb81260b9eaa54ff57ef65eadc31d9b93e2))
+
+- (**ci**) Duplicate analytics jobs ([`776123b`](https://github.com/betagouv/api-engagement/commit/776123bb1bd5f004668b443a8f06414cc87c2afe))
+
+- (**job**) Sentry issue datasubvention 429 return (#551) ([`c4c603e`](https://github.com/betagouv/api-engagement/commit/c4c603e0ca109daf49940fa67bd8ea01498d1760))
+
+- (**ci**) Always run dbt metabase sync (#552) ([`8c2a144`](https://github.com/betagouv/api-engagement/commit/8c2a1446dcd22e70eceb2e7e7b14b3cd0a3bc906))
+
+- (**app**) Sentry remove abort signal ([`58d1886`](https://github.com/betagouv/api-engagement/commit/58d188672cd91cd0ba8ee512a43a5b6a1d7ad506))
+
+- (**api**) Remove dev dependencie of joi ([`573877e`](https://github.com/betagouv/api-engagement/commit/573877e8ce0008c5fcc3921f5b2ab2229c5c341e))
+
+- (**analytics**) Missing SLACK_CRON_CHANNEL_ID for terraform jobs (#549) ([`89331f8`](https://github.com/betagouv/api-engagement/commit/89331f8943c2b2cc9d13a2cd256223b4ff088b13))
+
+- (**analytics**) Terraform jobs for moderation_event + email (#547) ([`77a5a83`](https://github.com/betagouv/api-engagement/commit/77a5a83e268749349365b2178e7b1208a79895bc))
+
+- (**api**) Backfill moderationEvent without mongoID (#543) ([`e551aaa`](https://github.com/betagouv/api-engagement/commit/e551aaaa91295c940b490f55fdb0578e02e7ad0d))
+
+- (**api**) Backfill report to avoid duplicated data ([`cc8a05b`](https://github.com/betagouv/api-engagement/commit/cc8a05b18930b2299c9e64c382263ad622547ed3))
+
+- (**analytics**) Improve account complexity (#538) ([`73e9caf`](https://github.com/betagouv/api-engagement/commit/73e9caf51d23c132782e8fa32b1d97de822ab3f9))
+
+
+### Features
+
+- (**api**) Add mission compensation ability (#558) ([`8c4e6c9`](https://github.com/betagouv/api-engagement/commit/8c4e6c9a8c87ed852bd7fcc5fd888dc31af2d9c8))
+
+- (**analytics**) Email models pipeline (#545) ([`d845735`](https://github.com/betagouv/api-engagement/commit/d845735e7886b68c629187c49825574e8cf35962))
+
+- (**analytics**) ModerationEvent pipeline (#544) ([`3c54a7a`](https://github.com/betagouv/api-engagement/commit/3c54a7ae10f402028735c342c3b7cda514af54e5))
+
+- (**api**) ModerationEvent schema (#528) ([`bd0159e`](https://github.com/betagouv/api-engagement/commit/bd0159e38b2c94741680a3f8f31152751bcde01b))
+
+
+### Miscellaneous Tasks
+
+- (**changelog**) Update CHANGELOG.md ([`18b16f4`](https://github.com/betagouv/api-engagement/commit/18b16f48c854a622760c0061da9b72af8eb3769d))
+
+- (**jobs**) Remove link to JVA Linkedin page for every mission ([`5a5aa44`](https://github.com/betagouv/api-engagement/commit/5a5aa449acb74597600c93dc9667efe0dc45a6ce))
+
+-  Merge changelog from main ([`e53c22d`](https://github.com/betagouv/api-engagement/commit/e53c22dd043a5a9b50032c2ce60babfc6e447d98))
+
+- (**analytics**) Foreign keys dbt documentation (#548) ([`5e11b59`](https://github.com/betagouv/api-engagement/commit/5e11b5901ec4e6380e01bec281428a0747f27962))
+
+
+### Refactoring
+
+- (**api**) ElasticSearch decomission + stat-event service layer (#546) ([`f07e44f`](https://github.com/betagouv/api-engagement/commit/f07e44f1d37143598555ad709ab1e57d425d0d96))
+
+- (**api**) Migrate warning model (#541) ([`2d1d309`](https://github.com/betagouv/api-engagement/commit/2d1d30940c938df04df42b385a488e78a5f71c96))
+
+- (**api**) Migrate model import (#535) ([`7534c37`](https://github.com/betagouv/api-engagement/commit/7534c37467fd721cd8c3bd8ca82e6f3b8a9b5ff5))
+
+- (**jobs**) Remove moderationEvent from metabase job (#553) ([`12e4af5`](https://github.com/betagouv/api-engagement/commit/12e4af5f561f6d6834450f2ba3d52ed56e0bf14f))
+
+- (**api**) Migrate organization model to service layer (#539) ([`9d9e7a7`](https://github.com/betagouv/api-engagement/commit/9d9e7a742856e7e0f127eb13495eef6caf1411e7))
+
+- (**api**) Remove v0/association from api (#537) ([`b234d1e`](https://github.com/betagouv/api-engagement/commit/b234d1e778916d7631026dfa9f7db28e07dbb560))
+
+- (**api**) Migrate report model to service layer (#529) ([`955cd25`](https://github.com/betagouv/api-engagement/commit/955cd25628db895e1e2020a888dde4c81db06ed3))
+
+- (**analytics**) Better handle error message (#542) ([`c2a3a03`](https://github.com/betagouv/api-engagement/commit/c2a3a036d16864613b6ef702a5ec8c7949ce5faf))
+
+- (**analytics**) Move models to analytics schema (#540) ([`6529018`](https://github.com/betagouv/api-engagement/commit/652901857cd8a858b38542a3f49d1c46376c906d))
+
+# API Engagement - Changelog
+Vous retrouverez ici l'historique des différents déploiements effectués sur l'API Engagement.
+
+
 ## 17/11/2025
 
 
