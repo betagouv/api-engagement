@@ -1,10 +1,8 @@
 import importCampaigns from "./utils/campaign";
 import importKpi from "./utils/kpi";
 import importKpiBotless from "./utils/kpi-botless";
-import importLoginHistory from "./utils/login-history";
 import importPartners from "./utils/partner";
 import importPublisherDiffusionExclusion from "./utils/publisher-diffusion-exclusion";
-import importUsers from "./utils/user";
 import importWidgets from "./utils/widget";
 
 import { BaseHandler } from "../base/handler";
@@ -28,13 +26,11 @@ export class MetabaseHandler implements BaseHandler<MetabaseJobPayload, Metabase
   public async handle(payload: MetabaseJobPayload): Promise<MetabaseJobResult> {
     const stats = {
       partners: { created: 0, updated: 0 },
-      users: { created: 0, updated: 0 },
       campaigns: { created: 0, updated: 0 },
       widgets: { created: 0, updated: 0 },
       organization_name_matches: { created: 0, updated: 0 },
       publisher_diffusion_exclusion: { created: 0, updated: 0 },
       requests: { created: 0, updated: null },
-      login_history: { created: 0, updated: null },
       kpi: { created: 0, updated: null },
       kpiBotless: { created: 0, updated: null },
     };
@@ -53,12 +49,6 @@ export class MetabaseHandler implements BaseHandler<MetabaseJobPayload, Metabase
       stats.publisher_diffusion_exclusion.updated += diffusionExclusions?.updated || 0;
     }
 
-    if (jobs === null || jobs.includes("users")) {
-      const users = await importUsers();
-      stats.users.created += users?.created || 0;
-      stats.users.updated += users?.updated || 0;
-    }
-
     if (jobs === null || jobs.includes("campaigns")) {
       const campaigns = await importCampaigns();
       stats.campaigns.created += campaigns?.created || 0;
@@ -69,11 +59,6 @@ export class MetabaseHandler implements BaseHandler<MetabaseJobPayload, Metabase
       const widgets = await importWidgets();
       stats.widgets.created += widgets?.created || 0;
       stats.widgets.updated += widgets?.updated || 0;
-    }
-
-    if (jobs === null || jobs.includes("login_history")) {
-      const loginHistory = await importLoginHistory();
-      stats.login_history.created += loginHistory?.created || 0;
     }
 
     if (jobs === null || jobs.includes("kpi")) {
