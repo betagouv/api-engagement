@@ -109,6 +109,7 @@ const Edit = () => {
         type: values.type,
         toPublisherId: values.toPublisherId,
         url: values.url,
+        websiteUrl: values.websiteUrl,
         trackers: values.trackers.filter((t) => t.key && t.value),
       };
 
@@ -196,7 +197,8 @@ const Edit = () => {
     toast.success("Lien copié");
   };
 
-  const isChanged = (v) => v.name !== campaign.name || v.type !== campaign.type || v.toPublisherId !== campaign.toPublisherId || v.url !== campaign.url;
+  const isChanged = (v) =>
+    v.name !== campaign.name || v.type !== campaign.type || v.toPublisherId !== campaign.toPublisherId || v.url !== campaign.url || v.websiteUrl !== campaign.websiteUrl;
   const isErrors = (e) => e.name || e.toPublisherId || e.url;
 
   if (!campaign) return <h2 className="p-3">Chargement...</h2>;
@@ -249,22 +251,30 @@ const Edit = () => {
         )}
 
         <div className="flex flex-col gap-8">
-          <div className="flex flex-col">
-            <label className="mb-2 text-sm" htmlFor="name">
-              Nom de la campagne
-            </label>
-            <input
-              className={`input mb-2 ${errors.name ? "border-b-red-error" : "border-b-black"}`}
-              id="name"
-              value={values.name}
-              onChange={(e) => setValues({ ...values, name: e.target.value })}
-            />
-            {errors.name && (
-              <div className="text-red-error flex items-center text-sm">
-                <RiErrorWarningFill className="mr-2" />
-                {errors.name}
-              </div>
-            )}
+          <div className="flex gap-4">
+            <div className="flex flex-1 flex-col">
+              <label className="mb-2 text-sm" htmlFor="name">
+                Nom de la campagne
+              </label>
+              <input
+                className={`input mb-2 ${errors.name ? "border-b-red-error" : "border-b-black"}`}
+                id="name"
+                value={values.name}
+                onChange={(e) => setValues({ ...values, name: e.target.value })}
+              />
+              {errors.name && (
+                <div className="text-red-error flex items-center text-sm">
+                  <RiErrorWarningFill className="mr-2" />
+                  {errors.name}
+                </div>
+              )}
+            </div>
+            <div className="flex flex-1 flex-col">
+              <label className="mb-2 text-sm" htmlFor="websiteUrl">
+                URL de la page web contenant le lien de la campagne{" "}
+              </label>
+              <input className="input" id="websiteUrl" value={values.websiteUrl} onChange={(e) => setValues({ ...values, websiteUrl: e.target.value })} />
+            </div>
           </div>
 
           <div className="flex gap-4">

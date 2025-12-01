@@ -95,6 +95,7 @@ router.post("/", passport.authenticate("admin", { session: false }), async (req:
         name: zod.string(),
         type: zod.enum(["AD_BANNER", "MAILING", "TILE_BUTTON", "OTHER"]),
         url: zod.string(),
+        websiteUrl: zod.string().optional(),
         fromPublisherId: zod.string(),
         toPublisherId: zod.string(),
         trackers: zod.array(zod.object({ key: zod.string(), value: zod.string(), _id: zod.string().optional() })).optional(),
@@ -109,6 +110,7 @@ router.post("/", passport.authenticate("admin", { session: false }), async (req:
       name: body.data.name,
       type: body.data.type,
       url: body.data.url,
+      websiteUrl: body.data.websiteUrl || null,
       fromPublisherId: body.data.fromPublisherId,
       toPublisherId: body.data.toPublisherId,
       trackers: body.data.trackers || [],
@@ -164,6 +166,7 @@ router.put("/:id", passport.authenticate("admin", { session: false }), async (re
         name: zod.string().optional(),
         type: zod.enum(["AD_BANNER", "MAILING", "TILE_BUTTON", "OTHER"]).optional(),
         url: zod.string().optional(),
+        websiteUrl: zod.string().optional(),
         active: zod.boolean().default(true),
         toPublisherId: zod.string().optional(),
         trackers: zod.array(zod.object({ key: zod.string(), value: zod.string() })).optional(),
@@ -184,6 +187,9 @@ router.put("/:id", passport.authenticate("admin", { session: false }), async (re
     }
     if (body.data.type !== undefined) {
       payload.type = body.data.type;
+    }
+    if (body.data.websiteUrl !== undefined) {
+      payload.websiteUrl = body.data.websiteUrl || null;
     }
     if (body.data.active !== undefined) {
       payload.active = body.data.active;

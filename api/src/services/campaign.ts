@@ -130,6 +130,7 @@ export const campaignService = (() => {
       name: input.name.trim(),
       type: input.type,
       url: input.url,
+      websiteUrl: input.websiteUrl || null,
       fromPublisher: { connect: { id: input.fromPublisherId.trim() } },
       toPublisher: { connect: { id: input.toPublisherId.trim() } },
       active: input.active ?? true,
@@ -169,6 +170,9 @@ export const campaignService = (() => {
     }
     if (patch.type !== undefined) {
       data.type = patch.type;
+    }
+    if (patch.websiteUrl !== undefined) {
+      data.websiteUrl = patch.websiteUrl || null;
     }
     // Handle trackers logic
     if (patch.trackers && patch.trackers.length) {
@@ -249,6 +253,7 @@ export const campaignService = (() => {
       name: `${existing.name} copie`,
       type: existing.type,
       url: existing.url,
+      websiteUrl: existing.websiteUrl,
       fromPublisherId: existing.fromPublisherId,
       toPublisherId: existing.toPublisherId,
       trackers: existing.trackers.map((t) => ({ key: t.key, value: t.value })),

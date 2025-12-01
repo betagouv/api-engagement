@@ -132,27 +132,44 @@ const Create = () => {
         </div>
 
         <div className="flex flex-col gap-8">
-          <div className="flex flex-col">
-            <label className="mb-2 text-sm" htmlFor="name">
-              Nom de la campagne
-            </label>
-            <input
-              id="name"
-              className={`input mb-2 ${errors.name ? "border-b-red-error" : "border-b-black"}`}
-              name="name"
-              value={values.name}
-              onChange={(e) => {
-                setValues({ ...values, name: e.target.value });
-                setErrors({ ...errors, name: "" });
-              }}
-              placeholder="Exemple: Communication événement janvier 2024"
-            />
-            {errors.name && (
-              <div className="text-red-error flex items-center text-sm">
-                <RiErrorWarningFill className="mr-2" />
-                {errors.name}
-              </div>
-            )}
+          <div className="flex gap-4">
+            <div className="flex flex-1 flex-col">
+              <label className="mb-2 text-sm" htmlFor="name">
+                Nom de la campagne
+              </label>
+              <input
+                id="name"
+                className={`input mb-2 ${errors.name ? "border-b-red-error" : "border-b-black"}`}
+                name="name"
+                value={values.name}
+                onChange={(e) => {
+                  setValues({ ...values, name: e.target.value });
+                  setErrors({ ...errors, name: "" });
+                }}
+                placeholder="Exemple: Communication événement janvier 2024"
+              />
+              {errors.name && (
+                <div className="text-red-error flex items-center text-sm">
+                  <RiErrorWarningFill className="mr-2" />
+                  {errors.name}
+                </div>
+              )}
+            </div>
+            <div className="flex flex-1 flex-col">
+              <label className="mb-2 text-sm" htmlFor="websiteUrl">
+                URL de la page web contenant le lien de la campagne
+              </label>
+              <input
+                id="websiteUrl"
+                className="input"
+                name="websiteUrl"
+                value={values.websiteUrl}
+                onChange={(e) => {
+                  setValues({ ...values, websiteUrl: e.target.value });
+                }}
+                placeholder="Exemple: https://votresiteweb.com/communication-evenement-janvier-2024"
+              />
+            </div>
           </div>
           <div className="flex gap-4">
             <div className="flex flex-1 flex-col">
@@ -213,7 +230,7 @@ const Create = () => {
               name="url"
               value={values.url}
               onChange={(e) => handleUrlChange(e)}
-              placeholder="Exemple : https://votresiteweb.com/campagne"
+              placeholder="Exemple : https://votresiteweb.com/lien-de-candidature"
             />
             {errors.url && (
               <div className="text-red-error flex items-center text-sm">
