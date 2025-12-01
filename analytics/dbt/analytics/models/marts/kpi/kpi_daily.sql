@@ -8,7 +8,7 @@ with mission_source as (
   select *
   from {{ ref('stg_kpi__mission_daily') }}
   {% if is_incremental() %}
-    where metric_date > (
+    where metric_date >= (
       select coalesce(max(k.kpi_date), '1900-01-01')
       from {{ this }} as k
     )
@@ -19,7 +19,7 @@ event_source as (
   select *
   from {{ ref('stg_kpi__events_daily') }}
   {% if is_incremental() %}
-    where metric_date > (
+    where metric_date >= (
       select coalesce(max(k.kpi_date), '1900-01-01')
       from {{ this }} as k
     )
