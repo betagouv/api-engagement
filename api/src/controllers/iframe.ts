@@ -519,7 +519,7 @@ const buildLocationQuery = (widget: WidgetRecord, lon: number | undefined, lat: 
   return where;
 };
 
-const buildLocationAggs = (widget: Widget, lon: number | undefined, lat: number | undefined) => {
+const buildLocationAggs = (widget: WidgetRecord, lon: number | undefined, lat: number | undefined) => {
   const where = {} as { [key: string]: any };
 
   if (widget.location && widget.location.lat && widget.location.lon) {

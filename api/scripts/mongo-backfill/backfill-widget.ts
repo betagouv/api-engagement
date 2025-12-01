@@ -22,12 +22,6 @@ type MongoLocation = {
   name?: string | null;
 };
 
-type NormalizedLocation = {
-  lat: number;
-  lon: number;
-  label: string | null;
-} | null;
-
 type MongoWidgetRule = {
   field?: unknown;
   fieldType?: unknown;
@@ -72,7 +66,7 @@ type NormalizedWidgetRecord = {
   color: string;
   style: WidgetStyle;
   type: WidgetType;
-  location: NormalizedLocation;
+  location: { lat: number; lon: number; label: string | null } | null;
   distance: string;
   rules: NormalizedWidgetRule[];
   publishers: string[];
@@ -107,7 +101,7 @@ const normalizeCombinator = (value: unknown): WidgetRuleCombinator => {
   return combinator === "or" ? "or" : "and";
 };
 
-const normalizeLocation = (value: MongoLocation | null | undefined): NormalizedLocation => {
+const normalizeLocation = (value: MongoLocation | null | undefined): { lat: number; lon: number; label: string | null } | null => {
   if (!value) {
     return null;
   }

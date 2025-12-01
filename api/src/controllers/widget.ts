@@ -162,9 +162,14 @@ router.post("/", passport.authenticate("admin", { session: false }), async (req:
         active: zod.coerce.boolean().optional(),
         publishers: zod.array(zod.string()).optional(),
         jvaModeration: zod.coerce.boolean().optional(),
-        locationLat: zod.coerce.number().nullable().optional(),
-        locationLong: zod.coerce.number().nullable().optional(),
-        locationCity: zod.string().nullable().optional(),
+        location: zod
+          .object({
+            lat: zod.coerce.number(),
+            lon: zod.coerce.number(),
+            label: zod.string(),
+          })
+          .nullable()
+          .optional(),
       })
       .safeParse(req.body);
 
@@ -203,9 +208,7 @@ router.post("/", passport.authenticate("admin", { session: false }), async (req:
       active: body.data.active,
       publishers: Array.from(new Set(body.data.publishers ?? [])),
       jvaModeration: body.data.jvaModeration,
-      locationLat: body.data.locationLat ?? undefined,
-      locationLong: body.data.locationLong ?? undefined,
-      locationCity: body.data.locationCity ?? undefined,
+      location: body.data.location,
     };
 
     const data = await widgetService.createWidget(obj);
@@ -247,9 +250,14 @@ router.put("/:id", passport.authenticate("admin", { session: false }), async (re
         active: zod.coerce.boolean().optional(),
         publishers: zod.array(zod.string()).optional(),
         jvaModeration: zod.coerce.boolean().optional(),
-        locationLat: zod.coerce.number().nullable().optional(),
-        locationLong: zod.coerce.number().nullable().optional(),
-        locationCity: zod.string().nullable().optional(),
+        location: zod
+          .object({
+            lat: zod.coerce.number(),
+            lon: zod.coerce.number(),
+            label: zod.string(),
+          })
+          .nullable()
+          .optional(),
       })
       .safeParse(req.body);
 
@@ -276,9 +284,7 @@ router.put("/:id", passport.authenticate("admin", { session: false }), async (re
       active: body.data.active,
       publishers: body.data.publishers,
       jvaModeration: body.data.jvaModeration,
-      locationLat: body.data.locationLat ?? undefined,
-      locationLong: body.data.locationLong ?? undefined,
-      locationCity: body.data.locationCity ?? undefined,
+      location: body.data.location,
     });
 
     return res.status(200).json({ ok: true, data: updated });

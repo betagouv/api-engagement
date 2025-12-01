@@ -76,13 +76,7 @@ const Edit = () => {
 
   const handleSubmit = async () => {
     try {
-      const payload = {
-        ...values,
-        locationLat: values.location?.lat ?? null,
-        locationLong: values.location?.lon ?? null,
-        locationCity: values.location?.label ?? null,
-      };
-      const res = await api.put(`/widget/${widget.id}`, payload);
+      const res = await api.put(`/widget/${widget.id}`, values);
       if (!res.ok) throw res;
       setWidget(res.data);
 

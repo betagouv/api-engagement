@@ -195,9 +195,9 @@ export const widgetService = {
       color: input.color ?? "#000091",
       style: input.style ?? "page",
       type: input.type ?? "benevolat",
-      locationLat: input.locationLat ?? null,
-      locationLong: input.locationLong ?? null,
-      locationCity: input.locationCity ?? null,
+      locationLat: input.location?.lat ?? null,
+      locationLong: input.location?.lon ?? null,
+      locationCity: input.location?.label ?? null,
       distance: input.distance ?? "25km",
       publishers,
       url: input.url ?? undefined,
@@ -245,14 +245,10 @@ export const widgetService = {
     if (patch.active !== undefined) {
       data.active = patch.active;
     }
-    if (patch.locationLat !== undefined) {
-      data.locationLat = patch.locationLat;
-    }
-    if (patch.locationLong !== undefined) {
-      data.locationLong = patch.locationLong;
-    }
-    if (patch.locationCity !== undefined) {
-      data.locationCity = patch.locationCity;
+    if (patch.location !== undefined) {
+      data.locationLat = patch.location?.lat ?? null;
+      data.locationLong = patch.location?.lon ?? null;
+      data.locationCity = patch.location?.label ?? null;
     }
     if (patch.rules !== undefined) {
       data.rules = normalizeRulesForUpdate(patch.rules);
