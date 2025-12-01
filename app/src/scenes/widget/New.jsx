@@ -54,7 +54,13 @@ const New = () => {
     if (Object.keys(errors).length > 0) return;
 
     try {
-      const res = await api.post(`/widget`, values);
+      const payload = {
+        ...values,
+        locationLat: values.location?.lat ?? null,
+        locationLong: values.location?.lon ?? null,
+        locationCity: values.location?.label ?? null,
+      };
+      const res = await api.post(`/widget`, payload);
       if (!res.ok) {
         if (res.code === "RESSOURCE_ALREADY_EXIST") {
           toast.error("Un widget avec ce nom existe déjà");

@@ -64,7 +64,9 @@ export type WidgetCreateInput = {
   color?: string;
   style?: WidgetStyle;
   type?: WidgetType;
-  location?: WidgetLocation;
+  locationLat?: number | null;
+  locationLong?: number | null;
+  locationCity?: string | null;
   distance?: string;
   rules?: WidgetRuleInput[];
   publishers?: string[];
@@ -82,6 +84,5 @@ export type WidgetUpdatePatch = Partial<Omit<WidgetCreateInput, "fromPublisherId
   name?: string;
   publishers?: string[] | null;
   rules?: WidgetRuleInput[] | null;
-  location?: WidgetLocation;
   deletedAt?: Date | null;
 };

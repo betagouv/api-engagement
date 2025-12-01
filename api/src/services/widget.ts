@@ -40,16 +40,6 @@ const toLocation = (lat: number | null | undefined, lon: number | null | undefin
   return { lat, lon, label: label ?? null };
 };
 
-const toLocationFields = (location: WidgetLocation | undefined): { locationLat?: number | null; locationLong?: number | null; locationCity?: string | null } => {
-  if (location === undefined) {
-    return {};
-  }
-  if (location === null) {
-    return { locationLat: null, locationLong: null, locationCity: null };
-  }
-  return { locationLat: location.lat, locationLong: location.lon, locationCity: location.label ?? null };
-};
-
 const toWidgetRecord = (widget: PrismaWidgetWithRelations): WidgetRecord => ({
   id: widget.id,
   name: widget.name,
@@ -197,7 +187,6 @@ export const widgetService = {
     }
 
     const publishers = normalizePublishers(input.publishers);
-    const location = toLocationFields(input.location);
     const id = input.id ?? randomUUID();
 
     const data: Prisma.WidgetCreateInput = {
@@ -206,7 +195,9 @@ export const widgetService = {
       color: input.color ?? "#000091",
       style: input.style ?? "page",
       type: input.type ?? "benevolat",
-      ...location,
+      locationLat: input.locationLat ?? null,
+      locationLong: input.locationLong ?? null,
+      locationCity: input.locationCity ?? null,
       distance: input.distance ?? "25km",
       publishers,
       url: input.url ?? undefined,
@@ -254,11 +245,14 @@ export const widgetService = {
     if (patch.active !== undefined) {
       data.active = patch.active;
     }
-    if (patch.location !== undefined) {
-      const location = toLocationFields(patch.location);
-      if ("locationLat" in location) data.locationLat = location.locationLat;
-      if ("locationLong" in location) data.locationLong = location.locationLong;
-      if ("locationCity" in location) data.locationCity = location.locationCity;
+    if (patch.locationLat !== undefined) {
+      data.locationLat = patch.locationLat;
+    }
+    if (patch.locationLong !== undefined) {
+      data.locationLong = patch.locationLong;
+    }
+    if (patch.locationCity !== undefined) {
+      data.locationCity = patch.locationCity;
     }
     if (patch.rules !== undefined) {
       data.rules = normalizeRulesForUpdate(patch.rules);

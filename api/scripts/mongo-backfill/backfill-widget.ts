@@ -3,7 +3,7 @@ import mongoose from "mongoose";
 import type { Prisma, Widget, WidgetRule } from "../../src/db/core";
 import type { WidgetRuleCombinator, WidgetStyle, WidgetType } from "../../src/types/widget";
 import { asBoolean, asString, asStringArray, toMongoObjectIdString } from "./utils/cast";
-import { compareBooleans, compareDates, compareJsons, compareNumbers, compareStringArrays, compareStrings } from "./utils/compare";
+import { compareBooleans, compareDates, compareNumbers, compareStringArrays, compareStrings } from "./utils/compare";
 import { normalizeDate, normalizeNumber } from "./utils/normalize";
 import { loadEnvironment, parseScriptOptions } from "./utils/options";
 
@@ -21,6 +21,12 @@ type MongoLocation = {
   postcode?: string | null;
   name?: string | null;
 };
+
+type NormalizedLocation = {
+  lat: number;
+  lon: number;
+  label: string | null;
+} | null;
 
 type MongoWidgetRule = {
   field?: unknown;
@@ -66,7 +72,7 @@ type NormalizedWidgetRecord = {
   color: string;
   style: WidgetStyle;
   type: WidgetType;
-  location: MongoLocation | null;
+  location: NormalizedLocation;
   distance: string;
   rules: NormalizedWidgetRule[];
   publishers: string[];
@@ -101,7 +107,7 @@ const normalizeCombinator = (value: unknown): WidgetRuleCombinator => {
   return combinator === "or" ? "or" : "and";
 };
 
-const normalizeLocation = (value: MongoLocation | null | undefined): MongoLocation | null => {
+const normalizeLocation = (value: MongoLocation | null | undefined): NormalizedLocation => {
   if (!value) {
     return null;
   }
@@ -111,14 +117,7 @@ const normalizeLocation = (value: MongoLocation | null | undefined): MongoLocati
     return null;
   }
 
-  return {
-    lat,
-    lon,
-    city: asString(value.city),
-    label: asString(value.label),
-    postcode: asString(value.postcode),
-    name: asString(value.name),
-  };
+  return { lat, lon, label: asString(value.label) };
 };
 
 const normalizeRules = (rules: MongoWidgetRule[] | undefined | null): NormalizedWidgetRule[] => {
@@ -208,7 +207,9 @@ const normalizeWidget = (doc: MongoWidgetDocument): NormalizedWidgetData => {
     color: record.color,
     style: record.style,
     type: record.type,
-    location: record.location as Prisma.InputJsonValue | undefined,
+    locationLat: record.location?.lat ?? null,
+    locationLong: record.location?.lon ?? null,
+    locationCity: record.location?.label ?? null,
     distance: record.distance,
     publishers: record.publishers,
     url: record.url ?? undefined,
@@ -227,7 +228,9 @@ const normalizeWidget = (doc: MongoWidgetDocument): NormalizedWidgetData => {
     color: record.color,
     style: record.style,
     type: record.type,
-    location: record.location as Prisma.InputJsonValue | undefined,
+    locationLat: record.location?.lat ?? null,
+    locationLong: record.location?.lon ?? null,
+    locationCity: record.location?.label ?? null,
     distance: record.distance,
     publishers: { set: record.publishers },
     url: record.url ?? undefined,
@@ -258,7 +261,7 @@ const normalizePrismaWidget = (widget: PrismaWidgetWithRelations): NormalizedWid
     color: widget.color,
     style: (widget.style ?? "page") as WidgetStyle,
     type: (widget.type ?? "benevolat") as WidgetType,
-    location: normalizeLocation(widget.location as MongoLocation | null),
+    location: normalizeLocation({ lat: widget.locationLat, lon: widget.locationLong, label: widget.locationCity }),
     distance: widget.distance,
     rules: sortedRules.map((rule, index) => ({
       field: rule.field,
@@ -302,7 +305,9 @@ const hasDifferences = (existing: NormalizedWidgetRecord, target: NormalizedWidg
   if (!compareStrings(existing.color, target.color)) return true;
   if (!compareStrings(existing.style, target.style)) return true;
   if (!compareStrings(existing.type, target.type)) return true;
-  if (!compareJsons(existing.location, target.location)) return true;
+  if (!compareNumbers(existing.location?.lat ?? null, target.location?.lat ?? null)) return true;
+  if (!compareNumbers(existing.location?.lon ?? null, target.location?.lon ?? null)) return true;
+  if (!compareStrings(existing.location?.label ?? null, target.location?.label ?? null)) return true;
   if (!compareStrings(existing.distance, target.distance)) return true;
   if (!compareStringArrays(existing.publishers, target.publishers)) return true;
   if (!compareStrings(existing.url ?? null, target.url ?? null)) return true;
