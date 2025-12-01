@@ -3,6 +3,7 @@ import { Campaign, CampaignTracker, Prisma, Publisher, User } from "../db/core";
 import { campaignRepository } from "../repositories/campaign";
 import { CampaignCreateInput, CampaignRecord, CampaignSearchParams, CampaignSearchResult, CampaignUpdatePatch } from "../types/campaign";
 import { slugify } from "../utils/string";
+import { isValidUrl } from "../utils/url";
 import statEventService from "./stat-event";
 
 // Map MongoDB campaign type to Prisma enum
@@ -29,15 +30,6 @@ export const campaignService = (() => {
     toPublisher: { select: { id: true, name: true } },
     reassignedByUser: { select: { id: true, firstname: true, lastname: true } },
   }) satisfies Prisma.CampaignInclude;
-
-  const isValidUrl = (url: string) => {
-    try {
-      new URL(url);
-      return true;
-    } catch (error) {
-      return false;
-    }
-  };
 
   const toUrl = (value: string): string | null => {
     const url = value;
@@ -66,7 +58,9 @@ export const campaignService = (() => {
     const and: Prisma.CampaignWhereInput[] = [];
 
     // Always filter out deleted campaigns
-    and.push({ deletedAt: null });
+    if (!params.all) {
+      and.push({ deletedAt: null });
+    }
 
     if (params.active !== undefined) {
       and.push({ active: params.active });
@@ -90,9 +84,6 @@ export const campaignService = (() => {
       }
     }
 
-    if (!and.length) {
-      return { deletedAt: null };
-    }
     return { AND: and };
   };
 

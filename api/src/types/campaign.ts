@@ -26,6 +26,7 @@ export interface CampaignSearchParams {
   active?: boolean;
   offset?: number;
   limit?: number;
+  all?: boolean;
   includeTotal?: "all" | "filtered" | "none";
 }
 

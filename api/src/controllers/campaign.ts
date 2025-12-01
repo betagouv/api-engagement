@@ -121,64 +121,6 @@ router.post("/", passport.authenticate("admin", { session: false }), async (req:
   }
 });
 
-// const fromPublisher = await publisherService.findOnePublisherById(body.data.fromPublisherId);
-// if (!fromPublisher) {
-//   return res.status(404).send({ ok: false, code: NOT_FOUND, error: "Publisher not found" });
-// }
-
-// const toPublisher = await publisherService.findOnePublisherById(body.data.toPublisherId);
-// if (!toPublisher) {
-//   return res.status(404).send({ ok: false, code: NOT_FOUND, error: "Publisher not found" });
-// }
-
-// let trackers = body.data.trackers || [];
-// let url = body.data.url;
-
-// if (!trackers.length) {
-//   if (toPublisher.id === PUBLISHER_IDS.SERVICE_CIVIQUE) {
-//     trackers = [
-//       { key: "mtm_source", value: "api_engagement" },
-//       { key: "mtm_medium", value: "campaign" },
-//       { key: "mtm_campaign", value: slugify(body.data.name) },
-//     ];
-//   } else {
-//     trackers = [
-//       { key: "utm_source", value: "api_engagement" },
-//       { key: "utm_medium", value: "campaign" },
-//       { key: "utm_campaign", value: slugify(body.data.name) },
-//     ];
-//   }
-//   const searchParams = new URLSearchParams();
-//   trackers.forEach((tracker: { key: string; value: string }) => searchParams.append(tracker.key, tracker.value));
-//   url = `${url}${url.includes("?") ? "&" : "?"}${searchParams.toString()}`;
-// }
-
-// if (url) {
-//   if (url.indexOf("http") === -1) {
-//     url = `https://${url}`;
-//   }
-//   if (!isValidUrl(url)) {
-//     return res.status(400).send({ ok: false, code: INVALID_BODY, error: "Invalid url" });
-//   }
-// }
-
-// try {
-//   const data = await campaignService.createCampaign({
-//     name: body.data.name,
-//     type: body.data.type,
-//     url,
-//     fromPublisherId: fromPublisher.id,
-//     toPublisherId: toPublisher.id,
-//     trackers: trackers.map((t) => ({ key: t.key, value: t.value })),
-//   });
-//   return res.status(200).send({ ok: true, data });
-// } catch (error: any) {
-//   if (error.message?.includes("already exists")) {
-//     return res.status(409).send({ ok: false, code: RESSOURCE_ALREADY_EXIST, error: "Campaign already exists" });
-//   }
-//   throw error;
-// }
-
 router.post("/:id/duplicate", passport.authenticate("admin", { session: false }), async (req: UserRequest, res: Response, next: NextFunction) => {
   try {
     const params = zod
