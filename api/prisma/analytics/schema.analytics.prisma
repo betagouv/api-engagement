@@ -262,6 +262,7 @@ model Mission {
   domain_logo                   String?
   activity                      String?
   partner_id                    String?
+  application_url               String?
   description                   String?
   type                          MissionType?
   duration                      Int?
@@ -323,6 +324,7 @@ model Mission {
   requirements                          String[]
   tasks                                 String[]
   places                                Int?
+  places_status                         String?
   matched_organization_id               String?
   organization_verification_status      String?
   organization_name_verified            String?
