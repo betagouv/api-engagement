@@ -2,7 +2,6 @@ import importCampaigns from "./utils/campaign";
 import importKpi from "./utils/kpi";
 import importKpiBotless from "./utils/kpi-botless";
 import importPartners from "./utils/partner";
-import importPublisherDiffusionExclusion from "./utils/publisher-diffusion-exclusion";
 import importWidgets from "./utils/widget";
 
 import { BaseHandler } from "../base/handler";
@@ -29,7 +28,6 @@ export class MetabaseHandler implements BaseHandler<MetabaseJobPayload, Metabase
       campaigns: { created: 0, updated: 0 },
       widgets: { created: 0, updated: 0 },
       organization_name_matches: { created: 0, updated: 0 },
-      publisher_diffusion_exclusion: { created: 0, updated: 0 },
       requests: { created: 0, updated: null },
       kpi: { created: 0, updated: null },
       kpiBotless: { created: 0, updated: null },
@@ -41,12 +39,6 @@ export class MetabaseHandler implements BaseHandler<MetabaseJobPayload, Metabase
       const partners = await importPartners();
       stats.partners.created += partners?.created || 0;
       stats.partners.updated += partners?.updated || 0;
-    }
-
-    if (jobs === null || jobs.includes("organization_exclusion")) {
-      const diffusionExclusions = await importPublisherDiffusionExclusion();
-      stats.publisher_diffusion_exclusion.created += diffusionExclusions?.created || 0;
-      stats.publisher_diffusion_exclusion.updated += diffusionExclusions?.updated || 0;
     }
 
     if (jobs === null || jobs.includes("campaigns")) {
