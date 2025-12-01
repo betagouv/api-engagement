@@ -6,7 +6,7 @@ import { FORBIDDEN, INVALID_BODY, INVALID_PARAMS, INVALID_QUERY, NOT_FOUND, RESS
 import { publisherService } from "../services/publisher";
 import { widgetService } from "../services/widget";
 import { UserRequest } from "../types/passport";
-import type { WidgetSearchParams } from "../types/widget";
+import type { WidgetCreateInput, WidgetSearchParams } from "../types/widget";
 
 const router = Router();
 
@@ -211,7 +211,7 @@ router.post("/", passport.authenticate("admin", { session: false }), async (req:
       location: body.data.location,
     };
 
-    const data = await widgetService.createWidget(obj);
+    const data = await widgetService.createWidget(obj as WidgetCreateInput);
 
     return res.status(200).send({ ok: true, data });
   } catch (error) {

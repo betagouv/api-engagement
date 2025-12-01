@@ -19,7 +19,7 @@ export interface Widget {
   type: "benevolat" | "volontariat";
   style: "carousel" | "grid" | "page";
   color?: string;
-  location?: Location;
+  location?: Location | null;
   fromPublisherId?: string | number;
 }
 

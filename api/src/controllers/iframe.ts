@@ -37,7 +37,7 @@ router.get("/widget", async (req: Request, res: Response, next: NextFunction) =>
       }
       return res.status(200).send({ ok: true, data: widget });
     } else {
-      const widget = await widgetService.findOneWidgetByName(query.data.name);
+      const widget = await widgetService.findOneWidgetByName(query.data.name || "");
       if (!widget) {
         return res.status(404).send({ ok: false, code: NOT_FOUND });
       }

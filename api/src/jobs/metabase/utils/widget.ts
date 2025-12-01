@@ -7,25 +7,25 @@ import type { WidgetRecord } from "../../../types/widget";
 const buildData = (doc: WidgetRecord, partners: { [key: string]: string }) => {
   const diffuseurId = partners[doc.fromPublisherId?.toString()];
   if (!diffuseurId) {
-    captureMessage(`[Widgets] Diffuseur ${doc.fromPublisherId.toString()} not found for widget ${doc._id.toString()}`);
+    captureMessage(`[Widgets] Diffuseur ${doc.fromPublisherId.toString()} not found for widget ${doc.id}`);
     return null;
   }
   const annonceurIds = doc.publishers.map((p) => partners[p.toString()]);
   if (annonceurIds.some((id) => !id)) {
     const missing = doc.publishers.filter((p) => !partners[p.toString()]);
-    captureMessage(`[Widgets] Annonceur ${missing.join(", ")} not found for widget ${doc._id.toString()}`);
+    captureMessage(`[Widgets] Annonceur ${missing.join(", ")} not found for widget ${doc.id}`);
   }
 
   const obj = {
-    old_id: doc._id.toString(),
+    old_id: doc.id,
     name: doc.name,
     mission_type: doc.type,
     active: doc.active,
 
     color: doc.color,
     style: doc.style,
-    city: doc.location?.city || null,
-    postal_code: doc.location?.postcode || null,
+    city: doc.location?.label || null,
+    postal_code: null,
     latitude: doc.location?.lat || null,
     longitude: doc.location?.lon || null,
     distance: doc.location ? doc.distance : null,
@@ -61,8 +61,8 @@ const handler = async () => {
     const dataToUpdate = [] as { widget: PgWidget; partners: string[]; id: string }[];
 
     for (const doc of data) {
-      const exists = stored[doc._id.toString()];
-      const obj = buildData(doc as Widget, partners);
+      const exists = stored[doc.id];
+      const obj = buildData(doc as WidgetRecord, partners);
       if (!obj) {
         continue;
       }
