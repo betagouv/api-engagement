@@ -259,4 +259,20 @@ export const exportDefinitions: ExportDefinition[] = [
       conflictColumns: ["id"],
     },
   },
+  {
+    key: "publisher_diffusion_exclusion",
+    batchSize: 2000,
+    source: {
+      table: "publisher_diffusion_exclusion",
+      cursor: {
+        field: "updated_at",
+        idField: "id",
+      },
+      columns: ["id", "excluded_by_annonceur_id", "excluded_for_diffuseur_id", "organization_client_id", "organization_name", "created_at", "updated_at"],
+    },
+    destination: {
+      table: "publisher_diffusion_exclusion",
+      conflictColumns: ["id"],
+    },
+  },
 ];

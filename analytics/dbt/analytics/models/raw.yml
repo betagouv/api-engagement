@@ -278,3 +278,23 @@ sources:
             description: Horodatage de fin de l'import, utilisé comme curseur temporel pour l'incrémentalité.
           - name: status
             description: Statut global retourné par le job (`SUCCESS`, `FAILED`, etc.).
+      - name: publisher_diffusion_exclusion
+        description: >-
+          Exclusions de diffusion configurées entre partenaires (annonceur -> diffuseur) telles que synchronisées depuis
+          la base opérationnelle. Chaque ligne correspond à une règle interdisant à un diffuseur de relayer des missions
+          pour un annonceur donné.
+        columns:
+          - name: id
+            description: Identifiant unique de la règle d'exclusion.
+          - name: excluded_by_annonceur_id
+            description: Identifiant du partenaire annonceur qui crée l'exclusion.
+          - name: excluded_for_diffuseur_id
+            description: Identifiant du partenaire diffuseur visé par l'exclusion.
+          - name: organization_client_id
+            description: Identifiant métier de l'organisation concernée par l'exclusion (nullable).
+          - name: organization_name
+            description: Libellé texte de l'organisation exclue (nullable).
+          - name: created_at
+            description: Timestamp de création de la règle côté application source.
+          - name: updated_at
+            description: Timestamp de dernière mise à jour, utilisé comme curseur d'export incrémental.
