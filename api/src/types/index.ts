@@ -404,22 +404,6 @@ export interface Widget {
   updatedAt: Date;
 }
 
-export type ImportRna = {
-  _id: Schema.Types.ObjectId;
-
-  year: number;
-  month: number;
-  resourceId: string;
-  resourceCreatedAt: Date;
-  resourceUrl: string;
-  count: number;
-  startedAt: Date;
-  endedAt: Date;
-  status: string;
-  createdAt: Date;
-  updatedAt: Date;
-};
-
 export type EsQuery = {
   bool: {
     must: any[] | { [key: string]: any };

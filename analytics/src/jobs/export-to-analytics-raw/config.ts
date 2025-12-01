@@ -243,4 +243,84 @@ export const exportDefinitions: ExportDefinition[] = [
       conflictColumns: ["id"],
     },
   },
+  {
+    key: "import",
+    batchSize: 2000,
+    source: {
+      table: "import",
+      cursor: {
+        field: "started_at",
+        idField: "id",
+      },
+      columns: ["id", "name", "publisher_id", "mission_count", "refused_count", "created_count", "deleted_count", "updated_count", "started_at", "finished_at", "status"],
+    },
+    destination: {
+      table: "import",
+      conflictColumns: ["id"],
+    },
+  },
+  {
+    key: "publisher_diffusion_exclusion",
+    batchSize: 2000,
+    source: {
+      table: "publisher_diffusion_exclusion",
+      cursor: {
+        field: "updated_at",
+        idField: "id",
+      },
+      columns: ["id", "excluded_by_annonceur_id", "excluded_for_diffuseur_id", "organization_client_id", "organization_name", "created_at", "updated_at"],
+    },
+    destination: {
+      table: "publisher_diffusion_exclusion",
+      conflictColumns: ["id"],
+    },
+  },
+  {
+    key: "user",
+    batchSize: 2000,
+    source: {
+      table: "user",
+      cursor: {
+        field: "updated_at",
+        idField: "id",
+      },
+      columns: ["id", "first_name", "last_name", "email", "role", "deleted_at", "last_activity_at", "created_at", "updated_at"],
+    },
+    destination: {
+      table: "user",
+      conflictColumns: ["id"],
+    },
+  },
+  {
+    key: "login_history",
+    batchSize: 2000,
+    source: {
+      table: "login_history",
+      cursor: {
+        field: "created_at",
+        idField: "id",
+      },
+      columns: ["id", "user_id", "login_at", "created_at"],
+    },
+    destination: {
+      table: "login_history",
+      conflictColumns: ["id"],
+    },
+  },
+  {
+    key: "user_publisher",
+    batchSize: 2000,
+    source: {
+      table: "user_publisher",
+      cursor: {
+        field: "updated_at",
+        idField: "id",
+      },
+      columns: ["id", "user_id", "publisher_id", "created_at", "updated_at"],
+    },
+    destination: {
+      table: "user_publisher",
+      conflictColumns: ["id"],
+    },
+  },
 ];

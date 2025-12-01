@@ -62,9 +62,9 @@ const Users = () => {
             data={users.filter((u) => {
               if (!search) return true;
               return (
-                u.firstname.toLowerCase().search(search.toLowerCase()) !== -1 ||
-                u.lastname?.toLowerCase().search(search.toLowerCase()) !== -1 ||
-                u.email.toLowerCase().search(search.toLowerCase()) !== -1
+                u.firstname.toLowerCase().includes(search.toLowerCase()) ||
+                u.lastname?.toLowerCase().includes(search.toLowerCase()) ||
+                u.email.toLowerCase().includes(search.toLowerCase())
               );
             })}
             renderHeader={() => (

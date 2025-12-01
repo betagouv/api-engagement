@@ -394,7 +394,7 @@ const DesktopFiltersVolontariat = ({ options, values, onChange, disabledLocation
         ) : (
           <button
             aria-label="plus de filtres"
-            className="border truncate w-full bg-white border-[#DDDDDD] py-2 px-4 h-[40px] focus:outline-2 focus:outline-[#0a76f6] focus:outline-offset-2 font-medium"
+            className="cursor-pointer border truncate w-full bg-white border-[#DDDDDD] py-2 px-4 h-[40px] focus:outline-2 focus:outline-[#0a76f6] focus:outline-offset-2 font-medium"
             onClick={() => {
               setMoreFilters(true);
               plausible("More filters", { u: url || undefined });
@@ -447,7 +447,7 @@ const DesktopFiltersVolontariat = ({ options, values, onChange, disabledLocation
 
           <button
             aria-label="moins de filtres"
-            className="border truncate w-full bg-white border-[#DDDDDD] py-2 px-4 h-[40px] focus:outline-2 focus:outline-[#0a76f6] focus:outline-offset-2 font-medium"
+            className="cursor-pointer border truncate w-full bg-white border-[#DDDDDD] py-2 px-4 h-[40px] focus:outline-2 focus:outline-[#0a76f6] focus:outline-offset-2 font-medium"
             onClick={() => {
               setMoreFilters(false);
               plausible("Less filters", { u: url || undefined });

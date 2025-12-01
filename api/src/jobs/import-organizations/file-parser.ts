@@ -228,6 +228,8 @@ export const parseFile = async (stream: Readable): Promise<number> => {
     let totalCount = 0;
     let batch: DataGouvRnaRecord[] = [];
     const BATCH_SIZE = 1000; // Process 1000 records at a time
+    let writeQueue = Promise.resolve();
+    let queueError: Error | null = null;
 
     // Create a parser stream
     const parser = parse({
@@ -247,18 +249,19 @@ export const parseFile = async (stream: Readable): Promise<number> => {
         const dataRecord = processRecord(record);
         batch.push(dataRecord);
 
-        // When batch size is reached, process it
+        // When batch size is reached, process it sequentially
         if (batch.length >= BATCH_SIZE) {
           const currentBatch = [...batch];
           batch = [];
 
-          // Process batch asynchronously
-          writeBatch(currentBatch)
-            .then((count) => {
+          writeQueue = writeQueue
+            .then(async () => {
+              const count = await writeBatch(currentBatch);
               totalCount += count;
             })
             .catch((err) => {
               console.error("Error processing batch:", err);
+              queueError = err;
             });
         }
       }
@@ -266,15 +269,25 @@ export const parseFile = async (stream: Readable): Promise<number> => {
 
     // When parsing is complete, process any remaining records
     parser.on("end", async () => {
-      if (batch.length > 0) {
-        try {
-          const count = await writeBatch(batch);
-          totalCount += count;
-        } catch (err) {
-          console.error("Error processing final batch:", err);
+      try {
+        if (batch.length > 0) {
+          const currentBatch = [...batch];
+          batch = [];
+          writeQueue = writeQueue.then(async () => {
+            const count = await writeBatch(currentBatch);
+            totalCount += count;
+          });
         }
+
+        await writeQueue;
+        if (queueError) {
+          reject(queueError);
+          return;
+        }
+        resolve(totalCount);
+      } catch (err) {
+        reject(err);
       }
-      resolve(totalCount);
     });
 
     // Pipe the input stream to the parser

@@ -251,3 +251,103 @@ sources:
             description: Civilité du dirigeant/président déclaré (nullable).
           - name: source
             description: Origine de la donnée (ex. `rna`, `api`, `manual`).
+      - name: import
+        description: >-
+          Journal d'exécution des imports de missions côté partenaires (job `export-to-analytics-raw`). Chaque ligne
+          agrège les totaux créés/supprimés/mis à jour ainsi que le partenaire et la fenêtre temporelle de l'import.
+        columns:
+          - name: id
+            description: Identifiant unique de l'import dans la base source.
+          - name: name
+            description: Nom libre de l'import (généralement décrit par le job déclencheur).
+          - name: publisher_id
+            description: Identifiant du partenaire concerné par l'import.
+          - name: mission_count
+            description: Volume total de missions parcourues pendant l'import.
+          - name: refused_count
+            description: Nombre de missions refusées (statut non importé) durant l'import.
+          - name: created_count
+            description: Nombre de missions créées côté application durant cette exécution.
+          - name: deleted_count
+            description: Nombre de missions supprimées/supprimées logiquement durant cette exécution.
+          - name: updated_count
+            description: Nombre de missions mises à jour durant cette exécution.
+          - name: started_at
+            description: Horodatage de démarrage de l'import (UTC).
+          - name: finished_at
+            description: Horodatage de fin de l'import, utilisé comme curseur temporel pour l'incrémentalité.
+          - name: status
+            description: Statut global retourné par le job (`SUCCESS`, `FAILED`, etc.).
+      - name: publisher_diffusion_exclusion
+        description: >-
+          Exclusions de diffusion configurées entre partenaires (annonceur -> diffuseur) telles que synchronisées depuis
+          la base opérationnelle. Chaque ligne correspond à une règle interdisant à un diffuseur de relayer des missions
+          pour un annonceur donné.
+        columns:
+          - name: id
+            description: Identifiant unique de la règle d'exclusion.
+          - name: excluded_by_annonceur_id
+            description: Identifiant du partenaire annonceur qui crée l'exclusion.
+          - name: excluded_for_diffuseur_id
+            description: Identifiant du partenaire diffuseur visé par l'exclusion.
+          - name: organization_client_id
+            description: Identifiant métier de l'organisation concernée par l'exclusion (nullable).
+          - name: organization_name
+            description: Libellé texte de l'organisation exclue (nullable).
+          - name: created_at
+            description: Timestamp de création de la règle côté application source.
+          - name: updated_at
+            description: Timestamp de dernière mise à jour, utilisé comme curseur d'export incrémental.
+      - name: user
+        description: >-
+          Comptes utilisateurs applicatifs synchronisés depuis la base `core.user`. Ces données servent de référentiel
+          pour analyser les habilitations, rôles et activités dans Metabase.
+        columns:
+          - name: id
+            description: Identifiant unique du compte utilisateur (UUID).
+          - name: first_name
+            description: Prénom renseigné lors de la création du compte.
+          - name: last_name
+            description: Nom de famille renseigné (nullable).
+          - name: email
+            description: Adresse email utilisée pour se connecter à la plateforme.
+          - name: role
+            description: Rôle applicatif (`ADMIN`, `PUBLISHER`, `OPERATOR`, etc.).
+          - name: deleted_at
+            description: Timestamp de suppression logique (nullable).
+          - name: last_activity_at
+            description: Dernière activité connue dans l'application (nullable).
+          - name: created_at
+            description: Timestamp de création du compte.
+          - name: updated_at
+            description: Timestamp de dernière mise à jour, utilisé comme curseur d'export incrémental.
+      - name: login_history
+        description: >-
+          Historique des connexions utilisateurs synchronisé depuis la table opérationnelle `core.login_history`. Une
+          ligne correspond à un login unique observé dans l'application.
+        columns:
+          - name: id
+            description: Identifiant unique de la ligne d'historique.
+          - name: user_id
+            description: Identifiant de l'utilisateur connecté (référence `analytics_raw.user.id`).
+          - name: login_at
+            description: Timestamp de la connexion.
+          - name: created_at
+            description: Timestamp de création de l'entrée (UTC).
+          - name: updated_at
+            description: Timestamp de dernière mise à jour utilisé comme curseur.
+      - name: user_publisher
+        description: >-
+          Table de liaison entre les comptes utilisateurs et les partenaires qu'ils administrent. Permet de suivre les
+          rattachements et leurs dates de création/mise à jour.
+        columns:
+          - name: id
+            description: Identifiant unique du rattachement.
+          - name: user_id
+            description: Identifiant de l'utilisateur référencé dans `analytics_raw.user`.
+          - name: publisher_id
+            description: Identifiant du partenaire référencé dans `analytics_raw.publisher`.
+          - name: created_at
+            description: Timestamp de création du rattachement.
+          - name: updated_at
+            description: Timestamp de dernière mise à jour (curseur d'export).

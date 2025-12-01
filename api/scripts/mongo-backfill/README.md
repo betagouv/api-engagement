@@ -97,6 +97,22 @@ npx ts-node api/scripts/mongo-backfill/backfill-user.ts --env production --dry-r
 npx ts-node api/scripts/mongo-backfill/backfill-user.ts --env api/.env.production
 ```
 
+## backfill-login-history.ts
+
+- Rôle: reconstruire la table `login_history` PostgreSQL à partir du champ `user.login_at` encore présent dans la base `core`.
+- Options:
+  - `--dry-run` simule les suppressions/insertions sans écrire en base et affiche quelques exemples.
+  - `--env <nom|chemin>` charge le fichier d'environnement avant d'ouvrir la connexion PostgreSQL.
+- Exemples:
+
+```bash
+# Simulation complète
+npx ts-node api/scripts/mongo-backfill/backfill-login-history.ts --env production --dry-run
+
+# Exécution réelle
+npx ts-node api/scripts/mongo-backfill/backfill-login-history.ts --env api/.env.production
+```
+
 ## backfill-mission-event.ts
 
 - Rôle: migrer les événements de mission (`mission-events`) depuis MongoDB vers la table `mission_event` de Postgres.

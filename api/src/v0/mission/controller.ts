@@ -5,7 +5,6 @@ import zod from "zod";
 import { PUBLISHER_IDS } from "../../config";
 import { INVALID_PARAMS, INVALID_QUERY, NOT_FOUND } from "../../error";
 import MissionModel from "../../models/mission";
-import RequestModel from "../../models/request";
 import { publisherDiffusionExclusionService } from "../../services/publisher-diffusion-exclusion";
 import { Mission } from "../../types";
 import { PublisherRequest } from "../../types/passport";
@@ -44,29 +43,6 @@ export const missionQuerySchema = zod.object({
 });
 
 const router = Router();
-
-router.use(async (req: PublisherRequest, res: Response, next: NextFunction) => {
-  res.on("finish", async () => {
-    if (!req.route) {
-      return;
-    }
-    const request = new RequestModel({
-      method: req.method,
-      key: req.headers["x-api-key"] || req.headers["apikey"],
-      header: req.headers,
-      route: `/v0/mission${req.route.path}`,
-      query: req.query,
-      params: req.params,
-      body: req.body,
-      status: res.statusCode,
-      code: res.locals.code,
-      message: res.locals.message,
-      total: res.locals.total,
-    });
-    await request.save();
-  });
-  next();
-});
 
 router.get("/", passport.authenticate(["apikey", "api"], { session: false }), async (req: PublisherRequest, res: Response, next: NextFunction) => {
   try {

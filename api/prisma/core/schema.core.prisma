@@ -30,6 +30,12 @@ enum ImportStatus {
   FAILED
 }
 
+enum ImportRnaStatus {
+  SUCCESS
+  ALREADY_UPDATED
+  FAILED
+}
+
 enum ReportDataTemplate {
   BOTH
   RECEIVED
@@ -120,29 +126,42 @@ model Email {
 }
 
 model User {
-  id                      String     @id @default(uuid())
-  firstname               String     @map("first_name")
-  lastname                String?    @map("last_name")
-  email                   String     @unique
+  id                      String    @id @default(uuid())
+  firstname               String    @map("first_name")
+  lastname                String?   @map("last_name")
+  email                   String    @unique
   password                String?
-  role                    UserRole   @default(user)
-  invitationToken         String?    @map("invitation_token")
-  invitationExpiresAt     DateTime?  @map("invitation_expires_at")
-  invitationCompletedAt   DateTime?  @map("invitation_completed_at")
-  lastActivityAt          DateTime?  @map("last_activity_at")
-  loginAt                 DateTime[] @default([]) @map("login_at")
-  forgotPasswordToken     String?    @map("forgot_password_token")
-  forgotPasswordExpiresAt DateTime?  @map("forgot_password_expires_at")
-  deletedAt               DateTime?  @map("deleted_at")
-  brevoContactId          Int?       @map("brevo_contact_id")
-  createdAt               DateTime   @default(now()) @map("created_at")
-  updatedAt               DateTime   @updatedAt @map("updated_at")
+  role                    UserRole  @default(user)
+  invitationToken         String?   @map("invitation_token")
+  invitationExpiresAt     DateTime? @map("invitation_expires_at")
+  invitationCompletedAt   DateTime? @map("invitation_completed_at")
+  lastActivityAt          DateTime? @map("last_activity_at")
+  forgotPasswordToken     String?   @map("forgot_password_token")
+  forgotPasswordExpiresAt DateTime? @map("forgot_password_expires_at")
+  deletedAt               DateTime? @map("deleted_at")
+  brevoContactId          Int?      @map("brevo_contact_id")
+  createdAt               DateTime  @default(now()) @map("created_at")
+  updatedAt               DateTime  @updatedAt @map("updated_at")
 
   userPublishers        UserPublisher[]
   campaignsReassignedBy Campaign[]      @relation("CampaignReassignedByUserRelation")
+  loginHistory          LoginHistory[]
 
   @@index([deletedAt], map: "user_deleted_at_idx")
   @@map("user")
+}
+
+model LoginHistory {
+  id        String   @id @default(uuid())
+  userId    String   @map("user_id")
+  loginAt   DateTime @map("login_at")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  user User @relation(fields: [userId], references: [id])
+
+  @@index([userId], map: "login_history_user_id_idx")
+  @@index([createdAt(sort: Asc)], map: "login_history_created_at_asc_idx")
+  @@map("login_history")
 }
 
 model Report {
@@ -383,6 +402,24 @@ model Import {
   @@index([status], map: "import_status_idx")
   @@index([publisherId, startedAt(sort: Desc)], map: "import_publisher_started_at_desc_idx")
   @@map("import")
+}
+
+model ImportRna {
+  id                String           @id @default(uuid())
+  year              Int?
+  month             Int?
+  resourceId        String?          @map("resource_id")
+  resourceCreatedAt DateTime?        @map("resource_created_at")
+  resourceUrl       String?          @map("resource_url")
+  count             Int              @default(0)
+  startedAt         DateTime         @map("started_at")
+  endedAt           DateTime         @map("ended_at")
+  status            ImportRnaStatus? @default(SUCCESS)
+  createdAt         DateTime         @default(now()) @map("created_at")
+  updatedAt         DateTime         @updatedAt @map("updated_at")
+
+  @@index([resourceId], map: "import_rna_resource_id_idx")
+  @@map("import_rna")
 }
 
 model MissionEvent {

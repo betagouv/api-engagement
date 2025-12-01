@@ -4,9 +4,8 @@ import zod from "zod";
 import passport from "passport";
 import { INVALID_QUERY } from "../error";
 import { organizationService } from "../services/organization";
-import RequestModel from "../models/request";
-import { PublisherRequest } from "../types/passport";
 import { OrganizationRecord } from "../types/organization";
+import { PublisherRequest } from "../types/passport";
 
 const router = Router();
 
@@ -14,29 +13,6 @@ const withLegacyId = (organization: OrganizationRecord) => {
   const { id, ...rest } = organization;
   return { ...rest, _id: id };
 };
-
-router.use(async (req: PublisherRequest, res: Response, next: NextFunction) => {
-  res.on("finish", async () => {
-    if (!req.route) {
-      return;
-    }
-    const request = new RequestModel({
-      method: req.method,
-      key: req.headers["x-api-key"] || req.headers["apikey"],
-      header: req.headers,
-      route: `/v0/organization${req.route.path}`,
-      query: req.query,
-      params: req.params,
-      body: req.body,
-      status: res.statusCode,
-      code: res.locals.code,
-      message: res.locals.message,
-      total: res.locals.total,
-    });
-    await request.save();
-  });
-  next();
-});
 
 router.get("/", passport.authenticate(["apikey", "api"], { session: false }), async (req: PublisherRequest, res: Response, next: NextFunction) => {
   try {
