@@ -457,7 +457,7 @@ router.get("/widget/:id", cors({ origin: "*" }), async (req: Request, res: Respo
       requestId: query.data.requestId,
       source: "widget",
       sourceName: widget.name || "",
-      sourceId: widget._id.toString() || "",
+      sourceId: widget.id.toString() || "",
       createdAt: new Date(),
       missionId: mission._id.toString(),
       missionClientId: mission.clientId || "",

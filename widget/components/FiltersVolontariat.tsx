@@ -97,7 +97,7 @@ const FiltersVolontariat = ({ widget, apiUrl, values, total, onChange, show, onS
         }
         ["accessibility", "action", "beneficiary", "country", "domain", "minor", "schedule"].forEach((key) => searchParams.append("aggs", key));
 
-        const { ok, data } = await getAPI(`${apiUrl}/iframe/${widget._id}/aggs?${searchParams.toString()}`);
+        const { ok, data } = await getAPI(`${apiUrl}/iframe/${widget.id}/aggs?${searchParams.toString()}`);
 
         if (!ok) {
           throw Error("Error fetching aggs");
@@ -127,7 +127,7 @@ const FiltersVolontariat = ({ widget, apiUrl, values, total, onChange, show, onS
       }
     };
     fetchData();
-  }, [widget._id, values, apiUrl]);
+  }, [widget.id, values, apiUrl]);
 
   const handleReset = () => {
     onChange({

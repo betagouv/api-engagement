@@ -378,7 +378,9 @@ model Widget {
   color             String     @default("#000091")
   style             String     @default("page")
   type              String     @default("benevolat")
-  location          Json?
+  locationLat       Float?     @map("location_lat")
+  locationLong      Float?     @map("location_long")
+  locationCity      String?    @map("location_city")
   distance          String     @default("25km")
   publishers        String[]   @default([])
   url               String?

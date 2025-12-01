@@ -166,10 +166,7 @@ router.post("/", passport.authenticate("admin", { session: false }), async (req:
           .object({
             lat: zod.coerce.number(),
             lon: zod.coerce.number(),
-            city: zod.string(),
             label: zod.string(),
-            postcode: zod.string(),
-            name: zod.string(),
           })
           .nullable()
           .optional(),
@@ -257,10 +254,7 @@ router.put("/:id", passport.authenticate("admin", { session: false }), async (re
           .object({
             lat: zod.coerce.number(),
             lon: zod.coerce.number(),
-            city: zod.string(),
             label: zod.string(),
-            postcode: zod.string(),
-            name: zod.string(),
           })
           .nullable()
           .optional(),

@@ -146,7 +146,7 @@ const Home = ({ widget, apiUrl, missions, total, request, environment }: PagePro
     } else {
       console.log("Geolocation is not supported by this browser.");
     }
-  }, [widget?._id]);
+  }, [widget?.id]);
 
   useEffect(() => {
     setMobile(window.innerWidth < 768);
@@ -169,7 +169,7 @@ const Home = ({ widget, apiUrl, missions, total, request, environment }: PagePro
 
     const timeoutId = setTimeout(() => {
       const query: Record<string, any> = {
-        widget: widget._id,
+        widget: widget.id,
         size: filters.size,
         ...(router.query.notrack && { notrack: router.query.notrack }),
       };
@@ -230,7 +230,7 @@ const Home = ({ widget, apiUrl, missions, total, request, environment }: PagePro
     }, 100);
 
     return () => clearTimeout(timeoutId);
-  }, [filters, widget?._id]);
+  }, [filters, widget?.id]);
 
   if (!widget) {
     return <div className="flex h-full w-full items-center justify-center">Erreur lors du chargement du widget</div>;
@@ -358,13 +358,13 @@ export const getServerSideProps: GetServerSideProps<PageProps> = async (context:
       searchParams.append("city", context.query.city || "");
     }
 
-    const response = await fetch(`${API_URL}/iframe/${widget!._id}/search?${searchParams.toString()}`).then((res) => res.json());
+    const response = await fetch(`${API_URL}/iframe/${widget!.id}/search?${searchParams.toString()}`).then((res) => res.json());
 
     if (!response.ok) {
       throw response;
     }
     const query = new URLSearchParams({
-      widgetId: widget!._id,
+      widgetId: widget!.id,
       requestId: response.request,
     });
 

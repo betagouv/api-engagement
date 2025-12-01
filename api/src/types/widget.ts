@@ -5,10 +5,7 @@ export type WidgetRuleCombinator = "and" | "or";
 export type WidgetLocation = {
   lat: number;
   lon: number;
-  city: string;
-  label: string;
-  postcode: string;
-  name: string;
+  label?: string | null;
 } | null;
 
 export interface WidgetRuleRecord {
@@ -24,7 +21,6 @@ export interface WidgetRuleRecord {
 }
 
 export interface WidgetRecord {
-  _id: string; // Temporary field for backward compatibility in the app
   id: string;
   name: string;
   color: string;

@@ -1,3 +1,4 @@
+import { randomUUID } from "crypto";
 import { Prisma, WidgetRule } from "../db/core";
 import { widgetRepository } from "../repositories/widget";
 import type {
@@ -32,40 +33,30 @@ const toRuleRecord = (rule: WidgetRule): WidgetRuleRecord => ({
   updatedAt: rule.updatedAt,
 });
 
-const toLocation = (value: Prisma.JsonValue | null | undefined): WidgetLocation => {
-  if (!value || typeof value !== "object" || Array.isArray(value)) {
-    return null;
-  }
-  const loc = value as Record<string, unknown>;
-  const lat = typeof loc.lat === "number" ? loc.lat : null;
-  const lon = typeof loc.lon === "number" ? loc.lon : null;
-  const city = typeof loc.city === "string" ? loc.city : null;
-  const label = typeof loc.label === "string" ? loc.label : null;
-  const postcode = typeof loc.postcode === "string" ? loc.postcode : null;
-  const name = typeof loc.name === "string" ? loc.name : null;
-
+const toLocation = (lat: number | null | undefined, lon: number | null | undefined, label?: string | null): WidgetLocation => {
   if (lat == null || lon == null) {
     return null;
   }
+  return { lat, lon, label: label ?? null };
+};
 
-  return {
-    lat,
-    lon,
-    city: city ?? "",
-    label: label ?? "",
-    postcode: postcode ?? "",
-    name: name ?? "",
-  };
+const toLocationFields = (location: WidgetLocation | undefined): { locationLat?: number | null; locationLong?: number | null; locationCity?: string | null } => {
+  if (location === undefined) {
+    return {};
+  }
+  if (location === null) {
+    return { locationLat: null, locationLong: null, locationCity: null };
+  }
+  return { locationLat: location.lat, locationLong: location.lon, locationCity: location.label ?? null };
 };
 
 const toWidgetRecord = (widget: PrismaWidgetWithRelations): WidgetRecord => ({
-  _id: widget.id,
   id: widget.id,
   name: widget.name,
   color: widget.color,
   style: widget.style as WidgetStyle,
   type: widget.type as WidgetType,
-  location: toLocation(widget.location),
+  location: toLocation(widget.locationLat, widget.locationLong, widget.locationCity),
   distance: widget.distance,
   rules: (widget.rules ?? []).map(toRuleRecord),
   publishers: widget.publishers ?? [],
@@ -206,14 +197,16 @@ export const widgetService = {
     }
 
     const publishers = normalizePublishers(input.publishers);
+    const location = toLocationFields(input.location);
+    const id = input.id ?? randomUUID();
 
     const data: Prisma.WidgetCreateInput = {
-      id: input.id ?? undefined,
+      id,
       name: input.name,
       color: input.color ?? "#000091",
       style: input.style ?? "page",
       type: input.type ?? "benevolat",
-      location: input.location ?? undefined,
+      ...location,
       distance: input.distance ?? "25km",
       publishers,
       url: input.url ?? undefined,
@@ -262,7 +255,10 @@ export const widgetService = {
       data.active = patch.active;
     }
     if (patch.location !== undefined) {
-      data.location = patch.location;
+      const location = toLocationFields(patch.location);
+      if ("locationLat" in location) data.locationLat = location.locationLat;
+      if ("locationLong" in location) data.locationLong = location.locationLong;
+      if ("locationCity" in location) data.locationCity = location.locationCity;
     }
     if (patch.rules !== undefined) {
       data.rules = normalizeRulesForUpdate(patch.rules);

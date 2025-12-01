@@ -95,16 +95,3 @@ export type PublisherUpdatePatch = Partial<Omit<PublisherCreateInput, "publisher
   apikey?: string | null;
   logo?: string | null;
 };
-
-export type {
-  WidgetRecord,
-  WidgetCreateInput,
-  WidgetUpdatePatch,
-  WidgetSearchParams,
-  WidgetRuleRecord,
-  WidgetRuleInput,
-  WidgetLocation,
-  WidgetStyle,
-  WidgetType,
-  WidgetRuleCombinator,
-} from "./widget";
