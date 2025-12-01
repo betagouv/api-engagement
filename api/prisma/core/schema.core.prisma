@@ -525,7 +525,7 @@ model Campaign {
   id                 String       @id @default(uuid())
   name               String
   type               CampaignType @map("type")
-  websiteUrl         String?      @map("website_url")
+  urlSource          String?      @map("url_source")
   url                String
   fromPublisherId    String       @map("from_publisher_id")
   toPublisherId      String       @map("to_publisher_id")

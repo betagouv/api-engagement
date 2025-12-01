@@ -109,7 +109,7 @@ const Edit = () => {
         type: values.type,
         toPublisherId: values.toPublisherId,
         url: values.url,
-        websiteUrl: values.websiteUrl,
+        urlSource: values.urlSource,
         trackers: values.trackers.filter((t) => t.key && t.value),
       };
 
@@ -198,7 +198,7 @@ const Edit = () => {
   };
 
   const isChanged = (v) =>
-    v.name !== campaign.name || v.type !== campaign.type || v.toPublisherId !== campaign.toPublisherId || v.url !== campaign.url || v.websiteUrl !== campaign.websiteUrl;
+    v.name !== campaign.name || v.type !== campaign.type || v.toPublisherId !== campaign.toPublisherId || v.url !== campaign.url || v.urlSource !== campaign.urlSource;
   const isErrors = (e) => e.name || e.toPublisherId || e.url;
 
   if (!campaign) return <h2 className="p-3">Chargement...</h2>;
@@ -270,10 +270,16 @@ const Edit = () => {
               )}
             </div>
             <div className="flex flex-1 flex-col">
-              <label className="mb-2 text-sm" htmlFor="websiteUrl">
-                URL de la page web contenant le lien de la campagne{" "}
+              <label className="mb-2 text-sm" htmlFor="urlSource">
+                Où le lien est intégré
               </label>
-              <input className="input" id="websiteUrl" value={values.websiteUrl} onChange={(e) => setValues({ ...values, websiteUrl: e.target.value })} />
+              <input
+                className="input"
+                id="urlSource"
+                value={values.urlSource}
+                onChange={(e) => setValues({ ...values, urlSource: e.target.value })}
+                placeholder="Exemple: Newsletter de Noël"
+              />
             </div>
           </div>
 

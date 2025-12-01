@@ -13,6 +13,7 @@ export class InvalidUrlError extends Error {
     this.name = "InvalidUrlError";
   }
 }
+
 const DEFAULT_LIMIT = 25;
 const MAX_LIMIT = 100;
 
@@ -130,7 +131,7 @@ export const campaignService = (() => {
       name: input.name.trim(),
       type: input.type,
       url: input.url,
-      websiteUrl: input.websiteUrl || null,
+      urlSource: input.urlSource || null,
       fromPublisher: { connect: { id: input.fromPublisherId.trim() } },
       toPublisher: { connect: { id: input.toPublisherId.trim() } },
       active: input.active ?? true,
@@ -171,8 +172,8 @@ export const campaignService = (() => {
     if (patch.type !== undefined) {
       data.type = patch.type;
     }
-    if (patch.websiteUrl !== undefined) {
-      data.websiteUrl = patch.websiteUrl || null;
+    if (patch.urlSource !== undefined) {
+      data.urlSource = patch.urlSource || null;
     }
     // Handle trackers logic
     if (patch.trackers && patch.trackers.length) {
@@ -253,7 +254,7 @@ export const campaignService = (() => {
       name: `${existing.name} copie`,
       type: existing.type,
       url: existing.url,
-      websiteUrl: existing.websiteUrl,
+      urlSource: existing.urlSource,
       fromPublisherId: existing.fromPublisherId,
       toPublisherId: existing.toPublisherId,
       trackers: existing.trackers.map((t) => ({ key: t.key, value: t.value })),

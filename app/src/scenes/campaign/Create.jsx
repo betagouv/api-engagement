@@ -156,18 +156,18 @@ const Create = () => {
               )}
             </div>
             <div className="flex flex-1 flex-col">
-              <label className="mb-2 text-sm" htmlFor="websiteUrl">
-                URL de la page web contenant le lien de la campagne
+              <label className="mb-2 text-sm" htmlFor="urlSource">
+                Où le lien est intégré
               </label>
               <input
-                id="websiteUrl"
+                id="urlSource"
                 className="input"
-                name="websiteUrl"
-                value={values.websiteUrl}
+                name="urlSource"
+                value={values.urlSource}
                 onChange={(e) => {
-                  setValues({ ...values, websiteUrl: e.target.value });
+                  setValues({ ...values, urlSource: e.target.value });
                 }}
-                placeholder="Exemple: https://votresiteweb.com/communication-evenement-janvier-2024"
+                placeholder="Exemple: Newsletter de Noël"
               />
             </div>
           </div>
