@@ -119,23 +119,22 @@ model Email {
 }
 
 model User {
-  id                      String     @id @default(uuid())
-  firstname               String     @map("first_name")
-  lastname                String?    @map("last_name")
-  email                   String     @unique
+  id                      String    @id @default(uuid())
+  firstname               String    @map("first_name")
+  lastname                String?   @map("last_name")
+  email                   String    @unique
   password                String?
-  role                    UserRole   @default(user)
-  invitationToken         String?    @map("invitation_token")
-  invitationExpiresAt     DateTime?  @map("invitation_expires_at")
-  invitationCompletedAt   DateTime?  @map("invitation_completed_at")
-  lastActivityAt          DateTime?  @map("last_activity_at")
-  loginAt                 DateTime[] @default([]) @map("login_at")
-  forgotPasswordToken     String?    @map("forgot_password_token")
-  forgotPasswordExpiresAt DateTime?  @map("forgot_password_expires_at")
-  deletedAt               DateTime?  @map("deleted_at")
-  brevoContactId          Int?       @map("brevo_contact_id")
-  createdAt               DateTime   @default(now()) @map("created_at")
-  updatedAt               DateTime   @updatedAt @map("updated_at")
+  role                    UserRole  @default(user)
+  invitationToken         String?   @map("invitation_token")
+  invitationExpiresAt     DateTime? @map("invitation_expires_at")
+  invitationCompletedAt   DateTime? @map("invitation_completed_at")
+  lastActivityAt          DateTime? @map("last_activity_at")
+  forgotPasswordToken     String?   @map("forgot_password_token")
+  forgotPasswordExpiresAt DateTime? @map("forgot_password_expires_at")
+  deletedAt               DateTime? @map("deleted_at")
+  brevoContactId          Int?      @map("brevo_contact_id")
+  createdAt               DateTime  @default(now()) @map("created_at")
+  updatedAt               DateTime  @updatedAt @map("updated_at")
 
   userPublishers UserPublisher[]
   loginHistory   LoginHistory[]
