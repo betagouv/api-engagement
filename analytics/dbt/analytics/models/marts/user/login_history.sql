@@ -20,5 +20,6 @@ with base as (
 
 select
   user_id,
-  login_at
+  login_at,
+  created_at
 from base
