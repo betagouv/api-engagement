@@ -1,6 +1,6 @@
 import { Schema } from "mongoose";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { PUBLISHER_IDS } from "../../../config";
+import { ASC_100_LOGO_URL, JVA_100_LOGO_URL, PUBLISHER_IDS } from "../../../config";
 import { Mission } from "../../../types";
 import { missionToGrimpioJob, missionToGrimpioJobASC, missionToGrimpioJobJVA } from "../transformers";
 
@@ -93,7 +93,7 @@ describe("missionToGrimpioJobJVA", () => {
     expect(job.remoteJob).toBe("none");
     expect(job.duration).toBe(mission.schedule);
     expect(job.startingDate).toBe(mission.startAt?.toISOString());
-    expect(job.logo).toBe("https://example.com/logo.png");
+    expect(job.logo).toBe(JVA_100_LOGO_URL);
     expect(job.annualGrossSalary).toBe("");
     expect(job.attachment).toBe("");
     expect(job.levels).toBe("");
@@ -121,10 +121,10 @@ describe("missionToGrimpioJobJVA", () => {
     expect(job.remoteJob).toBe("none");
   });
 
-  it("should use fallback logo when organizationLogo is not PNG", () => {
+  it("should use JVA logo", () => {
     const mission = { ...baseMission, organizationLogo: "https://example.com/logo.jpg", publisherId: PUBLISHER_IDS.JEVEUXAIDER } as Mission;
     const job = missionToGrimpioJobJVA(mission);
-    expect(job.logo).toBe("https://jva-logo.com/logo.png");
+    expect(job.logo).toBe(JVA_100_LOGO_URL);
   });
 
   it("should use organizationName or fallback to publisherName", () => {
@@ -174,10 +174,10 @@ describe("missionToGrimpioJobASC", () => {
     expect(job.remoteJob).toBe("none");
   });
 
-  it("should use ASC logo fallback when organizationLogo is not PNG", () => {
+  it("should use ASC logo", () => {
     const mission = { ...baseMission, organizationLogo: "https://example.com/logo.jpg", publisherId: PUBLISHER_IDS.SERVICE_CIVIQUE } as Mission;
     const job = missionToGrimpioJobASC(mission);
-    expect(job.logo).toBe("https://asc-logo.com/logo.png");
+    expect(job.logo).toBe(ASC_100_LOGO_URL);
   });
 });
 
