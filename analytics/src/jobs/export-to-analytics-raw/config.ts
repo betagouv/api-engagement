@@ -323,4 +323,36 @@ export const exportDefinitions: ExportDefinition[] = [
       conflictColumns: ["id"],
     },
   },
+  {
+    key: "campaign",
+    batchSize: 2000,
+    source: {
+      table: "campaign",
+      cursor: {
+        field: "updated_at",
+        idField: "id",
+      },
+      columns: ["id", "url", "name", "from_publisher_id", "to_publisher_id", "active", "deleted_at", "created_at", "updated_at", "reassigned_at", "reassigned_by_user_id", "type"],
+    },
+    destination: {
+      table: "campaign",
+      conflictColumns: ["id"],
+    },
+  },
+  {
+    key: "campaign_tracker",
+    batchSize: 2000,
+    source: {
+      table: "campaign_tracker",
+      cursor: {
+        field: "updated_at",
+        idField: "id",
+      },
+      columns: ["id", "campaign_id", "key", "value", "created_at", "updated_at"],
+    },
+    destination: {
+      table: "campaign_tracker",
+      conflictColumns: ["id"],
+    },
+  },
 ];
