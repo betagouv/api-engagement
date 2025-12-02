@@ -11,6 +11,13 @@ datasource db_core {
 //
 // Enums
 //
+enum CampaignType {
+  AD_BANNER
+  MAILING
+  TILE_BUTTON
+  OTHER
+}
+
 enum EmailStatus {
   PENDING
   PROCESSED
@@ -119,26 +126,26 @@ model Email {
 }
 
 model User {
-  id                      String     @id @default(uuid())
-  firstname               String     @map("first_name")
-  lastname                String?    @map("last_name")
-  email                   String     @unique
+  id                      String    @id @default(uuid())
+  firstname               String    @map("first_name")
+  lastname                String?   @map("last_name")
+  email                   String    @unique
   password                String?
-  role                    UserRole   @default(user)
-  invitationToken         String?    @map("invitation_token")
-  invitationExpiresAt     DateTime?  @map("invitation_expires_at")
-  invitationCompletedAt   DateTime?  @map("invitation_completed_at")
-  lastActivityAt          DateTime?  @map("last_activity_at")
-  loginAt                 DateTime[] @default([]) @map("login_at")
-  forgotPasswordToken     String?    @map("forgot_password_token")
-  forgotPasswordExpiresAt DateTime?  @map("forgot_password_expires_at")
-  deletedAt               DateTime?  @map("deleted_at")
-  brevoContactId          Int?       @map("brevo_contact_id")
-  createdAt               DateTime   @default(now()) @map("created_at")
-  updatedAt               DateTime   @updatedAt @map("updated_at")
+  role                    UserRole  @default(user)
+  invitationToken         String?   @map("invitation_token")
+  invitationExpiresAt     DateTime? @map("invitation_expires_at")
+  invitationCompletedAt   DateTime? @map("invitation_completed_at")
+  lastActivityAt          DateTime? @map("last_activity_at")
+  forgotPasswordToken     String?   @map("forgot_password_token")
+  forgotPasswordExpiresAt DateTime? @map("forgot_password_expires_at")
+  deletedAt               DateTime? @map("deleted_at")
+  brevoContactId          Int?      @map("brevo_contact_id")
+  createdAt               DateTime  @default(now()) @map("created_at")
+  updatedAt               DateTime  @updatedAt @map("updated_at")
 
-  userPublishers UserPublisher[]
-  loginHistory   LoginHistory[]
+  userPublishers        UserPublisher[]
+  campaignsReassignedBy Campaign[]      @relation("CampaignReassignedByUserRelation")
+  loginHistory          LoginHistory[]
 
   @@index([deletedAt], map: "user_deleted_at_idx")
   @@map("user")
@@ -304,6 +311,8 @@ model Publisher {
   statEventsTo           StatEvent[]                   @relation("StatEventToPublisher")
   userPublishers         UserPublisher[]
   widgets                Widget[]                      @relation("WidgetFromPublisher")
+  campaignsFrom          Campaign[]                    @relation("CampaignFromPublisher")
+  campaignsTo            Campaign[]                    @relation("CampaignToPublisher")
 
   @@index([name], map: "publisher_name_idx")
   @@index([apikey], map: "publisher_apikey_idx")
@@ -373,26 +382,26 @@ model Warning {
 }
 
 model Widget {
-  id                String     @id @default(uuid())
+  id                String    @id @default(uuid())
   name              String
-  color             String     @default("#000091")
-  style             String     @default("page")
-  type              String     @default("benevolat")
-  locationLat       Float?     @map("location_lat")
-  locationLong      Float?     @map("location_long")
-  locationCity      String?    @map("location_city")
-  distance          String     @default("25km")
-  publishers        String[]   @default([])
+  color             String    @default("#000091")
+  style             String    @default("page")
+  type              String    @default("benevolat")
+  locationLat       Float?    @map("location_lat")
+  locationLong      Float?    @map("location_long")
+  locationCity      String?   @map("location_city")
+  distance          String    @default("25km")
+  publishers        String[]  @default([])
   url               String?
-  jvaModeration     Boolean    @default(false) @map("jva_moderation")
-  fromPublisherId   String     @map("from_publisher_id")
-  fromPublisherName String?    @map("from_publisher_name")
-  active            Boolean    @default(true)
-  deletedAt         DateTime?  @map("deleted_at")
-  createdAt         DateTime   @default(now()) @map("created_at")
-  updatedAt         DateTime   @updatedAt @map("updated_at")
+  jvaModeration     Boolean   @default(false) @map("jva_moderation")
+  fromPublisherId   String    @map("from_publisher_id")
+  fromPublisherName String?   @map("from_publisher_name")
+  active            Boolean   @default(true)
+  deletedAt         DateTime? @map("deleted_at")
+  createdAt         DateTime  @default(now()) @map("created_at")
+  updatedAt         DateTime  @updatedAt @map("updated_at")
 
-  fromPublisher Publisher  @relation("WidgetFromPublisher", fields: [fromPublisherId], references: [id])
+  fromPublisher Publisher    @relation("WidgetFromPublisher", fields: [fromPublisherId], references: [id])
   rules         WidgetRule[]
 
   @@index([fromPublisherId], map: "widget_from_publisher_id_idx")
@@ -559,4 +568,59 @@ model PublisherDiffusionExclusion {
   @@unique([excludedByAnnonceurId, excludedForDiffuseurId, organizationClientId], map: "pde_by_annonceur_for_diffuseur_org_key")
   @@index([excludedForDiffuseurId], map: "publisher_diffusion_exclusion_for_diffuseur_id_idx")
   @@map("publisher_diffusion_exclusion")
+}
+
+model Campaign {
+  id                 String       @id @default(uuid())
+  name               String
+  type               CampaignType @map("type")
+  urlSource          String?      @map("url_source")
+  url                String
+  fromPublisherId    String       @map("from_publisher_id")
+  toPublisherId      String       @map("to_publisher_id")
+  active             Boolean      @default(true)
+  deletedAt          DateTime?    @map("deleted_at")
+  reassignedAt       DateTime?    @map("reassigned_at")
+  reassignedByUserId String?      @map("reassigned_by_user_id")
+  createdAt          DateTime     @default(now()) @map("created_at")
+  updatedAt          DateTime     @updatedAt @map("updated_at")
+
+  fromPublisher    Publisher         @relation("CampaignFromPublisher", fields: [fromPublisherId], references: [id], onDelete: Cascade)
+  toPublisher      Publisher         @relation("CampaignToPublisher", fields: [toPublisherId], references: [id], onDelete: Cascade)
+  trackers         CampaignTracker[]
+  reassignedByUser User?             @relation("CampaignReassignedByUserRelation", fields: [reassignedByUserId], references: [id], onDelete: SetNull)
+
+  @@unique([name, fromPublisherId], map: "campaign_name_from_publisher_unique_key")
+  @@index([fromPublisherId], map: "campaign_from_publisher_id_idx")
+  @@index([toPublisherId], map: "campaign_to_publisher_id_idx")
+  @@index([deletedAt], map: "campaign_deleted_at_idx")
+  @@map("campaign")
+}
+
+model CampaignTracker {
+  id         String   @id @default(uuid())
+  campaignId String   @map("campaign_id")
+  key        String
+  value      String
+  createdAt  DateTime @default(now()) @map("created_at")
+  updatedAt  DateTime @updatedAt @map("updated_at")
+
+  campaign Campaign @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+
+  @@index([campaignId], map: "campaign_tracker_campaign_id_idx")
+  @@map("campaign_tracker")
+}
+
+model StatBot {
+  id        String   @id @default(uuid())
+  origin    String?  @map("origin")
+  referer   String?  @map("referer")
+  userAgent String?  @map("user_agent")
+  host      String?  @map("host")
+  user      String   @unique @map("user")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@index([user], map: "stats_bot_user_idx")
+  @@map("stat_bot")
 }

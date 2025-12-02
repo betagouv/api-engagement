@@ -5,7 +5,7 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import { JVA_URL, PUBLISHER_IDS } from "../../../../src/config";
 import { prismaCore } from "../../../../src/db/postgres";
 import MissionModel from "../../../../src/models/mission";
-import StatsBotModel from "../../../../src/models/stats-bot";
+import { statBotService } from "../../../../src/services/stat-bot";
 import { widgetService } from "../../../../src/services/widget";
 import * as utils from "../../../../src/utils";
 import { createTestApp } from "../../../testApp";
@@ -77,7 +77,7 @@ describe("RedirectController /widget/:id", () => {
     };
 
     vi.spyOn(utils, "identify").mockReturnValue(identity);
-    const statsBotFindOneSpy = vi.spyOn(StatsBotModel, "findOne").mockResolvedValue({ user: identity.user } as any);
+    const statsBotFindOneSpy = vi.spyOn(statBotService, "findStatBotByUser").mockResolvedValue({ user: identity.user } as any);
 
     const requestId = new Types.ObjectId().toString();
     const response = await request(app)
@@ -121,7 +121,7 @@ describe("RedirectController /widget/:id", () => {
       isBot: true,
     });
 
-    expect(statsBotFindOneSpy).toHaveBeenCalledWith({ user: identity.user });
+    expect(statsBotFindOneSpy).toHaveBeenCalledWith(identity.user);
   });
 
   it("uses mtm tracking parameters when mission publisher is Service Civique", async () => {
@@ -157,7 +157,7 @@ describe("RedirectController /widget/:id", () => {
       };
 
       vi.spyOn(utils, "identify").mockReturnValue(identity);
-      vi.spyOn(StatsBotModel, "findOne").mockResolvedValue(null);
+      vi.spyOn(statBotService, "findStatBotByUser").mockResolvedValue(null);
 
       const response = await request(app).get(`/r/widget/${mission._id.toString()}`).query({ widgetId: widget.id });
 

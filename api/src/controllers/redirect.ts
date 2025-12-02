@@ -5,10 +5,10 @@ import zod from "zod";
 import { HydratedDocument } from "mongoose";
 import { JVA_URL, PUBLISHER_IDS } from "../config";
 import { INVALID_PARAMS, INVALID_QUERY, NOT_FOUND, SERVER_ERROR, captureException, captureMessage } from "../error";
-import CampaignModel from "../models/campaign";
 import MissionModel from "../models/mission";
-import StatsBotModel from "../models/stats-bot";
+import { campaignService } from "../services/campaign";
 import { publisherService } from "../services/publisher";
+import { statBotService } from "../services/stat-bot";
 import { statEventService } from "../services/stat-event";
 import { widgetService } from "../services/widget";
 import { Mission, StatEventRecord } from "../types";
@@ -89,7 +89,7 @@ router.get("/apply", cors({ origin: "*" }), async (req: Request, res: Response) 
       }
     }
 
-    const statBot = await StatsBotModel.findOne({ user: identity.user });
+    const statBot = await statBotService.findStatBotByUser(identity.user);
 
     const obj = {
       referer: identity.referer,
@@ -204,7 +204,7 @@ router.get("/account", cors({ origin: "*" }), async (req: Request, res: Response
       }
     }
 
-    const statBot = await StatsBotModel.findOne({ user: identity.user });
+    const statBot = await statBotService.findStatBotByUser(identity.user);
 
     const obj = {
       referer: identity.referer,
@@ -275,17 +275,12 @@ router.get("/campaign/:id", cors({ origin: "*" }), async (req, res) => {
       captureMessage(`[Redirection Campaign] Invalid params`, JSON.stringify(params.error, null, 2));
       return res.redirect(302, JVA_URL);
     }
-    // Fix to save badly copy pasted id
-    if (params.data.id.length > 24) {
-      params.data.id = params.data.id.slice(0, 24);
+
+    if (params.data.id.length > 24 && !params.data.id.includes("-")) {
+      params.data.id = params.data.id.slice(0, 24); // Fix some badly copy pasted mongo ids
     }
 
-    if (params.data.id.match(/[^0-9a-fA-F]/) || params.data.id.length !== 24) {
-      captureMessage(`[Redirection Campaign] Invalid id`, `campaign id ${params.data.id}`);
-      return res.redirect(302, JVA_URL);
-    }
-
-    const campaign = await CampaignModel.findById(params.data.id);
+    const campaign = await campaignService.findCampaignById(params.data.id);
     if (!campaign) {
       captureMessage(`[Redirection Campaign] Campaign not found`, `campaign id ${params.data.id}`);
       return res.redirect(302, JVA_URL);
@@ -301,6 +296,9 @@ router.get("/campaign/:id", cors({ origin: "*" }), async (req, res) => {
       return res.redirect(302, campaign.url);
     }
 
+    const fromPublisher = await publisherService.findOnePublisherById(campaign.fromPublisherId);
+    const toPublisher = await publisherService.findOnePublisherById(campaign.toPublisherId);
+
     const obj = {
       type: "click",
       user: identity.user,
@@ -310,12 +308,12 @@ router.get("/campaign/:id", cors({ origin: "*" }), async (req, res) => {
       origin: req.get("origin") || "",
       source: "campaign",
       sourceName: campaign.name || "",
-      sourceId: campaign._id.toString() || "",
+      sourceId: campaign.id || "",
       createdAt: new Date(),
       toPublisherId: campaign.toPublisherId,
-      toPublisherName: campaign.toPublisherName,
+      toPublisherName: toPublisher?.name || "",
       fromPublisherId: campaign.fromPublisherId,
-      fromPublisherName: campaign.fromPublisherName,
+      fromPublisherName: fromPublisher?.name || "",
       isBot: false,
     } as StatEventRecord;
 
@@ -338,7 +336,7 @@ router.get("/campaign/:id", cors({ origin: "*" }), async (req, res) => {
     res.redirect(302, url.href);
 
     // Update stats just created to add isBot (do it after redirect to avoid delay)
-    const statBot = await StatsBotModel.findOne({ user: identity.user });
+    const statBot = await statBotService.findStatBotByUser(identity.user);
     if (statBot) {
       await statEventService.updateStatEvent(clickId, { isBot: true });
     }
@@ -497,7 +495,7 @@ router.get("/widget/:id", cors({ origin: "*" }), async (req: Request, res: Respo
     res.redirect(302, url.href);
 
     // Update stats just created to add isBot (do it after redirect to avoid delay)
-    const statBot = await StatsBotModel.findOne({ user: identity.user });
+    const statBot = await statBotService.findStatBotByUser(identity.user);
     if (statBot) {
       await statEventService.updateStatEvent(clickId, { isBot: true });
     }
@@ -576,7 +574,7 @@ router.get("/seo/:id", cors({ origin: "*" }), async (req: Request, res: Response
     res.redirect(302, url.href);
 
     // Update stats just created to add isBot (do it after redirect to avoid delay)
-    const statBot = await StatsBotModel.findOne({ user: identity.user });
+    const statBot = await statBotService.findStatBotByUser(identity.user);
     if (statBot) {
       await statEventService.updateStatEvent(clickId, { isBot: true });
     }
@@ -733,7 +731,7 @@ router.get("/:missionId/:publisherId", cors({ origin: "*" }), async function tra
     res.redirect(302, url.href);
 
     // Update stats just created to add isBot (do it after redirect to avoid delay)
-    const statBot = await StatsBotModel.findOne({ user: identity.user });
+    const statBot = await statBotService.findStatBotByUser(identity.user);
     if (statBot) {
       await statEventService.updateStatEvent(clickId, { isBot: true });
     }
@@ -756,7 +754,7 @@ router.get("/impression/campaign/:campaignId", cors({ origin: "*" }), async (req
 
     const params = zod
       .object({
-        campaignId: zod.string().regex(/^[0-9a-fA-F]{24}$/),
+        campaignId: zod.string(),
       })
       .safeParse(req.params);
 
@@ -765,7 +763,7 @@ router.get("/impression/campaign/:campaignId", cors({ origin: "*" }), async (req
       return res.status(400).send({ ok: false, code: INVALID_PARAMS, message: params.error });
     }
 
-    const campaign = await CampaignModel.findById(params.data.campaignId);
+    const campaign = await campaignService.findCampaignById(params.data.campaignId);
     if (!campaign) {
       captureException(`[Impression Campaign] Campaign not found`, `campaign ${params.data.campaignId}`);
       return res.status(404).send({ ok: false, code: NOT_FOUND });
@@ -777,7 +775,7 @@ router.get("/impression/campaign/:campaignId", cors({ origin: "*" }), async (req
       return res.status(404).send({ ok: false, code: NOT_FOUND });
     }
 
-    const statBot = await StatsBotModel.findOne({ user: identity.user });
+    const statBot = await statBotService.findStatBotByUser(identity.user);
 
     const obj = {
       type: "print",
@@ -790,13 +788,13 @@ router.get("/impression/campaign/:campaignId", cors({ origin: "*" }), async (req
       tag: "link",
 
       toPublisherId: campaign.toPublisherId,
-      toPublisherName: campaign.toPublisherName,
+      toPublisherName: (await publisherService.findOnePublisherById(campaign.toPublisherId))?.name || "",
 
       fromPublisherId: fromPublisher.id,
       fromPublisherName: fromPublisher.name,
 
       source: "campaign",
-      sourceId: campaign._id.toString(),
+      sourceId: campaign.id,
       sourceName: campaign.name,
       isBot: statBot ? true : false,
     } as StatEventRecord;
@@ -856,7 +854,7 @@ router.get("/impression/:missionId/:publisherId", cors({ origin: "*" }), async (
       captureMessage(`[Impression] Source not found`, `source ${query.data.sourceId}`);
     }
 
-    const statBot = await StatsBotModel.findOne({ user: identity.user });
+    const statBot = await statBotService.findStatBotByUser(identity.user);
     const obj = {
       type: "print",
       requestId: query.data.requestId,

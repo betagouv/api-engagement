@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { HiLink } from "react-icons/hi";
-import { RiAddFill, RiFileCopyLine } from "react-icons/ri";
+import { RiAddFill, RiEditFill, RiFileCopyLine } from "react-icons/ri";
 import { Link } from "react-router-dom";
 import { toast } from "react-toastify";
 
@@ -15,7 +15,7 @@ const TABLE_HEADER = [
   { title: "Nom", colSpan: 3 },
   { title: "Diffuse des missions de", colSpan: 2 },
   { title: "Crée le", colSpan: 1 },
-  { title: "Actions", colSpan: 1 },
+  { title: "Actions", colSpan: 2 },
   { title: "Actif", colSpan: 1 },
 ];
 
@@ -64,9 +64,9 @@ const Campaigns = () => {
 
   const handleActivate = async (value, item) => {
     try {
-      const res = await api.put(`/campaign/${item._id}`, { active: value });
+      const res = await api.put(`/campaign/${item.id}`, { active: value });
       if (!res.ok) throw res;
-      setData((campaigns) => campaigns.map((c) => (c._id === res.data._id ? res.data : c)));
+      setData((campaigns) => campaigns.map((c) => (c.id === res.data.id ? res.data : c)));
     } catch (error) {
       captureError(error, "Erreur lors de la mise à jour des données");
     }
@@ -137,7 +137,7 @@ const Campaigns = () => {
           {data.slice((filters.page - 1) * filters.pageSize, filters.page * filters.pageSize).map((item, i) => (
             <tr key={i} className={`${i % 2 === 0 ? "bg-gray-975" : "bg-gray-1000-active"} table-item`}>
               <td className="truncate px-4" colSpan={3}>
-                <Link to={`/broadcast/campaign/${item._id}`} className="text-blue-france">
+                <Link to={`/broadcast/campaign/${item.id}`} className="text-blue-france">
                   {item.name}
                 </Link>
               </td>
@@ -145,12 +145,15 @@ const Campaigns = () => {
                 {item.toPublisherName}
               </td>
               <td className={`px-4 ${!item.active ? "opacity-50" : "opacity-100"}`}>{new Date(item.createdAt).toLocaleDateString("fr")}</td>
-              <td className="px-4">
+              <td colSpan={2} className="px-4">
                 <div className="flex gap-2 text-lg">
-                  <button className="secondary-btn flex items-center" onClick={() => handleCopy(item._id)}>
+                  <Link className="secondary-btn flex items-center" to={`/broadcast/campaign/${item.id}`}>
+                    <RiEditFill className="text-lg" />
+                  </Link>
+                  <button className="secondary-btn flex items-center" onClick={() => handleCopy(item.id)}>
                     <HiLink className="text-lg" />
                   </button>
-                  <button className="secondary-btn flex items-center" onClick={() => handleDuplicate(item._id)}>
+                  <button className="secondary-btn flex items-center" onClick={() => handleDuplicate(item.id)}>
                     <RiFileCopyLine className="text-lg" />
                   </button>
                 </div>
