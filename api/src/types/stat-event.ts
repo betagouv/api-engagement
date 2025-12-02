@@ -96,6 +96,8 @@ export interface ViewStatsFilters {
   fromPublisherId?: string;
   toPublisherId?: string;
   missionDomain?: string;
+  missionDepartmentName?: string;
+  missionOrganizationId?: string;
   type?: string;
   source?: string;
   createdAt?: ViewStatsDateFilter[];

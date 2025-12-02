@@ -54,6 +54,39 @@ enum MissionEventType {
   delete
 }
 
+enum MissionStatusCode {
+  ACCEPTED
+  REFUSED
+}
+
+enum MissionRemote {
+  no
+  possible
+  full
+}
+
+enum MissionYesNo {
+  yes
+  no
+}
+
+enum MissionPlacesStatus {
+  ATTRIBUTED_BY_API
+  GIVEN_BY_PARTNER
+}
+
+enum CompensationUnit {
+  hour
+  day
+  month
+  year
+}
+
+enum CompensationType {
+  gross
+  net
+}
+
 enum StatEventType {
   click
   print
@@ -216,25 +249,14 @@ model StatEvent {
   fromPublisher Publisher @relation("StatEventFromPublisher", fields: [fromPublisherId], references: [id])
   toPublisher   Publisher @relation("StatEventToPublisher", fields: [toPublisherId], references: [id])
 
-  // Mission fields. Should be replaced by foreign keys to existing models when migrated
-  missionId                   String?  @map("mission_id")
-  missionClientId             String?  @map("mission_client_id")
-  missionDomain               String?  @map("mission_domain")
-  missionTitle                String?  @map("mission_title")
-  missionPostalCode           String?  @map("mission_postal_code")
-  missionDepartmentName       String?  @map("mission_department_name")
-  missionOrganizationId       String?  @map("mission_organization_id")
-  missionOrganizationName     String?  @map("mission_organization_name")
-  missionOrganizationClientId String?  @map("mission_organization_client_id")
+  missionId String? @map("mission_id")
+  mission   Mission? @relation("MissionStatEvents", fields: [missionId], references: [id], onDelete: SetNull)
   tag                         String?
   tags                        String[] @default([])
   exportToAnalytics           String?  @map("export_to_analytics")
 
   @@index([type, createdAt], map: "stats_event_type_created_at_desc_idx")
   @@index([missionId, createdAt], map: "stats_event_mission_id_created_at_idx")
-  @@index([missionClientId, createdAt], map: "stats_event_mission_client_id_created_at_idx")
-  @@index([missionDepartmentName, createdAt], map: "stats_event_mission_department_name_created_at_idx")
-  @@index([missionDomain, createdAt], map: "stats_event_mission_domain_created_at_idx")
   @@index([tags], type: Gin, map: "stats_event_tags_idx")
   @@index([fromPublisherId, createdAt(sort: Desc)], map: "stats_event_from_publisher_created_at_idx")
   @@index([toPublisherId, createdAt(sort: Desc)], map: "stats_event_to_publisher_created_at_idx")
@@ -266,6 +288,8 @@ model ModerationEvent {
   newRNA         String?                @map("new_rna")
   createdAt      DateTime               @default(now()) @map("created_at")
   updatedAt      DateTime               @updatedAt @map("updated_at")
+
+  mission Mission @relation(fields: [missionId], references: [id], onDelete: Cascade)
 
   @@index([updatedAt(sort: Asc)], map: "moderation_event_updated_at_idx")
   @@index([missionId], map: "moderation_event_mission_id_idx")
@@ -314,6 +338,7 @@ model Publisher {
   userPublishers         UserPublisher[]
   campaignsFrom          Campaign[]                    @relation("CampaignFromPublisher")
   campaignsTo            Campaign[]                    @relation("CampaignToPublisher")
+  missions               Mission[]                     @relation("MissionPublisher")
 
   @@index([name], map: "publisher_name_idx")
   @@index([apikey], map: "publisher_apikey_idx")
@@ -424,6 +449,129 @@ model ImportRna {
   @@map("import_rna")
 }
 
+model Mission {
+  id                        String       @id
+  oldId                     String?      @map("_old_id")
+  oldIds                    String[]     @default([]) @map("_old_ids")
+  clientId                  String       @map("client_id")
+  title                     String
+  description               String?      @default("")
+  descriptionHtml           String?      @map("description_html")
+  tags                      String[]     @default([])
+  tasks                     String[]     @default([])
+  audience                  String[]     @default([])
+  softSkills                String[]     @default([]) @map("soft_skills")
+  requirements              String[]     @default([])
+  romeSkills                String[]     @default([]) @map("rome_skills")
+  reducedMobilityAccessible MissionYesNo?      @map("reduced_mobility_accessible")
+  closeToTransport          MissionYesNo?      @map("close_to_transport")
+  openToMinors              MissionYesNo?      @map("open_to_minors")
+  remote                    MissionRemote?
+  schedule                  String?
+  duration                  Int?
+  postedAt                  DateTime?    @map("posted_at")
+  startAt                   DateTime?    @map("start_at")
+  endAt                     DateTime?    @map("end_at")
+  priority                  String?
+  places                    Int?
+  placesStatus              MissionPlacesStatus?      @map("places_status")
+  metadata                  String?
+  domain                    String?
+  domainOriginal            String?      @map("domain_original")
+  domainLogo                String?      @map("domain_logo")
+  activity                  String?
+  type                      MissionType? @map("type")
+  snu                       Boolean?     @default(false) @map("snu")
+  snuPlaces                 Int?         @map("snu_places")
+  compensationAmount        Float?       @map("compensation_amount")
+  compensationUnit          CompensationUnit? @map("compensation_unit")
+  compensationType          CompensationType? @map("compensation_type")
+  lastSyncAt                DateTime?    @map("last_sync_at")
+  applicationUrl            String?      @map("application_url")
+  statusCode                MissionStatusCode       @map("status_code")
+  statusComment             String?      @map("status_comment")
+  organizationClientId      String?      @map("organization_client_id")
+  organizationId            String?      @map("organization_id")
+  publisherId               String       @map("publisher_id")
+  deletedAt                 DateTime?    @map("deleted_at")
+  leboncoinStatus           String?      @map("leboncoin_status")
+  leboncoinUrl              String?      @map("leboncoin_url")
+  leboncoinComment          String?      @map("leboncoin_comment")
+  leboncoinUpdatedAt        DateTime?    @map("leboncoin_updated_at")
+  jobteaserStatus           String?      @map("jobteaser_status")
+  jobteaserUrl              String?      @map("jobteaser_url")
+  jobteaserComment          String?      @map("jobteaser_comment")
+  jobteaserUpdatedAt        DateTime?    @map("jobteaser_updated_at")
+  letudiantPublicId         Json?        @map("letudiant_public_id")
+  letudiantUpdatedAt        DateTime?    @map("letudiant_updated_at")
+  letudiantError            String?      @map("letudiant_error")
+  lastExportedToPgAt        DateTime?    @map("last_exported_to_pg_at")
+  createdAt                 DateTime     @default(now()) @map("created_at")
+  updatedAt                 DateTime     @updatedAt @map("updated_at")
+
+  publisher        Publisher      @relation("MissionPublisher", fields: [publisherId], references: [id])
+  organization     Organization?  @relation("MissionOrganization", fields: [organizationId], references: [id])
+  missionEvents    MissionEvent[]
+  moderationEvents ModerationEvent[]
+  addresses        MissionAddress[]
+  moderationStatuses MissionModerationStatus[]
+  statEvents       StatEvent[] @relation("MissionStatEvents")
+
+  @@unique([clientId, publisherId], map: "mission_client_publisher_key")
+  @@index([publisherId, statusCode, deletedAt, startAt(sort: Desc)], map: "mission_publisher_status_deleted_start_at_idx")
+  @@index([createdAt], map: "mission_created_at_idx")
+  @@index([startAt], map: "mission_start_at_idx")
+  @@index([domain], map: "mission_domain_idx")
+  @@index([remote], map: "mission_remote_idx")
+  @@index([activity], map: "mission_activity_idx")
+  @@index([publisherId], map: "mission_publisher_id_idx")
+  @@index([deletedAt], map: "mission_deleted_at_idx")
+  @@index([statusCode], map: "mission_status_code_idx")
+  @@map("mission")
+}
+
+model MissionAddress {
+  id              String                    @id @default(uuid())
+  missionId       String                    @map("mission_id")
+  street          String?
+  postalCode      String?                   @map("postal_code")
+  departmentName  String?                   @map("department_name")
+  departmentCode  String?                   @map("department_code")
+  city            String?
+  region          String?
+  country         String?
+  locationLat     Float?                    @map("location_lat")
+  locationLon     Float?                    @map("location_lon")
+  geoPoint        Unsupported("geography(Point,4326)")? @map("geo_point")
+  geolocStatus    String?                   @map("geoloc_status")
+  createdAt       DateTime                  @default(now()) @map("created_at")
+  updatedAt       DateTime                  @updatedAt @map("updated_at")
+
+  mission Mission @relation(fields: [missionId], references: [id], onDelete: Cascade)
+
+  @@index([missionId], map: "mission_address_mission_id_idx")
+  @@map("mission_address")
+}
+
+model MissionModerationStatus {
+  id          String   @id @default(uuid())
+  missionId   String   @map("mission_id")
+  publisherId String   @map("publisher_id")
+  status      ModerationEventStatus?
+  comment     String?
+  note        String?
+  title       String?
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  mission Mission @relation(fields: [missionId], references: [id], onDelete: Cascade)
+
+  @@unique([missionId, publisherId], map: "mission_moderation_status_mission_publisher_key")
+  @@index([missionId], map: "mission_moderation_status_mission_id_idx")
+  @@index([publisherId], map: "mission_moderation_status_publisher_id_idx")
+  @@map("mission_moderation_status")
+}
+
 model MissionEvent {
   id        String           @id @default(uuid())
   missionId String           @map("mission_id")
@@ -432,6 +580,8 @@ model MissionEvent {
   createdBy String?          @map("created_by")
   createdAt DateTime         @default(now()) @map("created_at")
   updatedAt DateTime         @updatedAt @map("updated_at")
+
+  mission Mission @relation(fields: [missionId], references: [id], onDelete: Cascade)
 
   @@index([missionId], map: "mission_event_mission_id_idx")
   @@index([updatedAt(sort: Asc)], map: "mission_event_updated_at_asc_idx")
@@ -490,6 +640,8 @@ model Organization {
   letudiantPublicId      String?   @map("letudiant_public_id")
   letudiantUpdatedAt     DateTime? @map("letudiant_updated_at")
   lastExportedToPgAt     DateTime? @map("last_exported_to_pg_at")
+
+  missions Mission[] @relation("MissionOrganization")
 
   @@index([updatedAt, lastExportedToPgAt], map: "organization_updated_last_exported_idx")
   @@index([rna(ops: raw("gin_trgm_ops"))], type: Gin, map: "organization_rna_idx")

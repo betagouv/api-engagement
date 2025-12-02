@@ -8,6 +8,17 @@ const defaultInclude = Prisma.validator<Prisma.StatEventInclude>()({
   toPublisher: {
     select: { id: true, name: true },
   },
+  mission: {
+    include: {
+      organization: {
+        select: {
+          id: true,
+          title: true,
+        },
+      },
+      addresses: true,
+    },
+  },
 });
 
 export const statEventRepository = {
@@ -80,6 +91,34 @@ export const statEventRepository = {
       key: row.key ?? "",
       doc_count: Number(row.doc_count ?? 0n),
     }));
+  },
+
+  async aggregateClicksByPublisherForOrganization({
+    publisherIds,
+    organizationClientId,
+    from,
+  }: {
+    publisherIds: string[];
+    organizationClientId: string;
+    from: Date;
+  }): Promise<Array<{ fromPublisherId: string; count: number }>> {
+    if (!publisherIds.length) return [];
+
+    const rows = await prismaCore.$queryRaw<Array<{ from_publisher_id: string; count: bigint }>>(
+      Prisma.sql`
+        SELECT se.from_publisher_id, COUNT(*)::bigint AS count
+        FROM "stat_event" se
+        JOIN "mission" m ON m.id = se.mission_id
+        WHERE se.type = 'click'::"StatEventType"
+          AND se.is_bot IS NOT TRUE
+          AND m.organization_client_id = ${organizationClientId}
+          AND se.from_publisher_id IN (${Prisma.join(publisherIds)})
+          AND se.created_at >= ${from}
+        GROUP BY se.from_publisher_id
+      `
+    );
+
+    return rows.map((row) => ({ fromPublisherId: row.from_publisher_id, count: Number(row.count ?? 0n) }));
   },
 };
 
