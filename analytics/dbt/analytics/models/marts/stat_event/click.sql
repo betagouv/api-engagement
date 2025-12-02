@@ -29,7 +29,7 @@ select
   tag,
   tags,
   click_id,
-  source::"SourceType" as source,
+  source::text as source,
   source_id,
   campaign_id,
   widget_id,
