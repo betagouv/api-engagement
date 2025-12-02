@@ -1,0 +1,182 @@
+type Json = any;
+
+export type MissionStatusCode = "ACCEPTED" | "REFUSED";
+export type MissionYesNo = "yes" | "no";
+export type MissionRemote = "no" | "possible" | "full";
+export type MissionPlacesStatus = "ATTRIBUTED_BY_API" | "GIVEN_BY_PARTNER";
+export type MissionCompensationUnit = "hour" | "day" | "month" | "year";
+export type MissionCompensationType = "gross" | "net";
+
+export type MissionLocation = {
+  lat: number;
+  lon: number;
+};
+
+export type MissionAddress = {
+  street?: string | null;
+  postalCode?: string | null;
+  departmentName?: string | null;
+  departmentCode?: string | null;
+  city?: string | null;
+  region?: string | null;
+  country?: string | null;
+  location?: MissionLocation | null;
+  geoPoint?: { type: string; coordinates: number[] } | null;
+  geolocStatus?: string | null;
+};
+
+export type MissionFacets = {
+  domain: { key: string; count: number }[];
+  activity: { key: string; count: number }[];
+  departmentName: { key: string; count: number }[];
+};
+
+type MissionModerationFieldKey =
+  | `moderation_${string}_status`
+  | `moderation_${string}_comment`
+  | `moderation_${string}_note`
+  | `moderation_${string}_title`;
+type MissionModerationDateKey = `moderation_${string}_date`;
+
+export type MissionRecord = {
+  _id: string;
+  id: string;
+  clientId: string;
+  publisherId: string;
+  publisherName: string | null;
+  publisherUrl: string | null;
+  publisherLogo: string | null;
+  title: string;
+  description: string | null;
+  descriptionHtml: string | null;
+  tags: string[];
+  tasks: string[];
+  audience: string[];
+  softSkills: string[];
+  soft_skills: string[];
+  requirements: string[];
+  romeSkills: string[];
+  reducedMobilityAccessible: MissionYesNo | null;
+  closeToTransport: MissionYesNo | null;
+  openToMinors: MissionYesNo | null;
+  remote: MissionRemote | null;
+  schedule: string | null;
+  duration: number | null;
+  postedAt: Date | null;
+  startAt: Date | null;
+  endAt: Date | null;
+  priority: string | null;
+  places: number | null;
+  placesStatus: MissionPlacesStatus | null;
+  metadata: string | null;
+  domain: string | null;
+  domainOriginal: string | null;
+  domainLogo: string | null;
+  activity: string | null;
+  type: string | null;
+  snu: boolean;
+  snuPlaces: number | null;
+  compensationAmount: number | null;
+  compensationUnit: MissionCompensationUnit | null;
+  compensationType: MissionCompensationType | null;
+  adresse: string | null;
+  address: string | null;
+  postalCode: string | null;
+  departmentName: string | null;
+  departmentCode: string | null;
+  city: string | null;
+  region: string | null;
+  country: string | null;
+  location: MissionLocation | null;
+  addresses: MissionAddress[];
+  organizationId: string | null;
+  organizationClientId: string | null;
+  organizationUrl: string | null;
+  organizationName: string | null;
+  organizationType: string | null;
+  organizationLogo: string | null;
+  organizationDescription: string | null;
+  organizationFullAddress: string | null;
+  organizationRNA: string | null;
+  organizationSiren: string | null;
+  organizationSiret: string | null;
+  organizationDepartment: string | null;
+  organizationDepartmentCode: string | null;
+  organizationDepartmentName: string | null;
+  organizationPostCode: string | null;
+  organizationCity: string | null;
+  organizationStatusJuridique: string | null;
+  organizationBeneficiaries: string[];
+  organizationActions: string[];
+  organizationReseaux: string[];
+  organizationNameVerified: string | null;
+  organizationRNAVerified: string | null;
+  organizationSirenVerified: string | null;
+  organizationSiretVerified: string | null;
+  organizationAddressVerified: string | null;
+  organizationCityVerified: string | null;
+  organizationPostalCodeVerified: string | null;
+  organizationDepartmentCodeVerified: string | null;
+  organizationDepartmentNameVerified: string | null;
+  organizationRegionVerified: string | null;
+  organizationVerificationStatus: string | null;
+  organisationIsRUP: boolean | null;
+  lastSyncAt: Date | null;
+  applicationUrl: string | null;
+  statusCode: MissionStatusCode;
+  statusComment: string | null;
+  deletedAt: Date | null;
+  leboncoinStatus: string | null;
+  leboncoinUrl: string | null;
+  leboncoinComment: string | null;
+  leboncoinUpdatedAt: Date | null;
+  jobteaserStatus: string | null;
+  jobteaserUrl: string | null;
+  jobteaserComment: string | null;
+  jobteaserUpdatedAt: Date | null;
+  letudiantPublicId: Json | null;
+  letudiantUpdatedAt: Date | null;
+  letudiantError: string | null;
+  lastExportedToPgAt: Date | null;
+  createdAt: Date;
+  updatedAt: Date;
+} & Partial<Record<MissionModerationFieldKey, string | null>> & Partial<Record<MissionModerationDateKey, Date | null>>;
+
+export type MissionSearchFilters = {
+  publisherIds: string[];
+  excludeOrganizationClientIds?: string[];
+  moderationAcceptedFor?: string;
+  activity?: string[];
+  city?: string[];
+  clientId?: string[];
+  organizationClientId?: string[];
+  country?: string[];
+  createdAt?: { gt?: Date; lt?: Date };
+  departmentName?: string[];
+  domain?: string[];
+  keywords?: string;
+  organizationRNA?: string[];
+  organizationStatusJuridique?: string[];
+  openToMinors?: MissionYesNo | string;
+  reducedMobilityAccessible?: MissionYesNo | string;
+  remote?: Array<MissionRemote | string>;
+  snu?: boolean;
+  startAt?: { gt?: Date; lt?: Date };
+  type?: string[];
+  lat?: number;
+  lon?: number;
+  distanceKm?: number;
+  excludeOrganizationName?: string;
+  limit: number;
+  skip: number;
+};
+
+export type MissionCreateInput = Partial<Omit<MissionRecord, "_id" | "publisherName" | "publisherLogo" | "publisherUrl" | "statusCode">> & {
+  id?: string;
+  clientId: string;
+  publisherId: string;
+  title: string;
+  statusCode?: MissionStatusCode;
+};
+
+export type MissionUpdatePatch = Partial<Omit<MissionRecord, "_id" | "publisherName" | "publisherLogo" | "publisherUrl" | "createdAt" | "id">>;

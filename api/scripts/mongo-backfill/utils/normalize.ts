@@ -29,7 +29,7 @@ export const toJsonValue = (value: unknown): Prisma.InputJsonValue | null => {
   try {
     return JSON.parse(JSON.stringify(value));
   } catch (error) {
-    console.warn("[MigrateEmails] Unable to serialize JSON value, defaulting to null:", error);
+    console.warn("[MongoBackfill] Unable to serialize JSON value, defaulting to null:", error);
     return null;
   }
 };

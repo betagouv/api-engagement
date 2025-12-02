@@ -2,10 +2,8 @@ import { NextFunction, Response, Router } from "express";
 import passport from "passport";
 import zod from "zod";
 
-import { HydratedDocument } from "mongoose";
 import { captureMessage, INVALID_BODY, NOT_FOUND } from "../error";
-import MissionModel from "../models/mission";
-import { Mission } from "../types";
+import missionService from "../services/mission";
 import { PublisherRequest } from "../types/passport";
 
 const router = Router();
@@ -40,24 +38,19 @@ router.post("/feedback", passport.authenticate(["leboncoin"], { session: false }
       return res.status(400).send({ ok: false, code: INVALID_BODY, message: body.error });
     }
 
-    let mission = null as HydratedDocument<Mission> | null;
-    if (body.data.partner_unique_reference.length === 24) {
-      mission = await MissionModel.findOne({ _id: body.data.partner_unique_reference });
-    } else {
-      mission = await MissionModel.findOne({ _old_id: body.data.partner_unique_reference });
-    }
+    const mission = await missionService.findOneMission(body.data.partner_unique_reference);
 
     if (!mission) {
       captureMessage("Mission not found", JSON.stringify(body.data, null, 2));
       return res.status(404).send({ ok: false, code: NOT_FOUND, message: "Mission not found" });
     }
 
-    mission.leboncoinStatus = STATUS_MAP[body.data.status];
-    mission.leboncoinUrl = body.data.url;
-    mission.leboncoinComment = body.data.note;
-    mission.leboncoinUpdatedAt = new Date();
-
-    await mission.save();
+    await missionService.update(body.data.partner_unique_reference, {
+      leboncoinStatus: STATUS_MAP[body.data.status],
+      leboncoinUrl: body.data.url,
+      leboncoinComment: body.data.note,
+      leboncoinUpdatedAt: new Date(),
+    });
 
     return res.status(200).send({ result: { code: 200, message: "Success, ad status recorded" } });
   } catch (error) {

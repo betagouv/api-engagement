@@ -4,15 +4,15 @@ import zod from "zod";
 
 import { PUBLISHER_IDS } from "../../config";
 import { INVALID_PARAMS, INVALID_QUERY, NOT_FOUND } from "../../error";
-import MissionModel from "../../models/mission";
+import { missionService } from "../../services/mission";
 import { publisherDiffusionExclusionService } from "../../services/publisher-diffusion-exclusion";
-import { Mission } from "../../types";
+import type { MissionRecord, MissionRemote, MissionSearchFilters } from "../../types/mission";
 import { PublisherRequest } from "../../types/passport";
 import type { PublisherRecord } from "../../types/publisher";
-import { diacriticSensitiveRegex, getDistanceFromLatLonInKm, getDistanceKm } from "../../utils";
-import { MISSION_FIELDS, NO_PARTNER, NO_PARTNER_MESSAGE } from "./constants";
+import { getDistanceFromLatLonInKm, getDistanceKm } from "../../utils";
+import { NO_PARTNER, NO_PARTNER_MESSAGE } from "./constants";
 import { buildData } from "./transformer";
-import { buildArrayQuery, buildDateQuery, findMissionById, nearSphereToGeoWithin } from "./utils";
+import { findMissionById, normalizeQueryArray, parseDateFilter } from "./utils";
 
 export const missionQuerySchema = zod.object({
   activity: zod.union([zod.string(), zod.array(zod.string())]).optional(),
@@ -60,102 +60,6 @@ router.get("/", passport.authenticate(["apikey", "api"], { session: false }), as
       return res.status(400).send({ ok: false, code: NO_PARTNER, message: NO_PARTNER_MESSAGE });
     }
 
-    const where = {
-      statusCode: "ACCEPTED",
-      deletedAt: null,
-    } as { [key: string]: any };
-
-    // Exclude organizations from other publishers
-    const diffusionExclusions = await publisherDiffusionExclusionService.findExclusionsForDiffuseurId(user.id);
-    if (diffusionExclusions.length) {
-      const excludedIds = diffusionExclusions.map((e) => e.organizationClientId).filter((id): id is string => id !== null);
-      if (excludedIds.length) {
-        where.organizationClientId = {
-          $nin: excludedIds,
-        };
-      }
-    }
-
-    if (query.data.publisher) {
-      if (!Array.isArray(query.data.publisher) && query.data.publisher.includes(",")) {
-        query.data.publisher = query.data.publisher.split(",").map((e: string) => e.trim());
-      } else if (!Array.isArray(query.data.publisher)) {
-        query.data.publisher = [query.data.publisher.trim()];
-      } else {
-        query.data.publisher = query.data.publisher.map((e: string) => e.trim());
-      }
-
-      query.data.publisher = query.data.publisher.filter((publisherId: string) => user.publishers.some((p) => p.diffuseurPublisherId === publisherId));
-      where.publisherId = { $in: query.data.publisher };
-    } else {
-      where.publisherId = { $in: user.publishers.map((publisher) => publisher.diffuseurPublisherId) };
-    }
-    if (user.moderator) {
-      where[`moderation_${user.id}_status`] = "ACCEPTED";
-    }
-    // Special case for Bouygues Telecom
-    if (user.id === PUBLISHER_IDS.BOUYGUES_TELECOM) {
-      where.organizationName = {
-        $ne: "APF France handicap - Délégations de Haute-Saône et du Territoire de Belfort",
-      };
-    }
-
-    if (query.data.activity) {
-      where.activity = buildArrayQuery(query.data.activity);
-    }
-    if (query.data.city) {
-      where["addresses.city"] = buildArrayQuery(query.data.city);
-    }
-    if (query.data.clientId) {
-      where.clientId = buildArrayQuery(query.data.clientId);
-    }
-    if (query.data.country) {
-      where["addresses.country"] = buildArrayQuery(query.data.country);
-    }
-    if (query.data.createdAt) {
-      where.createdAt = buildDateQuery(query.data.createdAt);
-    }
-    if (query.data.departmentName) {
-      where["addresses.departmentName"] = buildArrayQuery(query.data.departmentName);
-    }
-    if (query.data.domain) {
-      where.domain = buildArrayQuery(query.data.domain);
-    }
-    if (query.data.keywords) {
-      const regex = diacriticSensitiveRegex(query.data.keywords);
-      where.$or = [
-        { title: { $regex: regex, $options: "i" } },
-        { organizationName: { $regex: regex, $options: "i" } },
-        { publisherName: { $regex: regex, $options: "i" } },
-        { city: { $regex: regex, $options: "i" } },
-      ];
-    }
-    if (query.data.organizationRNA) {
-      where.organizationRNA = buildArrayQuery(query.data.organizationRNA);
-    }
-    if (query.data.organizationStatusJuridique) {
-      where.organizationStatusJuridique = buildArrayQuery(query.data.organizationStatusJuridique);
-    }
-    if (query.data.openToMinors) {
-      where.openToMinors = query.data.openToMinors;
-    }
-    if (query.data.reducedMobilityAccessible) {
-      where.reducedMobilityAccessible = query.data.reducedMobilityAccessible;
-    }
-    if (query.data.remote) {
-      where.remote = buildArrayQuery(query.data.remote);
-    }
-    if (query.data.snu) {
-      where.snu = true;
-    }
-    if (query.data.startAt) {
-      where.startAt = buildDateQuery(query.data.startAt);
-    }
-    if (query.data.type) {
-      where.type = buildArrayQuery(query.data.type);
-    }
-
-    // Clean old query params
     if (req.query.size && query.data.limit === 10000) {
       query.data.limit = parseInt(req.query.size as string, 10);
     }
@@ -163,54 +67,65 @@ router.get("/", passport.authenticate(["apikey", "api"], { session: false }), as
       query.data.skip = parseInt(req.query.from as string, 10);
     }
 
-    const pipeline: any[] = [];
+    const diffusionExclusions = await publisherDiffusionExclusionService.findExclusionsForDiffuseurId(user.id);
+    const excludedIds = diffusionExclusions.map((e) => e.organizationClientId).filter((id): id is string => id !== null);
+
+    const normalizePublisherIds = (publisher: string | string[] | undefined): string[] => {
+      const values = normalizeQueryArray(publisher);
+      if (!values) {
+        return user.publishers.map((p) => p.diffuseurPublisherId);
+      }
+      return values.filter((publisherId: string) => user.publishers.some((p) => p.diffuseurPublisherId === publisherId));
+    };
+
+    const publisherIds = normalizePublisherIds(query.data.publisher);
+    if (!publisherIds.length) {
+      res.locals = { code: NO_PARTNER, message: NO_PARTNER_MESSAGE };
+      return res.status(400).send({ ok: false, code: NO_PARTNER, message: NO_PARTNER_MESSAGE });
+    }
+
+    const filters: MissionSearchFilters = {
+      publisherIds,
+      excludeOrganizationClientIds: excludedIds.length ? excludedIds : undefined,
+      moderationAcceptedFor: user.moderator ? user.id : undefined,
+      activity: normalizeQueryArray(query.data.activity),
+      city: normalizeQueryArray(query.data.city),
+      clientId: normalizeQueryArray(query.data.clientId),
+      country: normalizeQueryArray(query.data.country),
+      createdAt: parseDateFilter(query.data.createdAt),
+      departmentName: normalizeQueryArray(query.data.departmentName),
+      domain: normalizeQueryArray(query.data.domain),
+      keywords: query.data.keywords ?? undefined,
+      organizationRNA: normalizeQueryArray(query.data.organizationRNA),
+      organizationStatusJuridique: normalizeQueryArray(query.data.organizationStatusJuridique),
+      openToMinors: query.data.openToMinors,
+      reducedMobilityAccessible: query.data.reducedMobilityAccessible,
+      remote: normalizeQueryArray(query.data.remote) as MissionRemote[] | undefined,
+      snu: query.data.snu,
+      startAt: parseDateFilter(query.data.startAt),
+      type: normalizeQueryArray(query.data.type),
+      limit: query.data.limit,
+      skip: query.data.skip,
+    };
+
+    if (user.id === PUBLISHER_IDS.BOUYGUES_TELECOM) {
+      filters.excludeOrganizationName = "APF France handicap - Délégations de Haute-Saône et du Territoire de Belfort";
+    }
 
     if (query.data.lat && query.data.lon) {
-      if (query.data.distance && (query.data.distance === "0" || query.data.distance === "0km")) {
-        query.data.distance = "10km";
-      }
-      const distanceKm = getDistanceKm(query.data.distance || "50km");
-      pipeline.push({
-        $geoNear: {
-          near: { type: "Point", coordinates: [query.data.lon, query.data.lat] },
-          distanceField: "distance",
-          key: "addresses.geoPoint",
-          maxDistance: distanceKm * 1000,
-          query: where,
-          spherical: true,
-        },
-      });
-    } else {
-      pipeline.push({ $match: where });
+      const rawDistance = query.data.distance && (query.data.distance === "0" || query.data.distance === "0km") ? "10km" : query.data.distance || "50km";
+      filters.lat = query.data.lat;
+      filters.lon = query.data.lon;
+      filters.distanceKm = getDistanceKm(rawDistance);
     }
 
-    if (!(query.data.lat && query.data.lon)) {
-      pipeline.push({ $sort: { startAt: -1 } });
-    }
-
-    // Use MISSION_FIELDS to select only used fields
-    const projection: Record<string, any> = {};
-    MISSION_FIELDS.forEach((field) => {
-      projection[field] = 1;
-    });
-    pipeline.push({ $project: projection });
-    pipeline.push({
-      $facet: {
-        data: [{ $skip: query.data.skip }, { $limit: query.data.limit }],
-        total: [{ $count: "count" }],
-      },
-    });
-
-    const results = await MissionModel.aggregate(pipeline);
-
-    const data = results[0].data;
-    const total = results[0].total.length > 0 ? results[0].total[0].count : 0;
+    const { data, total } = await missionService.findMissions(filters);
 
     res.locals = { total };
     return res.status(200).send({
       ok: true,
       total,
-      data: data.map((e: Mission) => buildData(e, user.id, user.moderator)),
+      data: data.map((e: MissionRecord) => buildData(e, user.id, user.moderator)),
       limit: query.data.limit,
       skip: query.data.skip,
     });
@@ -239,124 +154,6 @@ router.get("/search", passport.authenticate(["apikey", "api"], { session: false 
       return res.status(400).send({ ok: false, code: NO_PARTNER, message: NO_PARTNER_MESSAGE });
     }
 
-    const where = {
-      statusCode: "ACCEPTED",
-      deletedAt: null,
-    } as { [key: string]: any };
-
-    const diffusionExclusions = await publisherDiffusionExclusionService.findExclusionsForDiffuseurId(user.id);
-    if (diffusionExclusions.length) {
-      const excludedIds = diffusionExclusions.map((e) => e.organizationClientId).filter((id): id is string => id !== null);
-      if (excludedIds.length) {
-        where.organizationClientId = {
-          $nin: excludedIds,
-        };
-      }
-    }
-
-    if (query.data.publisher) {
-      if (!Array.isArray(query.data.publisher) && query.data.publisher.includes(",")) {
-        query.data.publisher = query.data.publisher.split(",").map((e: string) => e.trim());
-      } else if (!Array.isArray(query.data.publisher)) {
-        query.data.publisher = [query.data.publisher.trim()];
-      } else {
-        query.data.publisher = query.data.publisher.map((e: string) => e.trim());
-      }
-
-      query.data.publisher = query.data.publisher.filter((publisherId: string) => user.publishers.some((p) => p.diffuseurPublisherId === publisherId));
-      where.publisherId = { $in: query.data.publisher };
-    } else {
-      where.publisherId = { $in: user.publishers.map((publisher) => publisher.diffuseurPublisherId) };
-    }
-    if (user.moderator) {
-      where[`moderation_${user.id}_status`] = "ACCEPTED";
-    }
-
-    if (query.data.activity) {
-      where.activity = buildArrayQuery(query.data.activity);
-    }
-    if (query.data.city) {
-      where["addresses.city"] = buildArrayQuery(query.data.city);
-    }
-    if (query.data.clientId) {
-      where.organizationClientId = buildArrayQuery(query.data.clientId);
-    }
-    if (query.data.country) {
-      where["addresses.country"] = buildArrayQuery(query.data.country);
-    }
-    if (query.data.createdAt) {
-      where.createdAt = buildDateQuery(query.data.createdAt);
-    }
-    if (query.data.departmentName) {
-      where["addresses.departmentName"] = buildArrayQuery(query.data.departmentName);
-    }
-    if (query.data.domain) {
-      where.domain = buildArrayQuery(query.data.domain);
-    }
-
-    if (query.data.keywords) {
-      where.$or = [
-        { title: { $regex: diacriticSensitiveRegex(query.data.keywords), $options: "i" } },
-        {
-          organizationName: {
-            $regex: diacriticSensitiveRegex(query.data.keywords),
-            $options: "i",
-          },
-        },
-        {
-          publisherName: { $regex: diacriticSensitiveRegex(query.data.keywords), $options: "i" },
-        },
-        { city: { $regex: diacriticSensitiveRegex(query.data.keywords), $options: "i" } },
-      ];
-    }
-    if (query.data.organizationRNA) {
-      where.organizationRNA = buildArrayQuery(query.data.organizationRNA);
-    }
-    if (query.data.organizationStatusJuridique) {
-      where.organizationStatusJuridique = buildArrayQuery(query.data.organizationStatusJuridique);
-    }
-    if (query.data.openToMinors) {
-      where.openToMinors = query.data.openToMinors;
-    }
-    if (query.data.reducedMobilityAccessible) {
-      where.reducedMobilityAccessible = query.data.reducedMobilityAccessible;
-    }
-    if (query.data.remote) {
-      where.remote = buildArrayQuery(query.data.remote);
-    }
-    if (query.data.startAt) {
-      where.startAt = buildDateQuery(query.data.startAt);
-    }
-    if (query.data.type) {
-      where.type = buildArrayQuery(query.data.type);
-    }
-    // Old search
-    if (query.data.text) {
-      where.$or = [
-        { title: { $regex: diacriticSensitiveRegex(query.data.text), $options: "i" } },
-        { organizationName: { $regex: diacriticSensitiveRegex(query.data.text), $options: "i" } },
-        { publisherName: { $regex: diacriticSensitiveRegex(query.data.text), $options: "i" } },
-        { city: { $regex: diacriticSensitiveRegex(query.data.text), $options: "i" } },
-      ];
-    }
-    if (query.data.type) {
-      where.type = buildArrayQuery(query.data.type);
-    }
-
-    if (query.data.lat && query.data.lon) {
-      if (query.data.distance && (query.data.distance === "0" || query.data.distance === "0km")) {
-        query.data.distance = "10km";
-      }
-      const distanceKm = getDistanceKm(query.data.distance || "50km");
-      where["addresses.geoPoint"] = {
-        $nearSphere: {
-          $geometry: { type: "Point", coordinates: [query.data.lon, query.data.lat] },
-          $maxDistance: distanceKm * 1000,
-        },
-      };
-    }
-
-    // Clean old query params
     if (req.query.size && query.data.limit === 10000) {
       query.data.limit = parseInt(req.query.size as string, 10);
     }
@@ -364,52 +161,77 @@ router.get("/search", passport.authenticate(["apikey", "api"], { session: false 
       query.data.skip = parseInt(req.query.from as string, 10);
     }
 
-    const projection: Record<string, any> = {};
-    MISSION_FIELDS.forEach((field) => {
-      projection[field] = 1;
-    });
+    const diffusionExclusions = await publisherDiffusionExclusionService.findExclusionsForDiffuseurId(user.id);
+    const excludedIds = diffusionExclusions.map((e) => e.organizationClientId).filter((id): id is string => id !== null);
 
-    const whereForFacets = { ...where };
-    if (whereForFacets["addresses.geoPoint"]) {
-      whereForFacets["addresses.geoPoint"] = nearSphereToGeoWithin(whereForFacets["addresses.geoPoint"].$nearSphere);
+    const normalizePublisherIds = (publisher: string | string[] | undefined): string[] => {
+      const values = normalizeQueryArray(publisher);
+      if (!values) {
+        return user.publishers.map((p) => p.diffuseurPublisherId);
+      }
+      return values.filter((publisherId: string) => user.publishers.some((p) => p.diffuseurPublisherId === publisherId));
+    };
+
+    const publisherIds = normalizePublisherIds(query.data.publisher);
+    if (!publisherIds.length) {
+      res.locals = { code: NO_PARTNER, message: NO_PARTNER_MESSAGE };
+      return res.status(400).send({ ok: false, code: NO_PARTNER, message: NO_PARTNER_MESSAGE });
     }
 
-    const aggregation: any[] = [];
-    aggregation.push({ $match: whereForFacets });
-    aggregation.push({
-      $facet: {
-        data: [{ $skip: query.data.skip }, { $limit: query.data.limit }, { $project: projection }],
-        metadata: [{ $count: "total" }],
-        domain: [{ $group: { _id: "$domain", count: { $sum: 1 } } }, { $sort: { count: -1 } }],
-        activity: [{ $group: { _id: "$activity", count: { $sum: 1 } } }, { $sort: { count: -1 } }],
-        departmentName: [{ $group: { _id: "$departmentName", count: { $sum: 1 } } }, { $sort: { count: -1 } }],
-      },
-    });
+    const filters: MissionSearchFilters = {
+      publisherIds,
+      excludeOrganizationClientIds: excludedIds.length ? excludedIds : undefined,
+      moderationAcceptedFor: user.moderator ? user.id : undefined,
+      activity: normalizeQueryArray(query.data.activity),
+      city: normalizeQueryArray(query.data.city),
+      clientId: normalizeQueryArray(query.data.clientId),
+      organizationClientId: normalizeQueryArray(query.data.clientId),
+      country: normalizeQueryArray(query.data.country),
+      createdAt: parseDateFilter(query.data.createdAt),
+      departmentName: normalizeQueryArray(query.data.departmentName),
+      domain: normalizeQueryArray(query.data.domain),
+      keywords: query.data.keywords || query.data.text || undefined,
+      organizationRNA: normalizeQueryArray(query.data.organizationRNA),
+      organizationStatusJuridique: normalizeQueryArray(query.data.organizationStatusJuridique),
+      openToMinors: query.data.openToMinors,
+      reducedMobilityAccessible: query.data.reducedMobilityAccessible,
+      remote: normalizeQueryArray(query.data.remote) as MissionRemote[] | undefined,
+      startAt: parseDateFilter(query.data.startAt),
+      type: normalizeQueryArray(query.data.type),
+      snu: query.data.snu,
+      limit: query.data.limit,
+      skip: query.data.skip,
+    };
 
-    const [results] = await MissionModel.aggregate(aggregation);
-    const data = results.data;
-    const total = results.metadata[0]?.total || 0;
+    if (query.data.lat && query.data.lon) {
+      const rawDistance = query.data.distance && (query.data.distance === "0" || query.data.distance === "0km") ? "10km" : query.data.distance || "50km";
+      filters.lat = query.data.lat;
+      filters.lon = query.data.lon;
+      filters.distanceKm = getDistanceKm(rawDistance);
+    }
+
+    const { data, total, facets } = await missionService.findMissionsWithFacets(filters);
 
     res.locals = { total };
     return res.status(200).send({
       ok: true,
       total,
-      hits: data.map((e: Mission) => ({
+      hits: data.map((e: MissionRecord) => ({
         ...buildData(e, user.id, user.moderator),
         _distance: getDistanceFromLatLonInKm(query.data.lat, query.data.lon, e.addresses[0]?.location?.lat, e.addresses[0]?.location?.lon),
       })),
       facets: {
-        departmentName: results.departmentName.map((b: { _id: string; count: number }) => ({
-          key: b._id,
-          doc_count: b.count,
+        departmentName: facets.departmentName.map((bucket) => ({
+          key: bucket.key,
+          doc_count: bucket.count,
         })),
-        activities: results.activity.map((b: { _id: string; count: number }) => ({
-          key: b._id,
-          doc_count: b.count,
+        activities: facets.activity.map((bucket) => ({
+          key: bucket.key,
+          doc_count: bucket.count,
         })),
-        domains: results.domain.map((b: { _id: string; count: number }) => ({
-          key: b._id,
-          doc_count: b.count,
+        domains: facets.domain.map((bucket) => ({
+          key: bucket.key,
+          doc_count: bucket.count,
         })),
       },
     });
