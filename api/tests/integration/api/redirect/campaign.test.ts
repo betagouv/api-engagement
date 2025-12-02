@@ -1,16 +1,25 @@
-import { Types } from "mongoose";
 import request from "supertest";
-import { afterEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import { JVA_URL } from "../../../../src/config";
 import { prismaCore } from "../../../../src/db/postgres";
-import CampaignModel from "../../../../src/models/campaign";
+import { campaignService } from "../../../../src/services/campaign";
 import { statBotService } from "../../../../src/services/stat-bot";
+import { PublisherRecord } from "../../../../src/types/publisher";
 import * as utils from "../../../../src/utils";
+import { createTestPublisher } from "../../../fixtures";
 import { createTestApp } from "../../../testApp";
 
 describe("RedirectController /campaign/:id", () => {
   const app = createTestApp();
+
+  let publisher1: PublisherRecord;
+  let publisher2: PublisherRecord;
+
+  beforeEach(async () => {
+    publisher1 = await createTestPublisher();
+    publisher2 = await createTestPublisher();
+  });
 
   afterEach(async () => {
     vi.restoreAllMocks();
@@ -25,7 +34,7 @@ describe("RedirectController /campaign/:id", () => {
   });
 
   it("redirects to JVA when campaign does not exist", async () => {
-    const unknownId = new Types.ObjectId().toString();
+    const unknownId = "000000000000000000000000"; // MongoDB ObjectId format for backward compatibility
 
     const response = await request(app).get(`/r/campaign/${unknownId}`);
 
@@ -35,16 +44,17 @@ describe("RedirectController /campaign/:id", () => {
   });
 
   it("redirects to campaign url when identity is missing", async () => {
-    const campaign = await CampaignModel.create({
+    const campaign = await campaignService.createCampaign({
       name: "Missing Identity",
+      type: "OTHER",
       url: "https://campaign.example.com/landing",
-      fromPublisherId: "from-publisher",
-      toPublisherId: "to-publisher",
+      fromPublisherId: publisher1.id,
+      toPublisherId: publisher2.id,
     });
 
     const identifySpy = vi.spyOn(utils, "identify").mockReturnValue(null);
 
-    const response = await request(app).get(`/r/campaign/${campaign._id.toString()}`);
+    const response = await request(app).get(`/r/campaign/${campaign.id}`);
 
     expect(response.status).toBe(302);
     expect(response.headers.location).toBe("https://campaign.example.com/landing");
@@ -53,16 +63,12 @@ describe("RedirectController /campaign/:id", () => {
   });
 
   it("records stats and appends tracking parameters when identity is present", async () => {
-    const fromPublisher = await prismaCore.publisher.create({ data: { id: "from-publisher", name: "From Publisher" } });
-    const toPublisher = await prismaCore.publisher.create({ data: { id: "to-publisher", name: "To Publisher" } });
-
-    const campaign = await CampaignModel.create({
+    const campaign = await campaignService.createCampaign({
       name: "Campaign Name",
+      type: "OTHER",
       url: "https://campaign.example.com/path",
-      fromPublisherId: fromPublisher.id,
-      fromPublisherName: fromPublisher.name,
-      toPublisherId: toPublisher.id,
-      toPublisherName: toPublisher.name,
+      fromPublisherId: publisher1.id,
+      toPublisherId: publisher2.id,
     });
 
     const identity = {
@@ -74,7 +80,7 @@ describe("RedirectController /campaign/:id", () => {
     vi.spyOn(utils, "identify").mockReturnValue(identity);
     const statsBotFindOneSpy = vi.spyOn(statBotService, "findStatBotByUser").mockResolvedValue({ user: identity.user } as any);
 
-    const response = await request(app).get(`/r/campaign/${campaign._id.toString()}`);
+    const response = await request(app).get(`/r/campaign/${campaign.id}`);
 
     expect(response.status).toBe(302);
     const redirectUrl = new URL(response.headers.location);
@@ -93,7 +99,7 @@ describe("RedirectController /campaign/:id", () => {
       referer: identity.referer,
       userAgent: identity.userAgent,
       source: "campaign",
-      sourceId: campaign._id.toString(),
+      sourceId: campaign.id,
       sourceName: campaign.name,
       toPublisherId: campaign.toPublisherId,
       fromPublisherId: campaign.fromPublisherId,
