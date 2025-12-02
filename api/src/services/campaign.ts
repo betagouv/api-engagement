@@ -3,7 +3,7 @@ import { Campaign, CampaignTracker, Prisma, Publisher, User } from "../db/core";
 import { campaignRepository } from "../repositories/campaign";
 import { CampaignCreateInput, CampaignRecord, CampaignSearchParams, CampaignSearchResult, CampaignUpdatePatch } from "../types/campaign";
 import { slugify } from "../utils/string";
-import { isValidUrl } from "../utils/url";
+import { toUrl } from "../utils/url";
 import statEventService from "./stat-event";
 
 // Map MongoDB campaign type to Prisma enum
@@ -30,20 +30,6 @@ export const campaignService = (() => {
     toPublisher: { select: { id: true, name: true } },
     reassignedByUser: { select: { id: true, firstname: true, lastname: true } },
   }) satisfies Prisma.CampaignInclude;
-
-  const toUrl = (value: string): string | null => {
-    const url = value;
-    if (!url) {
-      return null;
-    }
-    if (!url.startsWith("http")) {
-      return `https://${url}`;
-    }
-    if (!isValidUrl(url)) {
-      return null;
-    }
-    return url;
-  };
 
   const toCampaignRecord = (campaign: CampaignEnriched): CampaignRecord => {
     return {
