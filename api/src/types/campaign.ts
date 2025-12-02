@@ -5,6 +5,7 @@ export interface CampaignRecord {
   name: string;
   type: CampaignType;
   url: string;
+  urlSource: string | null;
   fromPublisherId: string;
   fromPublisherName: string;
   toPublisherId: string;
@@ -40,6 +41,7 @@ export interface CampaignCreateInput {
   name: string;
   type: CampaignType;
   url: string;
+  urlSource?: string | null;
   fromPublisherId: string;
   toPublisherId: string;
   trackers?: CampaignTrackerInput[];
@@ -58,6 +60,7 @@ export interface CampaignUpdatePatch {
   name?: string;
   type?: CampaignType;
   url?: string;
+  urlSource?: string | null;
   fromPublisherId?: string;
   toPublisherId?: string;
   trackers?: CampaignTrackerInput[];

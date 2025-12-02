@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { HiLink } from "react-icons/hi";
-import { RiAddFill, RiFileCopyLine } from "react-icons/ri";
+import { RiAddFill, RiEditFill, RiFileCopyLine } from "react-icons/ri";
 import { Link } from "react-router-dom";
 import { toast } from "react-toastify";
 
@@ -15,7 +15,7 @@ const TABLE_HEADER = [
   { title: "Nom", colSpan: 3 },
   { title: "Diffuse des missions de", colSpan: 2 },
   { title: "Crée le", colSpan: 1 },
-  { title: "Actions", colSpan: 1 },
+  { title: "Actions", colSpan: 2 },
   { title: "Actif", colSpan: 1 },
 ];
 
@@ -145,8 +145,11 @@ const Campaigns = () => {
                 {item.toPublisherName}
               </td>
               <td className={`px-4 ${!item.active ? "opacity-50" : "opacity-100"}`}>{new Date(item.createdAt).toLocaleDateString("fr")}</td>
-              <td className="px-4">
+              <td colSpan={2} className="px-4">
                 <div className="flex gap-2 text-lg">
+                  <Link className="secondary-btn flex items-center" to={`/broadcast/campaign/${item.id}`}>
+                    <RiEditFill className="text-lg" />
+                  </Link>
                   <button className="secondary-btn flex items-center" onClick={() => handleCopy(item.id)}>
                     <HiLink className="text-lg" />
                   </button>
