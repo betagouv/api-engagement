@@ -104,7 +104,7 @@ export const campaignService = (() => {
       where: { id },
       include: defaultInclude,
     });
-    if (!campaign || campaign.deletedAt) {
+    if (!campaign) {
       return null;
     }
     return toCampaignRecord(campaign as CampaignEnriched);
@@ -119,6 +119,9 @@ export const campaignService = (() => {
       fromPublisher: { connect: { id: input.fromPublisherId.trim() } },
       toPublisher: { connect: { id: input.toPublisherId.trim() } },
       active: input.active ?? true,
+      deletedAt: input.deletedAt ?? null,
+      reassignedAt: input.reassignedAt ?? null,
+      reassignedByUser: input.reassignedByUserId ? { connect: { id: input.reassignedByUserId.trim() } } : undefined,
       trackers: {
         create: (input.trackers || []).map((tracker) => ({
           key: tracker.key.trim(),
@@ -145,7 +148,7 @@ export const campaignService = (() => {
       include: { trackers: true },
     })) as CampaignEnriched | null;
 
-    if (!existing || existing.deletedAt) {
+    if (!existing) {
       throw new Error("Campaign not found");
     }
 
@@ -202,6 +205,15 @@ export const campaignService = (() => {
     }
     if (patch.active !== undefined) {
       data.active = patch.active;
+    }
+    if (patch.deletedAt !== undefined) {
+      data.deletedAt = patch.deletedAt;
+    }
+    if (patch.reassignedAt !== undefined) {
+      data.reassignedAt = patch.reassignedAt;
+    }
+    if (patch.reassignedByUserId !== undefined && patch.reassignedByUserId !== null) {
+      data.reassignedByUser = { connect: { id: patch.reassignedByUserId.trim() } };
     }
 
     const searchParams = new URLSearchParams();
