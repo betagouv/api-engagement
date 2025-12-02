@@ -2,13 +2,10 @@ import { NextFunction, Response, Router } from "express";
 import passport from "passport";
 import zod from "zod";
 
-import { PUBLISHER_IDS } from "../config";
 import { FORBIDDEN, INVALID_BODY, INVALID_PARAMS, INVALID_QUERY, NOT_FOUND, RESSOURCE_ALREADY_EXIST } from "../error";
-import CampaignModel from "../models/campaign";
-import { publisherService } from "../services/publisher";
-import { reassignStats } from "../services/reassign-stats";
+import { campaignService, InvalidUrlError } from "../services/campaign";
+import { CampaignCreateInput, CampaignSearchParams, CampaignUpdatePatch } from "../types/campaign";
 import { UserRequest } from "../types/passport";
-import { slugify } from "../utils";
 
 const router = Router();
 
@@ -29,29 +26,39 @@ router.post("/search", passport.authenticate("user", { session: false }), async 
       return res.status(400).send({ ok: false, code: INVALID_QUERY, error: body.error });
     }
 
-    const where = { deletedAt: null, active: body.data.active } as { [key: string]: any };
+    // Build search params with access control
+    const searchParams: CampaignSearchParams = {
+      active: body.data.active,
+      offset: body.data.from,
+      limit: body.data.size,
+      includeTotal: "filtered",
+    };
 
     if (body.data.fromPublisherId) {
       if (req.user.role !== "admin" && !req.user.publishers.includes(body.data.fromPublisherId)) {
         return res.status(403).send({ ok: false, code: FORBIDDEN });
       } else {
-        where.fromPublisherId = body.data.fromPublisherId;
+        searchParams.fromPublisherId = body.data.fromPublisherId;
       }
     } else if (req.user.role !== "admin") {
-      where.fromPublisherId = { $in: req.user.publishers };
+      // For non-admin users, filter by their publishers
+      // Note: This requires multiple queries or a different approach since we can't use $in directly
+      // For now, we'll handle this in the service layer if needed
     }
 
     if (body.data.toPublisherId) {
-      where.toPublisherId = body.data.toPublisherId;
+      searchParams.toPublisherId = body.data.toPublisherId;
     }
 
     if (body.data.search) {
-      where.$or = [{ name: new RegExp(body.data.search, "i") }];
+      searchParams.search = body.data.search;
     }
 
-    const data = await CampaignModel.find(where).sort({ createdAt: -1 }).lean();
-    const total = await CampaignModel.countDocuments(where);
-    return res.status(200).send({ ok: true, data, total });
+    // If user is not admin and no specific fromPublisherId, pass their publisher IDs
+    const fromPublisherIds = req.user.role !== "admin" && !body.data.fromPublisherId ? req.user.publishers : undefined;
+
+    const { results, total } = await campaignService.findCampaigns(searchParams, fromPublisherIds);
+    return res.status(200).send({ ok: true, data: results, total });
   } catch (error) {
     next(error);
   }
@@ -61,7 +68,7 @@ router.get("/:id", passport.authenticate("user", { session: false }), async (req
   try {
     const params = zod
       .object({
-        id: zod.string().regex(/^[0-9a-fA-F]{24}$/),
+        id: zod.string(),
       })
       .required()
       .safeParse(req.params);
@@ -70,7 +77,7 @@ router.get("/:id", passport.authenticate("user", { session: false }), async (req
       return res.status(400).send({ ok: false, code: INVALID_PARAMS, error: params.error });
     }
 
-    const data = await CampaignModel.findById(params.data.id);
+    const data = await campaignService.findCampaignById(params.data.id);
     if (!data) {
       return res.status(404).send({ ok: false, code: NOT_FOUND });
     }
@@ -81,21 +88,12 @@ router.get("/:id", passport.authenticate("user", { session: false }), async (req
   }
 });
 
-const isValidUrl = (url: string) => {
-  try {
-    new URL(url);
-    return true;
-  } catch (error) {
-    return false;
-  }
-};
-
 router.post("/", passport.authenticate("admin", { session: false }), async (req: UserRequest, res: Response, next: NextFunction) => {
   try {
     const body = zod
       .object({
         name: zod.string(),
-        type: zod.enum(["banniere/publicité", "mailing", "tuile/bouton", "autre"]),
+        type: zod.enum(["AD_BANNER", "MAILING", "TILE_BUTTON", "OTHER"]),
         url: zod.string(),
         fromPublisherId: zod.string(),
         toPublisherId: zod.string(),
@@ -107,63 +105,18 @@ router.post("/", passport.authenticate("admin", { session: false }), async (req:
       return res.status(400).send({ ok: false, code: INVALID_BODY, error: body.error });
     }
 
-    const fromPublisher = await publisherService.findOnePublisherById(body.data.fromPublisherId);
-    if (!fromPublisher) {
-      return res.status(404).send({ ok: false, code: NOT_FOUND, error: "Publisher not found" });
-    }
-
-    const toPublisher = await publisherService.findOnePublisherById(body.data.toPublisherId);
-    if (!toPublisher) {
-      return res.status(404).send({ ok: false, code: NOT_FOUND, error: "Publisher not found" });
-    }
-
-    if (!body.data.trackers || !body.data.trackers.length) {
-      if (toPublisher.id === PUBLISHER_IDS.SERVICE_CIVIQUE) {
-        body.data.trackers = [
-          { key: "mtm_source", value: "api_engagement" },
-          { key: "mtm_medium", value: "campaign" },
-          { key: "mtm_campaign", value: slugify(body.data.name) },
-        ];
-      } else {
-        body.data.trackers = [
-          { key: "utm_source", value: "api_engagement" },
-          { key: "utm_medium", value: "campaign" },
-          { key: "utm_campaign", value: slugify(body.data.name) },
-        ];
-      }
-      const searchParams = new URLSearchParams();
-      body.data.trackers.forEach((tracker: { key: string; value: string }) => searchParams.append(tracker.key, tracker.value));
-      body.data.url = `${body.data.url}${body.data.url.includes("?") ? "&" : "?"}${searchParams.toString()}`;
-    }
-    if (body.data.url) {
-      if (body.data.url.indexOf("http") === -1) {
-        body.data.url = `https://${body.data.url}`;
-      }
-      if (!isValidUrl(body.data.url)) {
-        return res.status(400).send({ ok: false, code: INVALID_BODY, error: "Invalid url" });
-      } else {
-        body.data.url = body.data.url;
-      }
-    }
-
-    const newCampaign = {
+    const payload: CampaignCreateInput = {
       name: body.data.name,
       type: body.data.type,
-      fromPublisherId: fromPublisher.id,
-      fromPublisherName: fromPublisher.name,
-      toPublisherId: toPublisher.id,
-      toPublisherName: toPublisher.name,
-      trackers: body.data.trackers,
       url: body.data.url,
-      deleted: false,
+      fromPublisherId: body.data.fromPublisherId,
+      toPublisherId: body.data.toPublisherId,
+      trackers: body.data.trackers || [],
     };
 
-    const data = await CampaignModel.create(newCampaign);
-    return res.status(200).send({ ok: true, data });
-  } catch (error: any) {
-    if (error.code === 11000) {
-      return res.status(409).send({ ok: false, code: RESSOURCE_ALREADY_EXIST, error: "Campaign already exists" });
-    }
+    const data = await campaignService.createCampaign(payload);
+    return res.status(200).send({ ok: true, data: data });
+  } catch (error) {
     next(error);
   }
 });
@@ -172,7 +125,7 @@ router.post("/:id/duplicate", passport.authenticate("admin", { session: false })
   try {
     const params = zod
       .object({
-        id: zod.string().regex(/^[0-9a-fA-F]{24}$/),
+        id: zod.string(),
       })
       .required()
       .safeParse(req.params);
@@ -181,29 +134,19 @@ router.post("/:id/duplicate", passport.authenticate("admin", { session: false })
       return res.status(400).send({ ok: false, code: INVALID_PARAMS, error: params.error });
     }
 
-    const campaign = await CampaignModel.findById(params.data.id);
-    if (!campaign) {
-      return res.status(404).send({ ok: false, code: NOT_FOUND, error: "Campaign not found" });
+    try {
+      const data = await campaignService.duplicateCampaign(params.data.id);
+      return res.status(200).send({ ok: true, data });
+    } catch (error: any) {
+      if (error.message === "Campaign not found") {
+        return res.status(404).send({ ok: false, code: NOT_FOUND, error: "Campaign not found" });
+      }
+      if (error.message?.includes("already exists")) {
+        return res.status(409).send({ ok: false, code: RESSOURCE_ALREADY_EXIST, error: "Campaign already exists" });
+      }
+      throw error;
     }
-
-    const newCampaign = {
-      name: `${campaign.name} copie`,
-      type: campaign.type,
-      fromPublisherId: campaign.fromPublisherId,
-      fromPublisherName: campaign.fromPublisherName,
-      toPublisherId: campaign.toPublisherId,
-      toPublisherName: campaign.toPublisherName,
-      trackers: campaign.trackers,
-      url: campaign.url,
-      deleted: false,
-    };
-
-    const data = await CampaignModel.create(newCampaign);
-    return res.status(200).send({ ok: true, data });
-  } catch (error: any) {
-    if (error.code === 11000) {
-      return res.status(409).send({ ok: false, code: RESSOURCE_ALREADY_EXIST, error: "Campaign already exists" });
-    }
+  } catch (error) {
     next(error);
   }
 });
@@ -212,18 +155,18 @@ router.put("/:id", passport.authenticate("admin", { session: false }), async (re
   try {
     const params = zod
       .object({
-        id: zod.string().regex(/^[0-9a-fA-F]{24}$/),
+        id: zod.string(),
       })
       .safeParse(req.params);
 
     const body = zod
       .object({
         name: zod.string().optional(),
-        type: zod.enum(["banniere/publicité", "mailing", "tuile/bouton", "autre"]).optional(),
+        type: zod.enum(["AD_BANNER", "MAILING", "TILE_BUTTON", "OTHER"]).optional(),
         url: zod.string().optional(),
         active: zod.boolean().default(true),
         toPublisherId: zod.string().optional(),
-        trackers: zod.array(zod.object({ key: zod.string(), value: zod.string(), _id: zod.string().optional() })).optional(),
+        trackers: zod.array(zod.object({ key: zod.string(), value: zod.string() })).optional(),
       })
       .safeParse(req.body);
 
@@ -234,82 +177,37 @@ router.put("/:id", passport.authenticate("admin", { session: false }), async (re
       return res.status(400).send({ ok: false, code: INVALID_BODY, error: body.error });
     }
 
-    const campaign = await CampaignModel.findById(params.data.id);
-    if (!campaign) {
-      return res.status(404).send({ ok: false, code: NOT_FOUND, error: "Campaign not found" });
-    }
+    const payload: CampaignUpdatePatch = {};
 
-    if (body.data.name) {
-      campaign.name = req.body.name;
+    if (body.data.name !== undefined) {
+      payload.name = body.data.name;
     }
-    if (body.data.type) {
-      campaign.type = req.body.type;
-    }
-    if (body.data.trackers && body.data.trackers.length) {
-      campaign.trackers = body.data.trackers;
-    } else {
-      if (campaign.toPublisherId === PUBLISHER_IDS.SERVICE_CIVIQUE) {
-        campaign.trackers = [
-          { key: "mtm_source", value: "api_engagement" },
-          { key: "mtm_medium", value: "campaign" },
-          { key: "mtm_campaign", value: slugify(campaign.name) },
-        ];
-      } else {
-        campaign.trackers = [
-          { key: "utm_source", value: "api_engagement" },
-          { key: "utm_medium", value: "campaign" },
-          { key: "utm_campaign", value: slugify(campaign.name) },
-        ];
-      }
-      const searchParams = new URLSearchParams();
-      campaign.trackers.forEach((tracker) => searchParams.append(tracker.key, tracker.value));
-      if (body.data.url) {
-        body.data.url = `${body.data.url}${body.data.url.includes("?") ? "&" : "?"}${searchParams.toString()}`;
-      } else {
-        campaign.url = `${campaign.url}${campaign.url.includes("?") ? "&" : "?"}${searchParams.toString()}`;
-      }
-    }
-    if (body.data.url) {
-      if (body.data.url.indexOf("http") === -1) {
-        body.data.url = `https://${body.data.url}`;
-      }
-      if (!isValidUrl(body.data.url)) {
-        return res.status(400).send({ ok: false, code: INVALID_BODY, error: "Invalid url" });
-      } else {
-        campaign.url = body.data.url;
-      }
+    if (body.data.type !== undefined) {
+      payload.type = body.data.type;
     }
     if (body.data.active !== undefined) {
-      campaign.active = body.data.active;
+      payload.active = body.data.active;
+    }
+    if (body.data.toPublisherId !== undefined) {
+      payload.toPublisherId = body.data.toPublisherId;
+    }
+    if (body.data.trackers !== undefined) {
+      payload.trackers = body.data.trackers.map((t) => ({ key: t.key, value: t.value }));
+    }
+    if (body.data.url !== undefined) {
+      payload.url = body.data.url;
     }
 
-    if (body.data.toPublisherId && body.data.toPublisherId !== campaign.toPublisherId) {
-      const prevToPublisher = await publisherService.findOnePublisherById(campaign.toPublisherId);
-      const newToPublisher = await publisherService.findOnePublisherById(body.data.toPublisherId);
-      if (!prevToPublisher) {
-        return res.status(404).send({ ok: false, code: NOT_FOUND, error: "Previous publisher not found" });
+    try {
+      const data = await campaignService.updateCampaign(params.data.id, payload);
+      return res.status(200).send({ ok: true, data });
+    } catch (error: unknown) {
+      if (error instanceof InvalidUrlError) {
+        return res.status(400).send({ ok: false, code: INVALID_BODY, error: "Invalid url" });
       }
-      if (!newToPublisher) {
-        return res.status(404).send({ ok: false, code: NOT_FOUND, error: "New publisher not found" });
-      }
-
-      const update = {
-        toPublisherId: newToPublisher.id,
-        toPublisherName: newToPublisher.name,
-      };
-
-      await reassignStats({ sourceId: campaign._id.toString() }, update);
-
-      campaign.toPublisherId = newToPublisher.id;
-      campaign.toPublisherName = newToPublisher.name;
+      throw error;
     }
-
-    await campaign.save();
-    return res.status(200).send({ ok: true, data: campaign });
-  } catch (error: any) {
-    if (error.code === 11000) {
-      return res.status(409).send({ ok: false, code: RESSOURCE_ALREADY_EXIST, error: "Campaign already exists" });
-    }
+  } catch (error) {
     next(error);
   }
 });
@@ -318,7 +216,7 @@ router.put("/:id/reassign", passport.authenticate("admin", { session: false }), 
   try {
     const params = zod
       .object({
-        id: zod.string().regex(/^[0-9a-fA-F]{24}$/),
+        id: zod.string(),
       })
       .required()
       .safeParse(req.params);
@@ -337,48 +235,9 @@ router.put("/:id/reassign", passport.authenticate("admin", { session: false }), 
       return res.status(400).send({ ok: false, code: INVALID_BODY, error: body.error });
     }
 
-    const campaign = await CampaignModel.findById(params.data.id);
-    if (!campaign) {
-      return res.status(404).send({ ok: false, code: NOT_FOUND, error: "Campaign not found" });
-    }
+    const data = await campaignService.updateCampaign(params.data.id, { fromPublisherId: body.data.fromPublisherId });
 
-    if (campaign.fromPublisherId === body.data.fromPublisherId) {
-      return res.status(400).send({
-        ok: false,
-        code: INVALID_BODY,
-        error: "Campaign is already assigned to this publisher",
-      });
-    }
-
-    const prevFromPublisher = await publisherService.findOnePublisherById(campaign.fromPublisherId);
-    const newFromPublisher = await publisherService.findOnePublisherById(body.data.fromPublisherId);
-    if (!prevFromPublisher) {
-      return res.status(404).send({ ok: false, code: NOT_FOUND, error: "Previous publisher not found" });
-    }
-    if (!newFromPublisher) {
-      return res.status(404).send({ ok: false, code: NOT_FOUND, error: "New publisher not found" });
-    }
-
-    campaign.fromPublisherId = newFromPublisher.id;
-    campaign.fromPublisherName = newFromPublisher.name;
-    campaign.reassignedAt = new Date();
-    campaign.reassignedByUsername = req.user.firstname + " " + req.user.lastname;
-    campaign.reassignedByUserId = req.user.id;
-    await campaign.save();
-
-    const update = {
-      fromPublisherId: newFromPublisher.id,
-      fromPublisherName: newFromPublisher.name,
-    };
-    await reassignStats(
-      {
-        sourceId: campaign._id.toString(),
-        fromPublisherId: prevFromPublisher.id,
-      },
-      update
-    );
-
-    return res.status(200).send({ ok: true, data: campaign });
+    return res.status(200).send({ ok: true, data });
   } catch (error) {
     next(error);
   }
@@ -388,7 +247,7 @@ router.delete("/:id", passport.authenticate("admin", { session: false }), async 
   try {
     const params = zod
       .object({
-        id: zod.string().regex(/^[0-9a-fA-F]{24}$/),
+        id: zod.string(),
       })
       .required()
       .safeParse(req.params);
@@ -397,16 +256,15 @@ router.delete("/:id", passport.authenticate("admin", { session: false }), async 
       return res.status(400).send({ ok: false, code: INVALID_PARAMS, error: params.error });
     }
 
-    const campaign = await CampaignModel.findById(params.data.id);
-    if (!campaign) {
+    try {
+      await campaignService.softDeleteCampaign(params.data.id);
       return res.status(200).send({ ok: true });
+    } catch (error: any) {
+      if (error.message === "Campaign not found") {
+        return res.status(200).send({ ok: true });
+      }
+      throw error;
     }
-
-    campaign.active = false;
-    campaign.deletedAt = new Date();
-    await campaign.save();
-
-    return res.status(200).send({ ok: true });
   } catch (error) {
     next(error);
   }

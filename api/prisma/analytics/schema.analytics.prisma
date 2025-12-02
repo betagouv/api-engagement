@@ -262,6 +262,7 @@ model Mission {
   domain_logo                   String?
   activity                      String?
   partner_id                    String?
+  application_url               String?
   description                   String?
   type                          MissionType?
   duration                      Int?
@@ -323,6 +324,7 @@ model Mission {
   requirements                          String[]
   tasks                                 String[]
   places                                Int?
+  places_status                         String?
   matched_organization_id               String?
   organization_verification_status      String?
   organization_name_verified            String?
@@ -454,66 +456,6 @@ model Partner {
   missions            Mission[]
   diffuseur_widgets   Widget[]          @relation("DiffuseurWidget")
   annonceur_widget    PartnerToWidget[]
-  users               PartnerToUser[]
-
-  excluded_organizations_by  OrganizationExclusion[] @relation("ExcludedByPublisher")
-  excluded_organizations_for OrganizationExclusion[] @relation("ExcludedForPublisher")
-}
-
-model OrganizationExclusion {
-  id     String @id @default(uuid())
-  old_id String @unique
-
-  created_at DateTime @default(now())
-  updated_at DateTime @updatedAt
-
-  organization_client_id String
-  organization_name      String?
-
-  excluded_by_publisher_id String
-  excluded_by_publisher    Partner @relation("ExcludedByPublisher", fields: [excluded_by_publisher_id], references: [id], onDelete: Cascade)
-
-  excluded_for_publisher_id String
-  excluded_for_publisher    Partner @relation("ExcludedForPublisher", fields: [excluded_for_publisher_id], references: [id], onDelete: Cascade)
-
-  @@unique([excluded_by_publisher_id, excluded_for_publisher_id, organization_client_id])
-}
-
-model User {
-  id               String @id @default(uuid())
-  old_id           String @unique
-  brevo_contact_id Int?
-
-  first_name String?
-  last_name  String?
-  role       String?
-  password   String?
-  email      String
-
-  last_activity_at DateTime? @default(now())
-
-  invitation_token        String?
-  invitation_expires_at   DateTime?
-  invitation_completed_at DateTime?
-
-  forgot_password_token      String?
-  forgot_password_expires_at DateTime?
-
-  created_at DateTime  @default(now())
-  updated_at DateTime  @updatedAt
-  deleted_at DateTime?
-
-  login_history LoginHistory[]
-  partners      PartnerToUser[]
-}
-
-model LoginHistory {
-  id       String   @id @default(uuid())
-  user_id  String
-  login_at DateTime @default(now())
-  user     User     @relation(fields: [user_id], references: [id])
-
-  @@index([user_id], map: "login_history")
 }
 
 model Widget {
@@ -570,18 +512,6 @@ model WidgetQuery {
   from           Int?
   created_at     DateTime  @default(now())
   widget         Widget    @relation("QueryWidget", fields: [widget_id], references: [id])
-}
-
-model PartnerToUser {
-  id         String  @id @default(uuid())
-  user_id    String
-  partner_id String
-  user       User    @relation(fields: [user_id], references: [id])
-  partner    Partner @relation(fields: [partner_id], references: [id])
-
-  @@unique([partner_id, user_id])
-  @@index([partner_id])
-  @@index([user_id])
 }
 
 model PartnerToWidget {

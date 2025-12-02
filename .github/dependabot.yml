@@ -4,6 +4,8 @@ updates:
     directory: "/api"
     schedule:
       interval: "monthly"
+    cooldown:
+      default-days: 7
     open-pull-requests-limit: 10
     versioning-strategy: "auto"
     labels:
@@ -49,6 +51,8 @@ updates:
       - dependency-name: "react-date-picker"
     schedule:
       interval: "monthly"
+    cooldown:
+      default-days: 7
     open-pull-requests-limit: 10
     versioning-strategy: "auto"
     labels:
@@ -83,6 +87,8 @@ updates:
     directory: "/widget"
     schedule:
       interval: "monthly"
+    cooldown:
+      default-days: 7
     open-pull-requests-limit: 10
     versioning-strategy: "auto"
     labels:
@@ -116,11 +122,13 @@ updates:
   - package-ecosystem: "github-actions"
     directory: "/"
     schedule:
-      interval: "monthly"
+      interval: "daily"
+    cooldown:
+      default-days: 7
     open-pull-requests-limit: 10
     labels:
       - "dependencies"
       - "github-actions"
     commit-message:
-      prefix: "ci"
+      prefix: "chore"
       include: "scope"
