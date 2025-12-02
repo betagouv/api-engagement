@@ -65,6 +65,22 @@ npx ts-node api/scripts/mongo-backfill/backfill-organization-exclusion.ts --env 
 npx ts-node api/scripts/mongo-backfill/backfill-organization-exclusion.ts --env api/.env.production
 ```
 
+## backfill-campaign.ts
+
+- Rôle: migrer la collection Mongo `campaign` (et ses trackers) vers la table correspondante dans PostgreSQL.
+- Options:
+  - `--dry-run` exécute sans écrire en base et affiche des exemples de créations.
+  - `--env <nom|chemin>` sélectionne le fichier d'environnement à charger.
+- Exemples:
+
+```bash
+# Dry-run avec l'environnement production (utilise api/.env.production)
+npx ts-node api/scripts/mongo-backfill/backfill-campaign.ts --env production --dry-run
+
+# Exécution réelle en pointant explicitement un fichier .env
+npx ts-node api/scripts/mongo-backfill/backfill-campaign.ts --env api/.env.production
+```
+
 ## backfill-user.ts
 
 - Rôle: migrer la collection Mongo `users` vers la table Prisma `user`.

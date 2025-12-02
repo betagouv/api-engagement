@@ -26,25 +26,6 @@ export type GeoPoint = {
   coordinates: number[];
 };
 
-export type Campaign = {
-  _id: Schema.Types.ObjectId;
-  name: string;
-  type: string;
-  url: string;
-  trackers: { key: string; value: string }[];
-  fromPublisherId: string;
-  fromPublisherName: string;
-  toPublisherId: string;
-  toPublisherName: string;
-  active: boolean;
-  deletedAt: Date | null;
-  reassignedAt: Date | null;
-  reassignedByUsername: string | null;
-  reassignedByUserId: string | null;
-  createdAt: Date;
-  updatedAt: Date;
-};
-
 export interface MissionHistory {
   date: Date;
   state: Record<string, any>;
@@ -468,6 +449,7 @@ export enum MissionType {
   VOLONTARIAT = "volontariat_service_civique",
 }
 
+export * from "./campaign";
 export * from "./email";
 export * from "./import";
 export * from "./moderation-event";

@@ -11,6 +11,13 @@ datasource db_core {
 //
 // Enums
 //
+enum CampaignType {
+  AD_BANNER
+  MAILING
+  TILE_BUTTON
+  OTHER
+}
+
 enum EmailStatus {
   PENDING
   PROCESSED
@@ -136,8 +143,9 @@ model User {
   createdAt               DateTime  @default(now()) @map("created_at")
   updatedAt               DateTime  @updatedAt @map("updated_at")
 
-  userPublishers UserPublisher[]
-  loginHistory   LoginHistory[]
+  userPublishers        UserPublisher[]
+  campaignsReassignedBy Campaign[]      @relation("CampaignReassignedByUserRelation")
+  loginHistory          LoginHistory[]
 
   @@index([deletedAt], map: "user_deleted_at_idx")
   @@map("user")
@@ -302,6 +310,8 @@ model Publisher {
   statEventsFrom         StatEvent[]                   @relation("StatEventFromPublisher")
   statEventsTo           StatEvent[]                   @relation("StatEventToPublisher")
   userPublishers         UserPublisher[]
+  campaignsFrom          Campaign[]                    @relation("CampaignFromPublisher")
+  campaignsTo            Campaign[]                    @relation("CampaignToPublisher")
 
   @@index([name], map: "publisher_name_idx")
   @@index([apikey], map: "publisher_apikey_idx")
@@ -509,4 +519,44 @@ model PublisherDiffusionExclusion {
   @@unique([excludedByAnnonceurId, excludedForDiffuseurId, organizationClientId], map: "pde_by_annonceur_for_diffuseur_org_key")
   @@index([excludedForDiffuseurId], map: "publisher_diffusion_exclusion_for_diffuseur_id_idx")
   @@map("publisher_diffusion_exclusion")
+}
+
+model Campaign {
+  id                 String       @id @default(uuid())
+  name               String
+  type               CampaignType @map("type")
+  url                String
+  fromPublisherId    String       @map("from_publisher_id")
+  toPublisherId      String       @map("to_publisher_id")
+  active             Boolean      @default(true)
+  deletedAt          DateTime?    @map("deleted_at")
+  reassignedAt       DateTime?    @map("reassigned_at")
+  reassignedByUserId String?      @map("reassigned_by_user_id")
+  createdAt          DateTime     @default(now()) @map("created_at")
+  updatedAt          DateTime     @updatedAt @map("updated_at")
+
+  fromPublisher    Publisher         @relation("CampaignFromPublisher", fields: [fromPublisherId], references: [id], onDelete: Cascade)
+  toPublisher      Publisher         @relation("CampaignToPublisher", fields: [toPublisherId], references: [id], onDelete: Cascade)
+  trackers         CampaignTracker[]
+  reassignedByUser User?             @relation("CampaignReassignedByUserRelation", fields: [reassignedByUserId], references: [id], onDelete: SetNull)
+
+  @@unique([name, fromPublisherId], map: "campaign_name_from_publisher_unique_key")
+  @@index([fromPublisherId], map: "campaign_from_publisher_id_idx")
+  @@index([toPublisherId], map: "campaign_to_publisher_id_idx")
+  @@index([deletedAt], map: "campaign_deleted_at_idx")
+  @@map("campaign")
+}
+
+model CampaignTracker {
+  id         String   @id @default(uuid())
+  campaignId String   @map("campaign_id")
+  key        String
+  value      String
+  createdAt  DateTime @default(now()) @map("created_at")
+  updatedAt  DateTime @updatedAt @map("updated_at")
+
+  campaign Campaign @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+
+  @@index([campaignId], map: "campaign_tracker_campaign_id_idx")
+  @@map("campaign_tracker")
 }

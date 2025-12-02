@@ -104,9 +104,15 @@ const Edit = () => {
     }
 
     try {
-      values.trackers = values.trackers.filter((t) => t.key && t.value);
+      const payload = {
+        name: values.name,
+        type: values.type,
+        toPublisherId: values.toPublisherId,
+        url: values.url,
+        trackers: values.trackers.filter((t) => t.key && t.value),
+      };
 
-      const res = await api.put(`/campaign/${id}`, values);
+      const res = await api.put(`/campaign/${id}`, payload);
       if (!res.ok) {
         if (res.status === 409) return toast.error("Une campagne avec ce nom existe déjà");
         else throw res;
@@ -114,7 +120,6 @@ const Edit = () => {
       toast.success("Campagne mise à jour");
       setCampaign(res.data);
       setValues({ ...values, ...res.data });
-      navigate("/broadcast/campaigns");
     } catch (error) {
       captureError(error, "Erreur lors de la mise à jour de la campagne");
     }
@@ -277,10 +282,10 @@ const Edit = () => {
                 }}
               >
                 <option value="">Sélectionner un type</option>
-                <option value="banniere/publicité">Bannière/publicité</option>
-                <option value="mailing">Mailing</option>
-                <option value="tuile/bouton">Tuile/Bouton</option>
-                <option value="autre">Autre</option>
+                <option value="AD_BANNER">Bannière/publicité</option>
+                <option value="MAILING">Mailing</option>
+                <option value="TILE_BUTTON">Tuile/Bouton</option>
+                <option value="OTHER">Autre</option>
               </select>
               {errors.type && (
                 <div className="text-red-error flex items-center text-sm">
@@ -383,7 +388,7 @@ const Edit = () => {
               </button>
             </div>
             <div>
-              <span className="text-[#FEECC2] flex flex-row items-center text-xs">
+              <span className="text-orange-warning-425 flex flex-row items-center text-xs">
                 <AiFillWarning className="mr-2" />
                 Copiez exactement ce lien !
               </span>
@@ -433,8 +438,7 @@ const ReassignModal = ({ isOpen, onClose, campaign, values, setValues, setCampai
         setLoading(false);
         return;
       }
-      const res = await api.put(`/campaign/${campaign._id}/reassign`, {
-        campaignId: campaign._id,
+      const res = await api.put(`/campaign/${campaign.id}/reassign`, {
         fromPublisherId: values.fromPublisherId,
       });
 

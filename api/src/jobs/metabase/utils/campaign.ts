@@ -1,23 +1,23 @@
 import { Campaign as PrismaCampaign } from "../../../db/analytics";
 import { prismaAnalytics as prismaClient } from "../../../db/postgres";
 import { captureException, captureMessage } from "../../../error";
-import CampaignModel from "../../../models/campaign";
-import { Campaign } from "../../../types";
+import { campaignService } from "../../../services/campaign";
+import { CampaignRecord } from "../../../types";
 
-const buildData = (doc: Campaign, partners: { [key: string]: string }) => {
+const buildData = (doc: CampaignRecord, partners: { [key: string]: string }) => {
   const diffuseurId = partners[doc.fromPublisherId?.toString()];
   if (!diffuseurId) {
-    captureMessage(`[Campaigns] Diffuseur ${doc.fromPublisherId?.toString()} not found for doc ${doc._id.toString()}`);
+    captureMessage(`[Campaigns] Diffuseur ${doc.fromPublisherId} not found for doc ${doc.id}`);
     return null;
   }
-  const annonceurId = partners[doc.toPublisherId?.toString()];
+  const annonceurId = partners[doc.toPublisherId];
   if (!annonceurId) {
-    captureMessage(`[Campaigns] Annonceur ${doc.toPublisherId?.toString()} not found for doc ${doc._id.toString()}`);
+    captureMessage(`[Campaigns] Annonceur ${doc.toPublisherId} not found for doc ${doc.id}`);
     return null;
   }
 
   const campaign = {
-    old_id: doc._id.toString(),
+    old_id: doc.id,
     name: doc.name,
     type: doc.type,
     url: doc.url,
@@ -47,8 +47,8 @@ const handler = async () => {
     const start = new Date();
     console.log(`[Campaigns] Starting at ${start.toISOString()}`);
 
-    const data = await CampaignModel.find().lean();
-    console.log(`[Campaigns] Found ${data.length} docs to sync.`);
+    const data = await campaignService.findCampaigns({ all: true });
+    console.log(`[Campaigns] Found ${data.total} docs to sync.`);
 
     const stored = {} as { [key: string]: { id: string; old_id: string; updated_at: Date } };
     await prismaClient.campaign.findMany({ select: { old_id: true, id: true, updated_at: true } }).then((data) => data.forEach((d) => (stored[d.old_id] = d)));
@@ -59,9 +59,9 @@ const handler = async () => {
 
     const dataToCreate = [];
     const dataToUpdate = [];
-    for (const doc of data) {
-      const exists = stored[doc._id.toString()];
-      const obj = buildData(doc as Campaign, partners);
+    for (const doc of data.results) {
+      const exists = stored[doc.id];
+      const obj = buildData(doc, partners);
       if (!obj) {
         continue;
       }
