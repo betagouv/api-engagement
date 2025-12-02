@@ -560,3 +560,17 @@ model CampaignTracker {
   @@index([campaignId], map: "campaign_tracker_campaign_id_idx")
   @@map("campaign_tracker")
 }
+
+model StatBot {
+  id        String   @id @default(uuid())
+  origin    String?  @map("origin")
+  referer   String?  @map("referer")
+  userAgent String?  @map("user_agent")
+  host      String?  @map("host")
+  user      String   @unique @map("user")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@index([user], map: "stats_bot_user_idx")
+  @@map("stat_bot")
+}
