@@ -45,6 +45,7 @@ enum ReportDataTemplate {
 enum MissionType {
   benevolat
   volontariat_service_civique
+  volontariat_sapeurs_pompiers
 }
 
 enum MissionEventType {
