@@ -251,12 +251,23 @@ model StatEvent {
 
   missionId String? @map("mission_id")
   mission   Mission? @relation("MissionStatEvents", fields: [missionId], references: [id], onDelete: SetNull)
+  missionClientId             String? @map("mission_client_id")
+  missionDomain               String? @map("mission_domain")
+  missionTitle                String? @map("mission_title")
+  missionPostalCode           String? @map("mission_postal_code")
+  missionDepartmentName       String? @map("mission_department_name")
+  missionOrganizationId       String? @map("mission_organization_id")
+  missionOrganizationName     String? @map("mission_organization_name")
+  missionOrganizationClientId String? @map("mission_organization_client_id")
   tag                         String?
   tags                        String[] @default([])
   exportToAnalytics           String?  @map("export_to_analytics")
 
   @@index([type, createdAt], map: "stats_event_type_created_at_desc_idx")
   @@index([missionId, createdAt], map: "stats_event_mission_id_created_at_idx")
+  @@index([missionClientId, createdAt], map: "stats_event_mission_client_id_created_at_idx")
+  @@index([missionDepartmentName, createdAt], map: "stats_event_mission_department_name_created_at_idx")
+  @@index([missionDomain, createdAt], map: "stats_event_mission_domain_created_at_idx")
   @@index([tags], type: Gin, map: "stats_event_tags_idx")
   @@index([fromPublisherId, createdAt(sort: Desc)], map: "stats_event_from_publisher_created_at_idx")
   @@index([toPublisherId, createdAt(sort: Desc)], map: "stats_event_to_publisher_created_at_idx")
@@ -519,12 +530,15 @@ model Mission {
 
   @@unique([clientId, publisherId], map: "mission_client_publisher_key")
   @@index([publisherId, statusCode, deletedAt, startAt(sort: Desc)], map: "mission_publisher_status_deleted_start_at_idx")
+  @@index([statusCode, deletedAt, startAt(sort: Desc)], map: "mission_status_deleted_start_at_idx")
   @@index([createdAt], map: "mission_created_at_idx")
   @@index([startAt], map: "mission_start_at_idx")
   @@index([domain], map: "mission_domain_idx")
   @@index([remote], map: "mission_remote_idx")
   @@index([activity], map: "mission_activity_idx")
   @@index([publisherId], map: "mission_publisher_id_idx")
+  @@index([clientId], map: "mission_client_id_idx")
+  @@index([organizationClientId], map: "mission_organization_client_id_idx")
   @@index([deletedAt], map: "mission_deleted_at_idx")
   @@index([statusCode], map: "mission_status_code_idx")
   @@map("mission")
@@ -542,7 +556,7 @@ model MissionAddress {
   country         String?
   locationLat     Float?                    @map("location_lat")
   locationLon     Float?                    @map("location_lon")
-  geoPoint        Unsupported("geography(Point,4326)")? @map("geo_point")
+  geoPoint        Unsupported("point")?     @map("geo_point")
   geolocStatus    String?                   @map("geoloc_status")
   createdAt       DateTime                  @default(now()) @map("created_at")
   updatedAt       DateTime                  @updatedAt @map("updated_at")
@@ -550,6 +564,9 @@ model MissionAddress {
   mission Mission @relation(fields: [missionId], references: [id], onDelete: Cascade)
 
   @@index([missionId], map: "mission_address_mission_id_idx")
+  @@index([city], map: "mission_address_city_idx")
+  @@index([country], map: "mission_address_country_idx")
+  @@index([departmentName], map: "mission_address_department_name_idx")
   @@map("mission_address")
 }
 
@@ -569,6 +586,7 @@ model MissionModerationStatus {
   @@unique([missionId, publisherId], map: "mission_moderation_status_mission_publisher_key")
   @@index([missionId], map: "mission_moderation_status_mission_id_idx")
   @@index([publisherId], map: "mission_moderation_status_publisher_id_idx")
+  @@index([publisherId, status], map: "mission_moderation_status_publisher_status_idx")
   @@map("mission_moderation_status")
 }
 
