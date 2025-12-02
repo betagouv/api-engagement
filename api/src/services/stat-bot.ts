@@ -34,7 +34,7 @@ export const statBotService = {
 
   async findStatBots(params: StatBotSearchParams = {}): Promise<StatBotRecord[]> {
     const where = buildSearchWhere(params);
-    const limit = Math.min(Math.max(params.limit ?? DEFAULT_LIMIT, 1), MAX_LIMIT);
+    const limit = params.limit === "none" ? undefined : Math.min(Math.max(params.limit ?? DEFAULT_LIMIT, 1), MAX_LIMIT);
     const offset = Math.max(params.offset ?? 0, 0);
 
     const statBots = await statBotRepository.findMany({

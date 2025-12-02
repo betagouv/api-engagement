@@ -12,7 +12,7 @@ export interface StatBotRecord {
 export interface StatBotSearchParams {
   user?: string;
   offset?: number;
-  limit?: number;
+  limit?: number | "none";
   includeTotal?: "all" | "filtered" | "none";
 }
 

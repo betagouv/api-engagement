@@ -78,7 +78,7 @@ export const buildKpiBotless = async (start: Date): Promise<Kpi | null> => {
     const percentageBenevolatAttributedPlaces = safeDivision(availableBenevolatAttributedMissionCount, availableBenevolatMissionCount);
     const percentageVolontariatAttributedPlaces = safeDivision(availableVolontariatAttributedMissionCount, availableVolontariatMissionCount);
 
-    const statBots = await statBotService.findStatBots();
+    const statBots = await statBotService.findStatBots({ limit: "none" });
 
     const excludeUsers = statBots.map((e) => e.user).filter(Boolean) as string[];
 
