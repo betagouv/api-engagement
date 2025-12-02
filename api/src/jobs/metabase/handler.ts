@@ -33,8 +33,7 @@ export class MetabaseHandler implements BaseHandler<MetabaseJobPayload, Metabase
       kpiBotless: { created: 0, updated: null },
     };
 
-    // const jobs = payload?.jobs ? payload.jobs.split(",") : null;
-    const jobs = ["campaigns"];
+    const jobs = payload?.jobs ? payload.jobs.split(",") : null;
 
     if (jobs === null || jobs.includes("partners")) {
       const partners = await importPartners();
