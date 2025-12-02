@@ -12,6 +12,13 @@ const BATCH_SIZE = 100;
 const options: ScriptOptions = parseScriptOptions(process.argv.slice(2), SCRIPT_NAME);
 loadEnvironment(options, __dirname, SCRIPT_NAME);
 
+const missionRemoteValues: Prisma.MissionRemote[] = ["no", "possible", "full"];
+const missionYesNoValues: Prisma.MissionYesNo[] = ["yes", "no"];
+const missionPlacesStatusValues: Prisma.MissionPlacesStatus[] = ["ATTRIBUTED_BY_API", "GIVEN_BY_PARTNER"];
+const missionTypeValues: Prisma.MissionType[] = ["benevolat", "volontariat_service_civique"];
+const compensationUnitValues: Prisma.CompensationUnit[] = ["hour", "day", "month", "year"];
+const compensationTypeValues: Prisma.CompensationType[] = ["gross", "net"];
+
 type MongoMissionDocument = {
   _id?: { toString(): string } | string;
   id?: string;
@@ -99,6 +106,13 @@ const normalizeStatus = (status?: string | null): MissionRecord["statusCode"] =>
   return status === "REFUSED" ? "REFUSED" : "ACCEPTED";
 };
 
+const normalizeEnum = <T extends string>(value: unknown, allowed: readonly T[]): T | undefined => {
+  if (typeof value === "string" && allowed.includes(value as T)) {
+    return value as T;
+  }
+  return undefined;
+};
+
 const uniqueStringArray = (value?: unknown): string[] => {
   const set = new Set<string>();
   if (typeof value === "string" && value.trim()) {
@@ -113,7 +127,9 @@ const uniqueStringArray = (value?: unknown): string[] => {
   return Array.from(set);
 };
 
-const normalizeAddresses = (doc: MongoMissionDocument): Array<{
+const normalizeAddresses = (
+  doc: MongoMissionDocument
+): Array<{
   street?: string | null;
   postalCode?: string | null;
   departmentName?: string | null;
@@ -155,7 +171,9 @@ const normalizeAddresses = (doc: MongoMissionDocument): Array<{
   return normalized;
 };
 
-const extractModerationStatuses = (doc: MongoMissionDocument): Array<{
+const extractModerationStatuses = (
+  doc: MongoMissionDocument
+): Array<{
   publisherId: string;
   status: string | null;
   comment: string | null;
@@ -232,10 +250,10 @@ const toNormalizedMission = (doc: MongoMissionDocument): NormalizedMissionData =
     soft_skills: uniqueStringArray(doc.softSkills ?? doc.soft_skills),
     requirements: uniqueStringArray(doc.requirements),
     romeSkills: uniqueStringArray(doc.romeSkills),
-    reducedMobilityAccessible: doc.reducedMobilityAccessible ?? null,
-    closeToTransport: doc.closeToTransport ?? null,
-    openToMinors: doc.openToMinors ?? null,
-    remote: doc.remote ?? null,
+    reducedMobilityAccessible: normalizeEnum(doc.reducedMobilityAccessible, missionYesNoValues) ?? null,
+    closeToTransport: normalizeEnum(doc.closeToTransport, missionYesNoValues) ?? null,
+    openToMinors: normalizeEnum(doc.openToMinors, missionYesNoValues) ?? null,
+    remote: normalizeEnum(doc.remote, missionRemoteValues) ?? null,
     schedule: doc.schedule ?? null,
     duration: normalizeNumber(doc.duration),
     postedAt: normalizeDate(doc.postedAt),
@@ -243,18 +261,18 @@ const toNormalizedMission = (doc: MongoMissionDocument): NormalizedMissionData =
     endAt: normalizeDate(doc.endAt),
     priority: doc.priority ?? null,
     places: normalizeNumber(doc.places),
-    placesStatus: doc.placesStatus ?? null,
+    placesStatus: normalizeEnum(doc.placesStatus, missionPlacesStatusValues) ?? null,
     metadata: doc.metadata ?? null,
     domain: doc.domain ?? null,
     domainOriginal: doc.domainOriginal ?? null,
     domainLogo: doc.domainLogo ?? null,
     activity: doc.activity ?? null,
-    type: doc.type ?? null,
+    type: normalizeEnum(doc.type, missionTypeValues) ?? null,
     snu: !!doc.snu,
     snuPlaces: normalizeNumber(doc.snuPlaces),
     compensationAmount: normalizeNumber(doc.compensationAmount),
-    compensationUnit: doc.compensationUnit ?? null,
-    compensationType: doc.compensationType ?? null,
+    compensationUnit: normalizeEnum(doc.compensationUnit, compensationUnitValues) ?? null,
+    compensationType: normalizeEnum(doc.compensationType, compensationTypeValues) ?? null,
     adresse: firstAddress.street ?? null,
     address: firstAddress.street ?? null,
     postalCode: firstAddress.postalCode ?? null,
@@ -272,7 +290,7 @@ const toNormalizedMission = (doc: MongoMissionDocument): NormalizedMissionData =
       city: addr.city ?? null,
       region: addr.region ?? null,
       country: addr.country ?? null,
-      location: addr.location ?? null,
+      location: addr.location && typeof addr.location.lat === "number" && typeof addr.location.lon === "number" ? { lat: addr.location.lat, lon: addr.location.lon } : null,
       geoPoint: null,
       geolocStatus: addr.geolocStatus ?? null,
     })),
@@ -327,7 +345,6 @@ const toNormalizedMission = (doc: MongoMissionDocument): NormalizedMissionData =
     lastExportedToPgAt: normalizeDate(doc.lastExportedToPgAt),
     createdAt,
     updatedAt,
-    distanceKm: undefined,
   };
 
   const missionData: Prisma.MissionUncheckedCreateInput = {
@@ -346,10 +363,10 @@ const toNormalizedMission = (doc: MongoMissionDocument): NormalizedMissionData =
     softSkills: record.softSkills,
     requirements: record.requirements,
     romeSkills: record.romeSkills,
-    reducedMobilityAccessible: record.reducedMobilityAccessible ?? undefined,
-    closeToTransport: record.closeToTransport ?? undefined,
-    openToMinors: record.openToMinors ?? undefined,
-    remote: record.remote ?? undefined,
+    reducedMobilityAccessible: normalizeEnum(record.reducedMobilityAccessible, missionYesNoValues),
+    closeToTransport: normalizeEnum(record.closeToTransport, missionYesNoValues),
+    openToMinors: normalizeEnum(record.openToMinors, missionYesNoValues),
+    remote: normalizeEnum(record.remote, missionRemoteValues),
     schedule: record.schedule ?? undefined,
     duration: record.duration ?? undefined,
     postedAt: record.postedAt ?? undefined,
@@ -357,18 +374,18 @@ const toNormalizedMission = (doc: MongoMissionDocument): NormalizedMissionData =
     endAt: record.endAt ?? undefined,
     priority: record.priority ?? undefined,
     places: record.places ?? undefined,
-    placesStatus: record.placesStatus ?? undefined,
+    placesStatus: normalizeEnum(record.placesStatus, missionPlacesStatusValues),
     metadata: record.metadata ?? undefined,
     domain: record.domain ?? undefined,
     domainOriginal: record.domainOriginal ?? undefined,
     domainLogo: record.domainLogo ?? undefined,
     activity: record.activity ?? undefined,
-    type: record.type ?? undefined,
+    type: normalizeEnum(record.type, missionTypeValues),
     snu: record.snu,
     snuPlaces: record.snuPlaces ?? undefined,
     compensationAmount: record.compensationAmount ?? undefined,
-    compensationUnit: record.compensationUnit ?? undefined,
-    compensationType: record.compensationType ?? undefined,
+    compensationUnit: normalizeEnum(record.compensationUnit, compensationUnitValues),
+    compensationType: normalizeEnum(record.compensationType, compensationTypeValues),
     organizationClientId: record.organizationClientId ?? undefined,
     organizationId: record.organizationId ?? undefined,
     lastSyncAt: record.lastSyncAt ?? undefined,
@@ -406,8 +423,8 @@ const toNormalizedMission = (doc: MongoMissionDocument): NormalizedMissionData =
     city: address.city ?? null,
     region: address.region ?? null,
     country: address.country ?? null,
-    locationLat: address.location?.lat ?? null,
-    locationLon: address.location?.lon ?? null,
+    locationLat: typeof address.location?.lat === "number" ? address.location.lat : null,
+    locationLon: typeof address.location?.lon === "number" ? address.location.lon : null,
     geolocStatus: address.geolocStatus ?? null,
   }));
 
@@ -602,9 +619,31 @@ const persistBatch = async (
 ) => {
   if (!batch.length) return;
 
+  const organizationIds = Array.from(
+    new Set(
+      batch
+        .map(({ missionData }) => missionData.organizationId)
+        .filter((id): id is string => typeof id === "string" && id.length > 0)
+    )
+  );
+  const existingOrganizations = organizationIds.length
+    ? await prismaCore.organization.findMany({ where: { id: { in: organizationIds } }, select: { id: true } })
+    : [];
+  const existingOrgSet = new Set(existingOrganizations.map((org) => org.id));
+
   const ids = batch.map(({ record }) => record.id);
   const existingRecords = await prismaCore.mission.findMany({ where: { id: { in: ids } }, include: { addresses: true } });
   const existingById = new Map(existingRecords.map((record) => [record.id, record]));
+
+  const normalizeOrganizationId = <T extends { organizationId?: any }>(input: T): T => {
+    const copy = { ...input };
+    if (typeof copy.organizationId === "string") {
+      copy.organizationId = existingOrgSet.has(copy.organizationId) ? copy.organizationId : null;
+    } else if (copy.organizationId && typeof copy.organizationId.set === "string") {
+      copy.organizationId = existingOrgSet.has(copy.organizationId.set) ? copy.organizationId : { set: null };
+    }
+    return copy;
+  };
 
   for (const entry of batch) {
     const existing = existingById.get(entry.record.id);
@@ -616,7 +655,8 @@ const persistBatch = async (
           sampleCreates.push(entry.record);
         }
       } else {
-        await prismaCore.mission.create({ data: entry.missionData });
+        const missionData = normalizeOrganizationId(entry.missionData);
+        await prismaCore.mission.create({ data: missionData });
         if (entry.addresses.length) {
           await prismaCore.missionAddress.createMany({ data: entry.addresses });
         }
@@ -640,7 +680,8 @@ const persistBatch = async (
         sampleUpdates.push({ before: existingRecord, after: entry.record });
       }
     } else {
-      await prismaCore.mission.update({ where: { id: entry.record.id }, data: entry.updateData });
+      const updateData = normalizeOrganizationId(entry.updateData);
+      await prismaCore.mission.update({ where: { id: entry.record.id }, data: updateData });
       await prismaCore.missionAddress.deleteMany({ where: { missionId: entry.record.id } });
       if (entry.addresses.length) {
         await prismaCore.missionAddress.createMany({ data: entry.addresses });

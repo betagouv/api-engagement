@@ -29,25 +29,6 @@ CREATE TYPE "public"."CompensationUnit" AS ENUM ('hour', 'day', 'month', 'year')
 -- CreateEnum
 CREATE TYPE "public"."CompensationType" AS ENUM ('gross', 'net');
 
--- DropIndex
-DROP INDEX "public"."stats_event_mission_client_id_created_at_idx";
-
--- DropIndex
-DROP INDEX "public"."stats_event_mission_department_name_created_at_idx";
-
--- DropIndex
-DROP INDEX "public"."stats_event_mission_domain_created_at_idx";
-
--- AlterTable
-ALTER TABLE "public"."stat_event" DROP COLUMN "mission_client_id",
-DROP COLUMN "mission_department_name",
-DROP COLUMN "mission_domain",
-DROP COLUMN "mission_organization_client_id",
-DROP COLUMN "mission_organization_id",
-DROP COLUMN "mission_organization_name",
-DROP COLUMN "mission_postal_code",
-DROP COLUMN "mission_title";
-
 -- CreateTable
 CREATE TABLE "public"."mission" (
     "id" TEXT NOT NULL,
@@ -125,7 +106,7 @@ CREATE TABLE "public"."mission_address" (
     "country" TEXT,
     "location_lat" DOUBLE PRECISION,
     "location_lon" DOUBLE PRECISION,
-    "geo_point" geography(Point,4326),
+    "geo_point" POINT,
     "geoloc_status" TEXT,
     "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updated_at" TIMESTAMP(3) NOT NULL,
@@ -152,6 +133,9 @@ CREATE TABLE "public"."mission_moderation_status" (
 CREATE INDEX "mission_publisher_status_deleted_start_at_idx" ON "public"."mission"("publisher_id", "status_code", "deleted_at", "start_at" DESC);
 
 -- CreateIndex
+CREATE INDEX "mission_status_deleted_start_at_idx" ON "public"."mission"("status_code", "deleted_at", "start_at" DESC);
+
+-- CreateIndex
 CREATE INDEX "mission_created_at_idx" ON "public"."mission"("created_at");
 
 -- CreateIndex
@@ -170,6 +154,12 @@ CREATE INDEX "mission_activity_idx" ON "public"."mission"("activity");
 CREATE INDEX "mission_publisher_id_idx" ON "public"."mission"("publisher_id");
 
 -- CreateIndex
+CREATE INDEX "mission_client_id_idx" ON "public"."mission"("client_id");
+
+-- CreateIndex
+CREATE INDEX "mission_organization_client_id_idx" ON "public"."mission"("organization_client_id");
+
+-- CreateIndex
 CREATE INDEX "mission_deleted_at_idx" ON "public"."mission"("deleted_at");
 
 -- CreateIndex
@@ -182,16 +172,25 @@ CREATE UNIQUE INDEX "mission_client_publisher_key" ON "public"."mission"("client
 CREATE INDEX "mission_address_mission_id_idx" ON "public"."mission_address"("mission_id");
 
 -- CreateIndex
+CREATE INDEX "mission_address_city_idx" ON "public"."mission_address"("city");
+
+-- CreateIndex
+CREATE INDEX "mission_address_country_idx" ON "public"."mission_address"("country");
+
+-- CreateIndex
+CREATE INDEX "mission_address_department_name_idx" ON "public"."mission_address"("department_name");
+
+-- CreateIndex
 CREATE INDEX "mission_moderation_status_mission_id_idx" ON "public"."mission_moderation_status"("mission_id");
 
 -- CreateIndex
 CREATE INDEX "mission_moderation_status_publisher_id_idx" ON "public"."mission_moderation_status"("publisher_id");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "mission_moderation_status_mission_publisher_key" ON "public"."mission_moderation_status"("mission_id", "publisher_id");
+CREATE INDEX "mission_moderation_status_publisher_status_idx" ON "public"."mission_moderation_status"("publisher_id", "status");
 
--- AddForeignKey
-ALTER TABLE "public"."stat_event" ADD CONSTRAINT "stat_event_mission_id_fkey" FOREIGN KEY ("mission_id") REFERENCES "public"."mission"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+-- CreateIndex
+CREATE UNIQUE INDEX "mission_moderation_status_mission_publisher_key" ON "public"."mission_moderation_status"("mission_id", "publisher_id");
 
 -- AddForeignKey
 ALTER TABLE "public"."moderation_event" ADD CONSTRAINT "moderation_event_mission_id_fkey" FOREIGN KEY ("mission_id") REFERENCES "public"."mission"("id") ON DELETE CASCADE ON UPDATE CASCADE;
