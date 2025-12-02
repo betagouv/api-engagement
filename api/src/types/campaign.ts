@@ -46,6 +46,9 @@ export interface CampaignCreateInput {
   toPublisherId: string;
   trackers?: CampaignTrackerInput[];
   active?: boolean;
+  deletedAt?: Date | null;
+  reassignedAt?: Date | null;
+  reassignedByUserId?: string;
 }
 
 export interface CampaignTrackerInput {
@@ -62,4 +65,7 @@ export interface CampaignUpdatePatch {
   toPublisherId?: string;
   trackers?: CampaignTrackerInput[];
   active?: boolean;
+  deletedAt?: Date | null;
+  reassignedAt?: Date | null;
+  reassignedByUserId?: string | null;
 }

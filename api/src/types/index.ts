@@ -220,7 +220,8 @@ export type Request = {
 };
 
 export type StatsBot = {
-  _id: Schema.Types.ObjectId;
+  _id?: Schema.Types.ObjectId; // Deprecated: kept for backward compatibility with MongoDB migration
+  id?: string;
   origin?: string;
   referer?: string;
   userAgent?: string;

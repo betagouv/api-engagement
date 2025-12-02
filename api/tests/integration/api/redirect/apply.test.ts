@@ -3,7 +3,7 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 
 import { prismaCore } from "../../../../src/db/postgres";
 import MissionModel from "../../../../src/models/mission";
-import StatsBotModel from "../../../../src/models/stats-bot";
+import { statBotService } from "../../../../src/services/stat-bot";
 import * as utils from "../../../../src/utils";
 import { createTestPublisher } from "../../../fixtures/index";
 import { createClickStat } from "../../../fixtures/stat-event";
@@ -62,7 +62,7 @@ describe("RedirectController /apply", () => {
     };
 
     vi.spyOn(utils, "identify").mockReturnValue(identity);
-    const statsBotFindOneSpy = vi.spyOn(StatsBotModel, "findOne").mockResolvedValue({ user: identity.user } as any);
+    const statsBotFindOneSpy = vi.spyOn(statBotService, "findStatBotByUser").mockResolvedValue({ user: identity.user } as any);
 
     const clickStat = await createClickStat("click-123", {
       user: "click-user",
@@ -84,7 +84,7 @@ describe("RedirectController /apply", () => {
     expect(response.status).toBe(200);
     expect(response.body).toEqual({ ok: true, id: expect.any(String) });
 
-    expect(statsBotFindOneSpy).toHaveBeenCalledWith({ user: identity.user });
+    expect(statsBotFindOneSpy).toHaveBeenCalledWith(identity.user);
     const createdApply = await prismaCore.statEvent.findUnique({ where: { id: response.body.id } });
     expect(createdApply).toMatchObject({
       type: "apply",
@@ -113,7 +113,7 @@ describe("RedirectController /apply", () => {
       userAgent: "Mozilla/5.0",
     };
     vi.spyOn(utils, "identify").mockReturnValue(identity);
-    const statsBotFindOneSpy = vi.spyOn(StatsBotModel, "findOne").mockResolvedValue(null);
+    const statsBotFindOneSpy = vi.spyOn(statBotService, "findStatBotByUser").mockResolvedValue(null);
 
     const publisher = await createTestPublisher();
 
@@ -132,7 +132,7 @@ describe("RedirectController /apply", () => {
     expect(response.status).toBe(200);
     expect(response.body).toEqual({ ok: true, id: expect.any(String) });
 
-    expect(statsBotFindOneSpy).toHaveBeenCalledWith({ user: identity.user });
+    expect(statsBotFindOneSpy).toHaveBeenCalledWith(identity.user);
     const storedApply = await prismaCore.statEvent.findUnique({ where: { id: response.body.id } });
     expect(storedApply).toMatchObject({
       type: "apply",
@@ -160,7 +160,7 @@ describe("RedirectController /apply", () => {
     };
 
     vi.spyOn(utils, "identify").mockReturnValue(identity);
-    vi.spyOn(StatsBotModel, "findOne").mockResolvedValue(null);
+    vi.spyOn(statBotService, "findStatBotByUser").mockResolvedValue(null);
 
     await createClickStat("click-789", {
       user: "click-user",
