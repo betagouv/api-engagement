@@ -224,8 +224,17 @@ const buildDateFilter = (range?: { gt?: Date; lt?: Date }) => {
 const buildWhere = (filters: MissionSearchFilters): Prisma.MissionWhereInput => {
   const where: Prisma.MissionWhereInput = {
     statusCode: "ACCEPTED",
-    deletedAt: null,
   };
+  const orConditions: Prisma.MissionWhereInput[] = [];
+
+  if (!filters.includeDeleted) {
+    where.deletedAt = null;
+  } else if (filters.deletedAt) {
+    const deletedAtFilter = buildDateFilter(filters.deletedAt);
+    if (deletedAtFilter) {
+      orConditions.push({ deletedAt: null }, { deletedAt: deletedAtFilter });
+    }
+  }
 
   if (filters.publisherIds?.length) {
     where.publisherId = { in: filters.publisherIds };
@@ -250,14 +259,22 @@ const buildWhere = (filters: MissionSearchFilters): Prisma.MissionWhereInput => 
   if (filters.organizationClientId?.length) {
     where.organizationClientId = { in: filters.organizationClientId };
   }
-  if (filters.domain?.length) {
+  if (filters.domain?.length && !filters.domainIncludeMissing) {
     where.domain = { in: filters.domain };
+  } else if (filters.domain?.length && filters.domainIncludeMissing) {
+    orConditions.push({ domain: { in: filters.domain } });
+  }
+  if (filters.domainIncludeMissing) {
+    orConditions.push({ domain: null }, { domain: "" });
   }
   if (filters.remote?.length) {
     where.remote = { in: filters.remote as any };
   }
   if (filters.type?.length) {
     where.type = { in: filters.type as any };
+  }
+  if (filters.schedule?.length) {
+    where.schedule = { in: filters.schedule };
   }
   if (filters.snu) {
     where.snu = true;
@@ -268,6 +285,9 @@ const buildWhere = (filters: MissionSearchFilters): Prisma.MissionWhereInput => 
   if (filters.reducedMobilityAccessible) {
     where.reducedMobilityAccessible = filters.reducedMobilityAccessible as any;
   }
+  if (filters.durationLte !== undefined) {
+    where.duration = { ...(where.duration as Prisma.IntFilter | undefined), lte: filters.durationLte };
+  }
   const createdAtFilter = buildDateFilter(filters.createdAt);
   if (createdAtFilter) {
     where.createdAt = createdAtFilter;
@@ -277,20 +297,38 @@ const buildWhere = (filters: MissionSearchFilters): Prisma.MissionWhereInput => 
     where.startAt = startAtFilter;
   }
 
-  if (filters.city?.length || filters.country?.length || filters.departmentName?.length) {
-    where.addresses = {
-      some: {
-        ...(filters.city?.length ? { city: { in: filters.city } } : {}),
-        ...(filters.country?.length ? { country: { in: filters.country } } : {}),
-        ...(filters.departmentName?.length ? { departmentName: { in: filters.departmentName } } : {}),
-      },
-    };
+  const addressAnd: Prisma.MissionAddressWhereInput = {};
+  const addressOr: Prisma.MissionAddressWhereInput[] = [];
+  if (filters.city?.length) {
+    addressAnd.city = { in: filters.city };
+  }
+  if (filters.country?.length) {
+    addressAnd.country = { in: filters.country };
+  } else if (filters.countryNot?.length) {
+    addressAnd.country = { notIn: filters.countryNot };
+  }
+  if (filters.departmentName?.length) {
+    addressAnd.departmentName = { in: filters.departmentName };
+  }
+  if (filters.departmentNameIncludeMissing) {
+    addressOr.push({ departmentName: null }, { departmentName: "" });
+  }
+  if (Object.keys(addressAnd).length || addressOr.length) {
+    const clauses = [];
+    if (Object.keys(addressAnd).length) {
+      clauses.push(addressAnd);
+    }
+    if (addressOr.length) {
+      clauses.push(...addressOr);
+    }
+    where.addresses = clauses.length === 1 ? { some: clauses[0] } : { some: { OR: clauses } };
   }
 
-  if (filters.organizationRNA?.length || filters.organizationStatusJuridique?.length) {
+  if (filters.organizationRNA?.length || filters.organizationStatusJuridique?.length || filters.organizationName?.length) {
     where.organization = {
       ...(filters.organizationRNA?.length ? { rna: { in: filters.organizationRNA } } : {}),
       ...(filters.organizationStatusJuridique?.length ? { status: { in: filters.organizationStatusJuridique } } : {}),
+      ...(filters.organizationName?.length ? { title: { in: filters.organizationName } } : {}),
     };
   }
 
@@ -314,10 +352,15 @@ const buildWhere = (filters: MissionSearchFilters): Prisma.MissionWhereInput => 
   }
 
   if (filters.excludeOrganizationName) {
-    where.organization = {
-      ...(where.organization as Prisma.OrganizationWhereInput | undefined),
-      title: { not: filters.excludeOrganizationName },
-    };
+    const organizationWhere = (where.organization as Prisma.OrganizationWhereInput | undefined) ?? {};
+    const titleFilter = (organizationWhere.title as Prisma.StringFilter | undefined) ?? {};
+    organizationWhere.title = { ...titleFilter, not: filters.excludeOrganizationName };
+    where.organization = organizationWhere;
+  }
+
+  if (orConditions.length) {
+    const existingOr = Array.isArray(where.OR) ? where.OR : where.OR ? [where.OR] : [];
+    where.OR = [...existingOr, ...orConditions];
   }
 
   return where;
@@ -432,6 +475,11 @@ export const missionService = {
     ]);
 
     return { data: missions.map((mission) => toMissionRecord(mission as MissionWithRelations)), total };
+  },
+
+  async countMissions(filters: MissionSearchFilters): Promise<number> {
+    const where = buildWhere(filters);
+    return missionRepository.count(where);
   },
 
   async findMissionsWithFacets(filters: MissionSearchFilters): Promise<{ data: MissionRecord[]; total: number; facets: MissionFacets }> {

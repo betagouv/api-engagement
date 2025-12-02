@@ -162,6 +162,14 @@ export type MissionSearchFilters = {
   remote?: Array<MissionRemote | string>;
   snu?: boolean;
   startAt?: { gt?: Date; lt?: Date };
+  durationLte?: number;
+  domainIncludeMissing?: boolean;
+  departmentNameIncludeMissing?: boolean;
+  deletedAt?: { gt?: Date; lt?: Date };
+  includeDeleted?: boolean;
+  schedule?: string[];
+  organizationName?: string[];
+  countryNot?: string[];
   type?: string[];
   lat?: number;
   lon?: number;
