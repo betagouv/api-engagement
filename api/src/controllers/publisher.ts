@@ -308,6 +308,7 @@ router.put("/:id", passport.authenticate("admin", { session: false }), async (re
 
     const body = zod
       .object({
+        name: zod.string().optional(),
         sendReport: zod.boolean().optional(),
         sendReportTo: zod.array(zod.string()).optional(),
         isAnnonceur: zod.boolean().optional(),
@@ -343,6 +344,7 @@ router.put("/:id", passport.authenticate("admin", { session: false }), async (re
     const publishers = body.data.publishers !== undefined ? (mapPublishersForService(body.data.publishers) ?? []) : undefined;
 
     const patch = {
+      name: body.data.name,
       sendReport: body.data.sendReport,
       sendReportTo: body.data.sendReportTo,
       isAnnonceur: body.data.isAnnonceur,

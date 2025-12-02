@@ -309,7 +309,7 @@ export const publisherService = (() => {
     const data: Prisma.PublisherUpdateInput = {};
 
     if (patch.name !== undefined) {
-      data.name = patch.name.trim();
+      data.name = normalizeOptionalString(patch.name) ?? "";
     }
     if (patch.category !== undefined) {
       data.category = normalizeOptionalString(patch.category) ?? null;

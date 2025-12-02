@@ -1,8 +1,9 @@
 import _ from "lodash";
 import { useEffect, useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import { toast } from "react-toastify";
 
+import { RiArrowLeftLine } from "react-icons/ri";
 import TrashSvg from "../../assets/svg/trash-icon.svg?react";
 import Loader from "../../components/Loader";
 import api from "../../services/api";
@@ -151,8 +152,12 @@ const Edit = () => {
     );
 
   return (
-    <div className="flex flex-col">
-      <div className="mb-10 flex items-center">
+    <div className="flex flex-col gap-8">
+      <Link to="/admin-account/publishers" className="border-blue-france text-blue-france flex w-fit items-center gap-2 border-b text-[16px]">
+        <RiArrowLeftLine />
+        Retour
+      </Link>
+      <div className="flex items-center">
         <label
           htmlFor="logo"
           className="flex h-24 w-32 cursor-pointer flex-col items-center justify-center bg-white p-2 shadow-lg transition-all duration-500 hover:bg-gray-900/10"
