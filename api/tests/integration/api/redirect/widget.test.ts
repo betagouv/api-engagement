@@ -84,7 +84,7 @@ describe("RedirectController /widget/:id", () => {
       .get(`/r/widget/${mission._id.toString()}`)
       .set("Host", "redirect.test")
       .set("Origin", "https://app.example.com")
-      .query({ widgetId: widget._id.toString(), requestId });
+      .query({ widgetId: widget.id, requestId });
 
     expect(response.status).toBe(302);
     const redirectUrl = new URL(response.headers.location);
@@ -105,7 +105,7 @@ describe("RedirectController /widget/:id", () => {
       origin: "https://app.example.com",
       requestId,
       source: "widget",
-      sourceId: widget._id.toString(),
+      sourceId: widget.id,
       sourceName: widget.name,
       missionId: mission._id.toString(),
       missionClientId: mission.clientId,
@@ -159,7 +159,7 @@ describe("RedirectController /widget/:id", () => {
       vi.spyOn(utils, "identify").mockReturnValue(identity);
       vi.spyOn(StatsBotModel, "findOne").mockResolvedValue(null);
 
-      const response = await request(app).get(`/r/widget/${mission._id.toString()}`).query({ widgetId: widget._id.toString() });
+      const response = await request(app).get(`/r/widget/${mission._id.toString()}`).query({ widgetId: widget.id });
 
       expect(response.status).toBe(302);
       const redirectUrl = new URL(response.headers.location);

@@ -96,7 +96,7 @@ describe("RedirectController /impression/:missionId/:publisherId", () => {
       .get(`/r/impression/${mission._id.toString()}/${publisher.id}`)
       .set("Host", "redirect.test")
       .set("Origin", "https://app.example.com")
-      .query({ tracker: "tag", sourceId: widget._id.toString(), requestId });
+      .query({ tracker: "tag", sourceId: widget.id, requestId });
 
     expect(response.status).toBe(200);
     expect(response.body.ok).toBe(true);
@@ -113,7 +113,7 @@ describe("RedirectController /impression/:missionId/:publisherId", () => {
       requestId,
       tag: "tag",
       source: "widget",
-      sourceId: widget._id.toString(),
+      sourceId: widget.id,
       sourceName: widget.name,
       missionId: mission._id.toString(),
       missionClientId: mission.clientId,
@@ -134,7 +134,7 @@ describe("RedirectController /impression/:missionId/:publisherId", () => {
       type: "print",
       tag: "tag",
       source: "widget",
-      sourceId: widget._id.toString(),
+      sourceId: widget.id,
       sourceName: widget.name,
       missionId: mission._id.toString(),
       missionClientId: mission.clientId,
