@@ -53,7 +53,7 @@ const MissionItem = ({ data, history, selected, onChange, onSelect, onFilter, on
         }
       }
     } catch (error) {
-      captureError(error, "Une erreur est survenue");
+      captureError(error, { extra: { data } });
     }
   };
 
@@ -253,7 +253,7 @@ const UpdateNoteModal = ({ isOpen, onChange, onClose, data }) => {
       onChange({ note });
       onClose();
     } catch (error) {
-      captureError(error, "Une erreur est survenue");
+      captureError(error, { extra: { data, note, moderatorId: publisher.id } });
     }
   };
 

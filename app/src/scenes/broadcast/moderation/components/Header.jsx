@@ -94,7 +94,7 @@ const ManyUpdateModal = ({ onClose, selected, onChange }) => {
       onChange(data);
       onClose();
     } catch (error) {
-      captureError(error, "Une erreur est survenue");
+      captureError(error, { extra: { selected } });
     }
     setLoading(false);
   };

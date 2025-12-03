@@ -51,7 +51,7 @@ const Create = () => {
       toast.success("Partenaire créé avec succès");
       navigate(`/publisher/${res.data.id}`);
     } catch (error) {
-      captureError(error, "Erreur lors de la création du partenaire");
+      captureError(error, { extra: { values } });
     }
   };
 

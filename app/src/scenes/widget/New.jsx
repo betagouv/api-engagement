@@ -70,7 +70,7 @@ const New = () => {
         navigate("/broadcast/widgets");
       }
     } catch (error) {
-      captureError(error, "Erreur lors de la création du widget");
+      captureError(error, { extra: { values } });
     }
   };
 

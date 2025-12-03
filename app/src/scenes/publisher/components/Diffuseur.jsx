@@ -42,7 +42,7 @@ const Diffuseur = ({ values, onChange, errors, setErrors }) => {
         setPublishers(withLegacyPublishers(res.data));
         setErrors({});
       } catch (error) {
-        captureError(error, "Erreur lors de la récupération des diffuseurs");
+        captureError(error, { extra: { publisherId: values.id } });
       }
     };
     fetchData();

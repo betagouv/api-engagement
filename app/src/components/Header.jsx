@@ -87,7 +87,7 @@ const NotificationMenu = () => {
         if (!resS.ok) throw resS;
         setState(resS.data);
       } catch (error) {
-        captureError(error, "Erreur lors de la récupération des alertes en cours");
+        captureError(error, { extra: { publisherId: publisher.id } });
       }
     };
     fetchData();
@@ -209,7 +209,7 @@ const AdminNotificationMenu = () => {
         if (!resS.ok) throw resS;
         setState(resS.data);
       } catch (error) {
-        captureError(error, "Erreur lors de la récupération des alertes en cours");
+        captureError(error);
       }
     };
     fetchData();

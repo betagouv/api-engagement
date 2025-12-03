@@ -40,7 +40,7 @@ const GlobalAnnounce = ({ filters, onFiltersChange }) => {
 
         setData((prev) => ({ ...prev, ...res.data }));
       } catch (error) {
-        captureError(error, "Erreur lors de la récupération des données");
+        captureError(error, { extra: { filters } });
       }
       setLoading(false);
     };
@@ -56,7 +56,7 @@ const GlobalAnnounce = ({ filters, onFiltersChange }) => {
         if (!res.ok) throw res;
         setData((prev) => ({ ...prev, totalMissionAvailable: res.total }));
       } catch (error) {
-        captureError(error, "Erreur lors de la récupération des données");
+        captureError(error, { extra: { filters } });
       }
       setLoadingMission(false);
     };
@@ -173,7 +173,7 @@ const Evolution = ({ filters, defaultType = "print" }) => {
         if (!res.ok) throw res;
         setData(res.data);
       } catch (error) {
-        captureError(error, "Erreur lors de la récupération des données");
+        captureError(error, { extra: { filters, type } });
       }
       setLoading(false);
     };
@@ -267,7 +267,7 @@ const Announcers = ({ filters, defaultType = "print" }) => {
         setData(res.data);
         setTotal(res.total);
       } catch (error) {
-        captureError(error, "Erreur lors de la récupération des données");
+        captureError(error, { extra: { filters, type } });
       }
       setLoading(false);
     };

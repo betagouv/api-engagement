@@ -27,7 +27,7 @@ const Publishers = () => {
         if (!res.ok) throw res;
         setUsers(res.data);
       } catch (error) {
-        captureError(error, "Erreur lors de la récupération des utilisateurs");
+        captureError(error);
       } finally {
         setLoading(false);
       }
@@ -54,7 +54,7 @@ const Publishers = () => {
           setDiffuseurs(normalized);
         }
       } catch (error) {
-        captureError(error, "Erreur lors de la récupération des partenaires");
+        captureError(error, { extra: { filters } });
       } finally {
         setLoading(false);
       }

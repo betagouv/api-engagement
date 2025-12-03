@@ -65,7 +65,7 @@ const Index = () => {
           }, {}),
         );
       } catch (error) {
-        captureError(error, "Erreur lors de la récupération des données");
+        captureError(error);
       }
       setLoading(false);
     };
@@ -113,7 +113,7 @@ const Index = () => {
           }, {}),
         );
       } catch (error) {
-        captureError(error, "Erreur lors de la récupération des données");
+        captureError(error, { extra: { filters: archivedFilters } });
       }
     };
     fetchData();

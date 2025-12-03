@@ -16,7 +16,7 @@ const Members = ({ values, onChange }) => {
         if (!res.ok) throw res;
         setMembers(res.data);
       } catch (error) {
-        captureError(error, "Erreur lors de la récupération des membres");
+        captureError(error, { extra: { publisherId: values.id } });
       }
     };
     fetchData();
@@ -36,9 +36,7 @@ const Members = ({ values, onChange }) => {
                   type="checkbox"
                   className="checkbox"
                   checked={values.sendReportTo.includes(item.id)}
-                  onChange={(e) =>
-                    onChange({ ...values, sendReportTo: e.target.checked ? [...values.sendReportTo, item.id] : values.sendReportTo.filter((id) => id !== item.id) })
-                  }
+                  onChange={(e) => onChange({ ...values, sendReportTo: e.target.checked ? [...values.sendReportTo, item.id] : values.sendReportTo.filter((id) => id !== item.id) })}
                 />
               </div>
             </td>

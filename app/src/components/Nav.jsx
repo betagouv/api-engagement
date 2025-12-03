@@ -23,7 +23,7 @@ const Nav = () => {
         const normalized = withLegacyPublishers(res.data);
         setPublishers(normalized.sort((a, b) => (a.name || "").localeCompare(b.name || "")));
       } catch (error) {
-        captureError(error, "Erreur lors de la récupération des partenaires");
+        captureError(error, { extra: { userRole: user.role, userPublishers: user.publishers } });
       }
     };
 
