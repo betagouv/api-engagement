@@ -49,24 +49,6 @@ const Edit = () => {
     fetchData();
   }, [id]);
 
-  useEffect(() => {
-    const fetchData = async () => {
-      if (!campaign) return;
-      try {
-        const resC = await api.post(`/stats/search`, { type: "click", sourceId: id, size: 1, fromPublisherId: campaign.fromPublisherId });
-        if (!resC.ok) throw resC;
-
-        const resI = await api.post(`/stats/search`, { type: "print", sourceId: id, size: 1, fromPublisherId: campaign.fromPublisherId });
-        if (!resI.ok) throw resI;
-
-        if ((resC.data?.length || 0) > 0 && (resI.data?.length || 0) === 0) setTracking(true);
-      } catch (error) {
-        captureError(error, "Erreur lors de la récupération des données");
-      }
-    };
-    fetchData();
-  }, [campaign?.fromPublisherId, id]);
-
   const handleSubmit = async () => {
     const errors = {};
 
@@ -152,7 +134,6 @@ const Edit = () => {
       </div>
     );
 
-  console.log("values", values);
   return (
     <>
       <ReassignModal
@@ -164,7 +145,7 @@ const Edit = () => {
         setCampaign={setCampaign}
       />
       <div className="flex flex-col gap-8">
-        <Link to="/broadcast" className="border-blue-france text-blue-france flex w-fit items-center gap-2 border-b text-[16px]">
+        <Link to="/broadcast/campaigns" className="border-blue-france text-blue-france flex w-fit items-center gap-2 border-b text-[16px]">
           <RiArrowLeftLine />
           Retour
         </Link>
@@ -242,7 +223,7 @@ const CampaignMenu = ({ setIsReassignModalOpen, handleDelete }) => {
           </button>
         </li>
         <li>
-          <button className="dropdown-btn w-full" onClick={handleDelete}>
+          <button className="dropdown-red-btn w-full" onClick={handleDelete}>
             <RiDeleteBin6Line />
             <span>Supprimer</span>
           </button>
