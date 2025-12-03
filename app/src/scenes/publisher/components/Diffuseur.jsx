@@ -29,10 +29,7 @@ const Diffuseur = ({ values, onChange, errors, setErrors }) => {
     setSelectedPublishers(normalizeSelectedPublishers(values.publishers));
   }, [values.publishers]);
 
-  const selectedPublisherIds = useMemo(
-    () => new Set(selectedPublishers.map((publisher) => publisher.publisherId).filter(Boolean)),
-    [selectedPublishers]
-  );
+  const selectedPublisherIds = useMemo(() => new Set(selectedPublishers.map((publisher) => publisher.publisherId).filter(Boolean)), [selectedPublishers]);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -63,11 +60,11 @@ const Diffuseur = ({ values, onChange, errors, setErrors }) => {
       {values.isDiffuseur && (
         <>
           <div className="h-px w-full bg-gray-900" />
-          {errors.category && <p className="text-red-700">{errors.category}</p>}
-          {errors.mode && <p className="text-red-700">{errors.mode}</p>}
+          {errors.category && <p className="text-red-error">{errors.category}</p>}
+          {errors.mode && <p className="text-red-error">{errors.mode}</p>}
           <div className="space-y-2">
             <label className="text-base" htmlFor="category">
-              Catégorie <span className="text-red-500">*</span>
+              Catégorie <span className="text-red-marianne ml-1">*</span>
             </label>
             <select id="category" className="select w-full" name="category" value={values.category || ""} onChange={(e) => onChange({ ...values, category: e.target.value })}>
               <option value="">Sélectionner une catégorie de diffuseur</option>
@@ -81,7 +78,7 @@ const Diffuseur = ({ values, onChange, errors, setErrors }) => {
           <div className="h-px w-full bg-gray-900" />
           <div className="space-y-4">
             <label className="text-base" htmlFor="category">
-              Moyens de diffusion <span className="text-red-500">*</span>
+              Moyens de diffusion <span className="text-red-marianne ml-1">*</span>
             </label>
             <div className="flex items-center gap-2">
               <input

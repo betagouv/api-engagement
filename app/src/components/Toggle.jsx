@@ -6,7 +6,7 @@ const Toggle = ({ value, onChange = () => null }) => {
     <Switch
       checked={value}
       onChange={onChange}
-      className={`${value ? "bg-blue-france" : "bg-transparent"} border-blue-france focus-visible:ring-opacity-75 relative inline-flex h-6 w-10 shrink-0 cursor-pointer items-center rounded-full border p-0 focus:outline-none focus-visible:ring-2 focus-visible:ring-white`}
+      className={`${value ? "bg-blue-france" : "bg-white"} border-blue-france focus-visible:ring-opacity-75 relative inline-flex h-6 w-10 shrink-0 cursor-pointer items-center rounded-full border p-0 focus:outline-none focus-visible:ring-2 focus-visible:ring-white`}
     >
       <span
         aria-hidden="true"

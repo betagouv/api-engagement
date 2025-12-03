@@ -112,7 +112,7 @@ const ManyUpdateModal = ({ onClose, selected, onChange }) => {
             <div className="flex w-full flex-col justify-center gap-4">
               <div className="flex flex-col gap-2">
                 <label htmlFor="status" className="text-sm">
-                  Statut<span className="text-red-error ml-1">*</span>
+                  Statut<span className="text-red-marianne ml-1">*</span>
                 </label>
                 <select
                   id="status"

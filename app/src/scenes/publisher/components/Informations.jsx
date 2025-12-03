@@ -6,7 +6,7 @@ const Informations = ({ values, onChange, disabled = true }) => {
         <div className="flex flex-col gap-2">
           <label className="text-sm" htmlFor="name">
             Nom
-            <span className="text-xs text-red-700">*</span>
+            <span className="text-red-marianne ml-1">*</span>
           </label>
           <input id="name" className="input" name="name" disabled={disabled} value={values.name} onChange={(e) => onChange({ ...values, name: e.target.value })} />
         </div>

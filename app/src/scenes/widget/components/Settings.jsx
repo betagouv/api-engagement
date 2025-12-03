@@ -93,7 +93,7 @@ const Settings = ({ widget, values, onChange, loading }) => {
         <div className="grid grid-cols-2 gap-10">
           <div className="flex flex-col gap-4">
             <label className="text-base" htmlFor="name">
-              Nom du widget<span className="text-red-error ml-1">*</span>
+              Nom du widget<span className="text-red-marianne ml-1">*</span>
             </label>
             <input id="name" className="input" name="name" value={values.name} onChange={(e) => onChange({ ...values, name: e.target.value })} disabled={Boolean(widget)} />
           </div>
@@ -115,7 +115,7 @@ const Settings = ({ widget, values, onChange, loading }) => {
         <div className="grid grid-cols-2 gap-10">
           <div className="space-y-4">
             <label className="text-base">
-              Type de mission<span className="text-red-error ml-1">*</span>
+              Type de mission<span className="text-red-marianne ml-1">*</span>
             </label>
             <div className="flex items-center">
               {publisher.publishers.filter((p) => p.publisherId !== SC_ID).length > 0 && (
@@ -177,7 +177,7 @@ const Settings = ({ widget, values, onChange, loading }) => {
         <div className="space-y-4">
           <label className="text-base" htmlFor="location">
             Diffuser des missions de
-            <span className="text-red-error ml-1">*</span>
+            <span className="text-red-marianne ml-1">*</span>
           </label>
 
           {values.type === "benevolat" && (
@@ -315,7 +315,7 @@ const Settings = ({ widget, values, onChange, loading }) => {
         <div className="grid grid-cols-2 gap-10">
           <div className="flex flex-col gap-4">
             <label className="text-base" htmlFor="style">
-              Mode d'affichage<span className="text-red-error ml-1">*</span>
+              Mode d'affichage<span className="text-red-marianne ml-1">*</span>
             </label>
             <div className="flex items-center justify-between">
               <div>
@@ -346,7 +346,7 @@ const Settings = ({ widget, values, onChange, loading }) => {
 
           <div className="flex flex-col gap-4">
             <label className="text-base" htmlFor="color">
-              Code hexadécimal couleur<span className="text-red-error ml-1">*</span>
+              Code hexadécimal couleur<span className="text-red-marianne ml-1">*</span>
             </label>
             <div className="flex items-center gap-4">
               <div className="h-9 w-9 rounded" style={{ backgroundColor: values.color }} />

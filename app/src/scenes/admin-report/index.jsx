@@ -125,7 +125,7 @@ const AdminReport = () => {
                 ) : (
                   <>
                     <div className="flex items-center gap-2">
-                      <div className="h-2 w-2 rounded-full bg-red-500" />
+                      <div className="bg-red-error h-2 w-2 rounded-full" />
                       <p className="flex-1 text-sm font-bold">Non envoyé</p>
                     </div>
                     <p className="flex-1 text-xs">{REPORT_STATUS[item.status] || item.status}</p>

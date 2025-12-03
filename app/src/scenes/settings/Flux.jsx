@@ -91,7 +91,7 @@ const Flux = () => {
             {imports.length > 0 && lastSync < new Date(Date.now() - 24 * 60 * 60 * 1000) ? (
               <div className="items-center">
                 <p className="inline align-middle">{new Date(lastSync).toLocaleString("fr").replace(" ", " à ")}</p>
-                <RiCloseCircleFill className="ml-2 inline h-5 w-5 align-middle text-red-500" />
+                <RiCloseCircleFill className="text-red-error ml-2 inline h-5 w-5 align-middle" />
                 <p className="text-xs">Dernière synchronisation il y a plus de 24h.</p>
               </div>
             ) : (
