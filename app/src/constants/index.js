@@ -194,6 +194,7 @@ export const PUBLISHER_CATEGORIES = {
 };
 
 export const MISSION_TYPES = {
-  VOLONTARIAT: { slug: "volontariat_service_civique", label: "Volontariat (Service Civique)" },
+  VOLONTARIAT_SERVICE_CIVIQUE: { slug: "volontariat_service_civique", label: "Volontariat (Service Civique)" },
   BENEVOLAT: { slug: "benevolat", label: "Bénévolat" },
+  VOLONTARIAT_SAPERS_POMPIERS: { slug: "volontariat_sapeurs_pompiers", label: "Volontariat (Sapeurs-Pompiers)" },
 };
