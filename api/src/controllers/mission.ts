@@ -13,7 +13,6 @@ const router = Router();
 const searchSchema = zod.object({
   status: zod.union([zod.string(), zod.array(zod.string())]).optional(),
   comment: zod.string().optional(),
-  type: zod.union([zod.string(), zod.array(zod.string())]).optional(),
   publisherId: zod.string().optional(),
   domain: zod.union([zod.string(), zod.array(zod.string())]).optional(),
   organization: zod.string().optional(),
@@ -90,7 +89,6 @@ const findFilters = (user: UserRequest["user"], body: zod.infer<typeof searchSch
     activity: asArray(body.activity),
     city: asArray(body.city),
     departmentName: asArray(body.department),
-    type: asArray(body.type),
   };
 
   if (body.status) {

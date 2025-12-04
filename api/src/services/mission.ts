@@ -231,7 +231,7 @@ const buildDateFilter = (range?: { gt?: Date; lt?: Date }) => {
   return Object.keys(filter).length ? filter : undefined;
 };
 
-const buildWhere = (filters: MissionSearchFilters): Prisma.MissionWhereInput => {
+export const buildWhere = (filters: MissionSearchFilters): Prisma.MissionWhereInput => {
   const where: Prisma.MissionWhereInput = {
     statusCode: "ACCEPTED",
   };
@@ -452,14 +452,13 @@ const buildAggregations = async (where: Prisma.MissionWhereInput): Promise<Missi
     return rows
       .map((row) => ({
         key: String((row as any)[field] ?? ""),
-        count: Number((row as any)._count?._all ?? 0),
+        doc_count: Number((row as any)._count?._all ?? 0),
       }))
       .filter((row) => isNonEmpty(row.key))
-      .sort((a, b) => b.count - a.count)
-      .map((row) => ({ key: row.key, doc_count: row.count }));
+      .sort((a, b) => b.doc_count - a.doc_count);
   };
 
-  const aggregateAddresses = async (field: "city" | "departmentName") => {
+  const aggregateAddressField = async (field: "city" | "departmentName") => {
     const rows = await prismaCore.missionAddress.groupBy({
       by: [field],
       where: { mission: where },
@@ -469,82 +468,51 @@ const buildAggregations = async (where: Prisma.MissionWhereInput): Promise<Missi
     return rows
       .map((row) => ({
         key: String((row as any)[field] ?? ""),
-        count: Number((row as any)._count?._all ?? 0),
+        doc_count: Number((row as any)._count?._all ?? 0),
       }))
       .filter((row) => isNonEmpty(row.key))
-      .sort((a, b) => b.count - a.count)
-      .map((row) => ({ key: row.key, doc_count: row.count }));
+      .sort((a, b) => b.doc_count - a.doc_count);
   };
 
-  const [status, comments, type, domains, organizationsRows, activities, cities, departments, partnersRows, leboncoinStatus] = await Promise.all([
-    aggregateMissionField("statusCode"),
-    aggregateMissionField("statusComment"),
-    aggregateMissionField("type"),
-    aggregateMissionField("domain"),
-    prismaCore.mission.groupBy({
-      by: ["organizationId"],
-      where,
-      _count: { _all: true },
-    }),
-    aggregateMissionField("activity"),
-    aggregateAddresses("city"),
-    aggregateAddresses("departmentName"),
-    prismaCore.mission.groupBy({
-      by: ["publisherId"],
-      where,
-      _count: { _all: true },
-    }),
-    aggregateMissionField("leboncoinStatus"),
-  ]);
+  // Run sequentially to avoid exhausting the small Prisma connection pool when many filters are used
+  const status = await aggregateMissionField("statusCode");
+  const comments = await aggregateMissionField("statusComment");
+  const domains = await aggregateMissionField("domain");
+  const activities = await aggregateMissionField("activity");
+  const leboncoinStatus = await aggregateMissionField("leboncoinStatus");
+  const partnersRaw = await aggregateMissionField("publisherId");
+  const organizationsRaw = await aggregateMissionField("organizationId");
+  const cities = await aggregateAddressField("city");
+  const departments = await aggregateAddressField("departmentName");
 
-  const organizationIds = organizationsRows.map((row) => row.organizationId).filter(isNonEmpty) as string[];
-  const organizations = organizationIds.length
-    ? await organizationRepository.findMany({
-        where: { id: { in: organizationIds } },
-        select: { id: true, title: true },
-      })
-    : [];
+  const organizationIds = organizationsRaw.map((row) => row.key).filter(isNonEmpty) as string[];
+  const organizations =
+    organizationIds.length > 0
+      ? await organizationRepository.findMany({ where: { id: { in: organizationIds } }, select: { id: true, title: true } })
+      : [];
   const orgById = new Map(organizations.map((org) => [org.id, org.title ?? ""]));
-  const organizationsAgg = organizationsRows
-    .map((row) => ({
-      key: orgById.get(row.organizationId ?? "") ?? "",
-      doc_count: Number((row as any)._count?._all ?? 0),
-    }))
+  const organizationsAgg = organizationsRaw
+    .map((row) => ({ key: orgById.get(row.key) ?? "", doc_count: row.doc_count }))
     .filter((row) => isNonEmpty(row.key))
     .sort((a, b) => b.doc_count - a.doc_count);
 
-  const partners = partnersRows
-    .map((row) => ({
-      _id: row.publisherId ?? "",
-      count: Number((row as any)._count?._all ?? 0),
-    }))
+  const publisherIds = partnersRaw.map((row) => row.key).filter(isNonEmpty) as string[];
+  const publishers = publisherIds.length ? await publisherService.findPublishersByIds(publisherIds) : [];
+  const publisherById = new Map(publishers.map((publisher) => [publisher._id, publisher]));
+  const partners = partnersRaw
+    .map((row) => {
+      const publisher = publisherById.get(row.key);
+      return {
+        _id: row.key,
+        count: row.doc_count,
+        name: publisher?.name,
+        mission_type: publisher?.missionType === "volontariat_service_civique" ? "volontariat" : "benevolat",
+      };
+    })
     .filter((row) => isNonEmpty(row._id))
     .sort((a, b) => b.count - a.count);
 
-  const publisherIds = partners.map((partner) => partner._id);
-  const publishers = publisherIds.length ? await publisherService.findPublishersByIds(publisherIds) : [];
-  const publisherById = new Map(publishers.map((publisher) => [publisher._id, publisher]));
-  const partnersAgg = partners.map((partner) => {
-    const publisher = publisherById.get(partner._id);
-    return {
-      ...partner,
-      name: publisher?.name,
-      mission_type: publisher?.missionType === "volontariat_service_civique" ? "volontariat" : "benevolat",
-    };
-  });
-
-  return {
-    status: status as MissionSearchAggregations["status"],
-    comments: comments as MissionSearchAggregations["comments"],
-    type: type as MissionSearchAggregations["type"],
-    domains: domains as MissionSearchAggregations["domains"],
-    organizations: organizationsAgg,
-    activities: activities as MissionSearchAggregations["activities"],
-    cities: cities as MissionSearchAggregations["cities"],
-    departments: departments as MissionSearchAggregations["departments"],
-    partners: partnersAgg,
-    leboncoinStatus: leboncoinStatus as MissionSearchAggregations["leboncoinStatus"],
-  };
+  return { status, comments, domains, organizations: organizationsAgg, activities, cities, departments, partners, leboncoinStatus };
 };
 
 const mapAddressesForCreate = (addresses?: MissionRecord["addresses"]) => {
@@ -643,7 +611,6 @@ export const missionService = {
       const missions = await missionRepository.findMany({
         where,
         include: baseInclude,
-        orderBy: { startAt: Prisma.SortOrder.desc },
       });
 
       const filtered = missions
@@ -669,7 +636,6 @@ export const missionService = {
       missionRepository.findMany({
         where,
         include: baseInclude,
-        orderBy: { startAt: Prisma.SortOrder.desc },
         skip: filters.skip,
         take: filters.limit,
       }),
