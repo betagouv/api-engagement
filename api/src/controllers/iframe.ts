@@ -3,9 +3,11 @@ import { NextFunction, Request, Response, Router } from "express";
 import zod from "zod";
 
 import { PUBLISHER_IDS } from "../config";
+import { prismaCore } from "../db/postgres";
 import { INVALID_PARAMS, INVALID_QUERY, NOT_FOUND, captureMessage } from "../error";
 import WidgetModel from "../models/widget";
-import { missionService } from "../services/mission";
+import { organizationRepository } from "../repositories/organization";
+import { buildWhere, missionService } from "../services/mission";
 import { publisherDiffusionExclusionService } from "../services/publisher-diffusion-exclusion";
 import { Widget } from "../types";
 import type { MissionRecord, MissionSearchFilters } from "../types/mission";
@@ -125,7 +127,9 @@ router.get("/:id/aggs", cors({ origin: "*" }), async (req: Request, res: Respons
 
     const query = zod
       .object({
-        aggs: zod.array(zod.string()).default(["domain", "organization", "department", "schedule", "remote", "action", "beneficiary", "country", "minor", "accessibility"]),
+        aggs: zod
+          .array(zod.enum(["domain", "organization", "department", "schedule", "remote", "country", "minor", "accessibility"]))
+          .default(["domain", "organization", "department", "remote", "country"]),
         domain: zod.union([zod.string(), zod.array(zod.string())]).optional(),
         organization: zod.union([zod.string(), zod.array(zod.string())]).optional(),
         department: zod.union([zod.string(), zod.array(zod.string())]).optional(),
@@ -165,13 +169,10 @@ router.get("/:id/aggs", cors({ origin: "*" }), async (req: Request, res: Respons
     const diffusionExclusions = await publisherDiffusionExclusionService.findExclusionsForDiffuseurId(widget.fromPublisherId);
     const excludedIds = diffusionExclusions.map((e) => e.organizationClientId).filter((id): id is string => id !== null);
 
-    const aggLimit = Math.max(query.data.size + query.data.from, 1000);
-    const filters = buildMissionFilters(widget, query.data, excludedIds, { skip: 0, limit: aggLimit });
-    const { data } = await fetchWidgetMissions(widget, filters);
-
-    const aggsData = buildAggregations(data, query.data.aggs);
-
-    return res.status(200).send({ ok: true, data: aggsData });
+    // Reuse service-level aggregations to ensure we aggregate on the full dataset, not just paginated data
+    const filters = buildMissionFilters(widget, query.data, excludedIds, { skip: 0, limit: 0 });
+    const aggs = await fetchWidgetAggregations(widget, filters, query.data.aggs);
+    return res.status(200).send({ ok: true, data: aggs });
   } catch (error) {
     next(error);
   }
@@ -400,6 +401,103 @@ const fetchWidgetMissions = async (widget: Widget, filters: MissionSearchFilters
   return { data, total };
 };
 
+const mergeBuckets = (lists: Array<{ key: string; doc_count: number }>) => {
+  const map = new Map<string, number>();
+  lists.forEach((list) => {
+    list.forEach((row) => map.set(row.key, (map.get(row.key) ?? 0) + row.doc_count));
+  });
+  return Array.from(map.entries())
+    .sort((a, b) => b[1] - a[1])
+    .map(([key, doc_count]) => ({ key, doc_count }));
+};
+
+const fetchWidgetAggregations = async (widget: Widget, filters: MissionSearchFilters, requestedAggs: string[]) => {
+  const jvaPublisherId = PUBLISHER_IDS.JEVEUXAIDER;
+  const filterSets: MissionSearchFilters[] = [];
+
+  if (!widget.jvaModeration) {
+    filterSets.push(filters);
+  } else {
+    const jvaPublishers = widget.publishers.filter((p) => p === jvaPublisherId);
+    const otherPublishers = widget.publishers.filter((p) => p !== jvaPublisherId);
+    if (jvaPublishers.length) {
+      filterSets.push({ ...filters, publisherIds: jvaPublishers });
+    }
+    if (otherPublishers.length) {
+      filterSets.push({ ...filters, publisherIds: otherPublishers, moderationAcceptedFor: jvaPublisherId });
+    }
+  }
+
+  const results = await Promise.all(
+    filterSets.map(async (f) => {
+      const where = buildWhere({ ...f, skip: 0, limit: 0 });
+      return aggregateWidgetAggs(where, requestedAggs);
+    })
+  );
+
+  const merged = results.reduce(
+    (acc, res) => {
+      if (res.domains) {
+        acc.domains.push(res.domains);
+      }
+      if (res.organizations) {
+        acc.organizations.push(res.organizations);
+      }
+      if (res.departments) {
+        acc.departments.push(res.departments);
+      }
+      if (res.remote) {
+        acc.remote.push(res.remote);
+      }
+      if (res.countries) {
+        acc.countries.push(res.countries);
+      }
+      if (res.minor) {
+        acc.minor.push(res.minor);
+      }
+      if (res.accessibility) {
+        acc.accessibility.push(res.accessibility);
+      }
+      if (res.schedule) {
+        acc.schedule.push(res.schedule);
+      }
+      return acc;
+    },
+    { domains: [], organizations: [], departments: [], remote: [], countries: [], minor: [], accessibility: [], schedule: [] } as Record<
+      string,
+      Array<{ key: string; doc_count: number }>
+    >
+  );
+
+  const payload: any = {};
+  if (requestedAggs.includes("domain")) {
+    payload.domain = mergeBuckets(merged.domains);
+  }
+  if (requestedAggs.includes("organization")) {
+    payload.organization = mergeBuckets(merged.organizations);
+  }
+  if (requestedAggs.includes("department")) {
+    payload.department = mergeBuckets(merged.departments);
+  }
+  if (requestedAggs.includes("remote")) {
+    payload.remote = mergeBuckets(merged.remote);
+  }
+  if (requestedAggs.includes("country")) {
+    payload.country = mergeBuckets(merged.countries);
+  }
+  if (requestedAggs.includes("minor")) {
+    payload.minor = mergeBuckets(merged.minor);
+  }
+  if (requestedAggs.includes("accessibility")) {
+    payload.accessibility = mergeBuckets(merged.accessibility);
+  }
+  if (requestedAggs.includes("schedule")) {
+    payload.schedule = mergeBuckets(merged.schedule);
+  }
+
+  return payload;
+};
+
 const toWidgetMission = (mission: MissionRecord, widget: Widget) => {
   const moderationTitle = (mission as any)[`moderation_${PUBLISHER_IDS.JEVEUXAIDER}_title`];
   return {
@@ -421,75 +519,86 @@ const toWidgetMission = (mission: MissionRecord, widget: Widget) => {
   };
 };
 
-const countBuckets = (missions: MissionRecord[], getter: (mission: MissionRecord) => string | null | undefined) => {
-  const map = new Map<string, number>();
-  missions.forEach((mission) => {
-    const key = getter(mission);
-    if (key) {
-      map.set(key, (map.get(key) ?? 0) + 1);
-    }
-  });
-  return Array.from(map.entries())
-    .sort((a, b) => b[1] - a[1])
-    .map(([key, count]) => ({ key, doc_count: count }));
-};
+const aggregateWidgetAggs = async (
+  where: ReturnType<typeof buildWhere>,
+  requestedAggs: string[]
+): Promise<{
+  domains?: { key: string; doc_count: number }[];
+  organizations?: { key: string; doc_count: number }[];
+  departments?: { key: string; doc_count: number }[];
+  remote?: { key: string; doc_count: number }[];
+  countries?: { key: string; doc_count: number }[];
+  minor?: { key: string; doc_count: number }[];
+  accessibility?: { key: string; doc_count: number }[];
+  schedule?: { key: string; doc_count: number }[];
+}> => {
+  const should = (key: string) => requestedAggs.includes(key);
 
-const countBucketsFromArray = (missions: MissionRecord[], getter: (mission: MissionRecord) => string[] | undefined) => {
-  const map = new Map<string, number>();
-  missions.forEach((mission) => {
-    getter(mission)?.forEach((value) => {
-      if (value) {
-        map.set(value, (map.get(value) ?? 0) + 1);
-      }
+  const aggregateMissionField = async (field: Prisma.MissionScalarFieldEnum) => {
+    const rows = await prismaCore.mission.groupBy({
+      by: [field],
+      where,
+      _count: { _all: true },
     });
-  });
-  return Array.from(map.entries())
-    .sort((a, b) => b[1] - a[1])
-    .map(([key, count]) => ({ key, doc_count: count }));
-};
+    return rows
+      .map((row) => ({
+        key: String((row as any)[field] ?? ""),
+        doc_count: Number((row as any)._count?._all ?? 0),
+      }))
+      .filter((row) => row.key);
+  };
 
-const buildAggregations = (missions: MissionRecord[], requestedAggs: string[]) => {
-  const data: { [key: string]: any } = {};
-  requestedAggs.forEach((key) => {
-    switch (key) {
-      case "remote":
-        data[key] = countBuckets(missions, (m) => m.remote);
-        break;
-      case "domain":
-        data[key] = countBuckets(missions, (m) => m.domain);
-        break;
-      case "organization":
-        data[key] = countBuckets(missions, (m) => m.organizationName);
-        break;
-      case "department":
-        data[key] = countBuckets(missions, (m) => m.departmentName);
-        break;
-      case "schedule":
-        data[key] = countBuckets(missions, (m) => m.schedule);
-        break;
-      case "action":
-        data[key] = countBucketsFromArray(missions, (m) => (m as any).organizationActions || []);
-        break;
-      case "beneficiary":
-        data[key] = countBucketsFromArray(missions, (m) => (m as any).organizationBeneficiaries || []);
-        break;
-      case "country":
-        data[key] = countBuckets(missions, (m) => m.country);
-        break;
-      case "minor":
-        data[key] = countBuckets(missions, (m) => m.openToMinors);
-        break;
-      case "accessibility":
-        data[key] = [
-          { key: "reducedMobilityAccessible", doc_count: missions.filter((m) => m.reducedMobilityAccessible === "yes").length },
-          { key: "closeToTransport", doc_count: missions.filter((m) => m.closeToTransport === "yes").length },
-        ];
-        break;
-      default:
-        data[key] = [];
-    }
-  });
-  return data;
+  const aggregateAddressField = async (field: "city" | "departmentName") => {
+    const rows = await prismaCore.missionAddress.groupBy({
+      by: [field],
+      where: { mission: where },
+      _count: { _all: true },
+    });
+    return rows
+      .map((row) => ({
+        key: String((row as any)[field] ?? ""),
+        doc_count: Number((row as any)._count?._all ?? 0),
+      }))
+      .filter((row) => row.key);
+  };
+
+  const result: any = {};
+
+  if (should("domain")) {
+    result.domains = await aggregateMissionField("domain");
+  }
+  if (should("organization")) {
+    const orgRows = await aggregateMissionField("organizationId");
+    const orgIds = orgRows.map((row) => row.key);
+    const orgs = orgIds.length ? await organizationRepository.findMany({ where: { id: { in: orgIds } }, select: { id: true, title: true } }) : [];
+    const orgById = new Map(orgs.map((org) => [org.id, org.title ?? ""]));
+    result.organizations = orgRows.map((row) => ({ key: orgById.get(row.key) ?? "", doc_count: row.doc_count })).filter((row) => row.key);
+  }
+  if (should("department")) {
+    result.departments = await aggregateAddressField("departmentName");
+  }
+  if (should("remote")) {
+    result.remote = await aggregateMissionField("remote");
+  }
+  if (should("country")) {
+    result.countries = await aggregateMissionField("country");
+  }
+  if (should("minor")) {
+    result.minor = await aggregateMissionField("openToMinors");
+  }
+  if (should("schedule")) {
+    result.schedule = await aggregateMissionField("schedule");
+  }
+  if (should("accessibility")) {
+    const reduced = await prismaCore.mission.count({ where: { ...where, reducedMobilityAccessible: "yes" as any } });
+    const transport = await prismaCore.mission.count({ where: { ...where, closeToTransport: "yes" as any } });
+    result.accessibility = [
+      { key: "reducedMobilityAccessible", doc_count: reduced },
+      { key: "closeToTransport", doc_count: transport },
+    ];
+  }
+
+  return result;
 };
 
 export default router;

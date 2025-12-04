@@ -36,7 +36,6 @@ export type MissionPartnerAggregation = { _id: string; count: number; name?: str
 export type MissionSearchAggregations = {
   status: MissionAggregationBucket[];
   comments: MissionAggregationBucket[];
-  type: MissionAggregationBucket[];
   domains: MissionAggregationBucket[];
   organizations: MissionAggregationBucket[];
   activities: MissionAggregationBucket[];
