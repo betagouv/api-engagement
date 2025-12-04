@@ -1,17 +1,17 @@
 import { PUBLISHER_IDS } from "../../config";
-import { Mission } from "../../types";
+import { MissionRecord } from "../../types/mission";
 import { getMissionTrackedApplicationUrl } from "../../utils";
 import { MISSION_FIELDS } from "./constants";
 
-export const buildData = (data: Mission, publisherId: string, moderator: boolean = false) => {
+export const buildData = (data: MissionRecord, publisherId: string, moderator: boolean = false) => {
   const obj: any = {};
 
   // Use MISSION_FIELDS const
   for (const field of MISSION_FIELDS) {
-    obj[field] = data[field as keyof Mission];
+    obj[field] = (data as any)[field];
   }
 
-  obj.applicationUrl = getMissionTrackedApplicationUrl(data, publisherId);
+  obj.applicationUrl = getMissionTrackedApplicationUrl(data as any, publisherId);
 
   // Add fields to legacy support
   const address = data.addresses?.[0];

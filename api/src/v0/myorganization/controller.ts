@@ -3,7 +3,7 @@ import passport from "passport";
 import zod from "zod";
 
 import { INVALID_BODY, INVALID_PARAMS } from "../../error";
-import MissionModel from "../../models/mission";
+import { missionService } from "../../services/mission";
 import { publisherService } from "../../services/publisher";
 import { publisherDiffusionExclusionService } from "../../services/publisher-diffusion-exclusion";
 import { statEventService } from "../../services/stat-event";
@@ -92,12 +92,11 @@ router.put("/:organizationClientId", passport.authenticate(["apikey", "api"], { 
     const publishers = await publisherService.findPublishers({ diffuseurOf: user.id });
 
     if (!body.data.organizationName) {
-      const organization = await MissionModel.findOne({
+      const mission = await missionService.findOneMissionBy({
         organizationClientId: params.data.organizationClientId,
-        organizationName: { $exists: true },
-      }).select("organizationName");
-      if (organization) {
-        body.data.organizationName = organization.organizationName;
+      });
+      if (mission) {
+        body.data.organizationName = mission.organizationName;
       }
     }
 

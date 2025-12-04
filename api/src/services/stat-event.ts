@@ -35,6 +35,12 @@ type PrismaStatEventWithPublishers = Prisma.StatEventGetPayload<{
   include: {
     fromPublisher: { select: { id: true; name: true } };
     toPublisher: { select: { id: true; name: true } };
+    mission: {
+      include: {
+        organization: { select: { id: true; title: true } };
+        addresses: true;
+      };
+    };
   };
 }>;
 
@@ -62,14 +68,6 @@ function toPrisma(data: Partial<StatEventRecord>, options: { includeDefaults?: b
     fromPublisherId: includeDefaults ? (data.fromPublisherId ?? "") : data.fromPublisherId,
     toPublisherId: includeDefaults ? (data.toPublisherId ?? "") : data.toPublisherId,
     missionId: data.missionId,
-    missionClientId: data.missionClientId,
-    missionDomain: data.missionDomain,
-    missionTitle: data.missionTitle,
-    missionPostalCode: data.missionPostalCode,
-    missionDepartmentName: data.missionDepartmentName,
-    missionOrganizationId: data.missionOrganizationId,
-    missionOrganizationName: data.missionOrganizationName,
-    missionOrganizationClientId: data.missionOrganizationClientId,
     tag: data.tag,
     tags: includeDefaults ? (data.tags ?? []) : data.tags,
     exportToAnalytics: data.exportToAnalytics,
@@ -79,12 +77,28 @@ function toPrisma(data: Partial<StatEventRecord>, options: { includeDefaults?: b
 }
 
 function toStatEventRecord(row: PrismaStatEventWithPublishers): StatEventRecord {
-  const { fromPublisher, toPublisher, id, ...rest } = row;
+  const { fromPublisher, toPublisher, mission, id, ...rest } = row;
+
+  const firstAddress = mission?.addresses?.[0];
+
+  const missionFields = {
+    missionId: mission?.id ?? rest.missionId ?? undefined,
+    missionClientId: mission?.clientId ?? undefined,
+    missionDomain: mission?.domain ?? undefined,
+    missionTitle: mission?.title ?? undefined,
+    missionPostalCode: firstAddress?.postalCode ?? undefined,
+    missionDepartmentName: firstAddress?.departmentName ?? undefined,
+    missionOrganizationId: mission?.organizationId ?? mission?.organization?.id ?? undefined,
+    missionOrganizationName: mission?.organization?.title ?? undefined,
+    missionOrganizationClientId: mission?.organizationClientId ?? undefined,
+  };
+
   return {
     _id: id,
     fromPublisherName: fromPublisher?.name,
     toPublisherName: toPublisher?.name,
     ...rest,
+    ...missionFields,
   } as StatEventRecord;
 }
 
@@ -177,25 +191,16 @@ async function countStatEventClicksByPublisherForOrganizationSince({ publisherId
     return {} as Record<string, number>;
   }
 
-  const rows = (await statEventRepository.groupBy({
-    by: ["fromPublisherId"],
-    where: {
-      type: "click" as any,
-      isBot: { not: true },
-      missionOrganizationClientId: organizationClientId,
-      fromPublisherId: { in: publisherIds },
-      createdAt: { gte: from },
-    },
-    _count: { _all: true },
-  } as any)) as { fromPublisherId: string; _count: { _all: number } }[];
+  const rows = await statEventRepository.aggregateClicksByPublisherForOrganization({
+    publisherIds,
+    organizationClientId,
+    from,
+  });
 
-  return rows.reduce(
-    (acc, row) => {
-      acc[row.fromPublisherId] = row._count._all;
-      return acc;
-    },
-    {} as Record<string, number>
-  );
+  return rows.reduce((acc, row) => {
+    acc[row.fromPublisherId] = row.count;
+    return acc;
+  }, {} as Record<string, number>);
 }
 
 async function findStatEvents({ fromPublisherId, toPublisherId, type, sourceId, size = 25, skip = 0 }: SearchStatEventsParams): Promise<StatEventRecord[]> {
@@ -250,7 +255,13 @@ async function findStatEventViews({ publisherId, size = 10, filters = {}, facets
     andFilters.push({ toPublisherId: filters.toPublisherId });
   }
   if (filters.missionDomain) {
-    andFilters.push({ missionDomain: filters.missionDomain });
+    andFilters.push({ mission: { domain: filters.missionDomain } });
+  }
+  if (filters.missionDepartmentName) {
+    andFilters.push({ mission: { addresses: { some: { departmentName: filters.missionDepartmentName } } } });
+  }
+  if (filters.missionOrganizationId) {
+    andFilters.push({ mission: { organizationId: filters.missionOrganizationId } });
   }
   if (filters.type) {
     andFilters.push({ type: filters.type as StatEventType });
@@ -292,17 +303,41 @@ async function findStatEventViews({ publisherId, size = 10, filters = {}, facets
 
       const column = facet as ViewStatsFacetField;
       try {
-        const rows = (await statEventRepository.groupBy({
-          by: [column],
-          where,
-          _count: { _all: true },
-        } as any)) as { [key: string]: any; _count: { _all: number } }[];
-        rows.sort((a, b) => (b._count._all ?? 0) - (a._count._all ?? 0));
-        const limited = rows.slice(0, size);
+        if (column === "missionDomain" || column === "missionDepartmentName" || column === "missionOrganizationId") {
+          const events = await statEventRepository.findMany({
+            where,
+            orderBy: { createdAt: "desc" },
+            take: 5000,
+          });
+          const mapped = (events as PrismaStatEventWithPublishers[]).map(toStatEventRecord);
+          const counter = new Map<string, number>();
+          mapped.forEach((event) => {
+            const key =
+              column === "missionDomain"
+                ? event.missionDomain
+                : column === "missionDepartmentName"
+                  ? event.missionDepartmentName
+                  : event.missionOrganizationId;
+            if (!key) return;
+            counter.set(key, (counter.get(key) ?? 0) + 1);
+          });
+          const sorted = Array.from(counter.entries())
+            .sort((a, b) => b[1] - a[1])
+            .slice(0, size);
+          facetsResult[facet] = sorted.map(([key, count]) => ({ key, doc_count: count }));
+        } else {
+          const rows = (await statEventRepository.groupBy({
+            by: [column],
+            where,
+            _count: { _all: true },
+          } as any)) as { [key: string]: any; _count: { _all: number } }[];
+          rows.sort((a, b) => (b._count._all ?? 0) - (a._count._all ?? 0));
+          const limited = rows.slice(0, size);
 
-        facetsResult[facet] = limited
-          .filter((row) => row[column] !== null && row[column] !== undefined && row[column] !== "")
-          .map((row) => ({ key: row[column], doc_count: row._count._all }));
+          facetsResult[facet] = limited
+            .filter((row) => row[column] !== null && row[column] !== undefined && row[column] !== "")
+            .map((row) => ({ key: row[column], doc_count: row._count._all }));
+        }
       } catch (error) {
         console.error(`[StatEvent] Error aggregating facet ${facet}:`, error);
       }

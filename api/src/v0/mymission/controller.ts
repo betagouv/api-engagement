@@ -4,8 +4,9 @@ import zod from "zod";
 
 import { JVA_MODERATION_COMMENTS_LABELS } from "../../constants/moderation";
 import { INVALID_PARAMS, INVALID_QUERY, NOT_FOUND } from "../../error";
-import MissionModel from "../../models/mission";
-import { Mission, PublisherRecord } from "../../types";
+import { missionService } from "../../services/mission";
+import { PublisherRecord } from "../../types";
+import { MissionRecord } from "../../types/mission";
 import { PublisherRequest } from "../../types/passport";
 import { getMissionStatsSummary, getMissionStatsWithDetails } from "./stats";
 
@@ -26,10 +27,11 @@ router.get("/", passport.authenticate(["apikey", "api"], { session: false }), as
       return res.status(400).send({ ok: false, code: INVALID_QUERY, message: query.error });
     }
 
-    const where = { deleted: false, publisherId: user.id };
-
-    const total = await MissionModel.countDocuments(where);
-    const data = await MissionModel.find(where).sort({ createdAt: -1 }).skip(query.data.skip).limit(query.data.limit).lean();
+    const { data, total } = await missionService.findMissions({
+      publisherIds: [user.id],
+      limit: query.data.limit,
+      skip: query.data.skip,
+    });
 
     res.locals = { total };
     return res.status(200).send({
@@ -58,15 +60,12 @@ router.get("/:clientId", passport.authenticate(["apikey", "api"], { session: fal
       return res.status(400).send({ ok: false, code: INVALID_PARAMS, message: params.error });
     }
 
-    const mission = await MissionModel.findOne({
-      clientId: params.data.clientId,
-      publisherId: user.id,
-    }).lean();
+    const mission = await missionService.findMissionByClientAndPublisher(params.data.clientId, user.id);
     if (!mission) {
       return res.status(404).send({ ok: false, code: NOT_FOUND });
     }
 
-    const stats = await getMissionStatsWithDetails(mission._id.toString());
+    const stats = await getMissionStatsWithDetails(mission.id);
     res.locals = { total: 1 };
     return res.status(200).send({ ok: true, data: { ...buildData(mission), stats } });
   } catch (error: any) {
@@ -88,15 +87,12 @@ router.get("/:clientId/stats", passport.authenticate(["apikey", "api"], { sessio
       return res.status(400).send({ ok: false, code: INVALID_PARAMS, message: params.error });
     }
 
-    const mission = await MissionModel.findOne({
-      clientId: params.data.clientId,
-      publisherId: user.id,
-    }).lean();
+    const mission = await missionService.findMissionByClientAndPublisher(params.data.clientId, user.id);
     if (!mission) {
       return res.status(404).send({ ok: false, code: NOT_FOUND });
     }
 
-    const data = await getMissionStatsSummary(mission._id.toString());
+    const data = await getMissionStatsSummary(mission.id);
     res.locals = { total: 1 };
     return res.status(200).send({ ok: true, data });
   } catch (error: any) {
@@ -107,9 +103,9 @@ router.get("/:clientId/stats", passport.authenticate(["apikey", "api"], { sessio
   }
 });
 
-const buildData = (data: Mission) => {
+const buildData = (data: MissionRecord) => {
   const address = data.addresses[0];
-  const moderationComment = JVA_MODERATION_COMMENTS_LABELS[data.moderation_5f5931496c7ea514150a818f_comment || ""] || data.moderation_5f5931496c7ea514150a818f_comment;
+  const moderationComment = JVA_MODERATION_COMMENTS_LABELS[(data as any).moderation_5f5931496c7ea514150a818f_comment || ""] || (data as any).moderation_5f5931496c7ea514150a818f_comment;
   return {
     _id: data._id,
     id: data._id,
@@ -126,26 +122,12 @@ const buildData = (data: Mission) => {
     postalCode: address ? address.postalCode : undefined,
     addresses: data.addresses,
     applicationUrl: data.applicationUrl,
-    associationLogo: data.associationLogo,
-    associationAddress: data.associationAddress,
-    associationCity: data.associationCity,
-    associationDepartmentCode: data.associationDepartmentCode,
-    associationDepartmentName: data.associationDepartmentName,
-    associationId: data.associationId,
-    associationName: data.associationName,
-    associationRNA: data.associationRNA,
-    associationPostalCode: data.associationPostalCode,
-    associationRegion: data.associationRegion,
-    associationReseaux: data.associationReseaux,
-    associationSiren: data.associationSiren,
-    associationSources: data.associationSources,
     audience: data.audience,
     compensationAmount: data.compensationAmount,
     compensationUnit: data.compensationUnit,
     compensationType: data.compensationType,
     closeToTransport: data.closeToTransport,
     createdAt: data.createdAt,
-    deleted: data.deleted,
     deletedAt: data.deletedAt,
     description: data.description,
     descriptionHtml: data.descriptionHtml,
@@ -156,9 +138,9 @@ const buildData = (data: Mission) => {
     lastSyncAt: data.lastSyncAt,
     metadata: data.metadata,
     moderation_5f5931496c7ea514150a818f_comment: moderationComment,
-    moderation_5f5931496c7ea514150a818f_status: data.moderation_5f5931496c7ea514150a818f_status,
-    moderation_5f5931496c7ea514150a818f_date: data.moderation_5f5931496c7ea514150a818f_date,
-    moderation_5f5931496c7ea514150a818f_title: data.moderation_5f5931496c7ea514150a818f_title,
+    moderation_5f5931496c7ea514150a818f_status: (data as any).moderation_5f5931496c7ea514150a818f_status as string | null,
+    moderation_5f5931496c7ea514150a818f_date: (data as any).moderation_5f5931496c7ea514150a818f_date as Date | null,
+    moderation_5f5931496c7ea514150a818f_title: (data as any).moderation_5f5931496c7ea514150a818f_title as string | null,
     openToMinors: data.openToMinors,
     organizationActions: data.organizationActions,
     organizationBeneficiaries: data.organizationBeneficiaries,
@@ -193,7 +175,6 @@ const buildData = (data: Mission) => {
     startAt: data.startAt,
     statusCode: data.statusCode,
     statusComment: data.statusComment,
-    statusCommentHistoric: data.statusCommentHistoric,
     tags: data.tags,
     tasks: data.tasks,
     title: data.title,
