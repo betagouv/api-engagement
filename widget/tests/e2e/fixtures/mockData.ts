@@ -17,7 +17,7 @@ export const mockWidgetResponse = (widgetId: string) => {
       location: null,
       display: "full",
       deleted: false,
-      _id: widgetId,
+      id: widgetId,
       name: "Toutes les missions",
       color: "#245564",
       style: [WIDGET_IDS.BENEVOLAT.CAROUSEL, WIDGET_IDS.VOLONTARIAT.CAROUSEL].includes(widgetId) ? "carousel" : "page",

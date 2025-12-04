@@ -379,9 +379,6 @@ const LocationSearch = ({ selected, onChange }) => {
           label: `${f.properties.name}, ${f.properties.city} ${f.properties.postcode}`,
           lat: f.geometry.coordinates[1],
           lon: f.geometry.coordinates[0],
-          city: f.properties.city,
-          postcode: f.properties.postcode,
-          name: f.properties.name,
         })),
       );
     }
@@ -403,8 +400,8 @@ const LocationSearch = ({ selected, onChange }) => {
 
         <Transition as={Fragment} leave="transition ease-in duration-100" leaveFrom="opacity-100" leaveTo="opacity-0">
           <ComboboxOptions className="absolute max-h-60 w-full divide-y divide-gray-900 overflow-auto bg-white text-base shadow-lg focus:outline-none">
-            {options.map((option) => (
-              <ComboboxOption key={option.value} value={option} className={({ active }) => `cursor-default p-3 select-none ${active ? "bg-gray-975" : "bg-white"}`}>
+            {options.map((option, index) => (
+              <ComboboxOption key={`${option.label}-${index}`} value={option} className={({ active }) => `cursor-default p-3 select-none ${active ? "bg-gray-975" : "bg-white"}`}>
                 <span className={`truncate text-sm text-black ${selected?.label === option.label ? "text-blue-france" : ""}`}>{option.label}</span>
               </ComboboxOption>
             ))}

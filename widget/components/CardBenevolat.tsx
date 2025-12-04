@@ -70,7 +70,7 @@ const CardBenevolat = ({ widget, mission, request, focused = false, onKeyDown, o
             data-name="tracker_counter"
             data-id={mission._id}
             data-publisher={widget.fromPublisherId?.toString()}
-            data-source={widget._id.toString()}
+            data-source={widget.id.toString()}
             data-request={request || ""}
           />
           <div className="w-fit flex items-center rounded-full bg-[#EEE] px-2 h-6 text-xs leading-5 mb-3">{domain.label || mission.domain}</div>

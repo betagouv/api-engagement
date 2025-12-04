@@ -6,11 +6,11 @@ import { HydratedDocument } from "mongoose";
 import { JVA_URL, PUBLISHER_IDS } from "../config";
 import { INVALID_PARAMS, INVALID_QUERY, NOT_FOUND, SERVER_ERROR, captureException, captureMessage } from "../error";
 import MissionModel from "../models/mission";
-import WidgetModel from "../models/widget";
 import { campaignService } from "../services/campaign";
 import { publisherService } from "../services/publisher";
 import { statBotService } from "../services/stat-bot";
 import { statEventService } from "../services/stat-event";
+import { widgetService } from "../services/widget";
 import { Mission, StatEventRecord } from "../types";
 import { identify, slugify } from "../utils";
 
@@ -409,10 +409,7 @@ router.get("/widget/:id", cors({ origin: "*" }), async (req: Request, res: Respo
 
     const query = zod
       .object({
-        widgetId: zod
-          .string()
-          .regex(/^[0-9a-fA-F]{24}$/)
-          .optional(),
+        widgetId: zod.string().min(1).optional(),
         requestId: zod.string().optional(),
       })
       .safeParse(req.query);
@@ -437,12 +434,12 @@ router.get("/widget/:id", cors({ origin: "*" }), async (req: Request, res: Respo
       return res.redirect(302, mission.applicationUrl);
     }
 
-    if (!query.success || !query.data.widgetId || query.data.widgetId.length !== 24) {
+    if (!query.success || !query.data.widgetId) {
       captureMessage(`[Redirection Widget] Invalid query`, JSON.stringify(query.error, null, 2));
       return res.redirect(302, mission.applicationUrl);
     }
 
-    const widget = await WidgetModel.findById(query.data.widgetId);
+    const widget = await widgetService.findOneWidgetById(query.data.widgetId);
     if (!widget) {
       captureMessage(`[Redirection Widget] Widget not found`, `Widget ${query.data.widgetId}, mission ${params.data.id}`);
       return res.redirect(302, mission.applicationUrl);
@@ -458,7 +455,7 @@ router.get("/widget/:id", cors({ origin: "*" }), async (req: Request, res: Respo
       requestId: query.data.requestId,
       source: "widget",
       sourceName: widget.name || "",
-      sourceId: widget._id.toString() || "",
+      sourceId: widget.id || "",
       createdAt: new Date(),
       missionId: mission._id.toString(),
       missionClientId: mission.clientId || "",
@@ -827,10 +824,7 @@ router.get("/impression/:missionId/:publisherId", cors({ origin: "*" }), async (
       .object({
         tracker: zod.string().optional(),
         sourceId: zod.string().optional(),
-        requestId: zod
-          .string()
-          .regex(/^[0-9a-fA-F]{24}$/)
-          .optional(),
+        requestId: zod.string().optional(),
       })
       .safeParse(req.query);
 
@@ -855,7 +849,7 @@ router.get("/impression/:missionId/:publisherId", cors({ origin: "*" }), async (
       return res.status(404).send({ ok: false, code: NOT_FOUND });
     }
 
-    const source = query.data.sourceId ? await WidgetModel.findById(query.data.sourceId) : null;
+    const source = query.data.sourceId ? await widgetService.findOneWidgetById(query.data.sourceId) : null;
     if (!source && query.data.sourceId) {
       captureMessage(`[Impression] Source not found`, `source ${query.data.sourceId}`);
     }

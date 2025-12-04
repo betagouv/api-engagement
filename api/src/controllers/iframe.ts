@@ -5,10 +5,11 @@ import zod from "zod";
 import { PUBLISHER_IDS } from "../config";
 import { INVALID_PARAMS, INVALID_QUERY, NOT_FOUND, captureMessage } from "../error";
 import MissionModel from "../models/mission";
-import WidgetModel from "../models/widget";
 import { publisherDiffusionExclusionService } from "../services/publisher-diffusion-exclusion";
-import { Mission, Widget } from "../types";
-import { EARTH_RADIUS, buildQueryMongo, capitalizeFirstLetter, getDistanceKm, isValidObjectId } from "../utils";
+import { widgetService } from "../services/widget";
+import { Mission } from "../types";
+import type { WidgetRecord } from "../types/widget";
+import { EARTH_RADIUS, buildQueryMongo, capitalizeFirstLetter, getDistanceKm } from "../utils";
 
 const router = Router();
 
@@ -30,20 +31,13 @@ router.get("/widget", async (req: Request, res: Response, next: NextFunction) =>
     }
 
     if (query.data.id) {
-      if (query.data.id && query.data.id.length > 24) {
-        query.data.id = query.data.id.slice(0, 24);
-      }
-      if (!isValidObjectId(query.data.id)) {
-        return res.status(400).send({ ok: false, code: INVALID_QUERY, message: "Invalid id" });
-      }
-
-      const widget = await WidgetModel.findById(query.data.id);
+      const widget = await widgetService.findOneWidgetById(query.data.id);
       if (!widget) {
         return res.status(404).send({ ok: false, code: NOT_FOUND });
       }
       return res.status(200).send({ ok: true, data: widget });
     } else {
-      const widget = await WidgetModel.findOne({ name: query.data.name });
+      const widget = await widgetService.findOneWidgetByName(query.data.name || "");
       if (!widget) {
         return res.status(404).send({ ok: false, code: NOT_FOUND });
       }
@@ -71,7 +65,7 @@ router.get("/:id/search", async (req: Request, res: Response, next: NextFunction
   try {
     const params = zod
       .object({
-        id: zod.string().regex(/^[0-9a-fA-F]{24}$/),
+        id: zod.string(),
       })
       .safeParse(req.params);
 
@@ -108,7 +102,7 @@ router.get("/:id/search", async (req: Request, res: Response, next: NextFunction
       return res.status(400).send({ ok: false, code: INVALID_QUERY, message: query.error });
     }
 
-    const widget = await WidgetModel.findById(params.data.id);
+    const widget = await widgetService.findOneWidgetById(params.data.id);
     if (!widget) {
       captureMessage(`[Iframe Widget] Widget not found`, JSON.stringify(params.data, null, 2));
       return res.status(404).send({ ok: false, code: NOT_FOUND });
@@ -320,7 +314,7 @@ router.get("/:id/aggs", cors({ origin: "*" }), async (req: Request, res: Respons
       return res.status(400).send({ ok: false, code: INVALID_QUERY, message: query.error });
     }
 
-    const widget = await WidgetModel.findById(params.data.id);
+    const widget = await widgetService.findOneWidgetById(params.data.id);
     if (!widget) {
       captureMessage(`[Iframe Widget] Widget not found`, JSON.stringify(params.data, null, 2));
       return res.status(404).send({ ok: false, code: NOT_FOUND });
@@ -469,7 +463,7 @@ router.get("/:id/aggs", cors({ origin: "*" }), async (req: Request, res: Respons
   }
 });
 
-const buildLocationQuery = (widget: Widget, lon: number | undefined, lat: number | undefined, remote: string | string[] | undefined) => {
+const buildLocationQuery = (widget: WidgetRecord, lon: number | undefined, lat: number | undefined, remote: string | string[] | undefined) => {
   const where = {} as { [key: string]: any };
 
   if (widget.location && widget.location.lat && widget.location.lon) {
@@ -525,7 +519,7 @@ const buildLocationQuery = (widget: Widget, lon: number | undefined, lat: number
   return where;
 };
 
-const buildLocationAggs = (widget: Widget, lon: number | undefined, lat: number | undefined) => {
+const buildLocationAggs = (widget: WidgetRecord, lon: number | undefined, lat: number | undefined) => {
   const where = {} as { [key: string]: any };
 
   if (widget.location && widget.location.lat && widget.location.lon) {

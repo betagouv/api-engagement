@@ -65,7 +65,7 @@ const CardVolontariat = ({ widget, mission, request, focused = false, onKeyDown,
           </div>
         </div>
 
-        <span data-name="tracker_counter" data-id={mission._id} data-publisher={widget.fromPublisherId?.toString()} data-source={widget._id} data-request={request || ""} />
+        <span data-name="tracker_counter" data-id={mission._id} data-publisher={widget.fromPublisherId?.toString()} data-source={widget.id} data-request={request || ""} />
         <a
           ref={ref}
           href={mission.url}

@@ -76,7 +76,7 @@ const Edit = () => {
 
   const handleSubmit = async () => {
     try {
-      const res = await api.put(`/widget/${widget._id}`, values);
+      const res = await api.put(`/widget/${widget.id}`, values);
       if (!res.ok) throw res;
       setWidget(res.data);
 
@@ -88,7 +88,7 @@ const Edit = () => {
 
   const handleActivate = async (value) => {
     try {
-      const res = await api.put(`/widget/${widget._id.toString()}`, { active: value });
+      const res = await api.put(`/widget/${widget.id.toString()}`, { active: value });
       if (!res.ok) throw res;
       setWidget(res.data);
     } catch (error) {
@@ -193,7 +193,7 @@ const Frame = ({ widget }) => {
         allowFullScreen
         allow="geolocation"
         onLoad={handleLoad}
-        src={`${widget.type === "volontariat" ? VOLONTARIAT_URL : BENEVOLAT_URL}?widget=${widget._id}&notrack=true`}
+        src={`${widget.type === "volontariat" ? VOLONTARIAT_URL : BENEVOLAT_URL}?widget=${widget.id}&notrack=true`}
       />
     </div>
   );
@@ -219,7 +219,7 @@ const JVA_LOGO = `<div style="padding:10px; display:flex; justify-content:center
 
 const Code = ({ widget }) => {
   const handleCopy = () => {
-    navigator.clipboard.writeText(`${IFRAMES[widget.type][widget.style].replace("{{widgetId}}", widget._id)}${widget.type === "benevolat" ? `\n\n${JVA_LOGO}` : ""}`);
+    navigator.clipboard.writeText(`${IFRAMES[widget.type][widget.style].replace("{{widgetId}}", widget.id)}${widget.type === "benevolat" ? `\n\n${JVA_LOGO}` : ""}`);
     toast.success("Lien copié");
   };
 
@@ -238,7 +238,7 @@ const Code = ({ widget }) => {
           className="w-full rounded-none border border-[#E3E3FD] bg-[#F5F5FE] px-4 py-2 text-base disabled:opacity-80"
           rows={widget.type === "benevolat" ? 11 : 4}
           disabled={true}
-          value={`${IFRAMES[widget.type][widget.style].replace("{{widgetId}}", widget._id)}${widget.type === "benevolat" ? `\n\n${JVA_LOGO}` : ""}`}
+          value={`${IFRAMES[widget.type][widget.style].replace("{{widgetId}}", widget.id)}${widget.type === "benevolat" ? `\n\n${JVA_LOGO}` : ""}`}
         />
       </div>
     </div>
