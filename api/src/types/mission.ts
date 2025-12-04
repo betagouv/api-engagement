@@ -31,6 +31,21 @@ export type MissionFacets = {
   departmentName: { key: string; count: number }[];
 };
 
+export type MissionAggregationBucket = { key: string; doc_count: number };
+export type MissionPartnerAggregation = { _id: string; count: number; name?: string; mission_type?: string };
+export type MissionSearchAggregations = {
+  status: MissionAggregationBucket[];
+  comments: MissionAggregationBucket[];
+  type: MissionAggregationBucket[];
+  domains: MissionAggregationBucket[];
+  organizations: MissionAggregationBucket[];
+  activities: MissionAggregationBucket[];
+  cities: MissionAggregationBucket[];
+  departments: MissionAggregationBucket[];
+  partners: MissionPartnerAggregation[];
+  leboncoinStatus: MissionAggregationBucket[];
+};
+
 type MissionModerationFieldKey =
   | `moderation_${string}_status`
   | `moderation_${string}_comment`
