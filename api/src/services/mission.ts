@@ -75,7 +75,10 @@ const normalizeAddresses = (addresses: MissionWithRelations["addresses"]) =>
     region: address.region ?? null,
     country: address.country ?? null,
     location: address.locationLat != null && address.locationLon != null ? { lat: address.locationLat, lon: address.locationLon } : null,
-    geoPoint: null,
+    geoPoint:
+      address.locationLat != null && address.locationLon != null
+        ? { type: "Point", coordinates: [address.locationLon, address.locationLat] }
+        : null,
     geolocStatus: address.geolocStatus ?? null,
   }));
 

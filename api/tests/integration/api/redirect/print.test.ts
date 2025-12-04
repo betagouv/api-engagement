@@ -4,12 +4,12 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 
 import { prismaCore } from "../../../../src/db/postgres";
 import { NOT_FOUND } from "../../../../src/error";
-import MissionModel from "../../../../src/models/mission";
 import WidgetModel from "../../../../src/models/widget";
 import { publisherService } from "../../../../src/services/publisher";
 import { statBotService } from "../../../../src/services/stat-bot";
 import { StatEventRecord } from "../../../../src/types";
 import * as utils from "../../../../src/utils";
+import { createTestMission } from "../../../fixtures";
 import { createTestApp } from "../../../testApp";
 
 const app = createTestApp();
@@ -47,12 +47,16 @@ describe("RedirectController /impression/:missionId/:publisherId", () => {
     const identity = { user: "user", referer: "https://ref", userAgent: "Mozilla" };
     vi.spyOn(utils, "identify").mockReturnValue(identity);
 
-    const mission = await MissionModel.create({
+    const mission = await createTestMission({
+      addresses: [
+        {
+          city: "Paris",
+        },
+      ],
       applicationUrl: "https://mission.example.com/apply",
       clientId: "mission-client-id",
       lastSyncAt: new Date(),
       publisherId: new Types.ObjectId().toString(),
-      publisherName: "Mission Publisher",
       title: "Mission Title",
     });
 
@@ -65,19 +69,22 @@ describe("RedirectController /impression/:missionId/:publisherId", () => {
 
   it("records print stats with widget source when all data is present", async () => {
     const publisher = await publisherService.createPublisher({ name: "From Publisher" });
-    const mission = await MissionModel.create({
+    const mission = await createTestMission({
+      addresses: [
+        {
+          postalCode: "75001",
+          departmentName: "Paris",
+          city: "Paris",
+        },
+      ],
       applicationUrl: "https://mission.example.com/apply",
       clientId: "mission-client-id",
       domain: "mission.example.com",
       title: "Mission Title",
-      postalCode: "75001",
-      departmentName: "Paris",
       organizationName: "Mission Org",
-      organizationId: "mission-org-id",
       organizationClientId: "mission-org-client-id",
       lastSyncAt: new Date(),
       publisherId: publisher.id,
-      publisherName: "Mission Publisher",
     });
 
     const widget = await WidgetModel.create({
@@ -159,12 +166,16 @@ describe("RedirectController /impression/:missionId/:publisherId", () => {
 
   it("returns 200 and records print stats when query has only tracker", async () => {
     const publisher = await publisherService.createPublisher({ name: "From Publisher" });
-    const mission = await MissionModel.create({
+    const mission = await createTestMission({
+      addresses: [
+        {
+          city: "Paris",
+        },
+      ],
       applicationUrl: "https://mission.example.com/apply",
       clientId: "mission-client-id",
       lastSyncAt: new Date(),
       publisherId: publisher.id,
-      publisherName: "Mission Publisher",
       title: "Mission Title",
     });
 

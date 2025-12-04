@@ -4,11 +4,11 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 
 import { PUBLISHER_IDS } from "../../../../src/config";
 import { prismaCore } from "../../../../src/db/postgres";
-import MissionModel from "../../../../src/models/mission";
 import { publisherService } from "../../../../src/services/publisher";
 import { statBotService } from "../../../../src/services/stat-bot";
 import * as utils from "../../../../src/utils";
 import { createTestApp } from "../../../testApp";
+import { createTestMission } from "../../../fixtures";
 
 const app = createTestApp();
 
@@ -38,7 +38,14 @@ describe("RedirectController /:missionId/:publisherId", () => {
   });
 
   it("redirects to mission application URL when identity is missing but mission exists", async () => {
-    const mission = await MissionModel.create({
+    const mission = await createTestMission({
+      addresses: [
+        {
+          postalCode: "75001",
+          departmentName: "Paris",
+          city: "Paris",
+        },
+      ],
       applicationUrl: "https://mission.example.com/apply",
       clientId: "mission-client-id",
       lastSyncAt: new Date(),
@@ -65,15 +72,19 @@ describe("RedirectController /:missionId/:publisherId", () => {
       },
     });
 
-    const mission = await MissionModel.create({
+    const mission = await createTestMission({
+      addresses: [
+        {
+          postalCode: "75001",
+          departmentName: "Paris",
+          city: "Paris",
+        },
+      ],
       applicationUrl: "https://mission.example.com/apply",
       clientId: "mission-client-id",
       domain: "mission.example.com",
       title: "Mission Title",
-      postalCode: "75001",
-      departmentName: "Paris",
       organizationName: "Mission Org",
-      organizationId: "mission-org-id",
       organizationClientId: "mission-org-client-id",
       lastSyncAt: new Date(),
       publisherId: missionPublisher.id,
@@ -142,7 +153,14 @@ describe("RedirectController /:missionId/:publisherId", () => {
       data: { id: serviceCiviquePublisherId, name: "Service Civique" },
     });
 
-    const mission = await MissionModel.create({
+    const mission = await createTestMission({
+      addresses: [
+        {
+          city: "Paris",
+          postalCode: "75001",
+          departmentName: "Paris",
+        },
+      ],
       applicationUrl: "https://mission.example.com/apply",
       clientId: "mission-client-id",
       lastSyncAt: new Date(),

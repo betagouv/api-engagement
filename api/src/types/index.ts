@@ -453,6 +453,7 @@ export enum MissionType {
 export * from "./campaign";
 export * from "./email";
 export * from "./import";
+export * from "./mission";
 export * from "./moderation-event";
 export * from "./organization";
 export * from "./publisher";

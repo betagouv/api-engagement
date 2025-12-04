@@ -2,9 +2,9 @@ import { Types } from "mongoose";
 import request from "supertest";
 import { describe, expect, it } from "vitest";
 
-import MissionModel from "../../../../src/models/mission";
 import { publisherService } from "../../../../src/services/publisher";
 import { statEventService } from "../../../../src/services/stat-event";
+import { createTestMission } from "../../../fixtures";
 import { createClickStat, createStatEventFixture } from "../../../fixtures/stat-event";
 import { createTestApp } from "../../../testApp";
 
@@ -42,7 +42,7 @@ describe("Activity V2 controller", () => {
   describe("POST /v2/activity/:missionId/apply", () => {
     it("records apply events using the stat-event repository", async () => {
       const missionPublisherId = new Types.ObjectId().toString();
-      const mission = await MissionModel.create({
+      const mission = await createTestMission({
         clientId: "apply-mission-client",
         title: "Apply Mission",
         publisherId: missionPublisherId,

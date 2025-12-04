@@ -14,6 +14,119 @@ vi.mock("../../../../src/jobs/kpi/kpi-botless", () => ({
 import { KpiHandler } from "../../../../src/jobs/kpi/handler";
 import { createTestMission, createTestPublisher } from "../../../fixtures";
 
+vi.mock("../../../../src/models/mission", () => {
+  const { missionService } = require("../../../../src/services/mission");
+  const { prismaCore } = require("../../../../src/db/postgres");
+
+  const loadMissions = async () => {
+    const missions = await prismaCore.mission.findMany({ orderBy: { createdAt: "asc" } });
+    const records = [];
+    for (const mission of missions) {
+      const record = await missionService.findOneMission(mission.id);
+      if (record) {
+        records.push(record);
+      }
+    }
+    return records;
+  };
+
+  const matchesFilter = (mission: any, filter: any): boolean => {
+    if (!filter || !Object.keys(filter).length) {
+      return true;
+    }
+    for (const [key, value] of Object.entries(filter)) {
+      if (key === "$or" && Array.isArray(value)) {
+        if (!value.some((clause) => matchesFilter(mission, clause))) {
+          return false;
+        }
+        continue;
+      }
+      if (key === "deletedAt") {
+        if (value === null && mission.deletedAt !== null) {
+          return false;
+        }
+        if (value && typeof value === "object" && "$gte" in value) {
+          if (!mission.deletedAt || mission.deletedAt < (value as any).$gte) {
+            return false;
+          }
+        }
+        continue;
+      }
+      if (key === "deleted") {
+        const isDeleted = mission.deletedAt !== null;
+        if ((value as any) === false && isDeleted) {
+          return false;
+        }
+        if ((value as any) === true && !isDeleted) {
+          return false;
+        }
+        continue;
+      }
+      if (key === "createdAt" && typeof value === "object" && "$lt" in (value as any)) {
+        if (!(mission.createdAt < (value as any).$lt)) {
+          return false;
+        }
+        continue;
+      }
+      if (key === "publisherName") {
+        if (typeof value === "object" && "$ne" in (value as any)) {
+          if (mission.publisherName === (value as any).$ne) {
+            return false;
+          }
+        } else if (mission.publisherName !== value) {
+          return false;
+        }
+        continue;
+      }
+      if (key === "placesStatus") {
+        if (mission.placesStatus !== value) {
+          return false;
+        }
+        continue;
+      }
+    }
+    return true;
+  };
+
+  const countDocuments = async (filter: any) => {
+    const missions = await loadMissions();
+    return missions.filter((mission) => matchesFilter(mission, filter)).length;
+  };
+
+  const aggregate = async (pipeline: any[]) => {
+    const missions = await loadMissions();
+    const facets = pipeline?.[0]?.$facet ?? {};
+
+    const buildFacet = (match: any) => {
+      const filtered = missions.filter((mission) => matchesFilter(mission, match));
+      if (!filtered.length) {
+        return [];
+      }
+      return [
+        {
+          _id: null,
+          count: filtered.length,
+          total: filtered.reduce((acc, mission) => acc + (mission.places ?? 0), 0),
+        },
+      ];
+    };
+
+    const result: Record<string, unknown> = {};
+    for (const [key, stages] of Object.entries<any>(facets)) {
+      const matchStage = stages.find((stage: any) => stage.$match)?.$match ?? {};
+      result[key] = buildFacet(matchStage);
+    }
+    return [result];
+  };
+
+  return {
+    default: {
+      countDocuments,
+      aggregate,
+    },
+  };
+});
+
 describe("KPI job - Integration", () => {
   it("Should compute KPIs for the last 10 days (yesterday..D-9)", async () => {
     const handler = new KpiHandler();

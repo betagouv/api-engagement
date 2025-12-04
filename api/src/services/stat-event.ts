@@ -68,6 +68,14 @@ function toPrisma(data: Partial<StatEventRecord>, options: { includeDefaults?: b
     fromPublisherId: includeDefaults ? (data.fromPublisherId ?? "") : data.fromPublisherId,
     toPublisherId: includeDefaults ? (data.toPublisherId ?? "") : data.toPublisherId,
     missionId: data.missionId,
+    missionClientId: data.missionClientId,
+    missionDomain: data.missionDomain,
+    missionTitle: data.missionTitle,
+    missionPostalCode: data.missionPostalCode,
+    missionDepartmentName: data.missionDepartmentName,
+    missionOrganizationId: data.missionOrganizationId,
+    missionOrganizationName: data.missionOrganizationName,
+    missionOrganizationClientId: data.missionOrganizationClientId,
     tag: data.tag,
     tags: includeDefaults ? (data.tags ?? []) : data.tags,
     exportToAnalytics: data.exportToAnalytics,
@@ -83,14 +91,14 @@ function toStatEventRecord(row: PrismaStatEventWithPublishers): StatEventRecord 
 
   const missionFields = {
     missionId: mission?.id ?? rest.missionId ?? undefined,
-    missionClientId: mission?.clientId ?? undefined,
-    missionDomain: mission?.domain ?? undefined,
-    missionTitle: mission?.title ?? undefined,
-    missionPostalCode: firstAddress?.postalCode ?? undefined,
-    missionDepartmentName: firstAddress?.departmentName ?? undefined,
-    missionOrganizationId: mission?.organizationId ?? mission?.organization?.id ?? undefined,
-    missionOrganizationName: mission?.organization?.title ?? undefined,
-    missionOrganizationClientId: mission?.organizationClientId ?? undefined,
+    missionClientId: mission?.clientId ?? rest.missionClientId ?? undefined,
+    missionDomain: mission?.domain ?? rest.missionDomain ?? undefined,
+    missionTitle: mission?.title ?? rest.missionTitle ?? undefined,
+    missionPostalCode: firstAddress?.postalCode ?? rest.missionPostalCode ?? undefined,
+    missionDepartmentName: firstAddress?.departmentName ?? rest.missionDepartmentName ?? undefined,
+    missionOrganizationId: mission?.organizationId ?? mission?.organization?.id ?? rest.missionOrganizationId ?? undefined,
+    missionOrganizationName: mission?.organization?.title ?? rest.missionOrganizationName ?? undefined,
+    missionOrganizationClientId: mission?.organizationClientId ?? rest.missionOrganizationClientId ?? undefined,
   };
 
   return {
