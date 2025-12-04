@@ -286,21 +286,30 @@ export const getServerSideProps: GetServerSideProps<PageProps> = async (context:
     const res = await fetch(`${API_URL}/iframe/widget?${q}`).then((e) => e.json());
     if (!res.ok) {
       if (res.code === "NOT_FOUND") {
+        Sentry.captureMessage("Widget not found", { extra: { context: context, query: q } });
+        return { props: { widget: null, missions: [], total: 0, apiUrl: API_URL, request: null, environment: ENV } };
+      }
+      if (res.code === "INVALID_QUERY") {
+        Sentry.captureMessage(res.message, { extra: { context: context, query: q } });
         return { props: { widget: null, missions: [], total: 0, apiUrl: API_URL, request: null, environment: ENV } };
       }
       throw res;
     }
     widget = res.data;
   } catch (error) {
-    console.error("error", error);
+    console.error(JSON.stringify(error, null, 2));
     Sentry.captureException(error, { extra: { context: context } });
     return { props: { widget: null, missions: [], total: 0, apiUrl: API_URL, request: null, environment: ENV } };
   }
 
-  try {
-    const searchParams = new URLSearchParams();
-    const isBenevolat = widget!.type === "benevolat";
+  if (!widget) {
+    Sentry.captureMessage("Widget not found", { extra: { context: context } });
+    return { props: { widget: null, missions: [], total: 0, apiUrl: API_URL, request: null, environment: ENV } };
+  }
 
+  const searchParams = new URLSearchParams();
+  const isBenevolat = widget.type === "benevolat";
+  try {
     if (isBenevolat) {
       if (context.query.domain) {
         context.query.domain.split(",").forEach((item) => searchParams.append("domain", item));
@@ -358,13 +367,13 @@ export const getServerSideProps: GetServerSideProps<PageProps> = async (context:
       searchParams.append("city", context.query.city || "");
     }
 
-    const response = await fetch(`${API_URL}/iframe/${widget!._id}/search?${searchParams.toString()}`).then((res) => res.json());
+    const response = await fetch(`${API_URL}/iframe/${widget._id}/search?${searchParams.toString()}`).then((res) => res.json());
 
     if (!response.ok) {
       throw response;
     }
     const query = new URLSearchParams({
-      widgetId: widget!._id,
+      widgetId: widget._id,
       requestId: response.request,
     });
 
@@ -395,8 +404,8 @@ export const getServerSideProps: GetServerSideProps<PageProps> = async (context:
 
     return { props: { widget, missions, total: response.total, apiUrl: API_URL, request: response.request || null, environment: ENV } };
   } catch (error) {
-    console.error(error);
-    Sentry.captureException(error, { extra: { context: context } });
+    console.error(JSON.stringify(error, null, 2));
+    Sentry.captureException(error, { extra: { context: context, searchParams: searchParams.toString(), widgetId: widget._id } });
   }
   return { props: { widget, missions: [], total: 0, apiUrl: API_URL, request: null, environment: ENV } };
 };

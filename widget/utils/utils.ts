@@ -17,17 +17,14 @@ export const calculateDistance = (lat1: number, lon1: number, lat2: number, lon2
 /**
  * Check if the widget is the prevention routieres widget
  */
-export const isPreventionRoutieres = (query: string): boolean => {
-  if (query === "6449707ff9d59c624d4dc666") {
+export const isPreventionRoutieres = (widgetId: string | null): boolean => {
+  if (!widgetId) {
+    return false;
+  }
+  if (widgetId === "6449707ff9d59c624d4dc666") {
     return true;
   }
-  const slug = query
-    .replace(/%C3%A9/g, "-")
-    .replace(/%C3%A8/g, "-")
-    .toLowerCase()
-    .replace(/[^a-z0-9]/g, "-");
-
-  return slug === "widget-pr-vention-routi-re";
+  return false;
 };
 
 /**
