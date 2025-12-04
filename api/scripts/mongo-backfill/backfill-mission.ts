@@ -720,7 +720,7 @@ const main = async () => {
 
   const cursor = collection.find({}, { batchSize: BATCH_SIZE }).sort({ _id: 1 });
 
-  const stats = { processed: 0, created: 0, updated: 0, unchanged: 0 };
+  const stats = { processed: 0, created: 0, updated: 0, unchanged: 0, skipped: 0 };
   const sampleCreates: MissionRecord[] = [];
   const sampleUpdates: { before: MissionRecord; after: MissionRecord }[] = [];
 
@@ -728,9 +728,15 @@ const main = async () => {
 
   while (await cursor.hasNext()) {
     const doc = (await cursor.next()) as MongoMissionDocument;
-    const normalized = toNormalizedMission(doc);
-    batch.push(normalized);
-    stats.processed += 1;
+    try {
+      const normalized = toNormalizedMission(doc);
+      batch.push(normalized);
+      stats.processed += 1;
+    } catch (error) {
+      stats.skipped += 1;
+      const reason = error instanceof Error ? error.message : String(error);
+      console.warn(`[${SCRIPT_NAME}] Skip mission due to normalization error: ${reason}`);
+    }
 
     if (batch.length >= BATCH_SIZE) {
       await persistBatch(batch, prismaCore, stats, sampleCreates, sampleUpdates, options.dryRun);
@@ -744,6 +750,9 @@ const main = async () => {
   }
 
   console.log(`[${SCRIPT_NAME}] Completed. Created: ${stats.created}, Updated: ${stats.updated}, Unchanged: ${stats.unchanged}`);
+  if (stats.skipped) {
+    console.log(`[${SCRIPT_NAME}] Skipped (invalid/missing required fields): ${stats.skipped}`);
+  }
 
   if (options.dryRun) {
     console.log(`[${SCRIPT_NAME}] Sample creates`, sampleCreates.slice(0, 3).map(formatRecordForLog));

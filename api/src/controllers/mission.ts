@@ -5,10 +5,8 @@ import zod from "zod";
 import { PUBLISHER_IDS } from "../config";
 import { FORBIDDEN, INVALID_BODY, INVALID_PARAMS, INVALID_QUERY, NOT_FOUND } from "../error";
 import { missionService } from "../services/mission";
-import { publisherService } from "../services/publisher";
 import type { UserRequest } from "../types/passport";
-import type { MissionRecord } from "../types/mission";
-import { EARTH_RADIUS, diacriticSensitiveRegex, getDistanceKm } from "../utils";
+import { diacriticSensitiveRegex, getDistanceKm } from "../utils";
 
 const router = Router();
 
@@ -64,17 +62,23 @@ const findFilters = (user: UserRequest["user"], body: zod.infer<typeof searchSch
     if (body.publishers?.length) {
       if (user.role !== "admin") {
         const allowed = body.publishers.filter((id) => user.publishers.includes(id));
-        if (!allowed.length) throw new Error("FORBIDDEN");
+        if (!allowed.length) {
+          throw new Error("FORBIDDEN");
+        }
         return allowed;
       }
       return body.publishers;
     }
-    if (user.role !== "admin") return user.publishers;
+    if (user.role !== "admin") {
+      return user.publishers;
+    }
     return [];
   })();
 
   const asArray = (value?: string | string[]) => {
-    if (!value) return undefined;
+    if (!value) {
+      return undefined;
+    }
     return Array.isArray(value) ? value : [value];
   };
 
@@ -92,8 +96,12 @@ const findFilters = (user: UserRequest["user"], body: zod.infer<typeof searchSch
   if (body.status) {
     filters.statusCode = Array.isArray(body.status) ? (body.status[0] as any) : (body.status as any);
   }
-  if (body.comment) filters.statusComment = body.comment;
-  if (body.organization) filters.organizationName = body.organization;
+  if (body.comment) {
+    filters.statusComment = body.comment;
+  }
+  if (body.organization) {
+    filters.organizationName = body.organization;
+  }
   if (body.search) {
     const text = diacriticSensitiveRegex(body.search);
     filters.keywords = text;
@@ -104,7 +112,9 @@ const findFilters = (user: UserRequest["user"], body: zod.infer<typeof searchSch
     filters.lon = body.lon;
     filters.distanceKm = distance;
   }
-  if (body.leboncoinStatus) filters.leboncoinStatus = body.leboncoinStatus;
+  if (body.leboncoinStatus) {
+    filters.leboncoinStatus = body.leboncoinStatus;
+  }
   if (body.jvaModeration) {
     filters.moderationAcceptedFor = PUBLISHER_IDS.JEVEUXAIDER;
     filters.publisherIds = Array.from(new Set([...(filters.publisherIds ?? []), PUBLISHER_IDS.JEVEUXAIDER]));
@@ -115,38 +125,6 @@ const findFilters = (user: UserRequest["user"], body: zod.infer<typeof searchSch
     filters.createdAt = { ...(filters.createdAt ?? {}), lt: body.availableTo };
   }
   return filters;
-};
-
-const computeFacets = (missions: MissionRecord[]) => {
-  const count = (getter: (m: MissionRecord) => string | null | undefined) => {
-    const map = new Map<string, number>();
-    missions.forEach((m) => {
-      const key = getter(m);
-      if (!key) return;
-      map.set(key, (map.get(key) ?? 0) + 1);
-    });
-    return Array.from(map.entries())
-      .sort((a, b) => b[1] - a[1])
-      .map(([key, count]) => ({ key, doc_count: count }));
-  };
-
-  return {
-    status: count((m) => m.statusCode || undefined),
-    comments: count((m) => m.statusComment || undefined),
-    type: count((m) => m.type || undefined),
-    domains: count((m) => m.domain || undefined),
-    organizations: count((m) => m.organizationName || undefined),
-    activities: count((m) => m.activity || undefined),
-    cities: count((m) => m.city || undefined),
-    departments: count((m) => m.departmentName || undefined),
-    partners: count((m) => m.publisherId || undefined).map((row) => ({
-      _id: row.key,
-      count: row.doc_count,
-      name: undefined as string | undefined,
-      mission_type: undefined as string | undefined,
-    })),
-    leboncoinStatus: count((m) => m.leboncoinStatus || undefined),
-  };
 };
 
 router.post("/search", passport.authenticate("user", { session: false }), async (req: UserRequest, res: Response, next: NextFunction) => {
@@ -166,20 +144,7 @@ router.post("/search", passport.authenticate("user", { session: false }), async 
       throw error;
     }
 
-    const { data, total } = await missionService.findMissions(filters);
-    const aggs = computeFacets(data);
-
-    // partners facet needs publisher names; enrich from service
-    aggs.partners = await Promise.all(
-      aggs.partners.map(async (p) => {
-        const publisher = await publisherService.findOnePublisherById(p._id);
-        return {
-          ...p,
-          name: publisher?.name,
-          mission_type: publisher?.missionType === "volontariat_service_civique" ? "volontariat" : "benevolat",
-        };
-      })
-    );
+    const { data, total, aggs } = await missionService.findMissionsWithAggregations(filters);
 
     return res.status(200).send({ ok: true, data, total, aggs });
   } catch (error) {

@@ -11,6 +11,7 @@ import SearchSelect from "../../components/SearchSelect";
 import { LEBONCOIN_STATUS, STATUS_PLR } from "../../constants";
 import api from "../../services/api";
 import { captureError } from "../../services/error";
+import { compactMissionFilters, searchMissions } from "../../services/mission";
 import exportCSV from "../../services/utils";
 
 const TABLE_HEADER = [
@@ -71,25 +72,11 @@ const AdminMission = () => {
     const fetchData = async () => {
       setLoading(true);
       try {
-        const newSearchParams = new URLSearchParams(searchParams);
-        Object.entries(filters).forEach(([key, value]) => (value ? newSearchParams.set(key, value) : newSearchParams.delete(key)));
+        const newSearchParams = new URLSearchParams();
+        Object.entries(compactMissionFilters(filters)).forEach(([key, value]) => newSearchParams.set(key, value));
         setSearchParams(newSearchParams);
 
-        const query = {
-          size: filters.size,
-          from: (filters.page - 1) * filters.size,
-        };
-        if (filters.status) query.status = filters.status;
-        if (filters.publisherId) query.publisherId = filters.publisherId;
-        if (filters.domain) query.domain = filters.domain;
-        if (filters.activity) query.activity = filters.activity;
-        if (filters.city) query.city = filters.city;
-        if (filters.department) query.department = filters.department;
-        if (filters.organization) query.organization = filters.organization;
-        if (filters.leboncoinStatus) query.leboncoinStatus = filters.leboncoinStatus;
-        if (filters.search) query.search = filters.search;
-        if (filters.sortBy) query.sort = filters.sortBy;
-        const res = await api.post("/mission/search", { ...query });
+        const res = await searchMissions(filters);
 
         if (!res.ok) throw res;
         setData(res.data);
@@ -107,21 +94,7 @@ const AdminMission = () => {
   const handleExport = async () => {
     setExporting(true);
     try {
-      const query = {
-        size: total,
-        from: 0,
-      };
-
-      if (filters.status) query.status = filters.status;
-      if (filters.domain) query.domain = filters.domain;
-      if (filters.activity) query.activity = filters.activity;
-      if (filters.city) query.city = filters.city;
-      if (filters.organization) query.organization = filters.organization;
-      if (filters.leboncoinStatus) query.leboncoinStatus = filters.leboncoinStatus;
-      if (filters.search) query.search = filters.search;
-      if (filters.sortBy) query.sort = filters.sortBy;
-
-      const res = await api.post("/mission/search", { ...query });
+      const res = await searchMissions({ ...filters, size: total, page: 1 });
 
       if (!res.ok) throw res;
 

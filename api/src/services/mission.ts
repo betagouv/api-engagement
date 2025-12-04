@@ -2,8 +2,18 @@ import { randomUUID } from "crypto";
 
 import { Mission, Prisma } from "../db/core";
 import { missionRepository } from "../repositories/mission";
-import type { MissionCreateInput, MissionFacets, MissionRecord, MissionSearchFilters, MissionUpdatePatch } from "../types/mission";
+import { organizationRepository } from "../repositories/organization";
+import type {
+  MissionCreateInput,
+  MissionFacets,
+  MissionRecord,
+  MissionSearchAggregations,
+  MissionSearchFilters,
+  MissionUpdatePatch,
+} from "../types/mission";
 import { getDistanceFromLatLonInKm } from "../utils/geo";
+import { publisherService } from "./publisher";
+import { prismaCore } from "../db/postgres";
 
 type MissionWithRelations = Mission & {
   publisher?: { name: string | null; url: string | null; logo: string | null } | null;
@@ -388,6 +398,155 @@ const computeFacetsFromRecords = (records: MissionRecord[]): MissionFacets => {
   };
 };
 
+const buildAggregationsFromRecords = async (records: MissionRecord[]): Promise<MissionSearchAggregations> => {
+  const aggregate = (getter: (record: MissionRecord) => string | null | undefined) => {
+    const map = new Map<string, number>();
+    records.forEach((record) => {
+      const key = getter(record);
+      if (!key) {
+        return;
+      }
+      map.set(key, (map.get(key) ?? 0) + 1);
+    });
+    return Array.from(map.entries())
+      .sort((a, b) => b[1] - a[1])
+      .map(([key, count]) => ({ key, doc_count: count }));
+  };
+
+  const partners = aggregate((record) => record.publisherId ?? undefined).map(({ key, doc_count }) => ({ _id: key, count: doc_count }));
+  const publisherIds = partners.map((partner) => partner._id);
+  const publishers = await publisherService.findPublishersByIds(publisherIds);
+  const publisherById = new Map(publishers.map((publisher) => [publisher._id, publisher]));
+
+  return {
+    status: aggregate((record) => record.statusCode || undefined),
+    comments: aggregate((record) => record.statusComment || undefined),
+    type: aggregate((record) => record.type || undefined),
+    domains: aggregate((record) => record.domain || undefined),
+    organizations: aggregate((record) => record.organizationName || undefined),
+    activities: aggregate((record) => record.activity || undefined),
+    cities: aggregate((record) => record.city || undefined),
+    departments: aggregate((record) => record.departmentName || undefined),
+    partners: partners.map((partner) => {
+      const publisher = publisherById.get(partner._id);
+      return {
+        ...partner,
+        name: publisher?.name,
+        mission_type: publisher?.missionType === "volontariat_service_civique" ? "volontariat" : "benevolat",
+      };
+    }),
+    leboncoinStatus: aggregate((record) => record.leboncoinStatus || undefined),
+  };
+};
+
+const isNonEmpty = (value: string | null | undefined) => value !== null && value !== undefined && value !== "";
+
+const buildAggregations = async (where: Prisma.MissionWhereInput): Promise<MissionSearchAggregations> => {
+  const aggregateMissionField = async (field: Prisma.MissionScalarFieldEnum) => {
+    const rows = await prismaCore.mission.groupBy({
+      by: [field],
+      where,
+      _count: { _all: true },
+    });
+
+    return rows
+      .map((row) => ({
+        key: String((row as any)[field] ?? ""),
+        count: Number((row as any)._count?._all ?? 0),
+      }))
+      .filter((row) => isNonEmpty(row.key))
+      .sort((a, b) => b.count - a.count)
+      .map((row) => ({ key: row.key, doc_count: row.count }));
+  };
+
+  const aggregateAddresses = async (field: "city" | "departmentName") => {
+    const rows = await prismaCore.missionAddress.groupBy({
+      by: [field],
+      where: { mission: where },
+      _count: { _all: true },
+    });
+
+    return rows
+      .map((row) => ({
+        key: String((row as any)[field] ?? ""),
+        count: Number((row as any)._count?._all ?? 0),
+      }))
+      .filter((row) => isNonEmpty(row.key))
+      .sort((a, b) => b.count - a.count)
+      .map((row) => ({ key: row.key, doc_count: row.count }));
+  };
+
+  const [status, comments, type, domains, organizationsRows, activities, cities, departments, partnersRows, leboncoinStatus] = await Promise.all([
+    aggregateMissionField("statusCode"),
+    aggregateMissionField("statusComment"),
+    aggregateMissionField("type"),
+    aggregateMissionField("domain"),
+    prismaCore.mission.groupBy({
+      by: ["organizationId"],
+      where,
+      _count: { _all: true },
+    }),
+    aggregateMissionField("activity"),
+    aggregateAddresses("city"),
+    aggregateAddresses("departmentName"),
+    prismaCore.mission.groupBy({
+      by: ["publisherId"],
+      where,
+      _count: { _all: true },
+    }),
+    aggregateMissionField("leboncoinStatus"),
+  ]);
+
+  const organizationIds = organizationsRows.map((row) => row.organizationId).filter(isNonEmpty) as string[];
+  const organizations = organizationIds.length
+    ? await organizationRepository.findMany({
+        where: { id: { in: organizationIds } },
+        select: { id: true, title: true },
+      })
+    : [];
+  const orgById = new Map(organizations.map((org) => [org.id, org.title ?? ""]));
+  const organizationsAgg = organizationsRows
+    .map((row) => ({
+      key: orgById.get(row.organizationId ?? "") ?? "",
+      doc_count: Number((row as any)._count?._all ?? 0),
+    }))
+    .filter((row) => isNonEmpty(row.key))
+    .sort((a, b) => b.doc_count - a.doc_count);
+
+  const partners = partnersRows
+    .map((row) => ({
+      _id: row.publisherId ?? "",
+      count: Number((row as any)._count?._all ?? 0),
+    }))
+    .filter((row) => isNonEmpty(row._id))
+    .sort((a, b) => b.count - a.count);
+
+  const publisherIds = partners.map((partner) => partner._id);
+  const publishers = publisherIds.length ? await publisherService.findPublishersByIds(publisherIds) : [];
+  const publisherById = new Map(publishers.map((publisher) => [publisher._id, publisher]));
+  const partnersAgg = partners.map((partner) => {
+    const publisher = publisherById.get(partner._id);
+    return {
+      ...partner,
+      name: publisher?.name,
+      mission_type: publisher?.missionType === "volontariat_service_civique" ? "volontariat" : "benevolat",
+    };
+  });
+
+  return {
+    status: status as MissionSearchAggregations["status"],
+    comments: comments as MissionSearchAggregations["comments"],
+    type: type as MissionSearchAggregations["type"],
+    domains: domains as MissionSearchAggregations["domains"],
+    organizations: organizationsAgg,
+    activities: activities as MissionSearchAggregations["activities"],
+    cities: cities as MissionSearchAggregations["cities"],
+    departments: departments as MissionSearchAggregations["departments"],
+    partners: partnersAgg,
+    leboncoinStatus: leboncoinStatus as MissionSearchAggregations["leboncoinStatus"],
+  };
+};
+
 const mapAddressesForCreate = (addresses?: MissionRecord["addresses"]) => {
   if (!addresses || !addresses.length) {
     return [];
@@ -475,6 +634,52 @@ export const missionService = {
     ]);
 
     return { data: missions.map((mission) => toMissionRecord(mission as MissionWithRelations)), total };
+  },
+
+  async findMissionsWithAggregations(filters: MissionSearchFilters): Promise<{ data: MissionRecord[]; total: number; aggs: MissionSearchAggregations }> {
+    const where = buildWhere(filters);
+
+    if (filters.lat !== undefined && filters.lon !== undefined && filters.distanceKm !== undefined) {
+      const missions = await missionRepository.findMany({
+        where,
+        include: baseInclude,
+        orderBy: { startAt: Prisma.SortOrder.desc },
+      });
+
+      const filtered = missions
+        .map((mission) => {
+          const record = toMissionRecord(mission as MissionWithRelations);
+          const distanceKm = getDistanceFromLatLonInKm(filters.lat, filters.lon, record.location?.lat, record.location?.lon);
+          return { record, distanceKm };
+        })
+        .filter((entry) => entry.distanceKm !== undefined && (entry.distanceKm as number) <= filters.distanceKm!)
+        .sort((a, b) => (a.distanceKm ?? 0) - (b.distanceKm ?? 0));
+
+      const total = filtered.length;
+      const aggs = await buildAggregationsFromRecords(filtered.map(({ record }) => record));
+      const data = filtered.slice(filters.skip, filters.skip + filters.limit).map(({ record, distanceKm }) => ({
+        ...record,
+        distanceKm: distanceKm ?? undefined,
+      }));
+
+      return { data, total, aggs };
+    }
+
+    const [paginated, total, aggs] = await Promise.all([
+      missionRepository.findMany({
+        where,
+        include: baseInclude,
+        orderBy: { startAt: Prisma.SortOrder.desc },
+        skip: filters.skip,
+        take: filters.limit,
+      }),
+      missionRepository.count(where),
+      buildAggregations(where),
+    ]);
+
+    const data = paginated.map((mission) => toMissionRecord(mission as MissionWithRelations));
+
+    return { data, total, aggs };
   },
 
   async countMissions(filters: MissionSearchFilters): Promise<number> {
