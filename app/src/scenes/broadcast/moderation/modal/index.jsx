@@ -30,7 +30,7 @@ const MissionModal = ({ onChange }) => {
         if (!res.ok) throw res;
         setHistory(res.data.organization[data.organizationName] || { ACCEPTED: 0, REFUSED: 0, PENDING: 0 });
       } catch (error) {
-        captureError(error, "Erreur lors de la récupération des données historiques");
+        captureError(error, { extra: { data, publisherId: publisher.id } });
       }
     };
     fetchData();
@@ -45,7 +45,7 @@ const MissionModal = ({ onChange }) => {
 
         setData(res.data);
       } catch (error) {
-        captureError(error, "Erreur lors de la récupération des données");
+        captureError(error, { extra: { searchParams } });
         const newSearchParams = new URLSearchParams(searchParams);
         newSearchParams.delete("mission");
         setSearchParams(newSearchParams);

@@ -51,7 +51,7 @@ const Flux = () => {
           }
         }
       } catch (error) {
-        captureError(error, "Erreur lors de la récupération des données");
+        captureError(error, { extra: { publisherId: publisher.id, filters } });
       } finally {
         setLoading(false);
       }
@@ -152,7 +152,7 @@ const ModifyModal = () => {
       setPublisher(res.data);
       setIsOpen(false);
     } catch (error) {
-      captureError(error, "Erreur lors de la mise à jour du flux");
+      captureError(error, { extra: { publisherId: publisher.id, feed } });
     } finally {
       setLoading(false);
     }

@@ -27,7 +27,7 @@ const Users = () => {
         if (!resP.ok) throw resP;
         setPublishers(withLegacyPublishers(resP.data));
       } catch (error) {
-        captureError(error, "Erreur lors de la récupération des données");
+        captureError(error);
       } finally {
         setLoading(false);
       }

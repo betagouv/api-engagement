@@ -25,7 +25,7 @@ const Forgot = () => {
       await api.post("/user/forgot-password", { email: values.email });
       setDone(true);
     } catch (error) {
-      captureError(error, "Une erreur s'est produite lors de la soumission.");
+      captureError(error, { extra: { values } });
     }
     setLoading(false);
   };
@@ -52,7 +52,7 @@ const Forgot = () => {
         </div>
       )}
 
-      <button type="submit" className="primary-btn w-full mt-6" disabled={errors.email || loading || done}>
+      <button type="submit" className="primary-btn mt-6 w-full" disabled={errors.email || loading || done}>
         {loading ? "Chargement..." : "Réinitialisez votre mot de passe"}
       </button>
 

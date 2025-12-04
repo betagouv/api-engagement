@@ -39,7 +39,7 @@ const List = () => {
         setData(res.data);
         setTotal(res.total);
       } catch (error) {
-        captureError(error, "Erreur lors de la récupération des données");
+        captureError(error, { extra: { filters } });
       }
       setLoading(false);
     };

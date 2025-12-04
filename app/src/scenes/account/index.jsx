@@ -34,7 +34,7 @@ const Account = () => {
       toast.success("Paramètres mis à jour");
       setUser(res.data);
     } catch (error) {
-      captureError(error, "Erreur lors de la mise à jour des paramètres");
+      captureError(error, { extra: { values } });
     }
   };
 
@@ -152,7 +152,7 @@ const ResetPasswordModal = () => {
       toast.success("Mot de passe mis à jour");
       setOpen(false);
     } catch (error) {
-      captureError(error, "Erreur lors de la mise à jour du mot de passe");
+      captureError(error, { extra: { values } });
     }
   };
 

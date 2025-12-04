@@ -67,7 +67,7 @@ const Edit = () => {
         });
         setLoading(false);
       } catch (error) {
-        captureError(error, "Une erreur est survenue lors de la récupération du widget");
+        captureError(error, { extra: { id } });
         navigate("/broadcast/widgets");
       }
     };
@@ -82,7 +82,7 @@ const Edit = () => {
 
       toast.success("Widget mis à jour");
     } catch (error) {
-      captureError(error, "Erreur lors de la mise à jour du widget");
+      captureError(error, { extra: { widget } });
     }
   };
 
@@ -92,7 +92,7 @@ const Edit = () => {
       if (!res.ok) throw res;
       setWidget(res.data);
     } catch (error) {
-      captureError(error, "Erreur lors de la mise à jour des données");
+      captureError(error, { extra: { widget } });
     }
   };
 

@@ -42,7 +42,7 @@ const Settings = ({ widget, values, onChange, loading }) => {
         if (publisher.isAnnonceur && !newPublishers.some((p) => p._id === publisher.id)) newPublishers.push({ _id: publisher.id, name: publisher.name, count: 0 });
         setPublishers(newPublishers);
       } catch (error) {
-        captureError(error, "Erreur lors de la récupération des missions");
+        captureError(error, { extra: { publisherId: publisher.id } });
       }
     };
     fetchMissions();
@@ -67,7 +67,7 @@ const Settings = ({ widget, values, onChange, loading }) => {
         if (!res.ok) throw res;
         setTotal(res.total);
       } catch (error) {
-        captureError(error, "Erreur lors de la récupération des missions");
+        captureError(error, { extra: { publisherId: publisher.id } });
       }
     };
     fetchFilteredMissions();
@@ -80,7 +80,7 @@ const Settings = ({ widget, values, onChange, loading }) => {
       if (!res.ok) throw res;
       return res.data;
     } catch (error) {
-      captureError(error, "Erreur lors de la récupération des missions");
+      captureError(error, { extra: { field, search, currentValues } });
     }
     return [];
   };

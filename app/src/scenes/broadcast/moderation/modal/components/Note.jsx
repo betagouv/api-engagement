@@ -25,9 +25,13 @@ const Note = ({ data, onChange }) => {
       });
       onChange(res.data);
     } catch (error) {
-      captureError(error, "Erreur lors de la mise à jour de la mission", {
-        position: "bottom-right",
-      });
+      captureError(
+        error,
+        { extra: { data, note, publisherId: publisher.id } },
+        {
+          position: "bottom-right",
+        },
+      );
     } finally {
       setEditing(false);
     }

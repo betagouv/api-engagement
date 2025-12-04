@@ -29,9 +29,13 @@ const OrganizationRefusedModal = ({ isOpen, onClose, data, update, onChange, tot
       onChange(res.data);
       onClose();
     } catch (error) {
-      captureError(error, "Erreur lors de la mise à jour des missions", {
-        position: "bottom-right",
-      });
+      captureError(
+        error,
+        { extra: { data, update, publisherId: publisher.id } },
+        {
+          position: "bottom-right",
+        },
+      );
     }
     setLoading(false);
   };

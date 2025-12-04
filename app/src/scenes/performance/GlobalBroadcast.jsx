@@ -40,12 +40,12 @@ const GlobalDiffuseur = ({ filters, onFiltersChange }) => {
     const fetchData = async () => {
       setLoading(true);
       try {
-        const res = await api.post("/stats/search", { type: print, size: 3, fromPublisherId: publisher.id });
+        const res = await api.post("/stats/search", { type: "print", size: 3, fromPublisherId: publisher.id });
         if (!res.ok) throw res;
 
         setTrackingWarning((res.data?.length || 0) < 3);
       } catch (error) {
-        captureError(error, "Erreur lors de la récupération des données");
+        captureError(error, { extra: { publisherId: publisher.id } });
       }
       setLoading(false);
     };
@@ -67,7 +67,7 @@ const GlobalDiffuseur = ({ filters, onFiltersChange }) => {
         if (!res.ok) throw res;
         setData(res.data);
       } catch (error) {
-        captureError(error, "Erreur lors de la récupération des données");
+        captureError(error, { extra: { filters } });
       }
       setLoading(false);
     };
@@ -190,7 +190,7 @@ const DistributionMean = ({ filters, defaultType = "print" }) => {
         if (!res.ok) throw res;
         setData(res.data);
       } catch (error) {
-        captureError(error, "Erreur lors de la récupération des données");
+        captureError(error, { extra: { filters, type } });
       }
       setLoading(false);
     };
@@ -291,7 +291,7 @@ const Evolution = ({ filters, defaultType = "print" }) => {
         if (!res.ok) throw res;
         setData(res.data);
       } catch (error) {
-        captureError(error, "Erreur lors de la récupération des données");
+        captureError(error, { extra: { filters, type } });
       }
       setLoading(false);
     };
@@ -396,7 +396,7 @@ const Announcers = ({ filters }) => {
         if (!resM.ok) throw resM;
         setMissionData(resM.data);
       } catch (error) {
-        captureError(error, "Erreur lors de la récupération des données");
+        captureError(error, { extra: { filters } });
       }
       setLoading(false);
     };

@@ -38,12 +38,18 @@ const Edit = () => {
     const fetchData = async () => {
       try {
         const res = await api.get(`/campaign/${id}`);
-        if (!res.ok) throw new Error("Erreur lors de la récupération des données");
+        if (!res.ok) {
+          if (res.status === 404) {
+            toast.error("Campagne non trouvée");
+            navigate("/broadcast/campaigns");
+            return;
+          }
+          throw res;
+        }
         setCampaign(res.data);
         setValues({ ...values, ...res.data });
       } catch (error) {
-        captureError(error, "Erreur lors de la récupération des données");
-        navigate("/broadcast");
+        captureError(error, { extra: { id } });
       }
     };
     fetchData();
@@ -83,7 +89,7 @@ const Edit = () => {
       setCampaign(res.data);
       setValues({ ...values, ...res.data });
     } catch (error) {
-      captureError(error, "Erreur lors de la mise à jour de la campagne");
+      captureError(error, { extra: { id, values } });
     } finally {
       setLoading(false);
     }
@@ -99,7 +105,7 @@ const Edit = () => {
       toast.success(activation ? "Campagne activée" : "Campagne désactivée");
       setCampaign({ ...campaign, active: activation });
     } catch (error) {
-      captureError(error, `Erreur lors de la mise à jour de la campagne`);
+      captureError(error, { extra: { id, activation } });
       setValues({ ...values, active: !activation });
     }
   };
@@ -114,7 +120,7 @@ const Edit = () => {
       toast.success("Campagne supprimée");
       navigate("/broadcast/campaigns");
     } catch (error) {
-      captureError(error, "Erreur lors de la suppression de la campagne");
+      captureError(error, { extra: { id } });
     }
   };
 
@@ -242,14 +248,14 @@ const ReassignModal = ({ isOpen, onClose, campaign, values, setValues, setCampai
     const fetchData = async () => {
       try {
         const res = await api.post(`/publisher/search`, { role: "campaign" });
-        if (!res.ok) throw new Error("Erreur lors de la récupération des données");
+        if (!res.ok) throw res;
         setPublishers(
           withLegacyPublishers(res.data)
             .sort((a, b) => a.name.localeCompare(b.name))
             .map((p) => ({ ...p, label: p.name })),
         );
       } catch (error) {
-        captureError(error, "Erreur lors de la récupération des données");
+        captureError(error);
       }
     };
     fetchData();
@@ -267,13 +273,13 @@ const ReassignModal = ({ isOpen, onClose, campaign, values, setValues, setCampai
         fromPublisherId: values.fromPublisherId,
       });
 
-      if (!res.ok) throw new Error("Erreur lors du déplacement de la campagne");
+      if (!res.ok) throw res;
       toast.success("Campagne déplacée avec succès");
       setCampaign({ ...campaign, toPublisherId: values.toPublisherId });
       onClose();
       navigate("/broadcast/campaigns");
     } catch (error) {
-      captureError(error, "Erreur lors du déplacement de la campagne");
+      captureError(error, { extra: { campaign, values } });
     } finally {
       setLoading(false);
     }

@@ -14,7 +14,7 @@ const Administration = ({ values, onChange }) => {
         if (!res.ok) throw res;
         setExcludedOrganizations(res.data);
       } catch (error) {
-        captureError(error, "Erreur lors de la récupération des organisations exclues");
+        captureError(error, { extra: { publisherId: values.id } });
       }
     };
     fetchExcludedOrganizations();

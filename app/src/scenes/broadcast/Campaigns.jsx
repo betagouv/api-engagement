@@ -41,7 +41,7 @@ const Campaigns = () => {
       if (!res.ok) throw res;
       setData(res.data || []);
     } catch (error) {
-      captureError(error, "Erreur lors du chargement des données");
+      captureError(error, { extra: { filters } });
     }
   };
 
@@ -53,7 +53,7 @@ const Campaigns = () => {
       setData([res.data, ...data]);
       toast.success("Campagne dupliquée");
     } catch (error) {
-      captureError(error, "Erreur lors de la duplication de la campagne");
+      captureError(error, { extra: { id } });
     }
   };
 
@@ -68,7 +68,7 @@ const Campaigns = () => {
       if (!res.ok) throw res;
       setData((campaigns) => campaigns.map((c) => (c.id === res.data.id ? res.data : c)));
     } catch (error) {
-      captureError(error, "Erreur lors de la mise à jour des données");
+      captureError(error, { extra: { item } });
     }
   };
 

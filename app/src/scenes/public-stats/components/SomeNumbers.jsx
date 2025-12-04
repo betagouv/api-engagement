@@ -58,7 +58,7 @@ const SomeNumbers = ({ filters, onFiltersChange }) => {
           missions: resGraphMissions.total,
         });
       } catch (error) {
-        captureError(error, "Une erreur est survenue lors de la récupération des statistiques");
+        captureError(error, { extra: { filters } });
       }
       setLoading(false);
     };

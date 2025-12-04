@@ -21,7 +21,7 @@ const Information = ({ values, onChange, errors, onErrorChange }) => {
             .map((p) => ({ ...p, label: p.name })),
         );
       } catch (error) {
-        captureError(error, "Erreur lors de la récupération des données");
+        captureError(error);
       }
     };
     fetchData();

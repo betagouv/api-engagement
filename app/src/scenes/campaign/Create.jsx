@@ -53,7 +53,7 @@ const Create = () => {
       setIsCopyModalOpen(true);
       toast.success("Campagne créée avec succès");
     } catch (error) {
-      captureError(error, "Erreur lors de la création de la campagne");
+      captureError(error, { extra: { values } });
     }
   };
 

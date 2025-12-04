@@ -48,7 +48,7 @@ const Mean = ({ filters, onFiltersChange }) => {
         setOptions(newOptions.reverse());
         setSource(source);
       } catch (error) {
-        captureError(error, "Erreur lors de la récupération des données");
+        captureError(error, { extra: { publisherId: publisher.id } });
       }
     };
     fetchData();
@@ -65,11 +65,11 @@ const Mean = ({ filters, onFiltersChange }) => {
         query.append("source", source);
         query.append("publisherId", publisher.id);
         const resP = await api.get(`/stats-mean?${query.toString()}`);
-
         if (!resP.ok) throw resP;
+
         setData(resP.data);
       } catch (error) {
-        captureError(error, "Erreur lors de la récupération des données");
+        captureError(error, { extra: { source, filters, publisherId: publisher.id } });
       }
       setLoading(false);
     };

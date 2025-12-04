@@ -9,8 +9,8 @@ import Modal from "../../components/Modal";
 import { Table } from "../../components/Table";
 import api from "../../services/api";
 import { captureError } from "../../services/error";
-import { withLegacyPublishers } from "../../utils/publisher";
 import { isValidEmail } from "../../services/utils";
+import { withLegacyPublishers } from "../../utils/publisher";
 
 const Edit = () => {
   const { id } = useParams();
@@ -39,7 +39,7 @@ const Edit = () => {
         if (!resP.ok) throw resP;
         setPublishers(withLegacyPublishers(resP.data).sort((a, b) => a.name.localeCompare(b.name)));
       } catch (error) {
-        captureError(error, "Erreur lors de la récupération des partenaires");
+        captureError(error, { extra: { id } });
       }
     };
     fetchData();
@@ -64,7 +64,7 @@ const Edit = () => {
       setUser(res.data);
       toast.success("Paramètres mis à jour");
     } catch (error) {
-      captureError(error, "Erreur lors de la mise à jour de l'utilisateur");
+      captureError(error, { extra: { id, values } });
     }
   };
 
@@ -74,7 +74,7 @@ const Edit = () => {
       if (!res.ok) throw res;
       toast.success("Invitation envoyée");
     } catch (error) {
-      captureError(error, "Erreur lors de l'envoi de l'invitation");
+      captureError(error, { extra: { id } });
     }
   };
 
@@ -88,7 +88,7 @@ const Edit = () => {
       toast.success("Utilisateur supprimé");
       navigate("/accounts");
     } catch (error) {
-      captureError(error, "Erreur lors de la suppression de l'utilisateur");
+      captureError(error, { extra: { id } });
     }
   };
 
@@ -239,7 +239,9 @@ const Edit = () => {
                       onChange={(e) =>
                         setValues({
                           ...values,
-                          publishers: e.target.checked ? [...values.publishers, (item.id || item._id).toString()] : values.publishers.filter((pub) => pub !== (item.id || item._id).toString()),
+                          publishers: e.target.checked
+                            ? [...values.publishers, (item.id || item._id).toString()]
+                            : values.publishers.filter((pub) => pub !== (item.id || item._id).toString()),
                         })
                       }
                       checked={values.publishers.includes((item.id || item._id).toString())}
@@ -300,7 +302,10 @@ const ResetPasswordModal = ({ user }) => {
       if (!res.ok) throw res;
       setNewPassword(res.data);
     } catch (error) {
-      captureError(error, "Erreur lors de la réinitialisation du mot de passe");
+      captureError(error, { extra: { userId: user.id } });
+      setIsConfirm(false);
+      setNewPassword("");
+      setOpen(false);
     }
   };
 

@@ -22,6 +22,13 @@ class APIHandler {
     this.headers["Authorization"] = "";
   }
 
+  logout() {
+    window.location = "/login?loggedout=true";
+    localStorage.removeItem("token");
+    this.headers["Authorization"] = "";
+    return { ok: false, status: 401, error: "Unauthorized" };
+  }
+
   async post(endpoint, data, options = {}) {
     try {
       const response = await fetch(`${this.baseUrl}${endpoint}`, {
@@ -35,17 +42,13 @@ class APIHandler {
         credentials: "include",
       });
       if (response.status === 401) {
-        window.location = "/login?loggedout=true";
-        return { ok: false, status: 401, error: "Unauthorized" };
-      }
-      if (!response.ok) {
-        return { status: response.status, ok: false, error: response.statusText };
+        return this.logout();
       }
       const res = await response.json();
       return { ...res, status: response.status };
     } catch (error) {
       if (error.message.includes("NetworkError")) {
-        return { ok: false, status: 401, error: "Unauthorized" };
+        return this.logout();
       }
       throw error;
     }
@@ -62,13 +65,13 @@ class APIHandler {
         credentials: "include",
       });
       if (response.status === 401) {
-        window.location = "/login?loggedout=true";
-        return { ok: false, status: 401, error: "Unauthorized" };
+        return this.logout();
       }
-      return await response.json();
+      const res = await response.json();
+      return { ...res, status: response.status };
     } catch (error) {
       if (error.message.includes("NetworkError")) {
-        return { ok: false, status: 401, error: "Unauthorized" };
+        return this.logout();
       }
       throw error;
     }
@@ -85,14 +88,13 @@ class APIHandler {
         credentials: "include",
       });
       if (response.status === 401) {
-        window.location = "/login?loggedout=true";
-        return { ok: false, status: 401, error: "Unauthorized" };
+        return this.logout();
       }
       const res = await response.json();
       return { ...res, status: response.status };
     } catch (error) {
       if (error.message.includes("NetworkError")) {
-        return { ok: false, status: 401, error: "Unauthorized" };
+        return this.logout();
       }
       throw error;
     }
@@ -110,14 +112,13 @@ class APIHandler {
         credentials: "include",
       });
       if (response.status === 401) {
-        window.location = "/login?loggedout=true";
-        return { ok: false, status: 401, error: "Unauthorized" };
+        return this.logout();
       }
       const res = await response.json();
       return { ...res, status: response.status };
     } catch (error) {
       if (error.message.includes("NetworkError")) {
-        return { ok: false, status: 401, error: "Unauthorized" };
+        return this.logout();
       }
       throw error;
     }
@@ -134,14 +135,13 @@ class APIHandler {
         credentials: "include",
       });
       if (response.status === 401) {
-        window.location = "/login?loggedout=true";
-        return { ok: false, status: 401, error: "Unauthorized" };
+        return this.logout();
       }
       const res = await response.json();
       return { ...res, status: response.status };
     } catch (error) {
       if (error.message.includes("NetworkError")) {
-        return { ok: false, status: 401, error: "Unauthorized" };
+        return this.logout();
       }
       throw error;
     }

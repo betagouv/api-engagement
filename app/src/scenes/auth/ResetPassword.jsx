@@ -102,7 +102,7 @@ const ResetPasswordForm = ({ user, token }) => {
       }
       setSuccess(true);
     } catch (error) {
-      captureError(error, "Erreur lors de la réinitialisation du mot de passe");
+      captureError(error, { extra: { values } });
     } finally {
       setLoading(false);
     }
@@ -207,7 +207,7 @@ const ResetPasswordForm = ({ user, token }) => {
       )}
 
       {!success ? (
-        <button type="submit" className="primary-btn w-full mt-6" disabled={loading || errors.confirmPassword || errors.password || errors.expired}>
+        <button type="submit" className="primary-btn mt-6 w-full" disabled={loading || errors.confirmPassword || errors.password || errors.expired}>
           {loading ? "Enregistrement..." : "Enregister"}
         </button>
       ) : (

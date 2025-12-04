@@ -31,7 +31,7 @@ const Signup = () => {
       }
       setUser(res.data);
     } catch (error) {
-      captureError(error, "Erreur lors de la vérification du token");
+      captureError(error, { extra: { token } });
     }
   };
 
@@ -120,7 +120,7 @@ const SignupForm = ({ user }) => {
       toast.success("Compte créé avec succès");
       navigate("/login");
     } catch (error) {
-      captureError(error, "Erreur lors de la création du compte");
+      captureError(error, { extra: { values } });
     }
     setLoading(false);
   };
@@ -236,7 +236,7 @@ const SignupForm = ({ user }) => {
           </div>
         )}
       </div>
-      <button type="submit" className="primary-btn w-full mt-6" disabled={loading}>
+      <button type="submit" className="primary-btn mt-6 w-full" disabled={loading}>
         {loading ? "Chargement..." : "S'inscrire"}
       </button>
     </form>

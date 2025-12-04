@@ -35,7 +35,7 @@ const Widgets = () => {
       if (!res.ok) throw res;
       setData(res.data || []);
     } catch (error) {
-      captureError(error, "Erreur lors du chargement des données");
+      captureError(error, { extra: { filters } });
     }
     setLoading(false);
   };
@@ -50,7 +50,7 @@ const Widgets = () => {
       if (!res.ok) throw res;
       setData((widgets) => widgets.map((w) => (w._id === res.data._id ? res.data : w)));
     } catch (error) {
-      captureError(error, "Erreur lors de la mise à jour des données");
+      captureError(error, { extra: { item } });
     }
   };
 
