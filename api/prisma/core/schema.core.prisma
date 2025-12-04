@@ -242,6 +242,7 @@ model StatEvent {
   @@index([toPublisherId, type, createdAt], map: "stats_event_to_publisher_type_created_at_idx")
   @@index([updatedAt(sort: Asc)], map: "stats_event_updated_at_asc_idx")
   @@index([user], map: "stats_event_user_idx")
+  @@index([sourceId], map: "stats_event_source_id_idx")
   @@map("stat_event")
 }
 
