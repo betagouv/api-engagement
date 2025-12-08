@@ -229,7 +229,6 @@ export const widgetService = {
       createdAt: input.createdAt ?? undefined,
       updatedAt: input.updatedAt ?? undefined,
       fromPublisher: { connect: { id: fromPublisher.id } },
-      fromPublisherName: input.fromPublisherName ?? fromPublisher.name,
       rules: normalizeRulesForCreate(input.rules),
       widgetPublishers: normalizePublishersForCreate(publishers),
     };

@@ -73,7 +73,6 @@ type NormalizedWidgetRecord = {
   url: string | null;
   jvaModeration: boolean;
   fromPublisherId: string;
-  fromPublisherName: string | null;
   active: boolean;
   deletedAt: Date | null;
   createdAt: Date;
@@ -175,7 +174,6 @@ const normalizeWidget = (doc: MongoWidgetDocument): NormalizedWidgetData => {
     url: asString(doc.url),
     jvaModeration: asBoolean(doc.jvaModeration, false),
     fromPublisherId,
-    fromPublisherName: asString(doc.fromPublisherName),
     active: asBoolean(doc.active, true),
     deletedAt: normalizeDate(doc.deletedAt as string),
     createdAt,
@@ -279,7 +277,6 @@ const normalizePrismaWidget = (widget: PrismaWidgetWithRelations): NormalizedWid
     url: widget.url ?? null,
     jvaModeration: widget.jvaModeration ?? false,
     fromPublisherId: widget.fromPublisherId,
-    fromPublisherName: "",
     active: widget.active ?? false,
     deletedAt: widget.deletedAt ?? null,
     createdAt: widget.createdAt,
@@ -317,7 +314,6 @@ const hasDifferences = (existing: NormalizedWidgetRecord, target: NormalizedWidg
   if (!compareStrings(existing.url ?? null, target.url ?? null)) return true;
   if (!compareBooleans(existing.jvaModeration, target.jvaModeration)) return true;
   if (!compareStrings(existing.fromPublisherId, target.fromPublisherId)) return true;
-  if (!compareStrings(existing.fromPublisherName ?? null, target.fromPublisherName ?? null)) return true;
   if (!compareBooleans(existing.active, target.active)) return true;
   if (!compareDates(existing.deletedAt, target.deletedAt)) return true;
   if (!compareDates(existing.createdAt, target.createdAt)) return true;
