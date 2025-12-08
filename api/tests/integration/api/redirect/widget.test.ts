@@ -68,7 +68,7 @@ describe("RedirectController /widget/:id", () => {
       publisherName: "Mission Publisher",
     });
 
-    const widget = await widgetService.createWidget({ name: "Widget Name", fromPublisherId: widgetPublisherId, fromPublisherName: "From Publisher" });
+    const widget = await widgetService.createWidget({ name: "Widget Name", fromPublisherId: widgetPublisherId });
 
     const identity = {
       user: "widget-user",
@@ -147,7 +147,6 @@ describe("RedirectController /widget/:id", () => {
       const widget = await widgetService.createWidget({
         name: "Widget Special",
         fromPublisherId: widgetPublisherId,
-        fromPublisherName: "From Publisher",
       });
 
       const identity = {

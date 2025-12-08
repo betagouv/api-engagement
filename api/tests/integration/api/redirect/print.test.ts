@@ -80,7 +80,7 @@ describe("RedirectController /impression/:missionId/:publisherId", () => {
       publisherName: "Mission Publisher",
     });
 
-    const widget = await widgetService.createWidget({ name: "Widget Name", fromPublisherId: publisher.id, fromPublisherName: "Widget Source Publisher" });
+    const widget = await widgetService.createWidget({ name: "Widget Name", fromPublisherId: publisher.id });
 
     const identity = {
       user: "print-user",
