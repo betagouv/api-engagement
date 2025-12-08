@@ -37,6 +37,7 @@ beforeEach(async () => {
   if (prismaCore) {
     await prismaCore.$transaction([
       prismaCore.statEvent.deleteMany({}),
+      prismaCore.widget.deleteMany({}),
       prismaCore.missionModerationStatus.deleteMany({}),
       prismaCore.missionAddress.deleteMany({}),
       prismaCore.missionEvent.deleteMany({}),

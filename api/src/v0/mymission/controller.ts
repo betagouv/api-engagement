@@ -5,10 +5,10 @@ import zod from "zod";
 import { JVA_MODERATION_COMMENTS_LABELS } from "../../constants/moderation";
 import { INVALID_PARAMS, INVALID_QUERY, NOT_FOUND } from "../../error";
 import { missionService } from "../../services/mission";
+import { statEventService } from "../../services/stat-event";
 import { PublisherRecord } from "../../types";
 import { MissionRecord } from "../../types/mission";
 import { PublisherRequest } from "../../types/passport";
-import { getMissionStatsSummary, getMissionStatsWithDetails } from "./stats";
 
 const router = Router();
 
@@ -65,7 +65,7 @@ router.get("/:clientId", passport.authenticate(["apikey", "api"], { session: fal
       return res.status(404).send({ ok: false, code: NOT_FOUND });
     }
 
-    const stats = await getMissionStatsWithDetails(mission.id);
+    const stats = await statEventService.findStatEventMissionStatsSummary(mission.id);
     res.locals = { total: 1 };
     return res.status(200).send({ ok: true, data: { ...buildData(mission), stats } });
   } catch (error: any) {
@@ -92,7 +92,7 @@ router.get("/:clientId/stats", passport.authenticate(["apikey", "api"], { sessio
       return res.status(404).send({ ok: false, code: NOT_FOUND });
     }
 
-    const data = await getMissionStatsSummary(mission.id);
+    const data = await statEventService.findStatEventMissionStatsSummary(mission.id);
     res.locals = { total: 1 };
     return res.status(200).send({ ok: true, data });
   } catch (error: any) {
@@ -105,7 +105,8 @@ router.get("/:clientId/stats", passport.authenticate(["apikey", "api"], { sessio
 
 const buildData = (data: MissionRecord) => {
   const address = data.addresses[0];
-  const moderationComment = JVA_MODERATION_COMMENTS_LABELS[(data as any).moderation_5f5931496c7ea514150a818f_comment || ""] || (data as any).moderation_5f5931496c7ea514150a818f_comment;
+  const moderationComment =
+    JVA_MODERATION_COMMENTS_LABELS[(data as any).moderation_5f5931496c7ea514150a818f_comment || ""] || (data as any).moderation_5f5931496c7ea514150a818f_comment;
   return {
     _id: data._id,
     id: data._id,

@@ -3,15 +3,16 @@ import { NextFunction, Request, Response, Router } from "express";
 import zod from "zod";
 
 import { PUBLISHER_IDS } from "../config";
+import { Prisma } from "../db/core";
 import { prismaCore } from "../db/postgres";
 import { INVALID_PARAMS, INVALID_QUERY, NOT_FOUND, captureMessage } from "../error";
-import WidgetModel from "../models/widget";
 import { organizationRepository } from "../repositories/organization";
 import { buildWhere, missionService } from "../services/mission";
 import { publisherDiffusionExclusionService } from "../services/publisher-diffusion-exclusion";
-import { Widget } from "../types";
+import { widgetService } from "../services/widget";
+import { WidgetRecord } from "../types";
 import type { MissionRecord, MissionSearchFilters } from "../types/mission";
-import { capitalizeFirstLetter, getDistanceKm, isValidObjectId } from "../utils";
+import { capitalizeFirstLetter, getDistanceKm } from "../utils";
 
 const router = Router();
 
@@ -33,20 +34,13 @@ router.get("/widget", async (req: Request, res: Response, next: NextFunction) =>
     }
 
     if (query.data.id) {
-      if (query.data.id && query.data.id.length > 24) {
-        query.data.id = query.data.id.slice(0, 24);
-      }
-      if (!isValidObjectId(query.data.id)) {
-        return res.status(400).send({ ok: false, code: INVALID_QUERY, message: "Invalid id" });
-      }
-
-      const widget = await WidgetModel.findById(query.data.id);
+      const widget = await widgetService.findOneWidgetById(query.data.id);
       if (!widget) {
         return res.status(404).send({ ok: false, code: NOT_FOUND });
       }
       return res.status(200).send({ ok: true, data: widget });
     } else {
-      const widget = await WidgetModel.findOne({ name: query.data.name });
+      const widget = await widgetService.findOneWidgetByName(query.data.name || "");
       if (!widget) {
         return res.status(404).send({ ok: false, code: NOT_FOUND });
       }
@@ -61,7 +55,7 @@ router.get("/:id/search", async (req: Request, res: Response, next: NextFunction
   try {
     const params = zod
       .object({
-        id: zod.string().regex(/^[0-9a-fA-F]{24}$/),
+        id: zod.string(),
       })
       .safeParse(req.params);
 
@@ -98,7 +92,7 @@ router.get("/:id/search", async (req: Request, res: Response, next: NextFunction
       return res.status(400).send({ ok: false, code: INVALID_QUERY, message: query.error });
     }
 
-    const widget = await WidgetModel.findById(params.data.id);
+    const widget = await widgetService.findOneWidgetById(params.data.id);
     if (!widget) {
       captureMessage(`[Iframe Widget] Widget not found`, JSON.stringify(params.data, null, 2));
       return res.status(404).send({ ok: false, code: NOT_FOUND });
@@ -160,7 +154,7 @@ router.get("/:id/aggs", cors({ origin: "*" }), async (req: Request, res: Respons
       return res.status(400).send({ ok: false, code: INVALID_QUERY, message: query.error });
     }
 
-    const widget = await WidgetModel.findById(params.data.id);
+    const widget = await widgetService.findOneWidgetById(params.data.id);
     if (!widget) {
       captureMessage(`[Iframe Widget] Widget not found`, JSON.stringify(params.data, null, 2));
       return res.status(404).send({ ok: false, code: NOT_FOUND });
@@ -199,7 +193,7 @@ const resolveRemoteFilter = (remoteValues?: string[], widgetType?: string): Arra
   }
 };
 
-const resolveLocationFilters = (widget: Widget, lon?: number, lat?: number): Pick<MissionSearchFilters, "lat" | "lon" | "distanceKm"> | undefined => {
+const resolveLocationFilters = (widget: WidgetRecord, lon?: number, lat?: number): Pick<MissionSearchFilters, "lat" | "lon" | "distanceKm"> | undefined => {
   if (widget.location?.lat !== undefined && widget.location?.lon !== undefined) {
     return {
       lat: widget.location.lat,
@@ -217,7 +211,7 @@ const resolveLocationFilters = (widget: Widget, lon?: number, lat?: number): Pic
   return undefined;
 };
 
-const applyWidgetRules = (filters: MissionSearchFilters, rules: Widget["rules"]) => {
+const applyWidgetRules = (filters: MissionSearchFilters, rules: WidgetRecord["rules"]) => {
   rules.forEach((rule) => {
     if (rule.operator !== "is" || !rule.value) {
       return;
@@ -253,7 +247,7 @@ const applyWidgetRules = (filters: MissionSearchFilters, rules: Widget["rules"])
 };
 
 const buildMissionFilters = (
-  widget: Widget,
+  widget: WidgetRecord,
   query: { [key: string]: any },
   excludedOrganizationClientIds: string[],
   pagination: { skip: number; limit: number }
@@ -411,7 +405,7 @@ const mergeBuckets = (lists: Array<{ key: string; doc_count: number }>) => {
     .map(([key, doc_count]) => ({ key, doc_count }));
 };
 
-const fetchWidgetAggregations = async (widget: Widget, filters: MissionSearchFilters, requestedAggs: string[]) => {
+const fetchWidgetAggregations = async (widget: WidgetRecord, filters: MissionSearchFilters, requestedAggs: string[]) => {
   const jvaPublisherId = PUBLISHER_IDS.JEVEUXAIDER;
   const filterSets: MissionSearchFilters[] = [];
 
@@ -498,7 +492,7 @@ const fetchWidgetAggregations = async (widget: Widget, filters: MissionSearchFil
   return payload;
 };
 
-const toWidgetMission = (mission: MissionRecord, widget: Widget) => {
+const toWidgetMission = (mission: MissionRecord, widget: WidgetRecord) => {
   const moderationTitle = (mission as any)[`moderation_${PUBLISHER_IDS.JEVEUXAIDER}_title`];
   return {
     _id: mission.id,
