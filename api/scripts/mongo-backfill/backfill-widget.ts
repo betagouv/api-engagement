@@ -155,8 +155,8 @@ const normalizeWidget = (doc: MongoWidgetDocument): NormalizedWidgetData => {
     throw new Error(`[${SCRIPT_LABEL}] Widget ${id} is missing fromPublisherId`);
   }
 
-  const createdAt = normalizeDate(doc.createdAt) ?? new Date();
-  const updatedAt = normalizeDate(doc.updatedAt) ?? createdAt;
+  const createdAt = normalizeDate(doc.createdAt as string) ?? new Date();
+  const updatedAt = normalizeDate(doc.updatedAt as string) ?? createdAt;
 
   const rules = normalizeRules(doc.rules);
   const publishers = asStringArray(doc.publishers);
@@ -177,7 +177,7 @@ const normalizeWidget = (doc: MongoWidgetDocument): NormalizedWidgetData => {
     fromPublisherId,
     fromPublisherName: asString(doc.fromPublisherName),
     active: asBoolean(doc.active, true),
-    deletedAt: normalizeDate(doc.deletedAt),
+    deletedAt: normalizeDate(doc.deletedAt as string),
     createdAt,
     updatedAt,
   };
@@ -205,16 +205,19 @@ const normalizeWidget = (doc: MongoWidgetDocument): NormalizedWidgetData => {
     locationLong: record.location?.lon ?? null,
     locationCity: record.location?.label ?? null,
     distance: record.distance,
-    publishers: record.publishers,
     url: record.url ?? undefined,
     jvaModeration: record.jvaModeration,
     fromPublisher: { connect: { id: record.fromPublisherId } },
-    fromPublisherName: record.fromPublisherName ?? undefined,
     active: record.active,
     deletedAt: record.deletedAt,
     createdAt: record.createdAt,
     updatedAt: record.updatedAt,
     rules: rulesCreate,
+    widgetPublishers: record.publishers.length
+      ? {
+          create: record.publishers.map((publisherId) => ({ publisherId })),
+        }
+      : undefined,
   };
 
   const update: Prisma.WidgetUpdateInput = {
@@ -226,16 +229,18 @@ const normalizeWidget = (doc: MongoWidgetDocument): NormalizedWidgetData => {
     locationLong: record.location?.lon ?? null,
     locationCity: record.location?.label ?? null,
     distance: record.distance,
-    publishers: { set: record.publishers },
     url: record.url ?? undefined,
     jvaModeration: record.jvaModeration,
     active: record.active,
     deletedAt: record.deletedAt,
     fromPublisher: { connect: { id: record.fromPublisherId } },
-    fromPublisherName: record.fromPublisherName ?? undefined,
     rules: {
       deleteMany: {},
       ...rulesCreate,
+    },
+    widgetPublishers: {
+      deleteMany: {},
+      create: record.publishers.map((publisherId) => ({ publisherId })),
     },
   };
 
@@ -245,6 +250,7 @@ const normalizeWidget = (doc: MongoWidgetDocument): NormalizedWidgetData => {
 type PrismaWidgetWithRelations = Widget & {
   rules: WidgetRule[];
   fromPublisher?: { id: string; name: string } | null;
+  widgetPublishers: { publisherId: string }[];
 };
 
 const normalizePrismaWidget = (widget: PrismaWidgetWithRelations): NormalizedWidgetRecord => {
@@ -265,11 +271,15 @@ const normalizePrismaWidget = (widget: PrismaWidgetWithRelations): NormalizedWid
       combinator: (rule.combinator as WidgetRuleCombinator) ?? "and",
       position: rule.position ?? index,
     })),
-    publishers: (widget.publishers ?? []).slice().sort((a, b) => a.localeCompare(b)),
+    publishers: (widget.widgetPublishers ?? [])
+      .map((relation) => relation.publisherId)
+      .filter((publisherId): publisherId is string => Boolean(publisherId))
+      .slice()
+      .sort((a, b) => a.localeCompare(b)),
     url: widget.url ?? null,
     jvaModeration: widget.jvaModeration ?? false,
     fromPublisherId: widget.fromPublisherId,
-    fromPublisherName: widget.fromPublisher?.name ?? widget.fromPublisherName ?? null,
+    fromPublisherName: "",
     active: widget.active ?? false,
     deletedAt: widget.deletedAt ?? null,
     createdAt: widget.createdAt,

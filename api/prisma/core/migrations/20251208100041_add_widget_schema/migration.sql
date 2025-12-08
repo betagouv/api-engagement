@@ -9,17 +9,24 @@ CREATE TABLE "public"."widget" (
     "location_long" DOUBLE PRECISION,
     "location_city" TEXT,
     "distance" TEXT NOT NULL DEFAULT '25km',
-    "publishers" TEXT[] DEFAULT ARRAY[]::TEXT[],
     "url" TEXT,
     "jva_moderation" BOOLEAN NOT NULL DEFAULT false,
     "from_publisher_id" TEXT NOT NULL,
-    "from_publisher_name" TEXT,
     "active" BOOLEAN NOT NULL DEFAULT true,
     "deleted_at" TIMESTAMP(3),
     "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updated_at" TIMESTAMP(3) NOT NULL,
 
     CONSTRAINT "widget_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "public"."widget_publisher" (
+    "widget_id" TEXT NOT NULL,
+    "publisher_id" TEXT NOT NULL,
+    "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT "widget_publisher_pkey" PRIMARY KEY ("widget_id","publisher_id")
 );
 
 -- CreateTable
@@ -51,10 +58,22 @@ CREATE INDEX "widget_deleted_at_idx" ON "public"."widget"("deleted_at");
 CREATE INDEX "widget_name_idx" ON "public"."widget"("name");
 
 -- CreateIndex
+CREATE INDEX "widget_publisher_publisher_id_idx" ON "public"."widget_publisher"("publisher_id");
+
+-- CreateIndex
+CREATE INDEX "widget_publisher_created_at_desc_idx" ON "public"."widget_publisher"("created_at" DESC);
+
+-- CreateIndex
 CREATE INDEX "widget_rule_widget_id_idx" ON "public"."widget_rule"("widget_id");
 
 -- AddForeignKey
 ALTER TABLE "public"."widget" ADD CONSTRAINT "widget_from_publisher_id_fkey" FOREIGN KEY ("from_publisher_id") REFERENCES "public"."publisher"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "public"."widget_publisher" ADD CONSTRAINT "widget_publisher_widget_id_fkey" FOREIGN KEY ("widget_id") REFERENCES "public"."widget"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "public"."widget_publisher" ADD CONSTRAINT "widget_publisher_publisher_id_fkey" FOREIGN KEY ("publisher_id") REFERENCES "public"."publisher"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "public"."widget_rule" ADD CONSTRAINT "widget_rule_widget_id_fkey" FOREIGN KEY ("widget_id") REFERENCES "public"."widget"("id") ON DELETE CASCADE ON UPDATE CASCADE;

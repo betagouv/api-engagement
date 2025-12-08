@@ -18,6 +18,7 @@ type PrismaWidgetWithRelations = Prisma.WidgetGetPayload<{
   include: {
     fromPublisher: { select: { id: true; name: true } };
     rules: true;
+    widgetPublishers: { select: { publisherId: true } };
   };
 }>;
 
@@ -49,11 +50,11 @@ const toWidgetRecord = (widget: PrismaWidgetWithRelations): WidgetRecord => ({
   location: toLocation(widget.locationLat, widget.locationLong, widget.locationCity),
   distance: widget.distance,
   rules: (widget.rules ?? []).map(toRuleRecord),
-  publishers: widget.publishers ?? [],
+  publishers: widget.widgetPublishers?.map((relation) => relation.publisherId) ?? [],
   url: widget.url ?? null,
   jvaModeration: widget.jvaModeration,
   fromPublisherId: widget.fromPublisherId,
-  fromPublisherName: widget.fromPublisher?.name ?? widget.fromPublisherName ?? null,
+  fromPublisherName: widget.fromPublisher?.name ?? null,
   active: widget.active,
   deletedAt: widget.deletedAt,
   createdAt: widget.createdAt,
@@ -140,6 +141,28 @@ const normalizeRulesForUpdate = (rules: WidgetRuleInput[] | undefined | null) =>
   };
 };
 
+const normalizePublishersForCreate = (publishers: string[]) => {
+  if (!publishers.length) {
+    return undefined;
+  }
+  return {
+    create: publishers.map((publisherId) => ({ publisherId })),
+  };
+};
+
+const normalizePublishersForUpdate = (publishers: string[] | undefined | null) => {
+  if (publishers === undefined) {
+    return undefined;
+  }
+  if (!publishers?.length) {
+    return { deleteMany: {} };
+  }
+  return {
+    deleteMany: {},
+    create: publishers.map((publisherId) => ({ publisherId })),
+  };
+};
+
 export const widgetService = {
   async findWidgets(params: WidgetSearchParams = {}): Promise<{ widgets: WidgetRecord[]; total: number }> {
     const where = buildWhere(params);
@@ -199,7 +222,6 @@ export const widgetService = {
       locationLong: input.location?.lon ?? null,
       locationCity: input.location?.label ?? null,
       distance: input.distance ?? "25km",
-      publishers,
       url: input.url ?? undefined,
       jvaModeration: input.jvaModeration ?? false,
       active: input.active ?? true,
@@ -209,6 +231,7 @@ export const widgetService = {
       fromPublisher: { connect: { id: fromPublisher.id } },
       fromPublisherName: input.fromPublisherName ?? fromPublisher.name,
       rules: normalizeRulesForCreate(input.rules),
+      widgetPublishers: normalizePublishersForCreate(publishers),
     };
 
     const created = (await widgetRepository.create({ data })) as PrismaWidgetWithRelations;
@@ -234,7 +257,11 @@ export const widgetService = {
       data.distance = patch.distance;
     }
     if (patch.publishers !== undefined) {
-      data.publishers = { set: normalizePublishers(patch.publishers) };
+      const publishers = normalizePublishers(patch.publishers);
+      const widgetPublishers = normalizePublishersForUpdate(publishers);
+      if (widgetPublishers !== undefined) {
+        data.widgetPublishers = widgetPublishers;
+      }
     }
     if (patch.url !== undefined) {
       data.url = patch.url;

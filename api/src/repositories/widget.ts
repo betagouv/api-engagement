@@ -4,6 +4,7 @@ import { prismaCore } from "../db/postgres";
 const defaultInclude = Prisma.validator<Prisma.WidgetInclude>()({
   fromPublisher: { select: { id: true, name: true } },
   rules: { orderBy: { position: Prisma.SortOrder.asc } },
+  widgetPublishers: { select: { publisherId: true }, orderBy: { createdAt: Prisma.SortOrder.asc } },
 });
 
 export const widgetRepository = {
