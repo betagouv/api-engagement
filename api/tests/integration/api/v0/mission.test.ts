@@ -10,9 +10,9 @@ describe("Mission API Integration Tests", () => {
   const app = createTestApp();
   let publisher: PublisherRecord;
   let apiKey: string;
-  let mission1: Mission;
-  let mission2: Mission;
-  let mission3: Mission;
+  let mission1: MissionRecord;
+  let mission2: MissionRecord;
+  let mission3: MissionRecord;
 
   beforeEach(async () => {
     // Create publishers
@@ -146,7 +146,7 @@ describe("Mission API Integration Tests", () => {
     it("should expose compensation fields on missions", async () => {
       const response = await request(app).get("/v0/mission").set("x-api-key", apiKey);
       expect(response.status).toBe(200);
-      const target = response.body.data.find((mission: any) => mission._id === mission1._id!.toString());
+      const target = response.body.data.find((mission: any) => mission._id === mission1.id);
       expect(target).toBeDefined();
       expect(target.compensationAmount).toBe(90);
       expect(target.compensationUnit).toBe("day");
@@ -188,7 +188,7 @@ describe("Mission API Integration Tests", () => {
       const response = await request(app).get("/v0/mission?domain=culture").set("x-api-key", apiKey);
       expect(response.status).toBe(200);
       expect(response.body.total).toBe(1);
-      expect(response.body.data[0]._id).toBe(mission1._id!.toString());
+      expect(response.body.data[0]._id).toBe(mission1.id);
     });
 
     it("should filter by city", async () => {
@@ -196,8 +196,8 @@ describe("Mission API Integration Tests", () => {
       expect(response.status).toBe(200);
       expect(response.body.total).toBe(2);
       const ids = response.body.data.map((m: any) => m._id!);
-      expect(ids).toContain(mission1._id!.toString());
-      expect(ids).toContain(mission3._id!.toString());
+      expect(ids).toContain(mission1.id);
+      expect(ids).toContain(mission3.id);
     });
 
     it("should filter by publisherId", async () => {
@@ -205,14 +205,14 @@ describe("Mission API Integration Tests", () => {
       const response = await request(app).get(`/v0/mission?publisher=${publisherIdToFilter}`).set("x-api-key", apiKey);
       expect(response.status).toBe(200);
       expect(response.body.total).toBe(1);
-      expect(response.body.data[0]._id).toBe(mission2._id!.toString());
+      expect(response.body.data[0]._id).toBe(mission2.id);
     });
 
     it("should filter by keywords", async () => {
       const response = await request(app).get("/v0/mission?keywords=Lyon").set("x-api-key", apiKey);
       expect(response.status).toBe(200);
       expect(response.body.total).toBe(1);
-      expect(response.body.data[0]._id).toBe(mission2._id!.toString());
+      expect(response.body.data[0]._id).toBe(mission2.id);
     });
 
     it("should filter by location", async () => {
@@ -220,7 +220,7 @@ describe("Mission API Integration Tests", () => {
       const response = await request(app).get("/v0/mission?lat=45.767&lon=4.836&distance=10km").set("x-api-key", apiKey);
       expect(response.status).toBe(200);
       expect(response.body.total).toBe(1);
-      expect(response.body.data[0]._id).toBe(mission2._id!.toString());
+      expect(response.body.data[0]._id).toBe(mission2.id);
     });
 
     it("should filter by activity", async () => {
@@ -250,7 +250,7 @@ describe("Mission API Integration Tests", () => {
       const response = await request(app).get("/v0/mission?departmentName=Rhône").set("x-api-key", apiKey);
       expect(response.status).toBe(200);
       expect(response.body.total).toBe(1);
-      expect(response.body.data[0]._id).toBe(mission2._id!.toString());
+      expect(response.body.data[0]._id).toBe(mission2.id);
     });
 
     it("should filter by organizationRNA", async () => {
@@ -356,7 +356,7 @@ describe("Mission API Integration Tests", () => {
     it("should expose compensation fields within search results", async () => {
       const response = await request(app).get("/v0/mission/search").set("x-api-key", apiKey);
       expect(response.status).toBe(200);
-      const target = response.body.hits.find((mission: any) => mission._id === mission1._id!.toString());
+      const target = response.body.hits.find((mission: any) => mission._id === mission1.id);
       expect(target).toBeDefined();
       expect(target.compensationAmount).toBe(90);
       expect(target.compensationUnit).toBe("day");
@@ -367,7 +367,7 @@ describe("Mission API Integration Tests", () => {
       const response = await request(app).get("/v0/mission/search?keywords=Lyon").set("x-api-key", apiKey);
       expect(response.status).toBe(200);
       expect(response.body.total).toBe(1);
-      expect(response.body.hits[0]._id).toBe(mission2._id!.toString());
+      expect(response.body.hits[0]._id).toBe(mission2.id);
     });
 
     it("should filter by geo-location", async () => {
@@ -375,7 +375,7 @@ describe("Mission API Integration Tests", () => {
       const response = await request(app).get("/v0/mission/search?lat=45.76&lon=4.83&distance=10km").set("x-api-key", apiKey);
       expect(response.status).toBe(200);
       expect(response.body.total).toBe(1);
-      expect(response.body.hits[0]._id).toBe(mission2._id!.toString());
+      expect(response.body.hits[0]._id).toBe(mission2.id);
       expect(response.body.hits[0]._distance).toBeLessThan(1);
     });
 
@@ -390,7 +390,7 @@ describe("Mission API Integration Tests", () => {
       const response = await request(app).get("/v0/mission/search?activity=arts").set("x-api-key", apiKey);
       expect(response.status).toBe(200);
       expect(response.body.total).toBe(1);
-      expect(response.body.hits[0]._id).toBe(mission1._id!.toString());
+      expect(response.body.hits[0]._id).toBe(mission1.id);
     });
 
     it("should filter by city", async () => {
@@ -403,7 +403,7 @@ describe("Mission API Integration Tests", () => {
       const response = await request(app).get("/v0/mission/search?clientId=org-1").set("x-api-key", apiKey);
       expect(response.status).toBe(200);
       expect(response.body.total).toBe(1);
-      expect(response.body.hits[0]._id).toBe(mission1._id!.toString());
+      expect(response.body.hits[0]._id).toBe(mission1.id);
     });
 
     it("should filter by multiple clientIds", async () => {
@@ -460,7 +460,7 @@ describe("Mission API Integration Tests", () => {
       const response = await request(app).get(`/v0/mission/search?publisher=${mission2.publisherId}`).set("x-api-key", apiKey);
       expect(response.status).toBe(200);
       expect(response.body.total).toBe(1);
-      expect(response.body.hits[0]._id).toBe(mission2._id!.toString());
+      expect(response.body.hits[0]._id).toBe(mission2.id);
     });
 
     it("should filter by remote", async () => {

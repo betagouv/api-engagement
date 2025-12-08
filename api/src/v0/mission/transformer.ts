@@ -23,6 +23,8 @@ export const buildData = (data: MissionRecord, publisherId: string, moderator: b
   obj.departmentName = address ? address.departmentName : undefined;
   obj.country = address ? address.country : undefined;
   obj.location = address ? address.location : undefined;
+  obj.deleted = data.deletedAt !== null;
+  obj.statusCommentHistoric = [];
 
   // Custom hack for remote LBC
   if (publisherId.toString() === PUBLISHER_IDS.LEBONCOIN && obj.remote === "full") {

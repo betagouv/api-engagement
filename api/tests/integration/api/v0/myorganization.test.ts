@@ -1,7 +1,7 @@
 import request from "supertest";
 import { beforeEach, describe, expect, it } from "vitest";
 import { publisherDiffusionExclusionService } from "../../../../src/services/publisher-diffusion-exclusion";
-import { Mission, MissionType, PublisherRecord } from "../../../../src/types";
+import { MissionRecord, MissionType, PublisherRecord } from "../../../../src/types";
 import { createTestMission, createTestPublisher } from "../../../fixtures";
 import { createStatEventFixture } from "../../../fixtures/stat-event";
 import { createTestApp } from "../../../testApp";
@@ -10,7 +10,7 @@ describe("MyOrganization API Integration Tests", () => {
   const app = createTestApp();
   let publisher: PublisherRecord;
   let apiKey: string;
-  let mission: Mission;
+  let mission: MissionRecord;
   let publisher1: PublisherRecord;
   let publisher2: PublisherRecord;
   let publisher3: PublisherRecord;
