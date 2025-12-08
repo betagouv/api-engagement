@@ -2,6 +2,60 @@
 Vous retrouverez ici l'historique des différents déploiements effectués sur l'API Engagement.
 
 
+## 01/12/2025
+
+
+### Bug Fixes
+
+- (**api-app**) Back office disconnection issue (#589) ([`8486e3d`](https://github.com/betagouv/api-engagement/commit/8486e3d3100efea5d7b82e89c866f76d8fe2b456))
+
+- (**analytics**) Publisher is_annonceur field (#571) ([`96898cc`](https://github.com/betagouv/api-engagement/commit/96898ccd0a65426833474ff968d4fe5e651cdeb0))
+
+- (**api**) Multi moderation latency (#570) ([`fa536d3`](https://github.com/betagouv/api-engagement/commit/fa536d3927c7d4727c848f6158a2ebcb30728859))
+
+- (**jobs**) Warning job bot detection query (#564) ([`22ae9c7`](https://github.com/betagouv/api-engagement/commit/22ae9c7ff6c124097c2cacc5a623776a4e443b2f))
+
+- (**jobs**) Metabase default mission type (#568) ([`bba7a53`](https://github.com/betagouv/api-engagement/commit/bba7a5374f15b8892d86198aa1e6920bc92e4bc2))
+
+- (**app**) Widget edition mission (#569) ([`2d8aadb`](https://github.com/betagouv/api-engagement/commit/2d8aadb8e0583d6193c376e3a0ef0afcb4cde399))
+
+- (**analytics**) Run dbt-metabase on each dbt run command (#566) ([`5ed0617`](https://github.com/betagouv/api-engagement/commit/5ed06178fcee535af8dbfbaa100affa651665b40))
+
+
+### Features
+
+- (**workflow**) Add cooldown on dependabot (#591) ([`80cbb8d`](https://github.com/betagouv/api-engagement/commit/80cbb8d68936baa45fa47a6fe50685578cef676a))
+
+- (**analytics**) Organization pipeline (#567) ([`2361b43`](https://github.com/betagouv/api-engagement/commit/2361b4305f2ee6bcbcbcc0a6009da048019f0e60))
+
+- (**analytics**) Publisher pipeline (#565) ([`f0fd9b1`](https://github.com/betagouv/api-engagement/commit/f0fd9b1b14fd702e3a28864646982fa51dd8f54f))
+
+
+### Miscellaneous Tasks
+
+- (**changelog**) Update CHANGELOG.md ([`a966cff`](https://github.com/betagouv/api-engagement/commit/a966cff2046168c55ee45ec90af1f2d312bc76db))
+
+-  Merge changelog from main ([`952cfcc`](https://github.com/betagouv/api-engagement/commit/952cfcc4a056486f184818b8111c1d70f75d46df))
+
+
+### Refactoring
+
+- (**api**) Change publisher diffusion exclusion table name (#579) ([`f60be52`](https://github.com/betagouv/api-engagement/commit/f60be52d6986b30dd695f37cb5fc7e94051a275a))
+
+- (**api**) Migrate organization exclusion (#555) ([`6669f37`](https://github.com/betagouv/api-engagement/commit/6669f37fa438fa980807d77eaeeb54a565cb1515))
+
+- (**analytics**) Organization incremental synchronization (#577) ([`cffcadc`](https://github.com/betagouv/api-engagement/commit/cffcadc03b04b8b4aae61e9d4ebe3826e78ba1b1))
+
+- (**analytics**) Slugify macro for organization title (#574) ([`792d097`](https://github.com/betagouv/api-engagement/commit/792d0972ae6bb3c02810d83714a5bb80967edc5a))
+
+- (**api**) Migrate user to service layer (#559) ([`c377854`](https://github.com/betagouv/api-engagement/commit/c3778540c78b16e0701b199f56c26d9ae8688d57))
+
+- (**api**) Migrate MissionEvent models to postgres (#561) ([`1359b95`](https://github.com/betagouv/api-engagement/commit/1359b955d56586f75c34d6432041d149527a3eb2))
+
+# API Engagement - Changelog
+Vous retrouverez ici l'historique des différents déploiements effectués sur l'API Engagement.
+
+
 ## 24/11/2025
 
 
