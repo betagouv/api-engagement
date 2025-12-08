@@ -204,10 +204,13 @@ async function countStatEventClicksByPublisherForOrganizationSince({ publisherId
     from,
   });
 
-  return rows.reduce((acc, row) => {
-    acc[row.fromPublisherId] = row.count;
-    return acc;
-  }, {} as Record<string, number>);
+  return rows.reduce(
+    (acc, row) => {
+      acc[row.fromPublisherId] = row.count;
+      return acc;
+    },
+    {} as Record<string, number>
+  );
 }
 
 async function findStatEvents({ fromPublisherId, toPublisherId, type, sourceId, size = 25, skip = 0 }: SearchStatEventsParams): Promise<StatEventRecord[]> {
@@ -319,13 +322,10 @@ async function findStatEventViews({ publisherId, size = 10, filters = {}, facets
           const mapped = (events as PrismaStatEventWithPublishers[]).map(toStatEventRecord);
           const counter = new Map<string, number>();
           mapped.forEach((event) => {
-            const key =
-              column === "missionDomain"
-                ? event.missionDomain
-                : column === "missionDepartmentName"
-                  ? event.missionDepartmentName
-                  : event.missionOrganizationId;
-            if (!key) return;
+            const key = column === "missionDomain" ? event.missionDomain : column === "missionDepartmentName" ? event.missionDepartmentName : event.missionOrganizationId;
+            if (!key) {
+              return;
+            }
             counter.set(key, (counter.get(key) ?? 0) + 1);
           });
           const sorted = Array.from(counter.entries())
@@ -562,13 +562,7 @@ async function findStatEventMissionStatsSummary(missionId: string): Promise<{ cl
   const clicks = clicksRaw as MissionStatsSummaryGroup[];
   const applications = applicationsRaw as MissionStatsSummaryGroup[];
 
-  const publisherIds = Array.from(
-    new Set(
-      [...clicks, ...applications]
-        .map((group) => group.fromPublisherId)
-        .filter((value): value is string => Boolean(value))
-    )
-  );
+  const publisherIds = Array.from(new Set([...clicks, ...applications].map((group) => group.fromPublisherId).filter((value): value is string => Boolean(value))));
   const publisherNameMap = await publisherService.getPublisherNameMap(publisherIds);
 
   const mapGroup = (group: MissionStatsSummaryGroup): StatEventMissionStatsSummary => {

@@ -5,7 +5,9 @@ import zod from "zod";
 import { SLACK_JOBTEASER_CHANNEL_ID } from "../config";
 import { captureMessage, INVALID_BODY, NOT_FOUND } from "../error";
 import { missionService } from "../services/mission";
+import missionJobBoardService from "../services/mission-jobboard";
 import { postMessage } from "../services/slack";
+import { JobBoardId } from "../db/core";
 import { PublisherRequest } from "../types/passport";
 
 const router = Router();
@@ -47,11 +49,13 @@ router.post("/feedback", passport.authenticate(["jobteaser"], { session: false }
       );
     }
 
-    await missionService.update(body.data.missionId, {
-      jobteaserStatus: body.data.status,
-      jobteaserUrl: body.data.url,
-      jobteaserComment: body.data.comment,
-      jobteaserUpdatedAt: new Date(),
+    await missionJobBoardService.upsert({
+      jobBoardId: JobBoardId.JOBTEASER,
+      missionId: mission._id,
+      missionAddressId: null,
+      publicId: body.data.url ?? mission._id,
+      status: body.data.status,
+      comment: body.data.comment ?? null,
     });
 
     return res.status(200).send({ ok: true });

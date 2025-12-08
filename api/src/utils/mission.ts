@@ -1,6 +1,9 @@
 import { API_URL } from "../config";
 import { AddressItem, Mission } from "../types";
+import { MissionRecord } from "../types/mission";
 import { slugify } from "./string";
+
+type MissionLike = { _id: Mission["_id"] | MissionRecord["_id"] };
 
 /**
  * Format the tracked application URL for a mission and a given publisher
@@ -9,7 +12,7 @@ import { slugify } from "./string";
  * @param publisherId The publisher ID to format the URL for
  * @returns The tracked application URL
  */
-export const getMissionTrackedApplicationUrl = (mission: Mission, publisherId: string) => {
+export const getMissionTrackedApplicationUrl = (mission: MissionLike, publisherId: string) => {
   return `${API_URL}/r/${mission._id}/${publisherId}`;
 };
 

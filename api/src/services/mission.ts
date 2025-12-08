@@ -67,6 +67,7 @@ const emptyStringArray = (value: unknown): string[] => {
 
 const normalizeAddresses = (addresses: MissionWithRelations["addresses"]) =>
   addresses.map((address) => ({
+    id: address.id,
     street: address.street ?? null,
     postalCode: address.postalCode ?? null,
     departmentName: address.departmentName ?? null,
@@ -190,15 +191,6 @@ const toMissionRecord = (mission: MissionWithRelations): MissionRecord => {
     statusCode: (mission.statusCode as MissionRecord["statusCode"]) ?? "ACCEPTED",
     statusComment: mission.statusComment ?? null,
     deletedAt: mission.deletedAt ?? null,
-    leboncoinStatus: mission.leboncoinStatus ?? null,
-    leboncoinUrl: mission.leboncoinUrl ?? null,
-    leboncoinComment: mission.leboncoinComment ?? null,
-    leboncoinUpdatedAt: mission.leboncoinUpdatedAt ?? null,
-    jobteaserStatus: mission.jobteaserStatus ?? null,
-    jobteaserUrl: mission.jobteaserUrl ?? null,
-    jobteaserComment: mission.jobteaserComment ?? null,
-    jobteaserUpdatedAt: mission.jobteaserUpdatedAt ?? null,
-    letudiantPublicId: (mission.letudiantPublicId ?? null) as any,
     letudiantUpdatedAt: mission.letudiantUpdatedAt ?? null,
     letudiantError: mission.letudiantError ?? null,
     lastExportedToPgAt: mission.lastExportedToPgAt ?? null,
@@ -438,7 +430,6 @@ const buildAggregationsFromRecords = async (records: MissionRecord[]): Promise<M
         mission_type: publisher?.missionType === "volontariat_service_civique" ? "volontariat" : "benevolat",
       };
     }),
-    leboncoinStatus: aggregate((record) => record.leboncoinStatus || undefined),
   };
 };
 
@@ -482,7 +473,6 @@ const buildAggregations = async (where: Prisma.MissionWhereInput): Promise<Missi
   const comments = await aggregateMissionField("statusComment");
   const domains = await aggregateMissionField("domain");
   const activities = await aggregateMissionField("activity");
-  const leboncoinStatus = await aggregateMissionField("leboncoinStatus");
   const partnersRaw = await aggregateMissionField("publisherId");
   const organizationsRaw = await aggregateMissionField("organizationId");
   const cities = await aggregateAddressField("city");
@@ -515,7 +505,7 @@ const buildAggregations = async (where: Prisma.MissionWhereInput): Promise<Missi
     .filter((row) => isNonEmpty(row._id))
     .sort((a, b) => b.count - a.count);
 
-  return { status, comments, domains, organizations: organizationsAgg, activities, cities, departments, partners, leboncoinStatus };
+  return { status, comments, domains, organizations: organizationsAgg, activities, cities, departments, partners };
 };
 
 const mapAddressesForCreate = (addresses?: MissionRecord["addresses"]) => {
@@ -563,6 +553,20 @@ export const missionService = {
     return this.findOneMissionBy({
       OR: [{ id: missionId }, { oldId: missionId }, { oldIds: { has: missionId } }],
     });
+  },
+
+  async findMissionsBy(
+    where: Prisma.MissionWhereInput,
+    options: { limit?: number; skip?: number; orderBy?: Prisma.MissionOrderByWithRelationInput | Prisma.MissionOrderByWithRelationInput[] } = {}
+  ): Promise<MissionRecord[]> {
+    const missions = await missionRepository.findMany({
+      where,
+      include: baseInclude,
+      ...(options.orderBy ? { orderBy: options.orderBy } : {}),
+      ...(options.limit ? { take: options.limit } : {}),
+      ...(options.skip ? { skip: options.skip } : {}),
+    });
+    return missions.map((mission) => toMissionRecord(mission as MissionWithRelations));
   },
 
   async findMissions(filters: MissionSearchFilters): Promise<{ data: MissionRecord[]; total: number }> {
@@ -749,15 +753,6 @@ export const missionService = {
       applicationUrl: input.applicationUrl ?? undefined,
       statusComment: input.statusComment ?? undefined,
       deletedAt: input.deletedAt ?? undefined,
-      leboncoinStatus: input.leboncoinStatus ?? undefined,
-      leboncoinUrl: input.leboncoinUrl ?? undefined,
-      leboncoinComment: input.leboncoinComment ?? undefined,
-      leboncoinUpdatedAt: input.leboncoinUpdatedAt ?? undefined,
-      jobteaserStatus: input.jobteaserStatus ?? undefined,
-      jobteaserUrl: input.jobteaserUrl ?? undefined,
-      jobteaserComment: input.jobteaserComment ?? undefined,
-      jobteaserUpdatedAt: input.jobteaserUpdatedAt ?? undefined,
-      letudiantPublicId: (input.letudiantPublicId as any) ?? undefined,
       letudiantUpdatedAt: input.letudiantUpdatedAt ?? undefined,
       letudiantError: input.letudiantError ?? undefined,
       lastExportedToPgAt: input.lastExportedToPgAt ?? undefined,
@@ -898,33 +893,6 @@ export const missionService = {
     }
     if ("deletedAt" in patch) {
       data.deletedAt = patch.deletedAt ?? undefined;
-    }
-    if ("leboncoinStatus" in patch) {
-      data.leboncoinStatus = patch.leboncoinStatus ?? undefined;
-    }
-    if ("leboncoinUrl" in patch) {
-      data.leboncoinUrl = patch.leboncoinUrl ?? undefined;
-    }
-    if ("leboncoinComment" in patch) {
-      data.leboncoinComment = patch.leboncoinComment ?? undefined;
-    }
-    if ("leboncoinUpdatedAt" in patch) {
-      data.leboncoinUpdatedAt = patch.leboncoinUpdatedAt ?? undefined;
-    }
-    if ("jobteaserStatus" in patch) {
-      data.jobteaserStatus = patch.jobteaserStatus ?? undefined;
-    }
-    if ("jobteaserUrl" in patch) {
-      data.jobteaserUrl = patch.jobteaserUrl ?? undefined;
-    }
-    if ("jobteaserComment" in patch) {
-      data.jobteaserComment = patch.jobteaserComment ?? undefined;
-    }
-    if ("jobteaserUpdatedAt" in patch) {
-      data.jobteaserUpdatedAt = patch.jobteaserUpdatedAt ?? undefined;
-    }
-    if ("letudiantPublicId" in patch) {
-      data.letudiantPublicId = (patch.letudiantPublicId as any) ?? undefined;
     }
     if ("letudiantUpdatedAt" in patch) {
       data.letudiantUpdatedAt = patch.letudiantUpdatedAt ?? undefined;

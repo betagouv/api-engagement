@@ -1,18 +1,50 @@
 // Utility functions for letudiant job sync
 import he from "he";
-import { HydratedDocument } from "mongoose";
 import { setTimeout as sleep } from "timers/promises";
-import MissionModel from "../../models/mission";
+import missionJobBoardService from "../../services/mission-jobboard";
+import { JobBoardId } from "../../types/mission-job-board";
+import { missionService } from "../../services/mission";
 import { PilotyClient } from "../../services/piloty/client";
 import { PilotyJobCategory, PilotyMandatoryData } from "../../services/piloty/types";
-import { Mission } from "../../types";
+import { MissionJobBoardRecord } from "../../types/mission-job-board";
+import { MissionRecord } from "../../types/mission";
 import { CONTRACT_MAPPING, DAYS_AFTER_REPUBLISH, JOB_CATEGORY_MAPPING, REMOTE_POLICY_MAPPING, WHITELISTED_PUBLISHERS_IDS } from "./config";
+
+export const LETUDIANT_JOB_BOARD_ID: JobBoardId = "LETUDIANT";
+export type MissionWithJobBoards = { mission: MissionRecord; jobBoards: MissionJobBoardRecord[] };
+
+const ORGANIZATION_ID_REGEX = /^[0-9a-fA-F]{24}$/;
+
+const hasJobBoardEntry = (jobBoards: MissionJobBoardRecord[]) => jobBoards.length > 0;
+
+const shouldSyncMission = (mission: MissionRecord, jobBoards: MissionJobBoardRecord[], republishingDate: Date): boolean => {
+  if (!mission.organizationId || !ORGANIZATION_ID_REGEX.test(mission.organizationId)) {
+    return false;
+  }
+  if (mission.letudiantError !== null && mission.letudiantError !== undefined) {
+    return false;
+  }
+
+  const letudiantUpdatedAt = mission.letudiantUpdatedAt ?? null;
+  const alreadySent = hasJobBoardEntry(jobBoards);
+
+  const needsAcceptedSync =
+    mission.deletedAt === null &&
+    mission.statusCode === "ACCEPTED" &&
+    (!letudiantUpdatedAt || letudiantUpdatedAt < mission.updatedAt || letudiantUpdatedAt < republishingDate);
+
+  const needsDeletedSync = mission.deletedAt !== null && alreadySent && !!letudiantUpdatedAt && mission.deletedAt < letudiantUpdatedAt;
+
+  const needsStatusSync = mission.statusCode !== "ACCEPTED" && alreadySent && !!letudiantUpdatedAt && mission.updatedAt < letudiantUpdatedAt;
+
+  return needsAcceptedSync || needsDeletedSync || needsStatusSync;
+};
 
 /**
  * Check if a mission is already synced to Piloty
  */
-export function isAlreadySynced(mission: Mission): boolean {
-  return Boolean(mission.letudiantPublicId && mission.letudiantUpdatedAt && mission.letudiantUpdatedAt.getTime() >= mission.updatedAt.getTime());
+export function isAlreadySynced(mission: MissionRecord, jobBoards: MissionJobBoardRecord[]): boolean {
+  return Boolean(jobBoards.length && mission.letudiantUpdatedAt && mission.letudiantUpdatedAt.getTime() >= mission.updatedAt.getTime());
 }
 
 /**
@@ -31,45 +63,75 @@ export async function rateLimit(delayMs = 500) {
  * @param id Optional mission ID to sync
  * @param limit Optional limit (default: 10)
  */
-export async function getMissionsToSync(id?: string, limit = 10): Promise<HydratedDocument<Mission>[]> {
+export async function getMissionsToSync(
+  id?: string,
+  limit = 10
+): Promise<MissionWithJobBoards[]> {
   if (id) {
-    return MissionModel.find({ _id: id }).limit(1);
+    const mission = await missionService.findMissionByAnyId(id);
+    if (!mission) {
+      return [];
+    }
+    const jobBoards = await missionJobBoardService.findByJobBoardAndMissionIds(LETUDIANT_JOB_BOARD_ID, [mission._id]);
+    return [{ mission, jobBoards }];
   }
 
   const republishingDate = new Date(Date.now() - DAYS_AFTER_REPUBLISH * 24 * 60 * 60 * 1000);
 
-  const missions = await MissionModel.find({
-    publisherId: { $in: WHITELISTED_PUBLISHERS_IDS },
-    organizationId: {
-      $exists: true,
-      $ne: null,
-      // Ensure the string is a 24-character hex string (Mongo ObjectId)
-      $regex: /^[0-9a-fA-F]{24}$/,
-    },
-    letudiantError: { $exists: false },
-    $or: [
-      // Accepted missions not deleted
-      {
-        deletedAt: null,
-        statusCode: "ACCEPTED",
-        $or: [{ $expr: { $lt: ["$letudiantUpdatedAt", "$updatedAt"] } }, { letudiantUpdatedAt: { $exists: false } }, { letudiantUpdatedAt: { $lt: republishingDate } }],
-      },
-      // Deleted missions already sent, deletedAt < letudiantUpdatedAt
-      {
-        deletedAt: { $ne: null },
-        letudiantPublicId: { $exists: true, $ne: null },
-        $expr: { $lt: ["$deletedAt", "$letudiantUpdatedAt"] },
-      },
-      // Missions not ACCEPTED but already sent, updatedAt < letudiantUpdatedAt
-      {
-        statusCode: { $ne: "ACCEPTED" },
-        letudiantPublicId: { $exists: true, $ne: null },
-        $expr: { $lt: ["$updatedAt", "$letudiantUpdatedAt"] },
-      },
-    ],
-  }).limit(limit);
+  const where = {
+    publisherId: { in: WHITELISTED_PUBLISHERS_IDS },
+    organizationId: { not: null },
+    letudiantError: null,
+  };
 
-  return missions;
+  const filtered: Array<{ mission: MissionRecord; jobBoards: MissionJobBoardRecord[] }> = [];
+  const pageSize = Math.max(limit * 3, limit, 1);
+  let page = 0;
+
+  while (filtered.length < limit) {
+    const missions = await missionService.findMissionsBy(where, {
+      limit: pageSize,
+      skip: page * pageSize,
+      orderBy: { updatedAt: "desc" },
+    });
+
+    if (!missions.length) {
+      break;
+    }
+
+    const jobBoards = await missionJobBoardService.findByJobBoardAndMissionIds(
+      LETUDIANT_JOB_BOARD_ID,
+      missions.map((mission) => mission._id)
+    );
+    const jobBoardsByMission = new Map<string, MissionJobBoardRecord[]>();
+    for (const entry of jobBoards) {
+      const list = jobBoardsByMission.get(entry.missionId) ?? [];
+      list.push(entry);
+      jobBoardsByMission.set(entry.missionId, list);
+    }
+
+    for (const mission of missions) {
+      const entries = jobBoardsByMission.get(mission._id) ?? [];
+      if (shouldSyncMission(mission, entries, republishingDate)) {
+        filtered.push({ mission, jobBoards: entries });
+        if (filtered.length >= limit) {
+          break;
+        }
+      }
+    }
+
+    if (filtered.length >= limit) {
+      break;
+    }
+
+    if (missions.length < pageSize) {
+      break;
+    }
+
+    page++;
+  }
+
+  return filtered;
 }
 
 /**
@@ -174,9 +236,9 @@ export async function getMandatoryJobCategories(client: PilotyClient): Promise<P
  * @param text The text to decode
  * @returns The decoded text
  */
-export function decodeHtml(text: string): string {
+export function decodeHtml(text: string | null | undefined): string {
   if (text && text.includes("&")) {
     return he.decode(text);
   }
-  return text;
+  return text || "";
 }

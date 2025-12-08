@@ -364,7 +364,7 @@ const sortWidgetMissions = (missions: MissionRecord[], sortByDistance: boolean) 
   });
 };
 
-const fetchWidgetMissions = async (widget: Widget, filters: MissionSearchFilters): Promise<{ data: MissionRecord[]; total: number }> => {
+const fetchWidgetMissions = async (widget: WidgetRecord, filters: MissionSearchFilters): Promise<{ data: MissionRecord[]; total: number }> => {
   const sortByDistance = filters.lat !== undefined && filters.lon !== undefined;
   const jvaPublisherId = PUBLISHER_IDS.JEVEUXAIDER;
   if (!widget.jvaModeration) {

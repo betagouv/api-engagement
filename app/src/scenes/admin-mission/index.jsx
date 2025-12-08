@@ -35,7 +35,6 @@ const AdminMission = () => {
     department: searchParams.get("department") || null,
     city: searchParams.get("city") || null,
     organization: searchParams.get("organization") || null,
-    leboncoinStatus: searchParams.get("leboncoinStatus") || null,
     search: searchParams.get("search") || "",
   });
   const [options, setOptions] = useState({
@@ -46,7 +45,6 @@ const AdminMission = () => {
     departments: [],
     cities: [],
     organizations: [],
-    leboncoinStatus: [],
   });
   const [lastImport, setLastImport] = useState();
 
@@ -114,9 +112,6 @@ const AdminMission = () => {
         d["Activité"] = mission.activity;
         d["Statut"] = mission.statusCode;
         d["Commentaire statut"] = mission.statusComment;
-        d["Statut leboncoin"] = mission.leboncoinStatus;
-        d["Commentaire leboncoin"] = mission.leboncoinStatusComment;
-        d["Url leboncoin"] = mission.leboncoinUrl;
         d["Créée le"] = new Date(mission.createdAt).toLocaleDateString("fr");
         d["Modifiée le"] = new Date(mission.updatedAt).toLocaleDateString("fr");
         d["Publiée le"] = new Date(mission.postedAt).toLocaleDateString("fr");
@@ -180,12 +175,6 @@ const AdminMission = () => {
             value={filters.organization}
             onChange={(e) => setFilters({ ...filters, organization: e.value })}
             placeholder="Organisation"
-          />
-          <Select
-            options={options.leboncoinStatus.filter((e) => Boolean(e.key)).map((e) => ({ value: e.key, label: LEBONCOIN_STATUS[e.key], count: e.doc_count }))}
-            value={filters.leboncoinStatus}
-            onChange={(e) => setFilters({ ...filters, leboncoinStatus: e.value })}
-            placeholder="Statut leboncoin"
           />
         </div>
       </div>

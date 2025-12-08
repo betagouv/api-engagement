@@ -4,7 +4,9 @@ import zod from "zod";
 
 import { captureMessage, INVALID_BODY, NOT_FOUND } from "../error";
 import missionService from "../services/mission";
+import missionJobBoardService from "../services/mission-jobboard";
 import { PublisherRequest } from "../types/passport";
+import { JobBoardId } from "../db/core";
 
 const router = Router();
 
@@ -45,11 +47,15 @@ router.post("/feedback", passport.authenticate(["leboncoin"], { session: false }
       return res.status(404).send({ ok: false, code: NOT_FOUND, message: "Mission not found" });
     }
 
-    await missionService.update(body.data.partner_unique_reference, {
-      leboncoinStatus: STATUS_MAP[body.data.status],
-      leboncoinUrl: body.data.url,
-      leboncoinComment: body.data.note,
-      leboncoinUpdatedAt: new Date(),
+    const status = STATUS_MAP[body.data.status];
+
+    await missionJobBoardService.upsert({
+      jobBoardId: JobBoardId.LEBONCOIN,
+      missionId: mission._id,
+      missionAddressId: null,
+      publicId: body.data.url ?? mission._id,
+      status,
+      comment: body.data.note ?? null,
     });
 
     return res.status(200).send({ result: { code: 200, message: "Success, ad status recorded" } });

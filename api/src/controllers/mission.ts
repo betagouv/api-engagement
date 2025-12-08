@@ -41,7 +41,6 @@ const searchSchema = zod.object({
       })
     )
     .optional(),
-  leboncoinStatus: zod.string().optional(),
 });
 
 const autocompleteSchema = zod.object({
@@ -109,9 +108,6 @@ const findFilters = (user: UserRequest["user"], body: zod.infer<typeof searchSch
     filters.lat = body.lat;
     filters.lon = body.lon;
     filters.distanceKm = distance;
-  }
-  if (body.leboncoinStatus) {
-    filters.leboncoinStatus = body.leboncoinStatus;
   }
   if (body.jvaModeration) {
     filters.moderationAcceptedFor = PUBLISHER_IDS.JEVEUXAIDER;

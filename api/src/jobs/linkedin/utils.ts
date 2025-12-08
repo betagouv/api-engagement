@@ -1,17 +1,43 @@
 import { XMLBuilder } from "fast-xml-parser";
 
-import MissionModel from "../../models/mission";
+import { Prisma } from "../../db/core";
+import { buildWhere, missionService } from "../../services/mission";
 import { OBJECT_ACL, putObject } from "../../services/s3";
-import { Mission } from "../../types";
+import { MissionRecord, MissionSearchFilters } from "../../types/mission";
 import { AUDIENCE_MAPPING, DOMAIN_MAPPING, LINKEDIN_XML_URL } from "./config";
 import { missionToLinkedinJob } from "./transformers";
 import { LinkedInJob } from "./types";
 
-export function getMissionsCursor(where: { [key: string]: any }) {
-  return MissionModel.find(where).sort({ createdAt: "asc" }).lean().cursor();
+const DEFAULT_BATCH_SIZE = 500;
+
+export async function* getMissionsCursor(filters: Omit<MissionSearchFilters, "limit" | "skip">, batchSize: number = DEFAULT_BATCH_SIZE) {
+  const countFilters: MissionSearchFilters = { ...filters, limit: batchSize, skip: 0 };
+  const total = await missionService.countMissions(countFilters);
+  const where = buildWhere(countFilters);
+
+  let skip = 0;
+  while (skip < total) {
+    const missions = await missionService.findMissionsBy(where, {
+      limit: batchSize,
+      skip,
+      orderBy: { createdAt: Prisma.SortOrder.asc },
+    });
+
+    if (!missions.length) {
+      break;
+    }
+
+    for (const mission of missions) {
+      yield mission;
+    }
+
+    skip += missions.length;
+  }
 }
 
-export async function generateJvaJobs(missionsCursor: AsyncIterable<Mission>): Promise<{ jobs: LinkedInJob[]; expired: number; skipped: number; processed: number }> {
+export async function generateJvaJobs(
+  missionsCursor: AsyncIterable<MissionRecord>
+): Promise<{ jobs: LinkedInJob[]; expired: number; skipped: number; processed: number }> {
   const jobs = [] as LinkedInJob[];
   let expired = 0;
   let skipped = 0;
@@ -34,7 +60,7 @@ export async function generateJvaJobs(missionsCursor: AsyncIterable<Mission>): P
   return { jobs, expired, skipped, processed };
 }
 
-export async function generatePartnersJobs(missionsCursor: AsyncIterable<Mission>): Promise<{ jobs: LinkedInJob[]; skipped: number; processed: number }> {
+export async function generatePartnersJobs(missionsCursor: AsyncIterable<MissionRecord>): Promise<{ jobs: LinkedInJob[]; skipped: number; processed: number }> {
   const jobs = [] as LinkedInJob[];
   let skipped = 0;
   let processed = 0;

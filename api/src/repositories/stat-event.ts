@@ -102,7 +102,9 @@ export const statEventRepository = {
     organizationClientId: string;
     from: Date;
   }): Promise<Array<{ fromPublisherId: string; count: number }>> {
-    if (!publisherIds.length) return [];
+    if (!publisherIds.length) {
+      return [];
+    }
 
     const rows = await prismaCore.$queryRaw<Array<{ from_publisher_id: string; count: bigint }>>(
       Prisma.sql`

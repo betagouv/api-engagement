@@ -1,6 +1,7 @@
+import { randomUUID } from "crypto";
 import mongoose from "mongoose";
 
-import type { Prisma, PrismaClient } from "../../src/db/core";
+import type { JobBoardId, Prisma, PrismaClient } from "../../src/db/core";
 import type { MissionRecord } from "../../src/types/mission";
 import { asString, toMongoObjectIdString } from "./utils/cast";
 import { compareDates, compareJsons, compareNumbers, compareStringArrays, compareStrings } from "./utils/compare";
@@ -11,6 +12,7 @@ const SCRIPT_NAME = "MigrateMissions";
 const BATCH_SIZE = 100;
 const options: ScriptOptions = parseScriptOptions(process.argv.slice(2), SCRIPT_NAME);
 loadEnvironment(options, __dirname, SCRIPT_NAME);
+const LETUDIANT_JOB_BOARD_ID: JobBoardId = "LETUDIANT";
 
 const missionRemoteValues: Prisma.MissionRemote[] = ["no", "possible", "full"];
 const missionYesNoValues: Prisma.MissionYesNo[] = ["yes", "no"];
@@ -80,10 +82,6 @@ type MongoMissionDocument = {
   leboncoinUrl?: string | null;
   leboncoinComment?: string | null;
   leboncoinUpdatedAt?: Date | string | null;
-  jobteaserStatus?: string | null;
-  jobteaserUrl?: string | null;
-  jobteaserComment?: string | null;
-  jobteaserUpdatedAt?: Date | string | null;
   letudiantPublicId?: any;
   letudiantUpdatedAt?: Date | string | null;
   letudiantError?: string | null;
@@ -99,6 +97,7 @@ type NormalizedMissionData = {
   updateData: Prisma.MissionUncheckedUpdateInput;
   addresses: Prisma.MissionAddressCreateManyInput[];
   moderationStatuses: Prisma.MissionModerationStatusCreateManyInput[];
+  jobBoards: Prisma.MissionJobBoardCreateManyInput[];
 };
 
 const normalizeStatus = (status?: string | null): MissionRecord["statusCode"] => {
@@ -171,6 +170,36 @@ const normalizeAddresses = (
   return normalized;
 };
 
+const formatLocalisation = (parts: Array<string | null | undefined>) =>
+  parts.filter((p) => Boolean(p && String(p).trim().length)).join(", ") || "France";
+
+const computeLetudiantLocalisations = (
+  mission: MissionRecord
+): Array<{ missionAddressId: string | null; localisationKey: string }> => {
+  if (mission.remote === "full" || !mission.addresses.length) {
+    const city = mission.organizationCity || undefined;
+    const department = mission.organizationDepartment || undefined;
+    const country = mission.country || "France";
+    const formatted = formatLocalisation([city, department, country]);
+    return [{ missionAddressId: null, localisationKey: mission.remote === "full" ? "A distance" : formatted }];
+  }
+
+  const seenCities = new Set<string>();
+  const entries: Array<{ missionAddressId: string | null; localisationKey: string }> = [];
+
+  for (const address of mission.addresses) {
+    const city = address.city || "";
+    if (seenCities.has(city)) {
+      continue;
+    }
+    seenCities.add(city);
+    const localisation = formatLocalisation([address.city, address.departmentName, address.country || "France"]);
+    entries.push({ missionAddressId: (address as any).id ?? null, localisationKey: localisation });
+  }
+
+  return entries;
+};
+
 const extractModerationStatuses = (
   doc: MongoMissionDocument
 ): Array<{
@@ -227,10 +256,11 @@ const toNormalizedMission = (doc: MongoMissionDocument): NormalizedMissionData =
 
   const createdAt = normalizeDate(doc.createdAt) ?? new Date();
   const updatedAt = normalizeDate(doc.updatedAt) ?? createdAt;
-  const addresses = normalizeAddresses(doc);
+  const addresses = normalizeAddresses(doc).map((address) => ({ ...address, id: randomUUID() }));
   const firstAddress = addresses[0] ?? {};
   const location = doc.location ?? firstAddress.location ?? null;
   const moderationStatuses = extractModerationStatuses(doc);
+  const letudiantPublicId = typeof doc.letudiantPublicId === "object" && doc.letudiantPublicId !== null ? (doc.letudiantPublicId as Record<string, unknown>) : null;
 
   const record: MissionRecord = {
     _id: id,
@@ -283,6 +313,7 @@ const toNormalizedMission = (doc: MongoMissionDocument): NormalizedMissionData =
     country: firstAddress.country ?? null,
     location: location ?? null,
     addresses: addresses.map((addr) => ({
+      id: (addr as any).id ?? undefined,
       street: addr.street ?? null,
       postalCode: addr.postalCode ?? null,
       departmentName: addr.departmentName ?? null,
@@ -335,11 +366,6 @@ const toNormalizedMission = (doc: MongoMissionDocument): NormalizedMissionData =
     leboncoinUrl: doc.leboncoinUrl ?? null,
     leboncoinComment: doc.leboncoinComment ?? null,
     leboncoinUpdatedAt: normalizeDate(doc.leboncoinUpdatedAt),
-    jobteaserStatus: doc.jobteaserStatus ?? null,
-    jobteaserUrl: doc.jobteaserUrl ?? null,
-    jobteaserComment: doc.jobteaserComment ?? null,
-    jobteaserUpdatedAt: normalizeDate(doc.jobteaserUpdatedAt),
-    letudiantPublicId: toJsonValue(doc.letudiantPublicId),
     letudiantUpdatedAt: normalizeDate(doc.letudiantUpdatedAt),
     letudiantError: doc.letudiantError ?? null,
     lastExportedToPgAt: normalizeDate(doc.lastExportedToPgAt),
@@ -396,11 +422,6 @@ const toNormalizedMission = (doc: MongoMissionDocument): NormalizedMissionData =
     leboncoinUrl: record.leboncoinUrl ?? undefined,
     leboncoinComment: record.leboncoinComment ?? undefined,
     leboncoinUpdatedAt: record.leboncoinUpdatedAt ?? undefined,
-    jobteaserStatus: record.jobteaserStatus ?? undefined,
-    jobteaserUrl: record.jobteaserUrl ?? undefined,
-    jobteaserComment: record.jobteaserComment ?? undefined,
-    jobteaserUpdatedAt: record.jobteaserUpdatedAt ?? undefined,
-    letudiantPublicId: record.letudiantPublicId as any,
     letudiantUpdatedAt: record.letudiantUpdatedAt ?? undefined,
     letudiantError: record.letudiantError ?? undefined,
     lastExportedToPgAt: record.lastExportedToPgAt ?? undefined,
@@ -415,6 +436,7 @@ const toNormalizedMission = (doc: MongoMissionDocument): NormalizedMissionData =
   };
 
   const addressesData: Prisma.MissionAddressCreateManyInput[] = addresses.map((address) => ({
+    id: (address as any).id ?? undefined,
     missionId: id,
     street: address.street ?? null,
     postalCode: address.postalCode ?? null,
@@ -438,10 +460,44 @@ const toNormalizedMission = (doc: MongoMissionDocument): NormalizedMissionData =
     createdAt: item.createdAt ?? record.createdAt,
   }));
 
-  return { record, missionData, updateData, addresses: addressesData, moderationStatuses: moderationStatusesData };
+  const jobBoardsData: Prisma.MissionJobBoardCreateManyInput[] = [];
+  if (letudiantPublicId) {
+    const localisations = computeLetudiantLocalisations(record);
+    for (const entry of localisations) {
+      const legacyKey = entry.localisationKey.split(",")[0];
+      const publicId = letudiantPublicId[entry.localisationKey] ?? letudiantPublicId[legacyKey];
+      if (typeof publicId === "string" && publicId.trim()) {
+        jobBoardsData.push({
+          id: randomUUID(),
+          jobBoardId: LETUDIANT_JOB_BOARD_ID,
+          missionId: id,
+          missionAddressId: entry.missionAddressId ?? null,
+          publicId,
+          status: null,
+          comment: null,
+        });
+      }
+    }
+  }
+
+  if (record.leboncoinStatus || record.leboncoinUrl || record.leboncoinComment) {
+    jobBoardsData.push({
+      id: randomUUID(),
+      jobBoardId: "LEBONCOIN",
+      missionId: id,
+      missionAddressId: null,
+      publicId: record.leboncoinUrl || id,
+      status: record.leboncoinStatus || null,
+      comment: record.leboncoinComment || null,
+    });
+  }
+
+  return { record, missionData, updateData, addresses: addressesData, moderationStatuses: moderationStatusesData, jobBoards: jobBoardsData };
 };
 
 const hasDifferences = (existing: MissionRecord, target: MissionRecord) => {
+  const normalizeAddressesForCompare = (addresses?: MissionRecord["addresses"]) =>
+    (addresses ?? []).map(({ id: _ignored, ...rest }) => rest);
   if (!compareStrings(existing.title, target.title)) return true;
   if (!compareStrings(existing.clientId, target.clientId)) return true;
   if (!compareStrings(existing.publisherId, target.publisherId)) return true;
@@ -468,7 +524,7 @@ const hasDifferences = (existing: MissionRecord, target: MissionRecord) => {
   if (!compareStrings(existing.departmentCode, target.departmentCode)) return true;
   if (!compareStrings(existing.country, target.country)) return true;
   if (!compareStrings(existing.organizationClientId, target.organizationClientId)) return true;
-  if (!compareJsons(existing.addresses, target.addresses)) return true;
+  if (!compareJsons(normalizeAddressesForCompare(existing.addresses), normalizeAddressesForCompare(target.addresses))) return true;
   if (!compareDates(existing.startAt, target.startAt)) return true;
   if (!compareDates(existing.endAt, target.endAt)) return true;
   if (!compareDates(existing.postedAt, target.postedAt)) return true;
@@ -488,6 +544,7 @@ const formatRecordForLog = (record: MissionRecord) => ({
 const toRecordFromPrisma = (mission: any): MissionRecord => {
   const addresses = Array.isArray(mission.addresses)
     ? mission.addresses.map((address: any) => ({
+        id: address.id ?? undefined,
         street: address.street ?? null,
         postalCode: address.postalCode ?? null,
         departmentName: address.departmentName ?? null,
@@ -595,11 +652,10 @@ const toRecordFromPrisma = (mission: any): MissionRecord => {
     leboncoinUrl: mission.leboncoinUrl ?? null,
     leboncoinComment: mission.leboncoinComment ?? null,
     leboncoinUpdatedAt: mission.leboncoinUpdatedAt ?? null,
-    jobteaserStatus: mission.jobteaserStatus ?? null,
-    jobteaserUrl: mission.jobteaserUrl ?? null,
-    jobteaserComment: mission.jobteaserComment ?? null,
-    jobteaserUpdatedAt: mission.jobteaserUpdatedAt ?? null,
-    letudiantPublicId: mission.letudiantPublicId ?? null,
+    : mission. ?? null,
+    : mission. ?? null,
+    : mission. ?? null,
+    : mission. ?? null,
     letudiantUpdatedAt: mission.letudiantUpdatedAt ?? null,
     letudiantError: mission.letudiantError ?? null,
     lastExportedToPgAt: mission.lastExportedToPgAt ?? null,
@@ -663,13 +719,18 @@ const persistBatch = async (
         if (entry.moderationStatuses.length) {
           await prismaCore.missionModerationStatus.createMany({ data: entry.moderationStatuses });
         }
+        if (entry.jobBoards.length) {
+          await prismaCore.missionJobBoard.createMany({ data: entry.jobBoards });
+        }
       }
       continue;
     }
 
     const existingRecord = toRecordFromPrisma(existing);
+    const hasChanges = hasDifferences(existingRecord, entry.record);
+    const needsJobBoardRefresh = entry.jobBoards.length > 0;
 
-    if (!hasDifferences(existingRecord, entry.record)) {
+    if (!hasChanges && !needsJobBoardRefresh) {
       stats.unchanged += 1;
       continue;
     }
@@ -689,6 +750,10 @@ const persistBatch = async (
       await prismaCore.missionModerationStatus.deleteMany({ where: { missionId: entry.record.id } });
       if (entry.moderationStatuses.length) {
         await prismaCore.missionModerationStatus.createMany({ data: entry.moderationStatuses });
+      }
+      await prismaCore.missionJobBoard.deleteMany({ where: { missionId: entry.record.id } });
+      if (entry.jobBoards.length) {
+        await prismaCore.missionJobBoard.createMany({ data: entry.jobBoards });
       }
     }
   }

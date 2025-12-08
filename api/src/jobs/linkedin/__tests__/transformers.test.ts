@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { Mission } from "../../../types";
 import { missionToLinkedinJob } from "../transformers";
+import { MissionRecord } from "../../../types/mission";
 
 // Mock constants with IDs but keep the rest of the config
 vi.mock("../config", async () => {
@@ -33,7 +33,7 @@ vi.mock("../utils", () => ({
 
 const defaultCompany = "benevolt";
 
-const baseMission: Partial<Mission> = {
+const baseMission: Partial<MissionRecord> = {
   title: "Développeur Web",
   description: "Ceci est une description de mission de plus de 100 caractères pour passer la validation initiale. Il faut que ce soit assez long pour que le test passe.",
   organizationName: "Mon asso",
@@ -76,7 +76,7 @@ describe("missionToLinkedinJob", () => {
   });
 
   it("should return a valid LinkedInJob for a valid mission", () => {
-    const job = missionToLinkedinJob(baseMission as Mission, defaultCompany);
+    const job = missionToLinkedinJob(baseMission as MissionRecord, defaultCompany);
     expect(job).not.toBeNull();
     expect(job?.partnerJobId).toBe(String(baseMission._id));
     expect(job?.title).toBe(`Bénévolat - ${baseMission.title}`);
@@ -117,7 +117,7 @@ describe("missionToLinkedinJob", () => {
       audience: ["seniors", "people_in_difficulty"],
       schedule,
       openToMinors: "no",
-    } as Mission;
+    } as MissionRecord;
 
     const job = missionToLinkedinJob(mission, defaultCompany);
 
@@ -144,31 +144,31 @@ describe("missionToLinkedinJob", () => {
   });
 
   it("shouldnt include block title if openToMinors is yes", () => {
-    const mission = { ...baseMission, openToMinors: "yes" } as Mission;
+    const mission = { ...baseMission, openToMinors: "yes" } as MissionRecord;
     const job = missionToLinkedinJob(mission, defaultCompany);
     expect(job?.description).not.toContain("<b>Âge minimum : </b>");
   });
 
   it("shouldnt include block title if audience is empty", () => {
-    const mission = { ...baseMission, audience: [] } as Mission;
+    const mission = { ...baseMission, audience: [] } as MissionRecord;
     const job = missionToLinkedinJob(mission, defaultCompany);
     expect(job?.description).not.toContain("<b>Public accompagné durant la mission : </b>");
   });
 
   it("shouldnt include block title if schedule is empty", () => {
-    const mission = { ...baseMission, schedule: "" } as Mission;
+    const mission = { ...baseMission, schedule: "" } as MissionRecord;
     const job = missionToLinkedinJob(mission, defaultCompany);
     expect(job?.description).not.toContain("<b>Durée de la mission : </b>");
   });
 
   it("shouldnt include block title if requirements is empty", () => {
-    const mission = { ...baseMission, requirements: [] } as Mission;
+    const mission = { ...baseMission, requirements: [] } as MissionRecord;
     const job = missionToLinkedinJob(mission, defaultCompany);
     expect(job?.description).not.toContain("<b>Pré-requis : </b>");
   });
 
   it("should use location fields when present and no address are provided", () => {
-    const mission = { ...baseMission, addresses: [], country: "FR", city: "Nantes", postalCode: "44000" } as Mission;
+    const mission = { ...baseMission, addresses: [], country: "FR", city: "Nantes", postalCode: "44000" } as MissionRecord;
     const job = missionToLinkedinJob(mission, defaultCompany);
     expect(job?.country).toBe("FR");
     expect(job?.city).toBe("Nantes");
@@ -176,13 +176,13 @@ describe("missionToLinkedinJob", () => {
   });
 
   it("should use country to FR if address and no located fields are provided", () => {
-    const mission = { ...baseMission, addresses: [] } as Mission;
+    const mission = { ...baseMission, addresses: [] } as MissionRecord;
     const job = missionToLinkedinJob(mission, defaultCompany);
     expect(job?.country).toBe("FR");
   });
 
   it("should return null if country is not valid", () => {
-    const mission = { ...baseMission, addresses: [], country: "invalid" } as Mission;
+    const mission = { ...baseMission, addresses: [], country: "invalid" } as MissionRecord;
     const job = missionToLinkedinJob(mission, defaultCompany);
     expect(job).toBeNull();
   });
@@ -192,7 +192,7 @@ describe("missionToLinkedinJob", () => {
       { ...baseMission.addresses?.[0], city: "Lyon", region: "Rhône-Alpes", country: "FR", postalCode: "69001" },
       { ...baseMission.addresses?.[0], city: "Marseille", region: "Provence-Alpes-Côte d'Azur", country: "FR", postalCode: "13001" },
     ];
-    const mission = { ...baseMission, addresses } as Mission;
+    const mission = { ...baseMission, addresses } as MissionRecord;
     const job = missionToLinkedinJob(mission, defaultCompany);
     expect(job?.alternateLocations?.alternateLocation).toHaveLength(2);
     expect(job?.alternateLocations?.alternateLocation).toContain("Lyon, France");
@@ -200,14 +200,14 @@ describe("missionToLinkedinJob", () => {
   });
 
   it("should not have alternate locations if mission has only one address", () => {
-    const mission = { ...baseMission } as Mission;
+    const mission = { ...baseMission } as MissionRecord;
     const job = missionToLinkedinJob(mission, defaultCompany);
     expect(job?.alternateLocations).toBeUndefined();
   });
 
   it("should limit alternate locations to 7", () => {
     const addresses = Array.from({ length: 8 }, (_, i) => ({ ...baseMission.addresses?.[0], city: `City ${i}`, region: `Region ${i}`, country: "FR", postalCode: `12345${i}` }));
-    const mission = { ...baseMission, addresses } as Mission;
+    const mission = { ...baseMission, addresses } as MissionRecord;
     const job = missionToLinkedinJob(mission, defaultCompany);
     expect(job?.alternateLocations?.alternateLocation).toHaveLength(7);
     expect(job?.alternateLocations?.alternateLocation).toContain("City 0, France");
@@ -220,52 +220,52 @@ describe("missionToLinkedinJob", () => {
   });
 
   it.each([["title"], ["description"], ["organizationName"]])("should return null if %s is missing", (field) => {
-    const mission = { ...baseMission, [field]: undefined } as Mission;
+    const mission = { ...baseMission, [field]: undefined } as MissionRecord;
     expect(missionToLinkedinJob(mission, defaultCompany)).toBeNull();
   });
 
   it("should use defaultCompany when organization is not in LINKEDIN_COMPANY_ID", () => {
-    const mission = { ...baseMission, organizationName: "Some Other Org" } as Mission;
+    const mission = { ...baseMission, organizationName: "Some Other Org" } as MissionRecord;
     const job = missionToLinkedinJob(mission, "benevolt");
     expect(job?.company).toBe("benevolt");
     expect(job?.companyId).toBeUndefined();
   });
 
   it("should use defaultCompany when organizationName is not in LINKEDIN_COMPANY_ID and default is not benevolt", () => {
-    const mission = { ...baseMission, organizationName: "Unknown Org" } as Mission;
+    const mission = { ...baseMission, organizationName: "Unknown Org" } as MissionRecord;
     const job = missionToLinkedinJob(mission, "some-default");
     expect(job?.company).toBe("some-default");
     expect(job?.companyId).toBeUndefined();
   });
 
   it("should correctly map remote status", () => {
-    let job = missionToLinkedinJob({ ...baseMission, remote: "full" } as Mission, defaultCompany);
+    let job = missionToLinkedinJob({ ...baseMission, remote: "full" } as MissionRecord, defaultCompany);
     expect(job?.workplaceTypes).toBe("Remote");
-    job = missionToLinkedinJob({ ...baseMission, remote: "possible" } as Mission, defaultCompany);
+    job = missionToLinkedinJob({ ...baseMission, remote: "possible" } as MissionRecord, defaultCompany);
     expect(job?.workplaceTypes).toBe("Hybrid");
-    job = missionToLinkedinJob({ ...baseMission, remote: "no" } as Mission, defaultCompany);
+    job = missionToLinkedinJob({ ...baseMission, remote: "no" } as MissionRecord, defaultCompany);
     expect(job?.workplaceTypes).toBe("On-site");
   });
 
   it("should not have expirationDate if endAt is not provided", () => {
-    const mission = { ...baseMission, endAt: null } as Mission;
+    const mission = { ...baseMission, endAt: null } as MissionRecord;
     const job = missionToLinkedinJob(mission, defaultCompany);
     expect(job?.expirationDate).toBeUndefined();
   });
 
   it("should return null for description length > 25000", () => {
-    const mission = { ...baseMission, descriptionHtml: "a".repeat(25001) } as Mission;
+    const mission = { ...baseMission, descriptionHtml: "a".repeat(25001) } as MissionRecord;
     expect(missionToLinkedinJob(mission, defaultCompany)).toBeNull();
   });
 
   it("should map domain to industry code", () => {
-    const mission = { ...baseMission, domain: "sante" } as Mission;
+    const mission = { ...baseMission, domain: "sante" } as MissionRecord;
     const job = missionToLinkedinJob(mission, defaultCompany);
     expect(job?.industryCodes).toEqual([{ industryCode: 14 }]);
   });
 
   it("when domain is not in LINKEDIN_INDUSTRY_CODE, key should be undefined", () => {
-    const mission = { ...baseMission, domain: "unknown" } as Mission;
+    const mission = { ...baseMission, domain: "unknown" } as MissionRecord;
     const job = missionToLinkedinJob(mission, defaultCompany);
     expect(job?.industryCodes).toBeUndefined();
   });

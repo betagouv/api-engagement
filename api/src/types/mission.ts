@@ -1,5 +1,3 @@
-type Json = any;
-
 export type MissionStatusCode = "ACCEPTED" | "REFUSED";
 export type MissionYesNo = "yes" | "no";
 export type MissionRemote = "no" | "possible" | "full";
@@ -13,6 +11,7 @@ export type MissionLocation = {
 };
 
 export type MissionAddress = {
+  id?: string;
   street?: string | null;
   postalCode?: string | null;
   departmentName?: string | null;
@@ -42,14 +41,9 @@ export type MissionSearchAggregations = {
   cities: MissionAggregationBucket[];
   departments: MissionAggregationBucket[];
   partners: MissionPartnerAggregation[];
-  leboncoinStatus: MissionAggregationBucket[];
 };
 
-type MissionModerationFieldKey =
-  | `moderation_${string}_status`
-  | `moderation_${string}_comment`
-  | `moderation_${string}_note`
-  | `moderation_${string}_title`;
+type MissionModerationFieldKey = `moderation_${string}_status` | `moderation_${string}_comment` | `moderation_${string}_note` | `moderation_${string}_title`;
 type MissionModerationDateKey = `moderation_${string}_date`;
 
 export type MissionRecord = {
@@ -140,21 +134,13 @@ export type MissionRecord = {
   statusCode: MissionStatusCode;
   statusComment: string | null;
   deletedAt: Date | null;
-  leboncoinStatus: string | null;
-  leboncoinUrl: string | null;
-  leboncoinComment: string | null;
-  leboncoinUpdatedAt: Date | null;
-  jobteaserStatus: string | null;
-  jobteaserUrl: string | null;
-  jobteaserComment: string | null;
-  jobteaserUpdatedAt: Date | null;
-  letudiantPublicId: Json | null;
   letudiantUpdatedAt: Date | null;
   letudiantError: string | null;
   lastExportedToPgAt: Date | null;
   createdAt: Date;
   updatedAt: Date;
-} & Partial<Record<MissionModerationFieldKey, string | null>> & Partial<Record<MissionModerationDateKey, Date | null>>;
+} & Partial<Record<MissionModerationFieldKey, string | null>> &
+  Partial<Record<MissionModerationDateKey, Date | null>>;
 
 export type MissionSearchFilters = {
   publisherIds: string[];
@@ -164,6 +150,7 @@ export type MissionSearchFilters = {
   city?: string[];
   clientId?: string[];
   organizationClientId?: string[];
+  closeToTransport?: string;
   country?: string[];
   createdAt?: { gt?: Date; lt?: Date };
   departmentName?: string[];

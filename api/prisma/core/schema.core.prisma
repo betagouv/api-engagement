@@ -87,6 +87,12 @@ enum CompensationType {
   net
 }
 
+enum JobBoardId {
+  LETUDIANT
+  JOBTEASER
+  LEBONCOIN
+}
+
 enum StatEventType {
   click
   print
@@ -568,15 +574,6 @@ model Mission {
   organizationId            String?      @map("organization_id")
   publisherId               String       @map("publisher_id")
   deletedAt                 DateTime?    @map("deleted_at")
-  leboncoinStatus           String?      @map("leboncoin_status")
-  leboncoinUrl              String?      @map("leboncoin_url")
-  leboncoinComment          String?      @map("leboncoin_comment")
-  leboncoinUpdatedAt        DateTime?    @map("leboncoin_updated_at")
-  jobteaserStatus           String?      @map("jobteaser_status")
-  jobteaserUrl              String?      @map("jobteaser_url")
-  jobteaserComment          String?      @map("jobteaser_comment")
-  jobteaserUpdatedAt        DateTime?    @map("jobteaser_updated_at")
-  letudiantPublicId         Json?        @map("letudiant_public_id")
   letudiantUpdatedAt        DateTime?    @map("letudiant_updated_at")
   letudiantError            String?      @map("letudiant_error")
   lastExportedToPgAt        DateTime?    @map("last_exported_to_pg_at")
@@ -589,6 +586,7 @@ model Mission {
   moderationEvents ModerationEvent[]
   addresses        MissionAddress[]
   moderationStatuses MissionModerationStatus[]
+  jobBoards        MissionJobBoard[]
   statEvents       StatEvent[] @relation("MissionStatEvents")
 
   @@unique([clientId, publisherId], map: "mission_client_publisher_key")
@@ -626,11 +624,33 @@ model MissionAddress {
 
   mission Mission @relation(fields: [missionId], references: [id], onDelete: Cascade)
 
+  jobBoards MissionJobBoard[]
+
   @@index([missionId], map: "mission_address_mission_id_idx")
   @@index([city], map: "mission_address_city_idx")
   @@index([country], map: "mission_address_country_idx")
   @@index([departmentName], map: "mission_address_department_name_idx")
   @@map("mission_address")
+}
+
+model MissionJobBoard {
+  id               String      @id @default(uuid())
+  jobBoardId       JobBoardId  @map("jobboard_id")
+  missionId        String      @map("mission_id")
+  missionAddressId String?     @map("mission_address_id")
+  publicId         String      @map("public_id")
+  status           String?     @map("status")
+  comment          String?     @map("comment")
+  createdAt        DateTime    @default(now()) @map("created_at")
+  updatedAt        DateTime    @updatedAt @map("updated_at")
+
+  mission        Mission        @relation(fields: [missionId], references: [id], onDelete: Cascade)
+  missionAddress MissionAddress? @relation(fields: [missionAddressId], references: [id], onDelete: Cascade)
+
+  @@unique([jobBoardId, missionId, missionAddressId], map: "mission_jobboard_unique")
+  @@index([missionId], map: "mission_jobboard_mission_id_idx")
+  @@index([missionAddressId], map: "mission_jobboard_address_id_idx")
+  @@map("mission_jobboard")
 }
 
 model MissionModerationStatus {

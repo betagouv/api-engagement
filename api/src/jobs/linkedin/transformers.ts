@@ -1,5 +1,5 @@
-import { AddressItem, Mission } from "../../types";
 import { getMissionTrackedApplicationUrl } from "../../utils";
+import { MissionAddress, MissionRecord } from "../../types/mission";
 import { LINKEDIN_COMPANY_ID, LINKEDIN_INDUSTRY_CODE, LINKEDIN_PUBLISHER_ID } from "./config";
 import { LinkedInJob } from "./types";
 import { getAudienceLabel, getDomainLabel } from "./utils";
@@ -12,7 +12,7 @@ import { getAudienceLabel, getDomainLabel } from "./utils";
  * @param defaultCompany - Default company to use if organizationName is not in LINKEDIN_COMPANY_ID
  * @returns LinkedInJob | null
  */
-export function missionToLinkedinJob(mission: Mission, defaultCompany: string): LinkedInJob | null {
+export function missionToLinkedinJob(mission: MissionRecord, defaultCompany: string): LinkedInJob | null {
   if (!mission.title) {
     return null;
   }
@@ -89,6 +89,7 @@ export function missionToLinkedinJob(mission: Mission, defaultCompany: string): 
   return job;
 }
 
-export function formatLocation(address: AddressItem) {
-  return `${address.city ? `${address.city}, ` : ""}${address.country === "FR" ? "France" : address.country}`;
+export function formatLocation(address: MissionAddress) {
+  const country = address.country ?? "FR";
+  return `${address.city ? `${address.city}, ` : ""}${country === "FR" ? "France" : country}`;
 }
