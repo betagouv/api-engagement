@@ -5,9 +5,9 @@ import zod from "zod";
 import { JVA_MODERATION_COMMENTS_LABELS } from "../../constants/moderation";
 import { INVALID_PARAMS, INVALID_QUERY, NOT_FOUND } from "../../error";
 import MissionModel from "../../models/mission";
+import { statEventService } from "../../services/stat-event";
 import { Mission, PublisherRecord } from "../../types";
 import { PublisherRequest } from "../../types/passport";
-import { getMissionStatsSummary, getMissionStatsWithDetails } from "./stats";
 
 const router = Router();
 
@@ -66,7 +66,7 @@ router.get("/:clientId", passport.authenticate(["apikey", "api"], { session: fal
       return res.status(404).send({ ok: false, code: NOT_FOUND });
     }
 
-    const stats = await getMissionStatsWithDetails(mission._id.toString());
+    const stats = await statEventService.findStatEventMissionStatsSummary(mission._id.toString());
     res.locals = { total: 1 };
     return res.status(200).send({ ok: true, data: { ...buildData(mission), stats } });
   } catch (error: any) {
@@ -96,7 +96,7 @@ router.get("/:clientId/stats", passport.authenticate(["apikey", "api"], { sessio
       return res.status(404).send({ ok: false, code: NOT_FOUND });
     }
 
-    const data = await getMissionStatsSummary(mission._id.toString());
+    const data = await statEventService.findStatEventMissionStatsSummary(mission._id.toString());
     res.locals = { total: 1 };
     return res.status(200).send({ ok: true, data });
   } catch (error: any) {
