@@ -134,7 +134,7 @@ const AdminMission = () => {
         d["Client Id"] = mission.clientId;
         d["Titre"] = mission.title;
         d["Place"] = mission.places;
-        d["Description"] = `"${mission.description}"`;
+        d["Description"] = `"${mission.description.replace(/"/g, "'")}"`;
         d["Organisation"] = mission.organizationName;
         d["Ville"] = `${mission.city} - ${mission.country}`;
         d["Domaine"] = mission.domain;
