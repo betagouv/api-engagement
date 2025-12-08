@@ -1,12 +1,18 @@
 export type PublisherRoleFilter = "annonceur" | "diffuseur" | "api" | "widget" | "campaign";
 
+export enum PublisherMissionType {
+  VOLONTARIAT_SERVICE_CIVIQUE = "volontariat_service_civique",
+  BENEVOLAT = "benevolat",
+  VOLONTARIAT_SAPEURS_POMPIERS = "volontariat_sapeurs_pompiers",
+}
+
 export interface PublisherDiffusionInput {
   diffuseurPublisherId?: string;
   publisherId?: string;
   diffuseurPublisherName?: string;
   publisherName?: string;
   moderator?: boolean;
-  missionType?: string | null;
+  missionType?: PublisherMissionType | null;
 }
 
 export interface PublisherDiffusionRecord {
@@ -14,7 +20,7 @@ export interface PublisherDiffusionRecord {
   diffuseurPublisherId: string;
   annonceurPublisherId: string;
   moderator: boolean;
-  missionType: string | null;
+  missionType: PublisherMissionType | null;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -37,7 +43,7 @@ export interface PublisherRecord {
   feedPassword: string | null;
   apikey: string | null;
   description: string;
-  missionType: string | null;
+  missionType: PublisherMissionType | null;
   isAnnonceur: boolean;
   hasApiRights: boolean;
   hasWidgetRights: boolean;
@@ -57,7 +63,7 @@ export interface PublisherSearchParams {
   ids?: string[];
   role?: PublisherRoleFilter;
   sendReport?: boolean;
-  missionType?: string | null;
+  missionType?: PublisherMissionType | null;
   includeDeleted?: boolean;
   accessiblePublisherIds?: string[];
 }
@@ -78,7 +84,7 @@ export interface PublisherCreateInput {
   feedUsername?: string | null;
   feedPassword?: string | null;
   apikey?: string | null;
-  missionType?: string | null;
+  missionType?: PublisherMissionType | null;
   isAnnonceur?: boolean;
   hasApiRights?: boolean;
   hasWidgetRights?: boolean;

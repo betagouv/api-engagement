@@ -44,7 +44,7 @@ const Annonceur = ({ values, onChange, errors, setErrors }) => {
       {isAnnonceur && (
         <>
           <div className="h-px w-full bg-gray-900" />
-          {errors.missionType && <p className="text-red-700">{errors.missionType}</p>}
+          {errors.missionType && <p className="text-red-error">{errors.missionType}</p>}
           <div className="space-y-4">
             {Object.values(MISSION_TYPES).map((type) => (
               <RadioInput

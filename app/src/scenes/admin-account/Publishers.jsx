@@ -5,6 +5,7 @@ import { Link } from "react-router-dom";
 
 import Loader from "../../components/Loader";
 import Table from "../../components/Table";
+import { MISSION_TYPES } from "../../constants";
 import api from "../../services/api";
 import { captureError } from "../../services/error";
 import exportCSV from "../../services/utils";
@@ -167,8 +168,11 @@ const Publishers = () => {
             onChange={(e) => setFilters({ ...filters, missionType: e.target.value })}
           >
             <option value="">Type de mission</option>
-            <option value="benevolat">Missions de bénévolat</option>
-            <option value="volontariat_service_civique">Missions de volontariat</option>
+            {Object.values(MISSION_TYPES).map((mission) => (
+              <option key={mission.slug} value={mission.slug}>
+                {mission.label}
+              </option>
+            ))}
           </select>
         </div>
         {loading ? (
