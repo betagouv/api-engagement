@@ -36,7 +36,12 @@ beforeEach(async () => {
 
   if (prismaCore) {
     // Clean dependent tables before parents to satisfy foreign keys (StatEvent -> PublisherDiffusion)
-    await prismaCore.$transaction([prismaCore.statEvent.deleteMany({}), prismaCore.publisherDiffusion.deleteMany({}), prismaCore.publisher.deleteMany({})]);
+    await prismaCore.$transaction([
+      prismaCore.statEvent.deleteMany({}),
+      prismaCore.widget.deleteMany({}),
+      prismaCore.publisherDiffusion.deleteMany({}),
+      prismaCore.publisher.deleteMany({}),
+    ]);
   }
 });
 

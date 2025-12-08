@@ -312,6 +312,8 @@ model Publisher {
   statEventsFrom         StatEvent[]                   @relation("StatEventFromPublisher")
   statEventsTo           StatEvent[]                   @relation("StatEventToPublisher")
   userPublishers         UserPublisher[]
+  widgetsDiffusion       WidgetPublisher[]
+  widgets                Widget[]                      @relation("WidgetFromPublisher")
   campaignsFrom          Campaign[]                    @relation("CampaignFromPublisher")
   campaignsTo            Campaign[]                    @relation("CampaignToPublisher")
 
@@ -380,6 +382,67 @@ model Warning {
   @@index([fixed], map: "warning_fixed_idx")
   @@index([createdAt], map: "warning_created_at_idx")
   @@map("warning")
+}
+
+model Widget {
+  id              String    @id @default(uuid())
+  name            String
+  color           String    @default("#000091")
+  style           String    @default("page")
+  type            String    @default("benevolat")
+  locationLat     Float?    @map("location_lat")
+  locationLong    Float?    @map("location_long")
+  locationCity    String?   @map("location_city")
+  distance        String    @default("25km")
+  url             String?
+  jvaModeration   Boolean   @default(false) @map("jva_moderation")
+  fromPublisherId String    @map("from_publisher_id")
+  active          Boolean   @default(true)
+  deletedAt       DateTime? @map("deleted_at")
+  createdAt       DateTime  @default(now()) @map("created_at")
+  updatedAt       DateTime  @updatedAt @map("updated_at")
+
+  fromPublisher    Publisher         @relation("WidgetFromPublisher", fields: [fromPublisherId], references: [id])
+  rules            WidgetRule[]
+  widgetPublishers WidgetPublisher[]
+
+  @@index([fromPublisherId], map: "widget_from_publisher_id_idx")
+  @@index([active], map: "widget_active_idx")
+  @@index([deletedAt], map: "widget_deleted_at_idx")
+  @@index([name], map: "widget_name_idx")
+  @@map("widget")
+}
+
+model WidgetPublisher {
+  widgetId    String   @map("widget_id")
+  publisherId String   @map("publisher_id")
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  widget    Widget    @relation(fields: [widgetId], references: [id], onDelete: Cascade)
+  publisher Publisher @relation(fields: [publisherId], references: [id], onDelete: Cascade)
+
+  @@id([widgetId, publisherId])
+  @@index([publisherId], map: "widget_publisher_publisher_id_idx")
+  @@index([createdAt(sort: Desc)], map: "widget_publisher_created_at_desc_idx")
+  @@map("widget_publisher")
+}
+
+model WidgetRule {
+  id         String   @id @default(uuid())
+  widgetId   String   @map("widget_id")
+  field      String
+  fieldType  String?  @map("field_type")
+  operator   String
+  value      String
+  combinator String
+  position   Int      @default(0)
+  createdAt  DateTime @default(now()) @map("created_at")
+  updatedAt  DateTime @updatedAt @map("updated_at")
+
+  widget Widget @relation(fields: [widgetId], references: [id], onDelete: Cascade)
+
+  @@index([widgetId], map: "widget_rule_widget_id_idx")
+  @@map("widget_rule")
 }
 
 model Import {

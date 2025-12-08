@@ -5,9 +5,9 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import { prismaCore } from "../../../../src/db/postgres";
 import { NOT_FOUND } from "../../../../src/error";
 import MissionModel from "../../../../src/models/mission";
-import WidgetModel from "../../../../src/models/widget";
 import { publisherService } from "../../../../src/services/publisher";
 import { statBotService } from "../../../../src/services/stat-bot";
+import { widgetService } from "../../../../src/services/widget";
 import { StatEventRecord } from "../../../../src/types";
 import * as utils from "../../../../src/utils";
 import { createTestApp } from "../../../testApp";
@@ -80,11 +80,7 @@ describe("RedirectController /impression/:missionId/:publisherId", () => {
       publisherName: "Mission Publisher",
     });
 
-    const widget = await WidgetModel.create({
-      name: "Widget Name",
-      fromPublisherId: publisher.id,
-      fromPublisherName: "Widget Source Publisher",
-    });
+    const widget = await widgetService.createWidget({ name: "Widget Name", fromPublisherId: publisher.id });
 
     const identity = {
       user: "print-user",
@@ -100,7 +96,7 @@ describe("RedirectController /impression/:missionId/:publisherId", () => {
       .get(`/r/impression/${mission._id.toString()}/${publisher.id}`)
       .set("Host", "redirect.test")
       .set("Origin", "https://app.example.com")
-      .query({ tracker: "tag", sourceId: widget._id.toString(), requestId });
+      .query({ tracker: "tag", sourceId: widget.id, requestId });
 
     expect(response.status).toBe(200);
     expect(response.body.ok).toBe(true);
@@ -117,7 +113,7 @@ describe("RedirectController /impression/:missionId/:publisherId", () => {
       requestId,
       tag: "tag",
       source: "widget",
-      sourceId: widget._id.toString(),
+      sourceId: widget.id,
       sourceName: widget.name,
       missionId: mission._id.toString(),
       missionClientId: mission.clientId,
@@ -138,7 +134,7 @@ describe("RedirectController /impression/:missionId/:publisherId", () => {
       type: "print",
       tag: "tag",
       source: "widget",
-      sourceId: widget._id.toString(),
+      sourceId: widget.id,
       sourceName: widget.name,
       missionId: mission._id.toString(),
       missionClientId: mission.clientId,
