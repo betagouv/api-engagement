@@ -1,23 +1,30 @@
-import MissionModel from "../../models/mission";
+import { Prisma } from "../../db/core";
+import { missionService } from "../../services/mission";
+import { missionModerationStatusService } from "../../services/mission-moderation-status";
 import { moderationEventService } from "../../services/moderation-event";
-import { Mission } from "../../types";
+import { MissionRecord } from "../../types/mission";
 import { ModerationEventCreateInput, ModerationEventStatus } from "../../types/moderation-event";
 import type { PublisherRecord } from "../../types/publisher";
 import { ModerationUpdate } from "./types";
 
 export const findMissions = async (moderator: PublisherRecord) => {
   const publishers = moderator.publishers.map((p) => p.diffuseurPublisherId);
-  const where = {
-    publisherId: { $in: publishers },
-    statusCode: "ACCEPTED",
-    deleted: false,
-    $or: [{ [`moderation_${moderator.id}_status`]: { $exists: false } }, { [`moderation_${moderator.id}_status`]: null }, { [`moderation_${moderator.id}_status`]: "PENDING" }],
-  };
-  const missions = await MissionModel.find(where).sort({ createdAt: "desc" });
-  return missions;
+  return missionService.findMissionsBy(
+    {
+      publisherId: { in: publishers },
+      statusCode: "ACCEPTED",
+      deletedAt: null,
+      OR: [
+        { moderationStatuses: { none: { publisherId: moderator.id } } },
+        { moderationStatuses: { some: { publisherId: moderator.id, status: null } } },
+        { moderationStatuses: { some: { publisherId: moderator.id, status: "PENDING" } } },
+      ],
+    },
+    { orderBy: { createdAt: Prisma.SortOrder.desc } }
+  );
 };
 
-export const hasModerationChanges = (m: Mission, moderator: PublisherRecord, update: ModerationUpdate) => {
+export const hasModerationChanges = (m: MissionRecord, moderator: PublisherRecord, update: ModerationUpdate) => {
   if (!m[`moderation_${moderator.id}_status`]) {
     return true;
   }
@@ -33,8 +40,14 @@ export const hasModerationChanges = (m: Mission, moderator: PublisherRecord, upd
   return false;
 };
 
-export const createModerations = async (missions: Mission[], moderator: PublisherRecord) => {
-  const missionBulk = [] as any[];
+export const createModerations = async (missions: MissionRecord[], moderator: PublisherRecord) => {
+  const moderationUpserts: Array<{
+    missionId: string;
+    publisherId: string;
+    status: ModerationEventStatus | null;
+    comment: string | null;
+    note: string | null;
+  }> = [];
   const eventBulk: ModerationEventCreateInput[] = [];
 
   let refused = 0;
@@ -108,18 +121,12 @@ export const createModerations = async (missions: Mission[], moderator: Publishe
           : "",
     });
 
-    missionBulk.push({
-      updateOne: {
-        filter: { _id: mission._id },
-        update: {
-          $set: {
-            [`moderation_${moderator.id}_status`]: update.status,
-            [`moderation_${moderator.id}_comment`]: update.comment,
-            [`moderation_${moderator.id}_note`]: update.note,
-            [`moderation_${moderator.id}_date`]: update.date,
-          },
-        },
-      },
+    moderationUpserts.push({
+      missionId: mission.id,
+      publisherId: moderator.id,
+      status: update.status,
+      comment: update.comment,
+      note: update.note,
     });
 
     if (update.status === "REFUSED") {
@@ -130,8 +137,10 @@ export const createModerations = async (missions: Mission[], moderator: Publishe
     }
   }
 
-  console.log(`[Moderation JVA] Bulk update ${missionBulk.length} missions, ${eventBulk.length} events`);
-  const resMission = await MissionModel.bulkWrite(missionBulk);
+  console.log(`[Moderation JVA] Bulk update ${moderationUpserts.length} missions, ${eventBulk.length} events`);
+  const resMission = await missionModerationStatusService.upsertStatuses(
+    moderationUpserts.map((item) => ({ ...item, title: item.comment }))
+  );
   const eventsCount = await moderationEventService.createModerationEvents(eventBulk);
-  return { updated: resMission.modifiedCount, events: eventsCount, refused, pending };
+  return { updated: resMission.length, events: eventsCount, refused, pending };
 };

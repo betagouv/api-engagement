@@ -5,7 +5,7 @@ import type { JobBoardId, Prisma, PrismaClient } from "../../src/db/core";
 import type { MissionRecord } from "../../src/types/mission";
 import { asString, toMongoObjectIdString } from "./utils/cast";
 import { compareDates, compareJsons, compareNumbers, compareStringArrays, compareStrings } from "./utils/compare";
-import { normalizeDate, normalizeNumber, toJsonValue } from "./utils/normalize";
+import { normalizeDate, normalizeNumber } from "./utils/normalize";
 import { loadEnvironment, parseScriptOptions, type ScriptOptions } from "./utils/options";
 
 const SCRIPT_NAME = "MigrateMissions";
@@ -170,12 +170,9 @@ const normalizeAddresses = (
   return normalized;
 };
 
-const formatLocalisation = (parts: Array<string | null | undefined>) =>
-  parts.filter((p) => Boolean(p && String(p).trim().length)).join(", ") || "France";
+const formatLocalisation = (parts: Array<string | null | undefined>) => parts.filter((p) => Boolean(p && String(p).trim().length)).join(", ") || "France";
 
-const computeLetudiantLocalisations = (
-  mission: MissionRecord
-): Array<{ missionAddressId: string | null; localisationKey: string }> => {
+const computeLetudiantLocalisations = (mission: MissionRecord): Array<{ missionAddressId: string | null; localisationKey: string }> => {
   if (mission.remote === "full" || !mission.addresses.length) {
     const city = mission.organizationCity || undefined;
     const department = mission.organizationDepartment || undefined;
@@ -496,8 +493,7 @@ const toNormalizedMission = (doc: MongoMissionDocument): NormalizedMissionData =
 };
 
 const hasDifferences = (existing: MissionRecord, target: MissionRecord) => {
-  const normalizeAddressesForCompare = (addresses?: MissionRecord["addresses"]) =>
-    (addresses ?? []).map(({ id: _ignored, ...rest }) => rest);
+  const normalizeAddressesForCompare = (addresses?: MissionRecord["addresses"]) => (addresses ?? []).map(({ id: _ignored, ...rest }) => rest);
   if (!compareStrings(existing.title, target.title)) return true;
   if (!compareStrings(existing.clientId, target.clientId)) return true;
   if (!compareStrings(existing.publisherId, target.publisherId)) return true;
@@ -652,10 +648,6 @@ const toRecordFromPrisma = (mission: any): MissionRecord => {
     leboncoinUrl: mission.leboncoinUrl ?? null,
     leboncoinComment: mission.leboncoinComment ?? null,
     leboncoinUpdatedAt: mission.leboncoinUpdatedAt ?? null,
-    : mission. ?? null,
-    : mission. ?? null,
-    : mission. ?? null,
-    : mission. ?? null,
     letudiantUpdatedAt: mission.letudiantUpdatedAt ?? null,
     letudiantError: mission.letudiantError ?? null,
     lastExportedToPgAt: mission.lastExportedToPgAt ?? null,
@@ -675,16 +667,8 @@ const persistBatch = async (
 ) => {
   if (!batch.length) return;
 
-  const organizationIds = Array.from(
-    new Set(
-      batch
-        .map(({ missionData }) => missionData.organizationId)
-        .filter((id): id is string => typeof id === "string" && id.length > 0)
-    )
-  );
-  const existingOrganizations = organizationIds.length
-    ? await prismaCore.organization.findMany({ where: { id: { in: organizationIds } }, select: { id: true } })
-    : [];
+  const organizationIds = Array.from(new Set(batch.map(({ missionData }) => missionData.organizationId).filter((id): id is string => typeof id === "string" && id.length > 0)));
+  const existingOrganizations = organizationIds.length ? await prismaCore.organization.findMany({ where: { id: { in: organizationIds } }, select: { id: true } }) : [];
   const existingOrgSet = new Set(existingOrganizations.map((org) => org.id));
 
   const ids = batch.map(({ record }) => record.id);

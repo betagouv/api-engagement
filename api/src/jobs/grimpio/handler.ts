@@ -44,9 +44,7 @@ export class GrimpioHandler implements BaseHandler<GrimpioJobPayload, GrimpioJob
 
       console.log(`[Grimpio Job] Querying and processing missions of JeVeuxAider.gouv.fr`);
       const JvaMissionsCursor = getMissionsCursor({
-        deletedAt: null,
-        statusCode: "ACCEPTED",
-        publisherId: PUBLISHER_IDS.JEVEUXAIDER,
+        publisherIds: [PUBLISHER_IDS.JEVEUXAIDER],
       });
 
       const jvaJobs = await generateJobs(JvaMissionsCursor);
@@ -59,9 +57,7 @@ export class GrimpioHandler implements BaseHandler<GrimpioJobPayload, GrimpioJob
       // TODO: Uncomment when Service Civique is available
       // console.log(`[Grimpio Job] Querying and processing missions of Service Civique`);
       // const scMissionsCursor = getMissionsCursor({
-      //   deletedAt: null,
-      //   statusCode: "ACCEPTED",
-      //   publisherId: PUBLISHER_IDS.SERVICE_CIVIQUE,
+      //   publisherIds: [PUBLISHER_IDS.SERVICE_CIVIQUE],
       // });
 
       // const scJobs = await generateJobs(scMissionsCursor);

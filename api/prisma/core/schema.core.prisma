@@ -255,16 +255,17 @@ model StatEvent {
   fromPublisher Publisher @relation("StatEventFromPublisher", fields: [fromPublisherId], references: [id])
   toPublisher   Publisher @relation("StatEventToPublisher", fields: [toPublisherId], references: [id])
 
-  missionId String? @map("mission_id")
-  mission   Mission? @relation("MissionStatEvents", fields: [missionId], references: [id], onDelete: SetNull)
-  missionClientId             String? @map("mission_client_id")
-  missionDomain               String? @map("mission_domain")
-  missionTitle                String? @map("mission_title")
-  missionPostalCode           String? @map("mission_postal_code")
-  missionDepartmentName       String? @map("mission_department_name")
-  missionOrganizationId       String? @map("mission_organization_id")
-  missionOrganizationName     String? @map("mission_organization_name")
-  missionOrganizationClientId String? @map("mission_organization_client_id")
+  missionId                   String?  @map("mission_id")
+  // TODO: restore relation when data has been backfilled
+  //mission   Mission? @relation("MissionStatEvents", fields: [missionId], references: [id], onDelete: SetNull)
+  missionClientId             String?  @map("mission_client_id")
+  missionDomain               String?  @map("mission_domain")
+  missionTitle                String?  @map("mission_title")
+  missionPostalCode           String?  @map("mission_postal_code")
+  missionDepartmentName       String?  @map("mission_department_name")
+  missionOrganizationId       String?  @map("mission_organization_id")
+  missionOrganizationName     String?  @map("mission_organization_name")
+  missionOrganizationClientId String?  @map("mission_organization_client_id")
   tag                         String?
   tags                        String[] @default([])
   exportToAnalytics           String?  @map("export_to_analytics")
@@ -530,64 +531,65 @@ model ImportRna {
 }
 
 model Mission {
-  id                        String       @id
-  oldId                     String?      @map("_old_id")
-  oldIds                    String[]     @default([]) @map("_old_ids")
-  clientId                  String       @map("client_id")
+  id                        String               @id
+  oldId                     String?              @map("_old_id")
+  oldIds                    String[]             @default([]) @map("_old_ids")
+  clientId                  String               @map("client_id")
   title                     String
-  description               String?      @default("")
-  descriptionHtml           String?      @map("description_html")
-  tags                      String[]     @default([])
-  tasks                     String[]     @default([])
-  audience                  String[]     @default([])
-  softSkills                String[]     @default([]) @map("soft_skills")
-  requirements              String[]     @default([])
-  romeSkills                String[]     @default([]) @map("rome_skills")
-  reducedMobilityAccessible MissionYesNo?      @map("reduced_mobility_accessible")
-  closeToTransport          MissionYesNo?      @map("close_to_transport")
-  openToMinors              MissionYesNo?      @map("open_to_minors")
+  description               String?              @default("")
+  descriptionHtml           String?              @map("description_html")
+  tags                      String[]             @default([])
+  tasks                     String[]             @default([])
+  audience                  String[]             @default([])
+  softSkills                String[]             @default([]) @map("soft_skills")
+  requirements              String[]             @default([])
+  romeSkills                String[]             @default([]) @map("rome_skills")
+  reducedMobilityAccessible MissionYesNo?        @map("reduced_mobility_accessible")
+  closeToTransport          MissionYesNo?        @map("close_to_transport")
+  openToMinors              MissionYesNo?        @map("open_to_minors")
   remote                    MissionRemote?
   schedule                  String?
   duration                  Int?
-  postedAt                  DateTime?    @map("posted_at")
-  startAt                   DateTime?    @map("start_at")
-  endAt                     DateTime?    @map("end_at")
+  postedAt                  DateTime?            @map("posted_at")
+  startAt                   DateTime?            @map("start_at")
+  endAt                     DateTime?            @map("end_at")
   priority                  String?
   places                    Int?
-  placesStatus              MissionPlacesStatus?      @map("places_status")
+  placesStatus              MissionPlacesStatus? @map("places_status")
   metadata                  String?
   domain                    String?
-  domainOriginal            String?      @map("domain_original")
-  domainLogo                String?      @map("domain_logo")
+  domainOriginal            String?              @map("domain_original")
+  domainLogo                String?              @map("domain_logo")
   activity                  String?
-  type                      MissionType? @map("type")
-  snu                       Boolean?     @default(false) @map("snu")
-  snuPlaces                 Int?         @map("snu_places")
-  compensationAmount        Float?       @map("compensation_amount")
-  compensationUnit          CompensationUnit? @map("compensation_unit")
-  compensationType          CompensationType? @map("compensation_type")
-  lastSyncAt                DateTime?    @map("last_sync_at")
-  applicationUrl            String?      @map("application_url")
-  statusCode                MissionStatusCode       @map("status_code")
-  statusComment             String?      @map("status_comment")
-  organizationClientId      String?      @map("organization_client_id")
-  organizationId            String?      @map("organization_id")
-  publisherId               String       @map("publisher_id")
-  deletedAt                 DateTime?    @map("deleted_at")
-  letudiantUpdatedAt        DateTime?    @map("letudiant_updated_at")
-  letudiantError            String?      @map("letudiant_error")
-  lastExportedToPgAt        DateTime?    @map("last_exported_to_pg_at")
-  createdAt                 DateTime     @default(now()) @map("created_at")
-  updatedAt                 DateTime     @updatedAt @map("updated_at")
+  type                      MissionType?         @map("type")
+  snu                       Boolean?             @default(false) @map("snu")
+  snuPlaces                 Int?                 @map("snu_places")
+  compensationAmount        Float?               @map("compensation_amount")
+  compensationUnit          CompensationUnit?    @map("compensation_unit")
+  compensationType          CompensationType?    @map("compensation_type")
+  lastSyncAt                DateTime?            @map("last_sync_at")
+  applicationUrl            String?              @map("application_url")
+  statusCode                MissionStatusCode    @map("status_code")
+  statusComment             String?              @map("status_comment")
+  organizationClientId      String?              @map("organization_client_id")
+  organizationId            String?              @map("organization_id")
+  publisherId               String               @map("publisher_id")
+  deletedAt                 DateTime?            @map("deleted_at")
+  letudiantUpdatedAt        DateTime?            @map("letudiant_updated_at")
+  letudiantError            String?              @map("letudiant_error")
+  lastExportedToPgAt        DateTime?            @map("last_exported_to_pg_at")
+  createdAt                 DateTime             @default(now()) @map("created_at")
+  updatedAt                 DateTime             @updatedAt @map("updated_at")
 
-  publisher        Publisher      @relation("MissionPublisher", fields: [publisherId], references: [id])
-  organization     Organization?  @relation("MissionOrganization", fields: [organizationId], references: [id])
-  missionEvents    MissionEvent[]
-  moderationEvents ModerationEvent[]
-  addresses        MissionAddress[]
+  publisher          Publisher                 @relation("MissionPublisher", fields: [publisherId], references: [id])
+  organization       Organization?             @relation("MissionOrganization", fields: [organizationId], references: [id])
+  missionEvents      MissionEvent[]
+  moderationEvents   ModerationEvent[]
+  addresses          MissionAddress[]
   moderationStatuses MissionModerationStatus[]
-  jobBoards        MissionJobBoard[]
-  statEvents       StatEvent[] @relation("MissionStatEvents")
+  jobBoards          MissionJobBoard[]
+  // TODO: restore relation 
+  //statEvents         StatEvent[]               @relation("MissionStatEvents")
 
   @@unique([clientId, publisherId], map: "mission_client_publisher_key")
   @@index([publisherId, statusCode, deletedAt, startAt(sort: Desc)], map: "mission_publisher_status_deleted_start_at_idx")
@@ -606,21 +608,21 @@ model Mission {
 }
 
 model MissionAddress {
-  id              String                    @id @default(uuid())
-  missionId       String                    @map("mission_id")
-  street          String?
-  postalCode      String?                   @map("postal_code")
-  departmentName  String?                   @map("department_name")
-  departmentCode  String?                   @map("department_code")
-  city            String?
-  region          String?
-  country         String?
-  locationLat     Float?                    @map("location_lat")
-  locationLon     Float?                    @map("location_lon")
-  geoPoint        Unsupported("point")?     @map("geo_point")
-  geolocStatus    String?                   @map("geoloc_status")
-  createdAt       DateTime                  @default(now()) @map("created_at")
-  updatedAt       DateTime                  @updatedAt @map("updated_at")
+  id             String                @id @default(uuid())
+  missionId      String                @map("mission_id")
+  street         String?
+  postalCode     String?               @map("postal_code")
+  departmentName String?               @map("department_name")
+  departmentCode String?               @map("department_code")
+  city           String?
+  region         String?
+  country        String?
+  locationLat    Float?                @map("location_lat")
+  locationLon    Float?                @map("location_lon")
+  geoPoint       Unsupported("point")? @map("geo_point")
+  geolocStatus   String?               @map("geoloc_status")
+  createdAt      DateTime              @default(now()) @map("created_at")
+  updatedAt      DateTime              @updatedAt @map("updated_at")
 
   mission Mission @relation(fields: [missionId], references: [id], onDelete: Cascade)
 
@@ -634,17 +636,17 @@ model MissionAddress {
 }
 
 model MissionJobBoard {
-  id               String      @id @default(uuid())
-  jobBoardId       JobBoardId  @map("jobboard_id")
-  missionId        String      @map("mission_id")
-  missionAddressId String?     @map("mission_address_id")
-  publicId         String      @map("public_id")
-  status           String?     @map("status")
-  comment          String?     @map("comment")
-  createdAt        DateTime    @default(now()) @map("created_at")
-  updatedAt        DateTime    @updatedAt @map("updated_at")
+  id               String     @id @default(uuid())
+  jobBoardId       JobBoardId @map("jobboard_id")
+  missionId        String     @map("mission_id")
+  missionAddressId String?    @map("mission_address_id")
+  publicId         String     @map("public_id")
+  status           String?    @map("status")
+  comment          String?    @map("comment")
+  createdAt        DateTime   @default(now()) @map("created_at")
+  updatedAt        DateTime   @updatedAt @map("updated_at")
 
-  mission        Mission        @relation(fields: [missionId], references: [id], onDelete: Cascade)
+  mission        Mission         @relation(fields: [missionId], references: [id], onDelete: Cascade)
   missionAddress MissionAddress? @relation(fields: [missionAddressId], references: [id], onDelete: Cascade)
 
   @@unique([jobBoardId, missionId, missionAddressId], map: "mission_jobboard_unique")
@@ -654,15 +656,15 @@ model MissionJobBoard {
 }
 
 model MissionModerationStatus {
-  id          String   @id @default(uuid())
-  missionId   String   @map("mission_id")
-  publisherId String   @map("publisher_id")
+  id          String                 @id @default(uuid())
+  missionId   String                 @map("mission_id")
+  publisherId String                 @map("publisher_id")
   status      ModerationEventStatus?
   comment     String?
   note        String?
   title       String?
-  createdAt   DateTime @default(now()) @map("created_at")
-  updatedAt   DateTime @updatedAt @map("updated_at")
+  createdAt   DateTime               @default(now()) @map("created_at")
+  updatedAt   DateTime               @updatedAt @map("updated_at")
 
   mission Mission @relation(fields: [missionId], references: [id], onDelete: Cascade)
 

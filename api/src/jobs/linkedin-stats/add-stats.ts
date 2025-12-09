@@ -1,6 +1,6 @@
 import { PUBLISHER_IDS } from "../../config";
 import { captureException, captureMessage } from "../../error";
-import MissionModel from "../../models/mission";
+import { missionService } from "../../services/mission";
 import { statEventService } from "../../services/stat-event";
 import { StatEventRecord } from "../../types";
 
@@ -87,12 +87,12 @@ const parseRow = async (row: (string | number)[], from: Date, to: Date, sourceId
   try {
     const data = [] as StatEventRecord[];
 
-    let mission = await MissionModel.findOne({ _old_ids: { $in: [missionId] } });
+    let mission = await missionService.findMissionByAnyId(missionId.toString());
     if (!mission) {
       const existingStat = await statEventService.findOneStatEventByMissionId(missionId.toString());
       if (!existingStat) {
         if (MISSION_NOT_FOUND[missionId.toString()]) {
-          mission = await MissionModel.findById(MISSION_NOT_FOUND[missionId.toString()]);
+          mission = await missionService.findOneMission(MISSION_NOT_FOUND[missionId.toString()]);
           if (!mission) {
             captureMessage(`[Linkedin Stats] Mission ${missionId} not found`);
             return;
@@ -102,13 +102,12 @@ const parseRow = async (row: (string | number)[], from: Date, to: Date, sourceId
           return;
         }
       } else {
-        mission = await MissionModel.findOne({
-          clientId: existingStat.missionClientId?.toString(),
-          publisherId: existingStat.toPublisherId,
-        });
+        mission = existingStat.missionClientId
+          ? await missionService.findMissionByClientAndPublisher(existingStat.missionClientId.toString(), existingStat.toPublisherId)
+          : null;
         if (!mission) {
           if (MISSION_NOT_FOUND[missionId.toString()]) {
-            mission = await MissionModel.findById(MISSION_NOT_FOUND[missionId.toString()]);
+            mission = await missionService.findOneMission(MISSION_NOT_FOUND[missionId.toString()]);
             if (!mission) {
               captureMessage(`[Linkedin Stats] Mission ${missionId} not found`);
               return;

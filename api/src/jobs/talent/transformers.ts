@@ -1,5 +1,5 @@
-import { Mission } from "../../types";
 import { getMissionTrackedApplicationUrl } from "../../utils";
+import { MissionRecord } from "../../types/mission";
 import { TALENT_PUBLISHER_ID } from "./config";
 import { TalentJob } from "./types";
 import { getActivityCategory, getImageUrl } from "./utils";
@@ -12,18 +12,20 @@ import { getActivityCategory, getImageUrl } from "./utils";
  * @param defaultCompany - Default company to use if organizationName is not in LINKEDIN_COMPANY_ID
  * @returns LinkedInJob | null
  */
-export function missionToTalentJob(mission: Mission): TalentJob[] {
+export function missionToTalentJob(mission: MissionRecord): TalentJob[] {
+  const company = mission.publisherName ?? mission.organizationName ?? "";
+  const dateposted = mission.postedAt ? new Date(mission.postedAt).toISOString() : new Date(mission.createdAt).toISOString();
   const missionJob = {
     referencenumber: String(mission._id),
     title: `Bénévolat - ${mission.title}`,
-    company: mission.publisherName,
-    dateposted: new Date(mission.postedAt).toISOString(),
+    company,
+    dateposted,
     url: getMissionTrackedApplicationUrl(mission, TALENT_PUBLISHER_ID),
     description: mission.descriptionHtml,
     jobtype: "part-time",
     expirationdate: mission.endAt ? new Date(mission.endAt).toISOString() : undefined,
     isremote: mission.remote === "no" ? "no" : "yes",
-    category: getActivityCategory(mission.activity),
+    category: mission.activity ? getActivityCategory(mission.activity) : undefined,
     logo: getImageUrl(mission.organizationLogo),
   } as TalentJob;
 

@@ -1,16 +1,3 @@
-/*
-  Warnings:
-
-  - You are about to drop the column `mission_client_id` on the `stat_event` table. All the data in the column will be lost.
-  - You are about to drop the column `mission_department_name` on the `stat_event` table. All the data in the column will be lost.
-  - You are about to drop the column `mission_domain` on the `stat_event` table. All the data in the column will be lost.
-  - You are about to drop the column `mission_organization_client_id` on the `stat_event` table. All the data in the column will be lost.
-  - You are about to drop the column `mission_organization_id` on the `stat_event` table. All the data in the column will be lost.
-  - You are about to drop the column `mission_organization_name` on the `stat_event` table. All the data in the column will be lost.
-  - You are about to drop the column `mission_postal_code` on the `stat_event` table. All the data in the column will be lost.
-  - You are about to drop the column `mission_title` on the `stat_event` table. All the data in the column will be lost.
-
-*/
 -- CreateEnum
 CREATE TYPE "public"."MissionStatusCode" AS ENUM ('ACCEPTED', 'REFUSED');
 
@@ -28,6 +15,9 @@ CREATE TYPE "public"."CompensationUnit" AS ENUM ('hour', 'day', 'month', 'year')
 
 -- CreateEnum
 CREATE TYPE "public"."CompensationType" AS ENUM ('gross', 'net');
+
+-- CreateEnum
+CREATE TYPE "public"."JobBoardId" AS ENUM ('LETUDIANT', 'JOBTEASER', 'LEBONCOIN');
 
 -- CreateTable
 CREATE TABLE "public"."mission" (
@@ -75,15 +65,6 @@ CREATE TABLE "public"."mission" (
     "organization_id" TEXT,
     "publisher_id" TEXT NOT NULL,
     "deleted_at" TIMESTAMP(3),
-    "leboncoin_status" TEXT,
-    "leboncoin_url" TEXT,
-    "leboncoin_comment" TEXT,
-    "leboncoin_updated_at" TIMESTAMP(3),
-    "jobteaser_status" TEXT,
-    "jobteaser_url" TEXT,
-    "jobteaser_comment" TEXT,
-    "jobteaser_updated_at" TIMESTAMP(3),
-    "letudiant_public_id" JSONB,
     "letudiant_updated_at" TIMESTAMP(3),
     "letudiant_error" TEXT,
     "last_exported_to_pg_at" TIMESTAMP(3),
@@ -106,12 +87,27 @@ CREATE TABLE "public"."mission_address" (
     "country" TEXT,
     "location_lat" DOUBLE PRECISION,
     "location_lon" DOUBLE PRECISION,
-    "geo_point" POINT,
+    "geo_point" point,
     "geoloc_status" TEXT,
     "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updated_at" TIMESTAMP(3) NOT NULL,
 
     CONSTRAINT "mission_address_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "public"."mission_jobboard" (
+    "id" TEXT NOT NULL,
+    "jobboard_id" "public"."JobBoardId" NOT NULL,
+    "mission_id" TEXT NOT NULL,
+    "mission_address_id" TEXT,
+    "public_id" TEXT NOT NULL,
+    "status" TEXT,
+    "comment" TEXT,
+    "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updated_at" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "mission_jobboard_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
@@ -181,6 +177,15 @@ CREATE INDEX "mission_address_country_idx" ON "public"."mission_address"("countr
 CREATE INDEX "mission_address_department_name_idx" ON "public"."mission_address"("department_name");
 
 -- CreateIndex
+CREATE INDEX "mission_jobboard_mission_id_idx" ON "public"."mission_jobboard"("mission_id");
+
+-- CreateIndex
+CREATE INDEX "mission_jobboard_address_id_idx" ON "public"."mission_jobboard"("mission_address_id");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "mission_jobboard_unique" ON "public"."mission_jobboard"("jobboard_id", "mission_id", "mission_address_id");
+
+-- CreateIndex
 CREATE INDEX "mission_moderation_status_mission_id_idx" ON "public"."mission_moderation_status"("mission_id");
 
 -- CreateIndex
@@ -203,6 +208,12 @@ ALTER TABLE "public"."mission" ADD CONSTRAINT "mission_organization_id_fkey" FOR
 
 -- AddForeignKey
 ALTER TABLE "public"."mission_address" ADD CONSTRAINT "mission_address_mission_id_fkey" FOREIGN KEY ("mission_id") REFERENCES "public"."mission"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "public"."mission_jobboard" ADD CONSTRAINT "mission_jobboard_mission_id_fkey" FOREIGN KEY ("mission_id") REFERENCES "public"."mission"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "public"."mission_jobboard" ADD CONSTRAINT "mission_jobboard_mission_address_id_fkey" FOREIGN KEY ("mission_address_id") REFERENCES "public"."mission_address"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "public"."mission_moderation_status" ADD CONSTRAINT "mission_moderation_status_mission_id_fkey" FOREIGN KEY ("mission_id") REFERENCES "public"."mission"("id") ON DELETE CASCADE ON UPDATE CASCADE;

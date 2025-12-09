@@ -1,6 +1,6 @@
 import { ASC_100_LOGO_URL, JVA_100_LOGO_URL, PUBLISHER_IDS } from "../../config";
-import { AddressItem, Mission } from "../../types";
 import { getMissionTrackedApplicationUrl } from "../../utils";
+import { MissionAddress, MissionRecord } from "../../types/mission";
 import { ASC_CONTRACT_TYPE, AUDIENCE_MAPPING, DOMAIN_MAPPING, GRIMPIO_PUBLISHER_ID, JVA_CONTRACT_TYPE } from "./config";
 import { GrimpioJob, GrimpioPlace } from "./types";
 
@@ -15,7 +15,7 @@ function getAudienceLabel(audience: string): string {
 /**
  * Helper function to create place object from address or mission location
  */
-function createPlace(address?: AddressItem): GrimpioPlace {
+function createPlace(address?: MissionAddress): GrimpioPlace {
   if (address && address.location?.lat && address.location?.lon) {
     return {
       latitude: address.location.lat,
@@ -33,20 +33,19 @@ function createPlace(address?: AddressItem): GrimpioPlace {
   };
 }
 
-function getRemoteJob(remote: "no" | "possible" | "full"): "none" | "total" | "partial" {
+function getRemoteJob(remote: MissionRecord["remote"]): "none" | "total" | "partial" {
   if (remote === "full") {
     return "total";
   } else if (remote === "possible") {
     return "partial";
-  } else {
-    return "none";
   }
+  return "none";
 }
 
 /**
  * Format addresses for location description
  */
-function formatAddressesForLocation(addresses?: AddressItem[]): string {
+function formatAddressesForLocation(addresses?: MissionAddress[]): string {
   if (!addresses || addresses.length === 0) {
     return "";
   }
@@ -62,11 +61,12 @@ function formatAddressesForLocation(addresses?: AddressItem[]): string {
 /**
  * Build JVA description following the template
  */
-function buildJVADescription(mission: Mission): string {
+function buildJVADescription(mission: MissionRecord): string {
   const blocks: string[] = [];
+  const displayName = mission.organizationName ?? mission.publisherName ?? "";
 
   // Type de mission
-  blocks.push(`<p><b>Type de mission : </b><strong>${mission.organizationName || mission.publisherName}</strong> vous propose une mission de bénévolat</p>`);
+  blocks.push(`<p><b>Type de mission : </b><strong>${displayName}</strong> vous propose une mission de bénévolat</p>`);
 
   // Domaine d'activité
   if (mission.domain) {
@@ -153,11 +153,12 @@ function formatDuration(duration: number | null, schedule: string | null | undef
 /**
  * Build ASC description following the template
  */
-function buildASCDescription(mission: Mission): string {
+function buildASCDescription(mission: MissionRecord): string {
   const blocks: string[] = [];
+  const displayName = mission.organizationName ?? mission.publisherName ?? "";
 
   // Type de mission
-  blocks.push(`<p><b>Type de mission : </b><strong>${mission.organizationName || mission.publisherName}</strong> vous propose une mission de Service Civique.</p>`);
+  blocks.push(`<p><b>Type de mission : </b><strong>${displayName}</strong> vous propose une mission de Service Civique.</p>`);
 
   // Âge requis
   let ageRequirement = "Le Service Civique est un dispositif ouvert aux personnes de 16 à 25 ans élargie à 30 ans en situation de handicap, sans condition de diplôme.";
@@ -226,16 +227,17 @@ function buildASCDescription(mission: Mission): string {
  * @param mission - JVA Mission to format
  * @returns GrimpioJob[] - Array of jobs (one per address)
  */
-export function missionToGrimpioJobJVA(mission: Mission): GrimpioJob {
+export function missionToGrimpioJobJVA(mission: MissionRecord): GrimpioJob {
   // Build description following JVA template
   const description = buildJVADescription(mission);
+  const enterpriseName = mission.organizationName ?? mission.publisherName ?? "";
 
   // Base job data for JVA
   const baseJob: GrimpioJob = {
     title: `Bénévolat - ${mission.title}`,
     url: getMissionTrackedApplicationUrl(mission, GRIMPIO_PUBLISHER_ID),
     contractType: JVA_CONTRACT_TYPE,
-    enterpriseName: mission.organizationName || mission.publisherName,
+    enterpriseName,
     description,
     enterpriseIndustry: "Association ONG",
     externalId: mission.clientId,
@@ -260,16 +262,17 @@ export function missionToGrimpioJobJVA(mission: Mission): GrimpioJob {
  * @param mission - ASC Mission to format
  * @returns GrimpioJob[] - Array of jobs (one per address)
  */
-export function missionToGrimpioJobASC(mission: Mission): GrimpioJob {
+export function missionToGrimpioJobASC(mission: MissionRecord): GrimpioJob {
   // Build description following ASC template
   const description = buildASCDescription(mission);
+  const enterpriseName = mission.organizationName ?? mission.publisherName ?? "";
 
   // Base job data for ASC
   const baseJob: GrimpioJob = {
     title: `Service Civique - ${mission.title}`,
     url: getMissionTrackedApplicationUrl(mission, GRIMPIO_PUBLISHER_ID),
     contractType: ASC_CONTRACT_TYPE,
-    enterpriseName: mission.organizationName || mission.publisherName,
+    enterpriseName,
     description,
     enterpriseIndustry: "Association - ONG",
     externalId: mission.clientId,
@@ -294,7 +297,7 @@ export function missionToGrimpioJobASC(mission: Mission): GrimpioJob {
  * @param mission - Mission to format
  * @returns GrimpioJob[] - Array of jobs (one per address)
  */
-export function missionToGrimpioJob(mission: Mission): GrimpioJob {
+export function missionToGrimpioJob(mission: MissionRecord): GrimpioJob {
   const isJVA = mission.publisherId === PUBLISHER_IDS.JEVEUXAIDER;
 
   if (isJVA) {
