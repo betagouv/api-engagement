@@ -2,8 +2,8 @@ import { captureException } from "../../error";
 import { importService } from "../../services/import";
 
 import { Prisma, Import as PrismaImport } from "../../db/core";
-import MissionModel from "../../models/mission";
 import { publisherService } from "../../services/publisher";
+import { missionService } from "../../services/mission";
 import type { Mission } from "../../types";
 import type { PublisherRecord } from "../../types/publisher";
 import { BaseHandler } from "../base/handler";
@@ -135,9 +135,12 @@ async function importMissionssForPublisher(publisher: PublisherRecord, start: Da
     if (typeof missionsXML === "string" || !missionsXML.length) {
       if (await shouldCleanMissionsForPublisher(publisher.id)) {
         console.log(`[${publisher.name}] Empty xml, cleaning missions...`);
-        const mongoRes = await MissionModel.updateMany({ publisherId: publisher.id, deletedAt: null, updatedAt: { $lt: start } }, { deleted: true, deletedAt: new Date() });
-        console.log(`[${publisher.name}] Deleted ${mongoRes.modifiedCount} missions`);
-        obj.deletedCount = mongoRes.modifiedCount;
+        const deletedCount = await missionService.updateMany(
+          { publisherId: publisher.id, deletedAt: null, updatedAt: { lt: start } },
+          { deletedAt: new Date() }
+        );
+        console.log(`[${publisher.name}] Deleted ${deletedCount} missions`);
+        obj.deletedCount = deletedCount;
       } else {
         console.log(`[${publisher.name}] Empty xml, but do not clean missions for now`);
       }
@@ -150,7 +153,7 @@ async function importMissionssForPublisher(publisher: PublisherRecord, start: Da
     console.log(`[${publisher.name}] Found ${missionsXML.length} missions in XML`);
 
     // GET COUNT MISSIONS IN DB
-    const missionsDB = await MissionModel.countDocuments({
+    const missionsDB = await missionService.countBy({
       publisherId: publisher.id,
       deletedAt: null,
     });
@@ -218,11 +221,11 @@ async function importMissionssForPublisher(publisher: PublisherRecord, start: Da
     }
 
     // STATS
-    obj.missionCount = await MissionModel.countDocuments({
+    obj.missionCount = await missionService.countBy({
       publisherId: publisher.id,
       deletedAt: null,
     });
-    obj.refusedCount = await MissionModel.countDocuments({
+    obj.refusedCount = await missionService.countBy({
       publisherId: publisher.id,
       deletedAt: null,
       statusCode: "REFUSED",

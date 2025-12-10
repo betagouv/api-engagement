@@ -660,6 +660,15 @@ export const missionService = {
     return missionRepository.count(where);
   },
 
+  async countBy(where: Prisma.MissionWhereInput): Promise<number> {
+    return missionRepository.count(where);
+  },
+
+  async updateMany(where: Prisma.MissionWhereInput, data: Prisma.MissionUpdateInput): Promise<number> {
+    const result = await prismaCore.mission.updateMany({ where, data });
+    return result.count;
+  },
+
   async findMissionsWithFacets(filters: MissionSearchFilters): Promise<{ data: MissionRecord[]; total: number; facets: MissionFacets }> {
     const where = buildWhere(filters);
 

@@ -1,11 +1,10 @@
 import he from "he";
 import { convert } from "html-to-text";
-import { Schema } from "mongoose";
 
 import { PUBLISHER_IDS } from "../../../config";
 import { AUTRE_IMAGE, DOMAIN_IMAGES } from "../../../constants/domains";
 import { captureException } from "../../../error";
-import MissionModel from "../../../models/mission";
+import { missionService } from "../../../services/mission";
 import { Mission } from "../../../types";
 import type { PublisherRecord } from "../../../types/publisher";
 import { MissionXML } from "../types";
@@ -211,9 +210,9 @@ const parseMission = (publisher: PublisherRecord, missionXML: MissionXML, missio
   }
 
   if (missionDB) {
-    mission._id = missionDB._id as Schema.Types.ObjectId;
+    mission._id = (missionDB as any)._id || (missionDB as any).id;
     mission.createdAt = missionDB.createdAt;
-    mission.organizationVerificationStatus = missionDB.organizationVerificationStatus;
+    mission.organizationVerificationStatus = (missionDB as any).organizationVerificationStatus;
 
     if (missionDB.statusCommentHistoric && Array.isArray(missionDB.statusCommentHistoric)) {
       if (missionDB.statusCode !== mission.statusCode) {
@@ -283,12 +282,9 @@ const parseMission = (publisher: PublisherRecord, missionXML: MissionXML, missio
 
 export const buildData = async (startTime: Date, publisher: PublisherRecord, missionXML: MissionXML) => {
   try {
-    const missionDB = await MissionModel.findOne({
-      publisherId: publisher.id,
-      clientId: missionXML.clientId,
-    });
+    const missionDB = await missionService.findMissionByClientAndPublisher(missionXML.clientId, publisher.id);
 
-    const mission = parseMission(publisher, missionXML, missionDB?.toObject() || null);
+    const mission = parseMission(publisher, missionXML, (missionDB as any) || null);
 
     mission.deleted = false;
     mission.deletedAt = null;

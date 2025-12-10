@@ -1,23 +1,33 @@
 import { PUBLISHER_IDS } from "../../../config";
 import { MissionType, Address as PgAddress, Mission as PgMission } from "../../../db/analytics";
-import { Mission as MongoMission } from "../../../types";
+import { MissionRecord } from "../../../types/mission";
 import { MissionTransformResult } from "../types";
 
 /**
  * Transform a MongoDB mission into PostgreSQL format
  *
- * @param doc The MongoDB mission to transform
+ * @param doc The mission to transform
  * @param partnerId The partner ID
  * @param organizationId The organization ID
  * @returns The transformed mission with addresses and history
  */
-export const transformMongoMissionToPg = (doc: MongoMission | null, partnerId: string, organizationId?: string): MissionTransformResult | null => {
+export const transformMongoMissionToPg = (doc: MissionRecord | null, partnerId: string, organizationId?: string): MissionTransformResult | null => {
   if (!doc) {
     return null;
   }
 
+  const toDate = (value: Date | string | null | undefined) => {
+    if (!value) {
+      return null;
+    }
+    const date = new Date(value);
+    return isNaN(date.getTime()) ? null : date;
+  };
+
+  const oldId = (doc as any)._id ?? doc.id;
+
   const obj = {
-    old_id: doc._id?.toString() || "",
+    old_id: oldId?.toString() || "",
     title: doc.title,
     client_id: doc.clientId,
     description: doc.description,
@@ -37,9 +47,9 @@ export const transformMongoMissionToPg = (doc: MongoMission | null, partnerId: s
     remote: doc.remote,
     schedule: doc.schedule,
     duration: doc.duration,
-    posted_at: new Date(doc.postedAt),
-    start_at: new Date(doc.startAt),
-    end_at: doc.endAt ? new Date(doc.endAt) : null,
+    posted_at: toDate(doc.postedAt),
+    start_at: toDate(doc.startAt),
+    end_at: toDate(doc.endAt),
     priority: doc.priority,
     places: doc.places,
     places_status: doc.placesStatus,
@@ -59,13 +69,13 @@ export const transformMongoMissionToPg = (doc: MongoMission | null, partnerId: s
     department_code: doc.departmentCode ? doc.departmentCode.toString() : "",
     region: doc.region,
     country: doc.country,
-    latitude: doc.location?.lat || null,
-    longitude: doc.location?.lon || null,
-    geoloc_status: doc.geolocStatus,
+    latitude: doc.location?.lat ?? null,
+    longitude: doc.location?.lon ?? null,
+    geoloc_status: (doc as any).geolocStatus,
     organization_url: doc.organizationUrl,
     organization_name: doc.organizationName,
     organization_logo: doc.organizationLogo,
-    organization_client_id: doc.organizationId,
+    organization_client_id: doc.organizationClientId,
     organization_description: doc.organizationDescription,
     organization_rna: doc.organizationRNA,
     organization_siren: doc.organizationSiren,
@@ -77,7 +87,7 @@ export const transformMongoMissionToPg = (doc: MongoMission | null, partnerId: s
     organization_beneficiaries: doc.organizationBeneficiaries,
     organization_reseaux: doc.organizationReseaux,
     organization_actions: doc.organizationActions || [],
-    rna_status: doc.rnaStatus,
+    rna_status: (doc as any).rnaStatus,
 
     matched_organization_id: organizationId || null,
     organization_verification_status: doc.organizationVerificationStatus,
@@ -97,7 +107,7 @@ export const transformMongoMissionToPg = (doc: MongoMission | null, partnerId: s
     is_siret_verified: doc.organizationSiretVerified ? true : false,
 
     partner_id: partnerId,
-    last_sync_at: new Date(doc.lastSyncAt || doc.updatedAt),
+    last_sync_at: toDate(doc.lastSyncAt || doc.updatedAt) || new Date(),
     status: doc.statusCode,
     status_comment: doc.statusComment,
 
@@ -112,16 +122,16 @@ export const transformMongoMissionToPg = (doc: MongoMission | null, partnerId: s
     leboncoin_moderation_url: doc.leboncoinUrl,
     leboncoin_moderation_updated_at: doc.leboncoinUpdatedAt ? new Date(doc.leboncoinUpdatedAt) : null,
 
-    created_at: new Date(doc.createdAt),
-    updated_at: new Date(doc.updatedAt),
-    deleted_at: doc.deletedAt ? new Date(doc.deletedAt) : null,
+    created_at: toDate(doc.createdAt) ?? new Date(),
+    updated_at: toDate(doc.updatedAt) ?? new Date(),
+    deleted_at: toDate(doc.deletedAt),
   } as PgMission;
 
   // Transform addresses
   const addresses: PgAddress[] = doc.addresses?.map(
     (address) =>
       ({
-        old_id: address._id?.toString() || "",
+        old_id: (address as any)._id?.toString() || address.id || "",
         street: address.street,
         city: address.city,
         postal_code: address.postalCode,
