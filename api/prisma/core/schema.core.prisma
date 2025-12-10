@@ -65,24 +65,19 @@ enum MissionRemote {
   full
 }
 
-enum MissionYesNo {
-  yes
-  no
-}
-
 enum MissionPlacesStatus {
   ATTRIBUTED_BY_API
   GIVEN_BY_PARTNER
 }
 
-enum CompensationUnit {
+enum MissionCompensationUnit {
   hour
   day
   month
   year
 }
 
-enum CompensationType {
+enum MissionCompensationType {
   gross
   net
 }
@@ -532,8 +527,6 @@ model ImportRna {
 
 model Mission {
   id                        String               @id
-  oldId                     String?              @map("_old_id")
-  oldIds                    String[]             @default([]) @map("_old_ids")
   clientId                  String               @map("client_id")
   title                     String
   description               String?              @default("")
@@ -544,9 +537,9 @@ model Mission {
   softSkills                String[]             @default([]) @map("soft_skills")
   requirements              String[]             @default([])
   romeSkills                String[]             @default([]) @map("rome_skills")
-  reducedMobilityAccessible MissionYesNo?        @map("reduced_mobility_accessible")
-  closeToTransport          MissionYesNo?        @map("close_to_transport")
-  openToMinors              MissionYesNo?        @map("open_to_minors")
+  reducedMobilityAccessible Boolean?             @map("reduced_mobility_accessible")
+  closeToTransport          Boolean?             @map("close_to_transport")
+  openToMinors              Boolean?             @map("open_to_minors")
   remote                    MissionRemote?
   schedule                  String?
   duration                  Int?
@@ -557,16 +550,14 @@ model Mission {
   places                    Int?
   placesStatus              MissionPlacesStatus? @map("places_status")
   metadata                  String?
-  domain                    String?
   domainOriginal            String?              @map("domain_original")
   domainLogo                String?              @map("domain_logo")
-  activity                  String?
   type                      MissionType?         @map("type")
   snu                       Boolean?             @default(false) @map("snu")
   snuPlaces                 Int?                 @map("snu_places")
   compensationAmount        Float?               @map("compensation_amount")
-  compensationUnit          CompensationUnit?    @map("compensation_unit")
-  compensationType          CompensationType?    @map("compensation_type")
+  compensationUnit          MissionCompensationUnit? @map("compensation_unit")
+  compensationType          MissionCompensationType? @map("compensation_type")
   lastSyncAt                DateTime?            @map("last_sync_at")
   applicationUrl            String?              @map("application_url")
   statusCode                MissionStatusCode    @map("status_code")
@@ -575,8 +566,6 @@ model Mission {
   organizationId            String?              @map("organization_id")
   publisherId               String               @map("publisher_id")
   deletedAt                 DateTime?            @map("deleted_at")
-  letudiantUpdatedAt        DateTime?            @map("letudiant_updated_at")
-  letudiantError            String?              @map("letudiant_error")
   lastExportedToPgAt        DateTime?            @map("last_exported_to_pg_at")
   createdAt                 DateTime             @default(now()) @map("created_at")
   updatedAt                 DateTime             @updatedAt @map("updated_at")
@@ -586,6 +575,8 @@ model Mission {
   missionEvents      MissionEvent[]
   moderationEvents   ModerationEvent[]
   addresses          MissionAddress[]
+  domains            MissionDomain[]
+  activities         MissionActivity[]
   moderationStatuses MissionModerationStatus[]
   jobBoards          MissionJobBoard[]
   // TODO: restore relation 
@@ -596,9 +587,7 @@ model Mission {
   @@index([statusCode, deletedAt, startAt(sort: Desc)], map: "mission_status_deleted_start_at_idx")
   @@index([createdAt], map: "mission_created_at_idx")
   @@index([startAt], map: "mission_start_at_idx")
-  @@index([domain], map: "mission_domain_idx")
   @@index([remote], map: "mission_remote_idx")
-  @@index([activity], map: "mission_activity_idx")
   @@index([publisherId], map: "mission_publisher_id_idx")
   @@index([clientId], map: "mission_client_id_idx")
   @@index([organizationClientId], map: "mission_organization_client_id_idx")
@@ -633,6 +622,38 @@ model MissionAddress {
   @@index([country], map: "mission_address_country_idx")
   @@index([departmentName], map: "mission_address_department_name_idx")
   @@map("mission_address")
+}
+
+model MissionDomain {
+  id        String   @id @default(uuid())
+  missionId String   @map("mission_id")
+  value     String
+  original  String?  @map("original")
+  logo      String?  @map("logo")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  mission Mission @relation(fields: [missionId], references: [id], onDelete: Cascade)
+
+  @@unique([missionId, value], map: "mission_domain_mission_value_key")
+  @@index([missionId], map: "mission_domain_mission_id_idx")
+  @@index([value], map: "mission_domain_value_idx")
+  @@map("mission_domain")
+}
+
+model MissionActivity {
+  id        String   @id @default(uuid())
+  missionId String   @map("mission_id")
+  value     String
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  mission Mission @relation(fields: [missionId], references: [id], onDelete: Cascade)
+
+  @@unique([missionId, value], map: "mission_activity_mission_value_key")
+  @@index([missionId], map: "mission_activity_mission_id_idx")
+  @@index([value], map: "mission_activity_value_idx")
+  @@map("mission_activity")
 }
 
 model MissionJobBoard {

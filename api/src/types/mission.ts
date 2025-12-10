@@ -1,5 +1,5 @@
 export type MissionStatusCode = "ACCEPTED" | "REFUSED";
-export type MissionYesNo = "yes" | "no";
+export type MissionYesNo = boolean;
 export type MissionRemote = "no" | "possible" | "full";
 export type MissionPlacesStatus = "ATTRIBUTED_BY_API" | "GIVEN_BY_PARTNER";
 export type MissionCompensationUnit = "hour" | "day" | "month" | "year";

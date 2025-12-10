@@ -5,16 +5,13 @@ CREATE TYPE "public"."MissionStatusCode" AS ENUM ('ACCEPTED', 'REFUSED');
 CREATE TYPE "public"."MissionRemote" AS ENUM ('no', 'possible', 'full');
 
 -- CreateEnum
-CREATE TYPE "public"."MissionYesNo" AS ENUM ('yes', 'no');
-
--- CreateEnum
 CREATE TYPE "public"."MissionPlacesStatus" AS ENUM ('ATTRIBUTED_BY_API', 'GIVEN_BY_PARTNER');
 
 -- CreateEnum
-CREATE TYPE "public"."CompensationUnit" AS ENUM ('hour', 'day', 'month', 'year');
+CREATE TYPE "public"."MissionCompensationUnit" AS ENUM ('hour', 'day', 'month', 'year');
 
 -- CreateEnum
-CREATE TYPE "public"."CompensationType" AS ENUM ('gross', 'net');
+CREATE TYPE "public"."MissionCompensationType" AS ENUM ('gross', 'net');
 
 -- CreateEnum
 CREATE TYPE "public"."JobBoardId" AS ENUM ('LETUDIANT', 'JOBTEASER', 'LEBONCOIN');
@@ -22,8 +19,6 @@ CREATE TYPE "public"."JobBoardId" AS ENUM ('LETUDIANT', 'JOBTEASER', 'LEBONCOIN'
 -- CreateTable
 CREATE TABLE "public"."mission" (
     "id" TEXT NOT NULL,
-    "_old_id" TEXT,
-    "_old_ids" TEXT[] DEFAULT ARRAY[]::TEXT[],
     "client_id" TEXT NOT NULL,
     "title" TEXT NOT NULL,
     "description" TEXT DEFAULT '',
@@ -34,9 +29,9 @@ CREATE TABLE "public"."mission" (
     "soft_skills" TEXT[] DEFAULT ARRAY[]::TEXT[],
     "requirements" TEXT[] DEFAULT ARRAY[]::TEXT[],
     "rome_skills" TEXT[] DEFAULT ARRAY[]::TEXT[],
-    "reduced_mobility_accessible" "public"."MissionYesNo",
-    "close_to_transport" "public"."MissionYesNo",
-    "open_to_minors" "public"."MissionYesNo",
+    "reduced_mobility_accessible" BOOLEAN,
+    "close_to_transport" BOOLEAN,
+    "open_to_minors" BOOLEAN,
     "remote" "public"."MissionRemote",
     "schedule" TEXT,
     "duration" INTEGER,
@@ -47,16 +42,14 @@ CREATE TABLE "public"."mission" (
     "places" INTEGER,
     "places_status" "public"."MissionPlacesStatus",
     "metadata" TEXT,
-    "domain" TEXT,
     "domain_original" TEXT,
     "domain_logo" TEXT,
-    "activity" TEXT,
     "type" "public"."MissionType",
     "snu" BOOLEAN DEFAULT false,
     "snu_places" INTEGER,
     "compensation_amount" DOUBLE PRECISION,
-    "compensation_unit" "public"."CompensationUnit",
-    "compensation_type" "public"."CompensationType",
+    "compensation_unit" "public"."MissionCompensationUnit",
+    "compensation_type" "public"."MissionCompensationType",
     "last_sync_at" TIMESTAMP(3),
     "application_url" TEXT,
     "status_code" "public"."MissionStatusCode" NOT NULL,
@@ -65,8 +58,6 @@ CREATE TABLE "public"."mission" (
     "organization_id" TEXT,
     "publisher_id" TEXT NOT NULL,
     "deleted_at" TIMESTAMP(3),
-    "letudiant_updated_at" TIMESTAMP(3),
-    "letudiant_error" TEXT,
     "last_exported_to_pg_at" TIMESTAMP(3),
     "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updated_at" TIMESTAMP(3) NOT NULL,
@@ -93,6 +84,30 @@ CREATE TABLE "public"."mission_address" (
     "updated_at" TIMESTAMP(3) NOT NULL,
 
     CONSTRAINT "mission_address_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "public"."mission_domain" (
+    "id" TEXT NOT NULL,
+    "mission_id" TEXT NOT NULL,
+    "value" TEXT NOT NULL,
+    "original" TEXT,
+    "logo" TEXT,
+    "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updated_at" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "mission_domain_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "public"."mission_activity" (
+    "id" TEXT NOT NULL,
+    "mission_id" TEXT NOT NULL,
+    "value" TEXT NOT NULL,
+    "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updated_at" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "mission_activity_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
@@ -138,13 +153,7 @@ CREATE INDEX "mission_created_at_idx" ON "public"."mission"("created_at");
 CREATE INDEX "mission_start_at_idx" ON "public"."mission"("start_at");
 
 -- CreateIndex
-CREATE INDEX "mission_domain_idx" ON "public"."mission"("domain");
-
--- CreateIndex
 CREATE INDEX "mission_remote_idx" ON "public"."mission"("remote");
-
--- CreateIndex
-CREATE INDEX "mission_activity_idx" ON "public"."mission"("activity");
 
 -- CreateIndex
 CREATE INDEX "mission_publisher_id_idx" ON "public"."mission"("publisher_id");
@@ -175,6 +184,24 @@ CREATE INDEX "mission_address_country_idx" ON "public"."mission_address"("countr
 
 -- CreateIndex
 CREATE INDEX "mission_address_department_name_idx" ON "public"."mission_address"("department_name");
+
+-- CreateIndex
+CREATE INDEX "mission_domain_mission_id_idx" ON "public"."mission_domain"("mission_id");
+
+-- CreateIndex
+CREATE INDEX "mission_domain_value_idx" ON "public"."mission_domain"("value");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "mission_domain_mission_value_key" ON "public"."mission_domain"("mission_id", "value");
+
+-- CreateIndex
+CREATE INDEX "mission_activity_mission_id_idx" ON "public"."mission_activity"("mission_id");
+
+-- CreateIndex
+CREATE INDEX "mission_activity_value_idx" ON "public"."mission_activity"("value");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "mission_activity_mission_value_key" ON "public"."mission_activity"("mission_id", "value");
 
 -- CreateIndex
 CREATE INDEX "mission_jobboard_mission_id_idx" ON "public"."mission_jobboard"("mission_id");
@@ -208,6 +235,12 @@ ALTER TABLE "public"."mission" ADD CONSTRAINT "mission_organization_id_fkey" FOR
 
 -- AddForeignKey
 ALTER TABLE "public"."mission_address" ADD CONSTRAINT "mission_address_mission_id_fkey" FOREIGN KEY ("mission_id") REFERENCES "public"."mission"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "public"."mission_domain" ADD CONSTRAINT "mission_domain_mission_id_fkey" FOREIGN KEY ("mission_id") REFERENCES "public"."mission"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "public"."mission_activity" ADD CONSTRAINT "mission_activity_mission_id_fkey" FOREIGN KEY ("mission_id") REFERENCES "public"."mission"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "public"."mission_jobboard" ADD CONSTRAINT "mission_jobboard_mission_id_fkey" FOREIGN KEY ("mission_id") REFERENCES "public"."mission"("id") ON DELETE CASCADE ON UPDATE CASCADE;

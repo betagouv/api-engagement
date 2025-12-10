@@ -42,6 +42,8 @@ type MissionWithRelations = Mission & {
     locationLon: number | null;
     geolocStatus: string | null;
   }>;
+  domains?: Array<{ value: string; original: string | null; logo: string | null }>;
+  activities?: Array<{ value: string }>;
   moderationStatuses?: Array<{
     publisherId: string;
     status: string | null;
@@ -49,6 +51,13 @@ type MissionWithRelations = Mission & {
     note: string | null;
     title: string | null;
     createdAt: Date;
+  }>;
+  jobBoards?: Array<{
+    jobBoardId: string;
+    publicId: string;
+    status: string | null;
+    comment: string | null;
+    updatedAt: Date;
   }>;
 };
 
@@ -63,6 +72,20 @@ const emptyStringArray = (value: unknown): string[] => {
     return [value.trim()];
   }
   return [];
+};
+
+const mapDomainsForCreate = (domain?: string | null, domainOriginal?: string | null, domainLogo?: string | null) => {
+  if (!domain) {
+    return [];
+  }
+  return [{ value: domain, original: domainOriginal ?? null, logo: domainLogo ?? null }];
+};
+
+const mapActivitiesForCreate = (activity?: string | null) => {
+  if (!activity) {
+    return [];
+  }
+  return [{ value: activity }];
 };
 
 const normalizeAddresses = (addresses: MissionWithRelations["addresses"]) =>
@@ -100,6 +123,9 @@ const toMissionRecord = (mission: MissionWithRelations): MissionRecord => {
   const publisherName = mission.publisher?.name ?? null;
   const publisherLogo = mission.publisher?.logo ?? null;
   const publisherUrl = mission.publisher?.url ?? null;
+  const primaryDomain = mission.domains?.[0];
+  const primaryActivity = mission.activities?.[0];
+  const letudiantJobBoard = mission.jobBoards?.find((jobBoard) => jobBoard.jobBoardId === "LETUDIANT");
 
   const softSkills = emptyStringArray(mission.softSkills);
 
@@ -134,10 +160,10 @@ const toMissionRecord = (mission: MissionWithRelations): MissionRecord => {
     places: mission.places ?? null,
     placesStatus: mission.placesStatus ?? null,
     metadata: mission.metadata ?? null,
-    domain: mission.domain ?? null,
-    domainOriginal: mission.domainOriginal ?? null,
-    domainLogo: mission.domainLogo ?? null,
-    activity: mission.activity ?? null,
+    domain: primaryDomain?.value ?? null,
+    domainOriginal: primaryDomain?.original ?? null,
+    domainLogo: primaryDomain?.logo ?? null,
+    activity: primaryActivity?.value ?? null,
     type: mission.type ?? null,
     snu: mission.snu ?? false,
     snuPlaces: mission.snuPlaces ?? null,
@@ -191,8 +217,8 @@ const toMissionRecord = (mission: MissionWithRelations): MissionRecord => {
     statusCode: (mission.statusCode as MissionRecord["statusCode"]) ?? "ACCEPTED",
     statusComment: mission.statusComment ?? null,
     deletedAt: mission.deletedAt ?? null,
-    letudiantUpdatedAt: mission.letudiantUpdatedAt ?? null,
-    letudiantError: mission.letudiantError ?? null,
+    letudiantUpdatedAt: letudiantJobBoard?.updatedAt ?? null,
+    letudiantError: letudiantJobBoard?.comment ?? null,
     lastExportedToPgAt: mission.lastExportedToPgAt ?? null,
     createdAt: mission.createdAt,
     updatedAt: mission.updatedAt,
@@ -256,7 +282,7 @@ export const buildWhere = (filters: MissionSearchFilters): Prisma.MissionWhereIn
   }
 
   if (filters.activity?.length) {
-    where.activity = { in: filters.activity };
+    where.activities = { some: { value: { in: filters.activity } } };
   }
   if (filters.clientId?.length) {
     where.clientId = { in: filters.clientId };
@@ -265,12 +291,12 @@ export const buildWhere = (filters: MissionSearchFilters): Prisma.MissionWhereIn
     where.organizationClientId = { in: filters.organizationClientId };
   }
   if (filters.domain?.length && !filters.domainIncludeMissing) {
-    where.domain = { in: filters.domain };
+    where.domains = { some: { value: { in: filters.domain } } };
   } else if (filters.domain?.length && filters.domainIncludeMissing) {
-    orConditions.push({ domain: { in: filters.domain } });
+    orConditions.push({ domains: { some: { value: { in: filters.domain } } } });
   }
   if (filters.domainIncludeMissing) {
-    orConditions.push({ domain: null }, { domain: "" });
+    orConditions.push({ domains: { none: {} } });
   }
   if (filters.remote?.length) {
     where.remote = { in: filters.remote as any };
@@ -284,10 +310,10 @@ export const buildWhere = (filters: MissionSearchFilters): Prisma.MissionWhereIn
   if (filters.snu) {
     where.snu = true;
   }
-  if (filters.openToMinors) {
+  if ("openToMinors" in filters && filters.openToMinors !== undefined) {
     where.openToMinors = filters.openToMinors as any;
   }
-  if (filters.reducedMobilityAccessible) {
+  if ("reducedMobilityAccessible" in filters && filters.reducedMobilityAccessible !== undefined) {
     where.reducedMobilityAccessible = filters.reducedMobilityAccessible as any;
   }
   if (filters.durationLte !== undefined) {
@@ -526,7 +552,7 @@ const mapAddressesForCreate = (addresses?: MissionRecord["addresses"]) => {
   }));
 };
 
-const baseInclude = { publisher: true, organization: true, addresses: true, moderationStatuses: true };
+const baseInclude = { publisher: true, organization: true, addresses: true, moderationStatuses: true, domains: true, activities: true, jobBoards: true };
 
 export const missionService = {
   async findOneMission(id: string): Promise<MissionRecord | null> {
@@ -718,6 +744,8 @@ export const missionService = {
   async create(input: MissionCreateInput): Promise<MissionRecord> {
     const id = input.id ?? randomUUID();
     const addresses = mapAddressesForCreate(input.addresses);
+    const domains = mapDomainsForCreate(input.domain, input.domainOriginal, input.domainLogo);
+    const activities = mapActivitiesForCreate(input.activity);
 
     const data: Prisma.MissionCreateInput = {
       id,
@@ -746,10 +774,6 @@ export const missionService = {
       places: input.places ?? undefined,
       placesStatus: input.placesStatus ?? undefined,
       metadata: input.metadata ?? undefined,
-      domain: input.domain ?? undefined,
-      domainOriginal: input.domainOriginal ?? undefined,
-      domainLogo: input.domainLogo ?? undefined,
-      activity: input.activity ?? undefined,
       type: (input.type as any) ?? undefined,
       snu: input.snu ?? undefined,
       snuPlaces: input.snuPlaces ?? undefined,
@@ -762,10 +786,10 @@ export const missionService = {
       applicationUrl: input.applicationUrl ?? undefined,
       statusComment: input.statusComment ?? undefined,
       deletedAt: input.deletedAt ?? undefined,
-      letudiantUpdatedAt: input.letudiantUpdatedAt ?? undefined,
-      letudiantError: input.letudiantError ?? undefined,
       lastExportedToPgAt: input.lastExportedToPgAt ?? undefined,
       addresses: addresses.length ? { create: addresses } : undefined,
+      domains: domains.length ? { create: domains } : undefined,
+      activities: activities.length ? { create: activities } : undefined,
     };
 
     await missionRepository.create(data);
@@ -856,16 +880,24 @@ export const missionService = {
       data.metadata = patch.metadata ?? undefined;
     }
     if ("domain" in patch) {
-      data.domain = patch.domain ?? undefined;
+      const domains = mapDomainsForCreate(patch.domain ?? null, patch.domainOriginal ?? null, patch.domainLogo ?? null);
+      data.domains = {
+        deleteMany: {},
+        ...(domains.length ? { createMany: { data: domains } } : {}),
+      };
     }
     if ("domainOriginal" in patch) {
-      data.domainOriginal = patch.domainOriginal ?? undefined;
+      data.domainOriginal = patch.domainOriginal ?? null;
     }
     if ("domainLogo" in patch) {
-      data.domainLogo = patch.domainLogo ?? undefined;
+      data.domainLogo = patch.domainLogo ?? null;
     }
     if ("activity" in patch) {
-      data.activity = patch.activity ?? undefined;
+      const activities = mapActivitiesForCreate(patch.activity ?? null);
+      data.activities = {
+        deleteMany: {},
+        ...(activities.length ? { createMany: { data: activities } } : {}),
+      };
     }
     if ("type" in patch) {
       data.type = (patch.type as any) ?? undefined;
@@ -902,12 +934,6 @@ export const missionService = {
     }
     if ("deletedAt" in patch) {
       data.deletedAt = patch.deletedAt ?? undefined;
-    }
-    if ("letudiantUpdatedAt" in patch) {
-      data.letudiantUpdatedAt = patch.letudiantUpdatedAt ?? undefined;
-    }
-    if ("letudiantError" in patch) {
-      data.letudiantError = patch.letudiantError ?? undefined;
     }
     if ("lastExportedToPgAt" in patch) {
       data.lastExportedToPgAt = patch.lastExportedToPgAt ?? undefined;

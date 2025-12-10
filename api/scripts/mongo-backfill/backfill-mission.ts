@@ -13,11 +13,10 @@ const options: ScriptOptions = parseScriptOptions(process.argv.slice(2), SCRIPT_
 loadEnvironment(options, __dirname, SCRIPT_NAME);
 
 const missionRemoteValues: Prisma.MissionRemote[] = ["no", "possible", "full"];
-const missionYesNoValues: Prisma.MissionYesNo[] = ["yes", "no"];
 const missionPlacesStatusValues: Prisma.MissionPlacesStatus[] = ["ATTRIBUTED_BY_API", "GIVEN_BY_PARTNER"];
 const missionTypeValues: Prisma.MissionType[] = ["benevolat", "volontariat_service_civique", "volontariat_sapeurs_pompiers"];
-const compensationUnitValues: Prisma.CompensationUnit[] = ["hour", "day", "month", "year"];
-const compensationTypeValues: Prisma.CompensationType[] = ["gross", "net"];
+const compensationUnitValues: Prisma.MissionCompensationUnit[] = ["hour", "day", "month", "year"];
+const compensationTypeValues: Prisma.MissionCompensationType[] = ["gross", "net"];
 const moderationStatusesValues: Array<Prisma.ModerationEventStatus | null> = ["ACCEPTED", "REFUSED", "PENDING", "ONGOING", null];
 const jobBoardIds: JobBoardId[] = ["LETUDIANT", "JOBTEASER", "LEBONCOIN"];
 const LETUDIANT_JOB_BOARD_ID: JobBoardId = "LETUDIANT";
@@ -27,8 +26,6 @@ const JOBTEASER_JOB_BOARD_ID: JobBoardId = "JOBTEASER";
 type MongoMissionDocument = {
   _id?: { toString(): string } | string;
   id?: string;
-  _old_id?: string;
-  _old_ids?: unknown;
   clientId?: unknown;
   publisherId?: unknown;
   organizationId?: unknown;
@@ -106,6 +103,8 @@ type NormalizedMissionData = {
   mission: Prisma.MissionUncheckedCreateInput;
   update: Prisma.MissionUncheckedUpdateInput;
   addresses: Prisma.MissionAddressCreateManyInput[];
+  domains: Prisma.MissionDomainCreateManyInput[];
+  activities: Prisma.MissionActivityCreateManyInput[];
   moderationStatuses: Prisma.MissionModerationStatusCreateManyInput[];
   jobBoards: Prisma.MissionJobBoardCreateManyInput[];
 };
@@ -126,9 +125,9 @@ type ComparableMission = {
     softSkills: string[];
     requirements: string[];
     romeSkills: string[];
-    reducedMobilityAccessible: Prisma.MissionYesNo | null;
-    closeToTransport: Prisma.MissionYesNo | null;
-    openToMinors: Prisma.MissionYesNo | null;
+    reducedMobilityAccessible: boolean | null;
+    closeToTransport: boolean | null;
+    openToMinors: boolean | null;
     remote: Prisma.MissionRemote | null;
     schedule: string | null;
     duration: number | null;
@@ -139,26 +138,20 @@ type ComparableMission = {
     places: number | null;
     placesStatus: Prisma.MissionPlacesStatus | null;
     metadata: string | null;
-    domain: string | null;
     domainOriginal: string | null;
     domainLogo: string | null;
-    activity: string | null;
     type: Prisma.MissionType | null;
     snu: boolean;
     snuPlaces: number | null;
     compensationAmount: number | null;
-    compensationUnit: Prisma.CompensationUnit | null;
-    compensationType: Prisma.CompensationType | null;
+    compensationUnit: Prisma.MissionCompensationUnit | null;
+    compensationType: Prisma.MissionCompensationType | null;
     organizationClientId: string | null;
     organizationId: string | null;
     lastSyncAt: Date | null;
     applicationUrl: string | null;
     deletedAt: Date | null;
-    letudiantUpdatedAt: Date | null;
-    letudiantError: string | null;
     lastExportedToPgAt: Date | null;
-    oldId: string | null;
-    oldIds: string[];
   };
   addresses: Array<{
     street: string | null;
@@ -172,6 +165,8 @@ type ComparableMission = {
     locationLon: number | null;
     geolocStatus: string | null;
   }>;
+  domains: Array<{ value: string; original: string | null; logo: string | null }>;
+  activities: Array<{ value: string }>;
   moderationStatuses: Array<{
     publisherId: string;
     status: Prisma.ModerationEventStatus | null;
@@ -186,6 +181,7 @@ type ComparableMission = {
     publicId: string;
     status: string | null;
     comment: string | null;
+    updatedAt: Date | null;
   }>;
 };
 
@@ -217,6 +213,14 @@ const toStringArray = (value: unknown): string[] => {
     }
   }
   return Array.from(unique);
+};
+
+const normalizeYesNoBoolean = (value: unknown): boolean | null => {
+  if (typeof value === "boolean") return value;
+  const normalized = asString(value)?.toLowerCase();
+  if (normalized === "yes") return true;
+  if (normalized === "no") return false;
+  return null;
 };
 
 const normalizeAddresses = (
@@ -358,6 +362,8 @@ const buildJobBoards = (
       organizationDepartment: asString(doc.organizationDepartment),
       organizationCountry: asString(doc.organizationCountry),
     });
+    const letudiantUpdatedAt = normalizeDate(doc.letudiantUpdatedAt);
+    const letudiantError = asString(doc.letudiantError);
     for (const entry of localisations) {
       const legacyKey = entry.localisationKey.split(",")[0];
       const publicId = letudiantPublicId[entry.localisationKey] ?? letudiantPublicId[legacyKey];
@@ -369,7 +375,9 @@ const buildJobBoards = (
           missionAddressId: entry.missionAddressId,
           publicId,
           status: null,
-          comment: null,
+          comment: letudiantError ?? null,
+          createdAt: letudiantUpdatedAt ?? undefined,
+          updatedAt: letudiantUpdatedAt ?? undefined,
         });
       }
     }
@@ -378,6 +386,7 @@ const buildJobBoards = (
   const leboncoinUrl = asString(doc.leboncoinUrl);
   const leboncoinStatus = asString(doc.leboncoinStatus);
   const leboncoinComment = asString(doc.leboncoinComment);
+  const leboncoinUpdatedAt = normalizeDate(doc.leboncoinUpdatedAt);
   if (leboncoinUrl || leboncoinStatus || leboncoinComment) {
     jobBoards.push({
       id: randomUUID(),
@@ -387,12 +396,15 @@ const buildJobBoards = (
       publicId: leboncoinUrl ?? missionId,
       status: leboncoinStatus ?? null,
       comment: leboncoinComment ?? null,
+      createdAt: leboncoinUpdatedAt ?? undefined,
+      updatedAt: leboncoinUpdatedAt ?? undefined,
     });
   }
 
   const jobteaserUrl = asString(doc.jobteaserUrl);
   const jobteaserStatus = asString(doc.jobteaserStatus);
   const jobteaserComment = asString(doc.jobteaserComment);
+  const jobteaserUpdatedAt = normalizeDate(doc.jobteaserUpdatedAt);
   if (jobteaserUrl || jobteaserStatus || jobteaserComment) {
     jobBoards.push({
       id: randomUUID(),
@@ -402,6 +414,8 @@ const buildJobBoards = (
       publicId: jobteaserUrl ?? missionId,
       status: jobteaserStatus ?? null,
       comment: jobteaserComment ?? null,
+      createdAt: jobteaserUpdatedAt ?? undefined,
+      updatedAt: jobteaserUpdatedAt ?? undefined,
     });
   }
 
@@ -425,11 +439,13 @@ const normalizeMission = (doc: MongoMissionDocument): NormalizedMissionData => {
   const createdAt = normalizeDate(doc.createdAt) ?? new Date();
   const addresses = normalizeAddresses(doc);
   const moderationStatuses = extractModerationStatuses(doc);
+  const domain = asString(doc.domain);
+  const domainOriginal = asString(doc.domainOriginal);
+  const domainLogo = asString(doc.domainLogo);
+  const activity = asString(doc.activity);
 
   const mission: Prisma.MissionUncheckedCreateInput = {
     id,
-    oldId: asString(doc._old_id) ?? undefined,
-    oldIds: asStringArray(doc._old_ids),
     clientId,
     publisherId,
     title,
@@ -442,9 +458,9 @@ const normalizeMission = (doc: MongoMissionDocument): NormalizedMissionData => {
     softSkills: toStringArray(doc.softSkills ?? doc.soft_skills),
     requirements: toStringArray(doc.requirements),
     romeSkills: toStringArray(doc.romeSkills),
-    reducedMobilityAccessible: normalizeEnum(asString(doc.reducedMobilityAccessible), missionYesNoValues),
-    closeToTransport: normalizeEnum(asString(doc.closeToTransport), missionYesNoValues),
-    openToMinors: normalizeEnum(asString(doc.openToMinors), missionYesNoValues),
+    reducedMobilityAccessible: normalizeYesNoBoolean(doc.reducedMobilityAccessible) ?? undefined,
+    closeToTransport: normalizeYesNoBoolean(doc.closeToTransport) ?? undefined,
+    openToMinors: normalizeYesNoBoolean(doc.openToMinors) ?? undefined,
     remote: normalizeEnum(asString(doc.remote), missionRemoteValues),
     schedule: asString(doc.schedule) ?? undefined,
     duration: normalizeNumber(doc.duration) ?? undefined,
@@ -455,10 +471,8 @@ const normalizeMission = (doc: MongoMissionDocument): NormalizedMissionData => {
     places: normalizeNumber(doc.places) ?? undefined,
     placesStatus: normalizeEnum(asString(doc.placesStatus), missionPlacesStatusValues),
     metadata: asString(doc.metadata) ?? undefined,
-    domain: asString(doc.domain) ?? undefined,
-    domainOriginal: asString(doc.domainOriginal) ?? undefined,
-    domainLogo: asString(doc.domainLogo) ?? undefined,
-    activity: asString(doc.activity) ?? undefined,
+    domainOriginal: domainOriginal ?? undefined,
+    domainLogo: domainLogo ?? undefined,
     type: normalizeEnum(asString(doc.type), missionTypeValues),
     snu: !!doc.snu,
     snuPlaces: normalizeNumber(doc.snuPlaces) ?? undefined,
@@ -471,11 +485,31 @@ const normalizeMission = (doc: MongoMissionDocument): NormalizedMissionData => {
     applicationUrl: asString(doc.applicationUrl) ?? undefined,
     statusComment: asString(doc.statusComment) ?? undefined,
     deletedAt: normalizeDate(doc.deletedAt) ?? undefined,
-    letudiantUpdatedAt: normalizeDate(doc.letudiantUpdatedAt) ?? undefined,
-    letudiantError: asString(doc.letudiantError) ?? undefined,
     lastExportedToPgAt: normalizeDate(doc.lastExportedToPgAt) ?? undefined,
     createdAt,
   };
+
+  const domainsData: Prisma.MissionDomainCreateManyInput[] = domain
+    ? [
+        {
+          id: randomUUID(),
+          missionId: id,
+          value: domain,
+          original: domainOriginal ?? null,
+          logo: domainLogo ?? null,
+        },
+      ]
+    : [];
+
+  const activitiesData: Prisma.MissionActivityCreateManyInput[] = activity
+    ? [
+        {
+          id: randomUUID(),
+          missionId: id,
+          value: activity,
+        },
+      ]
+    : [];
 
   const update: Prisma.MissionUncheckedUpdateInput = {
     ...mission,
@@ -516,6 +550,8 @@ const normalizeMission = (doc: MongoMissionDocument): NormalizedMissionData => {
     mission,
     update,
     addresses: addressesData,
+    domains: domainsData,
+    activities: activitiesData,
     moderationStatuses: moderationStatusesData,
     jobBoards,
   };
@@ -537,9 +573,9 @@ const prepareComparable = (entry: NormalizedMissionData): ComparableMission => (
     softSkills: entry.mission.softSkills ?? [],
     requirements: entry.mission.requirements ?? [],
     romeSkills: entry.mission.romeSkills ?? [],
-    reducedMobilityAccessible: (entry.mission.reducedMobilityAccessible ?? null) as Prisma.MissionYesNo | null,
-    closeToTransport: (entry.mission.closeToTransport ?? null) as Prisma.MissionYesNo | null,
-    openToMinors: (entry.mission.openToMinors ?? null) as Prisma.MissionYesNo | null,
+    reducedMobilityAccessible: (entry.mission.reducedMobilityAccessible ?? null) as boolean | null,
+    closeToTransport: (entry.mission.closeToTransport ?? null) as boolean | null,
+    openToMinors: (entry.mission.openToMinors ?? null) as boolean | null,
     remote: (entry.mission.remote ?? null) as Prisma.MissionRemote | null,
     schedule: entry.mission.schedule ?? null,
     duration: (entry.mission.duration as number | undefined | null) ?? null,
@@ -550,26 +586,20 @@ const prepareComparable = (entry: NormalizedMissionData): ComparableMission => (
     places: (entry.mission.places as number | undefined | null) ?? null,
     placesStatus: (entry.mission.placesStatus ?? null) as Prisma.MissionPlacesStatus | null,
     metadata: entry.mission.metadata ?? null,
-    domain: entry.mission.domain ?? null,
     domainOriginal: entry.mission.domainOriginal ?? null,
     domainLogo: entry.mission.domainLogo ?? null,
-    activity: entry.mission.activity ?? null,
     type: (entry.mission.type ?? null) as Prisma.MissionType | null,
     snu: !!entry.mission.snu,
     snuPlaces: (entry.mission.snuPlaces as number | undefined | null) ?? null,
     compensationAmount: (entry.mission.compensationAmount as number | undefined | null) ?? null,
-    compensationUnit: (entry.mission.compensationUnit ?? null) as Prisma.CompensationUnit | null,
-    compensationType: (entry.mission.compensationType ?? null) as Prisma.CompensationType | null,
+    compensationUnit: (entry.mission.compensationUnit ?? null) as Prisma.MissionCompensationUnit | null,
+    compensationType: (entry.mission.compensationType ?? null) as Prisma.MissionCompensationType | null,
     organizationClientId: entry.mission.organizationClientId ?? null,
     organizationId: entry.mission.organizationId ?? null,
     lastSyncAt: (entry.mission.lastSyncAt as Date | undefined | null) ?? null,
     applicationUrl: entry.mission.applicationUrl ?? null,
     deletedAt: (entry.mission.deletedAt as Date | undefined | null) ?? null,
-    letudiantUpdatedAt: (entry.mission.letudiantUpdatedAt as Date | undefined | null) ?? null,
-    letudiantError: entry.mission.letudiantError ?? null,
     lastExportedToPgAt: (entry.mission.lastExportedToPgAt as Date | undefined | null) ?? null,
-    oldId: (entry.mission.oldId as string | undefined | null) ?? null,
-    oldIds: (entry.mission.oldIds ?? []).slice().sort(),
   },
   addresses: entry.addresses.map((address) => ({
     street: address.street ?? null,
@@ -583,6 +613,12 @@ const prepareComparable = (entry: NormalizedMissionData): ComparableMission => (
     locationLon: address.locationLon ?? null,
     geolocStatus: address.geolocStatus ?? null,
   })),
+  domains: entry.domains.map((domain) => ({
+    value: domain.value,
+    original: domain.original ?? null,
+    logo: domain.logo ?? null,
+  })),
+  activities: entry.activities.map((activity) => ({ value: activity.value })),
   moderationStatuses: entry.moderationStatuses.map((status) => ({
     publisherId: status.publisherId,
     status: status.status ?? null,
@@ -597,6 +633,7 @@ const prepareComparable = (entry: NormalizedMissionData): ComparableMission => (
     publicId: jobBoard.publicId,
     status: jobBoard.status ?? null,
     comment: jobBoard.comment ?? null,
+    updatedAt: jobBoard.updatedAt ?? null,
   })),
 });
 
@@ -629,10 +666,8 @@ const toComparableFromPrisma = (mission: any): ComparableMission => ({
     places: mission.places ?? null,
     placesStatus: mission.placesStatus ?? null,
     metadata: mission.metadata ?? null,
-    domain: mission.domain ?? null,
     domainOriginal: mission.domainOriginal ?? null,
     domainLogo: mission.domainLogo ?? null,
-    activity: mission.activity ?? null,
     type: mission.type ?? null,
     snu: mission.snu ?? false,
     snuPlaces: mission.snuPlaces ?? null,
@@ -644,11 +679,7 @@ const toComparableFromPrisma = (mission: any): ComparableMission => ({
     lastSyncAt: mission.lastSyncAt ?? null,
     applicationUrl: mission.applicationUrl ?? null,
     deletedAt: mission.deletedAt ?? null,
-    letudiantUpdatedAt: mission.letudiantUpdatedAt ?? null,
-    letudiantError: mission.letudiantError ?? null,
     lastExportedToPgAt: mission.lastExportedToPgAt ?? null,
-    oldId: mission.oldId ?? null,
-    oldIds: (mission.oldIds ?? []).slice().sort(),
   },
   addresses: (mission.addresses ?? []).map((address: any) => ({
     street: address.street ?? null,
@@ -661,6 +692,14 @@ const toComparableFromPrisma = (mission: any): ComparableMission => ({
     locationLat: address.locationLat ?? null,
     locationLon: address.locationLon ?? null,
     geolocStatus: address.geolocStatus ?? null,
+  })),
+  domains: (mission.domains ?? []).map((domain: any) => ({
+    value: domain.value ?? "",
+    original: domain.original ?? null,
+    logo: domain.logo ?? null,
+  })),
+  activities: (mission.activities ?? []).map((activity: any) => ({
+    value: activity.value ?? "",
   })),
   moderationStatuses: (mission.moderationStatuses ?? []).map((status: any) => ({
     publisherId: status.publisherId,
@@ -676,6 +715,7 @@ const toComparableFromPrisma = (mission: any): ComparableMission => ({
     publicId: jobBoard.publicId,
     status: jobBoard.status ?? null,
     comment: jobBoard.comment ?? null,
+    updatedAt: jobBoard.updatedAt ?? null,
   })),
 });
 
@@ -695,6 +735,12 @@ const sortJobBoards = (jobBoards: ComparableMission["jobBoards"]) =>
     return a.publicId.localeCompare(b.publicId);
   });
 
+const sortDomains = (domains: ComparableMission["domains"]) =>
+  [...domains].sort((a, b) => a.value.localeCompare(b.value));
+
+const sortActivities = (activities: ComparableMission["activities"]) =>
+  [...activities].sort((a, b) => a.value.localeCompare(b.value));
+
 const hasDifferences = (existing: ComparableMission, target: ComparableMission) => {
   if (!compareStrings(existing.mission.title, target.mission.title)) return true;
   if (!compareStrings(existing.mission.clientId, target.mission.clientId)) return true;
@@ -709,9 +755,9 @@ const hasDifferences = (existing: ComparableMission, target: ComparableMission) 
   if (!compareStringArrays(existing.mission.softSkills, target.mission.softSkills)) return true;
   if (!compareStringArrays(existing.mission.requirements, target.mission.requirements)) return true;
   if (!compareStringArrays(existing.mission.romeSkills, target.mission.romeSkills)) return true;
-  if (!compareStrings(existing.mission.reducedMobilityAccessible, target.mission.reducedMobilityAccessible)) return true;
-  if (!compareStrings(existing.mission.closeToTransport, target.mission.closeToTransport)) return true;
-  if (!compareStrings(existing.mission.openToMinors, target.mission.openToMinors)) return true;
+  if (!compareBooleans(existing.mission.reducedMobilityAccessible ?? false, target.mission.reducedMobilityAccessible ?? false)) return true;
+  if (!compareBooleans(existing.mission.closeToTransport ?? false, target.mission.closeToTransport ?? false)) return true;
+  if (!compareBooleans(existing.mission.openToMinors ?? false, target.mission.openToMinors ?? false)) return true;
   if (!compareStrings(existing.mission.remote, target.mission.remote)) return true;
   if (!compareStrings(existing.mission.schedule, target.mission.schedule)) return true;
   if (!compareNumbers(existing.mission.duration, target.mission.duration)) return true;
@@ -722,10 +768,8 @@ const hasDifferences = (existing: ComparableMission, target: ComparableMission) 
   if (!compareNumbers(existing.mission.places, target.mission.places)) return true;
   if (!compareStrings(existing.mission.placesStatus, target.mission.placesStatus)) return true;
   if (!compareStrings(existing.mission.metadata, target.mission.metadata)) return true;
-  if (!compareStrings(existing.mission.domain, target.mission.domain)) return true;
   if (!compareStrings(existing.mission.domainOriginal, target.mission.domainOriginal)) return true;
   if (!compareStrings(existing.mission.domainLogo, target.mission.domainLogo)) return true;
-  if (!compareStrings(existing.mission.activity, target.mission.activity)) return true;
   if (!compareStrings(existing.mission.type, target.mission.type)) return true;
   if (!compareBooleans(existing.mission.snu, target.mission.snu)) return true;
   if (!compareNumbers(existing.mission.snuPlaces, target.mission.snuPlaces)) return true;
@@ -737,17 +781,15 @@ const hasDifferences = (existing: ComparableMission, target: ComparableMission) 
   if (!compareDates(existing.mission.lastSyncAt, target.mission.lastSyncAt)) return true;
   if (!compareStrings(existing.mission.applicationUrl, target.mission.applicationUrl)) return true;
   if (!compareDates(existing.mission.deletedAt, target.mission.deletedAt)) return true;
-  if (!compareDates(existing.mission.letudiantUpdatedAt, target.mission.letudiantUpdatedAt)) return true;
-  if (!compareStrings(existing.mission.letudiantError, target.mission.letudiantError)) return true;
   if (!compareDates(existing.mission.lastExportedToPgAt, target.mission.lastExportedToPgAt)) return true;
-  if (!compareStrings(existing.mission.oldId, target.mission.oldId)) return true;
-  if (!compareStringArrays(existing.mission.oldIds, target.mission.oldIds)) return true;
 
   const sameAddresses = compareJsons(sortAddresses(existing.addresses), sortAddresses(target.addresses));
   const sameModerations = compareJsons(sortModerationStatuses(existing.moderationStatuses), sortModerationStatuses(target.moderationStatuses));
   const sameJobBoards = compareJsons(sortJobBoards(existing.jobBoards), sortJobBoards(target.jobBoards));
+  const sameDomains = compareJsons(sortDomains(existing.domains), sortDomains(target.domains));
+  const sameActivities = compareJsons(sortActivities(existing.activities), sortActivities(target.activities));
 
-  return !(sameAddresses && sameModerations && sameJobBoards);
+  return !(sameAddresses && sameModerations && sameJobBoards && sameDomains && sameActivities);
 };
 
 const formatForLog = (entry: NormalizedMissionData["log"]) => ({
@@ -785,7 +827,7 @@ const persistBatch = async (
   const ids = batch.map(({ mission }) => mission.id as string);
   const existingRecords = await prismaCore.mission.findMany({
     where: { id: { in: ids } },
-    include: { addresses: true, moderationStatuses: true, jobBoards: true },
+    include: { addresses: true, moderationStatuses: true, jobBoards: true, domains: true, activities: true },
   });
   const existingById = new Map(existingRecords.map((mission) => [mission.id, mission]));
 
@@ -803,6 +845,12 @@ const persistBatch = async (
         await prismaCore.mission.create({ data });
         if (entry.addresses.length) {
           await prismaCore.missionAddress.createMany({ data: entry.addresses });
+        }
+        if (entry.domains.length) {
+          await prismaCore.missionDomain.createMany({ data: entry.domains });
+        }
+        if (entry.activities.length) {
+          await prismaCore.missionActivity.createMany({ data: entry.activities });
         }
         if (entry.moderationStatuses.length) {
           await prismaCore.missionModerationStatus.createMany({ data: entry.moderationStatuses });
@@ -834,6 +882,14 @@ const persistBatch = async (
       await prismaCore.missionAddress.deleteMany({ where: { missionId: entry.mission.id as string } });
       if (entry.addresses.length) {
         await prismaCore.missionAddress.createMany({ data: entry.addresses });
+      }
+      await prismaCore.missionDomain.deleteMany({ where: { missionId: entry.mission.id as string } });
+      if (entry.domains.length) {
+        await prismaCore.missionDomain.createMany({ data: entry.domains });
+      }
+      await prismaCore.missionActivity.deleteMany({ where: { missionId: entry.mission.id as string } });
+      if (entry.activities.length) {
+        await prismaCore.missionActivity.createMany({ data: entry.activities });
       }
       await prismaCore.missionModerationStatus.deleteMany({ where: { missionId: entry.mission.id as string } });
       if (entry.moderationStatuses.length) {
