@@ -1,8 +1,8 @@
 import { randomUUID } from "node:crypto";
 
 import { publisherService } from "../../src/services/publisher";
-import { MissionType } from "../../src/types";
 import type { PublisherCreateInput, PublisherRecord } from "../../src/types/publisher";
+import { PublisherMissionType } from "../../src/types/publisher"; // add this
 
 export const createTestPublisher = async (data: Partial<PublisherCreateInput> = {}): Promise<PublisherRecord> => {
   const uniqueSuffix = randomUUID();
@@ -11,7 +11,7 @@ export const createTestPublisher = async (data: Partial<PublisherCreateInput> = 
     name: `Test Publisher ${uniqueSuffix.slice(0, 8)}`,
     email: `test-${uniqueSuffix}@example.com`,
     apikey: `test-api-key-${uniqueSuffix}`,
-    missionType: MissionType.BENEVOLAT,
+    missionType: PublisherMissionType.BENEVOLAT,
     url: "https://example.com",
     logo: "https://example.com/logo.png",
     description: "Test Publisher Description",

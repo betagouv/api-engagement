@@ -1,6 +1,6 @@
 import { DEPARTMENTS } from "../../../constants/departments";
-import { AddressItem, Mission } from "../../../types";
-import { MissionXML } from "../types";
+import { AddressItem } from "../../../types";
+import { ImportedMission, MissionXML } from "../types";
 
 const parseString = (value: string | undefined) => {
   if (!value) {
@@ -58,7 +58,7 @@ const getDepartmentCode = (departmentCode: string, postalCode: string) => {
 const getDepartement = (code?: string) => (code && DEPARTMENTS[code] && DEPARTMENTS[code][0]) || "";
 const getRegion = (code?: string) => (code && DEPARTMENTS[code] && DEPARTMENTS[code][1]) || "";
 
-export const getAddress = (mission: Mission, missionXML: MissionXML) => {
+export const getAddress = (mission: ImportedMission, missionXML: MissionXML) => {
   mission.country = parseString(missionXML.country || missionXML.countryCode);
   if (mission.country === "France") {
     mission.country = "FR";
@@ -150,7 +150,7 @@ export const getAddress = (mission: Mission, missionXML: MissionXML) => {
   }
 };
 
-export const getAddresses = (mission: Mission, missionXML: MissionXML) => {
+export const getAddresses = (mission: ImportedMission, missionXML: MissionXML) => {
   mission.addresses = [];
 
   for (const address of missionXML.addresses) {

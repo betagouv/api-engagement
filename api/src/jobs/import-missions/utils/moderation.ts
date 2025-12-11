@@ -1,9 +1,9 @@
 import { COUNTRIES } from "../../../constants/countries";
 import { DOMAINS } from "../../../constants/domains";
 import { COMPENSATION_TYPES, COMPENSATION_UNITS } from "../../../constants/compensation";
-import { Mission } from "../../../types";
+import type { MissionRecord } from "../../../types/mission";
 
-export const getModeration = (mission: Mission) => {
+export const getModeration = (mission: Partial<MissionRecord> & Record<string, any>) => {
   let statusComment = "";
   if (!mission.title || mission.title === " ") {
     statusComment = "Titre manquant";

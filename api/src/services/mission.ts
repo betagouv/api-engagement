@@ -7,7 +7,7 @@ import { organizationRepository } from "../repositories/organization";
 import type { MissionCreateInput, MissionFacets, MissionRecord, MissionSearchAggregations, MissionSearchFilters, MissionUpdatePatch } from "../types/mission";
 import { getDistanceFromLatLonInKm } from "../utils/geo";
 import { buildJobBoardMap, deriveMissionLocation, normalizeMissionAddresses } from "../utils/mission";
-import { normalizeStringList } from "../utils/normalize";
+import { normalizeOptionalString, normalizeStringList } from "../utils/normalize";
 import { publisherService } from "./publisher";
 
 type MissionWithRelations = Mission & {
@@ -560,13 +560,13 @@ const mapAddressesForCreate = (addresses?: MissionRecord["addresses"]) => {
     return [];
   }
   return addresses.map((address) => ({
-    street: address.street ?? null,
-    postalCode: address.postalCode ?? null,
-    departmentName: address.departmentName ?? null,
-    departmentCode: address.departmentCode ?? null,
-    city: address.city ?? null,
-    region: address.region ?? null,
-    country: address.country ?? null,
+    street: normalizeOptionalString(address.street !== undefined && address.street !== null ? String(address.street) : (address.street as any)),
+    postalCode: normalizeOptionalString(address.postalCode !== undefined && address.postalCode !== null ? String(address.postalCode) : (address.postalCode as any)),
+    departmentName: normalizeOptionalString(address.departmentName !== undefined && address.departmentName !== null ? String(address.departmentName) : (address.departmentName as any)),
+    departmentCode: normalizeOptionalString(address.departmentCode !== undefined && address.departmentCode !== null ? String(address.departmentCode) : (address.departmentCode as any)),
+    city: normalizeOptionalString(address.city !== undefined && address.city !== null ? String(address.city) : (address.city as any)),
+    region: normalizeOptionalString(address.region !== undefined && address.region !== null ? String(address.region) : (address.region as any)),
+    country: normalizeOptionalString(address.country !== undefined && address.country !== null ? String(address.country) : (address.country as any)),
     locationLat: address.location?.lat ?? null,
     locationLon: address.location?.lon ?? null,
     geolocStatus: (address as any).geolocStatus ?? null,

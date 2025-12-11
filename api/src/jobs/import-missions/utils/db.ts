@@ -2,12 +2,13 @@ import { Import as PrismaImport } from "../../../db/core";
 import { captureException } from "../../../error";
 import { missionService } from "../../../services/mission";
 import { missionEventService } from "../../../services/mission-event";
-import { Mission, MissionRecord } from "../../../types";
+import type { MissionRecord } from "../../../types/mission";
 import { MissionCreateInput, MissionUpdatePatch } from "../../../types/mission";
 import { MissionEventCreateParams } from "../../../types/mission-event";
 import type { PublisherRecord } from "../../../types/publisher";
 import { getJobTime } from "../../../utils/job";
 import { EVENT_TYPES, getMissionChanges } from "../../../utils/mission";
+import type { ImportedMission } from "../types";
 
 /**
  * Insert or update a batch of missions into MongoDB
@@ -17,9 +18,7 @@ import { EVENT_TYPES, getMissionChanges } from "../../../utils/mission";
  * @param importDoc - Import document to update
  * @returns true if the import was successful, false otherwise
  */
-type MissionLike = MissionRecord | Mission;
-
-export const bulkDB = async (bulk: MissionLike[], publisher: PublisherRecord, importDoc: PrismaImport): Promise<boolean> => {
+export const bulkDB = async (bulk: ImportedMission[], publisher: PublisherRecord, importDoc: PrismaImport): Promise<boolean> => {
   try {
     const startedAt = new Date();
     console.log(`[${publisher.name}] Starting mission write at ${startedAt.toISOString()}`);

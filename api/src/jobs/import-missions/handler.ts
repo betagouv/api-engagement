@@ -4,7 +4,6 @@ import { importService } from "../../services/import";
 import { Prisma, Import as PrismaImport } from "../../db/core";
 import { publisherService } from "../../services/publisher";
 import { missionService } from "../../services/mission";
-import type { Mission } from "../../types";
 import type { PublisherRecord } from "../../types/publisher";
 import { BaseHandler } from "../base/handler";
 import { JobResult } from "../types";
@@ -14,6 +13,7 @@ import { buildData } from "./utils/mission";
 import { verifyOrganization } from "./utils/organization";
 import { shouldCleanMissionsForPublisher } from "./utils/publisher";
 import { fetchXML, parseXML } from "./utils/xml";
+import type { ImportedMission } from "./types";
 
 const CHUNK_SIZE = 2000;
 
@@ -166,22 +166,22 @@ async function importMissionssForPublisher(publisher: PublisherRecord, start: Da
       console.log(`[${publisher.name}] Processing chunk ${i / CHUNK_SIZE + 1} of ${Math.ceil(missionsXML.length / CHUNK_SIZE)} (${chunk.length} missions)`);
 
       // BUILD NEW MISSIONS
-      const missions = [] as Mission[];
-      const promises = [] as Promise<Mission | undefined>[];
+      const missions = [] as ImportedMission[];
+      const promises = [] as Promise<ImportedMission | undefined>[];
       for (let j = 0; j < chunk.length; j++) {
         const missionXML = chunk[j];
         promises.push(buildData(obj.startedAt ?? new Date(), publisher, missionXML));
 
         if (j % 50 === 0) {
-          const res = await Promise.all(promises);
-          res.forEach((e: Mission | undefined) => e && missions.push(e));
-          promises.length = 0;
-        }
-      }
-      if (promises.length > 0) {
         const res = await Promise.all(promises);
-        res.forEach((e: Mission | undefined) => e && missions.push(e));
+        res.forEach((e: ImportedMission | undefined) => e && missions.push(e));
+        promises.length = 0;
       }
+    }
+    if (promises.length > 0) {
+      const res = await Promise.all(promises);
+      res.forEach((e: ImportedMission | undefined) => e && missions.push(e));
+    }
       allMissionsClientIds.push(...missions.map((m) => m.clientId.toString()));
 
       // GEOLOC

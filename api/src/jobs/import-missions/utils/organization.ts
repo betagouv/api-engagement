@@ -2,9 +2,9 @@ import { DEPARTMENTS } from "../../../constants/departments";
 import { captureException } from "../../../error";
 import apiDatasubvention from "../../../services/api-datasubvention";
 import { organizationService } from "../../../services/organization";
-import { Mission } from "../../../types";
 import { OrganizationCreateInput, OrganizationRecord, OrganizationUpdatePatch } from "../../../types/organization";
 import { isValidRNA, isValidSiret } from "../../../utils/organization";
+import type { ImportedMission } from "../types";
 
 export const ORGANIZATION_VERIFICATION_STATUS = {
   RNA_MATCHED_WITH_DATA_DB: "RNA_MATCHED_WITH_DATA_DB",
@@ -19,7 +19,7 @@ export const ORGANIZATION_VERIFICATION_STATUS = {
   NO_DATA: "NO_DATA",
 };
 
-export const isVerified = (mission: Partial<Mission>): boolean => {
+export const isVerified = (mission: Partial<ImportedMission>): boolean => {
   return [
     ORGANIZATION_VERIFICATION_STATUS.RNA_MATCHED_WITH_DATA_DB,
     ORGANIZATION_VERIFICATION_STATUS.RNA_MATCHED_WITH_DATA_SUBVENTION,
@@ -42,10 +42,10 @@ export const getDepartement = (postalCode: string): { code: string; name: string
   return { code, name: DEPARTMENTS[code][0], region: DEPARTMENTS[code][1] };
 };
 
-export const verifyOrganization = async (missions: Mission[]) => {
+export const verifyOrganization = async (missions: ImportedMission[]) => {
   console.log(`[Organization] Starting organization verification for ${missions.length} missions`);
 
-  const result = [] as Mission[];
+  const result = [] as ImportedMission[];
   if (!missions.length) {
     return result;
   }
@@ -150,12 +150,36 @@ export const verifyOrganization = async (missions: Mission[]) => {
     console.log(`[Organization] Already verified ${alreadyVerified} missions, to verify ${toVerify} missions (${noData} with no data)`);
     console.log(`[Organization] Found ${rnaFound + siretFound + nameFound} / ${toVerify} organizations (${rnaFound} RNAs, ${siretFound} SIRETs, ${nameFound} names)`);
     console.log(`[Organization] Not found ${rnaNotFound} RNAs, ${siretNotFound} SIRETs, ${nameNotFound} names`);
+
+    // Fallback: create a minimal organization record from mission data when nothing could be matched
+    for (const mission of missions) {
+      const hasOrganization = Boolean(mission.organizationId);
+      const hasIdentifiers = Boolean(mission.organizationRNA || mission.organizationSiren || mission.organizationSiret);
+      if (hasOrganization || !mission.organizationName) {
+        continue;
+      }
+
+      const org = await organizationService.createOrganization({
+        title: mission.organizationName,
+        rna: mission.organizationRNA || undefined,
+        siren: mission.organizationSiren || undefined,
+        siret: mission.organizationSiret || undefined,
+        addressCity: mission.organizationCity || undefined,
+        addressPostalCode: mission.organizationPostCode || undefined,
+        addressDepartmentName: mission.organizationDepartmentName || undefined,
+        addressDepartmentCode: mission.organizationDepartmentCode || undefined,
+        status: mission.organizationStatusJuridique || mission.organizationType || undefined,
+      });
+
+      mission.organizationId = org.id;
+      mission.organizationVerificationStatus = hasIdentifiers ? ORGANIZATION_VERIFICATION_STATUS.NO_DATA : ORGANIZATION_VERIFICATION_STATUS.NAME_NOT_MATCHED;
+    }
   } catch (error) {
     captureException(error, `[Organization] Failure during rna enrichment`);
   }
 };
 
-const updateMissionOrganization = async (mission: Mission, organization: OrganizationRecord, status: string) => {
+const updateMissionOrganization = async (mission: ImportedMission, organization: OrganizationRecord, status: string) => {
   mission.organizationId = organization.id;
   mission.organizationNameVerified = organization.title;
   mission.organizationRNAVerified = organization.rna;
@@ -223,6 +247,7 @@ const mergeOrganizationData = async (existing: OrganizationRecord, incoming: Org
 
   return organizationService.updateOrganization(existing.id, patch);
 };
+
 
 const findExistingByIdentifiers = async (siret?: string | null, siren?: string | null): Promise<OrganizationRecord | null> => {
   if (siret) {
