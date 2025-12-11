@@ -40,7 +40,7 @@ export function missionToPilotyJobs(mission: MissionRecord, companyId: string, m
       company_public_id: companyId,
       name: mission.type === MissionType.VOLONTARIAT ? `Volontariat - ${mission.title}` : mission.title,
       contract_id: mission.type === MissionType.VOLONTARIAT ? mandatoryData.contracts.volontariat : mandatoryData.contracts.benevolat,
-      job_category_id: mandatoryData.jobCategories[mission.domain] ?? mandatoryData.jobCategories["autre"],
+      job_category_id: mandatoryData.jobCategories[mission.domain ?? "autre"] ?? mandatoryData.jobCategories["autre"],
       localisation: localisation || "France",
       description_job: decodeHtml(mission.descriptionHtml),
       application_method: "external_apply",
@@ -105,6 +105,6 @@ export async function missionToPilotyCompany(mission: LetudiantMission): Promise
     name: mission.organizationName || mission.associationName || "",
     // domain_url: (await getValidAndAccessibleUrl(mission.organizationUrl)) || "", // TODO: since Piloty seems to reject most of the urls, we skip it for now
     description: mission.organizationDescription || "",
-    logo_url: mission.organizationLogo,
+    logo_url: mission.organizationLogo || "",
   };
 }

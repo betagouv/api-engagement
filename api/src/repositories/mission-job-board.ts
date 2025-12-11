@@ -20,21 +20,28 @@ export const missionJobBoardRepository = {
     });
   },
 
-  async upsert(entry: { jobBoardId: JobBoardId; missionId: string; missionAddressId?: string | null; publicId: string; status?: string | null; comment?: string | null }): Promise<MissionJobBoard> {
+  async upsert(entry: {
+    jobBoardId: JobBoardId;
+    missionId: string;
+    missionAddressId?: string | null;
+    publicId: string;
+    status?: string | null;
+    comment?: string | null;
+  }): Promise<MissionJobBoard> {
     const missionAddressId = entry.missionAddressId ?? null;
     return prismaCore.missionJobBoard.upsert({
       where: {
         jobBoardId_missionId_missionAddressId: {
           jobBoardId: entry.jobBoardId,
           missionId: entry.missionId,
-          missionAddressId,
+          missionAddressId: (missionAddressId ?? "") as string,
         },
       },
       update: { publicId: entry.publicId, status: entry.status ?? null, comment: entry.comment ?? null },
       create: {
         jobBoardId: entry.jobBoardId,
         missionId: entry.missionId,
-        missionAddressId,
+        missionAddressId: missionAddressId ?? null,
         publicId: entry.publicId,
         status: entry.status ?? null,
         comment: entry.comment ?? null,

@@ -1,5 +1,5 @@
-import { getMissionTrackedApplicationUrl } from "../../utils";
 import { MissionRecord } from "../../types/mission";
+import { getMissionTrackedApplicationUrl } from "../../utils";
 import { TALENT_PUBLISHER_ID } from "./config";
 import { TalentJob } from "./types";
 import { getActivityCategory, getImageUrl } from "./utils";
@@ -26,7 +26,7 @@ export function missionToTalentJob(mission: MissionRecord): TalentJob[] {
     expirationdate: mission.endAt ? new Date(mission.endAt).toISOString() : undefined,
     isremote: mission.remote === "no" ? "no" : "yes",
     category: mission.activity ? getActivityCategory(mission.activity) : undefined,
-    logo: getImageUrl(mission.organizationLogo),
+    logo: getImageUrl(mission.organizationLogo || ""),
   } as TalentJob;
 
   if (!mission.addresses || mission.addresses.length === 0) {

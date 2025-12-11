@@ -312,18 +312,18 @@ const buildMissionFilters = (
   const minorValues = normalizeToArray(query.minor);
   if (minorValues?.length) {
     if (minorValues.includes("yes") && !minorValues.includes("no")) {
-      filters.openToMinors = "yes";
+      filters.openToMinors = true;
     } else if (minorValues.includes("no") && !minorValues.includes("yes")) {
-      filters.openToMinors = "no";
+      filters.openToMinors = false;
     }
   }
 
   const accessibilityValues = normalizeToArray(query.accessibility);
   if (accessibilityValues?.includes("reducedMobilityAccessible")) {
-    filters.reducedMobilityAccessible = "yes";
+    filters.reducedMobilityAccessible = true;
   }
   if (accessibilityValues?.includes("closeToTransport")) {
-    filters.closeToTransport = "yes";
+    filters.closeToTransport = true;
   }
 
   const remoteValues = normalizeToArray(query.remote);
@@ -395,10 +395,22 @@ const fetchWidgetMissions = async (widget: WidgetRecord, filters: MissionSearchF
   return { data, total };
 };
 
-const mergeBuckets = (lists: Array<{ key: string; doc_count: number }>) => {
+type Bucket = { key: string; doc_count: number };
+type BucketGroups = {
+  domains: Bucket[][];
+  organizations: Bucket[][];
+  departments: Bucket[][];
+  remote: Bucket[][];
+  countries: Bucket[][];
+  minor: Bucket[][];
+  accessibility: Bucket[][];
+  schedule: Bucket[][];
+};
+
+const mergeBuckets = (lists: Bucket[][]) => {
   const map = new Map<string, number>();
   lists.forEach((list) => {
-    list.forEach((row) => map.set(row.key, (map.get(row.key) ?? 0) + row.doc_count));
+    list.forEach((row: Bucket) => map.set(row.key, (map.get(row.key) ?? 0) + row.doc_count));
   });
   return Array.from(map.entries())
     .sort((a, b) => b[1] - a[1])
@@ -429,7 +441,7 @@ const fetchWidgetAggregations = async (widget: WidgetRecord, filters: MissionSea
     })
   );
 
-  const merged = results.reduce(
+  const merged = results.reduce<BucketGroups>(
     (acc, res) => {
       if (res.domains) {
         acc.domains.push(res.domains);
@@ -457,10 +469,7 @@ const fetchWidgetAggregations = async (widget: WidgetRecord, filters: MissionSea
       }
       return acc;
     },
-    { domains: [], organizations: [], departments: [], remote: [], countries: [], minor: [], accessibility: [], schedule: [] } as Record<
-      string,
-      Array<{ key: string; doc_count: number }>
-    >
+    { domains: [], organizations: [], departments: [], remote: [], countries: [], minor: [], accessibility: [], schedule: [] }
   );
 
   const payload: any = {};
@@ -517,14 +526,14 @@ const aggregateWidgetAggs = async (
   where: ReturnType<typeof buildWhere>,
   requestedAggs: string[]
 ): Promise<{
-  domains?: { key: string; doc_count: number }[];
-  organizations?: { key: string; doc_count: number }[];
-  departments?: { key: string; doc_count: number }[];
-  remote?: { key: string; doc_count: number }[];
-  countries?: { key: string; doc_count: number }[];
-  minor?: { key: string; doc_count: number }[];
-  accessibility?: { key: string; doc_count: number }[];
-  schedule?: { key: string; doc_count: number }[];
+  domains?: Bucket[];
+  organizations?: Bucket[];
+  departments?: Bucket[];
+  remote?: Bucket[];
+  countries?: Bucket[];
+  minor?: Bucket[];
+  accessibility?: Bucket[];
+  schedule?: Bucket[];
 }> => {
   const should = (key: string) => requestedAggs.includes(key);
 
@@ -542,7 +551,7 @@ const aggregateWidgetAggs = async (
       .filter((row) => row.key);
   };
 
-  const aggregateAddressField = async (field: "city" | "departmentName") => {
+  const aggregateAddressField = async (field: "city" | "departmentName" | "country") => {
     const rows = await prismaCore.missionAddress.groupBy({
       by: [field],
       where: { mission: where },
@@ -556,10 +565,24 @@ const aggregateWidgetAggs = async (
       .filter((row) => row.key);
   };
 
+  const aggregateDomainField = async () => {
+    const rows = await prismaCore.missionDomain.groupBy({
+      by: ["value"],
+      where: { mission: where },
+      _count: { _all: true },
+    });
+    return rows
+      .map((row) => ({
+        key: String((row as any).value ?? ""),
+        doc_count: Number((row as any)._count?._all ?? 0),
+      }))
+      .filter((row) => row.key);
+  };
+
   const result: any = {};
 
   if (should("domain")) {
-    result.domains = await aggregateMissionField("domain");
+    result.domains = await aggregateDomainField();
   }
   if (should("organization")) {
     const orgRows = await aggregateMissionField("organizationId");
@@ -575,7 +598,7 @@ const aggregateWidgetAggs = async (
     result.remote = await aggregateMissionField("remote");
   }
   if (should("country")) {
-    result.countries = await aggregateMissionField("country");
+    result.countries = await aggregateAddressField("country");
   }
   if (should("minor")) {
     result.minor = await aggregateMissionField("openToMinors");
@@ -584,8 +607,8 @@ const aggregateWidgetAggs = async (
     result.schedule = await aggregateMissionField("schedule");
   }
   if (should("accessibility")) {
-    const reduced = await prismaCore.mission.count({ where: { ...where, reducedMobilityAccessible: "yes" as any } });
-    const transport = await prismaCore.mission.count({ where: { ...where, closeToTransport: "yes" as any } });
+    const reduced = await prismaCore.mission.count({ where: { ...where, reducedMobilityAccessible: true } });
+    const transport = await prismaCore.mission.count({ where: { ...where, closeToTransport: true } });
     result.accessibility = [
       { key: "reducedMobilityAccessible", doc_count: reduced },
       { key: "closeToTransport", doc_count: transport },

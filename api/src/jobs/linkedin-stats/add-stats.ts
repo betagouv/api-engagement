@@ -87,7 +87,7 @@ const parseRow = async (row: (string | number)[], from: Date, to: Date, sourceId
   try {
     const data = [] as StatEventRecord[];
 
-    let mission = await missionService.findMissionByAnyId(missionId.toString());
+    let mission = await missionService.findOneMission(missionId.toString());
     if (!mission) {
       const existingStat = await statEventService.findOneStatEventByMissionId(missionId.toString());
       if (!existingStat) {
@@ -102,9 +102,7 @@ const parseRow = async (row: (string | number)[], from: Date, to: Date, sourceId
           return;
         }
       } else {
-        mission = existingStat.missionClientId
-          ? await missionService.findMissionByClientAndPublisher(existingStat.missionClientId.toString(), existingStat.toPublisherId)
-          : null;
+        mission = existingStat.missionClientId ? await missionService.findMissionByClientAndPublisher(existingStat.missionClientId.toString(), existingStat.toPublisherId) : null;
         if (!mission) {
           if (MISSION_NOT_FOUND[missionId.toString()]) {
             mission = await missionService.findOneMission(MISSION_NOT_FOUND[missionId.toString()]);

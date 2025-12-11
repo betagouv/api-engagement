@@ -8,17 +8,6 @@ const defaultInclude = Prisma.validator<Prisma.StatEventInclude>()({
   toPublisher: {
     select: { id: true, name: true },
   },
-  mission: {
-    include: {
-      organization: {
-        select: {
-          id: true,
-          title: true,
-        },
-      },
-      addresses: true,
-    },
-  },
 });
 
 export const statEventRepository = {

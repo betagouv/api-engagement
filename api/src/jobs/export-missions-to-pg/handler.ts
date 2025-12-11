@@ -6,7 +6,7 @@ import { MissionRecord } from "../../types/mission";
 import { BaseHandler } from "../base/handler";
 import { ExportMissionsToPgJobPayload, ExportMissionsToPgJobResult } from "./types";
 import { countMongoMissionsToSync, getMongoMissionsToSync, getOrganizationsFromMissions } from "./utils/helpers";
-import { transformMongoMissionToPg } from "./utils/transformers";
+import { transformMissionRecordToPg } from "./utils/transformers";
 
 const BULK_SIZE = 10000;
 const PG_CHUNK_SIZE = 100;
@@ -86,7 +86,7 @@ const exportMission = async () => {
           continue;
         }
         const organization = organizations[mission.organizationId || ""];
-        const result = transformMongoMissionToPg(mission, partner, organization);
+        const result = transformMissionRecordToPg(mission, partner, organization);
         if (!result) {
           console.error(`[Export missions to PG] Error converting mission ${mission.id}`);
           counter.error++;

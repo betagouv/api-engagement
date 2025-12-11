@@ -4,14 +4,14 @@ import { MissionRecord } from "../../../types/mission";
 import { MissionTransformResult } from "../types";
 
 /**
- * Transform a MongoDB mission into PostgreSQL format
+ * Transform a MissionRecord object into PostgreSQL format
  *
  * @param doc The mission to transform
  * @param partnerId The partner ID
  * @param organizationId The organization ID
  * @returns The transformed mission with addresses and history
  */
-export const transformMongoMissionToPg = (doc: MissionRecord | null, partnerId: string, organizationId?: string): MissionTransformResult | null => {
+export const transformMissionRecordToPg = (doc: MissionRecord | null, partnerId: string, organizationId?: string): MissionTransformResult | null => {
   if (!doc) {
     return null;
   }
@@ -25,6 +25,7 @@ export const transformMongoMissionToPg = (doc: MissionRecord | null, partnerId: 
   };
 
   const oldId = (doc as any)._id ?? doc.id;
+  const leboncoin = doc.jobBoards?.LEBONCOIN;
 
   const obj = {
     old_id: oldId?.toString() || "",
@@ -117,10 +118,10 @@ export const transformMongoMissionToPg = (doc: MissionRecord | null, partnerId: 
     jva_moderation_updated_at:
       doc[`moderation_${PUBLISHER_IDS.JEVEUXAIDER}_date`] !== undefined ? new Date(doc[`moderation_${PUBLISHER_IDS.JEVEUXAIDER}_date`] as string | number | Date) : undefined,
 
-    leboncoin_moderation_status: doc.leboncoinStatus,
-    leboncoin_moderation_comment: doc.leboncoinComment,
-    leboncoin_moderation_url: doc.leboncoinUrl,
-    leboncoin_moderation_updated_at: doc.leboncoinUpdatedAt ? new Date(doc.leboncoinUpdatedAt) : null,
+    leboncoin_moderation_status: leboncoin?.status ?? null,
+    leboncoin_moderation_comment: leboncoin?.comment ?? null,
+    leboncoin_moderation_url: leboncoin?.url ?? null,
+    leboncoin_moderation_updated_at: toDate(leboncoin?.updatedAt ?? null),
 
     created_at: toDate(doc.createdAt) ?? new Date(),
     updated_at: toDate(doc.updatedAt) ?? new Date(),

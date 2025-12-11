@@ -11,8 +11,8 @@ const buildWhereClause = (params: ModerationEventParams): Prisma.ModerationEvent
   };
 };
 
-const buildInput = (input: ModerationEventCreateInput): Prisma.ModerationEventUncheckedCreateInput => {
-  const data: Prisma.ModerationEventUncheckedCreateInput = {
+const buildInput = (input: ModerationEventCreateInput): Prisma.ModerationEventCreateManyInput => {
+  const data: Prisma.ModerationEventCreateManyInput = {
     missionId: input.missionId,
     moderatorId: input.moderatorId,
     userId: input.userId ?? null,
@@ -63,7 +63,7 @@ export const moderationEventService = {
       return 0;
     }
 
-    const data: Prisma.ModerationEventUncheckedCreateManyInput[] = inputs.map(buildInput);
+    const data: Prisma.ModerationEventCreateManyInput[] = inputs.map(buildInput);
 
     const { count } = await moderationEventRepository.createMany(data);
     return count;

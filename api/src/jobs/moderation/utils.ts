@@ -71,7 +71,7 @@ export const createModerations = async (missions: MissionRecord[], moderator: Pu
     //   "Les informations sont insuffisantes pour modérer l’organisation",
 
     const createdAt = new Date(mission.createdAt);
-    const startAt = new Date(mission.startAt);
+    const startAt = mission.startAt ? new Date(mission.startAt) : null;
     const endAt = mission.endAt ? new Date(mission.endAt) : null;
 
     const in7Days = new Date();
@@ -85,11 +85,11 @@ export const createModerations = async (missions: MissionRecord[], moderator: Pu
       update.status = "REFUSED";
       update.comment = "MISSION_CREATION_DATE_TOO_OLD";
       update.date = new Date();
-    } else if (endAt && startAt < in7Days && endAt < in21Days) {
+    } else if (endAt && startAt && startAt < in7Days && endAt < in21Days) {
       update.status = "REFUSED";
       update.comment = "MISSION_DATE_NOT_COMPATIBLE";
       update.date = new Date();
-    } else if (mission.description.length < 300) {
+    } else if (mission.description && mission.description.length < 300) {
       update.status = "REFUSED";
       update.comment = "CONTENT_INSUFFICIENT";
       update.date = new Date();
@@ -106,18 +106,18 @@ export const createModerations = async (missions: MissionRecord[], moderator: Pu
     const initialStatus = (mission[`moderation_${moderator._id}_status`] ?? null) as ModerationEventStatus | null;
 
     eventBulk.push({
-      missionId: mission._id.toString(),
-      moderatorId: moderator._id.toString(),
+      missionId: mission.id,
+      moderatorId: moderator.id,
       userId: null,
       userName: "Modération automatique",
       initialStatus,
       newStatus: update.status,
-      initialComment: mission[`moderation_${moderator._id}_comment`] || null,
+      initialComment: mission[`moderation_${moderator.id}_comment`] || null,
       newComment: update.comment,
-      initialNote: mission[`moderation_${moderator._id}_note`] || null,
+      initialNote: mission[`moderation_${moderator.id}_note`] || null,
       newNote:
         update.status === "REFUSED"
-          ? `Data de la mission refusée: date de création=${createdAt.toLocaleDateString("fr")}, date de début=${startAt.toLocaleDateString("fr")}, date defin=${endAt ? endAt.toLocaleDateString("fr") : "non renseigné"}, nombre caractères description=${mission.description.length}, ville=${mission.city}`
+          ? `Data de la mission refusée: date de création=${createdAt.toLocaleDateString("fr")}, date de début=${startAt?.toLocaleDateString("fr")}, date defin=${endAt ? endAt.toLocaleDateString("fr") : "non renseigné"}, nombre caractères description=${mission.description?.length}, ville=${mission.city}`
           : "",
     });
 
@@ -138,9 +138,7 @@ export const createModerations = async (missions: MissionRecord[], moderator: Pu
   }
 
   console.log(`[Moderation JVA] Bulk update ${moderationUpserts.length} missions, ${eventBulk.length} events`);
-  const resMission = await missionModerationStatusService.upsertStatuses(
-    moderationUpserts.map((item) => ({ ...item, title: item.comment }))
-  );
+  const resMission = await missionModerationStatusService.upsertStatuses(moderationUpserts.map((item) => ({ ...item, title: item.comment })));
   const eventsCount = await moderationEventService.createModerationEvents(eventBulk);
   return { updated: resMission.length, events: eventsCount, refused, pending };
 };

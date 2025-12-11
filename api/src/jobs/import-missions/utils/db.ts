@@ -1,8 +1,8 @@
 import { Import as PrismaImport } from "../../../db/core";
 import { captureException } from "../../../error";
-import { missionEventService } from "../../../services/mission-event";
 import { missionService } from "../../../services/mission";
-import { Mission } from "../../../types";
+import { missionEventService } from "../../../services/mission-event";
+import { Mission, MissionRecord } from "../../../types";
 import { MissionCreateInput, MissionUpdatePatch } from "../../../types/mission";
 import { MissionEventCreateParams } from "../../../types/mission-event";
 import type { PublisherRecord } from "../../../types/publisher";
@@ -17,7 +17,9 @@ import { EVENT_TYPES, getMissionChanges } from "../../../utils/mission";
  * @param importDoc - Import document to update
  * @returns true if the import was successful, false otherwise
  */
-export const bulkDB = async (bulk: Mission[], publisher: PublisherRecord, importDoc: PrismaImport): Promise<boolean> => {
+type MissionLike = MissionRecord | Mission;
+
+export const bulkDB = async (bulk: MissionLike[], publisher: PublisherRecord, importDoc: PrismaImport): Promise<boolean> => {
   try {
     const startedAt = new Date();
     console.log(`[${publisher.name}] Starting mission write at ${startedAt.toISOString()}`);
@@ -37,11 +39,12 @@ export const bulkDB = async (bulk: Mission[], publisher: PublisherRecord, import
       if (!e) {
         continue;
       }
+      const missionInput = e as MissionRecord;
 
-      const current = existingMap.get(e.clientId);
+      const current = existingMap.get(missionInput.clientId);
       if (!current) {
-        const created = await missionService.create(e as MissionCreateInput);
-        existingMap.set(e.clientId, created as unknown as Mission);
+        const created = await missionService.create(missionInput as MissionCreateInput);
+        existingMap.set(missionInput.clientId, created);
         missionEvents.push({
           missionId: created.id,
           type: EVENT_TYPES.CREATE,
@@ -51,10 +54,10 @@ export const bulkDB = async (bulk: Mission[], publisher: PublisherRecord, import
         continue;
       }
 
-      const changes = getMissionChanges(current as unknown as Mission, e);
+      const changes = getMissionChanges(current, missionInput);
       if (changes) {
-        const updated = await missionService.update(current.id, e as MissionUpdatePatch);
-        existingMap.set(e.clientId, updated as unknown as Mission);
+        const updated = await missionService.update(current.id, missionInput as MissionUpdatePatch);
+        existingMap.set(missionInput.clientId, updated);
         missionEvents.push({
           missionId: current.id,
           type: changes.deletedAt?.current === null ? EVENT_TYPES.DELETE : EVENT_TYPES.UPDATE,

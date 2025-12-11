@@ -1,5 +1,5 @@
-import { getMissionTrackedApplicationUrl } from "../../utils";
 import { MissionAddress, MissionRecord } from "../../types/mission";
+import { getMissionTrackedApplicationUrl } from "../../utils";
 import { LINKEDIN_COMPANY_ID, LINKEDIN_INDUSTRY_CODE, LINKEDIN_PUBLISHER_ID } from "./config";
 import { LinkedInJob } from "./types";
 import { getAudienceLabel, getDomainLabel } from "./utils";
@@ -59,7 +59,7 @@ export function missionToLinkedinJob(mission: MissionRecord, defaultCompany: str
         blocks.push(`<p><b>Durée de la mission : </b>${mission.schedule}</p>`);
       }
 
-      if (mission.openToMinors === "no") {
+      if (mission.openToMinors === false) {
         blocks.push(`<p><b>Âge minimum : </b>18 ans minimum</p>`);
       }
       return blocks.join("\n");
@@ -71,7 +71,7 @@ export function missionToLinkedinJob(mission: MissionRecord, defaultCompany: str
     city: (mission.addresses?.length ?? 0) === 0 ? mission.city : undefined,
     postalCode: (mission.addresses?.length ?? 0) === 0 ? mission.postalCode : undefined,
     listDate: new Date(mission.createdAt).toISOString(),
-    industryCodes: LINKEDIN_INDUSTRY_CODE[mission.domain] ? [{ industryCode: LINKEDIN_INDUSTRY_CODE[mission.domain] }] : undefined,
+    industryCodes: LINKEDIN_INDUSTRY_CODE[mission.domain ?? ""] ? [{ industryCode: LINKEDIN_INDUSTRY_CODE[mission.domain ?? ""] }] : undefined,
     workplaceTypes: mission.remote === "no" ? "On-site" : mission.remote === "full" ? "Remote" : "Hybrid",
   } as LinkedInJob;
   if (mission.endAt) {

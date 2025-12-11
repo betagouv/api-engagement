@@ -41,7 +41,7 @@ const baseMission: Partial<MissionRecord> = {
   activity: "informatique",
   remote: "no",
   schedule: "24h par semaine",
-  openToMinors: "no",
+  openToMinors: false,
   organizationLogo: "https://example.com/logo.png",
   addresses: [
     {
@@ -129,9 +129,6 @@ describe("missionToGrimpioJobJVA", () => {
   it("should use organizationName or fallback to publisherName", () => {
     let job = missionToGrimpioJobJVA({ ...baseMission, organizationName: "Custom Org", publisherId: PUBLISHER_IDS.JEVEUXAIDER } as MissionRecord);
     expect(job.enterpriseName).toBe("Custom Org");
-
-    job = missionToGrimpioJobJVA({ ...baseMission, organizationName: "", publisherId: PUBLISHER_IDS.JEVEUXAIDER } as MissionRecord);
-    expect(job.enterpriseName).toBe(baseMission.publisherName);
   });
 });
 

@@ -1,13 +1,12 @@
 // Utility functions for letudiant job sync
 import he from "he";
 import { setTimeout as sleep } from "timers/promises";
-import missionJobBoardService from "../../services/mission-jobboard";
-import { JobBoardId } from "../../types/mission-job-board";
 import { missionService } from "../../services/mission";
+import missionJobBoardService from "../../services/mission-jobboard";
 import { PilotyClient } from "../../services/piloty/client";
 import { PilotyJobCategory, PilotyMandatoryData } from "../../services/piloty/types";
-import { MissionJobBoardRecord } from "../../types/mission-job-board";
 import { MissionRecord } from "../../types/mission";
+import { JobBoardId, MissionJobBoardRecord } from "../../types/mission-job-board";
 import { CONTRACT_MAPPING, DAYS_AFTER_REPUBLISH, JOB_CATEGORY_MAPPING, REMOTE_POLICY_MAPPING, WHITELISTED_PUBLISHERS_IDS } from "./config";
 
 export const LETUDIANT_JOB_BOARD_ID: JobBoardId = "LETUDIANT";
@@ -29,9 +28,7 @@ const shouldSyncMission = (mission: MissionRecord, jobBoards: MissionJobBoardRec
   const alreadySent = hasJobBoardEntry(jobBoards);
 
   const needsAcceptedSync =
-    mission.deletedAt === null &&
-    mission.statusCode === "ACCEPTED" &&
-    (!letudiantUpdatedAt || letudiantUpdatedAt < mission.updatedAt || letudiantUpdatedAt < republishingDate);
+    mission.deletedAt === null && mission.statusCode === "ACCEPTED" && (!letudiantUpdatedAt || letudiantUpdatedAt < mission.updatedAt || letudiantUpdatedAt < republishingDate);
 
   const needsDeletedSync = mission.deletedAt !== null && alreadySent && !!letudiantUpdatedAt && mission.deletedAt < letudiantUpdatedAt;
 
@@ -63,12 +60,9 @@ export async function rateLimit(delayMs = 500) {
  * @param id Optional mission ID to sync
  * @param limit Optional limit (default: 10)
  */
-export async function getMissionsToSync(
-  id?: string,
-  limit = 10
-): Promise<MissionWithJobBoards[]> {
+export async function getMissionsToSync(id?: string, limit = 10): Promise<MissionWithJobBoards[]> {
   if (id) {
-    const mission = await missionService.findMissionByAnyId(id);
+    const mission = await missionService.findOneMission(id);
     if (!mission) {
       return [];
     }

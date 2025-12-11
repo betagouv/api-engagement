@@ -367,7 +367,7 @@ router.get("/widget/:id", cors({ origin: "*" }), async (req: Request, res: Respo
 
     const identity = identify(req);
 
-    const mission = await missionService.findMissionByAnyId(params.data.id);
+    const mission = await missionService.findOneMission(params.data.id);
     if (!mission && !identity) {
       return res.redirect(302, JVA_URL);
     }
@@ -471,7 +471,7 @@ router.get("/seo/:id", cors({ origin: "*" }), async (req: Request, res: Response
     }
 
     const identity = identify(req);
-    const mission = await missionService.findMissionByAnyId(params.data.id);
+    const mission = await missionService.findOneMission(params.data.id);
     if (!mission && !identity) {
       return res.redirect(302, JVA_URL);
     }
@@ -547,7 +547,7 @@ router.get("/notrack/:id", cors({ origin: "*" }), async (req, res, next) => {
 
     const identity = identify(req);
 
-    const mission = await missionService.findMissionByAnyId(params.data.id);
+    const mission = await missionService.findOneMission(params.data.id);
     if (!mission && !identity) {
       return res.redirect(302, JVA_URL);
     }
@@ -611,7 +611,7 @@ router.get("/:missionId/:publisherId", cors({ origin: "*" }), async function tra
 
     const identity = identify(req);
 
-    const mission = await missionService.findMissionByAnyId(params.data.missionId);
+    const mission = await missionService.findOneMission(params.data.missionId);
     if (!mission && !identity) {
       return res.redirect(302, "https://www.service-civique.gouv.fr/");
     }
@@ -785,7 +785,7 @@ router.get("/impression/:missionId/:publisherId", cors({ origin: "*" }), async (
       return res.status(400).send({ ok: false, code: INVALID_QUERY, message: query.error });
     }
 
-    const mission = await missionService.findMissionByAnyId(params.data.missionId);
+    const mission = await missionService.findOneMission(params.data.missionId);
     if (!mission) {
       captureMessage(`[Impression Widget] Mission not found`, `mission ${params.data.missionId}, publisher ${params.data.publisherId}`);
       return res.status(404).send({ ok: false, code: NOT_FOUND });

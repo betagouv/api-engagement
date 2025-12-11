@@ -1,17 +1,17 @@
-import { missionModerationStatusRepository } from "../repositories/mission-moderation-status";
-import { Prisma } from "../db/core";
+import { Prisma, ModerationEventStatus } from "../db/core";
 import { prismaCore } from "../db/postgres";
+import { missionModerationStatusRepository } from "../repositories/mission-moderation-status";
 
-type ModerationStatusInput = Pick<Prisma.MissionModerationStatusCreateInput, "mission" | "publisher" | "status" | "comment" | "note" | "title">;
+type ModerationStatusInput = Pick<Prisma.MissionModerationStatusCreateInput, "mission" | "publisherId" | "status" | "comment" | "note" | "title">;
 
 export const missionModerationStatusService = {
-  async upsertStatus(missionId: string, publisherId: string, data: Omit<ModerationStatusInput, "mission" | "publisher">) {
+  async upsertStatus(missionId: string, publisherId: string, data: Omit<ModerationStatusInput, "mission" | "publisherId">) {
     return missionModerationStatusRepository.upsert(
       { missionId_publisherId: { missionId, publisherId } },
       {
         mission: { connect: { id: missionId } },
-        publisher: { connect: { id: publisherId } },
-        status: data.status ?? null,
+        publisherId,
+        status: (data.status as ModerationEventStatus | null) ?? null,
         comment: data.comment ?? null,
         note: data.note ?? null,
         title: data.title ?? null,
@@ -27,17 +27,23 @@ export const missionModerationStatusService = {
     }
     return prismaCore.$transaction(
       inputs.map((input) =>
-        missionModerationStatusRepository.upsert(
-          { missionId_publisherId: { missionId: input.missionId, publisherId: input.publisherId } },
-          {
-            mission: { connect: { id: input.missionId } },
-            publisher: { connect: { id: input.publisherId } },
-            status: input.status ?? null,
+        prismaCore.missionModerationStatus.upsert({
+          where: { missionId_publisherId: { missionId: input.missionId, publisherId: input.publisherId } },
+          update: {
+            status: (input.status as ModerationEventStatus | null) ?? null,
             comment: input.comment ?? null,
             note: input.note ?? null,
             title: input.title ?? null,
-          }
-        )
+          },
+          create: {
+            mission: { connect: { id: input.missionId } },
+            publisherId: input.publisherId,
+            status: (input.status as ModerationEventStatus | null) ?? null,
+            comment: input.comment ?? null,
+            note: input.note ?? null,
+            title: input.title ?? null,
+          },
+        })
       )
     );
   },

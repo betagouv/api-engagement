@@ -34,12 +34,6 @@ type PrismaStatEventWithPublishers = Prisma.StatEventGetPayload<{
   include: {
     fromPublisher: { select: { id: true; name: true } };
     toPublisher: { select: { id: true; name: true } };
-    mission: {
-      include: {
-        organization: { select: { id: true; title: true } };
-        addresses: true;
-      };
-    };
   };
 }>;
 
@@ -84,28 +78,13 @@ function toPrisma(data: Partial<StatEventRecord>, options: { includeDefaults?: b
 }
 
 function toStatEventRecord(row: PrismaStatEventWithPublishers): StatEventRecord {
-  const { fromPublisher, toPublisher, mission, id, ...rest } = row;
-
-  const firstAddress = mission?.addresses?.[0];
-
-  const missionFields = {
-    missionId: mission?.id ?? rest.missionId ?? undefined,
-    missionClientId: mission?.clientId ?? rest.missionClientId ?? undefined,
-    missionDomain: mission?.domain ?? rest.missionDomain ?? undefined,
-    missionTitle: mission?.title ?? rest.missionTitle ?? undefined,
-    missionPostalCode: firstAddress?.postalCode ?? rest.missionPostalCode ?? undefined,
-    missionDepartmentName: firstAddress?.departmentName ?? rest.missionDepartmentName ?? undefined,
-    missionOrganizationId: mission?.organizationId ?? mission?.organization?.id ?? rest.missionOrganizationId ?? undefined,
-    missionOrganizationName: mission?.organization?.title ?? rest.missionOrganizationName ?? undefined,
-    missionOrganizationClientId: mission?.organizationClientId ?? rest.missionOrganizationClientId ?? undefined,
-  };
+  const { fromPublisher, toPublisher, id, ...rest } = row;
 
   return {
     _id: id,
     fromPublisherName: fromPublisher?.name,
     toPublisherName: toPublisher?.name,
     ...rest,
-    ...missionFields,
   } as StatEventRecord;
 }
 
@@ -265,13 +244,13 @@ async function findStatEventViews({ publisherId, size = 10, filters = {}, facets
     andFilters.push({ toPublisherId: filters.toPublisherId });
   }
   if (filters.missionDomain) {
-    andFilters.push({ mission: { domain: filters.missionDomain } });
+    andFilters.push({ missionDomain: filters.missionDomain });
   }
   if (filters.missionDepartmentName) {
-    andFilters.push({ mission: { addresses: { some: { departmentName: filters.missionDepartmentName } } } });
+    andFilters.push({ missionDepartmentName: filters.missionDepartmentName });
   }
   if (filters.missionOrganizationId) {
-    andFilters.push({ mission: { organizationId: filters.missionOrganizationId } });
+    andFilters.push({ missionOrganizationId: filters.missionOrganizationId });
   }
   if (filters.type) {
     andFilters.push({ type: filters.type as StatEventType });

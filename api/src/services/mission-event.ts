@@ -2,12 +2,12 @@ import { Prisma } from "../db/core";
 import { missionEventRepository } from "../repositories/mission-event";
 import { MissionEventCreateParams, MissionEventRecord } from "../types/mission-event";
 
-const mapChangesToJsonInput = (changes: MissionEventCreateParams["changes"]): Prisma.InputJsonValue | null | undefined => {
+const mapChangesToJsonInput = (changes: MissionEventCreateParams["changes"]): Prisma.InputJsonValue | typeof Prisma.JsonNull | undefined => {
   if (changes === undefined) {
     return undefined;
   }
   if (changes === null) {
-    return null;
+    return Prisma.JsonNull;
   }
   return changes as Prisma.InputJsonValue;
 };

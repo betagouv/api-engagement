@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { missionToLinkedinJob } from "../transformers";
 import { MissionRecord } from "../../../types/mission";
+import { missionToLinkedinJob } from "../transformers";
 
 // Mock constants with IDs but keep the rest of the config
 vi.mock("../config", async () => {
@@ -116,7 +116,7 @@ describe("missionToLinkedinJob", () => {
       requirements,
       audience: ["seniors", "people_in_difficulty"],
       schedule,
-      openToMinors: "no",
+      openToMinors: false,
     } as MissionRecord;
 
     const job = missionToLinkedinJob(mission, defaultCompany);
@@ -144,7 +144,7 @@ describe("missionToLinkedinJob", () => {
   });
 
   it("shouldnt include block title if openToMinors is yes", () => {
-    const mission = { ...baseMission, openToMinors: "yes" } as MissionRecord;
+    const mission = { ...baseMission, openToMinors: true } as MissionRecord;
     const job = missionToLinkedinJob(mission, defaultCompany);
     expect(job?.description).not.toContain("<b>Âge minimum : </b>");
   });

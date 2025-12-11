@@ -1,6 +1,6 @@
 import { ASC_100_LOGO_URL, JVA_100_LOGO_URL, PUBLISHER_IDS } from "../../config";
-import { getMissionTrackedApplicationUrl } from "../../utils";
 import { MissionAddress, MissionRecord } from "../../types/mission";
+import { getMissionTrackedApplicationUrl } from "../../utils";
 import { ASC_CONTRACT_TYPE, AUDIENCE_MAPPING, DOMAIN_MAPPING, GRIMPIO_PUBLISHER_ID, JVA_CONTRACT_TYPE } from "./config";
 import { GrimpioJob, GrimpioPlace } from "./types";
 
@@ -115,7 +115,7 @@ function buildJVADescription(mission: MissionRecord): string {
   }
 
   // Âge minimum
-  if (mission.openToMinors === "no") {
+  if (mission.openToMinors === false) {
     blocks.push(`<p><b>Âge minimum : </b>18 ans minimum</p>`);
   }
 
@@ -162,7 +162,7 @@ function buildASCDescription(mission: MissionRecord): string {
 
   // Âge requis
   let ageRequirement = "Le Service Civique est un dispositif ouvert aux personnes de 16 à 25 ans élargie à 30 ans en situation de handicap, sans condition de diplôme.";
-  if (mission.openToMinors === "no") {
+  if (mission.openToMinors === false) {
     ageRequirement += " <strong>Cette mission n'est cependant pas accessible aux mineurs.</strong>";
   }
   blocks.push(`<p><b>Âge requis :</b> ${ageRequirement}</p>`);

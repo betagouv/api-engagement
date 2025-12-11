@@ -64,7 +64,7 @@ router.post("/:missionId/:publisherId/click", async (req: PublisherRequest, res:
       return res.status(400).send({ ok: false, code: INVALID_QUERY, error: query.error });
     }
 
-    const mission = await missionService.findMissionByAnyId(params.data.missionId);
+    const mission = await missionService.findOneMission(params.data.missionId);
     if (!mission) {
       captureMessage("[V2] Mission not found", `mission ${params.data.missionId}`);
       res.locals = { code: NOT_FOUND };
@@ -139,7 +139,7 @@ router.post("/:missionId/apply", passport.authenticate(["apikey", "api"], { sess
       return res.status(400).send({ ok: false, code: INVALID_QUERY, error: query.error });
     }
 
-    const mission = await missionService.findMissionByAnyId(params.data.missionId);
+    const mission = await missionService.findOneMission(params.data.missionId);
     if (!mission) {
       captureMessage("[V2] Mission not found", `mission ${params.data.missionId}`);
       res.locals = { code: NOT_FOUND };

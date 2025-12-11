@@ -1,9 +1,7 @@
 import { API_URL } from "../config";
-import { AddressItem, Mission } from "../types";
+import { JobBoardId } from "../types/mission-job-board";
 import { MissionRecord } from "../types/mission";
 import { slugify } from "./string";
-
-type MissionLike = { _id: Mission["_id"] | MissionRecord["_id"] };
 
 /**
  * Format the tracked application URL for a mission and a given publisher
@@ -12,8 +10,80 @@ type MissionLike = { _id: Mission["_id"] | MissionRecord["_id"] };
  * @param publisherId The publisher ID to format the URL for
  * @returns The tracked application URL
  */
-export const getMissionTrackedApplicationUrl = (mission: MissionLike, publisherId: string) => {
-  return `${API_URL}/r/${mission._id}/${publisherId}`;
+export const getMissionTrackedApplicationUrl = (mission: MissionRecord, publisherId: string) => {
+  return `${API_URL}/r/${mission.id}/${publisherId}`;
+};
+
+export type MissionAddressWithLocation = {
+  id: string;
+  street: string | null;
+  postalCode: string | null;
+  departmentName: string | null;
+  departmentCode: string | null;
+  city: string | null;
+  region: string | null;
+  country: string | null;
+  locationLat: number | null;
+  locationLon: number | null;
+  geolocStatus: string | null;
+};
+
+export const normalizeMissionAddresses = (addresses: MissionAddressWithLocation[]): MissionRecord["addresses"] =>
+  addresses.map((address) => ({
+    id: address.id,
+    street: address.street ?? null,
+    postalCode: address.postalCode ?? null,
+    departmentName: address.departmentName ?? null,
+    departmentCode: address.departmentCode ?? null,
+    city: address.city ?? null,
+    region: address.region ?? null,
+    country: address.country ?? null,
+    location: address.locationLat != null && address.locationLon != null ? { lat: address.locationLat, lon: address.locationLon } : null,
+    geoPoint:
+      address.locationLat != null && address.locationLon != null
+        ? { type: "Point", coordinates: [address.locationLon, address.locationLat] }
+        : null,
+    geolocStatus: address.geolocStatus ?? null,
+  }));
+
+export const deriveMissionLocation = (addresses: MissionRecord["addresses"]) => {
+  const first = addresses[0];
+  if (first?.location) {
+    return first.location;
+  }
+  return null;
+};
+
+type MissionJobBoardEntry = {
+  jobBoardId: JobBoardId | string;
+  publicId: string | null;
+  status: string | null;
+  comment: string | null;
+  updatedAt: Date | null;
+};
+
+export const buildJobBoardMap = (entries?: MissionJobBoardEntry[]): MissionRecord["jobBoards"] | undefined => {
+  if (!entries?.length) {
+    return undefined;
+  }
+  const map: NonNullable<MissionRecord["jobBoards"]> = {};
+
+  for (const entry of entries) {
+    const key = entry.jobBoardId as keyof NonNullable<MissionRecord["jobBoards"]>;
+    const payload = {
+      status: entry.status ?? null,
+      comment: entry.comment ?? null,
+      url: entry.publicId ?? null,
+      updatedAt: entry.updatedAt ?? null,
+    };
+    const current = map[key];
+    const shouldReplace = !current || (payload.updatedAt && (!current.updatedAt || payload.updatedAt > current.updatedAt));
+    if (shouldReplace) {
+      map[key] = payload;
+    }
+  }
+
+  return Object.keys(map).length ? map : undefined;
 };
 
 export const EVENT_TYPES = {
@@ -73,7 +143,7 @@ export const IMPORT_FIELDS_TO_COMPARE = [
   "compensationAmount",
   "compensationType",
   "compensationUnit",
-] as (keyof Mission)[];
+] as (keyof MissionRecord)[];
 
 /**
  * Get the changes between two missions
@@ -83,9 +153,9 @@ export const IMPORT_FIELDS_TO_COMPARE = [
  * @returns The changes between the two missions
  */
 export const getMissionChanges = (
-  previousMission: Mission,
-  currentMission: Mission,
-  fieldsToCompare: (keyof Mission)[] = IMPORT_FIELDS_TO_COMPARE
+  previousMission: MissionRecord,
+  currentMission: MissionRecord,
+  fieldsToCompare: (keyof MissionRecord)[] = IMPORT_FIELDS_TO_COMPARE
 ): Record<string, { previous: any; current: any }> | null => {
   const changes: Record<string, { previous: any; current: any }> = {};
 
@@ -185,7 +255,7 @@ const areArraysEqual = (previousArray: any[], currentArray: any[]) => {
   return true;
 };
 
-const normalizeAddresses = (address: AddressItem[]) => {
+const normalizeAddresses = (address: MissionRecord["addresses"]) => {
   const data = address.map((item) =>
     slugify(`${item.street} ${item.city} ${item.postalCode} ${item.departmentName} ${item.region} ${item.country} ${item.location?.lat} ${item.location?.lon}`)
   );

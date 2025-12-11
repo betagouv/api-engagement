@@ -10,7 +10,7 @@ export const moderationEventRepository = {
     return prismaCore.moderationEvent.create({ data });
   },
 
-  async createMany(data: Prisma.ModerationEventUncheckedCreateManyInput[]): Promise<Prisma.BatchPayload> {
+  async createMany(data: Prisma.ModerationEventCreateManyInput[]): Promise<Prisma.BatchPayload> {
     return prismaCore.moderationEvent.createMany({ data });
   },
 

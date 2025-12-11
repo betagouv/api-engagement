@@ -1,5 +1,6 @@
+import { JobBoardId } from "./mission-job-board";
+
 export type MissionStatusCode = "ACCEPTED" | "REFUSED";
-export type MissionYesNo = boolean;
 export type MissionRemote = "no" | "possible" | "full";
 export type MissionPlacesStatus = "ATTRIBUTED_BY_API" | "GIVEN_BY_PARTNER";
 export type MissionCompensationUnit = "hour" | "day" | "month" | "year";
@@ -64,9 +65,9 @@ export type MissionRecord = {
   soft_skills: string[];
   requirements: string[];
   romeSkills: string[];
-  reducedMobilityAccessible: MissionYesNo | null;
-  closeToTransport: MissionYesNo | null;
-  openToMinors: MissionYesNo | null;
+  reducedMobilityAccessible: boolean | null;
+  closeToTransport: boolean | null;
+  openToMinors: boolean | null;
   remote: MissionRemote | null;
   schedule: string | null;
   duration: number | null;
@@ -136,6 +137,7 @@ export type MissionRecord = {
   deletedAt: Date | null;
   letudiantUpdatedAt: Date | null;
   letudiantError: string | null;
+  jobBoards?: Partial<Record<JobBoardId, { status: string | null; comment: string | null; url: string | null; updatedAt: Date | null }>>;
   lastExportedToPgAt: Date | null;
   createdAt: Date;
   updatedAt: Date;
@@ -150,7 +152,7 @@ export type MissionSearchFilters = {
   city?: string[];
   clientId?: string[];
   organizationClientId?: string[];
-  closeToTransport?: string;
+  closeToTransport?: boolean;
   country?: string[];
   createdAt?: { gt?: Date; lt?: Date };
   departmentName?: string[];
@@ -158,8 +160,8 @@ export type MissionSearchFilters = {
   keywords?: string;
   organizationRNA?: string[];
   organizationStatusJuridique?: string[];
-  openToMinors?: MissionYesNo | string;
-  reducedMobilityAccessible?: MissionYesNo | string;
+  openToMinors?: boolean;
+  reducedMobilityAccessible?: boolean;
   remote?: Array<MissionRemote | string>;
   snu?: boolean;
   startAt?: { gt?: Date; lt?: Date };

@@ -1,19 +1,14 @@
 import { randomUUID } from "crypto";
 
 import { Mission, Prisma } from "../db/core";
+import { prismaCore } from "../db/postgres";
 import { missionRepository } from "../repositories/mission";
 import { organizationRepository } from "../repositories/organization";
-import type {
-  MissionCreateInput,
-  MissionFacets,
-  MissionRecord,
-  MissionSearchAggregations,
-  MissionSearchFilters,
-  MissionUpdatePatch,
-} from "../types/mission";
+import type { MissionCreateInput, MissionFacets, MissionRecord, MissionSearchAggregations, MissionSearchFilters, MissionUpdatePatch } from "../types/mission";
 import { getDistanceFromLatLonInKm } from "../utils/geo";
+import { buildJobBoardMap, deriveMissionLocation, normalizeMissionAddresses } from "../utils/mission";
+import { normalizeStringList } from "../utils/normalize";
 import { publisherService } from "./publisher";
-import { prismaCore } from "../db/postgres";
 
 type MissionWithRelations = Mission & {
   publisher?: { name: string | null; url: string | null; logo: string | null } | null;
@@ -42,7 +37,7 @@ type MissionWithRelations = Mission & {
     locationLon: number | null;
     geolocStatus: string | null;
   }>;
-  domains?: Array<{ value: string; original: string | null; logo: string | null }>;
+  domains?: Array<{ value: string; logo: string | null; original: string | null }>;
   activities?: Array<{ value: string }>;
   moderationStatuses?: Array<{
     publisherId: string;
@@ -54,31 +49,19 @@ type MissionWithRelations = Mission & {
   }>;
   jobBoards?: Array<{
     jobBoardId: string;
-    publicId: string;
+    publicId: string | null;
     status: string | null;
     comment: string | null;
-    updatedAt: Date;
+    updatedAt: Date | null;
+    missionAddressId: string | null;
   }>;
-};
-
-const emptyStringArray = (value: unknown): string[] => {
-  if (!value) {
-    return [];
-  }
-  if (Array.isArray(value)) {
-    return value.filter((v) => typeof v === "string" && v.length > 0);
-  }
-  if (typeof value === "string" && value.trim()) {
-    return [value.trim()];
-  }
-  return [];
 };
 
 const mapDomainsForCreate = (domain?: string | null, domainOriginal?: string | null, domainLogo?: string | null) => {
   if (!domain) {
     return [];
   }
-  return [{ value: domain, original: domainOriginal ?? null, logo: domainLogo ?? null }];
+  return [{ value: domain, original: domainOriginal ?? null, logo: domainLogo }];
 };
 
 const mapActivitiesForCreate = (activity?: string | null) => {
@@ -88,35 +71,9 @@ const mapActivitiesForCreate = (activity?: string | null) => {
   return [{ value: activity }];
 };
 
-const normalizeAddresses = (addresses: MissionWithRelations["addresses"]) =>
-  addresses.map((address) => ({
-    id: address.id,
-    street: address.street ?? null,
-    postalCode: address.postalCode ?? null,
-    departmentName: address.departmentName ?? null,
-    departmentCode: address.departmentCode ?? null,
-    city: address.city ?? null,
-    region: address.region ?? null,
-    country: address.country ?? null,
-    location: address.locationLat != null && address.locationLon != null ? { lat: address.locationLat, lon: address.locationLon } : null,
-    geoPoint:
-      address.locationLat != null && address.locationLon != null
-        ? { type: "Point", coordinates: [address.locationLon, address.locationLat] }
-        : null,
-    geolocStatus: address.geolocStatus ?? null,
-  }));
-
-const deriveLocation = (addresses: ReturnType<typeof normalizeAddresses>) => {
-  const first = addresses[0];
-  if (first?.location) {
-    return first.location;
-  }
-  return null;
-};
-
 const toMissionRecord = (mission: MissionWithRelations): MissionRecord => {
-  const addresses = normalizeAddresses(mission.addresses || []) as MissionRecord["addresses"];
-  const location = deriveLocation(addresses);
+  const addresses = normalizeMissionAddresses(mission.addresses || []) as MissionRecord["addresses"];
+  const location = deriveMissionLocation(addresses);
   const primaryAddress = addresses[0] ?? {};
 
   const org = mission.organization;
@@ -125,9 +82,10 @@ const toMissionRecord = (mission: MissionWithRelations): MissionRecord => {
   const publisherUrl = mission.publisher?.url ?? null;
   const primaryDomain = mission.domains?.[0];
   const primaryActivity = mission.activities?.[0];
-  const letudiantJobBoard = mission.jobBoards?.find((jobBoard) => jobBoard.jobBoardId === "LETUDIANT");
+  const jobBoards = buildJobBoardMap(mission.jobBoards);
+  const letudiantJobBoard = jobBoards?.LETUDIANT;
 
-  const softSkills = emptyStringArray(mission.softSkills);
+  const softSkills = normalizeStringList(mission.softSkills);
 
   const record: MissionRecord = {
     _id: mission.id,
@@ -140,13 +98,13 @@ const toMissionRecord = (mission: MissionWithRelations): MissionRecord => {
     title: mission.title,
     description: mission.description ?? null,
     descriptionHtml: mission.descriptionHtml ?? null,
-    tags: emptyStringArray(mission.tags),
-    tasks: emptyStringArray(mission.tasks),
-    audience: emptyStringArray(mission.audience),
+    tags: normalizeStringList(mission.tags),
+    tasks: normalizeStringList(mission.tasks),
+    audience: normalizeStringList(mission.audience),
     softSkills,
     soft_skills: softSkills,
-    requirements: emptyStringArray(mission.requirements),
-    romeSkills: emptyStringArray(mission.romeSkills),
+    requirements: normalizeStringList(mission.requirements),
+    romeSkills: normalizeStringList(mission.romeSkills),
     reducedMobilityAccessible: mission.reducedMobilityAccessible ?? null,
     closeToTransport: mission.closeToTransport ?? null,
     openToMinors: mission.openToMinors ?? null,
@@ -161,7 +119,7 @@ const toMissionRecord = (mission: MissionWithRelations): MissionRecord => {
     placesStatus: mission.placesStatus ?? null,
     metadata: mission.metadata ?? null,
     domain: primaryDomain?.value ?? null,
-    domainOriginal: primaryDomain?.original ?? null,
+    domainOriginal: mission.domainOriginal ?? null,
     domainLogo: primaryDomain?.logo ?? null,
     activity: primaryActivity?.value ?? null,
     type: mission.type ?? null,
@@ -219,6 +177,7 @@ const toMissionRecord = (mission: MissionWithRelations): MissionRecord => {
     deletedAt: mission.deletedAt ?? null,
     letudiantUpdatedAt: letudiantJobBoard?.updatedAt ?? null,
     letudiantError: letudiantJobBoard?.comment ?? null,
+    jobBoards,
     lastExportedToPgAt: mission.lastExportedToPgAt ?? null,
     createdAt: mission.createdAt,
     updatedAt: mission.updatedAt,
@@ -369,14 +328,15 @@ export const buildWhere = (filters: MissionSearchFilters): Prisma.MissionWhereIn
 
   if (filters.keywords) {
     const keywords = filters.keywords;
+    const existingAnd = Array.isArray(where.AND) ? where.AND : where.AND ? [where.AND] : [];
     where.AND = [
-      ...(where.AND ?? []),
+      ...existingAnd,
       {
         OR: [
           { title: { contains: keywords, mode: "insensitive" } },
           { organization: { title: { contains: keywords, mode: "insensitive" } } },
           { addresses: { some: { city: { contains: keywords, mode: "insensitive" } } } },
-          { domain: { contains: keywords, mode: "insensitive" } },
+          { domains: { some: { value: { contains: keywords, mode: "insensitive" } } } },
         ],
       },
     ];
@@ -442,7 +402,6 @@ const buildAggregationsFromRecords = async (records: MissionRecord[]): Promise<M
   return {
     status: aggregate((record) => record.statusCode || undefined),
     comments: aggregate((record) => record.statusComment || undefined),
-    type: aggregate((record) => record.type || undefined),
     domains: aggregate((record) => record.domain || undefined),
     organizations: aggregate((record) => record.organizationName || undefined),
     activities: aggregate((record) => record.activity || undefined),
@@ -478,6 +437,38 @@ const buildAggregations = async (where: Prisma.MissionWhereInput): Promise<Missi
       .sort((a, b) => b.doc_count - a.doc_count);
   };
 
+  const aggregateMissionDomain = async () => {
+    const rows = await prismaCore.missionDomain.groupBy({
+      by: ["value"],
+      where: { mission: where },
+      _count: { _all: true },
+    });
+
+    return rows
+      .map((row) => ({
+        key: String((row as any).value ?? ""),
+        doc_count: Number((row as any)._count?._all ?? 0),
+      }))
+      .filter((row) => isNonEmpty(row.key))
+      .sort((a, b) => b.doc_count - a.doc_count);
+  };
+
+  const aggregateMissionActivity = async () => {
+    const rows = await prismaCore.missionActivity.groupBy({
+      by: ["value"],
+      where: { mission: where },
+      _count: { _all: true },
+    });
+
+    return rows
+      .map((row) => ({
+        key: String((row as any).value ?? ""),
+        doc_count: Number((row as any)._count?._all ?? 0),
+      }))
+      .filter((row) => isNonEmpty(row.key))
+      .sort((a, b) => b.doc_count - a.doc_count);
+  };
+
   const aggregateAddressField = async (field: "city" | "departmentName") => {
     const rows = await prismaCore.missionAddress.groupBy({
       by: [field],
@@ -497,18 +488,15 @@ const buildAggregations = async (where: Prisma.MissionWhereInput): Promise<Missi
   // Run sequentially to avoid exhausting the small Prisma connection pool when many filters are used
   const status = await aggregateMissionField("statusCode");
   const comments = await aggregateMissionField("statusComment");
-  const domains = await aggregateMissionField("domain");
-  const activities = await aggregateMissionField("activity");
+  const domains = await aggregateMissionDomain();
+  const activities = await aggregateMissionActivity();
   const partnersRaw = await aggregateMissionField("publisherId");
   const organizationsRaw = await aggregateMissionField("organizationId");
   const cities = await aggregateAddressField("city");
   const departments = await aggregateAddressField("departmentName");
 
   const organizationIds = organizationsRaw.map((row) => row.key).filter(isNonEmpty) as string[];
-  const organizations =
-    organizationIds.length > 0
-      ? await organizationRepository.findMany({ where: { id: { in: organizationIds } }, select: { id: true, title: true } })
-      : [];
+  const organizations = organizationIds.length > 0 ? await organizationRepository.findMany({ where: { id: { in: organizationIds } }, select: { id: true, title: true } }) : [];
   const orgById = new Map(organizations.map((org) => [org.id, org.title ?? ""]));
   const organizationsAgg = organizationsRaw
     .map((row) => ({ key: orgById.get(row.key) ?? "", doc_count: row.doc_count }))
@@ -532,6 +520,39 @@ const buildAggregations = async (where: Prisma.MissionWhereInput): Promise<Missi
     .sort((a, b) => b.count - a.count);
 
   return { status, comments, domains, organizations: organizationsAgg, activities, cities, departments, partners };
+};
+
+const hasGeoFilters = (filters: MissionSearchFilters) => filters.lat !== undefined && filters.lon !== undefined && filters.distanceKm !== undefined;
+
+type MissionDistanceEntry = { record: MissionRecord; distanceKm: number | undefined };
+
+const filterMissionsByDistance = (missions: MissionWithRelations[], filters: MissionSearchFilters): MissionDistanceEntry[] => {
+  const { lat, lon, distanceKm: maxDistance } = filters;
+  if (lat === undefined || lon === undefined || maxDistance === undefined) {
+    return [];
+  }
+
+  return missions
+    .map((mission) => {
+      const record = toMissionRecord(mission as MissionWithRelations);
+      const distanceKm = getDistanceFromLatLonInKm(lat, lon, record.location?.lat, record.location?.lon);
+      return { record, distanceKm };
+    })
+    .filter(({ distanceKm }) => distanceKm !== undefined && distanceKm <= maxDistance)
+    .sort((a, b) => (a.distanceKm ?? 0) - (b.distanceKm ?? 0));
+};
+
+const paginateDistanceEntries = (entries: MissionDistanceEntry[], filters: MissionSearchFilters) => {
+  const start = filters.skip ?? 0;
+  const end = start + filters.limit;
+
+  return {
+    total: entries.length,
+    data: entries.slice(start, end).map(({ record, distanceKm }) => ({
+      ...record,
+      distanceKm: distanceKm ?? undefined,
+    })),
+  };
 };
 
 const mapAddressesForCreate = (addresses?: MissionRecord["addresses"]) => {
@@ -575,12 +596,6 @@ export const missionService = {
     return this.findOneMissionBy({ clientId, publisherId });
   },
 
-  async findMissionByAnyId(missionId: string): Promise<MissionRecord | null> {
-    return this.findOneMissionBy({
-      OR: [{ id: missionId }, { oldId: missionId }, { oldIds: { has: missionId } }],
-    });
-  },
-
   async findMissionsBy(
     where: Prisma.MissionWhereInput,
     options: { limit?: number; skip?: number; orderBy?: Prisma.MissionOrderByWithRelationInput | Prisma.MissionOrderByWithRelationInput[] } = {}
@@ -598,29 +613,16 @@ export const missionService = {
   async findMissions(filters: MissionSearchFilters): Promise<{ data: MissionRecord[]; total: number }> {
     const where = buildWhere(filters);
 
-    if (filters.lat !== undefined && filters.lon !== undefined && filters.distanceKm !== undefined) {
+    if (hasGeoFilters(filters)) {
       const missions = await missionRepository.findMany({
         where,
         include: baseInclude,
         orderBy: { startAt: Prisma.SortOrder.desc },
       });
 
-      const filtered = missions
-        .map((mission) => {
-          const record = toMissionRecord(mission as MissionWithRelations);
-          const distanceKm = getDistanceFromLatLonInKm(filters.lat, filters.lon, record.location?.lat, record.location?.lon);
-          return { record, distanceKm };
-        })
-        .filter((entry) => entry.distanceKm !== undefined && (entry.distanceKm as number) <= filters.distanceKm!)
-        .sort((a, b) => (a.distanceKm ?? 0) - (b.distanceKm ?? 0));
-
-      const total = filtered.length;
-      const data = filtered.slice(filters.skip, filters.skip + filters.limit).map(({ record, distanceKm }) => ({
-        ...record,
-        distanceKm: distanceKm ?? undefined,
-      }));
-
-      return { data, total };
+      const filtered = filterMissionsByDistance(missions as MissionWithRelations[], filters);
+      const { data, total } = paginateDistanceEntries(filtered, filters);
+      return { total, data };
     }
 
     const [missions, total] = await Promise.all([
@@ -640,27 +642,15 @@ export const missionService = {
   async findMissionsWithAggregations(filters: MissionSearchFilters): Promise<{ data: MissionRecord[]; total: number; aggs: MissionSearchAggregations }> {
     const where = buildWhere(filters);
 
-    if (filters.lat !== undefined && filters.lon !== undefined && filters.distanceKm !== undefined) {
+    if (hasGeoFilters(filters)) {
       const missions = await missionRepository.findMany({
         where,
         include: baseInclude,
       });
 
-      const filtered = missions
-        .map((mission) => {
-          const record = toMissionRecord(mission as MissionWithRelations);
-          const distanceKm = getDistanceFromLatLonInKm(filters.lat, filters.lon, record.location?.lat, record.location?.lon);
-          return { record, distanceKm };
-        })
-        .filter((entry) => entry.distanceKm !== undefined && (entry.distanceKm as number) <= filters.distanceKm!)
-        .sort((a, b) => (a.distanceKm ?? 0) - (b.distanceKm ?? 0));
-
-      const total = filtered.length;
+      const filtered = filterMissionsByDistance(missions as MissionWithRelations[], filters);
+      const { data, total } = paginateDistanceEntries(filtered, filters);
       const aggs = await buildAggregationsFromRecords(filtered.map(({ record }) => record));
-      const data = filtered.slice(filters.skip, filters.skip + filters.limit).map(({ record, distanceKm }) => ({
-        ...record,
-        distanceKm: distanceKm ?? undefined,
-      }));
 
       return { data, total, aggs };
     }
@@ -698,28 +688,16 @@ export const missionService = {
   async findMissionsWithFacets(filters: MissionSearchFilters): Promise<{ data: MissionRecord[]; total: number; facets: MissionFacets }> {
     const where = buildWhere(filters);
 
-    if (filters.lat !== undefined && filters.lon !== undefined && filters.distanceKm !== undefined) {
+    if (hasGeoFilters(filters)) {
       const missions = await missionRepository.findMany({
         where,
         include: baseInclude,
         orderBy: { startAt: Prisma.SortOrder.desc },
       });
 
-      const filtered = missions
-        .map((mission) => {
-          const record = toMissionRecord(mission as MissionWithRelations);
-          const distanceKm = getDistanceFromLatLonInKm(filters.lat, filters.lon, record.location?.lat, record.location?.lon);
-          return { record, distanceKm };
-        })
-        .filter((entry) => entry.distanceKm !== undefined && (entry.distanceKm as number) <= filters.distanceKm!)
-        .sort((a, b) => (a.distanceKm ?? 0) - (b.distanceKm ?? 0));
-
-      const total = filtered.length;
+      const filtered = filterMissionsByDistance(missions as MissionWithRelations[], filters);
+      const { data, total } = paginateDistanceEntries(filtered, filters);
       const facets = computeFacetsFromRecords(filtered.map(({ record }) => record));
-      const data = filtered.slice(filters.skip, filters.skip + filters.limit).map(({ record, distanceKm }) => ({
-        ...record,
-        distanceKm: distanceKm ?? undefined,
-      }));
 
       return { data, total, facets };
     }

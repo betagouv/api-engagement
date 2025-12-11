@@ -1,18 +1,18 @@
 import { LETUDIANT_PILOTY_TOKEN } from "../../config";
 import { captureException } from "../../error";
 import { missionService } from "../../services/mission";
+import missionJobBoardService from "../../services/mission-jobboard";
 import { organizationService } from "../../services/organization";
 import { PilotyClient, PilotyError } from "../../services/piloty/";
 import { PilotyJob } from "../../services/piloty/types";
 import { MissionRecord } from "../../types/mission";
+import { MissionJobBoardRecord } from "../../types/mission-job-board";
 import { OrganizationRecord } from "../../types/organization";
 import { BaseHandler } from "../base/handler";
 import { JobResult } from "../types";
 import { DEFAULT_LIMIT, MEDIA_PUBLIC_ID } from "./config";
 import { missionToPilotyCompany, missionToPilotyJobs } from "./transformers";
 import { LETUDIANT_JOB_BOARD_ID, getMandatoryData, getMissionsToSync, rateLimit } from "./utils";
-import missionJobBoardService from "../../services/mission-jobboard";
-import { MissionJobBoardRecord } from "../../types/mission-job-board";
 
 export interface LetudiantJobPayload {
   id?: string;
@@ -134,7 +134,11 @@ export class LetudiantHandler implements BaseHandler<LetudiantJobPayload, Letudi
         processed: missionEntries.length,
         ...counter,
       },
-      message: `\t• Nombre de missions traitées: ${missions.length}\n\t• Nombre de missions créées: ${counter.created}\n\t• Nombre de missions mises à jour: ${counter.updated}\n\t• Nombre de missions supprimées: ${counter.deleted}\n\t• Nombre de missions en erreur: ${counter.error}`,
+      message: `\t• Nombre de missions traitées: ${missionEntries.length}
+      \n\t• Nombre de missions créées: ${counter.created}
+      \n\t• Nombre de missions mises à jour: ${counter.updated}
+      \n\t• Nombre de missions supprimées: ${counter.deleted}
+      \n\t• Nombre de missions en erreur: ${counter.error}`,
     };
   }
 }
