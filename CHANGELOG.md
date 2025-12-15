@@ -2,6 +2,77 @@
 Vous retrouverez ici l'historique des différents déploiements effectués sur l'API Engagement.
 
 
+## 08/12/2025
+
+
+### Bug Fixes
+
+- (**analytics**) Missing created_at on login history (#611) ([`b509b5a`](https://github.com/betagouv/api-engagement/commit/b509b5a46daeb270693fcad4774b99456c2f9a30))
+
+- (**analytics**) Wrong conflict resolution on tf jobs (#607) ([`876cb7a`](https://github.com/betagouv/api-engagement/commit/876cb7ab1dbe15a4e6fec69b0f81e430446438ba))
+
+- (**api-app**) Back office disconnection issue (#589) ([`9f5d1ea`](https://github.com/betagouv/api-engagement/commit/9f5d1ea5903913eb7db9ad0e9a5c3ab5a8982205))
+
+- (**widget**) Cursor pointer on filter button ([`0ccf58a`](https://github.com/betagouv/api-engagement/commit/0ccf58a18de2bc38439e8e0fce145b2ba65679d8))
+
+
+### CI/CD
+
+- (**deps**) Bump amannn/action-semantic-pull-request from 5 to 6 (#467) ([`e59483d`](https://github.com/betagouv/api-engagement/commit/e59483d2c165cf37037c2b08155df8e35465aab0))
+
+- (**deps**) Bump stefanzweifel/git-auto-commit-action from 6 to 7 (#515) ([`0f5694a`](https://github.com/betagouv/api-engagement/commit/0f5694afa08e6ede76adec1d5796e10e244ed9d5))
+
+- (**deps**) Bump actions/setup-node from 5 to 6 (#516) ([`0cc57ed`](https://github.com/betagouv/api-engagement/commit/0cc57ede5bb82491f2f76937b3d7d13d6f8bcfcb))
+
+- (**deps**) Bump actions/upload-artifact from 4 to 5 (#517) ([`a74193d`](https://github.com/betagouv/api-engagement/commit/a74193d867fd1ba62d25413dcf418e10e71b283b))
+
+
+### Features
+
+- (**analytics**) Daily kpi pipeline (#576) ([`0215396`](https://github.com/betagouv/api-engagement/commit/0215396c04996e42c20b995bfb13724b0c2dd5d9))
+
+- (**analytics**) New pipeline for publisher diffusion exclusion (#603) ([`3b5147c`](https://github.com/betagouv/api-engagement/commit/3b5147c80f1e02769c5ae5a950f42816edc4efaf))
+
+- (**workflow**) Add cooldown on dependabot (#591) ([`52add46`](https://github.com/betagouv/api-engagement/commit/52add461fa03fabd95b61628d6ee4e7f580d89b5))
+
+
+### Miscellaneous Tasks
+
+- (**changelog**) Update CHANGELOG.md ([`efb9a35`](https://github.com/betagouv/api-engagement/commit/efb9a35d49ee5aaa21a530b915350ffdb64b7be6))
+
+- (**changelog**) Update CHANGELOG.md ([`14a221c`](https://github.com/betagouv/api-engagement/commit/14a221c9ecfefb271470670f839e3001ee2b4bdf))
+
+- (**deps**) Bump the production-dependencies group across 1 directory with 13 updates (#582) ([`2ce2d43`](https://github.com/betagouv/api-engagement/commit/2ce2d43680af434c20d3d1e07bbf36426abd192c))
+
+- (**deps-dev**) Bump the dev-dependencies group across 1 directory with 10 updates (#581) ([`7825dfe`](https://github.com/betagouv/api-engagement/commit/7825dfe50dd31da9d77d1e340e46286bcdee258f))
+
+- (**deps-dev**) Bump prettier-plugin-tailwindcss (#518) ([`7720196`](https://github.com/betagouv/api-engagement/commit/77201961b362679305ba7e297a1ae3ee155d849a))
+
+- (**deps**) Bump the production-dependencies group across 1 directory with 11 updates (#522) ([`67d65b6`](https://github.com/betagouv/api-engagement/commit/67d65b60238e553e932b6948b47d47d06ab3ae39))
+
+- (**deps-dev**) Bump the dev-dependencies group across 1 directory with 10 updates (#531) ([`62d0ffb`](https://github.com/betagouv/api-engagement/commit/62d0ffb1e0875cc21192192c3a3c0bc9adcdb911))
+
+- (**deps**) Bump the production-dependencies group across 1 directory with 11 updates (#556) ([`ac2764b`](https://github.com/betagouv/api-engagement/commit/ac2764bb2073834c119c846bb1be1b28dcbed783))
+
+
+### Refactoring
+
+- (**jobs**) Remove OrganizationExclusion old pipeline (#609) ([`7d7a2e9`](https://github.com/betagouv/api-engagement/commit/7d7a2e994d56aad01f8099b31c16932c45c04e26))
+
+- (**api**) Remove loginAt field from user (#608) ([`2337d8b`](https://github.com/betagouv/api-engagement/commit/2337d8b730229abe1dd0796870c953d84dfbe46b))
+
+- (**analytics**) Pipeline user and user_publisher (#583) ([`522854b`](https://github.com/betagouv/api-engagement/commit/522854b62ee79ef7297e3219954be172ee622295))
+
+- (**api**) Migrate import-rna model to service layer (#586) ([`98994a5`](https://github.com/betagouv/api-engagement/commit/98994a58947f28e9043b4b6c54f41ba2e7de6d07))
+
+- (**api**) Delete request model (#580) ([`881ec7a`](https://github.com/betagouv/api-engagement/commit/881ec7a15fb99854a94083a0d743d1d98ce5f6d0))
+
+- (**analytics**) New import pipeline (#578) ([`43b1664`](https://github.com/betagouv/api-engagement/commit/43b1664c75322a2beac7c809fedbab28c9830ec0))
+
+# API Engagement - Changelog
+Vous retrouverez ici l'historique des différents déploiements effectués sur l'API Engagement.
+
+
 ## 01/12/2025
 
 
