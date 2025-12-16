@@ -1,13 +1,41 @@
 import { describe, expect, it } from "vitest";
-import { AddressItem, MissionRecord } from "../../types";
+import { MissionAddress, MissionRecord } from "../../types";
 import { getMissionChanges } from "../mission";
 
 describe("getMissionChanges", () => {
   const createBaseMission = (): MissionRecord =>
     ({
       publisherId: "test-publisher",
-      title: "Test title",
+      title: "Test Mission",
       description: "Test description",
+      startAt: new Date("2023-02-01"),
+      endAt: new Date("2023-03-01"),
+      metadata: "test metadata",
+      tags: ["tag1", "tag2"],
+      addresses: [
+        {
+          street: "123 Test St",
+          postalCode: "75001",
+          departmentName: "Paris",
+          departmentCode: "75",
+          city: "Paris",
+          region: "Île-de-France",
+          country: "France",
+          location: { lat: 48.8566, lon: 2.3522 },
+          geolocStatus: "ENRICHED_BY_API",
+        } as MissionAddress,
+        {
+          street: "456 Test St",
+          postalCode: "69000",
+          departmentName: "Lyon",
+          departmentCode: "69",
+          city: "Lyon",
+          region: "Auvergne-Rhône-Alpes",
+          country: "France",
+          location: { lat: 45.764, lon: 4.8357 },
+          geolocStatus: "ENRICHED_BY_API",
+        } as MissionAddress,
+      ],
     }) as MissionRecord;
 
   it("should return null when missions are identical", () => {
@@ -120,7 +148,7 @@ describe("getMissionChanges", () => {
             lon: 2.3522,
           },
           geolocStatus: "ENRICHED_BY_API",
-        } as AddressItem,
+        } as MissionAddress,
       ],
     };
 

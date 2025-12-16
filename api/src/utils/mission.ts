@@ -1,6 +1,6 @@
 import { API_URL } from "../config";
-import { JobBoardId } from "../types/mission-job-board";
 import { MissionRecord } from "../types/mission";
+import { JobBoardId } from "../types/mission-job-board";
 import { slugify } from "./string";
 
 /**
@@ -39,10 +39,7 @@ export const normalizeMissionAddresses = (addresses: MissionAddressWithLocation[
     region: address.region ?? null,
     country: address.country ?? null,
     location: address.locationLat != null && address.locationLon != null ? { lat: address.locationLat, lon: address.locationLon } : null,
-    geoPoint:
-      address.locationLat != null && address.locationLon != null
-        ? { type: "Point", coordinates: [address.locationLon, address.locationLat] }
-        : null,
+    geoPoint: address.locationLat != null && address.locationLon != null ? { type: "Point", coordinates: [address.locationLon, address.locationLat] } : null,
     geolocStatus: address.geolocStatus ?? null,
   }));
 
@@ -199,7 +196,7 @@ export const getMissionChanges = (
     }
   }
 
-  if (previousMission.addresses.length !== currentMission.addresses.length) {
+  if (previousMission.addresses?.length !== currentMission.addresses?.length) {
     changes.addresses = {
       previous: previousMission.addresses,
       current: currentMission.addresses,
@@ -207,8 +204,8 @@ export const getMissionChanges = (
     return changes;
   }
 
-  const sortedPreviousAddresses = normalizeAddresses(previousMission.addresses);
-  const sortedCurrentAddresses = normalizeAddresses(currentMission.addresses);
+  const sortedPreviousAddresses = normalizeAddresses(previousMission.addresses) || [];
+  const sortedCurrentAddresses = normalizeAddresses(currentMission.addresses) || [];
 
   for (let i = 0; i < sortedCurrentAddresses.length; i++) {
     if (sortedPreviousAddresses[i] !== sortedCurrentAddresses[i]) {
