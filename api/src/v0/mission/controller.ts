@@ -14,6 +14,30 @@ import { NO_PARTNER, NO_PARTNER_MESSAGE } from "./constants";
 import { buildData } from "./transformer";
 import { findMissionById, normalizeQueryArray, parseDateFilter } from "./utils";
 
+const parseBooleanQuery = (value?: string): boolean | undefined => {
+  if (value === undefined) {
+    return undefined;
+  }
+  const normalized = value.toLowerCase();
+  if (["true", "yes", "1"].includes(normalized)) {
+    return true;
+  }
+  if (["false", "no", "0"].includes(normalized)) {
+    return false;
+  }
+  return undefined;
+};
+
+const toYesNo = (value: unknown) => {
+  if (value === true) {
+    return "yes";
+  }
+  if (value === false) {
+    return "no";
+  }
+  return value;
+};
+
 export const missionQuerySchema = zod.object({
   activity: zod.union([zod.string(), zod.array(zod.string())]).optional(),
   city: zod.union([zod.string(), zod.array(zod.string())]).optional(),
@@ -98,8 +122,8 @@ router.get("/", passport.authenticate(["apikey", "api"], { session: false }), as
       keywords: query.data.keywords ?? undefined,
       organizationRNA: normalizeQueryArray(query.data.organizationRNA),
       organizationStatusJuridique: normalizeQueryArray(query.data.organizationStatusJuridique),
-      openToMinors: query.data.openToMinors ? query.data.openToMinors === "true" : undefined,
-      reducedMobilityAccessible: query.data.reducedMobilityAccessible ? query.data.reducedMobilityAccessible === "true" : undefined,
+      openToMinors: parseBooleanQuery(query.data.openToMinors),
+      reducedMobilityAccessible: parseBooleanQuery(query.data.reducedMobilityAccessible),
       remote: normalizeQueryArray(query.data.remote) as MissionRemote[] | undefined,
       snu: query.data.snu,
       startAt: parseDateFilter(query.data.startAt),
@@ -193,8 +217,8 @@ router.get("/search", passport.authenticate(["apikey", "api"], { session: false 
       keywords: query.data.keywords || query.data.text || undefined,
       organizationRNA: normalizeQueryArray(query.data.organizationRNA),
       organizationStatusJuridique: normalizeQueryArray(query.data.organizationStatusJuridique),
-      openToMinors: query.data.openToMinors ? query.data.openToMinors === "true" : undefined,
-      reducedMobilityAccessible: query.data.reducedMobilityAccessible ? query.data.reducedMobilityAccessible === "true" : undefined,
+      openToMinors: parseBooleanQuery(query.data.openToMinors),
+      reducedMobilityAccessible: parseBooleanQuery(query.data.reducedMobilityAccessible),
       remote: normalizeQueryArray(query.data.remote) as MissionRemote[] | undefined,
       startAt: parseDateFilter(query.data.startAt),
       type: normalizeQueryArray(query.data.type),
@@ -216,10 +240,15 @@ router.get("/search", passport.authenticate(["apikey", "api"], { session: false 
     return res.status(200).send({
       ok: true,
       total,
-      hits: data.map((e: MissionRecord) => ({
-        ...buildData(e, user.id, user.moderator),
-        _distance: getDistanceFromLatLonInKm(query.data.lat, query.data.lon, e.addresses[0]?.location?.lat, e.addresses[0]?.location?.lon),
-      })),
+      hits: data.map((e: MissionRecord) => {
+        const payload = buildData(e, user.id, user.moderator);
+        payload.openToMinors = toYesNo(payload.openToMinors);
+        payload.reducedMobilityAccessible = toYesNo(payload.reducedMobilityAccessible);
+        return {
+          ...payload,
+          _distance: getDistanceFromLatLonInKm(query.data.lat, query.data.lon, e.addresses[0]?.location?.lat, e.addresses[0]?.location?.lon),
+        };
+      }),
       facets: {
         departmentName: facets.departmentName.map((bucket) => ({
           key: bucket.key,

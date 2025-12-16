@@ -273,7 +273,7 @@ describe("Mission API Integration Tests", () => {
       const response = await request(app).get("/v0/mission?openToMinors=yes").set("x-api-key", apiKey);
       expect(response.status).toBe(200);
       expect(response.body.total).toBe(1);
-      expect(response.body.data[0].openToMinors).toBe(true);
+      expect(response.body.data[0].openToMinors).toBe("yes");
     });
 
     it("should filter by remote", async () => {

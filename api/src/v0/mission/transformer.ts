@@ -3,6 +3,16 @@ import { MissionRecord } from "../../types/mission";
 import { getMissionTrackedApplicationUrl } from "../../utils";
 import { MISSION_FIELDS } from "./constants";
 
+const toYesNo = (value: unknown) => {
+  if (value === true) {
+    return "yes";
+  }
+  if (value === false) {
+    return "no";
+  }
+  return value;
+};
+
 export const buildData = (data: MissionRecord, publisherId: string, moderator: boolean = false) => {
   const obj: any = {};
 
@@ -25,6 +35,8 @@ export const buildData = (data: MissionRecord, publisherId: string, moderator: b
   obj.location = address ? address.location : undefined;
   obj.deleted = data.deletedAt !== null;
   obj.statusCommentHistoric = [];
+  obj.openToMinors = toYesNo(obj.openToMinors);
+  obj.reducedMobilityAccessible = toYesNo(obj.reducedMobilityAccessible);
 
   // Custom hack for remote LBC
   if (publisherId.toString() === PUBLISHER_IDS.LEBONCOIN && obj.remote === "full") {
