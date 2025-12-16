@@ -1,10 +1,10 @@
+import { COMPENSATION_TYPES, COMPENSATION_UNITS } from "../../../constants/compensation";
 import { COUNTRIES } from "../../../constants/countries";
 import { DOMAINS } from "../../../constants/domains";
-import { COMPENSATION_TYPES, COMPENSATION_UNITS } from "../../../constants/compensation";
 import type { MissionRecord } from "../../../types/mission";
 
 export const getModeration = (mission: Partial<MissionRecord> & Record<string, any>) => {
-  let statusComment = "";
+  let statusComment: string | undefined;
   if (!mission.title || mission.title === " ") {
     statusComment = "Titre manquant";
   } else if (hasEncodageIssue(mission.title)) {
@@ -30,7 +30,7 @@ export const getModeration = (mission: Partial<MissionRecord> & Record<string, a
     statusComment = "Nombre de places invalide (doit être supérieur à 0)";
   } else if (mission.domain && !DOMAINS.includes(mission.domain)) {
     statusComment = `Domaine non valide : "${mission.domain}"`;
-  } else if (hasEncodageIssue(mission.organizationName)) {
+  } else if (hasEncodageIssue(mission.organizationName || "")) {
     statusComment = "Problème d'encodage dans le nom de l'organisation";
   } else if (typeof mission.compensationAmount === "number" && mission.compensationAmount < 0) {
     statusComment = "Montant de la compensation invalide (nombre positif attendu)";
