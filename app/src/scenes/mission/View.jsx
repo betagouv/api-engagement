@@ -18,7 +18,7 @@ const View = () => {
         if (!res.ok) throw res;
         setMission(res.data);
       } catch (error) {
-        captureError(error, "Une erreur est survenue lors de la récupération de la mission");
+        captureError(error, { extra: { id } });
       }
     };
     fetchData();
@@ -74,7 +74,7 @@ const View = () => {
             <p className="mt-2">Mise à jour le {new Date(mission.lastSyncAt).toLocaleString().replace(" ", " à ")}</p>
           </div>
 
-          <a className="tertiary-bis-btn flex items-center h-fit" href={buildLink(mission)} target="_blank">
+          <a className="tertiary-bis-btn flex h-fit items-center" href={buildLink(mission)} target="_blank">
             <RiCursorFill className="mr-2" />
             <span>Lien vers la mission</span>
           </a>

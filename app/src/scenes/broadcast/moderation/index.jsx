@@ -91,7 +91,7 @@ const Moderation = () => {
         if (searchParams.has("mission")) newSearchParams.set("mission", searchParams.get("mission"));
         setSearchParams(newSearchParams);
       } catch (error) {
-        captureError(error, "Une erreur est survenue");
+        captureError(error, { extra: { filters } });
       }
       setLoading(false);
     };
@@ -104,7 +104,7 @@ const Moderation = () => {
       if (!res.ok) throw res;
       setHistory(res.data);
     } catch (error) {
-      captureError(error, "Une erreur est survenue");
+      captureError(error, { extra: { publisherId: publisher.id } });
     }
   };
 

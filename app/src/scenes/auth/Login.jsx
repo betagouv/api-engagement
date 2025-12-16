@@ -50,7 +50,7 @@ const Login = () => {
       setAuth(res.data.user, res.data.publisher);
       navigate("/performance");
     } catch (error) {
-      captureError(error, "Erreur lors de la connexion");
+      captureError(error, { extra: { values } });
     }
     setLoading(false);
   };

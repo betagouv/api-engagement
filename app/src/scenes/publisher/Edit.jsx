@@ -61,7 +61,7 @@ const Edit = () => {
         const normalized = withLegacyPublisher(res.data);
         setPublisher(normalized);
       } catch (error) {
-        captureError(error, "Erreur lors de la récupération du partenaire");
+        captureError(error, { extra: { id } });
       }
     };
     fetchData();
@@ -79,7 +79,7 @@ const Edit = () => {
       setPublisher(updated);
       if (sessionPublisher?.id === values.id) setSessionPublisher(updated);
     } catch (error) {
-      captureError(error, "Erreur lors de la mise à jour de l'image");
+      captureError(error, { extra: { id } });
     }
   };
 
@@ -99,7 +99,7 @@ const Edit = () => {
       }
       navigate("/accounts?tab=publishers");
     } catch (error) {
-      captureError(error, "Erreur lors de la suppression du partenaire");
+      captureError(error, { extra: { id } });
     }
   };
 
@@ -138,7 +138,7 @@ const Edit = () => {
         setSessionPublisher(updated);
       }
     } catch (error) {
-      captureError(error, "Erreur lors de la mise à jour du partenaire");
+      captureError(error, { extra: { id, values } });
     }
   };
 

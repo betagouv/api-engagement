@@ -19,7 +19,7 @@ const View = () => {
         if (!res.ok) throw res;
         setData(res.data);
       } catch (error) {
-        captureError(error, "Erreur lors de la récupération des données");
+        captureError(error);
       }
     };
     fetchData();

@@ -60,7 +60,7 @@ const Flux = ({ moderated }) => {
         if (!res.ok) throw res;
         setLastImport(res.data.length ? res.data[0] : null);
       } catch (error) {
-        captureError(error, "Erreur lors de la récupération des modérateurs");
+        captureError(error, { extra: { publisherId: publisher.id } });
       }
     };
     fetchData();
@@ -82,7 +82,7 @@ const Flux = ({ moderated }) => {
         Object.entries(compactMissionFilters(filters)).forEach(([key, value]) => newSearchParams.append(key, value));
         setSearchParams(newSearchParams);
       } catch (error) {
-        captureError(error, "Erreur lors de la récupération des données");
+        captureError(error, { extra: { filters } });
       }
       setLoading(false);
     };
@@ -113,7 +113,7 @@ const Flux = ({ moderated }) => {
       });
       exportCSV(`missions ${publisher.name}`, csv);
     } catch (error) {
-      captureError(error, "Erreur lors de l'export des missions");
+      captureError(error, { extra: { filters } });
     }
     setExporting(false);
   };

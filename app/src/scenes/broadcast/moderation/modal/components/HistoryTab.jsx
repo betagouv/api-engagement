@@ -23,7 +23,7 @@ const HistoryTab = ({ data }) => {
         setStatus(res.data.filter((event) => event.newStatus || event.newComment));
         setModifications(res.data.filter((event) => event.newNote || event.newTitle || event.newSiren || event.newRNA));
       } catch (error) {
-        captureError(error, "Erreur lors de la récupération des données");
+        captureError(error, { extra: { data, publisherId: publisher.id } });
       } finally {
         setLoading(false);
       }

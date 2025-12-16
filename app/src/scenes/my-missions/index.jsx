@@ -18,7 +18,7 @@ const MyMissions = () => {
         if (!resM.ok) throw resM;
         setModerated(resM.data);
       } catch (error) {
-        captureError(error, "Erreur lors de la récupération des données");
+        captureError(error, { extra: { publisherId: publisher.id } });
       }
     };
     fetchData();

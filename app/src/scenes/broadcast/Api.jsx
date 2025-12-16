@@ -23,7 +23,7 @@ const Api = () => {
       setPublisher({ ...publisher, apikey: res.data });
       toast.success("Nouvelle clé API générée");
     } catch (error) {
-      captureError(error, "Erreur lors de l'enregistrement des données");
+      captureError(error, { extra: { publisherId: publisher.id } });
     }
   };
 
@@ -36,7 +36,7 @@ const Api = () => {
       setPublisher({ ...publisher, apikey: undefined });
       toast.success("Clé API supprimée");
     } catch (error) {
-      captureError(error, "Erreur lors de l'enregistrement des données");
+      captureError(error, { extra: { publisherId: publisher.id } });
     }
   };
 

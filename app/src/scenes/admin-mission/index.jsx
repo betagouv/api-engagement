@@ -60,7 +60,7 @@ const AdminMission = () => {
         if (!res.ok) throw res;
         setLastImport(res.data.length ? res.data[0] : null);
       } catch (error) {
-        captureError(error, "Erreur lors de la récupération des modérateurs");
+        captureError(error);
       }
     };
     fetchData();
@@ -81,7 +81,7 @@ const AdminMission = () => {
         setOptions(res.aggs);
         setTotal(res.total);
       } catch (error) {
-        captureError(error, "Erreur lors de la récupération des données");
+        captureError(error, { extra: { filters } });
       }
       setLoading(false);
     };
@@ -119,7 +119,7 @@ const AdminMission = () => {
       });
       exportCSV("missions", data);
     } catch (error) {
-      captureError(error, "Erreur lors de l'export des missions");
+      captureError(error, { extra: { filters } });
     }
     setExporting(false);
   };

@@ -45,9 +45,13 @@ const Header = ({ data, onChange }) => {
         if (resO.total > 0) setIsOrganizationRefusedOpen(true);
       }
     } catch (error) {
-      captureError(error, "Erreur lors de la mise à jour de la mission", {
-        position: "bottom-right",
-      });
+      captureError(
+        error,
+        { extra: { data, values } },
+        {
+          position: "bottom-right",
+        },
+      );
     }
   };
 
