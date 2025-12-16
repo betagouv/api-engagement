@@ -51,6 +51,10 @@ export const verifyOrganization = async (missions: ImportedMission[]) => {
   }
 
   try {
+    const normalizeIdentifier = (value?: string | null) => (value || "").replace(/[^a-zA-Z0-9]/g, "").toUpperCase();
+    const isUniqueConstraintError = (error: unknown): error is { code: string } =>
+      typeof error === "object" && error !== null && "code" in error && typeof (error as { code?: unknown }).code === "string";
+
     const foundRNAs: Record<string, OrganizationRecord | "not_found"> = {};
     const foundSirets: Record<string, OrganizationRecord | "not_found"> = {};
     const foundNames: Record<string, OrganizationRecord | "not_found"> = {};
@@ -73,7 +77,7 @@ export const verifyOrganization = async (missions: ImportedMission[]) => {
       toVerify++;
 
       // remove all non alphanumeric characters and convert to uppercase
-      const identifier = (mission.organizationRNA || "").replace(/[^a-zA-Z0-9]/g, "").toUpperCase();
+      const identifier = normalizeIdentifier(mission.organizationRNA);
       if (identifier && isValidRNA(identifier)) {
         const cachedRna = foundRNAs[identifier];
         if (cachedRna === "not_found") {
@@ -89,6 +93,7 @@ export const verifyOrganization = async (missions: ImportedMission[]) => {
         const res = await findByRNA(identifier);
         if (!res) {
           foundRNAs[identifier] = "not_found";
+          mission.organizationVerificationStatus = ORGANIZATION_VERIFICATION_STATUS.RNA_NOT_MATCHED;
           rnaNotFound++;
           continue;
         }
@@ -112,6 +117,7 @@ export const verifyOrganization = async (missions: ImportedMission[]) => {
         const res = await findBySiret(identifier);
         if (!res) {
           foundSirets[identifier] = "not_found";
+          mission.organizationVerificationStatus = ORGANIZATION_VERIFICATION_STATUS.SIRET_NOT_MATCHED;
           siretNotFound++;
           continue;
         }
@@ -152,6 +158,7 @@ export const verifyOrganization = async (missions: ImportedMission[]) => {
     console.log(`[Organization] Not found ${rnaNotFound} RNAs, ${siretNotFound} SIRETs, ${nameNotFound} names`);
 
     // Fallback: create a minimal organization record from mission data when nothing could be matched
+    const createdOrganizations = new Map<string, OrganizationRecord>();
     for (const mission of missions) {
       const hasOrganization = Boolean(mission.organizationId);
       const hasIdentifiers = Boolean(mission.organizationRNA || mission.organizationSiren || mission.organizationSiret);
@@ -159,20 +166,78 @@ export const verifyOrganization = async (missions: ImportedMission[]) => {
         continue;
       }
 
-      const org = await organizationService.createOrganization({
-        title: mission.organizationName,
-        rna: mission.organizationRNA || undefined,
-        siren: mission.organizationSiren || undefined,
-        siret: mission.organizationSiret || undefined,
-        addressCity: mission.organizationCity || undefined,
-        addressPostalCode: mission.organizationPostCode || undefined,
-        addressDepartmentName: mission.organizationDepartmentName || undefined,
-        addressDepartmentCode: mission.organizationDepartmentCode || undefined,
-        status: mission.organizationStatusJuridique || mission.organizationType || undefined,
-      });
+      const normalizedRna = normalizeIdentifier(mission.organizationRNA);
+      const normalizedSiret = normalizeIdentifier(mission.organizationSiret);
+      const normalizedSiren = normalizeIdentifier(mission.organizationSiren);
+      const rna = isValidRNA(normalizedRna) ? normalizedRna : undefined;
+      const siret = isValidSiret(normalizedSiret) ? normalizedSiret : undefined;
+      const siren = normalizedSiren && /^[0-9]{9}$/.test(normalizedSiren) ? normalizedSiren : undefined;
+
+      const cacheKey = rna
+        ? `rna:${rna}`
+        : siret
+          ? `siret:${siret}`
+          : siren
+            ? `siren:${siren}`
+            : `name:${mission.organizationName.trim().toLowerCase()}`;
+
+      const cached = createdOrganizations.get(cacheKey);
+      if (cached) {
+        mission.organizationId = cached.id;
+        mission.organizationVerificationStatus = hasIdentifiers ? ORGANIZATION_VERIFICATION_STATUS.NO_DATA : ORGANIZATION_VERIFICATION_STATUS.NAME_NOT_MATCHED;
+        continue;
+      }
+
+      const existing =
+        rna
+          ? await organizationService.findOneOrganizationByRna(rna)
+          : siret
+            ? await organizationService.findOneOrganizationBySiret(siret)
+            : siren
+              ? await organizationService.findOneOrganizationBySiren(siren)
+              : await organizationService.findOneOrganizationByName(mission.organizationName);
+
+      if (existing) {
+        createdOrganizations.set(cacheKey, existing);
+        mission.organizationId = existing.id;
+        mission.organizationVerificationStatus = hasIdentifiers ? ORGANIZATION_VERIFICATION_STATUS.NO_DATA : ORGANIZATION_VERIFICATION_STATUS.NAME_NOT_MATCHED;
+        continue;
+      }
+
+      let org: OrganizationRecord;
+      try {
+        org = await organizationService.createOrganization({
+          title: mission.organizationName,
+          rna,
+          siren,
+          siret,
+          addressCity: mission.organizationCity || undefined,
+          addressPostalCode: mission.organizationPostCode || undefined,
+          addressDepartmentName: mission.organizationDepartmentName || undefined,
+          addressDepartmentCode: mission.organizationDepartmentCode || undefined,
+          status: mission.organizationStatusJuridique || mission.organizationType || undefined,
+        });
+      } catch (error) {
+        if (isUniqueConstraintError(error) && error.code === "P2002") {
+          const raceWinner =
+            rna
+              ? await organizationService.findOneOrganizationByRna(rna)
+              : siret
+                ? await organizationService.findOneOrganizationBySiret(siret)
+                : null;
+          if (raceWinner) {
+            org = raceWinner;
+          } else {
+            throw error;
+          }
+        } else {
+          throw error;
+        }
+      }
 
       mission.organizationId = org.id;
       mission.organizationVerificationStatus = hasIdentifiers ? ORGANIZATION_VERIFICATION_STATUS.NO_DATA : ORGANIZATION_VERIFICATION_STATUS.NAME_NOT_MATCHED;
+      createdOrganizations.set(cacheKey, org);
     }
   } catch (error) {
     captureException(error, `[Organization] Failure during rna enrichment`);
