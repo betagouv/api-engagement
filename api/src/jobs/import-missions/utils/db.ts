@@ -21,7 +21,7 @@ import type { ImportedMission } from "../types";
 export const bulkDB = async (bulk: ImportedMission[], publisher: PublisherRecord, importDoc: PrismaImport): Promise<boolean> => {
   try {
     const startedAt = new Date();
-    console.log(`[${publisher.name}] Starting mission write at ${startedAt.toISOString()}`);
+    console.log(`[${publisher.name}] Starting ${bulk.length} missions import at ${startedAt.toISOString()}`);
 
     const clientIds = bulk.filter((e) => e && e.clientId).map((e) => e.clientId);
     const existingMissions = clientIds.length
@@ -31,6 +31,7 @@ export const bulkDB = async (bulk: ImportedMission[], publisher: PublisherRecord
         })
       : [];
     const existingMap = new Map(existingMissions.map((m) => [m.clientId, m]));
+    console.log(`[${publisher.name}] Found ${existingMap.size} existing missions in mongo`);
 
     const missionEvents: MissionEventCreateParams[] = [];
 
@@ -74,7 +75,7 @@ export const bulkDB = async (bulk: ImportedMission[], publisher: PublisherRecord
     console.log(`[${publisher.name}] Mission write created ${importDoc.createdCount}, updated ${importDoc.updatedCount}, took ${time}`);
     return true;
   } catch (error) {
-    captureException(`[${publisher.name}] Import failed`, JSON.stringify(error, null, 2));
+    captureException(error, { extra: { publisher } });
     return false;
   }
 };

@@ -199,6 +199,11 @@ const parseMission = (publisher: PublisherRecord, missionXML: MissionXML, missio
 
   if (publisher.id !== PUBLISHER_IDS.SERVICE_CIVIQUE) {
     getModeration(mission);
+  } else {
+    // Dirty fix because of Service Civique
+    if ((mission.compensationUnit as string) === "mois") {
+      mission.compensationUnit = "month";
+    }
   }
   if (!mission.statusComment) {
     mission.statusComment = null as any;

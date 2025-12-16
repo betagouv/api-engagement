@@ -50,3 +50,24 @@ models:
         description: "Nombre de créations de compte associées à des missions bénévolat."
       - name: volontariat_account_count
         description: "Nombre de créations de compte associées à des missions Service Civique."
+  - name: publisher_clicks_daily
+    description: "Clics API par diffuseur rapprochés des disponibilités quotidiennes (kpi_daily is_bot_filtered = true)."
+    columns:
+      - name: kpi_date
+        description: "Jour d'observation (aligné sur kpi_daily)."
+        tests:
+          - not_null
+      - name: from_publisher_id
+        description: "Identifiant du diffuseur (source) des clics, issu du modèle publisher."
+        tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('publisher')
+                field: id
+      - name: available_jva_mission_count
+        description: "Nombre de missions JVA disponibles (kpi_daily, bots filtrés)."
+      - name: click_count
+        description: "Nombre de clics API non bots pour le diffuseur et le jour."
+      - name: ratio_clicks_per_mission
+        description: "Clics / missions disponibles (click_count / available_jva_mission_count)."
