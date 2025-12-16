@@ -51,7 +51,7 @@ const RealTime = () => {
         setEvents((res.data || []).slice(0, MAX_EVENTS));
         setSearchParams(type ? { type } : {});
       } catch (error) {
-        captureError(error, "Une erreur est survenue lors de la récupération des données");
+        captureError(error, { extra: { publisherId: publisher.id, type } });
       }
       setLoading(false);
     };

@@ -50,7 +50,7 @@ const List = () => {
           }, {}),
         );
       } catch (error) {
-        captureError(error, "Une erreur est survenue lors de la récupération des données");
+        captureError(error, { extra: { publisherId: publisher.id } });
       }
     };
     fetchData();
@@ -78,7 +78,7 @@ const List = () => {
           }, {}),
         );
       } catch (error) {
-        captureError(error, "Une erreur est survenue lors de la récupération des données");
+        captureError(error, { extra: { publisherId: publisher.id, filters: archivedFilters } });
       }
     };
     fetchData();

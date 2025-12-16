@@ -23,7 +23,7 @@ const Annonceur = ({ values, onChange, errors, setErrors }) => {
         if (!res.ok) throw res;
         setData(withLegacyPublishers(res.data));
       } catch (error) {
-        captureError(error, "Erreur lors de la récupération des diffuseurs");
+        captureError(error, { extra: { publisherId: values.id } });
       }
     };
     fetchData();
