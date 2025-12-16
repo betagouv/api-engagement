@@ -18,6 +18,12 @@ with kpi as (
     {% endif %}
 ),
 
+publishers as (
+  select distinct from_publisher_id
+  from {{ ref('click') }}
+  where source = 'api' and is_bot is not true
+),
+
 clicks as (
   select
     from_publisher_id,
@@ -33,15 +39,26 @@ clicks as (
       )
     {% endif %}
   group by 1, 2
+),
+
+date_publisher as (
+  select
+    k.kpi_date,
+    k.available_jva_mission_count,
+    p.from_publisher_id
+  from kpi as k
+  cross join publishers as p
 )
 
 select
-  k.kpi_date,
-  c.from_publisher_id,
-  k.available_jva_mission_count,
+  dp.kpi_date,
+  dp.from_publisher_id,
+  dp.available_jva_mission_count,
   coalesce(c.click_count, 0) as click_count,
   coalesce(c.click_count, 0)::double precision
-  / nullif(k.available_jva_mission_count, 0) as ratio_clicks_per_mission
-from kpi as k
-left join clicks as c on k.kpi_date = c.kpi_date
-where c.from_publisher_id is not null
+  / nullif(dp.available_jva_mission_count, 0) as ratio_clicks_per_mission
+from date_publisher as dp
+left join clicks as c
+  on
+    dp.kpi_date = c.kpi_date
+    and dp.from_publisher_id = c.from_publisher_id
