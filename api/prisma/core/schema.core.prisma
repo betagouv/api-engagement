@@ -302,7 +302,8 @@ model ModerationEvent {
   createdAt      DateTime               @default(now()) @map("created_at")
   updatedAt      DateTime               @updatedAt @map("updated_at")
 
-  mission Mission @relation(fields: [missionId], references: [id], onDelete: Cascade)
+  // TODO: restore relation
+  // mission Mission @relation(fields: [missionId], references: [id], onDelete: Cascade)
 
   @@index([updatedAt(sort: Asc)], map: "moderation_event_updated_at_idx")
   @@index([missionId], map: "moderation_event_mission_id_idx")
@@ -526,60 +527,61 @@ model ImportRna {
 }
 
 model Mission {
-  id                        String               @id
-  clientId                  String               @map("client_id")
+  id                        String                   @id
+  clientId                  String                   @map("client_id")
   title                     String
-  description               String?              @default("")
-  descriptionHtml           String?              @map("description_html")
-  tags                      String[]             @default([])
-  tasks                     String[]             @default([])
-  audience                  String[]             @default([])
-  softSkills                String[]             @default([]) @map("soft_skills")
-  requirements              String[]             @default([])
-  romeSkills                String[]             @default([]) @map("rome_skills")
-  reducedMobilityAccessible Boolean?             @map("reduced_mobility_accessible")
-  closeToTransport          Boolean?             @map("close_to_transport")
-  openToMinors              Boolean?             @map("open_to_minors")
+  description               String?                  @default("")
+  descriptionHtml           String?                  @map("description_html")
+  tags                      String[]                 @default([])
+  tasks                     String[]                 @default([])
+  audience                  String[]                 @default([])
+  softSkills                String[]                 @default([]) @map("soft_skills")
+  requirements              String[]                 @default([])
+  romeSkills                String[]                 @default([]) @map("rome_skills")
+  reducedMobilityAccessible Boolean?                 @map("reduced_mobility_accessible")
+  closeToTransport          Boolean?                 @map("close_to_transport")
+  openToMinors              Boolean?                 @map("open_to_minors")
   remote                    MissionRemote?
   schedule                  String?
   duration                  Int?
-  postedAt                  DateTime?            @map("posted_at")
-  startAt                   DateTime?            @map("start_at")
-  endAt                     DateTime?            @map("end_at")
+  postedAt                  DateTime?                @map("posted_at")
+  startAt                   DateTime?                @map("start_at")
+  endAt                     DateTime?                @map("end_at")
   priority                  String?
   places                    Int?
-  placesStatus              MissionPlacesStatus? @map("places_status")
+  placesStatus              MissionPlacesStatus?     @map("places_status")
   metadata                  String?
-  domainOriginal            String?              @map("domain_original")
-  domainLogo                String?              @map("domain_logo")
-  type                      MissionType?         @map("type")
-  snu                       Boolean?             @default(false) @map("snu")
-  snuPlaces                 Int?                 @map("snu_places")
-  compensationAmount        Float?               @map("compensation_amount")
+  domainId                  String?                  @map("domain_id")
+  activityId                String?                  @map("activity_id")
+  domainOriginal            String?                  @map("domain_original")
+  type                      MissionType?             @map("type")
+  snu                       Boolean?                 @default(false) @map("snu")
+  snuPlaces                 Int?                     @map("snu_places")
+  compensationAmount        Float?                   @map("compensation_amount")
   compensationUnit          MissionCompensationUnit? @map("compensation_unit")
   compensationType          MissionCompensationType? @map("compensation_type")
-  lastSyncAt                DateTime?            @map("last_sync_at")
-  applicationUrl            String?              @map("application_url")
-  statusCode                MissionStatusCode    @map("status_code")
-  statusComment             String?              @map("status_comment")
-  organizationClientId      String?              @map("organization_client_id")
-  organizationId            String?              @map("organization_id")
-  publisherId               String               @map("publisher_id")
-  deletedAt                 DateTime?            @map("deleted_at")
-  lastExportedToPgAt        DateTime?            @map("last_exported_to_pg_at")
-  createdAt                 DateTime             @default(now()) @map("created_at")
-  updatedAt                 DateTime             @updatedAt @map("updated_at")
+  lastSyncAt                DateTime?                @map("last_sync_at")
+  applicationUrl            String?                  @map("application_url")
+  statusCode                MissionStatusCode        @map("status_code")
+  statusComment             String?                  @map("status_comment")
+  organizationClientId      String?                  @map("organization_client_id")
+  organizationId            String?                  @map("organization_id")
+  publisherId               String                   @map("publisher_id")
+  deletedAt                 DateTime?                @map("deleted_at")
+  lastExportedToPgAt        DateTime?                @map("last_exported_to_pg_at")
+  createdAt                 DateTime                 @default(now()) @map("created_at")
+  updatedAt                 DateTime                 @updatedAt @map("updated_at")
 
   publisher          Publisher                 @relation("MissionPublisher", fields: [publisherId], references: [id])
+  domain             Domain?                   @relation(fields: [domainId], references: [id], onDelete: SetNull)
+  activity           Activity?                 @relation(fields: [activityId], references: [id], onDelete: SetNull)
   organization       Organization?             @relation("MissionOrganization", fields: [organizationId], references: [id])
-  missionEvents      MissionEvent[]
-  moderationEvents   ModerationEvent[]
   addresses          MissionAddress[]
-  domains            MissionDomain[]
-  activities         MissionActivity[]
   moderationStatuses MissionModerationStatus[]
   jobBoards          MissionJobBoard[]
-  // TODO: restore relation 
+  // TODO: restore relations 
+  // missionEvents      MissionEvent[]
+  // moderationEvents   ModerationEvent[]
   //statEvents         StatEvent[]               @relation("MissionStatEvents")
 
   @@unique([clientId, publisherId], map: "mission_client_publisher_key")
@@ -591,9 +593,34 @@ model Mission {
   @@index([publisherId], map: "mission_publisher_id_idx")
   @@index([clientId], map: "mission_client_id_idx")
   @@index([organizationClientId], map: "mission_organization_client_id_idx")
+  @@index([domainId], map: "mission_domain_id_idx")
+  @@index([activityId], map: "mission_activity_id_idx")
   @@index([deletedAt], map: "mission_deleted_at_idx")
   @@index([statusCode], map: "mission_status_code_idx")
   @@map("mission")
+}
+
+model Domain {
+  id        String   @id @default(uuid())
+  name      String   @unique
+  logo      String?
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  missions Mission[]
+
+  @@map("domain")
+}
+
+model Activity {
+  id        String   @id @default(uuid())
+  name      String   @unique
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  missions Mission[]
+
+  @@map("activity")
 }
 
 model MissionAddress {
@@ -622,38 +649,6 @@ model MissionAddress {
   @@index([country], map: "mission_address_country_idx")
   @@index([departmentName], map: "mission_address_department_name_idx")
   @@map("mission_address")
-}
-
-model MissionDomain {
-  id        String   @id @default(uuid())
-  missionId String   @map("mission_id")
-  value     String
-  original  String?  @map("original")
-  logo      String?  @map("logo")
-  createdAt DateTime @default(now()) @map("created_at")
-  updatedAt DateTime @updatedAt @map("updated_at")
-
-  mission Mission @relation(fields: [missionId], references: [id], onDelete: Cascade)
-
-  @@unique([missionId, value], map: "mission_domain_mission_value_key")
-  @@index([missionId], map: "mission_domain_mission_id_idx")
-  @@index([value], map: "mission_domain_value_idx")
-  @@map("mission_domain")
-}
-
-model MissionActivity {
-  id        String   @id @default(uuid())
-  missionId String   @map("mission_id")
-  value     String
-  createdAt DateTime @default(now()) @map("created_at")
-  updatedAt DateTime @updatedAt @map("updated_at")
-
-  mission Mission @relation(fields: [missionId], references: [id], onDelete: Cascade)
-
-  @@unique([missionId, value], map: "mission_activity_mission_value_key")
-  @@index([missionId], map: "mission_activity_mission_id_idx")
-  @@index([value], map: "mission_activity_value_idx")
-  @@map("mission_activity")
 }
 
 model MissionJobBoard {
@@ -705,7 +700,8 @@ model MissionEvent {
   createdAt DateTime         @default(now()) @map("created_at")
   updatedAt DateTime         @updatedAt @map("updated_at")
 
-  mission Mission @relation(fields: [missionId], references: [id], onDelete: Cascade)
+  // TODO: restore relation
+  // mission Mission @relation(fields: [missionId], references: [id], onDelete: Cascade)
 
   @@index([missionId], map: "mission_event_mission_id_idx")
   @@index([updatedAt(sort: Asc)], map: "mission_event_updated_at_asc_idx")

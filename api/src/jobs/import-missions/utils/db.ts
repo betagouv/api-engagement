@@ -31,7 +31,7 @@ export const bulkDB = async (bulk: ImportedMission[], publisher: PublisherRecord
         })
       : [];
     const existingMap = new Map(existingMissions.map((m) => [m.clientId, m]));
-    console.log(`[${publisher.name}] Found ${existingMap.size} existing missions in mongo`);
+    console.log(`[${publisher.name}] Found ${existingMap.size} existing missions in DB`);
 
     const missionEvents: MissionEventCreateParams[] = [];
 
@@ -81,7 +81,7 @@ export const bulkDB = async (bulk: ImportedMission[], publisher: PublisherRecord
 };
 
 /**
- * Clean missions in MongoDB
+ * Clean missions in DB
  * All missions related to given publisher and not in the bulk are deleted
  *
  * @param missionsClientIds - Array of mission clientIds

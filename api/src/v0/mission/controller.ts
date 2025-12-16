@@ -208,7 +208,7 @@ router.get("/search", passport.authenticate(["apikey", "api"], { session: false 
       moderationAcceptedFor: user.moderator ? user.id : undefined,
       activity: normalizeQueryArray(query.data.activity),
       city: normalizeQueryArray(query.data.city),
-      clientId: normalizeQueryArray(query.data.clientId),
+      // In `/v0/mission/search`, the legacy `clientId` query param historically refers to the organization client id.
       organizationClientId: normalizeQueryArray(query.data.clientId),
       country: normalizeQueryArray(query.data.country),
       createdAt: parseDateFilter(query.data.createdAt),

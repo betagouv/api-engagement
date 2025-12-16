@@ -566,15 +566,14 @@ const aggregateWidgetAggs = async (
   };
 
   const aggregateDomainField = async () => {
-    const rows = await prismaCore.missionDomain.groupBy({
-      by: ["value"],
-      where: { mission: where },
-      _count: { _all: true },
+    const rows = await prismaCore.domain.findMany({
+      where: { missions: { some: where } },
+      select: { name: true, _count: { select: { missions: true } } },
     });
     return rows
       .map((row) => ({
-        key: String((row as any).value ?? ""),
-        doc_count: Number((row as any)._count?._all ?? 0),
+        key: String(row.name ?? ""),
+        doc_count: Number((row as any)._count?.missions ?? 0),
       }))
       .filter((row) => row.key);
   };

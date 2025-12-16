@@ -12,6 +12,8 @@ import { publisherService } from "./publisher";
 
 type MissionWithRelations = Mission & {
   publisher?: { name: string | null; url: string | null; logo: string | null } | null;
+  domain?: { name: string; logo: string | null } | null;
+  activity?: { name: string } | null;
   organization?: {
     title: string;
     rna: string | null;
@@ -37,8 +39,6 @@ type MissionWithRelations = Mission & {
     locationLon: number | null;
     geolocStatus: string | null;
   }>;
-  domains?: Array<{ value: string; logo: string | null; original: string | null }>;
-  activities?: Array<{ value: string }>;
   moderationStatuses?: Array<{
     publisherId: string;
     status: string | null;
@@ -57,18 +57,28 @@ type MissionWithRelations = Mission & {
   }>;
 };
 
-const mapDomainsForCreate = (domain?: string | null, domainOriginal?: string | null, domainLogo?: string | null) => {
-  if (!domain) {
-    return [];
+const resolveDomainId = async (domainName: string, domainLogo?: string | null): Promise<string> => {
+  const name = domainName.trim();
+  const logo = domainLogo && domainLogo.trim() ? domainLogo.trim() : null;
+  const existing = await prismaCore.domain.findUnique({ where: { name }, select: { id: true, logo: true } });
+  if (existing) {
+    if (logo && !existing.logo) {
+      await prismaCore.domain.update({ where: { id: existing.id }, data: { logo } });
+    }
+    return existing.id;
   }
-  return [{ value: domain, original: domainOriginal ?? null, logo: domainLogo }];
+  const created = await prismaCore.domain.create({ data: { name, logo: logo ?? undefined } });
+  return created.id;
 };
 
-const mapActivitiesForCreate = (activity?: string | null) => {
-  if (!activity) {
-    return [];
+const resolveActivityId = async (activityName: string): Promise<string> => {
+  const name = activityName.trim();
+  const existing = await prismaCore.activity.findUnique({ where: { name }, select: { id: true } });
+  if (existing) {
+    return existing.id;
   }
-  return [{ value: activity }];
+  const created = await prismaCore.activity.create({ data: { name } });
+  return created.id;
 };
 
 const toMissionRecord = (mission: MissionWithRelations): MissionRecord => {
@@ -80,8 +90,8 @@ const toMissionRecord = (mission: MissionWithRelations): MissionRecord => {
   const publisherName = mission.publisher?.name ?? null;
   const publisherLogo = mission.publisher?.logo ?? null;
   const publisherUrl = mission.publisher?.url ?? null;
-  const primaryDomain = mission.domains?.[0];
-  const primaryActivity = mission.activities?.[0];
+  const domain = mission.domain;
+  const activity = mission.activity;
   const jobBoards = buildJobBoardMap(mission.jobBoards);
   const letudiantJobBoard = jobBoards?.LETUDIANT;
 
@@ -118,10 +128,10 @@ const toMissionRecord = (mission: MissionWithRelations): MissionRecord => {
     places: mission.places ?? null,
     placesStatus: mission.placesStatus ?? null,
     metadata: mission.metadata ?? null,
-    domain: primaryDomain?.value ?? null,
+    domain: domain?.name ?? null,
     domainOriginal: mission.domainOriginal ?? null,
-    domainLogo: primaryDomain?.logo ?? null,
-    activity: primaryActivity?.value ?? null,
+    domainLogo: domain?.logo ?? null,
+    activity: activity?.name ?? null,
     type: mission.type ?? null,
     snu: mission.snu ?? false,
     snuPlaces: mission.snuPlaces ?? null,
@@ -241,7 +251,7 @@ export const buildWhere = (filters: MissionSearchFilters): Prisma.MissionWhereIn
   }
 
   if (filters.activity?.length) {
-    where.activities = { some: { value: { in: filters.activity } } };
+    where.activity = { is: { name: { in: filters.activity } } };
   }
   if (filters.clientId?.length) {
     where.clientId = { in: filters.clientId };
@@ -250,12 +260,12 @@ export const buildWhere = (filters: MissionSearchFilters): Prisma.MissionWhereIn
     where.organizationClientId = { in: filters.organizationClientId };
   }
   if (filters.domain?.length && !filters.domainIncludeMissing) {
-    where.domains = { some: { value: { in: filters.domain } } };
+    where.domain = { is: { name: { in: filters.domain } } };
   } else if (filters.domain?.length && filters.domainIncludeMissing) {
-    orConditions.push({ domains: { some: { value: { in: filters.domain } } } });
+    orConditions.push({ domain: { is: { name: { in: filters.domain } } } });
   }
   if (filters.domainIncludeMissing) {
-    orConditions.push({ domains: { none: {} } });
+    orConditions.push({ domainId: null });
   }
   if (filters.remote?.length) {
     where.remote = { in: filters.remote as any };
@@ -336,7 +346,7 @@ export const buildWhere = (filters: MissionSearchFilters): Prisma.MissionWhereIn
           { title: { contains: keywords, mode: "insensitive" } },
           { organization: { title: { contains: keywords, mode: "insensitive" } } },
           { addresses: { some: { city: { contains: keywords, mode: "insensitive" } } } },
-          { domains: { some: { value: { contains: keywords, mode: "insensitive" } } } },
+          { domain: { is: { name: { contains: keywords, mode: "insensitive" } } } },
         ],
       },
     ];
@@ -438,32 +448,30 @@ const buildAggregations = async (where: Prisma.MissionWhereInput): Promise<Missi
   };
 
   const aggregateMissionDomain = async () => {
-    const rows = await prismaCore.missionDomain.groupBy({
-      by: ["value"],
-      where: { mission: where },
-      _count: { _all: true },
+    const rows = await prismaCore.domain.findMany({
+      where: { missions: { some: where } },
+      select: { name: true, _count: { select: { missions: true } } },
     });
 
     return rows
       .map((row) => ({
-        key: String((row as any).value ?? ""),
-        doc_count: Number((row as any)._count?._all ?? 0),
+        key: String(row.name ?? ""),
+        doc_count: Number((row as any)._count?.missions ?? 0),
       }))
       .filter((row) => isNonEmpty(row.key))
       .sort((a, b) => b.doc_count - a.doc_count);
   };
 
   const aggregateMissionActivity = async () => {
-    const rows = await prismaCore.missionActivity.groupBy({
-      by: ["value"],
-      where: { mission: where },
-      _count: { _all: true },
+    const rows = await prismaCore.activity.findMany({
+      where: { missions: { some: where } },
+      select: { name: true, _count: { select: { missions: true } } },
     });
 
     return rows
       .map((row) => ({
-        key: String((row as any).value ?? ""),
-        doc_count: Number((row as any)._count?._all ?? 0),
+        key: String(row.name ?? ""),
+        doc_count: Number((row as any)._count?.missions ?? 0),
       }))
       .filter((row) => isNonEmpty(row.key))
       .sort((a, b) => b.doc_count - a.doc_count);
@@ -573,7 +581,7 @@ const mapAddressesForCreate = (addresses?: MissionRecord["addresses"]) => {
   }));
 };
 
-const baseInclude = { publisher: true, organization: true, addresses: true, moderationStatuses: true, domains: true, activities: true, jobBoards: true };
+const baseInclude = { publisher: true, domain: true, activity: true, organization: true, addresses: true, moderationStatuses: true, jobBoards: true };
 
 export const missionService = {
   async findOneMission(id: string): Promise<MissionRecord | null> {
@@ -722,13 +730,17 @@ export const missionService = {
   async create(input: MissionCreateInput): Promise<MissionRecord> {
     const id = input.id ?? randomUUID();
     const addresses = mapAddressesForCreate(input.addresses);
-    const domains = mapDomainsForCreate(input.domain, input.domainOriginal, input.domainLogo);
-    const activities = mapActivitiesForCreate(input.activity);
 
+    const domainName = input.domain?.trim();
+    const activityName = input.activity?.trim();
+    const domainId = domainName ? await resolveDomainId(domainName, input.domainLogo ?? null) : null;
+    const activityId = activityName ? await resolveActivityId(activityName) : null;
     const data: Prisma.MissionCreateInput = {
       id,
       clientId: input.clientId,
       publisher: { connect: { id: input.publisherId } },
+      ...(domainId ? { domain: { connect: { id: domainId } } } : {}),
+      ...(activityId ? { activity: { connect: { id: activityId } } } : {}),
       title: input.title,
       statusCode: input.statusCode ?? "ACCEPTED",
       description: input.description ?? "",
@@ -752,6 +764,7 @@ export const missionService = {
       places: input.places ?? undefined,
       placesStatus: input.placesStatus ?? undefined,
       metadata: input.metadata ?? undefined,
+      domainOriginal: input.domainOriginal ?? undefined,
       type: (input.type as any) ?? undefined,
       snu: input.snu ?? undefined,
       snuPlaces: input.snuPlaces ?? undefined,
@@ -766,8 +779,6 @@ export const missionService = {
       deletedAt: input.deletedAt ?? undefined,
       lastExportedToPgAt: input.lastExportedToPgAt ?? undefined,
       addresses: addresses.length ? { create: addresses } : undefined,
-      domains: domains.length ? { create: domains } : undefined,
-      activities: activities.length ? { create: activities } : undefined,
     };
 
     await missionRepository.create(data);
@@ -858,24 +869,39 @@ export const missionService = {
       data.metadata = patch.metadata ?? undefined;
     }
     if ("domain" in patch) {
-      const domains = mapDomainsForCreate(patch.domain ?? null, patch.domainOriginal ?? null, patch.domainLogo ?? null);
-      data.domains = {
-        deleteMany: {},
-        ...(domains.length ? { createMany: { data: domains } } : {}),
-      };
+      if (patch.domain) {
+        const domainName = patch.domain.trim();
+        const domainId = domainName ? await resolveDomainId(domainName, patch.domainLogo ?? null) : null;
+        if (!domainId) {
+          data.domain = { disconnect: true };
+        } else {
+          data.domain = { connect: { id: domainId } };
+        }
+      } else {
+        data.domain = { disconnect: true };
+      }
     }
     if ("domainOriginal" in patch) {
       data.domainOriginal = patch.domainOriginal ?? null;
     }
-    if ("domainLogo" in patch) {
-      data.domainLogo = patch.domainLogo ?? null;
+    if ("domainLogo" in patch && !("domain" in patch) && patch.domainLogo) {
+      const existing = await missionRepository.findById(id);
+      if (existing?.domainId) {
+        await prismaCore.domain.update({ where: { id: existing.domainId }, data: { logo: patch.domainLogo } });
+      }
     }
     if ("activity" in patch) {
-      const activities = mapActivitiesForCreate(patch.activity ?? null);
-      data.activities = {
-        deleteMany: {},
-        ...(activities.length ? { createMany: { data: activities } } : {}),
-      };
+      if (patch.activity) {
+        const activityName = patch.activity.trim();
+        const activityId = activityName ? await resolveActivityId(activityName) : null;
+        if (!activityId) {
+          data.activity = { disconnect: true };
+        } else {
+          data.activity = { connect: { id: activityId } };
+        }
+      } else {
+        data.activity = { disconnect: true };
+      }
     }
     if ("type" in patch) {
       data.type = (patch.type as any) ?? undefined;
