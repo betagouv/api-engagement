@@ -32,8 +32,9 @@ export const getMongoMissionsToSync = async ({ limit }: { limit: number }): Prom
  * @returns The organizations
  */
 export const getOrganizationsFromMissions = async (missions: Mission[]) => {
-  const organizationIds: string[] = [...new Set(missions.map((e) => e.organizationId).filter((e) => e !== undefined))] as string[];
+  const organizationIds = [...new Set(missions.map((e) => e.organizationId).filter((id): id is string => id !== null && id !== undefined))];
   const organizations = {} as { [key: string]: string };
+
   await prisma.organization
     .findMany({
       where: { old_id: { in: organizationIds } },
