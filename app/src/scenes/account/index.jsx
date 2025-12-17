@@ -97,7 +97,7 @@ const Account = () => {
             <label className="mb-2 text-sm" htmlFor="email">
               E-mail
             </label>
-            <input id="email" className="input mb-2 border-b-black" name="email" disabled value={values.email} />
+            <input id="email" className="input mb-2 border-b-black" name="email" readOnly value={values.email} />
           </div>
 
           <div className="col-span-2 flex justify-end gap-4">

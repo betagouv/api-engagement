@@ -95,7 +95,7 @@ const Settings = ({ widget, values, onChange, loading }) => {
             <label className="text-base" htmlFor="name">
               Nom du widget<span className="text-red-marianne ml-1">*</span>
             </label>
-            <input id="name" className="input" name="name" value={values.name} onChange={(e) => onChange({ ...values, name: e.target.value })} disabled={Boolean(widget)} />
+            <input id="name" className="input" name="name" value={values.name} onChange={(e) => onChange({ ...values, name: e.target.value })} readOnly={Boolean(widget)} />
           </div>
 
           <div className="flex flex-col gap-4">

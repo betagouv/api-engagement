@@ -235,9 +235,9 @@ const Code = ({ widget }) => {
       </div>
       <div className="mt-6 w-full">
         <textarea
-          className="w-full rounded-none border border-[#E3E3FD] bg-[#F5F5FE] px-4 py-2 text-base disabled:opacity-80"
+          className="w-full rounded-none border border-[#E3E3FD] bg-[#F5F5FE] px-4 py-2 text-base read-only:opacity-80"
           rows={widget.type === "benevolat" ? 11 : 4}
-          disabled={true}
+          readOnly
           value={`${IFRAMES[widget.type][widget.style].replace("{{widgetId}}", widget.id)}${widget.type === "benevolat" ? `\n\n${JVA_LOGO}` : ""}`}
         />
       </div>
