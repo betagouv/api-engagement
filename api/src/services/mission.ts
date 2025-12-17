@@ -222,10 +222,14 @@ const buildDateFilter = (range?: { gt?: Date; lt?: Date }) => {
 };
 
 export const buildWhere = (filters: MissionSearchFilters): Prisma.MissionWhereInput => {
-  const where: Prisma.MissionWhereInput = {
-    statusCode: "ACCEPTED",
-  };
+  const where: Prisma.MissionWhereInput = {};
   const orConditions: Prisma.MissionWhereInput[] = [];
+
+  where.statusCode = filters.statusCode ?? "ACCEPTED";
+
+  if (filters.statusComment) {
+    where.statusComment = filters.statusComment;
+  }
 
   if (!filters.includeDeleted) {
     where.deletedAt = null;

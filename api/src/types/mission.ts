@@ -146,6 +146,8 @@ export type MissionRecord = {
 
 export type MissionSearchFilters = {
   publisherIds: string[];
+  statusCode?: MissionStatusCode;
+  statusComment?: string;
   excludeOrganizationClientIds?: string[];
   moderationAcceptedFor?: string;
   activity?: string[];
