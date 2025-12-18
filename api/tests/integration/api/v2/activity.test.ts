@@ -1,4 +1,3 @@
-import { Types } from "mongoose";
 import request from "supertest";
 import { describe, expect, it } from "vitest";
 
@@ -35,22 +34,21 @@ describe("Activity V2 controller", () => {
       const response = await request(app).get("/v2/activity/unknown-activity").set("apikey", "missing-activity-key");
 
       expect(response.status).toBe(404);
-      expect(response.body).toEqual({ ok: false, code: "NOT_FOUND" });
+      expect(response.body).toEqual({ ok: false, code: "NOT_FOUND", message: "Activity not found" });
     });
   });
 
   describe("POST /v2/activity/", () => {
     it("records apply events using the stat-event repository", async () => {
-      const missionPublisherId = new Types.ObjectId().toString();
+      const publisher = await publisherService.createPublisher({ name: "Apply Publisher", apikey: "apply-key" });
+
       const mission = await createTestMission({
         clientId: "apply-mission-client",
         title: "Apply Mission",
-        publisherId: missionPublisherId,
+        publisherId: publisher.id,
         lastSyncAt: new Date(),
         statusCode: "ACCEPTED",
       });
-
-      const publisher = await publisherService.createPublisher({ name: "Apply Publisher", apikey: "apply-key" });
 
       const clickStat = await createClickStat("click-apply", {
         missionId: mission._id.toString(),
@@ -129,7 +127,7 @@ describe("Activity V2 controller", () => {
         fromPublisherId: clickStat.fromPublisherId,
         toPublisherId: publisher.id,
       });
-      expect(createdApply?.missionId).toBeUndefined();
+      expect(createdApply?.missionId).toBeNull();
     });
 
     it("returns 404 when clickId does not exist", async () => {
