@@ -17,8 +17,8 @@ with src as (
   from {{ ref('stg_stat_event__account') }}
   {% if is_incremental() %}
     where
-      created_at
-      > (select coalesce(max(a.created_at), '1900-01-01') from {{ this }} as a)
+      updated_at
+      > (select coalesce(max(a.updated_at), '1900-01-01') from {{ this }} as a)
   {% endif %}
 )
 
