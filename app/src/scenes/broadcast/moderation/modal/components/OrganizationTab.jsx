@@ -50,8 +50,7 @@ const OrganizationTab = ({ data, onChange }) => {
           );
           setLoading(false);
         } catch (error) {
-          if (error.name === "AbortError") return;
-          captureError(error, "Erreur lors de la récupération des organisations");
+          captureError(error, { extra: { search } });
         }
       };
       fetchOrganizations();
@@ -122,9 +121,13 @@ const OrganizationTab = ({ data, onChange }) => {
 
       onChange(resU.data);
     } catch (error) {
-      captureError(error, "Erreur lors de la mise à jour de la mission", {
-        position: "bottom-right",
-      });
+      captureError(
+        error,
+        { extra: { data, values } },
+        {
+          position: "bottom-right",
+        },
+      );
     }
   };
 
@@ -144,7 +147,7 @@ const OrganizationTab = ({ data, onChange }) => {
             <label className="text-sm" htmlFor="organization-name">
               Nom de l'organisation
             </label>
-            <input id="organization-name" className="input mb-2" disabled name="organization-name" defaultValue={data.organizationName} />
+            <input id="organization-name" className="input mb-2" readOnly name="organization-name" defaultValue={data.organizationName} />
           </div>
           <div className="flex flex-col gap-2 py-2">
             <label className="text-sm" htmlFor="organization-siren">
@@ -250,9 +253,13 @@ const OrganizationUpdateModal = ({ isOpen, onClose, total, where, update, onChan
       onChange(res.data);
       onClose();
     } catch (error) {
-      captureError(error, "Erreur lors de la mise à jour des missions", {
-        position: "bottom-right",
-      });
+      captureError(
+        error,
+        { extra: { where, update, publisherId: publisher.id } },
+        {
+          position: "bottom-right",
+        },
+      );
     }
     setLoading(false);
   };

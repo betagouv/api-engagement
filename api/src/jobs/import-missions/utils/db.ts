@@ -19,7 +19,7 @@ import { EVENT_TYPES, getMissionChanges } from "../../../utils/mission";
 export const bulkDB = async (bulk: Mission[], publisher: PublisherRecord, importDoc: PrismaImport): Promise<boolean> => {
   try {
     const startedAt = new Date();
-    console.log(`[${publisher.name}] Starting mongo write at ${startedAt.toISOString()}`);
+    console.log(`[${publisher.name}] Starting ${bulk.length} missions import into mongo at ${startedAt.toISOString()}`);
 
     // Get existing missions in DB, to compare with new missions
     const clientIds = bulk.filter((e) => e && e.clientId).map((e) => e.clientId);
@@ -28,6 +28,7 @@ export const bulkDB = async (bulk: Mission[], publisher: PublisherRecord, import
       clientId: { $in: clientIds },
     }).lean();
     const existingMap = new Map(existingMissions.map((m) => [m.clientId, m]));
+    console.log(`[${publisher.name}] Found ${existingMap.size} existing missions in mongo`);
 
     // Build bulk write operations
     const missionBulk = [] as any[];
@@ -63,10 +64,6 @@ export const bulkDB = async (bulk: Mission[], publisher: PublisherRecord, import
     if (missionBulk.length > 0) {
       const resMission = await MissionModel.bulkWrite(missionBulk, { ordered: false }); // ordered: false to avoid stopping the import if one mission fails
 
-      if (resMission.hasWriteErrors()) {
-        captureException("Mongo bulk failed", JSON.stringify(resMission.getWriteErrors(), null, 2));
-      }
-
       Object.values(resMission.insertedIds).forEach((id) => {
         missionEvents.push({
           missionId: id.toString(),
@@ -87,7 +84,7 @@ export const bulkDB = async (bulk: Mission[], publisher: PublisherRecord, import
     console.log(`[${publisher.name}] Mongo bulk write created ${importDoc.createdCount}, updated ${importDoc.updatedCount}, took ${time}`);
     return true;
   } catch (error) {
-    captureException(`[${publisher.name}] Import failed`, JSON.stringify(error, null, 2));
+    captureException(error, { extra: { publisher } });
     return false;
   }
 };

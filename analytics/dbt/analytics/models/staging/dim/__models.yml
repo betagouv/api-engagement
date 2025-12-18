@@ -3,19 +3,16 @@ version: 2
 models:
   - name: dim_publisher
     description: >
-      Vue légère sur la table `Partner` (schema public) qui expose uniquement
-      les identifiants nécessaires aux lookups analytics.
+      Vue légère sur le staging `stg_publisher` (snapshot `analytics_raw.publisher`) exposant
+      les identifiants nécessaires aux lookups analytics et quelques métadonnées.
     columns:
       - name: id
-        description: Identifiant UUID du publisher dans l’entrepôt analytics.
+        description: Identifiant du publisher synchronisé (UUID stocké en texte).
         tests:
           - not_null
           - unique
-      - name: publisher_id_raw
-        description: Identifiant partenaire utilisé dans `stat_event` de la base core.
-        tests:
-          - not_null
-          - unique
+      - name: name
+        description: Nom du publisher (utile pour retrouver Service Civique, etc.).
 
   - name: dim_mission
     description: >
@@ -31,37 +28,5 @@ models:
         description: Identifiant mission utilisé dans `stat_event` de la base core.
       - name: client_id
         description: Identifiant client de la mission (clé métier utilisée par `stat_event`).
-      - name: publisher_id_raw
-        description: Identifiant partenaire utilisé dans `stat_event` de la base core.
-
-  - name: dim_campaign
-    description: >
-      Mapping simple entre les UUID campagne analytics et leurs anciens identifiants
-      afin de résoudre les références présentes dans `stat_event`.
-    columns:
-      - name: id
-        description: Identifiant UUID de la campagne.
-        tests:
-          - not_null
-          - unique
-      - name: campaign_id_raw
-        description: Identifiant campaign utilisé dans `stat_event` de la base core.
-        tests:
-          - not_null
-          - unique
-
-  - name: dim_widget
-    description: >
-      Correspondance entre les widgets analytics (UUID) et leur ancien identifiant
-      pour rapprocher les événements `stat_event` de type widget.
-    columns:
-      - name: id
-        description: Identifiant UUID du widget.
-        tests:
-          - not_null
-          - unique
-      - name: widget_id_raw
-        description: Identifiant widget utilisé dans `stat_event` de la base core.
-        tests:
-          - not_null
-          - unique
+      - name: publisher_id
+        description: Identifiant `Partner.id` associé à la mission (UUID stocké en texte).

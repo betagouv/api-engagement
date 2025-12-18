@@ -3,32 +3,11 @@ with events as (
     e.*,
     nullif(e.mission_id, '') as mission_id_raw,
     nullif(e.mission_client_id, '') as mission_client_id_raw,
-    nullif(e.to_publisher_id, '') as to_publisher_id_raw,
-    nullif(e.from_publisher_id, '') as from_publisher_id_raw,
-    nullif(e.source_id, '') as source_id_raw
+    nullif(e.to_publisher_id, '') as to_publisher_id_clean,
+    nullif(e.from_publisher_id, '') as from_publisher_id_clean,
+    nullif(e.source_id, '') as source_id_clean
   from {{ ref('stg_stat_event') }} as e
   where e.type = 'click'
-),
-
-publishers as (
-  select
-    id,
-    publisher_id_raw
-  from {{ ref('dim_publisher') }}
-),
-
-campaigns as (
-  select
-    id,
-    campaign_id_raw
-  from {{ ref('dim_campaign') }}
-),
-
-widgets as (
-  select
-    id,
-    widget_id_raw
-  from {{ ref('dim_widget') }}
 ),
 
 mission_map as (
@@ -45,34 +24,21 @@ select
   e.created_at,
   e.updated_at,
   e.tag,
-  p_from.id as from_publisher_id,
-  p_to.id as to_publisher_id,
   mm.mission_id,
   e.is_bot,
   e.is_human,
   e.referer as url_origin,
   e.click_id,
   mm.resolved_mission_id_raw as mission_id_raw,
+  e.from_publisher_id_clean as from_publisher_id,
+  e.to_publisher_id_clean as to_publisher_id,
+  e.source_id_clean as source_id,
   coalesce(e.tags, array[]::text []) as tags,
   case
     when coalesce(e.source, 'publisher') in ('publisher', 'api') then 'api'
     else e.source
   end as source,
-  coalesce(p_source.id, c_source.id, w_source.id) as source_id,
-  case when e.source = 'campaign' then c_source.id end as campaign_id,
-  case when e.source = 'widget' then w_source.id end as widget_id
+  case when e.source = 'campaign' then e.source_id_clean end as campaign_id,
+  case when e.source = 'widget' then e.source_id_clean end as widget_id
 from events as e
-left join
-  publishers as p_from
-  on e.from_publisher_id_raw = p_from.publisher_id_raw
-left join publishers as p_to on e.to_publisher_id_raw = p_to.publisher_id_raw
 left join mission_map as mm on e.id = mm.stat_event_id
-left join
-  publishers as p_source
-  on e.source = 'publisher' and e.source_id_raw = p_source.publisher_id_raw
-left join
-  campaigns as c_source
-  on e.source = 'campaign' and e.source_id_raw = c_source.campaign_id_raw
-left join
-  widgets as w_source
-  on e.source = 'widget' and e.source_id_raw = w_source.widget_id_raw

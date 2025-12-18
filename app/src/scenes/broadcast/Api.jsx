@@ -23,7 +23,7 @@ const Api = () => {
       setPublisher({ ...publisher, apikey: res.data });
       toast.success("Nouvelle clé API générée");
     } catch (error) {
-      captureError(error, "Erreur lors de l'enregistrement des données");
+      captureError(error, { extra: { publisherId: publisher.id } });
     }
   };
 
@@ -36,7 +36,7 @@ const Api = () => {
       setPublisher({ ...publisher, apikey: undefined });
       toast.success("Clé API supprimée");
     } catch (error) {
-      captureError(error, "Erreur lors de l'enregistrement des données");
+      captureError(error, { extra: { publisherId: publisher.id } });
     }
   };
 
@@ -66,7 +66,7 @@ const Api = () => {
           <label htmlFor="apikey" className="w-1/4 font-semibold">
             Votre clé API
           </label>
-          <input id="apikey" className="input flex-1" name="apikey" disabled={true} value={publisher.apikey || ""} />
+          <input id="apikey" className="input flex-1" name="apikey" readOnly value={publisher.apikey || ""} />
           <button className="secondary-btn flex h-10 w-10 items-center justify-center p-0" onClick={handleCopy}>
             <RiFileCopyFill />
           </button>
@@ -92,7 +92,7 @@ const Api = () => {
           <div className="flex items-center justify-between gap-4">
             <p className="w-1/4 font-semibold">Exemple d'appel</p>
           </div>
-          <textarea className="w-full rounded-none border border-[#E3E3FD] bg-[#F5F5FE] px-4 py-2 font-mono text-sm disabled:opacity-80" rows={2} disabled={true} value={curl} />
+          <textarea className="w-full rounded-none border border-[#E3E3FD] bg-[#F5F5FE] px-4 py-2 font-mono text-sm read-only:opacity-80" rows={2} readOnly value={curl} />
         </div>
       </div>
     </div>

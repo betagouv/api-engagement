@@ -23,7 +23,7 @@ const Create = () => {
         if (!resP.ok) throw resP;
         setPublishers(withLegacyPublishers(resP.data).sort((a, b) => a.name.localeCompare(b.name)));
       } catch (error) {
-        captureError(error, "Une erreur est survenue lors de la récupération des partenaires");
+        captureError(error, { extra: { search } });
         navigate("/admin-account");
       }
     };
@@ -57,7 +57,7 @@ const Create = () => {
       toast.success("Utilisateur créé avec succès");
       navigate(`/user/${res.data.id}`);
     } catch (error) {
-      captureError(error, "Erreur lors de la création de l'utilisateur");
+      captureError(error, { extra: { values } });
     }
   };
 

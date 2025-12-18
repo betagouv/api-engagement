@@ -12,6 +12,8 @@
   --color-green-success: #1f8d49; /* main-525 */
   --color-red-marianne: #e1000f; /* main-525 */
   --color-red-error: #f60700; /* main-525 */
+  --color-red-error-425: #ce0500; /* main-525 */
+  --color-red-error-950: #ffe9e9;
   --color-orange-warning-425: #b34000;
   --color-gray-1000-active: #ededed;
   --color-gray-975: #f6f6f6;
@@ -117,7 +119,7 @@ body {
 }
 
 @utility btn {
-  @apply min-h-10 w-fit px-4 py-2 text-center text-sm transition-all disabled:cursor-not-allowed;
+  @apply min-h-10 w-fit cursor-pointer px-4 py-2 text-center text-sm transition-all disabled:cursor-not-allowed;
 }
 @utility primary-btn {
   @apply btn bg-blue-france hover:bg-blue-france-hover active:bg-blue-france-hover disabled:bg-gray-925 disabled:text-gray-625 text-white;
@@ -128,7 +130,7 @@ body {
 }
 
 @utility tertiary-btn {
-  @apply btn shadow-border-gray text-blue-france hover:bg-gray-975 active:bg-gray-975 disabled:shadow-border-gray disabled:text-gray-625 bg-transparent disabled:bg-transparent;
+  @apply btn shadow-border-gray text-blue-france hover:bg-gray-975 active:bg-gray-975 disabled:shadow-border-gray disabled:text-gray-625 bg-white disabled:bg-transparent;
 }
 
 @utility tertiary-bis-btn {
@@ -136,7 +138,14 @@ body {
 }
 
 @utility red-btn {
-  @apply btn shadow-border-red text-red-marianne hover:bg-gray-975 active:bg-gray-975 disabled:shadow-border-gray disabled:text-gray-625 bg-transparent disabled:bg-transparent;
+  @apply btn shadow-border-red text-red-error-425 hover:bg-red-error-950 active:bg-red-error-950 disabled:shadow-border-gray disabled:text-gray-625 bg-transparent disabled:bg-transparent;
+}
+
+@utility dropdown-btn {
+  @apply btn hover:bg-blue-france-975 active:bg-blue-france-975 hover:text-blue-france disabled:shadow-border-gray disabled:text-gray-625 flex items-center gap-2 bg-white disabled:bg-transparent;
+}
+@utility dropdown-red-btn {
+  @apply btn hover:bg-red-error-950 active:bg-red-error-950 hover:text-red-error-425 disabled:shadow-border-gray disabled:text-gray-625 flex items-center gap-2 bg-white disabled:bg-transparent;
 }
 
 @utility input {

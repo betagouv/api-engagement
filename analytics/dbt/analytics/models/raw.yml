@@ -178,6 +178,120 @@ sources:
             description: Timestamp de création du partenaire.
           - name: updated_at
             description: Timestamp de dernière mise à jour, utilisé comme curseur d'export.
+      - name: campaign
+        description: >-
+          Campagnes API gérées dans l'application opérationnelle et exportées telles quelles dans `analytics_raw`.
+          Chaque ligne décrit l'association annonceur/diffuseur ainsi que les métadonnées de suivi (réaffectations,
+          états, typologie).
+        columns:
+          - name: id
+            description: Identifiant unique de la campagne.
+          - name: url
+            description: URL de destination éventuellement attachée à la campagne.
+          - name: name
+            description: Libellé libre de la campagne.
+          - name: from_publisher_id
+            description: Identifiant du partenaire diffuseur propriétaire de la campagne.
+          - name: to_publisher_id
+            description: Identifiant du partenaire annonceur ciblé par la campagne.
+          - name: active
+            description: Indique si la campagne est encore active (TRUE/FALSE).
+          - name: deleted_at
+            description: Timestamp de suppression logique (nullable).
+          - name: created_at
+            description: Timestamp de création de la campagne.
+          - name: updated_at
+            description: Timestamp de dernière mise à jour (curseur d'export).
+          - name: reassigned_at
+            description: Timestamp de réaffectation entre utilisateurs (nullable).
+          - name: reassigned_by_user_id
+            description: Identifiant de l'utilisateur ayant effectué la dernière réaffectation (nullable).
+          - name: type
+            description: Typologie métier de la campagne (nullable).
+      - name: campaign_tracker
+        description: >-
+          Paramètres de suivi (UTM, macros) associés aux campagnes. Chaque enregistrement représente une paire clé/valeur
+          attachée à une campagne donnée.
+        columns:
+          - name: id
+            description: Identifiant unique de la ligne de tracking.
+          - name: campaign_id
+            description: Identifiant de la campagne associée.
+          - name: key
+            description: Nom de la clé de tracking (ex. `utm_source`).
+          - name: value
+            description: Valeur stockée pour la clé de tracking.
+          - name: created_at
+            description: Timestamp de création de la campagne.
+          - name: updated_at
+            description: Timestamp de dernière mise à jour (curseur d'export).
+      - name: widget
+        description: Widgets embarqués exportés depuis la base core (configuration, géolocalisation et statut).
+        columns:
+          - name: id
+            description: Identifiant unique du widget.
+          - name: name
+            description: Libellé affiché.
+          - name: color
+            description: Couleur principale (héritée du core, ex `#000091`).
+          - name: style
+            description: Variant d'affichage (ex. `page`).
+          - name: type
+            description: Typologie de mission (benevolat / volontariat).
+          - name: location_lat
+            description: Latitude associée au contexte d'affichage (nullable).
+          - name: location_long
+            description: Longitude associée au contexte d'affichage (nullable).
+          - name: location_city
+            description: Ville associée au contexte d'affichage (nullable).
+          - name: distance
+            description: Rayon de recherche (texte, ex. `25km`).
+          - name: url
+            description: URL dédiée (nullable).
+          - name: jva_moderation
+            description: Activation de la modération JVA pour ce widget.
+          - name: from_publisher_id
+            description: Diffuseur propriétaire du widget.
+          - name: active
+            description: Statut actif/inactif.
+          - name: deleted_at
+            description: Timestamp de suppression logique (nullable).
+          - name: created_at
+            description: Timestamp de création.
+          - name: updated_at
+            description: Timestamp de dernière mise à jour (curseur).
+      - name: widget_publisher
+        description: Relations widget ↔ publisher autorisés.
+        columns:
+          - name: widget_id
+            description: Identifiant du widget.
+          - name: publisher_id
+            description: Identifiant du partenaire autorisé.
+          - name: created_at
+            description: Timestamp d'association.
+      - name: widget_rule
+        description: Règles de filtrage associées aux widgets (critères métiers).
+        columns:
+          - name: id
+            description: Identifiant unique de la règle.
+          - name: widget_id
+            description: Widget concerné par la règle.
+          - name: field
+            description: Champ ciblé par la règle (ex. `department`).
+          - name: field_type
+            description: Typage du champ (texte, liste, etc.).
+          - name: operator
+            description: Opérateur de comparaison (ex. `=`, `in`).
+          - name: value
+            description: Valeur comparée (texte).
+          - name: combinator
+            description: Combinaison logique (ex. `and` / `or`).
+          - name: position
+            description: Ordre d'application de la règle.
+          - name: created_at
+            description: Timestamp de création.
+          - name: updated_at
+            description: Timestamp de dernière mise à jour.
       - name: mission_event
         description: >-
           Événements de mission générés lors des imports (create/update/delete) sur la base Mongo historique,

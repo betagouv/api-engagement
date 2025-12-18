@@ -15,7 +15,6 @@ import {
   SearchStatEventsParams,
   SearchViewStatsParams,
   SearchViewStatsResult,
-  StatEventMissionStatsDetails,
   StatEventMissionStatsSummary,
   StatEventRecord,
   StatEventSource,
@@ -493,47 +492,6 @@ async function aggregateStatEventsForMission({
   return result;
 }
 
-async function findStatEventMissionStatsWithDetails(missionId: string): Promise<{ clicks: StatEventMissionStatsDetails[]; applications: StatEventMissionStatsDetails[] }> {
-  type MissionStatsDetailsGroup = { fromPublisherId: string | null; _count: { _all: number } };
-
-  const [applicationsRaw, clicksRaw] = await Promise.all([
-    statEventRepository.groupBy({
-      by: ["fromPublisherId"],
-      where: {
-        missionId,
-        isBot: false,
-        type: "apply",
-      },
-      _count: { _all: true },
-    }),
-    statEventRepository.groupBy({
-      by: ["fromPublisherId"],
-      where: {
-        missionId,
-        isBot: false,
-        type: "click",
-      },
-      _count: { _all: true },
-    }),
-  ]);
-
-  const applications = applicationsRaw as MissionStatsDetailsGroup[];
-  const clicks = clicksRaw as MissionStatsDetailsGroup[];
-
-  const mapGroup = (group: MissionStatsDetailsGroup): StatEventMissionStatsDetails => ({
-    key: group.fromPublisherId ?? "",
-    name: undefined,
-    logo: undefined,
-    url: undefined,
-    doc_count: group._count._all,
-  });
-
-  return {
-    applications: applications.map(mapGroup),
-    clicks: clicks.map(mapGroup),
-  };
-}
-
 async function findStatEventMissionStatsSummary(missionId: string): Promise<{ clicks: StatEventMissionStatsSummary[]; applications: StatEventMissionStatsSummary[] }> {
   type MissionStatsSummaryGroup = { fromPublisherId: string | null; _count: { _all: number } };
 
@@ -561,10 +519,23 @@ async function findStatEventMissionStatsSummary(missionId: string): Promise<{ cl
   const clicks = clicksRaw as MissionStatsSummaryGroup[];
   const applications = applicationsRaw as MissionStatsSummaryGroup[];
 
-  const mapGroup = (group: MissionStatsSummaryGroup): StatEventMissionStatsSummary => ({
-    key: group.fromPublisherId ?? "",
-    doc_count: group._count._all,
-  });
+  const publisherIds = Array.from(
+    new Set(
+      [...clicks, ...applications]
+        .map((group) => group.fromPublisherId)
+        .filter((value): value is string => Boolean(value))
+    )
+  );
+  const publisherNameMap = await publisherService.getPublisherNameMap(publisherIds);
+
+  const mapGroup = (group: MissionStatsSummaryGroup): StatEventMissionStatsSummary => {
+    const key = group.fromPublisherId ?? "";
+    return {
+      key,
+      name: key ? publisherNameMap.get(key) : undefined,
+      doc_count: group._count._all,
+    };
+  };
 
   return {
     clicks: clicks.map(mapGroup),
@@ -680,7 +651,6 @@ export const statEventService = {
   countStatEventsByCriteria,
   countStatEventClicksByPublisherForOrganizationSince,
   aggregateStatEventsForMission,
-  findStatEventMissionStatsWithDetails,
   findStatEventMissionStatsSummary,
   scrollStatEvents,
   updateStatEventsExportStatus,

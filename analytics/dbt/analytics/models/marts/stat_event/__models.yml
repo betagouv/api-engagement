@@ -27,7 +27,7 @@ models:
           - not_null
           - relationships:
               arguments:
-                to: source('public', 'Partner')
+                to: ref('publisher')
                 field: id
       - name: to_publisher_id
         description: UUID du partenaire annonceur.
@@ -35,7 +35,7 @@ models:
           - not_null
           - relationships:
               arguments:
-                to: source('public', 'Partner')
+                to: ref('publisher')
                 field: id
       - name: click_id
         description: Référence vers la table `Click` lorsqu’un clic est associé.
@@ -49,7 +49,7 @@ models:
         tests:
           - relationships:
               arguments:
-                to: source('public', 'Widget')
+                to: ref('widget')
                 field: id
       - name: view_id_raw
         description: Identifiant brut de la vue transmis par `stat_event`.
@@ -78,13 +78,20 @@ models:
         description: Identifiant mission brut provenant de `stat_event`.
       - name: status
         description: Statut métier de la candidature.
+      - name: campaign_id
+        description: Référence éventuelle vers la campagne associée.
+        tests:
+          - relationships:
+              arguments:
+                to: ref('campaign')
+                field: id
       - name: from_publisher_id
         description: UUID du partenaire diffuseur.
         tests:
           - not_null
           - relationships:
               arguments:
-                to: source('public', 'Partner')
+                to: ref('publisher')
                 field: id
       - name: to_publisher_id
         description: UUID du partenaire annonceur.
@@ -92,7 +99,14 @@ models:
           - not_null
           - relationships:
               arguments:
-                to: source('public', 'Partner')
+                to: ref('publisher')
+                field: id
+      - name: widget_id
+        description: Référence vers la table `Widget`.
+        tests:
+          - relationships:
+              arguments:
+                to: ref('widget')
                 field: id
       - name: custom_attributes
         description: Champs JSON contenant les attributs personnalisés.
@@ -119,13 +133,20 @@ models:
                 field: id
       - name: mission_id_raw
         description: Identifiant mission brut remonté par `stat_event`.
+      - name: campaign_id
+        description: Référence éventuelle vers la campagne associée.
+        tests:
+          - relationships:
+              arguments:
+                to: ref('campaign')
+                field: id
       - name: from_publisher_id
         description: UUID du partenaire diffuseur.
         tests:
           - not_null
           - relationships:
               arguments:
-                to: source('public', 'Partner')
+                to: ref('publisher')
                 field: id
       - name: to_publisher_id
         description: UUID du partenaire annonceur.
@@ -133,7 +154,14 @@ models:
           - not_null
           - relationships:
               arguments:
-                to: source('public', 'Partner')
+                to: ref('publisher')
+                field: id
+      - name: widget_id
+        description: Référence vers la table `Widget`.
+        tests:
+          - relationships:
+              arguments:
+                to: ref('widget')
                 field: id
       - name: source
         description: Origine normalisée du clic (`SourceType`).
@@ -162,13 +190,20 @@ models:
                 field: id
       - name: mission_id_raw
         description: Identifiant mission brut provenant de `stat_event`.
+      - name: campaign_id
+        description: Référence éventuelle vers la campagne associée.
+        tests:
+          - relationships:
+              arguments:
+                to: ref('campaign')
+                field: id
       - name: from_publisher_id
         description: UUID du partenaire diffuseur.
         tests:
           - not_null
           - relationships:
               arguments:
-                to: source('public', 'Partner')
+                to: ref('publisher')
                 field: id
       - name: to_publisher_id
         description: UUID du partenaire annonceur.
@@ -176,7 +211,14 @@ models:
           - not_null
           - relationships:
               arguments:
-                to: source('public', 'Partner')
+                to: ref('publisher')
+                field: id
+      - name: widget_id
+        description: Référence vers la table `Widget`.
+        tests:
+          - relationships:
+              arguments:
+                to: ref('widget')
                 field: id
       - name: source
         description: Origine normalisée de l’impression (`SourceType`).

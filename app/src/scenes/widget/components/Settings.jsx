@@ -42,7 +42,7 @@ const Settings = ({ widget, values, onChange, loading }) => {
         if (publisher.isAnnonceur && !newPublishers.some((p) => p._id === publisher.id)) newPublishers.push({ _id: publisher.id, name: publisher.name, count: 0 });
         setPublishers(newPublishers);
       } catch (error) {
-        captureError(error, "Erreur lors de la récupération des missions");
+        captureError(error, { extra: { publisherId: publisher.id } });
       }
     };
     fetchMissions();
@@ -67,7 +67,7 @@ const Settings = ({ widget, values, onChange, loading }) => {
         if (!res.ok) throw res;
         setTotal(res.total);
       } catch (error) {
-        captureError(error, "Erreur lors de la récupération des missions");
+        captureError(error, { extra: { publisherId: publisher.id } });
       }
     };
     fetchFilteredMissions();
@@ -80,7 +80,7 @@ const Settings = ({ widget, values, onChange, loading }) => {
       if (!res.ok) throw res;
       return res.data;
     } catch (error) {
-      captureError(error, "Erreur lors de la récupération des missions");
+      captureError(error, { extra: { field, search, currentValues } });
     }
     return [];
   };
@@ -93,9 +93,9 @@ const Settings = ({ widget, values, onChange, loading }) => {
         <div className="grid grid-cols-2 gap-10">
           <div className="flex flex-col gap-4">
             <label className="text-base" htmlFor="name">
-              Nom du widget<span className="text-red-error ml-1">*</span>
+              Nom du widget<span className="text-red-marianne ml-1">*</span>
             </label>
-            <input id="name" className="input" name="name" value={values.name} onChange={(e) => onChange({ ...values, name: e.target.value })} disabled={Boolean(widget)} />
+            <input id="name" className="input" name="name" value={values.name} onChange={(e) => onChange({ ...values, name: e.target.value })} readOnly={Boolean(widget)} />
           </div>
 
           <div className="flex flex-col gap-4">
@@ -115,7 +115,7 @@ const Settings = ({ widget, values, onChange, loading }) => {
         <div className="grid grid-cols-2 gap-10">
           <div className="space-y-4">
             <label className="text-base">
-              Type de mission<span className="text-red-error ml-1">*</span>
+              Type de mission<span className="text-red-marianne ml-1">*</span>
             </label>
             <div className="flex items-center">
               {publisher.publishers.filter((p) => p.publisherId !== SC_ID).length > 0 && (
@@ -177,7 +177,7 @@ const Settings = ({ widget, values, onChange, loading }) => {
         <div className="space-y-4">
           <label className="text-base" htmlFor="location">
             Diffuser des missions de
-            <span className="text-red-error ml-1">*</span>
+            <span className="text-red-marianne ml-1">*</span>
           </label>
 
           {values.type === "benevolat" && (
@@ -315,7 +315,7 @@ const Settings = ({ widget, values, onChange, loading }) => {
         <div className="grid grid-cols-2 gap-10">
           <div className="flex flex-col gap-4">
             <label className="text-base" htmlFor="style">
-              Mode d'affichage<span className="text-red-error ml-1">*</span>
+              Mode d'affichage<span className="text-red-marianne ml-1">*</span>
             </label>
             <div className="flex items-center justify-between">
               <div>
@@ -346,7 +346,7 @@ const Settings = ({ widget, values, onChange, loading }) => {
 
           <div className="flex flex-col gap-4">
             <label className="text-base" htmlFor="color">
-              Code hexadécimal couleur<span className="text-red-error ml-1">*</span>
+              Code hexadécimal couleur<span className="text-red-marianne ml-1">*</span>
             </label>
             <div className="flex items-center gap-4">
               <div className="h-9 w-9 rounded" style={{ backgroundColor: values.color }} />
@@ -379,9 +379,6 @@ const LocationSearch = ({ selected, onChange }) => {
           label: `${f.properties.name}, ${f.properties.city} ${f.properties.postcode}`,
           lat: f.geometry.coordinates[1],
           lon: f.geometry.coordinates[0],
-          city: f.properties.city,
-          postcode: f.properties.postcode,
-          name: f.properties.name,
         })),
       );
     }
@@ -403,8 +400,8 @@ const LocationSearch = ({ selected, onChange }) => {
 
         <Transition as={Fragment} leave="transition ease-in duration-100" leaveFrom="opacity-100" leaveTo="opacity-0">
           <ComboboxOptions className="absolute max-h-60 w-full divide-y divide-gray-900 overflow-auto bg-white text-base shadow-lg focus:outline-none">
-            {options.map((option) => (
-              <ComboboxOption key={option.value} value={option} className={({ active }) => `cursor-default p-3 select-none ${active ? "bg-gray-975" : "bg-white"}`}>
+            {options.map((option, index) => (
+              <ComboboxOption key={`${option.label}-${index}`} value={option} className={({ active }) => `cursor-default p-3 select-none ${active ? "bg-gray-975" : "bg-white"}`}>
                 <span className={`truncate text-sm text-black ${selected?.label === option.label ? "text-blue-france" : ""}`}>{option.label}</span>
               </ComboboxOption>
             ))}

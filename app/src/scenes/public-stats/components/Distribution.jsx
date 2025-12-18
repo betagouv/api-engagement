@@ -77,7 +77,7 @@ const Distribution = ({ filters, onFiltersChange }) => {
 
         setDepartmentStats(groupedDepartments);
       } catch (error) {
-        captureError(error, "Une erreur est survenue lors de la récupération des statistiques");
+        captureError(error, { extra: { filters } });
       }
       setLoading(false);
     };
@@ -117,7 +117,7 @@ const Distribution = ({ filters, onFiltersChange }) => {
 
         setDomainStats(domainByYear);
       } catch (error) {
-        captureError(error, "Une erreur est survenue lors de la récupération des statistiques");
+        captureError(error, { extra: { filters } });
       }
       setLoading(false);
     };

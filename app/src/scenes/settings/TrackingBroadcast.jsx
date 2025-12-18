@@ -42,10 +42,10 @@ const TrackingBroadcast = () => {
         </button>
       </div>
       <textarea
-        className="w-full rounded-none border border-[#E3E3FD] bg-[#F5F5FE] px-4 py-2 text-base disabled:opacity-80"
+        className="w-full rounded-none border border-[#E3E3FD] bg-[#F5F5FE] px-4 py-2 text-base read-only:opacity-80"
         rows={8}
         value={script.replace("{{publisherId}}", publisher.id)}
-        disabled={true}
+        readOnly
       />
     </div>
   );

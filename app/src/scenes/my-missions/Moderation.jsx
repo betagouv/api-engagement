@@ -68,7 +68,7 @@ const Moderation = () => {
         setTotal(res.total);
         return;
       } catch (error) {
-        captureError(error, "Erreur lors de la récupération des missions");
+        captureError(error, { extra: { filters } });
       }
     };
     const fetchAggs = async () => {
@@ -90,7 +90,7 @@ const Moderation = () => {
           buildStats(res.data);
         }
       } catch (error) {
-        captureError(error, "Erreur lors de la récupération des statistiques");
+        captureError(error, { extra: { filters } });
       }
     };
 

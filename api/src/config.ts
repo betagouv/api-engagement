@@ -47,6 +47,7 @@ export const PUBLISHER_IDS = {
   BOUYGUES_TELECOM: "616fefd119fb03075a0b0843",
   ECTI: "619faeb97d373e07aea8be24",
   EGEE: "619faf257d373e07aea8be27",
+  GRIMPIO: ENV === "production" ? "9ccdd7fdb2715f6c766fd989" : "237ff477c3c4bc897e81c249",
   FONDATION_RAOUL_FOLLEREAU: "634e641783b660072d4c597e",
   JAGIS_POUR_LA_NATURE: "5f59305b6c7ea514150a818e",
   JEVEUXAIDER: "5f5931496c7ea514150a818f",
@@ -64,6 +65,9 @@ export const PUBLISHER_IDS = {
 
 export const DEFAULT_AVATAR = "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/default.jpg";
 export const JVA_LOGO_URL = "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/jva-logo.png";
+export const JVA_100_LOGO_URL = "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/jva-logo-100x100.png";
+export const ASC_LOGO_URL = "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/asc-logo.png";
+export const ASC_100_LOGO_URL = "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/asc-logo-100x100.png";
 
 // Piloty job boards
 export const PILOTY_BASE_URL = process.env.PILOTY_BASE_URL || "https://sandbox-api.piloty.fr";

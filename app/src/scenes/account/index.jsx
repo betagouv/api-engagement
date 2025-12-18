@@ -34,7 +34,7 @@ const Account = () => {
       toast.success("Paramètres mis à jour");
       setUser(res.data);
     } catch (error) {
-      captureError(error, "Erreur lors de la mise à jour des paramètres");
+      captureError(error, { extra: { values } });
     }
   };
 
@@ -97,7 +97,7 @@ const Account = () => {
             <label className="mb-2 text-sm" htmlFor="email">
               E-mail
             </label>
-            <input id="email" className="input mb-2 border-b-black" name="email" disabled value={values.email} />
+            <input id="email" className="input mb-2 border-b-black" name="email" readOnly value={values.email} />
           </div>
 
           <div className="col-span-2 flex justify-end gap-4">
@@ -152,7 +152,7 @@ const ResetPasswordModal = () => {
       toast.success("Mot de passe mis à jour");
       setOpen(false);
     } catch (error) {
-      captureError(error, "Erreur lors de la mise à jour du mot de passe");
+      captureError(error, { extra: { values } });
     }
   };
 

@@ -35,7 +35,7 @@ const Widgets = () => {
       if (!res.ok) throw res;
       setData(res.data || []);
     } catch (error) {
-      captureError(error, "Erreur lors du chargement des données");
+      captureError(error, { extra: { filters } });
     }
     setLoading(false);
   };
@@ -46,11 +46,11 @@ const Widgets = () => {
 
   const handleActivate = async (value, item) => {
     try {
-      const res = await api.put(`/widget/${item._id}`, { active: value });
+      const res = await api.put(`/widget/${item.id}`, { active: value });
       if (!res.ok) throw res;
-      setData((widgets) => widgets.map((w) => (w._id === res.data._id ? res.data : w)));
+      setData((widgets) => widgets.map((w) => (w.id === res.data.id ? res.data : w)));
     } catch (error) {
-      captureError(error, "Erreur lors de la mise à jour des données");
+      captureError(error, { extra: { item } });
     }
   };
 
@@ -92,7 +92,7 @@ const Widgets = () => {
             {data.slice((filters.page - 1) * filters.pageSize, filters.page * filters.pageSize).map((item, i) => (
               <tr key={i} className={`${i % 2 === 0 ? "bg-gray-975" : "bg-gray-1000-active"} table-item`}>
                 <td className="px-4" colSpan={3}>
-                  <Link to={`/broadcast/widget/${item._id}`} className="text-blue-france truncate">
+                  <Link to={`/broadcast/widget/${item.id}`} className="text-blue-france truncate">
                     {item.name}
                   </Link>
                 </td>
@@ -105,12 +105,12 @@ const Widgets = () => {
                 </td>
                 <td className={`${!item.active ? "opacity-50" : "opacity-100"} px-4`}>{new Date(item.createdAt).toLocaleDateString("fr")}</td>
                 <td className="mt-3 flex gap-2 px-4 text-lg">
-                  <Link className="secondary-btn flex items-center" to={`/broadcast/widget/${item._id}`}>
+                  <Link className="secondary-btn flex items-center" to={`/broadcast/widget/${item.id}`}>
                     <RiEditFill className="text-lg" />
                   </Link>
                   <a
                     className="secondary-btn flex items-center"
-                    href={`${item.type === "volontariat" ? VOLONTARIAT_URL : BENEVOLAT_URL}?widget=${item._id}&notrack=true`}
+                    href={`${item.type === "volontariat" ? VOLONTARIAT_URL : BENEVOLAT_URL}?widget=${item.id}&notrack=true`}
                     target="_blank"
                     rel="noopener noreferrer"
                   >

@@ -17,7 +17,7 @@ const Bots = () => {
         if (!res.ok) throw res;
         setBots(res.data);
       } catch (error) {
-        captureError(error, "Erreur lors de la récupération des données");
+        captureError(error);
       }
       setLoading(false);
     };
@@ -62,14 +62,14 @@ const BotRow = ({ bot }) => {
         if (!res.ok) {
           if (res.code === "NOT_FOUND") {
             setStatBot(null);
-          } else {
-            captureError(res, "Erreur lors de la récupération des données");
+            return;
           }
+          throw res;
         }
         setStatBot(res.data || null);
         setStats(res.aggs || null);
       } catch (error) {
-        captureError(error, "Erreur lors de la récupération des données");
+        captureError(error, { extra: { botId: bot._id } });
       }
     };
     fetchData();
@@ -82,7 +82,7 @@ const BotRow = ({ bot }) => {
       if (!res.ok) throw res;
       setStatBot(res.data);
     } catch (error) {
-      captureError(error, "Erreur lors de la récupération des données");
+      captureError(error, { extra: { botId: bot._id } });
     } finally {
       setLoading(false);
     }
@@ -95,7 +95,7 @@ const BotRow = ({ bot }) => {
       if (!res.ok) throw res;
       setStatBot(null);
     } catch (error) {
-      captureError(error, "Erreur lors de la récupération des données");
+      captureError(error, { extra: { botId: bot._id } });
     } finally {
       setLoading(false);
     }

@@ -1,27 +1,26 @@
 import { useEffect, useState } from "react";
 import { AiFillWarning } from "react-icons/ai";
-import { BiSolidInfoSquare } from "react-icons/bi";
-import { RiArrowLeftLine, RiDeleteBin6Line, RiErrorWarningFill, RiFileTransferLine } from "react-icons/ri";
+import { RiArrowLeftLine, RiDeleteBin6Line, RiFileTransferLine, RiMoreLine } from "react-icons/ri";
 import { Link, useNavigate, useParams } from "react-router-dom";
 
 import { toast } from "react-toastify";
 
+import Dropdown from "../../components/Dropdown";
 import Loader from "../../components/Loader";
 import Modal from "../../components/New-Modal";
 import SearchSelect from "../../components/SearchSelect";
 import Toggle from "../../components/Toggle";
-import WarningAlert from "../../components/WarningAlert";
 import api from "../../services/api";
 import { API_URL } from "../../services/config";
 import { captureError } from "../../services/error";
 import { isValidUrl } from "../../services/utils";
 import { withLegacyPublishers } from "../../utils/publisher";
+import Information from "./components/Information";
+import Trackers from "./components/Trackers";
 
 const Edit = () => {
   const { id } = useParams();
   const [campaign, setCampaign] = useState(null);
-  const [tracking, setTracking] = useState(false);
-
   const [values, setValues] = useState({
     name: "",
     type: "",
@@ -30,8 +29,7 @@ const Edit = () => {
     trackers: [],
   });
   const [errors, setErrors] = useState({});
-  const [publishers, setPublishers] = useState([]);
-  const [activated, setActivated] = useState(false);
+  const [loading, setLoading] = useState(false);
   const [isReassignModalOpen, setIsReassignModalOpen] = useState(false);
   const trackedLink = `${API_URL}/r/campaign/${id}`;
   const navigate = useNavigate();
@@ -39,55 +37,23 @@ const Edit = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const res = await api.post(`/publisher/search`, { role: "annonceur" });
-        if (!res.ok) throw new Error("Erreur lors de la récupération des données");
-        setPublishers(
-          withLegacyPublishers(res.data)
-            .sort((a, b) => a.name.localeCompare(b.name))
-            .map((p) => ({ ...p, label: p.name })),
-        );
-      } catch (error) {
-        captureError(error, "Erreur lors de la récupération des données");
-        navigate("/broadcast");
-      }
-    };
-    fetchData();
-  }, []);
-
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
         const res = await api.get(`/campaign/${id}`);
-        if (!res.ok) throw new Error("Erreur lors de la récupération des données");
-        if (res.data.type === "tuile/bouton") setTracking(true);
+        if (!res.ok) {
+          if (res.status === 404) {
+            toast.error("Campagne non trouvée");
+            navigate("/broadcast/campaigns");
+            return;
+          }
+          throw res;
+        }
         setCampaign(res.data);
         setValues({ ...values, ...res.data });
-        setActivated(!res.data.deleted);
       } catch (error) {
-        captureError(error, "Erreur lors de la récupération des données");
-        navigate("/broadcast");
+        captureError(error, { extra: { id } });
       }
     };
     fetchData();
   }, [id]);
-
-  useEffect(() => {
-    const fetchData = async () => {
-      if (!campaign) return;
-      try {
-        const resC = await api.post(`/stats/search`, { type: "click", sourceId: id, size: 1, fromPublisherId: campaign.fromPublisherId });
-        if (!resC.ok) throw resC;
-
-        const resI = await api.post(`/stats/search`, { type: "print", sourceId: id, size: 1, fromPublisherId: campaign.fromPublisherId });
-        if (!resI.ok) throw resI;
-
-        if ((resC.data?.length || 0) > 0 && (resI.data?.length || 0) === 0) setTracking(true);
-      } catch (error) {
-        captureError(error, "Erreur lors de la récupération des données");
-      }
-    };
-    fetchData();
-  }, [campaign]);
 
   const handleSubmit = async () => {
     const errors = {};
@@ -104,12 +70,13 @@ const Edit = () => {
     }
 
     try {
+      setLoading(true);
       const payload = {
         name: values.name,
         type: values.type,
         toPublisherId: values.toPublisherId,
         url: values.url,
-        urlSource: values.urlSource,
+        urlSource: values.urlSource || "",
         trackers: values.trackers.filter((t) => t.key && t.value),
       };
 
@@ -122,22 +89,24 @@ const Edit = () => {
       setCampaign(res.data);
       setValues({ ...values, ...res.data });
     } catch (error) {
-      captureError(error, "Erreur lors de la mise à jour de la campagne");
+      captureError(error, { extra: { id, values } });
+    } finally {
+      setLoading(false);
     }
   };
 
   const handleArchive = async (activation) => {
     try {
-      const res = await api.put(`/campaign/${id}`, { deleted: !activation });
+      setValues({ ...values, active: activation });
+      const res = await api.put(`/campaign/${id}`, { active: activation });
       if (!res.ok) {
-        if (res.status === 409) return toast.error("Une campagne avec ce nom existe déjà");
-        else throw res;
+        throw res;
       }
-      setActivated(activation);
       toast.success(activation ? "Campagne activée" : "Campagne désactivée");
-      setCampaign(res.data);
+      setCampaign({ ...campaign, active: activation });
     } catch (error) {
-      captureError(error, `Erreur lors de la mise à jour de la campagne`);
+      captureError(error, { extra: { id, activation } });
+      setValues({ ...values, active: !activation });
     }
   };
 
@@ -151,45 +120,8 @@ const Edit = () => {
       toast.success("Campagne supprimée");
       navigate("/broadcast/campaigns");
     } catch (error) {
-      captureError(error, "Erreur lors de la suppression de la campagne");
+      captureError(error, { extra: { id } });
     }
-  };
-
-  const handleUrlChange = (e) => {
-    const url = e.target.value;
-    const trackers = url.includes("?")
-      ? url
-          .split("?")[1]
-          .split("&")
-          .map((t) => ({ key: t.split("=")[0], value: t.split("=")[1] || "" }))
-      : [];
-    setValues({ ...values, url, trackers });
-  };
-
-  const handleTrackerKeyChange = (e, i) => {
-    const trackers = [...values.trackers];
-    const query = new URLSearchParams();
-    trackers.forEach((t, j) => (i === j ? query.append(e.target.value, trackers[i].value) : query.append(t.key, t.value)));
-    const url = `${values.url.split("?")[0]}?${query.toString()}`;
-    trackers[i].key = e.target.value;
-    setValues({ ...values, url, trackers });
-  };
-
-  const handleTrackerValueChange = (e, i) => {
-    const trackers = [...values.trackers];
-    const query = new URLSearchParams();
-    trackers.forEach((t) => query.append(t.key, t.value || ""));
-    query.set(trackers[i].key, e.target.value);
-    const url = `${values.url.split("?")[0]}?${query.toString()}`;
-    trackers[i].value = e.target.value;
-    setValues({ ...values, url, trackers });
-  };
-
-  const handleDeleteTracker = (i) => {
-    const query = new URLSearchParams();
-    values.trackers.forEach((t, j) => (i === j ? null : query.append(t.key, t.value || "")));
-    const url = `${values.url.split("?")[0]}?${query.toString()}`;
-    setValues({ ...values, url, trackers: values.trackers.filter((t, j) => j !== i) });
   };
 
   const handleCopy = () => {
@@ -201,7 +133,12 @@ const Edit = () => {
     v.name !== campaign.name || v.type !== campaign.type || v.toPublisherId !== campaign.toPublisherId || v.url !== campaign.url || v.urlSource !== campaign.urlSource;
   const isErrors = (e) => e.name || e.toPublisherId || e.url;
 
-  if (!campaign) return <h2 className="p-3">Chargement...</h2>;
+  if (!campaign)
+    return (
+      <div className="flex h-full items-center justify-center">
+        <Loader />
+      </div>
+    );
 
   return (
     <>
@@ -214,216 +151,91 @@ const Edit = () => {
         setCampaign={setCampaign}
       />
       <div className="flex flex-col gap-8">
-        <Link to="/broadcast" className="border-blue-france text-blue-france flex w-fit items-center gap-2 border-b text-[16px]">
+        <Link to="/broadcast/campaigns" className="border-blue-france text-blue-france flex w-fit items-center gap-2 border-b text-[16px]">
           <RiArrowLeftLine />
           Retour
         </Link>
 
-        <h1 className="text-4xl font-bold">Modifier votre campagne</h1>
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-4xl font-bold">Modifier une campagne</h1>
+            <p className="text-gray-425 mt-2 text-base">Créée le {new Date(campaign.createdAt).toLocaleDateString("fr")}</p>
+          </div>
+          <div className="flex items-center gap-4">
+            <div className="flex items-center">
+              <Toggle value={values.active} onChange={handleArchive} />
+              <label className={`${values.active ? "text-blue-france" : "text-gray-425"} mb-1 ml-2`}>{values.active ? "Active" : "Inactive"}</label>
+            </div>
+            <button className="primary-btn" disabled={!isChanged(values) || isErrors(errors) || loading} onClick={handleSubmit}>
+              {loading ? <Loader className="h-6 w-6" /> : "Enregistrer"}
+            </button>
+            <CampaignMenu setIsReassignModalOpen={setIsReassignModalOpen} handleDelete={handleDelete} />
+          </div>
+        </div>
 
-        <div className="space-y-12 bg-white p-12">
-          <div className="flex justify-between">
-            <div className="space-y-2">
-              <h2 className="text-3xl font-bold">Paramétrez votre campagne</h2>
-              <span>Créée le {new Date(campaign.createdAt).toLocaleDateString("fr")}</span>
-            </div>
-            <div className="flex items-center gap-6">
-              <button className="secondary-btn flex items-center" onClick={() => setIsReassignModalOpen(true)}>
-                <RiFileTransferLine className="mr-2" />
-                <span>Déplacer</span>
-              </button>
-              <button className="red-btn flex items-center" onClick={handleDelete}>
-                <RiDeleteBin6Line className="mr-2" />
-                <span>Supprimer</span>
-              </button>
-              <div className="flex items-center">
-                <Toggle value={activated} onChange={handleArchive} />
-                <label className="text-blue-france ml-2">{activated ? "Activée" : "Désactivée"}</label>
-              </div>
-            </div>
+        <div className="flex flex-col gap-8 bg-white p-10 shadow-lg">
+          <div>
+            <h2 className="mb-2 text-3xl font-bold">Paramètres</h2>
+            <p className="text-gray-425 text-xs">
+              Les champs avec <span className="text-red-marianne">*</span> sont requis.
+            </p>
           </div>
 
-          {tracking && (
-            <WarningAlert onClose={() => setTracking(false)}>
-              <p className="text-xl font-bold">Il semblerait que les impressions de cette campagne ne soient pas comptabilisées</p>
-              <p className="text-sm text-[#3a3a3a]">
-                Pour vous assurer de bien comptabiliser les impressions de cette campagne,{" "}
-                <Link className="link" to={`/announce/settings`}>
-                  rendez-vous dans la page paramètres
-                </Link>
-              </p>
-            </WarningAlert>
-          )}
+          <Information values={values} onChange={setValues} errors={errors} onErrorChange={setErrors} />
+          <Trackers values={values} onChange={setValues} />
 
-          <div className="flex flex-col gap-8">
-            <div className="flex gap-4">
-              <div className="flex flex-1 flex-col">
-                <label className="mb-2 text-sm" htmlFor="name">
-                  Nom de la campagne
-                </label>
-                <input
-                  className={`input mb-2 ${errors.name ? "border-b-red-error" : "border-b-black"}`}
-                  id="name"
-                  value={values.name}
-                  onChange={(e) => setValues({ ...values, name: e.target.value })}
-                />
-                {errors.name && (
-                  <div className="text-red-error flex items-center text-sm">
-                    <RiErrorWarningFill className="mr-2" />
-                    {errors.name}
-                  </div>
-                )}
-              </div>
-              <div className="flex flex-1 flex-col">
-                <label className="mb-2 text-sm" htmlFor="urlSource">
-                  Où le lien est intégré
-                </label>
-                <input
-                  className="input"
-                  id="urlSource"
-                  value={values.urlSource}
-                  onChange={(e) => setValues({ ...values, urlSource: e.target.value })}
-                  placeholder="Exemple: Newsletter de Noël"
-                />
-              </div>
-            </div>
-
-            <div className="flex gap-4">
-              <div className="flex flex-1 flex-col">
-                <label className="mb-2 text-sm" htmlFor="type">
-                  Type de campagne
-                </label>
-                <select
-                  id="type"
-                  className={`input ${errors.type ? "border-b-red-error" : "border-b-black"}`}
-                  value={values.type}
-                  onChange={(e) => {
-                    setValues({ ...values, type: e.target.value });
-                    setErrors({ ...errors, type: "" });
-                  }}
-                >
-                  <option value="">Sélectionner un type</option>
-                  <option value="AD_BANNER">Bannière/publicité</option>
-                  <option value="MAILING">Mailing</option>
-                  <option value="TILE_BUTTON">Tuile/Bouton</option>
-                  <option value="OTHER">Autre</option>
-                </select>
-                {errors.type && (
-                  <div className="text-red-error flex items-center text-sm">
-                    <RiErrorWarningFill className="mr-2" />
-                    {errors.type}
-                  </div>
-                )}
-              </div>
-              <div className="flex flex-1 flex-col">
-                <label className="mb-2 text-sm" htmlFor="to-publisher-id">
-                  Diffuse les missions de
-                </label>
-                <SearchSelect
-                  id="to-publisher-id"
-                  options={publishers.map((e) => ({ value: e.id, label: e.name }))}
-                  value={values.toPublisherId}
-                  onChange={(e) => setValues({ ...values, toPublisherId: e.value })}
-                />
-
-                {errors.toPublisherId && (
-                  <div className="text-red-error flex items-center text-sm">
-                    <RiErrorWarningFill className="mr-2" />
-                    {errors.toPublisherId}
-                  </div>
-                )}
-              </div>
-            </div>
-
-            <div className="flex flex-col">
-              <label className="mb-2 flex items-center text-sm" htmlFor="url">
-                Lien de la page web de la campagne
-              </label>
-              <input id="url" className={`input mb-2 ${errors.url ? "border-b-red-error" : "border-b-black"}`} name="url" value={values.url} onChange={(e) => handleUrlChange(e)} />
-              {errors.url && (
-                <div className="text-red-error flex items-center text-sm">
-                  <RiErrorWarningFill className="mr-2" />
-                  {errors.url}
-                </div>
-              )}
-              <span className="text-blue-info-425 flex items-center text-xs">
-                <BiSolidInfoSquare className="mr-2 text-sm" />
-                <p>Lien de la page à laquelle les utilisateurs accèderont</p>
-              </span>
-            </div>
-            <div className="flex items-center">
-              <Toggle
-                value={values.trackers && values.trackers.length > 0}
-                onChange={(v) => {
-                  if (v) setValues({ ...values, trackers: [{ key: "", value: "" }] });
-                  else setValues({ ...values, trackers: [], url: values.url.split("?")[0] });
-                }}
-              />
-              <label className="ml-2 text-base">Ajouter des paramètres pour le suivi statistique</label>
-            </div>
-            {values.trackers && values.trackers.length > 0 && (
-              <div className="border border-gray-900 p-8">
-                <div className="mb-2 flex items-center gap-4">
-                  <label className="flex-1 text-base">Nom du paramètre</label>
-                  <label className="flex-1 text-base">Valeur du paramètre</label>
-                  <div className="w-10" />
-                </div>
-                <div className="space-y-4">
-                  {values.trackers.map((tracker, i) => (
-                    <div key={i} className="flex items-center gap-4">
-                      <div className="flex-1">
-                        <input className="input w-full" name="key" value={tracker.key} onChange={(e) => handleTrackerKeyChange(e, i)} placeholder="Exemple : utm_source" />
-                      </div>
-                      <div className="flex-1">
-                        <input
-                          className="input w-full"
-                          name="value"
-                          value={tracker.value}
-                          onChange={(e) => handleTrackerValueChange(e, i)}
-                          placeholder="Exemples : google, newsletter"
-                        />
-                      </div>
-                      <div className="flex w-10 justify-end">
-                        {values.trackers.length > 1 && (
-                          <button type="button" className="tertiary-btn" onClick={() => handleDeleteTracker(i)}>
-                            <RiDeleteBin6Line className="text-red-error" />
-                          </button>
-                        )}
-                      </div>
-                    </div>
-                  ))}
-                </div>
-
-                <button type="button" className="secondary-btn mt-4" onClick={() => setValues({ ...values, trackers: [...values.trackers, { key: "", value: "" }] })}>
-                  Ajouter un tracker
-                </button>
-              </div>
-            )}
-
-            <div className="flex flex-col">
-              <label className="text-sm">Lien à insérer dans le contenu de votre campagne</label>
-              <div className="border-blue-france-925 bg-blue-france-975 my-2 flex items-center justify-between border px-4 py-4">
-                <span className="truncate text-sm">{trackedLink}</span>
-                <button type="button" className="secondary-btn" onClick={handleCopy}>
-                  Copier
-                </button>
-              </div>
-              <div>
-                <span className="text-orange-warning-425 flex flex-row items-center text-xs">
-                  <AiFillWarning className="mr-2" />
-                  Copiez exactement ce lien !
-                </span>
-              </div>
-            </div>
-            <div className="col-span-2 flex justify-end gap-4">
-              <button className="primary-btn" disabled={!isChanged(values) || isErrors(errors)} onClick={handleSubmit}>
-                Enregistrer
+          <div className="flex flex-col">
+            <label className="text-sm">Lien à insérer dans le contenu de votre campagne</label>
+            <div className="border-blue-france-925 bg-blue-france-975 my-2 flex items-center justify-between border px-4 py-4">
+              <span className="truncate text-sm">{trackedLink}</span>
+              <button type="button" className="secondary-btn" onClick={handleCopy}>
+                Copier
               </button>
             </div>
+            <div>
+              <span className="text-orange-warning-425 mt-2 flex flex-row items-center text-xs">
+                <AiFillWarning className="mr-2" />
+                Copiez exactement ce lien !
+              </span>
+            </div>
+          </div>
+          <div className="col-span-2 flex justify-end gap-4">
+            <button className="primary-btn" disabled={!isChanged(values) || isErrors(errors) || loading} onClick={handleSubmit}>
+              {loading ? <Loader className="h-6 w-6" /> : "Enregistrer"}
+            </button>
           </div>
         </div>
       </div>
     </>
+  );
+};
+
+const CampaignMenu = ({ setIsReassignModalOpen, handleDelete }) => {
+  return (
+    <Dropdown
+      renderTrigger={({ onClick }) => (
+        <button className="tertiary-btn flex items-center" onClick={onClick}>
+          <RiMoreLine className="text-xl" />
+        </button>
+      )}
+      position="bottom"
+      align="end"
+    >
+      <ul className="p-1">
+        <li>
+          <button className="dropdown-btn w-full" onClick={() => setIsReassignModalOpen(true)}>
+            <RiFileTransferLine />
+            <span>Déplacer</span>
+          </button>
+        </li>
+        <li>
+          <button className="dropdown-red-btn w-full" onClick={handleDelete}>
+            <RiDeleteBin6Line />
+            <span>Supprimer</span>
+          </button>
+        </li>
+      </ul>
+    </Dropdown>
   );
 };
 
@@ -436,14 +248,14 @@ const ReassignModal = ({ isOpen, onClose, campaign, values, setValues, setCampai
     const fetchData = async () => {
       try {
         const res = await api.post(`/publisher/search`, { role: "campaign" });
-        if (!res.ok) throw new Error("Erreur lors de la récupération des données");
+        if (!res.ok) throw res;
         setPublishers(
           withLegacyPublishers(res.data)
             .sort((a, b) => a.name.localeCompare(b.name))
             .map((p) => ({ ...p, label: p.name })),
         );
       } catch (error) {
-        captureError(error, "Erreur lors de la récupération des données");
+        captureError(error);
       }
     };
     fetchData();
@@ -461,13 +273,13 @@ const ReassignModal = ({ isOpen, onClose, campaign, values, setValues, setCampai
         fromPublisherId: values.fromPublisherId,
       });
 
-      if (!res.ok) throw new Error("Erreur lors du déplacement de la campagne");
+      if (!res.ok) throw res;
       toast.success("Campagne déplacée avec succès");
       setCampaign({ ...campaign, toPublisherId: values.toPublisherId });
       onClose();
       navigate("/broadcast/campaigns");
     } catch (error) {
-      captureError(error, "Erreur lors du déplacement de la campagne");
+      captureError(error, { extra: { campaign, values } });
     } finally {
       setLoading(false);
     }

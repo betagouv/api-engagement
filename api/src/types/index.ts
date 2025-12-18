@@ -459,3 +459,4 @@ export * from "./publisher";
 export * from "./report";
 export * from "./stat-event";
 export * from "./user";
+export * from "./widget";

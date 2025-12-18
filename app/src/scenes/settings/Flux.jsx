@@ -51,7 +51,7 @@ const Flux = () => {
           }
         }
       } catch (error) {
-        captureError(error, "Erreur lors de la récupération des données");
+        captureError(error, { extra: { publisherId: publisher.id, filters } });
       } finally {
         setLoading(false);
       }
@@ -78,7 +78,7 @@ const Flux = () => {
         <div className="flex items-center justify-between gap-6">
           <label className="w-[35%] flex-none font-semibold">Lien du fichier XML à synchroniser</label>
           <div className="flex flex-1 gap-2">
-            <input className="input w-full border border-[#E3E3FD] bg-[#F5F5FE] disabled:opacity-80" value={publisher.feed} disabled={true} />
+            <input className="input w-full border border-[#E3E3FD] bg-[#F5F5FE] read-only:opacity-80" value={publisher.feed} readOnly />
             {user.role === "admin" && <ModifyModal />}
           </div>
         </div>
@@ -91,7 +91,7 @@ const Flux = () => {
             {imports.length > 0 && lastSync < new Date(Date.now() - 24 * 60 * 60 * 1000) ? (
               <div className="items-center">
                 <p className="inline align-middle">{new Date(lastSync).toLocaleString("fr").replace(" ", " à ")}</p>
-                <RiCloseCircleFill className="ml-2 inline h-5 w-5 align-middle text-red-500" />
+                <RiCloseCircleFill className="text-red-error ml-2 inline h-5 w-5 align-middle" />
                 <p className="text-xs">Dernière synchronisation il y a plus de 24h.</p>
               </div>
             ) : (
@@ -152,7 +152,7 @@ const ModifyModal = () => {
       setPublisher(res.data);
       setIsOpen(false);
     } catch (error) {
-      captureError(error, "Erreur lors de la mise à jour du flux");
+      captureError(error, { extra: { publisherId: publisher.id, feed } });
     } finally {
       setLoading(false);
     }
@@ -168,7 +168,7 @@ const ModifyModal = () => {
           <h2 className="mb-8 text-lg font-bold">⚙️ Modifier votre flux de missions</h2>
           <div className="flex flex-col items-start justify-between gap-4">
             <div>Lien du fichier XML à synchroniser</div>
-            <input className="input w-full border-b-0 bg-gray-100 p-4 focus:ring-2" value={feed} disabled={false} onChange={(e) => setFeed(e.target.value)} />
+            <input className="input w-full border-b-0 bg-gray-100 p-4 focus:ring-2" value={feed} onChange={(e) => setFeed(e.target.value)} />
           </div>
           <div className="col-span-2 mt-8 flex justify-end gap-6">
             <button type="button" className="tertiary-btn" onClick={() => setIsOpen(false)}>

@@ -323,4 +323,112 @@ export const exportDefinitions: ExportDefinition[] = [
       conflictColumns: ["id"],
     },
   },
+  {
+    key: "campaign",
+    batchSize: 2000,
+    source: {
+      table: "campaign",
+      cursor: {
+        field: "updated_at",
+        idField: "id",
+      },
+      columns: ["id", "url", "name", "from_publisher_id", "to_publisher_id", "active", "deleted_at", "created_at", "updated_at", "reassigned_at", "reassigned_by_user_id", "type"],
+    },
+    destination: {
+      table: "campaign",
+      conflictColumns: ["id"],
+    },
+  },
+  {
+    key: "campaign_tracker",
+    batchSize: 2000,
+    source: {
+      table: "campaign_tracker",
+      cursor: {
+        field: "updated_at",
+        idField: "id",
+      },
+      columns: ["id", "campaign_id", "key", "value", "created_at", "updated_at"],
+    },
+    destination: {
+      table: "campaign_tracker",
+      conflictColumns: ["id"],
+    },
+  },
+  {
+    key: "widget",
+    batchSize: 2000,
+    source: {
+      table: "widget",
+      cursor: {
+        field: "updated_at",
+        idField: "id",
+      },
+      columns: [
+        "id",
+        "name",
+        "color",
+        "style",
+        "type",
+        "location_lat",
+        "location_long",
+        "location_city",
+        "distance",
+        "url",
+        "jva_moderation",
+        "from_publisher_id",
+        "active",
+        "deleted_at",
+        "created_at",
+        "updated_at",
+      ],
+    },
+    destination: {
+      table: "widget",
+      conflictColumns: ["id"],
+    },
+  },
+  {
+    key: "widget_publisher",
+    batchSize: 2000,
+    source: {
+      table: "widget_publisher",
+      cursor: {
+        field: "created_at",
+        idField: "widget_id",
+      },
+      columns: ["widget_id", "publisher_id", "created_at"],
+    },
+    destination: {
+      table: "widget_publisher",
+      conflictColumns: ["widget_id", "publisher_id"],
+    },
+  },
+  {
+    key: "widget_rule",
+    batchSize: 2000,
+    source: {
+      table: "widget_rule",
+      cursor: {
+        field: "updated_at",
+        idField: "id",
+      },
+      columns: [
+        "id",
+        "widget_id",
+        "field",
+        "field_type",
+        "operator",
+        "value",
+        "combinator",
+        "position",
+        "created_at",
+        "updated_at",
+      ],
+    },
+    destination: {
+      table: "widget_rule",
+      conflictColumns: ["id"],
+    },
+  },
 ];
