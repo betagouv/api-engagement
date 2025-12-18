@@ -7,8 +7,6 @@ sources:
     tables:
       - name: Partner
       - name: Mission
-      - name: Widget
-      - name: Campaign
   - name: analytics_raw
     description: Données brutes synchronisées depuis la base opérationnelle `analytics_raw`.
     schema: analytics_raw
