@@ -3,7 +3,7 @@ import passport from "passport";
 import zod from "zod";
 
 import { captureMessage, INVALID_BODY, INVALID_PARAMS, INVALID_QUERY, NOT_FOUND } from "../error";
-import MissionModel from "../models/mission";
+import { missionService } from "../services/mission";
 import { publisherService } from "../services/publisher";
 import { statEventService } from "../services/stat-event";
 import { StatEventRecord } from "../types";
@@ -39,34 +39,6 @@ router.get("/:id", passport.authenticate(["apikey", "api"], { session: false }),
   }
 });
 
-const findMissionTemp = async (missionId: string) => {
-  if (!missionId.match(/[^0-9a-fA-F]/) && missionId.length === 24) {
-    const mission = await MissionModel.findById(missionId);
-    if (mission) {
-      return mission;
-    }
-  }
-
-  const mission = await MissionModel.findOne({ _old_ids: { $in: [missionId] } });
-  if (mission) {
-    captureMessage("[Temp] Mission found with _old_ids", `mission ${missionId}`);
-    return mission;
-  }
-
-  const stats = await statEventService.findOneStatEventByMissionId(missionId);
-  if (stats) {
-    const mission = await MissionModel.findOne({
-      clientId: stats.missionClientId?.toString(),
-      publisherId: stats.toPublisherId,
-    });
-    if (mission) {
-      captureMessage("[Temp] Mission found with click", `mission ${missionId}`);
-      return mission;
-    }
-  }
-  return null;
-};
-
 router.post("/:missionId/:publisherId/click", async (req: PublisherRequest, res: Response, next: NextFunction) => {
   try {
     const query = zod
@@ -92,7 +64,7 @@ router.post("/:missionId/:publisherId/click", async (req: PublisherRequest, res:
       return res.status(400).send({ ok: false, code: INVALID_QUERY, error: query.error });
     }
 
-    const mission = await findMissionTemp(params.data.missionId);
+    const mission = await missionService.findOneMission(params.data.missionId);
     if (!mission) {
       captureMessage("[V2] Mission not found", `mission ${params.data.missionId}`);
       res.locals = { code: NOT_FOUND };
@@ -167,7 +139,7 @@ router.post("/:missionId/apply", passport.authenticate(["apikey", "api"], { sess
       return res.status(400).send({ ok: false, code: INVALID_QUERY, error: query.error });
     }
 
-    const mission = await findMissionTemp(params.data.missionId);
+    const mission = await missionService.findOneMission(params.data.missionId);
     if (!mission) {
       captureMessage("[V2] Mission not found", `mission ${params.data.missionId}`);
       res.locals = { code: NOT_FOUND };

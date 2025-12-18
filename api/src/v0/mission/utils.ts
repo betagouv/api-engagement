@@ -1,50 +1,42 @@
-import { captureMessage } from "../../error";
-import MissionModel from "../../models/mission";
-import { EARTH_RADIUS } from "../../utils";
+import { missionService } from "../../services/mission";
 
-export const buildArrayQuery = (query: string | string[]) => {
-  if (!Array.isArray(query) && query.includes(",")) {
-    query = query.split(",").map((e: string) => e.trim());
+export const normalizeQueryArray = (query?: string | string[]): string[] | undefined => {
+  if (!query) {
+    return undefined;
   }
-  return Array.isArray(query) ? { $in: query } : query;
+  if (Array.isArray(query)) {
+    return query.map((value) => value.trim()).filter(Boolean);
+  }
+  if (query.includes(",")) {
+    return query
+      .split(",")
+      .map((value) => value.trim())
+      .filter(Boolean);
+  }
+  const trimmed = query.trim();
+  return trimmed ? [trimmed] : undefined;
 };
 
-export const buildDateQuery = (query: string) => {
+export const parseDateFilter = (query?: string): { gt?: Date; lt?: Date } | undefined => {
   try {
+    if (!query) {
+      return undefined;
+    }
     const operation = query.slice(0, 3);
     const date = query.slice(3);
     if (!date) {
       return undefined;
     }
-    if (isNaN(new Date(date).getTime())) {
+    const parsed = new Date(date);
+    if (isNaN(parsed.getTime())) {
       return undefined;
     }
-    return { [operation === "gt:" ? "$gt" : "$lt"]: new Date(date) };
-  } catch (error) {
+    return operation === "gt:" ? { gt: parsed } : { lt: parsed };
+  } catch {
     return undefined;
   }
 };
 
-// Convert $nearSphere to $geoWithin (doesn't work with countDocuments)
-export const nearSphereToGeoWithin = (nearSphere: any) => {
-  if (!nearSphere) {
-    return;
-  }
-  const distanceKm = nearSphere.$maxDistance / 1000;
-  const geoWithin = {
-    $geoWithin: {
-      $centerSphere: [[nearSphere.$geometry.coordinates[0], nearSphere.$geometry.coordinates[1]], distanceKm / EARTH_RADIUS],
-    },
-  };
-  return geoWithin;
-};
-
 export const findMissionById = async (missionId: string) => {
-  const mission = await MissionModel.findById(missionId);
-  if (mission) {
-    return mission;
-  }
-
-  captureMessage("[findMissionById] Mission not found", `mission ${missionId}`);
-  return null;
+  return missionService.findOneMission(missionId);
 };

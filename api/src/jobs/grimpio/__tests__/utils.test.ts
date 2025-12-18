@@ -8,19 +8,6 @@ vi.mock("../../../services/s3", () => ({
   },
 }));
 
-// Mock MissionModel
-vi.mock("../../../models/mission", () => ({
-  default: {
-    find: vi.fn().mockReturnValue({
-      sort: vi.fn().mockReturnValue({
-        lean: vi.fn().mockReturnValue({
-          cursor: vi.fn(),
-        }),
-      }),
-    }),
-  },
-}));
-
 // Mock missionToGrimpioJob
 vi.mock("../transformers", () => ({
   missionToGrimpioJob: vi.fn(),

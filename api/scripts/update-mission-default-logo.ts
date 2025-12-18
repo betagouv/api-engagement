@@ -3,15 +3,16 @@
  * aux missions existantes dépourvues d’organizationLogo.
  *
  * Exécuter avec :
- *   DB_ENDPOINT="mongodb://..." ts-node migrate-mission-logos.ts
+ *   pnpm ts-node --transpile-only api/scripts/update-mission-default-logo.ts
  */
-import mongoose from "mongoose";
-import { mongoConnected } from "../src/db/mongo";
-import MissionModel from "../src/models/mission";
+import dotenv from "dotenv";
+dotenv.config();
+
+import { prismaCore } from "../src/db/postgres";
 import { publisherService } from "../src/services/publisher";
 
 async function run() {
-  await mongoConnected;
+  await prismaCore.$connect();
 
   const publishers = (await publisherService.findPublishers({ includeDeleted: true })).filter((publisher) => !!publisher.defaultMissionLogo);
 
@@ -19,19 +20,21 @@ async function run() {
     const publisherId = publisher.id;
     const logo = publisher.defaultMissionLogo as string;
 
-    const res = await MissionModel.updateMany(
-      {
+    const res = await prismaCore.mission.updateMany({
+      where: {
         publisherId,
-        deleted: false,
-        $or: [{ organizationLogo: { $exists: false } }, { organizationLogo: null }, { organizationLogo: "" }],
+        deletedAt: null,
+        OR: [{ organizationLogo: null }, { organizationLogo: "" }],
       },
-      { $set: { organizationLogo: logo } }
-    );
+      data: {
+        organizationLogo: logo,
+      },
+    });
 
-    console.log(`Publisher ${publisherId}: ${res.modifiedCount} missions mises à jour.`);
+    console.log(`Publisher ${publisherId}: ${res.count} missions mises à jour.`);
   }
 
-  await mongoose.connection.close();
+  await prismaCore.$disconnect();
 }
 
 run().catch((err) => {

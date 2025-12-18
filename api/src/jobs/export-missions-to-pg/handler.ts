@@ -1,12 +1,12 @@
 import { Prisma } from "../../db/analytics";
 import { prismaAnalytics as prismaClient } from "../../db/postgres";
 import { captureException } from "../../error";
-import MissionModel from "../../models/mission";
-import { Mission } from "../../types";
+import { missionService } from "../../services/mission";
+import { MissionRecord } from "../../types/mission";
 import { BaseHandler } from "../base/handler";
 import { ExportMissionsToPgJobPayload, ExportMissionsToPgJobResult } from "./types";
 import { countMongoMissionsToSync, getMongoMissionsToSync, getOrganizationsFromMissions } from "./utils/helpers";
-import { transformMongoMissionToPg } from "./utils/transformers";
+import { transformMissionRecordToPg } from "./utils/transformers";
 
 const BULK_SIZE = 10000;
 const PG_CHUNK_SIZE = 100;
@@ -66,7 +66,7 @@ const exportMission = async () => {
     console.log(`[Export missions to PG] Found ${Object.keys(partners).length} partners`);
 
     for (let i = 0; i < missions.length; i += PG_CHUNK_SIZE) {
-      const batch = missions.slice(i, i + PG_CHUNK_SIZE) as Mission[];
+      const batch = missions.slice(i, i + PG_CHUNK_SIZE) as MissionRecord[];
       console.log(`[Export missions to PG] Batch ${i / PG_CHUNK_SIZE + 1} / ${Math.ceil(missions.length / PG_CHUNK_SIZE)} (${batch.length} missions)`);
 
       const organizations = await getOrganizationsFromMissions(batch);
@@ -81,14 +81,14 @@ const exportMission = async () => {
 
         const partner = partners[mission.publisherId];
         if (!partner) {
-          console.error(`[Export missions to PG] No partner found for mission ${mission._id?.toString()} (${mission.publisherId})`);
+          console.error(`[Export missions to PG] No partner found for mission ${mission.id} (${mission.publisherId})`);
           counter.error++;
           continue;
         }
         const organization = organizations[mission.organizationId || ""];
-        const result = transformMongoMissionToPg(mission, partner, organization);
+        const result = transformMissionRecordToPg(mission, partner, organization);
         if (!result) {
-          console.error(`[Export missions to PG] Error converting mission ${mission._id?.toString()}`);
+          console.error(`[Export missions to PG] Error converting mission ${mission.id}`);
           counter.error++;
           continue;
         }
@@ -100,13 +100,13 @@ const exportMission = async () => {
           });
           counter.success++;
           missionsIds.push(upsert.id);
-          missionsUpdatedIds.push(result.mission.old_id);
+          missionsUpdatedIds.push(mission.id);
           addressesToCreate.push(...result.addresses.map((a) => ({ ...a, mission_id: upsert.id })));
         } catch (error) {
-          console.error(`[Export missions to PG] Error while upserting mission ${mission._id?.toString()}`);
+          console.error(`[Export missions to PG] Error while upserting mission ${mission.id}`);
           captureException(error, {
             extra: {
-              missionId: mission._id?.toString(),
+              missionId: mission.id,
               missionOldId: result.mission.old_id,
               publisherId: mission.publisherId,
             },
@@ -129,11 +129,11 @@ const exportMission = async () => {
         captureException(error, { extra: { missionsIds, addressesToCreate } });
       }
 
-      // Update missions lastExportedToPgAt to exclude them to be processed again
-      // Timestamps are disabled to avoid updating updatedAt
-      await MissionModel.updateMany({ _id: { $in: missionsUpdatedIds } }, { $set: { lastExportedToPgAt: new Date() } }, { timestamps: false });
-      missionsUpdatedIds.length = 0;
-      console.log(`[Export missions to PG] Updated lastExportedToPgAt for ${batch.length} missions (batch)`);
+      if (missionsUpdatedIds.length > 0) {
+        await missionService.updateMany({ id: { in: missionsUpdatedIds } }, { lastExportedToPgAt: new Date() });
+        missionsUpdatedIds.length = 0;
+        console.log(`[Export missions to PG] Updated lastExportedToPgAt for ${batch.length} missions (batch)`);
+      }
     }
     batchCount++;
   }

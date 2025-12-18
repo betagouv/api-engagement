@@ -17,31 +17,11 @@ Ce répertoire contient des scripts de maintenance/migration pour l’API. Les s
 
 ## Liste des scripts
 
-- **rename-publisher.ts**
-
-  - Exécution: `npx ts-node scripts/rename-publisher.ts <oldName> <newName> [--dry-run]`
-  - Usage: Renomme un publisher et propage le changement:
-    - MongoDB: `Publisher.name` et `Mission.publisherName`
-    - PostgreSQL: colonnes `StatEvent.from_publisher_name` et `StatEvent.to_publisher_name`
-  - Options: `--dry-run` pour voir les volumes sans modifier les données.
-
 - **update-mission-default-logo.ts**
 
   - Exécution: `DB_ENDPOINT="mongodb://..." npx ts-node scripts/update-mission-default-logo.ts`
   - Usage: Applique le `defaultMissionLogo` du publisher aux missions existantes sans `organizationLogo`.
   - Notes: Nécessite l’accès à MongoDB.
-
-- **letudiant/update-piloty-company-logos.ts**
-
-  - Exécution: `npx ts-node scripts/letudiant/update-piloty-company-logos.ts [--env <nom|chemin>] [--limit <n>] [--dry-run]`
-  - Usage: Met à jour le logo des entreprises (Piloty) associées aux organisations liées à des missions avec un logo par défaut.
-  - Prérequis: `LETUDIANT_PILOTY_TOKEN` (env), accès MongoDB. Respecte un rate-limit simple.
-
-- **letudiant/archive-piloty-jobs.ts**
-
-  - Exécution: `npx ts-node scripts/letudiant/archive-piloty-jobs.ts [--env <nom|chemin>]`
-  - Usage: Archive des offres côté Piloty à partir d’une liste d’identifiants publics (à éditer dans le script).
-  - Prérequis: `LETUDIANT_PILOTY_TOKEN` (env).
 
 - **mongo-backfill/**
 

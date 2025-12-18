@@ -1,14 +1,13 @@
 import he from "he";
 import { convert } from "html-to-text";
-import { Schema } from "mongoose";
 
 import { PUBLISHER_IDS } from "../../../config";
 import { AUTRE_IMAGE, DOMAIN_IMAGES } from "../../../constants/domains";
 import { captureException } from "../../../error";
-import MissionModel from "../../../models/mission";
-import { Mission } from "../../../types";
+import { missionService } from "../../../services/mission";
+import type { MissionRecord } from "../../../types/mission";
 import type { PublisherRecord } from "../../../types/publisher";
-import { MissionXML } from "../types";
+import { ImportedMission, MissionXML } from "../types";
 import { getAddress, getAddresses } from "./address";
 import { getModeration } from "./moderation";
 
@@ -69,11 +68,15 @@ const parseString = (value: string | undefined) => {
   return String(value);
 };
 
-const parseBool = (value: string | undefined) => {
-  if (!value || value === "no") {
-    return "no";
+const parseBool = (value: string | boolean | undefined | null) => {
+  if (value === undefined || value === null) {
+    return null;
   }
-  return "yes";
+  if (typeof value === "boolean") {
+    return value;
+  }
+  const normalized = String(value).trim().toLowerCase();
+  return ["yes", "true", "1"].includes(normalized);
 };
 
 const parseDate = (value: string | Date | undefined) => {
@@ -134,7 +137,7 @@ const parseLowercase = (value: string | undefined) => {
   return parsed ? parsed.toLowerCase() : null;
 };
 
-const parseMission = (publisher: PublisherRecord, missionXML: MissionXML, missionDB: Mission | null) => {
+const parseMission = (publisher: PublisherRecord, missionXML: MissionXML, missionDB: MissionRecord | null): ImportedMission => {
   const organizationLogo = parseString(missionXML.organizationLogo);
 
   const mission = {
@@ -148,7 +151,7 @@ const parseMission = (publisher: PublisherRecord, missionXML: MissionXML, missio
     clientId: parseString(missionXML.clientId),
     applicationUrl: missionXML.applicationUrl || "",
     postedAt: parseDate(missionXML.postedAt) || new Date(),
-    startAt: parseDate(missionXML.startAt) || parseDate(missionDB?.startAt) || new Date(),
+    startAt: parseDate(missionXML.startAt) || parseDate(missionDB?.startAt || "") || new Date(),
     endAt: parseDate(missionXML.endAt) || null,
 
     activity: parseString(missionXML.activity) || "",
@@ -169,8 +172,8 @@ const parseMission = (publisher: PublisherRecord, missionXML: MissionXML, missio
     snu: parseString(missionXML.snu) === "yes",
     snuPlaces: parseNumber(missionXML.snuPlaces),
     compensationAmount: parseNumber(missionXML.compensationAmount),
-    compensationUnit: parseLowercase(missionXML.compensationUnit as string | undefined) as Mission["compensationUnit"],
-    compensationType: parseLowercase(missionXML.compensationType as string | undefined) as Mission["compensationType"],
+    compensationUnit: parseLowercase(missionXML.compensationUnit as string | undefined) as MissionRecord["compensationUnit"],
+    compensationType: parseLowercase(missionXML.compensationType as string | undefined) as MissionRecord["compensationType"],
     metadata: parseString(missionXML.metadata),
     organizationName: parseString(missionXML.organizationName),
     organizationRNA: parseString(missionXML.organizationRNA) || parseString(missionXML.organizationRna) || "",
@@ -178,7 +181,7 @@ const parseMission = (publisher: PublisherRecord, missionXML: MissionXML, missio
     organizationUrl: parseString(missionXML.organizationUrl),
     organizationLogo: organizationLogo || publisher.defaultMissionLogo || "",
     organizationDescription: parseString(missionXML.organizationDescription),
-    organizationClientId: parseString(missionXML.organizationId),
+    organizationClientId: parseString(missionXML.organizationClientId) || parseString(missionXML.organizationId),
     organizationStatusJuridique: parseString(missionXML.organizationStatusJuridique) || "",
     organizationType: parseString(missionXML.organizationType) || "",
     organizationActions: parseArray(missionXML.keyActions, true) || [],
@@ -187,12 +190,12 @@ const parseMission = (publisher: PublisherRecord, missionXML: MissionXML, missio
     organizationCity: parseString(missionXML.organizationCity),
     organizationBeneficiaries: parseArray(missionXML.organizationBeneficiaries || missionXML.organizationBeneficiaires || missionXML.publicBeneficiaries, true) || [],
     organizationReseaux: parseArray(missionXML.organizationReseaux, true) || [],
-  } as Mission;
+  } as ImportedMission;
 
   // Moderation except Service Civique (already moderated)  // Moderation except Service Civique (already moderated)
   mission.statusComment = "";
   mission.statusCode = "ACCEPTED";
-  mission.duration = mission.endAt ? getMonthDifference(new Date(mission.startAt), new Date(mission.endAt)) : null;
+  mission.duration = mission.endAt ? getMonthDifference(new Date(mission.startAt || ""), new Date(mission.endAt || "")) : null;
 
   if (publisher.id !== PUBLISHER_IDS.SERVICE_CIVIQUE) {
     getModeration(mission);
@@ -202,11 +205,14 @@ const parseMission = (publisher: PublisherRecord, missionXML: MissionXML, missio
       mission.compensationUnit = "month";
     }
   }
+  if (!mission.statusComment) {
+    mission.statusComment = null as any;
+  }
 
   if (mission.domain === "mémoire et citoyenneté") {
     mission.domain = "memoire-et-citoyennete";
   }
-  mission.domainLogo = missionXML.image || missionDB?.domainLogo || getImageDomain(mission.domain);
+  mission.domainLogo = missionXML.image || missionDB?.domainLogo || getImageDomain(mission.domain || "");
 
   // Address
   if (missionXML.addresses && Array.isArray(missionXML.addresses) && missionXML.addresses.length > 0) {
@@ -216,28 +222,8 @@ const parseMission = (publisher: PublisherRecord, missionXML: MissionXML, missio
   }
 
   if (missionDB) {
-    mission._id = missionDB._id as Schema.Types.ObjectId;
+    mission._id = (missionDB as any)._id || (missionDB as any).id;
     mission.createdAt = missionDB.createdAt;
-    mission.organizationVerificationStatus = missionDB.organizationVerificationStatus;
-
-    if (missionDB.statusCommentHistoric && Array.isArray(missionDB.statusCommentHistoric)) {
-      if (missionDB.statusCode !== mission.statusCode) {
-        mission.statusCommentHistoric = [...missionDB.statusCommentHistoric, { status: mission.statusCode, comment: mission.statusComment, date: mission.updatedAt }];
-      }
-    } else {
-      mission.statusCommentHistoric = [{ status: mission.statusCode, comment: mission.statusComment, date: mission.updatedAt }];
-    }
-  }
-
-  // Dirty dirty hack for j'agis pour la nature
-  if (publisher.id === PUBLISHER_IDS.JAGIS_POUR_LA_NATURE) {
-    const index = mission.description.indexOf("MODALITÉS D'INSCRIPTION");
-    if (index !== -1) {
-      mission.description = mission.description.substring(0, index); // remove stuff
-    }
-    mission.description = mission.description.replace(/\n{2,}/g, "\n\n"); //remove spaces
-    mission.description = mission.description.replace(/(?<=•)((.|\n)*)(?=-)/g, ""); // dot and -
-    mission.description = mission.description.replace(/•-/g, "•"); // dot and -
   }
 
   // Dirty dirty hack for Prevention routiere
@@ -288,14 +274,15 @@ const parseMission = (publisher: PublisherRecord, missionXML: MissionXML, missio
 
 export const buildData = async (startTime: Date, publisher: PublisherRecord, missionXML: MissionXML) => {
   try {
-    const missionDB = await MissionModel.findOne({
-      publisherId: publisher.id,
-      clientId: missionXML.clientId,
-    });
+    const clientId = missionXML.clientId?.toString();
+    if (!clientId) {
+      throw new Error("Missing clientId");
+    }
 
-    const mission = parseMission(publisher, missionXML, missionDB?.toObject() || null);
+    const missionDB = await missionService.findMissionByClientAndPublisher(clientId, publisher.id);
 
-    mission.deleted = false;
+    const mission = parseMission(publisher, { ...missionXML, clientId }, (missionDB as any) || null);
+
     mission.deletedAt = null;
     mission.lastSyncAt = startTime;
     mission.publisherId = publisher.id;

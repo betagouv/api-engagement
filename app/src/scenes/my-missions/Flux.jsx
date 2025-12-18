@@ -11,6 +11,7 @@ import SearchInput from "../../components/SearchInput";
 import { STATUS_PLR } from "../../constants";
 import api from "../../services/api";
 import { captureError } from "../../services/error";
+import { compactMissionFilters, searchMissions } from "../../services/mission";
 import useStore from "../../services/store";
 import exportCSV from "../../services/utils";
 import SelectCity from "./components/SelectCity";
@@ -70,20 +71,7 @@ const Flux = ({ moderated }) => {
     const fetchData = async () => {
       setLoading(true);
       try {
-        const query = {
-          publisherId: publisher.id,
-          size: filters.size,
-          from: (filters.page - 1) * filters.size,
-        };
-        if (filters.status) query.status = filters.status;
-        if (filters.comment) query.comment = filters.comment;
-        if (filters.domain) query.domain = filters.domain;
-        if (filters.activity) query.activity = filters.activity;
-        if (filters.city) query.city = filters.city;
-        if (filters.organization) query.organization = filters.organization;
-        if (filters.search) query.search = filters.search;
-        if (filters.sortBy) query.sort = filters.sortBy;
-        const res = await api.post("/mission/search", { ...query }, { signal: controller.signal });
+        const res = await searchMissions({ ...filters, publisherId: publisher.id }, { signal: controller.signal });
 
         if (!res.ok) throw res;
         setData(res.data);
@@ -91,15 +79,7 @@ const Flux = ({ moderated }) => {
         setTotal(res.total);
 
         const newSearchParams = new URLSearchParams();
-        newSearchParams.append("size", filters.size);
-        newSearchParams.append("page", filters.page);
-        if (filters.status) newSearchParams.append("status", filters.status);
-        if (filters.comment) newSearchParams.append("comment", filters.comment);
-        if (filters.domain) newSearchParams.append("domain", filters.domain);
-        if (filters.activity) newSearchParams.append("activity", filters.activity);
-        if (filters.city) newSearchParams.append("city", filters.city);
-        if (filters.organization) newSearchParams.append("organization", filters.organization);
-        if (filters.search) newSearchParams.append("search", filters.search);
+        Object.entries(compactMissionFilters(filters)).forEach(([key, value]) => newSearchParams.append(key, value));
         setSearchParams(newSearchParams);
       } catch (error) {
         captureError(error, { extra: { filters } });
@@ -114,20 +94,7 @@ const Flux = ({ moderated }) => {
   const handleExport = async () => {
     setExporting(true);
     try {
-      const query = {
-        publisherId: publisher.id,
-        size: 10000,
-        from: 0,
-      };
-
-      if (filters.status) query.status = filters.status;
-      if (filters.domain) query.domain = filters.domain;
-      if (filters.activity) query.activity = filters.activity;
-      if (filters.city) query.city = filters.city;
-      if (filters.organization) query.organization = filters.organization;
-      if (filters.search) query.search = filters.search;
-
-      const res = await api.post("/mission/search", { ...query });
+      const res = await searchMissions({ ...filters, publisherId: publisher.id, size: 10000, page: 1 });
 
       if (!res.ok) throw res;
       const csv = [];

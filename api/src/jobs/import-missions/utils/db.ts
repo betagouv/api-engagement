@@ -1,12 +1,14 @@
 import { Import as PrismaImport } from "../../../db/core";
 import { captureException } from "../../../error";
-import MissionModel from "../../../models/mission";
+import { missionService } from "../../../services/mission";
 import { missionEventService } from "../../../services/mission-event";
-import { Mission } from "../../../types";
+import type { MissionRecord } from "../../../types/mission";
+import { MissionCreateInput, MissionUpdatePatch } from "../../../types/mission";
 import { MissionEventCreateParams } from "../../../types/mission-event";
 import type { PublisherRecord } from "../../../types/publisher";
 import { getJobTime } from "../../../utils/job";
 import { EVENT_TYPES, getMissionChanges } from "../../../utils/mission";
+import type { ImportedMission } from "../types";
 
 /**
  * Insert or update a batch of missions into MongoDB
@@ -16,64 +18,53 @@ import { EVENT_TYPES, getMissionChanges } from "../../../utils/mission";
  * @param importDoc - Import document to update
  * @returns true if the import was successful, false otherwise
  */
-export const bulkDB = async (bulk: Mission[], publisher: PublisherRecord, importDoc: PrismaImport): Promise<boolean> => {
+export const bulkDB = async (bulk: ImportedMission[], publisher: PublisherRecord, importDoc: PrismaImport): Promise<boolean> => {
   try {
     const startedAt = new Date();
-    console.log(`[${publisher.name}] Starting ${bulk.length} missions import into mongo at ${startedAt.toISOString()}`);
+    console.log(`[${publisher.name}] Starting ${bulk.length} missions import at ${startedAt.toISOString()}`);
 
-    // Get existing missions in DB, to compare with new missions
     const clientIds = bulk.filter((e) => e && e.clientId).map((e) => e.clientId);
-    const existingMissions = await MissionModel.find({
-      publisherId: publisher.id,
-      clientId: { $in: clientIds },
-    }).lean();
+    const existingMissions = clientIds.length
+      ? await missionService.findMissionsBy({
+          publisherId: publisher.id,
+          clientId: { in: clientIds },
+        })
+      : [];
     const existingMap = new Map(existingMissions.map((m) => [m.clientId, m]));
-    console.log(`[${publisher.name}] Found ${existingMap.size} existing missions in mongo`);
+    console.log(`[${publisher.name}] Found ${existingMap.size} existing missions in DB`);
 
-    // Build bulk write operations
-    const missionBulk = [] as any[];
     const missionEvents: MissionEventCreateParams[] = [];
 
     for (const e of bulk) {
       if (!e) {
         continue;
       }
+      const missionInput = e as MissionRecord;
 
-      if (!e._id) {
-        missionBulk.push({ insertOne: { document: { ...e, createdAt: startedAt, updatedAt: startedAt } } });
-        continue;
-      }
-
-      const current = existingMap.get(e.clientId);
+      const current = existingMap.get(missionInput.clientId);
       if (!current) {
-        missionBulk.push({ insertOne: { document: { ...e, createdAt: startedAt, updatedAt: startedAt } } });
-        continue;
-      }
-
-      const changes = getMissionChanges(current, e);
-      if (changes) {
-        missionBulk.push({ updateOne: { filter: { _id: current._id }, update: { $set: { ...e, updatedAt: startedAt } }, upsert: true } });
+        const created = await missionService.create(missionInput as MissionCreateInput);
+        existingMap.set(missionInput.clientId, created);
         missionEvents.push({
-          missionId: current._id.toString(),
-          type: changes.deletedAt?.current === null ? EVENT_TYPES.DELETE : EVENT_TYPES.UPDATE,
-          changes,
-        });
-      }
-    }
-
-    if (missionBulk.length > 0) {
-      const resMission = await MissionModel.bulkWrite(missionBulk, { ordered: false }); // ordered: false to avoid stopping the import if one mission fails
-
-      Object.values(resMission.insertedIds).forEach((id) => {
-        missionEvents.push({
-          missionId: id.toString(),
+          missionId: created.id,
           type: EVENT_TYPES.CREATE,
           changes: null,
         });
-      });
+        importDoc.createdCount += 1;
+        continue;
+      }
 
-      importDoc.createdCount += resMission.upsertedCount + resMission.insertedCount;
-      importDoc.updatedCount += resMission.modifiedCount;
+      const changes = getMissionChanges(current, missionInput);
+      if (changes) {
+        const updated = await missionService.update(current.id, missionInput as MissionUpdatePatch);
+        existingMap.set(missionInput.clientId, updated);
+        missionEvents.push({
+          missionId: current.id,
+          type: changes.deletedAt?.current === null ? EVENT_TYPES.DELETE : EVENT_TYPES.UPDATE,
+          changes,
+        });
+        importDoc.updatedCount += 1;
+      }
     }
 
     if (missionEvents.length > 0) {
@@ -81,7 +72,7 @@ export const bulkDB = async (bulk: Mission[], publisher: PublisherRecord, import
     }
 
     const time = getJobTime(startedAt);
-    console.log(`[${publisher.name}] Mongo bulk write created ${importDoc.createdCount}, updated ${importDoc.updatedCount}, took ${time}`);
+    console.log(`[${publisher.name}] Mission write created ${importDoc.createdCount}, updated ${importDoc.updatedCount}, took ${time}`);
     return true;
   } catch (error) {
     captureException(error, { extra: { publisher } });
@@ -90,7 +81,7 @@ export const bulkDB = async (bulk: Mission[], publisher: PublisherRecord, import
 };
 
 /**
- * Clean missions in MongoDB
+ * Clean missions in DB
  * All missions related to given publisher and not in the bulk are deleted
  *
  * @param missionsClientIds - Array of mission clientIds
@@ -98,16 +89,18 @@ export const bulkDB = async (bulk: Mission[], publisher: PublisherRecord, import
  * @param importDoc - Import document to update
  */
 export const cleanDB = async (missionsClientIds: string[], publisher: PublisherRecord, importDoc: PrismaImport) => {
-  console.log(`[${publisher.name}] Cleaning Mongo missions...`);
+  console.log(`[${publisher.name}] Cleaning missions...`);
 
-  const missions = await MissionModel.find({ publisherId: publisher.id, deletedAt: null, clientId: { $nin: missionsClientIds } })
-    .select("_id")
-    .lean();
+  const missions = await missionService.findMissionsBy({
+    publisherId: publisher.id,
+    deletedAt: null,
+    ...(missionsClientIds.length ? { clientId: { notIn: missionsClientIds } } : {}),
+  });
 
   const events: MissionEventCreateParams[] = [];
   for (const mission of missions) {
     events.push({
-      missionId: mission._id.toString(),
+      missionId: mission.id,
       type: EVENT_TYPES.DELETE,
       changes: {
         deletedAt: { previous: null, current: importDoc.startedAt },
@@ -115,12 +108,14 @@ export const cleanDB = async (missionsClientIds: string[], publisher: PublisherR
     });
   }
 
-  const res = await MissionModel.updateMany({ _id: { $in: missions.map((m) => m._id) } }, { deleted: true, deletedAt: importDoc.startedAt });
+  for (const mission of missions) {
+    await missionService.update(mission.id, { deletedAt: importDoc.startedAt } as MissionUpdatePatch);
+  }
 
   if (events.length > 0) {
     await missionEventService.createMissionEvents(events);
   }
 
-  importDoc.deletedCount = res.modifiedCount;
-  console.log(`[${publisher.name}] Mongo cleaning removed ${res.modifiedCount}`);
+  importDoc.deletedCount = missions.length;
+  console.log(`[${publisher.name}] Mission cleaning removed ${missions.length}`);
 };

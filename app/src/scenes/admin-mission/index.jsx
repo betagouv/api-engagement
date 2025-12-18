@@ -11,6 +11,7 @@ import SearchSelect from "../../components/SearchSelect";
 import { LEBONCOIN_STATUS, STATUS_PLR } from "../../constants";
 import api from "../../services/api";
 import { captureError } from "../../services/error";
+import { compactMissionFilters, searchMissions } from "../../services/mission";
 import exportCSV from "../../services/utils";
 
 const TABLE_HEADER = [
@@ -34,7 +35,6 @@ const AdminMission = () => {
     department: searchParams.get("department") || null,
     city: searchParams.get("city") || null,
     organization: searchParams.get("organization") || null,
-    leboncoinStatus: searchParams.get("leboncoinStatus") || null,
     search: searchParams.get("search") || "",
   });
   const [options, setOptions] = useState({
@@ -45,7 +45,6 @@ const AdminMission = () => {
     departments: [],
     cities: [],
     organizations: [],
-    leboncoinStatus: [],
   });
   const [lastImport, setLastImport] = useState();
 
@@ -71,25 +70,11 @@ const AdminMission = () => {
     const fetchData = async () => {
       setLoading(true);
       try {
-        const newSearchParams = new URLSearchParams(searchParams);
-        Object.entries(filters).forEach(([key, value]) => (value ? newSearchParams.set(key, value) : newSearchParams.delete(key)));
+        const newSearchParams = new URLSearchParams();
+        Object.entries(compactMissionFilters(filters)).forEach(([key, value]) => newSearchParams.set(key, value));
         setSearchParams(newSearchParams);
 
-        const query = {
-          size: filters.size,
-          from: (filters.page - 1) * filters.size,
-        };
-        if (filters.status) query.status = filters.status;
-        if (filters.publisherId) query.publisherId = filters.publisherId;
-        if (filters.domain) query.domain = filters.domain;
-        if (filters.activity) query.activity = filters.activity;
-        if (filters.city) query.city = filters.city;
-        if (filters.department) query.department = filters.department;
-        if (filters.organization) query.organization = filters.organization;
-        if (filters.leboncoinStatus) query.leboncoinStatus = filters.leboncoinStatus;
-        if (filters.search) query.search = filters.search;
-        if (filters.sortBy) query.sort = filters.sortBy;
-        const res = await api.post("/mission/search", { ...query });
+        const res = await searchMissions(filters);
 
         if (!res.ok) throw res;
         setData(res.data);
@@ -107,21 +92,7 @@ const AdminMission = () => {
   const handleExport = async () => {
     setExporting(true);
     try {
-      const query = {
-        size: total,
-        from: 0,
-      };
-
-      if (filters.status) query.status = filters.status;
-      if (filters.domain) query.domain = filters.domain;
-      if (filters.activity) query.activity = filters.activity;
-      if (filters.city) query.city = filters.city;
-      if (filters.organization) query.organization = filters.organization;
-      if (filters.leboncoinStatus) query.leboncoinStatus = filters.leboncoinStatus;
-      if (filters.search) query.search = filters.search;
-      if (filters.sortBy) query.sort = filters.sortBy;
-
-      const res = await api.post("/mission/search", { ...query });
+      const res = await searchMissions({ ...filters, size: total, page: 1 });
 
       if (!res.ok) throw res;
 
@@ -141,9 +112,6 @@ const AdminMission = () => {
         d["Activité"] = mission.activity;
         d["Statut"] = mission.statusCode;
         d["Commentaire statut"] = mission.statusComment;
-        d["Statut leboncoin"] = mission.leboncoinStatus;
-        d["Commentaire leboncoin"] = mission.leboncoinStatusComment;
-        d["Url leboncoin"] = mission.leboncoinUrl;
         d["Créée le"] = new Date(mission.createdAt).toLocaleDateString("fr");
         d["Modifiée le"] = new Date(mission.updatedAt).toLocaleDateString("fr");
         d["Publiée le"] = new Date(mission.postedAt).toLocaleDateString("fr");
@@ -207,12 +175,6 @@ const AdminMission = () => {
             value={filters.organization}
             onChange={(e) => setFilters({ ...filters, organization: e.value })}
             placeholder="Organisation"
-          />
-          <Select
-            options={options.leboncoinStatus.filter((e) => Boolean(e.key)).map((e) => ({ value: e.key, label: LEBONCOIN_STATUS[e.key], count: e.doc_count }))}
-            value={filters.leboncoinStatus}
-            onChange={(e) => setFilters({ ...filters, leboncoinStatus: e.value })}
-            placeholder="Statut leboncoin"
           />
         </div>
       </div>

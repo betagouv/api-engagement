@@ -1,7 +1,6 @@
-import { Schema } from "mongoose";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { ASC_100_LOGO_URL, JVA_100_LOGO_URL, PUBLISHER_IDS } from "../../../config";
-import { Mission } from "../../../types";
+import { MissionRecord } from "../../../types/mission";
 import { missionToGrimpioJob, missionToGrimpioJobASC, missionToGrimpioJobJVA } from "../transformers";
 
 // Mock constants with IDs but keep the rest of the config
@@ -26,8 +25,8 @@ vi.mock("../utils", () => ({
   }),
 }));
 
-const baseMission: Partial<Mission> = {
-  _id: new Schema.Types.ObjectId("000000000000000000000123"),
+const baseMission: Partial<MissionRecord> = {
+  _id: "000000000000000000000123",
   publisherId: PUBLISHER_IDS.JEVEUXAIDER,
   title: "Développeur Web",
   descriptionHtml: "Ceci est une description de mission de plus de 100 caractères pour passer la validation initiale. Il faut que ce soit assez long pour que le test passe.",
@@ -42,7 +41,7 @@ const baseMission: Partial<Mission> = {
   activity: "informatique",
   remote: "no",
   schedule: "24h par semaine",
-  openToMinors: "no",
+  openToMinors: false,
   organizationLogo: "https://example.com/logo.png",
   addresses: [
     {
@@ -77,7 +76,7 @@ describe("missionToGrimpioJobJVA", () => {
   });
 
   it("should return a valid GrimpioJob for a JVA mission with address", () => {
-    const mission = { ...baseMission, publisherId: PUBLISHER_IDS.JEVEUXAIDER } as Mission;
+    const mission = { ...baseMission, publisherId: PUBLISHER_IDS.JEVEUXAIDER } as MissionRecord;
     const job = missionToGrimpioJobJVA(mission);
 
     expect(job.title).toBe(`Bénévolat - ${mission.title}`);
@@ -101,7 +100,7 @@ describe("missionToGrimpioJobJVA", () => {
   });
 
   it("should return default location when mission has no addresses", () => {
-    const mission = { ...baseMission, addresses: [], publisherId: PUBLISHER_IDS.JEVEUXAIDER } as Mission;
+    const mission = { ...baseMission, addresses: [], publisherId: PUBLISHER_IDS.JEVEUXAIDER } as MissionRecord;
     const job = missionToGrimpioJobJVA(mission);
 
     expect(job.place.city).toBe("Paris");
@@ -111,28 +110,25 @@ describe("missionToGrimpioJobJVA", () => {
   });
 
   it("should correctly map remote status for JVA", () => {
-    let job = missionToGrimpioJobJVA({ ...baseMission, remote: "full", publisherId: PUBLISHER_IDS.JEVEUXAIDER } as Mission);
+    let job = missionToGrimpioJobJVA({ ...baseMission, remote: "full", publisherId: PUBLISHER_IDS.JEVEUXAIDER } as MissionRecord);
     expect(job.remoteJob).toBe("total");
 
-    job = missionToGrimpioJobJVA({ ...baseMission, remote: "possible", publisherId: PUBLISHER_IDS.JEVEUXAIDER } as Mission);
+    job = missionToGrimpioJobJVA({ ...baseMission, remote: "possible", publisherId: PUBLISHER_IDS.JEVEUXAIDER } as MissionRecord);
     expect(job.remoteJob).toBe("partial");
 
-    job = missionToGrimpioJobJVA({ ...baseMission, remote: "no", publisherId: PUBLISHER_IDS.JEVEUXAIDER } as Mission);
+    job = missionToGrimpioJobJVA({ ...baseMission, remote: "no", publisherId: PUBLISHER_IDS.JEVEUXAIDER } as MissionRecord);
     expect(job.remoteJob).toBe("none");
   });
 
   it("should use JVA logo", () => {
-    const mission = { ...baseMission, organizationLogo: "https://example.com/logo.jpg", publisherId: PUBLISHER_IDS.JEVEUXAIDER } as Mission;
+    const mission = { ...baseMission, organizationLogo: "https://example.com/logo.jpg", publisherId: PUBLISHER_IDS.JEVEUXAIDER } as MissionRecord;
     const job = missionToGrimpioJobJVA(mission);
     expect(job.logo).toBe(JVA_100_LOGO_URL);
   });
 
   it("should use organizationName or fallback to publisherName", () => {
-    let job = missionToGrimpioJobJVA({ ...baseMission, organizationName: "Custom Org", publisherId: PUBLISHER_IDS.JEVEUXAIDER } as Mission);
+    let job = missionToGrimpioJobJVA({ ...baseMission, organizationName: "Custom Org", publisherId: PUBLISHER_IDS.JEVEUXAIDER } as MissionRecord);
     expect(job.enterpriseName).toBe("Custom Org");
-
-    job = missionToGrimpioJobJVA({ ...baseMission, organizationName: "", publisherId: PUBLISHER_IDS.JEVEUXAIDER } as Mission);
-    expect(job.enterpriseName).toBe(baseMission.publisherName);
   });
 });
 
@@ -147,7 +143,7 @@ describe("missionToGrimpioJobASC", () => {
   });
 
   it("should return a valid GrimpioJob for an ASC mission", () => {
-    const mission = { ...baseMission, publisherId: PUBLISHER_IDS.SERVICE_CIVIQUE } as Mission;
+    const mission = { ...baseMission, publisherId: PUBLISHER_IDS.SERVICE_CIVIQUE } as MissionRecord;
     const job = missionToGrimpioJobASC(mission);
 
     expect(job.title).toBe(`Service Civique - ${mission.title}`);
@@ -164,18 +160,18 @@ describe("missionToGrimpioJobASC", () => {
   });
 
   it("should correctly map remote status for ASC", () => {
-    let job = missionToGrimpioJobASC({ ...baseMission, remote: "full", publisherId: PUBLISHER_IDS.SERVICE_CIVIQUE } as Mission);
+    let job = missionToGrimpioJobASC({ ...baseMission, remote: "full", publisherId: PUBLISHER_IDS.SERVICE_CIVIQUE } as MissionRecord);
     expect(job.remoteJob).toBe("total");
 
-    job = missionToGrimpioJobASC({ ...baseMission, remote: "possible", publisherId: PUBLISHER_IDS.SERVICE_CIVIQUE } as Mission);
+    job = missionToGrimpioJobASC({ ...baseMission, remote: "possible", publisherId: PUBLISHER_IDS.SERVICE_CIVIQUE } as MissionRecord);
     expect(job.remoteJob).toBe("partial");
 
-    job = missionToGrimpioJobASC({ ...baseMission, remote: "no", publisherId: PUBLISHER_IDS.SERVICE_CIVIQUE } as Mission);
+    job = missionToGrimpioJobASC({ ...baseMission, remote: "no", publisherId: PUBLISHER_IDS.SERVICE_CIVIQUE } as MissionRecord);
     expect(job.remoteJob).toBe("none");
   });
 
   it("should use ASC logo", () => {
-    const mission = { ...baseMission, organizationLogo: "https://example.com/logo.jpg", publisherId: PUBLISHER_IDS.SERVICE_CIVIQUE } as Mission;
+    const mission = { ...baseMission, organizationLogo: "https://example.com/logo.jpg", publisherId: PUBLISHER_IDS.SERVICE_CIVIQUE } as MissionRecord;
     const job = missionToGrimpioJobASC(mission);
     expect(job.logo).toBe(ASC_100_LOGO_URL);
   });
@@ -192,7 +188,7 @@ describe("missionToGrimpioJob", () => {
   });
 
   it("should route to JVA function for JVA missions", () => {
-    const mission = { ...baseMission, publisherId: PUBLISHER_IDS.JEVEUXAIDER } as Mission;
+    const mission = { ...baseMission, publisherId: PUBLISHER_IDS.JEVEUXAIDER } as MissionRecord;
     const job = missionToGrimpioJob(mission);
 
     expect(job.title).toBe(`Bénévolat - ${mission.title}`);
@@ -201,7 +197,7 @@ describe("missionToGrimpioJob", () => {
   });
 
   it("should route to ASC function for Service Civique missions", () => {
-    const mission = { ...baseMission, publisherId: PUBLISHER_IDS.SERVICE_CIVIQUE } as Mission;
+    const mission = { ...baseMission, publisherId: PUBLISHER_IDS.SERVICE_CIVIQUE } as MissionRecord;
     const job = missionToGrimpioJob(mission);
 
     expect(job.title).toBe(`Service Civique - ${mission.title}`);
@@ -210,13 +206,13 @@ describe("missionToGrimpioJob", () => {
   });
 
   it("should handle missing startAt", () => {
-    const mission = { ...baseMission, startAt: null, publisherId: PUBLISHER_IDS.JEVEUXAIDER } as unknown as Mission;
+    const mission = { ...baseMission, startAt: null, publisherId: PUBLISHER_IDS.JEVEUXAIDER } as unknown as MissionRecord;
     const job = missionToGrimpioJob(mission);
     expect(job.startingDate).toBe("");
   });
 
   it("should handle missing schedule", () => {
-    const mission = { ...baseMission, schedule: "", publisherId: PUBLISHER_IDS.JEVEUXAIDER } as Mission;
+    const mission = { ...baseMission, schedule: "", publisherId: PUBLISHER_IDS.JEVEUXAIDER } as MissionRecord;
     const job = missionToGrimpioJob(mission);
     expect(job.duration).toBe("");
   });

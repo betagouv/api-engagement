@@ -165,7 +165,7 @@ export interface Mission {
   jobteaserComment: string | undefined;
   jobteaserUpdatedAt: Date | undefined;
 
-  letudiantPublicId: { [key: string]: string } | undefined;
+  letudiantPublicId: string | undefined;
   letudiantUpdatedAt: Date | undefined;
   letudiantError: string | undefined;
 
@@ -453,6 +453,8 @@ export enum MissionType {
 export * from "./campaign";
 export * from "./email";
 export * from "./import";
+export * from "./mission";
+export * from "./mission-job-board";
 export * from "./moderation-event";
 export * from "./organization";
 export * from "./publisher";
