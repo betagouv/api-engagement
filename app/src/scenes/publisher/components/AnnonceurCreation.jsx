@@ -8,7 +8,7 @@ const AnnonceurCreation = ({ values, onChange }) => {
     <div className="space-y-6 border border-gray-900 p-6">
       <div className="flex items-center justify-between">
         <h3 className="text-lg font-bold">Annonceur</h3>
-        <Toggle value={isAnnonceur} onChange={(e) => onChange({ ...values, isAnnonceur: e, missionType: null })} />
+        <Toggle aria-label={isAnnonceur ? "Désactiver le mode annonceur" : "Activer le mode annonceur"} value={isAnnonceur} onChange={(e) => onChange({ ...values, isAnnonceur: e, missionType: null })} />
       </div>
       {isAnnonceur && (
         <>

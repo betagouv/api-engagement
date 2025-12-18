@@ -161,13 +161,13 @@ const Edit = () => {
             <h1 className="text-4xl font-bold">Modifier une campagne</h1>
             <p className="text-gray-425 mt-2 text-base">Créée le {new Date(campaign.createdAt).toLocaleDateString("fr")}</p>
           </div>
-          <div className="flex items-center gap-4">
-            <div className="flex items-center">
-              <Toggle value={values.active} onChange={handleArchive} />
-              <label className={`${values.active ? "text-blue-france" : "text-gray-425"} mb-1 ml-2`}>{values.active ? "Active" : "Inactive"}</label>
-            </div>
-            <button className="primary-btn" disabled={!isChanged(values) || isErrors(errors) || loading} onClick={handleSubmit}>
-              {loading ? <Loader className="h-6 w-6" /> : "Enregistrer"}
+	          <div className="flex items-center gap-4">
+	            <div className="flex items-center">
+	              <Toggle aria-label={values.active ? "Désactiver la campagne" : "Activer la campagne"} value={values.active} onChange={handleArchive} />
+	              <label className={`${values.active ? "text-blue-france" : "text-gray-425"} mb-1 ml-2`}>{values.active ? "Active" : "Inactive"}</label>
+	            </div>
+	            <button className="primary-btn" disabled={!isChanged(values) || isErrors(errors) || loading} onClick={handleSubmit}>
+	              {loading ? <Loader className="h-6 w-6" /> : "Enregistrer"}
             </button>
             <CampaignMenu setIsReassignModalOpen={setIsReassignModalOpen} handleDelete={handleDelete} />
           </div>

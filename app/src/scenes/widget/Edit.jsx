@@ -126,14 +126,14 @@ const Edit = () => {
           <h1 className="text-4xl font-bold">Modifier un widget</h1>
           <span className="text-gray-425">Créé le {new Date(widget.createdAt).toLocaleDateString("fr")}</span>
         </div>
-        <div className="flex items-center gap-6">
-          <div className="flex flex-col items-end">
-            <Toggle value={widget.active} onChange={(value) => handleActivate(value)} />
-            <label className="text-blue-france text-xs">{widget.active ? "Actif" : "Inactif"}</label>
-          </div>
-          <button type="submit" className="primary-btn" onClick={handleSubmit} ref={(node) => setSaveButton(node)} disabled={!canSubmit()}>
-            Enregistrer
-          </button>
+	        <div className="flex items-center gap-6">
+	          <div className="flex flex-col items-end">
+	            <Toggle aria-label={widget.active ? "Désactiver le widget" : "Activer le widget"} value={widget.active} onChange={(value) => handleActivate(value)} />
+	            <label className="text-blue-france text-xs">{widget.active ? "Actif" : "Inactif"}</label>
+	          </div>
+	          <button type="submit" className="primary-btn" onClick={handleSubmit} ref={(node) => setSaveButton(node)} disabled={!canSubmit()}>
+	            Enregistrer
+	          </button>
         </div>
       </div>
 
@@ -252,14 +252,14 @@ const StickyBar = ({ onEdit, visible, widget, handleActivate, canSubmit }) => {
     <div className="fixed top-0 left-0 z-50 w-full items-center bg-white py-4 shadow-lg">
       <div className="m-auto flex w-[90%] items-center justify-between">
         <h1 className="text-2xl font-bold">Modifier un widget</h1>
-        <div className="flex items-center gap-6">
-          <div className="flex flex-col items-end">
-            <Toggle value={widget.active} onChange={(value) => handleActivate(value)} />
-            <label className="text-blue-france text-xs">{widget.active ? "Actif" : "Inactif"}</label>
-          </div>
-          <button type="button" className="primary-btn" onClick={onEdit} disabled={!canSubmit()}>
-            Enregistrer
-          </button>
+	        <div className="flex items-center gap-6">
+	          <div className="flex flex-col items-end">
+	            <Toggle aria-label={widget.active ? "Désactiver le widget" : "Activer le widget"} value={widget.active} onChange={(value) => handleActivate(value)} />
+	            <label className="text-blue-france text-xs">{widget.active ? "Actif" : "Inactif"}</label>
+	          </div>
+	          <button type="button" className="primary-btn" onClick={onEdit} disabled={!canSubmit()}>
+	            Enregistrer
+	          </button>
         </div>
       </div>
     </div>

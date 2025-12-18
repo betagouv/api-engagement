@@ -32,6 +32,7 @@ const Trackers = ({ values, onChange }) => {
     <>
       <div className="flex items-center">
         <Toggle
+          aria-label="Ajouter des paramètres pour le suivi statistique"
           value={values.trackers && values.trackers.length > 0}
           onChange={(v) => {
             if (v) onChange({ ...values, trackers: [{ key: "", value: "" }] });

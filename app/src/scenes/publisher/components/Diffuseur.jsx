@@ -53,6 +53,7 @@ const Diffuseur = ({ values, onChange, errors, setErrors }) => {
       <div className="flex items-center justify-between">
         <h3 className="text-lg font-bold">Diffuseur</h3>
         <Toggle
+          aria-label={values.isDiffuseur ? "Désactiver le mode diffuseur" : "Activer le mode diffuseur"}
           value={values.isDiffuseur}
           onChange={(e) => onChange({ ...values, isDiffuseur: e, hasApiRights: false, hasWidgetRights: false, hasCampaignRights: false, category: null })}
         />
