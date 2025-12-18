@@ -147,7 +147,7 @@ const OrganizationTab = ({ data, onChange }) => {
             <label className="text-sm" htmlFor="organization-name">
               Nom de l'organisation
             </label>
-            <input id="organization-name" className="input mb-2" disabled name="organization-name" defaultValue={data.organizationName} />
+            <input id="organization-name" className="input mb-2" readOnly name="organization-name" defaultValue={data.organizationName} />
           </div>
           <div className="flex flex-col gap-2 py-2">
             <label className="text-sm" htmlFor="organization-siren">

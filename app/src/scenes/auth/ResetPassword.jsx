@@ -119,7 +119,7 @@ const ResetPasswordForm = ({ user, token }) => {
         <label className="mt-6 mb-2 text-sm" htmlFor="email">
           Email
         </label>
-        <input id="email" className="input mb-2" name="email" type="email" value={values.email} disabled />
+        <input id="email" className="input mb-2" name="email" type="email" value={values.email} readOnly />
         <div className="mt-6 flex justify-between">
           <label className="mb-2 text-sm" htmlFor="password">
             Nouveau mot de passe

@@ -39,8 +39,8 @@ const SettingsModal = () => {
                 </select>
               </div>
               <div className="flex flex-1 flex-col gap-2">
-                <input className="input" type="text" defaultValue="6 mois" disabled />
-                <input className="input" type="text" defaultValue="À modérer" disabled />
+                <input className="input" type="text" defaultValue="6 mois" readOnly />
+                <input className="input" type="text" defaultValue="À modérer" readOnly />
               </div>
             </div>
             <div className="my-4 border-t border-gray-900" />
@@ -65,8 +65,8 @@ const SettingsModal = () => {
                 </select>
               </div>
               <div className="flex flex-1 flex-col gap-2">
-                <input className="input" type="text" defaultValue="Refusée" disabled />
-                <input className="input" type="text" defaultValue="La mission est refusée car la date de création est trop ancienne (> 6 mois)" disabled />
+                <input className="input" type="text" defaultValue="Refusée" readOnly />
+                <input className="input" type="text" defaultValue="La mission est refusée car la date de création est trop ancienne (> 6 mois)" readOnly />
               </div>
             </div>
           </div>
@@ -98,9 +98,9 @@ const SettingsModal = () => {
                 </select>
               </div>
               <div className="flex flex-1 flex-col gap-2">
-                <input className="input" type="text" defaultValue="7 jours" disabled />
-                <input className="input" type="text" defaultValue="21 jours" disabled />
-                <input className="input" type="text" defaultValue="À modérer" disabled />
+                <input className="input" type="text" defaultValue="7 jours" readOnly />
+                <input className="input" type="text" defaultValue="21 jours" readOnly />
+                <input className="input" type="text" defaultValue="À modérer" readOnly />
               </div>
             </div>
             <div className="my-4 border-t border-gray-900" />
@@ -125,8 +125,8 @@ const SettingsModal = () => {
                 </select>
               </div>
               <div className="flex flex-1 flex-col gap-2">
-                <input className="input" type="text" defaultValue="Refusée" disabled />
-                <input className="input" type="text" defaultValue="La date de la mission n’est pas compatible avec le recrutement de bénévoles" disabled />
+                <input className="input" type="text" defaultValue="Refusée" readOnly />
+                <input className="input" type="text" defaultValue="La date de la mission n’est pas compatible avec le recrutement de bénévoles" readOnly />
               </div>
             </div>
           </div>
@@ -152,8 +152,8 @@ const SettingsModal = () => {
                 </select>
               </div>
               <div className="flex flex-1 flex-col gap-2">
-                <input className="input" type="text" defaultValue="300 caractères" disabled />
-                <input className="input" type="text" defaultValue="À modérer" disabled />
+                <input className="input" type="text" defaultValue="300 caractères" readOnly />
+                <input className="input" type="text" defaultValue="À modérer" readOnly />
               </div>
             </div>
             <div className="my-4 border-t border-gray-900" />
@@ -178,8 +178,8 @@ const SettingsModal = () => {
                 </select>
               </div>
               <div className="flex flex-1 flex-col gap-2">
-                <input className="input" type="text" defaultValue="Refusée" disabled />
-                <input className="input" type="text" defaultValue="Le contenu est insuffisant / non qualitatif" disabled />
+                <input className="input" type="text" defaultValue="Refusée" readOnly />
+                <input className="input" type="text" defaultValue="Le contenu est insuffisant / non qualitatif" readOnly />
               </div>
             </div>
           </div>
@@ -206,7 +206,7 @@ const SettingsModal = () => {
               </div>
               <div className="flex flex-1 flex-col gap-2">
                 <div className="h-9" />
-                <input className="input" type="text" defaultValue="À modérer" disabled />
+                <input className="input" type="text" defaultValue="À modérer" readOnly />
               </div>
             </div>
             <div className="my-4 border-t border-gray-900" />
@@ -232,8 +232,8 @@ const SettingsModal = () => {
               </div>
 
               <div className="flex flex-1 flex-col gap-2">
-                <input className="input" type="text" defaultValue="Refusée" disabled />
-                <input className="input" type="text" defaultValue="Le contenu est insuffisant / non qualitatif" disabled />
+                <input className="input" type="text" defaultValue="Refusée" readOnly />
+                <input className="input" type="text" defaultValue="Le contenu est insuffisant / non qualitatif" readOnly />
               </div>
             </div>
           </div>
