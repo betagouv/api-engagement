@@ -1,30 +1,28 @@
 import { RiDeleteBin6Line } from "react-icons/ri";
 import Toggle from "../../../components/Toggle";
+import { buildSearchParams } from "../../../utils/url";
 
 const Trackers = ({ values, onChange }) => {
   const handleTrackerKeyChange = (e, i) => {
     const trackers = [...values.trackers];
-    const query = new URLSearchParams();
-    trackers.forEach((t, j) => (i === j ? query.append(e.target.value, trackers[i].value) : query.append(t.key, t.value)));
-    const url = `${values.url.split("?")[0]}?${query.toString()}`;
+    const searchParams = buildSearchParams(trackers);
+    const url = `${values.url.split("?")[0]}${searchParams ? `?${searchParams}` : ""}`;
     trackers[i].key = e.target.value;
     onChange({ ...values, url, trackers });
   };
 
   const handleTrackerValueChange = (e, i) => {
     const trackers = [...values.trackers];
-    const query = new URLSearchParams();
-    trackers.forEach((t) => query.append(t.key, t.value || ""));
-    query.set(trackers[i].key, e.target.value);
-    const url = `${values.url.split("?")[0]}?${query.toString()}`;
-    trackers[i].value = e.target.value;
+    trackers[i].value = e.target.value.replace(/ /g, "+");
+    const searchParams = buildSearchParams(trackers);
+    const url = `${values.url.split("?")[0]}${searchParams ? `?${searchParams}` : ""}`;
     onChange({ ...values, url, trackers });
   };
 
   const handleDeleteTracker = (i) => {
-    const query = new URLSearchParams();
-    values.trackers.forEach((t, j) => (i === j ? null : query.append(t.key, t.value || "")));
-    const url = `${values.url.split("?")[0]}?${query.toString()}`;
+    const trackers = values.trackers.filter((t, j) => j !== i);
+    const searchParams = buildSearchParams(trackers);
+    const url = `${values.url.split("?")[0]}${searchParams ? `?${searchParams}` : ""}`;
     onChange({ ...values, url, trackers: values.trackers.filter((t, j) => j !== i) });
   };
 
@@ -52,13 +50,10 @@ const Trackers = ({ values, onChange }) => {
               <div key={i} className="flex items-center gap-6">
                 <input className="input flex-1" name="key" value={tracker.key} onChange={(e) => handleTrackerKeyChange(e, i)} placeholder="Exemple : utm_source" />
                 <input className="input flex-1" name="value" value={tracker.value} onChange={(e) => handleTrackerValueChange(e, i)} placeholder="Exemples : google, newsletter" />
-                <div className="flex w-10 justify-end">
-                  {values.trackers.length > 1 && (
-                    <button type="button" className="tertiary-btn" onClick={() => handleDeleteTracker(i)}>
-                      <RiDeleteBin6Line className="text-red-error" />
-                    </button>
-                  )}
-                </div>
+
+                <button type="button" className="tertiary-btn w-10 px-0" onClick={() => handleDeleteTracker(i)}>
+                  <RiDeleteBin6Line className="text-red-error mx-auto" />
+                </button>
               </div>
             ))}
           </div>

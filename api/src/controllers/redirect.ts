@@ -311,22 +311,8 @@ router.get("/campaign/:id", cors({ origin: "*" }), async (req, res) => {
     } as StatEventRecord;
 
     const clickId = await statEventService.createStatEvent(obj);
-    const url = new URL(campaign.url);
-
-    if (!url.search) {
-      if (campaign.toPublisherId === PUBLISHER_IDS.SERVICE_CIVIQUE) {
-        url.searchParams.set("mtm_source", "api_engagement");
-        url.searchParams.set("mtm_medium", "campaign");
-        url.searchParams.set("mtm_campaign", slugify(campaign.name));
-      } else {
-        url.searchParams.set("utm_source", "api_engagement");
-        url.searchParams.set("utm_medium", "campaign");
-        url.searchParams.set("utm_campaign", slugify(campaign.name));
-      }
-    }
-    url.searchParams.set("apiengagement_id", clickId);
-
-    res.redirect(302, url.href);
+    href = href.includes("?") ? `${href}&apiengagement_id=${clickId}` : `${href}?apiengagement_id=${clickId}`;
+    res.redirect(302, href);
 
     // Update stats just created to add isBot (do it after redirect to avoid delay)
     const statBot = await statBotService.findStatBotByUser(identity.user);
