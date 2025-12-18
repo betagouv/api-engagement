@@ -266,16 +266,16 @@ const Settings = ({ widget, values, onChange, loading }) => {
             </button>
           )}
 
-          {values.publishers.includes(JVA_ID) && (
-            <div className="flex w-[50%] items-center justify-between pt-6">
-              <div> Afficher uniquement les missions modérées par JeVeuxAider.gouv.fr</div>
-              <div className="flex items-center gap-4">
-                <Toggle value={values.jvaModeration} onChange={(value) => onChange({ ...values, jvaModeration: value })} />
-                <img src={JvaLogoSvg} className="ml-4 w-16" />
-              </div>
-            </div>
-          )}
-        </div>
+	          {values.publishers.includes(JVA_ID) && (
+	            <div className="flex w-[50%] items-center justify-between pt-6">
+	              <div> Afficher uniquement les missions modérées par JeVeuxAider.gouv.fr</div>
+	              <div className="flex items-center gap-4">
+	                <Toggle aria-label="Afficher uniquement les missions modérées par JeVeuxAider.gouv.fr" value={values.jvaModeration} onChange={(value) => onChange({ ...values, jvaModeration: value })} />
+	                <img src={JvaLogoSvg} className="ml-4 w-16" />
+	              </div>
+	            </div>
+	          )}
+	        </div>
 
         <div className="space-y-4">
           <div className="space-y-2">

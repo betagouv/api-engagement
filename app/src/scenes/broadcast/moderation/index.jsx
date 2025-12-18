@@ -160,10 +160,10 @@ const Moderation = () => {
         </div>
 
         <div className="pt-4">
-          <div className="flex items-center gap-4">
-            <Toggle value={true} />
-            <label className="ml-2 font-semibold">Activer la modération automatique</label>
-          </div>
+	          <div className="flex items-center gap-4">
+	            <Toggle aria-label="Activer la modération automatique" value={true} />
+	            <label className="ml-2 font-semibold">Activer la modération automatique</label>
+	          </div>
           <div className="flex items-center justify-end">
             <SettingsModal />
           </div>

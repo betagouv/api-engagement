@@ -7,7 +7,7 @@ const SettingsModal = () => {
 
   return (
     <>
-      <button className="text-blue-france flex items-center" onClick={() => setIsOpen(true)}>
+      <button className="text-blue-france flex cursor-pointer items-center" onClick={() => setIsOpen(true)}>
         <RiSettings3Fill className="mr-2" />
         <span>Paramétrage</span>
       </button>

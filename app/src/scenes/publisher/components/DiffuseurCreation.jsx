@@ -32,7 +32,11 @@ const DiffuseurCreation = ({ values, onChange, errors }) => {
     <div className="space-y-6 border border-gray-900 p-6">
       <div className="flex items-center justify-between">
         <h3 className="text-lg font-bold">Diffuseur</h3>
-        <Toggle value={values.isDiffuseur} onChange={(e) => onChange({ ...values, isDiffuseur: e, hasApiRights: false, hasWidgetRights: false, hasCampaignRights: false })} />
+        <Toggle
+          aria-label={values.isDiffuseur ? "Désactiver le mode diffuseur" : "Activer le mode diffuseur"}
+          value={values.isDiffuseur}
+          onChange={(e) => onChange({ ...values, isDiffuseur: e, hasApiRights: false, hasWidgetRights: false, hasCampaignRights: false })}
+        />
       </div>
       {values.isDiffuseur && (
         <>
