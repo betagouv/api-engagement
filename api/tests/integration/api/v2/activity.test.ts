@@ -39,14 +39,13 @@ describe("Activity V2 controller", () => {
     });
   });
 
-  describe("POST /v2/activity/:missionId/apply", () => {
+  describe("POST /v2/activity/", () => {
     it("records apply events using the stat-event repository", async () => {
       const missionPublisherId = new Types.ObjectId().toString();
       const mission = await createTestMission({
         clientId: "apply-mission-client",
         title: "Apply Mission",
         publisherId: missionPublisherId,
-        publisherName: "Apply Mission Publisher",
         lastSyncAt: new Date(),
         statusCode: "ACCEPTED",
       });
@@ -64,7 +63,7 @@ describe("Activity V2 controller", () => {
         missionOrganizationId: "mission-org-id",
         missionOrganizationClientId: "mission-org-client-id",
         toPublisherId: mission.publisherId,
-        toPublisherName: mission.publisherName,
+        toPublisherName: mission.publisherName || undefined,
         fromPublisherId: "click-from",
         fromPublisherName: "Click From",
         tag: "existing-tag",
@@ -77,12 +76,12 @@ describe("Activity V2 controller", () => {
       });
 
       const response = await request(app)
-        .post(`/v2/activity/${mission._id.toString()}/apply`)
-        .set("apikey", publisher.apikey ?? "")
+        .post("/v2/activity/")
+        .set("apikey", publisher.apikey || "")
         .set("Host", "apply.test")
         .set("Origin", "https://app.test")
         .set("Referer", "https://referer.test")
-        .query({ clickId: clickStat._id, tag: "new-tag" });
+        .send({ clickId: clickStat._id, tag: "new-tag", missionClientId: mission.clientId });
 
       expect(response.status).toBe(200);
       expect(response.body.ok).toBe(true);
@@ -92,13 +91,77 @@ describe("Activity V2 controller", () => {
       expect(createdApply).toMatchObject({
         type: "apply",
         clickId: clickStat._id,
-        fromPublisherId: publisher.id,
-        toPublisherId: mission.publisherId,
+        fromPublisherId: clickStat.fromPublisherId,
+        toPublisherId: publisher.id,
+        missionId: mission._id.toString(),
+        missionClientId: mission.clientId,
       });
+    });
+
+    it("records apply events without mission when missionClientId is not provided", async () => {
+      const publisher = await publisherService.createPublisher({ name: "Apply Publisher No Mission", apikey: "apply-no-mission-key" });
+
+      const clickStat = await createClickStat("click-apply-no-mission", {
+        fromPublisherId: "click-from-no-mission",
+        fromPublisherName: "Click From No Mission",
+        tag: "existing-tag",
+        host: "host.test",
+        origin: "https://origin.test",
+        referer: "https://referer.test",
+      });
+
+      const response = await request(app)
+        .post("/v2/activity/")
+        .set("apikey", publisher.apikey || "")
+        .set("Host", "apply.test")
+        .set("Origin", "https://app.test")
+        .set("Referer", "https://referer.test")
+        .send({ clickId: clickStat._id, tag: "new-tag" });
+
+      expect(response.status).toBe(200);
+      expect(response.body.ok).toBe(true);
+      expect(response.body.data).toMatchObject({ type: "apply", clickId: clickStat._id, tag: "new-tag" });
+
+      const createdApply = await statEventService.findOneStatEventById(response.body.data._id);
+      expect(createdApply).toMatchObject({
+        type: "apply",
+        clickId: clickStat._id,
+        fromPublisherId: clickStat.fromPublisherId,
+        toPublisherId: publisher.id,
+      });
+      expect(createdApply?.missionId).toBeUndefined();
+    });
+
+    it("returns 404 when clickId does not exist", async () => {
+      const publisher = await publisherService.createPublisher({ name: "Apply Publisher Missing Click", apikey: "apply-missing-click-key" });
+
+      const response = await request(app)
+        .post("/v2/activity/")
+        .set("apikey", publisher.apikey || "")
+        .send({ clickId: "unknown-click-id" });
+
+      expect(response.status).toBe(404);
+      expect(response.body).toEqual({ ok: false, code: "NOT_FOUND", message: "Click not found" });
+    });
+
+    it("returns 404 when missionClientId is provided but mission does not exist", async () => {
+      const publisher = await publisherService.createPublisher({ name: "Apply Publisher Missing Mission", apikey: "apply-missing-mission-key" });
+
+      const clickStat = await createClickStat("click-missing-mission", {
+        fromPublisherId: "click-from-missing-mission",
+      });
+
+      const response = await request(app)
+        .post("/v2/activity/")
+        .set("apikey", publisher.apikey || "")
+        .send({ clickId: clickStat._id, missionClientId: "unknown-mission-client-id" });
+
+      expect(response.status).toBe(404);
+      expect(response.body).toEqual({ ok: false, code: "NOT_FOUND", message: "Mission not found" });
     });
   });
 
-  describe("PUT /v2/activity/:activityId", () => {
+  describe("PUT /v2/activity/:id", () => {
     it("updates the activity status using the repository", async () => {
       const publisher = await publisherService.createPublisher({ name: "Update Publisher", apikey: "update-key" });
 
