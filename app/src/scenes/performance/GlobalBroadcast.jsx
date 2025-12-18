@@ -1,13 +1,11 @@
 import { useEffect, useState } from "react";
 import { RiAlertFill, RiInformationFill } from "react-icons/ri";
-import { Link } from "react-router-dom";
 
 import EmptySVG from "../../assets/svg/empty-info.svg";
 import { Pie, StackedBarchart } from "../../components/Chart";
 import Loader from "../../components/Loader";
 import DateRangePicker from "../../components/NewDateRangePicker";
 import TablePagination from "../../components/NewTablePagination";
-import WarningAlert from "../../components/WarningAlert";
 import { MONTHS } from "../../constants";
 import api from "../../services/api";
 import { captureError } from "../../services/error";
@@ -34,23 +32,6 @@ const GlobalDiffuseur = ({ filters, onFiltersChange }) => {
   const { publisher } = useStore();
   const [data, setData] = useState({ totalMissionClick: 0, totalMissionApply: 0, totalPrint: 0, totalClick: 0, totalAccount: 0, totalApply: 0 });
   const [loading, setLoading] = useState(true);
-  const [trackingWarning, setTrackingWarning] = useState(false);
-
-  useEffect(() => {
-    const fetchData = async () => {
-      setLoading(true);
-      try {
-        const res = await api.post("/stats/search", { type: "print", size: 3, fromPublisherId: publisher.id });
-        if (!res.ok) throw res;
-
-        setTrackingWarning((res.data?.length || 0) < 3);
-      } catch (error) {
-        captureError(error, { extra: { publisherId: publisher.id } });
-      }
-      setLoading(false);
-    };
-    fetchData();
-  }, [publisher]);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -82,18 +63,6 @@ const GlobalDiffuseur = ({ filters, onFiltersChange }) => {
         <DateRangePicker value={filters} onChange={(value) => onFiltersChange({ ...filters, ...value })} />
       </div>
       <div className="border-b border-b-gray-900" />
-
-      {trackingWarning && (
-        <WarningAlert onClose={() => setTrackingWarning(false)}>
-          <p className="text-xl font-bold">Il semblerait que les impressions de vos campagnes ou missions ne soient pas comptabilisées</p>
-          <p className="text-sm text-[#3a3a3a]">
-            Pour vous assurer de bien comptabiliser les impressions,{" "}
-            <Link className="link" to="/settings">
-              rendez-vous dans la page paramètres
-            </Link>
-          </p>
-        </WarningAlert>
-      )}
 
       <div className="space-y-6">
         <div className="space-y-2">
