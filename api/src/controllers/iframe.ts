@@ -394,7 +394,6 @@ const fetchWidgetMissions = async (widget: WidgetRecord, filters: MissionSearchF
   }
 
   if (otherPublishers.length) {
-    console.log({ ...filters, publisherIds: otherPublishers, moderationAcceptedFor: jvaPublisherId, skip: 0, limit: pageLimit });
     const res = await missionService.findMissions({ ...filters, publisherIds: otherPublishers, moderationAcceptedFor: jvaPublisherId, skip: 0, limit: pageLimit });
     combined.push(...res.data);
     total += res.total;
