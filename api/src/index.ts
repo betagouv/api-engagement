@@ -29,6 +29,7 @@ import ImportController from "./controllers/import";
 import MissionController from "./controllers/mission";
 import ModerationController from "./controllers/moderation";
 import ModerationEventController from "./controllers/moderation-event";
+import MetabaseController from "./controllers/metabase";
 import OrganizationController from "./controllers/organization";
 import PublisherController from "./controllers/publisher";
 import RedirectController from "./controllers/redirect";
@@ -96,6 +97,7 @@ const main = async () => {
   app.use("/mission", MissionController);
   app.use("/moderation", ModerationController);
   app.use("/moderation-event", ModerationEventController);
+  app.use("/metabase", MetabaseController);
   app.use("/publisher", PublisherController);
   app.use("/organization", OrganizationController);
   app.use("/stats", StatsController);
