@@ -6,7 +6,7 @@ import { PUBLISHER_IDS } from "../config";
 import { FORBIDDEN, INVALID_BODY, INVALID_PARAMS, INVALID_QUERY, NOT_FOUND } from "../error";
 import { missionService } from "../services/mission";
 import type { UserRequest } from "../types/passport";
-import { diacriticSensitiveRegex, getDistanceKm } from "../utils";
+import { getDistanceKm } from "../utils";
 
 const router = Router();
 
@@ -88,6 +88,7 @@ const findFilters = (user: UserRequest["user"], body: zod.infer<typeof searchSch
     activity: asArray(body.activity),
     city: asArray(body.city),
     departmentName: asArray(body.department),
+    organizationName: asArray(body.organization),
   };
 
   if (body.status) {
@@ -96,12 +97,11 @@ const findFilters = (user: UserRequest["user"], body: zod.infer<typeof searchSch
   if (body.comment) {
     filters.statusComment = body.comment;
   }
-  if (body.organization) {
-    filters.organizationName = body.organization;
-  }
   if (body.search) {
-    const text = diacriticSensitiveRegex(body.search);
-    filters.keywords = text;
+    const keywords = body.search.trim();
+    if (keywords) {
+      filters.keywords = keywords;
+    }
   }
   if (body.lat && body.lon) {
     const distance = getDistanceKm(body.distance && body.distance !== "Aucun" ? body.distance : "25km");

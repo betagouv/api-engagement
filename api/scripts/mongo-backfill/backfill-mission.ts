@@ -9,8 +9,40 @@ import { loadEnvironment, parseScriptOptions, type ScriptOptions } from "./utils
 
 const SCRIPT_NAME = "MigrateMissions";
 const BATCH_SIZE = 200;
-const options: ScriptOptions = parseScriptOptions(process.argv.slice(2), SCRIPT_NAME);
+const parseMissionOptions = (argv: string[]): ScriptOptions & { bulkInsert: boolean } => {
+  const args = [...argv];
+  const bulkIndex = args.indexOf("--bulk-insert");
+  const bulkInsert = bulkIndex !== -1;
+  if (bulkInsert) {
+    args.splice(bulkIndex, 1);
+  }
+  return { ...parseScriptOptions(args, SCRIPT_NAME), bulkInsert };
+};
+
+const options = parseMissionOptions(process.argv.slice(2));
 loadEnvironment(options, __dirname, SCRIPT_NAME);
+
+const formatPrismaError = (error: unknown) => {
+  if (!error || typeof error !== "object") {
+    return String(error);
+  }
+
+  const maybe = error as { code?: unknown; message?: unknown; meta?: unknown };
+  const code = typeof maybe.code === "string" ? maybe.code : undefined;
+  const message = typeof maybe.message === "string" ? maybe.message : undefined;
+
+  if (code === "P2002") {
+    const meta = typeof maybe.meta === "object" && maybe.meta ? (maybe.meta as { target?: unknown }) : undefined;
+    const target = Array.isArray(meta?.target) ? meta?.target.filter((value): value is string => typeof value === "string") : undefined;
+    return `P2002 (unique constraint${target?.length ? `: ${target.join(",")}` : ""})${message ? ` - ${message}` : ""}`;
+  }
+
+  if (code) {
+    return `${code}${message ? ` - ${message}` : ""}`;
+  }
+
+  return message ?? String(error);
+};
 
 const missionRemoteValues: Prisma.MissionRemote[] = ["no", "possible", "full"];
 const missionPlacesStatusValues: Prisma.MissionPlacesStatus[] = ["ATTRIBUTED_BY_API", "GIVEN_BY_PARTNER"];
@@ -760,10 +792,11 @@ const formatForLog = (entry: NormalizedMissionData["log"]) => ({
 const persistBatch = async (
   batch: NormalizedMissionData[],
   prismaCore: PrismaClient,
-  stats: { created: number; updated: number; unchanged: number },
+  stats: { created: number; updated: number; unchanged: number; skipped: number },
   sampleCreates: NormalizedMissionData["log"][],
   sampleUpdates: { before: ComparableMission; after: ComparableMission }[],
-  dryRun: boolean
+  dryRun: boolean,
+  bulkInsert: boolean
 ) => {
   if (!batch.length) return;
 
@@ -848,6 +881,61 @@ const persistBatch = async (
     return copy;
   };
 
+  if (bulkInsert) {
+    if (dryRun) {
+      for (const entry of batch) {
+        if (sampleCreates.length >= 5) break;
+        sampleCreates.push(entry.log);
+      }
+      stats.created += batch.length;
+      return;
+    }
+
+    try {
+      const missionData = batch.map((entry) => normalizeOrganizationId(entry.mission)) as Prisma.MissionCreateManyInput[];
+      const missionIds = missionData.map((entry) => entry.id).filter((id): id is string => typeof id === "string" && id.length > 0);
+
+      const { insertedMissionIds, insertedMissionCount } = await prismaCore.$transaction(async (tx) => {
+        const createdMissions = await tx.mission.createMany({ data: missionData, skipDuplicates: true });
+        const persisted = missionIds.length ? await tx.mission.findMany({ where: { id: { in: missionIds } }, select: { id: true } }) : [];
+        const insertedMissionIds = new Set(persisted.map((entry) => entry.id));
+
+        const addresses = batch.flatMap((entry) => (insertedMissionIds.has(entry.mission.id as string) ? entry.addresses : []));
+        const moderationStatuses = batch.flatMap((entry) => (insertedMissionIds.has(entry.mission.id as string) ? entry.moderationStatuses : []));
+        const jobBoards = batch.flatMap((entry) => (insertedMissionIds.has(entry.mission.id as string) ? entry.jobBoards : []));
+
+        if (addresses.length) {
+          await tx.missionAddress.createMany({ data: addresses, skipDuplicates: true });
+        }
+        if (moderationStatuses.length) {
+          await tx.missionModerationStatus.createMany({ data: moderationStatuses, skipDuplicates: true });
+        }
+        if (jobBoards.length) {
+          await tx.missionJobBoard.createMany({ data: jobBoards, skipDuplicates: true });
+        }
+
+        return { insertedMissionIds, insertedMissionCount: createdMissions.count };
+      });
+
+      stats.created += insertedMissionCount;
+
+      const missing = batch.filter((entry) => !insertedMissionIds.has(entry.mission.id as string));
+      if (missing.length) {
+        stats.skipped += missing.length;
+        console.warn(`[${SCRIPT_NAME}] Bulk insert skipped ${missing.length} mission(s) (likely duplicates)`);
+        for (const entry of missing.slice(0, 3)) {
+          console.warn(
+            `[${SCRIPT_NAME}] Bulk insert skipped mission: ${entry.log.id} (clientId=${entry.log.clientId}, publisherId=${entry.log.publisherId})`
+          );
+        }
+      }
+
+      return;
+    } catch (error) {
+      console.warn(`[${SCRIPT_NAME}] Bulk insert failed for batch; falling back to per-mission writes - ${formatPrismaError(error)}`);
+    }
+  }
+
   const ids = batch.map(({ mission }) => mission.id as string);
   const existingRecords = await prismaCore.mission.findMany({
     where: { id: { in: ids } },
@@ -859,22 +947,32 @@ const persistBatch = async (
     const existing = existingById.get(entry.mission.id as string);
 
     if (!existing) {
-      stats.created += 1;
       if (dryRun) {
+        stats.created += 1;
         if (sampleCreates.length < 5) {
           sampleCreates.push(entry.log);
         }
       } else {
-        const data = normalizeOrganizationId(entry.mission);
-        await prismaCore.mission.create({ data });
-        if (entry.addresses.length) {
-          await prismaCore.missionAddress.createMany({ data: entry.addresses });
-        }
-        if (entry.moderationStatuses.length) {
-          await prismaCore.missionModerationStatus.createMany({ data: entry.moderationStatuses });
-        }
-        if (entry.jobBoards.length) {
-          await prismaCore.missionJobBoard.createMany({ data: entry.jobBoards });
+        try {
+          await prismaCore.$transaction(async (tx) => {
+            const data = normalizeOrganizationId(entry.mission);
+            await tx.mission.create({ data });
+            if (entry.addresses.length) {
+              await tx.missionAddress.createMany({ data: entry.addresses });
+            }
+            if (entry.moderationStatuses.length) {
+              await tx.missionModerationStatus.createMany({ data: entry.moderationStatuses });
+            }
+            if (entry.jobBoards.length) {
+              await tx.missionJobBoard.createMany({ data: entry.jobBoards });
+            }
+          });
+          stats.created += 1;
+        } catch (error) {
+          stats.skipped += 1;
+          console.warn(
+            `[${SCRIPT_NAME}] Skip mission due to Prisma error (create): ${entry.log.id} (clientId=${entry.log.clientId}, publisherId=${entry.log.publisherId}) - ${formatPrismaError(error)}`
+          );
         }
       }
       continue;
@@ -889,25 +987,35 @@ const persistBatch = async (
       continue;
     }
 
-    stats.updated += 1;
     if (dryRun) {
+      stats.updated += 1;
       if (sampleUpdates.length < 5) {
         sampleUpdates.push({ before: beforeComparable, after: afterComparable });
       }
     } else {
-      const updateData = normalizeOrganizationId(entry.update);
-      await prismaCore.mission.update({ where: { id: entry.mission.id as string }, data: updateData });
-      await prismaCore.missionAddress.deleteMany({ where: { missionId: entry.mission.id as string } });
-      if (entry.addresses.length) {
-        await prismaCore.missionAddress.createMany({ data: entry.addresses });
-      }
-      await prismaCore.missionModerationStatus.deleteMany({ where: { missionId: entry.mission.id as string } });
-      if (entry.moderationStatuses.length) {
-        await prismaCore.missionModerationStatus.createMany({ data: entry.moderationStatuses });
-      }
-      await prismaCore.missionJobBoard.deleteMany({ where: { missionId: entry.mission.id as string, jobBoardId: { in: jobBoardIds } } });
-      if (entry.jobBoards.length) {
-        await prismaCore.missionJobBoard.createMany({ data: entry.jobBoards });
+      try {
+        await prismaCore.$transaction(async (tx) => {
+          const updateData = normalizeOrganizationId(entry.update);
+          await tx.mission.update({ where: { id: entry.mission.id as string }, data: updateData });
+          await tx.missionAddress.deleteMany({ where: { missionId: entry.mission.id as string } });
+          if (entry.addresses.length) {
+            await tx.missionAddress.createMany({ data: entry.addresses });
+          }
+          await tx.missionModerationStatus.deleteMany({ where: { missionId: entry.mission.id as string } });
+          if (entry.moderationStatuses.length) {
+            await tx.missionModerationStatus.createMany({ data: entry.moderationStatuses });
+          }
+          await tx.missionJobBoard.deleteMany({ where: { missionId: entry.mission.id as string, jobBoardId: { in: jobBoardIds } } });
+          if (entry.jobBoards.length) {
+            await tx.missionJobBoard.createMany({ data: entry.jobBoards });
+          }
+        });
+        stats.updated += 1;
+      } catch (error) {
+        stats.skipped += 1;
+        console.warn(
+          `[${SCRIPT_NAME}] Skip mission due to Prisma error (update): ${entry.log.id} (clientId=${entry.log.clientId}, publisherId=${entry.log.publisherId}) - ${formatPrismaError(error)}`
+        );
       }
     }
   }
@@ -923,10 +1031,17 @@ const cleanup = async () => {
 };
 
 const main = async () => {
-  console.log(`[${SCRIPT_NAME}] Starting${options.dryRun ? " (dry-run)" : ""}`);
+  console.log(`[${SCRIPT_NAME}] Starting${options.dryRun ? " (dry-run)" : ""}${options.bulkInsert ? " (bulk-insert)" : ""}`);
   const [{ mongoConnected }, { pgConnected, prismaCore }] = await Promise.all([import("../../src/db/mongo"), import("../../src/db/postgres")]);
 
   await Promise.all([mongoConnected, pgConnected]);
+
+  if (options.bulkInsert && !options.dryRun) {
+    const existingCount = await prismaCore.mission.count();
+    if (existingCount > 0) {
+      throw new Error(`[${SCRIPT_NAME}] Refusing bulk insert: destination mission table is not empty (count=${existingCount})`);
+    }
+  }
 
   const collection = mongoose.connection.collection("missions");
   const total = await collection.countDocuments();
@@ -957,19 +1072,19 @@ const main = async () => {
     }
 
     if (batch.length >= BATCH_SIZE) {
-      await persistBatch(batch, prismaCore, stats, sampleCreates, sampleUpdates, options.dryRun);
+      await persistBatch(batch, prismaCore, stats, sampleCreates, sampleUpdates, options.dryRun, options.bulkInsert);
       console.log(`[${SCRIPT_NAME}] Processed ${stats.processed}/${total}`);
       batch = [];
     }
   }
 
   if (batch.length) {
-    await persistBatch(batch, prismaCore, stats, sampleCreates, sampleUpdates, options.dryRun);
+    await persistBatch(batch, prismaCore, stats, sampleCreates, sampleUpdates, options.dryRun, options.bulkInsert);
   }
 
   console.log(`[${SCRIPT_NAME}] Completed. Created: ${stats.created}, Updated: ${stats.updated}, Unchanged: ${stats.unchanged}`);
   if (stats.skipped) {
-    console.log(`[${SCRIPT_NAME}] Skipped (invalid/missing required fields): ${stats.skipped}`);
+    console.log(`[${SCRIPT_NAME}] Skipped (normalization/prisma errors): ${stats.skipped}`);
   }
 
   if (options.dryRun) {
