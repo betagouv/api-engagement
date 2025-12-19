@@ -1,6 +1,5 @@
 import importCampaigns from "./utils/campaign";
 import importPartners from "./utils/partner";
-import importWidgets from "./utils/widget";
 
 import { BaseHandler } from "../base/handler";
 import { JobResult } from "../types";
@@ -24,7 +23,6 @@ export class MetabaseHandler implements BaseHandler<MetabaseJobPayload, Metabase
     const stats = {
       partners: { created: 0, updated: 0 },
       campaigns: { created: 0, updated: 0 },
-      widgets: { created: 0, updated: 0 },
       organization_name_matches: { created: 0, updated: 0 },
       requests: { created: 0, updated: null },
     };
@@ -41,12 +39,6 @@ export class MetabaseHandler implements BaseHandler<MetabaseJobPayload, Metabase
       const campaigns = await importCampaigns();
       stats.campaigns.created += campaigns?.created || 0;
       stats.campaigns.updated += campaigns?.updated || 0;
-    }
-
-    if (jobs === null || jobs.includes("widgets")) {
-      const widgets = await importWidgets();
-      stats.widgets.created += widgets?.created || 0;
-      stats.widgets.updated += widgets?.updated || 0;
     }
 
     // Send message to slack
