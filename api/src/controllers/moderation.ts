@@ -10,7 +10,6 @@ import { publisherService } from "../services/publisher";
 import type { MissionRecord } from "../types/mission";
 import type { ModerationEventCreateInput } from "../types/moderation-event";
 import type { UserRequest } from "../types/passport";
-import { diacriticSensitiveRegex } from "../utils";
 
 const router = Router();
 type ModeratorStatusKey = `moderation_${string}_status`;
@@ -81,6 +80,13 @@ const findFilters = async (user: UserRequest["user"], body: zod.infer<typeof sea
     skip: body.from,
   };
 
+  const asArray = (value: string | null | undefined) => {
+    if (value === null || value === undefined) {
+      return undefined;
+    }
+    return [value];
+  };
+
   if (body.status) {
     filters.moderationStatus = body.status;
   }
@@ -88,36 +94,38 @@ const findFilters = async (user: UserRequest["user"], body: zod.infer<typeof sea
     filters.moderationComment = body.comment;
   }
   if (body.organizationName === "none") {
-    filters.organizationName = "";
+    filters.organizationName = [""];
   } else if (body.organizationName) {
-    filters.organizationName = body.organizationName;
+    filters.organizationName = asArray(body.organizationName);
   }
   if (body.organizationClientId) {
-    filters.organizationClientId = body.organizationClientId;
+    filters.organizationClientId = asArray(body.organizationClientId);
   }
   if (body.domain === "none") {
-    filters.domain = "";
+    filters.domain = [""];
   } else if (body.domain) {
-    filters.domain = body.domain;
+    filters.domain = asArray(body.domain);
   }
   if (body.department === "none") {
-    filters.departmentName = "";
+    filters.departmentName = [""];
   } else if (body.department) {
-    filters.departmentName = body.department;
+    filters.departmentName = asArray(body.department);
   }
   if (body.city === "none") {
-    filters.city = "";
+    filters.city = [""];
   } else if (body.city) {
-    filters.city = body.city;
+    filters.city = asArray(body.city);
   }
   if (body.activity === "none") {
-    filters.activity = "";
+    filters.activity = [""];
   } else if (body.activity) {
-    filters.activity = body.activity;
+    filters.activity = asArray(body.activity);
   }
   if (body.search) {
-    const regex = diacriticSensitiveRegex(body.search);
-    filters.keywords = regex;
+    const keywords = body.search.trim();
+    if (keywords) {
+      filters.keywords = keywords;
+    }
   }
   if (body.organizationRNAVerified) {
     filters.organizationRNAVerified = body.organizationRNAVerified as any;

@@ -113,23 +113,92 @@ const parseNumber = (value: number | string | undefined) => {
   return Number(value);
 };
 
-const parseArray = (value: string | { value: string[] | string } | undefined, includeSpace = false) => {
-  if (!value) {
+const parseStringArray = (value: unknown, includeSpace = false): string[] | undefined => {
+  if (value === undefined || value === null || value === "") {
     return undefined;
   }
-  if (typeof value === "object") {
-    return Array.isArray(value.value) ? value.value : [value.value];
-  }
+
   if (Array.isArray(value)) {
-    return value;
+    const normalized = value
+      .map((v) => String(v ?? "").trim())
+      .filter((v) => v.length > 0);
+    return normalized.length ? normalized : undefined;
   }
-  if (value.includes(",")) {
-    return value.split(",").map((i) => i.trim());
+
+  if (typeof value === "object") {
+    const obj = value as any;
+    if ("value" in obj) {
+      return parseStringArray(obj.value, includeSpace);
+    }
+    if ("item" in obj) {
+      return parseStringArray(obj.item, includeSpace);
+    }
+    return undefined;
   }
-  if (includeSpace && value.includes(" ")) {
-    return value.split(" ").map((i) => i.trim());
+
+  const str = String(value).trim();
+  if (!str) {
+    return undefined;
   }
-  return [value];
+  if (str.includes(",")) {
+    const split = str
+      .split(",")
+      .map((i) => i.trim())
+      .filter((i) => i.length > 0);
+    return split.length ? split : undefined;
+  }
+  if (includeSpace && str.includes(" ")) {
+    const split = str
+      .split(" ")
+      .map((i) => i.trim())
+      .filter((i) => i.length > 0);
+    return split.length ? split : undefined;
+  }
+  return [str];
+};
+
+const parseRemote = (value: unknown): MissionRecord["remote"] => {
+  const normalized = String(value ?? "")
+    .trim()
+    .toLowerCase();
+  if (!normalized) {
+    return "no";
+  }
+  if (["no", "non", "false", "0"].includes(normalized)) {
+    return "no";
+  }
+  if (["possible", "yes", "oui", "true", "1"].includes(normalized)) {
+    return "possible";
+  }
+  if (["full", "total", "100", "remote"].includes(normalized)) {
+    return "full";
+  }
+  if (["partiel", "partielle", "hybride"].includes(normalized)) {
+    return "possible";
+  }
+  return "no";
+};
+
+const parseCompensationUnit = (value: unknown): MissionRecord["compensationUnit"] => {
+  const normalized = String(value ?? "")
+    .trim()
+    .toLowerCase();
+  if (!normalized) {
+    return null;
+  }
+  if (["hour", "heure", "heures"].includes(normalized)) {
+    return "hour";
+  }
+  if (["day", "jour", "jours"].includes(normalized)) {
+    return "day";
+  }
+  if (["month", "mois"].includes(normalized)) {
+    return "month";
+  }
+  if (["year", "an", "ans", "annee", "année", "années"].includes(normalized)) {
+    return "year";
+  }
+  return null;
 };
 
 const parseLowercase = (value: string | undefined) => {
@@ -157,22 +226,26 @@ const parseMission = (publisher: PublisherRecord, missionXML: MissionXML, missio
     activity: parseString(missionXML.activity) || "",
     domain: parseString(missionXML.domain) || "",
     schedule: parseString(missionXML.schedule),
-    audience: parseArray(missionXML.audience, true) || parseArray(missionXML.publicBeneficiaries, true) || [],
-    softSkills: parseArray(missionXML.softSkills, true) || parseArray(missionXML.soft_skills, true) || [],
-    romeSkills: parseArray(missionXML.romeSkills, true) || [],
-    requirements: parseArray(missionXML.requirements, true) || [],
-    remote: parseString(missionXML.remote) || "no",
+    audience:
+      parseStringArray(missionXML.audience, true) ||
+      parseStringArray(missionXML.publicBeneficiaries, true) ||
+      parseStringArray(missionXML.publicsBeneficiaires, true) ||
+      [],
+    softSkills: parseStringArray(missionXML.softSkills, true) || parseStringArray(missionXML.soft_skills, true) || [],
+    romeSkills: parseStringArray(missionXML.romeSkills, true) || [],
+    requirements: parseStringArray(missionXML.requirements, true) || [],
+    remote: parseRemote(missionXML.remote),
     reducedMobilityAccessible: parseBool(missionXML.reducedMobilityAccessible),
     closeToTransport: parseBool(missionXML.closeToTransport),
     openToMinors: parseBool(missionXML.openToMinors),
     priority: parseString(missionXML.priority) || "",
-    tags: parseArray(missionXML.tags) || [],
+    tags: parseStringArray(missionXML.tags) || [],
     places: parseNumber(missionXML.places) || 1,
     placesStatus: missionXML.places !== undefined ? "GIVEN_BY_PARTNER" : "ATTRIBUTED_BY_API",
     snu: parseString(missionXML.snu) === "yes",
     snuPlaces: parseNumber(missionXML.snuPlaces),
     compensationAmount: parseNumber(missionXML.compensationAmount),
-    compensationUnit: parseLowercase(missionXML.compensationUnit as string | undefined) as MissionRecord["compensationUnit"],
+    compensationUnit: parseCompensationUnit(missionXML.compensationUnit),
     compensationType: parseLowercase(missionXML.compensationType as string | undefined) as MissionRecord["compensationType"],
     metadata: parseString(missionXML.metadata),
     organizationName: parseString(missionXML.organizationName),
@@ -184,12 +257,17 @@ const parseMission = (publisher: PublisherRecord, missionXML: MissionXML, missio
     organizationClientId: parseString(missionXML.organizationClientId) || parseString(missionXML.organizationId),
     organizationStatusJuridique: parseString(missionXML.organizationStatusJuridique) || "",
     organizationType: parseString(missionXML.organizationType) || "",
-    organizationActions: parseArray(missionXML.keyActions, true) || [],
+    organizationActions: parseStringArray(missionXML.keyActions, true) || [],
     organizationFullAddress: parseString(missionXML.organizationFullAddress),
     organizationPostCode: parseString(missionXML.organizationPostCode),
     organizationCity: parseString(missionXML.organizationCity),
-    organizationBeneficiaries: parseArray(missionXML.organizationBeneficiaries || missionXML.organizationBeneficiaires || missionXML.publicBeneficiaries, true) || [],
-    organizationReseaux: parseArray(missionXML.organizationReseaux, true) || [],
+    organizationBeneficiaries:
+      parseStringArray(missionXML.organizationBeneficiaries, true) ||
+      parseStringArray(missionXML.organizationBeneficiaires, true) ||
+      parseStringArray(missionXML.publicBeneficiaries, true) ||
+      parseStringArray(missionXML.publicsBeneficiaires, true) ||
+      [],
+    organizationReseaux: parseStringArray(missionXML.organizationReseaux, true) || [],
   } as ImportedMission;
 
   // Moderation except Service Civique (already moderated)  // Moderation except Service Civique (already moderated)
@@ -199,11 +277,6 @@ const parseMission = (publisher: PublisherRecord, missionXML: MissionXML, missio
 
   if (publisher.id !== PUBLISHER_IDS.SERVICE_CIVIQUE) {
     getModeration(mission);
-  } else {
-    // Dirty fix because of Service Civique
-    if ((mission.compensationUnit as string) === "mois") {
-      mission.compensationUnit = "month";
-    }
   }
   if (!mission.statusComment) {
     mission.statusComment = null as any;

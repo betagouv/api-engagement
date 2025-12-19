@@ -122,7 +122,7 @@ router.get("/:id/aggs", cors({ origin: "*" }), async (req: Request, res: Respons
     const query = zod
       .object({
         aggs: zod
-          .array(zod.enum(["domain", "organization", "department", "schedule", "remote", "country", "minor", "accessibility"]))
+          .array(zod.enum(["domain", "organization", "department", "schedule", "remote", "country", "minor", "accessibility", "action", "beneficiary"]))
           .default(["domain", "organization", "department", "remote", "country"]),
         domain: zod.union([zod.string(), zod.array(zod.string())]).optional(),
         organization: zod.union([zod.string(), zod.array(zod.string())]).optional(),
@@ -288,6 +288,16 @@ const buildMissionFilters = (
     filters.organizationName = organizationNames;
   }
 
+  const actions = normalizeToArray(query.action);
+  if (actions?.length) {
+    filters.action = actions;
+  }
+
+  const beneficiaries = normalizeToArray(query.beneficiary);
+  if (beneficiaries?.length) {
+    filters.beneficiary = beneficiaries;
+  }
+
   const schedules = normalizeToArray(query.schedule);
   if (schedules?.length) {
     filters.schedule = schedules;
@@ -384,6 +394,7 @@ const fetchWidgetMissions = async (widget: WidgetRecord, filters: MissionSearchF
   }
 
   if (otherPublishers.length) {
+    console.log({ ...filters, publisherIds: otherPublishers, moderationAcceptedFor: jvaPublisherId, skip: 0, limit: pageLimit });
     const res = await missionService.findMissions({ ...filters, publisherIds: otherPublishers, moderationAcceptedFor: jvaPublisherId, skip: 0, limit: pageLimit });
     combined.push(...res.data);
     total += res.total;
@@ -405,6 +416,8 @@ type BucketGroups = {
   minor: Bucket[][];
   accessibility: Bucket[][];
   schedule: Bucket[][];
+  actions: Bucket[][];
+  beneficiaries: Bucket[][];
 };
 
 const mergeBuckets = (lists: Bucket[][]) => {
@@ -467,9 +480,15 @@ const fetchWidgetAggregations = async (widget: WidgetRecord, filters: MissionSea
       if (res.schedule) {
         acc.schedule.push(res.schedule);
       }
+      if (res.actions) {
+        acc.actions.push(res.actions);
+      }
+      if (res.beneficiaries) {
+        acc.beneficiaries.push(res.beneficiaries);
+      }
       return acc;
     },
-    { domains: [], organizations: [], departments: [], remote: [], countries: [], minor: [], accessibility: [], schedule: [] }
+    { domains: [], organizations: [], departments: [], remote: [], countries: [], minor: [], accessibility: [], schedule: [], actions: [], beneficiaries: [] }
   );
 
   const payload: any = {};
@@ -496,6 +515,12 @@ const fetchWidgetAggregations = async (widget: WidgetRecord, filters: MissionSea
   }
   if (requestedAggs.includes("schedule")) {
     payload.schedule = mergeBuckets(merged.schedule);
+  }
+  if (requestedAggs.includes("action")) {
+    payload.action = mergeBuckets(merged.actions);
+  }
+  if (requestedAggs.includes("beneficiary")) {
+    payload.beneficiary = mergeBuckets(merged.beneficiaries);
   }
 
   return payload;
@@ -534,6 +559,8 @@ const aggregateWidgetAggs = async (
   minor?: Bucket[];
   accessibility?: Bucket[];
   schedule?: Bucket[];
+  actions?: Bucket[];
+  beneficiaries?: Bucket[];
 }> => {
   const should = (key: string) => requestedAggs.includes(key);
 
@@ -553,29 +580,63 @@ const aggregateWidgetAggs = async (
 
   const aggregateAddressField = async (field: "city" | "departmentName" | "country") => {
     const rows = await prismaCore.missionAddress.groupBy({
-      by: [field],
+      // Count distinct missions per bucket (a mission can have multiple addresses)
+      by: [field, "missionId"],
       where: { mission: where },
       _count: { _all: true },
     });
-    return rows
-      .map((row) => ({
-        key: String((row as any)[field] ?? ""),
-        doc_count: Number((row as any)._count?._all ?? 0),
-      }))
-      .filter((row) => row.key);
+
+    const counts = new Map<string, number>();
+    rows.forEach((row) => {
+      const key = String((row as any)[field] ?? "");
+      if (!key) {
+        return;
+      }
+      counts.set(key, (counts.get(key) ?? 0) + 1);
+    });
+
+    return Array.from(counts.entries()).map(([key, doc_count]) => ({ key, doc_count }));
   };
 
   const aggregateDomainField = async () => {
-    const rows = await prismaCore.domain.findMany({
-      where: { missions: { some: where } },
-      select: { name: true, _count: { select: { missions: true } } },
+    const rows = await prismaCore.mission.groupBy({
+      by: ["domainId"],
+      where,
+      _count: { _all: true },
     });
+
+    const domainIds = rows.map((row) => (row as any).domainId).filter((id): id is string => typeof id === "string" && id.length > 0);
+
+    const domains = domainIds.length ? await prismaCore.domain.findMany({ where: { id: { in: domainIds } }, select: { id: true, name: true } }) : [];
+    const nameById = new Map(domains.map((domain) => [domain.id, domain.name ?? ""]));
+
     return rows
-      .map((row) => ({
-        key: String(row.name ?? ""),
-        doc_count: Number((row as any)._count?.missions ?? 0),
-      }))
+      .map((row) => {
+        const domainId = (row as any).domainId as string | null;
+        return {
+          key: domainId ? (nameById.get(domainId) ?? "") : "",
+          doc_count: Number((row as any)._count?._all ?? 0),
+        };
+      })
       .filter((row) => row.key);
+  };
+
+  const aggregateMissionListField = async (field: "tasks" | "audience") => {
+    const missions = await prismaCore.mission.findMany({
+      where,
+      select: { id: true, [field]: true } as any,
+    });
+
+    const counts = new Map<string, number>();
+    missions.forEach((mission) => {
+      const values = Array.isArray((mission as any)[field]) ? ((mission as any)[field] as string[]) : [];
+      const unique = new Set(values.filter((v) => typeof v === "string" && v.length));
+      unique.forEach((value) => counts.set(value, (counts.get(value) ?? 0) + 1));
+    });
+
+    return Array.from(counts.entries())
+      .map(([key, doc_count]) => ({ key, doc_count }))
+      .sort((a, b) => b.doc_count - a.doc_count);
   };
 
   const result: any = {};
@@ -604,6 +665,12 @@ const aggregateWidgetAggs = async (
   }
   if (should("schedule")) {
     result.schedule = await aggregateMissionField("schedule");
+  }
+  if (should("action")) {
+    result.actions = await aggregateMissionListField("tasks");
+  }
+  if (should("beneficiary")) {
+    result.beneficiaries = await aggregateMissionListField("audience");
   }
   if (should("accessibility")) {
     const reduced = await prismaCore.mission.count({ where: { ...where, reducedMobilityAccessible: true } });

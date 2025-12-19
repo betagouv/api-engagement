@@ -257,6 +257,12 @@ export const buildWhere = (filters: MissionSearchFilters): Prisma.MissionWhereIn
   if (filters.activity?.length) {
     where.activity = { is: { name: { in: filters.activity } } };
   }
+  if (filters.action?.length) {
+    where.tasks = { hasSome: filters.action };
+  }
+  if (filters.beneficiary?.length) {
+    where.audience = { hasSome: filters.beneficiary };
+  }
   if (filters.clientId?.length) {
     where.clientId = { in: filters.clientId };
   }
@@ -451,49 +457,58 @@ const buildAggregations = async (where: Prisma.MissionWhereInput): Promise<Missi
       .sort((a, b) => b.doc_count - a.doc_count);
   };
 
-  const aggregateMissionDomain = async () => {
-    const rows = await prismaCore.domain.findMany({
-      where: { missions: { some: where } },
-      select: { name: true, _count: { select: { missions: true } } },
+  const aggregateMissionRelationById = async (field: "domainId" | "activityId", loadNames: (ids: string[]) => Promise<Map<string, string>>) => {
+    const rows = await prismaCore.mission.groupBy({
+      by: [field],
+      where,
+      _count: { _all: true },
     });
 
+    const ids = rows.map((row) => String((row as any)[field] ?? "")).filter(isNonEmpty);
+    const nameById = ids.length ? await loadNames(ids) : new Map<string, string>();
+
     return rows
-      .map((row) => ({
-        key: String(row.name ?? ""),
-        doc_count: Number((row as any)._count?.missions ?? 0),
-      }))
+      .map((row) => {
+        const id = String((row as any)[field] ?? "");
+        return { key: nameById.get(id) ?? "", doc_count: Number((row as any)._count?._all ?? 0) };
+      })
       .filter((row) => isNonEmpty(row.key))
       .sort((a, b) => b.doc_count - a.doc_count);
   };
 
-  const aggregateMissionActivity = async () => {
-    const rows = await prismaCore.activity.findMany({
-      where: { missions: { some: where } },
-      select: { name: true, _count: { select: { missions: true } } },
+  const aggregateMissionDomain = async () => {
+    return aggregateMissionRelationById("domainId", async (ids) => {
+      const domains = await prismaCore.domain.findMany({ where: { id: { in: ids } }, select: { id: true, name: true } });
+      return new Map(domains.map((domain) => [domain.id, domain.name ?? ""]));
     });
+  };
 
-    return rows
-      .map((row) => ({
-        key: String(row.name ?? ""),
-        doc_count: Number((row as any)._count?.missions ?? 0),
-      }))
-      .filter((row) => isNonEmpty(row.key))
-      .sort((a, b) => b.doc_count - a.doc_count);
+  const aggregateMissionActivity = async () => {
+    return aggregateMissionRelationById("activityId", async (ids) => {
+      const activities = await prismaCore.activity.findMany({ where: { id: { in: ids } }, select: { id: true, name: true } });
+      return new Map(activities.map((activity) => [activity.id, activity.name ?? ""]));
+    });
   };
 
   const aggregateAddressField = async (field: "city" | "departmentName") => {
     const rows = await prismaCore.missionAddress.groupBy({
-      by: [field],
+      // Count distinct missions per bucket (a mission can have multiple addresses)
+      by: [field, "missionId"],
       where: { mission: where },
       _count: { _all: true },
     });
 
-    return rows
-      .map((row) => ({
-        key: String((row as any)[field] ?? ""),
-        doc_count: Number((row as any)._count?._all ?? 0),
-      }))
-      .filter((row) => isNonEmpty(row.key))
+    const counts = new Map<string, number>();
+    rows.forEach((row) => {
+      const key = String((row as any)[field] ?? "");
+      if (!isNonEmpty(key)) {
+        return;
+      }
+      counts.set(key, (counts.get(key) ?? 0) + 1);
+    });
+
+    return Array.from(counts.entries())
+      .map(([key, doc_count]) => ({ key, doc_count }))
       .sort((a, b) => b.doc_count - a.doc_count);
   };
 
@@ -574,8 +589,12 @@ const mapAddressesForCreate = (addresses?: MissionRecord["addresses"]) => {
   return addresses.map((address) => ({
     street: normalizeOptionalString(address.street !== undefined && address.street !== null ? String(address.street) : (address.street as any)),
     postalCode: normalizeOptionalString(address.postalCode !== undefined && address.postalCode !== null ? String(address.postalCode) : (address.postalCode as any)),
-    departmentName: normalizeOptionalString(address.departmentName !== undefined && address.departmentName !== null ? String(address.departmentName) : (address.departmentName as any)),
-    departmentCode: normalizeOptionalString(address.departmentCode !== undefined && address.departmentCode !== null ? String(address.departmentCode) : (address.departmentCode as any)),
+    departmentName: normalizeOptionalString(
+      address.departmentName !== undefined && address.departmentName !== null ? String(address.departmentName) : (address.departmentName as any)
+    ),
+    departmentCode: normalizeOptionalString(
+      address.departmentCode !== undefined && address.departmentCode !== null ? String(address.departmentCode) : (address.departmentCode as any)
+    ),
     city: normalizeOptionalString(address.city !== undefined && address.city !== null ? String(address.city) : (address.city as any)),
     region: normalizeOptionalString(address.region !== undefined && address.region !== null ? String(address.region) : (address.region as any)),
     country: normalizeOptionalString(address.country !== undefined && address.country !== null ? String(address.country) : (address.country as any)),
@@ -624,6 +643,7 @@ export const missionService = {
 
   async findMissions(filters: MissionSearchFilters): Promise<{ data: MissionRecord[]; total: number }> {
     const where = buildWhere(filters);
+    console.log(where);
 
     if (hasGeoFilters(filters)) {
       const missions = await missionRepository.findMany({
