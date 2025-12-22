@@ -2,6 +2,70 @@
 Vous retrouverez ici l'historique des différents déploiements effectués sur l'API Engagement.
 
 
+## 15/12/2025
+
+
+### Bug Fixes
+
+- (**api**) V0/mymission with publisher names (#626) ([`89753a3`](https://github.com/betagouv/api-engagement/commit/89753a34f42e30c25fc60b0d897dc10bc067429c))
+
+- (**app**) Align react-dom and react versions ([`5f0299a`](https://github.com/betagouv/api-engagement/commit/5f0299a50b65bfc4b6647439b7edac07277da528))
+
+- (**app**) Upgrade React / Next (CVE-2025-66478) ([`af9e8f1`](https://github.com/betagouv/api-engagement/commit/af9e8f19298c6b787aa4c9d22ebf1092b6755749))
+
+- (**app**) Fix mission app export csv ([`e69303c`](https://github.com/betagouv/api-engagement/commit/e69303c1a6eb458d9ee757754b95ce76549d3fc1))
+
+- (**analytics**) Wrong publisher_id join (#624) ([`145ea12`](https://github.com/betagouv/api-engagement/commit/145ea128586dc4a69c1b8116118aa133c3dd79d8))
+
+- (**analytics**) Select the right publisher id (#622) ([`4f49c15`](https://github.com/betagouv/api-engagement/commit/4f49c152655b6f24de62109462a4ead07840475c))
+
+- (**api**) Improve reassign stats event (#620) ([`9421afc`](https://github.com/betagouv/api-engagement/commit/9421afcd985aca53c87b30abaa172382d25d8a30))
+
+- (**app**) Campaign design feedback fix ([`27b582e`](https://github.com/betagouv/api-engagement/commit/27b582e5f1d6c112925520516d90825dca2787bb))
+
+- (**app**) Feedback ui on campaign url source feature ([`d6d2abe`](https://github.com/betagouv/api-engagement/commit/d6d2abe11080180c693217a29469e4e549637459))
+
+- (**api**) Script backfill fix ([`d7042d7`](https://github.com/betagouv/api-engagement/commit/d7042d7c762b8ec94bbab031e5b64dd9598d6109))
+
+- (**ci**) Update dependabot config to match PR lint workflow ([`cd0c408`](https://github.com/betagouv/api-engagement/commit/cd0c408a22735ce137c92eed262c229d21672c96))
+
+
+### Features
+
+- (**app**) Add change publisher name (#619) ([`b9bc356`](https://github.com/betagouv/api-engagement/commit/b9bc35638a95802de9baf4275b5d74e5083f7e44))
+
+- (**analytics**) New pipeline for campaign and campaign_tracker models (#617) ([`351c280`](https://github.com/betagouv/api-engagement/commit/351c280bf6d22b30d80b862b73b91e0c15c1fa8c))
+
+- (**app**) Add sapeurs pompier in publisher's mission type (#615) ([`6ce537c`](https://github.com/betagouv/api-engagement/commit/6ce537cef424826fa1bf213a7e49456c1b0122e0))
+
+- (**api**) Add grimp.io xml flux (#590) ([`c19e823`](https://github.com/betagouv/api-engagement/commit/c19e823bd833e65e4b1b5da8952b8ce654513d75))
+
+- (**app**) Add campaign url source (#614) ([`d51d31f`](https://github.com/betagouv/api-engagement/commit/d51d31f748bfde6e52c38ac46fda22d7125f4fb8))
+
+
+### Miscellaneous Tasks
+
+- (**changelog**) Update CHANGELOG.md ([`0fc0b4c`](https://github.com/betagouv/api-engagement/commit/0fc0b4cbafbc75d6d365baa096964f5607e68de3))
+
+- (**changelog**) Update CHANGELOG.md ([`095f3ef`](https://github.com/betagouv/api-engagement/commit/095f3efc271345d6ed66c83554d4393d1318bdb5))
+
+- (**changelog**) Update CHANGELOG.md ([`0342fd3`](https://github.com/betagouv/api-engagement/commit/0342fd3b4f553b3ba3b03fadc58119f2bef28ec9))
+
+
+### Refactoring
+
+- (**api**) Migrate widget to service layer (#588) ([`e79f4db`](https://github.com/betagouv/api-engagement/commit/e79f4db1d6a7e4f5c7c43d0173f45c9621b93bb1))
+
+- (**analytics**) Migration to publisher mart (#573) ([`e54f226`](https://github.com/betagouv/api-engagement/commit/e54f226998879fda1c6d430942edfb85d28fcbb9))
+
+- (**api**) Migrate stat bot (#585) ([`4211e7a`](https://github.com/betagouv/api-engagement/commit/4211e7a63ac36314eb7b82843b8b82f32535193e))
+
+- (**api**) Migrate campaign (#584) ([`171d366`](https://github.com/betagouv/api-engagement/commit/171d36659e741cfdcc1d1994b2ddd5ec3bdd1c86))
+
+# API Engagement - Changelog
+Vous retrouverez ici l'historique des différents déploiements effectués sur l'API Engagement.
+
+
 ## 08/12/2025
 
 
