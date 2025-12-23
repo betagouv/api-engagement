@@ -20,3 +20,11 @@ export const toUrl = (value: string): string | null => {
   }
   return url;
 };
+
+export const buildSearchParams = (trackers: { key: string; value: string }[]): string => {
+  if (!trackers || trackers.length === 0) {
+    return "";
+  }
+  const searchParams = `${trackers.map((tracker) => `${tracker.key}=${tracker.value.replace(/ /g, "+")}`).join("&")}`;
+  return searchParams;
+};

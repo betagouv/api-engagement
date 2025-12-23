@@ -5,7 +5,15 @@ import { useEffect, useState } from "react";
 import SearchSelect from "../../../components/SearchSelect";
 import api from "../../../services/api";
 import { captureError } from "../../../services/error";
+import { slugify } from "../../../services/utils";
 import { withLegacyPublishers } from "../../../utils/publisher";
+
+
+const buildDefaultUtm = (name) => [
+  { key: "utm_source", value: "api_engagement" },
+  { key: "utm_medium", value: "campaign" },
+  { key: "utm_campaign", value: slugify(name) },
+];
 
 const Information = ({ values, onChange, errors, onErrorChange }) => {
   const [publishers, setPulishers] = useState([]);
@@ -30,12 +38,15 @@ const Information = ({ values, onChange, errors, onErrorChange }) => {
   const handleChange = (key, value) => {
     if (key === "url") {
       const url = value;
-      const trackers = url.includes("?")
+      let trackers = url.includes("?")
         ? url
             .split("?")[1]
             .split("&")
             .map((t) => ({ key: t.split("=")[0], value: t.split("=")[1] || "" }))
         : [];
+      if (trackers.length === 0) {
+        trackers = buildDefaultUtm(values.name);
+      }
       onChange((prev) => ({ ...prev, url, trackers }));
       onErrorChange((prev) => ({ ...prev, url: "" }));
     } else {
