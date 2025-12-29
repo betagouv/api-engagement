@@ -2,6 +2,61 @@
 Vous retrouverez ici l'historique des différents déploiements effectués sur l'API Engagement.
 
 
+## 22/12/2025
+
+
+### Bug Fixes
+
+- (**widget**) Fix sentry issues and improve logs and (#616) ([`ede62c5`](https://github.com/betagouv/api-engagement/commit/ede62c57f2f7a384720b2834ad88830c8703b583))
+
+- (**analytics**) Use updated_at for stat_event incremental sync (#636) ([`c4b6fbd`](https://github.com/betagouv/api-engagement/commit/c4b6fbd882ddbd767944148306323ab85b808883))
+
+- (**app**) A11y - input readonly (#635) ([`4693e3d`](https://github.com/betagouv/api-engagement/commit/4693e3d412ec972fe6cf457d1fc9d4e2f6265f2d))
+
+- (**analytics**) Handle date with no value (#633) ([`16566d3`](https://github.com/betagouv/api-engagement/commit/16566d30e866da8b30af8fb7a47e1260f84a6aaa))
+
+- (**analytics**) Missing widget terraform jobs (#632) ([`6e1106c`](https://github.com/betagouv/api-engagement/commit/6e1106ccc12e05f9722ecc48cd389d52030d6f79))
+
+- (**jobs**) Export missions job failed without organizationId (#631) ([`3f09927`](https://github.com/betagouv/api-engagement/commit/3f09927b6526c57e97a4f491b3514c5f3d6277ad))
+
+- (**jobs**) Add Service Civique patch for compensation unit missed value ([`31ce1fb`](https://github.com/betagouv/api-engagement/commit/31ce1fb03e687cfcf148d628c595f013a389fd80))
+
+
+### Features
+
+- (**analytics**) New pipeline Widget (#629) ([`4f2e359`](https://github.com/betagouv/api-engagement/commit/4f2e3592d76fc65123cebaa4d61bfa22eed23d3c))
+
+
+### Miscellaneous Tasks
+
+- (**changelog**) Update CHANGELOG.md ([`47396ea`](https://github.com/betagouv/api-engagement/commit/47396ea4ca758e6e7bc534cd9a12d8c3fdcafeda))
+
+- (**changelog**) Update CHANGELOG.md ([`01fa0ed`](https://github.com/betagouv/api-engagement/commit/01fa0edfaa21031d1ddba8f66d60c8175dd19242))
+
+- (**changelog**) Update CHANGELOG.md ([`426caaa`](https://github.com/betagouv/api-engagement/commit/426caaaf104ff7c8a5f3465336ecdeb4d351a19c))
+
+- (**changelog**) Update CHANGELOG.md ([`401be60`](https://github.com/betagouv/api-engagement/commit/401be60b04246d2d8952d2ae4868e15172b2a619))
+
+- (**api**) Add AGENTS.md rules (#634) ([`c095d0b`](https://github.com/betagouv/api-engagement/commit/c095d0bed5d060db4e0e10dffdd1a15edec3a3c6))
+
+
+### Refactoring
+
+- (**jobs**) Remove kpi and kpibotless jobs and analytics models (#630) ([`b623df4`](https://github.com/betagouv/api-engagement/commit/b623df4afc9cb4f00f5925c5a251143ea3eae799))
+
+- (**analytics**) Migrate campaign_id/widget_id to raw id for stat_event (#628) ([`8971689`](https://github.com/betagouv/api-engagement/commit/897168914023b37b449ddb0a49c853896ca8fc75))
+
+- (**analytics**) Model publisher clicks daily (#627) ([`2e41229`](https://github.com/betagouv/api-engagement/commit/2e41229ffe48bb17f19bf4c0fa6a5f6e68ad1545))
+
+
+### Refacto
+
+- (**app**) Clean error logs (#621) ([`52b06ec`](https://github.com/betagouv/api-engagement/commit/52b06ec0d09aefc3dc943c95fc2b51fcf82bd472))
+
+# API Engagement - Changelog
+Vous retrouverez ici l'historique des différents déploiements effectués sur l'API Engagement.
+
+
 ## 15/12/2025
 
 
