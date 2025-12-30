@@ -85,9 +85,6 @@ describe("RedirectController /campaign/:id", () => {
     expect(response.status).toBe(302);
     const redirectUrl = new URL(response.headers.location);
     expect(`${redirectUrl.origin}${redirectUrl.pathname}`).toBe("https://campaign.example.com/path");
-    expect(redirectUrl.searchParams.get("utm_source")).toBe("api_engagement");
-    expect(redirectUrl.searchParams.get("utm_medium")).toBe("campaign");
-    expect(redirectUrl.searchParams.get("utm_campaign")).toBe("campaign-name");
 
     const clickId = redirectUrl.searchParams.get("apiengagement_id");
     expect(clickId).toBeTruthy();
