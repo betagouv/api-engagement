@@ -158,7 +158,7 @@ describe("Import missions job (integration test)", () => {
     (global.fetch as any).mockRejectedValueOnce(new Error("Network error"));
     const result = await handler.handle({ publisherId: publisher.id });
     expect(result.imports[0].status).toBe("FAILED");
-    expect(result.imports[0].error).toMatch("Failed to fetch xml");
+    expect(result.imports[0].error).toMatch("500 - Failed to fetch XML");
   });
 
   it("If feed XML is malformed, import should fail with explicit error", async () => {
@@ -287,7 +287,7 @@ describe("Import missions job (integration test)", () => {
     expect(mission.title).toBe("Mission sans date de début");
 
     // startAt should be set to a default value (around the import date)
-    const timeDiff = Math.abs(mission.startAt?.getTime() - importDate.getTime());
+    const timeDiff = Math.abs((mission.startAt?.getTime() ?? 0) - importDate.getTime());
     expect(timeDiff).toBeLessThan(5000); // Within 5 seconds of import
 
     const originalStartAt = mission?.startAt;

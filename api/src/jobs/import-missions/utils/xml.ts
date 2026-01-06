@@ -22,6 +22,9 @@ export const fetchXML = async (publisher: PublisherRecord): Promise<{ ok: boolea
     }
     return { ok: true, data: await response.text() };
   } catch (error: any) {
+    if (error.message?.includes("Failed to fetch") || error.message?.includes("fetch failed")) {
+      return { ok: false, data: "", error: "Failed to fetch XML", status: 500 };
+    }
     captureException(error, { extra: { publisher } });
     return { ok: false, data: "", error: error.message, status: 500 };
   }
