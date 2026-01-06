@@ -158,7 +158,7 @@ describe("Import missions job (integration test)", () => {
     (global.fetch as any).mockRejectedValueOnce(new Error("Network error"));
     const result = await handler.handle({ publisherId: publisher.id });
     expect(result.imports[0].status).toBe("FAILED");
-    expect(result.imports[0].error).toMatch("500 - Failed to fetch XML");
+    expect(result.imports[0].error).toMatch("500 - Network error");
   });
 
   it("If feed XML is malformed, import should fail with explicit error", async () => {
