@@ -4,10 +4,10 @@ import { captureException } from "../../../error";
 import type { PublisherRecord } from "../../../types/publisher";
 import { MissionXML } from "../types";
 
-export const fetchXML = async (publisher: PublisherRecord): Promise<string | null> => {
+export const fetchXML = async (publisher: PublisherRecord): Promise<{ ok: boolean; data: string; error?: string; status?: number }> => {
   try {
     if (!publisher.feed) {
-      return null;
+      return { ok: false, data: "", error: "No feed", status: 400 };
     }
     const headers = new Headers();
 
@@ -18,13 +18,12 @@ export const fetchXML = async (publisher: PublisherRecord): Promise<string | nul
     const response = await fetch(publisher.feed.trim(), { headers });
 
     if (!response.ok) {
-      captureException(`Failed to fetch xml (Response non OK)`, { extra: { publisher, response } });
-      return null;
+      return { ok: false, data: "", error: response.statusText, status: response.status };
     }
-    return await response.text();
-  } catch (error) {
+    return { ok: true, data: await response.text() };
+  } catch (error: any) {
     captureException(error, { extra: { publisher } });
-    return null;
+    return { ok: false, data: "", error: error.message, status: 500 };
   }
 };
 
