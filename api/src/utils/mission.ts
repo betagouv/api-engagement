@@ -169,12 +169,15 @@ export const getMissionChanges = (
       continue;
     }
 
-    const ignoreTime = IMPORT_DATE_FIELDS_IGNORE_TIME.has(field);
-    if (!areDatesEqual(previousMission[field] as any, currentMission[field] as any, { ignoreTime })) {
-      changes[field] = {
-        previous: parseDate(previousMission[field] as any),
-        current: parseDate(currentMission[field] as any),
-      };
+    if (field.endsWith("At")) {
+      const ignoreTime = IMPORT_DATE_FIELDS_IGNORE_TIME.has(field);
+      if (!areDatesEqual(previousMission[field] as any, currentMission[field] as any, { ignoreTime })) {
+        changes[field] = {
+          previous: parseDate(previousMission[field] as any),
+          current: parseDate(currentMission[field] as any),
+        };
+      }
+      continue;
     }
 
     if (!previousMission[field] && previousMission[field] !== 0 && !currentMission[field] && currentMission[field] !== 0) {
