@@ -102,9 +102,7 @@ export const cleanDB = async (missionsClientIds: string[], publisher: PublisherR
     events.push({
       missionId: mission.id,
       type: EVENT_TYPES.DELETE,
-      changes: {
-        deletedAt: { previous: null, current: importDoc.startedAt },
-      },
+      changes: { deletedAt: true },
     });
   }
 
