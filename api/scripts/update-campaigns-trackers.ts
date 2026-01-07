@@ -10,6 +10,45 @@ import { campaignService } from "../src/services/campaign";
 import { CampaignRecord } from "../src/types/campaign";
 import { slugify } from "../src/utils/string";
 
+/**
+ * Décode les valeurs URL-encodées dans les trackers.
+ * Ex: "La+tourn%C3%A9e+d%27%C3%A9t%C3%A9" -> "La+tournée+d'été"
+ */
+const decodeTrackerValue = (value: string): string => {
+  try {
+    // Remplacer les "+" par des espaces puis décoder les %XX
+    return decodeURIComponent(value);
+  } catch {
+    // Si le décodage échoue, retourner la valeur originale
+    return value;
+  }
+};
+
+const cleanCampaignTrackers = async (campaign: CampaignRecord) => {
+  const cleanedTrackers = campaign.trackers.map((tracker) => ({
+    key: tracker.key,
+    value: decodeTrackerValue(tracker.value),
+  }));
+
+  // Vérifier si au moins un tracker a été modifié
+  const hasChanges = campaign.trackers.some((tracker, index) => tracker.value !== cleanedTrackers[index].value);
+
+  if (!hasChanges) {
+    return null;
+  }
+
+  console.log(`Cleaning trackers for campaign ${campaign.name} (${campaign.id})`);
+  campaign.trackers.forEach((tracker, index) => {
+    if (tracker.value !== cleanedTrackers[index].value) {
+      console.log(`  ${tracker.key}: "${tracker.value}" -> "${cleanedTrackers[index].value}"`);
+    }
+  });
+
+  return await campaignService.updateCampaign(campaign.id, {
+    trackers: cleanedTrackers,
+  });
+};
+
 const createCampaignDefaultTrackers = async (campaign: CampaignRecord) => {
   if (campaign.fromPublisherId === PUBLISHER_IDS.SERVICE_CIVIQUE) {
     console.log(`Creating mtm default trackers for campaign ${campaign.name} (${campaign.id})`);
@@ -42,6 +81,7 @@ const run = async () => {
 
   let processed = 0;
   let trackersCreated = 0;
+  let trackersUpdated = 0;
 
   const data = await campaignService.findCampaigns({
     all: true,
@@ -58,7 +98,19 @@ const run = async () => {
     trackersCreated += result.trackers.length;
   }
 
-  console.log(`Created ${trackersCreated} trackers`);
+  // Update trackers without special characters (decode URL-encoded values)
+  const campaignsWithTrackers = data.results.filter((campaign) => campaign.trackers && campaign.trackers.length > 0);
+  console.log(`\nChecking ${campaignsWithTrackers.length} campaigns with trackers for URL-encoded values...`);
+
+  for (const campaign of campaignsWithTrackers) {
+    const result = await cleanCampaignTrackers(campaign);
+    if (result) {
+      trackersUpdated++;
+    }
+  }
+
+  console.log(`\nCreated ${trackersCreated} trackers`);
+  console.log(`Updated ${trackersUpdated} campaigns with cleaned trackers`);
   console.log(`Processed ${processed} campaigns`);
 };
 
