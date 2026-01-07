@@ -311,6 +311,94 @@ sources:
             description: Date de création de l'événement (UTC).
           - name: updated_at
             description: Dernière mise à jour (UTC), utilisée comme curseur d'export.
+      - name: domain
+        description: Référentiel des domaines métier associés aux missions (ex. environnement, sport).
+        columns:
+          - name: id
+            description: Identifiant unique du domaine.
+          - name: name
+            description: Libellé du domaine.
+          - name: created_at
+            description: Timestamp de création de la ligne.
+          - name: updated_at
+            description: Timestamp de dernière mise à jour (curseur d'export).
+      - name: activity
+        description: Référentiel des activités rattachées aux missions (ex. animation, logistique).
+        columns:
+          - name: id
+            description: Identifiant unique de l'activité.
+          - name: name
+            description: Libellé de l'activité.
+          - name: created_at
+            description: Timestamp de création de la ligne.
+          - name: updated_at
+            description: Timestamp de dernière mise à jour (curseur d'export).
+      - name: mission
+        description: >-
+          Missions synchronisées depuis la base opérationnelle. Chaque ligne correspond à une mission avec ses
+          identifiants métier, rattachements (publisher, organisation) et principaux attributs fonctionnels
+          (statut, dates, accessibilité, tags, audience…).
+        columns:
+          - name: id
+            description: Identifiant unique de la mission dans la base core.
+          - name: client_id
+            description: Identifiant métier de la mission côté client/source.
+          - name: domain_id
+            description: Identifiant du domaine associé (référence `analytics_raw.domain.id`).
+          - name: activity_id
+            description: Identifiant de l'activité associée (référence `analytics_raw.activity.id`).
+          - name: tags
+            description: Tags libres associés à la mission.
+          - name: tasks
+            description: Liste des tâches proposées.
+          - name: audience
+            description: Publics ciblés par la mission.
+          - name: soft_skills
+            description: Compétences comportementales attendues.
+          - name: requirements
+            description: Pré-requis complémentaires exprimés sous forme de texte libre.
+          - name: rome_skills
+            description: Compétences codifiées (ROME) associées.
+          - name: reduced_mobility_accessible
+            description: Indique si la mission est accessible aux publics à mobilité réduite.
+          - name: close_to_transport
+            description: Indique si la mission est proche des transports.
+          - name: open_to_minors
+            description: Indique si la mission est ouverte aux mineurs.
+          - name: remote
+            description: Modalités de télébénévolat (nullable).
+          - name: schedule
+            description: Informations de planning/rythme (nullable).
+          - name: duration
+            description: Durée estimée de la mission (en minutes ou nombre d'unités, nullable).
+          - name: posted_at
+            description: Date de publication initiale.
+          - name: start_at
+            description: Date de démarrage prévue.
+          - name: end_at
+            description: Date de fin prévue (nullable).
+          - name: priority
+            description: Niveau de priorité de diffusion (nullable).
+          - name: places
+            description: Nombre de places ouvertes.
+          - name: places_status
+            description: Statut d'occupation des places (nullable).
+          - name: domain_original
+            description: Libellé de domaine initial provenant de la source externe (nullable).
+          - name: type
+            description: Typologie de mission (benevolat, volontariat…).
+          - name: status_code
+            description: Statut métier côté application (nullable).
+          - name: organization_id
+            description: Identifiant de l'organisation liée (nullable).
+          - name: publisher_id
+            description: Identifiant du partenaire/publisher associé.
+          - name: deleted_at
+            description: Timestamp de suppression logique (nullable).
+          - name: created_at
+            description: Timestamp de création de la mission.
+          - name: updated_at
+            description: Timestamp de dernière mise à jour, utilisé comme curseur d'export.
       - name: organization
         description: >-
           Référentiel des organisations synchronisé depuis la base opérationnelle (`core.Organization`). Ces données

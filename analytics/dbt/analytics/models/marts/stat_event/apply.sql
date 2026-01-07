@@ -34,7 +34,6 @@ select
   from_publisher_id,
   to_publisher_id,
   mission_id,
-  resolved_mission_id_raw as mission_id_raw,
   click_id,
   view_id_raw,
   status,
