@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { RiAlertFill, RiInformationFill } from "react-icons/ri";
+import { RiInformationFill } from "react-icons/ri";
 
 import EmptySVG from "../../assets/svg/empty-info.svg";
 import { Pie, StackedBarchart } from "../../components/Chart";
@@ -89,21 +89,13 @@ const GlobalDiffuseur = ({ filters, onFiltersChange }) => {
               <div className="relative border border-gray-900 p-6">
                 <div className="flex items-center justify-between">
                   <p className="text-[28px] font-bold">{data.totalPrint !== 0 ? data.totalPrint.toLocaleString("fr") : "N/A"}</p>
-                  {data.totalPrint === 0 ? (
-                    <div className="group relative">
-                      <RiAlertFill className="text-orange-warning-425 cursor-pointer text-2xl" />
-                      <div className="absolute bottom-8 z-10 hidden w-80 -translate-x-1/2 border border-gray-900 bg-white p-4 shadow-lg group-hover:block">
-                        <p className="text-xs">Ils semblerait que les impressions de vos campagnes ou missions ne soient pas comptabilisées</p>
-                      </div>
+
+                  <div className="group relative">
+                    <RiInformationFill className="cursor-pointer text-2xl text-[#666]" />
+                    <div className="absolute bottom-8 z-10 hidden w-80 -translate-x-1/2 border border-gray-900 bg-white p-4 shadow-lg group-hover:block">
+                      <p className="text-xs">Les impressions des liens situés dans des emails ou SMS ne sont pas comptabilisés dans ce total</p>
                     </div>
-                  ) : (
-                    <div className="group relative">
-                      <RiInformationFill className="cursor-pointer text-2xl text-[#666]" />
-                      <div className="absolute bottom-8 z-10 hidden w-80 -translate-x-1/2 border border-gray-900 bg-white p-4 shadow-lg group-hover:block">
-                        <p className="text-xs">Les impressions des liens situés dans des emails ou SMS ne sont pas comptabilisés dans ce total</p>
-                      </div>
-                    </div>
-                  )}
+                  </div>
                 </div>
                 <p className="text-gray-425 text-base">impressions</p>
               </div>
