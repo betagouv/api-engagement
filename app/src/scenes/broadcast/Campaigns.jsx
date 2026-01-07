@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
-import { HiLink } from "react-icons/hi";
-import { RiAddFill, RiEditFill, RiFileCopyLine } from "react-icons/ri";
+import { RiAddFill, RiEditFill, RiFileCopyLine, RiLink } from "react-icons/ri";
 import { Link } from "react-router-dom";
 import { toast } from "react-toastify";
 
@@ -123,15 +122,15 @@ const Campaigns = () => {
       <div className="space-y-6">
         <div className="flex items-center justify-between">
           <h2 className="text-xl font-semibold">{data.length > 1 ? `${data.length} campagnes` : `${data.length} campagne`} </h2>
-	          <div>
-	            {user.role === "admin" && (
-	              <div className="mt-3 flex items-center">
-	                <Toggle aria-label="Afficher les campagnes désactivées" value={!filters.active} onChange={(checked) => setFilters({ ...filters, active: !checked, page: 1 })} />
-	                <label className="ml-2">Afficher les campagnes désactivées</label>
-	              </div>
-	            )}
-	          </div>
-	        </div>
+          <div>
+            {user.role === "admin" && (
+              <div className="mt-3 flex items-center">
+                <Toggle aria-label="Afficher les campagnes désactivées" value={!filters.active} onChange={(checked) => setFilters({ ...filters, active: !checked, page: 1 })} />
+                <label className="ml-2">Afficher les campagnes désactivées</label>
+              </div>
+            )}
+          </div>
+        </div>
 
         <TablePagination header={TABLE_HEADER} page={filters.page} pageSize={filters.pageSize} onPageChange={(page) => setFilters({ ...filters, page })} total={data.length}>
           {data.slice((filters.page - 1) * filters.pageSize, filters.page * filters.pageSize).map((item, i) => (
@@ -148,24 +147,28 @@ const Campaigns = () => {
               <td colSpan={2} className="px-4">
                 <div className="flex gap-2 text-lg">
                   <Link className="secondary-btn flex items-center" to={`/broadcast/campaign/${item.id}`}>
-                    <RiEditFill className="text-lg" />
+                    <RiEditFill className="text-lg" role="img" aria-label="Modifier la campagne" />
                   </Link>
                   <button className="secondary-btn flex items-center" onClick={() => handleCopy(item.id)}>
-                    <HiLink className="text-lg" />
+                    <RiLink className="text-lg" role="img" aria-label="Copier le lien de la campagne" />
                   </button>
                   <button className="secondary-btn flex items-center" onClick={() => handleDuplicate(item.id)}>
-                    <RiFileCopyLine className="text-lg" />
+                    <RiFileCopyLine className="text-lg" role="img" aria-label="Dupliquer la campagne" />
                   </button>
                 </div>
               </td>
-	              {user.role === "admin" && (
-	                <td className="px-4">
-	                  <Toggle aria-label={`${item.active ? "Désactiver" : "Activer"} la campagne ${item.name || ""}`.trim()} value={item.active} onChange={(v) => handleActivate(v, item)} />
-	                </td>
-	              )}
-	            </tr>
-	          ))}
-	        </TablePagination>
+              {user.role === "admin" && (
+                <td className="px-4">
+                  <Toggle
+                    aria-label={`${item.active ? "Désactiver" : "Activer"} la campagne ${item.name || ""}`.trim()}
+                    value={item.active}
+                    onChange={(v) => handleActivate(v, item)}
+                  />
+                </td>
+              )}
+            </tr>
+          ))}
+        </TablePagination>
       </div>
     </div>
   );
