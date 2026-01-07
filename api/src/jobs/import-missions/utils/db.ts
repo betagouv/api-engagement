@@ -10,6 +10,10 @@ import { getJobTime } from "../../../utils/job";
 import { EVENT_TYPES, getMissionChanges } from "../../../utils/mission";
 import type { ImportedMission } from "../types";
 
+const toChangeKeysOnly = (changes: Record<string, unknown>): Record<string, true> => {
+  return Object.fromEntries(Object.keys(changes).map((key) => [key, true])) as Record<string, true>;
+};
+
 /**
  * Insert or update a batch of missions into MongoDB
  *
@@ -61,7 +65,10 @@ export const bulkDB = async (bulk: ImportedMission[], publisher: PublisherRecord
         missionEvents.push({
           missionId: current.id,
           type: changes.deletedAt?.current === null ? EVENT_TYPES.DELETE : EVENT_TYPES.UPDATE,
-          changes,
+          // On ne stocke que les clés modifiées (pas les valeurs), car l’usage analytics
+          // repose sur l’existence des clés (opérateur JSONB `?`) et pas sur le contenu.
+          // Cela réduit drastiquement la volumétrie des MissionEvent (ex: description, addresses…).
+          changes: toChangeKeysOnly(changes),
         });
         importDoc.updatedCount += 1;
       }
@@ -102,9 +109,7 @@ export const cleanDB = async (missionsClientIds: string[], publisher: PublisherR
     events.push({
       missionId: mission.id,
       type: EVENT_TYPES.DELETE,
-      changes: {
-        deletedAt: { previous: null, current: importDoc.startedAt },
-      },
+      changes: { deletedAt: true },
     });
   }
 
