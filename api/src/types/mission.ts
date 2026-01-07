@@ -151,6 +151,8 @@ export type MissionSearchFilters = {
   excludeOrganizationClientIds?: string[];
   moderationAcceptedFor?: string;
   activity?: string[];
+  action?: string[];
+  beneficiary?: string[];
   city?: string[];
   clientId?: string[];
   organizationClientId?: string[];
