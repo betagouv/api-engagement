@@ -102,7 +102,14 @@ const CopyModal = ({ isOpen, campaignId, onClose }) => {
   };
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} className="min-w-4xl">
+    <Modal
+      isOpen={isOpen}
+      onClose={() => {
+        onClose();
+        navigate(`/broadcast/campaign/${campaignId}`);
+      }}
+      className="min-w-4xl"
+    >
       <div className="flex flex-col gap-6 p-10 pt-16">
         <h2 className="text-2xl font-bold">🥳 Votre campagne est créée !</h2>
         <p className="text-base">Pour commencer à diffuser des missions et suivre les statistiques, insérez ce lien dans le contenu de votre campagne.</p>
@@ -124,7 +131,7 @@ const CopyModal = ({ isOpen, campaignId, onClose }) => {
             type="button"
             className="primary-btn"
             onClick={() => {
-              onClose(false);
+              onClose();
               navigate(`/broadcast/campaign/${campaignId}`);
             }}
           >

@@ -8,7 +8,6 @@ import { captureError } from "../../../services/error";
 import { slugify } from "../../../services/utils";
 import { withLegacyPublishers } from "../../../utils/publisher";
 
-
 const buildDefaultUtm = (name) => [
   { key: "utm_source", value: "api_engagement" },
   { key: "utm_medium", value: "campaign" },
@@ -42,7 +41,10 @@ const Information = ({ values, onChange, errors, onErrorChange }) => {
         ? url
             .split("?")[1]
             .split("&")
-            .map((t) => ({ key: t.split("=")[0], value: t.split("=")[1] || "" }))
+            .map((t) => {
+              const idx = t.indexOf("=");
+              return idx === -1 ? { key: t, value: "" } : { key: t.slice(0, idx), value: t.slice(idx + 1) };
+            })
         : [];
       if (trackers.length === 0) {
         trackers = buildDefaultUtm(values.name);
