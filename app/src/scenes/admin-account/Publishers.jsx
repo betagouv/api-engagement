@@ -119,7 +119,7 @@ const Publishers = () => {
         </div>
       </div>
 
-      <div className="border border-gray-900 p-6">
+      <div className="border-grey-border border p-6">
         <div className="mb-6 flex items-center gap-4">
           <p className="font-semibold">{`${publishers.length} partenaire${publishers.length > 1 ? "s" : ""}`}</p>
           <label htmlFor="publisher-name" className="sr-only">

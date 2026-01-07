@@ -63,7 +63,7 @@ const AdminReport = () => {
         <h2 className="flex-1 text-2xl font-semibold">{total.toLocaleString("fr")} rapports d'impacts</h2>
       </div>
 
-      <div className="space-y-6 border border-gray-900 p-6">
+      <div className="border-grey-border space-y-6 border p-6">
         <p className="font-bold">Filtrer les resultats</p>
         <div className="flex items-center gap-4 border-b border-b-gray-900 pb-6">
           <SearchSelect
@@ -105,10 +105,10 @@ const AdminReport = () => {
                   {item.publisherName}
                 </Link>
                 <div className="flex items-center gap-2">
-                  <span className="rounded-xl bg-[#dae6fd] px-2 py-1 text-gray-700" style={{ fontSize: 12 }}>
+                  <span className="bg-blue-cumulus-925 rounded-xl px-2 py-1 text-gray-700" style={{ fontSize: 12 }}>
                     {MONTHS[item.month]}
                   </span>
-                  <span className="rounded-xl bg-[#dae6fd] px-2 py-1 text-gray-700" style={{ fontSize: 12 }}>
+                  <span className="bg-blue-cumulus-925 rounded-xl px-2 py-1 text-gray-700" style={{ fontSize: 12 }}>
                     {item.year}
                   </span>
                 </div>
@@ -125,7 +125,7 @@ const AdminReport = () => {
                 ) : (
                   <>
                     <div className="flex items-center gap-2">
-                      <div className="bg-red-error h-2 w-2 rounded-full" />
+                      <div className="bg-error h-2 w-2 rounded-full" />
                       <p className="flex-1 text-sm font-bold">Non envoyé</p>
                     </div>
                     <p className="flex-1 text-xs">{REPORT_STATUS[item.status] || item.status}</p>

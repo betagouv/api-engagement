@@ -80,13 +80,13 @@ const Create = () => {
             </label>
             <input
               id="firstname"
-              className={`input mb-2 ${errors.firstname ? "border-b-red-error" : "border-b-black"}`}
+              className={`input mb-2 ${errors.firstname ? "border-b-error" : "border-b-black"}`}
               name="firstname"
               value={values.firstname}
               onChange={handleChange}
             />
             {errors.firstname && (
-              <div className="text-red-error flex items-center text-sm">
+              <div className="text-error flex items-center text-sm">
                 <RiErrorWarningFill className="mr-2" />
                 {errors.firstname}
               </div>
@@ -99,13 +99,13 @@ const Create = () => {
             </label>
             <input
               id="lastname"
-              className={`input mb-2 ${errors.lastname ? "border-b-red-error" : "border-b-black"}`}
+              className={`input mb-2 ${errors.lastname ? "border-b-error" : "border-b-black"}`}
               name="lastname"
               value={values.lastname}
               onChange={handleChange}
             />
             {errors.lastname && (
-              <div className="text-red-error flex items-center text-sm">
+              <div className="text-error flex items-center text-sm">
                 <RiErrorWarningFill className="mr-2" />
                 {errors.lastname}
               </div>
@@ -116,9 +116,9 @@ const Create = () => {
             <label className="mb-2 text-sm" htmlFor="email">
               E-mail
             </label>
-            <input id="email" className={`input mb-2 ${errors.email ? "border-b-red-error" : "border-b-black"}`} name="email" value={values.email} onChange={handleChange} />
+            <input id="email" className={`input mb-2 ${errors.email ? "border-b-error" : "border-b-black"}`} name="email" value={values.email} onChange={handleChange} />
             {errors.email && (
-              <div className="text-red-error flex items-center text-sm">
+              <div className="text-error flex items-center text-sm">
                 <RiErrorWarningFill className="mr-2" />
                 {errors.email}
               </div>
@@ -130,12 +130,12 @@ const Create = () => {
               Role
             </label>
 
-            <select id="role" className={`input mb-2 ${errors.role ? "border-b-red-error" : "border-b-black"}`} value={values.role} onChange={handleChange} name="role">
+            <select id="role" className={`input mb-2 ${errors.role ? "border-b-error" : "border-b-black"}`} value={values.role} onChange={handleChange} name="role">
               <option value="user">Utilisateur</option>
               <option value="admin">Admin</option>
             </select>
             {errors.role && (
-              <div className="text-red-error flex items-center text-sm">
+              <div className="text-error flex items-center text-sm">
                 <RiErrorWarningFill className="mr-2" />
                 {errors.role}
               </div>
@@ -174,7 +174,7 @@ const Create = () => {
               </div>
             )}
             {errors.publishers && (
-              <div className="text-red-error mb-2 flex items-center text-sm">
+              <div className="text-error mb-2 flex items-center text-sm">
                 <RiErrorWarningFill className="mr-2" />
                 {errors.publishers}
               </div>

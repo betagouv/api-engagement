@@ -38,17 +38,17 @@ const Note = ({ data, onChange }) => {
   };
 
   return (
-    <div className="flex flex-col gap-4 border border-gray-900 bg-white p-6">
+    <div className="border-grey-border flex flex-col gap-4 border bg-white p-6">
       <div className="flex items-center gap-2">
-        <RiPencilFill className="text-gray-425" />
-        <label className="text-gray-425 text-xs font-semibold" htmlFor="note">
+        <RiPencilFill className="text-text-mention" />
+        <label className="text-text-mention text-xs font-semibold" htmlFor="note">
           NOTES
         </label>
       </div>
       <div>
         {note && !editing && (
           <div className="flex flex-col items-start gap-4">
-            <span className="text-gray-425 text-sm italic">{note}</span>
+            <span className="text-text-mention text-sm italic">{note}</span>
             <button className="text-blue-france text-sm" onClick={() => setEditing(true)}>
               Modifier la note
             </button>
