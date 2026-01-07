@@ -2,12 +2,14 @@ import { useEffect, useState } from "react";
 import { RiCloseFill, RiErrorWarningFill } from "react-icons/ri";
 import { Link, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
-import { isValidEmail } from "../../services/utils";
 
-import { Table } from "../../components/Table";
+import Table from "../../components/NewTable";
 import api from "../../services/api";
 import { captureError } from "../../services/error";
+import { isValidEmail } from "../../services/utils";
 import { withLegacyPublishers } from "../../utils/publisher";
+
+const TABLE_HEADER = [{ title: "" }, { title: "Nom" }, { title: "Roles", position: "center" }];
 
 const Create = () => {
   const [publishers, setPublishers] = useState([]);
@@ -15,6 +17,8 @@ const Create = () => {
   const [values, setValues] = useState({ firstname: "", lastname: "", email: "", role: "user", publishers: [] });
   const [errors, setErrors] = useState({});
   const navigate = useNavigate();
+
+  const filteredPublishers = publishers.filter((p) => p.name.toLowerCase().includes(search.toLowerCase()));
 
   useEffect(() => {
     const fetchData = async () => {
@@ -179,19 +183,10 @@ const Create = () => {
                 {errors.publishers}
               </div>
             )}
-            <Table
-              data={publishers.filter((p) => p.name.toLowerCase().includes(search.toLowerCase()))}
-              maxHeigth="max-h-96"
-              renderHeader={() => (
-                <>
-                  <h4 className="w-24" />
-                  <h4 className="flex-1">Nom</h4>
-                  <h4 className="flex-1 text-center">Roles</h4>
-                </>
-              )}
-              renderItem={(item) => (
-                <>
-                  <div className="w-24 pl-3">
+            <Table header={TABLE_HEADER} total={filteredPublishers.length} pagination={false} auto className="max-h-96 overflow-y-auto">
+              {filteredPublishers.map((item, i) => (
+                <tr key={item.id || item._id} className={`${i % 2 === 0 ? "bg-gray-975" : "bg-gray-1000-active"} table-item`}>
+                  <td className="table-cell">
                     <input
                       type="checkbox"
                       className="checkbox"
@@ -201,19 +196,19 @@ const Create = () => {
                       }}
                       checked={values.publishers.includes((item.id || item._id).toString())}
                     />
-                  </div>
-                  <div className="flex-1">{item.name}</div>
-                  <div className="flex-1">
+                  </td>
+                  <td className="table-cell">{item.name}</td>
+                  <td className="table-cell">
                     <div className="flex flex-wrap justify-center gap-2">
                       {item.isAnnonceur && <span className="rounded bg-red-300 p-2">Annonceur</span>}
                       {item.hasApiRights && <span className="rounded bg-green-300 p-2">Diffuseur API</span>}
                       {item.hasWidgetRights && <span className="rounded bg-green-300 p-2">Diffuseur Widget</span>}
                       {item.hasCampaignRights && <span className="rounded bg-green-300 p-2">Diffuseur Campagne</span>}
                     </div>
-                  </div>
-                </>
-              )}
-            />
+                  </td>
+                </tr>
+              ))}
+            </Table>
           </div>
 
           <div className="col-span-2 flex justify-end gap-4">

@@ -5,7 +5,7 @@ import EmptySVG from "../../assets/svg/empty-info.svg";
 import { Pie, StackedBarchart } from "../../components/Chart";
 import Loader from "../../components/Loader";
 import DateRangePicker from "../../components/NewDateRangePicker";
-import TablePagination from "../../components/NewTablePagination";
+import Table from "../../components/NewTable";
 import { MONTHS } from "../../constants";
 import api from "../../services/api";
 import { captureError } from "../../services/error";
@@ -387,8 +387,9 @@ const Announcers = ({ filters }) => {
           <div className="space-y-4 border border-gray-900 p-6">
             <div className="flex flex-col gap-4">
               <h3 className="text-2xl font-semibold">Performance des annonceurs</h3>
-              <TablePagination
+              <Table
                 header={TABLE_HEADER}
+                pagination
                 page={tableSettings.page}
                 pageSize={5}
                 onPageChange={(page) => setTableSettings({ ...tableSettings, page })}
@@ -411,7 +412,7 @@ const Announcers = ({ filters }) => {
                       <td className="px-4 text-right">{(item.rate || 0).toLocaleString("fr", { style: "percent", minimumFractionDigits: 2 })}</td>
                     </tr>
                   ))}
-              </TablePagination>
+              </Table>
             </div>
           </div>
           <div className="space-y-4 border border-gray-900 p-6">

@@ -6,7 +6,7 @@ import ErrorIconSvg from "../../assets/svg/error-icon.svg?react";
 import InfoAlert from "../../components/InfoAlert";
 import Loader from "../../components/Loader";
 import Select from "../../components/NewSelect";
-import TablePagination from "../../components/NewTablePagination";
+import Table from "../../components/NewTable";
 import SearchInput from "../../components/SearchInput";
 import { STATUS_PLR } from "../../constants";
 import api from "../../services/api";
@@ -190,8 +190,9 @@ const Flux = ({ moderated }) => {
           </button>
         </div>
 
-        <TablePagination
+        <Table
           header={TABLE_HEADER}
+          pagination
           page={filters.page}
           pageSize={filters.size}
           onPageChange={(page) => setFilters({ ...filters, page })}
@@ -233,7 +234,7 @@ const Flux = ({ moderated }) => {
               </td>
             </tr>
           ))}
-        </TablePagination>
+        </Table>
       </div>
     </div>
   );
