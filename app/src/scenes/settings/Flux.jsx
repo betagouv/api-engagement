@@ -165,7 +165,9 @@ const ModifyModal = () => {
       </button>
       <Modal isOpen={isOpen} onClose={() => setIsOpen(false)}>
         <div className="p-10">
-          <h2 className="mb-8 text-lg font-bold">⚙️ Modifier votre flux de missions</h2>
+          <h2 className="mb-8 text-lg font-bold">
+            <span aria-hidden="true">⚙️</span> Modifier votre flux de missions
+          </h2>
           <div className="flex flex-col items-start justify-between gap-4">
             <div>Lien du fichier XML à synchroniser</div>
             <input className="input w-full border-b-0 bg-gray-100 p-4 focus:ring-2" value={feed} onChange={(e) => setFeed(e.target.value)} />

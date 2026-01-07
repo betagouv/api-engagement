@@ -226,7 +226,9 @@ const Moderation = () => {
           </div>
           {stats.refused === 0 ? (
             <div className="flex h-full items-center">
-              <p className="ml-5 pb-10">😎 Aucune mission n’a été refusée</p>
+              <p className="ml-5 pb-10">
+                <span aria-hidden="true">😎</span> Aucune mission n’a été refusée
+              </p>
             </div>
           ) : (
             <div className="mt-6">

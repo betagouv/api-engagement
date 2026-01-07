@@ -111,7 +111,9 @@ const CopyModal = ({ isOpen, campaignId, onClose }) => {
       className="min-w-4xl"
     >
       <div className="flex flex-col gap-6 p-10 pt-16">
-        <h2 className="text-2xl font-bold">🥳 Votre campagne est créée !</h2>
+        <h2 className="text-2xl font-bold">
+          <span aria-hidden="true">🥳</span> Votre campagne est créée !
+        </h2>
         <p className="text-base">Pour commencer à diffuser des missions et suivre les statistiques, insérez ce lien dans le contenu de votre campagne.</p>
 
         <div className="border-blue-france-925 bg-blue-france-975 flex items-center justify-between border p-6">

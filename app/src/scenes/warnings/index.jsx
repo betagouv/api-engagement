@@ -99,15 +99,22 @@ const List = () => {
         <div className="flex items-center gap-8 bg-white p-6 shadow-sm">
           <img className="h-18 w-18" src={APILogo} alt="API Engagement" />
           <div>
+            {!state.up ? (
+              <p className="text-xl">
+                <span aria-hidden="true">❌</span> L'API Engagement est rencontre quelques problèmes en ce moment
+              </p>
+            ) : !state.upToDate ? (
+              <p className="text-xl">
+                <span aria-hidden="true">❌</span> Dernier import réalisé il y a plus de 24h
+              </p>
+            ) : (
+              <p className="text-xl">
+                <span aria-hidden="true">✅</span> Récupération des missions opérationnelle
+              </p>
+            )}
+
             <p className="text-xl">
-              {!state.up
-                ? `❌  L'API Engagement est rencontre quelques problèmes en ce moment`
-                : !state.upToDate
-                  ? "❌  Dernier import réalisé il y a plus de 24h"
-                  : "✅  Récupération des missions opérationnelle"}
-            </p>
-            <p className="text-xl">
-              ⏱️ Dernière mise à jour des flux réalisée le <b>{`${buildDate(state.last)}`}</b>
+              <span aria-hidden="true">⏱️</span> Dernière mise à jour des flux réalisée le <b>{`${buildDate(state.last)}`}</b>
             </p>
           </div>
         </div>
@@ -115,7 +122,9 @@ const List = () => {
           {currentWarnings.length > 1 ? (
             <>
               <div className="flex items-center justify-center">
-                <span className="text-3xl">❌</span>
+                <span className="text-3xl" aria-hidden="true">
+                  ❌
+                </span>
               </div>
               <div className="flex flex-col gap-4">
                 <p className="text-lg">
@@ -128,7 +137,9 @@ const List = () => {
           ) : (
             <>
               <div className="flex items-center justify-center">
-                <span className="text-3xl">✅</span>
+                <span className="text-3xl" aria-hidden="true">
+                  ✅
+                </span>
               </div>
               <div className="flex flex-col gap-4">
                 <h4 className="text-xl font-bold text-black">Votre compte est parfaitement opérationnel</h4>
@@ -154,13 +165,11 @@ const List = () => {
             <div key={i} className="flex flex-col gap-4">
               <h3 className="text-xl font-normal text-black">{d}</h3>
               {currentWarningsByDays[d].map((w, i) => {
-                const label = WARNINGS[w.type] || { emoji: "🤔", name: "Alerte" };
+                const label = WARNINGS[w.type] || WARNINGS.OTHER_WARNING;
                 return (
                   <Link to={LINKS[w.type]} className="flex items-end gap-8 bg-white p-6 shadow-sm" key={i} id={slugify(`${w.type}-${w.publisherName}`)}>
                     <div className="flex items-center justify-center gap-8">
-                      <div className="flex items-center justify-center">
-                        <span className="text-2xl">{label.emoji}</span>
-                      </div>
+                      <div className="flex items-center justify-center">{label.emoji}</div>
                       <div className="flex flex-1 flex-col justify-between">
                         <div className="mb-3">
                           <span className="bg-yellow-tournesol-950 text-yellow-tournesol-200 truncate rounded p-1 text-center text-xs font-semibold uppercase">{label.name}</span>
@@ -219,12 +228,10 @@ const List = () => {
               <div key={i} className="flex flex-col gap-4">
                 <h3 className="mt-2 text-xl font-normal text-black">{d}</h3>
                 {archivedWarningsByDays[d].map((w, i) => {
-                  const label = WARNINGS[w.type] || { emoji: "🤔", name: "Alerte" };
+                  const label = WARNINGS[w.type] || WARNINGS.OTHER_WARNING;
                   return (
                     <div className="flex items-center gap-8 bg-white p-6 shadow-sm" key={i} id={slugify(`${w.type}-${w.publisherName}`)}>
-                      <div className="flex items-center justify-center">
-                        <span className="text-3xl">{label.emoji}</span>
-                      </div>
+                      <div className="flex items-center justify-center">{label.emoji}</div>
                       <div className="flex flex-1 flex-col justify-between">
                         <div className="mb-3">
                           <span className="bg-yellow-tournesol-950 text-yellow-tournesol-200 truncate rounded p-1 text-center text-xs font-semibold uppercase">{label.name}</span>
