@@ -40,7 +40,7 @@ const Trackers = ({ values, onChange }) => {
         <label className="ml-2 text-base">Ajouter des paramètres pour le suivi statistique</label>
       </div>
       {values.trackers && values.trackers.length > 0 && (
-        <div className="border border-gray-900 p-8">
+        <div className="border-grey-border border p-8">
           <div className="mb-2 flex items-center gap-4">
             <label className="flex-1 text-base">Nom du paramètre</label>
             <label className="flex-1 text-base">Valeur du paramètre</label>
@@ -53,7 +53,7 @@ const Trackers = ({ values, onChange }) => {
                 <input className="input flex-1" name="value" value={tracker.value} onChange={(e) => handleTrackerValueChange(e, i)} placeholder="Exemples : google, newsletter" />
 
                 <button type="button" className="tertiary-btn w-10 px-0" onClick={() => handleDeleteTracker(i)}>
-                  <RiDeleteBin6Line className="text-red-error mx-auto" />
+                  <RiDeleteBin6Line className="text-error mx-auto" />
                 </button>
               </div>
             ))}

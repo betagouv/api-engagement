@@ -45,7 +45,7 @@ const Users = () => {
         </div>
       </div>
 
-      <div className="border border-gray-900 p-6">
+      <div className="border-grey-border border p-6">
         <div className="mb-6 flex items-center gap-4">
           <label htmlFor="user-search" className="sr-only">
             Rechercher par nom ou par email
@@ -78,7 +78,7 @@ const Users = () => {
                   <div className="group relative">
                     <div className="ml-2 flex items-center">
                       Dernière activité
-                      <RiInformationLine className="text-gray-425 ml-2" />
+                      <RiInformationLine className="text-text-mention ml-2" />
                     </div>
                     <div className="absolute top-[-20px] right-6 hidden w-56 group-hover:block">
                       <div className="bg-white p-2 shadow-lg">
@@ -116,7 +116,7 @@ const Users = () => {
                   )}
                 </div>
                 <span className="w-[12%] text-center">
-                  {item.role === "admin" ? <span className="rounded bg-red-300 px-1">Admin</span> : <span className="rounded bg-green-300 px-1">Utilisateur</span>}
+                  {item.role === "admin" ? <span className="bg-red-marianne-950 rounded px-1">Admin</span> : <span className="bg-green-success-950 rounded px-1">Utilisateur</span>}
                 </span>
                 <span className="w-[12%] text-center">{new Date(item.createdAt).toLocaleDateString("fr")}</span>
                 <span className="flex w-[10%] justify-center">{item.lastActivityAt ? new Date(item.lastActivityAt).toLocaleDateString("fr") : "-"}</span>

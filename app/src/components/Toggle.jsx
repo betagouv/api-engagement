@@ -11,7 +11,7 @@ const Toggle = ({ value, onChange = () => null, className = "", ...rest }) => {
       aria-checked={checked}
       tabIndex={0}
       onClick={() => onChange(!checked)}
-      className={`${checked ? "bg-blue-france" : "bg-white"} border-blue-france relative inline-flex h-6 w-10 shrink-0 cursor-pointer items-center rounded-full border p-0 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#0a76f6] ${className}`}
+      className={`${checked ? "bg-blue-france" : "bg-white"} border-blue-france focus-visible:outline-outline-blue relative inline-flex h-6 w-10 shrink-0 cursor-pointer items-center rounded-full border p-0 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 ${className}`}
     >
       <span
         aria-hidden="true"

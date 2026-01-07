@@ -39,11 +39,11 @@ import { captureError } from "./services/error";
 import useStore from "./services/store";
 
 const TOAST_STYLES = {
-  success: "bg-green-success text-white",
-  error: "bg-red-error text-white",
+  success: "bg-success text-white",
+  error: "bg-error text-white",
   info: "bg-blue-france text-white",
-  warning: "bgbg-[#FEECC2]",
-  default: "bg-white border border-gray-900",
+  warning: "bg-yellow-tournesol-950",
+  default: "bg-white border border-grey-border",
   dark: "bg-dark text-white border border white",
 };
 
@@ -202,7 +202,7 @@ const ProtectedLayout = () => {
   return (
     <div className="bg-beige-gris-galet-975 flex min-h-screen w-screen min-w-3xl flex-col">
       {ENV === "staging" && (
-        <div className="bg-red-error w-full p-2 text-center text-white">
+        <div className="bg-error w-full p-2 text-center text-white">
           <span>Environnement de pré-prod</span>
         </div>
       )}

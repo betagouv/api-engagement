@@ -21,7 +21,7 @@ const TrackingBroadcast = () => {
     <div className="space-y-4 bg-white p-12 shadow-lg">
       <div className="space-y-2">
         <h2 className="text-3xl font-bold">Script à intégrer sur votre site</h2>
-        <p className="text-sm text-[#666666]">
+        <p className="text-text-mention text-sm">
           Afin d'assurer le suivi de leurs impressions, veuillez intégrez ce script sur toutes les pages sur lesquelles vous diffusez des liens de campagnes et des missions que
           vous diffusez par API.
         </p>
@@ -32,7 +32,7 @@ const TrackingBroadcast = () => {
           href="https://doc.api-engagement.beta.gouv.fr/diffuser-des-missions/tracking-des-candidatures"
           target="_blank"
           rel="noreferrer"
-          className="text-sm text-[#000091] underline"
+          className="text-blue-france text-sm underline"
         >
           Ouvrir la documentation
         </a>
@@ -42,7 +42,7 @@ const TrackingBroadcast = () => {
         </button>
       </div>
       <textarea
-        className="w-full rounded-none border border-[#E3E3FD] bg-[#F5F5FE] px-4 py-2 text-base read-only:opacity-80"
+        className="border-blue-france-925 bg-blue-france-975 w-full rounded-none border px-4 py-2 text-base read-only:opacity-80"
         rows={8}
         value={script.replace("{{publisherId}}", publisher.id)}
         readOnly

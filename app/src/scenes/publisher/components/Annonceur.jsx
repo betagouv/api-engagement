@@ -30,22 +30,22 @@ const Annonceur = ({ values, onChange, errors, setErrors }) => {
   }, [values.id]);
 
   return (
-    <div className="space-y-6 border border-gray-900 p-6">
-	      <div className="flex items-center justify-between">
-	        <h3 className="text-lg font-bold">Annonceur</h3>
-	        <Toggle
-	          aria-label={isAnnonceur ? "Désactiver le mode annonceur" : "Activer le mode annonceur"}
-	          value={isAnnonceur}
-	          onChange={(e) => {
-	            onChange({ ...values, isAnnonceur: e, missionType: null });
-	            setErrors({ ...errors, settings: null });
-	          }}
-	        />
-	      </div>
+    <div className="border-grey-border space-y-6 border p-6">
+      <div className="flex items-center justify-between">
+        <h3 className="text-lg font-bold">Annonceur</h3>
+        <Toggle
+          aria-label={isAnnonceur ? "Désactiver le mode annonceur" : "Activer le mode annonceur"}
+          value={isAnnonceur}
+          onChange={(e) => {
+            onChange({ ...values, isAnnonceur: e, missionType: null });
+            setErrors({ ...errors, settings: null });
+          }}
+        />
+      </div>
       {isAnnonceur && (
         <>
           <div className="h-px w-full bg-gray-900" />
-          {errors.missionType && <p className="text-red-error">{errors.missionType}</p>}
+          {errors.missionType && <p className="text-error">{errors.missionType}</p>}
           <div className="space-y-4">
             {Object.values(MISSION_TYPES).map((type) => (
               <RadioInput

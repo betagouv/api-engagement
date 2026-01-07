@@ -25,7 +25,7 @@ const QueryBuilder = ({ fields, rules, setRules, onSearch }) => {
       {rules.map((r, i) => (
         <div key={i} className="my-3 flex w-full items-center gap-4">
           <Rule index={i} fields={fields} rule={r} onChange={(r) => handleRuleChange(r, i)} onSearch={onSearch} />
-          <span className="border-red-error text-red-error flex h-8 w-8 cursor-pointer items-center justify-center border" onClick={() => handleDeleteRule(i)}>
+          <span className="border-error text-error flex h-8 w-8 cursor-pointer items-center justify-center border" onClick={() => handleDeleteRule(i)}>
             <RiDeleteBin6Line />
           </span>
         </div>

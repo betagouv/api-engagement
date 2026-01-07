@@ -61,7 +61,7 @@ const Api = () => {
           Documentation
         </a>
       </div>
-      <div className="border border-gray-900 p-6">
+      <div className="border-grey-border border p-6">
         <div className="border-b-gray-925 flex items-center justify-between gap-4 border-b pb-6">
           <label htmlFor="apikey" className="w-1/4 font-semibold">
             Votre clé API
@@ -92,7 +92,12 @@ const Api = () => {
           <div className="flex items-center justify-between gap-4">
             <p className="w-1/4 font-semibold">Exemple d'appel</p>
           </div>
-          <textarea className="w-full rounded-none border border-[#E3E3FD] bg-[#F5F5FE] px-4 py-2 font-mono text-sm read-only:opacity-80" rows={2} readOnly value={curl} />
+          <textarea
+            className="border-blue-france-925 bg-blue-france-975 w-full rounded-none border px-4 py-2 font-mono text-sm read-only:opacity-80"
+            rows={2}
+            readOnly
+            value={curl}
+          />
         </div>
       </div>
     </div>

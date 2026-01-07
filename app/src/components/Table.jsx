@@ -6,7 +6,7 @@ export const Table = ({ data, renderHeader, renderItem, headerHeight = "h-12", i
   if (!data.length) return <div className={`bg-gray-950 p-4 text-center text-sm font-bold text-black`}>Aucune donnée</div>;
 
   return (
-    <div className="w-full bg-[#f6f6f6]">
+    <div className="bg-background-grey-hover w-full">
       <div className={`bg-gray-1000-active sticky top-0 flex items-center border-b border-b-black px-4 text-left text-sm font-bold text-black ${headerHeight}`}>
         {renderHeader()}
       </div>
