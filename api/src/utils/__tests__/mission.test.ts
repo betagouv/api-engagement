@@ -8,6 +8,7 @@ describe("getMissionChanges", () => {
       publisherId: "test-publisher",
       title: "Test Mission",
       description: "Test description",
+      postedAt: new Date("2023-01-15T10:00:00.000Z"),
       startAt: new Date("2023-02-01"),
       endAt: new Date("2023-03-01"),
       metadata: "test metadata",
@@ -98,6 +99,20 @@ describe("getMissionChanges", () => {
         current: new Date("2023-03-01"),
       },
     });
+  });
+
+  it("should ignore time differences for postedAt/startAt/endAt", () => {
+    const mission1 = createBaseMission();
+    const mission2 = {
+      ...createBaseMission(),
+      postedAt: new Date("2023-01-15T23:59:59.000Z"),
+      startAt: new Date("2023-02-01T18:30:00.000Z"),
+      endAt: new Date("2023-03-01T00:00:01.000Z"),
+    };
+
+    const changes = getMissionChanges(mission1, mission2);
+
+    expect(changes).toBeNull();
   });
 
   it("should detect array field changes", () => {

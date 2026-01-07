@@ -89,6 +89,8 @@ export const EVENT_TYPES = {
   DELETE: "delete",
 } as const;
 
+const IMPORT_DATE_FIELDS_IGNORE_TIME = new Set<keyof MissionRecord>(["postedAt", "startAt", "endAt"]);
+
 export const IMPORT_FIELDS_TO_COMPARE = [
   "activity",
   "applicationUrl",
@@ -168,7 +170,8 @@ export const getMissionChanges = (
     }
 
     if (field.endsWith("At")) {
-      if (!areDatesEqual(previousMission[field] as any, currentMission[field] as any)) {
+      const ignoreTime = IMPORT_DATE_FIELDS_IGNORE_TIME.has(field);
+      if (!areDatesEqual(previousMission[field] as any, currentMission[field] as any, { ignoreTime })) {
         changes[field] = {
           previous: parseDate(previousMission[field] as any),
           current: parseDate(currentMission[field] as any),
@@ -227,13 +230,26 @@ const parseDate = (value: string | Date | undefined) => {
   return isNaN(new Date(value).getTime()) ? null : new Date(value);
 };
 
-const areDatesEqual = (previousDate: Date | string | undefined, currentDate: Date | string | undefined) => {
+const toUtcDayKey = (value: Date | string | undefined): number | null => {
+  const date = parseDate(value);
+  if (!date) {
+    return null;
+  }
+  return Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate());
+};
+
+const areDatesEqual = (previousDate: Date | string | undefined, currentDate: Date | string | undefined, { ignoreTime }: { ignoreTime: boolean }) => {
   if (!previousDate && !currentDate) {
     return true;
   }
   if (!previousDate || !currentDate) {
     return false;
   }
+
+  if (ignoreTime) {
+    return toUtcDayKey(previousDate) === toUtcDayKey(currentDate);
+  }
+
   return parseDate(previousDate)?.getTime() === parseDate(currentDate)?.getTime();
 };
 

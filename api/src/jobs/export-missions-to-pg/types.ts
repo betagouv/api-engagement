@@ -1,4 +1,4 @@
-import { Address as PgAddress, Mission as PgMission } from "../../db/analytics";
+import { Prisma } from "../../db/analytics";
 import { JobResult } from "../types";
 
 export interface ExportMissionsToPgJobPayload {
@@ -16,6 +16,7 @@ export interface ExportMissionsToPgJobResult extends JobResult {
 }
 
 export type MissionTransformResult = {
-  mission: PgMission;
-  addresses: PgAddress[];
+  missionCreate: Prisma.MissionUncheckedCreateInput;
+  missionUpdate: Prisma.MissionUncheckedUpdateInput;
+  addresses: Omit<Prisma.AddressCreateManyInput, "mission_id">[];
 };
