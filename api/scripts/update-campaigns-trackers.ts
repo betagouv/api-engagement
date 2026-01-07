@@ -16,8 +16,11 @@ import { slugify } from "../src/utils/string";
  */
 const decodeTrackerValue = (value: string): string => {
   try {
-    // Remplacer les "+" par des espaces puis décoder les %XX
-    return decodeURIComponent(value);
+    // Special case for >
+    if (value === "%3E") {
+      return ">=|1";
+    }
+    return decodeURIComponent(value).replace(/\'/g, "%27");
   } catch {
     // Si le décodage échoue, retourner la valeur originale
     return value;
@@ -44,9 +47,9 @@ const cleanCampaignTrackers = async (campaign: CampaignRecord) => {
     }
   });
 
-  return await campaignService.updateCampaign(campaign.id, {
-    trackers: cleanedTrackers,
-  });
+  // return await campaignService.updateCampaign(campaign.id, {
+  //   trackers: cleanedTrackers,
+  // });
 };
 
 const createCampaignDefaultTrackers = async (campaign: CampaignRecord) => {
@@ -83,30 +86,39 @@ const run = async () => {
   let trackersCreated = 0;
   let trackersUpdated = 0;
 
-  const data = await campaignService.findCampaigns({
-    all: true,
-    includeTotal: "all",
-  });
-  console.log(`Found ${data.total} total campaigns`);
+  let offset = 0;
 
-  const campaignsWithoutTrackers = data.results.filter((campaign) => !campaign.trackers || campaign.trackers.length === 0);
-  console.log(`Found ${campaignsWithoutTrackers.length} campaigns without trackers`);
-
-  for (const campaign of campaignsWithoutTrackers) {
-    processed++;
-    const result = await createCampaignDefaultTrackers(campaign);
-    trackersCreated += result.trackers.length;
-  }
-
-  // Update trackers without special characters (decode URL-encoded values)
-  const campaignsWithTrackers = data.results.filter((campaign) => campaign.trackers && campaign.trackers.length > 0);
-  console.log(`\nChecking ${campaignsWithTrackers.length} campaigns with trackers for URL-encoded values...`);
-
-  for (const campaign of campaignsWithTrackers) {
-    const result = await cleanCampaignTrackers(campaign);
-    if (result) {
-      trackersUpdated++;
+  while (true) {
+    const data = await campaignService.findCampaigns({
+      all: true,
+      limit: 100,
+      offset,
+    });
+    // console.log(`Found ${data.results.length} total campaigns`);
+    if (data.results.length === 0) {
+      break;
     }
+
+    // const campaignsWithoutTrackers = data.results.filter((campaign) => !campaign.trackers || campaign.trackers.length === 0);
+    // console.log(`Found ${campaignsWithoutTrackers.length} campaigns without trackers`);
+
+    // for (const campaign of campaignsWithoutTrackers) {
+    //   processed++;
+    //   const result = await createCampaignDefaultTrackers(campaign);
+    //   trackersCreated += result.trackers.length;
+    // }
+
+    // Update trackers without special characters (decode URL-encoded values)
+    const campaignsWithTrackers = data.results.filter((campaign) => campaign.trackers && campaign.trackers.length > 0);
+    // console.log(`\nChecking ${campaignsWithTrackers.length} campaigns with trackers for URL-encoded values...`);
+
+    for (const campaign of campaignsWithTrackers) {
+      const result = await cleanCampaignTrackers(campaign);
+      if (result) {
+        trackersUpdated++;
+      }
+    }
+    offset += 100;
   }
 
   console.log(`\nCreated ${trackersCreated} trackers`);
