@@ -199,10 +199,10 @@ const Publishers = () => {
                   {item.name}
                 </Link>
                 <div className="flex flex-1 flex-wrap justify-center gap-2">
-                  {item.isAnnonceur && <span className="rounded bg-red-300 px-1 text-[10px]">Annonceur</span>}
-                  {item.hasApiRights && <span className="rounded bg-green-300 px-1 text-[10px]">Diffuseur API</span>}
-                  {item.hasWidgetRights && <span className="rounded bg-green-300 px-1 text-[10px]">Diffuseur Widget</span>}
-                  {item.hasCampaignRights && <span className="rounded bg-green-300 px-1 text-[10px]">Diffuseur Campagne</span>}
+                  {item.isAnnonceur && <span className="bg-red-marianne-950 rounded px-1 text-[10px]">Annonceur</span>}
+                  {item.hasApiRights && <span className="bg-green-success-950 rounded px-1 text-[10px]">Diffuseur API</span>}
+                  {item.hasWidgetRights && <span className="bg-green-success-950 rounded px-1 text-[10px]">Diffuseur Widget</span>}
+                  {item.hasCampaignRights && <span className="bg-green-success-950 rounded px-1 text-[10px]">Diffuseur Campagne</span>}
                 </div>
                 <span className="w-32 text-center text-xs">{item.publishers.length}</span>
                 <span className="w-32 text-center text-xs">{diffuseurs.filter((e) => e.publishers.some((j) => j.publisherId === item.id)).length}</span>
@@ -211,7 +211,7 @@ const Publishers = () => {
                   {item.sendReport ? (
                     <span className="bg-blue-france-975 rounded px-1">{`Oui (${item.sendReportTo.length} receveur${item.sendReportTo.length > 1 ? "s" : ""})`}</span>
                   ) : (
-                    <span className="rounded bg-red-300 px-1">Non</span>
+                    <span className="bg-red-marianne-950 rounded px-1">Non</span>
                   )}
                 </div>
               </>

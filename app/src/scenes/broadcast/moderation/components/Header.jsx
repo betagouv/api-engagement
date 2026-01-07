@@ -27,7 +27,7 @@ const Header = ({ total, data, size, sort, selected, onSize, onSort, onSelect, o
           {isSticky ? (
             <div>
               <button className="button" onClick={() => onSelect(data.map((d) => d._id))}>
-                {selected.length === data.length ? <RiCheckboxFill className="text-2xl text-blue-500" /> : <RiCheckboxIndeterminateFill className="text-2xl text-blue-500" />}
+                {selected.length === data.length ? <RiCheckboxFill className="text-blue-france text-2xl" /> : <RiCheckboxIndeterminateFill className="text-blue-france text-2xl" />}
               </button>
             </div>
           ) : (

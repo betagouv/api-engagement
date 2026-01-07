@@ -14,11 +14,10 @@
   --color-blue-info-425: #0063cb;
   --color-blue-cumulus-925: #dae6fd;
   --color-green-success-425: #18753c; /* main-525 */
-  --color-red-marianne: #e1000f; /* main-525 */
-  --color-red-error: #f60700; /* main-525 */
-  --color-red-error-425: #ce0500;
-  --color-red-error-625: #ff5655;
-  --color-red-error-950: #ffe9e9;
+  --color-green-success-950: #b8fec9;
+  --color-red-marianne-425: #ce0500;
+  --color-red-marianne-950: #ffe9e9;
+
   --color-orange-warning-425: #b34000;
   --color-yellow-tournesol-950: #feecc2;
   --color-yellow-tournesol-200: #43391a;
@@ -39,7 +38,7 @@
   /* usage */
   --color-warning: var(--color-orange-warning-425);
   --color-success: var(--color-green-success-425);
-  --color-error: var(--color-red-error-425);
+  --color-error: var(--color-red-marianne-425);
   --color-info: var(--color-blue-info-425);
   --color-grey-border: var(--color-gray-900-175);
   --color-background-grey-hover: var(--color-gray-1000-hover);
@@ -160,14 +159,14 @@ body {
 }
 
 @utility red-btn {
-  @apply btn shadow-border-red text-red-error-425 hover:bg-red-error-950 active:bg-red-error-950 disabled:shadow-border-gray disabled:text-gray-625 bg-transparent disabled:bg-transparent;
+  @apply btn shadow-border-red text-red-marianne-425 hover:bg-red-marianne-950 active:bg-red-marianne-950 disabled:shadow-border-gray disabled:text-gray-625 bg-transparent disabled:bg-transparent;
 }
 
 @utility dropdown-btn {
   @apply btn hover:bg-blue-france-975 active:bg-blue-france-975 hover:text-blue-france disabled:shadow-border-gray disabled:text-gray-625 flex items-center gap-2 bg-white disabled:bg-transparent;
 }
 @utility dropdown-red-btn {
-  @apply btn hover:bg-red-error-950 active:bg-red-error-950 hover:text-red-error-425 disabled:shadow-border-gray disabled:text-gray-625 flex items-center gap-2 bg-white disabled:bg-transparent;
+  @apply btn hover:bg-red-marianne-950 active:bg-red-marianne-950 hover:text-red-marianne-425 disabled:shadow-border-gray disabled:text-gray-625 flex items-center gap-2 bg-white disabled:bg-transparent;
 }
 
 @utility input {

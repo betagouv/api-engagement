@@ -156,7 +156,7 @@ const AdminReport = () => {
                   </div>
                   {item.url !== null && (
                     <a className="border-blue-france text-blue-france border p-2" href={item.url} target="_blank" rel="noreferrer">
-                      <RiDownload2Line className="text-blue-800" />
+                      <RiDownload2Line className="text-blue-france" />
                     </a>
                   )}
                 </div>

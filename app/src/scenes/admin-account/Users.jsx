@@ -116,7 +116,7 @@ const Users = () => {
                   )}
                 </div>
                 <span className="w-[12%] text-center">
-                  {item.role === "admin" ? <span className="rounded bg-red-300 px-1">Admin</span> : <span className="rounded bg-green-300 px-1">Utilisateur</span>}
+                  {item.role === "admin" ? <span className="bg-red-marianne-950 rounded px-1">Admin</span> : <span className="bg-green-success-950 rounded px-1">Utilisateur</span>}
                 </span>
                 <span className="w-[12%] text-center">{new Date(item.createdAt).toLocaleDateString("fr")}</span>
                 <span className="flex w-[10%] justify-center">{item.lastActivityAt ? new Date(item.lastActivityAt).toLocaleDateString("fr") : "-"}</span>

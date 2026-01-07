@@ -250,10 +250,10 @@ const Edit = () => {
                   <div className="flex-1">{item.name}</div>
                   <div className="flex-1">
                     <div className="flex flex-wrap justify-center gap-2">
-                      {item.isAnnonceur && <span className="rounded bg-red-300 p-2">Annonceur</span>}
-                      {item.hasApiRights && <span className="rounded bg-green-300 p-2">Diffuseur API</span>}
-                      {item.hasWidgetRights && <span className="rounded bg-green-300 p-2">Diffuseur Widget</span>}
-                      {item.hasCampaignRights && <span className="rounded bg-green-300 p-2">Diffuseur Campagne</span>}
+                      {item.isAnnonceur && <span className="bg-red-marianne-950 rounded p-2">Annonceur</span>}
+                      {item.hasApiRights && <span className="bg-green-success-950 rounded p-2">Diffuseur API</span>}
+                      {item.hasWidgetRights && <span className="bg-green-success-950 rounded p-2">Diffuseur Widget</span>}
+                      {item.hasCampaignRights && <span className="bg-green-success-950 rounded p-2">Diffuseur Campagne</span>}
                     </div>
                   </div>
                 </>
