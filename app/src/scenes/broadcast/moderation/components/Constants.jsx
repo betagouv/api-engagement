@@ -46,18 +46,6 @@ export const JVA_MODERATION_COMMENTS_LABELS = {
   MISSION_CREATION_DATE_TOO_OLD: "La mission est refusée car la date de création est trop ancienne (> 6 mois)",
 };
 
-// export const COMMENTS = [
-//   "Autre",
-//   "La mission a déjà été publiée sur JeVeuxAider.gouv.fr",
-//   "Le contenu est insuffisant / non qualitatif",
-//   "La date de la mission n'est pas compatible avec le recrutement de bénévoles",
-//   "La mission ne respecte pas la charte de la Réserve Civique",
-//   "L'organisation est déjà inscrite sur JeVeuxAider.gouv.fr",
-//   "L'organisation n'est pas conforme à la charte de la Réserve Civique",
-//   "Les informations sont insuffisantes pour modérer l'organisation",
-//   "La mission est refusée car la date de création est trop ancienne (> 6 mois)",
-// ];
-
 export const moderationStatusBadges = {
   PENDING: <span className="rounded bg-[#fff2ea] px-2 py-1 text-sm font-semibold text-[#fc5d00] uppercase">À modérer</span>,
   ONGOING: <span className="rounded bg-[#fff2ea] px-2 py-1 text-sm font-semibold text-[#fc5d00] uppercase">En cours de traitement</span>,
