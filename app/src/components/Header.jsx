@@ -4,6 +4,7 @@ import { RiArrowDownSLine, RiArrowDropRightLine, RiBookletLine, RiDashboard3Line
 import { Link } from "react-router-dom";
 
 import LogoSvg from "../assets/svg/logo.svg?react";
+import { WARNINGS } from "../constants";
 import api from "../services/api";
 import { captureError } from "../services/error";
 import useStore from "../services/store";
@@ -50,25 +51,6 @@ const Header = () => {
       </div>
     </header>
   );
-};
-
-const WARNINGS = {
-  EMPTY_WARNING: {
-    emoji: "🙁",
-    name: "Flux vide",
-  },
-  ERROR_WARNING: {
-    emoji: "❌",
-    name: "Erreur de flux",
-  },
-  VALIDATION_WARNING: {
-    emoji: "🙅",
-    name: "Taux de validation critique",
-  },
-  TRACKING_WARNING: {
-    emoji: "🤔",
-    name: "Problème de tracking",
-  },
 };
 
 const NotificationMenu = () => {
@@ -137,7 +119,7 @@ const NotificationMenu = () => {
             <MenuItem>
               <Link to="/warning" className="flex items-center justify-between gap-6 border-t border-gray-900 p-6 hover:bg-gray-950">
                 <div className="flex w-6 items-center">
-                  <span>❌</span>
+                  <span aria-hidden="true">❌</span>
                 </div>
                 <div className="flex flex-1 flex-col gap-2">
                   <p className="text-base font-bold text-black">Il semble y avoir un problème de paramétrage de votre côté.</p>
@@ -145,13 +127,11 @@ const NotificationMenu = () => {
               </Link>
             </MenuItem>
             {warnings.slice(0, 2).map((w, index) => {
-              const label = WARNINGS[w.type] || { emoji: "🤔", name: w.type };
+              const label = WARNINGS[w.type] || WARNINGS.OTHER_WARNING;
               return (
                 <MenuItem key={index}>
                   <Link to="/warning" className="flex items-center justify-between gap-6 border-t border-gray-900 p-6 hover:bg-gray-950">
-                    <div className="flex w-6 items-center">
-                      <span>{label.emoji}</span>
-                    </div>
+                    <div className="flex w-6 items-center">{label.emoji}</div>
                     <div className="flex flex-1 flex-col gap-2">
                       <div>
                         <span className="bgbg-[#FEECC2] textbg-[#716043] truncate rounded p-1 text-center text-xs font-semibold uppercase">{label.name}</span>
@@ -181,7 +161,7 @@ const NotificationMenu = () => {
           <MenuItem>
             <Link to="/warning" className="flex items-center justify-between gap-6 border-t border-gray-900 p-6 hover:bg-gray-950">
               <div className="flex w-6 items-center">
-                <span>✅</span>
+                <span aria-hidden="true">✅</span>
               </div>
               <div className="flex flex-1 flex-col gap-2">
                 <p className="text-base font-bold text-black">Les comptes partenaires semblent parfaitement opérationnels</p>
@@ -256,7 +236,7 @@ const AdminNotificationMenu = () => {
         {warnings.length ? (
           <>
             {warnings.slice(0, 3).map((w, index) => {
-              const label = WARNINGS[w.type] || { emoji: "🤔", name: w.type };
+              const label = WARNINGS[w.type] || WARNINGS.OTHER_WARNING;
               return (
                 <MenuItem key={index}>
                   <Link
@@ -266,9 +246,7 @@ const AdminNotificationMenu = () => {
                     }}
                     className="flex items-center justify-between gap-6 border-t border-gray-900 p-6 hover:bg-gray-950"
                   >
-                    <div className="flex w-6 items-center">
-                      <span>{label.emoji}</span>
-                    </div>
+                    <div className="flex w-6 items-center">{label.emoji}</div>
                     <div className="flex flex-1 flex-col gap-2">
                       <p className="text-gray-425 m-0 text-xs">{w.publisherName}</p>
                       <div>
@@ -296,7 +274,7 @@ const AdminNotificationMenu = () => {
           <MenuItem>
             <Link to="/admin-warning" className="flex items-center justify-between gap-6 border-t border-gray-900 p-6 hover:bg-gray-950">
               <div className="flex w-6 items-center">
-                <span>✅</span>
+                <span aria-hidden="true">✅</span>
               </div>
               <div className="flex flex-1 flex-col gap-2">
                 <p className="text-base font-bold text-black">Les comptes partenaires semblent parfaitement opérationnels</p>

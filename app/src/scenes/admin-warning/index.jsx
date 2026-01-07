@@ -141,13 +141,19 @@ const Index = () => {
         <div className="flex items-center gap-8 bg-white p-6 shadow-sm">
           <img className="h-18 w-18" src={APILogo} alt="API Engagement" />
           <div>
-            <p className="text-xl font-bold">
-              {state.success / state.imports < 0.9
-                ? `❌  ${Math.round(((state.imports - state.success) * 100) / state.imports)}% des imports ont généré une erreur`
-                : new Date(state.last) < new Date(Date.now() - 1000 * 60 * 60 * 4)
-                  ? "❌  Un import n'a pas été réalisé, le dernier date de plus de 4h"
-                  : "✅  Récupération des missions opérationnelle"}
-            </p>
+            {state.success / state.imports < 0.9 ? (
+              <p className="text-xl font-bold">
+                <span aria-hidden="true">❌</span> {Math.round(((state.imports - state.success) * 100) / state.imports)}% des imports ont généré une erreur
+              </p>
+            ) : new Date(state.last) < new Date(Date.now() - 1000 * 60 * 60 * 4) ? (
+              <p className="text-xl font-bold">
+                <span aria-hidden="true">❌</span> Un import n'a pas été réalisé, le dernier date de plus de 4h
+              </p>
+            ) : (
+              <p className="text-xl font-bold">
+                <span aria-hidden="true">✅</span> Récupération des missions opérationnelle
+              </p>
+            )}
             <p className="text-xl">Dernière mise à jour des flux réalisée le {`${buildDate(state.last)}`}</p>
           </div>
         </div>
@@ -224,7 +230,7 @@ const Index = () => {
               <div key={i} className="flex flex-col gap-4">
                 <h3 className="mt-4 text-2xl font-normal text-black">{d}</h3>
                 {currentWarningsByDays[d].map((w, i) => {
-                  const label = WARNINGS[w.type] || { emoji: "🤔", name: "Alerte" };
+                  const label = WARNINGS[w.type] || WARNINGS.OTHER_WARNING;
                   return (
                     <div className="flex items-center gap-8 bg-white p-6 shadow-sm" key={i} id={slugify(`${w.type}-${w.publisherName}`)}>
                       {w.publisherLogo ? <img className="h-20 w-36 object-contain" src={w.publisherLogo} alt={w.publisherName} /> : <div className="h-20 w-36 bg-gray-200" />}
@@ -293,7 +299,7 @@ const Index = () => {
               <div key={i} className="flex flex-col gap-4">
                 <h3 className="mt-4 text-2xl font-normal text-black">{d}</h3>
                 {archivedWarningsByDays[d].map((w, i) => {
-                  const label = WARNINGS[w.type] || { emoji: "🤔", name: "Alerte" };
+                  const label = WARNINGS[w.type] || WARNINGS.OTHER_WARNING;
                   return (
                     <div className="flex items-center gap-8 bg-white p-6 shadow-sm" key={i}>
                       {w.publisherLogo ? <img className="h-20 w-36 object-contain" src={w.publisherLogo} alt={w.publisherName} /> : <div className="h-20 w-36 bg-gray-200" />}
