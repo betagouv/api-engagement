@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { RiQuestionLine } from "react-icons/ri";
 
 import { Pie } from "../../../components/Chart";
-import TablePagination from "../../../components/NewTablePagination";
+import Table from "../../../components/NewTable";
 import { DEPARTMENT_NAMES, DOMAINS } from "../../../constants";
 import api from "../../../services/api";
 import { captureError } from "../../../services/error";
@@ -184,8 +184,9 @@ const Distribution = ({ filters, onFiltersChange }) => {
             <Pie data={domainStats.domains.map((item) => ({ name: item.key, value: item.doc_count }))} innerRadius="0%" unit="missions" />
           </div>
           <div className="flex-1">
-            <TablePagination
+            <Table
               header={DOMAIN_TABLE_HEADER}
+              pagination
               page={currentDomainPage}
               pageSize={7}
               onPageChange={(page) => setCurrentDomainPage(page)}
@@ -202,7 +203,7 @@ const Distribution = ({ filters, onFiltersChange }) => {
                   <td className="px-4">{item.apply}</td>
                 </tr>
               ))}
-            </TablePagination>
+            </Table>
           </div>
         </div>
       </div>
@@ -223,8 +224,9 @@ const Distribution = ({ filters, onFiltersChange }) => {
             <Pie data={departmentStats.map((item) => ({ name: item.name, value: item.mission_count }))} innerRadius="0%" unit="missions" />
           </div>
           <div className="flex-1">
-            <TablePagination
+            <Table
               header={DEPARTMENT_TABLE_HEADER}
+              pagination
               page={currentDepartmentPage}
               pageSize={7}
               onPageChange={(page) => setCurrentDepartmentPage(page)}
@@ -241,7 +243,7 @@ const Distribution = ({ filters, onFiltersChange }) => {
                   <td className="px-4">{item.apply_count}</td>
                 </tr>
               ))}
-            </TablePagination>
+            </Table>
           </div>
         </div>
       </div>

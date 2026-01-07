@@ -73,13 +73,14 @@ const MissionItem = ({ data, history, selected, onChange, onSelect, onFilter, on
         onChange={onChangeMany}
         total={potentialUpdates}
       />
-      <span className="flex w-[5%] items-center">
-        <label htmlFor="moderation-select" className="sr-only">
-          Sélectionner la mission
+      <td className="table-cell align-middle">
+        <label className="flex items-center">
+          <span className="sr-only">Sélectionner la mission</span>
+          <input type="checkbox" className="checkbox" name="moderation-select" onChange={handleSelectModeration} checked={selected} />
         </label>
-        <input id="moderation-select" type="checkbox" className="checkbox" name="moderation-select" onChange={handleSelectModeration} checked={selected} />
-      </span>
-      <div className="flex flex-1 flex-col justify-between">
+      </td>
+      <td className="table-cell align-top" colSpan={2}>
+        <div className="flex flex-col justify-between py-2">
         <div className="hover:text-blue-france my-2 line-clamp-3 flex items-center text-base font-semibold hover:cursor-pointer" onClick={handleMissionClick}>
           {data.newTitle || data.title}
         </div>
@@ -101,7 +102,9 @@ const MissionItem = ({ data, history, selected, onChange, onSelect, onFilter, on
           Postée le {new Date(data.postedAt).toLocaleDateString("fr")} sur {data.publisherName}
         </div>
       </div>
-      <div className="flex w-[25%] flex-col justify-between px-2">
+      </td>
+      <td className="table-cell align-top">
+        <div className="flex flex-col justify-between py-2">
         <span className="max-h-12 truncate">{data.organizationName}</span>
         <div>
           <div className="my-2 inline-flex flex-wrap items-center gap-1 rounded border border-gray-900 p-1">
@@ -121,8 +124,9 @@ const MissionItem = ({ data, history, selected, onChange, onSelect, onFilter, on
           <span className="text-gray-425">Pas d'inscription retrouvée</span>
         )}
       </div>
-
-      <div className="flex h-full w-[30%] flex-col justify-center gap-3 px-2">
+      </td>
+      <td className="table-cell align-middle">
+        <div className="flex flex-col justify-center gap-3">
         <div className="flex items-center gap-3">
           <select
             className="select flex-1 border-b-2 pr-2"
@@ -156,6 +160,7 @@ const MissionItem = ({ data, history, selected, onChange, onSelect, onFilter, on
           </div>
         )}
       </div>
+      </td>
     </>
   );
 };
