@@ -29,4 +29,9 @@ const pgConnected = Promise.all(
   })
 );
 
-export { pgConnected, prismaAnalytics, prismaCore };
+const pgDisconnect = async () => {
+  await prismaCore.$disconnect();
+  await prismaAnalytics.$disconnect();
+};
+
+export { pgConnected, pgDisconnect, prismaAnalytics, prismaCore };
