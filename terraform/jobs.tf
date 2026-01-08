@@ -207,10 +207,10 @@ resource "scaleway_job_definition" "import-missions" {
   memory_limit = 2048
   image_uri    = local.image_uri
   command      = "node dist/jobs/run-job.js import-missions"
-  timeout      = "45m"
+  timeout      = "60m"
 
   cron {
-    schedule = "15 */3 * * *" # Every 3 hours at 15 minutes
+    schedule = "15 */6 * * *" # Every 6 hours at 15 minutes
     timezone = "Europe/Paris"
   }
 
