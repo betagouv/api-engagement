@@ -100,7 +100,7 @@ router.get("/:id/search", async (req: Request, res: Response, next: NextFunction
 
     const diffusionExclusions = await publisherDiffusionExclusionService.findExclusionsForDiffuseurId(widget.fromPublisherId);
     const excludedIds = diffusionExclusions.map((e) => e.organizationClientId).filter((id): id is string => id !== null);
-    const filters = buildMissionFilters(widget, query.data, excludedIds, { skip: query.data.from, limit: query.data.size });
+    const filters = buildMissionFilters(widget, query.data, [], { skip: query.data.from, limit: query.data.size });
 
     const { data, total } = await fetchWidgetMissions(widget, filters);
     const mappedData = data.map((mission) => toWidgetMission(mission, widget));
@@ -164,7 +164,7 @@ router.get("/:id/aggs", cors({ origin: "*" }), async (req: Request, res: Respons
     const excludedIds = diffusionExclusions.map((e) => e.organizationClientId).filter((id): id is string => id !== null);
 
     // Reuse service-level aggregations to ensure we aggregate on the full dataset, not just paginated data
-    const filters = buildMissionFilters(widget, query.data, excludedIds, { skip: 0, limit: 0 });
+    const filters = buildMissionFilters(widget, query.data, [], { skip: 0, limit: 0 });
     const aggs = await fetchWidgetAggregations(widget, filters, query.data.aggs);
     return res.status(200).send({ ok: true, data: aggs });
   } catch (error) {
