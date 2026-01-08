@@ -1,3 +1,4 @@
+import { Prisma } from "../db/core";
 import { JobBoardId } from "./mission-job-board";
 
 export type MissionStatusCode = "ACCEPTED" | "REFUSED";
@@ -184,6 +185,7 @@ export type MissionSearchFilters = {
   excludeOrganizationName?: string;
   limit: number;
   skip: number;
+  directFilters?: Prisma.MissionWhereInput;
 };
 
 export type MissionCreateInput = Partial<Omit<MissionRecord, "_id" | "publisherName" | "publisherLogo" | "publisherUrl" | "statusCode">> & {

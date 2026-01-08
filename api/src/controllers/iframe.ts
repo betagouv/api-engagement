@@ -13,6 +13,7 @@ import { widgetService } from "../services/widget";
 import { WidgetRecord } from "../types";
 import type { MissionRecord, MissionSearchFilters } from "../types/mission";
 import { capitalizeFirstLetter, getDistanceKm } from "../utils";
+import { applyWidgetRules } from "../utils/widget";
 
 const router = Router();
 
@@ -211,41 +212,6 @@ const resolveLocationFilters = (widget: WidgetRecord, lon?: number, lat?: number
   return undefined;
 };
 
-const applyWidgetRules = (filters: MissionSearchFilters, rules: WidgetRecord["rules"]) => {
-  rules.forEach((rule) => {
-    if (rule.operator !== "is" || !rule.value) {
-      return;
-    }
-    if (rule.field === "domain") {
-      filters.domain = [...(filters.domain ?? []), rule.value];
-    }
-    if (rule.field === "departmentName") {
-      filters.departmentName = [...(filters.departmentName ?? []), rule.value];
-    }
-    if (rule.field === "type") {
-      filters.type = [...(filters.type ?? []), rule.value];
-    }
-    if (rule.field === "remote") {
-      filters.remote = [...(filters.remote ?? []), rule.value];
-    }
-    if (rule.field === "openToMinors") {
-      filters.openToMinors = rule.value as any;
-    }
-    if (rule.field === "organizationClientId") {
-      filters.organizationClientId = [...(filters.organizationClientId ?? []), rule.value];
-    }
-    if (rule.field === "clientId") {
-      filters.clientId = [...(filters.clientId ?? []), rule.value];
-    }
-    if (rule.field === "country") {
-      filters.country = [...(filters.country ?? []), rule.value];
-    }
-    if (rule.field === "city") {
-      filters.city = [...(filters.city ?? []), rule.value];
-    }
-  });
-};
-
 const buildMissionFilters = (
   widget: WidgetRecord,
   query: { [key: string]: any },
@@ -253,13 +219,12 @@ const buildMissionFilters = (
   pagination: { skip: number; limit: number }
 ): MissionSearchFilters => {
   const filters: MissionSearchFilters = {
+    directFilters: applyWidgetRules(widget.rules || []),
     publisherIds: widget.publishers,
     excludeOrganizationClientIds: excludedOrganizationClientIds.length ? excludedOrganizationClientIds : undefined,
     skip: pagination.skip,
     limit: pagination.limit,
   };
-
-  applyWidgetRules(filters, widget.rules || []);
 
   const domainValues = normalizeToArray(query.domain);
   if (domainValues?.length) {
