@@ -222,7 +222,8 @@ const buildDateFilter = (range?: { gt?: Date; lt?: Date }) => {
 };
 
 export const buildWhere = (filters: MissionSearchFilters): Prisma.MissionWhereInput => {
-  const where: Prisma.MissionWhereInput = {};
+  const where: Prisma.MissionWhereInput = filters.directFilters ?? {};
+
   const orConditions: Prisma.MissionWhereInput[] = [];
 
   where.statusCode = filters.statusCode ?? "ACCEPTED";
@@ -298,6 +299,7 @@ export const buildWhere = (filters: MissionSearchFilters): Prisma.MissionWhereIn
   if (filters.durationLte !== undefined) {
     where.duration = { ...(where.duration as Prisma.IntFilter | undefined), lte: filters.durationLte };
   }
+
   const createdAtFilter = buildDateFilter(filters.createdAt);
   if (createdAtFilter) {
     where.createdAt = createdAtFilter;
@@ -643,7 +645,6 @@ export const missionService = {
 
   async findMissions(filters: MissionSearchFilters): Promise<{ data: MissionRecord[]; total: number }> {
     const where = buildWhere(filters);
-    console.log(where);
 
     if (hasGeoFilters(filters)) {
       const missions = await missionRepository.findMany({
@@ -660,6 +661,16 @@ export const missionService = {
     const [missions, total] = await Promise.all([
       missionRepository.findMany({
         where,
+        // where: {
+        //   statusCode: "ACCEPTED",
+        //   deletedAt: null,
+        //   remote: {
+        //     in: ["no"],
+        //   },
+        //   organizationReseaux: {
+        //     has: "Fédération de L'Arche en France",
+        //   },
+        // },
         include: baseInclude,
         orderBy: { startAt: Prisma.SortOrder.desc },
         skip: filters.skip,
@@ -972,6 +983,97 @@ export const missionService = {
         deleteMany: {},
         ...(addresses.length ? { createMany: { data: addresses } } : {}),
       };
+    }
+
+    if ("organizationUrl" in patch) {
+      data.organizationUrl = patch.organizationUrl ?? undefined;
+    }
+    if ("organizationName" in patch) {
+      data.organizationName = patch.organizationName ?? undefined;
+    }
+    if ("organizationType" in patch) {
+      data.organizationType = patch.organizationType ?? undefined;
+    }
+    if ("organizationLogo" in patch) {
+      data.organizationLogo = patch.organizationLogo ?? undefined;
+    }
+    if ("organizationDescription" in patch) {
+      data.organizationDescription = patch.organizationDescription ?? undefined;
+    }
+    if ("organizationFullAddress" in patch) {
+      data.organizationFullAddress = patch.organizationFullAddress ?? undefined;
+    }
+    if ("organizationRNA" in patch) {
+      data.organizationRNA = patch.organizationRNA ?? undefined;
+    }
+    if ("organizationSiren" in patch) {
+      data.organizationSiren = patch.organizationSiren ?? undefined;
+    }
+    if ("organizationSiret" in patch) {
+      data.organizationSiret = patch.organizationSiret ?? undefined;
+    }
+    if ("organizationDepartment" in patch) {
+      data.organizationDepartment = patch.organizationDepartment ?? undefined;
+    }
+    if ("organizationDepartmentCode" in patch) {
+      data.organizationDepartmentCode = patch.organizationDepartmentCode ?? undefined;
+    }
+    if ("organizationDepartmentName" in patch) {
+      data.organizationDepartmentName = patch.organizationDepartmentName ?? undefined;
+    }
+    if ("organizationPostCode" in patch) {
+      data.organizationPostCode = patch.organizationPostCode ?? undefined;
+    }
+    if ("organizationCity" in patch) {
+      data.organizationCity = patch.organizationCity ?? undefined;
+    }
+    if ("organizationStatusJuridique" in patch) {
+      data.organizationStatusJuridique = patch.organizationStatusJuridique ?? undefined;
+    }
+    if ("organizationBeneficiaries" in patch) {
+      data.organizationBeneficiaries = patch.organizationBeneficiaries ?? undefined;
+    }
+    if ("organizationActions" in patch) {
+      data.organizationActions = patch.organizationActions ?? undefined;
+    }
+    if ("organizationReseaux" in patch) {
+      data.organizationReseaux = patch.organizationReseaux ?? undefined;
+    }
+    if ("organizationNameVerified" in patch) {
+      data.organizationNameVerified = patch.organizationNameVerified ?? undefined;
+    }
+    if ("organizationRNAVerified" in patch) {
+      data.organizationRNAVerified = patch.organizationRNAVerified ?? undefined;
+    }
+    if ("organizationSirenVerified" in patch) {
+      data.organizationSirenVerified = patch.organizationSirenVerified ?? undefined;
+    }
+    if ("organizationSiretVerified" in patch) {
+      data.organizationSiretVerified = patch.organizationSiretVerified ?? undefined;
+    }
+    if ("organizationAddressVerified" in patch) {
+      data.organizationAddressVerified = patch.organizationAddressVerified ?? undefined;
+    }
+    if ("organizationCityVerified" in patch) {
+      data.organizationCityVerified = patch.organizationCityVerified ?? undefined;
+    }
+    if ("organizationPostalCodeVerified" in patch) {
+      data.organizationPostalCodeVerified = patch.organizationPostalCodeVerified ?? undefined;
+    }
+    if ("organizationDepartmentCodeVerified" in patch) {
+      data.organizationDepartmentCodeVerified = patch.organizationDepartmentCodeVerified ?? undefined;
+    }
+    if ("organizationDepartmentNameVerified" in patch) {
+      data.organizationDepartmentNameVerified = patch.organizationDepartmentNameVerified ?? undefined;
+    }
+    if ("organizationRegionVerified" in patch) {
+      data.organizationRegionVerified = patch.organizationRegionVerified ?? undefined;
+    }
+    if ("organizationVerificationStatus" in patch) {
+      data.organizationVerificationStatus = patch.organizationVerificationStatus ?? undefined;
+    }
+    if ("organisationIsRUP" in patch) {
+      data.organisationIsRUP = patch.organisationIsRUP ?? undefined;
     }
 
     await missionRepository.update(id, data);

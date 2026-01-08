@@ -1,0 +1,258 @@
+import { Prisma } from "../db/core";
+import { WidgetRuleRecord } from "../types/widget";
+
+export const WIDGET_RULE_FIELDS = [
+  { label: "Nom de l'organisation", value: "organizationName", type: "text" },
+  { label: "Domaine de la mission", value: "domain", type: "text" },
+  { label: "Nom du réseau", value: "organizationReseaux", type: "text" },
+  { label: "Titre de la mission", value: "title", type: "text" },
+  { label: "Code postal de la mission", value: "postalCode", type: "text" },
+  { label: "Département de la mission", value: "departmentName", type: "text" },
+  { label: "Région de la mission", value: "regionName", type: "text" },
+  { label: "Activité de la mission", value: "activity", type: "text" },
+  { label: "Tag personnalisé", value: "tags", type: "text" },
+  { label: "Actions de l'organisation", value: "organizationActions", type: "text" },
+  { label: "Ouvert au mineur", value: "openToMinors", type: "boolean" },
+];
+
+type WidgetRule = Pick<WidgetRuleRecord, "field" | "operator" | "value" | "combinator">;
+
+/**
+ * Champs qui correspondent à des tableaux (String[]) dans Prisma.
+ * Pour ces champs, on utilise `has`/`hasSome` au lieu de `contains`.
+ */
+const ARRAY_FIELDS = new Set(["organizationReseaux", "tags"]);
+
+/**
+ * Mapping des champs virtuels (utilisés dans les règles widget) vers les chemins Prisma réels.
+ * Les champs non listés ici sont utilisés directement sur le modèle Mission.
+ */
+const FIELD_TO_PRISMA_PATH: Record<string, (condition: any) => Prisma.MissionWhereInput> = {
+  domain: (condition) => ({ domain: { is: { name: condition } } }),
+  activity: (condition) => ({ activity: { is: { name: condition } } }),
+  postalCode: (condition) => ({ addresses: { some: { postalCode: condition } } }),
+  departmentName: (condition) => ({ addresses: { some: { departmentName: condition } } }),
+  regionName: (condition) => ({ addresses: { some: { region: condition } } }),
+};
+
+/**
+ * Construit une condition Prisma pour une règle donnée.
+ * Gère les opérateurs : is, is_not, contains, does_not_contain, is_greater_than, is_less_than, exists, does_not_exist, starts_with
+ */
+const buildRuleCondition = (rule: WidgetRule): Prisma.MissionWhereInput | null => {
+  const { field, operator, value } = rule;
+
+  // Pour exists/does_not_exist, pas besoin de valeur
+  if (operator !== "exists" && operator !== "does_not_exist" && !value) {
+    return null;
+  }
+
+  const isArrayField = ARRAY_FIELDS.has(field);
+
+  // Construit la condition de base selon l'opérateur
+  let condition: any;
+  switch (operator) {
+    case "is":
+      // Pour un tableau, "is" signifie "contient exactement cette valeur"
+      condition = isArrayField ? { has: value } : value;
+      break;
+    case "is_not":
+      condition = { not: value };
+      break;
+    case "contains":
+      // Pour un tableau, utiliser `has` au lieu de `contains`
+      condition = isArrayField ? { has: `%${value}%` } : { contains: value, mode: "insensitive" };
+      break;
+    case "does_not_contain":
+      // Cas spécial : on wrappe dans NOT après le mapping
+      condition = isArrayField ? { has: `%${value}%` } : { contains: value, mode: "insensitive" };
+      break;
+    case "is_greater_than":
+      condition = { gt: value };
+      break;
+    case "is_less_than":
+      condition = { lt: value };
+      break;
+    case "exists":
+      condition = { not: null };
+      break;
+    case "does_not_exist":
+      condition = null;
+      break;
+    case "starts_with":
+      condition = { startsWith: value, mode: "insensitive" };
+      break;
+    default:
+      return null;
+  }
+
+  // Applique le mapping vers le chemin Prisma réel
+  const mapper = FIELD_TO_PRISMA_PATH[field];
+  let result: Prisma.MissionWhereInput;
+
+  if (mapper) {
+    result = mapper(condition);
+  } else {
+    result = { [field]: condition };
+  }
+
+  // Pour does_not_contain, on wrappe le résultat dans NOT
+  if (operator === "does_not_contain") {
+    return { NOT: result };
+  }
+
+  return result;
+};
+
+/**
+ * Applique les règles du widget pour construire un objet Prisma.MissionWhereInput.
+ * Les règles sont combinées avec AND ou OR selon le combinator de chaque règle.
+ */
+export const applyWidgetRules = (rules: WidgetRule[]): Prisma.MissionWhereInput => {
+  if (!rules.length) {
+    return {};
+  }
+
+  const andConditions: Prisma.MissionWhereInput[] = [];
+  const orConditions: Prisma.MissionWhereInput[] = [];
+
+  rules.forEach((rule, index) => {
+    const condition = buildRuleCondition(rule);
+    if (!condition) {
+      return;
+    }
+
+    // Pour la première règle avec plusieurs règles, utiliser le combinator de la deuxième règle
+    let combinator = rule.combinator;
+    if (index === 0 && rules.length > 1) {
+      combinator = rules[1].combinator;
+    }
+
+    if (combinator === "and") {
+      andConditions.push(condition);
+    } else if (combinator === "or") {
+      orConditions.push(condition);
+    }
+  });
+
+  const result: Prisma.MissionWhereInput = {};
+
+  if (andConditions.length > 0) {
+    result.AND = andConditions;
+  }
+
+  if (orConditions.length > 0) {
+    result.OR = orConditions;
+  }
+
+  return result;
+};
+
+export const diacriticSensitiveRegex = (string: string = "") => {
+  return string
+    .replace(/a/g, "[a,á,à,ä,â]")
+    .replace(/A/g, "[A,a,á,à,ä,â]")
+    .replace(/e/g, "[e,é,ë,è]")
+    .replace(/E/g, "[E,e,é,ë,è]")
+    .replace(/i/g, "[i,í,ï,ì]")
+    .replace(/I/g, "[I,i,í,ï,ì]")
+    .replace(/o/g, "[o,ó,ö,ò]")
+    .replace(/O/g, "[O,o,ó,ö,ò]")
+    .replace(/u/g, "[u,ü,ú,ù]")
+    .replace(/U/g, "[U,u,ü,ú,ù]");
+};
+
+export const buildQueryMongo = (rules: { field: string; operator: string; value: string; combinator: "and" | "or" }[]) => {
+  const q = { $and: [], $or: [] } as { [key: string]: any };
+  rules.forEach((r: { field: string; operator: string; value: string; combinator: string }, i: number) => {
+    if (!r.field || !r.operator || (!r.value && r.operator !== "exists" && r.operator !== "does_not_exist")) {
+      return;
+    }
+    if (i === 0 && rules.length > 1) {
+      r.combinator = rules[1].combinator;
+    }
+
+    if (r.combinator === "and") {
+      if (r.operator === "is") {
+        q.$and.push({ [r.field]: r.value });
+      } else if (r.operator === "is_not") {
+        q.$and.push({ [r.field]: { $ne: r.value } });
+      } else if (r.operator === "contains") {
+        q.$and.push({ [r.field]: { $regex: diacriticSensitiveRegex(r.value), $options: "i" } });
+      } else if (r.operator === "does_not_contain") {
+        q.$and.push({
+          [r.field]: { $not: { $regex: diacriticSensitiveRegex(r.value), $options: "i" } },
+        });
+      } else if (r.operator === "is_greater_than") {
+        q.$and.push({ [r.field]: { $gt: r.value } });
+      } else if (r.operator === "is_less_than") {
+        q.$and.push({ [r.field]: { $lt: r.value } });
+      } else if (r.operator === "exists") {
+        q.$and.push({ [r.field]: { $exists: true } });
+      } else if (r.operator === "does_not_exist") {
+        q.$and.push({ [r.field]: { $exists: false } });
+      } else if (r.operator === "starts_with") {
+        q.$and.push({
+          [r.field]: { $regex: `^${diacriticSensitiveRegex(r.value)}`, $options: "i" },
+        });
+      }
+    } else if (r.combinator === "or") {
+      if (r.operator === "is") {
+        q.$or.push({ [r.field]: r.value });
+      } else if (r.operator === "is_not") {
+        q.$or.push({ [r.field]: { $ne: r.value } });
+      } else if (r.operator === "contains") {
+        q.$or.push({ [r.field]: { $regex: diacriticSensitiveRegex(r.value), $options: "i" } });
+      } else if (r.operator === "does_not_contain") {
+        q.$or.push({
+          [r.field]: { $not: { $regex: diacriticSensitiveRegex(r.value), $options: "i" } },
+        });
+      } else if (r.operator === "is_greater_than") {
+        q.$or.push({ [r.field]: { $gt: r.value } });
+      } else if (r.operator === "is_less_than") {
+        q.$or.push({ [r.field]: { $lt: r.value } });
+      } else if (r.operator === "exists") {
+        q.$or.push({ [r.field]: { $exists: true } });
+      } else if (r.operator === "does_not_exist") {
+        q.$or.push({ [r.field]: { $exists: false } });
+      } else if (r.operator === "starts_with") {
+        q.$or.push({
+          [r.field]: { $regex: `^${diacriticSensitiveRegex(r.value)}`, $options: "i" },
+        });
+      }
+    }
+  });
+
+  return q;
+};
+
+// if (rule.operator !== "is" || !rule.value) {
+//   return;
+// }
+// if (rule.field === "domain") {
+//   filters.domain = [...(filters.domain ?? []), rule.value];
+// }
+// if (rule.field === "departmentName") {
+//   filters.departmentName = [...(filters.departmentName ?? []), rule.value];
+// }
+// if (rule.field === "type") {
+//   filters.type = [...(filters.type ?? []), rule.value];
+// }
+// if (rule.field === "remote") {
+//   filters.remote = [...(filters.remote ?? []), rule.value];
+// }
+// if (rule.field === "openToMinors") {
+//   filters.openToMinors = rule.value as any;
+// }
+// if (rule.field === "organizationClientId") {
+//   filters.organizationClientId = [...(filters.organizationClientId ?? []), rule.value];
+// }
+// if (rule.field === "clientId") {
+//   filters.clientId = [...(filters.clientId ?? []), rule.value];
+// }
+// if (rule.field === "country") {
+//   filters.country = [...(filters.country ?? []), rule.value];
+// }
+// if (rule.field === "city") {
+//   filters.city = [...(filters.city ?? []), rule.value];
+// }
