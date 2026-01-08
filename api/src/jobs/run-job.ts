@@ -39,7 +39,7 @@ if (envPath && fs.existsSync(envPath)) {
 
 import { ENV, SENTRY_DSN_JOBS, SLACK_CRON_CHANNEL_ID } from "../config";
 import { mongoConnected } from "../db/mongo";
-import { pgConnected } from "../db/postgres";
+import { pgConnected, pgDisconnect } from "../db/postgres";
 import { captureException } from "../error";
 import { postMessage } from "../services/slack";
 import { getJobTime } from "../utils";
@@ -134,6 +134,7 @@ async function runJob() {
     captureException(error, { extra: { jobName } });
     process.exit(1);
   } finally {
+    await pgDisconnect();
     process.exit(0);
   }
 }
