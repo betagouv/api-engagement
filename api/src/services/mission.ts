@@ -643,7 +643,6 @@ export const missionService = {
 
   async findMissions(filters: MissionSearchFilters): Promise<{ data: MissionRecord[]; total: number }> {
     const where = buildWhere(filters);
-    console.log(where);
 
     if (hasGeoFilters(filters)) {
       const missions = await missionRepository.findMany({

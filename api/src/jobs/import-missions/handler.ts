@@ -8,7 +8,7 @@ import type { PublisherRecord } from "../../types/publisher";
 import { BaseHandler } from "../base/handler";
 import { JobResult } from "../types";
 import type { ImportedMission } from "./types";
-import { bulkDB, cleanDB } from "./utils/db";
+import { bulkDB, cleanDB, fetchExistingMissionsForImport } from "./utils/db";
 import { enrichWithGeoloc } from "./utils/geoloc";
 import { buildData } from "./utils/mission";
 import { verifyOrganization } from "./utils/organization";
@@ -157,17 +157,20 @@ async function importMissionssForPublisher(publisher: PublisherRecord, start: Da
     console.log(`[${publisher.name}] Found ${missionsDB} missions in DB`);
 
     let hasFailed: boolean = false;
-    const allMissionsClientIds = [] as string[];
     for (let i = 0; i < missionsXML.length; i += CHUNK_SIZE) {
       const chunk = missionsXML.slice(i, i + CHUNK_SIZE);
       console.log(`[${publisher.name}] Processing chunk ${i / CHUNK_SIZE + 1} of ${Math.ceil(missionsXML.length / CHUNK_SIZE)} (${chunk.length} missions)`);
+
+      const chunkClientIds = chunk.map((mission) => String(mission.clientId)).filter(Boolean);
+      const existingMissions = chunkClientIds.length ? await fetchExistingMissionsForImport(publisher.id, chunkClientIds) : [];
+      const existingByClientId = new Map(existingMissions.map((mission) => [mission.clientId, mission]));
 
       // BUILD NEW MISSIONS
       const missions = [] as ImportedMission[];
       const promises = [] as Promise<ImportedMission | undefined>[];
       for (let j = 0; j < chunk.length; j++) {
         const missionXML = chunk[j];
-        promises.push(buildData(obj.startedAt ?? new Date(), publisher, missionXML));
+        promises.push(buildData(obj.startedAt ?? new Date(), publisher, missionXML, existingByClientId.get(String(missionXML.clientId)) ?? null));
 
         if (j % 50 === 0) {
           const res = await Promise.all(promises);
@@ -179,7 +182,6 @@ async function importMissionssForPublisher(publisher: PublisherRecord, start: Da
         const res = await Promise.all(promises);
         res.forEach((e: ImportedMission | undefined) => e && missions.push(e));
       }
-      allMissionsClientIds.push(...missions.map((m) => m.clientId.toString()));
 
       // GEOLOC
       const resultGeoloc = await enrichWithGeoloc(publisher, missions);
@@ -205,7 +207,7 @@ async function importMissionssForPublisher(publisher: PublisherRecord, start: Da
       await verifyOrganization(missions);
 
       // BULK WRITE
-      const res = await bulkDB(missions, publisher, obj);
+      const res = await bulkDB(missions, publisher, obj, existingByClientId);
       if (!res) {
         hasFailed = true;
       }
@@ -214,7 +216,7 @@ async function importMissionssForPublisher(publisher: PublisherRecord, start: Da
     // CLEAN DB
     if (!hasFailed) {
       // If one chunk failed, don't remove missions from DB
-      await cleanDB(allMissionsClientIds, publisher, obj);
+      await cleanDB(publisher, obj);
     }
 
     // STATS
