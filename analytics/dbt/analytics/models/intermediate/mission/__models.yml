@@ -1,0 +1,31 @@
+version: 2
+
+models:
+  - name: int_mission
+    description: >
+      Vue intermédiaire des missions combinant les identifiants bruts, les libellés
+      de domaine/activité et quelques dérivés (status, is_deleted).
+      Sert de base aux marts et facilite les jointures descendantes.
+    columns:
+      - name: id
+        description: Identifiant unique de la mission.
+        tests:
+          - not_null
+          - unique
+      - name: publisher_id
+        description: Identifiant du partenaire/publisher associé à la mission.
+        tests:
+          - relationships:
+              arguments:
+                to: ref('publisher')
+                field: id
+      - name: domain
+        description: Libellé du domaine (préférence pour le référentiel, fallback sur `domain_original`).
+      - name: activity
+        description: Libellé de l'activité issue du référentiel.
+      - name: status
+        description: Statut métier de la mission (alias de `status_code`).
+      - name: updated_at
+        description: Timestamp de dernière mise à jour.
+        tests:
+          - not_null

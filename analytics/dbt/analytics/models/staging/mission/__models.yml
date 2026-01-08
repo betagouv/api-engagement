@@ -19,15 +19,8 @@ models:
           - not_null
           - relationships:
               arguments:
-                to: source('public', 'Mission')
+                to: ref('mission')
                 field: id
-      - name: mission_id_raw
-        description: Ancien identifiant Mission.old_id utilisé lors de l'export.
-        tests:
-          - relationships:
-              arguments:
-                to: source('public', 'Mission')
-                field: old_id
       - name: type
         description: Type d'événement généré (`create`, `update`, `delete`).
         tests:
@@ -42,5 +35,118 @@ models:
           - not_null
       - name: updated_at
         description: Date de dernière mise à jour (curseur incrémental).
+        tests:
+          - not_null
+  - name: stg_domain
+    description: >
+      Staging du référentiel des domaines de mission (`analytics_raw.domain`), avec typage
+      des timestamps pour préparer les jointures et les filtres incrémentaux.
+    columns:
+      - name: id
+        description: Identifiant unique du domaine.
+        tests:
+          - not_null
+          - unique
+      - name: name
+        description: Libellé du domaine.
+        tests:
+          - not_null
+      - name: created_at
+        description: Timestamp de création.
+      - name: updated_at
+        description: Timestamp de dernière mise à jour.
+        tests:
+          - not_null
+  - name: stg_activity
+    description: >
+      Staging du référentiel des activités (`analytics_raw.activity`) avec conversions
+      simples de types (timestamps).
+    columns:
+      - name: id
+        description: Identifiant unique de l'activité.
+        tests:
+          - not_null
+          - unique
+      - name: name
+        description: Libellé de l'activité.
+        tests:
+          - not_null
+      - name: created_at
+        description: Timestamp de création.
+      - name: updated_at
+        description: Timestamp de dernière mise à jour.
+        tests:
+          - not_null
+  - name: stg_mission
+    description: >
+      Staging des missions exportées dans `analytics_raw.mission`. Le modèle applique les
+      conversions de types (booléens, entiers, timestamps) et expose les principaux
+      attributs métier (statut, rattachements, accessibilité, dates, tags...).
+    columns:
+      - name: id
+        description: Identifiant unique de la mission (UUID).
+        tests:
+          - not_null
+          - unique
+      - name: client_id
+        description: Identifiant métier de la mission côté client/source.
+      - name: domain_id
+        description: Référence au domaine (`analytics_raw.domain.id`).
+      - name: activity_id
+        description: Référence à l'activité (`analytics_raw.activity.id`).
+      - name: publisher_id
+        description: Partenaire/publisher propriétaire de la mission.
+      - name: organization_id
+        description: Organisation rattachée à la mission (nullable).
+      - name: status_code
+        description: Statut métier de la mission dans la base source.
+      - name: type
+        description: Typologie de mission (benevolat, volontariat…).
+      - name: tags
+        description: Tags libres associés à la mission.
+      - name: tasks
+        description: Liste des tâches proposées.
+      - name: audience
+        description: Publics ciblés.
+      - name: soft_skills
+        description: Compétences comportementales attendues.
+      - name: requirements
+        description: Pré-requis complémentaires.
+      - name: rome_skills
+        description: Compétences codifiées (ROME).
+      - name: reduced_mobility_accessible
+        description: Accessibilité aux personnes à mobilité réduite.
+      - name: close_to_transport
+        description: Indique si la mission est proche des transports.
+      - name: open_to_minors
+        description: Indique si la mission est ouverte aux mineurs.
+      - name: remote
+        description: Modalités de télébénévolat (nullable).
+      - name: schedule
+        description: Informations de planning/rythme (nullable).
+      - name: duration
+        description: Durée estimée de la mission (nullable).
+      - name: posted_at
+        description: Date de publication initiale.
+      - name: start_at
+        description: Date de démarrage prévue.
+      - name: end_at
+        description: Date de fin prévue (nullable).
+      - name: priority
+        description: Niveau de priorité (nullable).
+      - name: places
+        description: Nombre de places ouvertes.
+      - name: places_status
+        description: Statut d'occupation des places (nullable).
+      - name: domain_original
+        description: Libellé de domaine initial remonté par la source externe (nullable).
+      - name: deleted_at
+        description: Timestamp de suppression logique (nullable).
+      - name: created_at
+        description: Timestamp de création.
+        tests:
+          - not_null
+      - name: updated_at
+        description: Timestamp de dernière mise à jour (curseur d'export).
         tests:
           - not_null

@@ -25,7 +25,6 @@ with src as (
 select
   id,
   mission_id,
-  mission_id_raw,
   moderator_id,
   user_name,
   initial_status,

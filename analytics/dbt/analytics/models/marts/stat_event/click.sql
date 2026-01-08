@@ -36,7 +36,6 @@ select
   to_publisher_id,
   from_publisher_id,
   mission_id,
-  mission_id_raw,
   is_bot,
   is_human,
   updated_at
