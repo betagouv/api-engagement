@@ -16,11 +16,9 @@ import cors from "cors";
 import express, { NextFunction, Request, Response } from "express";
 import path from "path";
 
-import "./db/mongo";
 import { SERVER_ERROR, captureException, captureMessage } from "./error";
 
-import { mongoConnected } from "./db/mongo";
-import { pgConnected, pgDisconnect } from "./db/postgres";
+import { pgConnectedCore, pgDisconnect } from "./db/postgres";
 import middlewares from "./middlewares";
 
 import AdminReportController from "./controllers/admin-report";
@@ -56,8 +54,7 @@ import LeboncoinV2Controller from "./v2/leboncoin";
 
 const main = async () => {
   console.log("[API] Waiting for database connections...");
-  await Promise.all([mongoConnected, pgConnected]);
-  console.log("[API] All database connections established successfully.");
+  await pgConnectedCore();
 
   console.log("[API] Starting API server...");
 

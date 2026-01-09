@@ -9,29 +9,25 @@ const prismaAnalytics = new PrismaClientAnalytics({
   log: ["error"],
 });
 
-const pgConnected = Promise.all(
-  [
-    { name: "Core", prisma: prismaCore },
-    { name: "Analytics", prisma: prismaAnalytics },
-  ].map(({ name, prisma }) => {
-    return new Promise<void>((resolve, reject) => {
-      prisma
-        .$connect()
-        .then(() => {
-          console.log(`[PostgreSQL] ${name} connected`);
-          resolve();
-        })
-        .catch((error) => {
-          console.error(`[PostgreSQL] ${name} Connection error:`, error);
-          reject(error);
-        });
+const connectPrisma = (name: string, prisma: { $connect: () => Promise<void> }) => {
+  return prisma
+    .$connect()
+    .then(() => {
+      console.log(`[PostgreSQL] ${name} connected`);
+    })
+    .catch((error) => {
+      console.error(`[PostgreSQL] ${name} Connection error:`, error);
+      throw error;
     });
-  })
-);
+};
+
+const pgConnectedCore = () => connectPrisma("Core", prismaCore);
+const pgConnectedAnalytics = () => connectPrisma("Analytics", prismaAnalytics);
+const pgConnectedAll = () => Promise.all([pgConnectedCore(), pgConnectedAnalytics()]);
 
 const pgDisconnect = async () => {
   await prismaCore.$disconnect();
   await prismaAnalytics.$disconnect();
 };
 
-export { pgConnected, pgDisconnect, prismaAnalytics, prismaCore };
+export { pgConnectedAll, pgConnectedAnalytics, pgConnectedCore, pgDisconnect, prismaAnalytics, prismaCore };
