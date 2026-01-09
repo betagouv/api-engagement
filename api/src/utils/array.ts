@@ -8,3 +8,12 @@ export const chunk = <T>(items: readonly T[], size: number): T[][] => {
   }
   return result;
 };
+
+export const normalizeToArray = (value?: string | string[]): string[] | undefined => {
+  if (Array.isArray(value)) {
+    return value;
+  }
+  if (typeof value === "string" && value.length) {
+    return [value];
+  }
+};
