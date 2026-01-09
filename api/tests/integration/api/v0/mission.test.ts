@@ -398,19 +398,19 @@ describe("Mission API Integration Tests", () => {
     });
 
     it("should filter by clientId", async () => {
-      const response = await request(app).get("/v0/mission/search?clientId=org-1").set("x-api-key", apiKey);
+      const response = await request(app).get(`/v0/mission/search?clientId=${mission1.clientId}`).set("x-api-key", apiKey);
       expect(response.status).toBe(200);
       expect(response.body.total).toBe(1);
       expect(response.body.hits[0]._id).toBe(mission1.id);
     });
 
     it("should filter by multiple clientIds", async () => {
-      const response = await request(app).get("/v0/mission/search?clientId=org-1,org-3").set("x-api-key", apiKey);
+      const response = await request(app).get(`/v0/mission/search?clientId=${mission1.clientId},${mission3.clientId}`).set("x-api-key", apiKey);
       expect(response.status).toBe(200);
       expect(response.body.total).toBe(2);
-      const clientIds = response.body.hits.map((h: any) => h.organizationClientId);
-      expect(clientIds).toContain("org-1");
-      expect(clientIds).toContain("org-3");
+      const clientIds = response.body.hits.map((h: any) => h.clientId);
+      expect(clientIds).toContain(mission1.clientId);
+      expect(clientIds).toContain(mission3.clientId);
     });
 
     it("should filter by country", async () => {
