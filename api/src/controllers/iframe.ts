@@ -11,11 +11,23 @@ import { buildWhere, missionService } from "../services/mission";
 import { publisherDiffusionExclusionService } from "../services/publisher-diffusion-exclusion";
 import { widgetService } from "../services/widget";
 import { WidgetRecord } from "../types";
-import type { MissionRecord, MissionSearchFilters } from "../types/mission";
+import type { MissionRecord, MissionSearchFilters, MissionSelect } from "../types/mission";
 import { capitalizeFirstLetter, getDistanceKm } from "../utils";
 import { applyWidgetRules } from "../utils/widget";
 
 const router = Router();
+
+const MISSION_FIELDS: MissionSelect = {
+  id: true,
+  title: true,
+  moderationStatuses: { select: { title: true } },
+  domain: { select: { name: true, logo: true } },
+  organizationName: true,
+  remote: true,
+  addresses: { select: { city: true, country: true, postalCode: true } },
+  places: true,
+  tags: true,
+};
 
 router.get("/widget", async (req: Request, res: Response, next: NextFunction) => {
   try {
@@ -342,7 +354,7 @@ const fetchWidgetMissions = async (widget: WidgetRecord, filters: MissionSearchF
   const sortByDistance = filters.lat !== undefined && filters.lon !== undefined;
   const jvaPublisherId = PUBLISHER_IDS.JEVEUXAIDER;
   if (!widget.jvaModeration) {
-    return missionService.findMissions(filters);
+    return missionService.findMissions(filters, MISSION_FIELDS);
   }
 
   const jvaPublishers = widget.publishers.filter((p) => p === jvaPublisherId);
@@ -352,13 +364,13 @@ const fetchWidgetMissions = async (widget: WidgetRecord, filters: MissionSearchF
   let total = 0;
 
   if (jvaPublishers.length) {
-    const res = await missionService.findMissions({ ...filters, publisherIds: jvaPublishers, skip: 0, limit: pageLimit });
+    const res = await missionService.findMissions({ ...filters, publisherIds: jvaPublishers, skip: 0, limit: pageLimit }, MISSION_FIELDS);
     combined.push(...res.data);
     total += res.total;
   }
 
   if (otherPublishers.length) {
-    const res = await missionService.findMissions({ ...filters, publisherIds: otherPublishers, moderationAcceptedFor: jvaPublisherId, skip: 0, limit: pageLimit });
+    const res = await missionService.findMissions({ ...filters, publisherIds: otherPublishers, moderationAcceptedFor: jvaPublisherId, skip: 0, limit: pageLimit }, MISSION_FIELDS);
     combined.push(...res.data);
     total += res.total;
   }
