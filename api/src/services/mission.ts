@@ -661,16 +661,6 @@ export const missionService = {
     const [missions, total] = await Promise.all([
       missionRepository.findMany({
         where,
-        // where: {
-        //   statusCode: "ACCEPTED",
-        //   deletedAt: null,
-        //   remote: {
-        //     in: ["no"],
-        //   },
-        //   organizationReseaux: {
-        //     has: "Fédération de L'Arche en France",
-        //   },
-        // },
         include: baseInclude,
         orderBy: { startAt: Prisma.SortOrder.desc },
         skip: filters.skip,
