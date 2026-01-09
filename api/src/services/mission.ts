@@ -95,6 +95,7 @@ const toMissionRecord = (mission: MissionWithRelations, moderationTitle: boolean
   const location = deriveMissionLocation(addresses);
   const primaryAddress = addresses[0] ?? {};
 
+  const org = mission.organization;
   const publisherName = mission.publisher?.name ?? null;
   const publisherLogo = mission.publisher?.logo ?? null;
   const publisherUrl = mission.publisher?.url ?? null;
@@ -158,24 +159,24 @@ const toMissionRecord = (mission: MissionWithRelations, moderationTitle: boolean
     addresses,
     organizationId: mission.organizationId ?? null,
     organizationClientId: mission.organizationClientId ?? null,
-    organizationUrl: null,
-    organizationName: mission.organizationName ?? null,
-    organizationType: mission.organizationType ?? null,
+    organizationUrl: mission.organizationUrl ?? null,
+    organizationName: mission.organizationName ?? org?.title ?? null,
+    organizationReseaux: mission.organizationReseaux ?? [],
+    organizationType: org?.status ?? null,
     organizationLogo: mission.organizationLogo ?? null,
     organizationDescription: mission.organizationDescription ?? null,
     organizationFullAddress: mission.organizationFullAddress ?? null,
-    organizationRNA: mission.organizationRNA ?? null,
-    organizationSiren: mission.organizationSiren ?? null,
-    organizationSiret: mission.organizationSiret ?? null,
-    organizationDepartment: mission.organizationDepartment ?? null,
-    organizationDepartmentCode: mission.organizationDepartmentCode ?? null,
-    organizationDepartmentName: mission.organizationDepartmentName ?? null,
-    organizationPostCode: mission.organizationPostCode ?? null,
-    organizationCity: mission.organizationCity ?? null,
-    organizationStatusJuridique: mission.organizationStatusJuridique ?? null,
-    organizationBeneficiaries: mission.organizationBeneficiaries ?? [],
-    organizationActions: mission.organizationActions ?? [],
-    organizationReseaux: mission.organizationReseaux ?? [],
+    organizationRNA: org?.rna ?? null,
+    organizationSiren: org?.siren ?? null,
+    organizationSiret: org?.siret ?? null,
+    organizationDepartment: org?.addressDepartmentName ?? null,
+    organizationDepartmentCode: org?.addressDepartmentCode ?? null,
+    organizationDepartmentName: org?.addressDepartmentName ?? null,
+    organizationPostCode: org?.addressPostalCode ?? null,
+    organizationCity: org?.addressCity ?? null,
+    organizationStatusJuridique: org?.status ?? null,
+    organizationBeneficiaries: [],
+    organizationActions: [],
     organizationNameVerified: null,
     organizationRNAVerified: null,
     organizationSirenVerified: null,
