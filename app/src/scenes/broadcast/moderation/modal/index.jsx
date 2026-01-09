@@ -23,18 +23,18 @@ const MissionModal = ({ onChange }) => {
   const [history, setHistory] = useState({ ACCEPTED: 0, REFUSED: 0, PENDING: 0 });
 
   useEffect(() => {
-    if (!data || !data.organizationName) return;
+    if (!data || !data.missionOrganizationName) return;
     const fetchData = async () => {
       try {
-        const res = await api.post("/moderation/search-history", { organizationName: data.organizationName, moderatorId: publisher.id });
+        const res = await api.post("/moderation/search-history", { organizationName: data.missionOrganizationName, moderatorId: publisher.id });
         if (!res.ok) throw res;
-        setHistory(res.data.organization[data.organizationName] || { ACCEPTED: 0, REFUSED: 0, PENDING: 0 });
+        setHistory(res.data.organization[data.missionOrganizationName] || { ACCEPTED: 0, REFUSED: 0, PENDING: 0 });
       } catch (error) {
         captureError(error, { extra: { data, publisherId: publisher.id } });
       }
     };
     fetchData();
-  }, [data?.organizationName]);
+  }, [data?.missionOrganizationName]);
 
   useEffect(() => {
     if (!searchParams.has("mission")) return;

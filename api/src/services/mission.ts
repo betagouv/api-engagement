@@ -366,7 +366,14 @@ export const buildWhere = (filters: MissionSearchFilters): Prisma.MissionWhereIn
   }
 
   if (filters.moderationAcceptedFor) {
-    where.moderationStatuses = { some: { publisherId: filters.moderationAcceptedFor, status: "ACCEPTED" } };
+    const moderationWhere: Prisma.MissionModerationStatusWhereInput = { publisherId: filters.moderationAcceptedFor };
+    if (filters.moderationStatus) {
+      moderationWhere.status = filters.moderationStatus as any;
+    }
+    if (filters.moderationComment) {
+      moderationWhere.comment = filters.moderationComment;
+    }
+    where.moderationStatuses = { some: moderationWhere };
   }
 
   if (filters.keywords) {
@@ -978,6 +985,8 @@ export const missionService = {
     if ("organisationIsRUP" in patch) {
       data.organisationIsRUP = patch.organisationIsRUP ?? undefined;
     }
+
+    console.log("data", JSON.stringify(data, null, 2));
 
     await missionRepository.update(id, data);
     const mission = await missionRepository.findFirst({ where: { id }, include: baseInclude });

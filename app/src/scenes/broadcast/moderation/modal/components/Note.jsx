@@ -17,7 +17,7 @@ const Note = ({ data, onChange }) => {
 
   const handleSave = async () => {
     try {
-      const res = await api.put(`/moderation/${data._id}`, { note, moderatorId: publisher.id });
+      const res = await api.put(`/moderation/${data.id}`, { note, moderatorId: publisher.id });
       if (!res.ok) throw res;
 
       toast.success("La note a été modifiée avec succès", {

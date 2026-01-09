@@ -34,7 +34,7 @@ const MissionItem = ({ data, history, selected, onChange, onSelect, onFilter, on
 
       if (v.status === "REFUSED" && !v.comment) return;
 
-      const res = await api.put(`/moderation/${data._id}`, { ...v, moderatorId: publisher.id });
+      const res = await api.put(`/moderation/${data.id}`, { ...v, moderatorId: publisher.id });
       if (!res.ok) {
         if (res.error === "COMMENT_REQUIRED") {
           toast.error("Le commentaire est requis pour refuser la mission");
@@ -59,7 +59,7 @@ const MissionItem = ({ data, history, selected, onChange, onSelect, onFilter, on
 
   const handleMissionClick = () => {
     const newSearchParams = new URLSearchParams(searchParams);
-    newSearchParams.set("mission", data._id);
+    newSearchParams.set("mission", data.id);
     setSearchParams(newSearchParams);
   };
 
@@ -73,40 +73,41 @@ const MissionItem = ({ data, history, selected, onChange, onSelect, onFilter, on
         onChange={onChangeMany}
         total={potentialUpdates}
       />
+      <td className="table-cell align-middle" colSpan={3}>
+        <div className="flex items-center">
+          <label className="flex w-14 items-center">
+            <span className="sr-only">Sélectionner la mission</span>
+            <input type="checkbox" className="checkbox" name="moderation-select" onChange={handleSelectModeration} checked={selected} />
+          </label>
+
+          <div className="flex flex-col justify-between py-2">
+            <div className="hover:text-blue-france my-2 line-clamp-3 flex items-center text-base font-semibold hover:cursor-pointer" onClick={handleMissionClick}>
+              {data.title || data.missionTitle}
+            </div>
+            <div className="text-gray-425 mb-2 flex items-center gap-4 text-xs">
+              {data.missionCity && (
+                <span className="flex items-center">
+                  <RiMapPin2Fill className="mr-2" />
+                  {`${data.missionCity} ${data.missionDepartmentCode ? `(${data.missionDepartmentCode})` : ""}`}
+                </span>
+              )}
+              <span className="flex items-center text-xs">
+                <RiCalendarEventFill className="mr-2" />
+                {data.missionStartAt && `Du ${new Date(data.missionStartAt).toLocaleDateString("fr")}`}
+                {data.missionEndAt && ` au ${new Date(data.missionEndAt).toLocaleDateString("fr")}`}
+              </span>
+            </div>
+            <div className="text-gray-425 flex items-center text-xs">
+              <RiTimeLine className="mr-2 text-xs" />
+              Postée le {new Date(data.missionPostedAt).toLocaleDateString("fr")} sur {data.missionPublisherName}
+            </div>
+          </div>
+        </div>
+      </td>
       <td className="table-cell align-middle">
-        <label className="flex items-center">
-          <span className="sr-only">Sélectionner la mission</span>
-          <input type="checkbox" className="checkbox" name="moderation-select" onChange={handleSelectModeration} checked={selected} />
-        </label>
-      </td>
-      <td className="table-cell align-top" colSpan={2}>
-        <div className="flex flex-col justify-between py-2">
-        <div className="hover:text-blue-france my-2 line-clamp-3 flex items-center text-base font-semibold hover:cursor-pointer" onClick={handleMissionClick}>
-          {data.newTitle || data.title}
-        </div>
-        <div className="text-gray-425 mb-2 flex items-center gap-4">
-          {data.city && (
-            <span className="flex items-center">
-              <RiMapPin2Fill className="mr-2" />
-              {`${data.city} ${data.departmentCode ? `(${data.departmentCode})` : ""}`}
-            </span>
-          )}
-          <span className="flex items-center">
-            <RiCalendarEventFill className="mr-2" />
-            {data.startAt && `Du ${new Date(data.startAt).toLocaleDateString("fr")}`}
-            {data.endAt && ` au ${new Date(data.endAt).toLocaleDateString("fr")}`}
-          </span>
-        </div>
-        <div className="text-gray-425 flex items-center">
-          <RiTimeLine className="mr-2 text-xs" />
-          Postée le {new Date(data.postedAt).toLocaleDateString("fr")} sur {data.publisherName}
-        </div>
-      </div>
-      </td>
-      <td className="table-cell align-top">
-        <div className="flex flex-col justify-between py-2">
-        <span className="max-h-12 truncate">{data.organizationName}</span>
-        <div>
+        <div className="flex flex-col justify-between py-2 text-xs">
+          <span className="max-h-12 truncate">{data.missionOrganizationName}</span>
+
           <div className="my-2 inline-flex flex-wrap items-center gap-1 rounded border border-gray-900 p-1">
             <span>Missions</span>
             <RiCheckboxCircleFill className="text-green-success" />
@@ -115,51 +116,51 @@ const MissionItem = ({ data, history, selected, onChange, onSelect, onFilter, on
             <RiCloseCircleFill className="text-red-error" />
             <span className="text-red-error">{history["REFUSED"] || "0"}</span>
           </div>
+
+          {data.associationSources?.length ? (
+            <span className="text-gray-425">
+              {data.associationSources.length > 0 && `Inscrite sur ${data.associationSources.map((a) => (a === "Je veux aider" ? "JeVeuxAider.gouv.fr" : a)).join(", ")}`}
+            </span>
+          ) : (
+            <span className="text-gray-425">Pas d'inscription retrouvée</span>
+          )}
         </div>
-        {data.associationSources?.length ? (
-          <span className="text-gray-425">
-            {data.associationSources.length > 0 && `Inscrite sur ${data.associationSources.map((a) => (a === "Je veux aider" ? "JeVeuxAider.gouv.fr" : a)).join(", ")}`}
-          </span>
-        ) : (
-          <span className="text-gray-425">Pas d'inscription retrouvée</span>
-        )}
-      </div>
       </td>
-      <td className="table-cell align-middle">
+      <td className="table-cell align-middle" colSpan={2}>
         <div className="flex flex-col justify-center gap-3">
-        <div className="flex items-center gap-3">
-          <select
-            className="select flex-1 border-b-2 pr-2"
-            style={{ borderBottomColor: STATUS_COLORS[values.status] }}
-            name="status"
-            value={values.status}
-            onChange={(e) => handleSubmit({ status: e.target.value })}
-          >
-            {Object.entries(STATUS).map(([key, value]) => (
-              <option key={key} value={key}>
-                {value}
-              </option>
-            ))}
-          </select>
-          <MissionActionsMenu data={data} onFilter={onFilter} onChange={(v) => onChange({ ...data, ...v })} />
-        </div>
-        {values.status === "REFUSED" && (
-          <select className="select" name="motif" value={values.comment} onChange={(e) => handleSubmit({ status: "REFUSED", comment: e.target.value })}>
-            <option value="">Motif de refus</option>
-            {Object.entries(JVA_MODERATION_COMMENTS_LABELS).map(([key, value]) => (
-              <option key={key} value={key}>
-                {value}
-              </option>
-            ))}
-          </select>
-        )}
-        {values.note && (
-          <div className="mt-1 flex items-center gap-2 text-xs">
-            <RiPencilFill />
-            <div className="italic">{values.note}</div>
+          <div className="flex items-center gap-3">
+            <select
+              className="select flex-1 border-b-2 pr-2"
+              style={{ borderBottomColor: STATUS_COLORS[values.status] }}
+              name="status"
+              value={values.status}
+              onChange={(e) => handleSubmit({ status: e.target.value })}
+            >
+              {Object.entries(STATUS).map(([key, value]) => (
+                <option key={key} value={key}>
+                  {value}
+                </option>
+              ))}
+            </select>
+            <MissionActionsMenu data={data} onFilter={onFilter} onChange={(v) => onChange({ ...data, ...v })} />
           </div>
-        )}
-      </div>
+          {values.status === "REFUSED" && (
+            <select className="select" name="motif" value={values.comment} onChange={(e) => handleSubmit({ status: "REFUSED", comment: e.target.value })}>
+              <option value="">Motif de refus</option>
+              {Object.entries(JVA_MODERATION_COMMENTS_LABELS).map(([key, value]) => (
+                <option key={key} value={key}>
+                  {value}
+                </option>
+              ))}
+            </select>
+          )}
+          {values.note && (
+            <div className="mt-1 flex items-center gap-2 text-xs">
+              <RiPencilFill />
+              <div className="italic">{values.note}</div>
+            </div>
+          )}
+        </div>
       </td>
     </>
   );
@@ -171,14 +172,14 @@ const MissionActionsMenu = ({ data, onFilter, onChange }) => {
 
   const handleMissionClick = () => {
     const newSearchParams = new URLSearchParams(searchParams);
-    newSearchParams.set("mission", data._id);
+    newSearchParams.set("mission", data.id);
     setSearchParams(newSearchParams);
   };
 
   return (
     <>
       <Menu as="div" className="relative h-full text-left">
-        <Menu.Button as="div" className="hover:bg-gray-975 flex h-full cursor-pointer items-center justify-between gap-4 border border-black px-3 text-sm">
+        <Menu.Button as="div" className="secondary-btn shadow-border-black text-black">
           <span className="font-semibold">
             <RiMoreFill />
           </span>
@@ -200,7 +201,7 @@ const MissionActionsMenu = ({ data, onFilter, onChange }) => {
             </Menu.Item>
             <Menu.Item>
               <a
-                href={data.applicationUrl}
+                href={data.missionApplicationUrl}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-blue-france flex w-full cursor-pointer items-center border-none p-3 text-left text-sm hover:bg-gray-950"
@@ -228,7 +229,7 @@ const MissionActionsMenu = ({ data, onFilter, onChange }) => {
             <Menu.Item>
               <button
                 className="text-blue-france flex w-full cursor-pointer items-center border-none p-3 text-left text-sm hover:bg-gray-950"
-                onClick={() => onFilter(data.organizationName)}
+                onClick={() => onFilter(data.missionOrganizationName)}
               >
                 Filter les missions de l'organisation
               </button>
@@ -252,7 +253,7 @@ const UpdateNoteModal = ({ isOpen, onChange, onClose, data }) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const res = await api.put(`/moderation/${data._id}`, { note, moderatorId: publisher.id });
+      const res = await api.put(`/moderation/${data.id}`, { note, moderatorId: publisher.id });
       if (!res.ok) throw res;
       toast.success("La note a été mise à jour avec succès");
       onChange({ note });

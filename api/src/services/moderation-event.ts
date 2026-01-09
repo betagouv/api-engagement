@@ -64,6 +64,7 @@ export const moderationEventService = {
     }
 
     const data: Prisma.ModerationEventCreateManyInput[] = inputs.map(buildInput);
+    console.log("data", JSON.stringify(data, null, 2));
 
     const { count } = await moderationEventRepository.createMany(data);
     return count;

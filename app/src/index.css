@@ -26,6 +26,7 @@
   --color-beige-gris-galet-975: #f9f6f2;
 
   --shadow-border-blue: inset 0 0 0 1px var(--color-blue-france);
+  --shadow-border-black: inset 0 0 0 1px var(--color-black);
   --shadow-border-gray: inset 0 0 0 1px var(--color-gray-925);
   --shadow-border-red: inset 0 0 0 1px var(--color-red-marianne);
 }
@@ -162,7 +163,7 @@ body {
   @apply checked:bg-blue-france checked:hover:bg-blue-france checked:focus:bg-blue-france active:bg-blue-france h-4 w-4 rounded border border-black;
 }
 @utility table-header {
-  @apply bg-gray-1000-active h-12 border-b-2 border-b-black px-4 text-left text-sm font-medium text-black;
+  @apply bg-gray-1000-active h-12 border-b border-b-black px-4 text-left text-sm font-medium text-black;
 }
 @utility table-item {
   @apply border-b-gray-925 h-16 border-b text-left text-sm text-black;

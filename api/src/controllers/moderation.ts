@@ -5,9 +5,10 @@ import zod from "zod";
 import { PUBLISHER_IDS } from "../config";
 import { FORBIDDEN, INVALID_BODY, INVALID_PARAMS, INVALID_QUERY, NOT_FOUND } from "../error";
 import { missionService } from "../services/mission";
+import { missionModerationStatusService, MissionModerationStatusUpdatePatch } from "../services/mission-moderation-status";
 import { moderationEventService } from "../services/moderation-event";
 import { publisherService } from "../services/publisher";
-import type { MissionRecord } from "../types/mission";
+import type { MissionRecord, MissionUpdatePatch } from "../types/mission";
 import type { ModerationEventCreateInput } from "../types/moderation-event";
 import type { UserRequest } from "../types/passport";
 
@@ -155,23 +156,32 @@ router.post("/search", passport.authenticate("user", { session: false }), async 
     if (!body.success) {
       return res.status(400).send({ ok: false, code: INVALID_QUERY, error: body.error });
     }
-
-    let parsed;
-    try {
-      parsed = await findFilters(req.user, body.data);
-    } catch (error: any) {
-      if (error.message === "FORBIDDEN") {
-        return res.status(403).send({ ok: false, code: FORBIDDEN });
-      }
-      throw error;
+    const moderator = await publisherService.findOnePublisherById(body.data.moderatorId);
+    if (!moderator) {
+      return res.status(404).send({ ok: false, code: NOT_FOUND });
     }
 
-    const { data, total } = await missionService.findMissions(parsed.filters);
-    const mapped = data.map((mission) => buildModerationProjection(mission, parsed.moderatorId));
+    const filters: any = {
+      publisherId: moderator.id,
+      limit: body.data.size,
+      skip: body.data.from,
+      sort: body.data.sort,
+      status: body.data.status,
+      comment: body.data.comment,
+      domain: body.data.domain,
+      department: body.data.department,
+      organizationName: body.data.organizationName,
+      organizationClientId: body.data.organizationClientId,
+      search: body.data.search,
+      activity: body.data.activity,
+    };
+
+    const { data, total } = await missionModerationStatusService.findModerationStatuses(filters);
+    // const mapped = data.map((status) => buildModerationProjection(status.mission, moderator.id));
 
     return res.status(200).send({
       ok: true,
-      data: mapped,
+      data,
       total,
     });
   } catch (error) {
@@ -293,8 +303,8 @@ router.get("/:id", passport.authenticate("user", { session: false }), async (req
       return res.status(400).send({ ok: false, code: INVALID_PARAMS, error: params.error });
     }
 
-    const mission = await missionService.findOneMission(params.data.id);
-    if (!mission) {
+    const moderation = await missionModerationStatusService.findOneMissionModerationStatus(params.data.id);
+    if (!moderation) {
       return res.status(404).send({ ok: false, code: NOT_FOUND });
     }
 
@@ -311,8 +321,7 @@ router.get("/:id", passport.authenticate("user", { session: false }), async (req
       return res.status(403).send({ ok: false, code: FORBIDDEN, message: "Moderator not found" });
     }
 
-    const data = buildModerationProjection(mission, query.data.moderatorId);
-    return res.status(200).send({ ok: true, data });
+    return res.status(200).send({ ok: true, data: moderation });
   } catch (error: any) {
     next(error);
   }
@@ -353,23 +362,14 @@ router.put("/many", passport.authenticate("user", { session: false }), async (re
 
     const updates = missions.map((mission) => ({
       missionId: mission.id,
-      moderatorId: body.data.moderatorId,
+      publisherId: body.data.moderatorId,
       status: body.data.status,
       comment: body.data.comment ?? null,
       note: body.data.note ?? null,
       title: body.data.title ?? null,
     }));
 
-    await Promise.all(
-      updates.map(async (update) => {
-        await missionService.update(update.missionId, {
-          [`moderation_${update.moderatorId}_status`]: update.status as any,
-          [`moderation_${update.moderatorId}_comment`]: update.comment as any,
-          [`moderation_${update.moderatorId}_note`]: update.note as any,
-          [`moderation_${update.moderatorId}_title`]: update.title as any,
-        } as any);
-      })
-    );
+    await missionModerationStatusService.upsertStatuses(updates);
 
     return res.status(200).send({ ok: true, data: missions.length });
   } catch (error) {
@@ -382,12 +382,12 @@ router.put("/:id", passport.authenticate("user", { session: false }), async (req
     const body = zod
       .object({
         status: zod.enum(["ACCEPTED", "REFUSED", "PENDING", "ONGOING"]).optional(),
-        comment: zod.string().optional(),
-        title: zod.string().optional(),
-        note: zod.string().optional(),
-        organizationRNAVerified: zod.string().optional(),
-        organizationSirenVerified: zod.string().optional(),
-        newOrganizationName: zod.string().optional(),
+        comment: zod.string().nullable().optional(),
+        title: zod.string().nullable().optional(),
+        note: zod.string().nullable().optional(),
+        missionOrganizationRNAVerified: zod.string().nullable().optional(),
+        missionOrganizationSirenVerified: zod.string().nullable().optional(),
+        missionOrganizationName: zod.string().nullable().optional(),
         moderatorId: zod.string(),
       })
       .safeParse(req.body);
@@ -407,11 +407,6 @@ router.put("/:id", passport.authenticate("user", { session: false }), async (req
       return res.status(400).send({ ok: false, code: INVALID_PARAMS, error: params.error });
     }
 
-    const mission = await missionService.findOneMission(params.data.id);
-    if (!mission) {
-      return res.status(404).send({ ok: false, code: NOT_FOUND });
-    }
-
     const moderator = await publisherService.findOnePublisherById(body.data.moderatorId);
     if (!moderator || !moderator.moderator) {
       return res.status(403).send({ ok: false, code: FORBIDDEN });
@@ -422,79 +417,101 @@ router.put("/:id", passport.authenticate("user", { session: false }), async (req
       return res.status(403).send({ ok: false, code: FORBIDDEN });
     }
 
-    const update: any = {};
-    const previous = mission as any;
-
-    if (body.data.status) {
-      update[`moderation_${body.data.moderatorId}_status`] = body.data.status;
+    const previous = await missionModerationStatusService.findOneMissionModerationStatus(params.data.id);
+    if (!previous) {
+      return res.status(404).send({ ok: false, code: NOT_FOUND });
     }
-    if (body.data.title) {
-      update[`moderation_${body.data.moderatorId}_title`] = body.data.title;
+
+    const moderatorId = body.data.moderatorId;
+
+    // Update moderation status in dedicated table
+    let updated = { ...previous };
+    const update: MissionModerationStatusUpdatePatch = {};
+    if (body.data.status) {
+      update.status = body.data.status;
     }
     if (body.data.comment) {
-      update[`moderation_${body.data.moderatorId}_comment`] = body.data.comment;
+      update.comment = body.data.comment;
     }
     if (body.data.note) {
-      update[`moderation_${body.data.moderatorId}_note`] = body.data.note;
+      update.note = body.data.note;
     }
-
-    if (body.data.organizationRNAVerified) {
-      update.organizationRNAVerified = body.data.organizationRNAVerified;
+    if (body.data.title) {
+      update.title = body.data.title;
     }
-
-    if (body.data.organizationSirenVerified) {
-      update.organizationSirenVerified = body.data.organizationSirenVerified;
-    }
-
-    if (body.data.newOrganizationName) {
-      update.organizationName = body.data.newOrganizationName;
-    }
-
     if (Object.keys(update).length) {
-      await missionService.update(params.data.id, update);
+      updated = await missionModerationStatusService.update(previous.id, update);
     }
 
+    // Update mission fields (organization verification)
+    const missionUpdate: MissionUpdatePatch = {};
+    if (body.data.missionOrganizationRNAVerified !== undefined && body.data.missionOrganizationRNAVerified !== previous.missionOrganizationRNAVerified) {
+      missionUpdate.organizationRNAVerified = body.data.missionOrganizationRNAVerified;
+    }
+    if (body.data.missionOrganizationSirenVerified !== undefined && body.data.missionOrganizationSirenVerified !== previous.missionOrganizationSirenVerified) {
+      missionUpdate.organizationSirenVerified = body.data.missionOrganizationSirenVerified;
+    }
+    if (body.data.missionOrganizationName !== undefined && body.data.missionOrganizationName !== previous.missionOrganizationName) {
+      missionUpdate.organizationName = body.data.missionOrganizationName;
+    }
+    let missionUpdated: MissionRecord | null = null;
+    if (Object.keys(missionUpdate).length) {
+      missionUpdated = await missionService.update(previous.missionId, missionUpdate);
+    }
+
+    // Create moderation events for audit
     const moderationEvents: ModerationEventCreateInput[] = [];
-    const newModerationFields = {
-      status: body.data.status,
-      comment: body.data.comment,
-      note: body.data.note,
-      title: body.data.title,
-    };
 
-    if (newModerationFields.status && previous[`moderation_${body.data.moderatorId}_status`] !== newModerationFields.status) {
+    if (previous.status !== updated.status) {
       moderationEvents.push({
-        missionId: params.data.id,
-        moderatorId: body.data.moderatorId,
-        initialStatus: previous[`moderation_${body.data.moderatorId}_status`] ?? null,
-        newStatus: newModerationFields.status,
+        missionId: previous.missionId,
+        moderatorId,
+        initialStatus: previous.status ?? null,
+        newStatus: updated.status,
       });
     }
 
-    if (newModerationFields.comment && previous[`moderation_${body.data.moderatorId}_comment`] !== newModerationFields.comment) {
+    if (previous.comment !== updated.comment) {
       moderationEvents.push({
-        missionId: params.data.id,
-        moderatorId: body.data.moderatorId,
-        initialComment: previous[`moderation_${body.data.moderatorId}_comment`] ?? null,
-        newComment: newModerationFields.comment,
+        missionId: previous.missionId,
+        moderatorId,
+        initialComment: previous.comment ?? null,
+        newComment: updated.comment,
       });
     }
 
-    if (newModerationFields.title && previous[`moderation_${body.data.moderatorId}_title`] !== newModerationFields.title) {
+    if (previous.title !== updated.title) {
       moderationEvents.push({
-        missionId: params.data.id,
-        moderatorId: body.data.moderatorId,
-        initialTitle: previous[`moderation_${body.data.moderatorId}_title`] ?? null,
-        newTitle: newModerationFields.title,
+        missionId: previous.missionId,
+        moderatorId,
+        initialTitle: previous.title ?? null,
+        newTitle: updated.title,
       });
     }
 
-    if (newModerationFields.note && previous[`moderation_${body.data.moderatorId}_note`] !== newModerationFields.note) {
+    if (previous.note !== updated.note) {
       moderationEvents.push({
-        missionId: params.data.id,
-        moderatorId: body.data.moderatorId,
-        initialNote: previous[`moderation_${body.data.moderatorId}_note`] ?? null,
-        newNote: newModerationFields.note,
+        missionId: previous.missionId,
+        moderatorId,
+        initialNote: previous.note ?? null,
+        newNote: updated.note,
+      });
+    }
+
+    if (missionUpdated && previous.missionOrganizationSirenVerified !== missionUpdated.organizationSirenVerified) {
+      moderationEvents.push({
+        missionId: missionUpdated.id,
+        moderatorId,
+        initialSiren: previous.missionOrganizationSirenVerified ?? null,
+        newSiren: missionUpdated.organizationSirenVerified ?? null,
+      });
+    }
+    if (missionUpdated && previous.missionOrganizationRNAVerified !== missionUpdated.organizationRNAVerified) {
+      moderationEvents.push({
+        missionId: missionUpdated.id,
+        moderatorId,
+        initialRNA: previous.missionOrganizationRNAVerified ?? null,
+        newRNA: missionUpdated.organizationRNAVerified ?? null,
       });
     }
 
@@ -513,15 +530,15 @@ router.put("/:id", passport.authenticate("user", { session: false }), async (req
           newNote: event.newNote ?? null,
           initialTitle: event.initialTitle ?? null,
           newTitle: event.newTitle ?? null,
-          initialSiren: mission.organizationSirenVerified,
-          newSiren: mission.organizationSirenVerified,
-          initialRNA: mission.organizationRNAVerified,
-          newRNA: mission.organizationRNAVerified,
+          initialSiren: event.initialSiren ?? null,
+          newSiren: event.newSiren ?? null,
+          initialRNA: event.initialRNA ?? null,
+          newRNA: event.newRNA ?? null,
         }))
       );
     }
 
-    return res.status(200).send({ ok: true });
+    return res.status(200).send({ ok: true, data: updated });
   } catch (error) {
     next(error);
   }

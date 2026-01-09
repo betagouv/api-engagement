@@ -126,11 +126,6 @@ const Moderation = () => {
     window.scrollTo({ top: 500, behavior: "smooth" });
   };
 
-  const resetPaginator = () => {
-    setFilters({ ...filters, page: 1 });
-    window.scrollTo({ top: 500, behavior: "smooth" });
-  };
-
   const handleSelectAll = (e) => {
     const checked = e.target.checked;
     if (checked) setSelected(data.map((m) => m._id.toString()));
@@ -201,37 +196,39 @@ const Moderation = () => {
           header={[
             {
               title: (
-                <label className="flex items-center">
-                  <span className="sr-only">Sélectionner toutes les missions</span>
-                  <input
-                    type="checkbox"
-                    className="checkbox"
-                    checked={selected.length === data.length && data.length > 0}
-                    onChange={handleSelectAll}
-                    ref={(el) => {
-                      if (el) el.indeterminate = selected.length > 0 && selected.length < data.length;
-                    }}
-                  />
-                </label>
+                <div className="flex items-center">
+                  <label className="flex w-14 items-center">
+                    <span className="sr-only">Sélectionner toutes les missions</span>
+                    <input
+                      type="checkbox"
+                      className="checkbox"
+                      checked={selected.length === data.length && data.length > 0}
+                      onChange={handleSelectAll}
+                      ref={(el) => {
+                        if (el) el.indeterminate = selected.length > 0 && selected.length < data.length;
+                      }}
+                    />
+                  </label>
+                  <h3 className="text-sm font-semibold">Mission</h3>
+                </div>
               ),
+              colSpan: 3,
             },
-            { title: "Mission", colSpan: 2 },
             { title: "Organisation" },
-            { title: "Actions" },
+            { title: "Actions", colSpan: 2 },
           ]}
           total={total}
           loading={loading}
           page={filters.page}
           pageSize={size}
           onPageChange={handlePageChange}
-          auto
         >
           {data.map((item, i) => (
-            <tr key={item._id} className={`${i % 2 === 0 ? "bg-gray-975" : "bg-gray-1000-active"} table-item`}>
+            <tr key={i} className={`${i % 2 === 0 ? "bg-gray-975" : "bg-gray-1000-active"} table-item h-48`}>
               <MissionItem
                 data={item}
                 history={history.organization[item.organizationName] || { ACCEPTED: 0, REFUSED: 0 }}
-                selected={selected.includes(item._id)}
+                selected={selected.includes(item.id)}
                 onChange={(values) => {
                   applyMissionUpdates(values);
                   fetchHistory();
@@ -240,7 +237,7 @@ const Moderation = () => {
                 onChangeMany={(values) => {
                   setData(
                     data.map((d) => {
-                      const changed = values.find((v) => v._id === d._id);
+                      const changed = values.find((v) => v.id === d.id);
                       if (changed) return { ...d, ...changed };
                       return d;
                     }),
@@ -248,7 +245,7 @@ const Moderation = () => {
                   fetchHistory();
                   setReloadFilters(!reloadFilters);
                 }}
-                onSelect={() => setSelected(selected.includes(item._id) ? selected.filter((id) => id !== item._id) : [...selected, item._id])}
+                onSelect={() => setSelected(selected.includes(item.id) ? selected.filter((id) => id !== item.id) : [...selected, item.id])}
                 onFilter={(v) => setFilters({ ...filters, organization: v, page: 1 })}
               />
             </tr>
