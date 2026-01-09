@@ -4,7 +4,16 @@ import { Mission, Prisma } from "../db/core";
 import { prismaCore } from "../db/postgres";
 import { missionRepository } from "../repositories/mission";
 import { organizationRepository } from "../repositories/organization";
-import type { MissionCreateInput, MissionFacets, MissionRecord, MissionSearchAggregations, MissionSearchFilters, MissionUpdatePatch } from "../types/mission";
+import type {
+  MissionCreateInput,
+  MissionFacets,
+  MissionInclude,
+  MissionRecord,
+  MissionSearchAggregations,
+  MissionSearchFilters,
+  MissionSelect,
+  MissionUpdatePatch,
+} from "../types/mission";
 import { calculateBoundingBox } from "../utils";
 import { buildJobBoardMap, deriveMissionLocation, normalizeMissionAddresses } from "../utils/mission";
 import { normalizeOptionalString, normalizeStringList } from "../utils/normalize";
@@ -81,7 +90,7 @@ const resolveActivityId = async (activityName: string): Promise<string> => {
   return created.id;
 };
 
-const toMissionRecord = (mission: MissionWithRelations): MissionRecord => {
+const toMissionRecord = (mission: MissionWithRelations, moderationTitle: boolean = false): MissionRecord => {
   const addresses = normalizeMissionAddresses(mission.addresses || []) as MissionRecord["addresses"];
   const location = deriveMissionLocation(addresses);
   const primaryAddress = addresses[0] ?? {};
@@ -105,7 +114,7 @@ const toMissionRecord = (mission: MissionWithRelations): MissionRecord => {
     publisherName,
     publisherUrl,
     publisherLogo,
-    title: mission.title,
+    title: moderationTitle ? (mission.moderationStatuses?.[0]?.title ?? mission.title) : mission.title,
     description: mission.description ?? null,
     descriptionHtml: mission.descriptionHtml ?? null,
     tags: normalizeStringList(mission.tags),
@@ -150,12 +159,13 @@ const toMissionRecord = (mission: MissionWithRelations): MissionRecord => {
     addresses,
     organizationId: mission.organizationId ?? null,
     organizationClientId: mission.organizationClientId ?? null,
-    organizationUrl: null,
-    organizationName: org?.title ?? null,
+    organizationUrl: mission.organizationUrl ?? null,
+    organizationName: mission.organizationName ?? org?.title ?? null,
+    organizationReseaux: mission.organizationReseaux ?? [],
     organizationType: org?.status ?? null,
-    organizationLogo: null,
-    organizationDescription: null,
-    organizationFullAddress: null,
+    organizationLogo: mission.organizationLogo ?? null,
+    organizationDescription: mission.organizationDescription ?? null,
+    organizationFullAddress: mission.organizationFullAddress ?? null,
     organizationRNA: org?.rna ?? null,
     organizationSiren: org?.siren ?? null,
     organizationSiret: org?.siret ?? null,
@@ -167,7 +177,6 @@ const toMissionRecord = (mission: MissionWithRelations): MissionRecord => {
     organizationStatusJuridique: org?.status ?? null,
     organizationBeneficiaries: [],
     organizationActions: [],
-    organizationReseaux: org?.names ?? [],
     organizationNameVerified: null,
     organizationRNAVerified: null,
     organizationSirenVerified: null,
@@ -546,7 +555,7 @@ const mapAddressesForCreate = (addresses?: MissionRecord["addresses"]) => {
   }));
 };
 
-const baseInclude = { publisher: true, domain: true, activity: true, organization: true, addresses: true, moderationStatuses: true, jobBoards: true };
+const baseInclude: MissionInclude = { publisher: true, domain: true, activity: true, organization: true, addresses: true, moderationStatuses: true, jobBoards: true };
 
 export const missionService = {
   async findOneMission(id: string): Promise<MissionRecord | null> {
@@ -583,13 +592,14 @@ export const missionService = {
     return missions.map((mission) => toMissionRecord(mission as MissionWithRelations));
   },
 
-  async findMissions(filters: MissionSearchFilters): Promise<{ data: MissionRecord[]; total: number }> {
+  async findMissions(filters: MissionSearchFilters, select: MissionSelect | null = null): Promise<{ data: MissionRecord[]; total: number }> {
     const where = buildWhere(filters);
 
     const [missions, total] = await Promise.all([
       missionRepository.findMany({
         where,
-        include: baseInclude,
+        select,
+        include: select ? undefined : baseInclude,
         orderBy: { startAt: Prisma.SortOrder.desc },
         skip: filters.skip,
         take: filters.limit,
@@ -597,7 +607,7 @@ export const missionService = {
       missionRepository.count(where),
     ]);
 
-    return { data: missions.map((mission) => toMissionRecord(mission as MissionWithRelations)), total };
+    return { data: missions.map((mission) => toMissionRecord(mission as MissionWithRelations, filters.moderationAcceptedFor !== undefined)), total };
   },
 
   async findMissionsWithAggregations(filters: MissionSearchFilters): Promise<{ data: MissionRecord[]; total: number; aggs: MissionSearchAggregations }> {
