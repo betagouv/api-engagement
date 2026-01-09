@@ -61,11 +61,11 @@ const buildRuleCondition = (rule: WidgetRule): Prisma.MissionWhereInput | null =
       break;
     case "contains":
       // Pour un tableau, utiliser `has` au lieu de `contains`
-      condition = isArrayField ? { has: `%${value}%` } : { contains: value, mode: "insensitive" };
+      condition = isArrayField ? { has: `${value}` } : { contains: value, mode: "insensitive" };
       break;
     case "does_not_contain":
       // Cas spécial : on wrappe dans NOT après le mapping
-      condition = isArrayField ? { has: `%${value}%` } : { contains: value, mode: "insensitive" };
+      condition = isArrayField ? { has: `${value}` } : { contains: value, mode: "insensitive" };
       break;
     case "is_greater_than":
       condition = { gt: value };
