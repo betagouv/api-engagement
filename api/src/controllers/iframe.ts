@@ -102,7 +102,6 @@ router.get("/:id/search", async (req: Request, res: Response, next: NextFunction
     const diffusionExclusions = await publisherDiffusionExclusionService.findExclusionsForDiffuseurId(widget.fromPublisherId);
     const excludedIds = diffusionExclusions.map((e) => e.organizationClientId).filter((id): id is string => id !== null);
     const filters = buildMissionFilters(widget, query.data, [], { skip: query.data.from, limit: query.data.size });
-
     const { data, total } = await fetchWidgetMissions(widget, filters);
     const mappedData = data.map((mission) => toWidgetMission(mission, widget));
 

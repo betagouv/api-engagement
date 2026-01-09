@@ -140,6 +140,7 @@ export type MissionRecord = {
   letudiantError: string | null;
   jobBoards?: Partial<Record<JobBoardId, { status: string | null; comment: string | null; url: string | null; updatedAt: Date | null }>>;
   lastExportedToPgAt: Date | null;
+  distanceKm?: number;
   createdAt: Date;
   updatedAt: Date;
 } & Partial<Record<MissionModerationFieldKey, string | null>> &
