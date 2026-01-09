@@ -38,8 +38,7 @@ if (envPath && fs.existsSync(envPath)) {
 }
 
 import { ENV, SENTRY_DSN_JOBS, SLACK_CRON_CHANNEL_ID } from "../config";
-import { mongoConnected } from "../db/mongo";
-import { pgConnected, pgDisconnect } from "../db/postgres";
+import { pgConnectedAll, pgDisconnect } from "../db/postgres";
 import { captureException } from "../error";
 import { postMessage } from "../services/slack";
 import { getJobTime } from "../utils";
@@ -74,7 +73,7 @@ if (!fs.existsSync(handlerPath)) {
 
 async function runJob() {
   try {
-    await Promise.all([mongoConnected, pgConnected]);
+    await pgConnectedAll();
 
     const handlerModule = await import(`./${jobName}/handler`);
     // Convert to camelCase
