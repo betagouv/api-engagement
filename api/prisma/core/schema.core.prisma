@@ -681,6 +681,8 @@ model MissionAddress {
   @@index([city], map: "mission_address_city_idx")
   @@index([country], map: "mission_address_country_idx")
   @@index([departmentName], map: "mission_address_department_name_idx")
+  @@index([locationLat], map: "mission_address_lat_idx")
+  @@index([locationLon], map: "mission_address_lon_idx")
   @@map("mission_address")
 }
 

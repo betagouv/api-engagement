@@ -325,6 +325,16 @@ export const buildWhere = (filters: MissionSearchFilters): Prisma.MissionWhereIn
   if (filters.departmentNameIncludeMissing) {
     addressOr.push({ departmentName: null }, { departmentName: "" });
   }
+
+  if (hasGeoFilters(filters)) {
+    const { lat, lon, distanceKm } = filters;
+    if (lat !== undefined && lon !== undefined && distanceKm !== undefined) {
+      const { latMin, latMax, lonMin, lonMax } = calculateBoundingBox(lat, lon, distanceKm);
+      addressAnd.locationLat = { gte: latMin, lte: latMax };
+      addressAnd.locationLon = { gte: lonMin, lte: lonMax };
+    }
+  }
+
   if (Object.keys(addressAnd).length || addressOr.length) {
     const clauses = [];
     if (Object.keys(addressAnd).length) {
@@ -552,6 +562,18 @@ const buildAggregations = async (where: Prisma.MissionWhereInput): Promise<Missi
 };
 
 const hasGeoFilters = (filters: MissionSearchFilters) => filters.lat !== undefined && filters.lon !== undefined && filters.distanceKm !== undefined;
+
+const calculateBoundingBox = (lat: number, lon: number, distanceKm: number) => {
+  const latDelta = distanceKm / 111.32; // 1 degree of latitude is approximately 111.32 km
+  const lonDelta = distanceKm / (111.32 * Math.cos((lat * Math.PI) / 180));
+
+  return {
+    latMin: lat - latDelta,
+    latMax: lat + latDelta,
+    lonMin: lon - lonDelta,
+    lonMax: lon + lonDelta,
+  };
+};
 
 type MissionDistanceEntry = { record: MissionRecord; distanceKm: number | undefined };
 
