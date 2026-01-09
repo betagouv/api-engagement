@@ -4,7 +4,6 @@ import { convert } from "html-to-text";
 import { PUBLISHER_IDS } from "../../../config";
 import { AUTRE_IMAGE, DOMAIN_IMAGES } from "../../../constants/domains";
 import { captureException } from "../../../error";
-import { missionService } from "../../../services/mission";
 import type { MissionRecord } from "../../../types/mission";
 import type { PublisherRecord } from "../../../types/publisher";
 import { ImportedMission, MissionXML } from "../types";
@@ -340,14 +339,14 @@ const parseMission = (publisher: PublisherRecord, missionXML: MissionXML, missio
   return mission;
 };
 
-export const buildData = async (startTime: Date, publisher: PublisherRecord, missionXML: MissionXML) => {
+type ExistingMissionForBuildData = Pick<MissionRecord, "postedAt" | "startAt" | "domainLogo" | "createdAt" | "id" | "_id">;
+
+export const buildData = async (startTime: Date, publisher: PublisherRecord, missionXML: MissionXML, missionDB?: ExistingMissionForBuildData | null) => {
   try {
     const clientId = missionXML.clientId?.toString();
     if (!clientId) {
       throw new Error("Missing clientId");
     }
-
-    const missionDB = await missionService.findMissionByClientAndPublisher(clientId, publisher.id);
 
     const mission = parseMission(publisher, { ...missionXML, clientId }, (missionDB as any) || null, startTime);
 
