@@ -90,7 +90,7 @@ const resolveActivityId = async (activityName: string): Promise<string> => {
   return created.id;
 };
 
-const toMissionRecord = (mission: MissionWithRelations, moderationTitle: boolean = false): MissionRecord => {
+const toMissionRecord = (mission: MissionWithRelations, moderatedBy: string | null = null): MissionRecord => {
   const addresses = normalizeMissionAddresses(mission.addresses || []) as MissionRecord["addresses"];
   const location = deriveMissionLocation(addresses);
   const primaryAddress = addresses[0] ?? {};
@@ -106,6 +106,8 @@ const toMissionRecord = (mission: MissionWithRelations, moderationTitle: boolean
 
   const softSkills = normalizeStringList(mission.softSkills);
 
+  const moderationTitle = moderatedBy ? (mission.moderationStatuses?.find((moderation) => moderation.publisherId === moderatedBy)?.title ?? null) : null;
+
   const record: MissionRecord = {
     _id: mission.id,
     id: mission.id,
@@ -114,7 +116,7 @@ const toMissionRecord = (mission: MissionWithRelations, moderationTitle: boolean
     publisherName,
     publisherUrl,
     publisherLogo,
-    title: moderationTitle ? (mission.moderationStatuses?.[0]?.title ?? mission.title) : mission.title,
+    title: moderationTitle ?? mission.title,
     description: mission.description ?? null,
     descriptionHtml: mission.descriptionHtml ?? null,
     tags: normalizeStringList(mission.tags),
@@ -558,20 +560,20 @@ const mapAddressesForCreate = (addresses?: MissionRecord["addresses"]) => {
 const baseInclude: MissionInclude = { publisher: true, domain: true, activity: true, organization: true, addresses: true, moderationStatuses: true, jobBoards: true };
 
 export const missionService = {
-  async findOneMission(id: string): Promise<MissionRecord | null> {
+  async findOneMission(id: string, moderatedBy: string | null = null): Promise<MissionRecord | null> {
     const mission = await missionRepository.findFirst({
       where: { id },
       include: baseInclude,
     });
-    return mission ? toMissionRecord(mission as MissionWithRelations) : null;
+    return mission ? toMissionRecord(mission as MissionWithRelations, moderatedBy) : null;
   },
 
-  async findOneMissionBy(where: Prisma.MissionWhereInput): Promise<MissionRecord | null> {
+  async findOneMissionBy(where: Prisma.MissionWhereInput, moderatedBy: string | null = null): Promise<MissionRecord | null> {
     const mission = await missionRepository.findFirst({
       where,
       include: baseInclude,
     });
-    return mission ? toMissionRecord(mission as MissionWithRelations) : null;
+    return mission ? toMissionRecord(mission as MissionWithRelations, moderatedBy) : null;
   },
 
   async findMissionByClientAndPublisher(clientId: string, publisherId: string): Promise<MissionRecord | null> {
@@ -607,40 +609,7 @@ export const missionService = {
       missionRepository.count(where),
     ]);
 
-    return { data: missions.map((mission) => toMissionRecord(mission as MissionWithRelations, filters.moderationAcceptedFor !== undefined)), total };
-  },
-
-  async findMissionsWithAggregations(filters: MissionSearchFilters): Promise<{ data: MissionRecord[]; total: number; aggs: MissionSearchAggregations }> {
-    const where = buildWhere(filters);
-
-    const [paginated, total, aggs] = await Promise.all([
-      missionRepository.findMany({
-        where,
-        include: baseInclude,
-        skip: filters.skip,
-        take: filters.limit,
-      }),
-      missionRepository.count(where),
-      buildAggregations(where),
-    ]);
-
-    const data = paginated.map((mission) => toMissionRecord(mission as MissionWithRelations));
-
-    return { data, total, aggs };
-  },
-
-  async countMissions(filters: MissionSearchFilters): Promise<number> {
-    const where = buildWhere(filters);
-    return missionRepository.count(where);
-  },
-
-  async countBy(where: Prisma.MissionWhereInput): Promise<number> {
-    return missionRepository.count(where);
-  },
-
-  async updateMany(where: Prisma.MissionWhereInput, data: Prisma.MissionUpdateInput): Promise<number> {
-    const result = await prismaCore.mission.updateMany({ where, data });
-    return result.count;
+    return { data: missions.map((mission) => toMissionRecord(mission as MissionWithRelations, filters.moderationAcceptedFor)), total };
   },
 
   async findMissionsWithFacets(filters: MissionSearchFilters): Promise<{ data: MissionRecord[]; total: number; facets: MissionFacets }> {
@@ -657,10 +626,43 @@ export const missionService = {
       missionRepository.count(where),
     ]);
 
-    const records = missions.map((mission) => toMissionRecord(mission as MissionWithRelations));
+    const records = missions.map((mission) => toMissionRecord(mission as MissionWithRelations, filters.moderationAcceptedFor));
     const facets = computeFacetsFromRecords(records);
 
     return { data: records, total, facets };
+  },
+
+  async findMissionsWithAggregations(filters: MissionSearchFilters): Promise<{ data: MissionRecord[]; total: number; aggs: MissionSearchAggregations }> {
+    const where = buildWhere(filters);
+
+    const [paginated, total, aggs] = await Promise.all([
+      missionRepository.findMany({
+        where,
+        include: baseInclude,
+        skip: filters.skip,
+        take: filters.limit,
+      }),
+      missionRepository.count(where),
+      buildAggregations(where),
+    ]);
+
+    const data = paginated.map((mission) => toMissionRecord(mission as MissionWithRelations, filters.moderationAcceptedFor));
+
+    return { data, total, aggs };
+  },
+
+  async countMissions(filters: MissionSearchFilters): Promise<number> {
+    const where = buildWhere(filters);
+    return missionRepository.count(where);
+  },
+
+  async countBy(where: Prisma.MissionWhereInput): Promise<number> {
+    return missionRepository.count(where);
+  },
+
+  async updateMany(where: Prisma.MissionWhereInput, data: Prisma.MissionUpdateInput): Promise<number> {
+    const result = await prismaCore.mission.updateMany({ where, data });
+    return result.count;
   },
 
   async create(input: MissionCreateInput): Promise<MissionRecord> {
