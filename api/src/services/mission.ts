@@ -586,11 +586,12 @@ export const missionService = {
     options: {
       limit?: number;
       skip?: number;
-      orderBy?: Prisma.MissionOrderByWithRelationInput | Prisma.MissionOrderByWithRelationInput[];
+      orderBy?: Prisma.MissionOrderByWithRelationInput | Prisma.MissionOrderByWithRelationInput[]; 
       select?: MissionSelect | null;
+      moderationTitle?: boolean;
     } = {}
   ): Promise<MissionRecord[]> {
-    const { select, orderBy, limit, skip } = options;
+    const { select, orderBy, limit, skip, moderationTitle } = options;
     const missions = await missionRepository.findMany({
       where,
       select,
@@ -599,7 +600,7 @@ export const missionService = {
       ...(limit ? { take: limit } : {}),
       ...(skip ? { skip } : {}),
     });
-    return missions.map((mission) => toMissionRecord(mission as MissionWithRelations));
+    return missions.map((mission) => toMissionRecord(mission as MissionWithRelations, moderationTitle));
   },
 
   async findMissions(filters: MissionSearchFilters, select: MissionSelect | null = null): Promise<{ data: MissionRecord[]; total: number }> {

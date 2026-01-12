@@ -182,6 +182,7 @@ export const widgetMissionService = {
         orderBy: [{ startAt: Prisma.SortOrder.desc }, { createdAt: Prisma.SortOrder.desc }],
         skip: filters.skip,
         limit: filters.limit,
+        moderationTitle: widget.jvaModeration,
       }),
       missionService.countBy(where),
     ]);
