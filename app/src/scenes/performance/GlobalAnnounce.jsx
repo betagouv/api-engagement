@@ -5,11 +5,10 @@ import EmptySVG from "../../assets/svg/empty-info.svg";
 import { Pie, StackedBarchart } from "../../components/Chart";
 import Loader from "../../components/Loader";
 import DateRangePicker from "../../components/NewDateRangePicker";
-import { METABASE_CARD_ID, MONTHS } from "../../constants";
+import { MONTHS } from "../../constants";
 import api from "../../services/api";
 import { captureError } from "../../services/error";
 import useStore from "../../services/store";
-import MetabasePreview from "./MetabasePreview";
 
 const COLORS = ["rgba(250,117,117,255)", "rgba(252,205,109,255)", "rgba(251,146,107,255)", "rgba(110,213,197,255)", "rgba(114,183,122,255)", "rgba(146,146,146,255)"];
 const TYPE = {
@@ -151,7 +150,6 @@ const GlobalAnnounce = ({ filters, onFiltersChange }) => {
         <h2 className="text-3xl font-bold">Top missions domaines</h2>
         <p className="text-gray-425 text-base">Répartition des missions en ligne en fonction du domaine</p>
       </div>
-      <MetabasePreview type="pie" cardId={METABASE_CARD_ID.MISSION_PER_DOMAIN} showLegend />
     </div>
   );
 };

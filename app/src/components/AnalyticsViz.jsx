@@ -1,29 +1,41 @@
 import { useEffect, useMemo, useState } from "react";
 
 import EmptySVG from "../assets/svg/empty-info.svg";
+import { useAnalyticsProvider } from "../services/analytics/provider";
 import { captureError } from "../services/error";
-import metabase from "../services/metabase";
-import { adaptBarFromMetabase, adaptPieFromMetabase } from "../services/metabaseAdapter";
-import { COLORS as CHART_COLORS, Pie, BarChart as SimpleBarChart } from "./Chart";
+import { COLORS as CHART_COLORS, Pie, BarChart as SimpleBarChart, StackedBarchart } from "./Chart";
 import Loader from "./Loader";
+import NewTable from "./NewTable";
 
-const DEFAULT_ADAPTERS = {
-  pie: adaptPieFromMetabase,
-  bar: adaptBarFromMetabase,
-};
-
-const MetabaseChart = ({ cardId, type = "pie", variables = {}, adapter, chartProps = {}, className = "", loaderHeight = "240px", showLegend = false }) => {
+const AnalyticsViz = ({
+  cardId,
+  type = "pie",
+  variables = {},
+  adapter,
+  adapterOptions,
+  chartProps = {},
+  tableProps = {},
+  className = "",
+  loaderHeight = "240px",
+  showLegend = false,
+  columns: overrideColumns,
+  formatCell,
+}) => {
+  const analyticsProvider = useAnalyticsProvider();
   const [data, setData] = useState([]);
+  const [stackedKeys, setStackedKeys] = useState([]);
+  const [tableRows, setTableRows] = useState([]);
+  const [tableColumns, setTableColumns] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
   const variablesKey = useMemo(() => JSON.stringify(variables || {}), [variables]);
-  const effectiveAdapter = adapter || DEFAULT_ADAPTERS[type];
+  const effectiveAdapter = adapter || analyticsProvider?.adapters?.[type];
 
   useEffect(() => {
     if (!cardId) return;
     if (!effectiveAdapter) {
-      setError(new Error(`Aucun adapteur défini pour le type de graphique "${type}"`));
+      setError(new Error(`Aucun adapteur défini pour le type de vue "${type}"`));
       return;
     }
 
@@ -32,19 +44,24 @@ const MetabaseChart = ({ cardId, type = "pie", variables = {}, adapter, chartPro
       setLoading(true);
       setError(null);
       try {
-        const res = Object.keys(variables || {}).length
-          ? await metabase.queryWithTemplateVars(cardId, variables, { signal: controller.signal })
-          : await metabase.queryCard(cardId, { signal: controller.signal });
+        const raw = await analyticsProvider.query({ cardId, variables, signal: controller.signal });
+        const adapted = effectiveAdapter(raw, adapterOptions);
 
-        if (!res.ok) {
-          throw new Error(`Metabase renvoie ${res.status || "une erreur"}`);
+        if (type === "stacked") {
+          setData(adapted?.data || []);
+          setStackedKeys(adapted?.keys || []);
+        } else if (type === "table") {
+          setTableColumns(overrideColumns || adapted?.columns || []);
+          setTableRows(adapted?.rows || []);
+        } else {
+          setData(adapted || []);
         }
-
-        const adapted = effectiveAdapter(res.data || res);
-        setData(adapted || []);
       } catch (err) {
         if (err.name === "AbortError") return;
         setData([]);
+        setStackedKeys([]);
+        setTableRows([]);
+        setTableColumns([]);
         setError(err);
         captureError(err, { extra: { cardId, type, variables } });
       }
@@ -53,13 +70,13 @@ const MetabaseChart = ({ cardId, type = "pie", variables = {}, adapter, chartPro
     fetchData();
 
     return () => controller.abort();
-  }, [cardId, type, effectiveAdapter, variablesKey]);
+  }, [cardId, type, effectiveAdapter, variablesKey, adapterOptions, overrideColumns, analyticsProvider]);
 
   if (!cardId) return null;
 
   if (loading) {
     return (
-      <div className={`flex w-full items-center justify-center`} style={{ height: loaderHeight }}>
+      <div className={`flex w-full items-center justify-center ${className}`} style={{ height: loaderHeight }}>
         <Loader />
       </div>
     );
@@ -68,9 +85,40 @@ const MetabaseChart = ({ cardId, type = "pie", variables = {}, adapter, chartPro
   if (error) {
     return (
       <div className={`flex h-[200px] w-full flex-col items-center justify-center border border-dashed border-gray-900 bg-[#f6f6f6] ${className}`}>
-        <p className="text-sm text-[#666]">Impossible de charger les données Metabase.</p>
+        <p className="text-sm text-[#666]">Impossible de charger les données.</p>
         <p className="text-xs text-[#666]">{error.message}</p>
       </div>
+    );
+  }
+
+  if (type === "table") {
+    if (!tableRows.length) {
+      return (
+        <div className={`flex h-[200px] w-full flex-col items-center justify-center border border-dashed border-gray-900 bg-[#f6f6f6] ${className}`}>
+          <img src={EmptySVG} alt="empty" className="h-16 w-16" />
+          <p className="text-base text-[#666]">Aucune donnée disponible</p>
+        </div>
+      );
+    }
+
+    const columns = overrideColumns || tableColumns;
+    const header = columns.map((col) => ({
+      title: col.title || col.name || col.key,
+      key: col.key || col.name,
+    }));
+
+    return (
+      <NewTable header={header} total={tableRows.length} loading={false} className={`border border-gray-900 ${className}`} {...tableProps}>
+        {tableRows.map((row, idx) => (
+          <tr key={idx} className={`${idx % 2 === 0 ? "bg-gray-975" : "bg-gray-1000-active"} table-item`}>
+            {columns.map((col, colIdx) => (
+              <td key={col.key || colIdx} className="px-4 py-2 text-sm">
+                {formatCell ? formatCell(row[colIdx], col, row) : row[colIdx]}
+              </td>
+            ))}
+          </tr>
+        ))}
+      </NewTable>
     );
   }
 
@@ -131,7 +179,16 @@ const MetabaseChart = ({ cardId, type = "pie", variables = {}, adapter, chartPro
     );
   }
 
+  if (type === "stacked") {
+    const { dataKey: _ignored, ...restChartProps } = chartProps || {};
+    return (
+      <div className={className} style={{ height: loaderHeight }}>
+        <StackedBarchart data={data} dataKey={stackedKeys} {...restChartProps} />
+      </div>
+    );
+  }
+
   return null;
 };
 
-export default MetabaseChart;
+export default AnalyticsViz;
