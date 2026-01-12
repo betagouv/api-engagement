@@ -13,9 +13,8 @@ const buildWidgetWhere = (widget: WidgetRecord, filters: MissionSearchFilters): 
     return buildWhere(filters);
   }
 
-  const jvaPublisherId = PUBLISHER_IDS.JEVEUXAIDER;
-  const jvaPublishers = widget.publishers.filter((publisherId) => publisherId === jvaPublisherId);
-  const otherPublishers = widget.publishers.filter((publisherId) => publisherId !== jvaPublisherId);
+  const jvaPublishers = widget.publishers.filter((publisherId) => publisherId === PUBLISHER_IDS.JEVEUXAIDER);
+  const otherPublishers = widget.publishers.filter((publisherId) => publisherId !== PUBLISHER_IDS.JEVEUXAIDER);
   const baseWhere = buildWhere({ ...filters, publisherIds: [], moderationAcceptedFor: undefined });
   const orConditions: Prisma.MissionWhereInput[] = [];
 
@@ -25,7 +24,7 @@ const buildWidgetWhere = (widget: WidgetRecord, filters: MissionSearchFilters): 
   if (otherPublishers.length) {
     orConditions.push({
       publisherId: { in: otherPublishers },
-      moderationStatuses: { some: { publisherId: jvaPublisherId, status: "ACCEPTED" } },
+      moderationStatuses: { some: { publisherId: PUBLISHER_IDS.JEVEUXAIDER, status: "ACCEPTED" } },
     });
   }
 
@@ -170,11 +169,7 @@ const aggregateWidgetAggs = async (
 const sortBuckets = (buckets?: Bucket[]) => (buckets ?? []).sort((a, b) => b.doc_count - a.doc_count);
 
 export const widgetMissionService = {
-  async fetchWidgetMissions(
-    widget: WidgetRecord,
-    filters: MissionSearchFilters,
-    select: MissionSelect | null = null
-  ): Promise<{ data: MissionRecord[]; total: number }> {
+  async fetchWidgetMissions(widget: WidgetRecord, filters: MissionSearchFilters, select: MissionSelect | null = null): Promise<{ data: MissionRecord[]; total: number }> {
     const where = buildWidgetWhere(widget, filters);
     const [data, total] = await Promise.all([
       missionService.findMissionsBy(where, {
@@ -182,7 +177,7 @@ export const widgetMissionService = {
         orderBy: [{ startAt: Prisma.SortOrder.desc }, { createdAt: Prisma.SortOrder.desc }],
         skip: filters.skip,
         limit: filters.limit,
-        moderationTitle: widget.jvaModeration,
+        moderatedBy: widget.jvaModeration ? PUBLISHER_IDS.JEVEUXAIDER : null,
       }),
       missionService.countBy(where),
     ]);
