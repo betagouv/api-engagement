@@ -343,6 +343,7 @@ model Publisher {
   diffuseurs             PublisherDiffusion[]          @relation("PublisherAnnonceurRelation")
   diffusionsAsDiffuseur  PublisherDiffusion[]          @relation("PublisherDiffuseurRelation")
   warnings               Warning[]                     @relation("WarningPublisherRelation")
+  warningBots            WarningBot[]                  @relation("WarningBotPublisherRelation")
   imports                Import[]                      @relation("ImportPublisherRelation")
   reports                Report[]                      @relation("PublisherReportRelation")
   diffusionExclusionsBy  PublisherDiffusionExclusion[] @relation("PublisherDiffusionExclusionByAnnonceurRelation")
@@ -421,6 +422,26 @@ model Warning {
   @@index([fixed], map: "warning_fixed_idx")
   @@index([createdAt], map: "warning_created_at_idx")
   @@map("warning")
+}
+
+model WarningBot {
+  id           String   @id @default(uuid())
+  hash         String
+  userAgent    String   @map("user_agent")
+  printCount   Int      @default(0) @map("print_count")
+  clickCount   Int      @default(0) @map("click_count")
+  applyCount   Int      @default(0) @map("apply_count")
+  accountCount Int      @default(0) @map("account_count")
+  publisherId  String   @map("publisher_id")
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+
+  publisher Publisher @relation("WarningBotPublisherRelation", fields: [publisherId], references: [id], onDelete: Cascade)
+
+  @@index([hash], map: "warning_bot_hash_idx")
+  @@index([publisherId], map: "warning_bot_publisher_id_idx")
+  @@index([createdAt], map: "warning_bot_created_at_idx")
+  @@map("warning_bot")
 }
 
 model Widget {
