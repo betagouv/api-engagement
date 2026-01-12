@@ -36,7 +36,7 @@ const Filters = ({ filters, onChange, reload }) => {
           city: filters.city,
           domain: filters.domain,
           department: filters.department,
-          organization: filters.organization,
+          organizationName: filters.organizationName,
           activity: filters.activity,
           search: filters.search,
         };
@@ -91,8 +91,8 @@ const Filters = ({ filters, onChange, reload }) => {
         <SearchSelect
           placeholder="Organisation"
           options={options.organizations.map((e) => ({ value: e.key === "" ? "none" : e.key, label: e.key === "" ? "Non renseignée" : e.key, count: e.doc_count }))}
-          value={filters.organization}
-          onChange={(e) => onChange({ ...filters, organization: e.value })}
+          value={filters.organizationName}
+          onChange={(e) => onChange({ ...filters, organizationName: e.value })}
           className="right-0 w-96"
           loading={loading}
         />
@@ -138,7 +138,7 @@ const Filters = ({ filters, onChange, reload }) => {
       <div className="flex flex-wrap gap-3">
         <Badge label="Statut" value={STATUS[filters.status]} onDelete={() => onChange({ ...filters, status: "" })} />
         <Badge label="Annonceur" value={options.publishers.find((p) => p.key === filters.publisherId)?.label} onDelete={() => onChange({ ...filters, publisherId: "" })} />
-        <Badge label="Organisation" value={filters.organization} onDelete={() => onChange({ ...filters, organization: "" })} />
+        <Badge label="Organisation" value={filters.organizationName} onDelete={() => onChange({ ...filters, organizationName: "" })} />
         <Badge
           label="Département"
           value={filters.department === "none" ? "Non renseigné" : DEPARTMENT_LABELS[filters.department]}

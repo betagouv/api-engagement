@@ -8,6 +8,7 @@ export const missionModerationStatusRepository = {
       include: params.include ?? undefined,
     });
   },
+
   findMany(params: Prisma.MissionModerationStatusFindManyArgs = {}): Promise<MissionModerationStatus[]> {
     return prismaCore.missionModerationStatus.findMany({
       ...params,
@@ -19,6 +20,18 @@ export const missionModerationStatusRepository = {
     return prismaCore.missionModerationStatus.update({
       ...params,
       include: params.include ?? undefined,
+    });
+  },
+
+  count(where: Prisma.MissionModerationStatusWhereInput = {}): Promise<number> {
+    return prismaCore.missionModerationStatus.count({ where });
+  },
+
+  groupBy<K extends keyof MissionModerationStatus>(by: K[], where: Prisma.MissionModerationStatusWhereInput) {
+    return prismaCore.missionModerationStatus.groupBy({
+      by: by as any,
+      where,
+      _count: true,
     });
   },
 };

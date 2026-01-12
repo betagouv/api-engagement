@@ -33,6 +33,14 @@ export const missionRepository = {
   async updateUnchecked(id: string, data: Prisma.MissionUncheckedUpdateInput): Promise<Mission> {
     return prismaCore.mission.update({ where: { id }, data });
   },
+
+  groupBy<K extends keyof Mission>(by: K[], where: Prisma.MissionWhereInput) {
+    return prismaCore.mission.groupBy({
+      by: by as any,
+      where,
+      _count: true,
+    });
+  },
 };
 
 export default missionRepository;

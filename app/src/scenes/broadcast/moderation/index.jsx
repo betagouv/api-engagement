@@ -25,7 +25,7 @@ const Moderation = () => {
     status: searchParams.get("status") || "",
     comment: searchParams.get("comment") || "",
     publisherId: searchParams.get("publisher") || "",
-    organization: searchParams.get("organization") || "",
+    organizationName: searchParams.get("organizationName") || "",
     department: searchParams.get("department") || "",
     city: searchParams.get("city") || "",
     activity: searchParams.get("activity") || "",
@@ -62,7 +62,7 @@ const Moderation = () => {
           city: filters.city,
           domain: filters.domain,
           department: filters.department,
-          organizationName: filters.organization,
+          organizationName: filters.organizationName,
           activity: filters.activity,
           search: filters.search,
           from: (filters.page - 1) * filters.size,
@@ -82,7 +82,7 @@ const Moderation = () => {
         if (filters.status) newSearchParams.set("status", filters.status);
         if (filters.comment) newSearchParams.set("comment", filters.comment);
         if (filters.publisherId) newSearchParams.set("publisher", filters.publisherId);
-        if (filters.organization) newSearchParams.set("organization", filters.organization);
+        if (filters.organizationName) newSearchParams.set("organizationName", filters.organizationName);
         if (filters.department) newSearchParams.set("department", filters.department);
         if (filters.city) newSearchParams.set("city", filters.city);
         if (filters.activity) newSearchParams.set("activity", filters.activity);
@@ -246,7 +246,7 @@ const Moderation = () => {
                   setReloadFilters(!reloadFilters);
                 }}
                 onSelect={() => setSelected(selected.includes(item.id) ? selected.filter((id) => id !== item.id) : [...selected, item.id])}
-                onFilter={(v) => setFilters({ ...filters, organization: v, page: 1 })}
+                onFilter={(v) => setFilters({ ...filters, organizationName: v, page: 1 })}
               />
             </tr>
           ))}

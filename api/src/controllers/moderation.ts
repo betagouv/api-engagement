@@ -43,7 +43,7 @@ const aggsSchema = zod.object({
   domain: zod.string().nullable().optional(),
   city: zod.string().nullable().optional(),
   department: zod.string().nullable().optional(),
-  organization: zod.string().nullable().optional(),
+  organizationName: zod.string().nullable().optional(),
   search: zod.string().nullable().optional(),
   activity: zod.string().nullable().optional(),
 });
@@ -61,95 +61,6 @@ const moderatorIdQuerySchema = zod.object({
   moderatorId: zod.string(),
 });
 
-const findFilters = async (user: UserRequest["user"], body: zod.infer<typeof searchSchema>) => {
-  if (user.role !== "admin" && !user.publishers.includes(body.publisherId) && !user.publishers.includes(body.moderatorId)) {
-    throw new Error("FORBIDDEN");
-  }
-
-  const moderator = await publisherService.findOnePublisherById(body.moderatorId);
-  if (!moderator || !moderator.moderator) {
-    throw new Error("FORBIDDEN");
-  }
-
-  const publisherIds = body.publisherId ? [body.publisherId] : moderator.publishers.map((p) => p.diffuseurPublisherId);
-  const filters: any = {
-    statusCode: "ACCEPTED",
-    deletedAt: null,
-    publisherIds,
-    moderationAcceptedFor: body.moderatorId,
-    limit: body.size,
-    skip: body.from,
-  };
-
-  const asArray = (value: string | null | undefined) => {
-    if (value === null || value === undefined) {
-      return undefined;
-    }
-    return [value];
-  };
-
-  if (body.status) {
-    filters.moderationStatus = body.status;
-  }
-  if (body.comment) {
-    filters.moderationComment = body.comment;
-  }
-  if (body.organizationName === "none") {
-    filters.organizationName = [""];
-  } else if (body.organizationName) {
-    filters.organizationName = asArray(body.organizationName);
-  }
-  if (body.organizationClientId) {
-    filters.organizationClientId = asArray(body.organizationClientId);
-  }
-  if (body.domain === "none") {
-    filters.domain = [""];
-  } else if (body.domain) {
-    filters.domain = asArray(body.domain);
-  }
-  if (body.department === "none") {
-    filters.departmentName = [""];
-  } else if (body.department) {
-    filters.departmentName = asArray(body.department);
-  }
-  if (body.city === "none") {
-    filters.city = [""];
-  } else if (body.city) {
-    filters.city = asArray(body.city);
-  }
-  if (body.activity === "none") {
-    filters.activity = [""];
-  } else if (body.activity) {
-    filters.activity = asArray(body.activity);
-  }
-  if (body.search) {
-    const keywords = body.search.trim();
-    if (keywords) {
-      filters.keywords = keywords;
-    }
-  }
-  if (body.organizationRNAVerified) {
-    filters.organizationRNAVerified = body.organizationRNAVerified as any;
-  }
-  if (body.organizationSirenVerified) {
-    filters.organizationSirenVerified = body.organizationSirenVerified as any;
-  }
-
-  return { filters, moderatorId: body.moderatorId };
-};
-
-const buildModerationProjection = (mission: MissionRecord, moderatorId: string) => {
-  const statusKey: ModeratorStatusKey = `moderation_${moderatorId}_status`;
-  const commentKey: ModeratorCommentKey = `moderation_${moderatorId}_comment`;
-  return {
-    ...mission,
-    newTitle: (mission as any)[`moderation_${moderatorId}_title`],
-    status: (mission as any)[statusKey],
-    comment: (mission as any)[commentKey],
-    note: (mission as any)[`moderation_${moderatorId}_note`],
-  };
-};
-
 router.post("/search", passport.authenticate("user", { session: false }), async (req: UserRequest, res: Response, next: NextFunction) => {
   try {
     const body = searchSchema.safeParse(req.body);
@@ -162,22 +73,23 @@ router.post("/search", passport.authenticate("user", { session: false }), async 
     }
 
     const filters: any = {
-      publisherId: moderator.id,
+      moderatorId: moderator.id,
       limit: body.data.size,
       skip: body.data.from,
       sort: body.data.sort,
-      status: body.data.status,
-      comment: body.data.comment,
-      domain: body.data.domain,
-      department: body.data.department,
-      organizationName: body.data.organizationName,
-      organizationClientId: body.data.organizationClientId,
-      search: body.data.search,
-      activity: body.data.activity,
+      publisherId: body.data.publisherId || undefined,
+      status: body.data.status || undefined,
+      comment: body.data.comment || undefined,
+      domain: body.data.domain || undefined,
+      department: body.data.department || undefined,
+      organizationName: body.data.organizationName || undefined,
+      organizationClientId: body.data.organizationClientId || undefined,
+      city: body.data.city || undefined,
+      search: body.data.search || undefined,
+      activity: body.data.activity || undefined,
     };
 
     const { data, total } = await missionModerationStatusService.findModerationStatuses(filters);
-    // const mapped = data.map((status) => buildModerationProjection(status.mission, moderator.id));
 
     return res.status(200).send({
       ok: true,
@@ -196,49 +108,25 @@ router.post("/aggs", passport.authenticate("user", { session: false }), async (r
       return res.status(400).send({ ok: false, code: INVALID_QUERY, error: body.error });
     }
 
-    let parsed;
-    try {
-      parsed = await findFilters(req.user, { ...body.data, size: 0, from: 0 } as any);
-    } catch (error: any) {
-      if (error.message === "FORBIDDEN") {
-        return res.status(403).send({ ok: false, code: FORBIDDEN });
-      }
-      throw error;
+    const moderator = await publisherService.findOnePublisherById(body.data.moderatorId);
+    if (!moderator) {
+      return res.status(404).send({ ok: false, code: NOT_FOUND });
     }
 
-    const { data } = await missionService.findMissions(parsed.filters);
-    const statusKey: ModeratorStatusKey = `moderation_${parsed.moderatorId}_status`;
-    const commentKey: ModeratorCommentKey = `moderation_${parsed.moderatorId}_comment`;
-
-    const countFacet = (getter: (mission: MissionRecord) => string | null | undefined) => {
-      const map = new Map<string, number>();
-      data.forEach((mission) => {
-        const key = getter(mission);
-        if (key) {
-          map.set(key, (map.get(key) ?? 0) + 1);
-        }
-      });
-      return Array.from(map.entries()).map(([key, count]) => ({ key, doc_count: count }));
+    const filters = {
+      moderatorId: moderator.id,
+      publisherId: body.data.publisherId || undefined,
+      status: body.data.status || undefined,
+      comment: body.data.comment || undefined,
+      domain: body.data.domain || undefined,
+      department: body.data.department || undefined,
+      organizationName: body.data.organizationName || undefined,
+      city: body.data.city || undefined,
+      activity: body.data.activity || undefined,
+      search: body.data.search || undefined,
     };
 
-    const publishers = await publisherService.findPublishers();
-
-    const mappedPublishers = countFacet((m) => m.publisherId).map((p) => ({
-      key: p.key,
-      label: publishers.find((pub) => pub.id === p.key)?.name,
-      doc_count: p.doc_count,
-    }));
-
-    const dataAggs = {
-      status: countFacet((m) => (m as any)[statusKey]),
-      comments: countFacet((m) => (m as any)[commentKey]),
-      publishers: mappedPublishers,
-      organizations: countFacet((m) => m.organizationName),
-      departments: countFacet((m) => m.departmentCode),
-      cities: countFacet((m) => m.city),
-      domains: countFacet((m) => m.domain),
-      activities: countFacet((m) => m.activity),
-    };
+    const dataAggs = await missionModerationStatusService.aggregateModerationStatuses(filters);
 
     return res.status(200).send({ ok: true, data: dataAggs });
   } catch (error) {
