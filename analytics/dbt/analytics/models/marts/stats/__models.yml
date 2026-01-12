@@ -3,9 +3,9 @@ version: 2
 models:
   - name: global_events
     description: >
-      Table mart remplaçant la vue matérialisée Postgres `StatsGlobalEvents`.
-      Elle reprend les événements `stat_event` hors bots, avec la normalisation
-      des sources et l’enrichissement des noms partenaires.
+      Table de faits des événements statistiques (`stat_event`) filtrés des bots,
+      avec normalisation des sources et enrichissement des publishers émetteur/récepteur.
+      Sert de base aux graphiques de performance (impressions, clics, comptes, candidatures).
     columns:
       - name: stat_event_id
         description: Identifiant de l'événement `stat_event` (clé d’origine).
@@ -46,9 +46,9 @@ models:
 
   - name: global_mission_activity
     description: >
-      Agrégat mission/type/from/to reproduisant `StatsGlobalMissionActivity`.
-      Calcule les premiers et derniers événements observés par combinaison
-      mission + partenaires pour alimenter les statistiques globales.
+      Agrégat par mission/type/diffuseur/annonceur calculant les premiers et derniers
+      événements observés. Utilisé pour compter les missions actives et suivre la période
+      d’activité dans les tableaux et graphiques de performance.
     columns:
       - name: mission_id
         description: UUID de la mission concernée.
