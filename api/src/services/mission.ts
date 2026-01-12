@@ -589,11 +589,17 @@ export const missionService = {
 
   async findMissionsBy(
     where: Prisma.MissionWhereInput,
-    options: { limit?: number; skip?: number; orderBy?: Prisma.MissionOrderByWithRelationInput | Prisma.MissionOrderByWithRelationInput[] } = {}
+    options: {
+      limit?: number;
+      skip?: number;
+      orderBy?: Prisma.MissionOrderByWithRelationInput | Prisma.MissionOrderByWithRelationInput[];
+      select?: MissionSelect;
+    } = {}
   ): Promise<MissionRecord[]> {
     const missions = await missionRepository.findMany({
       where,
-      include: baseInclude,
+      include: options.select ? undefined : baseInclude,
+      select: options.select ?? undefined,
       ...(options.orderBy ? { orderBy: options.orderBy } : {}),
       ...(options.limit ? { take: options.limit } : {}),
       ...(options.skip ? { skip: options.skip } : {}),
@@ -985,8 +991,6 @@ export const missionService = {
     if ("organisationIsRUP" in patch) {
       data.organisationIsRUP = patch.organisationIsRUP ?? undefined;
     }
-
-    console.log("data", JSON.stringify(data, null, 2));
 
     await missionRepository.update(id, data);
     const mission = await missionRepository.findFirst({ where: { id }, include: baseInclude });

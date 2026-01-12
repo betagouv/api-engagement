@@ -268,7 +268,7 @@ export const missionModerationStatusService = {
   async update(id: string, patch: MissionModerationStatusUpdatePatch) {
     const updates: Prisma.MissionModerationStatusUpdateInput = {};
     if ("status" in patch) {
-      updates.status = patch.status ?? null;
+      updates.status = patch.status ?? "PENDING";
     }
     if ("comment" in patch) {
       updates.comment = patch.comment ?? null;
@@ -290,7 +290,7 @@ export const missionModerationStatusService = {
 
     const updates: Prisma.MissionModerationStatusUpdateInput = {};
     if ("status" in patch) {
-      updates.status = patch.status ?? null;
+      updates.status = patch.status ?? "PENDING";
     }
     if ("comment" in patch) {
       updates.comment = patch.comment ?? null;
@@ -370,7 +370,7 @@ export const missionModerationStatusService = {
         prismaCore.missionModerationStatus.upsert({
           where: { missionId_publisherId: { missionId: input.missionId, publisherId: input.publisherId } },
           update: {
-            status: (input.status as ModerationEventStatus | null) ?? null,
+            status: (input.status as ModerationEventStatus) ?? "PENDING",
             comment: input.comment ?? null,
             note: input.note ?? null,
             title: input.title ?? null,
@@ -378,7 +378,7 @@ export const missionModerationStatusService = {
           create: {
             mission: { connect: { id: input.missionId } },
             publisherId: input.publisherId,
-            status: (input.status as ModerationEventStatus | null) ?? null,
+            status: (input.status as ModerationEventStatus) ?? "PENDING",
             comment: input.comment ?? null,
             note: input.note ?? null,
             title: input.title ?? null,
