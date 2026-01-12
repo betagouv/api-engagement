@@ -317,6 +317,11 @@ export const missionModerationStatusService = {
     return updatedStatuses.map((status) => toRecord(status as MissionModerationWithRelations));
   },
 
+  async create(input: Prisma.MissionModerationStatusCreateInput) {
+    const res = await missionModerationStatusRepository.create({ data: input, include: baseInclude });
+    return toRecord(res as MissionModerationWithRelations);
+  },
+
   async aggregateByOrganization(filters: { moderatorId: string; organizationName?: string }) {
     const where: Prisma.MissionModerationStatusWhereInput = {
       publisherId: filters.moderatorId,

@@ -2,6 +2,13 @@ import { MissionModerationStatus, Prisma } from "../db/core";
 import { prismaCore } from "../db/postgres";
 
 export const missionModerationStatusRepository = {
+  create(params: Prisma.MissionModerationStatusCreateArgs): Promise<MissionModerationStatus> {
+    return prismaCore.missionModerationStatus.create({
+      ...params,
+      include: params.include ?? undefined,
+    });
+  },
+
   findUnique(params: Prisma.MissionModerationStatusFindUniqueArgs): Promise<MissionModerationStatus | null> {
     return prismaCore.missionModerationStatus.findUnique({
       ...params,
