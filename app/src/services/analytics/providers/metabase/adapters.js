@@ -81,3 +81,17 @@ export const adaptTableFromMetabase = (metabaseResult) => {
 
   return { columns, rows };
 };
+
+export const adaptKpiFromMetabase = (metabaseResult) => {
+  const rows = metabaseResult?.data?.rows || metabaseResult?.rows || [];
+  if (!rows.length) {
+    return { value: 0 };
+  }
+
+  const firstRow = rows[0];
+  if (!Array.isArray(firstRow)) {
+    return { value: Number(firstRow) || 0 };
+  }
+
+  return { value: Number(firstRow[0]) || 0 };
+};

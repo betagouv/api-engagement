@@ -20,12 +20,16 @@ const AnalyticsViz = ({
   showLegend = false,
   columns: overrideColumns,
   formatCell,
+  kpiLabel,
+  kpiUnit,
+  kpiIcon,
 }) => {
   const analyticsProvider = useAnalyticsProvider();
   const [data, setData] = useState([]);
   const [stackedKeys, setStackedKeys] = useState([]);
   const [tableRows, setTableRows] = useState([]);
   const [tableColumns, setTableColumns] = useState([]);
+  const [kpiValue, setKpiValue] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
@@ -50,11 +54,16 @@ const AnalyticsViz = ({
         if (type === "stacked") {
           setData(adapted?.data || []);
           setStackedKeys(adapted?.keys || []);
+          setKpiValue(null);
         } else if (type === "table") {
           setTableColumns(overrideColumns || adapted?.columns || []);
           setTableRows(adapted?.rows || []);
+          setKpiValue(null);
+        } else if (type === "kpi") {
+          setKpiValue(adapted?.value ?? 0);
         } else {
           setData(adapted || []);
+          setKpiValue(null);
         }
       } catch (err) {
         if (err.name === "AbortError") return;
@@ -62,6 +71,7 @@ const AnalyticsViz = ({
         setStackedKeys([]);
         setTableRows([]);
         setTableColumns([]);
+        setKpiValue(null);
         setError(err);
         captureError(err, { extra: { cardId, type, variables } });
       }
@@ -119,6 +129,30 @@ const AnalyticsViz = ({
           </tr>
         ))}
       </NewTable>
+    );
+  }
+
+  if (type === "kpi") {
+    if (kpiValue === null) {
+      return (
+        <div className={`flex h-[120px] w-full flex-col items-center justify-center border border-dashed border-gray-900 bg-[#f6f6f6] ${className}`}>
+          <img src={EmptySVG} alt="empty" className="h-12 w-12" />
+          <p className="text-base text-[#666]">Aucune donnée disponible</p>
+        </div>
+      );
+    }
+
+    return (
+      <div className={`border border-gray-900 p-6 ${className}`}>
+        <div className="flex items-center justify-between">
+          <p className="text-[28px] font-bold">
+            {kpiValue.toLocaleString("fr")}
+            {kpiUnit ? ` ${kpiUnit}` : ""}
+          </p>
+          {kpiIcon && <div className="text-xl text-gray-600">{kpiIcon}</div>}
+        </div>
+        {kpiLabel && <p className="text-base">{kpiLabel}</p>}
+      </div>
     );
   }
 

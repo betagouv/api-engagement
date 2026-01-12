@@ -1,9 +1,10 @@
 import { queryCard, queryWithTemplateVars } from "./client";
-import { adaptBarFromMetabase, adaptPieFromMetabase, adaptStackedBarFromMetabase, adaptTableFromMetabase } from "./adapters";
+import { adaptBarFromMetabase, adaptKpiFromMetabase, adaptPieFromMetabase, adaptStackedBarFromMetabase, adaptTableFromMetabase } from "./adapters";
 
 const DEFAULT_ADAPTERS = {
   pie: adaptPieFromMetabase,
   bar: adaptBarFromMetabase,
+  kpi: adaptKpiFromMetabase,
   stacked: adaptStackedBarFromMetabase,
   table: adaptTableFromMetabase,
 };

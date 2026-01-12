@@ -145,11 +145,6 @@ const GlobalAnnounce = ({ filters, onFiltersChange }) => {
           <Announcers filters={filters} defaultType={data.totalPrint !== 0 ? "print" : "click"} />
         </>
       )}
-
-      <div className="space-y-2">
-        <h2 className="text-3xl font-bold">Top missions domaines</h2>
-        <p className="text-gray-425 text-base">Répartition des missions en ligne en fonction du domaine</p>
-      </div>
     </div>
   );
 };
