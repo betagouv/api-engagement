@@ -400,7 +400,6 @@ export const buildWhere = (filters: MissionSearchFilters): Prisma.MissionWhereIn
   return where;
 };
 
-
 const computeFacetsFromRecords = (records: MissionRecord[]): MissionFacets => {
   const counts = <T extends string>(getter: (record: MissionRecord) => T | null) => {
     const map = new Map<string, number>();
@@ -586,12 +585,12 @@ export const missionService = {
     options: {
       limit?: number;
       skip?: number;
-      orderBy?: Prisma.MissionOrderByWithRelationInput | Prisma.MissionOrderByWithRelationInput[]; 
+      orderBy?: Prisma.MissionOrderByWithRelationInput | Prisma.MissionOrderByWithRelationInput[];
       select?: MissionSelect | null;
-      moderationTitle?: boolean;
+      moderatedBy?: string | null;
     } = {}
   ): Promise<MissionRecord[]> {
-    const { select, orderBy, limit, skip, moderationTitle } = options;
+    const { select, orderBy, limit, skip, moderatedBy } = options;
     const missions = await missionRepository.findMany({
       where,
       select,
@@ -600,7 +599,7 @@ export const missionService = {
       ...(limit ? { take: limit } : {}),
       ...(skip ? { skip } : {}),
     });
-    return missions.map((mission) => toMissionRecord(mission as MissionWithRelations, moderationTitle));
+    return missions.map((mission) => toMissionRecord(mission as MissionWithRelations, moderatedBy));
   },
 
   async findMissions(filters: MissionSearchFilters, select: MissionSelect | null = null): Promise<{ data: MissionRecord[]; total: number }> {
