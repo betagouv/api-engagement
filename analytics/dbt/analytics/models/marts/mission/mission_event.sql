@@ -31,7 +31,6 @@ typed as (
   select
     s.id,
     s.mission_id,
-    s.mission_id_raw,
     s.created_by,
     s.created_at,
     s.updated_at,

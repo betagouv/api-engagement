@@ -18,15 +18,8 @@ models:
           - not_null
           - relationships:
               arguments:
-                to: source('public', 'Mission')
+                to: ref('mission')
                 field: id
-      - name: mission_id_raw
-        description: Ancien identifiant Mission.old_id correspondant à la mission liée.
-        tests:
-          - relationships:
-              arguments:
-                to: source('public', 'Mission')
-                field: old_id
       - name: created_at
         description: Date de création de l'événement.
         tests:
