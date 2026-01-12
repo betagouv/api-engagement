@@ -171,6 +171,17 @@ export const missionModerationStatusService = {
     return toRecord(status as MissionModerationWithRelations);
   },
 
+  async findManyModerationStatusesByIds(ids: string[]): Promise<MissionModerationRecord[]> {
+    if (!ids.length) {
+      return [];
+    }
+    const statuses = await missionModerationStatusRepository.findMany({
+      where: { id: { in: ids } },
+      include: baseInclude,
+    });
+    return statuses.map((status) => toRecord(status as MissionModerationWithRelations));
+  },
+
   async findModerationStatuses(filters: ModerationFilters & { skip?: number; limit?: number }) {
     console.log("filters find", filters);
     const where = buildWhere(filters);
@@ -270,6 +281,84 @@ export const missionModerationStatusService = {
     }
     const res = await missionModerationStatusRepository.update({ where: { id }, data: updates, include: baseInclude });
     return toRecord(res as MissionModerationWithRelations);
+  },
+
+  async updateMany(ids: string[], patch: MissionModerationStatusUpdatePatch): Promise<MissionModerationRecord[]> {
+    if (!ids.length) {
+      return [];
+    }
+
+    const updates: Prisma.MissionModerationStatusUpdateInput = {};
+    if ("status" in patch) {
+      updates.status = patch.status ?? null;
+    }
+    if ("comment" in patch) {
+      updates.comment = patch.comment ?? null;
+    }
+    if ("note" in patch) {
+      updates.note = patch.note ?? null;
+    }
+    if ("title" in patch) {
+      updates.title = patch.title ?? null;
+    }
+
+    // Update all in a transaction
+    await prismaCore.missionModerationStatus.updateMany({
+      where: { id: { in: ids } },
+      data: updates,
+    });
+
+    // Fetch updated records
+    const updatedStatuses = await missionModerationStatusRepository.findMany({
+      where: { id: { in: ids } },
+      include: baseInclude,
+    });
+
+    return updatedStatuses.map((status) => toRecord(status as MissionModerationWithRelations));
+  },
+
+  async aggregateByOrganization(filters: { moderatorId: string; organizationName?: string }) {
+    const where: Prisma.MissionModerationStatusWhereInput = {
+      publisherId: filters.moderatorId,
+      mission: {
+        deletedAt: null,
+        statusCode: "ACCEPTED",
+      },
+    };
+
+    if (filters.organizationName) {
+      (where.mission as Prisma.MissionWhereInput).organizationName = { contains: filters.organizationName, mode: "insensitive" };
+    }
+
+    const results = await missionModerationStatusRepository.findMany({
+      where,
+      select: {
+        status: true,
+        mission: { select: { organizationName: true } },
+      },
+    });
+
+    const aggregation: Record<string, { total: number; ACCEPTED: number; REFUSED: number }> = {};
+
+    for (const item of results) {
+      const orgName = (item as any).mission?.organizationName;
+      if (!orgName) {
+        continue;
+      }
+
+      if (!aggregation[orgName]) {
+        aggregation[orgName] = { total: 0, ACCEPTED: 0, REFUSED: 0 };
+      }
+
+      aggregation[orgName].total += 1;
+      if (item.status === "ACCEPTED") {
+        aggregation[orgName].ACCEPTED += 1;
+      } else if (item.status === "REFUSED") {
+        aggregation[orgName].REFUSED += 1;
+      }
+    }
+
+    return { organization: aggregation, total: results.length };
   },
 
   async upsertStatuses(inputs: Array<{ missionId: string; publisherId: string; status: string | null; comment: string | null; note: string | null; title?: string | null }>) {
