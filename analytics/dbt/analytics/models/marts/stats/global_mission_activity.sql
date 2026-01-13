@@ -108,7 +108,7 @@ from aggregated
         else greatest(e.last_created_at, t.last_created_at)
       end as last_created_at
     from touched_keys as t
-    full outer join existing as e
+    left join existing as e
       on
         t.mission_id = e.mission_id
         and t.type = e.type
