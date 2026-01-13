@@ -35,6 +35,7 @@ const View = () => {
 
   return (
     <div className="space-y-12">
+      <title>{`API Engagement - ${mission.title}`}</title>
       <div className="space-y-6">
         <h1 className="text-4xl leading-normal font-bold">{mission.title}</h1>
         <div className="flex justify-between">

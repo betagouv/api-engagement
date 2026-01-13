@@ -93,6 +93,7 @@ const List = () => {
   if (!state) return <Loader />;
   return (
     <div className="flex flex-col">
+      <title>API Engagement - Alertes</title>
       <div className="mb-10 flex flex-col gap-8">
         <h1 className="text-3xl font-bold">État du service</h1>
 

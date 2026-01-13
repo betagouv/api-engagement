@@ -71,6 +71,7 @@ const Create = () => {
   return (
     <div className="flex flex-col">
       <div className="mb-10">
+        <title>API Engagement - Nouvel utilisateur</title>
         <h1 className="text-4xl font-bold">Nouvel utilisateur</h1>
       </div>
       <form onSubmit={handleSubmit} className="flex flex-col bg-white p-16 shadow-lg">

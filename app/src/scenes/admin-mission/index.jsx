@@ -126,7 +126,7 @@ const AdminMission = () => {
 
   return (
     <div className="space-y-12 bg-white p-12 shadow-lg">
-      <title>Missions - Administration - API Engagement</title>
+      <title>API Engagement - Missions - Administration</title>
       <div className="space-y-4">
         <SearchInput className="w-96" value={filters.search} onChange={(search) => setFilters({ ...filters, search })} placeholder="Rechercher par mot-clé" />
         <div className="flex items-center gap-4">

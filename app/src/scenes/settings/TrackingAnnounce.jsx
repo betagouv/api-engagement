@@ -25,7 +25,7 @@ const TrackingAnnounce = () => {
 
   return (
     <div className="space-y-12 p-12">
-      <title>Tracking des événements - Paramètres - API Engagement</title>
+      <title>API Engagement - Tracking des événements - Paramètres</title>
       <div className="space-y-8 border border-gray-900 p-8">
         <h2 className="text-2xl font-bold">Tracking des événements</h2>
 

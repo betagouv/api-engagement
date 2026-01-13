@@ -85,7 +85,7 @@ const Mean = ({ filters, onFiltersChange }) => {
 
   return (
     <div className="space-y-12 p-12">
-      <title>Moyens de diffusion - Performance - API Engagement</title>
+      <title>API Engagement - Moyens de diffusion - Performance</title>
       <div className="flex items-center justify-between">
         <div className="space-y-2">
           <label className="text-gray-425 text-sm font-semibold uppercase">Période</label>

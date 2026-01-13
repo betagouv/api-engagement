@@ -56,7 +56,7 @@ const Users = () => {
 
   return (
     <div className="space-y-12 p-12">
-      <title>Utilisateurs - Administration - API Engagement</title>
+      <title>API Engagement - Utilisateurs - Administration</title>
       <div className="flex items-center justify-between">
         <div>
           <h2 className="text-3xl font-bold">Liste des utilisateurs</h2>

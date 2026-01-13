@@ -146,7 +146,7 @@ const Moderation = () => {
 
   return (
     <div className="space-y-12 py-12">
-      <title>Modération - Diffuser des missions - API Engagement</title>
+      <title>API Engagement - Modération - Diffuser des missions</title>
       <MissionModal
         onChange={(values) => {
           applyMissionUpdates(values);

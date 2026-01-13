@@ -45,6 +45,7 @@ const Account = () => {
 
   return (
     <div className="space-y-12">
+      <title>API Engagement - Mon compte</title>
       <h1 className="text-4xl font-bold">Mon compte</h1>
 
       <form onSubmit={handleSubmit} className="bg-white p-12 shadow-lg">

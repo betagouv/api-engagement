@@ -153,6 +153,7 @@ const Edit = () => {
 
   return (
     <div className="flex flex-col gap-8">
+      <title>{`API Engagement - Compte partenaire - ${values.name}`}</title>
       <Link to="/admin-account/publishers" className="border-blue-france text-blue-france flex w-fit items-center gap-2 border-b text-[16px]">
         <RiArrowLeftLine />
         Retour

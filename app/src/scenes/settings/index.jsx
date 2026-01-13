@@ -13,7 +13,7 @@ const Settings = () => {
   if (flux === "from")
     return (
       <div className="space-y-12">
-        <title>Paramètres de tracking - API Engagement</title>
+        <title>API Engagement - Paramètres de tracking</title>
         <div className="space-y-4">
           <h1 className="text-4xl font-bold">Paramètres de tracking</h1>
           <p className="text-gray-425 text-base">

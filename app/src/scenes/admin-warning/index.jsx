@@ -134,7 +134,7 @@ const Index = () => {
 
   return (
     <div className="space-y-12">
-      <title>Alertes - Administration - API Engagement</title>
+      <title>API Engagement - Alertes - Administration</title>
       <div className="space-y-10">
         <h1 className="text-4xl font-bold">État du service</h1>
 

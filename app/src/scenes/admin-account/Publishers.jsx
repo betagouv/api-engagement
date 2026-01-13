@@ -113,7 +113,7 @@ const Publishers = () => {
 
   return (
     <div className="space-y-12 p-12">
-      <title> Partenaires - Administration - API Engagement</title>
+      <title>API Engagement - Partenaires - Administration</title>
       <div className="flex items-center justify-between">
         <div>
           <h2 className="text-3xl font-bold">Liste des partenaires</h2>

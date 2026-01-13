@@ -62,6 +62,7 @@ const Create = () => {
 
   return (
     <>
+      <title>API Engagement - Nouvelle campagne de diffusion</title>
       <CopyModal isOpen={isCopyModalOpen} campaignId={campaignId} onClose={() => setIsCopyModalOpen(false)} />
       <div className="flex flex-col gap-8">
         <Link to="/broadcast/campaigns" className="border-blue-france text-blue-france flex w-fit items-center gap-2 border-b text-[16px]">

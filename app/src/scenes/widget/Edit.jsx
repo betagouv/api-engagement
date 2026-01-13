@@ -113,6 +113,7 @@ const Edit = () => {
 
   return (
     <div className="space-y-6">
+      <title>API Engagement - Modifier un widget</title>
       <StickyBar onEdit={handleSubmit} visible={stickyVisible} widget={widget} handleActivate={handleActivate} canSubmit={canSubmit} />
       <div className="flex">
         <Link to={`/broadcast/widgets`} className="text-blue-france flex items-center space-x-1">
