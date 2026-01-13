@@ -582,16 +582,24 @@ export const missionService = {
 
   async findMissionsBy(
     where: Prisma.MissionWhereInput,
-    options: { limit?: number; skip?: number; orderBy?: Prisma.MissionOrderByWithRelationInput | Prisma.MissionOrderByWithRelationInput[] } = {}
+    options: {
+      limit?: number;
+      skip?: number;
+      orderBy?: Prisma.MissionOrderByWithRelationInput | Prisma.MissionOrderByWithRelationInput[];
+      select?: MissionSelect | null;
+      moderatedBy?: string | null;
+    } = {}
   ): Promise<MissionRecord[]> {
+    const { select, orderBy, limit, skip, moderatedBy } = options;
     const missions = await missionRepository.findMany({
       where,
-      include: baseInclude,
-      ...(options.orderBy ? { orderBy: options.orderBy } : {}),
-      ...(options.limit ? { take: options.limit } : {}),
-      ...(options.skip ? { skip: options.skip } : {}),
+      select,
+      include: select ? undefined : baseInclude,
+      ...(orderBy ? { orderBy } : {}),
+      ...(limit ? { take: limit } : {}),
+      ...(skip ? { skip } : {}),
     });
-    return missions.map((mission) => toMissionRecord(mission as MissionWithRelations));
+    return missions.map((mission) => toMissionRecord(mission as MissionWithRelations, moderatedBy));
   },
 
   async findMissions(filters: MissionSearchFilters, select: MissionSelect | null = null): Promise<{ data: MissionRecord[]; total: number }> {
