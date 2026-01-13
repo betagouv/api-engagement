@@ -21,20 +21,6 @@ models:
                 field: id
       - name: client_id
         description: Identifiant métier côté client/source.
-      - name: domain_id
-        description: Référence au domaine associé.
-        tests:
-          - relationships:
-              arguments:
-                to: ref('stg_domain')
-                field: id
-      - name: activity_id
-        description: Référence à l'activité associée.
-        tests:
-          - relationships:
-              arguments:
-                to: ref('stg_activity')
-                field: id
       - name: domain
         description: Libellé du domaine (référentiel ou libellé original).
       - name: activity
