@@ -150,24 +150,29 @@ export const YEARS = [2021, 2022, 2023, 2024, 2025, 2026];
 
 export const WARNINGS = {
   EMPTY_WARNING: {
-    emoji: "🙁",
+    emoji: <span aria-hidden="true">🙁</span>,
     name: "Flux vide",
     advice: "Il s’agit peut-être d’un problème dans l’envoi des données. Nous vous conseillons de vérifier votre flux.",
   },
   ERROR_WARNING: {
-    emoji: "❌",
+    emoji: <span aria-hidden="true">❌</span>,
     name: "Erreur de flux",
     advice: "Il s’agit peut-être d’un problème dans le formatage des données. Nous vous conseillons de vérifier votre flux.",
   },
   VALIDATION_WARNING: {
-    emoji: "🙅",
+    emoji: <span aria-hidden="true">🙅</span>,
     name: "Taux de validation critique",
     advice: "Il s’agit sûrement d’une mauvaise donnée. Nous vous conseillons de vérifier votre flux.",
   },
   TRACKING_WARNING: {
-    emoji: "🤔",
+    emoji: <span aria-hidden="true">🤔</span>,
     name: "Problème de tracking",
     advice: "Pour monitorer les candidatures, le script doit être ajouté. Nous vous recommandons de le vérifier.",
+  },
+  OTHER_WARNING: {
+    emoji: <span aria-hidden="true">🤔</span>,
+    name: "Alerte",
+    advice: "Il s’agit sûrement d’une mauvaise donnée. Nous vous conseillons de vérifier votre flux.",
   },
 };
 

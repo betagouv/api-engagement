@@ -5,7 +5,7 @@ import { toast } from "react-toastify";
 import Loader from "../../components/Loader";
 import Modal from "../../components/New-Modal";
 
-import TablePagination from "../../components/NewTablePagination";
+import Table from "../../components/NewTable";
 import api from "../../services/api";
 import { captureError } from "../../services/error";
 import useStore from "../../services/store";
@@ -72,13 +72,13 @@ const Flux = () => {
   return (
     <div className="space-y-12 p-12">
       <title>Flux de missions - Paramètres - API Engagement</title>
-      <div className="space-y-8 border border-gray-900 p-8">
+      <div className="border-grey-border space-y-8 border p-8">
         <h2 className="text-3xl font-bold">Configurer votre flux de missions</h2>
 
         <div className="flex items-center justify-between gap-6">
           <label className="w-[35%] flex-none font-semibold">Lien du fichier XML à synchroniser</label>
           <div className="flex flex-1 gap-2">
-            <input className="input w-full border border-[#E3E3FD] bg-[#F5F5FE] read-only:opacity-80" value={publisher.feed} readOnly />
+            <input className="input border-blue-france-925 bg-blue-france-975 w-full border read-only:opacity-80" value={publisher.feed} readOnly />
             {user.role === "admin" && <ModifyModal />}
           </div>
         </div>
@@ -91,7 +91,7 @@ const Flux = () => {
             {imports.length > 0 && lastSync < new Date(Date.now() - 24 * 60 * 60 * 1000) ? (
               <div className="items-center">
                 <p className="inline align-middle">{new Date(lastSync).toLocaleString("fr").replace(" ", " à ")}</p>
-                <RiCloseCircleFill className="text-red-error ml-2 inline h-5 w-5 align-middle" />
+                <RiCloseCircleFill className="text-error ml-2 inline h-5 w-5 align-middle" />
                 <p className="text-xs">Dernière synchronisation il y a plus de 24h.</p>
               </div>
             ) : (
@@ -104,11 +104,12 @@ const Flux = () => {
         </div>
       </div>
 
-      <div className="space-y-6 border border-gray-900 p-6">
+      <div className="border-grey-border space-y-6 border p-6">
         <h2 className="text-3xl font-bold">Historique des synchronisations</h2>
 
-        <TablePagination
+        <Table
           header={TABLE_HEADER}
+          pagination
           page={filters.page}
           pageSize={filters.size}
           onPageChange={(page) => setFilters({ ...filters, page })}
@@ -125,7 +126,7 @@ const Flux = () => {
               <td className="px-4 text-center">{item.missionCount?.toLocaleString("fr") || "-"}</td>
             </tr>
           ))}
-        </TablePagination>
+        </Table>
       </div>
     </div>
   );
@@ -165,7 +166,9 @@ const ModifyModal = () => {
       </button>
       <Modal isOpen={isOpen} onClose={() => setIsOpen(false)}>
         <div className="p-10">
-          <h2 className="mb-8 text-lg font-bold">⚙️ Modifier votre flux de missions</h2>
+          <h2 className="mb-8 text-lg font-bold">
+            <span aria-hidden="true">⚙️</span> Modifier votre flux de missions
+          </h2>
           <div className="flex flex-col items-start justify-between gap-4">
             <div>Lien du fichier XML à synchroniser</div>
             <input className="input w-full border-b-0 bg-gray-100 p-4 focus:ring-2" value={feed} onChange={(e) => setFeed(e.target.value)} />

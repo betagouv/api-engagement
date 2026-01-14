@@ -74,7 +74,7 @@ const Create = () => {
         <div className="flex flex-col gap-8 bg-white p-10 shadow-lg">
           <div>
             <h2 className="mb-2 text-3xl font-bold">Paramètres</h2>
-            <p className="text-gray-425 text-xs">
+            <p className="text-text-mention text-xs">
               Les champs avec <span className="text-red-marianne">*</span> sont requis.
             </p>
           </div>
@@ -111,7 +111,9 @@ const CopyModal = ({ isOpen, campaignId, onClose }) => {
       className="min-w-4xl"
     >
       <div className="flex flex-col gap-6 p-10 pt-16">
-        <h2 className="text-2xl font-bold">🥳 Votre campagne est créée !</h2>
+        <h2 className="text-2xl font-bold">
+          <span aria-hidden="true">🥳</span> Votre campagne est créée !
+        </h2>
         <p className="text-base">Pour commencer à diffuser des missions et suivre les statistiques, insérez ce lien dans le contenu de votre campagne.</p>
 
         <div className="border-blue-france-925 bg-blue-france-975 flex items-center justify-between border p-6">
@@ -121,7 +123,7 @@ const CopyModal = ({ isOpen, campaignId, onClose }) => {
           </button>
         </div>
 
-        <div className="text-orange-warning-425 flex items-center gap-2">
+        <div className="text-warning flex items-center gap-2">
           <AiFillWarning className="text-2xl" />
           <p className="flex flex-row items-center text-base">Copiez exactement ce lien et non celui qui apparaît dans la barre de votre navigateur !</p>
         </div>

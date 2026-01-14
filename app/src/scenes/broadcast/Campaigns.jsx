@@ -3,7 +3,7 @@ import { RiAddFill, RiEditFill, RiFileCopyLine, RiLink } from "react-icons/ri";
 import { Link } from "react-router-dom";
 import { toast } from "react-toastify";
 
-import TablePagination from "../../components/NewTablePagination";
+import Table from "../../components/NewTable";
 import Toggle from "../../components/Toggle";
 import api from "../../services/api";
 import { API_URL } from "../../services/config";
@@ -132,7 +132,7 @@ const Campaigns = () => {
           </div>
         </div>
 
-        <TablePagination header={TABLE_HEADER} page={filters.page} pageSize={filters.pageSize} onPageChange={(page) => setFilters({ ...filters, page })} total={data.length}>
+        <Table header={TABLE_HEADER} pagination page={filters.page} pageSize={filters.pageSize} onPageChange={(page) => setFilters({ ...filters, page })} total={data.length}>
           {data.slice((filters.page - 1) * filters.pageSize, filters.page * filters.pageSize).map((item, i) => (
             <tr key={i} className={`${i % 2 === 0 ? "bg-gray-975" : "bg-gray-1000-active"} table-item`}>
               <td className="truncate px-4" colSpan={3}>
@@ -168,7 +168,7 @@ const Campaigns = () => {
               )}
             </tr>
           ))}
-        </TablePagination>
+        </Table>
       </div>
     </div>
   );

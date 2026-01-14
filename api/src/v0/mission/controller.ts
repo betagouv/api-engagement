@@ -12,7 +12,7 @@ import type { PublisherRecord } from "../../types/publisher";
 import { getDistanceFromLatLonInKm, getDistanceKm } from "../../utils";
 import { NO_PARTNER, NO_PARTNER_MESSAGE } from "./constants";
 import { buildData } from "./transformer";
-import { findMissionById, normalizeQueryArray, parseDateFilter } from "./utils";
+import { normalizeQueryArray, parseDateFilter } from "./utils";
 
 const parseBooleanQuery = (value?: string): boolean | undefined => {
   if (value === undefined) {
@@ -208,8 +208,7 @@ router.get("/search", passport.authenticate(["apikey", "api"], { session: false 
       moderationAcceptedFor: user.moderator ? user.id : undefined,
       activity: normalizeQueryArray(query.data.activity),
       city: normalizeQueryArray(query.data.city),
-      // In `/v0/mission/search`, the legacy `clientId` query param historically refers to the organization client id.
-      organizationClientId: normalizeQueryArray(query.data.clientId),
+      clientId: normalizeQueryArray(query.data.clientId),
       country: normalizeQueryArray(query.data.country),
       createdAt: parseDateFilter(query.data.createdAt),
       departmentName: normalizeQueryArray(query.data.departmentName),
@@ -284,7 +283,7 @@ router.get("/:id", passport.authenticate(["apikey", "api"], { session: false }),
       return res.status(400).send({ ok: false, code: INVALID_PARAMS, message: params.error });
     }
 
-    const mission = await findMissionById(params.data.id);
+    const mission = await missionService.findOneMission(params.data.id, user.moderator ? user.id : null);
     if (!mission) {
       return res.status(404).send({ ok: false, code: NOT_FOUND });
     }

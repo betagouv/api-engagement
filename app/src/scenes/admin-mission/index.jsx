@@ -5,10 +5,10 @@ import { Link, useSearchParams } from "react-router-dom";
 import ErrorIconSvg from "../../assets/svg/error-icon.svg?react";
 import Loader from "../../components/Loader";
 import Select from "../../components/NewSelect";
-import TablePagination from "../../components/NewTablePagination";
+import Table from "../../components/NewTable";
 import SearchInput from "../../components/SearchInput";
 import SearchSelect from "../../components/SearchSelect";
-import { LEBONCOIN_STATUS, STATUS_PLR } from "../../constants";
+import { STATUS_PLR } from "../../constants";
 import api from "../../services/api";
 import { captureError } from "../../services/error";
 import { compactMissionFilters, searchMissions } from "../../services/mission";
@@ -184,11 +184,11 @@ const AdminMission = () => {
           <div className="max-w-[60%] flex-1 space-y-2">
             <h2 className="text-2xl font-bold">{total.toLocaleString("fr")} missions partagées</h2>
             <div className="flex items-center gap-2">
-              <p className="text-base text-[#666666]">Dernière synchronisation le {lastImport ? new Date(lastImport.startedAt).toLocaleDateString("fr") : "N/A"}</p>
+              <p className="text-text-mention text-base">Dernière synchronisation le {lastImport ? new Date(lastImport.startedAt).toLocaleDateString("fr") : "N/A"}</p>
               {lastImport && new Date(lastImport.startedAt) > new Date(new Date().getFullYear(), new Date().getMonth(), new Date().getDate() - 1) ? (
-                <RiCheckboxCircleFill className="text-green-success text-base" />
+                <RiCheckboxCircleFill className="text-success text-base" />
               ) : (
-                <ErrorIconSvg alt="error" className="h-4 w-4 fill-[#e1000f]" />
+                <ErrorIconSvg alt="error" className="fill-error h-4 w-4" />
               )}
             </div>
           </div>
@@ -198,8 +198,9 @@ const AdminMission = () => {
           </button>
         </div>
 
-        <TablePagination
+        <Table
           header={TABLE_HEADER}
+          pagination
           page={filters.page}
           pageSize={filters.size}
           onPageChange={(page) => setFilters({ ...filters, page })}
@@ -224,16 +225,12 @@ const AdminMission = () => {
               <td className="px-4">{new Date(item.createdAt).toLocaleDateString("fr")}</td>
               <td className="px-6">
                 <div className="flex items-center gap-1">
-                  {item.statusCode === "ACCEPTED" ? (
-                    <RiCheckboxCircleFill className="text-green-success text-2xl" />
-                  ) : (
-                    <ErrorIconSvg alt="error" className="h-6 w-6 fill-[#e1000f]" />
-                  )}
+                  {item.statusCode === "ACCEPTED" ? <RiCheckboxCircleFill className="text-success text-2xl" /> : <ErrorIconSvg alt="error" className="fill-error h-6 w-6" />}
                   {item.statusComment && (
                     <div className="group relative">
-                      <RiInformationLine className="text-gray-425 text-2xl" />
+                      <RiInformationLine className="text-text-mention text-2xl" />
 
-                      <div className="absolute -top-1/2 right-8 z-10 hidden w-64 -translate-y-1/2 border border-gray-900 bg-white p-4 shadow-lg group-hover:block">
+                      <div className="border-grey-border absolute -top-1/2 right-8 z-10 hidden w-64 -translate-y-1/2 border bg-white p-4 shadow-lg group-hover:block">
                         <p className="text-sm">{item.statusComment}</p>
                       </div>
                     </div>
@@ -242,7 +239,7 @@ const AdminMission = () => {
               </td>
             </tr>
           ))}
-        </TablePagination>
+        </Table>
       </div>
     </div>
   );

@@ -2,20 +2,30 @@
 
 /* https://www.systeme-de-design.gouv.fr/version-courante/fr/fondamentaux/couleurs-palette#accent */
 @theme {
+  /* colors */
   --color-black: #161616;
   --color-blue-france: #000091; /* main-525 */
   --color-blue-france-hover: #1212ff;
   --color-blue-france-975: #f5f5fe;
   --color-blue-france-925: #e3e3fd;
   --color-blue-france-925-hover: #c1c1fb;
+  --color-blue-france-925-active: #adadf9;
+  --color-blue-france-main-525: #6a6af4;
   --color-blue-info-425: #0063cb;
-  --color-green-success: #1f8d49; /* main-525 */
-  --color-red-marianne: #e1000f; /* main-525 */
-  --color-red-error: #f60700; /* main-525 */
-  --color-red-error-425: #ce0500; /* main-525 */
-  --color-red-error-950: #ffe9e9;
+  --color-blue-cumulus-925: #dae6fd;
+  --color-green-success-425: #18753c; /* main-525 */
+  --color-green-success-950: #b8fec9;
+  --color-red-marianne-425: #ce0500;
+  --color-red-marianne-950: #ffe9e9;
+
   --color-orange-warning-425: #b34000;
+  --color-yellow-tournesol-950: #feecc2;
+  --color-yellow-tournesol-200: #43391a;
+  --color-purple-glycine-950: #fee7fc;
+  --color-purple-glycine-sun-319: #6e445a;
   --color-gray-1000-active: #ededed;
+  --color-gray-1000-hover: #f6f6f6;
+  --color-gray-900-175: #dddddd;
   --color-gray-975: #f6f6f6;
   --color-gray-950: #eeeeee;
   --color-gray-925: #e5e5e5;
@@ -24,6 +34,17 @@
   --color-gray-425: #666666;
   --color-gray-200: #3a3a3a;
   --color-beige-gris-galet-975: #f9f6f2;
+
+  /* usage */
+  --color-warning: var(--color-orange-warning-425);
+  --color-success: var(--color-green-success-425);
+  --color-error: var(--color-red-marianne-425);
+  --color-info: var(--color-blue-info-425);
+  --color-grey-border: var(--color-gray-900-175);
+  --color-background-grey-hover: var(--color-gray-1000-hover);
+  --color-outline-blue: #0a76f6; /* not defined in the design system */
+  --color-text: var(--color-black);
+  --color-text-mention: var(--color-gray-425);
 
   --shadow-border-blue: inset 0 0 0 1px var(--color-blue-france);
   --shadow-border-gray: inset 0 0 0 1px var(--color-gray-925);
@@ -115,7 +136,7 @@ html {
 }
 
 body {
-  color: black;
+  color: var(--color-text);
 }
 
 @utility btn {
@@ -138,14 +159,14 @@ body {
 }
 
 @utility red-btn {
-  @apply btn shadow-border-red text-red-error-425 hover:bg-red-error-950 active:bg-red-error-950 disabled:shadow-border-gray disabled:text-gray-625 bg-transparent disabled:bg-transparent;
+  @apply btn shadow-border-red text-red-marianne-425 hover:bg-red-marianne-950 active:bg-red-marianne-950 disabled:shadow-border-gray disabled:text-gray-625 bg-transparent disabled:bg-transparent;
 }
 
 @utility dropdown-btn {
   @apply btn hover:bg-blue-france-975 active:bg-blue-france-975 hover:text-blue-france disabled:shadow-border-gray disabled:text-gray-625 flex items-center gap-2 bg-white disabled:bg-transparent;
 }
 @utility dropdown-red-btn {
-  @apply btn hover:bg-red-error-950 active:bg-red-error-950 hover:text-red-error-425 disabled:shadow-border-gray disabled:text-gray-625 flex items-center gap-2 bg-white disabled:bg-transparent;
+  @apply btn hover:bg-red-marianne-950 active:bg-red-marianne-950 hover:text-red-marianne-425 disabled:shadow-border-gray disabled:text-gray-625 flex items-center gap-2 bg-white disabled:bg-transparent;
 }
 
 @utility input {
@@ -162,10 +183,14 @@ body {
   @apply checked:bg-blue-france checked:hover:bg-blue-france checked:focus:bg-blue-france active:bg-blue-france h-4 w-4 rounded border border-black;
 }
 @utility table-header {
-  @apply bg-gray-1000-active h-12 border-b-2 border-b-black px-4 text-left text-sm font-bold text-black;
+  @apply bg-gray-1000-active h-12 border-b-2 border-b-black px-4 text-left text-sm font-medium text-black;
 }
 @utility table-item {
   @apply border-b-gray-925 h-16 border-b text-left text-sm text-black;
+}
+
+@utility table-cell {
+  @apply px-3 py-1 text-sm;
 }
 
 select {

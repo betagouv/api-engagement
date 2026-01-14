@@ -4,6 +4,7 @@ import { RiArrowDownSLine, RiArrowDropRightLine, RiBookletLine, RiDashboard3Line
 import { Link } from "react-router-dom";
 
 import LogoSvg from "../assets/svg/logo.svg?react";
+import { WARNINGS } from "../constants";
 import api from "../services/api";
 import { captureError } from "../services/error";
 import useStore from "../services/store";
@@ -12,7 +13,7 @@ import { slugify } from "../services/utils";
 const Header = () => {
   const { user } = useStore();
   return (
-    <header className="flex w-full justify-center border-b border-b-[#dddddd] bg-white">
+    <header className="border-b-grey-border flex w-full justify-center border-b bg-white">
       <div className="flex w-full max-w-7xl items-center justify-between py-3">
         <Link className="hover:bg-gray-975 flex items-center gap-4 p-4" to={user ? "/" : "/login"}>
           <div className="flex h-24 items-center justify-center">
@@ -52,25 +53,6 @@ const Header = () => {
   );
 };
 
-const WARNINGS = {
-  EMPTY_WARNING: {
-    emoji: "🙁",
-    name: "Flux vide",
-  },
-  ERROR_WARNING: {
-    emoji: "❌",
-    name: "Erreur de flux",
-  },
-  VALIDATION_WARNING: {
-    emoji: "🙅",
-    name: "Taux de validation critique",
-  },
-  TRACKING_WARNING: {
-    emoji: "🤔",
-    name: "Problème de tracking",
-  },
-};
-
 const NotificationMenu = () => {
   const [warnings, setWarnings] = useState([]);
   const [state, setState] = useState({});
@@ -97,7 +79,7 @@ const NotificationMenu = () => {
     <Menu>
       <MenuButton as="div" className="data-[focus]:bg-gray-975 hover:bg-gray-975 relative p-2 text-lg">
         <RiDashboard3Line />
-        {warnings.length > 0 && <div className="absolute top-2 right-1.5 h-[9px] w-[9px] rounded-full border border-white bg-[#ff5655]" />}
+        {warnings.length > 0 && <div className="bg-error absolute top-2 right-1.5 h-[9px] w-[9px] rounded-full border border-white" />}
       </MenuButton>
 
       <MenuItems
@@ -116,7 +98,7 @@ const NotificationMenu = () => {
         </MenuItem>
         {state && (
           <MenuItem>
-            <Link to="/warning" className="flex items-center justify-between gap-6 border-t border-gray-900 p-6 hover:bg-gray-950">
+            <Link to="/warning" className="border-grey-border flex items-center justify-between gap-6 border-t p-6 hover:bg-gray-950">
               <div className="flex w-6 items-center">
                 <LogoSvg alt="API Engagement" />
               </div>
@@ -135,9 +117,9 @@ const NotificationMenu = () => {
         {warnings.length ? (
           <>
             <MenuItem>
-              <Link to="/warning" className="flex items-center justify-between gap-6 border-t border-gray-900 p-6 hover:bg-gray-950">
+              <Link to="/warning" className="border-grey-border flex items-center justify-between gap-6 border-t p-6 hover:bg-gray-950">
                 <div className="flex w-6 items-center">
-                  <span>❌</span>
+                  <span aria-hidden="true">❌</span>
                 </div>
                 <div className="flex flex-1 flex-col gap-2">
                   <p className="text-base font-bold text-black">Il semble y avoir un problème de paramétrage de votre côté.</p>
@@ -145,22 +127,20 @@ const NotificationMenu = () => {
               </Link>
             </MenuItem>
             {warnings.slice(0, 2).map((w, index) => {
-              const label = WARNINGS[w.type] || { emoji: "🤔", name: w.type };
+              const label = WARNINGS[w.type] || WARNINGS.OTHER_WARNING;
               return (
                 <MenuItem key={index}>
-                  <Link to="/warning" className="flex items-center justify-between gap-6 border-t border-gray-900 p-6 hover:bg-gray-950">
-                    <div className="flex w-6 items-center">
-                      <span>{label.emoji}</span>
-                    </div>
+                  <Link to="/warning" className="border-grey-border flex items-center justify-between gap-6 border-t p-6 hover:bg-gray-950">
+                    <div className="flex w-6 items-center">{label.emoji}</div>
                     <div className="flex flex-1 flex-col gap-2">
                       <div>
-                        <span className="bgbg-[#FEECC2] textbg-[#716043] truncate rounded p-1 text-center text-xs font-semibold uppercase">{label.name}</span>
+                        <span className="bg-yellow-tournesol-950 text-yellow-tournesol-200 truncate rounded p-1 text-center text-xs font-semibold uppercase">{label.name}</span>
                       </div>
                       <h4 className="m-0 text-sm font-bold text-black">{w.title}</h4>
-                      <p className="text-gray-425 m-0 text-xs">{new Date(w.createdAt).toLocaleDateString("fr-FR")}</p>
+                      <p className="text-text-mention m-0 text-xs">{new Date(w.createdAt).toLocaleDateString("fr-FR")}</p>
                     </div>
                     <div className="flex w-6 items-center justify-center">
-                      <div className="h-3 w-3 rounded-full bg-[#ff5655]" />
+                      <div className="bg-error h-3 w-3 rounded-full" />
                     </div>
                   </Link>
                 </MenuItem>
@@ -168,7 +148,7 @@ const NotificationMenu = () => {
             })}
             {warnings.length > 2 && (
               <MenuItem>
-                <Link to="/warning" className={`flex items-center justify-end gap-6 border-t border-gray-900 p-6 hover:bg-gray-950`}>
+                <Link to="/warning" className={`border-grey-border flex items-center justify-end gap-6 border-t p-6 hover:bg-gray-950`}>
                   <div className="text-blue-france flex">
                     <span>Voir toutes les alertes</span>
                     <RiArrowDropRightLine className="mt-1 text-lg" />
@@ -179,9 +159,9 @@ const NotificationMenu = () => {
           </>
         ) : (
           <MenuItem>
-            <Link to="/warning" className="flex items-center justify-between gap-6 border-t border-gray-900 p-6 hover:bg-gray-950">
+            <Link to="/warning" className="border-grey-border flex items-center justify-between gap-6 border-t p-6 hover:bg-gray-950">
               <div className="flex w-6 items-center">
-                <span>✅</span>
+                <span aria-hidden="true">✅</span>
               </div>
               <div className="flex flex-1 flex-col gap-2">
                 <p className="text-base font-bold text-black">Les comptes partenaires semblent parfaitement opérationnels</p>
@@ -219,7 +199,7 @@ const AdminNotificationMenu = () => {
     <Menu>
       <MenuButton className="data-[focus]:bg-gray-975 hover:bg-gray-975 relative p-2 text-lg">
         <RiDashboard3Line />
-        {warnings.length > 0 && <div className="absolute top-2 right-1.5 h-[9px] w-[9px] rounded-full border border-white bg-[#ff5655]" />}
+        {warnings.length > 0 && <div className="bg-error absolute top-2 right-1.5 h-[9px] w-[9px] rounded-full border border-white" />}
       </MenuButton>
       <MenuItems
         transition
@@ -237,7 +217,7 @@ const AdminNotificationMenu = () => {
         </MenuItem>
         {state && (
           <MenuItem>
-            <Link to="/admin-warning" className="flex items-center justify-between gap-6 border-t border-gray-900 p-6 hover:bg-gray-950">
+            <Link to="/admin-warning" className="border-grey-border flex items-center justify-between gap-6 border-t p-6 hover:bg-gray-950">
               <div className="flex w-6 items-center">
                 <LogoSvg alt="API Engagement" />
               </div>
@@ -256,7 +236,7 @@ const AdminNotificationMenu = () => {
         {warnings.length ? (
           <>
             {warnings.slice(0, 3).map((w, index) => {
-              const label = WARNINGS[w.type] || { emoji: "🤔", name: w.type };
+              const label = WARNINGS[w.type] || WARNINGS.OTHER_WARNING;
               return (
                 <MenuItem key={index}>
                   <Link
@@ -264,18 +244,16 @@ const AdminNotificationMenu = () => {
                       pathname: `/admin-warning`,
                       hash: slugify(`${w.type}-${w.publisherName}`),
                     }}
-                    className="flex items-center justify-between gap-6 border-t border-gray-900 p-6 hover:bg-gray-950"
+                    className="border-grey-border flex items-center justify-between gap-6 border-t p-6 hover:bg-gray-950"
                   >
-                    <div className="flex w-6 items-center">
-                      <span>{label.emoji}</span>
-                    </div>
+                    <div className="flex w-6 items-center">{label.emoji}</div>
                     <div className="flex flex-1 flex-col gap-2">
-                      <p className="text-gray-425 m-0 text-xs">{w.publisherName}</p>
+                      <p className="text-text-mention m-0 text-xs">{w.publisherName}</p>
                       <div>
-                        <span className="bgbg-[#FEECC2] textbg-[#716043] truncate rounded p-1 text-center text-xs font-semibold uppercase">{label.name}</span>
+                        <span className="bg-yellow-tournesol-950 text-yellow-tournesol-200 truncate rounded p-1 text-center text-xs font-semibold uppercase">{label.name}</span>
                       </div>
                       <h4 className="m-0 text-sm font-bold text-black">{w.title}</h4>
-                      <p className="text-gray-425 m-0 text-xs">{new Date(w.createdAt).toLocaleDateString("fr-FR")}</p>
+                      <p className="text-text-mention m-0 text-xs">{new Date(w.createdAt).toLocaleDateString("fr-FR")}</p>
                     </div>
                   </Link>
                 </MenuItem>
@@ -283,7 +261,7 @@ const AdminNotificationMenu = () => {
             })}
             {warnings.length > 3 && (
               <MenuItem>
-                <Link to={`/admin-warning`} className={`flex items-center justify-end gap-6 border-t border-gray-900 p-6 hover:bg-gray-950`}>
+                <Link to={`/admin-warning`} className={`border-grey-border flex items-center justify-end gap-6 border-t p-6 hover:bg-gray-950`}>
                   <div className="text-blue-france flex">
                     <span>Voir toutes les alertes</span>
                     <RiArrowDropRightLine className="mt-1 text-lg" />
@@ -294,9 +272,9 @@ const AdminNotificationMenu = () => {
           </>
         ) : (
           <MenuItem>
-            <Link to="/admin-warning" className="flex items-center justify-between gap-6 border-t border-gray-900 p-6 hover:bg-gray-950">
+            <Link to="/admin-warning" className="border-grey-border flex items-center justify-between gap-6 border-t p-6 hover:bg-gray-950">
               <div className="flex w-6 items-center">
-                <span>✅</span>
+                <span aria-hidden="true">✅</span>
               </div>
               <div className="flex flex-1 flex-col gap-2">
                 <p className="text-base font-bold text-black">Les comptes partenaires semblent parfaitement opérationnels</p>
@@ -325,7 +303,7 @@ const AccountMenu = () => {
         </div>
         <div className="space-y-0 text-left">
           <p className="text-blue-france">{user.firstname}</p>
-          <p className="text-gray-425 text-sm">{user.publishers.length ? (user.role === "admin" ? "Administrateur" : "Utilisateur") : publisher.name}</p>
+          <p className="text-text-mention text-sm">{user.publishers.length ? (user.role === "admin" ? "Administrateur" : "Utilisateur") : publisher.name}</p>
         </div>
         <RiArrowDownSLine className="text-base" />
       </MenuButton>
