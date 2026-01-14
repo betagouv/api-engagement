@@ -17,10 +17,8 @@ models:
         tests:
           - relationships:
               arguments:
-                to: source('public', 'Mission')
+                to: ref('mission')
                 field: id
-      - name: mission_id_raw
-        description: Identifiant mission brut issu de `stat_event`.
       - name: from_publisher_id
         description: UUID du partenaire diffuseur.
         tests:
@@ -72,10 +70,8 @@ models:
         tests:
           - relationships:
               arguments:
-                to: source('public', 'Mission')
+                to: ref('mission')
                 field: id
-      - name: mission_id_raw
-        description: Identifiant mission brut provenant de `stat_event`.
       - name: status
         description: Statut métier de la candidature.
       - name: campaign_id
@@ -129,10 +125,8 @@ models:
         tests:
           - relationships:
               arguments:
-                to: source('public', 'Mission')
+                to: ref('mission')
                 field: id
-      - name: mission_id_raw
-        description: Identifiant mission brut remonté par `stat_event`.
       - name: campaign_id
         description: Référence éventuelle vers la campagne associée.
         tests:
@@ -186,10 +180,8 @@ models:
         tests:
           - relationships:
               arguments:
-                to: source('public', 'Mission')
+                to: ref('mission')
                 field: id
-      - name: mission_id_raw
-        description: Identifiant mission brut provenant de `stat_event`.
       - name: campaign_id
         description: Référence éventuelle vers la campagne associée.
         tests:

@@ -32,12 +32,7 @@ export const getDistanceKm = (value: string): number => {
 export const getDistanceFromLatLonInKm = (lat1?: number, lon1?: number, lat2?: number, lon2?: number): number | undefined => {
   const degreesToRadians = (degrees: number) => degrees * (Math.PI / 180);
 
-  if (
-    lat1 === undefined ||
-    lon1 === undefined ||
-    lat2 === undefined ||
-    lon2 === undefined
-  ) {
+  if (lat1 === undefined || lon1 === undefined || lat2 === undefined || lon2 === undefined) {
     return undefined;
   }
   const r = EARTH_RADIUS; // Radius of the Earth in kilometers
@@ -48,4 +43,16 @@ export const getDistanceFromLatLonInKm = (lat1?: number, lon1?: number, lat2?: n
 
   const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
   return r * c; // Distance in kilometers
+};
+
+export const calculateBoundingBox = (lat: number, lon: number, distanceKm: number) => {
+  const latDelta = distanceKm / 111.32; // 1 degree of latitude is approximately 111.32 km
+  const lonDelta = distanceKm / (111.32 * Math.cos((lat * Math.PI) / 180));
+
+  return {
+    latMin: lat - latDelta,
+    latMax: lat + latDelta,
+    lonMin: lon - lonDelta,
+    lonMax: lon + lonDelta,
+  };
 };

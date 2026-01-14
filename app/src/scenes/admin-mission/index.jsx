@@ -5,7 +5,7 @@ import { Link, useSearchParams } from "react-router-dom";
 import ErrorIconSvg from "../../assets/svg/error-icon.svg?react";
 import Loader from "../../components/Loader";
 import Select from "../../components/NewSelect";
-import TablePagination from "../../components/NewTablePagination";
+import Table from "../../components/NewTable";
 import SearchInput from "../../components/SearchInput";
 import SearchSelect from "../../components/SearchSelect";
 import { STATUS_PLR } from "../../constants";
@@ -198,8 +198,9 @@ const AdminMission = () => {
           </button>
         </div>
 
-        <TablePagination
+        <Table
           header={TABLE_HEADER}
+          pagination
           page={filters.page}
           pageSize={filters.size}
           onPageChange={(page) => setFilters({ ...filters, page })}
@@ -238,7 +239,7 @@ const AdminMission = () => {
               </td>
             </tr>
           ))}
-        </TablePagination>
+        </Table>
       </div>
     </div>
   );

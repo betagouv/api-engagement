@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { RiCheckboxCircleFill, RiCloseCircleFill } from "react-icons/ri";
 import { Link, useSearchParams } from "react-router-dom";
 
-import TablePagination from "../../components/NewTablePagination";
+import Table from "../../components/NewTable";
 import SearchInput from "../../components/SearchInput";
 import api from "../../services/api";
 import { captureError } from "../../services/error";
@@ -56,7 +56,7 @@ const List = () => {
       </div>
 
       <div className="border-grey-border border p-6">
-        <TablePagination
+        <Table
           header={[{ title: "Titre de l'organisation", colSpan: 3 }, { title: "RNA" }, { title: "SIRET" }, { title: "Créée le" }, { title: "Statut" }]}
           page={filters.from}
           pageSize={filters.size}
@@ -94,7 +94,7 @@ const List = () => {
               </tr>
             );
           })}
-        </TablePagination>
+        </Table>
       </div>
     </div>
   );

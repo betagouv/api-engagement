@@ -35,7 +35,7 @@ const Bots = () => {
       ) : (
         <div className="space-y-4">
           {bots.map((bot) => (
-            <BotRow key={bot._id} bot={bot} />
+            <BotRow key={bot.id} bot={bot} />
           ))}
         </div>
       )}
@@ -58,7 +58,7 @@ const BotRow = ({ bot }) => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const res = await api.get(`/warning-bot/${bot._id}/stat`);
+        const res = await api.get(`/warning-bot/${bot.id}/stat`);
         if (!res.ok) {
           if (res.code === "NOT_FOUND") {
             setStatBot(null);
@@ -69,7 +69,7 @@ const BotRow = ({ bot }) => {
         setStatBot(res.data || null);
         setStats(res.aggs || null);
       } catch (error) {
-        captureError(error, { extra: { botId: bot._id } });
+        captureError(error, { extra: { botId: bot.id } });
       }
     };
     fetchData();
@@ -78,11 +78,11 @@ const BotRow = ({ bot }) => {
   const handleBlock = async () => {
     try {
       setLoading(true);
-      const res = await api.post(`/warning-bot/${bot._id}/block`);
+      const res = await api.post(`/warning-bot/${bot.id}/block`);
       if (!res.ok) throw res;
       setStatBot(res.data);
     } catch (error) {
-      captureError(error, { extra: { botId: bot._id } });
+      captureError(error, { extra: { botId: bot.id } });
     } finally {
       setLoading(false);
     }
@@ -91,11 +91,11 @@ const BotRow = ({ bot }) => {
   const handleUnblock = async () => {
     try {
       setLoading(true);
-      const res = await api.post(`/warning-bot/${bot._id}/unblock`);
+      const res = await api.post(`/warning-bot/${bot.id}/unblock`);
       if (!res.ok) throw res;
       setStatBot(null);
     } catch (error) {
-      captureError(error, { extra: { botId: bot._id } });
+      captureError(error, { extra: { botId: bot.id } });
     } finally {
       setLoading(false);
     }

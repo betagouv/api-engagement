@@ -17,21 +17,13 @@ with source as (
     new_siren,
     initial_rna,
     new_rna,
-    nullif(mission_id, '') as mission_id_raw_input
+    mission_id
   from {{ source('analytics_raw', 'moderation_event') }}
-),
-
-missions as (
-  select
-    id as mission_id,
-    nullif(old_id, '') as mission_id_raw
-  from {{ source('public', 'Mission') }}
 )
 
 select
   s.id,
-  m.mission_id,
-  m.mission_id_raw,
+  s.mission_id,
   s.created_at,
   s.updated_at,
   s.moderator_id,
@@ -49,4 +41,3 @@ select
   s.initial_rna,
   s.new_rna
 from source as s
-inner join missions as m on s.mission_id_raw_input = m.mission_id_raw

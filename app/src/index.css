@@ -183,10 +183,14 @@ body {
   @apply checked:bg-blue-france checked:hover:bg-blue-france checked:focus:bg-blue-france active:bg-blue-france h-4 w-4 rounded border border-black;
 }
 @utility table-header {
-  @apply bg-gray-1000-active h-12 border-b-2 border-b-black px-4 text-left text-sm font-bold text-black;
+  @apply bg-gray-1000-active h-12 border-b-2 border-b-black px-4 text-left text-sm font-medium text-black;
 }
 @utility table-item {
   @apply border-b-gray-925 h-16 border-b text-left text-sm text-black;
+}
+
+@utility table-cell {
+  @apply px-3 py-1 text-sm;
 }
 
 select {

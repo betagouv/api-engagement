@@ -3,7 +3,7 @@ import { Link, useSearchParams } from "react-router-dom";
 
 import { RiDownload2Line } from "react-icons/ri";
 import Select from "../../components/NewSelect";
-import TablePagination from "../../components/NewTablePagination";
+import Table from "../../components/NewTable";
 import SearchSelect from "../../components/SearchSelect";
 import { MONTHS, REPORT_STATUS, YEARS } from "../../constants";
 import api from "../../services/api";
@@ -88,8 +88,9 @@ const AdminReport = () => {
             loading={loading}
           />
         </div>
-        <TablePagination
+        <Table
           header={TABLE_HEADER}
+          pagination
           page={filters.page}
           pageSize={filters.size}
           onPageChange={(page) => setFilters({ ...filters, page })}
@@ -163,7 +164,7 @@ const AdminReport = () => {
               </td>
             </tr>
           ))}
-        </TablePagination>
+        </Table>
       </div>
     </div>
   );

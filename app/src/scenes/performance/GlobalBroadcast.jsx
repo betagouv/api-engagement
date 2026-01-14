@@ -1,11 +1,11 @@
 import { useEffect, useState } from "react";
-import { RiAlertFill, RiInformationFill } from "react-icons/ri";
+import { RiInformationFill } from "react-icons/ri";
 
 import EmptySVG from "../../assets/svg/empty-info.svg";
 import { Pie, StackedBarchart } from "../../components/Chart";
 import Loader from "../../components/Loader";
 import DateRangePicker from "../../components/NewDateRangePicker";
-import TablePagination from "../../components/NewTablePagination";
+import Table from "../../components/NewTable";
 import { MONTHS } from "../../constants";
 import api from "../../services/api";
 import { captureError } from "../../services/error";
@@ -89,21 +89,13 @@ const GlobalDiffuseur = ({ filters, onFiltersChange }) => {
               <div className="border-grey-border relative border p-6">
                 <div className="flex items-center justify-between">
                   <p className="text-[28px] font-bold">{data.totalPrint !== 0 ? data.totalPrint.toLocaleString("fr") : "N/A"}</p>
-                  {data.totalPrint === 0 ? (
-                    <div className="group relative">
-                      <RiAlertFill className="text-warning cursor-pointer text-2xl" />
-                      <div className="border-grey-border absolute bottom-8 z-10 hidden w-80 -translate-x-1/2 border bg-white p-4 shadow-lg group-hover:block">
-                        <p className="text-xs">Ils semblerait que les impressions de vos campagnes ou missions ne soient pas comptabilisées</p>
-                      </div>
+
+                  <div className="group relative">
+                    <RiInformationFill className="text-color-gray-425 cursor-pointer text-2xl" />
+                    <div className="border-grey-border absolute bottom-8 z-10 hidden w-80 -translate-x-1/2 border bg-white p-4 shadow-lg group-hover:block">
+                      <p className="text-xs">Les impressions des liens situés dans des emails ou SMS ne sont pas comptabilisés dans ce total</p>
                     </div>
-                  ) : (
-                    <div className="group relative">
-                      <RiInformationFill className="text-color-gray-425 cursor-pointer text-2xl" />
-                      <div className="border-grey-border absolute bottom-8 z-10 hidden w-80 -translate-x-1/2 border bg-white p-4 shadow-lg group-hover:block">
-                        <p className="text-xs">Les impressions des liens situés dans des emails ou SMS ne sont pas comptabilisés dans ce total</p>
-                      </div>
-                    </div>
-                  )}
+                  </div>
                 </div>
                 <p className="text-text-mention text-base">impressions</p>
               </div>
@@ -387,8 +379,9 @@ const Announcers = ({ filters }) => {
           <div className="border-grey-border space-y-4 border p-6">
             <div className="flex flex-col gap-4">
               <h3 className="text-2xl font-semibold">Performance des annonceurs</h3>
-              <TablePagination
+              <Table
                 header={TABLE_HEADER}
+                pagination
                 page={tableSettings.page}
                 pageSize={5}
                 onPageChange={(page) => setTableSettings({ ...tableSettings, page })}
@@ -411,7 +404,7 @@ const Announcers = ({ filters }) => {
                       <td className="px-4 text-right">{(item.rate || 0).toLocaleString("fr", { style: "percent", minimumFractionDigits: 2 })}</td>
                     </tr>
                   ))}
-              </TablePagination>
+              </Table>
             </div>
           </div>
           <div className="border-grey-border space-y-4 border p-6">

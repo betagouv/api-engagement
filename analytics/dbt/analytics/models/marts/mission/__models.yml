@@ -1,6 +1,60 @@
 version: 2
 
 models:
+  - name: mission
+    description: >
+      Mart des missions construit à partir de `int_mission`. Il enrichit les identifiants bruts
+      avec les libellés de domaine/activité, expose le statut, les attributs d'accessibilité
+      et les curseurs temporels nécessaires pour les analyses incrémentales.
+    columns:
+      - name: id
+        description: Identifiant unique de la mission.
+        tests:
+          - not_null
+          - unique
+      - name: publisher_id
+        description: Identifiant du partenaire/publisher associé à la mission.
+        tests:
+          - relationships:
+              arguments:
+                to: ref('publisher')
+                field: id
+      - name: client_id
+        description: Identifiant métier côté client/source.
+      - name: domain
+        description: Libellé du domaine (référentiel ou libellé original).
+      - name: activity
+        description: Libellé de l'activité (référentiel).
+      - name: status
+        description: Statut métier de la mission (alias de `status_code`).
+      - name: tags
+        description: Tags libres associés à la mission.
+      - name: audience
+        description: Publics ciblés par la mission.
+      - name: reduced_mobility_accessible
+        description: Accessibilité aux personnes à mobilité réduite.
+      - name: open_to_minors
+        description: Indique si la mission est ouverte aux mineurs.
+      - name: close_to_transport
+        description: Indique si la mission est proche des transports.
+      - name: posted_at
+        description: Date de publication initiale.
+      - name: start_at
+        description: Date de démarrage prévue.
+      - name: end_at
+        description: Date de fin prévue.
+      - name: deleted_at
+        description: Timestamp de suppression logique (nullable).
+      - name: created_at
+        description: Timestamp de création de la mission.
+        tests:
+          - not_null
+      - name: updated_at
+        description: Timestamp de dernière mise à jour de la mission.
+        tests:
+          - not_null
+      - name: is_deleted
+        description: Drapeau booléen dérivé de `deleted_at`.
   - name: mission_event
     description: >
       Mart des événements de missions. Chaque ligne reprend les informations de
@@ -19,15 +73,8 @@ models:
           - not_null
           - relationships:
               arguments:
-                to: source('public', 'Mission')
+                to: ref('mission')
                 field: id
-      - name: mission_id_raw
-        description: Ancien identifiant Mission.old_id utilisé lors de l'import.
-        tests:
-          - relationships:
-              arguments:
-                to: source('public', 'Mission')
-                field: old_id
       - name: type
         description: >
           Catégorie fonctionnelle de l'événement (`Created`, `Deleted`,

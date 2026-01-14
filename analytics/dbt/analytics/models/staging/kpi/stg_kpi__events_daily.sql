@@ -7,7 +7,7 @@ with events as (
     e.id,
     e.type,
     e.created_at::timestamp as created_at,
-    coalesce(map.mission_id, e.mission_id) as mission_id,
+    nullif(e.mission_id, '') as mission_id,
     e.is_bot::boolean as is_bot,
     p.name as to_publisher_name,
     case
@@ -19,8 +19,6 @@ with events as (
     (date_trunc('day', e.created_at::timestamp) + interval '1 day')::date
       as metric_date
   from {{ ref('stg_stat_event') }} as e
-  left join {{ ref('stg_stat_event__mission_map') }} as map
-    on e.id = map.stat_event_id
   left join {{ ref('publisher') }} as p
     on e.to_publisher_id = p.id
 ),

@@ -5,7 +5,7 @@ import { toast } from "react-toastify";
 import Loader from "../../components/Loader";
 import Modal from "../../components/New-Modal";
 
-import TablePagination from "../../components/NewTablePagination";
+import Table from "../../components/NewTable";
 import api from "../../services/api";
 import { captureError } from "../../services/error";
 import useStore from "../../services/store";
@@ -107,8 +107,9 @@ const Flux = () => {
       <div className="border-grey-border space-y-6 border p-6">
         <h2 className="text-3xl font-bold">Historique des synchronisations</h2>
 
-        <TablePagination
+        <Table
           header={TABLE_HEADER}
+          pagination
           page={filters.page}
           pageSize={filters.size}
           onPageChange={(page) => setFilters({ ...filters, page })}
@@ -125,7 +126,7 @@ const Flux = () => {
               <td className="px-4 text-center">{item.missionCount?.toLocaleString("fr") || "-"}</td>
             </tr>
           ))}
-        </TablePagination>
+        </Table>
       </div>
     </div>
   );
