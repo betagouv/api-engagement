@@ -18,9 +18,7 @@ with all_events as (
     created_at,
     type,
     from_publisher_id,
-    from_publisher_name,
     to_publisher_id,
-    to_publisher_name,
     mission_id
   from {{ ref('global_events') }}
   where mission_id is not null
@@ -30,9 +28,7 @@ aggregated as (
     mission_id,
     type,
     from_publisher_id,
-    max(from_publisher_name) as from_publisher_name,
     to_publisher_id,
-    max(to_publisher_name) as to_publisher_name,
     min(created_at) as first_created_at,
     max(created_at) as last_created_at
   from all_events
@@ -61,9 +57,7 @@ from aggregated
       created_at,
       type,
       from_publisher_id,
-      from_publisher_name,
       to_publisher_id,
-      to_publisher_name,
       mission_id
     from {{ ref('global_events') }}
     where
@@ -80,8 +74,6 @@ from aggregated
       type,
       from_publisher_id,
       to_publisher_id,
-      max(from_publisher_name) as from_publisher_name,
-      max(to_publisher_name) as to_publisher_name,
       min(created_at) as first_created_at,
       max(created_at) as last_created_at
     from new_events
@@ -93,10 +85,7 @@ from aggregated
       coalesce(e.mission_id, t.mission_id) as mission_id,
       coalesce(e.type, t.type) as type,
       coalesce(e.from_publisher_id, t.from_publisher_id) as from_publisher_id,
-      coalesce(t.from_publisher_name, e.from_publisher_name)
-        as from_publisher_name,
       coalesce(e.to_publisher_id, t.to_publisher_id) as to_publisher_id,
-      coalesce(t.to_publisher_name, e.to_publisher_name) as to_publisher_name,
       case
         when e.first_created_at is null then t.first_created_at
         when t.first_created_at is null then e.first_created_at
