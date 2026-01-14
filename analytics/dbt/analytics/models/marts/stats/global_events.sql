@@ -45,14 +45,10 @@ with_names as (
     b.source,
     b.source_id,
     b.from_publisher_id,
-    fp.name as from_publisher_name,
     b.to_publisher_id,
-    tp.name as to_publisher_name,
     b.mission_id,
     b.click_id
   from base as b
-  left join {{ ref('dim_publisher') }} as fp on b.from_publisher_id = fp.id
-  left join {{ ref('dim_publisher') }} as tp on b.to_publisher_id = tp.id
 )
 
 select *
