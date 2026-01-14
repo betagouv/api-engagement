@@ -110,7 +110,7 @@ const Edit = () => {
         <div className="mb-6 flex justify-between">
           <h2 className="text-3xl font-bold">Les informations</h2>
 
-          <div className="text-red-error flex cursor-pointer items-center text-sm" onClick={handleDelete}>
+          <div className="text-error flex cursor-pointer items-center text-sm" onClick={handleDelete}>
             <TiDeleteOutline className="mr-2" />
             <span>Supprimer</span>
           </div>
@@ -122,13 +122,13 @@ const Edit = () => {
             </label>
             <input
               id="firstname"
-              className={`input mb-2 ${errors.firstname ? "border-b-red-error" : "border-b-black"}`}
+              className={`input mb-2 ${errors.firstname ? "border-b-error" : "border-b-black"}`}
               name="firstname"
               value={values.firstname}
               onChange={(e) => setValues({ ...values, firstname: e.target.value })}
             />
             {errors.firstname && (
-              <div className="text-red-error flex items-center text-sm">
+              <div className="text-error flex items-center text-sm">
                 <RiErrorWarningFill className="mr-2" />
                 {errors.firstname}
               </div>
@@ -141,13 +141,13 @@ const Edit = () => {
             </label>
             <input
               id="lastname"
-              className={`input mb-2 ${errors.lastname ? "border-b-red-error" : "border-b-black"}`}
+              className={`input mb-2 ${errors.lastname ? "border-b-error" : "border-b-black"}`}
               name="lastname"
               value={values.lastname}
               onChange={(e) => setValues({ ...values, lastname: e.target.value })}
             />
             {errors.lastname && (
-              <div className="text-red-error flex items-center text-sm">
+              <div className="text-error flex items-center text-sm">
                 <RiErrorWarningFill className="mr-2" />
                 {errors.lastname}
               </div>
@@ -160,13 +160,13 @@ const Edit = () => {
             </label>
             <input
               id="email"
-              className={`input mb-2 ${errors.email ? "border-b-red-error" : "border-b-black"}`}
+              className={`input mb-2 ${errors.email ? "border-b-error" : "border-b-black"}`}
               name="email"
               value={values.email}
               onChange={(e) => setValues({ ...values, email: e.target.value })}
             />
             {errors.email && (
-              <div className="text-red-error flex items-center text-sm">
+              <div className="text-error flex items-center text-sm">
                 <RiErrorWarningFill className="mr-2" />
                 {errors.email}
               </div>
@@ -179,7 +179,7 @@ const Edit = () => {
 
             <select
               id="role"
-              className={`input mb-2 ${errors.role ? "border-b-red-error" : "border-b-black"}`}
+              className={`input mb-2 ${errors.role ? "border-b-error" : "border-b-black"}`}
               value={values.role}
               onChange={(e) => setValues({ ...values, role: e.target.value })}
               name="role"
@@ -188,7 +188,7 @@ const Edit = () => {
               <option value="admin">Admin</option>
             </select>
             {errors.role && (
-              <div className="text-red-error flex items-center text-sm">
+              <div className="text-error flex items-center text-sm">
                 <RiErrorWarningFill className="mr-2" />
                 {errors.role}
               </div>
@@ -245,10 +245,10 @@ const Edit = () => {
                   <td className="table-cell">{item.name}</td>
                   <td className="table-cell">
                     <div className="flex flex-wrap justify-center gap-2">
-                      {item.isAnnonceur && <span className="rounded bg-red-300 p-2">Annonceur</span>}
-                      {item.hasApiRights && <span className="rounded bg-green-300 p-2">Diffuseur API</span>}
-                      {item.hasWidgetRights && <span className="rounded bg-green-300 p-2">Diffuseur Widget</span>}
-                      {item.hasCampaignRights && <span className="rounded bg-green-300 p-2">Diffuseur Campagne</span>}
+                      {item.isAnnonceur && <span className="bg-red-marianne-950 rounded p-2">Annonceur</span>}
+                      {item.hasApiRights && <span className="bg-green-success-950 rounded p-2">Diffuseur API</span>}
+                      {item.hasWidgetRights && <span className="bg-green-success-950 rounded p-2">Diffuseur Widget</span>}
+                      {item.hasCampaignRights && <span className="bg-green-success-950 rounded p-2">Diffuseur Campagne</span>}
                     </div>
                   </td>
                 </tr>

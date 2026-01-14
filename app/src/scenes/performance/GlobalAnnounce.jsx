@@ -68,14 +68,14 @@ const GlobalAnnounce = ({ filters, onFiltersChange }) => {
   return (
     <div className="space-y-12 p-12">
       <div className="space-y-2">
-        <p className="text-gray-425 text-sm font-semibold uppercase">Période</p>
+        <p className="text-text-mention text-sm font-semibold uppercase">Période</p>
         <DateRangePicker value={filters} onChange={(value) => onFiltersChange({ ...filters, ...value })} />
       </div>
       <div className="h-px w-full bg-gray-900" />
       <div className="space-y-6">
         <div className="space-y-2">
           <h2 className="text-3xl font-bold">Aperçu</h2>
-          <p className="text-gray-425 text-base">Vos missions partagées et l’impact que vos diffuseurs ont généré pour vous</p>
+          <p className="text-text-mention text-base">Vos missions partagées et l’impact que vos diffuseurs ont généré pour vous</p>
         </div>
         {loading ? (
           <div className="flex w-full justify-center py-10">
@@ -84,7 +84,7 @@ const GlobalAnnounce = ({ filters, onFiltersChange }) => {
         ) : (
           <div className="mt-4 grid gap-4">
             <div className="grid grid-cols-2 gap-4">
-              <div className="border border-gray-900 p-6">
+              <div className="border-grey-border border p-6">
                 {loadingMission ? (
                   <div className="flex w-full justify-center py-10">
                     <Loader />
@@ -96,34 +96,34 @@ const GlobalAnnounce = ({ filters, onFiltersChange }) => {
                   </>
                 )}
               </div>
-              <div className="border border-gray-900 p-6">
+              <div className="border-grey-border border p-6">
                 <p className="text-[28px] font-bold">{data.totalMissionClicked.toLocaleString("fr")}</p>
                 <p className="text-base">missions ayant reçu au moins une redirection sur la période</p>
               </div>
             </div>
             <div className="grid grid-cols-4 gap-4">
-              <div className="relative border border-gray-900 p-6">
+              <div className="border-grey-border relative border p-6">
                 <div className="flex items-center justify-between">
                   <p className="text-[28px] font-bold">{data.totalPrint !== 0 ? data.totalPrint.toLocaleString("fr") : "N/A"}</p>
 
                   <div className="group relative">
-                    <RiInformationFill className="cursor-pointer text-2xl text-[#666]" />
-                    <div className="absolute bottom-8 z-10 hidden w-80 -translate-x-1/2 border border-gray-900 bg-white p-4 shadow-lg group-hover:block">
+                    <RiInformationFill className="text-color-gray-425 cursor-pointer text-2xl" />
+                    <div className="border-grey-border absolute bottom-8 z-10 hidden w-80 -translate-x-1/2 border bg-white p-4 shadow-lg group-hover:block">
                       <p className="text-xs">Les impressions des liens situés dans des emails ou SMS ne sont pas comptabilisés dans ce total</p>
                     </div>
                   </div>
                 </div>
                 <p className="text-base">impressions</p>
               </div>
-              <div className="border border-gray-900 p-6">
+              <div className="border-grey-border border p-6">
                 <p className="text-[28px] font-bold">{data.totalClick?.toLocaleString("fr")}</p>
                 <p className="text-base">redirections</p>
               </div>
-              <div className="border border-gray-900 p-6">
+              <div className="border-grey-border border p-6">
                 <p className="text-[28px] font-bold">{data.totalAccount?.toLocaleString("fr")}</p>
                 <p className="text-base">créations de compte</p>
               </div>
-              <div className="border border-gray-900 p-6">
+              <div className="border-grey-border border p-6">
                 <p className="text-[28px] font-bold">{data.totalApply?.toLocaleString("fr")}</p>
                 <p className="text-base">candidatures</p>
               </div>
@@ -195,9 +195,9 @@ const Evolution = ({ filters, defaultType = "print" }) => {
     <div className="space-y-6">
       <div className="space-y-2">
         <h2 className="text-3xl font-bold">Evolution</h2>
-        <p className="text-gray-425 text-base">Trafic reçu grâce à vos partenaires diffuseurs</p>
+        <p className="text-text-mention text-base">Trafic reçu grâce à vos partenaires diffuseurs</p>
       </div>
-      <div className="border border-gray-900 p-4">
+      <div className="border-grey-border border p-4">
         <div className="mb-8 flex items-center gap-8 text-sm">
           <button onClick={() => setType("print")} className={`pb-1 ${type === "print" ? "border-blue-france text-blue-france border-b-2 font-semibold" : ""}`}>
             Impressions
@@ -220,9 +220,9 @@ const Evolution = ({ filters, defaultType = "print" }) => {
             <Loader />
           </div>
         ) : !histogram.length ? (
-          <div className="flex h-[248px] w-full flex-col items-center justify-center border border-dashed border-[#ddddd] bg-[#f6f6f6]">
+          <div className="border-grey-border bg-background-grey-hover flex h-[248px] w-full flex-col items-center justify-center border border-dashed">
             <img src={EmptySVG} alt="empty" className="h-16 w-16" />
-            <p className="text-base text-[#666]">Aucune donnée disponible pour la période</p>
+            <p className="text-color-gray-425 text-base">Aucune donnée disponible pour la période</p>
           </div>
         ) : (
           <div className="h-[424px] w-full">
@@ -270,14 +270,14 @@ const Announcers = ({ filters, defaultType = "print" }) => {
     <div className="space-y-6">
       <div className="space-y-2">
         <h2 className="text-3xl font-bold">Top partenaires diffuseurs</h2>
-        <p className="text-gray-425 text-base">{total > 1 ? `${total} partenaires` : `${total} partenaire`} ont diffusé vos missions sur la période</p>
+        <p className="text-text-mention text-base">{total > 1 ? `${total} partenaires` : `${total} partenaire`} ont diffusé vos missions sur la période</p>
       </div>
       {loading ? (
         <div className="flex w-full justify-center py-10">
           <Loader />
         </div>
       ) : (
-        <div className="space-y-4 border border-gray-900 p-6">
+        <div className="border-grey-border space-y-4 border p-6">
           <div className="mb-8 flex items-center gap-8 text-sm">
             <button onClick={() => setType("print")} className={`pb-1 ${type === "print" ? "border-blue-france text-blue-france border-b-2 font-semibold" : ""}`}>
               Impressions
@@ -296,9 +296,9 @@ const Announcers = ({ filters, defaultType = "print" }) => {
             </button>
           </div>
           {!data.length ? (
-            <div className="flex h-[248px] w-full flex-col items-center justify-center border border-dashed border-gray-900 bg-[#f6f6f6]">
+            <div className="border-grey-border bg-background-grey-hover flex h-[248px] w-full flex-col items-center justify-center border border-dashed">
               <img src={EmptySVG} alt="empty" className="h-16 w-16" />
-              <p className="text-base text-[#666]">Aucune donnée disponible pour la période</p>
+              <p className="text-color-gray-425 text-base">Aucune donnée disponible pour la période</p>
             </div>
           ) : (
             <div className="flex justify-between gap-4">

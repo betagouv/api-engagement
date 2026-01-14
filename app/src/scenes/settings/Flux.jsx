@@ -72,13 +72,13 @@ const Flux = () => {
   return (
     <div className="space-y-12 p-12">
       <title>Flux de missions - Paramètres - API Engagement</title>
-      <div className="space-y-8 border border-gray-900 p-8">
+      <div className="border-grey-border space-y-8 border p-8">
         <h2 className="text-3xl font-bold">Configurer votre flux de missions</h2>
 
         <div className="flex items-center justify-between gap-6">
           <label className="w-[35%] flex-none font-semibold">Lien du fichier XML à synchroniser</label>
           <div className="flex flex-1 gap-2">
-            <input className="input w-full border border-[#E3E3FD] bg-[#F5F5FE] read-only:opacity-80" value={publisher.feed} readOnly />
+            <input className="input border-blue-france-925 bg-blue-france-975 w-full border read-only:opacity-80" value={publisher.feed} readOnly />
             {user.role === "admin" && <ModifyModal />}
           </div>
         </div>
@@ -91,7 +91,7 @@ const Flux = () => {
             {imports.length > 0 && lastSync < new Date(Date.now() - 24 * 60 * 60 * 1000) ? (
               <div className="items-center">
                 <p className="inline align-middle">{new Date(lastSync).toLocaleString("fr").replace(" ", " à ")}</p>
-                <RiCloseCircleFill className="text-red-error ml-2 inline h-5 w-5 align-middle" />
+                <RiCloseCircleFill className="text-error ml-2 inline h-5 w-5 align-middle" />
                 <p className="text-xs">Dernière synchronisation il y a plus de 24h.</p>
               </div>
             ) : (
@@ -104,7 +104,7 @@ const Flux = () => {
         </div>
       </div>
 
-      <div className="space-y-6 border border-gray-900 p-6">
+      <div className="border-grey-border space-y-6 border p-6">
         <h2 className="text-3xl font-bold">Historique des synchronisations</h2>
 
         <Table
