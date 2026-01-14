@@ -34,6 +34,7 @@ const View = () => {
 
   return (
     <div className="flex flex-col">
+      <title>{`API Engagement - Organisation - ${data.title}`}</title>
       <div className="mb-10">
         <h1 className="leading-normal">{data.title}</h1>
         <div className="mt-4 flex justify-between">

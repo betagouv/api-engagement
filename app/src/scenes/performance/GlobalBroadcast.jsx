@@ -57,7 +57,7 @@ const GlobalDiffuseur = ({ filters, onFiltersChange }) => {
 
   return (
     <div className="space-y-12 p-12">
-      <title>Au global - Performance - API Engagement</title>
+      <title>API Engagement - Au global - Performance</title>
       <div className="space-y-2">
         <p className="text-text-mention text-sm font-semibold uppercase">Période</p>
         <DateRangePicker value={filters} onChange={(value) => onFiltersChange({ ...filters, ...value })} />

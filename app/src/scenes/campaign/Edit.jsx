@@ -142,6 +142,7 @@ const Edit = () => {
 
   return (
     <>
+      <title>API Engagement - Modifier une campagne de diffusion</title>
       <ReassignModal
         isOpen={isReassignModalOpen}
         onClose={() => setIsReassignModalOpen(false)}

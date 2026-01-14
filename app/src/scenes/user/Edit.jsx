@@ -104,6 +104,7 @@ const Edit = () => {
   return (
     <div className="flex flex-col">
       <div className="mb-10">
+        <title>{`API Engagement - Compte utilisateur - ${user.firstname}`}</title>
         <h1 className="text-4xl font-bold">Compte utilisateur de {user.firstname}</h1>
       </div>
       <form className="flex flex-col bg-white p-16 shadow-lg" onSubmit={handleSubmit}>

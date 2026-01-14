@@ -58,7 +58,7 @@ const AdminReport = () => {
 
   return (
     <div className="space-y-12 bg-white p-12 shadow-lg">
-      <title>Rapports d'impacts - Administration - API Engagement</title>
+      <title>API Engagement - Rapports d'impacts - Administration</title>
       <div className="flex items-center justify-between">
         <h2 className="flex-1 text-2xl font-semibold">{total.toLocaleString("fr")} rapports d'impacts</h2>
       </div>

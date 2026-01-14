@@ -37,7 +37,7 @@ const Signup = () => {
 
   return (
     <div className="h-full w-full bg-white px-32 py-10">
-      <title>Inscription - API Engagement</title>
+      <title>API Engagement - Inscription</title>
       {error === "invalide" ? (
         <ErrorAlert>
           <p className="text-xl font-bold">La clé n'est pas valide</p>

@@ -28,7 +28,7 @@ const PublicStats = () => {
 
   return (
     <div className="flex w-full flex-col bg-white">
-      <title>Statistiques - API Engagement</title>
+      <title>API Engagement - Statistiques</title>
       <div className="mx-auto my-14 w-4/5 max-w-[1200px] flex-1">
         <div className="flex justify-between">
           <div>

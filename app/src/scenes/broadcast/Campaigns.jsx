@@ -76,7 +76,7 @@ const Campaigns = () => {
 
   return (
     <div className="space-y-12 p-12">
-      <title>Campagnes - Diffuser des missions - API Engagement</title>
+      <title>API Engagement - Campagnes - Diffuser des missions</title>
       <div className="flex items-center justify-between gap-32">
         <div className="flex flex-1 items-center gap-4">
           <label htmlFor="campaign-search" className="sr-only">

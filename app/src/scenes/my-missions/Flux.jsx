@@ -120,7 +120,7 @@ const Flux = ({ moderated }) => {
 
   return (
     <div className="space-y-12 p-12">
-      <title>Missions partagées - Vos Missions - API Engagement</title>
+      <title>API Engagement - Missions partagées - Vos Missions</title>
       {moderated && !hideAlert && (
         <InfoAlert onClose={() => setHideAlert(true)}>
           <p className="text-base">Pour toutes les missions acceptées par l’API, JeVeuxAider.gouv.fr pratique une modération avant de les diffuser.</p>

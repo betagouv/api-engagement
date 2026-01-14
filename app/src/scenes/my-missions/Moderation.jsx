@@ -121,6 +121,7 @@ const Moderation = () => {
 
   return (
     <div className="space-y-12 p-12">
+      <title>API Engagement - Modération - Vos Missions</title>
       <div className="mb-8 flex items-end justify-between gap-4">
         <div>
           <h2 className="text-3xl font-bold">Modération de JeVeuxAider.gouv.fr</h2>
