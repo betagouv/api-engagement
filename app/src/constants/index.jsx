@@ -203,3 +203,9 @@ export const MISSION_TYPES = {
   BENEVOLAT: { slug: "benevolat", label: "Bénévolat" },
   VOLONTARIAT_SAPERS_POMPIERS: { slug: "volontariat_sapeurs_pompiers", label: "Volontariat (Sapeurs-Pompiers)" },
 };
+
+export const METABASE_CARD_ID = {
+  ACTIVES_MISSIONS: "5200",
+  CANDIDATURES_AGE: "5304",
+  MISSION_PER_DOMAIN: "3835",
+};

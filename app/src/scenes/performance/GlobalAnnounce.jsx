@@ -131,7 +131,6 @@ const GlobalAnnounce = ({ filters, onFiltersChange }) => {
           </div>
         )}
       </div>
-
       {!loading && (
         <>
           <Evolution filters={filters} defaultType={data.totalPrint !== 0 ? "print" : "click"} />
