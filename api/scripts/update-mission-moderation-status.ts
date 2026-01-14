@@ -1,5 +1,5 @@
 /**
- * Script that updates the publisher with "SDIS" in the name to have the mission type "volontariat_sapeurs_pompiers".
+ * Script that updates remove all the moderation status on JVA missions, and set to PENDING all the moderation with no status
  */
 import { PUBLISHER_IDS } from "../src/config";
 import { prismaCore } from "../src/db/postgres";

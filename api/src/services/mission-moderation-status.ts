@@ -183,10 +183,7 @@ export const missionModerationStatusService = {
   },
 
   async findModerationStatuses(filters: ModerationFilters & { skip?: number; limit?: number }) {
-    console.log("filters find", filters);
     const where = buildWhere(filters);
-
-    console.log("where find", where);
 
     const [data, total] = await Promise.all([
       missionModerationStatusRepository.findMany({
@@ -203,9 +200,7 @@ export const missionModerationStatusService = {
   },
 
   async aggregateModerationStatuses(filters: ModerationFilters) {
-    console.log("filters aggregations", filters);
     const where = buildWhere(filters);
-    console.log("where aggregations", where);
 
     // Parallel aggregations using repositories
     const [statusResults, commentResults, publisherResults, orgResults, domainResults, activityResults, deptResults, cityResults, publishers, domains, activities] =
