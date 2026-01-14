@@ -69,7 +69,7 @@ const Create = () => {
         <div className="h-px w-full bg-gray-900" />
         <div className="space-y-6">
           <h2 className="text-3xl font-bold">Paramètres</h2>
-          {errors.settings && <p className="text-red-error">{errors.settings}</p>}
+          {errors.settings && <p className="text-error">{errors.settings}</p>}
           <div className="flex items-start gap-6">
             <div className="flex-1">
               <AnnonceurCreation values={values} onChange={setValues} errors={errors} setErrors={setErrors} />

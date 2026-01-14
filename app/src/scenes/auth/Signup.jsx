@@ -41,12 +41,12 @@ const Signup = () => {
       {error === "invalide" ? (
         <ErrorAlert>
           <p className="text-xl font-bold">La clé n'est pas valide</p>
-          <p className="text-sm text-[#3a3a3a]">La clé fournie n'est pas valide, veuillez nous contacter pour accedez à votre compte</p>
+          <p className="text-color-gray-200 text-sm">La clé fournie n'est pas valide, veuillez nous contacter pour accedez à votre compte</p>
         </ErrorAlert>
       ) : error === "expired" ? (
         <WarningAlert>
           <p className="text-xl font-bold">La clé a expiré</p>
-          <p className="text-sm text-[#3a3a3a]">La clé fournie est expirée, contactez nous pour avoir un nouveau mail d'inscription</p>
+          <p className="text-color-gray-200 text-sm">La clé fournie est expirée, contactez nous pour avoir un nouveau mail d'inscription</p>
         </WarningAlert>
       ) : (
         <SignupForm user={user} />
@@ -137,13 +137,13 @@ const SignupForm = ({ user }) => {
         </label>
         <input
           id="firstname"
-          className={`input mb-2 ${submitted && errors.firstname ? "border-b-red-error" : "border-b-black"}`}
+          className={`input mb-2 ${submitted && errors.firstname ? "border-b-error" : "border-b-black"}`}
           name="firstname"
           value={values.firstname}
           onChange={handleChange}
         />
         {submitted && errors.firstname && (
-          <div className="text-red-error flex items-center text-sm">
+          <div className="text-error flex items-center text-sm">
             <RiErrorWarningFill className="mr-2" />
             {errors.firstname}
           </div>
@@ -155,13 +155,13 @@ const SignupForm = ({ user }) => {
         </label>
         <input
           id="lastname"
-          className={`input mb-2 ${submitted && errors.lastname ? "border-b-red-error" : "border-b-black"}`}
+          className={`input mb-2 ${submitted && errors.lastname ? "border-b-error" : "border-b-black"}`}
           name="lastname"
           value={values.lastname}
           onChange={handleChange}
         />
         {submitted && errors.lastname && (
-          <div className="text-red-error flex items-center text-sm">
+          <div className="text-error flex items-center text-sm">
             <RiErrorWarningFill className="mr-2" />
             {errors.lastname}
           </div>
@@ -179,14 +179,14 @@ const SignupForm = ({ user }) => {
         </div>
         <input
           id="password"
-          className={`input mb-2 ${submitted && errors.password ? "border-b-red-error border-2" : "border-b-black"}`}
+          className={`input mb-2 ${submitted && errors.password ? "border-b-error border-2" : "border-b-black"}`}
           name="password"
           type={show ? "text" : "password"}
           value={values.password}
           onChange={handleChange}
         />
         {submitted && errors.password && (
-          <div className="text-red-error flex items-center text-sm">
+          <div className="text-error flex items-center text-sm">
             <RiErrorWarningFill className="mr-2" />
             {errors.password}
           </div>
@@ -223,14 +223,14 @@ const SignupForm = ({ user }) => {
         </div>
         <input
           id="confirm-password"
-          className={`input mb-2 ${submitted && errors.confirmPassword ? "border-b-red-error border-2" : "border-b-black"}`}
+          className={`input mb-2 ${submitted && errors.confirmPassword ? "border-b-error border-2" : "border-b-black"}`}
           name="confirmPassword"
           type={showConfirm ? "text" : "password"}
           value={values.confirmPassword}
           onChange={handleChange}
         />
         {submitted && errors.confirmPassword && (
-          <div className="text-red-error flex items-center text-sm">
+          <div className="text-error flex items-center text-sm">
             <RiErrorWarningFill className="mr-2" />
             {errors.confirmPassword}
           </div>

@@ -45,7 +45,7 @@ const View = () => {
               {mission.organizationName}
             </a>
           </p>
-          <div className="text-gray-425 flex items-center gap-2 text-base">
+          <div className="text-text-mention flex items-center gap-2 text-base">
             <HiLocationMarker className="ml-2" />
             <span>{mission.country}</span>
             {mission.departmentName && (
@@ -68,7 +68,7 @@ const View = () => {
         <div className="flex justify-between">
           <div>
             <h2 className="text-3xl font-bold">
-              <span className="text-gray-425 font-normal">Mission provenant de </span>
+              <span className="text-text-mention font-normal">Mission provenant de </span>
               {mission.publisherName}
               <span className="ml-2 text-lg font-normal">#{mission._id}</span>
             </h2>
@@ -81,7 +81,7 @@ const View = () => {
           </a>
         </div>
 
-        <div className="flex gap-4 border border-gray-900 p-6">
+        <div className="border-grey-border flex gap-4 border p-6">
           <div>
             <p className="text-xl font-semibold">Presentation de la mission</p>
             <div className="mt-2 max-h-96 overflow-y-scroll text-xs leading-relaxed" dangerouslySetInnerHTML={{ __html: mission.description.replace(/\n/g, "<br />") }} />
@@ -93,13 +93,13 @@ const View = () => {
               <span className="ml-3 rounded-full bg-gray-950 px-3 py-2">{mission.domain}</span>
             </div>
             <div className="mb-4 flex items-center">
-              <p className="text-gray-425 text-xs font-semibold uppercase">Activités</p>
+              <p className="text-text-mention text-xs font-semibold uppercase">Activités</p>
               <span className="ml-3 rounded bg-purple-300 px-3 py-1 text-xs font-semibold text-purple-950 uppercase">{mission.activity}</span>
             </div>
             <div className="flex flex-wrap items-center">
-              <p className="text-gray-425 text-xs font-semibold uppercase">Compétences</p>
+              <p className="text-text-mention text-xs font-semibold uppercase">Compétences</p>
               {(mission.softSkills || []).map((skill, index) => (
-                <span key={index} className="bgbg-[#FEECC2] textbg-[#716043] my-1 ml-3 rounded px-3 py-1 text-xs font-semibold uppercase">
+                <span key={index} className="bg-yellow-tournesol-950 text-yellow-tournesol-200 my-1 ml-3 rounded px-3 py-1 text-xs font-semibold uppercase">
                   {skill}
                 </span>
               ))}
@@ -114,7 +114,7 @@ const View = () => {
         </div>
 
         {showRaw && (
-          <div className="mt-6 overflow-scroll border border-gray-900 p-6 text-xs">
+          <div className="border-grey-border mt-6 overflow-scroll border p-6 text-xs">
             <pre>{JSON.stringify(mission, null, 2)}</pre>
           </div>
         )}

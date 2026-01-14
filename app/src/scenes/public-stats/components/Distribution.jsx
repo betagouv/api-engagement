@@ -125,7 +125,7 @@ const Distribution = ({ filters, onFiltersChange }) => {
   }, [filters]);
 
   return (
-    <div className="mx-auto my-14 w-4/5 max-w-[1200px] flex-1 border border-gray-900 bg-white p-12">
+    <div className="border-grey-border mx-auto my-14 w-4/5 max-w-[1200px] flex-1 border bg-white p-12">
       <div className="flex justify-between">
         <div className="">
           <h2 className="text-3xl font-bold">Répartition des missions</h2>
@@ -172,9 +172,9 @@ const Distribution = ({ filters, onFiltersChange }) => {
         <div className="mb-4 flex justify-between">
           <h2 className="mb-6 text-2xl font-bold">Domaine d'action des missions</h2>
           <div className="group relative">
-            <RiQuestionLine className="text-gray-425 text-lg" />
+            <RiQuestionLine className="text-text-mention text-lg" />
 
-            <div className="absolute top-8 left-0 z-10 hidden w-56 border border-gray-900 bg-white p-4 shadow-lg group-hover:block">
+            <div className="border-grey-border absolute top-8 left-0 z-10 hidden w-56 border bg-white p-4 shadow-lg group-hover:block">
               <p className="text-xs text-black">Répartition des missions ayant eu au moins une redirection par thématique d'engagement.</p>
             </div>
           </div>
@@ -208,13 +208,13 @@ const Distribution = ({ filters, onFiltersChange }) => {
         </div>
       </div>
 
-      <div className="mt-8 gap-4 border border-gray-900 p-8">
+      <div className="border-grey-border mt-8 gap-4 border p-8">
         <div className="mb-4 flex justify-between">
           <h2 className="mb-6 text-2xl font-bold">Département des missions</h2>
           <div className="group relative">
-            <RiQuestionLine className="text-gray-425 text-lg" />
+            <RiQuestionLine className="text-text-mention text-lg" />
 
-            <div className="absolute top-8 left-0 z-10 hidden w-56 border border-gray-900 bg-white p-4 shadow-lg group-hover:block">
+            <div className="border-grey-border absolute top-8 left-0 z-10 hidden w-56 border bg-white p-4 shadow-lg group-hover:block">
               <p className="text-xs text-black">Répartition des missions ayant eu au moins une redirection par département</p>
             </div>
           </div>

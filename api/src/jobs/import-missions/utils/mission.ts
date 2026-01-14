@@ -262,7 +262,7 @@ const parseMission = (publisher: PublisherRecord, missionXML: MissionXML, missio
       parseStringArray(missionXML.publicBeneficiaries, true) ||
       parseStringArray(missionXML.publicsBeneficiaires, true) ||
       [],
-    organizationReseaux: parseStringArray(missionXML.organizationReseaux, true) || [],
+    organizationReseaux: parseStringArray(missionXML.organizationReseaux) || [],
   } as ImportedMission;
 
   // Moderation except Service Civique (already moderated)  // Moderation except Service Civique (already moderated)

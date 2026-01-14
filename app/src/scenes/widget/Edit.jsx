@@ -125,16 +125,16 @@ const Edit = () => {
       <div className="flex items-center justify-between align-baseline">
         <div>
           <h1 className="text-4xl font-bold">Modifier un widget</h1>
-          <span className="text-gray-425">Créé le {new Date(widget.createdAt).toLocaleDateString("fr")}</span>
+          <span className="text-text-mention">Créé le {new Date(widget.createdAt).toLocaleDateString("fr")}</span>
         </div>
-	        <div className="flex items-center gap-6">
-	          <div className="flex flex-col items-end">
-	            <Toggle aria-label={widget.active ? "Désactiver le widget" : "Activer le widget"} value={widget.active} onChange={(value) => handleActivate(value)} />
-	            <label className="text-blue-france text-xs">{widget.active ? "Actif" : "Inactif"}</label>
-	          </div>
-	          <button type="submit" className="primary-btn" onClick={handleSubmit} ref={(node) => setSaveButton(node)} disabled={!canSubmit()}>
-	            Enregistrer
-	          </button>
+        <div className="flex items-center gap-6">
+          <div className="flex flex-col items-end">
+            <Toggle aria-label={widget.active ? "Désactiver le widget" : "Activer le widget"} value={widget.active} onChange={(value) => handleActivate(value)} />
+            <label className="text-blue-france text-xs">{widget.active ? "Actif" : "Inactif"}</label>
+          </div>
+          <button type="submit" className="primary-btn" onClick={handleSubmit} ref={(node) => setSaveButton(node)} disabled={!canSubmit()}>
+            Enregistrer
+          </button>
         </div>
       </div>
 
@@ -184,7 +184,7 @@ const Frame = ({ widget }) => {
         <span>Enregistrez le widget pour mettre à jour l'aperçu</span>
       </div>
 
-      <div className="my-10 border-b border-gray-900 shadow-lg" />
+      <div className="border-grey-border my-10 border-b shadow-lg" />
       <iframe
         key={iframeKey}
         border="0"
@@ -236,7 +236,7 @@ const Code = ({ widget }) => {
       </div>
       <div className="mt-6 w-full">
         <textarea
-          className="w-full rounded-none border border-[#E3E3FD] bg-[#F5F5FE] px-4 py-2 text-base read-only:opacity-80"
+          className="border-blue-france-925 bg-blue-france-975 w-full rounded-none border px-4 py-2 text-base read-only:opacity-80"
           rows={widget.type === "benevolat" ? 11 : 4}
           readOnly
           value={`${IFRAMES[widget.type][widget.style].replace("{{widgetId}}", widget.id)}${widget.type === "benevolat" ? `\n\n${JVA_LOGO}` : ""}`}
@@ -253,14 +253,14 @@ const StickyBar = ({ onEdit, visible, widget, handleActivate, canSubmit }) => {
     <div className="fixed top-0 left-0 z-50 w-full items-center bg-white py-4 shadow-lg">
       <div className="m-auto flex w-[90%] items-center justify-between">
         <h1 className="text-2xl font-bold">Modifier un widget</h1>
-	        <div className="flex items-center gap-6">
-	          <div className="flex flex-col items-end">
-	            <Toggle aria-label={widget.active ? "Désactiver le widget" : "Activer le widget"} value={widget.active} onChange={(value) => handleActivate(value)} />
-	            <label className="text-blue-france text-xs">{widget.active ? "Actif" : "Inactif"}</label>
-	          </div>
-	          <button type="button" className="primary-btn" onClick={onEdit} disabled={!canSubmit()}>
-	            Enregistrer
-	          </button>
+        <div className="flex items-center gap-6">
+          <div className="flex flex-col items-end">
+            <Toggle aria-label={widget.active ? "Désactiver le widget" : "Activer le widget"} value={widget.active} onChange={(value) => handleActivate(value)} />
+            <label className="text-blue-france text-xs">{widget.active ? "Actif" : "Inactif"}</label>
+          </div>
+          <button type="button" className="primary-btn" onClick={onEdit} disabled={!canSubmit()}>
+            Enregistrer
+          </button>
         </div>
       </div>
     </div>

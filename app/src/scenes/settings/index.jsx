@@ -16,7 +16,7 @@ const Settings = () => {
         <title>API Engagement - Paramètres de tracking</title>
         <div className="space-y-4">
           <h1 className="text-4xl font-bold">Paramètres de tracking</h1>
-          <p className="text-gray-425 text-base">
+          <p className="text-text-mention text-base">
             Suivez les instructions ci-dessous pour que les impressions de vos liens de campagnes et des missions que vous diffusez par API soient comptabilisées.
           </p>
         </div>
@@ -59,7 +59,7 @@ const Tab = ({ title, route = "" }) => {
       <div
         className={`${
           active ? "border-blue-france text-blue-france hover:bg-gray-975 border-t-2 bg-white" : "bg-blue-france-925 hover:bg-blue-france-925-hover border-0"
-        } flex translate-y-px cursor-pointer items-center border-x border-x-gray-900 px-4 py-2`}
+        } border-x-grey-border flex translate-y-px cursor-pointer items-center border-x px-4 py-2`}
       >
         <p>{title}</p>
       </div>

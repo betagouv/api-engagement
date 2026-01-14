@@ -55,7 +55,7 @@ const List = () => {
         <SearchInput value={filters.search} onChange={(search) => setFilters({ ...filters, search })} className="w-1/4" placeholder="Rechercher par mot-clé" />
       </div>
 
-      <div className="border border-gray-900 p-6">
+      <div className="border-grey-border border p-6">
         <Table
           header={[{ title: "Titre de l'organisation", colSpan: 3 }, { title: "RNA" }, { title: "SIRET" }, { title: "Créée le" }, { title: "Statut" }]}
           page={filters.from}
@@ -81,12 +81,12 @@ const List = () => {
                     {item.status === "ACTIVE" ? (
                       <div className="flex items-center gap-2">
                         <p>Active</p>
-                        <RiCheckboxCircleFill className="text-green-success" />
+                        <RiCheckboxCircleFill className="text-success" />
                       </div>
                     ) : (
                       <div className="flex items-center gap-2">
                         <p>Inactive</p>
-                        <RiCloseCircleFill className="text-red-error" />
+                        <RiCloseCircleFill className="text-error" />
                       </div>
                     )}
                   </div>

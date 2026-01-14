@@ -153,7 +153,7 @@ const List = () => {
       <div className="mb-4 flex flex-col">
         <div className="flex items-center justify-between">
           <h2 className="text-2xl font-bold">Alertes en cours</h2>
-          <a href="mailto:apiengagement@beta.gouv.fr" className="text-blue-france flex items-center border border-gray-900 py-2 pr-3 pl-4 text-sm">
+          <a href="mailto:apiengagement@beta.gouv.fr" className="text-blue-france border-grey-border flex items-center border py-2 pr-3 pl-4 text-sm">
             Contacter le support
             <RiMessage2Line className="ml-2" />
           </a>
@@ -173,7 +173,7 @@ const List = () => {
                       <div className="flex items-center justify-center">{label.emoji}</div>
                       <div className="flex flex-1 flex-col justify-between">
                         <div className="mb-3">
-                          <span className="bgbg-[#FEECC2] textbg-[#716043] truncate rounded p-1 text-center text-xs font-semibold uppercase">{label.name}</span>
+                          <span className="bg-yellow-tournesol-950 text-yellow-tournesol-200 truncate rounded p-1 text-center text-xs font-semibold uppercase">{label.name}</span>
                         </div>
                         <p className="text-lg font-semibold">{w.title}</p>
                         <p className="mb-3 text-base">{label.advice}</p>
@@ -235,13 +235,13 @@ const List = () => {
                       <div className="flex items-center justify-center">{label.emoji}</div>
                       <div className="flex flex-1 flex-col justify-between">
                         <div className="mb-3">
-                          <span className="bgbg-[#FEECC2] textbg-[#716043] truncate rounded p-1 text-center text-xs font-semibold uppercase">{label.name}</span>
+                          <span className="bg-yellow-tournesol-950 text-yellow-tournesol-200 truncate rounded p-1 text-center text-xs font-semibold uppercase">{label.name}</span>
                         </div>
                         <p className="text-lg font-semibold">{w.title}</p>
                         <p className="mb-3 text-base">{label.advice}</p>
                         {w.fixed && (
                           <div className="mt-3 flex items-center">
-                            <RiCheckboxCircleFill className="text-green-success mr-2 w-4" />
+                            <RiCheckboxCircleFill className="text-success mr-2 w-4" />
                             <p className="text-gray-dar text-sm">
                               Corrigée le {new Date(w.fixedAt || w.updatedAt).getDate()} {MONTHS[new Date(w.fixedAt || w.updatedAt).getMonth()].toLowerCase()}
                             </p>

@@ -64,7 +64,7 @@ const Users = () => {
         </div>
       </div>
 
-      <div className="border border-gray-900 p-6">
+      <div className="border-grey-border border p-6">
         <div className="mb-6 flex items-center gap-4">
           <label htmlFor="user-search" className="sr-only">
             Rechercher par nom ou par email
@@ -104,7 +104,7 @@ const Users = () => {
                 </div>
               </td>
               <td className="table-cell text-center">
-                {item.role === "admin" ? <span className="rounded bg-red-300 px-1">Admin</span> : <span className="rounded bg-green-300 px-1">Utilisateur</span>}
+                {item.role === "admin" ? <span className="bg-red-marianne-950 rounded px-1">Admin</span> : <span className="bg-green-success-950 rounded px-1">Utilisateur</span>}
               </td>
               <td className="table-cell text-center">{new Date(item.createdAt).toLocaleDateString("fr")}</td>
               <td className="table-cell text-center">{item.lastActivityAt ? new Date(item.lastActivityAt).toLocaleDateString("fr") : "-"}</td>

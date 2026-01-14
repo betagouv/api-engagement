@@ -19,11 +19,11 @@ const RANGES = [
 const DateRangePicker = ({ value, onChange }) => {
   return (
     <div className="flex gap-4">
-      <div className="flex items-center rounded-sm border border-gray-900">
+      <div className="border-grey-border flex items-center rounded-sm border">
         {RANGES.map((range, i) => (
           <div
             key={i}
-            className={`cursor-pointer px-4 py-2 text-sm ${value.from.toLocaleDateString() === range.from.toLocaleDateString() ? "-my-px border-blue-france text-blue-france rounded-sm border" : ""} hover:bg-gray-100`}
+            className={`cursor-pointer px-4 py-2 text-sm ${value.from.toLocaleDateString() === range.from.toLocaleDateString() ? "border-blue-france text-blue-france -my-px rounded-sm border" : ""} hover:bg-gray-100`}
             onClick={() => onChange(range)}
           >
             {range.label}
@@ -67,7 +67,7 @@ export const DateInput = ({ value, onChange }) => {
       <PopoverPanel
         transition
         anchor="bottom"
-        className="mt-1 origin-top divide-y divide-gray-900 border border-gray-900 bg-white p-10 shadow-lg transition duration-200 ease-out focus:outline-none data-closed:scale-95 data-closed:opacity-0"
+        className="border-grey-border divide-grey-border mt-1 origin-top divide-y border bg-white p-10 shadow-lg transition duration-200 ease-out focus:outline-none data-closed:scale-95 data-closed:opacity-0"
       >
         <div className="flex gap-6">
           <div className="flex w-44 flex-col gap-4 overflow-x-scroll text-base">
