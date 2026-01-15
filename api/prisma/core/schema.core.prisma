@@ -609,6 +609,38 @@ model Mission {
   moderationStatuses   MissionModerationStatus[]
   jobBoards            MissionJobBoard[]
 
+  // Organization fields (legacy, kept during backfill)
+  organizationUrl                    String?
+  organizationName                   String?
+  organizationType                   String?
+  organizationLogo                   String?
+  organizationDescription            String?
+  organizationFullAddress            String?
+  organizationRNA                    String?
+  organizationSiren                  String?
+  organizationSiret                  String?
+  organizationDepartment             String?
+  organizationDepartmentCode         String?
+  organizationDepartmentName         String?
+  organizationPostCode               String?
+  organizationCity                   String?
+  organizationStatusJuridique        String?
+  organizationBeneficiaries          String[]
+  organizationActions                String[]
+  organizationReseaux                String[]
+  organizationNameVerified           String?
+  organizationRNAVerified            String?
+  organizationSirenVerified          String?
+  organizationSiretVerified          String?
+  organizationAddressVerified        String?
+  organizationCityVerified           String?
+  organizationPostalCodeVerified     String?
+  organizationDepartmentCodeVerified String?
+  organizationDepartmentNameVerified String?
+  organizationRegionVerified         String?
+  organizationVerificationStatus     String?
+  organisationIsRUP                  Boolean?
+
   // TODO: restore relations 
   // missionEvents      MissionEvent[]
   // moderationEvents   ModerationEvent[]
