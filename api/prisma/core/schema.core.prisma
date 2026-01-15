@@ -88,6 +88,12 @@ enum JobBoardId {
   LEBONCOIN
 }
 
+enum MissionJobBoardSyncStatus {
+  ONLINE
+  OFFLINE
+  ERROR
+}
+
 enum StatEventType {
   click
   print
@@ -714,6 +720,7 @@ model MissionJobBoard {
   missionAddressId String?    @map("mission_address_id")
   publicId         String     @map("public_id")
   status           String?    @map("status")
+  syncStatus       MissionJobBoardSyncStatus? @map("sync_status")
   comment          String?    @map("comment")
   createdAt        DateTime   @default(now()) @map("created_at")
   updatedAt        DateTime   @updatedAt @map("updated_at")

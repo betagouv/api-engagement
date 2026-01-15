@@ -2,6 +2,7 @@ import { JobBoardId as PrismaJobBoardId } from "../db/core";
 
 export type JobBoardId = PrismaJobBoardId;
 export const JOB_BOARD_IDS = PrismaJobBoardId;
+export type MissionJobBoardSyncStatus = "ONLINE" | "OFFLINE" | "ERROR";
 
 export type MissionJobBoardRecord = {
   id: string;
@@ -10,6 +11,7 @@ export type MissionJobBoardRecord = {
   missionAddressId: string | null;
   publicId: string;
   status: string | null;
+  syncStatus: MissionJobBoardSyncStatus | null;
   comment: string | null;
   createdAt: Date;
   updatedAt: Date;
@@ -21,5 +23,6 @@ export type MissionJobBoardUpsertInput = {
   missionAddressId?: string | null;
   publicId: string;
   status?: string | null;
+  syncStatus?: MissionJobBoardSyncStatus | null;
   comment?: string | null;
 };
