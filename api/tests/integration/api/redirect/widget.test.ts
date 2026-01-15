@@ -121,7 +121,7 @@ describe("RedirectController /widget/:id", () => {
       missionTitle: mission.title,
       missionPostalCode: mission.postalCode,
       missionDepartmentName: mission.departmentName,
-      missionOrganizationName: mission.organizationName,
+      missionOrganizationName: mission.organizationName ?? "",
       missionOrganizationId: mission.organizationId,
       missionOrganizationClientId: mission.organizationClientId,
       toPublisherId: mission.publisherId,

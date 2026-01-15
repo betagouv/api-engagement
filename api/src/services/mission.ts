@@ -699,6 +699,7 @@ export const missionService = {
   async create(input: MissionCreateInput): Promise<MissionRecord> {
     const id = input.id ?? randomUUID();
     const addresses = mapAddressesForCreate(input.addresses);
+    const organizationClientId = normalizeOptionalString(input.organizationClientId ?? undefined);
 
     const domainName = input.domain?.trim();
     const activityName = input.activity?.trim();
@@ -740,7 +741,7 @@ export const missionService = {
       compensationAmount: input.compensationAmount ?? undefined,
       compensationUnit: input.compensationUnit ?? undefined,
       compensationType: input.compensationType ?? undefined,
-      organizationClientId: input.organizationClientId ?? undefined,
+      organizationClientId: organizationClientId ?? undefined,
       organizationId: input.organizationId ?? undefined,
       lastSyncAt: input.lastSyncAt ?? undefined,
       applicationUrl: input.applicationUrl ?? undefined,
@@ -883,7 +884,8 @@ export const missionService = {
       data.compensationType = patch.compensationType ?? undefined;
     }
     if ("organizationClientId" in patch) {
-      data.organizationClientId = patch.organizationClientId ?? undefined;
+      const normalized = normalizeOptionalString(patch.organizationClientId ?? undefined);
+      data.organizationClientId = normalized ?? null;
     }
     if ("organizationId" in patch) {
       data.organizationId = patch.organizationId ?? null;
