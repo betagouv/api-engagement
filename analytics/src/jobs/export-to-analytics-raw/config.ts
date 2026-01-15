@@ -499,4 +499,20 @@ export const exportDefinitions: ExportDefinition[] = [
       conflictColumns: ["id"],
     },
   },
+  {
+    key: "mission_moderation_status",
+    batchSize: 2000,
+    source: {
+      table: "mission_moderation_status",
+      cursor: {
+        field: "updated_at",
+        idField: "id",
+      },
+      columns: ["id", "mission_id", "publisher_id", "status", "comment", "created_at", "updated_at"],
+    },
+    destination: {
+      table: "mission_moderation_status",
+      conflictColumns: ["id"],
+    },
+  },
 ];
