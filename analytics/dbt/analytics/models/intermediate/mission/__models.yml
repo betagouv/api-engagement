@@ -29,3 +29,46 @@ models:
         description: Timestamp de dernière mise à jour.
         tests:
           - not_null
+      - name: moderation_status
+        description: Dernier statut de modération connu pour la mission.
+      - name: moderation_comment
+        description: Dernier commentaire de modération associé (nullable).
+  - name: int_mission_moderation_status
+    description: >
+      Vue intermédiaire des statuts de modération par mission, issue de
+      `stg_mission_moderation_status` et chargée en incrémental sur `updated_at`.
+      Sert à enrichir le mart mission avec le statut et le commentaire courants.
+    columns:
+      - name: id
+        description: Identifiant UUID de la ligne côté core.
+        tests:
+          - not_null
+          - unique
+      - name: mission_id
+        description: Identifiant analytics de la mission concernée.
+        tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('mission')
+                field: id
+      - name: publisher_id
+        description: Identifiant du partenaire diffuseur.
+        tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('publisher')
+                field: id
+      - name: moderation_status
+        description: Statut de modération courant (enum texte).
+      - name: moderation_comment
+        description: Commentaire associé (nullable).
+      - name: created_at
+        description: Date de création du statut.
+        tests:
+          - not_null
+      - name: updated_at
+        description: Date de dernière mise à jour (curseur incrémental).
+        tests:
+          - not_null
