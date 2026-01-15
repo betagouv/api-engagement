@@ -19,9 +19,15 @@ Ce répertoire contient des scripts de maintenance/migration pour l’API. Les s
 
 - **update-mission-default-logo.ts**
 
-  - Exécution: `DB_ENDPOINT="mongodb://..." npx ts-node scripts/update-mission-default-logo.ts`
-  - Usage: Applique le `defaultMissionLogo` du publisher aux missions existantes sans `organizationLogo`.
-  - Notes: Nécessite l’accès à MongoDB.
+  - Exécution: `npx ts-node scripts/update-mission-default-logo.ts`
+  - Usage: Applique le `defaultMissionLogo` du publisher aux `PublisherOrganization` sans `organizationLogo`.
+  - Notes: Nécessite l’accès à Postgres `core`.
+
+- **backfill-publisher-organizations.ts**
+
+  - Exécution: `npx ts-node scripts/backfill-publisher-organizations.ts`
+  - Usage: Crée/met à jour les `PublisherOrganization` à partir des champs `organization*` encore présents sur `Mission`.
+  - Notes: À exécuter avant la suppression des colonnes `organization*` côté `mission`.
 
 - **mongo-backfill/**
 

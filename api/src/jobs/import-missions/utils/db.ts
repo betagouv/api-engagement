@@ -8,6 +8,7 @@ import { MissionEventCreateParams } from "../../../types/mission-event";
 import type { PublisherRecord } from "../../../types/publisher";
 import { getJobTime } from "../../../utils/job";
 import { EVENT_TYPES, getMissionChanges } from "../../../utils/mission";
+import { upsertPublisherOrganization } from "./organization";
 import type { ImportedMission } from "../types";
 
 /**
@@ -40,6 +41,10 @@ export const bulkDB = async (bulk: ImportedMission[], publisher: PublisherRecord
         continue;
       }
       const missionInput = e as MissionRecord;
+
+      if (publisher.isAnnonceur) {
+        await upsertPublisherOrganization(missionInput);
+      }
 
       const current = existingMap.get(missionInput.clientId);
       if (!current) {

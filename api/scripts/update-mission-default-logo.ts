@@ -1,6 +1,6 @@
 /**
  * Migration : appliquer le defaultMissionLogo du publisher
- * aux missions existantes dépourvues d’organizationLogo.
+ * aux PublisherOrganization dépourvues d’organizationLogo.
  *
  * Exécuter avec :
  *   pnpm ts-node --transpile-only api/scripts/update-mission-default-logo.ts
@@ -20,10 +20,9 @@ async function run() {
     const publisherId = publisher.id;
     const logo = publisher.defaultMissionLogo as string;
 
-    const res = await prismaCore.mission.updateMany({
+    const res = await prismaCore.publisherOrganization.updateMany({
       where: {
         publisherId,
-        deletedAt: null,
         OR: [{ organizationLogo: null }, { organizationLogo: "" }],
       },
       data: {
@@ -31,7 +30,7 @@ async function run() {
       },
     });
 
-    console.log(`Publisher ${publisherId}: ${res.count} missions mises à jour.`);
+    console.log(`Publisher ${publisherId}: ${res.count} organisations mises à jour.`);
   }
 
   await prismaCore.$disconnect();

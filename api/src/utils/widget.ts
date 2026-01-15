@@ -21,7 +21,7 @@ type WidgetRule = Pick<WidgetRuleRecord, "field" | "operator" | "value" | "combi
  * Champs qui correspondent à des tableaux (String[]) dans Prisma.
  * Pour ces champs, on utilise `has`/`hasSome` au lieu de `contains`.
  */
-const ARRAY_FIELDS = new Set(["organizationReseaux", "tags"]);
+const ARRAY_FIELDS = new Set(["associationReseaux", "organizationActions", "organizationNetwork", "organizationReseaux", "tags"]);
 
 /**
  * Mapping des champs virtuels (utilisés dans les règles widget) vers les chemins Prisma réels.
@@ -33,6 +33,12 @@ const FIELD_TO_PRISMA_PATH: Record<string, (condition: any) => Prisma.MissionWhe
   postalCode: (condition) => ({ addresses: { some: { postalCode: condition } } }),
   departmentName: (condition) => ({ addresses: { some: { departmentName: condition } } }),
   regionName: (condition) => ({ addresses: { some: { region: condition } } }),
+  associationName: (condition) => ({ publisherOrganization: { is: { organizationName: condition } } }),
+  associationReseaux: (condition) => ({ publisherOrganization: { is: { organizationReseaux: condition } } }),
+  organizationName: (condition) => ({ publisherOrganization: { is: { organizationName: condition } } }),
+  organizationNetwork: (condition) => ({ publisherOrganization: { is: { organizationReseaux: condition } } }),
+  organizationReseaux: (condition) => ({ publisherOrganization: { is: { organizationReseaux: condition } } }),
+  organizationActions: (condition) => ({ publisherOrganization: { is: { organizationActions: condition } } }),
 };
 
 /**
@@ -41,9 +47,10 @@ const FIELD_TO_PRISMA_PATH: Record<string, (condition: any) => Prisma.MissionWhe
  */
 const buildRuleCondition = (rule: WidgetRule): Prisma.MissionWhereInput | null => {
   const { field, operator, value } = rule;
+  const normalizedValue = field === "openToMinors" ? normalizeBooleanValue(value) : value;
 
   // Pour exists/does_not_exist, pas besoin de valeur
-  if (operator !== "exists" && operator !== "does_not_exist" && !value) {
+  if (operator !== "exists" && operator !== "does_not_exist" && !normalizedValue) {
     return null;
   }
 
@@ -54,24 +61,24 @@ const buildRuleCondition = (rule: WidgetRule): Prisma.MissionWhereInput | null =
   switch (operator) {
     case "is":
       // Pour un tableau, "is" signifie "contient exactement cette valeur"
-      condition = isArrayField ? { has: value } : value;
+      condition = isArrayField ? { has: normalizedValue } : normalizedValue;
       break;
     case "is_not":
-      condition = { not: value };
+      condition = { not: normalizedValue };
       break;
     case "contains":
       // Pour un tableau, utiliser `has` au lieu de `contains`
-      condition = isArrayField ? { has: `${value}` } : { contains: value, mode: "insensitive" };
+      condition = isArrayField ? { has: `${normalizedValue}` } : { contains: normalizedValue, mode: "insensitive" };
       break;
     case "does_not_contain":
       // Cas spécial : on wrappe dans NOT après le mapping
-      condition = isArrayField ? { has: `${value}` } : { contains: value, mode: "insensitive" };
+      condition = isArrayField ? { has: `${normalizedValue}` } : { contains: normalizedValue, mode: "insensitive" };
       break;
     case "is_greater_than":
-      condition = { gt: value };
+      condition = { gt: normalizedValue };
       break;
     case "is_less_than":
-      condition = { lt: value };
+      condition = { lt: normalizedValue };
       break;
     case "exists":
       condition = { not: null };
@@ -80,7 +87,7 @@ const buildRuleCondition = (rule: WidgetRule): Prisma.MissionWhereInput | null =
       condition = null;
       break;
     case "starts_with":
-      condition = { startsWith: value, mode: "insensitive" };
+      condition = { startsWith: normalizedValue, mode: "insensitive" };
       break;
     default:
       return null;
@@ -102,6 +109,20 @@ const buildRuleCondition = (rule: WidgetRule): Prisma.MissionWhereInput | null =
   }
 
   return result;
+};
+
+const normalizeBooleanValue = (value?: string | null) => {
+  if (!value) {
+    return value;
+  }
+  const normalized = value.trim().toLowerCase();
+  if (["yes", "true", "1"].includes(normalized)) {
+    return true;
+  }
+  if (["no", "false", "0"].includes(normalized)) {
+    return false;
+  }
+  return value;
 };
 
 /**
