@@ -94,3 +94,42 @@ models:
         description: Date de dernière mise à jour (curseur incrémental).
         tests:
           - not_null
+  - name: mission_moderation_status
+    description: >
+      Mart des statuts de modération par mission. Le modèle expose l'historique
+      complet des statuts issus de `int_mission_moderation_status` pour les
+      analyses et jointures dans les marts.
+    columns:
+      - name: id
+        description: Identifiant unique du statut de modération.
+        tests:
+          - not_null
+          - unique
+      - name: mission_id
+        description: Identifiant analytics de la mission concernée.
+        tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('mission')
+                field: id
+      - name: publisher_id
+        description: Identifiant du partenaire/publisher associé.
+        tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('publisher')
+                field: id
+      - name: moderation_status
+        description: Statut de modération courant (enum texte).
+      - name: moderation_comment
+        description: Commentaire associé (nullable).
+      - name: created_at
+        description: Date de création du statut.
+        tests:
+          - not_null
+      - name: updated_at
+        description: Date de dernière mise à jour (curseur incrémental).
+        tests:
+          - not_null

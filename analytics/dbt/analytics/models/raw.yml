@@ -150,6 +150,25 @@ sources:
             description: Ancien identifiant RNA.
           - name: new_rna
             description: Nouvel identifiant RNA.
+      - name: mission_moderation_status
+        description: >-
+          Statut de modération courant d'une mission par partenaire, exporté depuis la base core. Chaque ligne
+          correspond au dernier statut connu pour un couple mission / diffuseur.
+        columns:
+          - name: id
+            description: Identifiant unique de la ligne côté core (UUID).
+          - name: mission_id
+            description: Identifiant de la mission concernée.
+          - name: publisher_id
+            description: Identifiant du partenaire diffuseur.
+          - name: status
+            description: Statut de modération courant (enum texte).
+          - name: comment
+            description: Commentaire associé au statut (nullable).
+          - name: created_at
+            description: Horodatage de création (UTC).
+          - name: updated_at
+            description: Horodatage de dernière mise à jour (UTC), utilisé pour l'incrémentalité.
       - name: publisher
         description: >-
           Instantané des partenaires / diffuseurs tels qu'ils existent dans la base opérationnelle. Chaque ligne
