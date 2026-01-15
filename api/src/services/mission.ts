@@ -704,12 +704,12 @@ export const missionService = {
     const activityName = input.activity?.trim();
     const domainId = domainName ? await resolveDomainId(domainName, input.domainLogo ?? null) : null;
     const activityId = activityName ? await resolveActivityId(activityName) : null;
-    const data: Prisma.MissionCreateInput = {
+    const data: Prisma.MissionUncheckedCreateInput = {
       id,
       clientId: input.clientId,
-      publisher: { connect: { id: input.publisherId } },
-      ...(domainId ? { domain: { connect: { id: domainId } } } : {}),
-      ...(activityId ? { activity: { connect: { id: activityId } } } : {}),
+      publisherId: input.publisherId,
+      domainId: domainId ?? null,
+      activityId: activityId ?? null,
       title: input.title,
       statusCode: input.statusCode ?? "ACCEPTED",
       description: input.description ?? "",
@@ -741,7 +741,7 @@ export const missionService = {
       compensationUnit: input.compensationUnit ?? undefined,
       compensationType: input.compensationType ?? undefined,
       organizationClientId: input.organizationClientId ?? undefined,
-      organization: input.organizationId ? { connect: { id: input.organizationId } } : undefined,
+      organizationId: input.organizationId ?? undefined,
       lastSyncAt: input.lastSyncAt ?? undefined,
       applicationUrl: input.applicationUrl ?? undefined,
       statusComment: input.statusComment ?? undefined,
@@ -750,7 +750,7 @@ export const missionService = {
       addresses: addresses.length ? { create: addresses } : undefined,
     };
 
-    await missionRepository.create(data);
+    await missionRepository.createUnchecked(data);
     const mission = await missionRepository.findFirst({ where: { id }, include: baseInclude });
     if (!mission) {
       throw new Error(`[missionService] Mission ${id} not found after creation`);
@@ -760,13 +760,13 @@ export const missionService = {
 
   async update(id: string, patch: MissionUpdatePatch): Promise<MissionRecord> {
     const addresses = mapAddressesForCreate(patch.addresses);
-    const data: Prisma.MissionUpdateInput = {};
+    const data: Prisma.MissionUncheckedUpdateInput = {};
 
     if ("clientId" in patch) {
       data.clientId = patch.clientId ?? undefined;
     }
     if ("publisherId" in patch && patch.publisherId) {
-      data.publisher = { connect: { id: patch.publisherId } };
+      data.publisherId = patch.publisherId;
     }
     if ("title" in patch) {
       data.title = patch.title ?? undefined;
@@ -841,13 +841,9 @@ export const missionService = {
       if (patch.domain) {
         const domainName = patch.domain.trim();
         const domainId = domainName ? await resolveDomainId(domainName, patch.domainLogo ?? null) : null;
-        if (!domainId) {
-          data.domain = { disconnect: true };
-        } else {
-          data.domain = { connect: { id: domainId } };
-        }
+        data.domainId = domainId;
       } else {
-        data.domain = { disconnect: true };
+        data.domainId = null;
       }
     }
     if ("domainOriginal" in patch) {
@@ -863,13 +859,9 @@ export const missionService = {
       if (patch.activity) {
         const activityName = patch.activity.trim();
         const activityId = activityName ? await resolveActivityId(activityName) : null;
-        if (!activityId) {
-          data.activity = { disconnect: true };
-        } else {
-          data.activity = { connect: { id: activityId } };
-        }
+        data.activityId = activityId;
       } else {
-        data.activity = { disconnect: true };
+        data.activityId = null;
       }
     }
     if ("type" in patch) {
@@ -894,7 +886,7 @@ export const missionService = {
       data.organizationClientId = patch.organizationClientId ?? undefined;
     }
     if ("organizationId" in patch) {
-      data.organization = patch.organizationId ? { connect: { id: patch.organizationId } } : { disconnect: true };
+      data.organizationId = patch.organizationId ?? null;
     }
     if ("lastSyncAt" in patch) {
       data.lastSyncAt = patch.lastSyncAt ?? undefined;
@@ -919,7 +911,7 @@ export const missionService = {
       };
     }
 
-    await missionRepository.update(id, data);
+    await missionRepository.updateUnchecked(id, data);
     const mission = await missionRepository.findFirst({ where: { id }, include: baseInclude });
     if (!mission) {
       throw new Error(`[missionService] Mission ${id} not found after update`);
