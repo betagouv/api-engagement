@@ -106,7 +106,7 @@ const Widgets = () => {
                 <td className={`${!item.active ? "opacity-50" : "opacity-100"} px-4`}>{new Date(item.createdAt).toLocaleDateString("fr")}</td>
                 <td className="mt-3 flex gap-2 px-4 text-lg">
                   <Link className="secondary-btn flex items-center" to={`/broadcast/widget/${item.id}`}>
-                    <RiEditFill className="text-lg" />
+                    <RiEditFill className="text-lg" role="img" aria-label="Modifier le widget" />
                   </Link>
                   <a
                     className="secondary-btn flex items-center"
@@ -114,7 +114,7 @@ const Widgets = () => {
                     target="_blank"
                     rel="noopener noreferrer"
                   >
-                    <RiEyeFill className="text-lg" />
+                    <RiEyeFill className="text-lg" role="img" aria-label="Voir le widget" />
                   </a>
                 </td>
                 {user.role === "admin" && (

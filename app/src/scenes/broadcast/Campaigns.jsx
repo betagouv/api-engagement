@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
-import { HiLink } from "react-icons/hi";
-import { RiAddFill, RiEditFill, RiFileCopyLine } from "react-icons/ri";
+import { RiAddFill, RiEditFill, RiFileCopyLine, RiLink } from "react-icons/ri";
 import { Link } from "react-router-dom";
 import { toast } from "react-toastify";
 
@@ -148,13 +147,13 @@ const Campaigns = () => {
               <td colSpan={2} className="px-4">
                 <div className="flex gap-2 text-lg">
                   <Link className="secondary-btn flex items-center" to={`/broadcast/campaign/${item.id}`}>
-                    <RiEditFill className="text-lg" />
+                    <RiEditFill className="text-lg" role="img" aria-label="Modifier la campagne" />
                   </Link>
                   <button className="secondary-btn flex items-center" onClick={() => handleCopy(item.id)}>
-                    <HiLink className="text-lg" />
+                    <RiLink className="text-lg" role="img" aria-label="Copier le lien de la campagne" />
                   </button>
                   <button className="secondary-btn flex items-center" onClick={() => handleDuplicate(item.id)}>
-                    <RiFileCopyLine className="text-lg" />
+                    <RiFileCopyLine className="text-lg" role="img" aria-label="Dupliquer la campagne" />
                   </button>
                 </div>
               </td>
