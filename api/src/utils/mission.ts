@@ -1,6 +1,6 @@
 import { API_URL } from "../config";
 import { MissionRecord } from "../types/mission";
-import { JobBoardId } from "../types/mission-job-board";
+import { JobBoardId, MissionJobBoardSyncStatus } from "../types/mission-job-board";
 import { slugify } from "./string";
 
 /**
@@ -55,6 +55,7 @@ type MissionJobBoardEntry = {
   jobBoardId: JobBoardId | string;
   publicId: string | null;
   status: string | null;
+  syncStatus: MissionJobBoardSyncStatus | null;
   comment: string | null;
   updatedAt: Date | null;
 };
@@ -69,6 +70,7 @@ export const buildJobBoardMap = (entries?: MissionJobBoardEntry[]): MissionRecor
     const key = entry.jobBoardId as keyof NonNullable<MissionRecord["jobBoards"]>;
     const payload = {
       status: entry.status ?? null,
+      syncStatus: entry.syncStatus ?? null,
       comment: entry.comment ?? null,
       url: entry.publicId ?? null,
       updatedAt: entry.updatedAt ?? null,

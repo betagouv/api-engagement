@@ -1,4 +1,5 @@
 import { JobBoardId, MissionJobBoard, Prisma } from "../db/core";
+import type { MissionJobBoardSyncStatus } from "../types/mission-job-board";
 import { prismaCore } from "../db/postgres";
 
 export const missionJobBoardRepository = {
@@ -26,6 +27,7 @@ export const missionJobBoardRepository = {
     missionAddressId?: string | null;
     publicId: string;
     status?: string | null;
+    syncStatus?: MissionJobBoardSyncStatus | null;
     comment?: string | null;
   }): Promise<MissionJobBoard> {
     const missionAddressId = entry.missionAddressId ?? null;
@@ -37,13 +39,14 @@ export const missionJobBoardRepository = {
           missionAddressId: (missionAddressId ?? "") as string,
         },
       },
-      update: { publicId: entry.publicId, status: entry.status ?? null, comment: entry.comment ?? null },
+      update: { publicId: entry.publicId, status: entry.status ?? null, syncStatus: entry.syncStatus ?? null, comment: entry.comment ?? null },
       create: {
         jobBoardId: entry.jobBoardId,
         missionId: entry.missionId,
         missionAddressId: missionAddressId ?? null,
         publicId: entry.publicId,
         status: entry.status ?? null,
+        syncStatus: entry.syncStatus ?? null,
         comment: entry.comment ?? null,
       },
     });

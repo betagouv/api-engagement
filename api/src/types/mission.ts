@@ -1,5 +1,5 @@
 import { Prisma } from "../db/core";
-import { JobBoardId } from "./mission-job-board";
+import { JobBoardId, MissionJobBoardSyncStatus } from "./mission-job-board";
 
 export type MissionStatusCode = "ACCEPTED" | "REFUSED";
 export type MissionRemote = "no" | "possible" | "full";
@@ -138,7 +138,9 @@ export type MissionRecord = {
   deletedAt: Date | null;
   letudiantUpdatedAt: Date | null;
   letudiantError: string | null;
-  jobBoards?: Partial<Record<JobBoardId, { status: string | null; comment: string | null; url: string | null; updatedAt: Date | null }>>;
+  jobBoards?: Partial<
+    Record<JobBoardId, { status: string | null; syncStatus: MissionJobBoardSyncStatus | null; comment: string | null; url: string | null; updatedAt: Date | null }>
+  >;
   lastExportedToPgAt: Date | null;
   distanceKm?: number;
   createdAt: Date;

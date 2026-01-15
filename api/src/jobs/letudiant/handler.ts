@@ -1,12 +1,11 @@
 import { LETUDIANT_PILOTY_TOKEN } from "../../config";
 import { captureException } from "../../error";
-import { missionService } from "../../services/mission";
 import missionJobBoardService from "../../services/mission-jobboard";
 import { organizationService } from "../../services/organization";
 import { PilotyClient, PilotyError } from "../../services/piloty/";
 import { PilotyJob } from "../../services/piloty/types";
 import { MissionRecord } from "../../types/mission";
-import { MissionJobBoardRecord } from "../../types/mission-job-board";
+import type { MissionJobBoardRecord, MissionJobBoardSyncStatus } from "../../types/mission-job-board";
 import { OrganizationRecord } from "../../types/organization";
 import { BaseHandler } from "../base/handler";
 import { JobResult } from "../types";
@@ -43,8 +42,9 @@ export class LetudiantHandler implements BaseHandler<LetudiantJobPayload, Letudi
     const { id, limit } = payload;
     console.log(`[LetudiantHandler] Starting job with ${id ? `id ${id}` : "all missions"} and limit ${limit || DEFAULT_LIMIT}`);
 
-    const missionEntries = await getMissionsToSync(id, limit || DEFAULT_LIMIT);
-    console.log(`[LetudiantHandler] Found ${missionEntries.length} missions to sync`);
+    const { totalCandidates, entries: missionEntries } = await getMissionsToSync(id, limit || DEFAULT_LIMIT);
+    console.log(`[LetudiantHandler] Found ${totalCandidates} missions to sync`);
+    console.log(`[LetudiantHandler] Syncing ${missionEntries.length} missions...`);
 
     const counter = {
       created: 0,
@@ -57,16 +57,17 @@ export class LetudiantHandler implements BaseHandler<LetudiantJobPayload, Letudi
     const mandatoryData = await getMandatoryData(pilotyClient);
 
     for (const { mission, jobBoards } of missionEntries) {
+      let processedJobBoards: Array<{ missionAddressId: string | null; publicId: string; syncStatus?: MissionJobBoardSyncStatus | null; comment?: string | null }> = [];
       try {
         const organizationId = mission.organizationId;
         if (!organizationId) {
-          console.log(`[LetudiantHandler] Mission ${mission._id} has no organization, skipping`);
+          console.log(`[LetudiantHandler] Mission ${mission.id} has no organization, skipping`);
           counter.skipped++;
           continue;
         }
         const organization = await organizationService.findOneOrganizationById(organizationId);
         if (!organization) {
-          console.log(`[LetudiantHandler] Mission ${mission._id} has no organization, skipping`);
+          console.log(`[LetudiantHandler] Mission ${mission.id} has no organization, skipping`);
           counter.skipped++;
           continue;
         }
@@ -78,7 +79,7 @@ export class LetudiantHandler implements BaseHandler<LetudiantJobPayload, Letudi
         }
 
         const jobPayloads = missionToPilotyJobs(mission, pilotyCompanyPublicId, mandatoryData);
-        const processedJobBoards: Array<{ missionAddressId: string | null; publicId: string; status?: string | null }> = [];
+        processedJobBoards = [];
 
         // Create / update jobs related to each address
         for (const jobPayload of jobPayloads) {
@@ -86,7 +87,7 @@ export class LetudiantHandler implements BaseHandler<LetudiantJobPayload, Letudi
           const letudiantPublicId = findLetudiantPublicId(jobBoards, jobPayload.missionAddressId ?? null);
 
           if (letudiantPublicId) {
-            console.log(`[LetudiantHandler] Updating job ${mission._id} - ${jobPayload.payload.localisation} (${letudiantPublicId})`);
+            console.log(`[LetudiantHandler] Updating job ${mission.id} - ${jobPayload.payload.localisation} (${letudiantPublicId}) -> ${jobPayload.payload.state}`);
             pilotyJob = await pilotyClient.updateJob(letudiantPublicId, jobPayload.payload);
             if (jobPayload.payload.state === "archived") {
               counter.deleted++;
@@ -94,7 +95,7 @@ export class LetudiantHandler implements BaseHandler<LetudiantJobPayload, Letudi
               counter.updated++;
             }
           } else {
-            console.log(`[LetudiantHandler] Creating job ${mission._id} - ${jobPayload.payload.localisation}`);
+            console.log(`[LetudiantHandler] Creating job ${mission.id} - ${jobPayload.payload.localisation}`);
             pilotyJob = await pilotyClient.createJob(jobPayload.payload);
             counter.created++;
           }
@@ -102,26 +103,27 @@ export class LetudiantHandler implements BaseHandler<LetudiantJobPayload, Letudi
           if (!pilotyJob) {
             throw new Error("Unable to create or update job for mission");
           } else {
-            processedJobBoards.push({ missionAddressId: jobPayload.missionAddressId ?? null, publicId: pilotyJob.public_id, status: jobPayload.payload.state });
+            const syncStatus = jobPayload.payload.state === "archived" ? "OFFLINE" : "ONLINE";
+            processedJobBoards.push({ missionAddressId: jobPayload.missionAddressId ?? null, publicId: pilotyJob.public_id, syncStatus });
           }
 
           await rateLimit();
         }
 
-        await missionJobBoardService.replaceForMission(LETUDIANT_JOB_BOARD_ID, mission._id, processedJobBoards);
-
-        // Update mission with latest letudiant sync marker
-        await missionService.update(mission._id, {
-          letudiantUpdatedAt: new Date(),
-          letudiantError: null,
-        });
+        await missionJobBoardService.replaceForMission(LETUDIANT_JOB_BOARD_ID, mission.id, processedJobBoards);
       } catch (error) {
-        captureException(`[LetudiantHandler] Error processing mission`, { extra: { error, missionId: mission._id, id, limit } });
+        captureException(`[LetudiantHandler] Error processing mission`, { extra: { error, missionId: mission.id, id, limit } });
 
-        // Persist the letudiant error on the mission
-        await missionService.update(mission._id, {
-          letudiantError: error instanceof Error ? error.message : "Unknown error",
-        });
+        const errorMessage = error instanceof Error ? error.message : "Unknown error";
+        const errorEntries = (processedJobBoards.length ? processedJobBoards : jobBoards).map((entry) => ({
+          missionAddressId: entry.missionAddressId,
+          publicId: entry.publicId,
+          syncStatus: "ERROR",
+          comment: errorMessage,
+        }));
+        if (errorEntries.length) {
+          await missionJobBoardService.replaceForMission(LETUDIANT_JOB_BOARD_ID, mission.id, errorEntries);
+        }
 
         counter.error++;
       }
