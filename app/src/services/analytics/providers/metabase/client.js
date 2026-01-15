@@ -7,13 +7,3 @@ export const queryCard = async (cardId, { parameters = [], variables = {}, body 
 
   return api.post(`/metabase/card/${cardId}/query`, payload, { signal });
 };
-
-export const queryWithTemplateVars = async (cardId, variables = {}, options = {}) => {
-  const parameters = Object.entries(variables).map(([key, value]) => ({
-    type: Array.isArray(value) ? "date/range" : "string/=",
-    target: ["variable", ["template-tag", key]],
-    value,
-  }));
-
-  return queryCard(cardId, { ...options, parameters });
-};

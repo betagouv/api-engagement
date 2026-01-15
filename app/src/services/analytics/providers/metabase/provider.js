@@ -1,4 +1,4 @@
-import { queryCard, queryWithTemplateVars } from "./client";
+import { queryCard } from "./client";
 import { adaptBarFromMetabase, adaptKpiFromMetabase, adaptPieFromMetabase, adaptStackedBarFromMetabase, adaptTableFromMetabase } from "./adapters";
 
 const DEFAULT_ADAPTERS = {
@@ -14,7 +14,7 @@ const query = async ({ cardId, variables = {}, signal } = {}) => {
     throw new Error("Identifiant de carte manquant");
   }
   const hasVariables = variables && Object.keys(variables).length > 0;
-  const res = hasVariables ? await queryWithTemplateVars(cardId, variables, { signal }) : await queryCard(cardId, { signal });
+  const res = await queryCard(cardId, { variables: hasVariables ? variables : undefined, signal });
 
   if (!res.ok) {
     throw new Error(`Metabase renvoie ${res.status || "une erreur"}`);

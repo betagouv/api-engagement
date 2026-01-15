@@ -11,11 +11,15 @@ const buildParametersFromVariables = (variables?: QueryOptions["variables"]) => 
   if (!variables) {
     return undefined;
   }
-  return Object.entries(variables).map(([key, value]) => ({
-    type: Array.isArray(value) ? "date/range" : "string/=",
-    target: ["variable", ["template-tag", key]],
-    value,
-  }));
+  return Object.entries(variables).map(([key, value]) => {
+    const resolvedType = Array.isArray(value) ? "date/range" : ["from", "to"].includes(key) ? "date/single" : "string/=";
+
+    return {
+      type: resolvedType,
+      target: ["variable", ["template-tag", key]],
+      value: resolvedType === "string/=" ? [value] : value,
+    };
+  });
 };
 
 const buildHeaders = () => {

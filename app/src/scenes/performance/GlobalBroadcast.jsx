@@ -10,6 +10,7 @@ import { MONTHS } from "../../constants";
 import api from "../../services/api";
 import { captureError } from "../../services/error";
 import useStore from "../../services/store";
+import AnalyticsCard from "./AnalyticsCard";
 
 const KEYS = {
   jstag: "API",
@@ -76,14 +77,22 @@ const GlobalDiffuseur = ({ filters, onFiltersChange }) => {
         ) : (
           <div className="mt-4 grid gap-4">
             <div className="grid grid-cols-2 gap-4">
-              <div className="border-grey-border border p-6">
-                <p className="text-[28px] font-bold">{data.totalMissionClick.toLocaleString("fr")}</p>
-                <p className="text-base">missions ayant généré au moins une redirection</p>
-              </div>
-              <div className="border-grey-border border p-6">
-                <p className="text-[28px] font-bold">{data.totalMissionApply.toLocaleString("fr")}</p>
-                <p className="text-base">missions ayant généré au moins une candidature</p>
-              </div>
+              <AnalyticsCard
+                cardId={METABASE_CARD_ID.DIFFUSEUR_TOTAL_MISSIONS}
+                filters={filters}
+                type="kpi"
+                kpiLabel="missions ayant généré au moins une redirection"
+                variables={{ publisher_id: publisher.id }}
+                adapterOptions={{ valueColumn: "total_mission_click" }}
+              />
+              <AnalyticsCard
+                cardId={METABASE_CARD_ID.DIFFUSEUR_TOTAL_MISSIONS}
+                filters={filters}
+                type="kpi"
+                kpiLabel="missions ayant généré au moins une candidature"
+                variables={{ publisher_id: publisher.id }}
+                adapterOptions={{ valueColumn: "total_mission_apply" }}
+              />
             </div>
             <div className="grid grid-cols-4 gap-4">
               <div className="border-grey-border relative border p-6">
