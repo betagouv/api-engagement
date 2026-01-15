@@ -1,6 +1,6 @@
 import { JobBoardId, MissionJobBoard, Prisma } from "../db/core";
-import type { MissionJobBoardSyncStatus } from "../types/mission-job-board";
 import { prismaCore } from "../db/postgres";
+import type { MissionJobBoardSyncStatus } from "../types/mission-job-board";
 
 export const missionJobBoardRepository = {
   async findByJobBoardAndMissionIds(jobBoardId: JobBoardId, missionIds: string[]): Promise<MissionJobBoard[]> {
@@ -12,11 +12,11 @@ export const missionJobBoardRepository = {
     });
   },
 
-  async findByJobBoard(jobBoardId: JobBoardId, status?: string): Promise<MissionJobBoard[]> {
+  async findByJobBoard(jobBoardId: JobBoardId, syncStatus?: MissionJobBoardSyncStatus | null): Promise<MissionJobBoard[]> {
     return prismaCore.missionJobBoard.findMany({
       where: {
         jobBoardId,
-        ...(status ? { status } : {}),
+        ...(syncStatus ? { syncStatus } : {}),
       },
     });
   },

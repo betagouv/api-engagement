@@ -1,7 +1,7 @@
 import { JobBoardId, Prisma } from "../db/core";
 import { prismaCore } from "../db/postgres";
 import { missionJobBoardRepository } from "../repositories/mission-job-board";
-import { MissionJobBoardRecord, MissionJobBoardUpsertInput } from "../types/mission-job-board";
+import { MissionJobBoardRecord, MissionJobBoardSyncStatus, MissionJobBoardUpsertInput } from "../types/mission-job-board";
 
 const mapRecord = (entry: any): MissionJobBoardRecord => ({
   id: entry.id,
@@ -22,17 +22,12 @@ export const missionJobBoardService = {
     return entries.map(mapRecord);
   },
 
-  async findByJobBoard(jobBoardId: JobBoardId, status?: string): Promise<MissionJobBoardRecord[]> {
-    const entries = await missionJobBoardRepository.findByJobBoard(jobBoardId, status);
+  async findByJobBoard(jobBoardId: JobBoardId, syncStatus?: string): Promise<MissionJobBoardRecord[]> {
+    const entries = await missionJobBoardRepository.findByJobBoard(jobBoardId, syncStatus as MissionJobBoardSyncStatus);
     return entries.map(mapRecord);
   },
 
-  async findMissionIdsToSync(params: {
-    jobBoardId: JobBoardId;
-    publisherIds: string[];
-    republishingDate: Date;
-    limit: number;
-  }): Promise<{ total: number; ids: string[] }> {
+  async findMissionIdsToSync(params: { jobBoardId: JobBoardId; publisherIds: string[]; republishingDate: Date; limit: number }): Promise<{ total: number; ids: string[] }> {
     const { jobBoardId, publisherIds, republishingDate, limit } = params;
     if (!publisherIds.length || limit <= 0) {
       return { total: 0, ids: [] };

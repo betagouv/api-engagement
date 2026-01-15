@@ -55,7 +55,7 @@ type MissionJobBoardEntry = {
   jobBoardId: JobBoardId | string;
   publicId: string | null;
   status: string | null;
-  syncStatus: MissionJobBoardSyncStatus | null;
+  syncStatus?: MissionJobBoardSyncStatus | null;
   comment: string | null;
   updatedAt: Date | null;
 };

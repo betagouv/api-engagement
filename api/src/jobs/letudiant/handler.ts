@@ -115,14 +115,36 @@ export class LetudiantHandler implements BaseHandler<LetudiantJobPayload, Letudi
         captureException(`[LetudiantHandler] Error processing mission`, { extra: { error, missionId: mission.id, id, limit } });
 
         const errorMessage = error instanceof Error ? error.message : "Unknown error";
-        const errorEntries = (processedJobBoards.length ? processedJobBoards : jobBoards).map((entry) => ({
+        const errorEntries = processedJobBoards.map((entry) => ({
           missionAddressId: entry.missionAddressId,
           publicId: entry.publicId,
-          syncStatus: "ERROR",
+          syncStatus: "ERROR" as const,
           comment: errorMessage,
         }));
+        const mergedEntries = new Map<string | null, { missionAddressId: string | null; publicId: string; syncStatus?: "ERROR" | null; comment?: string | null }>();
+        for (const entry of jobBoards) {
+          mergedEntries.set(entry.missionAddressId ?? null, {
+            missionAddressId: entry.missionAddressId ?? null,
+            publicId: entry.publicId,
+          });
+        }
         if (errorEntries.length) {
-          await missionJobBoardService.replaceForMission(LETUDIANT_JOB_BOARD_ID, mission.id, errorEntries);
+          for (const entry of errorEntries) {
+            mergedEntries.set(entry.missionAddressId ?? null, entry);
+          }
+        } else if (jobBoards.length) {
+          for (const entry of jobBoards) {
+            mergedEntries.set(entry.missionAddressId ?? null, {
+              missionAddressId: entry.missionAddressId ?? null,
+              publicId: entry.publicId,
+              syncStatus: "ERROR",
+              comment: errorMessage,
+            });
+          }
+        }
+        const upsertEntries = Array.from(mergedEntries.values());
+        if (upsertEntries.length) {
+          await missionJobBoardService.replaceForMission(LETUDIANT_JOB_BOARD_ID, mission.id, upsertEntries);
         }
 
         counter.error++;
