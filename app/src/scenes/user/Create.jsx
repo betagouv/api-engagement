@@ -3,7 +3,7 @@ import { RiCloseFill, RiErrorWarningFill } from "react-icons/ri";
 import { Link, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 
-import Table from "../../components/NewTable";
+import Table from "../../components/Table";
 import api from "../../services/api";
 import { captureError } from "../../services/error";
 import { isValidEmail } from "../../services/utils";

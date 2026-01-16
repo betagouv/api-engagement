@@ -5,7 +5,7 @@ import useStore from "../../services/store";
 import JessicaSvg from "../../assets/svg/jessica.svg";
 import NassimSvg from "../../assets/svg/nassim.svg";
 import Loader from "../../components/Loader";
-import Table from "../../components/NewTable";
+import Table from "../../components/Table";
 import api from "../../services/api";
 import { captureError } from "../../services/error";
 

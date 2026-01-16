@@ -3,7 +3,7 @@ import { useNavigate, useSearchParams } from "react-router-dom";
 
 import ModerationAutoIcon from "../../../assets/svg/moderation-auto.svg";
 import Loader from "../../../components/Loader";
-import Table from "../../../components/NewTable";
+import Table from "../../../components/Table";
 import Toggle from "../../../components/Toggle";
 import api from "../../../services/api";
 import { captureError } from "../../../services/error";

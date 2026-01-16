@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 
-import Table from "../../../components/NewTable";
+import Table from "../../../components/Table";
 import api from "../../../services/api";
 import { captureError } from "../../../services/error";
 

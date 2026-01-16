@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { RiQuestionLine } from "react-icons/ri";
 
 import { Pie } from "../../../components/Chart";
-import Table from "../../../components/NewTable";
+import Table from "../../../components/Table";
 import { DEPARTMENT_NAMES, DOMAINS } from "../../../constants";
 import api from "../../../services/api";
 import { captureError } from "../../../services/error";
