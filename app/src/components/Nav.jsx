@@ -114,37 +114,28 @@ const FluxMenu = ({ value, onChange }) => (
       anchor="bottom start"
       className="border-grey-border divide-grey-border mt-2 w-64 origin-top-left divide-y border bg-white shadow-lg transition duration-200 ease-out focus:outline-none data-closed:scale-95 data-closed:opacity-0"
     >
-      {value === "to" ? (
-        <>
-          <MenuItem>
-            <button className="data-[focus]:bg-gray-975 flex w-full items-center justify-between p-4 text-left text-sm" onClick={() => onChange("to")}>
-              <span>Mode annonceur</span>
-              <RiCheckLine className="text-success text-lg" />
-            </button>
-          </MenuItem>
-          <MenuItem>
-            <button className="data-[focus]:bg-gray-975 flex w-full items-center justify-between p-4 text-left text-sm" onClick={() => onChange("from")}>
-              <span>Mode diffuseur</span>
-              <RiArrowLeftRightLine className="text-blue-france text-lg" />
-            </button>
-          </MenuItem>
-        </>
-      ) : (
-        <>
-          <MenuItem>
-            <button className="data-[focus]:bg-gray-975 flex w-full items-center justify-between p-4 text-left text-sm" onClick={() => onChange("from")}>
-              <span>Mode diffuseur</span>
-              <RiCheckLine className="text-success text-lg" />
-            </button>
-          </MenuItem>
-          <MenuItem>
-            <button className="data-[focus]:bg-gray-975 flex w-full items-center justify-between p-4 text-left text-sm" onClick={() => onChange("to")}>
-              <span>Mode annonceur</span>
-              <RiArrowLeftRightLine className="text-blue-france text-lg" />
-            </button>
-          </MenuItem>
-        </>
-      )}
+      <MenuItem>
+        <button
+          aria-current="page"
+          className="data-[focus]:bg-gray-975 flex w-full items-center justify-between p-4 text-left text-sm"
+          onClick={() => onChange(value === "to" ? "to" : "from")}
+        >
+          <span>Mode {value === "to" ? "annonceur" : "diffuseur"}</span>
+          <div>
+            <RiCheckLine className="text-success text-lg" />
+            <span class="sr-only">État du service</span>
+          </div>
+        </button>
+      </MenuItem>
+      <MenuItem>
+        <button className="data-[focus]:bg-gray-975 flex w-full items-center justify-between p-4 text-left text-sm" onClick={() => onChange(value === "to" ? "from" : "to")}>
+          <span>Mode {value === "to" ? "diffuseur" : "annonceur"}</span>
+          <div>
+            <RiArrowLeftRightLine className="text-blue-france text-lg" />
+            <span class="sr-only">État du service</span>
+          </div>
+        </button>
+      </MenuItem>
     </MenuItems>
   </Menu>
 );
