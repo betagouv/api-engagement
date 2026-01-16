@@ -1,6 +1,7 @@
+import { Prisma } from "../db/core";
 import { MissionModerationStatusUpdatePatch } from "../services/mission-moderation-status";
 import { MissionRecord, MissionUpdatePatch } from "../types/mission";
-import { MissionModerationRecord } from "../types/mission-moderation-status";
+import { MissionModerationRecord, ModerationFilters } from "../types/mission-moderation-status";
 import { ModerationEventCreateInput, ModerationEventStatus } from "../types/moderation-event";
 
 type ModerationUpdateBody = {
@@ -11,6 +12,80 @@ type ModerationUpdateBody = {
   missionOrganizationRNAVerified?: string | null;
   missionOrganizationSirenVerified?: string | null;
   missionOrganizationName?: string | null;
+};
+
+export const buildWhere = (filters: ModerationFilters): Prisma.MissionModerationStatusWhereInput => {
+  const missionWhere: Prisma.MissionWhereInput = {
+    deletedAt: null,
+    statusCode: "ACCEPTED",
+  };
+  const where: Prisma.MissionModerationStatusWhereInput = {};
+
+  if (filters.moderatorId) {
+    where.publisherId = filters.moderatorId;
+  }
+
+  if (filters.missionId) {
+    where.missionId = filters.missionId;
+  }
+
+  if (filters.status) {
+    where.status = filters.status as ModerationEventStatus;
+  }
+
+  if (filters.comment) {
+    where.comment = filters.comment;
+  }
+
+  if (filters.publisherId) {
+    missionWhere.publisherId = filters.publisherId;
+  }
+
+  if (filters.domain) {
+    if (filters.domain === "none") {
+      missionWhere.domain = null;
+    } else {
+      missionWhere.domain = { name: filters.domain };
+    }
+  }
+
+  if (filters.department) {
+    if (filters.department === "none") {
+      missionWhere.addresses = { some: { departmentCode: null } };
+    } else {
+      missionWhere.addresses = { some: { departmentCode: filters.department } };
+    }
+  }
+
+  if (filters.organizationName) {
+    if (filters.organizationName === "none") {
+      missionWhere.organizationName = null;
+    } else {
+      missionWhere.organizationName = filters.organizationName;
+    }
+  }
+
+  if (filters.city) {
+    if (filters.city === "none") {
+      missionWhere.addresses = { ...missionWhere.addresses, some: { ...((missionWhere.addresses as any)?.some || {}), city: null } };
+    } else {
+      missionWhere.addresses = { ...missionWhere.addresses, some: { ...((missionWhere.addresses as any)?.some || {}), city: filters.city } };
+    }
+  }
+
+  if (filters.activity) {
+    if (filters.activity === "none") {
+      missionWhere.activity = null;
+    } else {
+      missionWhere.activity = { name: filters.activity };
+    }
+  }
+
+  if (filters.search) {
+    missionWhere.OR = [{ title: { contains: filters.search, mode: "insensitive" } }, { organizationName: { contains: filters.search, mode: "insensitive" } }];
+  }
+
+  return { ...where, mission: missionWhere };
 };
 
 export const getModerationUpdates = (body: ModerationUpdateBody): MissionModerationStatusUpdatePatch | null => {
