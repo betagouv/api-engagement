@@ -1,14 +1,14 @@
 import { useEffect, useState } from "react";
-import { RiInformationFill } from "react-icons/ri";
-
 import EmptySVG from "../../assets/svg/empty-info.svg";
 import { Pie, StackedBarchart } from "../../components/Chart";
 import Loader from "../../components/Loader";
 import DateRangePicker from "../../components/NewDateRangePicker";
-import { MONTHS } from "../../constants";
+import { METABASE_CARD_ID, MONTHS } from "../../constants";
+import { useAnalyticsProvider } from "../../services/analytics/provider";
 import api from "../../services/api";
 import { captureError } from "../../services/error";
 import useStore from "../../services/store";
+import AnalyticsCard from "./AnalyticsCard";
 
 const COLORS = ["rgba(250,117,117,255)", "rgba(252,205,109,255)", "rgba(251,146,107,255)", "rgba(110,213,197,255)", "rgba(114,183,122,255)", "rgba(146,146,146,255)"];
 const TYPE = {
@@ -20,30 +20,10 @@ const TYPE = {
 
 const GlobalAnnounce = ({ filters, onFiltersChange }) => {
   const { publisher } = useStore();
-  const [data, setData] = useState({ totalMissionAvailable: 0, totalMissionClicked: 0, totalPrint: 0, totalClick: 0, totalAccount: 0, totalApply: 0 });
-  const [loading, setLoading] = useState(true);
+  const [totalMissionAvailable, setTotalMissionAvailable] = useState(0);
   const [loadingMission, setLoadingMission] = useState(true);
 
   useEffect(() => {
-    const fetchData = async () => {
-      setLoading(true);
-      try {
-        const queryP = new URLSearchParams();
-
-        if (filters.from) queryP.append("from", filters.from.toISOString());
-        if (filters.to) queryP.append("to", filters.to.toISOString());
-
-        queryP.append("publisherId", publisher.id);
-
-        const res = await api.get(`/stats-global/announce-preview?${queryP.toString()}`);
-        if (!res.ok) throw res;
-
-        setData((prev) => ({ ...prev, ...res.data }));
-      } catch (error) {
-        captureError(error, { extra: { filters } });
-      }
-      setLoading(false);
-    };
     const fetchAvailableMission = async () => {
       setLoadingMission(true);
       try {
@@ -54,14 +34,12 @@ const GlobalAnnounce = ({ filters, onFiltersChange }) => {
           size: 0,
         });
         if (!res.ok) throw res;
-        setData((prev) => ({ ...prev, totalMissionAvailable: res.total }));
+        setTotalMissionAvailable(res.total);
       } catch (error) {
         captureError(error, { extra: { filters } });
       }
       setLoadingMission(false);
     };
-
-    fetchData();
     fetchAvailableMission();
   }, [filters, publisher]);
 
@@ -77,119 +55,176 @@ const GlobalAnnounce = ({ filters, onFiltersChange }) => {
           <h2 className="text-3xl font-bold">Aperçu</h2>
           <p className="text-text-mention text-base">Vos missions partagées et l’impact que vos diffuseurs ont généré pour vous</p>
         </div>
-        {loading ? (
-          <div className="flex w-full justify-center py-10">
-            <Loader />
-          </div>
-        ) : (
-          <div className="mt-4 grid gap-4">
-            <div className="grid grid-cols-2 gap-4">
-              <div className="border-grey-border border p-6">
-                {loadingMission ? (
-                  <div className="flex w-full justify-center py-10">
-                    <Loader />
-                  </div>
-                ) : (
-                  <>
-                    <p className="text-[28px] font-bold">{data.totalMissionAvailable.toLocaleString("fr")}</p>
-                    <p className="text-base">{data.totalMissionAvailable > 1 ? "missions disponibles sur la période" : "mission disponible sur la période"}</p>
-                  </>
-                )}
-              </div>
-              <div className="border-grey-border border p-6">
-                <p className="text-[28px] font-bold">{data.totalMissionClicked.toLocaleString("fr")}</p>
-                <p className="text-base">missions ayant reçu au moins une redirection sur la période</p>
-              </div>
-            </div>
-            <div className="grid grid-cols-4 gap-4">
-              <div className="border-grey-border relative border p-6">
-                <div className="flex items-center justify-between">
-                  <p className="text-[28px] font-bold">{data.totalPrint !== 0 ? data.totalPrint.toLocaleString("fr") : "N/A"}</p>
-
-                  <div className="group relative">
-                    <RiInformationFill className="text-color-gray-425 cursor-pointer text-2xl" />
-                    <div className="border-grey-border absolute bottom-8 z-10 hidden w-80 -translate-x-1/2 border bg-white p-4 shadow-lg group-hover:block">
-                      <p className="text-xs">Les impressions des liens situés dans des emails ou SMS ne sont pas comptabilisés dans ce total</p>
-                    </div>
-                  </div>
+        <div className="mt-4 grid gap-4">
+          <div className="grid grid-cols-2 gap-4">
+            <div className="border-grey-border border p-6">
+              {loadingMission ? (
+                <div className="flex w-full justify-center py-10">
+                  <Loader />
                 </div>
-                <p className="text-base">impressions</p>
-              </div>
-              <div className="border-grey-border border p-6">
-                <p className="text-[28px] font-bold">{data.totalClick?.toLocaleString("fr")}</p>
-                <p className="text-base">redirections</p>
-              </div>
-              <div className="border-grey-border border p-6">
-                <p className="text-[28px] font-bold">{data.totalAccount?.toLocaleString("fr")}</p>
-                <p className="text-base">créations de compte</p>
-              </div>
-              <div className="border-grey-border border p-6">
-                <p className="text-[28px] font-bold">{data.totalApply?.toLocaleString("fr")}</p>
-                <p className="text-base">candidatures</p>
-              </div>
+              ) : (
+                <>
+                  <p className="text-[28px] font-bold">{totalMissionAvailable.toLocaleString("fr")}</p>
+                  <p className="text-base">{totalMissionAvailable > 1 ? "missions disponibles sur la période" : "mission disponible sur la période"}</p>
+                </>
+              )}
             </div>
+            <AnalyticsCard
+              cardId={METABASE_CARD_ID.ANNONCEUR_TOTAL_MISSIONS}
+              filters={filters}
+              type="kpi"
+              kpiLabel="missions ayant reçu au moins une redirection sur la période"
+              variables={{ publisher_id: publisher.id }}
+              adapterOptions={{ valueColumn: "total_mission_click" }}
+            />
           </div>
-        )}
+          <div className="grid grid-cols-4 gap-4">
+            <AnalyticsCard
+              cardId={METABASE_CARD_ID.ANNONCEUR_TOTAL_EVENTS}
+              filters={filters}
+              type="kpi"
+              kpiLabel="impressions"
+              kpiTooltip="Les impressions des liens situés dans des emails ou SMS ne sont pas comptabilisés dans ce total"
+              variables={{ publisher_id: publisher.id }}
+              adapterOptions={{ valueColumn: "total_print" }}
+            />
+            <AnalyticsCard
+              cardId={METABASE_CARD_ID.ANNONCEUR_TOTAL_EVENTS}
+              filters={filters}
+              type="kpi"
+              kpiLabel="redirections"
+              variables={{ publisher_id: publisher.id }}
+              adapterOptions={{ valueColumn: "total_click" }}
+            />
+            <AnalyticsCard
+              cardId={METABASE_CARD_ID.ANNONCEUR_TOTAL_EVENTS}
+              filters={filters}
+              type="kpi"
+              kpiLabel="créations de compte"
+              variables={{ publisher_id: publisher.id }}
+              adapterOptions={{ valueColumn: "total_account" }}
+            />
+            <AnalyticsCard
+              cardId={METABASE_CARD_ID.ANNONCEUR_TOTAL_EVENTS}
+              filters={filters}
+              type="kpi"
+              kpiLabel="candidatures"
+              variables={{ publisher_id: publisher.id }}
+              adapterOptions={{ valueColumn: "total_apply" }}
+            />
+          </div>
+        </div>
       </div>
-      {!loading && (
-        <>
-          <Evolution filters={filters} defaultType={data.totalPrint !== 0 ? "print" : "click"} />
-          <Announcers filters={filters} defaultType={data.totalPrint !== 0 ? "print" : "click"} />
-        </>
-      )}
+      <>
+        <Evolution filters={filters} defaultType="print" />
+        <Announcers filters={filters} defaultType="print" />
+      </>
     </div>
   );
 };
 
 const Evolution = ({ filters, defaultType = "print" }) => {
   const { publisher } = useStore();
-  const [data, setData] = useState([]);
+  const analyticsProvider = useAnalyticsProvider();
+  const [rows, setRows] = useState([]);
   const [loading, setLoading] = useState(true);
   const [type, setType] = useState(defaultType);
 
   useEffect(() => {
+    if (!analyticsProvider?.query) return;
+    const controller = new AbortController();
     const fetchData = async () => {
       setLoading(true);
       try {
-        const query = new URLSearchParams();
+        const variables = { publisher_id: String(publisher.id), flux: "to", type };
+        if (filters.from) variables.from = filters.from.toISOString();
+        if (filters.to) variables.to = filters.to.toISOString();
 
-        if (filters.from) query.append("from", filters.from.toISOString());
-        if (filters.to) query.append("to", filters.to.toISOString());
-        if (type) query.append("type", type);
+        const raw = await analyticsProvider.query({
+          cardId: METABASE_CARD_ID.EVOLUTION_STAT_EVENT,
+          variables,
+          signal: controller.signal,
+        });
 
-        query.append("flux", "to");
-        query.append("publisherId", publisher.id);
+        const rawRows = raw?.data?.rows || raw?.rows || [];
+        const cols = raw?.data?.cols || raw?.cols || [];
 
-        const res = await api.get(`/stats-global/evolution?${query.toString()}`);
-        if (!res.ok) throw res;
-        setData(res.data);
+        const getColumnIndex = (column) => {
+          if (!cols?.length) return -1;
+          return cols.findIndex((c) => c.name === column || c.display_name === column);
+        };
+
+        const bucketIndex = getColumnIndex("bucket");
+        const publisherIndex = getColumnIndex("publisher_bucket");
+        const countIndex = getColumnIndex("doc_count");
+
+        const parsed = rawRows.map((row) => {
+          if (row && !Array.isArray(row)) {
+            return {
+              bucket: row.bucket,
+              publisher: row.publisher_bucket,
+              count: Number(row.doc_count) || 0,
+            };
+          }
+
+          const safeBucketIndex = bucketIndex >= 0 ? bucketIndex : 0;
+          const safePublisherIndex = publisherIndex >= 0 ? publisherIndex : 1;
+          const safeCountIndex = countIndex >= 0 ? countIndex : 2;
+          return {
+            bucket: row?.[safeBucketIndex],
+            publisher: row?.[safePublisherIndex],
+            count: Number(row?.[safeCountIndex]) || 0,
+          };
+        });
+
+        setRows(parsed);
       } catch (error) {
+        if (error.name === "AbortError") return;
         captureError(error, { extra: { filters, type } });
+        setRows([]);
       }
       setLoading(false);
     };
     fetchData();
-  }, [filters, type, publisher]);
+    return () => controller.abort();
+  }, [filters, type, publisher, analyticsProvider]);
 
-  const buildHistogram = (data, keys) => {
-    const res = [];
-    if (!data) return res;
-    const diff = (filters.to.getTime() - filters.from.getTime()) / (1000 * 60 * 60 * 24);
-    data.forEach((d) => {
-      const date = new Date(d.key);
-      const name = diff < 61 ? date.toLocaleDateString("fr") : `${MONTHS[date.getMonth()]} ${date.getFullYear()}`;
-      const obj = { name, Impressions: 0, Redirections: 0, "Créations de compte": 0, Candidatures: 0, Autres: 0 };
+  const buildHistogram = (data) => {
+    if (!data) return { histogram: [], keys: [] };
+    const keysSet = new Set();
+    const map = new Map();
+    const diff = filters?.from && filters?.to ? (filters.to.getTime() - filters.from.getTime()) / (1000 * 60 * 60 * 24) : 0;
 
-      d.publishers.buckets.forEach((p) => {
-        if (!keys.includes(p.key)) obj["Autres"] += p.doc_count;
-        else obj[p.key] = p.doc_count;
-      });
-      res.push(obj);
+    data.forEach((row) => {
+      if (!row?.bucket) return;
+      const date = row.bucket instanceof Date ? row.bucket : new Date(row.bucket);
+      if (Number.isNaN(date.getTime())) return;
+      const key = date.getTime();
+      const entry = map.get(key) || {
+        name: diff < 61 ? date.toLocaleDateString("fr") : `${MONTHS[date.getMonth()]} ${date.getFullYear()}`,
+      };
+      const publisher = row.publisher || "Autres";
+      entry[publisher] = (entry[publisher] || 0) + (Number(row.count) || 0);
+      keysSet.add(publisher);
+      map.set(key, entry);
     });
-    return res;
+
+    const keys = Array.from(keysSet).filter((key) => key !== "Autres");
+    if (keysSet.has("Autres")) keys.push("Autres");
+
+    const sorted = Array.from(map.entries())
+      .sort((a, b) => a[0] - b[0])
+      .map(([, entry]) => {
+        keys.forEach((key) => {
+          if (entry[key] === undefined) entry[key] = 0;
+        });
+        return entry;
+      });
+
+    return { histogram: sorted, keys };
   };
 
-  const histogram = buildHistogram(data.histogram, data.topPublishers);
+  const { histogram, keys } = buildHistogram(rows);
   return (
     <div className="space-y-6">
       <div className="space-y-2">
@@ -225,7 +260,7 @@ const Evolution = ({ filters, defaultType = "print" }) => {
           </div>
         ) : (
           <div className="h-[424px] w-full">
-            <StackedBarchart data={histogram} dataKey={[...data.topPublishers, "Autres"]} />
+            <StackedBarchart data={histogram} dataKey={keys} />
           </div>
         )}
       </div>
@@ -235,35 +270,68 @@ const Evolution = ({ filters, defaultType = "print" }) => {
 
 const Announcers = ({ filters, defaultType = "print" }) => {
   const { publisher } = useStore();
+  const analyticsProvider = useAnalyticsProvider();
   const [data, setData] = useState([]);
   const [total, setTotal] = useState(0);
   const [loading, setLoading] = useState(true);
   const [type, setType] = useState(defaultType);
 
   useEffect(() => {
+    if (!analyticsProvider?.query) return;
+    const controller = new AbortController();
     const fetchData = async () => {
       setLoading(true);
       try {
-        const query = new URLSearchParams();
+        const variables = { publisher_id: publisher.id, type };
+        if (filters.from) variables.from = filters.from.toISOString();
+        if (filters.to) variables.to = filters.to.toISOString();
 
-        if (filters.from) query.append("from", filters.from.toISOString());
-        if (filters.to) query.append("to", filters.to.toISOString());
+        const raw = await analyticsProvider.query({
+          cardId: METABASE_CARD_ID.ANNONCEUR_TOP_DIFFUSEURS,
+          variables,
+          signal: controller.signal,
+        });
 
-        query.append("publisherId", publisher.id);
-        query.append("flux", "to");
-        query.append("type", type);
+        const rawRows = raw?.data?.rows || raw?.rows || [];
+        const cols = raw?.data?.cols || raw?.cols || [];
 
-        const res = await api.get(`/stats-global/announce-publishers?${query.toString()}`);
-        if (!res.ok) throw res;
-        setData(res.data);
-        setTotal(res.total);
+        const getColumnIndex = (column) => {
+          if (!cols?.length) return -1;
+          return cols.findIndex((c) => c.name === column || c.display_name === column);
+        };
+
+        const publisherIndex = getColumnIndex("publisher_name");
+        const countIndex = getColumnIndex("doc_count");
+
+        const parsed = rawRows.map((row) => {
+          if (row && !Array.isArray(row)) {
+            return {
+              key: row.publisher_name ?? "",
+              doc_count: Number(row.doc_count) || 0,
+            };
+          }
+
+          const safePublisherIndex = publisherIndex >= 0 ? publisherIndex : 0;
+          const safeCountIndex = countIndex >= 0 ? countIndex : 1;
+          return {
+            key: row?.[safePublisherIndex] ?? "",
+            doc_count: Number(row?.[safeCountIndex]) || 0,
+          };
+        });
+
+        setData(parsed);
+        setTotal(parsed.length);
       } catch (error) {
+        if (error.name === "AbortError") return;
         captureError(error, { extra: { filters, type } });
+        setData([]);
+        setTotal(0);
       }
       setLoading(false);
     };
     fetchData();
-  }, [filters, publisher, type]);
+    return () => controller.abort();
+  }, [filters, publisher, type, analyticsProvider]);
 
   return (
     <div className="space-y-6">
