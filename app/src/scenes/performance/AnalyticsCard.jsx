@@ -10,6 +10,7 @@ const AnalyticsCard = ({
   kpiLabel,
   kpiUnit,
   kpiIcon,
+  kpiTooltip,
   chartProps,
   loaderHeight,
 }) => {
@@ -38,6 +39,7 @@ const AnalyticsCard = ({
       kpiLabel={kpiLabel}
       kpiUnit={kpiUnit}
       kpiIcon={kpiIcon}
+      kpiTooltip={kpiTooltip}
     />
   );
 

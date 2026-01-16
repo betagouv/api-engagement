@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import { RiInformationFill } from "react-icons/ri";
 
 import EmptySVG from "../../assets/svg/empty-info.svg";
 import { Pie, StackedBarchart } from "../../components/Chart";
@@ -95,31 +94,39 @@ const GlobalDiffuseur = ({ filters, onFiltersChange }) => {
               />
             </div>
             <div className="grid grid-cols-4 gap-4">
-              <div className="border-grey-border relative border p-6">
-                <div className="flex items-center justify-between">
-                  <p className="text-[28px] font-bold">{data.totalPrint !== 0 ? data.totalPrint.toLocaleString("fr") : "N/A"}</p>
-
-                  <div className="group relative">
-                    <RiInformationFill className="text-color-gray-425 cursor-pointer text-2xl" />
-                    <div className="border-grey-border absolute bottom-8 z-10 hidden w-80 -translate-x-1/2 border bg-white p-4 shadow-lg group-hover:block">
-                      <p className="text-xs">Les impressions des liens situés dans des emails ou SMS ne sont pas comptabilisés dans ce total</p>
-                    </div>
-                  </div>
-                </div>
-                <p className="text-text-mention text-base">impressions</p>
-              </div>
-              <div className="border-grey-border border p-6">
-                <p className="text-[28px] font-bold">{data.totalClick?.toLocaleString("fr")}</p>
-                <p className="text-base">redirections</p>
-              </div>
-              <div className="border-grey-border border p-6">
-                <p className="text-[28px] font-bold">{data.totalAccount?.toLocaleString("fr")}</p>
-                <p className="text-base">créations de compte</p>
-              </div>
-              <div className="border-grey-border border p-6">
-                <p className="text-[28px] font-bold">{data.totalApply?.toLocaleString("fr")}</p>
-                <p className="text-base">candidatures</p>
-              </div>
+              <AnalyticsCard
+                cardId={METABASE_CARD_ID.DIFFUSEUR_TOTAL_EVENTS}
+                filters={filters}
+                type="kpi"
+                kpiLabel="impressions"
+                kpiTooltip="Les impressions des liens situés dans des emails ou SMS ne sont pas comptabilisés dans ce total"
+                variables={{ publisher_id: publisher.id }}
+                adapterOptions={{ valueColumn: "total_print" }}
+              />
+              <AnalyticsCard
+                cardId={METABASE_CARD_ID.DIFFUSEUR_TOTAL_EVENTS}
+                filters={filters}
+                type="kpi"
+                kpiLabel="redirections"
+                variables={{ publisher_id: publisher.id }}
+                adapterOptions={{ valueColumn: "total_click" }}
+              />
+              <AnalyticsCard
+                cardId={METABASE_CARD_ID.DIFFUSEUR_TOTAL_EVENTS}
+                filters={filters}
+                type="kpi"
+                kpiLabel="créations de compte"
+                variables={{ publisher_id: publisher.id }}
+                adapterOptions={{ valueColumn: "total_account" }}
+              />
+              <AnalyticsCard
+                cardId={METABASE_CARD_ID.DIFFUSEUR_TOTAL_EVENTS}
+                filters={filters}
+                type="kpi"
+                kpiLabel="candidatures"
+                variables={{ publisher_id: publisher.id }}
+                adapterOptions={{ valueColumn: "total_apply" }}
+              />
             </div>
           </div>
         )}
