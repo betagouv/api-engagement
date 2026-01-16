@@ -304,7 +304,7 @@ const Announcers = ({ filters, defaultType = "print" }) => {
               <div className="w-2/3">
                 <table className="w-full table-fixed">
                   <thead className="text-left">
-                    <tr className="text-xs text-gray-500 uppercase">
+                    <tr className="text-text-mention text-xs uppercase">
                       <th colSpan={3} className="px-4">
                         Diffuseurs
                       </th>

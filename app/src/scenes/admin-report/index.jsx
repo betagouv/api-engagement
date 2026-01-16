@@ -118,7 +118,7 @@ const AdminReport = () => {
                 {item.status === "SENT" ? (
                   <>
                     <div className="flex items-center gap-2">
-                      <div className="h-2 w-2 rounded-full bg-green-500" />
+                      <div className="bg-success h-2 w-2 rounded-full" />
                       <p className="flex-1 text-sm font-bold">Envoyé le {new Date(item.sentAt).toLocaleDateString("fr")}</p>
                     </div>
                     <p className="text-xs">{item.sentTo.length ? item.sentTo.join(", ") : "Aucun destinataire"}</p>
