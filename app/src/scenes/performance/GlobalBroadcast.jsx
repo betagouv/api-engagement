@@ -401,7 +401,7 @@ const Evolution = ({ filters, defaultType = "print" }) => {
 };
 
 const TABLE_HEADER = [
-  { title: "Annonceurs", key: "publisherName", position: "left", colSpan: 2 },
+  { title: "Annonceurs", key: "publisherId", position: "left", colSpan: 2 },
   { title: "Impressions", key: "printCount", position: "right" },
   { title: "Redirections", key: "clickCount", position: "right" },
   { title: "Créations de compte", key: "accountCount", position: "right" },
@@ -411,37 +411,119 @@ const TABLE_HEADER = [
 
 const Announcers = ({ filters }) => {
   const { publisher } = useStore();
+  const analyticsProvider = useAnalyticsProvider();
   const [announcerData, setAnnouncerData] = useState([]);
   const [missionData, setMissionData] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [tableSettings, setTableSettings] = useState({ page: 1, sortBy: "publisherName" });
+  const [tableSettings, setTableSettings] = useState({ page: 1, sortBy: "publisherId" });
 
   useEffect(() => {
+    if (!analyticsProvider?.query) return;
+    const controller = new AbortController();
     const fetchData = async () => {
       setLoading(true);
       try {
-        const query = new URLSearchParams();
+        const variables = { publisher_id: String(publisher.id) };
+        if (filters.from) variables.from = filters.from.toISOString();
+        if (filters.to) variables.to = filters.to.toISOString();
 
-        if (filters.from) query.append("from", filters.from.toISOString());
-        if (filters.to) query.append("to", filters.to.toISOString());
+        const raw = await analyticsProvider.query({
+          cardId: METABASE_CARD_ID.DIFFUSEUR_PERFORMANCE_ANNONCEURS,
+          variables,
+          signal: controller.signal,
+        });
 
-        query.append("publisherId", publisher.id);
-        query.append("flux", "from");
+        const rawRows = raw?.data?.rows || raw?.rows || [];
+        const cols = raw?.data?.cols || raw?.cols || [];
 
-        const resA = await api.get(`/stats-global/broadcast-publishers?${query.toString()}`);
-        if (!resA.ok) throw resA;
-        setAnnouncerData(resA.data);
+        const getColumnIndex = (column) => {
+          if (!cols?.length) return -1;
+          return cols.findIndex((c) => c.name === column || c.display_name === column);
+        };
 
-        const resM = await api.get(`/stats-global/missions?${query.toString()}`);
-        if (!resM.ok) throw resM;
-        setMissionData(resM.data);
+        const publisherIndex = getColumnIndex("publisher_id");
+        const printIndex = getColumnIndex("print_count");
+        const clickIndex = getColumnIndex("click_count");
+        const accountIndex = getColumnIndex("account_count");
+        const applyIndex = getColumnIndex("apply_count");
+        const rateIndex = getColumnIndex("conversion_rate");
+
+        const parsed = rawRows.map((row) => {
+          if (row && !Array.isArray(row)) {
+            return {
+              publisherId: row.publisher_id ?? "",
+              printCount: Number(row.print_count) || 0,
+              clickCount: Number(row.click_count) || 0,
+              accountCount: Number(row.account_count) || 0,
+              applyCount: Number(row.apply_count) || 0,
+              rate: Number(row.conversion_rate) || 0,
+            };
+          }
+
+          const safePublisherIndex = publisherIndex >= 0 ? publisherIndex : 0;
+          const safePrintIndex = printIndex >= 0 ? printIndex : 1;
+          const safeClickIndex = clickIndex >= 0 ? clickIndex : 2;
+          const safeAccountIndex = accountIndex >= 0 ? accountIndex : 3;
+          const safeApplyIndex = applyIndex >= 0 ? applyIndex : 4;
+          const safeRateIndex = rateIndex >= 0 ? rateIndex : 5;
+
+          return {
+            publisherId: row?.[safePublisherIndex] ?? "",
+            printCount: Number(row?.[safePrintIndex]) || 0,
+            clickCount: Number(row?.[safeClickIndex]) || 0,
+            accountCount: Number(row?.[safeAccountIndex]) || 0,
+            applyCount: Number(row?.[safeApplyIndex]) || 0,
+            rate: Number(row?.[safeRateIndex]) || 0,
+          };
+        });
+
+        setAnnouncerData(parsed);
+
+        const missionRaw = await analyticsProvider.query({
+          cardId: METABASE_CARD_ID.DIFFUSEUR_REPARITION_PAR_ANNONCEURS,
+          variables,
+          signal: controller.signal,
+        });
+
+        const missionRows = missionRaw?.data?.rows || missionRaw?.rows || [];
+        const missionCols = missionRaw?.data?.cols || missionRaw?.cols || [];
+
+        const getMissionIndex = (column) => {
+          if (!missionCols?.length) return -1;
+          return missionCols.findIndex((c) => c.name === column || c.display_name === column);
+        };
+
+        const missionPublisherIndex = getMissionIndex("publisher_name");
+        const missionCountIndex = getMissionIndex("mission_count");
+
+        const missionParsed = missionRows.map((row) => {
+          if (row && !Array.isArray(row)) {
+            return {
+              key: row.publisher_name ?? "",
+              doc_count: Number(row.mission_count) || 0,
+            };
+          }
+
+          const safePublisherIndex = missionPublisherIndex >= 0 ? missionPublisherIndex : 0;
+          const safeCountIndex = missionCountIndex >= 0 ? missionCountIndex : 1;
+
+          return {
+            key: row?.[safePublisherIndex] ?? "",
+            doc_count: Number(row?.[safeCountIndex]) || 0,
+          };
+        });
+
+        setMissionData(missionParsed);
       } catch (error) {
+        if (error.name === "AbortError") return;
         captureError(error, { extra: { filters } });
+        setAnnouncerData([]);
       }
       setLoading(false);
     };
     fetchData();
-  }, [filters, publisher]);
+    return () => controller.abort();
+  }, [filters, publisher, analyticsProvider]);
 
   return (
     <div className="space-y-6">
@@ -469,12 +551,12 @@ const Announcers = ({ filters }) => {
                 onSort={(sortBy) => setTableSettings({ ...tableSettings, sortBy })}
               >
                 {announcerData
-                  .sort((a, b) => (tableSettings.sortBy === "publisherName" ? a.publisherName.localeCompare(b.publisherName) : b[tableSettings.sortBy] - a[tableSettings.sortBy]))
+                  .sort((a, b) => (tableSettings.sortBy === "publisherId" ? a.publisherId.localeCompare(b.publisherId) : b[tableSettings.sortBy] - a[tableSettings.sortBy]))
                   .slice((tableSettings.page - 1) * 5, tableSettings.page * 5)
                   .map((item, i) => (
                     <tr key={i} className={`${i % 2 === 0 ? "bg-gray-975" : "bg-gray-1000-active"} table-item`}>
                       <td colSpan={2} className="px-4">
-                        {item.publisherName}
+                        {item.publisherId}
                       </td>
                       <td className="px-4 text-right">{item.printCount.toLocaleString("fr")}</td>
                       <td className="px-4 text-right">{item.clickCount.toLocaleString("fr")}</td>
