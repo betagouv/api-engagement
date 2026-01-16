@@ -256,53 +256,107 @@ const DistributionMean = ({ filters, defaultType = "print" }) => {
 
 const Evolution = ({ filters, defaultType = "print" }) => {
   const { publisher } = useStore();
-  const [data, setData] = useState([]);
+  const analyticsProvider = useAnalyticsProvider();
+  const [rows, setRows] = useState([]);
   const [loading, setLoading] = useState(true);
   const [type, setType] = useState(defaultType);
 
   useEffect(() => {
+    if (!analyticsProvider?.query) return;
+    const controller = new AbortController();
     const fetchData = async () => {
       setLoading(true);
       try {
-        const query = new URLSearchParams();
+        const variables = { publisher_id: String(publisher.id), flux: "from", type };
+        if (filters.from) variables.from = filters.from.toISOString();
+        if (filters.to) variables.to = filters.to.toISOString();
 
-        if (filters.from) query.append("from", filters.from.toISOString());
-        if (filters.to) query.append("to", filters.to.toISOString());
-        if (type) query.append("type", type);
+        const raw = await analyticsProvider.query({
+          cardId: METABASE_CARD_ID.EVOLUTION_STAT_EVENT,
+          variables,
+          signal: controller.signal,
+        });
 
-        query.append("flux", "from");
-        query.append("publisherId", publisher.id);
+        const rawRows = raw?.data?.rows || raw?.rows || [];
+        const cols = raw?.data?.cols || raw?.cols || [];
 
-        const res = await api.get(`/stats-global/evolution?${query.toString()}`);
-        if (!res.ok) throw res;
-        setData(res.data);
+        const getColumnIndex = (column) => {
+          if (!cols?.length) return -1;
+          return cols.findIndex((c) => c.name === column || c.display_name === column);
+        };
+
+        const bucketIndex = getColumnIndex("bucket");
+        const publisherIndex = getColumnIndex("publisher_bucket");
+        const countIndex = getColumnIndex("doc_count");
+
+        const parsed = rawRows.map((row) => {
+          if (row && !Array.isArray(row)) {
+            return {
+              bucket: row.bucket,
+              publisher: row.publisher_bucket,
+              count: Number(row.doc_count) || 0,
+            };
+          }
+
+          const safeBucketIndex = bucketIndex >= 0 ? bucketIndex : 0;
+          const safePublisherIndex = publisherIndex >= 0 ? publisherIndex : 1;
+          const safeCountIndex = countIndex >= 0 ? countIndex : 2;
+          return {
+            bucket: row?.[safeBucketIndex],
+            publisher: row?.[safePublisherIndex],
+            count: Number(row?.[safeCountIndex]) || 0,
+          };
+        });
+
+        setRows(parsed);
       } catch (error) {
+        if (error.name === "AbortError") return;
         captureError(error, { extra: { filters, type } });
+        setRows([]);
       }
       setLoading(false);
     };
     fetchData();
-  }, [filters, type, publisher]);
+    return () => controller.abort();
+  }, [filters, type, publisher, analyticsProvider]);
 
-  const buildHistogram = (data, keys) => {
+  const buildHistogram = (data) => {
     const res = [];
     if (!data) return res;
-    const diff = (filters.to.getTime() - filters.from.getTime()) / (1000 * 60 * 60 * 24);
-    data.forEach((d) => {
-      const date = new Date(d.key);
-      const name = diff < 61 ? date.toLocaleDateString("fr") : `${MONTHS[date.getMonth()]} ${date.getFullYear()}`;
-      const obj = { name, Impressions: 0, Redirections: 0, "Créations de compte": 0, Candidatures: 0, Autres: 0 };
+    const keysSet = new Set();
+    const map = new Map();
+    const diff = filters?.from && filters?.to ? (filters.to.getTime() - filters.from.getTime()) / (1000 * 60 * 60 * 24) : 0;
 
-      d.publishers.buckets.forEach((p) => {
-        if (!keys.includes(p.key)) obj["Autres"] += p.doc_count;
-        else obj[p.key] = p.doc_count;
-      });
-      res.push(obj);
+    data.forEach((row) => {
+      if (!row?.bucket) return;
+      const date = row.bucket instanceof Date ? row.bucket : new Date(row.bucket);
+      if (Number.isNaN(date.getTime())) return;
+      const key = date.getTime();
+      const entry = map.get(key) || {
+        name: diff < 61 ? date.toLocaleDateString("fr") : `${MONTHS[date.getMonth()]} ${date.getFullYear()}`,
+      };
+      const publisher = row.publisher || "Autres";
+      entry[publisher] = (entry[publisher] || 0) + (Number(row.count) || 0);
+      keysSet.add(publisher);
+      map.set(key, entry);
     });
-    return res;
+
+    const keys = Array.from(keysSet).filter((key) => key !== "Autres");
+    if (keysSet.has("Autres")) keys.push("Autres");
+
+    const sorted = Array.from(map.entries())
+      .sort((a, b) => a[0] - b[0])
+      .map(([, entry]) => {
+        keys.forEach((key) => {
+          if (entry[key] === undefined) entry[key] = 0;
+        });
+        return entry;
+      });
+
+    return { histogram: sorted, keys };
   };
 
-  const histogram = buildHistogram(data.histogram, data.topPublishers);
+  const { histogram, keys } = buildHistogram(rows);
   return (
     <div className="space-y-6">
       <div className="space-y-2">
@@ -338,7 +392,7 @@ const Evolution = ({ filters, defaultType = "print" }) => {
           </div>
         ) : (
           <div className="h-[420px] w-full">
-            <StackedBarchart data={histogram} dataKey={[...data.topPublishers, "Autres"]} />
+            <StackedBarchart data={histogram} dataKey={keys} />
           </div>
         )}
       </div>
