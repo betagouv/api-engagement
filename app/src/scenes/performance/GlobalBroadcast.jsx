@@ -7,7 +7,6 @@ import DateRangePicker from "../../components/NewDateRangePicker";
 import Table from "../../components/Table";
 import { MONTHS } from "../../constants";
 import { useAnalyticsProvider } from "../../services/analytics/provider";
-import api from "../../services/api";
 import { captureError } from "../../services/error";
 import useStore from "../../services/store";
 import AnalyticsCard from "./AnalyticsCard";
@@ -31,30 +30,6 @@ const COLORS = ["rgba(250,117,117,255)", "rgba(252,205,109,255)", "rgba(251,146,
 
 const GlobalDiffuseur = ({ filters, onFiltersChange }) => {
   const { publisher } = useStore();
-  const [data, setData] = useState({ totalMissionClick: 0, totalMissionApply: 0, totalPrint: 0, totalClick: 0, totalAccount: 0, totalApply: 0 });
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    const fetchData = async () => {
-      setLoading(true);
-      try {
-        const query = new URLSearchParams();
-
-        if (filters.from) query.append("from", filters.from.toISOString());
-        if (filters.to) query.append("to", filters.to.toISOString());
-
-        query.append("publisherId", publisher.id);
-
-        const res = await api.get(`/stats-global/broadcast-preview?${query.toString()}`);
-        if (!res.ok) throw res;
-        setData(res.data);
-      } catch (error) {
-        captureError(error, { extra: { filters } });
-      }
-      setLoading(false);
-    };
-    fetchData();
-  }, [filters, publisher]);
 
   return (
     <div className="space-y-12 p-12">
@@ -70,78 +45,68 @@ const GlobalDiffuseur = ({ filters, onFiltersChange }) => {
           <h2 className="text-3xl font-bold">Aperçu</h2>
           <p className="text-text-mention text-base">Les missions que vous diffusez et l'impact que vous générez pour vos partenaires annonceurs</p>
         </div>
-        {loading ? (
-          <div className="flex w-full justify-center py-10">
-            <Loader />
+        <div className="mt-4 grid gap-4">
+          <div className="grid grid-cols-2 gap-4">
+            <AnalyticsCard
+              cardId={METABASE_CARD_ID.DIFFUSEUR_TOTAL_MISSIONS}
+              filters={filters}
+              type="kpi"
+              kpiLabel="missions ayant généré au moins une redirection"
+              variables={{ publisher_id: publisher.id }}
+              adapterOptions={{ valueColumn: "total_mission_click" }}
+            />
+            <AnalyticsCard
+              cardId={METABASE_CARD_ID.DIFFUSEUR_TOTAL_MISSIONS}
+              filters={filters}
+              type="kpi"
+              kpiLabel="missions ayant généré au moins une candidature"
+              variables={{ publisher_id: publisher.id }}
+              adapterOptions={{ valueColumn: "total_mission_apply" }}
+            />
           </div>
-        ) : (
-          <div className="mt-4 grid gap-4">
-            <div className="grid grid-cols-2 gap-4">
-              <AnalyticsCard
-                cardId={METABASE_CARD_ID.DIFFUSEUR_TOTAL_MISSIONS}
-                filters={filters}
-                type="kpi"
-                kpiLabel="missions ayant généré au moins une redirection"
-                variables={{ publisher_id: publisher.id }}
-                adapterOptions={{ valueColumn: "total_mission_click" }}
-              />
-              <AnalyticsCard
-                cardId={METABASE_CARD_ID.DIFFUSEUR_TOTAL_MISSIONS}
-                filters={filters}
-                type="kpi"
-                kpiLabel="missions ayant généré au moins une candidature"
-                variables={{ publisher_id: publisher.id }}
-                adapterOptions={{ valueColumn: "total_mission_apply" }}
-              />
-            </div>
-            <div className="grid grid-cols-4 gap-4">
-              <AnalyticsCard
-                cardId={METABASE_CARD_ID.DIFFUSEUR_TOTAL_EVENTS}
-                filters={filters}
-                type="kpi"
-                kpiLabel="impressions"
-                kpiTooltip="Les impressions des liens situés dans des emails ou SMS ne sont pas comptabilisés dans ce total"
-                variables={{ publisher_id: publisher.id }}
-                adapterOptions={{ valueColumn: "total_print" }}
-              />
-              <AnalyticsCard
-                cardId={METABASE_CARD_ID.DIFFUSEUR_TOTAL_EVENTS}
-                filters={filters}
-                type="kpi"
-                kpiLabel="redirections"
-                variables={{ publisher_id: publisher.id }}
-                adapterOptions={{ valueColumn: "total_click" }}
-              />
-              <AnalyticsCard
-                cardId={METABASE_CARD_ID.DIFFUSEUR_TOTAL_EVENTS}
-                filters={filters}
-                type="kpi"
-                kpiLabel="créations de compte"
-                variables={{ publisher_id: publisher.id }}
-                adapterOptions={{ valueColumn: "total_account" }}
-              />
-              <AnalyticsCard
-                cardId={METABASE_CARD_ID.DIFFUSEUR_TOTAL_EVENTS}
-                filters={filters}
-                type="kpi"
-                kpiLabel="candidatures"
-                variables={{ publisher_id: publisher.id }}
-                adapterOptions={{ valueColumn: "total_apply" }}
-              />
-            </div>
+          <div className="grid grid-cols-4 gap-4">
+            <AnalyticsCard
+              cardId={METABASE_CARD_ID.DIFFUSEUR_TOTAL_EVENTS}
+              filters={filters}
+              type="kpi"
+              kpiLabel="impressions"
+              kpiTooltip="Les impressions des liens situés dans des emails ou SMS ne sont pas comptabilisés dans ce total"
+              variables={{ publisher_id: publisher.id }}
+              adapterOptions={{ valueColumn: "total_print" }}
+            />
+            <AnalyticsCard
+              cardId={METABASE_CARD_ID.DIFFUSEUR_TOTAL_EVENTS}
+              filters={filters}
+              type="kpi"
+              kpiLabel="redirections"
+              variables={{ publisher_id: publisher.id }}
+              adapterOptions={{ valueColumn: "total_click" }}
+            />
+            <AnalyticsCard
+              cardId={METABASE_CARD_ID.DIFFUSEUR_TOTAL_EVENTS}
+              filters={filters}
+              type="kpi"
+              kpiLabel="créations de compte"
+              variables={{ publisher_id: publisher.id }}
+              adapterOptions={{ valueColumn: "total_account" }}
+            />
+            <AnalyticsCard
+              cardId={METABASE_CARD_ID.DIFFUSEUR_TOTAL_EVENTS}
+              filters={filters}
+              type="kpi"
+              kpiLabel="candidatures"
+              variables={{ publisher_id: publisher.id }}
+              adapterOptions={{ valueColumn: "total_apply" }}
+            />
           </div>
-        )}
+        </div>
       </div>
 
-      {!loading && (
-        <>
-          {(publisher.hasApiRights && 1) + (publisher.hasCampaignRights && 1) + (publisher.hasWidgetRights && 1) > 1 && (
-            <DistributionMean filters={filters} defaultType={data.totalPrint !== 0 ? "print" : "click"} />
-          )}
-          <Evolution filters={filters} defaultType={data.totalPrint !== 0 ? "print" : "click"} />
-          <Announcers filters={filters} />
-        </>
-      )}
+      <>
+        {(publisher.hasApiRights && 1) + (publisher.hasCampaignRights && 1) + (publisher.hasWidgetRights && 1) > 1 && <DistributionMean filters={filters} defaultType="print" />}
+        <Evolution filters={filters} defaultType="print" />
+        <Announcers filters={filters} />
+      </>
     </div>
   );
 };
