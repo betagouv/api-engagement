@@ -6,13 +6,14 @@ import Loader from "../../components/Loader";
 import DateRangePicker from "../../components/NewDateRangePicker";
 import Table from "../../components/Table";
 import { MONTHS } from "../../constants";
+import { useAnalyticsProvider } from "../../services/analytics/provider";
 import api from "../../services/api";
 import { captureError } from "../../services/error";
 import useStore from "../../services/store";
 import AnalyticsCard from "./AnalyticsCard";
 
 const KEYS = {
-  jstag: "API",
+  api: "API",
   publisher: "API",
   campaign: "Campagne",
   widget: "Widget",
@@ -147,32 +148,40 @@ const GlobalDiffuseur = ({ filters, onFiltersChange }) => {
 
 const DistributionMean = ({ filters, defaultType = "print" }) => {
   const { publisher } = useStore();
+  const analyticsProvider = useAnalyticsProvider();
   const [data, setData] = useState([]);
   const [type, setType] = useState(defaultType);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    if (!analyticsProvider?.query) return;
+    const controller = new AbortController();
     const fetchData = async () => {
       setLoading(true);
       try {
-        const query = new URLSearchParams();
+        const variables = { publisher_id: String(publisher.id), type };
+        if (filters.from) variables.from = filters.from.toISOString();
+        if (filters.to) variables.to = filters.to.toISOString();
 
-        if (filters.from) query.append("from", filters.from.toISOString());
-        if (filters.to) query.append("to", filters.to.toISOString());
-        if (type) query.append("type", type);
+        const raw = await analyticsProvider.query({
+          cardId: METABASE_CARD_ID.DIFFUSEUR_REPARITION_PAR_MOYEN_DIFFUSION,
+          variables,
+          signal: controller.signal,
+        });
 
-        query.append("publisherId", publisher.id);
-
-        const res = await api.get(`/stats-global/distribution?${query.toString()}`);
-        if (!res.ok) throw res;
-        setData(res.data);
+        const rows = raw?.data?.rows || raw?.rows || [];
+        const parsed = rows.map((row) => ({ key: row?.[0] ?? "", doc_count: Number(row?.[1]) || 0 }));
+        setData(parsed);
       } catch (error) {
+        if (error.name === "AbortError") return;
         captureError(error, { extra: { filters, type } });
+        setData([]);
       }
       setLoading(false);
     };
     fetchData();
-  }, [filters, type, publisher]);
+    return () => controller.abort();
+  }, [filters, type, publisher, analyticsProvider]);
 
   return (
     <div className="space-y-6">
