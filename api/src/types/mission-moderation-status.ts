@@ -43,3 +43,17 @@ export type MissionModerationRecord = {
   missionOrganizationUrl: MissionRecord["organizationUrl"];
   missionOrganizationFullAddress: MissionRecord["organizationFullAddress"];
 };
+
+export type ModerationFilters = {
+  moderatorId?: string;
+  publisherId?: string;
+  missionId?: string;
+  status?: string;
+  comment?: string;
+  domain?: string;
+  department?: string;
+  organizationName?: string;
+  city?: string;
+  activity?: string;
+  search?: string;
+};
