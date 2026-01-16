@@ -159,7 +159,7 @@ body {
 }
 
 @utility btn {
-  @apply inline-flex min-h-10 w-fit cursor-pointer items-center justify-center px-4 py-2 text-sm font-medium transition-all disabled:cursor-not-allowed;
+  @apply inline-flex min-h-10 w-fit cursor-pointer items-center px-4 py-2 text-center text-sm font-medium transition-all disabled:cursor-not-allowed;
 }
 @utility primary-btn {
   @apply btn bg-blue-france hover:bg-blue-france-hover active:bg-blue-france-hover disabled:bg-gray-925 disabled:text-gray-625 text-white;

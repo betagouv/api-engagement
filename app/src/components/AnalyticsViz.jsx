@@ -149,7 +149,7 @@ const AnalyticsViz = ({
             {kpiValue.toLocaleString("fr")}
             {kpiUnit ? ` ${kpiUnit}` : ""}
           </p>
-          {kpiIcon && <div className="text-text-mention text-xl">{kpiIcon}</div>}
+          {kpiIcon && <div className="text-xl text-gray-600">{kpiIcon}</div>}
         </div>
         {kpiLabel && <p className="text-base">{kpiLabel}</p>}
       </div>
@@ -172,7 +172,7 @@ const AnalyticsViz = ({
           {showLegend && (
             <div className="md:w-5/12">
               <table className="w-full table-fixed text-xs">
-                <thead className="text-text-mention text-left text-[10px] uppercase">
+                <thead className="text-left text-[10px] text-gray-500 uppercase">
                   <tr>
                     <th className="px-2">Légende</th>
                     <th className="px-2 text-right">Valeur</th>

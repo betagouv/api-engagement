@@ -177,7 +177,7 @@ const Mean = ({ filters, onFiltersChange }) => {
         <div className="space-y-8">
           <div className="space-y-2">
             <h3 className="text-2xl font-semibold">Jessica et Nassim vous accompagnent</h3>
-            <p className="text-[18px]">Nous sommes là pour vous aider à optimiser votre parcours utilisateur et votre taux de conversion.</p>
+            <p className="text-[18px] text-gray-200">Nous sommes là pour vous aider à optimiser votre parcours utilisateur et votre taux de conversion.</p>
           </div>
 
           <div>

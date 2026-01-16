@@ -252,24 +252,22 @@ const ResetPasswordModal = () => {
 
             <div className="mt-2 flex flex-col gap-2">
               <div className="flex items-center gap-2">
-                {(values.newPassword || "").length >= 12 ? <RiCheckboxCircleFill className="text-success" /> : <RiCheckboxCircleFill className="text-text-mention" />}
-                <span className={`align-middle text-sm ${values.newPassword && (values.newPassword || "").length >= 12 ? "text-success" : "text-text-mention"}`}>
+                {(values.newPassword || "").length >= 12 ? <RiCheckboxCircleFill className="text-success" /> : <RiCheckboxCircleFill className="text-gray-600" />}
+                <span className={`align-middle text-sm ${values.newPassword && (values.newPassword || "").length >= 12 ? "text-success" : "text-gray-600"}`}>
                   Au moins 12 caractères
                 </span>
               </div>
               <div className="flex items-center gap-2">
-                {/[a-zA-Z]/.test(values.newPassword) ? <RiCheckboxCircleFill className="text-success" /> : <RiCheckboxCircleFill className="text-text-mention" />}
-                <span className={`align-middle text-sm ${values.newPassword && /[a-zA-Z]/.test(values.newPassword) ? "text-success" : "text-text-mention"}`}>
-                  Au moins une lettre
-                </span>
+                {/[a-zA-Z]/.test(values.newPassword) ? <RiCheckboxCircleFill className="text-success" /> : <RiCheckboxCircleFill className="text-gray-600" />}
+                <span className={`align-middle text-sm ${values.newPassword && /[a-zA-Z]/.test(values.newPassword) ? "text-success" : "text-gray-600"}`}>Au moins une lettre</span>
               </div>
               <div className="flex items-center gap-2">
-                {/[0-9]/.test(values.newPassword) ? <RiCheckboxCircleFill className="text-success" /> : <RiCheckboxCircleFill className="text-text-mention" />}
-                <span className={`align-middle text-sm ${values.newPassword && /[0-9]/.test(values.newPassword) ? "text-success" : "text-text-mention"}`}>Au moins un chiffre</span>
+                {/[0-9]/.test(values.newPassword) ? <RiCheckboxCircleFill className="text-success" /> : <RiCheckboxCircleFill className="text-gray-600" />}
+                <span className={`align-middle text-sm ${values.newPassword && /[0-9]/.test(values.newPassword) ? "text-success" : "text-gray-600"}`}>Au moins un chiffre</span>
               </div>
               <div className="flex items-center gap-2">
-                {/[!-@#$%^&*(),.?":{}|<>]/.test(values.newPassword) ? <RiCheckboxCircleFill className="text-success" /> : <RiCheckboxCircleFill className="text-text-mention" />}
-                <span className={`align-middle text-sm ${values.newPassword && /[!-@#$%^&*(),.?":{}|<>]/.test(values.newPassword) ? "text-success" : "text-text-mention"}`}>
+                {/[!-@#$%^&*(),.?":{}|<>]/.test(values.newPassword) ? <RiCheckboxCircleFill className="text-success" /> : <RiCheckboxCircleFill className="text-gray-600" />}
+                <span className={`align-middle text-sm ${values.newPassword && /[!-@#$%^&*(),.?":{}|<>]/.test(values.newPassword) ? "text-success" : "text-gray-600"}`}>
                   Au moins un caractère spécial
                 </span>
               </div>

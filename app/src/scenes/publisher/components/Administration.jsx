@@ -26,15 +26,11 @@ const Administration = ({ values, onChange }) => {
         <label className="w-1/2 text-base" htmlFor="automated-report">
           Rapport automatisé
         </label>
-        <div className="relative">
-          <Toggle
-            aria-label={values.sendReport ? "Désactiver le rapport automatisé" : "Activer le rapport automatisé"}
-            value={values.sendReport}
-            onChange={(e) => onChange({ ...values, sendReport: e })}
-          />
-          {values.sendReport ? <p className="text-blue-france absolute top-8 right-0 text-base">Oui</p> : <p className="absolute top-8 right-0 text-base text-gray-700">Non</p>}
-        </div>
-      </div>
+	        <div className="relative">
+	          <Toggle aria-label={values.sendReport ? "Désactiver le rapport automatisé" : "Activer le rapport automatisé"} value={values.sendReport} onChange={(e) => onChange({ ...values, sendReport: e })} />
+	          {values.sendReport ? <p className="text-blue-france absolute top-8 right-0 text-base">Oui</p> : <p className="absolute top-8 right-0 text-base text-gray-700">Non</p>}
+	        </div>
+	      </div>
       <div className="flex-1 space-y-4">
         <div className="flex flex-col gap-2">
           <label className="text-base" htmlFor="excludedOrganizations">
@@ -42,7 +38,7 @@ const Administration = ({ values, onChange }) => {
           </label>
 
           <div className="flex flex-wrap items-center gap-2">
-            {excludedOrganizations.length === 0 && <p className="text-text-mention">Aucune organisation exclue</p>}
+            {excludedOrganizations.length === 0 && <p className="text-gray-500">Aucune organisation exclue</p>}
             {excludedOrganizations
               .filter((item) => item.excludedByAnnonceurName === "JeVeuxAider.gouv.fr")
               .map((item, index) => (
