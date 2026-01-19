@@ -702,7 +702,7 @@ export const missionService = {
     const activityName = input.activity?.trim();
     const domainId = domainName ? await resolveDomainId(domainName) : null;
     const activityId = activityName ? await resolveActivityId(activityName) : null;
-    const data: Prisma.MissionUncheckedCreateInput & { domainLogo?: string | null } = {
+    const data: Prisma.MissionUncheckedCreateInput = {
       id,
       clientId: input.clientId,
       publisherId: input.publisherId,
@@ -759,7 +759,7 @@ export const missionService = {
 
   async update(id: string, patch: MissionUpdatePatch): Promise<MissionRecord> {
     const addresses = mapAddressesForCreate(patch.addresses);
-    const data: Prisma.MissionUncheckedUpdateInput & { domainLogo?: string | null } = {};
+    const data: Prisma.MissionUncheckedUpdateInput = {};
 
     if ("clientId" in patch) {
       data.clientId = patch.clientId ?? undefined;
