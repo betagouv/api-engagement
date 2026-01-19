@@ -3,6 +3,8 @@ select
   client_id,
   domain_id,
   activity_id,
+  title,
+  description,
   tags,
   tasks,
   audience,

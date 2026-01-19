@@ -506,7 +506,7 @@ export const exportDefinitions: ExportDefinition[] = [
   },
   {
     key: "mission",
-    batchSize: 2000,
+    batchSize: 1500,
     source: {
       table: "mission",
       cursor: {
@@ -518,6 +518,8 @@ export const exportDefinitions: ExportDefinition[] = [
         "client_id",
         "domain_id",
         "activity_id",
+        "title",
+        "description",
         "tags",
         "tasks",
         "audience",

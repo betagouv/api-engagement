@@ -18,6 +18,8 @@ select
   m.organization_client_id,
   m.activity,
   m.domain_original,
+  m.title,
+  m.description,
   m.type,
   m.status_code,
   m.status,

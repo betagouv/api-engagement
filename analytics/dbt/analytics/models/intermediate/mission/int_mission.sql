@@ -42,6 +42,8 @@ select
   m.domain_id,
   m.activity_id,
   a.activity_name as activity,
+  m.title,
+  m.description,
   m.domain_original,
   m.type,
   m.status_code,
