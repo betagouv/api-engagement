@@ -81,7 +81,7 @@ describe("RedirectController /account", () => {
       missionTitle: mission.title,
       missionPostalCode: mission.postalCode,
       missionDepartmentName: mission.departmentName,
-      missionOrganizationName: mission.organizationName,
+      missionOrganizationName: mission.organizationName ?? "",
       missionOrganizationId: "click-org-id",
     });
 
