@@ -9,96 +9,7 @@ dotenv.config();
 
 import { Prisma } from "../src/db/core";
 import { prismaCore } from "../src/db/postgres";
-import { publisherOrganizationRepository } from "../src/repositories/publisher-organization";
-import { normalizeOptionalString, normalizeStringList } from "../src/utils/normalize";
-
-const BATCH_SIZE = 500;
-
-type MissionOrganizationRow = {
-  id: string;
-  publisherId: string;
-  organizationClientId: string | null;
-  organizationName: string | null;
-  organizationUrl: string | null;
-  organizationType: string | null;
-  organizationLogo: string | null;
-  organizationDescription: string | null;
-  organizationFullAddress: string | null;
-  organizationRNA: string | null;
-  organizationSiren: string | null;
-  organizationSiret: string | null;
-  organizationDepartment: string | null;
-  organizationDepartmentCode: string | null;
-  organizationDepartmentName: string | null;
-  organizationPostCode: string | null;
-  organizationCity: string | null;
-  organizationStatusJuridique: string | null;
-  organizationBeneficiaries: string[] | null;
-  organizationActions: string[] | null;
-  organizationReseaux: string[] | null;
-  organizationNameVerified: string | null;
-  organizationRNAVerified: string | null;
-  organizationSirenVerified: string | null;
-  organizationSiretVerified: string | null;
-  organizationAddressVerified: string | null;
-  organizationCityVerified: string | null;
-  organizationPostalCodeVerified: string | null;
-  organizationDepartmentCodeVerified: string | null;
-  organizationDepartmentNameVerified: string | null;
-  organizationRegionVerified: string | null;
-  organizationVerificationStatus: string | null;
-  organisationIsRUP: boolean | null;
-};
-
-const fetchMissionOrganizationRows = async (publisherIds: string[], afterId?: string | null): Promise<MissionOrganizationRow[]> => {
-  if (!publisherIds.length) {
-    return [];
-  }
-
-  return prismaCore.$queryRaw<MissionOrganizationRow[]>(
-    Prisma.sql`
-      SELECT
-        id,
-        "publisher_id" AS "publisherId",
-        "organization_client_id" AS "organizationClientId",
-        "organizationUrl",
-        "organizationName",
-        "organizationType",
-        "organizationLogo",
-        "organizationDescription",
-        "organizationFullAddress",
-        "organizationRNA",
-        "organizationSiren",
-        "organizationSiret",
-        "organizationDepartment",
-        "organizationDepartmentCode",
-        "organizationDepartmentName",
-        "organizationPostCode",
-        "organizationCity",
-        "organizationStatusJuridique",
-        "organizationBeneficiaries",
-        "organizationActions",
-        "organizationReseaux",
-        "organizationNameVerified",
-        "organizationRNAVerified",
-        "organizationSirenVerified",
-        "organizationSiretVerified",
-        "organizationAddressVerified",
-        "organizationCityVerified",
-        "organizationPostalCodeVerified",
-        "organizationDepartmentCodeVerified",
-        "organizationDepartmentNameVerified",
-        "organizationRegionVerified",
-        "organizationVerificationStatus",
-        "organisationIsRUP"
-      FROM mission
-      WHERE "publisher_id" IN (${Prisma.join(publisherIds)})
-      ${afterId ? Prisma.sql`AND id > ${afterId}` : Prisma.empty}
-      ORDER BY id ASC
-      LIMIT ${BATCH_SIZE}
-    `
-  );
-};
+type MissingCountRow = { count: number };
 
 const run = async () => {
   const startedAt = new Date();
@@ -117,87 +28,126 @@ const run = async () => {
     return;
   }
 
-  let processed = 0;
-  let upserted = 0;
-  let skipped = 0;
-  let errors = 0;
-  let lastId: string | null = null;
+  const missingCountRows = await prismaCore.$queryRaw<MissingCountRow[]>(
+    Prisma.sql`
+      SELECT COUNT(*)::int AS count
+      FROM (
+        SELECT DISTINCT ON (m."publisher_id", m."organization_client_id") m."publisher_id", m."organization_client_id"
+        FROM "mission" m
+        INNER JOIN "publisher" p ON p."id" = m."publisher_id" AND p."is_annonceur" = true
+        LEFT JOIN "publisher_organization" po
+          ON po."publisher_id" = m."publisher_id"
+         AND po."organization_client_id" = m."organization_client_id"
+        WHERE m."organization_client_id" IS NOT NULL
+          AND m."organization_client_id" <> ''
+          AND po."id" IS NULL
+        ORDER BY m."publisher_id", m."organization_client_id", m."updated_at" DESC
+      ) AS missing
+    `
+  );
+  const missingCount = missingCountRows[0]?.count ?? 0;
 
-  while (true) {
-    const rows = await fetchMissionOrganizationRows(publisherIds, lastId);
-    if (!rows.length) {
-      break;
-    }
-
-    for (const row of rows) {
-      processed += 1;
-
-      const organizationClientId = normalizeOptionalString(row.organizationClientId ?? undefined);
-      if (!organizationClientId) {
-        skipped += 1;
-        continue;
-      }
-
-      try {
-        const payload = {
-          organizationClientId,
-          organizationName: normalizeOptionalString(row.organizationName ?? undefined),
-          organizationUrl: normalizeOptionalString(row.organizationUrl ?? undefined),
-          organizationType: normalizeOptionalString(row.organizationType ?? undefined),
-          organizationLogo: normalizeOptionalString(row.organizationLogo ?? undefined),
-          organizationDescription: normalizeOptionalString(row.organizationDescription ?? undefined),
-          organizationFullAddress: normalizeOptionalString(row.organizationFullAddress ?? undefined),
-          organizationRNA: normalizeOptionalString(row.organizationRNA ?? undefined),
-          organizationSiren: normalizeOptionalString(row.organizationSiren ?? undefined),
-          organizationSiret: normalizeOptionalString(row.organizationSiret ?? undefined),
-          organizationDepartment: normalizeOptionalString(row.organizationDepartment ?? undefined),
-          organizationDepartmentCode: normalizeOptionalString(row.organizationDepartmentCode ?? undefined),
-          organizationDepartmentName: normalizeOptionalString(row.organizationDepartmentName ?? undefined),
-          organizationPostCode: normalizeOptionalString(row.organizationPostCode ?? undefined),
-          organizationCity: normalizeOptionalString(row.organizationCity ?? undefined),
-          organizationStatusJuridique: normalizeOptionalString(row.organizationStatusJuridique ?? undefined),
-          organizationBeneficiaries: normalizeStringList(row.organizationBeneficiaries ?? []),
-          organizationActions: normalizeStringList(row.organizationActions ?? []),
-          organizationReseaux: normalizeStringList(row.organizationReseaux ?? []),
-          organizationNameVerified: normalizeOptionalString(row.organizationNameVerified ?? undefined),
-          organizationRNAVerified: normalizeOptionalString(row.organizationRNAVerified ?? undefined),
-          organizationSirenVerified: normalizeOptionalString(row.organizationSirenVerified ?? undefined),
-          organizationSiretVerified: normalizeOptionalString(row.organizationSiretVerified ?? undefined),
-          organizationAddressVerified: normalizeOptionalString(row.organizationAddressVerified ?? undefined),
-          organizationCityVerified: normalizeOptionalString(row.organizationCityVerified ?? undefined),
-          organizationPostalCodeVerified: normalizeOptionalString(row.organizationPostalCodeVerified ?? undefined),
-          organizationDepartmentCodeVerified: normalizeOptionalString(row.organizationDepartmentCodeVerified ?? undefined),
-          organizationDepartmentNameVerified: normalizeOptionalString(row.organizationDepartmentNameVerified ?? undefined),
-          organizationRegionVerified: normalizeOptionalString(row.organizationRegionVerified ?? undefined),
-          organizationVerificationStatus: normalizeOptionalString(row.organizationVerificationStatus ?? undefined),
-          organisationIsRUP: row.organisationIsRUP ?? undefined,
-        };
-
-        const { organizationClientId: _, ...update } = payload;
-        await publisherOrganizationRepository.upsertByPublisherAndClientId({
-          publisherId: row.publisherId,
-          organizationClientId,
-          create: {
-            publisher: { connect: { id: row.publisherId } },
-            ...payload,
-          },
-          update,
-        });
-
-        upserted += 1;
-      } catch (error) {
-        errors += 1;
-        console.error(`[PublisherOrganizationBackfill] Erreur sur mission ${row.id}:`, error);
-      }
-    }
-
-    lastId = rows[rows.length - 1]?.id ?? lastId;
-    console.log(`[PublisherOrganizationBackfill] Progression: ${processed} missions, ${upserted} upserts, ${skipped} ignorées, ${errors} erreurs.`);
+  if (!missingCount) {
+    console.log("[PublisherOrganizationBackfill] Aucun trou détecté.");
+    return;
   }
+
+  console.log(`[PublisherOrganizationBackfill] ${missingCount} organisations manquantes détectées. Insertion en bulk...`);
+
+  const inserted = await prismaCore.$executeRaw(
+    Prisma.sql`
+      INSERT INTO "publisher_organization" (
+        "id",
+        "publisher_id",
+        "organization_client_id",
+        "organization_name",
+        "organization_url",
+        "organization_type",
+        "organization_logo",
+        "organization_description",
+        "organization_full_address",
+        "organization_rna",
+        "organization_siren",
+        "organization_siret",
+        "organization_department",
+        "organization_department_code",
+        "organization_department_name",
+        "organization_post_code",
+        "organization_city",
+        "organization_status_juridique",
+        "organization_beneficiaries",
+        "organization_actions",
+        "organization_reseaux",
+        "organization_name_verified",
+        "organization_rna_verified",
+        "organization_siren_verified",
+        "organization_siret_verified",
+        "organization_address_verified",
+        "organization_city_verified",
+        "organization_postal_code_verified",
+        "organization_department_code_verified",
+        "organization_department_name_verified",
+        "organization_region_verified",
+        "organization_verification_status",
+        "organisation_is_rup",
+        "created_at",
+        "updated_at"
+      )
+      SELECT
+        md5(m."publisher_id" || ':' || m."organization_client_id") AS "id",
+        m."publisher_id",
+        m."organization_client_id",
+        NULLIF(TRIM(m."organizationName"), ''),
+        NULLIF(TRIM(m."organizationUrl"), ''),
+        NULLIF(TRIM(m."organizationType"), ''),
+        NULLIF(TRIM(m."organizationLogo"), ''),
+        NULLIF(TRIM(m."organizationDescription"), ''),
+        NULLIF(TRIM(m."organizationFullAddress"), ''),
+        NULLIF(TRIM(m."organizationRNA"), ''),
+        NULLIF(TRIM(m."organizationSiren"), ''),
+        NULLIF(TRIM(m."organizationSiret"), ''),
+        NULLIF(TRIM(m."organizationDepartment"), ''),
+        NULLIF(TRIM(m."organizationDepartmentCode"), ''),
+        NULLIF(TRIM(m."organizationDepartmentName"), ''),
+        NULLIF(TRIM(m."organizationPostCode"), ''),
+        NULLIF(TRIM(m."organizationCity"), ''),
+        NULLIF(TRIM(m."organizationStatusJuridique"), ''),
+        COALESCE(m."organizationBeneficiaries", ARRAY[]::TEXT[]),
+        COALESCE(m."organizationActions", ARRAY[]::TEXT[]),
+        COALESCE(m."organizationReseaux", ARRAY[]::TEXT[]),
+        NULLIF(TRIM(m."organizationNameVerified"), ''),
+        NULLIF(TRIM(m."organizationRNAVerified"), ''),
+        NULLIF(TRIM(m."organizationSirenVerified"), ''),
+        NULLIF(TRIM(m."organizationSiretVerified"), ''),
+        NULLIF(TRIM(m."organizationAddressVerified"), ''),
+        NULLIF(TRIM(m."organizationCityVerified"), ''),
+        NULLIF(TRIM(m."organizationPostalCodeVerified"), ''),
+        NULLIF(TRIM(m."organizationDepartmentCodeVerified"), ''),
+        NULLIF(TRIM(m."organizationDepartmentNameVerified"), ''),
+        NULLIF(TRIM(m."organizationRegionVerified"), ''),
+        NULLIF(TRIM(m."organizationVerificationStatus"), ''),
+        m."organisationIsRUP",
+        COALESCE(m."created_at", CURRENT_TIMESTAMP),
+        COALESCE(m."updated_at", CURRENT_TIMESTAMP)
+      FROM (
+        SELECT DISTINCT ON ("publisher_id", "organization_client_id") *
+        FROM "mission"
+        WHERE "organization_client_id" IS NOT NULL
+          AND "organization_client_id" <> ''
+        ORDER BY "publisher_id", "organization_client_id", "updated_at" DESC
+      ) AS m
+      INNER JOIN "publisher" p ON p."id" = m."publisher_id" AND p."is_annonceur" = true
+      LEFT JOIN "publisher_organization" po
+        ON po."publisher_id" = m."publisher_id"
+       AND po."organization_client_id" = m."organization_client_id"
+      WHERE po."id" IS NULL
+    `
+  );
+
+  console.log(`[PublisherOrganizationBackfill] Insertion terminée (${inserted} lignes).`);
 
   const durationMs = Date.now() - startedAt.getTime();
   console.log(`[PublisherOrganizationBackfill] Terminé en ${(durationMs / 1000).toFixed(1)}s.`);
-  console.log(`[PublisherOrganizationBackfill] Total: ${processed} missions, ${upserted} upserts, ${skipped} ignorées, ${errors} erreurs.`);
 };
 
 const shutdown = async (exitCode: number) => {
