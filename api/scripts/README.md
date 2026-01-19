@@ -36,6 +36,12 @@ Ce répertoire contient des scripts de maintenance/migration pour l’API. Les s
   - Options: `--batch <taille>` pour définir la taille de lot (défaut: 5000).
   - Prérequis: Nécessite l'accès à Postgres `core`.
 
+- **cleanup-duplicate-organizations.ts**
+
+  - Exécution: `npx ts-node scripts/cleanup-duplicate-organizations.ts [--dry-run] [--title "Nom"]`
+  - Usage: Supprime les organisations en doublon qui n'ont plus de mission rattachée. Par defaut, suppression directe.
+  - Options: `--dry-run` pour simuler, `--title` pour cibler un nom précis.
+
 - **fixtures/**
 
   - Scripts d’initialisation/d’échantillonnage de données (voir `scripts/fixtures/README.md`), dont:
