@@ -25,6 +25,7 @@ select
   type,
   status_code,
   organization_id,
+  organization_client_id,
   publisher_id,
   deleted_at::timestamp as deleted_at,
   created_at::timestamp as created_at,

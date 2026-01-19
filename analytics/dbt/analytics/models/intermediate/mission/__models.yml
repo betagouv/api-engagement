@@ -19,6 +19,8 @@ models:
               arguments:
                 to: ref('publisher')
                 field: id
+      - name: organization_client_id
+        description: Identifiant client de l'organisation côté diffuseur (nullable).
       - name: domain
         description: Libellé du domaine (préférence pour le référentiel, fallback sur `domain_original`).
       - name: activity

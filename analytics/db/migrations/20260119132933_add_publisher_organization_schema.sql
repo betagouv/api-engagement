@@ -1,0 +1,41 @@
+-- migrate:up
+CREATE TABLE IF NOT EXISTS "analytics_raw"."publisher_organization" (
+  "id" TEXT PRIMARY KEY,
+  "publisher_id" TEXT NOT NULL,
+  "organization_client_id" TEXT NOT NULL,
+  "organization_name" TEXT,
+  "organization_url" TEXT,
+  "organization_type" TEXT,
+  "organization_logo" TEXT,
+  "organization_description" TEXT,
+  "organization_full_address" TEXT,
+  "organization_rna" TEXT,
+  "organization_siren" TEXT,
+  "organization_siret" TEXT,
+  "organization_department" TEXT,
+  "organization_department_code" TEXT,
+  "organization_department_name" TEXT,
+  "organization_post_code" TEXT,
+  "organization_city" TEXT,
+  "organization_status_juridique" TEXT,
+  "organization_beneficiaries" TEXT[] DEFAULT ARRAY[]::TEXT[],
+  "organization_actions" TEXT[] DEFAULT ARRAY[]::TEXT[],
+  "organization_reseaux" TEXT[] DEFAULT ARRAY[]::TEXT[],
+  "organization_name_verified" TEXT,
+  "organization_rna_verified" TEXT,
+  "organization_siren_verified" TEXT,
+  "organization_siret_verified" TEXT,
+  "organization_address_verified" TEXT,
+  "organization_city_verified" TEXT,
+  "organization_postal_code_verified" TEXT,
+  "organization_department_code_verified" TEXT,
+  "organization_department_name_verified" TEXT,
+  "organization_region_verified" TEXT,
+  "organization_verification_status" TEXT,
+  "organisation_is_rup" BOOLEAN,
+  "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  "updated_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+-- migrate:down
+DROP TABLE IF EXISTS "analytics_raw"."publisher_organization";

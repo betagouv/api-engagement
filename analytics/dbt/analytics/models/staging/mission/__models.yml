@@ -98,6 +98,8 @@ models:
         description: Partenaire/publisher propriétaire de la mission.
       - name: organization_id
         description: Organisation rattachée à la mission (nullable).
+      - name: organization_client_id
+        description: Identifiant client de l'organisation côté diffuseur (nullable).
       - name: status_code
         description: Statut métier de la mission dans la base source.
       - name: type

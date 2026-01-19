@@ -55,6 +55,74 @@ models:
           - not_null
       - name: is_deleted
         description: Drapeau booléen dérivé de `deleted_at`.
+      - name: organization_client_id
+        description: Identifiant client de l'organisation côté diffuseur (nullable).
+      - name: publisher_organization_id
+        description: Identifiant de la relation partenaire/organisation (nullable).
+      - name: publisher_organization_name
+        description: Nom déclaré de l'organisation (nullable).
+      - name: publisher_organization_url
+        description: URL de référence de l'organisation (nullable).
+      - name: publisher_organization_type
+        description: Typologie déclarée de l'organisation (nullable).
+      - name: publisher_organization_logo
+        description: URL ou identifiant du logo (nullable).
+      - name: publisher_organization_description
+        description: Description libre de l'organisation (nullable).
+      - name: publisher_organization_full_address
+        description: Adresse complète déclarée (nullable).
+      - name: publisher_organization_rna
+        description: Identifiant RNA déclaré (nullable).
+      - name: publisher_organization_siren
+        description: Numéro SIREN déclaré (nullable).
+      - name: publisher_organization_siret
+        description: Numéro SIRET déclaré (nullable).
+      - name: publisher_organization_department
+        description: Département déclaré (libellé, nullable).
+      - name: publisher_organization_department_code
+        description: Code département déclaré (nullable).
+      - name: publisher_organization_department_name
+        description: Nom du département déclaré (nullable).
+      - name: publisher_organization_post_code
+        description: Code postal déclaré (nullable).
+      - name: publisher_organization_city
+        description: Ville déclarée (nullable).
+      - name: publisher_organization_status_juridique
+        description: Statut juridique déclaré (nullable).
+      - name: publisher_organization_beneficiaries
+        description: Liste des bénéficiaires déclarés (nullable).
+      - name: publisher_organization_actions
+        description: Liste des actions déclarées (nullable).
+      - name: publisher_organization_reseaux
+        description: Réseaux déclarés (nullable).
+      - name: publisher_organization_name_verified
+        description: Statut de vérification du nom (nullable).
+      - name: publisher_organization_rna_verified
+        description: Statut de vérification du RNA (nullable).
+      - name: publisher_organization_siren_verified
+        description: Statut de vérification du SIREN (nullable).
+      - name: publisher_organization_siret_verified
+        description: Statut de vérification du SIRET (nullable).
+      - name: publisher_organization_address_verified
+        description: Statut de vérification de l'adresse (nullable).
+      - name: publisher_organization_city_verified
+        description: Statut de vérification de la ville (nullable).
+      - name: publisher_organization_postal_code_verified
+        description: Statut de vérification du code postal (nullable).
+      - name: publisher_organization_department_code_verified
+        description: Statut de vérification du code département (nullable).
+      - name: publisher_organization_department_name_verified
+        description: Statut de vérification du nom de département (nullable).
+      - name: publisher_organization_region_verified
+        description: Statut de vérification de la région (nullable).
+      - name: publisher_organization_verification_status
+        description: Statut de vérification global (nullable).
+      - name: publisher_organization_is_rup
+        description: Indique si l'organisation est reconnue d'utilité publique (nullable).
+      - name: publisher_organization_created_at
+        description: Horodatage de création de la relation (nullable).
+      - name: publisher_organization_updated_at
+        description: Horodatage de dernière mise à jour de la relation (nullable).
   - name: mission_event
     description: >
       Mart des événements de missions. Chaque ligne reprend les informations de

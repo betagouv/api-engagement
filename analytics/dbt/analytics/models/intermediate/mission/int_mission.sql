@@ -38,6 +38,7 @@ select
   m.client_id,
   m.publisher_id,
   m.organization_id,
+  m.organization_client_id,
   m.domain_id,
   m.activity_id,
   a.activity_name as activity,
