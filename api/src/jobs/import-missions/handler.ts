@@ -19,6 +19,7 @@ const CHUNK_SIZE = 2000;
 
 export interface ImportMissionsJobPayload {
   publisherId?: string;
+  recordMissionEvents?: boolean;
 }
 
 export interface ImportMissionsJobResult extends JobResult {
@@ -57,7 +58,9 @@ export class ImportMissionsHandler implements BaseHandler<ImportMissionsJobPaylo
           console.log(`[Import XML] Publisher ${publisher.name} has no feed`);
           continue;
         }
-        const res = await importMissionssForPublisher(publisher, start);
+        const res = await importMissionssForPublisher(publisher, start, {
+          recordMissionEvents: payload.recordMissionEvents ?? true,
+        });
         if (!res) {
           continue;
         }
@@ -98,7 +101,11 @@ export class ImportMissionsHandler implements BaseHandler<ImportMissionsJobPaylo
   }
 }
 
-async function importMissionssForPublisher(publisher: PublisherRecord, start: Date): Promise<PrismaImport | undefined> {
+async function importMissionssForPublisher(
+  publisher: PublisherRecord,
+  start: Date,
+  options: { recordMissionEvents: boolean }
+): Promise<PrismaImport | undefined> {
   if (!publisher) {
     return;
   }
@@ -205,7 +212,7 @@ async function importMissionssForPublisher(publisher: PublisherRecord, start: Da
       await verifyOrganization(missions);
 
       // BULK WRITE
-      const res = await bulkDB(missions, publisher, obj);
+      const res = await bulkDB(missions, publisher, obj, options);
       if (!res) {
         hasFailed = true;
       }
@@ -214,7 +221,7 @@ async function importMissionssForPublisher(publisher: PublisherRecord, start: Da
     // CLEAN DB
     if (!hasFailed) {
       // If one chunk failed, don't remove missions from DB
-      await cleanDB(allMissionsClientIds, publisher, obj);
+      await cleanDB(allMissionsClientIds, publisher, obj, options);
     }
 
     // STATS
