@@ -37,17 +37,13 @@ const buildDefaultAddress = (override: MissionAddress = {}): MissionAddress => (
   ...override,
 });
 
-const resolveDomainId = async (domainName: string, domainLogo?: string | null): Promise<string> => {
+const resolveDomainId = async (domainName: string): Promise<string> => {
   const name = domainName.trim();
-  const logo = domainLogo && domainLogo.trim() ? domainLogo.trim() : null;
-  const existing = await prismaCore.domain.findUnique({ where: { name }, select: { id: true, logo: true } });
+  const existing = await prismaCore.domain.findUnique({ where: { name }, select: { id: true } });
   if (existing) {
-    if (logo && !existing.logo) {
-      await prismaCore.domain.update({ where: { id: existing.id }, data: { logo } });
-    }
     return existing.id;
   }
-  const created = await prismaCore.domain.create({ data: { name, logo: logo ?? undefined } });
+  const created = await prismaCore.domain.create({ data: { name } });
   return created.id;
 };
 
@@ -200,7 +196,7 @@ export const createTestMission = async (data: Partial<MissionCreateInput & { del
 
   const domainName = missionInput.domain?.trim();
   const activityName = missionInput.activity?.trim();
-  const domainId = domainName ? await resolveDomainId(domainName, missionInput.domainLogo ?? null) : null;
+  const domainId = domainName ? await resolveDomainId(domainName) : null;
   const activityId = activityName ? await resolveActivityId(activityName) : null;
   const addressesForCreate = mapAddressesForCreate(addresses);
 
@@ -262,6 +258,7 @@ export const createTestMission = async (data: Partial<MissionCreateInput & { del
     placesStatus: missionInput.placesStatus ?? undefined,
     metadata: missionInput.metadata ?? undefined,
     domainOriginal: missionInput.domainOriginal ?? undefined,
+    domainLogo: missionInput.domainLogo ?? undefined,
     type: (missionInput.type as any) ?? undefined,
     snu: missionInput.snu ?? undefined,
     snuPlaces: missionInput.snuPlaces ?? undefined,

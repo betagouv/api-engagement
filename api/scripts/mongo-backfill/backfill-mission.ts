@@ -135,7 +135,7 @@ type NormalizedMissionData = {
   mission: Prisma.MissionUncheckedCreateInput;
   update: Prisma.MissionUncheckedUpdateInput;
   addresses: Prisma.MissionAddressCreateManyInput[];
-  domain: { name: string; logo: string | null } | null;
+  domain: { name: string } | null;
   activity: { name: string } | null;
   moderationStatuses: Prisma.MissionModerationStatusCreateManyInput[];
   jobBoards: Prisma.MissionJobBoardCreateManyInput[];
@@ -171,6 +171,7 @@ type ComparableMission = {
     placesStatus: Prisma.MissionPlacesStatus | null;
     metadata: string | null;
     domainOriginal: string | null;
+    domainLogo: string | null;
     type: Prisma.MissionType | null;
     snu: boolean;
     snuPlaces: number | null;
@@ -184,7 +185,7 @@ type ComparableMission = {
     deletedAt: Date | null;
     lastExportedToPgAt: Date | null;
   };
-  domain: { name: string; logo: string | null } | null;
+  domain: { name: string } | null;
   addresses: Array<{
     street: string | null;
     postalCode: string | null;
@@ -503,6 +504,7 @@ const normalizeMission = (doc: MongoMissionDocument): NormalizedMissionData => {
     placesStatus: normalizeEnum(asString(doc.placesStatus), missionPlacesStatusValues),
     metadata: asString(doc.metadata) ?? undefined,
     domainOriginal: domainOriginal ?? undefined,
+    domainLogo: domainLogo ?? undefined,
     type: normalizeEnum(asString(doc.type), missionTypeValues),
     snu: !!doc.snu,
     snuPlaces: normalizeNumber(doc.snuPlaces) ?? undefined,
@@ -558,7 +560,7 @@ const normalizeMission = (doc: MongoMissionDocument): NormalizedMissionData => {
     mission,
     update,
     addresses: addressesData,
-    domain: domain ? { name: domain, logo: domainLogo ?? null } : null,
+    domain: domain ? { name: domain } : null,
     activity: activity ? { name: activity } : null,
     moderationStatuses: moderationStatusesData,
     jobBoards,
@@ -595,6 +597,7 @@ const prepareComparable = (entry: NormalizedMissionData): ComparableMission => (
     placesStatus: (entry.mission.placesStatus ?? null) as Prisma.MissionPlacesStatus | null,
     metadata: entry.mission.metadata ?? null,
     domainOriginal: entry.mission.domainOriginal ?? null,
+    domainLogo: entry.mission.domainLogo ?? null,
     type: (entry.mission.type ?? null) as Prisma.MissionType | null,
     snu: !!entry.mission.snu,
     snuPlaces: (entry.mission.snuPlaces as number | undefined | null) ?? null,
@@ -608,7 +611,7 @@ const prepareComparable = (entry: NormalizedMissionData): ComparableMission => (
     deletedAt: (entry.mission.deletedAt as Date | undefined | null) ?? null,
     lastExportedToPgAt: (entry.mission.lastExportedToPgAt as Date | undefined | null) ?? null,
   },
-  domain: entry.domain ? { name: entry.domain.name, logo: entry.domain.logo ?? null } : null,
+  domain: entry.domain ? { name: entry.domain.name } : null,
   activity: entry.activity ? { name: entry.activity.name } : null,
   addresses: entry.addresses.map((address) => ({
     street: address.street ?? null,
@@ -670,6 +673,7 @@ const toComparableFromPrisma = (mission: any): ComparableMission => ({
     placesStatus: mission.placesStatus ?? null,
     metadata: mission.metadata ?? null,
     domainOriginal: mission.domainOriginal ?? null,
+    domainLogo: mission.domainLogo ?? null,
     type: mission.type ?? null,
     snu: mission.snu ?? false,
     snuPlaces: mission.snuPlaces ?? null,
@@ -683,7 +687,7 @@ const toComparableFromPrisma = (mission: any): ComparableMission => ({
     deletedAt: mission.deletedAt ?? null,
     lastExportedToPgAt: mission.lastExportedToPgAt ?? null,
   },
-  domain: mission.domain ? { name: mission.domain.name ?? "", logo: mission.domain.logo ?? null } : null,
+  domain: mission.domain ? { name: mission.domain.name ?? "" } : null,
   activity: mission.activity ? { name: mission.activity.name ?? "" } : null,
   addresses: (mission.addresses ?? []).map((address: any) => ({
     street: address.street ?? null,
@@ -759,9 +763,9 @@ const hasDifferences = (existing: ComparableMission, target: ComparableMission) 
   if (!compareStrings(existing.mission.placesStatus, target.mission.placesStatus)) return true;
   if (!compareStrings(existing.mission.metadata, target.mission.metadata)) return true;
   if (!compareStrings(existing.domain?.name ?? null, target.domain?.name ?? null)) return true;
-  if (!compareStrings(existing.domain?.logo ?? null, target.domain?.logo ?? null)) return true;
   if (!compareStrings(existing.activity?.name ?? null, target.activity?.name ?? null)) return true;
   if (!compareStrings(existing.mission.domainOriginal, target.mission.domainOriginal)) return true;
+  if (!compareStrings(existing.mission.domainLogo ?? null, target.mission.domainLogo ?? null)) return true;
   if (!compareStrings(existing.mission.type, target.mission.type)) return true;
   if (!compareBooleans(existing.mission.snu, target.mission.snu)) return true;
   if (!compareNumbers(existing.mission.snuPlaces, target.mission.snuPlaces)) return true;
@@ -800,26 +804,23 @@ const persistBatch = async (
 ) => {
   if (!batch.length) return;
 
-  const domainCache = new Map<string, { id: string; logo: string | null }>();
-  const ensureDomain = async (name: string, logo: string | null) => {
+  const domainCache = new Map<string, { id: string }>();
+  const ensureDomain = async (name: string) => {
     const trimmed = name.trim();
     if (!trimmed) return null;
 
     const cached = domainCache.get(trimmed);
     if (cached) return cached;
 
-    const existing = await prismaCore.domain.findUnique({ where: { name: trimmed }, select: { id: true, logo: true } });
+    const existing = await prismaCore.domain.findUnique({ where: { name: trimmed }, select: { id: true } });
     if (existing) {
-      if (logo && !existing.logo) {
-        await prismaCore.domain.update({ where: { id: existing.id }, data: { logo } });
-      }
-      const value = { id: existing.id, logo: existing.logo ?? null };
+      const value = { id: existing.id };
       domainCache.set(trimmed, value);
       return value;
     }
 
-    const created = await prismaCore.domain.create({ data: { name: trimmed, logo: logo ?? undefined } });
-    const value = { id: created.id, logo: created.logo ?? null };
+    const created = await prismaCore.domain.create({ data: { name: trimmed } });
+    const value = { id: created.id };
     domainCache.set(trimmed, value);
     return value;
   };
@@ -830,8 +831,7 @@ const persistBatch = async (
       entry.update.domainId = undefined;
       continue;
     }
-    const logo = entry.domain.logo && entry.domain.logo.trim() ? entry.domain.logo.trim() : null;
-    const domain = await ensureDomain(entry.domain.name, logo);
+    const domain = await ensureDomain(entry.domain.name);
     entry.mission.domainId = domain?.id ?? undefined;
     entry.update.domainId = domain?.id ?? undefined;
   }
