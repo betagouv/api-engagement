@@ -1,4 +1,5 @@
-import { Prisma, Import as PrismaImport } from "../../../db/core";
+import { Import as PrismaImport } from "../../../db/core";
+import type { PublisherOrganization } from "../../../db/core";
 import { captureException } from "../../../error";
 import { missionService } from "../../../services/mission";
 import { missionEventService } from "../../../services/mission-event";
@@ -48,7 +49,7 @@ export const bulkDB = async (
     let organizationUpsertMs = 0;
     let missionChangesCount = 0;
     let missionChangesMs = 0;
-    let publisherOrganizationsByClientId = new Map<string, Prisma.PublisherOrganization>();
+    let publisherOrganizationsByClientId = new Map<string, PublisherOrganization>();
     const organizationPayloadsByClientId = new Map<string, NonNullable<ReturnType<typeof buildPublisherOrganizationPayload>>>();
 
     for (const mission of bulk) {
