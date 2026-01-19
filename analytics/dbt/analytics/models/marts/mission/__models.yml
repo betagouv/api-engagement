@@ -123,6 +123,50 @@ models:
         description: Horodatage de création de la relation (nullable).
       - name: publisher_organization_updated_at
         description: Horodatage de dernière mise à jour de la relation (nullable).
+  - name: mission_address
+    description: >
+      Mart des adresses de missions, dérivé du staging `stg_mission_address` pour exposer les localisations associées
+      aux missions.
+    columns:
+      - name: id
+        description: Identifiant unique de l'adresse.
+        tests:
+          - not_null
+          - unique
+      - name: mission_id
+        description: Identifiant de la mission associée.
+        tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('mission')
+                field: id
+      - name: street
+        description: Voie/adresse déclarée (nullable).
+      - name: postal_code
+        description: Code postal (nullable).
+      - name: department_name
+        description: Nom du département (nullable).
+      - name: department_code
+        description: Code du département (nullable).
+      - name: city
+        description: Ville déclarée (nullable).
+      - name: region
+        description: Région déclarée (nullable).
+      - name: country
+        description: Pays déclaré (nullable).
+      - name: location_lat
+        description: Latitude géographique (nullable).
+      - name: location_lon
+        description: Longitude géographique (nullable).
+      - name: geo_point
+        description: Point géographique (nullable).
+      - name: geoloc_status
+        description: Statut de géolocalisation (nullable).
+      - name: created_at
+        description: Timestamp de création de l'adresse.
+      - name: updated_at
+        description: Timestamp de dernière mise à jour (curseur d'export).
   - name: mission_event
     description: >
       Mart des événements de missions. Chaque ligne reprend les informations de

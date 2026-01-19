@@ -152,3 +152,51 @@ models:
         description: Timestamp de dernière mise à jour (curseur d'export).
         tests:
           - not_null
+  - name: stg_mission_address
+    description: >
+      Staging des adresses associées aux missions, exportées depuis `analytics_raw.mission_address`. Le modèle applique
+      les conversions de types nécessaires (timestamps, géoloc).
+    columns:
+      - name: id
+        description: Identifiant unique de l'adresse (UUID).
+        tests:
+          - not_null
+          - unique
+      - name: mission_id
+        description: Identifiant de la mission associée.
+        tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('mission')
+                field: id
+      - name: street
+        description: Voie/adresse déclarée (nullable).
+      - name: postal_code
+        description: Code postal (nullable).
+      - name: department_name
+        description: Nom du département (nullable).
+      - name: department_code
+        description: Code du département (nullable).
+      - name: city
+        description: Ville déclarée (nullable).
+      - name: region
+        description: Région déclarée (nullable).
+      - name: country
+        description: Pays déclaré (nullable).
+      - name: location_lat
+        description: Latitude géographique (nullable).
+      - name: location_lon
+        description: Longitude géographique (nullable).
+      - name: geo_point
+        description: Point géographique (nullable).
+      - name: geoloc_status
+        description: Statut de géolocalisation (nullable).
+      - name: created_at
+        description: Timestamp de création de l'adresse.
+        tests:
+          - not_null
+      - name: updated_at
+        description: Timestamp de dernière mise à jour (curseur d'export).
+        tests:
+          - not_null

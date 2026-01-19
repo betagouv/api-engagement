@@ -558,6 +558,38 @@ export const exportDefinitions: ExportDefinition[] = [
     },
   },
   {
+    key: "mission_address",
+    batchSize: 2000,
+    source: {
+      table: "mission_address",
+      cursor: {
+        field: "updated_at",
+        idField: "id",
+      },
+      columns: [
+        "id",
+        "mission_id",
+        "street",
+        "postal_code",
+        "department_name",
+        "department_code",
+        "city",
+        "region",
+        "country",
+        "location_lat",
+        "location_lon",
+        "geo_point",
+        "geoloc_status",
+        "created_at",
+        "updated_at",
+      ],
+    },
+    destination: {
+      table: "mission_address",
+      conflictColumns: ["id"],
+    },
+  },
+  {
     key: "mission_moderation_status",
     batchSize: 2000,
     source: {
