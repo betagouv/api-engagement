@@ -17,12 +17,6 @@ Ce répertoire contient des scripts de maintenance/migration pour l’API. Les s
 
 ## Liste des scripts
 
-- **update-mission-default-logo.ts**
-
-  - Exécution: `npx ts-node scripts/update-mission-default-logo.ts`
-  - Usage: Applique le `defaultMissionLogo` du publisher aux `PublisherOrganization` sans `organizationLogo`.
-  - Notes: Nécessite l’accès à Postgres `core`.
-
 - **backfill-publisher-organizations.ts**
 
   - Exécution: `npx ts-node scripts/backfill-publisher-organizations.ts`

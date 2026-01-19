@@ -1,3 +1,5 @@
+import { randomUUID } from "node:crypto";
+
 import { Prisma, PublisherOrganization } from "../db/core";
 import { prismaCore } from "../db/postgres";
 
@@ -16,6 +18,7 @@ export const publisherOrganizationRepository = {
     create: Prisma.PublisherOrganizationCreateInput;
     update: Prisma.PublisherOrganizationUpdateInput;
   }): Promise<PublisherOrganization> {
+    const createInput = params.create.id ? params.create : { ...params.create, id: randomUUID() };
     return prismaCore.publisherOrganization.upsert({
       where: {
         publisherId_organizationClientId: {
@@ -23,7 +26,7 @@ export const publisherOrganizationRepository = {
           organizationClientId: params.organizationClientId,
         },
       },
-      create: params.create,
+      create: createInput,
       update: params.update,
     });
   },
