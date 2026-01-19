@@ -121,8 +121,6 @@ export const IMPORT_FIELDS_TO_COMPARE = [
   "snuPlaces",
   "softSkills",
   "startAt",
-  "statusCode",
-  "statusComment",
   "tags",
   "title",
   "type",
@@ -270,9 +268,7 @@ const normalizeAddresses = (address: MissionRecord["addresses"]) => {
     slugify(
       `${normalizeAddressValue(item.street)} ${normalizeAddressValue(item.city)} ${normalizeAddressValue(item.postalCode)} ${normalizeAddressValue(
         item.departmentName
-      )} ${normalizeAddressValue(item.region)} ${normalizeAddressValue(item.country)} ${normalizeAddressValue(
-        item.location?.lat
-      )} ${normalizeAddressValue(item.location?.lon)}`
+      )} ${normalizeAddressValue(item.region)} ${normalizeAddressValue(item.country)} ${normalizeAddressValue(item.location?.lat)} ${normalizeAddressValue(item.location?.lon)}`
     )
   );
   return data.sort();
