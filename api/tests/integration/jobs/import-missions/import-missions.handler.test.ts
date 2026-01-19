@@ -63,6 +63,7 @@ describe("Import missions job (integration test)", () => {
     expect(mission.clientId).toBe("32132143");
     expect(mission.description).toBe("Description de la mission");
     expect(mission.domain).toBe("environnement");
+    expect(mission.domainLogo).toBe("https://monurl.com/1.jpg");
     expect(mission.duration).toBe(10);
     expect(mission.endAt?.toISOString()).toBe("2025-11-01T00:00:00.000Z");
     expect(mission.openToMinors).toBe(true);

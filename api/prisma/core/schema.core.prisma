@@ -582,6 +582,7 @@ model Mission {
   domainId                  String?                  @map("domain_id")
   activityId                String?                  @map("activity_id")
   domainOriginal            String?                  @map("domain_original")
+  domainLogo                String?                  @map("domain_logo")
   type                      MissionType?             @map("type")
   snu                       Boolean?                 @default(false) @map("snu")
   snuPlaces                 Int?                     @map("snu_places")
@@ -711,7 +712,6 @@ model PublisherOrganization {
 model Domain {
   id        String   @id @default(uuid())
   name      String   @unique
-  logo      String?
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 

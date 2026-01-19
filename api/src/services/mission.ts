@@ -20,8 +20,9 @@ import { normalizeOptionalString, normalizeStringList } from "../utils/normalize
 import { publisherService } from "./publisher";
 
 type MissionWithRelations = Mission & {
+  domainLogo: string | null;
   publisher?: { name: string | null; url: string | null; logo: string | null } | null;
-  domain?: { name: string; logo: string | null } | null;
+  domain?: { name: string } | null;
   activity?: { name: string } | null;
   publisherOrganization?: {
     organizationClientId: string;
@@ -87,17 +88,13 @@ type MissionWithRelations = Mission & {
   }>;
 };
 
-const resolveDomainId = async (domainName: string, domainLogo?: string | null): Promise<string> => {
+const resolveDomainId = async (domainName: string): Promise<string> => {
   const name = domainName.trim();
-  const logo = domainLogo && domainLogo.trim() ? domainLogo.trim() : null;
-  const existing = await prismaCore.domain.findUnique({ where: { name }, select: { id: true, logo: true } });
+  const existing = await prismaCore.domain.findUnique({ where: { name }, select: { id: true } });
   if (existing) {
-    if (logo && !existing.logo) {
-      await prismaCore.domain.update({ where: { id: existing.id }, data: { logo } });
-    }
     return existing.id;
   }
-  const created = await prismaCore.domain.create({ data: { name, logo: logo ?? undefined } });
+  const created = await prismaCore.domain.create({ data: { name } });
   return created.id;
 };
 
@@ -162,7 +159,7 @@ const toMissionRecord = (mission: MissionWithRelations, moderatedBy: string | nu
     metadata: mission.metadata ?? null,
     domain: domain?.name ?? null,
     domainOriginal: mission.domainOriginal ?? null,
-    domainLogo: domain?.logo ?? null,
+    domainLogo: mission.domainLogo ?? null,
     activity: activity?.name ?? null,
     type: mission.type ?? null,
     snu: mission.snu ?? false,
@@ -703,7 +700,7 @@ export const missionService = {
 
     const domainName = input.domain?.trim();
     const activityName = input.activity?.trim();
-    const domainId = domainName ? await resolveDomainId(domainName, input.domainLogo ?? null) : null;
+    const domainId = domainName ? await resolveDomainId(domainName) : null;
     const activityId = activityName ? await resolveActivityId(activityName) : null;
     const data: Prisma.MissionUncheckedCreateInput = {
       id,
@@ -735,6 +732,7 @@ export const missionService = {
       placesStatus: input.placesStatus ?? undefined,
       metadata: input.metadata ?? undefined,
       domainOriginal: input.domainOriginal ?? undefined,
+      domainLogo: input.domainLogo ?? undefined,
       type: (input.type as any) ?? undefined,
       snu: input.snu ?? undefined,
       snuPlaces: input.snuPlaces ?? undefined,
@@ -841,7 +839,7 @@ export const missionService = {
     if ("domain" in patch) {
       if (patch.domain) {
         const domainName = patch.domain.trim();
-        const domainId = domainName ? await resolveDomainId(domainName, patch.domainLogo ?? null) : null;
+        const domainId = domainName ? await resolveDomainId(domainName) : null;
         data.domainId = domainId;
       } else {
         data.domainId = null;
@@ -850,11 +848,8 @@ export const missionService = {
     if ("domainOriginal" in patch) {
       data.domainOriginal = patch.domainOriginal ?? null;
     }
-    if ("domainLogo" in patch && !("domain" in patch) && patch.domainLogo) {
-      const existing = await missionRepository.findById(id);
-      if (existing?.domainId) {
-        await prismaCore.domain.update({ where: { id: existing.domainId }, data: { logo: patch.domainLogo } });
-      }
+    if ("domainLogo" in patch) {
+      data.domainLogo = patch.domainLogo ?? null;
     }
     if ("activity" in patch) {
       if (patch.activity) {
