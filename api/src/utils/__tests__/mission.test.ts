@@ -208,6 +208,9 @@ describe("getMissionChanges", () => {
           ...mission1.addresses[0],
           geolocStatus: "NOT_FOUND",
         },
+        {
+          ...mission1.addresses[1],
+        },
       ],
     };
 
