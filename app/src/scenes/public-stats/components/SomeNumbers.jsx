@@ -58,7 +58,7 @@ const SomeNumbers = ({ filters, onFiltersChange }) => {
           missions: resGraphMissions.total,
         });
       } catch (error) {
-        captureError(error, "Une erreur est survenue lors de la récupération des statistiques");
+        captureError(error, { extra: { filters } });
       }
       setLoading(false);
     };
@@ -66,7 +66,7 @@ const SomeNumbers = ({ filters, onFiltersChange }) => {
   }, [filters]);
 
   return (
-    <div className="mx-auto my-14 w-4/5 max-w-[1200px] flex-1 border border-gray-900 bg-white p-12">
+    <div className="border-grey-border mx-auto my-14 w-4/5 max-w-[1200px] flex-1 border bg-white p-12">
       <div className="flex justify-between">
         <div className="">
           <h2 className="text-3xl font-bold">En quelques chiffres</h2>
@@ -115,58 +115,58 @@ const SomeNumbers = ({ filters, onFiltersChange }) => {
         </div>
       ) : (
         <div className="mt-6 grid grid-cols-1 gap-4 md:grid-cols-2">
-          <div className="border border-gray-900 p-8">
+          <div className="border-grey-border border p-8">
             <div className="flex justify-between">
               <h2 className="mb-2 text-2xl font-semibold">
                 {graphTotal.organizations ? `${graphTotal.organizations.toLocaleString("fr")} organisations actives` : "Pas de données"}
               </h2>
               <div className="group relative">
-                <RiQuestionLine className="text-gray-425 text-lg" />
+                <RiQuestionLine className="text-text-mention text-lg" />
 
-                <div className="absolute top-8 left-0 z-10 hidden w-56 border border-gray-900 bg-white p-4 shadow-lg group-hover:block">
+                <div className="border-grey-border absolute top-8 left-0 z-10 hidden w-56 border bg-white p-4 shadow-lg group-hover:block">
                   <p className="text-xs text-black">Il s'agit des structures ayant au moins 1 mission en cours sur la période sélectionnée</p>
                 </div>
               </div>
             </div>
-            <p className="text-gray-425 text-lg font-semibold">Evolution {filters.year}</p>
+            <p className="text-text-mention text-lg font-semibold">Evolution {filters.year}</p>
             <div className="mt-4 mb-1 h-px bg-gray-900" />
             <div className="mb-2 h-60">
               <BarChart data={graphData.organizations} dataKey="Organisations" />
             </div>
           </div>
 
-          <div className="border border-gray-900 p-8">
+          <div className="border-grey-border border p-8">
             <div className="flex justify-between">
               <h2 className="mb-2 text-2xl font-semibold">{graphTotal.missions ? `${graphTotal.missions.toLocaleString("fr")} missions partagées` : "Pas de données"}</h2>
 
               <div className="group relative">
-                <RiQuestionLine className="text-gray-425 text-lg" />
+                <RiQuestionLine className="text-text-mention text-lg" />
 
-                <div className="absolute top-8 left-0 z-10 hidden w-56 border border-gray-900 bg-white p-4 shadow-lg group-hover:block">
+                <div className="border-grey-border absolute top-8 left-0 z-10 hidden w-56 border bg-white p-4 shadow-lg group-hover:block">
                   <p className="text-xs text-black">Il s'agit des missions partagées sur l'API Engagement et en cours au moins un jour de la période sélectionnée</p>
                 </div>
               </div>
             </div>
-            <p className="text-gray-425 text-lg font-semibold">Evolution {filters.year}</p>
+            <p className="text-text-mention text-lg font-semibold">Evolution {filters.year}</p>
             <div className="mt-4 mb-1 h-px bg-gray-900" />
             <div className="mb-2 h-60">
               <BarChart data={graphData.missions} dataKey="Missions" />
             </div>
           </div>
 
-          <div className="border border-gray-900 p-8">
+          <div className="border-grey-border border p-8">
             <h2 className="mb-2 text-2xl font-semibold">{graphTotal.clicks ? `${graphTotal.clicks.toLocaleString("fr")} redirections` : "Pas de données"}</h2>
 
-            <p className="text-gray-425 text-lg font-semibold">Evolution {filters.year}</p>
+            <p className="text-text-mention text-lg font-semibold">Evolution {filters.year}</p>
             <div className="mt-4 mb-1 h-px bg-gray-900" />
             <div className="mb-2 h-60">
               <BarChart data={graphData.clicks} dataKey="Redirections" />
             </div>
           </div>
 
-          <div className="border border-gray-900 p-8">
+          <div className="border-grey-border border p-8">
             <h2 className="mb-2 text-2xl font-semibold">{graphTotal.applies ? `${graphTotal.applies.toLocaleString("fr")} candidatures` : "Pas de données"}</h2>
-            <p className="text-gray-425 text-lg font-semibold">Evolution {filters.year}</p>
+            <p className="text-text-mention text-lg font-semibold">Evolution {filters.year}</p>
             <div className="mt-4 mb-1 h-px bg-gray-900" />
             <div className="mb-2 h-60">
               <BarChart data={graphData.applies} dataKey="Candidatures" />

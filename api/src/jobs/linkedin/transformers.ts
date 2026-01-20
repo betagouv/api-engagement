@@ -1,4 +1,4 @@
-import { AddressItem, Mission } from "../../types";
+import { MissionAddress, MissionRecord } from "../../types/mission";
 import { getMissionTrackedApplicationUrl } from "../../utils";
 import { LINKEDIN_COMPANY_ID, LINKEDIN_INDUSTRY_CODE, LINKEDIN_PUBLISHER_ID } from "./config";
 import { LinkedInJob } from "./types";
@@ -12,7 +12,7 @@ import { getAudienceLabel, getDomainLabel } from "./utils";
  * @param defaultCompany - Default company to use if organizationName is not in LINKEDIN_COMPANY_ID
  * @returns LinkedInJob | null
  */
-export function missionToLinkedinJob(mission: Mission, defaultCompany: string): LinkedInJob | null {
+export function missionToLinkedinJob(mission: MissionRecord, defaultCompany: string): LinkedInJob | null {
   if (!mission.title) {
     return null;
   }
@@ -59,7 +59,7 @@ export function missionToLinkedinJob(mission: Mission, defaultCompany: string): 
         blocks.push(`<p><b>Durée de la mission : </b>${mission.schedule}</p>`);
       }
 
-      if (mission.openToMinors === "no") {
+      if (mission.openToMinors === false) {
         blocks.push(`<p><b>Âge minimum : </b>18 ans minimum</p>`);
       }
       return blocks.join("\n");
@@ -71,7 +71,7 @@ export function missionToLinkedinJob(mission: Mission, defaultCompany: string): 
     city: (mission.addresses?.length ?? 0) === 0 ? mission.city : undefined,
     postalCode: (mission.addresses?.length ?? 0) === 0 ? mission.postalCode : undefined,
     listDate: new Date(mission.createdAt).toISOString(),
-    industryCodes: LINKEDIN_INDUSTRY_CODE[mission.domain] ? [{ industryCode: LINKEDIN_INDUSTRY_CODE[mission.domain] }] : undefined,
+    industryCodes: LINKEDIN_INDUSTRY_CODE[mission.domain ?? ""] ? [{ industryCode: LINKEDIN_INDUSTRY_CODE[mission.domain ?? ""] }] : undefined,
     workplaceTypes: mission.remote === "no" ? "On-site" : mission.remote === "full" ? "Remote" : "Hybrid",
   } as LinkedInJob;
   if (mission.endAt) {
@@ -89,6 +89,7 @@ export function missionToLinkedinJob(mission: Mission, defaultCompany: string): 
   return job;
 }
 
-export function formatLocation(address: AddressItem) {
-  return `${address.city ? `${address.city}, ` : ""}${address.country === "FR" ? "France" : address.country}`;
+export function formatLocation(address: MissionAddress) {
+  const country = address.country ?? "FR";
+  return `${address.city ? `${address.city}, ` : ""}${country === "FR" ? "France" : country}`;
 }

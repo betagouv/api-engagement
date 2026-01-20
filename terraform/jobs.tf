@@ -54,6 +54,25 @@ resource "scaleway_job_definition" "talent" {
   env = local.all_env_vars
 }
 
+# Job Definition for the 'grimpio' task
+resource "scaleway_job_definition" "grimpio" {
+  name         = "${terraform.workspace}-grimpio"
+  project_id   = var.project_id
+  cpu_limit    = 1000
+  memory_limit = 2048
+  image_uri    = local.image_uri
+  # Max old space workaround: https://stackoverflow.com/questions/48387040/how-do-i-determine-the-correct-max-old-space-size-for-node-js
+  command      = "node --max-old-space-size=1800 dist/jobs/run-job.js grimpio"
+  timeout      = "45m"
+
+  cron {
+    schedule = "0 1 * * *" # Every day at 1:00 AM
+    timezone = "Europe/Paris"
+  }
+
+  env = local.all_env_vars
+}
+
 # Job Definition for the 'linkedin' task
 resource "scaleway_job_definition" "linkedin" {
   name         = "${terraform.workspace}-linkedin"
@@ -66,24 +85,6 @@ resource "scaleway_job_definition" "linkedin" {
 
   cron {
     schedule = "0 */6 * * *" # Every 6 hours
-    timezone = "Europe/Paris"
-  }
-
-  env = local.all_env_vars
-}
-
-# Job Definition for the 'kpi' task
-resource "scaleway_job_definition" "kpi" {
-  name         = "${terraform.workspace}-kpi"
-  project_id   = var.project_id
-  cpu_limit    = 1000
-  memory_limit = 2048
-  image_uri    = local.image_uri
-  command      = "node --max-old-space-size=1800 dist/jobs/run-job.js kpi"
-  timeout      = "15m"
-
-  cron {
-    schedule = "30 1 * * *" # Every day at 1:30 AM
     timezone = "Europe/Paris"
   }
 
@@ -206,10 +207,10 @@ resource "scaleway_job_definition" "import-missions" {
   memory_limit = 2048
   image_uri    = local.image_uri
   command      = "node dist/jobs/run-job.js import-missions"
-  timeout      = "45m"
+  timeout      = "60m"
 
   cron {
-    schedule = "15 */3 * * *" # Every 3 hours at 15 minutes
+    schedule = "15 */6 * * *" # Every 6 hours at 15 minutes
     timezone = "Europe/Paris"
   }
 

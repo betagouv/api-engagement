@@ -4,8 +4,10 @@
 coverage
 /scripts-local
 
+
 linkedin.xml
 talent.xml
+grimpio.xml
 
 # Prisma
 src/db/analytics

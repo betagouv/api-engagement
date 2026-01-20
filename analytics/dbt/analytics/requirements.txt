@@ -1,0 +1,3 @@
+dbt-postgres==1.9.1
+dbt-metabase==1.6.1
+sqlfluff==3.5.0

@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 
-import Table from "../../../components/NewTable";
+import Table from "../../../components/Table";
 import api from "../../../services/api";
 import { captureError } from "../../../services/error";
 
@@ -16,7 +16,7 @@ const Members = ({ values, onChange }) => {
         if (!res.ok) throw res;
         setMembers(res.data);
       } catch (error) {
-        captureError(error, "Erreur lors de la récupération des membres");
+        captureError(error, { extra: { publisherId: values.id } });
       }
     };
     fetchData();
@@ -36,15 +36,13 @@ const Members = ({ values, onChange }) => {
                   type="checkbox"
                   className="checkbox"
                   checked={values.sendReportTo.includes(item.id)}
-                  onChange={(e) =>
-                    onChange({ ...values, sendReportTo: e.target.checked ? [...values.sendReportTo, item.id] : values.sendReportTo.filter((id) => id !== item.id) })
-                  }
+                  onChange={(e) => onChange({ ...values, sendReportTo: e.target.checked ? [...values.sendReportTo, item.id] : values.sendReportTo.filter((id) => id !== item.id) })}
                 />
               </div>
             </td>
             <td className="p-4">
               <div className="flex justify-center">
-                {item.role === "admin" ? <span className="rounded bg-red-300 p-2">Admin</span> : <span className="rounded bg-green-300 p-2">Utilisateur</span>}
+                {item.role === "admin" ? <span className="bg-red-marianne-950 rounded p-2">Admin</span> : <span className="bg-green-success-950 rounded p-2">Utilisateur</span>}
               </div>
             </td>
           </tr>

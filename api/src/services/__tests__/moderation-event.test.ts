@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import type { Mission, UserRecord } from "../../types";
+import type { MissionRecord, UserRecord } from "../../types";
 import { moderationEventService } from "../moderation-event";
 
 const buildId = (value: string) =>
@@ -25,7 +25,7 @@ describe("moderationEventService.buildModerationEventPayload", () => {
       [`moderation_${moderatorId}_title`]: "Custom Title",
       organizationSirenVerified: "SIREN-1",
       organizationRNAVerified: "RNA-1",
-    } as unknown as Mission;
+    } as unknown as MissionRecord;
     const update = {
       _id: previous._id,
       title: previous.title,
@@ -35,7 +35,7 @@ describe("moderationEventService.buildModerationEventPayload", () => {
       [`moderation_${moderatorId}_title`]: "Custom Title",
       organizationSirenVerified: "SIREN-1",
       organizationRNAVerified: "RNA-1",
-    } as unknown as Mission;
+    } as unknown as MissionRecord;
 
     const payload = moderationEventService.buildModerationEventPayload(previous, update, user, moderatorId);
 
@@ -56,14 +56,14 @@ describe("moderationEventService.buildModerationEventPayload", () => {
       [`moderation_${moderatorId}_comment`]: null,
       organizationSirenVerified: undefined,
       organizationRNAVerified: undefined,
-    } as unknown as Mission;
+    } as unknown as MissionRecord;
     const update = {
       _id: previous._id,
       title: previous.title,
       [`moderation_${moderatorId}_comment`]: "New comment from moderator",
       organizationSirenVerified: undefined,
       organizationRNAVerified: undefined,
-    } as unknown as Mission;
+    } as unknown as MissionRecord;
 
     const payload = moderationEventService.buildModerationEventPayload(previous, update, user, moderatorId);
 
@@ -83,14 +83,14 @@ describe("moderationEventService.buildModerationEventPayload", () => {
       title: "Public Mission Title",
       organizationSirenVerified: undefined,
       organizationRNAVerified: undefined,
-    } as unknown as Mission;
+    } as unknown as MissionRecord;
     const update = {
       _id: previous._id,
       title: previous.title,
       [`moderation_${moderatorId}_title`]: "New Moderator Title",
       organizationSirenVerified: undefined,
       organizationRNAVerified: undefined,
-    } as unknown as Mission;
+    } as unknown as MissionRecord;
 
     const payload = moderationEventService.buildModerationEventPayload(previous, update, user, moderatorId);
 
@@ -110,13 +110,13 @@ describe("moderationEventService.buildModerationEventPayload", () => {
       title: "Mission Title",
       organizationSirenVerified: "SIREN-OLD",
       organizationRNAVerified: undefined,
-    } as unknown as Mission;
+    } as unknown as MissionRecord;
     const update = {
       _id: previous._id,
       title: previous.title,
       organizationSirenVerified: "SIREN-NEW",
       organizationRNAVerified: "RNA-NEW",
-    } as unknown as Mission;
+    } as unknown as MissionRecord;
 
     const payload = moderationEventService.buildModerationEventPayload(previous, update, user, moderatorId);
 

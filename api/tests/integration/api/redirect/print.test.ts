@@ -4,12 +4,12 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 
 import { prismaCore } from "../../../../src/db/postgres";
 import { NOT_FOUND } from "../../../../src/error";
-import MissionModel from "../../../../src/models/mission";
-import StatsBotModel from "../../../../src/models/stats-bot";
-import WidgetModel from "../../../../src/models/widget";
 import { publisherService } from "../../../../src/services/publisher";
+import { statBotService } from "../../../../src/services/stat-bot";
+import { widgetService } from "../../../../src/services/widget";
 import { StatEventRecord } from "../../../../src/types";
 import * as utils from "../../../../src/utils";
+import { createTestMission } from "../../../fixtures";
 import { createTestApp } from "../../../testApp";
 
 const app = createTestApp();
@@ -47,12 +47,16 @@ describe("RedirectController /impression/:missionId/:publisherId", () => {
     const identity = { user: "user", referer: "https://ref", userAgent: "Mozilla" };
     vi.spyOn(utils, "identify").mockReturnValue(identity);
 
-    const mission = await MissionModel.create({
+    const mission = await createTestMission({
+      addresses: [
+        {
+          city: "Paris",
+        },
+      ],
       applicationUrl: "https://mission.example.com/apply",
       clientId: "mission-client-id",
       lastSyncAt: new Date(),
       publisherId: new Types.ObjectId().toString(),
-      publisherName: "Mission Publisher",
       title: "Mission Title",
     });
 
@@ -65,26 +69,25 @@ describe("RedirectController /impression/:missionId/:publisherId", () => {
 
   it("records print stats with widget source when all data is present", async () => {
     const publisher = await publisherService.createPublisher({ name: "From Publisher" });
-    const mission = await MissionModel.create({
+    const mission = await createTestMission({
+      addresses: [
+        {
+          postalCode: "75001",
+          departmentName: "Paris",
+          city: "Paris",
+        },
+      ],
       applicationUrl: "https://mission.example.com/apply",
       clientId: "mission-client-id",
       domain: "mission.example.com",
       title: "Mission Title",
-      postalCode: "75001",
-      departmentName: "Paris",
       organizationName: "Mission Org",
-      organizationId: "mission-org-id",
       organizationClientId: "mission-org-client-id",
       lastSyncAt: new Date(),
       publisherId: publisher.id,
-      publisherName: "Mission Publisher",
     });
 
-    const widget = await WidgetModel.create({
-      name: "Widget Name",
-      fromPublisherId: publisher.id,
-      fromPublisherName: "Widget Source Publisher",
-    });
+    const widget = await widgetService.createWidget({ name: "Widget Name", fromPublisherId: publisher.id });
 
     const identity = {
       user: "print-user",
@@ -93,18 +96,18 @@ describe("RedirectController /impression/:missionId/:publisherId", () => {
     };
 
     vi.spyOn(utils, "identify").mockReturnValue(identity);
-    const statsBotFindOneSpy = vi.spyOn(StatsBotModel, "findOne").mockResolvedValue({ user: identity.user } as any);
+    const statsBotFindOneSpy = vi.spyOn(statBotService, "findStatBotByUser").mockResolvedValue({ user: identity.user } as any);
 
     const requestId = new Types.ObjectId().toString();
     const response = await request(app)
       .get(`/r/impression/${mission._id.toString()}/${publisher.id}`)
       .set("Host", "redirect.test")
       .set("Origin", "https://app.example.com")
-      .query({ tracker: "tag", sourceId: widget._id.toString(), requestId });
+      .query({ tracker: "tag", sourceId: widget.id, requestId });
 
     expect(response.status).toBe(200);
     expect(response.body.ok).toBe(true);
-    expect(statsBotFindOneSpy).toHaveBeenCalledWith({ user: identity.user });
+    expect(statsBotFindOneSpy).toHaveBeenCalledWith(identity.user);
 
     const createdPrint = await prismaCore.statEvent.findUnique({ where: { id: response.body.data._id } });
     expect(createdPrint).toMatchObject({
@@ -117,7 +120,7 @@ describe("RedirectController /impression/:missionId/:publisherId", () => {
       requestId,
       tag: "tag",
       source: "widget",
-      sourceId: widget._id.toString(),
+      sourceId: widget.id,
       sourceName: widget.name,
       missionId: mission._id.toString(),
       missionClientId: mission.clientId,
@@ -125,7 +128,7 @@ describe("RedirectController /impression/:missionId/:publisherId", () => {
       missionTitle: mission.title,
       missionPostalCode: mission.postalCode,
       missionDepartmentName: mission.departmentName,
-      missionOrganizationName: mission.organizationName,
+      missionOrganizationName: mission.organizationName ?? "",
       missionOrganizationId: mission.organizationId,
       missionOrganizationClientId: mission.organizationClientId,
       toPublisherId: mission.publisherId,
@@ -138,7 +141,7 @@ describe("RedirectController /impression/:missionId/:publisherId", () => {
       type: "print",
       tag: "tag",
       source: "widget",
-      sourceId: widget._id.toString(),
+      sourceId: widget.id,
       sourceName: widget.name,
       missionId: mission._id.toString(),
       missionClientId: mission.clientId,
@@ -146,7 +149,7 @@ describe("RedirectController /impression/:missionId/:publisherId", () => {
       missionTitle: mission.title,
       missionPostalCode: mission.postalCode,
       missionDepartmentName: mission.departmentName,
-      missionOrganizationName: mission.organizationName,
+      missionOrganizationName: mission.organizationName ?? "",
       missionOrganizationId: mission.organizationId,
       missionOrganizationClientId: mission.organizationClientId,
       toPublisherId: mission.publisherId,
@@ -159,12 +162,16 @@ describe("RedirectController /impression/:missionId/:publisherId", () => {
 
   it("returns 200 and records print stats when query has only tracker", async () => {
     const publisher = await publisherService.createPublisher({ name: "From Publisher" });
-    const mission = await MissionModel.create({
+    const mission = await createTestMission({
+      addresses: [
+        {
+          city: "Paris",
+        },
+      ],
       applicationUrl: "https://mission.example.com/apply",
       clientId: "mission-client-id",
       lastSyncAt: new Date(),
       publisherId: publisher.id,
-      publisherName: "Mission Publisher",
       title: "Mission Title",
     });
 
@@ -175,7 +182,7 @@ describe("RedirectController /impression/:missionId/:publisherId", () => {
     };
 
     vi.spyOn(utils, "identify").mockReturnValue(identity);
-    vi.spyOn(StatsBotModel, "findOne").mockResolvedValue(null);
+    vi.spyOn(statBotService, "findStatBotByUser").mockResolvedValue(null);
 
     const response = await request(app).get(`/r/impression/${mission._id.toString()}/${publisher.id}`).query({ tracker: "tag" });
 
