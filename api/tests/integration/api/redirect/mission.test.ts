@@ -7,8 +7,8 @@ import { prismaCore } from "../../../../src/db/postgres";
 import { publisherService } from "../../../../src/services/publisher";
 import { statBotService } from "../../../../src/services/stat-bot";
 import * as utils from "../../../../src/utils";
-import { createTestApp } from "../../../testApp";
 import { createTestMission } from "../../../fixtures";
+import { createTestApp } from "../../../testApp";
 
 const app = createTestApp();
 
@@ -50,7 +50,6 @@ describe("RedirectController /:missionId/:publisherId", () => {
       clientId: "mission-client-id",
       lastSyncAt: new Date(),
       publisherId: new Types.ObjectId().toString(),
-      publisherName: "Mission Publisher",
       title: "Mission Title",
     });
 
@@ -88,7 +87,6 @@ describe("RedirectController /:missionId/:publisherId", () => {
       organizationClientId: "mission-org-client-id",
       lastSyncAt: new Date(),
       publisherId: missionPublisher.id,
-      publisherName: missionPublisher.name,
     });
 
     const identity = {
@@ -165,7 +163,6 @@ describe("RedirectController /:missionId/:publisherId", () => {
       clientId: "mission-client-id",
       lastSyncAt: new Date(),
       publisherId: serviceCiviquePublisher.id,
-      publisherName: "Service Civique",
       title: "Mission Title",
     });
 
