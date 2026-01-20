@@ -5,7 +5,7 @@ import { toast } from "react-toastify";
 import Loader from "../../components/Loader";
 import Modal from "../../components/New-Modal";
 
-import Table from "../../components/NewTable";
+import Table from "../../components/Table";
 import api from "../../services/api";
 import { captureError } from "../../services/error";
 import useStore from "../../services/store";
@@ -97,7 +97,7 @@ const Flux = () => {
             ) : (
               <div className="flex items-center gap-2">
                 <p>{imports.length > 0 && new Date(lastSync).toLocaleString("fr").replace(" ", " à ")}</p>
-                <RiCheckboxCircleFill className="mr-1 h-5 w-5 text-green-700" />
+                <RiCheckboxCircleFill className="text-green-success mr-1 h-5 w-5" />
               </div>
             )}
           </div>

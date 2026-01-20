@@ -30,7 +30,7 @@ describe("Import missions job (integration test)", () => {
 
   it("Imports missions from a feed XML with correct structure and one mission", async () => {
     const xml = await readFile(path.join(__dirname, "data/correct-feed.xml"), "utf-8");
-    const publisher = await createTestPublisher({ feed: "https://fixture-feed" });
+    const publisher = await createTestPublisher({ feed: "https://fixture-feed", isAnnonceur: true });
     (global.fetch as any).mockResolvedValueOnce({ ok: true, text: async () => xml });
 
     const result = await handler.handle({ publisherId: publisher.id });
@@ -63,6 +63,7 @@ describe("Import missions job (integration test)", () => {
     expect(mission.clientId).toBe("32132143");
     expect(mission.description).toBe("Description de la mission");
     expect(mission.domain).toBe("environnement");
+    expect(mission.domainLogo).toBe("https://monurl.com/1.jpg");
     expect(mission.duration).toBe(10);
     expect(mission.endAt?.toISOString()).toBe("2025-11-01T00:00:00.000Z");
     expect(mission.openToMinors).toBe(true);
@@ -87,7 +88,7 @@ describe("Import missions job (integration test)", () => {
 
   it("refuses missions when compensation data is invalid", async () => {
     const xml = await readFile(path.join(__dirname, "data/invalid-compensation-feed.xml"), "utf-8");
-    const publisher = await createTestPublisher({ feed: "https://invalid-compensation-feed" });
+    const publisher = await createTestPublisher({ feed: "https://invalid-compensation-feed", isAnnonceur: true });
     (global.fetch as any).mockResolvedValueOnce({ ok: true, text: async () => xml });
 
     await handler.handle({ publisherId: publisher.id });
@@ -102,7 +103,7 @@ describe("Import missions job (integration test)", () => {
   it("uses publisher defaultMissionLogo when organizationLogo is missing", async () => {
     const xml = await readFile(path.join(__dirname, "data/missing-logo-feed.xml"), "utf-8");
     const defaultLogo = "https://example.com/default_logo.png";
-    const publisher = await createTestPublisher({ feed: "https://fixture-missing-logo", defaultMissionLogo: defaultLogo });
+    const publisher = await createTestPublisher({ feed: "https://fixture-missing-logo", defaultMissionLogo: defaultLogo, isAnnonceur: true });
     (global.fetch as any).mockResolvedValueOnce({ ok: true, text: async () => xml });
 
     await handler.handle({ publisherId: publisher.id });
@@ -112,7 +113,7 @@ describe("Import missions job (integration test)", () => {
   });
 
   it("If feed is empty for the first time, missions related to publisher should not be deleted", async () => {
-    const publisher = await createTestPublisher({ feed: "https://empty-feed" });
+    const publisher = await createTestPublisher({ feed: "https://empty-feed", isAnnonceur: true });
     await createTestMission({ publisherId: publisher.id, clientId: "client-old" });
     await createTestImport({ publisherId: publisher.id, status: "SUCCESS" });
     (global.fetch as any).mockResolvedValueOnce({ ok: true, text: async () => emptyXml });
@@ -132,7 +133,7 @@ describe("Import missions job (integration test)", () => {
   });
 
   it("If feed is empty and no import is successful for 7 days, missions should be deleted", async () => {
-    const publisher = await createTestPublisher({ feed: "https://empty-feed" });
+    const publisher = await createTestPublisher({ feed: "https://empty-feed", isAnnonceur: true });
     await createTestMission({ publisherId: publisher.id, clientId: "client-old" });
     await createTestImport({ publisherId: publisher.id, status: "FAILED", finishedAt: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000) });
     await createTestImport({ publisherId: publisher.id, status: "FAILED", finishedAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000) });
@@ -154,7 +155,7 @@ describe("Import missions job (integration test)", () => {
   });
 
   it("If feed returns a network error, import should fail", async () => {
-    const publisher = await createTestPublisher({ feed: "https://error-feed" });
+    const publisher = await createTestPublisher({ feed: "https://error-feed", isAnnonceur: true });
     (global.fetch as any).mockRejectedValueOnce(new Error("Network error"));
     const result = await handler.handle({ publisherId: publisher.id });
     expect(result.imports[0].status).toBe("FAILED");
@@ -163,7 +164,7 @@ describe("Import missions job (integration test)", () => {
 
   it("If feed XML is malformed, import should fail with explicit error", async () => {
     const malformedXml = `<missions><mission><title>Oops</title></mission>`; // missing closing tags
-    const publisher = await createTestPublisher({ feed: "https://malformed-feed" });
+    const publisher = await createTestPublisher({ feed: "https://malformed-feed", isAnnonceur: true });
     (global.fetch as any).mockResolvedValueOnce({ ok: true, text: async () => malformedXml });
     const result = await handler.handle({ publisherId: publisher.id });
     expect(result.imports[0].status).toBe("FAILED");
@@ -175,6 +176,7 @@ describe("Import missions job (integration test)", () => {
       feed: "https://auth-feed",
       feedUsername: "user",
       feedPassword: "pass",
+      isAnnonceur: true,
     });
     (global.fetch as any).mockImplementationOnce((url: string, options: any) => {
       expect(url).toBe("https://auth-feed");
@@ -190,7 +192,7 @@ describe("Import missions job (integration test)", () => {
 
   it("If mission already exists, it is updated and not duplicated", async () => {
     const xml = await readFile(path.join(__dirname, "data/correct-feed.xml"), "utf-8");
-    const publisher = await createTestPublisher({ feed: "https://fixture-feed" });
+    const publisher = await createTestPublisher({ feed: "https://fixture-feed", isAnnonceur: true });
     // Create a mission with the same clientId as the one in the XML
     await createTestMission({
       publisherId: publisher.id,
@@ -212,7 +214,7 @@ describe("Import missions job (integration test)", () => {
 
   it("If mission already exists and has no new data, it is not updated", async () => {
     const xml = await readFile(path.join(__dirname, "data/correct-feed.xml"), "utf-8");
-    const publisher = await createTestPublisher({ feed: "https://fixture-feed" });
+    const publisher = await createTestPublisher({ feed: "https://fixture-feed", isAnnonceur: true });
 
     // Import feed once to create mission
     (global.fetch as any).mockResolvedValueOnce({ ok: true, text: async () => xml });
@@ -270,7 +272,7 @@ describe("Import missions job (integration test)", () => {
   </mission>
 </source>`;
 
-    const publisher = await createTestPublisher({ feed: "https://no-start-date-feed" });
+    const publisher = await createTestPublisher({ feed: "https://no-start-date-feed", isAnnonceur: true });
 
     // First import - should use default startAt (current date)
     const importDate = new Date();

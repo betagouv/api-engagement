@@ -21,7 +21,7 @@ type WidgetRule = Pick<WidgetRuleRecord, "field" | "operator" | "value" | "combi
  * Champs qui correspondent à des tableaux (String[]) dans Prisma.
  * Pour ces champs, on utilise `has`/`hasSome` au lieu de `contains`.
  */
-const ARRAY_FIELDS = new Set(["organizationReseaux", "tags"]);
+const ARRAY_FIELDS = new Set(["associationReseaux", "organizationActions", "organizationNetwork", "organizationReseaux", "tags"]);
 
 /**
  * Mapping des champs virtuels (utilisés dans les règles widget) vers les chemins Prisma réels.
@@ -33,6 +33,12 @@ const FIELD_TO_PRISMA_PATH: Record<string, (condition: any) => Prisma.MissionWhe
   postalCode: (condition) => ({ addresses: { some: { postalCode: condition } } }),
   departmentName: (condition) => ({ addresses: { some: { departmentName: condition } } }),
   regionName: (condition) => ({ addresses: { some: { region: condition } } }),
+  associationName: (condition) => ({ publisherOrganization: { is: { organizationName: condition } } }),
+  associationReseaux: (condition) => ({ publisherOrganization: { is: { organizationReseaux: condition } } }),
+  organizationName: (condition) => ({ publisherOrganization: { is: { organizationName: condition } } }),
+  organizationNetwork: (condition) => ({ publisherOrganization: { is: { organizationReseaux: condition } } }),
+  organizationReseaux: (condition) => ({ publisherOrganization: { is: { organizationReseaux: condition } } }),
+  organizationActions: (condition) => ({ publisherOrganization: { is: { organizationActions: condition } } }),
 };
 
 /**
@@ -41,9 +47,10 @@ const FIELD_TO_PRISMA_PATH: Record<string, (condition: any) => Prisma.MissionWhe
  */
 const buildRuleCondition = (rule: WidgetRule): Prisma.MissionWhereInput | null => {
   const { field, operator, value } = rule;
+  const normalizedValue = field === "openToMinors" ? normalizeBooleanValue(value) : value;
 
   // Pour exists/does_not_exist, pas besoin de valeur
-  if (operator !== "exists" && operator !== "does_not_exist" && !value) {
+  if (operator !== "exists" && operator !== "does_not_exist" && !normalizedValue) {
     return null;
   }
 
@@ -54,24 +61,24 @@ const buildRuleCondition = (rule: WidgetRule): Prisma.MissionWhereInput | null =
   switch (operator) {
     case "is":
       // Pour un tableau, "is" signifie "contient exactement cette valeur"
-      condition = isArrayField ? { has: value } : value;
+      condition = isArrayField ? { has: normalizedValue } : normalizedValue;
       break;
     case "is_not":
-      condition = { not: value };
+      condition = { not: normalizedValue };
       break;
     case "contains":
       // Pour un tableau, utiliser `has` au lieu de `contains`
-      condition = isArrayField ? { has: `${value}` } : { contains: value, mode: "insensitive" };
+      condition = isArrayField ? { has: `${normalizedValue}` } : { contains: normalizedValue, mode: "insensitive" };
       break;
     case "does_not_contain":
       // Cas spécial : on wrappe dans NOT après le mapping
-      condition = isArrayField ? { has: `${value}` } : { contains: value, mode: "insensitive" };
+      condition = isArrayField ? { has: `${normalizedValue}` } : { contains: normalizedValue, mode: "insensitive" };
       break;
     case "is_greater_than":
-      condition = { gt: value };
+      condition = { gt: normalizedValue };
       break;
     case "is_less_than":
-      condition = { lt: value };
+      condition = { lt: normalizedValue };
       break;
     case "exists":
       condition = { not: null };
@@ -80,7 +87,7 @@ const buildRuleCondition = (rule: WidgetRule): Prisma.MissionWhereInput | null =
       condition = null;
       break;
     case "starts_with":
-      condition = { startsWith: value, mode: "insensitive" };
+      condition = { startsWith: normalizedValue, mode: "insensitive" };
       break;
     default:
       return null;
@@ -102,6 +109,20 @@ const buildRuleCondition = (rule: WidgetRule): Prisma.MissionWhereInput | null =
   }
 
   return result;
+};
+
+const normalizeBooleanValue = (value?: string | null) => {
+  if (!value) {
+    return value;
+  }
+  const normalized = value.trim().toLowerCase();
+  if (["yes", "true", "1"].includes(normalized)) {
+    return true;
+  }
+  if (["no", "false", "0"].includes(normalized)) {
+    return false;
+  }
+  return value;
 };
 
 /**
@@ -147,112 +168,3 @@ export const applyWidgetRules = (rules: WidgetRule[]): Prisma.MissionWhereInput 
 
   return result;
 };
-
-export const diacriticSensitiveRegex = (string: string = "") => {
-  return string
-    .replace(/a/g, "[a,á,à,ä,â]")
-    .replace(/A/g, "[A,a,á,à,ä,â]")
-    .replace(/e/g, "[e,é,ë,è]")
-    .replace(/E/g, "[E,e,é,ë,è]")
-    .replace(/i/g, "[i,í,ï,ì]")
-    .replace(/I/g, "[I,i,í,ï,ì]")
-    .replace(/o/g, "[o,ó,ö,ò]")
-    .replace(/O/g, "[O,o,ó,ö,ò]")
-    .replace(/u/g, "[u,ü,ú,ù]")
-    .replace(/U/g, "[U,u,ü,ú,ù]");
-};
-
-export const buildQueryMongo = (rules: { field: string; operator: string; value: string; combinator: "and" | "or" }[]) => {
-  const q = { $and: [], $or: [] } as { [key: string]: any };
-  rules.forEach((r: { field: string; operator: string; value: string; combinator: string }, i: number) => {
-    if (!r.field || !r.operator || (!r.value && r.operator !== "exists" && r.operator !== "does_not_exist")) {
-      return;
-    }
-    if (i === 0 && rules.length > 1) {
-      r.combinator = rules[1].combinator;
-    }
-
-    if (r.combinator === "and") {
-      if (r.operator === "is") {
-        q.$and.push({ [r.field]: r.value });
-      } else if (r.operator === "is_not") {
-        q.$and.push({ [r.field]: { $ne: r.value } });
-      } else if (r.operator === "contains") {
-        q.$and.push({ [r.field]: { $regex: diacriticSensitiveRegex(r.value), $options: "i" } });
-      } else if (r.operator === "does_not_contain") {
-        q.$and.push({
-          [r.field]: { $not: { $regex: diacriticSensitiveRegex(r.value), $options: "i" } },
-        });
-      } else if (r.operator === "is_greater_than") {
-        q.$and.push({ [r.field]: { $gt: r.value } });
-      } else if (r.operator === "is_less_than") {
-        q.$and.push({ [r.field]: { $lt: r.value } });
-      } else if (r.operator === "exists") {
-        q.$and.push({ [r.field]: { $exists: true } });
-      } else if (r.operator === "does_not_exist") {
-        q.$and.push({ [r.field]: { $exists: false } });
-      } else if (r.operator === "starts_with") {
-        q.$and.push({
-          [r.field]: { $regex: `^${diacriticSensitiveRegex(r.value)}`, $options: "i" },
-        });
-      }
-    } else if (r.combinator === "or") {
-      if (r.operator === "is") {
-        q.$or.push({ [r.field]: r.value });
-      } else if (r.operator === "is_not") {
-        q.$or.push({ [r.field]: { $ne: r.value } });
-      } else if (r.operator === "contains") {
-        q.$or.push({ [r.field]: { $regex: diacriticSensitiveRegex(r.value), $options: "i" } });
-      } else if (r.operator === "does_not_contain") {
-        q.$or.push({
-          [r.field]: { $not: { $regex: diacriticSensitiveRegex(r.value), $options: "i" } },
-        });
-      } else if (r.operator === "is_greater_than") {
-        q.$or.push({ [r.field]: { $gt: r.value } });
-      } else if (r.operator === "is_less_than") {
-        q.$or.push({ [r.field]: { $lt: r.value } });
-      } else if (r.operator === "exists") {
-        q.$or.push({ [r.field]: { $exists: true } });
-      } else if (r.operator === "does_not_exist") {
-        q.$or.push({ [r.field]: { $exists: false } });
-      } else if (r.operator === "starts_with") {
-        q.$or.push({
-          [r.field]: { $regex: `^${diacriticSensitiveRegex(r.value)}`, $options: "i" },
-        });
-      }
-    }
-  });
-
-  return q;
-};
-
-// if (rule.operator !== "is" || !rule.value) {
-//   return;
-// }
-// if (rule.field === "domain") {
-//   filters.domain = [...(filters.domain ?? []), rule.value];
-// }
-// if (rule.field === "departmentName") {
-//   filters.departmentName = [...(filters.departmentName ?? []), rule.value];
-// }
-// if (rule.field === "type") {
-//   filters.type = [...(filters.type ?? []), rule.value];
-// }
-// if (rule.field === "remote") {
-//   filters.remote = [...(filters.remote ?? []), rule.value];
-// }
-// if (rule.field === "openToMinors") {
-//   filters.openToMinors = rule.value as any;
-// }
-// if (rule.field === "organizationClientId") {
-//   filters.organizationClientId = [...(filters.organizationClientId ?? []), rule.value];
-// }
-// if (rule.field === "clientId") {
-//   filters.clientId = [...(filters.clientId ?? []), rule.value];
-// }
-// if (rule.field === "country") {
-//   filters.country = [...(filters.country ?? []), rule.value];
-// }
-// if (rule.field === "city") {
-//   filters.city = [...(filters.city ?? []), rule.value];
-// }

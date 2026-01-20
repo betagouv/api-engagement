@@ -400,14 +400,10 @@ export const organizationService = (() => {
     if (!slug) {
       return null;
     }
-    const organizations = await organizationRepository.findMany({
+    return organizationRepository.findFirst({
       where: { names: { has: slug } },
-      take: 2,
+      orderBy: { createdAt: "asc" },
     });
-    if (organizations.length === 1) {
-      return organizations[0];
-    }
-    return null;
   };
 
   const bulkUpsertByRna = async (records: OrganizationUpsertInput[], options: { chunkSize?: number } = {}): Promise<void> => {

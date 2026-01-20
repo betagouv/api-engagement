@@ -20,20 +20,42 @@ import { normalizeOptionalString, normalizeStringList } from "../utils/normalize
 import { publisherService } from "./publisher";
 
 type MissionWithRelations = Mission & {
+  domainLogo: string | null;
   publisher?: { name: string | null; url: string | null; logo: string | null } | null;
-  domain?: { name: string; logo: string | null } | null;
+  domain?: { name: string } | null;
   activity?: { name: string } | null;
-  organization?: {
-    title: string;
-    rna: string | null;
-    siren: string | null;
-    siret: string | null;
-    addressDepartmentName: string | null;
-    addressDepartmentCode: string | null;
-    addressCity: string | null;
-    addressPostalCode: string | null;
-    status: string | null;
-    names: string[];
+  publisherOrganization?: {
+    organizationClientId: string;
+    organizationName: string | null;
+    organizationUrl: string | null;
+    organizationType: string | null;
+    organizationLogo: string | null;
+    organizationDescription: string | null;
+    organizationFullAddress: string | null;
+    organizationRNA: string | null;
+    organizationSiren: string | null;
+    organizationSiret: string | null;
+    organizationDepartment: string | null;
+    organizationDepartmentCode: string | null;
+    organizationDepartmentName: string | null;
+    organizationPostCode: string | null;
+    organizationCity: string | null;
+    organizationStatusJuridique: string | null;
+    organizationBeneficiaries: string[];
+    organizationActions: string[];
+    organizationReseaux: string[];
+    organizationNameVerified: string | null;
+    organizationRNAVerified: string | null;
+    organizationSirenVerified: string | null;
+    organizationSiretVerified: string | null;
+    organizationAddressVerified: string | null;
+    organizationCityVerified: string | null;
+    organizationPostalCodeVerified: string | null;
+    organizationDepartmentCodeVerified: string | null;
+    organizationDepartmentNameVerified: string | null;
+    organizationRegionVerified: string | null;
+    organizationVerificationStatus: string | null;
+    organisationIsRUP: boolean | null;
   } | null;
   addresses: Array<{
     id: string;
@@ -66,17 +88,13 @@ type MissionWithRelations = Mission & {
   }>;
 };
 
-const resolveDomainId = async (domainName: string, domainLogo?: string | null): Promise<string> => {
+const resolveDomainId = async (domainName: string): Promise<string> => {
   const name = domainName.trim();
-  const logo = domainLogo && domainLogo.trim() ? domainLogo.trim() : null;
-  const existing = await prismaCore.domain.findUnique({ where: { name }, select: { id: true, logo: true } });
+  const existing = await prismaCore.domain.findUnique({ where: { name }, select: { id: true } });
   if (existing) {
-    if (logo && !existing.logo) {
-      await prismaCore.domain.update({ where: { id: existing.id }, data: { logo } });
-    }
     return existing.id;
   }
-  const created = await prismaCore.domain.create({ data: { name, logo: logo ?? undefined } });
+  const created = await prismaCore.domain.create({ data: { name } });
   return created.id;
 };
 
@@ -95,7 +113,7 @@ const toMissionRecord = (mission: MissionWithRelations, moderatedBy: string | nu
   const location = deriveMissionLocation(addresses);
   const primaryAddress = addresses[0] ?? {};
 
-  const org = mission.organization;
+  const publisherOrganization = mission.publisherOrganization;
   const publisherName = mission.publisher?.name ?? null;
   const publisherLogo = mission.publisher?.logo ?? null;
   const publisherUrl = mission.publisher?.url ?? null;
@@ -141,7 +159,7 @@ const toMissionRecord = (mission: MissionWithRelations, moderatedBy: string | nu
     metadata: mission.metadata ?? null,
     domain: domain?.name ?? null,
     domainOriginal: mission.domainOriginal ?? null,
-    domainLogo: domain?.logo ?? null,
+    domainLogo: mission.domainLogo ?? null,
     activity: activity?.name ?? null,
     type: mission.type ?? null,
     snu: mission.snu ?? false,
@@ -161,36 +179,36 @@ const toMissionRecord = (mission: MissionWithRelations, moderatedBy: string | nu
     addresses,
     organizationId: mission.organizationId ?? null,
     organizationClientId: mission.organizationClientId ?? null,
-    organizationUrl: mission.organizationUrl ?? null,
-    organizationName: mission.organizationName ?? org?.title ?? null,
-    organizationReseaux: mission.organizationReseaux ?? [],
-    organizationType: org?.status ?? null,
-    organizationLogo: mission.organizationLogo ?? null,
-    organizationDescription: mission.organizationDescription ?? null,
-    organizationFullAddress: mission.organizationFullAddress ?? null,
-    organizationRNA: org?.rna ?? null,
-    organizationSiren: org?.siren ?? null,
-    organizationSiret: org?.siret ?? null,
-    organizationDepartment: org?.addressDepartmentName ?? null,
-    organizationDepartmentCode: org?.addressDepartmentCode ?? null,
-    organizationDepartmentName: org?.addressDepartmentName ?? null,
-    organizationPostCode: org?.addressPostalCode ?? null,
-    organizationCity: org?.addressCity ?? null,
-    organizationStatusJuridique: org?.status ?? null,
-    organizationBeneficiaries: [],
-    organizationActions: [],
-    organizationNameVerified: null,
-    organizationRNAVerified: null,
-    organizationSirenVerified: null,
-    organizationSiretVerified: null,
-    organizationAddressVerified: null,
-    organizationCityVerified: null,
-    organizationPostalCodeVerified: null,
-    organizationDepartmentCodeVerified: null,
-    organizationDepartmentNameVerified: null,
-    organizationRegionVerified: null,
-    organizationVerificationStatus: null,
-    organisationIsRUP: null,
+    organizationUrl: publisherOrganization?.organizationUrl ?? null,
+    organizationName: publisherOrganization?.organizationName ?? null,
+    organizationReseaux: publisherOrganization?.organizationReseaux ?? [],
+    organizationType: publisherOrganization?.organizationType ?? null,
+    organizationLogo: publisherOrganization?.organizationLogo ?? null,
+    organizationDescription: publisherOrganization?.organizationDescription ?? null,
+    organizationFullAddress: publisherOrganization?.organizationFullAddress ?? null,
+    organizationRNA: publisherOrganization?.organizationRNA ?? null,
+    organizationSiren: publisherOrganization?.organizationSiren ?? null,
+    organizationSiret: publisherOrganization?.organizationSiret ?? null,
+    organizationDepartment: publisherOrganization?.organizationDepartment ?? null,
+    organizationDepartmentCode: publisherOrganization?.organizationDepartmentCode ?? null,
+    organizationDepartmentName: publisherOrganization?.organizationDepartmentName ?? null,
+    organizationPostCode: publisherOrganization?.organizationPostCode ?? null,
+    organizationCity: publisherOrganization?.organizationCity ?? null,
+    organizationStatusJuridique: publisherOrganization?.organizationStatusJuridique ?? null,
+    organizationBeneficiaries: publisherOrganization?.organizationBeneficiaries ?? [],
+    organizationActions: publisherOrganization?.organizationActions ?? [],
+    organizationNameVerified: publisherOrganization?.organizationNameVerified ?? null,
+    organizationRNAVerified: publisherOrganization?.organizationRNAVerified ?? null,
+    organizationSirenVerified: publisherOrganization?.organizationSirenVerified ?? null,
+    organizationSiretVerified: publisherOrganization?.organizationSiretVerified ?? null,
+    organizationAddressVerified: publisherOrganization?.organizationAddressVerified ?? null,
+    organizationCityVerified: publisherOrganization?.organizationCityVerified ?? null,
+    organizationPostalCodeVerified: publisherOrganization?.organizationPostalCodeVerified ?? null,
+    organizationDepartmentCodeVerified: publisherOrganization?.organizationDepartmentCodeVerified ?? null,
+    organizationDepartmentNameVerified: publisherOrganization?.organizationDepartmentNameVerified ?? null,
+    organizationRegionVerified: publisherOrganization?.organizationRegionVerified ?? null,
+    organizationVerificationStatus: publisherOrganization?.organizationVerificationStatus ?? null,
+    organisationIsRUP: publisherOrganization?.organisationIsRUP ?? null,
     lastSyncAt: mission.lastSyncAt ?? null,
     applicationUrl: mission.applicationUrl ?? null,
     statusCode: (mission.statusCode as MissionRecord["statusCode"]) ?? "ACCEPTED",
@@ -358,10 +376,12 @@ export const buildWhere = (filters: MissionSearchFilters): Prisma.MissionWhereIn
   }
 
   if (filters.organizationRNA?.length || filters.organizationStatusJuridique?.length || filters.organizationName?.length) {
-    where.organization = {
-      ...(filters.organizationRNA?.length ? { rna: { in: filters.organizationRNA } } : {}),
-      ...(filters.organizationStatusJuridique?.length ? { status: { in: filters.organizationStatusJuridique } } : {}),
-      ...(filters.organizationName?.length ? { title: { in: filters.organizationName } } : {}),
+    where.publisherOrganization = {
+      is: {
+        ...(filters.organizationRNA?.length ? { organizationRNA: { in: filters.organizationRNA } } : {}),
+        ...(filters.organizationStatusJuridique?.length ? { organizationStatusJuridique: { in: filters.organizationStatusJuridique } } : {}),
+        ...(filters.organizationName?.length ? { organizationName: { in: filters.organizationName } } : {}),
+      },
     };
   }
 
@@ -377,7 +397,7 @@ export const buildWhere = (filters: MissionSearchFilters): Prisma.MissionWhereIn
       {
         OR: [
           { title: { contains: keywords, mode: "insensitive" } },
-          { organization: { title: { contains: keywords, mode: "insensitive" } } },
+          { publisherOrganization: { is: { organizationName: { contains: keywords, mode: "insensitive" } } } },
           { addresses: { some: { city: { contains: keywords, mode: "insensitive" } } } },
           { domain: { is: { name: { contains: keywords, mode: "insensitive" } } } },
         ],
@@ -386,10 +406,10 @@ export const buildWhere = (filters: MissionSearchFilters): Prisma.MissionWhereIn
   }
 
   if (filters.excludeOrganizationName) {
-    const organizationWhere = (where.organization as Prisma.OrganizationWhereInput | undefined) ?? {};
-    const titleFilter = (organizationWhere.title as Prisma.StringFilter | undefined) ?? {};
-    organizationWhere.title = { ...titleFilter, not: filters.excludeOrganizationName };
-    where.organization = organizationWhere;
+    const organizationWhere = (where.publisherOrganization?.is as Prisma.PublisherOrganizationWhereInput | undefined) ?? {};
+    const nameFilter = (organizationWhere.organizationName as Prisma.StringFilter | undefined) ?? {};
+    organizationWhere.organizationName = { ...nameFilter, not: filters.excludeOrganizationName };
+    where.publisherOrganization = { is: organizationWhere };
   }
 
   if (orConditions.length) {
@@ -557,7 +577,7 @@ const mapAddressesForCreate = (addresses?: MissionRecord["addresses"]) => {
   }));
 };
 
-const baseInclude: MissionInclude = { publisher: true, domain: true, activity: true, organization: true, addresses: true, moderationStatuses: true, jobBoards: true };
+const baseInclude: MissionInclude = { publisher: true, domain: true, activity: true, publisherOrganization: true, addresses: true, moderationStatuses: true, jobBoards: true };
 
 export const missionService = {
   async findOneMission(id: string, moderatedBy: string | null = null): Promise<MissionRecord | null> {
@@ -676,17 +696,18 @@ export const missionService = {
   async create(input: MissionCreateInput): Promise<MissionRecord> {
     const id = input.id ?? randomUUID();
     const addresses = mapAddressesForCreate(input.addresses);
+    const organizationClientId = normalizeOptionalString(input.organizationClientId ?? undefined);
 
     const domainName = input.domain?.trim();
     const activityName = input.activity?.trim();
-    const domainId = domainName ? await resolveDomainId(domainName, input.domainLogo ?? null) : null;
+    const domainId = domainName ? await resolveDomainId(domainName) : null;
     const activityId = activityName ? await resolveActivityId(activityName) : null;
-    const data: Prisma.MissionCreateInput = {
+    const data: Prisma.MissionUncheckedCreateInput = {
       id,
       clientId: input.clientId,
-      publisher: { connect: { id: input.publisherId } },
-      ...(domainId ? { domain: { connect: { id: domainId } } } : {}),
-      ...(activityId ? { activity: { connect: { id: activityId } } } : {}),
+      publisherId: input.publisherId,
+      domainId: domainId ?? null,
+      activityId: activityId ?? null,
       title: input.title,
       statusCode: input.statusCode ?? "ACCEPTED",
       description: input.description ?? "",
@@ -711,14 +732,15 @@ export const missionService = {
       placesStatus: input.placesStatus ?? undefined,
       metadata: input.metadata ?? undefined,
       domainOriginal: input.domainOriginal ?? undefined,
+      domainLogo: input.domainLogo ?? undefined,
       type: (input.type as any) ?? undefined,
       snu: input.snu ?? undefined,
       snuPlaces: input.snuPlaces ?? undefined,
       compensationAmount: input.compensationAmount ?? undefined,
       compensationUnit: input.compensationUnit ?? undefined,
       compensationType: input.compensationType ?? undefined,
-      organizationClientId: input.organizationClientId ?? undefined,
-      organization: input.organizationId ? { connect: { id: input.organizationId } } : undefined,
+      organizationClientId: organizationClientId ?? undefined,
+      organizationId: input.organizationId ?? undefined,
       lastSyncAt: input.lastSyncAt ?? undefined,
       applicationUrl: input.applicationUrl ?? undefined,
       statusComment: input.statusComment ?? undefined,
@@ -727,7 +749,7 @@ export const missionService = {
       addresses: addresses.length ? { create: addresses } : undefined,
     };
 
-    await missionRepository.create(data);
+    await missionRepository.createUnchecked(data);
     const mission = await missionRepository.findFirst({ where: { id }, include: baseInclude });
     if (!mission) {
       throw new Error(`[missionService] Mission ${id} not found after creation`);
@@ -737,13 +759,13 @@ export const missionService = {
 
   async update(id: string, patch: MissionUpdatePatch): Promise<MissionRecord> {
     const addresses = mapAddressesForCreate(patch.addresses);
-    const data: Prisma.MissionUpdateInput = {};
+    const data: Prisma.MissionUncheckedUpdateInput = {};
 
     if ("clientId" in patch) {
       data.clientId = patch.clientId ?? undefined;
     }
     if ("publisherId" in patch && patch.publisherId) {
-      data.publisher = { connect: { id: patch.publisherId } };
+      data.publisherId = patch.publisherId;
     }
     if ("title" in patch) {
       data.title = patch.title ?? undefined;
@@ -817,36 +839,25 @@ export const missionService = {
     if ("domain" in patch) {
       if (patch.domain) {
         const domainName = patch.domain.trim();
-        const domainId = domainName ? await resolveDomainId(domainName, patch.domainLogo ?? null) : null;
-        if (!domainId) {
-          data.domain = { disconnect: true };
-        } else {
-          data.domain = { connect: { id: domainId } };
-        }
+        const domainId = domainName ? await resolveDomainId(domainName) : null;
+        data.domainId = domainId;
       } else {
-        data.domain = { disconnect: true };
+        data.domainId = null;
       }
     }
     if ("domainOriginal" in patch) {
       data.domainOriginal = patch.domainOriginal ?? null;
     }
-    if ("domainLogo" in patch && !("domain" in patch) && patch.domainLogo) {
-      const existing = await missionRepository.findById(id);
-      if (existing?.domainId) {
-        await prismaCore.domain.update({ where: { id: existing.domainId }, data: { logo: patch.domainLogo } });
-      }
+    if ("domainLogo" in patch) {
+      data.domainLogo = patch.domainLogo ?? null;
     }
     if ("activity" in patch) {
       if (patch.activity) {
         const activityName = patch.activity.trim();
         const activityId = activityName ? await resolveActivityId(activityName) : null;
-        if (!activityId) {
-          data.activity = { disconnect: true };
-        } else {
-          data.activity = { connect: { id: activityId } };
-        }
+        data.activityId = activityId;
       } else {
-        data.activity = { disconnect: true };
+        data.activityId = null;
       }
     }
     if ("type" in patch) {
@@ -868,10 +879,11 @@ export const missionService = {
       data.compensationType = patch.compensationType ?? undefined;
     }
     if ("organizationClientId" in patch) {
-      data.organizationClientId = patch.organizationClientId ?? undefined;
+      const normalized = normalizeOptionalString(patch.organizationClientId ?? undefined);
+      data.organizationClientId = normalized ?? null;
     }
     if ("organizationId" in patch) {
-      data.organization = patch.organizationId ? { connect: { id: patch.organizationId } } : { disconnect: true };
+      data.organizationId = patch.organizationId ?? null;
     }
     if ("lastSyncAt" in patch) {
       data.lastSyncAt = patch.lastSyncAt ?? undefined;
@@ -896,98 +908,7 @@ export const missionService = {
       };
     }
 
-    if ("organizationUrl" in patch) {
-      data.organizationUrl = patch.organizationUrl ?? undefined;
-    }
-    if ("organizationName" in patch) {
-      data.organizationName = patch.organizationName ?? undefined;
-    }
-    if ("organizationType" in patch) {
-      data.organizationType = patch.organizationType ?? undefined;
-    }
-    if ("organizationLogo" in patch) {
-      data.organizationLogo = patch.organizationLogo ?? undefined;
-    }
-    if ("organizationDescription" in patch) {
-      data.organizationDescription = patch.organizationDescription ?? undefined;
-    }
-    if ("organizationFullAddress" in patch) {
-      data.organizationFullAddress = patch.organizationFullAddress ?? undefined;
-    }
-    if ("organizationRNA" in patch) {
-      data.organizationRNA = patch.organizationRNA ?? undefined;
-    }
-    if ("organizationSiren" in patch) {
-      data.organizationSiren = patch.organizationSiren ?? undefined;
-    }
-    if ("organizationSiret" in patch) {
-      data.organizationSiret = patch.organizationSiret ?? undefined;
-    }
-    if ("organizationDepartment" in patch) {
-      data.organizationDepartment = patch.organizationDepartment ?? undefined;
-    }
-    if ("organizationDepartmentCode" in patch) {
-      data.organizationDepartmentCode = patch.organizationDepartmentCode ?? undefined;
-    }
-    if ("organizationDepartmentName" in patch) {
-      data.organizationDepartmentName = patch.organizationDepartmentName ?? undefined;
-    }
-    if ("organizationPostCode" in patch) {
-      data.organizationPostCode = patch.organizationPostCode ?? undefined;
-    }
-    if ("organizationCity" in patch) {
-      data.organizationCity = patch.organizationCity ?? undefined;
-    }
-    if ("organizationStatusJuridique" in patch) {
-      data.organizationStatusJuridique = patch.organizationStatusJuridique ?? undefined;
-    }
-    if ("organizationBeneficiaries" in patch) {
-      data.organizationBeneficiaries = patch.organizationBeneficiaries ?? undefined;
-    }
-    if ("organizationActions" in patch) {
-      data.organizationActions = patch.organizationActions ?? undefined;
-    }
-    if ("organizationReseaux" in patch) {
-      data.organizationReseaux = patch.organizationReseaux ?? undefined;
-    }
-    if ("organizationNameVerified" in patch) {
-      data.organizationNameVerified = patch.organizationNameVerified ?? undefined;
-    }
-    if ("organizationRNAVerified" in patch) {
-      data.organizationRNAVerified = patch.organizationRNAVerified ?? undefined;
-    }
-    if ("organizationSirenVerified" in patch) {
-      data.organizationSirenVerified = patch.organizationSirenVerified ?? undefined;
-    }
-    if ("organizationSiretVerified" in patch) {
-      data.organizationSiretVerified = patch.organizationSiretVerified ?? undefined;
-    }
-    if ("organizationAddressVerified" in patch) {
-      data.organizationAddressVerified = patch.organizationAddressVerified ?? undefined;
-    }
-    if ("organizationCityVerified" in patch) {
-      data.organizationCityVerified = patch.organizationCityVerified ?? undefined;
-    }
-    if ("organizationPostalCodeVerified" in patch) {
-      data.organizationPostalCodeVerified = patch.organizationPostalCodeVerified ?? undefined;
-    }
-    if ("organizationDepartmentCodeVerified" in patch) {
-      data.organizationDepartmentCodeVerified = patch.organizationDepartmentCodeVerified ?? undefined;
-    }
-    if ("organizationDepartmentNameVerified" in patch) {
-      data.organizationDepartmentNameVerified = patch.organizationDepartmentNameVerified ?? undefined;
-    }
-    if ("organizationRegionVerified" in patch) {
-      data.organizationRegionVerified = patch.organizationRegionVerified ?? undefined;
-    }
-    if ("organizationVerificationStatus" in patch) {
-      data.organizationVerificationStatus = patch.organizationVerificationStatus ?? undefined;
-    }
-    if ("organisationIsRUP" in patch) {
-      data.organisationIsRUP = patch.organisationIsRUP ?? undefined;
-    }
-
-    await missionRepository.update(id, data);
+    await missionRepository.updateUnchecked(id, data);
     const mission = await missionRepository.findFirst({ where: { id }, include: baseInclude });
     if (!mission) {
       throw new Error(`[missionService] Mission ${id} not found after update`);

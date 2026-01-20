@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 
-import Table from "../../../components/NewTable";
 import SearchInput from "../../../components/SearchInput";
+import Table from "../../../components/Table";
 import Toggle from "../../../components/Toggle";
 import { PUBLISHER_CATEGORIES } from "../../../constants";
 import api from "../../../services/api";

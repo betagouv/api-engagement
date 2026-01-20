@@ -1,8 +1,8 @@
 import { useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 
-import Table from "../../components/NewTable";
 import RadioInput from "../../components/RadioInput";
+import Table from "../../components/Table";
 import api from "../../services/api";
 import { API_URL } from "../../services/config";
 import { captureError } from "../../services/error";

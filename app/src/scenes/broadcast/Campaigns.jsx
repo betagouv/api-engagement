@@ -3,7 +3,7 @@ import { RiAddFill, RiEditFill, RiFileCopyLine, RiLink } from "react-icons/ri";
 import { Link } from "react-router-dom";
 import { toast } from "react-toastify";
 
-import Table from "../../components/NewTable";
+import Table from "../../components/Table";
 import Toggle from "../../components/Toggle";
 import api from "../../services/api";
 import { API_URL } from "../../services/config";

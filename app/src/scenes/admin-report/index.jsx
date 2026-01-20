@@ -3,8 +3,8 @@ import { Link, useSearchParams } from "react-router-dom";
 
 import { RiDownload2Line } from "react-icons/ri";
 import Select from "../../components/NewSelect";
-import Table from "../../components/NewTable";
 import SearchSelect from "../../components/SearchSelect";
+import Table from "../../components/Table";
 import { MONTHS, REPORT_STATUS, YEARS } from "../../constants";
 import api from "../../services/api";
 import { captureError } from "../../services/error";
@@ -118,7 +118,7 @@ const AdminReport = () => {
                 {item.status === "SENT" ? (
                   <>
                     <div className="flex items-center gap-2">
-                      <div className="h-2 w-2 rounded-full bg-green-500" />
+                      <div className="bg-success h-2 w-2 rounded-full" />
                       <p className="flex-1 text-sm font-bold">Envoyé le {new Date(item.sentAt).toLocaleDateString("fr")}</p>
                     </div>
                     <p className="text-xs">{item.sentTo.length ? item.sentTo.join(", ") : "Aucun destinataire"}</p>

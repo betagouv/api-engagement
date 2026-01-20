@@ -5,7 +5,7 @@ import EmptySVG from "../../assets/svg/empty-info.svg";
 import { Pie, StackedBarchart } from "../../components/Chart";
 import Loader from "../../components/Loader";
 import DateRangePicker from "../../components/NewDateRangePicker";
-import Table from "../../components/NewTable";
+import Table from "../../components/Table";
 import { MONTHS } from "../../constants";
 import api from "../../services/api";
 import { captureError } from "../../services/error";
@@ -193,7 +193,7 @@ const DistributionMean = ({ filters, defaultType = "print" }) => {
             <div className="w-2/3">
               <table className="w-full table-fixed">
                 <thead className="text-left">
-                  <tr className="text-xs text-gray-500 uppercase">
+                  <tr className="text-text-mention text-xs uppercase">
                     <th colSpan={3} className="px-4">
                       Répartition par moyen de diffusion
                     </th>
@@ -419,7 +419,7 @@ const Announcers = ({ filters }) => {
                 <div className="w-2/3">
                   <table className="w-full table-fixed">
                     <thead className="text-left">
-                      <tr className="text-xs text-gray-500 uppercase">
+                      <tr className="text-text-mention text-xs uppercase">
                         <th colSpan={3} className="px-4">
                           Annonceurs
                         </th>

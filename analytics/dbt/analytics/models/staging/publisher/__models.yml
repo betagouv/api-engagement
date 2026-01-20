@@ -29,6 +29,42 @@ models:
         description: Timestamp de dernière mise à jour (curseur d'incrément).
         tests:
           - not_null
+  - name: stg_publisher_organization
+    description: >
+      Staging des organisations rattachées aux partenaires, exportées depuis `analytics_raw.publisher_organization`.
+      Le modèle normalise les types (timestamps, booléen) avant exposition aux couches supérieures.
+    columns:
+      - name: id
+        description: Identifiant unique de la relation partenaire / organisation.
+        tests:
+          - not_null
+          - unique
+      - name: publisher_id
+        description: Identifiant du partenaire diffuseur associé.
+        tests:
+          - not_null
+      - name: organization_client_id
+        description: Identifiant client de l'organisation côté diffuseur.
+        tests:
+          - not_null
+      - name: organization_name
+        description: Nom déclaré de l'organisation (nullable).
+      - name: organization_rna
+        description: Identifiant RNA déclaré (nullable).
+      - name: organization_siren
+        description: Numéro SIREN déclaré (nullable).
+      - name: organization_siret
+        description: Numéro SIRET déclaré (nullable).
+      - name: organisation_is_rup
+        description: Indique si l'organisation est reconnue d'utilité publique (nullable).
+      - name: created_at
+        description: Timestamp de création.
+        tests:
+          - not_null
+      - name: updated_at
+        description: Timestamp de dernière mise à jour, utilisé pour l'incrémental.
+        tests:
+          - not_null
   - name: stg_publisher_diffusion_exclusion
     description: >
       Staging des exclusions de diffusion entre partenaires, exportées depuis `analytics_raw.publisher_diffusion_exclusion`.

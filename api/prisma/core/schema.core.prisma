@@ -362,6 +362,7 @@ model Publisher {
   campaignsFrom          Campaign[]                    @relation("CampaignFromPublisher")
   campaignsTo            Campaign[]                    @relation("CampaignToPublisher")
   missions               Mission[]                     @relation("MissionPublisher")
+  publisherOrganizations PublisherOrganization[]
 
   @@index([name], map: "publisher_name_idx")
   @@index([apikey], map: "publisher_apikey_idx")
@@ -581,6 +582,7 @@ model Mission {
   domainId                  String?                  @map("domain_id")
   activityId                String?                  @map("activity_id")
   domainOriginal            String?                  @map("domain_original")
+  domainLogo                String?                  @map("domain_logo")
   type                      MissionType?             @map("type")
   snu                       Boolean?                 @default(false) @map("snu")
   snuPlaces                 Int?                     @map("snu_places")
@@ -599,15 +601,16 @@ model Mission {
   createdAt                 DateTime                 @default(now()) @map("created_at")
   updatedAt                 DateTime                 @updatedAt @map("updated_at")
 
-  publisher          Publisher                 @relation("MissionPublisher", fields: [publisherId], references: [id])
-  domain             Domain?                   @relation(fields: [domainId], references: [id], onDelete: SetNull)
-  activity           Activity?                 @relation(fields: [activityId], references: [id], onDelete: SetNull)
-  organization       Organization?             @relation("MissionOrganization", fields: [organizationId], references: [id])
-  addresses          MissionAddress[]
-  moderationStatuses MissionModerationStatus[]
-  jobBoards          MissionJobBoard[]
+  publisher            Publisher              @relation("MissionPublisher", fields: [publisherId], references: [id])
+  domain               Domain?                @relation(fields: [domainId], references: [id], onDelete: SetNull)
+  activity             Activity?              @relation(fields: [activityId], references: [id], onDelete: SetNull)
+  organization         Organization?          @relation("MissionOrganization", fields: [organizationId], references: [id])
+  publisherOrganization PublisherOrganization? @relation("MissionPublisherOrganization", fields: [publisherId, organizationClientId], references: [publisherId, organizationClientId])
+  addresses            MissionAddress[]
+  moderationStatuses   MissionModerationStatus[]
+  jobBoards            MissionJobBoard[]
 
-  // Organization fields
+  // Organization fields (legacy, kept during backfill)
   organizationUrl                    String?
   organizationName                   String?
   organizationType                   String?
@@ -660,10 +663,55 @@ model Mission {
   @@map("mission")
 }
 
+model PublisherOrganization {
+  id                            String   @id @default(uuid())
+  publisherId                   String   @map("publisher_id")
+  organizationClientId          String   @map("organization_client_id")
+  organizationName              String?  @map("organization_name")
+  organizationUrl               String?  @map("organization_url")
+  organizationType              String?  @map("organization_type")
+  organizationLogo              String?  @map("organization_logo")
+  organizationDescription       String?  @map("organization_description")
+  organizationFullAddress       String?  @map("organization_full_address")
+  organizationRNA               String?  @map("organization_rna")
+  organizationSiren             String?  @map("organization_siren")
+  organizationSiret             String?  @map("organization_siret")
+  organizationDepartment        String?  @map("organization_department")
+  organizationDepartmentCode    String?  @map("organization_department_code")
+  organizationDepartmentName    String?  @map("organization_department_name")
+  organizationPostCode          String?  @map("organization_post_code")
+  organizationCity              String?  @map("organization_city")
+  organizationStatusJuridique   String?  @map("organization_status_juridique")
+  organizationBeneficiaries     String[] @default([]) @map("organization_beneficiaries")
+  organizationActions           String[] @default([]) @map("organization_actions")
+  organizationReseaux           String[] @default([]) @map("organization_reseaux")
+  organizationNameVerified      String?  @map("organization_name_verified")
+  organizationRNAVerified       String?  @map("organization_rna_verified")
+  organizationSirenVerified     String?  @map("organization_siren_verified")
+  organizationSiretVerified     String?  @map("organization_siret_verified")
+  organizationAddressVerified   String?  @map("organization_address_verified")
+  organizationCityVerified      String?  @map("organization_city_verified")
+  organizationPostalCodeVerified String? @map("organization_postal_code_verified")
+  organizationDepartmentCodeVerified String? @map("organization_department_code_verified")
+  organizationDepartmentNameVerified String? @map("organization_department_name_verified")
+  organizationRegionVerified    String?  @map("organization_region_verified")
+  organizationVerificationStatus String? @map("organization_verification_status")
+  organisationIsRUP             Boolean? @map("organisation_is_rup")
+  createdAt                     DateTime @default(now()) @map("created_at")
+  updatedAt                     DateTime @updatedAt @map("updated_at")
+
+  publisher Publisher @relation(fields: [publisherId], references: [id], onDelete: Cascade)
+  missions  Mission[] @relation("MissionPublisherOrganization")
+
+  @@unique([publisherId, organizationClientId], map: "publisher_organization_publisher_id_org_client_id_key")
+  @@index([publisherId], map: "publisher_organization_publisher_id_idx")
+  @@index([organizationName], map: "publisher_organization_organization_name_idx")
+  @@map("publisher_organization")
+}
+
 model Domain {
   id        String   @id @default(uuid())
   name      String   @unique
-  logo      String?
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 

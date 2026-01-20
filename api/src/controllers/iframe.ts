@@ -18,7 +18,7 @@ const MISSION_FIELDS: MissionSelect = {
   id: true,
   title: true,
   moderationStatuses: { select: { title: true } },
-  domain: { select: { name: true, logo: true } },
+  domain: { select: { name: true } },
   organizationName: true,
   remote: true,
   addresses: { select: { city: true, country: true, postalCode: true } },

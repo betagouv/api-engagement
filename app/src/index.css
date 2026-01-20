@@ -159,7 +159,7 @@ body {
 }
 
 @utility btn {
-  @apply inline-flex min-h-10 w-fit cursor-pointer items-center px-4 py-2 text-center text-sm font-medium transition-all disabled:cursor-not-allowed;
+  @apply inline-flex min-h-10 w-fit cursor-pointer items-center justify-center px-4 py-2 text-sm font-medium transition-all disabled:cursor-not-allowed;
 }
 @utility primary-btn {
   @apply btn bg-blue-france hover:bg-blue-france-hover active:bg-blue-france-hover disabled:bg-gray-925 disabled:text-gray-625 text-white;
@@ -186,6 +186,10 @@ body {
 }
 @utility dropdown-red-btn {
   @apply btn hover:bg-red-marianne-950 active:bg-red-marianne-950 hover:text-red-marianne-425 disabled:shadow-border-gray disabled:text-gray-625 flex items-center gap-2 bg-white disabled:bg-transparent;
+}
+
+@utility pagination-btn {
+  @apply hover:bg-gray-975 mx-2 flex min-h-8 w-fit min-w-8 cursor-pointer items-center justify-center px-2 py-1 text-sm leading-4 disabled:opacity-60 disabled:hover:cursor-not-allowed disabled:hover:bg-transparent;
 }
 
 @utility input {

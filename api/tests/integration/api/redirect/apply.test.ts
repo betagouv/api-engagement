@@ -51,7 +51,6 @@ describe("RedirectController /apply", () => {
       clientId: "mission-client-id",
       title: "Mission Title",
       publisherId: publisher.id,
-      publisherName: publisher.name,
       lastSyncAt: new Date(),
       domain: "mission-domain",
       organizationName: "Mission Org",
