@@ -249,14 +249,13 @@ const areDatesEqual = (previousDate: Date | string | undefined, currentDate: Dat
 };
 
 const areArraysEqual = (previousArray: any[], currentArray: any[]) => {
-  if (previousArray.length !== currentArray.length) {
+  const normalizedPrevious = new Set(previousArray.map((item) => String(item)));
+  const normalizedCurrent = new Set(currentArray.map((item) => String(item)));
+  if (normalizedPrevious.size !== normalizedCurrent.size) {
     return false;
   }
-  const sortedPreviousArray = [...previousArray].sort();
-  const sortedCurrentArray = [...currentArray].sort();
-
-  for (let i = 0; i < sortedPreviousArray.length; i++) {
-    if (String(sortedPreviousArray[i]) !== String(sortedCurrentArray[i])) {
+  for (const value of normalizedPrevious) {
+    if (!normalizedCurrent.has(value)) {
       return false;
     }
   }
