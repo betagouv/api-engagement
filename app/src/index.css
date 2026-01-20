@@ -199,6 +199,9 @@ body {
 @utility select {
   @apply placeholder:text-gray-425 h-10 appearance-none rounded-none rounded-t border-0 border-b border-b-black bg-gray-950 py-2 pr-10 pl-4 text-sm text-black outline-[#0a76f6] focus-visible:outline-2 focus-visible:outline-offset-2 disabled:opacity-60;
 }
+@utility textarea {
+  @apply input h-auto min-h-10;
+}
 
 @utility link {
   @apply text-blue-france underline;

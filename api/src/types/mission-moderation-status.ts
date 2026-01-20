@@ -35,13 +35,10 @@ export type MissionModerationRecord = {
 
   missionOrganizationName: MissionRecord["organizationName"];
   missionOrganizationClientId: MissionRecord["organizationClientId"];
-  missionOrganizationId: MissionRecord["organizationId"];
   missionOrganizationSiren: MissionRecord["organizationSiren"];
   missionOrganizationRNA: MissionRecord["organizationRNA"];
   missionOrganizationSirenVerified: MissionRecord["organizationSirenVerified"];
   missionOrganizationRNAVerified: MissionRecord["organizationRNAVerified"];
-  missionOrganizationUrl: MissionRecord["organizationUrl"];
-  missionOrganizationFullAddress: MissionRecord["organizationFullAddress"];
 };
 
 export type ModerationFilters = {

@@ -83,7 +83,12 @@ const Header = ({ data, onChange }) => {
               ))}
             </select>
             {values.status === "REFUSED" && (
-              <select className="select w-64" name="motif" value={values.comment} onChange={(e) => handleChange({ status: "REFUSED", comment: e.target.value })}>
+              <select
+                className="select border-error w-64 border-b-2"
+                name="motif"
+                value={values.comment}
+                onChange={(e) => handleChange({ status: "REFUSED", comment: e.target.value })}
+              >
                 <option value="">Motif de refus</option>
                 {Object.entries(JVA_MODERATION_COMMENTS_LABELS).map(([key, value]) => (
                   <option key={key} value={key}>
@@ -93,7 +98,7 @@ const Header = ({ data, onChange }) => {
               </select>
             )}
           </div>
-          <div className="absolute right-0 -bottom-6 w-screen text-right text-xs italic">
+          <div className="absolute -bottom-6 right-0 w-screen text-right text-xs italic">
             {values.status === "REFUSED" && !values.comment ? "Veuillez renseigner un motif de refus pour sauvegarder le changement de statut" : ""}
           </div>
         </div>

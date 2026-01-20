@@ -29,16 +29,16 @@ const Filters = ({ filters, onChange, reload }) => {
       setLoading(true);
       try {
         const query = {
-          moderatorId: publisher.id,
-          status: filters.status,
-          comment: filters.comment,
-          publisherId: filters.publisherId,
-          city: filters.city,
-          domain: filters.domain,
-          department: filters.department,
-          organizationName: filters.organizationName,
-          activity: filters.activity,
-          search: filters.search,
+          moderatorId: publisher.id || undefined,
+          status: filters.status || undefined,
+          comment: filters.comment || undefined,
+          publisherId: filters.publisherId || undefined,
+          city: filters.city || undefined,
+          domain: filters.domain || undefined,
+          department: filters.department || undefined,
+          organizationName: filters.organizationName || undefined,
+          activity: filters.activity || undefined,
+          search: filters.search || undefined,
         };
 
         const res = await api.post("/moderation/aggs", query);

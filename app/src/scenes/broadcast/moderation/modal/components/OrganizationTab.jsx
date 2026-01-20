@@ -2,8 +2,6 @@ import { useEffect, useState } from "react";
 import { toast } from "react-toastify";
 
 import Autocomplete from "@/components/Autocomplete";
-import Loader from "@/components/Loader";
-import Modal from "@/components/Modal";
 import api from "@/services/api";
 import { captureError } from "@/services/error";
 import useStore from "@/services/store";
@@ -12,20 +10,15 @@ import { DOMAINS } from "../../components/Constants";
 const OrganizationTab = ({ data, onChange }) => {
   const { publisher } = useStore();
   const [values, setValues] = useState({
-    missionOrganizationId: data.missionOrganizationId,
     missionOrganizationSirenVerified: data.missionOrganizationSirenVerified,
     missionOrganizationRNAVerified: data.missionOrganizationRNAVerified,
   });
   const [search, setSearch] = useState("");
   const [organizations, setOrganizations] = useState([]);
-  const [manyUpdateWhere, setManyUpdateWhere] = useState({});
-  const [manyUpdateTotal, setManyUpdateTotal] = useState(0);
   const [loading, setLoading] = useState(false);
-  const [isOrganizationUpdateOpen, setIsOrganizationUpdateOpen] = useState(false);
 
   useEffect(() => {
     setValues({
-      missionOrganizationId: data.missionOrganizationId,
       missionOrganizationSirenVerified: data.missionOrganizationSirenVerified,
       missionOrganizationRNAVerified: data.missionOrganizationRNAVerified,
     });
@@ -66,7 +59,6 @@ const OrganizationTab = ({ data, onChange }) => {
     e.preventDefault();
     try {
       const obj = {};
-      if (values.missionOrganizationId !== data.missionOrganizationId) obj.missionOrganizationId = values.missionOrganizationId;
       if (values.missionOrganizationSirenVerified !== data.missionOrganizationSirenVerified) obj.missionOrganizationSirenVerified = values.missionOrganizationSirenVerified;
       if (values.missionOrganizationRNAVerified !== data.missionOrganizationRNAVerified) obj.missionOrganizationRNAVerified = values.missionOrganizationRNAVerified;
 
@@ -75,49 +67,6 @@ const OrganizationTab = ({ data, onChange }) => {
       toast.success("Les données de l'organisation ont été modifiées avec succès", {
         position: "bottom-right",
       });
-
-      // Remove name from previous organization
-      if (data.missionOrganizationId) {
-        const resO = await api.put(`/organization/${data.missionOrganizationId}`, {
-          unnamed: data.missionOrganizationName,
-        });
-        if (!resO.ok) throw resO;
-      }
-
-      if (values.missionOrganizationId) {
-        // Update new organization
-        const resO = await api.put(`/organization/${values.missionOrganizationId}`, {
-          name: data.missionOrganizationName,
-          rna: values.missionOrganizationRNAVerified || "",
-          siren: values.missionOrganizationSirenVerified || "",
-        });
-        if (!resO.ok) throw resO;
-
-        const where = { moderatorId: publisher.id, missionOrganizationClientId: data.missionOrganizationClientId, size: 0 };
-        if (values.missionOrganizationRNAVerified) where.missionOrganizationRNAVerified = { $ne: values.missionOrganizationRNAVerified };
-        if (values.missionOrganizationSirenVerified) where.missionOrganizationSirenVerified = { $ne: values.missionOrganizationSirenVerified };
-        const resM = await api.post("/moderation/search", where);
-        if (!resM.ok) throw resM;
-
-        if (resM.total > 0) {
-          setManyUpdateWhere({ ...where, missionOrganizationName: data.missionOrganizationName });
-          setManyUpdateTotal(resM.total);
-          setIsOrganizationUpdateOpen(true);
-        }
-      } else {
-        // Clear organization
-        const where = { moderatorId: publisher._id, missionOrganizationClientId: data.missionOrganizationClientId, size: 0 };
-        if (data.missionOrganizationRNAVerified) where.missionOrganizationRNAVerified = data.missionOrganizationRNAVerified;
-        if (data.missionOrganizationSirenVerified) where.missionOrganizationSirenVerified = data.missionOrganizationSirenVerified;
-        const resM = await api.post("/moderation/search", where);
-        if (!resM.ok) throw resM;
-
-        if (resM.total > 0) {
-          setManyUpdateWhere({ ...where, missionOrganizationName: data.missionOrganizationName });
-          setManyUpdateTotal(resM.total);
-          setIsOrganizationUpdateOpen(true);
-        }
-      }
 
       onChange(resU.data);
     } catch (error) {
@@ -133,14 +82,6 @@ const OrganizationTab = ({ data, onChange }) => {
 
   return (
     <>
-      <OrganizationUpdateModal
-        isOpen={isOrganizationUpdateOpen}
-        total={manyUpdateTotal}
-        where={manyUpdateWhere}
-        onClose={() => setIsOrganizationUpdateOpen(false)}
-        update={values}
-        onChange={onChange}
-      />
       <form className="flex h-full divide-x" onSubmit={handleSubmit}>
         <div className="flex flex-1 flex-col gap-2 p-8">
           <div className="flex flex-col gap-2">
@@ -184,15 +125,11 @@ const OrganizationTab = ({ data, onChange }) => {
               }}
               onSelect={(e) =>
                 setValues({
-                  ...values,
                   missionOrganizationRNAVerified: e.rna || null,
-                  missionOrganizationId: e.id,
                   missionOrganizationSirenVerified: e.siren || null,
                 })
               }
-              onClear={() =>
-                setValues({ ...values, missionOrganizationRNAVerified: null, missionOrganizationId: null, missionOrganizationSirenVerified: null, missionOrganizationName: null })
-              }
+              onClear={() => setValues({ missionOrganizationRNAVerified: null, missionOrganizationSirenVerified: null })}
               placeholder="RNA"
               className="w-full"
             />
@@ -238,68 +175,6 @@ const OrganizationTab = ({ data, onChange }) => {
         </div>
       </form>
     </>
-  );
-};
-
-const OrganizationUpdateModal = ({ isOpen, onClose, total, where, update, onChange }) => {
-  const { publisher } = useStore();
-  const [loading, setLoading] = useState(false);
-
-  const handleSubmit = async () => {
-    setLoading(true);
-    try {
-      const res = await api.put(`/moderation/many`, {
-        where,
-        update: {
-          organizationRNAVerified: update.organizationRNAVerified || null,
-          organizationSirenVerified: update.organizationSirenVerified || null,
-          organizationId: update.organizationId || null,
-        },
-        moderatorId: publisher.id,
-      });
-      if (!res.ok) throw res;
-      toast.success("Les missions ont été modérées avec succès", {
-        position: "bottom-right",
-      });
-      onChange(res.data);
-      onClose();
-    } catch (error) {
-      captureError(
-        error,
-        { extra: { where, update, publisherId: publisher.id } },
-        {
-          position: "bottom-right",
-        },
-      );
-    }
-    setLoading(false);
-  };
-
-  return (
-    <Modal isOpen={isOpen} onClose={onClose} className="w-2/3">
-      <div className="space-y-8 p-6">
-        <h1 className="text-xl font-semibold">
-          L'organisation {where.organizationName} a {total > 1 ? `${total} missions` : "une mission"}
-        </h1>
-        <p className="text-sm text-black">
-          Vous venez de mettre à jour {update.organizationSirenVerified ? `le Siren pour ${update.organizationSirenVerified}` : ""}{" "}
-          {update.organizationRNAVerified && update.organizationSirenVerified ? "et" : ""} {update.organizationRNAVerified ? `le RNA pour ${update.organizationRNAVerified}` : ""}{" "}
-          les données de l’organisation <b>{where.organizationName}</b>.
-        </p>
-        <p className="text-sm text-black">
-          Cette organisation a {total > 1 ? `${total} autres missions` : "une autre mission"} à mettre à jour, voulez-vous modifier les données de l'organisation de{" "}
-          {total > 1 ? "ces missions" : "cette mission"} ?
-        </p>
-        <div className="flex justify-end gap-4">
-          <button className="secondary-btn" onClick={onClose}>
-            Non, je vais vérifier
-          </button>
-          <button className="primary-btn flex justify-center" onClick={handleSubmit} disabled={loading}>
-            {loading ? <Loader className="h-6 w-6" /> : "Oui, mettre à jour"}
-          </button>
-        </div>
-      </div>
-    </Modal>
   );
 };
 

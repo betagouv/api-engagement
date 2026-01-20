@@ -1,6 +1,5 @@
-import { Prisma } from "../db/core";
+import { Prisma, PublisherOrganization } from "../db/core";
 import { MissionModerationStatusUpdatePatch } from "../services/mission-moderation-status";
-import { MissionRecord, MissionUpdatePatch } from "../types/mission";
 import { MissionModerationRecord, ModerationFilters } from "../types/mission-moderation-status";
 import { ModerationEventCreateInput, ModerationEventStatus } from "../types/moderation-event";
 
@@ -11,81 +10,102 @@ type ModerationUpdateBody = {
   title?: string | null;
   missionOrganizationRNAVerified?: string | null;
   missionOrganizationSirenVerified?: string | null;
-  missionOrganizationName?: string | null;
 };
 
-export const buildWhere = (filters: ModerationFilters): Prisma.MissionModerationStatusWhereInput => {
+export const buildWhere = (filters: ModerationFilters): { where: Prisma.MissionModerationStatusWhereInput; missionWhere: Prisma.MissionWhereInput } => {
   const missionWhere: Prisma.MissionWhereInput = {
     deletedAt: null,
     statusCode: "ACCEPTED",
   };
-  const where: Prisma.MissionModerationStatusWhereInput = {};
+  const where: Prisma.MissionModerationStatusWhereInput = { mission: {} };
 
   if (filters.moderatorId) {
     where.publisherId = filters.moderatorId;
+    missionWhere.moderationStatuses = { some: { publisherId: filters.moderatorId } };
   }
 
   if (filters.missionId) {
     where.missionId = filters.missionId;
+    missionWhere.id = filters.missionId;
   }
 
   if (filters.status) {
     where.status = filters.status as ModerationEventStatus;
+    missionWhere.moderationStatuses = { some: { status: filters.status as ModerationEventStatus } };
   }
 
   if (filters.comment) {
     where.comment = filters.comment;
+    missionWhere.moderationStatuses = { some: { comment: filters.comment } };
   }
 
   if (filters.publisherId) {
+    where.mission!.publisherId = filters.publisherId;
     missionWhere.publisherId = filters.publisherId;
   }
 
   if (filters.domain) {
     if (filters.domain === "none") {
+      where.mission!.domain = null;
       missionWhere.domain = null;
     } else {
+      where.mission!.domain = { name: filters.domain };
       missionWhere.domain = { name: filters.domain };
     }
   }
 
   if (filters.department) {
     if (filters.department === "none") {
+      where.mission!.addresses = { some: { departmentCode: null } };
       missionWhere.addresses = { some: { departmentCode: null } };
     } else {
+      where.mission!.addresses = { some: { departmentCode: filters.department } };
       missionWhere.addresses = { some: { departmentCode: filters.department } };
     }
   }
 
   if (filters.organizationName) {
     if (filters.organizationName === "none") {
-      missionWhere.organizationName = null;
+      where.mission!.publisherOrganization = null;
+      missionWhere.publisherOrganization = null;
     } else {
-      missionWhere.organizationName = filters.organizationName;
+      where.mission!.publisherOrganization = { is: { organizationName: filters.organizationName } } as Prisma.PublisherOrganizationWhereInput;
+      missionWhere.publisherOrganization = { is: { organizationName: filters.organizationName } } as Prisma.PublisherOrganizationWhereInput;
     }
   }
 
   if (filters.city) {
     if (filters.city === "none") {
+      where.mission!.addresses = { ...missionWhere.addresses, some: { ...((missionWhere.addresses as any)?.some || {}), city: null } };
       missionWhere.addresses = { ...missionWhere.addresses, some: { ...((missionWhere.addresses as any)?.some || {}), city: null } };
     } else {
+      where.mission!.addresses = { ...missionWhere.addresses, some: { ...((missionWhere.addresses as any)?.some || {}), city: filters.city } };
       missionWhere.addresses = { ...missionWhere.addresses, some: { ...((missionWhere.addresses as any)?.some || {}), city: filters.city } };
     }
   }
 
   if (filters.activity) {
     if (filters.activity === "none") {
+      where.mission!.activity = null;
       missionWhere.activity = null;
     } else {
+      where.mission!.activity = { name: filters.activity };
       missionWhere.activity = { name: filters.activity };
     }
   }
 
   if (filters.search) {
-    missionWhere.OR = [{ title: { contains: filters.search, mode: "insensitive" } }, { organizationName: { contains: filters.search, mode: "insensitive" } }];
+    where.mission!.OR = [
+      { title: { contains: filters.search, mode: "insensitive" } },
+      { publisherOrganization: { is: { organizationName: { contains: filters.search, mode: "insensitive" } } } },
+    ];
+    missionWhere.OR = [
+      { title: { contains: filters.search, mode: "insensitive" } },
+      { publisherOrganization: { is: { organizationName: { contains: filters.search, mode: "insensitive" } } } },
+    ];
   }
 
-  return { ...where, mission: missionWhere };
+  return { where, missionWhere };
 };
 
 export const getModerationUpdates = (body: ModerationUpdateBody): MissionModerationStatusUpdatePatch | null => {
@@ -108,19 +128,16 @@ export const getModerationUpdates = (body: ModerationUpdateBody): MissionModerat
   return null;
 };
 
-export const getMissionUpdates = (body: ModerationUpdateBody, previous: MissionModerationRecord): MissionUpdatePatch | null => {
-  const updates: Partial<MissionUpdatePatch> = {};
+export const getOrganizationUpdates = (body: ModerationUpdateBody, previous: MissionModerationRecord): Prisma.PublisherOrganizationUpdateInput | null => {
+  const updates: Partial<Prisma.PublisherOrganizationUpdateInput> = {};
   if (body.missionOrganizationRNAVerified !== undefined && body.missionOrganizationRNAVerified !== previous.missionOrganizationRNAVerified) {
     updates.organizationRNAVerified = body.missionOrganizationRNAVerified;
   }
   if (body.missionOrganizationSirenVerified !== undefined && body.missionOrganizationSirenVerified !== previous.missionOrganizationSirenVerified) {
     updates.organizationSirenVerified = body.missionOrganizationSirenVerified;
   }
-  if (body.missionOrganizationName !== undefined && body.missionOrganizationName !== previous.missionOrganizationName) {
-    updates.organizationName = body.missionOrganizationName;
-  }
   if (Object.keys(updates).length) {
-    return updates as MissionUpdatePatch;
+    return updates as Prisma.PublisherOrganizationUpdateInput;
   }
   return null;
 };
@@ -128,7 +145,7 @@ export const getMissionUpdates = (body: ModerationUpdateBody, previous: MissionM
 export const getModerationEvents = (
   previous: MissionModerationRecord,
   updated: MissionModerationRecord,
-  missionUpdated: MissionRecord | null
+  organizationUpdated: PublisherOrganization | null
 ): Omit<ModerationEventCreateInput, "moderatorId">[] => {
   const events: Omit<ModerationEventCreateInput, "moderatorId">[] = [];
 
@@ -164,19 +181,19 @@ export const getModerationEvents = (
     });
   }
 
-  if (missionUpdated && previous.missionOrganizationSirenVerified !== missionUpdated.organizationSirenVerified) {
+  if (organizationUpdated && previous.missionOrganizationSirenVerified !== organizationUpdated.organizationSirenVerified) {
     events.push({
-      missionId: missionUpdated.id,
+      missionId: organizationUpdated.id,
       initialSiren: previous.missionOrganizationSirenVerified ?? null,
-      newSiren: missionUpdated.organizationSirenVerified ?? null,
+      newSiren: organizationUpdated.organizationSirenVerified ?? null,
     });
   }
 
-  if (missionUpdated && previous.missionOrganizationRNAVerified !== missionUpdated.organizationRNAVerified) {
+  if (organizationUpdated && previous.missionOrganizationRNAVerified !== organizationUpdated.organizationRNAVerified) {
     events.push({
-      missionId: missionUpdated.id,
+      missionId: organizationUpdated.id,
       initialRNA: previous.missionOrganizationRNAVerified ?? null,
-      newRNA: missionUpdated.organizationRNAVerified ?? null,
+      newRNA: organizationUpdated.organizationRNAVerified ?? null,
     });
   }
 

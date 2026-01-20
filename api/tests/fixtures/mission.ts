@@ -1,10 +1,10 @@
 import { randomUUID } from "node:crypto";
 
 import { prismaCore } from "../../src/db/postgres";
+import { missionRepository } from "../../src/repositories/mission";
 import { missionService } from "../../src/services/mission";
 import { missionModerationStatusService } from "../../src/services/mission-moderation-status";
 import { organizationService } from "../../src/services/organization";
-import { missionRepository } from "../../src/repositories/mission";
 import { MissionType, type MissionCreateInput, type MissionRecord } from "../../src/types";
 import type { MissionAddress } from "../../src/types/mission";
 import { createTestPublisher } from "./publisher";

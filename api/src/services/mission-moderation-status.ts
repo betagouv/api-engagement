@@ -6,6 +6,7 @@ import { missionRepository } from "../repositories/mission";
 import { missionAddressRepository } from "../repositories/mission-address";
 import { missionModerationStatusRepository } from "../repositories/mission-moderation-status";
 import { publisherRepository } from "../repositories/publisher";
+import publisherOrganizationRepository from "../repositories/publisher-organization";
 import { MissionModerationRecord, ModerationFilters } from "../types/mission-moderation-status";
 import { buildWhere } from "../utils/mission-moderation-status";
 
@@ -16,14 +17,23 @@ type MissionModerationWithRelations = MissionModerationStatus & {
     domain: { name: string } | null;
     publisher: { name: string | null };
     addresses: { city: string | null; departmentCode: string | null; departmentName: string | null; postalCode: string | null }[];
-    organization: { title: string } | null;
+    publisherOrganization: {
+      organizationId: string;
+      organizationName: string;
+      organizationClientId: string;
+      organizationRNA: string;
+      organizationSiren: string;
+      organizationSirenVerified: string;
+      organizationSiretVerified: string;
+      organizationRNAVerified: string;
+    } | null;
   };
 };
 
 const toRecord = (status: MissionModerationWithRelations): MissionModerationRecord => {
   const addresses = status.mission.addresses || [];
   const primaryAddress = addresses[0] ?? {};
-  const organization = status.mission.organization;
+  const publisherOrganization = status.mission.publisherOrganization;
   return {
     id: status.id,
     status: status.status,
@@ -36,6 +46,7 @@ const toRecord = (status: MissionModerationWithRelations): MissionModerationReco
     missionClientId: status.mission.clientId,
     missionTitle: status.mission.title,
     missionDomain: status.mission.domain?.name ?? null,
+    missionApplicationUrl: status.mission.applicationUrl ?? null,
     missionDescription: status.mission.description,
     missionPublisherId: status.mission.publisherId,
     missionPublisherName: status.mission.publisher.name,
@@ -46,16 +57,12 @@ const toRecord = (status: MissionModerationWithRelations): MissionModerationReco
     missionDepartmentCode: primaryAddress.departmentCode || null,
     missionDepartmentName: primaryAddress.departmentName || null,
     missionPostalCode: primaryAddress.postalCode ?? null,
-    missionOrganizationName: status.mission.organizationName ?? organization?.title ?? null,
-    missionOrganizationClientId: status.mission.organizationClientId,
-    missionApplicationUrl: status.mission.applicationUrl,
-    missionOrganizationFullAddress: status.mission.organizationFullAddress,
-    missionOrganizationId: status.mission.organizationId,
-    missionOrganizationSirenVerified: status.mission.organizationSirenVerified,
-    missionOrganizationRNAVerified: status.mission.organizationRNAVerified,
-    missionOrganizationSiren: status.mission.organizationSiren,
-    missionOrganizationRNA: status.mission.organizationRNA,
-    missionOrganizationUrl: status.mission.organizationUrl,
+    missionOrganizationName: publisherOrganization?.organizationName ?? null,
+    missionOrganizationClientId: publisherOrganization?.organizationClientId ?? null,
+    missionOrganizationSirenVerified: publisherOrganization?.organizationSirenVerified ?? null,
+    missionOrganizationRNAVerified: publisherOrganization?.organizationRNAVerified ?? null,
+    missionOrganizationSiren: publisherOrganization?.organizationSiren ?? null,
+    missionOrganizationRNA: publisherOrganization?.organizationRNA ?? null,
   };
 };
 
@@ -65,7 +72,16 @@ const baseInclude = {
       domain: { select: { name: true } },
       publisher: { select: { name: true } },
       addresses: { select: { city: true, departmentCode: true, departmentName: true, postalCode: true } },
-      organization: { select: { title: true } },
+      publisherOrganization: {
+        select: {
+          organizationName: true,
+          organizationClientId: true,
+          organizationRNA: true,
+          organizationSiren: true,
+          organizationSirenVerified: true,
+          organizationRNAVerified: true,
+        },
+      },
     },
   },
 };
@@ -96,7 +112,7 @@ export const missionModerationStatusService = {
   },
 
   async findModerationStatuses(filters: ModerationFilters & { skip?: number; limit?: number }) {
-    const where = buildWhere(filters);
+    const { where } = buildWhere(filters);
 
     const [data, total] = await Promise.all([
       missionModerationStatusRepository.findMany({
@@ -113,26 +129,27 @@ export const missionModerationStatusService = {
   },
 
   async aggregateModerationStatuses(filters: ModerationFilters) {
-    const where = buildWhere(filters);
+    const { where, missionWhere } = buildWhere(filters);
 
     // TODO: Refactor this to remove slow queries
     // Parallel aggregations using repositories
     const [statusResults, commentResults] = await Promise.all([
       // MissionModerationStatus aggregations
       missionModerationStatusRepository.groupBy(["status"], where),
-      missionModerationStatusRepository.groupBy(["comment"], where),
+      missionModerationStatusRepository.groupBy(["comment"], { ...where, status: ModerationEventStatus.REFUSED }),
     ]);
-    const [publisherResults, orgResults, domainResults, activityResults] = await Promise.all([
+    const [publisherResults, domainResults, activityResults] = await Promise.all([
       // Mission aggregations
-      missionRepository.groupBy(["publisherId"], where.mission || {}),
-      missionRepository.groupBy(["organizationName"], where.mission || {}),
-      missionRepository.groupBy(["domainId"], where.mission || {}),
-      missionRepository.groupBy(["activityId"], where.mission || {}),
+      missionRepository.groupBy(["publisherId"], missionWhere as Prisma.MissionWhereInput),
+      missionRepository.groupBy(["domainId"], missionWhere as Prisma.MissionWhereInput),
+      missionRepository.groupBy(["activityId"], missionWhere as Prisma.MissionWhereInput),
     ]);
-    const [deptResults, cityResults] = await Promise.all([
+
+    const [orgResults, deptResults, cityResults] = await Promise.all([
       // MissionAddress aggregations
-      missionAddressRepository.groupBy(["departmentCode"], { mission: where.mission } as Prisma.MissionAddressWhereInput),
-      missionAddressRepository.groupBy(["city"], { mission: where.mission } as Prisma.MissionAddressWhereInput),
+      publisherOrganizationRepository.groupBy(["organizationName"], { missions: { some: missionWhere } } as Prisma.PublisherOrganizationWhereInput),
+      missionAddressRepository.groupBy(["departmentCode"], { mission: missionWhere as Prisma.MissionWhereInput } as Prisma.MissionAddressWhereInput),
+      missionAddressRepository.groupBy(["city"], { mission: missionWhere as Prisma.MissionWhereInput } as Prisma.MissionAddressWhereInput),
       // Labels
       publisherRepository.findMany({ select: { id: true, name: true } }),
       domainRepository.findMany({ select: { id: true, name: true } }),
@@ -186,10 +203,12 @@ export const missionModerationStatusService = {
   async update(id: string, patch: MissionModerationStatusUpdatePatch) {
     const updates: Prisma.MissionModerationStatusUpdateInput = {};
     if ("status" in patch) {
-      updates.status = patch.status ?? "PENDING";
-    }
-    if ("comment" in patch) {
-      updates.comment = patch.comment ?? null;
+      updates.status = patch.status ?? ModerationEventStatus.PENDING;
+      if (updates.status !== ModerationEventStatus.REFUSED) {
+        updates.comment = null;
+      } else {
+        updates.comment = patch.comment ?? null;
+      }
     }
     if ("note" in patch) {
       updates.note = patch.note ?? null;
@@ -241,30 +260,27 @@ export const missionModerationStatusService = {
   },
 
   async aggregateByOrganization(filters: { moderatorId: string; organizationName?: string }) {
-    const where: Prisma.MissionModerationStatusWhereInput = {
+    const where = {
       publisherId: filters.moderatorId,
-      mission: {
-        deletedAt: null,
-        statusCode: "ACCEPTED",
-      },
+      mission: { deletedAt: null, statusCode: "ACCEPTED" } as Prisma.MissionWhereInput,
     };
 
     if (filters.organizationName) {
-      (where.mission as Prisma.MissionWhereInput).organizationName = { contains: filters.organizationName, mode: "insensitive" };
+      where.mission.publisherOrganization = { is: { organizationName: { contains: filters.organizationName, mode: "insensitive" } } } as Prisma.PublisherOrganizationWhereInput;
     }
 
     const results = await missionModerationStatusRepository.findMany({
       where,
       select: {
         status: true,
-        mission: { select: { organizationName: true } },
+        mission: { select: { publisherOrganization: { select: { organizationName: true } } } },
       },
     });
 
     const aggregation: Record<string, { total: number; ACCEPTED: number; REFUSED: number }> = {};
 
     for (const item of results) {
-      const orgName = (item as any).mission?.organizationName;
+      const orgName = (item as any).mission?.publisherOrganization?.organizationName;
       if (!orgName) {
         continue;
       }

@@ -3,14 +3,14 @@ import passport from "passport";
 import zod from "zod";
 
 import { PUBLISHER_IDS } from "../config";
+import { PublisherOrganization } from "../db/core";
 import { FORBIDDEN, INVALID_BODY, INVALID_PARAMS, INVALID_QUERY, NOT_FOUND } from "../error";
-import { missionService } from "../services/mission";
+import publisherOrganizationRepository from "../repositories/publisher-organization";
 import { missionModerationStatusService } from "../services/mission-moderation-status";
 import { moderationEventService } from "../services/moderation-event";
 import { publisherService } from "../services/publisher";
-import type { MissionRecord } from "../types/mission";
 import type { UserRequest } from "../types/passport";
-import { getMissionUpdates, getModerationEvents, getModerationUpdates } from "../utils/mission-moderation-status";
+import { getModerationEvents, getModerationUpdates, getOrganizationUpdates } from "../utils/mission-moderation-status";
 
 const router = Router();
 
@@ -273,7 +273,6 @@ router.put("/:id", passport.authenticate("user", { session: false }), async (req
         note: zod.string().nullable().optional(),
         missionOrganizationRNAVerified: zod.string().nullable().optional(),
         missionOrganizationSirenVerified: zod.string().nullable().optional(),
-        missionOrganizationName: zod.string().nullable().optional(),
         moderatorId: zod.string(),
       })
       .safeParse(req.body);
@@ -316,14 +315,18 @@ router.put("/:id", passport.authenticate("user", { session: false }), async (req
     }
 
     // Update mission fields (organization verification)
-    const missionUpdates = getMissionUpdates(body.data, previous);
-    let missionUpdated: MissionRecord | null = null;
-    if (missionUpdates) {
-      missionUpdated = await missionService.update(previous.missionId, missionUpdates);
+    const organizationUpdates = getOrganizationUpdates(body.data, previous);
+    let organizationUpdated: PublisherOrganization | null = null;
+    if (organizationUpdates && previous.missionOrganizationClientId) {
+      organizationUpdated = await publisherOrganizationRepository.updateByPublisherAndClientId({
+        publisherId: previous.missionPublisherId,
+        organizationClientId: previous.missionOrganizationClientId,
+        update: organizationUpdates,
+      });
     }
 
     // Create moderation events for audit
-    const moderationEvents = getModerationEvents(previous, updated, missionUpdated);
+    const moderationEvents = getModerationEvents(previous, updated, organizationUpdated);
     if (moderationEvents.length) {
       await moderationEventService.createModerationEvents(
         moderationEvents.map((event) => ({
