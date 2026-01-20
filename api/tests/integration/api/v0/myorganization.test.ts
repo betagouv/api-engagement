@@ -1,7 +1,7 @@
 import request from "supertest";
 import { beforeEach, describe, expect, it } from "vitest";
 import { publisherDiffusionExclusionService } from "../../../../src/services/publisher-diffusion-exclusion";
-import { MissionRecord, MissionType, PublisherRecord } from "../../../../src/types";
+import { MissionRecord, PublisherMissionType, PublisherRecord } from "../../../../src/types";
 import { createTestMission, createTestPublisher } from "../../../fixtures";
 import { createStatEventFixture } from "../../../fixtures/stat-event";
 import { createTestApp } from "../../../testApp";
@@ -24,10 +24,10 @@ describe("MyOrganization API Integration Tests", () => {
     orgName = "Test Organization";
     mission = await createTestMission({ organizationClientId: orgId, publisherId: publisher.id });
     publisher1 = await createTestPublisher({
-      publishers: [{ publisherId: publisher.id, publisherName: publisher.name, moderator: true, missionType: MissionType.BENEVOLAT }],
+      publishers: [{ publisherId: publisher.id, publisherName: publisher.name, moderator: true, missionType: PublisherMissionType.BENEVOLAT }],
     });
     publisher2 = await createTestPublisher({
-      publishers: [{ publisherId: publisher.id, publisherName: publisher.name, moderator: true, missionType: MissionType.BENEVOLAT }],
+      publishers: [{ publisherId: publisher.id, publisherName: publisher.name, moderator: true, missionType: PublisherMissionType.BENEVOLAT }],
     });
     publisher3 = await createTestPublisher();
   });

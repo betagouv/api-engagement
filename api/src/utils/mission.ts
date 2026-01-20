@@ -1,6 +1,6 @@
 import { API_URL } from "../config";
 import { MissionRecord } from "../types/mission";
-import { JobBoardId } from "../types/mission-job-board";
+import { JobBoardId, MissionJobBoardSyncStatus } from "../types/mission-job-board";
 import { slugify } from "./string";
 
 /**
@@ -55,6 +55,7 @@ type MissionJobBoardEntry = {
   jobBoardId: JobBoardId | string;
   publicId: string | null;
   status: string | null;
+  syncStatus?: MissionJobBoardSyncStatus | null;
   comment: string | null;
   updatedAt: Date | null;
 };
@@ -69,6 +70,7 @@ export const buildJobBoardMap = (entries?: MissionJobBoardEntry[]): MissionRecor
     const key = entry.jobBoardId as keyof NonNullable<MissionRecord["jobBoards"]>;
     const payload = {
       status: entry.status ?? null,
+      syncStatus: entry.syncStatus ?? null,
       comment: entry.comment ?? null,
       url: entry.publicId ?? null,
       updatedAt: entry.updatedAt ?? null,
@@ -106,22 +108,7 @@ export const IMPORT_FIELDS_TO_COMPARE = [
   "endAt",
   "metadata",
   "openToMinors",
-  "organizationName",
-  "organizationRNA",
-  "organizationSiren",
-  "organizationUrl",
-  "organizationLogo",
-  "organizationDescription",
-  "organizationClientId",
-  "organizationStatusJuridique",
-  "organizationType",
-  "organizationActions",
-  "organizationFullAddress",
-  "organizationPostCode",
-  "organizationCity",
-  "organizationBeneficiaries",
-  "organizationReseaux",
-  "organizationVerificationStatus",
+  "organizationId",
   "places",
   "postedAt",
   "priority",
@@ -134,8 +121,6 @@ export const IMPORT_FIELDS_TO_COMPARE = [
   "snuPlaces",
   "softSkills",
   "startAt",
-  "statusCode",
-  "statusComment",
   "tags",
   "title",
   "type",
@@ -268,9 +253,23 @@ const areArraysEqual = (previousArray: any[], currentArray: any[]) => {
   return true;
 };
 
+const normalizeAddressValue = (value: string | number | null | undefined) => {
+  if (value === null || value === undefined) {
+    return "";
+  }
+  if (typeof value === "string" && !value.trim()) {
+    return "";
+  }
+  return value;
+};
+
 const normalizeAddresses = (address: MissionRecord["addresses"]) => {
   const data = address.map((item) =>
-    slugify(`${item.street} ${item.city} ${item.postalCode} ${item.departmentName} ${item.region} ${item.country} ${item.location?.lat} ${item.location?.lon}`)
+    slugify(
+      `${normalizeAddressValue(item.street)} ${normalizeAddressValue(item.city)} ${normalizeAddressValue(item.postalCode)} ${normalizeAddressValue(
+        item.departmentName
+      )} ${normalizeAddressValue(item.region)} ${normalizeAddressValue(item.country)} ${normalizeAddressValue(item.location?.lat)} ${normalizeAddressValue(item.location?.lon)}`
+    )
   );
   return data.sort();
 };

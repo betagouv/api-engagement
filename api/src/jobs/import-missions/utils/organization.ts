@@ -1,8 +1,11 @@
+import { Prisma, PublisherOrganization } from "../../../db/core";
 import { DEPARTMENTS } from "../../../constants/departments";
 import { captureException } from "../../../error";
 import apiDatasubvention from "../../../services/api-datasubvention";
 import { organizationService } from "../../../services/organization";
+import { publisherOrganizationRepository } from "../../../repositories/publisher-organization";
 import { OrganizationCreateInput, OrganizationRecord, OrganizationUpdatePatch } from "../../../types/organization";
+import { normalizeOptionalString, normalizeStringList } from "../../../utils/normalize";
 import { isValidRNA, isValidSiret } from "../../../utils/organization";
 import type { ImportedMission } from "../types";
 
@@ -242,6 +245,115 @@ export const verifyOrganization = async (missions: ImportedMission[]) => {
   } catch (error) {
     captureException(error, `[Organization] Failure during rna enrichment`);
   }
+};
+
+export const upsertPublisherOrganization = async (mission: ImportedMission): Promise<void> => {
+  const payload = buildPublisherOrganizationPayload(mission);
+  if (!payload) {
+    return;
+  }
+  await upsertPublisherOrganizationPayload(payload);
+};
+
+type PublisherOrganizationPayload = {
+  publisherId: string;
+  organizationClientId: string;
+  create: Prisma.PublisherOrganizationCreateInput;
+  update: Prisma.PublisherOrganizationUpdateInput;
+};
+
+export const buildPublisherOrganizationPayload = (mission: ImportedMission): PublisherOrganizationPayload | null => {
+  const organizationClientId = normalizeOptionalString(mission.organizationClientId ?? undefined);
+  if (!organizationClientId || !mission.publisherId) {
+    return null;
+  }
+
+  const payload = {
+    organizationClientId,
+    organizationName: normalizeOptionalString(mission.organizationName ?? undefined),
+    organizationUrl: normalizeOptionalString(mission.organizationUrl ?? undefined),
+    organizationType: normalizeOptionalString(mission.organizationType ?? undefined),
+    organizationLogo: normalizeOptionalString(mission.organizationLogo ?? undefined),
+    organizationDescription: normalizeOptionalString(mission.organizationDescription ?? undefined),
+    organizationFullAddress: normalizeOptionalString(mission.organizationFullAddress ?? undefined),
+    organizationRNA: normalizeOptionalString(mission.organizationRNA ?? undefined),
+    organizationSiren: normalizeOptionalString(mission.organizationSiren ?? undefined),
+    organizationSiret: normalizeOptionalString(mission.organizationSiret ?? undefined),
+    organizationDepartment: normalizeOptionalString(mission.organizationDepartment ?? undefined),
+    organizationDepartmentCode: normalizeOptionalString(mission.organizationDepartmentCode ?? undefined),
+    organizationDepartmentName: normalizeOptionalString(mission.organizationDepartmentName ?? undefined),
+    organizationPostCode: normalizeOptionalString(mission.organizationPostCode ?? undefined),
+    organizationCity: normalizeOptionalString(mission.organizationCity ?? undefined),
+    organizationStatusJuridique: normalizeOptionalString(mission.organizationStatusJuridique ?? undefined),
+    organizationBeneficiaries: normalizeStringList(mission.organizationBeneficiaries ?? []),
+    organizationActions: normalizeStringList(mission.organizationActions ?? []),
+    organizationReseaux: normalizeStringList(mission.organizationReseaux ?? []),
+    organizationNameVerified: normalizeOptionalString(mission.organizationNameVerified ?? undefined),
+    organizationRNAVerified: normalizeOptionalString(mission.organizationRNAVerified ?? undefined),
+    organizationSirenVerified: normalizeOptionalString(mission.organizationSirenVerified ?? undefined),
+    organizationSiretVerified: normalizeOptionalString(mission.organizationSiretVerified ?? undefined),
+    organizationAddressVerified: normalizeOptionalString(mission.organizationAddressVerified ?? undefined),
+    organizationCityVerified: normalizeOptionalString(mission.organizationCityVerified ?? undefined),
+    organizationPostalCodeVerified: normalizeOptionalString(mission.organizationPostalCodeVerified ?? undefined),
+    organizationDepartmentCodeVerified: normalizeOptionalString(mission.organizationDepartmentCodeVerified ?? undefined),
+    organizationDepartmentNameVerified: normalizeOptionalString(mission.organizationDepartmentNameVerified ?? undefined),
+    organizationRegionVerified: normalizeOptionalString(mission.organizationRegionVerified ?? undefined),
+    organizationVerificationStatus: normalizeOptionalString(mission.organizationVerificationStatus ?? undefined),
+    organisationIsRUP: mission.organisationIsRUP ?? undefined,
+  };
+
+  const { organizationClientId: _, ...update } = payload;
+
+  return {
+    publisherId: mission.publisherId,
+    organizationClientId,
+    create: {
+      publisher: { connect: { id: mission.publisherId } },
+      ...payload,
+    },
+    update,
+  };
+};
+
+export const upsertPublisherOrganizationPayload = async (payload: PublisherOrganizationPayload): Promise<void> => {
+  await publisherOrganizationRepository.upsertByPublisherAndClientId({
+    publisherId: payload.publisherId,
+    organizationClientId: payload.organizationClientId,
+    create: payload.create,
+    update: payload.update,
+  });
+};
+
+const isSameStringArray = (left: string[] | null | undefined, right: string[] | null | undefined): boolean => {
+  const leftValue = left ?? [];
+  const rightValue = right ?? [];
+  if (leftValue.length !== rightValue.length) {
+    return false;
+  }
+  return leftValue.every((value, index) => value === rightValue[index]);
+};
+
+export const isPublisherOrganizationUpToDate = (
+  existing: PublisherOrganization,
+  update: Prisma.PublisherOrganizationUpdateInput
+): boolean => {
+  const entries = Object.entries(update) as Array<[keyof PublisherOrganization, unknown]>;
+  for (const [key, value] of entries) {
+    if (value === undefined) {
+      continue;
+    }
+    const current = existing[key];
+    if (Array.isArray(value)) {
+      if (!isSameStringArray(current as string[] | null | undefined, value)) {
+        return false;
+      }
+      continue;
+    }
+    if ((current ?? null) !== (value ?? null)) {
+      return false;
+    }
+  }
+  return true;
 };
 
 const updateMissionOrganization = async (mission: ImportedMission, organization: OrganizationRecord, status: string) => {

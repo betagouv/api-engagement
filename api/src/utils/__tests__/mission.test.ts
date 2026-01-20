@@ -211,6 +211,47 @@ describe("getMissionChanges", () => {
     expect(changes).toBeNull();
   });
 
+  it("should ignore address changes when null and empty string values are equivalent", () => {
+    const mission1 = {
+      ...createBaseMission(),
+      addresses: [
+        {
+          id: "address-1",
+          street: null,
+          postalCode: null,
+          departmentName: null,
+          departmentCode: null,
+          city: null,
+          region: null,
+          country: "FR",
+          location: null,
+          geolocStatus: "NOT_FOUND",
+        } as MissionAddress,
+      ],
+    };
+    const mission2 = {
+      ...createBaseMission(),
+      addresses: [
+        {
+          id: "address-2",
+          street: "",
+          postalCode: "",
+          departmentName: "",
+          departmentCode: "",
+          city: "",
+          region: "",
+          country: "FR",
+          location: null,
+          geolocStatus: "NOT_FOUND",
+        } as MissionAddress,
+      ],
+    };
+
+    const changes = getMissionChanges(mission1, mission2);
+
+    expect(changes).toBeNull();
+  });
+
   it("should handle undefined and null values", () => {
     const mission1 = createBaseMission();
     const mission2 = {

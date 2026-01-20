@@ -14,17 +14,17 @@ export const STATUS_PLR = {
 };
 
 export const STATUS_ICONS = {
-  PENDING: <RiTimeFill className="text-[#fc5d00]" />,
-  ONGOING: <RiTimeFill className="text-[#fc5d00]" />,
-  ACCEPTED: <RiCheckboxCircleFill className="text-[#18753C]" />,
-  REFUSED: <RiCloseCircleFill className="text-[#ce0500]" />,
+  PENDING: <RiTimeFill className="text-warning" />,
+  ONGOING: <RiTimeFill className="text-warning" />,
+  ACCEPTED: <RiCheckboxCircleFill className="text-success" />,
+  REFUSED: <RiCloseCircleFill className="text-red-marianne" />,
 };
 
 export const STATUS_COLORS = {
-  PENDING: "#fc5d00",
-  ONGOING: "#fc5d00",
-  ACCEPTED: "#18753C",
-  REFUSED: "#ce0500",
+  PENDING: "var(--color-warning)",
+  ONGOING: "var(--color-warning)",
+  ACCEPTED: "var(--color-success)",
+  REFUSED: "var(--color-red-marianne)",
 };
 
 export const STATUS_GRAPH_COLORS = {
@@ -44,13 +44,6 @@ export const JVA_MODERATION_COMMENTS_LABELS = {
   ORGANIZATION_NOT_COMPLIANT: "L'organisation n'est pas conforme à la charte de la Réserve Civique",
   INFORMATION_INSUFFICIENT: "Les informations sont insuffisantes pour modérer l'organisation",
   MISSION_CREATION_DATE_TOO_OLD: "La mission est refusée car la date de création est trop ancienne (> 6 mois)",
-};
-
-export const moderationStatusBadges = {
-  PENDING: <span className="rounded bg-[#fff2ea] px-2 py-1 text-sm font-semibold text-[#fc5d00] uppercase">À modérer</span>,
-  ONGOING: <span className="rounded bg-[#fff2ea] px-2 py-1 text-sm font-semibold text-[#fc5d00] uppercase">En cours de traitement</span>,
-  ACCEPTED: <span className="rounded bg-[#B8FEC9] px-2 py-1 text-sm font-semibold text-[#18753C] uppercase">Acceptée</span>,
-  REFUSED: <span className="rounded bg-[#ce0500]/10 px-2 py-1 text-sm font-semibold text-[#ce0500] uppercase">Refusée</span>,
 };
 
 export const DEPARTMENT_LABELS = {
@@ -159,18 +152,18 @@ export const DEPARTMENT_LABELS = {
 };
 
 export const DOMAINS = {
-  environnement: <span className="rounded bg-[#FEE7FC] px-2 py-1 text-sm font-semibold text-[#6E445A] uppercase">Environnement</span>,
-  "solidarite-insertion": <span className="rounded bg-[#FEE7FC] px-2 py-1 text-sm font-semibold text-[#6E445A] uppercase">Solidarité et insertion</span>,
-  "prevention-protection": <span className="rounded bg-[#FEE7FC] px-2 py-1 text-sm font-semibold text-[#6E445A] uppercase">Prévention et protection</span>,
-  sante: <span className="rounded bg-[#FEE7FC] px-2 py-1 text-sm font-semibold text-[#6E445A] uppercase">Santé</span>,
-  "culture-loisirs": <span className="rounded bg-[#FEE7FC] px-2 py-1 text-sm font-semibold text-[#6E445A] uppercase">Culture et loisirs</span>,
-  education: <span className="rounded bg-[#FEE7FC] px-2 py-1 text-sm font-semibold text-[#6E445A] uppercase">Éducation pour tous</span>,
-  emploi: <span className="rounded bg-[#FEE7FC] px-2 py-1 text-sm font-semibold text-[#6E445A] uppercase">Emploi</span>,
-  sport: <span className="rounded bg-[#FEE7FC] px-2 py-1 text-sm font-semibold text-[#6E445A] uppercase">Sport</span>,
-  humanitaire: <span className="rounded bg-[#FEE7FC] px-2 py-1 text-sm font-semibold text-[#6E445A] uppercase">Humanitaire</span>,
-  animaux: <span className="rounded bg-[#FEE7FC] px-2 py-1 text-sm font-semibold text-[#6E445A] uppercase">Animaux</span>,
-  "vivre-ensemble": <span className="rounded bg-[#FEE7FC] px-2 py-1 text-sm font-semibold text-[#6E445A] uppercase">Vivre ensemble</span>,
-  autre: <span className="rounded bg-[#FEE7FC] px-2 py-1 text-sm font-semibold text-[#6E445A] uppercase">Autre</span>,
+  environnement: <span className="bg-purple-glycine-950 text-purple-glycine-sun-319 rounded px-2 py-1 text-sm font-semibold uppercase">Environnement</span>,
+  "solidarite-insertion": <span className="bg-purple-glycine-950 text-purple-glycine-sun-319 rounded px-2 py-1 text-sm font-semibold uppercase">Solidarité et insertion</span>,
+  "prevention-protection": <span className="bg-purple-glycine-950 text-purple-glycine-sun-319 rounded px-2 py-1 text-sm font-semibold uppercase">Prévention et protection</span>,
+  sante: <span className="bg-purple-glycine-950 text-purple-glycine-sun-319 rounded px-2 py-1 text-sm font-semibold uppercase">Santé</span>,
+  "culture-loisirs": <span className="bg-purple-glycine-950 text-purple-glycine-sun-319 rounded px-2 py-1 text-sm font-semibold uppercase">Culture et loisirs</span>,
+  education: <span className="bg-purple-glycine-950 text-purple-glycine-sun-319 rounded px-2 py-1 text-sm font-semibold uppercase">Éducation pour tous</span>,
+  emploi: <span className="bg-purple-glycine-950 text-purple-glycine-sun-319 rounded px-2 py-1 text-sm font-semibold uppercase">Emploi</span>,
+  sport: <span className="bg-purple-glycine-950 text-purple-glycine-sun-319 rounded px-2 py-1 text-sm font-semibold uppercase">Sport</span>,
+  humanitaire: <span className="bg-purple-glycine-950 text-purple-glycine-sun-319 rounded px-2 py-1 text-sm font-semibold uppercase">Humanitaire</span>,
+  animaux: <span className="bg-purple-glycine-950 text-purple-glycine-sun-319 rounded px-2 py-1 text-sm font-semibold uppercase">Animaux</span>,
+  "vivre-ensemble": <span className="bg-purple-glycine-950 text-purple-glycine-sun-319 rounded px-2 py-1 text-sm font-semibold uppercase">Vivre ensemble</span>,
+  autre: <span className="bg-purple-glycine-950 text-purple-glycine-sun-319 rounded px-2 py-1 text-sm font-semibold uppercase">Autre</span>,
 };
 
 export default STATUS;

@@ -165,7 +165,7 @@ const OrganizationTab = ({ data, onChange }) => {
               placeholder="SIREN"
               className="w-full"
             />
-            <p className="text-gray-425 text-xs">
+            <p className="text-text-mention text-xs">
               <span className="mr-1 font-semibold">SIREN d'origine:</span>
               {data.missionOrganizationSiren ? data.missionOrganizationSiren : "/"}
             </p>
@@ -196,7 +196,7 @@ const OrganizationTab = ({ data, onChange }) => {
               placeholder="RNA"
               className="w-full"
             />
-            <p className="text-gray-425 text-xs">
+            <p className="text-text-mention text-xs">
               <span className="mr-1 font-semibold">RNA d'origine:</span>
               {data.missionOrganizationRNA ? data.missionOrganizationRNA : "/"}
             </p>
@@ -207,25 +207,27 @@ const OrganizationTab = ({ data, onChange }) => {
             </button>
           )}
 
-          <div className="flex flex-col gap-2 border-t border-gray-900 py-4">
+          <div className="border-grey-border flex flex-col gap-2 border-t py-4">
             <label className="text-sm" htmlFor="title">
               Adresse
             </label>
-            <p className="text-gray-425 text-sm">{data.missionOrganizationFullAddress ? data.missionOrganizationFullAddress : "/"}</p>
+            <p className="text-text-mention text-sm">{data.missionOrganizationFullAddress ? data.missionOrganizationFullAddress : "/"}</p>
           </div>
-          <div className="flex flex-col gap-2 border-t border-gray-900 py-4">
+          <div className="border-grey-border flex flex-col gap-2 border-t py-4">
             <label className="text-sm" htmlFor="title">
               Domaine d'action
             </label>
-            <p className="text-gray-425 text-sm">{DOMAINS[data.missionDomain]}</p>
+            <p className="text-text-mention text-sm">{DOMAINS[data.missionDomain]}</p>
           </div>
-          <div className="flex flex-col gap-2 border-t border-gray-900 py-4">
+          <div className="border-grey-border flex flex-col gap-2 border-t py-4">
             <label className="text-sm" htmlFor="title">
               Organisation déjà inscrite sur
             </label>
-            <p className="text-gray-425 text-sm">{/* TODO: review systeme of association */}</p>
+            <p className="text-text-mention text-sm">
+              {/* {data.associationSources?.length ? data.associationSources.map((s) => (s === "Je veux aider" ? "JeVeuxAider.gouv.fr" : s)).join(", ") : "/"} */}
+            </p>
           </div>
-          <div className="flex flex-col gap-2 border-t border-gray-900 py-4">
+          <div className="border-grey-border flex flex-col gap-2 border-t py-4">
             <label className="text-sm" htmlFor="title">
               Site internet
             </label>

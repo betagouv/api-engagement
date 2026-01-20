@@ -150,6 +150,25 @@ sources:
             description: Ancien identifiant RNA.
           - name: new_rna
             description: Nouvel identifiant RNA.
+      - name: mission_moderation_status
+        description: >-
+          Statut de modération courant d'une mission par partenaire, exporté depuis la base core. Chaque ligne
+          correspond au dernier statut connu pour un couple mission / diffuseur.
+        columns:
+          - name: id
+            description: Identifiant unique de la ligne côté core (UUID).
+          - name: mission_id
+            description: Identifiant de la mission concernée.
+          - name: publisher_id
+            description: Identifiant du partenaire diffuseur.
+          - name: status
+            description: Statut de modération courant (enum texte).
+          - name: comment
+            description: Commentaire associé au statut (nullable).
+          - name: created_at
+            description: Horodatage de création (UTC).
+          - name: updated_at
+            description: Horodatage de dernière mise à jour (UTC), utilisé pour l'incrémentalité.
       - name: publisher
         description: >-
           Instantané des partenaires / diffuseurs tels qu'ils existent dans la base opérationnelle. Chaque ligne
@@ -174,6 +193,81 @@ sources:
             description: Timestamp de suppression logique dans l'app source (nullable).
           - name: created_at
             description: Timestamp de création du partenaire.
+          - name: updated_at
+            description: Timestamp de dernière mise à jour, utilisé comme curseur d'export.
+      - name: publisher_organization
+        description: >-
+          Organisations associées aux partenaires, synchronisées depuis la table `publisher_organization` de la base
+          core. Chaque ligne décrit les informations déclarées pour un couple diffuseur / organisation.
+        columns:
+          - name: id
+            description: Identifiant unique de la relation (UUID).
+          - name: publisher_id
+            description: Identifiant du partenaire diffuseur associé.
+          - name: organization_client_id
+            description: Identifiant client de l'organisation (côté diffuseur).
+          - name: organization_name
+            description: Nom déclaré de l'organisation (nullable).
+          - name: organization_url
+            description: URL de référence de l'organisation (nullable).
+          - name: organization_type
+            description: Typologie déclarée de l'organisation (nullable).
+          - name: organization_logo
+            description: URL ou identifiant du logo de l'organisation (nullable).
+          - name: organization_description
+            description: Description libre de l'organisation (nullable).
+          - name: organization_full_address
+            description: Adresse complète déclarée (nullable).
+          - name: organization_rna
+            description: Identifiant RNA déclaré (nullable).
+          - name: organization_siren
+            description: Numéro SIREN déclaré (nullable).
+          - name: organization_siret
+            description: Numéro SIRET déclaré (nullable).
+          - name: organization_department
+            description: Département déclaré (libellé) (nullable).
+          - name: organization_department_code
+            description: Code département déclaré (nullable).
+          - name: organization_department_name
+            description: Nom du département déclaré (nullable).
+          - name: organization_post_code
+            description: Code postal déclaré (nullable).
+          - name: organization_city
+            description: Ville déclarée (nullable).
+          - name: organization_status_juridique
+            description: Statut juridique déclaré (nullable).
+          - name: organization_beneficiaries
+            description: Liste des bénéficiaires déclarés (nullable).
+          - name: organization_actions
+            description: Liste des actions déclarées (nullable).
+          - name: organization_reseaux
+            description: Réseaux déclarés (nullable).
+          - name: organization_name_verified
+            description: Statut de vérification du nom (nullable).
+          - name: organization_rna_verified
+            description: Statut de vérification du RNA (nullable).
+          - name: organization_siren_verified
+            description: Statut de vérification du SIREN (nullable).
+          - name: organization_siret_verified
+            description: Statut de vérification du SIRET (nullable).
+          - name: organization_address_verified
+            description: Statut de vérification de l'adresse (nullable).
+          - name: organization_city_verified
+            description: Statut de vérification de la ville (nullable).
+          - name: organization_postal_code_verified
+            description: Statut de vérification du code postal (nullable).
+          - name: organization_department_code_verified
+            description: Statut de vérification du code département (nullable).
+          - name: organization_department_name_verified
+            description: Statut de vérification du nom de département (nullable).
+          - name: organization_region_verified
+            description: Statut de vérification de la région (nullable).
+          - name: organization_verification_status
+            description: Statut de vérification global (nullable).
+          - name: organisation_is_rup
+            description: Indique si l'organisation est reconnue d'utilité publique (nullable).
+          - name: created_at
+            description: Timestamp de création de la relation.
           - name: updated_at
             description: Timestamp de dernière mise à jour, utilisé comme curseur d'export.
       - name: campaign
@@ -309,6 +403,131 @@ sources:
             description: Date de création de l'événement (UTC).
           - name: updated_at
             description: Dernière mise à jour (UTC), utilisée comme curseur d'export.
+      - name: domain
+        description: Référentiel des domaines métier associés aux missions (ex. environnement, sport).
+        columns:
+          - name: id
+            description: Identifiant unique du domaine.
+          - name: name
+            description: Libellé du domaine.
+          - name: created_at
+            description: Timestamp de création de la ligne.
+          - name: updated_at
+            description: Timestamp de dernière mise à jour (curseur d'export).
+      - name: activity
+        description: Référentiel des activités rattachées aux missions (ex. animation, logistique).
+        columns:
+          - name: id
+            description: Identifiant unique de l'activité.
+          - name: name
+            description: Libellé de l'activité.
+          - name: created_at
+            description: Timestamp de création de la ligne.
+          - name: updated_at
+            description: Timestamp de dernière mise à jour (curseur d'export).
+      - name: mission
+        description: >-
+          Missions synchronisées depuis la base opérationnelle. Chaque ligne correspond à une mission avec ses
+          identifiants métier, rattachements (publisher, organisation) et principaux attributs fonctionnels
+          (statut, dates, accessibilité, tags, audience…).
+        columns:
+          - name: id
+            description: Identifiant unique de la mission dans la base core.
+          - name: client_id
+            description: Identifiant métier de la mission côté client/source.
+          - name: domain_id
+            description: Identifiant du domaine associé (référence `analytics_raw.domain.id`).
+          - name: activity_id
+            description: Identifiant de l'activité associée (référence `analytics_raw.activity.id`).
+          - name: tags
+            description: Tags libres associés à la mission.
+          - name: tasks
+            description: Liste des tâches proposées.
+          - name: audience
+            description: Publics ciblés par la mission.
+          - name: soft_skills
+            description: Compétences comportementales attendues.
+          - name: requirements
+            description: Pré-requis complémentaires exprimés sous forme de texte libre.
+          - name: rome_skills
+            description: Compétences codifiées (ROME) associées.
+          - name: reduced_mobility_accessible
+            description: Indique si la mission est accessible aux publics à mobilité réduite.
+          - name: close_to_transport
+            description: Indique si la mission est proche des transports.
+          - name: open_to_minors
+            description: Indique si la mission est ouverte aux mineurs.
+          - name: remote
+            description: Modalités de télébénévolat (nullable).
+          - name: schedule
+            description: Informations de planning/rythme (nullable).
+          - name: duration
+            description: Durée estimée de la mission (en minutes ou nombre d'unités, nullable).
+          - name: posted_at
+            description: Date de publication initiale.
+          - name: start_at
+            description: Date de démarrage prévue.
+          - name: end_at
+            description: Date de fin prévue (nullable).
+          - name: priority
+            description: Niveau de priorité de diffusion (nullable).
+          - name: places
+            description: Nombre de places ouvertes.
+          - name: places_status
+            description: Statut d'occupation des places (nullable).
+          - name: domain_original
+            description: Libellé de domaine initial provenant de la source externe (nullable).
+          - name: type
+            description: Typologie de mission (benevolat, volontariat…).
+          - name: status_code
+            description: Statut métier côté application (nullable).
+          - name: organization_id
+            description: Identifiant de l'organisation liée (nullable).
+          - name: organization_client_id
+            description: Identifiant client de l'organisation côté diffuseur (nullable).
+          - name: publisher_id
+            description: Identifiant du partenaire/publisher associé.
+          - name: deleted_at
+            description: Timestamp de suppression logique (nullable).
+          - name: created_at
+            description: Timestamp de création de la mission.
+          - name: updated_at
+            description: Timestamp de dernière mise à jour, utilisé comme curseur d'export.
+      - name: mission_address
+        description: >-
+          Adresses associées aux missions, exportées depuis la table `mission_address` de la base core. Chaque ligne
+          correspond à une localisation potentielle d'une mission (adresse, géoloc, commune).
+        columns:
+          - name: id
+            description: Identifiant unique de l'adresse (UUID).
+          - name: mission_id
+            description: Identifiant de la mission associée.
+          - name: street
+            description: Voie/adresse déclarée (nullable).
+          - name: postal_code
+            description: Code postal (nullable).
+          - name: department_name
+            description: Nom du département (nullable).
+          - name: department_code
+            description: Code du département (nullable).
+          - name: city
+            description: Ville déclarée (nullable).
+          - name: region
+            description: Région déclarée (nullable).
+          - name: country
+            description: Pays déclaré (nullable).
+          - name: location_lat
+            description: Latitude géographique (nullable).
+          - name: location_lon
+            description: Longitude géographique (nullable).
+          - name: geo_point
+            description: Point géographique Postgres (nullable).
+          - name: geoloc_status
+            description: Statut de géolocalisation (nullable).
+          - name: created_at
+            description: Timestamp de création de l'adresse.
+          - name: updated_at
+            description: Timestamp de dernière mise à jour, utilisé comme curseur d'export.
       - name: organization
         description: >-
           Référentiel des organisations synchronisé depuis la base opérationnelle (`core.Organization`). Ces données

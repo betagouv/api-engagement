@@ -2,11 +2,11 @@ import { NextFunction, Response, Router } from "express";
 import passport from "passport";
 import zod from "zod";
 
+import { JobBoardId } from "../db/core";
 import { captureMessage, INVALID_BODY, NOT_FOUND } from "../error";
 import missionService from "../services/mission";
 import missionJobBoardService from "../services/mission-jobboard";
 import { PublisherRequest } from "../types/passport";
-import { JobBoardId } from "../db/core";
 
 const router = Router();
 
@@ -15,13 +15,15 @@ const router = Router();
  * webhook called for each mission to give back a status of the moderation of the partner in front
  * doc here https://www.notion.so/jeveuxaider/Leboincoin-API-Feedback-de-l-API-Engagement-12672a322d508087ab8bf02951b534b8?pvs=4
  */
-const STATUS_MAP = {
-  ad_online: "ACCEPTED",
-  ad_edited: "EDITED",
-  ad_deleted: "DELETED",
-  ad_rejected_technical: "REFUSED",
-  ad_rejected_moderation: "REFUSED",
-} as { [key: string]: "ACCEPTED" | "EDITED" | "DELETED" | "REFUSED" };
+const SYNC_STATUS_MAP = {
+  ad_online: "ONLINE",
+  ad_edited: "ONLINE",
+  ad_deleted: "OFFLINE",
+  ad_rejected_technical: "ERROR",
+  ad_rejected_moderation: "ERROR",
+} as const;
+
+const LEBONCOIN_STATUS_VALUES = ["ad_online", "ad_edited", "ad_deleted", "ad_rejected_technical", "ad_rejected_moderation"] as const;
 
 router.post("/feedback", passport.authenticate(["leboncoin"], { session: false }), async (req: PublisherRequest, res: Response, next: NextFunction) => {
   try {
@@ -29,7 +31,7 @@ router.post("/feedback", passport.authenticate(["leboncoin"], { session: false }
       .object({
         partner_unique_reference: zod.string(),
         site: zod.string(),
-        status: zod.string(),
+        status: zod.enum(LEBONCOIN_STATUS_VALUES),
         url: zod.string().optional(),
         note: zod.string().optional(),
       })
@@ -47,14 +49,14 @@ router.post("/feedback", passport.authenticate(["leboncoin"], { session: false }
       return res.status(404).send({ ok: false, code: NOT_FOUND, message: "Mission not found" });
     }
 
-    const status = STATUS_MAP[body.data.status];
+    const syncStatus = SYNC_STATUS_MAP[body.data.status];
 
     await missionJobBoardService.upsert({
       jobBoardId: JobBoardId.LEBONCOIN,
       missionId: mission._id,
       missionAddressId: null,
       publicId: body.data.url ?? mission._id,
-      status,
+      syncStatus,
       comment: body.data.note ?? null,
     });
 

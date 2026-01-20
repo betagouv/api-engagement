@@ -39,7 +39,7 @@ const MissionTab = ({ data, onChange }) => {
             Nom de la mission
           </label>
           <input
-            className={`input mb-2 ${error ? "border-b-red-error" : "border-b-black"}`}
+            className={`input mb-2 ${error ? "border-b-error" : "border-b-black"}`}
             id="new-mission-title"
             name="new-mission-title"
             placeholder={data.missionTitle}
@@ -47,12 +47,12 @@ const MissionTab = ({ data, onChange }) => {
             onChange={(e) => setTitle(e.target.value)}
           />
           {error && (
-            <div className="text-red-error flex items-center text-sm">
+            <div className="text-error flex items-center text-sm">
               <RiErrorWarningFill className="mr-2" />
               {error}
             </div>
           )}
-          <p className="text-gray-425 text-xs">
+          <p className="text-text-mention text-xs">
             <span className="mr-1 font-semibold">Titre d'origine:</span>
             {data.missionTitle}
           </p>
@@ -62,42 +62,42 @@ const MissionTab = ({ data, onChange }) => {
             </button>
           )}
         </div>
-        <div className="border-t border-gray-900" />
+        <div className="border-grey-border border-t" />
         <div className="flex flex-col space-y-2">
           <label className="mb-2 text-sm" htmlFor="description">
             Description
           </label>
           <div
-            className="text-gray-425 overflow-hidden rounded-t border border-gray-900 bg-gray-950 p-6 text-sm"
+            className="text-text-mention border-grey-border overflow-hidden rounded-t border bg-gray-950 p-6 text-sm"
             dangerouslySetInnerHTML={{ __html: data.missionDescription.replace(/\n/g, "<br />") }}
           />
         </div>
-        <div className="border-t border-gray-900" />
+        <div className="border-grey-border border-t" />
         <div className="flex flex-col space-y-2 py-2">
           <label className="text-sm" htmlFor="title">
             Lieu de la mission
           </label>
-          <p className="text-gray-425 text-sm">
-            {data.missionDepartmentName} ({data.missionDepartmentCode})
+          <p className="text-text-mention text-sm">
+          {data.missionDepartmentName} ({data.missionDepartmentCode})
           </p>
         </div>
-        <div className="border-t border-gray-900" />
+        <div className="border-grey-border border-t" />
         <div className="flex flex-col space-y-2 py-2">
           <label className="text-sm" htmlFor="title">
             Date de la mission
           </label>
-          <p className="text-gray-425 text-sm">À partir du {new Date(data.missionStartAt).toLocaleDateString("fr", { year: "numeric", month: "long", day: "numeric" })}</p>
+          <p className="text-text-mention text-sm">À partir du {new Date(data.missionStartAt).toLocaleDateString("fr", { year: "numeric", month: "long", day: "numeric" })}</p>
         </div>
-        <div className="border-t border-gray-900" />
+        <div className="border-grey-border border-t" />
         <div className="flex flex-col space-y-2 py-2">
           <label className="text-sm" htmlFor="title">
             Date de création
           </label>
-          <p className="text-gray-425 text-sm">
+          <p className="text-text-mention text-sm">
             Postée le {new Date(data.missionPostedAt).toLocaleDateString("fr")} sur {data.missionPublisherName}
           </p>
         </div>
-        <div className="border-t border-gray-900" />
+        <div className="border-grey-border border-t" />
         <div className="flex flex-col space-y-2 py-2">
           <label className="text-sm" htmlFor="title">
             Lien de la mission
@@ -113,12 +113,12 @@ const MissionTab = ({ data, onChange }) => {
             <RiExternalLinkLine />
           </div>
         </div>
-        <div className="border-t border-gray-900" />
+        <div className="border-grey-border border-t" />
         <div className="flex flex-col space-y-2 py-2">
           <label className="text-sm" htmlFor="title">
             ID
           </label>
-          <p className="text-gray-425 text-sm">{data.missionId}</p>
+          <p className="text-text-mention text-sm">{data.missionId}</p>
         </div>
       </div>
     </form>

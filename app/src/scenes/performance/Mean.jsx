@@ -5,7 +5,7 @@ import useStore from "../../services/store";
 import JessicaSvg from "../../assets/svg/jessica.svg";
 import NassimSvg from "../../assets/svg/nassim.svg";
 import Loader from "../../components/Loader";
-import Table from "../../components/NewTable";
+import Table from "../../components/Table";
 import api from "../../services/api";
 import { captureError } from "../../services/error";
 
@@ -85,17 +85,17 @@ const Mean = ({ filters, onFiltersChange }) => {
 
   return (
     <div className="space-y-12 p-12">
-      <title>Moyens de diffusion - Performance - API Engagement</title>
+      <title>API Engagement - Moyens de diffusion - Performance</title>
       <div className="flex items-center justify-between">
         <div className="space-y-2">
-          <label className="text-gray-425 text-sm font-semibold uppercase">Période</label>
+          <label className="text-text-mention text-sm font-semibold uppercase">Période</label>
           <DateRangePicker value={filters} onChange={(value) => onFiltersChange({ ...filters, ...value })} />
         </div>
         {options.length > 1 && (
           <>
             <div className="mx-10 h-16 w-px bg-gray-900" />
             <div className="flex-1 space-y-2">
-              <label htmlFor="mean-of-diffusion" className="text-gray-425 text-sm font-semibold uppercase">
+              <label htmlFor="mean-of-diffusion" className="text-text-mention text-sm font-semibold uppercase">
                 Moyen de diffusion
               </label>
               <select id="mean-of-diffusion" className="select w-full" value={source} onChange={(e) => setSource(e.target.value)}>
@@ -122,7 +122,7 @@ const Mean = ({ filters, onFiltersChange }) => {
             }[source]
           }
         </h2>
-        <div className="flex items-start gap-6 border border-gray-900 p-6">
+        <div className="border-grey-border flex items-start gap-6 border p-6">
           {loading ? (
             <div className="flex w-full justify-center py-10">
               <Loader />
@@ -134,7 +134,7 @@ const Mean = ({ filters, onFiltersChange }) => {
                   {data.graph.clickCount ? (data.graph.applyCount / data.graph.clickCount).toLocaleString("fr-FR", { style: "percent", maximumFractionDigits: 2 }) : "-"}
                 </h1>
                 <p className="mt-2 text-base">taux de conversion de l'API</p>
-                <p className="mt-4 text-sm text-[#666666]">
+                <p className="text-text-mention mt-4 text-sm">
                   entre le nombre de <span className="font-semibold text-black">redirections</span> et le nombre de <span className="font-semibold text-black">candidatures</span>
                 </p>
               </div>
@@ -158,18 +158,18 @@ const Mean = ({ filters, onFiltersChange }) => {
           )}
         </div>
         <div className="grid grid-cols-2 gap-4">
-          <div className="border border-gray-900 p-6">
+          <div className="border-grey-border border p-6">
             <p className="text-[28px] font-bold">{data.graph.printCount.toLocaleString("fr")}</p>
             <p className="text-base">impressions</p>
           </div>
-          <div className="border border-gray-900 p-6">
+          <div className="border-grey-border border p-6">
             <p className="text-[28px] font-bold">{data.graph.accountCount.toLocaleString("fr")}</p>
             <p className="text-base">créations de compte</p>
           </div>
         </div>
       </div>
 
-      <div className="flex items-center gap-8 border border-gray-900 bg-[#F5F5FE] p-8">
+      <div className="border-grey-border bg-blue-france-975 flex items-center gap-8 border p-8">
         <div className="relative h-full w-[128px]">
           <img src={JessicaSvg} alt="Jessica" className="absolute top-1/2 left-0 h-[72px] w-[72px] -translate-y-1/2 rounded-full" />
           <img src={NassimSvg} alt="Nassim" className="absolute top-1/2 right-0 h-[72px] w-[72px] -translate-y-1/2 rounded-full" />
@@ -177,7 +177,7 @@ const Mean = ({ filters, onFiltersChange }) => {
         <div className="space-y-8">
           <div className="space-y-2">
             <h3 className="text-2xl font-semibold">Jessica et Nassim vous accompagnent</h3>
-            <p className="text-[18px] text-[#3A3A3A]">Nous sommes là pour vous aider à optimiser votre parcours utilisateur et votre taux de conversion.</p>
+            <p className="text-[18px]">Nous sommes là pour vous aider à optimiser votre parcours utilisateur et votre taux de conversion.</p>
           </div>
 
           <div>
@@ -207,8 +207,11 @@ const Bar = ({ value, height = BAR_HEIGHT }) => {
 
   return (
     <div className="relative w-full" style={{ height }}>
-      <div className="absolute bottom-0 h-full w-full rounded bg-[#6A6AF4]/10" />
-      <div className="absolute bottom-0 w-full rounded bg-[#ADADF9] transition-all duration-300 ease-in-out group-hover:bg-[#6A6AF4]" style={{ height: `${value}%` }} />
+      <div className="bg-blue-france-main-525/10 absolute bottom-0 h-full w-full rounded" />
+      <div
+        className="group-hover:bg-blue-france-main-525 bg-blue-france-925-active absolute bottom-0 w-full rounded transition-all duration-300 ease-in-out"
+        style={{ height: `${value}%` }}
+      />
       <div className="absolute left-1/2 -translate-x-1/2 rounded border bg-white px-2 py-1 text-sm shadow-lg" style={{ bottom: getLabelPosition(value) }}>
         {value.toFixed(0)}%
       </div>
@@ -228,7 +231,7 @@ const TABLE_HEADER = (source) => [
 const SourcePerformance = ({ data, source }) => {
   const [sortBy, setSortBy] = useState("applyCount");
   return (
-    <div className="space-y-4 border border-gray-900 p-6">
+    <div className="border-grey-border space-y-4 border p-6">
       <h3 className="text-2xl font-semibold">Performance par {source === "widget" ? "widget" : "campagne"}</h3>
       <Table header={TABLE_HEADER(source)} total={data.length} sortBy={sortBy} onSort={setSortBy}>
         {data

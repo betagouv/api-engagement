@@ -105,16 +105,46 @@ const MissionItem = ({ data, history, selected, onChange, onSelect, onFilter, on
         </div>
       </td>
       <td className="table-cell align-middle">
-        <div className="flex flex-col justify-between py-2 text-xs">
-          <span className="max-h-12 truncate">{data.missionOrganizationName}</span>
-
-          <div className="my-2 inline-flex flex-wrap items-center gap-1 rounded border border-gray-900 p-1">
+        <label className="flex items-center">
+          <span className="sr-only">Sélectionner la mission</span>
+          <input type="checkbox" className="checkbox" name="moderation-select" onChange={handleSelectModeration} checked={selected} />
+        </label>
+      </td>
+      <td className="table-cell align-top" colSpan={2}>
+        <div className="flex flex-col justify-between py-2">
+        <div className="hover:text-blue-france my-2 line-clamp-3 flex items-center text-base font-semibold hover:cursor-pointer" onClick={handleMissionClick}>
+          {data.newTitle || data.title}
+        </div>
+        <div className="text-text-mention mb-2 flex items-center gap-4">
+          {data.city && (
+            <span className="flex items-center">
+              <RiMapPin2Fill className="mr-2" />
+              {`${data.city} ${data.departmentCode ? `(${data.departmentCode})` : ""}`}
+            </span>
+          )}
+          <span className="flex items-center">
+            <RiCalendarEventFill className="mr-2" />
+            {data.startAt && `Du ${new Date(data.startAt).toLocaleDateString("fr")}`}
+            {data.endAt && ` au ${new Date(data.endAt).toLocaleDateString("fr")}`}
+          </span>
+        </div>
+        <div className="text-text-mention flex items-center">
+          <RiTimeLine className="mr-2 text-xs" />
+          Postée le {new Date(data.postedAt).toLocaleDateString("fr")} sur {data.publisherName}
+        </div>
+      </div>
+      </td>
+      <td className="table-cell align-top">
+        <div className="flex flex-col justify-between py-2">
+        <span className="max-h-12 truncate">{data.organizationName}</span>
+        <div>
+          <div className="border-grey-border my-2 inline-flex flex-wrap items-center gap-1 rounded border p-1">
             <span>Missions</span>
-            <RiCheckboxCircleFill className="text-green-success" />
-            <span className="text-green-success">{history["ACCEPTED"] || "0"}</span>
-            <BsDot className="text-gray-425" />
-            <RiCloseCircleFill className="text-red-error" />
-            <span className="text-red-error">{history["REFUSED"] || "0"}</span>
+            <RiCheckboxCircleFill className="text-success" />
+            <span className="text-success">{history["ACCEPTED"] || "0"}</span>
+            <BsDot className="text-text-mention" />
+            <RiCloseCircleFill className="text-error" />
+            <span className="text-error">{history["REFUSED"] || "0"}</span>
           </div>
 
           {data.associationSources?.length ? (
@@ -125,6 +155,14 @@ const MissionItem = ({ data, history, selected, onChange, onSelect, onFilter, on
             <span className="text-gray-425">Pas d'inscription retrouvée</span>
           )}
         </div>
+        {data.associationSources?.length ? (
+          <span className="text-text-mention">
+            {data.associationSources.length > 0 && `Inscrite sur ${data.associationSources.map((a) => (a === "Je veux aider" ? "JeVeuxAider.gouv.fr" : a)).join(", ")}`}
+          </span>
+        ) : (
+          <span className="text-text-mention">Pas d'inscription retrouvée</span>
+        )}
+      </div>
       </td>
       <td className="table-cell align-middle" colSpan={2}>
         <div className="flex flex-col justify-center gap-3">
@@ -193,7 +231,7 @@ const MissionActionsMenu = ({ data, onFilter, onChange }) => {
           leaveFrom="transform opacity-100 scale-100"
           leaveTo="transform opacity-0 scale-95"
         >
-          <Menu.Items as="div" className="absolute right-0 z-30 mt-2 w-64 origin-top-right border border-gray-900 bg-white text-black focus:outline-none">
+          <Menu.Items as="div" className="border-grey-border absolute right-0 z-30 mt-2 w-64 origin-top-right border bg-white text-black focus:outline-none">
             <Menu.Item>
               <button onClick={handleMissionClick} className="text-blue-france flex w-full cursor-pointer items-center border-none p-3 text-left text-sm hover:bg-gray-950">
                 Aperçu de la mission

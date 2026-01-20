@@ -2,8 +2,8 @@ import { useEffect, useState } from "react";
 import { RiCheckboxCircleFill, RiCloseCircleFill } from "react-icons/ri";
 import { Link, useSearchParams } from "react-router-dom";
 
-import Table from "../../components/NewTable";
 import SearchInput from "../../components/SearchInput";
+import Table from "../../components/Table";
 import api from "../../services/api";
 import { captureError } from "../../services/error";
 
@@ -48,14 +48,14 @@ const List = () => {
 
   return (
     <div className="space-y-12 bg-white p-12 shadow-lg">
-      <title>RNA - Administration - API Engagement</title>
+      <title>API Engagement - RNA - Administration</title>
       <div className="flex items-center justify-between">
         <h2 className="flex-1 text-2xl font-semibold">{total.toLocaleString("fr")} d'associations référencées</h2>
 
         <SearchInput value={filters.search} onChange={(search) => setFilters({ ...filters, search })} className="w-1/4" placeholder="Rechercher par mot-clé" />
       </div>
 
-      <div className="border border-gray-900 p-6">
+      <div className="border-grey-border border p-6">
         <Table
           header={[{ title: "Titre de l'organisation", colSpan: 3 }, { title: "RNA" }, { title: "SIRET" }, { title: "Créée le" }, { title: "Statut" }]}
           page={filters.from}
@@ -81,12 +81,12 @@ const List = () => {
                     {item.status === "ACTIVE" ? (
                       <div className="flex items-center gap-2">
                         <p>Active</p>
-                        <RiCheckboxCircleFill className="text-green-success" />
+                        <RiCheckboxCircleFill className="text-success" />
                       </div>
                     ) : (
                       <div className="flex items-center gap-2">
                         <p>Inactive</p>
-                        <RiCloseCircleFill className="text-red-error" />
+                        <RiCloseCircleFill className="text-error" />
                       </div>
                     )}
                   </div>

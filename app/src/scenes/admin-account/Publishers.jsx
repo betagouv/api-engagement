@@ -4,7 +4,7 @@ import { RiFileDownloadLine } from "react-icons/ri";
 import { Link } from "react-router-dom";
 
 import Loader from "../../components/Loader";
-import Table from "../../components/NewTable";
+import Table from "../../components/Table";
 import { MISSION_TYPES } from "../../constants";
 import api from "../../services/api";
 import { captureError } from "../../services/error";
@@ -113,7 +113,7 @@ const Publishers = () => {
 
   return (
     <div className="space-y-12 p-12">
-      <title> Partenaires - Administration - API Engagement</title>
+      <title>API Engagement - Partenaires - Administration</title>
       <div className="flex items-center justify-between">
         <div>
           <h2 className="text-3xl font-bold">Liste des partenaires</h2>
@@ -131,7 +131,7 @@ const Publishers = () => {
         </div>
       </div>
 
-      <div className="border border-gray-900 p-6">
+      <div className="border-grey-border border p-6">
         <div className="mb-6 flex items-center gap-4">
           <p className="font-semibold">{`${publishers.length} partenaire${publishers.length > 1 ? "s" : ""}`}</p>
           <label htmlFor="publisher-name" className="sr-only">
@@ -197,10 +197,10 @@ const Publishers = () => {
               </td>
               <td className="table-cell">
                 <div className="flex flex-wrap justify-center gap-2">
-                  {item.isAnnonceur && <span className="rounded bg-red-300 px-1 text-[10px]">Annonceur</span>}
-                  {item.hasApiRights && <span className="rounded bg-green-300 px-1 text-[10px]">Diffuseur API</span>}
-                  {item.hasWidgetRights && <span className="rounded bg-green-300 px-1 text-[10px]">Diffuseur Widget</span>}
-                  {item.hasCampaignRights && <span className="rounded bg-green-300 px-1 text-[10px]">Diffuseur Campagne</span>}
+                  {item.isAnnonceur && <span className="bg-red-marianne-950 rounded px-1 text-[10px]">Annonceur</span>}
+                  {item.hasApiRights && <span className="bg-green-success-950 rounded px-1 text-[10px]">Diffuseur API</span>}
+                  {item.hasWidgetRights && <span className="bg-green-success-950 rounded px-1 text-[10px]">Diffuseur Widget</span>}
+                  {item.hasCampaignRights && <span className="bg-green-success-950 rounded px-1 text-[10px]">Diffuseur Campagne</span>}
                 </div>
               </td>
               <td className="table-cell text-center">{item.publishers.length}</td>
@@ -210,7 +210,7 @@ const Publishers = () => {
                 {item.sendReport ? (
                   <span className="bg-blue-france-975 rounded px-1">{`Oui (${item.sendReportTo.length} receveur${item.sendReportTo.length > 1 ? "s" : ""})`}</span>
                 ) : (
-                  <span className="rounded bg-red-300 px-1">Non</span>
+                  <span className="bg-red-marianne-950 rounded px-1">Non</span>
                 )}
               </td>
             </tr>

@@ -6,9 +6,9 @@ import { Tooltip } from "react-tooltip";
 import JvaLogoPng from "../../assets/img/jva-logo.png";
 import Loader from "../../components/Loader";
 import Select from "../../components/NewSelect";
-import Table from "../../components/NewTable";
 import Pie, { colors } from "../../components/Pie";
 import SearchInput from "../../components/SearchInput";
+import Table from "../../components/Table";
 import { DOMAINS } from "../../constants";
 import api from "../../services/api";
 import { captureError } from "../../services/error";
@@ -121,12 +121,13 @@ const Moderation = () => {
 
   return (
     <div className="space-y-12 p-12">
+      <title>API Engagement - Modération - Vos Missions</title>
       <div className="mb-8 flex items-end justify-between gap-4">
         <div>
           <h2 className="text-3xl font-bold">Modération de JeVeuxAider.gouv.fr</h2>
-          <p className="text-gray-425 text-sm">
+          <p className="text-text-mention text-sm">
             Consultez les
-            <a href="https://api-engagement.beta.gouv.fr/regles-de-moderation-de-jeveuxaider-gouv-fr/" target="_blank" className="text-gray-425 ml-1 cursor-pointer underline">
+            <a href="https://api-engagement.beta.gouv.fr/regles-de-moderation-de-jeveuxaider-gouv-fr/" target="_blank" className="text-text-mention ml-1 cursor-pointer underline">
               règles de modération
             </a>
           </p>
@@ -216,7 +217,7 @@ const Moderation = () => {
       )}
 
       <div className="grid grid-cols-3 gap-5">
-        <div className="border border-gray-900 p-4">
+        <div className="border-grey-border border p-4">
           <div className="flex items-start">
             <h2 className="flex-1 text-lg font-bold">Répartition des missions par statut</h2>
           </div>
@@ -224,7 +225,7 @@ const Moderation = () => {
             <Pie data={stats.status} backgroundColor={colors} legendPosition="right" />
           </div>
         </div>
-        <div className="col-span-2 border border-gray-900 p-4">
+        <div className="border-grey-border col-span-2 border p-4">
           <div className="flex items-start">
             <h2 className="flex-1 text-lg font-bold">Répartition des motifs de refus</h2>
           </div>
@@ -250,7 +251,7 @@ const Moderation = () => {
         </div>
       </div>
 
-      <div className="border border-gray-900 p-6">
+      <div className="border-grey-border border p-6">
         <Table header={MISSIONS_TABLE_HEADER} total={total} loading={!data} page={filters.page} pageSize={pageSize} onPageChange={(page) => setFilters({ ...filters, page })} auto>
           {(data || []).map((item, i) => (
             <tr key={item._id} className={`${i % 2 === 0 ? "bg-gray-975" : "bg-gray-1000-active"} table-item`}>
@@ -270,9 +271,9 @@ const Moderation = () => {
                   </Tooltip>
                   {item.status === "REFUSED" && item.comment && (
                     <div className="group relative">
-                      <RiInformationLine className="text-gray-425" />
+                      <RiInformationLine className="ext-text-mention" />
 
-                      <div className="absolute -top-1/2 right-8 z-10 hidden w-64 -translate-y-1/2 border border-gray-900 bg-white p-4 shadow-lg group-hover:block">
+                      <div className="border-grey-border absolute -top-1/2 right-8 z-10 hidden w-64 -translate-y-1/2 border bg-white p-4 shadow-lg group-hover:block">
                         <p className="text-sm">{JVA_MODERATION_COMMENTS_LABELS[item.comment] || item.comment}</p>
                       </div>
                     </div>

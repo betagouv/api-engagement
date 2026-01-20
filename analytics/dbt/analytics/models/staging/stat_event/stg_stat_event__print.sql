@@ -1,22 +1,16 @@
 with events as (
   select
-    e.*,
-    nullif(e.mission_id, '') as mission_id_raw,
-    nullif(e.mission_client_id, '') as mission_client_id_raw,
+    e.id,
+    e.created_at,
+    e.updated_at,
+    e.host,
+    e.source,
+    nullif(e.mission_id, '') as mission_id,
     nullif(e.to_publisher_id, '') as to_publisher_id_clean,
     nullif(e.from_publisher_id, '') as from_publisher_id_clean,
     nullif(e.source_id, '') as source_id_clean
   from {{ ref('stg_stat_event') }} as e
   where e.type = 'print'
-),
-
-mission_map as (
-  select
-    stat_event_id,
-    mission_id,
-    mission_id_raw,
-    resolved_mission_id_raw
-  from {{ ref('stg_stat_event__mission_map') }}
 )
 
 select
@@ -24,8 +18,7 @@ select
   e.created_at,
   e.updated_at,
   e.host,
-  mm.mission_id,
-  mm.resolved_mission_id_raw as mission_id_raw,
+  e.mission_id,
   e.from_publisher_id_clean as from_publisher_id,
   e.to_publisher_id_clean as to_publisher_id,
   e.source_id_clean as source_id,
@@ -38,4 +31,3 @@ select
   case when e.source = 'campaign' then e.source_id_clean end as campaign_id,
   case when e.source = 'widget' then e.source_id_clean end as widget_id
 from events as e
-left join mission_map as mm on e.id = mm.stat_event_id

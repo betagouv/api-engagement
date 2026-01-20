@@ -3,7 +3,7 @@ import { RiAddFill, RiEditFill, RiEyeFill, RiSearchLine } from "react-icons/ri";
 import { Link } from "react-router-dom";
 
 import Loader from "../../components/Loader";
-import Table from "../../components/NewTable";
+import Table from "../../components/Table";
 import Toggle from "../../components/Toggle";
 import api from "../../services/api";
 import { BENEVOLAT_URL, VOLONTARIAT_URL } from "../../services/config";
@@ -56,7 +56,7 @@ const Widgets = () => {
 
   return (
     <div className="space-y-6 p-12">
-      <title>Widgets - Diffuser des missions - API Engagement</title>
+      <title>API Engagement - Widgets - Diffuser des missions</title>
       <div className="mb-10 flex items-center justify-between gap-4">
         <div className="relative flex-1">
           <label htmlFor="widget-search" className="sr-only">
@@ -106,7 +106,7 @@ const Widgets = () => {
                 <td className={`${!item.active ? "opacity-50" : "opacity-100"} px-4`}>{new Date(item.createdAt).toLocaleDateString("fr")}</td>
                 <td className="mt-3 flex gap-2 px-4 text-lg">
                   <Link className="secondary-btn flex items-center" to={`/broadcast/widget/${item.id}`}>
-                    <RiEditFill className="text-lg" />
+                    <RiEditFill className="text-lg" role="img" aria-label="Modifier le widget" />
                   </Link>
                   <a
                     className="secondary-btn flex items-center"
@@ -114,7 +114,7 @@ const Widgets = () => {
                     target="_blank"
                     rel="noopener noreferrer"
                   >
-                    <RiEyeFill className="text-lg" />
+                    <RiEyeFill className="text-lg" role="img" aria-label="Voir le widget" />
                   </a>
                 </td>
                 {user.role === "admin" && (
