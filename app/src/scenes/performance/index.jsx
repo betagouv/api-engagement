@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
-import { Link, Route, Routes, useLocation, useSearchParams } from "react-router-dom";
+import { Route, Routes, useLocation, useSearchParams } from "react-router-dom";
 
 import useStore from "../../services/store";
+import Tabs from "../../components/Tabs";
 
 import GlobalAnnounce from "./GlobalAnnounce";
 import GlobalBroadcast from "./GlobalBroadcast";
@@ -15,6 +16,29 @@ const Performance = () => {
     to: searchParams.has("to") ? new Date(searchParams.get("to")) : new Date(new Date().getFullYear(), new Date().getMonth(), new Date().getDate() + 1, 0, 0, 0, -1),
   });
   const location = useLocation();
+  const isTabbed = flux === "from";
+  const currentRoute = location.pathname.split("/performance")[1].replace("/", "");
+  const tabs = [
+    {
+      key: "global",
+      title: "Au global",
+      route: "",
+      isActive: currentRoute === "",
+    },
+    {
+      key: "means",
+      title: "Moyens de diffusion",
+      route: "means",
+      isActive: currentRoute === "means",
+    },
+  ].map((tab) => ({
+    ...tab,
+    id: `performance-tab-${tab.key}`,
+    label: tab.title,
+    to: `/performance/${tab.route}`,
+  }));
+  const activeTab = tabs.find((tab) => tab.isActive) || tabs[0];
+  const activeTabId = activeTab ? activeTab.id : null;
 
   useEffect(() => {
     const query = new URLSearchParams();
@@ -30,14 +54,26 @@ const Performance = () => {
 
       {flux === "from" && (
         <>
-          <nav className="flex items-center space-x-4 pl-4 font-semibold text-black">
-            <Tab route="" title="Au global" />
-            <Tab route="means" title="Moyens de diffusion" />
-          </nav>
+          <Tabs
+            tabs={tabs}
+            ariaLabel="Performance"
+            panelId="performance-panel"
+            className="flex items-center gap-4 pl-4 font-semibold text-black"
+            getTabClassName={(tab) =>
+              `${
+                tab.isActive ? "border-blue-france text-blue-france hover:bg-gray-975 border-t-2 bg-white" : "bg-blue-france-925 hover:bg-blue-france-925-hover border-0"
+              } border-x-grey-border flex translate-y-px items-center border-x px-4 py-2`
+            }
+          />
         </>
       )}
 
-      <section className="bg-white shadow-lg">
+      <section
+        id="performance-panel"
+        role={isTabbed ? "tabpanel" : undefined}
+        aria-labelledby={isTabbed && activeTabId ? activeTabId : undefined}
+        className="bg-white shadow-lg"
+      >
         <Routes>
           <Route
             path="/"
@@ -47,28 +83,6 @@ const Performance = () => {
         </Routes>
       </section>
     </>
-  );
-};
-
-const Tab = ({ title, route = "" }) => {
-  const [active, setActive] = useState(false);
-  const location = useLocation();
-
-  useEffect(() => {
-    const current = location.pathname.split("/performance")[1];
-    setActive(route === current.replace("/", ""));
-  }, [location]);
-
-  return (
-    <Link to={`/performance/${route}`}>
-      <div
-        className={`${
-          active ? "border-blue-france text-blue-france hover:bg-gray-975 border-t-2 bg-white" : "bg-blue-france-925 hover:bg-blue-france-925-hover border-0"
-        } border-x-grey-border flex translate-y-px cursor-pointer items-center border-x px-4 py-2`}
-      >
-        <p>{title}</p>
-      </div>
-    </Link>
   );
 };
 

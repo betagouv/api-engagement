@@ -144,12 +144,20 @@ const PATH = [
 ];
 
 const ADMIN_PATH = ["/admin-mission", "/admin-organization", "/admin-account", "/admin-stats", "/admin-warning", "/admin-report", "/user/", "/publisher/"];
+const getActiveTabId = (pathname) => {
+  if (pathname.includes("performance")) return "tab-performance";
+  if (pathname.includes("broadcast")) return "tab-broadcast";
+  if (pathname.includes("my-missions")) return "tab-my-missions";
+  if (pathname.includes("settings")) return "tab-settings";
+  return null;
+};
 
 const ProtectedLayout = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { user, setAuth } = useStore();
   const [loading, setLoading] = useState(true);
+  const activeTabId = getActiveTabId(location.pathname);
 
   // Simple page tracking with user role
   useEffect(() => {
@@ -209,7 +217,13 @@ const ProtectedLayout = () => {
       <Header />
       <Nav />
 
-      <main id="main-content" tabIndex={-1} className="mx-auto mb-14 pt-14 w-4/5 max-w-[1200px] flex-1">
+      <main
+        id="main-content"
+        tabIndex={-1}
+        role="tabpanel"
+        aria-labelledby={activeTabId || undefined}
+        className="mx-auto mb-14 pt-14 w-4/5 max-w-[1200px] flex-1"
+      >
         <Outlet />
       </main>
       <Footer />
@@ -225,6 +239,7 @@ const AdminLayout = () => {
 const PublicLayout = () => {
   const { user } = useStore();
   const location = useLocation();
+  const activeTabId = getActiveTabId(location.pathname);
 
   useEffect(() => {
     if (window.plausible) {
@@ -236,7 +251,7 @@ const PublicLayout = () => {
     <div className="bg-beige-gris-galet-975 flex min-h-screen w-screen min-w-3xl flex-col">
       <Header />
       {user ? <Nav /> : ""}
-      <main id="main-content" tabIndex={-1}>
+      <main id="main-content" tabIndex={-1} role={user ? "tabpanel" : undefined} aria-labelledby={user ? activeTabId || undefined : undefined}>
         <Outlet />
       </main>
       <Footer />

@@ -1,20 +1,50 @@
-import { useEffect, useState } from "react";
-import { Link, Route, Routes, useLocation } from "react-router-dom";
+import { Route, Routes, useLocation } from "react-router-dom";
 
 import Publishers from "./Publishers";
 import Users from "./Users";
+import Tabs from "../../components/Tabs";
 
 const Index = () => {
+  const location = useLocation();
+  const currentRoute = location.pathname.split("/admin-account")[1].split("/")[1] || "";
+  const tabs = [
+    {
+      key: "users",
+      label: "Utilisateurs",
+      route: "",
+      isActive: currentRoute === "",
+    },
+    {
+      key: "publishers",
+      label: "Partenaires",
+      route: "publishers",
+      isActive: currentRoute === "publishers",
+    },
+  ].map((tab) => ({
+    ...tab,
+    id: `admin-account-tab-${tab.key}`,
+    to: `/admin-account/${tab.route}`,
+  }));
+  const activeTab = tabs.find((tab) => tab.isActive) || tabs[0];
+  const activeTabId = activeTab ? activeTab.id : null;
+
   return (
     <div className="space-y-12">
       <h1 className="text-4xl font-bold">Liste des comptes de l'API Engagement</h1>
 
       <div>
-        <nav className="flex items-center space-x-4 pl-4 font-semibold text-black">
-          <Tab title="Utilisateurs" />
-          <Tab title="Partenaires" route="publishers" />
-        </nav>
-        <section className="bg-white shadow-lg">
+        <Tabs
+          tabs={tabs}
+          ariaLabel="Liste des comptes de l'API Engagement"
+          panelId="admin-account-panel"
+          className="flex items-center gap-4 pl-4 font-semibold text-black"
+          getTabClassName={(tab) =>
+            `${
+              tab.isActive ? "border-blue-france text-blue-france hover:bg-gray-975 border-t-2 bg-white" : "bg-blue-france-925 hover:bg-blue-france-925-hover border-0"
+            } border-x-grey-border flex translate-y-px items-center border-x px-4 py-2`
+          }
+        />
+        <section id="admin-account-panel" role="tabpanel" aria-labelledby={activeTabId || undefined} className="bg-white shadow-lg">
           <Routes>
             <Route path="/" element={<Users />} />
             <Route path="/publishers" element={<Publishers />} />
@@ -22,28 +52,6 @@ const Index = () => {
         </section>
       </div>
     </div>
-  );
-};
-
-const Tab = ({ title, route = "", actives = [route] }) => {
-  const [active, setActive] = useState(false);
-  const location = useLocation();
-
-  useEffect(() => {
-    const current = location.pathname.split("/admin-account")[1].split("/")[1] || "";
-    setActive(actives.includes(current));
-  }, [location]);
-
-  return (
-    <Link to={`/admin-account/${route}`}>
-      <div
-        className={`${
-          active ? "border-blue-france text-blue-france hover:bg-gray-975 border-t-2 bg-white" : "bg-blue-france-925 hover:bg-blue-france-925-hover border-0"
-        } border-x-grey-border flex translate-y-px cursor-pointer items-center border-x px-4 py-2`}
-      >
-        <p>{title}</p>
-      </div>
-    </Link>
   );
 };
 

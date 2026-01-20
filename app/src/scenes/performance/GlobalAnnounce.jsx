@@ -3,6 +3,7 @@ import EmptySVG from "../../assets/svg/empty-info.svg";
 import { Pie, StackedBarchart } from "../../components/Chart";
 import Loader from "../../components/Loader";
 import DateRangePicker from "../../components/NewDateRangePicker";
+import Tabs from "../../components/Tabs";
 import { METABASE_CARD_ID, MONTHS } from "../../constants";
 import { useAnalyticsProvider } from "../../services/analytics/provider";
 import api from "../../services/api";
@@ -129,6 +130,37 @@ const Evolution = ({ filters, defaultType = "print" }) => {
   const [rows, setRows] = useState([]);
   const [loading, setLoading] = useState(true);
   const [type, setType] = useState(defaultType);
+  const tabs = [
+    {
+      key: "print",
+      label: "Impressions",
+      isActive: type === "print",
+      onSelect: () => setType("print"),
+    },
+    {
+      key: "click",
+      label: "Redirections",
+      isActive: type === "click",
+      onSelect: () => setType("click"),
+    },
+    {
+      key: "account",
+      label: "Créations de compte",
+      isActive: type === "account",
+      onSelect: () => setType("account"),
+    },
+    {
+      key: "apply",
+      label: "Candidatures",
+      isActive: type === "apply",
+      onSelect: () => setType("apply"),
+    },
+  ].map((tab) => ({
+    ...tab,
+    id: `announce-evolution-tab-${tab.key}`,
+  }));
+  const activeTab = tabs.find((tab) => tab.isActive) || tabs[0];
+  const activeTabId = activeTab ? activeTab.id : null;
 
   useEffect(() => {
     if (!analyticsProvider?.query) return;
@@ -232,22 +264,28 @@ const Evolution = ({ filters, defaultType = "print" }) => {
         <p className="text-text-mention text-base">Trafic reçu grâce à vos partenaires diffuseurs</p>
       </div>
       <div className="border-grey-border border p-4">
-        <div className="mb-8 flex items-center gap-8 text-sm">
-          <button onClick={() => setType("print")} className={`pb-1 ${type === "print" ? "border-blue-france text-blue-france border-b-2 font-semibold" : ""}`}>
-            Impressions
-          </button>
-
-          <button onClick={() => setType("click")} className={`pb-1 ${type === "click" ? "border-blue-france text-blue-france border-b-2 font-semibold" : ""}`}>
-            Redirections
-          </button>
-
-          <button onClick={() => setType("account")} className={`pb-1 ${type === "account" ? "border-blue-france text-blue-france border-b-2 font-semibold" : ""}`}>
-            Créations de compte
-          </button>
-
-          <button onClick={() => setType("apply")} className={`pb-1 ${type === "apply" ? "border-blue-france text-blue-france border-b-2 font-semibold" : ""}`}>
-            Candidatures
-          </button>
+        <Tabs
+          tabs={tabs}
+          ariaLabel="Trafic reçu grâce à vos partenaires diffuseurs"
+          panelId="announce-evolution-panel"
+          className="mb-8 flex items-center gap-8 text-sm"
+          getTabClassName={(tab) => `pb-1 ${tab.isActive ? "border-blue-france text-blue-france border-b-2 font-semibold" : ""}`}
+        />
+        <div id="announce-evolution-panel" role="tabpanel" aria-labelledby={activeTabId || undefined}>
+          {loading ? (
+            <div className="flex h-[248px] items-center justify-center">
+              <Loader />
+            </div>
+          ) : !histogram.length ? (
+            <div className="border-grey-border bg-background-grey-hover flex h-[248px] w-full flex-col items-center justify-center border border-dashed">
+              <img src={EmptySVG} alt="empty" className="h-16 w-16" />
+              <p className="text-color-gray-425 text-base">Aucune donnée disponible pour la période</p>
+            </div>
+          ) : (
+            <div className="h-[424px] w-full">
+              <StackedBarchart data={histogram} dataKey={[...data.topPublishers, "Autres"]} />
+            </div>
+          )}
         </div>
         {loading ? (
           <div className="flex h-[248px] items-center justify-center">
@@ -275,6 +313,37 @@ const Announcers = ({ filters, defaultType = "print" }) => {
   const [total, setTotal] = useState(0);
   const [loading, setLoading] = useState(true);
   const [type, setType] = useState(defaultType);
+  const tabs = [
+    {
+      key: "print",
+      label: "Impressions",
+      isActive: type === "print",
+      onSelect: () => setType("print"),
+    },
+    {
+      key: "click",
+      label: "Redirections",
+      isActive: type === "click",
+      onSelect: () => setType("click"),
+    },
+    {
+      key: "account",
+      label: "Créations de compte",
+      isActive: type === "account",
+      onSelect: () => setType("account"),
+    },
+    {
+      key: "apply",
+      label: "Candidatures",
+      isActive: type === "apply",
+      onSelect: () => setType("apply"),
+    },
+  ].map((tab) => ({
+    ...tab,
+    id: `announce-traffic-tab-${tab.key}`,
+  }));
+  const activeTab = tabs.find((tab) => tab.isActive) || tabs[0];
+  const activeTabId = activeTab ? activeTab.id : null;
 
   useEffect(() => {
     if (!analyticsProvider?.query) return;
@@ -345,66 +414,58 @@ const Announcers = ({ filters, defaultType = "print" }) => {
         </div>
       ) : (
         <div className="border-grey-border space-y-4 border p-6">
-          <div className="mb-8 flex items-center gap-8 text-sm">
-            <button onClick={() => setType("print")} className={`pb-1 ${type === "print" ? "border-blue-france text-blue-france border-b-2 font-semibold" : ""}`}>
-              Impressions
-            </button>
-
-            <button onClick={() => setType("click")} className={`pb-1 ${type === "click" ? "border-blue-france text-blue-france border-b-2 font-semibold" : ""}`}>
-              Redirections
-            </button>
-
-            <button onClick={() => setType("account")} className={`pb-1 ${type === "account" ? "border-blue-france text-blue-france border-b-2 font-semibold" : ""}`}>
-              Créations de compte
-            </button>
-
-            <button onClick={() => setType("apply")} className={`pb-1 ${type === "apply" ? "border-blue-france text-blue-france border-b-2 font-semibold" : ""}`}>
-              Candidatures
-            </button>
-          </div>
-          {!data.length ? (
-            <div className="border-grey-border bg-background-grey-hover flex h-[248px] w-full flex-col items-center justify-center border border-dashed">
-              <img src={EmptySVG} alt="empty" className="h-16 w-16" />
-              <p className="text-color-gray-425 text-base">Aucune donnée disponible pour la période</p>
-            </div>
-          ) : (
-            <div className="flex justify-between gap-4">
-              <div className="w-2/3">
-                <table className="w-full table-fixed">
-                  <thead className="text-left">
-                    <tr className="text-text-mention text-xs uppercase">
-                      <th colSpan={3} className="px-4">
-                        Diffuseurs
-                      </th>
-                      <th className="px-4 text-right">{TYPE[type]}</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {data.slice(0, 6).map((item, i) => (
-                      <tr key={i}>
-                        <td colSpan={3} className="p-4">
-                          <div className="flex items-center gap-2">
-                            <span className="mr-2 h-4 w-6" style={{ backgroundColor: COLORS[i % COLORS.length] }} />
-                            <div className="flex-1 text-sm font-semibold">{item.key}</div>
-                          </div>
-                        </td>
-                        <td className="px-4 text-right text-sm">{(item.doc_count || 0).toLocaleString("fr")}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
+          <Tabs
+            tabs={tabs}
+            ariaLabel="Top partenaires diffuseurs"
+            panelId="announce-traffic-panel"
+            className="mb-8 flex items-center gap-8 text-sm"
+            getTabClassName={(tab) => `pb-1 ${tab.isActive ? "border-blue-france text-blue-france border-b-2 font-semibold" : ""}`}
+          />
+          <div id="announce-traffic-panel" role="tabpanel" aria-labelledby={activeTabId || undefined}>
+            {!data.length ? (
+              <div className="border-grey-border bg-background-grey-hover flex h-[248px] w-full flex-col items-center justify-center border border-dashed">
+                <img src={EmptySVG} alt="empty" className="h-16 w-16" />
+                <p className="text-color-gray-425 text-base">Aucune donnée disponible pour la période</p>
               </div>
-              <div className="mr-8 ml-24 flex w-1/3 items-center justify-center">
-                <div className="h-56 w-full">
-                  <Pie
-                    data={data?.slice(0, 6).map((d, i) => ({ name: d.key, value: d.doc_count || 0, color: COLORS[i % COLORS.length] }))}
-                    innerRadius="0%"
-                    unit={TYPE[type].toLowerCase()}
-                  />
+            ) : (
+              <div className="flex justify-between gap-4">
+                <div className="w-2/3">
+                  <table className="w-full table-fixed">
+                    <thead className="text-left">
+                      <tr className="text-text-mention text-xs uppercase">
+                        <th colSpan={3} className="px-4">
+                          Diffuseurs
+                        </th>
+                        <th className="px-4 text-right">{TYPE[type]}</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {data.slice(0, 6).map((item, i) => (
+                        <tr key={i}>
+                          <td colSpan={3} className="p-4">
+                            <div className="flex items-center gap-2">
+                              <span className="mr-2 h-4 w-6" style={{ backgroundColor: COLORS[i % COLORS.length] }} />
+                              <div className="flex-1 text-sm font-semibold">{item.key}</div>
+                            </div>
+                          </td>
+                          <td className="px-4 text-right text-sm">{(item.doc_count || 0).toLocaleString("fr")}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+                <div className="mr-8 ml-24 flex w-1/3 items-center justify-center">
+                  <div className="h-56 w-full">
+                    <Pie
+                      data={data?.slice(0, 6).map((d, i) => ({ name: d.key, value: d.doc_count || 0, color: COLORS[i % COLORS.length] }))}
+                      innerRadius="0%"
+                      unit={TYPE[type].toLowerCase()}
+                    />
+                  </div>
                 </div>
               </div>
-            </div>
-          )}
+            )}
+          </div>
         </div>
       )}
     </div>
