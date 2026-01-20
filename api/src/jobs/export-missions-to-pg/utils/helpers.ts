@@ -1,13 +1,17 @@
-import { prismaAnalytics as prisma } from "../../../db/postgres";
-import MissionModel from "../../../models/mission";
-import { Mission } from "../../../types";
+import { prismaAnalytics as prisma, prismaCore } from "../../../db/postgres";
+import { missionService } from "../../../services/mission";
+import { MissionRecord } from "../../../types/mission";
 
 const DEFAULT_LIMIT = 10000;
 
 export const countMongoMissionsToSync = async (): Promise<number> => {
-  return MissionModel.countDocuments({
-    $or: [{ lastExportedToPgAt: { $exists: false } }, { $expr: { $lt: ["$lastExportedToPgAt", "$updatedAt"] } }],
-  });
+  const result = await prismaCore.$queryRaw<{ count: bigint }[]>`
+    SELECT COUNT(*)::bigint AS count
+    FROM mission
+    WHERE last_exported_to_pg_at IS NULL OR last_exported_to_pg_at < updated_at
+  `;
+  const count = result?.[0]?.count ?? 0n;
+  return Number(count);
 };
 
 /**
@@ -16,12 +20,23 @@ export const countMongoMissionsToSync = async (): Promise<number> => {
  * @param payload The job payload
  * @returns The missions to sync
  */
-export const getMongoMissionsToSync = async ({ limit }: { limit: number }): Promise<Mission[]> => {
-  return MissionModel.find({
-    $or: [{ lastExportedToPgAt: { $exists: false } }, { $expr: { $lt: ["$lastExportedToPgAt", "$updatedAt"] } }],
-  })
-    .limit(limit || DEFAULT_LIMIT)
-    .lean();
+export const getMongoMissionsToSync = async ({ limit }: { limit: number }): Promise<MissionRecord[]> => {
+  const rows = await prismaCore.$queryRaw<{ id: string }[]>`
+    SELECT id
+    FROM mission
+    WHERE last_exported_to_pg_at IS NULL OR last_exported_to_pg_at < updated_at
+    ORDER BY updated_at ASC
+    LIMIT ${limit || DEFAULT_LIMIT}
+  `;
+  const ids = rows.map((row) => row.id);
+  if (!ids.length) {
+    return [];
+  }
+
+  const missions = await missionService.findMissionsBy({ id: { in: ids } }, { orderBy: { updatedAt: "asc" } });
+
+  const missionById = new Map(missions.map((m) => [m.id, m]));
+  return ids.map((id) => missionById.get(id)).filter((m): m is MissionRecord => Boolean(m));
 };
 
 /**
@@ -31,9 +46,10 @@ export const getMongoMissionsToSync = async ({ limit }: { limit: number }): Prom
  * @param missions The missions to get organizations from
  * @returns The organizations
  */
-export const getOrganizationsFromMissions = async (missions: Mission[]) => {
-  const organizationIds: string[] = [...new Set(missions.map((e) => e.organizationId).filter((e) => e !== undefined))] as string[];
+export const getOrganizationsFromMissions = async (missions: MissionRecord[]) => {
+  const organizationIds = [...new Set(missions.map((e) => e.organizationId).filter((id): id is string => id !== null && id !== undefined))];
   const organizations = {} as { [key: string]: string };
+
   await prisma.organization
     .findMany({
       where: { old_id: { in: organizationIds } },

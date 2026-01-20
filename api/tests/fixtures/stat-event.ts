@@ -2,6 +2,7 @@ import { randomUUID } from "crypto";
 
 import { prismaCore } from "../../src/db/postgres";
 import { statEventService } from "../../src/services/stat-event";
+import { missionService } from "../../src/services/mission";
 import { StatEventRecord } from "../../src/types";
 import { createTestPublisher } from "./index";
 
@@ -33,6 +34,30 @@ export async function createStatEventFixture(overrides: Partial<StatEventRecord>
     await ensurePublisherExists(toPublisherId, overrides.toPublisherName);
   }
 
+  // Ensure a mission exists if a missionId is provided to satisfy FK constraints
+  if (overrides.missionId) {
+    const existingMission = await missionService.findOneMission(overrides.missionId);
+    if (!existingMission) {
+      await missionService.create({
+        id: overrides.missionId,
+        clientId: overrides.missionClientId ?? `client-${overrides.missionId}`,
+        publisherId: toPublisherId,
+        title: overrides.missionTitle ?? "Fixture Mission",
+        statusCode: "ACCEPTED",
+        addresses: [
+          {
+            postalCode: overrides.missionPostalCode ?? "00000",
+            departmentName: overrides.missionDepartmentName ?? "Unknown",
+            city: "Unknown",
+            country: "France",
+            location: { lat: 0, lon: 0 },
+            geolocStatus: "NOT_FOUND",
+          },
+        ],
+      });
+    }
+  }
+
   const record: StatEventRecord = {
     _id: overrides._id ?? randomUUID(),
     type: overrides.type ?? "print",
@@ -43,7 +68,7 @@ export async function createStatEventFixture(overrides: Partial<StatEventRecord>
     host: overrides.host ?? "redirect.test",
     user: overrides.user ?? "stat-user",
     isBot: overrides.isBot ?? false,
-    isHuman: overrides.isHuman ?? false,
+    isHuman: overrides.isHuman ?? true,
     source: overrides.source ?? "publisher",
     sourceId: overrides.sourceId ?? "source-id",
     sourceName: overrides.sourceName ?? "Source Name",
@@ -77,5 +102,6 @@ export async function createClickStat(id: string, overrides: Partial<StatEventRe
     _id: id,
     type: "click",
     ...overrides,
+    isBot: overrides.isBot ?? false,
   });
 }

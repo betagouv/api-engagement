@@ -15,7 +15,6 @@ import {
   SearchStatEventsParams,
   SearchViewStatsParams,
   SearchViewStatsResult,
-  StatEventMissionStatsDetails,
   StatEventMissionStatsSummary,
   StatEventRecord,
   StatEventSource,
@@ -80,6 +79,7 @@ function toPrisma(data: Partial<StatEventRecord>, options: { includeDefaults?: b
 
 function toStatEventRecord(row: PrismaStatEventWithPublishers): StatEventRecord {
   const { fromPublisher, toPublisher, id, ...rest } = row;
+
   return {
     _id: id,
     fromPublisherName: fromPublisher?.name,
@@ -177,21 +177,15 @@ async function countStatEventClicksByPublisherForOrganizationSince({ publisherId
     return {} as Record<string, number>;
   }
 
-  const rows = (await statEventRepository.groupBy({
-    by: ["fromPublisherId"],
-    where: {
-      type: "click" as any,
-      isBot: { not: true },
-      missionOrganizationClientId: organizationClientId,
-      fromPublisherId: { in: publisherIds },
-      createdAt: { gte: from },
-    },
-    _count: { _all: true },
-  } as any)) as { fromPublisherId: string; _count: { _all: number } }[];
+  const rows = await statEventRepository.aggregateClicksByPublisherForOrganization({
+    publisherIds,
+    organizationClientId,
+    from,
+  });
 
   return rows.reduce(
     (acc, row) => {
-      acc[row.fromPublisherId] = row._count._all;
+      acc[row.fromPublisherId] = row.count;
       return acc;
     },
     {} as Record<string, number>
@@ -252,6 +246,12 @@ async function findStatEventViews({ publisherId, size = 10, filters = {}, facets
   if (filters.missionDomain) {
     andFilters.push({ missionDomain: filters.missionDomain });
   }
+  if (filters.missionDepartmentName) {
+    andFilters.push({ missionDepartmentName: filters.missionDepartmentName });
+  }
+  if (filters.missionOrganizationId) {
+    andFilters.push({ missionOrganizationId: filters.missionOrganizationId });
+  }
   if (filters.type) {
     andFilters.push({ type: filters.type as StatEventType });
   }
@@ -292,17 +292,38 @@ async function findStatEventViews({ publisherId, size = 10, filters = {}, facets
 
       const column = facet as ViewStatsFacetField;
       try {
-        const rows = (await statEventRepository.groupBy({
-          by: [column],
-          where,
-          _count: { _all: true },
-        } as any)) as { [key: string]: any; _count: { _all: number } }[];
-        rows.sort((a, b) => (b._count._all ?? 0) - (a._count._all ?? 0));
-        const limited = rows.slice(0, size);
+        if (column === "missionDomain" || column === "missionDepartmentName" || column === "missionOrganizationId") {
+          const events = await statEventRepository.findMany({
+            where,
+            orderBy: { createdAt: "desc" },
+            take: 5000,
+          });
+          const mapped = (events as PrismaStatEventWithPublishers[]).map(toStatEventRecord);
+          const counter = new Map<string, number>();
+          mapped.forEach((event) => {
+            const key = column === "missionDomain" ? event.missionDomain : column === "missionDepartmentName" ? event.missionDepartmentName : event.missionOrganizationId;
+            if (!key) {
+              return;
+            }
+            counter.set(key, (counter.get(key) ?? 0) + 1);
+          });
+          const sorted = Array.from(counter.entries())
+            .sort((a, b) => b[1] - a[1])
+            .slice(0, size);
+          facetsResult[facet] = sorted.map(([key, count]) => ({ key, doc_count: count }));
+        } else {
+          const rows = (await statEventRepository.groupBy({
+            by: [column],
+            where,
+            _count: { _all: true },
+          } as any)) as { [key: string]: any; _count: { _all: number } }[];
+          rows.sort((a, b) => (b._count._all ?? 0) - (a._count._all ?? 0));
+          const limited = rows.slice(0, size);
 
-        facetsResult[facet] = limited
-          .filter((row) => row[column] !== null && row[column] !== undefined && row[column] !== "")
-          .map((row) => ({ key: row[column], doc_count: row._count._all }));
+          facetsResult[facet] = limited
+            .filter((row) => row[column] !== null && row[column] !== undefined && row[column] !== "")
+            .map((row) => ({ key: row[column], doc_count: row._count._all }));
+        }
       } catch (error) {
         console.error(`[StatEvent] Error aggregating facet ${facet}:`, error);
       }
@@ -493,47 +514,6 @@ async function aggregateStatEventsForMission({
   return result;
 }
 
-async function findStatEventMissionStatsWithDetails(missionId: string): Promise<{ clicks: StatEventMissionStatsDetails[]; applications: StatEventMissionStatsDetails[] }> {
-  type MissionStatsDetailsGroup = { fromPublisherId: string | null; _count: { _all: number } };
-
-  const [applicationsRaw, clicksRaw] = await Promise.all([
-    statEventRepository.groupBy({
-      by: ["fromPublisherId"],
-      where: {
-        missionId,
-        isBot: false,
-        type: "apply",
-      },
-      _count: { _all: true },
-    }),
-    statEventRepository.groupBy({
-      by: ["fromPublisherId"],
-      where: {
-        missionId,
-        isBot: false,
-        type: "click",
-      },
-      _count: { _all: true },
-    }),
-  ]);
-
-  const applications = applicationsRaw as MissionStatsDetailsGroup[];
-  const clicks = clicksRaw as MissionStatsDetailsGroup[];
-
-  const mapGroup = (group: MissionStatsDetailsGroup): StatEventMissionStatsDetails => ({
-    key: group.fromPublisherId ?? "",
-    name: undefined,
-    logo: undefined,
-    url: undefined,
-    doc_count: group._count._all,
-  });
-
-  return {
-    applications: applications.map(mapGroup),
-    clicks: clicks.map(mapGroup),
-  };
-}
-
 async function findStatEventMissionStatsSummary(missionId: string): Promise<{ clicks: StatEventMissionStatsSummary[]; applications: StatEventMissionStatsSummary[] }> {
   type MissionStatsSummaryGroup = { fromPublisherId: string | null; _count: { _all: number } };
 
@@ -561,10 +541,17 @@ async function findStatEventMissionStatsSummary(missionId: string): Promise<{ cl
   const clicks = clicksRaw as MissionStatsSummaryGroup[];
   const applications = applicationsRaw as MissionStatsSummaryGroup[];
 
-  const mapGroup = (group: MissionStatsSummaryGroup): StatEventMissionStatsSummary => ({
-    key: group.fromPublisherId ?? "",
-    doc_count: group._count._all,
-  });
+  const publisherIds = Array.from(new Set([...clicks, ...applications].map((group) => group.fromPublisherId).filter((value): value is string => Boolean(value))));
+  const publisherNameMap = await publisherService.getPublisherNameMap(publisherIds);
+
+  const mapGroup = (group: MissionStatsSummaryGroup): StatEventMissionStatsSummary => {
+    const key = group.fromPublisherId ?? "";
+    return {
+      key,
+      name: key ? publisherNameMap.get(key) : undefined,
+      doc_count: group._count._all,
+    };
+  };
 
   return {
     clicks: clicks.map(mapGroup),
@@ -680,7 +667,6 @@ export const statEventService = {
   countStatEventsByCriteria,
   countStatEventClicksByPublisherForOrganizationSince,
   aggregateStatEventsForMission,
-  findStatEventMissionStatsWithDetails,
   findStatEventMissionStatsSummary,
   scrollStatEvents,
   updateStatEventsExportStatus,

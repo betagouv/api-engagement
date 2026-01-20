@@ -1,8 +1,8 @@
 import { useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 
-import Table from "../../components/NewTable";
 import RadioInput from "../../components/RadioInput";
+import Table from "../../components/Table";
 import api from "../../services/api";
 import { API_URL } from "../../services/config";
 import { captureError } from "../../services/error";
@@ -51,7 +51,7 @@ const RealTime = () => {
         setEvents((res.data || []).slice(0, MAX_EVENTS));
         setSearchParams(type ? { type } : {});
       } catch (error) {
-        captureError(error, "Une erreur est survenue lors de la récupération des données");
+        captureError(error, { extra: { publisherId: publisher.id, type } });
       }
       setLoading(false);
     };
@@ -66,12 +66,12 @@ const RealTime = () => {
 
   return (
     <div className="space-y-12 p-12">
-      <title>Événements en temps réel - Paramètres - API Engagement</title>
-      <div className="space-y-8 border border-gray-900 p-8">
+      <title>API Engagement - Événements en temps réel - Paramètres</title>
+      <div className="border-grey-border space-y-8 border p-8">
         <div className="flex items-center justify-between gap-4">
           <div className="w-[40%] space-y-2">
             <h2 className="text-3xl font-bold">Activité {titleSuffix} en temps réel</h2>
-            <p className="text-gray-425 mb-4 text-xs">L'historique{descriptionSuffix}</p>
+            <p className="text-text-mention mb-4 text-xs">L'historique{descriptionSuffix}</p>
           </div>
           <div className="flex items-center gap-4">
             <RadioInput id="type-print" name="type" value="print" label="Impressions" checked={type === "print"} onChange={(e) => setType(e.target.value)} />

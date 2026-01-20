@@ -31,22 +31,22 @@ const Signup = () => {
       }
       setUser(res.data);
     } catch (error) {
-      captureError(error, "Erreur lors de la vérification du token");
+      captureError(error, { extra: { token } });
     }
   };
 
   return (
     <div className="h-full w-full bg-white px-32 py-10">
-      <title>Inscription - API Engagement</title>
+      <title>API Engagement - Inscription</title>
       {error === "invalide" ? (
         <ErrorAlert>
           <p className="text-xl font-bold">La clé n'est pas valide</p>
-          <p className="text-sm text-[#3a3a3a]">La clé fournie n'est pas valide, veuillez nous contacter pour accedez à votre compte</p>
+          <p className="text-color-gray-200 text-sm">La clé fournie n'est pas valide, veuillez nous contacter pour accedez à votre compte</p>
         </ErrorAlert>
       ) : error === "expired" ? (
         <WarningAlert>
           <p className="text-xl font-bold">La clé a expiré</p>
-          <p className="text-sm text-[#3a3a3a]">La clé fournie est expirée, contactez nous pour avoir un nouveau mail d'inscription</p>
+          <p className="text-color-gray-200 text-sm">La clé fournie est expirée, contactez nous pour avoir un nouveau mail d'inscription</p>
         </WarningAlert>
       ) : (
         <SignupForm user={user} />
@@ -120,7 +120,7 @@ const SignupForm = ({ user }) => {
       toast.success("Compte créé avec succès");
       navigate("/login");
     } catch (error) {
-      captureError(error, "Erreur lors de la création du compte");
+      captureError(error, { extra: { values } });
     }
     setLoading(false);
   };
@@ -137,13 +137,13 @@ const SignupForm = ({ user }) => {
         </label>
         <input
           id="firstname"
-          className={`input mb-2 ${submitted && errors.firstname ? "border-b-red-error" : "border-b-black"}`}
+          className={`input mb-2 ${submitted && errors.firstname ? "border-b-error" : "border-b-black"}`}
           name="firstname"
           value={values.firstname}
           onChange={handleChange}
         />
         {submitted && errors.firstname && (
-          <div className="text-red-error flex items-center text-sm">
+          <div className="text-error flex items-center text-sm">
             <RiErrorWarningFill className="mr-2" />
             {errors.firstname}
           </div>
@@ -155,13 +155,13 @@ const SignupForm = ({ user }) => {
         </label>
         <input
           id="lastname"
-          className={`input mb-2 ${submitted && errors.lastname ? "border-b-red-error" : "border-b-black"}`}
+          className={`input mb-2 ${submitted && errors.lastname ? "border-b-error" : "border-b-black"}`}
           name="lastname"
           value={values.lastname}
           onChange={handleChange}
         />
         {submitted && errors.lastname && (
-          <div className="text-red-error flex items-center text-sm">
+          <div className="text-error flex items-center text-sm">
             <RiErrorWarningFill className="mr-2" />
             {errors.lastname}
           </div>
@@ -179,14 +179,14 @@ const SignupForm = ({ user }) => {
         </div>
         <input
           id="password"
-          className={`input mb-2 ${submitted && errors.password ? "border-b-red-error border-2" : "border-b-black"}`}
+          className={`input mb-2 ${submitted && errors.password ? "border-b-error border-2" : "border-b-black"}`}
           name="password"
           type={show ? "text" : "password"}
           value={values.password}
           onChange={handleChange}
         />
         {submitted && errors.password && (
-          <div className="text-red-error flex items-center text-sm">
+          <div className="text-error flex items-center text-sm">
             <RiErrorWarningFill className="mr-2" />
             {errors.password}
           </div>
@@ -194,21 +194,21 @@ const SignupForm = ({ user }) => {
       </div>
       <div className="mt-1 flex flex-col gap-2">
         <div className="flex items-center gap-2">
-          {values.password.length >= 12 ? <AiFillCloseCircle className="text-green-700" /> : <AiFillCloseCircle className="text-gray-600" />}
-          <span className={`align-middle text-sm ${values.password.length >= 12 ? "text-green-600" : "text-gray-600"}`}>Au moins 12 caractères</span>
+          {values.password.length >= 12 ? <AiFillCloseCircle className="text-green-success" /> : <AiFillCloseCircle className="text-text-mention" />}
+          <span className={`align-middle text-sm ${values.password.length >= 12 ? "text-success" : "text-text-mention"}`}>Au moins 12 caractères</span>
         </div>
         <div className="flex items-center gap-2">
-          {hasLetter(values.password) ? <AiFillCloseCircle className="text-green-700" /> : <AiFillCloseCircle className="text-gray-600" />}
-          <span className={`align-middle text-sm ${hasLetter(values.password) ? "text-green-600" : "text-gray-600"}`}>Au moins une lettre</span>
+          {hasLetter(values.password) ? <AiFillCloseCircle className="text-green-success" /> : <AiFillCloseCircle className="text-text-mention" />}
+          <span className={`align-middle text-sm ${hasLetter(values.password) ? "text-success" : "text-text-mention"}`}>Au moins une lettre</span>
         </div>
         <div className="flex items-center gap-2">
-          {hasNumber(values.password) ? <AiFillCloseCircle className="text-green-700" /> : <AiFillCloseCircle className="text-gray-600" />}
-          <span className={`align-middle text-sm ${hasNumber(values.password) ? "text-green-600" : "text-gray-600"}`}>Au moins un chiffre</span>
+          {hasNumber(values.password) ? <AiFillCloseCircle className="text-green-success" /> : <AiFillCloseCircle className="text-text-mention" />}
+          <span className={`align-middle text-sm ${hasNumber(values.password) ? "text-success" : "text-text-mention"}`}>Au moins un chiffre</span>
         </div>
 
         <div className="flex items-center gap-2">
-          {hasSpecialChar(values.password) ? <AiFillCloseCircle className="text-green-700" /> : <AiFillCloseCircle className="text-gray-600" />}
-          <span className={`align-middle text-sm ${hasSpecialChar(values.password) ? "text-green-600" : "text-gray-600"}`}>Au moins un caractère spécial</span>
+          {hasSpecialChar(values.password) ? <AiFillCloseCircle className="text-green-success" /> : <AiFillCloseCircle className="text-text-mention" />}
+          <span className={`align-middle text-sm ${hasSpecialChar(values.password) ? "text-success" : "text-text-mention"}`}>Au moins un caractère spécial</span>
         </div>
       </div>
       <div className="mt-4 flex flex-col">
@@ -223,20 +223,20 @@ const SignupForm = ({ user }) => {
         </div>
         <input
           id="confirm-password"
-          className={`input mb-2 ${submitted && errors.confirmPassword ? "border-b-red-error border-2" : "border-b-black"}`}
+          className={`input mb-2 ${submitted && errors.confirmPassword ? "border-b-error border-2" : "border-b-black"}`}
           name="confirmPassword"
           type={showConfirm ? "text" : "password"}
           value={values.confirmPassword}
           onChange={handleChange}
         />
         {submitted && errors.confirmPassword && (
-          <div className="text-red-error flex items-center text-sm">
+          <div className="text-error flex items-center text-sm">
             <RiErrorWarningFill className="mr-2" />
             {errors.confirmPassword}
           </div>
         )}
       </div>
-      <button type="submit" className="primary-btn w-full mt-6" disabled={loading}>
+      <button type="submit" className="primary-btn mt-6 w-full" disabled={loading}>
         {loading ? "Chargement..." : "S'inscrire"}
       </button>
     </form>

@@ -2,10 +2,9 @@ import request from "supertest";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
 import { prismaCore } from "../../../../src/db/postgres";
-import MissionModel from "../../../../src/models/mission";
 import { statBotService } from "../../../../src/services/stat-bot";
 import * as utils from "../../../../src/utils";
-import { createTestPublisher } from "../../../fixtures/index";
+import { createTestMission, createTestPublisher } from "../../../fixtures";
 import { createClickStat } from "../../../fixtures/stat-event";
 import { createTestApp } from "../../../testApp";
 
@@ -41,17 +40,20 @@ describe("RedirectController /apply", () => {
 
   it("records apply stats with mission details when available", async () => {
     const publisher = await createTestPublisher();
-    const mission = await MissionModel.create({
+    const mission = await createTestMission({
+      addresses: [
+        {
+          postalCode: "75001",
+          departmentName: "Paris",
+          city: "Paris",
+        },
+      ],
       clientId: "mission-client-id",
       title: "Mission Title",
       publisherId: publisher.id,
-      publisherName: publisher.name,
       lastSyncAt: new Date(),
       domain: "mission-domain",
-      postalCode: "75001",
-      departmentName: "Paris",
       organizationName: "Mission Org",
-      organizationId: "mission-org-id",
       organizationClientId: "mission-org-client-id",
     });
 

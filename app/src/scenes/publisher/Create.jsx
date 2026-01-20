@@ -52,12 +52,13 @@ const Create = () => {
       toast.success("Partenaire créé avec succès");
       navigate(`/publisher/${res.data.id}`);
     } catch (error) {
-      captureError(error, "Erreur lors de la création du partenaire");
+      captureError(error, { extra: { values } });
     }
   };
 
   return (
     <div className="flex flex-col gap-8">
+      <title>API Engagement - Nouveau compte partenaire</title>
       <Link to="/admin-account/publishers" className="border-blue-france text-blue-france flex w-fit items-center gap-2 border-b text-[16px]">
         <RiArrowLeftLine />
         Retour
@@ -68,7 +69,7 @@ const Create = () => {
         <div className="h-px w-full bg-gray-900" />
         <div className="space-y-6">
           <h2 className="text-3xl font-bold">Paramètres</h2>
-          {errors.settings && <p className="text-red-error">{errors.settings}</p>}
+          {errors.settings && <p className="text-error">{errors.settings}</p>}
           <div className="flex items-start gap-6">
             <div className="flex-1">
               <AnnonceurCreation values={values} onChange={setValues} errors={errors} setErrors={setErrors} />

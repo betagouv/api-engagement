@@ -1,5 +1,5 @@
 import { SLACK_LBC_CHANNEL_ID } from "../../config";
-import MissionModel from "../../models/mission";
+import missionJobBoardService from "../../services/mission-jobboard";
 import { postMessage } from "../../services/slack";
 import { BaseHandler } from "../base/handler";
 import { JobResult } from "../types";
@@ -26,27 +26,33 @@ export class LeboncoinHandler implements BaseHandler<LeboncoinJobPayload, Lebonc
     const start = new Date();
     console.log(`[Leboncoin] Starting at ${start.toISOString()}`);
 
-    const count = await MissionModel.countDocuments({
-      leboncoinStatus: "REFUSED",
-      deletedAt: null,
-    });
+    const jobBoardEntries = await missionJobBoardService.findByJobBoard("LEBONCOIN", "ERROR");
+    const refusedMissionIds = jobBoardEntries.map((entry) => entry.missionId);
+    const uniqueRefusedIds = Array.from(new Set(refusedMissionIds));
+    const count = uniqueRefusedIds.length;
+
     console.log(`[Leboncoin] Found ${count} missions refused`);
 
-    const aggs = await MissionModel.aggregate([{ $match: { leboncoinStatus: "REFUSED", deletedAt: null } }, { $group: { _id: "$leboncoinComment", count: { $sum: 1 } } }]);
-    console.log(`[Leboncoin] Found ${aggs.length} different comments for missions refused`);
+    const commentsAgg = new Map<string, number>();
+    for (const entry of jobBoardEntries) {
+      if (entry.syncStatus !== "ERROR") {
+        continue;
+      }
+      const comment = entry.comment || "N/A";
+      commentsAgg.set(comment, (commentsAgg.get(comment) ?? 0) + 1);
+    }
+    console.log(`[Leboncoin] Found ${commentsAgg.size} different comments for missions refused`);
 
     let text = `Alerte détectée: *${count} missions refusées* par leboncoin`;
 
-    aggs.forEach((agg) => {
-      const errorType = Object.values(ERROR_TYPES).find((type) => agg._id.includes(type.regex));
+    commentsAgg.forEach((aggCount, comment) => {
+      const errorType = Object.values(ERROR_TYPES).find((type) => comment.includes(type.regex));
       if (errorType) {
-        text += `\n- *${agg.count}* ${errorType.label}`;
+        text += `\n- *${aggCount}* ${errorType.label}`;
       } else {
-        text += `\n- *${agg.count}* ${agg._id}`;
+        text += `\n- *${aggCount}* ${comment}`;
       }
     });
-
-    text += `\n\nVoir et exporter les missions refusées: https://app.api-engagement.beta.gouv.fr/admin-mission?leboncoinStatus=REFUSED`;
 
     await postMessage({ text }, SLACK_LBC_CHANNEL_ID);
     console.log(`[Leboncoin] Ended at ${new Date().toISOString()}`);

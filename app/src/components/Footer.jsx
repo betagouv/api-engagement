@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 const Footer = () => {
   return (
     <footer className="border-blue-france flex w-full flex-col justify-center border-t-2 bg-white">
-      <div className="border-b-border flex w-full items-center justify-between border-b border-gray-900 px-20 py-10">
+      <div className="border-grey-border flex w-full items-center justify-between border-b px-20 py-10">
         <Link className="hover:bg-gray-975 flex items-center p-2" to="/">
           <div className="h-full w-24">
             <p className="gouv-logo my-2 text-xs leading-3 font-bold text-black uppercase">
@@ -14,13 +14,11 @@ const Footer = () => {
           </div>
           <div>
             <h2 className="m-0 text-xl leading-7 font-bold text-black">API Engagement</h2>
-            <p className="text-sm text-gray-200">Plateforme de partage de missions de bénévolat et de volontariat</p>
+            <p className="text-sm">Plateforme de partage de missions de bénévolat et de volontariat</p>
           </div>
         </Link>
         <div>
-          <p className="mb-4 max-w-lg text-sm text-gray-200">
-            L'API vous permet de faciliter l'engagement en simplifiant la démarche de recherche d'une mission de bénévolat ou de volontariat
-          </p>
+          <p className="mb-4 max-w-lg text-sm">L'API vous permet de faciliter l'engagement en simplifiant la démarche de recherche d'une mission de bénévolat ou de volontariat</p>
 
           <div className="flex items-center gap-3 text-sm font-bold text-black">
             <a href="https://www.legifrance.gouv.fr/" target="_blank" className="underline">
@@ -39,7 +37,7 @@ const Footer = () => {
           </div>
         </div>
       </div>
-      <div className="divide-gray-425 flex w-full items-center divide-x px-20 py-4 text-xs text-black">
+      <div className="divide-text-mention flex w-full items-center divide-x px-20 py-4 text-xs">
         <a href="https://api-engagement.beta.gouv.fr/accessibilite/" className="pr-3 underline">
           Accessibilité : non conforme
         </a>
@@ -62,7 +60,7 @@ const Footer = () => {
           CGU
         </Link>
       </div>
-      <div className="items-baseliner inline-flex px-20 pt-2 pb-4 text-sm text-gray-200">
+      <div className="items-baseliner inline-flex px-20 pt-2 pb-4 text-sm">
         Sauf mention contraire, tous les textes de ce site sont sous
         <a href="https://github.com/etalab/licence-ouverte/blob/master/LO.md" target="_blank" className="ml-1 underline">
           licence etalab-2.0

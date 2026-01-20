@@ -54,6 +54,46 @@ enum MissionEventType {
   delete
 }
 
+enum MissionStatusCode {
+  ACCEPTED
+  REFUSED
+}
+
+enum MissionRemote {
+  no
+  possible
+  full
+}
+
+enum MissionPlacesStatus {
+  ATTRIBUTED_BY_API
+  GIVEN_BY_PARTNER
+}
+
+enum MissionCompensationUnit {
+  hour
+  day
+  month
+  year
+}
+
+enum MissionCompensationType {
+  gross
+  net
+}
+
+enum JobBoardId {
+  LETUDIANT
+  JOBTEASER
+  LEBONCOIN
+}
+
+enum MissionJobBoardSyncStatus {
+  ONLINE
+  OFFLINE
+  ERROR
+}
+
 enum StatEventType {
   click
   print
@@ -216,8 +256,9 @@ model StatEvent {
   fromPublisher Publisher @relation("StatEventFromPublisher", fields: [fromPublisherId], references: [id])
   toPublisher   Publisher @relation("StatEventToPublisher", fields: [toPublisherId], references: [id])
 
-  // Mission fields. Should be replaced by foreign keys to existing models when migrated
   missionId                   String?  @map("mission_id")
+  // TODO: restore relation when data has been backfilled
+  //mission   Mission? @relation("MissionStatEvents", fields: [missionId], references: [id], onDelete: SetNull)
   missionClientId             String?  @map("mission_client_id")
   missionDomain               String?  @map("mission_domain")
   missionTitle                String?  @map("mission_title")
@@ -267,6 +308,9 @@ model ModerationEvent {
   createdAt      DateTime               @default(now()) @map("created_at")
   updatedAt      DateTime               @updatedAt @map("updated_at")
 
+  // TODO: restore relation
+  // mission Mission @relation(fields: [missionId], references: [id], onDelete: Cascade)
+
   @@index([updatedAt(sort: Asc)], map: "moderation_event_updated_at_idx")
   @@index([missionId], map: "moderation_event_mission_id_idx")
   @@index([moderatorId], map: "moderation_event_moderator_id_idx")
@@ -305,6 +349,7 @@ model Publisher {
   diffuseurs             PublisherDiffusion[]          @relation("PublisherAnnonceurRelation")
   diffusionsAsDiffuseur  PublisherDiffusion[]          @relation("PublisherDiffuseurRelation")
   warnings               Warning[]                     @relation("WarningPublisherRelation")
+  warningBots            WarningBot[]                  @relation("WarningBotPublisherRelation")
   imports                Import[]                      @relation("ImportPublisherRelation")
   reports                Report[]                      @relation("PublisherReportRelation")
   diffusionExclusionsBy  PublisherDiffusionExclusion[] @relation("PublisherDiffusionExclusionByAnnonceurRelation")
@@ -312,8 +357,12 @@ model Publisher {
   statEventsFrom         StatEvent[]                   @relation("StatEventFromPublisher")
   statEventsTo           StatEvent[]                   @relation("StatEventToPublisher")
   userPublishers         UserPublisher[]
+  widgetsDiffusion       WidgetPublisher[]
+  widgets                Widget[]                      @relation("WidgetFromPublisher")
   campaignsFrom          Campaign[]                    @relation("CampaignFromPublisher")
   campaignsTo            Campaign[]                    @relation("CampaignToPublisher")
+  missions               Mission[]                     @relation("MissionPublisher")
+  publisherOrganizations PublisherOrganization[]
 
   @@index([name], map: "publisher_name_idx")
   @@index([apikey], map: "publisher_apikey_idx")
@@ -382,6 +431,87 @@ model Warning {
   @@map("warning")
 }
 
+model WarningBot {
+  id           String   @id @default(uuid())
+  hash         String
+  userAgent    String   @map("user_agent")
+  printCount   Int      @default(0) @map("print_count")
+  clickCount   Int      @default(0) @map("click_count")
+  applyCount   Int      @default(0) @map("apply_count")
+  accountCount Int      @default(0) @map("account_count")
+  publisherId  String   @map("publisher_id")
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+
+  publisher Publisher @relation("WarningBotPublisherRelation", fields: [publisherId], references: [id], onDelete: Cascade)
+
+  @@index([hash], map: "warning_bot_hash_idx")
+  @@index([publisherId], map: "warning_bot_publisher_id_idx")
+  @@index([createdAt], map: "warning_bot_created_at_idx")
+  @@map("warning_bot")
+}
+
+model Widget {
+  id              String    @id @default(uuid())
+  name            String
+  color           String    @default("#000091")
+  style           String    @default("page")
+  type            String    @default("benevolat")
+  locationLat     Float?    @map("location_lat")
+  locationLong    Float?    @map("location_long")
+  locationCity    String?   @map("location_city")
+  distance        String    @default("25km")
+  url             String?
+  jvaModeration   Boolean   @default(false) @map("jva_moderation")
+  fromPublisherId String    @map("from_publisher_id")
+  active          Boolean   @default(true)
+  deletedAt       DateTime? @map("deleted_at")
+  createdAt       DateTime  @default(now()) @map("created_at")
+  updatedAt       DateTime  @updatedAt @map("updated_at")
+
+  fromPublisher    Publisher         @relation("WidgetFromPublisher", fields: [fromPublisherId], references: [id])
+  rules            WidgetRule[]
+  widgetPublishers WidgetPublisher[]
+
+  @@index([fromPublisherId], map: "widget_from_publisher_id_idx")
+  @@index([active], map: "widget_active_idx")
+  @@index([deletedAt], map: "widget_deleted_at_idx")
+  @@index([name], map: "widget_name_idx")
+  @@map("widget")
+}
+
+model WidgetPublisher {
+  widgetId    String   @map("widget_id")
+  publisherId String   @map("publisher_id")
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  widget    Widget    @relation(fields: [widgetId], references: [id], onDelete: Cascade)
+  publisher Publisher @relation(fields: [publisherId], references: [id], onDelete: Cascade)
+
+  @@id([widgetId, publisherId])
+  @@index([publisherId], map: "widget_publisher_publisher_id_idx")
+  @@index([createdAt(sort: Desc)], map: "widget_publisher_created_at_desc_idx")
+  @@map("widget_publisher")
+}
+
+model WidgetRule {
+  id         String   @id @default(uuid())
+  widgetId   String   @map("widget_id")
+  field      String
+  fieldType  String?  @map("field_type")
+  operator   String
+  value      String
+  combinator String
+  position   Int      @default(0)
+  createdAt  DateTime @default(now()) @map("created_at")
+  updatedAt  DateTime @updatedAt @map("updated_at")
+
+  widget Widget @relation(fields: [widgetId], references: [id], onDelete: Cascade)
+
+  @@index([widgetId], map: "widget_rule_widget_id_idx")
+  @@map("widget_rule")
+}
+
 model Import {
   id           String       @id @default(uuid())
   name         String
@@ -424,6 +554,254 @@ model ImportRna {
   @@map("import_rna")
 }
 
+model Mission {
+  id                        String                   @id
+  clientId                  String                   @map("client_id")
+  title                     String
+  description               String?                  @default("")
+  descriptionHtml           String?                  @map("description_html")
+  tags                      String[]                 @default([])
+  tasks                     String[]                 @default([])
+  audience                  String[]                 @default([])
+  softSkills                String[]                 @default([]) @map("soft_skills")
+  requirements              String[]                 @default([])
+  romeSkills                String[]                 @default([]) @map("rome_skills")
+  reducedMobilityAccessible Boolean?                 @map("reduced_mobility_accessible")
+  closeToTransport          Boolean?                 @map("close_to_transport")
+  openToMinors              Boolean?                 @map("open_to_minors")
+  remote                    MissionRemote?
+  schedule                  String?
+  duration                  Int?
+  postedAt                  DateTime?                @map("posted_at")
+  startAt                   DateTime?                @map("start_at")
+  endAt                     DateTime?                @map("end_at")
+  priority                  String?
+  places                    Int?
+  placesStatus              MissionPlacesStatus?     @map("places_status")
+  metadata                  String?
+  domainId                  String?                  @map("domain_id")
+  activityId                String?                  @map("activity_id")
+  domainOriginal            String?                  @map("domain_original")
+  domainLogo                String?                  @map("domain_logo")
+  type                      MissionType?             @map("type")
+  snu                       Boolean?                 @default(false) @map("snu")
+  snuPlaces                 Int?                     @map("snu_places")
+  compensationAmount        Float?                   @map("compensation_amount")
+  compensationUnit          MissionCompensationUnit? @map("compensation_unit")
+  compensationType          MissionCompensationType? @map("compensation_type")
+  lastSyncAt                DateTime?                @map("last_sync_at")
+  applicationUrl            String?                  @map("application_url")
+  statusCode                MissionStatusCode        @map("status_code")
+  statusComment             String?                  @map("status_comment")
+  organizationClientId      String?                  @map("organization_client_id")
+  organizationId            String?                  @map("organization_id")
+  publisherId               String                   @map("publisher_id")
+  deletedAt                 DateTime?                @map("deleted_at")
+  lastExportedToPgAt        DateTime?                @map("last_exported_to_pg_at")
+  createdAt                 DateTime                 @default(now()) @map("created_at")
+  updatedAt                 DateTime                 @updatedAt @map("updated_at")
+
+  publisher            Publisher              @relation("MissionPublisher", fields: [publisherId], references: [id])
+  domain               Domain?                @relation(fields: [domainId], references: [id], onDelete: SetNull)
+  activity             Activity?              @relation(fields: [activityId], references: [id], onDelete: SetNull)
+  organization         Organization?          @relation("MissionOrganization", fields: [organizationId], references: [id])
+  publisherOrganization PublisherOrganization? @relation("MissionPublisherOrganization", fields: [publisherId, organizationClientId], references: [publisherId, organizationClientId])
+  addresses            MissionAddress[]
+  moderationStatuses   MissionModerationStatus[]
+  jobBoards            MissionJobBoard[]
+
+  // Organization fields (legacy, kept during backfill)
+  organizationUrl                    String?
+  organizationName                   String?
+  organizationType                   String?
+  organizationLogo                   String?
+  organizationDescription            String?
+  organizationFullAddress            String?
+  organizationRNA                    String?
+  organizationSiren                  String?
+  organizationSiret                  String?
+  organizationDepartment             String?
+  organizationDepartmentCode         String?
+  organizationDepartmentName         String?
+  organizationPostCode               String?
+  organizationCity                   String?
+  organizationStatusJuridique        String?
+  organizationBeneficiaries          String[]
+  organizationActions                String[]
+  organizationReseaux                String[]
+  organizationNameVerified           String?
+  organizationRNAVerified            String?
+  organizationSirenVerified          String?
+  organizationSiretVerified          String?
+  organizationAddressVerified        String?
+  organizationCityVerified           String?
+  organizationPostalCodeVerified     String?
+  organizationDepartmentCodeVerified String?
+  organizationDepartmentNameVerified String?
+  organizationRegionVerified         String?
+  organizationVerificationStatus     String?
+  organisationIsRUP                  Boolean?
+
+  // TODO: restore relations 
+  // missionEvents      MissionEvent[]
+  // moderationEvents   ModerationEvent[]
+  //statEvents         StatEvent[]               @relation("MissionStatEvents")
+
+  @@unique([clientId, publisherId], map: "mission_client_publisher_key")
+  @@index([publisherId, statusCode, deletedAt, startAt(sort: Desc)], map: "mission_publisher_status_deleted_start_at_idx")
+  @@index([statusCode, deletedAt, startAt(sort: Desc)], map: "mission_status_deleted_start_at_idx")
+  @@index([createdAt], map: "mission_created_at_idx")
+  @@index([startAt], map: "mission_start_at_idx")
+  @@index([remote], map: "mission_remote_idx")
+  @@index([publisherId], map: "mission_publisher_id_idx")
+  @@index([clientId], map: "mission_client_id_idx")
+  @@index([organizationClientId], map: "mission_organization_client_id_idx")
+  @@index([domainId], map: "mission_domain_id_idx")
+  @@index([activityId], map: "mission_activity_id_idx")
+  @@index([deletedAt], map: "mission_deleted_at_idx")
+  @@index([statusCode], map: "mission_status_code_idx")
+  @@map("mission")
+}
+
+model PublisherOrganization {
+  id                            String   @id @default(uuid())
+  publisherId                   String   @map("publisher_id")
+  organizationClientId          String   @map("organization_client_id")
+  organizationName              String?  @map("organization_name")
+  organizationUrl               String?  @map("organization_url")
+  organizationType              String?  @map("organization_type")
+  organizationLogo              String?  @map("organization_logo")
+  organizationDescription       String?  @map("organization_description")
+  organizationFullAddress       String?  @map("organization_full_address")
+  organizationRNA               String?  @map("organization_rna")
+  organizationSiren             String?  @map("organization_siren")
+  organizationSiret             String?  @map("organization_siret")
+  organizationDepartment        String?  @map("organization_department")
+  organizationDepartmentCode    String?  @map("organization_department_code")
+  organizationDepartmentName    String?  @map("organization_department_name")
+  organizationPostCode          String?  @map("organization_post_code")
+  organizationCity              String?  @map("organization_city")
+  organizationStatusJuridique   String?  @map("organization_status_juridique")
+  organizationBeneficiaries     String[] @default([]) @map("organization_beneficiaries")
+  organizationActions           String[] @default([]) @map("organization_actions")
+  organizationReseaux           String[] @default([]) @map("organization_reseaux")
+  organizationNameVerified      String?  @map("organization_name_verified")
+  organizationRNAVerified       String?  @map("organization_rna_verified")
+  organizationSirenVerified     String?  @map("organization_siren_verified")
+  organizationSiretVerified     String?  @map("organization_siret_verified")
+  organizationAddressVerified   String?  @map("organization_address_verified")
+  organizationCityVerified      String?  @map("organization_city_verified")
+  organizationPostalCodeVerified String? @map("organization_postal_code_verified")
+  organizationDepartmentCodeVerified String? @map("organization_department_code_verified")
+  organizationDepartmentNameVerified String? @map("organization_department_name_verified")
+  organizationRegionVerified    String?  @map("organization_region_verified")
+  organizationVerificationStatus String? @map("organization_verification_status")
+  organisationIsRUP             Boolean? @map("organisation_is_rup")
+  createdAt                     DateTime @default(now()) @map("created_at")
+  updatedAt                     DateTime @updatedAt @map("updated_at")
+
+  publisher Publisher @relation(fields: [publisherId], references: [id], onDelete: Cascade)
+  missions  Mission[] @relation("MissionPublisherOrganization")
+
+  @@unique([publisherId, organizationClientId], map: "publisher_organization_publisher_id_org_client_id_key")
+  @@index([publisherId], map: "publisher_organization_publisher_id_idx")
+  @@index([organizationName], map: "publisher_organization_organization_name_idx")
+  @@map("publisher_organization")
+}
+
+model Domain {
+  id        String   @id @default(uuid())
+  name      String   @unique
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  missions Mission[]
+
+  @@map("domain")
+}
+
+model Activity {
+  id        String   @id @default(uuid())
+  name      String   @unique
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  missions Mission[]
+
+  @@map("activity")
+}
+
+model MissionAddress {
+  id             String                @id @default(uuid())
+  missionId      String                @map("mission_id")
+  street         String?
+  postalCode     String?               @map("postal_code")
+  departmentName String?               @map("department_name")
+  departmentCode String?               @map("department_code")
+  city           String?
+  region         String?
+  country        String?
+  locationLat    Float?                @map("location_lat")
+  locationLon    Float?                @map("location_lon")
+  geoPoint       Unsupported("point")? @map("geo_point")
+  geolocStatus   String?               @map("geoloc_status")
+  createdAt      DateTime              @default(now()) @map("created_at")
+  updatedAt      DateTime              @updatedAt @map("updated_at")
+
+  mission Mission @relation(fields: [missionId], references: [id], onDelete: Cascade)
+
+  jobBoards MissionJobBoard[]
+
+  @@index([missionId], map: "mission_address_mission_id_idx")
+  @@index([city], map: "mission_address_city_idx")
+  @@index([country], map: "mission_address_country_idx")
+  @@index([departmentName], map: "mission_address_department_name_idx")
+  @@index([locationLat], map: "mission_address_lat_idx")
+  @@index([locationLon], map: "mission_address_lon_idx")
+  @@map("mission_address")
+}
+
+model MissionJobBoard {
+  id               String     @id @default(uuid())
+  jobBoardId       JobBoardId @map("jobboard_id")
+  missionId        String     @map("mission_id")
+  missionAddressId String?    @map("mission_address_id")
+  publicId         String     @map("public_id")
+  status           String?    @map("status")
+  syncStatus       MissionJobBoardSyncStatus? @map("sync_status")
+  comment          String?    @map("comment")
+  createdAt        DateTime   @default(now()) @map("created_at")
+  updatedAt        DateTime   @updatedAt @map("updated_at")
+
+  mission        Mission         @relation(fields: [missionId], references: [id], onDelete: Cascade)
+  missionAddress MissionAddress? @relation(fields: [missionAddressId], references: [id], onDelete: Cascade)
+
+  @@unique([jobBoardId, missionId, missionAddressId], map: "mission_jobboard_unique")
+  @@index([missionId], map: "mission_jobboard_mission_id_idx")
+  @@index([missionAddressId], map: "mission_jobboard_address_id_idx")
+  @@map("mission_jobboard")
+}
+
+model MissionModerationStatus {
+  id          String                 @id @default(uuid())
+  missionId   String                 @map("mission_id")
+  publisherId String                 @map("publisher_id")
+  status      ModerationEventStatus?
+  comment     String?
+  note        String?
+  title       String?
+  createdAt   DateTime               @default(now()) @map("created_at")
+  updatedAt   DateTime               @updatedAt @map("updated_at")
+
+  mission Mission @relation(fields: [missionId], references: [id], onDelete: Cascade)
+
+  @@unique([missionId, publisherId], map: "mission_moderation_status_mission_publisher_key")
+  @@index([missionId], map: "mission_moderation_status_mission_id_idx")
+  @@index([publisherId], map: "mission_moderation_status_publisher_id_idx")
+  @@index([publisherId, status], map: "mission_moderation_status_publisher_status_idx")
+  @@map("mission_moderation_status")
+}
+
 model MissionEvent {
   id        String           @id @default(uuid())
   missionId String           @map("mission_id")
@@ -432,6 +810,9 @@ model MissionEvent {
   createdBy String?          @map("created_by")
   createdAt DateTime         @default(now()) @map("created_at")
   updatedAt DateTime         @updatedAt @map("updated_at")
+
+  // TODO: restore relation
+  // mission Mission @relation(fields: [missionId], references: [id], onDelete: Cascade)
 
   @@index([missionId], map: "mission_event_mission_id_idx")
   @@index([updatedAt(sort: Asc)], map: "mission_event_updated_at_asc_idx")
@@ -490,6 +871,8 @@ model Organization {
   letudiantPublicId      String?   @map("letudiant_public_id")
   letudiantUpdatedAt     DateTime? @map("letudiant_updated_at")
   lastExportedToPgAt     DateTime? @map("last_exported_to_pg_at")
+
+  missions Mission[] @relation("MissionOrganization")
 
   @@index([updatedAt, lastExportedToPgAt], map: "organization_updated_last_exported_idx")
   @@index([rna(ops: raw("gin_trgm_ops"))], type: Gin, map: "organization_rna_idx")

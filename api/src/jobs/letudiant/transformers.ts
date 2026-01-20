@@ -1,9 +1,15 @@
 import { PUBLISHER_IDS } from "../../config";
 import { PilotyCompanyPayload, PilotyJobPayload, PilotyMandatoryData } from "../../services/piloty/types";
-import { Mission, MissionType } from "../../types";
+import { MissionType } from "../../types";
+import { MissionRecord } from "../../types/mission";
 import { getMissionTrackedApplicationUrl } from "../../utils/mission";
 import { MEDIA_PUBLIC_ID } from "./config";
 import { decodeHtml } from "./utils";
+
+export type PilotyJobWithAddress = {
+  payload: PilotyJobPayload;
+  missionAddressId: string | null;
+};
 
 /**
  * Transform a mission into a Piloty job payload
@@ -23,16 +29,16 @@ import { decodeHtml } from "./utils";
  * @param mission The mission to transform
  * @param companyId The company public id
  * @param mandatoryData The mandatory data from Piloty
- * @returns The job payloads
+ * @returns The job payloads with their associated mission address
  */
-export function missionToPilotyJobs(mission: Mission, companyId: string, mandatoryData: PilotyMandatoryData): PilotyJobPayload[] {
+export function missionToPilotyJobs(mission: MissionRecord, companyId: string, mandatoryData: PilotyMandatoryData): PilotyJobWithAddress[] {
   function buildJobPayload(isRemote: boolean, localisation: string | undefined): PilotyJobPayload {
     return {
       media_public_id: MEDIA_PUBLIC_ID,
       company_public_id: companyId,
       name: mission.type === MissionType.VOLONTARIAT ? `Volontariat - ${mission.title}` : mission.title,
       contract_id: mission.type === MissionType.VOLONTARIAT ? mandatoryData.contracts.volontariat : mandatoryData.contracts.benevolat,
-      job_category_id: mandatoryData.jobCategories[mission.domain] ?? mandatoryData.jobCategories["autre"],
+      job_category_id: mandatoryData.jobCategories[mission.domain ?? "autre"] ?? mandatoryData.jobCategories["autre"],
       localisation: localisation || "France",
       description_job: decodeHtml(mission.descriptionHtml),
       application_method: "external_apply",
@@ -54,7 +60,12 @@ export function missionToPilotyJobs(mission: Mission, companyId: string, mandato
     const department = mission.organizationDepartment || undefined;
     const country = mission.country || "France";
     const formatted = formatLocalisation([city, department, country]) || "France";
-    return [buildJobPayload(true, formatted)];
+    return [
+      {
+        payload: buildJobPayload(true, formatted),
+        missionAddressId: null,
+      },
+    ];
   }
 
   // Group addresses by city
@@ -70,7 +81,10 @@ export function missionToPilotyJobs(mission: Mission, companyId: string, mandato
 
   return uniqueAddresses.map((address) => {
     const localisation = formatLocalisation([address.city, address.departmentName, address.country || "France"]);
-    return buildJobPayload(false, localisation);
+    return {
+      payload: buildJobPayload(false, localisation),
+      missionAddressId: address.id ?? null,
+    };
   });
 }
 
@@ -83,12 +97,12 @@ export function missionToPilotyJobs(mission: Mission, companyId: string, mandato
  * @param mission The mission to transform
  * @returns The company payload
  */
-export async function missionToPilotyCompany(mission: Mission): Promise<PilotyCompanyPayload> {
+export async function missionToPilotyCompany(mission: MissionRecord): Promise<PilotyCompanyPayload> {
   return {
     media_public_id: MEDIA_PUBLIC_ID,
-    name: mission.organizationName || mission.associationName || "",
+    name: mission.organizationName || "",
     // domain_url: (await getValidAndAccessibleUrl(mission.organizationUrl)) || "", // TODO: since Piloty seems to reject most of the urls, we skip it for now
     description: mission.organizationDescription || "",
-    logo_url: mission.organizationLogo,
+    logo_url: mission.organizationLogo || "",
   };
 }

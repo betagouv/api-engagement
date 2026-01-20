@@ -146,7 +146,7 @@ const Home = ({ widget, apiUrl, missions, total, request, environment }: PagePro
     } else {
       console.log("Geolocation is not supported by this browser.");
     }
-  }, [widget?._id]);
+  }, [widget?.id]);
 
   useEffect(() => {
     setMobile(window.innerWidth < 768);
@@ -169,7 +169,7 @@ const Home = ({ widget, apiUrl, missions, total, request, environment }: PagePro
 
     const timeoutId = setTimeout(() => {
       const query: Record<string, any> = {
-        widget: widget._id,
+        widget: widget.id,
         size: filters.size,
         ...(router.query.notrack && { notrack: router.query.notrack }),
       };
@@ -230,7 +230,7 @@ const Home = ({ widget, apiUrl, missions, total, request, environment }: PagePro
     }, 100);
 
     return () => clearTimeout(timeoutId);
-  }, [filters, widget?._id]);
+  }, [filters, widget?.id]);
 
   if (!widget) {
     return <div className="flex h-full w-full items-center justify-center">Erreur lors du chargement du widget</div>;
@@ -242,15 +242,7 @@ const Home = ({ widget, apiUrl, missions, total, request, environment }: PagePro
         <div className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
           <h1 className="text-[28px] font-bold leading-[36px] md:p-0">{isBenevolat ? "Trouver une mission de bénévolat" : "Trouver une mission de Service Civique"}</h1>
         </div>
-        <Filters
-          widget={widget}
-          apiUrl={apiUrl}
-          values={filters}
-          total={total}
-          onChange={(newFilters) => setFilters({ ...filters, ...newFilters, page: 1 })}
-          show={showFilters}
-          onShow={setShowFilters}
-        />
+        <Filters widget={widget} apiUrl={apiUrl} values={filters} total={total} onChange={(newFilters) => setFilters({ ...filters, ...newFilters, page: 1 })} show={showFilters} onShow={setShowFilters} />
       </header>
       <div className={`w-full ${showFilters ? (widget?.style === "carousel" ? "hidden" : "opacity-40 pointer-events-none") : "h-auto"}`}>
         {widget?.style === "carousel" ? (
@@ -286,21 +278,30 @@ export const getServerSideProps: GetServerSideProps<PageProps> = async (context:
     const res = await fetch(`${API_URL}/iframe/widget?${q}`).then((e) => e.json());
     if (!res.ok) {
       if (res.code === "NOT_FOUND") {
+        Sentry.captureMessage("Widget not found", { extra: { context: context, query: q } });
+        return { props: { widget: null, missions: [], total: 0, apiUrl: API_URL, request: null, environment: ENV } };
+      }
+      if (res.code === "INVALID_QUERY") {
+        Sentry.captureMessage(res.message, { extra: { context: context, query: q } });
         return { props: { widget: null, missions: [], total: 0, apiUrl: API_URL, request: null, environment: ENV } };
       }
       throw res;
     }
     widget = res.data;
   } catch (error) {
-    console.error("error", error);
+    console.error(error);
     Sentry.captureException(error, { extra: { context: context } });
     return { props: { widget: null, missions: [], total: 0, apiUrl: API_URL, request: null, environment: ENV } };
   }
 
-  try {
-    const searchParams = new URLSearchParams();
-    const isBenevolat = widget!.type === "benevolat";
+  if (!widget) {
+    Sentry.captureMessage("Widget not found", { extra: { context: context } });
+    return { props: { widget: null, missions: [], total: 0, apiUrl: API_URL, request: null, environment: ENV } };
+  }
 
+  const searchParams = new URLSearchParams();
+  const isBenevolat = widget.type === "benevolat";
+  try {
     if (isBenevolat) {
       if (context.query.domain) {
         context.query.domain.split(",").forEach((item) => searchParams.append("domain", item));
@@ -358,13 +359,13 @@ export const getServerSideProps: GetServerSideProps<PageProps> = async (context:
       searchParams.append("city", context.query.city || "");
     }
 
-    const response = await fetch(`${API_URL}/iframe/${widget!._id}/search?${searchParams.toString()}`).then((res) => res.json());
+    const response = await fetch(`${API_URL}/iframe/${widget!.id}/search?${searchParams.toString()}`).then((res) => res.json());
 
     if (!response.ok) {
       throw response;
     }
     const query = new URLSearchParams({
-      widgetId: widget!._id,
+      widgetId: widget!.id,
       requestId: response.request,
     });
 
@@ -396,7 +397,7 @@ export const getServerSideProps: GetServerSideProps<PageProps> = async (context:
     return { props: { widget, missions, total: response.total, apiUrl: API_URL, request: response.request || null, environment: ENV } };
   } catch (error) {
     console.error(error);
-    Sentry.captureException(error, { extra: { context: context } });
+    Sentry.captureException(error, { extra: { context: context, searchParams: searchParams.toString(), widgetId: widget!.id } });
   }
   return { props: { widget, missions: [], total: 0, apiUrl: API_URL, request: null, environment: ENV } };
 };

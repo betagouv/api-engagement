@@ -86,6 +86,24 @@ resource "scaleway_job_definition" "analytics-mission-event" {
   })
 }
 
+resource "scaleway_job_definition" "analytics-mission-address" {
+  name         = "analytics-${terraform.workspace}-mission-address"
+  project_id   = var.project_id
+  cpu_limit    = 1000
+  memory_limit = 2048
+  image_uri    = local.image_analytics_uri
+  timeout      = "120m"
+
+  cron {
+    schedule = "0 3 * * *" # Every day at 3:00 AM
+    timezone = "Europe/Paris"
+  }
+
+  env = merge(local.common_analytics_env_vars, {
+    JOB_CMD = "node dist/jobs/run-job.js export-to-analytics-raw mission_address"
+  })
+}
+
 resource "scaleway_job_definition" "analytics-publisher" {
   name         = "analytics-${terraform.workspace}-publisher"
   project_id   = var.project_id
@@ -101,6 +119,24 @@ resource "scaleway_job_definition" "analytics-publisher" {
 
   env = merge(local.common_analytics_env_vars, {
     JOB_CMD = "node dist/jobs/run-job.js export-to-analytics-raw publisher"
+  })
+}
+
+resource "scaleway_job_definition" "analytics-publisher-organization" {
+  name         = "analytics-${terraform.workspace}-publisher-organization"
+  project_id   = var.project_id
+  cpu_limit    = 1000
+  memory_limit = 2048
+  image_uri    = local.image_analytics_uri
+  timeout      = "120m"
+
+  cron {
+    schedule = "0 3 * * *" # Every day at 3:00 AM
+    timezone = "Europe/Paris"
+  }
+
+  env = merge(local.common_analytics_env_vars, {
+    JOB_CMD = "node dist/jobs/run-job.js export-to-analytics-raw publisher_organization"
   })
 }
 
@@ -245,6 +281,132 @@ resource "scaleway_job_definition" "analytics-campaign-tracker" {
 
   env = merge(local.common_analytics_env_vars, {
     JOB_CMD = "node dist/jobs/run-job.js export-to-analytics-raw campaign_tracker"
+  })
+}
+
+resource "scaleway_job_definition" "analytics-widget" {
+  name         = "analytics-${terraform.workspace}-widget"
+  project_id   = var.project_id
+  cpu_limit    = 1000
+  memory_limit = 2048
+  image_uri    = local.image_analytics_uri
+  timeout      = "120m"
+
+  cron {
+    schedule = "0 3 * * *" # Every day at 3:00 AM
+    timezone = "Europe/Paris"
+  }
+
+  env = merge(local.common_analytics_env_vars, {
+    JOB_CMD = "node dist/jobs/run-job.js export-to-analytics-raw widget"
+  })
+}
+
+resource "scaleway_job_definition" "analytics-widget-publisher" {
+  name         = "analytics-${terraform.workspace}-widget-publisher"
+  project_id   = var.project_id
+  cpu_limit    = 1000
+  memory_limit = 2048
+  image_uri    = local.image_analytics_uri
+  timeout      = "120m"
+
+  cron {
+    schedule = "0 3 * * *" # Every day at 3:00 AM
+    timezone = "Europe/Paris"
+  }
+
+  env = merge(local.common_analytics_env_vars, {
+    JOB_CMD = "node dist/jobs/run-job.js export-to-analytics-raw widget_publisher"
+  })
+}
+
+resource "scaleway_job_definition" "analytics-widget-rule" {
+  name         = "analytics-${terraform.workspace}-widget-rule"
+  project_id   = var.project_id
+  cpu_limit    = 1000
+  memory_limit = 2048
+  image_uri    = local.image_analytics_uri
+  timeout      = "120m"
+
+  cron {
+    schedule = "0 3 * * *" # Every day at 3:00 AM
+    timezone = "Europe/Paris"
+  }
+
+  env = merge(local.common_analytics_env_vars, {
+    JOB_CMD = "node dist/jobs/run-job.js export-to-analytics-raw widget_rule"
+  })
+}
+
+resource "scaleway_job_definition" "analytics-mission" {
+  name         = "analytics-${terraform.workspace}-mission"
+  project_id   = var.project_id
+  cpu_limit    = 1000
+  memory_limit = 2048
+  image_uri    = local.image_analytics_uri
+  timeout      = "120m"
+
+  cron {
+    schedule = "0 3 * * *" # Every day at 3:00 AM
+    timezone = "Europe/Paris"
+  }
+
+  env = merge(local.common_analytics_env_vars, {
+    JOB_CMD = "node dist/jobs/run-job.js export-to-analytics-raw mission"
+  })
+}
+
+resource "scaleway_job_definition" "analytics-domain" {
+  name         = "analytics-${terraform.workspace}-domain"
+  project_id   = var.project_id
+  cpu_limit    = 1000
+  memory_limit = 2048
+  image_uri    = local.image_analytics_uri
+  timeout      = "120m"
+
+  cron {
+    schedule = "0 3 * * *" # Every day at 3:00 AM
+    timezone = "Europe/Paris"
+  }
+
+  env = merge(local.common_analytics_env_vars, {
+    JOB_CMD = "node dist/jobs/run-job.js export-to-analytics-raw domain"
+  })
+}
+
+resource "scaleway_job_definition" "analytics-activity" {
+  name         = "analytics-${terraform.workspace}-activity"
+  project_id   = var.project_id
+  cpu_limit    = 1000
+  memory_limit = 2048
+  image_uri    = local.image_analytics_uri
+  timeout      = "120m"
+
+  cron {
+    schedule = "0 3 * * *" # Every day at 3:00 AM
+    timezone = "Europe/Paris"
+  }
+
+  env = merge(local.common_analytics_env_vars, {
+    JOB_CMD = "node dist/jobs/run-job.js export-to-analytics-raw activity"
+  })
+}
+
+resource "scaleway_job_definition" "analytics-mission-moderation-status" {
+  name         = "analytics-${terraform.workspace}-mission-moderation-status"
+  project_id   = var.project_id
+  cpu_limit    = 1000
+  memory_limit = 2048
+  image_uri    = local.image_analytics_uri
+  timeout      = "120m"
+
+  cron {
+    schedule = "0 3 * * *" # Every day at 3:00 AM
+    timezone = "Europe/Paris"
+  }
+
+  env = merge(local.common_analytics_env_vars, {
+    JOB_CMD = "node dist/jobs/run-job.js export-to-analytics-raw mission_moderation_status"
   })
 }
 

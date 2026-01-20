@@ -61,7 +61,7 @@ const Edit = () => {
         const normalized = withLegacyPublisher(res.data);
         setPublisher(normalized);
       } catch (error) {
-        captureError(error, "Erreur lors de la récupération du partenaire");
+        captureError(error, { extra: { id } });
       }
     };
     fetchData();
@@ -79,7 +79,7 @@ const Edit = () => {
       setPublisher(updated);
       if (sessionPublisher?.id === values.id) setSessionPublisher(updated);
     } catch (error) {
-      captureError(error, "Erreur lors de la mise à jour de l'image");
+      captureError(error, { extra: { id } });
     }
   };
 
@@ -99,7 +99,7 @@ const Edit = () => {
       }
       navigate("/accounts?tab=publishers");
     } catch (error) {
-      captureError(error, "Erreur lors de la suppression du partenaire");
+      captureError(error, { extra: { id } });
     }
   };
 
@@ -138,7 +138,7 @@ const Edit = () => {
         setSessionPublisher(updated);
       }
     } catch (error) {
-      captureError(error, "Erreur lors de la mise à jour du partenaire");
+      captureError(error, { extra: { id, values } });
     }
   };
 
@@ -153,6 +153,7 @@ const Edit = () => {
 
   return (
     <div className="flex flex-col gap-8">
+      <title>{`API Engagement - Compte partenaire - ${values.name}`}</title>
       <Link to="/admin-account/publishers" className="border-blue-france text-blue-france flex w-fit items-center gap-2 border-b text-[16px]">
         <RiArrowLeftLine />
         Retour
@@ -175,7 +176,7 @@ const Edit = () => {
         <div className="h-px w-full bg-gray-900" />
         <div className="space-y-6">
           <h2 className="text-3xl font-bold">Paramètres</h2>
-          {errors.settings && <p className="text-red-error">{errors.settings}</p>}
+          {errors.settings && <p className="text-error">{errors.settings}</p>}
           <div className="flex items-start gap-6">
             <div className="flex-1">
               <Annonceur values={values} onChange={setValues} errors={errors} setErrors={setErrors} />

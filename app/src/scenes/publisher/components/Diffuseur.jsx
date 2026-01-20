@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 
-import Table from "../../../components/NewTable";
 import SearchInput from "../../../components/SearchInput";
+import Table from "../../../components/Table";
 import Toggle from "../../../components/Toggle";
 import { PUBLISHER_CATEGORIES } from "../../../constants";
 import api from "../../../services/api";
@@ -42,17 +42,18 @@ const Diffuseur = ({ values, onChange, errors, setErrors }) => {
         setPublishers(withLegacyPublishers(res.data));
         setErrors({});
       } catch (error) {
-        captureError(error, "Erreur lors de la récupération des diffuseurs");
+        captureError(error, { extra: { publisherId: values.id } });
       }
     };
     fetchData();
   }, []);
 
   return (
-    <div className="space-y-6 border border-gray-900 p-6">
+    <div className="border-grey-border space-y-6 border p-6">
       <div className="flex items-center justify-between">
         <h3 className="text-lg font-bold">Diffuseur</h3>
         <Toggle
+          aria-label={values.isDiffuseur ? "Désactiver le mode diffuseur" : "Activer le mode diffuseur"}
           value={values.isDiffuseur}
           onChange={(e) => onChange({ ...values, isDiffuseur: e, hasApiRights: false, hasWidgetRights: false, hasCampaignRights: false, category: null })}
         />
@@ -60,8 +61,8 @@ const Diffuseur = ({ values, onChange, errors, setErrors }) => {
       {values.isDiffuseur && (
         <>
           <div className="h-px w-full bg-gray-900" />
-          {errors.category && <p className="text-red-error">{errors.category}</p>}
-          {errors.mode && <p className="text-red-error">{errors.mode}</p>}
+          {errors.category && <p className="text-error">{errors.category}</p>}
+          {errors.mode && <p className="text-error">{errors.mode}</p>}
           <div className="space-y-2">
             <label className="text-base" htmlFor="category">
               Catégorie <span className="text-red-marianne ml-1">*</span>

@@ -3,7 +3,7 @@ import { useNavigate, useSearchParams } from "react-router-dom";
 
 import ModerationAutoIcon from "../../../assets/svg/moderation-auto.svg";
 import Loader from "../../../components/Loader";
-import { TablePaginator } from "../../../components/Table";
+import Table from "../../../components/Table";
 import Toggle from "../../../components/Toggle";
 import api from "../../../services/api";
 import { captureError } from "../../../services/error";
@@ -91,7 +91,7 @@ const Moderation = () => {
         if (searchParams.has("mission")) newSearchParams.set("mission", searchParams.get("mission"));
         setSearchParams(newSearchParams);
       } catch (error) {
-        captureError(error, "Une erreur est survenue");
+        captureError(error, { extra: { filters } });
       }
       setLoading(false);
     };
@@ -104,7 +104,7 @@ const Moderation = () => {
       if (!res.ok) throw res;
       setHistory(res.data);
     } catch (error) {
-      captureError(error, "Une erreur est survenue");
+      captureError(error, { extra: { publisherId: publisher.id } });
     }
   };
 
@@ -146,7 +146,7 @@ const Moderation = () => {
 
   return (
     <div className="space-y-12 py-12">
-      <title>Modération - Diffuser des missions - API Engagement</title>
+      <title>API Engagement - Modération - Diffuser des missions</title>
       <MissionModal
         onChange={(values) => {
           applyMissionUpdates(values);
@@ -161,7 +161,7 @@ const Moderation = () => {
 
         <div className="pt-4">
           <div className="flex items-center gap-4">
-            <Toggle value={true} />
+            <Toggle aria-label="Activer la modération automatique" value={true} />
             <label className="ml-2 font-semibold">Activer la modération automatique</label>
           </div>
           <div className="flex items-center justify-end">
@@ -197,40 +197,37 @@ const Moderation = () => {
       />
 
       <div className="mx-12">
-        <TablePaginator
-          data={data}
-          pageSize={size}
-          length={total}
+        <Table
+          header={[
+            {
+              title: (
+                <label className="flex items-center">
+                  <span className="sr-only">Sélectionner toutes les missions</span>
+                  <input
+                    type="checkbox"
+                    className="checkbox"
+                    checked={selected.length === data.length && data.length > 0}
+                    onChange={handleSelectAll}
+                    ref={(el) => {
+                      if (el) el.indeterminate = selected.length > 0 && selected.length < data.length;
+                    }}
+                  />
+                </label>
+              ),
+            },
+            { title: "Mission", colSpan: 2 },
+            { title: "Organisation" },
+            { title: "Actions" },
+          ]}
+          total={total}
           loading={loading}
           page={filters.page}
+          pageSize={size}
           onPageChange={handlePageChange}
-          renderHeader={() => (
-            <>
-              <h4 className="flex w-[5%] items-center">
-                <label htmlFor="moderation-select-all" className="sr-only">
-                  Sélectionner toutes les missions
-                </label>
-                <input
-                  id="moderation-select-all"
-                  name="moderation-select-all"
-                  type="checkbox"
-                  className="checkbox"
-                  checked={selected.length === data.length}
-                  onChange={handleSelectAll}
-                  ref={(el) => {
-                    if (el) el.indeterminate = selected.length > 0 && selected.length < data.length;
-                  }}
-                />
-              </h4>
-              <h4 className="flex-1">Mission</h4>
-              <h4 className="w-[25%]">Organisation</h4>
-              <h4 className="w-[30%]">Actions</h4>
-            </>
-          )}
-          itemHeight="h-48"
-          itemBackground="bg-white"
-          renderItem={(item) => (
-            <>
+          auto
+        >
+          {data.map((item, i) => (
+            <tr key={item._id} className={`${i % 2 === 0 ? "bg-gray-975" : "bg-gray-1000-active"} table-item`}>
               <MissionItem
                 data={item}
                 history={history.organization[item.organizationName] || { ACCEPTED: 0, REFUSED: 0 }}
@@ -254,9 +251,9 @@ const Moderation = () => {
                 onSelect={() => setSelected(selected.includes(item._id) ? selected.filter((id) => id !== item._id) : [...selected, item._id])}
                 onFilter={(v) => setFilters({ ...filters, organization: v, page: 1 })}
               />
-            </>
-          )}
-        />
+            </tr>
+          ))}
+        </Table>
       </div>
     </div>
   );

@@ -38,12 +38,18 @@ const Edit = () => {
     const fetchData = async () => {
       try {
         const res = await api.get(`/campaign/${id}`);
-        if (!res.ok) throw new Error("Erreur lors de la récupération des données");
+        if (!res.ok) {
+          if (res.status === 404) {
+            toast.error("Campagne non trouvée");
+            navigate("/broadcast/campaigns");
+            return;
+          }
+          throw res;
+        }
         setCampaign(res.data);
         setValues({ ...values, ...res.data });
       } catch (error) {
-        captureError(error, "Erreur lors de la récupération des données");
-        navigate("/broadcast");
+        captureError(error, { extra: { id } });
       }
     };
     fetchData();
@@ -83,7 +89,7 @@ const Edit = () => {
       setCampaign(res.data);
       setValues({ ...values, ...res.data });
     } catch (error) {
-      captureError(error, "Erreur lors de la mise à jour de la campagne");
+      captureError(error, { extra: { id, values } });
     } finally {
       setLoading(false);
     }
@@ -99,7 +105,7 @@ const Edit = () => {
       toast.success(activation ? "Campagne activée" : "Campagne désactivée");
       setCampaign({ ...campaign, active: activation });
     } catch (error) {
-      captureError(error, `Erreur lors de la mise à jour de la campagne`);
+      captureError(error, { extra: { id, activation } });
       setValues({ ...values, active: !activation });
     }
   };
@@ -114,7 +120,7 @@ const Edit = () => {
       toast.success("Campagne supprimée");
       navigate("/broadcast/campaigns");
     } catch (error) {
-      captureError(error, "Erreur lors de la suppression de la campagne");
+      captureError(error, { extra: { id } });
     }
   };
 
@@ -136,6 +142,7 @@ const Edit = () => {
 
   return (
     <>
+      <title>API Engagement - Modifier une campagne de diffusion</title>
       <ReassignModal
         isOpen={isReassignModalOpen}
         onClose={() => setIsReassignModalOpen(false)}
@@ -153,12 +160,12 @@ const Edit = () => {
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-4xl font-bold">Modifier une campagne</h1>
-            <p className="text-gray-425 mt-2 text-base">Créée le {new Date(campaign.createdAt).toLocaleDateString("fr")}</p>
+            <p className="text-text-mention mt-2 text-base">Créée le {new Date(campaign.createdAt).toLocaleDateString("fr")}</p>
           </div>
           <div className="flex items-center gap-4">
             <div className="flex items-center">
-              <Toggle value={values.active} onChange={handleArchive} />
-              <label className={`${values.active ? "text-blue-france" : "text-gray-425"} mb-1 ml-2`}>{values.active ? "Active" : "Inactive"}</label>
+              <Toggle aria-label={values.active ? "Désactiver la campagne" : "Activer la campagne"} value={values.active} onChange={handleArchive} />
+              <label className={`${values.active ? "text-blue-france" : "text-text-mention"} mb-1 ml-2`}>{values.active ? "Active" : "Inactive"}</label>
             </div>
             <button className="primary-btn" disabled={!isChanged(values) || isErrors(errors) || loading} onClick={handleSubmit}>
               {loading ? <Loader className="h-6 w-6" /> : "Enregistrer"}
@@ -170,7 +177,7 @@ const Edit = () => {
         <div className="flex flex-col gap-8 bg-white p-10 shadow-lg">
           <div>
             <h2 className="mb-2 text-3xl font-bold">Paramètres</h2>
-            <p className="text-gray-425 text-xs">
+            <p className="text-text-mention text-xs">
               Les champs avec <span className="text-red-marianne">*</span> sont requis.
             </p>
           </div>
@@ -187,7 +194,7 @@ const Edit = () => {
               </button>
             </div>
             <div>
-              <span className="text-orange-warning-425 mt-2 flex flex-row items-center text-xs">
+              <span className="text-warning mt-2 flex flex-row items-center text-xs">
                 <AiFillWarning className="mr-2" />
                 Copiez exactement ce lien !
               </span>
@@ -242,14 +249,14 @@ const ReassignModal = ({ isOpen, onClose, campaign, values, setValues, setCampai
     const fetchData = async () => {
       try {
         const res = await api.post(`/publisher/search`, { role: "campaign" });
-        if (!res.ok) throw new Error("Erreur lors de la récupération des données");
+        if (!res.ok) throw res;
         setPublishers(
           withLegacyPublishers(res.data)
             .sort((a, b) => a.name.localeCompare(b.name))
             .map((p) => ({ ...p, label: p.name })),
         );
       } catch (error) {
-        captureError(error, "Erreur lors de la récupération des données");
+        captureError(error);
       }
     };
     fetchData();
@@ -267,13 +274,13 @@ const ReassignModal = ({ isOpen, onClose, campaign, values, setValues, setCampai
         fromPublisherId: values.fromPublisherId,
       });
 
-      if (!res.ok) throw new Error("Erreur lors du déplacement de la campagne");
+      if (!res.ok) throw res;
       toast.success("Campagne déplacée avec succès");
       setCampaign({ ...campaign, toPublisherId: values.toPublisherId });
       onClose();
       navigate("/broadcast/campaigns");
     } catch (error) {
-      captureError(error, "Erreur lors du déplacement de la campagne");
+      captureError(error, { extra: { campaign, values } });
     } finally {
       setLoading(false);
     }
@@ -286,7 +293,7 @@ const ReassignModal = ({ isOpen, onClose, campaign, values, setValues, setCampai
           <RiFileTransferLine className="text-3xl" />
           <h2 className="text-3xl font-bold">Déplacer une campagne</h2>
         </div>
-        <span className="text-gray-425">
+        <span className="text-text-mention">
           Vers quel compte voulez-vous déplacer la campagne <span className="font-bold">{campaign.name}</span> ?
         </span>
         <div className="mt-8 flex flex-1 gap-2">

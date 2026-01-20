@@ -5,7 +5,14 @@ import { useEffect, useState } from "react";
 import SearchSelect from "../../../components/SearchSelect";
 import api from "../../../services/api";
 import { captureError } from "../../../services/error";
+import { slugify } from "../../../services/utils";
 import { withLegacyPublishers } from "../../../utils/publisher";
+
+const buildDefaultUtm = (name) => [
+  { key: "utm_source", value: "api_engagement" },
+  { key: "utm_medium", value: "campaign" },
+  { key: "utm_campaign", value: slugify(name) },
+];
 
 const Information = ({ values, onChange, errors, onErrorChange }) => {
   const [publishers, setPulishers] = useState([]);
@@ -21,7 +28,7 @@ const Information = ({ values, onChange, errors, onErrorChange }) => {
             .map((p) => ({ ...p, label: p.name })),
         );
       } catch (error) {
-        captureError(error, "Erreur lors de la récupération des données");
+        captureError(error);
       }
     };
     fetchData();
@@ -30,12 +37,18 @@ const Information = ({ values, onChange, errors, onErrorChange }) => {
   const handleChange = (key, value) => {
     if (key === "url") {
       const url = value;
-      const trackers = url.includes("?")
+      let trackers = url.includes("?")
         ? url
             .split("?")[1]
             .split("&")
-            .map((t) => ({ key: t.split("=")[0], value: t.split("=")[1] || "" }))
+            .map((t) => {
+              const idx = t.indexOf("=");
+              return idx === -1 ? { key: t, value: "" } : { key: t.slice(0, idx), value: t.slice(idx + 1) };
+            })
         : [];
+      if (trackers.length === 0) {
+        trackers = buildDefaultUtm(values.name);
+      }
       onChange((prev) => ({ ...prev, url, trackers }));
       onErrorChange((prev) => ({ ...prev, url: "" }));
     } else {
@@ -53,14 +66,14 @@ const Information = ({ values, onChange, errors, onErrorChange }) => {
           </label>
           <input
             id="name"
-            className={`input mb-2 ${errors.name ? "border-b-red-error" : "border-b-black"}`}
+            className={`input mb-2 ${errors.name ? "border-b-error" : "border-b-black"}`}
             name="name"
             value={values.name || ""}
             onChange={(e) => handleChange("name", e.target.value)}
             placeholder="Exemple: Communication événement janvier 2024"
           />
           {errors.name && (
-            <div className="text-red-error flex items-center text-sm">
+            <div className="text-error flex items-center text-sm">
               <RiErrorWarningFill className="mr-2" />
               {errors.name}
             </div>
@@ -87,7 +100,7 @@ const Information = ({ values, onChange, errors, onErrorChange }) => {
           </label>
           <select
             id="type"
-            className={`input ${errors.type ? "border-b-red-error" : "border-b-black"} ${!values.type ? "text-gray-425" : ""}`}
+            className={`input ${errors.type ? "border-b-error" : "border-b-black"} ${!values.type ? "text-text-mention" : ""}`}
             value={values.type || ""}
             onChange={(e) => handleChange("type", e.target.value)}
           >
@@ -100,7 +113,7 @@ const Information = ({ values, onChange, errors, onErrorChange }) => {
             <option value="OTHER">Autre</option>
           </select>
           {errors.type && (
-            <div className="text-red-error flex items-center text-sm">
+            <div className="text-error flex items-center text-sm">
               <RiErrorWarningFill className="mr-2" />
               {errors.type}
             </div>
@@ -118,7 +131,7 @@ const Information = ({ values, onChange, errors, onErrorChange }) => {
             onChange={(e) => handleChange("toPublisherId", e.value)}
           />
           {errors.toPublisherId && (
-            <div className="text-red-error flex items-center text-sm">
+            <div className="text-error flex items-center text-sm">
               <RiErrorWarningFill className="mr-2" />
               {errors.toPublisherId}
             </div>
@@ -132,19 +145,19 @@ const Information = ({ values, onChange, errors, onErrorChange }) => {
         </label>
         <input
           id="url"
-          className={`input mb-2 ${errors.url ? "border-b-red-error" : "border-b-black"}`}
+          className={`input mb-2 ${errors.url ? "border-b-error" : "border-b-black"}`}
           name="url"
           value={values.url || ""}
           onChange={(e) => handleChange("url", e.target.value)}
           placeholder="Exemple : https://votresiteweb.com/lien-de-candidature"
         />
         {errors.url && (
-          <div className="text-red-error flex items-center text-sm">
+          <div className="text-error flex items-center text-sm">
             <RiErrorWarningFill className="mr-2" />
             {errors.url}
           </div>
         )}
-        <span className="text-blue-info-425 mt-2 flex items-center text-xs">
+        <span className="text-info mt-2 flex items-center text-xs">
           <BiSolidInfoSquare className="mr-2 text-sm" />
           <p>Lien de la page à laquelle les utilisateurs accèderont</p>
         </span>

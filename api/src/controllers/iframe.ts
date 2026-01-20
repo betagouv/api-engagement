@@ -4,13 +4,27 @@ import zod from "zod";
 
 import { PUBLISHER_IDS } from "../config";
 import { INVALID_PARAMS, INVALID_QUERY, NOT_FOUND, captureMessage } from "../error";
-import MissionModel from "../models/mission";
-import WidgetModel from "../models/widget";
-import { publisherDiffusionExclusionService } from "../services/publisher-diffusion-exclusion";
-import { Mission, Widget } from "../types";
-import { EARTH_RADIUS, buildQueryMongo, capitalizeFirstLetter, getDistanceKm, isValidObjectId } from "../utils";
+import { widgetService } from "../services/widget";
+import { widgetMissionService } from "../services/widget-mission";
+import { WidgetRecord } from "../types";
+import type { MissionRecord, MissionSearchFilters, MissionSelect } from "../types/mission";
+import { capitalizeFirstLetter, getDistanceKm } from "../utils";
+import { normalizeToArray } from "../utils/array";
+import { applyWidgetRules } from "../utils/widget";
 
 const router = Router();
+
+const MISSION_FIELDS: MissionSelect = {
+  id: true,
+  title: true,
+  moderationStatuses: { select: { title: true } },
+  domain: { select: { name: true } },
+  organizationName: true,
+  remote: true,
+  addresses: { select: { city: true, country: true, postalCode: true } },
+  places: true,
+  tags: true,
+};
 
 router.get("/widget", async (req: Request, res: Response, next: NextFunction) => {
   try {
@@ -30,20 +44,13 @@ router.get("/widget", async (req: Request, res: Response, next: NextFunction) =>
     }
 
     if (query.data.id) {
-      if (query.data.id && query.data.id.length > 24) {
-        query.data.id = query.data.id.slice(0, 24);
-      }
-      if (!isValidObjectId(query.data.id)) {
-        return res.status(400).send({ ok: false, code: INVALID_QUERY, message: "Invalid id" });
-      }
-
-      const widget = await WidgetModel.findById(query.data.id);
+      const widget = await widgetService.findOneWidgetById(query.data.id);
       if (!widget) {
         return res.status(404).send({ ok: false, code: NOT_FOUND });
       }
       return res.status(200).send({ ok: true, data: widget });
     } else {
-      const widget = await WidgetModel.findOne({ name: query.data.name });
+      const widget = await widgetService.findOneWidgetByName(query.data.name || "");
       if (!widget) {
         return res.status(404).send({ ok: false, code: NOT_FOUND });
       }
@@ -54,24 +61,11 @@ router.get("/widget", async (req: Request, res: Response, next: NextFunction) =>
   }
 });
 
-const AGGS_KEYS = {
-  remote: "remote",
-  domain: "domain",
-  organization: "organizationName",
-  department: "departmentName",
-  schedule: "schedule",
-  action: "organizationActions",
-  beneficiary: "organizationBeneficiaries",
-  minor: "openToMinors",
-  country: "country",
-  accessibility: ["reducedMobilityAccessible", "closeToTransport"],
-} as { [key: string]: string | string[] };
-
 router.get("/:id/search", async (req: Request, res: Response, next: NextFunction) => {
   try {
     const params = zod
       .object({
-        id: zod.string().regex(/^[0-9a-fA-F]{24}$/),
+        id: zod.string(),
       })
       .safeParse(req.params);
 
@@ -108,172 +102,17 @@ router.get("/:id/search", async (req: Request, res: Response, next: NextFunction
       return res.status(400).send({ ok: false, code: INVALID_QUERY, message: query.error });
     }
 
-    const widget = await WidgetModel.findById(params.data.id);
+    const widget = await widgetService.findOneWidgetById(params.data.id);
     if (!widget) {
       captureMessage(`[Iframe Widget] Widget not found`, JSON.stringify(params.data, null, 2));
       return res.status(404).send({ ok: false, code: NOT_FOUND });
     }
 
-    const where = {
-      ...buildQueryMongo(widget.rules),
-      statusCode: "ACCEPTED",
-      deleted: false,
-    } as { [key: string]: any };
+    const filters = buildMissionFilters(widget, query.data, [], { skip: query.data.from, limit: query.data.size });
+    const { data, total } = await widgetMissionService.fetchWidgetMissions(widget, filters, MISSION_FIELDS);
+    const mappedData = data.map((mission) => toWidgetMission(mission, widget));
 
-    const sort = {} as { [key: string]: any };
-    // Todo: test
-    const diffusionExclusions = await publisherDiffusionExclusionService.findExclusionsForDiffuseurId(widget.fromPublisherId);
-    if (diffusionExclusions.length) {
-      const excludedIds = diffusionExclusions.map((e) => e.organizationClientId).filter((id): id is string => id !== null);
-      if (excludedIds.length) {
-        where.organizationClientId = {
-          $nin: excludedIds,
-        };
-      }
-    }
-
-    if (widget.jvaModeration) {
-      const $or = [] as { [key: string]: any }[];
-      if (widget.publishers.includes(PUBLISHER_IDS.JEVEUXAIDER)) {
-        $or.push({ publisherId: PUBLISHER_IDS.JEVEUXAIDER });
-      }
-      widget.publishers.filter((p) => p !== PUBLISHER_IDS.JEVEUXAIDER).forEach((p) => $or.push({ publisherId: p, [`moderation_${PUBLISHER_IDS.JEVEUXAIDER}_status`]: "ACCEPTED" }));
-      if ($or.length) {
-        where.$and.push({ $or });
-      }
-    } else {
-      const $or = [] as { [key: string]: any }[];
-      widget.publishers.forEach((p) => $or.push({ publisherId: p }));
-      if ($or.length) {
-        where.$and.push({ $or });
-      }
-    }
-
-    const whereLocation = buildLocationQuery(widget, query.data.lon, query.data.lat, query.data.remote);
-    if (whereLocation["addresses.geoPoint"]) {
-      where["addresses.geoPoint"] = whereLocation["addresses.geoPoint"];
-    } else {
-      sort.remote = -1;
-    }
-    if (whereLocation.$and) {
-      where.$and.push(whereLocation.$and);
-    }
-    if (whereLocation.remote) {
-      where.remote = whereLocation.remote;
-    }
-
-    if (query.data.domain) {
-      where.domain = Array.isArray(query.data.domain) ? { $in: query.data.domain } : query.data.domain;
-    }
-
-    if (query.data.department) {
-      if (Array.isArray(query.data.department) && query.data.department.includes("none")) {
-        where.departmentName = { $in: [...query.data.department, "", null] };
-      } else if (Array.isArray(query.data.department)) {
-        where.departmentName = { $in: query.data.department };
-      } else if (query.data.department === "none") {
-        where.departmentName = { $in: ["", null] };
-      } else {
-        where.departmentName = query.data.department;
-      }
-    }
-
-    if (query.data.organization) {
-      where.organizationName = Array.isArray(query.data.organization) ? { $in: query.data.organization } : query.data.organization;
-    }
-    if (query.data.schedule) {
-      where.schedule = Array.isArray(query.data.schedule) ? { $in: query.data.schedule } : query.data.schedule;
-    }
-    if (query.data.action) {
-      where.organizationActions = Array.isArray(query.data.action) ? { $in: query.data.action } : query.data.action;
-    }
-    if (query.data.beneficiary) {
-      where.organizationBeneficiaries = Array.isArray(query.data.beneficiary) ? { $in: query.data.beneficiary } : query.data.beneficiary;
-    }
-
-    if (query.data.country) {
-      if (query.data.country === "FR" || (Array.isArray(query.data.country) && query.data.country.includes("FR") && !query.data.country.includes("NOT_FR"))) {
-        where.country = "FR";
-      } else if (query.data.country === "NOT_FR" || (Array.isArray(query.data.country) && query.data.country.includes("NOT_FR") && !query.data.country.includes("FR"))) {
-        where.country = { $ne: "FR" };
-      }
-    }
-
-    if (query.data.start) {
-      where.startAt = { $gte: new Date(query.data.start).toISOString() };
-    }
-    if (query.data.duration) {
-      where.duration = { $lte: query.data.duration };
-    }
-
-    if (query.data.minor && query.data.minor.includes("yes") && !query.data.minor.includes("no")) {
-      where.openToMinors = "yes";
-    } else if (query.data.minor && query.data.minor.includes("no") && !query.data.minor.includes("yes")) {
-      where.openToMinors = "no";
-    }
-
-    if (query.data.accessibility) {
-      if (query.data.accessibility.includes("reducedMobilityAccessible")) {
-        where.reducedMobilityAccessible = "yes";
-      }
-      if (query.data.accessibility.includes("closeToTransport")) {
-        where.closeToTransport = "yes";
-      }
-    }
-
-    if (!where.$and.length) {
-      delete where.$and;
-    }
-    if (!where.$or.length) {
-      delete where.$or;
-    }
-
-    const missions = await MissionModel.find(where)
-      .sort(sort)
-      .limit(query.data.size)
-      .skip(query.data.from)
-      .select({
-        _id: 1,
-        title: 1,
-        [`moderation_${PUBLISHER_IDS.JEVEUXAIDER}_title`]: 1,
-        domain: 1,
-        domainLogo: 1,
-        organizationName: 1,
-        remote: 1,
-        city: 1,
-        country: 1,
-        postalCode: 1,
-        places: 1,
-        tags: 1,
-        addresses: 1,
-      })
-      .lean();
-
-    if (where["addresses.geoPoint"]) {
-      where["addresses.geoPoint"] = nearSphereToGeoWithin(where["addresses.geoPoint"].$nearSphere);
-    }
-
-    const total = await MissionModel.countDocuments(where);
-
-    const data = missions.map((e: Mission) => ({
-      _id: e._id,
-      title: e[`moderation_${PUBLISHER_IDS.JEVEUXAIDER}_title`] && widget.jvaModeration ? e[`moderation_${PUBLISHER_IDS.JEVEUXAIDER}_title`] : e.title,
-      domain: e.domain,
-      domainLogo: e.domainLogo,
-      organizationName: e.organizationName,
-      remote: e.remote,
-      city: e.city ? capitalizeFirstLetter(e.city) : e.city,
-      country: e.country,
-      postalCode: e.postalCode,
-      places: e.places,
-      tags: e.tags,
-      addresses: e.addresses?.map((addr) => ({
-        ...addr,
-        city: addr.city ? capitalizeFirstLetter(addr.city) : addr.city,
-      })),
-    }));
-
-    return res.status(200).send({ ok: true, data, total });
+    return res.status(200).send({ ok: true, data: mappedData, total });
   } catch (error) {
     next(error);
   }
@@ -289,7 +128,9 @@ router.get("/:id/aggs", cors({ origin: "*" }), async (req: Request, res: Respons
 
     const query = zod
       .object({
-        aggs: zod.array(zod.string()).default(["domain", "organization", "department", "schedule", "remote", "action", "beneficiary", "country", "minor", "accessibility"]),
+        aggs: zod
+          .array(zod.enum(["domain", "organization", "department", "schedule", "remote", "country", "minor", "accessibility", "action", "beneficiary"]))
+          .default(["domain", "organization", "department", "remote", "country"]),
         domain: zod.union([zod.string(), zod.array(zod.string())]).optional(),
         organization: zod.union([zod.string(), zod.array(zod.string())]).optional(),
         department: zod.union([zod.string(), zod.array(zod.string())]).optional(),
@@ -320,303 +161,178 @@ router.get("/:id/aggs", cors({ origin: "*" }), async (req: Request, res: Respons
       return res.status(400).send({ ok: false, code: INVALID_QUERY, message: query.error });
     }
 
-    const widget = await WidgetModel.findById(params.data.id);
+    const widget = await widgetService.findOneWidgetById(params.data.id);
     if (!widget) {
       captureMessage(`[Iframe Widget] Widget not found`, JSON.stringify(params.data, null, 2));
       return res.status(404).send({ ok: false, code: NOT_FOUND });
     }
 
-    // Filter over all facets
-    const where = {
-      ...buildQueryMongo(widget.rules),
-      statusCode: "ACCEPTED",
-      deleted: false,
-    } as { [key: string]: any };
-
-    const diffusionExclusions = await publisherDiffusionExclusionService.findExclusionsForDiffuseurId(widget.fromPublisherId);
-    if (diffusionExclusions.length) {
-      const excludedIds = diffusionExclusions.map((e) => e.organizationClientId).filter((id): id is string => id !== null);
-      if (excludedIds.length) {
-        where.organizationClientId = {
-          $nin: excludedIds,
-        };
-      }
-    }
-
-    if (query.data.start) {
-      where.startAt = { $gte: new Date(query.data.start).toISOString() };
-    }
-    if (query.data.duration) {
-      where.duration = { $lte: query.data.duration };
-    }
-
-    // Publisher
-    if (widget.jvaModeration) {
-      const $or = [] as { [key: string]: any }[];
-      if (widget.publishers.includes(PUBLISHER_IDS.JEVEUXAIDER)) {
-        $or.push({ publisherId: PUBLISHER_IDS.JEVEUXAIDER });
-      }
-      widget.publishers.filter((p) => p !== PUBLISHER_IDS.JEVEUXAIDER).forEach((p) => $or.push({ publisherId: p, [`moderation_${PUBLISHER_IDS.JEVEUXAIDER}_status`]: "ACCEPTED" }));
-      if ($or.length) {
-        where.$and.push({ $or });
-      }
-    } else {
-      const $or = [] as { [key: string]: any }[];
-      widget.publishers.forEach((p) => $or.push({ publisherId: p }));
-      if ($or.length) {
-        where.$and.push({ $or });
-      }
-    }
-
-    // If location is set in widget, show only missions in this location
-    const whereLocation = buildLocationAggs(widget, query.data.lon, query.data.lat);
-    if (whereLocation["addresses.geoPoint"]) {
-      where["addresses.geoPoint"] = whereLocation["addresses.geoPoint"];
-    }
-    if (whereLocation.$and) {
-      where.$and.push(whereLocation.$and);
-    }
-
-    if (!where.$and.length) {
-      delete where.$and;
-    }
-    if (!where.$or.length) {
-      delete where.$or;
-    }
-
-    const $facet = {} as { [key: string]: any };
-    query.data.aggs.forEach((key) => {
-      const fieldKey = AGGS_KEYS[key];
-      const filters = {} as { [key: string]: any };
-      if (key !== "remote" && query.data.remote) {
-        filters.remote = buildRemoteQuery(query.data.remote);
-      }
-      if (key !== "domain" && query.data.domain) {
-        filters.domain = buildQuery(query.data.domain);
-      }
-      if (key !== "organization" && query.data.organization) {
-        filters.organizationName = buildQuery(query.data.organization);
-      }
-      if (key !== "department" && query.data.department) {
-        filters.departmentName = buildDepartmentQuery(query.data.department);
-      }
-      if (key !== "schedule" && query.data.schedule) {
-        filters.schedule = buildQuery(query.data.schedule);
-      }
-      if (key !== "action" && query.data.action) {
-        filters.organizationActions = buildQuery(query.data.action);
-      }
-      if (key !== "beneficiary" && query.data.beneficiary) {
-        filters.organizationBeneficiaries = buildQuery(query.data.beneficiary);
-      }
-      if (key !== "country" && query.data.country) {
-        filters.country = buildCountryQuery(query.data.country);
-      }
-      if (key !== "minor" && query.data.minor) {
-        filters.openToMinors = buildYesNoQuery(query.data.minor);
-      }
-      if (key !== "accessibility" && query.data.accessibility) {
-        filters.reducedMobilityAccessible = buildAccessibilityQuery(query.data.accessibility);
-      }
-
-      if (key === "accessibility") {
-        $facet[key] = [
-          { $match: filters },
-          {
-            $group: {
-              _id: null,
-              reducedMobilityAccessible: {
-                $sum: { $cond: [{ $eq: ["$reducedMobilityAccessible", "yes"] }, 1, 0] },
-              },
-              closeToTransport: {
-                $sum: { $cond: [{ $eq: ["$closeToTransport", "yes"] }, 1, 0] },
-              },
-            },
-          },
-        ];
-      } else if (key === "beneficiary" || key === "action") {
-        $facet[key] = [{ $match: filters }, { $unwind: `$${fieldKey}` }, { $group: { _id: `$${fieldKey}`, count: { $sum: 1 } } }, { $sort: { count: -1 } }];
-      } else {
-        $facet[key] = [{ $match: filters }, { $group: { _id: `$${fieldKey}`, count: { $sum: 1 } } }, { $sort: { count: -1 } }];
-      }
-    });
-
-    const facets = await MissionModel.aggregate([{ $match: where }, { $facet }]);
-
-    const data = {} as { [key: string]: any };
-
-    query.data.aggs.forEach((key) => {
-      const fieldKey = AGGS_KEYS[key];
-      if (Array.isArray(fieldKey)) {
-        data[key] = [];
-        fieldKey.forEach((k) =>
-          data[key].push({
-            key: k,
-            doc_count: facets[0][key].length ? facets[0][key][0][k] || 0 : 0,
-          })
-        );
-      } else {
-        data[key] = facets[0][key].map((e: { _id: string; count: number }) => ({
-          key: e._id,
-          doc_count: e.count,
-        }));
-      }
-    });
-
-    return res.status(200).send({ ok: true, data });
+    const filters = buildMissionFilters(widget, query.data, [], { skip: 0, limit: 0 });
+    const aggs = await widgetMissionService.fetchWidgetAggregations(widget, filters, query.data.aggs);
+    return res.status(200).send({ ok: true, data: aggs });
   } catch (error) {
     next(error);
   }
 });
 
-const buildLocationQuery = (widget: Widget, lon: number | undefined, lat: number | undefined, remote: string | string[] | undefined) => {
-  const where = {} as { [key: string]: any };
-
-  if (widget.location && widget.location.lat && widget.location.lon) {
-    const distance = getDistanceKm(widget.distance && widget.distance !== "Aucun" ? widget.distance : "50km");
-    where["addresses.geoPoint"] = {
-      $nearSphere: {
-        $geometry: { type: "Point", coordinates: [widget.location.lon, widget.location.lat] },
-        $maxDistance: distance * 1000,
-      },
-    };
-    return where;
+const resolveRemoteFilter = (remoteValues?: string[], widgetType?: string): Array<string> | undefined => {
+  if (remoteValues?.includes("yes") && !remoteValues.includes("no")) {
+    return ["full", "possible"];
   }
-
-  if (lat && lon) {
-    const distance = getDistanceKm("50km");
-
-    if (widget.type === "volontariat" || (remote && remote.includes("no") && !remote.includes("yes"))) {
-      where.remote = "no";
-      where["addresses.geoPoint"] = {
-        $nearSphere: {
-          $geometry: { type: "Point", coordinates: [lon, lat] },
-          $maxDistance: distance * 1000,
-        },
-      };
-      return where;
-    }
-
-    if (remote && remote.includes("yes") && !remote.includes("no")) {
-      where.remote = "full";
-      return where;
-    }
-
-    where.$and = {
-      $or: [
-        {
-          "addresses.geoPoint": {
-            $geoWithin: { $centerSphere: [[lon, lat], distance / EARTH_RADIUS] },
-          },
-        },
-        { remote: "full" },
-      ],
-    };
-    return where;
+  if (remoteValues?.includes("no") && !remoteValues.includes("yes")) {
+    return ["no"];
   }
-  if (remote && remote.includes("yes") && !remote.includes("no")) {
-    where.$and = { $or: [{ remote: "full" }, { remote: "possible" }] };
-    return where;
+  if (!remoteValues && widgetType === "volontariat") {
+    return ["no"];
   }
-  if (remote && remote.includes("no") && !remote.includes("yes")) {
-    where.remote = "no";
-    return where;
-  }
-  return where;
 };
 
-const buildLocationAggs = (widget: Widget, lon: number | undefined, lat: number | undefined) => {
-  const where = {} as { [key: string]: any };
-
-  if (widget.location && widget.location.lat && widget.location.lon) {
-    const distance = getDistanceKm(widget.distance && widget.distance !== "Aucun" ? widget.distance : "50km");
-    where["addresses.geoPoint"] = {
-      $geoWithin: {
-        $centerSphere: [[widget.location.lon, widget.location.lat], distance / EARTH_RADIUS],
-      },
-    };
-  } else if (lat && lon) {
-    const distance = getDistanceKm("50km");
-    where.$and = {
-      $or: [
-        {
-          "addresses.geoPoint": {
-            $geoWithin: { $centerSphere: [[lon, lat], distance / EARTH_RADIUS] },
-          },
-        },
-        { remote: "full" },
-      ],
+const resolveLocationFilters = (widget: WidgetRecord, lon?: number, lat?: number): Pick<MissionSearchFilters, "lat" | "lon" | "distanceKm"> | undefined => {
+  if (widget.location?.lat !== undefined && widget.location?.lon !== undefined) {
+    return {
+      lat: widget.location.lat,
+      lon: widget.location.lon,
+      distanceKm: getDistanceKm(widget.distance && widget.distance !== "Aucun" ? widget.distance : "50km"),
     };
   }
-  return where;
+  if (lat !== undefined && lon !== undefined) {
+    return {
+      lat,
+      lon,
+      distanceKm: getDistanceKm("50km"),
+    };
+  }
+  return undefined;
 };
 
-// Convert $nearSphere to $geoWithin (doesn't work with countDocuments)
-const nearSphereToGeoWithin = (nearSphere: any) => {
-  if (!nearSphere) {
-    return;
-  }
-  const distanceKm = nearSphere.$maxDistance / 1000;
-  const geoWithin = {
-    $geoWithin: {
-      $centerSphere: [[nearSphere.$geometry.coordinates[0], nearSphere.$geometry.coordinates[1]], distanceKm / EARTH_RADIUS],
-    },
+const buildMissionFilters = (
+  widget: WidgetRecord,
+  query: { [key: string]: any },
+  excludedOrganizationClientIds: string[],
+  pagination: { skip: number; limit: number }
+): MissionSearchFilters => {
+  const filters: MissionSearchFilters = {
+    directFilters: applyWidgetRules(widget.rules || []),
+    publisherIds: widget.publishers,
+    excludeOrganizationClientIds: excludedOrganizationClientIds.length ? excludedOrganizationClientIds : undefined,
+    skip: pagination.skip,
+    limit: pagination.limit,
   };
-  return geoWithin;
+
+  const domainValues = normalizeToArray(query.domain);
+  if (domainValues?.length) {
+    const definedDomains = domainValues.filter((d) => d !== "none");
+    if (definedDomains.length) {
+      filters.domain = definedDomains;
+    }
+    if (domainValues.includes("none")) {
+      filters.domainIncludeMissing = true;
+    }
+  }
+
+  const departmentValues = normalizeToArray(query.department);
+  if (departmentValues?.length) {
+    const definedDepartments = departmentValues.filter((d) => d !== "none");
+    if (definedDepartments.length) {
+      filters.departmentName = definedDepartments;
+    }
+    if (departmentValues.includes("none")) {
+      filters.departmentNameIncludeMissing = true;
+    }
+  }
+
+  const organizationNames = normalizeToArray(query.organization);
+  if (organizationNames?.length) {
+    filters.organizationName = organizationNames;
+  }
+
+  const actions = normalizeToArray(query.action);
+  if (actions?.length) {
+    filters.action = actions;
+  }
+
+  const beneficiaries = normalizeToArray(query.beneficiary);
+  if (beneficiaries?.length) {
+    filters.beneficiary = beneficiaries;
+  }
+
+  const schedules = normalizeToArray(query.schedule);
+  if (schedules?.length) {
+    filters.schedule = schedules;
+  }
+
+  const countries = normalizeToArray(query.country);
+  if (countries?.length) {
+    if (countries.includes("NOT_FR") && !countries.includes("FR")) {
+      filters.countryNot = ["FR"];
+    } else if (countries.includes("FR")) {
+      filters.country = ["FR"];
+    }
+  }
+
+  if (query.start) {
+    filters.startAt = { gt: new Date(query.start) };
+  }
+  if (query.duration !== undefined) {
+    filters.durationLte = query.duration;
+  }
+
+  const minorValues = normalizeToArray(query.minor);
+  if (minorValues?.length) {
+    if (minorValues.includes("yes") && !minorValues.includes("no")) {
+      filters.openToMinors = true;
+    } else if (minorValues.includes("no") && !minorValues.includes("yes")) {
+      filters.openToMinors = false;
+    }
+  }
+
+  const accessibilityValues = normalizeToArray(query.accessibility);
+  if (accessibilityValues?.includes("reducedMobilityAccessible")) {
+    filters.reducedMobilityAccessible = true;
+  }
+  if (accessibilityValues?.includes("closeToTransport")) {
+    filters.closeToTransport = true;
+  }
+
+  const remoteValues = normalizeToArray(query.remote);
+  const remoteFilter = resolveRemoteFilter(remoteValues, widget.type);
+  if (remoteFilter) {
+    filters.remote = remoteFilter;
+  }
+
+  const locationFilters = resolveLocationFilters(widget, query.lon, query.lat);
+  if (locationFilters) {
+    filters.lat = locationFilters.lat;
+    filters.lon = locationFilters.lon;
+    filters.distanceKm = locationFilters.distanceKm;
+  }
+
+  if (query.search) {
+    filters.keywords = query.search;
+  }
+
+  return filters;
 };
 
-const buildRemoteQuery = (value: string | string[]) => {
-  if (value.includes("yes") && !value.includes("no")) {
-    return { $in: ["full", "possible"] };
-  }
-  if (value.includes("no") && !value.includes("yes")) {
-    return "no";
-  }
-};
-
-const buildYesNoQuery = (value: string | string[]) => {
-  if (value.includes("yes") && !value.includes("no")) {
-    return "yes";
-  }
-  if (value.includes("no") && !value.includes("yes")) {
-    return "no";
-  }
-};
-
-const buildAccessibilityQuery = (value: string | string[]) => {
-  if (value.includes("reducedMobilityAccessible")) {
-    return "yes";
-  }
-  if (value.includes("closeToTransport")) {
-    return "yes";
-  }
-};
-
-const buildDepartmentQuery = (value: string | string[]) => {
-  if (value === "none") {
-    return { $in: ["", null] };
-  }
-  if (Array.isArray(value)) {
-    return { $in: value };
-  }
-  return value;
-};
-
-const buildCountryQuery = (value: string | string[]) => {
-  if (value === "FR" || (Array.isArray(value) && value.includes("FR") && !value.includes("NOT_FR"))) {
-    return "FR";
-  }
-  if (value === "NOT_FR" || (Array.isArray(value) && value.includes("NOT_FR") && !value.includes("FR"))) {
-    return { $ne: "FR" };
-  }
-  return value;
-};
-
-const buildQuery = (value: string | string[]) => {
-  if (Array.isArray(value)) {
-    return { $in: value };
-  }
-  return value;
+const toWidgetMission = (mission: MissionRecord, widget: WidgetRecord) => {
+  const moderationTitle = (mission as any)[`moderation_${PUBLISHER_IDS.JEVEUXAIDER}_title`];
+  return {
+    _id: mission.id,
+    title: moderationTitle && widget.jvaModeration ? moderationTitle : mission.title,
+    domain: mission.domain,
+    domainLogo: mission.domainLogo,
+    organizationName: mission.organizationName,
+    remote: mission.remote,
+    city: mission.city ? capitalizeFirstLetter(mission.city) : mission.city,
+    country: mission.country,
+    postalCode: mission.postalCode,
+    places: mission.places,
+    tags: mission.tags,
+    addresses: mission.addresses?.map((addr) => ({
+      ...addr,
+      city: addr.city ? capitalizeFirstLetter(addr.city) : addr.city,
+    })),
+  };
 };
 
 export default router;

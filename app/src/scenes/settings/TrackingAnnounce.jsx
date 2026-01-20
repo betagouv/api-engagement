@@ -25,46 +25,46 @@ const TrackingAnnounce = () => {
 
   return (
     <div className="space-y-12 p-12">
-      <title>Tracking des événements - Paramètres - API Engagement</title>
-      <div className="space-y-8 border border-gray-900 p-8">
+      <title>API Engagement - Tracking des événements - Paramètres</title>
+      <div className="border-grey-border space-y-8 border p-8">
         <h2 className="text-2xl font-bold">Tracking des événements</h2>
 
         <div className="flex items-center justify-between gap-4 border-b border-b-gray-900 pb-6">
-          <div className="flex-1">
+          <div className="w-[35%]">
             <h3 className="text-base font-semibold">Commande de comptage d'une candidature</h3>
-            <p className="max-w-sm text-xs text-[#666666]">
+            <p className="text-text-mention max-w-sm text-xs">
               Lorsque vous enregistrez une candidature, effectuez cette commande chez vous nous permet de compter cette candidature.
             </p>
           </div>
-          <div className="flex items-center gap-2">
-            <div className="w-[535px] rounded-none border border-[#E3E3FD] bg-[#F5F5FE] px-4 py-2 text-base whitespace-nowrap disabled:opacity-80">
-              window.apieng && window.apieng("trackApplication", <span className="text-orange-warning-425 font-['courier']">clientId</span>)
+          <div className="flex flex-1 items-center gap-2">
+            <div className="border-blue-france-925 bg-blue-france-975 flex-1 rounded-none border px-4 py-2 text-sm whitespace-nowrap disabled:opacity-80">
+              window.apieng && window.apieng("trackApplication", <span className="text-warning font-['courier']">clientId</span>)
             </div>
-            <button className="secondary-btn px-4 py-2 text-base" onClick={() => handleCopyCommand(`window.apieng && window.apieng("trackApplication", "clientId")`)}>
+            <button className="secondary-btn" onClick={() => handleCopyCommand(`window.apieng && window.apieng("trackApplication", "clientId")`)}>
               Copier
             </button>
           </div>
         </div>
         <div className="space-y-6 border-b border-b-gray-900 pb-6">
           <div className="flex items-center justify-between gap-4">
-            <div className="flex-1">
+            <div className="w-[35%]">
               <h3 className="text-base font-semibold">Commande de comptage d'une création de compte</h3>
-              <p className="max-w-sm text-xs text-[#666666]">
+              <p className="text-text-mention max-w-sm text-xs">
                 Lorsque vous enregistrez une création de compte, effectuez cette commande chez vous nous permet de compter cette création de compte.
               </p>
             </div>
-            <div className="flex items-center gap-2">
-              <div className="w-[535px] rounded-none border border-[#E3E3FD] bg-[#F5F5FE] px-4 py-2 text-base whitespace-nowrap disabled:opacity-80">
-                window.apieng && window.apieng("trackAccount", <span className="text-orange-warning-425 font-['courier']">clientId</span>)
+            <div className="flex flex-1 items-center gap-2">
+              <div className="border-blue-france-925 bg-blue-france-975 flex-1 rounded-none border px-4 py-2 text-sm whitespace-nowrap disabled:opacity-80">
+                window.apieng && window.apieng("trackAccount", <span className="text-warning font-['courier']">clientId</span>)
               </div>
-              <button className="secondary-btn px-4 py-2 text-base" onClick={() => handleCopyCommand(`window.apieng && window.apieng("trackAccount", "clientId")`)}>
+              <button className="secondary-btn" onClick={() => handleCopyCommand(`window.apieng && window.apieng("trackAccount", "clientId")`)}>
                 Copier
               </button>
             </div>
           </div>
           <div className="flex items-start gap-2 pb-6">
-            <BiSolidInfoSquare className="mt-1 text-xs text-[#0063CB]" />
-            <p className="text-xs leading-4 text-[#0063CB]">
+            <BiSolidInfoSquare className="text-info mt-1 text-xs" />
+            <p className="text-info text-xs leading-4">
               clientId = votre identifiant de mission utilisé dans le flux XML. <br />
               Exemple : <span className="font-['courier']">window.apieng && window.apieng("trackAccount", "6294b108de43a106f6ca6d5f")</span> <br />
               NB: Si vous n’en avez pas, ne l’indiquez pas dans la commande. Exemple : <span className="font-['courier']">window.apieng && window.apieng(“trackAccount”)</span>
@@ -75,17 +75,17 @@ const TrackingAnnounce = () => {
         <div className="flex items-center justify-between">
           <div>
             <h3 className="text-base font-semibold">Script à integrer sur votre site</h3>
-            <p className="w-4/5 text-xs text-[#666666]">{`Afin d’assurer le suivi des candidatures générées via l’API Engagement, ajoutez le script ci-dessous dans le <head></head> de votre page sur laquelle un bénévole candidate à une offre`}</p>
+            <p className="text-text-mention w-4/5 text-xs">{`Afin d’assurer le suivi des candidatures générées via l’API Engagement, ajoutez le script ci-dessous dans le <head></head> de votre page sur laquelle un bénévole candidate à une offre`}</p>
           </div>
-          <button className="border-blue-france text-blue-france flex cursor-pointer items-center border px-2 py-1 text-sm" onClick={handleCopyScript}>
+          <button className="secondary-btn" onClick={handleCopyScript}>
             Copier
           </button>
         </div>
         <textarea
-          className="w-full rounded-none border border-[#E3E3FD] bg-[#F5F5FE] px-4 py-2 text-base disabled:opacity-80"
+          className="border-blue-france-925 bg-blue-france-975 w-full rounded-none border px-4 py-2 text-base read-only:opacity-80"
           rows={8}
           value={script.replace("{{publisherId}}", publisher.id)}
-          disabled={true}
+          readOnly
         />
       </div>
     </div>

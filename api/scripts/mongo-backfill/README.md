@@ -113,6 +113,36 @@ npx ts-node api/scripts/mongo-backfill/backfill-login-history.ts --env productio
 npx ts-node api/scripts/mongo-backfill/backfill-login-history.ts --env api/.env.production
 ```
 
+## backfill-mission.ts
+
+- Rôle: migrer la collection Mongo `missions` vers PostgreSQL (missions + adresses + statuts de modération + job boards).
+- Options:
+  - `--dry-run` exécute sans écrire en base et affiche des exemples de créations/mises à jour.
+  - `--bulk-insert` exécute les insertions en `createMany` (plus rapide) **uniquement si la table `mission` de destination est vide**.
+  - `--env <nom|chemin>` sélectionne le fichier d'environnement à charger.
+- Exemples:
+
+```bash
+# Exécution réelle en bulk (destination vide)
+npx ts-node api/scripts/mongo-backfill/backfill-mission.ts --env production --bulk-insert
+```
+
+## backfill-mission-domain-logo.ts
+
+- Rôle: récupérer les `domainLogo` encore présents dans MongoDB et compléter le champ `domain_logo` des missions Postgres quand il est manquant.
+- Options:
+  - `--dry-run` simule sans écrire en base.
+  - `--env <nom|chemin>` sélectionne le fichier d'environnement à charger.
+- Exemples:
+
+```bash
+# Simulation
+npx ts-node api/scripts/mongo-backfill/backfill-mission-domain-logo.ts --env production --dry-run
+
+# Exécution réelle
+npx ts-node api/scripts/mongo-backfill/backfill-mission-domain-logo.ts --env api/.env.production
+```
+
 ## backfill-mission-event.ts
 
 - Rôle: migrer les événements de mission (`mission-events`) depuis MongoDB vers la table `mission_event` de Postgres.

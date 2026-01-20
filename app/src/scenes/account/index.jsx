@@ -34,7 +34,7 @@ const Account = () => {
       toast.success("Paramètres mis à jour");
       setUser(res.data);
     } catch (error) {
-      captureError(error, "Erreur lors de la mise à jour des paramètres");
+      captureError(error, { extra: { values } });
     }
   };
 
@@ -45,13 +45,14 @@ const Account = () => {
 
   return (
     <div className="space-y-12">
+      <title>API Engagement - Mon compte</title>
       <h1 className="text-4xl font-bold">Mon compte</h1>
 
       <form onSubmit={handleSubmit} className="bg-white p-12 shadow-lg">
         <div className="mb-6 flex justify-between">
           <h2 className="text-3xl font-bold">Vos informations</h2>
           <div
-            className="text-red-error flex cursor-pointer items-center text-sm"
+            className="text-error flex cursor-pointer items-center text-sm"
             onClick={() => {
               api.removeToken();
               setAuth(null, null);
@@ -68,13 +69,13 @@ const Account = () => {
             </label>
             <input
               id="firstname"
-              className={`input mb-2 ${errors.firstname ? "border-b-red-error" : "border-b-black"}`}
+              className={`input mb-2 ${errors.firstname ? "border-b-error" : "border-b-black"}`}
               name="firstname"
               value={values.firstname}
               onChange={(e) => setValues({ ...values, firstname: e.target.value })}
             />
             {errors.firstname && (
-              <div className="text-red-error flex items-center text-sm">
+              <div className="text-error flex items-center text-sm">
                 <RiErrorWarningFill className="mr-2" />
                 {errors.firstname}
               </div>
@@ -87,7 +88,7 @@ const Account = () => {
             </label>
             <input
               id="lastname"
-              className={`input mb-2 ${errors.lastname ? "border-b-red-error" : "border-b-black"}`}
+              className={`input mb-2 ${errors.lastname ? "border-b-error" : "border-b-black"}`}
               name="lastname"
               value={values.lastname}
               onChange={(e) => setValues({ ...values, lastname: e.target.value })}
@@ -97,7 +98,7 @@ const Account = () => {
             <label className="mb-2 text-sm" htmlFor="email">
               E-mail
             </label>
-            <input id="email" className="input mb-2 border-b-black" name="email" disabled value={values.email} />
+            <input id="email" className="input mb-2 border-b-black" name="email" readOnly value={values.email} />
           </div>
 
           <div className="col-span-2 flex justify-end gap-4">
@@ -152,7 +153,7 @@ const ResetPasswordModal = () => {
       toast.success("Mot de passe mis à jour");
       setOpen(false);
     } catch (error) {
-      captureError(error, "Erreur lors de la mise à jour du mot de passe");
+      captureError(error, { extra: { values } });
     }
   };
 
@@ -184,14 +185,14 @@ const ResetPasswordModal = () => {
               </label>
               <input
                 id="old-password"
-                className={`input mb-2 ${errors.oldPassword ? "border-b-red-error" : "border-b-black"}`}
+                className={`input mb-2 ${errors.oldPassword ? "border-b-error" : "border-b-black"}`}
                 name="oldPassword"
                 type="password"
                 value={values.oldPassword}
                 onChange={(e) => setValues({ ...values, oldPassword: e.target.value })}
               />
               {errors.oldPassword && (
-                <div className="text-red-error flex items-center text-sm">
+                <div className="text-error flex items-center text-sm">
                   <RiErrorWarningFill className="mr-2" />
                   {errors.oldPassword}
                 </div>
@@ -209,7 +210,7 @@ const ResetPasswordModal = () => {
               </div>
               <input
                 id="new-password"
-                className={`input mb-2 ${errors.newPassword ? "border-b-red-error" : "border-b-black"}`}
+                className={`input mb-2 ${errors.newPassword ? "border-b-error" : "border-b-black"}`}
                 name="newPassword"
                 type={showNewPassword ? "text" : "password"}
                 value={values.newPassword}
@@ -217,7 +218,7 @@ const ResetPasswordModal = () => {
                 autoComplete="new-password"
               />
               {errors.newPassword && (
-                <div className="text-red-error flex items-center text-sm">
+                <div className="text-error flex items-center text-sm">
                   <RiErrorWarningFill className="mr-2" />
                   {errors.newPassword}
                 </div>
@@ -235,14 +236,14 @@ const ResetPasswordModal = () => {
               </div>
               <input
                 id="confirm-password"
-                className={`input mb-2 ${errors.confirmPassword ? "border-b-red-error" : "border-b-black"}`}
+                className={`input mb-2 ${errors.confirmPassword ? "border-b-error" : "border-b-black"}`}
                 name="confirmPassword"
                 type={showConfirmPassword ? "text" : "password"}
                 value={values.confirmPassword}
                 onChange={(e) => setValues({ ...values, confirmPassword: e.target.value })}
               />
               {errors.confirmPassword && (
-                <div className="text-red-error flex items-center text-sm">
+                <div className="text-error flex items-center text-sm">
                   <RiErrorWarningFill className="mr-2" />
                   {errors.confirmPassword}
                 </div>
@@ -251,24 +252,24 @@ const ResetPasswordModal = () => {
 
             <div className="mt-2 flex flex-col gap-2">
               <div className="flex items-center gap-2">
-                {(values.newPassword || "").length >= 12 ? <RiCheckboxCircleFill className="text-green-700" /> : <RiCheckboxCircleFill className="text-gray-600" />}
-                <span className={`align-middle text-sm ${values.newPassword && (values.newPassword || "").length >= 12 ? "text-green-600" : "text-gray-600"}`}>
+                {(values.newPassword || "").length >= 12 ? <RiCheckboxCircleFill className="text-success" /> : <RiCheckboxCircleFill className="text-text-mention" />}
+                <span className={`align-middle text-sm ${values.newPassword && (values.newPassword || "").length >= 12 ? "text-success" : "text-text-mention"}`}>
                   Au moins 12 caractères
                 </span>
               </div>
               <div className="flex items-center gap-2">
-                {/[a-zA-Z]/.test(values.newPassword) ? <RiCheckboxCircleFill className="text-green-700" /> : <RiCheckboxCircleFill className="text-gray-600" />}
-                <span className={`align-middle text-sm ${values.newPassword && /[a-zA-Z]/.test(values.newPassword) ? "text-green-600" : "text-gray-600"}`}>
+                {/[a-zA-Z]/.test(values.newPassword) ? <RiCheckboxCircleFill className="text-success" /> : <RiCheckboxCircleFill className="text-text-mention" />}
+                <span className={`align-middle text-sm ${values.newPassword && /[a-zA-Z]/.test(values.newPassword) ? "text-success" : "text-text-mention"}`}>
                   Au moins une lettre
                 </span>
               </div>
               <div className="flex items-center gap-2">
-                {/[0-9]/.test(values.newPassword) ? <RiCheckboxCircleFill className="text-green-700" /> : <RiCheckboxCircleFill className="text-gray-600" />}
-                <span className={`align-middle text-sm ${values.newPassword && /[0-9]/.test(values.newPassword) ? "text-green-600" : "text-gray-600"}`}>Au moins un chiffre</span>
+                {/[0-9]/.test(values.newPassword) ? <RiCheckboxCircleFill className="text-success" /> : <RiCheckboxCircleFill className="text-text-mention" />}
+                <span className={`align-middle text-sm ${values.newPassword && /[0-9]/.test(values.newPassword) ? "text-success" : "text-text-mention"}`}>Au moins un chiffre</span>
               </div>
               <div className="flex items-center gap-2">
-                {/[!-@#$%^&*(),.?":{}|<>]/.test(values.newPassword) ? <RiCheckboxCircleFill className="text-green-700" /> : <RiCheckboxCircleFill className="text-gray-600" />}
-                <span className={`align-middle text-sm ${values.newPassword && /[!-@#$%^&*(),.?":{}|<>]/.test(values.newPassword) ? "text-green-600" : "text-gray-600"}`}>
+                {/[!-@#$%^&*(),.?":{}|<>]/.test(values.newPassword) ? <RiCheckboxCircleFill className="text-success" /> : <RiCheckboxCircleFill className="text-text-mention" />}
+                <span className={`align-middle text-sm ${values.newPassword && /[!-@#$%^&*(),.?":{}|<>]/.test(values.newPassword) ? "text-success" : "text-text-mention"}`}>
                   Au moins un caractère spécial
                 </span>
               </div>

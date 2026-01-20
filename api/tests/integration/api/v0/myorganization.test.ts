@@ -1,7 +1,7 @@
 import request from "supertest";
 import { beforeEach, describe, expect, it } from "vitest";
 import { publisherDiffusionExclusionService } from "../../../../src/services/publisher-diffusion-exclusion";
-import { Mission, MissionType, PublisherRecord } from "../../../../src/types";
+import { MissionRecord, PublisherMissionType, PublisherRecord } from "../../../../src/types";
 import { createTestMission, createTestPublisher } from "../../../fixtures";
 import { createStatEventFixture } from "../../../fixtures/stat-event";
 import { createTestApp } from "../../../testApp";
@@ -10,7 +10,7 @@ describe("MyOrganization API Integration Tests", () => {
   const app = createTestApp();
   let publisher: PublisherRecord;
   let apiKey: string;
-  let mission: Mission;
+  let mission: MissionRecord;
   let publisher1: PublisherRecord;
   let publisher2: PublisherRecord;
   let publisher3: PublisherRecord;
@@ -24,10 +24,10 @@ describe("MyOrganization API Integration Tests", () => {
     orgName = "Test Organization";
     mission = await createTestMission({ organizationClientId: orgId, publisherId: publisher.id });
     publisher1 = await createTestPublisher({
-      publishers: [{ publisherId: publisher.id, publisherName: publisher.name, moderator: true, missionType: MissionType.BENEVOLAT }],
+      publishers: [{ publisherId: publisher.id, publisherName: publisher.name, moderator: true, missionType: PublisherMissionType.BENEVOLAT }],
     });
     publisher2 = await createTestPublisher({
-      publishers: [{ publisherId: publisher.id, publisherName: publisher.name, moderator: true, missionType: MissionType.BENEVOLAT }],
+      publishers: [{ publisherId: publisher.id, publisherName: publisher.name, moderator: true, missionType: PublisherMissionType.BENEVOLAT }],
     });
     publisher3 = await createTestPublisher();
   });
@@ -49,12 +49,14 @@ describe("MyOrganization API Integration Tests", () => {
         toPublisherId: publisher3.id,
         count: 2,
         organizationClientId: orgId,
+        missionId: mission.id,
       });
       await seedClicks({
         fromPublisherId: publisher2.id,
         toPublisherId: publisher3.id,
         count: 1,
         organizationClientId: orgId,
+        missionId: mission.id,
       });
 
       const response = await request(app).get(`/v0/myorganization/${orgId}`).set("x-api-key", apiKey).set("apikey", apiKey);
@@ -89,8 +91,8 @@ describe("MyOrganization API Integration Tests", () => {
     });
 
     it("should return correct exclusion status for publishers", async () => {
-      await seedClicks({ fromPublisherId: publisher.id, toPublisherId: publisher1.id, count: 1, organizationClientId: orgId });
-      await seedClicks({ fromPublisherId: publisher2.id, toPublisherId: publisher1.id, count: 1, organizationClientId: orgId });
+      await seedClicks({ fromPublisherId: publisher.id, toPublisherId: publisher1.id, count: 1, organizationClientId: orgId, missionId: mission.id });
+      await seedClicks({ fromPublisherId: publisher2.id, toPublisherId: publisher1.id, count: 1, organizationClientId: orgId, missionId: mission.id });
 
       // Add exclusion for publisher2
       await publisherDiffusionExclusionService.createExclusion({
@@ -255,11 +257,13 @@ async function seedClicks({
   toPublisherId,
   count,
   organizationClientId,
+  missionId,
 }: {
   fromPublisherId: string;
   toPublisherId: string;
   count: number;
   organizationClientId: string;
+  missionId?: string;
 }) {
   for (let i = 0; i < count; i += 1) {
     await createStatEventFixture({
@@ -268,6 +272,7 @@ async function seedClicks({
       fromPublisherId,
       toPublisherId,
       missionOrganizationClientId: organizationClientId,
+      missionId,
     });
   }
 }

@@ -15,11 +15,11 @@ export interface FilterOption {
 }
 
 export interface Widget {
-  _id: string;
+  id: string;
   type: "benevolat" | "volontariat";
   style: "carousel" | "grid" | "page";
   color?: string;
-  location?: Location;
+  location?: Location | null;
   fromPublisherId?: string | number;
 }
 

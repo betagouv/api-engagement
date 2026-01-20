@@ -42,7 +42,7 @@ const Settings = ({ widget, values, onChange, loading }) => {
         if (publisher.isAnnonceur && !newPublishers.some((p) => p._id === publisher.id)) newPublishers.push({ _id: publisher.id, name: publisher.name, count: 0 });
         setPublishers(newPublishers);
       } catch (error) {
-        captureError(error, "Erreur lors de la récupération des missions");
+        captureError(error, { extra: { publisherId: publisher.id } });
       }
     };
     fetchMissions();
@@ -67,7 +67,7 @@ const Settings = ({ widget, values, onChange, loading }) => {
         if (!res.ok) throw res;
         setTotal(res.total);
       } catch (error) {
-        captureError(error, "Erreur lors de la récupération des missions");
+        captureError(error, { extra: { publisherId: publisher.id } });
       }
     };
     fetchFilteredMissions();
@@ -80,7 +80,7 @@ const Settings = ({ widget, values, onChange, loading }) => {
       if (!res.ok) throw res;
       return res.data;
     } catch (error) {
-      captureError(error, "Erreur lors de la récupération des missions");
+      captureError(error, { extra: { field, search, currentValues } });
     }
     return [];
   };
@@ -95,7 +95,7 @@ const Settings = ({ widget, values, onChange, loading }) => {
             <label className="text-base" htmlFor="name">
               Nom du widget<span className="text-red-marianne ml-1">*</span>
             </label>
-            <input id="name" className="input" name="name" value={values.name} onChange={(e) => onChange({ ...values, name: e.target.value })} disabled={Boolean(widget)} />
+            <input id="name" className="input" name="name" value={values.name} onChange={(e) => onChange({ ...values, name: e.target.value })} readOnly={Boolean(widget)} />
           </div>
 
           <div className="flex flex-col gap-4">
@@ -107,7 +107,7 @@ const Settings = ({ widget, values, onChange, loading }) => {
         </div>
       </div>
 
-      <div className="border-b border-gray-900" />
+      <div className="border-grey-border border-b" />
 
       <div className="space-y-10">
         <h2 className="text-2xl font-bold">Missions à diffuser</h2>
@@ -152,7 +152,7 @@ const Settings = ({ widget, values, onChange, loading }) => {
               Ville ou code postal
             </label>
             <LocationSearch selected={values.location} onChange={(v) => onChange({ ...values, location: v })} />
-            <div className="flex items-center gap-2 text-[#0063CB]">
+            <div className="text-info flex items-center gap-2">
               <BiSolidInfoSquare className="text-sm" />
               <span className="text-xs">Laisser vide pour afficher les missions de toute la France</span>
             </div>
@@ -195,9 +195,9 @@ const Settings = ({ widget, values, onChange, loading }) => {
           )}
 
           {publishers.length === 0 ? (
-            <p className="text-gray-425 text-sm">Aucun partenaire disponible</p>
+            <p className="text-text-mention text-sm">Aucun partenaire disponible</p>
           ) : (
-            <div className={`grid grid-cols-3 gap-x-6 gap-y-3 ${values.type === "volontariat" ? "text-[#929292]" : ""}`}>
+            <div className={`grid grid-cols-3 gap-x-6 gap-y-3 ${values.type === "volontariat" ? "text-gray-625" : ""}`}>
               {publishers
                 .filter((item) => (values.type === "benevolat" ? item._id !== SC_ID : item._id === SC_ID))
                 .sort((a, b) => b.count - a.count)
@@ -223,7 +223,7 @@ const Settings = ({ widget, values, onChange, loading }) => {
 
                     <div className="flex flex-col truncate">
                       <span className={`line-clamp-2 truncate text-sm ${values.publishers.includes(item._id) ? "text-blue-france" : "text-black"}`}>{item.name}</span>
-                      <div className={`flex ${values.type === "volontariat" ? "text-[#929292]" : "text-gray-425"}`}>
+                      <div className={`flex ${values.type === "volontariat" ? "text-gray-625" : "text-text-mention"}`}>
                         <span className="text-xs">
                           {item.count.toLocaleString("fr")} {item.count > 1 ? "missions" : "mission"}
                         </span>
@@ -270,7 +270,11 @@ const Settings = ({ widget, values, onChange, loading }) => {
             <div className="flex w-[50%] items-center justify-between pt-6">
               <div> Afficher uniquement les missions modérées par JeVeuxAider.gouv.fr</div>
               <div className="flex items-center gap-4">
-                <Toggle value={values.jvaModeration} onChange={(value) => onChange({ ...values, jvaModeration: value })} />
+                <Toggle
+                  aria-label="Afficher uniquement les missions modérées par JeVeuxAider.gouv.fr"
+                  value={values.jvaModeration}
+                  onChange={(value) => onChange({ ...values, jvaModeration: value })}
+                />
                 <img src={JvaLogoSvg} className="ml-4 w-16" />
               </div>
             </div>
@@ -280,7 +284,7 @@ const Settings = ({ widget, values, onChange, loading }) => {
         <div className="space-y-4">
           <div className="space-y-2">
             <label className="text-base">Filtrer les missions à afficher</label>
-            <p className="text-gray-425">
+            <p className="text-text-mention">
               {values.rules.length === 0 && "Aucun filtre appliqué - "}
               {total.toLocaleString("fr")} missions affichées
             </p>
@@ -307,7 +311,7 @@ const Settings = ({ widget, values, onChange, loading }) => {
         </div>
       </div>
 
-      <div className="my-6 border-b border-gray-900" />
+      <div className="border-grey-border my-6 border-b" />
 
       <div className="space-y-10">
         <h2 className="text-2xl font-bold">Personnalisation</h2>
@@ -327,7 +331,7 @@ const Settings = ({ widget, values, onChange, loading }) => {
                   checked={values.style === "page"}
                   onChange={(e) => onChange({ ...values, style: e.target.value })}
                 />
-                <span className="text-gray-425 text-xs">Grille de 6 missions par page</span>
+                <span className="text-text-mention text-xs">Grille de 6 missions par page</span>
               </div>
 
               <div>
@@ -339,7 +343,7 @@ const Settings = ({ widget, values, onChange, loading }) => {
                   checked={values.style === "carousel"}
                   onChange={(e) => onChange({ ...values, style: e.target.value })}
                 />
-                <span className="text-gray-425 text-xs">Fait défiler les missions 3 par 3</span>
+                <span className="text-text-mention text-xs">Fait défiler les missions 3 par 3</span>
               </div>
             </div>
           </div>
@@ -352,7 +356,7 @@ const Settings = ({ widget, values, onChange, loading }) => {
               <div className="h-9 w-9 rounded" style={{ backgroundColor: values.color }} />
               <input id="color" className="input flex-1" name="color" value={values.color} onChange={(e) => onChange({ ...values, color: e.target.value })} />
             </div>
-            <div className="flex items-center gap-2 text-[#0063CB]">
+            <div className="text-info flex items-center gap-2">
               <BiSolidInfoSquare className="text-sm" />
               <span className="text-xs">Exemple: #000091</span>
             </div>
@@ -379,9 +383,6 @@ const LocationSearch = ({ selected, onChange }) => {
           label: `${f.properties.name}, ${f.properties.city} ${f.properties.postcode}`,
           lat: f.geometry.coordinates[1],
           lon: f.geometry.coordinates[0],
-          city: f.properties.city,
-          postcode: f.properties.postcode,
-          name: f.properties.name,
         })),
       );
     }
@@ -402,9 +403,9 @@ const LocationSearch = ({ selected, onChange }) => {
         />
 
         <Transition as={Fragment} leave="transition ease-in duration-100" leaveFrom="opacity-100" leaveTo="opacity-0">
-          <ComboboxOptions className="absolute max-h-60 w-full divide-y divide-gray-900 overflow-auto bg-white text-base shadow-lg focus:outline-none">
-            {options.map((option) => (
-              <ComboboxOption key={option.value} value={option} className={({ active }) => `cursor-default p-3 select-none ${active ? "bg-gray-975" : "bg-white"}`}>
+          <ComboboxOptions className="divide-grey-border absolute max-h-60 w-full divide-y overflow-auto bg-white text-base shadow-lg focus:outline-none">
+            {options.map((option, index) => (
+              <ComboboxOption key={`${option.label}-${index}`} value={option} className={({ active }) => `cursor-default p-3 select-none ${active ? "bg-gray-975" : "bg-white"}`}>
                 <span className={`truncate text-sm text-black ${selected?.label === option.label ? "text-blue-france" : ""}`}>{option.label}</span>
               </ComboboxOption>
             ))}
