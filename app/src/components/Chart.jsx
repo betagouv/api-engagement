@@ -33,7 +33,7 @@ const PieTooltip = ({ active, payload, unit }) => {
   if (active && payload && payload.length) {
     return (
       <div className="bg-white shadow-lg">
-        <div className="w-full bg-[#f6f6f6] px-4 py-2 text-xs text-[#666666]">
+        <div className="text-text-mention bg-background-grey-hover w-full px-4 py-2 text-xs">
           <p className="label">{payload[0].payload.name}</p>
         </div>
         <div className="space-y-2 p-4">
@@ -70,7 +70,7 @@ const LineChartTooltip = ({ active, payload, label }) => {
     const total = payload.reduce((acc, p) => acc + p.value, 0);
     return (
       <div className="bg-white shadow-lg">
-        <div className="w-full bg-[#f6f6f6] px-4 py-2 text-xs text-[#666666]">
+        <div className="text-text-mention bg-background-grey-hover w-full px-4 py-2 text-xs">
           <p className="label">{`${label} - ${total}`}</p>
         </div>
         <div className="space-y-2 p-4">
@@ -127,7 +127,7 @@ const BarChartTooltip = ({ active, payload, label }) => {
   if (active && payload && payload.length) {
     return (
       <div className="bg-white shadow-lg">
-        <div className="w-full bg-[#f6f6f6] px-4 py-2 text-xs text-[#666666]">
+        <div className="text-text-mention bg-background-grey-hover w-full px-4 py-2 text-xs">
           <p className="label">{label}</p>
         </div>
         <div className="space-y-2 p-4">
@@ -166,7 +166,7 @@ const StackedBarChartTooltip = ({ active, payload, label }) => {
     const total = payload.reduce((acc, p) => acc + p.value, 0);
     return (
       <div className="bg-white shadow-lg">
-        <div className="w-full bg-[#f6f6f6] px-4 py-2 text-xs text-[#666666]">
+        <div className="text-text-mention bg-background-grey-hover w-full px-4 py-2 text-xs">
           <p className="label">{`${label} - ${total}`}</p>
         </div>
         <div className="space-y-2 p-4">

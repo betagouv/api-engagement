@@ -17,11 +17,11 @@ Ce répertoire contient des scripts de maintenance/migration pour l’API. Les s
 
 ## Liste des scripts
 
-- **update-mission-default-logo.ts**
+- **backfill-publisher-organizations.ts**
 
-  - Exécution: `DB_ENDPOINT="mongodb://..." npx ts-node scripts/update-mission-default-logo.ts`
-  - Usage: Applique le `defaultMissionLogo` du publisher aux missions existantes sans `organizationLogo`.
-  - Notes: Nécessite l’accès à MongoDB.
+  - Exécution: `npx ts-node scripts/backfill-publisher-organizations.ts`
+  - Usage: Crée/met à jour les `PublisherOrganization` à partir des champs `organization*` encore présents sur `Mission`.
+  - Notes: À exécuter avant la suppression des colonnes `organization*` côté `mission`.
 
 - **mongo-backfill/**
 
@@ -35,6 +35,12 @@ Ce répertoire contient des scripts de maintenance/migration pour l’API. Les s
   - Usage: Met à jour le champ `updated_at` de la table `StatEvent` lorsqu'il est `NULL`, en le remplaçant par `created_at` (traitement par lots).
   - Options: `--batch <taille>` pour définir la taille de lot (défaut: 5000).
   - Prérequis: Nécessite l'accès à Postgres `core`.
+
+- **cleanup-duplicate-organizations.ts**
+
+  - Exécution: `npx ts-node scripts/cleanup-duplicate-organizations.ts [--dry-run] [--title "Nom"]`
+  - Usage: Supprime les organisations en doublon qui n'ont plus de mission rattachée. Par defaut, suppression directe.
+  - Options: `--dry-run` pour simuler, `--title` pour cibler un nom précis.
 
 - **fixtures/**
 

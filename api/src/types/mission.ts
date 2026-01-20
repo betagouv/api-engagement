@@ -1,4 +1,5 @@
-import { JobBoardId } from "./mission-job-board";
+import { Prisma } from "../db/core";
+import { JobBoardId, MissionJobBoardSyncStatus } from "./mission-job-board";
 
 export type MissionStatusCode = "ACCEPTED" | "REFUSED";
 export type MissionRemote = "no" | "possible" | "full";
@@ -137,8 +138,11 @@ export type MissionRecord = {
   deletedAt: Date | null;
   letudiantUpdatedAt: Date | null;
   letudiantError: string | null;
-  jobBoards?: Partial<Record<JobBoardId, { status: string | null; comment: string | null; url: string | null; updatedAt: Date | null }>>;
+  jobBoards?: Partial<
+    Record<JobBoardId, { status: string | null; syncStatus: MissionJobBoardSyncStatus | null; comment: string | null; url: string | null; updatedAt: Date | null }>
+  >;
   lastExportedToPgAt: Date | null;
+  distanceKm?: number;
   createdAt: Date;
   updatedAt: Date;
 } & Partial<Record<MissionModerationFieldKey, string | null>> &
@@ -184,6 +188,7 @@ export type MissionSearchFilters = {
   excludeOrganizationName?: string;
   limit: number;
   skip: number;
+  directFilters?: Prisma.MissionWhereInput;
 };
 
 export type MissionCreateInput = Partial<Omit<MissionRecord, "_id" | "publisherName" | "publisherLogo" | "publisherUrl" | "statusCode">> & {
@@ -195,3 +200,7 @@ export type MissionCreateInput = Partial<Omit<MissionRecord, "_id" | "publisherN
 };
 
 export type MissionUpdatePatch = Partial<Omit<MissionRecord, "_id" | "publisherName" | "publisherLogo" | "publisherUrl" | "createdAt" | "id">>;
+
+export type MissionInclude = Prisma.MissionInclude;
+
+export type MissionSelect = Prisma.MissionSelect;

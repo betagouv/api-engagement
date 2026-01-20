@@ -11,8 +11,20 @@ import { captureError } from "../../services/error";
 import exportCSV from "../../services/utils";
 import { withLegacyPublishers } from "../../utils/publisher";
 
+const TABLE_HEADER = [
+  { title: "Nom", key: "name" },
+  { title: "Rôles", key: "roles", position: "center" },
+  { title: "Annonceurs", key: "publishers", position: "center" },
+  { title: "Diffuseurs", key: "diffuseurs", position: "center" },
+  { title: "Membres", key: "members", position: "center" },
+  { title: "Rapport d'impact", key: "sendReport", position: "center" },
+];
+
+const PAGE_SIZE = 25;
+
 const Publishers = () => {
   const [filters, setFilters] = useState({ name: "", role: "", sendReport: "", missionType: "" });
+  const [page, setPage] = useState(1);
   const [exporting, setExporting] = useState(false);
   const [users, setUsers] = useState([]);
   const [diffuseurs, setDiffuseurs] = useState([]);
@@ -101,7 +113,7 @@ const Publishers = () => {
 
   return (
     <div className="space-y-12 p-12">
-      <title> Partenaires - Administration - API Engagement</title>
+      <title>API Engagement - Partenaires - Administration</title>
       <div className="flex items-center justify-between">
         <div>
           <h2 className="text-3xl font-bold">Liste des partenaires</h2>
@@ -119,7 +131,7 @@ const Publishers = () => {
         </div>
       </div>
 
-      <div className="border border-gray-900 p-6">
+      <div className="border-grey-border border p-6">
         <div className="mb-6 flex items-center gap-4">
           <p className="font-semibold">{`${publishers.length} partenaire${publishers.length > 1 ? "s" : ""}`}</p>
           <label htmlFor="publisher-name" className="sr-only">
@@ -175,49 +187,35 @@ const Publishers = () => {
             ))}
           </select>
         </div>
-        {loading ? (
-          <div className="flex h-full items-center justify-center py-12">
-            <Loader />
-          </div>
-        ) : (
-          <Table
-            data={publishers}
-            renderHeader={() => (
-              <>
-                <h4 className="flex-1">Nom</h4>
-                <h4 className="flex-1 text-center">Rôles</h4>
-                <h4 className="w-32 text-center">Nombre d'annonceurs</h4>
-                <h4 className="w-32 text-center">Nombre de diffuseurs</h4>
-                <h4 className="w-32 text-center">Nombre de membres</h4>
-                <h4 className="w-32 text-center">Rapport d'impact</h4>
-              </>
-            )}
-            itemHeight="min-h-12"
-            renderItem={(item) => (
-              <>
-                <Link to={`/publisher/${item.id}`} className="link flex-1">
+        <Table header={TABLE_HEADER} total={publishers.length} loading={loading} page={page} pageSize={PAGE_SIZE} onPageChange={setPage} auto>
+          {publishers.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE).map((item, i) => (
+            <tr key={item.id} className={`${i % 2 === 0 ? "bg-gray-975" : "bg-gray-1000-active"} table-item`}>
+              <td className="table-cell">
+                <Link to={`/publisher/${item.id}`} className="text-blue-france">
                   {item.name}
                 </Link>
-                <div className="flex flex-1 flex-wrap justify-center gap-2">
-                  {item.isAnnonceur && <span className="rounded bg-red-300 px-1 text-[10px]">Annonceur</span>}
-                  {item.hasApiRights && <span className="rounded bg-green-300 px-1 text-[10px]">Diffuseur API</span>}
-                  {item.hasWidgetRights && <span className="rounded bg-green-300 px-1 text-[10px]">Diffuseur Widget</span>}
-                  {item.hasCampaignRights && <span className="rounded bg-green-300 px-1 text-[10px]">Diffuseur Campagne</span>}
+              </td>
+              <td className="table-cell">
+                <div className="flex flex-wrap justify-center gap-2">
+                  {item.isAnnonceur && <span className="bg-red-marianne-950 rounded px-1 text-[10px]">Annonceur</span>}
+                  {item.hasApiRights && <span className="bg-green-success-950 rounded px-1 text-[10px]">Diffuseur API</span>}
+                  {item.hasWidgetRights && <span className="bg-green-success-950 rounded px-1 text-[10px]">Diffuseur Widget</span>}
+                  {item.hasCampaignRights && <span className="bg-green-success-950 rounded px-1 text-[10px]">Diffuseur Campagne</span>}
                 </div>
-                <span className="w-32 text-center text-xs">{item.publishers.length}</span>
-                <span className="w-32 text-center text-xs">{diffuseurs.filter((e) => e.publishers.some((j) => j.publisherId === item.id)).length}</span>
-                <span className="w-32 text-center text-xs">{users.filter((e) => e.publishers.find((j) => j === item.id)).length}</span>
-                <div className="w-32 text-center text-xs">
-                  {item.sendReport ? (
-                    <span className="bg-blue-france-975 rounded px-1">{`Oui (${item.sendReportTo.length} receveur${item.sendReportTo.length > 1 ? "s" : ""})`}</span>
-                  ) : (
-                    <span className="rounded bg-red-300 px-1">Non</span>
-                  )}
-                </div>
-              </>
-            )}
-          />
-        )}
+              </td>
+              <td className="table-cell text-center">{item.publishers.length}</td>
+              <td className="table-cell text-center">{diffuseurs.filter((e) => e.publishers.some((j) => j.publisherId === item.id)).length}</td>
+              <td className="table-cell text-center">{users.filter((e) => e.publishers.find((j) => j === item.id)).length}</td>
+              <td className="table-cell text-center">
+                {item.sendReport ? (
+                  <span className="bg-blue-france-975 rounded px-1">{`Oui (${item.sendReportTo.length} receveur${item.sendReportTo.length > 1 ? "s" : ""})`}</span>
+                ) : (
+                  <span className="bg-red-marianne-950 rounded px-1">Non</span>
+                )}
+              </td>
+            </tr>
+          ))}
+        </Table>
       </div>
     </div>
   );

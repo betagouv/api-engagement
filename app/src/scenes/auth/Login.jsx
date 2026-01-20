@@ -57,15 +57,15 @@ const Login = () => {
 
   return (
     <form onSubmit={handleSubmit} className="flex h-full flex-col bg-white px-32 py-10">
-      <title>Connexion - API Engagement</title>
+      <title>API Engagement - Connexion</title>
       <h1 className="text-4xl font-bold">Accedez à votre espace</h1>
 
       <label className="mt-6 mb-2 text-sm" htmlFor="email">
         E-mail
       </label>
-      <input className={`input mb-2 ${errors.email ? "border-b-red-error" : "border-b-black"}`} name="email" id="email" type="email" />
+      <input className={`input mb-2 ${errors.email ? "border-b-error" : "border-b-black"}`} name="email" id="email" type="email" />
       {errors.email && (
-        <div className="text-red-error flex items-center text-sm">
+        <div className="text-error flex items-center text-sm">
           <RiErrorWarningFill className="mr-2" />
           {errors.email}
         </div>
@@ -74,9 +74,9 @@ const Login = () => {
       <label className="mt-6 mb-2 text-sm" htmlFor="password">
         Mot de passe
       </label>
-      <input className={`input mb-2 ${errors.password ? "border-b-red-error" : "border-b-black"}`} name="password" type="password" id="password" />
+      <input className={`input mb-2 ${errors.password ? "border-b-error" : "border-b-black"}`} name="password" type="password" id="password" />
       {errors.password && (
-        <div className="text-red-error flex items-center text-sm">
+        <div className="text-error flex items-center text-sm">
           <RiErrorWarningFill className="mr-2" />
           {errors.password}
         </div>
@@ -91,7 +91,7 @@ const Login = () => {
         {loading ? "Chargement..." : "Se connecter"}
       </button>
       {errors.login && (
-        <div className="text-red-error mt-4 flex items-center text-sm">
+        <div className="text-error mt-4 flex items-center text-sm">
           <RiErrorWarningFill className="mr-2" />
           {errors.login}
         </div>

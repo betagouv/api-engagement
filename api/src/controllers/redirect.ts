@@ -11,7 +11,7 @@ import { statBotService } from "../services/stat-bot";
 import { statEventService } from "../services/stat-event";
 import { widgetService } from "../services/widget";
 import { MissionRecord, StatEventRecord } from "../types";
-import { identify, slugify } from "../utils";
+import { cleanIdParam, identify, slugify } from "../utils";
 
 const router = Router();
 
@@ -259,7 +259,7 @@ router.get("/campaign/:id", cors({ origin: "*" }), async (req, res) => {
   try {
     const params = zod
       .object({
-        id: zod.string(),
+        id: zod.string().transform(cleanIdParam),
       })
       .required()
       .safeParse(req.params);
@@ -311,22 +311,8 @@ router.get("/campaign/:id", cors({ origin: "*" }), async (req, res) => {
     } as StatEventRecord;
 
     const clickId = await statEventService.createStatEvent(obj);
-    const url = new URL(campaign.url);
-
-    if (!url.search) {
-      if (campaign.toPublisherId === PUBLISHER_IDS.SERVICE_CIVIQUE) {
-        url.searchParams.set("mtm_source", "api_engagement");
-        url.searchParams.set("mtm_medium", "campaign");
-        url.searchParams.set("mtm_campaign", slugify(campaign.name));
-      } else {
-        url.searchParams.set("utm_source", "api_engagement");
-        url.searchParams.set("utm_medium", "campaign");
-        url.searchParams.set("utm_campaign", slugify(campaign.name));
-      }
-    }
-    url.searchParams.set("apiengagement_id", clickId);
-
-    res.redirect(302, url.href);
+    href = href.includes("?") ? `${href}&apiengagement_id=${clickId}` : `${href}?apiengagement_id=${clickId}`;
+    res.redirect(302, href);
 
     // Update stats just created to add isBot (do it after redirect to avoid delay)
     const statBot = await statBotService.findStatBotByUser(identity.user);
@@ -348,7 +334,7 @@ router.get("/widget/:id", cors({ origin: "*" }), async (req: Request, res: Respo
   try {
     const params = zod
       .object({
-        id: zod.string(),
+        id: zod.string().transform(cleanIdParam),
       })
       .required()
       .safeParse(req.params);
@@ -460,7 +446,7 @@ router.get("/seo/:id", cors({ origin: "*" }), async (req: Request, res: Response
   try {
     const params = zod
       .object({
-        id: zod.string(),
+        id: zod.string().transform(cleanIdParam),
       })
       .required()
       .safeParse(req.params);
@@ -535,7 +521,7 @@ router.get("/notrack/:id", cors({ origin: "*" }), async (req, res, next) => {
   try {
     const params = zod
       .object({
-        id: zod.string(),
+        id: zod.string().transform(cleanIdParam),
       })
       .required()
       .safeParse(req.params);
@@ -588,13 +574,13 @@ router.get("/:statsId/confirm-human", cors({ origin: "*" }), async (req, res) =>
   }
 });
 
-router.get("/:missionId/:publisherId", cors({ origin: "*" }), async function trackClick(req, res, next) {
+router.get("/:missionId/:publisherId", cors({ origin: "*" }), async (req, res) => {
   let href: string | null = null;
   try {
     const params = zod
       .object({
         missionId: zod.string(),
-        publisherId: zod.string(),
+        publisherId: zod.string().transform(cleanIdParam),
       })
       .safeParse(req.params);
 
@@ -606,7 +592,7 @@ router.get("/:missionId/:publisherId", cors({ origin: "*" }), async function tra
 
     if (!params.success) {
       captureMessage(`[Redirection Publisher] Invalid params`, JSON.stringify(params.error, null, 2));
-      return res.redirect(302, "https://www.service-civique.gouv.fr/"); // While issue
+      return res.redirect(302, "https://www.service-civique.gouv.fr/");
     }
 
     const identity = identify(req);
@@ -617,7 +603,7 @@ router.get("/:missionId/:publisherId", cors({ origin: "*" }), async function tra
     }
     if (!mission) {
       captureMessage(`[Redirection Publisher] Mission not found`, `mission ${params.data.missionId}, publisher ${params.data.publisherId}`);
-      return res.redirect(302, "https://www.service-civique.gouv.fr/"); // While issue
+      return res.redirect(302, "https://www.service-civique.gouv.fr/");
     }
     if (!identity) {
       return res.redirect(302, mission.applicationUrl || JVA_URL);
@@ -625,6 +611,10 @@ router.get("/:missionId/:publisherId", cors({ origin: "*" }), async function tra
     href = mission.applicationUrl || JVA_URL;
 
     const fromPublisher = await publisherService.findOnePublisherById(params.data.publisherId);
+    if (!fromPublisher) {
+      captureMessage(`[Redirection Publisher] Publisher not found`, `publisher ${params.data.publisherId}`);
+      return res.redirect(302, "https://www.service-civique.gouv.fr/");
+    }
 
     const obj = {
       type: "click",
@@ -702,7 +692,7 @@ router.get("/impression/campaign/:campaignId", cors({ origin: "*" }), async (req
 
     const params = zod
       .object({
-        campaignId: zod.string(),
+        campaignId: zod.string().transform(cleanIdParam),
       })
       .safeParse(req.params);
 
@@ -764,7 +754,7 @@ router.get("/impression/:missionId/:publisherId", cors({ origin: "*" }), async (
     const params = zod
       .object({
         missionId: zod.string(),
-        publisherId: zod.string(),
+        publisherId: zod.string().transform(cleanIdParam),
       })
       .safeParse(req.params);
 

@@ -14,17 +14,19 @@ function getEnvFromArgs(): string | undefined {
 
 const envName = getEnvFromArgs();
 if (envName) {
-  const envPath = path.join(__dirname, `../.env.${envName}`);
+  const envPath = path.join(__dirname, `../../.env.${envName}`);
   console.log(`[Script] Loading env file: ${envPath}`);
   dotenv.config({ path: envPath });
 } else {
   dotenv.config();
 }
 
-import { LETUDIANT_PILOTY_TOKEN } from "../src/config";
-import { MEDIA_PUBLIC_ID } from "../src/jobs/letudiant/config";
-import { rateLimit } from "../src/jobs/letudiant/utils";
-import { PilotyClient } from "../src/services/piloty";
+import { LETUDIANT_PILOTY_TOKEN } from "../../src/config";
+import { JobBoardId } from "../../src/db/core";
+import { prismaCore } from "../../src/db/postgres";
+import { MEDIA_PUBLIC_ID } from "../../src/jobs/letudiant/config";
+import { rateLimit } from "../../src/jobs/letudiant/utils";
+import { PilotyClient } from "../../src/services/piloty";
 
 async function main() {
   if (!LETUDIANT_PILOTY_TOKEN) {
@@ -33,7 +35,13 @@ async function main() {
   }
 
   // Default list of public IDs (can be edited manually if you prefer)
-  const ids: string[] = ["je-participe-a-la-promotion-d-un-festival-evenement-arengosse-france-20"];
+  const ids: {
+    id: string;
+    organizationPublicId?: string | null;
+  }[] = [
+    { id: "volontariat-volontaires-pour-l-education-saint-denis-france-2", organizationPublicId: "asafi" },
+    { id: "volontariat-volontaires-pour-l-education-saint-denis-france-3", organizationPublicId: "asafi" },
+  ];
 
   if (!ids.length) {
     console.error("No public IDs provided. Use --ids=a,b,c or edit defaultIds array in the script.");
@@ -47,15 +55,23 @@ async function main() {
 
   console.log(`[archive-piloty-jobs] Archiving ${ids.length} job(s) on Piloty...`);
 
-  for (const publicId of ids) {
+  for (const data of ids) {
     try {
-      console.log(`→ PATCH job ${publicId} with state=archived`);
+      const jobBoardEntry = await prismaCore.missionJobBoard.findFirst({
+        where: { publicId: data.id, jobBoardId: JobBoardId.LETUDIANT },
+        include: { mission: { include: { organization: true } } },
+      });
+      const companyPublicId = data.organizationPublicId ?? jobBoardEntry?.mission?.organization?.letudiantPublicId;
+      if (!companyPublicId) {
+        throw new Error("Missing company public ID for job");
+      }
+      console.log(`→ PATCH job ${data.id} with state=archived`);
       // Piloty accepts partial payload on PATCH; our TS type is stricter so we cast.
-      await client.updateJob(publicId, { media_public_id: MEDIA_PUBLIC_ID, state: "archived" } as any);
+      await client.updateJob(data.id, { media_public_id: MEDIA_PUBLIC_ID, company_public_id: companyPublicId, state: "archived" } as any);
       success++;
     } catch (err) {
       failed++;
-      console.error(`✗ Failed to archive ${publicId}:`, err);
+      console.error(`✗ Failed to archive ${data.id}:`, err);
     }
     // simple rate limit to avoid hitting API limits
     await rateLimit();

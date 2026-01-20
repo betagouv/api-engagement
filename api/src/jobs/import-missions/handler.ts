@@ -2,18 +2,18 @@ import { captureException } from "../../error";
 import { importService } from "../../services/import";
 
 import { Prisma, Import as PrismaImport } from "../../db/core";
-import { publisherService } from "../../services/publisher";
 import { missionService } from "../../services/mission";
+import { publisherService } from "../../services/publisher";
 import type { PublisherRecord } from "../../types/publisher";
 import { BaseHandler } from "../base/handler";
 import { JobResult } from "../types";
+import type { ImportedMission } from "./types";
 import { bulkDB, cleanDB } from "./utils/db";
 import { enrichWithGeoloc } from "./utils/geoloc";
 import { buildData } from "./utils/mission";
 import { verifyOrganization } from "./utils/organization";
 import { shouldCleanMissionsForPublisher } from "./utils/publisher";
 import { fetchXML, parseXML } from "./utils/xml";
-import type { ImportedMission } from "./types";
 
 const CHUNK_SIZE = 2000;
 
@@ -120,25 +120,22 @@ async function importMissionssForPublisher(publisher: PublisherRecord, start: Da
   try {
     // PARSE XML
     const xml = await fetchXML(publisher);
-    if (!xml) {
+    if (!xml.ok) {
       console.log(`[${publisher.name}] Failed to fetch xml`);
       obj.finishedAt = new Date();
       obj.status = "FAILED";
-      obj.error = "Failed to fetch xml";
+      obj.error = `${xml.status} - ${xml.error ?? "Failed to fetch xml"}`;
       return obj;
     }
 
     console.log(`[${publisher.name}] Parsing xml`);
-    const missionsXML = parseXML(xml);
+    const missionsXML = parseXML(xml.data);
 
     // Clean missions if no XML feed is sucessful for 7 days
     if (typeof missionsXML === "string" || !missionsXML.length) {
       if (await shouldCleanMissionsForPublisher(publisher.id)) {
         console.log(`[${publisher.name}] Empty xml, cleaning missions...`);
-        const deletedCount = await missionService.updateMany(
-          { publisherId: publisher.id, deletedAt: null, updatedAt: { lt: start } },
-          { deletedAt: new Date() }
-        );
+        const deletedCount = await missionService.updateMany({ publisherId: publisher.id, deletedAt: null, updatedAt: { lt: start } }, { deletedAt: new Date() });
         console.log(`[${publisher.name}] Deleted ${deletedCount} missions`);
         obj.deletedCount = deletedCount;
       } else {
@@ -173,15 +170,15 @@ async function importMissionssForPublisher(publisher: PublisherRecord, start: Da
         promises.push(buildData(obj.startedAt ?? new Date(), publisher, missionXML));
 
         if (j % 50 === 0) {
+          const res = await Promise.all(promises);
+          res.forEach((e: ImportedMission | undefined) => e && missions.push(e));
+          promises.length = 0;
+        }
+      }
+      if (promises.length > 0) {
         const res = await Promise.all(promises);
         res.forEach((e: ImportedMission | undefined) => e && missions.push(e));
-        promises.length = 0;
       }
-    }
-    if (promises.length > 0) {
-      const res = await Promise.all(promises);
-      res.forEach((e: ImportedMission | undefined) => e && missions.push(e));
-    }
       allMissionsClientIds.push(...missions.map((m) => m.clientId.toString()));
 
       // GEOLOC

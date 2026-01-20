@@ -119,9 +119,7 @@ const parseStringArray = (value: unknown, includeSpace = false): string[] | unde
   }
 
   if (Array.isArray(value)) {
-    const normalized = value
-      .map((v) => String(v ?? "").trim())
-      .filter((v) => v.length > 0);
+    const normalized = value.map((v) => String(v ?? "").trim()).filter((v) => v.length > 0);
     return normalized.length ? normalized : undefined;
   }
 
@@ -206,7 +204,7 @@ const parseLowercase = (value: string | undefined) => {
   return parsed ? parsed.toLowerCase() : null;
 };
 
-const parseMission = (publisher: PublisherRecord, missionXML: MissionXML, missionDB: MissionRecord | null): ImportedMission => {
+const parseMission = (publisher: PublisherRecord, missionXML: MissionXML, missionDB: MissionRecord | null, startTime: Date): ImportedMission => {
   const organizationLogo = parseString(missionXML.organizationLogo);
 
   const mission = {
@@ -219,7 +217,7 @@ const parseMission = (publisher: PublisherRecord, missionXML: MissionXML, missio
     descriptionHtml: parseString(missionXML.description) || "",
     clientId: parseString(missionXML.clientId),
     applicationUrl: missionXML.applicationUrl || "",
-    postedAt: parseDate(missionXML.postedAt) || new Date(),
+    postedAt: parseDate(missionXML.postedAt) || parseDate(missionDB?.postedAt ?? undefined) || startTime,
     startAt: parseDate(missionXML.startAt) || parseDate(missionDB?.startAt || "") || new Date(),
     endAt: parseDate(missionXML.endAt) || null,
 
@@ -227,10 +225,7 @@ const parseMission = (publisher: PublisherRecord, missionXML: MissionXML, missio
     domain: parseString(missionXML.domain) || "",
     schedule: parseString(missionXML.schedule),
     audience:
-      parseStringArray(missionXML.audience, true) ||
-      parseStringArray(missionXML.publicBeneficiaries, true) ||
-      parseStringArray(missionXML.publicsBeneficiaires, true) ||
-      [],
+      parseStringArray(missionXML.audience, true) || parseStringArray(missionXML.publicBeneficiaries, true) || parseStringArray(missionXML.publicsBeneficiaires, true) || [],
     softSkills: parseStringArray(missionXML.softSkills, true) || parseStringArray(missionXML.soft_skills, true) || [],
     romeSkills: parseStringArray(missionXML.romeSkills, true) || [],
     requirements: parseStringArray(missionXML.requirements, true) || [],
@@ -267,7 +262,7 @@ const parseMission = (publisher: PublisherRecord, missionXML: MissionXML, missio
       parseStringArray(missionXML.publicBeneficiaries, true) ||
       parseStringArray(missionXML.publicsBeneficiaires, true) ||
       [],
-    organizationReseaux: parseStringArray(missionXML.organizationReseaux, true) || [],
+    organizationReseaux: parseStringArray(missionXML.organizationReseaux) || [],
   } as ImportedMission;
 
   // Moderation except Service Civique (already moderated)  // Moderation except Service Civique (already moderated)
@@ -354,7 +349,7 @@ export const buildData = async (startTime: Date, publisher: PublisherRecord, mis
 
     const missionDB = await missionService.findMissionByClientAndPublisher(clientId, publisher.id);
 
-    const mission = parseMission(publisher, { ...missionXML, clientId }, (missionDB as any) || null);
+    const mission = parseMission(publisher, { ...missionXML, clientId }, (missionDB as any) || null, startTime);
 
     mission.deletedAt = null;
     mission.lastSyncAt = startTime;

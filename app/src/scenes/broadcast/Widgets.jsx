@@ -3,7 +3,7 @@ import { RiAddFill, RiEditFill, RiEyeFill, RiSearchLine } from "react-icons/ri";
 import { Link } from "react-router-dom";
 
 import Loader from "../../components/Loader";
-import TablePagination from "../../components/NewTablePagination";
+import Table from "../../components/Table";
 import Toggle from "../../components/Toggle";
 import api from "../../services/api";
 import { BENEVOLAT_URL, VOLONTARIAT_URL } from "../../services/config";
@@ -56,7 +56,7 @@ const Widgets = () => {
 
   return (
     <div className="space-y-6 p-12">
-      <title>Widgets - Diffuser des missions - API Engagement</title>
+      <title>API Engagement - Widgets - Diffuser des missions</title>
       <div className="mb-10 flex items-center justify-between gap-4">
         <div className="relative flex-1">
           <label htmlFor="widget-search" className="sr-only">
@@ -79,16 +79,16 @@ const Widgets = () => {
       ) : (
         <>
           <div className="flex justify-between">
-	            <p className="text-lg font-semibold">{data.length > 1 ? `${data.length} widgets` : `${data.length} widget`}</p>
-	            {user.role === "admin" && (
-	              <div className="relative flex items-center">
-	                <Toggle aria-label="Afficher les widgets désactivés" value={!filters.active} onChange={(checked) => setFilters({ ...filters, active: !checked, page: 1 })} />
-	                <label className="ml-2">Afficher les widgets désactivés</label>
-	              </div>
-	            )}
-	          </div>
+            <p className="text-lg font-semibold">{data.length > 1 ? `${data.length} widgets` : `${data.length} widget`}</p>
+            {user.role === "admin" && (
+              <div className="relative flex items-center">
+                <Toggle aria-label="Afficher les widgets désactivés" value={!filters.active} onChange={(checked) => setFilters({ ...filters, active: !checked, page: 1 })} />
+                <label className="ml-2">Afficher les widgets désactivés</label>
+              </div>
+            )}
+          </div>
 
-          <TablePagination header={TABLE_HEADER} page={filters.page} pageSize={filters.pageSize} onPageChange={(page) => setFilters({ ...filters, page })} total={data.length}>
+          <Table header={TABLE_HEADER} pagination page={filters.page} pageSize={filters.pageSize} onPageChange={(page) => setFilters({ ...filters, page })} total={data.length}>
             {data.slice((filters.page - 1) * filters.pageSize, filters.page * filters.pageSize).map((item, i) => (
               <tr key={i} className={`${i % 2 === 0 ? "bg-gray-975" : "bg-gray-1000-active"} table-item`}>
                 <td className="px-4" colSpan={3}>
@@ -106,7 +106,7 @@ const Widgets = () => {
                 <td className={`${!item.active ? "opacity-50" : "opacity-100"} px-4`}>{new Date(item.createdAt).toLocaleDateString("fr")}</td>
                 <td className="mt-3 flex gap-2 px-4 text-lg">
                   <Link className="secondary-btn flex items-center" to={`/broadcast/widget/${item.id}`}>
-                    <RiEditFill className="text-lg" />
+                    <RiEditFill className="text-lg" role="img" aria-label="Modifier le widget" />
                   </Link>
                   <a
                     className="secondary-btn flex items-center"
@@ -114,17 +114,21 @@ const Widgets = () => {
                     target="_blank"
                     rel="noopener noreferrer"
                   >
-                    <RiEyeFill className="text-lg" />
+                    <RiEyeFill className="text-lg" role="img" aria-label="Voir le widget" />
                   </a>
                 </td>
-	                {user.role === "admin" && (
-	                  <td className="px-4">
-	                    <Toggle aria-label={`${item.active ? "Désactiver" : "Activer"} le widget ${item.name || ""}`.trim()} value={item.active} onChange={(v) => handleActivate(v, item)} />
-	                  </td>
-	                )}
-	              </tr>
-	            ))}
-	          </TablePagination>
+                {user.role === "admin" && (
+                  <td className="px-4">
+                    <Toggle
+                      aria-label={`${item.active ? "Désactiver" : "Activer"} le widget ${item.name || ""}`.trim()}
+                      value={item.active}
+                      onChange={(v) => handleActivate(v, item)}
+                    />
+                  </td>
+                )}
+              </tr>
+            ))}
+          </Table>
         </>
       )}
     </div>

@@ -34,21 +34,22 @@ const View = () => {
 
   return (
     <div className="flex flex-col">
+      <title>{`API Engagement - Organisation - ${data.title}`}</title>
       <div className="mb-10">
         <h1 className="leading-normal">{data.title}</h1>
         <div className="mt-4 flex justify-between">
           {data.status === "ACTIVE" ? (
             <div className="flex items-center gap-2">
               <p>Active</p>
-              <RiCheckboxCircleFill className="text-green-success" />
+              <RiCheckboxCircleFill className="text-success" />
             </div>
           ) : (
             <div className="flex items-center gap-2">
               <p>Inactive</p>
-              <RiCloseCircleFill className="text-red-error" />
+              <RiCloseCircleFill className="text-error" />
             </div>
           )}
-          <div className="text-gray-425 flex items-center gap-2 text-base">
+          <div className="text-text-mention flex items-center gap-2 text-base">
             <HiLocationMarker className="ml-2" />
             {data.addressDepartmentName && <span>{data.addressDepartmentName}</span>}
             {data.addressCity && (
@@ -77,7 +78,7 @@ const View = () => {
           <p>Dernière modification le {data.updatedAt ? new Date(data.updatedAt).toLocaleDateString("fr") : "N/A"}</p>
         </div>
 
-        <div className="flex gap-4 border border-gray-900 p-6">
+        <div className="border-grey-border flex gap-4 border p-6">
           <div className="flex-1">
             <p className="text-xl font-semibold">Object de l'organisme</p>
             <p className="mt-4">{data.object}</p>
@@ -122,7 +123,7 @@ const View = () => {
         </div>
 
         {showRaw && (
-          <div className="mt-6 overflow-scroll border border-gray-900 p-6 text-xs">
+          <div className="border-grey-border mt-6 overflow-scroll border p-6 text-xs">
             <pre>{JSON.stringify(data, null, 2)}</pre>
           </div>
         )}
