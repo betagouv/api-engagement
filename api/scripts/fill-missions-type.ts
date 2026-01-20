@@ -1,52 +1,29 @@
 import dotenv from "dotenv";
 dotenv.config();
 
-import mongoose from "mongoose";
-
-import { mongoConnected } from "../src/db/mongo";
 import { prismaCore } from "../src/db/postgres";
-import MissionModel from "../src/models/mission";
-import { MissionType as MongoMissionType } from "../src/types";
+import { MissionType } from "../src/db/core";
 
 const DRY_RUN = process.argv.includes("--dry-run");
 
-const MISSING_TYPE_FILTER = {
-  $or: [{ type: { $exists: false } }, { type: null }, { type: "" }, { type: "null" }, { type: "volontariat-service-civique" }],
-};
-
-const MISSING_PUBLISHER_FILTER = {
-  $or: [{ publisherId: { $exists: false } }, { publisherId: null }, { publisherId: "" }],
-};
+const missingTypeWhere = {
+  OR: [{ type: null }, { type: "" }, { type: "null" }, { type: "volontariat-service-civique" }],
+} as const;
 
 type PublisherMissionType = "benevolat" | "volontariat_service_civique" | null | undefined;
 
-const resolveMissionTypeFromPublisher = (publisherMissionType: PublisherMissionType): MongoMissionType => {
+const resolveMissionTypeFromPublisher = (publisherMissionType: PublisherMissionType): MissionType => {
   if (publisherMissionType === "volontariat_service_civique") {
-    return MongoMissionType.VOLONTARIAT;
+    return "volontariat_service_civique";
   }
-  return MongoMissionType.BENEVOLAT;
-};
-
-const buildFilter = (publisherId?: string | null) => {
-  const clauses: Record<string, unknown>[] = [MISSING_TYPE_FILTER];
-  if (!publisherId) {
-    clauses.push(MISSING_PUBLISHER_FILTER);
-  } else {
-    clauses.push({ publisherId });
-  }
-
-  if (clauses.length === 1) {
-    return clauses[0];
-  }
-
-  return { $and: clauses };
+  return "benevolat";
 };
 
 const run = async () => {
-  await Promise.all([mongoConnected, prismaCore.$connect()]);
-  console.log("[MissionTypeBackfill] Connected to MongoDB and PostgreSQL");
+  await prismaCore.$connect();
+  console.log("[MissionTypeBackfill] Connected to PostgreSQL");
 
-  const totalMissionsToProcess = await MissionModel.countDocuments(MISSING_TYPE_FILTER);
+  const totalMissionsToProcess = await prismaCore.mission.count({ where: missingTypeWhere });
   console.log(`[MissionTypeBackfill] ${totalMissionsToProcess} missions without type detected`);
   if (!totalMissionsToProcess) {
     return;
@@ -66,21 +43,16 @@ const run = async () => {
     console.log("[MissionTypeBackfill] Running in dry run mode - no data will be written");
   }
 
-  const publishersWithMissingType = await MissionModel.distinct("publisherId", MISSING_TYPE_FILTER);
+  const publishersWithMissingType = await prismaCore.mission.findMany({
+    where: missingTypeWhere,
+    select: { publisherId: true },
+    distinct: ["publisherId"],
+  });
 
   let updated = 0;
   let publishersWithoutMissionType = 0;
   let processedPublishers = 0;
-  let hasPublisherLessMissions = false;
-
-  const distinctPublishers: string[] = [];
-  for (const publisherId of publishersWithMissingType) {
-    if (!publisherId) {
-      hasPublisherLessMissions = true;
-      continue;
-    }
-    distinctPublishers.push(publisherId);
-  }
+  const distinctPublishers: string[] = publishersWithMissingType.map((m) => m.publisherId).filter(Boolean) as string[];
 
   const updateForPublisher = async (publisherId?: string | null) => {
     const publisherMissionType = publisherId ? publisherMissionTypeMap.get(publisherId) : null;
@@ -89,10 +61,10 @@ const run = async () => {
     }
 
     const typeToSet = resolveMissionTypeFromPublisher(publisherMissionType);
-    const filter = buildFilter(publisherId);
+    const filter = { ...missingTypeWhere, ...(publisherId ? { publisherId } : {}) };
 
     if (DRY_RUN) {
-      const count = await MissionModel.countDocuments(filter);
+      const count = await prismaCore.mission.count({ where: filter });
       updated += count;
       console.log(
         `[MissionTypeBackfill] [DryRun] Publisher ${publisherId ?? "<none>"} -> ${typeToSet}: ${count} missions would be updated (processed publishers: ${processedPublishers + 1})`
@@ -100,26 +72,20 @@ const run = async () => {
       return;
     }
 
-    const now = new Date();
-    const result = await MissionModel.updateMany(filter, {
-      $set: {
+    const result = await prismaCore.mission.updateMany({
+      where: filter,
+      data: {
         type: typeToSet,
-        updatedAt: now,
       },
     });
-    updated += result.modifiedCount ?? 0;
+    updated += result.count ?? 0;
     console.log(
-      `[MissionTypeBackfill] Publisher ${publisherId ?? "<none>"} -> ${typeToSet}: ${result.modifiedCount ?? 0} missions updated (processed publishers: ${processedPublishers + 1})`
+      `[MissionTypeBackfill] Publisher ${publisherId ?? "<none>"} -> ${typeToSet}: ${result.count ?? 0} missions updated (processed publishers: ${processedPublishers + 1})`
     );
   };
 
   for (const publisherId of distinctPublishers) {
     await updateForPublisher(publisherId);
-    processedPublishers++;
-  }
-
-  if (hasPublisherLessMissions) {
-    await updateForPublisher(null);
     processedPublishers++;
   }
 
@@ -130,7 +96,6 @@ const run = async () => {
 
 const shutdown = async (exitCode: number) => {
   await prismaCore.$disconnect().catch(() => undefined);
-  await mongoose.disconnect().catch(() => undefined);
   process.exit(exitCode);
 };
 

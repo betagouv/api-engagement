@@ -32,7 +32,6 @@ model Account {
   from_partner    Partner?    @relation("FromAccount", fields: [from_partner_id], references: [id])
   mission         Mission?    @relation(fields: [mission_id], references: [id])
   to_partner      Partner?    @relation("ToAccount", fields: [to_partner_id], references: [id])
-  widget          Widget?     @relation(fields: [widget_id], references: [id])
 
   @@index([mission_id], map: "account_mission_id")
   @@index([campaign_id], map: "account_campaign_id")
@@ -66,7 +65,6 @@ model Apply {
   from_partner      Partner?    @relation("FromApply", fields: [from_partner_id], references: [id])
   mission           Mission?    @relation(fields: [mission_id], references: [id])
   to_partner        Partner?    @relation("ToApply", fields: [to_partner_id], references: [id])
-  widget            Widget?     @relation(fields: [widget_id], references: [id])
 
   @@index([mission_id], map: "apply_mission_id")
   @@index([campaign_id], map: "apply_campaign_id")
@@ -139,7 +137,6 @@ model Click {
   from_partner    Partner?    @relation("FromClick", fields: [from_partner_id], references: [id])
   mission         Mission?    @relation(fields: [mission_id], references: [id])
   to_partner      Partner?    @relation("ToClick", fields: [to_partner_id], references: [id])
-  widget          Widget?     @relation(fields: [widget_id], references: [id])
 
   @@index([mission_id], map: "click_mission_id")
   @@index([campaign_id], map: "click_campaign_id")
@@ -167,78 +164,11 @@ model Impression {
   from_partner    Partner?    @relation("FromImpression", fields: [from_partner_id], references: [id])
   mission         Mission?    @relation(fields: [mission_id], references: [id])
   to_partner      Partner?    @relation("ToImpression", fields: [to_partner_id], references: [id])
-  widget          Widget?     @relation(fields: [widget_id], references: [id])
 
   @@index([mission_id], map: "impression_mission_id")
   @@index([to_partner_id], map: "impression_to_partner_id")
   @@index([from_partner_id], map: "impression_from_partner_id")
   @@index([campaign_id], map: "impression_campaign_id")
-}
-
-model Kpi {
-  id                                                  String   @id @default(uuid())
-  old_id                                              String   @unique
-  date                                                DateTime @unique
-  available_benevolat_mission_count                   Int
-  available_volontariat_mission_count                 Int
-  available_jva_mission_count                         Int?
-  available_benevolat_given_by_partner_place_count    Int
-  available_volontariat_given_by_partner_place_count  Int
-  available_benevolat_attributed_by_api_place_count   Int
-  available_volontariat_attributed_by_api_place_count Int
-  percentage_benevolat_given_by_partner_places        Float
-  percentage_volontariat_given_by_partner_places      Float
-  percentage_benevolat_attributed_by_api_places       Float
-  percentage_volontariat_attributed_by_api_places     Float
-  benevolat_print_mission_count                       Int
-  volontariat_print_mission_count                     Int
-  benevolat_click_mission_count                       Int
-  volontariat_click_mission_count                     Int
-  benevolat_apply_mission_count                       Int
-  volontariat_apply_mission_count                     Int
-  benevolat_account_mission_count                     Int
-  volontariat_account_mission_count                   Int
-  benevolat_print_count                               Int
-  volontariat_print_count                             Int
-  benevolat_click_count                               Int
-  volontariat_click_count                             Int
-  benevolat_apply_count                               Int
-  volontariat_apply_count                             Int
-  benevolat_account_count                             Int
-  volontariat_account_count                           Int
-}
-
-model KpiBotLess {
-  id                                                  String   @id @default(uuid())
-  old_id                                              String   @unique
-  date                                                DateTime @unique
-  available_benevolat_mission_count                   Int
-  available_volontariat_mission_count                 Int
-  available_jva_mission_count                         Int?
-  available_benevolat_given_by_partner_place_count    Int
-  available_volontariat_given_by_partner_place_count  Int
-  available_benevolat_attributed_by_api_place_count   Int
-  available_volontariat_attributed_by_api_place_count Int
-  percentage_benevolat_given_by_partner_places        Float
-  percentage_volontariat_given_by_partner_places      Float
-  percentage_benevolat_attributed_by_api_places       Float
-  percentage_volontariat_attributed_by_api_places     Float
-  benevolat_print_mission_count                       Int
-  volontariat_print_mission_count                     Int
-  benevolat_click_mission_count                       Int
-  volontariat_click_mission_count                     Int
-  benevolat_apply_mission_count                       Int
-  volontariat_apply_mission_count                     Int
-  benevolat_account_mission_count                     Int
-  volontariat_account_mission_count                   Int
-  benevolat_print_count                               Int
-  volontariat_print_count                             Int
-  benevolat_click_count                               Int
-  volontariat_click_count                             Int
-  benevolat_apply_count                               Int
-  volontariat_apply_count                             Int
-  benevolat_account_count                             Int
-  volontariat_account_count                           Int
 }
 
 model Mission {
@@ -262,6 +192,7 @@ model Mission {
   domain_logo                   String?
   activity                      String?
   partner_id                    String?
+  application_url               String?
   description                   String?
   type                          MissionType?
   duration                      Int?
@@ -323,6 +254,7 @@ model Mission {
   requirements                          String[]
   tasks                                 String[]
   places                                Int?
+  places_status                         String?
   matched_organization_id               String?
   organization_verification_status      String?
   organization_name_verified            String?
@@ -438,162 +370,20 @@ model Partner {
   annonceur           Boolean
   api_key             String?
   partners            String[]
-  created_at          DateTime          @default(now())
-  updated_at          DateTime          @updatedAt
+  created_at          DateTime     @default(now())
+  updated_at          DateTime     @updatedAt
   deleted_at          DateTime?
-  account_from        Account[]         @relation("FromAccount")
-  account_to          Account[]         @relation("ToAccount")
-  apply_from          Apply[]           @relation("FromApply")
-  apply_to            Apply[]           @relation("ToApply")
-  annonceur_campaigns Campaign[]        @relation("AnnonceurCampaign")
-  diffuseur_campaigns Campaign[]        @relation("DiffuseurCampaign")
-  click_from          Click[]           @relation("FromClick")
-  click_to            Click[]           @relation("ToClick")
-  impression_from     Impression[]      @relation("FromImpression")
-  impression_to       Impression[]      @relation("ToImpression")
+  account_from        Account[]    @relation("FromAccount")
+  account_to          Account[]    @relation("ToAccount")
+  apply_from          Apply[]      @relation("FromApply")
+  apply_to            Apply[]      @relation("ToApply")
+  annonceur_campaigns Campaign[]   @relation("AnnonceurCampaign")
+  diffuseur_campaigns Campaign[]   @relation("DiffuseurCampaign")
+  click_from          Click[]      @relation("FromClick")
+  click_to            Click[]      @relation("ToClick")
+  impression_from     Impression[] @relation("FromImpression")
+  impression_to       Impression[] @relation("ToImpression")
   missions            Mission[]
-  diffuseur_widgets   Widget[]          @relation("DiffuseurWidget")
-  annonceur_widget    PartnerToWidget[]
-  users               PartnerToUser[]
-
-  excluded_organizations_by  OrganizationExclusion[] @relation("ExcludedByPublisher")
-  excluded_organizations_for OrganizationExclusion[] @relation("ExcludedForPublisher")
-}
-
-model OrganizationExclusion {
-  id     String @id @default(uuid())
-  old_id String @unique
-
-  created_at DateTime @default(now())
-  updated_at DateTime @updatedAt
-
-  organization_client_id String
-  organization_name      String?
-
-  excluded_by_publisher_id String
-  excluded_by_publisher    Partner @relation("ExcludedByPublisher", fields: [excluded_by_publisher_id], references: [id], onDelete: Cascade)
-
-  excluded_for_publisher_id String
-  excluded_for_publisher    Partner @relation("ExcludedForPublisher", fields: [excluded_for_publisher_id], references: [id], onDelete: Cascade)
-
-  @@unique([excluded_by_publisher_id, excluded_for_publisher_id, organization_client_id])
-}
-
-model User {
-  id               String @id @default(uuid())
-  old_id           String @unique
-  brevo_contact_id Int?
-
-  first_name String?
-  last_name  String?
-  role       String?
-  password   String?
-  email      String
-
-  last_activity_at DateTime? @default(now())
-
-  invitation_token        String?
-  invitation_expires_at   DateTime?
-  invitation_completed_at DateTime?
-
-  forgot_password_token      String?
-  forgot_password_expires_at DateTime?
-
-  created_at DateTime  @default(now())
-  updated_at DateTime  @updatedAt
-  deleted_at DateTime?
-
-  login_history LoginHistory[]
-  partners      PartnerToUser[]
-}
-
-model LoginHistory {
-  id       String   @id @default(uuid())
-  user_id  String
-  login_at DateTime @default(now())
-  user     User     @relation(fields: [user_id], references: [id])
-
-  @@index([user_id], map: "login_history")
-}
-
-model Widget {
-  id             String       @id @default(uuid())
-  name           String
-  old_id         String       @unique
-  diffuseur_id   String
-  mission_type   MissionType?
-  active         Boolean      @default(true)
-  color          String?
-  style          WidgetStyle?
-  city           String?
-  postal_code    String?
-  latitude       Float?
-  longitude      Float?
-  distance       String?
-  jva_moderation Boolean      @default(false)
-
-  deleted_at  DateTime?
-  created_at  DateTime          @default(now())
-  updated_at  DateTime          @updatedAt
-  accounts    Account[]
-  applies     Apply[]
-  clicks      Click[]
-  impressions Impression[]
-  diffuseur   Partner           @relation("DiffuseurWidget", fields: [diffuseur_id], references: [id])
-  query       WidgetQuery[]     @relation("QueryWidget")
-  partners    PartnerToWidget[]
-}
-
-model WidgetQuery {
-  id             String    @id @default(uuid())
-  old_id         String    @unique
-  widget_id      String
-  domain         String[]
-  organization   String[]
-  department     String[]
-  schedule       String[]
-  remote         String[]
-  action         String[]
-  beneficiary    String[]
-  country        String[]
-  minor          String[]
-  accessibility  String[]
-  duration       Int?
-  start          DateTime?
-  search         String?
-  lat            Float?
-  lon            Float?
-  city           String?
-  distance       String?
-  jva_moderation Boolean?
-  size           Int?
-  from           Int?
-  created_at     DateTime  @default(now())
-  widget         Widget    @relation("QueryWidget", fields: [widget_id], references: [id])
-}
-
-model PartnerToUser {
-  id         String  @id @default(uuid())
-  user_id    String
-  partner_id String
-  user       User    @relation(fields: [user_id], references: [id])
-  partner    Partner @relation(fields: [partner_id], references: [id])
-
-  @@unique([partner_id, user_id])
-  @@index([partner_id])
-  @@index([user_id])
-}
-
-model PartnerToWidget {
-  id         String  @id @default(uuid())
-  widget_id  String
-  partner_id String
-  widget     Widget  @relation(fields: [widget_id], references: [id])
-  partner    Partner @relation(fields: [partner_id], references: [id])
-
-  @@unique([partner_id, widget_id])
-  @@index([partner_id])
-  @@index([widget_id])
 }
 
 model MissionHistoryEvent {
@@ -624,11 +414,6 @@ enum MissionType {
   benevolat
   volontariat
   volontariat_service_civique
-}
-
-enum WidgetStyle {
-  carousel
-  page
 }
 
 enum SourceType {

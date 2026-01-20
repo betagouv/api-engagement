@@ -3,6 +3,7 @@ import "./shared";
 import { MongoMemoryServer } from "mongodb-memory-server";
 import mongoose from "mongoose";
 import { afterAll, beforeAll, beforeEach } from "vitest";
+import { pgConnectedAll } from "../../src/db/postgres";
 
 let mongoServer: MongoMemoryServer;
 type PostgresModule = typeof import("../../src/db/postgres");
@@ -19,7 +20,7 @@ beforeAll(async () => {
   prismaAnalytics = postgresModule.prismaAnalytics;
 
   try {
-    await postgresModule.pgConnected;
+    await pgConnectedAll();
   } catch (error) {
     console.error("[Tests] Failed to connect Prisma clients:", error);
     throw error;
@@ -35,9 +36,14 @@ beforeEach(async () => {
   }
 
   if (prismaCore) {
-    // Clean dependent tables before parents to satisfy foreign keys (StatEvent -> PublisherDiffusion)
     await prismaCore.$transaction([
       prismaCore.statEvent.deleteMany({}),
+      prismaCore.widget.deleteMany({}),
+      prismaCore.missionModerationStatus.deleteMany({}),
+      prismaCore.missionAddress.deleteMany({}),
+      prismaCore.missionEvent.deleteMany({}),
+      prismaCore.mission.deleteMany({}),
+      prismaCore.organization.deleteMany({}),
       prismaCore.publisherDiffusion.deleteMany({}),
       prismaCore.publisher.deleteMany({}),
     ]);

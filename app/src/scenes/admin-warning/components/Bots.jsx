@@ -17,7 +17,7 @@ const Bots = () => {
         if (!res.ok) throw res;
         setBots(res.data);
       } catch (error) {
-        captureError(error, "Erreur lors de la récupération des données");
+        captureError(error);
       }
       setLoading(false);
     };
@@ -35,7 +35,7 @@ const Bots = () => {
       ) : (
         <div className="space-y-4">
           {bots.map((bot) => (
-            <BotRow key={bot._id} bot={bot} />
+            <BotRow key={bot.id} bot={bot} />
           ))}
         </div>
       )}
@@ -58,18 +58,18 @@ const BotRow = ({ bot }) => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const res = await api.get(`/warning-bot/${bot._id}/stat`);
+        const res = await api.get(`/warning-bot/${bot.id}/stat`);
         if (!res.ok) {
           if (res.code === "NOT_FOUND") {
             setStatBot(null);
-          } else {
-            captureError(res, "Erreur lors de la récupération des données");
+            return;
           }
+          throw res;
         }
         setStatBot(res.data || null);
         setStats(res.aggs || null);
       } catch (error) {
-        captureError(error, "Erreur lors de la récupération des données");
+        captureError(error, { extra: { botId: bot.id } });
       }
     };
     fetchData();
@@ -78,11 +78,11 @@ const BotRow = ({ bot }) => {
   const handleBlock = async () => {
     try {
       setLoading(true);
-      const res = await api.post(`/warning-bot/${bot._id}/block`);
+      const res = await api.post(`/warning-bot/${bot.id}/block`);
       if (!res.ok) throw res;
       setStatBot(res.data);
     } catch (error) {
-      captureError(error, "Erreur lors de la récupération des données");
+      captureError(error, { extra: { botId: bot.id } });
     } finally {
       setLoading(false);
     }
@@ -91,11 +91,11 @@ const BotRow = ({ bot }) => {
   const handleUnblock = async () => {
     try {
       setLoading(true);
-      const res = await api.post(`/warning-bot/${bot._id}/unblock`);
+      const res = await api.post(`/warning-bot/${bot.id}/unblock`);
       if (!res.ok) throw res;
       setStatBot(null);
     } catch (error) {
-      captureError(error, "Erreur lors de la récupération des données");
+      captureError(error, { extra: { botId: bot.id } });
     } finally {
       setLoading(false);
     }
@@ -123,7 +123,7 @@ const BotRow = ({ bot }) => {
         {statBot ? (
           <div className="flex flex-col items-end justify-end gap-2">
             <div className="flex items-center gap-2">
-              <RiCheckboxCircleFill className="text-green-success" /> <p className="text-green-success">Marqué comme bots (les stats n'apparaîtront pas dans le dashboard)</p>
+              <RiCheckboxCircleFill className="text-success" /> <p className="text-success">Marqué comme bots (les stats n'apparaîtront pas dans le dashboard)</p>
             </div>
             <button className="red-btn w-56" onClick={handleUnblock} disabled={loading}>
               {loading ? <Loader className="h-4 w-4 text-white" /> : "Démarquer comme bots"}

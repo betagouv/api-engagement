@@ -62,3 +62,12 @@ export const hasNumber = (string: string) => {
 export const hasLetter = (string: string) => {
   return /[a-zA-Z]/.test(string);
 };
+
+export const cleanIdParam = (param: string): string => {
+  if (!param) {
+    return param;
+  }
+
+  // Delete everything non alphanumeric and non-hyphen (UUID or MongoDB ObjectId)
+  return param.replace(/[^a-zA-Z0-9-].*$/, "");
+};

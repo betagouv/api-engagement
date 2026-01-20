@@ -1,20 +1,25 @@
-import { Switch } from "@headlessui/react";
 import { IoMdCheckmark } from "react-icons/io";
 
-const Toggle = ({ value, onChange = () => null }) => {
+const Toggle = ({ value, onChange = () => null, className = "", ...rest }) => {
+  const checked = Boolean(value);
+
   return (
-    <Switch
-      checked={value}
-      onChange={onChange}
-      className={`${value ? "bg-blue-france" : "bg-transparent"} border-blue-france focus-visible:ring-opacity-75 relative inline-flex h-6 w-10 shrink-0 cursor-pointer items-center rounded-full border p-0 focus:outline-none focus-visible:ring-2 focus-visible:ring-white`}
+    <button
+      {...rest}
+      type="button"
+      role="switch"
+      aria-checked={checked}
+      tabIndex={0}
+      onClick={() => onChange(!checked)}
+      className={`${checked ? "bg-blue-france" : "bg-white"} border-blue-france focus-visible:outline-outline-blue relative inline-flex h-6 w-10 shrink-0 cursor-pointer items-center rounded-full border p-0 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 ${className}`}
     >
       <span
         aria-hidden="true"
-        className={`${value ? "translate-x-4" : "-translate-x-0.5"} border-blue-france pointer-events-none flex h-6 w-6 transform items-center justify-center rounded-full border bg-white shadow-lg ring-0 transition duration-200 ease-in-out`}
+        className={`${checked ? "translate-x-4" : "-translate-x-0.5"} border-blue-france pointer-events-none flex h-6 w-6 transform items-center justify-center rounded-full border bg-white shadow-lg ring-0 transition duration-200 ease-in-out`}
       >
-        {value && <IoMdCheckmark className="text-blue-france" />}
+        {checked && <IoMdCheckmark className="text-blue-france" />}
       </span>
-    </Switch>
+    </button>
   );
 };
 

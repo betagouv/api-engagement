@@ -2,9 +2,11 @@ import { DEPARTMENTS } from "../../../constants/departments";
 import { captureException } from "../../../error";
 import apiDatasubvention from "../../../services/api-datasubvention";
 import { organizationService } from "../../../services/organization";
-import { Mission } from "../../../types";
+import { publisherOrganizationRepository } from "../../../repositories/publisher-organization";
 import { OrganizationCreateInput, OrganizationRecord, OrganizationUpdatePatch } from "../../../types/organization";
+import { normalizeOptionalString, normalizeStringList } from "../../../utils/normalize";
 import { isValidRNA, isValidSiret } from "../../../utils/organization";
+import type { ImportedMission } from "../types";
 
 export const ORGANIZATION_VERIFICATION_STATUS = {
   RNA_MATCHED_WITH_DATA_DB: "RNA_MATCHED_WITH_DATA_DB",
@@ -19,7 +21,7 @@ export const ORGANIZATION_VERIFICATION_STATUS = {
   NO_DATA: "NO_DATA",
 };
 
-export const isVerified = (mission: Partial<Mission>): boolean => {
+export const isVerified = (mission: Partial<ImportedMission>): boolean => {
   return [
     ORGANIZATION_VERIFICATION_STATUS.RNA_MATCHED_WITH_DATA_DB,
     ORGANIZATION_VERIFICATION_STATUS.RNA_MATCHED_WITH_DATA_SUBVENTION,
@@ -42,15 +44,19 @@ export const getDepartement = (postalCode: string): { code: string; name: string
   return { code, name: DEPARTMENTS[code][0], region: DEPARTMENTS[code][1] };
 };
 
-export const verifyOrganization = async (missions: Mission[]) => {
+export const verifyOrganization = async (missions: ImportedMission[]) => {
   console.log(`[Organization] Starting organization verification for ${missions.length} missions`);
 
-  const result = [] as Mission[];
+  const result = [] as ImportedMission[];
   if (!missions.length) {
     return result;
   }
 
   try {
+    const normalizeIdentifier = (value?: string | null) => (value || "").replace(/[^a-zA-Z0-9]/g, "").toUpperCase();
+    const isUniqueConstraintError = (error: unknown): error is { code: string } =>
+      typeof error === "object" && error !== null && "code" in error && typeof (error as { code?: unknown }).code === "string";
+
     const foundRNAs: Record<string, OrganizationRecord | "not_found"> = {};
     const foundSirets: Record<string, OrganizationRecord | "not_found"> = {};
     const foundNames: Record<string, OrganizationRecord | "not_found"> = {};
@@ -73,7 +79,7 @@ export const verifyOrganization = async (missions: Mission[]) => {
       toVerify++;
 
       // remove all non alphanumeric characters and convert to uppercase
-      const identifier = (mission.organizationRNA || "").replace(/[^a-zA-Z0-9]/g, "").toUpperCase();
+      const identifier = normalizeIdentifier(mission.organizationRNA);
       if (identifier && isValidRNA(identifier)) {
         const cachedRna = foundRNAs[identifier];
         if (cachedRna === "not_found") {
@@ -89,6 +95,7 @@ export const verifyOrganization = async (missions: Mission[]) => {
         const res = await findByRNA(identifier);
         if (!res) {
           foundRNAs[identifier] = "not_found";
+          mission.organizationVerificationStatus = ORGANIZATION_VERIFICATION_STATUS.RNA_NOT_MATCHED;
           rnaNotFound++;
           continue;
         }
@@ -112,6 +119,7 @@ export const verifyOrganization = async (missions: Mission[]) => {
         const res = await findBySiret(identifier);
         if (!res) {
           foundSirets[identifier] = "not_found";
+          mission.organizationVerificationStatus = ORGANIZATION_VERIFICATION_STATUS.SIRET_NOT_MATCHED;
           siretNotFound++;
           continue;
         }
@@ -150,12 +158,148 @@ export const verifyOrganization = async (missions: Mission[]) => {
     console.log(`[Organization] Already verified ${alreadyVerified} missions, to verify ${toVerify} missions (${noData} with no data)`);
     console.log(`[Organization] Found ${rnaFound + siretFound + nameFound} / ${toVerify} organizations (${rnaFound} RNAs, ${siretFound} SIRETs, ${nameFound} names)`);
     console.log(`[Organization] Not found ${rnaNotFound} RNAs, ${siretNotFound} SIRETs, ${nameNotFound} names`);
+
+    // Fallback: create a minimal organization record from mission data when nothing could be matched
+    const createdOrganizations = new Map<string, OrganizationRecord>();
+    for (const mission of missions) {
+      const hasOrganization = Boolean(mission.organizationId);
+      const hasIdentifiers = Boolean(mission.organizationRNA || mission.organizationSiren || mission.organizationSiret);
+      if (hasOrganization || !mission.organizationName) {
+        continue;
+      }
+
+      const normalizedRna = normalizeIdentifier(mission.organizationRNA);
+      const normalizedSiret = normalizeIdentifier(mission.organizationSiret);
+      const normalizedSiren = normalizeIdentifier(mission.organizationSiren);
+      const rna = isValidRNA(normalizedRna) ? normalizedRna : undefined;
+      const siret = isValidSiret(normalizedSiret) ? normalizedSiret : undefined;
+      const siren = normalizedSiren && /^[0-9]{9}$/.test(normalizedSiren) ? normalizedSiren : undefined;
+
+      const cacheKey = rna
+        ? `rna:${rna}`
+        : siret
+          ? `siret:${siret}`
+          : siren
+            ? `siren:${siren}`
+            : `name:${mission.organizationName.trim().toLowerCase()}`;
+
+      const cached = createdOrganizations.get(cacheKey);
+      if (cached) {
+        mission.organizationId = cached.id;
+        mission.organizationVerificationStatus = hasIdentifiers ? ORGANIZATION_VERIFICATION_STATUS.NO_DATA : ORGANIZATION_VERIFICATION_STATUS.NAME_NOT_MATCHED;
+        continue;
+      }
+
+      const existing =
+        rna
+          ? await organizationService.findOneOrganizationByRna(rna)
+          : siret
+            ? await organizationService.findOneOrganizationBySiret(siret)
+            : siren
+              ? await organizationService.findOneOrganizationBySiren(siren)
+              : await organizationService.findOneOrganizationByName(mission.organizationName);
+
+      if (existing) {
+        createdOrganizations.set(cacheKey, existing);
+        mission.organizationId = existing.id;
+        mission.organizationVerificationStatus = hasIdentifiers ? ORGANIZATION_VERIFICATION_STATUS.NO_DATA : ORGANIZATION_VERIFICATION_STATUS.NAME_NOT_MATCHED;
+        continue;
+      }
+
+      let org: OrganizationRecord;
+      try {
+        org = await organizationService.createOrganization({
+          title: mission.organizationName,
+          rna,
+          siren,
+          siret,
+          addressCity: mission.organizationCity || undefined,
+          addressPostalCode: mission.organizationPostCode || undefined,
+          addressDepartmentName: mission.organizationDepartmentName || undefined,
+          addressDepartmentCode: mission.organizationDepartmentCode || undefined,
+          status: mission.organizationStatusJuridique || mission.organizationType || undefined,
+        });
+      } catch (error) {
+        if (isUniqueConstraintError(error) && error.code === "P2002") {
+          const raceWinner =
+            rna
+              ? await organizationService.findOneOrganizationByRna(rna)
+              : siret
+                ? await organizationService.findOneOrganizationBySiret(siret)
+                : null;
+          if (raceWinner) {
+            org = raceWinner;
+          } else {
+            throw error;
+          }
+        } else {
+          throw error;
+        }
+      }
+
+      mission.organizationId = org.id;
+      mission.organizationVerificationStatus = hasIdentifiers ? ORGANIZATION_VERIFICATION_STATUS.NO_DATA : ORGANIZATION_VERIFICATION_STATUS.NAME_NOT_MATCHED;
+      createdOrganizations.set(cacheKey, org);
+    }
   } catch (error) {
     captureException(error, `[Organization] Failure during rna enrichment`);
   }
 };
 
-const updateMissionOrganization = async (mission: Mission, organization: OrganizationRecord, status: string) => {
+export const upsertPublisherOrganization = async (mission: ImportedMission): Promise<void> => {
+  const organizationClientId = normalizeOptionalString(mission.organizationClientId ?? undefined);
+  if (!organizationClientId || !mission.publisherId) {
+    return;
+  }
+
+  const payload = {
+    organizationClientId,
+    organizationName: normalizeOptionalString(mission.organizationName ?? undefined),
+    organizationUrl: normalizeOptionalString(mission.organizationUrl ?? undefined),
+    organizationType: normalizeOptionalString(mission.organizationType ?? undefined),
+    organizationLogo: normalizeOptionalString(mission.organizationLogo ?? undefined),
+    organizationDescription: normalizeOptionalString(mission.organizationDescription ?? undefined),
+    organizationFullAddress: normalizeOptionalString(mission.organizationFullAddress ?? undefined),
+    organizationRNA: normalizeOptionalString(mission.organizationRNA ?? undefined),
+    organizationSiren: normalizeOptionalString(mission.organizationSiren ?? undefined),
+    organizationSiret: normalizeOptionalString(mission.organizationSiret ?? undefined),
+    organizationDepartment: normalizeOptionalString(mission.organizationDepartment ?? undefined),
+    organizationDepartmentCode: normalizeOptionalString(mission.organizationDepartmentCode ?? undefined),
+    organizationDepartmentName: normalizeOptionalString(mission.organizationDepartmentName ?? undefined),
+    organizationPostCode: normalizeOptionalString(mission.organizationPostCode ?? undefined),
+    organizationCity: normalizeOptionalString(mission.organizationCity ?? undefined),
+    organizationStatusJuridique: normalizeOptionalString(mission.organizationStatusJuridique ?? undefined),
+    organizationBeneficiaries: normalizeStringList(mission.organizationBeneficiaries ?? []),
+    organizationActions: normalizeStringList(mission.organizationActions ?? []),
+    organizationReseaux: normalizeStringList(mission.organizationReseaux ?? []),
+    organizationNameVerified: normalizeOptionalString(mission.organizationNameVerified ?? undefined),
+    organizationRNAVerified: normalizeOptionalString(mission.organizationRNAVerified ?? undefined),
+    organizationSirenVerified: normalizeOptionalString(mission.organizationSirenVerified ?? undefined),
+    organizationSiretVerified: normalizeOptionalString(mission.organizationSiretVerified ?? undefined),
+    organizationAddressVerified: normalizeOptionalString(mission.organizationAddressVerified ?? undefined),
+    organizationCityVerified: normalizeOptionalString(mission.organizationCityVerified ?? undefined),
+    organizationPostalCodeVerified: normalizeOptionalString(mission.organizationPostalCodeVerified ?? undefined),
+    organizationDepartmentCodeVerified: normalizeOptionalString(mission.organizationDepartmentCodeVerified ?? undefined),
+    organizationDepartmentNameVerified: normalizeOptionalString(mission.organizationDepartmentNameVerified ?? undefined),
+    organizationRegionVerified: normalizeOptionalString(mission.organizationRegionVerified ?? undefined),
+    organizationVerificationStatus: normalizeOptionalString(mission.organizationVerificationStatus ?? undefined),
+    organisationIsRUP: mission.organisationIsRUP ?? undefined,
+  };
+
+  const { organizationClientId: _, ...update } = payload;
+
+  await publisherOrganizationRepository.upsertByPublisherAndClientId({
+    publisherId: mission.publisherId,
+    organizationClientId,
+    create: {
+      publisher: { connect: { id: mission.publisherId } },
+      ...payload,
+    },
+    update,
+  });
+};
+
+const updateMissionOrganization = async (mission: ImportedMission, organization: OrganizationRecord, status: string) => {
   mission.organizationId = organization.id;
   mission.organizationNameVerified = organization.title;
   mission.organizationRNAVerified = organization.rna;
@@ -223,6 +367,7 @@ const mergeOrganizationData = async (existing: OrganizationRecord, incoming: Org
 
   return organizationService.updateOrganization(existing.id, patch);
 };
+
 
 const findExistingByIdentifiers = async (siret?: string | null, siren?: string | null): Promise<OrganizationRecord | null> => {
   if (siret) {

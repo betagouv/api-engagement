@@ -1,0 +1,86 @@
+version: 2
+
+models:
+  - name: global_events
+    description: >
+      Table de faits des événements statistiques (`stat_event`) filtrés des bots,
+      avec normalisation des sources et enrichissement des publishers émetteur/récepteur.
+      Sert de base aux graphiques de performance (impressions, clics, comptes, candidatures).
+    columns:
+      - name: stat_event_id
+        description: Identifiant de l'événement `stat_event` (clé d’origine).
+        tests:
+          - not_null
+          - unique
+      - name: created_at
+        description: Horodatage de création de l'événement.
+        tests:
+          - not_null
+      - name: type
+        description: Type d'événement (`click`, `apply`, `print`, `account`).
+        tests:
+          - not_null
+      - name: source
+        description: Origine normalisée (`api`, `campaign`, `widget`, etc.).
+      - name: from_publisher_id
+        description: UUID du partenaire diffuseur (source).
+        tests:
+          - relationships:
+              arguments:
+                to: ref('publisher')
+                field: id
+      - name: to_publisher_id
+        description: UUID du partenaire annonceur (destination).
+        tests:
+          - relationships:
+              arguments:
+                to: ref('publisher')
+                field: id
+      - name: mission_id
+        description: UUID de la mission associée.
+        tests:
+          - relationships:
+              arguments:
+                to: ref('mission')
+                field: id
+
+  - name: global_mission_activity
+    description: >
+      Agrégat par mission/type/diffuseur/annonceur calculant les premiers et derniers
+      événements observés. Utilisé pour compter les missions actives et suivre la période
+      d’activité dans les tableaux et graphiques de performance.
+    columns:
+      - name: mission_id
+        description: UUID de la mission concernée.
+        tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('mission')
+                field: id
+      - name: type
+        description: Type d'événement agrégé.
+        tests:
+          - not_null
+      - name: from_publisher_id
+        description: UUID du partenaire diffuseur.
+        tests:
+          - relationships:
+              arguments:
+                to: ref('publisher')
+                field: id
+      - name: to_publisher_id
+        description: UUID du partenaire annonceur.
+        tests:
+          - relationships:
+              arguments:
+                to: ref('publisher')
+                field: id
+      - name: first_created_at
+        description: Premier événement observé pour la combinaison (UTC).
+        tests:
+          - not_null
+      - name: last_created_at
+        description: Dernier événement observé pour la combinaison (UTC).
+        tests:
+          - not_null

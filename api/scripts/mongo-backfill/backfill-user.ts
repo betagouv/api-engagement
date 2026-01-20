@@ -72,32 +72,6 @@ const toPublishers = (values: MongoUserDocument["publishers"]): string[] => {
     .filter((value): value is string => typeof value === "string" && value.trim().length > 0);
 };
 
-const toLoginHistory = (values: MongoUserDocument["loginAt"]): Date[] => {
-  if (!Array.isArray(values)) {
-    return [];
-  }
-  const normalized: Date[] = [];
-  for (const value of values) {
-    const date = normalizeDate(value as Date | string | null);
-    if (date) {
-      normalized.push(date);
-    }
-  }
-  return normalized;
-};
-
-const compareDateArrays = (a: Date[], b: Date[]) => {
-  if (a.length !== b.length) {
-    return false;
-  }
-  for (let i = 0; i < a.length; i++) {
-    if (!compareDates(a[i], b[i])) {
-      return false;
-    }
-  }
-  return true;
-};
-
 const hasDifferences = (existing: UserRecord, target: UserRecord): boolean => {
   if (!compareStrings(existing.firstname, target.firstname)) return true;
   if (!compareStrings(existing.lastname, target.lastname)) return true;
@@ -109,7 +83,6 @@ const hasDifferences = (existing: UserRecord, target: UserRecord): boolean => {
   if (!compareDates(existing.invitationExpiresAt, target.invitationExpiresAt)) return true;
   if (!compareDates(existing.invitationCompletedAt, target.invitationCompletedAt)) return true;
   if (!compareDates(existing.lastActivityAt, target.lastActivityAt)) return true;
-  if (!compareDateArrays(existing.loginAt, target.loginAt)) return true;
   if (!compareStrings(existing.forgotPasswordToken, target.forgotPasswordToken)) return true;
   if (!compareDates(existing.forgotPasswordExpiresAt, target.forgotPasswordExpiresAt)) return true;
   if (!compareDates(existing.deletedAt, target.deletedAt)) return true;
@@ -146,7 +119,6 @@ const normalizeUser = (doc: MongoUserDocument): NormalizedUserData => {
     invitationExpiresAt: normalizeDate(doc.invitationExpiresAt),
     invitationCompletedAt: normalizeDate(doc.invitationCompletedAt),
     lastActivityAt: normalizeDate(doc.lastActivityAt),
-    loginAt: toLoginHistory(doc.loginAt),
     forgotPasswordToken: doc.forgotPasswordToken ?? null,
     forgotPasswordExpiresAt: normalizeDate(doc.forgotPasswordExpiresAt),
     deletedAt: normalizeDate(doc.deletedAt),
@@ -166,7 +138,6 @@ const normalizeUser = (doc: MongoUserDocument): NormalizedUserData => {
     invitationExpiresAt: record.invitationExpiresAt,
     invitationCompletedAt: record.invitationCompletedAt,
     lastActivityAt: record.lastActivityAt,
-    loginAt: record.loginAt,
     forgotPasswordToken: record.forgotPasswordToken,
     forgotPasswordExpiresAt: record.forgotPasswordExpiresAt,
     deletedAt: record.deletedAt,
@@ -198,7 +169,6 @@ const normalizeUser = (doc: MongoUserDocument): NormalizedUserData => {
     invitationExpiresAt: record.invitationExpiresAt,
     invitationCompletedAt: record.invitationCompletedAt,
     lastActivityAt: record.lastActivityAt,
-    loginAt: { set: record.loginAt },
     forgotPasswordToken: record.forgotPasswordToken,
     forgotPasswordExpiresAt: record.forgotPasswordExpiresAt,
     deletedAt: record.deletedAt,

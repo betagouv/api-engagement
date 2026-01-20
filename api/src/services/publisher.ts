@@ -3,7 +3,15 @@ import { v4 as uuid } from "uuid";
 
 import { MissionType, Prisma, Publisher, PublisherDiffusion } from "../db/core";
 import { publisherRepository } from "../repositories/publisher";
-import { PublisherCreateInput, PublisherDiffusionInput, PublisherDiffusionRecord, PublisherRecord, PublisherSearchParams, PublisherUpdatePatch } from "../types/publisher";
+import {
+  PublisherCreateInput,
+  PublisherDiffusionInput,
+  PublisherDiffusionRecord,
+  PublisherMissionType,
+  PublisherRecord,
+  PublisherSearchParams,
+  PublisherUpdatePatch,
+} from "../types/publisher";
 import { normalizeCollection, normalizeOptionalString } from "../utils";
 
 type PublisherWithDiffusion = Publisher & { diffuseurs?: PublisherDiffusion[] };
@@ -23,7 +31,7 @@ export const publisherService = (() => {
     diffuseurPublisherId: diffusion.diffuseurPublisherId,
     annonceurPublisherId: diffusion.annonceurPublisherId,
     moderator: diffusion.moderator,
-    missionType: diffusion.missionType ?? null,
+    missionType: (diffusion.missionType as PublisherMissionType) ?? null,
     createdAt: diffusion.createdAt,
     updatedAt: diffusion.updatedAt,
   });
@@ -46,7 +54,7 @@ export const publisherService = (() => {
     feedPassword: publisher.feedPassword ?? null,
     apikey: publisher.apikey ?? null,
     description: publisher.description ?? "",
-    missionType: publisher.missionType ?? null,
+    missionType: (publisher.missionType as PublisherMissionType) ?? null,
     isAnnonceur: publisher.isAnnonceur,
     hasApiRights: publisher.hasApiRights,
     hasWidgetRights: publisher.hasWidgetRights,
@@ -173,7 +181,7 @@ export const publisherService = (() => {
       feedPassword: normalizeOptionalString(input.feedPassword),
       apikey: normalizeOptionalString(input.apikey),
       description: normalizeOptionalString(input.description) ?? "",
-      missionType: (normalizeOptionalString(input.missionType) as MissionType) ?? null,
+      missionType: (normalizeOptionalString(input.missionType) as PublisherMissionType) ?? null,
       isAnnonceur: input.isAnnonceur ?? false,
       hasApiRights: input.hasApiRights ?? false,
       hasWidgetRights: input.hasWidgetRights ?? false,
@@ -309,7 +317,7 @@ export const publisherService = (() => {
     const data: Prisma.PublisherUpdateInput = {};
 
     if (patch.name !== undefined) {
-      data.name = patch.name.trim();
+      data.name = normalizeOptionalString(patch.name) ?? "";
     }
     if (patch.category !== undefined) {
       data.category = normalizeOptionalString(patch.category) ?? null;

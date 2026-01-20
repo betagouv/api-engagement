@@ -1,6 +1,7 @@
 import request from "supertest";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
+import { MissionRecord } from "../../../../src/types";
 import { createTestMission, createTestPublisher } from "../../../fixtures";
 import { createStatEventFixture } from "../../../fixtures/stat-event";
 import { createTestApp } from "../../../testApp";
@@ -9,8 +10,8 @@ describe("MyMission API Integration Tests", () => {
   const app = createTestApp();
   let publisher: any;
   let apiKey: string;
-  let mission1: any;
-  let mission2: any;
+  let mission1: MissionRecord;
+  let mission2: MissionRecord;
 
   beforeEach(async () => {
     publisher = await createTestPublisher();
@@ -59,7 +60,7 @@ describe("MyMission API Integration Tests", () => {
     it("should expose compensation fields on missions", async () => {
       const response = await request(app).get("/v0/mymission").set("x-api-key", apiKey);
       expect(response.status).toBe(200);
-      const mission = response.body.data.find((m: any) => m._id === mission1._id!.toString());
+      const mission = response.body.data.find((m: any) => m._id === mission1.id);
       expect(mission).toBeDefined();
       expect(mission.compensationAmount).toBe(150);
       expect(mission.compensationUnit).toBe("day");
@@ -117,7 +118,6 @@ describe("MyMission API Integration Tests", () => {
         fromPublisherName: "Publisher 1",
         isBot: false,
         toPublisherId: mission1.publisherId,
-        toPublisherName: mission1.publisherName,
       });
       await createStatEventFixture({
         type: "click",
@@ -126,7 +126,6 @@ describe("MyMission API Integration Tests", () => {
         fromPublisherName: "Publisher 2",
         isBot: false,
         toPublisherId: mission1.publisherId,
-        toPublisherName: mission1.publisherName,
       });
 
       const response = await request(app).get(`/v0/mymission/${mission1.clientId}`).set("x-api-key", apiKey);
@@ -137,8 +136,8 @@ describe("MyMission API Integration Tests", () => {
 
       const mission = response.body.data;
       validateMissionStructure(mission);
-      expect(mission.stats.clicks).toEqual([{ key: "publisher2", doc_count: 1, name: undefined, logo: undefined, url: undefined }]);
-      expect(mission.stats.applications).toEqual([{ key: "publisher1", doc_count: 1, name: undefined, logo: undefined, url: undefined }]);
+      expect(mission.stats.clicks).toEqual([{ key: "publisher2", doc_count: 1, name: "Publisher 2" }]);
+      expect(mission.stats.applications).toEqual([{ key: "publisher1", doc_count: 1, name: "Publisher 1" }]);
     });
 
     it("should return 400 for invalid parameters", async () => {
@@ -177,7 +176,6 @@ describe("MyMission API Integration Tests", () => {
         fromPublisherName: "Publisher 1",
         isBot: false,
         toPublisherId: mission1.publisherId,
-        toPublisherName: mission1.publisherName,
       });
       await createStatEventFixture({
         type: "apply",
@@ -186,7 +184,6 @@ describe("MyMission API Integration Tests", () => {
         fromPublisherName: "Publisher 3",
         isBot: false,
         toPublisherId: mission1.publisherId,
-        toPublisherName: mission1.publisherName,
       });
 
       const response = await request(app).get(`/v0/mymission/${mission1.clientId}/stats`).set("x-api-key", apiKey);
@@ -195,8 +192,8 @@ describe("MyMission API Integration Tests", () => {
       expect(response.body.ok).toBe(true);
       expect(response.body.data).toBeDefined();
 
-      expect(response.body.data.clicks).toEqual([{ key: "publisher1", doc_count: 1 }]);
-      expect(response.body.data.applications).toEqual([{ key: "publisher3", doc_count: 1 }]);
+      expect(response.body.data.clicks).toEqual([{ key: "publisher1", doc_count: 1, name: "Publisher 1" }]);
+      expect(response.body.data.applications).toEqual([{ key: "publisher3", doc_count: 1, name: "Publisher 3" }]);
     });
 
     it("should return 400 for invalid parameters", async () => {

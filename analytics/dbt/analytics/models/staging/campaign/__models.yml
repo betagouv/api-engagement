@@ -1,0 +1,84 @@
+version: 2
+
+models:
+  - name: stg_campaign
+    description: >
+      Staging des campagnes exportées depuis `analytics_raw.campaign`. Le modèle se concentre sur la normalisation des
+      timestamps et l'exposition des colonnes brutes avant enrichissement dans les marts.
+    columns:
+      - name: id
+        description: Identifiant unique de la campagne (UUID).
+        tests:
+          - not_null
+          - unique
+      - name: url
+        description: URL de redirection associée à la campagne (nullable).
+      - name: name
+        description: Libellé libre de la campagne (nullable).
+      - name: diffuseur_id
+        description: Identifiant du partenaire diffuseur propriétaire.
+        tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('stg_publisher')
+                field: id
+      - name: annonceur_id
+        description: Identifiant du partenaire annonceur cible.
+        tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('stg_publisher')
+                field: id
+      - name: active
+        description: Indique si la campagne est active (`true`/`false`).
+        tests:
+          - not_null
+      - name: deleted_at
+        description: Timestamp de suppression logique (nullable).
+      - name: created_at
+        description: Horodatage de création initiale.
+        tests:
+          - not_null
+      - name: updated_at
+        description: Horodatage de dernière mise à jour (curseur d'incrément).
+        tests:
+          - not_null
+      - name: reassigned_at
+        description: Horodatage de réaffectation entre utilisateurs (nullable).
+      - name: reassigned_by_user_id
+        description: Identifiant de l'utilisateur ayant procédé à la dernière réaffectation (nullable).
+        tests:
+          - relationships:
+              arguments:
+                to: ref('stg_user')
+                field: id
+      - name: type
+        description: Typologie métier de la campagne (nullable).
+  - name: stg_campaign_tracker
+    description: >
+      Staging des paramètres de tracking associés aux campagnes (`analytics_raw.campaign_tracker`). Chaque ligne expose
+      une paire clé/valeur prête à être pivotée ou agrégée dans les marts.
+    columns:
+      - name: id
+        description: Identifiant unique de la clé de tracking.
+        tests:
+          - not_null
+          - unique
+      - name: campaign_id
+        description: Identifiant de la campagne associée.
+        tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('stg_campaign')
+                field: id
+      - name: key
+        description: Clé de tracking (ex. `utm_source`, `utm_campaign`).
+        tests:
+          - not_null
+      - name: value
+        description: Valeur enregistrée pour la clé.
+        tests:
+          - not_null

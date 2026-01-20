@@ -47,9 +47,7 @@ export class LinkedinHandler implements BaseHandler<LinkedinJobPayload, Linkedin
 
       console.log(`[LinkedinHandler] Querying and processing missions of JeVeuxAider.gouv.fr`);
       const JvaMissionsCursor = getMissionsCursor({
-        deletedAt: null,
-        statusCode: "ACCEPTED",
-        publisherId: PUBLISHER_IDS.JEVEUXAIDER,
+        publisherIds: [PUBLISHER_IDS.JEVEUXAIDER],
       });
 
       const jvaJobs = await generateJvaJobs(JvaMissionsCursor);
@@ -62,9 +60,7 @@ export class LinkedinHandler implements BaseHandler<LinkedinJobPayload, Linkedin
 
       console.log(`[LinkedinHandler] Querying and processing missions of partners`);
       const partnersMissionsCursor = getMissionsCursor({
-        deletedAt: null,
-        statusCode: "ACCEPTED",
-        publisherId: { $in: PARTNERS_IDS },
+        publisherIds: PARTNERS_IDS,
       });
 
       const partnersJobs = await generatePartnersJobs(partnersMissionsCursor);

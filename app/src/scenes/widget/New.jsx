@@ -70,7 +70,7 @@ const New = () => {
         navigate("/broadcast/widgets");
       }
     } catch (error) {
-      captureError(error, "Erreur lors de la création du widget");
+      captureError(error, { extra: { values } });
     }
   };
 
@@ -93,6 +93,7 @@ const New = () => {
 
   return (
     <div className="space-y-6">
+      <title>API Engagement - Créer un widget</title>
       <StickyBar onEdit={handleSubmit} visible={stickyVisible} canSubmit={canSubmit} />
       <div className="flex">
         <Link to={`/broadcast/widgets`} className="text-blue-france flex items-center space-x-1">

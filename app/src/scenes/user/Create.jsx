@@ -2,12 +2,14 @@ import { useEffect, useState } from "react";
 import { RiCloseFill, RiErrorWarningFill } from "react-icons/ri";
 import { Link, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
-import { isValidEmail } from "../../services/utils";
 
-import { Table } from "../../components/Table";
+import Table from "../../components/Table";
 import api from "../../services/api";
 import { captureError } from "../../services/error";
+import { isValidEmail } from "../../services/utils";
 import { withLegacyPublishers } from "../../utils/publisher";
+
+const TABLE_HEADER = [{ title: "" }, { title: "Nom" }, { title: "Roles", position: "center" }];
 
 const Create = () => {
   const [publishers, setPublishers] = useState([]);
@@ -16,6 +18,8 @@ const Create = () => {
   const [errors, setErrors] = useState({});
   const navigate = useNavigate();
 
+  const filteredPublishers = publishers.filter((p) => p.name.toLowerCase().includes(search.toLowerCase()));
+
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -23,7 +27,7 @@ const Create = () => {
         if (!resP.ok) throw resP;
         setPublishers(withLegacyPublishers(resP.data).sort((a, b) => a.name.localeCompare(b.name)));
       } catch (error) {
-        captureError(error, "Une erreur est survenue lors de la récupération des partenaires");
+        captureError(error, { extra: { search } });
         navigate("/admin-account");
       }
     };
@@ -57,7 +61,7 @@ const Create = () => {
       toast.success("Utilisateur créé avec succès");
       navigate(`/user/${res.data.id}`);
     } catch (error) {
-      captureError(error, "Erreur lors de la création de l'utilisateur");
+      captureError(error, { extra: { values } });
     }
   };
 
@@ -67,6 +71,7 @@ const Create = () => {
   return (
     <div className="flex flex-col">
       <div className="mb-10">
+        <title>API Engagement - Nouvel utilisateur</title>
         <h1 className="text-4xl font-bold">Nouvel utilisateur</h1>
       </div>
       <form onSubmit={handleSubmit} className="flex flex-col bg-white p-16 shadow-lg">
@@ -80,13 +85,13 @@ const Create = () => {
             </label>
             <input
               id="firstname"
-              className={`input mb-2 ${errors.firstname ? "border-b-red-error" : "border-b-black"}`}
+              className={`input mb-2 ${errors.firstname ? "border-b-error" : "border-b-black"}`}
               name="firstname"
               value={values.firstname}
               onChange={handleChange}
             />
             {errors.firstname && (
-              <div className="text-red-error flex items-center text-sm">
+              <div className="text-error flex items-center text-sm">
                 <RiErrorWarningFill className="mr-2" />
                 {errors.firstname}
               </div>
@@ -99,13 +104,13 @@ const Create = () => {
             </label>
             <input
               id="lastname"
-              className={`input mb-2 ${errors.lastname ? "border-b-red-error" : "border-b-black"}`}
+              className={`input mb-2 ${errors.lastname ? "border-b-error" : "border-b-black"}`}
               name="lastname"
               value={values.lastname}
               onChange={handleChange}
             />
             {errors.lastname && (
-              <div className="text-red-error flex items-center text-sm">
+              <div className="text-error flex items-center text-sm">
                 <RiErrorWarningFill className="mr-2" />
                 {errors.lastname}
               </div>
@@ -116,9 +121,9 @@ const Create = () => {
             <label className="mb-2 text-sm" htmlFor="email">
               E-mail
             </label>
-            <input id="email" className={`input mb-2 ${errors.email ? "border-b-red-error" : "border-b-black"}`} name="email" value={values.email} onChange={handleChange} />
+            <input id="email" className={`input mb-2 ${errors.email ? "border-b-error" : "border-b-black"}`} name="email" value={values.email} onChange={handleChange} />
             {errors.email && (
-              <div className="text-red-error flex items-center text-sm">
+              <div className="text-error flex items-center text-sm">
                 <RiErrorWarningFill className="mr-2" />
                 {errors.email}
               </div>
@@ -130,12 +135,12 @@ const Create = () => {
               Role
             </label>
 
-            <select id="role" className={`input mb-2 ${errors.role ? "border-b-red-error" : "border-b-black"}`} value={values.role} onChange={handleChange} name="role">
+            <select id="role" className={`input mb-2 ${errors.role ? "border-b-error" : "border-b-black"}`} value={values.role} onChange={handleChange} name="role">
               <option value="user">Utilisateur</option>
               <option value="admin">Admin</option>
             </select>
             {errors.role && (
-              <div className="text-red-error flex items-center text-sm">
+              <div className="text-error flex items-center text-sm">
                 <RiErrorWarningFill className="mr-2" />
                 {errors.role}
               </div>
@@ -174,24 +179,15 @@ const Create = () => {
               </div>
             )}
             {errors.publishers && (
-              <div className="text-red-error mb-2 flex items-center text-sm">
+              <div className="text-error mb-2 flex items-center text-sm">
                 <RiErrorWarningFill className="mr-2" />
                 {errors.publishers}
               </div>
             )}
-            <Table
-              data={publishers.filter((p) => p.name.toLowerCase().includes(search.toLowerCase()))}
-              maxHeigth="max-h-96"
-              renderHeader={() => (
-                <>
-                  <h4 className="w-24" />
-                  <h4 className="flex-1">Nom</h4>
-                  <h4 className="flex-1 text-center">Roles</h4>
-                </>
-              )}
-              renderItem={(item) => (
-                <>
-                  <div className="w-24 pl-3">
+            <Table header={TABLE_HEADER} total={filteredPublishers.length} pagination={false} auto className="max-h-96 overflow-y-auto">
+              {filteredPublishers.map((item, i) => (
+                <tr key={item.id || item._id} className={`${i % 2 === 0 ? "bg-gray-975" : "bg-gray-1000-active"} table-item`}>
+                  <td className="table-cell">
                     <input
                       type="checkbox"
                       className="checkbox"
@@ -201,19 +197,19 @@ const Create = () => {
                       }}
                       checked={values.publishers.includes((item.id || item._id).toString())}
                     />
-                  </div>
-                  <div className="flex-1">{item.name}</div>
-                  <div className="flex-1">
+                  </td>
+                  <td className="table-cell">{item.name}</td>
+                  <td className="table-cell">
                     <div className="flex flex-wrap justify-center gap-2">
-                      {item.isAnnonceur && <span className="rounded bg-red-300 p-2">Annonceur</span>}
-                      {item.hasApiRights && <span className="rounded bg-green-300 p-2">Diffuseur API</span>}
-                      {item.hasWidgetRights && <span className="rounded bg-green-300 p-2">Diffuseur Widget</span>}
-                      {item.hasCampaignRights && <span className="rounded bg-green-300 p-2">Diffuseur Campagne</span>}
+                      {item.isAnnonceur && <span className="bg-red-marianne-950 rounded p-2">Annonceur</span>}
+                      {item.hasApiRights && <span className="bg-green-success-950 rounded p-2">Diffuseur API</span>}
+                      {item.hasWidgetRights && <span className="bg-green-success-950 rounded p-2">Diffuseur Widget</span>}
+                      {item.hasCampaignRights && <span className="bg-green-success-950 rounded p-2">Diffuseur Campagne</span>}
                     </div>
-                  </div>
-                </>
-              )}
-            />
+                  </td>
+                </tr>
+              ))}
+            </Table>
           </div>
 
           <div className="col-span-2 flex justify-end gap-4">

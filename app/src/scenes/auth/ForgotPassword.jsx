@@ -25,39 +25,39 @@ const Forgot = () => {
       await api.post("/user/forgot-password", { email: values.email });
       setDone(true);
     } catch (error) {
-      captureError(error, "Une erreur s'est produite lors de la soumission.");
+      captureError(error, { extra: { values } });
     }
     setLoading(false);
   };
 
   return (
     <form onSubmit={handleSubmit} className="flex h-full flex-col bg-white px-32 py-10">
-      <title>Mot de passe oublié - API Engagement</title>
+      <title>API Engagement - Mot de passe oublié</title>
       <h1 className="text-4xl font-bold">Récupérez votre mot de passe</h1>
 
       <label className="mt-6 mb-2 text-sm" htmlFor="email">
         E-mail
       </label>
       <input
-        className={`input mb-2 ${errors.email ? "border-b-red-error" : "border-b-black"}`}
+        className={`input mb-2 ${errors.email ? "border-b-error" : "border-b-black"}`}
         name="email"
         id="email"
         value={values.email}
         onChange={(e) => setValues({ ...values, email: e.target.value })}
       />
       {errors.email && (
-        <div className="text-red-error flex items-center text-sm">
+        <div className="text-error flex items-center text-sm">
           <RiErrorWarningFill className="mr-2" />
           Adresse email invalide
         </div>
       )}
 
-      <button type="submit" className="primary-btn w-full mt-6" disabled={errors.email || loading || done}>
+      <button type="submit" className="primary-btn mt-6 w-full" disabled={errors.email || loading || done}>
         {loading ? "Chargement..." : "Réinitialisez votre mot de passe"}
       </button>
 
       {done && (
-        <div className="text-green-success mt-4 flex items-center text-sm">
+        <div className="text-success mt-4 flex items-center text-sm">
           <RiCheckboxCircleFill className="mr-2" />
           <p>Si votre adresse email est valide, un e-mail vous a été envoyé pour vous permettre de réinitialiser votre mot de passe.</p>
         </div>
