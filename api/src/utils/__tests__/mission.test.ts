@@ -133,7 +133,10 @@ describe("getMissionChanges", () => {
   });
 
   it("should ignore duplicated values in array fields", () => {
-    const mission1 = createBaseMission();
+    const mission1 = {
+      ...createBaseMission(),
+      requirements: ["requirement 1", "requirement 2"],
+    };
     const mission2 = {
       ...createBaseMission(),
       requirements: ["requirement 1", "requirement 2", "requirement 1"],
