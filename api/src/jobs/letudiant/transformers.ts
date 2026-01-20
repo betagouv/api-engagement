@@ -6,8 +6,6 @@ import { getMissionTrackedApplicationUrl } from "../../utils/mission";
 import { MEDIA_PUBLIC_ID } from "./config";
 import { decodeHtml } from "./utils";
 
-type LetudiantMission = MissionRecord & { associationName?: string | null };
-
 export type PilotyJobWithAddress = {
   payload: PilotyJobPayload;
   missionAddressId: string | null;
@@ -99,10 +97,10 @@ export function missionToPilotyJobs(mission: MissionRecord, companyId: string, m
  * @param mission The mission to transform
  * @returns The company payload
  */
-export async function missionToPilotyCompany(mission: LetudiantMission): Promise<PilotyCompanyPayload> {
+export async function missionToPilotyCompany(mission: MissionRecord): Promise<PilotyCompanyPayload> {
   return {
     media_public_id: MEDIA_PUBLIC_ID,
-    name: mission.organizationName || mission.associationName || "",
+    name: mission.organizationName || "",
     // domain_url: (await getValidAndAccessibleUrl(mission.organizationUrl)) || "", // TODO: since Piloty seems to reject most of the urls, we skip it for now
     description: mission.organizationDescription || "",
     logo_url: mission.organizationLogo || "",

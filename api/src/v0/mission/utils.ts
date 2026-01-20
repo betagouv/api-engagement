@@ -1,5 +1,3 @@
-import { missionService } from "../../services/mission";
-
 export const normalizeQueryArray = (query?: string | string[]): string[] | undefined => {
   if (!query) {
     return undefined;
@@ -35,8 +33,4 @@ export const parseDateFilter = (query?: string): { gt?: Date; lt?: Date } | unde
   } catch {
     return undefined;
   }
-};
-
-export const findMissionById = async (missionId: string) => {
-  return missionService.findOneMission(missionId);
 };

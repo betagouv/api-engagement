@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { RiQuestionLine } from "react-icons/ri";
 
 import { Pie } from "../../../components/Chart";
-import TablePagination from "../../../components/NewTablePagination";
+import Table from "../../../components/Table";
 import { DEPARTMENT_NAMES, DOMAINS } from "../../../constants";
 import api from "../../../services/api";
 import { captureError } from "../../../services/error";
@@ -125,7 +125,7 @@ const Distribution = ({ filters, onFiltersChange }) => {
   }, [filters]);
 
   return (
-    <div className="mx-auto my-14 w-4/5 max-w-[1200px] flex-1 border border-gray-900 bg-white p-12">
+    <div className="border-grey-border mx-auto my-14 w-4/5 max-w-[1200px] flex-1 border bg-white p-12">
       <div className="flex justify-between">
         <div className="">
           <h2 className="text-3xl font-bold">Répartition des missions</h2>
@@ -172,9 +172,9 @@ const Distribution = ({ filters, onFiltersChange }) => {
         <div className="mb-4 flex justify-between">
           <h2 className="mb-6 text-2xl font-bold">Domaine d'action des missions</h2>
           <div className="group relative">
-            <RiQuestionLine className="text-gray-425 text-lg" />
+            <RiQuestionLine className="text-text-mention text-lg" />
 
-            <div className="absolute top-8 left-0 z-10 hidden w-56 border border-gray-900 bg-white p-4 shadow-lg group-hover:block">
+            <div className="border-grey-border absolute top-8 left-0 z-10 hidden w-56 border bg-white p-4 shadow-lg group-hover:block">
               <p className="text-xs text-black">Répartition des missions ayant eu au moins une redirection par thématique d'engagement.</p>
             </div>
           </div>
@@ -184,8 +184,9 @@ const Distribution = ({ filters, onFiltersChange }) => {
             <Pie data={domainStats.domains.map((item) => ({ name: item.key, value: item.doc_count }))} innerRadius="0%" unit="missions" />
           </div>
           <div className="flex-1">
-            <TablePagination
+            <Table
               header={DOMAIN_TABLE_HEADER}
+              pagination
               page={currentDomainPage}
               pageSize={7}
               onPageChange={(page) => setCurrentDomainPage(page)}
@@ -202,18 +203,18 @@ const Distribution = ({ filters, onFiltersChange }) => {
                   <td className="px-4">{item.apply}</td>
                 </tr>
               ))}
-            </TablePagination>
+            </Table>
           </div>
         </div>
       </div>
 
-      <div className="mt-8 gap-4 border border-gray-900 p-8">
+      <div className="border-grey-border mt-8 gap-4 border p-8">
         <div className="mb-4 flex justify-between">
           <h2 className="mb-6 text-2xl font-bold">Département des missions</h2>
           <div className="group relative">
-            <RiQuestionLine className="text-gray-425 text-lg" />
+            <RiQuestionLine className="text-text-mention text-lg" />
 
-            <div className="absolute top-8 left-0 z-10 hidden w-56 border border-gray-900 bg-white p-4 shadow-lg group-hover:block">
+            <div className="border-grey-border absolute top-8 left-0 z-10 hidden w-56 border bg-white p-4 shadow-lg group-hover:block">
               <p className="text-xs text-black">Répartition des missions ayant eu au moins une redirection par département</p>
             </div>
           </div>
@@ -223,8 +224,9 @@ const Distribution = ({ filters, onFiltersChange }) => {
             <Pie data={departmentStats.map((item) => ({ name: item.name, value: item.mission_count }))} innerRadius="0%" unit="missions" />
           </div>
           <div className="flex-1">
-            <TablePagination
+            <Table
               header={DEPARTMENT_TABLE_HEADER}
+              pagination
               page={currentDepartmentPage}
               pageSize={7}
               onPageChange={(page) => setCurrentDepartmentPage(page)}
@@ -241,7 +243,7 @@ const Distribution = ({ filters, onFiltersChange }) => {
                   <td className="px-4">{item.apply_count}</td>
                 </tr>
               ))}
-            </TablePagination>
+            </Table>
           </div>
         </div>
       </div>

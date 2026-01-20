@@ -26,7 +26,7 @@ export class LeboncoinHandler implements BaseHandler<LeboncoinJobPayload, Lebonc
     const start = new Date();
     console.log(`[Leboncoin] Starting at ${start.toISOString()}`);
 
-    const jobBoardEntries = await missionJobBoardService.findByJobBoard("LEBONCOIN", "REFUSED");
+    const jobBoardEntries = await missionJobBoardService.findByJobBoard("LEBONCOIN", "ERROR");
     const refusedMissionIds = jobBoardEntries.map((entry) => entry.missionId);
     const uniqueRefusedIds = Array.from(new Set(refusedMissionIds));
     const count = uniqueRefusedIds.length;
@@ -35,7 +35,7 @@ export class LeboncoinHandler implements BaseHandler<LeboncoinJobPayload, Lebonc
 
     const commentsAgg = new Map<string, number>();
     for (const entry of jobBoardEntries) {
-      if (entry.status !== "REFUSED") {
+      if (entry.syncStatus !== "ERROR") {
         continue;
       }
       const comment = entry.comment || "N/A";

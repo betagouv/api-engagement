@@ -93,21 +93,29 @@ const List = () => {
   if (!state) return <Loader />;
   return (
     <div className="flex flex-col">
+      <title>API Engagement - Alertes</title>
       <div className="mb-10 flex flex-col gap-8">
         <h1 className="text-3xl font-bold">État du service</h1>
 
         <div className="flex items-center gap-8 bg-white p-6 shadow-sm">
           <img className="h-18 w-18" src={APILogo} alt="API Engagement" />
           <div>
+            {!state.up ? (
+              <p className="text-xl">
+                <span aria-hidden="true">❌</span> L'API Engagement est rencontre quelques problèmes en ce moment
+              </p>
+            ) : !state.upToDate ? (
+              <p className="text-xl">
+                <span aria-hidden="true">❌</span> Dernier import réalisé il y a plus de 24h
+              </p>
+            ) : (
+              <p className="text-xl">
+                <span aria-hidden="true">✅</span> Récupération des missions opérationnelle
+              </p>
+            )}
+
             <p className="text-xl">
-              {!state.up
-                ? `❌  L'API Engagement est rencontre quelques problèmes en ce moment`
-                : !state.upToDate
-                  ? "❌  Dernier import réalisé il y a plus de 24h"
-                  : "✅  Récupération des missions opérationnelle"}
-            </p>
-            <p className="text-xl">
-              ⏱️ Dernière mise à jour des flux réalisée le <b>{`${buildDate(state.last)}`}</b>
+              <span aria-hidden="true">⏱️</span> Dernière mise à jour des flux réalisée le <b>{`${buildDate(state.last)}`}</b>
             </p>
           </div>
         </div>
@@ -115,7 +123,9 @@ const List = () => {
           {currentWarnings.length > 1 ? (
             <>
               <div className="flex items-center justify-center">
-                <span className="text-3xl">❌</span>
+                <span className="text-3xl" aria-hidden="true">
+                  ❌
+                </span>
               </div>
               <div className="flex flex-col gap-4">
                 <p className="text-lg">
@@ -128,7 +138,9 @@ const List = () => {
           ) : (
             <>
               <div className="flex items-center justify-center">
-                <span className="text-3xl">✅</span>
+                <span className="text-3xl" aria-hidden="true">
+                  ✅
+                </span>
               </div>
               <div className="flex flex-col gap-4">
                 <h4 className="text-xl font-bold text-black">Votre compte est parfaitement opérationnel</h4>
@@ -141,7 +153,7 @@ const List = () => {
       <div className="mb-4 flex flex-col">
         <div className="flex items-center justify-between">
           <h2 className="text-2xl font-bold">Alertes en cours</h2>
-          <a href="mailto:apiengagement@beta.gouv.fr" className="text-blue-france flex items-center border border-gray-900 py-2 pr-3 pl-4 text-sm">
+          <a href="mailto:apiengagement@beta.gouv.fr" className="text-blue-france border-grey-border flex items-center border py-2 pr-3 pl-4 text-sm">
             Contacter le support
             <RiMessage2Line className="ml-2" />
           </a>
@@ -154,16 +166,14 @@ const List = () => {
             <div key={i} className="flex flex-col gap-4">
               <h3 className="text-xl font-normal text-black">{d}</h3>
               {currentWarningsByDays[d].map((w, i) => {
-                const label = WARNINGS[w.type] || { emoji: "🤔", name: "Alerte" };
+                const label = WARNINGS[w.type] || WARNINGS.OTHER_WARNING;
                 return (
                   <Link to={LINKS[w.type]} className="flex items-end gap-8 bg-white p-6 shadow-sm" key={i} id={slugify(`${w.type}-${w.publisherName}`)}>
                     <div className="flex items-center justify-center gap-8">
-                      <div className="flex items-center justify-center">
-                        <span className="text-2xl">{label.emoji}</span>
-                      </div>
+                      <div className="flex items-center justify-center">{label.emoji}</div>
                       <div className="flex flex-1 flex-col justify-between">
                         <div className="mb-3">
-                          <span className="bgbg-[#FEECC2] textbg-[#716043] truncate rounded p-1 text-center text-xs font-semibold uppercase">{label.name}</span>
+                          <span className="bg-yellow-tournesol-950 text-yellow-tournesol-200 truncate rounded p-1 text-center text-xs font-semibold uppercase">{label.name}</span>
                         </div>
                         <p className="text-lg font-semibold">{w.title}</p>
                         <p className="mb-3 text-base">{label.advice}</p>
@@ -219,21 +229,19 @@ const List = () => {
               <div key={i} className="flex flex-col gap-4">
                 <h3 className="mt-2 text-xl font-normal text-black">{d}</h3>
                 {archivedWarningsByDays[d].map((w, i) => {
-                  const label = WARNINGS[w.type] || { emoji: "🤔", name: "Alerte" };
+                  const label = WARNINGS[w.type] || WARNINGS.OTHER_WARNING;
                   return (
                     <div className="flex items-center gap-8 bg-white p-6 shadow-sm" key={i} id={slugify(`${w.type}-${w.publisherName}`)}>
-                      <div className="flex items-center justify-center">
-                        <span className="text-3xl">{label.emoji}</span>
-                      </div>
+                      <div className="flex items-center justify-center">{label.emoji}</div>
                       <div className="flex flex-1 flex-col justify-between">
                         <div className="mb-3">
-                          <span className="bgbg-[#FEECC2] textbg-[#716043] truncate rounded p-1 text-center text-xs font-semibold uppercase">{label.name}</span>
+                          <span className="bg-yellow-tournesol-950 text-yellow-tournesol-200 truncate rounded p-1 text-center text-xs font-semibold uppercase">{label.name}</span>
                         </div>
                         <p className="text-lg font-semibold">{w.title}</p>
                         <p className="mb-3 text-base">{label.advice}</p>
                         {w.fixed && (
                           <div className="mt-3 flex items-center">
-                            <RiCheckboxCircleFill className="text-green-success mr-2 w-4" />
+                            <RiCheckboxCircleFill className="text-success mr-2 w-4" />
                             <p className="text-gray-dar text-sm">
                               Corrigée le {new Date(w.fixedAt || w.updatedAt).getDate()} {MONTHS[new Date(w.fixedAt || w.updatedAt).getMonth()].toLowerCase()}
                             </p>

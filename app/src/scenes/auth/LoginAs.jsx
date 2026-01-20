@@ -30,7 +30,11 @@ const LoginAs = () => {
     };
     fetchData();
   }, []);
-  return <></>;
+  return (
+    <>
+      <title>API Engagement - Connexion</title>
+    </>
+  );
 };
 
 export default LoginAs;

@@ -19,7 +19,7 @@ models:
           - not_null
           - relationships:
               arguments:
-                to: source('public', 'Mission')
+                to: ref('mission')
                 field: id
       - name: moderator_id
         description: Identifiant de l’utilisateur à l’origine de la modération.

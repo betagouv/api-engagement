@@ -8,12 +8,16 @@ import Loader from "../../components/Loader";
 import Select from "../../components/NewSelect";
 import Pie, { colors } from "../../components/Pie";
 import SearchInput from "../../components/SearchInput";
-import { Table, TablePaginator } from "../../components/Table";
+import Table from "../../components/Table";
 import { DOMAINS } from "../../constants";
 import api from "../../services/api";
 import { captureError } from "../../services/error";
 import useStore from "../../services/store";
 import { DEPARTMENT_LABELS, JVA_MODERATION_COMMENTS_LABELS, STATUS, STATUS_GRAPH_COLORS, STATUS_ICONS, STATUS_PLR } from "../broadcast/moderation/components/Constants";
+
+const COMMENTS_TABLE_HEADER = [{ title: "Motif de refus" }, { title: "Nombre", position: "center" }, { title: "Pourcentage", position: "center" }];
+
+const MISSIONS_TABLE_HEADER = [{ title: "Mission", colSpan: 2 }, { title: "Organisation" }, { title: "Localisation" }, { title: "Postée le" }, { title: "Statut" }];
 
 const FILTERS = {
   status: "Statut",
@@ -117,12 +121,13 @@ const Moderation = () => {
 
   return (
     <div className="space-y-12 p-12">
+      <title>API Engagement - Modération - Vos Missions</title>
       <div className="mb-8 flex items-end justify-between gap-4">
         <div>
           <h2 className="text-3xl font-bold">Modération de JeVeuxAider.gouv.fr</h2>
-          <p className="text-gray-425 text-sm">
+          <p className="text-text-mention text-sm">
             Consultez les
-            <a href="https://api-engagement.beta.gouv.fr/regles-de-moderation-de-jeveuxaider-gouv-fr/" target="_blank" className="text-gray-425 ml-1 cursor-pointer underline">
+            <a href="https://api-engagement.beta.gouv.fr/regles-de-moderation-de-jeveuxaider-gouv-fr/" target="_blank" className="text-text-mention ml-1 cursor-pointer underline">
               règles de modération
             </a>
           </p>
@@ -212,7 +217,7 @@ const Moderation = () => {
       )}
 
       <div className="grid grid-cols-3 gap-5">
-        <div className="border border-gray-900 p-4">
+        <div className="border-grey-border border p-4">
           <div className="flex items-start">
             <h2 className="flex-1 text-lg font-bold">Répartition des missions par statut</h2>
           </div>
@@ -220,81 +225,64 @@ const Moderation = () => {
             <Pie data={stats.status} backgroundColor={colors} legendPosition="right" />
           </div>
         </div>
-        <div className="col-span-2 border border-gray-900 p-4">
+        <div className="border-grey-border col-span-2 border p-4">
           <div className="flex items-start">
             <h2 className="flex-1 text-lg font-bold">Répartition des motifs de refus</h2>
           </div>
           {stats.refused === 0 ? (
             <div className="flex h-full items-center">
-              <p className="ml-5 pb-10">😎 Aucune mission n’a été refusée</p>
+              <p className="ml-5 pb-10">
+                <span aria-hidden="true">😎</span> Aucune mission n'a été refusée
+              </p>
             </div>
           ) : (
             <div className="mt-6">
-              <Table
-                maxHeigth="max-h-64"
-                data={stats.comments || []}
-                renderHeader={() => (
-                  <>
-                    <h4 className="flex-1">Motif de refus</h4>
-                    <h4 className="w-[15%] text-center">Nombre</h4>
-                    <h4 className="w-[15%] text-center">Pourcentage</h4>
-                  </>
-                )}
-                itemHeight="h-12"
-                renderItem={(item) => (
-                  <>
-                    <span className="flex-1">{JVA_MODERATION_COMMENTS_LABELS[item.key] || item.key}</span>
-                    <span className="w-[15%] text-center">{item.doc_count}</span>
-                    <span className="w-[15%] text-center">{`${(item.rate * 100).toFixed(2)} %`}</span>
-                  </>
-                )}
-              />
+              <Table header={COMMENTS_TABLE_HEADER} total={stats.comments?.length || 0} pagination={false} auto className="max-h-64 overflow-y-auto">
+                {(stats.comments || []).map((item, i) => (
+                  <tr key={i} className={`${i % 2 === 0 ? "bg-gray-975" : "bg-gray-1000-active"} table-item`}>
+                    <td className="table-cell">{JVA_MODERATION_COMMENTS_LABELS[item.key] || item.key}</td>
+                    <td className="table-cell text-center">{item.doc_count}</td>
+                    <td className="table-cell text-center">{`${(item.rate * 100).toFixed(2)} %`}</td>
+                  </tr>
+                ))}
+              </Table>
             </div>
           )}
         </div>
       </div>
 
-      <div className="border border-gray-900 p-6">
-        <TablePaginator
-          data={data}
-          pageSize={pageSize}
-          length={total}
-          onPageChange={(page) => setFilters({ ...filters, page })}
-          renderHeader={() => (
-            <>
-              <h4 className="flex-1 pl-3">Mission</h4>
-              <h4 className="w-[25%]">Organisation</h4>
-              <h4 className="w-[25%]">Localisation</h4>
-              <h4 className="w-[10%]">Postée le</h4>
-              <h4 className="w-[8%]">Statut</h4>
-            </>
-          )}
-          renderItem={(item, i) => (
-            <>
-              <Link to={`/mission/${item._id}`} className="text-blue-france max-w-xl flex-1 px-2">
-                <p className="line-clamp-3">{item.title}</p>
-              </Link>
-              <span className="w-[25%] pr-2">{item.organizationName}</span>
-              <span className="w-[25%]">{`${item.city} ${item.country ? "- " + item.country : ""}`}</span>
-              <span className="w-[10%]">{new Date(item.postedAt).toLocaleDateString("fr")}</span>
-              <div className="flex w-[8%] items-center pl-2 text-lg">
-                <a data-tooltip-id={`${item.status}-${i}`}>{STATUS_ICONS[item.status]}</a>
-                <Tooltip id={`${item.status}-${i}`} className="text-xs">
-                  {STATUS[item.status] || item.status}
-                </Tooltip>
-                {item.status === "REFUSED" && item.comment && (
-                  <div className="group relative">
-                    <RiInformationLine className="text-gray-425" />
+      <div className="border-grey-border border p-6">
+        <Table header={MISSIONS_TABLE_HEADER} total={total} loading={!data} page={filters.page} pageSize={pageSize} onPageChange={(page) => setFilters({ ...filters, page })} auto>
+          {(data || []).map((item, i) => (
+            <tr key={item._id} className={`${i % 2 === 0 ? "bg-gray-975" : "bg-gray-1000-active"} table-item`}>
+              <td className="table-cell" colSpan={2}>
+                <Link to={`/mission/${item._id}`} className="text-blue-france">
+                  <p className="line-clamp-3">{item.title}</p>
+                </Link>
+              </td>
+              <td className="table-cell">{item.organizationName}</td>
+              <td className="table-cell">{`${item.city} ${item.country ? "- " + item.country : ""}`}</td>
+              <td className="table-cell">{new Date(item.postedAt).toLocaleDateString("fr")}</td>
+              <td className="table-cell">
+                <div className="flex items-center text-lg">
+                  <a data-tooltip-id={`${item.status}-${i}`}>{STATUS_ICONS[item.status]}</a>
+                  <Tooltip id={`${item.status}-${i}`} className="text-xs">
+                    {STATUS[item.status] || item.status}
+                  </Tooltip>
+                  {item.status === "REFUSED" && item.comment && (
+                    <div className="group relative">
+                      <RiInformationLine className="ext-text-mention" />
 
-                    <div className="absolute -top-1/2 right-8 z-10 hidden w-64 -translate-y-1/2 border border-gray-900 bg-white p-4 shadow-lg group-hover:block">
-                      <p className="text-sm">{JVA_MODERATION_COMMENTS_LABELS[item.comment] || item.comment}</p>
+                      <div className="border-grey-border absolute -top-1/2 right-8 z-10 hidden w-64 -translate-y-1/2 border bg-white p-4 shadow-lg group-hover:block">
+                        <p className="text-sm">{JVA_MODERATION_COMMENTS_LABELS[item.comment] || item.comment}</p>
+                      </div>
                     </div>
-                  </div>
-                )}
-              </div>
-            </>
-          )}
-        />
+                  )}
+                </div>
+              </td>
+            </tr>
+          ))}
+        </Table>
       </div>
     </div>
   );

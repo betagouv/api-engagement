@@ -52,7 +52,6 @@ describe("RedirectController /account", () => {
       clientId: "mission-client-id",
       title: "Mission Title",
       publisherId: publisher.id,
-      publisherName: publisher.name,
       lastSyncAt: new Date(),
       domain: "mission-domain",
       organizationName: "Mission Org",
@@ -77,11 +76,8 @@ describe("RedirectController /account", () => {
       toPublisherId: publisher.id,
       missionId: mission.id,
       missionClientId: mission.clientId,
-      missionDomain: mission.domain,
       missionTitle: mission.title,
-      missionPostalCode: mission.postalCode,
-      missionDepartmentName: mission.departmentName,
-      missionOrganizationName: mission.organizationName,
+      missionOrganizationName: mission.organizationName ?? "",
       missionOrganizationId: "click-org-id",
     });
 
