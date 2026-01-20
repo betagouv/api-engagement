@@ -1,7 +1,8 @@
 import { describe, expect, it, vi } from "vitest";
 import { PUBLISHER_IDS } from "../../../config";
 import { PilotyMandatoryData } from "../../../services/piloty/types";
-import { Mission, MissionType } from "../../../types";
+import { MissionType } from "../../../types";
+import { MissionRecord } from "../../../types/mission";
 import { MEDIA_PUBLIC_ID } from "../config";
 import { missionToPilotyCompany, missionToPilotyJobs } from "../transformers";
 
@@ -38,7 +39,7 @@ describe("L'Etudiant Transformers", () => {
    * Tests for missionToPilotyJobs function
    */
   describe("missionToPilotyJobs", () => {
-    const baseMission: Partial<Mission> = {
+    const baseMission: Partial<MissionRecord> = {
       addresses: [
         {
           city: "Lyon",
@@ -68,12 +69,12 @@ describe("L'Etudiant Transformers", () => {
     };
 
     it("should correctly transform a mission for Benevolat", () => {
-      const mission: Mission = {
+      const mission: MissionRecord = {
         ...baseMission,
-      } as Mission;
+      } as MissionRecord;
 
       const results = missionToPilotyJobs(mission, mockCompanyId, mockMandatoryData);
-      const result = results[0];
+      const result = results[0].payload;
 
       expect(result.media_public_id).toBe(MEDIA_PUBLIC_ID);
       expect(result.company_public_id).toBe(mockCompanyId);
@@ -90,55 +91,55 @@ describe("L'Etudiant Transformers", () => {
     });
 
     it("should correctly transform a volontariat mission", () => {
-      const mission: Mission = {
+      const mission: MissionRecord = {
         ...baseMission,
         type: MissionType.VOLONTARIAT,
-      } as Mission;
+      } as MissionRecord;
 
       const results = missionToPilotyJobs(mission, mockCompanyId, mockMandatoryData);
-      const result = results[0];
+      const result = results[0].payload;
       expect(result.contract_id).toBe(mockMandatoryData.contracts.volontariat);
       expect(result.name).toBe(`Volontariat - ${mission.title}`);
     });
 
     it("should set localisation to 'organization City' for full remote missions", () => {
-      const mission: Mission = {
+      const mission: MissionRecord = {
         ...baseMission,
         remote: "full",
         organizationCity: "Lyon",
         organizationDepartment: "Rhône",
-      } as Mission;
+      } as MissionRecord;
 
       const results = missionToPilotyJobs(mission, mockCompanyId, mockMandatoryData);
-      const result = results[0];
+      const result = results[0].payload;
       expect(result.localisation).toBe("Lyon, Rhône, France");
     });
 
     it("should set localisation to 'France' for full remote missions with no address and no organization city", () => {
-      const mission: Mission = {
+      const mission: MissionRecord = {
         ...baseMission,
         addresses: [],
         remote: "full",
         organizationCity: "",
-      } as Mission;
+      } as MissionRecord;
 
       const results = missionToPilotyJobs(mission, mockCompanyId, mockMandatoryData);
-      const result = results[0];
+      const result = results[0].payload;
       expect(result.localisation).toBe("France");
     });
 
     it("should consider remote job if no address", () => {
-      const mission: Mission = {
+      const mission: MissionRecord = {
         ...baseMission,
         addresses: [],
-      } as Mission;
+      } as MissionRecord;
       const results = missionToPilotyJobs(mission, mockCompanyId, mockMandatoryData);
-      const result = results[0];
+      const result = results[0].payload;
       expect(result.remote_policy_id).toBe(mockMandatoryData.remotePolicies.full);
     });
 
     it("should return an array of jobs for each address", () => {
-      const mission: Mission = {
+      const mission: MissionRecord = {
         ...baseMission,
         addresses: [
           {
@@ -170,13 +171,13 @@ describe("L'Etudiant Transformers", () => {
             },
           },
         ],
-      } as Mission;
+      } as MissionRecord;
       const results = missionToPilotyJobs(mission, mockCompanyId, mockMandatoryData);
       expect(results).toHaveLength(2);
     });
 
     it("should merge jobs when addresses are in the same city", () => {
-      const mission: Mission = {
+      const mission: MissionRecord = {
         ...baseMission,
         addresses: [
           {
@@ -208,23 +209,23 @@ describe("L'Etudiant Transformers", () => {
             },
           },
         ],
-      } as Mission;
+      } as MissionRecord;
       const results = missionToPilotyJobs(mission, mockCompanyId, mockMandatoryData);
       expect(results).toHaveLength(1);
-      expect(results[0].localisation).toBe("Lyon, Rhône, France");
+      expect(results[0].payload.localisation).toBe("Lyon, Rhône, France");
     });
 
     it("should set state to 'archived' for not accepted mission", () => {
-      const mission: Mission = {
+      const mission: MissionRecord = {
         ...baseMission,
-        statusCode: "REJECTED",
-      } as Mission;
+        statusCode: "REFUSED",
+      } as MissionRecord;
       const results = missionToPilotyJobs(mission, mockCompanyId, mockMandatoryData);
-      expect(results[0].state).toBe("archived");
+      expect(results[0].payload.state).toBe("archived");
     });
 
     it("should set state to 'archived' for each job if mission is deleted", () => {
-      const mission: Mission = {
+      const mission: MissionRecord = {
         ...baseMission,
         addresses: [
           {
@@ -257,35 +258,35 @@ describe("L'Etudiant Transformers", () => {
           },
         ],
         deletedAt: new Date(),
-      } as Mission;
+      } as MissionRecord;
       const results = missionToPilotyJobs(mission, mockCompanyId, mockMandatoryData);
-      expect(results.every((job) => job.state === "archived")).toBe(true);
+      expect(results.every((job) => job.payload.state === "archived")).toBe(true);
     });
 
     it("should use 'autre' job category if mission domain is null or not in mandatoryData", () => {
-      const missionNullDomain: Mission = {
+      const missionNullDomain: MissionRecord = {
         ...baseMission,
         domain: "autre",
-      } as Mission;
+      } as MissionRecord;
       let result = missionToPilotyJobs(missionNullDomain, mockCompanyId, mockMandatoryData);
-      expect(result[0].job_category_id).toBe(mockMandatoryData.jobCategories.autre);
+      expect(result[0].payload.job_category_id).toBe(mockMandatoryData.jobCategories.autre);
 
-      const missionUnknownDomain: Mission = {
+      const missionUnknownDomain: MissionRecord = {
         ...baseMission,
         domain: "domaine-inexistant", // This domain is not in mockMandatoryData.jobCategories
-      } as Mission;
+      } as MissionRecord;
       result = missionToPilotyJobs(missionUnknownDomain, mockCompanyId, mockMandatoryData);
-      expect(result[0].job_category_id).toBe(mockMandatoryData.jobCategories.autre);
+      expect(result[0].payload.job_category_id).toBe(mockMandatoryData.jobCategories.autre);
     });
 
     it("should decode HTML entities in description_job", () => {
-      const mission: Mission = {
+      const mission: MissionRecord = {
         ...baseMission,
         descriptionHtml: "Description with &lt;p&gt;html&lt;/p&gt; tags.",
-      } as Mission;
+      } as MissionRecord;
 
       const results = missionToPilotyJobs(mission, mockCompanyId, mockMandatoryData);
-      const result = results[0];
+      const result = results[0].payload;
 
       expect(result.description_job).toBe("Description with <p>html</p> tags.");
     });
@@ -294,16 +295,16 @@ describe("L'Etudiant Transformers", () => {
      * Tests for missionToPilotyCompany function
      */
     describe("missionToPilotyCompany", () => {
-      const baseMission: Partial<Mission> = {
+      const baseMission: Partial<MissionRecord> = {
         organizationName: "Nom de l'association",
         organizationDescription: "Une description détaillée de l'organisation.",
         organizationLogo: "https://example.com/logo.png",
       };
 
       it("should correctly transform a mission to a Piloty company payload with organizationName", async () => {
-        const mission: Mission = {
+        const mission: MissionRecord = {
           ...baseMission,
-        } as Mission;
+        } as MissionRecord;
 
         const result = await missionToPilotyCompany(mission);
 

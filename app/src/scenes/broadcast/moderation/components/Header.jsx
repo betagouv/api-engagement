@@ -27,14 +27,14 @@ const Header = ({ total, data, size, sort, selected, onSize, onSort, onSelect, o
           {isSticky ? (
             <div>
               <button className="button" onClick={() => onSelect(data.map((d) => d._id))}>
-                {selected.length === data.length ? <RiCheckboxFill className="text-2xl text-blue-500" /> : <RiCheckboxIndeterminateFill className="text-2xl text-blue-500" />}
+                {selected.length === data.length ? <RiCheckboxFill className="text-blue-france text-2xl" /> : <RiCheckboxIndeterminateFill className="text-blue-france text-2xl" />}
               </button>
             </div>
           ) : (
             <h2 className="text-xl font-semibold">{total.toLocaleString("fr")} missions diffusables</h2>
           )}
           <div className="flex items-center gap-4">
-            <span className="text-gray-425 text-sm">{selected.length === 1 ? `1 sélectionnée` : `${selected.length} sélectionnées`}</span>
+            <span className="text-text-mention text-sm">{selected.length === 1 ? `1 sélectionnée` : `${selected.length} sélectionnées`}</span>
             <span className="text-blue-france cursor-pointer text-sm underline" onClick={() => onSelect([])}>
               Désélectionner
             </span>
@@ -49,7 +49,7 @@ const Header = ({ total, data, size, sort, selected, onSize, onSort, onSelect, o
       <h2 className="text-xl font-semibold">{total.toLocaleString("fr")} missions diffusables</h2>
 
       <div className="flex items-center gap-2">
-        <label htmlFor="missions-per-page" className="text-gray-425 text-xs">
+        <label htmlFor="missions-per-page" className="text-text-mention text-xs">
           Missions affichées par page
         </label>
         <select id="missions-per-page" className="input w-18" value={size} onChange={(e) => onSize(Number(e.target.value))}>
@@ -58,7 +58,7 @@ const Header = ({ total, data, size, sort, selected, onSize, onSort, onSelect, o
           <option value={75}>75</option>
           <option value={100}>100</option>
         </select>
-        <label htmlFor="sort-by" className="text-gray-425 sr-only text-xs">
+        <label htmlFor="sort-by" className="text-text-mention sr-only text-xs">
           Trier par
         </label>
         <select id="sort-by" className="input w-60" value={sort} onChange={(e) => onSort(e.target.value)}>
@@ -94,7 +94,7 @@ const ManyUpdateModal = ({ onClose, selected, onChange }) => {
       onChange(data);
       onClose();
     } catch (error) {
-      captureError(error, "Une erreur est survenue");
+      captureError(error, { extra: { selected } });
     }
     setLoading(false);
   };
@@ -112,7 +112,7 @@ const ManyUpdateModal = ({ onClose, selected, onChange }) => {
             <div className="flex w-full flex-col justify-center gap-4">
               <div className="flex flex-col gap-2">
                 <label htmlFor="status" className="text-sm">
-                  Statut<span className="text-red-error ml-1">*</span>
+                  Statut<span className="text-red-marianne ml-1">*</span>
                 </label>
                 <select
                   id="status"
@@ -133,7 +133,7 @@ const ManyUpdateModal = ({ onClose, selected, onChange }) => {
                 {status === "REFUSED" && (
                   <div className="mt-2 flex flex-col gap-2">
                     <label htmlFor="comment" className="text-sm">
-                      Motif<span className="text-red-error ml-1">*</span>
+                      Motif<span className="text-error ml-1">*</span>
                     </label>
                     <select id="comment" className="select" name="comment" value={comment} onChange={(e) => setComment(e.target.value)} required>
                       <option value="">Sélectionner un motif</option>

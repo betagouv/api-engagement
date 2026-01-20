@@ -26,7 +26,7 @@ const SelectOrganization = ({ onChange }) => {
           })),
         );
       } catch (error) {
-        captureError(error, "Erreur lors de la récupération des organisations");
+        captureError(error, { extra: { search, publisherId: publisher.id } });
       }
     };
     fetchOptions();

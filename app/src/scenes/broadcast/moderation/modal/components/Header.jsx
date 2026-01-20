@@ -45,16 +45,20 @@ const Header = ({ data, onChange }) => {
         if (resO.total > 0) setIsOrganizationRefusedOpen(true);
       }
     } catch (error) {
-      captureError(error, "Erreur lors de la mise à jour de la mission", {
-        position: "bottom-right",
-      });
+      captureError(
+        error,
+        { extra: { data, values } },
+        {
+          position: "bottom-right",
+        },
+      );
     }
   };
 
   return (
     <>
       <OrganizationRefusedModal isOpen={isOrganizationRefusedOpen} onClose={() => setIsOrganizationRefusedOpen(false)} data={data} update={values} onChange={onChange} />
-      <div className="bg-beige-gris-galet-975 sticky top-0 z-50 flex h-full items-center justify-between gap-8 border-b border-gray-900 pb-8">
+      <div className="bg-beige-gris-galet-975 border-grey-border sticky top-0 z-50 flex h-full items-center justify-between gap-8 border-b pb-8">
         <div className="max-w-[50%] space-y-2">
           <h1 className="mb-1">{DOMAINS[data.domain]}</h1>
           <h2 className="text-xl font-semibold">{data.newTitle || data.title}</h2>

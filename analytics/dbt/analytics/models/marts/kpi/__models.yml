@@ -1,0 +1,73 @@
+version: 2
+
+models:
+  - name: kpi_daily
+    description: "Mart remplaçant le job Mongo historique pour les KPI quotidiens (bénévolat / volontariat, avec ou sans bots)."
+    columns:
+      - name: kpi_date
+        description: "Date de rattachement du KPI (période observée = date - 1 jour)."
+        tests:
+          - not_null
+      - name: is_bot_filtered
+        description: "false = KPI historiques, true = KPI filtrés des utilisateurs identifiés comme bots."
+        tests:
+          - not_null
+      - name: available_benevolat_mission_count
+        description: "Nombre de missions bénévolat disponibles."
+      - name: available_volontariat_mission_count
+        description: "Nombre de missions Service Civique disponibles."
+      - name: available_jva_mission_count
+        description: "Nombre de missions publiées par JeVeuxAider.gouv.fr."
+      - name: available_benevolat_given_place_count
+        description: "Places bénévolat fournies directement par les partenaires."
+      - name: available_volontariat_given_place_count
+        description: "Places Service Civique fournies directement par les partenaires."
+      - name: available_benevolat_attributed_place_count
+        description: "Places bénévolat attribuées par l'API."
+      - name: available_volontariat_attributed_place_count
+        description: "Places Service Civique attribuées par l'API."
+      - name: percentage_benevolat_given_places
+        description: "Part des missions bénévolat en mode 'GIVEN_BY_PARTNER'."
+      - name: percentage_volontariat_given_places
+        description: "Part des missions Service Civique en mode 'GIVEN_BY_PARTNER'."
+      - name: percentage_benevolat_attributed_places
+        description: "Part des missions bénévolat en mode 'ATTRIBUTED_BY_API'."
+      - name: percentage_volontariat_attributed_places
+        description: "Part des missions Service Civique en mode 'ATTRIBUTED_BY_API'."
+      - name: benevolat_print_mission_count
+        description: "Nombre de missions bénévolat vues au moins une fois."
+      - name: volontariat_print_mission_count
+        description: "Nombre de missions Service Civique vues au moins une fois."
+      - name: benevolat_click_count
+        description: "Nombre de clics sur des missions bénévolat."
+      - name: volontariat_click_count
+        description: "Nombre de clics sur des missions Service Civique."
+      - name: benevolat_apply_count
+        description: "Nombre de candidatures bénévolat."
+      - name: volontariat_apply_count
+        description: "Nombre de candidatures Service Civique."
+      - name: benevolat_account_count
+        description: "Nombre de créations de compte associées à des missions bénévolat."
+      - name: volontariat_account_count
+        description: "Nombre de créations de compte associées à des missions Service Civique."
+  - name: publisher_clicks_daily
+    description: "Clics API par diffuseur rapprochés des disponibilités quotidiennes (kpi_daily is_bot_filtered = true)."
+    columns:
+      - name: kpi_date
+        description: "Jour d'observation (aligné sur kpi_daily)."
+        tests:
+          - not_null
+      - name: from_publisher_id
+        description: "Identifiant du diffuseur (source) des clics, issu du modèle publisher."
+        tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('publisher')
+                field: id
+      - name: available_jva_mission_count
+        description: "Nombre de missions JVA disponibles (kpi_daily, bots filtrés)."
+      - name: click_count
+        description: "Nombre de clics API non bots pour le diffuseur et le jour."
+      - name: ratio_clicks_per_mission
+        description: "Clics / missions disponibles (click_count / available_jva_mission_count)."

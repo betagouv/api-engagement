@@ -23,7 +23,7 @@ const Nav = () => {
         const normalized = withLegacyPublishers(res.data);
         setPublishers(normalized.sort((a, b) => (a.name || "").localeCompare(b.name || "")));
       } catch (error) {
-        captureError(error, "Erreur lors de la récupération des partenaires");
+        captureError(error, { extra: { userRole: user.role, userPublishers: user.publishers } });
       }
     };
 
@@ -112,39 +112,30 @@ const FluxMenu = ({ value, onChange }) => (
     <MenuItems
       transition
       anchor="bottom start"
-      className="mt-2 w-64 origin-top-left divide-y divide-gray-900 border border-gray-900 bg-white shadow-lg transition duration-200 ease-out focus:outline-none data-closed:scale-95 data-closed:opacity-0"
+      className="border-grey-border divide-grey-border mt-2 w-64 origin-top-left divide-y border bg-white shadow-lg transition duration-200 ease-out focus:outline-none data-closed:scale-95 data-closed:opacity-0"
     >
-      {value === "to" ? (
-        <>
-          <MenuItem>
-            <button className="data-[focus]:bg-gray-975 flex w-full items-center justify-between p-4 text-left text-sm" onClick={() => onChange("to")}>
-              <span>Mode annonceur</span>
-              <RiCheckLine className="text-lg text-[#00A95F]" />
-            </button>
-          </MenuItem>
-          <MenuItem>
-            <button className="data-[focus]:bg-gray-975 flex w-full items-center justify-between p-4 text-left text-sm" onClick={() => onChange("from")}>
-              <span>Mode diffuseur</span>
-              <RiArrowLeftRightLine className="text-blue-france text-lg" />
-            </button>
-          </MenuItem>
-        </>
-      ) : (
-        <>
-          <MenuItem>
-            <button className="data-[focus]:bg-gray-975 flex w-full items-center justify-between p-4 text-left text-sm" onClick={() => onChange("from")}>
-              <span>Mode diffuseur</span>
-              <RiCheckLine className="text-lg text-[#00A95F]" />
-            </button>
-          </MenuItem>
-          <MenuItem>
-            <button className="data-[focus]:bg-gray-975 flex w-full items-center justify-between p-4 text-left text-sm" onClick={() => onChange("to")}>
-              <span>Mode annonceur</span>
-              <RiArrowLeftRightLine className="text-blue-france text-lg" />
-            </button>
-          </MenuItem>
-        </>
-      )}
+      <MenuItem>
+        <button
+          aria-current="page"
+          className="data-[focus]:bg-gray-975 flex w-full items-center justify-between p-4 text-left text-sm"
+          onClick={() => onChange(value === "to" ? "to" : "from")}
+        >
+          <span>Mode {value === "to" ? "annonceur" : "diffuseur"}</span>
+          <div>
+            <RiCheckLine className="text-success text-lg" />
+            <span class="sr-only">État du service</span>
+          </div>
+        </button>
+      </MenuItem>
+      <MenuItem>
+        <button className="data-[focus]:bg-gray-975 flex w-full items-center justify-between p-4 text-left text-sm" onClick={() => onChange(value === "to" ? "from" : "to")}>
+          <span>Mode {value === "to" ? "diffuseur" : "annonceur"}</span>
+          <div>
+            <RiArrowLeftRightLine className="text-blue-france text-lg" />
+            <span class="sr-only">État du service</span>
+          </div>
+        </button>
+      </MenuItem>
     </MenuItems>
   </Menu>
 );
@@ -166,7 +157,7 @@ const PublisherMenu = ({ options, value, onChange }) => {
   return (
     <div className="relative h-full" ref={ref}>
       <button
-        className="hover:bg-gray-975 flex h-full cursor-pointer items-center justify-between gap-4 px-4 text-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-[#015fcc]"
+        className="hover:bg-gray-975 focus-visible:ring-outline-blue flex h-full cursor-pointer items-center justify-between gap-4 px-4 text-sm focus:outline-none focus-visible:ring-2"
         onClick={() => setIsOpen(!isOpen)}
       >
         <span className="font-semibold">{value.name}</span>
@@ -175,8 +166,8 @@ const PublisherMenu = ({ options, value, onChange }) => {
 
       <div className={`absolute z-10 mt-1 origin-top-right transition duration-200 ease-in-out ${isOpen ? "" : "pointer-events-none scale-95 opacity-0"}`}>
         {isOpen && (
-          <div className={`w-72 border border-gray-900 bg-white shadow-lg focus:outline-none`}>
-            <div className="flex items-center gap-2 border-b border-gray-900 p-3 focus-visible:ring-2 focus-visible:ring-[#015fcc]">
+          <div className={`border-grey-border w-72 border bg-white shadow-lg focus:outline-none`}>
+            <div className="border-grey-border focus-visible:ring-outline-blue flex items-center gap-2 border-b p-3 focus-visible:ring-2">
               <RiSearchLine />
               <label htmlFor="publisher-search" className="sr-only">
                 Rechercher un partenaire
@@ -189,7 +180,7 @@ const PublisherMenu = ({ options, value, onChange }) => {
                 .map((option, index) => (
                   <button
                     key={index}
-                    className="hover:bg-gray-975 focus-visible:bg-gray-975 flex w-full items-center justify-between border-b border-gray-900 p-4 text-left text-sm focus:outline-none focus-visible:ring-1 focus-visible:ring-[#015fcc]"
+                    className="hover:bg-gray-975 focus-visible:bg-gray-975 border-grey-border focus-visible:ring-outline-blue flex w-full items-center justify-between border-b p-4 text-left text-sm focus:outline-none focus-visible:ring-1"
                     onClick={() => {
                       setSearch("");
                       setIsOpen(false);
@@ -219,7 +210,7 @@ const AdminMenu = () => (
         <MenuItems
           transition
           anchor="bottom end"
-          className="mt-1 w-64 origin-top-right divide-y divide-gray-900 border border-gray-900 bg-white shadow-lg transition duration-200 ease-out focus:outline-none data-closed:scale-95 data-closed:opacity-0"
+          className="border-grey-border divide-grey-border mt-1 w-64 origin-top-right divide-y border bg-white shadow-lg transition duration-200 ease-out focus:outline-none data-closed:scale-95 data-closed:opacity-0"
         >
           <MenuItem>
             <Link to="/admin-account" className="data-[focus]:bg-gray-975 block w-full p-4 text-sm">

@@ -1,6 +1,6 @@
 import { DEPARTMENTS } from "../../../constants/departments";
-import { AddressItem, Mission } from "../../../types";
-import { MissionXML } from "../types";
+import { AddressItem } from "../../../types";
+import { ImportedMission, MissionXML } from "../types";
 
 const parseString = (value: string | undefined) => {
   if (!value) {
@@ -58,7 +58,7 @@ const getDepartmentCode = (departmentCode: string, postalCode: string) => {
 const getDepartement = (code?: string) => (code && DEPARTMENTS[code] && DEPARTMENTS[code][0]) || "";
 const getRegion = (code?: string) => (code && DEPARTMENTS[code] && DEPARTMENTS[code][1]) || "";
 
-export const getAddress = (mission: Mission, missionXML: MissionXML) => {
+export const getAddress = (mission: ImportedMission, missionXML: MissionXML) => {
   mission.country = parseString(missionXML.country || missionXML.countryCode);
   if (mission.country === "France") {
     mission.country = "FR";
@@ -102,12 +102,6 @@ export const getAddress = (mission: Mission, missionXML: MissionXML) => {
     mission.geolocStatus = "ENRICHED_BY_PUBLISHER";
   }
 
-  if (mission.location) {
-    mission.geoPoint = { type: "Point", coordinates: [mission.location.lon, mission.location.lat] };
-  } else {
-    mission.geoPoint = null;
-  }
-
   mission.address = parseString(missionXML.address || missionXML.adresse);
   mission.city = parseString(missionXML.city);
 
@@ -141,7 +135,12 @@ export const getAddress = (mission: Mission, missionXML: MissionXML) => {
         region: mission.region,
         country: mission.country,
         location: mission.location || null,
-        geoPoint: mission.geoPoint || null,
+        geoPoint: mission.location
+          ? {
+              type: "Point",
+              coordinates: [mission.location.lon, mission.location.lat],
+            }
+          : null,
         geolocStatus: mission.geolocStatus || "NO_DATA",
       },
     ];
@@ -150,7 +149,7 @@ export const getAddress = (mission: Mission, missionXML: MissionXML) => {
   }
 };
 
-export const getAddresses = (mission: Mission, missionXML: MissionXML) => {
+export const getAddresses = (mission: ImportedMission, missionXML: MissionXML) => {
   mission.addresses = [];
 
   for (const address of missionXML.addresses) {
@@ -218,6 +217,5 @@ export const getAddresses = (mission: Mission, missionXML: MissionXML) => {
         lon: Number(mission.addresses[0].location.lon),
       }
     : null;
-  mission.geoPoint = mission.addresses[0].geoPoint || null;
   mission.geolocStatus = mission.addresses[0].geolocStatus || "NO_DATA";
 };

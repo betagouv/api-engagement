@@ -16,11 +16,9 @@ import cors from "cors";
 import express, { NextFunction, Request, Response } from "express";
 import path from "path";
 
-import "./db/mongo";
 import { SERVER_ERROR, captureException, captureMessage } from "./error";
 
-import { mongoConnected } from "./db/mongo";
-import { pgConnected } from "./db/postgres";
+import { pgConnectedCore, pgDisconnect } from "./db/postgres";
 import middlewares from "./middlewares";
 
 import AdminReportController from "./controllers/admin-report";
@@ -31,6 +29,7 @@ import ImportController from "./controllers/import";
 import MissionController from "./controllers/mission";
 import ModerationController from "./controllers/moderation";
 import ModerationEventController from "./controllers/moderation-event";
+import MetabaseController from "./controllers/metabase";
 import OrganizationController from "./controllers/organization";
 import PublisherController from "./controllers/publisher";
 import RedirectController from "./controllers/redirect";
@@ -56,8 +55,7 @@ import LeboncoinV2Controller from "./v2/leboncoin";
 
 const main = async () => {
   console.log("[API] Waiting for database connections...");
-  await Promise.all([mongoConnected, pgConnected]);
-  console.log("[API] All database connections established successfully.");
+  await pgConnectedCore();
 
   console.log("[API] Starting API server...");
 
@@ -99,6 +97,7 @@ const main = async () => {
   app.use("/mission", MissionController);
   app.use("/moderation", ModerationController);
   app.use("/moderation-event", ModerationEventController);
+  app.use("/metabase", MetabaseController);
   app.use("/publisher", PublisherController);
   app.use("/organization", OrganizationController);
   app.use("/stats", StatsController);
@@ -140,7 +139,33 @@ const main = async () => {
     }
   });
 
-  app.listen(PORT, () => console.log(`[API] Running on port ${PORT} at ${new Date().toISOString()}`));
+  const server = app.listen(PORT, () => console.log(`[API] Running on port ${PORT} at ${new Date().toISOString()}`));
+
+  let isShuttingDown = false;
+  const shutdown = async (signal: NodeJS.Signals) => {
+    if (isShuttingDown) {
+      return;
+    }
+    isShuttingDown = true;
+    console.log(`[API] Received ${signal}, shutting down...`);
+
+    await new Promise<void>((resolve) => {
+      server.close(() => resolve());
+    });
+
+    await pgDisconnect();
+    console.log("[API] Shutdown complete");
+    process.exit(0);
+  };
+
+  (["SIGTERM", "SIGINT"] as NodeJS.Signals[]).forEach((signal) => {
+    process.on(signal, () => {
+      shutdown(signal).catch((error) => {
+        console.error("[API] Shutdown error:", error);
+        process.exit(1);
+      });
+    });
+  });
 };
 
 main();

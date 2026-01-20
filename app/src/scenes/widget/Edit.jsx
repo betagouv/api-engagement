@@ -67,7 +67,7 @@ const Edit = () => {
         });
         setLoading(false);
       } catch (error) {
-        captureError(error, "Une erreur est survenue lors de la récupération du widget");
+        captureError(error, { extra: { id } });
         navigate("/broadcast/widgets");
       }
     };
@@ -76,23 +76,23 @@ const Edit = () => {
 
   const handleSubmit = async () => {
     try {
-      const res = await api.put(`/widget/${widget._id}`, values);
+      const res = await api.put(`/widget/${widget.id}`, values);
       if (!res.ok) throw res;
       setWidget(res.data);
 
       toast.success("Widget mis à jour");
     } catch (error) {
-      captureError(error, "Erreur lors de la mise à jour du widget");
+      captureError(error, { extra: { widget } });
     }
   };
 
   const handleActivate = async (value) => {
     try {
-      const res = await api.put(`/widget/${widget._id.toString()}`, { active: value });
+      const res = await api.put(`/widget/${widget.id.toString()}`, { active: value });
       if (!res.ok) throw res;
       setWidget(res.data);
     } catch (error) {
-      captureError(error, "Erreur lors de la mise à jour des données");
+      captureError(error, { extra: { widget } });
     }
   };
 
@@ -113,6 +113,7 @@ const Edit = () => {
 
   return (
     <div className="space-y-6">
+      <title>API Engagement - Modifier un widget</title>
       <StickyBar onEdit={handleSubmit} visible={stickyVisible} widget={widget} handleActivate={handleActivate} canSubmit={canSubmit} />
       <div className="flex">
         <Link to={`/broadcast/widgets`} className="text-blue-france flex items-center space-x-1">
@@ -124,11 +125,11 @@ const Edit = () => {
       <div className="flex items-center justify-between align-baseline">
         <div>
           <h1 className="text-4xl font-bold">Modifier un widget</h1>
-          <span className="text-gray-425">Créé le {new Date(widget.createdAt).toLocaleDateString("fr")}</span>
+          <span className="text-text-mention">Créé le {new Date(widget.createdAt).toLocaleDateString("fr")}</span>
         </div>
         <div className="flex items-center gap-6">
           <div className="flex flex-col items-end">
-            <Toggle value={widget.active} onChange={(value) => handleActivate(value)} />
+            <Toggle aria-label={widget.active ? "Désactiver le widget" : "Activer le widget"} value={widget.active} onChange={(value) => handleActivate(value)} />
             <label className="text-blue-france text-xs">{widget.active ? "Actif" : "Inactif"}</label>
           </div>
           <button type="submit" className="primary-btn" onClick={handleSubmit} ref={(node) => setSaveButton(node)} disabled={!canSubmit()}>
@@ -183,7 +184,7 @@ const Frame = ({ widget }) => {
         <span>Enregistrez le widget pour mettre à jour l'aperçu</span>
       </div>
 
-      <div className="my-10 border-b border-gray-900 shadow-lg" />
+      <div className="border-grey-border my-10 border-b shadow-lg" />
       <iframe
         key={iframeKey}
         border="0"
@@ -193,7 +194,7 @@ const Frame = ({ widget }) => {
         allowFullScreen
         allow="geolocation"
         onLoad={handleLoad}
-        src={`${widget.type === "volontariat" ? VOLONTARIAT_URL : BENEVOLAT_URL}?widget=${widget._id}&notrack=true`}
+        src={`${widget.type === "volontariat" ? VOLONTARIAT_URL : BENEVOLAT_URL}?widget=${widget.id}&notrack=true`}
       />
     </div>
   );
@@ -219,7 +220,7 @@ const JVA_LOGO = `<div style="padding:10px; display:flex; justify-content:center
 
 const Code = ({ widget }) => {
   const handleCopy = () => {
-    navigator.clipboard.writeText(`${IFRAMES[widget.type][widget.style].replace("{{widgetId}}", widget._id)}${widget.type === "benevolat" ? `\n\n${JVA_LOGO}` : ""}`);
+    navigator.clipboard.writeText(`${IFRAMES[widget.type][widget.style].replace("{{widgetId}}", widget.id)}${widget.type === "benevolat" ? `\n\n${JVA_LOGO}` : ""}`);
     toast.success("Lien copié");
   };
 
@@ -235,10 +236,10 @@ const Code = ({ widget }) => {
       </div>
       <div className="mt-6 w-full">
         <textarea
-          className="w-full rounded-none border border-[#E3E3FD] bg-[#F5F5FE] px-4 py-2 text-base disabled:opacity-80"
+          className="border-blue-france-925 bg-blue-france-975 w-full rounded-none border px-4 py-2 text-base read-only:opacity-80"
           rows={widget.type === "benevolat" ? 11 : 4}
-          disabled={true}
-          value={`${IFRAMES[widget.type][widget.style].replace("{{widgetId}}", widget._id)}${widget.type === "benevolat" ? `\n\n${JVA_LOGO}` : ""}`}
+          readOnly
+          value={`${IFRAMES[widget.type][widget.style].replace("{{widgetId}}", widget.id)}${widget.type === "benevolat" ? `\n\n${JVA_LOGO}` : ""}`}
         />
       </div>
     </div>
@@ -254,7 +255,7 @@ const StickyBar = ({ onEdit, visible, widget, handleActivate, canSubmit }) => {
         <h1 className="text-2xl font-bold">Modifier un widget</h1>
         <div className="flex items-center gap-6">
           <div className="flex flex-col items-end">
-            <Toggle value={widget.active} onChange={(value) => handleActivate(value)} />
+            <Toggle aria-label={widget.active ? "Désactiver le widget" : "Activer le widget"} value={widget.active} onChange={(value) => handleActivate(value)} />
             <label className="text-blue-france text-xs">{widget.active ? "Actif" : "Inactif"}</label>
           </div>
           <button type="button" className="primary-btn" onClick={onEdit} disabled={!canSubmit()}>

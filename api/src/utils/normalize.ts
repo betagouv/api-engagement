@@ -66,6 +66,16 @@ export const normalizeStringArray = (values?: readonly (string | null | undefine
   return result;
 };
 
+export const normalizeStringList = (value: unknown, options?: { slugifyItems?: boolean }) => {
+  if (Array.isArray(value)) {
+    return normalizeStringArray(value, options);
+  }
+  if (typeof value === "string" || value === null || value === undefined) {
+    return normalizeStringArray(value ? [value] : [], options);
+  }
+  return [];
+};
+
 export const normalizeSlug = (source?: string | null, override?: string | null): string | null => {
   const normalizedOverride = normalizeOptionalString(override ?? undefined);
   if (normalizedOverride) {

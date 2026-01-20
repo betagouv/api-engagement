@@ -39,26 +39,6 @@ models:
       - name: click_id
         description: Identifiant de clic associé lorsqu’il existe, sinon chaîne vide.
 
-  - name: stg_stat_event__mission_map
-    description: >
-      Vue intermédiaire qui résout l’identifiant de mission analytics pour chaque
-      événement `stat_event` en combinant plusieurs clés (mission_id, mission_client_id,
-      partenaire). Ce mapping est partagé par tous les modèles de staging dérivés.
-    columns:
-      - name: stat_event_id
-        description: Identifiant de l’événement `stat_event` concerné.
-        tests:
-          - not_null
-          - unique
-      - name: mission_id_raw_input
-        description: Identifiant mission brut provenant directement de `stat_event` (après nettoyage).
-      - name: mission_id
-        description: Identifiant de mission résolu dans l’entrepôt analytics (UUID).
-      - name: mission_id_raw
-        description: Identifiant mission brut issu de la base core retrouvé via le mapping.
-      - name: resolved_mission_id_raw
-        description: Identifiant mission brut final retenu après les règles de priorité.
-
   - name: stg_stat_event__click
     description: >
       Transformation des événements `stat_event` de type `click`. Le modèle enrichit les
@@ -84,8 +64,6 @@ models:
           - not_null
       - name: mission_id
         description: UUID de la mission associée si retrouvée.
-      - name: mission_id_raw
-        description: Identifiant brut de la mission issu de la base core.
       - name: source
         description: Origine normalisée du clic (api/widget/campaign…).
       - name: click_id
@@ -112,8 +90,6 @@ models:
           - not_null
       - name: mission_id
         description: UUID de la mission associée si retrouvée.
-      - name: mission_id_raw
-        description: Identifiant brut de la mission issu de la base core.
       - name: status
         description: Statut métier de la candidature (pending, validated…).
       - name: custom_attributes
@@ -125,7 +101,7 @@ models:
       On retrouve les identifiants analytics (partenaires, mission, clic, sources)
       alignés sur la table Prisma `Account`.
     columns:
-      - name: event_id
+      - name: stat_event_id
         description: Identifiant source de l’événement.
         tests:
           - not_null
@@ -140,8 +116,6 @@ models:
           - not_null
       - name: mission_id
         description: UUID de la mission associée si retrouvée.
-      - name: mission_id_raw
-        description: Identifiant brut de la mission issu de la base core.
       - name: click_id
         description: Identifiant du clic lié au compte (le cas échéant).
 
@@ -166,7 +140,5 @@ models:
           - not_null
       - name: mission_id
         description: UUID de la mission associée si retrouvée.
-      - name: mission_id_raw
-        description: Identifiant brut de la mission issu de la base core.
       - name: source
         description: Origine normalisée de l’impression (api/widget/campaign…).

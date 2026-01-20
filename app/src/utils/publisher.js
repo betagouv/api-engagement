@@ -52,4 +52,4 @@ export const withLegacyPublisher = (publisher = {}) => {
 
 export const withLegacyPublishers = (items = []) => items.map((publisher) => withLegacyPublisher(publisher));
 
-export { sanitizeNullableString, formatPublishersForApi };
+export { formatPublishersForApi, sanitizeNullableString };
