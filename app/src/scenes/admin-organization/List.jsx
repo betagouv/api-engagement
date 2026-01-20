@@ -2,8 +2,8 @@ import { useEffect, useState } from "react";
 import { RiCheckboxCircleFill, RiCloseCircleFill } from "react-icons/ri";
 import { Link, useSearchParams } from "react-router-dom";
 
-import Table from "../../components/NewTable";
 import SearchInput from "../../components/SearchInput";
+import Table from "../../components/Table";
 import api from "../../services/api";
 import { captureError } from "../../services/error";
 

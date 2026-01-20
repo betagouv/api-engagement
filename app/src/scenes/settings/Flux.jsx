@@ -5,7 +5,7 @@ import { toast } from "react-toastify";
 import Loader from "../../components/Loader";
 import Modal from "../../components/New-Modal";
 
-import Table from "../../components/NewTable";
+import Table from "../../components/Table";
 import api from "../../services/api";
 import { captureError } from "../../services/error";
 import useStore from "../../services/store";

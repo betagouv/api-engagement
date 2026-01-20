@@ -4,7 +4,7 @@ import { RiFileDownloadLine } from "react-icons/ri";
 import { Link } from "react-router-dom";
 
 import Loader from "../../components/Loader";
-import Table from "../../components/NewTable";
+import Table from "../../components/Table";
 import { MISSION_TYPES } from "../../constants";
 import api from "../../services/api";
 import { captureError } from "../../services/error";

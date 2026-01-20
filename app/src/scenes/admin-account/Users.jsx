@@ -3,7 +3,7 @@ import { HiOutlinePlus } from "react-icons/hi";
 import { RiLoginBoxLine } from "react-icons/ri";
 import { Link } from "react-router-dom";
 
-import Table from "../../components/NewTable";
+import Table from "../../components/Table";
 import api from "../../services/api";
 import { captureError } from "../../services/error";
 import { withLegacyPublishers } from "../../utils/publisher";

@@ -5,7 +5,7 @@ import EmptySVG from "../../assets/svg/empty-info.svg";
 import { Pie, StackedBarchart } from "../../components/Chart";
 import Loader from "../../components/Loader";
 import DateRangePicker from "../../components/NewDateRangePicker";
-import Table from "../../components/NewTable";
+import Table from "../../components/Table";
 import { MONTHS } from "../../constants";
 import api from "../../services/api";
 import { captureError } from "../../services/error";
