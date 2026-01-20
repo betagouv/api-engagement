@@ -12,6 +12,8 @@ models:
         tests:
           - not_null
           - unique
+      - name: client_id
+        description: Identifiant métier côté client/source.
       - name: publisher_id
         description: Identifiant du partenaire/publisher associé à la mission.
         tests:
@@ -19,30 +21,71 @@ models:
               arguments:
                 to: ref('publisher')
                 field: id
-      - name: client_id
-        description: Identifiant métier côté client/source.
-      - name: domain
-        description: Libellé du domaine (référentiel ou libellé original).
+      - name: organization_id
+        description: Identifiant de l'organization associé à la mission.
+        tests:
+          - relationships:
+              arguments:
+                to: ref('organization')
+                field: id
+      - name: organization_client_id
+        description: Identifiant client de l'organisation côté diffuseur (nullable).
       - name: activity
         description: Libellé de l'activité (référentiel).
+      - name: domain_original
+        description: Libellé de domaine original.
+      - name: title
+        description: Titre de la mission.
+      - name: description
+        description: Description de la mission.
+      - name: type
+        description: Type de mission.
+      - name: status_code
+        description: Code de statut brut.
+      - name: compensation_amount
+        description: Montant de la compensation (nullable).
+      - name: compensation_type
+        description: Type de compensation (nullable).
+      - name: compensation_unit
+        description: Unité de compensation (nullable).
       - name: status
-        description: Statut métier de la mission (alias de `status_code`).
+        description: Statut métier de la mission.
+      - name: priority
+        description: Priorité de la mission (nullable).
       - name: tags
         description: Tags libres associés à la mission.
+      - name: tasks
+        description: Liste des tâches associées à la mission.
       - name: audience
         description: Publics ciblés par la mission.
+      - name: soft_skills
+        description: Compétences comportementales associées.
+      - name: requirements
+        description: Prérequis ou conditions associées.
+      - name: rome_skills
+        description: Compétences ROME associées.
       - name: reduced_mobility_accessible
         description: Accessibilité aux personnes à mobilité réduite.
       - name: open_to_minors
         description: Indique si la mission est ouverte aux mineurs.
       - name: close_to_transport
         description: Indique si la mission est proche des transports.
+      - name: remote
+        description: Indique si la mission est réalisable à distance.
+      - name: schedule
+        description: Informations de planning (nullable).
+      - name: duration
+        description: Durée de la mission (nullable).
       - name: posted_at
         description: Date de publication initiale.
       - name: start_at
         description: Date de démarrage prévue.
       - name: end_at
         description: Date de fin prévue.
+      - name: places
+        description: Nombre de places proposées (nullable).
+      - name: places_status
+        description: Statut des places (nullable).
       - name: deleted_at
         description: Timestamp de suppression logique (nullable).
       - name: created_at
@@ -53,76 +96,70 @@ models:
         description: Timestamp de dernière mise à jour de la mission.
         tests:
           - not_null
+      - name: domain
+        description: Libellé du domaine (référentiel ou libellé original).
       - name: is_deleted
         description: Drapeau booléen dérivé de `deleted_at`.
-      - name: organization_client_id
-        description: Identifiant client de l'organisation côté diffuseur (nullable).
-      - name: publisher_organization_id
-        description: Identifiant de la relation partenaire/organisation (nullable).
-      - name: publisher_organization_name
+      - name: organization_name
         description: Nom déclaré de l'organisation (nullable).
-      - name: publisher_organization_url
+      - name: organization_url
         description: URL de référence de l'organisation (nullable).
-      - name: publisher_organization_type
+      - name: organization_type
         description: Typologie déclarée de l'organisation (nullable).
-      - name: publisher_organization_logo
+      - name: organization_logo
         description: URL ou identifiant du logo (nullable).
-      - name: publisher_organization_description
+      - name: organization_description
         description: Description libre de l'organisation (nullable).
-      - name: publisher_organization_full_address
+      - name: organization_full_address
         description: Adresse complète déclarée (nullable).
-      - name: publisher_organization_rna
+      - name: organization_rna
         description: Identifiant RNA déclaré (nullable).
-      - name: publisher_organization_siren
+      - name: organization_siren
         description: Numéro SIREN déclaré (nullable).
-      - name: publisher_organization_siret
+      - name: organization_siret
         description: Numéro SIRET déclaré (nullable).
-      - name: publisher_organization_department
+      - name: organization_department
         description: Département déclaré (libellé, nullable).
-      - name: publisher_organization_department_code
+      - name: organization_department_code
         description: Code département déclaré (nullable).
-      - name: publisher_organization_department_name
+      - name: organization_department_name
         description: Nom du département déclaré (nullable).
-      - name: publisher_organization_post_code
+      - name: organization_post_code
         description: Code postal déclaré (nullable).
-      - name: publisher_organization_city
+      - name: organization_city
         description: Ville déclarée (nullable).
-      - name: publisher_organization_status_juridique
+      - name: organization_status_juridique
         description: Statut juridique déclaré (nullable).
-      - name: publisher_organization_beneficiaries
+      - name: organization_beneficiaries
         description: Liste des bénéficiaires déclarés (nullable).
-      - name: publisher_organization_actions
+      - name: organization_actions
         description: Liste des actions déclarées (nullable).
-      - name: publisher_organization_reseaux
+      - name: organization_reseaux
         description: Réseaux déclarés (nullable).
-      - name: publisher_organization_name_verified
+      - name: organization_name_verified
         description: Statut de vérification du nom (nullable).
-      - name: publisher_organization_rna_verified
+      - name: organization_rna_verified
         description: Statut de vérification du RNA (nullable).
-      - name: publisher_organization_siren_verified
+      - name: organization_siren_verified
         description: Statut de vérification du SIREN (nullable).
-      - name: publisher_organization_siret_verified
+      - name: organization_siret_verified
         description: Statut de vérification du SIRET (nullable).
-      - name: publisher_organization_address_verified
+      - name: organization_address_verified
         description: Statut de vérification de l'adresse (nullable).
-      - name: publisher_organization_city_verified
+      - name: organization_city_verified
         description: Statut de vérification de la ville (nullable).
-      - name: publisher_organization_postal_code_verified
+      - name: organization_postal_code_verified
         description: Statut de vérification du code postal (nullable).
-      - name: publisher_organization_department_code_verified
+      - name: organization_department_code_verified
         description: Statut de vérification du code département (nullable).
-      - name: publisher_organization_department_name_verified
+      - name: organization_department_name_verified
         description: Statut de vérification du nom de département (nullable).
-      - name: publisher_organization_region_verified
+      - name: organization_region_verified
         description: Statut de vérification de la région (nullable).
-      - name: publisher_organization_verification_status
+      - name: organization_verification_status
         description: Statut de vérification global (nullable).
-      - name: publisher_organization_is_rup
+      - name: organisation_is_rup
         description: Indique si l'organisation est reconnue d'utilité publique (nullable).
-      - name: publisher_organization_created_at
-        description: Horodatage de création de la relation (nullable).
-      - name: publisher_organization_updated_at
-        description: Horodatage de dernière mise à jour de la relation (nullable).
   - name: mission_address
     description: >
       Mart des adresses de missions, dérivé du staging `stg_mission_address` pour exposer les localisations associées
