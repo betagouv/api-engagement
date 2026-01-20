@@ -96,6 +96,8 @@ export interface ViewStatsFilters {
   fromPublisherId?: string;
   toPublisherId?: string;
   missionDomain?: string;
+  missionDepartmentName?: string;
+  missionOrganizationId?: string;
   type?: string;
   source?: string;
   createdAt?: ViewStatsDateFilter[];
@@ -125,16 +127,9 @@ export interface SearchViewStatsResult {
   facets: Record<string, ViewStatsFacet[]>;
 }
 
-export interface StatEventMissionStatsDetails {
-  key: string;
-  doc_count: number;
-  name?: string;
-  logo?: string;
-  url?: string;
-}
-
 export interface StatEventMissionStatsSummary {
   key: string;
+  name?: string;
   doc_count: number;
 }
 

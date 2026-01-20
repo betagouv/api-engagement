@@ -39,11 +39,11 @@ import { captureError } from "./services/error";
 import useStore from "./services/store";
 
 const TOAST_STYLES = {
-  success: "bg-green-success text-white",
-  error: "bg-red-error text-white",
+  success: "bg-success text-white",
+  error: "bg-error text-white",
   info: "bg-blue-france text-white",
-  warning: "bgbg-[#FEECC2]",
-  default: "bg-white border border-gray-900",
+  warning: "bg-yellow-tournesol-950",
+  default: "bg-white border border-grey-border",
   dark: "bg-dark text-white border border white",
 };
 
@@ -109,14 +109,14 @@ const AuthLayout = () => {
   return (
     <div className="bg-beige-gris-galet-975 flex min-h-screen w-screen min-w-3xl flex-col">
       <Header />
-      <div className="flex">
+      <main id="main-content" tabIndex={-1} className="flex flex-1">
         <div className="flex-1">
           <Outlet />
         </div>
         <div className="h-full w-1/2">
           <img src={image} />
         </div>
-      </div>
+      </main>
       <Footer />
     </div>
   );
@@ -193,25 +193,25 @@ const ProtectedLayout = () => {
 
   if (loading)
     return (
-      <div className="flex h-screen w-full items-center justify-center">
+      <main id="main-content" tabIndex={-1} className="flex h-screen w-full items-center justify-center">
         <Loader />
-      </div>
+      </main>
     );
   if (!user) return <Navigate to="/login" />;
 
   return (
     <div className="bg-beige-gris-galet-975 flex min-h-screen w-screen min-w-3xl flex-col">
       {ENV === "staging" && (
-        <div className="bg-red-error w-full p-2 text-center text-white">
+        <div className="bg-error w-full p-2 text-center text-white">
           <span>Environnement de pré-prod</span>
         </div>
       )}
       <Header />
       <Nav />
 
-      <div className="mx-auto my-14 w-4/5 max-w-[1200px] flex-1">
+      <main id="main-content" tabIndex={-1} className="mx-auto mb-14 pt-14 w-4/5 max-w-[1200px] flex-1">
         <Outlet />
-      </div>
+      </main>
       <Footer />
     </div>
   );
@@ -236,9 +236,9 @@ const PublicLayout = () => {
     <div className="bg-beige-gris-galet-975 flex min-h-screen w-screen min-w-3xl flex-col">
       <Header />
       {user ? <Nav /> : ""}
-      <div className="">
+      <main id="main-content" tabIndex={-1}>
         <Outlet />
-      </div>
+      </main>
       <Footer />
     </div>
   );

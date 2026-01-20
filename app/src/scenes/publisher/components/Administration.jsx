@@ -14,7 +14,7 @@ const Administration = ({ values, onChange }) => {
         if (!res.ok) throw res;
         setExcludedOrganizations(res.data);
       } catch (error) {
-        captureError(error, "Erreur lors de la récupération des organisations exclues");
+        captureError(error, { extra: { publisherId: values.id } });
       }
     };
     fetchExcludedOrganizations();
@@ -27,7 +27,11 @@ const Administration = ({ values, onChange }) => {
           Rapport automatisé
         </label>
         <div className="relative">
-          <Toggle value={values.sendReport} onChange={(e) => onChange({ ...values, sendReport: e })} />
+          <Toggle
+            aria-label={values.sendReport ? "Désactiver le rapport automatisé" : "Activer le rapport automatisé"}
+            value={values.sendReport}
+            onChange={(e) => onChange({ ...values, sendReport: e })}
+          />
           {values.sendReport ? <p className="text-blue-france absolute top-8 right-0 text-base">Oui</p> : <p className="absolute top-8 right-0 text-base text-gray-700">Non</p>}
         </div>
       </div>
@@ -38,7 +42,7 @@ const Administration = ({ values, onChange }) => {
           </label>
 
           <div className="flex flex-wrap items-center gap-2">
-            {excludedOrganizations.length === 0 && <p className="text-gray-500">Aucune organisation exclue</p>}
+            {excludedOrganizations.length === 0 && <p className="text-text-mention">Aucune organisation exclue</p>}
             {excludedOrganizations
               .filter((item) => item.excludedByAnnonceurName === "JeVeuxAider.gouv.fr")
               .map((item, index) => (

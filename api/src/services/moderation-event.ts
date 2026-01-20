@@ -1,6 +1,6 @@
 import { Prisma } from "../db/core";
 import { moderationEventRepository } from "../repositories/moderation-event";
-import { Mission } from "../types";
+import { MissionRecord } from "../types/mission";
 import { ModerationEventCreateInput, ModerationEventParams, ModerationEventRecord } from "../types/moderation-event";
 import type { UserRecord } from "../types/user";
 
@@ -11,8 +11,8 @@ const buildWhereClause = (params: ModerationEventParams): Prisma.ModerationEvent
   };
 };
 
-const buildInput = (input: ModerationEventCreateInput): Prisma.ModerationEventCreateInput => {
-  const data: Prisma.ModerationEventCreateInput = {
+const buildInput = (input: ModerationEventCreateInput): Prisma.ModerationEventCreateManyInput => {
+  const data: Prisma.ModerationEventCreateManyInput = {
     missionId: input.missionId,
     moderatorId: input.moderatorId,
     userId: input.userId ?? null,
@@ -69,7 +69,7 @@ export const moderationEventService = {
     return count;
   },
 
-  buildModerationEventPayload(previous: Mission, update: Mission, user: UserRecord, moderatorId: string): ModerationEventCreateInput {
+  buildModerationEventPayload(previous: MissionRecord, update: MissionRecord, user: UserRecord, moderatorId: string): ModerationEventCreateInput {
     const data = {
       moderatorId,
       missionId: previous._id.toString(),

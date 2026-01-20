@@ -4,10 +4,10 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 
 import { JVA_URL, PUBLISHER_IDS } from "../../../../src/config";
 import { prismaCore } from "../../../../src/db/postgres";
-import MissionModel from "../../../../src/models/mission";
-import StatsBotModel from "../../../../src/models/stats-bot";
-import WidgetModel from "../../../../src/models/widget";
+import { statBotService } from "../../../../src/services/stat-bot";
+import { widgetService } from "../../../../src/services/widget";
 import * as utils from "../../../../src/utils";
+import { createTestMission } from "../../../fixtures";
 import { createTestApp } from "../../../testApp";
 
 const app = createTestApp();
@@ -29,12 +29,17 @@ describe("RedirectController /widget/:id", () => {
   });
 
   it("redirects to mission application URL when identity is missing but mission exists", async () => {
-    const mission = await MissionModel.create({
+    const mission = await createTestMission({
+      addresses: [
+        {
+          city: "Paris",
+          postalCode: "75001",
+        },
+      ],
       applicationUrl: "https://mission.example.com/apply",
       clientId: "mission-client-id",
       lastSyncAt: new Date(),
       publisherId: new Types.ObjectId().toString(),
-      publisherName: "Mission Publisher",
       title: "Mission Title",
     });
 
@@ -53,26 +58,25 @@ describe("RedirectController /widget/:id", () => {
     await prismaCore.publisher.create({ data: { id: missionPublisherId, name: "Mission Publisher" } });
     await prismaCore.publisher.create({ data: { id: widgetPublisherId, name: "From Publisher" } });
 
-    const mission = await MissionModel.create({
+    const mission = await createTestMission({
+      addresses: [
+        {
+          postalCode: "75001",
+          departmentName: "Paris",
+          city: "Paris",
+        },
+      ],
       applicationUrl: "https://mission.example.com/apply",
       clientId: "mission-client-id",
       domain: "mission.example.com",
       title: "Mission Title",
-      postalCode: "75001",
-      departmentName: "Paris",
       organizationName: "Mission Org",
-      organizationId: "mission-org-id",
       organizationClientId: "mission-org-client-id",
       lastSyncAt: new Date(),
       publisherId: missionPublisherId,
-      publisherName: "Mission Publisher",
     });
 
-    const widget = await WidgetModel.create({
-      name: "Widget Name",
-      fromPublisherId: widgetPublisherId,
-      fromPublisherName: "From Publisher",
-    });
+    const widget = await widgetService.createWidget({ name: "Widget Name", fromPublisherId: widgetPublisherId });
 
     const identity = {
       user: "widget-user",
@@ -81,14 +85,14 @@ describe("RedirectController /widget/:id", () => {
     };
 
     vi.spyOn(utils, "identify").mockReturnValue(identity);
-    const statsBotFindOneSpy = vi.spyOn(StatsBotModel, "findOne").mockResolvedValue({ user: identity.user } as any);
+    const statsBotFindOneSpy = vi.spyOn(statBotService, "findStatBotByUser").mockResolvedValue({ user: identity.user } as any);
 
     const requestId = new Types.ObjectId().toString();
     const response = await request(app)
       .get(`/r/widget/${mission._id.toString()}`)
       .set("Host", "redirect.test")
       .set("Origin", "https://app.example.com")
-      .query({ widgetId: widget._id.toString(), requestId });
+      .query({ widgetId: widget.id, requestId });
 
     expect(response.status).toBe(302);
     const redirectUrl = new URL(response.headers.location);
@@ -109,7 +113,7 @@ describe("RedirectController /widget/:id", () => {
       origin: "https://app.example.com",
       requestId,
       source: "widget",
-      sourceId: widget._id.toString(),
+      sourceId: widget.id,
       sourceName: widget.name,
       missionId: mission._id.toString(),
       missionClientId: mission.clientId,
@@ -117,7 +121,7 @@ describe("RedirectController /widget/:id", () => {
       missionTitle: mission.title,
       missionPostalCode: mission.postalCode,
       missionDepartmentName: mission.departmentName,
-      missionOrganizationName: mission.organizationName,
+      missionOrganizationName: mission.organizationName ?? "",
       missionOrganizationId: mission.organizationId,
       missionOrganizationClientId: mission.organizationClientId,
       toPublisherId: mission.publisherId,
@@ -125,7 +129,7 @@ describe("RedirectController /widget/:id", () => {
       isBot: true,
     });
 
-    expect(statsBotFindOneSpy).toHaveBeenCalledWith({ user: identity.user });
+    expect(statsBotFindOneSpy).toHaveBeenCalledWith(identity.user);
   });
 
   it("uses mtm tracking parameters when mission publisher is Service Civique", async () => {
@@ -139,19 +143,22 @@ describe("RedirectController /widget/:id", () => {
     await prismaCore.publisher.create({ data: { id: widgetPublisherId, name: "From Publisher" } });
 
     try {
-      const mission = await MissionModel.create({
+      const mission = await createTestMission({
+        addresses: [
+          {
+            city: "Paris",
+          },
+        ],
         applicationUrl: "https://mission.example.com/apply",
         clientId: "mission-client-id",
         lastSyncAt: new Date(),
         publisherId: servicePublisherId,
-        publisherName: "Service Civique",
         title: "Mission Title",
       });
 
-      const widget = await WidgetModel.create({
+      const widget = await widgetService.createWidget({
         name: "Widget Special",
         fromPublisherId: widgetPublisherId,
-        fromPublisherName: "From Publisher",
       });
 
       const identity = {
@@ -161,9 +168,9 @@ describe("RedirectController /widget/:id", () => {
       };
 
       vi.spyOn(utils, "identify").mockReturnValue(identity);
-      vi.spyOn(StatsBotModel, "findOne").mockResolvedValue(null);
+      vi.spyOn(statBotService, "findStatBotByUser").mockResolvedValue(null);
 
-      const response = await request(app).get(`/r/widget/${mission._id.toString()}`).query({ widgetId: widget._id.toString() });
+      const response = await request(app).get(`/r/widget/${mission._id.toString()}`).query({ widgetId: widget.id });
 
       expect(response.status).toBe(302);
       const redirectUrl = new URL(response.headers.location);

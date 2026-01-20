@@ -2,12 +2,12 @@ import { captureException } from "../../error";
 import { importService } from "../../services/import";
 
 import { Prisma, Import as PrismaImport } from "../../db/core";
-import MissionModel from "../../models/mission";
+import { missionService } from "../../services/mission";
 import { publisherService } from "../../services/publisher";
-import type { Mission } from "../../types";
 import type { PublisherRecord } from "../../types/publisher";
 import { BaseHandler } from "../base/handler";
 import { JobResult } from "../types";
+import type { ImportedMission } from "./types";
 import { bulkDB, cleanDB } from "./utils/db";
 import { enrichWithGeoloc } from "./utils/geoloc";
 import { buildData } from "./utils/mission";
@@ -120,24 +120,24 @@ async function importMissionssForPublisher(publisher: PublisherRecord, start: Da
   try {
     // PARSE XML
     const xml = await fetchXML(publisher);
-    if (!xml) {
+    if (!xml.ok) {
       console.log(`[${publisher.name}] Failed to fetch xml`);
       obj.finishedAt = new Date();
       obj.status = "FAILED";
-      obj.error = "Failed to fetch xml";
+      obj.error = `${xml.status} - ${xml.error ?? "Failed to fetch xml"}`;
       return obj;
     }
 
     console.log(`[${publisher.name}] Parsing xml`);
-    const missionsXML = parseXML(xml);
+    const missionsXML = parseXML(xml.data);
 
     // Clean missions if no XML feed is sucessful for 7 days
     if (typeof missionsXML === "string" || !missionsXML.length) {
       if (await shouldCleanMissionsForPublisher(publisher.id)) {
         console.log(`[${publisher.name}] Empty xml, cleaning missions...`);
-        const mongoRes = await MissionModel.updateMany({ publisherId: publisher.id, deletedAt: null, updatedAt: { $lt: start } }, { deleted: true, deletedAt: new Date() });
-        console.log(`[${publisher.name}] Deleted ${mongoRes.modifiedCount} missions`);
-        obj.deletedCount = mongoRes.modifiedCount;
+        const deletedCount = await missionService.updateMany({ publisherId: publisher.id, deletedAt: null, updatedAt: { lt: start } }, { deletedAt: new Date() });
+        console.log(`[${publisher.name}] Deleted ${deletedCount} missions`);
+        obj.deletedCount = deletedCount;
       } else {
         console.log(`[${publisher.name}] Empty xml, but do not clean missions for now`);
       }
@@ -150,7 +150,7 @@ async function importMissionssForPublisher(publisher: PublisherRecord, start: Da
     console.log(`[${publisher.name}] Found ${missionsXML.length} missions in XML`);
 
     // GET COUNT MISSIONS IN DB
-    const missionsDB = await MissionModel.countDocuments({
+    const missionsDB = await missionService.countBy({
       publisherId: publisher.id,
       deletedAt: null,
     });
@@ -163,21 +163,21 @@ async function importMissionssForPublisher(publisher: PublisherRecord, start: Da
       console.log(`[${publisher.name}] Processing chunk ${i / CHUNK_SIZE + 1} of ${Math.ceil(missionsXML.length / CHUNK_SIZE)} (${chunk.length} missions)`);
 
       // BUILD NEW MISSIONS
-      const missions = [] as Mission[];
-      const promises = [] as Promise<Mission | undefined>[];
+      const missions = [] as ImportedMission[];
+      const promises = [] as Promise<ImportedMission | undefined>[];
       for (let j = 0; j < chunk.length; j++) {
         const missionXML = chunk[j];
         promises.push(buildData(obj.startedAt ?? new Date(), publisher, missionXML));
 
         if (j % 50 === 0) {
           const res = await Promise.all(promises);
-          res.forEach((e: Mission | undefined) => e && missions.push(e));
+          res.forEach((e: ImportedMission | undefined) => e && missions.push(e));
           promises.length = 0;
         }
       }
       if (promises.length > 0) {
         const res = await Promise.all(promises);
-        res.forEach((e: Mission | undefined) => e && missions.push(e));
+        res.forEach((e: ImportedMission | undefined) => e && missions.push(e));
       }
       allMissionsClientIds.push(...missions.map((m) => m.clientId.toString()));
 
@@ -218,11 +218,11 @@ async function importMissionssForPublisher(publisher: PublisherRecord, start: Da
     }
 
     // STATS
-    obj.missionCount = await MissionModel.countDocuments({
+    obj.missionCount = await missionService.countBy({
       publisherId: publisher.id,
       deletedAt: null,
     });
-    obj.refusedCount = await MissionModel.countDocuments({
+    obj.refusedCount = await missionService.countBy({
       publisherId: publisher.id,
       deletedAt: null,
       statusCode: "REFUSED",

@@ -1,101 +1,18 @@
 import { describe, expect, it } from "vitest";
-import { AddressItem, Mission } from "../../types";
+import { MissionAddress, MissionRecord } from "../../types";
 import { getMissionChanges } from "../mission";
 
 describe("getMissionChanges", () => {
-  const createBaseMission = (): Mission =>
+  const createBaseMission = (): MissionRecord =>
     ({
       publisherId: "test-publisher",
-      publisherName: "Test Publisher",
-      publisherUrl: "https://test.com",
-      publisherLogo: "logo.png",
-      lastSyncAt: new Date("2023-01-01"),
-      applicationUrl: "https://apply.com",
-      statusCode: "ACCEPTED",
-      statusComment: "",
-      clientId: "client123",
       title: "Test Mission",
       description: "Test description",
-      descriptionHtml: "<p>Test description</p>",
-      tags: ["tag1", "tag2"],
-      audience: ["adults"],
-      softSkills: ["communication"],
-      requirements: ["requirement1"],
-      romeSkills: ["skill1"],
-      organizationClientId: "org123",
-      organizationUrl: "https://org.com",
-      organizationName: "Test Org",
-      organizationRNA: "W123456789",
-      organizationSiren: "123456789",
-      organizationSiret: "12345678901234",
-      organizationType: "Association",
-      organizationLogo: "org-logo.png",
-      organizationDescription: "Test org description",
-      organizationFullAddress: "123 Test St",
-      organizationDepartment: "75",
-      organizationPostCode: "75001",
-      organizationCity: "Paris",
-      organizationStatusJuridique: "Association",
-      organizationBeneficiaries: ["beneficiary1"],
-      organizationActions: ["action1"],
-      organizationReseaux: ["network1"],
-      organizationId: "org-id-123",
-      organizationNameVerified: "Test Org Verified",
-      organizationRNAVerified: "W123456789",
-      organizationSirenVerified: "123456789",
-      organizationSiretVerified: "12345678901234",
-      organizationAddressVerified: "123 Test St",
-      organizationCityVerified: "Paris",
-      organizationPostalCodeVerified: "75001",
-      organizationDepartmentCodeVerified: "75",
-      organizationDepartmentNameVerified: "Paris",
-      organizationRegionVerified: "Île-de-France",
-      organisationIsRUP: false,
-      organizationVerificationStatus: "VERIFIED",
-      associationId: "assoc123",
-      associationName: "Test Association",
-      associationSiret: "12345678901234",
-      associationSiren: "123456789",
-      associationRNA: "W123456789",
-      associationSources: ["source1"],
-      associationReseaux: ["network1"],
-      associationLogo: "assoc-logo.png",
-      associationAddress: "123 Assoc St",
-      associationCity: "Paris",
-      associationPostalCode: "75001",
-      associationDepartmentCode: "75",
-      associationDepartmentName: "Paris",
-      associationRegion: "Île-de-France",
-      reducedMobilityAccessible: "yes",
-      closeToTransport: "yes",
-      openToMinors: "no",
-      schedule: "Flexible",
-      postedAt: new Date("2023-01-01"),
+      postedAt: new Date("2023-01-15T10:00:00.000Z"),
       startAt: new Date("2023-02-01"),
-      priority: "HIGH",
-      metadata: "test metadata",
       endAt: new Date("2023-03-01"),
-      duration: 30,
-      address: "123 Test St",
-      postalCode: "75001",
-      departmentName: "Paris",
-      departmentCode: "75",
-      city: "Paris",
-      region: "Île-de-France",
-      country: "France",
-      geolocStatus: "ENRICHED_BY_API",
-      rnaStatus: "ENRICHED",
-      places: 5,
-      placesStatus: "GIVEN_BY_PARTNER",
-      domain: "education",
-      domainOriginal: "education",
-      domainLogo: "domain-logo.png",
-      type: "volunteering",
-      activity: "teaching",
-      location: {
-        lat: 48.8566,
-        lon: 2.3522,
-      },
+      metadata: "test metadata",
+      tags: ["tag1", "tag2"],
       addresses: [
         {
           street: "123 Test St",
@@ -105,32 +22,22 @@ describe("getMissionChanges", () => {
           city: "Paris",
           region: "Île-de-France",
           country: "France",
-          location: {
-            lat: 48.8566,
-            lon: 2.3522,
-          },
+          location: { lat: 48.8566, lon: 2.3522 },
           geolocStatus: "ENRICHED_BY_API",
-        } as AddressItem,
+        } as MissionAddress,
         {
-          street: "456 Different St",
+          street: "456 Test St",
           postalCode: "69000",
-          departmentName: "Rhône",
+          departmentName: "Lyon",
           departmentCode: "69",
           city: "Lyon",
           region: "Auvergne-Rhône-Alpes",
           country: "France",
-          location: {
-            lat: 45.764043,
-            lon: 4.835659,
-          },
+          location: { lat: 45.764, lon: 4.8357 },
           geolocStatus: "ENRICHED_BY_API",
-        } as AddressItem,
+        } as MissionAddress,
       ],
-      snu: false,
-      snuPlaces: 0,
-      remote: "no",
-      deleted: false,
-    }) as Mission;
+    }) as MissionRecord;
 
   it("should return null when missions are identical", () => {
     const mission1 = createBaseMission();
@@ -194,6 +101,20 @@ describe("getMissionChanges", () => {
     });
   });
 
+  it("should ignore time differences for postedAt/startAt/endAt", () => {
+    const mission1 = createBaseMission();
+    const mission2 = {
+      ...createBaseMission(),
+      postedAt: new Date("2023-01-15T23:59:59.000Z"),
+      startAt: new Date("2023-02-01T18:30:00.000Z"),
+      endAt: new Date("2023-03-01T00:00:01.000Z"),
+    };
+
+    const changes = getMissionChanges(mission1, mission2);
+
+    expect(changes).toBeNull();
+  });
+
   it("should detect array field changes", () => {
     const mission1 = createBaseMission();
     const mission2 = {
@@ -242,7 +163,7 @@ describe("getMissionChanges", () => {
             lon: 2.3522,
           },
           geolocStatus: "ENRICHED_BY_API",
-        } as AddressItem,
+        } as MissionAddress,
       ],
     };
 
@@ -283,6 +204,47 @@ describe("getMissionChanges", () => {
     const mission2 = {
       ...createBaseMission(),
       addresses: [mission1.addresses[1], mission1.addresses[0]],
+    };
+
+    const changes = getMissionChanges(mission1, mission2);
+
+    expect(changes).toBeNull();
+  });
+
+  it("should ignore address changes when null and empty string values are equivalent", () => {
+    const mission1 = {
+      ...createBaseMission(),
+      addresses: [
+        {
+          id: "address-1",
+          street: null,
+          postalCode: null,
+          departmentName: null,
+          departmentCode: null,
+          city: null,
+          region: null,
+          country: "FR",
+          location: null,
+          geolocStatus: "NOT_FOUND",
+        } as MissionAddress,
+      ],
+    };
+    const mission2 = {
+      ...createBaseMission(),
+      addresses: [
+        {
+          id: "address-2",
+          street: "",
+          postalCode: "",
+          departmentName: "",
+          departmentCode: "",
+          city: "",
+          region: "",
+          country: "FR",
+          location: null,
+          geolocStatus: "NOT_FOUND",
+        } as MissionAddress,
+      ],
     };
 
     const changes = getMissionChanges(mission1, mission2);

@@ -12,6 +12,9 @@ export const ASSOCIATION_URL = process.env.ASSOCIATION_URL || "http://localhost:
 export const JVA_URL = "https://www.jeveuxaider.gouv.fr";
 export const ADMIN_SNU_URL = "https://admin.snu.gouv.fr";
 
+export const METABASE_URL = process.env.METABASE_URL || "https://reserve-civique-metabase.osc-secnum-fr1.scalingo.io";
+export const METABASE_API_KEY = process.env.METABASE_API_KEY;
+
 export const ES_ENDPOINT = process.env.ES_ENDPOINT;
 export const DB_ENDPOINT = process.env.DB_ENDPOINT;
 export const MISSION_INDEX = "mission";
@@ -47,6 +50,7 @@ export const PUBLISHER_IDS = {
   BOUYGUES_TELECOM: "616fefd119fb03075a0b0843",
   ECTI: "619faeb97d373e07aea8be24",
   EGEE: "619faf257d373e07aea8be27",
+  GRIMPIO: ENV === "production" ? "9ccdd7fdb2715f6c766fd989" : "237ff477c3c4bc897e81c249",
   FONDATION_RAOUL_FOLLEREAU: "634e641783b660072d4c597e",
   JAGIS_POUR_LA_NATURE: "5f59305b6c7ea514150a818e",
   JEVEUXAIDER: "5f5931496c7ea514150a818f",
@@ -56,7 +60,7 @@ export const PUBLISHER_IDS = {
   LINKEDIN: "5f8b3c7552a1412baaa0cd44",
   MEDECINS_DU_MONDE: "619fae737d373e07aea8be23",
   PREVENTION_ROUTIERE: "619fab857d373e07aea8be1e",
-  SERVICE_CIVIQUE: ENV === "production" ? "5f99dbe75eb1ad767733b206" : "",
+  SERVICE_CIVIQUE: "5f99dbe75eb1ad767733b206",
   TALENT: ENV === "production" ? "6891e7994a3ae7f2f0c9d71a" : "6891e7ecb804a451c68368eb",
   VACANCES_ET_FAMILLES: "619fb1e17d373e07aea8be32",
   VILLE_DE_NANTES: "6347be8883b660072d4c1c53",
@@ -64,6 +68,9 @@ export const PUBLISHER_IDS = {
 
 export const DEFAULT_AVATAR = "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/default.jpg";
 export const JVA_LOGO_URL = "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/jva-logo.png";
+export const JVA_100_LOGO_URL = "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/jva-logo-100x100.png";
+export const ASC_LOGO_URL = "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/asc-logo.png";
+export const ASC_100_LOGO_URL = "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/asc-logo-100x100.png";
 
 // Piloty job boards
 export const PILOTY_BASE_URL = process.env.PILOTY_BASE_URL || "https://sandbox-api.piloty.fr";

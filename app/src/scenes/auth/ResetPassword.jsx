@@ -36,16 +36,16 @@ const ResetPassword = () => {
 
   return (
     <div className="h-full w-full bg-white px-32 py-10">
-      <title>Réinitialisation du mot de passe - API Engagement</title>
+      <title>API Engagement - Réinitialisation du mot de passe</title>
       {error === "invalide" ? (
         <ErrorAlert>
           <p className="text-xl font-bold">La clé n'est pas valide</p>
-          <p className="text-sm text-[#3a3a3a]">La clé fournie n'est pas valide, veuillez nous contacter pour accedez à votre compte</p>
+          <p className="text-color-gray-200 text-sm">La clé fournie n'est pas valide, veuillez nous contacter pour accedez à votre compte</p>
         </ErrorAlert>
       ) : error === "expired" ? (
         <WarningAlert>
           <p className="text-xl font-bold">La clé a expiré</p>
-          <p className="text-sm text-[#3a3a3a]">La clé fournie est expirée, contactez nous pour avoir un nouveau mail d'inscription</p>
+          <p className="text-color-gray-200 text-sm">La clé fournie est expirée, contactez nous pour avoir un nouveau mail d'inscription</p>
         </WarningAlert>
       ) : (
         <ResetPasswordForm user={user} token={token} />
@@ -102,7 +102,7 @@ const ResetPasswordForm = ({ user, token }) => {
       }
       setSuccess(true);
     } catch (error) {
-      captureError(error, "Erreur lors de la réinitialisation du mot de passe");
+      captureError(error, { extra: { values } });
     } finally {
       setLoading(false);
     }
@@ -119,7 +119,7 @@ const ResetPasswordForm = ({ user, token }) => {
         <label className="mt-6 mb-2 text-sm" htmlFor="email">
           Email
         </label>
-        <input id="email" className="input mb-2" name="email" type="email" value={values.email} disabled />
+        <input id="email" className="input mb-2" name="email" type="email" value={values.email} readOnly />
         <div className="mt-6 flex justify-between">
           <label className="mb-2 text-sm" htmlFor="password">
             Nouveau mot de passe
@@ -132,7 +132,7 @@ const ResetPasswordForm = ({ user, token }) => {
 
         <input
           id="password"
-          className={`input mb-2 ${errors.password ? "border-b-red-error border-2" : "border-b-black"}`}
+          className={`input mb-2 ${errors.password ? "border-b-error border-2" : "border-b-black"}`}
           name="password"
           type={show ? "text" : "password"}
           value={values.password}
@@ -143,7 +143,7 @@ const ResetPasswordForm = ({ user, token }) => {
           autoComplete="new-password"
         />
         {errors.password && (
-          <div className="text-red-error flex items-center text-sm">
+          <div className="text-error flex items-center text-sm">
             <RiErrorWarningFill className="mr-2" />
             {errors.password}
           </div>
@@ -151,20 +151,20 @@ const ResetPasswordForm = ({ user, token }) => {
       </div>
       <div className="mt-2 flex flex-col gap-2">
         <div className="flex items-center gap-2">
-          {(values.password || "").length >= 12 ? <AiFillCloseCircle className="text-green-700" /> : <AiFillCloseCircle className="text-gray-600" />}
-          <span className={`align-middle text-sm ${values.password && (values.password || "").length >= 12 ? "text-green-600" : "text-gray-600"}`}>Au moins 12 caractères</span>
+          {(values.password || "").length >= 12 ? <AiFillCloseCircle className="text-success" /> : <AiFillCloseCircle className="text-text-mention" />}
+          <span className={`align-middle text-sm ${values.password && (values.password || "").length >= 12 ? "text-success" : "text-text-mention"}`}>Au moins 12 caractères</span>
         </div>
         <div className="flex items-center gap-2">
-          {hasLetter(values.password) ? <AiFillCloseCircle className="text-green-700" /> : <AiFillCloseCircle className="text-gray-600" />}
-          <span className={`align-middle text-sm ${values.password && hasLetter(values.password) ? "text-green-600" : "text-gray-600"}`}>Au moins une lettre</span>
+          {hasLetter(values.password) ? <AiFillCloseCircle className="text-success" /> : <AiFillCloseCircle className="text-text-mention" />}
+          <span className={`align-middle text-sm ${values.password && hasLetter(values.password) ? "text-success" : "text-text-mention"}`}>Au moins une lettre</span>
         </div>
         <div className="flex items-center gap-2">
-          {hasNumber(values.password) ? <AiFillCloseCircle className="text-green-700" /> : <AiFillCloseCircle className="text-gray-600" />}
-          <span className={`align-middle text-sm ${values.password && hasNumber(values.password) ? "text-green-600" : "text-gray-600"}`}>Au moins un chiffre</span>
+          {hasNumber(values.password) ? <AiFillCloseCircle className="text-success" /> : <AiFillCloseCircle className="text-text-mention" />}
+          <span className={`align-middle text-sm ${values.password && hasNumber(values.password) ? "text-success" : "text-text-mention"}`}>Au moins un chiffre</span>
         </div>
         <div className="flex items-center gap-2">
-          {hasSpecialChar(values.password) ? <AiFillCloseCircle className="text-green-700" /> : <AiFillCloseCircle className="text-gray-600" />}
-          <span className={`align-middle text-sm ${values.password && hasSpecialChar(values.password) ? "text-green-600" : "text-gray-600"}`}>Au moins un caractère spécial</span>
+          {hasSpecialChar(values.password) ? <AiFillCloseCircle className="text-success" /> : <AiFillCloseCircle className="text-text-mention" />}
+          <span className={`align-middle text-sm ${values.password && hasSpecialChar(values.password) ? "text-success" : "text-text-mention"}`}>Au moins un caractère spécial</span>
         </div>
       </div>
 
@@ -180,7 +180,7 @@ const ResetPasswordForm = ({ user, token }) => {
         </div>
         <input
           id="confirm-password"
-          className={`input mb-2 ${loading && errors.confirmPassword ? "border-b-red-error" : "border-b-black"}`}
+          className={`input mb-2 ${loading && errors.confirmPassword ? "border-b-error" : "border-b-black"}`}
           name="confirmPassword"
           type={showConfirm ? "text" : "password"}
           value={values.confirmPassword}
@@ -190,7 +190,7 @@ const ResetPasswordForm = ({ user, token }) => {
           }}
         />
         {errors.confirmPassword && (
-          <div className="text-red-error flex items-center text-sm">
+          <div className="text-error flex items-center text-sm">
             <RiErrorWarningFill className="mr-2" />
             {errors.confirmPassword}
           </div>
@@ -198,7 +198,7 @@ const ResetPasswordForm = ({ user, token }) => {
       </div>
 
       {errors.expired && (
-        <div className="text-red-error flex items-center text-sm">
+        <div className="text-error flex items-center text-sm">
           <RiErrorWarningFill className="mr-2" />
           <Link to="/forgot-password" className="underline">
             Réinitialisation expirée
@@ -207,11 +207,11 @@ const ResetPasswordForm = ({ user, token }) => {
       )}
 
       {!success ? (
-        <button type="submit" className="primary-btn w-full mt-6" disabled={loading || errors.confirmPassword || errors.password || errors.expired}>
+        <button type="submit" className="primary-btn mt-6 w-full" disabled={loading || errors.confirmPassword || errors.password || errors.expired}>
           {loading ? "Enregistrement..." : "Enregister"}
         </button>
       ) : (
-        <div className="text-green-success mt-4 flex items-center text-sm">
+        <div className="text-success mt-4 flex items-center text-sm">
           <RiCheckboxCircleFill className="mr-2" />
           <p>
             Nouveau mot de passe enregistré <br />

@@ -19,7 +19,7 @@ const RadioInput = ({ id, name, value, label, checked, onChange, className, size
         className="absolute h-full w-full opacity-0"
       />
       <div
-        className={`border-blue-france flex items-center justify-center rounded-full border ${isFocused ? "ring-2 ring-[#0a76f6] ring-offset-2" : ""}`}
+        className={`border-blue-france flex items-center justify-center rounded-full border ${isFocused ? "ring-outline-blue ring-2 ring-offset-2" : ""}`}
         style={{ width: `${size}px`, height: `${size}px` }}
       >
         {checked && <div className="bg-blue-france h-3/5 w-3/5 rounded-full" />}

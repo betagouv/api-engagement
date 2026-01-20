@@ -66,7 +66,7 @@ const FiltersBenevolat = ({ widget, apiUrl, values, total, onChange, show, onSho
         }
         ["domain", "organization", "department", "remote"].forEach((key) => searchParams.append("aggs", key));
 
-        const { ok, data } = await getAPI(`${apiUrl}/iframe/${widget._id}/aggs?${searchParams.toString()}`);
+        const { ok, data } = await getAPI(`${apiUrl}/iframe/${widget.id}/aggs?${searchParams.toString()}`);
 
         if (!ok) {
           throw Error("Error fetching aggs");
@@ -94,7 +94,7 @@ const FiltersBenevolat = ({ widget, apiUrl, values, total, onChange, show, onSho
     };
 
     fetchData();
-  }, [widget._id, values, apiUrl]);
+  }, [widget.id, values, apiUrl]);
 
   const handleReset = () => {
     onChange({

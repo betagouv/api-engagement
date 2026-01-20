@@ -2,10 +2,10 @@ import { NextFunction, Response, Router } from "express";
 import passport from "passport";
 import zod from "zod";
 
-import { HydratedDocument } from "mongoose";
+import { JobBoardId } from "../db/core";
 import { captureMessage, INVALID_BODY, NOT_FOUND } from "../error";
-import MissionModel from "../models/mission";
-import { Mission } from "../types";
+import missionService from "../services/mission";
+import missionJobBoardService from "../services/mission-jobboard";
 import { PublisherRequest } from "../types/passport";
 
 const router = Router();
@@ -15,13 +15,15 @@ const router = Router();
  * webhook called for each mission to give back a status of the moderation of the partner in front
  * doc here https://www.notion.so/jeveuxaider/Leboincoin-API-Feedback-de-l-API-Engagement-12672a322d508087ab8bf02951b534b8?pvs=4
  */
-const STATUS_MAP = {
-  ad_online: "ACCEPTED",
-  ad_edited: "EDITED",
-  ad_deleted: "DELETED",
-  ad_rejected_technical: "REFUSED",
-  ad_rejected_moderation: "REFUSED",
-} as { [key: string]: "ACCEPTED" | "EDITED" | "DELETED" | "REFUSED" };
+const SYNC_STATUS_MAP = {
+  ad_online: "ONLINE",
+  ad_edited: "ONLINE",
+  ad_deleted: "OFFLINE",
+  ad_rejected_technical: "ERROR",
+  ad_rejected_moderation: "ERROR",
+} as const;
+
+const LEBONCOIN_STATUS_VALUES = ["ad_online", "ad_edited", "ad_deleted", "ad_rejected_technical", "ad_rejected_moderation"] as const;
 
 router.post("/feedback", passport.authenticate(["leboncoin"], { session: false }), async (req: PublisherRequest, res: Response, next: NextFunction) => {
   try {
@@ -29,7 +31,7 @@ router.post("/feedback", passport.authenticate(["leboncoin"], { session: false }
       .object({
         partner_unique_reference: zod.string(),
         site: zod.string(),
-        status: zod.string(),
+        status: zod.enum(LEBONCOIN_STATUS_VALUES),
         url: zod.string().optional(),
         note: zod.string().optional(),
       })
@@ -40,24 +42,23 @@ router.post("/feedback", passport.authenticate(["leboncoin"], { session: false }
       return res.status(400).send({ ok: false, code: INVALID_BODY, message: body.error });
     }
 
-    let mission = null as HydratedDocument<Mission> | null;
-    if (body.data.partner_unique_reference.length === 24) {
-      mission = await MissionModel.findOne({ _id: body.data.partner_unique_reference });
-    } else {
-      mission = await MissionModel.findOne({ _old_id: body.data.partner_unique_reference });
-    }
+    const mission = await missionService.findOneMission(body.data.partner_unique_reference);
 
     if (!mission) {
       captureMessage("Mission not found", JSON.stringify(body.data, null, 2));
       return res.status(404).send({ ok: false, code: NOT_FOUND, message: "Mission not found" });
     }
 
-    mission.leboncoinStatus = STATUS_MAP[body.data.status];
-    mission.leboncoinUrl = body.data.url;
-    mission.leboncoinComment = body.data.note;
-    mission.leboncoinUpdatedAt = new Date();
+    const syncStatus = SYNC_STATUS_MAP[body.data.status];
 
-    await mission.save();
+    await missionJobBoardService.upsert({
+      jobBoardId: JobBoardId.LEBONCOIN,
+      missionId: mission._id,
+      missionAddressId: null,
+      publicId: body.data.url ?? mission._id,
+      syncStatus,
+      comment: body.data.note ?? null,
+    });
 
     return res.status(200).send({ result: { code: 200, message: "Success, ad status recorded" } });
   } catch (error) {
