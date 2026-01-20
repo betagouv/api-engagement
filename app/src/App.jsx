@@ -158,6 +158,7 @@ const ProtectedLayout = () => {
   const { user, setAuth } = useStore();
   const [loading, setLoading] = useState(true);
   const activeTabId = getActiveTabId(location.pathname);
+  const hasActiveTab = Boolean(activeTabId);
 
   // Simple page tracking with user role
   useEffect(() => {
@@ -220,8 +221,8 @@ const ProtectedLayout = () => {
       <main
         id="main-content"
         tabIndex={-1}
-        role="tabpanel"
-        aria-labelledby={activeTabId || undefined}
+        role={hasActiveTab ? "tabpanel" : undefined}
+        aria-labelledby={hasActiveTab ? activeTabId : undefined}
         className="mx-auto mb-14 pt-14 w-4/5 max-w-[1200px] flex-1"
       >
         <Outlet />
@@ -240,6 +241,7 @@ const PublicLayout = () => {
   const { user } = useStore();
   const location = useLocation();
   const activeTabId = getActiveTabId(location.pathname);
+  const hasActiveTab = Boolean(activeTabId);
 
   useEffect(() => {
     if (window.plausible) {
@@ -251,7 +253,12 @@ const PublicLayout = () => {
     <div className="bg-beige-gris-galet-975 flex min-h-screen w-screen min-w-3xl flex-col">
       <Header />
       {user ? <Nav /> : ""}
-      <main id="main-content" tabIndex={-1} role={user ? "tabpanel" : undefined} aria-labelledby={user ? activeTabId || undefined : undefined}>
+      <main
+        id="main-content"
+        tabIndex={-1}
+        role={user && hasActiveTab ? "tabpanel" : undefined}
+        aria-labelledby={user && hasActiveTab ? activeTabId : undefined}
+      >
         <Outlet />
       </main>
       <Footer />
