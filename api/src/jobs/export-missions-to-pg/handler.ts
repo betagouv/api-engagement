@@ -94,9 +94,9 @@ const exportMission = async () => {
         }
         try {
           const upsert = await prismaClient.mission.upsert({
-            where: { old_id: result.mission.old_id },
-            update: result.mission,
-            create: result.mission,
+            where: { old_id: result.missionCreate.old_id },
+            update: result.missionUpdate,
+            create: result.missionCreate,
           });
           counter.success++;
           missionsIds.push(upsert.id);
@@ -107,7 +107,7 @@ const exportMission = async () => {
           captureException(error, {
             extra: {
               missionId: mission.id,
-              missionOldId: result.mission.old_id,
+              missionOldId: result.missionCreate.old_id,
               publisherId: mission.publisherId,
             },
           });

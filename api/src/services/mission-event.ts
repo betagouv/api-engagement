@@ -1,6 +1,9 @@
 import { Prisma } from "../db/core";
 import { missionEventRepository } from "../repositories/mission-event";
 import { MissionEventCreateParams, MissionEventRecord } from "../types/mission-event";
+import { chunk } from "../utils/array";
+
+const MISSION_EVENT_BATCH_SIZE = 10;
 
 const mapChangesToJsonInput = (changes: MissionEventCreateParams["changes"]): Prisma.InputJsonValue | typeof Prisma.JsonNull | undefined => {
   if (changes === undefined) {
@@ -30,10 +33,18 @@ export const missionEventService = {
       return 0;
     }
 
-    const data: Prisma.MissionEventCreateManyInput[] = events.map(toCreateInput);
-    const result = await missionEventRepository.createMany(data);
+    console.log(`[MissionEvent] Creation of ${events.length} mission_event`);
 
-    return result.count;
+    const data: Prisma.MissionEventCreateManyInput[] = events.map(toCreateInput);
+    const batches = chunk(data, MISSION_EVENT_BATCH_SIZE);
+    let total = 0;
+
+    for (const batch of batches) {
+      const result = await missionEventRepository.createMany(batch);
+      total += result.count;
+    }
+
+    return total;
   },
 };
 

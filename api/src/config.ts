@@ -12,6 +12,9 @@ export const ASSOCIATION_URL = process.env.ASSOCIATION_URL || "http://localhost:
 export const JVA_URL = "https://www.jeveuxaider.gouv.fr";
 export const ADMIN_SNU_URL = "https://admin.snu.gouv.fr";
 
+export const METABASE_URL = process.env.METABASE_URL || "https://reserve-civique-metabase.osc-secnum-fr1.scalingo.io";
+export const METABASE_API_KEY = process.env.METABASE_API_KEY;
+
 export const ES_ENDPOINT = process.env.ES_ENDPOINT;
 export const DB_ENDPOINT = process.env.DB_ENDPOINT;
 export const MISSION_INDEX = "mission";
@@ -57,7 +60,7 @@ export const PUBLISHER_IDS = {
   LINKEDIN: "5f8b3c7552a1412baaa0cd44",
   MEDECINS_DU_MONDE: "619fae737d373e07aea8be23",
   PREVENTION_ROUTIERE: "619fab857d373e07aea8be1e",
-  SERVICE_CIVIQUE: ENV === "production" ? "5f99dbe75eb1ad767733b206" : "",
+  SERVICE_CIVIQUE: "5f99dbe75eb1ad767733b206",
   TALENT: ENV === "production" ? "6891e7994a3ae7f2f0c9d71a" : "6891e7ecb804a451c68368eb",
   VACANCES_ET_FAMILLES: "619fb1e17d373e07aea8be32",
   VILLE_DE_NANTES: "6347be8883b660072d4c1c53",

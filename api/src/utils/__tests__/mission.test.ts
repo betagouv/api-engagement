@@ -8,6 +8,7 @@ describe("getMissionChanges", () => {
       publisherId: "test-publisher",
       title: "Test Mission",
       description: "Test description",
+      postedAt: new Date("2023-01-15T10:00:00.000Z"),
       startAt: new Date("2023-02-01"),
       endAt: new Date("2023-03-01"),
       metadata: "test metadata",
@@ -100,6 +101,20 @@ describe("getMissionChanges", () => {
     });
   });
 
+  it("should ignore time differences for postedAt/startAt/endAt", () => {
+    const mission1 = createBaseMission();
+    const mission2 = {
+      ...createBaseMission(),
+      postedAt: new Date("2023-01-15T23:59:59.000Z"),
+      startAt: new Date("2023-02-01T18:30:00.000Z"),
+      endAt: new Date("2023-03-01T00:00:01.000Z"),
+    };
+
+    const changes = getMissionChanges(mission1, mission2);
+
+    expect(changes).toBeNull();
+  });
+
   it("should detect array field changes", () => {
     const mission1 = createBaseMission();
     const mission2 = {
@@ -189,6 +204,47 @@ describe("getMissionChanges", () => {
     const mission2 = {
       ...createBaseMission(),
       addresses: [mission1.addresses[1], mission1.addresses[0]],
+    };
+
+    const changes = getMissionChanges(mission1, mission2);
+
+    expect(changes).toBeNull();
+  });
+
+  it("should ignore address changes when null and empty string values are equivalent", () => {
+    const mission1 = {
+      ...createBaseMission(),
+      addresses: [
+        {
+          id: "address-1",
+          street: null,
+          postalCode: null,
+          departmentName: null,
+          departmentCode: null,
+          city: null,
+          region: null,
+          country: "FR",
+          location: null,
+          geolocStatus: "NOT_FOUND",
+        } as MissionAddress,
+      ],
+    };
+    const mission2 = {
+      ...createBaseMission(),
+      addresses: [
+        {
+          id: "address-2",
+          street: "",
+          postalCode: "",
+          departmentName: "",
+          departmentCode: "",
+          city: "",
+          region: "",
+          country: "FR",
+          location: null,
+          geolocStatus: "NOT_FOUND",
+        } as MissionAddress,
+      ],
     };
 
     const changes = getMissionChanges(mission1, mission2);

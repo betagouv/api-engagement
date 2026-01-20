@@ -1,6 +1,6 @@
 import { API_URL } from "../config";
 import { MissionRecord } from "../types/mission";
-import { JobBoardId } from "../types/mission-job-board";
+import { JobBoardId, MissionJobBoardSyncStatus } from "../types/mission-job-board";
 import { slugify } from "./string";
 
 /**
@@ -55,6 +55,7 @@ type MissionJobBoardEntry = {
   jobBoardId: JobBoardId | string;
   publicId: string | null;
   status: string | null;
+  syncStatus?: MissionJobBoardSyncStatus | null;
   comment: string | null;
   updatedAt: Date | null;
 };
@@ -69,6 +70,7 @@ export const buildJobBoardMap = (entries?: MissionJobBoardEntry[]): MissionRecor
     const key = entry.jobBoardId as keyof NonNullable<MissionRecord["jobBoards"]>;
     const payload = {
       status: entry.status ?? null,
+      syncStatus: entry.syncStatus ?? null,
       comment: entry.comment ?? null,
       url: entry.publicId ?? null,
       updatedAt: entry.updatedAt ?? null,
@@ -89,6 +91,8 @@ export const EVENT_TYPES = {
   DELETE: "delete",
 } as const;
 
+const IMPORT_DATE_FIELDS_IGNORE_TIME = new Set<keyof MissionRecord>(["postedAt", "startAt", "endAt"]);
+
 export const IMPORT_FIELDS_TO_COMPARE = [
   "activity",
   "applicationUrl",
@@ -104,22 +108,7 @@ export const IMPORT_FIELDS_TO_COMPARE = [
   "endAt",
   "metadata",
   "openToMinors",
-  "organizationName",
-  "organizationRNA",
-  "organizationSiren",
-  "organizationUrl",
-  "organizationLogo",
-  "organizationDescription",
-  "organizationClientId",
-  "organizationStatusJuridique",
-  "organizationType",
-  "organizationActions",
-  "organizationFullAddress",
-  "organizationPostCode",
-  "organizationCity",
-  "organizationBeneficiaries",
-  "organizationReseaux",
-  "organizationVerificationStatus",
+  "organizationId",
   "places",
   "postedAt",
   "priority",
@@ -168,7 +157,8 @@ export const getMissionChanges = (
     }
 
     if (field.endsWith("At")) {
-      if (!areDatesEqual(previousMission[field] as any, currentMission[field] as any)) {
+      const ignoreTime = IMPORT_DATE_FIELDS_IGNORE_TIME.has(field);
+      if (!areDatesEqual(previousMission[field] as any, currentMission[field] as any, { ignoreTime })) {
         changes[field] = {
           previous: parseDate(previousMission[field] as any),
           current: parseDate(currentMission[field] as any),
@@ -227,13 +217,26 @@ const parseDate = (value: string | Date | undefined) => {
   return isNaN(new Date(value).getTime()) ? null : new Date(value);
 };
 
-const areDatesEqual = (previousDate: Date | string | undefined, currentDate: Date | string | undefined) => {
+const toUtcDayKey = (value: Date | string | undefined): number | null => {
+  const date = parseDate(value);
+  if (!date) {
+    return null;
+  }
+  return Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate());
+};
+
+const areDatesEqual = (previousDate: Date | string | undefined, currentDate: Date | string | undefined, { ignoreTime }: { ignoreTime: boolean }) => {
   if (!previousDate && !currentDate) {
     return true;
   }
   if (!previousDate || !currentDate) {
     return false;
   }
+
+  if (ignoreTime) {
+    return toUtcDayKey(previousDate) === toUtcDayKey(currentDate);
+  }
+
   return parseDate(previousDate)?.getTime() === parseDate(currentDate)?.getTime();
 };
 
@@ -252,9 +255,25 @@ const areArraysEqual = (previousArray: any[], currentArray: any[]) => {
   return true;
 };
 
+const normalizeAddressValue = (value: string | number | null | undefined) => {
+  if (value === null || value === undefined) {
+    return "";
+  }
+  if (typeof value === "string" && !value.trim()) {
+    return "";
+  }
+  return value;
+};
+
 const normalizeAddresses = (address: MissionRecord["addresses"]) => {
   const data = address.map((item) =>
-    slugify(`${item.street} ${item.city} ${item.postalCode} ${item.departmentName} ${item.region} ${item.country} ${item.location?.lat} ${item.location?.lon}`)
+    slugify(
+      `${normalizeAddressValue(item.street)} ${normalizeAddressValue(item.city)} ${normalizeAddressValue(item.postalCode)} ${normalizeAddressValue(
+        item.departmentName
+      )} ${normalizeAddressValue(item.region)} ${normalizeAddressValue(item.country)} ${normalizeAddressValue(
+        item.location?.lat
+      )} ${normalizeAddressValue(item.location?.lon)}`
+    )
   );
   return data.sort();
 };

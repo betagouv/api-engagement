@@ -12,7 +12,6 @@ const buildData = async (
   partners: { [key: string]: string },
   missions: { [key: string]: string },
   campaigns: { [key: string]: string },
-  widgets: { [key: string]: string },
   clickId: string | undefined
 ) => {
   const partnerFromId = partners[doc.fromPublisherId?.toString()];
@@ -42,13 +41,8 @@ const buildData = async (
     }
   }
 
-  let sourceId;
-  if (doc.source === "widget") {
-    const widget = widgets[doc.sourceId];
-    if (widget) {
-      sourceId = widget;
-    }
-  } else if (doc.source === "campaign") {
+  let sourceId = doc.sourceId ?? null;
+  if (doc.source === "campaign") {
     const campaign = campaigns[doc.sourceId];
     if (campaign) {
       sourceId = campaign;
@@ -72,7 +66,7 @@ const buildData = async (
     source_id: sourceId ? sourceId : null,
     click_id: clickId ? clickId : null,
     campaign_id: sourceId && doc.source === "campaign" ? sourceId : null,
-    widget_id: sourceId && doc.source === "widget" ? sourceId : null,
+    widget_id: doc.source === "widget" ? doc.sourceId ?? null : null,
     to_partner_id: partnerToId,
     from_partner_id: partnerFromId,
     status: doc.status || null,
@@ -99,8 +93,6 @@ const handler = async () => {
     await prismaClient.partner.findMany({ select: { id: true, old_id: true } }).then((data) => data.forEach((d) => (partners[d.old_id] = d.id)));
     const campaigns = {} as { [key: string]: string };
     await prismaClient.campaign.findMany({ select: { id: true, old_id: true } }).then((data) => data.forEach((d) => (campaigns[d.old_id] = d.id)));
-    const widgets = {} as { [key: string]: string };
-    await prismaClient.widget.findMany({ select: { id: true, old_id: true } }).then((data) => data.forEach((d) => (widgets[d.old_id] = d.id)));
 
     while (true) {
       const {
@@ -178,7 +170,7 @@ const handler = async () => {
             }
           }
         }
-        const obj = await buildData(hit, partners, missions, campaigns, widgets, clickId);
+        const obj = await buildData(hit, partners, missions, campaigns, clickId);
         if (!obj) {
           failureIds.push(hit._id as string);
           continue;

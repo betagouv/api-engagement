@@ -1,11 +1,11 @@
 import { useEffect, useState } from "react";
-import { RiAlertFill, RiInformationFill } from "react-icons/ri";
+import { RiInformationFill } from "react-icons/ri";
 
 import EmptySVG from "../../assets/svg/empty-info.svg";
 import { Pie, StackedBarchart } from "../../components/Chart";
 import Loader from "../../components/Loader";
 import DateRangePicker from "../../components/NewDateRangePicker";
-import TablePagination from "../../components/NewTablePagination";
+import Table from "../../components/Table";
 import { MONTHS } from "../../constants";
 import api from "../../services/api";
 import { captureError } from "../../services/error";
@@ -57,9 +57,9 @@ const GlobalDiffuseur = ({ filters, onFiltersChange }) => {
 
   return (
     <div className="space-y-12 p-12">
-      <title>Au global - Performance - API Engagement</title>
+      <title>API Engagement - Au global - Performance</title>
       <div className="space-y-2">
-        <p className="text-gray-425 text-sm font-semibold uppercase">Période</p>
+        <p className="text-text-mention text-sm font-semibold uppercase">Période</p>
         <DateRangePicker value={filters} onChange={(value) => onFiltersChange({ ...filters, ...value })} />
       </div>
       <div className="border-b border-b-gray-900" />
@@ -67,7 +67,7 @@ const GlobalDiffuseur = ({ filters, onFiltersChange }) => {
       <div className="space-y-6">
         <div className="space-y-2">
           <h2 className="text-3xl font-bold">Aperçu</h2>
-          <p className="text-gray-425 text-base">Les missions que vous diffusez et l'impact que vous générez pour vos partenaires annonceurs</p>
+          <p className="text-text-mention text-base">Les missions que vous diffusez et l'impact que vous générez pour vos partenaires annonceurs</p>
         </div>
         {loading ? (
           <div className="flex w-full justify-center py-10">
@@ -76,46 +76,38 @@ const GlobalDiffuseur = ({ filters, onFiltersChange }) => {
         ) : (
           <div className="mt-4 grid gap-4">
             <div className="grid grid-cols-2 gap-4">
-              <div className="border border-gray-900 p-6">
+              <div className="border-grey-border border p-6">
                 <p className="text-[28px] font-bold">{data.totalMissionClick.toLocaleString("fr")}</p>
                 <p className="text-base">missions ayant généré au moins une redirection</p>
               </div>
-              <div className="border border-gray-900 p-6">
+              <div className="border-grey-border border p-6">
                 <p className="text-[28px] font-bold">{data.totalMissionApply.toLocaleString("fr")}</p>
                 <p className="text-base">missions ayant généré au moins une candidature</p>
               </div>
             </div>
             <div className="grid grid-cols-4 gap-4">
-              <div className="relative border border-gray-900 p-6">
+              <div className="border-grey-border relative border p-6">
                 <div className="flex items-center justify-between">
                   <p className="text-[28px] font-bold">{data.totalPrint !== 0 ? data.totalPrint.toLocaleString("fr") : "N/A"}</p>
-                  {data.totalPrint === 0 ? (
-                    <div className="group relative">
-                      <RiAlertFill className="text-orange-warning-425 cursor-pointer text-2xl" />
-                      <div className="absolute bottom-8 z-10 hidden w-80 -translate-x-1/2 border border-gray-900 bg-white p-4 shadow-lg group-hover:block">
-                        <p className="text-xs">Ils semblerait que les impressions de vos campagnes ou missions ne soient pas comptabilisées</p>
-                      </div>
+
+                  <div className="group relative">
+                    <RiInformationFill className="text-color-gray-425 cursor-pointer text-2xl" />
+                    <div className="border-grey-border absolute bottom-8 z-10 hidden w-80 -translate-x-1/2 border bg-white p-4 shadow-lg group-hover:block">
+                      <p className="text-xs">Les impressions des liens situés dans des emails ou SMS ne sont pas comptabilisés dans ce total</p>
                     </div>
-                  ) : (
-                    <div className="group relative">
-                      <RiInformationFill className="cursor-pointer text-2xl text-[#666]" />
-                      <div className="absolute bottom-8 z-10 hidden w-80 -translate-x-1/2 border border-gray-900 bg-white p-4 shadow-lg group-hover:block">
-                        <p className="text-xs">Les impressions des liens situés dans des emails ou SMS ne sont pas comptabilisés dans ce total</p>
-                      </div>
-                    </div>
-                  )}
+                  </div>
                 </div>
-                <p className="text-gray-425 text-base">impressions</p>
+                <p className="text-text-mention text-base">impressions</p>
               </div>
-              <div className="border border-gray-900 p-6">
+              <div className="border-grey-border border p-6">
                 <p className="text-[28px] font-bold">{data.totalClick?.toLocaleString("fr")}</p>
                 <p className="text-base">redirections</p>
               </div>
-              <div className="border border-gray-900 p-6">
+              <div className="border-grey-border border p-6">
                 <p className="text-[28px] font-bold">{data.totalAccount?.toLocaleString("fr")}</p>
                 <p className="text-base">créations de compte</p>
               </div>
-              <div className="border border-gray-900 p-6">
+              <div className="border-grey-border border p-6">
                 <p className="text-[28px] font-bold">{data.totalApply?.toLocaleString("fr")}</p>
                 <p className="text-base">candidatures</p>
               </div>
@@ -169,7 +161,7 @@ const DistributionMean = ({ filters, defaultType = "print" }) => {
   return (
     <div className="space-y-6">
       <h2 className="text-3xl font-bold">Répartition par moyen de diffusion</h2>
-      <div className="space-y-4 border border-gray-900 p-6">
+      <div className="border-grey-border space-y-4 border p-6">
         <div className="mb-8 flex items-center gap-8 text-sm">
           <button onClick={() => setType("print")} className={`pb-1 ${type === "print" ? "border-blue-france text-blue-france border-b-2 font-semibold" : ""}`}>
             Impressions
@@ -192,16 +184,16 @@ const DistributionMean = ({ filters, defaultType = "print" }) => {
             <Loader />
           </div>
         ) : !data.length ? (
-          <div className="flex h-[248px] w-full flex-col items-center justify-center border border-dashed border-gray-900 bg-[#f6f6f6]">
+          <div className="border-grey-border bg-background-grey-hover flex h-[248px] w-full flex-col items-center justify-center border border-dashed">
             <img src={EmptySVG} alt="empty" className="h-16 w-16" />
-            <p className="text-base text-[#666]">Aucune donnée disponible pour la période</p>
+            <p className="text-color-gray-425 text-base">Aucune donnée disponible pour la période</p>
           </div>
         ) : (
           <div className="flex h-64 justify-between gap-4 p-2">
             <div className="w-2/3">
               <table className="w-full table-fixed">
                 <thead className="text-left">
-                  <tr className="text-xs text-gray-500 uppercase">
+                  <tr className="text-text-mention text-xs uppercase">
                     <th colSpan={3} className="px-4">
                       Répartition par moyen de diffusion
                     </th>
@@ -290,9 +282,9 @@ const Evolution = ({ filters, defaultType = "print" }) => {
     <div className="space-y-6">
       <div className="space-y-2">
         <h2 className="text-3xl font-bold">Evolution</h2>
-        <p className="text-gray-425 text-base">Trafic que vous avez généré pour vos partenaires annonceurs</p>
+        <p className="text-text-mention text-base">Trafic que vous avez généré pour vos partenaires annonceurs</p>
       </div>
-      <div className="border border-gray-900 p-4">
+      <div className="border-grey-border border p-4">
         <div className="mb-8 flex items-center gap-8 text-sm">
           <button onClick={() => setType("print")} className={`pb-1 ${type === "print" ? "border-blue-france text-blue-france border-b-2 font-semibold" : ""}`}>
             Impressions
@@ -315,9 +307,9 @@ const Evolution = ({ filters, defaultType = "print" }) => {
             <Loader />
           </div>
         ) : !histogram.length ? (
-          <div className="flex h-[248px] w-full flex-col items-center justify-center border border-dashed border-gray-900 bg-[#f6f6f6]">
+          <div className="border-grey-border bg-background-grey-hover flex h-[248px] w-full flex-col items-center justify-center border border-dashed">
             <img src={EmptySVG} alt="empty" className="h-16 w-16" />
-            <p className="text-base text-[#666]">Aucune donnée disponible pour la période</p>
+            <p className="text-color-gray-425 text-base">Aucune donnée disponible pour la période</p>
           </div>
         ) : (
           <div className="h-[420px] w-full">
@@ -376,7 +368,7 @@ const Announcers = ({ filters }) => {
     <div className="space-y-6">
       <div className="space-y-2">
         <h2 className="text-3xl font-bold">Vos annonceurs</h2>
-        <p className="text-gray-425 text-base">Vous avez diffusé des missions de {announcerData?.length} partenaires annonceurs</p>
+        <p className="text-text-mention text-base">Vous avez diffusé des missions de {announcerData?.length} partenaires annonceurs</p>
       </div>
       {loading ? (
         <div className="flex w-full justify-center py-10">
@@ -384,11 +376,12 @@ const Announcers = ({ filters }) => {
         </div>
       ) : (
         <>
-          <div className="space-y-4 border border-gray-900 p-6">
+          <div className="border-grey-border space-y-4 border p-6">
             <div className="flex flex-col gap-4">
               <h3 className="text-2xl font-semibold">Performance des annonceurs</h3>
-              <TablePagination
+              <Table
                 header={TABLE_HEADER}
+                pagination
                 page={tableSettings.page}
                 pageSize={5}
                 onPageChange={(page) => setTableSettings({ ...tableSettings, page })}
@@ -411,22 +404,22 @@ const Announcers = ({ filters }) => {
                       <td className="px-4 text-right">{(item.rate || 0).toLocaleString("fr", { style: "percent", minimumFractionDigits: 2 })}</td>
                     </tr>
                   ))}
-              </TablePagination>
+              </Table>
             </div>
           </div>
-          <div className="space-y-4 border border-gray-900 p-6">
+          <div className="border-grey-border space-y-4 border p-6">
             <h3 className="text-2xl font-semibold">Répartition des missions par annonceur</h3>
             {!missionData.length ? (
-              <div className="flex h-[248px] w-full flex-col items-center justify-center border border-dashed border-[#ddddd] bg-[#f6f6f6]">
+              <div className="border-grey-border bg-background-grey-hover flex h-[248px] w-full flex-col items-center justify-center border border-dashed">
                 <img src={EmptySVG} alt="empty" className="h-16 w-16" />
-                <p className="text-base text-[#666]">Aucune donnée disponible pour la période</p>
+                <p className="text-color-gray-425 text-base">Aucune donnée disponible pour la période</p>
               </div>
             ) : (
               <div className="flex justify-between gap-4">
                 <div className="w-2/3">
                   <table className="w-full table-fixed">
                     <thead className="text-left">
-                      <tr className="text-xs text-gray-500 uppercase">
+                      <tr className="text-text-mention text-xs uppercase">
                         <th colSpan={3} className="px-4">
                           Annonceurs
                         </th>

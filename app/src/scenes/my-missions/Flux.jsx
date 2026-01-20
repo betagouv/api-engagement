@@ -6,8 +6,8 @@ import ErrorIconSvg from "../../assets/svg/error-icon.svg?react";
 import InfoAlert from "../../components/InfoAlert";
 import Loader from "../../components/Loader";
 import Select from "../../components/NewSelect";
-import TablePagination from "../../components/NewTablePagination";
 import SearchInput from "../../components/SearchInput";
+import Table from "../../components/Table";
 import { STATUS_PLR } from "../../constants";
 import api from "../../services/api";
 import { captureError } from "../../services/error";
@@ -120,7 +120,7 @@ const Flux = ({ moderated }) => {
 
   return (
     <div className="space-y-12 p-12">
-      <title>Missions partagées - Vos Missions - API Engagement</title>
+      <title>API Engagement - Missions partagées - Vos Missions</title>
       {moderated && !hideAlert && (
         <InfoAlert onClose={() => setHideAlert(true)}>
           <p className="text-base">Pour toutes les missions acceptées par l’API, JeVeuxAider.gouv.fr pratique une modération avant de les diffuser.</p>
@@ -172,11 +172,11 @@ const Flux = ({ moderated }) => {
           <div className="max-w-[60%] flex-1 space-y-2">
             <h2 className="text-2xl font-bold">{total.toLocaleString("fr")} missions partagées</h2>
             <div className="flex items-center gap-2">
-              <p className="text-base text-[#666666]">Dernière synchronisation le {lastImport ? new Date(lastImport.startedAt).toLocaleDateString("fr") : "N/A"}</p>
+              <p className="text-text-mention text-base">Dernière synchronisation le {lastImport ? new Date(lastImport.startedAt).toLocaleDateString("fr") : "N/A"}</p>
               {lastImport && new Date(lastImport.startedAt) > new Date(new Date().getFullYear(), new Date().getMonth(), new Date().getDate() - 1) ? (
-                <RiCheckboxCircleFill className="text-green-success text-base" />
+                <RiCheckboxCircleFill className="text-success text-base" />
               ) : (
-                <ErrorIconSvg alt="error" className="h-4 w-4 fill-[#e1000f]" />
+                <ErrorIconSvg alt="error" className="fill-error h-4 w-4" />
               )}
               <Link to="/settings" className="link">
                 Paraméter mon flux de missions
@@ -190,8 +190,9 @@ const Flux = ({ moderated }) => {
           </button>
         </div>
 
-        <TablePagination
+        <Table
           header={TABLE_HEADER}
+          pagination
           page={filters.page}
           pageSize={filters.size}
           onPageChange={(page) => setFilters({ ...filters, page })}
@@ -215,16 +216,12 @@ const Flux = ({ moderated }) => {
               <td className="px-4">{new Date(item.createdAt).toLocaleDateString("fr")}</td>
               <td className="px-6">
                 <div className="flex items-center gap-1">
-                  {item.statusCode === "ACCEPTED" ? (
-                    <RiCheckboxCircleFill className="text-green-success text-2xl" />
-                  ) : (
-                    <ErrorIconSvg alt="error" className="h-6 w-6 fill-[#e1000f]" />
-                  )}
+                  {item.statusCode === "ACCEPTED" ? <RiCheckboxCircleFill className="text-success text-2xl" /> : <ErrorIconSvg alt="error" className="fill-error h-6 w-6" />}
                   {item.statusComment && (
                     <div className="group relative">
-                      <RiInformationLine className="text-gray-425 text-2xl" />
+                      <RiInformationLine className="text-text-mention text-2xl" />
 
-                      <div className="absolute -top-1/2 right-8 z-10 hidden w-64 -translate-y-1/2 border border-gray-900 bg-white p-4 shadow-lg group-hover:block">
+                      <div className="border-grey-border absolute -top-1/2 right-8 z-10 hidden w-64 -translate-y-1/2 border bg-white p-4 shadow-lg group-hover:block">
                         <p className="text-sm">{item.statusComment}</p>
                       </div>
                     </div>
@@ -233,7 +230,7 @@ const Flux = ({ moderated }) => {
               </td>
             </tr>
           ))}
-        </TablePagination>
+        </Table>
       </div>
     </div>
   );

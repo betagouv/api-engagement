@@ -78,6 +78,44 @@ models:
         description: Horodatage de dernière mise à jour.
         tests:
           - not_null
+  - name: publisher_organization
+    description: >
+      Vue mart des organisations rattachées aux partenaires, directement dérivée de `int_publisher_organization` pour
+      exposer les informations organisationnelles dans la couche analytics.
+    columns:
+      - name: id
+        description: Identifiant unique de la relation partenaire / organisation.
+        tests:
+          - not_null
+          - unique
+      - name: publisher_id
+        description: Identifiant du partenaire diffuseur associé.
+        tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('publisher')
+                field: id
+      - name: organization_client_id
+        description: Identifiant client de l'organisation côté diffuseur.
+        tests:
+          - not_null
+      - name: organization_name
+        description: Nom déclaré de l'organisation (nullable).
+      - name: organization_rna
+        description: Identifiant RNA déclaré (nullable).
+      - name: organization_siren
+        description: Numéro SIREN déclaré (nullable).
+      - name: organization_siret
+        description: Numéro SIRET déclaré (nullable).
+      - name: organisation_is_rup
+        description: Indique si l'organisation est reconnue d'utilité publique (nullable).
+      - name: created_at
+        description: Horodatage de création.
+      - name: updated_at
+        description: Horodatage de dernière mise à jour.
+        tests:
+          - not_null
   - name: publisher_diffusion_exclusion
     description: >
       Table de faits légère listant les exclusions de diffusion entre partenaires, enrichie des libellés annonceur et

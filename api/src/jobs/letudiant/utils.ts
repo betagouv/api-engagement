@@ -12,31 +12,6 @@ import { CONTRACT_MAPPING, DAYS_AFTER_REPUBLISH, JOB_CATEGORY_MAPPING, REMOTE_PO
 export const LETUDIANT_JOB_BOARD_ID: JobBoardId = "LETUDIANT";
 export type MissionWithJobBoards = { mission: MissionRecord; jobBoards: MissionJobBoardRecord[] };
 
-const ORGANIZATION_ID_REGEX = /^[0-9a-fA-F]{24}$/;
-
-const hasJobBoardEntry = (jobBoards: MissionJobBoardRecord[]) => jobBoards.length > 0;
-
-const shouldSyncMission = (mission: MissionRecord, jobBoards: MissionJobBoardRecord[], republishingDate: Date): boolean => {
-  if (!mission.organizationId || !ORGANIZATION_ID_REGEX.test(mission.organizationId)) {
-    return false;
-  }
-  if (mission.letudiantError !== null && mission.letudiantError !== undefined) {
-    return false;
-  }
-
-  const letudiantUpdatedAt = mission.letudiantUpdatedAt ?? null;
-  const alreadySent = hasJobBoardEntry(jobBoards);
-
-  const needsAcceptedSync =
-    mission.deletedAt === null && mission.statusCode === "ACCEPTED" && (!letudiantUpdatedAt || letudiantUpdatedAt < mission.updatedAt || letudiantUpdatedAt < republishingDate);
-
-  const needsDeletedSync = mission.deletedAt !== null && alreadySent && !!letudiantUpdatedAt && mission.deletedAt < letudiantUpdatedAt;
-
-  const needsStatusSync = mission.statusCode !== "ACCEPTED" && alreadySent && !!letudiantUpdatedAt && mission.updatedAt < letudiantUpdatedAt;
-
-  return needsAcceptedSync || needsDeletedSync || needsStatusSync;
-};
-
 /**
  * Check if a mission is already synced to Piloty
  */
@@ -60,72 +35,54 @@ export async function rateLimit(delayMs = 500) {
  * @param id Optional mission ID to sync
  * @param limit Optional limit (default: 10)
  */
-export async function getMissionsToSync(id?: string, limit = 10): Promise<MissionWithJobBoards[]> {
+export async function getMissionsToSync(id?: string, limit = 10): Promise<{ totalCandidates: number; entries: MissionWithJobBoards[] }> {
   if (id) {
     const mission = await missionService.findOneMission(id);
     if (!mission) {
-      return [];
+      return { totalCandidates: 0, entries: [] };
     }
     const jobBoards = await missionJobBoardService.findByJobBoardAndMissionIds(LETUDIANT_JOB_BOARD_ID, [mission._id]);
-    return [{ mission, jobBoards }];
+    return { totalCandidates: 1, entries: [{ mission, jobBoards }] };
   }
 
   const republishingDate = new Date(Date.now() - DAYS_AFTER_REPUBLISH * 24 * 60 * 60 * 1000);
 
-  const where = {
-    publisherId: { in: WHITELISTED_PUBLISHERS_IDS },
-    organizationId: { not: null },
-    letudiantError: null,
-  };
+  const { total: totalCandidates, ids: missionIds } = await missionJobBoardService.findMissionIdsToSync({
+    jobBoardId: LETUDIANT_JOB_BOARD_ID,
+    publisherIds: WHITELISTED_PUBLISHERS_IDS,
+    republishingDate,
+    limit,
+  });
 
-  const filtered: Array<{ mission: MissionRecord; jobBoards: MissionJobBoardRecord[] }> = [];
-  const pageSize = Math.max(limit * 3, limit, 1);
-  let page = 0;
-
-  while (filtered.length < limit) {
-    const missions = await missionService.findMissionsBy(where, {
-      limit: pageSize,
-      skip: page * pageSize,
-      orderBy: { updatedAt: "desc" },
-    });
-
-    if (!missions.length) {
-      break;
-    }
-
-    const jobBoards = await missionJobBoardService.findByJobBoardAndMissionIds(
-      LETUDIANT_JOB_BOARD_ID,
-      missions.map((mission) => mission._id)
-    );
-    const jobBoardsByMission = new Map<string, MissionJobBoardRecord[]>();
-    for (const entry of jobBoards) {
-      const list = jobBoardsByMission.get(entry.missionId) ?? [];
-      list.push(entry);
-      jobBoardsByMission.set(entry.missionId, list);
-    }
-
-    for (const mission of missions) {
-      const entries = jobBoardsByMission.get(mission._id) ?? [];
-      if (shouldSyncMission(mission, entries, republishingDate)) {
-        filtered.push({ mission, jobBoards: entries });
-        if (filtered.length >= limit) {
-          break;
-        }
-      }
-    }
-
-    if (filtered.length >= limit) {
-      break;
-    }
-
-    if (missions.length < pageSize) {
-      break;
-    }
-
-    page++;
+  if (!missionIds.length) {
+    return { totalCandidates, entries: [] };
   }
 
-  return filtered;
+  const missions = await missionService.findMissionsBy(
+    { id: { in: missionIds } },
+    {
+      limit: missionIds.length,
+      orderBy: { updatedAt: "desc" },
+    }
+  );
+  const jobBoards = await missionJobBoardService.findByJobBoardAndMissionIds(
+    LETUDIANT_JOB_BOARD_ID,
+    missions.map((mission) => mission._id)
+  );
+  const jobBoardsByMission = new Map<string, MissionJobBoardRecord[]>();
+  for (const entry of jobBoards) {
+    const list = jobBoardsByMission.get(entry.missionId) ?? [];
+    list.push(entry);
+    jobBoardsByMission.set(entry.missionId, list);
+  }
+
+  return {
+    totalCandidates,
+    entries: missions.map((mission) => ({
+      mission,
+      jobBoards: jobBoardsByMission.get(mission._id) ?? [],
+    })),
+  };
 }
 
 /**
