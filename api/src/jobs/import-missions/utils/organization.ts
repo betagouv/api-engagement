@@ -1,3 +1,4 @@
+import { Prisma, PublisherOrganization } from "../../../db/core";
 import { DEPARTMENTS } from "../../../constants/departments";
 import { captureException } from "../../../error";
 import apiDatasubvention from "../../../services/api-datasubvention";
@@ -247,9 +248,24 @@ export const verifyOrganization = async (missions: ImportedMission[]) => {
 };
 
 export const upsertPublisherOrganization = async (mission: ImportedMission): Promise<void> => {
+  const payload = buildPublisherOrganizationPayload(mission);
+  if (!payload) {
+    return;
+  }
+  await upsertPublisherOrganizationPayload(payload);
+};
+
+type PublisherOrganizationPayload = {
+  publisherId: string;
+  organizationClientId: string;
+  create: Prisma.PublisherOrganizationCreateInput;
+  update: Prisma.PublisherOrganizationUpdateInput;
+};
+
+export const buildPublisherOrganizationPayload = (mission: ImportedMission): PublisherOrganizationPayload | null => {
   const organizationClientId = normalizeOptionalString(mission.organizationClientId ?? undefined);
   if (!organizationClientId || !mission.publisherId) {
-    return;
+    return null;
   }
 
   const payload = {
@@ -288,7 +304,7 @@ export const upsertPublisherOrganization = async (mission: ImportedMission): Pro
 
   const { organizationClientId: _, ...update } = payload;
 
-  await publisherOrganizationRepository.upsertByPublisherAndClientId({
+  return {
     publisherId: mission.publisherId,
     organizationClientId,
     create: {
@@ -296,7 +312,48 @@ export const upsertPublisherOrganization = async (mission: ImportedMission): Pro
       ...payload,
     },
     update,
+  };
+};
+
+export const upsertPublisherOrganizationPayload = async (payload: PublisherOrganizationPayload): Promise<void> => {
+  await publisherOrganizationRepository.upsertByPublisherAndClientId({
+    publisherId: payload.publisherId,
+    organizationClientId: payload.organizationClientId,
+    create: payload.create,
+    update: payload.update,
   });
+};
+
+const isSameStringArray = (left: string[] | null | undefined, right: string[] | null | undefined): boolean => {
+  const leftValue = left ?? [];
+  const rightValue = right ?? [];
+  if (leftValue.length !== rightValue.length) {
+    return false;
+  }
+  return leftValue.every((value, index) => value === rightValue[index]);
+};
+
+export const isPublisherOrganizationUpToDate = (
+  existing: PublisherOrganization,
+  update: Prisma.PublisherOrganizationUpdateInput
+): boolean => {
+  const entries = Object.entries(update) as Array<[keyof PublisherOrganization, unknown]>;
+  for (const [key, value] of entries) {
+    if (value === undefined) {
+      continue;
+    }
+    const current = existing[key];
+    if (Array.isArray(value)) {
+      if (!isSameStringArray(current as string[] | null | undefined, value)) {
+        return false;
+      }
+      continue;
+    }
+    if ((current ?? null) !== (value ?? null)) {
+      return false;
+    }
+  }
+  return true;
 };
 
 const updateMissionOrganization = async (mission: ImportedMission, organization: OrganizationRecord, status: string) => {
