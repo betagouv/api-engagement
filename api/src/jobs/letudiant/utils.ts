@@ -7,7 +7,7 @@ import { PilotyClient } from "../../services/piloty/client";
 import { PilotyJobCategory, PilotyMandatoryData } from "../../services/piloty/types";
 import { MissionRecord } from "../../types/mission";
 import { JobBoardId, MissionJobBoardRecord } from "../../types/mission-job-board";
-import { CONTRACT_MAPPING, DAYS_AFTER_REPUBLISH, JOB_CATEGORY_MAPPING, REMOTE_POLICY_MAPPING, WHITELISTED_PUBLISHERS_IDS } from "./config";
+import { AUDIENCE_MAPPING, CONTRACT_MAPPING, DAYS_AFTER_REPUBLISH, DOMAIN_MAPPING, JOB_CATEGORY_MAPPING, REMOTE_POLICY_MAPPING, WHITELISTED_PUBLISHERS_IDS } from "./config";
 
 export const LETUDIANT_JOB_BOARD_ID: JobBoardId = "LETUDIANT";
 export type MissionWithJobBoards = { mission: MissionRecord; jobBoards: MissionJobBoardRecord[] };
@@ -192,4 +192,22 @@ export function decodeHtml(text: string | null | undefined): string {
     return he.decode(text);
   }
   return text || "";
+}
+
+/**
+ * Get domain Label from config
+ * @param domain
+ * @returns label
+ */
+export function getDomainLabel(domain: string): string {
+  return DOMAIN_MAPPING[domain] || DOMAIN_MAPPING["autre"];
+}
+
+/**
+ * Get audience label from config
+ * @param audience
+ * @returns label
+ */
+export function getAudienceLabel(audience: string): string {
+  return AUDIENCE_MAPPING[audience] || AUDIENCE_MAPPING["any_public"];
 }
