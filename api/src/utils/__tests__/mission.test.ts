@@ -171,20 +171,20 @@ describe("getMissionChanges", () => {
 
     expect(changes).toEqual({
       addresses: {
-        previous: mission1.addresses,
-        current: mission2.addresses,
+        previous: mission1.addresses.map((address) => ({ city: address.city })),
+        current: mission2.addresses.map((address) => ({ city: address.city })),
       },
     });
   });
 
-  it("should detect address content changes", () => {
+  it("should detect address city changes", () => {
     const mission1 = createBaseMission();
     const mission2 = {
       ...createBaseMission(),
       addresses: [
         {
           ...mission1.addresses[0],
-          street: "456 Different St",
+          city: "Bordeaux",
         },
       ],
     };
@@ -193,10 +193,30 @@ describe("getMissionChanges", () => {
 
     expect(changes).toEqual({
       addresses: {
-        previous: mission1.addresses,
-        current: mission2.addresses,
+        previous: mission1.addresses.map((address) => ({ city: address.city })),
+        current: mission2.addresses.map((address) => ({ city: address.city })),
       },
     });
+  });
+
+  it("should ignore address changes when only non-city fields change", () => {
+    const mission1 = createBaseMission();
+    const mission2 = {
+      ...createBaseMission(),
+      addresses: [
+        {
+          ...mission1.addresses[0],
+          geolocStatus: "NOT_FOUND",
+        },
+        {
+          ...mission1.addresses[1],
+        },
+      ],
+    };
+
+    const changes = getMissionChanges(mission1, mission2);
+
+    expect(changes).toBeNull();
   });
 
   it("should not detect address content changes when order is different", () => {
