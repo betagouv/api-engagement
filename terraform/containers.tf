@@ -7,7 +7,7 @@ resource "scaleway_container" "api" {
   cpu_limit       = terraform.workspace == "production" ? 1500 : 250
   memory_limit    = terraform.workspace == "production" ? 2048 : 512
   min_scale       = terraform.workspace == "production" ? 1 : 1
-  max_scale       = terraform.workspace == "production" ? 5 : 1
+  max_scale       = terraform.workspace == "production" ? 1 : 1
   timeout         = 60
   privacy         = "public"
   protocol        = "http1"
@@ -104,4 +104,3 @@ resource "scaleway_container" "widget" {
     "SENTRY_DSN" = local.secrets.SENTRY_DSN_WIDGET
   }
 }
-

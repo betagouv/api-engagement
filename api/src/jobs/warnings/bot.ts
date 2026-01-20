@@ -1,9 +1,9 @@
 import { SLACK_WARNING_CHANNEL_ID } from "../../config";
-import WarningBotModel from "../../models/warning-bot";
 import { statEventService } from "../../services/stat-event";
 import { publisherService } from "../../services/publisher";
 import { postMessage } from "../../services/slack";
-import { WarningBot } from "../../types";
+import { warningBotService } from "../../services/warning-bot";
+import type { WarningBotRecord } from "../../types/warning-bot";
 
 const countClick = (user: string) => statEventService.countStatEventsByCriteria({ type: "click", user });
 
@@ -36,11 +36,11 @@ export const checkBotClicks = async () => {
   }
 
   if (suspiciousUsers.length > 0) {
-    const newWarnings: WarningBot[] = [];
+    const newWarnings: WarningBotRecord[] = [];
     for (const candidate of suspiciousUsers) {
       const publisherBucket = candidate.publishers[0];
       const userAgentBucket = candidate.userAgents[0];
-      const exists = await WarningBotModel.findOne({ hash: candidate.user });
+      const exists = await warningBotService.findWarningBotByHash(candidate.user);
       if (!exists) {
         if (!publisherBucket?.key) {
           continue;
@@ -49,23 +49,23 @@ export const checkBotClicks = async () => {
         if (!publisher) {
           continue;
         }
-        const newWarning = await WarningBotModel.create({
+        const newWarning = await warningBotService.createWarningBot({
           hash: candidate.user,
           userAgent: userAgentBucket?.key ?? "",
           clickCount: candidate.clickCount,
           publisherId: publisher.id,
-          publisherName: publisher.name,
         });
         newWarnings.push(newWarning);
       } else {
-        exists.clickCount = await countClick(candidate.user);
-        await exists.save();
+        await warningBotService.updateWarningBot(exists.id, {
+          clickCount: await countClick(candidate.user),
+        });
       }
     }
 
     if (newWarnings.length > 0) {
       const message = `*Potentiel bot activity detecté*\n\n${newWarnings
-        .map((warning: WarningBot) => {
+        .map((warning: WarningBotRecord) => {
           return `• User \`${warning.hash}\` a fait ${warning.clickCount} clicks avec 0 candidatures en 24h (tous depuis le publisher \`${warning.publisherName}\`)\n\t- User Agent: \`${warning.userAgent}\``;
         })
         .join("\n")}`;

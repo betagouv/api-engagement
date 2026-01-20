@@ -1,4 +1,4 @@
-const Informations = ({ values, onChange, disabled = true }) => {
+const Informations = ({ values, onChange }) => {
   return (
     <div className="space-y-6">
       <h2 className="text-3xl font-bold">Informations</h2>
@@ -6,9 +6,9 @@ const Informations = ({ values, onChange, disabled = true }) => {
         <div className="flex flex-col gap-2">
           <label className="text-sm" htmlFor="name">
             Nom
-            <span className="text-xs text-red-700">*</span>
+            <span className="text-red-marianne ml-1">*</span>
           </label>
-          <input id="name" className="input" name="name" disabled={disabled} value={values.name} onChange={(e) => onChange({ ...values, name: e.target.value })} />
+          <input id="name" className="input" name="name" value={values.name} onChange={(e) => onChange({ ...values, name: e.target.value })} />
         </div>
 
         <div className="flex flex-col gap-2">

@@ -1,14 +1,13 @@
 import he from "he";
 import { convert } from "html-to-text";
-import { Schema } from "mongoose";
 
 import { PUBLISHER_IDS } from "../../../config";
 import { AUTRE_IMAGE, DOMAIN_IMAGES } from "../../../constants/domains";
 import { captureException } from "../../../error";
-import MissionModel from "../../../models/mission";
-import { Mission } from "../../../types";
+import { missionService } from "../../../services/mission";
+import type { MissionRecord } from "../../../types/mission";
 import type { PublisherRecord } from "../../../types/publisher";
-import { MissionXML } from "../types";
+import { ImportedMission, MissionXML } from "../types";
 import { getAddress, getAddresses } from "./address";
 import { getModeration } from "./moderation";
 
@@ -69,11 +68,15 @@ const parseString = (value: string | undefined) => {
   return String(value);
 };
 
-const parseBool = (value: string | undefined) => {
-  if (!value || value === "no") {
-    return "no";
+const parseBool = (value: string | boolean | undefined | null) => {
+  if (value === undefined || value === null) {
+    return null;
   }
-  return "yes";
+  if (typeof value === "boolean") {
+    return value;
+  }
+  const normalized = String(value).trim().toLowerCase();
+  return ["yes", "true", "1"].includes(normalized);
 };
 
 const parseDate = (value: string | Date | undefined) => {
@@ -110,23 +113,90 @@ const parseNumber = (value: number | string | undefined) => {
   return Number(value);
 };
 
-const parseArray = (value: string | { value: string[] | string } | undefined, includeSpace = false) => {
-  if (!value) {
+const parseStringArray = (value: unknown, includeSpace = false): string[] | undefined => {
+  if (value === undefined || value === null || value === "") {
     return undefined;
   }
-  if (typeof value === "object") {
-    return Array.isArray(value.value) ? value.value : [value.value];
-  }
+
   if (Array.isArray(value)) {
-    return value;
+    const normalized = value.map((v) => String(v ?? "").trim()).filter((v) => v.length > 0);
+    return normalized.length ? normalized : undefined;
   }
-  if (value.includes(",")) {
-    return value.split(",").map((i) => i.trim());
+
+  if (typeof value === "object") {
+    const obj = value as any;
+    if ("value" in obj) {
+      return parseStringArray(obj.value, includeSpace);
+    }
+    if ("item" in obj) {
+      return parseStringArray(obj.item, includeSpace);
+    }
+    return undefined;
   }
-  if (includeSpace && value.includes(" ")) {
-    return value.split(" ").map((i) => i.trim());
+
+  const str = String(value).trim();
+  if (!str) {
+    return undefined;
   }
-  return [value];
+  if (str.includes(",")) {
+    const split = str
+      .split(",")
+      .map((i) => i.trim())
+      .filter((i) => i.length > 0);
+    return split.length ? split : undefined;
+  }
+  if (includeSpace && str.includes(" ")) {
+    const split = str
+      .split(" ")
+      .map((i) => i.trim())
+      .filter((i) => i.length > 0);
+    return split.length ? split : undefined;
+  }
+  return [str];
+};
+
+const parseRemote = (value: unknown): MissionRecord["remote"] => {
+  const normalized = String(value ?? "")
+    .trim()
+    .toLowerCase();
+  if (!normalized) {
+    return "no";
+  }
+  if (["no", "non", "false", "0"].includes(normalized)) {
+    return "no";
+  }
+  if (["possible", "yes", "oui", "true", "1"].includes(normalized)) {
+    return "possible";
+  }
+  if (["full", "total", "100", "remote"].includes(normalized)) {
+    return "full";
+  }
+  if (["partiel", "partielle", "hybride"].includes(normalized)) {
+    return "possible";
+  }
+  return "no";
+};
+
+const parseCompensationUnit = (value: unknown): MissionRecord["compensationUnit"] => {
+  const normalized = String(value ?? "")
+    .trim()
+    .toLowerCase();
+  if (!normalized) {
+    return null;
+  }
+  if (["hour", "heure", "heures"].includes(normalized)) {
+    return "hour";
+  }
+  if (["day", "jour", "jours"].includes(normalized)) {
+    return "day";
+  }
+  if (["month", "mois"].includes(normalized)) {
+    return "month";
+  }
+  if (["year", "an", "ans", "annee", "année", "années"].includes(normalized)) {
+    return "year";
+  }
+  return null;
 };
 
 const parseLowercase = (value: string | undefined) => {
@@ -134,7 +204,7 @@ const parseLowercase = (value: string | undefined) => {
   return parsed ? parsed.toLowerCase() : null;
 };
 
-const parseMission = (publisher: PublisherRecord, missionXML: MissionXML, missionDB: Mission | null) => {
+const parseMission = (publisher: PublisherRecord, missionXML: MissionXML, missionDB: MissionRecord | null, startTime: Date): ImportedMission => {
   const organizationLogo = parseString(missionXML.organizationLogo);
 
   const mission = {
@@ -147,30 +217,31 @@ const parseMission = (publisher: PublisherRecord, missionXML: MissionXML, missio
     descriptionHtml: parseString(missionXML.description) || "",
     clientId: parseString(missionXML.clientId),
     applicationUrl: missionXML.applicationUrl || "",
-    postedAt: parseDate(missionXML.postedAt) || new Date(),
-    startAt: parseDate(missionXML.startAt) || parseDate(missionDB?.startAt) || new Date(),
+    postedAt: parseDate(missionXML.postedAt) || parseDate(missionDB?.postedAt ?? undefined) || startTime,
+    startAt: parseDate(missionXML.startAt) || parseDate(missionDB?.startAt || "") || new Date(),
     endAt: parseDate(missionXML.endAt) || null,
 
     activity: parseString(missionXML.activity) || "",
     domain: parseString(missionXML.domain) || "",
     schedule: parseString(missionXML.schedule),
-    audience: parseArray(missionXML.audience, true) || parseArray(missionXML.publicBeneficiaries, true) || [],
-    softSkills: parseArray(missionXML.softSkills, true) || parseArray(missionXML.soft_skills, true) || [],
-    romeSkills: parseArray(missionXML.romeSkills, true) || [],
-    requirements: parseArray(missionXML.requirements, true) || [],
-    remote: parseString(missionXML.remote) || "no",
+    audience:
+      parseStringArray(missionXML.audience, true) || parseStringArray(missionXML.publicBeneficiaries, true) || parseStringArray(missionXML.publicsBeneficiaires, true) || [],
+    softSkills: parseStringArray(missionXML.softSkills, true) || parseStringArray(missionXML.soft_skills, true) || [],
+    romeSkills: parseStringArray(missionXML.romeSkills, true) || [],
+    requirements: parseStringArray(missionXML.requirements, true) || [],
+    remote: parseRemote(missionXML.remote),
     reducedMobilityAccessible: parseBool(missionXML.reducedMobilityAccessible),
     closeToTransport: parseBool(missionXML.closeToTransport),
     openToMinors: parseBool(missionXML.openToMinors),
     priority: parseString(missionXML.priority) || "",
-    tags: parseArray(missionXML.tags) || [],
+    tags: parseStringArray(missionXML.tags) || [],
     places: parseNumber(missionXML.places) || 1,
     placesStatus: missionXML.places !== undefined ? "GIVEN_BY_PARTNER" : "ATTRIBUTED_BY_API",
     snu: parseString(missionXML.snu) === "yes",
     snuPlaces: parseNumber(missionXML.snuPlaces),
     compensationAmount: parseNumber(missionXML.compensationAmount),
-    compensationUnit: parseLowercase(missionXML.compensationUnit as string | undefined) as Mission["compensationUnit"],
-    compensationType: parseLowercase(missionXML.compensationType as string | undefined) as Mission["compensationType"],
+    compensationUnit: parseCompensationUnit(missionXML.compensationUnit),
+    compensationType: parseLowercase(missionXML.compensationType as string | undefined) as MissionRecord["compensationType"],
     metadata: parseString(missionXML.metadata),
     organizationName: parseString(missionXML.organizationName),
     organizationRNA: parseString(missionXML.organizationRNA) || parseString(missionXML.organizationRna) || "",
@@ -178,30 +249,38 @@ const parseMission = (publisher: PublisherRecord, missionXML: MissionXML, missio
     organizationUrl: parseString(missionXML.organizationUrl),
     organizationLogo: organizationLogo || publisher.defaultMissionLogo || "",
     organizationDescription: parseString(missionXML.organizationDescription),
-    organizationClientId: parseString(missionXML.organizationId),
+    organizationClientId: parseString(missionXML.organizationClientId) || parseString(missionXML.organizationId),
     organizationStatusJuridique: parseString(missionXML.organizationStatusJuridique) || "",
     organizationType: parseString(missionXML.organizationType) || "",
-    organizationActions: parseArray(missionXML.keyActions, true) || [],
+    organizationActions: parseStringArray(missionXML.keyActions, true) || [],
     organizationFullAddress: parseString(missionXML.organizationFullAddress),
     organizationPostCode: parseString(missionXML.organizationPostCode),
     organizationCity: parseString(missionXML.organizationCity),
-    organizationBeneficiaries: parseArray(missionXML.organizationBeneficiaries || missionXML.organizationBeneficiaires || missionXML.publicBeneficiaries, true) || [],
-    organizationReseaux: parseArray(missionXML.organizationReseaux, true) || [],
-  } as Mission;
+    organizationBeneficiaries:
+      parseStringArray(missionXML.organizationBeneficiaries, true) ||
+      parseStringArray(missionXML.organizationBeneficiaires, true) ||
+      parseStringArray(missionXML.publicBeneficiaries, true) ||
+      parseStringArray(missionXML.publicsBeneficiaires, true) ||
+      [],
+    organizationReseaux: parseStringArray(missionXML.organizationReseaux) || [],
+  } as ImportedMission;
 
   // Moderation except Service Civique (already moderated)  // Moderation except Service Civique (already moderated)
   mission.statusComment = "";
   mission.statusCode = "ACCEPTED";
-  mission.duration = mission.endAt ? getMonthDifference(new Date(mission.startAt), new Date(mission.endAt)) : null;
+  mission.duration = mission.endAt ? getMonthDifference(new Date(mission.startAt || ""), new Date(mission.endAt || "")) : null;
 
   if (publisher.id !== PUBLISHER_IDS.SERVICE_CIVIQUE) {
     getModeration(mission);
+  }
+  if (!mission.statusComment) {
+    mission.statusComment = null as any;
   }
 
   if (mission.domain === "mémoire et citoyenneté") {
     mission.domain = "memoire-et-citoyennete";
   }
-  mission.domainLogo = missionXML.image || missionDB?.domainLogo || getImageDomain(mission.domain);
+  mission.domainLogo = missionXML.image || missionDB?.domainLogo || getImageDomain(mission.domain || "");
 
   // Address
   if (missionXML.addresses && Array.isArray(missionXML.addresses) && missionXML.addresses.length > 0) {
@@ -211,28 +290,8 @@ const parseMission = (publisher: PublisherRecord, missionXML: MissionXML, missio
   }
 
   if (missionDB) {
-    mission._id = missionDB._id as Schema.Types.ObjectId;
+    mission._id = (missionDB as any)._id || (missionDB as any).id;
     mission.createdAt = missionDB.createdAt;
-    mission.organizationVerificationStatus = missionDB.organizationVerificationStatus;
-
-    if (missionDB.statusCommentHistoric && Array.isArray(missionDB.statusCommentHistoric)) {
-      if (missionDB.statusCode !== mission.statusCode) {
-        mission.statusCommentHistoric = [...missionDB.statusCommentHistoric, { status: mission.statusCode, comment: mission.statusComment, date: mission.updatedAt }];
-      }
-    } else {
-      mission.statusCommentHistoric = [{ status: mission.statusCode, comment: mission.statusComment, date: mission.updatedAt }];
-    }
-  }
-
-  // Dirty dirty hack for j'agis pour la nature
-  if (publisher.id === PUBLISHER_IDS.JAGIS_POUR_LA_NATURE) {
-    const index = mission.description.indexOf("MODALITÉS D'INSCRIPTION");
-    if (index !== -1) {
-      mission.description = mission.description.substring(0, index); // remove stuff
-    }
-    mission.description = mission.description.replace(/\n{2,}/g, "\n\n"); //remove spaces
-    mission.description = mission.description.replace(/(?<=•)((.|\n)*)(?=-)/g, ""); // dot and -
-    mission.description = mission.description.replace(/•-/g, "•"); // dot and -
   }
 
   // Dirty dirty hack for Prevention routiere
@@ -283,14 +342,15 @@ const parseMission = (publisher: PublisherRecord, missionXML: MissionXML, missio
 
 export const buildData = async (startTime: Date, publisher: PublisherRecord, missionXML: MissionXML) => {
   try {
-    const missionDB = await MissionModel.findOne({
-      publisherId: publisher.id,
-      clientId: missionXML.clientId,
-    });
+    const clientId = missionXML.clientId?.toString();
+    if (!clientId) {
+      throw new Error("Missing clientId");
+    }
 
-    const mission = parseMission(publisher, missionXML, missionDB?.toObject() || null);
+    const missionDB = await missionService.findMissionByClientAndPublisher(clientId, publisher.id);
 
-    mission.deleted = false;
+    const mission = parseMission(publisher, { ...missionXML, clientId }, (missionDB as any) || null, startTime);
+
     mission.deletedAt = null;
     mission.lastSyncAt = startTime;
     mission.publisherId = publisher.id;

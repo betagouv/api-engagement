@@ -46,7 +46,7 @@ const Filters = ({ filters, onChange, reload }) => {
         if (!res.ok) throw res;
         setOptions(res.data);
       } catch (error) {
-        captureError(error, "Une erreur est survenue");
+        captureError(error, { extra: { filters } });
       } finally {
         setLoading(false);
       }

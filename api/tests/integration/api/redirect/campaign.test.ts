@@ -3,8 +3,8 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import { JVA_URL } from "../../../../src/config";
 import { prismaCore } from "../../../../src/db/postgres";
-import StatsBotModel from "../../../../src/models/stats-bot";
 import { campaignService } from "../../../../src/services/campaign";
+import { statBotService } from "../../../../src/services/stat-bot";
 import { PublisherRecord } from "../../../../src/types/publisher";
 import * as utils from "../../../../src/utils";
 import { createTestPublisher } from "../../../fixtures";
@@ -78,16 +78,13 @@ describe("RedirectController /campaign/:id", () => {
     };
 
     vi.spyOn(utils, "identify").mockReturnValue(identity);
-    const statsBotFindOneSpy = vi.spyOn(StatsBotModel, "findOne").mockResolvedValue({ user: identity.user } as any);
+    const statsBotFindOneSpy = vi.spyOn(statBotService, "findStatBotByUser").mockResolvedValue({ user: identity.user } as any);
 
     const response = await request(app).get(`/r/campaign/${campaign.id}`);
 
     expect(response.status).toBe(302);
     const redirectUrl = new URL(response.headers.location);
     expect(`${redirectUrl.origin}${redirectUrl.pathname}`).toBe("https://campaign.example.com/path");
-    expect(redirectUrl.searchParams.get("utm_source")).toBe("api_engagement");
-    expect(redirectUrl.searchParams.get("utm_medium")).toBe("campaign");
-    expect(redirectUrl.searchParams.get("utm_campaign")).toBe("campaign-name");
 
     const clickId = redirectUrl.searchParams.get("apiengagement_id");
     expect(clickId).toBeTruthy();
@@ -106,6 +103,6 @@ describe("RedirectController /campaign/:id", () => {
       isBot: true,
     });
 
-    expect(statsBotFindOneSpy).toHaveBeenCalledWith({ user: identity.user });
+    expect(statsBotFindOneSpy).toHaveBeenCalledWith(identity.user);
   });
 });

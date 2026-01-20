@@ -4,8 +4,10 @@ import zod from "zod";
 
 import { SLACK_JOBTEASER_CHANNEL_ID } from "../config";
 import { captureMessage, INVALID_BODY, NOT_FOUND } from "../error";
-import MissionModel from "../models/mission";
+import { missionService } from "../services/mission";
+import missionJobBoardService from "../services/mission-jobboard";
 import { postMessage } from "../services/slack";
+import { JobBoardId } from "../db/core";
 import { PublisherRequest } from "../types/passport";
 
 const router = Router();
@@ -31,7 +33,7 @@ router.post("/feedback", passport.authenticate(["jobteaser"], { session: false }
       return res.status(400).send({ ok: false, code: INVALID_BODY, message: body.error });
     }
 
-    const mission = await MissionModel.findOne({ _id: body.data.missionId });
+    const mission = await missionService.findOneMission(body.data.missionId);
     if (!mission) {
       captureMessage("Mission not found", JSON.stringify(body.data, null, 2));
       return res.status(404).send({ ok: false, code: NOT_FOUND, message: "Mission not found" });
@@ -47,12 +49,14 @@ router.post("/feedback", passport.authenticate(["jobteaser"], { session: false }
       );
     }
 
-    mission.jobteaserStatus = body.data.status;
-    mission.jobteaserUrl = body.data.url;
-    mission.jobteaserComment = body.data.comment;
-    mission.jobteaserUpdatedAt = new Date();
-
-    await mission.save();
+    await missionJobBoardService.upsert({
+      jobBoardId: JobBoardId.JOBTEASER,
+      missionId: mission._id,
+      missionAddressId: null,
+      publicId: body.data.url ?? mission._id,
+      status: body.data.status,
+      comment: body.data.comment ?? null,
+    });
 
     return res.status(200).send({ ok: true });
   } catch (error) {

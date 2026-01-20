@@ -6,11 +6,13 @@ import { Link, useNavigate, useParams } from "react-router-dom";
 import { toast } from "react-toastify";
 
 import Modal from "../../components/Modal";
-import { Table } from "../../components/Table";
+import Table from "../../components/Table";
 import api from "../../services/api";
 import { captureError } from "../../services/error";
-import { withLegacyPublishers } from "../../utils/publisher";
 import { isValidEmail } from "../../services/utils";
+import { withLegacyPublishers } from "../../utils/publisher";
+
+const TABLE_HEADER = [{ title: "" }, { title: "Nom" }, { title: "Rôles", position: "center" }];
 
 const Edit = () => {
   const { id } = useParams();
@@ -27,6 +29,8 @@ const Edit = () => {
   const [errors, setErrors] = useState({});
   const navigate = useNavigate();
 
+  const filteredPublishers = publishers.filter((p) => p.name.toLowerCase().includes(search.toLowerCase()));
+
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -39,7 +43,7 @@ const Edit = () => {
         if (!resP.ok) throw resP;
         setPublishers(withLegacyPublishers(resP.data).sort((a, b) => a.name.localeCompare(b.name)));
       } catch (error) {
-        captureError(error, "Erreur lors de la récupération des partenaires");
+        captureError(error, { extra: { id } });
       }
     };
     fetchData();
@@ -64,7 +68,7 @@ const Edit = () => {
       setUser(res.data);
       toast.success("Paramètres mis à jour");
     } catch (error) {
-      captureError(error, "Erreur lors de la mise à jour de l'utilisateur");
+      captureError(error, { extra: { id, values } });
     }
   };
 
@@ -74,7 +78,7 @@ const Edit = () => {
       if (!res.ok) throw res;
       toast.success("Invitation envoyée");
     } catch (error) {
-      captureError(error, "Erreur lors de l'envoi de l'invitation");
+      captureError(error, { extra: { id } });
     }
   };
 
@@ -88,7 +92,7 @@ const Edit = () => {
       toast.success("Utilisateur supprimé");
       navigate("/accounts");
     } catch (error) {
-      captureError(error, "Erreur lors de la suppression de l'utilisateur");
+      captureError(error, { extra: { id } });
     }
   };
 
@@ -100,13 +104,14 @@ const Edit = () => {
   return (
     <div className="flex flex-col">
       <div className="mb-10">
+        <title>{`API Engagement - Compte utilisateur - ${user.firstname}`}</title>
         <h1 className="text-4xl font-bold">Compte utilisateur de {user.firstname}</h1>
       </div>
       <form className="flex flex-col bg-white p-16 shadow-lg" onSubmit={handleSubmit}>
         <div className="mb-6 flex justify-between">
           <h2 className="text-3xl font-bold">Les informations</h2>
 
-          <div className="text-red-error flex cursor-pointer items-center text-sm" onClick={handleDelete}>
+          <div className="text-error flex cursor-pointer items-center text-sm" onClick={handleDelete}>
             <TiDeleteOutline className="mr-2" />
             <span>Supprimer</span>
           </div>
@@ -118,13 +123,13 @@ const Edit = () => {
             </label>
             <input
               id="firstname"
-              className={`input mb-2 ${errors.firstname ? "border-b-red-error" : "border-b-black"}`}
+              className={`input mb-2 ${errors.firstname ? "border-b-error" : "border-b-black"}`}
               name="firstname"
               value={values.firstname}
               onChange={(e) => setValues({ ...values, firstname: e.target.value })}
             />
             {errors.firstname && (
-              <div className="text-red-error flex items-center text-sm">
+              <div className="text-error flex items-center text-sm">
                 <RiErrorWarningFill className="mr-2" />
                 {errors.firstname}
               </div>
@@ -137,13 +142,13 @@ const Edit = () => {
             </label>
             <input
               id="lastname"
-              className={`input mb-2 ${errors.lastname ? "border-b-red-error" : "border-b-black"}`}
+              className={`input mb-2 ${errors.lastname ? "border-b-error" : "border-b-black"}`}
               name="lastname"
               value={values.lastname}
               onChange={(e) => setValues({ ...values, lastname: e.target.value })}
             />
             {errors.lastname && (
-              <div className="text-red-error flex items-center text-sm">
+              <div className="text-error flex items-center text-sm">
                 <RiErrorWarningFill className="mr-2" />
                 {errors.lastname}
               </div>
@@ -156,13 +161,13 @@ const Edit = () => {
             </label>
             <input
               id="email"
-              className={`input mb-2 ${errors.email ? "border-b-red-error" : "border-b-black"}`}
+              className={`input mb-2 ${errors.email ? "border-b-error" : "border-b-black"}`}
               name="email"
               value={values.email}
               onChange={(e) => setValues({ ...values, email: e.target.value })}
             />
             {errors.email && (
-              <div className="text-red-error flex items-center text-sm">
+              <div className="text-error flex items-center text-sm">
                 <RiErrorWarningFill className="mr-2" />
                 {errors.email}
               </div>
@@ -175,7 +180,7 @@ const Edit = () => {
 
             <select
               id="role"
-              className={`input mb-2 ${errors.role ? "border-b-red-error" : "border-b-black"}`}
+              className={`input mb-2 ${errors.role ? "border-b-error" : "border-b-black"}`}
               value={values.role}
               onChange={(e) => setValues({ ...values, role: e.target.value })}
               name="role"
@@ -184,7 +189,7 @@ const Edit = () => {
               <option value="admin">Admin</option>
             </select>
             {errors.role && (
-              <div className="text-red-error flex items-center text-sm">
+              <div className="text-error flex items-center text-sm">
                 <RiErrorWarningFill className="mr-2" />
                 {errors.role}
               </div>
@@ -220,43 +225,36 @@ const Edit = () => {
                 ))}
               </div>
             )}
-            <Table
-              data={publishers.filter((p) => p.name.toLowerCase().includes(search.toLowerCase()))}
-              maxHeigth="max-h-96"
-              renderHeader={() => (
-                <>
-                  <h4 className="w-24" />
-                  <h4 className="flex-1">Nom</h4>
-                  <h4 className="flex-1 text-center">Rôles</h4>
-                </>
-              )}
-              renderItem={(item) => (
-                <>
-                  <div className="w-24 pl-3">
+            <Table header={TABLE_HEADER} total={filteredPublishers.length} pagination={false} auto className="max-h-96 overflow-y-auto">
+              {filteredPublishers.map((item, i) => (
+                <tr key={item.id || item._id} className={`${i % 2 === 0 ? "bg-gray-975" : "bg-gray-1000-active"} table-item`}>
+                  <td className="table-cell">
                     <input
                       type="checkbox"
                       className="checkbox"
                       onChange={(e) =>
                         setValues({
                           ...values,
-                          publishers: e.target.checked ? [...values.publishers, (item.id || item._id).toString()] : values.publishers.filter((pub) => pub !== (item.id || item._id).toString()),
+                          publishers: e.target.checked
+                            ? [...values.publishers, (item.id || item._id).toString()]
+                            : values.publishers.filter((pub) => pub !== (item.id || item._id).toString()),
                         })
                       }
                       checked={values.publishers.includes((item.id || item._id).toString())}
                     />
-                  </div>
-                  <div className="flex-1">{item.name}</div>
-                  <div className="flex-1">
+                  </td>
+                  <td className="table-cell">{item.name}</td>
+                  <td className="table-cell">
                     <div className="flex flex-wrap justify-center gap-2">
-                      {item.isAnnonceur && <span className="rounded bg-red-300 p-2">Annonceur</span>}
-                      {item.hasApiRights && <span className="rounded bg-green-300 p-2">Diffuseur API</span>}
-                      {item.hasWidgetRights && <span className="rounded bg-green-300 p-2">Diffuseur Widget</span>}
-                      {item.hasCampaignRights && <span className="rounded bg-green-300 p-2">Diffuseur Campagne</span>}
+                      {item.isAnnonceur && <span className="bg-red-marianne-950 rounded p-2">Annonceur</span>}
+                      {item.hasApiRights && <span className="bg-green-success-950 rounded p-2">Diffuseur API</span>}
+                      {item.hasWidgetRights && <span className="bg-green-success-950 rounded p-2">Diffuseur Widget</span>}
+                      {item.hasCampaignRights && <span className="bg-green-success-950 rounded p-2">Diffuseur Campagne</span>}
                     </div>
-                  </div>
-                </>
-              )}
-            />
+                  </td>
+                </tr>
+              ))}
+            </Table>
           </div>
 
           <div className="col-span-2 flex justify-end gap-4">
@@ -300,7 +298,10 @@ const ResetPasswordModal = ({ user }) => {
       if (!res.ok) throw res;
       setNewPassword(res.data);
     } catch (error) {
-      captureError(error, "Erreur lors de la réinitialisation du mot de passe");
+      captureError(error, { extra: { userId: user.id } });
+      setIsConfirm(false);
+      setNewPassword("");
+      setOpen(false);
     }
   };
 

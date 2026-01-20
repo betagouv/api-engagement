@@ -1,9 +1,7 @@
-import { PUBLISHER_IDS } from "../config";
 import { Campaign, CampaignTracker, Prisma, Publisher, User } from "../db/core";
 import { campaignRepository } from "../repositories/campaign";
 import { CampaignCreateInput, CampaignRecord, CampaignSearchParams, CampaignSearchResult, CampaignUpdatePatch } from "../types/campaign";
-import { slugify } from "../utils/string";
-import { toUrl } from "../utils/url";
+import { buildSearchParams, toUrl } from "../utils/url";
 import statEventService from "./stat-event";
 
 // Map MongoDB campaign type to Prisma enum
@@ -23,57 +21,61 @@ type CampaignEnriched = Campaign & {
   trackers: CampaignTracker[];
 };
 
-export const campaignService = (() => {
-  const defaultInclude = Object.freeze({
+const toCampaignRecord = (campaign: CampaignEnriched): CampaignRecord => {
+  const searchParams = buildSearchParams(campaign.trackers || []);
+  const url = `${campaign.url.split("?")[0]}${searchParams ? `?${searchParams}` : ""}`;
+
+  return {
+    ...campaign,
+    url,
+    fromPublisherName: campaign.fromPublisher.name,
+    toPublisherName: campaign.toPublisher.name,
+    reassignedByUsername: campaign.reassignedByUser ? `${campaign.reassignedByUser.firstname} ${campaign.reassignedByUser.lastname}` : null,
+  };
+};
+
+const buildSearchWhere = (params: CampaignSearchParams, fromPublisherIds?: string[]): Prisma.CampaignWhereInput => {
+  const and: Prisma.CampaignWhereInput[] = [];
+
+  // Always filter out deleted campaigns
+  if (!params.all) {
+    and.push({ deletedAt: null });
+  }
+
+  if (params.active !== undefined) {
+    and.push({ active: params.active });
+  }
+
+  if (params.fromPublisherId) {
+    and.push({ fromPublisherId: params.fromPublisherId });
+  } else if (fromPublisherIds && fromPublisherIds.length > 0) {
+    // Support filtering by multiple publisher IDs
+    and.push({ fromPublisherId: { in: fromPublisherIds } });
+  }
+
+  if (params.toPublisherId) {
+    and.push({ toPublisherId: params.toPublisherId });
+  }
+
+  if (params.search) {
+    const search = params.search.trim();
+    if (search) {
+      and.push({ name: { contains: search, mode: "insensitive" } });
+    }
+  }
+
+  return { AND: and };
+};
+
+export const campaignService = {
+  defaultInclude: Object.freeze({
     trackers: true,
     fromPublisher: { select: { id: true, name: true } },
     toPublisher: { select: { id: true, name: true } },
     reassignedByUser: { select: { id: true, firstname: true, lastname: true } },
-  }) satisfies Prisma.CampaignInclude;
+  }) satisfies Prisma.CampaignInclude,
 
-  const toCampaignRecord = (campaign: CampaignEnriched): CampaignRecord => {
-    return {
-      ...campaign,
-      fromPublisherName: campaign.fromPublisher.name,
-      toPublisherName: campaign.toPublisher.name,
-      reassignedByUsername: campaign.reassignedByUser ? `${campaign.reassignedByUser.firstname} ${campaign.reassignedByUser.lastname}` : null,
-    };
-  };
-
-  const buildSearchWhere = (params: CampaignSearchParams, fromPublisherIds?: string[]): Prisma.CampaignWhereInput => {
-    const and: Prisma.CampaignWhereInput[] = [];
-
-    // Always filter out deleted campaigns
-    if (!params.all) {
-      and.push({ deletedAt: null });
-    }
-
-    if (params.active !== undefined) {
-      and.push({ active: params.active });
-    }
-
-    if (params.fromPublisherId) {
-      and.push({ fromPublisherId: params.fromPublisherId });
-    } else if (fromPublisherIds && fromPublisherIds.length > 0) {
-      // Support filtering by multiple publisher IDs
-      and.push({ fromPublisherId: { in: fromPublisherIds } });
-    }
-
-    if (params.toPublisherId) {
-      and.push({ toPublisherId: params.toPublisherId });
-    }
-
-    if (params.search) {
-      const search = params.search.trim();
-      if (search) {
-        and.push({ name: { contains: search, mode: "insensitive" } });
-      }
-    }
-
-    return { AND: and };
-  };
-
-  const findCampaigns = async (params: CampaignSearchParams = {}, fromPublisherIds?: string[]): Promise<CampaignSearchResult> => {
+  async findCampaigns(params: CampaignSearchParams = {}, fromPublisherIds?: string[]): Promise<CampaignSearchResult> {
     const where = buildSearchWhere(params, fromPublisherIds);
     const limit = Math.min(Math.max(params.limit ?? DEFAULT_LIMIT, 1), MAX_LIMIT);
     const offset = Math.max(params.offset ?? 0, 0);
@@ -86,7 +88,7 @@ export const campaignService = (() => {
         skip: offset,
         take: limit,
         orderBy: { createdAt: "desc" },
-        include: defaultInclude,
+        include: this.defaultInclude,
       }),
     ]);
 
@@ -94,31 +96,35 @@ export const campaignService = (() => {
       total,
       results: campaigns.map((campaign) => toCampaignRecord(campaign as CampaignEnriched)),
     };
-  };
+  },
 
-  const findCampaignById = async (id: string): Promise<CampaignRecord | null> => {
+  async findCampaignById(id: string): Promise<CampaignRecord | null> {
     if (!id) {
       return null;
     }
     const campaign = await campaignRepository.findUnique({
       where: { id },
-      include: defaultInclude,
+      include: this.defaultInclude,
     });
-    if (!campaign || campaign.deletedAt) {
+    if (!campaign) {
       return null;
     }
     return toCampaignRecord(campaign as CampaignEnriched);
-  };
+  },
 
-  const createCampaign = async (input: CampaignCreateInput): Promise<CampaignRecord> => {
+  async createCampaign(input: CampaignCreateInput): Promise<CampaignRecord> {
     const data: Prisma.CampaignCreateInput = {
       id: input.id ?? undefined,
       name: input.name.trim(),
       type: input.type,
       url: input.url,
+      urlSource: input.urlSource || null,
       fromPublisher: { connect: { id: input.fromPublisherId.trim() } },
       toPublisher: { connect: { id: input.toPublisherId.trim() } },
       active: input.active ?? true,
+      deletedAt: input.deletedAt ?? null,
+      reassignedAt: input.reassignedAt ?? null,
+      reassignedByUser: input.reassignedByUserId ? { connect: { id: input.reassignedByUserId.trim() } } : undefined,
       trackers: {
         create: (input.trackers || []).map((tracker) => ({
           key: tracker.key.trim(),
@@ -134,18 +140,18 @@ export const campaignService = (() => {
 
     const campaign = await campaignRepository.create({
       data,
-      include: defaultInclude,
+      include: this.defaultInclude,
     });
     return toCampaignRecord(campaign as CampaignEnriched);
-  };
+  },
 
-  const updateCampaign = async (id: string, patch: CampaignUpdatePatch): Promise<CampaignRecord> => {
+  async updateCampaign(id: string, patch: CampaignUpdatePatch): Promise<CampaignRecord> {
     const existing = (await campaignRepository.findUnique({
       where: { id },
       include: { trackers: true },
     })) as CampaignEnriched | null;
 
-    if (!existing || existing.deletedAt) {
+    if (!existing) {
       throw new Error("Campaign not found");
     }
 
@@ -156,42 +162,26 @@ export const campaignService = (() => {
     if (patch.type !== undefined) {
       data.type = patch.type;
     }
-    // Handle trackers logic
-    if (patch.trackers && patch.trackers.length) {
-      data.trackers = {
-        deleteMany: {},
-        create: patch.trackers.map((t) => ({ key: t.key, value: t.value })),
-      };
-    } else if (patch.trackers !== undefined && patch.trackers.length === 0) {
-      // Empty array means remove trackers and regenerate
-      const toPublisherId = patch.toPublisherId || existing.toPublisherId;
-
-      if (toPublisherId === PUBLISHER_IDS.SERVICE_CIVIQUE) {
-        patch.trackers = [
-          { key: "mtm_source", value: "api_engagement" },
-          { key: "mtm_medium", value: "campaign" },
-          { key: "mtm_campaign", value: slugify(patch.name || existing.name) },
-        ];
-      } else {
-        patch.trackers = [
-          { key: "utm_source", value: "api_engagement" },
-          { key: "utm_medium", value: "campaign" },
-          { key: "utm_campaign", value: slugify(patch.name || existing.name) },
-        ];
-      }
-      data.trackers = {
-        deleteMany: {},
-        create: patch.trackers.map((t) => ({ key: t.key, value: t.value })),
-      };
+    if (patch.urlSource !== undefined) {
+      data.urlSource = patch.urlSource || null;
     }
+
+    // Handle trackers logic
+    data.trackers = {
+      deleteMany: {},
+    };
+    if (patch.trackers && patch.trackers.length) {
+      data.trackers.create = patch.trackers.map((t) => ({ key: t.key, value: t.value }));
+    }
+
     if (patch.url !== undefined) {
       const url = toUrl(patch.url);
       if (!url) {
         throw new InvalidUrlError(patch.url);
       }
-      data.url = url;
+      data.url = url.split("?")[0];
     } else {
-      data.url = existing.url;
+      data.url = existing.url.split("?")[0];
     }
 
     if (patch.toPublisherId !== undefined) {
@@ -203,16 +193,20 @@ export const campaignService = (() => {
     if (patch.active !== undefined) {
       data.active = patch.active;
     }
-
-    const searchParams = new URLSearchParams();
-    (patch.trackers || existing.trackers || []).forEach((tracker) => searchParams.append(tracker.key, tracker.value));
-    const baseUrl = (data.url || existing.url).split("?")[0];
-    data.url = `${baseUrl}${searchParams.size ? `?${searchParams.toString()}` : ""}`;
+    if (patch.deletedAt !== undefined) {
+      data.deletedAt = patch.deletedAt;
+    }
+    if (patch.reassignedAt !== undefined) {
+      data.reassignedAt = patch.reassignedAt;
+    }
+    if (patch.reassignedByUserId !== undefined && patch.reassignedByUserId !== null) {
+      data.reassignedByUser = { connect: { id: patch.reassignedByUserId.trim() } };
+    }
 
     const campaign = await campaignRepository.update({
       where: { id },
       data,
-      include: defaultInclude,
+      include: this.defaultInclude,
     });
 
     if (campaign.fromPublisherId !== existing.fromPublisherId) {
@@ -223,26 +217,27 @@ export const campaignService = (() => {
     }
 
     return toCampaignRecord(campaign as CampaignEnriched);
-  };
+  },
 
-  const duplicateCampaign = async (id: string): Promise<CampaignRecord> => {
-    const existing = await findCampaignById(id);
+  async duplicateCampaign(id: string): Promise<CampaignRecord> {
+    const existing = await this.findCampaignById(id);
     if (!existing) {
       throw new Error("Campaign not found");
     }
 
-    return await createCampaign({
+    return await this.createCampaign({
       name: `${existing.name} copie`,
       type: existing.type,
       url: existing.url,
+      urlSource: existing.urlSource,
       fromPublisherId: existing.fromPublisherId,
       toPublisherId: existing.toPublisherId,
       trackers: existing.trackers.map((t) => ({ key: t.key, value: t.value })),
       active: existing.active,
     });
-  };
+  },
 
-  const softDeleteCampaign = async (id: string): Promise<void> => {
+  async softDeleteCampaign(id: string): Promise<void> {
     try {
       await campaignRepository.update({
         where: { id },
@@ -257,14 +252,5 @@ export const campaignService = (() => {
       }
       throw error;
     }
-  };
-
-  return {
-    findCampaigns,
-    findCampaignById,
-    createCampaign,
-    updateCampaign,
-    duplicateCampaign,
-    softDeleteCampaign,
-  };
-})();
+  },
+};

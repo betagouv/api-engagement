@@ -49,7 +49,7 @@ npx ts-node api/scripts/mongo-backfill/backfill-publisher.ts --env api/.env.prod
 - Exécution: `npx ts-node scripts/mongo-backfill/backfill-moderation-event.ts [--env <chemin>] [--dry-run]`
 - Usage: Migration des événements de modération depuis MongoDB vers PostgreSQL (bulk insert/update).
 
-## backfill-organization-exclusion.ts
+## backfill-publisher-diffusion-exclusion.ts
 
 - Rôle: migrer la collection Mongo `organization-exclusion` vers la table correspondante dans PostgreSQL.
 - Options:
@@ -59,10 +59,10 @@ npx ts-node api/scripts/mongo-backfill/backfill-publisher.ts --env api/.env.prod
 
 ```bash
 # Dry-run avec l'environnement production (utilise api/.env.production)
-npx ts-node api/scripts/mongo-backfill/backfill-organization-exclusion.ts --env production --dry-run
+npx ts-node api/scripts/mongo-backfill/backfill-publisher-diffusion-exclusion.ts --env production --dry-run
 
 # Exécution réelle en pointant explicitement un fichier .env
-npx ts-node api/scripts/mongo-backfill/backfill-organization-exclusion.ts --env api/.env.production
+npx ts-node api/scripts/mongo-backfill/backfill-publisher-diffusion-exclusion.ts --env api/.env.production
 ```
 
 ## backfill-campaign.ts
@@ -111,6 +111,36 @@ npx ts-node api/scripts/mongo-backfill/backfill-login-history.ts --env productio
 
 # Exécution réelle
 npx ts-node api/scripts/mongo-backfill/backfill-login-history.ts --env api/.env.production
+```
+
+## backfill-mission.ts
+
+- Rôle: migrer la collection Mongo `missions` vers PostgreSQL (missions + adresses + statuts de modération + job boards).
+- Options:
+  - `--dry-run` exécute sans écrire en base et affiche des exemples de créations/mises à jour.
+  - `--bulk-insert` exécute les insertions en `createMany` (plus rapide) **uniquement si la table `mission` de destination est vide**.
+  - `--env <nom|chemin>` sélectionne le fichier d'environnement à charger.
+- Exemples:
+
+```bash
+# Exécution réelle en bulk (destination vide)
+npx ts-node api/scripts/mongo-backfill/backfill-mission.ts --env production --bulk-insert
+```
+
+## backfill-mission-domain-logo.ts
+
+- Rôle: récupérer les `domainLogo` encore présents dans MongoDB et compléter le champ `domain_logo` des missions Postgres quand il est manquant.
+- Options:
+  - `--dry-run` simule sans écrire en base.
+  - `--env <nom|chemin>` sélectionne le fichier d'environnement à charger.
+- Exemples:
+
+```bash
+# Simulation
+npx ts-node api/scripts/mongo-backfill/backfill-mission-domain-logo.ts --env production --dry-run
+
+# Exécution réelle
+npx ts-node api/scripts/mongo-backfill/backfill-mission-domain-logo.ts --env api/.env.production
 ```
 
 ## backfill-mission-event.ts

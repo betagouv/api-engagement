@@ -93,11 +93,8 @@ const normalizeCampaign = (doc: MongoCampaignDocument, publishers: PublisherReco
   const trackers = normalizeTrackers(doc.trackers);
   const active = asBoolean(doc.active, true);
   const deletedAt = asDate(doc.deletedAt);
-
-  // Skip deleted campaigns
-  if (deletedAt) {
-    return null;
-  }
+  const reassignedAt = asDate(doc.reassignedAt);
+  const reassignedByUserId = asString(doc.reassignedByUserId);
 
   return {
     id: toMongoObjectIdString(doc._id) ?? undefined,
@@ -108,6 +105,9 @@ const normalizeCampaign = (doc: MongoCampaignDocument, publishers: PublisherReco
     toPublisherId: toPublisher.id,
     trackers,
     active,
+    deletedAt,
+    reassignedAt,
+    reassignedByUserId,
   };
 };
 
@@ -131,6 +131,7 @@ const migrateCampaigns = async () => {
 
   let processed = 0;
   let created = 0;
+  let updated = 0;
   let skipped = 0;
   let errors = 0;
 
@@ -163,26 +164,27 @@ const migrateCampaigns = async () => {
         }
         created++;
       } else {
-        let updated = false;
-        if (normalized.id) {
-          const existing = await campaignService.findCampaignById(normalized.id);
-          if (existing) {
-            await campaignService.updateCampaign(normalized.id, {
-              name: normalized.name,
-              type: normalized.type,
-              url: normalized.url,
-              toPublisherId: normalized.toPublisherId,
-              trackers: normalized.trackers,
-              active: normalized.active,
-            });
-            updated = true;
-            created++;
-            console.log(`[MigrateCampaigns] Updated campaign: ${normalized.name} (${normalized.fromPublisherId} -> ${normalized.toPublisherId})`);
-          }
+        const existing = normalized.id ? await campaignService.findCampaignById(normalized.id) : null;
+
+        if (existing) {
+          await campaignService.updateCampaign(existing.id, {
+            name: normalized.name,
+            type: normalized.type,
+            url: normalized.url,
+            toPublisherId: normalized.toPublisherId,
+            trackers: normalized.trackers,
+            active: normalized.active,
+            deletedAt: normalized.deletedAt,
+            reassignedAt: normalized.reassignedAt,
+            reassignedByUserId: normalized.reassignedByUserId,
+          });
+          updated++;
+          console.log(`[MigrateCampaigns] Updated campaign: ${normalized.name} (${normalized.fromPublisherId} -> ${normalized.toPublisherId})`);
         }
 
-        if (!updated) {
+        if (!existing) {
           try {
+            console.log(normalized.id);
             await campaignService.createCampaign(normalized);
             created++;
           } catch (error: any) {
@@ -198,6 +200,9 @@ const migrateCampaigns = async () => {
                     toPublisherId: normalized.toPublisherId,
                     trackers: normalized.trackers,
                     active: normalized.active,
+                    deletedAt: normalized.deletedAt,
+                    reassignedAt: normalized.reassignedAt,
+                    reassignedByUserId: normalized.reassignedByUserId,
                   });
                   created++;
                   console.log(`[MigrateCampaigns] Updated existing campaign: ${normalized.name} (${normalized.fromPublisherId} -> ${normalized.toPublisherId})`);
@@ -228,7 +233,9 @@ const migrateCampaigns = async () => {
     }
   }
 
-  console.log(`[MigrateCampaigns] Completed. Processed: ${processed}, created: ${created}, skipped: ${skipped}, errors: ${errors}, dry-run: ${options.dryRun}`);
+  console.log(
+    `[MigrateCampaigns] Completed. Processed: ${processed}, created: ${created}, updated: ${updated}, skipped: ${skipped}, errors: ${errors}, dry-run: ${options.dryRun}`
+  );
 
   await Promise.allSettled([mongoose.connection.close(), prismaCore.$disconnect()]);
 };

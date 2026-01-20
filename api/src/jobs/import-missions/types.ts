@@ -1,4 +1,5 @@
 import { CompensationType, CompensationUnit } from "../../constants/compensation";
+import type { MissionRecord } from "../../types/mission";
 
 export interface MissionXML {
   id: string;
@@ -103,3 +104,8 @@ export interface MissionXML {
     | undefined;
   parentOrganizationName: string;
 }
+
+export type ImportedMission = MissionRecord & {
+  geolocStatus?: string | null;
+  deleted?: boolean;
+};

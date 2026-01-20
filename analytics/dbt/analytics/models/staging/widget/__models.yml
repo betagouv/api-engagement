@@ -1,0 +1,37 @@
+version: 2
+
+models:
+  - name: stg_widget
+    description: "Widgets exportés depuis analytics_raw avec déduplication par id."
+    columns:
+      - name: id
+        tests:
+          - not_null
+          - unique
+      - name: from_publisher_id
+        description: "Diffuseur propriétaire."
+      - name: active
+        description: "Statut actif/inactif."
+  - name: stg_widget_publisher
+    description: "Relations widget ↔ publisher exportées depuis analytics_raw."
+    columns:
+      - name: widget_id
+        tests:
+          - not_null
+      - name: publisher_id
+        tests:
+          - not_null
+      - name: created_at
+        description: "Date d'association."
+  - name: stg_widget_rule
+    description: "Règles métiers associées aux widgets."
+    columns:
+      - name: id
+        tests:
+          - not_null
+          - unique
+      - name: widget_id
+        tests:
+          - not_null
+      - name: field
+        description: "Champ ciblé par la règle."
