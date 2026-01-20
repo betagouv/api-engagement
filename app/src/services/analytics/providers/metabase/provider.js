@@ -1,5 +1,5 @@
-import { queryCard } from "./client";
 import { adaptBarFromMetabase, adaptKpiFromMetabase, adaptPieFromMetabase, adaptStackedBarFromMetabase, adaptTableFromMetabase } from "./adapters";
+import { queryCard } from "./client";
 
 const DEFAULT_ADAPTERS = {
   pie: adaptPieFromMetabase,
@@ -11,6 +11,7 @@ const DEFAULT_ADAPTERS = {
 
 const CACHE_TTL_MS = 30000;
 const cache = new Map();
+const USER_TIMEZONE = Intl.DateTimeFormat().resolvedOptions().timeZone;
 
 const buildCacheKey = (cardId, variables = {}) => {
   const entries = Object.keys(variables)
@@ -43,7 +44,7 @@ const wrapWithAbort = (promise, signal) => {
       (err) => {
         signal.removeEventListener("abort", onAbort);
         reject(err);
-      }
+      },
     );
   });
 };
@@ -52,8 +53,12 @@ const query = async ({ cardId, variables = {}, signal } = {}) => {
   if (!cardId) {
     throw new Error("Identifiant de carte manquant");
   }
-  const hasVariables = variables && Object.keys(variables).length > 0;
-  const cacheKey = buildCacheKey(cardId, variables);
+  const resolvedVariables = { ...(variables || {}) };
+  if (USER_TIMEZONE && resolvedVariables.user_tz === undefined) {
+    resolvedVariables.user_tz = USER_TIMEZONE;
+  }
+  const hasVariables = resolvedVariables && Object.keys(resolvedVariables).length > 0;
+  const cacheKey = buildCacheKey(cardId, resolvedVariables);
   const cached = cache.get(cacheKey);
   if (cached?.data) {
     if (!cached.expiresAt || cached.expiresAt > Date.now()) {
@@ -66,7 +71,7 @@ const query = async ({ cardId, variables = {}, signal } = {}) => {
   }
 
   const fetchPromise = (async () => {
-    const res = await queryCard(cardId, { variables: hasVariables ? variables : undefined });
+    const res = await queryCard(cardId, { variables: hasVariables ? resolvedVariables : undefined });
     if (!res.ok) {
       throw new Error(`Metabase renvoie ${res.status || "une erreur"}`);
     }

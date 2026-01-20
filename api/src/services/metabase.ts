@@ -7,12 +7,41 @@ type QueryOptions = {
   body?: Record<string, unknown>;
 };
 
+const DATE_KEYS = new Set(["from", "to"]);
+
+const resolveDateInTimezone = (value: string, timeZone: string) => {
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) {
+    return value;
+  }
+  return new Intl.DateTimeFormat("en-CA", {
+    timeZone,
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  }).format(date);
+};
+
 const buildParametersFromVariables = (variables?: QueryOptions["variables"]) => {
   if (!variables) {
     return undefined;
   }
-  return Object.entries(variables).map(([key, value]) => {
-    const resolvedType = Array.isArray(value) ? "date/range" : ["from", "to"].includes(key) ? "date/single" : "string/=";
+
+  const resolvedVariables = { ...variables };
+  const userTz = resolvedVariables.user_tz as string;
+
+  if (userTz && typeof resolvedVariables.from === "string") {
+    resolvedVariables.from = resolveDateInTimezone(resolvedVariables.from, userTz);
+  }
+
+  if (userTz && typeof resolvedVariables.to === "string") {
+    resolvedVariables.to = resolveDateInTimezone(resolvedVariables.to, userTz);
+  }
+
+  delete resolvedVariables.user_tz;
+
+  return Object.entries(resolvedVariables).map(([key, value]) => {
+    const resolvedType = Array.isArray(value) ? "date/range" : DATE_KEYS.has(key) ? "date/single" : "string/=";
 
     return {
       type: resolvedType,

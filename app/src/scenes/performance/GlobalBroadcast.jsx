@@ -5,7 +5,7 @@ import { Pie, StackedBarchart } from "../../components/Chart";
 import Loader from "../../components/Loader";
 import DateRangePicker from "../../components/NewDateRangePicker";
 import Table from "../../components/Table";
-import { MONTHS } from "../../constants";
+import { METABASE_CARD_ID, MONTHS } from "../../constants";
 import { useAnalyticsProvider } from "../../services/analytics/provider";
 import { captureError } from "../../services/error";
 import useStore from "../../services/store";

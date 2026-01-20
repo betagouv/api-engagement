@@ -6,7 +6,7 @@ import { useAnalyticsProvider } from "../services/analytics/provider";
 import { captureError } from "../services/error";
 import { COLORS as CHART_COLORS, Pie, BarChart as SimpleBarChart, StackedBarchart } from "./Chart";
 import Loader from "./Loader";
-import NewTable from "./NewTable";
+import Table from "./Table";
 
 const AnalyticsViz = ({
   cardId,
@@ -120,7 +120,7 @@ const AnalyticsViz = ({
     }));
 
     return (
-      <NewTable header={header} total={tableRows.length} loading={false} className={`border border-gray-900 ${className}`} {...tableProps}>
+      <Table header={header} total={tableRows.length} loading={false} className={`border border-gray-900 ${className}`} {...tableProps}>
         {tableRows.map((row, idx) => (
           <tr key={idx} className={`${idx % 2 === 0 ? "bg-gray-975" : "bg-gray-1000-active"} table-item`}>
             {columns.map((col, colIdx) => (
@@ -130,7 +130,7 @@ const AnalyticsViz = ({
             ))}
           </tr>
         ))}
-      </NewTable>
+      </Table>
     );
   }
 
