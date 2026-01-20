@@ -37,7 +37,9 @@ select
     as has_candidate_motivation,
   s.attrs ->> 'candidateAge' as candidate_age,
   s.attrs ->> 'candidateGender' as candidate_gender,
-  s.attrs ->> 'candidatePostalCode' as candidate_postal_code
+  s.attrs ->> 'candidatePostalCode' as candidate_postal_code,
+  s.attrs ->> 'candidateCity' as candidate_city,
+  s.attrs ->> 'candidateCountry' as candidate_country
 from src as s
 inner join service_civique as sc on s.to_publisher_id = sc.id
 where
