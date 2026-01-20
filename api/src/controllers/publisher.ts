@@ -10,7 +10,7 @@ import { publisherDiffusionExclusionService } from "../services/publisher-diffus
 import { OBJECT_ACL, putObject } from "../services/s3";
 import { userService } from "../services/user";
 import { UserRequest } from "../types/passport";
-import type { PublisherDiffusionInput, PublisherRoleFilter } from "../types/publisher";
+import { PublisherMissionType, type PublisherDiffusionInput, type PublisherRoleFilter } from "../types/publisher";
 
 const upload = multer();
 const router = Router();
@@ -18,7 +18,7 @@ const router = Router();
 const nullableString = zod.string().nullish();
 const publisherDiffusionSchema = zod.object({
   publisherId: zod.string().min(1),
-  missionType: zod.string().nullable().optional(),
+  missionType: zod.enum(PublisherMissionType).nullable().optional(),
   moderator: zod.boolean().optional(),
 });
 
@@ -27,7 +27,7 @@ type PublisherDiffusionBody = zod.infer<typeof publisherDiffusionSchema>;
 const mapPublishersForService = (publishers?: PublisherDiffusionBody[]): PublisherDiffusionInput[] | undefined =>
   publishers?.map(({ publisherId, missionType, moderator }) => ({
     publisherId,
-    missionType: missionType ?? null,
+    missionType: (missionType as PublisherMissionType) ?? null,
     moderator: moderator ?? false,
   }));
 
@@ -42,7 +42,7 @@ router.post("/search", passport.authenticate(["user", "admin"], { session: false
         ids: zod.array(zod.string()).optional(),
         role: zod.string().optional(),
         sendReport: zod.boolean().optional(),
-        missionType: zod.string().optional(),
+        missionType: zod.enum(PublisherMissionType).nullable().optional(),
       })
       .safeParse(req.body);
 
@@ -172,7 +172,7 @@ router.post("/", passport.authenticate("admin", { session: false }), async (req:
         sendReport: zod.boolean().default(false),
         sendReportTo: zod.array(zod.string()).default([]),
         isAnnonceur: zod.boolean().default(false),
-        missionType: zod.string().nullable().default(null),
+        missionType: zod.enum(PublisherMissionType).nullable().default(null),
         hasApiRights: zod.boolean().default(false),
         hasWidgetRights: zod.boolean().default(false),
         hasCampaignRights: zod.boolean().default(false),
@@ -308,10 +308,11 @@ router.put("/:id", passport.authenticate("admin", { session: false }), async (re
 
     const body = zod
       .object({
+        name: zod.string().optional(),
         sendReport: zod.boolean().optional(),
         sendReportTo: zod.array(zod.string()).optional(),
         isAnnonceur: zod.boolean().optional(),
-        missionType: zod.string().nullable().optional(),
+        missionType: zod.enum(PublisherMissionType).nullable().optional(),
         hasApiRights: zod.boolean().optional(),
         hasWidgetRights: zod.boolean().optional(),
         hasCampaignRights: zod.boolean().optional(),
@@ -343,6 +344,7 @@ router.put("/:id", passport.authenticate("admin", { session: false }), async (re
     const publishers = body.data.publishers !== undefined ? (mapPublishersForService(body.data.publishers) ?? []) : undefined;
 
     const patch = {
+      name: body.data.name,
       sendReport: body.data.sendReport,
       sendReportTo: body.data.sendReportTo,
       isAnnonceur: body.data.isAnnonceur,

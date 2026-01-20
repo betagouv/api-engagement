@@ -1,6 +1,5 @@
-import { Schema } from "mongoose";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { Mission } from "../../../types";
+import { MissionRecord } from "../../../types/mission";
 import { missionToTalentJob } from "../transformers";
 
 // Mock constants with IDs but keep the rest of the config
@@ -21,8 +20,8 @@ vi.mock("../utils", () => ({
   getImageUrl: vi.fn((logo) => logo || "https://default-logo.com/logo.png"),
 }));
 
-const baseMission: Partial<Mission> = {
-  _id: new Schema.Types.ObjectId("000000000000000000000123"),
+const baseMission: Partial<MissionRecord> = {
+  _id: "000000000000000000000123",
   title: "Développeur Web",
   descriptionHtml: "Ceci est une description de mission de plus de 100 caractères pour passer la validation initiale. Il faut que ce soit assez long pour que le test passe.",
   publisherName: "Mon asso",
@@ -64,7 +63,7 @@ describe("missionToTalentJob", () => {
   });
 
   it("should return a valid TalentJob array for a mission with addresses", () => {
-    const jobs = missionToTalentJob(baseMission as Mission);
+    const jobs = missionToTalentJob(baseMission as MissionRecord);
     expect(jobs).toHaveLength(1);
 
     const job = jobs[0];
@@ -91,7 +90,7 @@ describe("missionToTalentJob", () => {
       { ...baseMission.addresses?.[0], city: "Lyon", region: "Rhône-Alpes", postalCode: "69000", street: undefined },
       { ...baseMission.addresses?.[0], city: "Marseille", region: "Provence-Alpes-Côte d'Azur", postalCode: "13000", street: "13 rue de test" },
     ];
-    const mission = { ...baseMission, addresses } as Mission;
+    const mission = { ...baseMission, addresses } as MissionRecord;
     const jobs = missionToTalentJob(mission);
 
     expect(jobs).toHaveLength(2);
@@ -112,7 +111,7 @@ describe("missionToTalentJob", () => {
   });
 
   it("should return default location when mission has no addresses", () => {
-    const mission = { ...baseMission, addresses: [] } as Mission;
+    const mission = { ...baseMission, addresses: [] } as MissionRecord;
     const jobs = missionToTalentJob(mission);
 
     expect(jobs).toHaveLength(1);
@@ -124,42 +123,42 @@ describe("missionToTalentJob", () => {
   });
 
   it("should correctly map remote status", () => {
-    let jobs = missionToTalentJob({ ...baseMission, remote: "full" } as Mission);
+    let jobs = missionToTalentJob({ ...baseMission, remote: "full" } as MissionRecord);
     expect(jobs[0].isremote).toBe("yes");
 
-    jobs = missionToTalentJob({ ...baseMission, remote: "possible" } as Mission);
+    jobs = missionToTalentJob({ ...baseMission, remote: "possible" } as MissionRecord);
     expect(jobs[0].isremote).toBe("yes");
 
-    jobs = missionToTalentJob({ ...baseMission, remote: "no" } as Mission);
+    jobs = missionToTalentJob({ ...baseMission, remote: "no" } as MissionRecord);
     expect(jobs[0].isremote).toBe("no");
   });
 
   it("should not have expirationdate if endAt is not provided", () => {
-    const mission = { ...baseMission, endAt: null } as Mission;
+    const mission = { ...baseMission, endAt: null } as MissionRecord;
     const jobs = missionToTalentJob(mission);
     expect(jobs[0].expirationdate).toBeUndefined();
   });
 
   it("should use organizationLogo when provided", () => {
-    const mission = { ...baseMission, organizationLogo: "https://custom-logo.com/logo.png" } as Mission;
+    const mission = { ...baseMission, organizationLogo: "https://custom-logo.com/logo.png" } as MissionRecord;
     const jobs = missionToTalentJob(mission);
     expect(jobs[0].logo).toBe("https://custom-logo.com/logo.png");
   });
 
   it("should use default logo when organizationLogo is undefined", () => {
-    const mission = { ...baseMission, organizationLogo: undefined } as unknown as Mission;
+    const mission = { ...baseMission, organizationLogo: undefined } as unknown as MissionRecord;
     const jobs = missionToTalentJob(mission);
     expect(jobs[0].logo).toBe("https://default-logo.com/logo.png");
   });
 
   it("should use getActivityCategory for category mapping", () => {
-    const mission = { ...baseMission, activity: "art" } as Mission;
+    const mission = { ...baseMission, activity: "art" } as MissionRecord;
     const jobs = missionToTalentJob(mission);
     expect(jobs[0].category).toBe("Category art");
   });
 
   it("should format dateposted correctly", () => {
-    const mission = { ...baseMission, postedAt: new Date("2025-01-15T10:30:00Z") } as Mission;
+    const mission = { ...baseMission, postedAt: new Date("2025-01-15T10:30:00Z") } as MissionRecord;
     const jobs = missionToTalentJob(mission);
     expect(jobs[0].dateposted).toBe("2025-01-15T10:30:00.000Z");
   });

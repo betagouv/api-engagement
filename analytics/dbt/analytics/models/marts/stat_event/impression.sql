@@ -16,8 +16,8 @@ with src as (
   from {{ ref('stg_stat_event__print') }}
   {% if is_incremental() %}
     where
-      created_at
-      > (select coalesce(max(i.created_at), '1900-01-01') from {{ this }} as i)
+      updated_at
+      > (select coalesce(max(i.updated_at), '1900-01-01') from {{ this }} as i)
   {% endif %}
 )
 
@@ -26,12 +26,11 @@ select
   created_at,
   campaign_id,
   widget_id,
-  source::"SourceType" as source,
+  source::text as source,
   source_id,
   host,
   from_publisher_id,
   to_publisher_id,
   mission_id,
-  mission_id_raw,
   updated_at
 from src

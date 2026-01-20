@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 
-import Table from "../../../components/NewTable";
 import SearchInput from "../../../components/SearchInput";
+import Table from "../../../components/Table";
 import Toggle from "../../../components/Toggle";
 import { PUBLISHER_CATEGORIES } from "../../../constants";
 import api from "../../../services/api";
@@ -22,26 +22,30 @@ const DiffuseurCreation = ({ values, onChange, errors }) => {
 
         setData(withLegacyPublishers(res.data));
       } catch (error) {
-        captureError(error, "Erreur lors de la récupération des diffuseurs");
+        captureError(error, { extra: { publisherId: values.id } });
       }
     };
     fetchData();
   }, []);
 
   return (
-    <div className="space-y-6 border border-gray-900 p-6">
+    <div className="border-grey-border space-y-6 border p-6">
       <div className="flex items-center justify-between">
         <h3 className="text-lg font-bold">Diffuseur</h3>
-        <Toggle value={values.isDiffuseur} onChange={(e) => onChange({ ...values, isDiffuseur: e, hasApiRights: false, hasWidgetRights: false, hasCampaignRights: false })} />
+        <Toggle
+          aria-label={values.isDiffuseur ? "Désactiver le mode diffuseur" : "Activer le mode diffuseur"}
+          value={values.isDiffuseur}
+          onChange={(e) => onChange({ ...values, isDiffuseur: e, hasApiRights: false, hasWidgetRights: false, hasCampaignRights: false })}
+        />
       </div>
       {values.isDiffuseur && (
         <>
           <div className="h-px w-full bg-gray-900" />
-          {errors.category && <p className="text-red-700">{errors.category}</p>}
-          {errors.mode && <p className="text-red-700">{errors.mode}</p>}
+          {errors.category && <p className="text-error">{errors.category}</p>}
+          {errors.mode && <p className="text-error">{errors.mode}</p>}
           <div className="space-y-2">
             <label className="text-base" htmlFor="category">
-              Catégorie <span className="text-red-500">*</span>
+              Catégorie <span className="text-red-marianne ml-1">*</span>
             </label>
             <select id="category" className="select w-full" name="category" value={values.category || ""} onChange={(e) => onChange({ ...values, category: e.target.value })}>
               <option value="">Sélectionner une catégorie de diffuseur</option>
@@ -55,7 +59,7 @@ const DiffuseurCreation = ({ values, onChange, errors }) => {
           <div className="h-px w-full bg-gray-900" />
           <div className="space-y-4">
             <label className="text-base" htmlFor="category">
-              Moyens de diffusion <span className="text-red-500">*</span>
+              Moyens de diffusion <span className="text-red-marianne ml-1">*</span>
             </label>
             <div className="flex items-center gap-2">
               <input

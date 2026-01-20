@@ -1,8 +1,8 @@
-import mongoose from "mongoose";
+import { randomUUID } from "crypto";
 import request from "supertest";
+
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { Mission, MissionType } from "../../../../src/types";
-import type { PublisherRecord } from "../../../../src/types/publisher";
+import type { MissionRecord, PublisherRecord } from "../../../../src/types";
 import { createTestMission, createTestPublisher } from "../../../fixtures";
 import { createTestApp } from "../../../testApp";
 
@@ -10,9 +10,9 @@ describe("Mission API Integration Tests", () => {
   const app = createTestApp();
   let publisher: PublisherRecord;
   let apiKey: string;
-  let mission1: Mission;
-  let mission2: Mission;
-  let mission3: Mission;
+  let mission1: MissionRecord;
+  let mission2: MissionRecord;
+  let mission3: MissionRecord;
 
   beforeEach(async () => {
     // Create publishers
@@ -27,13 +27,11 @@ describe("Mission API Integration Tests", () => {
           publisherId: publisher1.id,
           publisherName: "Publisher A",
           moderator: true,
-          missionType: MissionType.BENEVOLAT,
         },
         {
           publisherId: publisher2.id,
           publisherName: "Publisher B",
           moderator: true,
-          missionType: MissionType.BENEVOLAT,
         },
       ],
     });
@@ -47,12 +45,12 @@ describe("Mission API Integration Tests", () => {
       city: "Paris",
       domain: "culture",
       activity: "arts",
-      type: MissionType.BENEVOLAT,
+      type: "benevolat",
       organizationRNA: "W123456789",
       organizationStatusJuridique: "Association",
       remote: "no",
-      openToMinors: "no",
-      reducedMobilityAccessible: "yes",
+      openToMinors: false,
+      reducedMobilityAccessible: true,
       startAt: new Date("2024-01-10"),
       endAt: new Date("2024-02-10"),
       addresses: [
@@ -80,7 +78,7 @@ describe("Mission API Integration Tests", () => {
       title: "Mission in Lyon",
       city: "Lyon",
       domain: "sport",
-      openToMinors: "no",
+      openToMinors: false,
       addresses: [
         {
           street: "1 rue de la république",
@@ -103,7 +101,7 @@ describe("Mission API Integration Tests", () => {
       title: "Another mission in Paris",
       city: "Paris",
       domain: "environment",
-      openToMinors: "no",
+      openToMinors: false,
       addresses: [
         {
           street: "1 Avenue des Champs-Élysées",
@@ -146,7 +144,7 @@ describe("Mission API Integration Tests", () => {
     it("should expose compensation fields on missions", async () => {
       const response = await request(app).get("/v0/mission").set("x-api-key", apiKey);
       expect(response.status).toBe(200);
-      const target = response.body.data.find((mission: any) => mission._id === mission1._id!.toString());
+      const target = response.body.data.find((mission: any) => mission._id === mission1.id);
       expect(target).toBeDefined();
       expect(target.compensationAmount).toBe(90);
       expect(target.compensationUnit).toBe("day");
@@ -188,7 +186,7 @@ describe("Mission API Integration Tests", () => {
       const response = await request(app).get("/v0/mission?domain=culture").set("x-api-key", apiKey);
       expect(response.status).toBe(200);
       expect(response.body.total).toBe(1);
-      expect(response.body.data[0]._id).toBe(mission1._id!.toString());
+      expect(response.body.data[0]._id).toBe(mission1.id);
     });
 
     it("should filter by city", async () => {
@@ -196,8 +194,8 @@ describe("Mission API Integration Tests", () => {
       expect(response.status).toBe(200);
       expect(response.body.total).toBe(2);
       const ids = response.body.data.map((m: any) => m._id!);
-      expect(ids).toContain(mission1._id!.toString());
-      expect(ids).toContain(mission3._id!.toString());
+      expect(ids).toContain(mission1.id);
+      expect(ids).toContain(mission3.id);
     });
 
     it("should filter by publisherId", async () => {
@@ -205,14 +203,14 @@ describe("Mission API Integration Tests", () => {
       const response = await request(app).get(`/v0/mission?publisher=${publisherIdToFilter}`).set("x-api-key", apiKey);
       expect(response.status).toBe(200);
       expect(response.body.total).toBe(1);
-      expect(response.body.data[0]._id).toBe(mission2._id!.toString());
+      expect(response.body.data[0]._id).toBe(mission2.id);
     });
 
     it("should filter by keywords", async () => {
       const response = await request(app).get("/v0/mission?keywords=Lyon").set("x-api-key", apiKey);
       expect(response.status).toBe(200);
       expect(response.body.total).toBe(1);
-      expect(response.body.data[0]._id).toBe(mission2._id!.toString());
+      expect(response.body.data[0]._id).toBe(mission2.id);
     });
 
     it("should filter by location", async () => {
@@ -220,7 +218,7 @@ describe("Mission API Integration Tests", () => {
       const response = await request(app).get("/v0/mission?lat=45.767&lon=4.836&distance=10km").set("x-api-key", apiKey);
       expect(response.status).toBe(200);
       expect(response.body.total).toBe(1);
-      expect(response.body.data[0]._id).toBe(mission2._id!.toString());
+      expect(response.body.data[0]._id).toBe(mission2.id);
     });
 
     it("should filter by activity", async () => {
@@ -250,7 +248,7 @@ describe("Mission API Integration Tests", () => {
       const response = await request(app).get("/v0/mission?departmentName=Rhône").set("x-api-key", apiKey);
       expect(response.status).toBe(200);
       expect(response.body.total).toBe(1);
-      expect(response.body.data[0]._id).toBe(mission2._id!.toString());
+      expect(response.body.data[0]._id).toBe(mission2.id);
     });
 
     it("should filter by organizationRNA", async () => {
@@ -271,7 +269,7 @@ describe("Mission API Integration Tests", () => {
     });
 
     it("should filter by openToMinors", async () => {
-      await createTestMission({ publisherId: publisher.publishers[0].diffuseurPublisherId, openToMinors: "yes" });
+      await createTestMission({ publisherId: publisher.publishers[0].diffuseurPublisherId, openToMinors: true });
       const response = await request(app).get("/v0/mission?openToMinors=yes").set("x-api-key", apiKey);
       expect(response.status).toBe(200);
       expect(response.body.total).toBe(1);
@@ -287,7 +285,7 @@ describe("Mission API Integration Tests", () => {
     });
 
     it("should filter by reducedMobilityAccessible", async () => {
-      await createTestMission({ publisherId: publisher.publishers[0].diffuseurPublisherId, reducedMobilityAccessible: "no" });
+      await createTestMission({ publisherId: publisher.publishers[0].diffuseurPublisherId, reducedMobilityAccessible: false });
       const response = await request(app).get("/v0/mission?reducedMobilityAccessible=no").set("x-api-key", apiKey);
       expect(response.status).toBe(200);
       expect(response.body.total).toBe(1);
@@ -302,11 +300,11 @@ describe("Mission API Integration Tests", () => {
     });
 
     it("should filter by type", async () => {
-      await createTestMission({ publisherId: publisher.publishers[0].diffuseurPublisherId, type: MissionType.VOLONTARIAT });
-      const response = await request(app).get(`/v0/mission?type=${MissionType.VOLONTARIAT}`).set("x-api-key", apiKey);
+      await createTestMission({ publisherId: publisher.publishers[0].diffuseurPublisherId, type: "volontariat_service_civique" });
+      const response = await request(app).get(`/v0/mission?type=${"volontariat_service_civique"}`).set("x-api-key", apiKey);
       expect(response.status).toBe(200);
       expect(response.body.total).toBe(1);
-      expect(response.body.data[0].type).toBe(MissionType.VOLONTARIAT);
+      expect(response.body.data[0].type).toBe("volontariat_service_civique");
     });
 
     it("should filter by createdAt (gt)", async () => {
@@ -356,7 +354,7 @@ describe("Mission API Integration Tests", () => {
     it("should expose compensation fields within search results", async () => {
       const response = await request(app).get("/v0/mission/search").set("x-api-key", apiKey);
       expect(response.status).toBe(200);
-      const target = response.body.hits.find((mission: any) => mission._id === mission1._id!.toString());
+      const target = response.body.hits.find((mission: any) => mission._id === mission1.id);
       expect(target).toBeDefined();
       expect(target.compensationAmount).toBe(90);
       expect(target.compensationUnit).toBe("day");
@@ -367,7 +365,7 @@ describe("Mission API Integration Tests", () => {
       const response = await request(app).get("/v0/mission/search?keywords=Lyon").set("x-api-key", apiKey);
       expect(response.status).toBe(200);
       expect(response.body.total).toBe(1);
-      expect(response.body.hits[0]._id).toBe(mission2._id!.toString());
+      expect(response.body.hits[0]._id).toBe(mission2.id);
     });
 
     it("should filter by geo-location", async () => {
@@ -375,7 +373,7 @@ describe("Mission API Integration Tests", () => {
       const response = await request(app).get("/v0/mission/search?lat=45.76&lon=4.83&distance=10km").set("x-api-key", apiKey);
       expect(response.status).toBe(200);
       expect(response.body.total).toBe(1);
-      expect(response.body.hits[0]._id).toBe(mission2._id!.toString());
+      expect(response.body.hits[0]._id).toBe(mission2.id);
       expect(response.body.hits[0]._distance).toBeLessThan(1);
     });
 
@@ -390,7 +388,7 @@ describe("Mission API Integration Tests", () => {
       const response = await request(app).get("/v0/mission/search?activity=arts").set("x-api-key", apiKey);
       expect(response.status).toBe(200);
       expect(response.body.total).toBe(1);
-      expect(response.body.hits[0]._id).toBe(mission1._id!.toString());
+      expect(response.body.hits[0]._id).toBe(mission1.id);
     });
 
     it("should filter by city", async () => {
@@ -400,19 +398,19 @@ describe("Mission API Integration Tests", () => {
     });
 
     it("should filter by clientId", async () => {
-      const response = await request(app).get("/v0/mission/search?clientId=org-1").set("x-api-key", apiKey);
+      const response = await request(app).get(`/v0/mission/search?clientId=${mission1.clientId}`).set("x-api-key", apiKey);
       expect(response.status).toBe(200);
       expect(response.body.total).toBe(1);
-      expect(response.body.hits[0]._id).toBe(mission1._id!.toString());
+      expect(response.body.hits[0]._id).toBe(mission1.id);
     });
 
     it("should filter by multiple clientIds", async () => {
-      const response = await request(app).get("/v0/mission/search?clientId=org-1,org-3").set("x-api-key", apiKey);
+      const response = await request(app).get(`/v0/mission/search?clientId=${mission1.clientId},${mission3.clientId}`).set("x-api-key", apiKey);
       expect(response.status).toBe(200);
       expect(response.body.total).toBe(2);
-      const clientIds = response.body.hits.map((h: any) => h.organizationClientId);
-      expect(clientIds).toContain("org-1");
-      expect(clientIds).toContain("org-3");
+      const clientIds = response.body.hits.map((h: any) => h.clientId);
+      expect(clientIds).toContain(mission1.clientId);
+      expect(clientIds).toContain(mission3.clientId);
     });
 
     it("should filter by country", async () => {
@@ -435,7 +433,7 @@ describe("Mission API Integration Tests", () => {
     });
 
     it("should filter by openToMinors", async () => {
-      await createTestMission({ publisherId: publisher.publishers[0].diffuseurPublisherId, openToMinors: "yes" });
+      await createTestMission({ publisherId: publisher.publishers[0].diffuseurPublisherId, openToMinors: true });
       const response = await request(app).get("/v0/mission/search?openToMinors=yes").set("x-api-key", apiKey);
       expect(response.status).toBe(200);
       expect(response.body.total).toBe(1);
@@ -460,7 +458,7 @@ describe("Mission API Integration Tests", () => {
       const response = await request(app).get(`/v0/mission/search?publisher=${mission2.publisherId}`).set("x-api-key", apiKey);
       expect(response.status).toBe(200);
       expect(response.body.total).toBe(1);
-      expect(response.body.hits[0]._id).toBe(mission2._id!.toString());
+      expect(response.body.hits[0]._id).toBe(mission2.id);
     });
 
     it("should filter by remote", async () => {
@@ -471,7 +469,7 @@ describe("Mission API Integration Tests", () => {
     });
 
     it("should filter by reducedMobilityAccessible", async () => {
-      await createTestMission({ publisherId: publisher.publishers[0].diffuseurPublisherId, reducedMobilityAccessible: "no" });
+      await createTestMission({ publisherId: publisher.publishers[0].diffuseurPublisherId, reducedMobilityAccessible: false });
       const response = await request(app).get("/v0/mission/search?reducedMobilityAccessible=no").set("x-api-key", apiKey);
       expect(response.status).toBe(200);
       expect(response.body.total).toBe(1);
@@ -485,8 +483,8 @@ describe("Mission API Integration Tests", () => {
     });
 
     it("should filter by type", async () => {
-      await createTestMission({ publisherId: publisher.publishers[0].diffuseurPublisherId, type: MissionType.VOLONTARIAT });
-      const response = await request(app).get(`/v0/mission/search?type=${MissionType.VOLONTARIAT}`).set("x-api-key", apiKey);
+      await createTestMission({ publisherId: publisher.publishers[0].diffuseurPublisherId, type: "volontariat_service_civique" });
+      const response = await request(app).get(`/v0/mission/search?type=${"volontariat_service_civique"}`).set("x-api-key", apiKey);
       expect(response.status).toBe(200);
       expect(response.body.total).toBe(1);
     });
@@ -510,7 +508,7 @@ describe("Mission API Integration Tests", () => {
     });
 
     it("should return 404 for unknown id parameter", async () => {
-      const id = generateFakeObjectId([mission1, mission2, mission3]);
+      const id = randomUUID();
       const response = await request(app).get(`/v0/mission/${id}`).set("x-api-key", apiKey);
       expect(response.status).toBe(404);
       expect(response.body.ok).toBe(false);
@@ -613,15 +611,4 @@ function validateMissionStructure(mission: any) {
   expect(Array.isArray(mission.statusCommentHistoric)).toBe(true);
   expect(Array.isArray(mission.tags)).toBe(true);
   expect(Array.isArray(mission.tasks)).toBe(true);
-}
-
-function generateFakeObjectId(existingMissions: Mission[]) {
-  const existingIds = existingMissions.map((m) => m._id?.toString());
-  let id: mongoose.Types.ObjectId = new mongoose.Types.ObjectId();
-
-  while (existingIds.includes(id.toString())) {
-    id = new mongoose.Types.ObjectId();
-  }
-
-  return id;
 }

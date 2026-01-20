@@ -1,29 +1,17 @@
-import { HydratedDocument } from "mongoose";
 import { LETUDIANT_PILOTY_TOKEN } from "../../config";
 import { captureException } from "../../error";
-import MissionModel from "../../models/mission";
+import missionJobBoardService from "../../services/mission-jobboard";
 import { organizationService } from "../../services/organization";
 import { PilotyClient, PilotyError } from "../../services/piloty/";
 import { PilotyJob } from "../../services/piloty/types";
-import { Mission } from "../../types";
+import { MissionRecord } from "../../types/mission";
+import type { MissionJobBoardRecord, MissionJobBoardSyncStatus } from "../../types/mission-job-board";
 import { OrganizationRecord } from "../../types/organization";
 import { BaseHandler } from "../base/handler";
 import { JobResult } from "../types";
 import { DEFAULT_LIMIT, MEDIA_PUBLIC_ID } from "./config";
 import { missionToPilotyCompany, missionToPilotyJobs } from "./transformers";
-import { getMandatoryData, getMissionsToSync, rateLimit } from "./utils";
-
-export function findLetudiantPublicId(mission: HydratedDocument<Mission>, localisation: string): string | undefined {
-  const id = mission.letudiantPublicId?.[localisation];
-  if (id) {
-    return id;
-  }
-  const legacyKey = localisation.split(",")[0];
-  if (legacyKey !== localisation) {
-    return mission.letudiantPublicId?.[legacyKey];
-  }
-  return undefined;
-}
+import { LETUDIANT_JOB_BOARD_ID, getMandatoryData, getMissionsToSync, rateLimit } from "./utils";
 
 export interface LetudiantJobPayload {
   id?: string;
@@ -54,8 +42,9 @@ export class LetudiantHandler implements BaseHandler<LetudiantJobPayload, Letudi
     const { id, limit } = payload;
     console.log(`[LetudiantHandler] Starting job with ${id ? `id ${id}` : "all missions"} and limit ${limit || DEFAULT_LIMIT}`);
 
-    const missions = await getMissionsToSync(id, limit || DEFAULT_LIMIT);
-    console.log(`[LetudiantHandler] Found ${missions.length} missions to sync`);
+    const { totalCandidates, entries: missionEntries } = await getMissionsToSync(id, limit || DEFAULT_LIMIT);
+    console.log(`[LetudiantHandler] Found ${totalCandidates} missions to sync`);
+    console.log(`[LetudiantHandler] Syncing ${missionEntries.length} missions...`);
 
     const counter = {
       created: 0,
@@ -67,17 +56,18 @@ export class LetudiantHandler implements BaseHandler<LetudiantJobPayload, Letudi
 
     const mandatoryData = await getMandatoryData(pilotyClient);
 
-    for (const mission of missions) {
+    for (const { mission, jobBoards } of missionEntries) {
+      let processedJobBoards: Array<{ missionAddressId: string | null; publicId: string; syncStatus?: MissionJobBoardSyncStatus | null; comment?: string | null }> = [];
       try {
         const organizationId = mission.organizationId;
         if (!organizationId) {
-          console.log(`[LetudiantHandler] Mission ${mission._id} has no organization, skipping`);
+          console.log(`[LetudiantHandler] Mission ${mission.id} has no organization, skipping`);
           counter.skipped++;
           continue;
         }
         const organization = await organizationService.findOneOrganizationById(organizationId);
         if (!organization) {
-          console.log(`[LetudiantHandler] Mission ${mission._id} has no organization, skipping`);
+          console.log(`[LetudiantHandler] Mission ${mission.id} has no organization, skipping`);
           counter.skipped++;
           continue;
         }
@@ -89,62 +79,73 @@ export class LetudiantHandler implements BaseHandler<LetudiantJobPayload, Letudi
         }
 
         const jobPayloads = missionToPilotyJobs(mission, pilotyCompanyPublicId, mandatoryData);
-        const processedIds: Record<string, string> = {};
+        processedJobBoards = [];
 
         // Create / update jobs related to each address
-        // letudiantPublicId is an object with the localisation as key
         for (const jobPayload of jobPayloads) {
           let pilotyJob: PilotyJob | null = null;
-          const localisationKey = mission.remote === "full" ? "A distance" : jobPayload.localisation;
-          const letudiantPublicId = findLetudiantPublicId(mission, localisationKey);
+          const letudiantPublicId = findLetudiantPublicId(jobBoards, jobPayload.missionAddressId ?? null);
 
           if (letudiantPublicId) {
-            console.log(`[LetudiantHandler] Updating job ${mission._id} - ${jobPayload.localisation} (${letudiantPublicId})`);
-            pilotyJob = await pilotyClient.updateJob(letudiantPublicId, jobPayload);
-            if (jobPayload.state === "archived") {
+            console.log(`[LetudiantHandler] Updating job ${mission.id} - ${jobPayload.payload.localisation} (${letudiantPublicId}) -> ${jobPayload.payload.state}`);
+            pilotyJob = await pilotyClient.updateJob(letudiantPublicId, jobPayload.payload);
+            if (jobPayload.payload.state === "archived") {
               counter.deleted++;
             } else {
               counter.updated++;
             }
           } else {
-            console.log(`[LetudiantHandler] Creating job ${mission._id} - ${jobPayload.localisation}`);
-            pilotyJob = await pilotyClient.createJob(jobPayload);
+            console.log(`[LetudiantHandler] Creating job ${mission.id} - ${jobPayload.payload.localisation}`);
+            pilotyJob = await pilotyClient.createJob(jobPayload.payload);
             counter.created++;
           }
 
           if (!pilotyJob) {
             throw new Error("Unable to create or update job for mission");
           } else {
-            processedIds[localisationKey] = pilotyJob.public_id;
+            const syncStatus = jobPayload.payload.state === "archived" ? "OFFLINE" : "ONLINE";
+            processedJobBoards.push({ missionAddressId: jobPayload.missionAddressId ?? null, publicId: pilotyJob.public_id, syncStatus });
           }
 
           await rateLimit();
         }
 
-        // Update mission and avoid updatedAt update
-        await MissionModel.updateOne(
-          { _id: mission._id },
-          {
-            $set: {
-              letudiantPublicId: processedIds,
-              letudiantUpdatedAt: new Date(),
-            },
-          },
-          { timestamps: false }
-        );
+        await missionJobBoardService.replaceForMission(LETUDIANT_JOB_BOARD_ID, mission.id, processedJobBoards);
       } catch (error) {
-        captureException(`[LetudiantHandler] Error processing mission`, { extra: { error, missionId: mission._id, id, limit } });
+        captureException(`[LetudiantHandler] Error processing mission`, { extra: { error, missionId: mission.id, id, limit } });
 
-        // Update mission and avoid updatedAt update
-        await MissionModel.updateOne(
-          { _id: mission._id },
-          {
-            $set: {
-              letudiantError: error instanceof Error ? error.message : "Unknown error",
-            },
-          },
-          { timestamps: false }
-        );
+        const errorMessage = error instanceof Error ? error.message : "Unknown error";
+        const errorEntries = processedJobBoards.map((entry) => ({
+          missionAddressId: entry.missionAddressId,
+          publicId: entry.publicId,
+          syncStatus: "ERROR" as const,
+          comment: errorMessage,
+        }));
+        const mergedEntries = new Map<string | null, { missionAddressId: string | null; publicId: string; syncStatus?: "ERROR" | null; comment?: string | null }>();
+        for (const entry of jobBoards) {
+          mergedEntries.set(entry.missionAddressId ?? null, {
+            missionAddressId: entry.missionAddressId ?? null,
+            publicId: entry.publicId,
+          });
+        }
+        if (errorEntries.length) {
+          for (const entry of errorEntries) {
+            mergedEntries.set(entry.missionAddressId ?? null, entry);
+          }
+        } else if (jobBoards.length) {
+          for (const entry of jobBoards) {
+            mergedEntries.set(entry.missionAddressId ?? null, {
+              missionAddressId: entry.missionAddressId ?? null,
+              publicId: entry.publicId,
+              syncStatus: "ERROR",
+              comment: errorMessage,
+            });
+          }
+        }
+        const upsertEntries = Array.from(mergedEntries.values());
+        if (upsertEntries.length) {
+          await missionJobBoardService.replaceForMission(LETUDIANT_JOB_BOARD_ID, mission.id, upsertEntries);
+        }
 
         counter.error++;
       }
@@ -154,15 +155,19 @@ export class LetudiantHandler implements BaseHandler<LetudiantJobPayload, Letudi
       success: true,
       timestamp: new Date(),
       counter: {
-        processed: missions.length,
+        processed: missionEntries.length,
         ...counter,
       },
-      message: `\t• Nombre de missions traitées: ${missions.length}\n\t• Nombre de missions créées: ${counter.created}\n\t• Nombre de missions mises à jour: ${counter.updated}\n\t• Nombre de missions supprimées: ${counter.deleted}\n\t• Nombre de missions en erreur: ${counter.error}`,
+      message: `\t• Nombre de missions traitées: ${missionEntries.length}
+      \n\t• Nombre de missions créées: ${counter.created}
+      \n\t• Nombre de missions mises à jour: ${counter.updated}
+      \n\t• Nombre de missions supprimées: ${counter.deleted}
+      \n\t• Nombre de missions en erreur: ${counter.error}`,
     };
   }
 }
 
-const getCompanyPilotyId = async (pilotyClient: PilotyClient, mission: HydratedDocument<Mission>, organization: OrganizationRecord): Promise<string | null> => {
+const getCompanyPilotyId = async (pilotyClient: PilotyClient, mission: MissionRecord, organization: OrganizationRecord): Promise<string | null> => {
   let pilotyCompanyPublicId: string | null = null;
 
   if (organization.letudiantPublicId) {
@@ -194,3 +199,15 @@ const getCompanyPilotyId = async (pilotyClient: PilotyClient, mission: HydratedD
 
   return pilotyCompanyPublicId;
 };
+
+export function findLetudiantPublicId(jobBoards: MissionJobBoardRecord[], missionAddressId: string | null): string | undefined {
+  const match = jobBoards.find((entry) => entry.missionAddressId === missionAddressId);
+  if (match) {
+    return match.publicId;
+  }
+  if (missionAddressId) {
+    const fallback = jobBoards.find((entry) => entry.missionAddressId === null);
+    return fallback?.publicId;
+  }
+  return undefined;
+}

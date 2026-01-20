@@ -2,17 +2,16 @@ import cors from "cors";
 import { Request, Response, Router } from "express";
 import zod from "zod";
 
-import { HydratedDocument } from "mongoose";
 import { JVA_URL, PUBLISHER_IDS } from "../config";
 import { INVALID_PARAMS, INVALID_QUERY, NOT_FOUND, SERVER_ERROR, captureException, captureMessage } from "../error";
-import CampaignModel from "../models/campaign";
-import MissionModel from "../models/mission";
-import StatsBotModel from "../models/stats-bot";
-import WidgetModel from "../models/widget";
+import { campaignService } from "../services/campaign";
+import { missionService } from "../services/mission";
 import { publisherService } from "../services/publisher";
+import { statBotService } from "../services/stat-bot";
 import { statEventService } from "../services/stat-event";
-import { Mission, StatEventRecord } from "../types";
-import { identify, slugify } from "../utils";
+import { widgetService } from "../services/widget";
+import { MissionRecord, StatEventRecord } from "../types";
+import { cleanIdParam, identify, slugify } from "../utils";
 
 const router = Router();
 
@@ -45,7 +44,7 @@ router.get("/apply", cors({ origin: "*" }), async (req: Request, res: Response) 
     }
 
     let click = null as StatEventRecord | null;
-    let mission = null as HydratedDocument<Mission> | null;
+    let mission = null as MissionRecord | null;
     let customAttributes: Record<string, unknown> | undefined;
 
     if (query.data.customAttributes) {
@@ -80,16 +79,13 @@ router.get("/apply", cors({ origin: "*" }), async (req: Request, res: Response) 
     }
 
     if (query.data.mission) {
-      mission = await MissionModel.findOne({
-        clientId: query.data.mission,
-        publisherId: query.data.publisher || click.toPublisherId,
-      });
+      mission = await missionService.findMissionByClientAndPublisher(query.data.mission, query.data.publisher || click.toPublisherId);
       if (!mission) {
         captureMessage(`[Apply] Mission not found`, `mission ${query.data.mission}`);
       }
     }
 
-    const statBot = await StatsBotModel.findOne({ user: identity.user });
+    const statBot = await statBotService.findStatBotByUser(identity.user);
 
     const obj = {
       referer: identity.referer,
@@ -108,17 +104,17 @@ router.get("/apply", cors({ origin: "*" }), async (req: Request, res: Response) 
     }
 
     if (mission) {
-      obj.missionId = mission._id.toString();
+      obj.missionId = mission.id;
       obj.missionClientId = mission.clientId;
-      obj.missionDomain = mission.domain;
+      obj.missionDomain = mission.domain || undefined;
       obj.missionTitle = mission.title;
-      obj.missionPostalCode = mission.postalCode;
-      obj.missionDepartmentName = mission.departmentName;
-      obj.missionOrganizationName = mission.organizationName;
+      obj.missionPostalCode = mission.postalCode || "";
+      obj.missionDepartmentName = mission.departmentName || "";
+      obj.missionOrganizationName = mission.organizationName || "";
       obj.missionOrganizationId = mission.organizationId || "";
-      obj.missionOrganizationClientId = mission.organizationClientId;
+      obj.missionOrganizationClientId = mission.organizationClientId || "";
       obj.toPublisherId = mission.publisherId;
-      obj.toPublisherName = mission.publisherName;
+      obj.toPublisherName = mission.publisherName || "";
     }
     if (click) {
       obj.clickUser = click.user;
@@ -172,7 +168,7 @@ router.get("/account", cors({ origin: "*" }), async (req: Request, res: Response
     }
 
     let click = null as StatEventRecord | null;
-    let mission = null as HydratedDocument<Mission> | null;
+    let mission = null as MissionRecord | null;
 
     if (query.data.view) {
       const clickEvent = await statEventService.findOneStatEventById(query.data.view);
@@ -195,16 +191,13 @@ router.get("/account", cors({ origin: "*" }), async (req: Request, res: Response
     }
 
     if (query.data.mission) {
-      mission = await MissionModel.findOne({
-        clientId: query.data.mission,
-        publisherId: query.data.publisher || click.toPublisherId,
-      });
+      mission = await missionService.findMissionByClientAndPublisher(query.data.mission, query.data.publisher || click.toPublisherId);
       if (!mission) {
         captureMessage(`[Account] Mission not found`, `mission ${query.data.mission}`);
       }
     }
 
-    const statBot = await StatsBotModel.findOne({ user: identity.user });
+    const statBot = await statBotService.findStatBotByUser(identity.user);
 
     const obj = {
       referer: identity.referer,
@@ -219,17 +212,17 @@ router.get("/account", cors({ origin: "*" }), async (req: Request, res: Response
     } as StatEventRecord;
 
     if (mission) {
-      obj.missionId = mission._id.toString();
+      obj.missionId = mission.id;
       obj.missionClientId = mission.clientId;
-      obj.missionDomain = mission.domain;
+      obj.missionDomain = mission.domain || undefined;
       obj.missionTitle = mission.title;
-      obj.missionPostalCode = mission.postalCode;
-      obj.missionDepartmentName = mission.departmentName;
-      obj.missionOrganizationName = mission.organizationName;
+      obj.missionPostalCode = mission.postalCode || "";
+      obj.missionDepartmentName = mission.departmentName || "";
+      obj.missionOrganizationName = mission.organizationName || "";
       obj.missionOrganizationId = mission.organizationId || "";
-      obj.missionOrganizationClientId = mission.organizationClientId;
+      obj.missionOrganizationClientId = mission.organizationClientId || "";
       obj.toPublisherId = mission.publisherId;
-      obj.toPublisherName = mission.publisherName;
+      obj.toPublisherName = mission.publisherName || "";
     }
     if (click) {
       obj.clickUser = click.user;
@@ -266,7 +259,7 @@ router.get("/campaign/:id", cors({ origin: "*" }), async (req, res) => {
   try {
     const params = zod
       .object({
-        id: zod.string(),
+        id: zod.string().transform(cleanIdParam),
       })
       .required()
       .safeParse(req.params);
@@ -275,17 +268,12 @@ router.get("/campaign/:id", cors({ origin: "*" }), async (req, res) => {
       captureMessage(`[Redirection Campaign] Invalid params`, JSON.stringify(params.error, null, 2));
       return res.redirect(302, JVA_URL);
     }
-    // Fix to save badly copy pasted id
-    if (params.data.id.length > 24) {
-      params.data.id = params.data.id.slice(0, 24);
+
+    if (params.data.id.length > 24 && !params.data.id.includes("-")) {
+      params.data.id = params.data.id.slice(0, 24); // Fix some badly copy pasted mongo ids
     }
 
-    if (params.data.id.match(/[^0-9a-fA-F]/) || params.data.id.length !== 24) {
-      captureMessage(`[Redirection Campaign] Invalid id`, `campaign id ${params.data.id}`);
-      return res.redirect(302, JVA_URL);
-    }
-
-    const campaign = await CampaignModel.findById(params.data.id);
+    const campaign = await campaignService.findCampaignById(params.data.id);
     if (!campaign) {
       captureMessage(`[Redirection Campaign] Campaign not found`, `campaign id ${params.data.id}`);
       return res.redirect(302, JVA_URL);
@@ -301,6 +289,9 @@ router.get("/campaign/:id", cors({ origin: "*" }), async (req, res) => {
       return res.redirect(302, campaign.url);
     }
 
+    const fromPublisher = await publisherService.findOnePublisherById(campaign.fromPublisherId);
+    const toPublisher = await publisherService.findOnePublisherById(campaign.toPublisherId);
+
     const obj = {
       type: "click",
       user: identity.user,
@@ -310,35 +301,21 @@ router.get("/campaign/:id", cors({ origin: "*" }), async (req, res) => {
       origin: req.get("origin") || "",
       source: "campaign",
       sourceName: campaign.name || "",
-      sourceId: campaign._id.toString() || "",
+      sourceId: campaign.id || "",
       createdAt: new Date(),
       toPublisherId: campaign.toPublisherId,
-      toPublisherName: campaign.toPublisherName,
+      toPublisherName: toPublisher?.name || "",
       fromPublisherId: campaign.fromPublisherId,
-      fromPublisherName: campaign.fromPublisherName,
+      fromPublisherName: fromPublisher?.name || "",
       isBot: false,
     } as StatEventRecord;
 
     const clickId = await statEventService.createStatEvent(obj);
-    const url = new URL(campaign.url);
-
-    if (!url.search) {
-      if (campaign.toPublisherId === PUBLISHER_IDS.SERVICE_CIVIQUE) {
-        url.searchParams.set("mtm_source", "api_engagement");
-        url.searchParams.set("mtm_medium", "campaign");
-        url.searchParams.set("mtm_campaign", slugify(campaign.name));
-      } else {
-        url.searchParams.set("utm_source", "api_engagement");
-        url.searchParams.set("utm_medium", "campaign");
-        url.searchParams.set("utm_campaign", slugify(campaign.name));
-      }
-    }
-    url.searchParams.set("apiengagement_id", clickId);
-
-    res.redirect(302, url.href);
+    href = href.includes("?") ? `${href}&apiengagement_id=${clickId}` : `${href}?apiengagement_id=${clickId}`;
+    res.redirect(302, href);
 
     // Update stats just created to add isBot (do it after redirect to avoid delay)
-    const statBot = await StatsBotModel.findOne({ user: identity.user });
+    const statBot = await statBotService.findStatBotByUser(identity.user);
     if (statBot) {
       await statEventService.updateStatEvent(clickId, { isBot: true });
     }
@@ -352,69 +329,19 @@ router.get("/campaign/:id", cors({ origin: "*" }), async (req, res) => {
   }
 });
 
-// Temporary fix for missing missions
-const MISSION_NOT_FOUND = {
-  "650c884e161246d96b53be2e": "6703bbb473fbd982c10127e7",
-  "63922907f6c879268f834d8b": "6703bbb573fbd982c1012b26",
-  "651c0605c2543ccde2ebe526": "6703bbb473fbd982c10126a5",
-  "6526e65a2805290904c6f5a6": "6703bbb473fbd982c10128e1",
-  "63d3c010311743b0e0d2cfb8": "6703bbb473fbd982c1012628",
-  "633d5f02c5e3d005ebd9c27b": "6703bb4273fbd982c1011811",
-  " 606d20efeea0d9070b9ab67f": "6703bbb573fbd982c1012b7a",
-  "b30a0fd8-2a29-471c-8667-a0def87352ca": "",
-  "6509e557480f32a674f90d9b": "6703bad373fbd982c100f8cd",
-  "65034dcd6d92368ab3e62b2e": "6703bad173fbd982c100ec8b",
-  "650b36ce161246d96b4dec94": "6703bb3c73fbd982c101003a",
-  "645699282e85e7d7b1a8b805": "6703bb4273fbd982c1011a59",
-  "64092877f563558c4ff64a5b": "6703bb4173fbd982c10113f7",
-  "63add8a958b361a136463939": "6703bb4173fbd982c1011308",
-  "64092877f563558c4ff64be6": "6703bb4173fbd982c10113f6",
-  "6215b7b5ffecb707a0fb2a0d": "6703bb4173fbd982c10113f2",
-  "62283732285e0d07a06a1c2b": "6703bb4173fbd982c101139c",
-  "63e2408e50f05c74605803f0": "6703bb3f73fbd982c1010d44",
-  "640a21e45c6aa53a9169a6ec": "6703bb4173fbd982c1011403",
-} as { [key: string]: string };
-
-const findMissionTemp = async (missionId: string) => {
-  if (MISSION_NOT_FOUND[missionId.toString()]) {
-    const mission = await MissionModel.findById(MISSION_NOT_FOUND[missionId.toString()]);
-    if (mission) {
-      return mission;
-    }
-  }
-
-  if (!missionId.match(/[^0-9a-fA-F]/) && missionId.length === 24) {
-    const mission = await MissionModel.findById(missionId);
-    if (mission) {
-      return mission;
-    }
-  }
-
-  const mission = await MissionModel.findOne({ _old_ids: { $in: [missionId] } });
-  if (mission) {
-    captureMessage("[Temp] Mission found with _old_ids", `mission ${missionId}`);
-    return mission;
-  }
-
-  return null;
-};
-
 router.get("/widget/:id", cors({ origin: "*" }), async (req: Request, res: Response) => {
   let href: string | null = null;
   try {
     const params = zod
       .object({
-        id: zod.string(),
+        id: zod.string().transform(cleanIdParam),
       })
       .required()
       .safeParse(req.params);
 
     const query = zod
       .object({
-        widgetId: zod
-          .string()
-          .regex(/^[0-9a-fA-F]{24}$/)
-          .optional(),
+        widgetId: zod.string().min(1).optional(),
         requestId: zod.string().optional(),
       })
       .safeParse(req.query);
@@ -426,7 +353,7 @@ router.get("/widget/:id", cors({ origin: "*" }), async (req: Request, res: Respo
 
     const identity = identify(req);
 
-    const mission = await findMissionTemp(params.data.id);
+    const mission = await missionService.findOneMission(params.data.id);
     if (!mission && !identity) {
       return res.redirect(302, JVA_URL);
     }
@@ -434,20 +361,20 @@ router.get("/widget/:id", cors({ origin: "*" }), async (req: Request, res: Respo
       captureMessage(`[Redirection Widget] Mission not found`, `mission ${params.data.id}, widget ${query.data?.widgetId}`);
       return res.redirect(302, JVA_URL);
     }
-    href = mission.applicationUrl;
+    href = mission.applicationUrl || JVA_URL;
     if (!identity) {
-      return res.redirect(302, mission.applicationUrl);
+      return res.redirect(302, href);
     }
 
-    if (!query.success || !query.data.widgetId || query.data.widgetId.length !== 24) {
+    if (!query.success || !query.data.widgetId) {
       captureMessage(`[Redirection Widget] Invalid query`, JSON.stringify(query.error, null, 2));
-      return res.redirect(302, mission.applicationUrl);
+      return res.redirect(302, href);
     }
 
-    const widget = await WidgetModel.findById(query.data.widgetId);
+    const widget = await widgetService.findOneWidgetById(query.data.widgetId);
     if (!widget) {
       captureMessage(`[Redirection Widget] Widget not found`, `Widget ${query.data.widgetId}, mission ${params.data.id}`);
-      return res.redirect(302, mission.applicationUrl);
+      return res.redirect(302, href);
     }
 
     const obj = {
@@ -460,9 +387,9 @@ router.get("/widget/:id", cors({ origin: "*" }), async (req: Request, res: Respo
       requestId: query.data.requestId,
       source: "widget",
       sourceName: widget.name || "",
-      sourceId: widget._id.toString() || "",
+      sourceId: widget.id || "",
       createdAt: new Date(),
-      missionId: mission._id.toString(),
+      missionId: mission.id,
       missionClientId: mission.clientId || "",
       missionDomain: mission.domain || "",
       missionTitle: mission.title || "",
@@ -472,18 +399,19 @@ router.get("/widget/:id", cors({ origin: "*" }), async (req: Request, res: Respo
       missionOrganizationId: mission.organizationId || "",
       missionOrganizationClientId: mission.organizationClientId || "",
       toPublisherId: mission.publisherId,
-      toPublisherName: mission.publisherName,
+      toPublisherName: mission.publisherName || "",
       fromPublisherId: widget.fromPublisherId,
       fromPublisherName: widget.fromPublisherName,
       isBot: false,
     } as StatEventRecord;
     const clickId = await statEventService.createStatEvent(obj);
 
-    if (mission.applicationUrl.indexOf("http://") === -1 && mission.applicationUrl.indexOf("https://") === -1) {
-      mission.applicationUrl = "https://" + mission.applicationUrl;
+    let targetUrl = href;
+    if (targetUrl.indexOf("http://") === -1 && targetUrl.indexOf("https://") === -1) {
+      targetUrl = "https://" + targetUrl;
     }
 
-    const url = new URL(mission.applicationUrl || JVA_URL);
+    const url = new URL(targetUrl || JVA_URL);
     url.searchParams.set("apiengagement_id", clickId);
 
     // Service ask for mtm
@@ -500,7 +428,7 @@ router.get("/widget/:id", cors({ origin: "*" }), async (req: Request, res: Respo
     res.redirect(302, url.href);
 
     // Update stats just created to add isBot (do it after redirect to avoid delay)
-    const statBot = await StatsBotModel.findOne({ user: identity.user });
+    const statBot = await statBotService.findStatBotByUser(identity.user);
     if (statBot) {
       await statEventService.updateStatEvent(clickId, { isBot: true });
     }
@@ -518,7 +446,7 @@ router.get("/seo/:id", cors({ origin: "*" }), async (req: Request, res: Response
   try {
     const params = zod
       .object({
-        id: zod.string(),
+        id: zod.string().transform(cleanIdParam),
       })
       .required()
       .safeParse(req.params);
@@ -529,7 +457,7 @@ router.get("/seo/:id", cors({ origin: "*" }), async (req: Request, res: Response
     }
 
     const identity = identify(req);
-    const mission = await findMissionTemp(params.data.id);
+    const mission = await missionService.findOneMission(params.data.id);
     if (!mission && !identity) {
       return res.redirect(302, JVA_URL);
     }
@@ -538,7 +466,7 @@ router.get("/seo/:id", cors({ origin: "*" }), async (req: Request, res: Response
       return res.redirect(302, JVA_URL);
     }
     if (!identity) {
-      return res.redirect(302, mission.applicationUrl);
+      return res.redirect(302, mission.applicationUrl || JVA_URL);
     }
 
     const obj = {
@@ -551,7 +479,7 @@ router.get("/seo/:id", cors({ origin: "*" }), async (req: Request, res: Response
       createdAt: new Date(),
       source: "seo",
 
-      missionId: mission._id.toString(),
+      missionId: mission.id,
       missionClientId: mission.clientId || "",
       missionDomain: mission.domain || "",
       missionTitle: mission.title || "",
@@ -579,7 +507,7 @@ router.get("/seo/:id", cors({ origin: "*" }), async (req: Request, res: Response
     res.redirect(302, url.href);
 
     // Update stats just created to add isBot (do it after redirect to avoid delay)
-    const statBot = await StatsBotModel.findOne({ user: identity.user });
+    const statBot = await statBotService.findStatBotByUser(identity.user);
     if (statBot) {
       await statEventService.updateStatEvent(clickId, { isBot: true });
     }
@@ -593,7 +521,7 @@ router.get("/notrack/:id", cors({ origin: "*" }), async (req, res, next) => {
   try {
     const params = zod
       .object({
-        id: zod.string(),
+        id: zod.string().transform(cleanIdParam),
       })
       .required()
       .safeParse(req.params);
@@ -605,7 +533,7 @@ router.get("/notrack/:id", cors({ origin: "*" }), async (req, res, next) => {
 
     const identity = identify(req);
 
-    const mission = await findMissionTemp(params.data.id);
+    const mission = await missionService.findOneMission(params.data.id);
     if (!mission && !identity) {
       return res.redirect(302, JVA_URL);
     }
@@ -646,13 +574,13 @@ router.get("/:statsId/confirm-human", cors({ origin: "*" }), async (req, res) =>
   }
 });
 
-router.get("/:missionId/:publisherId", cors({ origin: "*" }), async function trackClick(req, res, next) {
+router.get("/:missionId/:publisherId", cors({ origin: "*" }), async (req, res) => {
   let href: string | null = null;
   try {
     const params = zod
       .object({
         missionId: zod.string(),
-        publisherId: zod.string(),
+        publisherId: zod.string().transform(cleanIdParam),
       })
       .safeParse(req.params);
 
@@ -664,25 +592,29 @@ router.get("/:missionId/:publisherId", cors({ origin: "*" }), async function tra
 
     if (!params.success) {
       captureMessage(`[Redirection Publisher] Invalid params`, JSON.stringify(params.error, null, 2));
-      return res.redirect(302, "https://www.service-civique.gouv.fr/"); // While issue
+      return res.redirect(302, "https://www.service-civique.gouv.fr/");
     }
 
     const identity = identify(req);
 
-    const mission = await findMissionTemp(params.data.missionId);
+    const mission = await missionService.findOneMission(params.data.missionId);
     if (!mission && !identity) {
       return res.redirect(302, "https://www.service-civique.gouv.fr/");
     }
     if (!mission) {
       captureMessage(`[Redirection Publisher] Mission not found`, `mission ${params.data.missionId}, publisher ${params.data.publisherId}`);
-      return res.redirect(302, "https://www.service-civique.gouv.fr/"); // While issue
+      return res.redirect(302, "https://www.service-civique.gouv.fr/");
     }
     if (!identity) {
-      return res.redirect(302, mission.applicationUrl);
+      return res.redirect(302, mission.applicationUrl || JVA_URL);
     }
-    href = mission.applicationUrl;
+    href = mission.applicationUrl || JVA_URL;
 
     const fromPublisher = await publisherService.findOnePublisherById(params.data.publisherId);
+    if (!fromPublisher) {
+      captureMessage(`[Redirection Publisher] Publisher not found`, `publisher ${params.data.publisherId}`);
+      return res.redirect(302, "https://www.service-civique.gouv.fr/");
+    }
 
     const obj = {
       type: "click",
@@ -695,7 +627,7 @@ router.get("/:missionId/:publisherId", cors({ origin: "*" }), async function tra
       sourceId: fromPublisher?.id || "",
       sourceName: fromPublisher?.name || "",
       createdAt: new Date(),
-      missionId: mission._id.toString(),
+      missionId: mission.id,
       missionClientId: mission.clientId || "",
       missionDomain: mission.domain || "",
       missionTitle: mission.title || "",
@@ -705,7 +637,7 @@ router.get("/:missionId/:publisherId", cors({ origin: "*" }), async function tra
       missionOrganizationId: mission.organizationId || "",
       missionOrganizationClientId: mission.organizationClientId || "",
       toPublisherId: mission.publisherId,
-      toPublisherName: mission.publisherName,
+      toPublisherName: mission.publisherName || "",
 
       fromPublisherId: fromPublisher?.id || "",
       fromPublisherName: fromPublisher?.name || "",
@@ -715,11 +647,12 @@ router.get("/:missionId/:publisherId", cors({ origin: "*" }), async function tra
 
     const clickId = await statEventService.createStatEvent(obj);
 
-    if (mission.applicationUrl.indexOf("http://") === -1 && mission.applicationUrl.indexOf("https://") === -1) {
-      mission.applicationUrl = "https://" + mission.applicationUrl;
+    let targetUrl = href;
+    if (targetUrl.indexOf("http://") === -1 && targetUrl.indexOf("https://") === -1) {
+      targetUrl = "https://" + targetUrl;
     }
 
-    const url = new URL(mission.applicationUrl || JVA_URL);
+    const url = new URL(targetUrl || JVA_URL);
     url.searchParams.set("apiengagement_id", clickId);
 
     // Service ask for mtm
@@ -736,7 +669,7 @@ router.get("/:missionId/:publisherId", cors({ origin: "*" }), async function tra
     res.redirect(302, url.href);
 
     // Update stats just created to add isBot (do it after redirect to avoid delay)
-    const statBot = await StatsBotModel.findOne({ user: identity.user });
+    const statBot = await statBotService.findStatBotByUser(identity.user);
     if (statBot) {
       await statEventService.updateStatEvent(clickId, { isBot: true });
     }
@@ -759,7 +692,7 @@ router.get("/impression/campaign/:campaignId", cors({ origin: "*" }), async (req
 
     const params = zod
       .object({
-        campaignId: zod.string().regex(/^[0-9a-fA-F]{24}$/),
+        campaignId: zod.string().transform(cleanIdParam),
       })
       .safeParse(req.params);
 
@@ -768,7 +701,7 @@ router.get("/impression/campaign/:campaignId", cors({ origin: "*" }), async (req
       return res.status(400).send({ ok: false, code: INVALID_PARAMS, message: params.error });
     }
 
-    const campaign = await CampaignModel.findById(params.data.campaignId);
+    const campaign = await campaignService.findCampaignById(params.data.campaignId);
     if (!campaign) {
       captureException(`[Impression Campaign] Campaign not found`, `campaign ${params.data.campaignId}`);
       return res.status(404).send({ ok: false, code: NOT_FOUND });
@@ -780,7 +713,7 @@ router.get("/impression/campaign/:campaignId", cors({ origin: "*" }), async (req
       return res.status(404).send({ ok: false, code: NOT_FOUND });
     }
 
-    const statBot = await StatsBotModel.findOne({ user: identity.user });
+    const statBot = await statBotService.findStatBotByUser(identity.user);
 
     const obj = {
       type: "print",
@@ -793,13 +726,13 @@ router.get("/impression/campaign/:campaignId", cors({ origin: "*" }), async (req
       tag: "link",
 
       toPublisherId: campaign.toPublisherId,
-      toPublisherName: campaign.toPublisherName,
+      toPublisherName: (await publisherService.findOnePublisherById(campaign.toPublisherId))?.name || "",
 
       fromPublisherId: fromPublisher.id,
       fromPublisherName: fromPublisher.name,
 
       source: "campaign",
-      sourceId: campaign._id.toString(),
+      sourceId: campaign.id,
       sourceName: campaign.name,
       isBot: statBot ? true : false,
     } as StatEventRecord;
@@ -821,7 +754,7 @@ router.get("/impression/:missionId/:publisherId", cors({ origin: "*" }), async (
     const params = zod
       .object({
         missionId: zod.string(),
-        publisherId: zod.string(),
+        publisherId: zod.string().transform(cleanIdParam),
       })
       .safeParse(req.params);
 
@@ -829,10 +762,7 @@ router.get("/impression/:missionId/:publisherId", cors({ origin: "*" }), async (
       .object({
         tracker: zod.string().optional(),
         sourceId: zod.string().optional(),
-        requestId: zod
-          .string()
-          .regex(/^[0-9a-fA-F]{24}$/)
-          .optional(),
+        requestId: zod.string().optional(),
       })
       .safeParse(req.query);
 
@@ -845,7 +775,7 @@ router.get("/impression/:missionId/:publisherId", cors({ origin: "*" }), async (
       return res.status(400).send({ ok: false, code: INVALID_QUERY, message: query.error });
     }
 
-    const mission = await findMissionTemp(params.data.missionId);
+    const mission = await missionService.findOneMission(params.data.missionId);
     if (!mission) {
       captureMessage(`[Impression Widget] Mission not found`, `mission ${params.data.missionId}, publisher ${params.data.publisherId}`);
       return res.status(404).send({ ok: false, code: NOT_FOUND });
@@ -857,12 +787,12 @@ router.get("/impression/:missionId/:publisherId", cors({ origin: "*" }), async (
       return res.status(404).send({ ok: false, code: NOT_FOUND });
     }
 
-    const source = query.data.sourceId ? await WidgetModel.findById(query.data.sourceId) : null;
+    const source = query.data.sourceId ? await widgetService.findOneWidgetById(query.data.sourceId) : null;
     if (!source && query.data.sourceId) {
       captureMessage(`[Impression] Source not found`, `source ${query.data.sourceId}`);
     }
 
-    const statBot = await StatsBotModel.findOne({ user: identity.user });
+    const statBot = await statBotService.findStatBotByUser(identity.user);
     const obj = {
       type: "print",
       requestId: query.data.requestId,
@@ -877,7 +807,7 @@ router.get("/impression/:missionId/:publisherId", cors({ origin: "*" }), async (
       sourceId: query.data.sourceId,
       sourceName: source && source.name,
 
-      missionId: mission._id.toString(),
+      missionId: mission.id,
       missionClientId: mission.clientId || "",
       missionDomain: mission.domain || "",
       missionTitle: mission.title || "",
@@ -887,7 +817,7 @@ router.get("/impression/:missionId/:publisherId", cors({ origin: "*" }), async (
       missionOrganizationId: mission.organizationId || "",
       missionOrganizationClientId: mission.organizationClientId || "",
       toPublisherId: mission.publisherId,
-      toPublisherName: mission.publisherName,
+      toPublisherName: mission.publisherName || "",
 
       fromPublisherId: fromPublisher.id,
       fromPublisherName: fromPublisher.name,

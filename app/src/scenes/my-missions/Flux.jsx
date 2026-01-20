@@ -6,11 +6,12 @@ import ErrorIconSvg from "../../assets/svg/error-icon.svg?react";
 import InfoAlert from "../../components/InfoAlert";
 import Loader from "../../components/Loader";
 import Select from "../../components/NewSelect";
-import TablePagination from "../../components/NewTablePagination";
 import SearchInput from "../../components/SearchInput";
+import Table from "../../components/Table";
 import { STATUS_PLR } from "../../constants";
 import api from "../../services/api";
 import { captureError } from "../../services/error";
+import { compactMissionFilters, searchMissions } from "../../services/mission";
 import useStore from "../../services/store";
 import exportCSV from "../../services/utils";
 import SelectCity from "./components/SelectCity";
@@ -59,7 +60,7 @@ const Flux = ({ moderated }) => {
         if (!res.ok) throw res;
         setLastImport(res.data.length ? res.data[0] : null);
       } catch (error) {
-        captureError(error, "Erreur lors de la récupération des modérateurs");
+        captureError(error, { extra: { publisherId: publisher.id } });
       }
     };
     fetchData();
@@ -70,20 +71,7 @@ const Flux = ({ moderated }) => {
     const fetchData = async () => {
       setLoading(true);
       try {
-        const query = {
-          publisherId: publisher.id,
-          size: filters.size,
-          from: (filters.page - 1) * filters.size,
-        };
-        if (filters.status) query.status = filters.status;
-        if (filters.comment) query.comment = filters.comment;
-        if (filters.domain) query.domain = filters.domain;
-        if (filters.activity) query.activity = filters.activity;
-        if (filters.city) query.city = filters.city;
-        if (filters.organization) query.organization = filters.organization;
-        if (filters.search) query.search = filters.search;
-        if (filters.sortBy) query.sort = filters.sortBy;
-        const res = await api.post("/mission/search", { ...query }, { signal: controller.signal });
+        const res = await searchMissions({ ...filters, publisherId: publisher.id }, { signal: controller.signal });
 
         if (!res.ok) throw res;
         setData(res.data);
@@ -91,18 +79,10 @@ const Flux = ({ moderated }) => {
         setTotal(res.total);
 
         const newSearchParams = new URLSearchParams();
-        newSearchParams.append("size", filters.size);
-        newSearchParams.append("page", filters.page);
-        if (filters.status) newSearchParams.append("status", filters.status);
-        if (filters.comment) newSearchParams.append("comment", filters.comment);
-        if (filters.domain) newSearchParams.append("domain", filters.domain);
-        if (filters.activity) newSearchParams.append("activity", filters.activity);
-        if (filters.city) newSearchParams.append("city", filters.city);
-        if (filters.organization) newSearchParams.append("organization", filters.organization);
-        if (filters.search) newSearchParams.append("search", filters.search);
+        Object.entries(compactMissionFilters(filters)).forEach(([key, value]) => newSearchParams.append(key, value));
         setSearchParams(newSearchParams);
       } catch (error) {
-        captureError(error, "Erreur lors de la récupération des données");
+        captureError(error, { extra: { filters } });
       }
       setLoading(false);
     };
@@ -114,20 +94,7 @@ const Flux = ({ moderated }) => {
   const handleExport = async () => {
     setExporting(true);
     try {
-      const query = {
-        publisherId: publisher.id,
-        size: 10000,
-        from: 0,
-      };
-
-      if (filters.status) query.status = filters.status;
-      if (filters.domain) query.domain = filters.domain;
-      if (filters.activity) query.activity = filters.activity;
-      if (filters.city) query.city = filters.city;
-      if (filters.organization) query.organization = filters.organization;
-      if (filters.search) query.search = filters.search;
-
-      const res = await api.post("/mission/search", { ...query });
+      const res = await searchMissions({ ...filters, publisherId: publisher.id, size: 10000, page: 1 });
 
       if (!res.ok) throw res;
       const csv = [];
@@ -146,14 +113,14 @@ const Flux = ({ moderated }) => {
       });
       exportCSV(`missions ${publisher.name}`, csv);
     } catch (error) {
-      captureError(error, "Erreur lors de l'export des missions");
+      captureError(error, { extra: { filters } });
     }
     setExporting(false);
   };
 
   return (
     <div className="space-y-12 p-12">
-      <title>Missions partagées - Vos Missions - API Engagement</title>
+      <title>API Engagement - Missions partagées - Vos Missions</title>
       {moderated && !hideAlert && (
         <InfoAlert onClose={() => setHideAlert(true)}>
           <p className="text-base">Pour toutes les missions acceptées par l’API, JeVeuxAider.gouv.fr pratique une modération avant de les diffuser.</p>
@@ -205,11 +172,11 @@ const Flux = ({ moderated }) => {
           <div className="max-w-[60%] flex-1 space-y-2">
             <h2 className="text-2xl font-bold">{total.toLocaleString("fr")} missions partagées</h2>
             <div className="flex items-center gap-2">
-              <p className="text-base text-[#666666]">Dernière synchronisation le {lastImport ? new Date(lastImport.startedAt).toLocaleDateString("fr") : "N/A"}</p>
+              <p className="text-text-mention text-base">Dernière synchronisation le {lastImport ? new Date(lastImport.startedAt).toLocaleDateString("fr") : "N/A"}</p>
               {lastImport && new Date(lastImport.startedAt) > new Date(new Date().getFullYear(), new Date().getMonth(), new Date().getDate() - 1) ? (
-                <RiCheckboxCircleFill className="text-green-success text-base" />
+                <RiCheckboxCircleFill className="text-success text-base" />
               ) : (
-                <ErrorIconSvg alt="error" className="h-4 w-4 fill-[#e1000f]" />
+                <ErrorIconSvg alt="error" className="fill-error h-4 w-4" />
               )}
               <Link to="/settings" className="link">
                 Paraméter mon flux de missions
@@ -223,8 +190,9 @@ const Flux = ({ moderated }) => {
           </button>
         </div>
 
-        <TablePagination
+        <Table
           header={TABLE_HEADER}
+          pagination
           page={filters.page}
           pageSize={filters.size}
           onPageChange={(page) => setFilters({ ...filters, page })}
@@ -248,16 +216,12 @@ const Flux = ({ moderated }) => {
               <td className="px-4">{new Date(item.createdAt).toLocaleDateString("fr")}</td>
               <td className="px-6">
                 <div className="flex items-center gap-1">
-                  {item.statusCode === "ACCEPTED" ? (
-                    <RiCheckboxCircleFill className="text-green-success text-2xl" />
-                  ) : (
-                    <ErrorIconSvg alt="error" className="h-6 w-6 fill-[#e1000f]" />
-                  )}
+                  {item.statusCode === "ACCEPTED" ? <RiCheckboxCircleFill className="text-success text-2xl" /> : <ErrorIconSvg alt="error" className="fill-error h-6 w-6" />}
                   {item.statusComment && (
                     <div className="group relative">
-                      <RiInformationLine className="text-gray-425 text-2xl" />
+                      <RiInformationLine className="text-text-mention text-2xl" />
 
-                      <div className="absolute -top-1/2 right-8 z-10 hidden w-64 -translate-y-1/2 border border-gray-900 bg-white p-4 shadow-lg group-hover:block">
+                      <div className="border-grey-border absolute -top-1/2 right-8 z-10 hidden w-64 -translate-y-1/2 border bg-white p-4 shadow-lg group-hover:block">
                         <p className="text-sm">{item.statusComment}</p>
                       </div>
                     </div>
@@ -266,7 +230,7 @@ const Flux = ({ moderated }) => {
               </td>
             </tr>
           ))}
-        </TablePagination>
+        </Table>
       </div>
     </div>
   );

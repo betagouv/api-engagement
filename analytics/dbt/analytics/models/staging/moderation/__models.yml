@@ -18,15 +18,8 @@ models:
           - not_null
           - relationships:
               arguments:
-                to: source('public', 'Mission')
+                to: ref('mission')
                 field: id
-      - name: mission_id_raw
-        description: Ancien identifiant Mission.old_id correspondant à la mission liée.
-        tests:
-          - relationships:
-              arguments:
-                to: source('public', 'Mission')
-                field: old_id
       - name: created_at
         description: Date de création de l'événement.
         tests:
@@ -43,3 +36,37 @@ models:
         description: Statut avant modération (enum text).
       - name: new_status
         description: Statut après modération (enum text).
+  - name: stg_mission_moderation_status
+    description: >
+      Staging des statuts de modération par mission exportés depuis `analytics_raw.mission_moderation_status`.
+      Le modèle applique le typage des champs et expose l'identifiant technique auto-incrémenté.
+    columns:
+      - name: id
+        description: Identifiant UUID de la ligne côté core.
+        tests:
+          - not_null
+          - unique
+      - name: mission_id
+        description: Identifiant analytics de la mission concernée.
+        tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('mission')
+                field: id
+      - name: publisher_id
+        description: Identifiant du partenaire diffuseur.
+        tests:
+          - not_null
+      - name: status
+        description: Statut de modération courant (enum texte).
+      - name: comment
+        description: Commentaire associé (nullable).
+      - name: created_at
+        description: Date de création du statut.
+        tests:
+          - not_null
+      - name: updated_at
+        description: Date de dernière mise à jour (curseur incrémental).
+        tests:
+          - not_null

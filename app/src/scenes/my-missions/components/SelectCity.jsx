@@ -26,7 +26,7 @@ const SelectCity = ({ onChange }) => {
           })),
         );
       } catch (error) {
-        captureError(error, "Erreur lors de la récupération des villes");
+        captureError(error, { extra: { search, publisherId: publisher.id } });
       }
     };
     fetchOptions();

@@ -1,0 +1,84 @@
+version: 2
+
+models:
+  - name: campaign
+    description: >
+      Modèle mart des campagnes API enrichi avec le nom de l'utilisateur ayant effectué une éventuelle réaffectation.
+      Il s'appuie sur `stg_campaign` et complète `reassigned_by_user_name` par jointure avec `stg_user`.
+    columns:
+      - name: id
+        description: Identifiant unique de la campagne.
+        tests:
+          - not_null
+          - unique
+      - name: url
+        description: URL de destination associée (nullable).
+      - name: name
+        description: Libellé fonctionnel de la campagne (nullable).
+      - name: diffuseur_id
+        description: Identifiant du partenaire diffuseur propriétaire.
+        tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('publisher')
+                field: id
+      - name: annonceur_id
+        description: Identifiant du partenaire annonceur ciblé.
+        tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('publisher')
+                field: id
+      - name: active
+        description: Flag indiquant si la campagne est active (`true`/`false`).
+        tests:
+          - not_null
+      - name: deleted_at
+        description: Horodatage de suppression logique (nullable).
+      - name: created_at
+        description: Horodatage de création.
+        tests:
+          - not_null
+      - name: updated_at
+        description: Horodatage de dernière mise à jour (curseur d'incrément).
+        tests:
+          - not_null
+      - name: reassigned_at
+        description: Horodatage de réaffectation (nullable).
+      - name: reassigned_by_user_id
+        description: Identifiant de l'utilisateur ayant effectué la réaffectation (nullable).
+        tests:
+          - relationships:
+              arguments:
+                to: ref('user')
+                field: id
+      - name: reassigned_by_user_name
+        description: Nom enrichi de l'utilisateur (champ source ou concaténation prénom/nom issue de `stg_user`).
+      - name: type
+        description: Typologie métier de la campagne (nullable).
+  - name: campaign_tracker
+    description: >
+      Table mart exposant les clés de tracking associées aux campagnes. Ce modèle se contente de pointer vers le staging
+      correspondant.
+    columns:
+      - name: id
+        description: Identifiant unique de la clé de tracking.
+        tests:
+          - not_null
+          - unique
+      - name: campaign_id
+        description: Identifiant de la campagne liée.
+        tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('campaign')
+                field: id
+      - name: key
+        description: Clé de tracking (ex. `utm_source`).
+        tests:
+          - not_null
+      - name: value
+        description: Valeur de la clé (nullable selon les inputs).

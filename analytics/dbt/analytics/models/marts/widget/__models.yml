@@ -1,0 +1,28 @@
+version: 2
+
+models:
+  - name: widget
+    description: "Mart widget exposant la configuration et les agrégats (nb publishers, nb règles)."
+    columns:
+      - name: id
+        tests:
+          - not_null
+          - unique
+      - name: name
+        description: "Libellé du widget."
+      - name: diffuseur_id
+        description: "Diffuseur propriétaire."
+        tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('publisher')
+                field: id
+      - name: active
+        description: "Statut actif."
+      - name: publisher_count
+        description: "Nombre de publishers associés."
+      - name: rule_count
+        description: "Nombre de règles associées."
+      - name: is_deleted
+        description: "true si deleted_at est renseigné."

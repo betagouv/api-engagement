@@ -1,10 +1,8 @@
 import { randomUUID } from "crypto";
 
-import mongoose from "mongoose";
-
 import { loadEnvironment } from "../mongo-backfill/utils/options";
 
-import type { Mission } from "../../src/types";
+import type { MissionRecord } from "../../src/types/mission";
 import type { StatEventRecord, StatEventSource, StatEventStatus, StatEventType } from "../../src/types/stat-event";
 
 type PublisherInfo = {
@@ -31,16 +29,14 @@ type ScriptOptions = {
 };
 
 type ConfigModule = typeof import("../../src/config");
-type MongoModule = typeof import("../../src/db/mongo");
 type PostgresModule = typeof import("../../src/db/postgres");
-type MissionModelModule = typeof import("../../src/models/mission");
+type MissionServiceModule = typeof import("../../src/services/mission");
 type PublisherRepositoryModule = typeof import("../../src/repositories/publisher");
 type StatEventServiceModule = typeof import("../../src/services/stat-event");
 
 let publisherIdsMap: ConfigModule["PUBLISHER_IDS"] | null = null;
-let mongoReady: MongoModule["mongoConnected"] | null = null;
 let prismaCore: PostgresModule["prismaCore"] | null = null;
-let MissionModel: MissionModelModule["default"] | null = null;
+let missionService: MissionServiceModule["missionService"] | null = null;
 let publisherRepository: PublisherRepositoryModule["publisherRepository"] | null = null;
 let statEventService: StatEventServiceModule["statEventService"] | null = null;
 
@@ -127,19 +123,17 @@ async function ensureDependenciesLoaded() {
     return;
   }
 
-  const [configModule, mongoModule, postgresModule, missionModule, publisherModule, statEventModule] = await Promise.all([
+  const [configModule, postgresModule, missionModule, publisherModule, statEventModule] = await Promise.all([
     import("../../src/config"),
-    import("../../src/db/mongo"),
     import("../../src/db/postgres"),
-    import("../../src/models/mission"),
+    import("../../src/services/mission"),
     import("../../src/repositories/publisher"),
     import("../../src/services/stat-event"),
   ]);
 
   publisherIdsMap = configModule.PUBLISHER_IDS;
-  mongoReady = mongoModule.mongoConnected;
   prismaCore = postgresModule.prismaCore;
-  MissionModel = missionModule.default;
+  missionService = missionModule.missionService;
   publisherRepository = publisherModule.publisherRepository;
   statEventService = statEventModule.statEventService;
 }
@@ -288,33 +282,31 @@ function fallbackString(value: string | null | undefined, fallback: string): str
 }
 
 async function fetchRandomMissions(publisherId: string, requestedCount: number): Promise<MissionFixture[]> {
-  if (!MissionModel || !mongoReady) {
-    throw new Error("MissionModel ou mongoConnected non initialisés.");
+  if (!missionService) {
+    throw new Error("missionService non initialisé.");
   }
 
   const sampleSize = Math.min(Math.max(requestedCount, 20), 300);
-  await mongoReady;
 
-  const missions = await MissionModel.aggregate<Mission>([
-    {
-      $match: {
-        publisherId,
-        deleted: { $ne: true },
-        statusCode: "ACCEPTED",
-      },
-    },
-    { $sample: { size: sampleSize } },
-  ]);
+  const { data: missions } = await missionService.findMissions({
+    publisherIds: [publisherId],
+    includeDeleted: false,
+    limit: sampleSize,
+    skip: 0,
+  });
 
   if (!missions.length) {
     throw new Error(`Aucune mission trouvée pour le publisher ${publisherId}.`);
   }
 
-  return missions.map((mission) => {
-    const id = mission._id ? ((mission._id as any).toString?.() ?? String(mission._id)) : randomUUID();
+  const shuffled = missions.slice().sort(() => Math.random() - 0.5);
+  const sampled = shuffled.slice(0, requestedCount);
+
+  return sampled.map((mission: MissionRecord) => {
+    const id = mission.id ?? randomUUID();
     const domain = fallbackString(mission.domain ?? mission.activity, "divers");
     const departmentName = fallbackString(mission.departmentName, "Inconnu");
-    const organizationName = fallbackString(mission.organizationName, mission.publisherName);
+    const organizationName = fallbackString(mission.organizationName ?? mission.publisherName, mission.publisherName);
     const tag = mission.tags?.[0];
     const tags = mission.tags?.length ? mission.tags : ([domain, departmentName].filter(Boolean) as string[]);
 
@@ -364,9 +356,7 @@ async function processPublisher(publisherId: string, options: ScriptOptions, sta
     await statEventService.createStatEvent(event);
   }
 
-  console.log(
-    `[fixtures:stat-events] ${events.length} StatEvents créés pour ${target.name} entre ${startDate.toISOString()} et ${now.toISOString()}.`
-  );
+  console.log(`[fixtures:stat-events] ${events.length} StatEvents créés pour ${target.name} entre ${startDate.toISOString()} et ${now.toISOString()}.`);
 }
 
 async function main() {
@@ -377,9 +367,7 @@ async function main() {
   const now = new Date();
   const startDate = minusMonths(now, 3);
   const defaultPublisherIds = getDefaultPublisherIds();
-  const publisherIds = (options.publisherId ? [options.publisherId] : defaultPublisherIds).filter(
-    (id, index, array): id is string => Boolean(id) && array.indexOf(id) === index
-  );
+  const publisherIds = (options.publisherId ? [options.publisherId] : defaultPublisherIds).filter((id, index, array): id is string => Boolean(id) && array.indexOf(id) === index);
 
   if (!publisherIds.length) {
     throw new Error("Aucun publisher cible configuré (utilisez --publisher-id ou mettez à jour vos .env).");
@@ -400,8 +388,5 @@ main()
       await prismaCore?.$disconnect();
     } catch (error) {
       console.error("[fixtures:stat-events] Erreur lors de la fermeture Prisma:", error);
-    }
-    if (mongoose.connection.readyState !== 0) {
-      await mongoose.disconnect();
     }
   });
