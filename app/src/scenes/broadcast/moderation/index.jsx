@@ -108,14 +108,12 @@ const Moderation = () => {
     }
   };
 
-  const applyMissionUpdates = (updates) => {
+  const handleMissionUpdate = (updates) => {
     const list = Array.isArray(updates) ? updates : updates ? [updates] : [];
     if (!list.length) return;
     setData((prev) => {
-      const map = new Map(list.filter((mission) => mission && mission._id).map((mission) => [mission._id, mission]));
-      if (!map.size) return prev;
       return prev.map((mission) => {
-        const updated = map.get(mission._id);
+        const updated = list.find((u) => u.id === mission.id);
         return updated ? { ...mission, ...updated } : mission;
       });
     });
@@ -128,7 +126,7 @@ const Moderation = () => {
 
   const handleSelectAll = (e) => {
     const checked = e.target.checked;
-    if (checked) setSelected(data.map((m) => m._id.toString()));
+    if (checked) setSelected(data.map((m) => m.id));
     else setSelected([]);
   };
 
@@ -144,7 +142,7 @@ const Moderation = () => {
       <title>API Engagement - Modération - Diffuser des missions</title>
       <MissionModal
         onChange={(values) => {
-          applyMissionUpdates(values);
+          handleMissionUpdate(values);
           fetchHistory();
         }}
       />
@@ -185,7 +183,7 @@ const Moderation = () => {
         onSort={setSort}
         onSelect={setSelected}
         onChange={(values) => {
-          applyMissionUpdates(values);
+          handleMissionUpdate(values);
           setReloadFilters((prev) => !prev);
           fetchHistory();
         }}
@@ -230,7 +228,7 @@ const Moderation = () => {
                 history={history.organization[item.organizationName] || { ACCEPTED: 0, REFUSED: 0 }}
                 selected={selected.includes(item.id)}
                 onChange={(values) => {
-                  applyMissionUpdates(values);
+                  handleMissionUpdate(values);
                   fetchHistory();
                   setReloadFilters((prev) => !prev);
                 }}

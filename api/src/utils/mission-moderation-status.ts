@@ -17,7 +17,7 @@ export const buildWhere = (filters: ModerationFilters): { where: Prisma.MissionM
     deletedAt: null,
     statusCode: "ACCEPTED",
   };
-  const where: Prisma.MissionModerationStatusWhereInput = { mission: {} };
+  const where: Prisma.MissionModerationStatusWhereInput = { mission: { deletedAt: null, statusCode: "ACCEPTED" } };
 
   if (filters.moderatorId) {
     where.publisherId = filters.moderatorId;

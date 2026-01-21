@@ -308,13 +308,6 @@ router.put("/:id", passport.authenticate("user", { session: false }), async (req
       return res.status(404).send({ ok: false, code: NOT_FOUND });
     }
 
-    // Update moderation status in dedicated table
-    const updates = getModerationUpdates(body.data);
-    let updated = { ...previous };
-    if (updates) {
-      updated = await missionModerationStatusService.update(previous.id, updates);
-    }
-
     // Update mission fields (organization verification)
     const organizationUpdates = getOrganizationUpdates(body.data, previous);
     let organizationUpdated: PublisherOrganization | null = null;
@@ -324,6 +317,15 @@ router.put("/:id", passport.authenticate("user", { session: false }), async (req
         organizationClientId: previous.missionOrganizationClientId,
         update: organizationUpdates,
       });
+      previous.missionOrganizationRNAVerified = organizationUpdated.organizationRNAVerified;
+      previous.missionOrganizationSirenVerified = organizationUpdated.organizationSirenVerified;
+    }
+
+    // Update moderation status in dedicated table
+    const updates = getModerationUpdates(body.data);
+    let updated = { ...previous };
+    if (updates) {
+      updated = await missionModerationStatusService.update(previous.id, updates);
     }
 
     // Create moderation events for audit

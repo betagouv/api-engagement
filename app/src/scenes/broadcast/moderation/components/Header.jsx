@@ -26,7 +26,7 @@ const Header = ({ total, data, size, sort, selected, onSize, onSort, onSelect, o
         <div className="flex items-center justify-between gap-4 py-4">
           {isSticky ? (
             <div>
-              <button className="button" onClick={() => onSelect(data.map((d) => d._id))}>
+              <button className="button" onClick={() => (selected.length === data.length ? onSelect([]) : onSelect(data.map((d) => d.id)))}>
                 {selected.length === data.length ? <RiCheckboxFill className="text-blue-france text-2xl" /> : <RiCheckboxIndeterminateFill className="text-blue-france text-2xl" />}
               </button>
             </div>

@@ -155,9 +155,9 @@ export const missionModerationStatusService = {
     ]);
     const [publishers, domains, activities] = await Promise.all([
       // Labels
-      publisherRepository.findMany({ select: { id: true, name: true } }),
-      domainRepository.findMany({ select: { id: true, name: true } }),
-      activityRepository.findMany({ select: { id: true, name: true } }),
+      publisherRepository.findMany({ where: { missions: { some: missionWhere } } as Prisma.PublisherWhereInput, select: { id: true, name: true } }),
+      domainRepository.findMany({ where: { missions: { some: missionWhere } } as Prisma.DomainWhereInput, select: { id: true, name: true } }),
+      activityRepository.findMany({ where: { missions: { some: missionWhere } } as Prisma.ActivityWhereInput, select: { id: true, name: true } }),
     ]);
 
     const publisherMap = new Map(publishers.map((p) => [p.id, p.name]));

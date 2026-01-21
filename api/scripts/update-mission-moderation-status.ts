@@ -31,9 +31,27 @@ async function updateNullModerationStatusesToPending() {
 
   console.log(`Updated ${res.count} mission moderation statuses with status null`);
 }
+
+const moderationComments = ["MISSION_CREATION_DATE_TOO_OLD", "MISSION_DATE_NOT_COMPATIBLE", "CONTENT_INSUFFICIENT"];
+
+async function cleanModerationStatusesTitles() {
+  // Find all the missions where title === comment
+  const count = await prismaCore.missionModerationStatus.count({
+    where: { title: { in: moderationComments } },
+  });
+  console.log(`Found ${count} mission moderation statuses with title === comment`);
+
+  const res = await prismaCore.missionModerationStatus.updateMany({
+    where: { title: { in: moderationComments } },
+    data: { title: null },
+  });
+  console.log(`Updated ${res.count} mission moderation statuses with title === comment`);
+}
+
 async function run() {
   await deleteJeVeuxAiderModerationStatuses();
   await updateNullModerationStatusesToPending();
+  await cleanModerationStatusesTitles();
 }
 
 run().catch((err) => {
