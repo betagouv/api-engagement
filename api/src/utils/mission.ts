@@ -121,8 +121,6 @@ export const IMPORT_FIELDS_TO_COMPARE = [
   "snuPlaces",
   "softSkills",
   "startAt",
-  "statusCode",
-  "statusComment",
   "tags",
   "title",
   "type",
@@ -132,11 +130,21 @@ export const IMPORT_FIELDS_TO_COMPARE = [
 ] as (keyof MissionRecord)[];
 
 /**
- * Get the changes between two missions
+ * Compare two missions and returns a changes patch.
  *
- * @param previousMission The previous mission
- * @param currentMission The current mission
- * @returns The changes between the two missions
+ * Comparison business rules:
+ * - Fields listed in IMPORT_FIELDS_TO_COMPARE are compared, with specific handling per type.
+ * - "At" date fields compare by day for postedAt/startAt/endAt (ignore time),
+ *   and strict timestamp comparison for the other date fields.
+ * - Arrays are compared ignoring order (sort + compare).
+ * - "Empty" values (null/undefined/"") are normalized to avoid noisy changes.
+ * - Addresses are compared only by city, and import events only keep { city }
+ *   to avoid overwriting other fields on every import.
+ * - If the number of addresses changes, the list is treated as changed (still limited to city).
+ *
+ * @param previousMission The mission from the database
+ * @param currentMission The mission from the import
+ * @returns A changes object or null if nothing relevant changed
  */
 export const getMissionChanges = (
   previousMission: MissionRecord,
@@ -188,20 +196,20 @@ export const getMissionChanges = (
 
   if (previousMission.addresses?.length !== currentMission.addresses?.length) {
     changes.addresses = {
-      previous: previousMission.addresses,
-      current: currentMission.addresses,
+      previous: mapAddressesForCityChange(previousMission.addresses),
+      current: mapAddressesForCityChange(currentMission.addresses),
     };
     return changes;
   }
 
-  const sortedPreviousAddresses = normalizeAddresses(previousMission.addresses) || [];
-  const sortedCurrentAddresses = normalizeAddresses(currentMission.addresses) || [];
+  const sortedPreviousAddresses = normalizeAddressesByCity(previousMission.addresses) || [];
+  const sortedCurrentAddresses = normalizeAddressesByCity(currentMission.addresses) || [];
 
   for (let i = 0; i < sortedCurrentAddresses.length; i++) {
     if (sortedPreviousAddresses[i] !== sortedCurrentAddresses[i]) {
       changes.addresses = {
-        previous: previousMission.addresses,
-        current: currentMission.addresses,
+        previous: mapAddressesForCityChange(previousMission.addresses),
+        current: mapAddressesForCityChange(currentMission.addresses),
       };
       break;
     }
@@ -241,14 +249,13 @@ const areDatesEqual = (previousDate: Date | string | undefined, currentDate: Dat
 };
 
 const areArraysEqual = (previousArray: any[], currentArray: any[]) => {
-  if (previousArray.length !== currentArray.length) {
+  const normalizedPrevious = new Set(previousArray.map((item) => String(item)));
+  const normalizedCurrent = new Set(currentArray.map((item) => String(item)));
+  if (normalizedPrevious.size !== normalizedCurrent.size) {
     return false;
   }
-  const sortedPreviousArray = [...previousArray].sort();
-  const sortedCurrentArray = [...currentArray].sort();
-
-  for (let i = 0; i < sortedPreviousArray.length; i++) {
-    if (String(sortedPreviousArray[i]) !== String(sortedCurrentArray[i])) {
+  for (const value of normalizedPrevious) {
+    if (!normalizedCurrent.has(value)) {
       return false;
     }
   }
@@ -265,15 +272,14 @@ const normalizeAddressValue = (value: string | number | null | undefined) => {
   return value;
 };
 
-const normalizeAddresses = (address: MissionRecord["addresses"]) => {
+const mapAddressesForCityChange = (addresses: MissionRecord["addresses"]) =>
+  addresses?.map((address) => ({
+    city: address.city ?? null,
+  })) ?? [];
+
+const normalizeAddressesByCity = (address: MissionRecord["addresses"]) => {
   const data = address.map((item) =>
-    slugify(
-      `${normalizeAddressValue(item.street)} ${normalizeAddressValue(item.city)} ${normalizeAddressValue(item.postalCode)} ${normalizeAddressValue(
-        item.departmentName
-      )} ${normalizeAddressValue(item.region)} ${normalizeAddressValue(item.country)} ${normalizeAddressValue(
-        item.location?.lat
-      )} ${normalizeAddressValue(item.location?.lon)}`
-    )
+    slugify(`${normalizeAddressValue(item.city)}`)
   );
   return data.sort();
 };

@@ -60,6 +60,7 @@ describe("L'Etudiant Transformers", () => {
       domain: "education",
       title: "Super Mission de Test",
       type: MissionType.BENEVOLAT,
+      organizationName: "Association de Test",
       descriptionHtml: "<p>Une description 素晴らしい HTML.</p>",
       applicationUrl: "https://example.com/apply",
       publisherId: "some_publisher_id",
@@ -82,7 +83,13 @@ describe("L'Etudiant Transformers", () => {
       expect(result.contract_id).toBe(mockMandatoryData.contracts.benevolat);
       expect(result.job_category_id).toBe(mockMandatoryData.jobCategories.education);
       expect(result.localisation).toBe("Lyon, Rhône, France");
-      expect(result.description_job).toBe("<p>Une description 素晴らしい HTML.</p>");
+      expect(result.description_job).toBe(
+        [
+          "<p><b>Type de mission : </b><b>Association de Test</b> vous propose une mission de bénévolat</p>",
+          "<p><b>Domaine d'activité : </b>📚 Éducation pour tous</p>",
+          "<p>Une description 素晴らしい HTML.</p>",
+        ].join("\n")
+      );
       expect(result.application_method).toBe("external_apply");
       expect(result.application_url).toBe(`https://api-engagement.beta.gouv.fr/r/${mission._id}/${PUBLISHER_IDS.LETUDIANT}`);
       expect(result.state).toBe("published");
@@ -100,6 +107,13 @@ describe("L'Etudiant Transformers", () => {
       const result = results[0].payload;
       expect(result.contract_id).toBe(mockMandatoryData.contracts.volontariat);
       expect(result.name).toBe(`Volontariat - ${mission.title}`);
+      expect(result.description_job).toBe(
+        [
+          "<p><b>Type de mission : </b><b>Association de Test</b> vous propose une mission de volontariat</p>",
+          "<p><b>Domaine d'activité : </b>📚 Éducation pour tous</p>",
+          "<p>Une description 素晴らしい HTML.</p>",
+        ].join("\n")
+      );
     });
 
     it("should set localisation to 'organization City' for full remote missions", () => {
@@ -288,7 +302,13 @@ describe("L'Etudiant Transformers", () => {
       const results = missionToPilotyJobs(mission, mockCompanyId, mockMandatoryData);
       const result = results[0].payload;
 
-      expect(result.description_job).toBe("Description with <p>html</p> tags.");
+      expect(result.description_job).toBe(
+        [
+          "<p><b>Type de mission : </b><b>Association de Test</b> vous propose une mission de bénévolat</p>",
+          "<p><b>Domaine d'activité : </b>📚 Éducation pour tous</p>",
+          "Description with <p>html</p> tags.",
+        ].join("\n")
+      );
     });
 
     /**

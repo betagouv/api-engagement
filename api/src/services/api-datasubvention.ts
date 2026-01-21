@@ -3,6 +3,9 @@ import { captureException, captureMessage } from "../error";
 
 const get = async (path: string, body?: BodyInit, options?: RequestInit, retries = 0) => {
   try {
+    if (!DATA_SUBVENTION_TOKEN) {
+      return null;
+    }
     const response = await fetch(`https://api.datasubvention.beta.gouv.fr${path}`, {
       method: "GET",
       headers: {

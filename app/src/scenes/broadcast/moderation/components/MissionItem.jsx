@@ -34,7 +34,7 @@ const MissionItem = ({ data, history, selected, onChange, onSelect, onFilter, on
 
       if (v.status === "REFUSED" && !v.comment) return;
 
-      const res = await api.put(`/moderation/${data._id}`, { ...v, moderatorId: publisher.id });
+      const res = await api.put(`/moderation/${data.id}`, { ...v, moderatorId: publisher.id });
       if (!res.ok) {
         if (res.error === "COMMENT_REQUIRED") {
           toast.error("Le commentaire est requis pour refuser la mission");
@@ -59,7 +59,7 @@ const MissionItem = ({ data, history, selected, onChange, onSelect, onFilter, on
 
   const handleMissionClick = () => {
     const newSearchParams = new URLSearchParams(searchParams);
-    newSearchParams.set("mission", data._id);
+    newSearchParams.set("mission", data.id);
     setSearchParams(newSearchParams);
   };
 
@@ -73,7 +73,224 @@ const MissionItem = ({ data, history, selected, onChange, onSelect, onFilter, on
         onChange={onChangeMany}
         total={potentialUpdates}
       />
+      <td className="table-cell align-middle" colSpan={3}>
+        <div className="flex items-center">
+          <label className="flex w-14 items-center">
+            <span className="sr-only">Sélectionner la mission</span>
+            <input type="checkbox" className="checkbox" name="moderation-select" onChange={handleSelectModeration} checked={selected} />
+          </label>
+
+          <div className="flex flex-1 flex-col justify-between py-2">
+            <div className="hover:text-blue-france my-2 line-clamp-3 flex items-center text-base font-semibold hover:cursor-pointer" onClick={handleMissionClick}>
+              {data.title || data.missionTitle}
+            </div>
+            <div className="text-text-mention mb-2 flex items-center gap-4 text-xs">
+              {data.missionCity && (
+                <span className="flex items-center">
+                  <RiMapPin2Fill className="mr-2" />
+                  {`${data.missionCity} ${data.missionDepartmentCode ? `(${data.missionDepartmentCode})` : ""}`}
+                </span>
+              )}
+              <span className="flex items-center text-xs">
+                <RiCalendarEventFill className="mr-2" />
+                {data.missionStartAt && `Du ${new Date(data.missionStartAt).toLocaleDateString("fr")}`}
+                {data.missionEndAt && ` au ${new Date(data.missionEndAt).toLocaleDateString("fr")}`}
+              </span>
+            </div>
+            <div className="text-text-mention flex items-center text-xs">
+              <RiTimeLine className="mr-2 text-xs" />
+              Postée le {new Date(data.missionPostedAt).toLocaleDateString("fr")} sur {data.missionPublisherName}
+            </div>
+          </div>
+        </div>
+      </td>
       <td className="table-cell align-middle">
+        <div className="flex flex-col justify-between py-2 text-xs">
+          <span className="max-h-12 truncate">{data.missionOrganizationName}</span>
+
+          <div className="border-grey-border my-2 inline-flex flex-wrap items-center gap-1 rounded border p-1">
+            <span>Missions</span>
+            <RiCheckboxCircleFill className="text-success" />
+            <span className="text-success">{history["ACCEPTED"] || "0"}</span>
+            <BsDot className="text-text-mention" />
+            <RiCloseCircleFill className="text-error" />
+            <span className="text-error">{history["REFUSED"] || "0"}</span>
+          </div>
+
+          {data.associationSources?.length ? (
+            <span className="text-text-mention">
+              {data.associationSources.length > 0 && `Inscrite sur ${data.associationSources.map((a) => (a === "Je veux aider" ? "JeVeuxAider.gouv.fr" : a)).join(", ")}`}
+            </span>
+          ) : (
+            <span className="text-text-mention">Pas d'inscription retrouvée</span>
+          )}
+        </div>
+      </td>
+      <td className="table-cell align-middle" colSpan={2}>
+        <div className="flex flex-col justify-center gap-3">
+          <div className="flex items-center gap-3">
+            <select
+              className="select flex-1 border-b-2 pr-2"
+              style={{ borderBottomColor: STATUS_COLORS[values.status] }}
+              name="status"
+              value={values.status}
+              onChange={(e) => handleSubmit({ status: e.target.value })}
+            >
+              {Object.entries(STATUS).map(([key, value]) => (
+                <option key={key} value={key}>
+                  {value}
+                </option>
+              ))}
+            </select>
+            <MissionActionsMenu data={data} onFilter={onFilter} onChange={(v) => onChange({ ...data, ...v })} />
+          </div>
+          {values.status === "REFUSED" && (
+            <select className="select border-error border-b-2" name="motif" value={values.comment} onChange={(e) => handleSubmit({ status: "REFUSED", comment: e.target.value })}>
+              <option value="">Motif de refus</option>
+              {Object.entries(JVA_MODERATION_COMMENTS_LABELS).map(([key, value]) => (
+                <option key={key} value={key}>
+                  {value}
+                </option>
+              ))}
+            </select>
+          )}
+          {values.note && (
+            <div className="mt-1 flex items-center gap-2 text-xs">
+              <RiPencilFill />
+              <div className="italic">{values.note}</div>
+            </div>
+          )}
+        </div>
+      </td>
+    </>
+  );
+};
+
+const MissionActionsMenu = ({ data, onFilter, onChange }) => {
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [searchParams, setSearchParams] = useSearchParams();
+
+  const handleMissionClick = () => {
+    const newSearchParams = new URLSearchParams(searchParams);
+    newSearchParams.set("mission", data.id);
+    setSearchParams(newSearchParams);
+  };
+
+  return (
+    <>
+      <Menu as="div" className="relative h-full text-left">
+        <Menu.Button as="div" className="secondary-btn shadow-border-black text-black">
+          <span className="font-semibold">
+            <RiMoreFill />
+          </span>
+        </Menu.Button>
+        <Transition
+          as={Fragment}
+          enter="transition ease-out duration-100"
+          enterFrom="transform opacity-0 scale-95"
+          enterTo="transform opacity-100 scale-100"
+          leave="transition ease-in duration-75"
+          leaveFrom="transform opacity-100 scale-100"
+          leaveTo="transform opacity-0 scale-95"
+        >
+          <Menu.Items as="div" className="border-grey-border absolute right-0 z-30 mt-2 w-64 origin-top-right border bg-white text-black focus:outline-none">
+            <Menu.Item>
+              <button onClick={handleMissionClick} className="text-blue-france flex w-full cursor-pointer items-center border-none p-3 text-left text-sm hover:bg-gray-950">
+                Aperçu de la mission
+              </button>
+            </Menu.Item>
+            <Menu.Item>
+              <a
+                href={data.missionApplicationUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-blue-france flex w-full cursor-pointer items-center border-none p-3 text-left text-sm hover:bg-gray-950"
+              >
+                Lien de la mission
+              </a>
+            </Menu.Item>
+            <Menu.Item>
+              {data.note ? (
+                <button
+                  className="text-blue-france flex w-full cursor-pointer items-center border-none p-3 text-left text-sm hover:bg-gray-950"
+                  onClick={() => setIsModalOpen(true)}
+                >
+                  Modifier la note
+                </button>
+              ) : (
+                <button
+                  className="text-blue-france flex w-full cursor-pointer items-center border-none p-3 text-left text-sm hover:bg-gray-950"
+                  onClick={() => setIsModalOpen(true)}
+                >
+                  Ajouter une note interne
+                </button>
+              )}
+            </Menu.Item>
+            <Menu.Item>
+              <button
+                className="text-blue-france flex w-full cursor-pointer items-center border-none p-3 text-left text-sm hover:bg-gray-950"
+                onClick={() => onFilter(data.missionOrganizationName)}
+              >
+                Filtrer les missions de l'organisation
+              </button>
+            </Menu.Item>
+          </Menu.Items>
+        </Transition>
+      </Menu>
+      <UpdateNoteModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} onChange={onChange} data={data} />
+    </>
+  );
+};
+
+const UpdateNoteModal = ({ isOpen, onChange, onClose, data }) => {
+  const { publisher } = useStore();
+  const [note, setNote] = useState(data.note || "");
+
+  useEffect(() => {
+    setNote(data.note || "");
+  }, [data]);
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      const res = await api.put(`/moderation/${data.id}`, { note, moderatorId: publisher.id });
+      if (!res.ok) throw res;
+      toast.success("La note a été mise à jour avec succès");
+      onChange({ note });
+      onClose();
+    } catch (error) {
+      captureError(error, { extra: { data, note, moderatorId: publisher.id } });
+    }
+  };
+
+  return (
+    <Modal isOpen={isOpen} onClose={() => onClose()}>
+      <form className="px-32 py-16" onSubmit={handleSubmit}>
+        <h1 className="mb-10">Modifier la note</h1>
+        <div className="flex items-center justify-center">
+          <div className="flex w-full flex-col justify-center gap-4">
+            <div className="flex flex-col gap-1">
+              <label htmlFor="note" className="text-sm">
+                Note
+              </label>
+              <textarea id="note" className="input" rows={4} name="note" value={note} onChange={(e) => setNote(e.target.value)} required />
+              <div className="mt-6 flex justify-end">
+                <button className="primary-btn w-full" type="submit">
+                  Enregistrer
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </form>
+    </Modal>
+  );
+};
+
+export default MissionItem;
+
+{
+  /* <td className="table-cell align-middle">
         <label className="flex items-center">
           <span className="sr-only">Sélectionner la mission</span>
           <input type="checkbox" className="checkbox" name="moderation-select" onChange={handleSelectModeration} checked={selected} />
@@ -160,130 +377,5 @@ const MissionItem = ({ data, history, selected, onChange, onSelect, onFilter, on
           </div>
         )}
       </div>
-      </td>
-    </>
-  );
-};
-
-const MissionActionsMenu = ({ data, onFilter, onChange }) => {
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [searchParams, setSearchParams] = useSearchParams();
-
-  const handleMissionClick = () => {
-    const newSearchParams = new URLSearchParams(searchParams);
-    newSearchParams.set("mission", data._id);
-    setSearchParams(newSearchParams);
-  };
-
-  return (
-    <>
-      <Menu as="div" className="relative h-full text-left">
-        <Menu.Button as="div" className="hover:bg-gray-975 flex h-full cursor-pointer items-center justify-between gap-4 border border-black px-3 text-sm">
-          <span className="font-semibold">
-            <RiMoreFill />
-          </span>
-        </Menu.Button>
-        <Transition
-          as={Fragment}
-          enter="transition ease-out duration-100"
-          enterFrom="transform opacity-0 scale-95"
-          enterTo="transform opacity-100 scale-100"
-          leave="transition ease-in duration-75"
-          leaveFrom="transform opacity-100 scale-100"
-          leaveTo="transform opacity-0 scale-95"
-        >
-          <Menu.Items as="div" className="border-grey-border absolute right-0 z-30 mt-2 w-64 origin-top-right border bg-white text-black focus:outline-none">
-            <Menu.Item>
-              <button onClick={handleMissionClick} className="text-blue-france flex w-full cursor-pointer items-center border-none p-3 text-left text-sm hover:bg-gray-950">
-                Aperçu de la mission
-              </button>
-            </Menu.Item>
-            <Menu.Item>
-              <a
-                href={data.applicationUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-blue-france flex w-full cursor-pointer items-center border-none p-3 text-left text-sm hover:bg-gray-950"
-              >
-                Lien de la mission
-              </a>
-            </Menu.Item>
-            <Menu.Item>
-              {data.note ? (
-                <button
-                  className="text-blue-france flex w-full cursor-pointer items-center border-none p-3 text-left text-sm hover:bg-gray-950"
-                  onClick={() => setIsModalOpen(true)}
-                >
-                  Modifier la note
-                </button>
-              ) : (
-                <button
-                  className="text-blue-france flex w-full cursor-pointer items-center border-none p-3 text-left text-sm hover:bg-gray-950"
-                  onClick={() => setIsModalOpen(true)}
-                >
-                  Ajouter une note interne
-                </button>
-              )}
-            </Menu.Item>
-            <Menu.Item>
-              <button
-                className="text-blue-france flex w-full cursor-pointer items-center border-none p-3 text-left text-sm hover:bg-gray-950"
-                onClick={() => onFilter(data.organizationName)}
-              >
-                Filter les missions de l'organisation
-              </button>
-            </Menu.Item>
-          </Menu.Items>
-        </Transition>
-      </Menu>
-      <UpdateNoteModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} onChange={onChange} data={data} />
-    </>
-  );
-};
-
-const UpdateNoteModal = ({ isOpen, onChange, onClose, data }) => {
-  const { publisher } = useStore();
-  const [note, setNote] = useState(data.note || "");
-
-  useEffect(() => {
-    setNote(data.note || "");
-  }, [data]);
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    try {
-      const res = await api.put(`/moderation/${data._id}`, { note, moderatorId: publisher.id });
-      if (!res.ok) throw res;
-      toast.success("La note a été mise à jour avec succès");
-      onChange({ note });
-      onClose();
-    } catch (error) {
-      captureError(error, { extra: { data, note, moderatorId: publisher.id } });
-    }
-  };
-
-  return (
-    <Modal isOpen={isOpen} onClose={() => onClose()}>
-      <form className="px-32 py-16" onSubmit={handleSubmit}>
-        <h1 className="mb-10">Modifier la note</h1>
-        <div className="flex items-center justify-center">
-          <div className="flex w-full flex-col justify-center gap-4">
-            <div className="flex flex-col gap-1">
-              <label htmlFor="note" className="text-sm">
-                Note
-              </label>
-              <textarea id="note" className="input" rows={4} name="note" value={note} onChange={(e) => setNote(e.target.value)} required />
-              <div className="mt-6 flex justify-end">
-                <button className="primary-btn w-full" type="submit">
-                  Enregistrer
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      </form>
-    </Modal>
-  );
-};
-
-export default MissionItem;
+      </td> */
+}

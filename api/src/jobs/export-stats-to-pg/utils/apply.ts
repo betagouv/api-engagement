@@ -66,7 +66,7 @@ const buildData = async (
     source_id: sourceId ? sourceId : null,
     click_id: clickId ? clickId : null,
     campaign_id: sourceId && doc.source === "campaign" ? sourceId : null,
-    widget_id: doc.source === "widget" ? doc.sourceId ?? null : null,
+    widget_id: doc.source === "widget" ? (doc.sourceId ?? null) : null,
     to_partner_id: partnerToId,
     from_partner_id: partnerFromId,
     status: doc.status || null,
@@ -177,9 +177,6 @@ const handler = async () => {
         }
 
         if (stored[hit._id.toString()] && (stored[hit._id.toString()].status !== obj.status || stored[hit._id.toString()].click_id !== obj.click_id)) {
-          console.log("UPDATE");
-          console.log("status", stored[hit._id.toString()].status !== obj.status, stored[hit._id.toString()].status, obj.status);
-          console.log("click_id", stored[hit._id.toString()].click_id !== obj.click_id, stored[hit._id.toString()].click_id, obj.click_id);
           const { old_id, ...updateData } = obj;
           dataToUpdate.push({
             oldId: old_id,

@@ -20,6 +20,12 @@ export const STATUS_ICONS = {
   REFUSED: <RiCloseCircleFill className="text-red-marianne" />,
 };
 
+export const STATUS_CLASSES = {
+  PENDING: "border-warning",
+  ONGOING: "border-warning",
+  ACCEPTED: "border-success",
+  REFUSED: "border-error",
+};
 export const STATUS_COLORS = {
   PENDING: "var(--color-warning)",
   ONGOING: "var(--color-warning)",

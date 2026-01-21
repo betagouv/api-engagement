@@ -386,7 +386,14 @@ export const buildWhere = (filters: MissionSearchFilters): Prisma.MissionWhereIn
   }
 
   if (filters.moderationAcceptedFor) {
-    where.moderationStatuses = { some: { publisherId: filters.moderationAcceptedFor, status: "ACCEPTED" } };
+    const moderationWhere: Prisma.MissionModerationStatusWhereInput = { publisherId: filters.moderationAcceptedFor };
+    if (filters.moderationStatus) {
+      moderationWhere.status = filters.moderationStatus as any;
+    }
+    if (filters.moderationComment) {
+      moderationWhere.comment = filters.moderationComment;
+    }
+    where.moderationStatuses = { some: moderationWhere };
   }
 
   if (filters.keywords) {
@@ -610,16 +617,15 @@ export const missionService = {
       moderatedBy?: string | null;
     } = {}
   ): Promise<MissionRecord[]> {
-    const { select, orderBy, limit, skip, moderatedBy } = options;
     const missions = await missionRepository.findMany({
       where,
-      select,
-      include: select ? undefined : baseInclude,
-      ...(orderBy ? { orderBy } : {}),
-      ...(limit ? { take: limit } : {}),
-      ...(skip ? { skip } : {}),
+      include: options.select ? undefined : baseInclude,
+      select: options.select ?? undefined,
+      ...(options.orderBy ? { orderBy: options.orderBy } : {}),
+      ...(options.limit ? { take: options.limit } : {}),
+      ...(options.skip ? { skip: options.skip } : {}),
     });
-    return missions.map((mission) => toMissionRecord(mission as MissionWithRelations, moderatedBy));
+    return missions.map((mission) => toMissionRecord(mission as MissionWithRelations, options.moderatedBy));
   },
 
   async findMissions(filters: MissionSearchFilters, select: MissionSelect | null = null): Promise<{ data: MissionRecord[]; total: number }> {

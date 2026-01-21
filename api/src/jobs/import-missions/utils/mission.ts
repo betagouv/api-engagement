@@ -68,7 +68,7 @@ const parseString = (value: string | undefined) => {
   return String(value);
 };
 
-const parseBool = (value: string | boolean | undefined | null) => {
+export const parseBool = (value: string | boolean | undefined | null) => {
   if (value === undefined || value === null) {
     return null;
   }
@@ -79,7 +79,7 @@ const parseBool = (value: string | boolean | undefined | null) => {
   return ["yes", "true", "1"].includes(normalized);
 };
 
-const parseDate = (value: string | Date | undefined) => {
+export const parseDate = (value: string | Date | undefined) => {
   if (!value) {
     return null;
   }
@@ -103,7 +103,7 @@ const parseDate = (value: string | Date | undefined) => {
   return parsed;
 };
 
-const parseNumber = (value: number | string | undefined) => {
+export const parseNumber = (value: number | string | undefined) => {
   if (value === undefined || value === null || value === "") {
     return null;
   }
@@ -113,7 +113,7 @@ const parseNumber = (value: number | string | undefined) => {
   return Number(value);
 };
 
-const parseStringArray = (value: unknown, includeSpace = false): string[] | undefined => {
+export const parseStringArray = (value: unknown): string[] | undefined => {
   if (value === undefined || value === null || value === "") {
     return undefined;
   }
@@ -126,10 +126,10 @@ const parseStringArray = (value: unknown, includeSpace = false): string[] | unde
   if (typeof value === "object") {
     const obj = value as any;
     if ("value" in obj) {
-      return parseStringArray(obj.value, includeSpace);
+      return parseStringArray(obj.value);
     }
     if ("item" in obj) {
-      return parseStringArray(obj.item, includeSpace);
+      return parseStringArray(obj.item);
     }
     return undefined;
   }
@@ -138,24 +138,14 @@ const parseStringArray = (value: unknown, includeSpace = false): string[] | unde
   if (!str) {
     return undefined;
   }
-  if (str.includes(",")) {
-    const split = str
-      .split(",")
-      .map((i) => i.trim())
-      .filter((i) => i.length > 0);
-    return split.length ? split : undefined;
-  }
-  if (includeSpace && str.includes(" ")) {
-    const split = str
-      .split(" ")
-      .map((i) => i.trim())
-      .filter((i) => i.length > 0);
-    return split.length ? split : undefined;
-  }
-  return [str];
+  const split = str
+    .split(",")
+    .map((i) => i.trim())
+    .filter((i) => i.length > 0);
+  return split.length ? split : undefined;
 };
 
-const parseRemote = (value: unknown): MissionRecord["remote"] => {
+export const parseRemote = (value: unknown): MissionRecord["remote"] => {
   const normalized = String(value ?? "")
     .trim()
     .toLowerCase();
@@ -177,7 +167,7 @@ const parseRemote = (value: unknown): MissionRecord["remote"] => {
   return "no";
 };
 
-const parseCompensationUnit = (value: unknown): MissionRecord["compensationUnit"] => {
+export const parseCompensationUnit = (value: unknown): MissionRecord["compensationUnit"] => {
   const normalized = String(value ?? "")
     .trim()
     .toLowerCase();
@@ -225,10 +215,10 @@ const parseMission = (publisher: PublisherRecord, missionXML: MissionXML, missio
     domain: parseString(missionXML.domain) || "",
     schedule: parseString(missionXML.schedule),
     audience:
-      parseStringArray(missionXML.audience, true) || parseStringArray(missionXML.publicBeneficiaries, true) || parseStringArray(missionXML.publicsBeneficiaires, true) || [],
-    softSkills: parseStringArray(missionXML.softSkills, true) || parseStringArray(missionXML.soft_skills, true) || [],
-    romeSkills: parseStringArray(missionXML.romeSkills, true) || [],
-    requirements: parseStringArray(missionXML.requirements, true) || [],
+      parseStringArray(missionXML.audience) || parseStringArray(missionXML.publicBeneficiaries) || parseStringArray(missionXML.publicsBeneficiaires) || [],
+    softSkills: parseStringArray(missionXML.softSkills) || parseStringArray(missionXML.soft_skills) || [],
+    romeSkills: parseStringArray(missionXML.romeSkills) || [],
+    requirements: parseStringArray(missionXML.requirements) || [],
     remote: parseRemote(missionXML.remote),
     reducedMobilityAccessible: parseBool(missionXML.reducedMobilityAccessible),
     closeToTransport: parseBool(missionXML.closeToTransport),
@@ -252,15 +242,15 @@ const parseMission = (publisher: PublisherRecord, missionXML: MissionXML, missio
     organizationClientId: parseString(missionXML.organizationClientId) || parseString(missionXML.organizationId),
     organizationStatusJuridique: parseString(missionXML.organizationStatusJuridique) || "",
     organizationType: parseString(missionXML.organizationType) || "",
-    organizationActions: parseStringArray(missionXML.keyActions, true) || [],
+    organizationActions: parseStringArray(missionXML.keyActions) || [],
     organizationFullAddress: parseString(missionXML.organizationFullAddress),
     organizationPostCode: parseString(missionXML.organizationPostCode),
     organizationCity: parseString(missionXML.organizationCity),
     organizationBeneficiaries:
-      parseStringArray(missionXML.organizationBeneficiaries, true) ||
-      parseStringArray(missionXML.organizationBeneficiaires, true) ||
-      parseStringArray(missionXML.publicBeneficiaries, true) ||
-      parseStringArray(missionXML.publicsBeneficiaires, true) ||
+      parseStringArray(missionXML.organizationBeneficiaries) ||
+      parseStringArray(missionXML.organizationBeneficiaires) ||
+      parseStringArray(missionXML.publicBeneficiaries) ||
+      parseStringArray(missionXML.publicsBeneficiaires) ||
       [],
     organizationReseaux: parseStringArray(missionXML.organizationReseaux) || [],
   } as ImportedMission;

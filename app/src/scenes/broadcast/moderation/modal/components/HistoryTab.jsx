@@ -17,7 +17,7 @@ const HistoryTab = ({ data }) => {
     const fetchData = async () => {
       try {
         setLoading(true);
-        const res = await api.post(`/moderation-event/search`, { missionId: data._id, moderatorId: publisher.id });
+        const res = await api.post(`/moderation-event/search`, { missionId: data.missionId, moderatorId: publisher.id });
         if (!res.ok) throw res;
 
         setStatus(res.data.filter((event) => event.newStatus || event.newComment));
@@ -30,7 +30,7 @@ const HistoryTab = ({ data }) => {
     };
 
     fetchData();
-  }, [data, publisher.id]);
+  }, [data?.missionId, publisher.id]);
 
   if (loading) return <Loader />;
 
@@ -46,6 +46,11 @@ const HistoryTab = ({ data }) => {
               <div className="flex flex-1 items-center gap-4">
                 {
                   {
+                    ONGOING: (
+                      <div className="bg-blue-info-425 flex h-8 w-8 items-center justify-center rounded-full">
+                        <RiTimeLine className="text-white" size={16} />
+                      </div>
+                    ),
                     PENDING: (
                       <div className="bg-warning flex h-8 w-8 items-center justify-center rounded-full">
                         <RiTimeLine className="text-white" size={16} />

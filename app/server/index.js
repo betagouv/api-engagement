@@ -14,7 +14,7 @@ app.get("/linkedin.xml", function (req, res) {
   res.redirect(301, "https://api-engagement-bucket.s3.fr-par.scw.cloud/xml/linkedin.xml");
 });
 
-app.route("*").all((req, res) => {
+app.route("/*all").all((req, res) => {
   res.status(200).sendFile(path.join(__dirname, "../dist/index.html"));
 });
 

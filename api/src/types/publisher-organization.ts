@@ -1,0 +1,37 @@
+export interface PublisherOrganizationRecord {
+  id: string;
+  publisherId: string;
+  organizationClientId: string | null;
+  organizationName: string | null;
+  organizationUrl: string | null;
+  organizationType: string | null;
+  organizationLogo: string | null;
+  organizationDescription: string | null;
+  organizationFullAddress: string | null;
+  organizationRNA: string | null;
+  organizationSiren: string | null;
+  organizationSiret: string | null;
+  organizationDepartment: string | null;
+  organizationDepartmentCode: string | null;
+  organizationDepartmentName: string | null;
+  organizationPostCode: string | null;
+  organizationCity: string | null;
+  organizationStatusJuridique: string | null;
+  organizationBeneficiaries: string[] | null;
+  organizationActions: string[] | null;
+  organizationReseaux: string[] | null;
+  organizationNameVerified: string | null;
+  organizationRNAVerified: string | null;
+  organizationSirenVerified: string | null;
+  organizationSiretVerified: string | null;
+  organizationAddressVerified: string | null;
+  organizationCityVerified: string | null;
+  organizationPostalCodeVerified: string | null;
+  organizationDepartmentCodeVerified: string | null;
+  organizationDepartmentNameVerified: string | null;
+  organizationRegionVerified: string | null;
+  organizationVerificationStatus: string | null;
+  organisationIsRUP: boolean | null;
+  createdAt: Date;
+  updatedAt: Date;
+}

@@ -26,7 +26,7 @@ const Header = ({ data, onChange }) => {
     try {
       setValues({ ...values, ...v });
       if (v.status === "REFUSED" && !v.comment) return;
-      const resM = await api.put(`/moderation/${data._id}`, { ...values, ...v, moderatorId: publisher.id });
+      const resM = await api.put(`/moderation/${data.id}`, { ...values, ...v, moderatorId: publisher.id });
       if (!resM.ok) {
         if (resM.error === "COMMENT_REQUIRED") {
           toast.error("Le commentaire est requis pour refuser la mission");
@@ -45,6 +45,9 @@ const Header = ({ data, onChange }) => {
         if (resO.total > 0) setIsOrganizationRefusedOpen(true);
       }
     } catch (error) {
+      toast.error("Une erreur est survenue lors de la modération de la mission", {
+        position: "bottom-right",
+      });
       captureError(
         error,
         { extra: { data, values } },
@@ -60,8 +63,8 @@ const Header = ({ data, onChange }) => {
       <OrganizationRefusedModal isOpen={isOrganizationRefusedOpen} onClose={() => setIsOrganizationRefusedOpen(false)} data={data} update={values} onChange={onChange} />
       <div className="bg-beige-gris-galet-975 border-grey-border sticky top-0 z-50 flex h-full items-center justify-between gap-8 border-b pb-8">
         <div className="max-w-[50%] space-y-2">
-          <h1 className="mb-1">{DOMAINS[data.domain]}</h1>
-          <h2 className="text-xl font-semibold">{data.newTitle || data.title}</h2>
+          <h1 className="mb-1">{DOMAINS[data.missionDomain]}</h1>
+          <h2 className="text-xl font-semibold">{data.title || data.missionTitle}</h2>
         </div>
 
         <div className="relative space-y-2 pt-4">
@@ -80,7 +83,12 @@ const Header = ({ data, onChange }) => {
               ))}
             </select>
             {values.status === "REFUSED" && (
-              <select className="select w-64" name="motif" value={values.comment} onChange={(e) => handleChange({ status: "REFUSED", comment: e.target.value })}>
+              <select
+                className="select border-error w-64 border-b-2"
+                name="motif"
+                value={values.comment}
+                onChange={(e) => handleChange({ status: "REFUSED", comment: e.target.value })}
+              >
                 <option value="">Motif de refus</option>
                 {Object.entries(JVA_MODERATION_COMMENTS_LABELS).map(([key, value]) => (
                   <option key={key} value={key}>
@@ -90,7 +98,7 @@ const Header = ({ data, onChange }) => {
               </select>
             )}
           </div>
-          <div className="absolute right-0 -bottom-6 w-screen text-right text-xs italic">
+          <div className="absolute -bottom-6 right-0 w-screen text-right text-xs italic">
             {values.status === "REFUSED" && !values.comment ? "Veuillez renseigner un motif de refus pour sauvegarder le changement de statut" : ""}
           </div>
         </div>
