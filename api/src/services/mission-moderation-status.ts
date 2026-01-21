@@ -18,14 +18,14 @@ type MissionModerationWithRelations = MissionModerationStatus & {
     publisher: { name: string | null };
     addresses: { city: string | null; departmentCode: string | null; departmentName: string | null; postalCode: string | null }[];
     publisherOrganization: {
-      organizationId: string;
+      id: string;
       organizationName: string;
-      organizationClientId: string;
-      organizationRNA: string;
-      organizationSiren: string;
-      organizationSirenVerified: string;
-      organizationSiretVerified: string;
-      organizationRNAVerified: string;
+      organizationClientId: string | null;
+      organizationRNA: string | null;
+      organizationSiren: string | null;
+      organizationSirenVerified: string | null;
+      organizationSiretVerified: string | null;
+      organizationRNAVerified: string | null;
     } | null;
   };
 };
@@ -57,6 +57,7 @@ const toRecord = (status: MissionModerationWithRelations): MissionModerationReco
     missionDepartmentCode: primaryAddress.departmentCode || null,
     missionDepartmentName: primaryAddress.departmentName || null,
     missionPostalCode: primaryAddress.postalCode ?? null,
+    missionPublisherOrganizationId: publisherOrganization?.id ?? null,
     missionOrganizationName: publisherOrganization?.organizationName ?? null,
     missionOrganizationClientId: publisherOrganization?.organizationClientId ?? null,
     missionOrganizationSirenVerified: publisherOrganization?.organizationSirenVerified ?? null,
@@ -74,6 +75,7 @@ const baseInclude = {
       addresses: { select: { city: true, departmentCode: true, departmentName: true, postalCode: true } },
       publisherOrganization: {
         select: {
+          id: true,
           organizationName: true,
           organizationClientId: true,
           organizationRNA: true,
@@ -150,10 +152,6 @@ export const missionModerationStatusService = {
       publisherOrganizationRepository.groupBy(["organizationName"], { missions: { some: missionWhere } } as Prisma.PublisherOrganizationWhereInput),
       missionAddressRepository.groupBy(["departmentCode"], { mission: missionWhere as Prisma.MissionWhereInput } as Prisma.MissionAddressWhereInput),
       missionAddressRepository.groupBy(["city"], { mission: missionWhere as Prisma.MissionWhereInput } as Prisma.MissionAddressWhereInput),
-      // Labels
-      publisherRepository.findMany({ select: { id: true, name: true } }),
-      domainRepository.findMany({ select: { id: true, name: true } }),
-      activityRepository.findMany({ select: { id: true, name: true } }),
     ]);
     const [publishers, domains, activities] = await Promise.all([
       // Labels
@@ -227,10 +225,12 @@ export const missionModerationStatusService = {
 
     const updates: Prisma.MissionModerationStatusUpdateInput = {};
     if ("status" in patch) {
-      updates.status = patch.status ?? "PENDING";
-    }
-    if ("comment" in patch) {
-      updates.comment = patch.comment ?? null;
+      updates.status = patch.status ?? ModerationEventStatus.PENDING;
+      if (updates.status !== ModerationEventStatus.REFUSED) {
+        updates.comment = null;
+      } else {
+        updates.comment = patch.comment ?? null;
+      }
     }
     if ("note" in patch) {
       updates.note = patch.note ?? null;

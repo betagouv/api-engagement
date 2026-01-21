@@ -1,6 +1,7 @@
 import { ModerationEventStatus } from "../db/core";
 import { MissionRecord } from "./mission";
 import { PublisherRecord } from "./publisher";
+import { PublisherOrganizationRecord } from "./publisher-organization";
 
 export type MissionModerationSearchFilters = {
   publisherId: PublisherRecord["id"];
@@ -33,12 +34,13 @@ export type MissionModerationRecord = {
   missionPublisherId: MissionRecord["publisherId"];
   missionPublisherName: MissionRecord["publisherName"];
 
-  missionOrganizationName: MissionRecord["organizationName"];
-  missionOrganizationClientId: MissionRecord["organizationClientId"];
-  missionOrganizationSiren: MissionRecord["organizationSiren"];
-  missionOrganizationRNA: MissionRecord["organizationRNA"];
-  missionOrganizationSirenVerified: MissionRecord["organizationSirenVerified"];
-  missionOrganizationRNAVerified: MissionRecord["organizationRNAVerified"];
+  missionPublisherOrganizationId: PublisherOrganizationRecord["id"] | null;
+  missionOrganizationName: PublisherOrganizationRecord["organizationName"] | null;
+  missionOrganizationClientId: PublisherOrganizationRecord["organizationClientId"] | null;
+  missionOrganizationSiren: PublisherOrganizationRecord["organizationSiren"] | null;
+  missionOrganizationRNA: PublisherOrganizationRecord["organizationRNA"] | null;
+  missionOrganizationSirenVerified: PublisherOrganizationRecord["organizationSirenVerified"] | null;
+  missionOrganizationRNAVerified: PublisherOrganizationRecord["organizationRNAVerified"] | null;
 };
 
 export type ModerationFilters = {
@@ -53,4 +55,7 @@ export type ModerationFilters = {
   city?: string;
   activity?: string;
   search?: string;
+  limit?: number;
+  skip?: number;
+  sort?: "asc" | "desc" | null;
 };

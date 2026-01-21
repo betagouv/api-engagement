@@ -9,6 +9,7 @@ import publisherOrganizationRepository from "../repositories/publisher-organizat
 import { missionModerationStatusService } from "../services/mission-moderation-status";
 import { moderationEventService } from "../services/moderation-event";
 import { publisherService } from "../services/publisher";
+import { ModerationFilters } from "../types/mission-moderation-status";
 import type { UserRequest } from "../types/passport";
 import { getModerationEvents, getModerationUpdates, getOrganizationUpdates } from "../utils/mission-moderation-status";
 
@@ -111,7 +112,7 @@ router.post("/aggs", passport.authenticate("user", { session: false }), async (r
       return res.status(404).send({ ok: false, code: NOT_FOUND });
     }
 
-    const filters = {
+    const filters: ModerationFilters = {
       moderatorId: moderator.id,
       publisherId: body.data.publisherId || undefined,
       status: body.data.status || undefined,

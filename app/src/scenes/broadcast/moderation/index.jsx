@@ -67,7 +67,7 @@ const Moderation = () => {
           search: filters.search || undefined,
           from: (filters.page - 1) * filters.size,
           size: size,
-          sort: sort,
+          sort: sort || undefined,
         };
 
         if (query.page > 1) query.from = (query.page - 1) * query.size;
