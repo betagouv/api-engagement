@@ -90,7 +90,7 @@ const Filters = ({ filters, onChange, reload }) => {
         />
         <SearchSelect
           placeholder="Organisation"
-          options={options.organizations.map((e) => ({ value: e.key === "" ? "none" : e.key, label: e.key === "" ? "Non renseignée" : e.key, count: e.doc_count }))}
+          options={options.organizations.map((e) => ({ value: e.key === "" ? "none" : e.key, label: e.key === "" ? "Non renseignée" : e.key, count: undefined }))}
           value={filters.organizationName}
           onChange={(e) => onChange({ ...filters, organizationName: e.value })}
           className="right-0 w-96"

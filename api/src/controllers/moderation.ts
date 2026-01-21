@@ -10,7 +10,7 @@ import { missionModerationStatusService } from "../services/mission-moderation-s
 import { moderationEventService } from "../services/moderation-event";
 import { publisherService } from "../services/publisher";
 import { UserRecord } from "../types";
-import { ModerationFilters } from "../types/mission-moderation-status";
+import { MissionModerationRecord, ModerationFilters } from "../types/mission-moderation-status";
 import type { UserRequest } from "../types/passport";
 import { getModerationEvents, getModerationUpdates, getOrganizationUpdates } from "../utils/mission-moderation-status";
 
@@ -196,13 +196,14 @@ router.get("/:id", passport.authenticate("user", { session: false }), async (req
 router.put("/many", passport.authenticate("user", { session: false }), async (req: UserRequest, res: Response, next: NextFunction) => {
   try {
     const user = req.user as UserRecord;
+
     const body = zod
       .object({
-        moderatorId: zod.string(),
         where: zod.object({
           moderatorId: zod.string(),
-          organizationName: zod.string(),
-          status: zod.enum(["PENDING"]),
+          ids: zod.array(zod.string()).optional(),
+          organizationName: zod.string().optional(),
+          status: zod.enum(["PENDING"]).optional(),
         }),
         update: zod.object({
           status: zod.enum(["ACCEPTED", "REFUSED", "PENDING", "ONGOING"]).optional(),
@@ -217,7 +218,7 @@ router.put("/many", passport.authenticate("user", { session: false }), async (re
       return res.status(400).send({ ok: false, code: INVALID_BODY, error: body.error });
     }
 
-    const moderator = await publisherService.findOnePublisherById(body.data.moderatorId);
+    const moderator = await publisherService.findOnePublisherById(body.data.where.moderatorId);
     if (!moderator || !moderator.moderator) {
       return res.status(403).send({ ok: false, code: FORBIDDEN });
     }
@@ -227,8 +228,9 @@ router.put("/many", passport.authenticate("user", { session: false }), async (re
       return res.status(403).send({ ok: false, code: FORBIDDEN });
     }
 
-    // Fetch all previous states at once
+    // Fetch all previous states at once (either by IDs or by where filter)
     const { data: previousStatuses, total } = await missionModerationStatusService.findModerationStatuses(body.data.where);
+
     if (total === 0) {
       return res.status(200).send({ ok: true, data: { updated: 0, events: 0 } });
     }
@@ -238,10 +240,10 @@ router.put("/many", passport.authenticate("user", { session: false }), async (re
 
     // Update all moderation statuses at once
     const moderationUpdates = getModerationUpdates(body.data.update);
-    let updatedStatuses = previousStatuses;
-    if (moderationUpdates) {
-      updatedStatuses = await missionModerationStatusService.updateMany(validIds, moderationUpdates);
+    if (!moderationUpdates) {
+      return res.status(200).send({ ok: true, data: { updatedIds: [] } });
     }
+    const updatedStatuses = await missionModerationStatusService.updateMany(validIds, moderationUpdates);
 
     // Collect all moderation events
     const allModerationEvents: ReturnType<typeof getModerationEvents> = [];
@@ -250,7 +252,15 @@ router.put("/many", passport.authenticate("user", { session: false }), async (re
       if (!previous) {
         continue;
       }
-      const events = getModerationEvents(previous, updated, null);
+      const obj = {
+        id: updated.id,
+        status: updated.status ?? null,
+        comment: updated.comment ?? null,
+        missionId: updated.missionId,
+        note: null,
+        title: null,
+      } as MissionModerationRecord;
+      const events = getModerationEvents(previous, obj, null);
       allModerationEvents.push(...events);
     }
 
@@ -266,7 +276,7 @@ router.put("/many", passport.authenticate("user", { session: false }), async (re
       );
     }
 
-    return res.status(200).send({ ok: true, data: { updated: updatedStatuses.length, events: allModerationEvents.length } });
+    return res.status(200).send({ ok: true, data: { updatedIds: updatedStatuses.map((s) => s.id) } });
   } catch (error) {
     next(error);
   }

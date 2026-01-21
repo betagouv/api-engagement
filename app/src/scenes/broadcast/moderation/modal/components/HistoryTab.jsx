@@ -32,7 +32,12 @@ const HistoryTab = ({ data }) => {
     fetchData();
   }, [data?.missionId, publisher.id]);
 
-  if (loading) return <Loader />;
+  if (loading)
+    return (
+      <div className="flex justify-center p-8">
+        <Loader />
+      </div>
+    );
 
   return (
     <div className="p-8">
@@ -62,7 +67,7 @@ const HistoryTab = ({ data }) => {
                       </div>
                     ),
                     REFUSED: (
-                      <div className="bg-red-marianne flex h-8 w-8 items-center justify-center rounded-full">
+                      <div className="bg-error flex h-8 w-8 items-center justify-center rounded-full">
                         <RiCloseFill className="text-white" size={16} />
                       </div>
                     ),

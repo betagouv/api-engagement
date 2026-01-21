@@ -154,12 +154,6 @@ export const getModerationEvents = (
       missionId: previous.missionId,
       initialStatus: previous.status as ModerationEventStatus | null,
       newStatus: updated.status as ModerationEventStatus | null,
-    });
-  }
-
-  if (previous.comment !== updated.comment) {
-    events.push({
-      missionId: previous.missionId,
       initialComment: previous.comment ?? null,
       newComment: updated.comment,
     });

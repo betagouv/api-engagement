@@ -62,7 +62,7 @@ const Information = ({ values, onChange, errors, onErrorChange }) => {
       <div className="flex gap-8">
         <div className="flex flex-1 flex-col gap-2">
           <label className="text-sm" htmlFor="name">
-            Nom de la campagne<span className="text-red-marianne ml-1">*</span>
+            Nom de la campagne<span className="text-error ml-1">*</span>
           </label>
           <input
             id="name"
@@ -96,7 +96,7 @@ const Information = ({ values, onChange, errors, onErrorChange }) => {
       <div className="flex gap-8">
         <div className="flex flex-1 flex-col gap-2">
           <label className="text-sm" htmlFor="type">
-            Type de campagne<span className="text-red-marianne ml-1">*</span>
+            Type de campagne<span className="text-error ml-1">*</span>
           </label>
           <select
             id="type"
@@ -121,7 +121,7 @@ const Information = ({ values, onChange, errors, onErrorChange }) => {
         </div>
         <div className="flex flex-1 flex-col gap-2">
           <label className="text-sm" htmlFor="to-publisher-id">
-            Diffuse les missions de<span className="text-red-marianne ml-1">*</span>
+            Diffuse les missions de<span className="text-error ml-1">*</span>
           </label>
           <SearchSelect
             id="to-publisher-id"
@@ -141,7 +141,7 @@ const Information = ({ values, onChange, errors, onErrorChange }) => {
 
       <div className="flex flex-col gap-2">
         <label className="text-sm" htmlFor="url">
-          URL de destination de la campagne<span className="text-red-marianne ml-1">*</span>
+          URL de destination de la campagne<span className="text-error ml-1">*</span>
         </label>
         <input
           id="url"

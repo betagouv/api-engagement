@@ -9,7 +9,7 @@ import { captureError } from "../../../../services/error";
 import useStore from "../../../../services/store";
 import { JVA_MODERATION_COMMENTS_LABELS, STATUS, STATUS_CLASSES } from "./Constants";
 
-const Header = ({ total, data, size, sort, selected, onSize, onSort, onSelect, onChange }) => {
+const Header = ({ total, data, size, sort, selected, onSize, onSort, onSelect, onChangeMany }) => {
   const headerRef = useRef(null);
   const [isSticky, setIsSticky] = useState(false);
 
@@ -38,7 +38,7 @@ const Header = ({ total, data, size, sort, selected, onSize, onSort, onSelect, o
             <span className="text-blue-france cursor-pointer text-sm underline" onClick={() => onSelect([])}>
               Désélectionner
             </span>
-            <ManyUpdateModal onClose={() => onSelect([])} selected={selected} onChange={onChange} />
+            <ManyUpdateModal onClose={() => onSelect([])} selected={selected} onChange={onChangeMany} />
           </div>
         </div>
       </div>
@@ -84,14 +84,13 @@ const ManyUpdateModal = ({ onClose, selected, onChange }) => {
     setLoading(true);
     try {
       if (status === "REFUSED" && !comment) return;
-      const data = [];
-      for (const id of selected) {
-        const res = await api.put(`/moderation/${id}`, { status, comment, note, moderatorId: publisher.id });
-        if (!res.ok) throw res;
-        data.push(res.data);
-      }
-      toast.success("La mission a été modérée avec succès");
-      onChange(data);
+      const res = await api.put(`/moderation/many`, {
+        where: { ids: selected, moderatorId: publisher.id },
+        update: { status, comment, note },
+      });
+      if (!res.ok) throw res;
+      toast.success(selected.length > 1 ? "Les missions ont été modérées avec succès" : "La mission a été modérée avec succès");
+      onChange(selected.map((id) => ({ id, status, comment, note })));
       onClose();
     } catch (error) {
       captureError(error, { extra: { selected } });
@@ -112,7 +111,7 @@ const ManyUpdateModal = ({ onClose, selected, onChange }) => {
             <div className="flex w-full flex-col justify-center gap-4">
               <div className="flex flex-col gap-2">
                 <label htmlFor="status" className="text-sm">
-                  Statut<span className="text-red-marianne ml-1">*</span>
+                  Statut<span className="text-error ml-1">*</span>
                 </label>
                 <select
                   id="status"

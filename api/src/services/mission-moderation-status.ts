@@ -102,7 +102,16 @@ export const missionModerationStatusService = {
     return toRecord(status as MissionModerationWithRelations);
   },
 
-  async findModerationStatuses(filters: ModerationFilters & { skip?: number; limit?: number }) {
+  async findModerationStatuses(filters: ModerationFilters & { skip?: number; limit?: number; ids?: string[] }) {
+    // If ids are provided, use them directly instead of building where clause from filters
+    if (filters.ids && filters.ids.length > 0) {
+      const data = await missionModerationStatusRepository.findMany({
+        where: { id: { in: filters.ids } },
+        include: baseInclude,
+      });
+      return { data: data.map((status) => toRecord(status as MissionModerationWithRelations)), total: data.length };
+    }
+
     const { where } = buildWhere(filters);
 
     const [data, total] = await Promise.all([
@@ -207,7 +216,10 @@ export const missionModerationStatusService = {
     return toRecord(res as MissionModerationWithRelations);
   },
 
-  async updateMany(ids: string[], patch: MissionModerationStatusUpdatePatch): Promise<MissionModerationRecord[]> {
+  async updateMany(
+    ids: string[],
+    patch: MissionModerationStatusUpdatePatch
+  ): Promise<{ id: string; status: ModerationEventStatus | null; comment: string | null; missionId: string }[]> {
     if (!ids.length) {
       return [];
     }
@@ -229,7 +241,7 @@ export const missionModerationStatusService = {
     }
 
     // Update all in a transaction
-    await prismaCore.missionModerationStatus.updateMany({
+    await missionModerationStatusRepository.updateMany({
       where: { id: { in: ids } },
       data: updates,
     });
@@ -237,10 +249,15 @@ export const missionModerationStatusService = {
     // Fetch updated records
     const updatedStatuses = await missionModerationStatusRepository.findMany({
       where: { id: { in: ids } },
-      include: baseInclude,
+      select: {
+        id: true,
+        status: true,
+        comment: true,
+        missionId: true,
+      },
     });
 
-    return updatedStatuses.map((status) => toRecord(status as MissionModerationWithRelations));
+    return updatedStatuses;
   },
 
   async create(input: Prisma.MissionModerationStatusCreateInput) {

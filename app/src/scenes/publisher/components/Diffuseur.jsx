@@ -65,7 +65,7 @@ const Diffuseur = ({ values, onChange, errors, setErrors }) => {
           {errors.mode && <p className="text-error">{errors.mode}</p>}
           <div className="space-y-2">
             <label className="text-base" htmlFor="category">
-              Catégorie <span className="text-red-marianne ml-1">*</span>
+              Catégorie <span className="text-error ml-1">*</span>
             </label>
             <select id="category" className="select w-full" name="category" value={values.category || ""} onChange={(e) => onChange({ ...values, category: e.target.value })}>
               <option value="">Sélectionner une catégorie de diffuseur</option>
@@ -79,7 +79,7 @@ const Diffuseur = ({ values, onChange, errors, setErrors }) => {
           <div className="h-px w-full bg-gray-900" />
           <div className="space-y-4">
             <label className="text-base" htmlFor="category">
-              Moyens de diffusion <span className="text-red-marianne ml-1">*</span>
+              Moyens de diffusion <span className="text-error ml-1">*</span>
             </label>
             <div className="flex items-center gap-2">
               <input

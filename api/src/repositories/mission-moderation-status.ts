@@ -30,6 +30,12 @@ export const missionModerationStatusRepository = {
     });
   },
 
+  updateMany(params: Prisma.MissionModerationStatusUpdateManyArgs): Promise<Prisma.BatchPayload> {
+    return prismaCore.missionModerationStatus.updateMany({
+      ...params,
+    });
+  },
+
   count(where: Prisma.MissionModerationStatusWhereInput = {}): Promise<number> {
     return prismaCore.missionModerationStatus.count({ where });
   },

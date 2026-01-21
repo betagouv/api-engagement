@@ -68,7 +68,7 @@ const Header = ({ data, onChange }) => {
         onChange={onChange}
         total={isOrganizationToRefuse}
       />
-      <div className="bg-beige-gris-galet-975 border-grey-border sticky top-0 z-50 flex h-full items-center justify-between gap-8 border-b pb-8">
+      <div className="bg-beige-gris-galet-975 border-grey-border sticky top-0 z-50 flex items-center justify-between gap-8 border-b py-8">
         <div className="max-w-[50%] space-y-2">
           <h1 className="mb-1">{DOMAINS[data.missionDomain]}</h1>
           <h2 className="text-xl font-semibold">{data.title || data.missionTitle}</h2>

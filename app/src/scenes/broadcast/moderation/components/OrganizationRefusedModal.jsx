@@ -19,14 +19,13 @@ const OrganizationRefusedModal = ({ isOpen, onClose, data, update, onChange, tot
 
       const res = await api.put(`/moderation/many`, {
         where,
-        update: { status: "REFUSED", comment: update.comment, moderatorId: publisher.id },
-        moderatorId: publisher.id,
+        update: { status: "REFUSED", comment: update.comment },
       });
       if (!res.ok) throw res;
       toast.success("Les missions ont été modérées avec succès", {
         position: "bottom-right",
       });
-      onChange(res.data);
+      onChange(res.data.updatedIds.map((id) => ({ id, status: "REFUSED", comment: update.comment })));
       onClose();
     } catch (error) {
       captureError(

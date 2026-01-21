@@ -74,71 +74,61 @@ const MissionModal = ({ onChange }) => {
     <Dialog open={searchParams.has("mission")} as="div" className="relative z-10 focus:outline-none" onClose={handleClose}>
       <DialogBackdrop className="fixed inset-0 bg-black/30" />
       <div className="fixed inset-0 flex w-screen items-center justify-center">
-        <DialogPanel
-          transition
-          className="bg-beige-gris-galet-975 h-full w-full p-6 backdrop-blur-2xl duration-300 ease-out data-closed:transform-[scale(95%)] data-closed:opacity-0"
-        >
-          <div className="absolute top-2 right-2 cursor-pointer p-3">
+        <DialogPanel transition className="bg-beige-gris-galet-975 h-full w-full backdrop-blur-2xl duration-300 ease-out data-closed:transform-[scale(95%)] data-closed:opacity-0">
+          <div className="absolute top-5 right-5 cursor-pointer p-3">
             <HiX className="text-blue-france text-lg" onClick={handleClose} />
           </div>
-          <div className="max-h-full overflow-y-auto">
-            <div className="px-20">
-              <Header
-                data={data}
-                onChange={(v) => {
-                  setData({ ...data, ...v });
-                  onChange({ ...data, ...v });
-                }}
-              />
+          <div className="max-h-full overflow-y-auto px-20">
+            <Header
+              data={data}
+              onChange={(v) => {
+                setData({ ...data, ...v });
+                onChange({ ...data, ...v });
+              }}
+            />
 
-              <div className="flex gap-4 px-20">
-                <div className="mt-8 flex flex-1 flex-col">
-                  <nav className="flex items-center space-x-2 pl-4 font-semibold text-black">
-                    <Tab name="mission" title="Mission" tab={tab} setTab={setTab} />
-                    <Tab name="organization" title="Organisation" tab={tab} setTab={setTab} />
-                    <Tab name="history" title="Historique" tab={tab} setTab={setTab} />
-                  </nav>
-                  <div className="mb-12 flex w-full gap-6">
-                    <div className="border-grey-border w-2/3 border bg-white">
-                      {
-                        {
-                          mission: (
-                            <MissionTab
-                              data={data}
-                              onChange={(v) => {
-                                setData({ ...data, ...v });
-                                onChange({ ...data, ...v });
-                              }}
-                            />
-                          ),
-                          organization: (
-                            <OrganizationTab
-                              data={data}
-                              onChange={(v) => {
-                                setData({ ...data, ...v });
-                                onChange({ ...data, ...v });
-                              }}
-                            />
-                          ),
-                          history: <HistoryTab data={data} />,
-                        }[tab]
-                      }
-                    </div>
-                    <div className="flex w-1/3 flex-col gap-4">
-                      <div>
-                        <Note
+            <div className="mt-8 flex w-full flex-1 flex-col">
+              <nav className="flex items-center space-x-2 pl-4 font-semibold text-black">
+                <Tab name="mission" title="Mission" tab={tab} setTab={setTab} />
+                <Tab name="organization" title="Organisation" tab={tab} setTab={setTab} />
+                <Tab name="history" title="Historique" tab={tab} setTab={setTab} />
+              </nav>
+              <div className="mb-12 grid w-full grid-cols-3 gap-6">
+                <div className="border-grey-border col-span-2 border bg-white">
+                  {
+                    {
+                      mission: (
+                        <MissionTab
                           data={data}
                           onChange={(v) => {
                             setData({ ...data, ...v });
                             onChange({ ...data, ...v });
                           }}
                         />
-                      </div>
-                      <div>
-                        <Organization data={data} history={history} />
-                      </div>
-                    </div>
-                  </div>
+                      ),
+                      organization: (
+                        <OrganizationTab
+                          data={data}
+                          onChange={(v) => {
+                            setData({ ...data, ...v });
+                            onChange({ ...data, ...v });
+                          }}
+                        />
+                      ),
+                      history: <HistoryTab data={data} />,
+                    }[tab]
+                  }
+                </div>
+                <div className="col-span-1 flex flex-col gap-4">
+                  <Note
+                    data={data}
+                    onChange={(v) => {
+                      setData({ ...data, ...v });
+                      onChange({ ...data, ...v });
+                    }}
+                  />
+
+                  <Organization data={data} history={history} />
                 </div>
               </div>
             </div>

@@ -182,8 +182,8 @@ const Moderation = () => {
         }}
         onSort={setSort}
         onSelect={setSelected}
-        onChange={(values) => {
-          handleMissionUpdate(values);
+        onChangeMany={(updates) => {
+          handleMissionUpdate(updates);
           setReloadFilters((prev) => !prev);
           fetchHistory();
         }}
@@ -232,14 +232,8 @@ const Moderation = () => {
                   fetchHistory();
                   setReloadFilters((prev) => !prev);
                 }}
-                onChangeMany={(values) => {
-                  setData(
-                    data.map((d) => {
-                      const changed = values.find((v) => v.id === d.id);
-                      if (changed) return { ...d, ...changed };
-                      return d;
-                    }),
-                  );
+                onChangeMany={(updates) => {
+                  handleMissionUpdate(updates);
                   fetchHistory();
                   setReloadFilters(!reloadFilters);
                 }}
