@@ -225,7 +225,7 @@ const Moderation = () => {
             <tr key={i} className={`${i % 2 === 0 ? "bg-gray-975" : "bg-gray-1000-active"} table-item h-48`}>
               <MissionItem
                 data={item}
-                history={history.organization[item.organizationName] || { ACCEPTED: 0, REFUSED: 0 }}
+                history={history.organization[item.missionOrganizationName] || { ACCEPTED: 0, REFUSED: 0 }}
                 selected={selected.includes(item.id)}
                 onChange={(values) => {
                   handleMissionUpdate(values);
