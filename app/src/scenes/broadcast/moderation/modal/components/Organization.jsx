@@ -14,7 +14,7 @@ const Organization = ({ data, history }) => {
         <span className="font-semibold">{data.organizationName}</span>
         <span className="text-text-mention text-xs">
           Inscrite sur
-          {data.associationSources?.length ? data.associationSources.map((s) => (s === "Je veux aider" ? "JeVeuxAider.gouv.fr" : s)).join(", ") : " /"}
+          {/* TODO: Add association sources */}
         </span>
       </div>
       <div>
@@ -30,24 +30,24 @@ const Organization = ({ data, history }) => {
       <div className="items-middle flex flex-col gap-1">
         <div className="flex items-center gap-6">
           <span className="text-text-mention text-xs">SIREN</span>
-          <span className="text-text-mention text-xs">{data.organizationSirenVerified || "/"}</span>
+          <span className="text-text-mention text-xs">{data.missionOrganizationSirenVerified || "/"}</span>
           <RiFileCopyLine
             className="text-text-mention text-xs hover:cursor-pointer"
             onClick={() => {
-              if (!data.organizationSirenVerified) return;
-              navigator.clipboard.writeText(data.organizationSirenVerified);
+              if (!data.missionOrganizationSirenVerified) return;
+              navigator.clipboard.writeText(data.missionOrganizationSirenVerified);
               toast.success("Copié dans le presse-papier");
             }}
           />
         </div>
         <div className="flex items-center gap-6">
           <span className="text-text-mention text-xs">RNA</span>
-          <span className="text-text-mention text-xs">{data.organizationRNAVerified || "/"}</span>
+          <span className="text-text-mention text-xs">{data.missionOrganizationRNAVerified || "/"}</span>
           <RiFileCopyLine
             className="text-text-mention text-xs hover:cursor-pointer"
             onClick={() => {
-              if (!data.organizationRNAVerified) return;
-              navigator.clipboard.writeText(data.organizationRNAVerified);
+              if (!data.missionOrganizationRNAVerified) return;
+              navigator.clipboard.writeText(data.missionOrganizationRNAVerified);
               toast.success("Copié dans le presse-papier");
             }}
           />

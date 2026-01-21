@@ -154,6 +154,8 @@ export type MissionSearchFilters = {
   statusComment?: string;
   excludeOrganizationClientIds?: string[];
   moderationAcceptedFor?: string;
+  moderationStatus?: string;
+  moderationComment?: string;
   activity?: string[];
   action?: string[];
   beneficiary?: string[];

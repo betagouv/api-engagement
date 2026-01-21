@@ -2,10 +2,19 @@ import { Prisma } from "../../db/core";
 import { missionService } from "../../services/mission";
 import { missionModerationStatusService } from "../../services/mission-moderation-status";
 import { moderationEventService } from "../../services/moderation-event";
-import { MissionRecord } from "../../types/mission";
+import { MissionRecord, MissionSelect } from "../../types/mission";
 import { ModerationEventCreateInput, ModerationEventStatus } from "../../types/moderation-event";
 import type { PublisherRecord } from "../../types/publisher";
 import { ModerationUpdate } from "./types";
+
+const MISSION_SELECT: MissionSelect = {
+  id: true,
+  createdAt: true,
+  startAt: true,
+  endAt: true,
+  description: true,
+  moderationStatuses: { select: { status: true, comment: true, note: true, publisherId: true } },
+};
 
 export const findMissions = async (moderator: PublisherRecord) => {
   const publishers = moderator.publishers.map((p) => p.diffuseurPublisherId);
@@ -14,13 +23,9 @@ export const findMissions = async (moderator: PublisherRecord) => {
       publisherId: { in: publishers },
       statusCode: "ACCEPTED",
       deletedAt: null,
-      OR: [
-        { moderationStatuses: { none: { publisherId: moderator.id } } },
-        { moderationStatuses: { some: { publisherId: moderator.id, status: null } } },
-        { moderationStatuses: { some: { publisherId: moderator.id, status: "PENDING" } } },
-      ],
+      OR: [{ moderationStatuses: { none: { publisherId: moderator.id } } }, { moderationStatuses: { some: { publisherId: moderator.id, status: "PENDING" } } }],
     },
-    { orderBy: { createdAt: Prisma.SortOrder.desc } }
+    { orderBy: { createdAt: Prisma.SortOrder.desc }, select: MISSION_SELECT }
   );
 };
 
@@ -140,5 +145,6 @@ export const createModerations = async (missions: MissionRecord[], moderator: Pu
   console.log(`[Moderation JVA] Bulk update ${moderationUpserts.length} missions, ${eventBulk.length} events`);
   const resMission = await missionModerationStatusService.upsertStatuses(moderationUpserts.map((item) => ({ ...item, title: item.comment })));
   const eventsCount = await moderationEventService.createModerationEvents(eventBulk);
-  return { updated: resMission.length, events: eventsCount, refused, pending };
+  const updatedCount = resMission.filter((item) => new Date(item.createdAt).getTime() !== new Date(item.updatedAt).getTime()).length;
+  return { updated: updatedCount, created: resMission.length - updatedCount, events: eventsCount, refused, pending };
 };

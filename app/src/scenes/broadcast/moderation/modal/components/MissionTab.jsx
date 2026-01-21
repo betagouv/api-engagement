@@ -1,20 +1,34 @@
 import { useEffect, useState } from "react";
 import { RiErrorWarningFill, RiExternalLinkLine } from "react-icons/ri";
 import { Link } from "react-router-dom";
+import { toast } from "react-toastify";
+import api from "../../../../../services/api";
+import { captureError } from "../../../../../services/error";
+import useStore from "../../../../../services/store";
 
 const MissionTab = ({ data, onChange }) => {
-  const [newTitle, setNewTitle] = useState(data.newTitle || data.title);
+  const { publisher } = useStore();
+  const [title, setTitle] = useState(data.title || data.missionTitle);
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    setNewTitle(data.newTitle || data.title);
+    setTitle(data.title || data.missionTitle);
     setError(null);
-  }, [data.newTitle, data.title]);
+  }, [data.title, data.missionTitle]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!newTitle.trim()) return setError("Le nom est requis");
-    onChange({ newTitle });
+    try {
+      const res = await api.put(`/moderation/${data.id}`, { title: title.trim() || null, moderatorId: publisher.id });
+      if (!res.ok) throw res;
+      toast.success("Le titre a été modifié avec succès", {
+        position: "bottom-right",
+      });
+      onChange(res.data);
+    } catch (error) {
+      captureError(error, { extra: { data, title, publisherId: publisher.id } }, { position: "bottom-right" });
+      setError("Une erreur est survenue lors de la modification du titre");
+    }
   };
 
   return (
@@ -28,9 +42,9 @@ const MissionTab = ({ data, onChange }) => {
             className={`input mb-2 ${error ? "border-b-error" : "border-b-black"}`}
             id="new-mission-title"
             name="new-mission-title"
-            placeholder={data.title}
-            value={newTitle}
-            onChange={(e) => setNewTitle(e.target.value)}
+            placeholder={data.missionTitle}
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
           />
           {error && (
             <div className="text-error flex items-center text-sm">
@@ -40,9 +54,9 @@ const MissionTab = ({ data, onChange }) => {
           )}
           <p className="text-text-mention text-xs">
             <span className="mr-1 font-semibold">Titre d'origine:</span>
-            {data.title}
+            {data.missionTitle}
           </p>
-          {newTitle !== data.title && newTitle !== data.newTitle && (
+          {title !== data.title && title !== data.missionTitle && (
             <button className="primary-btn mt-4 w-[25%]" type="submit">
               Enregistrer
             </button>
@@ -55,7 +69,7 @@ const MissionTab = ({ data, onChange }) => {
           </label>
           <div
             className="text-text-mention border-grey-border overflow-hidden rounded-t border bg-gray-950 p-6 text-sm"
-            dangerouslySetInnerHTML={{ __html: data.description.replace(/\n/g, "<br />") }}
+            dangerouslySetInnerHTML={{ __html: data.missionDescription.replace(/\n/g, "<br />") }}
           />
         </div>
         <div className="border-grey-border border-t" />
@@ -64,7 +78,7 @@ const MissionTab = ({ data, onChange }) => {
             Lieu de la mission
           </label>
           <p className="text-text-mention text-sm">
-            {data.departmentName} ({data.departmentCode})
+          {data.missionDepartmentName} ({data.missionDepartmentCode})
           </p>
         </div>
         <div className="border-grey-border border-t" />
@@ -72,7 +86,7 @@ const MissionTab = ({ data, onChange }) => {
           <label className="text-sm" htmlFor="title">
             Date de la mission
           </label>
-          <p className="text-text-mention text-sm">À partir du {new Date(data.startAt).toLocaleDateString("fr", { year: "numeric", month: "long", day: "numeric" })}</p>
+          <p className="text-text-mention text-sm">À partir du {new Date(data.missionStartAt).toLocaleDateString("fr", { year: "numeric", month: "long", day: "numeric" })}</p>
         </div>
         <div className="border-grey-border border-t" />
         <div className="flex flex-col space-y-2 py-2">
@@ -80,7 +94,7 @@ const MissionTab = ({ data, onChange }) => {
             Date de création
           </label>
           <p className="text-text-mention text-sm">
-            Postée le {new Date(data.postedAt).toLocaleDateString("fr")} sur {data.publisherName}
+            Postée le {new Date(data.missionPostedAt).toLocaleDateString("fr")} sur {data.missionPublisherName}
           </p>
         </div>
         <div className="border-grey-border border-t" />
@@ -90,7 +104,7 @@ const MissionTab = ({ data, onChange }) => {
           </label>
           <div className="flex items-center gap-2">
             <Link
-              to={data.applicationUrl.includes("http") ? data.applicationUrl : `https://${data.applicationUrl}`}
+              to={data.missionApplicationUrl.includes("http") ? data.missionApplicationUrl : `https://${data.missionApplicationUrl}`}
               className="text-blue-france w-fit text-sm underline"
               target="_blank"
             >
@@ -104,7 +118,7 @@ const MissionTab = ({ data, onChange }) => {
           <label className="text-sm" htmlFor="title">
             ID
           </label>
-          <p className="text-text-mention text-sm">{data._id}</p>
+          <p className="text-text-mention text-sm">{data.missionId}</p>
         </div>
       </div>
     </form>
