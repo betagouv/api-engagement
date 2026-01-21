@@ -44,6 +44,42 @@ models:
                 to: ref('mission')
                 field: id
 
+  - name: global_events_daily
+    description: >
+      Agrégats journaliers des événements `global_events` par type, source et publishers.
+      Sert de base réutilisable pour des KPI et tableaux qui travaillent à la journée.
+    columns:
+      - name: event_date
+        description: Date (jour) d’agrégation.
+        tests:
+          - not_null
+      - name: type
+        description: Type d'événement (`click`, `apply`, `print`, `account`).
+        tests:
+          - not_null
+      - name: source
+        description: Origine normalisée (`api`, `campaign`, `widget`, etc.).
+      - name: source_id
+        description: Identifiant de la source (widget, campagne, publisher).
+      - name: from_publisher_id
+        description: UUID du partenaire diffuseur (source).
+        tests:
+          - relationships:
+              arguments:
+                to: ref('publisher')
+                field: id
+      - name: to_publisher_id
+        description: UUID du partenaire annonceur (destination).
+        tests:
+          - relationships:
+              arguments:
+                to: ref('publisher')
+                field: id
+      - name: event_count
+        description: Nombre d’événements agrégés.
+      - name: max_updated_at
+        description: Dernière date de mise à jour observée pour l’agrégat.
+
   - name: global_mission_activity
     description: >
       Agrégat par mission/type/diffuseur/annonceur calculant les premiers et derniers
@@ -84,3 +120,72 @@ models:
         description: Dernier événement observé pour la combinaison (UTC).
         tests:
           - not_null
+
+  - name: mean_from_publisher_sources
+    description: >
+      Agrégats quotidiens des événements par diffuseur (from_publisher_id) et source
+      normalisée (`api`, `campaign`, `widget`) pour alimenter l’onglet “Moyens de diffusion”.
+      Le nom de source est enrichi via les dimensions `widget`, `campaign` et `publisher`.
+    columns:
+      - name: mean_date
+        description: Date (jour) des événements agrégés.
+        tests:
+          - not_null
+      - name: from_publisher_id
+        description: UUID du partenaire diffuseur (source).
+        tests:
+          - relationships:
+              arguments:
+                to: ref('publisher')
+                field: id
+      - name: source
+        description: Source normalisée (`api`, `campaign`, `widget`).
+      - name: source_id
+        description: Identifiant de la source (widget, campagne, publisher).
+      - name: print_count
+        description: Nombre d’impressions sur la journée.
+      - name: click_count
+        description: Nombre de redirections sur la journée.
+      - name: account_count
+        description: Nombre de créations de compte sur la journée.
+      - name: apply_count
+        description: Nombre de candidatures sur la journée.
+      - name: total_count
+        description: Nombre total d’événements sur la journée.
+      - name: conversion_rate
+        description: Taux de conversion (candidatures / redirections).
+
+  - name: mean_from_publisher_sources_enriched
+    description: >
+      Vue enrichie de `mean_fronm_publisher_sources` qui reconstruit `source_name` via les dimensions
+      `widget`, `campaign` et `publisher` pour refléter les renommages.
+    columns:
+      - name: mean_date
+        description: Date (jour) des événements agrégés.
+        tests:
+          - not_null
+      - name: from_publisher_id
+        description: UUID du partenaire diffuseur (source).
+        tests:
+          - relationships:
+              arguments:
+                to: ref('publisher')
+                field: id
+      - name: source
+        description: Source normalisée (`api`, `campaign`, `widget`).
+      - name: source_id
+        description: Identifiant de la source (widget, campagne, publisher).
+      - name: source_name
+        description: Libellé de la source (mis à jour via les dimensions).
+      - name: print_count
+        description: Nombre d’impressions sur la journée.
+      - name: click_count
+        description: Nombre de redirections sur la journée.
+      - name: account_count
+        description: Nombre de créations de compte sur la journée.
+      - name: apply_count
+        description: Nombre de candidatures sur la journée.
+      - name: total_count
+        description: Nombre total d’événements sur la journée.
+      - name: conversion_rate
+        description: Taux de conversion (candidatures / redirections).

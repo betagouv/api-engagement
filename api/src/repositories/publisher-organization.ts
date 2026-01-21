@@ -30,6 +30,27 @@ export const publisherOrganizationRepository = {
       update: params.update,
     });
   },
+  async updateByPublisherAndClientId(params: {
+    publisherId: string;
+    organizationClientId: string;
+    update: Prisma.PublisherOrganizationUpdateInput;
+  }): Promise<PublisherOrganization> {
+    return prismaCore.publisherOrganization.update({
+      where: {
+        publisherId_organizationClientId: {
+          publisherId: params.publisherId,
+          organizationClientId: params.organizationClientId,
+        },
+      },
+      data: params.update,
+    });
+  },
+  groupBy<K extends keyof PublisherOrganization>(by: K[], where: Prisma.PublisherOrganizationWhereInput) {
+    return prismaCore.publisherOrganization.groupBy({
+      by: by as any,
+      where,
+      _count: true,
+    });
+  },
 };
-
 export default publisherOrganizationRepository;

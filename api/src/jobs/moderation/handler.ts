@@ -11,6 +11,7 @@ export interface ModerationJobResult extends JobResult {
   moderators?: {
     name: string;
     updated: number;
+    created: number;
     events: number;
     refused: number;
     pending: number;
@@ -59,12 +60,16 @@ export class ModerationHandler implements BaseHandler<ModerationJobPayload, Mode
       result?.push({
         name: jva.name,
         updated: res.updated,
+        created: res.created,
         events: res.events,
         refused: res.refused,
         pending: res.pending,
       });
       console.log(`[Moderation JVA] ${res.updated} missions updated`);
+      console.log(`[Moderation JVA] ${res.created} missions created`);
       console.log(`[Moderation JVA] ${res.events} events created`);
+      console.log(`[Moderation JVA] ${res.refused} missions refused`);
+      console.log(`[Moderation JVA] ${res.pending} missions pending`);
       console.log(`[Moderation JVA] Ended at ${new Date().toISOString()}`);
 
       return {

@@ -4,7 +4,7 @@ import { MissionType } from "../../types";
 import { MissionRecord } from "../../types/mission";
 import { getMissionTrackedApplicationUrl } from "../../utils/mission";
 import { MEDIA_PUBLIC_ID } from "./config";
-import { decodeHtml } from "./utils";
+import { decodeHtml, getAudienceLabel, getDomainLabel } from "./utils";
 
 export type PilotyJobWithAddress = {
   payload: PilotyJobPayload;
@@ -33,14 +33,42 @@ export type PilotyJobWithAddress = {
  */
 export function missionToPilotyJobs(mission: MissionRecord, companyId: string, mandatoryData: PilotyMandatoryData): PilotyJobWithAddress[] {
   function buildJobPayload(isRemote: boolean, localisation: string | undefined): PilotyJobPayload {
+    const isVolontariat = mission.type === MissionType.VOLONTARIAT;
+
     return {
       media_public_id: MEDIA_PUBLIC_ID,
       company_public_id: companyId,
-      name: mission.type === MissionType.VOLONTARIAT ? `Volontariat - ${mission.title}` : mission.title,
-      contract_id: mission.type === MissionType.VOLONTARIAT ? mandatoryData.contracts.volontariat : mandatoryData.contracts.benevolat,
+      name: isVolontariat ? `Volontariat - ${mission.title}` : mission.title,
+      contract_id: isVolontariat ? mandatoryData.contracts.volontariat : mandatoryData.contracts.benevolat,
       job_category_id: mandatoryData.jobCategories[mission.domain ?? "autre"] ?? mandatoryData.jobCategories["autre"],
       localisation: localisation || "France",
-      description_job: decodeHtml(mission.descriptionHtml),
+      description_job: (() => {
+        const blocks: string[] = [];
+        const title = `<b>${mission.organizationName}</b> vous propose une mission de ${isVolontariat ? "volontariat" : "bénévolat"}`;
+        blocks.push(`<p><b>Type de mission : </b>${title}</p>`);
+
+        if (mission.domain) {
+          blocks.push(`<p><b>Domaine d'activité : </b>${getDomainLabel(mission.domain)}</p>`);
+        }
+
+        if (mission.descriptionHtml) {
+          blocks.push(decodeHtml(mission.descriptionHtml));
+        }
+
+        if (Array.isArray(mission.audience) && mission.audience.length > 0) {
+          blocks.push("<p><b>Public accompagné durant la mission : </b></p>");
+          blocks.push(`<p>${mission.audience.map((audience) => getAudienceLabel(audience)).join(" - ")}</p>`);
+        }
+
+        if (mission.schedule) {
+          blocks.push(`<p><b>Durée de la mission : </b>${mission.schedule}</p>`);
+        }
+
+        if (mission.openToMinors === false) {
+          blocks.push(`<p><b>Âge minimum : </b>18 ans minimum</p>`);
+        }
+        return blocks.join("\n");
+      })(),
       application_method: "external_apply",
       application_url: getMissionTrackedApplicationUrl(mission, PUBLISHER_IDS.LETUDIANT),
       state: mission.deletedAt || mission.statusCode !== "ACCEPTED" ? "archived" : "published",

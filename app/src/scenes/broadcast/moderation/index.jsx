@@ -22,15 +22,15 @@ const Moderation = () => {
   const [filters, setFilters] = useState({
     page: 1,
     size: 25,
-    status: searchParams.get("status") || "",
-    comment: searchParams.get("comment") || "",
-    publisherId: searchParams.get("publisher") || "",
-    organization: searchParams.get("organization") || "",
-    department: searchParams.get("department") || "",
-    city: searchParams.get("city") || "",
-    activity: searchParams.get("activity") || "",
-    domain: searchParams.get("domain") || "",
-    search: searchParams.get("search") || "",
+    status: searchParams.get("status") || null,
+    comment: searchParams.get("comment") || null,
+    publisherId: searchParams.get("publisher") || null,
+    organizationName: searchParams.get("organizationName") || null,
+    department: searchParams.get("department") || null,
+    city: searchParams.get("city") || null,
+    activity: searchParams.get("activity") || null,
+    domain: searchParams.get("domain") || null,
+    search: searchParams.get("search") || null,
   });
   const [reloadFilters, setReloadFilters] = useState(false);
   const [data, setData] = useState([]);
@@ -55,19 +55,19 @@ const Moderation = () => {
       setLoading(true);
       try {
         const query = {
-          moderatorId: publisher.id,
-          status: filters.status,
-          comment: filters.comment,
-          publisherId: filters.publisherId,
-          city: filters.city,
-          domain: filters.domain,
-          department: filters.department,
-          organizationName: filters.organization,
-          activity: filters.activity,
-          search: filters.search,
+          moderatorId: publisher.id || undefined,
+          status: filters.status || undefined,
+          comment: filters.comment || undefined,
+          publisherId: filters.publisherId || undefined,
+          city: filters.city || undefined,
+          domain: filters.domain || undefined,
+          department: filters.department || undefined,
+          organizationName: filters.organizationName || undefined,
+          activity: filters.activity || undefined,
+          search: filters.search || undefined,
           from: (filters.page - 1) * filters.size,
           size: size,
-          sort: sort,
+          sort: sort || undefined,
         };
 
         if (query.page > 1) query.from = (query.page - 1) * query.size;
@@ -82,7 +82,7 @@ const Moderation = () => {
         if (filters.status) newSearchParams.set("status", filters.status);
         if (filters.comment) newSearchParams.set("comment", filters.comment);
         if (filters.publisherId) newSearchParams.set("publisher", filters.publisherId);
-        if (filters.organization) newSearchParams.set("organization", filters.organization);
+        if (filters.organizationName) newSearchParams.set("organizationName", filters.organizationName);
         if (filters.department) newSearchParams.set("department", filters.department);
         if (filters.city) newSearchParams.set("city", filters.city);
         if (filters.activity) newSearchParams.set("activity", filters.activity);
@@ -123,11 +123,6 @@ const Moderation = () => {
 
   const handlePageChange = (page) => {
     setFilters({ ...filters, page });
-    window.scrollTo({ top: 500, behavior: "smooth" });
-  };
-
-  const resetPaginator = () => {
-    setFilters({ ...filters, page: 1 });
     window.scrollTo({ top: 500, behavior: "smooth" });
   };
 
@@ -201,37 +196,39 @@ const Moderation = () => {
           header={[
             {
               title: (
-                <label className="flex items-center">
-                  <span className="sr-only">Sélectionner toutes les missions</span>
-                  <input
-                    type="checkbox"
-                    className="checkbox"
-                    checked={selected.length === data.length && data.length > 0}
-                    onChange={handleSelectAll}
-                    ref={(el) => {
-                      if (el) el.indeterminate = selected.length > 0 && selected.length < data.length;
-                    }}
-                  />
-                </label>
+                <div className="flex items-center">
+                  <label className="flex w-14 items-center">
+                    <span className="sr-only">Sélectionner toutes les missions</span>
+                    <input
+                      type="checkbox"
+                      className="checkbox"
+                      checked={selected.length === data.length && data.length > 0}
+                      onChange={handleSelectAll}
+                      ref={(el) => {
+                        if (el) el.indeterminate = selected.length > 0 && selected.length < data.length;
+                      }}
+                    />
+                  </label>
+                  <h3 className="text-sm font-semibold">Mission</h3>
+                </div>
               ),
+              colSpan: 3,
             },
-            { title: "Mission", colSpan: 2 },
             { title: "Organisation" },
-            { title: "Actions" },
+            { title: "Actions", colSpan: 2 },
           ]}
           total={total}
           loading={loading}
           page={filters.page}
           pageSize={size}
           onPageChange={handlePageChange}
-          auto
         >
           {data.map((item, i) => (
-            <tr key={item._id} className={`${i % 2 === 0 ? "bg-gray-975" : "bg-gray-1000-active"} table-item`}>
+            <tr key={i} className={`${i % 2 === 0 ? "bg-gray-975" : "bg-gray-1000-active"} table-item h-48`}>
               <MissionItem
                 data={item}
                 history={history.organization[item.organizationName] || { ACCEPTED: 0, REFUSED: 0 }}
-                selected={selected.includes(item._id)}
+                selected={selected.includes(item.id)}
                 onChange={(values) => {
                   applyMissionUpdates(values);
                   fetchHistory();
@@ -240,7 +237,7 @@ const Moderation = () => {
                 onChangeMany={(values) => {
                   setData(
                     data.map((d) => {
-                      const changed = values.find((v) => v._id === d._id);
+                      const changed = values.find((v) => v.id === d.id);
                       if (changed) return { ...d, ...changed };
                       return d;
                     }),
@@ -248,8 +245,8 @@ const Moderation = () => {
                   fetchHistory();
                   setReloadFilters(!reloadFilters);
                 }}
-                onSelect={() => setSelected(selected.includes(item._id) ? selected.filter((id) => id !== item._id) : [...selected, item._id])}
-                onFilter={(v) => setFilters({ ...filters, organization: v, page: 1 })}
+                onSelect={() => setSelected(selected.includes(item.id) ? selected.filter((id) => id !== item.id) : [...selected, item.id])}
+                onFilter={(v) => setFilters({ ...filters, organizationName: v, page: 1 })}
               />
             </tr>
           ))}

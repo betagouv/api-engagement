@@ -7,7 +7,7 @@ import Modal from "../../../../components/Modal";
 import api from "../../../../services/api";
 import { captureError } from "../../../../services/error";
 import useStore from "../../../../services/store";
-import { JVA_MODERATION_COMMENTS_LABELS, STATUS, STATUS_COLORS } from "./Constants";
+import { JVA_MODERATION_COMMENTS_LABELS, STATUS, STATUS_CLASSES } from "./Constants";
 
 const Header = ({ total, data, size, sort, selected, onSize, onSort, onSelect, onChange }) => {
   const headerRef = useRef(null);
@@ -116,8 +116,7 @@ const ManyUpdateModal = ({ onClose, selected, onChange }) => {
                 </label>
                 <select
                   id="status"
-                  className="select w-full"
-                  style={{ borderBottomColor: STATUS_COLORS[status] }}
+                  className={`select w-full border-b-2 ${STATUS_CLASSES[status]}`}
                   name="status"
                   value={status}
                   onChange={(e) => setStatus(e.target.value)}
@@ -135,7 +134,7 @@ const ManyUpdateModal = ({ onClose, selected, onChange }) => {
                     <label htmlFor="comment" className="text-sm">
                       Motif<span className="text-error ml-1">*</span>
                     </label>
-                    <select id="comment" className="select" name="comment" value={comment} onChange={(e) => setComment(e.target.value)} required>
+                    <select id="comment" className="select border-error border-b-2" name="comment" value={comment} onChange={(e) => setComment(e.target.value)} required>
                       <option value="">Sélectionner un motif</option>
                       {Object.entries(JVA_MODERATION_COMMENTS_LABELS).map(([key, value]) => (
                         <option key={key} value={key}>
@@ -150,7 +149,7 @@ const ManyUpdateModal = ({ onClose, selected, onChange }) => {
                 <label htmlFor="note" className="text-sm">
                   Note
                 </label>
-                <textarea id="note" className="input" rows={4} name="note" value={note} onChange={(e) => setNote(e.target.value)} />
+                <textarea id="note" className="textarea" rows={4} name="note" value={note} onChange={(e) => setNote(e.target.value)} />
                 <div className="mt-6 flex justify-end">
                   <button className="primary-btn flex w-full justify-center" type="submit" disabled={!status || (status === "REFUSED" && !comment) || loading}>
                     {loading ? <Loader className="h-6 w-6" /> : "Enregistrer"}

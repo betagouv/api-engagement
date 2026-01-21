@@ -1,9 +1,10 @@
 import { randomUUID } from "node:crypto";
 
 import { prismaCore } from "../../src/db/postgres";
-import { missionService } from "../../src/services/mission";
-import { organizationService } from "../../src/services/organization";
 import { missionRepository } from "../../src/repositories/mission";
+import { missionService } from "../../src/services/mission";
+import { missionModerationStatusService } from "../../src/services/mission-moderation-status";
+import { organizationService } from "../../src/services/organization";
 import { MissionType, type MissionCreateInput, type MissionRecord } from "../../src/types";
 import type { MissionAddress } from "../../src/types/mission";
 import { createTestPublisher } from "./publisher";
@@ -281,15 +282,13 @@ export const createTestMission = async (data: Partial<MissionCreateInput & { del
   }
 
   const defaultModerationPublisherId = "5f5931496c7ea514150a818f";
-  await prismaCore.missionModerationStatus.create({
-    data: {
-      missionId: mission.id,
-      publisherId: defaultModerationPublisherId,
-      status: (data as any).moderationStatus ?? null,
-      comment: (data as any).moderationComment ?? null,
-      note: (data as any).moderationNote ?? null,
-      title: (data as any).moderationTitle ?? null,
-    },
+  await missionModerationStatusService.create({
+    mission: { connect: { id: mission.id } },
+    publisherId: defaultModerationPublisherId,
+    status: (data as any).moderationStatus ?? "PENDING",
+    comment: (data as any).moderationComment ?? null,
+    note: (data as any).moderationNote ?? null,
+    title: (data as any).moderationTitle ?? null,
   });
 
   if (data.createdAt || data.updatedAt) {
