@@ -132,6 +132,21 @@ describe("getMissionChanges", () => {
     });
   });
 
+  it("should ignore duplicated values in array fields", () => {
+    const mission1 = {
+      ...createBaseMission(),
+      requirements: ["requirement 1", "requirement 2"],
+    };
+    const mission2 = {
+      ...createBaseMission(),
+      requirements: ["requirement 1", "requirement 2", "requirement 1"],
+    };
+
+    const changes = getMissionChanges(mission1, mission2);
+
+    expect(changes).toBeNull();
+  });
+
   it("should detect when arrays have same elements but different order", () => {
     const mission1 = createBaseMission();
     const mission2 = {
