@@ -281,6 +281,7 @@ model StatEvent {
   @@index([toPublisherId, createdAt(sort: Desc)], map: "stats_event_to_publisher_created_at_idx")
   @@index([fromPublisherId, type, createdAt], map: "stats_event_from_publisher_type_created_at_idx")
   @@index([toPublisherId, type, createdAt], map: "stats_event_to_publisher_type_created_at_idx")
+  @@index([missionId, isBot, type, fromPublisherId], map: "stats_event_mission_is_bot_type_from_publisher_idx")
   @@index([updatedAt(sort: Asc)], map: "stats_event_updated_at_asc_idx")
   @@index([user], map: "stats_event_user_idx")
   @@index([sourceId], map: "stats_event_source_id_idx")
