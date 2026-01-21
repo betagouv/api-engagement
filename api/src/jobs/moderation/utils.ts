@@ -143,7 +143,7 @@ export const createModerations = async (missions: MissionRecord[], moderator: Pu
   }
 
   console.log(`[Moderation JVA] Bulk update ${moderationUpserts.length} missions, ${eventBulk.length} events`);
-  const resMission = await missionModerationStatusService.upsertStatuses(moderationUpserts.map((item) => ({ ...item, title: item.comment })));
+  const resMission = await missionModerationStatusService.upsertStatuses(moderationUpserts);
   const eventsCount = await moderationEventService.createModerationEvents(eventBulk);
   const updatedCount = resMission.filter((item) => new Date(item.createdAt).getTime() !== new Date(item.updatedAt).getTime()).length;
   return { updated: updatedCount, created: resMission.length - updatedCount, events: eventsCount, refused, pending };
