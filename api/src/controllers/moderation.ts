@@ -9,6 +9,7 @@ import publisherOrganizationRepository from "../repositories/publisher-organizat
 import { missionModerationStatusService } from "../services/mission-moderation-status";
 import { moderationEventService } from "../services/moderation-event";
 import { publisherService } from "../services/publisher";
+import { UserRecord } from "../types";
 import { ModerationFilters } from "../types/mission-moderation-status";
 import type { UserRequest } from "../types/passport";
 import { getModerationEvents, getModerationUpdates, getOrganizationUpdates } from "../utils/mission-moderation-status";
@@ -194,14 +195,21 @@ router.get("/:id", passport.authenticate("user", { session: false }), async (req
 
 router.put("/many", passport.authenticate("user", { session: false }), async (req: UserRequest, res: Response, next: NextFunction) => {
   try {
+    const user = req.user as UserRecord;
     const body = zod
       .object({
         moderatorId: zod.string(),
-        ids: zod.array(zod.string()),
-        status: zod.enum(["ACCEPTED", "REFUSED", "PENDING", "ONGOING"]).optional(),
-        comment: zod.string().nullable().optional(),
-        note: zod.string().nullable().optional(),
-        title: zod.string().nullable().optional(),
+        where: zod.object({
+          moderatorId: zod.string(),
+          organizationName: zod.string(),
+          status: zod.enum(["PENDING"]),
+        }),
+        update: zod.object({
+          status: zod.enum(["ACCEPTED", "REFUSED", "PENDING", "ONGOING"]).optional(),
+          comment: zod.string().nullable().optional(),
+          note: zod.string().nullable().optional(),
+          title: zod.string().nullable().optional(),
+        }),
       })
       .safeParse(req.body);
 
@@ -214,14 +222,14 @@ router.put("/many", passport.authenticate("user", { session: false }), async (re
       return res.status(403).send({ ok: false, code: FORBIDDEN });
     }
 
-    const userPublisherIds = req.user.publishers.map((publisherId: string) => publisherId.toString());
-    if (req.user.role !== "admin" && !userPublisherIds.includes(moderator.id)) {
+    const userPublisherIds = user.publishers.map((publisherId: string) => publisherId.toString());
+    if (user.role !== "admin" && !userPublisherIds.includes(moderator.id)) {
       return res.status(403).send({ ok: false, code: FORBIDDEN });
     }
 
     // Fetch all previous states at once
-    const previousStatuses = await missionModerationStatusService.findManyModerationStatusesByIds(body.data.ids);
-    if (!previousStatuses.length) {
+    const { data: previousStatuses, total } = await missionModerationStatusService.findModerationStatuses(body.data.where);
+    if (total === 0) {
       return res.status(200).send({ ok: true, data: { updated: 0, events: 0 } });
     }
 
@@ -229,7 +237,7 @@ router.put("/many", passport.authenticate("user", { session: false }), async (re
     const validIds = previousStatuses.map((s) => s.id);
 
     // Update all moderation statuses at once
-    const moderationUpdates = getModerationUpdates(body.data);
+    const moderationUpdates = getModerationUpdates(body.data.update);
     let updatedStatuses = previousStatuses;
     if (moderationUpdates) {
       updatedStatuses = await missionModerationStatusService.updateMany(validIds, moderationUpdates);

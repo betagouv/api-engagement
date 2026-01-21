@@ -102,17 +102,6 @@ export const missionModerationStatusService = {
     return toRecord(status as MissionModerationWithRelations);
   },
 
-  async findManyModerationStatusesByIds(ids: string[]): Promise<MissionModerationRecord[]> {
-    if (!ids.length) {
-      return [];
-    }
-    const statuses = await missionModerationStatusRepository.findMany({
-      where: { id: { in: ids } },
-      include: baseInclude,
-    });
-    return statuses.map((status) => toRecord(status as MissionModerationWithRelations));
-  },
-
   async findModerationStatuses(filters: ModerationFilters & { skip?: number; limit?: number }) {
     const { where } = buildWhere(filters);
 

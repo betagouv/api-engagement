@@ -8,14 +8,14 @@ import { captureError } from "../../../../services/error";
 import useStore from "../../../../services/store";
 import { JVA_MODERATION_COMMENTS_LABELS } from "./Constants";
 
-const OrganizationRefusedModal = ({ isOpen, onClose, data, update, onChange, total }) => {
+const OrganizationRefusedModal = ({ isOpen, onClose, data, update, onChange, total = 0 }) => {
   const { publisher } = useStore();
   const [loading, setLoading] = useState(false);
 
   const handleSubmit = async () => {
     setLoading(true);
     try {
-      const where = { moderatorId: publisher.id, organizationName: data.organizationName, status: "PENDING" };
+      const where = { moderatorId: publisher.id, organizationName: data.missionOrganizationName, status: "PENDING" };
 
       const res = await api.put(`/moderation/many`, {
         where,
@@ -45,7 +45,7 @@ const OrganizationRefusedModal = ({ isOpen, onClose, data, update, onChange, tot
       <div className="space-y-8 p-12">
         <h1 className="text-xl font-semibold">Refuser les {total} autres missions de cette organisation ?</h1>
         <p className="text-sm text-black">
-          Vous venez de refuser une mission de l’organisation <b>{data.organizationName}</b> avec le motif <b>{JVA_MODERATION_COMMENTS_LABELS[update.comment]}</b>.
+          Vous venez de refuser une mission de l’organisation <b>{data.missionOrganizationName}</b> avec le motif <b>{JVA_MODERATION_COMMENTS_LABELS[update.comment]}</b>.
         </p>
         <p className="text-sm text-black">
           Cette organisation a {total} autres missions à modérer, voulez-vous passer le statut de ces missions en <b>Refusée</b> avec le motif{" "}

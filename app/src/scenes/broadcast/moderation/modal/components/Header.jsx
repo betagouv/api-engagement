@@ -13,7 +13,7 @@ const Header = ({ data, onChange }) => {
     status: data.status,
     comment: data.comment,
   });
-  const [isOrganizationRefusedOpen, setIsOrganizationRefusedOpen] = useState(false);
+  const [isOrganizationToRefuse, setIsOrganizationToRefuse] = useState(0);
 
   useEffect(() => {
     setValues({
@@ -40,9 +40,9 @@ const Header = ({ data, onChange }) => {
       onChange(resM.data);
 
       if (v.status === "REFUSED" && ["ORGANIZATION_NOT_COMPLIANT", "ORGANIZATION_ALREADY_PUBLISHED"].includes(v.comment)) {
-        const resO = await api.post("/moderation/search", { moderatorId: publisher.id, organizationName: data.organizationName, status: "PENDING", size: 0 });
+        const resO = await api.post("/moderation/search", { moderatorId: publisher.id, organizationName: data.missionOrganizationName, status: "PENDING", size: 0 });
         if (!resO.ok) throw resO;
-        if (resO.total > 0) setIsOrganizationRefusedOpen(true);
+        setIsOrganizationToRefuse(resO.total);
       }
     } catch (error) {
       toast.error("Une erreur est survenue lors de la modération de la mission", {
@@ -60,7 +60,14 @@ const Header = ({ data, onChange }) => {
 
   return (
     <>
-      <OrganizationRefusedModal isOpen={isOrganizationRefusedOpen} onClose={() => setIsOrganizationRefusedOpen(false)} data={data} update={values} onChange={onChange} />
+      <OrganizationRefusedModal
+        isOpen={isOrganizationToRefuse > 0}
+        onClose={() => setIsOrganizationToRefuse(0)}
+        data={data}
+        update={values}
+        onChange={onChange}
+        total={isOrganizationToRefuse}
+      />
       <div className="bg-beige-gris-galet-975 border-grey-border sticky top-0 z-50 flex h-full items-center justify-between gap-8 border-b pb-8">
         <div className="max-w-[50%] space-y-2">
           <h1 className="mb-1">{DOMAINS[data.missionDomain]}</h1>
@@ -98,7 +105,7 @@ const Header = ({ data, onChange }) => {
               </select>
             )}
           </div>
-          <div className="absolute -bottom-6 right-0 w-screen text-right text-xs italic">
+          <div className="absolute right-0 -bottom-6 w-screen text-right text-xs italic">
             {values.status === "REFUSED" && !values.comment ? "Veuillez renseigner un motif de refus pour sauvegarder le changement de statut" : ""}
           </div>
         </div>
