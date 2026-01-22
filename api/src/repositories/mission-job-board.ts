@@ -31,19 +31,43 @@ export const missionJobBoardRepository = {
     comment?: string | null;
   }): Promise<MissionJobBoard> {
     const missionAddressId = entry.missionAddressId ?? null;
+    // Manually manage upsert when missionAddressId is null to avoid duplicate
+    if (missionAddressId === null) {
+      const existing = await prismaCore.missionJobBoard.findFirst({
+        where: { jobBoardId: entry.jobBoardId, missionId: entry.missionId, missionAddressId: null },
+      });
+      if (existing) {
+        return prismaCore.missionJobBoard.update({
+          where: { id: existing.id },
+          data: { publicId: entry.publicId, status: entry.status ?? null, syncStatus: entry.syncStatus ?? null, comment: entry.comment ?? null },
+        });
+      }
+      return prismaCore.missionJobBoard.create({
+        data: {
+          jobBoardId: entry.jobBoardId,
+          missionId: entry.missionId,
+          missionAddressId: null,
+          publicId: entry.publicId,
+          status: entry.status ?? null,
+          syncStatus: entry.syncStatus ?? null,
+          comment: entry.comment ?? null,
+        },
+      });
+    }
+
     return prismaCore.missionJobBoard.upsert({
       where: {
         jobBoardId_missionId_missionAddressId: {
           jobBoardId: entry.jobBoardId,
           missionId: entry.missionId,
-          missionAddressId: (missionAddressId ?? "") as string,
+          missionAddressId,
         },
       },
       update: { publicId: entry.publicId, status: entry.status ?? null, syncStatus: entry.syncStatus ?? null, comment: entry.comment ?? null },
       create: {
         jobBoardId: entry.jobBoardId,
         missionId: entry.missionId,
-        missionAddressId: missionAddressId ?? null,
+        missionAddressId,
         publicId: entry.publicId,
         status: entry.status ?? null,
         syncStatus: entry.syncStatus ?? null,

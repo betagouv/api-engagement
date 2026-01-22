@@ -66,12 +66,12 @@ export const missionJobBoardService = {
             OR (
               m.deleted_at IS NOT NULL
               AND mjb.last_synced_at IS NOT NULL
-              AND m.deleted_at < mjb.last_synced_at
+              AND m.deleted_at > mjb.last_synced_at
             )
             OR (
               m.status_code <> 'ACCEPTED'
               AND mjb.last_synced_at IS NOT NULL
-              AND m.updated_at < mjb.last_synced_at
+              AND m.updated_at > mjb.last_synced_at
             )
           )
         ORDER BY m.updated_at DESC
@@ -96,10 +96,11 @@ export const missionJobBoardService = {
       comment: entry.comment ?? null,
     }));
 
-    await missionJobBoardRepository.deleteForMission(jobBoardId, missionId);
-    if (payload.length) {
-      await missionJobBoardRepository.createMany(payload);
+    if (!payload.length) {
+      return;
     }
+
+    await Promise.all(payload.map((entry) => missionJobBoardRepository.upsert(entry)));
   },
 
   async upsert(entry: MissionJobBoardUpsertInput): Promise<MissionJobBoardRecord> {
