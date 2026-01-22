@@ -123,7 +123,7 @@ const FluxMenu = ({ value, onChange }) => (
           <span>Mode {value === "to" ? "annonceur" : "diffuseur"}</span>
           <div>
             <RiCheckLine className="text-success text-lg" />
-            <span class="sr-only">État du service</span>
+            <span className="sr-only">État du service</span>
           </div>
         </button>
       </MenuItem>
@@ -132,7 +132,7 @@ const FluxMenu = ({ value, onChange }) => (
           <span>Mode {value === "to" ? "diffuseur" : "annonceur"}</span>
           <div>
             <RiArrowLeftRightLine className="text-blue-france text-lg" />
-            <span class="sr-only">État du service</span>
+            <span className="sr-only">État du service</span>
           </div>
         </button>
       </MenuItem>

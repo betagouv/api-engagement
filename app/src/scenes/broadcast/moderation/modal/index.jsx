@@ -82,6 +82,10 @@ const MissionModal = ({ onChange }) => {
             <Header
               data={data}
               onChange={(v) => {
+                if (Array.isArray(v)) {
+                  onChange(v);
+                  return;
+                }
                 setData({ ...data, ...v });
                 onChange({ ...data, ...v });
               }}

@@ -100,7 +100,7 @@ const MissionItem = ({ data, history, selected, onChange, onSelect, onFilter, on
           </div>
         </div>
       </td>
-      <td className="border-grey-border table-cell border-b align-middle">
+      <td className="table-cell align-middle">
         <div className="flex flex-col justify-between py-2 text-xs">
           <span className="max-h-12 truncate">{data.missionOrganizationName}</span>
 
@@ -122,7 +122,7 @@ const MissionItem = ({ data, history, selected, onChange, onSelect, onFilter, on
           )}
         </div>
       </td>
-      <td className="border-grey-border table-cell border-b align-middle" colSpan={2}>
+      <td className="table-cell align-middle" colSpan={2}>
         <div className="flex flex-col justify-center gap-3">
           <div className="flex items-center gap-3">
             <select

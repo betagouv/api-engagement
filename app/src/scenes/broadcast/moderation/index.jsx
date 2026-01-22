@@ -141,8 +141,8 @@ const Moderation = () => {
     <div className="space-y-12 py-12">
       <title>API Engagement - Modération - Diffuser des missions</title>
       <MissionModal
-        onChange={(values) => {
-          handleMissionUpdate(values);
+        onChange={(updates) => {
+          handleMissionUpdate(updates);
           fetchHistory();
         }}
       />
@@ -222,7 +222,8 @@ const Moderation = () => {
           onPageChange={handlePageChange}
         >
           {data.map((item, i) => (
-            <tr key={i} className={`${i % 2 === 0 ? "bg-gray-975" : "bg-gray-1000-active"} table-item h-48`}>
+            // <tr key={i} className={`${i % 2 === 0 ? "bg-gray-975" : "bg-gray-1000-active"} table-item h-48`}>
+            <tr key={i} className={`${selected.includes(item.id) ? "bg-blue-france-925" : ""} table-item h-48`}>
               <MissionItem
                 data={item}
                 history={history.organization[item.missionOrganizationName] || { ACCEPTED: 0, REFUSED: 0 }}

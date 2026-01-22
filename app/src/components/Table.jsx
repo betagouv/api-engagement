@@ -9,7 +9,7 @@ const Table = ({ header, sortBy, total, onSort, loading, children, auto = false,
   return (
     <>
       <div className={`no-scrollbar w-full overflow-x-auto overflow-y-visible ${className}`}>
-        <table className={`w-full ${auto ? "table-auto" : "table-fixed"}`}>
+        <table className={`w-full border-collapse ${auto ? "table-auto" : "table-fixed"}`}>
           <thead className={`text-left ${sticky ? "sticky top-0 z-10 shadow-sm" : ""}`}>
             <tr className="table-header">
               {header.map((item, index) => {
@@ -85,7 +85,7 @@ const Pagination = ({ page, setPage, end }) => {
         <li>
           <button aria-label="Première page" className="pagination-btn" onClick={() => setPage(1)} disabled={page === 1} aria-disabled={page === 1}>
             <RiSkipLeftLine className="mt-1 text-base" aria-hidden="true" />
-            <span class="sr-only">Première page</span>
+            <span className="sr-only">Première page</span>
           </button>
         </li>
         <li>
@@ -120,7 +120,7 @@ const Pagination = ({ page, setPage, end }) => {
         <li>
           <button className="pagination-btn" onClick={() => setPage(end)} disabled={page === end} aria-label="Dernière page" aria-disabled={page === end}>
             <RiSkipRightLine className="mt-1 text-base" aria-hidden="true" />
-            <span class="sr-only">Dernière page</span>
+            <span className="sr-only">Dernière page</span>
           </button>
         </li>
       </ul>
