@@ -82,16 +82,22 @@ export const adaptTableFromMetabase = (metabaseResult) => {
   return { columns, rows };
 };
 
-export const adaptKpiFromMetabase = (metabaseResult) => {
+export const adaptKpiFromMetabase = (metabaseResult, { valueColumn = 0, valueRow = 0 } = {}) => {
   const rows = metabaseResult?.data?.rows || metabaseResult?.rows || [];
+  const cols = metabaseResult?.data?.cols || metabaseResult?.cols || [];
   if (!rows.length) {
     return { value: 0 };
   }
 
-  const firstRow = rows[0];
-  if (!Array.isArray(firstRow)) {
-    return { value: Number(firstRow) || 0 };
+  const row = rows[valueRow] ?? rows[0];
+  if (!Array.isArray(row)) {
+    if (row && typeof row === "object" && typeof valueColumn === "string") {
+      return { value: Number(row[valueColumn]) || 0 };
+    }
+    return { value: Number(row) || 0 };
   }
 
-  return { value: Number(firstRow[0]) || 0 };
+  const valueIndex = getColumnIndex(cols, valueColumn);
+  const safeValueIndex = valueIndex >= 0 ? valueIndex : typeof valueColumn === "number" ? valueColumn : 0;
+  return { value: Number(row[safeValueIndex]) || 0 };
 };
