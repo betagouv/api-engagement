@@ -22,7 +22,7 @@ select
       ),
       ''
     ),
-    ms.source_id
+    ''
   ) as source_name
 from {{ ref('mean_from_publisher_sources') }} as ms
 left join {{ ref('widget') }} as w
