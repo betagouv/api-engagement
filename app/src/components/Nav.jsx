@@ -14,7 +14,6 @@ const Nav = () => {
   const [publishers, setPublishers] = useState([]);
   const navigate = useNavigate();
   const location = useLocation();
-  const tabRefs = useRef([]);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -99,9 +98,7 @@ const Nav = () => {
             ariaLabel="Navigation principale"
             panelId="main-content"
             className="flex h-full items-center gap-6"
-            getTabClassName={(tab) =>
-              `hover:bg-gray-975 flex h-full items-center px-6 text-sm ${tab.isActive ? "border-b-blue-france text-blue-france border-b-2" : "border-none text-black"}`
-            }
+            variant="navbar"
           />
         </div>
 

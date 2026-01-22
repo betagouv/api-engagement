@@ -38,11 +38,7 @@ const Index = () => {
           ariaLabel="Liste des comptes de l'API Engagement"
           panelId="admin-account-panel"
           className="flex items-center gap-4 pl-4 font-semibold text-black"
-          getTabClassName={(tab) =>
-            `${
-              tab.isActive ? "border-blue-france text-blue-france hover:bg-gray-975 border-t-2 bg-white" : "bg-blue-france-925 hover:bg-blue-france-925-hover border-0"
-            } border-x-grey-border flex translate-y-px items-center border-x px-4 py-2`
-          }
+          variant="primary"
         />
         <section id="admin-account-panel" role="tabpanel" aria-labelledby={activeTabId || undefined} className="bg-white shadow-lg">
           <Routes>

@@ -189,7 +189,7 @@ const DistributionMean = ({ filters, defaultType = "print" }) => {
           ariaLabel="Répartition par moyen de diffusion"
           panelId="distribution-panel"
           className="mb-8 flex items-center gap-8 text-sm"
-          getTabClassName={(tab) => `pb-1 ${tab.isActive ? "border-blue-france text-blue-france border-b-2 font-semibold" : ""}`}
+          variant="underline"
         />
         <div id="distribution-panel" role="tabpanel" aria-labelledby={activeTabId || undefined}>
           {loading ? (
@@ -389,7 +389,7 @@ const Evolution = ({ filters, defaultType = "print" }) => {
           ariaLabel="Evolution"
           panelId="evolution-panel"
           className="mb-8 flex items-center gap-8 text-sm"
-          getTabClassName={(tab) => `pb-1 ${tab.isActive ? "border-blue-france text-blue-france border-b-2 font-semibold" : ""}`}
+          variant="underline"
         />
         <div id="evolution-panel" role="tabpanel" aria-labelledby={activeTabId || undefined}>
           {loading ? (
