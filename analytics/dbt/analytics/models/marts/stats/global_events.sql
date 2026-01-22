@@ -9,7 +9,9 @@
       'create index if not exists "global_events_source_idx" on {{ this }} (source)',
       'create index if not exists "global_events_from_publisher_idx" on {{ this }} (from_publisher_id)',
       'create index if not exists "global_events_to_publisher_idx" on {{ this }} (to_publisher_id)',
-      'create index if not exists "global_events_mission_idx" on {{ this }} (mission_id)'
+      'create index if not exists "global_events_mission_idx" on {{ this }} (mission_id)',
+      'create index if not exists "global_events_to_publisher_created_at_idx" on {{ this }} (to_publisher_id, created_at)',
+      'create index if not exists "global_events_from_publisher_created_at_idx" on {{ this }} (from_publisher_id, created_at)'
     ]
 ) }}
 

@@ -235,24 +235,6 @@ resource "scaleway_job_definition" "export-missions-to-pg" {
   env = local.all_env_vars
 }
 
-# Job Definition for the 'metabase' task
-resource "scaleway_job_definition" "metabase" {
-  name         = "${terraform.workspace}-metabase"
-  project_id   = var.project_id
-  cpu_limit    = 1000
-  memory_limit = 2048
-  image_uri    = local.image_uri
-  command      = "node dist/jobs/run-job.js metabase"
-  timeout      = "60m"
-
-  cron {
-    schedule = "0 2 * * *" # Every day at 2:00 AM
-    timezone = "Europe/Paris"
-  }
-
-  env = local.all_env_vars
-}
-
 resource "scaleway_job_definition" "export-stats-to-pg" {
   name         = "${terraform.workspace}-export-stats-to-pg"
   project_id   = var.project_id

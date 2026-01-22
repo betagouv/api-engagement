@@ -35,7 +35,7 @@ resource "scaleway_container" "api" {
     "PILOTY_BASE_URL" = local.piloty_hostname
     "BUCKET_NAME"   = local.bucket_name
     "SLACK_JOBTEASER_CHANNEL_ID" = terraform.workspace == "production" ? "C080H9MH56W" : ""
-      
+
     # Feature flags ES migration
     "WRITE_STATS_DUAL" = "true"
     "READ_STATS_FROM" = "pg"
@@ -53,6 +53,8 @@ resource "scaleway_container" "api" {
     "SCW_ACCESS_KEY"    = local.secrets.SCW_ACCESS_KEY
     "SCW_SECRET_KEY"    = local.secrets.SCW_SECRET_KEY
     "LETUDIANT_PILOTY_TOKEN" = local.secrets.LETUDIANT_PILOTY_TOKEN
+    "METABASE_API_KEY"  = local.secrets.METABASE_API_KEY
+    "METABASE_URL"      = local.secrets.METABASE_URL
   }
 }
 
@@ -99,7 +101,7 @@ resource "scaleway_container" "widget" {
     "ENV"     = terraform.workspace
     "API_URL" = "https://${local.api_hostname}"
   }
-  
+
   secret_environment_variables = {
     "SENTRY_DSN" = local.secrets.SENTRY_DSN_WIDGET
   }
