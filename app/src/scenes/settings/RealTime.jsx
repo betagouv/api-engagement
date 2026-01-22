@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
-import { Link, useSearchParams } from "react-router-dom";
 import { RiInformationLine } from "react-icons/ri";
+import { Link, useSearchParams } from "react-router-dom";
 import { Tooltip } from "react-tooltip";
 
 import RadioInput from "../../components/RadioInput";
@@ -10,7 +10,7 @@ import { captureError } from "../../services/error";
 import useStore from "../../services/store";
 import { timeSince } from "../../services/utils";
 
-const TABLE_HEADER = [{ title: "Mission" }, { title: "Type" }, { title: "Source" }, { title: "Attributs perso.", position: "center" }, { title: "Activité", position: "right" }];
+const TABLE_HEADER = [{ title: "Mission" }, { title: "Type" }, { title: "Source" }, { title: "Activité", position: "right" }];
 const MAX_EVENTS = 25;
 
 const RealTime = () => {
@@ -122,56 +122,56 @@ const RealTime = () => {
                     <span className="block max-w-64">Campagne: {item.sourceName}</span>
                   )}
                 </td>
-                <td className="px-4 py-3 align-middle">{item.type === "apply" ? "Candidature" : item.type === "click" ? "Redirection" : "Impression"}</td>
-                <td className="px-4 py-3 align-middle">{item.fromPublisherName}</td>
-                <td className="px-4 py-3 text-center align-middle">
-                  {entries.length > 0 ? (
-                    <>
-                      <button
-                        type="button"
-                        className="text-text-mention hover:text-text-regular focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 cursor-pointer"
-                        data-tooltip-id={tooltipId}
-                        aria-label="Voir les attributs personnalisés"
-                      >
-                        <RiInformationLine aria-hidden="true" />
-                      </button>
-                      <Tooltip id={tooltipId} className="max-w-md border border-grey-border bg-white text-base text-black shadow-lg" openOnClick clickable role="tooltip">
-                        <div className="space-y-2">
-                          <p className="font-semibold">Attributs personnalisés</p>
-                          <div className="max-h-60 overflow-auto">
-                            <table className="min-w-full text-left text-xs">
-                              <thead>
-                                <tr className="border-b border-grey-border">
-                                  <th scope="col" className="py-1 pr-3 font-semibold">
-                                    Clé
-                                  </th>
-                                  <th scope="col" className="py-1 font-semibold">
-                                    Valeur
-                                  </th>
-                                </tr>
-                              </thead>
-                              <tbody>
-                                {entries.map(([key, value]) => (
-                                  <tr key={key}>
-                                    <th scope="row" className="py-1 pr-3 font-medium text-text-mention">
-                                      {key}
+                <td className="px-4 py-3 align-middle">
+                  <div className="inline-flex items-center gap-1 whitespace-nowrap">
+                    <span>{item.type === "apply" ? "Candidature" : item.type === "click" ? "Redirection" : "Impression"}</span>
+                    {entries.length > 0 ? (
+                      <>
+                        <button
+                          type="button"
+                          className="text-text-mention hover:text-text-regular cursor-pointer align-middle focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2"
+                          data-tooltip-id={tooltipId}
+                          aria-label="Voir les attributs personnalisés"
+                        >
+                          <RiInformationLine aria-hidden="true" />
+                        </button>
+                        <Tooltip id={tooltipId} className="border-grey-border max-w-md border bg-white text-base text-black shadow-lg" openOnClick clickable role="tooltip">
+                          <div className="space-y-2">
+                            <p className="font-semibold">Attributs personnalisés</p>
+                            <div className="max-h-60 overflow-auto">
+                              <table className="min-w-full text-left text-xs">
+                                <thead>
+                                  <tr className="border-grey-border border-b">
+                                    <th scope="col" className="py-1 pr-3 font-semibold">
+                                      Clé
                                     </th>
-                                    <td className="py-1 break-words">{formatCustomAttributeValue(value)}</td>
+                                    <th scope="col" className="py-1 font-semibold">
+                                      Valeur
+                                    </th>
                                   </tr>
-                                ))}
-                              </tbody>
-                            </table>
+                                </thead>
+                                <tbody>
+                                  {entries.map(([key, value]) => (
+                                    <tr key={key}>
+                                      <th scope="row" className="text py-1 pr-3 font-medium">
+                                        {key}
+                                      </th>
+                                      <td className="py-1 break-words">{formatCustomAttributeValue(value)}</td>
+                                    </tr>
+                                  ))}
+                                </tbody>
+                              </table>
+                            </div>
                           </div>
-                        </div>
-                      </Tooltip>
-                    </>
-                  ) : (
-                    "—"
-                  )}
+                        </Tooltip>
+                      </>
+                    ) : null}
+                  </div>
                 </td>
+                <td className="px-4 py-3 align-middle">{item.fromPublisherName}</td>
                 <td className="px-4 py-3 text-right align-middle">
                   <div className="flex items-center justify-end gap-2">
-                    <span>{timeSince(new Date(item.createdAt))}</span>
+                    <span className="whitespace-nowrap">{timeSince(new Date(item.createdAt))}</span>
                   </div>
                 </td>
               </tr>
