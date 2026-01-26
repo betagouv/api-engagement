@@ -11,19 +11,73 @@ import type { PublisherRecord } from "../types/publisher";
 
 const router = Router();
 
+type ActivityType = "apply" | "account";
+
+async function resolveActivityByIdOrClientEventId({
+  id,
+  toPublisherId,
+  type,
+}: {
+  id: string;
+  toPublisherId: string;
+  type?: ActivityType;
+}): Promise<{ statEvent: StatEventRecord | null; ambiguous: boolean }> {
+  const statEvent = await statEventService.findOneStatEventById(id);
+  if (statEvent) {
+    return { statEvent, ambiguous: false };
+  }
+
+  const total = await statEventService.countStatEventsByClientEventId({
+    clientEventId: id,
+    toPublisherId,
+    type,
+  });
+  if (!total) {
+    return { statEvent: null, ambiguous: false };
+  }
+  if (!type && total > 1) {
+    return { statEvent: null, ambiguous: true };
+  }
+
+  const byClientEventId = await statEventService.findOneStatEventByClientEventId({
+    clientEventId: id,
+    toPublisherId,
+    type,
+  });
+
+  return { statEvent: byClientEventId, ambiguous: false };
+}
+
 router.get("/:id", passport.authenticate(["apikey", "api"], { session: false }), async (req: PublisherRequest, res: Response, next: NextFunction) => {
   try {
+    const user = req.user as PublisherRecord;
     const params = zod
       .object({
         id: zod.string(),
       })
       .safeParse(req.params);
+    const query = zod
+      .object({
+        type: zod.enum(["apply", "account"]).optional(),
+      })
+      .safeParse(req.query);
 
     if (!params.success) {
       return res.status(400).send({ ok: false, code: INVALID_PARAMS, error: JSON.parse(params.error.message) });
     }
+    if (!query.success) {
+      return res.status(400).send({ ok: false, code: INVALID_PARAMS, error: JSON.parse(query.error.message) });
+    }
 
-    const statEvent = await statEventService.findOneStatEventById(params.data.id);
+    const { statEvent, ambiguous } = await resolveActivityByIdOrClientEventId({
+      id: params.data.id,
+      toPublisherId: user.id,
+      type: query.data.type as ActivityType | undefined,
+    });
+
+    if (ambiguous) {
+      return res.status(409).send({ ok: false, code: INVALID_PARAMS, message: "Ambiguous clientEventId, provide type" });
+    }
 
     if (!statEvent) {
       return res.status(404).send({ ok: false, code: NOT_FOUND, message: "Activity not found" });
@@ -105,6 +159,7 @@ router.post("/", passport.authenticate(["apikey", "api"], { session: false }), a
 
 router.put("/:id", passport.authenticate(["apikey", "api"], { session: false }), async (req: PublisherRequest, res: Response, next: NextFunction) => {
   try {
+    const user = req.user as PublisherRecord;
     const params = zod
       .object({
         id: zod.string(),
@@ -114,6 +169,7 @@ router.put("/:id", passport.authenticate(["apikey", "api"], { session: false }),
     const body = zod
       .object({
         status: zod.enum(["PENDING", "VALIDATED", "CANCELED", "REFUSED", "CARRIED_OUT"]),
+        type: zod.enum(["apply", "account"]).optional(),
       })
       .safeParse(req.body);
 
@@ -124,8 +180,15 @@ router.put("/:id", passport.authenticate(["apikey", "api"], { session: false }),
       return res.status(400).send({ ok: false, code: INVALID_BODY, error: JSON.parse(body.error.message) });
     }
 
-    const stats = await statEventService.findOneStatEventById(params.data.id);
-    if (!stats) {
+    const { statEvent, ambiguous } = await resolveActivityByIdOrClientEventId({
+      id: params.data.id,
+      toPublisherId: user.id,
+      type: body.data.type as ActivityType | undefined,
+    });
+    if (ambiguous) {
+      return res.status(409).send({ ok: false, code: INVALID_PARAMS, message: "Ambiguous clientEventId, provide type" });
+    }
+    if (!statEvent) {
       return res.status(404).send({ ok: false, code: NOT_FOUND, message: "Activity not found" });
     }
 
@@ -133,9 +196,9 @@ router.put("/:id", passport.authenticate(["apikey", "api"], { session: false }),
       status: body.data.status,
     };
 
-    await statEventService.updateStatEvent(params.data.id, obj);
+    await statEventService.updateStatEvent(statEvent._id, obj);
 
-    return res.status(200).send({ ok: true, data: { ...stats, ...obj } });
+    return res.status(200).send({ ok: true, data: { ...statEvent, ...obj } });
   } catch (error: any) {
     next(error);
   }

@@ -38,6 +38,8 @@ models:
         description: Identifiant client de mission (clé métier provenant du diffuseur).
       - name: click_id
         description: Identifiant de clic associé lorsqu’il existe, sinon chaîne vide.
+      - name: client_event_id
+        description: Identifiant client de l’événement (déduplication côté publisher).
 
   - name: stg_stat_event__click
     description: >
@@ -94,6 +96,8 @@ models:
         description: Statut métier de la candidature (pending, validated…).
       - name: custom_attributes
         description: Payload JSON d’attributs personnalisés.
+      - name: client_event_id
+        description: Identifiant client de l’événement.
 
   - name: stg_stat_event__account
     description: >
@@ -118,6 +122,8 @@ models:
         description: UUID de la mission associée si retrouvée.
       - name: click_id
         description: Identifiant du clic lié au compte (le cas échéant).
+      - name: client_event_id
+        description: Identifiant client de l’événement.
 
   - name: stg_stat_event__print
     description: >

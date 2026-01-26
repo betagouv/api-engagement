@@ -172,15 +172,23 @@
           return;
         const n = "/r/apply",
           o = new URLSearchParams();
+        const a = c && "object" == typeof c ? c : null;
+        const i = a && Object.prototype.hasOwnProperty.call(a, "clientEventId") ? a.clientEventId : null;
+        let s = null;
+        if (a) {
+          if (Object.prototype.hasOwnProperty.call(a, "customAttributes")) s = a.customAttributes;
+          else if (!Object.prototype.hasOwnProperty.call(a, "clientEventId")) s = a;
+        }
         if (e) o.append("view", e);
         if (window.location.href) o.append("url", window.location.href);
         if (window._apieng.accountId) o.append("publisher", window._apieng.accountId);
         if (m) o.append("mission", m);
-        if (c) {
-          let t = c;
-          if ("object" == typeof c) {
+        if (i) o.append("clientEventId", i);
+        if (s) {
+          let t = s;
+          if ("object" == typeof s) {
             try {
-              t = JSON.stringify(c);
+              t = JSON.stringify(s);
             } catch (n) {
               t = null;
             }
@@ -190,16 +198,19 @@
         fetch(window._apieng.eventHost + n + "?" + o);
       }),
       // Account
-      (window._apieng.trackAccount = function (m) {
+      (window._apieng.trackAccount = function (m, c) {
         let e = window._apieng.getQueryParameter("apiengagement_id");
         if ((null != e && window._apieng.setCookieValue("apiengagement", e), e || (e = window._apieng.getCookieValue("apiengagement")), console.log("trackAccount: ", e), !e))
           return;
         const n = "/r/account",
           o = new URLSearchParams();
+        const a = c && "object" == typeof c ? c : null;
+        const i = a && Object.prototype.hasOwnProperty.call(a, "clientEventId") ? a.clientEventId : null;
         if (e) o.append("view", e);
         if (window.location.href) o.append("url", window.location.href);
         if (window._apieng.accountId) o.append("publisher", window._apieng.accountId);
         if (m) o.append("mission", m);
+        if (i) o.append("clientEventId", i);
         fetch(window._apieng.eventHost + n + "?" + o);
       }),
       (window.apieng.q = window.apieng.q || []));

@@ -7,6 +7,7 @@ export interface StatEventRecord {
   _id: string;
   clickUser?: string;
   clickId?: string;
+  clientEventId?: string;
   requestId?: string;
   origin: string;
   referer: string;
@@ -68,6 +69,19 @@ export interface HasRecentStatEventWithClickIdParams {
   type: StatEventType;
   clickId: string;
   since: Date;
+}
+
+export interface HasRecentStatEventWithClientEventIdParams {
+  type: StatEventType;
+  clientEventId: string;
+  toPublisherId: string;
+  since: Date;
+}
+
+export interface CountStatEventsByClientEventIdParams {
+  clientEventId: string;
+  toPublisherId: string;
+  type?: StatEventType;
 }
 
 export interface CountClicksByPublisherForOrganizationSinceParams {

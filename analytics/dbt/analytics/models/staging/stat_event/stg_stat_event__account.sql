@@ -10,7 +10,8 @@ with events as (
     nullif(e.to_publisher_id, '') as to_publisher_id_clean,
     nullif(e.from_publisher_id, '') as from_publisher_id_clean,
     nullif(e.source_id, '') as source_id_clean,
-    nullif(e.click_id, '') as click_id_raw
+    nullif(e.click_id, '') as click_id_raw,
+    nullif(e.client_event_id, '') as client_event_id
   from {{ ref('stg_stat_event') }} as e
   where e.type = 'account'
 ),
@@ -30,6 +31,7 @@ select
   e.mission_id,
   clk.stat_event_id as click_id,
   e.click_id_raw as view_id_raw,
+  e.client_event_id,
   e.from_publisher_id_clean as from_publisher_id,
   e.to_publisher_id_clean as to_publisher_id,
   e.source_id_clean as source_id,

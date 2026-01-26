@@ -5,9 +5,11 @@ import { publisherService } from "../services/publisher";
 import {
   AggregateMissionStatsParams,
   CountByTypeParams,
+  CountStatEventsByClientEventIdParams,
   CountClicksByPublisherForOrganizationSinceParams,
   CountEventsParams,
   FindWarningBotCandidatesParams,
+  HasRecentStatEventWithClientEventIdParams,
   HasRecentStatEventWithClickIdParams,
   MissionStatsAggregations,
   ScrollStatEventsParams,
@@ -45,6 +47,7 @@ function toPrisma(data: Partial<StatEventRecord>, options: { includeDefaults?: b
     createdAt: data.createdAt,
     clickUser: data.clickUser,
     clickId: data.clickId,
+    clientEventId: data.clientEventId,
     requestId: data.requestId,
     origin: includeDefaults ? (data.origin ?? "") : data.origin,
     referer: includeDefaults ? (data.referer ?? "") : data.referer,
@@ -170,6 +173,52 @@ async function hasStatEventWithRecentClickId({ type, clickId, since }: HasRecent
     },
   });
   return total > 0;
+}
+
+async function hasStatEventWithRecentClientEventId({
+  type,
+  clientEventId,
+  toPublisherId,
+  since,
+}: HasRecentStatEventWithClientEventIdParams): Promise<boolean> {
+  const total = await statEventRepository.count({
+    where: {
+      type: type as any,
+      clientEventId,
+      toPublisherId,
+      createdAt: { gte: since },
+    },
+  });
+  return total > 0;
+}
+
+async function countStatEventsByClientEventId({ clientEventId, toPublisherId, type }: CountStatEventsByClientEventIdParams): Promise<number> {
+  const where: Prisma.StatEventWhereInput = {
+    clientEventId,
+    toPublisherId,
+  };
+
+  if (type) {
+    where.type = type as any;
+  }
+
+  return statEventRepository.count({ where });
+}
+
+async function findOneStatEventByClientEventId({ clientEventId, toPublisherId, type }: CountStatEventsByClientEventIdParams): Promise<StatEventRecord | null> {
+  const where: Prisma.StatEventWhereInput = {
+    clientEventId,
+    toPublisherId,
+  };
+
+  if (type) {
+    where.type = type as any;
+  }
+
+  const result = (await statEventRepository.findFirst({
+    where,
+  })) as PrismaStatEventWithPublishers | null;
+  return result ? toStatEventRecord(result) : null;
 }
 
 async function countStatEventClicksByPublisherForOrganizationSince({ publisherIds, organizationClientId, from }: CountClicksByPublisherForOrganizationSinceParams) {
@@ -675,6 +724,9 @@ export const statEventService = {
   aggregateStatEventWarningBotByUser,
   updateStatEventsBotFlagForUser,
   hasStatEventWithRecentClickId,
+  hasStatEventWithRecentClientEventId,
+  countStatEventsByClientEventId,
+  findOneStatEventByClientEventId,
 };
 
 export default statEventService;
