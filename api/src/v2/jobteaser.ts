@@ -3,17 +3,26 @@ import passport from "passport";
 import zod from "zod";
 
 import { SLACK_JOBTEASER_CHANNEL_ID } from "../config";
+import { JobBoardId } from "../db/core";
 import { captureMessage, INVALID_BODY, NOT_FOUND } from "../error";
 import { missionService } from "../services/mission";
 import missionJobBoardService from "../services/mission-jobboard";
 import { postMessage } from "../services/slack";
-import { JobBoardId } from "../db/core";
 import { PublisherRequest } from "../types/passport";
 
 const router = Router();
 
+const SYNC_STATUS_MAP = {
+  ACCEPTED: "ONLINE",
+  PENDING: "OFFLINE",
+  DELETED: "OFFLINE",
+  REFUSED: "OFFLINE",
+} as const;
+
+const JOBTEASER_STATUS_VALUES = ["ACCEPTED", "PENDING", "DELETED", "REFUSED"] as const;
+
 /**
- * Webhook for Leboncoin
+ * Webhook for JobTeaser
  * webhook called for each mission to give back a status of the moderation of the partner in front
  * doc here https://www.notion.so/jeveuxaider/Leboincoin-API-Feedback-de-l-API-Engagement-12672a322d508087ab8bf02951b534b8?pvs=4
  */
@@ -22,7 +31,7 @@ router.post("/feedback", passport.authenticate(["jobteaser"], { session: false }
     const body = zod
       .object({
         missionId: zod.string(),
-        status: zod.enum(["ACCEPTED", "PENDING", "DELETED", "REFUSED"]),
+        status: zod.enum(JOBTEASER_STATUS_VALUES),
         url: zod.string().optional(),
         comment: zod.string().optional(),
       })
@@ -49,12 +58,14 @@ router.post("/feedback", passport.authenticate(["jobteaser"], { session: false }
       );
     }
 
+    const syncStatus = SYNC_STATUS_MAP[body.data.status];
+
     await missionJobBoardService.upsert({
       jobBoardId: JobBoardId.JOBTEASER,
       missionId: mission._id,
       missionAddressId: null,
       publicId: body.data.url ?? mission._id,
-      status: body.data.status,
+      syncStatus,
       comment: body.data.comment ?? null,
     });
 
