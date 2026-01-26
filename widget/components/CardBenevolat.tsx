@@ -55,7 +55,7 @@ const CardBenevolat = ({ widget, mission, request, focused = false, onKeyDown, o
       <div className="h-[192px] sm:h-[200px] overflow-hidden">
         <Image
           alt=""
-          src={error ? "/generique.jpeg" : mission.domainLogo || "/generique.jpeg"}
+          src={error ? "/images/generique.jpeg" : mission.domainLogo || "/images/generique.jpeg"}
           priority={true}
           className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-110 group-focus-within:scale-110"
           width={200}

@@ -19,6 +19,7 @@ const MISSION_FIELDS: MissionSelect = {
   title: true,
   moderationStatuses: { select: { title: true } },
   domain: { select: { name: true } },
+  domainLogo: true,
   organizationName: true,
   remote: true,
   addresses: { select: { city: true, country: true, postalCode: true } },
@@ -316,6 +317,7 @@ const buildMissionFilters = (
 
 const toWidgetMission = (mission: MissionRecord, widget: WidgetRecord) => {
   const moderationTitle = (mission as any)[`moderation_${PUBLISHER_IDS.JEVEUXAIDER}_title`];
+
   return {
     _id: mission.id,
     title: moderationTitle && widget.jvaModeration ? moderationTitle : mission.title,

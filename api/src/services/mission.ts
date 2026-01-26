@@ -20,7 +20,6 @@ import { normalizeOptionalString, normalizeStringList } from "../utils/normalize
 import { publisherService } from "./publisher";
 
 type MissionWithRelations = Mission & {
-  domainLogo: string | null;
   publisher?: { name: string | null; url: string | null; logo: string | null } | null;
   domain?: { name: string } | null;
   activity?: { name: string } | null;
