@@ -147,7 +147,7 @@ const Create = () => {
             )}
           </div>
 
-          <div className="col-span-2 flex flex-col">
+          <div role="search" className="col-span-2 flex flex-col">
             <label className="mb-2 text-sm" htmlFor="publishers">
               Partenaires
             </label>

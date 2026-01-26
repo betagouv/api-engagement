@@ -58,7 +58,7 @@ const Widgets = () => {
     <div className="space-y-6 p-12">
       <title>API Engagement - Widgets - Diffuser des missions</title>
       <div className="mb-10 flex items-center justify-between gap-4">
-        <div className="relative flex-1">
+        <div role="search" className="relative flex-1">
           <label htmlFor="widget-search" className="sr-only">
             Chercher par nom
           </label>

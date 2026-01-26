@@ -109,7 +109,7 @@ const AuthLayout = () => {
   return (
     <div className="bg-beige-gris-galet-975 flex min-h-screen w-screen min-w-3xl flex-col">
       <Header />
-      <main id="main-content" tabIndex={-1} className="flex flex-1">
+      <main id="main-content" role="main" tabIndex={-1} className="flex flex-1">
         <div className="flex-1">
           <Outlet />
         </div>
@@ -202,7 +202,7 @@ const ProtectedLayout = () => {
 
   if (loading)
     return (
-      <main id="main-content" tabIndex={-1} className="flex h-screen w-full items-center justify-center">
+      <main id="main-content" role="main" tabIndex={-1} className="flex h-screen w-full items-center justify-center">
         <Loader />
       </main>
     );
@@ -220,8 +220,8 @@ const ProtectedLayout = () => {
 
       <main
         id="main-content"
+        role="main"
         tabIndex={-1}
-        role={hasActiveTab ? "tabpanel" : undefined}
         aria-labelledby={hasActiveTab ? activeTabId : undefined}
         className="mx-auto mb-14 pt-14 w-4/5 max-w-[1200px] flex-1"
       >
@@ -255,8 +255,8 @@ const PublicLayout = () => {
       {user ? <Nav /> : ""}
       <main
         id="main-content"
+        role="main"
         tabIndex={-1}
-        role={user && hasActiveTab ? "tabpanel" : undefined}
         aria-labelledby={user && hasActiveTab ? activeTabId : undefined}
       >
         <Outlet />

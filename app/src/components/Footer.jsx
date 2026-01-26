@@ -2,7 +2,7 @@ import { Link } from "react-router-dom";
 
 const Footer = () => {
   return (
-    <footer className="border-blue-france flex w-full flex-col justify-center border-t-2 bg-white">
+    <footer role="contentinfo" className="border-blue-france flex w-full flex-col justify-center border-t-2 bg-white">
       <div className="border-grey-border flex w-full items-center justify-between border-b px-20 py-10">
         <Link className="hover:bg-gray-975 flex items-center p-2" to="/">
           <div className="h-full w-24">
@@ -20,7 +20,7 @@ const Footer = () => {
         <div>
           <p className="mb-4 max-w-lg text-sm">L'API vous permet de faciliter l'engagement en simplifiant la démarche de recherche d'une mission de bénévolat ou de volontariat</p>
 
-          <div className="flex items-center gap-3 text-sm font-bold text-black">
+          <nav role="navigation" aria-label="Liens gouvernementaux" className="flex items-center gap-3 text-sm font-bold text-black">
             <a href="https://www.legifrance.gouv.fr/" target="_blank" className="underline">
               legifrance.gouv.fr
             </a>
@@ -34,10 +34,10 @@ const Footer = () => {
             <a href="https://www.data.gouv.fr/fr/" target="_blank" className="underline">
               data.gouv.fr
             </a>
-          </div>
+          </nav>
         </div>
       </div>
-      <div className="divide-text-mention flex w-full items-center divide-x px-20 py-4 text-xs">
+      <nav role="navigation" aria-label="Liens de pied de page" className="divide-text-mention flex w-full items-center divide-x px-20 py-4 text-xs">
         <a href="https://api-engagement.beta.gouv.fr/accessibilite/" className="pr-3 underline">
           Accessibilité : non conforme
         </a>
@@ -59,7 +59,7 @@ const Footer = () => {
         <Link to="cgu" className="pl-4 underline">
           CGU
         </Link>
-      </div>
+      </nav>
       <div className="items-baseliner inline-flex px-20 pt-2 pb-4 text-sm">
         Sauf mention contraire, tous les textes de ce site sont sous
         <a href="https://github.com/etalab/licence-ouverte/blob/master/LO.md" target="_blank" className="ml-1 underline">

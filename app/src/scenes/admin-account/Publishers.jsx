@@ -132,7 +132,7 @@ const Publishers = () => {
       </div>
 
       <div className="border-grey-border border p-6">
-        <div className="mb-6 flex items-center gap-4">
+        <div role="search" className="mb-6 flex items-center gap-4">
           <p className="font-semibold">{`${publishers.length} partenaire${publishers.length > 1 ? "s" : ""}`}</p>
           <label htmlFor="publisher-name" className="sr-only">
             Rechercher par nom
