@@ -198,6 +198,73 @@ models:
         description: Longitude géographique (nullable).
       - name: geo_point
         description: Point géographique (nullable).
+
+  - name: mission_active_daily
+    description: >
+      Vue miroir de `int_mission_active_daily` : missions actives par jour (créées avant fin de jour,
+      non supprimées avant début de jour) avec département et catégorie benevolat/volontariat/all.
+    columns:
+      - name: active_date
+        description: Jour où la mission est active.
+      - name: department
+        description: Code département de la mission (dédoublonné via int_mission_address).
+      - name: publisher_category
+        description: Catégorie de mission (benevolat / volontariat / all).
+      - name: publisher_id
+        description: Identifiant du publisher de la mission.
+        tests:
+          - relationships:
+              arguments:
+                to: ref('publisher')
+                field: id
+      - name: mission_id
+        description: Identifiant de la mission.
+        tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('mission')
+                field: id
+
+  - name: mission_active_weekly
+    description: >
+      Agrégat hebdomadaire des missions actives (count distinct mission_id) ventilé par département/national
+      et catégorie, basé sur mission_active_daily.
+    columns:
+      - name: iso_year
+        description: Année ISO de la semaine.
+      - name: iso_week
+        description: Numéro ISO de la semaine.
+      - name: week_start
+        description: Date de début de semaine (lundi).
+      - name: is_all_department
+        description: TRUE pour l’agrégat national, FALSE pour l’agrégat départemental.
+      - name: department
+        description: Code département (null si national).
+      - name: publisher_category
+        description: Catégorie de mission.
+      - name: mission_count
+        description: Missions actives distinctes sur la semaine.
+
+  - name: mission_active_monthly
+    description: >
+      Agrégat mensuel des missions actives (count distinct mission_id) ventilé par département/national
+      et catégorie, basé sur mission_active_daily.
+    columns:
+      - name: year
+        description: Année de l’agrégat.
+      - name: month
+        description: Numéro du mois (1-12).
+      - name: month_start
+        description: Date de début du mois.
+      - name: is_all_department
+        description: TRUE pour l’agrégat national, FALSE pour l’agrégat départemental.
+      - name: department
+        description: Code département (null si national).
+      - name: publisher_category
+        description: Catégorie de mission.
+      - name: mission_count
+        description: Missions actives distinctes sur le mois.
       - name: geoloc_status
         description: Statut de géolocalisation (nullable).
       - name: created_at

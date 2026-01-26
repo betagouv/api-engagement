@@ -1,7 +1,10 @@
 {{ config(
   materialized = 'incremental',
   unique_key = 'id',
-  on_schema_change = 'sync_all_columns'
+  on_schema_change = 'sync_all_columns',
+  post_hook = [
+    'create index if not exists "mission_address_mission_id_idx" on {{ this }} (mission_id)',
+  ]
 ) }}
 
 with source as (
