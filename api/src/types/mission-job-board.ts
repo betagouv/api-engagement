@@ -10,7 +10,6 @@ export type MissionJobBoardRecord = {
   missionId: string;
   missionAddressId: string | null;
   publicId: string;
-  status: string | null;
   syncStatus: MissionJobBoardSyncStatus | null;
   comment: string | null;
   createdAt: Date;
@@ -22,7 +21,6 @@ export type MissionJobBoardUpsertInput = {
   missionId: string;
   missionAddressId?: string | null;
   publicId: string;
-  status?: string | null;
   syncStatus?: MissionJobBoardSyncStatus | null;
   comment?: string | null;
 };

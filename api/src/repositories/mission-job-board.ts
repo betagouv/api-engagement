@@ -26,7 +26,6 @@ export const missionJobBoardRepository = {
     missionId: string;
     missionAddressId?: string | null;
     publicId: string;
-    status?: string | null;
     syncStatus?: MissionJobBoardSyncStatus | null;
     comment?: string | null;
   }): Promise<MissionJobBoard> {
@@ -39,7 +38,7 @@ export const missionJobBoardRepository = {
       if (existing) {
         return prismaCore.missionJobBoard.update({
           where: { id: existing.id },
-          data: { publicId: entry.publicId, status: entry.status ?? null, syncStatus: entry.syncStatus ?? null, comment: entry.comment ?? null },
+          data: { publicId: entry.publicId, syncStatus: entry.syncStatus ?? null, comment: entry.comment ?? null },
         });
       }
       return prismaCore.missionJobBoard.create({
@@ -48,7 +47,6 @@ export const missionJobBoardRepository = {
           missionId: entry.missionId,
           missionAddressId: null,
           publicId: entry.publicId,
-          status: entry.status ?? null,
           syncStatus: entry.syncStatus ?? null,
           comment: entry.comment ?? null,
         },
@@ -63,13 +61,12 @@ export const missionJobBoardRepository = {
           missionAddressId,
         },
       },
-      update: { publicId: entry.publicId, status: entry.status ?? null, syncStatus: entry.syncStatus ?? null, comment: entry.comment ?? null },
+      update: { publicId: entry.publicId, syncStatus: entry.syncStatus ?? null, comment: entry.comment ?? null },
       create: {
         jobBoardId: entry.jobBoardId,
         missionId: entry.missionId,
         missionAddressId,
         publicId: entry.publicId,
-        status: entry.status ?? null,
         syncStatus: entry.syncStatus ?? null,
         comment: entry.comment ?? null,
       },

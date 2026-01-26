@@ -9,7 +9,6 @@ const mapRecord = (entry: any): MissionJobBoardRecord => ({
   missionId: entry.missionId,
   missionAddressId: entry.missionAddressId,
   publicId: entry.publicId,
-  status: entry.status ?? null,
   syncStatus: entry.syncStatus ?? null,
   comment: entry.comment ?? null,
   createdAt: entry.createdAt,
@@ -91,7 +90,6 @@ export const missionJobBoardService = {
       missionId,
       missionAddressId: entry.missionAddressId ?? null,
       publicId: entry.publicId,
-      status: entry.status ?? null,
       syncStatus: entry.syncStatus ?? null,
       comment: entry.comment ?? null,
     }));
