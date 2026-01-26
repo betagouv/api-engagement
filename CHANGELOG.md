@@ -2,6 +2,100 @@
 Vous retrouverez ici l'historique des différents déploiements effectués sur l'API Engagement.
 
 
+## 19/01/2026
+
+
+### Bug Fixes
+
+- (**jobs**) Remove space handler in organizationReseaux parsing ([`d8baa38`](https://github.com/betagouv/api-engagement/commit/d8baa3818e46fc434c4275eea0f781692e73a466))
+
+- (**app**) A11y - add skiplink (#679) ([`603db92`](https://github.com/betagouv/api-engagement/commit/603db925c5c076fe0221063cc5a3cd9b990969d7))
+
+- (**app**) A11y - add titles to every screen (#677) ([`9af531c`](https://github.com/betagouv/api-engagement/commit/9af531c25e6bd875e4718b01cc63501973d44053))
+
+- (**jobs**) Remove space handler in organizationReseaux parsing ([`c0de669`](https://github.com/betagouv/api-engagement/commit/c0de6695bbd80b7ecf1b64a88129ed83f0ffcfaa))
+
+- (**analytics**) Avoid rebuild each time global_mission_activity (#678) ([`a1d24e7`](https://github.com/betagouv/api-engagement/commit/a1d24e7c14409b17012fd38f6fd0c7ce368b2d95))
+
+- (**analytics**) Mission dbt documentation (#676) ([`f30f75b`](https://github.com/betagouv/api-engagement/commit/f30f75be9b005e5efe0eef6e3fe2c2496878a13d))
+
+- (**api**) Used moderation title (#671) ([`3506248`](https://github.com/betagouv/api-engagement/commit/35062480d88771f1a77b8b197364dc09afad0d7c))
+
+- (**api**) Review geofilter localisation (#669) ([`c4eefc6`](https://github.com/betagouv/api-engagement/commit/c4eefc6fce88ef65420e4c66599f79d7ab33e0b5))
+
+- (**api**) Iframe widget rule review name filtering ([`89aa649`](https://github.com/betagouv/api-engagement/commit/89aa64915c5e67d18d9bfe22b9c609e85d7b89a2))
+
+- (**api**) Review widget rules filter system ([`fd1fef4`](https://github.com/betagouv/api-engagement/commit/fd1fef44b4531b3bb6a3d5dde0095e27e1cdb90d))
+
+- (**api**) Temporary disable the exclusion of organization client on widget ([`e869e30`](https://github.com/betagouv/api-engagement/commit/e869e305861c24a6431cbe87caba46925f7ef7f9))
+
+- (**ci**) Disable autoscaling in production ([`58c733d`](https://github.com/betagouv/api-engagement/commit/58c733dfa2b77cbc35a2f0c1529662a11ba47811))
+
+- (**jobs**) Reduce mission_event batch (#667) ([`d9554e8`](https://github.com/betagouv/api-engagement/commit/d9554e8c14897a095495989cdd12ef26610c4343))
+
+- (**api**) Disconnect postgres connexion (#665) ([`82e47b6`](https://github.com/betagouv/api-engagement/commit/82e47b6dc102d27da29dcfef01e3dc2692ff4f59))
+
+- (**api**) Add script create default trackers (#660) ([`8b7e964`](https://github.com/betagouv/api-engagement/commit/8b7e96419fddd16e86fce51c032db797a2121a39))
+
+
+### Features
+
+- (**api**) Metabase proxy (#643) ([`a811100`](https://github.com/betagouv/api-engagement/commit/a811100013fecd93b76956481d94f923543a6a32))
+
+- (**analytics**) StatsGlobalEvents as a new dbt model (#673) ([`1de1255`](https://github.com/betagouv/api-engagement/commit/1de12558281a8463c437b99dc33bbc84e477e843))
+
+- (**analytics**) Missions new pipeline (#658) ([`1574c52`](https://github.com/betagouv/api-engagement/commit/1574c521a5abe8e50a5c4573e77a5f836aae251f))
+
+
+### Miscellaneous Tasks
+
+- (**changelog**) Update CHANGELOG.md ([`2e0e9f5`](https://github.com/betagouv/api-engagement/commit/2e0e9f5e5b497eaf3cf88d2b7bae216151616ffb))
+
+- (**api**) Disable analytics / mongo db connection ([`a739462`](https://github.com/betagouv/api-engagement/commit/a73946260d4e3d5b23068179763583b4f41f7ba4))
+
+- (**ci**) Decrease import-missions frequency ([`70a9739`](https://github.com/betagouv/api-engagement/commit/70a9739d9cdf8269d1e918ed4744a32a0e3ddc54))
+
+- (**changelog**) Update CHANGELOG.md ([`35430dd`](https://github.com/betagouv/api-engagement/commit/35430dd064ccc34ceee9c5e85c13e99533887b7e))
+
+- (**changelog**) Update CHANGELOG.md ([`5060ff7`](https://github.com/betagouv/api-engagement/commit/5060ff72be64ce2b6345502afefe925e56018810))
+
+- (**changelog**) Update CHANGELOG.md ([`480ced3`](https://github.com/betagouv/api-engagement/commit/480ced324c6e8ad0982e28340dbd439cff4daad5))
+
+- (**changelog**) Update CHANGELOG.md ([`8af2fff`](https://github.com/betagouv/api-engagement/commit/8af2fffaff0e3e8922a748d74942f44772a8e446))
+
+- (**changelog**) Update CHANGELOG.md ([`74a7229`](https://github.com/betagouv/api-engagement/commit/74a722929e05632a0e789b97643f36c9b318e94b))
+
+- (**changelog**) Update CHANGELOG.md ([`dd9b9a1`](https://github.com/betagouv/api-engagement/commit/dd9b9a16d55c6cd07e8f0665393adfe5d8990217))
+
+
+### Refactoring
+
+- (**app**) A11y title to link (#664) ([`4e0964d`](https://github.com/betagouv/api-engagement/commit/4e0964de622229f2ab043d59643e37e1d6bdc0dd))
+
+- (**analytics**) Remove publisher name in global events (#680) ([`88d1928`](https://github.com/betagouv/api-engagement/commit/88d19284300cc75ccb08c69d585ff2f21136731b))
+
+- (**app**) A11y review color contraste and color management (#663) ([`7156660`](https://github.com/betagouv/api-engagement/commit/7156660ec3ecdb7031cc2f20120da4e93379f5f4))
+
+- (**app**) Clean warning impression pop over (#662) ([`d11e3bc`](https://github.com/betagouv/api-engagement/commit/d11e3bcd0f89b35f066825b3ee4d0e5b3f411446))
+
+- (**api**) Avoid in-memory widget mission processing (#672) ([`e1e24e9`](https://github.com/betagouv/api-engagement/commit/e1e24e98f8d9389459e8b7cc0b80cffd73349003))
+
+- (**api**) Migrate warning-bot to service layer (#675) ([`292ea13`](https://github.com/betagouv/api-engagement/commit/292ea13ee3be3f5e86d598aa45c02a27fdf423d1))
+
+- (**api**) Add select field to iframe route (#670) ([`612928f`](https://github.com/betagouv/api-engagement/commit/612928f9864cb05a47c230a6a5f7abd116348ba9))
+
+- (**api**) Drop widget analytics pipeline (#639) ([`546e47d`](https://github.com/betagouv/api-engagement/commit/546e47d5072ee66652233ce747712a123c2adf76))
+
+- (**app**) Remove multitable component ([`d3771e6`](https://github.com/betagouv/api-engagement/commit/d3771e6d2392585c01a527dcccb0a5d9d1251753))
+
+- (**app**) A11y emojis (#645) ([`9342d5b`](https://github.com/betagouv/api-engagement/commit/9342d5ba79436f4136aa940611fa7e5e6ffc6353))
+
+- (**app**) Review spacing (#661) ([`4a9e4e2`](https://github.com/betagouv/api-engagement/commit/4a9e4e21bc3b68e4b35c599bd7e51ec3acb92dc7))
+
+# API Engagement - Changelog
+Vous retrouverez ici l'historique des différents déploiements effectués sur l'API Engagement.
+
+
 ## 12/01/2026
 
 
