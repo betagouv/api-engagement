@@ -66,7 +66,7 @@ models:
 
   - name: organization_active_monthly
     description: >
-      Agrégat mensuel des organisations actives (au moins un événement click/apply dans le mois), ventilé par
+      Agrégat mensuel des organisations actives (au moins une mission active dans le mois), ventilé par
       département/national et catégorie (benevolat/volontariat/all). Dédupliqué via l'identifiant
       d'organisation (missions sans organisation_id exclues).
     columns:
