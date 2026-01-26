@@ -88,6 +88,7 @@ export async function createStatEventFixture(overrides: Partial<StatEventRecord>
     tag: overrides.tag,
     tags: overrides.tags ?? [],
     exportToAnalytics: overrides.exportToAnalytics,
+    clientEventId: overrides.clientEventId,
     clickId: overrides.clickId,
     clickUser: overrides.clickUser,
     requestId: overrides.requestId,

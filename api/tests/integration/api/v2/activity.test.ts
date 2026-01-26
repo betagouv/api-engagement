@@ -36,6 +36,70 @@ describe("Activity V2 controller", () => {
       expect(response.status).toBe(404);
       expect(response.body).toEqual({ ok: false, code: "NOT_FOUND", message: "Activity not found" });
     });
+
+    it("returns the stat event when the clientEventId matches", async () => {
+      const publisher = await publisherService.createPublisher({ name: "ClientEvent Publisher", apikey: "client-event-key" });
+
+      const stat = await createStatEventFixture({
+        type: "apply",
+        clientEventId: "client-event-apply",
+        toPublisherId: publisher.id,
+      });
+
+      const response = await request(app)
+        .get("/v2/activity/client-event-apply")
+        .set("apikey", publisher.apikey || "");
+
+      expect(response.status).toBe(200);
+      expect(response.body).toMatchObject({ ok: true, data: { _id: stat._id } });
+    });
+
+    it("returns 409 when clientEventId is ambiguous without type", async () => {
+      const publisher = await publisherService.createPublisher({ name: "Ambiguous Publisher", apikey: "ambiguous-key" });
+
+      await createStatEventFixture({
+        type: "apply",
+        clientEventId: "client-event-ambiguous",
+        toPublisherId: publisher.id,
+      });
+
+      await createStatEventFixture({
+        type: "account",
+        clientEventId: "client-event-ambiguous",
+        toPublisherId: publisher.id,
+      });
+
+      const response = await request(app)
+        .get("/v2/activity/client-event-ambiguous")
+        .set("apikey", publisher.apikey || "");
+
+      expect(response.status).toBe(409);
+      expect(response.body).toEqual({ ok: false, code: "INVALID_PARAMS", message: "Ambiguous clientEventId, provide type" });
+    });
+
+    it("returns the stat event when clientEventId is filtered by type", async () => {
+      const publisher = await publisherService.createPublisher({ name: "ClientEvent Type Publisher", apikey: "client-event-type-key" });
+
+      const stat = await createStatEventFixture({
+        type: "apply",
+        clientEventId: "client-event-type",
+        toPublisherId: publisher.id,
+      });
+
+      await createStatEventFixture({
+        type: "account",
+        clientEventId: "client-event-type",
+        toPublisherId: publisher.id,
+      });
+
+      const response = await request(app)
+        .get("/v2/activity/client-event-type")
+        .query({ type: "apply" })
+        .set("apikey", publisher.apikey || "");
+
+      expect(response.status).toBe(200);
+      expect(response.body).toMatchObject({ ok: true, data: { _id: stat._id } });
+    });
   });
 
   describe("POST /v2/activity/", () => {
@@ -175,6 +239,31 @@ describe("Activity V2 controller", () => {
       });
 
       const response = await request(app).put(`/v2/activity/${statEvent._id}`).set("apikey", "update-key").send({ status: "VALIDATED" });
+
+      expect(response.status).toBe(200);
+      expect(response.body.data).toMatchObject({ _id: statEvent._id, status: "VALIDATED" });
+      const updated = await statEventService.findOneStatEventById(statEvent._id);
+      expect(updated?.status).toBe("VALIDATED");
+    });
+
+    it("updates the activity status using clientEventId when provided", async () => {
+      const publisher = await publisherService.createPublisher({ name: "Update ClientEvent Publisher", apikey: "update-client-event-key" });
+
+      const statEvent = await createStatEventFixture({
+        _id: "activity-client-event",
+        type: "apply",
+        status: "PENDING",
+        clientEventId: "client-event-update",
+        toPublisherId: publisher.id,
+        toPublisherName: "To Publisher",
+        fromPublisherId: "from-publisher",
+        fromPublisherName: "From Publisher",
+      });
+
+      const response = await request(app)
+        .put("/v2/activity/client-event-update")
+        .set("apikey", publisher.apikey || "")
+        .send({ status: "VALIDATED", type: "apply" });
 
       expect(response.status).toBe(200);
       expect(response.body.data).toMatchObject({ _id: statEvent._id, status: "VALIDATED" });
