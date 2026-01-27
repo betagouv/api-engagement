@@ -12,6 +12,7 @@ with events as (
     nullif(e.from_publisher_id, '') as from_publisher_id_clean,
     nullif(e.source_id, '') as source_id_clean,
     nullif(e.click_id, '') as click_id_raw,
+    nullif(e.client_event_id, '') as client_event_id,
     nullif(e.status, '') as status_raw
   from {{ ref('stg_stat_event') }} as e
   where e.type = 'apply'
@@ -32,6 +33,7 @@ select
   e.mission_id,
   clk.stat_event_id as click_id,
   e.click_id_raw as view_id_raw,
+  e.client_event_id,
   e.status_raw as status,
   e.custom_attributes,
   e.from_publisher_id_clean as from_publisher_id,

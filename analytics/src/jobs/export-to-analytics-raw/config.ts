@@ -17,6 +17,7 @@ export const exportDefinitions: ExportDefinition[] = [
         "created_at",
         "updated_at",
         "click_id",
+        "client_event_id",
         "referer",
         "host",
         "is_bot",

@@ -109,7 +109,8 @@ const RealTime = () => {
         <Table header={TABLE_HEADER} total={events.length} loading={loading} auto>
           {events.map((item, i) => {
             const entries = getCustomAttributesEntries(item.customAttributes);
-            const tooltipId = entries.length ? `custom-attributes-${item.id || i}` : null;
+            const hasClientEventId = Boolean(item.clientEventId);
+            const tooltipId = entries.length || hasClientEventId ? `custom-attributes-${item.id || i}` : null;
 
             return (
               <tr key={i} className={`${i % 2 === 0 ? "bg-gray-975" : "bg-gray-1000-active"} table-item h-auto md:h-16`}>
@@ -125,43 +126,52 @@ const RealTime = () => {
                 <td className="px-4 py-3 align-middle">
                   <div className="inline-flex items-center gap-1 whitespace-nowrap">
                     <span>{item.type === "apply" ? "Candidature" : item.type === "click" ? "Redirection" : "Impression"}</span>
-                    {entries.length > 0 ? (
+                    {tooltipId ? (
                       <>
                         <button
                           type="button"
                           className="text-text-mention hover:text-text-regular cursor-pointer align-middle focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2"
                           data-tooltip-id={tooltipId}
-                          aria-label="Voir les attributs personnalisés"
+                          aria-label="Voir les détails de l'événement"
                         >
                           <RiInformationLine aria-hidden="true" />
                         </button>
                         <Tooltip id={tooltipId} className="border-grey-border max-w-md border bg-white text-base text-black shadow-lg" openOnClick clickable role="tooltip">
                           <div className="space-y-2">
-                            <p className="font-semibold">Attributs personnalisés</p>
-                            <div className="max-h-60 overflow-auto">
-                              <table className="min-w-full text-left text-xs">
-                                <thead>
-                                  <tr className="border-grey-border border-b">
-                                    <th scope="col" className="py-1 pr-3 font-semibold">
-                                      Clé
-                                    </th>
-                                    <th scope="col" className="py-1 font-semibold">
-                                      Valeur
-                                    </th>
-                                  </tr>
-                                </thead>
-                                <tbody>
-                                  {entries.map(([key, value]) => (
-                                    <tr key={key}>
-                                      <th scope="row" className="text py-1 pr-3 font-medium">
-                                        {key}
+                            <p className="font-semibold">Détails de l'événement</p>
+                            {hasClientEventId ? (
+                              <div className="rounded bg-gray-50 px-2 py-1 text-xs">
+                                <span className="font-semibold">clientEventId :</span> {item.clientEventId}
+                              </div>
+                            ) : null}
+                            {entries.length > 0 ? (
+                              <div className="max-h-60 overflow-auto">
+                                <table className="min-w-full text-left text-xs">
+                                  <thead>
+                                    <tr className="border-grey-border border-b">
+                                      <th scope="col" className="py-1 pr-3 font-semibold">
+                                        Clé
                                       </th>
-                                      <td className="py-1 break-words">{formatCustomAttributeValue(value)}</td>
+                                      <th scope="col" className="py-1 font-semibold">
+                                        Valeur
+                                      </th>
                                     </tr>
-                                  ))}
-                                </tbody>
-                              </table>
-                            </div>
+                                  </thead>
+                                  <tbody>
+                                    {entries.map(([key, value]) => (
+                                      <tr key={key}>
+                                        <th scope="row" className="text py-1 pr-3 font-medium">
+                                          {key}
+                                        </th>
+                                        <td className="py-1 break-words">{formatCustomAttributeValue(value)}</td>
+                                      </tr>
+                                    ))}
+                                  </tbody>
+                                </table>
+                              </div>
+                            ) : (
+                              <p className="text-text-mention text-xs">Aucun attribut personnalisé.</p>
+                            )}
                           </div>
                         </Tooltip>
                       </>

@@ -186,6 +186,34 @@ describe("RedirectController /apply", () => {
     expect(storedApply?.customAttributes).toEqual(customAttributes);
   });
 
+  it("records apply stats with clientEventId when provided", async () => {
+    const identity = {
+      user: "client-event-user",
+      referer: "https://client-event.example.com",
+      userAgent: "Mozilla/5.0",
+    };
+
+    vi.spyOn(utils, "identify").mockReturnValue(identity);
+    vi.spyOn(statBotService, "findStatBotByUser").mockResolvedValue(null);
+
+    await createClickStat("click-client-event", {
+      user: "click-user",
+      source: "publisher",
+      sourceId: "source-id",
+      sourceName: "Source Name",
+      fromPublisherId: "source-publisher-id",
+      toPublisherId: "to-publisher-id",
+    });
+
+    const response = await request(app)
+      .get("/r/apply")
+      .query({ view: "click-client-event", clientEventId: "client-event-apply-1" });
+
+    expect(response.status).toBe(200);
+    const storedApply = await prismaCore.statEvent.findUnique({ where: { id: response.body.id } });
+    expect(storedApply?.clientEventId).toBe("client-event-apply-1");
+  });
+
   it("returns 204 when custom attributes payload is invalid JSON", async () => {
     vi.spyOn(utils, "identify").mockReturnValue({
       user: "invalid-identity-user",

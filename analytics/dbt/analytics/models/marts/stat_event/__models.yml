@@ -51,6 +51,8 @@ models:
                 field: id
       - name: view_id_raw
         description: Identifiant brut de la vue transmis par `stat_event`.
+      - name: client_event_id
+        description: Identifiant client de l’événement (déduplication côté publisher).
       - name: source
         description: Origine normalisée (enum `SourceType`).
 
@@ -108,6 +110,8 @@ models:
         description: Champs JSON contenant les attributs personnalisés.
       - name: view_id_raw
         description: Identifiant brut de la vue lié à la candidature.
+      - name: client_event_id
+        description: Identifiant client de l’événement (déduplication côté publisher).
 
   - name: click
     description: >

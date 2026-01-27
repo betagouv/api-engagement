@@ -16,6 +16,7 @@ with base as (
     status::text,
     referer,
     custom_attributes,
+    client_event_id,
     is_bot::boolean as is_bot,
     is_human::boolean as is_human,
     coalesce(click_id, '') as click_id

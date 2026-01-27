@@ -147,4 +147,32 @@ describe("RedirectController /account", () => {
       isBot: false,
     });
   });
+
+  it("records account stats with clientEventId when provided", async () => {
+    const identity = {
+      user: "client-event-user",
+      referer: "https://client-event.example.com",
+      userAgent: "Mozilla/5.0",
+    };
+
+    vi.spyOn(utils, "identify").mockReturnValue(identity);
+    vi.spyOn(statBotService, "findStatBotByUser").mockResolvedValue(null);
+
+    await createClickStat("click-account-client-event", {
+      user: "click-user",
+      source: "publisher",
+      sourceId: "source-id",
+      sourceName: "Source Name",
+      fromPublisherId: "source-publisher-id",
+      toPublisherId: "to-publisher-id",
+    });
+
+    const response = await request(app)
+      .get("/r/account")
+      .query({ view: "click-account-client-event", clientEventId: "client-event-account-1" });
+
+    expect(response.status).toBe(200);
+    const storedAccount = await prismaCore.statEvent.findUnique({ where: { id: response.body.id } });
+    expect(storedAccount?.clientEventId).toBe("client-event-account-1");
+  });
 });

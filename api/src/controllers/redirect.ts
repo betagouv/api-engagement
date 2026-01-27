@@ -35,6 +35,7 @@ router.get("/apply", cors({ origin: "*" }), async (req: Request, res: Response) 
         publisher: zod.string().optional(),
         mission: zod.string().optional(),
         customAttributes: zod.string().optional(),
+        clientEventId: zod.string().optional(),
       })
       .safeParse(req.query);
 
@@ -69,6 +70,17 @@ router.get("/apply", cors({ origin: "*" }), async (req: Request, res: Response) 
         if (hasRecentApply) {
           return;
         }
+        if (query.data.clientEventId) {
+          const hasRecentClientEvent = await statEventService.hasStatEventWithRecentClientEventId({
+            type: "apply",
+            clientEventId: query.data.clientEventId,
+            toPublisherId: clickEvent.toPublisherId,
+            since: fiveMinutesAgo(),
+          });
+          if (hasRecentClientEvent) {
+            return;
+          }
+        }
         click = clickEvent;
       } else {
         captureMessage(`[Apply] Click not found`, `click ${query.data.view}`);
@@ -101,6 +113,9 @@ router.get("/apply", cors({ origin: "*" }), async (req: Request, res: Response) 
 
     if (customAttributes) {
       obj.customAttributes = customAttributes;
+    }
+    if (query.data.clientEventId) {
+      obj.clientEventId = query.data.clientEventId;
     }
 
     if (mission) {
@@ -159,6 +174,7 @@ router.get("/account", cors({ origin: "*" }), async (req: Request, res: Response
         view: zod.string().optional(),
         publisher: zod.string().optional(),
         mission: zod.string().optional(),
+        clientEventId: zod.string().optional(),
       })
       .safeParse(req.query);
 
@@ -180,6 +196,17 @@ router.get("/account", cors({ origin: "*" }), async (req: Request, res: Response
         });
         if (hasRecentAccount) {
           return;
+        }
+        if (query.data.clientEventId) {
+          const hasRecentClientEvent = await statEventService.hasStatEventWithRecentClientEventId({
+            type: "account",
+            clientEventId: query.data.clientEventId,
+            toPublisherId: clickEvent.toPublisherId,
+            since: fiveMinutesAgo(),
+          });
+          if (hasRecentClientEvent) {
+            return;
+          }
         }
         click = clickEvent;
       } else {
@@ -211,6 +238,9 @@ router.get("/account", cors({ origin: "*" }), async (req: Request, res: Response
       isBot: statBot ? true : false,
     } as StatEventRecord;
 
+    if (query.data.clientEventId) {
+      obj.clientEventId = query.data.clientEventId;
+    }
     if (mission) {
       obj.missionId = mission.id;
       obj.missionClientId = mission.clientId;

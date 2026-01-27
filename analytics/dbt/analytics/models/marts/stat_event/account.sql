@@ -35,6 +35,7 @@ select
   to_publisher_id,
   mission_id,
   click_id,
+  client_event_id,
   view_id_raw,
   null::text as url,
   updated_at
