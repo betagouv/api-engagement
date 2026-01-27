@@ -178,6 +178,8 @@
         if (a) {
           if (Object.prototype.hasOwnProperty.call(a, "customAttributes")) s = a.customAttributes;
           else if (!Object.prototype.hasOwnProperty.call(a, "clientEventId")) s = a;
+        } else if (c) {
+          s = c;
         }
         if (e) o.append("view", e);
         if (window.location.href) o.append("url", window.location.href);
