@@ -1,3 +1,7 @@
+---
+description: "Run dbt workflow"
+---
+
 # Skill: Analytics dbt Workflow
 
 Exécute les commandes dbt (compile, test, run) via le wrapper `dbt-env.sh`.

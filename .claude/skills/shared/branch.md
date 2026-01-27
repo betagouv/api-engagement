@@ -1,3 +1,7 @@
+---
+description: "Create formatted branches"
+---
+
 # Skill: Create Branch
 
 Crée une branche formatée selon les conventions du projet.

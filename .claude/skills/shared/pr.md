@@ -1,3 +1,7 @@
+---
+description: "Create pull requests"
+---
+
 # Skill: Create Pull Request
 
 Crée une Pull Request avec titre EN (Conventional Commits) et corps FR (template).

@@ -1,3 +1,7 @@
+---
+description: "Create conventional commits"
+---
+
 # Skill: Conventional Commit
 
 Crée un commit suivant les Conventional Commits du projet avec validation automatique.

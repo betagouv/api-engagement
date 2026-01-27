@@ -1,3 +1,7 @@
+---
+description: "Run API tests"
+---
+
 # Skill: API Tests
 
 Exécute les tests API (unit + integration avec Docker).

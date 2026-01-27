@@ -1,3 +1,7 @@
+---
+description: "Generate deployment summary"
+---
+
 # Skill: Release Notes
 
 Génère un résumé des changements entre staging (pré-prod) et main (prod) pour communication.

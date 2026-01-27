@@ -1,3 +1,7 @@
+---
+description: "Contextual linting"
+---
+
 # Skill: Contextual Linting
 
 Exécute le linting contextuel selon les domaines modifiés (ESLint + SQLFluff).

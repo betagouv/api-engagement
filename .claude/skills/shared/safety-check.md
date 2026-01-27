@@ -1,3 +1,7 @@
+---
+description: "Pre-commit security validation"
+---
+
 # Skill: Safety Check
 
 Valide la sécurité des fichiers avant commit (secrets, .env, schemas protégés, fichiers volumineux).
