@@ -11,43 +11,6 @@ import type { PublisherRecord } from "../types/publisher";
 
 const router = Router();
 
-type ActivityType = "apply" | "account";
-
-async function resolveActivityByIdOrClientEventId({
-  id,
-  toPublisherId,
-  type,
-}: {
-  id: string;
-  toPublisherId: string;
-  type?: ActivityType;
-}): Promise<{ statEvent: StatEventRecord | null; ambiguous: boolean }> {
-  const statEvent = await statEventService.findOneStatEventById(id);
-  if (statEvent) {
-    return { statEvent, ambiguous: false };
-  }
-
-  const total = await statEventService.countStatEventsByClientEventId({
-    clientEventId: id,
-    toPublisherId,
-    type,
-  });
-  if (!total) {
-    return { statEvent: null, ambiguous: false };
-  }
-  if (!type && total > 1) {
-    return { statEvent: null, ambiguous: true };
-  }
-
-  const byClientEventId = await statEventService.findOneStatEventByClientEventId({
-    clientEventId: id,
-    toPublisherId,
-    type,
-  });
-
-  return { statEvent: byClientEventId, ambiguous: false };
-}
-
 router.get("/:id", passport.authenticate(["apikey", "api"], { session: false }), async (req: PublisherRequest, res: Response, next: NextFunction) => {
   try {
     const user = req.user as PublisherRecord;
@@ -69,10 +32,10 @@ router.get("/:id", passport.authenticate(["apikey", "api"], { session: false }),
       return res.status(400).send({ ok: false, code: INVALID_PARAMS, error: JSON.parse(query.error.message) });
     }
 
-    const { statEvent, ambiguous } = await resolveActivityByIdOrClientEventId({
+    const { statEvent, ambiguous } = await statEventService.findStatEventByIdOrClientEventId({
       id: params.data.id,
       toPublisherId: user.id,
-      type: query.data.type as ActivityType | undefined,
+      type: query.data.type as "apply" | "account" | undefined,
     });
 
     if (ambiguous) {
@@ -180,10 +143,10 @@ router.put("/:id", passport.authenticate(["apikey", "api"], { session: false }),
       return res.status(400).send({ ok: false, code: INVALID_BODY, error: JSON.parse(body.error.message) });
     }
 
-    const { statEvent, ambiguous } = await resolveActivityByIdOrClientEventId({
+    const { statEvent, ambiguous } = await statEventService.findStatEventByIdOrClientEventId({
       id: params.data.id,
       toPublisherId: user.id,
-      type: body.data.type as ActivityType | undefined,
+      type: body.data.type as "apply" | "account" | undefined,
     });
     if (ambiguous) {
       return res.status(409).send({ ok: false, code: INVALID_PARAMS, message: "Ambiguous clientEventId, provide type" });

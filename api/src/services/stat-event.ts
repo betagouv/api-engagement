@@ -221,6 +221,41 @@ async function findOneStatEventByClientEventId({ clientEventId, toPublisherId, t
   return result ? toStatEventRecord(result) : null;
 }
 
+async function findStatEventByIdOrClientEventId({
+  id,
+  toPublisherId,
+  type,
+}: {
+  id: string;
+  toPublisherId: string;
+  type?: "apply" | "account";
+}): Promise<{ statEvent: StatEventRecord | null; ambiguous: boolean }> {
+  const statEvent = await findOneStatEventById(id);
+  if (statEvent) {
+    return { statEvent, ambiguous: false };
+  }
+
+  const total = await countStatEventsByClientEventId({
+    clientEventId: id,
+    toPublisherId,
+    type,
+  });
+  if (!total) {
+    return { statEvent: null, ambiguous: false };
+  }
+  if (!type && total > 1) {
+    return { statEvent: null, ambiguous: true };
+  }
+
+  const byClientEventId = await findOneStatEventByClientEventId({
+    clientEventId: id,
+    toPublisherId,
+    type,
+  });
+
+  return { statEvent: byClientEventId, ambiguous: false };
+}
+
 async function countStatEventClicksByPublisherForOrganizationSince({ publisherIds, organizationClientId, from }: CountClicksByPublisherForOrganizationSinceParams) {
   if (!publisherIds.length) {
     return {} as Record<string, number>;
@@ -727,6 +762,7 @@ export const statEventService = {
   hasStatEventWithRecentClientEventId,
   countStatEventsByClientEventId,
   findOneStatEventByClientEventId,
+  findStatEventByIdOrClientEventId,
 };
 
 export default statEventService;
