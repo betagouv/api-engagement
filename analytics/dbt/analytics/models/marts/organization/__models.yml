@@ -63,3 +63,24 @@ models:
         description: Civilité du dirigeant déclaré (nullable).
       - name: source
         description: Origine du flux de donnée (`rna`, `manual`, etc.).
+
+  - name: organization_active_monthly
+    description: >
+      Agrégat mensuel des organisations actives (au moins une mission active dans le mois), ventilé par
+      département/national et catégorie (benevolat/volontariat/all). Dédupliqué via l'identifiant
+      d'organisation (missions sans organisation_id exclues).
+    columns:
+      - name: year
+        description: Année de l’agrégat.
+      - name: month
+        description: Numéro du mois (1-12).
+      - name: month_start
+        description: Date de début du mois.
+      - name: is_all_department
+        description: TRUE pour l’agrégat national, FALSE pour l’agrégat départemental.
+      - name: department
+        description: Code département (null si national).
+      - name: publisher_category
+        description: Catégorie (benevolat / volontariat / all).
+      - name: organization_count
+        description: Organisations actives distinctes sur le mois (clé organisation id ou nom fallback).
