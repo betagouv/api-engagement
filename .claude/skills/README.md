@@ -8,7 +8,7 @@ Ce dossier contient les skills Claude pour automatiser les workflows courants du
 - **`/commit`** - Conventional Commits avec validation commitlint
 - **`/branch`** - Création de branches formatées ([nom]/[type]/[sujet])
 - **`/pr`** - Création de PR (titre EN, corps FR, template)
-- **`/changelog`** - Résumé de déploiement accessible (staging → main)
+- **`/changelog`** - Résumé de déploiement accessible (staging → main, ou depuis un commit)
 - **`/lint`** - Linting contextuel (ESLint + SQLFluff)
 
 ## 🎨 Philosophie
@@ -47,6 +47,9 @@ Les skills sont chargés automatiquement via `.claude/settings.local.json`.
 
 # Résumé de déploiement (staging → main)
 /changelog
+
+# Résumé de déploiement depuis un commit
+/changelog --from <commit>
 
 # Linter le code modifié
 /lint

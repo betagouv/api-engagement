@@ -12,6 +12,8 @@ Génère un résumé des changements entre staging (pré-prod) et main (prod) po
 ```bash
 /changelog                    # Affiche le résumé staging → main
 /changelog --save             # Sauvegarde dans release-notes.md
+/changelog --from <commit>    # Affiche le résumé depuis un commit → dernier de staging
+/changelog --from <commit> --save
 ```
 
 ## Objectif
@@ -22,14 +24,19 @@ Ce skill génère un **résumé de déploiement** accessible, regroupé par appl
 
 ## Workflow
 
-### 1. Comparer staging et main
+### 1. Comparer staging et main (ou depuis un commit)
 
 ```bash
-# Lister les commits entre main et staging
-git log main..staging --oneline --no-merges
+# Définir la plage de commits
+RANGE="main..staging"
+# En mode --from, utiliser :
+# RANGE="<commit>..staging"
+
+# Lister les commits sur la plage
+git log "$RANGE" --oneline --no-merges
 
 # Compter les commits
-COMMIT_COUNT=$(git log main..staging --oneline --no-merges | wc -l | xargs)
+COMMIT_COUNT=$(git log "$RANGE" --oneline --no-merges | wc -l | xargs)
 ```
 
 **Si aucun commit** :
@@ -43,11 +50,32 @@ COMMIT_COUNT=$(git log main..staging --oneline --no-merges | wc -l | xargs)
 
 **STOP**
 
+### 1.b Vérifier la validité du commit (si `--from`)
+
+```bash
+# Vérifier que le commit existe
+git cat-file -e <commit>^{commit}
+
+# Vérifier que le commit est bien ancêtre de staging
+git merge-base --is-ancestor <commit> staging
+```
+
+**Si le commit est invalide ou hors de l'historique de `staging`** :
+
+```
+❌ Commit invalide ou absent de l'historique de staging
+
+→ Vérifier l'identifiant fourni
+→ Utiliser un commit présent sur la branche staging
+```
+
+**STOP**
+
 ### 2. Parser les Commits par Domaine
 
 ```bash
 # Extraire commits par domaine
-git log main..staging --pretty=format:"%s" --no-merges
+git log "$RANGE" --pretty=format:"%s" --no-merges
 ```
 
 **Grouper par scope** :
@@ -170,7 +198,7 @@ feat(app): add organization filter to missions page
 
 ---
 
-**Note** : Ce résumé est généré automatiquement à partir des commits entre `main` et `staging`.
+**Note** : Ce résumé est généré automatiquement à partir des commits entre `main` et `staging` (ou entre `<commit>` et `staging` en mode `--from`).
 ```
 
 ### 5. Afficher le Résumé
@@ -264,7 +292,29 @@ EOF
 → Fichier : release-notes.md (non versionné)
 ```
 
-### Exemple 3 : Aucun Changement
+### Exemple 3 : Résumé Depuis un Commit
+
+```bash
+/changelog --from a1b2c3d
+```
+
+**Sortie** :
+
+```
+→ Comparaison a1b2c3d...staging
+
+→ Commits trouvés : 6
+  - Widget : 2
+  - Back-office : 1
+  - API : 2
+  - Infrastructure : 1
+
+[Affichage du résumé markdown]
+
+→ Copier le résumé ci-dessus pour communication
+```
+
+### Exemple 4 : Aucun Changement
 
 ```bash
 /changelog
