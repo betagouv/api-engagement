@@ -6,9 +6,11 @@
     "dev": "vite",
     "build": "vite build",
     "start": "node server/index.js",
-    "prettier": "prettier --write ."
+    "prettier": "prettier --write .",
+    "test:e2e": "playwright test"
   },
   "devDependencies": {
+    "@playwright/test": "1.57.0",
     "@tailwindcss/postcss": "4.1.18",
     "@tailwindcss/vite": "4.1.18",
     "@vitejs/plugin-react": "5.1.2",

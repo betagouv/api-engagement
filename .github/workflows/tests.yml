@@ -21,6 +21,7 @@ jobs:
       api: ${{ steps.filter.outputs.api }}
       widget: ${{ steps.filter.outputs.widget }}
       analytics: ${{ steps.filter.outputs.analytics }}
+      app: ${{ steps.filter.outputs.app }}
     steps:
       - uses: actions/checkout@v6
       - uses: dorny/paths-filter@v3
@@ -33,6 +34,8 @@ jobs:
               - 'widget/**'
             analytics:
               - 'analytics/**'
+            app:
+              - 'app/**'
 
   api-migrations:
     name: Verify API migrations
@@ -203,3 +206,30 @@ jobs:
           name: playwright-report
           path: widget/tests/e2e/_playwright-report
           retention-days: 30
+
+  app-tests:
+    name: App E2E Tests
+    needs: changes
+    if: needs.changes.outputs.app == 'true'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      actions: write
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Use Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: "22"
+          cache: "npm"
+          cache-dependency-path: "app/package-lock.json"
+
+      - name: Install dependencies
+        run: cd app && npm ci
+
+      - name: Install Playwright browsers and dependencies
+        run: cd app && npx playwright install --with-deps chromium
+
+      - name: Run tests
+        run: cd app && npm run test:e2e
