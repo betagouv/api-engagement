@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 
 import { RiDownload2Line } from "react-icons/ri";
-import Select from "../../components/NewSelect";
+import Select from "../../components/Select";
 import SearchSelect from "../../components/SearchSelect";
 import Table from "../../components/Table";
 import { MONTHS, REPORT_STATUS, YEARS } from "../../constants";

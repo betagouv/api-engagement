@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { RiCloseFill } from "react-icons/ri";
 
 import ModerationManualIcon from "../../../../assets/svg/moderation-manual.svg";
-import Select from "../../../../components/NewSelect";
+import Select from "../../../../components/Select";
 import SearchInput from "../../../../components/SearchInput";
 import SearchSelect from "../../../../components/SearchSelect";
 import api from "../../../../services/api";

@@ -1,86 +1,84 @@
-import { Fragment, useEffect, useRef, useState } from "react";
+import { Fragment } from "react";
+import { Combobox, ComboboxInput, ComboboxOption, ComboboxOptions, Transition } from "@headlessui/react";
 import { RiArrowDownSLine, RiCloseLine } from "react-icons/ri";
-
 import Loader from "./Loader";
 
 const Autocomplete = ({ options, value, onChange, onSelect, onClear, loading = false, placeholder, className, id }) => {
-  const [isOpen, setIsOpen] = useState(false);
-  const ref = useRef(null);
+  const selected = options.find((opt) => opt.label === value) || null;
 
-  useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (ref.current && !ref.current.contains(event.target)) {
-        setIsOpen(false);
-      }
-    };
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, [ref]);
+  const handleChange = (option) => {
+    if (option) {
+      onSelect(option);
+    }
+  };
+
+  const handleClear = (e) => {
+    e.stopPropagation();
+    onChange("");
+    if (onClear) onClear();
+  };
 
   return (
-    <div className="relative w-full" ref={ref}>
+    <Combobox as="div" className="relative w-full" value={selected} onChange={handleChange}>
       <div className="relative w-full">
-        <label htmlFor="autocomplete" className="sr-only">
-          {placeholder}
-        </label>
-        <input
-          id="autocomplete"
+        <ComboboxInput
+          id={id || "autocomplete"}
           name="autocomplete"
           className="input w-full"
-          onChange={(e) => {
-            setIsOpen(true);
-            onChange(e.target.value);
-          }}
+          onChange={(e) => onChange(e.target.value)}
           placeholder={placeholder}
-          value={value || ""}
+          displayValue={(option) => option?.label || value || ""}
+          aria-label={placeholder}
         />
         {value && (
           <button
             type="button"
-            className="absolute inset-y-2 right-4 flex items-center pr-2"
-            onClick={() => {
-              onChange("");
-              if (onClear) onClear();
-              setIsOpen(false);
-            }}
+            className="absolute inset-y-2 right-10 flex items-center pr-2"
+            onClick={handleClear}
+            aria-label="Effacer"
+            tabIndex={0}
           >
             <RiCloseLine className="text-sm" />
           </button>
         )}
-        <button type="button" className="absolute inset-y-2 right-0 flex items-center pr-2" onClick={() => setIsOpen(!isOpen)}>
-          <RiArrowDownSLine className={`text-sm ${isOpen ? "rotate-180 transform" : ""}`} />
-        </button>
+        <Combobox.Button className="absolute inset-y-2 right-0 flex items-center pr-2" aria-label="Ouvrir les options">
+          {({ open }) => <RiArrowDownSLine className={`text-sm ${open ? "rotate-180 transform" : ""}`} />}
+        </Combobox.Button>
       </div>
-      {isOpen && (
-        <ul className={`absolute top-10 z-10 max-h-80 w-full overflow-y-scroll bg-white shadow-lg transition duration-100 ease-in ${className || "w-full"}`}>
+
+      <Transition as={Fragment} leave="transition ease-in duration-100" leaveFrom="opacity-100" leaveTo="opacity-0">
+        <ComboboxOptions
+          className={`absolute top-10 z-10 max-h-80 w-full overflow-y-auto bg-white shadow-lg ${className || "w-full"}`}
+        >
           {loading ? (
-            <li className="group data-[focus]:bg-gray-975 flex cursor-default items-center justify-center px-4 py-2">
+            <div className="flex cursor-default items-center justify-center px-4 py-2">
               <Loader />
-            </li>
+            </div>
           ) : !options.length ? (
-            <li className="group data-[focus]:bg-gray-975 flex cursor-default items-center justify-center px-4 py-2">
+            <div className="flex cursor-default items-center justify-center px-4 py-2">
               <p className="text-sm">Aucune option trouvée</p>
-            </li>
+            </div>
           ) : (
             options.map((option, i) => (
               <Fragment key={i}>
                 {i !== 0 ? <div className="mx-4 h-px bg-gray-100" /> : null}
-                <li
-                  className={`hover:text-blue-france relative flex cursor-default list-none items-center justify-between gap-4 bg-white px-4 py-3 text-sm text-black select-none hover:bg-gray-100`}
-                  onClick={() => {
-                    onSelect(option);
-                    setIsOpen(false);
-                  }}
+                <ComboboxOption
+                  value={option}
+                  className={({ focus }) =>
+                    `relative flex cursor-default list-none items-center justify-between gap-4 px-4 py-3 text-sm select-none ${
+                      focus ? "bg-gray-100 text-blue-france" : "bg-white text-black"
+                    }`
+                  }
                 >
                   <p className="flex-1 truncate">{option.label}</p>
                   {option.doc_count && <span>{option.doc_count}</span>}
-                </li>
+                </ComboboxOption>
               </Fragment>
             ))
           )}
-        </ul>
-      )}
-    </div>
+        </ComboboxOptions>
+      </Transition>
+    </Combobox>
   );
 };
 
