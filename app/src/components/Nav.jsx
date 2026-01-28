@@ -103,7 +103,7 @@ const Nav = () => {
 
 const FluxMenu = ({ value, onChange }) => (
   <Menu>
-    <MenuButton className="bg-blue-france flex w-44 items-center justify-between rounded-full px-4 py-2 text-sm text-white">
+    <MenuButton className="bg-blue-france focus-visible:outline-outline-blue flex w-44 items-center justify-between rounded-full px-4 py-2 text-sm text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2">
       <span>Mode {value === "to" ? "annonceur" : "diffuseur"}</span>
 
       <RiArrowDownSFill className="text-base" />
@@ -117,7 +117,7 @@ const FluxMenu = ({ value, onChange }) => (
       <MenuItem>
         <button
           aria-current="page"
-          className="data-[focus]:bg-gray-975 flex w-full items-center justify-between p-4 text-left text-sm"
+          className="data-[focus]:ring-outline-blue data-[focus]:bg-gray-975 flex w-full items-center justify-between p-4 text-left text-sm data-[focus]:ring-2 data-[focus]:ring-inset"
           onClick={() => onChange(value === "to" ? "to" : "from")}
         >
           <span>Mode {value === "to" ? "annonceur" : "diffuseur"}</span>
@@ -128,7 +128,10 @@ const FluxMenu = ({ value, onChange }) => (
         </button>
       </MenuItem>
       <MenuItem>
-        <button className="data-[focus]:bg-gray-975 flex w-full items-center justify-between p-4 text-left text-sm" onClick={() => onChange(value === "to" ? "from" : "to")}>
+        <button
+          className="data-[focus]:ring-outline-blue data-[focus]:bg-gray-975 flex w-full items-center justify-between p-4 text-left text-sm data-[focus]:ring-2 data-[focus]:ring-inset"
+          onClick={() => onChange(value === "to" ? "from" : "to")}
+        >
           <span>Mode {value === "to" ? "diffuseur" : "annonceur"}</span>
           <div>
             <RiArrowLeftRightLine className="text-blue-france text-lg" />
