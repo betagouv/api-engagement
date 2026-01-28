@@ -14,6 +14,8 @@ Génère un résumé des changements entre staging (pré-prod) et main (prod) po
 /changelog --save             # Sauvegarde dans release-notes.md
 /changelog --from <commit>    # Affiche le résumé depuis un commit → dernier de staging
 /changelog --from <commit> --save
+/changelog --slack            # Affiche un rendu optimisé pour Slack
+/changelog --slack --compact   # Version Slack compacte
 ```
 
 ## Objectif
@@ -201,6 +203,36 @@ feat(app): add organization filter to missions page
 **Note** : Ce résumé est généré automatiquement à partir des commits entre `main` et `staging` (ou entre `<commit>` et `staging` en mode `--from`).
 ```
 
+**Format Slack (texte)** :
+
+```
+🚀 Résumé de déploiement (staging → prod)
+Période : 12/02 → 18/02 · 15 changements
+
+📱 Widget
+✨ Nouveautés
+- Nouveau filtre par organisation
+🐛 Corrections
+- Correction de la validation des dates
+
+🖥️ Back-office
+✨ Nouveautés
+- Export CSV avec filtres avancés
+```
+
+**Format Slack compact** :
+
+```
+🚀 Résumé de déploiement (staging → prod)
+Période : 12/02 → 18/02 · 15 changements
+
+📱 Widget : ✨ 2 · 🐛 1
+🖥️ Back-office : ✨ 1
+🔌 API : ✨ 3 · 🐛 2
+📊 Analytics : ✨ 2
+🔧 Infrastructure : 🔧 1
+```
+
 ### 5. Afficher le Résumé
 
 **Mode console** :
@@ -223,6 +255,18 @@ feat(app): add organization filter to missions page
   1. Copier ce résumé pour communication (Slack, email, etc.)
   2. Sauvegarder : /changelog --save
   3. Déployer après validation : git checkout main && git merge staging
+```
+
+**Mode Slack** :
+
+```
+→ Génération du résumé (format Slack)...
+
+✅ Résumé Slack généré (15 commits)
+
+[Affichage du texte Slack ci-dessus]
+
+→ Copier/coller directement dans Slack
 ```
 
 ### 6. Sauvegarder (Option `--save`)
@@ -314,7 +358,23 @@ EOF
 → Copier le résumé ci-dessus pour communication
 ```
 
-### Exemple 4 : Aucun Changement
+### Exemple 4 : Format Slack
+
+```bash
+/changelog --slack
+```
+
+**Sortie** :
+
+```
+→ Génération du résumé (format Slack)...
+
+✅ Résumé Slack généré (15 commits)
+
+[Affichage du texte Slack]
+```
+
+### Exemple 5 : Aucun Changement
 
 ```bash
 /changelog
