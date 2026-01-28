@@ -2,7 +2,7 @@ import { useState } from "react";
 import { AiFillWarning } from "react-icons/ai";
 import { RiArrowLeftLine } from "react-icons/ri";
 import { Link, useNavigate } from "react-router-dom";
-import { toast } from "react-toastify";
+import { toast } from "../../services/toast";
 
 import Modal from "../../components/New-Modal";
 import api from "../../services/api";

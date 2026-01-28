@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { RiCheckboxCircleFill, RiCloseCircleFill } from "react-icons/ri";
-import { toast } from "react-toastify";
+import { toast } from "../../services/toast";
 
 import Loader from "../../components/Loader";
 import Modal from "../../components/New-Modal";

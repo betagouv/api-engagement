@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { toast } from "react-toastify";
+import { toast } from "@/services/toast";
 
 import Autocomplete from "@/components/Autocomplete";
 import api from "@/services/api";

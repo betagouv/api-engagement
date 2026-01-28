@@ -79,7 +79,14 @@ const Widgets = () => {
       ) : (
         <>
           <div className="flex justify-between">
-            <p className="text-lg font-semibold">{data.length > 1 ? `${data.length} widgets` : `${data.length} widget`}</p>
+            <p
+              className="text-lg font-semibold"
+              role="status"
+              aria-live="polite"
+              aria-atomic="true"
+            >
+              {data.length > 1 ? `${data.length} widgets` : `${data.length} widget`}
+            </p>
             {user.role === "admin" && (
               <div className="relative flex items-center">
                 <Toggle aria-label="Afficher les widgets désactivés" value={!filters.active} onChange={(checked) => setFilters({ ...filters, active: !checked, page: 1 })} />

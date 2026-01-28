@@ -3,7 +3,7 @@ import { AiFillWarning } from "react-icons/ai";
 import { RiArrowLeftLine, RiDeleteBin6Line, RiFileTransferLine, RiMoreLine } from "react-icons/ri";
 import { Link, useNavigate, useParams } from "react-router-dom";
 
-import { toast } from "react-toastify";
+import { toast } from "../../services/toast";
 
 import Dropdown from "../../components/Dropdown";
 import Loader from "../../components/Loader";

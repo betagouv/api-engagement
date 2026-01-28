@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { RiBookletFill, RiFileCopyFill } from "react-icons/ri";
-import { toast } from "react-toastify";
+import { toast } from "../../services/toast";
 
 import api from "../../services/api";
 import { captureError } from "../../services/error";

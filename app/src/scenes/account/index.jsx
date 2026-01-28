@@ -3,7 +3,7 @@ import { IoMdEye, IoMdEyeOff } from "react-icons/io";
 import { RiCheckboxCircleFill, RiErrorWarningFill } from "react-icons/ri";
 import { TiDeleteOutline } from "react-icons/ti";
 import { Navigate } from "react-router-dom";
-import { toast } from "react-toastify";
+import { toast } from "../../services/toast";
 
 import Modal from "../../components/New-Modal";
 import api from "../../services/api";

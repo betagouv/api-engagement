@@ -57,6 +57,8 @@ const App = () => {
         position="top-right"
         autoClose={5000}
         hideProgressBar
+        role="region"
+        aria-label="Notifications"
       />
       <BrowserRouter>
         <Routes>

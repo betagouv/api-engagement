@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { toast } from "react-toastify";
+import { toast } from "@/services/toast";
 
 import Loader from "../../../../components/Loader";
 import Modal from "../../../../components/Modal";

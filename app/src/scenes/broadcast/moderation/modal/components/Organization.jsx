@@ -1,5 +1,5 @@
 import { RiCheckboxCircleFill, RiCloseCircleFill, RiFileCopyLine, RiPencilFill } from "react-icons/ri";
-import { toast } from "react-toastify";
+import { toast } from "@/services/toast";
 
 const Organization = ({ data, history }) => {
   return (
