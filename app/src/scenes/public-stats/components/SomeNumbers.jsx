@@ -3,6 +3,7 @@ import { RiQuestionLine } from "react-icons/ri";
 
 import { BarChart } from "../../../components/Chart";
 import Loader from "../../../components/Loader";
+import Tooltip from "../../../components/Tooltip";
 import { DEPARTMENT_NAMES, MONTHS } from "../../../constants";
 import api from "../../../services/api";
 import { captureError } from "../../../services/error";
@@ -120,13 +121,14 @@ const SomeNumbers = ({ filters, onFiltersChange }) => {
               <h2 className="mb-2 text-2xl font-semibold">
                 {graphTotal.organizations ? `${graphTotal.organizations.toLocaleString("fr")} organisations actives` : "Pas de données"}
               </h2>
-              <div className="group relative">
-                <RiQuestionLine className="text-text-mention text-lg" />
-
-                <div className="border-grey-border absolute top-8 left-0 z-10 hidden w-56 border bg-white p-4 shadow-lg group-hover:block">
-                  <p className="text-xs text-black">Il s'agit des structures ayant au moins 1 mission en cours sur la période sélectionnée</p>
-                </div>
-              </div>
+              <Tooltip
+                ariaLabel="Voir la définition des organisations actives"
+                triggerClassName="text-text-mention"
+                tooltipClassName="border-grey-border w-56 border bg-white p-4 text-xs text-black shadow-lg"
+                content="Il s'agit des structures ayant au moins 1 mission en cours sur la période sélectionnée"
+              >
+                <RiQuestionLine className="text-lg" aria-hidden="true" />
+              </Tooltip>
             </div>
             <p className="text-text-mention text-lg font-semibold">Evolution {filters.year}</p>
             <div className="mt-4 mb-1 h-px bg-gray-900" />
@@ -139,13 +141,14 @@ const SomeNumbers = ({ filters, onFiltersChange }) => {
             <div className="flex justify-between">
               <h2 className="mb-2 text-2xl font-semibold">{graphTotal.missions ? `${graphTotal.missions.toLocaleString("fr")} missions partagées` : "Pas de données"}</h2>
 
-              <div className="group relative">
-                <RiQuestionLine className="text-text-mention text-lg" />
-
-                <div className="border-grey-border absolute top-8 left-0 z-10 hidden w-56 border bg-white p-4 shadow-lg group-hover:block">
-                  <p className="text-xs text-black">Il s'agit des missions partagées sur l'API Engagement et en cours au moins un jour de la période sélectionnée</p>
-                </div>
-              </div>
+              <Tooltip
+                ariaLabel="Voir la définition des missions partagées"
+                triggerClassName="text-text-mention"
+                tooltipClassName="border-grey-border w-56 border bg-white p-4 text-xs text-black shadow-lg"
+                content="Il s'agit des missions partagées sur l'API Engagement et en cours au moins un jour de la période sélectionnée"
+              >
+                <RiQuestionLine className="text-lg" aria-hidden="true" />
+              </Tooltip>
             </div>
             <p className="text-text-mention text-lg font-semibold">Evolution {filters.year}</p>
             <div className="mt-4 mb-1 h-px bg-gray-900" />

@@ -1,6 +1,8 @@
 import { useEffect, useMemo, useState } from "react";
 import { RiInformationFill } from "react-icons/ri";
 
+import Tooltip from "./Tooltip";
+
 import EmptySVG from "../assets/svg/empty-info.svg";
 import { useAnalyticsProvider } from "../services/analytics/provider";
 import { captureError } from "../services/error";
@@ -154,14 +156,16 @@ const AnalyticsViz = ({
             </p>
           </div>
           <div className="flex items-center gap-2">
-            {kpiTooltip && (
-              <div className="group relative">
-                <RiInformationFill className="text-color-gray-425 cursor-pointer text-2xl" />
-                <div className="border-grey-border absolute bottom-8 z-10 hidden w-80 -translate-x-1/2 border bg-white p-4 shadow-lg group-hover:block">
-                  <p className="text-xs">{kpiTooltip}</p>
-                </div>
-              </div>
-            )}
+            {kpiTooltip ? (
+              <Tooltip
+                ariaLabel="Voir l'aide contextuelle"
+                triggerClassName="text-color-gray-425 cursor-pointer"
+                tooltipClassName="border-grey-border w-80 border bg-white p-4 text-xs shadow-lg"
+                content={kpiTooltip}
+              >
+                <RiInformationFill className="text-2xl" aria-hidden="true" />
+              </Tooltip>
+            ) : null}
             {kpiIcon && <div className="text-text-mention text-xl">{kpiIcon}</div>}
           </div>
         </div>

@@ -3,6 +3,7 @@ import { RiQuestionLine } from "react-icons/ri";
 
 import { Pie } from "../../../components/Chart";
 import Table from "../../../components/Table";
+import Tooltip from "../../../components/Tooltip";
 import { DEPARTMENT_NAMES, DOMAINS } from "../../../constants";
 import api from "../../../services/api";
 import { captureError } from "../../../services/error";
@@ -171,13 +172,14 @@ const Distribution = ({ filters, onFiltersChange }) => {
       <div className="mt-8 gap-4 border p-8">
         <div className="mb-4 flex justify-between">
           <h2 className="mb-6 text-2xl font-bold">Domaine d'action des missions</h2>
-          <div className="group relative">
-            <RiQuestionLine className="text-text-mention text-lg" />
-
-            <div className="border-grey-border absolute top-8 left-0 z-10 hidden w-56 border bg-white p-4 shadow-lg group-hover:block">
-              <p className="text-xs text-black">Répartition des missions ayant eu au moins une redirection par thématique d'engagement.</p>
-            </div>
-          </div>
+          <Tooltip
+            ariaLabel="Voir la définition de la répartition par domaine"
+            triggerClassName="text-text-mention"
+            tooltipClassName="border-grey-border w-56 border bg-white p-4 text-xs text-black shadow-lg"
+            content="Répartition des missions ayant eu au moins une redirection par thématique d'engagement."
+          >
+            <RiQuestionLine className="text-lg" aria-hidden="true" />
+          </Tooltip>
         </div>
         <div className="flex justify-around gap-6">
           <div className="flex-1">
@@ -211,13 +213,14 @@ const Distribution = ({ filters, onFiltersChange }) => {
       <div className="border-grey-border mt-8 gap-4 border p-8">
         <div className="mb-4 flex justify-between">
           <h2 className="mb-6 text-2xl font-bold">Département des missions</h2>
-          <div className="group relative">
-            <RiQuestionLine className="text-text-mention text-lg" />
-
-            <div className="border-grey-border absolute top-8 left-0 z-10 hidden w-56 border bg-white p-4 shadow-lg group-hover:block">
-              <p className="text-xs text-black">Répartition des missions ayant eu au moins une redirection par département</p>
-            </div>
-          </div>
+          <Tooltip
+            ariaLabel="Voir la définition de la répartition par département"
+            triggerClassName="text-text-mention"
+            tooltipClassName="border-grey-border w-56 border bg-white p-4 text-xs text-black shadow-lg"
+            content="Répartition des missions ayant eu au moins une redirection par département"
+          >
+            <RiQuestionLine className="text-lg" aria-hidden="true" />
+          </Tooltip>
         </div>
         <div className="flex justify-around gap-6">
           <div className="flex-1">

@@ -8,6 +8,7 @@ import Loader from "../../components/Loader";
 import Select from "../../components/NewSelect";
 import SearchInput from "../../components/SearchInput";
 import Table from "../../components/Table";
+import Tooltip from "../../components/Tooltip";
 import { STATUS_PLR } from "../../constants";
 import api from "../../services/api";
 import { captureError } from "../../services/error";
@@ -217,15 +218,16 @@ const Flux = ({ moderated }) => {
               <td className="px-6">
                 <div className="flex items-center gap-1">
                   {item.statusCode === "ACCEPTED" ? <RiCheckboxCircleFill className="text-success text-2xl" /> : <ErrorIconSvg alt="error" className="fill-error h-6 w-6" />}
-                  {item.statusComment && (
-                    <div className="group relative">
-                      <RiInformationLine className="text-text-mention text-2xl" />
-
-                      <div className="border-grey-border absolute -top-1/2 right-8 z-10 hidden w-64 -translate-y-1/2 border bg-white p-4 shadow-lg group-hover:block">
-                        <p className="text-sm">{item.statusComment}</p>
-                      </div>
-                    </div>
-                  )}
+                  {item.statusComment ? (
+                    <Tooltip
+                      ariaLabel="Voir le commentaire de statut"
+                      triggerClassName="text-text-mention"
+                      tooltipClassName="border-grey-border w-64 border bg-white p-4 text-sm shadow-lg"
+                      content={item.statusComment}
+                    >
+                      <RiInformationLine className="text-2xl" aria-hidden="true" />
+                    </Tooltip>
+                  ) : null}
                 </div>
               </td>
             </tr>
