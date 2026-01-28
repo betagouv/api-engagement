@@ -1,5 +1,6 @@
 ---
 description: "Pre-commit security validation"
+name: "safety-check"
 ---
 
 # Skill: Safety Check
@@ -12,7 +13,6 @@ Valide la sécurité des fichiers avant commit (secrets, .env, schemas protégé
 /safety-check
 ```
 
-
 ## Règles de Sécurité
 
 - Ne jamais ajouter de secrets en dur (tokens, credentials, DSN, clés)
@@ -20,7 +20,7 @@ Valide la sécurité des fichiers avant commit (secrets, .env, schemas protégé
 - Éviter de logguer des données personnelles
 - Schéma analytics Prisma : **READ-ONLY** (deprecated)
 
-*(Voir AGENTS.md pour détails)*
+_(Voir AGENTS.md pour détails)_
 
 ## Workflow
 
@@ -31,6 +31,7 @@ git status --porcelain
 ```
 
 Parser la sortie pour obtenir la liste des fichiers :
+
 - `A` : Fichier ajouté
 - `M` : Fichier modifié
 - `D` : Fichier supprimé
@@ -45,6 +46,7 @@ git diff --cached --name-only | grep -E '\.env(\.|$)'
 ```
 
 Si match trouvé :
+
 ```
 ❌ ERREUR: Fichiers .env détectés en staging
 → Fichiers : .env, api/.env.local
@@ -57,6 +59,7 @@ Si match trouvé :
 #### 3.2 Détecter Secrets Hardcodés
 
 Patterns à rechercher dans les fichiers staged :
+
 - `password\s*=\s*['"][^'"]+['"]`
 - `api[_-]?key\s*=\s*['"][^'"]+['"]`
 - `token\s*=\s*['"][^'"]+['"]`
@@ -70,6 +73,7 @@ git diff --cached -U0 <file> | grep -E '(password|api[_-]?key|token|mongodb\+srv
 ```
 
 Si match trouvé :
+
 ```
 ⚠️  WARNING: Potentiel secret hardcodé détecté
 → Fichier : api/src/config/database.ts:42
@@ -87,6 +91,7 @@ git diff --cached --name-only | grep 'api/prisma/analytics/schema.analytics.pris
 ```
 
 Si match trouvé :
+
 ```
 ❌ ERREUR: Modification du schéma analytics interdite
 → Fichier : api/prisma/analytics/schema.analytics.prisma
@@ -104,6 +109,7 @@ git diff --cached --stat <file> | awk '{print $NF}'
 ```
 
 Extraire la taille. Si > 1MB :
+
 ```
 ⚠️  WARNING: Fichier volumineux détecté
 → Fichier : app/public/video.mp4 (12.5 MB)
@@ -115,6 +121,7 @@ Extraire la taille. Si > 1MB :
 ### 3. Résumé
 
 Si **aucune erreur bloquante** :
+
 ```
 ✅ Safety checks passed
 → Fichiers vérifiés : 12
@@ -125,6 +132,7 @@ Si **aucune erreur bloquante** :
 **Exit code 0**
 
 Si **erreurs bloquantes** :
+
 ```
 ❌ Safety checks failed
 → Fichiers vérifiés : 12
@@ -141,6 +149,7 @@ Le skill `/commit` doit **toujours exécuter `/safety-check`** avant de créer l
 
 ```markdown
 ## Workflow /commit
+
 1. Détecter changements (git status, git diff)
 2. **Exécuter /safety-check** ← CRITIQUE
 3. Si safety-check échoue → STOP (ne pas créer le commit)
@@ -153,6 +162,7 @@ Le skill `/commit` doit **toujours exécuter `/safety-check`** avant de créer l
 ## Configuration
 
 Permissions requises dans `.claude/settings.local.json` :
+
 - `Bash(git status:*)`
 - `Bash(git diff:*)`
 - `Bash(grep:*)`

@@ -1,5 +1,6 @@
 ---
 description: "Contextual linting"
+name: "lint"
 ---
 
 # Skill: Contextual Linting
@@ -14,7 +15,6 @@ Exécute le linting contextuel selon les domaines modifiés (ESLint + SQLFluff).
 /lint --all        # Lint tout le monorepo
 ```
 
-
 ## Workflow
 
 ### 1. Détecter les Domaines Modifiés
@@ -28,6 +28,7 @@ git diff --cached --name-only
 ```
 
 **Parser les chemins** pour déterminer les domaines :
+
 - `api/**/*.{ts,js,tsx,jsx}` → **ESLint API**
 - `app/**/*.{ts,js,tsx,jsx}` → **ESLint App**
 - `widget/**/*.{ts,js,tsx,jsx}` → **ESLint Widget**
@@ -35,6 +36,7 @@ git diff --cached --name-only
 - `analytics/dbt/models/**/*.sql` → **SQLFluff dbt**
 
 **Exemple** :
+
 ```
 Fichiers modifiés :
 - api/src/controllers/events.ts
@@ -55,10 +57,12 @@ Fichiers modifiés :
 Lint **seulement** les domaines avec fichiers modifiés.
 
 **Avantages** :
+
 - Rapide (cible les changements)
 - Pertinent (lint ce qui a changé)
 
 **Si aucun fichier lintable modifié** :
+
 ```
 → Aucun fichier à linter détecté
 
@@ -81,10 +85,12 @@ Lint **tous** les domaines, même non modifiés.
 ```
 
 **Avantages** :
+
 - Détecte les erreurs globales
 - Utile après changement de règles ESLint
 
 **Inconvénients** :
+
 - Plus lent (lint tout le code)
 
 ### 3. Exécuter ESLint
@@ -99,11 +105,13 @@ cd api && npm run lint
 ```
 
 **Commande sous-jacente** (voir `api/package.json`) :
+
 ```bash
 eslint . --ext .ts,.js --max-warnings 0
 ```
 
 **Si flag `--fix`** :
+
 ```bash
 cd api && npm run lint:fix
 # ou
@@ -125,6 +133,7 @@ cd widget && npm run lint
 ```
 
 **Commande sous-jacente** (Next.js) :
+
 ```bash
 next lint --max-warnings 0
 ```
@@ -148,6 +157,7 @@ cd analytics/dbt && sqlfluff lint models/
 **Configuration** : `.sqlfluff` (si existe dans `analytics/dbt/`)
 
 **Si flag `--fix`** :
+
 ```bash
 cd analytics/dbt && sqlfluff fix models/
 ```
@@ -155,12 +165,14 @@ cd analytics/dbt && sqlfluff fix models/
 ### 5. Collecter les Résultats
 
 Pour chaque domaine, collecter :
+
 - **Exit code** : 0 (succès), 1 (erreurs), 2 (warnings)
 - **Nombre d'erreurs** : Extraire depuis sortie
 - **Nombre de warnings** : Extraire depuis sortie
 - **Fichiers avec problèmes** : Lister les fichiers
 
 **Parser la sortie ESLint** :
+
 ```
 Exemple sortie :
 /path/to/file.ts
@@ -171,11 +183,13 @@ Exemple sortie :
 ```
 
 **Extraire** :
+
 - Erreurs : 1
 - Warnings : 1
 - Fichiers : `file.ts`
 
 **Parser la sortie SQLFluff** :
+
 ```
 Exemple sortie :
 == [models/missions/active.sql] FAIL
@@ -186,6 +200,7 @@ All Finished. FAIL: 1 files
 ```
 
 **Extraire** :
+
 - Erreurs : 2
 - Fichier : `models/missions/active.sql`
 
@@ -262,6 +277,7 @@ Si flag `--fix` activé :
 ```
 
 **Exécuter avec auto-fix** :
+
 ```bash
 # ESLint
 eslint . --ext .ts,.js --fix
@@ -271,6 +287,7 @@ sqlfluff fix models/
 ```
 
 **Afficher les corrections** :
+
 ```
 🔧 Linting avec auto-fix
 
@@ -296,16 +313,19 @@ sqlfluff fix models/
 ```
 
 **Vérifier les changements** :
+
 ```bash
 git diff
 ```
 
 **Proposer de commiter les fixes** :
+
 ```
 → Voulez-vous commiter les corrections automatiques ? (y/n)
 ```
 
 Si `y` :
+
 ```bash
 git add <fichiers_corrigés>
 # Utiliser /commit avec scope approprié
@@ -316,6 +336,7 @@ git add <fichiers_corrigés>
 Le skill `/commit` peut **optionnellement** exécuter `/lint` avant de commiter.
 
 **Workflow recommandé** :
+
 1. Faire des modifications
 2. **`/lint`** (vérifier avant commit)
 3. Si erreurs : corriger ou `/lint --fix`
@@ -323,6 +344,7 @@ Le skill `/commit` peut **optionnellement** exécuter `/lint` avant de commiter.
 
 **Mode strict (optionnel)** :
 Dans `/commit`, ajouter une vérification :
+
 ```bash
 # Exécuter /lint en mode check
 /lint
@@ -401,6 +423,7 @@ Fichiers modifiés :
 ### Fichiers Générés
 
 Exclure automatiquement :
+
 - `**/*.generated.ts`
 - `**/prisma/generated/`
 - `**/dbt/target/`
@@ -411,6 +434,7 @@ Exclure automatiquement :
 ### Règles Personnalisées par Domaine
 
 Chaque domaine a sa config :
+
 - `api/.eslintrc.json`
 - `app/.eslintrc.json`
 - `widget/.eslintrc.json`
@@ -420,6 +444,7 @@ Chaque domaine a sa config :
 ### Désactiver des Règles (Temporaire)
 
 Pour ignorer temporairement (debugging) :
+
 ```bash
 /lint --no-fail
 ```
@@ -440,6 +465,7 @@ Lint seulement un domaine ou fichier spécifique.
 ## Configuration
 
 Permissions requises dans `.claude/settings.local.json` :
+
 - `Bash(npm run lint:*)`
 - `Bash(git diff:*)`
 - `Read(*)`
@@ -447,11 +473,13 @@ Permissions requises dans `.claude/settings.local.json` :
 ## Intégration avec CI
 
 Le workflow `.github/workflows/lint.yml` :
+
 - Tourne sur chaque PR
 - Lint les domaines modifiés (selon paths)
 - Exécute ESLint + SQLFluff
 
 **Différence avec le skill** :
+
 - **Workflow CI** : Automatique, bloquant, sur PR
 - **Skill `/lint`** : Manuel, local, pré-commit
 

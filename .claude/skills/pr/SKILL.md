@@ -1,5 +1,6 @@
 ---
 description: "Create pull requests"
+name: "pr"
 ---
 
 # Skill: Create Pull Request
@@ -11,7 +12,6 @@ Crée une Pull Request avec titre EN (Conventional Commits) et corps FR (templat
 ```bash
 /pr
 ```
-
 
 ## Workflow
 
@@ -33,6 +33,7 @@ git status --porcelain
 ```
 
 **Si changements non commités** :
+
 ```
 ⚠️  WARNING: Changements non commités détectés
 → Fichiers modifiés : 3
@@ -54,15 +55,18 @@ git diff staging...HEAD --name-only
 ```
 
 **Parser les fichiers** pour déterminer :
+
 - **Scopes** : api, app, analytics, widget, jobs, ci
 - **Scope principal** : domaine avec le plus de fichiers modifiés
 
 **Compter les commits** :
+
 ```bash
 COMMIT_COUNT=$(git log staging..HEAD --oneline --no-merges | wc -l)
 ```
 
 **Si aucun commit** :
+
 ```
 ❌ ERREUR: Aucun commit depuis staging
 → Branche : valentin/feat/add-client-tracking
@@ -74,20 +78,24 @@ COMMIT_COUNT=$(git log staging..HEAD --oneline --no-merges | wc -l)
 ### 3. Déterminer le Type et Scope
 
 **Analyser les messages de commits** :
+
 ```bash
 git log staging..HEAD --pretty=format:"%s" --no-merges
 ```
 
 **Heuristiques** :
+
 - Si tous les commits sont `feat(api):` → Type `feat`, Scope `api`
 - Si mélange `feat(api):` + `fix(api):` → Type du commit principal (dernier ou plus important)
 - Si multiples scopes (api + widget) → Scope principal (plus de commits)
 
 **Extraire le type dominant** :
+
 - Compter les occurrences de `feat`, `fix`, `refactor`, `chore`, `test`
 - Type avec le plus d'occurrences = type principal
 
 **Exemples** :
+
 ```
 Commits :
 - feat(api): add client_id to events
@@ -113,6 +121,7 @@ Commits :
 **Format** : `type(scope): subject`
 
 **Règles de génération** :
+
 - Impératif présent (add, update, fix, refactor, remove)
 - Pas de majuscule en début (sauf noms propres)
 - Pas de point final
@@ -120,6 +129,7 @@ Commits :
 - **Anglais**
 
 **Stratégie de génération** :
+
 1. Si **un seul commit** : Utiliser le message du commit
 2. Si **plusieurs commits même sujet** : Généraliser le sujet
 3. Si **commits variés** : Résumer la feature/fix principale
@@ -127,6 +137,7 @@ Commits :
 **Exemples** :
 
 **Cas 1 : Un seul commit**
+
 ```
 Commit : feat(api): add client tracking to stat events
 
@@ -134,6 +145,7 @@ Commit : feat(api): add client tracking to stat events
 ```
 
 **Cas 2 : Plusieurs commits même feature**
+
 ```
 Commits :
 - feat(api): add client_id column to stat_event
@@ -145,6 +157,7 @@ Commits :
 ```
 
 **Cas 3 : Feature multi-domaines**
+
 ```
 Commits :
 - feat(api): add client_id to events endpoint
@@ -154,6 +167,7 @@ Commits :
 ```
 
 **Cas 4 : Fix avec refactor**
+
 ```
 Commits :
 - fix(widget): fix date picker validation
@@ -172,6 +186,7 @@ echo "feat(api): add client tracking" | npx @action-semantic/pull-request valida
 ```
 
 **Si validation échoue** :
+
 ```
 ❌ Titre invalide selon pr-title-lint
 → Erreur : [détails]
@@ -184,6 +199,7 @@ Proposer le titre corrigé et redemander validation.
 ### 6. Générer le Corps (FR)
 
 **Charger le template** :
+
 ```markdown
 ## Description
 
@@ -218,6 +234,7 @@ Proposer le titre corrigé et redemander validation.
 #### 7.1 Description
 
 Générer une description en français basée sur les commits :
+
 ```
 Commits analysés :
 - feat(api): add client_id to events
@@ -236,6 +253,7 @@ Ajoute le support du tracking client dans les événements stat.
 #### 7.2 Type de changement
 
 Cocher automatiquement basé sur le type :
+
 - `feat` → `[x] Nouvelle fonctionnalité`
 - `fix` → `[x] Correction de bug`
 - `refactor` → `[x] Refactoring`
@@ -253,6 +271,7 @@ Cocher automatiquement selon contexte :
 **`[x] Respect des standards de code (ESLint)`** : Si `/lint` a été exécuté avec succès
 
 **`[x] Migration de données nécessaire`** : Si migrations Prisma/dbmate détectées
+
 ```bash
 git diff staging...HEAD --name-only | grep -E '(prisma/migrations|analytics/migrations)'
 ```
@@ -260,22 +279,27 @@ git diff staging...HEAD --name-only | grep -E '(prisma/migrations|analytics/migr
 #### 7.4 Notes complémentaires
 
 Ajouter automatiquement :
+
 - **Migrations DB** : Lister les migrations avec noms
 - **Breaking changes** : Extraire depuis commits (BREAKING CHANGE:)
 - **Dépendances** : Si `package.json` modifié, lister nouvelles deps
 - **Fichiers volumineux** : Si gros diffs (> 500 lignes)
 
 **Exemple de notes auto-générées** :
+
 ```markdown
 ## Notes complémentaires
 
 **Migrations DB** :
+
 - `20260127_add_client_id_to_stat_event` : Ajout colonne client_id
 
 **Dépendances** :
+
 - Ajout : `@prisma/client@5.8.0`
 
 **Points d'attention** :
+
 - Le champ `client_id` est nullable pour compatibilité avec événements existants
 - Tests E2E à exécuter manuellement après déploiement
 ```
@@ -288,12 +312,14 @@ git rev-parse --abbrev-ref --symbolic-full-name @{u} 2>/dev/null
 ```
 
 **Si branche non poussée** :
+
 ```bash
 # Pousser la branche avec tracking
 git push -u origin $(git branch --show-current)
 ```
 
 **Message** :
+
 ```
 → Branche non poussée sur origin
 → Push en cours : git push -u origin valentin/feat/add-client-tracking
@@ -355,6 +381,7 @@ PR_URL=$(gh pr view --json url -q .url)
 ```
 
 **Message de succès** :
+
 ```
 ✅ Pull Request créée avec succès
 
@@ -440,14 +467,17 @@ Commits : 1
 ### PR avec Migrations DB
 
 Détecter et inclure dans les notes :
+
 ```markdown
 ## Notes complémentaires
 
 **Migrations DB** :
+
 - Prisma : `20260127_add_client_id_to_stat_event`
 - dbmate : `20260127_create_analytics_export_table`
 
 **Actions post-merge** :
+
 - Exécuter migrations en staging : `npm run prisma:migrate:core`
 - Vérifier les données : `SELECT COUNT(*) FROM stat_event WHERE client_id IS NOT NULL`
 ```
@@ -455,6 +485,7 @@ Détecter et inclure dans les notes :
 ### PR avec Breaking Changes
 
 Extraire depuis commits et mettre en avant :
+
 ```markdown
 ## Description
 
@@ -468,20 +499,24 @@ Migrer vers les nouveaux endpoints `/stats/*`.
 ### PR avec Dépendances Majeures
 
 Si `package.json` modifié avec versions majeures :
+
 ```markdown
 ## Notes complémentaires
 
 **Dépendances mises à jour** :
+
 - `@prisma/client` : `5.7.0` → `5.8.0` (minor)
 - `express` : `4.18.0` → `5.0.0` (major ⚠️)
 
 **Breaking changes potentiels** :
+
 - Express 5 : [Lien vers migration guide](https://expressjs.com/en/guide/migrating-5.html)
 ```
 
 ### PR Draft (Optionnel)
 
 Supporter création de draft PR :
+
 ```bash
 /pr --draft
 ```
@@ -496,6 +531,7 @@ gh pr create --draft \
 ## Configuration
 
 Permissions requises dans `.claude/settings.local.json` :
+
 - `Bash(git branch:*)`
 - `Bash(git status:*)`
 - `Bash(git diff:*)`
@@ -508,6 +544,7 @@ Permissions requises dans `.claude/settings.local.json` :
 ## Intégration
 
 Ce skill est le point culminant du workflow :
+
 1. `/branch` → Créer branche
 2. [Modifications + commits via `/commit`]
 3. **`/pr`** → Créer Pull Request

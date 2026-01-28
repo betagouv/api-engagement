@@ -1,5 +1,6 @@
 ---
 description: "Generate deployment summary"
+name: "changelog"
 ---
 
 # Skill: Release Notes
@@ -32,6 +33,7 @@ COMMIT_COUNT=$(git log main..staging --oneline --no-merges | wc -l | xargs)
 ```
 
 **Si aucun commit** :
+
 ```
 ✅ Aucune différence entre staging et main
 
@@ -49,6 +51,7 @@ git log main..staging --pretty=format:"%s" --no-merges
 ```
 
 **Grouper par scope** :
+
 - `feat(api):` / `fix(api):` → **API**
 - `feat(app):` / `fix(app):` → **App (Back-office)**
 - `feat(widget):` / `fix(widget):` → **Widget**
@@ -57,6 +60,7 @@ git log main..staging --pretty=format:"%s" --no-merges
 - `chore(ci):` → **Infrastructure**
 
 **Ignorer** :
+
 - `chore(deps):` (dépendances)
 - `test:` (tests)
 - `refactor:` (refactoring interne)
@@ -65,11 +69,11 @@ git log main..staging --pretty=format:"%s" --no-merges
 
 **Mapping type → langage utilisateur** :
 
-| Type | Langage technique | Langage accessible |
-|------|-------------------|-------------------|
-| `feat` | Feature | ✨ Nouveauté |
-| `fix` | Bug fix | 🐛 Correction |
-| `chore` | Maintenance | 🔧 Amélioration technique |
+| Type    | Langage technique | Langage accessible        |
+| ------- | ----------------- | ------------------------- |
+| `feat`  | Feature           | ✨ Nouveauté              |
+| `fix`   | Bug fix           | 🐛 Correction             |
+| `chore` | Maintenance       | 🔧 Amélioration technique |
 
 **Exemples de traduction** :
 
@@ -113,10 +117,12 @@ feat(app): add organization filter to missions page
 ## 📱 Widget (Widgets Publics)
 
 ### ✨ Nouveautés
+
 - Nouveau filtre par organisation sur le widget bénévolat
 - Ajout de la pagination pour afficher plus de missions
 
 ### 🐛 Corrections
+
 - Correction de la validation du sélecteur de dates
 - Amélioration de l'affichage mobile sur petits écrans
 
@@ -125,10 +131,12 @@ feat(app): add organization filter to missions page
 ## 🖥️ Back-office (Interface Admin)
 
 ### ✨ Nouveautés
+
 - Ajout d'un tableau de bord pour les statistiques par client
 - Export CSV des missions avec filtres avancés
 
 ### 🐛 Corrections
+
 - Correction du tri par date de création
 
 ---
@@ -136,10 +144,12 @@ feat(app): add organization filter to missions page
 ## 🔌 API
 
 ### ✨ Nouveautés
+
 - Ajout du suivi par client pour les événements statistiques
 - Nouveau endpoint `/api/v2/stats/by-client`
 
 ### 🐛 Corrections
+
 - Correction de la validation des paramètres de date
 
 ---
@@ -147,6 +157,7 @@ feat(app): add organization filter to missions page
 ## 📊 Analytics
 
 ### ✨ Nouveautés
+
 - Nouveaux modèles dbt pour le tracking des missions actives
 - Ajout d'indicateurs de performance par organisation
 
@@ -165,6 +176,7 @@ feat(app): add organization filter to missions page
 ### 5. Afficher le Résumé
 
 **Mode console** :
+
 ```
 → Génération du résumé de déploiement...
 
@@ -197,6 +209,7 @@ EOF
 ```
 
 **Afficher** :
+
 ```
 ✅ Résumé sauvegardé : release-notes.md
 
@@ -218,6 +231,7 @@ EOF
 ```
 
 **Sortie** :
+
 ```
 → Comparaison main...staging
 
@@ -240,6 +254,7 @@ EOF
 ```
 
 **Sortie** :
+
 ```
 → Génération du résumé...
 
@@ -256,6 +271,7 @@ EOF
 ```
 
 **Sortie** :
+
 ```
 ✅ Aucune différence entre staging et main
 
@@ -268,11 +284,13 @@ EOF
 ### Principes
 
 **Ton** :
+
 - Neutre et professionnel
 - Enjoué mais pas infantilisant
 - Pédagogue (expliquer sans jargon)
 
 **Style** :
+
 - Phrases courtes et claires
 - Vocabulaire accessible (éviter jargon technique)
 - Emojis pour clarté visuelle (modération)
@@ -281,6 +299,7 @@ EOF
 ### Guidelines de Traduction
 
 **❌ À éviter** :
+
 ```
 - "Implémentation du tracking client via événements stat"
 - "Refactorisation du repository Prisma"
@@ -288,6 +307,7 @@ EOF
 ```
 
 **✅ Bon** :
+
 ```
 - "Ajout du suivi par client dans les statistiques"
 - "Amélioration technique de la base de données"
@@ -295,6 +315,7 @@ EOF
 ```
 
 **Niveaux de détail** :
+
 - **Widget / Back-office** : Focus sur l'expérience utilisateur
 - **API** : Rester technique mais compréhensible
 - **Analytics** : Expliquer l'impact métier
@@ -345,6 +366,7 @@ Accessible : Calcul automatique des performances par organisation
 ## Workflow GitHub Actions
 
 **Important** : Le fichier `CHANGELOG.md` à la racine est géré par `.github/workflows/changelog.yml` :
+
 - Exécution : Chaque lundi à 08:00 (ou manuel)
 - Outil : git-cliff
 - Format : Conventional Commits technique
@@ -352,6 +374,7 @@ Accessible : Calcul automatique des performances par organisation
 - Public : Développeurs
 
 **Ce skill est complémentaire** :
+
 - Exécution : Manuelle avant déploiement
 - Outil : Parsing custom
 - Format : Résumé accessible
@@ -361,6 +384,7 @@ Accessible : Calcul automatique des performances par organisation
 ## Configuration
 
 Permissions requises dans `.claude/settings.local.json` :
+
 - `Bash(git log:*)`
 - `Bash(git diff:*)`
 - `Read(*)`
@@ -369,6 +393,7 @@ Permissions requises dans `.claude/settings.local.json` :
 ## Intégration
 
 Ce skill fait partie du workflow de release :
+
 1. **Développement** : Commits sur branches features
 2. **Merge staging** : PR vers staging
 3. **Tests pré-prod** : Validation sur staging

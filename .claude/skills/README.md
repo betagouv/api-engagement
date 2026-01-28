@@ -2,18 +2,7 @@
 
 Ce dossier contient les skills Claude pour automatiser les workflows courants du monorepo API Engagement.
 
-## 📚 Organisation
-
-```
-skills/
-├── shared/          # Skills monorepo-wide (6 skills)
-├── api/             # Skills API (1 skill)
-└── analytics/       # Skills Analytics (1 skill)
-```
-
 ## 🎯 Skills Disponibles
-
-### Skills Partagés (`/shared`)
 
 - **`/safety-check`** - Validation sécurité pré-commit (secrets, .env, schemas protégés)
 - **`/commit`** - Conventional Commits avec validation commitlint
@@ -22,17 +11,10 @@ skills/
 - **`/changelog`** - Résumé de déploiement accessible (staging → main)
 - **`/lint`** - Linting contextuel (ESLint + SQLFluff)
 
-### Skills API (`/api`)
-
-- **`/api/test`** - Tests unit + integration avec Docker
-
-### Skills Analytics (`/analytics`)
-
-- **`/analytics/dbt`** - Workflow dbt (compile, test, run)
-
 ## 🎨 Philosophie
 
 Les skills sont conçus pour être :
+
 - **Autonomes** : Documentation self-contained (pas de lecture systématique de AGENTS.md)
 - **Portables** : Chemins relatifs (fonctionnent sur tous les environnements)
 - **Accessibles** : Conventions documentées directement dans chaque skill
@@ -68,21 +50,16 @@ Les skills sont chargés automatiquement via `.claude/settings.local.json`.
 
 # Linter le code modifié
 /lint
-
-# Tests API
-/api/test
-
-# dbt workflow
-/analytics/dbt --compile
 ```
 
 ## 📖 Documentation
 
-Voir chaque fichier skill (`.md`) pour la documentation détaillée de chaque commande.
+Voir chaque fichier skill (`SKILL.md`) pour la documentation détaillée de chaque commande.
 
 ## ⚙️ Configuration
 
 La configuration globale est dans `.claude/settings.local.json` :
+
 - Permissions pour les commandes autorisées/bloquées
 - Autoload des skills
 - Répertoire des skills

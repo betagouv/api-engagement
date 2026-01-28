@@ -1,5 +1,6 @@
 ---
 description: "Create formatted branches"
+name: "branch"
 ---
 
 # Skill: Create Branch
@@ -12,14 +13,14 @@ Crée une branche formatée selon les conventions du projet.
 /branch
 ```
 
-
 ## Conventions du Projet
 
 **Format de branche** : `[nom]/[type]/[sujet]`
+
 - Types autorisés : `feat`, `refactor`, `fix`, `chore`, `test`
 - Branche parente : `staging`
 
-*(Voir AGENTS.md pour détails)*
+_(Voir AGENTS.md pour détails)_
 
 ## Workflow
 
@@ -34,6 +35,7 @@ git status --porcelain
 ```
 
 **Si changements non commités** :
+
 ```
 ⚠️  WARNING: Changements non commités détectés
 → Fichiers modifiés : 3
@@ -42,6 +44,7 @@ git status --porcelain
 ```
 
 **Si branche actuelle != staging** :
+
 ```
 ⚠️  WARNING: Vous n'êtes pas sur staging
 → Branche actuelle : main
@@ -60,6 +63,7 @@ git pull origin staging
 ```
 
 **Demander confirmation** pour le pull :
+
 ```
 → Voulez-vous mettre à jour staging depuis origin ? (y/n)
 ```
@@ -69,16 +73,19 @@ git pull origin staging
 **Prompt interactif** pour collecter :
 
 #### 4.1 Nom (développeur)
+
 ```
 → Nom du développeur (ex: valentin) : _____
 ```
 
 **Validation** :
+
 - Pas d'espaces
 - Minuscules uniquement
 - Caractères alphanumériques + tirets
 
 #### 4.2 Type
+
 ```
 → Type de branche :
   1. feat      - Nouvelle fonctionnalité
@@ -91,6 +98,7 @@ Choix (1-5) : _____
 ```
 
 Map vers :
+
 - `1` → `feat`
 - `2` → `refactor`
 - `3` → `fix`
@@ -100,11 +108,13 @@ Map vers :
 **Validation** : Type doit être dans la liste autorisée.
 
 #### 4.3 Sujet
+
 ```
 → Sujet de la branche (ex: add-client-tracking) : _____
 ```
 
 **Validation** :
+
 - Pas d'espaces (remplacer par `-`)
 - Minuscules uniquement
 - Caractères alphanumériques + tirets
@@ -112,6 +122,7 @@ Map vers :
 - Max 50 caractères
 
 **Auto-conversion** :
+
 - `Add Client Tracking` → `add-client-tracking`
 - `Fix: Date Picker Bug` → `fix-date-picker-bug`
 
@@ -120,6 +131,7 @@ Map vers :
 **Format final** : `[nom]/[type]/[sujet]`
 
 Exemple :
+
 ```
 Nom : valentin
 Type : feat
@@ -139,6 +151,7 @@ git ls-remote --heads origin "valentin/feat/add-client-tracking"
 ```
 
 **Si branche existe** :
+
 ```
 ❌ ERREUR: Branche déjà existante
 → Branche : valentin/feat/add-client-tracking
@@ -171,6 +184,7 @@ git log -1 --oneline
 ```
 
 **Message de succès** :
+
 ```
 ✅ Branche créée avec succès
 
@@ -243,6 +257,7 @@ git log -1 --oneline
 Entrée utilisateur : `Valéntín Müller`
 
 Auto-conversion :
+
 - Supprimer accents : `Valentin Muller`
 - Minuscules : `valentin muller`
 - Remplacer espaces : `valentin-muller`
@@ -254,6 +269,7 @@ Résultat : `valentin-muller/feat/...`
 Entrée utilisateur : `Add: Client Tracking (V2)`
 
 Auto-conversion :
+
 - Supprimer ponctuation : `Add Client Tracking V2`
 - Minuscules : `add client tracking v2`
 - Remplacer espaces : `add-client-tracking-v2`
@@ -265,6 +281,7 @@ Résultat : `.../add-client-tracking-v2`
 Entrée utilisateur (> 50 chars) : `add-comprehensive-client-tracking-with-analytics-support`
 
 **Warning** :
+
 ```
 ⚠️  WARNING: Sujet trop long (56 caractères, max 50)
 → Sujet : add-comprehensive-client-tracking-with-analytics-support
@@ -285,6 +302,7 @@ Pour automatisation, supporter les arguments :
 ## Configuration
 
 Permissions requises dans `.claude/settings.local.json` :
+
 - `Bash(git branch:*)`
 - `Bash(git checkout:*)`
 - `Bash(git status:*)`
@@ -294,6 +312,7 @@ Permissions requises dans `.claude/settings.local.json` :
 ## Intégration
 
 Ce skill peut être utilisé :
+
 - **Standalone** : Développeur crée une branche manuellement
 - **Avec /commit** : Workflow complet (branch → commit → PR)
 - **Depuis /pr** : Si pas de branche feature, suggérer de créer via `/branch`

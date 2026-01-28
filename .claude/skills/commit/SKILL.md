@@ -1,5 +1,6 @@
 ---
 description: "Create conventional commits"
+name: "commit"
 ---
 
 # Skill: Conventional Commit
@@ -15,13 +16,14 @@ Crée un commit suivant les Conventional Commits du projet avec validation autom
 ## Conventions du Projet
 
 **Format de commit** : `type(scope): sujet`
+
 - Types autorisés : `feat`, `refactor`, `fix`, `chore`, `test`
 - Scopes autorisés : `app`, `api`, `analytics`, `widget`, `jobs`, `ci`
 - Sujet max 72 caractères
 - Langue : Anglais
 - Validation : commitlint (hook Husky)
 
-*(Voir AGENTS.md et commitlint.config.cjs pour détails)*
+_(Voir AGENTS.md et commitlint.config.cjs pour détails)_
 
 ## Workflow
 
@@ -39,6 +41,7 @@ git diff HEAD --stat
 ```
 
 **Parser les chemins** pour déterminer les domaines affectés :
+
 - `api/**` → scope `api`
 - `app/**` → scope `app`
 - `analytics/**` → scope `analytics`
@@ -47,6 +50,7 @@ git diff HEAD --stat
 - Fichiers batch (`**/jobs/**`) → scope `jobs`
 
 **Déterminer le scope principal** :
+
 - Si un seul domaine : utiliser ce scope
 - Si plusieurs domaines : suggérer le scope dominant (plus de fichiers modifiés)
 - Si fichiers mixtes (ex: api + widget) : proposer les deux options
@@ -59,6 +63,7 @@ git diff HEAD --stat
 ```
 
 **Si `/safety-check` échoue (exit code 1)** :
+
 ```
 ❌ Commit bloqué par safety checks
 → Voir les erreurs ci-dessus
@@ -69,6 +74,7 @@ git diff HEAD --stat
 
 **Si warnings (exit code 0 avec warnings)** :
 Demander confirmation utilisateur :
+
 ```
 ⚠️  Safety warnings détectés (voir ci-dessus)
 → Voulez-vous continuer le commit ? (y/n)
@@ -77,6 +83,7 @@ Demander confirmation utilisateur :
 ### 3. Analyser le Type de Changement
 
 Basé sur les fichiers modifiés et le diff :
+
 - Nouveaux fichiers (feature) → `feat`
 - Corrections de bugs (fix patterns) → `fix`
 - Refactoring (pas de changement comportemental) → `refactor`
@@ -84,6 +91,7 @@ Basé sur les fichiers modifiés et le diff :
 - Tâches de maintenance (config, deps, CI) → `chore`
 
 **Heuristiques** :
+
 - Présence de mots-clés dans le diff : `TODO`, `FIXME`, `bug`, `error`, `fix`
 - Nouveaux tests : `*.test.ts`, `*.spec.ts`, `describe(`, `it(`
 - Migrations DB : `prisma/migrations/`, `analytics/migrations/`
@@ -94,6 +102,7 @@ Basé sur les fichiers modifiés et le diff :
 **Format** : `type(scope): subject`
 
 Exemple de génération :
+
 ```
 # Scope : api
 # Fichiers : api/src/controllers/events.ts, api/src/services/tracking.ts
@@ -104,6 +113,7 @@ feat(api): add client tracking to stat events
 ```
 
 **Règles de génération du sujet** :
+
 - Impératif présent (add, update, fix, refactor, etc.)
 - Pas de majuscule en début (sauf noms propres)
 - Pas de point final
@@ -111,6 +121,7 @@ feat(api): add client tracking to stat events
 - Anglais
 
 **Vérifier l'historique** pour cohérence du style :
+
 ```bash
 git log --oneline -n 10 --pretty=format:"%s"
 ```
@@ -125,6 +136,7 @@ echo "feat(api): add client tracking" | npx commitlint --config commitlint.confi
 ```
 
 **Si validation échoue** :
+
 ```
 ❌ Message invalide selon commitlint
 → Erreur : [détails de l'erreur]
@@ -141,6 +153,7 @@ git status --porcelain | grep '^[ M?]'
 ```
 
 **Exclure automatiquement** :
+
 - `**/.env`, `**/.env.*`
 - `**/node_modules/**`
 - `**/dist/`, `**/build/`, `**/.next/`
@@ -165,6 +178,7 @@ EOF
 ```
 
 **Format du commit** :
+
 - Ligne 1 : `type(scope): subject`
 - Ligne 2 : (vide)
 - Ligne 3+ : Corps optionnel (si nécessaire pour contexte)
@@ -181,6 +195,7 @@ git show --name-only --pretty=format:"" HEAD
 ```
 
 **Suggérer prochaines actions** :
+
 ```
 ✅ Commit créé avec succès : feat(api): add client tracking
 
@@ -247,11 +262,13 @@ Fichiers modifiés :
 ### Migrations DB
 
 Si migrations Prisma détectées :
+
 ```bash
 git diff --name-only | grep 'api/prisma/migrations/'
 ```
 
 Ajouter dans le corps du commit :
+
 ```
 feat(api): add client_id to stat_event table
 
@@ -264,6 +281,7 @@ Co-Authored-By: Claude Sonnet 4.5 <noreply@anthropic.com>
 ### Breaking Changes
 
 Si breaking change détecté (suppression de champs API, modification de schéma) :
+
 ```
 feat(api)!: remove deprecated analytics endpoints
 
@@ -275,6 +293,7 @@ Co-Authored-By: Claude Sonnet 4.5 <noreply@anthropic.com>
 ### Multiples Scopes
 
 Si vraiment nécessaire (rare) :
+
 ```
 feat(api,widget): add cross-origin event tracking
 ```
@@ -284,6 +303,7 @@ Mais préférer découper en plusieurs commits si possible.
 ## Configuration
 
 Permissions requises dans `.claude/settings.local.json` :
+
 - `Bash(git status:*)`
 - `Bash(git diff:*)`
 - `Bash(git log:*)`
@@ -295,6 +315,7 @@ Permissions requises dans `.claude/settings.local.json` :
 ## Intégration
 
 Ce skill est utilisé par :
+
 - `/pr` (pour valider les commits avant création de PR)
 - Workflows manuels (développeur utilise `/commit` directement)
 
