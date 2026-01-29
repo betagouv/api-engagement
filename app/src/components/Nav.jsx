@@ -3,7 +3,6 @@ import { useEffect, useRef, useState } from "react";
 import { RiArrowDownSFill, RiArrowDownSLine, RiArrowLeftRightLine, RiCheckLine, RiSearchLine } from "react-icons/ri";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 
-import Tabs from "./Tabs";
 import api from "../services/api";
 import { captureError } from "../services/error";
 import useStore from "../services/store";
@@ -46,7 +45,7 @@ const Nav = () => {
     navigate("/performance");
   };
 
-  const tabs = [
+  const menuItems = [
     {
       key: "performance",
       label: "Performance",
@@ -86,26 +85,36 @@ const Nav = () => {
             isActive: location.pathname.includes("settings"),
           },
         ]),
-  ].map((tab) => ({ ...tab, id: `tab-${tab.key}` }));
+  ];
 
   return (
     <nav role="navigation" aria-label="Navigation principale" className="flex w-full justify-center bg-white shadow-lg">
       <div className="flex h-14 w-full max-w-312 items-center justify-between pl-4">
-        <div className="flex h-full items-center gap-6">
-          {publisher.isAnnonceur && (publisher.hasApiRights || publisher.hasWidgetRights || publisher.hasCampaignRights) && <FluxMenu value={flux} onChange={handleFluxChange} />}
-          <Tabs
-            tabs={tabs}
-            ariaLabel="Navigation principale"
-            panelId="main-content"
-            className="flex h-full items-center gap-6"
-            variant="navbar"
-          />
-        </div>
+        <ul className="m-0 flex h-full w-full list-none items-center justify-between p-0" role="list" aria-label="Menu principal">
+          <li className="flex h-full items-center gap-6">
+            {publisher.isAnnonceur && (publisher.hasApiRights || publisher.hasWidgetRights || publisher.hasCampaignRights) && <FluxMenu value={flux} onChange={handleFluxChange} />}
+            <ul className="m-0 flex h-full list-none items-center gap-6 p-0">
+              {menuItems.map((item) => (
+                <li key={item.key} className="h-full">
+                  <Link
+                    to={item.to}
+                    aria-current={item.isActive ? "page" : undefined}
+                    className={`hover:bg-gray-975 flex h-full items-center px-6 text-sm ${
+                      item.isActive ? "border-b-blue-france text-blue-france border-b-2" : "border-none text-black"
+                    }`}
+                  >
+                    {item.label}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </li>
 
-        <div className="flex h-full items-center gap-6">
-          {publishers.length > 1 && <PublisherMenu options={publishers} value={publisher} onChange={handleChangePublisher} />}
-          {user.role === "admin" && <AdminMenu />}
-        </div>
+          <li className="flex h-full items-center gap-6">
+            {publishers.length > 1 && <PublisherMenu options={publishers} value={publisher} onChange={handleChangePublisher} />}
+            {user.role === "admin" && <AdminMenu />}
+          </li>
+        </ul>
       </div>
     </nav>
   );

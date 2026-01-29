@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
 import EmptySVG from "../../assets/svg/empty-info.svg";
 import { Pie, StackedBarchart } from "../../components/Chart";
+import DateRangePicker from "../../components/DateRangePicker";
 import Loader from "../../components/Loader";
-import DateRangePicker from "../../components/NewDateRangePicker";
 import Tabs from "../../components/Tabs";
 import { METABASE_CARD_ID, MONTHS } from "../../constants";
 import { useAnalyticsProvider } from "../../services/analytics/provider";
@@ -414,13 +414,7 @@ const Announcers = ({ filters, defaultType = "print" }) => {
         </div>
       ) : (
         <div className="border-grey-border space-y-4 border p-6">
-          <Tabs
-            tabs={tabs}
-            ariaLabel="Top partenaires diffuseurs"
-            panelId="announce-traffic-panel"
-            className="mb-8 flex items-center gap-8 text-sm"
-            variant="underline"
-          />
+          <Tabs tabs={tabs} ariaLabel="Top partenaires diffuseurs" panelId="announce-traffic-panel" className="mb-8 flex items-center gap-8 text-sm" variant="underline" />
           <div id="announce-traffic-panel" role="tabpanel" aria-labelledby={activeTabId || undefined}>
             {!data.length ? (
               <div className="border-grey-border bg-background-grey-hover flex h-[248px] w-full flex-col items-center justify-center border border-dashed">

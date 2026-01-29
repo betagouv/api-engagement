@@ -2,8 +2,8 @@ import { useEffect, useState } from "react";
 
 import EmptySVG from "../../assets/svg/empty-info.svg";
 import { Pie, StackedBarchart } from "../../components/Chart";
+import DateRangePicker from "../../components/DateRangePicker";
 import Loader from "../../components/Loader";
-import DateRangePicker from "../../components/NewDateRangePicker";
 import Table from "../../components/Table";
 import Tabs from "../../components/Tabs";
 import { METABASE_CARD_ID, MONTHS } from "../../constants";
@@ -184,13 +184,7 @@ const DistributionMean = ({ filters, defaultType = "print" }) => {
     <div className="space-y-6">
       <h2 className="text-3xl font-bold">Répartition par moyen de diffusion</h2>
       <div className="border-grey-border space-y-4 border p-6">
-        <Tabs
-          tabs={tabs}
-          ariaLabel="Répartition par moyen de diffusion"
-          panelId="distribution-panel"
-          className="mb-8 flex items-center gap-8 text-sm"
-          variant="underline"
-        />
+        <Tabs tabs={tabs} ariaLabel="Répartition par moyen de diffusion" panelId="distribution-panel" className="mb-8 flex items-center gap-8 text-sm" variant="underline" />
         <div id="distribution-panel" role="tabpanel" aria-labelledby={activeTabId || undefined}>
           {loading ? (
             <div className="flex h-64 items-center justify-center">
@@ -384,13 +378,7 @@ const Evolution = ({ filters, defaultType = "print" }) => {
         <p className="text-text-mention text-base">Trafic que vous avez généré pour vos partenaires annonceurs</p>
       </div>
       <div className="border-grey-border border p-4">
-        <Tabs
-          tabs={tabs}
-          ariaLabel="Evolution"
-          panelId="evolution-panel"
-          className="mb-8 flex items-center gap-8 text-sm"
-          variant="underline"
-        />
+        <Tabs tabs={tabs} ariaLabel="Evolution" panelId="evolution-panel" className="mb-8 flex items-center gap-8 text-sm" variant="underline" />
         <div id="evolution-panel" role="tabpanel" aria-labelledby={activeTabId || undefined}>
           {loading ? (
             <div className="flex h-[420px] items-center justify-center">
