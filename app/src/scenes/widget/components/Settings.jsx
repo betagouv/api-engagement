@@ -50,37 +50,43 @@ const Settings = ({ widget, values, onChange, loading }) => {
 
   useEffect(() => {
     if (loading) return;
-    const fetchFilteredMissions = async () => {
-      try {
-        const query = {
-          publishers: values.publishers,
-          lat: values.location?.lat,
-          lon: values.location?.lon,
-          distance: values.distance,
-          jvaModeration: values.jvaModeration,
-          rules: values.rules,
-          status: "ACCEPTED",
-          size: 0,
-        };
+    const timeout = setTimeout(() => {
+      const fetchFilteredMissions = async () => {
+        try {
+          const query = {
+            publishers: values.publishers,
+            lat: values.location?.lat,
+            lon: values.location?.lon,
+            distance: values.distance,
+            jvaModeration: values.jvaModeration,
+            rules: values.rules,
+            status: "ACCEPTED",
+            size: 0,
+          };
 
-        const res = await api.post("/mission/search", query);
-        if (!res.ok) throw res;
-        setTotal(res.total);
-      } catch (error) {
-        captureError(error, { extra: { publisherId: publisher.id } });
-      }
-    };
-    fetchFilteredMissions();
+          const res = await api.post("/mission/search", query);
+          if (!res.ok) throw res;
+          setTotal(res.total);
+        } catch (error) {
+          captureError(error, { extra: { publisherId: publisher.id } });
+        }
+      };
+      fetchFilteredMissions();
+    }, 1000);
+    return () => clearTimeout(timeout);
   }, [loading, values.publishers, values.location, values.distance, values.jvaModeration, values.rules]);
 
-  const handleSearch = async (field, search, currentValues) => {
+  const handleSearch = async (field, search) => {
     try {
-      const publishers = currentValues.publishers.map((p) => `publishers[]=${p}`).join("&");
+      const publishers = values.publishers.map((p) => `publishers[]=${p}`).join("&");
       const res = await api.get(`/mission/autocomplete?field=${field}&search=${search}&${publishers}`);
       if (!res.ok) throw res;
-      return res.data;
+      return res.data.map((item) => ({
+        label: item.key === "" ? "Non renseignée" : item.key,
+        value: item.key,
+      }));
     } catch (error) {
-      captureError(error, { extra: { field, search, currentValues } });
+      captureError(error, { extra: { field, search, values } });
     }
     return [];
   };

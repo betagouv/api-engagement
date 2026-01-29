@@ -2,9 +2,9 @@ import { useEffect, useState } from "react";
 import { RiCloseFill } from "react-icons/ri";
 
 import ModerationManualIcon from "../../../../assets/svg/moderation-manual.svg";
-import Select from "../../../../components/Select";
+import Combobox from "../../../../components/Combobox";
 import SearchInput from "../../../../components/SearchInput";
-import SearchSelect from "../../../../components/SearchSelect";
+import Select from "../../../../components/Select";
 import api from "../../../../services/api";
 import { captureError } from "../../../../services/error";
 import useStore from "../../../../services/store";
@@ -54,6 +54,21 @@ const Filters = ({ filters, onChange, reload }) => {
     fetchOptions();
   }, [filters, reload]);
 
+  const fetchOptions = async (search, field) => {
+    try {
+      const publishers = options.publishers.map((p) => `publishers[]=${p.key}`).join("&");
+      const res = await api.get(`/mission/autocomplete?field=${field}&search=${search}&${publishers}`);
+      if (!res.ok) throw res;
+      return res.data.map((city) => ({
+        label: city.key === "" ? "Non renseignée" : city.key,
+        value: city.key,
+      }));
+    } catch (error) {
+      captureError(error, { extra: { search, publisherId: publisher.id } });
+    }
+    return [];
+  };
+
   return (
     <div className="mx-12">
       <div className="flex items-center justify-between">
@@ -88,13 +103,14 @@ const Filters = ({ filters, onChange, reload }) => {
           placeholder="Domaine"
           loading={loading}
         />
-        <SearchSelect
-          placeholder="Organisation"
-          options={options.organizations.map((e) => ({ value: e.key === "" ? "none" : e.key, label: e.key === "" ? "Non renseignée" : e.key, count: undefined }))}
+
+        <Combobox
+          id="organization"
           value={filters.organizationName}
-          onChange={(e) => onChange({ ...filters, organizationName: e.value })}
-          className="right-0 w-96"
-          loading={loading}
+          onSelect={(organization) => onChange({ ...filters, organizationName: organization ? organization.value : null })}
+          onSearch={(search) => fetchOptions(search, "organizationName")}
+          placeholder="Organisations"
+          className="w-96"
         />
       </div>
       <div className="flex items-center gap-4 pb-6">
@@ -117,13 +133,14 @@ const Filters = ({ filters, onChange, reload }) => {
           placeholder="Département"
           loading={loading}
         />
-        <SearchSelect
-          placeholder="Ville"
-          options={options.cities.map((e) => ({ value: e.key === "" ? "none" : e.key, label: e.key === "" ? "Non renseignée" : e.key, count: e.doc_count }))}
+
+        <Combobox
+          id="city"
           value={filters.city}
-          onChange={(e) => onChange({ ...filters, city: e.value })}
-          className="right-0 w-80"
-          loading={loading}
+          onSelect={(city) => onChange({ ...filters, city: city ? city.value : null })}
+          onSearch={(search) => fetchOptions(search, "city")}
+          placeholder="Villes"
+          className="w-96"
         />
         <Select
           options={options.activities.map((e) => ({ value: e.key === "" ? "none" : e.key, label: e.key === "" ? "Non renseignée" : e.key, count: e.doc_count }))}

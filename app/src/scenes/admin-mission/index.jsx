@@ -3,10 +3,10 @@ import { RiCheckboxCircleFill, RiFileDownloadLine, RiInformationLine } from "rea
 import { Link, useSearchParams } from "react-router-dom";
 
 import ErrorIconSvg from "../../assets/svg/error-icon.svg?react";
+import Combobox from "../../components/Combobox";
 import Loader from "../../components/Loader";
-import Select from "../../components/Select";
 import SearchInput from "../../components/SearchInput";
-import SearchSelect from "../../components/SearchSelect";
+import Select from "../../components/Select";
 import Table from "../../components/Table";
 import Tooltip from "../../components/Tooltip";
 import { STATUS_PLR } from "../../constants";
@@ -149,11 +149,11 @@ const AdminMission = () => {
             onChange={(e) => setFilters({ ...filters, activity: e.value })}
             placeholder="Activité"
           />
-          <SearchSelect
+          <Combobox
             id="publisher"
-            options={options.partners.map((e) => ({ value: e._id, label: e.name, count: e.count }))}
+            options={options.partners.map((e) => ({ value: e.id, label: e.name, count: e.count }))}
             value={filters.publisherId}
-            onChange={(e) => setFilters({ ...filters, publisherId: e.value })}
+            onSelect={(e) => (e ? setFilters({ ...filters, publisherId: e.value }) : null)}
             placeholder="Partenaire"
           />
         </div>
@@ -164,11 +164,11 @@ const AdminMission = () => {
             onChange={(e) => setFilters({ ...filters, city: e.value })}
             placeholder="Ville"
           />
-          <SearchSelect
+          <Combobox
             id="department"
             options={options.departments.map((e) => ({ value: e.key === "" ? "none" : e.key, label: e.key === "" ? "Non renseignée" : e.key, count: e.doc_count }))}
             value={filters.department}
-            onChange={(e) => setFilters({ ...filters, department: e.value })}
+            onSelect={(e) => (e ? setFilters({ ...filters, department: e.value }) : null)}
             placeholder="Département"
           />
           <Select

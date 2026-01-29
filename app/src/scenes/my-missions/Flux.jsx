@@ -3,10 +3,11 @@ import { RiCheckboxCircleFill, RiFileDownloadLine, RiInformationLine } from "rea
 import { Link, useSearchParams } from "react-router-dom";
 
 import ErrorIconSvg from "../../assets/svg/error-icon.svg?react";
+import Combobox from "../../components/Combobox";
 import InfoAlert from "../../components/InfoAlert";
 import Loader from "../../components/Loader";
-import Select from "../../components/Select";
 import SearchInput from "../../components/SearchInput";
+import Select from "../../components/Select";
 import Table from "../../components/Table";
 import Tooltip from "../../components/Tooltip";
 import { STATUS_PLR } from "../../constants";
@@ -15,8 +16,6 @@ import { captureError } from "../../services/error";
 import { compactMissionFilters, searchMissions } from "../../services/mission";
 import useStore from "../../services/store";
 import exportCSV from "../../services/utils";
-import SelectCity from "./components/SelectCity";
-import SelectOrganization from "./components/SelectOrganization";
 
 const TABLE_HEADER = [
   { title: "Mission", key: "title.keyword", colSpan: 4 },
@@ -92,6 +91,20 @@ const Flux = ({ moderated }) => {
     return () => controller.abort();
   }, [filters]);
 
+  const fetchOptions = async (search, field) => {
+    try {
+      const res = await api.get(`/mission/autocomplete?field=${field}&search=${search}&publishers[]=${publisher.id}`);
+      if (!res.ok) throw res;
+      return res.data.map((city) => ({
+        label: city.key === "" ? "Non renseignée" : city.key,
+        value: city.key,
+      }));
+    } catch (error) {
+      captureError(error, { extra: { search, publisherId: publisher.id } });
+    }
+    return [];
+  };
+
   const handleExport = async () => {
     setExporting(true);
     try {
@@ -163,8 +176,22 @@ const Flux = ({ moderated }) => {
             placeholder="Activités"
             loading={loading}
           />
-          <SelectCity value={filters.city} onChange={(city) => setFilters({ ...filters, city })} />
-          <SelectOrganization value={filters.organization} onChange={(organization) => setFilters({ ...filters, organization })} />
+          <Combobox
+            id="city"
+            value={filters.city}
+            onSelect={(city) => setFilters({ ...filters, city: city ? city.value : null })}
+            onSearch={(search) => fetchOptions(search, "city")}
+            placeholder="Villes"
+            className="w-96"
+          />
+          <Combobox
+            id="organization"
+            value={filters.organization}
+            onSelect={(organization) => setFilters({ ...filters, organization: organization ? organization.value : null })}
+            onSearch={(search) => fetchOptions(search, "organizationName")}
+            placeholder="Organisations"
+            className="w-96"
+          />
         </div>
       </div>
 

@@ -2,8 +2,8 @@ import { useEffect, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 
 import { RiDownload2Line } from "react-icons/ri";
+import Combobox from "../../components/Combobox";
 import Select from "../../components/Select";
-import SearchSelect from "../../components/SearchSelect";
 import Table from "../../components/Table";
 import { MONTHS, REPORT_STATUS, YEARS } from "../../constants";
 import api from "../../services/api";
@@ -66,12 +66,12 @@ const AdminReport = () => {
       <div className="border-grey-border space-y-6 border p-6">
         <p className="font-bold">Filtrer les resultats</p>
         <div className="flex items-center gap-4 border-b border-b-gray-900 pb-6">
-          <SearchSelect
+          <Combobox
+            id="publisher-id"
             options={options.publishers.sort((a, b) => b.count - a.count).map((e) => ({ value: e._id, label: e.name, count: e.count }))}
             value={filters.publisherId}
-            onChange={(e) => setFilters({ ...filters, publisherId: e.value })}
+            onSelect={(e) => (e ? setFilters({ ...filters, publisherId: e.value }) : null)}
             placeholder="Partenaire"
-            loading={loading}
           />
           <Select
             options={MONTHS.map((e, i) => ({ value: i, label: e }))}
@@ -80,12 +80,12 @@ const AdminReport = () => {
             placeholder="Mois"
           />
           <Select options={YEARS.map((e) => ({ value: e, label: e }))} value={filters.year} onChange={(e) => setFilters({ ...filters, year: e.value })} placeholder="Année" />
-          <SearchSelect
+          <Combobox
+            id="status"
             options={options.status.sort((a, b) => b.count - a.count).map((e) => ({ value: e._id, label: REPORT_STATUS[e._id] || e._id, count: e.count }))}
             value={filters.status}
-            onChange={(e) => setFilters({ ...filters, status: e.value })}
+            onSelect={(e) => (e ? setFilters({ ...filters, status: e.value }) : null)}
             placeholder="Statut"
-            loading={loading}
           />
         </div>
         <Table

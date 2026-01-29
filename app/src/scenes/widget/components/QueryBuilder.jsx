@@ -1,7 +1,6 @@
-import { useEffect, useState } from "react";
 import { RiAddFill, RiDeleteBin6Line } from "react-icons/ri";
 
-import Autocomplete from "@/components/Autocomplete";
+import Combobox from "@/components/Combobox";
 
 const QueryBuilder = ({ fields, rules, setRules, onSearch }) => {
   const handleAddRule = () => {
@@ -39,27 +38,6 @@ const QueryBuilder = ({ fields, rules, setRules, onSearch }) => {
 };
 
 const Rule = ({ fields, rule, onChange, onSearch, index }) => {
-  const [options, setOptions] = useState([]);
-
-  useEffect(() => {
-    const fetchData = async () => {
-      const res = await onSearch(rule.field, rule.value);
-      setOptions(res.map((option) => ({ label: option.key, value: option.key })));
-    };
-    fetchData();
-  }, []);
-
-  const handleSelect = (option) => {
-    onChange({ ...rule, value: option ? option.value : "" });
-    setOptions([]);
-  };
-
-  const handleChange = async (value) => {
-    onChange({ ...rule, value });
-    const res = await onSearch(rule.field, value);
-    setOptions(res.map((option) => ({ label: option.key, value: option.key })));
-  };
-
   const handleSelectField = (e) => {
     const f = fields.find((f) => f.value === e.target.value);
     if (!f) return;
@@ -110,7 +88,14 @@ const Rule = ({ fields, rule, onChange, onSearch, index }) => {
             </select>
             {rule.operator !== "exists" && rule.operator !== "does_not_exist" && (
               <div className="flex-1">
-                <Autocomplete options={options} value={rule.value} onChange={handleChange} onSelect={handleSelect} placeholder="Choisissez une option" />
+                <Combobox
+                  id={`rule-${index}-value`}
+                  value={rule.value}
+                  onChange={(value) => onChange({ ...rule, value })}
+                  onSearch={(search) => onSearch(rule.field, search)}
+                  onSelect={(option) => onChange({ ...rule, value: option ? option.value : "" })}
+                  placeholder="Choisissez une option"
+                />
               </div>
             )}
           </>
