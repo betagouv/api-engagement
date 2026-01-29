@@ -1,4 +1,4 @@
-import { toast } from "react-toastify";
+import { toast } from "../../services/toast";
 
 import useStore from "../../services/store";
 

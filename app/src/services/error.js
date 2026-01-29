@@ -1,5 +1,5 @@
 import * as Sentry from "@sentry/react";
-import { toast } from "react-toastify";
+import { toast } from "./toast";
 import { ENV } from "./config";
 
 export const captureError = (error, context = { message: "Une erreur est survenue" }, toastOptions = {}) => {
@@ -13,7 +13,11 @@ export const captureError = (error, context = { message: "Une erreur est survenu
     console.log("[Sentry] Deconnexion");
     return;
   }
-  toast.error(context.message, toastOptions);
+
+  // Only show toast if a message is provided
+  if (context.message) {
+    toast.error(context.message, toastOptions);
+  }
 
   if (ENV === "development") {
     console.log("[Sentry] Context", context);

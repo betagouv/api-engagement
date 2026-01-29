@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { toast } from "react-toastify";
+import { toast } from "@/services/toast";
 
 import api from "@/services/api";
 import { captureError } from "@/services/error";

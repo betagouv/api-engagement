@@ -3,7 +3,7 @@ import { Fragment, useEffect, useState } from "react";
 import { BsDot } from "react-icons/bs";
 import { RiCalendarEventFill, RiCheckboxCircleFill, RiCloseCircleFill, RiMapPin2Fill, RiMoreFill, RiPencilFill, RiTimeLine } from "react-icons/ri";
 import { useSearchParams } from "react-router-dom";
-import { toast } from "react-toastify";
+import { toast } from "@/services/toast";
 
 import Modal from "../../../../components/Modal";
 import api from "../../../../services/api";

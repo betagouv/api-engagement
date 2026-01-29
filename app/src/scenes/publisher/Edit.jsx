@@ -1,7 +1,7 @@
 import _ from "lodash";
 import { useEffect, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
-import { toast } from "react-toastify";
+import { toast } from "../../services/toast";
 
 import { RiArrowLeftLine } from "react-icons/ri";
 import TrashSvg from "../../assets/svg/trash-icon.svg?react";

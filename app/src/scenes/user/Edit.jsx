@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { RiCloseFill, RiErrorWarningFill, RiFileCopyFill } from "react-icons/ri";
 import { TiDeleteOutline } from "react-icons/ti";
 import { Link, useNavigate, useParams } from "react-router-dom";
-import { toast } from "react-toastify";
+import { toast } from "../../services/toast";
 
 import Modal from "../../components/Modal";
 import Table from "../../components/Table";

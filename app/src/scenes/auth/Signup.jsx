@@ -3,7 +3,7 @@ import { AiFillCloseCircle } from "react-icons/ai";
 import { IoMdEye, IoMdEyeOff } from "react-icons/io";
 import { RiErrorWarningFill } from "react-icons/ri";
 import { useNavigate, useSearchParams } from "react-router-dom";
-import { toast } from "react-toastify";
+import { toast } from "../../services/toast";
 
 import ErrorAlert from "../../components/ErrorAlert";
 import WarningAlert from "../../components/WarningAlert";

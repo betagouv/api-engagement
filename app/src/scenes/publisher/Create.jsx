@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { toast } from "react-toastify";
+import { toast } from "../../services/toast";
 
 import { RiArrowLeftLine } from "react-icons/ri";
 import api from "../../services/api";

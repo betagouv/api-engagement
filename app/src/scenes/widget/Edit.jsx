@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { RiArrowLeftLine, RiCodeSSlashFill } from "react-icons/ri";
 import { Link, useNavigate, useParams } from "react-router-dom";
-import { toast } from "react-toastify";
+import { toast } from "../../services/toast";
 
 import Toggle from "@/components/Toggle";
 import api from "@/services/api";
@@ -221,7 +221,7 @@ const JVA_LOGO = `<div style="padding:10px; display:flex; justify-content:center
 const Code = ({ widget }) => {
   const handleCopy = () => {
     navigator.clipboard.writeText(`${IFRAMES[widget.type][widget.style].replace("{{widgetId}}", widget.id)}${widget.type === "benevolat" ? `\n\n${JVA_LOGO}` : ""}`);
-    toast.success("Lien copié");
+    toast.success("Clé copiée");
   };
 
   return (

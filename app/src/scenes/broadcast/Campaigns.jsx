@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { RiAddFill, RiEditFill, RiFileCopyLine, RiLink } from "react-icons/ri";
 import { Link } from "react-router-dom";
-import { toast } from "react-toastify";
+import { toast } from "../../services/toast";
 
 import Table from "../../components/Table";
 import Toggle from "../../components/Toggle";
