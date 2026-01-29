@@ -283,7 +283,7 @@ const Evolution = ({ filters, defaultType = "print" }) => {
             </div>
           ) : (
             <div className="h-[424px] w-full">
-              <StackedBarchart data={histogram} dataKey={[...data.topPublishers, "Autres"]} />
+              <StackedBarchart data={histogram} dataKey={keys} />
             </div>
           )}
         </div>
