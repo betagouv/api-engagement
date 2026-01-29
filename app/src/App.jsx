@@ -109,7 +109,7 @@ const AuthLayout = () => {
   return (
     <div className="bg-beige-gris-galet-975 flex min-h-screen w-screen min-w-3xl flex-col">
       <Header />
-      <main id="main-content" tabIndex={-1} className="flex flex-1">
+      <main id="main-content" role="main" tabIndex={-1} className="flex flex-1">
         <div className="flex-1">
           <Outlet />
         </div>
@@ -144,12 +144,21 @@ const PATH = [
 ];
 
 const ADMIN_PATH = ["/admin-mission", "/admin-organization", "/admin-account", "/admin-stats", "/admin-warning", "/admin-report", "/user/", "/publisher/"];
+const getActiveTabId = (pathname) => {
+  if (pathname.includes("performance")) return "tab-performance";
+  if (pathname.includes("broadcast")) return "tab-broadcast";
+  if (pathname.includes("my-missions")) return "tab-my-missions";
+  if (pathname.includes("settings")) return "tab-settings";
+  return null;
+};
 
 const ProtectedLayout = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { user, setAuth } = useStore();
   const [loading, setLoading] = useState(true);
+  const activeTabId = getActiveTabId(location.pathname);
+  const hasActiveTab = Boolean(activeTabId);
 
   // Simple page tracking with user role
   useEffect(() => {
@@ -193,7 +202,7 @@ const ProtectedLayout = () => {
 
   if (loading)
     return (
-      <main id="main-content" tabIndex={-1} className="flex h-screen w-full items-center justify-center">
+      <main id="main-content" role="main" tabIndex={-1} className="flex h-screen w-full items-center justify-center">
         <Loader />
       </main>
     );
@@ -209,7 +218,13 @@ const ProtectedLayout = () => {
       <Header />
       <Nav />
 
-      <main id="main-content" tabIndex={-1} className="mx-auto mb-14 pt-14 w-4/5 max-w-[1200px] flex-1">
+      <main
+        id="main-content"
+        role="main"
+        tabIndex={-1}
+        aria-labelledby={hasActiveTab ? activeTabId : undefined}
+        className="mx-auto mb-14 pt-14 w-4/5 max-w-[1200px] flex-1"
+      >
         <Outlet />
       </main>
       <Footer />
@@ -225,6 +240,8 @@ const AdminLayout = () => {
 const PublicLayout = () => {
   const { user } = useStore();
   const location = useLocation();
+  const activeTabId = getActiveTabId(location.pathname);
+  const hasActiveTab = Boolean(activeTabId);
 
   useEffect(() => {
     if (window.plausible) {
@@ -236,7 +253,12 @@ const PublicLayout = () => {
     <div className="bg-beige-gris-galet-975 flex min-h-screen w-screen min-w-3xl flex-col">
       <Header />
       {user ? <Nav /> : ""}
-      <main id="main-content" tabIndex={-1}>
+      <main
+        id="main-content"
+        role="main"
+        tabIndex={-1}
+        aria-labelledby={user && hasActiveTab ? activeTabId : undefined}
+      >
         <Outlet />
       </main>
       <Footer />

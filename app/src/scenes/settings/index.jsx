@@ -1,7 +1,7 @@
-import { useEffect, useState } from "react";
-import { Link, Route, Routes, useLocation } from "react-router-dom";
+import { Route, Routes, useLocation } from "react-router-dom";
 
 import useStore from "../../services/store";
+import Tabs from "../../components/Tabs";
 import Flux from "./Flux";
 import RealTime from "./RealTime";
 import TrackingAnnounce from "./TrackingAnnounce";
@@ -9,6 +9,34 @@ import TrackingBroadcast from "./TrackingBroadcast";
 
 const Settings = () => {
   const { flux } = useStore();
+  const location = useLocation();
+  const currentRoute = location.pathname.split("/settings")[1].replace("/", "");
+  const tabs = [
+    {
+      key: "flux",
+      label: "Flux de missions",
+      route: "",
+      isActive: currentRoute === "",
+    },
+    {
+      key: "tracking",
+      label: "Tracking des événements",
+      route: "tracking",
+      isActive: currentRoute === "tracking",
+    },
+    {
+      key: "real-time",
+      label: "Événements en temps réel",
+      route: "real-time",
+      isActive: currentRoute === "real-time",
+    },
+  ].map((tab) => ({
+    ...tab,
+    id: `settings-tab-${tab.key}`,
+    to: `/settings/${tab.route}`,
+  }));
+  const activeTab = tabs.find((tab) => tab.isActive) || tabs[0];
+  const activeTabId = activeTab ? activeTab.id : null;
 
   if (flux === "from")
     return (
@@ -28,12 +56,14 @@ const Settings = () => {
     <div className="space-y-12">
       <h1 className="text-4xl font-bold">Paramètres</h1>
       <div>
-        <div className="flex items-center space-x-4 pl-4 font-semibold text-black">
-          <Tab title="Flux de missions" />
-          <Tab title="Tracking des événements" route="tracking" />
-          <Tab title="Événements en temps réel" route="real-time" />
-        </div>
-        <section className="bg-white shadow-lg">
+        <Tabs
+          tabs={tabs}
+          ariaLabel="Paramètres"
+          panelId="settings-panel"
+          className="flex items-center gap-4 pl-4 font-semibold text-black"
+          variant="primary"
+        />
+        <section id="settings-panel" role="tabpanel" aria-labelledby={activeTabId || undefined} className="bg-white shadow-lg">
           <Routes>
             <Route path="/" element={<Flux />} />
             <Route path="/tracking" element={<TrackingAnnounce />} />
@@ -42,28 +72,6 @@ const Settings = () => {
         </section>
       </div>
     </div>
-  );
-};
-
-const Tab = ({ title, route = "" }) => {
-  const [active, setActive] = useState(false);
-  const location = useLocation();
-
-  useEffect(() => {
-    const current = location.pathname.split("/settings")[1];
-    setActive(route === current.replace("/", ""));
-  }, [location]);
-
-  return (
-    <Link to={`/settings/${route}`}>
-      <div
-        className={`${
-          active ? "border-blue-france text-blue-france hover:bg-gray-975 border-t-2 bg-white" : "bg-blue-france-925 hover:bg-blue-france-925-hover border-0"
-        } border-x-grey-border flex translate-y-px cursor-pointer items-center border-x px-4 py-2`}
-      >
-        <p>{title}</p>
-      </div>
-    </Link>
   );
 };
 

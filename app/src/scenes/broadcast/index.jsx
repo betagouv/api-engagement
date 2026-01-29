@@ -1,10 +1,11 @@
-import { useEffect, useState } from "react";
-import { Link, Route, Routes, useLocation, useNavigate } from "react-router-dom";
+import { useEffect } from "react";
+import { Route, Routes, useLocation, useNavigate } from "react-router-dom";
 
 import Api from "./Api";
 import Campaigns from "./Campaigns";
 import Widgets from "./Widgets";
 
+import Tabs from "../../components/Tabs";
 import useStore from "../../services/store";
 import Moderation from "./moderation";
 
@@ -12,6 +13,41 @@ const Index = () => {
   const { publisher } = useStore();
   const navigate = useNavigate();
   const location = useLocation();
+  const currentRoute = location.pathname.split("/broadcast")[1].split("/")[1] || "";
+  const tabs = [
+    publisher.hasApiRights && {
+      key: "api",
+      label: "Flux par API",
+      route: "",
+      isActive: currentRoute === "",
+    },
+    publisher.hasWidgetRights && {
+      key: "widgets",
+      label: "Widgets",
+      route: "widgets",
+      isActive: currentRoute === "widgets",
+    },
+    publisher.hasCampaignRights && {
+      key: "campaigns",
+      label: "Campagnes",
+      route: "campaigns",
+      isActive: currentRoute === "campaigns",
+    },
+    publisher.moderator && {
+      key: "moderation",
+      label: "Modération",
+      route: "moderation",
+      isActive: currentRoute === "moderation",
+    },
+  ]
+    .filter(Boolean)
+    .map((tab) => ({
+      ...tab,
+      id: `broadcast-tab-${tab.key}`,
+      to: `/broadcast/${tab.route}`,
+    }));
+  const activeTab = tabs.find((tab) => tab.isActive) || tabs[0];
+  const activeTabId = activeTab ? activeTab.id : null;
 
   useEffect(() => {
     if (!publisher) return;
@@ -29,14 +65,15 @@ const Index = () => {
       <h1 className="text-4xl font-bold">Diffuser des missions partenaires</h1>
 
       <div>
-        <div className="flex items-center space-x-4 pl-4 font-semibold text-black">
-          {publisher.hasApiRights && <Tab title="Flux par API" />}
-          {publisher.hasWidgetRights && <Tab title="Widgets" route="widgets" />}
-          {publisher.hasCampaignRights && <Tab title="Campagnes" route="campaigns" />}
-          {publisher.moderator && <Tab title="Modération" route="moderation" />}
-        </div>
+        <Tabs
+          tabs={tabs}
+          ariaLabel="Diffuser des missions partenaires"
+          panelId="broadcast-panel"
+          className="flex items-center gap-4 pl-4 font-semibold text-black"
+          variant="primary"
+        />
 
-        <section className="bg-white shadow-lg">
+        <section id="broadcast-panel" role="tabpanel" aria-labelledby={activeTabId || undefined} className="bg-white shadow-lg">
           <Routes>
             <Route path="/" element={<Api />} />
             <Route path="/widgets" element={<Widgets />} />
@@ -46,28 +83,6 @@ const Index = () => {
         </section>
       </div>
     </div>
-  );
-};
-
-const Tab = ({ title, route = "", actives = [route] }) => {
-  const [active, setActive] = useState(false);
-  const location = useLocation();
-
-  useEffect(() => {
-    const current = location.pathname.split("/broadcast")[1].split("/")[1] || "";
-    setActive(actives.includes(current));
-  }, [location]);
-
-  return (
-    <Link to={`/broadcast/${route}`}>
-      <div
-        className={`${
-          active ? "border-blue-france text-blue-france hover:bg-gray-975 border-t-2 bg-white" : "bg-blue-france-925 hover:bg-blue-france-925-hover border-0"
-        } border-x-grey-border flex translate-y-px cursor-pointer items-center border-x px-4 py-2`}
-      >
-        <p>{title}</p>
-      </div>
-    </Link>
   );
 };
 

@@ -3,6 +3,7 @@ import { useEffect, useRef, useState } from "react";
 import { RiArrowDownSFill, RiArrowDownSLine, RiArrowLeftRightLine, RiCheckLine, RiSearchLine } from "react-icons/ri";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 
+import Tabs from "./Tabs";
 import api from "../services/api";
 import { captureError } from "../services/error";
 import useStore from "../services/store";
@@ -45,51 +46,60 @@ const Nav = () => {
     navigate("/performance");
   };
 
+  const tabs = [
+    {
+      key: "performance",
+      label: "Performance",
+      to: "/performance",
+      isActive: location.pathname.includes("performance"),
+    },
+    ...(flux === "from"
+      ? [
+          {
+            key: "broadcast",
+            label: "Diffuser des missions",
+            to: "/broadcast",
+            isActive: location.pathname.includes("broadcast"),
+          },
+          ...(publisher.hasApiRights || publisher.hasCampaignRights
+            ? [
+                {
+                  key: "settings",
+                  label: "Paramètres",
+                  to: "/settings",
+                  isActive: location.pathname.includes("settings"),
+                },
+              ]
+            : []),
+        ]
+      : [
+          {
+            key: "my-missions",
+            label: "Vos missions",
+            to: "/my-missions",
+            isActive: location.pathname.includes("my-missions"),
+          },
+          {
+            key: "settings",
+            label: "Paramètres",
+            to: "/settings",
+            isActive: location.pathname.includes("settings"),
+          },
+        ]),
+  ].map((tab) => ({ ...tab, id: `tab-${tab.key}` }));
+
   return (
-    <nav className="flex w-full justify-center bg-white shadow-lg">
+    <nav role="navigation" aria-label="Navigation principale" className="flex w-full justify-center bg-white shadow-lg">
       <div className="flex h-14 w-full max-w-312 items-center justify-between pl-4">
         <div className="flex h-full items-center gap-6">
           {publisher.isAnnonceur && (publisher.hasApiRights || publisher.hasWidgetRights || publisher.hasCampaignRights) && <FluxMenu value={flux} onChange={handleFluxChange} />}
-          <Link
-            to="/performance"
-            className={`hover:bg-gray-975 flex h-full items-center px-6 text-sm ${location.pathname.includes("performance") ? "border-b-blue-france text-blue-france border-b-2" : "border-none text-black"}`}
-          >
-            Performance
-          </Link>
-
-          {flux === "from" ? (
-            <>
-              <Link
-                to="/broadcast"
-                className={`hover:bg-gray-975 flex h-full items-center px-6 text-sm ${location.pathname.includes("broadcast") ? "border-b-blue-france text-blue-france border-b-2" : "border-none text-black"}`}
-              >
-                Diffuser des missions
-              </Link>
-              {publisher.hasApiRights || publisher.hasCampaignRights ? (
-                <Link
-                  to="/settings"
-                  className={`hover:bg-gray-975 flex h-full items-center px-6 text-sm ${location.pathname.includes("settings") ? "border-b-blue-france text-blue-france border-b-2" : "border-none text-black"}`}
-                >
-                  Paramètres
-                </Link>
-              ) : null}
-            </>
-          ) : (
-            <>
-              <Link
-                to="/my-missions"
-                className={`hover:bg-gray-975 flex h-full items-center px-6 text-sm ${location.pathname.includes("my-missions") ? "border-b-blue-france text-blue-france border-b-2" : "border-none text-black"}`}
-              >
-                Vos missions
-              </Link>
-              <Link
-                to="/settings"
-                className={`hover:bg-gray-975 flex h-full items-center px-6 text-sm ${location.pathname.includes("settings") ? "border-b-blue-france text-blue-france border-b-2" : "border-none text-black"}`}
-              >
-                Paramètres
-              </Link>
-            </>
-          )}
+          <Tabs
+            tabs={tabs}
+            ariaLabel="Navigation principale"
+            panelId="main-content"
+            className="flex h-full items-center gap-6"
+            variant="navbar"
+          />
         </div>
 
         <div className="flex h-full items-center gap-6">
@@ -170,7 +180,7 @@ const PublisherMenu = ({ options, value, onChange }) => {
       <div className={`absolute z-10 mt-1 origin-top-right transition duration-200 ease-in-out ${isOpen ? "" : "pointer-events-none scale-95 opacity-0"}`}>
         {isOpen && (
           <div className={`border-grey-border w-72 border bg-white shadow-lg focus:outline-none`}>
-            <div className="border-grey-border focus-visible:ring-outline-blue flex items-center gap-2 border-b p-3 focus-visible:ring-2">
+            <div role="search" className="border-grey-border focus-visible:ring-outline-blue flex items-center gap-2 border-b p-3 focus-visible:ring-2">
               <RiSearchLine />
               <label htmlFor="publisher-search" className="sr-only">
                 Rechercher un partenaire

@@ -5,6 +5,7 @@ import { Pie, StackedBarchart } from "../../components/Chart";
 import Loader from "../../components/Loader";
 import DateRangePicker from "../../components/NewDateRangePicker";
 import Table from "../../components/Table";
+import Tabs from "../../components/Tabs";
 import { METABASE_CARD_ID, MONTHS } from "../../constants";
 import { useAnalyticsProvider } from "../../services/analytics/provider";
 import { captureError } from "../../services/error";
@@ -117,6 +118,37 @@ const DistributionMean = ({ filters, defaultType = "print" }) => {
   const [data, setData] = useState([]);
   const [type, setType] = useState(defaultType);
   const [loading, setLoading] = useState(true);
+  const tabs = [
+    {
+      key: "print",
+      label: "Impressions",
+      isActive: type === "print",
+      onSelect: () => setType("print"),
+    },
+    {
+      key: "click",
+      label: "Redirections",
+      isActive: type === "click",
+      onSelect: () => setType("click"),
+    },
+    {
+      key: "account",
+      label: "Créations de compte",
+      isActive: type === "account",
+      onSelect: () => setType("account"),
+    },
+    {
+      key: "apply",
+      label: "Candidatures",
+      isActive: type === "apply",
+      onSelect: () => setType("apply"),
+    },
+  ].map((tab) => ({
+    ...tab,
+    id: `distribution-tab-${tab.key}`,
+  }));
+  const activeTab = tabs.find((tab) => tab.isActive) || tabs[0];
+  const activeTabId = activeTab ? activeTab.id : null;
 
   useEffect(() => {
     if (!analyticsProvider?.query) return;
@@ -152,68 +184,60 @@ const DistributionMean = ({ filters, defaultType = "print" }) => {
     <div className="space-y-6">
       <h2 className="text-3xl font-bold">Répartition par moyen de diffusion</h2>
       <div className="border-grey-border space-y-4 border p-6">
-        <div className="mb-8 flex items-center gap-8 text-sm">
-          <button onClick={() => setType("print")} className={`pb-1 ${type === "print" ? "border-blue-france text-blue-france border-b-2 font-semibold" : ""}`}>
-            Impressions
-          </button>
-
-          <button onClick={() => setType("click")} className={`pb-1 ${type === "click" ? "border-blue-france text-blue-france border-b-2 font-semibold" : ""}`}>
-            Redirections
-          </button>
-
-          <button onClick={() => setType("account")} className={`pb-1 ${type === "account" ? "border-blue-france text-blue-france border-b-2 font-semibold" : ""}`}>
-            Créations de compte
-          </button>
-
-          <button onClick={() => setType("apply")} className={`pb-1 ${type === "apply" ? "border-blue-france text-blue-france border-b-2 font-semibold" : ""}`}>
-            Candidatures
-          </button>
-        </div>
-        {loading ? (
-          <div className="flex h-64 items-center justify-center">
-            <Loader />
-          </div>
-        ) : !data.length ? (
-          <div className="border-grey-border bg-background-grey-hover flex h-[248px] w-full flex-col items-center justify-center border border-dashed">
-            <img src={EmptySVG} alt="empty" className="h-16 w-16" />
-            <p className="text-color-gray-425 text-base">Aucune donnée disponible pour la période</p>
-          </div>
-        ) : (
-          <div className="flex h-64 justify-between gap-4 p-2">
-            <div className="w-2/3">
-              <table className="w-full table-fixed">
-                <thead className="text-left">
-                  <tr className="text-text-mention text-xs uppercase">
-                    <th colSpan={3} className="px-4">
-                      Répartition par moyen de diffusion
-                    </th>
-                    <th className="px-4 text-right">{TYPE[type].toUpperCase()}</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {data.map((item, i) => (
-                    <tr key={i}>
-                      <td colSpan={3} className="p-4">
-                        <div className="flex items-center gap-2">
-                          <span className="mr-2 h-4 w-6" style={{ backgroundColor: COLORS[i % COLORS.length] }} />
-                          <div className="flex-1 text-sm font-semibold">{KEYS[item.key]}</div>
-                        </div>
-                      </td>
-                      <td className="px-4 text-right text-sm">{item.doc_count.toLocaleString("fr")}</td>
+        <Tabs
+          tabs={tabs}
+          ariaLabel="Répartition par moyen de diffusion"
+          panelId="distribution-panel"
+          className="mb-8 flex items-center gap-8 text-sm"
+          variant="underline"
+        />
+        <div id="distribution-panel" role="tabpanel" aria-labelledby={activeTabId || undefined}>
+          {loading ? (
+            <div className="flex h-64 items-center justify-center">
+              <Loader />
+            </div>
+          ) : !data.length ? (
+            <div className="border-grey-border bg-background-grey-hover flex h-[248px] w-full flex-col items-center justify-center border border-dashed">
+              <img src={EmptySVG} alt="empty" className="h-16 w-16" />
+              <p className="text-color-gray-425 text-base">Aucune donnée disponible pour la période</p>
+            </div>
+          ) : (
+            <div className="flex h-64 justify-between gap-4 p-2">
+              <div className="w-2/3">
+                <table className="w-full table-fixed">
+                  <thead className="text-left">
+                    <tr className="text-text-mention text-xs uppercase">
+                      <th colSpan={3} className="px-4">
+                        Répartition par moyen de diffusion
+                      </th>
+                      <th className="px-4 text-right">{TYPE[type].toUpperCase()}</th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
+                  </thead>
+                  <tbody>
+                    {data.map((item, i) => (
+                      <tr key={i}>
+                        <td colSpan={3} className="p-4">
+                          <div className="flex items-center gap-2">
+                            <span className="mr-2 h-4 w-6" style={{ backgroundColor: COLORS[i % COLORS.length] }} />
+                            <div className="flex-1 text-sm font-semibold">{KEYS[item.key]}</div>
+                          </div>
+                        </td>
+                        <td className="px-4 text-right text-sm">{item.doc_count.toLocaleString("fr")}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+              <div className="mr-8 ml-24 flex h-56 w-1/3 items-center justify-center">
+                <Pie
+                  data={data.map((d, i) => ({ name: KEYS[d.key], value: d.doc_count, color: COLORS[i % COLORS.length] }))}
+                  innerRadius="0%"
+                  unit={`${TYPE[type].toLowerCase()}s`}
+                />
+              </div>
             </div>
-            <div className="mr-8 ml-24 flex h-56 w-1/3 items-center justify-center">
-              <Pie
-                data={data.map((d, i) => ({ name: KEYS[d.key], value: d.doc_count, color: COLORS[i % COLORS.length] }))}
-                innerRadius="0%"
-                unit={`${TYPE[type].toLowerCase()}s`}
-              />
-            </div>
-          </div>
-        )}
+          )}
+        </div>
       </div>
     </div>
   );
@@ -225,6 +249,37 @@ const Evolution = ({ filters, defaultType = "print" }) => {
   const [rows, setRows] = useState([]);
   const [loading, setLoading] = useState(true);
   const [type, setType] = useState(defaultType);
+  const tabs = [
+    {
+      key: "print",
+      label: "Impressions",
+      isActive: type === "print",
+      onSelect: () => setType("print"),
+    },
+    {
+      key: "click",
+      label: "Redirections",
+      isActive: type === "click",
+      onSelect: () => setType("click"),
+    },
+    {
+      key: "account",
+      label: "Créations de compte",
+      isActive: type === "account",
+      onSelect: () => setType("account"),
+    },
+    {
+      key: "apply",
+      label: "Candidatures",
+      isActive: type === "apply",
+      onSelect: () => setType("apply"),
+    },
+  ].map((tab) => ({
+    ...tab,
+    id: `evolution-tab-${tab.key}`,
+  }));
+  const activeTab = tabs.find((tab) => tab.isActive) || tabs[0];
+  const activeTabId = activeTab ? activeTab.id : null;
 
   useEffect(() => {
     if (!analyticsProvider?.query) return;
@@ -329,22 +384,28 @@ const Evolution = ({ filters, defaultType = "print" }) => {
         <p className="text-text-mention text-base">Trafic que vous avez généré pour vos partenaires annonceurs</p>
       </div>
       <div className="border-grey-border border p-4">
-        <div className="mb-8 flex items-center gap-8 text-sm">
-          <button onClick={() => setType("print")} className={`pb-1 ${type === "print" ? "border-blue-france text-blue-france border-b-2 font-semibold" : ""}`}>
-            Impressions
-          </button>
-
-          <button onClick={() => setType("click")} className={`pb-1 ${type === "click" ? "border-blue-france text-blue-france border-b-2 font-semibold" : ""}`}>
-            Redirections
-          </button>
-
-          <button onClick={() => setType("account")} className={`pb-1 ${type === "account" ? "border-blue-france text-blue-france border-b-2 font-semibold" : ""}`}>
-            Créations de compte
-          </button>
-
-          <button onClick={() => setType("apply")} className={`pb-1 ${type === "apply" ? "border-blue-france text-blue-france border-b-2 font-semibold" : ""}`}>
-            Candidatures
-          </button>
+        <Tabs
+          tabs={tabs}
+          ariaLabel="Evolution"
+          panelId="evolution-panel"
+          className="mb-8 flex items-center gap-8 text-sm"
+          variant="underline"
+        />
+        <div id="evolution-panel" role="tabpanel" aria-labelledby={activeTabId || undefined}>
+          {loading ? (
+            <div className="flex h-[420px] items-center justify-center">
+              <Loader />
+            </div>
+          ) : !histogram.length ? (
+            <div className="border-grey-border bg-background-grey-hover flex h-[248px] w-full flex-col items-center justify-center border border-dashed">
+              <img src={EmptySVG} alt="empty" className="h-16 w-16" />
+              <p className="text-color-gray-425 text-base">Aucune donnée disponible pour la période</p>
+            </div>
+          ) : (
+            <div className="h-[420px] w-full">
+              <StackedBarchart data={histogram} dataKey={[...data.topPublishers, "Autres"]} />
+            </div>
+          )}
         </div>
         {loading ? (
           <div className="flex h-[420px] items-center justify-center">

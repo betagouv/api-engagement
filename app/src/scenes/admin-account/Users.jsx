@@ -65,7 +65,7 @@ const Users = () => {
       </div>
 
       <div className="border-grey-border border p-6">
-        <div className="mb-6 flex items-center gap-4">
+        <div role="search" className="mb-6 flex items-center gap-4">
           <label htmlFor="user-search" className="sr-only">
             Rechercher par nom ou par email
           </label>

@@ -92,7 +92,7 @@ const MissionModal = ({ onChange }) => {
             />
 
             <div className="mt-8 flex w-full flex-1 flex-col">
-              <nav className="flex items-center space-x-2 pl-4 font-semibold text-black">
+              <nav role="navigation" aria-label="Onglets de modération" className="flex items-center space-x-2 pl-4 font-semibold text-black">
                 <Tab name="mission" title="Mission" tab={tab} setTab={setTab} />
                 <Tab name="organization" title="Organisation" tab={tab} setTab={setTab} />
                 <Tab name="history" title="Historique" tab={tab} setTab={setTab} />

@@ -13,7 +13,7 @@ import { slugify } from "../services/utils";
 const Header = () => {
   const { user } = useStore();
   return (
-    <header className="border-b-grey-border flex w-full justify-center border-b bg-white">
+    <header role="banner" className="border-b-grey-border flex w-full justify-center border-b bg-white">
       <div className="flex w-full max-w-7xl items-center justify-between py-3">
         <Link className="hover:bg-gray-975 flex items-center gap-4 p-4" to={user ? "/" : "/login"}>
           <div className="flex h-24 items-center justify-center">
@@ -29,7 +29,7 @@ const Header = () => {
             <p className="text-sm">Plateforme de partage de missions de bénévolat et de volontariat</p>
           </div>
         </Link>
-        <div className="text-blue-france flex items-center gap-3 text-sm">
+        <nav role="navigation" aria-label="Navigation d'en-tête" className="text-blue-france flex items-center gap-3 text-sm">
           <div className="tertiary-bis-btn flex items-center">
             <RiBookletLine className="mr-2" />
             <a href="https://doc.api-engagement.beta.gouv.fr/" target="_blank">
@@ -47,7 +47,7 @@ const Header = () => {
               <AccountMenu />
             </>
           )}
-        </div>
+        </nav>
       </div>
     </header>
   );
