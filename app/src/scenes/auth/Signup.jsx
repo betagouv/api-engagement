@@ -41,12 +41,12 @@ const Signup = () => {
       {error === "invalide" ? (
         <ErrorAlert>
           <p className="text-xl font-bold">La clé n'est pas valide</p>
-          <p className="text-color-gray-200 text-sm">La clé fournie n'est pas valide, veuillez nous contacter pour accedez à votre compte</p>
+          <p className="text-color-grey-200 text-sm">La clé fournie n'est pas valide, veuillez nous contacter pour accedez à votre compte</p>
         </ErrorAlert>
       ) : error === "expired" ? (
         <WarningAlert>
           <p className="text-xl font-bold">La clé a expiré</p>
-          <p className="text-color-gray-200 text-sm">La clé fournie est expirée, contactez nous pour avoir un nouveau mail d'inscription</p>
+          <p className="text-color-grey-200 text-sm">La clé fournie est expirée, contactez nous pour avoir un nouveau mail d'inscription</p>
         </WarningAlert>
       ) : (
         <SignupForm user={user} />
