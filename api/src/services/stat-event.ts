@@ -1,4 +1,5 @@
 import { Prisma } from "../db/core";
+import { prismaCore } from "../db/postgres";
 
 import { statEventRepository } from "../repositories/stat-event";
 import { publisherService } from "../services/publisher";
@@ -599,48 +600,48 @@ async function aggregateStatEventsForMission({
 }
 
 async function findStatEventMissionStatsSummary(missionId: string): Promise<{ clicks: StatEventMissionStatsSummary[]; applications: StatEventMissionStatsSummary[] }> {
-  type MissionStatsSummaryGroup = { fromPublisherId: string | null; _count: { _all: number } };
+  // Single query with PostgreSQL FILTER clause to reduce pool usage by 50%
+  const rows = await prismaCore.$queryRaw<
+    Array<{
+      from_publisher_id: string | null;
+      click_count: bigint;
+      apply_count: bigint;
+    }>
+  >(
+    Prisma.sql`
+      SELECT
+        from_publisher_id,
+        COUNT(*) FILTER (WHERE type = 'click') AS click_count,
+        COUNT(*) FILTER (WHERE type = 'apply') AS apply_count
+      FROM "stat_event"
+      WHERE mission_id = ${missionId}
+        AND is_bot = false
+        AND type IN ('click', 'apply')
+      GROUP BY from_publisher_id
+    `
+  );
 
-  const [clicksRaw, applicationsRaw] = await Promise.all([
-    statEventRepository.groupBy({
-      by: ["fromPublisherId"],
-      where: {
-        missionId,
-        isBot: false,
-        type: "click",
-      },
-      _count: { _all: true },
-    }),
-    statEventRepository.groupBy({
-      by: ["fromPublisherId"],
-      where: {
-        missionId,
-        isBot: false,
-        type: "apply",
-      },
-      _count: { _all: true },
-    }),
-  ]);
+  const publisherIds = rows.map((r) => r.from_publisher_id).filter((id): id is string => Boolean(id));
 
-  const clicks = clicksRaw as MissionStatsSummaryGroup[];
-  const applications = applicationsRaw as MissionStatsSummaryGroup[];
-
-  const publisherIds = Array.from(new Set([...clicks, ...applications].map((group) => group.fromPublisherId).filter((value): value is string => Boolean(value))));
   const publisherNameMap = await publisherService.getPublisherNameMap(publisherIds);
 
-  const mapGroup = (group: MissionStatsSummaryGroup): StatEventMissionStatsSummary => {
-    const key = group.fromPublisherId ?? "";
-    return {
-      key,
-      name: key ? publisherNameMap.get(key) : undefined,
-      doc_count: group._count._all,
-    };
-  };
+  const clicks: StatEventMissionStatsSummary[] = [];
+  const applications: StatEventMissionStatsSummary[] = [];
 
-  return {
-    clicks: clicks.map(mapGroup),
-    applications: applications.map(mapGroup),
-  };
+  rows.forEach((row) => {
+    const key = row.from_publisher_id ?? "";
+    const name = key ? publisherNameMap.get(key) : undefined;
+
+    if (row.click_count > 0n) {
+      clicks.push({ key, name, doc_count: Number(row.click_count) });
+    }
+
+    if (row.apply_count > 0n) {
+      applications.push({ key, name, doc_count: Number(row.apply_count) });
+    }
+  });
+
+  return { clicks, applications };
 }
 
 async function scrollStatEvents({ type, batchSize = 5000, cursor = null, filters }: ScrollStatEventsParams): Promise<ScrollStatEventsResult> {

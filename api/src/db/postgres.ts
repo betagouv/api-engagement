@@ -4,9 +4,19 @@ import { PrismaClient as PrismaClientCore } from "./core";
 
 const prismaCore = new PrismaClientCore({
   log: ["error"],
+  datasources: {
+    db_core: {
+      url: process.env.DATABASE_URL_CORE + "?connection_limit=20&pool_timeout=20&connect_timeout=10",
+    },
+  },
 });
 const prismaAnalytics = new PrismaClientAnalytics({
   log: ["error"],
+  datasources: {
+    db_analytics: {
+      url: process.env.DATABASE_URL_ANALYTICS + "?connection_limit=15&pool_timeout=20&connect_timeout=10",
+    },
+  },
 });
 
 const connectPrisma = (name: string, prisma: { $connect: () => Promise<void> }) => {
