@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { RiInformationLine } from "react-icons/ri";
 import { Link, useSearchParams } from "react-router-dom";
-import { Tooltip } from "react-tooltip";
+import Tooltip from "../../components/Tooltip";
 
 import RadioInput from "../../components/RadioInput";
 import Table from "../../components/Table";
@@ -127,16 +127,13 @@ const RealTime = () => {
                   <div className="inline-flex items-center gap-1 whitespace-nowrap">
                     <span>{item.type === "apply" ? "Candidature" : item.type === "click" ? "Redirection" : "Impression"}</span>
                     {tooltipId ? (
-                      <>
-                        <button
-                          type="button"
-                          className="text-text-mention hover:text-text-regular cursor-pointer align-middle focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2"
-                          data-tooltip-id={tooltipId}
-                          aria-label="Voir les détails de l'événement"
-                        >
-                          <RiInformationLine aria-hidden="true" />
-                        </button>
-                        <Tooltip id={tooltipId} className="border-grey-border max-w-md border bg-white text-base text-black shadow-lg" openOnClick clickable role="tooltip">
+                      <Tooltip
+                        id={tooltipId}
+                        ariaLabel="Voir les détails de l'événement"
+                        triggerClassName="text-text-mention hover:text-text-regular cursor-pointer align-middle focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2"
+                        tooltipClassName="border-grey-border max-w-md border bg-white text-base text-black shadow-lg"
+                        clickable
+                        content={
                           <div className="space-y-2">
                             <p className="font-semibold">Détails de l'événement</p>
                             {hasClientEventId ? (
@@ -173,8 +170,10 @@ const RealTime = () => {
                               <p className="text-text-mention text-xs">Aucun attribut personnalisé.</p>
                             )}
                           </div>
-                        </Tooltip>
-                      </>
+                        }
+                      >
+                        <RiInformationLine aria-hidden="true" />
+                      </Tooltip>
                     ) : null}
                   </div>
                 </td>

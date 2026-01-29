@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { RiCloseFill, RiInformationLine } from "react-icons/ri";
 import { Link } from "react-router-dom";
-import { Tooltip } from "react-tooltip";
+import Tooltip from "../../components/Tooltip";
 
 import JvaLogoPng from "../../assets/img/jva-logo.png";
 import Loader from "../../components/Loader";
@@ -265,19 +265,25 @@ const Moderation = () => {
               <td className="table-cell">{new Date(item.postedAt).toLocaleDateString("fr")}</td>
               <td className="table-cell">
                 <div className="flex items-center text-lg">
-                  <a data-tooltip-id={`${item.status}-${i}`}>{STATUS_ICONS[item.status]}</a>
-                  <Tooltip id={`${item.status}-${i}`} className="text-xs">
-                    {STATUS[item.status] || item.status}
+                  <Tooltip
+                    id={`${item.status}-${i}`}
+                    ariaLabel={`Statut : ${STATUS[item.status] || item.status}`}
+                    triggerClassName="text-lg"
+                    tooltipClassName="text-xs"
+                    content={STATUS[item.status] || item.status}
+                  >
+                    <span aria-hidden="true">{STATUS_ICONS[item.status]}</span>
                   </Tooltip>
-                  {item.status === "REFUSED" && item.comment && (
-                    <div className="group relative">
-                      <RiInformationLine className="ext-text-mention" />
-
-                      <div className="border-grey-border absolute -top-1/2 right-8 z-10 hidden w-64 -translate-y-1/2 border bg-white p-4 shadow-lg group-hover:block">
-                        <p className="text-sm">{JVA_MODERATION_COMMENTS_LABELS[item.comment] || item.comment}</p>
-                      </div>
-                    </div>
-                  )}
+                  {item.status === "REFUSED" && item.comment ? (
+                    <Tooltip
+                      ariaLabel="Voir le motif de refus"
+                      triggerClassName="text-text-mention"
+                      tooltipClassName="border-grey-border w-64 border bg-white p-4 text-sm shadow-lg"
+                      content={JVA_MODERATION_COMMENTS_LABELS[item.comment] || item.comment}
+                    >
+                      <RiInformationLine className="text-text-mention" />
+                    </Tooltip>
+                  ) : null}
                 </div>
               </td>
             </tr>
