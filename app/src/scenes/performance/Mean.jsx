@@ -1,9 +1,8 @@
 import { useEffect, useMemo, useState } from "react";
-import DateRangePicker from "../../components/NewDateRangePicker";
-import useStore from "../../services/store";
 
 import JessicaSvg from "../../assets/svg/jessica.svg";
 import NassimSvg from "../../assets/svg/nassim.svg";
+import DateRangePicker from "../../components/DateRangePicker";
 import Loader from "../../components/Loader";
 import Table from "../../components/Table";
 import { METABASE_CARD_ID } from "../../constants";
@@ -11,6 +10,7 @@ import { useAnalyticsProvider } from "../../services/analytics/provider";
 import { adaptKpiFromMetabase } from "../../services/analytics/providers/metabase/adapters";
 import api from "../../services/api";
 import { captureError } from "../../services/error";
+import useStore from "../../services/store";
 import AnalyticsCard from "./AnalyticsCard";
 
 const adaptConversionRate = (raw) => {

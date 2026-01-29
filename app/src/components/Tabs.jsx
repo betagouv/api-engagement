@@ -2,11 +2,6 @@ import { useRef } from "react";
 import { Link, useNavigate } from "react-router-dom";
 
 const TAB_VARIANTS = {
-  navbar: {
-    base: "hover:bg-gray-975 flex h-full items-center px-6 text-sm",
-    active: "border-b-blue-france text-blue-france border-b-2",
-    inactive: "border-none text-black",
-  },
   primary: {
     base: "border-x-grey-border flex translate-y-px items-center border-x px-4 py-2",
     active: "border-blue-france text-blue-france hover:bg-gray-975 border-t-2 bg-white",
@@ -19,7 +14,7 @@ const TAB_VARIANTS = {
   },
 };
 
-export const Tab = ({ tab, index, panelId, isFocusable, onKeyDown, setRef, variant = "primary", className = "" }) => {
+export const Tab = ({ tab, panelId, isFocusable, onKeyDown, setRef, variant = "primary", className = "" }) => {
   const variantClasses = TAB_VARIANTS[variant] || TAB_VARIANTS.primary;
   const tabClassName = `${variantClasses.base} ${tab.isActive ? variantClasses.active : variantClasses.inactive} ${className}`.trim();
   const sharedProps = {
@@ -106,7 +101,6 @@ const Tabs = ({ tabs, ariaLabel, panelId, className = "", variant = "primary", t
         <Tab
           key={tab.key}
           tab={tab}
-          index={index}
           panelId={panelId}
           isFocusable={index === focusableTabIndex}
           setRef={(node) => {

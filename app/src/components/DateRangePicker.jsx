@@ -21,13 +21,13 @@ const DateRangePicker = ({ value, onChange }) => {
     <div className="flex gap-4">
       <div className="border-grey-border flex items-center rounded-sm border">
         {RANGES.map((range, i) => (
-          <div
+          <button
             key={i}
             className={`cursor-pointer px-4 py-2 text-sm ${value.from.toLocaleDateString() === range.from.toLocaleDateString() ? "border-blue-france text-blue-france -my-px rounded-sm border" : ""} hover:bg-gray-100`}
             onClick={() => onChange(range)}
           >
             {range.label}
-          </div>
+          </button>
         ))}
       </div>
 
@@ -70,50 +70,66 @@ export const DateInput = ({ value, onChange }) => {
         className="border-grey-border divide-grey-border mt-1 origin-top divide-y border bg-white p-10 shadow-lg transition duration-200 ease-out focus:outline-none data-closed:scale-95 data-closed:opacity-0"
       >
         <div className="flex gap-6">
-          <div className="flex w-44 flex-col gap-4 overflow-x-scroll text-base">
-            <button
-              className="hover:bg-gray-975 w-full cursor-pointer px-3 py-1 text-left text-base"
-              onClick={() => handleChange([new Date(NOW.getFullYear(), NOW.getMonth(), NOW.getDate() - 7), YESTERDAY])}
-            >
-              Depuis 7 jours
-            </button>
-            <button
-              className="hover:bg-gray-975 w-full cursor-pointer px-3 py-1 text-left text-base"
-              onClick={() => handleChange([new Date(NOW.getFullYear(), NOW.getMonth(), NOW.getDate() - 30), YESTERDAY])}
-            >
-              Depuis 30 jours
-            </button>
-            <button
-              className="hover:bg-gray-975 w-full cursor-pointer px-3 py-1 text-left text-base"
-              onClick={() => handleChange([new Date(NOW.getFullYear() - 1, NOW.getMonth(), NOW.getDate()), YESTERDAY])}
-            >
-              Depuis 1 an
-            </button>
-            <button className="hover:bg-gray-975 w-full cursor-pointer px-3 py-1 text-left text-base" onClick={() => handleChange([new Date(2020, 0, 1), YESTERDAY])}>
-              Depuis toujours
-            </button>
-            <button
-              className="hover:bg-gray-975 w-full cursor-pointer px-3 py-1 text-left text-base"
-              onClick={() => handleChange([new Date(NOW.getFullYear(), NOW.getMonth(), 1), YESTERDAY])}
-            >
-              Ce mois-ci
-            </button>
-            <button
-              className="hover:bg-gray-975 w-full cursor-pointer px-3 py-1 text-left text-base"
-              onClick={() => handleChange([new Date(NOW.getFullYear(), NOW.getMonth() - 1, 1), new Date(NOW.getFullYear(), NOW.getMonth(), 1, 0, 0, 0, -1)])}
-            >
-              Le mois dernier
-            </button>
-            <button className="hover:bg-gray-975 w-full cursor-pointer px-3 py-1 text-left text-base" onClick={() => handleChange([new Date(NOW.getFullYear(), 0, 1), YESTERDAY])}>
-              Cette année
-            </button>
-            <button
-              className="hover:bg-gray-975 w-full cursor-pointer px-3 py-1 text-left text-base"
-              onClick={() => handleChange([new Date(NOW.getFullYear() - 1, 0, 1), new Date(NOW.getFullYear(), 0, 1, 0, 0, 0, -1)])}
-            >
-              L'année dernière
-            </button>
-          </div>
+          <ul className="m-0 flex w-44 list-none flex-col p-0 text-base" role="list" aria-label="Périodes disponibles">
+            <li>
+              <button
+                className="hover:bg-gray-975 w-full cursor-pointer p-3 text-left text-base"
+                onClick={() => handleChange([new Date(NOW.getFullYear(), NOW.getMonth(), NOW.getDate() - 7), YESTERDAY])}
+              >
+                Depuis 7 jours
+              </button>
+            </li>
+            <li>
+              <button
+                className="hover:bg-gray-975 w-full cursor-pointer p-3 text-left text-base"
+                onClick={() => handleChange([new Date(NOW.getFullYear(), NOW.getMonth(), NOW.getDate() - 30), YESTERDAY])}
+              >
+                Depuis 30 jours
+              </button>
+            </li>
+            <li>
+              <button
+                className="hover:bg-gray-975 w-full cursor-pointer p-3 text-left text-base"
+                onClick={() => handleChange([new Date(NOW.getFullYear() - 1, NOW.getMonth(), NOW.getDate()), YESTERDAY])}
+              >
+                Depuis 1 an
+              </button>
+            </li>
+            <li>
+              <button className="hover:bg-gray-975 w-full cursor-pointer p-3 text-left text-base" onClick={() => handleChange([new Date(2020, 0, 1), YESTERDAY])}>
+                Depuis toujours
+              </button>
+            </li>
+            <li>
+              <button
+                className="hover:bg-gray-975 w-full cursor-pointer p-3 text-left text-base"
+                onClick={() => handleChange([new Date(NOW.getFullYear(), NOW.getMonth(), 1), YESTERDAY])}
+              >
+                Ce mois-ci
+              </button>
+            </li>
+            <li>
+              <button
+                className="hover:bg-gray-975 w-full cursor-pointer p-3 text-left text-base"
+                onClick={() => handleChange([new Date(NOW.getFullYear(), NOW.getMonth() - 1, 1), new Date(NOW.getFullYear(), NOW.getMonth(), 1, 0, 0, 0, -1)])}
+              >
+                Le mois dernier
+              </button>
+            </li>
+            <li>
+              <button className="hover:bg-gray-975 w-full cursor-pointer p-3 text-left text-base" onClick={() => handleChange([new Date(NOW.getFullYear(), 0, 1), YESTERDAY])}>
+                Cette année
+              </button>
+            </li>
+            <li>
+              <button
+                className="hover:bg-gray-975 w-full cursor-pointer p-3 text-left text-base"
+                onClick={() => handleChange([new Date(NOW.getFullYear() - 1, 0, 1), new Date(NOW.getFullYear(), 0, 1, 0, 0, 0, -1)])}
+              >
+                L'année dernière
+              </button>
+            </li>
+          </ul>
 
           <DatePicker
             renderCustomHeader={DatePickerHeader}
