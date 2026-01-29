@@ -2,7 +2,11 @@
   materialized = 'incremental',
   unique_key = ['active_date', 'mission_id'],
   incremental_strategy = 'delete+insert',
-  on_schema_change = 'sync_all_columns'
+  on_schema_change = 'sync_all_columns',
+  post_hook = [
+    'create index if not exists "int_mission_active_daily_active_date_idx" on {{ this }} (active_date)',
+    'create index if not exists "int_mission_active_daily_mission_id_idx" on {{ this }} (mission_id)',
+  ]
 ) }}
 
 with last_run as (
@@ -14,42 +18,19 @@ with last_run as (
   {% endif %}
 ),
 
-mission_address as (
-  select
-    mission_id,
-    department_code
-  from (
-    select
-      mission_id,
-      department_code,
-      row_number() over (
-        partition by mission_id
-        order by updated_at desc nulls last, created_at desc nulls last, id asc
-      ) as rn
-    from {{ ref('int_mission_address') }}
-    where
-      department_code is not null
-      and department_code <> ''
-  ) as ranked
-  where rn = 1
-),
-
 base as (
   select
     m.id as mission_id,
     date_trunc('day', m.created_at)::date as start_date,
     date_trunc('day', coalesce(m.deleted_at, current_date))::date as end_date,
-    ma.department_code as department,
+    m.domain as mission_domain,
     m.publisher_id,
     m.updated_at,
     case
       when m.type = 'volontariat_service_civique' then 'volontariat'
-      when m.type = 'benevolat' then 'benevolat'
-      else 'all'
+      else m.type
     end as publisher_category
   from {{ ref('int_mission') }} as m
-  left join mission_address as ma
-    on m.id = ma.mission_id
   where
     m.created_at is not null
     and date_trunc('day', m.created_at)::date
@@ -59,9 +40,9 @@ base as (
 active_days as (
   select
     b.mission_id,
-    b.department,
     b.publisher_id,
     b.publisher_category,
+    b.mission_domain,
     s.day as active_date,
     b.updated_at
   from base as b
@@ -83,9 +64,9 @@ select
   extract(month from active_date)::int as month,
   extract(isoyear from active_date)::int as iso_year,
   extract(week from active_date)::int as iso_week,
-  department,
   publisher_id,
   publisher_category,
+  mission_domain,
   mission_id,
   updated_at
 from active_days
