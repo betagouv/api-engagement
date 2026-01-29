@@ -5,7 +5,31 @@ import { RiArrowLeftSLine, RiArrowRightSLine, RiSkipLeftLine, RiSkipRightLine } 
 
 import Loader from "./Loader";
 
-const Table = ({ header, sortBy, total, onSort, loading, children, auto = false, sticky = false, className = "", pagination = true, page, onPageChange, pageSize = 10 }) => {
+const Table = ({
+  header,
+  sortBy,
+  total,
+  onSort,
+  loading,
+  children,
+  auto = false,
+  sticky = false,
+  className = "",
+  pagination = true,
+  page,
+  onPageChange,
+  pageSize = 10,
+}) => {
+  const [internalPage, setInternalPage] = useState(page || 1);
+  useEffect(() => {
+    if (typeof page === "number" && page !== internalPage) {
+      setInternalPage(page);
+    }
+  }, [page, internalPage]);
+
+  const resolvedPage = typeof page === "number" ? page : internalPage;
+  const handleSetPage = onPageChange || setInternalPage;
+
   return (
     <>
       <div className={`no-scrollbar w-full overflow-x-auto overflow-y-visible ${className}`}>
@@ -54,7 +78,7 @@ const Table = ({ header, sortBy, total, onSort, loading, children, auto = false,
           </tbody>
         </table>
       </div>
-      {pagination && <Pagination page={page} setPage={onPageChange} end={Math.ceil(total / pageSize) || 1} />}
+      {pagination && <Pagination page={resolvedPage} setPage={handleSetPage} end={Math.ceil(total / pageSize) || 1} />}
     </>
   );
 };
