@@ -104,21 +104,45 @@ const aggregateWidgetAggs = async (
   };
 
   const aggregateMissionListField = async (field: "tasks" | "audience") => {
-    const missions = await prismaCore.mission.findMany({
+    // Use PostgreSQL UNNEST with CTE to efficiently aggregate array fields
+    // This prevents "could not resize shared memory segment" errors on large datasets
+
+    // Step 1: Get filtered mission IDs (only IDs, not full missions)
+    const missionIds = await prismaCore.mission.findMany({
       where,
-      select: { id: true, [field]: true } as any,
+      select: { id: true },
+      // Limit to prevent memory issues on extremely large datasets
+      // For most widgets, this should cover all missions. If more than 50k missions,
+      // aggregations will be based on a representative sample
+      take: 50000,
     });
 
-    const counts = new Map<string, number>();
-    missions.forEach((mission) => {
-      const values = Array.isArray((mission as any)[field]) ? ((mission as any)[field] as string[]) : [];
-      const unique = new Set(values.filter((v) => typeof v === "string" && v.length));
-      unique.forEach((value) => counts.set(value, (counts.get(value) ?? 0) + 1));
-    });
+    if (missionIds.length === 0) {
+      return [];
+    }
 
-    return Array.from(counts.entries())
-      .map(([key, doc_count]) => ({ key, doc_count }))
-      .sort((a, b) => b.doc_count - a.doc_count);
+    const ids = missionIds.map((m) => m.id);
+    const columnName = field === "tasks" ? "tasks" : "audience";
+
+    // Step 2: Use UNNEST to aggregate array values efficiently
+    const rows = await prismaCore.$queryRaw<Array<{ value: string; doc_count: bigint }>>(
+      Prisma.sql`
+        SELECT value, COUNT(DISTINCT mission_id) as doc_count
+        FROM (
+          SELECT id as mission_id, UNNEST(${Prisma.raw(columnName)}) as value
+          FROM mission
+          WHERE id = ANY(${ids}::uuid[])
+        ) t
+        WHERE value IS NOT NULL AND value != ''
+        GROUP BY value
+        ORDER BY doc_count DESC
+      `
+    );
+
+    return rows.map((row) => ({
+      key: row.value,
+      doc_count: Number(row.doc_count),
+    }));
   };
 
   const result: any = {};
