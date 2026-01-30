@@ -182,7 +182,6 @@ const Flux = ({ moderated }) => {
             onSelect={(city) => setFilters({ ...filters, city: city ? city.value : null })}
             onSearch={(search) => fetchOptions(search, "city")}
             placeholder="Villes"
-            className="w-96"
           />
           <Combobox
             id="organization"

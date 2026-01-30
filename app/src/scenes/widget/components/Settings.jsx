@@ -1,5 +1,4 @@
-import { Combobox, ComboboxInput, ComboboxOption, ComboboxOptions, Transition } from "@headlessui/react";
-import { Fragment, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { BiSolidInfoSquare } from "react-icons/bi";
 
 import JvaLogoSvg from "@/assets/svg/jva-logo.svg";
@@ -8,6 +7,7 @@ import Toggle from "@/components/Toggle";
 import api from "@/services/api";
 import { captureError } from "@/services/error";
 import useStore from "@/services/store";
+import Combobox from "../../../components/Combobox";
 import QueryBuilder from "./QueryBuilder";
 
 const JVA_ID = "5f5931496c7ea514150a818f";
@@ -119,7 +119,7 @@ const Settings = ({ widget, values, onChange, loading }) => {
         <h2 className="text-2xl font-bold">Missions à diffuser</h2>
 
         <div className="grid grid-cols-2 gap-10">
-          <div className="space-y-4">
+          <div className="flex flex-col gap-1">
             <label className="text-base">
               Type de mission<span className="text-error ml-1">*</span>
             </label>
@@ -153,18 +153,18 @@ const Settings = ({ widget, values, onChange, loading }) => {
           </div>
           <div />
 
-          <div className="space-y-4">
+          <div className="flex flex-col gap-1">
             <label className="text-base" htmlFor="location">
               Ville ou code postal
             </label>
-            <LocationSearch selected={values.location} onChange={(v) => onChange({ ...values, location: v })} />
-            <div className="text-info flex items-center gap-2">
+            <LocationSearch location={values.location} onChange={(v) => onChange({ ...values, location: v })} />
+            <div className="text-info mt-4 flex items-center gap-2">
               <BiSolidInfoSquare className="text-sm" />
               <span className="text-xs">Laisser vide pour afficher les missions de toute la France</span>
             </div>
           </div>
 
-          <div className="space-y-4">
+          <div className="flex flex-col gap-1">
             <label className="text-base" htmlFor="distance">
               Rayon de recherche
             </label>
@@ -180,7 +180,7 @@ const Settings = ({ widget, values, onChange, loading }) => {
           </div>
         </div>
 
-        <div className="space-y-4">
+        <div className="flex flex-col gap-1">
           <label className="text-base" htmlFor="location">
             Diffuser des missions de
             <span className="text-error ml-1">*</span>
@@ -373,52 +373,41 @@ const Settings = ({ widget, values, onChange, loading }) => {
   );
 };
 
-const LocationSearch = ({ selected, onChange }) => {
-  const [search, setSearch] = useState("");
-  const [options, setOptions] = useState([]);
-
-  const handleInputChange = async (e) => {
-    e.preventDefault();
-    const search = e.target.value;
-    setSearch(search);
-    if (search?.length > 3) {
-      const res = await fetch(`https://api-adresse.data.gouv.fr/search?q=${search}&type=municipality&autocomplete=1&limit=6`).then((r) => r.json());
-      if (!res.features) return;
-      setOptions(
-        res.features.map((f) => ({
-          label: `${f.properties.name}, ${f.properties.city} ${f.properties.postcode}`,
-          lat: f.geometry.coordinates[1],
-          lon: f.geometry.coordinates[0],
-        })),
-      );
+const LocationSearch = ({ location, onChange }) => {
+  const fetchLocasions = async (search) => {
+    if (search.length < 4) {
+      if (location) {
+        return [
+          {
+            label: location.label,
+            value: `${location.lat}-${location.lon}`,
+            lat: location.lat,
+            lon: location.lon,
+          },
+        ];
+      }
+      return [];
     }
-    if (search.length === 0) {
-      setOptions([]);
-      onChange(null);
+    const res = await fetch(`https://api-adresse.data.gouv.fr/search?q=${search}&type=municipality&autocomplete=1&limit=6`).then((r) => r.json());
+    if (!res.features) {
+      return [];
     }
+    return res.features.map((f) => ({
+      label: `${f.properties.name}, ${f.properties.city} ${f.properties.postcode}`,
+      value: `${f.geometry.coordinates[1]}-${f.geometry.coordinates[0]}`,
+      lat: f.geometry.coordinates[1],
+      lon: f.geometry.coordinates[0],
+    }));
   };
 
   return (
-    <Combobox as={Fragment} value={selected} onChange={onChange}>
-      <div className="relative w-full">
-        <ComboboxInput
-          className="input mb-2 w-full border-b-black"
-          displayValue={(location) => location?.label || search || selected?.label || ""}
-          placeholder="Localisation"
-          onChange={handleInputChange}
-        />
-
-        <Transition as={Fragment} leave="transition ease-in duration-100" leaveFrom="opacity-100" leaveTo="opacity-0">
-          <ComboboxOptions className="divide-grey-border absolute max-h-60 w-full divide-y overflow-auto bg-white text-base shadow-lg focus:outline-none">
-            {options.map((option, index) => (
-              <ComboboxOption key={`${option.label}-${index}`} value={option} className={({ active }) => `cursor-default p-3 select-none ${active ? "bg-gray-975" : "bg-white"}`}>
-                <span className={`truncate text-sm text-black ${selected?.label === option.label ? "text-blue-france" : ""}`}>{option.label}</span>
-              </ComboboxOption>
-            ))}
-          </ComboboxOptions>
-        </Transition>
-      </div>
-    </Combobox>
+    <Combobox
+      id="location"
+      value={location ? `${location.lat}-${location.lon}` : null}
+      onSelect={(location) => onChange(location || null)}
+      onSearch={fetchLocasions}
+      placeholder="Localisation"
+    />
   );
 };
 
