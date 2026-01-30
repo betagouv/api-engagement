@@ -41,12 +41,12 @@ const Signup = () => {
       {error === "invalide" ? (
         <ErrorAlert>
           <p className="text-xl font-bold">La clé n'est pas valide</p>
-          <p className="text-color-gray-200 text-sm">La clé fournie n'est pas valide, veuillez nous contacter pour accedez à votre compte</p>
+          <p className="text-color-grey-200 text-sm">La clé fournie n'est pas valide, veuillez nous contacter pour accedez à votre compte</p>
         </ErrorAlert>
       ) : error === "expired" ? (
         <WarningAlert>
           <p className="text-xl font-bold">La clé a expiré</p>
-          <p className="text-color-gray-200 text-sm">La clé fournie est expirée, contactez nous pour avoir un nouveau mail d'inscription</p>
+          <p className="text-color-grey-200 text-sm">La clé fournie est expirée, contactez nous pour avoir un nouveau mail d'inscription</p>
         </WarningAlert>
       ) : (
         <SignupForm user={user} />
@@ -194,20 +194,20 @@ const SignupForm = ({ user }) => {
       </div>
       <div className="mt-1 flex flex-col gap-2">
         <div className="flex items-center gap-2">
-          {values.password.length >= 12 ? <AiFillCloseCircle className="text-green-success" /> : <AiFillCloseCircle className="text-text-mention" />}
+          {values.password.length >= 12 ? <AiFillCloseCircle className="text-success" /> : <AiFillCloseCircle className="text-text-mention" />}
           <span className={`align-middle text-sm ${values.password.length >= 12 ? "text-success" : "text-text-mention"}`}>Au moins 12 caractères</span>
         </div>
         <div className="flex items-center gap-2">
-          {hasLetter(values.password) ? <AiFillCloseCircle className="text-green-success" /> : <AiFillCloseCircle className="text-text-mention" />}
+          {hasLetter(values.password) ? <AiFillCloseCircle className="text-success" /> : <AiFillCloseCircle className="text-text-mention" />}
           <span className={`align-middle text-sm ${hasLetter(values.password) ? "text-success" : "text-text-mention"}`}>Au moins une lettre</span>
         </div>
         <div className="flex items-center gap-2">
-          {hasNumber(values.password) ? <AiFillCloseCircle className="text-green-success" /> : <AiFillCloseCircle className="text-text-mention" />}
+          {hasNumber(values.password) ? <AiFillCloseCircle className="text-success" /> : <AiFillCloseCircle className="text-text-mention" />}
           <span className={`align-middle text-sm ${hasNumber(values.password) ? "text-success" : "text-text-mention"}`}>Au moins un chiffre</span>
         </div>
 
         <div className="flex items-center gap-2">
-          {hasSpecialChar(values.password) ? <AiFillCloseCircle className="text-green-success" /> : <AiFillCloseCircle className="text-text-mention" />}
+          {hasSpecialChar(values.password) ? <AiFillCloseCircle className="text-success" /> : <AiFillCloseCircle className="text-text-mention" />}
           <span className={`align-middle text-sm ${hasSpecialChar(values.password) ? "text-success" : "text-text-mention"}`}>Au moins un caractère spécial</span>
         </div>
       </div>

@@ -202,9 +202,9 @@ const Create = () => {
                   <td className="table-cell">
                     <div className="flex flex-wrap justify-center gap-2">
                       {item.isAnnonceur && <span className="bg-red-marianne-950 rounded p-2">Annonceur</span>}
-                      {item.hasApiRights && <span className="bg-green-success-950 rounded p-2">Diffuseur API</span>}
-                      {item.hasWidgetRights && <span className="bg-green-success-950 rounded p-2">Diffuseur Widget</span>}
-                      {item.hasCampaignRights && <span className="bg-green-success-950 rounded p-2">Diffuseur Campagne</span>}
+                      {item.hasApiRights && <span className="bg-success-950 rounded p-2">Diffuseur API</span>}
+                      {item.hasWidgetRights && <span className="bg-success-950 rounded p-2">Diffuseur Widget</span>}
+                      {item.hasCampaignRights && <span className="bg-success-950 rounded p-2">Diffuseur Campagne</span>}
                     </div>
                   </td>
                 </tr>
