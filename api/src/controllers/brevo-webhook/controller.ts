@@ -53,10 +53,11 @@ router.post("/", async (req, res, next) => {
       } as EmailCreateInput;
 
       const email = await emailService.createEmail(obj);
-      const objectName = await downloadFile(email);
-      if (objectName) {
-        await emailService.updateEmail(email.id, { fileObjectName: objectName });
+      const result = await downloadFile(email);
+      if (!result) {
+        continue;
       }
+      await emailService.updateEmail(email.id, { fileObjectName: result.objectName, reportUrl: result.link });
     }
     return res.status(200).send({ ok: true });
   } catch (error) {
