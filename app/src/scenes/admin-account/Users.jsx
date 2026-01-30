@@ -104,7 +104,7 @@ const Users = () => {
                 </div>
               </td>
               <td className="table-cell text-center">
-                {item.role === "admin" ? <span className="bg-red-marianne-950 rounded px-1">Admin</span> : <span className="bg-green-success-950 rounded px-1">Utilisateur</span>}
+                {item.role === "admin" ? <span className="bg-red-marianne-950 rounded px-1">Admin</span> : <span className="bg-success-950 rounded px-1">Utilisateur</span>}
               </td>
               <td className="table-cell text-center">{new Date(item.createdAt).toLocaleDateString("fr")}</td>
               <td className="table-cell text-center">{item.lastActivityAt ? new Date(item.lastActivityAt).toLocaleDateString("fr") : "-"}</td>

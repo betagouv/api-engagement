@@ -198,9 +198,9 @@ const Publishers = () => {
               <td className="table-cell">
                 <div className="flex flex-wrap justify-center gap-2">
                   {item.isAnnonceur && <span className="bg-red-marianne-950 rounded px-1 text-[10px]">Annonceur</span>}
-                  {item.hasApiRights && <span className="bg-green-success-950 rounded px-1 text-[10px]">Diffuseur API</span>}
-                  {item.hasWidgetRights && <span className="bg-green-success-950 rounded px-1 text-[10px]">Diffuseur Widget</span>}
-                  {item.hasCampaignRights && <span className="bg-green-success-950 rounded px-1 text-[10px]">Diffuseur Campagne</span>}
+                  {item.hasApiRights && <span className="bg-success-950 rounded px-1 text-[10px]">Diffuseur API</span>}
+                  {item.hasWidgetRights && <span className="bg-success-950 rounded px-1 text-[10px]">Diffuseur Widget</span>}
+                  {item.hasCampaignRights && <span className="bg-success-950 rounded px-1 text-[10px]">Diffuseur Campagne</span>}
                 </div>
               </td>
               <td className="table-cell text-center">{item.publishers.length}</td>
