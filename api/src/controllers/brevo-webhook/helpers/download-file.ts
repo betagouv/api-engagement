@@ -1,4 +1,4 @@
-import { captureException, captureMessage } from "../../../error";
+import { captureException } from "../../../error";
 import { putObject } from "../../../services/s3";
 import { EmailRecord } from "../../../types/email";
 import { ExtractLinkedinReportLinkParams, extractLinkedinReportLink } from "./link-extractor";
@@ -29,7 +29,7 @@ export const downloadFile = async (email: EmailRecord) => {
 
     return objectName;
   } catch (error: any) {
-    captureMessage("Failed to download attachment", error.message);
+    captureException(error, { extra: { emailId: email.id } });
     return null;
   }
 };

@@ -16,7 +16,7 @@ import cors from "cors";
 import express, { NextFunction, Request, Response } from "express";
 import path from "path";
 
-import { SERVER_ERROR, captureException, captureMessage } from "./error";
+import { SERVER_ERROR, captureException } from "./error";
 
 import { pgConnectedCore, pgDisconnect } from "./db/postgres";
 import middlewares from "./middlewares";
@@ -26,10 +26,10 @@ import BrevoWebhookController from "./controllers/brevo-webhook/controller";
 import CampaignController from "./controllers/campaign";
 import IframeController from "./controllers/iframe";
 import ImportController from "./controllers/import";
+import MetabaseController from "./controllers/metabase";
 import MissionController from "./controllers/mission";
 import ModerationController from "./controllers/moderation";
 import ModerationEventController from "./controllers/moderation-event";
-import MetabaseController from "./controllers/metabase";
 import OrganizationController from "./controllers/organization";
 import PublisherController from "./controllers/publisher";
 import RedirectController from "./controllers/redirect";
@@ -48,7 +48,6 @@ import MyOrganizationV0Controller from "./v0/myorganization/controller";
 import OrganizationV0Controller from "./v0/organization";
 import PublisherV0Controller from "./v0/publisher";
 import ViewV0Controller from "./v0/view";
-import AssociationV1Controller from "./v1/association";
 import ActivityV2Controller from "./v2/activity";
 import JobTeaserV2Controller from "./v2/jobteaser";
 import LeboncoinV2Controller from "./v2/leboncoin";
@@ -82,7 +81,6 @@ const main = async () => {
   app.use("/v0/publisher", cors({ origin: "*" }), PublisherV0Controller);
   app.use("/v0/view", cors({ origin: "*" }), ViewV0Controller);
   app.use("/v0/organization", OrganizationV0Controller);
-  app.use("/v1/association", AssociationV1Controller);
   // /v2/mission redirects to /v0/mission
   app.use("/v2/mission", cors({ origin: "*" }), MissionV0Controller);
   app.use("/v2/activity", cors({ origin: "*" }), ActivityV2Controller);
@@ -107,17 +105,6 @@ const main = async () => {
   app.use("/warning", WarningController);
   app.use("/warning-bot", WarningBotController);
   app.use("/widget", WidgetController);
-
-  app.get("/geo", async (req: Request, res: Response, next) => {
-    try {
-      captureMessage(`Fetching geo is still used`);
-      const url = encodeURI(`https://api-adresse.data.gouv.fr/search/?q=${req.query.postcode}&type=municipality`);
-      const r = await fetch(url).then((response) => response.json());
-      res.status(200).send(r);
-    } catch (error) {
-      next(error);
-    }
-  });
 
   app.use(async (err: any, req: Request, res: Response, _: NextFunction) => {
     try {

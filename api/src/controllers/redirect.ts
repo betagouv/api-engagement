@@ -3,7 +3,7 @@ import { Request, Response, Router } from "express";
 import zod from "zod";
 
 import { JVA_URL, PUBLISHER_IDS } from "../config";
-import { INVALID_PARAMS, INVALID_QUERY, NOT_FOUND, SERVER_ERROR, captureException, captureMessage } from "../error";
+import { INVALID_PARAMS, INVALID_QUERY, NOT_FOUND, SERVER_ERROR, captureException } from "../error";
 import { campaignService } from "../services/campaign";
 import { missionService } from "../services/mission";
 import { publisherService } from "../services/publisher";
@@ -40,7 +40,7 @@ router.get("/apply", cors({ origin: "*" }), async (req: Request, res: Response) 
       .safeParse(req.query);
 
     if (!query.success) {
-      captureException(`[Apply] Invalid query`, JSON.stringify(query.error, null, 2));
+      captureException(query.error, { extra: { query: req.query } });
       return res.status(204).send();
     }
 
@@ -55,7 +55,7 @@ router.get("/apply", cors({ origin: "*" }), async (req: Request, res: Response) 
           customAttributes = parsed as Record<string, unknown>;
         }
       } catch (error) {
-        captureException(`[Apply] Invalid customAttributes`, JSON.stringify(error, null, 2));
+        captureException(error, { extra: { customAttributes: query.data.customAttributes } });
         return res.status(204).send();
       }
     }
@@ -83,7 +83,7 @@ router.get("/apply", cors({ origin: "*" }), async (req: Request, res: Response) 
         }
         click = clickEvent;
       } else {
-        captureMessage(`[Apply] Click not found`, `click ${query.data.view}`);
+        captureException(new Error(`[Apply] Click not found`), { extra: { clickId: query.data.view } });
       }
     }
     if (!click) {
@@ -93,7 +93,7 @@ router.get("/apply", cors({ origin: "*" }), async (req: Request, res: Response) 
     if (query.data.mission) {
       mission = await missionService.findMissionByClientAndPublisher(query.data.mission, query.data.publisher || click.toPublisherId);
       if (!mission) {
-        captureMessage(`[Apply] Mission not found`, `mission ${query.data.mission}`);
+        captureException(new Error(`[Apply] Mission not found`), { extra: { missionId: query.data.mission } });
       }
     }
 
@@ -179,7 +179,7 @@ router.get("/account", cors({ origin: "*" }), async (req: Request, res: Response
       .safeParse(req.query);
 
     if (!query.success) {
-      captureException(`[Account] Invalid query`, JSON.stringify(query.error, null, 2));
+      captureException(query.error, { extra: { query: req.query } });
       return res.status(204).send();
     }
 
@@ -210,7 +210,7 @@ router.get("/account", cors({ origin: "*" }), async (req: Request, res: Response
         }
         click = clickEvent;
       } else {
-        captureMessage(`[Account] Click not found`, `click ${query.data.view}`);
+        captureException(new Error(`[Account] Click not found`), { extra: { clickId: query.data.view } });
       }
     }
     if (!click) {
@@ -220,7 +220,7 @@ router.get("/account", cors({ origin: "*" }), async (req: Request, res: Response
     if (query.data.mission) {
       mission = await missionService.findMissionByClientAndPublisher(query.data.mission, query.data.publisher || click.toPublisherId);
       if (!mission) {
-        captureMessage(`[Account] Mission not found`, `mission ${query.data.mission}`);
+        captureException(new Error(`[Account] Mission not found`), { extra: { missionId: query.data.mission } });
       }
     }
 
@@ -295,7 +295,7 @@ router.get("/campaign/:id", cors({ origin: "*" }), async (req, res) => {
       .safeParse(req.params);
 
     if (!params.success) {
-      captureMessage(`[Redirection Campaign] Invalid params`, JSON.stringify(params.error, null, 2));
+      captureException(params.error, { extra: { params: req.params } });
       return res.redirect(302, JVA_URL);
     }
 
@@ -305,11 +305,11 @@ router.get("/campaign/:id", cors({ origin: "*" }), async (req, res) => {
 
     const campaign = await campaignService.findCampaignById(params.data.id);
     if (!campaign) {
-      captureMessage(`[Redirection Campaign] Campaign not found`, `campaign id ${params.data.id}`);
+      captureException(new Error(`[Redirection Campaign] Campaign not found`), { extra: { campaignId: params.data.id } });
       return res.redirect(302, JVA_URL);
     }
     if (!campaign.url) {
-      captureException(`[Redirection Campaign] Campaign url not found`, `campaign id ${params.data.id}`);
+      captureException(new Error(`[Redirection Campaign] Campaign url not found`), { extra: { campaignId: params.data.id } });
       return res.redirect(302, JVA_URL);
     }
     href = campaign.url;
@@ -377,7 +377,7 @@ router.get("/widget/:id", cors({ origin: "*" }), async (req: Request, res: Respo
       .safeParse(req.query);
 
     if (!params.success) {
-      captureMessage(`[Redirection Widget] Invalid params`, JSON.stringify(params.error, null, 2));
+      captureException(params.error, { extra: { params: req.params } });
       return res.redirect(302, JVA_URL);
     }
 
@@ -388,7 +388,7 @@ router.get("/widget/:id", cors({ origin: "*" }), async (req: Request, res: Respo
       return res.redirect(302, JVA_URL);
     }
     if (!mission) {
-      captureMessage(`[Redirection Widget] Mission not found`, `mission ${params.data.id}, widget ${query.data?.widgetId}`);
+      captureException(new Error(`[Redirection Widget] Mission not found`), { extra: { missionId: params.data.id, widgetId: query.data?.widgetId } });
       return res.redirect(302, JVA_URL);
     }
     href = mission.applicationUrl || JVA_URL;
@@ -397,13 +397,13 @@ router.get("/widget/:id", cors({ origin: "*" }), async (req: Request, res: Respo
     }
 
     if (!query.success || !query.data.widgetId) {
-      captureMessage(`[Redirection Widget] Invalid query`, JSON.stringify(query.error, null, 2));
+      captureException(query.error, { extra: { query: req.query } });
       return res.redirect(302, href);
     }
 
     const widget = await widgetService.findOneWidgetById(query.data.widgetId);
     if (!widget) {
-      captureMessage(`[Redirection Widget] Widget not found`, `Widget ${query.data.widgetId}, mission ${params.data.id}`);
+      captureException(new Error(`[Redirection Widget] Widget not found`), { extra: { widgetId: query.data.widgetId, missionId: params.data.id } });
       return res.redirect(302, href);
     }
 
@@ -482,7 +482,7 @@ router.get("/seo/:id", cors({ origin: "*" }), async (req: Request, res: Response
       .safeParse(req.params);
 
     if (!params.success) {
-      captureMessage(`[Redirection Seo] Invalid params`, JSON.stringify(params.error, null, 2));
+      captureException(params.error, { extra: { params: req.params } });
       return res.redirect(302, JVA_URL);
     }
 
@@ -492,7 +492,7 @@ router.get("/seo/:id", cors({ origin: "*" }), async (req: Request, res: Response
       return res.redirect(302, JVA_URL);
     }
     if (!mission) {
-      captureMessage(`[Redirection Seo] Mission not found`, `mission ${params.data.id}`);
+      captureException(new Error(`[Redirection Seo] Mission not found`), { extra: { missionId: params.data.id } });
       return res.redirect(302, JVA_URL);
     }
     if (!identity) {
@@ -557,7 +557,7 @@ router.get("/notrack/:id", cors({ origin: "*" }), async (req, res, next) => {
       .safeParse(req.params);
 
     if (!params.success) {
-      captureMessage(`[Redirection No Track] Invalid params`, JSON.stringify(params.error, null, 2));
+      captureException(params.error, { extra: { params: req.params } });
       return res.redirect(302, JVA_URL);
     }
 
@@ -568,7 +568,7 @@ router.get("/notrack/:id", cors({ origin: "*" }), async (req, res, next) => {
       return res.redirect(302, JVA_URL);
     }
     if (!mission) {
-      captureMessage(`[Redirection No Track] Mission not found`, `mission ${params.data.id}`);
+      captureException(new Error(`[Redirection No Track] Mission not found`), { extra: { missionId: params.data.id } });
       return res.redirect(302, JVA_URL);
     }
 
@@ -585,7 +585,6 @@ router.get("/:statsId/confirm-human", cors({ origin: "*" }), async (req, res) =>
     const params = zod.object({ statsId: zod.string() }).safeParse(req.params);
 
     if (!params.success) {
-      captureMessage(`[Update Stats] Invalid params`, JSON.stringify(params.error, null, 2));
       return res.status(400).send({ ok: false, code: INVALID_PARAMS, message: params.error });
     }
     await statEventService.updateStatEvent(params.data.statsId, { isHuman: true });
@@ -621,7 +620,7 @@ router.get("/:missionId/:publisherId", cors({ origin: "*" }), async (req, res) =
       .safeParse(req.query);
 
     if (!params.success) {
-      captureMessage(`[Redirection Publisher] Invalid params`, JSON.stringify(params.error, null, 2));
+      captureException(params.error, { extra: { params: req.params } });
       return res.redirect(302, "https://www.service-civique.gouv.fr/");
     }
 
@@ -632,7 +631,7 @@ router.get("/:missionId/:publisherId", cors({ origin: "*" }), async (req, res) =
       return res.redirect(302, "https://www.service-civique.gouv.fr/");
     }
     if (!mission) {
-      captureMessage(`[Redirection Publisher] Mission not found`, `mission ${params.data.missionId}, publisher ${params.data.publisherId}`);
+      captureException(new Error(`[Redirection Publisher] Mission not found`), { extra: { missionId: params.data.missionId, publisherId: params.data.publisherId } });
       return res.redirect(302, "https://www.service-civique.gouv.fr/");
     }
     if (!identity) {
@@ -642,7 +641,7 @@ router.get("/:missionId/:publisherId", cors({ origin: "*" }), async (req, res) =
 
     const fromPublisher = await publisherService.findOnePublisherById(params.data.publisherId);
     if (!fromPublisher) {
-      captureMessage(`[Redirection Publisher] Publisher not found`, `publisher ${params.data.publisherId}`);
+      captureException(new Error(`[Redirection Publisher] Publisher not found`), { extra: { publisherId: params.data.publisherId } });
       return res.redirect(302, "https://www.service-civique.gouv.fr/");
     }
 
@@ -727,19 +726,16 @@ router.get("/impression/campaign/:campaignId", cors({ origin: "*" }), async (req
       .safeParse(req.params);
 
     if (!params.success) {
-      captureMessage(`[Impression Campaign] Invalid params`, JSON.stringify(params.error, null, 2));
       return res.status(400).send({ ok: false, code: INVALID_PARAMS, message: params.error });
     }
 
     const campaign = await campaignService.findCampaignById(params.data.campaignId);
     if (!campaign) {
-      captureException(`[Impression Campaign] Campaign not found`, `campaign ${params.data.campaignId}`);
       return res.status(404).send({ ok: false, code: NOT_FOUND });
     }
 
     const fromPublisher = await publisherService.findOnePublisherById(campaign.fromPublisherId);
     if (!fromPublisher) {
-      captureException(`[Impression Campaign] Publisher not found`, `publisher ${campaign.fromPublisherId}`);
       return res.status(404).send({ ok: false, code: NOT_FOUND });
     }
 
@@ -797,17 +793,14 @@ router.get("/impression/:missionId/:publisherId", cors({ origin: "*" }), async (
       .safeParse(req.query);
 
     if (!params.success) {
-      captureMessage(`[Impression Widget] Invalid params`, JSON.stringify(params.error, null, 2));
       return res.status(400).send({ ok: false, code: INVALID_PARAMS, message: params.error });
     }
     if (!query.success) {
-      captureMessage(`[Impression Widget] Invalid query`, JSON.stringify(query.error, null, 2));
       return res.status(400).send({ ok: false, code: INVALID_QUERY, message: query.error });
     }
 
     const mission = await missionService.findOneMission(params.data.missionId);
     if (!mission) {
-      captureMessage(`[Impression Widget] Mission not found`, `mission ${params.data.missionId}, publisher ${params.data.publisherId}`);
       return res.status(404).send({ ok: false, code: NOT_FOUND });
     }
 
@@ -818,9 +811,6 @@ router.get("/impression/:missionId/:publisherId", cors({ origin: "*" }), async (
     }
 
     const source = query.data.sourceId ? await widgetService.findOneWidgetById(query.data.sourceId) : null;
-    if (!source && query.data.sourceId) {
-      captureMessage(`[Impression] Source not found`, `source ${query.data.sourceId}`);
-    }
 
     const statBot = await statBotService.findStatBotByUser(identity.user);
     const obj = {
