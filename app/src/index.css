@@ -301,17 +301,16 @@ select {
 .react-datepicker__week {
   display: flex;
   margin-bottom: 0;
+  border-bottom: solid 1px #fff;
 }
-.react-datepicker__day-names {
-  white-space: nowrap;
-  margin-bottom: -8px;
-}
+
 .react-datepicker__day-name {
   width: 40px;
+  padding-bottom: 8px;
   text-transform: uppercase !important;
   font-size: 12px !important;
   font-weight: 700 !important;
-  color: #666666 !important;
+  color: var(--color-text-mention) !important;
   margin: 0 !important;
 }
 .react-datepicker__day {
@@ -323,12 +322,11 @@ select {
   justify-content: center;
   text-align: center;
   border-radius: 0 !important;
-  border: none;
   padding-top: 6px;
-  color: #000091;
+  color: var(--color-blue-france);
 }
 .react-datepicker__day:not(.react-datepicker__day--disabled):hover {
-  background: #1212ff;
+  background: var(--color-blue-france-hover);
   color: white;
 }
 
@@ -338,7 +336,7 @@ select {
 
 .react-datepicker__day--keyboard-selected:not(.react-datepicker__day--outside-month) {
   background: transparent !important;
-  color: #000091 !important;
+  color: var(--color-text-mention) !important;
 }
 
 .react-datepicker__day--outside-month {
@@ -348,20 +346,20 @@ select {
 
 .react-datepicker__day--disabled {
   background: transparent !important;
-  color: #929292 !important;
+  color: var(--color-gray-625) !important;
   cursor: default;
 }
 
 .react-datepicker__day--in-selecting-range:not(.react-datepicker__day--outside-month),
 .react-datepicker__day--in-range:not(.react-datepicker__day--outside-month) {
-  background: #f5f5fe !important;
-  color: #000091 !important;
+  background: var(--color-blue-france-975);
+  color: var(--color-blue-france);
 }
 
 .react-datepicker__day--selecting-range-start:not(.react-datepicker__day--outside-month),
 .react-datepicker__day--selecting-range-end:not(.react-datepicker__day--outside-month),
 .react-datepicker__day--range-start:not(.react-datepicker__day--outside-month),
 .react-datepicker__day--range-end:not(.react-datepicker__day--outside-month) {
-  background: #000091 !important;
+  background: var(--color-blue-france) !important;
   color: white !important;
 }
