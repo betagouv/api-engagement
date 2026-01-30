@@ -14,9 +14,9 @@ import type {
   MissionSelect,
   MissionUpdatePatch,
 } from "../types/mission";
-import { calculateBoundingBox } from "../utils";
 import { buildJobBoardMap, deriveMissionLocation, normalizeMissionAddresses } from "../utils/mission";
 import { normalizeOptionalString, normalizeStringList } from "../utils/normalize";
+import { buildWhere, buildWhereWithoutGeo, findMissionIdsInBoundingBox, hasGeoFilters } from "./mission-search-filters";
 import { publisherService } from "./publisher";
 
 type MissionWithRelations = Mission & {
@@ -235,196 +235,7 @@ const toMissionRecord = (mission: MissionWithRelations, moderatedBy: string | nu
   return record;
 };
 
-const buildDateFilter = (range?: { gt?: Date; lt?: Date }) => {
-  if (!range) {
-    return undefined;
-  }
-  const filter: Prisma.DateTimeFilter = {};
-  if (range.gt) {
-    filter.gt = range.gt;
-  }
-  if (range.lt) {
-    filter.lt = range.lt;
-  }
-  return Object.keys(filter).length ? filter : undefined;
-};
-
-export const buildWhere = (filters: MissionSearchFilters): Prisma.MissionWhereInput => {
-  const where: Prisma.MissionWhereInput = filters.directFilters ?? {};
-
-  const orConditions: Prisma.MissionWhereInput[] = [];
-
-  where.statusCode = filters.statusCode ?? "ACCEPTED";
-
-  if (filters.statusComment) {
-    where.statusComment = filters.statusComment;
-  }
-
-  if (!filters.includeDeleted) {
-    where.deletedAt = null;
-  } else if (filters.deletedAt) {
-    const deletedAtFilter = buildDateFilter(filters.deletedAt);
-    if (deletedAtFilter) {
-      orConditions.push({ deletedAt: null }, { deletedAt: deletedAtFilter });
-    }
-  }
-
-  if (filters.publisherIds?.length) {
-    where.publisherId = { in: filters.publisherIds };
-  }
-
-  if (filters.excludeOrganizationClientIds?.length) {
-    const existingNot = Array.isArray(where.NOT) ? where.NOT : where.NOT ? [where.NOT] : [];
-    where.NOT = [
-      ...existingNot,
-      {
-        organizationClientId: { in: filters.excludeOrganizationClientIds },
-      },
-    ];
-  }
-
-  if (filters.activity?.length) {
-    where.activity = { is: { name: { in: filters.activity } } };
-  }
-  if (filters.action?.length) {
-    where.tasks = { hasSome: filters.action };
-  }
-  if (filters.beneficiary?.length) {
-    where.audience = { hasSome: filters.beneficiary };
-  }
-  if (filters.clientId?.length) {
-    where.clientId = { in: filters.clientId };
-  }
-  if (filters.organizationClientId?.length) {
-    where.organizationClientId = { in: filters.organizationClientId };
-  }
-  if (filters.domain?.length && !filters.domainIncludeMissing) {
-    where.domain = { is: { name: { in: filters.domain } } };
-  } else if (filters.domain?.length && filters.domainIncludeMissing) {
-    orConditions.push({ domain: { is: { name: { in: filters.domain } } } });
-  }
-  if (filters.domainIncludeMissing) {
-    orConditions.push({ domainId: null });
-  }
-  if (filters.remote?.length) {
-    where.remote = { in: filters.remote as any };
-  }
-  if (filters.type?.length) {
-    where.type = { in: filters.type as any };
-  }
-  if (filters.schedule?.length) {
-    where.schedule = { in: filters.schedule };
-  }
-  if (filters.snu) {
-    where.snu = true;
-  }
-  if ("openToMinors" in filters && filters.openToMinors !== undefined) {
-    where.openToMinors = filters.openToMinors as any;
-  }
-  if ("reducedMobilityAccessible" in filters && filters.reducedMobilityAccessible !== undefined) {
-    where.reducedMobilityAccessible = filters.reducedMobilityAccessible as any;
-  }
-  if (filters.durationLte !== undefined) {
-    where.duration = { ...(where.duration as Prisma.IntFilter | undefined), lte: filters.durationLte };
-  }
-
-  const createdAtFilter = buildDateFilter(filters.createdAt);
-  if (createdAtFilter) {
-    where.createdAt = createdAtFilter;
-  }
-  const startAtFilter = buildDateFilter(filters.startAt);
-  if (startAtFilter) {
-    where.startAt = startAtFilter;
-  }
-
-  const addressAnd: Prisma.MissionAddressWhereInput = {};
-  const addressOr: Prisma.MissionAddressWhereInput[] = [];
-  if (filters.city?.length) {
-    addressAnd.city = { in: filters.city };
-  }
-  if (filters.country?.length) {
-    addressAnd.country = { in: filters.country };
-  } else if (filters.countryNot?.length) {
-    addressAnd.country = { notIn: filters.countryNot };
-  }
-  if (filters.departmentName?.length) {
-    addressAnd.departmentName = { in: filters.departmentName };
-  }
-  if (filters.departmentNameIncludeMissing) {
-    addressOr.push({ departmentName: null }, { departmentName: "" });
-  }
-
-  if (hasGeoFilters(filters)) {
-    const { lat, lon, distanceKm } = filters;
-    if (lat !== undefined && lon !== undefined && distanceKm !== undefined) {
-      const { latMin, latMax, lonMin, lonMax } = calculateBoundingBox(lat, lon, distanceKm);
-      addressAnd.locationLat = { gte: latMin, lte: latMax };
-      addressAnd.locationLon = { gte: lonMin, lte: lonMax };
-    }
-  }
-
-  if (Object.keys(addressAnd).length || addressOr.length) {
-    const clauses = [];
-    if (Object.keys(addressAnd).length) {
-      clauses.push(addressAnd);
-    }
-    if (addressOr.length) {
-      clauses.push(...addressOr);
-    }
-    where.addresses = clauses.length === 1 ? { some: clauses[0] } : { some: { OR: clauses } };
-  }
-
-  if (filters.organizationRNA?.length || filters.organizationStatusJuridique?.length || filters.organizationName?.length) {
-    where.publisherOrganization = {
-      is: {
-        ...(filters.organizationRNA?.length ? { organizationRNA: { in: filters.organizationRNA } } : {}),
-        ...(filters.organizationStatusJuridique?.length ? { organizationStatusJuridique: { in: filters.organizationStatusJuridique } } : {}),
-        ...(filters.organizationName?.length ? { organizationName: { in: filters.organizationName } } : {}),
-      },
-    };
-  }
-
-  if (filters.moderationAcceptedFor) {
-    const moderationWhere: Prisma.MissionModerationStatusWhereInput = { publisherId: filters.moderationAcceptedFor };
-    if (filters.moderationStatus) {
-      moderationWhere.status = filters.moderationStatus as any;
-    }
-    if (filters.moderationComment) {
-      moderationWhere.comment = filters.moderationComment;
-    }
-    where.moderationStatuses = { some: moderationWhere };
-  }
-
-  if (filters.keywords) {
-    const keywords = filters.keywords;
-    const existingAnd = Array.isArray(where.AND) ? where.AND : where.AND ? [where.AND] : [];
-    where.AND = [
-      ...existingAnd,
-      {
-        OR: [
-          { title: { contains: keywords, mode: "insensitive" } },
-          { publisherOrganization: { is: { organizationName: { contains: keywords, mode: "insensitive" } } } },
-          { addresses: { some: { city: { contains: keywords, mode: "insensitive" } } } },
-          { domain: { is: { name: { contains: keywords, mode: "insensitive" } } } },
-        ],
-      },
-    ];
-  }
-
-  if (filters.excludeOrganizationName) {
-    const organizationWhere = (where.publisherOrganization?.is as Prisma.PublisherOrganizationWhereInput | undefined) ?? {};
-    const nameFilter = (organizationWhere.organizationName as Prisma.StringFilter | undefined) ?? {};
-    organizationWhere.organizationName = { ...nameFilter, not: filters.excludeOrganizationName };
-    where.publisherOrganization = { is: organizationWhere };
-  }
-
-  if (orConditions.length) {
-    const existingOr = Array.isArray(where.OR) ? where.OR : where.OR ? [where.OR] : [];
-    where.OR = [...existingOr, ...orConditions];
-  }
-
-  return where;
-};
+export { buildWhere } from "./mission-search-filters";
 
 const computeFacetsFromRecords = (records: MissionRecord[]): MissionFacets => {
   const counts = <T extends string>(getter: (record: MissionRecord) => T | null) => {
@@ -559,8 +370,6 @@ const buildAggregations = async (where: Prisma.MissionWhereInput): Promise<Missi
   return { status, comments, domains, organizations: organizationsAgg, activities, cities, departments, partners };
 };
 
-const hasGeoFilters = (filters: MissionSearchFilters) => filters.lat !== undefined && filters.lon !== undefined && filters.distanceKm !== undefined;
-
 const mapAddressesForCreate = (addresses?: MissionRecord["addresses"]) => {
   if (!addresses || !addresses.length) {
     return [];
@@ -628,6 +437,42 @@ export const missionService = {
   },
 
   async findMissions(filters: MissionSearchFilters, select: MissionSelect | null = null): Promise<{ data: MissionRecord[]; total: number }> {
+    // Use GiST-optimized query when geo filters are present
+    if (hasGeoFilters(filters)) {
+      // First, get mission IDs in bounding box using fast GiST index
+      const geoResult = await findMissionIdsInBoundingBox(filters);
+
+      if (geoResult && geoResult.ids.length > 0) {
+        // Build where clause without geo filters (GiST already handled that)
+        // and add constraint to only include missions from the GiST result
+        const baseWhere = buildWhereWithoutGeo(filters);
+        const whereWithIds: Prisma.MissionWhereInput = {
+          ...baseWhere,
+          id: { in: geoResult.ids },
+        };
+
+        // Fetch missions and count with all other filters applied
+        const [missions, total] = await Promise.all([
+          missionRepository.findMany({
+            where: whereWithIds,
+            select,
+            include: select ? undefined : baseInclude,
+            orderBy: { startAt: Prisma.SortOrder.desc },
+          }),
+          missionRepository.count(whereWithIds),
+        ]);
+
+        return {
+          data: missions.map((mission) => toMissionRecord(mission as MissionWithRelations, filters.moderationAcceptedFor)),
+          total,
+        };
+      }
+
+      // No missions in bounding box
+      return { data: [], total: 0 };
+    }
+
+    // Standard query without geo filters
     const where = buildWhere(filters);
 
     const [missions, total] = await Promise.all([
@@ -685,6 +530,26 @@ export const missionService = {
   },
 
   async countMissions(filters: MissionSearchFilters): Promise<number> {
+    // Use GiST-optimized query when geo filters are present
+    if (hasGeoFilters(filters)) {
+      const geoResult = await findMissionIdsInBoundingBox({
+        ...filters,
+        limit: Number.MAX_SAFE_INTEGER, // We need all IDs for accurate count
+        skip: 0,
+      });
+
+      if (geoResult && geoResult.ids.length > 0) {
+        const baseWhere = buildWhereWithoutGeo(filters);
+        const whereWithIds: Prisma.MissionWhereInput = {
+          ...baseWhere,
+          id: { in: geoResult.ids },
+        };
+        return missionRepository.count(whereWithIds);
+      }
+
+      return 0;
+    }
+
     const where = buildWhere(filters);
     return missionRepository.count(where);
   },
