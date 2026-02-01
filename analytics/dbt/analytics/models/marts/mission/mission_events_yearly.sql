@@ -70,6 +70,28 @@ mission_base as (
     {% endif %}
 ),
 
+-- Agrégat national sans le grain département pour éviter les doublons
+mission_base_all as (
+  select
+    mad.active_date,
+    extract(year from mad.active_date)::int as year,
+    mad.mission_id,
+    im.organization_id,
+    mad.mission_domain,
+    mad.publisher_category,
+    coalesce(mad.updated_at, mad.active_date)::timestamp as updated_at
+  from {{ ref('int_mission_active_daily') }} as mad
+  left join {{ ref('int_mission') }} as im
+    on mad.mission_id = im.id
+  where
+    mad.active_date is not null
+    {% if is_incremental() %}
+      and extract(year from mad.active_date)::int in (
+        select ay.year from affected_years as ay
+      )
+    {% endif %}
+),
+
 missions_dept as (
   select
     year,
@@ -113,7 +135,7 @@ missions_all_dept as (
     count(distinct mission_id) as mission_count,
     count(distinct organization_id) as organization_count,
     max(updated_at) as max_updated_at
-  from mission_base
+  from mission_base_all
   group by year, mission_domain, publisher_category
 ),
 
@@ -128,7 +150,7 @@ missions_all_dept_all_type as (
     count(distinct mission_id) as mission_count,
     count(distinct organization_id) as organization_count,
     max(updated_at) as max_updated_at
-  from mission_base
+  from mission_base_all
   group by year, mission_domain
 ),
 
@@ -161,6 +183,21 @@ events_with_dims as (
     greatest(eb.updated_at, mb.updated_at) as updated_at
   from events_base as eb
   inner join mission_base as mb
+    on
+      eb.mission_id = mb.mission_id
+      and eb.event_date = mb.active_date
+),
+
+-- Version sans département pour éviter la duplication des événements nationaux
+events_with_dims_all as (
+  select
+    eb.year,
+    mb.mission_domain,
+    mb.publisher_category,
+    eb.type,
+    greatest(eb.updated_at, mb.updated_at) as updated_at
+  from events_base as eb
+  inner join mission_base_all as mb
     on
       eb.mission_id = mb.mission_id
       and eb.event_date = mb.active_date
@@ -209,7 +246,7 @@ events_all_dept as (
     sum(case when type = 'click' then 1 else 0 end) as redirection_count,
     sum(case when type = 'apply' then 1 else 0 end) as candidature_count,
     max(updated_at) as max_updated_at
-  from events_with_dims
+  from events_with_dims_all
   group by year, mission_domain, publisher_category
 ),
 
@@ -224,7 +261,7 @@ events_all_dept_all_type as (
     sum(case when type = 'click' then 1 else 0 end) as redirection_count,
     sum(case when type = 'apply' then 1 else 0 end) as candidature_count,
     max(updated_at) as max_updated_at
-  from events_with_dims
+  from events_with_dims_all
   group by year, mission_domain
 ),
 
