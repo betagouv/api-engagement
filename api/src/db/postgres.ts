@@ -2,28 +2,40 @@
 import { PrismaClient as PrismaClientAnalytics } from "./analytics";
 import { PrismaClient as PrismaClientCore } from "./core";
 
+// Pool size configuration for Core DB based on:
+// - PostgreSQL max_connections (typically 100-200 for Scaleway)
+// - Number of API instances (max_scale in Terraform)
+// - Number of concurrent jobs
+// See PRISMA_POOL_SIZING.md for dimensioning guidelines
+const poolSizeCore = parseInt(process.env.PRISMA_POOL_SIZE_CORE || "15", 10);
+const poolTimeout = parseInt(process.env.PRISMA_POOL_TIMEOUT || "20", 10);
+const connectTimeout = parseInt(process.env.PRISMA_CONNECT_TIMEOUT || "10", 10);
+
 const prismaCore = new PrismaClientCore({
   log: ["error"],
   datasources: {
     db_core: {
-      url: process.env.DATABASE_URL_CORE + "?connection_limit=20&pool_timeout=20&connect_timeout=10",
+      url:
+        process.env.DATABASE_URL_CORE +
+        `?connection_limit=${poolSizeCore}&pool_timeout=${poolTimeout}&connect_timeout=${connectTimeout}`,
     },
   },
 });
+
+// Analytics DB is legacy - no pool configuration
 const prismaAnalytics = new PrismaClientAnalytics({
   log: ["error"],
-  datasources: {
-    db_analytics: {
-      url: process.env.DATABASE_URL_ANALYTICS + "?connection_limit=15&pool_timeout=20&connect_timeout=10",
-    },
-  },
 });
 
 const connectPrisma = (name: string, prisma: { $connect: () => Promise<void> }) => {
   return prisma
     .$connect()
     .then(() => {
-      console.log(`[PostgreSQL] ${name} connected`);
+      if (name === "Core") {
+        console.log(`[PostgreSQL] ${name} connected (pool: ${poolSizeCore} connections, timeout: ${poolTimeout}s)`);
+      } else {
+        console.log(`[PostgreSQL] ${name} connected`);
+      }
     })
     .catch((error) => {
       console.error(`[PostgreSQL] ${name} Connection error:`, error);
