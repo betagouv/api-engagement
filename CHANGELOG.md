@@ -2,6 +2,91 @@
 Vous retrouverez ici l'historique des différents déploiements effectués sur l'API Engagement.
 
 
+## 26/01/2026
+
+
+### Bug Fixes
+
+- (**app**) Express v5 missmatch ([`2f048d5`](https://github.com/betagouv/api-engagement/commit/2f048d5e63ef93c6f2de84158e5af26a0fd32926))
+
+- (**jobs**) Improve mission change detection on array (#703) ([`7744979`](https://github.com/betagouv/api-engagement/commit/7744979da1d3744445722b675e3effa0e48d51b3))
+
+- (**jobs**) Better mission addresss change detection (#701) ([`1162900`](https://github.com/betagouv/api-engagement/commit/1162900ad32882600224e40c985e693da8d8ca06))
+
+- (**analytics**) Mission documentation with organization fields (#702) ([`516b572`](https://github.com/betagouv/api-engagement/commit/516b57295d7ac35cc10e136bd954c88a46da912b))
+
+- (**app**) A11y change color contrast - remote all tailwind colors (#688) ([`54cd2a9`](https://github.com/betagouv/api-engagement/commit/54cd2a975f46a6c535e212b49e990278ed1309f2))
+
+- (**analytics**) Missing mission_address terraform job (#694) ([`b8530e8`](https://github.com/betagouv/api-engagement/commit/b8530e8c562d6207a9894618467495d8aad13b45))
+
+- (**jobs**) Duplicated organizations during import missions (#690) ([`f97eae8`](https://github.com/betagouv/api-engagement/commit/f97eae851e1c2d5b680fb33620b0971aef017b3a))
+
+- (**jobs**) Improve address comparison in mission import job (#689) ([`821f29d`](https://github.com/betagouv/api-engagement/commit/821f29df8c64d39865530edb7a50c178950cea81))
+
+- (**jobs**) Simplify backfill publisher organization script ([`59a05d1`](https://github.com/betagouv/api-engagement/commit/59a05d180ae85281ecb670e01728f6df7d6b1b9e))
+
+- (**jobs**) Fix letudiant job with mission job board service (#682) ([`b229638`](https://github.com/betagouv/api-engagement/commit/b2296382ca545bdae6d3a80c595dcb3d8c3ccdc8))
+
+
+### CI/CD
+
+- (**deps**) Bump actions/setup-python from 5 to 6 (#610) ([`5962a83`](https://github.com/betagouv/api-engagement/commit/5962a8344aecd39c8c3e9938ed76726856ba4e76))
+
+
+### Features
+
+- (**jobs**) Improve letudiant mission description (#697) ([`a58aac6`](https://github.com/betagouv/api-engagement/commit/a58aac63af2af1b27a61305e42320e8a4954492e))
+
+- (**analytics**) New attributes for service civique (#700) ([`86b5974`](https://github.com/betagouv/api-engagement/commit/86b597481bb45a2b16235a3a64a5a10f0433ab48))
+
+- (**analytics**) PublisherOrganization dbt pipeline (#691) ([`b4da955`](https://github.com/betagouv/api-engagement/commit/b4da955655d83b194ecf562c166578a2ce960292))
+
+- (**analytics**) Mission_moderation_status dbt pipeline (#683) ([`8f2e508`](https://github.com/betagouv/api-engagement/commit/8f2e5082d7bbbb2a9e54f9ae8d392a1016a54294))
+
+
+### Miscellaneous Tasks
+
+- (**changelog**) Update CHANGELOG.md ([`6f72fe4`](https://github.com/betagouv/api-engagement/commit/6f72fe4eed1b1cf3886509c7fbfe109c93d5d327))
+
+- (**changelog**) Update CHANGELOG.md ([`afd04a8`](https://github.com/betagouv/api-engagement/commit/afd04a85bb072c4ecc89c3750d12e1d10d3c9a9a))
+
+- (**deps**) Bump express from 4.21.0 to 5.2.1 in /app (#651) ([`a54c4ec`](https://github.com/betagouv/api-engagement/commit/a54c4ecbb8d3633453bec93cf8dcea8c972b12d1))
+
+- (**deps**) Bump the production-dependencies group in /app with 7 updates (#648) ([`cd4f217`](https://github.com/betagouv/api-engagement/commit/cd4f217b8bfa054e3e7463a8d638fac3b139f63e))
+
+- (**deps-dev**) Bump the dev-dependencies group in /app with 2 updates (#646) ([`dac1cf1`](https://github.com/betagouv/api-engagement/commit/dac1cf15b84603eea59b96c69a94784354af459c))
+
+- (**deps**) Bump actions/upload-artifact from 5 to 6 (#644) ([`65c737b`](https://github.com/betagouv/api-engagement/commit/65c737b8bc1eaadb82addd4bba5c5244d9e2d230))
+
+- (**ci**) Bump actions/checkout from 5 to 6 (#604) ([`cc1c5ef`](https://github.com/betagouv/api-engagement/commit/cc1c5efe231dde0de4ffad2eefc2dc40b76592b6))
+
+- (**deps-dev**) Bump eslint-plugin-react-hooks from 5.2.0 to 7.0.1 in /widget (#600) ([`9bd0b54`](https://github.com/betagouv/api-engagement/commit/9bd0b54e219b4692985a88d08f21d9b6d2852cbb))
+
+- (**deps-dev**) Bump jsdom from 26.1.0 to 27.2.0 in /widget (#599) ([`2ab093f`](https://github.com/betagouv/api-engagement/commit/2ab093feb49ce4cc32d8e9b8774b5ea4d1f111a0))
+
+- (**deps-dev**) Bump eslint-plugin-react-hooks from 5.2.0 to 7.0.1 in /api (#597) ([`2748ff9`](https://github.com/betagouv/api-engagement/commit/2748ff9a5c9c3df31b246bebe20c59c816a19eab))
+
+- (**deps**) Bump express-rate-limit from 7.5.1 to 8.2.1 in /api (#593) ([`e274956`](https://github.com/betagouv/api-engagement/commit/e274956997b48e9910d08a08962c104b525fe038))
+
+
+### Refactoring
+
+- (**analytics**) Add daily agregation models (#698) ([`6ccf4a7`](https://github.com/betagouv/api-engagement/commit/6ccf4a7efd119d86589482b2f1919a5429615235))
+
+- (**jobs**) Import missions performance (#693) ([`a6ac14a`](https://github.com/betagouv/api-engagement/commit/a6ac14a46e1ffd960329713f68132c827a536dd6))
+
+- (**app**) A11y add text to icon (#687) ([`b306712`](https://github.com/betagouv/api-engagement/commit/b3067127f7dcc17ced0b8455bfffa43611fad832))
+
+- (**app**) A11y pagination (#686) ([`febef67`](https://github.com/betagouv/api-engagement/commit/febef678ec156569a8cba6dc53f8c111c0ccaff3))
+
+- (**jobs**) Migrate domain logo to mission schema (#692) ([`4831285`](https://github.com/betagouv/api-engagement/commit/483128562a4222fa4970f1d1be4ca2fc8fe2cf6d))
+
+- (**api**) Deduplicate mission organization in publisherOrganization (#684) ([`4de8b12`](https://github.com/betagouv/api-engagement/commit/4de8b1237c76064d0403bab7fefcff4d071596f5))
+
+# API Engagement - Changelog
+Vous retrouverez ici l'historique des différents déploiements effectués sur l'API Engagement.
+
+
 ## 19/01/2026
 
 
