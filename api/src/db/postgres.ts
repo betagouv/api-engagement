@@ -6,7 +6,7 @@ import { PrismaClient as PrismaClientCore } from "./core";
 // - PostgreSQL max_connections = 350 (verified in production)
 // - Number of API instances (max_scale = 1 in Terraform)
 // - Number of concurrent jobs
-// See PRISMA_POOL_SIZING.md for dimensioning guidelines
+// See https://github.com/betagouv/api-engagement/pull/726 for dimensioning guidelines
 const poolSizeCore = parseInt(process.env.PRISMA_POOL_SIZE_CORE || "50", 10);
 const poolTimeout = parseInt(process.env.PRISMA_POOL_TIMEOUT || "20", 10);
 const connectTimeout = parseInt(process.env.PRISMA_CONNECT_TIMEOUT || "10", 10);
@@ -15,14 +15,11 @@ const prismaCore = new PrismaClientCore({
   log: ["error"],
   datasources: {
     db_core: {
-      url:
-        process.env.DATABASE_URL_CORE +
-        `?connection_limit=${poolSizeCore}&pool_timeout=${poolTimeout}&connect_timeout=${connectTimeout}`,
+      url: process.env.DATABASE_URL_CORE + `?connection_limit=${poolSizeCore}&pool_timeout=${poolTimeout}&connect_timeout=${connectTimeout}`,
     },
   },
 });
 
-// Analytics DB is legacy - no pool configuration
 const prismaAnalytics = new PrismaClientAnalytics({
   log: ["error"],
 });
