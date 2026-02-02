@@ -3,11 +3,11 @@ import { PrismaClient as PrismaClientAnalytics } from "./analytics";
 import { PrismaClient as PrismaClientCore } from "./core";
 
 // Pool size configuration for Core DB based on:
-// - PostgreSQL max_connections (typically 100-200 for Scaleway)
-// - Number of API instances (max_scale in Terraform)
+// - PostgreSQL max_connections = 350 (verified in production)
+// - Number of API instances (max_scale = 1 in Terraform)
 // - Number of concurrent jobs
 // See PRISMA_POOL_SIZING.md for dimensioning guidelines
-const poolSizeCore = parseInt(process.env.PRISMA_POOL_SIZE_CORE || "15", 10);
+const poolSizeCore = parseInt(process.env.PRISMA_POOL_SIZE_CORE || "50", 10);
 const poolTimeout = parseInt(process.env.PRISMA_POOL_TIMEOUT || "20", 10);
 const connectTimeout = parseInt(process.env.PRISMA_CONNECT_TIMEOUT || "10", 10);
 
