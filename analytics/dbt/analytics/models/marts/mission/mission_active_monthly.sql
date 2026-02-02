@@ -16,16 +16,34 @@ with last_run as (
 
 base as (
   select
-    extract(year from active_date)::int as year,
-    extract(month from active_date)::int as month,
-    date_trunc('month', active_date)::date as month_start,
-    department,
-    publisher_category,
+    mission_id,
     publisher_id,
-    mission_id
-  from {{ ref('int_mission_active_daily') }}
+    publisher_category,
+    start_date,
+    coalesce(end_date, current_date) as end_date
+  from {{ ref('int_mission_active_range') }}
+  where start_date is not null
+),
+
+active_months as (
+  select
+    extract(year from s.month_start)::int as year,
+    extract(month from s.month_start)::int as month,
+    s.month_start,
+    null::text as department,
+    b.publisher_category,
+    b.publisher_id,
+    b.mission_id
+  from base as b
+  inner join lateral (
+    select generate_series(
+      date_trunc('month', b.start_date),
+      date_trunc('month', b.end_date),
+      interval '1 month'
+    )::date as month_start
+  ) as s on true
   {% if is_incremental() %}
-    where active_date >= (select lr.last_month_start from last_run as lr)
+    where s.month_start >= (select lr.last_month_start from last_run as lr)
   {% endif %}
 ),
 
@@ -39,10 +57,15 @@ dept as (
     publisher_category,
     publisher_id,
     count(distinct mission_id) as mission_count
-  from base
+  from active_months
   where department is not null
   group by
-    year, month, month_start, department, publisher_category, publisher_id
+    year,
+    month,
+    month_start,
+    department,
+    publisher_category,
+    publisher_id
 ),
 
 dept_all_category as (
@@ -55,7 +78,7 @@ dept_all_category as (
     'all' as publisher_category,
     null as publisher_id,
     count(distinct mission_id) as mission_count
-  from base
+  from active_months
   where department is not null
   group by year, month, month_start, department
 ),
@@ -70,7 +93,7 @@ all_dept as (
     publisher_category,
     publisher_id,
     count(distinct mission_id) as mission_count
-  from base
+  from active_months
   group by year, month, month_start, publisher_category, publisher_id
 ),
 
@@ -84,7 +107,7 @@ all_dept_all_category as (
     'all' as publisher_category,
     null as publisher_id,
     count(distinct mission_id) as mission_count
-  from base
+  from active_months
   group by year, month, month_start
 )
 

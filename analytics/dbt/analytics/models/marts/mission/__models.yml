@@ -199,37 +199,10 @@ models:
       - name: geo_point
         description: Point géographique (nullable).
 
-  - name: mission_active_daily
-    description: >
-      Vue miroir de `int_mission_active_daily` : missions actives par jour (créées avant fin de jour,
-      non supprimées avant début de jour) avec département et catégorie benevolat/volontariat/all.
-    columns:
-      - name: active_date
-        description: Jour où la mission est active.
-      - name: department
-        description: Code département de la mission (dédoublonné via int_mission_address).
-      - name: publisher_category
-        description: Catégorie de mission (benevolat / volontariat / all).
-      - name: publisher_id
-        description: Identifiant du publisher de la mission.
-        tests:
-          - relationships:
-              arguments:
-                to: ref('publisher')
-                field: id
-      - name: mission_id
-        description: Identifiant de la mission.
-        tests:
-          - not_null
-          - relationships:
-              arguments:
-                to: ref('mission')
-                field: id
-
   - name: mission_active_monthly
     description: >
-      Agrégat mensuel des missions actives (count distinct mission_id) ventilé par département/national
-      et catégorie, basé sur mission_active_daily.
+      Variante mensuelle basée sur `int_mission_active_range` qui déplie les missions actives
+      par mois à partir de leur période d'activité (start/end).
     columns:
       - name: year
         description: Année de l’agrégat.
@@ -247,8 +220,8 @@ models:
         description: Missions actives distinctes sur le mois.
   - name: mission_active_department_monthly
     description: >
-      Agrégat mensuel des missions actives par département (count distinct mission_id),
-      basé sur `int_mission_active_department_daily` pour gérer les missions multi-adresses.
+      Variante mensuelle basée sur `int_mission_active_department_range` pour gérer les missions
+      multi-adresses sans déplier en jours.
     columns:
       - name: year
         description: Année de l’agrégat.
@@ -278,9 +251,9 @@ models:
 
   - name: mission_events_yearly
     description: >
-      Agrégat annuel des missions actives et des événements (click/apply) associés, ventilé
-      par département/national, domaine et type de mission. Les événements sont comptés
-      uniquement lorsque la mission est active à la date de l’événement (created_at).
+      Variante annuelle basée sur les périodes d’activité (start/end) issues des modèles
+      range. Les événements sont comptés uniquement lorsque la mission est active à la date
+      de l’événement (created_at).
     columns:
       - name: year
         description: Année civile de l’agrégat.

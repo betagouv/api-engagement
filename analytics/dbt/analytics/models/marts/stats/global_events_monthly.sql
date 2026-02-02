@@ -31,6 +31,25 @@ affected_months as (
   {% if is_incremental() %}
     where coalesce(ge.updated_at, ge.created_at) >= last_run.last_updated_at
   {% endif %}
+
+  union
+
+  select distinct s.month_start
+  from {{ ref('int_mission_active_department_range') }} as mdr
+  inner join lateral (
+    select generate_series(
+      date_trunc('month', mdr.start_date),
+      date_trunc('month', coalesce(mdr.end_date, current_date)),
+      interval '1 month'
+    )::date as month_start
+  ) as s on true
+  cross join last_run
+  where
+    mdr.start_date is not null
+    {% if is_incremental() %}
+      and coalesce(mdr.updated_at, mdr.start_date::timestamp)
+      >= last_run.last_updated_at
+    {% endif %}
 ),
 
 base as (
@@ -47,10 +66,11 @@ base as (
       coalesce(mad.updated_at, ge.created_at)
     ) as updated_at
   from {{ ref('global_events') }} as ge
-  left join {{ ref('int_mission_active_department_daily') }} as mad
+  left join {{ ref('int_mission_active_department_range') }} as mad
     on
       ge.mission_id = mad.mission_id
-      and date(ge.created_at) = mad.active_date
+      and date(ge.created_at)
+      between mad.start_date and coalesce(mad.end_date, current_date)
   where
     1 = 1
     {% if is_incremental() %}

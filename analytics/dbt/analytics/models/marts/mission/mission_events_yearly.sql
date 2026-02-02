@@ -30,10 +30,34 @@ departments as (
 ),
 
 affected_years as (
-  select distinct extract(year from mad.active_date)::int as year
-  from {{ ref('int_mission_active_daily') }} as mad
+  select distinct extract(year from s.year_start)::int as year
+  from {{ ref('int_mission_active_range') }} as mar
+  inner join lateral (
+    select generate_series(
+      date_trunc('year', mar.start_date),
+      date_trunc('year', coalesce(mar.end_date, current_date)),
+      interval '1 year'
+    )::date as year_start
+  ) as s on true
   where
-    coalesce(mad.updated_at, mad.active_date)::timestamp
+    mar.start_date is not null
+    and coalesce(mar.updated_at, mar.start_date::timestamp)
+    >= (select lr.last_updated_at from last_run as lr)
+
+  union
+
+  select distinct extract(year from s.year_start)::int as year
+  from {{ ref('int_mission_active_department_range') }} as mdr
+  inner join lateral (
+    select generate_series(
+      date_trunc('year', mdr.start_date),
+      date_trunc('year', coalesce(mdr.end_date, current_date)),
+      interval '1 year'
+    )::date as year_start
+  ) as s on true
+  where
+    mdr.start_date is not null
+    and coalesce(mdr.updated_at, mdr.start_date::timestamp)
     >= (select lr.last_updated_at from last_run as lr)
 
   union
@@ -45,51 +69,89 @@ affected_years as (
     >= (select lr.last_updated_at from last_run as lr)
 ),
 
+mission_range_dept as (
+  select
+    mdr.start_date,
+    mdr.end_date,
+    mdr.department,
+    d.department_name,
+    mdr.mission_id,
+    im.organization_id,
+    mdr.mission_domain,
+    mdr.publisher_category,
+    coalesce(mdr.updated_at, mdr.start_date)::timestamp as updated_at
+  from {{ ref('int_mission_active_department_range') }} as mdr
+  left join {{ ref('int_mission') }} as im
+    on mdr.mission_id = im.id
+  left join departments as d
+    on mdr.department = d.department_code
+  where
+    mdr.start_date is not null
+),
+
+mission_range_all as (
+  select
+    mar.start_date,
+    mar.end_date,
+    mar.mission_id,
+    im.organization_id,
+    mar.mission_domain,
+    mar.publisher_category,
+    coalesce(mar.updated_at, mar.start_date)::timestamp as updated_at
+  from {{ ref('int_mission_active_range') }} as mar
+  left join {{ ref('int_mission') }} as im
+    on mar.mission_id = im.id
+  where
+    mar.start_date is not null
+),
+
 mission_base as (
   select
-    mad.active_date,
-    extract(year from mad.active_date)::int as year,
-    mad.department,
-    d.department_name,
-    mad.mission_id,
-    im.organization_id,
-    mad.mission_domain,
-    mad.publisher_category,
-    coalesce(mad.updated_at, mad.active_date)::timestamp as updated_at
-  from {{ ref('int_mission_active_department_daily') }} as mad
-  left join {{ ref('int_mission') }} as im
-    on mad.mission_id = im.id
-  left join departments as d
-    on mad.department = d.department_code
-  where
-    mad.active_date is not null
-    {% if is_incremental() %}
-      and extract(year from mad.active_date)::int in (
-        select ay.year from affected_years as ay
-      )
-    {% endif %}
+    extract(year from s.year_start)::int as year,
+    mrd.department,
+    mrd.department_name,
+    mrd.mission_id,
+    mrd.organization_id,
+    mrd.mission_domain,
+    mrd.publisher_category,
+    mrd.updated_at
+  from mission_range_dept as mrd
+  inner join lateral (
+    select generate_series(
+      date_trunc('year', mrd.start_date),
+      date_trunc('year', coalesce(mrd.end_date, current_date)),
+      interval '1 year'
+    )::date as year_start
+  ) as s on true
+  {% if is_incremental() %}
+    where extract(year from s.year_start)::int in (
+      select ay.year from affected_years as ay
+    )
+  {% endif %}
 ),
 
 -- Agrégat national sans le grain département pour éviter les doublons
 mission_base_all as (
   select
-    mad.active_date,
-    extract(year from mad.active_date)::int as year,
-    mad.mission_id,
-    im.organization_id,
-    mad.mission_domain,
-    mad.publisher_category,
-    coalesce(mad.updated_at, mad.active_date)::timestamp as updated_at
-  from {{ ref('int_mission_active_daily') }} as mad
-  left join {{ ref('int_mission') }} as im
-    on mad.mission_id = im.id
-  where
-    mad.active_date is not null
-    {% if is_incremental() %}
-      and extract(year from mad.active_date)::int in (
-        select ay.year from affected_years as ay
-      )
-    {% endif %}
+    extract(year from s.year_start)::int as year,
+    mra.mission_id,
+    mra.organization_id,
+    mra.mission_domain,
+    mra.publisher_category,
+    mra.updated_at
+  from mission_range_all as mra
+  inner join lateral (
+    select generate_series(
+      date_trunc('year', mra.start_date),
+      date_trunc('year', coalesce(mra.end_date, current_date)),
+      interval '1 year'
+    )::date as year_start
+  ) as s on true
+  {% if is_incremental() %}
+    where extract(year from s.year_start)::int in (
+      select ay.year from affected_years as ay
+    )
+  {% endif %}
 ),
 
 missions_dept as (
@@ -175,32 +237,34 @@ events_base as (
 events_with_dims as (
   select
     eb.year,
-    mb.department,
-    mb.department_name,
-    mb.mission_domain,
-    mb.publisher_category,
+    mrd.department,
+    mrd.department_name,
+    mrd.mission_domain,
+    mrd.publisher_category,
     eb.type,
-    greatest(eb.updated_at, mb.updated_at) as updated_at
+    greatest(eb.updated_at, mrd.updated_at) as updated_at
   from events_base as eb
-  inner join mission_base as mb
+  inner join mission_range_dept as mrd
     on
-      eb.mission_id = mb.mission_id
-      and eb.event_date = mb.active_date
+      eb.mission_id = mrd.mission_id
+      and eb.event_date
+      between mrd.start_date and coalesce(mrd.end_date, current_date)
 ),
 
 -- Version sans département pour éviter la duplication des événements nationaux
 events_with_dims_all as (
   select
     eb.year,
-    mb.mission_domain,
-    mb.publisher_category,
+    mra.mission_domain,
+    mra.publisher_category,
     eb.type,
-    greatest(eb.updated_at, mb.updated_at) as updated_at
+    greatest(eb.updated_at, mra.updated_at) as updated_at
   from events_base as eb
-  inner join mission_base_all as mb
+  inner join mission_range_all as mra
     on
-      eb.mission_id = mb.mission_id
-      and eb.event_date = mb.active_date
+      eb.mission_id = mra.mission_id
+      and eb.event_date
+      between mra.start_date and coalesce(mra.end_date, current_date)
 ),
 
 events_dept as (
