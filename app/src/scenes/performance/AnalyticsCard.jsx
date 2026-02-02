@@ -7,6 +7,9 @@ const AnalyticsCard = ({
   showLegend = false,
   variables: extraVariables,
   adapterOptions,
+  tableProps,
+  columns,
+  formatCell,
   kpiLabel,
   kpiUnit,
   kpiIcon,
@@ -36,6 +39,9 @@ const AnalyticsCard = ({
       chartProps={resolvedChartProps}
       showLegend={showLegend}
       loaderHeight={resolvedLoaderHeight}
+      tableProps={tableProps}
+      columns={columns}
+      formatCell={formatCell}
       kpiLabel={kpiLabel}
       kpiUnit={kpiUnit}
       kpiIcon={kpiIcon}
@@ -45,7 +51,7 @@ const AnalyticsCard = ({
 
   if (type === "kpi") return content;
 
-  return <div className="space-y-4 border border-gray-900 p-6">{content}</div>;
+  return <div className="space-y-4 p-6">{content}</div>;
 };
 
 export default AnalyticsCard;

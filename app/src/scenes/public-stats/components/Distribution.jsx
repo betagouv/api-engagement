@@ -1,129 +1,44 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { RiQuestionLine } from "react-icons/ri";
 
-import { Pie } from "../../../components/Chart";
-import Table from "../../../components/Table";
-import Tooltip from "../../../components/Tooltip";
-import { DEPARTMENT_NAMES, DOMAINS } from "../../../constants";
-import api from "../../../services/api";
-import { captureError } from "../../../services/error";
+import { DEPARTMENT_NAMES, METABASE_CARD_ID } from "../../../constants";
+import AnalyticsCard from "../../performance/AnalyticsCard";
 
-const getDepartmentCode = (postalCode) => {
-  let code;
-  if (postalCode && postalCode.length === 5) code = postalCode.slice(0, 2);
-  else if (postalCode && postalCode.length === 4) code = postalCode.slice(0, 1);
-  else return null;
-  if (code === "97" || code === "98") code = postalCode.slice(0, 3);
-  if (DEPARTMENT_NAMES.hasOwnProperty(code)) return code;
-  else return null;
-};
-
-const getDepartement = (code) => code && code in DEPARTMENT_NAMES && DEPARTMENT_NAMES[code][0];
-
-const DOMAIN_TABLE_HEADER = [
-  { title: "Domaine", key: "domain.keyword", colSpan: 2 },
-  { title: "Missions", key: "places" },
-  { title: "Redirections", key: "click" },
-  { title: "Candidatures", key: "apply" },
-];
-
-const DEPARTMENT_TABLE_HEADER = [
-  { title: "Département", key: "department.keyword", colSpan: 2 },
-  { title: "Missions", key: "places" },
-  { title: "Redirections", key: "click" },
-  { title: "Candidatures", key: "apply" },
-];
 const Distribution = ({ filters, onFiltersChange }) => {
-  const [domainStats, setDomainStats] = useState({ domains: [] });
-  const [departmentStats, setDepartmentStats] = useState([]);
-  const [currentDomainPage, setCurrentDomainPage] = useState(1);
-  const [currentDepartmentPage, setCurrentDepartmentPage] = useState(1);
-  const [loading, setLoading] = useState(true);
+  const [departmentPage, setDepartmentPage] = useState(1);
+  const [domainPage, setDomainPage] = useState(1);
+  const departmentCode = useMemo(() => {
+    if (!filters.department) return "";
+    if (DEPARTMENT_NAMES[filters.department]) return filters.department;
+    const found = Object.entries(DEPARTMENT_NAMES).find(([, value]) => value[0] === filters.department);
+    return found ? found[0] : filters.department;
+  }, [filters.department]);
 
   useEffect(() => {
-    const fetchData = async () => {
-      setLoading(true);
-      try {
-        const FALLBACK_DEPARTMENT_NAME = "Non renseigné";
-        const query = new URLSearchParams();
-
-        if (filters.year) query.append("year", filters.year);
-        if (filters.type) query.append("type", filters.type);
-
-        const resDepartments = await api.get(`/stats-public/departments?${query.toString()}`);
-        if (!resDepartments.ok) throw new Error("Erreur lors de la récupération des statistiques");
-
-        // Map department code to display name
-        const departments = resDepartments.data.map((d) => ({ ...d, name: getDepartement(d.key) || FALLBACK_DEPARTMENT_NAME }));
-
-        // Group all "Non renseigné" into a single row by summing counts
-        const groupedDepartments = departments.reduce((acc, item) => {
-          if (item.name === FALLBACK_DEPARTMENT_NAME) {
-            const existing = acc.find((x) => x.name === FALLBACK_DEPARTMENT_NAME);
-            if (existing) {
-              existing.mission_count = (existing.mission_count || 0) + (item.mission_count || 0);
-              existing.click_count = (existing.click_count || 0) + (item.click_count || 0);
-              existing.apply_count = (existing.apply_count || 0) + (item.apply_count || 0);
-            } else {
-              acc.push({ ...item });
-            }
-          } else {
-            acc.push(item);
-          }
-          return acc;
-        }, []);
-
-        // Sort by department name
-        groupedDepartments.sort((a, b) => a.name.localeCompare(b.name, "fr", { sensitivity: "base" }));
-
-        setDepartmentStats(groupedDepartments);
-      } catch (error) {
-        captureError(error, { extra: { filters } });
-      }
-      setLoading(false);
-    };
-    fetchData();
+    setDepartmentPage(1);
   }, [filters.year, filters.type]);
 
   useEffect(() => {
-    const fetchData = async () => {
-      setLoading(true);
-      try {
-        const query = new URLSearchParams();
+    setDomainPage(1);
+  }, [filters.year, filters.type, departmentCode]);
 
-        if (filters.department) query.append("department", filters.department);
-        if (filters.type) query.append("type", filters.type);
-        if (filters.year) query.append("year", filters.year);
+  const metabaseVariablesDomain = useMemo(
+    () => ({
+      year: filters.year ? String(filters.year) : "",
+      department: departmentCode || "all",
+      mission_type: filters.type || "all",
+    }),
+    [filters.year, filters.type, departmentCode],
+  );
 
-        const res = await api.get(`/stats-public/domains?${query.toString()}`);
-        if (!res.ok) throw new Error("Erreur lors de la récupération des statistiques");
-
-        if (res.data?.length === 0) {
-          setDomainStats({ domains: [] });
-          setLoading(false);
-          return;
-        }
-
-        const domainByYear = res.data.find((stat) => stat.year === parseInt(filters.year, 10));
-        domainByYear.domains = domainByYear.domains.reduce((acc, d) => {
-          const domainName = DOMAINS[d.key];
-          const exists = acc.find((item) => item.key === domainName);
-          if (exists) {
-            exists.stat += d.stat;
-          } else {
-            acc.push({ ...d, key: domainName });
-          }
-          return acc;
-        }, []);
-
-        setDomainStats(domainByYear);
-      } catch (error) {
-        captureError(error, { extra: { filters } });
-      }
-      setLoading(false);
-    };
-    fetchData();
-  }, [filters]);
+  const metabaseVariablesDepartment = useMemo(
+    () => ({
+      year: filters.year ? String(filters.year) : "",
+      department: "all",
+      mission_type: filters.type || "all",
+    }),
+    [filters.year, filters.type],
+  );
 
   return (
     <div className="border-grey-border mx-auto my-14 w-4/5 max-w-[1200px] flex-1 border bg-white p-12">
@@ -144,16 +59,17 @@ const Distribution = ({ filters, onFiltersChange }) => {
               <option value={2023}>2023</option>
               <option value={2024}>2024</option>
               <option value={2025}>2025</option>
+              <option value={2026}>2026</option>
             </select>
             <label htmlFor="department" className="sr-only">
               Département
             </label>
-            <select id="department" className="input w-48" value={filters.department} onChange={(e) => onFiltersChange({ ...filters, department: e.target.value })}>
+            <select id="department" className="input w-48" value={departmentCode} onChange={(e) => onFiltersChange({ ...filters, department: e.target.value })}>
               <option value="">Départements</option>
               {Object.entries(DEPARTMENT_NAMES)
                 .sort((a, b) => a[0].localeCompare(b[0], "fr", { numeric: true }))
                 .map(([code, value]) => (
-                  <option key={value[0]} value={value[0]}>
+                  <option key={value[0]} value={code}>
                     {code} - {value[0]}
                   </option>
                 ))}
@@ -169,6 +85,7 @@ const Distribution = ({ filters, onFiltersChange }) => {
           </div>
         </div>
       </div>
+
       <div className="mt-8 gap-4 border p-8">
         <div className="mb-4 flex justify-between">
           <h2 className="mb-6 text-2xl font-bold">Domaine d'action des missions</h2>
@@ -181,36 +98,42 @@ const Distribution = ({ filters, onFiltersChange }) => {
             <RiQuestionLine className="text-lg" aria-hidden="true" />
           </Tooltip>
         </div>
-        <div className="flex justify-around gap-6">
-          <div className="flex-1">
-            <Pie data={domainStats.domains.map((item) => ({ name: item.key, value: item.doc_count }))} innerRadius="0%" unit="missions" />
+        <div className="flex flex-col gap-6 lg:flex-row">
+          <div className="lg:w-5/12">
+            <AnalyticsCard
+              cardId={METABASE_CARD_ID.PUBLIC_STATS_MISSIONS_DOMAIN}
+              filters={filters}
+              variables={metabaseVariablesDomain}
+              type="pie"
+              chartProps={{ unit: "missions", innerRadius: "40%" }}
+              loaderHeight="22rem"
+            />
           </div>
-          <div className="flex-1">
-            <Table
-              header={DOMAIN_TABLE_HEADER}
-              pagination
-              page={currentDomainPage}
-              pageSize={7}
-              onPageChange={(page) => setCurrentDomainPage(page)}
-              total={domainStats.domains.length}
-              loading={loading}
-            >
-              {domainStats.domains.slice((currentDomainPage - 1) * 7, currentDomainPage * 7).map((item, i) => (
-                <tr key={i} className={`${i % 2 === 0 ? "bg-gray-975" : "bg-gray-1000-active"} table-item`}>
-                  <td className="p-4" colSpan={2}>
-                    {item.key}
-                  </td>
-                  <td className="px-4">{item.doc_count}</td>
-                  <td className="px-4">{item.click}</td>
-                  <td className="px-4">{item.apply}</td>
-                </tr>
-              ))}
-            </Table>
+          <div className="lg:w-7/12">
+            <AnalyticsCard
+              cardId={METABASE_CARD_ID.PUBLIC_STATS_MISSIONS_DOMAIN}
+              filters={filters}
+              variables={metabaseVariablesDomain}
+              type="table"
+              loaderHeight="22rem"
+              tableProps={{ pageSize: 7, page: domainPage, onPageChange: setDomainPage }}
+              columns={[
+                { key: "mission_domaine", title: "Domaine" },
+                { key: "missions", title: "Missions" },
+                { key: "redirection_count", title: "Redirections" },
+                { key: "candidature_count", title: "Candidatures" },
+              ]}
+              formatCell={(value) => {
+                if (typeof value === "number") return value.toLocaleString("fr");
+                if (typeof value === "string" && value.length > 0) return `${value.charAt(0).toUpperCase()}${value.slice(1)}`;
+                return value;
+              }}
+            />
           </div>
         </div>
       </div>
 
-      <div className="border-grey-border mt-8 gap-4 border p-8">
+      <div className="mt-8 gap-4 border p-8">
         <div className="mb-4 flex justify-between">
           <h2 className="mb-6 text-2xl font-bold">Département des missions</h2>
           <Tooltip
@@ -222,31 +145,42 @@ const Distribution = ({ filters, onFiltersChange }) => {
             <RiQuestionLine className="text-lg" aria-hidden="true" />
           </Tooltip>
         </div>
-        <div className="flex justify-around gap-6">
-          <div className="flex-1">
-            <Pie data={departmentStats.map((item) => ({ name: item.name, value: item.mission_count }))} innerRadius="0%" unit="missions" />
+
+        <div className="flex flex-col gap-6 lg:flex-row">
+          <div className="lg:w-5/12">
+            <AnalyticsCard
+              cardId={METABASE_CARD_ID.PUBLIC_STATS_MISSIONS_DEPARTMENT}
+              filters={filters}
+              variables={metabaseVariablesDepartment}
+              type="pie"
+              showLegend={false}
+              adapterOptions={{ labelColumn: "department_name", valueColumn: "missions_count" }}
+              chartProps={{ unit: "missions", innerRadius: "40%" }}
+              loaderHeight="22rem"
+            />
           </div>
-          <div className="flex-1">
-            <Table
-              header={DEPARTMENT_TABLE_HEADER}
-              pagination
-              page={currentDepartmentPage}
-              pageSize={7}
-              onPageChange={(page) => setCurrentDepartmentPage(page)}
-              total={departmentStats.length}
-              loading={loading}
-            >
-              {departmentStats.slice((currentDepartmentPage - 1) * 7, currentDepartmentPage * 7).map((item, i) => (
-                <tr key={i} className={`${i % 2 === 0 ? "bg-gray-975" : "bg-gray-1000-active"} table-item`}>
-                  <td className="p-4" colSpan={2}>
-                    {item.name}
-                  </td>
-                  <td className="px-4">{item.mission_count}</td>
-                  <td className="px-4">{item.click_count}</td>
-                  <td className="px-4">{item.apply_count}</td>
-                </tr>
-              ))}
-            </Table>
+          <div className="lg:w-7/12">
+            <AnalyticsCard
+              cardId={METABASE_CARD_ID.PUBLIC_STATS_MISSIONS_DEPARTMENT}
+              filters={filters}
+              variables={metabaseVariablesDepartment}
+              type="table"
+              loaderHeight="24rem"
+              tableProps={{ pageSize: 7, page: departmentPage, onPageChange: setDepartmentPage }}
+              columns={[
+                { key: "department_name", title: "Département" },
+                { key: "missions_count", title: "Missions" },
+                { key: "redirection_count", title: "Redirections" },
+                { key: "candidature_count", title: "Candidatures" },
+              ]}
+              formatCell={(value, column) => {
+                if (typeof value === "number") return value.toLocaleString("fr");
+                if ((column?.key === "department_name" || column?.key === "department") && typeof value === "string" && value.length > 0) {
+                  return `${value.charAt(0).toUpperCase()}${value.slice(1)}`;
+                }
+                return value;
+              }}
+            />
           </div>
         </div>
       </div>

@@ -154,28 +154,6 @@ mission_base_all as (
   {% endif %}
 ),
 
--- Agrégat national sans le grain département pour éviter les doublons
-mission_base_all as (
-  select
-    mad.active_date,
-    extract(year from mad.active_date)::int as year,
-    mad.mission_id,
-    im.organization_id,
-    mad.mission_domain,
-    mad.publisher_category,
-    coalesce(mad.updated_at, mad.active_date)::timestamp as updated_at
-  from {{ ref('int_mission_active_daily') }} as mad
-  left join {{ ref('int_mission') }} as im
-    on mad.mission_id = im.id
-  where
-    mad.active_date is not null
-    {% if is_incremental() %}
-      and extract(year from mad.active_date)::int in (
-        select ay.year from affected_years as ay
-      )
-    {% endif %}
-),
-
 missions_dept as (
   select
     year,
@@ -287,21 +265,6 @@ events_with_dims_all as (
       eb.mission_id = mra.mission_id
       and eb.event_date
       between mra.start_date and coalesce(mra.end_date, current_date)
-),
-
--- Version sans département pour éviter la duplication des événements nationaux
-events_with_dims_all as (
-  select
-    eb.year,
-    mb.mission_domain,
-    mb.publisher_category,
-    eb.type,
-    greatest(eb.updated_at, mb.updated_at) as updated_at
-  from events_base as eb
-  inner join mission_base_all as mb
-    on
-      eb.mission_id = mb.mission_id
-      and eb.event_date = mb.active_date
 ),
 
 events_dept as (
