@@ -1,6 +1,7 @@
 import { PUBLISHER_IDS } from "../config";
 import { Prisma } from "../db/core";
 import { prismaCore } from "../db/postgres";
+import { missionRepository } from "../repositories/mission";
 import { organizationRepository } from "../repositories/organization";
 import type { WidgetRecord } from "../types";
 import type { MissionRecord, MissionSearchFilters, MissionSelect } from "../types/mission";
@@ -104,11 +105,8 @@ const aggregateWidgetAggs = async (
   };
 
   const aggregateMissionListField = async (field: "tasks" | "audience") => {
-    // Use PostgreSQL UNNEST with CTE to efficiently aggregate array fields
-    // This prevents "could not resize shared memory segment" errors on large datasets
-
     // Step 1: Get filtered mission IDs (only IDs, not full missions)
-    const missionIds = await prismaCore.mission.findMany({
+    const missions = await prismaCore.mission.findMany({
       where,
       select: { id: true },
       // Limit to prevent memory issues on extremely large datasets
@@ -117,31 +115,18 @@ const aggregateWidgetAggs = async (
       take: 50000,
     });
 
-    if (missionIds.length === 0) {
+    if (missions.length === 0) {
       return [];
     }
 
-    const ids = missionIds.map((m) => m.id);
-    const columnName = field === "tasks" ? "tasks" : "audience";
+    const missionIds = missions.map((m) => m.id);
 
-    // Step 2: Use UNNEST to aggregate array values efficiently
-    const rows = await prismaCore.$queryRaw<Array<{ value: string; doc_count: bigint }>>(
-      Prisma.sql`
-        SELECT value, COUNT(DISTINCT mission_id) as doc_count
-        FROM (
-          SELECT id as mission_id, UNNEST(${Prisma.raw(columnName)}) as value
-          FROM mission
-          WHERE id = ANY(${ids}::uuid[])
-        ) t
-        WHERE value IS NOT NULL AND value != ''
-        GROUP BY value
-        ORDER BY doc_count DESC
-      `
-    );
+    // Step 2: Use repository method to aggregate array fields efficiently with UNNEST
+    const rows = await missionRepository.aggregateArrayField(missionIds, field);
 
     return rows.map((row) => ({
       key: row.value,
-      doc_count: Number(row.doc_count),
+      doc_count: row.count,
     }));
   };
 

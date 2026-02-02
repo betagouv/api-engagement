@@ -111,6 +111,42 @@ export const statEventRepository = {
 
     return rows.map((row) => ({ fromPublisherId: row.from_publisher_id, count: Number(row.count ?? 0n) }));
   },
+
+  async aggregateMissionStatsSummary(missionId: string): Promise<
+    Array<{
+      fromPublisherId: string | null;
+      clickCount: number;
+      applyCount: number;
+    }>
+  > {
+    // Single query with PostgreSQL FILTER clause to reduce pool usage by 50%
+    // More efficient than 2 separate groupBy queries
+    const rows = await prismaCore.$queryRaw<
+      Array<{
+        from_publisher_id: string | null;
+        click_count: bigint;
+        apply_count: bigint;
+      }>
+    >(
+      Prisma.sql`
+        SELECT
+          from_publisher_id,
+          COUNT(*) FILTER (WHERE type = 'click') AS click_count,
+          COUNT(*) FILTER (WHERE type = 'apply') AS apply_count
+        FROM "stat_event"
+        WHERE mission_id = ${missionId}
+          AND is_bot = false
+          AND type IN ('click', 'apply')
+        GROUP BY from_publisher_id
+      `
+    );
+
+    return rows.map((row) => ({
+      fromPublisherId: row.from_publisher_id,
+      clickCount: Number(row.click_count),
+      applyCount: Number(row.apply_count),
+    }));
+  },
 };
 
 export default statEventRepository;

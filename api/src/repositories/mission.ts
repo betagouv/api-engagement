@@ -41,6 +41,36 @@ export const missionRepository = {
       _count: true,
     });
   },
+
+  async aggregateArrayField(
+    missionIds: string[],
+    field: "tasks" | "audience"
+  ): Promise<Array<{ value: string; count: number }>> {
+    if (missionIds.length === 0) {
+      return [];
+    }
+
+    // Use PostgreSQL UNNEST to efficiently aggregate array fields
+    // This prevents "could not resize shared memory segment" errors on large datasets
+    const rows = await prismaCore.$queryRaw<Array<{ value: string; doc_count: bigint }>>(
+      Prisma.sql`
+        SELECT value, COUNT(DISTINCT mission_id) as doc_count
+        FROM (
+          SELECT id as mission_id, UNNEST(${Prisma.raw(field)}) as value
+          FROM mission
+          WHERE id = ANY(${missionIds}::uuid[])
+        ) t
+        WHERE value IS NOT NULL AND value != ''
+        GROUP BY value
+        ORDER BY doc_count DESC
+      `
+    );
+
+    return rows.map((row) => ({
+      value: row.value,
+      count: Number(row.doc_count),
+    }));
+  },
 };
 
 export default missionRepository;
