@@ -152,30 +152,21 @@ const handler = async () => {
         })
         .then((data) => data.forEach((d) => (missions[`${d.client_id}-${d.partner?.old_id}`] = d.id)));
 
-      // Batch fetch missing clicks to avoid N+1 queries
-      const missingClickOldIds = new Set<string>();
-      for (const hit of data) {
-        if (hit.clickId && !clicks[hit.clickId]) {
-          missingClickOldIds.add(hit.clickId);
-        }
-      }
-
-      if (missingClickOldIds.size > 0) {
-        const missingClicks = await prismaClient.click.findMany({
-          where: { old_id: { in: Array.from(missingClickOldIds) } },
-          select: { id: true, old_id: true },
-        });
-        missingClicks.forEach((c) => (clicks[c.old_id] = c.id));
-        console.log(`[Accounts] Batch fetched ${missingClicks.length} missing clicks`);
-      }
-
-      // Process data without additional queries
       for (const hit of data) {
         let clickId;
         if (hit.clickId) {
           clickId = clicks[hit.clickId];
           if (!clickId) {
-            console.log(`[Accounts] Click ${hit.clickId} not found for doc ${hit._id.toString()}`);
+            const res = await prismaClient.click.findFirst({
+              where: { old_id: hit.clickId },
+              select: { id: true },
+            });
+            if (res) {
+              clickId = res.id;
+              clicks[hit.clickId] = clickId;
+            } else {
+              console.log(`[Accounts] Click ${hit.clickId} not found for doc ${hit._id.toString()}`);
+            }
           }
         }
         const obj = await buildData(hit, partners, missions, campaigns, clickId);
