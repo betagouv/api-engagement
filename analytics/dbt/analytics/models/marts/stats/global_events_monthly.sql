@@ -42,11 +42,15 @@ base as (
     ge.type,
     mad.mission_domain,
     mad.publisher_category as mission_type,
-    greatest(coalesce(ge.updated_at, ge.created_at), coalesce(mad.updated_at, ge.created_at)) as updated_at
+    greatest(
+      coalesce(ge.updated_at, ge.created_at),
+      coalesce(mad.updated_at, ge.created_at)
+    ) as updated_at
   from {{ ref('global_events') }} as ge
   left join {{ ref('int_mission_active_department_daily') }} as mad
-    on ge.mission_id = mad.mission_id
-   and date(ge.created_at) = mad.active_date
+    on
+      ge.mission_id = mad.mission_id
+      and date(ge.created_at) = mad.active_date
   where
     1 = 1
     {% if is_incremental() %}
