@@ -80,6 +80,47 @@ models:
       - name: max_updated_at
         description: Dernière date de mise à jour observée pour l’agrégat.
 
+  - name: global_events_monthly
+    description: >
+      Agrégats mensuels des événements `global_events`, ventilés par type d’événement,
+      domaine de mission, type de mission (catégorie publisher) et département (ou national).
+      Utilisé pour les KPI publics mensuels (redirections, candidatures).
+    columns:
+      - name: year
+        description: Année d’agrégation.
+        tests:
+          - not_null
+      - name: month
+        description: Mois d’agrégation (1-12).
+        tests:
+          - not_null
+      - name: month_start
+        description: Date du premier jour du mois.
+        tests:
+          - not_null
+      - name: is_all_department
+        description: Indique si l’agrégat est national (true) ou départemental (false).
+        tests:
+          - not_null
+      - name: department
+        description: Code départemental (NULL pour les agrégats nationaux).
+      - name: mission_domain
+        description: Domaine de mission associé (peut être NULL si non rattaché).
+      - name: mission_type
+        description: Catégorie de mission (`benevolat`, `volontariat`, `all`).
+      - name: type
+        description: Type d'événement (`click`, `apply`, `print`, `account`).
+        tests:
+          - not_null
+      - name: event_count
+        description: Nombre d’événements agrégés.
+        tests:
+          - not_null
+      - name: max_updated_at
+        description: Dernière date de mise à jour observée pour l’agrégat.
+        tests:
+          - not_null
+
   - name: global_mission_activity
     description: >
       Agrégat par mission/type/diffuseur/annonceur calculant les premiers et derniers
