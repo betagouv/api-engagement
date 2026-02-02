@@ -522,15 +522,17 @@ const buildAggregations = async (where: Prisma.MissionWhereInput): Promise<Missi
       .sort((a, b) => b.doc_count - a.doc_count);
   };
 
-  // Run sequentially to avoid exhausting the small Prisma connection pool when many filters are used
-  const status = await aggregateMissionField("statusCode");
-  const comments = await aggregateMissionField("statusComment");
-  const domains = await aggregateMissionDomain();
-  const activities = await aggregateMissionActivity();
-  const partnersRaw = await aggregateMissionField("publisherId");
-  const organizationsRaw = await aggregateMissionField("organizationId");
-  const cities = await aggregateAddressField("city");
-  const departments = await aggregateAddressField("departmentName");
+  // Run in parallel - connection pool is now properly sized (20 connections for core DB)
+  const [status, comments, domains, activities, partnersRaw, organizationsRaw, cities, departments] = await Promise.all([
+    aggregateMissionField("statusCode"),
+    aggregateMissionField("statusComment"),
+    aggregateMissionDomain(),
+    aggregateMissionActivity(),
+    aggregateMissionField("publisherId"),
+    aggregateMissionField("organizationId"),
+    aggregateAddressField("city"),
+    aggregateAddressField("departmentName"),
+  ]);
 
   const organizationIds = organizationsRaw.map((row) => row.key).filter(isNonEmpty) as string[];
   const organizations = organizationIds.length > 0 ? await organizationRepository.findMany({ where: { id: { in: organizationIds } }, select: { id: true, title: true } }) : [];
