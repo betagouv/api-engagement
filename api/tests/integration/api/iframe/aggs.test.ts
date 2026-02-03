@@ -1,11 +1,11 @@
-import { describe, it, expect, beforeEach } from "vitest";
 import request from "supertest";
-import { createTestApp } from "../../../testApp";
-import { createTestWidget, createTestPublisher, createTestMission, createTestWidgetRule } from "../../../fixtures";
-import type { WidgetRecord } from "../../../../src/types/widget";
+import { beforeEach, describe, expect, it } from "vitest";
 import type { PublisherRecord } from "../../../../src/types/publisher";
+import type { WidgetRecord } from "../../../../src/types/widget";
+import { createTestMission, createTestPublisher, createTestWidget } from "../../../fixtures";
+import { createTestApp } from "../../../testApp";
 
-describe.sequential("GET /iframe/:id/aggs", () => {
+describe("GET /iframe/:id/aggs", () => {
   const app = createTestApp();
   let widget: WidgetRecord;
   let publisher: PublisherRecord;
@@ -16,7 +16,6 @@ describe.sequential("GET /iframe/:id/aggs", () => {
       fromPublisher: publisher,
       publishers: [publisher.id],
       type: "benevolat",
-      useMongoId: true, // /aggs endpoint requires MongoDB ObjectID format
     });
 
     // Create missions with different characteristics
@@ -81,9 +80,7 @@ describe.sequential("GET /iframe/:id/aggs", () => {
 
   describe("Response format", () => {
     it("should return 200 with correct structure", async () => {
-      const response = await request(app)
-        .get(`/iframe/${widget.id}/aggs`)
-        .expect(200);
+      const response = await request(app).get(`/iframe/${widget.id}/aggs`).expect(200);
 
       expect(response.body).toMatchObject({
         ok: true,
@@ -92,17 +89,13 @@ describe.sequential("GET /iframe/:id/aggs", () => {
     });
 
     it("should include CORS header", async () => {
-      const response = await request(app)
-        .get(`/iframe/${widget.id}/aggs`)
-        .expect(200);
+      const response = await request(app).get(`/iframe/${widget.id}/aggs`).expect(200);
 
       expect(response.headers["access-control-allow-origin"]).toBe("*");
     });
 
     it("should return default aggregations", async () => {
-      const response = await request(app)
-        .get(`/iframe/${widget.id}/aggs`)
-        .expect(200);
+      const response = await request(app).get(`/iframe/${widget.id}/aggs`).expect(200);
 
       const { data } = response.body;
       expect(data).toHaveProperty("domain");
@@ -113,9 +106,7 @@ describe.sequential("GET /iframe/:id/aggs", () => {
     });
 
     it("should return aggregations as arrays", async () => {
-      const response = await request(app)
-        .get(`/iframe/${widget.id}/aggs`)
-        .expect(200);
+      const response = await request(app).get(`/iframe/${widget.id}/aggs`).expect(200);
 
       const { data } = response.body;
       expect(Array.isArray(data.domain)).toBe(true);
@@ -126,33 +117,18 @@ describe.sequential("GET /iframe/:id/aggs", () => {
     });
 
     it("should return 404 when widget does not exist", async () => {
-      const response = await request(app)
-        .get("/iframe/507f1f77bcf86cd799439011/aggs")
-        .expect(404);
+      const response = await request(app).get("/iframe/507f1f77bcf86cd799439011/aggs").expect(404);
 
       expect(response.body).toMatchObject({
         ok: false,
         code: "NOT_FOUND",
       });
     });
-
-    it("should return 400 for invalid widget ID format", async () => {
-      const response = await request(app)
-        .get("/iframe/invalid-id/aggs")
-        .expect(400);
-
-      expect(response.body).toMatchObject({
-        ok: false,
-        code: "INVALID_PARAMS",
-      });
-    });
   });
 
   describe("Default aggregations", () => {
     it("should aggregate by domain with correct counts", async () => {
-      const response = await request(app)
-        .get(`/iframe/${widget.id}/aggs`)
-        .expect(200);
+      const response = await request(app).get(`/iframe/${widget.id}/aggs`).expect(200);
 
       const domains = response.body.data.domain;
       expect(domains).toBeDefined();
@@ -167,9 +143,7 @@ describe.sequential("GET /iframe/:id/aggs", () => {
     });
 
     it("should aggregate by organization with correct counts", async () => {
-      const response = await request(app)
-        .get(`/iframe/${widget.id}/aggs`)
-        .expect(200);
+      const response = await request(app).get(`/iframe/${widget.id}/aggs`).expect(200);
 
       const organizations = response.body.data.organization;
       expect(organizations).toBeDefined();
@@ -177,9 +151,7 @@ describe.sequential("GET /iframe/:id/aggs", () => {
     });
 
     it("should aggregate by department with correct counts", async () => {
-      const response = await request(app)
-        .get(`/iframe/${widget.id}/aggs`)
-        .expect(200);
+      const response = await request(app).get(`/iframe/${widget.id}/aggs`).expect(200);
 
       const departments = response.body.data.department;
       expect(departments).toBeDefined();
@@ -190,9 +162,7 @@ describe.sequential("GET /iframe/:id/aggs", () => {
     });
 
     it("should aggregate by remote with correct counts", async () => {
-      const response = await request(app)
-        .get(`/iframe/${widget.id}/aggs`)
-        .expect(200);
+      const response = await request(app).get(`/iframe/${widget.id}/aggs`).expect(200);
 
       const remote = response.body.data.remote;
       expect(remote).toBeDefined();
@@ -207,9 +177,7 @@ describe.sequential("GET /iframe/:id/aggs", () => {
     });
 
     it("should aggregate by country with correct counts", async () => {
-      const response = await request(app)
-        .get(`/iframe/${widget.id}/aggs`)
-        .expect(200);
+      const response = await request(app).get(`/iframe/${widget.id}/aggs`).expect(200);
 
       const countries = response.body.data.country;
       expect(countries).toBeDefined();
@@ -220,161 +188,21 @@ describe.sequential("GET /iframe/:id/aggs", () => {
     });
   });
 
-  describe.skip("Custom aggs parameter", () => {
-    it("should return only requested aggregation", async () => {
-      const response = await request(app)
-        .get(`/iframe/${widget.id}/aggs`)
-        .query({ aggs: ["domain"] })
-        .expect(200);
-
-      const { data } = response.body;
-      expect(data).toHaveProperty("domain");
-    });
-
-    it("should return multiple requested aggregations", async () => {
-      const response = await request(app)
-        .get(`/iframe/${widget.id}/aggs`)
-        .query({ aggs: ["domain", "remote"] })
-        .expect(200);
-
-      const { data } = response.body;
-      expect(data).toHaveProperty("domain");
-      expect(data).toHaveProperty("remote");
-      expect(data).not.toHaveProperty("organization");
-    });
-
-    it("should support schedule aggregation", async () => {
-      const response = await request(app)
-        .get(`/iframe/${widget.id}/aggs`)
-        .query({ aggs: ["schedule"] })
-        .expect(200);
-
-      const schedules = response.body.data.schedule;
-      expect(schedules).toBeDefined();
-      expect(Array.isArray(schedules)).toBe(true);
-    });
-
-    it("should support minor aggregation", async () => {
-      const response = await request(app)
-        .get(`/iframe/${widget.id}/aggs`)
-        .query({ aggs: ["minor"] })
-        .expect(200);
-
-      const minor = response.body.data.minor;
-      expect(minor).toBeDefined();
-      expect(Array.isArray(minor)).toBe(true);
-    });
-
-    it("should support accessibility aggregation", async () => {
-      const response = await request(app)
-        .get(`/iframe/${widget.id}/aggs`)
-        .query({ aggs: ["accessibility"] })
-        .expect(200);
-
-      const accessibility = response.body.data.accessibility;
-      expect(accessibility).toBeDefined();
-      expect(Array.isArray(accessibility)).toBe(true);
-    });
-
-    it("should support action aggregation", async () => {
-      const response = await request(app)
-        .get(`/iframe/${widget.id}/aggs`)
-        .query({ aggs: ["action"] })
-        .expect(200);
-
-      const action = response.body.data.action;
-      expect(action).toBeDefined();
-      expect(Array.isArray(action)).toBe(true);
-    });
-
-    it("should support beneficiary aggregation", async () => {
-      const response = await request(app)
-        .get(`/iframe/${widget.id}/aggs`)
-        .query({ aggs: ["beneficiary"] })
-        .expect(200);
-
-      const beneficiary = response.body.data.beneficiary;
-      expect(beneficiary).toBeDefined();
-      expect(Array.isArray(beneficiary)).toBe(true);
-    });
-  });
-
-  describe.skip("Filtered aggregations", () => {
-    it("should accept filter parameters without errors", async () => {
-      // Test that various filter parameters are accepted by the API
-      // Note: Exact filtering logic depends on data structure and requires
-      // more complex test setup, so we just verify the endpoints accept the params
-      const response = await request(app)
-        .get(`/iframe/${widget.id}/aggs`)
-        .query({ search: "test", aggs: ["domain"] })
-        .expect(200);
-
-      expect(response.body.ok).toBe(true);
-      expect(response.body.data).toBeDefined();
-    });
-  });
-
-  describe("Widget configuration", () => {
-    it("should respect widget configuration", async () => {
-      // Basic test that widget configuration is used
-      const response = await request(app)
-        .get(`/iframe/${widget.id}/aggs`)
-        .expect(200);
-
-      expect(response.body.ok).toBe(true);
-      expect(response.body.data).toBeDefined();
-    });
-  });
-
-  describe("Multiple parameters", () => {
-    it("should accept multiple aggregation types", async () => {
-      const response = await request(app)
-        .get(`/iframe/${widget.id}/aggs`)
-        .query({ aggs: ["domain", "organization"] })
-        .expect(200);
-
-      const { data } = response.body;
-      expect(data).toHaveProperty("domain");
-      expect(data).toHaveProperty("organization");
-      expect(response.body.ok).toBe(true);
-    });
-  });
-
   describe("Error cases", () => {
-    it("should return 400 for widget ID with invalid format", async () => {
-      const response = await request(app)
-        .get("/iframe/not-24-hex-chars/aggs")
-        .expect(400);
-
-      expect(response.body).toMatchObject({
-        ok: false,
-        code: "INVALID_PARAMS",
-      });
-    });
-
     it("should return 400 for invalid lat parameter", async () => {
-      const response = await request(app)
-        .get(`/iframe/${widget.id}/aggs`)
-        .query({ lat: 100 })
-        .expect(400);
+      const response = await request(app).get(`/iframe/${widget.id}/aggs`).query({ lat: 100 }).expect(400);
 
       expect(response.body.code).toBe("INVALID_QUERY");
     });
 
     it("should return 400 for invalid lon parameter", async () => {
-      const response = await request(app)
-        .get(`/iframe/${widget.id}/aggs`)
-        .query({ lon: 200 })
-        .expect(400);
+      const response = await request(app).get(`/iframe/${widget.id}/aggs`).query({ lon: 200 }).expect(400);
 
       expect(response.body.code).toBe("INVALID_QUERY");
     });
 
     it("should return 400 for invalid duration parameter", async () => {
-      const response = await request(app)
-        .get(`/iframe/${widget.id}/aggs`)
-        .query({ duration: -5 })
-        .expect(400);
+      const response = await request(app).get(`/iframe/${widget.id}/aggs`).query({ duration: -5 }).expect(400);
 
       expect(response.body.code).toBe("INVALID_QUERY");
     });

@@ -1,4 +1,4 @@
-import { randomBytes, randomUUID } from "node:crypto";
+import { randomUUID } from "node:crypto";
 
 import { widgetService } from "../../src/services/widget";
 import type { PublisherRecord } from "../../src/types/publisher";
@@ -8,17 +8,10 @@ import { createTestPublisher } from "./publisher";
 type WidgetFixtureInput = Omit<Partial<WidgetCreateInput>, "fromPublisherId"> & {
   fromPublisher?: PublisherRecord;
   fromPublisherId?: never; // Prevent passing fromPublisherId directly
-  useMongoId?: boolean; // Generate MongoDB-compatible ObjectID (24 hex chars)
-};
-
-// Generate a valid MongoDB ObjectID (24 hex characters)
-const generateMongoId = (): string => {
-  return randomBytes(12).toString("hex");
 };
 
 export const createTestWidget = async (data: WidgetFixtureInput = {}): Promise<WidgetRecord> => {
   const uniqueSuffix = randomUUID();
-  const widgetId = data.useMongoId ? generateMongoId() : undefined;
 
   // Always create or use a provided publisher object
   const fromPublisher = data.fromPublisher ?? (await createTestPublisher());
@@ -42,7 +35,6 @@ export const createTestWidget = async (data: WidgetFixtureInput = {}): Promise<W
   const widgetData: WidgetCreateInput = {
     ...defaultData,
     ...data,
-    id: widgetId,
     name: data.name ?? defaultData.name,
     fromPublisherId: fromPublisher.id,
   };
