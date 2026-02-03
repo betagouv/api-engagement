@@ -1,6 +1,6 @@
 {{ config(
   materialized = 'incremental',
-  unique_key = ['year', 'month', 'is_all_department', 'department', 'publisher_category', 'publisher_id'],
+  unique_key = ['year', 'month', 'publisher_category', 'publisher_id'],
   incremental_strategy = 'delete+insert',
   on_schema_change = 'sync_all_columns'
 ) }}
@@ -30,7 +30,6 @@ active_months as (
     extract(year from s.month_start)::int as year,
     extract(month from s.month_start)::int as month,
     s.month_start,
-    null::text as department,
     b.publisher_category,
     b.publisher_id,
     b.mission_id
@@ -47,49 +46,11 @@ active_months as (
   {% endif %}
 ),
 
-dept as (
+by_publisher as (
   select
     year,
     month,
     month_start,
-    false as is_all_department,
-    department,
-    publisher_category,
-    publisher_id,
-    count(distinct mission_id) as mission_count
-  from active_months
-  where department is not null
-  group by
-    year,
-    month,
-    month_start,
-    department,
-    publisher_category,
-    publisher_id
-),
-
-dept_all_category as (
-  select
-    year,
-    month,
-    month_start,
-    false as is_all_department,
-    department,
-    'all' as publisher_category,
-    null as publisher_id,
-    count(distinct mission_id) as mission_count
-  from active_months
-  where department is not null
-  group by year, month, month_start, department
-),
-
-all_dept as (
-  select
-    year,
-    month,
-    month_start,
-    true as is_all_department,
-    null as department,
     publisher_category,
     publisher_id,
     count(distinct mission_id) as mission_count
@@ -97,13 +58,11 @@ all_dept as (
   group by year, month, month_start, publisher_category, publisher_id
 ),
 
-all_dept_all_category as (
+all_publishers as (
   select
     year,
     month,
     month_start,
-    true as is_all_department,
-    null as department,
     'all' as publisher_category,
     null as publisher_id,
     count(distinct mission_id) as mission_count
@@ -111,10 +70,20 @@ all_dept_all_category as (
   group by year, month, month_start
 )
 
-select * from dept
+select
+  year,
+  month,
+  month_start,
+  publisher_category,
+  publisher_id,
+  mission_count
+from by_publisher
 union all
-select * from dept_all_category
-union all
-select * from all_dept
-union all
-select * from all_dept_all_category
+select
+  year,
+  month,
+  month_start,
+  publisher_category,
+  publisher_id,
+  mission_count
+from all_publishers

@@ -210,12 +210,15 @@ models:
         description: Numéro du mois (1-12).
       - name: month_start
         description: Date de début du mois.
-      - name: is_all_department
-        description: TRUE pour l’agrégat national, FALSE pour l’agrégat départemental.
-      - name: department
-        description: Code département (null si national).
       - name: publisher_category
         description: Catégorie de mission.
+      - name: publisher_id
+        description: Identifiant du publisher de la mission (nullable).
+        tests:
+          - relationships:
+              arguments:
+                to: ref('publisher')
+                field: id
       - name: mission_count
         description: Missions actives distinctes sur le mois.
   - name: mission_active_department_monthly
