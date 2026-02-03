@@ -40,7 +40,6 @@ router.get("/apply", cors({ origin: "*" }), async (req: Request, res: Response) 
       .safeParse(req.query);
 
     if (!query.success) {
-      captureException(query.error, { extra: { query: req.query } });
       return res.status(204).send();
     }
 
@@ -55,7 +54,6 @@ router.get("/apply", cors({ origin: "*" }), async (req: Request, res: Response) 
           customAttributes = parsed as Record<string, unknown>;
         }
       } catch (error) {
-        captureException(error, { extra: { customAttributes: query.data.customAttributes } });
         return res.status(204).send();
       }
     }
@@ -179,7 +177,6 @@ router.get("/account", cors({ origin: "*" }), async (req: Request, res: Response
       .safeParse(req.query);
 
     if (!query.success) {
-      captureException(query.error, { extra: { query: req.query } });
       return res.status(204).send();
     }
 
@@ -295,7 +292,6 @@ router.get("/campaign/:id", cors({ origin: "*" }), async (req, res) => {
       .safeParse(req.params);
 
     if (!params.success) {
-      captureException(params.error, { extra: { params: req.params } });
       return res.redirect(302, JVA_URL);
     }
 
@@ -304,12 +300,7 @@ router.get("/campaign/:id", cors({ origin: "*" }), async (req, res) => {
     }
 
     const campaign = await campaignService.findCampaignById(params.data.id);
-    if (!campaign) {
-      captureException(new Error(`[Redirection Campaign] Campaign not found`), { extra: { campaignId: params.data.id } });
-      return res.redirect(302, JVA_URL);
-    }
-    if (!campaign.url) {
-      captureException(new Error(`[Redirection Campaign] Campaign url not found`), { extra: { campaignId: params.data.id } });
+    if (!campaign || !campaign.url) {
       return res.redirect(302, JVA_URL);
     }
     href = campaign.url;
@@ -377,18 +368,13 @@ router.get("/widget/:id", cors({ origin: "*" }), async (req: Request, res: Respo
       .safeParse(req.query);
 
     if (!params.success) {
-      captureException(params.error, { extra: { params: req.params } });
       return res.redirect(302, JVA_URL);
     }
 
     const identity = identify(req);
 
     const mission = await missionService.findOneMission(params.data.id);
-    if (!mission && !identity) {
-      return res.redirect(302, JVA_URL);
-    }
     if (!mission) {
-      captureException(new Error(`[Redirection Widget] Mission not found`), { extra: { missionId: params.data.id, widgetId: query.data?.widgetId } });
       return res.redirect(302, JVA_URL);
     }
     href = mission.applicationUrl || JVA_URL;
@@ -397,13 +383,11 @@ router.get("/widget/:id", cors({ origin: "*" }), async (req: Request, res: Respo
     }
 
     if (!query.success || !query.data.widgetId) {
-      captureException(query.error, { extra: { query: req.query } });
       return res.redirect(302, href);
     }
 
     const widget = await widgetService.findOneWidgetById(query.data.widgetId);
     if (!widget) {
-      captureException(new Error(`[Redirection Widget] Widget not found`), { extra: { widgetId: query.data.widgetId, missionId: params.data.id } });
       return res.redirect(302, href);
     }
 
@@ -488,11 +472,7 @@ router.get("/seo/:id", cors({ origin: "*" }), async (req: Request, res: Response
 
     const identity = identify(req);
     const mission = await missionService.findOneMission(params.data.id);
-    if (!mission && !identity) {
-      return res.redirect(302, JVA_URL);
-    }
     if (!mission) {
-      captureException(new Error(`[Redirection Seo] Mission not found`), { extra: { missionId: params.data.id } });
       return res.redirect(302, JVA_URL);
     }
     if (!identity) {
@@ -557,18 +537,11 @@ router.get("/notrack/:id", cors({ origin: "*" }), async (req, res, next) => {
       .safeParse(req.params);
 
     if (!params.success) {
-      captureException(params.error, { extra: { params: req.params } });
       return res.redirect(302, JVA_URL);
     }
-
-    const identity = identify(req);
 
     const mission = await missionService.findOneMission(params.data.id);
-    if (!mission && !identity) {
-      return res.redirect(302, JVA_URL);
-    }
     if (!mission) {
-      captureException(new Error(`[Redirection No Track] Mission not found`), { extra: { missionId: params.data.id } });
       return res.redirect(302, JVA_URL);
     }
 
@@ -620,18 +593,13 @@ router.get("/:missionId/:publisherId", cors({ origin: "*" }), async (req, res) =
       .safeParse(req.query);
 
     if (!params.success) {
-      captureException(params.error, { extra: { params: req.params } });
       return res.redirect(302, "https://www.service-civique.gouv.fr/");
     }
 
     const identity = identify(req);
 
     const mission = await missionService.findOneMission(params.data.missionId);
-    if (!mission && !identity) {
-      return res.redirect(302, "https://www.service-civique.gouv.fr/");
-    }
     if (!mission) {
-      captureException(new Error(`[Redirection Publisher] Mission not found`), { extra: { missionId: params.data.missionId, publisherId: params.data.publisherId } });
       return res.redirect(302, "https://www.service-civique.gouv.fr/");
     }
     if (!identity) {
@@ -641,7 +609,6 @@ router.get("/:missionId/:publisherId", cors({ origin: "*" }), async (req, res) =
 
     const fromPublisher = await publisherService.findOnePublisherById(params.data.publisherId);
     if (!fromPublisher) {
-      captureException(new Error(`[Redirection Publisher] Publisher not found`), { extra: { publisherId: params.data.publisherId } });
       return res.redirect(302, "https://www.service-civique.gouv.fr/");
     }
 
@@ -806,7 +773,6 @@ router.get("/impression/:missionId/:publisherId", cors({ origin: "*" }), async (
 
     const fromPublisher = await publisherService.findOnePublisherById(params.data.publisherId);
     if (!fromPublisher) {
-      captureException(`[Impression Widget] Publisher not found`, `publisher ${params.data.publisherId}`);
       return res.status(404).send({ ok: false, code: NOT_FOUND });
     }
 
