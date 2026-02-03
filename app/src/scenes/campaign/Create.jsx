@@ -49,7 +49,9 @@ const Create = () => {
         if (res.status === 409) {
           setErrors({ name: "Une campagne avec ce nom existe déjà" });
           return toast.error("Une campagne avec ce nom existe déjà");
-        } else throw res;
+        } else {
+          throw res;
+        }
       }
       setCampaignId(res.data.id);
       setIsCopyModalOpen(true);

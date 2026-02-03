@@ -37,7 +37,9 @@ const Campaigns = () => {
   const fetchData = async () => {
     try {
       const res = await api.post(`/campaign/search`, filters);
-      if (!res.ok) throw res;
+      if (!res.ok) {
+        throw res;
+      }
       setData(res.data || []);
     } catch (error) {
       captureError(error, { extra: { filters } });
@@ -47,7 +49,13 @@ const Campaigns = () => {
   const handleDuplicate = async (id) => {
     try {
       const res = await api.post(`/campaign/${id}/duplicate`);
-      if (!res.ok) throw res;
+      if (!res.ok) {
+        if (res.status === 409) {
+          return toast.error("Une campagne avec ce nom existe déjà");
+        } else {
+          throw res;
+        }
+      }
 
       setData([res.data, ...data]);
       toast.success("Campagne dupliquée");
@@ -64,7 +72,9 @@ const Campaigns = () => {
   const handleActivate = async (value, item) => {
     try {
       const res = await api.put(`/campaign/${item.id}`, { active: value });
-      if (!res.ok) throw res;
+      if (!res.ok) {
+        throw res;
+      }
       setData((campaigns) => campaigns.map((c) => (c.id === res.data.id ? res.data : c)));
     } catch (error) {
       captureError(error, { extra: { item } });
