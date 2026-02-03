@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { RiQuestionLine } from "react-icons/ri";
 
+import Tooltip from "../../../components/Tooltip";
 import { DEPARTMENT_NAMES, METABASE_CARD_ID } from "../../../constants";
 import AnalyticsCard from "../../performance/AnalyticsCard";
 
