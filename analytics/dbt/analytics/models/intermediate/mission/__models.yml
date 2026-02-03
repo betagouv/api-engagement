@@ -120,3 +120,77 @@ models:
         description: Date de dernière mise à jour (curseur incrémental).
         tests:
           - not_null
+  - name: int_mission_active_range
+    description: >
+      Vue intermédiaire au grain mission, qui expose la période d'activité (start_date/end_date)
+      sans déplier en jours. La date de fin reste null tant que la mission est active.
+    columns:
+      - name: mission_id
+        description: Identifiant de la mission.
+        tests:
+          - not_null
+          - unique
+          - relationships:
+              arguments:
+                to: ref('mission')
+                field: id
+      - name: start_date
+        description: Date de début de la mission (jour de création).
+        tests:
+          - not_null
+      - name: end_date
+        description: Date de fin de la mission (jour de suppression, null si active).
+      - name: mission_domain
+        description: Domaine de la mission.
+      - name: publisher_id
+        description: Identifiant du publisher de la mission.
+        tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('publisher')
+                field: id
+      - name: publisher_category
+        description: Catégorie de mission (benevolat / volontariat).
+      - name: updated_at
+        description: Timestamp de dernière mise à jour propagé depuis la mission.
+        tests:
+          - not_null
+  - name: int_mission_active_department_range
+    description: >
+      Vue intermédiaire au grain mission-département qui expose la période d'activité (start/end)
+      sans déplier en jours. Duplique `int_mission_active_range` pour chaque département associé
+      à la mission (dédoublonnage par mission et code département).
+    columns:
+      - name: mission_id
+        description: Identifiant de la mission.
+        tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('mission')
+                field: id
+      - name: start_date
+        description: Date de début de la mission (jour de création).
+        tests:
+          - not_null
+      - name: end_date
+        description: Date de fin de la mission (jour de suppression, null si active).
+      - name: department
+        description: Code département associé (dédoublonné par mission et code).
+      - name: publisher_id
+        description: Identifiant du publisher de la mission.
+        tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('publisher')
+                field: id
+      - name: publisher_category
+        description: Catégorie de mission (benevolat / volontariat).
+      - name: mission_domain
+        description: Domaine de la mission.
+      - name: updated_at
+        description: Timestamp de dernière mise à jour propagé depuis la mission/adresse.
+        tests:
+          - not_null

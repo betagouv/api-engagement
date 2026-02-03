@@ -1,6 +1,14 @@
 {{ config(
   materialized = 'incremental',
-  unique_key = ['year', 'month', 'is_all_department', 'department', 'publisher_category'],
+  unique_key = [
+    'year',
+    'month',
+    'is_all_department',
+    'department',
+    'publisher_id',
+    'publisher_category',
+    'mission_domain'
+  ],
   incremental_strategy = 'delete+insert',
   on_schema_change = 'sync_all_columns'
 ) }}
@@ -16,12 +24,15 @@ with last_run as (
 
 base as (
   select
-    organization_id,
+    mission_id,
     department,
+    publisher_id,
     publisher_category,
+    mission_domain,
     start_date,
+    updated_at,
     coalesce(end_date, current_date) as end_date
-  from {{ ref('int_organization_active_range') }}
+  from {{ ref('int_mission_active_department_range') }}
   where start_date is not null
 ),
 
@@ -31,8 +42,11 @@ active_months as (
     extract(month from s.month_start)::int as month,
     s.month_start,
     b.department,
+    b.publisher_id,
     b.publisher_category,
-    b.organization_id
+    b.mission_domain,
+    b.mission_id,
+    b.updated_at
   from base as b
   inner join lateral (
     select generate_series(
@@ -53,11 +67,20 @@ dept as (
     month_start,
     false as is_all_department,
     department,
+    publisher_id,
     publisher_category,
-    count(distinct organization_id) as organization_count
+    mission_domain,
+    count(distinct mission_id) as mission_count,
+    max(updated_at) as max_updated_at
   from active_months
-  where department is not null
-  group by year, month, month_start, department, publisher_category
+  group by
+    year,
+    month,
+    month_start,
+    department,
+    publisher_id,
+    publisher_category,
+    mission_domain
 ),
 
 dept_all_category as (
@@ -67,11 +90,18 @@ dept_all_category as (
     month_start,
     false as is_all_department,
     department,
+    null as publisher_id,
     'all' as publisher_category,
-    count(distinct organization_id) as organization_count
+    mission_domain,
+    count(distinct mission_id) as mission_count,
+    max(updated_at) as max_updated_at
   from active_months
-  where department is not null
-  group by year, month, month_start, department
+  group by
+    year,
+    month,
+    month_start,
+    department,
+    mission_domain
 ),
 
 all_dept as (
@@ -81,10 +111,19 @@ all_dept as (
     month_start,
     true as is_all_department,
     null as department,
+    publisher_id,
     publisher_category,
-    count(distinct organization_id) as organization_count
+    mission_domain,
+    count(distinct mission_id) as mission_count,
+    max(updated_at) as max_updated_at
   from active_months
-  group by year, month, month_start, publisher_category
+  group by
+    year,
+    month,
+    month_start,
+    publisher_id,
+    publisher_category,
+    mission_domain
 ),
 
 all_dept_all_category as (
@@ -94,10 +133,17 @@ all_dept_all_category as (
     month_start,
     true as is_all_department,
     null as department,
+    null as publisher_id,
     'all' as publisher_category,
-    count(distinct organization_id) as organization_count
+    mission_domain,
+    count(distinct mission_id) as mission_count,
+    max(updated_at) as max_updated_at
   from active_months
-  group by year, month, month_start
+  group by
+    year,
+    month,
+    month_start,
+    mission_domain
 )
 
 select * from dept
