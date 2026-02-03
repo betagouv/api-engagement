@@ -58,7 +58,7 @@ export const missionRepository = {
         FROM (
           SELECT id as mission_id, UNNEST(${Prisma.raw(field)}) as value
           FROM mission
-          WHERE id = ANY(${missionIds}::uuid[])
+          WHERE id IN (${Prisma.join(missionIds)})
         ) t
         WHERE value IS NOT NULL AND value != ''
         GROUP BY value
