@@ -32,4 +32,22 @@ export const ACTIVITIES = [
   "sport",
   "art",
   "autre",
+  "animation-valorisation",
+  "mediation-information",
+  "preservation-patrimoine",
+  "prevention-sensibilisation",
+  "secours-aide",
+  "soutien-accompagnement",
+  "transmission-pedagogie",
 ];
+
+/** Display names for compound activities, keyed by slug. */
+export const COMPOUND_ACTIVITY_LABELS: Record<string, string> = {
+  "animation-valorisation": "Animation, Valorisation",
+  "mediation-information": "Médiation, Information",
+  "preservation-patrimoine": "Préservation, Patrimoine",
+  "prevention-sensibilisation": "Prévention, Sensibilisation",
+  "secours-aide": "Secours, Aide",
+  "soutien-accompagnement": "Soutien, Accompagnement",
+  "transmission-pedagogie": "Transmission, Pédagogie",
+};

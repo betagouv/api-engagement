@@ -199,9 +199,12 @@ export type MissionCreateInput = Partial<Omit<MissionRecord, "_id" | "publisherN
   publisherId: string;
   title: string;
   statusCode?: MissionStatusCode;
+  activities?: string[];
 };
 
-export type MissionUpdatePatch = Partial<Omit<MissionRecord, "_id" | "publisherName" | "publisherLogo" | "publisherUrl" | "createdAt" | "id">>;
+export type MissionUpdatePatch = Partial<Omit<MissionRecord, "_id" | "publisherName" | "publisherLogo" | "publisherUrl" | "createdAt" | "id">> & {
+  activities?: string[];
+};
 
 export type MissionInclude = Prisma.MissionInclude;
 

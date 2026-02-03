@@ -15,6 +15,7 @@ import type {
   MissionUpdatePatch,
 } from "../types/mission";
 import { calculateBoundingBox } from "../utils";
+import { activityService } from "./activity";
 import { buildJobBoardMap, deriveMissionLocation, normalizeMissionAddresses } from "../utils/mission";
 import { normalizeOptionalString, normalizeStringList } from "../utils/normalize";
 import { publisherService } from "./publisher";
@@ -23,6 +24,7 @@ type MissionWithRelations = Mission & {
   publisher?: { name: string | null; url: string | null; logo: string | null } | null;
   domain?: { name: string } | null;
   activity?: { name: string } | null;
+  activities?: Array<{ activity: { id: string; name: string } }> | null;
   publisherOrganization?: {
     organizationClientId: string;
     organizationName: string | null;
@@ -97,16 +99,6 @@ const resolveDomainId = async (domainName: string): Promise<string> => {
   return created.id;
 };
 
-const resolveActivityId = async (activityName: string): Promise<string> => {
-  const name = activityName.trim();
-  const existing = await prismaCore.activity.findUnique({ where: { name }, select: { id: true } });
-  if (existing) {
-    return existing.id;
-  }
-  const created = await prismaCore.activity.create({ data: { name } });
-  return created.id;
-};
-
 const toMissionRecord = (mission: MissionWithRelations, moderatedBy: string | null = null): MissionRecord => {
   const addresses = normalizeMissionAddresses(mission.addresses || []) as MissionRecord["addresses"];
   const location = deriveMissionLocation(addresses);
@@ -117,7 +109,11 @@ const toMissionRecord = (mission: MissionWithRelations, moderatedBy: string | nu
   const publisherLogo = mission.publisher?.logo ?? null;
   const publisherUrl = mission.publisher?.url ?? null;
   const domain = mission.domain;
-  const activity = mission.activity;
+  const activityNames = mission.activities?.length
+    ? mission.activities.map((ma) => ma.activity.name).sort()
+    : mission.activity
+      ? [mission.activity.name]
+      : [];
   const jobBoards = buildJobBoardMap(mission.jobBoards);
   const letudiantJobBoard = jobBoards?.LETUDIANT;
 
@@ -159,7 +155,7 @@ const toMissionRecord = (mission: MissionWithRelations, moderatedBy: string | nu
     domain: domain?.name ?? null,
     domainOriginal: mission.domainOriginal ?? null,
     domainLogo: mission.domainLogo ?? null,
-    activity: activity?.name ?? null,
+    activity: activityNames.length ? activityNames.join(", ") : null,
     type: mission.type ?? null,
     snu: mission.snu ?? false,
     snuPlaces: mission.snuPlaces ?? null,
@@ -284,7 +280,7 @@ export const buildWhere = (filters: MissionSearchFilters): Prisma.MissionWhereIn
   }
 
   if (filters.activity?.length) {
-    where.activity = { is: { name: { in: filters.activity } } };
+    where.activities = { some: { activity: { name: { in: filters.activity } } } };
   }
   if (filters.action?.length) {
     where.tasks = { hasSome: filters.action };
@@ -494,10 +490,20 @@ const buildAggregations = async (where: Prisma.MissionWhereInput): Promise<Missi
   };
 
   const aggregateMissionActivity = async () => {
-    return aggregateMissionRelationById("activityId", async (ids) => {
-      const activities = await prismaCore.activity.findMany({ where: { id: { in: ids } }, select: { id: true, name: true } });
-      return new Map(activities.map((activity) => [activity.id, activity.name ?? ""]));
+    const rows = await prismaCore.missionActivity.groupBy({
+      by: ["activityId"],
+      where: { mission: where },
+      _count: { _all: true },
     });
+
+    const ids = rows.map((row) => row.activityId).filter(isNonEmpty);
+    const activities = ids.length ? await prismaCore.activity.findMany({ where: { id: { in: ids } }, select: { id: true, name: true } }) : [];
+    const nameById = new Map(activities.map((a) => [a.id, a.name]));
+
+    return rows
+      .map((row) => ({ key: nameById.get(row.activityId) ?? "", doc_count: Number(row._count?._all ?? 0) }))
+      .filter((row) => isNonEmpty(row.key))
+      .sort((a, b) => b.doc_count - a.doc_count);
   };
 
   const aggregateAddressField = async (field: "city" | "departmentName") => {
@@ -585,7 +591,16 @@ const mapAddressesForCreate = (addresses?: MissionRecord["addresses"]) => {
   }));
 };
 
-const baseInclude: MissionInclude = { publisher: true, domain: true, activity: true, publisherOrganization: true, addresses: true, moderationStatuses: true, jobBoards: true };
+const baseInclude: MissionInclude = {
+  publisher: true,
+  domain: true,
+  activity: true,
+  activities: { include: { activity: { select: { id: true, name: true } } } },
+  publisherOrganization: true,
+  addresses: true,
+  moderationStatuses: true,
+  jobBoards: true,
+};
 
 export const missionService = {
   async findOneMission(id: string, moderatedBy: string | null = null): Promise<MissionRecord | null> {
@@ -706,15 +721,14 @@ export const missionService = {
     const organizationClientId = normalizeOptionalString(input.organizationClientId ?? undefined);
 
     const domainName = input.domain?.trim();
-    const activityName = input.activity?.trim();
     const domainId = domainName ? await resolveDomainId(domainName) : null;
-    const activityId = activityName ? await resolveActivityId(activityName) : null;
+    const activityIds = input.activities?.length ? await activityService.resolveNames(input.activities) : [];
     const data: Prisma.MissionUncheckedCreateInput = {
       id,
       clientId: input.clientId,
       publisherId: input.publisherId,
       domainId: domainId ?? null,
-      activityId: activityId ?? null,
+      activityId: activityIds[0] ?? null,
       title: input.title,
       statusCode: input.statusCode ?? "ACCEPTED",
       description: input.description ?? "",
@@ -757,6 +771,13 @@ export const missionService = {
     };
 
     await missionRepository.createUnchecked(data);
+
+    if (activityIds.length) {
+      await prismaCore.missionActivity.createMany({
+        data: activityIds.map((activityId) => ({ missionId: id, activityId })),
+      });
+    }
+
     const mission = await missionRepository.findFirst({ where: { id }, include: baseInclude });
     if (!mission) {
       throw new Error(`[missionService] Mission ${id} not found after creation`);
@@ -858,13 +879,14 @@ export const missionService = {
     if ("domainLogo" in patch) {
       data.domainLogo = patch.domainLogo ?? null;
     }
-    if ("activity" in patch) {
-      if (patch.activity) {
-        const activityName = patch.activity.trim();
-        const activityId = activityName ? await resolveActivityId(activityName) : null;
-        data.activityId = activityId;
-      } else {
-        data.activityId = null;
+    if ("activities" in patch) {
+      const activityIds = patch.activities?.length ? await activityService.resolveNames(patch.activities) : [];
+      data.activityId = activityIds[0] ?? null;
+      await prismaCore.missionActivity.deleteMany({ where: { missionId: id } });
+      if (activityIds.length) {
+        await prismaCore.missionActivity.createMany({
+          data: activityIds.map((activityId) => ({ missionId: id, activityId })),
+        });
       }
     }
     if ("type" in patch) {
