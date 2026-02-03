@@ -2,7 +2,7 @@ import { ComboboxButton, ComboboxInput, ComboboxOption, ComboboxOptions, Combobo
 import { Fragment, useEffect, useState } from "react";
 
 import { RiArrowDownSLine, RiCheckFill } from "react-icons/ri";
-import Loader from "./Loader";
+import Loader from "../Loader";
 
 const Combobox = ({
   value,

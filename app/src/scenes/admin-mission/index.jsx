@@ -3,7 +3,7 @@ import { RiCheckboxCircleFill, RiFileDownloadLine, RiInformationLine } from "rea
 import { Link, useSearchParams } from "react-router-dom";
 
 import ErrorIconSvg from "../../assets/svg/error-icon.svg?react";
-import Combobox from "../../components/Combobox";
+import Combobox from "../../components/combobox";
 import Loader from "../../components/Loader";
 import SearchInput from "../../components/SearchInput";
 import Select from "../../components/Select";

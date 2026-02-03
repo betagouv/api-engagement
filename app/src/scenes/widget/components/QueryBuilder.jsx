@@ -1,29 +1,43 @@
 import { RiAddFill, RiDeleteBin6Line } from "react-icons/ri";
 
-import Combobox from "@/components/Combobox";
+import MissionCombobox from "../../../components/combobox/MissionCombobox";
 
-const QueryBuilder = ({ fields, rules, setRules, onSearch }) => {
+const FIELDS = [
+  { label: "Nom de l'organisation", value: "organizationName", type: "text" },
+  { label: "Domaine de la mission", value: "domain", type: "text" },
+  { label: "Nom du réseau", value: "organizationReseaux", type: "text" },
+  { label: "Titre de la mission", value: "title", type: "text" },
+  { label: "Code postal de la mission", value: "postalCode", type: "text" },
+  { label: "Département de la mission", value: "departmentName", type: "text" },
+  { label: "Région de la mission", value: "regionName", type: "text" },
+  { label: "Activité de la mission", value: "activity", type: "text" },
+  { label: "Tag personnalisé", value: "tags", type: "text" },
+  { label: "Actions de l'organisation", value: "organizationActions", type: "text" },
+  { label: "Ouvert au mineur", value: "openToMinors", type: "boolean" },
+];
+
+const QueryBuilder = ({ values, onChange }) => {
   const handleAddRule = () => {
-    setRules([...rules, { combinator: "and", field: fields[0].value, operator: "is", value: "" }]);
+    onChange([...values.rules, { combinator: "and", field: FIELDS[0].value, operator: "is", value: "" }]);
   };
 
   const handleDeleteRule = (index) => {
-    const newRules = [...rules];
+    const newRules = [...values.rules];
     newRules.splice(index, 1);
-    setRules(newRules);
+    onChange(newRules);
   };
 
   const handleRuleChange = (rule, index) => {
-    const newRules = [...rules];
+    const newRules = [...values.rules];
     newRules[index] = rule;
-    setRules(newRules);
+    onChange(newRules);
   };
 
   return (
     <div className="flex flex-col">
-      {rules.map((r, i) => (
+      {values.rules.map((r, i) => (
         <div key={i} className="my-3 flex w-full items-center gap-4">
-          <Rule index={i} fields={fields} rule={r} onChange={(r) => handleRuleChange(r, i)} onSearch={onSearch} />
+          <Rule index={i} fields={FIELDS} rule={r} onChange={(r) => handleRuleChange(r, i)} filters={values.publishers.map((p) => `publishers[]=${p}`).join("&")} />
           <span className="border-error text-error flex h-8 w-8 cursor-pointer items-center justify-center border" onClick={() => handleDeleteRule(i)}>
             <RiDeleteBin6Line />
           </span>
@@ -37,7 +51,7 @@ const QueryBuilder = ({ fields, rules, setRules, onSearch }) => {
   );
 };
 
-const Rule = ({ fields, rule, onChange, onSearch, index }) => {
+const Rule = ({ fields, rule, onChange, index, filters }) => {
   const handleSelectField = (e) => {
     const f = fields.find((f) => f.value === e.target.value);
     if (!f) return;
@@ -88,13 +102,13 @@ const Rule = ({ fields, rule, onChange, onSearch, index }) => {
             </select>
             {rule.operator !== "exists" && rule.operator !== "does_not_exist" && (
               <div className="flex-1">
-                <Combobox
+                <MissionCombobox
                   id={`rule-${index}-value`}
                   value={rule.value}
                   onChange={(value) => onChange({ ...rule, value })}
-                  onSearch={(search) => onSearch(rule.field, search)}
                   onSelect={(option) => onChange({ ...rule, value: option ? option.value : "" })}
                   placeholder="Choisissez une option"
+                  filters={`${filters}&field=${rule.field}`}
                 />
               </div>
             )}

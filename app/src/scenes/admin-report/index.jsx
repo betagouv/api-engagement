@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 
 import { RiDownload2Line } from "react-icons/ri";
-import Combobox from "../../components/Combobox";
+import Combobox from "../../components/combobox";
 import Select from "../../components/Select";
 import Table from "../../components/Table";
 import { MONTHS, REPORT_STATUS, YEARS } from "../../constants";

@@ -3,7 +3,7 @@ import { RiCheckboxCircleFill, RiFileDownloadLine, RiInformationLine } from "rea
 import { Link, useSearchParams } from "react-router-dom";
 
 import ErrorIconSvg from "../../assets/svg/error-icon.svg?react";
-import Combobox from "../../components/Combobox";
+import MissionCombobox from "../../components/combobox/MissionCombobox";
 import InfoAlert from "../../components/InfoAlert";
 import Loader from "../../components/Loader";
 import SearchInput from "../../components/SearchInput";
@@ -91,20 +91,6 @@ const Flux = ({ moderated }) => {
     return () => controller.abort();
   }, [filters]);
 
-  const fetchOptions = async (search, field) => {
-    try {
-      const res = await api.get(`/mission/autocomplete?field=${field}&search=${search}&publishers[]=${publisher.id}`);
-      if (!res.ok) throw res;
-      return res.data.map((city) => ({
-        label: city.key === "" ? "Non renseignée" : city.key,
-        value: city.key,
-      }));
-    } catch (error) {
-      captureError(error, { extra: { search, publisherId: publisher.id } });
-    }
-    return [];
-  };
-
   const handleExport = async () => {
     setExporting(true);
     try {
@@ -176,19 +162,19 @@ const Flux = ({ moderated }) => {
             placeholder="Activités"
             loading={loading}
           />
-          <Combobox
+          <MissionCombobox
             id="city"
             value={filters.city}
             onSelect={(city) => setFilters({ ...filters, city: city ? city.value : null })}
-            onSearch={(search) => fetchOptions(search, "city")}
             placeholder="Villes"
+            filters={`publishers[]=${publisher.id}&field=city`}
           />
-          <Combobox
+          <MissionCombobox
             id="organization"
             value={filters.organization}
             onSelect={(organization) => setFilters({ ...filters, organization: organization ? organization.value : null })}
-            onSearch={(search) => fetchOptions(search, "organizationName")}
             placeholder="Organisations"
+            filters={`publishers[]=${publisher.id}&field=organizationName`}
             className="w-96"
           />
         </div>

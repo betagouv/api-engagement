@@ -7,7 +7,7 @@ import Toggle from "@/components/Toggle";
 import api from "@/services/api";
 import { captureError } from "@/services/error";
 import useStore from "@/services/store";
-import Combobox from "../../../components/Combobox";
+import LocationCombobox from "../../../components/combobox/LocationCombobox";
 import QueryBuilder from "./QueryBuilder";
 
 const JVA_ID = "5f5931496c7ea514150a818f";
@@ -76,21 +76,6 @@ const Settings = ({ widget, values, onChange, loading }) => {
     return () => clearTimeout(timeout);
   }, [loading, values.publishers, values.location, values.distance, values.jvaModeration, values.rules]);
 
-  const handleSearch = async (field, search) => {
-    try {
-      const publishers = values.publishers.map((p) => `publishers[]=${p}`).join("&");
-      const res = await api.get(`/mission/autocomplete?field=${field}&search=${search}&${publishers}`);
-      if (!res.ok) throw res;
-      return res.data.map((item) => ({
-        label: item.key === "" ? "Non renseignée" : item.key,
-        value: item.key,
-      }));
-    } catch (error) {
-      captureError(error, { extra: { field, search, values } });
-    }
-    return [];
-  };
-
   return (
     <div className="space-y-12 bg-white p-12 shadow-lg">
       <div className="space-y-10">
@@ -157,7 +142,12 @@ const Settings = ({ widget, values, onChange, loading }) => {
             <label className="text-base" htmlFor="location">
               Ville ou code postal
             </label>
-            <LocationSearch location={values.location} onChange={(v) => onChange({ ...values, location: v })} />
+            <LocationCombobox
+              id="location"
+              selected={values.location ? { label: values.location.label, value: `${values.location.lat}-${values.location.lon}` } : null}
+              onSelect={(v) => onChange({ ...values, location: v ? { label: v.label, lat: parseFloat(v.value.split("-")[0]), lon: parseFloat(v.value.split("-")[1]) } : null })}
+              placeholder="Localisation"
+            />
             <div className="text-info mt-4 flex items-center gap-2">
               <BiSolidInfoSquare className="text-sm" />
               <span className="text-xs">Laisser vide pour afficher les missions de toute la France</span>
@@ -296,24 +286,7 @@ const Settings = ({ widget, values, onChange, loading }) => {
             </p>
           </div>
 
-          <QueryBuilder
-            fields={[
-              { label: "Nom de l'organisation", value: "organizationName", type: "text" },
-              { label: "Domaine de la mission", value: "domain", type: "text" },
-              { label: "Nom du réseau", value: "organizationReseaux", type: "text" },
-              { label: "Titre de la mission", value: "title", type: "text" },
-              { label: "Code postal de la mission", value: "postalCode", type: "text" },
-              { label: "Département de la mission", value: "departmentName", type: "text" },
-              { label: "Région de la mission", value: "regionName", type: "text" },
-              { label: "Activité de la mission", value: "activity", type: "text" },
-              { label: "Tag personnalisé", value: "tags", type: "text" },
-              { label: "Actions de l'organisation", value: "organizationActions", type: "text" },
-              { label: "Ouvert au mineur", value: "openToMinors", type: "boolean" },
-            ]}
-            rules={values.rules || []}
-            setRules={(rules) => onChange({ ...values, rules })}
-            onSearch={(field, search) => handleSearch(field, search, values)}
-          />
+          <QueryBuilder values={values} onChange={(rules) => onChange({ ...values, rules })} />
         </div>
       </div>
 
@@ -370,44 +343,6 @@ const Settings = ({ widget, values, onChange, loading }) => {
         </div>
       </div>
     </div>
-  );
-};
-
-const LocationSearch = ({ location, onChange }) => {
-  const fetchLocasions = async (search) => {
-    if (search.length < 4) {
-      if (location) {
-        return [
-          {
-            label: location.label,
-            value: `${location.lat}-${location.lon}`,
-            lat: location.lat,
-            lon: location.lon,
-          },
-        ];
-      }
-      return [];
-    }
-    const res = await fetch(`https://api-adresse.data.gouv.fr/search?q=${search}&type=municipality&autocomplete=1&limit=6`).then((r) => r.json());
-    if (!res.features) {
-      return [];
-    }
-    return res.features.map((f) => ({
-      label: `${f.properties.name}, ${f.properties.city} ${f.properties.postcode}`,
-      value: `${f.geometry.coordinates[1]}-${f.geometry.coordinates[0]}`,
-      lat: f.geometry.coordinates[1],
-      lon: f.geometry.coordinates[0],
-    }));
-  };
-
-  return (
-    <Combobox
-      id="location"
-      value={location ? `${location.lat}-${location.lon}` : null}
-      onSelect={(location) => onChange(location || null)}
-      onSearch={fetchLocasions}
-      placeholder="Localisation"
-    />
   );
 };
 

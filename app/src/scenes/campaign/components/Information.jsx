@@ -2,7 +2,7 @@ import { BiSolidInfoSquare } from "react-icons/bi";
 import { RiErrorWarningFill } from "react-icons/ri";
 
 import { useEffect, useState } from "react";
-import Combobox from "../../../components/Combobox";
+import Combobox from "../../../components/combobox";
 import api from "../../../services/api";
 import { captureError } from "../../../services/error";
 import { slugify } from "../../../services/utils";

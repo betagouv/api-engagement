@@ -5,7 +5,7 @@ import { Link, useNavigate, useParams } from "react-router-dom";
 
 import { toast } from "../../services/toast";
 
-import Combobox from "../../components/Combobox";
+import Combobox from "../../components/combobox";
 import Dropdown from "../../components/Dropdown";
 import Loader from "../../components/Loader";
 import Modal from "../../components/New-Modal";

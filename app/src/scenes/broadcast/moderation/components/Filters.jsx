@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { RiCloseFill } from "react-icons/ri";
 
 import ModerationManualIcon from "../../../../assets/svg/moderation-manual.svg";
-import Combobox from "../../../../components/Combobox";
+import MissionCombobox from "../../../../components/combobox/MissionCombobox";
 import SearchInput from "../../../../components/SearchInput";
 import Select from "../../../../components/Select";
 import api from "../../../../services/api";
@@ -54,21 +54,6 @@ const Filters = ({ filters, onChange, reload }) => {
     fetchOptions();
   }, [filters, reload]);
 
-  const fetchOptions = async (search, field) => {
-    try {
-      const publishers = options.publishers.map((p) => `publishers[]=${p.key}`).join("&");
-      const res = await api.get(`/mission/autocomplete?field=${field}&search=${search}&${publishers}`);
-      if (!res.ok) throw res;
-      return res.data.map((city) => ({
-        label: city.key === "" ? "Non renseignée" : city.key,
-        value: city.key,
-      }));
-    } catch (error) {
-      captureError(error, { extra: { search, publisherId: publisher.id } });
-    }
-    return [];
-  };
-
   return (
     <div className="mx-12">
       <div className="flex items-center justify-between">
@@ -104,12 +89,12 @@ const Filters = ({ filters, onChange, reload }) => {
           loading={loading}
         />
 
-        <Combobox
+        <MissionCombobox
           id="organization"
-          value={filters.organizationName}
-          onSelect={(organization) => onChange({ ...filters, organizationName: organization ? organization.value : null })}
-          onSearch={(search) => fetchOptions(search, "organizationName")}
+          value={filters.organization}
+          onSelect={(organization) => onChange({ ...filters, organization: organization ? organization.value : null })}
           placeholder="Organisations"
+          filters={`${options.publishers.map((p) => `publishers[]=${p.key}`).join("&")}&field=organizationName`}
           className="w-96"
         />
       </div>
@@ -134,13 +119,12 @@ const Filters = ({ filters, onChange, reload }) => {
           loading={loading}
         />
 
-        <Combobox
+        <MissionCombobox
           id="city"
           value={filters.city}
           onSelect={(city) => onChange({ ...filters, city: city ? city.value : null })}
-          onSearch={(search) => fetchOptions(search, "city")}
           placeholder="Villes"
-          className="w-96"
+          filters={`${options.publishers.map((p) => `publishers[]=${p.key}`).join("&")}&field=city`}
         />
         <Select
           options={options.activities.map((e) => ({ value: e.key === "" ? "none" : e.key, label: e.key === "" ? "Non renseignée" : e.key, count: e.doc_count }))}

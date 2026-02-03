@@ -1,7 +1,7 @@
 import { toast } from "@/services/toast";
 import { useEffect, useState } from "react";
 
-import Combobox from "@/components/Combobox";
+import Combobox from "@/components/combobox";
 import api from "@/services/api";
 import { captureError } from "@/services/error";
 import useStore from "@/services/store";
