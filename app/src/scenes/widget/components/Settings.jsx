@@ -1,5 +1,4 @@
-import { Combobox, ComboboxInput, ComboboxOption, ComboboxOptions, Transition } from "@headlessui/react";
-import { Fragment, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { BiSolidInfoSquare } from "react-icons/bi";
 
 import JvaLogoSvg from "@/assets/svg/jva-logo.svg";
@@ -8,6 +7,7 @@ import Toggle from "@/components/Toggle";
 import api from "@/services/api";
 import { captureError } from "@/services/error";
 import useStore from "@/services/store";
+import LocationCombobox from "../../../components/combobox/LocationCombobox";
 import QueryBuilder from "./QueryBuilder";
 
 const JVA_ID = "5f5931496c7ea514150a818f";
@@ -50,40 +50,31 @@ const Settings = ({ widget, values, onChange, loading }) => {
 
   useEffect(() => {
     if (loading) return;
-    const fetchFilteredMissions = async () => {
-      try {
-        const query = {
-          publishers: values.publishers,
-          lat: values.location?.lat,
-          lon: values.location?.lon,
-          distance: values.distance,
-          jvaModeration: values.jvaModeration,
-          rules: values.rules,
-          status: "ACCEPTED",
-          size: 0,
-        };
+    const timeout = setTimeout(() => {
+      const fetchFilteredMissions = async () => {
+        try {
+          const query = {
+            publishers: values.publishers,
+            lat: values.location?.lat,
+            lon: values.location?.lon,
+            distance: values.distance,
+            jvaModeration: values.jvaModeration,
+            rules: values.rules,
+            status: "ACCEPTED",
+            size: 0,
+          };
 
-        const res = await api.post("/mission/search", query);
-        if (!res.ok) throw res;
-        setTotal(res.total);
-      } catch (error) {
-        captureError(error, { extra: { publisherId: publisher.id } });
-      }
-    };
-    fetchFilteredMissions();
+          const res = await api.post("/mission/search", query);
+          if (!res.ok) throw res;
+          setTotal(res.total);
+        } catch (error) {
+          captureError(error, { extra: { publisherId: publisher.id } });
+        }
+      };
+      fetchFilteredMissions();
+    }, 1000);
+    return () => clearTimeout(timeout);
   }, [loading, values.publishers, values.location, values.distance, values.jvaModeration, values.rules]);
-
-  const handleSearch = async (field, search, currentValues) => {
-    try {
-      const publishers = currentValues.publishers.map((p) => `publishers[]=${p}`).join("&");
-      const res = await api.get(`/mission/autocomplete?field=${field}&search=${search}&${publishers}`);
-      if (!res.ok) throw res;
-      return res.data;
-    } catch (error) {
-      captureError(error, { extra: { field, search, currentValues } });
-    }
-    return [];
-  };
 
   return (
     <div className="space-y-12 bg-white p-12 shadow-lg">
@@ -113,7 +104,7 @@ const Settings = ({ widget, values, onChange, loading }) => {
         <h2 className="text-2xl font-bold">Missions à diffuser</h2>
 
         <div className="grid grid-cols-2 gap-10">
-          <div className="space-y-4">
+          <div className="flex flex-col gap-1">
             <label className="text-base">
               Type de mission<span className="text-error ml-1">*</span>
             </label>
@@ -147,18 +138,23 @@ const Settings = ({ widget, values, onChange, loading }) => {
           </div>
           <div />
 
-          <div className="space-y-4">
+          <div className="flex flex-col gap-1">
             <label className="text-base" htmlFor="location">
               Ville ou code postal
             </label>
-            <LocationSearch selected={values.location} onChange={(v) => onChange({ ...values, location: v })} />
-            <div className="text-info flex items-center gap-2">
+            <LocationCombobox
+              id="location"
+              selected={values.location ? { label: values.location.label, value: `${values.location.lat}-${values.location.lon}` } : null}
+              onSelect={(v) => onChange({ ...values, location: v ? { label: v.label, lat: parseFloat(v.value.split("-")[0]), lon: parseFloat(v.value.split("-")[1]) } : null })}
+              placeholder="Localisation"
+            />
+            <div className="text-info mt-4 flex items-center gap-2">
               <BiSolidInfoSquare className="text-sm" />
               <span className="text-xs">Laisser vide pour afficher les missions de toute la France</span>
             </div>
           </div>
 
-          <div className="space-y-4">
+          <div className="flex flex-col gap-1">
             <label className="text-base" htmlFor="distance">
               Rayon de recherche
             </label>
@@ -174,7 +170,7 @@ const Settings = ({ widget, values, onChange, loading }) => {
           </div>
         </div>
 
-        <div className="space-y-4">
+        <div className="flex flex-col gap-1">
           <label className="text-base" htmlFor="location">
             Diffuser des missions de
             <span className="text-error ml-1">*</span>
@@ -290,24 +286,7 @@ const Settings = ({ widget, values, onChange, loading }) => {
             </p>
           </div>
 
-          <QueryBuilder
-            fields={[
-              { label: "Nom de l'organisation", value: "organizationName", type: "text" },
-              { label: "Domaine de la mission", value: "domain", type: "text" },
-              { label: "Nom du réseau", value: "organizationReseaux", type: "text" },
-              { label: "Titre de la mission", value: "title", type: "text" },
-              { label: "Code postal de la mission", value: "postalCode", type: "text" },
-              { label: "Département de la mission", value: "departmentName", type: "text" },
-              { label: "Région de la mission", value: "regionName", type: "text" },
-              { label: "Activité de la mission", value: "activity", type: "text" },
-              { label: "Tag personnalisé", value: "tags", type: "text" },
-              { label: "Actions de l'organisation", value: "organizationActions", type: "text" },
-              { label: "Ouvert au mineur", value: "openToMinors", type: "boolean" },
-            ]}
-            rules={values.rules || []}
-            setRules={(rules) => onChange({ ...values, rules })}
-            onSearch={(field, search) => handleSearch(field, search, values)}
-          />
+          <QueryBuilder values={values} onChange={(rules) => onChange({ ...values, rules })} />
         </div>
       </div>
 
@@ -364,55 +343,6 @@ const Settings = ({ widget, values, onChange, loading }) => {
         </div>
       </div>
     </div>
-  );
-};
-
-const LocationSearch = ({ selected, onChange }) => {
-  const [search, setSearch] = useState("");
-  const [options, setOptions] = useState([]);
-
-  const handleInputChange = async (e) => {
-    e.preventDefault();
-    const search = e.target.value;
-    setSearch(search);
-    if (search?.length > 3) {
-      const res = await fetch(`https://api-adresse.data.gouv.fr/search?q=${search}&type=municipality&autocomplete=1&limit=6`).then((r) => r.json());
-      if (!res.features) return;
-      setOptions(
-        res.features.map((f) => ({
-          label: `${f.properties.name}, ${f.properties.city} ${f.properties.postcode}`,
-          lat: f.geometry.coordinates[1],
-          lon: f.geometry.coordinates[0],
-        })),
-      );
-    }
-    if (search.length === 0) {
-      setOptions([]);
-      onChange(null);
-    }
-  };
-
-  return (
-    <Combobox as={Fragment} value={selected} onChange={onChange}>
-      <div className="relative w-full">
-        <ComboboxInput
-          className="input mb-2 w-full border-b-black"
-          displayValue={(location) => location?.label || search || selected?.label || ""}
-          placeholder="Localisation"
-          onChange={handleInputChange}
-        />
-
-        <Transition as={Fragment} leave="transition ease-in duration-100" leaveFrom="opacity-100" leaveTo="opacity-0">
-          <ComboboxOptions className="divide-grey-border absolute max-h-60 w-full divide-y overflow-auto bg-white text-base shadow-lg focus:outline-none">
-            {options.map((option, index) => (
-              <ComboboxOption key={`${option.label}-${index}`} value={option} className={({ active }) => `cursor-default p-3 select-none ${active ? "bg-gray-975" : "bg-white"}`}>
-                <span className={`truncate text-sm text-black ${selected?.label === option.label ? "text-blue-france" : ""}`}>{option.label}</span>
-              </ComboboxOption>
-            ))}
-          </ComboboxOptions>
-        </Transition>
-      </div>
-    </Combobox>
   );
 };
 

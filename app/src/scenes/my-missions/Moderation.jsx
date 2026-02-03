@@ -5,7 +5,7 @@ import Tooltip from "../../components/Tooltip";
 
 import JvaLogoPng from "../../assets/img/jva-logo.png";
 import Loader from "../../components/Loader";
-import Select from "../../components/NewSelect";
+import Select from "../../components/Select";
 import Pie, { colors } from "../../components/Pie";
 import SearchInput from "../../components/SearchInput";
 import Table from "../../components/Table";

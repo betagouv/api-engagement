@@ -2,9 +2,9 @@ import { useEffect, useState } from "react";
 import { RiCloseFill } from "react-icons/ri";
 
 import ModerationManualIcon from "../../../../assets/svg/moderation-manual.svg";
-import Select from "../../../../components/NewSelect";
+import MissionCombobox from "../../../../components/combobox/MissionCombobox";
 import SearchInput from "../../../../components/SearchInput";
-import SearchSelect from "../../../../components/SearchSelect";
+import Select from "../../../../components/Select";
 import api from "../../../../services/api";
 import { captureError } from "../../../../services/error";
 import useStore from "../../../../services/store";
@@ -88,13 +88,14 @@ const Filters = ({ filters, onChange, reload }) => {
           placeholder="Domaine"
           loading={loading}
         />
-        <SearchSelect
-          placeholder="Organisation"
-          options={options.organizations.map((e) => ({ value: e.key === "" ? "none" : e.key, label: e.key === "" ? "Non renseignée" : e.key, count: undefined }))}
-          value={filters.organizationName}
-          onChange={(e) => onChange({ ...filters, organizationName: e.value })}
-          className="right-0 w-96"
-          loading={loading}
+
+        <MissionCombobox
+          id="organization"
+          value={filters.organization}
+          onSelect={(organization) => onChange({ ...filters, organization: organization ? organization.value : null })}
+          placeholder="Organisations"
+          filters={`${options.publishers.map((p) => `publishers[]=${p.key}`).join("&")}&field=organizationName`}
+          className="w-96"
         />
       </div>
       <div className="flex items-center gap-4 pb-6">
@@ -117,13 +118,13 @@ const Filters = ({ filters, onChange, reload }) => {
           placeholder="Département"
           loading={loading}
         />
-        <SearchSelect
-          placeholder="Ville"
-          options={options.cities.map((e) => ({ value: e.key === "" ? "none" : e.key, label: e.key === "" ? "Non renseignée" : e.key, count: e.doc_count }))}
+
+        <MissionCombobox
+          id="city"
           value={filters.city}
-          onChange={(e) => onChange({ ...filters, city: e.value })}
-          className="right-0 w-80"
-          loading={loading}
+          onSelect={(city) => onChange({ ...filters, city: city ? city.value : null })}
+          placeholder="Villes"
+          filters={`${options.publishers.map((p) => `publishers[]=${p.key}`).join("&")}&field=city`}
         />
         <Select
           options={options.activities.map((e) => ({ value: e.key === "" ? "none" : e.key, label: e.key === "" ? "Non renseignée" : e.key, count: e.doc_count }))}

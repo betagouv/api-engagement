@@ -365,3 +365,28 @@ select {
   background: #000091 !important;
   color: white !important;
 }
+
+/* RGAA 10.7 - Focus visible on accessible components */
+
+/* Focus visible on combobox and listbox inputs */
+[role="combobox"]:focus-visible,
+[role="listbox"]:focus-visible,
+input[aria-expanded]:focus-visible {
+  outline: 2px solid #000091;
+  outline-offset: 2px;
+}
+
+/* Active option in dropdown lists */
+[data-headlessui-state~="active"][role="option"],
+[data-headlessui-state~="focus"][role="option"] {
+  background-color: #f6f6f6;
+  outline: 2px solid #000091;
+  outline-offset: -2px;
+}
+
+/* Focus on listbox button */
+button[aria-haspopup="listbox"]:focus-visible,
+button[aria-controls]:focus-visible {
+  outline: 2px solid #000091;
+  outline-offset: 2px;
+}

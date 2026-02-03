@@ -3,10 +3,11 @@ import { RiCheckboxCircleFill, RiFileDownloadLine, RiInformationLine } from "rea
 import { Link, useSearchParams } from "react-router-dom";
 
 import ErrorIconSvg from "../../assets/svg/error-icon.svg?react";
+import MissionCombobox from "../../components/combobox/MissionCombobox";
 import InfoAlert from "../../components/InfoAlert";
 import Loader from "../../components/Loader";
-import Select from "../../components/NewSelect";
 import SearchInput from "../../components/SearchInput";
+import Select from "../../components/Select";
 import Table from "../../components/Table";
 import Tooltip from "../../components/Tooltip";
 import { STATUS_PLR } from "../../constants";
@@ -15,8 +16,6 @@ import { captureError } from "../../services/error";
 import { compactMissionFilters, searchMissions } from "../../services/mission";
 import useStore from "../../services/store";
 import exportCSV from "../../services/utils";
-import SelectCity from "./components/SelectCity";
-import SelectOrganization from "./components/SelectOrganization";
 
 const TABLE_HEADER = [
   { title: "Mission", key: "title.keyword", colSpan: 4 },
@@ -163,8 +162,21 @@ const Flux = ({ moderated }) => {
             placeholder="Activités"
             loading={loading}
           />
-          <SelectCity value={filters.city} onChange={(city) => setFilters({ ...filters, city })} />
-          <SelectOrganization value={filters.organization} onChange={(organization) => setFilters({ ...filters, organization })} />
+          <MissionCombobox
+            id="city"
+            value={filters.city}
+            onSelect={(city) => setFilters({ ...filters, city: city ? city.value : null })}
+            placeholder="Villes"
+            filters={`publishers[]=${publisher.id}&field=city`}
+          />
+          <MissionCombobox
+            id="organization"
+            value={filters.organization}
+            onSelect={(organization) => setFilters({ ...filters, organization: organization ? organization.value : null })}
+            placeholder="Organisations"
+            filters={`publishers[]=${publisher.id}&field=organizationName`}
+            className="w-96"
+          />
         </div>
       </div>
 

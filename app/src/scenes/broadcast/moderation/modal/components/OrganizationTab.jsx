@@ -1,7 +1,7 @@
-import { useEffect, useState } from "react";
 import { toast } from "@/services/toast";
+import { useEffect, useState } from "react";
 
-import Autocomplete from "@/components/Autocomplete";
+import Combobox from "@/components/combobox";
 import api from "@/services/api";
 import { captureError } from "@/services/error";
 import useStore from "@/services/store";
@@ -13,9 +13,7 @@ const OrganizationTab = ({ data, onChange }) => {
     missionOrganizationSirenVerified: data.missionOrganizationSirenVerified,
     missionOrganizationRNAVerified: data.missionOrganizationRNAVerified,
   });
-  const [search, setSearch] = useState("");
   const [organizations, setOrganizations] = useState([]);
-  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     setValues({
@@ -24,36 +22,23 @@ const OrganizationTab = ({ data, onChange }) => {
     });
   }, [data]);
 
-  useEffect(() => {
-    if (search.length < 3) return;
-    const abortController = new AbortController();
-    const delay = setTimeout(() => {
-      const fetchOrganizations = async () => {
-        try {
-          setLoading(true);
-          const res = await api.post(`/organization/search`, { search }, { signal: abortController.signal });
-          if (!res.ok) throw res;
-          setOrganizations(
-            res.data.map((org) => ({
-              label: `${org.title}${org.rna ? ` - ${org.rna}` : ""}${org.siren ? ` - ${org.siren}` : ""}`,
-              id: org.id,
-              rna: org.rna,
-              siren: org.siren,
-            })),
-          );
-          setLoading(false);
-        } catch (error) {
-          captureError(error, { extra: { search } });
-        }
-      };
-      fetchOrganizations();
-    }, 400);
-
-    return () => {
-      clearTimeout(delay);
-      abortController.abort();
-    };
-  }, [search]);
+  const fetchOrganizations = async (search) => {
+    try {
+      const res = await api.post(`/organization/search`, { search });
+      if (!res.ok) throw res;
+      setOrganizations(
+        res.data.map((org) => ({
+          label: `${org.title}${org.rna ? ` - ${org.rna}` : ""}${org.siren ? ` - ${org.siren}` : ""}`,
+          id: org.id,
+          rna: org.rna,
+          siren: org.siren,
+        })),
+      );
+    } catch (error) {
+      captureError(error, { extra: { search } });
+    }
+    return null;
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -94,15 +79,16 @@ const OrganizationTab = ({ data, onChange }) => {
             <label className="text-sm" htmlFor="organization-siren">
               SIREN
             </label>
-            <Autocomplete
+            <Combobox
               options={organizations}
-              loading={loading}
               value={values.missionOrganizationSirenVerified}
+              onSearch={fetchOrganizations}
               onChange={(e) => setValues({ ...values, missionOrganizationSirenVerified: e })}
               onSelect={(e) =>
-                setValues({ ...values, missionOrganizationSirenVerified: e.siren || null, missionOrganizationId: e.id, missionOrganizationRNAVerified: e.rna || null })
+                setValues({ ...values, missionOrganizationSirenVerified: e?.siren || null, missionOrganizationId: e?.id, missionOrganizationRNAVerified: e?.rna || null })
               }
-              onClear={() => setValues({ ...values, missionOrganizationSirenVerified: null, missionOrganizationId: null, missionOrganizationRNAVerified: null })}
+              by="siren"
+              getLabel={(o) => o?.siren || ""}
               placeholder="SIREN"
               className="w-full"
             />
@@ -115,21 +101,19 @@ const OrganizationTab = ({ data, onChange }) => {
             <label className="text-sm" htmlFor="organization-rna">
               RNA
             </label>
-            <Autocomplete
+            <Combobox
               options={organizations}
-              loading={loading}
               value={values.missionOrganizationRNAVerified}
-              onChange={(e) => {
-                setValues({ ...values, missionOrganizationRNAVerified: e });
-                setSearch(e);
-              }}
+              onSearch={fetchOrganizations}
+              onChange={(e) => setValues({ ...values, missionOrganizationRNAVerified: e })}
               onSelect={(e) =>
                 setValues({
-                  missionOrganizationRNAVerified: e.rna || null,
-                  missionOrganizationSirenVerified: e.siren || null,
+                  missionOrganizationRNAVerified: e?.rna || null,
+                  missionOrganizationSirenVerified: e?.siren || null,
                 })
               }
-              onClear={() => setValues({ missionOrganizationRNAVerified: null, missionOrganizationSirenVerified: null })}
+              by="rna"
+              getLabel={(o) => o?.rna || ""}
               placeholder="RNA"
               className="w-full"
             />
@@ -143,7 +127,6 @@ const OrganizationTab = ({ data, onChange }) => {
               Enregistrer
             </button>
           )}
-
           <div className="border-grey-border flex flex-col gap-2 border-t py-4">
             <label className="text-sm" htmlFor="title">
               Adresse
