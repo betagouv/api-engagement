@@ -121,9 +121,14 @@ const AnalyticsViz = ({
       key: col.key || col.name,
     }));
 
+    const page = tableProps?.page ?? 1;
+    const pageSize = tableProps?.pageSize ?? 10;
+    const start = (page - 1) * pageSize;
+    const visibleRows = tableRows.slice(start, start + pageSize);
+
     return (
       <Table header={header} total={tableRows.length} loading={false} className={`border border-gray-900 ${className}`} {...tableProps}>
-        {tableRows.map((row, idx) => (
+        {visibleRows.map((row, idx) => (
           <tr key={idx} className={`${idx % 2 === 0 ? "bg-gray-975" : "bg-gray-1000-active"} table-item`}>
             {columns.map((col, colIdx) => (
               <td key={col.key || colIdx} className="px-4 py-2 text-sm">
