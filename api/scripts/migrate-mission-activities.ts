@@ -1,17 +1,23 @@
 import dotenv from "dotenv";
 dotenv.config();
 
-import { prismaCore } from "../../src/db/postgres";
-import { ACTIVITIES } from "../../src/constants/activity";
-import { activityService } from "../../src/services/activity";
+import { ACTIVITIES } from "../src/constants/activity";
+import { prismaCore } from "../src/db/postgres";
+import { activityService } from "../src/services/activity";
 
 const DRY_RUN = process.argv.includes("--dry-run");
 
+/**
+ * Migrate mission activities to 1-n relationship to N-N
+ * - Upsert existing activities from whitelisted ones (see config/activity.ts)
+ * - Migrate missions with activity_id through mission_activity
+ * No activity will be deleted: activity_id legacy field will be keeped for now
+ */
 const run = async () => {
   await prismaCore.$connect();
   console.log(`[MigrateActivities] Connected (DRY_RUN=${DRY_RUN})`);
 
-  // 1. Upsert des labels whitelistés dans la table activity
+  // Upsert existing activities
   const activityIdMap = new Map<string, string>();
   for (const label of Object.values(ACTIVITIES)) {
     const existing = await prismaCore.activity.findUnique({ where: { name: label }, select: { id: true } });
@@ -27,18 +33,17 @@ const run = async () => {
   }
   console.log(`[MigrateActivities] Activity table ready (${activityIdMap.size} whitelisted)`);
 
-  // 2. Missions avec activityId legacy — les entrées existantes ne sont pas touchées
+  // Find missions with legacy field
   const missions = await prismaCore.mission.findMany({
     where: { activityId: { not: null } },
     select: { id: true, activityId: true },
   });
   console.log(`[MigrateActivities] ${missions.length} missions avec activityId`);
 
-  // Noms des activités legacy par ID
   const legacyActivities = await prismaCore.activity.findMany({ select: { id: true, name: true } });
   const nameById = new Map(legacyActivities.map((a) => [a.id, a.name]));
 
-  // 3. Migration vers mission_activity
+  // Migrate data
   let junctionCreated = 0;
   const errors: { missionId: string; error: string }[] = [];
 
@@ -55,7 +60,7 @@ const run = async () => {
 
     if (DRY_RUN) {
       if (i < 10 || i % 500 === 0) {
-        console.log(`  [DryRun] ${missionId.slice(0, 8)}… "${legacyName}" → [${resolved.join(", ")}]`);
+        console.log(`  [DryRun] ${missionId.slice(0, 8)}… "${legacyName}" → [${resolved.join(" // ")}]`);
       }
       junctionCreated += resolved.length;
     } else {
