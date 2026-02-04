@@ -5,7 +5,7 @@ import fs from "fs";
 import path from "path";
 
 import { prismaCore } from "../../src/db/postgres";
-import { ACTIVITIES, COMPOUND_ACTIVITY_LABELS } from "../../src/constants/activity";
+import { ACTIVITIES } from "../../src/constants/activity";
 import { splitActivityString, isWhitelistedActivity } from "../../src/utils/activity";
 
 const DRY_RUN = process.argv.includes("--dry-run");
@@ -25,7 +25,7 @@ const run = async () => {
   console.log("[MigrateMissionActivities] Upserting whitelisted activities...");
   const activityIdMap = new Map<string, string>();
 
-  for (const name of [...ACTIVITIES, ...Object.values(COMPOUND_ACTIVITY_LABELS)]) {
+  for (const name of Object.values(ACTIVITIES)) {
     const existing = await prismaCore.activity.findUnique({ where: { name }, select: { id: true } });
     if (existing) {
       activityIdMap.set(name, existing.id);

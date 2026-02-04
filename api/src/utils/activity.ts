@@ -1,7 +1,7 @@
-import { ACTIVITIES, COMPOUND_ACTIVITY_LABELS } from "../constants/activity";
+import { ACTIVITIES } from "../constants/activity";
 
-// Matchable names: slugs + compound display names (the latter appear in partner-provided strings)
-const ALL_NAMES = [...ACTIVITIES, ...Object.values(COMPOUND_ACTIVITY_LABELS)];
+// Matchable names: all values (slugs for simple activities, display names for compounds)
+const ALL_NAMES = Object.values(ACTIVITIES);
 const ACTIVITIES_SET = new Set(ALL_NAMES);
 const ACTIVITIES_BY_LENGTH = [...ALL_NAMES].sort((a, b) => b.length - a.length);
 
@@ -21,8 +21,10 @@ export const splitActivityString = (activityString: string): string[] => {
   let remaining = activityString.trim();
 
   while (remaining.length > 0) {
-    remaining = remaining.replace(/^,\s*/, "");
-    if (!remaining) break;
+    remaining = remaining.replace(/^[,\s]*/, "");
+    if (!remaining) {
+      break;
+    }
 
     const match = ACTIVITIES_BY_LENGTH.find((activity) => remaining.startsWith(activity));
     if (match) {
@@ -33,11 +35,15 @@ export const splitActivityString = (activityString: string): string[] => {
       const commaIdx = remaining.indexOf(",");
       if (commaIdx === -1) {
         const trimmed = remaining.trim();
-        if (trimmed) result.push(trimmed);
+        if (trimmed) {
+          result.push(trimmed);
+        }
         break;
       } else {
         const trimmed = remaining.slice(0, commaIdx).trim();
-        if (trimmed) result.push(trimmed);
+        if (trimmed) {
+          result.push(trimmed);
+        }
         remaining = remaining.slice(commaIdx + 1);
       }
     }
