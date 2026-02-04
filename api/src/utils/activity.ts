@@ -1,4 +1,10 @@
+import slugify from "slugify";
+
 import { ACTIVITIES } from "../constants/activity";
+
+// & supprimé (pas "and"), apostrophe → tiret — cohérent avec les slugs de ACTIVITIES.
+slugify.extend({ "&": "", "'": "-" });
+const toSlug = (input: string) => slugify(input, { lower: true, strict: true });
 
 // Both slugs and labels are matchable; output always normalises to the label.
 const LABEL_BY_NAME = new Map<string, string>(
@@ -39,18 +45,19 @@ export const splitActivityString = (activityString: string): string[] => {
       result.push(LABEL_BY_NAME.get(match)!);
       remaining = remaining.slice(match.length);
     } else {
-      // No known activity at this position — consume up to the next comma as an unknown token
+      // No known activity at this position — consume up to the next comma,
+      // then try to match via slugification before falling back to raw token.
       const commaIdx = remaining.indexOf(",");
       if (commaIdx === -1) {
         const trimmed = remaining.trim();
         if (trimmed) {
-          result.push(trimmed);
+          result.push(LABEL_BY_NAME.get(toSlug(trimmed)) ?? trimmed);
         }
         break;
       } else {
         const trimmed = remaining.slice(0, commaIdx).trim();
         if (trimmed) {
-          result.push(trimmed);
+          result.push(LABEL_BY_NAME.get(toSlug(trimmed)) ?? trimmed);
         }
         remaining = remaining.slice(commaIdx + 1);
       }

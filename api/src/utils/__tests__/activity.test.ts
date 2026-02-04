@@ -160,6 +160,39 @@ describe("splitActivityString", () => {
     });
   });
 
+  describe("special characters normalised via slugification", () => {
+    it("ampersand in a simple activity is slugified and resolved", () => {
+      expect(splitActivityString("Mentorat & Parrainage")).toEqual(["Mentorat parrainage"]);
+    });
+
+    it("ampersand-form followed by a slug", () => {
+      expect(splitActivityString("Mentorat & Parrainage, animation")).toEqual(["Mentorat parrainage", "Animation"]);
+    });
+
+    it("ampersand-form of a compound resolves to the compound label", () => {
+      expect(splitActivityString("Soutien & Accompagnement")).toEqual(["Soutien, Accompagnement"]);
+    });
+
+    it("ampersand-form with accents resolves to the compound label", () => {
+      expect(splitActivityString("Transmission & Pédagogie")).toEqual(["Transmission, Pédagogie"]);
+    });
+
+    it("two ampersand-forms in a row", () => {
+      expect(splitActivityString("Soutien & Accompagnement, Transmission & Pédagogie")).toEqual([
+        "Soutien, Accompagnement",
+        "Transmission, Pédagogie",
+      ]);
+    });
+
+    it("wrong-case accent variant is slugified and resolved", () => {
+      expect(splitActivityString("Encadrement d'Équipes")).toEqual(["Encadrement d'équipes"]);
+    });
+
+    it("unknown token with special characters passes through unchanged", () => {
+      expect(splitActivityString("Foo & Bar")).toEqual(["Foo & Bar"]);
+    });
+  });
+
   describe("missing internal space in compound", () => {
     it("'Soutien,Accompagnement' without the space does not match the compound — split into two unknown tokens", () => {
       expect(splitActivityString("Soutien,Accompagnement")).toEqual(["Soutien", "Accompagnement"]);
