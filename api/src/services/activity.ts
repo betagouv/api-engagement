@@ -7,9 +7,13 @@ const DEFAULT_ACTIVITY_NAME = "Autre";
 
 export const activityService = {
   /**
-   * Import pipeline : split → slugify → whitelist check → fallback "Autre".
-   * Unknown activities (slug inconnu après normalisation) sont remplacés par "Autre".
-   * Les doublons sont supprimés (y compris les "Autre" multiples).
+   * Parse activities from string, based on whitelisted labels
+   * Pipeline:
+   * 1. Split to ,
+   * 2. slugify
+   * 3. whitelist check (based on slug)
+   * 4. fallback to "Autre".
+   * Duplicated data is removed.
    */
   resolveImportedActivities(raw: string): string[] {
     const parsed = splitActivityString(raw);
@@ -17,9 +21,6 @@ export const activityService = {
     return [...new Set(resolved)];
   },
 
-  /**
-   * Resolves activity names to IDs, creating missing activities as needed.
-   */
   async getOrCreateActivities(names: string[]): Promise<string[]> {
     const ids: string[] = [];
     for (const rawName of names) {
