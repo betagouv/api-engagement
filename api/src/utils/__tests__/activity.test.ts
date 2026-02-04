@@ -24,51 +24,61 @@ describe("splitActivityString", () => {
     });
   });
 
-  describe("known simple slugs", () => {
-    it("returns a single slug", () => {
-      expect(splitActivityString("animation")).toEqual(["animation"]);
+  describe("slugs normalise to labels", () => {
+    it("a single slug normalises to its label", () => {
+      expect(splitActivityString("animation")).toEqual(["Animation"]);
     });
 
-    it("returns two slugs separated by a comma", () => {
-      expect(splitActivityString("animation, sport")).toEqual(["animation", "sport"]);
+    it("two slugs normalise to their labels", () => {
+      expect(splitActivityString("animation, sport")).toEqual(["Animation", "Sport"]);
     });
 
-    it("returns two slugs with no space after the comma", () => {
-      expect(splitActivityString("animation,sport")).toEqual(["animation", "sport"]);
+    it("two slugs with no space after the comma", () => {
+      expect(splitActivityString("animation,sport")).toEqual(["Animation", "Sport"]);
     });
 
-    it("returns three slugs", () => {
-      expect(splitActivityString("animation, sport, art")).toEqual(["animation", "sport", "art"]);
+    it("three slugs normalise to their labels", () => {
+      expect(splitActivityString("animation, sport, art")).toEqual(["Animation", "Sport", "Art"]);
+    });
+
+    it("every slug in the whitelist normalises to its label", () => {
+      for (const [slug, label] of Object.entries(ACTIVITIES)) {
+        expect(splitActivityString(slug)).toEqual([label]);
+      }
     });
   });
 
-  describe("compound activity preserved as an atomic unit", () => {
-    it("each compound label is returned alone without being split", () => {
-      for (const label of Object.entries(ACTIVITIES).filter(([slug, label]) => slug !== label).map(([, label]) => label)) {
+  describe("labels are returned unchanged", () => {
+    it("every label in the whitelist is returned as-is", () => {
+      for (const label of Object.values(ACTIVITIES)) {
         expect(splitActivityString(label)).toEqual([label]);
       }
     });
   });
 
-  describe("compound + simple slug — longest-match in action", () => {
-    it("compound followed by a known slug", () => {
-      expect(splitActivityString("Soutien, Accompagnement, animation")).toEqual(["Soutien, Accompagnement", "animation"]);
+  describe("compound + slug — longest-match in action", () => {
+    it("compound followed by a slug", () => {
+      expect(splitActivityString("Soutien, Accompagnement, animation")).toEqual(["Soutien, Accompagnement", "Animation"]);
     });
 
-    it("known slug preceding a compound", () => {
-      expect(splitActivityString("animation, Soutien, Accompagnement")).toEqual(["animation", "Soutien, Accompagnement"]);
+    it("slug preceding a compound", () => {
+      expect(splitActivityString("animation, Soutien, Accompagnement")).toEqual(["Animation", "Soutien, Accompagnement"]);
     });
 
-    it("known slug sandwiched between two compounds", () => {
+    it("slug sandwiched between two compounds", () => {
       expect(splitActivityString("Soutien, Accompagnement, animation, Secours, Aide")).toEqual([
         "Soutien, Accompagnement",
-        "animation",
+        "Animation",
         "Secours, Aide",
       ]);
     });
 
-    it("compound followed by an unknown token", () => {
+    it("compound followed by a label", () => {
       expect(splitActivityString("Transmission, Pédagogie, Animation")).toEqual(["Transmission, Pédagogie", "Animation"]);
+    });
+
+    it("compound slug followed by a label", () => {
+      expect(splitActivityString("transmission-pedagogie, Animation")).toEqual(["Transmission, Pédagogie", "Animation"]);
     });
   });
 
@@ -101,16 +111,16 @@ describe("splitActivityString", () => {
       expect(splitActivityString("Inconnu")).toEqual(["Inconnu"]);
     });
 
-    it("unknown token before a known slug", () => {
-      expect(splitActivityString("Inconnu, animation")).toEqual(["Inconnu", "animation"]);
+    it("unknown token before a slug", () => {
+      expect(splitActivityString("Inconnu, animation")).toEqual(["Inconnu", "Animation"]);
     });
 
-    it("unknown token after a known slug", () => {
-      expect(splitActivityString("animation, Inconnu")).toEqual(["animation", "Inconnu"]);
+    it("unknown token after a slug", () => {
+      expect(splitActivityString("animation, Inconnu")).toEqual(["Animation", "Inconnu"]);
     });
 
-    it("unknown token between two known slugs", () => {
-      expect(splitActivityString("animation, Inconnu, sport")).toEqual(["animation", "Inconnu", "sport"]);
+    it("unknown token between two slugs", () => {
+      expect(splitActivityString("animation, Inconnu, sport")).toEqual(["Animation", "Inconnu", "Sport"]);
     });
 
     it("unknown token before a compound", () => {
@@ -120,38 +130,38 @@ describe("splitActivityString", () => {
 
   describe("whitespace and stray commas", () => {
     it("trims leading and trailing spaces from the input", () => {
-      expect(splitActivityString("  animation  ")).toEqual(["animation"]);
+      expect(splitActivityString("  animation  ")).toEqual(["Animation"]);
     });
 
     it("handles a space before the separator comma", () => {
-      expect(splitActivityString("animation , sport")).toEqual(["animation", "sport"]);
+      expect(splitActivityString("animation , sport")).toEqual(["Animation", "Sport"]);
     });
 
     it("ignores a leading comma", () => {
-      expect(splitActivityString(", animation")).toEqual(["animation"]);
+      expect(splitActivityString(", animation")).toEqual(["Animation"]);
     });
 
     it("ignores a trailing comma", () => {
-      expect(splitActivityString("animation,")).toEqual(["animation"]);
+      expect(splitActivityString("animation,")).toEqual(["Animation"]);
     });
 
     it("ignores consecutive commas", () => {
-      expect(splitActivityString("animation,, sport")).toEqual(["animation", "sport"]);
+      expect(splitActivityString("animation,, sport")).toEqual(["Animation", "Sport"]);
     });
   });
 
   describe("case sensitivity", () => {
-    it("lowercase 'animation' matches the slug, not the start of compound 'Animation, Valorisation'", () => {
-      expect(splitActivityString("animation, Valorisation")).toEqual(["animation", "Valorisation"]);
+    it("lowercase slug 'animation' does not match compound 'Animation, Valorisation'", () => {
+      expect(splitActivityString("animation, Valorisation")).toEqual(["Animation", "Valorisation"]);
     });
 
-    it("capitalized 'Animation, Valorisation' matches the compound", () => {
+    it("capitalized 'Animation, Valorisation' matches the compound label", () => {
       expect(splitActivityString("Animation, Valorisation")).toEqual(["Animation, Valorisation"]);
     });
   });
 
   describe("missing internal space in compound", () => {
-    it("'Soutien,Accompagnement' without the space does not match the compound — split into two tokens", () => {
+    it("'Soutien,Accompagnement' without the space does not match the compound — split into two unknown tokens", () => {
       expect(splitActivityString("Soutien,Accompagnement")).toEqual(["Soutien", "Accompagnement"]);
     });
   });

@@ -23,7 +23,6 @@ import { publisherService } from "./publisher";
 type MissionWithRelations = Mission & {
   publisher?: { name: string | null; url: string | null; logo: string | null } | null;
   domain?: { name: string } | null;
-  activity?: { name: string } | null;
   activities?: Array<{ activity: { id: string; name: string } }> | null;
   publisherOrganization?: {
     organizationClientId: string;
@@ -109,11 +108,7 @@ const toMissionRecord = (mission: MissionWithRelations, moderatedBy: string | nu
   const publisherLogo = mission.publisher?.logo ?? null;
   const publisherUrl = mission.publisher?.url ?? null;
   const domain = mission.domain;
-  const activityNames = mission.activities?.length
-    ? mission.activities.map((ma) => ma.activity.name).sort()
-    : mission.activity
-      ? [mission.activity.name]
-      : [];
+  const activityNames = mission.activities?.map((ma) => ma.activity.name).sort() ?? [];
   const jobBoards = buildJobBoardMap(mission.jobBoards);
   const letudiantJobBoard = jobBoards?.LETUDIANT;
 
@@ -473,7 +468,7 @@ const buildAggregations = async (where: Prisma.MissionWhereInput): Promise<Missi
       .sort((a, b) => b.doc_count - a.doc_count);
   };
 
-  const aggregateMissionRelationById = async (field: "domainId" | "activityId", loadNames: (ids: string[]) => Promise<Map<string, string>>) => {
+  const aggregateMissionRelationById = async (field: "domainId", loadNames: (ids: string[]) => Promise<Map<string, string>>) => {
     const rows = await prismaCore.mission.groupBy({
       by: [field],
       where,
@@ -604,7 +599,6 @@ const mapAddressesForCreate = (addresses?: MissionRecord["addresses"]) => {
 const baseInclude: MissionInclude = {
   publisher: true,
   domain: true,
-  activity: true,
   activities: { include: { activity: { select: { id: true, name: true } } } },
   publisherOrganization: true,
   addresses: true,
@@ -738,7 +732,6 @@ export const missionService = {
       clientId: input.clientId,
       publisherId: input.publisherId,
       domainId: domainId ?? null,
-      activityId: activityIds[0] ?? null,
       title: input.title,
       statusCode: input.statusCode ?? "ACCEPTED",
       description: input.description ?? "",
@@ -891,7 +884,6 @@ export const missionService = {
     }
     if ("activities" in patch) {
       const activityIds = patch.activities?.length ? await activityService.resolveNames(patch.activities) : [];
-      data.activityId = activityIds[0] ?? null;
       await prismaCore.missionActivity.deleteMany({ where: { missionId: id } });
       if (activityIds.length) {
         await prismaCore.missionActivity.createMany({

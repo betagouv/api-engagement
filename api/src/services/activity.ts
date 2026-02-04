@@ -17,7 +17,9 @@ export const activityService = {
     const ids: string[] = [];
     for (const rawName of names) {
       const name = rawName.trim();
-      if (!name) continue;
+      if (!name) {
+        continue;
+      }
       const existing = await prismaCore.activity.findUnique({ where: { name }, select: { id: true } });
       if (existing) {
         ids.push(existing.id);

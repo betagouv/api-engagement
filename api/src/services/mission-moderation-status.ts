@@ -142,7 +142,11 @@ export const missionModerationStatusService = {
       // Mission aggregations
       missionRepository.groupBy(["publisherId"], missionWhere as Prisma.MissionWhereInput),
       missionRepository.groupBy(["domainId"], missionWhere as Prisma.MissionWhereInput),
-      missionRepository.groupBy(["activityId"], missionWhere as Prisma.MissionWhereInput),
+      prismaCore.missionActivity.groupBy({
+        by: ["activityId"],
+        where: { mission: missionWhere as Prisma.MissionWhereInput },
+        _count: { _all: true },
+      }),
     ]);
 
     const [orgResults, deptResults, cityResults] = await Promise.all([
@@ -155,7 +159,7 @@ export const missionModerationStatusService = {
       // Labels
       publisherRepository.findMany({ where: { missions: { some: missionWhere } } as Prisma.PublisherWhereInput, select: { id: true, name: true } }),
       domainRepository.findMany({ where: { missions: { some: missionWhere } } as Prisma.DomainWhereInput, select: { id: true, name: true } }),
-      activityRepository.findMany({ where: { missions: { some: missionWhere } } as Prisma.ActivityWhereInput, select: { id: true, name: true } }),
+      activityRepository.findMany({ where: { missionActivities: { some: { mission: missionWhere } } } as Prisma.ActivityWhereInput, select: { id: true, name: true } }),
     ]);
 
     const publisherMap = new Map(publishers.map((p) => [p.id, p.name]));
@@ -182,7 +186,7 @@ export const missionModerationStatusService = {
         (r) => r._count
       ),
       domains: domainResults.map((r) => ({ key: r.domainId ? (domainMap.get(r.domainId) ?? "") : "", doc_count: r._count })).sort((a, b) => b.doc_count - a.doc_count),
-      activities: activityResults.map((r) => ({ key: r.activityId ? (activityMap.get(r.activityId) ?? "") : "", doc_count: r._count })).sort((a, b) => b.doc_count - a.doc_count),
+      activities: activityResults.map((r) => ({ key: r.activityId ? (activityMap.get(r.activityId) ?? "") : "", doc_count: r._count._all })).sort((a, b) => b.doc_count - a.doc_count),
       departments: toAggItems(
         deptResults,
         (r) => r.departmentCode,

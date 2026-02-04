@@ -58,7 +58,7 @@ describe("Import missions job (integration test)", () => {
       },
       geolocStatus: "ENRICHED_BY_PUBLISHER",
     });
-    expect(mission.activity).toBe("logistique");
+    expect(mission.activities).toEqual(["Logistique"]);
     expect(mission.audience).toEqual(["Tous"]);
     expect(mission.clientId).toBe("32132143");
     expect(mission.description).toBe("Description de la mission");

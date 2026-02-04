@@ -44,7 +44,7 @@ describe("Mission API Integration Tests", () => {
       title: "Mission in Paris",
       city: "Paris",
       domain: "culture",
-      activity: "arts",
+      activities: ["arts"],
       type: "benevolat",
       organizationRNA: "W123456789",
       organizationStatusJuridique: "Association",
@@ -222,7 +222,7 @@ describe("Mission API Integration Tests", () => {
     });
 
     it("should filter by activity", async () => {
-      await createTestMission({ organizationClientId: "org-4", publisherId: publisher.publishers[0].diffuseurPublisherId, activity: "education" });
+      await createTestMission({ organizationClientId: "org-4", publisherId: publisher.publishers[0].diffuseurPublisherId, activities: ["education"] });
       const response = await request(app).get("/v0/mission?activity=education").set("x-api-key", apiKey);
       expect(response.status).toBe(200);
       expect(response.body.total).toBe(1);

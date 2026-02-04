@@ -27,7 +27,7 @@ const baseMission: Partial<MissionRecord> = {
   publisherName: "Mon asso",
   postedAt: new Date("2025-01-01"),
   endAt: new Date("2025-06-30"),
-  activity: "informatique",
+  activities: ["informatique"],
   remote: "no",
   organizationLogo: "https://example.com/logo.png",
   addresses: [
