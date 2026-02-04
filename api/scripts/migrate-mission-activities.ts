@@ -3,16 +3,9 @@ dotenv.config();
 
 import { prismaCore } from "../../src/db/postgres";
 import { ACTIVITIES } from "../../src/constants/activity";
-import { isWhitelistedActivity, splitActivityString } from "../../src/utils/activity";
+import { activityService } from "../../src/services/activity";
 
 const DRY_RUN = process.argv.includes("--dry-run");
-
-/** Même logique que activityService.resolveImportedActivities */
-const resolveActivities = (raw: string): string[] => {
-  const parsed = splitActivityString(raw);
-  const resolved = parsed.map((name) => (isWhitelistedActivity(name) ? name : "Autre"));
-  return [...new Set(resolved)];
-};
 
 const run = async () => {
   await prismaCore.$connect();
@@ -58,7 +51,7 @@ const run = async () => {
       continue;
     }
 
-    const resolved = resolveActivities(legacyName);
+    const resolved = activityService.resolveImportedActivities(legacyName);
 
     if (DRY_RUN) {
       if (i < 10 || i % 500 === 0) {

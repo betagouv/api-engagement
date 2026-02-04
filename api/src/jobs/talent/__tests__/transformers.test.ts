@@ -152,7 +152,7 @@ describe("missionToTalentJob", () => {
   });
 
   it("should use getActivityCategory for category mapping", () => {
-    const mission = { ...baseMission, activity: "art" } as MissionRecord;
+    const mission = { ...baseMission, activities: ["art"] } as MissionRecord;
     const jobs = missionToTalentJob(mission);
     expect(jobs[0].category).toBe("Category art");
   });
