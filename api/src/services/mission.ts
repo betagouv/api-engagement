@@ -468,45 +468,19 @@ const buildAggregations = async (where: Prisma.MissionWhereInput): Promise<Missi
       .sort((a, b) => b.doc_count - a.doc_count);
   };
 
-  const aggregateMissionRelationById = async (field: "domainId", loadNames: (ids: string[]) => Promise<Map<string, string>>) => {
+  const aggregateMissionByDomain = async () => {
     const rows = await prismaCore.mission.groupBy({
-      by: [field],
+      by: ["domainId"],
       where,
       _count: { _all: true },
     });
 
-    const ids = rows.map((row) => String((row as any)[field] ?? "")).filter(isNonEmpty);
-    const nameById = ids.length ? await loadNames(ids) : new Map<string, string>();
+    const ids = rows.map((row) => row.domainId).filter(isNonEmpty) as string[];
+    const domains = ids.length ? await prismaCore.domain.findMany({ where: { id: { in: ids } }, select: { id: true, name: true } }) : [];
+    const nameById = new Map(domains.map((d) => [d.id, d.name ?? ""]));
 
     return rows
-      .map((row) => {
-        const id = String((row as any)[field] ?? "");
-        return { key: nameById.get(id) ?? "", doc_count: Number((row as any)._count?._all ?? 0) };
-      })
-      .filter((row) => isNonEmpty(row.key))
-      .sort((a, b) => b.doc_count - a.doc_count);
-  };
-
-  const aggregateMissionDomain = async () => {
-    return aggregateMissionRelationById("domainId", async (ids) => {
-      const domains = await prismaCore.domain.findMany({ where: { id: { in: ids } }, select: { id: true, name: true } });
-      return new Map(domains.map((domain) => [domain.id, domain.name ?? ""]));
-    });
-  };
-
-  const aggregateMissionActivity = async () => {
-    const rows = await prismaCore.missionActivity.groupBy({
-      by: ["activityId"],
-      where: { mission: where },
-      _count: { _all: true },
-    });
-
-    const ids = rows.map((row) => row.activityId).filter(isNonEmpty);
-    const activities = ids.length ? await prismaCore.activity.findMany({ where: { id: { in: ids } }, select: { id: true, name: true } }) : [];
-    const nameById = new Map(activities.map((a) => [a.id, a.name]));
-
-    return rows
-      .map((row) => ({ key: nameById.get(row.activityId) ?? "", doc_count: Number(row._count?._all ?? 0) }))
+      .map((row) => ({ key: nameById.get(row.domainId ?? "") ?? "", doc_count: Number(row._count?._all ?? 0) }))
       .filter((row) => isNonEmpty(row.key))
       .sort((a, b) => b.doc_count - a.doc_count);
   };
@@ -537,8 +511,8 @@ const buildAggregations = async (where: Prisma.MissionWhereInput): Promise<Missi
   const [status, comments, domains, activities, partnersRaw, organizationsRaw, cities, departments] = await Promise.all([
     aggregateMissionField("statusCode"),
     aggregateMissionField("statusComment"),
-    aggregateMissionDomain(),
-    aggregateMissionActivity(),
+    aggregateMissionByDomain(),
+    activityService.aggregateByMission(where),
     aggregateMissionField("publisherId"),
     aggregateMissionField("organizationId"),
     aggregateAddressField("city"),

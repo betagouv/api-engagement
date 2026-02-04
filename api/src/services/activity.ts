@@ -1,3 +1,4 @@
+import { Prisma } from "../db/core";
 import { activityRepository } from "../repositories/activity";
 import { missionActivityRepository } from "../repositories/mission-activity";
 import { isWhitelistedActivity, splitActivityString } from "../utils/activity";
@@ -47,5 +48,18 @@ export const activityService = {
   async replaceMissionActivities(missionId: string, activityIds: string[]): Promise<void> {
     await missionActivityRepository.deleteByMissionId(missionId);
     await this.addMissionActivities(missionId, activityIds);
+  },
+
+  async aggregateByMission(missionWhere: Prisma.MissionWhereInput): Promise<Array<{ key: string; doc_count: number }>> {
+    const rows = await missionActivityRepository.groupBy(["activityId"], { mission: missionWhere });
+
+    const ids = rows.map((row) => row.activityId).filter((id): id is string => !!id);
+    const activities = ids.length ? await activityRepository.findMany({ where: { id: { in: ids } }, select: { id: true, name: true } }) : [];
+    const nameById = new Map(activities.map((a) => [a.id, a.name]));
+
+    return rows
+      .map((row) => ({ key: nameById.get(row.activityId) ?? "", doc_count: row._count }))
+      .filter((row) => row.key !== "")
+      .sort((a, b) => b.doc_count - a.doc_count);
   },
 };
