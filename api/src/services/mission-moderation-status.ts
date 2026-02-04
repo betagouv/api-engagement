@@ -1,8 +1,8 @@
 import { Mission, MissionModerationStatus, ModerationEventStatus, Prisma } from "../db/core";
-import { prismaCore } from "../db/postgres";
 import { activityRepository } from "../repositories/activity";
 import { domainRepository } from "../repositories/domain";
 import { missionRepository } from "../repositories/mission";
+import { missionActivityRepository } from "../repositories/mission-activity";
 import { missionAddressRepository } from "../repositories/mission-address";
 import { missionModerationStatusRepository } from "../repositories/mission-moderation-status";
 import { publisherRepository } from "../repositories/publisher";
@@ -142,11 +142,7 @@ export const missionModerationStatusService = {
       // Mission aggregations
       missionRepository.groupBy(["publisherId"], missionWhere as Prisma.MissionWhereInput),
       missionRepository.groupBy(["domainId"], missionWhere as Prisma.MissionWhereInput),
-      prismaCore.missionActivity.groupBy({
-        by: ["activityId"],
-        where: { mission: missionWhere as Prisma.MissionWhereInput },
-        _count: { _all: true },
-      }),
+      missionActivityRepository.groupBy(["activityId"], { mission: missionWhere as Prisma.MissionWhereInput }),
     ]);
 
     const [orgResults, deptResults, cityResults] = await Promise.all([
@@ -186,7 +182,7 @@ export const missionModerationStatusService = {
         (r) => r._count
       ),
       domains: domainResults.map((r) => ({ key: r.domainId ? (domainMap.get(r.domainId) ?? "") : "", doc_count: r._count })).sort((a, b) => b.doc_count - a.doc_count),
-      activities: activityResults.map((r) => ({ key: r.activityId ? (activityMap.get(r.activityId) ?? "") : "", doc_count: r._count._all })).sort((a, b) => b.doc_count - a.doc_count),
+      activities: activityResults.map((r) => ({ key: r.activityId ? (activityMap.get(r.activityId) ?? "") : "", doc_count: r._count })).sort((a, b) => b.doc_count - a.doc_count),
       departments: toAggItems(
         deptResults,
         (r) => r.departmentCode,
@@ -314,26 +310,24 @@ export const missionModerationStatusService = {
     if (!inputs.length) {
       return [];
     }
-    return prismaCore.$transaction(
-      inputs.map((input) =>
-        prismaCore.missionModerationStatus.upsert({
-          where: { missionId_publisherId: { missionId: input.missionId, publisherId: input.publisherId } },
-          update: {
-            status: (input.status as ModerationEventStatus) ?? "PENDING",
-            comment: input.comment ?? null,
-            note: input.note ?? null,
-            title: input.title ?? null,
-          },
-          create: {
-            mission: { connect: { id: input.missionId } },
-            publisherId: input.publisherId,
-            status: (input.status as ModerationEventStatus) ?? "PENDING",
-            comment: input.comment ?? null,
-            note: input.note ?? null,
-            title: input.title ?? null,
-          },
-        })
-      )
+    return missionModerationStatusRepository.upsertMany(
+      inputs.map((input) => ({
+        where: { missionId_publisherId: { missionId: input.missionId, publisherId: input.publisherId } },
+        update: {
+          status: (input.status as ModerationEventStatus) ?? "PENDING",
+          comment: input.comment ?? null,
+          note: input.note ?? null,
+          title: input.title ?? null,
+        },
+        create: {
+          mission: { connect: { id: input.missionId } },
+          publisherId: input.publisherId,
+          status: (input.status as ModerationEventStatus) ?? "PENDING",
+          comment: input.comment ?? null,
+          note: input.note ?? null,
+          title: input.title ?? null,
+        },
+      }))
     );
   },
 };
