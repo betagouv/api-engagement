@@ -1,37 +1,40 @@
+export interface PublisherOrganizationFindParams {
+  publisherId: string;
+  organizationClientId?: string;
+  organizationClientIds?: string[];
+  name?: string;
+  rna?: string;
+  siren?: string;
+  siret?: string;
+  url?: string;
+}
+
 export interface PublisherOrganizationRecord {
   id: string;
   publisherId: string;
-  organizationClientId: string | null;
-  organizationName: string | null;
-  organizationUrl: string | null;
-  organizationType: string | null;
-  organizationLogo: string | null;
-  organizationDescription: string | null;
-  organizationFullAddress: string | null;
-  organizationRNA: string | null;
-  organizationSiren: string | null;
-  organizationSiret: string | null;
-  organizationDepartment: string | null;
-  organizationDepartmentCode: string | null;
-  organizationDepartmentName: string | null;
-  organizationPostCode: string | null;
-  organizationCity: string | null;
-  organizationStatusJuridique: string | null;
-  organizationBeneficiaries: string[] | null;
-  organizationActions: string[] | null;
-  organizationReseaux: string[] | null;
-  organizationNameVerified: string | null;
-  organizationRNAVerified: string | null;
-  organizationSirenVerified: string | null;
-  organizationSiretVerified: string | null;
-  organizationAddressVerified: string | null;
-  organizationCityVerified: string | null;
-  organizationPostalCodeVerified: string | null;
-  organizationDepartmentCodeVerified: string | null;
-  organizationDepartmentNameVerified: string | null;
-  organizationRegionVerified: string | null;
-  organizationVerificationStatus: string | null;
-  organisationIsRUP: boolean | null;
+  organizationClientId: string;
+  name: string | null;
+  rna: string | null;
+  rnaVerified: string | null;
+  siren: string | null;
+  sirenVerified: string | null;
+  siret: string | null;
+  siretVerified: string | null;
+  url: string | null;
+  logo: string | null;
+  description: string | null;
+  legalStatus: string | null;
+  type: string | null;
+  actions: string[];
+  fullAddress: string | null;
+  postalCode: string | null;
+  city: string | null;
+  beneficiaries: string[];
+  parentOrganizations: string[];
+
+  verifiedAt: Date | null;
+  organizationIdVerified: string | null;
+
   createdAt: Date;
   updatedAt: Date;
 }

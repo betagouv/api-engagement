@@ -272,6 +272,7 @@ model StatEvent {
   tags                        String[] @default([])
   exportToAnalytics           String?  @map("export_to_analytics")
 
+  @@unique([clientEventId, toPublisherId, type], map: "stat_event_client_event_id_to_publisher_type_key")
   @@index([type, createdAt], map: "stats_event_type_created_at_desc_idx")
   @@index([missionId, createdAt], map: "stats_event_mission_id_created_at_idx")
   @@index([missionClientId, createdAt], map: "stats_event_mission_client_id_created_at_idx")
@@ -283,7 +284,6 @@ model StatEvent {
   @@index([fromPublisherId, type, createdAt], map: "stats_event_from_publisher_type_created_at_idx")
   @@index([toPublisherId, type, createdAt], map: "stats_event_to_publisher_type_created_at_idx")
   @@index([missionId, isBot, type, fromPublisherId], map: "stats_event_mission_is_bot_type_from_publisher_idx")
-  @@unique([clientEventId, toPublisherId, type], map: "stat_event_client_event_id_to_publisher_type_key")
   @@index([updatedAt(sort: Asc)], map: "stats_event_updated_at_asc_idx")
   @@index([user], map: "stats_event_user_idx")
   @@index([sourceId], map: "stats_event_source_id_idx")
@@ -597,23 +597,22 @@ model Mission {
   statusCode                MissionStatusCode        @map("status_code")
   statusComment             String?                  @map("status_comment")
   organizationClientId      String?                  @map("organization_client_id")
-  organizationId            String?                  @map("organization_id")
   publisherId               String                   @map("publisher_id")
   deletedAt                 DateTime?                @map("deleted_at")
   lastExportedToPgAt        DateTime?                @map("last_exported_to_pg_at")
   createdAt                 DateTime                 @default(now()) @map("created_at")
   updatedAt                 DateTime                 @updatedAt @map("updated_at")
 
-  publisher             Publisher                 @relation("MissionPublisher", fields: [publisherId], references: [id])
-  domain                Domain?                   @relation(fields: [domainId], references: [id], onDelete: SetNull)
-  activity              Activity?                 @relation(fields: [activityId], references: [id], onDelete: SetNull)
-  organization          Organization?             @relation("MissionOrganization", fields: [organizationId], references: [id])
+  publisher Publisher @relation("MissionPublisher", fields: [publisherId], references: [id])
+  domain    Domain?   @relation(fields: [domainId], references: [id], onDelete: SetNull)
+  activity  Activity? @relation(fields: [activityId], references: [id], onDelete: SetNull)
+
   publisherOrganization PublisherOrganization?    @relation("MissionPublisherOrganization", fields: [publisherId, organizationClientId], references: [publisherId, organizationClientId])
   addresses             MissionAddress[]
   moderationStatuses    MissionModerationStatus[]
   jobBoards             MissionJobBoard[]
 
-  // Organization fields (legacy, kept during backfill)
+  // Legacy fields, kept during backfill
   organizationUrl                    String?
   organizationName                   String?
   organizationType                   String?
@@ -667,9 +666,30 @@ model Mission {
 }
 
 model PublisherOrganization {
-  id                                 String   @id @default(uuid())
-  publisherId                        String   @map("publisher_id")
-  organizationClientId               String   @map("organization_client_id")
+  id                   String   @id @default(uuid())
+  publisherId          String   @map("publisher_id")
+  organizationClientId String   @map("organization_client_id") // TODO: rename to clientId
+  // new fields
+  name                 String?  @map("name")
+  rna                  String?  @map("rna")
+  rnaVerified          String?  @map("rna_verified")
+  siren                String?  @map("siren")
+  sirenVerified        String?  @map("siren_verified")
+  siret                String?  @map("siret")
+  siretVerified        String?  @map("siret_verified")
+  url                  String?  @map("url")
+  logo                 String?  @map("logo")
+  description          String?  @map("description")
+  legalStatus          String?  @map("legal_status")
+  type                 String?  @map("type")
+  actions              String[] @default([]) @map("actions")
+  fullAddress          String?  @map("full_address")
+  postalCode           String?  @map("postal_code")
+  city                 String?  @map("city")
+  beneficiaries        String[] @default([]) @map("beneficiaries")
+  parentOrganizations  String[] @default([]) @map("parent_organizations")
+
+  // Legacy fields, kept during backfill
   organizationName                   String?  @map("organization_name")
   organizationUrl                    String?  @map("organization_url")
   organizationType                   String?  @map("organization_type")
@@ -700,13 +720,17 @@ model PublisherOrganization {
   organizationRegionVerified         String?  @map("organization_region_verified")
   organizationVerificationStatus     String?  @map("organization_verification_status")
   organisationIsRUP                  Boolean? @map("organisation_is_rup")
-  createdAt                          DateTime @default(now()) @map("created_at")
-  updatedAt                          DateTime @updatedAt @map("updated_at")
 
-  publisher Publisher @relation(fields: [publisherId], references: [id], onDelete: Cascade)
-  missions  Mission[] @relation("MissionPublisherOrganization")
+  verifiedAt             DateTime? @map("verified_at")
+  organizationIdVerified String?   @map("organization_id_verified")
+  createdAt              DateTime  @default(now()) @map("created_at")
+  updatedAt              DateTime  @updatedAt @map("updated_at")
 
-  @@unique([publisherId, organizationClientId], map: "publisher_organization_publisher_id_org_client_id_key")
+  publisher            Publisher     @relation(fields: [publisherId], references: [id], onDelete: Cascade)
+  missions             Mission[]     @relation("MissionPublisherOrganization")
+  organizationVerified Organization? @relation(fields: [organizationIdVerified], references: [id])
+
+  @@unique([publisherId, organizationClientId], map: "publisher_organization_publisher_id_organization_client_id_key")
   @@index([publisherId], map: "publisher_organization_publisher_id_idx")
   @@index([organizationName], map: "publisher_organization_organization_name_idx")
   @@map("publisher_organization")
@@ -874,7 +898,7 @@ model Organization {
   letudiantUpdatedAt     DateTime? @map("letudiant_updated_at")
   lastExportedToPgAt     DateTime? @map("last_exported_to_pg_at")
 
-  missions Mission[] @relation("MissionOrganization")
+  publisherOrganizations PublisherOrganization[]
 
   @@index([updatedAt, lastExportedToPgAt], map: "organization_updated_last_exported_idx")
   @@index([rna(ops: raw("gin_trgm_ops"))], type: Gin, map: "organization_rna_idx")

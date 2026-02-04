@@ -1,5 +1,6 @@
 import { CompensationType, CompensationUnit } from "../../constants/compensation";
 import type { MissionRecord } from "../../types/mission";
+import { PublisherOrganizationRecord } from "../../types/publisher-organization";
 
 export interface MissionXML {
   id: string;
@@ -109,3 +110,5 @@ export type ImportedMission = MissionRecord & {
   geolocStatus?: string | null;
   deleted?: boolean;
 };
+
+export type ImportedOrganization = Omit<PublisherOrganizationRecord, "id" | "createdAt" | "updatedAt">;

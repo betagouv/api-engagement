@@ -45,6 +45,20 @@ export const publisherOrganizationRepository = {
       data: params.update,
     });
   },
+
+  async create(params: Prisma.PublisherOrganizationCreateInput): Promise<PublisherOrganization> {
+    return prismaCore.publisherOrganization.create({
+      data: params,
+    });
+  },
+
+  async update(id: string, params: Prisma.PublisherOrganizationUpdateInput): Promise<PublisherOrganization> {
+    return prismaCore.publisherOrganization.update({
+      where: { id },
+      data: params,
+    });
+  },
+
   groupBy<K extends keyof PublisherOrganization>(by: K[], where: Prisma.PublisherOrganizationWhereInput) {
     return prismaCore.publisherOrganization.groupBy({
       by: by as any,
