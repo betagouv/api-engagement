@@ -2,7 +2,10 @@ import slugify from "slugify";
 
 import { ACTIVITIES } from "../constants/activity";
 
-// & supprimé (pas "and"), apostrophe → tiret — cohérent avec les slugs de ACTIVITIES.
+/**
+ * Slugify text, based on lib
+ * Special case to &
+ */
 slugify.extend({ "&": "", "'": "-" });
 const toSlug = (input: string) => slugify(input, { lower: true, strict: true });
 
