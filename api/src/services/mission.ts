@@ -726,7 +726,7 @@ export const missionService = {
 
     const domainName = input.domain?.trim();
     const domainId = domainName ? await resolveDomainId(domainName) : null;
-    const activityIds = input.activities?.length ? await activityService.resolveNames(input.activities) : [];
+    const activityIds = input.activities?.length ? await activityService.getOrCreateActivities(input.activities) : [];
     const data: Prisma.MissionUncheckedCreateInput = {
       id,
       clientId: input.clientId,
@@ -775,11 +775,7 @@ export const missionService = {
 
     await missionRepository.createUnchecked(data);
 
-    if (activityIds.length) {
-      await prismaCore.missionActivity.createMany({
-        data: activityIds.map((activityId) => ({ missionId: id, activityId })),
-      });
-    }
+    await activityService.addMissionActivities(id, activityIds);
 
     const mission = await missionRepository.findFirst({ where: { id }, include: baseInclude });
     if (!mission) {
@@ -883,13 +879,8 @@ export const missionService = {
       data.domainLogo = patch.domainLogo ?? null;
     }
     if ("activities" in patch) {
-      const activityIds = patch.activities?.length ? await activityService.resolveNames(patch.activities) : [];
-      await prismaCore.missionActivity.deleteMany({ where: { missionId: id } });
-      if (activityIds.length) {
-        await prismaCore.missionActivity.createMany({
-          data: activityIds.map((activityId) => ({ missionId: id, activityId })),
-        });
-      }
+      const activityIds = patch.activities?.length ? await activityService.getOrCreateActivities(patch.activities) : [];
+      await activityService.replaceMissionActivities(id, activityIds);
     }
     if ("type" in patch) {
       data.type = (patch.type as any) ?? undefined;
