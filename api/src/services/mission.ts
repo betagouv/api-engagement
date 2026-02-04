@@ -155,7 +155,7 @@ const toMissionRecord = (mission: MissionWithRelations, moderatedBy: string | nu
     domain: domain?.name ?? null,
     domainOriginal: mission.domainOriginal ?? null,
     domainLogo: mission.domainLogo ?? null,
-    activity: activityNames.length ? activityNames.join(", ") : null,
+    activities: activityNames,
     type: mission.type ?? null,
     snu: mission.snu ?? false,
     snuPlaces: mission.snuPlaces ?? null,
@@ -437,9 +437,19 @@ const computeFacetsFromRecords = (records: MissionRecord[]): MissionFacets => {
       .map(([key, count]) => ({ key, count }));
   };
 
+  const activityMap = new Map<string, number>();
+  for (const record of records) {
+    for (const name of record.activities) {
+      activityMap.set(name, (activityMap.get(name) ?? 0) + 1);
+    }
+  }
+  const activity = Array.from(activityMap.entries())
+    .sort((a, b) => b[1] - a[1])
+    .map(([key, count]) => ({ key, count }));
+
   return {
     domain: counts((r) => r.domain),
-    activity: counts((r) => r.activity),
+    activity,
     departmentName: counts((r) => r.departmentName),
   };
 };

@@ -212,7 +212,6 @@ const parseMission = (publisher: PublisherRecord, missionXML: MissionXML, missio
     startAt: parseDate(missionXML.startAt) || parseDate(missionDB?.startAt || "") || new Date(),
     endAt: parseDate(missionXML.endAt) || null,
 
-    activity: parseString(missionXML.activity) || "",
     activities: activityService.parseActivityString(parseString(missionXML.activity)),
     domain: parseString(missionXML.domain) || "",
     schedule: parseString(missionXML.schedule),

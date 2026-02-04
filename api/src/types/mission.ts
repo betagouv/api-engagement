@@ -82,7 +82,7 @@ export type MissionRecord = {
   domain: string | null;
   domainOriginal: string | null;
   domainLogo: string | null;
-  activity: string | null;
+  activities: string[];
   type: string | null;
   snu: boolean;
   snuPlaces: number | null;
@@ -199,12 +199,9 @@ export type MissionCreateInput = Partial<Omit<MissionRecord, "_id" | "publisherN
   publisherId: string;
   title: string;
   statusCode?: MissionStatusCode;
-  activities?: string[];
 };
 
-export type MissionUpdatePatch = Partial<Omit<MissionRecord, "_id" | "publisherName" | "publisherLogo" | "publisherUrl" | "createdAt" | "id">> & {
-  activities?: string[];
-};
+export type MissionUpdatePatch = Partial<Omit<MissionRecord, "_id" | "publisherName" | "publisherLogo" | "publisherUrl" | "createdAt" | "id">>;
 
 export type MissionInclude = Prisma.MissionInclude;
 
