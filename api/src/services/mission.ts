@@ -179,7 +179,7 @@ const toMissionRecord = (mission: MissionWithRelations, moderatedBy: string | nu
     organizationId: mission.organizationId ?? null,
     organizationClientId: mission.organizationClientId ?? null,
     organizationUrl: publisherOrganization?.organizationUrl ?? null,
-    organizationName: publisherOrganization?.organizationName ?? null,
+    organizationName: publisherOrganization?.organizationName ?? mission.organizationName ?? null,
     organizationReseaux: publisherOrganization?.organizationReseaux ?? [],
     organizationType: publisherOrganization?.organizationType ?? null,
     organizationLogo: publisherOrganization?.organizationLogo ?? null,
