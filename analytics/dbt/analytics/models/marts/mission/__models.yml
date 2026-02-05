@@ -198,6 +198,134 @@ models:
         description: Longitude géographique (nullable).
       - name: geo_point
         description: Point géographique (nullable).
+  - name: mission_time_to_event_weekly
+    description: >
+      Mart hebdomadaire des délais (time-to-click/apply) et volumes, agrégé à partir
+      de `int_mission_first_events` au grain mission + diffuseur + source.
+    columns:
+      - name: week_start
+        description: Date de début de semaine (lundi) basée sur la création de mission.
+        tests:
+          - not_null
+      - name: year
+        description: Année de la semaine.
+      - name: week
+        description: Numéro de semaine.
+      - name: publisher_id
+        description: Identifiant du partenaire annonceur de la mission.
+        tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('publisher')
+                field: id
+      - name: from_publisher_id
+        description: Identifiant du diffuseur à l'origine de l'événement (nullable).
+        tests:
+          - relationships:
+              arguments:
+                to: ref('publisher')
+                field: id
+      - name: source
+        description: Source normalisée (api, widget, campaign).
+      - name: source_id
+        description: Identifiant de la source (nullable).
+      - name: publisher_category
+        description: Catégorie de mission (benevolat / volontariat).
+      - name: mission_domain
+        description: Domaine de la mission.
+      - name: mission_activity
+        description: Activité de la mission.
+      - name: mission_audience
+        description: Audience(s) de la mission.
+      - name: mission_tags
+        description: Tags associés à la mission.
+      - name: close_to_transport
+        description: Indique si la mission est proche des transports.
+      - name: description_length
+        description: Nombre de caractères dans la description.
+      - name: mission_duration_days
+        description: Durée de mission en jours (start_at/end_at).
+      - name: mission_count
+        description: Nombre de missions distinctes dans le grain.
+      - name: mission_with_click_count
+        description: Nombre de missions avec au moins un click.
+      - name: mission_with_apply_count
+        description: Nombre de missions avec au moins une candidature.
+      - name: avg_time_to_click_secs
+        description: Délai moyen (en secondes) avant premier click.
+      - name: avg_time_to_apply_secs
+        description: Délai moyen (en secondes) avant première candidature.
+      - name: avg_time_to_import_secs
+        description: Délai moyen (en secondes) entre posted_at et created_at.
+      - name: updated_at
+        description: Timestamp de dernière mise à jour propagé depuis les sources.
+        tests:
+          - not_null
+  - name: mission_time_to_event_monthly
+    description: >
+      Mart mensuel des délais (time-to-click/apply) et volumes, agrégé à partir
+      de `int_mission_first_events` au grain mission + diffuseur + source.
+    columns:
+      - name: month_start
+        description: Date de début de mois basée sur la création de mission.
+        tests:
+          - not_null
+      - name: year
+        description: Année du mois.
+      - name: month
+        description: Numéro du mois.
+      - name: publisher_id
+        description: Identifiant du partenaire annonceur de la mission.
+        tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('publisher')
+                field: id
+      - name: from_publisher_id
+        description: Identifiant du diffuseur à l'origine de l'événement (nullable).
+        tests:
+          - relationships:
+              arguments:
+                to: ref('publisher')
+                field: id
+      - name: source
+        description: Source normalisée (api, widget, campaign).
+      - name: source_id
+        description: Identifiant de la source (nullable).
+      - name: publisher_category
+        description: Catégorie de mission (benevolat / volontariat).
+      - name: mission_domain
+        description: Domaine de la mission.
+      - name: mission_activity
+        description: Activité de la mission.
+      - name: mission_audience
+        description: Audience(s) de la mission.
+      - name: mission_tags
+        description: Tags associés à la mission.
+      - name: close_to_transport
+        description: Indique si la mission est proche des transports.
+      - name: description_length
+        description: Nombre de caractères dans la description.
+      - name: mission_duration_days
+        description: Durée de mission en jours (start_at/end_at).
+      - name: mission_count
+        description: Nombre de missions distinctes dans le grain.
+      - name: mission_with_click_count
+        description: Nombre de missions avec au moins un click.
+      - name: mission_with_apply_count
+        description: Nombre de missions avec au moins une candidature.
+      - name: avg_time_to_click_secs
+        description: Délai moyen (en secondes) avant premier click.
+      - name: avg_time_to_apply_secs
+        description: Délai moyen (en secondes) avant première candidature.
+      - name: avg_time_to_import_secs
+        description: Délai moyen (en secondes) entre posted_at et created_at.
+      - name: updated_at
+        description: Timestamp de dernière mise à jour propagé depuis les sources.
+        tests:
+          - not_null
 
   - name: mission_active_monthly
     description: >
