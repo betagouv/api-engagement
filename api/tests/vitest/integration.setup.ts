@@ -38,14 +38,19 @@ beforeEach(async () => {
   if (prismaCore) {
     await prismaCore.$transaction([
       prismaCore.statEvent.deleteMany({}),
+      prismaCore.widgetPublisher.deleteMany({}),
+      prismaCore.widgetRule.deleteMany({}),
       prismaCore.widget.deleteMany({}),
       prismaCore.missionModerationStatus.deleteMany({}),
       prismaCore.missionAddress.deleteMany({}),
       prismaCore.missionEvent.deleteMany({}),
       prismaCore.mission.deleteMany({}),
+      prismaCore.publisherOrganization.deleteMany({}),
       prismaCore.organization.deleteMany({}),
       prismaCore.publisherDiffusion.deleteMany({}),
       prismaCore.publisher.deleteMany({}),
+      prismaCore.domain.deleteMany({}),
+      prismaCore.activity.deleteMany({}),
     ]);
   }
 });

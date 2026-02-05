@@ -3,6 +3,7 @@ import cookieParser from "cookie-parser";
 import cors from "cors";
 import express from "express";
 import passport from "../src/middlewares/passport";
+import IframeController from "../src/controllers/iframe";
 import RedirectController from "../src/controllers/redirect";
 import ActivityV2Controller from "../src/v2/activity";
 import MissionV0Controller from "../src/v0/mission/controller";
@@ -30,6 +31,7 @@ export const createTestApp = () => {
   app.use("/v0/view", ViewV0Controller);
   app.use("/r", RedirectController);
   app.use("/v2/activity", ActivityV2Controller);
+  app.use("/iframe", IframeController);
 
   // Error handler
   app.use((err: any, req: express.Request, res: express.Response, _: express.NextFunction) => {
