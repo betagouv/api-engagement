@@ -123,7 +123,7 @@ router.get("/:id/aggs", cors({ origin: "*" }), async (req: Request, res: Respons
   try {
     const params = zod
       .object({
-        id: zod.string().regex(/^[0-9a-fA-F]{24}$/),
+        id: zod.string(),
       })
       .safeParse(req.params);
 
