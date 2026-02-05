@@ -298,7 +298,6 @@ describe("Import missions job (integration test)", () => {
     await new Promise((resolve) => setTimeout(resolve, 10));
 
     // Second import with same XML (no startAt) - should preserve the existing startAt from DB
-    const secondImportDate = new Date();
     (global.fetch as any).mockResolvedValueOnce({ ok: true, text: async () => xmlWithoutStartAt });
 
     const result2 = await handler.handle({ publisherId: publisher.id });

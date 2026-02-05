@@ -1,34 +1,52 @@
 import { Prisma } from "../db/core";
 import { publisherOrganizationRepository } from "../repositories/publisher-organization";
-import { PublisherOrganizationFindParams, PublisherOrganizationRecord } from "../types/publisher-organization";
+import {
+  PublisherOrganizationFindManyOptions,
+  PublisherOrganizationFindParams,
+  PublisherOrganizationRecord,
+  PublisherOrganizationUpdateInput,
+} from "../types/publisher-organization";
+
+const buildWhere = (params: PublisherOrganizationFindParams): Prisma.PublisherOrganizationWhereInput => {
+  const where: Prisma.PublisherOrganizationWhereInput = {
+    publisherId: params.publisherId,
+  };
+  if (params.organizationClientId) {
+    where.organizationClientId = params.organizationClientId;
+  }
+  if (params.organizationClientIds) {
+    where.organizationClientId = { in: params.organizationClientIds };
+  }
+  if (params.name) {
+    where.name = params.name;
+  }
+  if (params.rna) {
+    where.rna = params.rna;
+  }
+  if (params.siren) {
+    where.siren = params.siren;
+  }
+  if (params.siret) {
+    where.siret = params.siret;
+  }
+  if (params.url) {
+    where.url = params.url;
+  }
+  if (params.verifiedAt) {
+    where.verifiedAt = params.verifiedAt;
+  }
+
+  return where;
+};
 
 const publisherOrganizationService = {
-  findMany: async (params: PublisherOrganizationFindParams): Promise<PublisherOrganizationRecord[]> => {
-    const where: Prisma.PublisherOrganizationWhereInput = {
-      publisherId: params.publisherId,
-    };
-    if (params.organizationClientId) {
-      where.organizationClientId = params.organizationClientId;
-    }
-    if (params.organizationClientIds) {
-      where.organizationClientId = { in: params.organizationClientIds };
-    }
-    if (params.name) {
-      where.name = params.name;
-    }
-    if (params.rna) {
-      where.rna = params.rna;
-    }
-    if (params.siren) {
-      where.siren = params.siren;
-    }
-    if (params.siret) {
-      where.siret = params.siret;
-    }
-    if (params.url) {
-      where.url = params.url;
-    }
-    return publisherOrganizationRepository.findMany({ where });
+  count: async (params: PublisherOrganizationFindParams): Promise<number> => {
+    const where = buildWhere(params);
+    return publisherOrganizationRepository.count({ where });
+  },
+  findMany: async (params: PublisherOrganizationFindParams, options: PublisherOrganizationFindManyOptions = {}): Promise<PublisherOrganizationRecord[]> => {
+    const where = buildWhere(params);
+    return publisherOrganizationRepository.findMany({ where, take: options.take, skip: options.skip });
   },
   create: async (params: Omit<PublisherOrganizationRecord, "id" | "createdAt" | "updatedAt">): Promise<PublisherOrganizationRecord> => {
     const data: Prisma.PublisherOrganizationCreateInput = {
@@ -59,7 +77,7 @@ const publisherOrganizationService = {
     }
     return publisherOrganizationRepository.create(data);
   },
-  update: async (id: string, params: Omit<PublisherOrganizationRecord, "id" | "createdAt" | "updatedAt">): Promise<PublisherOrganizationRecord> => {
+  update: async (id: string, params: PublisherOrganizationUpdateInput): Promise<PublisherOrganizationRecord> => {
     const data: Prisma.PublisherOrganizationUpdateInput = {
       name: params.name,
       rna: params.rna,
@@ -80,6 +98,7 @@ const publisherOrganizationService = {
       beneficiaries: params.beneficiaries,
       parentOrganizations: params.parentOrganizations,
       verifiedAt: params.verifiedAt,
+      verificationStatus: params.verificationStatus,
     };
     if (params.organizationIdVerified) {
       data.organizationVerified = { connect: { id: params.organizationIdVerified } };

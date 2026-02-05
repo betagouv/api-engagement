@@ -1,5 +1,5 @@
 export interface PublisherOrganizationFindParams {
-  publisherId: string;
+  publisherId?: string;
   organizationClientId?: string;
   organizationClientIds?: string[];
   name?: string;
@@ -7,8 +7,13 @@ export interface PublisherOrganizationFindParams {
   siren?: string;
   siret?: string;
   url?: string;
+  verifiedAt?: Date | null;
 }
 
+export interface PublisherOrganizationFindManyOptions {
+  take?: number;
+  skip?: number;
+}
 export interface PublisherOrganizationRecord {
   id: string;
   publisherId: string;
@@ -34,7 +39,10 @@ export interface PublisherOrganizationRecord {
 
   verifiedAt: Date | null;
   organizationIdVerified: string | null;
+  verificationStatus: string | null;
 
   createdAt: Date;
   updatedAt: Date;
 }
+
+export type PublisherOrganizationUpdateInput = Partial<Omit<PublisherOrganizationRecord, "id" | "createdAt" | "updatedAt">>;

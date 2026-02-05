@@ -66,5 +66,9 @@ export const publisherOrganizationRepository = {
       _count: true,
     });
   },
+
+  async count(params: Prisma.PublisherOrganizationCountArgs = {}): Promise<number> {
+    return prismaCore.publisherOrganization.count(params);
+  },
 };
 export default publisherOrganizationRepository;

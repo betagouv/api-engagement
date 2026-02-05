@@ -56,6 +56,8 @@ const parseSiren = (value: string | undefined) => {
   return { siret: null, siren: null };
 };
 
+const normalizeRNA = (value?: string | null) => (value || "").replace(/[^a-zA-Z0-9]/g, "").toUpperCase();
+
 export const parseOrganization = (publisher: PublisherRecord, missionXML: MissionXML): ImportedOrganization | null => {
   try {
     const organizationLogo = parseString(missionXML.organizationLogo);
@@ -64,17 +66,17 @@ export const parseOrganization = (publisher: PublisherRecord, missionXML: Missio
       publisherId: publisher.id,
       organizationClientId: parseString(missionXML.organizationClientId) || parseString(missionXML.organizationId),
       name: parseString(missionXML.organizationName),
-      rna: parseString(missionXML.organizationRNA) || parseString(missionXML.organizationRna) || "",
+      rna: normalizeRNA(parseString(missionXML.organizationRNA) || parseString(missionXML.organizationRna)),
       rnaVerified: null,
-      siren: siren || "",
+      siren: siren,
       sirenVerified: null,
-      siret: siret || "",
+      siret: siret,
       siretVerified: null,
       url: parseString(missionXML.organizationUrl),
-      logo: organizationLogo || publisher.defaultMissionLogo || "",
+      logo: organizationLogo || publisher.defaultMissionLogo,
       description: parseString(missionXML.organizationDescription),
-      legalStatus: parseString(missionXML.organizationStatusJuridique) || "",
-      type: parseString(missionXML.organizationType) || "",
+      legalStatus: parseString(missionXML.organizationStatusJuridique),
+      type: parseString(missionXML.organizationType),
       actions: parseStringArray(missionXML.keyActions) || [],
       fullAddress: parseString(missionXML.organizationFullAddress),
       postalCode: parseString(missionXML.organizationPostCode),
