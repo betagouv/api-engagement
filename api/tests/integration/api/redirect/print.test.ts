@@ -1,4 +1,4 @@
-import { Types } from "mongoose";
+import { randomUUID } from "node:crypto";
 import request from "supertest";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
@@ -22,8 +22,8 @@ describe("RedirectController /impression/:missionId/:publisherId", () => {
   it("returns 204 when identity is missing", async () => {
     vi.spyOn(utils, "identify").mockReturnValue(null);
 
-    const missionId = new Types.ObjectId().toString();
-    const publisherId = new Types.ObjectId().toString();
+    const missionId = randomUUID();
+    const publisherId = randomUUID();
     const response = await request(app).get(`/r/impression/${missionId}/${publisherId}`);
 
     expect(response.status).toBe(204);
@@ -34,8 +34,8 @@ describe("RedirectController /impression/:missionId/:publisherId", () => {
     const identity = { user: "user", referer: "https://ref", userAgent: "Mozilla" };
     vi.spyOn(utils, "identify").mockReturnValue(identity);
 
-    const missionId = new Types.ObjectId().toString();
-    const publisherId = new Types.ObjectId().toString();
+    const missionId = randomUUID();
+    const publisherId = randomUUID();
     const response = await request(app).get(`/r/impression/${missionId}/${publisherId}`);
 
     expect(response.status).toBe(404);
@@ -56,11 +56,11 @@ describe("RedirectController /impression/:missionId/:publisherId", () => {
       applicationUrl: "https://mission.example.com/apply",
       clientId: "mission-client-id",
       lastSyncAt: new Date(),
-      publisherId: new Types.ObjectId().toString(),
+      publisherId: randomUUID(),
       title: "Mission Title",
     });
 
-    const response = await request(app).get(`/r/impression/${mission._id.toString()}/${new Types.ObjectId().toString()}`);
+    const response = await request(app).get(`/r/impression/${mission.id}/${randomUUID()}`);
 
     expect(response.status).toBe(404);
     expect(response.body).toMatchObject({ ok: false, code: NOT_FOUND });
@@ -98,9 +98,9 @@ describe("RedirectController /impression/:missionId/:publisherId", () => {
     vi.spyOn(utils, "identify").mockReturnValue(identity);
     const statsBotFindOneSpy = vi.spyOn(statBotService, "findStatBotByUser").mockResolvedValue({ user: identity.user } as any);
 
-    const requestId = new Types.ObjectId().toString();
+    const requestId = randomUUID();
     const response = await request(app)
-      .get(`/r/impression/${mission._id.toString()}/${publisher.id}`)
+      .get(`/r/impression/${mission.id}/${publisher.id}`)
       .set("Host", "redirect.test")
       .set("Origin", "https://app.example.com")
       .query({ tracker: "tag", sourceId: widget.id, requestId });
@@ -122,7 +122,7 @@ describe("RedirectController /impression/:missionId/:publisherId", () => {
       source: "widget",
       sourceId: widget.id,
       sourceName: widget.name,
-      missionId: mission._id.toString(),
+      missionId: mission.id,
       missionClientId: mission.clientId,
       missionDomain: mission.domain,
       missionTitle: mission.title,
@@ -143,7 +143,7 @@ describe("RedirectController /impression/:missionId/:publisherId", () => {
       source: "widget",
       sourceId: widget.id,
       sourceName: widget.name,
-      missionId: mission._id.toString(),
+      missionId: mission.id,
       missionClientId: mission.clientId,
       missionDomain: mission.domain,
       missionTitle: mission.title,
@@ -184,7 +184,7 @@ describe("RedirectController /impression/:missionId/:publisherId", () => {
     vi.spyOn(utils, "identify").mockReturnValue(identity);
     vi.spyOn(statBotService, "findStatBotByUser").mockResolvedValue(null);
 
-    const response = await request(app).get(`/r/impression/${mission._id.toString()}/${publisher.id}`).query({ tracker: "tag" });
+    const response = await request(app).get(`/r/impression/${mission.id}/${publisher.id}`).query({ tracker: "tag" });
 
     expect(response.status).toBe(200);
     expect(response.body.ok).toBe(true);
@@ -198,7 +198,7 @@ describe("RedirectController /impression/:missionId/:publisherId", () => {
       source: "jstag",
       sourceId: "",
       isBot: false,
-      missionId: mission._id.toString(),
+      missionId: mission.id,
       toPublisherId: mission.publisherId,
     } as Partial<StatEventRecord>);
   });
