@@ -102,7 +102,7 @@ describe("RedirectController /apply", () => {
       sourceName: clickStat.sourceName,
       fromPublisherId: clickStat.fromPublisherId,
       toPublisherId: mission.publisherId,
-      missionId: mission._id.toString(),
+      missionId: mission.id,
       missionClientId: mission.clientId,
       isBot: true,
     });
@@ -205,9 +205,7 @@ describe("RedirectController /apply", () => {
       toPublisherId: "to-publisher-id",
     });
 
-    const response = await request(app)
-      .get("/r/apply")
-      .query({ view: "click-client-event", clientEventId: "client-event-apply-1" });
+    const response = await request(app).get("/r/apply").query({ view: "click-client-event", clientEventId: "client-event-apply-1" });
 
     expect(response.status).toBe(200);
     const storedApply = await prismaCore.statEvent.findUnique({ where: { id: response.body.id } });
