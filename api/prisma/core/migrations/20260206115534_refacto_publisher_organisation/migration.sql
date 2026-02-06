@@ -7,13 +7,18 @@
 -- DropForeignKey
 ALTER TABLE "mission" DROP CONSTRAINT "mission_organization_id_fkey";
 
+-- DropForeignKey
+ALTER TABLE "mission" DROP CONSTRAINT "mission_publisher_id_organization_client_id_fkey";
+
 -- AlterTable
-ALTER TABLE "mission" DROP COLUMN "organization_id";
+ALTER TABLE "mission" DROP COLUMN "organization_id",
+ADD COLUMN     "publisher_organization_id" TEXT;
 
 -- AlterTable
 ALTER TABLE "publisher_organization" ADD COLUMN     "actions" TEXT[] DEFAULT ARRAY[]::TEXT[],
 ADD COLUMN     "beneficiaries" TEXT[] DEFAULT ARRAY[]::TEXT[],
 ADD COLUMN     "city" TEXT,
+ADD COLUMN     "client_id" TEXT,
 ADD COLUMN     "description" TEXT,
 ADD COLUMN     "full_address" TEXT,
 ADD COLUMN     "legal_status" TEXT,
@@ -30,7 +35,12 @@ ADD COLUMN     "siret" TEXT,
 ADD COLUMN     "siret_verified" TEXT,
 ADD COLUMN     "type" TEXT,
 ADD COLUMN     "url" TEXT,
-ADD COLUMN     "verified_at" TIMESTAMP(3);
+ADD COLUMN     "verification_status" TEXT,
+ADD COLUMN     "verified_at" TIMESTAMP(3),
+ALTER COLUMN "organization_client_id" DROP NOT NULL;
+
+-- AddForeignKey
+ALTER TABLE "mission" ADD CONSTRAINT "mission_publisher_organization_id_fkey" FOREIGN KEY ("publisher_organization_id") REFERENCES "publisher_organization"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "publisher_organization" ADD CONSTRAINT "publisher_organization_organization_id_verified_fkey" FOREIGN KEY ("organization_id_verified") REFERENCES "organization"("id") ON DELETE SET NULL ON UPDATE CASCADE;
