@@ -15,7 +15,7 @@ const LocationCombobox = ({ id, selected, onSelect, placeholder, className }) =>
       return [];
     }
     try {
-      const res = await fetch(`https://api-adresse.data.gouv.fr/search?q=${search}&type=municipality&autocomplete=1&limit=6`).then((r) => r.json());
+      const res = await fetch(`https://data.geopf.fr/geocodage/search?q=${search}&type=municipality&autocomplete=1&limit=6`).then((r) => r.json());
       if (!res.features) {
         return [];
       }

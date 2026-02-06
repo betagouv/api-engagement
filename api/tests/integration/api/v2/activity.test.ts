@@ -115,7 +115,7 @@ describe("Activity V2 controller", () => {
       });
 
       const clickStat = await createClickStat("click-apply", {
-        missionId: mission._id.toString(),
+        missionId: mission.id,
         missionClientId: mission.clientId,
         missionDomain: "mission-domain",
         missionTitle: mission.title,
@@ -155,7 +155,7 @@ describe("Activity V2 controller", () => {
         clickId: clickStat._id,
         fromPublisherId: clickStat.fromPublisherId,
         toPublisherId: publisher.id,
-        missionId: mission._id.toString(),
+        missionId: mission.id,
         missionClientId: mission.clientId,
       });
     });

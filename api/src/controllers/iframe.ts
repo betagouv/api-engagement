@@ -20,6 +20,7 @@ const MISSION_FIELDS: MissionSelect = {
   moderationStatuses: { select: { title: true } },
   domain: { select: { name: true } },
   domainLogo: true,
+  publisherOrganization: { select: { organizationName: true } },
   organizationName: true,
   remote: true,
   addresses: { select: { city: true, country: true, postalCode: true } },
@@ -123,7 +124,7 @@ router.get("/:id/aggs", cors({ origin: "*" }), async (req: Request, res: Respons
   try {
     const params = zod
       .object({
-        id: zod.string().regex(/^[0-9a-fA-F]{24}$/),
+        id: zod.string(),
       })
       .safeParse(req.params);
 

@@ -21,8 +21,12 @@ export const font = localFont({
 });
 
 export const icomoon = localFont({
-  src: "../fonts/icomoon.woff",
-  weight: "normal",
-  style: "normal",
+  src: [
+    {
+      path: "../fonts/icomoon.woff",
+      weight: "400",
+      style: "normal",
+    },
+  ],
   variable: "--font-icomoon",
 });

@@ -90,7 +90,6 @@ const OrganizationTab = ({ data, onChange }) => {
               by="siren"
               getLabel={(o) => o?.siren || ""}
               placeholder="SIREN"
-              className="w-full"
             />
             <p className="text-text-mention text-xs">
               <span className="mr-1 font-semibold">SIREN d'origine:</span>
@@ -108,14 +107,15 @@ const OrganizationTab = ({ data, onChange }) => {
               onChange={(e) => setValues({ ...values, missionOrganizationRNAVerified: e })}
               onSelect={(e) =>
                 setValues({
+                  ...values,
                   missionOrganizationRNAVerified: e?.rna || null,
                   missionOrganizationSirenVerified: e?.siren || null,
+                  missionOrganizationId: e?.id,
                 })
               }
               by="rna"
               getLabel={(o) => o?.rna || ""}
               placeholder="RNA"
-              className="w-full"
             />
             <p className="text-text-mention text-xs">
               <span className="mr-1 font-semibold">RNA d'origine:</span>

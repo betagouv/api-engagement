@@ -123,20 +123,23 @@ const BarCharLabelList = ({ value, x, y, width, height }) => {
   );
 };
 
-const BarChartTooltip = ({ active, payload, label }) => {
+const BarChartTooltip = ({ active, payload, label, nameFormatter, tooltipName, tooltipValueFormatter }) => {
   if (active && payload && payload.length) {
+    const formattedLabel = nameFormatter ? nameFormatter(label) : label;
+    const formattedValue = tooltipValueFormatter ? tooltipValueFormatter(payload[0].value) : payload[0].value;
+    const resolvedName = tooltipName || payload[0].name;
     return (
       <div className="bg-white shadow-lg">
         <div className="text-text-mention bg-background-grey-hover w-full px-4 py-2 text-xs">
-          <p className="label">{label}</p>
+          <p className="label">{formattedLabel}</p>
         </div>
         <div className="space-y-2 p-4">
           <div className="flex items-center justify-between gap-4">
             <div className="flex items-center">
               <div className="mr-2 h-2 w-4" style={{ backgroundColor: payload[0].fill }} />
-              <p className="truncate text-xs font-bold">{payload[0].name}</p>
+              <p className="truncate text-xs font-bold">{resolvedName}</p>
             </div>
-            <p className="text-xs font-bold">{payload[0].value}</p>
+            <p className="text-xs font-bold">{formattedValue}</p>
           </div>
         </div>
       </div>
@@ -145,14 +148,16 @@ const BarChartTooltip = ({ active, payload, label }) => {
   return null;
 };
 
-export const BarChart = ({ data, dataKey = "Volume", nameKey = "name", color = COLORS[10] }) => {
+export const BarChart = ({ data, dataKey = "Volume", nameKey = "name", color = "#000091", nameFormatter, tooltipName, tooltipValueFormatter }) => {
   if (!data || !data.length) return;
+
+  const formattedData = nameFormatter ? data.map((item) => ({ ...item, [nameKey]: nameFormatter(item[nameKey]) })) : data;
 
   return (
     <ResponsiveContainer width="100%" height="100%">
-      <BarChartRechart data={data}>
-        <XAxis dataKey={nameKey} tickLine={false} axisLine={false} tick={{ fontSize: 12 }}></XAxis>
-        <Tooltip content={<BarChartTooltip />} />
+      <BarChartRechart data={formattedData}>
+        <XAxis dataKey={nameKey} tickLine={false} axisLine={false} tick={{ fontSize: 12 }} />
+        <Tooltip content={<BarChartTooltip nameFormatter={nameFormatter} tooltipName={tooltipName} tooltipValueFormatter={tooltipValueFormatter} />} />
         <Bar dataKey={dataKey} fill={color} barSize={30} radius={[2, 2, 0, 0]}>
           <LabelList dataKey={dataKey} content={<BarCharLabelList />} />
         </Bar>

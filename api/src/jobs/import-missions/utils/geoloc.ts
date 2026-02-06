@@ -3,7 +3,7 @@
 import { DEPARTMENTS } from "../../../constants/departments";
 
 import { captureException } from "../../../error";
-import { getAddressCsv } from "../../../services/data-gouv/api";
+import geopfService from "../../../services/geopf";
 import { GeolocStatus } from "../../../types";
 import type { PublisherRecord } from "../../../types/publisher";
 import type { ImportedMission } from "../types";
@@ -55,9 +55,9 @@ export const enrichWithGeoloc = async (publisher: PublisherRecord, missions: Imp
 
     if (csv.length > 1) {
       const csvString = csv.join("\n");
-      const results = await getAddressCsv(csvString);
+      const results = await geopfService.searchAddressesCsv(csvString);
       if (!results) {
-        console.log(`[${publisher.name}] No results from api-adresse for remaining addresses`);
+        console.log(`[${publisher.name}] No results from geopf for remaining addresses`);
         return updates;
       }
 
@@ -65,7 +65,7 @@ export const enrichWithGeoloc = async (publisher: PublisherRecord, missions: Imp
       const data = lines.map((line: string) => line.split(","));
       const header = data.shift();
       if (!header) {
-        throw new Error("No header in api-adresse results");
+        throw new Error("No header in geopf results");
       }
       const headerIndex: Record<string, number> = {};
       header.forEach((h: string, i: number) => (headerIndex[h] = i));

@@ -37,6 +37,7 @@ router.get("/apply", cors({ origin: "*" }), async (req: Request, res: Response) 
         customAttributes: zod.string().optional(),
         clientEventId: zod.string().optional(),
       })
+      .strict()
       .safeParse(req.query);
 
     if (!query.success) {
@@ -176,6 +177,7 @@ router.get("/account", cors({ origin: "*" }), async (req: Request, res: Response
         mission: zod.string().optional(),
         clientEventId: zod.string().optional(),
       })
+      .strict()
       .safeParse(req.query);
 
     if (!query.success) {
