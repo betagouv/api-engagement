@@ -218,18 +218,6 @@ export const createTestMission = async (data: Partial<MissionCreateInput & { del
         beneficiaries: missionInput.organizationBeneficiaries ?? [],
         actions: missionInput.organizationActions ?? [],
         parentOrganizations: missionInput.organizationReseaux ?? [],
-        // Legacy fields
-        organizationClientId: missionInput.organizationClientId,
-        organizationName: missionInput.organizationName ?? null,
-        organizationRNA: missionInput.organizationRNA ?? null,
-        organizationSiren: missionInput.organizationSiren ?? null,
-        organizationSiret: missionInput.organizationSiret ?? null,
-        organizationStatusJuridique: missionInput.organizationStatusJuridique ?? null,
-        organizationCity: missionInput.organizationCity ?? null,
-        organizationPostCode: missionInput.organizationPostCode ?? null,
-        organizationReseaux: missionInput.organizationReseaux ?? [],
-        organizationActions: missionInput.organizationActions ?? [],
-        organizationBeneficiaries: missionInput.organizationBeneficiaries ?? [],
       },
       update: {},
     });

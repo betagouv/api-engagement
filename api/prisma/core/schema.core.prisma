@@ -612,7 +612,7 @@ model Mission {
   moderationStatuses    MissionModerationStatus[]
   jobBoards             MissionJobBoard[]
 
-  // Legacy fields, kept during backfill
+  // TODO after migration: remove Legacy fields, kept during backfill
   organizationClientId               String?  @map("organization_client_id")
   organizationUrl                    String?
   organizationName                   String?
@@ -671,7 +671,6 @@ model PublisherOrganization {
   publisherId         String   @map("publisher_id")
   // TODO after migration: make clientId required
   clientId            String?  @map("client_id")
-  // new fields
   name                String?  @map("name")
   rna                 String?  @map("rna")
   rnaVerified         String?  @map("rna_verified")
@@ -691,7 +690,7 @@ model PublisherOrganization {
   beneficiaries       String[] @default([]) @map("beneficiaries")
   parentOrganizations String[] @default([]) @map("parent_organizations")
 
-  // Legacy fields, kept during backfill
+  // TODO after migration: remove Legacy fields, kept during backfill
   organizationClientId               String?  @map("organization_client_id")
   organizationName                   String?  @map("organization_name")
   organizationUrl                    String?  @map("organization_url")
@@ -733,9 +732,9 @@ model PublisherOrganization {
   publisher            Publisher     @relation(fields: [publisherId], references: [id], onDelete: Cascade)
   missions             Mission[]     @relation("MissionPublisherOrganization")
   organizationVerified Organization? @relation(fields: [organizationIdVerified], references: [id])
-  // @@unique([publisherId, clientId], map: "publisher_organization_publisher_id_client_id_key")
 
   // TODO after migration: change unique key to publisherId, clientId
+  // @@unique([publisherId, clientId], map: "publisher_organization_publisher_id_client_id_key")
   @@unique([publisherId, organizationClientId], map: "publisher_organization_publisher_id_organization_client_id_key")
   @@index([publisherId], map: "publisher_organization_publisher_id_idx")
   @@index([organizationName], map: "publisher_organization_organization_name_idx")
