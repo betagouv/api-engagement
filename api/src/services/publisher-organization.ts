@@ -46,7 +46,7 @@ const publisherOrganizationService = {
   },
   findMany: async (params: PublisherOrganizationFindParams, options: PublisherOrganizationFindManyOptions = {}): Promise<PublisherOrganizationRecord[]> => {
     const where = buildWhere(params);
-    return publisherOrganizationRepository.findMany({ where, take: options.take, skip: options.skip });
+    return publisherOrganizationRepository.findMany({ where, take: options.take, skip: options.skip, select: options.select ?? undefined });
   },
   create: async (params: Omit<PublisherOrganizationRecord, "id" | "createdAt" | "updatedAt">): Promise<PublisherOrganizationRecord> => {
     const data: Prisma.PublisherOrganizationCreateInput = {

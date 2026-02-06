@@ -1,7 +1,7 @@
 import { describe, expect, it, vi } from "vitest";
 
 import type { MissionRecord } from "../../../../types/mission";
-import type { PublisherRecord } from "../../../../types/publisher";
+import { PublisherMissionType, type PublisherRecord } from "../../../../types/publisher";
 import type { MissionXML } from "../../types";
 import { parseBool, parseCompensationUnit, parseDate, parseMission, parseNumber, parseRemote, parseStringArray } from "../mission";
 
@@ -27,7 +27,7 @@ const createPublisher = (overrides: Partial<PublisherRecord> = {}): PublisherRec
   feedPassword: null,
   apikey: null,
   description: "",
-  missionType: "benevolat",
+  missionType: PublisherMissionType.BENEVOLAT,
   isAnnonceur: true,
   hasApiRights: false,
   hasWidgetRights: false,
@@ -433,12 +433,12 @@ describe("parseMission", () => {
     });
 
     it("should set type from publisher missionType", () => {
-      const publisher = createPublisher({ missionType: "volontariat" });
+      const publisher = createPublisher({ missionType: PublisherMissionType.VOLONTARIAT_SAPEURS_POMPIERS });
       const missionXML = createMissionXML();
 
       const result = parseMission(publisher, missionXML, null, startTime);
 
-      expect(result?.type).toBe("volontariat");
+      expect(result?.type).toBe(PublisherMissionType.VOLONTARIAT_SAPEURS_POMPIERS);
     });
 
     it("should return null when parseMission encounters an error", () => {

@@ -1,6 +1,9 @@
+import { Prisma } from "../db/core";
 import { OrganizationRecord } from "./organization";
 
 export interface PublisherOrganizationFindParams {
+  id?: string;
+  ids?: string[];
   publisherId?: string;
   clientId?: string;
   clientIds?: string[];
@@ -13,6 +16,7 @@ export interface PublisherOrganizationFindParams {
 }
 
 export interface PublisherOrganizationFindManyOptions {
+  select?: Prisma.PublisherOrganizationSelect;
   take?: number;
   skip?: number;
 }
