@@ -95,7 +95,7 @@ const Widgets = () => {
             )}
           </div>
 
-          <Table header={TABLE_HEADER} pagination page={filters.page} pageSize={filters.pageSize} onPageChange={(page) => setFilters({ ...filters, page })} total={data.length}>
+          <Table header={TABLE_HEADER} pagination page={filters.page} pageSize={filters.pageSize} onPageChange={(page) => setFilters({ ...filters, page })} total={data.length} auto>
             {data.slice((filters.page - 1) * filters.pageSize, filters.page * filters.pageSize).map((item, i) => (
               <tr key={i} className={`${i % 2 === 0 ? "bg-gray-975" : "bg-gray-1000-active"} table-item`}>
                 <td className="px-4" colSpan={3}>

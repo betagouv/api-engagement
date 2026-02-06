@@ -194,7 +194,7 @@ const AnalyticsViz = ({
         <div className={showLegend ? "flex flex-col gap-4 md:flex-row" : ""}>
           {showLegend && (
             <div className="md:w-5/12">
-              <table className="w-full table-fixed text-xs">
+              <table className="w-full table-auto text-xs">
                 <thead className="text-text-mention text-left text-[10px] uppercase">
                   <tr>
                     <th className="px-2">Légende</th>

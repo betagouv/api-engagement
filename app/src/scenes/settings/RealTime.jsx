@@ -116,15 +116,15 @@ const RealTime = () => {
               <tr key={i} className={`${i % 2 === 0 ? "bg-gray-975" : "bg-gray-1000-active"} table-item h-auto md:h-16`}>
                 <td className="px-4 py-3 align-middle">
                   {item.missionId && item.missionTitle ? (
-                    <Link to={`/mission/${item.missionId}`} className="line-clamp-3 block max-w-64 hover:underline">
+                    <Link to={`/mission/${item.missionId}`} className="line-clamp-3 block max-w-prose hover:underline">
                       {item.missionTitle}
                     </Link>
                   ) : (
-                    <span className="block max-w-64">Campagne: {item.sourceName}</span>
+                    <span className="block max-w-prose">Campagne: {item.sourceName}</span>
                   )}
                 </td>
                 <td className="px-4 py-3 align-middle">
-                  <div className="inline-flex items-center gap-1 whitespace-nowrap">
+                  <div className="inline-flex items-center gap-1 flex-wrap">
                     <span>{item.type === "apply" ? "Candidature" : item.type === "click" ? "Redirection" : "Impression"}</span>
                     {tooltipId ? (
                       <Tooltip

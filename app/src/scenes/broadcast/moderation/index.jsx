@@ -191,6 +191,7 @@ const Moderation = () => {
 
       <div className="mx-12">
         <Table
+          auto
           header={[
             {
               title: (
