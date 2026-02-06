@@ -90,7 +90,7 @@ const Nav = () => {
   return (
     <nav role="navigation" aria-label="Navigation principale" className="flex w-full justify-center bg-white shadow-lg">
       <div className="flex w-full max-w-312 flex-wrap items-center justify-between pl-4">
-        <ul className="m-0 flex w-full list-none flex-wrap items-center justify-between p-0" role="list" aria-label="Menu principal">
+        <ul className="m-0 flex w-full list-none flex-wrap items-center justify-between gap-x-6 gap-y-2 p-0" role="list" aria-label="Menu principal">
           <li className="flex items-center gap-4 lg:gap-6">
             {publisher.isAnnonceur && (publisher.hasApiRights || publisher.hasWidgetRights || publisher.hasCampaignRights) && <FluxMenu value={flux} onChange={handleFluxChange} />}
             <ul className="m-0 flex list-none flex-wrap items-center gap-4 p-0 lg:gap-6">
