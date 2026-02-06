@@ -1,13 +1,5 @@
-import slugify from "slugify";
-
 import { ACTIVITIES } from "../constants/activity";
-
-/**
- * Slugify text, based on lib
- * Special case to &
- */
-slugify.extend({ "&": "", "'": "-" });
-const toSlug = (input: string) => slugify(input, { lower: true, strict: true });
+import { slugify } from "./string";
 
 // Both slugs and labels are matchable; output always normalises to the label.
 const LABEL_BY_NAME = new Map<string, string>(
@@ -54,13 +46,13 @@ export const splitActivityString = (activityString: string): string[] => {
       if (commaIdx === -1) {
         const trimmed = remaining.trim();
         if (trimmed) {
-          result.push(LABEL_BY_NAME.get(toSlug(trimmed)) ?? trimmed);
+          result.push(LABEL_BY_NAME.get(slugify(trimmed)) ?? trimmed);
         }
         break;
       } else {
         const trimmed = remaining.slice(0, commaIdx).trim();
         if (trimmed) {
-          result.push(LABEL_BY_NAME.get(toSlug(trimmed)) ?? trimmed);
+          result.push(LABEL_BY_NAME.get(slugify(trimmed)) ?? trimmed);
         }
         remaining = remaining.slice(commaIdx + 1);
       }
