@@ -29,35 +29,35 @@ const TrackingAnnounce = () => {
       <div className="border-grey-border space-y-8 border p-8">
         <h2 className="text-2xl font-bold">Tracking des événements</h2>
 
-        <div className="flex items-center justify-between gap-4 border-b border-b-gray-900 pb-6">
-          <div className="w-[35%]">
+        <div className="flex flex-wrap items-center gap-4 border-b border-b-gray-900 pb-6">
+          <div className="min-w-[200px] flex-1">
             <h3 className="text-base font-semibold">Commande de comptage d'une candidature</h3>
             <p className="text-text-mention max-w-sm text-xs">
               Lorsque vous enregistrez une candidature, effectuez cette commande chez vous nous permet de compter cette candidature.
             </p>
           </div>
-          <div className="flex flex-1 items-center gap-2">
-            <div className="border-blue-france-925 bg-blue-france-975 flex-1 rounded-none border px-4 py-2 text-sm whitespace-nowrap disabled:opacity-80">
-              window.apieng && window.apieng("trackApplication", <span className="text-warning font-['courier']">clientId</span>)
+          <div className="flex min-w-0 flex-1 items-center gap-2">
+            <div className="border-blue-france-925 bg-blue-france-975 min-w-0 flex-1 overflow-x-auto rounded-none border px-4 py-2 text-sm disabled:opacity-80">
+              <code className="whitespace-nowrap">window.apieng && window.apieng("trackApplication", <span className="text-warning">clientId</span>)</code>
             </div>
-            <button className="secondary-btn" onClick={() => handleCopyCommand(`window.apieng && window.apieng("trackApplication", "clientId")`)}>
+            <button className="secondary-btn shrink-0" onClick={() => handleCopyCommand(`window.apieng && window.apieng("trackApplication", "clientId")`)}>
               Copier
             </button>
           </div>
         </div>
         <div className="space-y-6 border-b border-b-gray-900 pb-6">
-          <div className="flex items-center justify-between gap-4">
-            <div className="w-[35%]">
+          <div className="flex flex-wrap items-center gap-4">
+            <div className="min-w-[200px] flex-1">
               <h3 className="text-base font-semibold">Commande de comptage d'une création de compte</h3>
               <p className="text-text-mention max-w-sm text-xs">
                 Lorsque vous enregistrez une création de compte, effectuez cette commande chez vous nous permet de compter cette création de compte.
               </p>
             </div>
-            <div className="flex flex-1 items-center gap-2">
-              <div className="border-blue-france-925 bg-blue-france-975 flex-1 rounded-none border px-4 py-2 text-sm whitespace-nowrap disabled:opacity-80">
-                window.apieng && window.apieng("trackAccount", <span className="text-warning font-['courier']">clientId</span>)
+            <div className="flex min-w-0 flex-1 items-center gap-2">
+              <div className="border-blue-france-925 bg-blue-france-975 min-w-0 flex-1 overflow-x-auto rounded-none border px-4 py-2 text-sm disabled:opacity-80">
+                <code className="whitespace-nowrap">window.apieng && window.apieng("trackAccount", <span className="text-warning">clientId</span>)</code>
               </div>
-              <button className="secondary-btn" onClick={() => handleCopyCommand(`window.apieng && window.apieng("trackAccount", "clientId")`)}>
+              <button className="secondary-btn shrink-0" onClick={() => handleCopyCommand(`window.apieng && window.apieng("trackAccount", "clientId")`)}>
                 Copier
               </button>
             </div>
@@ -72,12 +72,12 @@ const TrackingAnnounce = () => {
           </div>
         </div>
 
-        <div className="flex items-center justify-between">
-          <div>
+        <div className="flex flex-wrap items-center justify-between gap-4">
+          <div className="min-w-[200px] flex-1">
             <h3 className="text-base font-semibold">Script à integrer sur votre site</h3>
-            <p className="text-text-mention w-4/5 text-xs">{`Afin d’assurer le suivi des candidatures générées via l’API Engagement, ajoutez le script ci-dessous dans le <head></head> de votre page sur laquelle un bénévole candidate à une offre`}</p>
+            <p className="text-text-mention text-xs">{`Afin d'assurer le suivi des candidatures générées via l'API Engagement, ajoutez le script ci-dessous dans le <head></head> de votre page sur laquelle un bénévole candidate à une offre`}</p>
           </div>
-          <button className="secondary-btn" onClick={handleCopyScript}>
+          <button className="secondary-btn shrink-0" onClick={handleCopyScript}>
             Copier
           </button>
         </div>
