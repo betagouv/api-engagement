@@ -107,11 +107,15 @@ export class LetudiantHandler implements BaseHandler<LetudiantJobPayload, Letudi
             processedJobBoards.push({ missionAddressId: jobPayload.missionAddressId ?? null, publicId: pilotyJob.public_id, syncStatus });
 
             await rateLimit();
-          } catch (error) {
-            captureException(error, { extra: { missionId: mission.id, jobPayload } });
+          } catch (error: any) {
             counter.error++;
             const errorMessage = error instanceof Error ? error.message : "Unknown error";
             processedJobBoards.push({ missionAddressId: jobPayload.missionAddressId ?? null, publicId: letudiantPublicId ?? "", syncStatus: "ERROR", comment: errorMessage });
+            if (error instanceof PilotyError && error.status === 422) {
+              console.log(`[LetudiantHandler] Job ${mission.id} - ${jobPayload.payload.localisation} is invalid: ${errorMessage}`);
+            } else {
+              captureException(error, { extra: { missionId: mission.id, jobPayload } });
+            }
           }
         }
 
@@ -151,6 +155,7 @@ const getCompanyPilotyId = async (pilotyClient: PilotyClient, mission: MissionRe
       const pilotyCompany = await pilotyClient.createCompany(companyPayload);
       console.log(`[LetudiantHandler] Company ${organization.title} created (${pilotyCompany.public_id})`);
       pilotyCompanyPublicId = pilotyCompany.public_id;
+      await rateLimit();
     } catch (error) {
       if (error instanceof PilotyError && error.status === 409) {
         console.log(`[LetudiantHandler] Company ${organization.title} already exists (409)`);
