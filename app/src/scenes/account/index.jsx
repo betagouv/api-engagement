@@ -51,16 +51,17 @@ const Account = () => {
       <form onSubmit={handleSubmit} className="bg-white p-12 shadow-lg">
         <div className="mb-6 flex justify-between">
           <h2 className="text-3xl font-bold">Vos informations</h2>
-          <div
+          <button
+            type="button"
             className="text-error flex cursor-pointer items-center text-sm"
             onClick={() => {
               api.removeToken();
               setAuth(null, null);
             }}
           >
-            <TiDeleteOutline className="mr-2" />
-            <span>Se deconnecter</span>
-          </div>
+            <TiDeleteOutline className="mr-2" aria-hidden="true" />
+            Se deconnecter
+          </button>
         </div>
         <div className="grid grid-cols-2 gap-x-10 gap-y-5">
           <div className="flex flex-col">
@@ -203,10 +204,10 @@ const ResetPasswordModal = () => {
                 <label className="mb-2 text-sm" htmlFor="new-password">
                   Nouveau mot de passe
                 </label>
-                <div className="flex cursor-pointer items-center gap-1" onClick={() => setShowNewPassword(!showNewPassword)}>
-                  {showNewPassword ? <IoMdEyeOff className="text-blue-france" /> : <IoMdEye className="text-blue-france" />}
+                <button type="button" className="flex cursor-pointer items-center gap-1" onClick={() => setShowNewPassword(!showNewPassword)} aria-label={showNewPassword ? "Masquer le mot de passe" : "Afficher le mot de passe"}>
+                  {showNewPassword ? <IoMdEyeOff className="text-blue-france" aria-hidden="true" /> : <IoMdEye className="text-blue-france" aria-hidden="true" />}
                   <span className="text-blue-france text-xs font-bold">{showNewPassword ? "CACHER" : "AFFICHER"}</span>
-                </div>
+                </button>
               </div>
               <input
                 id="new-password"
@@ -229,10 +230,10 @@ const ResetPasswordModal = () => {
                 <label className="mb-2 text-sm" htmlFor="confirm-password">
                   Confirmez le nouveau mot de passe
                 </label>
-                <div className="flex cursor-pointer items-center gap-1" onClick={() => setShowConfirmPassword(!showConfirmPassword)}>
-                  {showConfirmPassword ? <IoMdEyeOff className="text-blue-france" /> : <IoMdEye className="text-blue-france" />}
+                <button type="button" className="flex cursor-pointer items-center gap-1" onClick={() => setShowConfirmPassword(!showConfirmPassword)} aria-label={showConfirmPassword ? "Masquer le mot de passe" : "Afficher le mot de passe"}>
+                  {showConfirmPassword ? <IoMdEyeOff className="text-blue-france" aria-hidden="true" /> : <IoMdEye className="text-blue-france" aria-hidden="true" />}
                   <span className="text-blue-france text-xs font-bold">{showConfirmPassword ? "CACHER" : "AFFICHER"}</span>
-                </div>
+                </button>
               </div>
               <input
                 id="confirm-password"
