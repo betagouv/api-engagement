@@ -65,7 +65,7 @@ const Filters = ({ filters, onChange, reload }) => {
       <div className="mb-4 flex w-full justify-start">
         <SearchInput value={filters.search} onChange={(e) => onChange({ ...filters, search: e })} placeholder="Rechercher" className="w-[40%]" />
       </div>
-      <div className="flex flex-wrap items-center gap-4 pb-4">
+      <div className="grid grid-cols-[repeat(auto-fill,minmax(200px,1fr))] gap-4 pb-4">
         <Select
           options={options.status.map((e) => ({ value: e.key, label: STATUS_PLR[e.key], count: e.doc_count }))}
           value={filters.status}
@@ -95,16 +95,14 @@ const Filters = ({ filters, onChange, reload }) => {
           onSelect={(organization) => onChange({ ...filters, organization: organization ? organization.value : null })}
           placeholder="Organisations"
           filters={`${options.publishers.map((p) => `publishers[]=${p.key}`).join("&")}&field=organizationName`}
-          className="w-96"
         />
       </div>
-      <div className="flex flex-wrap items-center gap-4 pb-6">
+      <div className="grid grid-cols-[repeat(auto-fill,minmax(200px,1fr))] gap-4 pb-6">
         <Select
           options={options.comments.map((e) => ({ value: e.key, label: JVA_MODERATION_COMMENTS_LABELS[e.key] || e.key, count: e.doc_count }))}
           value={filters.comment}
           onChange={(e) => onChange({ ...filters, comment: e.value })}
           placeholder="Motif de refus"
-          className="w-[612px]"
           loading={loading}
         />
         <Select
@@ -131,7 +129,6 @@ const Filters = ({ filters, onChange, reload }) => {
           value={filters.activity}
           onChange={(e) => onChange({ ...filters, activity: e.value })}
           placeholder="Activité"
-          className="right-0 w-80"
           loading={loading}
         />
       </div>
