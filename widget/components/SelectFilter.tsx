@@ -32,7 +32,7 @@ const SelectFilter = ({ options, value, onChange, id, placeholder = "Choissiez u
         onChange={handleChange}
         style={{ color: value?.value ? undefined : "#666" }}
       >
-        <option value="" disabled selected>
+        <option value="" disabled>
           {placeholder}
         </option>
         {(options || []).map((item, index) => (
