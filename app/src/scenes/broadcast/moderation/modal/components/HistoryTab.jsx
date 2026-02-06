@@ -30,7 +30,7 @@ const HistoryTab = ({ data }) => {
     };
 
     fetchData();
-  }, [data?.missionId, publisher.id]);
+  }, [data?.missionId, data?.updatedAt, publisher.id]);
 
   if (loading)
     return (
@@ -46,44 +46,48 @@ const HistoryTab = ({ data }) => {
         {status.length === 0 && modifications.length === 0 && <div className="text-text-mention text-center">Aucun événement de modération trouvé.</div>}
         {status.map((event, index) => (
           <Fragment key={index}>
-            {index !== 0 && <div className="ml-4 h-[30px] w-px bg-gray-900" />}
-            <div className="flex items-start justify-between gap-4">
-              <div className="flex flex-1 items-center gap-4">
-                {
-                  {
-                    ONGOING: (
-                      <div className="bg-blue-info-425 flex h-8 w-8 items-center justify-center rounded-full">
-                        <RiTimeLine className="text-white" size={16} />
-                      </div>
-                    ),
-                    PENDING: (
-                      <div className="bg-warning flex h-8 w-8 items-center justify-center rounded-full">
-                        <RiTimeLine className="text-white" size={16} />
-                      </div>
-                    ),
-                    ACCEPTED: (
-                      <div className="bg-success flex h-8 w-8 items-center justify-center rounded-full">
-                        <RiCheckboxCircleFill className="text-white" size={16} />
-                      </div>
-                    ),
-                    REFUSED: (
-                      <div className="bg-error flex h-8 w-8 items-center justify-center rounded-full">
-                        <RiCloseFill className="text-white" size={16} />
-                      </div>
-                    ),
-                  }[event.newStatus]
-                }
-                <p className="text-text-mention flex-1 text-base">
-                  <span className="text-black">{event.userName}</span> a passé le statut à <span className="font-semibold text-black">{STATUS[event.newStatus]}</span>
-                </p>
-              </div>
-
-              <span className="text-text-mention text-sm">{new Date(event.createdAt).toLocaleDateString("fr")}</span>
-            </div>
-
-            {event.newStatus === "REFUSED" && (
+            {event.newStatus !== null && (
               <>
-                <div className="ml-4 h-[30px] w-px bg-gray-900" />
+                {index !== 0 && <div className="ml-4 h-[30px] w-px bg-gray-900" />}
+                <div className="flex items-start justify-between gap-4">
+                  <div className="flex flex-1 items-center gap-4">
+                    {
+                      {
+                        ONGOING: (
+                          <div className="bg-blue-info-425 flex h-8 w-8 items-center justify-center rounded-full">
+                            <RiTimeLine className="text-white" size={16} />
+                          </div>
+                        ),
+                        PENDING: (
+                          <div className="bg-warning flex h-8 w-8 items-center justify-center rounded-full">
+                            <RiTimeLine className="text-white" size={16} />
+                          </div>
+                        ),
+                        ACCEPTED: (
+                          <div className="bg-success flex h-8 w-8 items-center justify-center rounded-full">
+                            <RiCheckboxCircleFill className="text-white" size={16} />
+                          </div>
+                        ),
+                        REFUSED: (
+                          <div className="bg-error flex h-8 w-8 items-center justify-center rounded-full">
+                            <RiCloseFill className="text-white" size={16} />
+                          </div>
+                        ),
+                      }[event.newStatus]
+                    }
+                    <p className="text-text-mention flex-1 text-base">
+                      <span className="text-black">{event.userName}</span> a passé le statut à <span className="font-semibold text-black">{STATUS[event.newStatus]}</span>
+                    </p>
+                  </div>
+
+                  <span className="text-text-mention text-sm">{new Date(event.createdAt).toLocaleDateString("fr")}</span>
+                </div>
+              </>
+            )}
+
+            {(event.newStatus === "REFUSED" || event.newComment !== null) && (
+              <>
+                {(event.newStatus !== null || index !== 0) && <div className="ml-4 h-[30px] w-px bg-gray-900" />}
                 <div className="flex items-start justify-between gap-4">
                   <div className="flex flex-1 items-center gap-4">
                     <div className="bg-error flex h-8 w-8 items-center justify-center rounded-full">

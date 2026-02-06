@@ -2,7 +2,7 @@ import { BiSolidInfoSquare } from "react-icons/bi";
 import { RiErrorWarningFill } from "react-icons/ri";
 
 import { useEffect, useState } from "react";
-import SearchSelect from "../../../components/SearchSelect";
+import Combobox from "../../../components/combobox";
 import api from "../../../services/api";
 import { captureError } from "../../../services/error";
 import { slugify } from "../../../services/utils";
@@ -123,12 +123,12 @@ const Information = ({ values, onChange, errors, onErrorChange }) => {
           <label className="text-sm" htmlFor="to-publisher-id">
             Diffuse les missions de<span className="text-error ml-1">*</span>
           </label>
-          <SearchSelect
+          <Combobox
             id="to-publisher-id"
             options={publishers.map((e) => ({ value: e.id, label: e.name }))}
             placeholder="Sélectionner un annonceur"
             value={values.toPublisherId || ""}
-            onChange={(e) => handleChange("toPublisherId", e.value)}
+            onSelect={(e) => (e ? handleChange("toPublisherId", e.value) : null)}
           />
           {errors.toPublisherId && (
             <div className="text-error flex items-center text-sm">

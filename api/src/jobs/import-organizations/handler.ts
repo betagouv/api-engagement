@@ -77,9 +77,7 @@ export class ImportOrganizationsHandler implements BaseHandler<ImportOrganizatio
       if (!response.ok || !response.body) {
         throw new Error(response.statusText);
       }
-      console.log(
-        `[ImportOrganizations] Response headers: content-type=${response.headers.get("content-type")} content-length=${response.headers.get("content-length")}`
-      );
+      console.log(`[ImportOrganizations] Response headers: content-type=${response.headers.get("content-type")} content-length=${response.headers.get("content-length")}`);
 
       const zipPath = `${folder}/${resource.id}.zip`;
       const dlStart = Date.now();

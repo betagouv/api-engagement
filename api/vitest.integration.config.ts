@@ -10,11 +10,7 @@ export default defineConfig({
     exclude: ["node_modules", "dist"],
     hookTimeout: 30000,
     pool: "threads",
-    poolOptions: {
-      threads: {
-        maxThreads: 1,
-        minThreads: 1,
-      },
-    },
+    maxWorkers: 1,
+    fileParallelism: false,
   },
 });

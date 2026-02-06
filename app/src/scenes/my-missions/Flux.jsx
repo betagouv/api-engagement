@@ -3,10 +3,11 @@ import { RiCheckboxCircleFill, RiFileDownloadLine, RiInformationLine } from "rea
 import { Link, useSearchParams } from "react-router-dom";
 
 import ErrorIconSvg from "../../assets/svg/error-icon.svg?react";
+import MissionCombobox from "../../components/combobox/MissionCombobox";
 import InfoAlert from "../../components/InfoAlert";
 import Loader from "../../components/Loader";
-import Select from "../../components/NewSelect";
 import SearchInput from "../../components/SearchInput";
+import Select from "../../components/Select";
 import Table from "../../components/Table";
 import Tooltip from "../../components/Tooltip";
 import { STATUS_PLR } from "../../constants";
@@ -15,8 +16,6 @@ import { captureError } from "../../services/error";
 import { compactMissionFilters, searchMissions } from "../../services/mission";
 import useStore from "../../services/store";
 import exportCSV from "../../services/utils";
-import SelectCity from "./components/SelectCity";
-import SelectOrganization from "./components/SelectOrganization";
 
 const TABLE_HEADER = [
   { title: "Mission", key: "title.keyword", colSpan: 4 },
@@ -163,8 +162,21 @@ const Flux = ({ moderated }) => {
             placeholder="Activités"
             loading={loading}
           />
-          <SelectCity value={filters.city} onChange={(city) => setFilters({ ...filters, city })} />
-          <SelectOrganization value={filters.organization} onChange={(organization) => setFilters({ ...filters, organization })} />
+          <MissionCombobox
+            id="city"
+            value={filters.city}
+            onSelect={(city) => setFilters({ ...filters, city: city ? city.value : null })}
+            placeholder="Villes"
+            filters={`publishers[]=${publisher.id}&field=city`}
+          />
+          <MissionCombobox
+            id="organization"
+            value={filters.organization}
+            onSelect={(organization) => setFilters({ ...filters, organization: organization ? organization.value : null })}
+            placeholder="Organisations"
+            filters={`publishers[]=${publisher.id}&field=organizationName`}
+            className="w-96"
+          />
         </div>
       </div>
 
@@ -175,9 +187,9 @@ const Flux = ({ moderated }) => {
             <div className="flex items-center gap-2">
               <p className="text-text-mention text-base">Dernière synchronisation le {lastImport ? new Date(lastImport.startedAt).toLocaleDateString("fr") : "N/A"}</p>
               {lastImport && new Date(lastImport.startedAt) > new Date(new Date().getFullYear(), new Date().getMonth(), new Date().getDate() - 1) ? (
-                <RiCheckboxCircleFill className="text-success text-base" />
+                <RiCheckboxCircleFill role="img" aria-label="OK" className="text-success text-base" />
               ) : (
-                <ErrorIconSvg alt="error" className="fill-error h-4 w-4" />
+                <ErrorIconSvg role="img" aria-label="Erreur" className="fill-error h-4 w-4" />
               )}
               <Link to="/settings" className="link">
                 Paraméter mon flux de missions
@@ -217,7 +229,11 @@ const Flux = ({ moderated }) => {
               <td className="px-4">{new Date(item.createdAt).toLocaleDateString("fr")}</td>
               <td className="px-6">
                 <div className="flex items-center gap-1">
-                  {item.statusCode === "ACCEPTED" ? <RiCheckboxCircleFill className="text-success text-2xl" /> : <ErrorIconSvg alt="error" className="fill-error h-6 w-6" />}
+                  {item.statusCode === "ACCEPTED" ? (
+                    <RiCheckboxCircleFill role="img" aria-label="OK" className="text-success text-2xl" />
+                  ) : (
+                    <ErrorIconSvg role="img" aria-label="Erreur" className="fill-error h-6 w-6" />
+                  )}
                   {item.statusComment ? (
                     <Tooltip
                       ariaLabel="Voir le commentaire de statut"

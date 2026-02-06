@@ -5,6 +5,13 @@ import { buildSearchParams, toUrl } from "../utils/url";
 import statEventService from "./stat-event";
 
 // Map MongoDB campaign type to Prisma enum
+
+export class CampaignAlreadyExistsError extends Error {
+  constructor(name: string) {
+    super(`Campaign with name ${name} already exists`);
+    this.name = "CampaignAlreadyExistsError";
+  }
+}
 export class InvalidUrlError extends Error {
   constructor(url: string) {
     super(`Invalid url: ${url}`);
@@ -113,36 +120,43 @@ export const campaignService = {
   },
 
   async createCampaign(input: CampaignCreateInput): Promise<CampaignRecord> {
-    const data: Prisma.CampaignCreateInput = {
-      id: input.id ?? undefined,
-      name: input.name.trim(),
-      type: input.type,
-      url: input.url,
-      urlSource: input.urlSource || null,
-      fromPublisher: { connect: { id: input.fromPublisherId.trim() } },
-      toPublisher: { connect: { id: input.toPublisherId.trim() } },
-      active: input.active ?? true,
-      deletedAt: input.deletedAt ?? null,
-      reassignedAt: input.reassignedAt ?? null,
-      reassignedByUser: input.reassignedByUserId ? { connect: { id: input.reassignedByUserId.trim() } } : undefined,
-      trackers: {
-        create: (input.trackers || []).map((tracker) => ({
-          key: tracker.key.trim(),
-          value: tracker.value.trim(),
-        })),
-      },
-    };
+    try {
+      const data: Prisma.CampaignCreateInput = {
+        id: input.id ?? undefined,
+        name: input.name.trim(),
+        type: input.type,
+        url: input.url,
+        urlSource: input.urlSource || null,
+        fromPublisher: { connect: { id: input.fromPublisherId.trim() } },
+        toPublisher: { connect: { id: input.toPublisherId.trim() } },
+        active: input.active ?? true,
+        deletedAt: input.deletedAt ?? null,
+        reassignedAt: input.reassignedAt ?? null,
+        reassignedByUser: input.reassignedByUserId ? { connect: { id: input.reassignedByUserId.trim() } } : undefined,
+        trackers: {
+          create: (input.trackers || []).map((tracker) => ({
+            key: tracker.key.trim(),
+            value: tracker.value.trim(),
+          })),
+        },
+      };
 
-    const searchParams = new URLSearchParams();
-    (input.trackers || []).forEach((tracker) => searchParams.append(tracker.key, tracker.value));
-    const baseUrl = data.url.split("?")[0];
-    data.url = `${baseUrl}${searchParams.size ? `?${searchParams.toString()}` : ""}`;
+      const searchParams = new URLSearchParams();
+      (input.trackers || []).forEach((tracker) => searchParams.append(tracker.key, tracker.value));
+      const baseUrl = data.url.split("?")[0];
+      data.url = `${baseUrl}${searchParams.size ? `?${searchParams.toString()}` : ""}`;
 
-    const campaign = await campaignRepository.create({
-      data,
-      include: this.defaultInclude,
-    });
-    return toCampaignRecord(campaign as CampaignEnriched);
+      const campaign = await campaignRepository.create({
+        data,
+        include: this.defaultInclude,
+      });
+      return toCampaignRecord(campaign as CampaignEnriched);
+    } catch (error: any) {
+      if (error.code === "P2002") {
+        throw new CampaignAlreadyExistsError(input.name);
+      }
+      throw error;
+    }
   },
 
   async updateCampaign(id: string, patch: CampaignUpdatePatch): Promise<CampaignRecord> {

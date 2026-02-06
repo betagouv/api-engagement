@@ -11,8 +11,8 @@ with mission_source as (
     p.name as publisher_name,
     coalesce(m.places, 0) as places,
     upper(coalesce(m.places_status, 'ATTRIBUTED_BY_API')) as places_status
-  from {{ source('public', 'Mission') }} as m
-  left join {{ ref('dim_publisher') }} as p on m.partner_id = p.partner_id
+  from {{ ref('stg_mission') }} as m
+  left join {{ ref('dim_publisher') }} as p on m.publisher_id = p.id
 ),
 
 missions as (

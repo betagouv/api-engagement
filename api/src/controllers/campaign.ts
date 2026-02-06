@@ -118,7 +118,10 @@ router.post("/", passport.authenticate("admin", { session: false }), async (req:
 
     const data = await campaignService.createCampaign(payload);
     return res.status(200).send({ ok: true, data: data });
-  } catch (error) {
+  } catch (error: any) {
+    if (error.name === "CampaignAlreadyExistsError") {
+      return res.status(409).send({ ok: false, code: RESSOURCE_ALREADY_EXIST, error: error.message });
+    }
     next(error);
   }
 });

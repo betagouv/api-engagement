@@ -16,15 +16,33 @@ with last_run as (
 
 base as (
   select
-    extract(year from active_date)::int as year,
-    extract(month from active_date)::int as month,
-    date_trunc('month', active_date)::date as month_start,
+    organization_id,
     department,
     publisher_category,
-    organization_id
-  from {{ ref('int_organization_active_daily') }}
+    start_date,
+    coalesce(end_date, current_date) as end_date
+  from {{ ref('int_organization_active_range') }}
+  where start_date is not null
+),
+
+active_months as (
+  select
+    extract(year from s.month_start)::int as year,
+    extract(month from s.month_start)::int as month,
+    s.month_start,
+    b.department,
+    b.publisher_category,
+    b.organization_id
+  from base as b
+  inner join lateral (
+    select generate_series(
+      date_trunc('month', b.start_date),
+      date_trunc('month', b.end_date),
+      interval '1 month'
+    )::date as month_start
+  ) as s on true
   {% if is_incremental() %}
-    where active_date >= (select lr.last_month_start from last_run as lr)
+    where s.month_start >= (select lr.last_month_start from last_run as lr)
   {% endif %}
 ),
 
@@ -37,7 +55,7 @@ dept as (
     department,
     publisher_category,
     count(distinct organization_id) as organization_count
-  from base
+  from active_months
   where department is not null
   group by year, month, month_start, department, publisher_category
 ),
@@ -51,7 +69,7 @@ dept_all_category as (
     department,
     'all' as publisher_category,
     count(distinct organization_id) as organization_count
-  from base
+  from active_months
   where department is not null
   group by year, month, month_start, department
 ),
@@ -65,7 +83,7 @@ all_dept as (
     null as department,
     publisher_category,
     count(distinct organization_id) as organization_count
-  from base
+  from active_months
   group by year, month, month_start, publisher_category
 ),
 
@@ -78,7 +96,7 @@ all_dept_all_category as (
     null as department,
     'all' as publisher_category,
     count(distinct organization_id) as organization_count
-  from base
+  from active_months
   group by year, month, month_start
 )
 

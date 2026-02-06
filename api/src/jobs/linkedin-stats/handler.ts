@@ -24,7 +24,7 @@ const downloadXlsx = async (url: string) => {
 
     return { overview, jobReporting };
   } catch (error) {
-    captureException(error, `Failed to download ${url}`);
+    captureException(error, { extra: { url } });
     return null;
   }
 };
@@ -33,27 +33,26 @@ const getData = async (email: Email) => {
   try {
     if (!email.fileObjectName) {
       // Link should be extracted, but try to extract it and download the file from the email once again
-      const link = await downloadFile(email);
-
-      if (link) {
-        console.log(`[Linkedin Stats] Found link in email ${email.id}: ${link}`);
-        email.fileObjectName = link;
-        await emailService.updateEmail(email.id, { fileObjectName: link });
-      } else {
-        captureException("[Linkedin Stats] No file found", `No file found in email ${email.id}`);
+      const result = await downloadFile(email);
+      if (!result) {
+        console.log("[Linkedin Stats] No file found");
         return;
       }
+      console.log(`[Linkedin Stats] Found link in email ${email.id}: ${result.link}`);
+      email.fileObjectName = result.objectName;
+      email.reportUrl = result.link;
+      await emailService.updateEmail(email.id, { fileObjectName: result.objectName, reportUrl: result.link });
     }
 
     const data = await downloadXlsx(email.fileObjectName);
     if (!data) {
-      captureException("[Linkedin Stats] Failed to download", `Failed to download link in email ${email.id}`);
+      console.log("[Linkedin Stats] Failed to download XLSX");
       return;
     }
 
     const dateRangeIndex = data.overview.findIndex((row) => row[0] === "Date range");
     if (dateRangeIndex === -1) {
-      captureException("[Linkedin Stats] No date range found", `No date range found in email ${email.id}`);
+      captureException("[Linkedin Stats] No date range found", { extra: { emailId: email.id, data: data.overview } });
       return;
     }
     const dateRange = data.overview[dateRangeIndex + 1][1].split(" - ").map((date) => new Date(date));
@@ -64,7 +63,7 @@ const getData = async (email: Email) => {
 
     return { data: data.jobReporting, from, to };
   } catch (error) {
-    captureException(error, `Failed to process email ${email.id}`);
+    captureException(error, { extra: { emailId: email.id } });
   }
 };
 
@@ -90,7 +89,7 @@ export class LinkedinStatsHandler implements BaseHandler<LinkedinStatsJobPayload
       if (!emails.length) {
         console.log(`[Linkedin Stats] No email to process`);
         return {
-          success: false,
+          success: true,
           timestamp: new Date(),
           message: "No email to process",
         };
@@ -132,7 +131,6 @@ export class LinkedinStatsHandler implements BaseHandler<LinkedinStatsJobPayload
 
       console.log(`[Linkedin Stats] Created ${result.created} stats`);
       if (result.failed.data.length) {
-        captureException("[Linkedin Stats] Failed to create stats", `Failed to create stats, ${JSON.stringify(result.failed.data, null, 2)}`);
         return {
           success: false,
           timestamp: new Date(),
@@ -140,8 +138,7 @@ export class LinkedinStatsHandler implements BaseHandler<LinkedinStatsJobPayload
         };
       }
     } catch (error: any) {
-      console.error(`[Linkedin Stats] Error for Linkedin`, error);
-      captureException(`Import linkedin flux failed`, `${error.message} while creating Linkedin flux`);
+      captureException(error, { extra: { message: error.message } });
       return {
         success: false,
         timestamp: new Date(),

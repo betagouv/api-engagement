@@ -1,6 +1,7 @@
 import { PUBLISHER_IDS } from "../config";
 import { Prisma } from "../db/core";
 import { prismaCore } from "../db/postgres";
+import { missionRepository } from "../repositories/mission";
 import { organizationRepository } from "../repositories/organization";
 import type { WidgetRecord } from "../types";
 import type { MissionRecord, MissionSearchFilters, MissionSelect } from "../types/mission";
@@ -104,21 +105,29 @@ const aggregateWidgetAggs = async (
   };
 
   const aggregateMissionListField = async (field: "tasks" | "audience") => {
+    // Step 1: Get filtered mission IDs (only IDs, not full missions)
     const missions = await prismaCore.mission.findMany({
       where,
-      select: { id: true, [field]: true } as any,
+      select: { id: true },
+      // Limit to prevent memory issues on extremely large datasets
+      // For most widgets, this should cover all missions. If more than 50k missions,
+      // aggregations will be based on a representative sample
+      take: 50000,
     });
 
-    const counts = new Map<string, number>();
-    missions.forEach((mission) => {
-      const values = Array.isArray((mission as any)[field]) ? ((mission as any)[field] as string[]) : [];
-      const unique = new Set(values.filter((v) => typeof v === "string" && v.length));
-      unique.forEach((value) => counts.set(value, (counts.get(value) ?? 0) + 1));
-    });
+    if (missions.length === 0) {
+      return [];
+    }
 
-    return Array.from(counts.entries())
-      .map(([key, doc_count]) => ({ key, doc_count }))
-      .sort((a, b) => b.doc_count - a.doc_count);
+    const missionIds = missions.map((m) => m.id);
+
+    // Step 2: Use repository method to aggregate array fields efficiently with UNNEST
+    const rows = await missionRepository.aggregateArrayField(missionIds, field);
+
+    return rows.map((row) => ({
+      key: row.value,
+      doc_count: row.count,
+    }));
   };
 
   const result: any = {};

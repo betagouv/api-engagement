@@ -3,10 +3,10 @@ import { RiCheckboxCircleFill, RiFileDownloadLine, RiInformationLine } from "rea
 import { Link, useSearchParams } from "react-router-dom";
 
 import ErrorIconSvg from "../../assets/svg/error-icon.svg?react";
+import Combobox from "../../components/combobox";
 import Loader from "../../components/Loader";
-import Select from "../../components/NewSelect";
 import SearchInput from "../../components/SearchInput";
-import SearchSelect from "../../components/SearchSelect";
+import Select from "../../components/Select";
 import Table from "../../components/Table";
 import Tooltip from "../../components/Tooltip";
 import { STATUS_PLR } from "../../constants";
@@ -149,11 +149,11 @@ const AdminMission = () => {
             onChange={(e) => setFilters({ ...filters, activity: e.value })}
             placeholder="Activité"
           />
-          <SearchSelect
+          <Combobox
             id="publisher"
-            options={options.partners.map((e) => ({ value: e._id, label: e.name, count: e.count }))}
+            options={options.partners.map((e) => ({ value: e.id, label: e.name, count: e.count }))}
             value={filters.publisherId}
-            onChange={(e) => setFilters({ ...filters, publisherId: e.value })}
+            onSelect={(e) => (e ? setFilters({ ...filters, publisherId: e.value }) : null)}
             placeholder="Partenaire"
           />
         </div>
@@ -164,11 +164,11 @@ const AdminMission = () => {
             onChange={(e) => setFilters({ ...filters, city: e.value })}
             placeholder="Ville"
           />
-          <SearchSelect
+          <Combobox
             id="department"
             options={options.departments.map((e) => ({ value: e.key === "" ? "none" : e.key, label: e.key === "" ? "Non renseignée" : e.key, count: e.doc_count }))}
             value={filters.department}
-            onChange={(e) => setFilters({ ...filters, department: e.value })}
+            onSelect={(e) => (e ? setFilters({ ...filters, department: e.value }) : null)}
             placeholder="Département"
           />
           <Select
@@ -187,9 +187,9 @@ const AdminMission = () => {
             <div className="flex items-center gap-2">
               <p className="text-text-mention text-base">Dernière synchronisation le {lastImport ? new Date(lastImport.startedAt).toLocaleDateString("fr") : "N/A"}</p>
               {lastImport && new Date(lastImport.startedAt) > new Date(new Date().getFullYear(), new Date().getMonth(), new Date().getDate() - 1) ? (
-                <RiCheckboxCircleFill className="text-success text-base" />
+                <RiCheckboxCircleFill role="img" aria-label="OK" className="text-success text-base" />
               ) : (
-                <ErrorIconSvg alt="error" className="fill-error h-4 w-4" />
+                <ErrorIconSvg role="img" aria-label="Erreur" className="fill-error h-4 w-4" />
               )}
             </div>
           </div>
@@ -226,7 +226,11 @@ const AdminMission = () => {
               <td className="px-4">{new Date(item.createdAt).toLocaleDateString("fr")}</td>
               <td className="px-6">
                 <div className="flex items-center gap-1">
-                  {item.statusCode === "ACCEPTED" ? <RiCheckboxCircleFill className="text-success text-2xl" /> : <ErrorIconSvg alt="error" className="fill-error h-6 w-6" />}
+                  {item.statusCode === "ACCEPTED" ? (
+                    <RiCheckboxCircleFill role="img" aria-label="OK" className="text-success text-2xl" />
+                  ) : (
+                    <ErrorIconSvg role="img" aria-label="Erreur" className="fill-error h-6 w-6" />
+                  )}
                   {item.statusComment ? (
                     <Tooltip
                       ariaLabel="Voir le commentaire de statut"

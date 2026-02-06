@@ -5,10 +5,10 @@ import { Link, useNavigate, useParams } from "react-router-dom";
 
 import { toast } from "../../services/toast";
 
+import Combobox from "../../components/combobox";
 import Dropdown from "../../components/Dropdown";
 import Loader from "../../components/Loader";
 import Modal from "../../components/New-Modal";
-import SearchSelect from "../../components/SearchSelect";
 import Toggle from "../../components/Toggle";
 import api from "../../services/api";
 import { API_URL } from "../../services/config";
@@ -297,11 +297,12 @@ const ReassignModal = ({ isOpen, onClose, campaign, values, setValues, setCampai
           Vers quel compte voulez-vous déplacer la campagne <span className="font-bold">{campaign.name}</span> ?
         </span>
         <div className="mt-8 flex flex-1 gap-2">
-          <SearchSelect
+          <Combobox
+            id="from-publisher-id"
             options={publishers.map((p) => ({ value: p.id, label: p.name }))}
             placeholder="Sélectionner un compte"
             value={values.fromPublisherId}
-            onChange={(e) => setValues({ ...values, fromPublisherId: e.value })}
+            onSelect={(e) => (e ? setValues({ ...values, fromPublisherId: e.value }) : null)}
           />
         </div>
         <div className="mt-10 flex justify-end gap-2">

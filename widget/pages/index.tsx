@@ -95,7 +95,7 @@ const Home = ({ widget, apiUrl, missions, total, request, environment }: PagePro
 
   const fetchLocation = async (lat: number, lon: number): Promise<Location | null> => {
     try {
-      const url = `https://api-adresse.data.gouv.fr/reverse?lon=${lon}&lat=${lat}&limit=1`;
+      const url = `https://data.geopf.fr/geocodage/reverse?lon=${lon}&lat=${lat}&limit=1`;
       const result = await fetch(url).then((response) => response.json());
       if (result.features?.length) {
         const feature = result.features[0];
@@ -242,7 +242,15 @@ const Home = ({ widget, apiUrl, missions, total, request, environment }: PagePro
         <div className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
           <h1 className="text-[28px] font-bold leading-[36px] md:p-0">{isBenevolat ? "Trouver une mission de bénévolat" : "Trouver une mission de Service Civique"}</h1>
         </div>
-        <Filters widget={widget} apiUrl={apiUrl} values={filters} total={total} onChange={(newFilters) => setFilters({ ...filters, ...newFilters, page: 1 })} show={showFilters} onShow={setShowFilters} />
+        <Filters
+          widget={widget}
+          apiUrl={apiUrl}
+          values={filters}
+          total={total}
+          onChange={(newFilters) => setFilters({ ...filters, ...newFilters, page: 1 })}
+          show={showFilters}
+          onShow={setShowFilters}
+        />
       </header>
       <div className={`w-full ${showFilters ? (widget?.style === "carousel" ? "hidden" : "opacity-40 pointer-events-none") : "h-auto"}`}>
         {widget?.style === "carousel" ? (

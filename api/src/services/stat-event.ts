@@ -599,48 +599,30 @@ async function aggregateStatEventsForMission({
 }
 
 async function findStatEventMissionStatsSummary(missionId: string): Promise<{ clicks: StatEventMissionStatsSummary[]; applications: StatEventMissionStatsSummary[] }> {
-  type MissionStatsSummaryGroup = { fromPublisherId: string | null; _count: { _all: number } };
+  // Use repository method with optimized SQL query (FILTER clause)
+  const rows = await statEventRepository.aggregateMissionStatsSummary(missionId);
 
-  const [clicksRaw, applicationsRaw] = await Promise.all([
-    statEventRepository.groupBy({
-      by: ["fromPublisherId"],
-      where: {
-        missionId,
-        isBot: false,
-        type: "click",
-      },
-      _count: { _all: true },
-    }),
-    statEventRepository.groupBy({
-      by: ["fromPublisherId"],
-      where: {
-        missionId,
-        isBot: false,
-        type: "apply",
-      },
-      _count: { _all: true },
-    }),
-  ]);
+  const publisherIds = rows.map((r) => r.fromPublisherId).filter((id): id is string => Boolean(id));
 
-  const clicks = clicksRaw as MissionStatsSummaryGroup[];
-  const applications = applicationsRaw as MissionStatsSummaryGroup[];
-
-  const publisherIds = Array.from(new Set([...clicks, ...applications].map((group) => group.fromPublisherId).filter((value): value is string => Boolean(value))));
   const publisherNameMap = await publisherService.getPublisherNameMap(publisherIds);
 
-  const mapGroup = (group: MissionStatsSummaryGroup): StatEventMissionStatsSummary => {
-    const key = group.fromPublisherId ?? "";
-    return {
-      key,
-      name: key ? publisherNameMap.get(key) : undefined,
-      doc_count: group._count._all,
-    };
-  };
+  const clicks: StatEventMissionStatsSummary[] = [];
+  const applications: StatEventMissionStatsSummary[] = [];
 
-  return {
-    clicks: clicks.map(mapGroup),
-    applications: applications.map(mapGroup),
-  };
+  rows.forEach((row) => {
+    const key = row.fromPublisherId ?? "";
+    const name = key ? publisherNameMap.get(key) : undefined;
+
+    if (row.clickCount > 0) {
+      clicks.push({ key, name, doc_count: row.clickCount });
+    }
+
+    if (row.applyCount > 0) {
+      applications.push({ key, name, doc_count: row.applyCount });
+    }
+  });
+
+  return { clicks, applications };
 }
 
 async function scrollStatEvents({ type, batchSize = 5000, cursor = null, filters }: ScrollStatEventsParams): Promise<ScrollStatEventsResult> {
