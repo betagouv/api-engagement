@@ -38,7 +38,7 @@ mission_activities as (
     ma.mission_id,
     string_agg(a.activity_name, ', ' order by a.activity_name) as activity_names
   from {{ ref('stg_mission_activity') }} as ma
-  inner join activities as a on ma.activity_id = a.activity_id
+  left join activities as a on ma.activity_id = a.activity_id
   group by ma.mission_id
 )
 
