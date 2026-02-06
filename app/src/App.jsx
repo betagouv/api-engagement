@@ -109,7 +109,7 @@ const AuthLayout = () => {
   if (user) return <Navigate to="/performance" replace={true} />;
 
   return (
-    <div className="bg-beige-gris-galet-975 flex min-h-screen w-screen min-w-3xl flex-col">
+    <div className="bg-beige-gris-galet-975 flex min-h-screen w-screen flex-col">
       <Header />
       <main id="main-content" role="main" tabIndex={-1} className="flex flex-1">
         <div className="flex-1">
@@ -211,7 +211,7 @@ const ProtectedLayout = () => {
   if (!user) return <Navigate to="/login" />;
 
   return (
-    <div className="bg-beige-gris-galet-975 flex min-h-screen w-screen min-w-3xl flex-col">
+    <div className="bg-beige-gris-galet-975 flex min-h-screen w-screen flex-col">
       {ENV === "staging" && (
         <div className="bg-error w-full p-2 text-center text-white">
           <span>Environnement de pré-prod</span>
@@ -252,7 +252,7 @@ const PublicLayout = () => {
   }, [location.pathname]);
 
   return (
-    <div className="bg-beige-gris-galet-975 flex min-h-screen w-screen min-w-3xl flex-col">
+    <div className="bg-beige-gris-galet-975 flex min-h-screen w-screen flex-col">
       <Header />
       {user ? <Nav /> : ""}
       <main
