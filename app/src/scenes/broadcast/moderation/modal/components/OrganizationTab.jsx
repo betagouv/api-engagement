@@ -10,15 +10,17 @@ import { DOMAINS } from "../../components/Constants";
 const OrganizationTab = ({ data, onChange }) => {
   const { publisher } = useStore();
   const [values, setValues] = useState({
-    missionOrganizationSirenVerified: data.missionOrganizationSirenVerified,
-    missionOrganizationRNAVerified: data.missionOrganizationRNAVerified,
+    organizationVerifiedId: data.missionOrganizationVerifiedId,
+    siren: data.missionOrganizationSirenVerified,
+    rna: data.missionOrganizationRNAVerified,
   });
   const [organizations, setOrganizations] = useState([]);
 
   useEffect(() => {
     setValues({
-      missionOrganizationSirenVerified: data.missionOrganizationSirenVerified,
-      missionOrganizationRNAVerified: data.missionOrganizationRNAVerified,
+      organizationVerifiedId: data.missionOrganizationVerifiedId,
+      siren: data.missionOrganizationSirenVerified,
+      rna: data.missionOrganizationRNAVerified,
     });
   }, [data]);
 
@@ -43,11 +45,12 @@ const OrganizationTab = ({ data, onChange }) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const obj = {};
-      if (values.missionOrganizationSirenVerified !== data.missionOrganizationSirenVerified) obj.missionOrganizationSirenVerified = values.missionOrganizationSirenVerified;
-      if (values.missionOrganizationRNAVerified !== data.missionOrganizationRNAVerified) obj.missionOrganizationRNAVerified = values.missionOrganizationRNAVerified;
-
-      const resU = await api.put(`/moderation/${data.id}`, { ...obj, moderatorId: publisher.id });
+      const resU = await api.put(`/moderation/${data.id}`, {
+        rna: values.rna ?? null,
+        siren: values.siren ?? null,
+        organizationVerifiedId: values.organizationVerifiedId ?? null,
+        moderatorId: publisher.id,
+      });
       if (!resU.ok) throw resU;
       toast.success("Les données de l'organisation ont été modifiées avec succès", {
         position: "bottom-right",
@@ -65,6 +68,13 @@ const OrganizationTab = ({ data, onChange }) => {
     }
   };
 
+  console.log("data", {
+    organizationVerifiedId: data.missionOrganizationVerifiedId,
+    siren: data.missionOrganizationSirenVerified,
+    rna: data.missionOrganizationRNAVerified,
+  });
+  console.log("values", values);
+
   return (
     <>
       <form className="flex h-full divide-x" onSubmit={handleSubmit}>
@@ -81,16 +91,13 @@ const OrganizationTab = ({ data, onChange }) => {
             </label>
             <Combobox
               options={organizations}
-              value={values.missionOrganizationSirenVerified}
+              value={values.siren}
               onSearch={fetchOrganizations}
-              onChange={(e) => setValues({ ...values, missionOrganizationSirenVerified: e })}
-              onSelect={(e) =>
-                setValues({ ...values, missionOrganizationSirenVerified: e?.siren || null, missionOrganizationId: e?.id, missionOrganizationRNAVerified: e?.rna || null })
-              }
+              onChange={(e) => setValues({ ...values, siren: e })}
+              onSelect={(e) => setValues({ ...values, siren: e?.siren || null, rna: e?.rna || null, organizationVerifiedId: e?.id })}
               by="siren"
               getLabel={(o) => o?.siren || ""}
               placeholder="SIREN"
-              className="w-full"
             />
             <p className="text-text-mention text-xs">
               <span className="mr-1 font-semibold">SIREN d'origine:</span>
@@ -103,26 +110,20 @@ const OrganizationTab = ({ data, onChange }) => {
             </label>
             <Combobox
               options={organizations}
-              value={values.missionOrganizationRNAVerified}
+              value={values.rna}
               onSearch={fetchOrganizations}
-              onChange={(e) => setValues({ ...values, missionOrganizationRNAVerified: e })}
-              onSelect={(e) =>
-                setValues({
-                  missionOrganizationRNAVerified: e?.rna || null,
-                  missionOrganizationSirenVerified: e?.siren || null,
-                })
-              }
+              onChange={(e) => setValues({ ...values, rna: e })}
+              onSelect={(e) => setValues({ ...values, rna: e?.rna || null, siren: e?.siren || null, organizationVerifiedId: e?.id })}
               by="rna"
               getLabel={(o) => o?.rna || ""}
               placeholder="RNA"
-              className="w-full"
             />
             <p className="text-text-mention text-xs">
               <span className="mr-1 font-semibold">RNA d'origine:</span>
               {data.missionOrganizationRNA ? data.missionOrganizationRNA : "/"}
             </p>
           </div>
-          {(values.missionOrganizationSirenVerified !== data.missionOrganizationSirenVerified || values.missionOrganizationRNAVerified !== data.missionOrganizationRNAVerified) && (
+          {(values.siren !== data.missionOrganizationSirenVerified || values.rna !== data.missionOrganizationRNAVerified) && (
             <button className="primary-btn mt-4 w-[25%]" type="submit">
               Enregistrer
             </button>

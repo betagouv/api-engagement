@@ -3,7 +3,6 @@ import passport from "passport";
 import zod from "zod";
 
 import { PUBLISHER_IDS } from "../config";
-import { PublisherOrganization } from "../db/core";
 import { FORBIDDEN, INVALID_BODY, INVALID_PARAMS, INVALID_QUERY, NOT_FOUND } from "../error";
 import publisherOrganizationRepository from "../repositories/publisher-organization";
 import { missionModerationStatusService } from "../services/mission-moderation-status";
@@ -12,6 +11,7 @@ import { publisherService } from "../services/publisher";
 import { UserRecord } from "../types";
 import { MissionModerationRecord, ModerationFilters } from "../types/mission-moderation-status";
 import type { UserRequest } from "../types/passport";
+import { PublisherOrganizationWithRelations } from "../types/publisher-organization";
 import { getModerationEvents, getModerationUpdates, getOrganizationUpdates } from "../utils/mission-moderation-status";
 
 const router = Router();
@@ -260,7 +260,7 @@ router.put("/many", passport.authenticate("user", { session: false }), async (re
         note: null,
         title: null,
       } as MissionModerationRecord;
-      const events = getModerationEvents(previous, obj, null);
+      const events = getModerationEvents(previous, obj);
       allModerationEvents.push(...events);
     }
 
@@ -290,8 +290,9 @@ router.put("/:id", passport.authenticate("user", { session: false }), async (req
         comment: zod.string().nullable().optional(),
         title: zod.string().nullable().optional(),
         note: zod.string().nullable().optional(),
-        missionOrganizationRNAVerified: zod.string().nullable().optional(),
-        missionOrganizationSirenVerified: zod.string().nullable().optional(),
+        rna: zod.string().nullable().optional(),
+        siren: zod.string().nullable().optional(),
+        organizationVerifiedId: zod.string().nullable().optional(),
         moderatorId: zod.string(),
       })
       .safeParse(req.body);
@@ -325,29 +326,29 @@ router.put("/:id", passport.authenticate("user", { session: false }), async (req
     if (!previous) {
       return res.status(404).send({ ok: false, code: NOT_FOUND });
     }
+    let updated = { ...previous };
 
     // Update mission fields (organization verification)
     const organizationUpdates = getOrganizationUpdates(body.data, previous);
-    let organizationUpdated: PublisherOrganization | null = null;
-    if (organizationUpdates && previous.missionOrganizationClientId) {
-      organizationUpdated = await publisherOrganizationRepository.updateByPublisherAndClientId({
-        publisherId: previous.missionPublisherId,
-        organizationClientId: previous.missionOrganizationClientId,
-        update: organizationUpdates,
-      });
-      previous.missionOrganizationRNAVerified = organizationUpdated.organizationRNAVerified;
-      previous.missionOrganizationSirenVerified = organizationUpdated.organizationSirenVerified;
+    if (organizationUpdates && previous.missionPublisherOrganizationId) {
+      const organizationUpdated = (await publisherOrganizationRepository.update(previous.missionPublisherOrganizationId, organizationUpdates, {
+        include: { organizationVerified: true },
+      })) as PublisherOrganizationWithRelations;
+      updated.missionOrganizationRNA = organizationUpdated.rna ?? null;
+      updated.missionOrganizationSiren = organizationUpdated.siren ?? null;
+      updated.missionOrganizationRNAVerified = organizationUpdated.organizationVerified?.rna ?? null;
+      updated.missionOrganizationSirenVerified = organizationUpdated.organizationVerified?.siren ?? null;
+      updated.missionOrganizationVerifiedId = organizationUpdated.organizationIdVerified ?? null;
     }
 
     // Update moderation status in dedicated table
     const updates = getModerationUpdates(body.data);
-    let updated = { ...previous };
     if (updates) {
       updated = await missionModerationStatusService.update(previous.id, updates);
     }
 
     // Create moderation events for audit
-    const moderationEvents = getModerationEvents(previous, updated, organizationUpdated);
+    const moderationEvents = getModerationEvents(previous, updated);
     if (moderationEvents.length) {
       await moderationEventService.createModerationEvents(
         moderationEvents.map((event) => ({

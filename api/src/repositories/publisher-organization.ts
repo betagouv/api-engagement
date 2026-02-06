@@ -2,6 +2,7 @@ import { randomUUID } from "node:crypto";
 
 import { Prisma, PublisherOrganization } from "../db/core";
 import { prismaCore } from "../db/postgres";
+import { PublisherOrganizationWithRelations } from "../types/publisher-organization";
 
 export const publisherOrganizationRepository = {
   async findMany(params: Prisma.PublisherOrganizationFindManyArgs = {}): Promise<PublisherOrganization[]> {
@@ -52,10 +53,11 @@ export const publisherOrganizationRepository = {
     });
   },
 
-  async update(id: string, params: Prisma.PublisherOrganizationUpdateInput): Promise<PublisherOrganization> {
+  async update(id: string, params: Prisma.PublisherOrganizationUpdateInput, options = {}): Promise<PublisherOrganization | PublisherOrganizationWithRelations> {
     return prismaCore.publisherOrganization.update({
       where: { id },
       data: params,
+      ...options,
     });
   },
 

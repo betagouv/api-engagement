@@ -8,6 +8,7 @@ import { missionModerationStatusRepository } from "../repositories/mission-moder
 import { publisherRepository } from "../repositories/publisher";
 import publisherOrganizationRepository from "../repositories/publisher-organization";
 import { MissionModerationRecord, ModerationFilters } from "../types/mission-moderation-status";
+import { PublisherOrganizationWithRelations } from "../types/publisher-organization";
 import { buildWhere } from "../utils/mission-moderation-status";
 
 export type MissionModerationStatusUpdatePatch = Pick<Prisma.MissionModerationStatusCreateInput, "status" | "comment" | "note" | "title">;
@@ -17,16 +18,7 @@ type MissionModerationWithRelations = MissionModerationStatus & {
     domain: { name: string } | null;
     publisher: { name: string | null };
     addresses: { city: string | null; departmentCode: string | null; departmentName: string | null; postalCode: string | null }[];
-    publisherOrganization: {
-      id: string;
-      organizationName: string;
-      organizationClientId: string | null;
-      organizationRNA: string | null;
-      organizationSiren: string | null;
-      organizationSirenVerified: string | null;
-      organizationSiretVerified: string | null;
-      organizationRNAVerified: string | null;
-    } | null;
+    publisherOrganization: PublisherOrganizationWithRelations;
   };
 };
 
@@ -58,12 +50,13 @@ const toRecord = (status: MissionModerationWithRelations): MissionModerationReco
     missionDepartmentName: primaryAddress.departmentName || null,
     missionPostalCode: primaryAddress.postalCode ?? null,
     missionPublisherOrganizationId: publisherOrganization?.id ?? null,
-    missionOrganizationName: publisherOrganization?.organizationName ?? null,
-    missionOrganizationClientId: publisherOrganization?.organizationClientId ?? null,
-    missionOrganizationSirenVerified: publisherOrganization?.organizationSirenVerified ?? null,
-    missionOrganizationRNAVerified: publisherOrganization?.organizationRNAVerified ?? null,
-    missionOrganizationSiren: publisherOrganization?.organizationSiren ?? null,
-    missionOrganizationRNA: publisherOrganization?.organizationRNA ?? null,
+    missionOrganizationName: publisherOrganization?.name ?? null,
+    missionOrganizationClientId: publisherOrganization?.clientId ?? null,
+    missionOrganizationSirenVerified: publisherOrganization?.organizationVerified?.siren ?? null,
+    missionOrganizationRNAVerified: publisherOrganization?.organizationVerified?.rna ?? null,
+    missionOrganizationSiren: publisherOrganization?.siren ?? null,
+    missionOrganizationRNA: publisherOrganization?.rna ?? null,
+    missionOrganizationVerifiedId: publisherOrganization?.organizationVerified?.id ?? null,
   };
 };
 
@@ -76,12 +69,18 @@ const baseInclude = {
       publisherOrganization: {
         select: {
           id: true,
-          organizationName: true,
-          organizationClientId: true,
-          organizationRNA: true,
-          organizationSiren: true,
-          organizationSirenVerified: true,
-          organizationRNAVerified: true,
+          name: true,
+          clientId: true,
+          rna: true,
+          siren: true,
+          organizationVerified: {
+            select: {
+              id: true,
+              rna: true,
+              siren: true,
+              siret: true,
+            },
+          },
         },
       },
     },
